@@ -1,0 +1,93 @@
+<!--
+  ~ Copyright 2018 Google LLC
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     https://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<resources>
+
+  <style name="AppTheme" parent="AppTheme.Base">
+
+  </style>
+
+  <style name="MenuTheme" parent="TextAppearance.AppCompat.Widget.ActionBar.Menu">
+
+  </style>
+
+  <style name="AppTheme.Base" parent="Theme.AppCompat.Light.NoActionBar">
+    <item name="colorPrimary">@color/colorPrimary</item>
+    <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+    <item name="colorAccent">@color/colorAccent</item>I
+    <item name="windowActionBar">false</item>
+    <item name="windowNoTitle">true</item>
+  </style>
+
+  <style name="ToolbarTheme" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
+  </style>
+
+  <style name="Toolbar.Title" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">
+    <item name="android:textColor">@color/colorWhite</item>
+  </style>
+
+  <style name="Toolbar.Subtitle" parent="TextAppearance.Widget.AppCompat.Toolbar.Subtitle">
+    <item name="android:textColor">@color/colorGrey300</item>
+  </style>
+
+  <style name="FormSelectorTabStyle" parent="Widget.Design.TabLayout">
+    <!--<item name="tabMaxWidth">0dp</item>-->
+    <item name="tabIndicatorColor">?attr/colorAccent</item>
+    <item name="tabIndicatorHeight">2dp</item>
+    <item name="tabPaddingStart">12dp</item>
+    <item name="tabPaddingEnd">12dp</item>
+    <item name="tabMode">fixed</item>
+    <item name="tabBackground">?colorPrimaryDark</item>
+    <item name="tabTextAppearance">@style/FormSelectorTabTextStyle</item>
+    <item name="tabSelectedTextColor">?android:textColorPrimaryInverse</item>
+  </style>
+
+  <style name="FormSelectorTabTextStyle" parent="TextAppearance.Design.Tab">
+    <item name="android:textSize">10sp</item>
+    <item name="android:textColor">@color/colorPrimaryLight</item>
+    <item name="textAllCaps">true</item>
+  </style>
+
+  <style name="FieldLabel" parent="AppTheme.Base">
+    <item name="android:paddingLeft">@dimen/field_horizontal_padding</item>
+    <item name="android:paddingRight">@dimen/field_horizontal_padding</item>
+    <item name="android:textColor">@color/field_label</item>
+    <item name="android:textSize">@dimen/field_label</item>
+  </style>
+
+  <style name="FieldValue" parent="AppTheme.Base">
+    <item name="android:paddingLeft">@dimen/field_horizontal_padding</item>
+    <item name="android:paddingRight">@dimen/field_horizontal_padding</item>
+    <item name="android:textColor">@color/field_value</item>
+    <item name="android:textSize">@dimen/field_value</item>
+  </style>
+
+  <style name="InputError" parent="AppTheme.Base">
+    <item name="android:paddingLeft">@dimen/field_horizontal_padding</item>
+    <item name="android:paddingRight">@dimen/field_horizontal_padding</item>
+    <item name="android:textColor">@color/colorRed</item>
+    <item name="android:textSize">@dimen/input_error</item>
+  </style>
+
+  <style name="TextInputHintLight" parent="TextAppearance.AppCompat">
+    <item name="android:textColor">@color/colorPrimaryLight</item>
+    <item name="android:textSize">@dimen/field_label</item>
+  </style>
+
+  <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar"/>
+
+  <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light"/>
+</resources>

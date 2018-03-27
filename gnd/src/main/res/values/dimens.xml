@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright 2018 Google LLC
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     https://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<resources>
+  <dimen name="field_label">14sp</dimen>
+  <dimen name="field_value">16sp</dimen>
+  <dimen name="field_vertical_margin">2dp</dimen>
+  <dimen name="field_value_top_padding">6dp</dimen>
+  <dimen name="record_vertical_margin">12dp</dimen>
+  <dimen name="feature_menu_btn_top">6dp</dimen>
+
+  <!-- Space between fields in Record Details View -->
+  <dimen name="details_field_spacing">4dp</dimen>
+
+  <!-- Record menu button -->
+  <dimen name="record_menu_btn_top">6dp</dimen>
+  <dimen name="menu_btn_width">24dp</dimen>
+  <dimen name="menu_btn_height">24dp</dimen>
+
+  <!-- Sheet title -->
+  <dimen name="sheet_title_text_size">20sp</dimen>
+  <dimen name="sheet_title_horizontal_margin">10dp</dimen>
+  <dimen name="sheet_title_top_margin">8dp</dimen>
+
+  <dimen name="field_horizontal_margin">12dp</dimen>
+  <dimen name="header_field_horizontal_margin">12dp</dimen>
+
+  <!-- Form selection tabs -->
+  <dimen name="tab_max_width">264dp</dimen>
+  <dimen name="tab_padding_bottom">16dp</dimen>
+  <dimen name="tab_label">14sp</dimen>
+  <dimen name="custom_tab_layout_height">72dp</dimen>
+  <dimen name="field_horizontal_padding">4dp</dimen>
+  <dimen name="input_error">12sp</dimen>
+  <dimen name="record_menu_btn_right">2dp</dimen>
+  <dimen name="map_btn_spacing">8dp</dimen>
+  <dimen name="map_btn_margin_right">8dp</dimen>
+  <dimen name="map_btn_margin_bottom">8dp</dimen>
+  <dimen name="sheet_btn_margin_bottom">8dp</dimen>
+  <dimen name="sheet_btn_margin_right">8dp</dimen>
+  <dimen name="fab_margin">16dp</dimen>
+  <dimen name="sheet_subtitle_text_size">14dp</dimen>
+  <dimen name="record_heading_height">32dp</dimen>
+  <dimen name="record_status_margin_left">6dp</dimen>
+  <dimen name="record_status_text_size">12sp</dimen>
+  <dimen name="data_sheet_header_height">70dp</dimen>
+  <dimen name="field_error_padding_bottom">6dp</dimen>
+</resources>

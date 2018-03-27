@@ -1,0 +1,127 @@
+<!--
+  ~ Copyright 2018 Google LLC
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     https://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<resources>
+  <!-- Application name. Do not translate. -->
+  <string name="app_name" translatable="false">Ground</string>
+
+  <!-- Message shown while project is loading. -->
+  <string name="project_loading_please_wait">Project loading, please wait...</string>
+
+  <!--
+    ADD/EDIT PLACE DATA
+  -->
+
+  <!-- Title shown above list of place types when (+) is clicked on map. -->
+  <string name="add_place_select_type_dialog_title">What would you like to add?</string>
+  <!-- Text shown to dismiss "Add a place" dialog -->
+  <string name="add_place_cancel">Cancel</string>
+
+  <!-- Shown in toolbar when adding a new place and form instance. -->
+  <string name="add_place_toolbar_title">Add a place</string>
+  <!-- Shown in toolbar when editing an existing record (form instance). -->
+  <string name="edit_place_data_toolbar_title">Edit place data</string>
+  <!-- Shown in toolbar when adding a new record (form instance) to a place. -->
+  <string name="add_place_data_toolbar_title">Add place data</string>
+  <!-- Shown in toolbar to save changes to place data. -->
+  <string name="save">Save</string>
+  <!-- Shown when leaving edit mode without saving changes. -->
+  <string name="unsaved_changes">Save changes before closing?</string>
+  <string name="save_unsaved_changes">Save</string>
+  <string name="continue_editing">Continue editing</string>
+  <string name="close_without_saving">Close without saving</string>
+  <!-- Shown on save when connection was not available. -->
+  <string name="save_queued">Saved locally, queued for sync.</string>
+  <!-- Shown on save when connection is available (TBD). -->
+  <string name="saved">Changes saved.</string>
+
+  <!--
+    PLACE DATA FORMS
+  -->
+
+  <!-- Text in multiple-choice popup dialogs that when clicked, applied new selection to form -->
+  <string name="apply_multiple_choice_changes">Apply</string>
+  <!-- Text in multiple-choice popup dialogs that when clicked, discards any changes made. -->
+  <string name="discard_multiple_choice_changes">Cancel</string>
+  <!-- Shown below fields that are required but left empty (TBD). -->
+  <string name="required_field">This field is required</string>
+
+  <!--
+    VIEW PLACE DATA
+  -->
+
+  <!-- Shown in record overflow menu to open popup dialog to edit place metadata. -->
+  <string name="edit_record">Edit</string>
+  <!-- Shown in record overflow menu to delete a record. -->
+  <string name="delete_record">Delete</string>
+  <!-- Confirmation shown when deleting a record (TBD). -->
+  <string name="delete_record_confirmation">
+    This will permanently delete the selected record. This cannot be undone. Are you sure?
+  </string>
+  <!--
+    Shown above saved records (forms) that have been submitted. %1$s placeholder will already be
+    translated, and it will contain the "time ago" that the record was received by the server
+    (e.g., "Submitted 2 min ago").
+   -->
+  <string name="submitted_status">Submitted %1$s</string>
+  <!--
+    Shown above saved records (forms) that have been submitted and subsequently modified. %1$s
+    placeholder will already be translated, and it will contain the "time ago" that the changes were
+    last received by the server (e.g., "Updated 1 min ago").
+   -->
+  <string name="updated_status">Updated %1$s</string>
+
+  <!--
+    IN BOTH ADD/EDIT AND VIEW PLACE SCREENS
+  -->
+
+  <!-- Shown in toolbar overflow menu to enter "move" mode to reposition a place (TBD). -->
+  <string name="move_place">Move</string>
+  <!-- Shown in toolbar overflow menu to open popup dialog to edit place metadata. -->
+  <string name="edit_place_id_and_caption">Edit ID &amp; caption</string>
+  <!-- Shown in edit id/caption popup (TBD) above place ID. -->
+  <string name="place_id">ID</string>
+  <!-- Shown in edit id/caption popup (TBD) above place caption. -->
+  <string name="place_caption">Caption</string>
+  <!-- Shown in toolbar overflow menu to delete a place and all related data. -->
+  <string name="delete_place">Delete place</string>
+  <!-- Shown in toolbar overflow menu to delete a place and all related data. -->
+  <string name="delete_place_confirmation">
+    This will delete the currently selected place and all related data. This cannot be undone.
+    Are you sure?
+  </string>
+
+  <!--
+    LOCATION (GPS/CELL/WIFI) UPDATE ERROR MESSAGES
+  -->
+
+  <!-- Shown when user has refused to grant app fine grained location permission. -->
+  <string name="no_fine_location_permissions">Cannot show current location without
+    permission</string>
+  <!-- Shown when an unknown error occurs obtaining fine grained location permission. -->
+  <string name="location_updates_unknown_error">Failed to enable location updates</string>
+  <!-- Shown when user has refused to enable location services in settings.-->
+  <string name="location_disabled_in_settings">Please enable location in system settings</string>
+  <!-- Shown when an unknown error occurs while obtaining location updates.-->
+  <string name="location_updates_request_failed">Failed to enable location updates</string>
+
+  <!-- Shown when saving a form that contains missing or invalid data -->
+  <string name="invalid_data">The form contains incomplete or invalid data. Please check
+  your responses and try again.</string>
+  <string name="invalid_data_ok">OK</string>
+  <string name="select_project_dialog_title">Select Project</string>
+
+</resources>
