@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-syntax = "proto3";
+package com.google.android.gnd.util;
 
-option java_multiple_files = true;
-option java_package = "com.google.android.gnd.model";
+public abstract class Protos {
+  private Protos() {}
 
-import "google/protobuf/timestamp.proto";
-
-package gnd;
-
-message Timestamps {
-  google.protobuf.Timestamp created = 1;
-  google.protobuf.Timestamp modified = 2;
+  public static <T extends Enum<T>> T toEnum(Class<T> enumClass, String value) {
+    try {
+      return Enum.valueOf(enumClass, value.toUpperCase());
+    } catch (IllegalArgumentException e) {
+      return enumClass.getEnumConstants()[0];
+    }
+  }
 }

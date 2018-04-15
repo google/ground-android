@@ -39,7 +39,7 @@ android {
     compileSdkVersion 26
     defaultConfig {
         // https://developer.android.com/about/dashboards/index.html for reference.
-        applicationId "com.google.gnd"
+        applicationId "com.google.android.gnd"
         minSdkVersion 15
         targetSdkVersion 26
         versionCode 1

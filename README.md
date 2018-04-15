@@ -27,7 +27,8 @@ You can generate new keys at:
 
   https://developers.google.com/maps/documentation/android-api/signup.
 
-Be sure SHA1 fingerprint in keystore is registered in:
+Be sure the SHA-1 fingerprint described in the API key generation instructions is also registered
+in:
 
   https://pantheon.corp.google.com/apis/credentials
 

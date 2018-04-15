@@ -14,16 +14,14 @@
  * limitations under the License.
  */
 
-syntax = "proto3";
+package com.google.android.gnd;
 
-option java_multiple_files = true;
-option java_package = "com.google.android.gnd.model";
+class UserOperationFailed extends Exception {
+  public UserOperationFailed(String message) {
+    super(message);
+  }
 
-import "google/protobuf/timestamp.proto";
-
-package gnd;
-
-message Timestamps {
-  google.protobuf.Timestamp created = 1;
-  google.protobuf.Timestamp modified = 2;
+  public UserOperationFailed(String message, Throwable cause) {
+    super(message, cause);
+  }
 }

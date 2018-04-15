@@ -14,16 +14,19 @@
  * limitations under the License.
  */
 
-syntax = "proto3";
+package com.google.android.gnd.inject;
 
-option java_multiple_files = true;
-option java_package = "com.google.android.gnd.model";
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
-import "google/protobuf/timestamp.proto";
+import javax.inject.Scope;
 
-package gnd;
-
-message Timestamps {
-  google.protobuf.Timestamp created = 1;
-  google.protobuf.Timestamp modified = 2;
+/**
+ * Specifies that a dependency has the same lifespan as its associated child Fragment (i.e., (a
+ * Fragment inside a Fragment added using <code>Fragment.getChildFragmentManager()</code>). For
+ * dependencies with this annotation, one instance will be created for each child Fragment.
+ */
+@Scope
+@Retention(RetentionPolicy.RUNTIME)
+public @interface PerChildFragment {
 }

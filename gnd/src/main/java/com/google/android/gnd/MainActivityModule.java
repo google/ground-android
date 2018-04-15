@@ -14,16 +14,26 @@
  * limitations under the License.
  */
 
-syntax = "proto3";
+package com.google.android.gnd;
 
-option java_multiple_files = true;
-option java_package = "com.google.android.gnd.model";
+import android.support.v7.app.AppCompatActivity;
 
-import "google/protobuf/timestamp.proto";
+import com.google.android.gnd.inject.PerActivity;
 
-package gnd;
+import dagger.Binds;
+import dagger.Module;
 
-message Timestamps {
-  google.protobuf.Timestamp created = 1;
-  google.protobuf.Timestamp modified = 2;
+/**
+ * Provides dependencies to {@link MainActivity}.
+ */
+@Module(includes = AbstractGndActivityModule.class)
+public abstract class MainActivityModule {
+
+  /**
+   * This provides the activity required to inject the fragment manager into
+   * {@link AbstractGndActivity}.
+   */
+  @Binds
+  @PerActivity
+  abstract AppCompatActivity appCompatActivity(MainActivity mainActivity);
 }

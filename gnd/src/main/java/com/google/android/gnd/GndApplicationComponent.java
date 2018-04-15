@@ -14,16 +14,18 @@
  * limitations under the License.
  */
 
-syntax = "proto3";
+package com.google.android.gnd;
 
-option java_multiple_files = true;
-option java_package = "com.google.android.gnd.model";
+import javax.inject.Singleton;
 
-import "google/protobuf/timestamp.proto";
+import dagger.Component;
+import dagger.android.AndroidInjector;
 
-package gnd;
+@Singleton
+@Component(modules = GndApplicationModule.class)
+interface GndApplicationComponent extends AndroidInjector<GndApplication> {
 
-message Timestamps {
-  google.protobuf.Timestamp created = 1;
-  google.protobuf.Timestamp modified = 2;
+  @Component.Builder
+  abstract class Builder extends AndroidInjector.Builder<GndApplication> {
+  }
 }

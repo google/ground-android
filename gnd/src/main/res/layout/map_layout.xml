@@ -25,9 +25,9 @@
       android:layout_height="match_parent"
       android:layout_gravity="center"
       android:gravity="center"
-      app:layout_behavior=".view.map.MapLayoutBehavior">
+      app:layout_behavior=".ui.map.MapLayoutBehavior">
 
-    <com.google.gnd.view.map.GoogleMapsView
+    <com.google.android.gnd.ui.map.GoogleMapsView
         android:id="@+id/map"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -53,7 +53,7 @@
       android:layout_marginBottom="@dimen/map_btn_margin_bottom"
       android:layout_gravity="bottom|right"
       android:orientation="vertical"
-      app:layout_behavior=".view.map.MapButtonBehavior">
+      app:layout_behavior=".ui.map.MapButtonBehavior">
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/gps_lock_btn"

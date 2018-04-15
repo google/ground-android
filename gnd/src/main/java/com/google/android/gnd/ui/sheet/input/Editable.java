@@ -14,16 +14,25 @@
  * limitations under the License.
  */
 
-syntax = "proto3";
+package com.google.android.gnd.ui.sheet.input;
 
-option java_multiple_files = true;
-option java_package = "com.google.android.gnd.model";
+import com.google.android.gnd.model.FeatureUpdate.RecordUpdate.ValueUpdate;
 
-import "google/protobuf/timestamp.proto";
+public interface Editable {
+  void updateValidationMessage();
 
-package gnd;
+  enum Mode {
+    EDIT,
+    VIEW
+  }
 
-message Timestamps {
-  google.protobuf.Timestamp created = 1;
-  google.protobuf.Timestamp modified = 2;
+  void setFocus();
+
+  boolean isModified();
+
+  ValueUpdate getUpdate();
+
+  void setMode(Mode mode);
+
+  boolean isValid();
 }
