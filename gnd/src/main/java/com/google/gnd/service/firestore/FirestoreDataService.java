@@ -48,6 +48,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
 import java8.util.concurrent.CompletableFuture;
 
 import static com.google.gnd.util.Futures.allOf;
@@ -56,6 +59,7 @@ import static com.google.gnd.util.Streams.map;
 import static java8.util.stream.Collectors.toList;
 import static java8.util.stream.StreamSupport.stream;
 
+@Singleton
 public class FirestoreDataService implements DataService {
   public static final FirebaseFirestoreSettings FIRESTORE_SETTINGS =
       new FirebaseFirestoreSettings.Builder().setPersistenceEnabled(true).build();
@@ -65,7 +69,8 @@ public class FirestoreDataService implements DataService {
   private ListenerRegistration featureListenerRegistration;
   private List<DataChangeListener<Feature>> featureChangeListeners;
 
-  public FirestoreDataService() {
+  @Inject
+  FirestoreDataService() {
     featureChangeListeners = new ArrayList<>();
   }
 

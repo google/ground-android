@@ -18,9 +18,6 @@ package com.google.gnd.view.map;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.os.Build;
-import android.support.annotation.RequiresApi;
-import android.support.design.widget.CoordinatorLayout;
 import android.util.AttributeSet;
 import android.view.WindowInsets;
 import android.widget.ImageView;
@@ -33,18 +30,16 @@ import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.gnd.MainActivity;
 import com.google.gnd.model.PlaceIcon;
 import com.google.gnd.model.Point;
-import com.google.gnd.view.OnSheetSlideBehavior.SheetSlideMetrics;
-import com.google.gnd.view.sheet.DataSheetScrollView;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import java8.util.function.Consumer;
 
-import static com.google.android.gms.maps.GoogleMap.OnCameraMoveStartedListener.REASON_DEVELOPER_ANIMATION;
+import static com.google.android.gms.maps.GoogleMap.OnCameraMoveStartedListener
+    .REASON_DEVELOPER_ANIMATION;
 
 // TODO: Refactor view interface and adapter and allow plugging different map providers.
 public class GoogleMapsView extends MapView {

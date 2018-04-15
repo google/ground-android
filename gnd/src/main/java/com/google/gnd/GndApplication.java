@@ -21,20 +21,26 @@ import android.support.multidex.MultiDexApplication;
 
 import javax.inject.Inject;
 
+import dagger.android.AndroidInjector;
 import dagger.android.DispatchingAndroidInjector;
 import dagger.android.HasActivityInjector;
 
+// TODO: When implementing background data sync service, we'll need to inject a Service here; we
+// should then extend DaggerApplication instead. If MultiDex is still needed, we can install it
+// without extending MultiDexApplication.
 public class GndApplication extends MultiDexApplication implements HasActivityInjector {
-  @Inject DispatchingAndroidInjector<Activity> dispatchingAndroidInjector;
+  @Inject
+  DispatchingAndroidInjector<Activity> activityInjector;
 
   @Override
   public void onCreate() {
     super.onCreate();
-    DaggerGndApplicationComponent.create().inject(this);
+    // Root of dependency injection.
+    DaggerGndApplicationComponent.builder().create(this).inject(this);
   }
 
   @Override
-  public DispatchingAndroidInjector<Activity> activityInjector() {
-    return dispatchingAndroidInjector;
+  public AndroidInjector<Activity> activityInjector() {
+    return activityInjector;
   }
 }

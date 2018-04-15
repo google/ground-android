@@ -14,18 +14,19 @@
  * limitations under the License.
  */
 
-package com.google.gnd;
+package com.google.gnd.inject;
 
-import javax.inject.Singleton;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
-import dagger.Component;
-import dagger.android.AndroidInjector;
+import javax.inject.Scope;
 
-@Singleton
-@Component(modules = GndApplicationModule.class)
-interface GndApplicationComponent extends AndroidInjector<GndApplication> {
-
-  @Component.Builder
-  abstract class Builder extends AndroidInjector.Builder<GndApplication> {
-  }
+/**
+ * Specifies that a dependency has the same lifespan as its associated child Fragment (i.e., (a
+ * Fragment inside a Fragment added using <code>Fragment.getChildFragmentManager()</code>). For
+ * dependencies with this annotation, one instance will be created for each child Fragment.
+ */
+@Scope
+@Retention(RetentionPolicy.RUNTIME)
+public @interface PerChildFragment {
 }

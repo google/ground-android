@@ -26,9 +26,11 @@ import android.support.v4.util.Pair;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.inject.Inject;
+
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 
-public class PermissionManager implements ActivityCompat.OnRequestPermissionsResultCallback {
+public class PermissionManager {
   private static final String[] FINE_LOCATION_PERMISSIONS = {ACCESS_FINE_LOCATION};
   public static final int FINE_LOCATION_PERMISSIONS_REQUEST_CODE =
       FINE_LOCATION_PERMISSIONS.hashCode() & 0xffff;
@@ -36,6 +38,7 @@ public class PermissionManager implements ActivityCompat.OnRequestPermissionsRes
   private final Activity activity;
   private Map<Integer, Pair<Runnable, Runnable>> callbacks; // Lower 16 bits reserved.
 
+  @Inject
   public PermissionManager(Activity activity) {
     this.activity = activity;
     this.callbacks = new HashMap<>();
@@ -46,7 +49,8 @@ public class PermissionManager implements ActivityCompat.OnRequestPermissionsRes
         == PackageManager.PERMISSION_GRANTED;
   }
 
-  public void obtainFineLocationPermission(Runnable onSuccess, Runnable onFailure) {
+  public void obtainFineLocationPermission(Runnable onSuccess, Runnable
+      onFailure) {
     if (isFineLocationPermissionGranted()) {
       onSuccess.run();
       return;
@@ -54,13 +58,13 @@ public class PermissionManager implements ActivityCompat.OnRequestPermissionsRes
     requestPermissions(FINE_LOCATION_PERMISSIONS, onSuccess, onFailure);
   }
 
-  private void requestPermissions(String[] permissions, Runnable onSuccess, Runnable onFailure) {
+  private void requestPermissions(String[] permissions, Runnable onSuccess,
+      Runnable onFailure) {
     callbacks.put(FINE_LOCATION_PERMISSIONS_REQUEST_CODE, new Pair(onSuccess, onFailure));
     ActivityCompat.requestPermissions(
         activity, permissions, FINE_LOCATION_PERMISSIONS_REQUEST_CODE);
   }
 
-  @Override
   public void onRequestPermissionsResult(
       int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
     Pair<Runnable, Runnable> callbackPair = callbacks.get(requestCode);

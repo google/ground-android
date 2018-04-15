@@ -16,7 +16,6 @@
 
 package com.google.gnd.view.sheet.input;
 
-import android.app.Activity;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
@@ -28,7 +27,6 @@ import android.widget.TextView;
 import com.google.gnd.R;
 import com.google.gnd.model.FeatureUpdate;
 import com.google.gnd.model.Record;
-import com.google.gnd.view.util.ViewUtil;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;

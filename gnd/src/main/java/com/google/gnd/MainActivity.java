@@ -21,7 +21,6 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.ColorStateList;
-import android.graphics.Rect;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -30,9 +29,7 @@ import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.WindowInsetsCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -44,7 +41,7 @@ import android.widget.Toast;
 
 import com.google.gnd.model.DataModel;
 import com.google.gnd.model.FeatureType;
-import com.google.gnd.service.firestore.FirestoreDataService;
+import com.google.gnd.service.DataService;
 import com.google.gnd.system.LocationManager;
 import com.google.gnd.system.PermissionManager;
 import com.google.gnd.view.AddFeatureDialog;
@@ -54,6 +51,8 @@ import com.google.gnd.view.util.ViewUtil;
 
 import java.util.List;
 
+import javax.inject.Inject;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import java8.util.function.Consumer;
@@ -62,11 +61,10 @@ import static android.support.design.widget.BottomSheetBehavior.STATE_COLLAPSED;
 import static android.support.design.widget.BottomSheetBehavior.STATE_EXPANDED;
 import static com.google.gnd.system.LocationManager.LocationFailureReason.SETTINGS_CHANGE_FAILED;
 
-public class MainActivity extends AppCompatActivity {
-  private final MainPresenter mainPresenter;
-  private final PermissionManager permissionManager;
-  private final AddFeatureDialog addFeatureDialog;
-  private final DataModel model;
+public class MainActivity extends AbstractGndActivity {
+  private MainPresenter mainPresenter;
+  private AddFeatureDialog addFeatureDialog;
+  private DataModel model;
 
   @BindView(R.id.add_feature_btn)
   FloatingActionButton addFeatureBtn;
@@ -75,20 +73,23 @@ public class MainActivity extends AppCompatActivity {
   private Menu toolbarMenu;
   private WindowInsetsCompat insets;
 
-  public MainActivity() {
-    // TODO: Use Dagger dep. injection rather than building graph manually.
-    this.permissionManager = new PermissionManager(this);
-    FirestoreDataService dataService = new FirestoreDataService();
-    this.model = new DataModel(dataService);
-    this.addFeatureDialog = new AddFeatureDialog(this);
-    LocationManager locationManager = new LocationManager(this, permissionManager);
-    this.mainPresenter = new MainPresenter(this, model, permissionManager, locationManager);
-  }
+  @Inject
+  PermissionManager permissionManager;
+
+  @Inject
+  DataService dataService;
+
+  @Inject
+  LocationManager locationManager;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
-
     super.onCreate(savedInstanceState);
+
+    this.model = new DataModel(dataService);
+    this.addFeatureDialog = new AddFeatureDialog(this);
+    this.mainPresenter = new MainPresenter(this, model, permissionManager, locationManager);
+
     setContentView(R.layout.activity_main);
     ButterKnife.bind(this);
     initToolbar();

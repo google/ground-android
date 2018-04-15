@@ -21,7 +21,6 @@ import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.widget.LinearLayout;
 
-import com.google.gnd.model.FeatureUpdate;
 import com.google.gnd.model.FeatureUpdate.RecordUpdate;
 import com.google.gnd.view.sheet.input.Editable;
 

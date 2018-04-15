@@ -35,7 +35,6 @@ public class MainPresenter {
   private final DataSheetPresenter dataSheetPresenter;
   private final MapPresenter mapPresenter;
   private final DataModel model;
-  private final LocationManager locationManager;
 
   MainPresenter(
       MainActivity mainActivity,
@@ -48,7 +47,6 @@ public class MainPresenter {
     // TODO: Resolve circular deps and inject these presenters.
     this.dataSheetPresenter = new DataSheetPresenter(this, mainActivity, model);
     this.mapPresenter = new MapPresenter(this, mainActivity, model, locationManager);
-    this.locationManager = locationManager;
   }
 
   public MapPresenter getMapPresenter() {

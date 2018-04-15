@@ -16,17 +16,12 @@
 
 package com.google.gnd.service.firestore;
 
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.IgnoreExtraProperties;
 import com.google.firebase.firestore.ServerTimestamp;
 import com.google.gnd.model.Feature;
 import com.google.gnd.model.Point;
-import com.google.gnd.model.Timestamps;
-import com.google.protobuf.Timestamp;
 
 import java.util.Date;
 

@@ -16,16 +16,24 @@
 
 package com.google.gnd;
 
-import javax.inject.Singleton;
+import android.support.v7.app.AppCompatActivity;
 
-import dagger.Component;
-import dagger.android.AndroidInjector;
+import com.google.gnd.inject.PerActivity;
 
-@Singleton
-@Component(modules = GndApplicationModule.class)
-interface GndApplicationComponent extends AndroidInjector<GndApplication> {
+import dagger.Binds;
+import dagger.Module;
 
-  @Component.Builder
-  abstract class Builder extends AndroidInjector.Builder<GndApplication> {
-  }
+/**
+ * Provides dependencies to {@link MainActivity}.
+ */
+@Module(includes = AbstractGndActivityModule.class)
+public abstract class MainActivityModule {
+
+  /**
+   * This provides the activity required to inject the fragment manager into
+   * {@link AbstractGndActivity}.
+   */
+  @Binds
+  @PerActivity
+  abstract AppCompatActivity appCompatActivity(MainActivity mainActivity);
 }

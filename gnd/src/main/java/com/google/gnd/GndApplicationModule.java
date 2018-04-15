@@ -16,11 +16,36 @@
 
 package com.google.gnd;
 
+import com.google.gnd.inject.PerActivity;
+import com.google.gnd.service.DataService;
+import com.google.gnd.service.firestore.FirestoreDataService;
+
+import javax.inject.Singleton;
+
+import dagger.Binds;
 import dagger.Module;
 import dagger.android.ContributesAndroidInjector;
+import dagger.android.support.AndroidSupportInjectionModule;
 
-@Module
-public abstract class GndApplicationModule {
-//  @ContributesAndroidInjector
-//  abstract PlaceDataEditorActivity contributeEditPlaceActivityInjector();
+@Module(includes = AndroidSupportInjectionModule.class)
+abstract class GndApplicationModule {
+  /**
+   * Singleton annotation not required here but included for clarity.
+   */
+  @Binds
+  @Singleton
+  abstract GndApplication application(GndApplication app);
+
+  @PerActivity
+  @ContributesAndroidInjector(modules = MainActivityModule.class)
+  abstract MainActivity mainActivityInjector();
+
+  /**
+   * Provide the Firestore implementation of our backend data service.
+   * TODO: Make the implementation configurable via custom connectors to allow supporting other
+   * backend datastores.
+   */
+  @Binds
+  @Singleton
+  abstract DataService dataService(FirestoreDataService ds);
 }

@@ -31,13 +31,17 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.LocationSettingsStatusCodes;
+import com.google.gnd.inject.PerActivity;
 import com.google.gnd.model.Point;
+
+import javax.inject.Inject;
 
 import java8.util.function.Consumer;
 
 import static com.google.android.gms.location.LocationServices.getFusedLocationProviderClient;
 import static com.google.android.gms.location.LocationServices.getSettingsClient;
 
+@PerActivity
 public class LocationManager {
   public static final int REQUEST_CHECK_SETTINGS = 0x200;
   private static final long UPDATE_INTERVAL = 5 * 1000 /* 5 sec */;
@@ -54,6 +58,7 @@ public class LocationManager {
   private final PermissionManager permissionManager;
   private LocationCallback locationCallback;
 
+  @Inject
   public LocationManager(Activity context, PermissionManager permissionManager) {
     this.activity = context;
     this.permissionManager = permissionManager;

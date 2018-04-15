@@ -17,16 +17,7 @@
 package com.google.gnd.view.sheet;
 
 import android.content.Context;
-import android.support.annotation.Dimension;
-import android.support.annotation.NonNull;
-import android.support.v7.widget.PopupMenu;
 import android.util.AttributeSet;
-import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.widget.EditText;
-import android.widget.FrameLayout;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
