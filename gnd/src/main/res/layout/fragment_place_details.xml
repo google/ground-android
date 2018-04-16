@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright 2018 Google LLC
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     https://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!--
+  Wrapper to allow grey background to show in bottom padding while preserving top transparent
+  padding on data_sheet.
+-->
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+  <LinearLayout
+      android:id="@+id/data_sheet_layout"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:background="@color/colorGrey300"
+      android:orientation="vertical">
+
+    <com.google.android.gnd.ui.sheet.DataSheetHeader
+        android:id="@+id/data_sheet_header"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/colorPrimary"
+        android:orientation="vertical">
+
+      <TextView
+          android:id="@+id/data_sheet_title"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_marginLeft="@dimen/sheet_title_horizontal_margin"
+          android:layout_marginRight="@dimen/sheet_title_horizontal_margin"
+          android:layout_marginTop="@dimen/sheet_title_top_margin"
+          android:text="The Jones Family"
+          android:textColor="@color/colorWhite"
+          android:textSize="@dimen/sheet_title_text_size"
+          android:textStyle="bold"/>
+
+      <TextView
+          android:id="@+id/data_sheet_subtitle"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_marginBottom="8dp"
+          android:layout_marginLeft="@dimen/sheet_title_horizontal_margin"
+          android:layout_marginRight="@dimen/sheet_title_horizontal_margin"
+          android:text="Household 532-534"
+          android:textColor="@color/colorGrey300"
+          android:textSize="@dimen/sheet_subtitle_text_size"/>
+
+    </com.google.android.gnd.ui.sheet.DataSheetHeader>
+
+    <com.google.android.gnd.ui.sheet.DataSheetBody
+        android:id="@+id/data_sheet_body"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:showDividers="middle|end"/>
+
+  </LinearLayout>
+
+</FrameLayout>

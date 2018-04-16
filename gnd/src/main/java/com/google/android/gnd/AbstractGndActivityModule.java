@@ -18,16 +18,12 @@ package com.google.android.gnd;
 
 import android.app.Activity;
 import android.content.Context;
-import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 
 import com.google.android.gnd.inject.PerActivity;
 
-import javax.inject.Named;
-
 import dagger.Binds;
 import dagger.Module;
-import dagger.Provides;
 
 /**
  * Provides dependencies of {@link AbstractGndActivity}. This must be included in all activity
@@ -35,11 +31,6 @@ import dagger.Provides;
  */
 @Module
 public abstract class AbstractGndActivityModule {
-
-  static final String
-      ACTIVITY_FRAGMENT_MANAGER =
-      "AbstractGndActivityModule.activityFragmentManager";
-
   /**
    * PerActivity annotation isn't required here since they are already unique, but is included for
    * clarity.
@@ -51,11 +42,4 @@ public abstract class AbstractGndActivityModule {
   @Binds
   @PerActivity
   abstract Context activityContext(Activity activity);
-
-  @Provides
-  @Named(ACTIVITY_FRAGMENT_MANAGER)
-  @PerActivity
-  static FragmentManager activityFragmentManager(AppCompatActivity activity) {
-    return activity.getSupportFragmentManager();
-  }
 }

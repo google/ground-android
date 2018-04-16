@@ -125,7 +125,7 @@ public class MainActivity extends AbstractGndActivity {
           MainActivity.this.insets = insets;
           int bottomPadding = insets.getSystemWindowInsetBottom();
           int topPadding = insets.getSystemWindowInsetTop();
-          View dataSheetWrapper = findViewById(R.id.data_sheet_wrapper);
+          View dataSheetWrapper = findViewById(R.id.place_details_fragment);
           View dataSheetLayout = findViewById(R.id.data_sheet_layout);
           View bottomSheetScrim = findViewById(R.id.bottom_sheet_scrim);
           View mapBtnLayout = findViewById(R.id.map_btn_layout);
@@ -183,10 +183,6 @@ public class MainActivity extends AbstractGndActivity {
     inflater.inflate(R.menu.feature_header_menu, menu);
 
     return true;
-  }
-
-  public Menu getToolbarMenu() {
-    return toolbarMenu;
   }
 
   public boolean onOptionsItemSelected(MenuItem item) {
