@@ -56,17 +56,17 @@ public class MapFragment extends AbstractGndFragment {
   public void onResume() {
     super.onResume();
     // TODO: Use Rx for getMapAsync instead.
-    mapView.getMapAsync(__ ->
+    mapView.getMap().subscribe(map ->
         viewModel.mapMarkers().observe(this, update -> {
           switch (update.getType()) {
             case CLEAR_ALL:
-              mapView.removeAllMarkers();
+              map.removeAllMarkers();
               break;
             case ADD_OR_UPDATE_MARKER:
               PlaceIcon
                   icon =
                   new PlaceIcon(getContext(), update.getIconId(), update.getIconColor());
-              mapView.addOrUpdateMarker(
+              map.addOrUpdateMarker(
                   new MapMarker(update.getId(),
                       update.getPlace().getPoint(),
                       icon,
@@ -75,9 +75,8 @@ public class MapFragment extends AbstractGndFragment {
                   false);
               break;
             case REMOVE_MARKER:
-              mapView.removeMarker(update.getId());
+              map.removeMarker(update.getId());
               break;
-
           }
         }));
   }

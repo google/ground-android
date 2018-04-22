@@ -28,7 +28,6 @@ import com.google.android.gnd.R;
 import com.google.android.gnd.ui.util.ViewUtil;
 
 public class PlaceIcon {
-
   private static final String TAG = PlaceIcon.class.getSimpleName();
   private final Context context;
   private BitmapDrawable drawable;

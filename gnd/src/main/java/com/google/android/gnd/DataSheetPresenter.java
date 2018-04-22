@@ -33,6 +33,7 @@ import com.google.android.gnd.model.FeatureType;
 import com.google.android.gnd.model.Form;
 import com.google.android.gnd.model.GndDataRepository;
 import com.google.android.gnd.model.Record;
+import com.google.android.gnd.ui.map.GoogleMapImpl;
 import com.google.android.gnd.ui.map.GoogleMapsView;
 import com.google.android.gnd.ui.sheet.DataSheetScrollView;
 import com.google.android.gnd.ui.sheet.RecordView;
@@ -41,6 +42,7 @@ import com.google.android.gnd.ui.sheet.input.Editable.Mode;
 import java8.util.Optional;
 
 public class DataSheetPresenter {
+
   private static final String TAG = DataSheetPresenter.class.getSimpleName();
 
   private final MainPresenter mainPresenter;
@@ -119,11 +121,11 @@ public class DataSheetPresenter {
     mainActivity.hideSoftInput();
     addRecordBtn.setEnabled(false);
     addFeatureBtn.setEnabled(true);
-    mapView.enable();
+    mapView.getMap().subscribe(GoogleMapImpl::enable);
   }
 
   public void onShowSheet() {
-    mapView.disable();
+    mapView.getMap().subscribe(GoogleMapImpl::disable);
     //    mapView.pauseLocationUpdates()
     addFeatureBtn.setEnabled(false);
     addRecordBtn.setEnabled(true);
@@ -235,34 +237,37 @@ public class DataSheetPresenter {
   }
 
   public void onSelectFeatureTypeForAdd(FeatureType featureType) {
-    Feature feature =
-        Feature.newBuilder()
-            .setFeatureTypeId(featureType.getId())
-            .setPoint(mainActivity.getMapView().getCenter())
-            .build();
-    showToolbarSaveButton();
-    // TODO: i18n.
-    toolbar.setTitle(R.string.add_place_toolbar_title);
-    toolbar.setSubtitle("");
-    addRecordBtn.setVisibility(View.INVISIBLE);
-    // TODO: Encapsulate featureType, feature, etc. as SheetState or in ApplicationState?
-    dataSheetView.setMode(Editable.Mode.EDIT);
-    dataSheetView.getHeader().attach(feature, featureType);
-    dataSheetView.getHeader().setTitle(getTitle(feature, featureType));
-    dataSheetView.getHeader().setSubtitle("");
-    dataSheetView.getBody().clear();
-    // TODO: Show temporary highlighted place marker.
-    RecordView formView = new RecordView(dataSheetView.getContext(), this::onEditRecordClick);
-    if (featureType.getFormsCount() > 0) {
-      // TODO: Support multiple form types.
-      Form form = featureType.getForms(0);
-      Record record =
-          Record.newBuilder().setFeatureTypeId(featureType.getId()).setFormId(form.getId()).build();
-      formView.populate(form, record, Editable.Mode.EDIT);
-      dataSheetView.getBody().addView(formView);
-    }
-    // TODO: Do something smart when there are no forms associated with the feature.
-    dataSheetView.slideOpen();
+    mapView.getMap().subscribe(map -> {
+      Feature feature =
+          Feature.newBuilder()
+              .setFeatureTypeId(featureType.getId())
+              .setPoint(map.getCenter())
+              .build();
+      showToolbarSaveButton();
+      // TODO: i18n.
+      toolbar.setTitle(R.string.add_place_toolbar_title);
+      toolbar.setSubtitle("");
+      addRecordBtn.setVisibility(View.INVISIBLE);
+      // TODO: Encapsulate featureType, feature, etc. as SheetState or in ApplicationState?
+      dataSheetView.setMode(Editable.Mode.EDIT);
+      dataSheetView.getHeader().attach(feature, featureType);
+      dataSheetView.getHeader().setTitle(getTitle(feature, featureType));
+      dataSheetView.getHeader().setSubtitle("");
+      dataSheetView.getBody().clear();
+      // TODO: Show temporary highlighted place marker.
+      RecordView formView = new RecordView(dataSheetView.getContext(), this::onEditRecordClick);
+      if (featureType.getFormsCount() > 0) {
+        // TODO: Support multiple form types.
+        Form form = featureType.getForms(0);
+        Record record =
+            Record.newBuilder().setFeatureTypeId(featureType.getId()).setFormId(form.getId())
+                .build();
+        formView.populate(form, record, Editable.Mode.EDIT);
+        dataSheetView.getBody().addView(formView);
+      }
+      // TODO: Do something smart when there are no forms associated with the feature.
+      dataSheetView.slideOpen();
+    });
   }
 
   private void hideToolbarSaveButton() {

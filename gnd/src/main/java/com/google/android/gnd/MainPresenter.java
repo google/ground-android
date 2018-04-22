@@ -45,7 +45,7 @@ public class MainPresenter {
     this.permissionManager = permissionManager;
     // TODO: Resolve circular deps and inject these presenters.
     this.dataSheetPresenter = new DataSheetPresenter(this, mainActivity, model);
-    this.mapPresenter = new MapPresenter(this, mainActivity, model, locationManager);
+    this.mapPresenter = new MapPresenter(this, mainActivity, locationManager);
   }
 
   public MapPresenter getMapPresenter() {
@@ -147,12 +147,5 @@ public class MainPresenter {
 
   public boolean onToolbarSaveButtonClick() {
     return dataSheetPresenter.onSaveClick();
-  }
-
-  public GndDataRepository getModel() {
-    return model;
-  }
-
-  public void onMapReady() {
   }
 }

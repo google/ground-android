@@ -19,19 +19,19 @@ package com.google.android.gnd;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import com.google.android.gnd.model.Feature;
-import com.google.android.gnd.model.GndDataRepository;
 import com.google.android.gnd.model.Point;
 import com.google.android.gnd.system.LocationManager;
 import com.google.android.gnd.system.LocationManager.LocationFailureReason;
+import com.google.android.gnd.ui.map.GoogleMapImpl;
 import com.google.android.gnd.ui.map.GoogleMapsView;
 import com.google.android.gnd.ui.map.MapMarker;
 
 public class MapPresenter {
+
   private static final float DEFAULT_ZOOM_LEVEL = 14.0f;
 
   private final MainPresenter mainPresenter;
   private final MainActivity mainActivity;
-  private final GndDataRepository model;
   private final LocationManager locationManager;
   private GoogleMapsView mapView;
   private FloatingActionButton addBtn;
@@ -42,18 +42,20 @@ public class MapPresenter {
   public MapPresenter(
       MainPresenter mainPresenter,
       MainActivity mainActivity,
-      GndDataRepository model,
       LocationManager locationManager) {
     this.mainPresenter = mainPresenter;
     this.mainActivity = mainActivity;
-    this.model = model;
     this.locationManager = locationManager;
   }
 
   void onCreate(Bundle savedInstanceState) {
     mapView = mainActivity.getMapView();
     mapView.onCreate(savedInstanceState);
-    mapView.initialize(this::onMapReady, this::onMarkerClick, this::onCameraMove);
+    mapView.getMap().subscribe(map -> {
+      map.getMarkerClickObservable().subscribe(this::onMarkerClick);
+      map.getUserPanObservable().subscribe(this::onCameraMove);
+      enableLocationLock();
+    });
 
     locationLockBtn = mainActivity.getLocationLockButton();
     locationLockBtn.setOnClickListener((v) -> this.onLocationLockClick());
@@ -62,11 +64,6 @@ public class MapPresenter {
     addBtn = mainActivity.getAddFeatureButton();
     addBtn.setOnClickListener((v) -> mainPresenter.onAddFeatureClick());
     addBtn.bringToFront();
-  }
-
-  private void onMapReady(GoogleMapsView map) {
-    mainPresenter.onMapReady();
-    enableLocationLock();
   }
 
   void onStart() {
@@ -102,7 +99,7 @@ public class MapPresenter {
     }
   }
 
-  private void onCameraMove() {
+  private void onCameraMove(Point newLocation) {
     if (locationLockEnabled) {
       disableLocationLock();
     }
@@ -140,7 +137,7 @@ public class MapPresenter {
   }
 
   private void onRequestLocationUpdatesSuccess() {
-    mapView.enableCurrentLocationIndicator();
+    mapView.getMap().subscribe(GoogleMapImpl::enableCurrentLocationIndicator);
     zoomOnNextLocationUpdate = true;
     locationManager.requestLastLocation(this::onLocationUpdate);
     locationLockEnabled = true;
@@ -166,12 +163,14 @@ public class MapPresenter {
   }
 
   private void onLocationUpdate(Point location) {
-    if (zoomOnNextLocationUpdate) {
-      mapView.moveCamera(location, Math.max(DEFAULT_ZOOM_LEVEL, mapView.getCurrentZoomLevel()));
-      zoomOnNextLocationUpdate = false;
-    } else {
-      mapView.moveCamera(location);
-    }
+    mapView.getMap().subscribe(map -> {
+      if (zoomOnNextLocationUpdate) {
+        map.moveCamera(location, Math.max(DEFAULT_ZOOM_LEVEL, map.getCurrentZoomLevel()));
+        zoomOnNextLocationUpdate = false;
+      } else {
+        map.moveCamera(location);
+      }
+    });
   }
 
   private void disableLocationLock() {

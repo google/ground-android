@@ -16,159 +16,28 @@
 
 package com.google.android.gnd.ui.map;
 
-import static com.google.android.gms.maps.GoogleMap.OnCameraMoveStartedListener.REASON_DEVELOPER_ANIMATION;
-
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.WindowInsets;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
-import com.google.android.gms.maps.model.BitmapDescriptor;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gnd.model.PlaceIcon;
-import com.google.android.gnd.model.Point;
-import java.util.HashMap;
-import java.util.Map;
-import java8.util.function.Consumer;
+import io.reactivex.Observable;
+import io.reactivex.subjects.BehaviorSubject;
 
 // TODO: Refactor view interface and adapter and allow plugging different map providers.
 public class GoogleMapsView extends MapView {
+
   private static final String TAG = GoogleMapsView.class.getSimpleName();
-  private GoogleMap map;
-  private Map<String, Marker> markers;
-  private boolean enabled;
-  private LatLng cameraTargetBeforeUserPan;
+  private BehaviorSubject<GoogleMapImpl> mapSubject = BehaviorSubject.create();
 
   public GoogleMapsView(Context context, AttributeSet attributeSet) {
     super(context, attributeSet);
-    markers = new HashMap<>();
+    getMapAsync(map -> mapSubject.onNext(new GoogleMapImpl(map)));
   }
 
-  private static Point toPoint(LatLng latLng) {
-    return Point.newBuilder().setLatitude(latLng.latitude).setLongitude(latLng.longitude).build();
-  }
-
-  private static LatLng toLatLng(Point position) {
-    return new LatLng(position.getLatitude(), position.getLongitude());
-  }
-
-  public void initialize(
-      Consumer<GoogleMapsView> onReady, Consumer<MapMarker> onMarkerClick, Runnable onMapPan) {
-    GoogleMapsView view = this;
-    getMapAsync(
-        googleMap -> {
-          map = googleMap;
-          map.setMapType(GoogleMap.MAP_TYPE_HYBRID);
-          map.getUiSettings().setRotateGesturesEnabled(false);
-          map.getUiSettings().setMyLocationButtonEnabled(false);
-          map.getUiSettings().setMapToolbarEnabled(false);
-          map.setOnMarkerClickListener(
-              marker -> {
-                if (enabled) {
-                  onMarkerClick.accept((MapMarker) marker.getTag());
-                  return false; // Allow map to pan to marker.
-                } else {
-                  return true; // Prevent map from panning to marker.
-                }
-              });
-          map.setOnCameraIdleListener(this::onCameraIdle);
-          map.setOnCameraMoveStartedListener(this::onCameraMoveStarted);
-          map.setOnCameraMoveListener(() -> onCameraMove(onMapPan));
-          enabled = true;
-          onReady.accept(view);
-        });
-  }
-
-  private void onCameraIdle() {
-    cameraTargetBeforeUserPan = null;
-  }
-
-  private void onCameraMoveStarted(int reason) {
-    if (reason == REASON_DEVELOPER_ANIMATION) {
-      // Map was panned by app to track current location.
-      return;
-    }
-    cameraTargetBeforeUserPan = map.getCameraPosition().target;
-  }
-
-  private void onCameraMove(Runnable onMapPan) {
-    if (cameraTargetBeforeUserPan == null) {
-      return;
-    }
-    LatLng cameraTarget = map.getCameraPosition().target;
-    if (!cameraTarget.equals(cameraTargetBeforeUserPan)) {
-      onMapPan.run();
-    }
-  }
-
-  @SuppressLint("MissingPermission")
-  public void enableCurrentLocationIndicator() {
-    map.setMyLocationEnabled(true);
-  }
-
-  public void moveCamera(Point point) {
-    map.moveCamera(CameraUpdateFactory.newLatLng(toLatLng(point)));
-  }
-
-  public void moveCamera(Point point, float zoomLevel) {
-    map.moveCamera(CameraUpdateFactory.newLatLngZoom(toLatLng(point), zoomLevel));
-  }
-
-  public void addOrUpdateMarker(
-      MapMarker mapMarker, boolean hasPendingWrites, boolean isHighlighted) {
-    Marker marker = markers.get(mapMarker.getId());
-    LatLng position = toLatLng(mapMarker.getPosition());
-    PlaceIcon icon = mapMarker.getIcon();
-    BitmapDescriptor bitmap =
-        isHighlighted
-            ? icon.getWhiteBitmap()
-            : (hasPendingWrites ? icon.getGreyBitmap() : icon.getBitmap());
-    if (marker == null) {
-      marker = map.addMarker(new MarkerOptions().position(position).icon(bitmap).alpha(1.0f));
-      markers.put(mapMarker.getId(), marker);
-    } else {
-      marker.setIcon(bitmap);
-      marker.setPosition(position);
-    }
-    marker.setTag(mapMarker);
-  }
-
-  public void removeMarker(String id) {
-    Marker marker = markers.get(id);
-    if (marker == null) {
-      return;
-    }
-    marker.remove();
-    markers.remove(id);
-  }
-
-  public void removeAllMarkers() {
-    map.clear();
-    markers.clear();
-  }
-
-  public void enable() {
-    enabled = true;
-    map.getUiSettings().setAllGesturesEnabled(true);
-  }
-
-  public void disable() {
-    enabled = false;
-    map.getUiSettings().setAllGesturesEnabled(false);
-  }
-
-  public Point getCenter() {
-    return toPoint(map.getCameraPosition().target);
-  }
-
-  public float getCurrentZoomLevel() {
-    return map.getCameraPosition().zoom;
+  public Observable<GoogleMapImpl> getMap() {
+    return mapSubject;
   }
 
   private void setWatermarkPadding(int left, int top, int right, int bottom) {
