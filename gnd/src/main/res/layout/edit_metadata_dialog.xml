@@ -22,7 +22,7 @@
     android:orientation="vertical">
 
   <android.support.design.widget.TextInputLayout
-      android:id="@+id/feature_id_layout"
+    android:id="@+id/place_id_layout"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:layout_marginTop="@dimen/field_vertical_margin"
@@ -41,7 +41,7 @@
       app:hintTextAppearance="@style/TextInputHintLight">
 
     <android.support.design.widget.TextInputEditText
-        android:id="@+id/feature_id_field"
+      android:id="@+id/place_id_field"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:paddingTop="4dp"
@@ -54,7 +54,7 @@
 
 
   <android.support.design.widget.TextInputLayout
-      android:id="@+id/feature_caption_layout"
+    android:id="@+id/place_caption_layout"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:layout_marginTop="@dimen/field_vertical_margin"
@@ -63,7 +63,7 @@
       android:layout_marginEnd="@dimen/header_field_horizontal_margin"
       android:layout_marginLeft="@dimen/header_field_horizontal_margin"
       android:layout_marginRight="@dimen/header_field_horizontal_margin"
-      android:layout_below="@id/feature_id_layout"
+    android:layout_below="@id/place_id_layout"
       android:backgroundTint="@color/colorPrimaryLight"
       android:hint="@string/place_caption"
       android:textColorHint="@color/colorPrimaryLight"
@@ -73,7 +73,7 @@
       app:hintTextAppearance="@style/TextInputHintLight">
 
     <android.support.design.widget.TextInputEditText
-        android:id="@+id/feature_caption_field"
+      android:id="@+id/place_caption_field"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:paddingTop="4dp"

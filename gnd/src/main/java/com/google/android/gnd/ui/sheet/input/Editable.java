@@ -16,7 +16,7 @@
 
 package com.google.android.gnd.ui.sheet.input;
 
-import com.google.android.gnd.model.FeatureUpdate.RecordUpdate.ValueUpdate;
+import com.google.android.gnd.model.PlaceUpdate.RecordUpdate.ValueUpdate;
 
 public interface Editable {
   void updateValidationMessage();

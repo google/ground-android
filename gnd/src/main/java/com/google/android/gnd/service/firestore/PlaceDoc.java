@@ -16,20 +16,19 @@
 
 package com.google.android.gnd.service.firestore;
 
+import static com.google.android.gnd.service.firestore.FirestoreDataService.toDate;
+import static com.google.android.gnd.service.firestore.FirestoreDataService.toTimestamps;
+
+import com.google.android.gnd.model.Place;
+import com.google.android.gnd.model.Point;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.IgnoreExtraProperties;
 import com.google.firebase.firestore.ServerTimestamp;
-import com.google.android.gnd.model.Feature;
-import com.google.android.gnd.model.Point;
-
 import java.util.Date;
 
-import static com.google.android.gnd.service.firestore.FirestoreDataService.toDate;
-import static com.google.android.gnd.service.firestore.FirestoreDataService.toTimestamps;
-
 @IgnoreExtraProperties
-public class FeatureDoc {
+public class PlaceDoc {
   public String featureTypeId;
 
   public String customId;
@@ -47,45 +46,45 @@ public class FeatureDoc {
 
   public Date clientTimeModified;
 
-  public static Feature toProto(DocumentSnapshot doc) {
-    FeatureDoc f = doc.toObject(FeatureDoc.class);
+  public static Place toProto(DocumentSnapshot doc) {
+    PlaceDoc f = doc.toObject(PlaceDoc.class);
     Point point =
         Point.newBuilder()
             .setLatitude(f.center.getLatitude())
             .setLongitude(f.center.getLongitude())
             .build();
-    return Feature.newBuilder()
+    return Place.newBuilder()
         .setId(doc.getId())
         .setCustomId(f.customId)
         .setCaption(f.caption)
-        .setFeatureTypeId(f.featureTypeId)
+        .setPlaceTypeId(f.featureTypeId)
         .setPoint(point)
         .setServerTimestamps(toTimestamps(f.serverTimeCreated, f.serverTimeModified))
         .setClientTimestamps(toTimestamps(f.clientTimeCreated, f.clientTimeModified))
         .build();
   }
 
-  public static FeatureDoc fromProto(Feature feature) {
-    FeatureDoc doc = new FeatureDoc();
-    Point point = feature.getPoint();
-    doc.featureTypeId = feature.getFeatureTypeId();
+  public static PlaceDoc fromProto(Place place) {
+    PlaceDoc doc = new PlaceDoc();
+    Point point = place.getPoint();
+    doc.featureTypeId = place.getPlaceTypeId();
     doc.center = new GeoPoint(point.getLatitude(), point.getLongitude());
-    doc.customId = feature.getCustomId();
-    doc.caption = feature.getCaption();
+    doc.customId = place.getCustomId();
+    doc.caption = place.getCaption();
     // TODO: Don't echo server timestamp in client. When we implement a proper DAL we can
     // use FieldValue.serverTimestamp() to signal when to update the value, or not set it,
     // depending on whether the operation is a CREATE or UPDATE.
-    if (feature.getServerTimestamps().hasCreated()) {
-      doc.serverTimeCreated = toDate(feature.getServerTimestamps().getCreated());
+    if (place.getServerTimestamps().hasCreated()) {
+      doc.serverTimeCreated = toDate(place.getServerTimestamps().getCreated());
     }
-    if (feature.getServerTimestamps().hasModified()) {
-      doc.serverTimeModified = toDate(feature.getServerTimestamps().getModified());
+    if (place.getServerTimestamps().hasModified()) {
+      doc.serverTimeModified = toDate(place.getServerTimestamps().getModified());
     }
-    if (feature.getClientTimestamps().hasCreated()) {
-      doc.clientTimeCreated = toDate(feature.getClientTimestamps().getCreated());
+    if (place.getClientTimestamps().hasCreated()) {
+      doc.clientTimeCreated = toDate(place.getClientTimestamps().getCreated());
     }
-    if (feature.getClientTimestamps().hasModified()) {
-      doc.clientTimeModified = toDate(feature.getClientTimestamps().getModified());
+    if (place.getClientTimestamps().hasModified()) {
+      doc.clientTimeModified = toDate(place.getClientTimestamps().getModified());
     }
     return doc;
   }

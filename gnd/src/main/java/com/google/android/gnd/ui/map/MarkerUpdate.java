@@ -16,7 +16,7 @@
 
 package com.google.android.gnd.ui.map;
 
-import com.google.android.gnd.model.Feature;
+import com.google.android.gnd.model.Place;
 import com.google.android.gnd.model.Point;
 
 class MarkerUpdate {
@@ -30,7 +30,7 @@ class MarkerUpdate {
   private Point point;
   private String iconId;
   private int iconColor;
-  private Feature place;
+  private Place place;
   private boolean hasPendingWrites;
 
   private MarkerUpdate(Type type) {
@@ -45,7 +45,7 @@ class MarkerUpdate {
     return new MarkerUpdate(Type.INVALID);
   }
 
-  public static MarkerUpdate addOrUpdatePlace(Feature place,
+  public static MarkerUpdate addOrUpdatePlace(Place place,
       String iconId,
       int iconColor,
       boolean hasPendingWrites) {
@@ -74,7 +74,7 @@ class MarkerUpdate {
     return point;
   }
 
-  public Feature getPlace() {
+  public Place getPlace() {
     return place;
   }
 

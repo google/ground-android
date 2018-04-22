@@ -30,8 +30,8 @@ public class ProjectActivationEvent {
   public enum Status {NO_PROJECT, LOADING, ACTIVATED}
 
   private Project project;
-  private Map<String, FeatureType> placeTypes;
-  private Flowable<DatastoreEvent<Feature>> placesFlowable;
+  private Map<String, PlaceType> placeTypes;
+  private Flowable<DatastoreEvent<Place>> placesFlowable;
   private Status status;
 
   private ProjectActivationEvent(Status status) {
@@ -47,12 +47,12 @@ public class ProjectActivationEvent {
   }
 
   public static ProjectActivationEvent activated(Project project,
-      Flowable<DatastoreEvent<Feature>> placesObservable,
-      Collection<FeatureType> placeTypes) {
+      Flowable<DatastoreEvent<Place>> placesObservable,
+      Collection<PlaceType> placeTypes) {
     ProjectActivationEvent ev = new ProjectActivationEvent(Status.ACTIVATED);
     ev.project = project;
     ev.placesFlowable = placesObservable;
-    ev.placeTypes = stream(placeTypes).collect(Collectors.toMap(FeatureType::getId, ft -> ft));
+    ev.placeTypes = stream(placeTypes).collect(Collectors.toMap(PlaceType::getId, ft -> ft));
     return ev;
   }
 
@@ -64,11 +64,11 @@ public class ProjectActivationEvent {
     return project;
   }
 
-  public Flowable<DatastoreEvent<Feature>> getPlacesFlowable() {
+  public Flowable<DatastoreEvent<Place>> getPlacesFlowable() {
     return placesFlowable;
   }
 
-  public Optional<FeatureType> getPlaceType(String placeTypeId) {
+  public Optional<PlaceType> getPlaceType(String placeTypeId) {
     return Optional.ofNullable(placeTypes.get(placeTypeId));
   }
 

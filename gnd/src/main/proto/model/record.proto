@@ -27,7 +27,7 @@ message Record {
   // Will be unset for new unsaved instances.
   string id = 1;
 
-  string featureTypeId = 2;
+  string placeTypeId = 2;
 
   string formId = 3;
 

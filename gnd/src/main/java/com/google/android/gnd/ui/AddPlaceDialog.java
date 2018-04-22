@@ -16,34 +16,31 @@
 
 package com.google.android.gnd.ui;
 
-import android.content.Context;
-import android.support.v7.app.AlertDialog;
-
-import com.google.android.gnd.R;
-import com.google.android.gnd.model.FeatureType;
-
-import java.util.List;
-
-import java8.util.function.Consumer;
-
 import static java8.util.stream.StreamSupport.stream;
 
-public class AddFeatureDialog {
+import android.content.Context;
+import android.support.v7.app.AlertDialog;
+import com.google.android.gnd.R;
+import com.google.android.gnd.model.PlaceType;
+import java.util.List;
+import java8.util.function.Consumer;
+
+public class AddPlaceDialog {
   private Context context;
 
-  public AddFeatureDialog(Context context) {
+  public AddPlaceDialog(Context context) {
     this.context = context;
   }
 
-  public void show(List<FeatureType> featureTypes, Consumer<FeatureType> onSelect) {
+  public void show(List<PlaceType> placeTypes, Consumer<PlaceType> onSelect) {
     AlertDialog.Builder builder = new AlertDialog.Builder(context);
     builder.setTitle(R.string.add_place_select_type_dialog_title);
     builder.setNegativeButton(R.string.add_place_cancel, (dialog, id) -> {});
     // TODO: Add icons.
     // TODO: i18n.
     String[] items =
-        stream(featureTypes).map(t -> t.getListHeadingOrDefault("pt", "?")).toArray(String[]::new);
-    builder.setItems(items, (dialog, idx) -> onSelect.accept(featureTypes.get(idx)));
+        stream(placeTypes).map(t -> t.getListHeadingOrDefault("pt", "?")).toArray(String[]::new);
+    builder.setItems(items, (dialog, idx) -> onSelect.accept(placeTypes.get(idx)));
     builder.create().show();
   }
 }

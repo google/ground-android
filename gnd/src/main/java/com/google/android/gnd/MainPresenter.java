@@ -21,9 +21,9 @@ import static java8.util.stream.StreamSupport.stream;
 import android.app.AlertDialog;
 import android.os.Bundle;
 import android.util.Log;
-import com.google.android.gnd.model.Feature;
-import com.google.android.gnd.model.FeatureType;
 import com.google.android.gnd.model.GndDataRepository;
+import com.google.android.gnd.model.Place;
+import com.google.android.gnd.model.PlaceType;
 import com.google.android.gnd.system.LocationManager;
 import com.google.android.gnd.system.PermissionManager;
 
@@ -80,7 +80,7 @@ public class MainPresenter {
                         .activateProject(summaries.get(which).getId())
                         .thenAccept(
                             project -> {
-                              mainActivity.enableAddFeatureButton();
+                              mainActivity.enableAddPlaceButton();
                               mainActivity.dismissLoadingDialog();
                             })
                         .exceptionally(
@@ -123,9 +123,9 @@ public class MainPresenter {
     return permissionManager;
   }
 
-  public void showFeatureDetails(Feature feature) {
+  public void showPlaceDetails(Place place) {
     try {
-      dataSheetPresenter.showFeatureDetails(feature);
+      dataSheetPresenter.showPlaceDetails(place);
       // TODO: update main view mode?
       //      uiMode = UiMode.VIEW;
     } catch (UserOperationFailed e) {
@@ -134,15 +134,15 @@ public class MainPresenter {
     }
   }
 
-  public void onAddFeatureClick() {
+  public void onAddPlaceClick() {
     if (model.getOldActiveProject() != null) {
-      mainActivity.showAddFeatureDialog(
-          model.getOldActiveProject().getFeatureTypesList(), this::onSelectFeatureTypeForAdd);
+      mainActivity.showAddPlaceDialog(
+          model.getOldActiveProject().getPlaceTypesList(), this::onSelectPlaceTypeForAdd);
     }
   }
 
-  private void onSelectFeatureTypeForAdd(FeatureType featureType) {
-    dataSheetPresenter.onSelectFeatureTypeForAdd(featureType);
+  private void onSelectPlaceTypeForAdd(PlaceType placeType) {
+    dataSheetPresenter.onSelectPlaceTypeForAdd(placeType);
   }
 
   public boolean onToolbarSaveButtonClick() {

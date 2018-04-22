@@ -16,16 +16,15 @@
 
 package com.google.android.gnd.service.firestore;
 
+import com.google.android.gnd.model.Form;
+import com.google.android.gnd.model.PlaceType;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.IgnoreExtraProperties;
-import com.google.android.gnd.model.FeatureType;
-import com.google.android.gnd.model.Form;
-
 import java.util.List;
 import java.util.Map;
 
 @IgnoreExtraProperties
-public class FeatureTypeDoc {
+public class PlaceTypeDoc {
   // TODO: Better name than pathKey? urlSubpath?
   public String pathKey;
 
@@ -37,9 +36,9 @@ public class FeatureTypeDoc {
 
   public String iconColor;
 
-  static FeatureType toProto(DocumentSnapshot doc, List<Form> forms) {
-    FeatureTypeDoc ft = doc.toObject(FeatureTypeDoc.class);
-    return FeatureType.newBuilder()
+  static PlaceType toProto(DocumentSnapshot doc, List<Form> forms) {
+    PlaceTypeDoc ft = doc.toObject(PlaceTypeDoc.class);
+    return PlaceType.newBuilder()
         .setId(doc.getId())
         .putAllListHeading(ft.listHeading)
         .putAllItemLabel(ft.itemLabel)

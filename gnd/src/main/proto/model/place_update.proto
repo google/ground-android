@@ -19,30 +19,41 @@ syntax = "proto3";
 option java_multiple_files = true;
 option java_package = "com.google.android.gnd.model";
 
-import "model/form.proto";
-import "model/timestamps.proto";
+import "google/protobuf/timestamp.proto";
+import "model/place.proto";
+import "model/record.proto";
 
 package gnd;
 
-message FeatureType {
-  string id = 1;
+message PlaceUpdate {
+  enum Operation {
+    NO_CHANGE = 0;
+    CREATE = 1;
+    UPDATE = 2;
+    DELETE = 3;
+  }
 
-  // TODO: Plural?
-  map<string, string> list_heading = 2;
+  Place place = 1;
 
-  map<string, string> item_label = 3;
+  Operation operation = 2;
 
-  string url_subpath = 4;
+  google.protobuf.Timestamp client_timestamp = 3;
 
-  string icon_id = 5;
+  repeated RecordUpdate record_updates = 4;
 
-  string icon_color = 6;
+  message RecordUpdate {
+    Record record = 1;
 
-  repeated Form forms = 7;
+    Operation operation = 2;
 
-  Timestamps server_timestamps = 8;
+    repeated ValueUpdate value_updates = 3;
 
-  Timestamps client_timestamps = 9;
+    message ValueUpdate {
+      string element_id = 1;
 
-  bool required = 10;
+      Record.Value value = 2;
+
+      Operation operation = 3;
+    }
+  }
 }

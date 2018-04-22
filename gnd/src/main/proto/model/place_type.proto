@@ -19,26 +19,30 @@ syntax = "proto3";
 option java_multiple_files = true;
 option java_package = "com.google.android.gnd.model";
 
-import "model/point.proto";
+import "model/form.proto";
 import "model/timestamps.proto";
 
 package gnd;
 
-message Feature {
-  // Will be unset for new unsaved instances.
+message PlaceType {
   string id = 1;
 
-  string feature_type_id = 2;
+  // TODO: Plural?
+  map<string, string> list_heading = 2;
 
-  string custom_id = 3;
+  map<string, string> item_label = 3;
 
-  // TODO: Rename to "label"?
-  // TODO: i18n.
-  string caption = 4;
+  string url_subpath = 4;
 
-  Point point = 5;
+  string icon_id = 5;
 
-  Timestamps server_timestamps = 6;
+  string icon_color = 6;
 
-  Timestamps client_timestamps = 7;
+  repeated Form forms = 7;
+
+  Timestamps server_timestamps = 8;
+
+  Timestamps client_timestamps = 9;
+
+  bool required = 10;
 }

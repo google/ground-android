@@ -16,6 +16,12 @@
 
 package com.google.android.gnd.ui.sheet.input;
 
+import static com.google.android.gnd.model.PlaceUpdate.Operation.CREATE;
+import static com.google.android.gnd.model.PlaceUpdate.Operation.DELETE;
+import static com.google.android.gnd.model.PlaceUpdate.Operation.NO_CHANGE;
+import static com.google.android.gnd.model.PlaceUpdate.Operation.UPDATE;
+import static com.google.android.gnd.ui.util.ViewUtil.getColorForStates;
+
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
@@ -23,21 +29,13 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
-
-import com.google.android.gnd.R;
-import com.google.android.gnd.model.FeatureUpdate;
-import com.google.android.gnd.model.Record;
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnFocusChange;
+import com.google.android.gnd.R;
+import com.google.android.gnd.model.PlaceUpdate;
+import com.google.android.gnd.model.Record;
 import java8.util.Optional;
-
-import static com.google.android.gnd.model.FeatureUpdate.Operation.CREATE;
-import static com.google.android.gnd.model.FeatureUpdate.Operation.DELETE;
-import static com.google.android.gnd.model.FeatureUpdate.Operation.NO_CHANGE;
-import static com.google.android.gnd.model.FeatureUpdate.Operation.UPDATE;
-import static com.google.android.gnd.ui.util.ViewUtil.getColorForStates;
 
 public class TextFieldView extends ConstraintLayout implements Editable {
   @BindView(R.id.text_field_label)
@@ -128,9 +126,9 @@ public class TextFieldView extends ConstraintLayout implements Editable {
   }
 
   @Override
-  public FeatureUpdate.RecordUpdate.ValueUpdate getUpdate() {
-    FeatureUpdate.RecordUpdate.ValueUpdate.Builder update =
-        FeatureUpdate.RecordUpdate.ValueUpdate.newBuilder();
+  public PlaceUpdate.RecordUpdate.ValueUpdate getUpdate() {
+    PlaceUpdate.RecordUpdate.ValueUpdate.Builder update =
+        PlaceUpdate.RecordUpdate.ValueUpdate.newBuilder();
     update.setElementId(elementId);
     Optional<Record.Value> currentValue = getCurrentValue();
     if (currentValue.equals(originalValue)) {

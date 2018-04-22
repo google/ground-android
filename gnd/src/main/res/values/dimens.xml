@@ -21,7 +21,7 @@
   <dimen name="field_vertical_margin">2dp</dimen>
   <dimen name="field_value_top_padding">6dp</dimen>
   <dimen name="record_vertical_margin">12dp</dimen>
-  <dimen name="feature_menu_btn_top">6dp</dimen>
+  <dimen name="place_menu_btn_top">6dp</dimen>
 
   <!-- Space between fields in Record Details View -->
   <dimen name="details_field_spacing">4dp</dimen>

@@ -24,12 +24,12 @@ import static java8.util.stream.StreamSupport.stream;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
-import com.google.android.gnd.model.Feature;
-import com.google.android.gnd.model.FeatureType;
-import com.google.android.gnd.model.FeatureUpdate;
-import com.google.android.gnd.model.FeatureUpdate.RecordUpdate;
-import com.google.android.gnd.model.FeatureUpdate.RecordUpdate.ValueUpdate;
 import com.google.android.gnd.model.Form;
+import com.google.android.gnd.model.Place;
+import com.google.android.gnd.model.PlaceType;
+import com.google.android.gnd.model.PlaceUpdate;
+import com.google.android.gnd.model.PlaceUpdate.RecordUpdate;
+import com.google.android.gnd.model.PlaceUpdate.RecordUpdate.ValueUpdate;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.Record;
 import com.google.android.gnd.model.Timestamps;
@@ -103,21 +103,21 @@ public class FirestoreDataService implements DataService {
   @Override
   public CompletableFuture<Project> loadProject(String projectId) {
     return fetchDocument(project(projectId))
-        .thenCompose(p -> fetchFeatureTypes(p).thenApply(fts -> ProjectDoc
+        .thenCompose(p -> fetchPlaceTypes(p).thenApply(fts -> ProjectDoc
             .toProto(p, fts)));
   }
 
-  private CompletableFuture<List<FeatureType>> fetchFeatureTypes(DocumentSnapshot project) {
-    return fetchDocuments(featureTypes(project)).thenCompose(this::loadAndAssembleForms);
+  private CompletableFuture<List<PlaceType>> fetchPlaceTypes(DocumentSnapshot project) {
+    return fetchDocuments(placeTypes(project)).thenCompose(this::loadAndAssembleForms);
   }
 
-  private CompletableFuture<List<FeatureType>> loadAndAssembleForms(List<DocumentSnapshot>
-      featureTypes) {
-    return allOf(map(featureTypes, d -> loadForms(d).thenApply(f -> FeatureTypeDoc.toProto(d, f))));
+  private CompletableFuture<List<PlaceType>> loadAndAssembleForms(List<DocumentSnapshot>
+      placeTypes) {
+    return allOf(map(placeTypes, d -> loadForms(d).thenApply(f -> PlaceTypeDoc.toProto(d, f))));
   }
 
-  private CompletableFuture<List<Form>> loadForms(DocumentSnapshot featureType) {
-    return fetchDocuments(forms(featureType)).thenApply(docs -> map(docs, FormDoc::toProto));
+  private CompletableFuture<List<Form>> loadForms(DocumentSnapshot placeType) {
+    return fetchDocuments(forms(placeType)).thenApply(docs -> map(docs, FormDoc::toProto));
   }
 
   private CompletableFuture<List<DocumentSnapshot>> fetchDocuments(CollectionReference coll) {
@@ -130,62 +130,62 @@ public class FirestoreDataService implements DataService {
 
   // Differentiate generic "update" (CRUD operation) from database "update".
   @Override
-  public Feature update(String projectId, FeatureUpdate featureUpdate) {
+  public Place update(String projectId, PlaceUpdate placeUpdate) {
     // NOTE: Batched writes are atomic in Firestore. We always update the timestamps on
-    // Features, even when Records are added or modified, so that there will always a
-    // pending write on the Feature until the Record is written. We then can use hasPendingWrites
-    // on the Feature to guarantee all related updates have been written.
-    Log.i(TAG, "Db op requested: " + featureUpdate);
-    switch (featureUpdate.getOperation()) {
+    // Places, even when Records are added or modified, so that there will always a
+    // pending write on the Place until the Record is written. We then can use hasPendingWrites
+    // on the Place to guarantee all related updates have been written.
+    Log.i(TAG, "Db op requested: " + placeUpdate);
+    switch (placeUpdate.getOperation()) {
       case CREATE:
-        return createFeature(projectId, featureUpdate);
+        return createPlace(projectId, placeUpdate);
       case UPDATE:
       case NO_CHANGE:
-        return updateFeature(projectId, featureUpdate);
+        return updatePlace(projectId, placeUpdate);
       case DELETE:
         // TODO: Implement delete..
       default:
-        throw new IllegalArgumentException("Unknown update type: " + featureUpdate.getOperation());
+        throw new IllegalArgumentException("Unknown update type: " + placeUpdate.getOperation());
     }
   }
 
-  private Feature createFeature(String projectId, FeatureUpdate featureUpdate) {
+  private Place createPlace(String projectId, PlaceUpdate placeUpdate) {
     WriteBatch batch = db.batch();
-    Feature.Builder feature = featureUpdate.getFeature().toBuilder();
-    DocumentReference fdRef = features(projectId).document();
-    feature.setId(fdRef.getId());
-    feature.clearServerTimestamps();
-    feature.setClientTimestamps(Timestamps
+    Place.Builder place = placeUpdate.getPlace().toBuilder();
+    DocumentReference fdRef = places(projectId).document();
+    place.setId(fdRef.getId());
+    place.clearServerTimestamps();
+    place.setClientTimestamps(Timestamps
         .newBuilder()
-        .setCreated(featureUpdate.getClientTimestamp())
-        .setModified(featureUpdate.getClientTimestamp()));
-    batch.set(fdRef, FeatureDoc.fromProto(feature.build()));
-    updateRecords(batch, fdRef, featureUpdate);
+        .setCreated(placeUpdate.getClientTimestamp())
+        .setModified(placeUpdate.getClientTimestamp()));
+    batch.set(fdRef, PlaceDoc.fromProto(place.build()));
+    updateRecords(batch, fdRef, placeUpdate);
     // We don't wait for commit() to finish because task only completes once data is stored to
     // server.
     batch.commit();
-    // Pass feature back with ID populated.
-    return feature.build();
+    // Pass place back with ID populated.
+    return place.build();
   }
 
-  private Feature updateFeature(String projectId, FeatureUpdate featureUpdate) {
+  private Place updatePlace(String projectId, PlaceUpdate placeUpdate) {
     WriteBatch batch = db.batch();
-    Feature.Builder feature = featureUpdate.getFeature().toBuilder();
-    DocumentReference fdRef = features(projectId).document(feature.getId());
-    feature.setServerTimestamps(feature.getServerTimestamps().toBuilder().clearModified());
-    feature.setClientTimestamps(feature
+    Place.Builder place = placeUpdate.getPlace().toBuilder();
+    DocumentReference fdRef = places(projectId).document(place.getId());
+    place.setServerTimestamps(place.getServerTimestamps().toBuilder().clearModified());
+    place.setClientTimestamps(place
         .getClientTimestamps()
         .toBuilder()
-        .setModified(featureUpdate.getClientTimestamp()));
-    batch.set(fdRef, FeatureDoc.fromProto(feature.build()), MERGE);
-    updateRecords(batch, fdRef, featureUpdate);
+        .setModified(placeUpdate.getClientTimestamp()));
+    batch.set(fdRef, PlaceDoc.fromProto(place.build()), MERGE);
+    updateRecords(batch, fdRef, placeUpdate);
     batch.commit();
-    return feature.build();
+    return place.build();
   }
 
   @Override
-  public CompletableFuture<List<Record>> loadRecordData(String projectId, String featureId) {
-    return fetchDocuments(records(feature(projectId, featureId)))
+  public CompletableFuture<List<Record>> loadRecordData(String projectId, String placeId) {
+    return fetchDocuments(records(place(projectId, placeId)))
         .thenApply(docs -> map(docs, doc -> RecordDoc.toProto(doc.getId(), doc)));
   }
 
@@ -198,10 +198,10 @@ public class FirestoreDataService implements DataService {
   }
 
   @Override
-  public Flowable<DatastoreEvent<Feature>> observePlaces(String projectId) {
+  public Flowable<DatastoreEvent<Place>> observePlaces(String projectId) {
     return RxFirestore
-        .observeQueryRef(features(projectId))
-        .flatMap(s -> toDatastoreEvents(s, FeatureDoc::toProto))
+        .observeQueryRef(places(projectId))
+        .flatMap(s -> toDatastoreEvents(s, PlaceDoc::toProto))
         .doOnTerminate(() -> {
           Log.d(TAG, "observePlaces stream for project " + projectId + " terminated.");
         });
@@ -243,16 +243,16 @@ public class FirestoreDataService implements DataService {
 
   private void updateRecords(WriteBatch batch,
       DocumentReference fdRef,
-      FeatureUpdate featureUpdate) {
+      PlaceUpdate placeUpdate) {
     CollectionReference records = records(fdRef);
-    for (RecordUpdate recordUpdate : featureUpdate.getRecordUpdatesList()) {
+    for (RecordUpdate recordUpdate : placeUpdate.getRecordUpdatesList()) {
       Record.Builder record = recordUpdate.getRecord().toBuilder();
       switch (recordUpdate.getOperation()) {
         case CREATE:
           record.setClientTimestamps(Timestamps
               .newBuilder()
-              .setCreated(featureUpdate.getClientTimestamp())
-              .setModified(featureUpdate.getClientTimestamp()));
+              .setCreated(placeUpdate.getClientTimestamp())
+              .setModified(placeUpdate.getClientTimestamp()));
           batch.set(records.document(),
               RecordDoc.fromProto(record.build(), updatedValues(recordUpdate)));
           break;
@@ -260,7 +260,7 @@ public class FirestoreDataService implements DataService {
           record.setClientTimestamps(record
               .getClientTimestamps()
               .toBuilder()
-              .setModified(featureUpdate.getClientTimestamp()));
+              .setModified(placeUpdate.getClientTimestamp()));
           batch.set(records.document(record.getId()),
               RecordDoc.fromProto(record.build(), updatedValues(recordUpdate)),
               MERGE);
@@ -298,32 +298,32 @@ public class FirestoreDataService implements DataService {
   }
 
   @NonNull
-  private CollectionReference features(String projectId) {
+  private CollectionReference places(String projectId) {
     return project(projectId).collection("features");
   }
 
-  private DocumentReference feature(String projectId, String featureId) {
-    return features(projectId).document(featureId);
+  private DocumentReference place(String projectId, String placeId) {
+    return places(projectId).document(placeId);
   }
 
-  private CollectionReference featureTypes(DocumentReference project) {
+  private CollectionReference placeTypes(DocumentReference project) {
     return project.collection("featureTypes");
   }
 
-  private CollectionReference featureTypes(DocumentSnapshot project) {
-    return featureTypes(project.getReference());
+  private CollectionReference placeTypes(DocumentSnapshot project) {
+    return placeTypes(project.getReference());
   }
 
-  private CollectionReference forms(DocumentReference featureType) {
-    return featureType.collection("forms");
+  private CollectionReference forms(DocumentReference placeType) {
+    return placeType.collection("forms");
   }
 
-  private CollectionReference forms(DocumentSnapshot featureType) {
-    return forms(featureType.getReference());
+  private CollectionReference forms(DocumentSnapshot placeType) {
+    return forms(placeType.getReference());
   }
 
   @NonNull
-  private CollectionReference records(DocumentReference feature) {
-    return feature.collection("records");
+  private CollectionReference records(DocumentReference place) {
+    return place.collection("records");
   }
 }

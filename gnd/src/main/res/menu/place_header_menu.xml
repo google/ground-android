@@ -25,13 +25,13 @@
       app:showAsAction="always"/>
 
   <item
-      android:id="@+id/edit_feature_metadata_menu_item"
+    android:id="@+id/edit_place_metadata_menu_item"
       android:title="@string/edit_place_id_and_caption"/>
   <item
-      android:id="@+id/move_feature_menu_item"
+    android:id="@+id/move_place_menu_item"
       android:title="@string/move_place"/>
   <item
-      android:id="@+id/delete_feature_menu_item"
+    android:id="@+id/delete_place_menu_item"
       android:title="@string/delete_place"/>
 
 </menu>

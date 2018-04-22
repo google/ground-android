@@ -18,7 +18,7 @@ package com.google.android.gnd;
 
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import com.google.android.gnd.model.Feature;
+import com.google.android.gnd.model.Place;
 import com.google.android.gnd.model.Point;
 import com.google.android.gnd.system.LocationManager;
 import com.google.android.gnd.system.LocationManager.LocationFailureReason;
@@ -61,8 +61,8 @@ public class MapPresenter {
     locationLockBtn.setOnClickListener((v) -> this.onLocationLockClick());
     locationLockBtn.bringToFront();
 
-    addBtn = mainActivity.getAddFeatureButton();
-    addBtn.setOnClickListener((v) -> mainPresenter.onAddFeatureClick());
+    addBtn = mainActivity.getAddPlaceButton();
+    addBtn.setOnClickListener((v) -> mainPresenter.onAddPlaceClick());
     addBtn.bringToFront();
   }
 
@@ -94,8 +94,8 @@ public class MapPresenter {
   }
 
   private void onMarkerClick(MapMarker marker) {
-    if (marker.getObject() instanceof Feature) {
-      mainPresenter.showFeatureDetails((Feature) marker.getObject());
+    if (marker.getObject() instanceof Place) {
+      mainPresenter.showPlaceDetails((Place) marker.getObject());
     }
   }
 

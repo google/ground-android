@@ -20,9 +20,9 @@ import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.graphics.Color;
 import com.akaita.java.rxjava2debug.RxJava2Debug;
-import com.google.android.gnd.model.Feature;
-import com.google.android.gnd.model.FeatureType;
 import com.google.android.gnd.model.GndDataRepository;
+import com.google.android.gnd.model.Place;
+import com.google.android.gnd.model.PlaceType;
 import com.google.android.gnd.model.ProjectActivationEvent;
 import com.google.android.gnd.rx.Schedulers;
 import com.google.android.gnd.service.DatastoreEvent;
@@ -49,12 +49,12 @@ public class MapViewModel extends AbstractViewModel {
   }
 
   public static MarkerUpdate toMarkerUpdate(ProjectActivationEvent project,
-      DatastoreEvent<Feature> placeData) {
+      DatastoreEvent<Place> placeData) {
     switch (placeData.getType()) {
       case ENTITY_LOADED:
       case ENTITY_MODIFIED:
         return placeData.getEntity()
-            .map(Feature::getFeatureTypeId)
+            .map(Place::getPlaceTypeId)
             .flatMap(project::getPlaceType)
             .map(placeType ->
                 MarkerUpdate.addOrUpdatePlace(
@@ -69,12 +69,12 @@ public class MapViewModel extends AbstractViewModel {
     return MarkerUpdate.invalid();
   }
 
-  private static int getIconColor(FeatureType placeType) {
+  private static int getIconColor(PlaceType placeType) {
     // TODO: Return default color if invalid.
     return Color.parseColor(placeType.getIconColor());
   }
 
-  private static boolean hasPendingWrites(DatastoreEvent<Feature> placeDataEvent) {
+  private static boolean hasPendingWrites(DatastoreEvent<Place> placeDataEvent) {
     return placeDataEvent.getSource() == DatastoreEvent.Source.LOCAL_DATASTORE;
   }
 

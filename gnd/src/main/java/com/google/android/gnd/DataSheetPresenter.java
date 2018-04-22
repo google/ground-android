@@ -28,10 +28,10 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
-import com.google.android.gnd.model.Feature;
-import com.google.android.gnd.model.FeatureType;
 import com.google.android.gnd.model.Form;
 import com.google.android.gnd.model.GndDataRepository;
+import com.google.android.gnd.model.Place;
+import com.google.android.gnd.model.PlaceType;
 import com.google.android.gnd.model.Record;
 import com.google.android.gnd.ui.map.GoogleMapImpl;
 import com.google.android.gnd.ui.map.GoogleMapsView;
@@ -52,7 +52,7 @@ public class DataSheetPresenter {
   private Toolbar toolbar;
   private GoogleMapsView mapView;
   private FloatingActionButton addRecordBtn;
-  private FloatingActionButton addFeatureBtn;
+  private FloatingActionButton addPlaceBtn;
 
   public DataSheetPresenter(
       MainPresenter mainPresenter, MainActivity mainActivity, GndDataRepository model) {
@@ -65,7 +65,7 @@ public class DataSheetPresenter {
     dataSheetView = mainActivity.getDataSheetView();
     addRecordBtn = mainActivity.getAddRecordButton();
     // TODO: Move access to these through mainActivity?
-    addFeatureBtn = mainActivity.getAddFeatureButton();
+    addPlaceBtn = mainActivity.getAddPlaceButton();
     toolbar = mainActivity.getToolbar();
     mapView = mainActivity.getMapView();
   }
@@ -120,33 +120,33 @@ public class DataSheetPresenter {
     // TODO: Hide temporary place marker.
     mainActivity.hideSoftInput();
     addRecordBtn.setEnabled(false);
-    addFeatureBtn.setEnabled(true);
+    addPlaceBtn.setEnabled(true);
     mapView.getMap().subscribe(GoogleMapImpl::enable);
   }
 
   public void onShowSheet() {
     mapView.getMap().subscribe(GoogleMapImpl::disable);
     //    mapView.pauseLocationUpdates()
-    addFeatureBtn.setEnabled(false);
+    addPlaceBtn.setEnabled(false);
     addRecordBtn.setEnabled(true);
   }
 
-  public void showFeatureDetails(Feature feature) throws UserOperationFailed {
-    FeatureType featureType = getFeatureType(feature);
+  public void showPlaceDetails(Place place) throws UserOperationFailed {
+    PlaceType placeType = getPlaceType(place);
     addRecordBtn.setVisibility(View.VISIBLE);
     hideToolbarSaveButton();
-    updateToolbarHeadings(feature, featureType);
+    updateToolbarHeadings(place, placeType);
 
     dataSheetView.setMode(Editable.Mode.VIEW);
-    dataSheetView.getHeader().attach(feature, featureType);
-    dataSheetView.getHeader().setTitle(getTitle(feature, featureType));
-    dataSheetView.getHeader().setSubtitle(getSubtitle(feature, featureType));
-    //    dataSheetView.refreshFormSelectorTabs(featureType.getFormsList());
+    dataSheetView.getHeader().attach(place, placeType);
+    dataSheetView.getHeader().setTitle(getTitle(place, placeType));
+    dataSheetView.getHeader().setSubtitle(getSubtitle(place, placeType));
+    //    dataSheetView.refreshFormSelectorTabs(placeType.getFormsList());
     dataSheetView.getBody().clear();
     // TODO: Loading spinner.
     // TODO: Implement pagination? i.e., Only load n at a time?
     model
-        .getRecordData(feature.getId())
+        .getRecordData(place.getId())
         .thenAccept(
             records -> {
               stream(records)
@@ -158,7 +158,7 @@ public class DataSheetPresenter {
                       record -> {
                         RecordView formView =
                             new RecordView(dataSheetView.getContext(), this::onEditRecordClick);
-                        formView.populate(featureType.getForms(0), record, Editable.Mode.VIEW);
+                        formView.populate(placeType.getForms(0), record, Editable.Mode.VIEW);
                         dataSheetView.getBody().addView(formView);
                       });
             });
@@ -168,46 +168,46 @@ public class DataSheetPresenter {
   }
 
   @NonNull
-  private FeatureType getFeatureType(Feature feature) throws UserOperationFailed {
-    Optional<FeatureType> featureType = model.getFeatureType(feature.getFeatureTypeId());
-    if (!featureType.isPresent()) {
-      throw new UserOperationFailed("Feature type unknown for feature " + feature.getId());
+  private PlaceType getPlaceType(Place place) throws UserOperationFailed {
+    Optional<PlaceType> placeType = model.getPlaceType(place.getPlaceTypeId());
+    if (!placeType.isPresent()) {
+      throw new UserOperationFailed("Place type unknown for place " + place.getId());
     }
-    return featureType.get();
+    return placeType.get();
   }
 
-  private void updateToolbarHeadings(Feature feature, FeatureType featureType) {
+  private void updateToolbarHeadings(Place place, PlaceType placeType) {
     // TODO: i18n.
-    toolbar.setTitle(getTitle(feature, featureType));
-    toolbar.setSubtitle(getSubtitle(feature, featureType));
+    toolbar.setTitle(getTitle(place, placeType));
+    toolbar.setSubtitle(getSubtitle(place, placeType));
   }
 
-  public String getTitle(Feature feature, FeatureType featureType) {
+  public String getTitle(Place place, PlaceType placeType) {
     // TODO: i18n.
-    String placeTypeLabel = featureType.getItemLabelOrDefault("pt", "");
-    String caption = feature.getCaption();
+    String placeTypeLabel = placeType.getItemLabelOrDefault("pt", "");
+    String caption = place.getCaption();
     return caption.isEmpty() ? placeTypeLabel : caption;
   }
 
-  public String getSubtitle(Feature feature, FeatureType featureType) {
+  public String getSubtitle(Place place, PlaceType placeType) {
     // TODO: i18n.
-    String placeTypeLabel = featureType.getItemLabelOrDefault("pt", "");
-    String caption = feature.getCaption();
-    return caption.isEmpty() ? "" : placeTypeLabel + " " + feature.getCustomId();
+    String placeTypeLabel = placeType.getItemLabelOrDefault("pt", "");
+    String caption = place.getCaption();
+    return caption.isEmpty() ? "" : placeTypeLabel + " " + place.getCustomId();
   }
 
   private void onAddRecordClick() {
     try {
-      Feature feature = dataSheetView.getHeader().getCurrentValue();
-      FeatureType featureType = getFeatureType(feature);
+      Place place = dataSheetView.getHeader().getCurrentValue();
+      PlaceType placeType = getPlaceType(place);
       RecordView recordView = new RecordView(dataSheetView.getContext(), this::onEditRecordClick);
       // TODO: Hide add record button if there are no forms available.
-      if (featureType.getFormsCount() > 0) {
+      if (placeType.getFormsCount() > 0) {
         // TODO: Support multiple form types.
-        Form form = featureType.getForms(0);
+        Form form = placeType.getForms(0);
         Record record =
             Record.newBuilder()
-                .setFeatureTypeId(featureType.getId())
+                .setPlaceTypeId(placeType.getId())
                 .setFormId(form.getId())
                 .build();
         recordView.populate(form, record, Editable.Mode.EDIT);
@@ -236,11 +236,11 @@ public class DataSheetPresenter {
         .forEach(v -> v.setVisibility(View.GONE));
   }
 
-  public void onSelectFeatureTypeForAdd(FeatureType featureType) {
+  public void onSelectPlaceTypeForAdd(PlaceType placeType) {
     mapView.getMap().subscribe(map -> {
-      Feature feature =
-          Feature.newBuilder()
-              .setFeatureTypeId(featureType.getId())
+      Place place =
+          Place.newBuilder()
+              .setPlaceTypeId(placeType.getId())
               .setPoint(map.getCenter())
               .build();
       showToolbarSaveButton();
@@ -248,24 +248,24 @@ public class DataSheetPresenter {
       toolbar.setTitle(R.string.add_place_toolbar_title);
       toolbar.setSubtitle("");
       addRecordBtn.setVisibility(View.INVISIBLE);
-      // TODO: Encapsulate featureType, feature, etc. as SheetState or in ApplicationState?
+      // TODO: Encapsulate placeType, place, etc. as SheetState or in ApplicationState?
       dataSheetView.setMode(Editable.Mode.EDIT);
-      dataSheetView.getHeader().attach(feature, featureType);
-      dataSheetView.getHeader().setTitle(getTitle(feature, featureType));
+      dataSheetView.getHeader().attach(place, placeType);
+      dataSheetView.getHeader().setTitle(getTitle(place, placeType));
       dataSheetView.getHeader().setSubtitle("");
       dataSheetView.getBody().clear();
       // TODO: Show temporary highlighted place marker.
       RecordView formView = new RecordView(dataSheetView.getContext(), this::onEditRecordClick);
-      if (featureType.getFormsCount() > 0) {
+      if (placeType.getFormsCount() > 0) {
         // TODO: Support multiple form types.
-        Form form = featureType.getForms(0);
+        Form form = placeType.getForms(0);
         Record record =
-            Record.newBuilder().setFeatureTypeId(featureType.getId()).setFormId(form.getId())
+            Record.newBuilder().setPlaceTypeId(placeType.getId()).setFormId(form.getId())
                 .build();
         formView.populate(form, record, Editable.Mode.EDIT);
         dataSheetView.getBody().addView(formView);
       }
-      // TODO: Do something smart when there are no forms associated with the feature.
+      // TODO: Do something smart when there are no forms associated with the place.
       dataSheetView.slideOpen();
     });
   }

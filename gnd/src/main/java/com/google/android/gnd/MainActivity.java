@@ -44,12 +44,12 @@ import android.widget.FrameLayout;
 import android.widget.Toast;
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import com.google.android.gnd.model.FeatureType;
 import com.google.android.gnd.model.GndDataRepository;
+import com.google.android.gnd.model.PlaceType;
 import com.google.android.gnd.service.DataService;
 import com.google.android.gnd.system.LocationManager;
 import com.google.android.gnd.system.PermissionManager;
-import com.google.android.gnd.ui.AddFeatureDialog;
+import com.google.android.gnd.ui.AddPlaceDialog;
 import com.google.android.gnd.ui.map.GoogleMapsView;
 import com.google.android.gnd.ui.sheet.DataSheetScrollView;
 import com.google.android.gnd.ui.util.ViewUtil;
@@ -59,10 +59,10 @@ import javax.inject.Inject;
 
 public class MainActivity extends AbstractGndActivity {
   private MainPresenter mainPresenter;
-  private AddFeatureDialog addFeatureDialog;
+  private AddPlaceDialog addPlaceDialog;
 
-  @BindView(R.id.add_feature_btn)
-  FloatingActionButton addFeatureBtn;
+  @BindView(R.id.add_place_btn)
+  FloatingActionButton addPlaceBtn;
 
   private ProgressDialog progressDialog;
   private Menu toolbarMenu;
@@ -84,7 +84,7 @@ public class MainActivity extends AbstractGndActivity {
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
 
-    this.addFeatureDialog = new AddFeatureDialog(this);
+    this.addPlaceDialog = new AddPlaceDialog(this);
     this.mainPresenter = new MainPresenter(this, model, permissionManager, locationManager);
 
     setContentView(R.layout.activity_main);
@@ -155,8 +155,8 @@ public class MainActivity extends AbstractGndActivity {
     progressDialog.dismiss();
   }
 
-  public void enableAddFeatureButton() {
-    addFeatureBtn.setBackgroundTintList(
+  public void enableAddPlaceButton() {
+    addPlaceBtn.setBackgroundTintList(
         ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
   }
 
@@ -177,7 +177,7 @@ public class MainActivity extends AbstractGndActivity {
   public boolean onCreateOptionsMenu(Menu menu) {
     toolbarMenu = menu;
     MenuInflater inflater = getMenuInflater();
-    inflater.inflate(R.menu.feature_header_menu, menu);
+    inflater.inflate(R.menu.place_header_menu, menu);
 
     return true;
   }
@@ -194,8 +194,8 @@ public class MainActivity extends AbstractGndActivity {
     return (FloatingActionButton) findViewById(R.id.gps_lock_btn);
   }
 
-  public FloatingActionButton getAddFeatureButton() {
-    return addFeatureBtn;
+  public FloatingActionButton getAddPlaceButton() {
+    return addPlaceBtn;
   }
 
   public FloatingActionButton getAddRecordButton() {
@@ -230,10 +230,10 @@ public class MainActivity extends AbstractGndActivity {
     return toolbarMenu.findItem(R.id.toolbar_save_link);
   }
 
-  public void showAddFeatureDialog(
-      List<FeatureType> featureTypesList, Consumer<FeatureType> onSelect) {
-    addFeatureDialog.show(
-        featureTypesList,
+  public void showAddPlaceDialog(
+      List<PlaceType> placeTypesList, Consumer<PlaceType> onSelect) {
+    addPlaceDialog.show(
+        placeTypesList,
         ft -> {
           onSelect.accept(ft);
         });

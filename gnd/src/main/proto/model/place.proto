@@ -19,41 +19,26 @@ syntax = "proto3";
 option java_multiple_files = true;
 option java_package = "com.google.android.gnd.model";
 
-import "google/protobuf/timestamp.proto";
-import "model/feature.proto";
-import "model/record.proto";
+import "model/point.proto";
+import "model/timestamps.proto";
 
 package gnd;
 
-message FeatureUpdate {
-  enum Operation {
-    NO_CHANGE = 0;
-    CREATE = 1;
-    UPDATE = 2;
-    DELETE = 3;
-  }
+message Place {
+  // Will be unset for new unsaved instances.
+  string id = 1;
 
-  Feature feature = 1;
+  string place_type_id = 2;
 
-  Operation operation = 2;
+  string custom_id = 3;
 
-  google.protobuf.Timestamp client_timestamp = 3;
+  // TODO: Rename to "label"?
+  // TODO: i18n.
+  string caption = 4;
 
-  repeated RecordUpdate record_updates = 4;
+  Point point = 5;
 
-  message RecordUpdate {
-    Record record = 1;
+  Timestamps server_timestamps = 6;
 
-    Operation operation = 2;
-
-    repeated ValueUpdate value_updates = 3;
-
-    message ValueUpdate {
-      string element_id = 1;
-
-      Record.Value value = 2;
-
-      Operation operation = 3;
-    }
-  }
+  Timestamps client_timestamps = 7;
 }

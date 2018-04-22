@@ -16,12 +16,11 @@
 
 package com.google.android.gnd.service.firestore;
 
+import com.google.android.gnd.model.PlaceType;
+import com.google.android.gnd.model.Project;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.IgnoreExtraProperties;
 import com.google.firebase.firestore.ServerTimestamp;
-import com.google.android.gnd.model.FeatureType;
-import com.google.android.gnd.model.Project;
-
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -41,13 +40,13 @@ public class ProjectDoc {
 
   public Date clientTimeModified;
 
-  public static Project toProto(DocumentSnapshot doc, List<FeatureType> featureTypes) {
+  public static Project toProto(DocumentSnapshot doc, List<PlaceType> placeTypes) {
     ProjectDoc pd = doc.toObject(ProjectDoc.class);
     return Project.newBuilder()
         .setId(doc.getId())
         .putAllTitle(pd.title)
         .putAllDescription(pd.description)
-        .addAllFeatureTypes(featureTypes)
+        .addAllPlaceTypes(placeTypes)
         .build();
   }
 

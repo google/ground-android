@@ -16,6 +16,12 @@
 
 package com.google.android.gnd.ui.sheet;
 
+import static com.google.android.gnd.model.PlaceUpdate.Operation.CREATE;
+import static com.google.android.gnd.model.PlaceUpdate.Operation.NO_CHANGE;
+import static com.google.android.gnd.model.PlaceUpdate.Operation.UPDATE;
+import static com.google.android.gnd.ui.sheet.input.Editable.Mode.EDIT;
+import static com.google.android.gnd.ui.util.ViewUtil.children;
+
 import android.content.Context;
 import android.support.v7.widget.PopupMenu;
 import android.text.format.DateUtils;
@@ -25,15 +31,16 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
-
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import com.google.android.gnd.R;
-import com.google.android.gnd.model.FeatureUpdate.RecordUpdate;
-import com.google.android.gnd.model.FeatureUpdate.RecordUpdate.ValueUpdate;
 import com.google.android.gnd.model.Form;
 import com.google.android.gnd.model.Form.Element;
 import com.google.android.gnd.model.Form.Field;
 import com.google.android.gnd.model.Form.MultipleChoice;
 import com.google.android.gnd.model.Form.TextField;
+import com.google.android.gnd.model.PlaceUpdate.RecordUpdate;
+import com.google.android.gnd.model.PlaceUpdate.RecordUpdate.ValueUpdate;
 import com.google.android.gnd.model.Record;
 import com.google.android.gnd.model.Record.Value;
 import com.google.android.gnd.model.Timestamps;
@@ -42,21 +49,13 @@ import com.google.android.gnd.ui.sheet.input.Editable.Mode;
 import com.google.android.gnd.ui.sheet.input.MultipleChoiceFieldView;
 import com.google.android.gnd.ui.sheet.input.TextFieldView;
 import com.google.protobuf.Timestamp;
-
-import butterknife.BindView;
-import butterknife.ButterKnife;
 import java8.util.Optional;
 import java8.util.function.Consumer;
 import java8.util.stream.Stream;
 
-import static com.google.android.gnd.model.FeatureUpdate.Operation.CREATE;
-import static com.google.android.gnd.model.FeatureUpdate.Operation.NO_CHANGE;
-import static com.google.android.gnd.model.FeatureUpdate.Operation.UPDATE;
-import static com.google.android.gnd.ui.sheet.input.Editable.Mode.EDIT;
-import static com.google.android.gnd.ui.util.ViewUtil.children;
-
 public class RecordView extends FrameLayout {
-  private static final String TAG = RecordView.class.getSimpleName();;
+
+  private static final String TAG = RecordView.class.getSimpleName();
   // TODO: Refactor me!
   private static final long MILLIS_PER_SECOND = 1000;
   private static final long NANOS_PER_MILLISECOND = 1000000;

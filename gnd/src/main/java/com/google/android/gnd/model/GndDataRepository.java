@@ -38,7 +38,7 @@ public class GndDataRepository {
   private final DataService dataService;
   private Project oldActiveProject;
   private BehaviorSubject<ProjectActivationEvent> projectActivationObservable;
-  private Flowable<DatastoreEvent<Feature>> placesObservable;
+  private Flowable<DatastoreEvent<Place>> placesObservable;
 
   @Inject
   public GndDataRepository(DataService dataService) {
@@ -63,7 +63,7 @@ public class GndDataRepository {
           ProjectActivationEvent.activated(
               project,
               dataService.observePlaces(projectId),
-              project.getFeatureTypesList()));
+              project.getPlaceTypesList()));
       return project;
     });
   }
@@ -72,18 +72,18 @@ public class GndDataRepository {
     return oldActiveProject;
   }
 
-  public Feature update(FeatureUpdate featureUpdate) {
-    return dataService.update(oldActiveProject.getId(), featureUpdate);
+  public Place update(PlaceUpdate placeUpdate) {
+    return dataService.update(oldActiveProject.getId(), placeUpdate);
   }
 
-  public Optional<FeatureType> getFeatureType(String featureTypeId) {
-    return stream(oldActiveProject.getFeatureTypesList())
-        .filter(ft -> ft.getId().equals(featureTypeId))
+  public Optional<PlaceType> getPlaceType(String placeTypeId) {
+    return stream(oldActiveProject.getPlaceTypesList())
+        .filter(ft -> ft.getId().equals(placeTypeId))
         .findFirst();
   }
 
-  public CompletableFuture<List<Record>> getRecordData(String featureId) {
-    return dataService.loadRecordData(oldActiveProject.getId(), featureId);
+  public CompletableFuture<List<Record>> getRecordData(String placeId) {
+    return dataService.loadRecordData(oldActiveProject.getId(), placeId);
   }
 
   public CompletableFuture<List<Project>> getProjectSummaries() {

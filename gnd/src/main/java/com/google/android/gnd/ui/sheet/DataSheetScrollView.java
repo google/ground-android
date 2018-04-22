@@ -16,6 +16,11 @@
 
 package com.google.android.gnd.ui.sheet;
 
+import static com.google.android.gnd.ui.OnSheetSlideBehavior.SheetSlideMetrics.scale;
+import static com.google.android.gnd.ui.util.ViewUtil.children;
+import static com.google.android.gnd.ui.util.ViewUtil.getScreenHeight;
+import static com.google.android.gnd.ui.util.ViewUtil.getScreenWidth;
+
 import android.app.Activity;
 import android.content.Context;
 import android.support.annotation.NonNull;
@@ -29,24 +34,16 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.R;
-import com.google.android.gnd.model.FeatureUpdate;
 import com.google.android.gnd.model.Form;
+import com.google.android.gnd.model.PlaceUpdate;
 import com.google.android.gnd.ui.OnSheetSlideBehavior.SheetSlideMetrics;
 import com.google.android.gnd.ui.sheet.input.Editable.Mode;
 import com.h6ah4i.android.tablayouthelper.TabLayoutHelper;
-
 import java.util.List;
-
-import butterknife.BindView;
-import butterknife.ButterKnife;
-
-import static com.google.android.gnd.ui.OnSheetSlideBehavior.SheetSlideMetrics.scale;
-import static com.google.android.gnd.ui.util.ViewUtil.children;
-import static com.google.android.gnd.ui.util.ViewUtil.getScreenHeight;
-import static com.google.android.gnd.ui.util.ViewUtil.getScreenWidth;
 
 /** Container for data sheet components. */
 // TODO: Use with RecyclerView?
@@ -137,8 +134,8 @@ public class DataSheetScrollView extends NestedScrollView {
     tabLayoutHelper.setAutoAdjustTabModeEnabled(true);
   }
 
-  public FeatureUpdate getUpdates() {
-    FeatureUpdate.Builder updates = header.getFeatureUpdateBuilder();
+  public PlaceUpdate getUpdates() {
+    PlaceUpdate.Builder updates = header.getPlaceUpdateBuilder();
     updates.addAllRecordUpdates(body.getUpdates());
     return updates.build();
   }
@@ -209,7 +206,7 @@ public class DataSheetScrollView extends NestedScrollView {
     FrameLayout toolbarWrapper = (FrameLayout) toolbar.getParent();
     toolbarWrapper.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
     toolbarWrapper.setTranslationY(
-        metrics.scale(metrics.getVisibleRatio(), 0.3f, 0.5f, -toolbarWrapper.getHeight(), 0));
+        scale(metrics.getVisibleRatio(), 0.3f, 0.5f, -toolbarWrapper.getHeight(), 0));
     if (mode == Mode.VIEW) {
       metrics.showWithSheet(toolbarWrapper.getBackground(), 0.9f, 1);
       float alpha = scale(getTop(), 0, toolbar.getHeight(), 1f, 0f);

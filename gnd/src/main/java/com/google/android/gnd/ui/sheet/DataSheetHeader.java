@@ -16,25 +16,24 @@
 
 package com.google.android.gnd.ui.sheet;
 
+import static com.google.android.gnd.model.PlaceUpdate.Operation.CREATE;
+import static com.google.android.gnd.model.PlaceUpdate.Operation.NO_CHANGE;
+import static com.google.android.gnd.model.PlaceUpdate.Operation.UPDATE;
+
 import android.content.Context;
 import android.util.AttributeSet;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-
 import com.google.android.gnd.R;
-import com.google.android.gnd.model.Feature;
-import com.google.android.gnd.model.FeatureType;
-import com.google.android.gnd.model.FeatureUpdate;
+import com.google.android.gnd.model.Place;
+import com.google.android.gnd.model.PlaceType;
+import com.google.android.gnd.model.PlaceUpdate;
 import com.google.protobuf.Timestamp;
-
-import static com.google.android.gnd.model.FeatureUpdate.Operation.CREATE;
-import static com.google.android.gnd.model.FeatureUpdate.Operation.NO_CHANGE;
-import static com.google.android.gnd.model.FeatureUpdate.Operation.UPDATE;
 
 public class DataSheetHeader extends LinearLayout {
   private TextView titleView;
   private TextView subtitleView;
-  private Feature originalValue;
+  private Place originalValue;
 
   public DataSheetHeader(Context context, AttributeSet attrs) {
     super(context, attrs);
@@ -47,24 +46,24 @@ public class DataSheetHeader extends LinearLayout {
     subtitleView = findViewById(R.id.data_sheet_subtitle);
   }
 
-  // TODO: Nest FeatureType into Feature?
-  public void attach(Feature feature, FeatureType featureType) {
+  // TODO: Nest PlaceType into Place?
+  public void attach(Place place, PlaceType placeType) {
     // TODO: i18n.
-    originalValue = feature;
+    originalValue = place;
   }
 
-  public Feature getCurrentValue() {
+  public Place getCurrentValue() {
     return originalValue;
   }
 
-  public FeatureUpdate.Builder getFeatureUpdateBuilder() {
-    FeatureUpdate.Builder update = FeatureUpdate.newBuilder();
+  public PlaceUpdate.Builder getPlaceUpdateBuilder() {
+    PlaceUpdate.Builder update = PlaceUpdate.newBuilder();
     update.setClientTimestamp(Timestamp.newBuilder().setSeconds(System.currentTimeMillis() / 1000));
-    Feature feature = getCurrentValue();
-    update.setFeature(feature);
-    if (feature.getId().isEmpty()) {
+    Place place = getCurrentValue();
+    update.setPlace(place);
+    if (place.getId().isEmpty()) {
       update.setOperation(CREATE);
-    } else if (!feature.equals(originalValue)) {
+    } else if (!place.equals(originalValue)) {
       update.setOperation(UPDATE);
     } else {
       update.setOperation(NO_CHANGE);

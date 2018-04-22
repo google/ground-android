@@ -16,21 +16,19 @@
 
 package com.google.android.gnd.service.firestore;
 
-import android.util.Log;
+import static com.google.android.gnd.service.firestore.FirestoreDataService.toDate;
+import static com.google.android.gnd.service.firestore.FirestoreDataService.toTimestamps;
 
+import android.util.Log;
+import com.google.android.gnd.model.Record;
+import com.google.android.gnd.model.Record.Value;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.IgnoreExtraProperties;
 import com.google.firebase.firestore.ServerTimestamp;
-import com.google.android.gnd.model.Record;
-import com.google.android.gnd.model.Record.Value;
-
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static com.google.android.gnd.service.firestore.FirestoreDataService.toDate;
-import static com.google.android.gnd.service.firestore.FirestoreDataService.toTimestamps;
 
 @IgnoreExtraProperties
 public class RecordDoc {
@@ -52,7 +50,7 @@ public class RecordDoc {
 
   public static RecordDoc fromProto(Record r, Map<String, Object> valueUpdates) {
     RecordDoc rd = new RecordDoc();
-    rd.featureTypeId = r.getFeatureTypeId();
+    rd.featureTypeId = r.getPlaceTypeId();
     rd.formId = r.getFormId();
     rd.responses = valueUpdates;
     if (r.getServerTimestamps().hasCreated()) {
@@ -74,7 +72,7 @@ public class RecordDoc {
     RecordDoc rd = doc.toObject(RecordDoc.class);
     return Record.newBuilder()
         .setId(id)
-        .setFeatureTypeId(rd.featureTypeId)
+        .setPlaceTypeId(rd.featureTypeId)
         .setFormId(rd.formId)
         .putAllValues(convertValues(rd.responses))
         .setServerTimestamps(toTimestamps(rd.serverTimeCreated, rd.serverTimeModified))

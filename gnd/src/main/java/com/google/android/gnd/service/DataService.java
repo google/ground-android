@@ -17,8 +17,8 @@
 package com.google.android.gnd.service;
 
 import android.support.annotation.Nullable;
-import com.google.android.gnd.model.Feature;
-import com.google.android.gnd.model.FeatureUpdate;
+import com.google.android.gnd.model.Place;
+import com.google.android.gnd.model.PlaceUpdate;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.Record;
 import io.reactivex.Flowable;
@@ -34,13 +34,13 @@ public interface DataService {
 
   CompletableFuture<Project> loadProject(String projectId);
 
-  Feature update(String projectId, FeatureUpdate featureUpdate);
+  Place update(String projectId, PlaceUpdate placeUpdate);
 
-  CompletableFuture<List<Record>> loadRecordData(String projectId, String featureId);
+  CompletableFuture<List<Record>> loadRecordData(String projectId, String placeId);
 
   CompletableFuture<List<Project>> getProjectSummaries();
 
-  Flowable<DatastoreEvent<Feature>> observePlaces(String projectId);
+  Flowable<DatastoreEvent<Place>> observePlaces(String projectId);
 
   interface DataChangeListener<T> {
     void onChange(String id, @Nullable T obj, ChangeType changeType, boolean hasPendingWrites);
