@@ -15,6 +15,9 @@
  */
 package com.google.android.gnd.service.firestore;
 
+import static com.google.android.gnd.service.firestore.GndFirestorePathBuilder.place;
+import static com.google.android.gnd.service.firestore.GndFirestorePathBuilder.placeType;
+import static com.google.android.gnd.service.firestore.GndFirestorePathBuilder.project;
 import static com.google.android.gnd.util.Futures.allOf;
 import static com.google.android.gnd.util.Futures.fromTask;
 import static com.google.android.gnd.util.Streams.map;
@@ -70,7 +73,6 @@ public class FirestoreDataService implements DataService {
 
   @Inject
   FirestoreDataService() {
-
   }
 
   // TODO: Move to shared util, since this isn't specific to Firebase.
@@ -89,7 +91,7 @@ public class FirestoreDataService implements DataService {
     return timestamps.build();
   }
 
-  static Timestamp.Builder toTimestamp(@NonNull Date serverTimeCreated) {
+  private static Timestamp.Builder toTimestamp(@NonNull Date serverTimeCreated) {
     return Timestamp.newBuilder().setSeconds(serverTimeCreated.getTime() / 1000);
   }
 
@@ -99,16 +101,21 @@ public class FirestoreDataService implements DataService {
     FirebaseFirestore.setLoggingEnabled(true);
   }
 
+  private GndFirestorePathBuilder db() {
+    return GndFirestorePathBuilder.db(db);
+  }
+
   // TODO: Naming: fetch - get doc, load - get object/proto.
   @Override
   public CompletableFuture<Project> loadProject(String projectId) {
-    return fetchDocument(project(projectId))
+    return fetchDocument(db().project(projectId).ref())
         .thenCompose(p -> fetchPlaceTypes(p).thenApply(fts -> ProjectDoc
             .toProto(p, fts)));
   }
 
   private CompletableFuture<List<PlaceType>> fetchPlaceTypes(DocumentSnapshot project) {
-    return fetchDocuments(placeTypes(project)).thenCompose(this::loadAndAssembleForms);
+    return fetchDocuments(project(project).placeTypes().ref())
+        .thenCompose(this::loadAndAssembleForms);
   }
 
   private CompletableFuture<List<PlaceType>> loadAndAssembleForms(List<DocumentSnapshot>
@@ -116,8 +123,9 @@ public class FirestoreDataService implements DataService {
     return allOf(map(placeTypes, d -> loadForms(d).thenApply(f -> PlaceTypeDoc.toProto(d, f))));
   }
 
-  private CompletableFuture<List<Form>> loadForms(DocumentSnapshot placeType) {
-    return fetchDocuments(forms(placeType)).thenApply(docs -> map(docs, FormDoc::toProto));
+  private CompletableFuture<List<Form>> loadForms(DocumentSnapshot placeTypeSnapshot) {
+    return fetchDocuments(placeType(placeTypeSnapshot).forms().ref())
+        .thenApply(docs -> map(docs, FormDoc::toProto));
   }
 
   private CompletableFuture<List<DocumentSnapshot>> fetchDocuments(CollectionReference coll) {
@@ -152,7 +160,7 @@ public class FirestoreDataService implements DataService {
   private Place createPlace(String projectId, PlaceUpdate placeUpdate) {
     WriteBatch batch = db.batch();
     Place.Builder place = placeUpdate.getPlace().toBuilder();
-    DocumentReference fdRef = places(projectId).document();
+    DocumentReference fdRef = db().project(projectId).places().ref().document();
     place.setId(fdRef.getId());
     place.clearServerTimestamps();
     place.setClientTimestamps(Timestamps
@@ -171,7 +179,7 @@ public class FirestoreDataService implements DataService {
   private Place updatePlace(String projectId, PlaceUpdate placeUpdate) {
     WriteBatch batch = db.batch();
     Place.Builder place = placeUpdate.getPlace().toBuilder();
-    DocumentReference fdRef = places(projectId).document(place.getId());
+    DocumentReference fdRef = db().project(projectId).place(place.getId()).ref();
     place.setServerTimestamps(place.getServerTimestamps().toBuilder().clearModified());
     place.setClientTimestamps(place
         .getClientTimestamps()
@@ -185,7 +193,7 @@ public class FirestoreDataService implements DataService {
 
   @Override
   public CompletableFuture<List<Record>> loadRecordData(String projectId, String placeId) {
-    return fetchDocuments(records(place(projectId, placeId)))
+    return fetchDocuments(db().project(projectId).place(placeId).records().ref())
         .thenApply(docs -> map(docs, doc -> RecordDoc.toProto(doc.getId(), doc)));
   }
 
@@ -193,14 +201,14 @@ public class FirestoreDataService implements DataService {
 
   @Override
   public CompletableFuture<List<Project>> getProjectSummaries() {
-    return fetchDocuments(projects())
+    return fetchDocuments(db().projects().ref())
         .thenApply(docs -> stream(docs).map(ProjectDoc::toProto).collect(toList()));
   }
 
   @Override
   public Flowable<DatastoreEvent<Place>> observePlaces(String projectId) {
     return RxFirestore
-        .observeQueryRef(places(projectId))
+        .observeQueryRef(db().project(projectId).places().ref())
         .flatMap(s -> toDatastoreEvents(s, PlaceDoc::toProto))
         .doOnTerminate(() -> {
           Log.d(TAG, "observePlaces stream for project " + projectId + " terminated.");
@@ -242,9 +250,9 @@ public class FirestoreDataService implements DataService {
 
 
   private void updateRecords(WriteBatch batch,
-      DocumentReference fdRef,
+      DocumentReference placeRef,
       PlaceUpdate placeUpdate) {
-    CollectionReference records = records(fdRef);
+    CollectionReference records = place(placeRef).records().ref();
     for (RecordUpdate recordUpdate : placeUpdate.getRecordUpdatesList()) {
       Record.Builder record = recordUpdate.getRecord().toBuilder();
       switch (recordUpdate.getOperation()) {
@@ -285,45 +293,5 @@ public class FirestoreDataService implements DataService {
       }
     }
     return updatedValues;
-  }
-
-  @NonNull
-  private CollectionReference projects() {
-    return db.collection("projects");
-  }
-
-  @NonNull
-  private DocumentReference project(String projectId) {
-    return projects().document(projectId);
-  }
-
-  @NonNull
-  private CollectionReference places(String projectId) {
-    return project(projectId).collection("features");
-  }
-
-  private DocumentReference place(String projectId, String placeId) {
-    return places(projectId).document(placeId);
-  }
-
-  private CollectionReference placeTypes(DocumentReference project) {
-    return project.collection("featureTypes");
-  }
-
-  private CollectionReference placeTypes(DocumentSnapshot project) {
-    return placeTypes(project.getReference());
-  }
-
-  private CollectionReference forms(DocumentReference placeType) {
-    return placeType.collection("forms");
-  }
-
-  private CollectionReference forms(DocumentSnapshot placeType) {
-    return forms(placeType.getReference());
-  }
-
-  @NonNull
-  private CollectionReference records(DocumentReference place) {
-    return place.collection("records");
   }
 }
