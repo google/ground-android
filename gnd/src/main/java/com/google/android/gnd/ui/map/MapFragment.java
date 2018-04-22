@@ -16,19 +16,69 @@
 
 package com.google.android.gnd.ui.map;
 
+import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
+import butterknife.BindView;
 import com.google.android.gnd.AbstractGndFragment;
 import com.google.android.gnd.R;
+import com.google.android.gnd.model.PlaceIcon;
+import javax.inject.Inject;
 
 public class MapFragment extends AbstractGndFragment {
+
+  @Inject
+  MapViewModelFactory viewModelFactory;
+
+  @BindView(R.id.map)
+  GoogleMapsView mapView;
+
+  private MapViewModel viewModel;
+
+  @Override
+  public void onCreate(@Nullable Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+
+    viewModel = ViewModelProviders.of(this, viewModelFactory).get(MapViewModel.class);
+  }
+
   @Override
   public View onCreateView(LayoutInflater inflater,
       ViewGroup container,
       Bundle savedInstanceState) {
     return inflater.inflate(R.layout.fragment_map, container, false);
+  }
+
+  @Override
+  public void onResume() {
+    super.onResume();
+    // TODO: Use Rx for getMapAsync instead.
+    mapView.getMapAsync(__ ->
+        viewModel.mapMarkers().observe(this, update -> {
+          switch (update.getType()) {
+            case CLEAR_ALL:
+              mapView.removeAllMarkers();
+              break;
+            case ADD_OR_UPDATE_MARKER:
+              PlaceIcon
+                  icon =
+                  new PlaceIcon(getContext(), update.getIconId(), update.getIconColor());
+              mapView.addOrUpdateMarker(
+                  new MapMarker(update.getId(),
+                      update.getPlace().getPoint(),
+                      icon,
+                      update.getPlace()),
+                  update.hasPendingWrites(),
+                  false);
+              break;
+            case REMOVE_MARKER:
+              mapView.removeMarker(update.getId());
+              break;
+
+          }
+        }));
   }
 }

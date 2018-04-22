@@ -19,22 +19,14 @@ package com.google.android.gnd;
 import com.google.android.gnd.inject.PerActivity;
 import com.google.android.gnd.service.DataService;
 import com.google.android.gnd.service.firestore.FirestoreDataService;
-
-import javax.inject.Singleton;
-
 import dagger.Binds;
 import dagger.Module;
 import dagger.android.ContributesAndroidInjector;
 import dagger.android.support.AndroidSupportInjectionModule;
+import javax.inject.Singleton;
 
 @Module(includes = AndroidSupportInjectionModule.class)
 abstract class GndApplicationModule {
-  /**
-   * Singleton annotation not required here but included for clarity.
-   */
-  @Binds
-  @Singleton
-  abstract GndApplication application(GndApplication app);
 
   @PerActivity
   @ContributesAndroidInjector(modules = MainActivityModule.class)

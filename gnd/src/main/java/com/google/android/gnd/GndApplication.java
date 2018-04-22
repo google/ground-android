@@ -18,17 +18,17 @@ package com.google.android.gnd;
 
 import android.app.Activity;
 import android.support.multidex.MultiDexApplication;
-
-import javax.inject.Inject;
-
+import com.akaita.java.rxjava2debug.RxJava2Debug;
 import dagger.android.AndroidInjector;
 import dagger.android.DispatchingAndroidInjector;
 import dagger.android.HasActivityInjector;
+import javax.inject.Inject;
 
 // TODO: When implementing background data sync service, we'll need to inject a Service here; we
 // should then extend DaggerApplication instead. If MultiDex is still needed, we can install it
 // without extending MultiDexApplication.
 public class GndApplication extends MultiDexApplication implements HasActivityInjector {
+
   @Inject
   DispatchingAndroidInjector<Activity> activityInjector;
 
@@ -37,6 +37,10 @@ public class GndApplication extends MultiDexApplication implements HasActivityIn
     super.onCreate();
     // Root of dependency injection.
     DaggerGndApplicationComponent.builder().create(this).inject(this);
+
+    // Enable RxJava assembly stack collection for more useful stack traces.
+    RxJava2Debug
+        .enableRxJava2AssemblyTracking(new String[]{getClass().getPackage().getName()});
   }
 
   @Override

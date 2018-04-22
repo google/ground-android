@@ -16,13 +16,14 @@
 
 package com.google.android.gnd.ui.map;
 
+import static com.google.android.gms.maps.GoogleMap.OnCameraMoveStartedListener.REASON_DEVELOPER_ANIMATION;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.WindowInsets;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
-
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
@@ -32,14 +33,9 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gnd.model.PlaceIcon;
 import com.google.android.gnd.model.Point;
-
 import java.util.HashMap;
 import java.util.Map;
-
 import java8.util.function.Consumer;
-
-import static com.google.android.gms.maps.GoogleMap.OnCameraMoveStartedListener
-    .REASON_DEVELOPER_ANIMATION;
 
 // TODO: Refactor view interface and adapter and allow plugging different map providers.
 public class GoogleMapsView extends MapView {
@@ -124,14 +120,6 @@ public class GoogleMapsView extends MapView {
     map.moveCamera(CameraUpdateFactory.newLatLngZoom(toLatLng(point), zoomLevel));
   }
 
-  public void setOtherMarkersAlpha(float a, String featureId) {
-    for (Map.Entry<String, Marker> entry : markers.entrySet()) {
-      if (!entry.getKey().equals(featureId)) {
-        entry.getValue().setAlpha(a);
-      }
-    }
-  }
-
   public void addOrUpdateMarker(
       MapMarker mapMarker, boolean hasPendingWrites, boolean isHighlighted) {
     Marker marker = markers.get(mapMarker.getId());
@@ -158,6 +146,11 @@ public class GoogleMapsView extends MapView {
     }
     marker.remove();
     markers.remove(id);
+  }
+
+  public void removeAllMarkers() {
+    map.clear();
+    markers.clear();
   }
 
   public void enable() {

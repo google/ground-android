@@ -16,28 +16,29 @@
 
 package com.google.android.gnd;
 
-import android.support.v7.app.AppCompatActivity;
-import com.google.android.gnd.inject.PerActivity;
+import android.support.v4.app.Fragment;
+import com.google.android.gnd.inject.PerChildFragment;
 import com.google.android.gnd.inject.PerFragment;
+import com.google.android.gnd.ui.map.MapFragment;
+import com.google.android.gnd.ui.map.MapFragmentModule;
+import com.google.android.gnd.ui.sheet.PlaceDetailsFragment;
+import com.google.android.gnd.ui.sheet.PlaceDetailsFragmentModule;
 import dagger.Binds;
 import dagger.Module;
 import dagger.android.ContributesAndroidInjector;
 
-/**
- * Provides dependencies to {@link MainActivity}.
- */
-@Module(includes = AbstractGndActivityModule.class)
-public abstract class MainActivityModule {
+@Module(includes = AbstractGndFragmentModule.class)
+public abstract class MainFragmentModule {
 
-  /**
-   * This provides the activity required to inject the fragment manager into
-   * {@link AbstractGndActivity}.
-   */
   @Binds
-  @PerActivity
-  abstract AppCompatActivity appCompatActivity(MainActivity mainActivity);
-
   @PerFragment
-  @ContributesAndroidInjector(modules = MainFragmentModule.class)
-  abstract MainFragment mainFragmentInjector();
+  abstract Fragment fragment(MainFragment fragment);
+
+  @PerChildFragment
+  @ContributesAndroidInjector(modules = MapFragmentModule.class)
+  abstract MapFragment mapFragmentInjector();
+
+  @PerChildFragment
+  @ContributesAndroidInjector(modules = PlaceDetailsFragmentModule.class)
+  abstract PlaceDetailsFragment placeDetailsFragmentInjector();
 }

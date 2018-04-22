@@ -16,30 +16,22 @@
 
 package com.google.android.gnd;
 
-import android.graphics.Color;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
-
-import com.google.android.gnd.model.DataModel;
 import com.google.android.gnd.model.Feature;
-import com.google.android.gnd.model.FeatureType;
-import com.google.android.gnd.model.PlaceIcon;
+import com.google.android.gnd.model.GndDataRepository;
 import com.google.android.gnd.model.Point;
-import com.google.android.gnd.service.DataService.DataChangeListener;
 import com.google.android.gnd.system.LocationManager;
 import com.google.android.gnd.system.LocationManager.LocationFailureReason;
 import com.google.android.gnd.ui.map.GoogleMapsView;
 import com.google.android.gnd.ui.map.MapMarker;
 
-import java8.util.Optional;
-
-public class MapPresenter implements DataChangeListener<Feature> {
+public class MapPresenter {
   private static final float DEFAULT_ZOOM_LEVEL = 14.0f;
 
   private final MainPresenter mainPresenter;
   private final MainActivity mainActivity;
-  private final DataModel model;
+  private final GndDataRepository model;
   private final LocationManager locationManager;
   private GoogleMapsView mapView;
   private FloatingActionButton addBtn;
@@ -50,7 +42,7 @@ public class MapPresenter implements DataChangeListener<Feature> {
   public MapPresenter(
       MainPresenter mainPresenter,
       MainActivity mainActivity,
-      DataModel model,
+      GndDataRepository model,
       LocationManager locationManager) {
     this.mainPresenter = mainPresenter;
     this.mainActivity = mainActivity;
@@ -70,8 +62,6 @@ public class MapPresenter implements DataChangeListener<Feature> {
     addBtn = mainActivity.getAddFeatureButton();
     addBtn.setOnClickListener((v) -> mainPresenter.onAddFeatureClick());
     addBtn.bringToFront();
-
-    model.addFeatureChangeListener(this);
   }
 
   private void onMapReady(GoogleMapsView map) {
@@ -188,30 +178,5 @@ public class MapPresenter implements DataChangeListener<Feature> {
     locationManager.removeLocationUpdates();
     locationLockEnabled = false;
     locationLockBtn.setImageResource(R.drawable.ic_gps_grey600);
-  }
-
-  @Override
-  public void onChange(
-      String id, @Nullable Feature feature, ChangeType changeType, boolean hasPendingWrites) {
-    switch (changeType) {
-      case ADDED:
-      case MODIFIED:
-        Optional<FeatureType> featureType =
-            mainPresenter.getModel().getFeatureType(feature.getFeatureTypeId());
-        if (featureType.isPresent()) {
-          // TODO: Get Icon from FeatureType once we make it a POJO.
-          // TODO: Refactor icon construction.
-          String iconHexColor = featureType.get().getIconColor();
-          int iconColor = Color.parseColor(iconHexColor);
-          PlaceIcon icon =
-              new PlaceIcon(mapView.getContext(), featureType.get().getIconId(), iconColor);
-          mapView.addOrUpdateMarker(
-              new MapMarker(id, feature.getPoint(), icon, feature), hasPendingWrites, false);
-        }
-        break;
-      case REMOVED:
-        mapView.removeMarker(id);
-        break;
-    }
   }
 }

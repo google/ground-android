@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-
-
 apply plugin: 'com.android.application'
 apply plugin: 'com.google.protobuf'
 
@@ -25,6 +23,9 @@ project.ext {
     butterKnifeVersion = "8.8.1"
     rxJavaVersion = "2.1.0"
     rxAndroidVersion = "2.0.1"
+    rxFirebaseVersion = "1.4.1"
+    rxJava2Debug = "1.2.2"
+    frodoVersion = ""
     lifecycleVersion = "1.1.0"
     gmsVersion = "11.8.0"
     firebaseVersion = "11.8.0"
@@ -89,8 +90,11 @@ dependencies {
     implementation "com.h6ah4i.android.tablayouthelper:tablayouthelper:$project.tabLayoutHelper"
     implementation "com.google.android.gms:play-services-maps:$project.gmsVersion"
     implementation "com.google.android.gms:play-services-location:$project.gmsVersion"
+
+    // Firebase and related libraries.
     implementation "com.google.firebase:firebase-core:$project.firebaseVersion"
     implementation "com.google.firebase:firebase-firestore:$project.firebaseVersion"
+    implementation "com.github.frangsierra:rx2firebase:$project.rxFirebaseVersion"
 
     // Dagger core
     annotationProcessor "com.google.dagger:dagger-compiler:$project.daggerVersion"
@@ -107,6 +111,7 @@ dependencies {
     // ReactiveX
     implementation "io.reactivex.rxjava2:rxjava:$project.rxJavaVersion"
     implementation "io.reactivex.rxjava2:rxandroid:$project.rxAndroidVersion"
+    implementation "com.akaita.java:rxjava2-debug:$project.rxJava2Debug"
 
     // Lifecycle
     implementation "android.arch.lifecycle:runtime:$project.lifecycleVersion"

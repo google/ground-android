@@ -16,6 +16,10 @@
 
 package com.google.android.gnd;
 
+import static com.google.android.gnd.service.firestore.FirestoreDataService.toDate;
+import static com.google.android.gnd.ui.util.ViewUtil.children;
+import static java8.util.stream.StreamSupport.stream;
+
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
@@ -24,34 +28,24 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
-
-import com.google.android.gnd.model.DataModel;
 import com.google.android.gnd.model.Feature;
 import com.google.android.gnd.model.FeatureType;
 import com.google.android.gnd.model.Form;
-import com.google.android.gnd.model.PlaceIcon;
+import com.google.android.gnd.model.GndDataRepository;
 import com.google.android.gnd.model.Record;
 import com.google.android.gnd.ui.map.GoogleMapsView;
-import com.google.android.gnd.ui.map.MapMarker;
 import com.google.android.gnd.ui.sheet.DataSheetScrollView;
 import com.google.android.gnd.ui.sheet.RecordView;
 import com.google.android.gnd.ui.sheet.input.Editable;
 import com.google.android.gnd.ui.sheet.input.Editable.Mode;
-
 import java8.util.Optional;
 
-import static com.google.android.gnd.service.firestore.FirestoreDataService.toDate;
-import static com.google.android.gnd.ui.util.ViewUtil.children;
-import static java8.util.stream.StreamSupport.stream;
-
 public class DataSheetPresenter {
-  private static final String TEMP_MARKER_ID = ":tempMarker";
-  private static final float UNSELECTED_MARKER_ALPHA = 0.4f;
   private static final String TAG = DataSheetPresenter.class.getSimpleName();
 
   private final MainPresenter mainPresenter;
   private final MainActivity mainActivity;
-  private final DataModel model;
+  private final GndDataRepository model;
   private DataSheetScrollView dataSheetView;
   private Toolbar toolbar;
   private GoogleMapsView mapView;
@@ -59,7 +53,7 @@ public class DataSheetPresenter {
   private FloatingActionButton addFeatureBtn;
 
   public DataSheetPresenter(
-      MainPresenter mainPresenter, MainActivity mainActivity, DataModel model) {
+      MainPresenter mainPresenter, MainActivity mainActivity, GndDataRepository model) {
     this.mainPresenter = mainPresenter;
     this.mainActivity = mainActivity;
     this.model = model;
@@ -121,8 +115,7 @@ public class DataSheetPresenter {
 
   private void reenableMap() {
     addRecordBtn.setVisibility(View.GONE);
-    mapView.removeMarker(TEMP_MARKER_ID);
-    mapView.setOtherMarkersAlpha(1.0f, null);
+    // TODO: Hide temporary place marker.
     mainActivity.hideSoftInput();
     addRecordBtn.setEnabled(false);
     addFeatureBtn.setEnabled(true);
@@ -148,7 +141,6 @@ public class DataSheetPresenter {
     dataSheetView.getHeader().setSubtitle(getSubtitle(feature, featureType));
     //    dataSheetView.refreshFormSelectorTabs(featureType.getFormsList());
     dataSheetView.getBody().clear();
-    mapView.setOtherMarkersAlpha(UNSELECTED_MARKER_ALPHA, feature.getId());
     // TODO: Loading spinner.
     // TODO: Implement pagination? i.e., Only load n at a time?
     model
@@ -259,15 +251,7 @@ public class DataSheetPresenter {
     dataSheetView.getHeader().setTitle(getTitle(feature, featureType));
     dataSheetView.getHeader().setSubtitle("");
     dataSheetView.getBody().clear();
-    // TODO: Move alpha to resource.
-    mapView.setOtherMarkersAlpha(UNSELECTED_MARKER_ALPHA, null);
-    MapMarker<Feature> mapMarker =
-        new MapMarker(
-            TEMP_MARKER_ID,
-            feature.getPoint(),
-            new PlaceIcon(dataSheetView.getContext(), featureType.getIconId(), 0),
-            feature);
-    mapView.addOrUpdateMarker(mapMarker, true, true);
+    // TODO: Show temporary highlighted place marker.
     RecordView formView = new RecordView(dataSheetView.getContext(), this::onEditRecordClick);
     if (featureType.getFormsCount() > 0) {
       // TODO: Support multiple form types.

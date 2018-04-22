@@ -17,27 +17,35 @@
 package com.google.android.gnd.model;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.support.v4.content.ContextCompat;
-
+import android.util.Log;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gnd.R;
 import com.google.android.gnd.ui.util.ViewUtil;
 
 public class PlaceIcon {
+
+  private static final String TAG = PlaceIcon.class.getSimpleName();
   private final Context context;
-  private final BitmapDrawable drawable;
+  private BitmapDrawable drawable;
   private int color;
 
   public PlaceIcon(Context context, String iconId, int color) {
     this.context = context;
     String resourceName = "ic_marker_" + iconId.replace("-", "_");
-    int resourceId =
-        context.getResources().getIdentifier(resourceName, "drawable", context.getPackageName());
-    drawable = (BitmapDrawable) ContextCompat.getDrawable(context, resourceId);
     this.color = color;
+    try {
+      int resourceId =
+          context.getResources().getIdentifier(resourceName, "drawable", context.getPackageName());
+      drawable = (BitmapDrawable) ContextCompat.getDrawable(context, resourceId);
+    } catch (Resources.NotFoundException e) {
+      // TODO: Fall back to default marker. 
+      Log.e(TAG, e + toString());
+    }
   }
 
   // TODO: Cache tinted bitmaps.

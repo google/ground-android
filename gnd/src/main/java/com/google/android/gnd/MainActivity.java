@@ -16,6 +16,10 @@
 
 package com.google.android.gnd;
 
+import static android.support.design.widget.BottomSheetBehavior.STATE_COLLAPSED;
+import static android.support.design.widget.BottomSheetBehavior.STATE_EXPANDED;
+import static com.google.android.gnd.system.LocationManager.LocationFailureReason.SETTINGS_CHANGE_FAILED;
+
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -38,9 +42,10 @@ import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.FrameLayout;
 import android.widget.Toast;
-
-import com.google.android.gnd.model.DataModel;
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import com.google.android.gnd.model.FeatureType;
+import com.google.android.gnd.model.GndDataRepository;
 import com.google.android.gnd.service.DataService;
 import com.google.android.gnd.system.LocationManager;
 import com.google.android.gnd.system.PermissionManager;
@@ -48,23 +53,13 @@ import com.google.android.gnd.ui.AddFeatureDialog;
 import com.google.android.gnd.ui.map.GoogleMapsView;
 import com.google.android.gnd.ui.sheet.DataSheetScrollView;
 import com.google.android.gnd.ui.util.ViewUtil;
-
 import java.util.List;
-
-import javax.inject.Inject;
-
-import butterknife.BindView;
-import butterknife.ButterKnife;
 import java8.util.function.Consumer;
-
-import static android.support.design.widget.BottomSheetBehavior.STATE_COLLAPSED;
-import static android.support.design.widget.BottomSheetBehavior.STATE_EXPANDED;
-import static com.google.android.gnd.system.LocationManager.LocationFailureReason.SETTINGS_CHANGE_FAILED;
+import javax.inject.Inject;
 
 public class MainActivity extends AbstractGndActivity {
   private MainPresenter mainPresenter;
   private AddFeatureDialog addFeatureDialog;
-  private DataModel model;
 
   @BindView(R.id.add_feature_btn)
   FloatingActionButton addFeatureBtn;
@@ -82,11 +77,13 @@ public class MainActivity extends AbstractGndActivity {
   @Inject
   LocationManager locationManager;
 
+  @Inject
+  GndDataRepository model;
+
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
 
-    this.model = new DataModel(dataService);
     this.addFeatureDialog = new AddFeatureDialog(this);
     this.mainPresenter = new MainPresenter(this, model, permissionManager, locationManager);
 
@@ -310,8 +307,6 @@ public class MainActivity extends AbstractGndActivity {
         break;
     }
   }
-
-  public void onReady() {}
 
   public WindowInsetsCompat getInsets() {
     return insets;

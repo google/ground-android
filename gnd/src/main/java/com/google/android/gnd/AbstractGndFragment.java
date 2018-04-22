@@ -16,16 +16,16 @@
 
 package com.google.android.gnd;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-
-import javax.inject.Inject;
-
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
 import dagger.android.AndroidInjector;
 import dagger.android.DispatchingAndroidInjector;
+import dagger.android.support.AndroidSupportInjection;
 import dagger.android.support.HasSupportFragmentInjector;
+import javax.inject.Inject;
 
 public class AbstractGndFragment extends Fragment implements HasSupportFragmentInjector {
   private Unbinder unbinder;
@@ -33,7 +33,12 @@ public class AbstractGndFragment extends Fragment implements HasSupportFragmentI
   @Inject
   DispatchingAndroidInjector<Fragment> childFragmentInjector;
 
-  @SuppressWarnings("ConstantConditions")
+  @Override
+  public void onAttach(Context context) {
+    AndroidSupportInjection.inject(this);
+    super.onAttach(context);
+  }
+
   @Override
   public void onViewStateRestored(Bundle savedInstanceState) {
     super.onViewStateRestored(savedInstanceState);

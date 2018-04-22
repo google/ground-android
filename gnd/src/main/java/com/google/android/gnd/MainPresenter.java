@@ -16,17 +16,16 @@
 
 package com.google.android.gnd;
 
+import static java8.util.stream.StreamSupport.stream;
+
 import android.app.AlertDialog;
 import android.os.Bundle;
 import android.util.Log;
-
-import com.google.android.gnd.model.DataModel;
 import com.google.android.gnd.model.Feature;
 import com.google.android.gnd.model.FeatureType;
+import com.google.android.gnd.model.GndDataRepository;
 import com.google.android.gnd.system.LocationManager;
 import com.google.android.gnd.system.PermissionManager;
-
-import static java8.util.stream.StreamSupport.stream;
 
 public class MainPresenter {
   private static final String TAG = MainPresenter.class.getSimpleName();
@@ -34,11 +33,11 @@ public class MainPresenter {
   private final PermissionManager permissionManager;
   private final DataSheetPresenter dataSheetPresenter;
   private final MapPresenter mapPresenter;
-  private final DataModel model;
+  private final GndDataRepository model;
 
   MainPresenter(
       MainActivity mainActivity,
-      DataModel model,
+      GndDataRepository model,
       PermissionManager permissionManager,
       LocationManager locationManager) {
     this.mainActivity = mainActivity;
@@ -57,12 +56,10 @@ public class MainPresenter {
     dataSheetPresenter.onCreate(savedInstanceState);
     mapPresenter.onCreate(savedInstanceState);
     model.onCreate();
+    showProjectSelector();
   }
 
-  public void onMapReady() {
-    mainActivity.onReady();
-    dataSheetPresenter.onReady();
-
+  public void showProjectSelector() {
     model
         .getProjectSummaries()
         .thenAccept(
@@ -138,9 +135,9 @@ public class MainPresenter {
   }
 
   public void onAddFeatureClick() {
-    if (model.getActiveProject() != null) {
+    if (model.getOldActiveProject() != null) {
       mainActivity.showAddFeatureDialog(
-          model.getActiveProject().getFeatureTypesList(), this::onSelectFeatureTypeForAdd);
+          model.getOldActiveProject().getFeatureTypesList(), this::onSelectFeatureTypeForAdd);
     }
   }
 
@@ -152,7 +149,10 @@ public class MainPresenter {
     return dataSheetPresenter.onSaveClick();
   }
 
-  public DataModel getModel() {
+  public GndDataRepository getModel() {
     return model;
+  }
+
+  public void onMapReady() {
   }
 }
