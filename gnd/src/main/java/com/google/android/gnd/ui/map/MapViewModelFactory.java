@@ -19,18 +19,15 @@ package com.google.android.gnd.ui.map;
 import android.arch.lifecycle.ViewModel;
 import android.arch.lifecycle.ViewModelProvider;
 import com.google.android.gnd.model.GndDataRepository;
-import com.google.android.gnd.system.LocationManager;
 import javax.inject.Inject;
 
 class MapViewModelFactory implements ViewModelProvider.Factory {
 
   private final GndDataRepository dataRepository;
-  private final LocationManager locationManager;
 
   @Inject
-  MapViewModelFactory(GndDataRepository dataRepository, LocationManager locationManager) {
+  MapViewModelFactory(GndDataRepository dataRepository) {
     this.dataRepository = dataRepository;
-    this.locationManager = locationManager;
   }
 
   @Override
@@ -38,6 +35,6 @@ class MapViewModelFactory implements ViewModelProvider.Factory {
     if (!modelClass.isAssignableFrom(MapViewModel.class)) {
       throw new IllegalArgumentException("Invalid ViewModel class");
     }
-    return (T) new MapViewModel(dataRepository, locationManager);
+    return (T) new MapViewModel(dataRepository);
   }
 }

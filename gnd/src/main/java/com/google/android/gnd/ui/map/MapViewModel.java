@@ -71,39 +71,7 @@ public class MapViewModel extends ViewModel {
     return placeDataEvent.getSource() == DatastoreEvent.Source.LOCAL_DATASTORE;
   }
 
-  void toggleLocationLock() {
-    if (locationLockStatus.getValue().isActive()) {
-      locationManager.removeLocationUpdates();
-    } else {
-      locationManager.enableLocationLock();
-    }
-  }
-
   LiveData<MarkerUpdate> mapMarkers() {
     return markerUpdates;
-  }
-
-  public LiveData<LocationLockStatus> locationLockStatus() {
-    return locationLockStatus;
-  }
-
-  public static class LocationLockStatus {
-    private boolean active;
-
-    public LocationLockStatus(boolean active) {
-      this.active = active;
-    }
-
-    public static LocationLockStatus inactive() {
-      return new LocationLockStatus(false);
-    }
-
-    public static LocationLockStatus active() {
-      return new LocationLockStatus(true);
-    }
-
-    public boolean isActive() {
-      return active;
-    }
   }
 }
