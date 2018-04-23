@@ -55,29 +55,33 @@ public class MapFragment extends AbstractGndFragment {
   @Override
   public void onResume() {
     super.onResume();
-    // TODO: Use Rx for getMapAsync instead.
-    mapView.getMap().subscribe(map ->
-        viewModel.mapMarkers().observe(this, update -> {
-          switch (update.getType()) {
-            case CLEAR_ALL:
-              map.removeAllMarkers();
-              break;
-            case ADD_OR_UPDATE_MARKER:
-              PlaceIcon
-                  icon =
-                  new PlaceIcon(getContext(), update.getIconId(), update.getIconColor());
-              map.addOrUpdateMarker(
-                  new MapMarker(update.getId(),
-                      update.getPlace().getPoint(),
-                      icon,
-                      update.getPlace()),
-                  update.hasPendingWrites(),
-                  false);
-              break;
-            case REMOVE_MARKER:
-              map.removeMarker(update.getId());
-              break;
-          }
-        }));
+    mapView.getMap().subscribe(this::onMapReady);
+  }
+
+  private void onMapReady(GoogleMapImpl map) {
+    viewModel.mapMarkers().observe(this, update -> onMarkerUpdate(map, update));
+  }
+
+  private void onMarkerUpdate(GoogleMapImpl map, MarkerUpdate update) {
+    switch (update.getType()) {
+      case CLEAR_ALL:
+        map.removeAllMarkers();
+        break;
+      case ADD_OR_UPDATE_MARKER:
+        PlaceIcon
+            icon =
+            new PlaceIcon(getContext(), update.getIconId(), update.getIconColor());
+        map.addOrUpdateMarker(
+            new MapMarker<>(update.getId(),
+                update.getPlace().getPoint(),
+                icon,
+                update.getPlace()),
+            update.hasPendingWrites(),
+            false);
+        break;
+      case REMOVE_MARKER:
+        map.removeMarker(update.getId());
+        break;
+    }
   }
 }

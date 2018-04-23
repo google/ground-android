@@ -65,11 +65,11 @@ public class GoogleMapImpl {
     this.enabled = true;
   }
 
-  public Observable<MapMarker> getMarkerClickObservable() {
+  public Observable<MapMarker> markerClicks() {
     return markerClickSubject;
   }
 
-  public ReplaySubject<Point> getUserPanObservable() {
+  public Observable<Point> userPans() {
     return userPanSubject;
   }
 

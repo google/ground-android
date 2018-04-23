@@ -52,8 +52,8 @@ public class MapPresenter {
     mapView = mainActivity.getMapView();
     mapView.onCreate(savedInstanceState);
     mapView.getMap().subscribe(map -> {
-      map.getMarkerClickObservable().subscribe(this::onMarkerClick);
-      map.getUserPanObservable().subscribe(this::onCameraMove);
+      map.markerClicks().subscribe(this::onMarkerClick);
+      map.userPans().subscribe(this::onCameraMove);
       enableLocationLock();
     });
 

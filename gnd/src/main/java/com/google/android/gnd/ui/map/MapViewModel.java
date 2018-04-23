@@ -24,15 +24,15 @@ import com.google.android.gnd.model.GndDataRepository;
 import com.google.android.gnd.model.Place;
 import com.google.android.gnd.model.PlaceType;
 import com.google.android.gnd.model.ProjectActivationEvent;
-import com.google.android.gnd.rx.Schedulers;
 import com.google.android.gnd.service.DatastoreEvent;
+import com.google.android.gnd.system.LocationManager;
 import com.google.android.gnd.ui.AbstractViewModel;
 
 public class MapViewModel extends AbstractViewModel {
 
   private final MutableLiveData<MarkerUpdate> markerUpdates;
 
-  MapViewModel(GndDataRepository dataRepository, Schedulers schedulers) {
+  MapViewModel(GndDataRepository dataRepository, LocationManager locationManager) {
     this.markerUpdates = new MutableLiveData<>();
     addDisposable(dataRepository
         .activeProject()

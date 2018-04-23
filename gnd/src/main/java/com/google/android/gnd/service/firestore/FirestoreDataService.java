@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.google.android.gnd.service.firestore;
 
 import static com.google.android.gnd.service.firestore.GndFirestorePathBuilder.place;
