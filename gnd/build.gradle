@@ -24,7 +24,8 @@ project.ext {
     rxJavaVersion = "2.1.0"
     rxAndroidVersion = "2.0.1"
     rxFirebaseVersion = "1.4.1"
-    rxJava2Debug = "1.2.2"
+    rxJava2DebugVersion = "1.2.2"
+    rxBindingVersion = "2.1.1"
     frodoVersion = ""
     lifecycleVersion = "1.1.0"
     gmsVersion = "11.8.0"
@@ -111,7 +112,11 @@ dependencies {
     // ReactiveX
     implementation "io.reactivex.rxjava2:rxjava:$project.rxJavaVersion"
     implementation "io.reactivex.rxjava2:rxandroid:$project.rxAndroidVersion"
-    implementation "com.akaita.java:rxjava2-debug:$project.rxJava2Debug"
+    implementation "com.akaita.java:rxjava2-debug:$project.rxJava2DebugVersion"
+    implementation "com.jakewharton.rxbinding2:rxbinding:$project.rxBindingVersion"
+    implementation "com.jakewharton.rxbinding2:rxbinding-support-v4:$project.rxBindingVersion"
+    implementation "com.jakewharton.rxbinding2:rxbinding-appcompat-v7:$project.rxBindingVersion"
+    implementation "com.jakewharton.rxbinding2:rxbinding-design:$project.rxBindingVersion"
 
     // Lifecycle
     implementation "android.arch.lifecycle:runtime:$project.lifecycleVersion"
