@@ -17,35 +17,28 @@
 package com.google.android.gnd.ui.map;
 
 import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.MutableLiveData;
+import android.arch.lifecycle.ViewModel;
 import android.graphics.Color;
-import com.akaita.java.rxjava2debug.RxJava2Debug;
 import com.google.android.gnd.model.GndDataRepository;
 import com.google.android.gnd.model.Place;
 import com.google.android.gnd.model.PlaceType;
 import com.google.android.gnd.model.ProjectActivationEvent;
+import com.google.android.gnd.rx.RxLiveData;
 import com.google.android.gnd.service.DatastoreEvent;
-import com.google.android.gnd.system.LocationManager;
-import com.google.android.gnd.ui.AbstractViewModel;
 
-public class MapViewModel extends AbstractViewModel {
+public class MapViewModel extends ViewModel {
+  private final LiveData<MarkerUpdate> markerUpdates;
 
-  private final MutableLiveData<MarkerUpdate> markerUpdates;
-
-  MapViewModel(GndDataRepository dataRepository, LocationManager locationManager) {
-    this.markerUpdates = new MutableLiveData<>();
-    addDisposable(dataRepository
-        .activeProject()
-        .filter(ProjectActivationEvent::isActivated)
-        .switchMap(project ->
-            project.getPlacesFlowable().toObservable()
-                .map(placeData -> toMarkerUpdate(project, placeData))
-                .filter(MarkerUpdate::isValid)
-                .startWith(MarkerUpdate.clearAll()))
-        .subscribe(
-            u -> markerUpdates.setValue(u),
-            t -> RxJava2Debug.getEnhancedStackTrace(t)
-        ));
+  MapViewModel(GndDataRepository dataRepository) {
+    markerUpdates = RxLiveData.fromObservable(
+        dataRepository
+            .activeProject()
+            .filter(ProjectActivationEvent::isActivated)
+            .switchMap(project ->
+                project.getPlacesFlowable().toObservable()
+                    .map(placeData -> toMarkerUpdate(project, placeData))
+                    .filter(MarkerUpdate::isValid)
+                    .startWith(MarkerUpdate.clearAll())));
   }
 
   public static MarkerUpdate toMarkerUpdate(ProjectActivationEvent project,
@@ -78,7 +71,39 @@ public class MapViewModel extends AbstractViewModel {
     return placeDataEvent.getSource() == DatastoreEvent.Source.LOCAL_DATASTORE;
   }
 
+  void toggleLocationLock() {
+    if (locationLockStatus.getValue().isActive()) {
+      locationManager.removeLocationUpdates();
+    } else {
+      locationManager.enableLocationLock();
+    }
+  }
+
   LiveData<MarkerUpdate> mapMarkers() {
     return markerUpdates;
+  }
+
+  public LiveData<LocationLockStatus> locationLockStatus() {
+    return locationLockStatus;
+  }
+
+  public static class LocationLockStatus {
+    private boolean active;
+
+    public LocationLockStatus(boolean active) {
+      this.active = active;
+    }
+
+    public static LocationLockStatus inactive() {
+      return new LocationLockStatus(false);
+    }
+
+    public static LocationLockStatus active() {
+      return new LocationLockStatus(true);
+    }
+
+    public boolean isActive() {
+      return active;
+    }
   }
 }

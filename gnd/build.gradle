@@ -26,8 +26,7 @@ project.ext {
     rxFirebaseVersion = "1.4.1"
     rxJava2DebugVersion = "1.2.2"
     rxBindingVersion = "2.1.1"
-    frodoVersion = ""
-    lifecycleVersion = "1.1.0"
+    lifecycleVersion = "1.1.1"
     gmsVersion = "11.8.0"
     firebaseVersion = "11.8.0"
     protobufVersion = "3.0.0"
@@ -118,12 +117,17 @@ dependencies {
     implementation "com.jakewharton.rxbinding2:rxbinding-appcompat-v7:$project.rxBindingVersion"
     implementation "com.jakewharton.rxbinding2:rxbinding-design:$project.rxBindingVersion"
 
-    // Lifecycle
+    // Android Arch Lifecycle
     implementation "android.arch.lifecycle:runtime:$project.lifecycleVersion"
     implementation "android.arch.lifecycle:extensions:$project.lifecycleVersion"
+    implementation "android.arch.lifecycle:reactivestreams:$project.lifecycleVersion"
     annotationProcessor "android.arch.lifecycle:compiler:$project.lifecycleVersion"
+
+    // Protobuf
     protobuf "com.google.protobuf:protobuf-java:$project.protobufVersion"
     implementation "com.google.protobuf:protobuf-lite:$project.protobufVersion"
+
+    // Testing
     testImplementation "junit:junit:$project.junitVersion"
 }
 

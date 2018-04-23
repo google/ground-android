@@ -14,23 +14,19 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.ui;
+package com.google.android.gnd.rx;
 
-import android.arch.lifecycle.ViewModel;
-import io.reactivex.disposables.CompositeDisposable;
-import io.reactivex.disposables.Disposable;
+import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.LiveDataReactiveStreams;
+import com.akaita.java.rxjava2debug.RxJava2Debug;
+import io.reactivex.BackpressureStrategy;
+import io.reactivex.Observable;
 
+public class RxLiveData {
 
-public class AbstractViewModel extends ViewModel {
-
-  private CompositeDisposable disposables = new CompositeDisposable();
-
-  protected void addDisposable(Disposable d) {
-    disposables.add(d);
-  }
-
-  @Override
-  protected void onCleared() {
-    disposables.dispose();
+  public static <T> LiveData<T> fromObservable(Observable<T> observable) {
+    return LiveDataReactiveStreams.fromPublisher(observable
+        .doOnError(t -> RxJava2Debug.getEnhancedStackTrace(t))
+        .toFlowable(BackpressureStrategy.BUFFER));
   }
 }
