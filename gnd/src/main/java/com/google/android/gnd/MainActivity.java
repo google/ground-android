@@ -31,6 +31,7 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.WindowInsetsCompat;
 import android.support.v7.widget.Toolbar;
@@ -49,6 +50,7 @@ import com.google.android.gnd.model.PlaceType;
 import com.google.android.gnd.service.DataService;
 import com.google.android.gnd.system.LocationManager;
 import com.google.android.gnd.system.PermissionManager;
+import com.google.android.gnd.system.PermissionManager.PermissionsRequest;
 import com.google.android.gnd.ui.AddPlaceDialog;
 import com.google.android.gnd.ui.map.GoogleMapsView;
 import com.google.android.gnd.ui.sheet.DataSheetScrollView;
@@ -93,6 +95,7 @@ public class MainActivity extends AbstractGndActivity {
     updatePaddingForWindowInsets();
     mainPresenter.onCreate(savedInstanceState);
     View decorView = getWindow().getDecorView();
+    permissionManager.permissionsRequests().subscribe(this::requestPermissions);
     if (Build.VERSION.SDK_INT >= 19) {
       // Sheet doesn't scroll properly w/translucent status due to obscure Android bug. This should
       // be resolved once add/edit is in its own fragment that uses fitsSystemWindows. For now we
@@ -110,6 +113,11 @@ public class MainActivity extends AbstractGndActivity {
         }
       });
     }
+  }
+
+  private void requestPermissions(PermissionsRequest permissionsRequest) {
+    ActivityCompat.requestPermissions(
+        this, permissionsRequest.getPermissions(), permissionsRequest.getRequestCode());
   }
 
   private void updatePaddingForWindowInsets() {

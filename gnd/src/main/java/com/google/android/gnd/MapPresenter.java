@@ -18,6 +18,7 @@ package com.google.android.gnd;
 
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.util.Log;
 import com.google.android.gnd.model.Place;
 import com.google.android.gnd.model.Point;
 import com.google.android.gnd.system.LocationManager;
@@ -28,6 +29,7 @@ import com.google.android.gnd.ui.map.MapMarker;
 
 public class MapPresenter {
 
+  private static final String TAG = MapPresenter.class.getSimpleName();
   private static final float DEFAULT_ZOOM_LEVEL = 14.0f;
 
   private final MainPresenter mainPresenter;
@@ -116,14 +118,15 @@ public class MapPresenter {
   private void enableLocationLock() {
     mainPresenter
         .getPermissionManager()
-        .obtainFineLocationPermission(
-            () ->
-                locationManager.checkLocationSettings(
-                    this::requestLocationUpdates, this::onLocationFailure),
-            this::onFineLocationPermissionsDenied);
+        .obtainFineLocationPermission()
+        .subscribe(
+            () -> locationManager.checkLocationSettings(
+                this::requestLocationUpdates, this::onLocationFailure),
+            t -> onFineLocationPermissionsDenied());
   }
 
   private void onFineLocationPermissionsDenied() {
+    Log.i(TAG, "Fine location permissions denied");
     mainActivity.showUserActionFailureMessage(R.string.no_fine_location_permissions);
   }
 

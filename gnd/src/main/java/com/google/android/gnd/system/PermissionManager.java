@@ -16,69 +16,129 @@
 
 package com.google.android.gnd.system;
 
-import android.app.Activity;
-import android.content.pm.PackageManager;
-import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.util.Pair;
-
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.inject.Inject;
-
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 
-public class PermissionManager {
-  private static final String[] FINE_LOCATION_PERMISSIONS = {ACCESS_FINE_LOCATION};
-  public static final int FINE_LOCATION_PERMISSIONS_REQUEST_CODE =
-      FINE_LOCATION_PERMISSIONS.hashCode() & 0xffff;
+import android.content.Context;
+import android.content.pm.PackageManager;
+import android.support.annotation.NonNull;
+import android.support.v4.content.ContextCompat;
+import android.util.Log;
+import com.google.android.gnd.GndApplication;
+import io.reactivex.Completable;
+import io.reactivex.Observable;
+import io.reactivex.subjects.PublishSubject;
+import io.reactivex.subjects.Subject;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 
-  private final Activity activity;
-  private Map<Integer, Pair<Runnable, Runnable>> callbacks; // Lower 16 bits reserved.
+@Singleton
+public class PermissionManager {
+  private static final String TAG = PermissionManager.class.getSimpleName();
+  private static final int PERMISSIONS_REQUEST_CODE = 0x1234;
+
+  private final Context context;
+  private final Subject<PermissionsRequest> permissionsRequestSubject;
+  private final Subject<PermissionsResult> permissionsResultSubject;
 
   @Inject
-  public PermissionManager(Activity activity) {
-    this.activity = activity;
-    this.callbacks = new HashMap<>();
+  public PermissionManager(GndApplication app) {
+    permissionsRequestSubject = PublishSubject.create();
+    permissionsResultSubject = PublishSubject.create();
+    context = app.getApplicationContext();
   }
 
-  private boolean isFineLocationPermissionGranted() {
-    return ContextCompat.checkSelfPermission(activity, ACCESS_FINE_LOCATION)
+  public Observable<PermissionsRequest> permissionsRequests() {
+    return permissionsRequestSubject;
+  }
+
+  public Completable obtainFineLocationPermission() {
+    return obtainPermission(ACCESS_FINE_LOCATION);
+  }
+
+  /**
+   * Callback for use from onRequestPermissionsResult() in Activity.
+   */
+  public void onRequestPermissionsResult(
+      int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+    if (requestCode != PERMISSIONS_REQUEST_CODE) {
+      return;
+    }
+    for (int i = 0; i < permissions.length; i++) {
+      permissionsResultSubject.onNext(new PermissionsResult(permissions[i], grantResults[i]));
+    }
+  }
+
+  private Completable obtainPermission(String permission) {
+    if (isGranted(permission)) {
+      Log.i(TAG, permission + " already granted");
+      return Completable.complete();
+    }
+
+    return Completable.create(s -> {
+
+      permissionsResultSubject
+          .doOnSubscribe(__ -> requestPermission(permission))
+          .filter(r -> r.getPermission().equals(permission))
+          .subscribe(r -> {
+            Log.i(TAG, "Got: " + r.toString());
+            if (r.isGranted()) {
+              s.onComplete();
+            } else {
+              s.onError(new Exception());
+            }
+          });
+    });
+  }
+
+  private void requestPermission(String permission) {
+    Log.i(TAG, "Requesting " + permission);
+    permissionsRequestSubject
+        .onNext(new PermissionsRequest(PERMISSIONS_REQUEST_CODE, new String[]{permission}));
+  }
+
+  private boolean isGranted(String permission) {
+    return ContextCompat.checkSelfPermission(context, permission)
         == PackageManager.PERMISSION_GRANTED;
   }
 
-  public void obtainFineLocationPermission(Runnable onSuccess, Runnable
-      onFailure) {
-    if (isFineLocationPermissionGranted()) {
-      onSuccess.run();
-      return;
+  public static class PermissionsRequest {
+    private int requestCode;
+    private String[] permissions;
+
+    private PermissionsRequest(int requestCode, String[] permissions) {
+      this.requestCode = requestCode;
+      this.permissions = permissions;
     }
-    requestPermissions(FINE_LOCATION_PERMISSIONS, onSuccess, onFailure);
+
+    public int getRequestCode() {
+      return requestCode;
+    }
+
+    public String[] getPermissions() {
+      return permissions;
+    }
   }
 
-  private void requestPermissions(String[] permissions, Runnable onSuccess,
-      Runnable onFailure) {
-    callbacks.put(FINE_LOCATION_PERMISSIONS_REQUEST_CODE, new Pair(onSuccess, onFailure));
-    ActivityCompat.requestPermissions(
-        activity, permissions, FINE_LOCATION_PERMISSIONS_REQUEST_CODE);
-  }
+  private static class PermissionsResult {
+    private String permission;
+    private int grantResult;
 
-  public void onRequestPermissionsResult(
-      int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-    Pair<Runnable, Runnable> callbackPair = callbacks.get(requestCode);
-    if (callbackPair == null || requestCode != FINE_LOCATION_PERMISSIONS_REQUEST_CODE) {
-      return;
+    private PermissionsResult(String permission, int grantResult) {
+      this.permission = permission;
+      this.grantResult = grantResult;
     }
-    Runnable onSuccess = callbackPair.first;
-    Runnable onFailure = callbackPair.second;
-    for (int grantResult : grantResults) {
-      if (grantResult == PackageManager.PERMISSION_GRANTED) {
-        onSuccess.run();
-        return;
-      }
+
+    public String getPermission() {
+      return permission;
     }
-    onFailure.run();
+
+    boolean isGranted() {
+      return grantResult == PackageManager.PERMISSION_GRANTED;
+    }
+
+    @Override
+    public String toString() {
+      return permission + " grant result: " + grantResult;
+    }
   }
 }
