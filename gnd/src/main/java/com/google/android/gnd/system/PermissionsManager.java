@@ -70,20 +70,20 @@ public class PermissionsManager {
 
   private Completable obtainPermission(String permission) {
     if (isGranted(permission)) {
-      Log.i(TAG, permission + " already granted");
+      Log.d(TAG, permission + " already granted");
       return Completable.complete();
     }
 
-    return Completable.create(s ->
+    return Completable.create(source ->
         permissionsResultSubject
             .doOnSubscribe(__ -> requestPermission(permission))
             .filter(r -> r.getPermission().equals(permission))
             .subscribe(r -> {
               Log.d(TAG, r.toString());
               if (r.isGranted()) {
-                s.onComplete();
+                source.onComplete();
               } else {
-                s.onError(new PermissionDeniedException());
+                source.onError(new PermissionDeniedException());
               }
             }));
   }

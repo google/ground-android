@@ -25,12 +25,10 @@ import com.google.android.gnd.model.GndDataRepository;
 import com.google.android.gnd.model.Place;
 import com.google.android.gnd.model.PlaceType;
 import com.google.android.gnd.system.LocationManager;
-import com.google.android.gnd.system.PermissionsManager;
 
 public class MainPresenter {
   private static final String TAG = MainPresenter.class.getSimpleName();
   private final MainActivity mainActivity;
-  private final PermissionsManager permissionsManager;
   private final DataSheetPresenter dataSheetPresenter;
   private final MapPresenter mapPresenter;
   private final GndDataRepository model;
@@ -38,11 +36,9 @@ public class MainPresenter {
   MainPresenter(
       MainActivity mainActivity,
       GndDataRepository model,
-      PermissionsManager permissionsManager,
       LocationManager locationManager) {
     this.mainActivity = mainActivity;
     this.model = model;
-    this.permissionsManager = permissionsManager;
     // TODO: Resolve circular deps and inject these presenters.
     this.dataSheetPresenter = new DataSheetPresenter(this, mainActivity, model);
     this.mapPresenter = new MapPresenter(this, mainActivity, locationManager);
@@ -117,10 +113,6 @@ public class MainPresenter {
 
   void onLowMemory() {
     mapPresenter.onLowMemory();
-  }
-
-  public PermissionsManager getPermissionManager() {
-    return permissionsManager;
   }
 
   public void showPlaceDetails(Place place) {

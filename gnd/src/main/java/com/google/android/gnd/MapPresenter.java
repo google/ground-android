@@ -18,10 +18,10 @@ package com.google.android.gnd;
 
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.util.Log;
 import com.google.android.gnd.model.Place;
 import com.google.android.gnd.model.Point;
 import com.google.android.gnd.system.LocationManager;
-import com.google.android.gnd.system.LocationManager.LocationFailureReason;
 import com.google.android.gnd.system.PermissionsManager.PermissionDeniedException;
 import com.google.android.gnd.system.SettingsManager.SettingsChangeRequestCanceled;
 import com.google.android.gnd.ui.map.GoogleMapImpl;
@@ -117,11 +117,9 @@ public class MapPresenter {
   }
 
   private void enableLocationLock() {
-    mainPresenter
-        .getPermissionManager()
-        .obtainFineLocationPermission()
-        .andThen(locationManager.enableFineLocationUpdatesSettings())
-        .subscribe(this::requestLocationUpdates, this::onLocationFailure);
+    Log.d(TAG, "Enabling location lock");
+    locationManager.enableLocationUpdates()
+        .subscribe(this::onLocationUpdate, this::onLocationFailure);
   }
 
   private void onLocationFailure(Throwable t) {
@@ -135,39 +133,19 @@ public class MapPresenter {
     }
   }
 
-  private void requestLocationUpdates() {
-    locationManager.requestLocationUpdates(
-        this::onRequestLocationUpdatesSuccess, this::onLocationFailure, this::onLocationUpdate);
-  }
-
   private void onRequestLocationUpdatesSuccess() {
-    mapView.getMap().subscribe(GoogleMapImpl::enableCurrentLocationIndicator);
-    zoomOnNextLocationUpdate = true;
-    locationManager.requestLastLocation(this::onLocationUpdate);
-    locationLockEnabled = true;
-    locationLockBtn.setImageResource(R.drawable.ic_gps_blue);
-  }
-
-  public void onLocationFailure(LocationFailureReason reason) {
-    disableLocationLock();
-    switch (reason) {
-      case UNEXPECTED_ERROR:
-        mainActivity.showUserActionFailureMessage(R.string.location_updates_unknown_error);
-        break;
-      case SETTINGS_CHANGE_UNAVAILABLE:
-        mainActivity.showUserActionFailureMessage(R.string.location_disabled_in_settings);
-        break;
-      case SETTINGS_CHANGE_FAILED:
-        mainActivity.showUserActionFailureMessage(R.string.location_disabled_in_settings);
-        break;
-      case LOCATION_UPDATES_REQUEST_FAILED:
-        mainActivity.showUserActionFailureMessage(R.string.location_updates_request_failed);
-        break;
+    if (!locationLockEnabled) {
+      Log.d(TAG, "Location lock enabled");
+      mapView.getMap().subscribe(GoogleMapImpl::enableCurrentLocationIndicator);
+      zoomOnNextLocationUpdate = true;
+      locationLockEnabled = true;
+      locationLockBtn.setImageResource(R.drawable.ic_gps_blue);
     }
   }
 
   private void onLocationUpdate(Point location) {
     mapView.getMap().subscribe(map -> {
+      onRequestLocationUpdatesSuccess();
       if (zoomOnNextLocationUpdate) {
         map.moveCamera(location, Math.max(DEFAULT_ZOOM_LEVEL, map.getCurrentZoomLevel()));
         zoomOnNextLocationUpdate = false;

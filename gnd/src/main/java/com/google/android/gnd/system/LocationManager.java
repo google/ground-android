@@ -19,7 +19,8 @@ package com.google.android.gnd.system;
 import static com.google.android.gms.location.LocationServices.getFusedLocationProviderClient;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
+import android.app.Application;
+import android.content.Context;
 import android.location.Location;
 import android.os.Looper;
 import android.util.Log;
@@ -30,7 +31,9 @@ import com.google.android.gms.location.LocationResult;
 import com.google.android.gnd.inject.PerActivity;
 import com.google.android.gnd.model.Point;
 import io.reactivex.Completable;
-import java8.util.function.Consumer;
+import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
+import io.reactivex.Single;
 import javax.inject.Inject;
 
 @PerActivity
@@ -43,20 +46,20 @@ public class LocationManager {
           .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
           .setInterval(UPDATE_INTERVAL)
           .setFastestInterval(FASTEST_INTERVAL);
-  private final Activity activity;
+  private final Context context;
   private final PermissionsManager permissionsManager;
   private final SettingsManager settingsManager;
-  private LocationCallback locationCallback;
+  private LocationCallbackImpl locationCallback;
 
   @Inject
-  public LocationManager(Activity context, PermissionsManager permissionsManager,
+  public LocationManager(Application app, PermissionsManager permissionsManager,
       SettingsManager settingsManager) {
-    this.activity = context;
+    this.context = app.getApplicationContext();
     this.permissionsManager = permissionsManager;
     this.settingsManager = settingsManager;
   }
 
-  public Completable enableFineLocationUpdatesSettings() {
+  private Completable enableLocationSettings() {
     return settingsManager.enableLocationSettings(FINE_LOCATION_UPDATES_REQUEST);
   }
 
@@ -67,73 +70,84 @@ public class LocationManager {
         .build();
   }
 
-  /**
-   * Must check fine-grained location permission and location settings before calling this!
-   */
-  @SuppressLint("MissingPermission")
-  public void requestLocationUpdates(
-      Runnable onSuccess,
-      Consumer<LocationFailureReason> onFailure,
-      Consumer<Point> onLocationUpdate) {
-    LocationCallback callback = new LocationCallbackImpl(onLocationUpdate);
-    getFusedLocationProviderClient(activity)
-        .requestLocationUpdates(FINE_LOCATION_UPDATES_REQUEST, callback, Looper.myLooper())
-        .addOnSuccessListener(
-            v -> {
-              locationCallback = callback;
-              onSuccess.run();
-            })
-        .addOnFailureListener(e -> this.handleRequestLocationUpdatesFailure(e, onFailure));
+  public Observable<Point> enableLocationUpdates() {
+    return permissionsManager
+        .obtainFineLocationPermission()
+        .andThen(enableLocationSettings())
+        .andThen(getLocationUpdates());
   }
 
-  private void handleRequestLocationUpdatesFailure(
-      Exception e, Consumer<LocationFailureReason> onFailure) {
-    Log.w(TAG, "Location updates request failed", e);
-    onFailure.accept(LocationFailureReason.LOCATION_UPDATES_REQUEST_FAILED);
+  private Observable<Point> getLocationUpdates() {
+    return Observable.create(source -> {
+      lastLocation().subscribe(p -> {
+        source.onNext(p);
+        locationCallback = new LocationCallbackImpl(source);
+        startFusedLocationUpdates(source);
+      }, source::onError);
+    });
+  }
+
+  @SuppressLint("MissingPermission")
+  private void startFusedLocationUpdates(
+      ObservableEmitter<Point> source) {
+    Log.d(TAG, "Requesting location updates");
+    getFusedLocationProviderClient(context)
+        .requestLocationUpdates(FINE_LOCATION_UPDATES_REQUEST,
+            locationCallback, Looper.myLooper())
+        .addOnSuccessListener(__ -> {
+          Log.d(TAG, "Location updates request successful");
+        })
+        .addOnFailureListener(source::onError);
   }
 
   public void removeLocationUpdates() {
     if (locationCallback != null) {
-      getFusedLocationProviderClient(activity).removeLocationUpdates(locationCallback);
+      locationCallback.onRemove();
+      getFusedLocationProviderClient(context).removeLocationUpdates(locationCallback);
       locationCallback = null;
     }
   }
 
   @SuppressLint("MissingPermission")
-  public void requestLastLocation(Consumer<Point> onSuccess) {
-    getFusedLocationProviderClient(activity)
-        .getLastLocation()
-        .addOnSuccessListener(
-            l -> {
-              if (l != null) {
-                onSuccess.accept(toPoint(l));
-              }
-            });
+  public Single<Point> lastLocation() {
+    return Single.create(src -> {
+      Log.d(TAG, "Requesting last known location");
+      getFusedLocationProviderClient(context)
+          .getLastLocation()
+          .addOnSuccessListener(
+              l -> {
+                if (l != null) {
+                  Log.d(TAG, "Got last known location");
+                  src.onSuccess(toPoint(l));
+                }
+              })
+          .addOnFailureListener(e -> src.onError(e));
+    });
   }
 
-  public enum LocationFailureReason {
-    UNEXPECTED_ERROR,
-    LOCATION_UPDATES_REQUEST_FAILED,
-    SETTINGS_CHANGE_FAILED,
-    SETTINGS_CHANGE_UNAVAILABLE
-  }
+  private static class LocationCallbackImpl extends LocationCallback {
+    private final ObservableEmitter<Point> source;
 
-  private class LocationCallbackImpl extends LocationCallback {
-    private final Consumer<Point> onLocationUpdate;
-
-    public LocationCallbackImpl(Consumer<Point> onLocationUpdate) {
-      this.onLocationUpdate = onLocationUpdate;
+    LocationCallbackImpl(ObservableEmitter<Point> source) {
+      this.source = source;
     }
 
     @Override
     public void onLocationResult(LocationResult locationResult) {
       Location lastLocation = locationResult.getLastLocation();
-      onLocationUpdate.accept(toPoint(lastLocation));
+      Log.v(TAG, lastLocation.toString());
+      source.onNext(toPoint(lastLocation));
     }
 
     @Override
     public void onLocationAvailability(LocationAvailability locationAvailability) {
-      // TODO: Show warning when location no longer available.
+      if (!locationAvailability.isLocationAvailable()) {
+        Log.d(TAG, "Location unavailable");
+      }
+    }
+
+    void onRemove() {
+      source.onComplete();
     }
   }
 }

@@ -27,8 +27,8 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.LocationSettingsStatusCodes;
 import io.reactivex.Completable;
+import io.reactivex.CompletableEmitter;
 import io.reactivex.Observable;
-import io.reactivex.Observer;
 import io.reactivex.subjects.PublishSubject;
 import io.reactivex.subjects.Subject;
 import javax.inject.Inject;
@@ -55,22 +55,23 @@ public class SettingsManager {
   }
 
   public Completable enableLocationSettings(LocationRequest locationRequest) {
-    LocationSettingsRequest settingsRequest = new LocationSettingsRequest.Builder()
-        .addLocationRequest(locationRequest).build();
-    return Completable.fromObservable(src -> {
+    return Completable.create(source -> {
+      Log.d(TAG, "Checking location settings");
+      LocationSettingsRequest settingsRequest = new LocationSettingsRequest.Builder()
+          .addLocationRequest(locationRequest).build();
       LocationServices.getSettingsClient(context)
           .checkLocationSettings(settingsRequest)
-          .addOnSuccessListener(v -> onCheckLocationSettingsSuccess(src))
-          .addOnFailureListener(e -> onCheckLocationSettingsFailure(e, src));
+          .addOnSuccessListener(v -> onCheckLocationSettingsSuccess(source))
+          .addOnFailureListener(e -> onCheckLocationSettingsFailure(e, source));
     });
   }
 
-  private void onCheckLocationSettingsSuccess(Observer<Object> src) {
+  private void onCheckLocationSettingsSuccess(CompletableEmitter src) {
     Log.d(TAG, "Location settings already enabled");
     src.onComplete();
   }
 
-  private void onCheckLocationSettingsFailure(Exception e, Observer<Object> src) {
+  private void onCheckLocationSettingsFailure(Exception e, CompletableEmitter src) {
     if ((e instanceof ResolvableApiException)
         && isResolutionRequired((ResolvableApiException) e)) {
       Log.d(TAG, "Prompting user to enable location settings");
@@ -86,7 +87,7 @@ public class SettingsManager {
   }
 
   @NonNull
-  private void onSettingsChangeResult(boolean ok, Observer<Object> src) {
+  private void onSettingsChangeResult(boolean ok, CompletableEmitter src) {
     Log.d(TAG, "Received settings change result: " + ok);
     if (ok) {
       src.onComplete();
