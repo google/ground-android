@@ -16,52 +16,48 @@
 
 package com.google.android.gnd.system;
 
+import static com.google.android.gms.location.LocationServices.getFusedLocationProviderClient;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.content.IntentSender;
 import android.location.Location;
 import android.os.Looper;
 import android.util.Log;
-
-import com.google.android.gms.common.api.ApiException;
-import com.google.android.gms.common.api.ResolvableApiException;
 import com.google.android.gms.location.LocationAvailability;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
-import com.google.android.gms.location.LocationSettingsRequest;
-import com.google.android.gms.location.LocationSettingsStatusCodes;
 import com.google.android.gnd.inject.PerActivity;
 import com.google.android.gnd.model.Point;
-
-import javax.inject.Inject;
-
+import io.reactivex.Completable;
 import java8.util.function.Consumer;
-
-import static com.google.android.gms.location.LocationServices.getFusedLocationProviderClient;
-import static com.google.android.gms.location.LocationServices.getSettingsClient;
+import javax.inject.Inject;
 
 @PerActivity
 public class LocationManager {
-  public static final int REQUEST_CHECK_SETTINGS = 0x200;
-  private static final long UPDATE_INTERVAL = 5 * 1000 /* 5 sec */;
+  private static final String TAG = LocationManager.class.getSimpleName();
+  private static final long UPDATE_INTERVAL = 1000 /* 1 sec */;
   private static final long FASTEST_INTERVAL = 250;
-  private static final LocationRequest LOCATION_REQUEST =
+  private static final LocationRequest FINE_LOCATION_UPDATES_REQUEST =
       new LocationRequest()
           .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
           .setInterval(UPDATE_INTERVAL)
           .setFastestInterval(FASTEST_INTERVAL);
-  private static final LocationSettingsRequest LOCATION_SETTINGS_REQUEST =
-      new LocationSettingsRequest.Builder().addLocationRequest(LOCATION_REQUEST).build();
-  private static final String TAG = LocationManager.class.getSimpleName();
   private final Activity activity;
-  private final PermissionManager permissionManager;
+  private final PermissionsManager permissionsManager;
+  private final SettingsManager settingsManager;
   private LocationCallback locationCallback;
 
   @Inject
-  public LocationManager(Activity context, PermissionManager permissionManager) {
+  public LocationManager(Activity context, PermissionsManager permissionsManager,
+      SettingsManager settingsManager) {
     this.activity = context;
-    this.permissionManager = permissionManager;
+    this.permissionsManager = permissionsManager;
+    this.settingsManager = settingsManager;
+  }
+
+  public Completable enableFineLocationUpdatesSettings() {
+    return settingsManager.enableLocationSettings(FINE_LOCATION_UPDATES_REQUEST);
   }
 
   private static Point toPoint(Location location) {
@@ -71,14 +67,9 @@ public class LocationManager {
         .build();
   }
 
-  public void checkLocationSettings(Runnable onSuccess, Consumer<LocationFailureReason> onFailure) {
-    getSettingsClient(activity)
-        .checkLocationSettings(LOCATION_SETTINGS_REQUEST)
-        .addOnSuccessListener((v) -> onSuccess.run())
-        .addOnFailureListener(e -> handleLocationSettingsFailure(e, onFailure));
-  }
-
-  /** Must check fine-grained location permission and location settings before calling this! */
+  /**
+   * Must check fine-grained location permission and location settings before calling this!
+   */
   @SuppressLint("MissingPermission")
   public void requestLocationUpdates(
       Runnable onSuccess,
@@ -86,49 +77,13 @@ public class LocationManager {
       Consumer<Point> onLocationUpdate) {
     LocationCallback callback = new LocationCallbackImpl(onLocationUpdate);
     getFusedLocationProviderClient(activity)
-        .requestLocationUpdates(LOCATION_REQUEST, callback, Looper.myLooper())
+        .requestLocationUpdates(FINE_LOCATION_UPDATES_REQUEST, callback, Looper.myLooper())
         .addOnSuccessListener(
             v -> {
               locationCallback = callback;
               onSuccess.run();
             })
         .addOnFailureListener(e -> this.handleRequestLocationUpdatesFailure(e, onFailure));
-  }
-
-  private void handleLocationSettingsFailure(
-      Throwable exception, Consumer<LocationFailureReason> onFailure) {
-    if (!(exception instanceof ApiException)) {
-      Log.e(TAG, "Unexpected error: " + exception);
-      onFailure.accept(LocationFailureReason.UNEXPECTED_ERROR);
-      return;
-    }
-    switch (((ApiException) exception).getStatusCode()) {
-      case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
-        handleResolvableLocationSettingsFailure(exception);
-        break;
-      case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
-        onFailure.accept(LocationFailureReason.SETTINGS_CHANGE_UNAVAILABLE);
-        break;
-      default:
-        Log.e(TAG, "Unexpected error: " + exception);
-        onFailure.accept(LocationFailureReason.UNEXPECTED_ERROR);
-    }
-  }
-
-  private void handleResolvableLocationSettingsFailure(Throwable exception) {
-    // Location settings are not satisfied. But could be fixed by showing the
-    // user a dialog.
-    try {
-      ResolvableApiException resolvable = (ResolvableApiException) exception;
-      // The result of this action is received by {@link MainActivity#onActivityResult}.
-      // TODO: Settings resolution is tightly bound to Activity.. move there?
-      resolvable.startResolutionForResult(activity, REQUEST_CHECK_SETTINGS);
-    } catch (IntentSender.SendIntentException e) {
-      // Should be an impossible since we don't use intents..
-    } catch (ClassCastException e) {
-      // Should be an impossible.
-      Log.w(TAG, e);
-    }
   }
 
   private void handleRequestLocationUpdatesFailure(

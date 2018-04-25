@@ -16,10 +16,9 @@
 
 package com.google.android.gnd;
 
-import javax.inject.Singleton;
-
 import dagger.Component;
 import dagger.android.AndroidInjector;
+import javax.inject.Singleton;
 
 @Singleton
 @Component(modules = GndApplicationModule.class)

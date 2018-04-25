@@ -18,11 +18,12 @@ package com.google.android.gnd;
 
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.util.Log;
 import com.google.android.gnd.model.Place;
 import com.google.android.gnd.model.Point;
 import com.google.android.gnd.system.LocationManager;
 import com.google.android.gnd.system.LocationManager.LocationFailureReason;
+import com.google.android.gnd.system.PermissionsManager.PermissionDeniedException;
+import com.google.android.gnd.system.SettingsManager.SettingsChangeRequestCanceled;
 import com.google.android.gnd.ui.map.GoogleMapImpl;
 import com.google.android.gnd.ui.map.GoogleMapsView;
 import com.google.android.gnd.ui.map.MapMarker;
@@ -119,19 +120,19 @@ public class MapPresenter {
     mainPresenter
         .getPermissionManager()
         .obtainFineLocationPermission()
-        .subscribe(
-            () -> locationManager.checkLocationSettings(
-                this::requestLocationUpdates, this::onLocationFailure),
-            t -> onFineLocationPermissionsDenied());
+        .andThen(locationManager.enableFineLocationUpdatesSettings())
+        .subscribe(this::requestLocationUpdates, this::onLocationFailure);
   }
 
-  private void onFineLocationPermissionsDenied() {
-    Log.i(TAG, "Fine location permissions denied");
-    mainActivity.showUserActionFailureMessage(R.string.no_fine_location_permissions);
-  }
-
-  public void onLocationLockSettingsIssueResolved() {
-    requestLocationUpdates();
+  private void onLocationFailure(Throwable t) {
+    // TODO: Turn user-visible errors into a stream the activity can subscribe to.
+    if (t instanceof PermissionDeniedException) {
+      mainActivity.showUserActionFailureMessage(R.string.no_fine_location_permissions);
+    } else if (t instanceof SettingsChangeRequestCanceled) {
+      mainActivity.showUserActionFailureMessage(R.string.location_disabled_in_settings);
+    } else {
+      mainActivity.showUserActionFailureMessage(R.string.location_updates_unknown_error);
+    }
   }
 
   private void requestLocationUpdates() {

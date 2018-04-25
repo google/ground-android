@@ -18,12 +18,12 @@ package com.google.android.gnd.system;
 
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 
+import android.app.Application;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
-import com.google.android.gnd.GndApplication;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.subjects.PublishSubject;
@@ -32,16 +32,16 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 @Singleton
-public class PermissionManager {
-  private static final String TAG = PermissionManager.class.getSimpleName();
-  private static final int PERMISSIONS_REQUEST_CODE = 0x1234;
+public class PermissionsManager {
+  private static final String TAG = PermissionsManager.class.getSimpleName();
+  private static final int PERMISSIONS_REQUEST_CODE = PermissionsManager.class.hashCode() & 0xffff;
 
   private final Context context;
   private final Subject<PermissionsRequest> permissionsRequestSubject;
   private final Subject<PermissionsResult> permissionsResultSubject;
 
   @Inject
-  public PermissionManager(GndApplication app) {
+  public PermissionsManager(Application app) {
     permissionsRequestSubject = PublishSubject.create();
     permissionsResultSubject = PublishSubject.create();
     context = app.getApplicationContext();
@@ -74,20 +74,18 @@ public class PermissionManager {
       return Completable.complete();
     }
 
-    return Completable.create(s -> {
-
-      permissionsResultSubject
-          .doOnSubscribe(__ -> requestPermission(permission))
-          .filter(r -> r.getPermission().equals(permission))
-          .subscribe(r -> {
-            Log.i(TAG, "Got: " + r.toString());
-            if (r.isGranted()) {
-              s.onComplete();
-            } else {
-              s.onError(new Exception());
-            }
-          });
-    });
+    return Completable.create(s ->
+        permissionsResultSubject
+            .doOnSubscribe(__ -> requestPermission(permission))
+            .filter(r -> r.getPermission().equals(permission))
+            .subscribe(r -> {
+              Log.d(TAG, r.toString());
+              if (r.isGranted()) {
+                s.onComplete();
+              } else {
+                s.onError(new PermissionDeniedException());
+              }
+            }));
   }
 
   private void requestPermission(String permission) {
@@ -140,5 +138,8 @@ public class PermissionManager {
     public String toString() {
       return permission + " grant result: " + grantResult;
     }
+  }
+
+  public static class PermissionDeniedException extends Exception {
   }
 }

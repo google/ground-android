@@ -18,12 +18,11 @@ package com.google.android.gnd;
 
 import static android.support.design.widget.BottomSheetBehavior.STATE_COLLAPSED;
 import static android.support.design.widget.BottomSheetBehavior.STATE_EXPANDED;
-import static com.google.android.gnd.system.LocationManager.LocationFailureReason.SETTINGS_CHANGE_FAILED;
 
-import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentSender.SendIntentException;
 import android.content.res.ColorStateList;
 import android.os.Build;
 import android.os.Bundle;
@@ -35,6 +34,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.WindowInsetsCompat;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -49,8 +49,10 @@ import com.google.android.gnd.model.GndDataRepository;
 import com.google.android.gnd.model.PlaceType;
 import com.google.android.gnd.service.DataService;
 import com.google.android.gnd.system.LocationManager;
-import com.google.android.gnd.system.PermissionManager;
-import com.google.android.gnd.system.PermissionManager.PermissionsRequest;
+import com.google.android.gnd.system.PermissionsManager;
+import com.google.android.gnd.system.PermissionsManager.PermissionsRequest;
+import com.google.android.gnd.system.SettingsManager;
+import com.google.android.gnd.system.SettingsManager.SettingsChangeRequest;
 import com.google.android.gnd.ui.AddPlaceDialog;
 import com.google.android.gnd.ui.map.GoogleMapsView;
 import com.google.android.gnd.ui.sheet.DataSheetScrollView;
@@ -60,6 +62,8 @@ import java8.util.function.Consumer;
 import javax.inject.Inject;
 
 public class MainActivity extends AbstractGndActivity {
+  private static final String TAG = MainActivity.class.getSimpleName();
+
   private MainPresenter mainPresenter;
   private AddPlaceDialog addPlaceDialog;
 
@@ -71,7 +75,10 @@ public class MainActivity extends AbstractGndActivity {
   private WindowInsetsCompat insets;
 
   @Inject
-  PermissionManager permissionManager;
+  PermissionsManager permissionsManager;
+
+  @Inject
+  SettingsManager settingsManager;
 
   @Inject
   DataService dataService;
@@ -87,7 +94,7 @@ public class MainActivity extends AbstractGndActivity {
     super.onCreate(savedInstanceState);
 
     this.addPlaceDialog = new AddPlaceDialog(this);
-    this.mainPresenter = new MainPresenter(this, model, permissionManager, locationManager);
+    this.mainPresenter = new MainPresenter(this, model, permissionsManager, locationManager);
 
     setContentView(R.layout.activity_main);
     ButterKnife.bind(this);
@@ -95,21 +102,22 @@ public class MainActivity extends AbstractGndActivity {
     updatePaddingForWindowInsets();
     mainPresenter.onCreate(savedInstanceState);
     View decorView = getWindow().getDecorView();
-    permissionManager.permissionsRequests().subscribe(this::requestPermissions);
+    permissionsManager.permissionsRequests().subscribe(this::requestPermissions);
+    settingsManager.settingsChangeRequests().subscribe(this::requestSettingsChange);
     if (Build.VERSION.SDK_INT >= 19) {
       // Sheet doesn't scroll properly w/translucent status due to obscure Android bug. This should
       // be resolved once add/edit is in its own fragment that uses fitsSystemWindows. For now we
       // just expand the sheet when focus + layout change (i.e., keyboard appeared).
       decorView.getViewTreeObserver().addOnGlobalLayoutListener(() -> {
-        View newFocus  = getCurrentFocus();
+        View newFocus = getCurrentFocus();
         if (newFocus != null) {
           DataSheetScrollView dataSheetView = getDataSheetView();
-            BottomSheetBehavior behavior = (BottomSheetBehavior) ((CoordinatorLayout.LayoutParams) dataSheetView
-                .getLayoutParams())
-                .getBehavior();
-            if (behavior.getState() == STATE_COLLAPSED) {
-              behavior.setState(STATE_EXPANDED);
-            }
+          BottomSheetBehavior behavior = (BottomSheetBehavior) ((CoordinatorLayout.LayoutParams) dataSheetView
+              .getLayoutParams())
+              .getBehavior();
+          if (behavior.getState() == STATE_COLLAPSED) {
+            behavior.setState(STATE_EXPANDED);
+          }
         }
       });
     }
@@ -118,6 +126,18 @@ public class MainActivity extends AbstractGndActivity {
   private void requestPermissions(PermissionsRequest permissionsRequest) {
     ActivityCompat.requestPermissions(
         this, permissionsRequest.getPermissions(), permissionsRequest.getRequestCode());
+  }
+
+
+  private void requestSettingsChange(SettingsChangeRequest settingsChangeRequest) {
+    try {
+      // The result of this call is received by {@link #onActivityResult}.
+      settingsChangeRequest.getException()
+          .startResolutionForResult(this, settingsChangeRequest.getRequestCode());
+    } catch (SendIntentException e) {
+      // TODO: Report error.
+      Log.e(TAG, e.toString());
+    }
   }
 
   private void updatePaddingForWindowInsets() {
@@ -286,34 +306,17 @@ public class MainActivity extends AbstractGndActivity {
   /**
    * The Android permissions API requires this callback to live in an Activity; here we dispatch the
    * result back to the PermissionManager for handling.
-   *
-   * @param requestCode
-   * @param permissions
-   * @param grantResults
    */
   @Override
   public void onRequestPermissionsResult(
       int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
     super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-    permissionManager.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    permissionsManager.onRequestPermissionsResult(requestCode, permissions, grantResults);
   }
 
   @Override
   protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
-    switch (requestCode) {
-      case LocationManager.REQUEST_CHECK_SETTINGS:
-        switch (resultCode) {
-          case Activity.RESULT_OK:
-            mainPresenter.getMapPresenter().onLocationLockSettingsIssueResolved();
-            break;
-          case Activity.RESULT_CANCELED:
-            mainPresenter.getMapPresenter().onLocationFailure(SETTINGS_CHANGE_FAILED);
-            break;
-          default:
-            break;
-        }
-        break;
-    }
+    settingsManager.onActivityResult(requestCode, resultCode);
   }
 
   public WindowInsetsCompat getInsets() {

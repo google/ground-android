@@ -16,6 +16,7 @@
 
 package com.google.android.gnd;
 
+import android.app.Application;
 import com.google.android.gnd.inject.PerActivity;
 import com.google.android.gnd.service.DataService;
 import com.google.android.gnd.service.firestore.FirestoreDataService;
@@ -40,4 +41,8 @@ abstract class GndApplicationModule {
   @Binds
   @Singleton
   abstract DataService dataService(FirestoreDataService ds);
+
+  @Binds
+  @Singleton
+  abstract Application application(GndApplication app);
 }
