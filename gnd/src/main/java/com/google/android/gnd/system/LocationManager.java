@@ -30,9 +30,10 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gnd.inject.PerActivity;
 import com.google.android.gnd.model.Point;
+import io.reactivex.BackpressureStrategy;
 import io.reactivex.Completable;
-import io.reactivex.Observable;
-import io.reactivex.ObservableEmitter;
+import io.reactivex.Flowable;
+import io.reactivex.FlowableEmitter;
 import io.reactivex.Single;
 import io.reactivex.SingleEmitter;
 import javax.inject.Inject;
@@ -71,16 +72,16 @@ public class LocationManager {
         .build();
   }
 
-  public Observable<Point> enableLocationUpdates() {
+  public Flowable<Point> enableLocationUpdates() {
     return permissionsManager
         .obtainFineLocationPermission()
         .andThen(enableLocationSettings())
-        .andThen(lastLocation().toObservable().concatWith(fusedLocationUpdates()));
+        .andThen(lastLocation().toFlowable().concatWith(fusedLocationUpdates()));
   }
 
   @SuppressLint("MissingPermission")
-  private Observable<Point> fusedLocationUpdates() {
-    return Observable.create(source -> {
+  private Flowable<Point> fusedLocationUpdates() {
+    return Flowable.create(source -> {
       Log.d(TAG, "Requesting location updates");
       locationCallback = new LocationCallbackImpl(source);
       getFusedLocationProviderClient(context)
@@ -90,7 +91,7 @@ public class LocationManager {
             Log.d(TAG, "Location updates request successful");
           })
           .addOnFailureListener(source::onError);
-    });
+    }, BackpressureStrategy.LATEST);
   }
 
   public void removeLocationUpdates() {
@@ -123,9 +124,9 @@ public class LocationManager {
   }
 
   private static class LocationCallbackImpl extends LocationCallback {
-    private final ObservableEmitter<Point> source;
+    private final FlowableEmitter<Point> source;
 
-    LocationCallbackImpl(ObservableEmitter<Point> source) {
+    LocationCallbackImpl(FlowableEmitter<Point> source) {
       this.source = source;
     }
 
