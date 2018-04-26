@@ -94,7 +94,7 @@ public class MainActivity extends AbstractGndActivity {
     super.onCreate(savedInstanceState);
 
     this.addPlaceDialog = new AddPlaceDialog(this);
-    this.mainPresenter = new MainPresenter(this, model, permissionsManager, locationManager);
+    this.mainPresenter = new MainPresenter(this, model, locationManager);
 
     setContentView(R.layout.activity_main);
     ButterKnife.bind(this);

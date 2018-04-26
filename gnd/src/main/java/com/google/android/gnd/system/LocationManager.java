@@ -34,6 +34,7 @@ import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
 import io.reactivex.Single;
+import io.reactivex.SingleEmitter;
 import javax.inject.Inject;
 
 @PerActivity
@@ -74,30 +75,22 @@ public class LocationManager {
     return permissionsManager
         .obtainFineLocationPermission()
         .andThen(enableLocationSettings())
-        .andThen(getLocationUpdates());
-  }
-
-  private Observable<Point> getLocationUpdates() {
-    return Observable.create(source -> {
-      lastLocation().subscribe(p -> {
-        source.onNext(p);
-        locationCallback = new LocationCallbackImpl(source);
-        startFusedLocationUpdates(source);
-      }, source::onError);
-    });
+        .andThen(lastLocation().toObservable().concatWith(fusedLocationUpdates()));
   }
 
   @SuppressLint("MissingPermission")
-  private void startFusedLocationUpdates(
-      ObservableEmitter<Point> source) {
-    Log.d(TAG, "Requesting location updates");
-    getFusedLocationProviderClient(context)
-        .requestLocationUpdates(FINE_LOCATION_UPDATES_REQUEST,
-            locationCallback, Looper.myLooper())
-        .addOnSuccessListener(__ -> {
-          Log.d(TAG, "Location updates request successful");
-        })
-        .addOnFailureListener(source::onError);
+  private Observable<Point> fusedLocationUpdates() {
+    return Observable.create(source -> {
+      Log.d(TAG, "Requesting location updates");
+      locationCallback = new LocationCallbackImpl(source);
+      getFusedLocationProviderClient(context)
+          .requestLocationUpdates(FINE_LOCATION_UPDATES_REQUEST,
+              locationCallback, Looper.myLooper())
+          .addOnSuccessListener(__ -> {
+            Log.d(TAG, "Location updates request successful");
+          })
+          .addOnFailureListener(source::onError);
+    });
   }
 
   public void removeLocationUpdates() {
@@ -114,15 +107,19 @@ public class LocationManager {
       Log.d(TAG, "Requesting last known location");
       getFusedLocationProviderClient(context)
           .getLastLocation()
-          .addOnSuccessListener(
-              l -> {
-                if (l != null) {
-                  Log.d(TAG, "Got last known location");
-                  src.onSuccess(toPoint(l));
-                }
-              })
+          .addOnSuccessListener(l -> onGetLastLocationSuccess(l, src))
           .addOnFailureListener(e -> src.onError(e));
     });
+  }
+
+  private void onGetLastLocationSuccess(Location location, SingleEmitter<Point> emitter) {
+    if (location == null) {
+      Log.d(TAG, "Last known location null");
+      emitter.onError(new NullPointerException());
+    } else {
+      Log.d(TAG, "Got last known location");
+      emitter.onSuccess(toPoint(location));
+    }
   }
 
   private static class LocationCallbackImpl extends LocationCallback {

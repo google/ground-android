@@ -25,6 +25,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import io.reactivex.Completable;
+import io.reactivex.CompletableSource;
 import io.reactivex.Observable;
 import io.reactivex.subjects.PublishSubject;
 import io.reactivex.subjects.Subject;
@@ -74,18 +75,19 @@ public class PermissionsManager {
       return Completable.complete();
     }
 
+    // Create a new Completable, since permission stream never actually completes.
     return Completable.create(source ->
         permissionsResultSubject
             .doOnSubscribe(__ -> requestPermission(permission))
             .filter(r -> r.getPermission().equals(permission))
+            .doOnNext(r -> Log.d(TAG, r.toString()))
             .subscribe(r -> {
-              Log.d(TAG, r.toString());
               if (r.isGranted()) {
                 source.onComplete();
               } else {
                 source.onError(new PermissionDeniedException());
               }
-            }));
+            }, source::onError));
   }
 
   private void requestPermission(String permission) {
@@ -130,13 +132,20 @@ public class PermissionsManager {
       return permission;
     }
 
-    boolean isGranted() {
-      return grantResult == PackageManager.PERMISSION_GRANTED;
+
+    public static CompletableSource toCompletable(PermissionsResult result) {
+      return result.isGranted() ?
+          Completable.complete()
+          : Completable.error(new PermissionDeniedException());
     }
 
     @Override
     public String toString() {
-      return permission + " grant result: " + grantResult;
+      return permission + " granted = " + isGranted();
+    }
+
+    private boolean isGranted() {
+      return grantResult == PackageManager.PERMISSION_GRANTED;
     }
   }
 
