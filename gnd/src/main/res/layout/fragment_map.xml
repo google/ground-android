@@ -28,13 +28,11 @@
       android:gravity="center"
       app:layout_behavior=".ui.map.MapLayoutBehavior">
 
-    <com.google.android.gnd.ui.map.GoogleMapsView
+    <!-- Placeholder for map implementation -->
+    <FrameLayout
         android:id="@+id/map"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:clickable="true"
-        android:enabled="true"
-        android:focusable="true"/>
+      android:layout_height="match_parent"/>
 
     <ImageView
         android:id="@+id/map_crosshairs"

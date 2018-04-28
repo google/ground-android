@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.ui.map;
+package com.google.android.gnd.ui.map.gms;
 
 import static com.google.android.gms.maps.GoogleMap.OnCameraMoveStartedListener.REASON_DEVELOPER_ANIMATION;
 
@@ -27,22 +27,26 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gnd.model.PlaceIcon;
 import com.google.android.gnd.model.Point;
+import com.google.android.gnd.ui.map.MapAdapter;
+import com.google.android.gnd.ui.map.MapMarker;
 import io.reactivex.Observable;
 import io.reactivex.subjects.ReplaySubject;
 import java.util.HashMap;
-import java.util.Map;
 
-// TODO: Refactor into generic Map interface.
-public class GoogleMapImpl {
+/**
+ * Wrapper around {@link GoogleMap} object, exposing Google Maps API functionality using Ground's
+ * standard {@link Map} interface.
+ */
+class GoogleMapsApiMap implements MapAdapter.Map {
 
   private GoogleMap map;
   private boolean enabled;
-  private Map<String, Marker> markers = new HashMap<>();
+  private java.util.Map<String, Marker> markers = new HashMap<>();
   private LatLng cameraTargetBeforeUserPan;
   private ReplaySubject<MapMarker> markerClickSubject = ReplaySubject.create();
   private ReplaySubject<Point> userPanSubject = ReplaySubject.create();
 
-  public GoogleMapImpl(GoogleMap map) {
+  public GoogleMapsApiMap(GoogleMap map) {
     this.map = map;
     map.setMapType(GoogleMap.MAP_TYPE_HYBRID);
     map.getUiSettings().setRotateGesturesEnabled(false);
@@ -65,32 +69,39 @@ public class GoogleMapImpl {
     this.enabled = true;
   }
 
+  @Override
   public Observable<MapMarker> markerClicks() {
     return markerClickSubject;
   }
 
+  @Override
   public Observable<Point> userPans() {
     return userPanSubject;
   }
 
+  @Override
   public void enable() {
     enabled = true;
     map.getUiSettings().setAllGesturesEnabled(true);
   }
 
+  @Override
   public void disable() {
     enabled = false;
     map.getUiSettings().setAllGesturesEnabled(false);
   }
 
+  @Override
   public void moveCamera(Point point) {
     map.moveCamera(CameraUpdateFactory.newLatLng(toLatLng(point)));
   }
 
+  @Override
   public void moveCamera(Point point, float zoomLevel) {
     map.moveCamera(CameraUpdateFactory.newLatLngZoom(toLatLng(point), zoomLevel));
   }
 
+  @Override
   public void addOrUpdateMarker(
       MapMarker mapMarker, boolean hasPendingWrites, boolean isHighlighted) {
     Marker marker = markers.get(mapMarker.getId());
@@ -110,6 +121,7 @@ public class GoogleMapImpl {
     marker.setTag(mapMarker);
   }
 
+  @Override
   public void removeMarker(String id) {
     Marker marker = markers.get(id);
     if (marker == null) {
@@ -119,19 +131,23 @@ public class GoogleMapImpl {
     markers.remove(id);
   }
 
+  @Override
   public void removeAllMarkers() {
     map.clear();
     markers.clear();
   }
 
+  @Override
   public Point getCenter() {
     return toPoint(map.getCameraPosition().target);
   }
 
+  @Override
   public float getCurrentZoomLevel() {
     return map.getCameraPosition().zoom;
   }
 
+  @Override
   @SuppressLint("MissingPermission")
   public void enableCurrentLocationIndicator() {
     map.setMyLocationEnabled(true);

@@ -23,7 +23,6 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
-
 import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.R;
 import com.google.android.gnd.ui.OnSheetSlideBehavior;
@@ -34,7 +33,7 @@ public class MapLayoutBehavior extends OnSheetSlideBehavior<RelativeLayout> {
   private final MainActivity activity;
   private View toolbarWrapper;
   private ImageView crosshairs;
-  private GoogleMapsView map;
+  private View map;
 
   public MapLayoutBehavior(Context context, AttributeSet attrs) {
     super(context, attrs);

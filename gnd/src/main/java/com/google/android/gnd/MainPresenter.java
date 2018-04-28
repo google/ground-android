@@ -44,10 +44,6 @@ public class MainPresenter {
     this.mapPresenter = new MapPresenter(this, mainActivity, locationManager);
   }
 
-  public MapPresenter getMapPresenter() {
-    return mapPresenter;
-  }
-
   void onCreate(Bundle savedInstanceState) {
     dataSheetPresenter.onCreate(savedInstanceState);
     mapPresenter.onCreate(savedInstanceState);
@@ -91,28 +87,8 @@ public class MainPresenter {
             });
   }
 
-  void onStart() {
-    mapPresenter.onStart();
-  }
-
-  void onResume() {
-    mapPresenter.onResume();
-  }
-
-  void onPause() {
-    mapPresenter.onPause();
-  }
-
   void onStop() {
     mapPresenter.onStop();
-  }
-
-  void onDestroy() {
-    mapPresenter.onDestroy();
-  }
-
-  void onLowMemory() {
-    mapPresenter.onLowMemory();
   }
 
   public void showPlaceDetails(Place place) {

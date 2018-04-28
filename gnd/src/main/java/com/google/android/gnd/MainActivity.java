@@ -24,7 +24,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender.SendIntentException;
 import android.content.res.ColorStateList;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetBehavior;
@@ -54,7 +53,8 @@ import com.google.android.gnd.system.PermissionsManager.PermissionsRequest;
 import com.google.android.gnd.system.SettingsManager;
 import com.google.android.gnd.system.SettingsManager.SettingsChangeRequest;
 import com.google.android.gnd.ui.AddPlaceDialog;
-import com.google.android.gnd.ui.map.GoogleMapsView;
+import com.google.android.gnd.ui.map.MapAdapter;
+import com.google.android.gnd.ui.map.MapFragment;
 import com.google.android.gnd.ui.sheet.DataSheetScrollView;
 import com.google.android.gnd.ui.util.ViewUtil;
 import java.util.List;
@@ -104,23 +104,21 @@ public class MainActivity extends AbstractGndActivity {
     View decorView = getWindow().getDecorView();
     permissionsManager.permissionsRequests().subscribe(this::requestPermissions);
     settingsManager.settingsChangeRequests().subscribe(this::requestSettingsChange);
-    if (Build.VERSION.SDK_INT >= 19) {
-      // Sheet doesn't scroll properly w/translucent status due to obscure Android bug. This should
-      // be resolved once add/edit is in its own fragment that uses fitsSystemWindows. For now we
-      // just expand the sheet when focus + layout change (i.e., keyboard appeared).
-      decorView.getViewTreeObserver().addOnGlobalLayoutListener(() -> {
-        View newFocus = getCurrentFocus();
-        if (newFocus != null) {
-          DataSheetScrollView dataSheetView = getDataSheetView();
-          BottomSheetBehavior behavior = (BottomSheetBehavior) ((CoordinatorLayout.LayoutParams) dataSheetView
-              .getLayoutParams())
-              .getBehavior();
-          if (behavior.getState() == STATE_COLLAPSED) {
-            behavior.setState(STATE_EXPANDED);
-          }
+    // Sheet doesn't scroll properly w/translucent status due to obscure Android bug. This should
+    // be resolved once add/edit is in its own fragment that uses fitsSystemWindows. For now we
+    // just expand the sheet when focus + layout change (i.e., keyboard appeared).
+    decorView.getViewTreeObserver().addOnGlobalLayoutListener(() -> {
+      View newFocus = getCurrentFocus();
+      if (newFocus != null) {
+        DataSheetScrollView dataSheetView = getDataSheetView();
+        BottomSheetBehavior behavior = (BottomSheetBehavior) ((CoordinatorLayout.LayoutParams) dataSheetView
+            .getLayoutParams())
+            .getBehavior();
+        if (behavior.getState() == STATE_COLLAPSED) {
+          behavior.setState(STATE_EXPANDED);
         }
-      });
-    }
+      }
+    });
   }
 
   private void requestPermissions(PermissionsRequest permissionsRequest) {
@@ -162,11 +160,7 @@ public class MainActivity extends AbstractGndActivity {
           bottomSheetScrim.setMinimumHeight(bottomPadding);
           mapBtnLayout.setTranslationY(-bottomPadding);
           recordBtnLayout.setTranslationY(-bottomPadding);
-          if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT_WATCH) {
-            return insets.replaceSystemWindowInsets(0, 0, 0, insets.getSystemWindowInsetBottom());
-          } else {
-            return insets;
-          }
+          return insets.replaceSystemWindowInsets(0, 0, 0, insets.getSystemWindowInsetBottom());
         });
   }
 
@@ -242,8 +236,8 @@ public class MainActivity extends AbstractGndActivity {
     }
   }
 
-  public GoogleMapsView getMapView() {
-    return (GoogleMapsView) findViewById(R.id.map);
+  public MapAdapter getMapAdapter() {
+    return MapFragment.mapAdapter;
   }
 
   public Toolbar getToolbar() {
@@ -268,39 +262,9 @@ public class MainActivity extends AbstractGndActivity {
   }
 
   @Override
-  protected void onStart() {
-    super.onStart();
-    mainPresenter.onStart();
-  }
-
-  @Override
-  public void onResume() {
-    super.onResume();
-    mainPresenter.onResume();
-  }
-
-  @Override
-  protected void onPause() {
-    super.onPause();
-    mainPresenter.onPause();
-  }
-
-  @Override
   protected void onStop() {
     super.onStop();
     mainPresenter.onStop();
-  }
-
-  @Override
-  public void onDestroy() {
-    super.onDestroy();
-    mainPresenter.onDestroy();
-  }
-
-  @Override
-  public void onLowMemory() {
-    super.onLowMemory();
-    mainPresenter.onLowMemory();
   }
 
   /**

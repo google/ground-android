@@ -19,13 +19,15 @@ package com.google.android.gnd.ui.map;
 import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import butterknife.BindView;
 import com.google.android.gnd.AbstractGndFragment;
 import com.google.android.gnd.R;
 import com.google.android.gnd.model.PlaceIcon;
+import com.google.android.gnd.ui.map.MapAdapter.Map;
+import com.google.android.gnd.ui.map.gms.GoogleMapsApiMapAdapter;
 import javax.inject.Inject;
 
 public class MapFragment extends AbstractGndFragment {
@@ -33,8 +35,9 @@ public class MapFragment extends AbstractGndFragment {
   @Inject
   MapViewModelFactory viewModelFactory;
 
-  @BindView(R.id.map)
-  GoogleMapsView mapView;
+  // HACK: Horrible temp workaround for refactor.
+  // TODO: Replace with injected field.
+  public static MapAdapter mapAdapter;
 
   private MapViewModel viewModel;
 
@@ -49,20 +52,27 @@ public class MapFragment extends AbstractGndFragment {
   public View onCreateView(LayoutInflater inflater,
       ViewGroup container,
       Bundle savedInstanceState) {
-    return inflater.inflate(R.layout.fragment_map, container, false);
+    View view = inflater.inflate(R.layout.fragment_map, container, false);
+
+    FragmentTransaction ft = getFragmentManager().beginTransaction();
+//    / HACK: INJECT ME!
+    mapAdapter = new GoogleMapsApiMapAdapter();
+    ft.replace(R.id.map, mapAdapter.getMapFragment());
+    ft.commit();
+    return view;
   }
 
   @Override
   public void onResume() {
     super.onResume();
-    mapView.getMap().subscribe(this::onMapReady);
+    mapAdapter.map().subscribe(this::onMapReady);
   }
 
-  private void onMapReady(GoogleMapImpl map) {
+  private void onMapReady(Map map) {
     viewModel.mapMarkers().observe(this, update -> onMarkerUpdate(map, update));
   }
 
-  private void onMarkerUpdate(GoogleMapImpl map, MarkerUpdate update) {
+  private void onMarkerUpdate(Map map, MarkerUpdate update) {
     switch (update.getType()) {
       case CLEAR_ALL:
         map.removeAllMarkers();

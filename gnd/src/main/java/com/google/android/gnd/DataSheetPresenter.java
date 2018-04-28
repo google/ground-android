@@ -33,8 +33,8 @@ import com.google.android.gnd.model.GndDataRepository;
 import com.google.android.gnd.model.Place;
 import com.google.android.gnd.model.PlaceType;
 import com.google.android.gnd.model.Record;
-import com.google.android.gnd.ui.map.GoogleMapImpl;
-import com.google.android.gnd.ui.map.GoogleMapsView;
+import com.google.android.gnd.ui.map.MapAdapter;
+import com.google.android.gnd.ui.map.MapAdapter.Map;
 import com.google.android.gnd.ui.sheet.DataSheetScrollView;
 import com.google.android.gnd.ui.sheet.RecordView;
 import com.google.android.gnd.ui.sheet.input.Editable;
@@ -50,7 +50,7 @@ public class DataSheetPresenter {
   private final GndDataRepository model;
   private DataSheetScrollView dataSheetView;
   private Toolbar toolbar;
-  private GoogleMapsView mapView;
+  private MapAdapter mapAdapter;
   private FloatingActionButton addRecordBtn;
   private FloatingActionButton addPlaceBtn;
 
@@ -67,7 +67,7 @@ public class DataSheetPresenter {
     // TODO: Move access to these through mainActivity?
     addPlaceBtn = mainActivity.getAddPlaceButton();
     toolbar = mainActivity.getToolbar();
-    mapView = mainActivity.getMapView();
+    mapAdapter = mainActivity.getMapAdapter();
   }
 
   public void onReady() {
@@ -121,12 +121,12 @@ public class DataSheetPresenter {
     mainActivity.hideSoftInput();
     addRecordBtn.setEnabled(false);
     addPlaceBtn.setEnabled(true);
-    mapView.getMap().subscribe(GoogleMapImpl::enable);
+    mapAdapter.map().subscribe(Map::enable);
   }
 
   public void onShowSheet() {
-    mapView.getMap().subscribe(GoogleMapImpl::disable);
-    //    mapView.pauseLocationUpdates()
+    mapAdapter.map().subscribe(MapAdapter.Map::disable);
+    //    mapAdapter.pauseLocationUpdates()
     addPlaceBtn.setEnabled(false);
     addRecordBtn.setEnabled(true);
   }
@@ -237,7 +237,7 @@ public class DataSheetPresenter {
   }
 
   public void onSelectPlaceTypeForAdd(PlaceType placeType) {
-    mapView.getMap().subscribe(map -> {
+    mapAdapter.map().subscribe(map -> {
       Place place =
           Place.newBuilder()
               .setPlaceTypeId(placeType.getId())

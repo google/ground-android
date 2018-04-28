@@ -24,8 +24,7 @@ import com.google.android.gnd.model.Point;
 import com.google.android.gnd.system.LocationManager;
 import com.google.android.gnd.system.PermissionsManager.PermissionDeniedException;
 import com.google.android.gnd.system.SettingsManager.SettingsChangeRequestCanceled;
-import com.google.android.gnd.ui.map.GoogleMapImpl;
-import com.google.android.gnd.ui.map.GoogleMapsView;
+import com.google.android.gnd.ui.map.MapAdapter;
 import com.google.android.gnd.ui.map.MapMarker;
 
 public class MapPresenter {
@@ -36,7 +35,7 @@ public class MapPresenter {
   private final MainPresenter mainPresenter;
   private final MainActivity mainActivity;
   private final LocationManager locationManager;
-  private GoogleMapsView mapView;
+  private MapAdapter mapAdapter;
   private FloatingActionButton addBtn;
   private FloatingActionButton locationLockBtn;
   private boolean locationLockEnabled;
@@ -52,9 +51,8 @@ public class MapPresenter {
   }
 
   void onCreate(Bundle savedInstanceState) {
-    mapView = mainActivity.getMapView();
-    mapView.onCreate(savedInstanceState);
-    mapView.getMap().subscribe(map -> {
+    mapAdapter = mainActivity.getMapAdapter();
+    mapAdapter.map().subscribe(map -> {
       map.markerClicks().subscribe(this::onMarkerClick);
       map.userPans().subscribe(this::onCameraMove);
       enableLocationLock();
@@ -75,25 +73,8 @@ public class MapPresenter {
     }
   }
 
-  void onResume() {
-    mapView.onResume();
-  }
-
-  void onPause() {
-    mapView.onPause();
-  }
-
   void onStop() {
-    mapView.onStop();
     locationManager.removeLocationUpdates();
-  }
-
-  void onDestroy() {
-    mapView.onDestroy();
-  }
-
-  void onLowMemory() {
-    mapView.onLowMemory();
   }
 
   private void onMarkerClick(MapMarker marker) {
@@ -136,7 +117,7 @@ public class MapPresenter {
   private void onRequestLocationUpdatesSuccess() {
     if (!locationLockEnabled) {
       Log.d(TAG, "Location lock enabled");
-      mapView.getMap().subscribe(GoogleMapImpl::enableCurrentLocationIndicator);
+      mapAdapter.map().subscribe(MapAdapter.Map::enableCurrentLocationIndicator);
       zoomOnNextLocationUpdate = true;
       locationLockEnabled = true;
       locationLockBtn.setImageResource(R.drawable.ic_gps_blue);
@@ -144,7 +125,7 @@ public class MapPresenter {
   }
 
   private void onLocationUpdate(Point location) {
-    mapView.getMap().subscribe(map -> {
+    mapAdapter.map().subscribe(map -> {
       onRequestLocationUpdatesSuccess();
       if (zoomOnNextLocationUpdate) {
         map.moveCamera(location, Math.max(DEFAULT_ZOOM_LEVEL, map.getCurrentZoomLevel()));
