@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd;
+package com.google.android.gnd.ui;
 
 import android.support.v4.app.Fragment;
 import com.google.android.gnd.inject.PerChildFragment;
 import com.google.android.gnd.inject.PerFragment;
+import com.google.android.gnd.ui.common.GndFragmentModule;
 import com.google.android.gnd.ui.map.AddPlaceDialogFragment;
 import com.google.android.gnd.ui.map.MapFragment;
 import com.google.android.gnd.ui.map.MapFragmentModule;
@@ -28,7 +29,7 @@ import dagger.Binds;
 import dagger.Module;
 import dagger.android.ContributesAndroidInjector;
 
-@Module(includes = AbstractGndFragmentModule.class)
+@Module(includes = GndFragmentModule.class)
 public abstract class MainFragmentModule {
 
   @Binds

@@ -50,6 +50,7 @@ import com.google.android.gnd.system.PermissionsManager;
 import com.google.android.gnd.system.PermissionsManager.PermissionsRequest;
 import com.google.android.gnd.system.SettingsManager;
 import com.google.android.gnd.system.SettingsManager.SettingsChangeRequest;
+import com.google.android.gnd.ui.common.GndActivity;
 import com.google.android.gnd.ui.map.MapAdapter;
 import com.google.android.gnd.ui.map.MapFragment;
 import com.google.android.gnd.ui.sheet.DataSheetScrollView;
@@ -58,7 +59,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 @Singleton
-public class MainActivity extends AbstractGndActivity {
+public class MainActivity extends GndActivity {
   private static final String TAG = MainActivity.class.getSimpleName();
 
   private MainPresenter mainPresenter;

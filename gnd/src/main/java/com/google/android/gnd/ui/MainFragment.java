@@ -14,14 +14,16 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd;
+package com.google.android.gnd.ui;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import com.google.android.gnd.R;
+import com.google.android.gnd.ui.common.GndFragment;
 
-public class MainFragment extends AbstractGndFragment {
+public class MainFragment extends GndFragment {
   @Override
   public View onCreateView(LayoutInflater inflater,
       ViewGroup container,

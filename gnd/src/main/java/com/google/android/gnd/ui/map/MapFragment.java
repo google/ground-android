@@ -24,10 +24,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import butterknife.BindView;
-import com.google.android.gnd.AbstractGndFragment;
 import com.google.android.gnd.R;
 import com.google.android.gnd.model.PlaceIcon;
 import com.google.android.gnd.model.Point;
+import com.google.android.gnd.ui.common.GndFragment;
 import com.google.android.gnd.ui.map.MapAdapter.Map;
 import com.google.android.gnd.ui.map.gms.GoogleMapsApiMapAdapter;
 import com.jakewharton.rxbinding2.view.RxView;
@@ -36,7 +36,7 @@ import javax.inject.Inject;
 /**
  * Main app view, displaying the map and related controls (center cross-hairs, add button, etc).
  */
-public class MapFragment extends AbstractGndFragment {
+public class MapFragment extends GndFragment {
 
   @Inject
   MapViewModelFactory viewModelFactory;

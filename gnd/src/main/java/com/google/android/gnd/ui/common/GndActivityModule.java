@@ -14,23 +14,21 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd;
+package com.google.android.gnd.ui.common;
 
 import android.app.Activity;
 import android.content.Context;
 import android.support.v7.app.AppCompatActivity;
-
 import com.google.android.gnd.inject.PerActivity;
-
 import dagger.Binds;
 import dagger.Module;
 
 /**
- * Provides dependencies of {@link AbstractGndActivity}. This must be included in all activity
+ * Provides dependencies of {@link GndActivity}. This must be included in all activity
  * modules, which in turn must provide the appropriate implementation of {@link AppCompatActivity}.
  */
 @Module
-public abstract class AbstractGndActivityModule {
+public abstract class GndActivityModule {
   /**
    * PerActivity annotation isn't required here since they are already unique, but is included for
    * clarity.

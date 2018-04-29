@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd;
+package com.google.android.gnd.ui.common;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -27,7 +27,7 @@ import dagger.android.support.AndroidSupportInjection;
 import dagger.android.support.HasSupportFragmentInjector;
 import javax.inject.Inject;
 
-public abstract class AbstractGndFragment extends Fragment implements HasSupportFragmentInjector {
+public abstract class GndFragment extends Fragment implements HasSupportFragmentInjector {
   /**
    * Keeps track of fields bound to views so that they can be set to null when the view is
    * destroyed, freeing up memory.

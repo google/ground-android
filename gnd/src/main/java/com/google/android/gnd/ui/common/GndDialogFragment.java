@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd;
+package com.google.android.gnd.ui.common;
 
 import android.content.Context;
 import android.support.v4.app.Fragment;
@@ -24,11 +24,11 @@ import dagger.android.support.AndroidSupportInjection;
 import dagger.android.support.DaggerAppCompatDialogFragment;
 import javax.inject.Inject;
 
-public abstract class AbstractGndDialogFragment extends DaggerAppCompatDialogFragment {
+public abstract class GndDialogFragment extends DaggerAppCompatDialogFragment {
   @Inject
   DispatchingAndroidInjector<Fragment> childFragmentInjector;
 
-  public AbstractGndDialogFragment() {
+  public GndDialogFragment() {
   }
 
   @Override

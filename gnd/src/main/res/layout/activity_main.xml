@@ -22,7 +22,7 @@
 
   <fragment
       android:id="@+id/main_fragment"
-      android:name="com.google.android.gnd.MainFragment"
+    android:name="com.google.android.gnd.ui.MainFragment"
       android:layout_width="match_parent"
       android:layout_height="match_parent"
       />

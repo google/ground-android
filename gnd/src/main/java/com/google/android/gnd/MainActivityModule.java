@@ -19,6 +19,10 @@ package com.google.android.gnd;
 import android.support.v7.app.AppCompatActivity;
 import com.google.android.gnd.inject.PerActivity;
 import com.google.android.gnd.inject.PerFragment;
+import com.google.android.gnd.ui.MainFragment;
+import com.google.android.gnd.ui.MainFragmentModule;
+import com.google.android.gnd.ui.common.GndActivity;
+import com.google.android.gnd.ui.common.GndActivityModule;
 import dagger.Binds;
 import dagger.Module;
 import dagger.android.ContributesAndroidInjector;
@@ -26,12 +30,12 @@ import dagger.android.ContributesAndroidInjector;
 /**
  * Provides dependencies to {@link MainActivity}.
  */
-@Module(includes = AbstractGndActivityModule.class)
+@Module(includes = GndActivityModule.class)
 public abstract class MainActivityModule {
 
   /**
    * This provides the activity required to inject the fragment manager into
-   * {@link AbstractGndActivity}.
+   * {@link GndActivity}.
    */
   @Binds
   @PerActivity

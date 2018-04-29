@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd;
+package com.google.android.gnd.ui.common;
 
 import dagger.Module;
 
 /**
- * Provides dependencies of {@link AbstractGndFragment}. This must be included in all fragment
+ * Provides dependencies of {@link GndFragment}. This must be included in all fragment
  * modules, which in turn must provide the appropriate implementation of
  * {@link android.support.v4.app.Fragment}.
  */
 @Module
-public abstract class AbstractGndFragmentModule {
+public abstract class GndFragmentModule {
 
 }
