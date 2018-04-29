@@ -23,17 +23,29 @@ import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import butterknife.BindView;
 import com.google.android.gnd.AbstractGndFragment;
 import com.google.android.gnd.R;
 import com.google.android.gnd.model.PlaceIcon;
+import com.google.android.gnd.model.Point;
 import com.google.android.gnd.ui.map.MapAdapter.Map;
 import com.google.android.gnd.ui.map.gms.GoogleMapsApiMapAdapter;
+import com.jakewharton.rxbinding2.view.RxView;
 import javax.inject.Inject;
 
+/**
+ * Main app view, displaying the map and related controls (center cross-hairs, add button, etc).
+ */
 public class MapFragment extends AbstractGndFragment {
 
   @Inject
   MapViewModelFactory viewModelFactory;
+
+  @Inject
+  AddPlaceDialogFragment addPlaceDialogFragment;
+
+  @BindView(R.id.add_place_btn)
+  View addPlaceBtn;
 
   // HACK: Horrible temp workaround for refactor.
   // TODO: Replace with injected field.
@@ -70,6 +82,13 @@ public class MapFragment extends AbstractGndFragment {
 
   private void onMapReady(Map map) {
     viewModel.mapMarkers().observe(this, update -> onMarkerUpdate(map, update));
+    RxView.clicks(addPlaceBtn).subscribe(__ -> showAddPlaceDialog(map.getCenter()));
+  }
+
+  private void showAddPlaceDialog(Point location) {
+    addPlaceDialogFragment
+        .show(getFragmentManager(), location)
+        .subscribe(viewModel::onAddPlace);
   }
 
   private void onMarkerUpdate(Map map, MarkerUpdate update) {

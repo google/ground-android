@@ -38,34 +38,30 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import com.google.android.gnd.model.GndDataRepository;
-import com.google.android.gnd.model.PlaceType;
 import com.google.android.gnd.service.DataService;
 import com.google.android.gnd.system.LocationManager;
 import com.google.android.gnd.system.PermissionsManager;
 import com.google.android.gnd.system.PermissionsManager.PermissionsRequest;
 import com.google.android.gnd.system.SettingsManager;
 import com.google.android.gnd.system.SettingsManager.SettingsChangeRequest;
-import com.google.android.gnd.ui.AddPlaceDialog;
 import com.google.android.gnd.ui.map.MapAdapter;
 import com.google.android.gnd.ui.map.MapFragment;
 import com.google.android.gnd.ui.sheet.DataSheetScrollView;
 import com.google.android.gnd.ui.util.ViewUtil;
-import java.util.List;
-import java8.util.function.Consumer;
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
+@Singleton
 public class MainActivity extends AbstractGndActivity {
   private static final String TAG = MainActivity.class.getSimpleName();
 
   private MainPresenter mainPresenter;
-  private AddPlaceDialog addPlaceDialog;
 
   @BindView(R.id.add_place_btn)
   FloatingActionButton addPlaceBtn;
@@ -93,7 +89,6 @@ public class MainActivity extends AbstractGndActivity {
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
 
-    this.addPlaceDialog = new AddPlaceDialog(this);
     this.mainPresenter = new MainPresenter(this, model, locationManager);
 
     setContentView(R.layout.activity_main);
@@ -237,6 +232,7 @@ public class MainActivity extends AbstractGndActivity {
   }
 
   public MapAdapter getMapAdapter() {
+    // TODO: HACK: Fix this!
     return MapFragment.mapAdapter;
   }
 
@@ -244,21 +240,8 @@ public class MainActivity extends AbstractGndActivity {
     return findViewById(R.id.toolbar);
   }
 
-  public ViewGroup getToolbarWrapper() {
-    return findViewById(R.id.toolbar_wrapper);
-  }
-
   public MenuItem getToolbarSaveButton() {
     return toolbarMenu.findItem(R.id.toolbar_save_link);
-  }
-
-  public void showAddPlaceDialog(
-      List<PlaceType> placeTypesList, Consumer<PlaceType> onSelect) {
-    addPlaceDialog.show(
-        placeTypesList,
-        ft -> {
-          onSelect.accept(ft);
-        });
   }
 
   @Override
@@ -281,9 +264,5 @@ public class MainActivity extends AbstractGndActivity {
   @Override
   protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
     settingsManager.onActivityResult(requestCode, resultCode);
-  }
-
-  public WindowInsetsCompat getInsets() {
-    return insets;
   }
 }

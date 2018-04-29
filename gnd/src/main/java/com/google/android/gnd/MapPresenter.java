@@ -61,10 +61,6 @@ public class MapPresenter {
     locationLockBtn = mainActivity.getLocationLockButton();
     locationLockBtn.setOnClickListener((v) -> this.onLocationLockClick());
     locationLockBtn.bringToFront();
-
-    addBtn = mainActivity.getAddPlaceButton();
-    addBtn.setOnClickListener((v) -> mainPresenter.onAddPlaceClick());
-    addBtn.bringToFront();
   }
 
   void onStart() {

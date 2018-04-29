@@ -23,7 +23,6 @@ import android.os.Bundle;
 import android.util.Log;
 import com.google.android.gnd.model.GndDataRepository;
 import com.google.android.gnd.model.Place;
-import com.google.android.gnd.model.PlaceType;
 import com.google.android.gnd.system.LocationManager;
 
 public class MainPresenter {
@@ -100,17 +99,6 @@ public class MainPresenter {
       // TODO: Show error in toast or snackbar.
       Log.e(TAG, e.getMessage());
     }
-  }
-
-  public void onAddPlaceClick() {
-    if (model.getOldActiveProject() != null) {
-      mainActivity.showAddPlaceDialog(
-          model.getOldActiveProject().getPlaceTypesList(), this::onSelectPlaceTypeForAdd);
-    }
-  }
-
-  private void onSelectPlaceTypeForAdd(PlaceType placeType) {
-    dataSheetPresenter.onSelectPlaceTypeForAdd(placeType);
   }
 
   public boolean onToolbarSaveButtonClick() {

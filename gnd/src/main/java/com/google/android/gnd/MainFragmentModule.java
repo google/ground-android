@@ -19,6 +19,7 @@ package com.google.android.gnd;
 import android.support.v4.app.Fragment;
 import com.google.android.gnd.inject.PerChildFragment;
 import com.google.android.gnd.inject.PerFragment;
+import com.google.android.gnd.ui.map.AddPlaceDialogFragment;
 import com.google.android.gnd.ui.map.MapFragment;
 import com.google.android.gnd.ui.map.MapFragmentModule;
 import com.google.android.gnd.ui.sheet.PlaceDetailsFragment;
@@ -39,6 +40,11 @@ public abstract class MainFragmentModule {
   abstract MapFragment mapFragmentInjector();
 
   @PerChildFragment
+  @ContributesAndroidInjector(modules = MapFragmentModule.class)
+  abstract AddPlaceDialogFragment addPlaceDialogFragmentInjector();
+
+  @PerChildFragment
   @ContributesAndroidInjector(modules = PlaceDetailsFragmentModule.class)
   abstract PlaceDetailsFragment placeDetailsFragmentInjector();
+
 }

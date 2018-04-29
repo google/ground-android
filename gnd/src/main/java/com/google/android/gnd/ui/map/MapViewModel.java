@@ -25,19 +25,25 @@ import com.google.android.gnd.model.PlaceType;
 import com.google.android.gnd.model.ProjectActivationEvent;
 import com.google.android.gnd.rx.RxLiveData;
 import com.google.android.gnd.service.DatastoreEvent;
+import com.google.android.gnd.ui.map.AddPlaceDialogFragment.AddPlaceRequest;
 
 public class MapViewModel extends ViewModel {
+  private final GndDataRepository dataRepository;
   private final LiveData<MarkerUpdate> markerUpdates;
 
   MapViewModel(GndDataRepository dataRepository) {
+    this.dataRepository = dataRepository;
     markerUpdates = RxLiveData.fromObservable(
         dataRepository
             .activeProject()
             .filter(ProjectActivationEvent::isActivated)
             .switchMap(project ->
                 project.getPlacesFlowable().toObservable()
+                    // Convert each place update into a marker update.
                     .map(placeData -> toMarkerUpdate(project, placeData))
+                    // Drop updates that are invalid or do not apply.
                     .filter(MarkerUpdate::isValid)
+                    // Clear all markers when active project changes.
                     .startWith(MarkerUpdate.clearAll())));
   }
 
@@ -73,5 +79,9 @@ public class MapViewModel extends ViewModel {
 
   LiveData<MarkerUpdate> mapMarkers() {
     return markerUpdates;
+  }
+
+  public void onAddPlace(AddPlaceRequest addPlaceRequest) {
+    // TODO: Transition to add place view.
   }
 }
