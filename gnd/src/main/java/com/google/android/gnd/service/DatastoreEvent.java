@@ -56,6 +56,10 @@ public class DatastoreEvent<T> {
     return source;
   }
 
+  public boolean hasPendingWrites() {
+    return source == DatastoreEvent.Source.LOCAL_DATASTORE;
+  }
+
   public static <T> DatastoreEvent<T> loaded(String id, Source source, T entity) {
     return new DatastoreEvent<>(id, Type.ENTITY_LOADED, source, Optional.of(entity));
   }

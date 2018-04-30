@@ -26,12 +26,15 @@ import io.reactivex.Single;
 public class GoogleMapsApiMapAdapter implements MapAdapter {
 
   private final GoogleMapsApiFragment fragment;
-  private final Single<MapAdapter.Map> mapSubject;
+  private final Single map;
 
   public GoogleMapsApiMapAdapter() {
     this.fragment = new GoogleMapsApiFragment();
-    this.mapSubject = Single.create(source ->
-        fragment.getMapAsync(map -> source.onSuccess(new GoogleMapsApiMap(map))));
+    this.map =
+      Single.create(source ->
+        fragment.getMapAsync(map ->
+          source.onSuccess(new GoogleMapsApiMap(map))))
+            .cache();
   }
 
   @Override
@@ -41,7 +44,6 @@ public class GoogleMapsApiMapAdapter implements MapAdapter {
 
   @Override
   public Single<MapAdapter.Map> map() {
-    return mapSubject;
+    return map;
   }
-
 }

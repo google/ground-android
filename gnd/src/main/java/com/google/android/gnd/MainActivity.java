@@ -31,7 +31,6 @@ import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.view.ViewCompat;
-import android.support.v4.view.WindowInsetsCompat;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
@@ -45,16 +44,14 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import com.google.android.gnd.model.GndDataRepository;
 import com.google.android.gnd.service.DataService;
-import com.google.android.gnd.system.LocationManager;
 import com.google.android.gnd.system.PermissionsManager;
 import com.google.android.gnd.system.PermissionsManager.PermissionsRequest;
 import com.google.android.gnd.system.SettingsManager;
 import com.google.android.gnd.system.SettingsManager.SettingsChangeRequest;
 import com.google.android.gnd.ui.common.GndActivity;
-import com.google.android.gnd.ui.map.MapAdapter;
-import com.google.android.gnd.ui.map.MapFragment;
 import com.google.android.gnd.ui.sheet.DataSheetScrollView;
 import com.google.android.gnd.ui.util.ViewUtil;
+import io.reactivex.plugins.RxJavaPlugins;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -69,7 +66,6 @@ public class MainActivity extends GndActivity {
 
   private ProgressDialog progressDialog;
   private Menu toolbarMenu;
-  private WindowInsetsCompat insets;
 
   @Inject
   PermissionsManager permissionsManager;
@@ -81,16 +77,17 @@ public class MainActivity extends GndActivity {
   DataService dataService;
 
   @Inject
-  LocationManager locationManager;
-
-  @Inject
   GndDataRepository model;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
+    // Prevent RxJava from force-quitting when multiple Completables terminate with onError.
+    // TODO: Investigate why this is happening and fix root cause, log instead of eating errors.
+    RxJavaPlugins.setErrorHandler(t -> { });
+
     super.onCreate(savedInstanceState);
 
-    this.mainPresenter = new MainPresenter(this, model, locationManager);
+    this.mainPresenter = new MainPresenter(this, model);
 
     setContentView(R.layout.activity_main);
     ButterKnife.bind(this);
@@ -108,8 +105,8 @@ public class MainActivity extends GndActivity {
       if (newFocus != null) {
         DataSheetScrollView dataSheetView = getDataSheetView();
         BottomSheetBehavior behavior = (BottomSheetBehavior) ((CoordinatorLayout.LayoutParams) dataSheetView
-            .getLayoutParams())
-            .getBehavior();
+          .getLayoutParams())
+          .getBehavior();
         if (behavior.getState() == STATE_COLLAPSED) {
           behavior.setState(STATE_EXPANDED);
         }
@@ -119,15 +116,16 @@ public class MainActivity extends GndActivity {
 
   private void requestPermissions(PermissionsRequest permissionsRequest) {
     ActivityCompat.requestPermissions(
-        this, permissionsRequest.getPermissions(), permissionsRequest.getRequestCode());
+      this, permissionsRequest.getPermissions(), permissionsRequest.getRequestCode());
   }
 
 
   private void requestSettingsChange(SettingsChangeRequest settingsChangeRequest) {
     try {
       // The result of this call is received by {@link #onActivityResult}.
+      Log.d(TAG, "Sending settings resolution request");
       settingsChangeRequest.getException()
-          .startResolutionForResult(this, settingsChangeRequest.getRequestCode());
+                           .startResolutionForResult(this, settingsChangeRequest.getRequestCode());
     } catch (SendIntentException e) {
       // TODO: Report error.
       Log.e(TAG, e.toString());
@@ -139,25 +137,24 @@ public class MainActivity extends GndActivity {
     // TODO: Each view should consume its own insets and update the insets for consumption by
     // child views.
     ViewCompat.setOnApplyWindowInsetsListener(
-        toolbarWrapper,
-        (v, insets) -> {
-          MainActivity.this.insets = insets;
-          int bottomPadding = insets.getSystemWindowInsetBottom();
-          int topPadding = insets.getSystemWindowInsetTop();
-          View dataSheetWrapper = findViewById(R.id.place_details_fragment);
-          View dataSheetLayout = findViewById(R.id.data_sheet_layout);
-          View bottomSheetScrim = findViewById(R.id.bottom_sheet_scrim);
-          View mapBtnLayout = findViewById(R.id.map_btn_layout);
-          View recordBtnLayout = findViewById(R.id.record_btn_layout);
-          dataSheetLayout.setMinimumHeight(
-              ViewUtil.getScreenHeight(MainActivity.this) - topPadding);
-          dataSheetWrapper.setPadding(0, topPadding, 0, bottomPadding);
-          toolbarWrapper.setPadding(0, topPadding, 0, 0);
-          bottomSheetScrim.setMinimumHeight(bottomPadding);
-          mapBtnLayout.setTranslationY(-bottomPadding);
-          recordBtnLayout.setTranslationY(-bottomPadding);
-          return insets.replaceSystemWindowInsets(0, 0, 0, insets.getSystemWindowInsetBottom());
-        });
+      toolbarWrapper,
+      (v, insets) -> {
+        int bottomPadding = insets.getSystemWindowInsetBottom();
+        int topPadding = insets.getSystemWindowInsetTop();
+        View dataSheetWrapper = findViewById(R.id.place_details_fragment);
+        View dataSheetLayout = findViewById(R.id.data_sheet_layout);
+        View bottomSheetScrim = findViewById(R.id.bottom_sheet_scrim);
+        View mapBtnLayout = findViewById(R.id.map_btn_layout);
+        View recordBtnLayout = findViewById(R.id.record_btn_layout);
+        dataSheetLayout.setMinimumHeight(
+          ViewUtil.getScreenHeight(MainActivity.this) - topPadding);
+        dataSheetWrapper.setPadding(0, topPadding, 0, bottomPadding);
+        toolbarWrapper.setPadding(0, topPadding, 0, 0);
+        bottomSheetScrim.setMinimumHeight(bottomPadding);
+        mapBtnLayout.setTranslationY(-bottomPadding);
+        recordBtnLayout.setTranslationY(-bottomPadding);
+        return insets.replaceSystemWindowInsets(0, 0, 0, insets.getSystemWindowInsetBottom());
+      });
   }
 
   public void showProjectLoadingDialog() {
@@ -175,11 +172,7 @@ public class MainActivity extends GndActivity {
 
   public void enableAddPlaceButton() {
     addPlaceBtn.setBackgroundTintList(
-        ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
-  }
-
-  public void showUserActionFailureMessage(int resId) {
-    Toast.makeText(this, resId, Toast.LENGTH_LONG).show();
+      ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
   }
 
   public void showErrorMessage(String message) {
@@ -208,10 +201,6 @@ public class MainActivity extends GndActivity {
     return super.onOptionsItemSelected(item);
   }
 
-  public FloatingActionButton getLocationLockButton() {
-    return (FloatingActionButton) findViewById(R.id.gps_lock_btn);
-  }
-
   public FloatingActionButton getAddPlaceButton() {
     return addPlaceBtn;
   }
@@ -232,11 +221,6 @@ public class MainActivity extends GndActivity {
     }
   }
 
-  public MapAdapter getMapAdapter() {
-    // TODO: HACK: Fix this!
-    return MapFragment.mapAdapter;
-  }
-
   public Toolbar getToolbar() {
     return findViewById(R.id.toolbar);
   }
@@ -245,19 +229,13 @@ public class MainActivity extends GndActivity {
     return toolbarMenu.findItem(R.id.toolbar_save_link);
   }
 
-  @Override
-  protected void onStop() {
-    super.onStop();
-    mainPresenter.onStop();
-  }
-
   /**
    * The Android permissions API requires this callback to live in an Activity; here we dispatch the
    * result back to the PermissionManager for handling.
    */
   @Override
   public void onRequestPermissionsResult(
-      int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+    int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
     super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     permissionsManager.onRequestPermissionsResult(requestCode, permissions, grantResults);
   }

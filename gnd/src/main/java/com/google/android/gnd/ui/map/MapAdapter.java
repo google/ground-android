@@ -38,7 +38,7 @@ public interface MapAdapter {
 
     Observable<MapMarker> markerClicks();
 
-    Observable<Point> userPans();
+    Observable<Point> dragInteractions();
 
     void enable();
 

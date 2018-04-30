@@ -21,7 +21,7 @@ project.ext {
     supportLibraryVersion = "26.1.0"
     daggerVersion = "2.14.1"
     butterKnifeVersion = "8.8.1"
-    rxJavaVersion = "2.1.0"
+    rxJavaVersion = "2.1.6"
     rxAndroidVersion = "2.0.1"
     rxFirebaseVersion = "1.4.1"
     rxJava2DebugVersion = "1.2.2"

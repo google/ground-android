@@ -30,6 +30,7 @@ import io.reactivex.Completable;
 import io.reactivex.CompletableEmitter;
 import io.reactivex.Observable;
 import io.reactivex.subjects.PublishSubject;
+import io.reactivex.subjects.SingleSubject;
 import io.reactivex.subjects.Subject;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -41,13 +42,12 @@ public class SettingsManager {
 
   private final Context context;
   private final Subject<SettingsChangeRequest> settingsChangeRequestSubject;
-  private final Subject<Boolean> settingsChangeResultSubject;
+  private CompletableEmitter settingsChangeResultEmitter;
 
   @Inject
   public SettingsManager(Application app) {
     this.context = app.getApplicationContext();
     this.settingsChangeRequestSubject = PublishSubject.create();
-    this.settingsChangeResultSubject = PublishSubject.create();
   }
 
   public Observable<SettingsChangeRequest> settingsChangeRequests() {
@@ -58,11 +58,11 @@ public class SettingsManager {
     return Completable.create(source -> {
       Log.d(TAG, "Checking location settings");
       LocationSettingsRequest settingsRequest = new LocationSettingsRequest.Builder()
-          .addLocationRequest(locationRequest).build();
+        .addLocationRequest(locationRequest).build();
       LocationServices.getSettingsClient(context)
-          .checkLocationSettings(settingsRequest)
-          .addOnSuccessListener(v -> onCheckLocationSettingsSuccess(source))
-          .addOnFailureListener(e -> onCheckLocationSettingsFailure(e, source));
+                      .checkLocationSettings(settingsRequest)
+                      .addOnSuccessListener(v -> onCheckLocationSettingsSuccess(source))
+                      .addOnFailureListener(e -> onCheckLocationSettingsFailure(e, source));
     });
   }
 
@@ -73,26 +73,16 @@ public class SettingsManager {
 
   private void onCheckLocationSettingsFailure(Exception e, CompletableEmitter src) {
     if ((e instanceof ResolvableApiException)
-        && isResolutionRequired((ResolvableApiException) e)) {
+      && isResolutionRequired((ResolvableApiException) e)) {
       Log.d(TAG, "Prompting user to enable location settings");
       // Attach settings change result stream to Completable returned by checkLocationSettings().
-      settingsChangeResultSubject.subscribe(ok -> onSettingsChangeResult(ok, src));
+      this.settingsChangeResultEmitter = src;
       // Prompt user to enable Location in Settings.
       settingsChangeRequestSubject
-          .onNext(new SettingsChangeRequest((ResolvableApiException) e));
+        .onNext(new SettingsChangeRequest((ResolvableApiException) e));
     } else {
       Log.d(TAG, "Unable to prompt user to enable location settings");
       src.onError(e);
-    }
-  }
-
-  @NonNull
-  private void onSettingsChangeResult(boolean ok, CompletableEmitter src) {
-    Log.d(TAG, "Received settings change result: " + ok);
-    if (ok) {
-      src.onComplete();
-    } else {
-      src.onError(new SettingsChangeRequestCanceled());
     }
   }
 
@@ -101,16 +91,17 @@ public class SettingsManager {
   }
 
   public void onActivityResult(int requestCode, int resultCode) {
-    if (requestCode != CHECK_SETTINGS_REQUEST_CODE) {
+    if (requestCode != CHECK_SETTINGS_REQUEST_CODE
+      || settingsChangeResultEmitter == null) {
       return;
     }
     Log.d(TAG, "Location settings resultCode received: " + resultCode);
     switch (resultCode) {
       case Activity.RESULT_OK:
-        settingsChangeResultSubject.onNext(true);
+        settingsChangeResultEmitter.onComplete();
         break;
       case Activity.RESULT_CANCELED:
-        settingsChangeResultSubject.onNext(false);
+        settingsChangeResultEmitter.onError(new SettingsChangeRequestCanceled());
         break;
       default:
         break;

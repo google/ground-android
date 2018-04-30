@@ -32,10 +32,15 @@ import com.google.android.gnd.inject.PerActivity;
 import com.google.android.gnd.model.Point;
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Completable;
+import io.reactivex.CompletableSource;
+import io.reactivex.Emitter;
 import io.reactivex.Flowable;
 import io.reactivex.FlowableEmitter;
+import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
 import io.reactivex.Single;
 import io.reactivex.SingleEmitter;
+import io.reactivex.subjects.PublishSubject;
 import javax.inject.Inject;
 
 @PerActivity
@@ -44,21 +49,23 @@ public class LocationManager {
   private static final long UPDATE_INTERVAL = 1000 /* 1 sec */;
   private static final long FASTEST_INTERVAL = 250;
   private static final LocationRequest FINE_LOCATION_UPDATES_REQUEST =
-      new LocationRequest()
-          .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
-          .setInterval(UPDATE_INTERVAL)
-          .setFastestInterval(FASTEST_INTERVAL);
+    new LocationRequest()
+      .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
+      .setInterval(UPDATE_INTERVAL)
+      .setFastestInterval(FASTEST_INTERVAL);
   private final Context context;
   private final PermissionsManager permissionsManager;
   private final SettingsManager settingsManager;
   private LocationCallbackImpl locationCallback;
+  private PublishSubject<Point> locationUpdateSubject;
 
   @Inject
   public LocationManager(Application app, PermissionsManager permissionsManager,
-      SettingsManager settingsManager) {
+    SettingsManager settingsManager) {
     this.context = app.getApplicationContext();
     this.permissionsManager = permissionsManager;
     this.settingsManager = settingsManager;
+    this.locationUpdateSubject = PublishSubject.create();
   }
 
   private Completable enableLocationSettings() {
@@ -67,39 +74,53 @@ public class LocationManager {
 
   private static Point toPoint(Location location) {
     return Point.newBuilder()
-        .setLatitude(location.getLatitude())
-        .setLongitude(location.getLongitude())
-        .build();
+                .setLatitude(location.getLatitude())
+                .setLongitude(location.getLongitude())
+                .build();
   }
 
-  public Flowable<Point> enableLocationUpdates() {
+  public Flowable<Point> locationUpdates() {
+    return locationUpdateSubject.toFlowable(BackpressureStrategy.LATEST);
+  }
+
+  public Completable enableLocationUpdates() {
+    Log.d(TAG, "Attempting to enable location updates");
     return permissionsManager
-        .obtainFineLocationPermission()
-        .andThen(enableLocationSettings())
-        .andThen(lastLocation().toFlowable().concatWith(fusedLocationUpdates()));
+      .obtainFineLocationPermission()
+      .andThen(enableLocationSettings())
+      .andThen((CompletableSource) c -> {
+        // Start pumping location updates.
+        lastLocation()
+          .toObservable()
+          .concatWith(fusedLocationUpdates())
+          .subscribe(locationUpdateSubject::onNext);
+        c.onComplete();
+      });
   }
 
   @SuppressLint("MissingPermission")
-  private Flowable<Point> fusedLocationUpdates() {
-    return Flowable.create(source -> {
+  private Observable<Point> fusedLocationUpdates() {
+    return Observable.create(source -> {
       Log.d(TAG, "Requesting location updates");
       locationCallback = new LocationCallbackImpl(source);
       getFusedLocationProviderClient(context)
-          .requestLocationUpdates(FINE_LOCATION_UPDATES_REQUEST,
-              locationCallback, Looper.myLooper())
-          .addOnSuccessListener(__ -> {
-            Log.d(TAG, "Location updates request successful");
-          })
-          .addOnFailureListener(source::onError);
-    }, BackpressureStrategy.LATEST);
+        .requestLocationUpdates(FINE_LOCATION_UPDATES_REQUEST,
+          locationCallback, Looper.myLooper())
+        .addOnSuccessListener(__ -> {
+          Log.d(TAG, "Location updates request successful");
+        })
+        .addOnFailureListener(source::onError);
+    });
   }
 
-  public void removeLocationUpdates() {
+  // TODO: Request/remove updates on resume/pause.
+  public Completable disableLocationUpdates() {
     if (locationCallback != null) {
       locationCallback.onRemove();
       getFusedLocationProviderClient(context).removeLocationUpdates(locationCallback);
       locationCallback = null;
     }
+    return Completable.complete();
   }
 
   @SuppressLint("MissingPermission")
@@ -107,15 +128,17 @@ public class LocationManager {
     return Single.create(src -> {
       Log.d(TAG, "Requesting last known location");
       getFusedLocationProviderClient(context)
-          .getLastLocation()
-          .addOnSuccessListener(l -> onGetLastLocationSuccess(l, src))
-          .addOnFailureListener(e -> src.onError(e));
+        .getLastLocation()
+        .addOnSuccessListener(l -> onGetLastLocationSuccess(l, src))
+        .addOnFailureListener(e -> src.onError(e));
     });
   }
 
   private void onGetLastLocationSuccess(Location location, SingleEmitter<Point> emitter) {
     if (location == null) {
+      // TODO: This is always null just after turning on location settings.
       Log.d(TAG, "Last known location null");
+      // TODO: Error never gets captured.
       emitter.onError(new NullPointerException());
     } else {
       Log.d(TAG, "Got last known location");
@@ -124,9 +147,9 @@ public class LocationManager {
   }
 
   private static class LocationCallbackImpl extends LocationCallback {
-    private final FlowableEmitter<Point> source;
+    private final Emitter<Point> source;
 
-    LocationCallbackImpl(FlowableEmitter<Point> source) {
+    LocationCallbackImpl(Emitter<Point> source) {
       this.source = source;
     }
 

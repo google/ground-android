@@ -29,23 +29,19 @@ public class MainPresenter {
   private static final String TAG = MainPresenter.class.getSimpleName();
   private final MainActivity mainActivity;
   private final DataSheetPresenter dataSheetPresenter;
-  private final MapPresenter mapPresenter;
   private final GndDataRepository model;
 
   MainPresenter(
       MainActivity mainActivity,
-      GndDataRepository model,
-      LocationManager locationManager) {
+      GndDataRepository model) {
     this.mainActivity = mainActivity;
     this.model = model;
     // TODO: Resolve circular deps and inject these presenters.
     this.dataSheetPresenter = new DataSheetPresenter(this, mainActivity, model);
-    this.mapPresenter = new MapPresenter(this, mainActivity, locationManager);
   }
 
   void onCreate(Bundle savedInstanceState) {
     dataSheetPresenter.onCreate(savedInstanceState);
-    mapPresenter.onCreate(savedInstanceState);
     model.onCreate();
     showProjectSelector();
   }
@@ -84,10 +80,6 @@ public class MainPresenter {
               dialog.setCancelable(false);
               dialog.show();
             });
-  }
-
-  void onStop() {
-    mapPresenter.onStop();
   }
 
   public void showPlaceDetails(Place place) {

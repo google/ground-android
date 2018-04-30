@@ -67,7 +67,6 @@ public class DataSheetPresenter {
     // TODO: Move access to these through mainActivity?
     addPlaceBtn = mainActivity.getAddPlaceButton();
     toolbar = mainActivity.getToolbar();
-    mapAdapter = mainActivity.getMapAdapter();
   }
 
   public void onReady() {

@@ -30,21 +30,21 @@ import com.google.android.gnd.model.Point;
 import com.google.android.gnd.ui.map.MapAdapter;
 import com.google.android.gnd.ui.map.MapMarker;
 import io.reactivex.Observable;
-import io.reactivex.subjects.ReplaySubject;
+import io.reactivex.subjects.PublishSubject;
 import java.util.HashMap;
 
 /**
  * Wrapper around {@link GoogleMap} object, exposing Google Maps API functionality using Ground's
- * standard {@link Map} interface.
+ * standard {@link MapAdapter.Map} interface.
  */
 class GoogleMapsApiMap implements MapAdapter.Map {
 
   private GoogleMap map;
   private boolean enabled;
   private java.util.Map<String, Marker> markers = new HashMap<>();
-  private LatLng cameraTargetBeforeUserPan;
-  private ReplaySubject<MapMarker> markerClickSubject = ReplaySubject.create();
-  private ReplaySubject<Point> userPanSubject = ReplaySubject.create();
+  private LatLng cameraTargetBeforeDrag;
+  private PublishSubject<MapMarker> markerClickSubject = PublishSubject.create();
+  private PublishSubject<Point> dragInteractionSubject = PublishSubject.create();
 
   public GoogleMapsApiMap(GoogleMap map) {
     this.map = map;
@@ -75,8 +75,8 @@ class GoogleMapsApiMap implements MapAdapter.Map {
   }
 
   @Override
-  public Observable<Point> userPans() {
-    return userPanSubject;
+  public Observable<Point> dragInteractions() {
+    return dragInteractionSubject;
   }
 
   @Override
@@ -150,12 +150,14 @@ class GoogleMapsApiMap implements MapAdapter.Map {
   @Override
   @SuppressLint("MissingPermission")
   public void enableCurrentLocationIndicator() {
-    map.setMyLocationEnabled(true);
+    if (!map.isMyLocationEnabled()) {
+      map.setMyLocationEnabled(true);
+    }
   }
 
 
   private void onCameraIdle() {
-    cameraTargetBeforeUserPan = null;
+    cameraTargetBeforeDrag = null;
   }
 
   private void onCameraMoveStarted(int reason) {
@@ -163,16 +165,16 @@ class GoogleMapsApiMap implements MapAdapter.Map {
       // Map was panned by the app, not the user.
       return;
     }
-    cameraTargetBeforeUserPan = map.getCameraPosition().target;
+    cameraTargetBeforeDrag = map.getCameraPosition().target;
   }
 
   private void onCameraMove() {
-    if (cameraTargetBeforeUserPan == null) {
+    if (cameraTargetBeforeDrag == null) {
       return;
     }
     LatLng cameraTarget = map.getCameraPosition().target;
-    if (!cameraTarget.equals(cameraTargetBeforeUserPan)) {
-      userPanSubject.onNext(toPoint(cameraTarget));
+    if (!cameraTarget.equals(cameraTargetBeforeDrag)) {
+      dragInteractionSubject.onNext(toPoint(cameraTarget));
     }
   }
 

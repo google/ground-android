@@ -18,15 +18,25 @@ package com.google.android.gnd.rx;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.LiveDataReactiveStreams;
+import android.arch.lifecycle.MutableLiveData;
 import com.akaita.java.rxjava2debug.RxJava2Debug;
+import com.google.android.gnd.model.Point;
 import io.reactivex.BackpressureStrategy;
+import io.reactivex.Flowable;
 import io.reactivex.Observable;
 
 public class RxLiveData {
 
   public static <T> LiveData<T> fromObservable(Observable<T> observable) {
-    return LiveDataReactiveStreams.fromPublisher(observable
+    return LiveDataReactiveStreams.fromPublisher(
+      observable
         .doOnError(t -> RxJava2Debug.getEnhancedStackTrace(t))
         .toFlowable(BackpressureStrategy.BUFFER));
+  }
+
+  public static <T> LiveData<T> fromFlowable(Flowable<T> flowable) {
+    return LiveDataReactiveStreams.fromPublisher(
+      flowable
+        .doOnError(t -> RxJava2Debug.getEnhancedStackTrace(t)));
   }
 }
