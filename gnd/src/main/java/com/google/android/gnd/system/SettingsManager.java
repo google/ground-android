@@ -26,6 +26,7 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.LocationSettingsStatusCodes;
+import com.google.android.gnd.rx.RxTask;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -56,33 +57,26 @@ public class SettingsManager {
   }
 
   public Completable enableLocationSettings(LocationRequest locationRequest) {
-    return Completable.create(
-        source -> {
-          Log.d(TAG, "Checking location settings");
-          LocationSettingsRequest settingsRequest =
-              new LocationSettingsRequest.Builder().addLocationRequest(locationRequest).build();
-          LocationServices.getSettingsClient(context)
-              .checkLocationSettings(settingsRequest)
-              .addOnSuccessListener(v -> onCheckLocationSettingsSuccess(source))
-              .addOnFailureListener(e -> onCheckLocationSettingsFailure(e, source));
-        });
+    Log.d(TAG, "Checking location settings");
+    LocationSettingsRequest settingsRequest =
+      new LocationSettingsRequest.Builder().addLocationRequest(locationRequest).build();
+    return RxTask.toCompletable(
+      LocationServices.getSettingsClient(context).checkLocationSettings(settingsRequest))
+      .doOnComplete(() -> Log.d(TAG, "Location settings already enabled"))
+      .onErrorResumeNext(this::onCheckLocationSettingsFailure);
   }
 
-  private void onCheckLocationSettingsSuccess(CompletableEmitter src) {
-    Log.d(TAG, "Location settings already enabled");
-    src.onComplete();
-  }
-
-  private void onCheckLocationSettingsFailure(Exception e, CompletableEmitter src) {
-    if ((e instanceof ResolvableApiException) && isResolutionRequired((ResolvableApiException) e)) {
+  private Completable onCheckLocationSettingsFailure(Throwable t) {
+    if ((t instanceof ResolvableApiException) && isResolutionRequired((ResolvableApiException) t)) {
       Log.d(TAG, "Prompting user to enable location settings");
       // Attach settings change result stream to Completable returned by checkLocationSettings().
-      this.settingsChangeResultEmitter = src;
+      Completable completable = Completable.create(src -> this.settingsChangeResultEmitter = src);
       // Prompt user to enable Location in Settings.
-      settingsChangeRequestSubject.onNext(new SettingsChangeRequest((ResolvableApiException) e));
+      settingsChangeRequestSubject.onNext(new SettingsChangeRequest((ResolvableApiException) t));
+      return completable;
     } else {
       Log.d(TAG, "Unable to prompt user to enable location settings");
-      src.onError(e);
+      return Completable.error(t);
     }
   }
 

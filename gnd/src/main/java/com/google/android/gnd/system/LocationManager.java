@@ -31,6 +31,7 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gnd.inject.PerActivity;
 import com.google.android.gnd.model.Point;
+import com.google.android.gnd.rx.RxTask;
 
 import javax.inject.Inject;
 
@@ -91,27 +92,21 @@ public class LocationManager {
 
   @SuppressLint("MissingPermission")
   private Completable requestLocationUpdates() {
-    return Completable.create(
-        source -> {
-          Log.d(TAG, "Requesting location updates");
-          locationCallback = new LocationCallbackImpl();
-          getFusedLocationProviderClient(context)
-              .requestLocationUpdates(
-                  FINE_LOCATION_UPDATES_REQUEST, locationCallback, Looper.myLooper())
-              .addOnSuccessListener(
-                  __ -> {
-                    Log.d(TAG, "requestLocationUpdates() successful");
-                    // Requesting last location rather than waiting for next update usually gives
-                    // the user
-                    // a quicker response when enabling location lock. This will fail, however,
-                    // immediately
-                    // after enabling location settings, in which case just ignore the failure and
-                    // wait for
-                    // the next location update.
-                    lastLocation().subscribe(locationUpdateSubject::onNext, t -> {});
-                    source.onComplete();
-                  })
-              .addOnFailureListener(source::onError);
+    Log.d(TAG, "Requesting location updates");
+    locationCallback = new LocationCallbackImpl();
+    return RxTask.toCompletable(
+      getFusedLocationProviderClient(context)
+        .requestLocationUpdates(
+          FINE_LOCATION_UPDATES_REQUEST, locationCallback, Looper.myLooper()))
+      .doOnComplete(
+        () -> {
+          Log.d(TAG, "requestLocationUpdates() successful");
+          // Requesting last location rather than waiting for next update usually gives
+          // the user a quicker response when enabling location lock. This will fail, however,
+          // immediately after enabling location settings, in which case just ignore the failure
+          // and wait for the next location update.
+          lastLocation().subscribe(locationUpdateSubject::onNext, t -> {
+          });
         });
   }
 
@@ -161,6 +156,7 @@ public class LocationManager {
     public void onLocationAvailability(LocationAvailability locationAvailability) {
       if (!locationAvailability.isLocationAvailable()) {
         Log.d(TAG, "Location unavailable");
+        // TODO: Warn user and disable location lock.
       }
     }
   }
