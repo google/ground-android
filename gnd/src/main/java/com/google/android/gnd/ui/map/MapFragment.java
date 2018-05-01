@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.ui.map;
 
+import android.annotation.SuppressLint;
 import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -26,7 +27,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
-import butterknife.BindView;
+
 import com.google.android.gnd.R;
 import com.google.android.gnd.model.PlaceIcon;
 import com.google.android.gnd.model.Point;
@@ -37,7 +38,10 @@ import com.google.android.gnd.ui.map.MapAdapter.Map;
 import com.google.android.gnd.ui.map.MapViewModel.LocationLockStatus;
 import com.google.android.gnd.ui.map.gms.GoogleMapsApiMapAdapter;
 import com.jakewharton.rxbinding2.view.RxView;
+
 import javax.inject.Inject;
+
+import butterknife.BindView;
 
 /**
  * Main app view, displaying the map and related controls (center cross-hairs, add button, etc).
@@ -94,7 +98,7 @@ public class MapFragment extends GndFragment {
     // Observe events emitted by MapViewModel.
     viewModel.mapMarkers().observe(this, update -> onMarkerUpdate(map, update));
     viewModel.locationLockStatus().observe(this, this::onLocationLockStatusChange);
-    viewModel.locationUpdates().observe(this, this::onLocationUpdate);
+    viewModel.cameraUpdates().observe(this, this::onCameraUpdate);
     // Pass UI events to MapViewModel.
     RxView.clicks(addPlaceBtn).subscribe(__ -> showAddPlaceDialog(map.getCenter()));
     RxView.clicks(locationLockBtn).subscribe(__ -> viewModel.onLocationLockClick());
@@ -130,9 +134,16 @@ public class MapFragment extends GndFragment {
     Toast.makeText(getContext(), resId, Toast.LENGTH_LONG).show();
   }
 
-  private void onLocationUpdate(Point point) {
-    Log.v(TAG, "Moving camera to " + point);
-    mapAdapter.map().subscribe(map -> map.moveCamera(point));
+  @SuppressLint("CheckResult")
+  private void onCameraUpdate(MapViewModel.CameraUpdate update) {
+    Log.d(TAG, "Update camera: " + update);
+    mapAdapter.map().subscribe(map -> {
+      if (update.getZoomLevel().isPresent()) {
+        map.moveCamera(update.getCenter(), update.getZoomLevel().get());
+      } else {
+        map.moveCamera(update.getCenter());
+      }
+    });
   }
 
   private void showAddPlaceDialog(Point location) {

@@ -33,60 +33,71 @@ import com.google.android.gnd.service.DatastoreEvent;
 import com.google.android.gnd.system.LocationManager;
 import com.google.android.gnd.ui.map.AddPlaceDialogFragment.AddPlaceRequest;
 
+import io.reactivex.Flowable;
+import io.reactivex.disposables.Disposable;
+import java8.util.Optional;
+
 public class MapViewModel extends ViewModel {
   private static final String TAG = MapViewModel.class.getSimpleName();
+  private static final float DEFAULT_ZOOM_LEVEL = 14.0f;
   private final LiveData<MarkerUpdate> markerUpdates;
   private final MutableLiveData<LocationLockStatus> locationLockStatus;
-  private final LiveData<Point> locationUpdates;
+  private final MutableLiveData<CameraUpdate> cameraUpdates;
   private final LocationManager locationManager;
+  private Disposable locationUpdateSubscription;
 
   MapViewModel(GndDataRepository dataRepository, LocationManager locationManager) {
     this.locationManager = locationManager;
     this.locationLockStatus = new MutableLiveData<>();
     locationLockStatus.setValue(LocationLockStatus.disabled());
-    this.locationUpdates = RxLiveData.fromFlowable(
-      locationManager.locationUpdates().filter(__ -> isLocationLockEnabled()));
-    this.markerUpdates = RxLiveData.fromObservable(
-      dataRepository
-        .activeProject()
-        .filter(ProjectActivationEvent::isActivated)
-        .switchMap(project ->
-          project.getPlacesFlowable().toObservable()
-                 // Convert each place update into a marker update.
-                 .map(placeData -> toMarkerUpdate(project, placeData))
-                 // Drop updates that are invalid or do not apply.
-                 .filter(MarkerUpdate::isValid)
-                 // Clear all markers when active project changes.
-                 .startWith(MarkerUpdate.clearAll())));
+    this.cameraUpdates = new MutableLiveData<>();
+    this.markerUpdates =
+      RxLiveData.fromObservable(
+        dataRepository
+          .activeProject()
+          .filter(ProjectActivationEvent::isActivated)
+          .switchMap(
+            project ->
+              project
+                .getPlacesFlowable()
+                .toObservable()
+                // Convert each place update into a marker update.
+                .map(placeData -> toMarkerUpdate(project, placeData))
+                // Drop updates that are invalid or do not apply.
+                .filter(MarkerUpdate::isValid)
+                // Clear all markers when active project changes.
+                .startWith(MarkerUpdate.clearAll())));
   }
 
   LiveData<MarkerUpdate> mapMarkers() {
     return markerUpdates;
   }
 
-  LiveData<Point> locationUpdates() {
-    return locationUpdates;
+  LiveData<CameraUpdate> cameraUpdates() {
+    return cameraUpdates;
   }
 
   public MutableLiveData<LocationLockStatus> locationLockStatus() {
     return locationLockStatus;
   }
 
-  private static MarkerUpdate toMarkerUpdate(ProjectActivationEvent project,
-    DatastoreEvent<Place> placeData) {
+  private static MarkerUpdate toMarkerUpdate(
+    ProjectActivationEvent project, DatastoreEvent<Place> placeData) {
     switch (placeData.getType()) {
       case ENTITY_LOADED:
       case ENTITY_MODIFIED:
-        return placeData.getEntity()
-                        .map(Place::getPlaceTypeId)
-                        .flatMap(project::getPlaceType)
-                        .map(placeType ->
-                          MarkerUpdate.addOrUpdatePlace(
-                            placeData.getEntity().get(), // TODO: Remove Place from MarkerUpdate.
-                            placeType.getIconId(),
-                            getIconColor(placeType),
-                            placeData.hasPendingWrites()))
-                        .orElse(MarkerUpdate.invalid());
+        return placeData
+          .getEntity()
+          .map(Place::getPlaceTypeId)
+          .flatMap(project::getPlaceType)
+          .map(
+            placeType ->
+              MarkerUpdate.addOrUpdatePlace(
+                placeData.getEntity().get(), // TODO: Remove Place from MarkerUpdate.
+                placeType.getIconId(),
+                getIconColor(placeType),
+                placeData.hasPendingWrites()))
+          .orElse(MarkerUpdate.invalid());
       case ENTITY_REMOVED:
         return MarkerUpdate.remove(placeData.getId());
     }
@@ -114,21 +125,36 @@ public class MapViewModel extends ViewModel {
   private void enableLocationLock() {
     locationManager
       .enableLocationUpdates()
-      .subscribe(
-        () -> locationLockStatus.setValue(LocationLockStatus.enabled()),
-        this::onLocationFailure);
+      .subscribe(this::onEnableLocationLockSuccess, this::onLocationFailure);
   }
 
+  private void onEnableLocationLockSuccess() {
+    locationLockStatus.setValue(LocationLockStatus.enabled());
+    Flowable<Point> locationUpdates = locationManager.locationUpdates();
+    locationUpdateSubscription =
+      locationUpdates
+        .take(1)
+        .map(CameraUpdate::moveAndZoom)
+        .concatWith(locationUpdates.map(CameraUpdate::move))
+        .subscribe(cameraUpdates::setValue);
+  }
 
   private void onLocationFailure(Throwable t) {
     locationLockStatus.setValue(LocationLockStatus.error(t));
   }
 
+  @SuppressLint("CheckResult")
   private void disableLocationLock() {
     Log.d(TAG, "Disabling location lock");
-    locationManager
-      .disableLocationUpdates()
-      .subscribe(() -> locationLockStatus.setValue(LocationLockStatus.disabled()));
+    locationManager.disableLocationUpdates().subscribe(this::onDisableLocationLockSuccess);
+  }
+
+  private void onDisableLocationLockSuccess() {
+    locationLockStatus.setValue(LocationLockStatus.disabled());
+    if (locationUpdateSubscription != null) {
+      locationUpdateSubscription.dispose();
+      locationUpdateSubscription = null;
+    }
   }
 
   public void onAddPlace(AddPlaceRequest addPlaceRequest) {
@@ -138,7 +164,7 @@ public class MapViewModel extends ViewModel {
   public void onMarkerClick(MapMarker marker) {
     Log.d(TAG, "User clicked marker");
     if (marker.getObject() instanceof Place) {
-//      mainPresenter.showPlaceDetails((Place) marker.getObject());
+      //      mainPresenter.showPlaceDetails((Place) marker.getObject());
     }
   }
 
@@ -183,6 +209,41 @@ public class MapViewModel extends ViewModel {
 
     public Throwable getError() {
       return error;
+    }
+  }
+
+  static class CameraUpdate {
+    private Point center;
+    private Optional<Float> zoomLevel;
+
+    public CameraUpdate(Point center, Optional<Float> zoomLevel) {
+      this.center = center;
+      this.zoomLevel = zoomLevel;
+    }
+
+    public Point getCenter() {
+      return center;
+    }
+
+    public Optional<Float> getZoomLevel() {
+      return zoomLevel;
+    }
+
+    private static CameraUpdate move(Point center) {
+      return new CameraUpdate(center, Optional.empty());
+    }
+
+    private static CameraUpdate moveAndZoom(Point center) {
+      return new CameraUpdate(center, Optional.of(DEFAULT_ZOOM_LEVEL));
+    }
+
+    @Override
+    public String toString() {
+      if (zoomLevel.isPresent()) {
+        return "Pan + zoom";
+      } else {
+        return "Pan";
+      }
     }
   }
 }
