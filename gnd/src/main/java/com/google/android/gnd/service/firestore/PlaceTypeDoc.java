@@ -20,6 +20,7 @@ import com.google.android.gnd.model.Form;
 import com.google.android.gnd.model.PlaceType;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.IgnoreExtraProperties;
+
 import java.util.List;
 import java.util.Map;
 

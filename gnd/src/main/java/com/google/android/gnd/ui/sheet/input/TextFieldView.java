@@ -29,12 +29,14 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.OnFocusChange;
+
 import com.google.android.gnd.R;
 import com.google.android.gnd.model.PlaceUpdate;
 import com.google.android.gnd.model.Record;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnFocusChange;
 import java8.util.Optional;
 
 public class TextFieldView extends ConstraintLayout implements Editable {
@@ -153,8 +155,6 @@ public class TextFieldView extends ConstraintLayout implements Editable {
   @Override
   public void setFocus() {
     this.requestFocus();
-//    ViewUtil.showSoftInputMode((Activity) getContext()); // TODO: Why doesn't this work?
+    //    ViewUtil.showSoftInputMode((Activity) getContext()); // TODO: Why doesn't this work?
   }
-
-
 }

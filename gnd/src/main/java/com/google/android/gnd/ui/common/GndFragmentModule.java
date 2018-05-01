@@ -19,11 +19,9 @@ package com.google.android.gnd.ui.common;
 import dagger.Module;
 
 /**
- * Provides dependencies of {@link GndFragment}. This must be included in all fragment
- * modules, which in turn must provide the appropriate implementation of
- * {@link android.support.v4.app.Fragment}.
+ * Provides dependencies of {@link GndFragment}. This must be included in all fragment modules,
+ * which in turn must provide the appropriate implementation of {@link
+ * android.support.v4.app.Fragment}.
  */
 @Module
-public abstract class GndFragmentModule {
-
-}
+public abstract class GndFragmentModule {}

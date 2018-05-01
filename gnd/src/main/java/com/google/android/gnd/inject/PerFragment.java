@@ -23,10 +23,9 @@ import javax.inject.Scope;
 
 /**
  * Specifies that a dependency has the same lifespan as its associated Fragment. For dependencies
- * with this annotation, only one instance will exist per Fragment, and this instance will be
- * shared among all Fragments and child Fragments.
+ * with this annotation, only one instance will exist per Fragment, and this instance will be shared
+ * among all Fragments and child Fragments.
  */
 @Scope
 @Retention(RetentionPolicy.RUNTIME)
-public @interface PerFragment{
-}
+public @interface PerFragment {}

@@ -24,8 +24,7 @@ public abstract class RxErrors {
   private static final String TAG = RxErrors.class.getSimpleName();
 
   /** Container for static helper methods. Do not instantiate. */
-  private RxErrors() {
-  }
+  private RxErrors() {}
 
   public static void logEnhancedStackTrace(Throwable t) {
     Log.e(TAG, "Unhandled Rx error", RxJava2Debug.getEnhancedStackTrace(t));

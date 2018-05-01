@@ -34,8 +34,7 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import butterknife.BindView;
-import butterknife.ButterKnife;
+
 import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.R;
 import com.google.android.gnd.model.Form;
@@ -43,7 +42,11 @@ import com.google.android.gnd.model.PlaceUpdate;
 import com.google.android.gnd.ui.OnSheetSlideBehavior.SheetSlideMetrics;
 import com.google.android.gnd.ui.sheet.input.Editable.Mode;
 import com.h6ah4i.android.tablayouthelper.TabLayoutHelper;
+
 import java.util.List;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
 
 /** Container for data sheet components. */
 // TODO: Use with RecyclerView?
@@ -142,12 +145,13 @@ public class DataSheetScrollView extends NestedScrollView {
 
   public void setMode(Mode mode) {
     this.mode = mode;
-//    int initialDataPanelHeight = (int) (screenHeight * COLLAPSED_MAP_ASPECT_RATIO);
+    //    int initialDataPanelHeight = (int) (screenHeight * COLLAPSED_MAP_ASPECT_RATIO);
     double width = getScreenWidth((Activity) getContext());
     double screenHeight = getScreenHeight((Activity) getContext());
     double mapHeight = width / COLLAPSED_MAP_ASPECT_RATIO;
     double peekHeight = screenHeight - mapHeight;
-    // TODO: Take window insets into account; COLLAPSED_MAP_ASPECT_RATIO will be wrong on older devices w/o
+    // TODO: Take window insets into account; COLLAPSED_MAP_ASPECT_RATIO will be wrong on older
+    // devices w/o
     // translucent system windows.
     behavior.setPeekHeight((int) peekHeight);
     updateUiForSlide();

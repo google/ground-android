@@ -18,13 +18,13 @@ package com.google.android.gnd.ui.map;
 
 import android.annotation.SuppressLint;
 import android.support.v4.app.Fragment;
+
 import com.google.android.gnd.model.Point;
+
 import io.reactivex.Observable;
 import io.reactivex.Single;
 
-/**
- * Common interface for various map provider libraries.
- */
+/** Common interface for various map provider libraries. */
 public interface MapAdapter {
   Fragment getMapFragment();
 
@@ -48,8 +48,7 @@ public interface MapAdapter {
 
     void moveCamera(Point point, float zoomLevel);
 
-    void addOrUpdateMarker(
-        MapMarker mapMarker, boolean hasPendingWrites, boolean isHighlighted);
+    void addOrUpdateMarker(MapMarker mapMarker, boolean hasPendingWrites, boolean isHighlighted);
 
     void removeMarker(String id);
 

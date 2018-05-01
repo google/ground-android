@@ -23,9 +23,12 @@ import android.content.Context;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.widget.LinearLayout;
+
 import com.google.android.gnd.model.PlaceUpdate.RecordUpdate;
 import com.google.android.gnd.ui.sheet.input.Editable;
+
 import java.util.List;
+
 import java8.util.stream.Collectors;
 
 public class DataSheetBody extends LinearLayout {

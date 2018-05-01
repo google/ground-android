@@ -20,14 +20,17 @@ import static java8.util.stream.StreamSupport.stream;
 
 import com.google.android.gnd.service.DataService;
 import com.google.android.gnd.service.DatastoreEvent;
+
+import java.util.List;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
 import io.reactivex.Flowable;
 import io.reactivex.Observable;
 import io.reactivex.subjects.BehaviorSubject;
-import java.util.List;
 import java8.util.Optional;
 import java8.util.concurrent.CompletableFuture;
-import javax.inject.Inject;
-import javax.inject.Singleton;
 
 // TODO: Move to its own package ("repository"?).
 @Singleton
@@ -43,8 +46,7 @@ public class GndDataRepository {
   @Inject
   public GndDataRepository(DataService dataService) {
     this.dataService = dataService;
-    projectActivationObservable = BehaviorSubject.createDefault(
-        ProjectActivationEvent.noProject());
+    projectActivationObservable = BehaviorSubject.createDefault(ProjectActivationEvent.noProject());
   }
 
   public void onCreate() {
@@ -57,15 +59,16 @@ public class GndDataRepository {
 
   public CompletableFuture<Project> activateProject(String projectId) {
     projectActivationObservable.onNext(ProjectActivationEvent.loading());
-    return dataService.loadProject(projectId).thenApply(project -> {
-      oldActiveProject = project;
-      projectActivationObservable.onNext(
-          ProjectActivationEvent.activated(
-              project,
-              dataService.observePlaces(projectId),
-              project.getPlaceTypesList()));
-      return project;
-    });
+    return dataService
+        .loadProject(projectId)
+        .thenApply(
+            project -> {
+              oldActiveProject = project;
+              projectActivationObservable.onNext(
+                  ProjectActivationEvent.activated(
+                      project, dataService.observePlaces(projectId), project.getPlaceTypesList()));
+              return project;
+            });
   }
 
   public Project getOldActiveProject() {

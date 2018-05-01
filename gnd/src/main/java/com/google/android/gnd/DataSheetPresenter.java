@@ -18,6 +18,7 @@ package com.google.android.gnd;
 
 import static com.google.android.gnd.service.firestore.FirestoreDataService.toDate;
 import static com.google.android.gnd.ui.util.ViewUtil.children;
+
 import static java8.util.stream.StreamSupport.stream;
 
 import android.os.Bundle;
@@ -28,6 +29,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
+
 import com.google.android.gnd.model.Form;
 import com.google.android.gnd.model.GndDataRepository;
 import com.google.android.gnd.model.Place;
@@ -39,6 +41,7 @@ import com.google.android.gnd.ui.sheet.DataSheetScrollView;
 import com.google.android.gnd.ui.sheet.RecordView;
 import com.google.android.gnd.ui.sheet.input.Editable;
 import com.google.android.gnd.ui.sheet.input.Editable.Mode;
+
 import java8.util.Optional;
 
 public class DataSheetPresenter {
@@ -205,10 +208,7 @@ public class DataSheetPresenter {
         // TODO: Support multiple form types.
         Form form = placeType.getForms(0);
         Record record =
-            Record.newBuilder()
-                .setPlaceTypeId(placeType.getId())
-                .setFormId(form.getId())
-                .build();
+            Record.newBuilder().setPlaceTypeId(placeType.getId()).setFormId(form.getId()).build();
         recordView.populate(form, record, Editable.Mode.EDIT);
         dataSheetView.getBody().addView(recordView);
         onEditRecordClick(recordView);
@@ -236,37 +236,43 @@ public class DataSheetPresenter {
   }
 
   public void onSelectPlaceTypeForAdd(PlaceType placeType) {
-    mapAdapter.map().subscribe(map -> {
-      Place place =
-          Place.newBuilder()
-              .setPlaceTypeId(placeType.getId())
-              .setPoint(map.getCenter())
-              .build();
-      showToolbarSaveButton();
-      // TODO: i18n.
-      toolbar.setTitle(R.string.add_place_toolbar_title);
-      toolbar.setSubtitle("");
-      addRecordBtn.setVisibility(View.INVISIBLE);
-      // TODO: Encapsulate placeType, place, etc. as SheetState or in ApplicationState?
-      dataSheetView.setMode(Editable.Mode.EDIT);
-      dataSheetView.getHeader().attach(place, placeType);
-      dataSheetView.getHeader().setTitle(getTitle(place, placeType));
-      dataSheetView.getHeader().setSubtitle("");
-      dataSheetView.getBody().clear();
-      // TODO: Show temporary highlighted place marker.
-      RecordView formView = new RecordView(dataSheetView.getContext(), this::onEditRecordClick);
-      if (placeType.getFormsCount() > 0) {
-        // TODO: Support multiple form types.
-        Form form = placeType.getForms(0);
-        Record record =
-            Record.newBuilder().setPlaceTypeId(placeType.getId()).setFormId(form.getId())
-                .build();
-        formView.populate(form, record, Editable.Mode.EDIT);
-        dataSheetView.getBody().addView(formView);
-      }
-      // TODO: Do something smart when there are no forms associated with the place.
-      dataSheetView.slideOpen();
-    });
+    mapAdapter
+        .map()
+        .subscribe(
+            map -> {
+              Place place =
+                  Place.newBuilder()
+                      .setPlaceTypeId(placeType.getId())
+                      .setPoint(map.getCenter())
+                      .build();
+              showToolbarSaveButton();
+              // TODO: i18n.
+              toolbar.setTitle(R.string.add_place_toolbar_title);
+              toolbar.setSubtitle("");
+              addRecordBtn.setVisibility(View.INVISIBLE);
+              // TODO: Encapsulate placeType, place, etc. as SheetState or in ApplicationState?
+              dataSheetView.setMode(Editable.Mode.EDIT);
+              dataSheetView.getHeader().attach(place, placeType);
+              dataSheetView.getHeader().setTitle(getTitle(place, placeType));
+              dataSheetView.getHeader().setSubtitle("");
+              dataSheetView.getBody().clear();
+              // TODO: Show temporary highlighted place marker.
+              RecordView formView =
+                  new RecordView(dataSheetView.getContext(), this::onEditRecordClick);
+              if (placeType.getFormsCount() > 0) {
+                // TODO: Support multiple form types.
+                Form form = placeType.getForms(0);
+                Record record =
+                    Record.newBuilder()
+                        .setPlaceTypeId(placeType.getId())
+                        .setFormId(form.getId())
+                        .build();
+                formView.populate(form, record, Editable.Mode.EDIT);
+                dataSheetView.getBody().addView(formView);
+              }
+              // TODO: Do something smart when there are no forms associated with the place.
+              dataSheetView.slideOpen();
+            });
   }
 
   private void hideToolbarSaveButton() {

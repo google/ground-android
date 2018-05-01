@@ -17,6 +17,7 @@
 package com.google.android.gnd.ui;
 
 import android.support.v4.app.Fragment;
+
 import com.google.android.gnd.inject.PerChildFragment;
 import com.google.android.gnd.inject.PerFragment;
 import com.google.android.gnd.ui.common.GndFragmentModule;
@@ -25,6 +26,7 @@ import com.google.android.gnd.ui.map.MapFragment;
 import com.google.android.gnd.ui.map.MapFragmentModule;
 import com.google.android.gnd.ui.sheet.PlaceDetailsFragment;
 import com.google.android.gnd.ui.sheet.PlaceDetailsFragmentModule;
+
 import dagger.Binds;
 import dagger.Module;
 import dagger.android.ContributesAndroidInjector;
@@ -47,5 +49,4 @@ public abstract class MainFragmentModule {
   @PerChildFragment
   @ContributesAndroidInjector(modules = PlaceDetailsFragmentModule.class)
   abstract PlaceDetailsFragment placeDetailsFragmentInjector();
-
 }

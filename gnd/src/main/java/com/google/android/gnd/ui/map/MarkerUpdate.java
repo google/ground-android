@@ -22,7 +22,10 @@ import com.google.android.gnd.model.Point;
 class MarkerUpdate {
 
   enum Type {
-    CLEAR_ALL, ADD_OR_UPDATE_MARKER, REMOVE_MARKER, INVALID
+    CLEAR_ALL,
+    ADD_OR_UPDATE_MARKER,
+    REMOVE_MARKER,
+    INVALID
   }
 
   private Type type;
@@ -45,10 +48,8 @@ class MarkerUpdate {
     return new MarkerUpdate(Type.INVALID);
   }
 
-  public static MarkerUpdate addOrUpdatePlace(Place place,
-      String iconId,
-      int iconColor,
-      boolean hasPendingWrites) {
+  public static MarkerUpdate addOrUpdatePlace(
+      Place place, String iconId, int iconColor, boolean hasPendingWrites) {
     MarkerUpdate u = new MarkerUpdate(Type.ADD_OR_UPDATE_MARKER);
     // TODO: Stop attaching Place to map markers.
     u.place = place;

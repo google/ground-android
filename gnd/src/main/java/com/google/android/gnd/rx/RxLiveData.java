@@ -26,12 +26,11 @@ import io.reactivex.Observable;
 public abstract class RxLiveData {
 
   /** Container for static helper methods. Do not instantiate. */
-  private RxLiveData() {
-  }
+  private RxLiveData() {}
 
   public static <T> LiveData<T> fromObservable(Observable<T> observable) {
     return LiveDataReactiveStreams.fromPublisher(
-      observable.toFlowable(BackpressureStrategy.BUFFER));
+        observable.toFlowable(BackpressureStrategy.BUFFER));
   }
 
   public static <T> LiveData<T> fromFlowable(Flowable<T> flowable) {

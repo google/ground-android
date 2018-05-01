@@ -16,15 +16,15 @@
 
 package com.google.android.gnd;
 
+import javax.inject.Singleton;
+
 import dagger.Component;
 import dagger.android.AndroidInjector;
-import javax.inject.Singleton;
 
 @Singleton
 @Component(modules = GndApplicationModule.class)
 interface GndApplicationComponent extends AndroidInjector<GndApplication> {
 
   @Component.Builder
-  abstract class Builder extends AndroidInjector.Builder<GndApplication> {
-  }
+  abstract class Builder extends AndroidInjector.Builder<GndApplication> {}
 }

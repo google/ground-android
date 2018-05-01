@@ -16,15 +16,10 @@
 
 package com.google.android.gnd.system;
 
-/**
- * Reports various device capabilities based on Android OS version.
- */
+/** Reports various device capabilities based on Android OS version. */
 public final class DeviceCapabilities {
-  /**
-   * Do not instantiate.
-   **/
-  private DeviceCapabilities() {
-  }
+  /** Do not instantiate. */
+  private DeviceCapabilities() {}
 
   /**
    * Returns true if the device supports window insets. Insets allow the UI to fill the full screen,

@@ -23,12 +23,13 @@ import android.view.ViewGroup;
 import android.view.WindowInsets;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
+
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gnd.system.DeviceCapabilities;
 
 /**
- * Customization of Google Maps API fragment that automatically adjusts the Google watermark
- * based on window insets.
+ * Customization of Google Maps API fragment that automatically adjusts the Google watermark based
+ * on window insets.
  */
 public class GoogleMapsApiFragment extends SupportMapFragment {
   @Override
@@ -54,8 +55,7 @@ public class GoogleMapsApiFragment extends SupportMapFragment {
 
   private void setWatermarkPadding(View view, int left, int top, int right, int bottom) {
     ImageView watermark = view.findViewWithTag("GoogleWatermark");
-    RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) watermark
-        .getLayoutParams();
+    RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) watermark.getLayoutParams();
     params.setMargins(left, top, right, bottom);
     watermark.setLayoutParams(params);
   }

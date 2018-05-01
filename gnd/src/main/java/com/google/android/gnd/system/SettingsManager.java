@@ -19,21 +19,22 @@ package com.google.android.gnd.system;
 import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
-import android.support.annotation.NonNull;
 import android.util.Log;
+
 import com.google.android.gms.common.api.ResolvableApiException;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.LocationSettingsStatusCodes;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
 import io.reactivex.Completable;
 import io.reactivex.CompletableEmitter;
 import io.reactivex.Observable;
 import io.reactivex.subjects.PublishSubject;
-import io.reactivex.subjects.SingleSubject;
 import io.reactivex.subjects.Subject;
-import javax.inject.Inject;
-import javax.inject.Singleton;
 
 @Singleton
 public class SettingsManager {
@@ -55,15 +56,16 @@ public class SettingsManager {
   }
 
   public Completable enableLocationSettings(LocationRequest locationRequest) {
-    return Completable.create(source -> {
-      Log.d(TAG, "Checking location settings");
-      LocationSettingsRequest settingsRequest = new LocationSettingsRequest.Builder()
-        .addLocationRequest(locationRequest).build();
-      LocationServices.getSettingsClient(context)
-                      .checkLocationSettings(settingsRequest)
-                      .addOnSuccessListener(v -> onCheckLocationSettingsSuccess(source))
-                      .addOnFailureListener(e -> onCheckLocationSettingsFailure(e, source));
-    });
+    return Completable.create(
+        source -> {
+          Log.d(TAG, "Checking location settings");
+          LocationSettingsRequest settingsRequest =
+              new LocationSettingsRequest.Builder().addLocationRequest(locationRequest).build();
+          LocationServices.getSettingsClient(context)
+              .checkLocationSettings(settingsRequest)
+              .addOnSuccessListener(v -> onCheckLocationSettingsSuccess(source))
+              .addOnFailureListener(e -> onCheckLocationSettingsFailure(e, source));
+        });
   }
 
   private void onCheckLocationSettingsSuccess(CompletableEmitter src) {
@@ -72,14 +74,12 @@ public class SettingsManager {
   }
 
   private void onCheckLocationSettingsFailure(Exception e, CompletableEmitter src) {
-    if ((e instanceof ResolvableApiException)
-      && isResolutionRequired((ResolvableApiException) e)) {
+    if ((e instanceof ResolvableApiException) && isResolutionRequired((ResolvableApiException) e)) {
       Log.d(TAG, "Prompting user to enable location settings");
       // Attach settings change result stream to Completable returned by checkLocationSettings().
       this.settingsChangeResultEmitter = src;
       // Prompt user to enable Location in Settings.
-      settingsChangeRequestSubject
-        .onNext(new SettingsChangeRequest((ResolvableApiException) e));
+      settingsChangeRequestSubject.onNext(new SettingsChangeRequest((ResolvableApiException) e));
     } else {
       Log.d(TAG, "Unable to prompt user to enable location settings");
       src.onError(e);
@@ -91,8 +91,7 @@ public class SettingsManager {
   }
 
   public void onActivityResult(int requestCode, int resultCode) {
-    if (requestCode != CHECK_SETTINGS_REQUEST_CODE
-      || settingsChangeResultEmitter == null) {
+    if (requestCode != CHECK_SETTINGS_REQUEST_CODE || settingsChangeResultEmitter == null) {
       return;
     }
     Log.d(TAG, "Location settings resultCode received: " + resultCode);
@@ -126,6 +125,5 @@ public class SettingsManager {
     }
   }
 
-  public static class SettingsChangeRequestCanceled extends Exception {
-  }
+  public static class SettingsChangeRequestCanceled extends Exception {}
 }

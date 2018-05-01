@@ -21,11 +21,14 @@ import java8.util.Optional;
 public class DatastoreEvent<T> {
 
   public enum Type {
-    ENTITY_LOADED, ENTITY_MODIFIED, ENTITY_REMOVED
+    ENTITY_LOADED,
+    ENTITY_MODIFIED,
+    ENTITY_REMOVED
   }
 
   public enum Source {
-    LOCAL_DATASTORE, REMOTE_DATASTORE
+    LOCAL_DATASTORE,
+    REMOTE_DATASTORE
   }
 
   private final String id;

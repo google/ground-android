@@ -31,8 +31,7 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
-import butterknife.BindView;
-import butterknife.ButterKnife;
+
 import com.google.android.gnd.R;
 import com.google.android.gnd.model.Form;
 import com.google.android.gnd.model.Form.Element;
@@ -49,6 +48,9 @@ import com.google.android.gnd.ui.sheet.input.Editable.Mode;
 import com.google.android.gnd.ui.sheet.input.MultipleChoiceFieldView;
 import com.google.android.gnd.ui.sheet.input.TextFieldView;
 import com.google.protobuf.Timestamp;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import java8.util.Optional;
 import java8.util.function.Consumer;
 import java8.util.stream.Stream;

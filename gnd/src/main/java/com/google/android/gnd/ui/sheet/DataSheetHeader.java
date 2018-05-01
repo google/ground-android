@@ -24,6 +24,7 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
 import com.google.android.gnd.R;
 import com.google.android.gnd.model.Place;
 import com.google.android.gnd.model.PlaceType;

@@ -52,21 +52,21 @@ public class MapViewModel extends ViewModel {
     locationLockStatus.setValue(LocationLockStatus.disabled());
     this.cameraUpdates = new MutableLiveData<>();
     this.markerUpdates =
-      RxLiveData.fromObservable(
-        dataRepository
-          .activeProject()
-          .filter(ProjectActivationEvent::isActivated)
-          .switchMap(
-            project ->
-              project
-                .getPlacesFlowable()
-                .toObservable()
-                // Convert each place update into a marker update.
-                .map(placeData -> toMarkerUpdate(project, placeData))
-                // Drop updates that are invalid or do not apply.
-                .filter(MarkerUpdate::isValid)
-                // Clear all markers when active project changes.
-                .startWith(MarkerUpdate.clearAll())));
+        RxLiveData.fromObservable(
+            dataRepository
+                .activeProject()
+                .filter(ProjectActivationEvent::isActivated)
+                .switchMap(
+                    project ->
+                        project
+                            .getPlacesFlowable()
+                            .toObservable()
+                            // Convert each place update into a marker update.
+                            .map(placeData -> toMarkerUpdate(project, placeData))
+                            // Drop updates that are invalid or do not apply.
+                            .filter(MarkerUpdate::isValid)
+                            // Clear all markers when active project changes.
+                            .startWith(MarkerUpdate.clearAll())));
   }
 
   LiveData<MarkerUpdate> mapMarkers() {
@@ -82,22 +82,22 @@ public class MapViewModel extends ViewModel {
   }
 
   private static MarkerUpdate toMarkerUpdate(
-    ProjectActivationEvent project, DatastoreEvent<Place> placeData) {
+      ProjectActivationEvent project, DatastoreEvent<Place> placeData) {
     switch (placeData.getType()) {
       case ENTITY_LOADED:
       case ENTITY_MODIFIED:
         return placeData
-          .getEntity()
-          .map(Place::getPlaceTypeId)
-          .flatMap(project::getPlaceType)
-          .map(
-            placeType ->
-              MarkerUpdate.addOrUpdatePlace(
-                placeData.getEntity().get(), // TODO: Remove Place from MarkerUpdate.
-                placeType.getIconId(),
-                getIconColor(placeType),
-                placeData.hasPendingWrites()))
-          .orElse(MarkerUpdate.invalid());
+            .getEntity()
+            .map(Place::getPlaceTypeId)
+            .flatMap(project::getPlaceType)
+            .map(
+                placeType ->
+                    MarkerUpdate.addOrUpdatePlace(
+                        placeData.getEntity().get(), // TODO: Remove Place from MarkerUpdate.
+                        placeType.getIconId(),
+                        getIconColor(placeType),
+                        placeData.hasPendingWrites()))
+            .orElse(MarkerUpdate.invalid());
       case ENTITY_REMOVED:
         return MarkerUpdate.remove(placeData.getId());
     }
@@ -124,19 +124,19 @@ public class MapViewModel extends ViewModel {
   @SuppressLint("CheckResult")
   private void enableLocationLock() {
     locationManager
-      .enableLocationUpdates()
-      .subscribe(this::onEnableLocationLockSuccess, this::onLocationFailure);
+        .enableLocationUpdates()
+        .subscribe(this::onEnableLocationLockSuccess, this::onLocationFailure);
   }
 
   private void onEnableLocationLockSuccess() {
     locationLockStatus.setValue(LocationLockStatus.enabled());
     Flowable<Point> locationUpdates = locationManager.locationUpdates();
     locationUpdateSubscription =
-      locationUpdates
-        .take(1)
-        .map(CameraUpdate::moveAndZoom)
-        .concatWith(locationUpdates.map(CameraUpdate::move))
-        .subscribe(cameraUpdates::setValue);
+        locationUpdates
+            .take(1)
+            .map(CameraUpdate::moveAndZoom)
+            .concatWith(locationUpdates.map(CameraUpdate::move))
+            .subscribe(cameraUpdates::setValue);
   }
 
   private void onLocationFailure(Throwable t) {

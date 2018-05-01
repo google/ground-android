@@ -22,12 +22,14 @@ import static com.google.android.gnd.service.firestore.GndFirestorePathBuilder.p
 import static com.google.android.gnd.util.Futures.allOf;
 import static com.google.android.gnd.util.Futures.fromTask;
 import static com.google.android.gnd.util.Streams.map;
+
 import static java8.util.stream.Collectors.toList;
 import static java8.util.stream.StreamSupport.stream;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
+
 import com.google.android.gnd.model.Form;
 import com.google.android.gnd.model.Place;
 import com.google.android.gnd.model.PlaceType;
@@ -50,31 +52,33 @@ import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.firestore.SnapshotMetadata;
 import com.google.firebase.firestore.WriteBatch;
 import com.google.protobuf.Timestamp;
-import durdinapps.rxfirebase2.RxFirestore;
-import io.reactivex.Flowable;
+
+import org.reactivestreams.Publisher;
+
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java8.util.concurrent.CompletableFuture;
-import java8.util.function.Function;
+
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.reactivestreams.Publisher;
+
+import durdinapps.rxfirebase2.RxFirestore;
+import io.reactivex.Flowable;
+import java8.util.concurrent.CompletableFuture;
+import java8.util.function.Function;
 
 @Singleton
 public class FirestoreDataService implements DataService {
 
-  public static final FirebaseFirestoreSettings
-      FIRESTORE_SETTINGS =
+  public static final FirebaseFirestoreSettings FIRESTORE_SETTINGS =
       new FirebaseFirestoreSettings.Builder().setPersistenceEnabled(true).build();
   public static final SetOptions MERGE = SetOptions.merge();
   private static final String TAG = FirestoreDataService.class.getSimpleName();
   private FirebaseFirestore db;
 
   @Inject
-  FirestoreDataService() {
-  }
+  FirestoreDataService() {}
 
   // TODO: Move to shared util, since this isn't specific to Firebase.
   public static Date toDate(Timestamp timestamp) {
@@ -110,8 +114,7 @@ public class FirestoreDataService implements DataService {
   @Override
   public CompletableFuture<Project> loadProject(String projectId) {
     return fetchDocument(db().project(projectId).ref())
-        .thenCompose(p -> fetchPlaceTypes(p).thenApply(fts -> ProjectDoc
-            .toProto(p, fts)));
+        .thenCompose(p -> fetchPlaceTypes(p).thenApply(fts -> ProjectDoc.toProto(p, fts)));
   }
 
   private CompletableFuture<List<PlaceType>> fetchPlaceTypes(DocumentSnapshot project) {
@@ -119,8 +122,8 @@ public class FirestoreDataService implements DataService {
         .thenCompose(this::loadAndAssembleForms);
   }
 
-  private CompletableFuture<List<PlaceType>> loadAndAssembleForms(List<DocumentSnapshot>
-      placeTypes) {
+  private CompletableFuture<List<PlaceType>> loadAndAssembleForms(
+      List<DocumentSnapshot> placeTypes) {
     return allOf(map(placeTypes, d -> loadForms(d).thenApply(f -> PlaceTypeDoc.toProto(d, f))));
   }
 
@@ -164,10 +167,10 @@ public class FirestoreDataService implements DataService {
     DocumentReference fdRef = db().project(projectId).places().ref().document();
     place.setId(fdRef.getId());
     place.clearServerTimestamps();
-    place.setClientTimestamps(Timestamps
-        .newBuilder()
-        .setCreated(placeUpdate.getClientTimestamp())
-        .setModified(placeUpdate.getClientTimestamp()));
+    place.setClientTimestamps(
+        Timestamps.newBuilder()
+            .setCreated(placeUpdate.getClientTimestamp())
+            .setModified(placeUpdate.getClientTimestamp()));
     batch.set(fdRef, PlaceDoc.fromProto(place.build()));
     updateRecords(batch, fdRef, placeUpdate);
     // We don't wait for commit() to finish because task only completes once data is stored to
@@ -182,10 +185,8 @@ public class FirestoreDataService implements DataService {
     Place.Builder place = placeUpdate.getPlace().toBuilder();
     DocumentReference fdRef = db().project(projectId).place(place.getId()).ref();
     place.setServerTimestamps(place.getServerTimestamps().toBuilder().clearModified());
-    place.setClientTimestamps(place
-        .getClientTimestamps()
-        .toBuilder()
-        .setModified(placeUpdate.getClientTimestamp()));
+    place.setClientTimestamps(
+        place.getClientTimestamps().toBuilder().setModified(placeUpdate.getClientTimestamp()));
     batch.set(fdRef, PlaceDoc.fromProto(place.build()), MERGE);
     updateRecords(batch, fdRef, placeUpdate);
     batch.commit();
@@ -208,16 +209,16 @@ public class FirestoreDataService implements DataService {
 
   @Override
   public Flowable<DatastoreEvent<Place>> observePlaces(String projectId) {
-    return RxFirestore
-        .observeQueryRef(db().project(projectId).places().ref())
+    return RxFirestore.observeQueryRef(db().project(projectId).places().ref())
         .flatMap(s -> toDatastoreEvents(s, PlaceDoc::toProto))
-        .doOnTerminate(() -> {
-          Log.d(TAG, "observePlaces stream for project " + projectId + " terminated.");
-        });
+        .doOnTerminate(
+            () -> {
+              Log.d(TAG, "observePlaces stream for project " + projectId + " terminated.");
+            });
   }
 
-  private static <T> Publisher<DatastoreEvent<T>> toDatastoreEvents(QuerySnapshot snapshot,
-      Function<DocumentSnapshot, T> converter) {
+  private static <T> Publisher<DatastoreEvent<T>> toDatastoreEvents(
+      QuerySnapshot snapshot, Function<DocumentSnapshot, T> converter) {
     return s -> {
       DatastoreEvent.Source source = getSource(snapshot.getMetadata());
       for (DocumentChange dc : snapshot.getDocumentChanges()) {
@@ -244,33 +245,33 @@ public class FirestoreDataService implements DataService {
   }
 
   private static DatastoreEvent.Source getSource(SnapshotMetadata metadata) {
-    return metadata.hasPendingWrites() ?
-        DatastoreEvent.Source.LOCAL_DATASTORE :
-        DatastoreEvent.Source.REMOTE_DATASTORE;
+    return metadata.hasPendingWrites()
+        ? DatastoreEvent.Source.LOCAL_DATASTORE
+        : DatastoreEvent.Source.REMOTE_DATASTORE;
   }
 
-
-  private void updateRecords(WriteBatch batch,
-      DocumentReference placeRef,
-      PlaceUpdate placeUpdate) {
+  private void updateRecords(
+      WriteBatch batch, DocumentReference placeRef, PlaceUpdate placeUpdate) {
     CollectionReference records = place(placeRef).records().ref();
     for (RecordUpdate recordUpdate : placeUpdate.getRecordUpdatesList()) {
       Record.Builder record = recordUpdate.getRecord().toBuilder();
       switch (recordUpdate.getOperation()) {
         case CREATE:
-          record.setClientTimestamps(Timestamps
-              .newBuilder()
-              .setCreated(placeUpdate.getClientTimestamp())
-              .setModified(placeUpdate.getClientTimestamp()));
-          batch.set(records.document(),
-              RecordDoc.fromProto(record.build(), updatedValues(recordUpdate)));
+          record.setClientTimestamps(
+              Timestamps.newBuilder()
+                  .setCreated(placeUpdate.getClientTimestamp())
+                  .setModified(placeUpdate.getClientTimestamp()));
+          batch.set(
+              records.document(), RecordDoc.fromProto(record.build(), updatedValues(recordUpdate)));
           break;
         case UPDATE:
-          record.setClientTimestamps(record
-              .getClientTimestamps()
-              .toBuilder()
-              .setModified(placeUpdate.getClientTimestamp()));
-          batch.set(records.document(record.getId()),
+          record.setClientTimestamps(
+              record
+                  .getClientTimestamps()
+                  .toBuilder()
+                  .setModified(placeUpdate.getClientTimestamp()));
+          batch.set(
+              records.document(record.getId()),
               RecordDoc.fromProto(record.build(), updatedValues(recordUpdate)),
               MERGE);
           break;

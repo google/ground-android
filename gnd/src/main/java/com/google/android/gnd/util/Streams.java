@@ -16,14 +16,14 @@
 
 package com.google.android.gnd.util;
 
+import static java8.util.stream.Collectors.toList;
+import static java8.util.stream.StreamSupport.stream;
+
 import java.util.List;
 import java.util.Map;
 
 import java8.util.function.Function;
 import java8.util.stream.Collectors;
-
-import static java8.util.stream.Collectors.toList;
-import static java8.util.stream.StreamSupport.stream;
 
 public abstract class Streams {
   private Streams() {}

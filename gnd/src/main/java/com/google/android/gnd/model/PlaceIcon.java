@@ -22,6 +22,7 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
+
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gnd.R;
@@ -42,7 +43,7 @@ public class PlaceIcon {
           context.getResources().getIdentifier(resourceName, "drawable", context.getPackageName());
       drawable = (BitmapDrawable) ContextCompat.getDrawable(context, resourceId);
     } catch (Resources.NotFoundException e) {
-      // TODO: Fall back to default marker. 
+      // TODO: Fall back to default marker.
       Log.e(TAG, e + toString());
     }
   }
@@ -60,7 +61,6 @@ public class PlaceIcon {
             drawable.getBitmap(), context.getResources().getColor(R.color.colorGrey300));
     return BitmapDescriptorFactory.fromBitmap(tintedBitmap);
   }
-
 
   // TODO: Cache tinted bitmaps.
   public BitmapDescriptor getWhiteBitmap() {

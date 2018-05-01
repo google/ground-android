@@ -21,9 +21,9 @@ import static java8.util.stream.StreamSupport.stream;
 import android.app.AlertDialog;
 import android.os.Bundle;
 import android.util.Log;
+
 import com.google.android.gnd.model.GndDataRepository;
 import com.google.android.gnd.model.Place;
-import com.google.android.gnd.system.LocationManager;
 
 public class MainPresenter {
   private static final String TAG = MainPresenter.class.getSimpleName();
@@ -31,9 +31,7 @@ public class MainPresenter {
   private final DataSheetPresenter dataSheetPresenter;
   private final GndDataRepository model;
 
-  MainPresenter(
-      MainActivity mainActivity,
-      GndDataRepository model) {
+  MainPresenter(MainActivity mainActivity, GndDataRepository model) {
     this.mainActivity = mainActivity;
     this.model = model;
     // TODO: Resolve circular deps and inject these presenters.

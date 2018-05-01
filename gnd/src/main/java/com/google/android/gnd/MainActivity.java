@@ -71,17 +71,13 @@ public class MainActivity extends GndActivity {
   private ProgressDialog progressDialog;
   private Menu toolbarMenu;
 
-  @Inject
-  PermissionsManager permissionsManager;
+  @Inject PermissionsManager permissionsManager;
 
-  @Inject
-  SettingsManager settingsManager;
+  @Inject SettingsManager settingsManager;
 
-  @Inject
-  DataService dataService;
+  @Inject DataService dataService;
 
-  @Inject
-  GndDataRepository model;
+  @Inject GndDataRepository model;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -103,32 +99,36 @@ public class MainActivity extends GndActivity {
     // Sheet doesn't scroll properly w/translucent status due to obscure Android bug. This should
     // be resolved once add/edit is in its own fragment that uses fitsSystemWindows. For now we
     // just expand the sheet when focus + layout change (i.e., keyboard appeared).
-    decorView.getViewTreeObserver().addOnGlobalLayoutListener(() -> {
-      View newFocus = getCurrentFocus();
-      if (newFocus != null) {
-        DataSheetScrollView dataSheetView = getDataSheetView();
-        BottomSheetBehavior behavior = (BottomSheetBehavior) ((CoordinatorLayout.LayoutParams) dataSheetView
-          .getLayoutParams())
-          .getBehavior();
-        if (behavior.getState() == STATE_COLLAPSED) {
-          behavior.setState(STATE_EXPANDED);
-        }
-      }
-    });
+    decorView
+        .getViewTreeObserver()
+        .addOnGlobalLayoutListener(
+            () -> {
+              View newFocus = getCurrentFocus();
+              if (newFocus != null) {
+                DataSheetScrollView dataSheetView = getDataSheetView();
+                BottomSheetBehavior behavior =
+                    (BottomSheetBehavior)
+                        ((CoordinatorLayout.LayoutParams) dataSheetView.getLayoutParams())
+                            .getBehavior();
+                if (behavior.getState() == STATE_COLLAPSED) {
+                  behavior.setState(STATE_EXPANDED);
+                }
+              }
+            });
   }
 
   private void requestPermissions(PermissionsRequest permissionsRequest) {
     ActivityCompat.requestPermissions(
-      this, permissionsRequest.getPermissions(), permissionsRequest.getRequestCode());
+        this, permissionsRequest.getPermissions(), permissionsRequest.getRequestCode());
   }
-
 
   private void requestSettingsChange(SettingsChangeRequest settingsChangeRequest) {
     try {
       // The result of this call is received by {@link #onActivityResult}.
       Log.d(TAG, "Sending settings resolution request");
-      settingsChangeRequest.getException()
-                           .startResolutionForResult(this, settingsChangeRequest.getRequestCode());
+      settingsChangeRequest
+          .getException()
+          .startResolutionForResult(this, settingsChangeRequest.getRequestCode());
     } catch (SendIntentException e) {
       // TODO: Report error.
       Log.e(TAG, e.toString());
@@ -140,24 +140,24 @@ public class MainActivity extends GndActivity {
     // TODO: Each view should consume its own insets and update the insets for consumption by
     // child views.
     ViewCompat.setOnApplyWindowInsetsListener(
-      toolbarWrapper,
-      (v, insets) -> {
-        int bottomPadding = insets.getSystemWindowInsetBottom();
-        int topPadding = insets.getSystemWindowInsetTop();
-        View dataSheetWrapper = findViewById(R.id.place_details_fragment);
-        View dataSheetLayout = findViewById(R.id.data_sheet_layout);
-        View bottomSheetScrim = findViewById(R.id.bottom_sheet_scrim);
-        View mapBtnLayout = findViewById(R.id.map_btn_layout);
-        View recordBtnLayout = findViewById(R.id.record_btn_layout);
-        dataSheetLayout.setMinimumHeight(
-          ViewUtil.getScreenHeight(MainActivity.this) - topPadding);
-        dataSheetWrapper.setPadding(0, topPadding, 0, bottomPadding);
-        toolbarWrapper.setPadding(0, topPadding, 0, 0);
-        bottomSheetScrim.setMinimumHeight(bottomPadding);
-        mapBtnLayout.setTranslationY(-bottomPadding);
-        recordBtnLayout.setTranslationY(-bottomPadding);
-        return insets.replaceSystemWindowInsets(0, 0, 0, insets.getSystemWindowInsetBottom());
-      });
+        toolbarWrapper,
+        (v, insets) -> {
+          int bottomPadding = insets.getSystemWindowInsetBottom();
+          int topPadding = insets.getSystemWindowInsetTop();
+          View dataSheetWrapper = findViewById(R.id.place_details_fragment);
+          View dataSheetLayout = findViewById(R.id.data_sheet_layout);
+          View bottomSheetScrim = findViewById(R.id.bottom_sheet_scrim);
+          View mapBtnLayout = findViewById(R.id.map_btn_layout);
+          View recordBtnLayout = findViewById(R.id.record_btn_layout);
+          dataSheetLayout.setMinimumHeight(
+              ViewUtil.getScreenHeight(MainActivity.this) - topPadding);
+          dataSheetWrapper.setPadding(0, topPadding, 0, bottomPadding);
+          toolbarWrapper.setPadding(0, topPadding, 0, 0);
+          bottomSheetScrim.setMinimumHeight(bottomPadding);
+          mapBtnLayout.setTranslationY(-bottomPadding);
+          recordBtnLayout.setTranslationY(-bottomPadding);
+          return insets.replaceSystemWindowInsets(0, 0, 0, insets.getSystemWindowInsetBottom());
+        });
   }
 
   public void showProjectLoadingDialog() {
@@ -175,7 +175,7 @@ public class MainActivity extends GndActivity {
 
   public void enableAddPlaceButton() {
     addPlaceBtn.setBackgroundTintList(
-      ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
+        ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
   }
 
   public void showErrorMessage(String message) {
@@ -238,7 +238,7 @@ public class MainActivity extends GndActivity {
    */
   @Override
   public void onRequestPermissionsResult(
-    int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+      int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
     super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     permissionsManager.onRequestPermissionsResult(requestCode, permissions, grantResults);
   }

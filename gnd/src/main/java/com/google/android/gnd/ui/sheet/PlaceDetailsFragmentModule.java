@@ -17,8 +17,10 @@
 package com.google.android.gnd.ui.sheet;
 
 import android.support.v4.app.Fragment;
+
 import com.google.android.gnd.inject.PerChildFragment;
 import com.google.android.gnd.ui.common.GndFragmentModule;
+
 import dagger.Binds;
 import dagger.Module;
 

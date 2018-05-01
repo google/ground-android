@@ -47,10 +47,10 @@ public class LocationManager {
   private static final long UPDATE_INTERVAL = 1000 /* 1 sec */;
   private static final long FASTEST_INTERVAL = 250;
   private static final LocationRequest FINE_LOCATION_UPDATES_REQUEST =
-    new LocationRequest()
-      .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
-      .setInterval(UPDATE_INTERVAL)
-      .setFastestInterval(FASTEST_INTERVAL);
+      new LocationRequest()
+          .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
+          .setInterval(UPDATE_INTERVAL)
+          .setFastestInterval(FASTEST_INTERVAL);
   private final Context context;
   private final PermissionsManager permissionsManager;
   private final SettingsManager settingsManager;
@@ -58,8 +58,8 @@ public class LocationManager {
   private PublishSubject<Point> locationUpdateSubject;
 
   @Inject
-  public LocationManager(Application app, PermissionsManager permissionsManager,
-    SettingsManager settingsManager) {
+  public LocationManager(
+      Application app, PermissionsManager permissionsManager, SettingsManager settingsManager) {
     this.context = app.getApplicationContext();
     this.permissionsManager = permissionsManager;
     this.settingsManager = settingsManager;
@@ -72,9 +72,9 @@ public class LocationManager {
 
   private static Point toPoint(Location location) {
     return Point.newBuilder()
-                .setLatitude(location.getLatitude())
-                .setLongitude(location.getLongitude())
-                .build();
+        .setLatitude(location.getLatitude())
+        .setLongitude(location.getLongitude())
+        .build();
   }
 
   public Flowable<Point> locationUpdates() {
@@ -84,33 +84,35 @@ public class LocationManager {
   public Completable enableLocationUpdates() {
     Log.d(TAG, "Attempting to enable location updates");
     return permissionsManager
-      .obtainFineLocationPermission()
-      .andThen(enableLocationSettings())
-      .andThen(requestLocationUpdates());
+        .obtainFineLocationPermission()
+        .andThen(enableLocationSettings())
+        .andThen(requestLocationUpdates());
   }
 
   @SuppressLint("MissingPermission")
   private Completable requestLocationUpdates() {
-    return Completable.create(source -> {
-      Log.d(TAG, "Requesting location updates");
-      locationCallback = new LocationCallbackImpl();
-      getFusedLocationProviderClient(context)
-        .requestLocationUpdates(
-          FINE_LOCATION_UPDATES_REQUEST,
-          locationCallback,
-          Looper.myLooper())
-        .addOnSuccessListener(__ -> {
-          Log.d(TAG, "requestLocationUpdates() successful");
-          // Requesting last location rather than waiting for next update usually gives the user
-          // a quicker response when enabling location lock. This will fail, however, immediately
-          // after enabling location settings, in which case just ignore the failure and wait for
-          // the next location update.
-          lastLocation().subscribe(locationUpdateSubject::onNext, t -> {
-          });
-          source.onComplete();
-        })
-        .addOnFailureListener(source::onError);
-    });
+    return Completable.create(
+        source -> {
+          Log.d(TAG, "Requesting location updates");
+          locationCallback = new LocationCallbackImpl();
+          getFusedLocationProviderClient(context)
+              .requestLocationUpdates(
+                  FINE_LOCATION_UPDATES_REQUEST, locationCallback, Looper.myLooper())
+              .addOnSuccessListener(
+                  __ -> {
+                    Log.d(TAG, "requestLocationUpdates() successful");
+                    // Requesting last location rather than waiting for next update usually gives
+                    // the user
+                    // a quicker response when enabling location lock. This will fail, however,
+                    // immediately
+                    // after enabling location settings, in which case just ignore the failure and
+                    // wait for
+                    // the next location update.
+                    lastLocation().subscribe(locationUpdateSubject::onNext, t -> {});
+                    source.onComplete();
+                  })
+              .addOnFailureListener(source::onError);
+        });
   }
 
   // TODO: Request/remove updates on resume/pause.
@@ -124,13 +126,14 @@ public class LocationManager {
 
   @SuppressLint("MissingPermission")
   public Single<Point> lastLocation() {
-    return Single.create(src -> {
-      Log.d(TAG, "Requesting last known location");
-      getFusedLocationProviderClient(context)
-        .getLastLocation()
-        .addOnSuccessListener(l -> onGetLastLocationSuccess(l, src))
-        .addOnFailureListener(e -> src.onError(e));
-    });
+    return Single.create(
+        src -> {
+          Log.d(TAG, "Requesting last known location");
+          getFusedLocationProviderClient(context)
+              .getLastLocation()
+              .addOnSuccessListener(l -> onGetLastLocationSuccess(l, src))
+              .addOnFailureListener(e -> src.onError(e));
+        });
   }
 
   @SuppressLint("MissingPermission")

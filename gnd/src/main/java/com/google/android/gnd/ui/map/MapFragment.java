@@ -43,17 +43,13 @@ import javax.inject.Inject;
 
 import butterknife.BindView;
 
-/**
- * Main app view, displaying the map and related controls (center cross-hairs, add button, etc).
- */
+/** Main app view, displaying the map and related controls (center cross-hairs, add button, etc). */
 public class MapFragment extends GndFragment {
   private static final String TAG = MapFragment.class.getSimpleName();
 
-  @Inject
-  MapViewModelFactory viewModelFactory;
+  @Inject MapViewModelFactory viewModelFactory;
 
-  @Inject
-  AddPlaceDialogFragment addPlaceDialogFragment;
+  @Inject AddPlaceDialogFragment addPlaceDialogFragment;
 
   @BindView(R.id.add_place_btn)
   FloatingActionButton addPlaceBtn;
@@ -74,9 +70,8 @@ public class MapFragment extends GndFragment {
   }
 
   @Override
-  public View onCreateView(LayoutInflater inflater,
-      ViewGroup container,
-      Bundle savedInstanceState) {
+  public View onCreateView(
+      LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     View view = inflater.inflate(R.layout.fragment_map, container, false);
 
     FragmentTransaction ft = getFragmentManager().beginTransaction();
@@ -137,20 +132,21 @@ public class MapFragment extends GndFragment {
   @SuppressLint("CheckResult")
   private void onCameraUpdate(MapViewModel.CameraUpdate update) {
     Log.d(TAG, "Update camera: " + update);
-    mapAdapter.map().subscribe(map -> {
-      if (update.getZoomLevel().isPresent()) {
-        map.moveCamera(update.getCenter(), update.getZoomLevel().get());
-      } else {
-        map.moveCamera(update.getCenter());
-      }
-    });
+    mapAdapter
+        .map()
+        .subscribe(
+            map -> {
+              if (update.getZoomLevel().isPresent()) {
+                map.moveCamera(update.getCenter(), update.getZoomLevel().get());
+              } else {
+                map.moveCamera(update.getCenter());
+              }
+            });
   }
 
   private void showAddPlaceDialog(Point location) {
     // TODO: Pause location updates while dialog is open.
-    addPlaceDialogFragment
-        .show(getFragmentManager(), location)
-        .subscribe(viewModel::onAddPlace);
+    addPlaceDialogFragment.show(getFragmentManager(), location).subscribe(viewModel::onAddPlace);
   }
 
   private void onMarkerUpdate(Map map, MarkerUpdate update) {
@@ -159,14 +155,9 @@ public class MapFragment extends GndFragment {
         map.removeAllMarkers();
         break;
       case ADD_OR_UPDATE_MARKER:
-        PlaceIcon
-            icon =
-            new PlaceIcon(getContext(), update.getIconId(), update.getIconColor());
+        PlaceIcon icon = new PlaceIcon(getContext(), update.getIconId(), update.getIconColor());
         map.addOrUpdateMarker(
-            new MapMarker<>(update.getId(),
-                update.getPlace().getPoint(),
-                icon,
-                update.getPlace()),
+            new MapMarker<>(update.getId(), update.getPlace().getPoint(), icon, update.getPlace()),
             update.hasPendingWrites(),
             false);
         break;

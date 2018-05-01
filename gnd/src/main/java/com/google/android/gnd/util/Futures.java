@@ -16,16 +16,16 @@
 
 package com.google.android.gnd.util;
 
+import static java8.util.function.Functions.identity;
+import static java8.util.stream.Collectors.toList;
+import static java8.util.stream.StreamSupport.stream;
+
 import com.google.android.gms.tasks.Task;
 
 import java.util.List;
 
 import java8.util.concurrent.CompletableFuture;
 import java8.util.function.Function;
-
-import static java8.util.function.Functions.identity;
-import static java8.util.stream.Collectors.toList;
-import static java8.util.stream.StreamSupport.stream;
 
 public abstract class Futures {
   private Futures() {}

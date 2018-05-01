@@ -21,6 +21,7 @@ import com.google.android.gnd.model.Project;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.IgnoreExtraProperties;
 import com.google.firebase.firestore.ServerTimestamp;
+
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;

@@ -17,14 +17,17 @@
 package com.google.android.gnd;
 
 import android.app.Application;
+
 import com.google.android.gnd.inject.PerActivity;
 import com.google.android.gnd.service.DataService;
 import com.google.android.gnd.service.firestore.FirestoreDataService;
+
+import javax.inject.Singleton;
+
 import dagger.Binds;
 import dagger.Module;
 import dagger.android.ContributesAndroidInjector;
 import dagger.android.support.AndroidSupportInjectionModule;
-import javax.inject.Singleton;
 
 @Module(includes = AndroidSupportInjectionModule.class)
 abstract class GndApplicationModule {
@@ -34,9 +37,8 @@ abstract class GndApplicationModule {
   abstract MainActivity mainActivityInjector();
 
   /**
-   * Provide the Firestore implementation of our backend data service.
-   * TODO: Make the implementation configurable via custom connectors to allow supporting other
-   * backend datastores.
+   * Provide the Firestore implementation of our backend data service. TODO: Make the implementation
+   * configurable via custom connectors to allow supporting other backend datastores.
    */
   @Binds
   @Singleton

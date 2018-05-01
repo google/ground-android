@@ -20,11 +20,13 @@ import static com.google.android.gnd.service.firestore.FirestoreDataService.toDa
 import static com.google.android.gnd.service.firestore.FirestoreDataService.toTimestamps;
 
 import android.util.Log;
+
 import com.google.android.gnd.model.Record;
 import com.google.android.gnd.model.Record.Value;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.IgnoreExtraProperties;
 import com.google.firebase.firestore.ServerTimestamp;
+
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;

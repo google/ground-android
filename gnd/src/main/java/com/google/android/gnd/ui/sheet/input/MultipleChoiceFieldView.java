@@ -21,6 +21,7 @@ import static com.google.android.gnd.model.PlaceUpdate.Operation.DELETE;
 import static com.google.android.gnd.model.PlaceUpdate.Operation.NO_CHANGE;
 import static com.google.android.gnd.model.PlaceUpdate.Operation.UPDATE;
 import static com.google.android.gnd.ui.util.ViewUtil.getColorForStates;
+
 import static java8.util.stream.StreamSupport.stream;
 
 import android.content.Context;
@@ -31,16 +32,19 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
-import butterknife.OnFocusChange;
+
 import com.google.android.gnd.R;
 import com.google.android.gnd.model.Form.MultipleChoice;
 import com.google.android.gnd.model.PlaceUpdate;
 import com.google.android.gnd.model.Record;
 import com.google.android.gnd.model.Record.Choices;
+
 import java.util.List;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+import butterknife.OnFocusChange;
 import java8.util.Optional;
 import java8.util.stream.Collectors;
 
@@ -93,8 +97,11 @@ public class MultipleChoiceFieldView extends ConstraintLayout implements Editabl
   }
 
   public void init(
-      String elementId, String label, Optional<Record.Value> value, MultipleChoice mc, boolean
-      required) {
+      String elementId,
+      String label,
+      Optional<Record.Value> value,
+      MultipleChoice mc,
+      boolean required) {
     this.elementId = elementId;
     originalValue = value;
     labelText.setText(label);
@@ -166,9 +173,9 @@ public class MultipleChoiceFieldView extends ConstraintLayout implements Editabl
                   : Optional.of(Record.Value.newBuilder().setChoices(choices).build()));
           valueText.requestFocus();
           updateValidationMessage();
-
         });
-    dialogBuilder.setNegativeButton(R.string.discard_multiple_choice_changes, (dialog, which) -> {});
+    dialogBuilder.setNegativeButton(
+        R.string.discard_multiple_choice_changes, (dialog, which) -> {});
     dialogBuilder.create().show();
   }
 
@@ -217,7 +224,8 @@ public class MultipleChoiceFieldView extends ConstraintLayout implements Editabl
           valueText.requestFocus();
           updateValidationMessage();
         });
-    dialogBuilder.setNegativeButton(R.string.discard_multiple_choice_changes, (dialog, which) -> {});
+    dialogBuilder.setNegativeButton(
+        R.string.discard_multiple_choice_changes, (dialog, which) -> {});
     dialogBuilder.create().show();
   }
 
@@ -286,12 +294,10 @@ public class MultipleChoiceFieldView extends ConstraintLayout implements Editabl
     valueText.setEnabled(mode == Mode.EDIT);
   }
 
-
   @Override
   public boolean isValid() {
     return !isMissing();
   }
-
 
   boolean isMissing() {
     return required && !getCurrentValue().isPresent();
@@ -310,7 +316,6 @@ public class MultipleChoiceFieldView extends ConstraintLayout implements Editabl
   @Override
   public void setFocus() {
     this.requestFocus();
-//    ViewUtil.showSoftInputMode((Activity) getContext()); // TODO: Why doesn't this work?
+    //    ViewUtil.showSoftInputMode((Activity) getContext()); // TODO: Why doesn't this work?
   }
-
 }

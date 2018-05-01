@@ -19,13 +19,15 @@ package com.google.android.gnd.ui.common;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+
+import javax.inject.Inject;
+
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
 import dagger.android.AndroidInjector;
 import dagger.android.DispatchingAndroidInjector;
 import dagger.android.support.AndroidSupportInjection;
 import dagger.android.support.HasSupportFragmentInjector;
-import javax.inject.Inject;
 
 public abstract class GndFragment extends Fragment implements HasSupportFragmentInjector {
   /**
@@ -34,8 +36,7 @@ public abstract class GndFragment extends Fragment implements HasSupportFragment
    */
   private Unbinder unbinder;
 
-  @Inject
-  DispatchingAndroidInjector<Fragment> childFragmentInjector;
+  @Inject DispatchingAndroidInjector<Fragment> childFragmentInjector;
 
   @Override
   public void onAttach(Context context) {

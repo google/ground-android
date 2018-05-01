@@ -17,12 +17,12 @@
 package com.google.android.gnd.ui.map.gms;
 
 import android.support.v4.app.Fragment;
+
 import com.google.android.gnd.ui.map.MapAdapter;
+
 import io.reactivex.Single;
 
-/**
- * Ground map adapter implementation for Google Maps API.
- */
+/** Ground map adapter implementation for Google Maps API. */
 public class GoogleMapsApiMapAdapter implements MapAdapter {
 
   private final GoogleMapsApiFragment fragment;
@@ -31,9 +31,8 @@ public class GoogleMapsApiMapAdapter implements MapAdapter {
   public GoogleMapsApiMapAdapter() {
     this.fragment = new GoogleMapsApiFragment();
     this.map =
-      Single.create(source ->
-        fragment.getMapAsync(map ->
-          source.onSuccess(new GoogleMapsApiMap(map))))
+        Single.create(
+                source -> fragment.getMapAsync(map -> source.onSuccess(new GoogleMapsApiMap(map))))
             .cache();
   }
 

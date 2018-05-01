@@ -16,15 +16,15 @@
 
 package com.google.android.gnd.rx;
 
+import javax.inject.Inject;
+
 import io.reactivex.Scheduler;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import javax.inject.Inject;
 
 public class Schedulers {
 
   @Inject
-  public Schedulers() {
-  }
+  public Schedulers() {}
 
   public Scheduler io() {
     return io.reactivex.schedulers.Schedulers.io();

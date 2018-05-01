@@ -78,12 +78,12 @@ public class PermissionsManager {
 
     // Create a new Completable, since permission stream never actually completes.
     return Completable.create(
-      source ->
-        permissionsResultSubject
-          .doOnSubscribe(__ -> requestPermission(permission))
-          .filter(r -> r.getPermission().equals(permission))
-          .take(1)
-          .subscribe(r -> onPermissionResult(r, source)));
+        source ->
+            permissionsResultSubject
+                .doOnSubscribe(__ -> requestPermission(permission))
+                .filter(r -> r.getPermission().equals(permission))
+                .take(1)
+                .subscribe(r -> onPermissionResult(r, source)));
   }
 
   @NonNull
@@ -99,7 +99,7 @@ public class PermissionsManager {
   private void requestPermission(String permission) {
     Log.i(TAG, "Requesting " + permission);
     permissionsRequestSubject.onNext(
-      new PermissionsRequest(PERMISSIONS_REQUEST_CODE, new String[]{permission}));
+        new PermissionsRequest(PERMISSIONS_REQUEST_CODE, new String[] {permission}));
   }
 
   private boolean isGranted(String permission) {
@@ -140,7 +140,7 @@ public class PermissionsManager {
 
     public static CompletableSource toCompletable(PermissionsResult result) {
       return result.isGranted()
-        ? Completable.complete()
+          ? Completable.complete()
           : Completable.error(new PermissionDeniedException());
     }
 
@@ -154,6 +154,5 @@ public class PermissionsManager {
     }
   }
 
-  public static class PermissionDeniedException extends Exception {
-  }
+  public static class PermissionDeniedException extends Exception {}
 }

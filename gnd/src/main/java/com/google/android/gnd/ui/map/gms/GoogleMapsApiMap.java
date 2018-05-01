@@ -16,9 +16,11 @@
 
 package com.google.android.gnd.ui.map.gms;
 
-import static com.google.android.gms.maps.GoogleMap.OnCameraMoveStartedListener.REASON_DEVELOPER_ANIMATION;
+import static com.google.android.gms.maps.GoogleMap.OnCameraMoveStartedListener
+  .REASON_DEVELOPER_ANIMATION;
 
 import android.annotation.SuppressLint;
+
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptor;
@@ -29,9 +31,11 @@ import com.google.android.gnd.model.PlaceIcon;
 import com.google.android.gnd.model.Point;
 import com.google.android.gnd.ui.map.MapAdapter;
 import com.google.android.gnd.ui.map.MapMarker;
+
+import java.util.HashMap;
+
 import io.reactivex.Observable;
 import io.reactivex.subjects.PublishSubject;
-import java.util.HashMap;
 
 /**
  * Wrapper around {@link GoogleMap} object, exposing Google Maps API functionality using Ground's
@@ -154,7 +158,6 @@ class GoogleMapsApiMap implements MapAdapter.Map {
       map.setMyLocationEnabled(true);
     }
   }
-
 
   private void onCameraIdle() {
     cameraTargetBeforeDrag = null;

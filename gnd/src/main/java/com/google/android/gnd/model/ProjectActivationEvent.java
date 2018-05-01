@@ -19,15 +19,21 @@ package com.google.android.gnd.model;
 import static java8.util.stream.StreamSupport.stream;
 
 import com.google.android.gnd.service.DatastoreEvent;
-import io.reactivex.Flowable;
+
 import java.util.Collection;
 import java.util.Map;
+
+import io.reactivex.Flowable;
 import java8.util.Optional;
 import java8.util.stream.Collectors;
 
 public class ProjectActivationEvent {
 
-  public enum Status {NO_PROJECT, LOADING, ACTIVATED}
+  public enum Status {
+    NO_PROJECT,
+    LOADING,
+    ACTIVATED
+  }
 
   private Project project;
   private Map<String, PlaceType> placeTypes;
@@ -46,7 +52,8 @@ public class ProjectActivationEvent {
     return new ProjectActivationEvent(Status.LOADING);
   }
 
-  public static ProjectActivationEvent activated(Project project,
+  public static ProjectActivationEvent activated(
+      Project project,
       Flowable<DatastoreEvent<Place>> placesObservable,
       Collection<PlaceType> placeTypes) {
     ProjectActivationEvent ev = new ProjectActivationEvent(Status.ACTIVATED);

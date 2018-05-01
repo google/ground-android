@@ -18,8 +18,10 @@ package com.google.android.gnd.ui.map;
 
 import android.arch.lifecycle.ViewModel;
 import android.arch.lifecycle.ViewModelProvider;
+
 import com.google.android.gnd.model.GndDataRepository;
 import com.google.android.gnd.system.LocationManager;
+
 import javax.inject.Inject;
 
 class MapViewModelFactory implements ViewModelProvider.Factory {
@@ -28,8 +30,7 @@ class MapViewModelFactory implements ViewModelProvider.Factory {
   private final LocationManager locationManager;
 
   @Inject
-  MapViewModelFactory(GndDataRepository dataRepository,
-      LocationManager locationManager) {
+  MapViewModelFactory(GndDataRepository dataRepository, LocationManager locationManager) {
     this.dataRepository = dataRepository;
     this.locationManager = locationManager;
   }

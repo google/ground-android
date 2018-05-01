@@ -18,18 +18,18 @@ package com.google.android.gnd.ui.common;
 
 import android.content.Context;
 import android.support.v4.app.Fragment;
+
+import javax.inject.Inject;
+
 import dagger.android.AndroidInjector;
 import dagger.android.DispatchingAndroidInjector;
 import dagger.android.support.AndroidSupportInjection;
 import dagger.android.support.DaggerAppCompatDialogFragment;
-import javax.inject.Inject;
 
 public abstract class GndDialogFragment extends DaggerAppCompatDialogFragment {
-  @Inject
-  DispatchingAndroidInjector<Fragment> childFragmentInjector;
+  @Inject DispatchingAndroidInjector<Fragment> childFragmentInjector;
 
-  public GndDialogFragment() {
-  }
+  public GndDialogFragment() {}
 
   @Override
   public void onAttach(Context context) {
