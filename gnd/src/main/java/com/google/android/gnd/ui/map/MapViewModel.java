@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.ui.map;
 
+import android.annotation.SuppressLint;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.ViewModel;
@@ -109,6 +110,7 @@ public class MapViewModel extends ViewModel {
     return locationLockStatus.getValue().isEnabled();
   }
 
+  @SuppressLint("CheckResult")
   private void enableLocationLock() {
     locationManager
       .enableLocationUpdates()
