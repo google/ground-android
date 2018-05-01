@@ -132,6 +132,7 @@ public class MapViewModel extends ViewModel {
   private void onEnableLocationLockSuccess() {
     locationLockStatus.setValue(LocationLockStatus.enabled());
     Flowable<Point> locationUpdates = locationManager.locationUpdates();
+    // TODO: Use pure Rx rather than disposable.
     locationUpdateSubscription =
         locationUpdates
             .take(1)
