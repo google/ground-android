@@ -16,25 +16,18 @@
 
 package com.google.android.gnd.rx;
 
-import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.LiveDataReactiveStreams;
+import android.util.Log;
 
-import io.reactivex.BackpressureStrategy;
-import io.reactivex.Flowable;
-import io.reactivex.Observable;
+import com.akaita.java.rxjava2debug.RxJava2Debug;
 
-public abstract class RxLiveData {
+public abstract class RxErrors {
+  private static final String TAG = RxErrors.class.getSimpleName();
 
   /** Container for static helper methods. Do not instantiate. */
-  private RxLiveData() {
+  private RxErrors() {
   }
 
-  public static <T> LiveData<T> fromObservable(Observable<T> observable) {
-    return LiveDataReactiveStreams.fromPublisher(
-      observable.toFlowable(BackpressureStrategy.BUFFER));
-  }
-
-  public static <T> LiveData<T> fromFlowable(Flowable<T> flowable) {
-    return LiveDataReactiveStreams.fromPublisher(flowable);
+  public static void logEnhancedStackTrace(Throwable t) {
+    Log.e(TAG, "Unhandled Rx error", RxJava2Debug.getEnhancedStackTrace(t));
   }
 }

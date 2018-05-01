@@ -24,13 +24,16 @@ import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
 import io.reactivex.Completable;
+import io.reactivex.CompletableEmitter;
 import io.reactivex.CompletableSource;
 import io.reactivex.Observable;
 import io.reactivex.subjects.PublishSubject;
 import io.reactivex.subjects.Subject;
-import javax.inject.Inject;
-import javax.inject.Singleton;
 
 @Singleton
 public class PermissionsManager {
@@ -56,9 +59,7 @@ public class PermissionsManager {
     return obtainPermission(ACCESS_FINE_LOCATION);
   }
 
-  /**
-   * Callback for use from onRequestPermissionsResult() in Activity.
-   */
+  /** Callback for use from onRequestPermissionsResult() in Activity. */
   public void onRequestPermissionsResult(
       int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
     if (requestCode != PERMISSIONS_REQUEST_CODE) {
@@ -76,24 +77,29 @@ public class PermissionsManager {
     }
 
     // Create a new Completable, since permission stream never actually completes.
-    return Completable.create(source ->
+    return Completable.create(
+      source ->
         permissionsResultSubject
-            .doOnSubscribe(__ -> requestPermission(permission))
-            .filter(r -> r.getPermission().equals(permission))
-            .doOnNext(r -> Log.d(TAG, r.toString()))
-            .subscribe(r -> {
-              if (r.isGranted()) {
-                source.onComplete();
-              } else {
-                source.onError(new PermissionDeniedException());
-              }
-            }, source::onError));
+          .doOnSubscribe(__ -> requestPermission(permission))
+          .filter(r -> r.getPermission().equals(permission))
+          .take(1)
+          .subscribe(r -> onPermissionResult(r, source)));
+  }
+
+  @NonNull
+  private void onPermissionResult(PermissionsResult r, CompletableEmitter emitter) {
+    Log.d(TAG, r.toString());
+    if (r.isGranted()) {
+      emitter.onComplete();
+    } else {
+      emitter.onError(new PermissionDeniedException());
+    }
   }
 
   private void requestPermission(String permission) {
     Log.i(TAG, "Requesting " + permission);
-    permissionsRequestSubject
-        .onNext(new PermissionsRequest(PERMISSIONS_REQUEST_CODE, new String[]{permission}));
+    permissionsRequestSubject.onNext(
+      new PermissionsRequest(PERMISSIONS_REQUEST_CODE, new String[]{permission}));
   }
 
   private boolean isGranted(String permission) {
@@ -132,10 +138,9 @@ public class PermissionsManager {
       return permission;
     }
 
-
     public static CompletableSource toCompletable(PermissionsResult result) {
-      return result.isGranted() ?
-          Completable.complete()
+      return result.isGranted()
+        ? Completable.complete()
           : Completable.error(new PermissionDeniedException());
     }
 

@@ -21,6 +21,7 @@ import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.ViewModel;
 import android.graphics.Color;
 import android.util.Log;
+
 import com.google.android.gnd.model.GndDataRepository;
 import com.google.android.gnd.model.Place;
 import com.google.android.gnd.model.PlaceType;
@@ -111,7 +112,6 @@ public class MapViewModel extends ViewModel {
   private void enableLocationLock() {
     locationManager
       .enableLocationUpdates()
-      .doOnError(t -> Log.e("!!!", "ERROR"))
       .subscribe(
         () -> locationLockStatus.setValue(LocationLockStatus.enabled()),
         this::onLocationFailure);
@@ -119,7 +119,6 @@ public class MapViewModel extends ViewModel {
 
 
   private void onLocationFailure(Throwable t) {
-    Log.e("!!!", "FAIL");
     locationLockStatus.setValue(LocationLockStatus.error(t));
   }
 

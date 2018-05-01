@@ -24,24 +24,22 @@ import android.content.Context;
 import android.location.Location;
 import android.os.Looper;
 import android.util.Log;
+
 import com.google.android.gms.location.LocationAvailability;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gnd.inject.PerActivity;
 import com.google.android.gnd.model.Point;
+
+import javax.inject.Inject;
+
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Completable;
-import io.reactivex.CompletableSource;
-import io.reactivex.Emitter;
 import io.reactivex.Flowable;
-import io.reactivex.FlowableEmitter;
-import io.reactivex.Observable;
-import io.reactivex.ObservableEmitter;
 import io.reactivex.Single;
 import io.reactivex.SingleEmitter;
 import io.reactivex.subjects.PublishSubject;
-import javax.inject.Inject;
 
 @PerActivity
 public class LocationManager {
@@ -88,26 +86,28 @@ public class LocationManager {
     return permissionsManager
       .obtainFineLocationPermission()
       .andThen(enableLocationSettings())
-      .andThen((CompletableSource) c -> {
-        // Start pumping location updates.
-        lastLocation()
-          .toObservable()
-          .concatWith(fusedLocationUpdates())
-          .subscribe(locationUpdateSubject::onNext);
-        c.onComplete();
-      });
+      .andThen(requestLocationUpdates());
   }
 
   @SuppressLint("MissingPermission")
-  private Observable<Point> fusedLocationUpdates() {
-    return Observable.create(source -> {
+  private Completable requestLocationUpdates() {
+    return Completable.create(source -> {
       Log.d(TAG, "Requesting location updates");
-      locationCallback = new LocationCallbackImpl(source);
+      locationCallback = new LocationCallbackImpl();
       getFusedLocationProviderClient(context)
-        .requestLocationUpdates(FINE_LOCATION_UPDATES_REQUEST,
-          locationCallback, Looper.myLooper())
+        .requestLocationUpdates(
+          FINE_LOCATION_UPDATES_REQUEST,
+          locationCallback,
+          Looper.myLooper())
         .addOnSuccessListener(__ -> {
-          Log.d(TAG, "Location updates request successful");
+          Log.d(TAG, "requestLocationUpdates() successful");
+          // Requesting last location rather than waiting for next update usually gives the user
+          // a quicker response when enabling location lock. This will fail, however, immediately
+          // after enabling location settings, in which case just ignore the failure and wait for
+          // the next location update.
+          lastLocation().subscribe(locationUpdateSubject::onNext, t -> {
+          });
+          source.onComplete();
         })
         .addOnFailureListener(source::onError);
     });
@@ -116,7 +116,6 @@ public class LocationManager {
   // TODO: Request/remove updates on resume/pause.
   public Completable disableLocationUpdates() {
     if (locationCallback != null) {
-      locationCallback.onRemove();
       getFusedLocationProviderClient(context).removeLocationUpdates(locationCallback);
       locationCallback = null;
     }
@@ -134,11 +133,11 @@ public class LocationManager {
     });
   }
 
+  @SuppressLint("MissingPermission")
   private void onGetLastLocationSuccess(Location location, SingleEmitter<Point> emitter) {
     if (location == null) {
-      // TODO: This is always null just after turning on location settings.
+      // NOTE: This is will usually occur right after turning on location settings.
       Log.d(TAG, "Last known location null");
-      // TODO: Error never gets captured.
       emitter.onError(new NullPointerException());
     } else {
       Log.d(TAG, "Got last known location");
@@ -146,18 +145,13 @@ public class LocationManager {
     }
   }
 
-  private static class LocationCallbackImpl extends LocationCallback {
-    private final Emitter<Point> source;
-
-    LocationCallbackImpl(Emitter<Point> source) {
-      this.source = source;
-    }
+  private class LocationCallbackImpl extends LocationCallback {
 
     @Override
     public void onLocationResult(LocationResult locationResult) {
       Location lastLocation = locationResult.getLastLocation();
       Log.v(TAG, lastLocation.toString());
-      source.onNext(toPoint(lastLocation));
+      locationUpdateSubject.onNext(toPoint(lastLocation));
     }
 
     @Override
@@ -165,10 +159,6 @@ public class LocationManager {
       if (!locationAvailability.isLocationAvailable()) {
         Log.d(TAG, "Location unavailable");
       }
-    }
-
-    void onRemove() {
-      source.onComplete();
     }
   }
 }

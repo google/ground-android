@@ -40,9 +40,9 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.FrameLayout;
 import android.widget.Toast;
-import butterknife.BindView;
-import butterknife.ButterKnife;
+
 import com.google.android.gnd.model.GndDataRepository;
+import com.google.android.gnd.rx.RxErrors;
 import com.google.android.gnd.service.DataService;
 import com.google.android.gnd.system.PermissionsManager;
 import com.google.android.gnd.system.PermissionsManager.PermissionsRequest;
@@ -51,9 +51,13 @@ import com.google.android.gnd.system.SettingsManager.SettingsChangeRequest;
 import com.google.android.gnd.ui.common.GndActivity;
 import com.google.android.gnd.ui.sheet.DataSheetScrollView;
 import com.google.android.gnd.ui.util.ViewUtil;
-import io.reactivex.plugins.RxJavaPlugins;
+
 import javax.inject.Inject;
 import javax.inject.Singleton;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import io.reactivex.plugins.RxJavaPlugins;
 
 @Singleton
 public class MainActivity extends GndActivity {
@@ -82,8 +86,7 @@ public class MainActivity extends GndActivity {
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     // Prevent RxJava from force-quitting when multiple Completables terminate with onError.
-    // TODO: Investigate why this is happening and fix root cause, log instead of eating errors.
-    RxJavaPlugins.setErrorHandler(t -> { });
+    RxJavaPlugins.setErrorHandler(t -> RxErrors.logEnhancedStackTrace(t));
 
     super.onCreate(savedInstanceState);
 
