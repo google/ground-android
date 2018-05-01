@@ -44,6 +44,7 @@ public class MapViewModel extends ViewModel {
   private final MutableLiveData<LocationLockStatus> locationLockStatus;
   private final MutableLiveData<CameraUpdate> cameraUpdates;
   private final LocationManager locationManager;
+  // TODO: Use pure Rx rather than disposable.
   private Disposable locationUpdateSubscription;
 
   MapViewModel(GndDataRepository dataRepository, LocationManager locationManager) {
