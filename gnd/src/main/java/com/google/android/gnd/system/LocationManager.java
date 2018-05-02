@@ -31,7 +31,7 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gnd.inject.PerActivity;
 import com.google.android.gnd.model.Point;
-import com.google.android.gnd.rx.RxTask;
+import com.google.android.gnd.rx.RxLocationServices;
 
 import javax.inject.Inject;
 
@@ -39,7 +39,6 @@ import io.reactivex.BackpressureStrategy;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Single;
-import io.reactivex.SingleEmitter;
 import io.reactivex.subjects.PublishSubject;
 
 @PerActivity
@@ -78,10 +77,18 @@ public class LocationManager {
         .build();
   }
 
+  /**
+   * Returns the location update stream. New subscribers and downstream subscribers that can't keep
+   * up will only see the latest location.
+   */
   public Flowable<Point> locationUpdates() {
     return locationUpdateSubject.toFlowable(BackpressureStrategy.LATEST);
   }
 
+  /**
+   * Asynchronously try to enable location permissions and settings, and if successful, turns on
+   * location updates exposed by {@link #locationUpdates()}.
+   */
   public Completable enableLocationUpdates() {
     Log.d(TAG, "Attempting to enable location updates");
     return permissionsManager
@@ -94,20 +101,17 @@ public class LocationManager {
   private Completable requestLocationUpdates() {
     Log.d(TAG, "Requesting location updates");
     locationCallback = new LocationCallbackImpl();
-    return RxTask.toCompletable(
-      getFusedLocationProviderClient(context)
-        .requestLocationUpdates(
-          FINE_LOCATION_UPDATES_REQUEST, locationCallback, Looper.myLooper()))
-      .doOnComplete(
-        () -> {
-          Log.d(TAG, "requestLocationUpdates() successful");
-          // Requesting last location rather than waiting for next update usually gives
-          // the user a quicker response when enabling location lock. This will fail, however,
-          // immediately after enabling location settings, in which case just ignore the failure
-          // and wait for the next location update.
-          lastLocation().subscribe(locationUpdateSubject::onNext, t -> {
-          });
-        });
+    return RxLocationServices.getFusedLocationProviderClient(context)
+        .requestLocationUpdates(FINE_LOCATION_UPDATES_REQUEST, locationCallback, Looper.myLooper())
+        .doOnComplete(
+            () -> {
+              Log.d(TAG, "requestLocationUpdates() successful");
+              // Requesting last location rather than waiting for next update usually gives
+              // the user a quicker response when enabling location lock. This will fail, however,
+              // immediately after enabling location settings, in which case just ignore the failure
+              // and wait for the next location update.
+              lastLocation().subscribe(locationUpdateSubject::onNext, t -> {});
+            });
   }
 
   // TODO: Request/remove updates on resume/pause.
@@ -121,28 +125,15 @@ public class LocationManager {
 
   @SuppressLint("MissingPermission")
   public Single<Point> lastLocation() {
-    return Single.create(
-        src -> {
-          Log.d(TAG, "Requesting last known location");
-          getFusedLocationProviderClient(context)
-              .getLastLocation()
-              .addOnSuccessListener(l -> onGetLastLocationSuccess(l, src))
-              .addOnFailureListener(e -> src.onError(e));
-        });
+    // TODO: Should we be sending the request onSubscribe instead of immediately? In this specific
+    // case it might not matter, but there may be others where it does?
+    Log.d(TAG, "Requesting last known location");
+    return RxLocationServices.getFusedLocationProviderClient(context)
+        .getLastLocation()
+        .map(LocationManager::toPoint);
   }
 
-  @SuppressLint("MissingPermission")
-  private void onGetLastLocationSuccess(Location location, SingleEmitter<Point> emitter) {
-    if (location == null) {
-      // NOTE: This is will usually occur right after turning on location settings.
-      Log.d(TAG, "Last known location null");
-      emitter.onError(new NullPointerException());
-    } else {
-      Log.d(TAG, "Got last known location");
-      emitter.onSuccess(toPoint(location));
-    }
-  }
-
+  // TODO: Implement Publisher instead of relying on locationUpdateSubject.
   private class LocationCallbackImpl extends LocationCallback {
 
     @Override

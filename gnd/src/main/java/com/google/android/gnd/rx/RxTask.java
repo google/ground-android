@@ -16,26 +16,50 @@
 
 package com.google.android.gnd.rx;
 
+import android.support.annotation.Nullable;
+
 import com.google.android.gms.tasks.Task;
 
 import io.reactivex.Completable;
 import io.reactivex.Single;
+import io.reactivex.SingleEmitter;
+import java8.util.function.Supplier;
 
+/** Static helper methods for converting Google Play Services Tasks into Rx Observables. */
 public abstract class RxTask {
   /** Container for static helper methods. Do not instantiate. */
-  private RxTask() {
-  }
+  private RxTask() {}
 
-  public static <T> Single<T> toSingle(Task<T> task) {
+  /**
+   * Turns a non-void {@link Task} into an Rx {@link Single}. Null values are reported as an error
+   * result of {@link NullPointerException}. The provided supplier will be invoked only onSubscribe.
+   */
+  public static <T> Single<T> toSingle(Supplier<Task<T>> task) {
     return Single.create(
-      emitter ->
-        task.addOnSuccessListener(emitter::onSuccess).addOnFailureListener(emitter::onError));
+        emitter ->
+            task.get()
+                .addOnSuccessListener(v -> onNullable(v, emitter))
+                .addOnFailureListener(emitter::onError));
   }
 
-  public static Completable toCompletable(Task<?> task) {
+  /**
+   * Turns any {@link Task} into an Rx {@link Completable}. Since the success value is ignored, this
+   * can also be used to convert <code>Task&lt;Void&gt;</code>. The provided supplier will be
+   * invoked only onSubscribe.
+   */
+  public static Completable toCompletable(Supplier<Task<?>> task) {
     return Completable.create(
-      emitter ->
-        task.addOnSuccessListener(__ -> emitter.onComplete())
-          .addOnFailureListener(emitter::onError));
+        emitter ->
+            task.get()
+                .addOnSuccessListener(__ -> emitter.onComplete())
+                .addOnFailureListener(emitter::onError));
+  }
+
+  private static <T> void onNullable(@Nullable T v, SingleEmitter<T> emitter) {
+    if (v == null) {
+      emitter.onError(new NullPointerException());
+    } else {
+      emitter.onSuccess(v);
+    }
   }
 }
