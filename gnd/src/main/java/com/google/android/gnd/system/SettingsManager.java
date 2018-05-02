@@ -19,14 +19,14 @@ package com.google.android.gnd.system;
 import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.google.android.gms.common.api.ResolvableApiException;
 import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.LocationSettingsStatusCodes;
-import com.google.android.gnd.rx.RxTask;
+import com.google.android.gnd.rx.RxLocationServices;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -58,12 +58,16 @@ public class SettingsManager {
 
   public Completable enableLocationSettings(LocationRequest locationRequest) {
     Log.d(TAG, "Checking location settings");
-    LocationSettingsRequest settingsRequest =
-      new LocationSettingsRequest.Builder().addLocationRequest(locationRequest).build();
-    return RxTask.toCompletable(
-      LocationServices.getSettingsClient(context).checkLocationSettings(settingsRequest))
+    return RxLocationServices.getSettingsClient(context)
+      .checkLocationSettings(toLocationSettingsRequest(locationRequest))
+      .toCompletable()
       .doOnComplete(() -> Log.d(TAG, "Location settings already enabled"))
       .onErrorResumeNext(this::onCheckLocationSettingsFailure);
+  }
+
+  @NonNull
+  private LocationSettingsRequest toLocationSettingsRequest(LocationRequest locationRequest) {
+    return new LocationSettingsRequest.Builder().addLocationRequest(locationRequest).build();
   }
 
   private Completable onCheckLocationSettingsFailure(Throwable t) {
