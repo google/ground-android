@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.ui.sheet;
+package com.google.android.gnd.ui.placesheet;
 
 import static com.google.android.gnd.model.PlaceUpdate.Operation.NO_CHANGE;
 import static com.google.android.gnd.ui.util.ViewUtil.children;
@@ -25,18 +25,18 @@ import android.util.AttributeSet;
 import android.widget.LinearLayout;
 
 import com.google.android.gnd.model.PlaceUpdate.RecordUpdate;
-import com.google.android.gnd.ui.sheet.input.Editable;
+import com.google.android.gnd.ui.placesheet.input.Editable;
 
 import java.util.List;
 
 import java8.util.stream.Collectors;
 
-public class DataSheetBody extends LinearLayout {
+public class PlaceSheetBody extends LinearLayout {
   private boolean saved;
 
   // TODO: Update once there can only be one sheet edited at a time.
 
-  public DataSheetBody(Context context, @Nullable AttributeSet attrs) {
+  public PlaceSheetBody(Context context, @Nullable AttributeSet attrs) {
     super(context, attrs);
   }
 

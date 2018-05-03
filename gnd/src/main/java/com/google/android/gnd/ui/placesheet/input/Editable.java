@@ -14,20 +14,25 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.ui.sheet;
+package com.google.android.gnd.ui.placesheet.input;
 
-import android.support.v4.app.Fragment;
+import com.google.android.gnd.model.PlaceUpdate.RecordUpdate.ValueUpdate;
 
-import com.google.android.gnd.inject.PerChildFragment;
-import com.google.android.gnd.ui.common.GndFragmentModule;
+public interface Editable {
+  void updateValidationMessage();
 
-import dagger.Binds;
-import dagger.Module;
+  enum Mode {
+    EDIT,
+    VIEW
+  }
 
-@Module(includes = GndFragmentModule.class)
-public abstract class PlaceDetailsFragmentModule {
+  void setFocus();
 
-  @Binds
-  @PerChildFragment
-  abstract Fragment fragment(PlaceDetailsFragment fragment);
+  boolean isModified();
+
+  ValueUpdate getUpdate();
+
+  void setMode(Mode mode);
+
+  boolean isValid();
 }

@@ -24,7 +24,7 @@ import android.util.AttributeSet;
 import android.view.View;
 
 import com.google.android.gnd.R;
-import com.google.android.gnd.ui.sheet.DataSheetScrollView;
+import com.google.android.gnd.ui.placesheet.PlaceSheetScrollView;
 
 public abstract class OnSheetSlideBehavior<V extends View> extends CoordinatorLayout.Behavior<V> {
   public OnSheetSlideBehavior(Context context, AttributeSet attrs) {
@@ -36,29 +36,29 @@ public abstract class OnSheetSlideBehavior<V extends View> extends CoordinatorLa
 
   @Override
   public boolean layoutDependsOn(CoordinatorLayout parent, V child, View dependency) {
-    return dependency instanceof DataSheetScrollView;
+    return dependency instanceof PlaceSheetScrollView;
   }
 
   @Override
   public boolean onDependentViewChanged(CoordinatorLayout parent, V child, View dependency) {
-    if (!(dependency instanceof DataSheetScrollView)) {
+    if (!(dependency instanceof PlaceSheetScrollView)) {
       return false;
     }
-    DataSheetScrollView dataSheetView = (DataSheetScrollView) dependency;
+    PlaceSheetScrollView dataSheetView = (PlaceSheetScrollView) dependency;
     onSheetScrolled(parent, child, new SheetSlideMetrics(parent, dataSheetView));
     return false;
   }
 
   public static class SheetSlideMetrics {
     private final CoordinatorLayout parent;
-    private final DataSheetScrollView dataSheetView;
+    private final PlaceSheetScrollView dataSheetView;
 
-    public SheetSlideMetrics(CoordinatorLayout parent, DataSheetScrollView dataSheetView) {
+    public SheetSlideMetrics(CoordinatorLayout parent, PlaceSheetScrollView dataSheetView) {
       this.parent = parent;
       this.dataSheetView = dataSheetView;
     }
 
-    public SheetSlideMetrics(DataSheetScrollView bottomSheet) {
+    public SheetSlideMetrics(PlaceSheetScrollView bottomSheet) {
       this.parent = (CoordinatorLayout) bottomSheet.getParent();
       this.dataSheetView = bottomSheet;
     }

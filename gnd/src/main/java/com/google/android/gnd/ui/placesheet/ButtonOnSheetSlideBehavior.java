@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.ui.sheet;
+package com.google.android.gnd.ui.placesheet;
 
 import android.content.Context;
 import android.support.design.widget.CoordinatorLayout;
@@ -23,11 +23,11 @@ import android.view.View;
 
 import com.google.android.gnd.ui.OnSheetSlideBehavior;
 
-public class SheetButtonBehavior extends OnSheetSlideBehavior<View> {
+public class ButtonOnSheetSlideBehavior extends OnSheetSlideBehavior<View> {
   private static final float HIDE_THRESHOLD = 0.3f;
   private static final float SHOW_THRESHOLD = 0.5f;
 
-  public SheetButtonBehavior(Context context, AttributeSet attrs) {
+  public ButtonOnSheetSlideBehavior(Context context, AttributeSet attrs) {
     super(context, attrs);
   }
 

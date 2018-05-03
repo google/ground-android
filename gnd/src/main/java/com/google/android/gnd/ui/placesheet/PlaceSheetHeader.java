@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.ui.sheet;
+package com.google.android.gnd.ui.placesheet;
 
 import static com.google.android.gnd.model.PlaceUpdate.Operation.CREATE;
 import static com.google.android.gnd.model.PlaceUpdate.Operation.NO_CHANGE;
@@ -31,12 +31,12 @@ import com.google.android.gnd.model.PlaceType;
 import com.google.android.gnd.model.PlaceUpdate;
 import com.google.protobuf.Timestamp;
 
-public class DataSheetHeader extends LinearLayout {
+public class PlaceSheetHeader extends LinearLayout {
   private TextView titleView;
   private TextView subtitleView;
   private Place originalValue;
 
-  public DataSheetHeader(Context context, AttributeSet attrs) {
+  public PlaceSheetHeader(Context context, AttributeSet attrs) {
     super(context, attrs);
   }
 

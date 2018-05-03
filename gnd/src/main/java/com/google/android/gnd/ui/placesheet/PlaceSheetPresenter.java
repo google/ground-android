@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd;
+package com.google.android.gnd.ui.placesheet;
 
 import static com.google.android.gnd.service.firestore.FirestoreDataService.toDate;
 import static com.google.android.gnd.ui.util.ViewUtil.children;
@@ -30,41 +30,43 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 
+import com.google.android.gnd.MainActivity;
+import com.google.android.gnd.R;
 import com.google.android.gnd.model.Form;
 import com.google.android.gnd.model.GndDataRepository;
 import com.google.android.gnd.model.Place;
 import com.google.android.gnd.model.PlaceType;
 import com.google.android.gnd.model.Record;
+import com.google.android.gnd.ui.MainPresenter;
+import com.google.android.gnd.ui.UserOperationFailed;
 import com.google.android.gnd.ui.map.MapAdapter;
 import com.google.android.gnd.ui.map.MapAdapter.Map;
-import com.google.android.gnd.ui.sheet.DataSheetScrollView;
-import com.google.android.gnd.ui.sheet.RecordView;
-import com.google.android.gnd.ui.sheet.input.Editable;
-import com.google.android.gnd.ui.sheet.input.Editable.Mode;
+import com.google.android.gnd.ui.placesheet.input.Editable;
+import com.google.android.gnd.ui.placesheet.input.Editable.Mode;
 
 import java8.util.Optional;
 
-public class DataSheetPresenter {
+public class PlaceSheetPresenter {
 
-  private static final String TAG = DataSheetPresenter.class.getSimpleName();
+  private static final String TAG = PlaceSheetPresenter.class.getSimpleName();
 
   private final MainPresenter mainPresenter;
   private final MainActivity mainActivity;
   private final GndDataRepository model;
-  private DataSheetScrollView dataSheetView;
+  private PlaceSheetScrollView dataSheetView;
   private Toolbar toolbar;
   private MapAdapter mapAdapter;
   private FloatingActionButton addRecordBtn;
   private FloatingActionButton addPlaceBtn;
 
-  public DataSheetPresenter(
+  public PlaceSheetPresenter(
       MainPresenter mainPresenter, MainActivity mainActivity, GndDataRepository model) {
     this.mainPresenter = mainPresenter;
     this.mainActivity = mainActivity;
     this.model = model;
   }
 
-  void onCreate(Bundle savedInstanceState) {
+  public void onCreate(Bundle savedInstanceState) {
     dataSheetView = mainActivity.getDataSheetView();
     addRecordBtn = mainActivity.getAddRecordButton();
     // TODO: Move access to these through mainActivity?

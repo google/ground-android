@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.ui.sheet;
+package com.google.android.gnd.ui.placesheet;
 
 import android.content.Context;
 import android.support.design.widget.CoordinatorLayout;
@@ -23,8 +23,8 @@ import android.widget.FrameLayout;
 
 import com.google.android.gnd.ui.OnSheetSlideBehavior;
 
-public class BottomSheetScrimBehavior extends OnSheetSlideBehavior<FrameLayout> {
-  public BottomSheetScrimBehavior(Context context, AttributeSet attrs) {
+public class BottomScrimOnSheetSlideBehavior extends OnSheetSlideBehavior<FrameLayout> {
+  public BottomScrimOnSheetSlideBehavior(Context context, AttributeSet attrs) {
     super(context, attrs);
   }
 

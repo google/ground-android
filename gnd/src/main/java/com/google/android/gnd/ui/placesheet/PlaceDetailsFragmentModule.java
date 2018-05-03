@@ -14,20 +14,20 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.ui.sheet;
+package com.google.android.gnd.ui.placesheet;
 
-import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
+import android.support.v4.app.Fragment;
 
-import com.google.android.gnd.R;
-import com.google.android.gnd.ui.common.GndFragment;
+import com.google.android.gnd.inject.PerChildFragment;
+import com.google.android.gnd.ui.common.GndFragmentModule;
 
-public class PlaceDetailsFragment extends GndFragment {
-  @Override
-  public View onCreateView(
-      LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-    return inflater.inflate(R.layout.fragment_place_details, container, false);
-  }
+import dagger.Binds;
+import dagger.Module;
+
+@Module(includes = GndFragmentModule.class)
+public abstract class PlaceDetailsFragmentModule {
+
+  @Binds
+  @PerChildFragment
+  abstract Fragment fragment(PlaceDetailsFragment fragment);
 }

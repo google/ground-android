@@ -20,75 +20,75 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-  <fragment
-      android:id="@+id/map_fragment"
-      android:name="com.google.android.gnd.ui.map.MapFragment"
-      android:layout_width="match_parent"
-      android:layout_height="match_parent"
-      />
-
-  <com.google.android.gnd.ui.sheet.DataSheetScrollView
-      android:id="@+id/data_sheet"
-      android:layout_width="match_parent"
-      android:layout_height="match_parent"
-      app:layout_behavior="@string/bottom_sheet_behavior">
-
     <fragment
-        android:id="@+id/place_details_fragment"
-        android:name="com.google.android.gnd.ui.sheet.PlaceDetailsFragment"
+        android:id="@+id/map_fragment"
+        android:name="com.google.android.gnd.ui.map.MapFragment"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="match_parent"
+    />
 
-  </com.google.android.gnd.ui.sheet.DataSheetScrollView>
-
-  <FrameLayout
-      android:id="@+id/toolbar_wrapper"
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:background="@color/colorPrimary"
-      android:translationY="-1000dp">
-
-    <android.support.v7.widget.Toolbar
-        android:id="@+id/toolbar"
+    <com.google.android.gnd.ui.placesheet.PlaceSheetScrollView
+        android:id="@+id/data_sheet"
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:elevation="4dp"
-        android:subtitleTextAppearance="@style/Toolbar.Subtitle"
-        android:theme="@style/ToolbarTheme"
-        android:titleTextAppearance="@style/Toolbar.Title"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/bottom_sheet_behavior">
+
+        <fragment
+            android:id="@+id/place_details_fragment"
+            android:name="com.google.android.gnd.ui.placesheet.PlaceDetailsFragment"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+    </com.google.android.gnd.ui.placesheet.PlaceSheetScrollView>
+
+    <FrameLayout
+        android:id="@+id/toolbar_wrapper"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorPrimary"
+        android:translationY="-1000dp">
+
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:elevation="4dp"
+            android:subtitleTextAppearance="@style/Toolbar.Subtitle"
+            android:theme="@style/ToolbarTheme"
+            android:titleTextAppearance="@style/Toolbar.Title"
         />
-  </FrameLayout>
+    </FrameLayout>
 
-  <!-- Covers navigation buttons when sheet is expanded. -->
-  <FrameLayout
-      android:id="@+id/bottom_sheet_scrim"
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:layout_gravity="bottom"
-      android:alpha="0"
-      android:background="@color/colorWhite"
-      app:layout_behavior=".ui.sheet.BottomSheetScrimBehavior"/>
+    <!-- Covers navigation buttons when sheet is expanded. -->
+    <FrameLayout
+        android:id="@+id/bottom_sheet_scrim"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:alpha="0"
+        android:background="@color/colorWhite"
+        app:layout_behavior=".ui.placesheet.BottomScrimOnSheetSlideBehavior"/>
 
-  <RelativeLayout
-      android:id="@+id/record_btn_layout"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:layout_gravity="bottom|right|end"
-      android:layout_marginBottom="@dimen/sheet_btn_margin_bottom"
-      android:layout_marginRight="@dimen/sheet_btn_margin_right"
-      android:alpha="0"
-      app:layout_behavior=".ui.sheet.SheetButtonBehavior">
-
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/add_record_btn"
+    <RelativeLayout
+        android:id="@+id/record_btn_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:clickable="false"
-        android:focusable="false"
-        android:src="@drawable/ic_add_dark"
-        app:backgroundTint="@color/colorWhite"
-        app:fabSize="normal"
-        app:useCompatPadding="true"/>
-  </RelativeLayout>
+        android:layout_gravity="bottom|right|end"
+        android:layout_marginBottom="@dimen/sheet_btn_margin_bottom"
+        android:layout_marginRight="@dimen/sheet_btn_margin_right"
+        android:alpha="0"
+        app:layout_behavior=".ui.placesheet.ButtonOnSheetSlideBehavior">
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/add_record_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:clickable="false"
+            android:focusable="false"
+            android:src="@drawable/ic_add_dark"
+            app:backgroundTint="@color/colorWhite"
+            app:fabSize="normal"
+            app:useCompatPadding="true"/>
+    </RelativeLayout>
 
 </android.support.design.widget.CoordinatorLayout>

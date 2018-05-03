@@ -48,8 +48,9 @@ import com.google.android.gnd.system.PermissionsManager;
 import com.google.android.gnd.system.PermissionsManager.PermissionsRequest;
 import com.google.android.gnd.system.SettingsManager;
 import com.google.android.gnd.system.SettingsManager.SettingsChangeRequest;
+import com.google.android.gnd.ui.MainPresenter;
 import com.google.android.gnd.ui.common.GndActivity;
-import com.google.android.gnd.ui.sheet.DataSheetScrollView;
+import com.google.android.gnd.ui.placesheet.PlaceSheetScrollView;
 import com.google.android.gnd.ui.util.ViewUtil;
 
 import javax.inject.Inject;
@@ -105,7 +106,7 @@ public class MainActivity extends GndActivity {
             () -> {
               View newFocus = getCurrentFocus();
               if (newFocus != null) {
-                DataSheetScrollView dataSheetView = getDataSheetView();
+                PlaceSheetScrollView dataSheetView = getDataSheetView();
                 BottomSheetBehavior behavior =
                     (BottomSheetBehavior)
                         ((CoordinatorLayout.LayoutParams) dataSheetView.getLayoutParams())
@@ -212,7 +213,7 @@ public class MainActivity extends GndActivity {
     return (FloatingActionButton) findViewById(R.id.add_record_btn);
   }
 
-  public DataSheetScrollView getDataSheetView() {
+  public PlaceSheetScrollView getDataSheetView() {
     return findViewById(R.id.data_sheet);
   }
 

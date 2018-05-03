@@ -14,25 +14,20 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.ui.sheet.input;
+package com.google.android.gnd.ui.placesheet;
 
-import com.google.android.gnd.model.PlaceUpdate.RecordUpdate.ValueUpdate;
+import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 
-public interface Editable {
-  void updateValidationMessage();
+import com.google.android.gnd.R;
+import com.google.android.gnd.ui.common.GndFragment;
 
-  enum Mode {
-    EDIT,
-    VIEW
+public class PlaceDetailsFragment extends GndFragment {
+  @Override
+  public View onCreateView(
+      LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    return inflater.inflate(R.layout.fragment_place_details, container, false);
   }
-
-  void setFocus();
-
-  boolean isModified();
-
-  ValueUpdate getUpdate();
-
-  void setMode(Mode mode);
-
-  boolean isValid();
 }

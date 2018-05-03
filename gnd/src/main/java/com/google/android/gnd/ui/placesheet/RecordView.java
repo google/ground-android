@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.ui.sheet;
+package com.google.android.gnd.ui.placesheet;
 
 import static com.google.android.gnd.model.PlaceUpdate.Operation.CREATE;
 import static com.google.android.gnd.model.PlaceUpdate.Operation.NO_CHANGE;
 import static com.google.android.gnd.model.PlaceUpdate.Operation.UPDATE;
-import static com.google.android.gnd.ui.sheet.input.Editable.Mode.EDIT;
+import static com.google.android.gnd.ui.placesheet.input.Editable.Mode.EDIT;
 import static com.google.android.gnd.ui.util.ViewUtil.children;
 
 import android.content.Context;
@@ -43,10 +43,10 @@ import com.google.android.gnd.model.PlaceUpdate.RecordUpdate.ValueUpdate;
 import com.google.android.gnd.model.Record;
 import com.google.android.gnd.model.Record.Value;
 import com.google.android.gnd.model.Timestamps;
-import com.google.android.gnd.ui.sheet.input.Editable;
-import com.google.android.gnd.ui.sheet.input.Editable.Mode;
-import com.google.android.gnd.ui.sheet.input.MultipleChoiceFieldView;
-import com.google.android.gnd.ui.sheet.input.TextFieldView;
+import com.google.android.gnd.ui.placesheet.input.Editable;
+import com.google.android.gnd.ui.placesheet.input.Editable.Mode;
+import com.google.android.gnd.ui.placesheet.input.MultipleChoiceFieldView;
+import com.google.android.gnd.ui.placesheet.input.TextFieldView;
 import com.google.protobuf.Timestamp;
 
 import butterknife.BindView;

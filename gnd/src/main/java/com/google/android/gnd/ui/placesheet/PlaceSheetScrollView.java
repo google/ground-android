@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.ui.sheet;
+package com.google.android.gnd.ui.placesheet;
 
 import static com.google.android.gnd.ui.OnSheetSlideBehavior.SheetSlideMetrics.scale;
 import static com.google.android.gnd.ui.util.ViewUtil.children;
@@ -40,7 +40,7 @@ import com.google.android.gnd.R;
 import com.google.android.gnd.model.Form;
 import com.google.android.gnd.model.PlaceUpdate;
 import com.google.android.gnd.ui.OnSheetSlideBehavior.SheetSlideMetrics;
-import com.google.android.gnd.ui.sheet.input.Editable.Mode;
+import com.google.android.gnd.ui.placesheet.input.Editable.Mode;
 import com.h6ah4i.android.tablayouthelper.TabLayoutHelper;
 
 import java.util.List;
@@ -50,7 +50,7 @@ import butterknife.ButterKnife;
 
 /** Container for data sheet components. */
 // TODO: Use with RecyclerView?
-public class DataSheetScrollView extends NestedScrollView {
+public class PlaceSheetScrollView extends NestedScrollView {
   private static final float COLLAPSED_MAP_ASPECT_RATIO = 16.0f / 9.0f;
 
   @BindView(R.id.data_sheet_layout)
@@ -61,19 +61,19 @@ public class DataSheetScrollView extends NestedScrollView {
   private RecordListPagerAdapter recordListPagerAdapter;
   private ViewPager recordListPager;
   private TabLayout tabLayout;
-  private BottomSheetBehavior<DataSheetScrollView> behavior;
+  private BottomSheetBehavior<PlaceSheetScrollView> behavior;
 
   @BindView(R.id.data_sheet_body)
-  DataSheetBody body;
+  PlaceSheetBody body;
 
   @BindView(R.id.data_sheet_header)
-  DataSheetHeader header;
+  PlaceSheetHeader header;
 
   private Toolbar toolbar;
   private Mode mode;
   private boolean saved;
 
-  public DataSheetScrollView(Context context, AttributeSet attrs) {
+  public PlaceSheetScrollView(Context context, AttributeSet attrs) {
     super(context, attrs);
   }
 
@@ -103,11 +103,11 @@ public class DataSheetScrollView extends NestedScrollView {
     return recordListPagerAdapter;
   }
 
-  public DataSheetHeader getHeader() {
+  public PlaceSheetHeader getHeader() {
     return header;
   }
 
-  public DataSheetBody getBody() {
+  public PlaceSheetBody getBody() {
     return body;
   }
 

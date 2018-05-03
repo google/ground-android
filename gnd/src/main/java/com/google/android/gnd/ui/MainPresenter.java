@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd;
+package com.google.android.gnd.ui;
 
 import static java8.util.stream.StreamSupport.stream;
 
@@ -22,23 +22,26 @@ import android.app.AlertDialog;
 import android.os.Bundle;
 import android.util.Log;
 
+import com.google.android.gnd.MainActivity;
+import com.google.android.gnd.R;
 import com.google.android.gnd.model.GndDataRepository;
 import com.google.android.gnd.model.Place;
+import com.google.android.gnd.ui.placesheet.PlaceSheetPresenter;
 
 public class MainPresenter {
   private static final String TAG = MainPresenter.class.getSimpleName();
   private final MainActivity mainActivity;
-  private final DataSheetPresenter dataSheetPresenter;
+  private final PlaceSheetPresenter dataSheetPresenter;
   private final GndDataRepository model;
 
-  MainPresenter(MainActivity mainActivity, GndDataRepository model) {
+  public MainPresenter(MainActivity mainActivity, GndDataRepository model) {
     this.mainActivity = mainActivity;
     this.model = model;
     // TODO: Resolve circular deps and inject these presenters.
-    this.dataSheetPresenter = new DataSheetPresenter(this, mainActivity, model);
+    this.dataSheetPresenter = new PlaceSheetPresenter(this, mainActivity, model);
   }
 
-  void onCreate(Bundle savedInstanceState) {
+  public void onCreate(Bundle savedInstanceState) {
     dataSheetPresenter.onCreate(savedInstanceState);
     model.onCreate();
     showProjectSelector();

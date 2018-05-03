@@ -14,14 +14,10 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd;
+package com.google.android.gnd.ui;
 
-class UserOperationFailed extends Exception {
+public class UserOperationFailed extends Exception {
   public UserOperationFailed(String message) {
     super(message);
-  }
-
-  public UserOperationFailed(String message, Throwable cause) {
-    super(message, cause);
   }
 }

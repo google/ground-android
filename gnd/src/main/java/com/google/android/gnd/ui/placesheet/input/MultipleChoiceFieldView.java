@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.ui.sheet.input;
+package com.google.android.gnd.ui.placesheet.input;
 
 import static com.google.android.gnd.model.PlaceUpdate.Operation.CREATE;
 import static com.google.android.gnd.model.PlaceUpdate.Operation.DELETE;

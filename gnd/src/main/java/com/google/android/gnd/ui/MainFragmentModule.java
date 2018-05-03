@@ -24,8 +24,8 @@ import com.google.android.gnd.ui.common.GndFragmentModule;
 import com.google.android.gnd.ui.map.AddPlaceDialogFragment;
 import com.google.android.gnd.ui.map.MapFragment;
 import com.google.android.gnd.ui.map.MapFragmentModule;
-import com.google.android.gnd.ui.sheet.PlaceDetailsFragment;
-import com.google.android.gnd.ui.sheet.PlaceDetailsFragmentModule;
+import com.google.android.gnd.ui.placesheet.PlaceDetailsFragment;
+import com.google.android.gnd.ui.placesheet.PlaceDetailsFragmentModule;
 
 import dagger.Binds;
 import dagger.Module;

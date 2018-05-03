@@ -31,7 +31,7 @@
       android:background="@color/colorGrey300"
       android:orientation="vertical">
 
-    <com.google.android.gnd.ui.sheet.DataSheetHeader
+    <com.google.android.gnd.ui.placesheet.PlaceSheetHeader
         android:id="@+id/data_sheet_header"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
@@ -61,9 +61,9 @@
           android:textColor="@color/colorGrey300"
           android:textSize="@dimen/sheet_subtitle_text_size"/>
 
-    </com.google.android.gnd.ui.sheet.DataSheetHeader>
+    </com.google.android.gnd.ui.placesheet.PlaceSheetHeader>
 
-    <com.google.android.gnd.ui.sheet.DataSheetBody
+    <com.google.android.gnd.ui.placesheet.PlaceSheetBody
         android:id="@+id/data_sheet_body"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
