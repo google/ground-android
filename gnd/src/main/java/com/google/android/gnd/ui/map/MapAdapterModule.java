@@ -16,18 +16,18 @@
 
 package com.google.android.gnd.ui.map;
 
-import android.support.v4.app.Fragment;
+import com.google.android.gnd.ui.map.gms.GoogleMapsApiMapAdapter;
 
-import com.google.android.gnd.inject.PerChildFragment;
-import com.google.android.gnd.ui.common.GndFragmentModule;
+import javax.inject.Singleton;
 
-import dagger.Binds;
 import dagger.Module;
+import dagger.Provides;
 
-@Module(includes = GndFragmentModule.class)
-public abstract class MapFragmentModule {
-
-  @Binds
-  @PerChildFragment
-  abstract Fragment fragment(MapFragment mapFragment);
+@Module
+public class MapAdapterModule {
+  @Provides
+  @Singleton
+  static MapAdapter mapAdapter() {
+    return new GoogleMapsApiMapAdapter();
+  }
 }

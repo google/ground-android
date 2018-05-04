@@ -16,13 +16,15 @@
 
 package com.google.android.gnd;
 
+import com.google.android.gnd.ui.map.MapAdapterModule;
+
 import javax.inject.Singleton;
 
 import dagger.Component;
 import dagger.android.AndroidInjector;
 
 @Singleton
-@Component(modules = GndApplicationModule.class)
+@Component(modules = {GndApplicationModule.class, MapAdapterModule.class})
 interface GndApplicationComponent extends AndroidInjector<GndApplication> {
 
   @Component.Builder

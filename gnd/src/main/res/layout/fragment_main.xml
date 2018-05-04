@@ -22,7 +22,7 @@
 
     <fragment
         android:id="@+id/map_fragment"
-        android:name="com.google.android.gnd.ui.map.MapFragment"
+        android:name="com.google.android.gnd.ui.mapcontainer.MapContainerFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
     />

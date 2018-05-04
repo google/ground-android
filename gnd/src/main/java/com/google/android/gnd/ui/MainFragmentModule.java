@@ -21,9 +21,9 @@ import android.support.v4.app.Fragment;
 import com.google.android.gnd.inject.PerChildFragment;
 import com.google.android.gnd.inject.PerFragment;
 import com.google.android.gnd.ui.common.GndFragmentModule;
-import com.google.android.gnd.ui.map.AddPlaceDialogFragment;
-import com.google.android.gnd.ui.map.MapFragment;
-import com.google.android.gnd.ui.map.MapFragmentModule;
+import com.google.android.gnd.ui.mapcontainer.AddPlaceDialogFragment;
+import com.google.android.gnd.ui.mapcontainer.MapContainerFragment;
+import com.google.android.gnd.ui.mapcontainer.MapContainerFragmentModule;
 import com.google.android.gnd.ui.placesheet.PlaceDetailsFragment;
 import com.google.android.gnd.ui.placesheet.PlaceDetailsFragmentModule;
 
@@ -39,11 +39,11 @@ public abstract class MainFragmentModule {
   abstract Fragment fragment(MainFragment fragment);
 
   @PerChildFragment
-  @ContributesAndroidInjector(modules = MapFragmentModule.class)
-  abstract MapFragment mapFragmentInjector();
+  @ContributesAndroidInjector(modules = MapContainerFragmentModule.class)
+  abstract MapContainerFragment mapFragmentInjector();
 
   @PerChildFragment
-  @ContributesAndroidInjector(modules = MapFragmentModule.class)
+  @ContributesAndroidInjector(modules = MapContainerFragmentModule.class)
   abstract AddPlaceDialogFragment addPlaceDialogFragmentInjector();
 
   @PerChildFragment
