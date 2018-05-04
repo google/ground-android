@@ -28,10 +28,10 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gnd.system.DeviceCapabilities;
 
 /**
- * Customization of Google Maps API fragment that automatically adjusts the Google watermark based
+ * Customization of Google Maps API Fragment that automatically adjusts the Google watermark based
  * on window insets.
  */
-public class GoogleMapsApiFragment extends SupportMapFragment {
+public class GoogleMapsFragment extends SupportMapFragment {
   @Override
   public View onCreateView(LayoutInflater layoutInflater, ViewGroup viewGroup, Bundle bundle) {
     View view = super.onCreateView(layoutInflater, viewGroup, bundle);

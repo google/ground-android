@@ -26,15 +26,15 @@ import io.reactivex.Single;
 
 /** Common interface for various map provider libraries. */
 public interface MapAdapter {
-  Fragment getMapFragment();
+  Fragment getFragment();
 
-  Single<MapAdapter.Map> map();
+  Single<MapViewModel> getViewModel();
 
   /**
    * Interface defining map interactions and events. This a separate class from {@link MapAdapter}
-   * so that it can be returned asynchronously by {@link MapAdapter#map()} if necessary.
+   * so that it can be returned asynchronously by {@link MapAdapter#getViewModel()} if necessary.
    */
-  interface Map {
+  interface MapViewModel {
 
     Observable<MapMarker> markerClicks();
 

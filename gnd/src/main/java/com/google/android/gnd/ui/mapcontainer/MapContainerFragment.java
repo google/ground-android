@@ -35,9 +35,9 @@ import com.google.android.gnd.system.PermissionsManager.PermissionDeniedExceptio
 import com.google.android.gnd.system.SettingsManager.SettingsChangeRequestCanceled;
 import com.google.android.gnd.ui.common.GndFragment;
 import com.google.android.gnd.ui.map.MapAdapter;
-import com.google.android.gnd.ui.map.MapAdapter.Map;
+import com.google.android.gnd.ui.map.MapAdapter.MapViewModel;
 import com.google.android.gnd.ui.map.MapMarker;
-import com.google.android.gnd.ui.map.gms.GoogleMapsApiMapAdapter;
+import com.google.android.gnd.ui.map.gms.GoogleMapsAdapter;
 import com.google.android.gnd.ui.mapcontainer.MapContainerViewModel.LocationLockStatus;
 import com.jakewharton.rxbinding2.view.RxView;
 
@@ -79,10 +79,10 @@ public class MapContainerFragment extends GndFragment {
     View view = inflater.inflate(R.layout.fragment_map, container, false);
 
     FragmentTransaction ft = getFragmentManager().beginTransaction();
-    mapAdapter = new GoogleMapsApiMapAdapter();
-    ft.replace(R.id.map, mapAdapter.getMapFragment());
+    mapAdapter = new GoogleMapsAdapter();
+    ft.replace(R.id.map, mapAdapter.getFragment());
     ft.commit();
-    mapAdapter.map().subscribe(this::onMapReady);
+    mapAdapter.getViewModel().subscribe(this::onMapReady);
     return view;
   }
 
@@ -91,7 +91,7 @@ public class MapContainerFragment extends GndFragment {
     super.onResume();
   }
 
-  private void onMapReady(Map map) {
+  private void onMapReady(MapViewModel map) {
     Log.d(TAG, "Map ready. Updating subscriptions");
     // Observe events emitted by the ViewModel.
     viewModel.mapMarkers().observe(this, update -> onMarkerUpdate(map, update));
@@ -110,7 +110,7 @@ public class MapContainerFragment extends GndFragment {
     }
     if (status.isEnabled()) {
       Log.d(TAG, "Location lock enabled");
-      mapAdapter.map().subscribe(map -> map.enableCurrentLocationIndicator());
+      mapAdapter.getViewModel().subscribe(map -> map.enableCurrentLocationIndicator());
       locationLockBtn.setImageResource(R.drawable.ic_gps_blue);
     } else {
       Log.d(TAG, "Location lock disabled");
@@ -136,7 +136,7 @@ public class MapContainerFragment extends GndFragment {
   private void onCameraUpdate(MapContainerViewModel.CameraUpdate update) {
     Log.d(TAG, "Update camera: " + update);
     mapAdapter
-      .map()
+      .getViewModel()
       .subscribe(
         map -> {
           if (update.getZoomLevel().isPresent()) {
@@ -152,7 +152,7 @@ public class MapContainerFragment extends GndFragment {
     addPlaceDialogFragment.show(getFragmentManager(), location).subscribe(viewModel::onAddPlace);
   }
 
-  private void onMarkerUpdate(Map map, MarkerUpdate update) {
+  private void onMarkerUpdate(MapViewModel map, MarkerUpdate update) {
     switch (update.getType()) {
       case CLEAR_ALL:
         map.removeAllMarkers();

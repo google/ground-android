@@ -40,7 +40,7 @@ import com.google.android.gnd.model.Record;
 import com.google.android.gnd.ui.MainPresenter;
 import com.google.android.gnd.ui.UserOperationFailed;
 import com.google.android.gnd.ui.map.MapAdapter;
-import com.google.android.gnd.ui.map.MapAdapter.Map;
+import com.google.android.gnd.ui.map.MapAdapter.MapViewModel;
 import com.google.android.gnd.ui.placesheet.input.Editable;
 import com.google.android.gnd.ui.placesheet.input.Editable.Mode;
 
@@ -125,11 +125,11 @@ public class PlaceSheetPresenter {
     mainActivity.hideSoftInput();
     addRecordBtn.setEnabled(false);
     addPlaceBtn.setEnabled(true);
-    mapAdapter.map().subscribe(Map::enable);
+    mapAdapter.getViewModel().subscribe(MapViewModel::enable);
   }
 
   public void onShowSheet() {
-    mapAdapter.map().subscribe(MapAdapter.Map::disable);
+    mapAdapter.getViewModel().subscribe(MapViewModel::disable);
     //    mapAdapter.pauseLocationUpdates()
     addPlaceBtn.setEnabled(false);
     addRecordBtn.setEnabled(true);
@@ -239,7 +239,7 @@ public class PlaceSheetPresenter {
 
   public void onSelectPlaceTypeForAdd(PlaceType placeType) {
     mapAdapter
-        .map()
+      .getViewModel()
         .subscribe(
             map -> {
               Place place =

@@ -20,6 +20,7 @@ import static com.google.android.gms.maps.GoogleMap.OnCameraMoveStartedListener
   .REASON_DEVELOPER_ANIMATION;
 
 import android.annotation.SuppressLint;
+import android.arch.lifecycle.ViewModel;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -39,10 +40,11 @@ import io.reactivex.subjects.PublishSubject;
 
 /**
  * Wrapper around {@link GoogleMap} object, exposing Google Maps API functionality using Ground's
- * standard {@link MapAdapter.Map} interface.
+ * standard {@link MapAdapter.MapViewModel} interface.
  */
-class GoogleMapsApiMap implements MapAdapter.Map {
+class GoogleMapsViewModel extends ViewModel implements MapAdapter.MapViewModel {
 
+  // TODO: Either keep state a LiveData or restore using ReactiveX streams.
   private GoogleMap map;
   private boolean enabled;
   private java.util.Map<String, Marker> markers = new HashMap<>();
@@ -50,7 +52,7 @@ class GoogleMapsApiMap implements MapAdapter.Map {
   private PublishSubject<MapMarker> markerClickSubject = PublishSubject.create();
   private PublishSubject<Point> dragInteractionSubject = PublishSubject.create();
 
-  public GoogleMapsApiMap(GoogleMap map) {
+  public void attachMap(GoogleMap map) {
     this.map = map;
     map.setMapType(GoogleMap.MAP_TYPE_HYBRID);
     map.getUiSettings().setRotateGesturesEnabled(false);
@@ -60,16 +62,16 @@ class GoogleMapsApiMap implements MapAdapter.Map {
     map.setOnCameraMoveStartedListener(this::onCameraMoveStarted);
     map.setOnCameraMoveListener(this::onCameraMove);
     map.setOnMarkerClickListener(
-        marker -> {
-          if (enabled) {
-            markerClickSubject.onNext((MapMarker) marker.getTag());
-            // Allow map to pan to marker.
-            return false;
-          } else {
-            // Prevent map from panning to marker.
-            return true;
-          }
-        });
+      marker -> {
+        if (enabled) {
+          markerClickSubject.onNext((MapMarker) marker.getTag());
+          // Allow map to pan to marker.
+          return false;
+        } else {
+          // Prevent map from panning to marker.
+          return true;
+        }
+      });
     this.enabled = true;
   }
 

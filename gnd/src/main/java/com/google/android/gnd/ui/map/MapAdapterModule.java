@@ -16,7 +16,7 @@
 
 package com.google.android.gnd.ui.map;
 
-import com.google.android.gnd.ui.map.gms.GoogleMapsApiMapAdapter;
+import com.google.android.gnd.ui.map.gms.GoogleMapsAdapter;
 
 import javax.inject.Singleton;
 
@@ -28,6 +28,6 @@ public class MapAdapterModule {
   @Provides
   @Singleton
   static MapAdapter mapAdapter() {
-    return new GoogleMapsApiMapAdapter();
+    return new GoogleMapsAdapter();
   }
 }
