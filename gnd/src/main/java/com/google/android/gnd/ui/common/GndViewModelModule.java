@@ -14,20 +14,25 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.ui.map;
+package com.google.android.gnd.ui.common;
 
-import com.google.android.gnd.ui.map.gms.GoogleMapsAdapter;
+import android.arch.lifecycle.ViewModel;
+import android.arch.lifecycle.ViewModelProvider;
 
-import javax.inject.Singleton;
+import com.google.android.gnd.inject.ViewModelMapKey;
+import com.google.android.gnd.ui.mapcontainer.MapContainerViewModel;
 
+import dagger.Binds;
 import dagger.Module;
-import dagger.Provides;
+import dagger.multibindings.IntoMap;
 
 @Module
-public class MapAdapterModule {
-  @Provides
-  @Singleton
-  static MapAdapter googleMapsAdapter() {
-    return new GoogleMapsAdapter();
-  }
+public abstract class GndViewModelModule {
+  @Binds
+  @IntoMap
+  @ViewModelMapKey(MapContainerViewModel.class)
+  abstract ViewModel bindMapContainerViewModel(MapContainerViewModel viewModel);
+
+  @Binds
+  abstract ViewModelProvider.Factory bindViewModelFactory(GndViewModelFactory factory);
 }

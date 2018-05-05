@@ -14,20 +14,17 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.ui.map;
+package com.google.android.gnd.inject;
 
-import com.google.android.gnd.ui.map.gms.GoogleMapsAdapter;
+import android.arch.lifecycle.ViewModel;
 
-import javax.inject.Singleton;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
-import dagger.Module;
-import dagger.Provides;
+import dagger.MapKey;
 
-@Module
-public class MapAdapterModule {
-  @Provides
-  @Singleton
-  static MapAdapter googleMapsAdapter() {
-    return new GoogleMapsAdapter();
-  }
+@MapKey
+@Retention(RetentionPolicy.RUNTIME)
+public @interface ViewModelMapKey {
+  Class<? extends ViewModel> value();
 }

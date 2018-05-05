@@ -28,5 +28,6 @@ import dagger.android.AndroidInjector;
 interface GndApplicationComponent extends AndroidInjector<GndApplication> {
 
   @Component.Builder
-  abstract class Builder extends AndroidInjector.Builder<GndApplication> {}
+  abstract class Builder extends AndroidInjector.Builder<GndApplication> {
+  }
 }

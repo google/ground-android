@@ -21,6 +21,7 @@ import android.app.Application;
 import com.google.android.gnd.inject.PerActivity;
 import com.google.android.gnd.service.DataService;
 import com.google.android.gnd.service.firestore.FirestoreDataService;
+import com.google.android.gnd.ui.common.GndViewModelModule;
 
 import javax.inject.Singleton;
 
@@ -29,7 +30,7 @@ import dagger.Module;
 import dagger.android.ContributesAndroidInjector;
 import dagger.android.support.AndroidSupportInjectionModule;
 
-@Module(includes = AndroidSupportInjectionModule.class)
+@Module(includes = {AndroidSupportInjectionModule.class, GndViewModelModule.class})
 abstract class GndApplicationModule {
 
   @PerActivity

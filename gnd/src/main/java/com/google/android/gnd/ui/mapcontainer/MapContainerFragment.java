@@ -17,6 +17,7 @@
 package com.google.android.gnd.ui.mapcontainer;
 
 import android.annotation.SuppressLint;
+import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -50,7 +51,7 @@ public class MapContainerFragment extends GndFragment {
   private static final String TAG = MapContainerFragment.class.getSimpleName();
 
   @Inject
-  MapContainerViewModelFactory viewModelFactory;
+  ViewModelProvider.Factory viewModelFactory;
 
   @Inject
   AddPlaceDialogFragment addPlaceDialogFragment;

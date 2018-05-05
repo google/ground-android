@@ -34,6 +34,8 @@ import com.google.android.gnd.system.LocationManager;
 import com.google.android.gnd.ui.map.MapMarker;
 import com.google.android.gnd.ui.mapcontainer.AddPlaceDialogFragment.AddPlaceRequest;
 
+import javax.inject.Inject;
+
 import io.reactivex.Flowable;
 import io.reactivex.disposables.Disposable;
 import java8.util.Optional;
@@ -48,6 +50,7 @@ public class MapContainerViewModel extends ViewModel {
   // TODO: Use pure Rx rather than disposable.
   private Disposable locationUpdateSubscription;
 
+  @Inject
   MapContainerViewModel(GndDataRepository dataRepository, LocationManager locationManager) {
     this.locationManager = locationManager;
     this.locationLockStatus = new MutableLiveData<>();
