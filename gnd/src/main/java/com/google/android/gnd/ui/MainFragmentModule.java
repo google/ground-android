@@ -17,7 +17,6 @@
 package com.google.android.gnd.ui;
 
 import android.support.v4.app.Fragment;
-
 import com.google.android.gnd.inject.PerChildFragment;
 import com.google.android.gnd.inject.PerFragment;
 import com.google.android.gnd.ui.common.GndFragmentModule;
@@ -26,7 +25,6 @@ import com.google.android.gnd.ui.mapcontainer.MapContainerFragment;
 import com.google.android.gnd.ui.mapcontainer.MapContainerFragmentModule;
 import com.google.android.gnd.ui.placesheet.PlaceDetailsFragment;
 import com.google.android.gnd.ui.placesheet.PlaceDetailsFragmentModule;
-
 import dagger.Binds;
 import dagger.Module;
 import dagger.android.ContributesAndroidInjector;

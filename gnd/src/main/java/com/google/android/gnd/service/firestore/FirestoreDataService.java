@@ -22,14 +22,12 @@ import static com.google.android.gnd.service.firestore.GndFirestorePathBuilder.p
 import static com.google.android.gnd.util.Futures.allOf;
 import static com.google.android.gnd.util.Futures.fromTask;
 import static com.google.android.gnd.util.Streams.map;
-
 import static java8.util.stream.Collectors.toList;
 import static java8.util.stream.StreamSupport.stream;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
-
 import com.google.android.gnd.model.Form;
 import com.google.android.gnd.model.Place;
 import com.google.android.gnd.model.PlaceType;
@@ -52,21 +50,19 @@ import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.firestore.SnapshotMetadata;
 import com.google.firebase.firestore.WriteBatch;
 import com.google.protobuf.Timestamp;
-
-import org.reactivestreams.Publisher;
-
+import durdinapps.rxfirebase2.RxFirestore;
+import io.reactivex.Flowable;
+import io.reactivex.Single;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
-import durdinapps.rxfirebase2.RxFirestore;
-import io.reactivex.Flowable;
 import java8.util.concurrent.CompletableFuture;
 import java8.util.function.Function;
+import javax.inject.Inject;
+import javax.inject.Singleton;
+import org.reactivestreams.Publisher;
 
 @Singleton
 public class FirestoreDataService implements DataService {
@@ -100,6 +96,7 @@ public class FirestoreDataService implements DataService {
     return Timestamp.newBuilder().setSeconds(serverTimeCreated.getTime() / 1000);
   }
 
+  @Override
   public void onCreate() {
     db = FirebaseFirestore.getInstance();
     db.setFirestoreSettings(FIRESTORE_SETTINGS);
@@ -199,12 +196,15 @@ public class FirestoreDataService implements DataService {
         .thenApply(docs -> map(docs, doc -> RecordDoc.toProto(doc.getId(), doc)));
   }
 
-  // Db paths.
-
   @Override
-  public CompletableFuture<List<Project>> getProjectSummaries() {
-    return fetchDocuments(db().projects().ref())
-        .thenApply(docs -> stream(docs).map(ProjectDoc::toProto).collect(toList()));
+  public Single<List<Project>> fetchProjectSummaries() {
+    return RxFirestore.getCollection(db().projects().ref())
+                      .map(
+                        querySnapshot ->
+                          stream(querySnapshot.getDocuments())
+                            .map(ProjectDoc::toProto)
+                            .collect(toList()))
+                      .toSingle(Collections.emptyList());
   }
 
   @Override
@@ -219,20 +219,21 @@ public class FirestoreDataService implements DataService {
 
   private static <T> Publisher<DatastoreEvent<T>> toDatastoreEvents(
       QuerySnapshot snapshot, Function<DocumentSnapshot, T> converter) {
-    return s -> {
+    return subscriber -> {
       DatastoreEvent.Source source = getSource(snapshot.getMetadata());
       for (DocumentChange dc : snapshot.getDocumentChanges()) {
         Log.d(TAG, "Datastore event: " + toString(dc));
         String id = dc.getDocument().getId();
         switch (dc.getType()) {
           case ADDED:
-            s.onNext(DatastoreEvent.loaded(id, source, converter.apply(dc.getDocument())));
+            subscriber.onNext(DatastoreEvent.loaded(id, source, converter.apply(dc.getDocument())));
             break;
           case MODIFIED:
-            s.onNext(DatastoreEvent.modified(id, source, converter.apply(dc.getDocument())));
+            subscriber.onNext(
+              DatastoreEvent.modified(id, source, converter.apply(dc.getDocument())));
             break;
           case REMOVED:
-            s.onNext(DatastoreEvent.removed(id, source));
+            subscriber.onNext(DatastoreEvent.removed(id, source));
             break;
         }
       }

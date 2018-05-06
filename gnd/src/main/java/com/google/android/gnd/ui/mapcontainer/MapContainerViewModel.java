@@ -22,7 +22,6 @@ import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.ViewModel;
 import android.graphics.Color;
 import android.util.Log;
-
 import com.google.android.gnd.model.GndDataRepository;
 import com.google.android.gnd.model.Place;
 import com.google.android.gnd.model.PlaceType;
@@ -33,16 +32,16 @@ import com.google.android.gnd.service.DatastoreEvent;
 import com.google.android.gnd.system.LocationManager;
 import com.google.android.gnd.ui.map.MapMarker;
 import com.google.android.gnd.ui.mapcontainer.AddPlaceDialogFragment.AddPlaceRequest;
-
-import javax.inject.Inject;
-
 import io.reactivex.Flowable;
+import io.reactivex.Observable;
 import io.reactivex.disposables.Disposable;
 import java8.util.Optional;
+import javax.inject.Inject;
 
 public class MapContainerViewModel extends ViewModel {
   private static final String TAG = MapContainerViewModel.class.getSimpleName();
   private static final float DEFAULT_ZOOM_LEVEL = 14.0f;
+  private final MutableLiveData<ProjectActivationEvent> projectActivationEvents;
   private final LiveData<MarkerUpdate> markerUpdates;
   private final MutableLiveData<LocationLockStatus> locationLockStatus;
   private final MutableLiveData<CameraUpdate> cameraUpdates;
@@ -56,22 +55,30 @@ public class MapContainerViewModel extends ViewModel {
     this.locationLockStatus = new MutableLiveData<>();
     locationLockStatus.setValue(LocationLockStatus.disabled());
     this.cameraUpdates = new MutableLiveData<>();
+    this.projectActivationEvents = new MutableLiveData<>();
     this.markerUpdates =
       RxLiveData.fromObservable(
         dataRepository
           .activeProject()
+          .doOnNext(projectActivationEvents::setValue)
           .filter(ProjectActivationEvent::isActivated)
-          .switchMap(
-            project ->
-              project
-                .getPlacesFlowable()
-                .toObservable()
-                // Convert each place update into a marker update.
-                .map(placeData -> toMarkerUpdate(project, placeData))
-                // Drop updates that are invalid or do not apply.
-                .filter(MarkerUpdate::isValid)
-                // Clear all markers when active project changes.
-                .startWith(MarkerUpdate.clearAll())));
+          .switchMap(this::toMarkerUpdateObservable));
+  }
+
+  private Observable<MarkerUpdate> toMarkerUpdateObservable(ProjectActivationEvent project) {
+    return project
+      .getPlacesFlowable()
+      .toObservable()
+      // Convert each place update into a marker update.
+      .map(placeData -> toMarkerUpdate(project, placeData))
+      // Drop updates that are invalid or do not apply.
+      .filter(MarkerUpdate::isValid)
+      // Clear all markers when active project changes.
+      .startWith(MarkerUpdate.clearAll());
+  }
+
+  public MutableLiveData<ProjectActivationEvent> projectActivationEvents() {
+    return projectActivationEvents;
   }
 
   LiveData<MarkerUpdate> mapMarkers() {

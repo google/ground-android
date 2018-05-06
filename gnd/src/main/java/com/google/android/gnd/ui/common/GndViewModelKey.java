@@ -14,17 +14,15 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.inject;
+package com.google.android.gnd.ui.common;
 
 import android.arch.lifecycle.ViewModel;
-
+import dagger.MapKey;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
-import dagger.MapKey;
-
 @MapKey
 @Retention(RetentionPolicy.RUNTIME)
-public @interface ViewModelMapKey {
+public @interface GndViewModelKey {
   Class<? extends ViewModel> value();
 }

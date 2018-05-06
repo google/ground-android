@@ -19,8 +19,8 @@ package com.google.android.gnd.ui.mapcontainer;
 import android.annotation.SuppressLint;
 import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
+import android.content.res.ColorStateList;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
@@ -28,10 +28,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
-
+import butterknife.BindView;
 import com.google.android.gnd.R;
 import com.google.android.gnd.model.PlaceIcon;
 import com.google.android.gnd.model.Point;
+import com.google.android.gnd.model.ProjectActivationEvent;
 import com.google.android.gnd.system.PermissionsManager.PermissionDeniedException;
 import com.google.android.gnd.system.SettingsManager.SettingsChangeRequestCanceled;
 import com.google.android.gnd.ui.common.GndFragment;
@@ -41,10 +42,7 @@ import com.google.android.gnd.ui.map.MapMarker;
 import com.google.android.gnd.ui.map.gms.GoogleMapsAdapter;
 import com.google.android.gnd.ui.mapcontainer.MapContainerViewModel.LocationLockStatus;
 import com.jakewharton.rxbinding2.view.RxView;
-
 import javax.inject.Inject;
-
-import butterknife.BindView;
 
 /** Main app view, displaying the map and related controls (center cross-hairs, add button, etc). */
 public class MapContainerFragment extends GndFragment {
@@ -68,10 +66,14 @@ public class MapContainerFragment extends GndFragment {
   private MapContainerViewModel viewModel;
 
   @Override
-  public void onCreate(@Nullable Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
-
+  protected void onCreateViewModel() {
     viewModel = ViewModelProviders.of(this, viewModelFactory).get(MapContainerViewModel.class);
+  }
+
+  @Override
+  protected void onBindViews() {
+    disableLocationLockBtn();
+    disableAddPlaceBtn();
   }
 
   @Override
@@ -98,11 +100,43 @@ public class MapContainerFragment extends GndFragment {
     viewModel.mapMarkers().observe(this, update -> onMarkerUpdate(map, update));
     viewModel.locationLockStatus().observe(this, this::onLocationLockStatusChange);
     viewModel.cameraUpdates().observe(this, this::onCameraUpdate);
+    viewModel.projectActivationEvents().observe(this, this::onProjectActivationEvent);
     // Pass UI events to the ViewModel.
+    // TODO: Route "add place" action through an interactor and down to dialog instead of binding
+    // here to implement "Clean Architecture".
     RxView.clicks(addPlaceBtn).subscribe(__ -> showAddPlaceDialog(map.getCenter()));
     RxView.clicks(locationLockBtn).subscribe(__ -> viewModel.onLocationLockClick());
     map.markerClicks().subscribe(viewModel::onMarkerClick);
     map.dragInteractions().subscribe(viewModel::onMapDrag);
+    enableLocationLockBtn();
+  }
+
+  private void onProjectActivationEvent(ProjectActivationEvent projectActivationEvent) {
+    if (projectActivationEvent.isActivated()) {
+      enableAddPlaceBtn();
+    } else {
+      disableAddPlaceBtn();
+    }
+  }
+
+  private void enableLocationLockBtn() {
+    locationLockBtn.setEnabled(true);
+  }
+
+  private void disableLocationLockBtn() {
+    locationLockBtn.setEnabled(false);
+  }
+
+  private void enableAddPlaceBtn() {
+    addPlaceBtn.setEnabled(true);
+    addPlaceBtn.setBackgroundTintList(
+      ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
+  }
+
+  private void disableAddPlaceBtn() {
+    addPlaceBtn.setEnabled(false);
+    addPlaceBtn.setBackgroundTintList(
+      ColorStateList.valueOf(getResources().getColor(R.color.colorGrey500)));
   }
 
   private void onLocationLockStatusChange(LocationLockStatus status) {

@@ -23,7 +23,6 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
-
 import com.google.android.gnd.R;
 import com.google.android.gnd.model.GndDataRepository;
 import com.google.android.gnd.model.PlaceType;
@@ -31,13 +30,10 @@ import com.google.android.gnd.model.Point;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.ProjectActivationEvent;
 import com.google.android.gnd.ui.common.GndDialogFragment;
-
-import java.util.List;
-
-import javax.inject.Inject;
-
 import io.reactivex.Maybe;
 import io.reactivex.subjects.MaybeSubject;
+import java.util.List;
+import javax.inject.Inject;
 
 public class AddPlaceDialogFragment extends GndDialogFragment {
   public static final String FRAGMENT_TAG = "add_place_dialog_fragment";
@@ -48,6 +44,7 @@ public class AddPlaceDialogFragment extends GndDialogFragment {
   @Inject
   GndDataRepository dataRepository;
 
+  // TODO: Use Bundle instead of volatile cached state.
   private Point location;
 
   @Inject

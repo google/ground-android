@@ -19,11 +19,9 @@ package com.google.android.gnd.model;
 import static java8.util.stream.StreamSupport.stream;
 
 import com.google.android.gnd.service.DatastoreEvent;
-
+import io.reactivex.Flowable;
 import java.util.Collection;
 import java.util.Map;
-
-import io.reactivex.Flowable;
 import java8.util.Optional;
 import java8.util.stream.Collectors;
 
@@ -63,8 +61,8 @@ public class ProjectActivationEvent {
     return ev;
   }
 
-  public Status getStatus() {
-    return status;
+  public boolean isLoading() {
+    return Status.LOADING.equals(status);
   }
 
   public Project getProject() {

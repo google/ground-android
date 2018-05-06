@@ -19,18 +19,14 @@ package com.google.android.gnd.model;
 import static java8.util.stream.StreamSupport.stream;
 
 import com.google.android.gnd.service.DataService;
-import com.google.android.gnd.service.DatastoreEvent;
-
-import java.util.List;
-
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
-import io.reactivex.Flowable;
 import io.reactivex.Observable;
+import io.reactivex.Single;
 import io.reactivex.subjects.BehaviorSubject;
+import java.util.List;
 import java8.util.Optional;
 import java8.util.concurrent.CompletableFuture;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 
 // TODO: Move to its own package ("repository"?).
 @Singleton
@@ -39,9 +35,9 @@ public class GndDataRepository {
   private static final String TAG = GndDataRepository.class.getSimpleName();
 
   private final DataService dataService;
+  // TODO: Delete this once we're fulling migrated to MVVM arch.
   private Project oldActiveProject;
   private BehaviorSubject<ProjectActivationEvent> projectActivationObservable;
-  private Flowable<DatastoreEvent<Place>> placesObservable;
 
   @Inject
   public GndDataRepository(DataService dataService) {
@@ -63,16 +59,11 @@ public class GndDataRepository {
         .loadProject(projectId)
         .thenApply(
             project -> {
-              oldActiveProject = project;
               projectActivationObservable.onNext(
                   ProjectActivationEvent.activated(
                       project, dataService.observePlaces(projectId), project.getPlaceTypesList()));
               return project;
             });
-  }
-
-  public Project getOldActiveProject() {
-    return oldActiveProject;
   }
 
   public Place update(PlaceUpdate placeUpdate) {
@@ -89,7 +80,7 @@ public class GndDataRepository {
     return dataService.loadRecordData(oldActiveProject.getId(), placeId);
   }
 
-  public CompletableFuture<List<Project>> getProjectSummaries() {
-    return dataService.getProjectSummaries();
+  public Single<List<Project>> getProjectSummaries() {
+    return dataService.fetchProjectSummaries();
   }
 }

@@ -19,11 +19,9 @@ package com.google.android.gnd;
 import static android.support.design.widget.BottomSheetBehavior.STATE_COLLAPSED;
 import static android.support.design.widget.BottomSheetBehavior.STATE_EXPANDED;
 
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender.SendIntentException;
-import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetBehavior;
@@ -40,7 +38,8 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.FrameLayout;
 import android.widget.Toast;
-
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import com.google.android.gnd.model.GndDataRepository;
 import com.google.android.gnd.rx.RxErrors;
 import com.google.android.gnd.service.DataService;
@@ -52,13 +51,9 @@ import com.google.android.gnd.ui.MainPresenter;
 import com.google.android.gnd.ui.common.GndActivity;
 import com.google.android.gnd.ui.placesheet.PlaceSheetScrollView;
 import com.google.android.gnd.ui.util.ViewUtil;
-
+import io.reactivex.plugins.RxJavaPlugins;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import io.reactivex.plugins.RxJavaPlugins;
 
 @Singleton
 public class MainActivity extends GndActivity {
@@ -69,7 +64,6 @@ public class MainActivity extends GndActivity {
   @BindView(R.id.add_place_btn)
   FloatingActionButton addPlaceBtn;
 
-  private ProgressDialog progressDialog;
   private Menu toolbarMenu;
 
   @Inject PermissionsManager permissionsManager;
@@ -87,13 +81,10 @@ public class MainActivity extends GndActivity {
 
     super.onCreate(savedInstanceState);
 
-    this.mainPresenter = new MainPresenter(this, model);
-
     setContentView(R.layout.activity_main);
     ButterKnife.bind(this);
     initToolbar();
     updatePaddingForWindowInsets();
-    mainPresenter.onCreate(savedInstanceState);
     View decorView = getWindow().getDecorView();
     permissionsManager.permissionsRequests().subscribe(this::requestPermissions);
     settingsManager.settingsChangeRequests().subscribe(this::requestSettingsChange);
@@ -161,24 +152,6 @@ public class MainActivity extends GndActivity {
         });
   }
 
-  public void showProjectLoadingDialog() {
-    progressDialog = new ProgressDialog(this);
-    progressDialog.setMessage(getResources().getString(R.string.project_loading_please_wait));
-    progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-    progressDialog.setCancelable(false);
-    progressDialog.setCanceledOnTouchOutside(false);
-    progressDialog.show();
-  }
-
-  public void dismissLoadingDialog() {
-    progressDialog.dismiss();
-  }
-
-  public void enableAddPlaceButton() {
-    addPlaceBtn.setBackgroundTintList(
-        ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
-  }
-
   public void showErrorMessage(String message) {
     Toast.makeText(this, message, Toast.LENGTH_LONG).show();
   }
@@ -200,7 +173,7 @@ public class MainActivity extends GndActivity {
   public boolean onOptionsItemSelected(MenuItem item) {
     switch (item.getItemId()) {
       case R.id.toolbar_save_link:
-        return mainPresenter.onToolbarSaveButtonClick();
+//        return mainPresenter.onToolbarSaveButtonClick();
     }
     return super.onOptionsItemSelected(item);
   }

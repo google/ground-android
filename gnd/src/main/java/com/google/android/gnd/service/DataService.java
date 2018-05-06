@@ -17,15 +17,13 @@
 package com.google.android.gnd.service;
 
 import android.support.annotation.Nullable;
-
 import com.google.android.gnd.model.Place;
 import com.google.android.gnd.model.PlaceUpdate;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.Record;
-
-import java.util.List;
-
 import io.reactivex.Flowable;
+import io.reactivex.Single;
+import java.util.List;
 import java8.util.concurrent.CompletableFuture;
 
 /**
@@ -41,7 +39,7 @@ public interface DataService {
 
   CompletableFuture<List<Record>> loadRecordData(String projectId, String placeId);
 
-  CompletableFuture<List<Project>> getProjectSummaries();
+  Single<List<Project>> fetchProjectSummaries();
 
   Flowable<DatastoreEvent<Place>> observePlaces(String projectId);
 

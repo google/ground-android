@@ -16,18 +16,69 @@
 
 package com.google.android.gnd.ui;
 
-import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-
+import android.app.ProgressDialog;
+import android.arch.lifecycle.ViewModelProviders;
 import com.google.android.gnd.R;
+import com.google.android.gnd.model.Project;
+import com.google.android.gnd.model.ProjectActivationEvent;
 import com.google.android.gnd.ui.common.GndFragment;
+import com.google.android.gnd.ui.common.GndViewModelFactory;
+import java.util.List;
+import javax.inject.Inject;
 
 public class MainFragment extends GndFragment {
+  @Inject
+  GndViewModelFactory viewModelFactory;
+
+  private ProgressDialog progressDialog;
+  private MainFragmentViewModel viewModel;
+
   @Override
-  public View onCreateView(
-      LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-    return inflater.inflate(R.layout.fragment_main, container, false);
+  public void onCreateViewModel() {
+    viewModel = ViewModelProviders.of(this, viewModelFactory).get(MainFragmentViewModel.class);
+  }
+
+  @Override
+  protected void onBindViewModel() {
+    viewModel.showDialogRequests().observe(this, this::onShowDialogRequest);
+    viewModel.projectActivationEvents().observe(this, this::onProjectActivationEvent);
+  }
+
+  private void onShowDialogRequest(List<Project> projects) {
+    ProjectSelectorDialogFragment.show(getFragmentManager(), projects);
+  }
+
+  private void onProjectActivationEvent(ProjectActivationEvent event) {
+    if (event.isLoading()) {
+      showProjectLoadingDialog();
+    } else if (event.isActivated()) {
+      dismissLoadingDialog();
+    }
+  }
+
+  @Override
+  public void onStart() {
+    super.onStart();
+    // TODO: Reuse last selected project instead of asking to sign in every time.
+    // TODO: Trigger this from welcome flow and nav drawer instead of here.
+    viewModel.showDialog();
+  }
+
+  public void showProjectLoadingDialog() {
+    // TODO: Move this into ProjectSelectorDialogFragment and observe Rx stream emitted by
+    // activateProject rather than keeping reference here.
+    progressDialog = new ProgressDialog(getContext());
+    progressDialog.setMessage(getResources().getString(R.string.project_loading_please_wait));
+    progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+    progressDialog.setCancelable(false);
+    progressDialog.setCanceledOnTouchOutside(false);
+    progressDialog.show();
+  }
+
+  public void dismissLoadingDialog() {
+    if (progressDialog != null) {
+      progressDialog.dismiss();
+      progressDialog = null;
+    }
   }
 }

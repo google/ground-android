@@ -17,14 +17,14 @@
 package com.google.android.gnd.ui.common;
 
 import android.content.Context;
+import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-
-import javax.inject.Inject;
-
 import dagger.android.AndroidInjector;
 import dagger.android.DispatchingAndroidInjector;
 import dagger.android.support.AndroidSupportInjection;
 import dagger.android.support.DaggerAppCompatDialogFragment;
+import javax.inject.Inject;
 
 public abstract class GndDialogFragment extends DaggerAppCompatDialogFragment {
   @Inject DispatchingAndroidInjector<Fragment> childFragmentInjector;
@@ -32,9 +32,18 @@ public abstract class GndDialogFragment extends DaggerAppCompatDialogFragment {
   public GndDialogFragment() {}
 
   @Override
+  public void onCreate(@Nullable Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+  }
+
+  @Override
   public void onAttach(Context context) {
     AndroidSupportInjection.inject(this);
     super.onAttach(context);
+    onCreateViewModel();
+  }
+
+  protected void onCreateViewModel() {
   }
 
   @Override

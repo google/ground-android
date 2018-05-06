@@ -16,62 +16,62 @@
   -->
 
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-             xmlns:app="http://schemas.android.com/apk/res-auto"
-             android:layout_width="match_parent"
-             android:layout_height="match_parent">
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent">
 
-    <RelativeLayout
-        android:id="@+id/map_layout"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_gravity="center"
-        android:gravity="center"
-        app:layout_behavior=".ui.mapcontainer.MapLayoutBehavior">
+  <RelativeLayout
+    android:id="@+id/map_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_gravity="center"
+    android:gravity="center"
+    app:layout_behavior="com.google.android.gnd.ui.mapcontainer.MapLayoutBehavior">
 
-        <!-- Placeholder for map implementation -->
-        <FrameLayout
-            android:id="@+id/map"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
+    <!-- Placeholder for map implementation -->
+    <FrameLayout
+      android:id="@+id/map"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"/>
 
-        <ImageView
-            android:id="@+id/map_crosshairs"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:adjustViewBounds="false"
-            android:cropToPadding="false"
-            android:src="@drawable/ic_crosshairs"/>
-    </RelativeLayout>
+    <ImageView
+      android:id="@+id/map_crosshairs"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_centerInParent="true"
+      android:adjustViewBounds="false"
+      android:cropToPadding="false"
+      android:src="@drawable/ic_crosshairs"/>
+  </RelativeLayout>
 
-    <LinearLayout
-        android:id="@+id/map_btn_layout"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|right"
-        android:layout_marginBottom="@dimen/map_btn_margin_bottom"
-        android:layout_marginRight="@dimen/map_btn_margin_right"
-        android:orientation="vertical"
-        app:layout_behavior=".ui.map.MapButtonBehavior">
+  <LinearLayout
+    android:id="@+id/map_btn_layout"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="@dimen/map_btn_margin_bottom"
+    android:layout_marginRight="@dimen/map_btn_margin_right"
+    android:layout_gravity="bottom|right"
+    android:orientation="vertical"
+    app:layout_behavior="com.google.android.gnd.ui.map.MapButtonBehavior">
 
-        <android.support.design.widget.FloatingActionButton
-            android:id="@+id/location_lock_btn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_gps_grey600"
-            app:backgroundTint="@color/colorWhite"
-            app:fabSize="normal"
-            app:useCompatPadding="true"/>
+    <android.support.design.widget.FloatingActionButton
+      android:id="@+id/location_lock_btn"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:src="@drawable/ic_gps_grey600"
+      app:backgroundTint="@color/colorWhite"
+      app:fabSize="normal"
+      app:useCompatPadding="true"/>
 
-        <android.support.design.widget.FloatingActionButton
-            android:id="@+id/add_place_btn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_add_light"
-            app:backgroundTint="@color/colorGrey500"
-            app:fabSize="normal"
-            app:useCompatPadding="true"/>
+    <android.support.design.widget.FloatingActionButton
+      android:id="@+id/add_place_btn"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:src="@drawable/ic_add_light"
+      app:backgroundTint="@color/colorGrey500"
+      app:fabSize="normal"
+      app:useCompatPadding="true"/>
 
-    </LinearLayout>
+  </LinearLayout>
 
 </FrameLayout>
