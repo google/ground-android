@@ -62,7 +62,6 @@ import java8.util.concurrent.CompletableFuture;
 import java8.util.function.Function;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.reactivestreams.Publisher;
 
 @Singleton
 public class FirestoreDataService implements DataService {
@@ -210,34 +209,35 @@ public class FirestoreDataService implements DataService {
   @Override
   public Flowable<DatastoreEvent<Place>> observePlaces(String projectId) {
     return RxFirestore.observeQueryRef(db().project(projectId).places().ref())
-        .flatMap(s -> toDatastoreEvents(s, PlaceDoc::toProto))
-        .doOnTerminate(
-            () -> {
-              Log.d(TAG, "observePlaces stream for project " + projectId + " terminated.");
-            });
+                      .flatMapIterable(snapshot -> toDatastoreEvents(snapshot, PlaceDoc::toProto))
+                      .doOnTerminate(
+                        () -> Log.d(
+                          TAG,
+                          "observePlaces stream for project " + projectId + " terminated."));
   }
 
-  private static <T> Publisher<DatastoreEvent<T>> toDatastoreEvents(
+  private <T> Iterable<DatastoreEvent<T>> toDatastoreEvents(
       QuerySnapshot snapshot, Function<DocumentSnapshot, T> converter) {
-    return subscriber -> {
-      DatastoreEvent.Source source = getSource(snapshot.getMetadata());
-      for (DocumentChange dc : snapshot.getDocumentChanges()) {
-        Log.d(TAG, "Datastore event: " + toString(dc));
-        String id = dc.getDocument().getId();
-        switch (dc.getType()) {
-          case ADDED:
-            subscriber.onNext(DatastoreEvent.loaded(id, source, converter.apply(dc.getDocument())));
-            break;
-          case MODIFIED:
-            subscriber.onNext(
-              DatastoreEvent.modified(id, source, converter.apply(dc.getDocument())));
-            break;
-          case REMOVED:
-            subscriber.onNext(DatastoreEvent.removed(id, source));
-            break;
-        }
-      }
-    };
+    DatastoreEvent.Source source = getSource(snapshot.getMetadata());
+    return stream(snapshot.getDocumentChanges())
+      .map(dc -> toDatastoreEvent(dc, source, converter))
+      .filter(DatastoreEvent::isValid)
+      .collect(toList());
+  }
+
+  private <T> DatastoreEvent<T> toDatastoreEvent(
+    DocumentChange dc, DatastoreEvent.Source source, Function<DocumentSnapshot, T> converter) {
+    Log.v(TAG, toString(dc));
+    String id = dc.getDocument().getId();
+    switch (dc.getType()) {
+      case ADDED:
+        return DatastoreEvent.loaded(id, source, converter.apply(dc.getDocument()));
+      case MODIFIED:
+        return DatastoreEvent.modified(id, source, converter.apply(dc.getDocument()));
+      case REMOVED:
+        return DatastoreEvent.removed(id, source);
+    }
+    return DatastoreEvent.invalidResponse();
   }
 
   @NonNull

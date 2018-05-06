@@ -23,7 +23,8 @@ public class DatastoreEvent<T> {
   public enum Type {
     ENTITY_LOADED,
     ENTITY_MODIFIED,
-    ENTITY_REMOVED
+    ENTITY_REMOVED,
+    INVALID_RESPONSE
   }
 
   public enum Source {
@@ -31,10 +32,14 @@ public class DatastoreEvent<T> {
     REMOTE_DATASTORE
   }
 
-  private final String id;
-  private final Optional<T> entity;
-  private final Type type;
-  private final Source source;
+  private String id;
+  private Optional<T> entity;
+  private Type type;
+  private Source source;
+
+  private DatastoreEvent(Type type) {
+    this.type = type;
+  }
 
   private DatastoreEvent(String id, Type type, Source source, Optional<T> entity) {
     this.id = id;
@@ -63,6 +68,10 @@ public class DatastoreEvent<T> {
     return source == DatastoreEvent.Source.LOCAL_DATASTORE;
   }
 
+  public boolean isValid() {
+    return !Type.INVALID_RESPONSE.equals(type);
+  }
+
   public static <T> DatastoreEvent<T> loaded(String id, Source source, T entity) {
     return new DatastoreEvent<>(id, Type.ENTITY_LOADED, source, Optional.of(entity));
   }
@@ -73,5 +82,9 @@ public class DatastoreEvent<T> {
 
   public static <T> DatastoreEvent<T> removed(String id, Source source) {
     return new DatastoreEvent<>(id, Type.ENTITY_MODIFIED, source, Optional.empty());
+  }
+
+  public static <T> DatastoreEvent<T> invalidResponse() {
+    return new DatastoreEvent<>(Type.INVALID_RESPONSE);
   }
 }
