@@ -20,12 +20,10 @@
   android:layout_width="match_parent"
   android:layout_height="match_parent">
 
-  <!-- TODO: Remove fragment from XML, create programmatically -->
-  <fragment
+  <FrameLayout
     android:id="@+id/map_fragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:name="com.google.android.gnd.ui.mapcontainer.MapContainerFragment"
     />
 
   <com.google.android.gnd.ui.placesheet.PlaceSheetScrollView

@@ -27,12 +27,16 @@ import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.ProjectActivationEvent;
 import com.google.android.gnd.ui.common.GndFragment;
 import com.google.android.gnd.ui.common.GndViewModelFactory;
+import com.google.android.gnd.ui.mapcontainer.MapContainerFragment;
 import java.util.List;
 import javax.inject.Inject;
 
 public class MainFragment extends GndFragment {
   @Inject
   GndViewModelFactory viewModelFactory;
+
+  @Inject
+  MapContainerFragment mapContainerFragment;
 
   private ProgressDialog progressDialog;
   private MainFragmentViewModel viewModel;
@@ -46,6 +50,11 @@ public class MainFragment extends GndFragment {
   public View onInflateView(
     LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     return inflater.inflate(R.layout.fragment_main, container, false);
+  }
+
+  @Override
+  protected void onAddFragments() {
+    addFragment(R.id.map_fragment, mapContainerFragment);
   }
 
   protected void onObserveViewModel() {

@@ -63,6 +63,10 @@ public class MapContainerFragment extends GndFragment {
 
   private MapContainerViewModel viewModel;
 
+  @Inject
+  public MapContainerFragment() {
+  }
+
   @Override
   protected void onCreateViewModel() {
     viewModel = ViewModelProviders.of(this, viewModelFactory).get(MapContainerViewModel.class);

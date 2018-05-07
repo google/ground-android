@@ -38,7 +38,6 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.FrameLayout;
 import android.widget.Toast;
-import butterknife.BindView;
 import butterknife.ButterKnife;
 import com.google.android.gnd.model.GndDataRepository;
 import com.google.android.gnd.rx.RxErrors;
@@ -57,9 +56,6 @@ import javax.inject.Singleton;
 @Singleton
 public class MainActivity extends GndActivity {
   private static final String TAG = MainActivity.class.getSimpleName();
-
-  @BindView(R.id.add_place_btn)
-  FloatingActionButton addPlaceBtn;
 
   private Menu toolbarMenu;
 
@@ -131,6 +127,7 @@ public class MainActivity extends GndActivity {
     ViewCompat.setOnApplyWindowInsetsListener(
         toolbarWrapper,
         (v, insets) -> {
+          // TODO: Move inset behaviors into respectives fragments.
           int bottomPadding = insets.getSystemWindowInsetBottom();
           int topPadding = insets.getSystemWindowInsetTop();
           View dataSheetWrapper = findViewById(R.id.place_details_fragment);
@@ -176,7 +173,7 @@ public class MainActivity extends GndActivity {
   }
 
   public FloatingActionButton getAddPlaceButton() {
-    return addPlaceBtn;
+    return null;
   }
 
   public FloatingActionButton getAddRecordButton() {

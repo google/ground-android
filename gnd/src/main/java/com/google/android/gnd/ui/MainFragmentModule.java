@@ -17,17 +17,10 @@
 package com.google.android.gnd.ui;
 
 import android.support.v4.app.Fragment;
-import com.google.android.gnd.inject.PerChildFragment;
 import com.google.android.gnd.inject.PerFragment;
 import com.google.android.gnd.ui.common.GndFragmentModule;
-import com.google.android.gnd.ui.mapcontainer.AddPlaceDialogFragment;
-import com.google.android.gnd.ui.mapcontainer.MapContainerFragment;
-import com.google.android.gnd.ui.mapcontainer.MapContainerFragmentModule;
-import com.google.android.gnd.ui.placesheet.PlaceDetailsFragment;
-import com.google.android.gnd.ui.placesheet.PlaceDetailsFragmentModule;
 import dagger.Binds;
 import dagger.Module;
-import dagger.android.ContributesAndroidInjector;
 
 @Module(includes = GndFragmentModule.class)
 public abstract class MainFragmentModule {
@@ -35,16 +28,4 @@ public abstract class MainFragmentModule {
   @Binds
   @PerFragment
   abstract Fragment fragment(MainFragment fragment);
-
-  @PerChildFragment
-  @ContributesAndroidInjector(modules = MapContainerFragmentModule.class)
-  abstract MapContainerFragment mapFragmentInjector();
-
-  @PerChildFragment
-  @ContributesAndroidInjector(modules = MapContainerFragmentModule.class)
-  abstract AddPlaceDialogFragment addPlaceDialogFragmentInjector();
-
-  @PerChildFragment
-  @ContributesAndroidInjector(modules = PlaceDetailsFragmentModule.class)
-  abstract PlaceDetailsFragment placeDetailsFragmentInjector();
 }
