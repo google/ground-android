@@ -18,6 +18,8 @@ package com.google.android.gnd.ui.common;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.IdRes;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -25,7 +27,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
-import com.google.android.gnd.R;
 import dagger.android.AndroidInjector;
 import dagger.android.DispatchingAndroidInjector;
 import dagger.android.support.AndroidSupportInjection;
@@ -50,15 +51,28 @@ public abstract class GndFragment extends Fragment implements HasSupportFragment
   protected void onCreateViewModel() {
   }
 
+  @Nullable
   @Override
   public View onCreateView(
-    LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-    View view = inflater.inflate(R.layout.fragment_main, container, false);
-    onBindViewModel();
+    @NonNull LayoutInflater inflater,
+    @Nullable ViewGroup container,
+    @Nullable Bundle savedInstanceState) {
+    View view = onInflateView(inflater, container, savedInstanceState);
+    onAddFragments();
+    onObserveViewModel();
     return view;
   }
 
-  protected void onBindViewModel() {
+  protected View onInflateView(
+    LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    throw new UnsupportedOperationException(
+      "Subclasses much override either onCreateView or inflateView");
+  }
+
+  protected void onAddFragments() {
+  }
+
+  protected void onObserveViewModel() {
   }
 
   @Override
@@ -89,5 +103,9 @@ public abstract class GndFragment extends Fragment implements HasSupportFragment
   @Override
   public AndroidInjector<Fragment> supportFragmentInjector() {
     return childFragmentInjector;
+  }
+
+  protected final void addFragment(@IdRes int containerViewId, Fragment fragment) {
+    getFragmentManager().beginTransaction().replace(containerViewId, fragment).commit();
   }
 }

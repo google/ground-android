@@ -18,6 +18,10 @@ package com.google.android.gnd.ui;
 
 import android.app.ProgressDialog;
 import android.arch.lifecycle.ViewModelProviders;
+import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import com.google.android.gnd.R;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.ProjectActivationEvent;
@@ -39,7 +43,12 @@ public class MainFragment extends GndFragment {
   }
 
   @Override
-  protected void onBindViewModel() {
+  public View onInflateView(
+    LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    return inflater.inflate(R.layout.fragment_main, container, false);
+  }
+
+  protected void onObserveViewModel() {
     viewModel.showDialogRequests().observe(this, this::onShowDialogRequest);
     viewModel.projectActivationEvents().observe(this, this::onProjectActivationEvent);
   }

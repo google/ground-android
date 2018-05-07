@@ -22,7 +22,6 @@ import android.arch.lifecycle.ViewModelProviders;
 import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -39,7 +38,6 @@ import com.google.android.gnd.ui.common.GndFragment;
 import com.google.android.gnd.ui.map.MapAdapter;
 import com.google.android.gnd.ui.map.MapAdapter.MapViewModel;
 import com.google.android.gnd.ui.map.MapMarker;
-import com.google.android.gnd.ui.map.gms.GoogleMapsAdapter;
 import com.google.android.gnd.ui.mapcontainer.MapContainerViewModel.LocationLockStatus;
 import com.jakewharton.rxbinding2.view.RxView;
 import javax.inject.Inject;
@@ -77,16 +75,19 @@ public class MapContainerFragment extends GndFragment {
   }
 
   @Override
-  public View onCreateView(
+  protected View onInflateView(
     LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-    View view = inflater.inflate(R.layout.fragment_map, container, false);
+    return inflater.inflate(R.layout.fragment_map, container, false);
+  }
 
-    FragmentTransaction ft = getFragmentManager().beginTransaction();
-    mapAdapter = new GoogleMapsAdapter();
-    ft.replace(R.id.map, mapAdapter.getFragment());
-    ft.commit();
+  @Override
+  protected void onAddFragments() {
+    addFragment(R.id.map, mapAdapter.getFragment());
+  }
+
+  @Override
+  protected void onObserveViewModel() {
     mapAdapter.getViewModel().subscribe(this::onMapReady);
-    return view;
   }
 
   @Override
