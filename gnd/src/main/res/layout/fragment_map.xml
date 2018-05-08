@@ -71,7 +71,6 @@
       app:backgroundTint="@color/colorGrey500"
       app:fabSize="normal"
       app:useCompatPadding="true"/>
-
   </LinearLayout>
 
 </FrameLayout>

@@ -46,6 +46,7 @@ import javax.inject.Inject;
 public class MapContainerFragment extends GndFragment {
   private static final String TAG = MapContainerFragment.class.getSimpleName();
 
+  // TODO: Get VieModel from GndViewModelFactory instead.
   @Inject
   ViewModelProvider.Factory viewModelFactory;
 
@@ -96,11 +97,6 @@ public class MapContainerFragment extends GndFragment {
     mapAdapter.getViewModel().subscribe(this::onMapReady);
   }
 
-  @Override
-  public void onResume() {
-    super.onResume();
-  }
-
   private void onMapReady(MapViewModel mapViewModel) {
     Log.d(TAG, "Map ready. Updating subscriptions");
     // Observe events emitted by the ViewModel.
@@ -140,13 +136,13 @@ public class MapContainerFragment extends GndFragment {
   }
 
   private void enableAddPlaceBtn() {
-    addPlaceBtn.setEnabled(true);
     addPlaceBtn.setBackgroundTintList(
       ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
   }
 
   private void disableAddPlaceBtn() {
-    addPlaceBtn.setEnabled(false);
+    // NOTE: We don't call addPlaceBtn.setEnabled(false) here since calling it before the fab is
+    // shown corrupts its padding when used with useCompatPadding="true".
     addPlaceBtn.setBackgroundTintList(
       ColorStateList.valueOf(getResources().getColor(R.color.colorGrey500)));
   }

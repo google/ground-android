@@ -72,9 +72,10 @@ public class MainFragmentViewModel extends ViewModel {
   }
 
   public void onAddPlaceBtnClick(Point location) {
-    // TODO: Pause location updates while dialog is open.
-    // TODO: Fail if project not loaded.
-    addPlaceDialogRequests.setValue(location);
+    if (projectActivationEvents.getValue().isActivated()) {
+      // TODO: Pause location updates while dialog is open.
+      addPlaceDialogRequests.setValue(location);
+    }
   }
 
   public void onAddPlace(AddPlaceRequest addPlaceRequest) {

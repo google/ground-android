@@ -18,7 +18,7 @@ apply plugin: 'com.android.application'
 apply plugin: 'com.google.protobuf'
 
 project.ext {
-    supportLibraryVersion = "26.1.0"
+    supportLibraryVersion = "27.1.0"
     daggerVersion = "2.14.1"
     butterKnifeVersion = "8.8.1"
     rxJavaVersion = "2.1.6"
