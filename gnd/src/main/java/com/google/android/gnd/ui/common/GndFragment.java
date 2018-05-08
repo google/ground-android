@@ -106,6 +106,6 @@ public abstract class GndFragment extends Fragment implements HasSupportFragment
   }
 
   protected final void addFragment(@IdRes int containerViewId, Fragment fragment) {
-    getFragmentManager().beginTransaction().replace(containerViewId, fragment).commit();
+    getChildFragmentManager().beginTransaction().replace(containerViewId, fragment).commit();
   }
 }

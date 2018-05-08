@@ -79,7 +79,7 @@ public class MainFragment extends GndFragment {
     super.onStart();
     // TODO: Reuse last selected project instead of asking to sign in every time.
     // TODO: Trigger this from welcome flow and nav drawer instead of here.
-    viewModel.showDialog();
+    viewModel.showProjectSelectorDialog();
   }
 
   public void showProjectLoadingDialog() {

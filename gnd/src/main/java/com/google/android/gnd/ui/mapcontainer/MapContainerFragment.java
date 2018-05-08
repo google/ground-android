@@ -34,6 +34,7 @@ import com.google.android.gnd.model.Point;
 import com.google.android.gnd.model.ProjectActivationEvent;
 import com.google.android.gnd.system.PermissionsManager.PermissionDeniedException;
 import com.google.android.gnd.system.SettingsManager.SettingsChangeRequestCanceled;
+import com.google.android.gnd.ui.MainFragmentViewModel;
 import com.google.android.gnd.ui.common.GndFragment;
 import com.google.android.gnd.ui.map.MapAdapter;
 import com.google.android.gnd.ui.map.MapAdapter.MapViewModel;
@@ -61,7 +62,8 @@ public class MapContainerFragment extends GndFragment {
   @BindView(R.id.location_lock_btn)
   FloatingActionButton locationLockBtn;
 
-  private MapContainerViewModel viewModel;
+  private MapContainerViewModel mapContainerViewModel;
+  private MainFragmentViewModel mainFragmentViewModel;
 
   @Inject
   public MapContainerFragment() {
@@ -69,7 +71,11 @@ public class MapContainerFragment extends GndFragment {
 
   @Override
   protected void onCreateViewModel() {
-    viewModel = ViewModelProviders.of(this, viewModelFactory).get(MapContainerViewModel.class);
+    mapContainerViewModel =
+      ViewModelProviders.of(this, viewModelFactory).get(MapContainerViewModel.class);
+    mainFragmentViewModel =
+      ViewModelProviders.of(getParentFragment(), viewModelFactory)
+                        .get(MainFragmentViewModel.class);
   }
 
   @Override
@@ -99,20 +105,23 @@ public class MapContainerFragment extends GndFragment {
     super.onResume();
   }
 
-  private void onMapReady(MapViewModel map) {
+  private void onMapReady(MapViewModel mapViewModel) {
     Log.d(TAG, "Map ready. Updating subscriptions");
     // Observe events emitted by the ViewModel.
-    viewModel.mapMarkers().observe(this, update -> onMarkerUpdate(map, update));
-    viewModel.locationLockStatus().observe(this, this::onLocationLockStatusChange);
-    viewModel.cameraUpdates().observe(this, this::onCameraUpdate);
-    viewModel.projectActivationEvents().observe(this, this::onProjectActivationEvent);
+    mapContainerViewModel
+      .mapMarkers()
+      .observe(this, update -> onMarkerUpdate(mapViewModel, update));
+    mapContainerViewModel.locationLockStatus().observe(this, this::onLocationLockStatusChange);
+    mapContainerViewModel.cameraUpdates().observe(this, this::onCameraUpdate);
+    mapContainerViewModel.projectActivationEvents().observe(this, this::onProjectActivationEvent);
     // Pass UI events to the ViewModel.
     // TODO: Route "add place" action through an interactor and down to dialog instead of binding
     // here to implement "Clean Architecture".
-    RxView.clicks(addPlaceBtn).subscribe(__ -> showAddPlaceDialog(map.getCenter()));
-    RxView.clicks(locationLockBtn).subscribe(__ -> viewModel.onLocationLockClick());
-    map.markerClicks().subscribe(viewModel::onMarkerClick);
-    map.dragInteractions().subscribe(viewModel::onMapDrag);
+    // TODO: Dispose of these correctly.
+    RxView.clicks(addPlaceBtn).subscribe(__ -> showAddPlaceDialog(mapViewModel.getCenter()));
+    RxView.clicks(locationLockBtn).subscribe(__ -> mapContainerViewModel.onLocationLockClick());
+    mapViewModel.markerClicks().subscribe(mainFragmentViewModel::onMarkerClick);
+    mapViewModel.dragInteractions().subscribe(mapContainerViewModel::onMapDrag);
     enableLocationLockBtn();
   }
 
@@ -189,7 +198,9 @@ public class MapContainerFragment extends GndFragment {
 
   private void showAddPlaceDialog(Point location) {
     // TODO: Pause location updates while dialog is open.
-    addPlaceDialogFragment.show(getFragmentManager(), location).subscribe(viewModel::onAddPlace);
+    addPlaceDialogFragment
+      .show(getFragmentManager(), location)
+      .subscribe(mapContainerViewModel::onAddPlace);
   }
 
   private void onMarkerUpdate(MapViewModel map, MarkerUpdate update) {
