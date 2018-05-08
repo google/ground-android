@@ -30,7 +30,6 @@ import android.widget.Toast;
 import butterknife.BindView;
 import com.google.android.gnd.R;
 import com.google.android.gnd.model.PlaceIcon;
-import com.google.android.gnd.model.Point;
 import com.google.android.gnd.model.ProjectActivationEvent;
 import com.google.android.gnd.system.PermissionsManager.PermissionDeniedException;
 import com.google.android.gnd.system.SettingsManager.SettingsChangeRequestCanceled;
@@ -49,9 +48,6 @@ public class MapContainerFragment extends GndFragment {
 
   @Inject
   ViewModelProvider.Factory viewModelFactory;
-
-  @Inject
-  AddPlaceDialogFragment addPlaceDialogFragment;
 
   @Inject
   MapAdapter mapAdapter;
@@ -118,7 +114,9 @@ public class MapContainerFragment extends GndFragment {
     // TODO: Route "add place" action through an interactor and down to dialog instead of binding
     // here to implement "Clean Architecture".
     // TODO: Dispose of these correctly.
-    RxView.clicks(addPlaceBtn).subscribe(__ -> showAddPlaceDialog(mapViewModel.getCenter()));
+    RxView
+      .clicks(addPlaceBtn)
+      .subscribe(__ -> mainFragmentViewModel.onAddPlaceBtnClick(mapViewModel.getCenter()));
     RxView.clicks(locationLockBtn).subscribe(__ -> mapContainerViewModel.onLocationLockClick());
     mapViewModel.markerClicks().subscribe(mainFragmentViewModel::onMarkerClick);
     mapViewModel.dragInteractions().subscribe(mapContainerViewModel::onMapDrag);
@@ -194,13 +192,6 @@ public class MapContainerFragment extends GndFragment {
             map.moveCamera(update.getCenter());
           }
         });
-  }
-
-  private void showAddPlaceDialog(Point location) {
-    // TODO: Pause location updates while dialog is open.
-    addPlaceDialogFragment
-      .show(getFragmentManager(), location)
-      .subscribe(mapContainerViewModel::onAddPlace);
   }
 
   private void onMarkerUpdate(MapViewModel map, MarkerUpdate update) {

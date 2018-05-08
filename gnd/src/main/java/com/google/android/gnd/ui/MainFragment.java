@@ -23,6 +23,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import com.google.android.gnd.R;
+import com.google.android.gnd.model.Point;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.ProjectActivationEvent;
 import com.google.android.gnd.ui.common.GndFragment;
@@ -37,6 +38,9 @@ public class MainFragment extends GndFragment {
 
   @Inject
   MapContainerFragment mapContainerFragment;
+
+  @Inject
+  AddPlaceDialogFragment addPlaceDialogFragment;
 
   private ProgressDialog progressDialog;
   private MainFragmentViewModel viewModel;
@@ -58,11 +62,14 @@ public class MainFragment extends GndFragment {
   }
 
   protected void onObserveViewModel() {
-    viewModel.showDialogRequests().observe(this, this::onShowDialogRequest);
+    viewModel
+      .showProjectSelectorDialogRequests()
+      .observe(this, this::onShowProjectSelectorDialogRequest);
     viewModel.projectActivationEvents().observe(this, this::onProjectActivationEvent);
+    viewModel.showAddPlaceDialogRequests().observe(this, this::onShowAddPlaceDialogRequest);
   }
 
-  private void onShowDialogRequest(List<Project> projects) {
+  private void onShowProjectSelectorDialogRequest(List<Project> projects) {
     ProjectSelectorDialogFragment.show(getFragmentManager(), projects);
   }
 
@@ -72,6 +79,14 @@ public class MainFragment extends GndFragment {
     } else if (event.isActivated()) {
       dismissLoadingDialog();
     }
+  }
+
+  private void onShowAddPlaceDialogRequest(Point location) {
+    // TODO: Pause location updates while dialog is open.
+    addPlaceDialogFragment
+      .show(getChildFragmentManager())
+      .subscribe(viewModel::onAddPlace);
+
   }
 
   @Override

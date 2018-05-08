@@ -22,9 +22,11 @@ import android.arch.lifecycle.ViewModel;
 import android.util.Log;
 import com.google.android.gnd.model.GndDataRepository;
 import com.google.android.gnd.model.Place;
+import com.google.android.gnd.model.Point;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.ProjectActivationEvent;
 import com.google.android.gnd.rx.RxLiveData;
+import com.google.android.gnd.ui.AddPlaceDialogFragment.AddPlaceRequest;
 import com.google.android.gnd.ui.map.MapMarker;
 import java.util.List;
 import javax.inject.Inject;
@@ -34,20 +36,26 @@ public class MainFragmentViewModel extends ViewModel {
   private final GndDataRepository dataRepository;
   private final LiveData<ProjectActivationEvent> projectActivationEvents;
   private final MutableLiveData<List<Project>> showProjectSelectorDialogRequests;
+  private final MutableLiveData<Point> addPlaceDialogRequests;
 
   @Inject
   MainFragmentViewModel(GndDataRepository dataRepository) {
     this.dataRepository = dataRepository;
     this.showProjectSelectorDialogRequests = new MutableLiveData<>();
+    this.addPlaceDialogRequests = new MutableLiveData<>();
     this.projectActivationEvents = RxLiveData.fromObservable(dataRepository.activeProject());
   }
 
-  public LiveData<List<Project>> showDialogRequests() {
+  public LiveData<List<Project>> showProjectSelectorDialogRequests() {
     return showProjectSelectorDialogRequests;
   }
 
   public LiveData<ProjectActivationEvent> projectActivationEvents() {
     return projectActivationEvents;
+  }
+
+  public LiveData<Point> showAddPlaceDialogRequests() {
+    return addPlaceDialogRequests;
   }
 
   @SuppressLint("CheckResult")
@@ -61,5 +69,15 @@ public class MainFragmentViewModel extends ViewModel {
     if (marker.getObject() instanceof Place) {
       Log.e(TAG, "TODO: Implement onMarkerClick");
     }
+  }
+
+  public void onAddPlaceBtnClick(Point location) {
+    // TODO: Pause location updates while dialog is open.
+    // TODO: Fail if project not loaded.
+    addPlaceDialogRequests.setValue(location);
+  }
+
+  public void onAddPlace(AddPlaceRequest addPlaceRequest) {
+    Log.e(TAG, "TODO: Implement Add Place functionality");
   }
 }

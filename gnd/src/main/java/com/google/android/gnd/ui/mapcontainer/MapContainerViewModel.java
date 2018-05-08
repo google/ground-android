@@ -30,8 +30,7 @@ import com.google.android.gnd.model.ProjectActivationEvent;
 import com.google.android.gnd.rx.RxLiveData;
 import com.google.android.gnd.service.DatastoreEvent;
 import com.google.android.gnd.system.LocationManager;
-import com.google.android.gnd.ui.map.MapMarker;
-import com.google.android.gnd.ui.mapcontainer.AddPlaceDialogFragment.AddPlaceRequest;
+import com.google.android.gnd.ui.AddPlaceDialogFragment.AddPlaceRequest;
 import io.reactivex.Flowable;
 import io.reactivex.Observable;
 import io.reactivex.disposables.Disposable;
@@ -172,13 +171,6 @@ public class MapContainerViewModel extends ViewModel {
 
   public void onAddPlace(AddPlaceRequest addPlaceRequest) {
     // TODO: Transition to add place view.
-  }
-
-  public void onMarkerClick(MapMarker marker) {
-    Log.d(TAG, "User clicked marker");
-    if (marker.getObject() instanceof Place) {
-      //      mainPresenter.showPlaceDetails((Place) marker.getObject());
-    }
   }
 
   public void onMapDrag(Point point) {

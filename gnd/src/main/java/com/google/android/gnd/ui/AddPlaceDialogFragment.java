@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.ui.mapcontainer;
+package com.google.android.gnd.ui;
 
 import static java8.util.stream.StreamSupport.stream;
 
 import android.app.Dialog;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
 import com.google.android.gnd.R;
-import com.google.android.gnd.model.GndDataRepository;
 import com.google.android.gnd.model.PlaceType;
 import com.google.android.gnd.model.Point;
 import com.google.android.gnd.model.Project;
@@ -36,41 +36,34 @@ import java.util.List;
 import javax.inject.Inject;
 
 public class AddPlaceDialogFragment extends GndDialogFragment {
-  public static final String FRAGMENT_TAG = "add_place_dialog_fragment";
+  private static final String TAG = AddPlaceDialogFragment.class.getSimpleName();
 
-  private ProjectActivationEvent activeProject;
   private MaybeSubject<AddPlaceRequest> addPlaceRequestSubject;
 
   @Inject
-  GndDataRepository dataRepository;
-
-  // TODO: Use Bundle instead of volatile cached state.
-  private Point location;
-
-  @Inject
   public AddPlaceDialogFragment() {
-    activeProject = ProjectActivationEvent.noProject();
   }
 
   @Override
   public void onAttach(Context context) {
     super.onAttach(context);
-    dataRepository
-      .activeProject()
-      .filter(p -> p.isActivated())
-      .subscribe(p -> this.activeProject = p);
   }
 
-  public Maybe<AddPlaceRequest> show(FragmentManager fragmentManager, Point location) {
+  public Maybe<AddPlaceRequest> show(FragmentManager fragmentManager) {
     addPlaceRequestSubject = MaybeSubject.create();
-    this.location = location;
-    show(fragmentManager, FRAGMENT_TAG);
+    show(fragmentManager, TAG);
     return addPlaceRequestSubject;
   }
 
   @Override
   public Dialog onCreateDialog(Bundle savedInstanceState) {
+    MainFragmentViewModel mainFragmentViewModel =
+      ViewModelProviders.of(getParentFragment()).get(MainFragmentViewModel.class);
+    ProjectActivationEvent activeProject =
+      mainFragmentViewModel.projectActivationEvents().getValue();
+    Point location = mainFragmentViewModel.showAddPlaceDialogRequests().getValue();
     if (!activeProject.isActivated()) {
+      // TODO: Handle this error upstream.
       addPlaceRequestSubject.onError(new IllegalStateException("No project loaded"));
       return null;
     }
@@ -86,13 +79,17 @@ public class AddPlaceDialogFragment extends GndDialogFragment {
     List<PlaceType> placeTypes = activeProject.getProject().getPlaceTypesList();
     String[] items =
       stream(placeTypes).map(t -> t.getListHeadingOrDefault("pt", "?")).toArray(String[]::new);
-    builder.setItems(items, (dialog, idx) -> onSelectPlaceType(placeTypes.get(idx)));
+    builder.setItems(
+      items,
+      (dialog, idx) -> onSelectPlaceType(activeProject.getProject(),
+        placeTypes.get(idx),
+        location));
     return builder.create();
   }
 
-  private void onSelectPlaceType(PlaceType placeType) {
+  private void onSelectPlaceType(Project project, PlaceType placeType, Point location) {
     addPlaceRequestSubject.onSuccess(
-      new AddPlaceRequest(activeProject.getProject(), location, placeType));
+      new AddPlaceRequest(project, location, placeType));
   }
 
   private void onCancel() {
