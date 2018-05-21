@@ -20,11 +20,11 @@ import android.arch.lifecycle.ViewModel;
 import com.google.android.gnd.model.GndDataRepository;
 import javax.inject.Inject;
 
-public class ProjectSelectorDialogFragmentViewModel extends ViewModel {
+public class ProjectSelectorViewModel extends ViewModel {
   private final GndDataRepository dataRepository;
 
   @Inject
-  ProjectSelectorDialogFragmentViewModel(GndDataRepository dataRepository) {
+  ProjectSelectorViewModel(GndDataRepository dataRepository) {
     this.dataRepository = dataRepository;
   }
 

@@ -57,11 +57,11 @@ public class AddPlaceDialogFragment extends GndDialogFragment {
 
   @Override
   public Dialog onCreateDialog(Bundle savedInstanceState) {
-    MainFragmentViewModel mainFragmentViewModel =
-      ViewModelProviders.of(getParentFragment()).get(MainFragmentViewModel.class);
+    MainViewModel mainViewModel =
+      ViewModelProviders.of(getParentFragment()).get(MainViewModel.class);
     ProjectActivationEvent activeProject =
-      mainFragmentViewModel.projectActivationEvents().getValue();
-    Point location = mainFragmentViewModel.showAddPlaceDialogRequests().getValue();
+      mainViewModel.projectActivationEvents().getValue();
+    Point location = mainViewModel.showAddPlaceDialogRequests().getValue();
     if (!activeProject.isActivated()) {
       // TODO: Handle this error upstream.
       addPlaceRequestSubject.onError(new IllegalStateException("No project loaded"));

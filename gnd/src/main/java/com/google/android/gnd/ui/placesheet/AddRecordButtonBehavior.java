@@ -19,18 +19,20 @@ package com.google.android.gnd.ui.placesheet;
 import android.content.Context;
 import android.support.design.widget.CoordinatorLayout;
 import android.util.AttributeSet;
-import android.widget.FrameLayout;
-
+import android.view.View;
 import com.google.android.gnd.ui.OnSheetSlideBehavior;
 
-public class BottomScrimOnSheetSlideBehavior extends OnSheetSlideBehavior<FrameLayout> {
-  public BottomScrimOnSheetSlideBehavior(Context context, AttributeSet attrs) {
+public class AddRecordButtonBehavior extends OnSheetSlideBehavior<View> {
+  private static final float HIDE_THRESHOLD = 0.3f;
+  private static final float SHOW_THRESHOLD = 0.5f;
+
+  public AddRecordButtonBehavior(Context context, AttributeSet attrs) {
     super(context, attrs);
   }
 
   @Override
   protected void onSheetScrolled(
-      CoordinatorLayout parent, FrameLayout scrim, SheetSlideMetrics metrics) {
-    metrics.showWithSheet(scrim, 0.0f, 0.1f);
+      CoordinatorLayout parent, View wrapper, SheetSlideMetrics metrics) {
+    metrics.showWithSheet(wrapper, HIDE_THRESHOLD, SHOW_THRESHOLD);
   }
 }

@@ -33,7 +33,7 @@ import com.google.android.gnd.model.PlaceIcon;
 import com.google.android.gnd.model.ProjectActivationEvent;
 import com.google.android.gnd.system.PermissionsManager.PermissionDeniedException;
 import com.google.android.gnd.system.SettingsManager.SettingsChangeRequestCanceled;
-import com.google.android.gnd.ui.MainFragmentViewModel;
+import com.google.android.gnd.ui.MainViewModel;
 import com.google.android.gnd.ui.common.GndFragment;
 import com.google.android.gnd.ui.map.MapAdapter;
 import com.google.android.gnd.ui.map.MapAdapter.MapViewModel;
@@ -60,7 +60,7 @@ public class MapContainerFragment extends GndFragment {
   FloatingActionButton locationLockBtn;
 
   private MapContainerViewModel mapContainerViewModel;
-  private MainFragmentViewModel mainFragmentViewModel;
+  private MainViewModel mainViewModel;
 
   @Inject
   public MapContainerFragment() {
@@ -70,9 +70,8 @@ public class MapContainerFragment extends GndFragment {
   protected void onCreateViewModel() {
     mapContainerViewModel =
       ViewModelProviders.of(this, viewModelFactory).get(MapContainerViewModel.class);
-    mainFragmentViewModel =
-      ViewModelProviders.of(getParentFragment(), viewModelFactory)
-                        .get(MainFragmentViewModel.class);
+    mainViewModel =
+      ViewModelProviders.of(getParentFragment(), viewModelFactory).get(MainViewModel.class);
   }
 
   @Override
@@ -110,11 +109,10 @@ public class MapContainerFragment extends GndFragment {
     // TODO: Route "add place" action through an interactor and down to dialog instead of binding
     // here to implement "Clean Architecture".
     // TODO: Dispose of these correctly.
-    RxView
-      .clicks(addPlaceBtn)
-      .subscribe(__ -> mainFragmentViewModel.onAddPlaceBtnClick(mapViewModel.getCenter()));
+    RxView.clicks(addPlaceBtn)
+          .subscribe(__ -> mainViewModel.onAddPlaceBtnClick(mapViewModel.getCenter()));
     RxView.clicks(locationLockBtn).subscribe(__ -> mapContainerViewModel.onLocationLockClick());
-    mapViewModel.markerClicks().subscribe(mainFragmentViewModel::onMarkerClick);
+    mapViewModel.markerClicks().subscribe(mainViewModel::onMarkerClick);
     mapViewModel.dragInteractions().subscribe(mapContainerViewModel::onMapDrag);
     enableLocationLockBtn();
   }

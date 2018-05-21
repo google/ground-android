@@ -38,7 +38,7 @@ public class ProjectSelectorDialogFragment extends GndDialogFragment {
   @Inject
   GndViewModelFactory viewModelFactory;
 
-  private ProjectSelectorDialogFragmentViewModel viewModel;
+  private ProjectSelectorViewModel viewModel;
 
   public ProjectSelectorDialogFragment() {
   }
@@ -53,13 +53,13 @@ public class ProjectSelectorDialogFragment extends GndDialogFragment {
 
   @Override
   protected void onCreateViewModel() {
-    this.viewModel = viewModelFactory.create(ProjectSelectorDialogFragmentViewModel.class);
+    this.viewModel = viewModelFactory.create(ProjectSelectorViewModel.class);
   }
 
   // TODO: Replace AlertDialog with a properly designed project selector.
   @Override
   public Dialog onCreateDialog(Bundle savedInstanceState) {
-    // TODO: Get args from mainFragmentViewModel instead.
+    // TODO: Get args from mainViewModel instead.
     List<Project> availableProjects =
       (List<Project>) getArguments().getSerializable(PROJECTS_BUNDLE_KEY);
     if (availableProjects == null) {

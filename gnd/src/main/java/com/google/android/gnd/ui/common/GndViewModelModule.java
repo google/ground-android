@@ -18,8 +18,8 @@ package com.google.android.gnd.ui.common;
 
 import android.arch.lifecycle.ViewModel;
 import android.arch.lifecycle.ViewModelProvider;
-import com.google.android.gnd.ui.MainFragmentViewModel;
-import com.google.android.gnd.ui.ProjectSelectorDialogFragmentViewModel;
+import com.google.android.gnd.ui.MainViewModel;
+import com.google.android.gnd.ui.ProjectSelectorViewModel;
 import com.google.android.gnd.ui.mapcontainer.MapContainerViewModel;
 import dagger.Binds;
 import dagger.Module;
@@ -34,14 +34,14 @@ public abstract class GndViewModelModule {
 
   @Binds
   @IntoMap
-  @GndViewModelKey(MainFragmentViewModel.class)
-  abstract ViewModel bindMainFragmentViewModel(MainFragmentViewModel viewModel);
+  @GndViewModelKey(MainViewModel.class)
+  abstract ViewModel bindMainViewModel(MainViewModel viewModel);
 
   @Binds
   @IntoMap
-  @GndViewModelKey(ProjectSelectorDialogFragmentViewModel.class)
-  abstract ViewModel bindProjectSelectorDialogFragmentViewModel(
-    ProjectSelectorDialogFragmentViewModel viewModel);
+  @GndViewModelKey(ProjectSelectorViewModel.class)
+  abstract ViewModel bindProjectSelectorViewModel(
+    ProjectSelectorViewModel viewModel);
 
   @Binds
   abstract ViewModelProvider.Factory bindViewModelFactory(GndViewModelFactory factory);

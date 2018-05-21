@@ -31,15 +31,15 @@ import com.google.android.gnd.ui.map.MapMarker;
 import java.util.List;
 import javax.inject.Inject;
 
-public class MainFragmentViewModel extends ViewModel {
-  private static final String TAG = MainFragmentViewModel.class.getSimpleName();
+public class MainViewModel extends ViewModel {
+  private static final String TAG = MainViewModel.class.getSimpleName();
   private final GndDataRepository dataRepository;
   private final LiveData<ProjectActivationEvent> projectActivationEvents;
   private final MutableLiveData<List<Project>> showProjectSelectorDialogRequests;
   private final MutableLiveData<Point> addPlaceDialogRequests;
 
   @Inject
-  MainFragmentViewModel(GndDataRepository dataRepository) {
+  MainViewModel(GndDataRepository dataRepository) {
     this.dataRepository = dataRepository;
     this.showProjectSelectorDialogRequests = new MutableLiveData<>();
     this.addPlaceDialogRequests = new MutableLiveData<>();

@@ -43,11 +43,11 @@ public class MainFragment extends GndFragment {
   AddPlaceDialogFragment addPlaceDialogFragment;
 
   private ProgressDialog progressDialog;
-  private MainFragmentViewModel viewModel;
+  private MainViewModel viewModel;
 
   @Override
   public void onCreateViewModel() {
-    viewModel = ViewModelProviders.of(this, viewModelFactory).get(MainFragmentViewModel.class);
+    viewModel = ViewModelProviders.of(this, viewModelFactory).get(MainViewModel.class);
   }
 
   @Override

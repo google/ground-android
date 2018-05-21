@@ -66,8 +66,9 @@
     android:layout_gravity="bottom"
     android:alpha="0"
     android:background="@color/colorWhite"
-    app:layout_behavior="com.google.android.gnd.ui.placesheet.BottomScrimOnSheetSlideBehavior"/>
+    app:layout_behavior="com.google.android.gnd.ui.placesheet.BottomScrimBehavior"/>
 
+  <!-- TODO: Since there is now only one button, remove RelativeLayout -->
   <RelativeLayout
     android:id="@+id/record_btn_layout"
     android:layout_width="wrap_content"
@@ -76,7 +77,7 @@
     android:layout_marginRight="@dimen/sheet_btn_margin_right"
     android:layout_gravity="bottom|right|end"
     android:alpha="0"
-    app:layout_behavior="com.google.android.gnd.ui.placesheet.ButtonOnSheetSlideBehavior">
+    app:layout_behavior="com.google.android.gnd.ui.placesheet.AddRecordButtonBehavior">
 
     <android.support.design.widget.FloatingActionButton
       android:id="@+id/add_record_btn"
