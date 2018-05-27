@@ -27,7 +27,7 @@
     app:layout_behavior="com.google.android.gnd.ui.mapcontainer.MapContainerLayoutBehavior"/>
 
   <android.support.v4.widget.NestedScrollView
-    android:id="@+id/place_sheet_scroll_view"
+    android:id="@+id/bottom_sheet_scroll_view"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true"
@@ -80,7 +80,7 @@
 
     <!-- Prevents place sheet UI from bleeding through to navigation buttons when expanded. -->
     <FrameLayout
-      android:id="@+id/place_sheet_bottom_scrim"
+      android:id="@+id/bottom_sheet_bottom_inset_scrim"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:layout_alignParentBottom="true"
@@ -94,7 +94,7 @@
       android:layout_height="wrap_content"
       android:layout_marginBottom="@dimen/sheet_btn_margin_bottom"
       android:layout_marginRight="@dimen/sheet_btn_margin_right"
-      android:layout_above="@id/place_sheet_bottom_scrim"
+      android:layout_above="@id/bottom_sheet_bottom_inset_scrim"
       android:layout_alignParentEnd="true"
       android:layout_alignParentRight="true"
       android:clickable="false"

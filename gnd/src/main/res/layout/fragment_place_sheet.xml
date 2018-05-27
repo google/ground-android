@@ -24,7 +24,7 @@
     android:id="@+id/place_sheet_card_view"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_marginTop="32dp"
+    android:layout_marginTop="@dimen/place_sheet_margin_top"
     app:cardBackgroundColor="@android:color/white"
     app:cardCornerRadius="3dp"
     app:cardElevation="3dp"
@@ -34,7 +34,7 @@
       android:layout_width="match_parent"
       android:layout_height="match_parent"
       android:layout_gravity="top"
-      android:paddingTop="36dp"
+      android:paddingTop="@dimen/place_sheet_padding_top"
       android:orientation="vertical">
       <TextView
         android:id="@+id/place_sheet_title"
@@ -70,16 +70,16 @@
   <!-- TODO: Add drop shadow to top of circle and card -->
   <ImageView
     android:id="@+id/place_header_icon_background"
-    android:layout_width="72dp"
-    android:layout_height="72dp"
+    android:layout_width="@dimen/place_header_icon_background_diameter"
+    android:layout_height="@dimen/place_header_icon_background_diameter"
     android:layout_gravity="top|center_horizontal"
     android:src="@drawable/place_header_icon_background_drawable"
     android:elevation="3dp"/>
   <ImageView
     android:id="@+id/place_header_icon"
-    android:paddingTop="8dp"
-    android:layout_width="64dp"
-    android:layout_height="64dp"
+    android:paddingTop="@dimen/place_header_icon_top_padding"
+    android:layout_width="@dimen/place_header_icon_width"
+    android:layout_height="@dimen/place_header_icon_height"
     android:layout_gravity="top|center_horizontal"
     app:srcCompat="@drawable/ic_marker_house_map_marker"
     android:tint="@color/colorGrey500"

@@ -35,7 +35,7 @@ public abstract class OnSheetSlideBehavior<V extends View> extends CoordinatorLa
 
   @Override
   public boolean layoutDependsOn(CoordinatorLayout parent, V child, View dependency) {
-    return dependency.getId() == R.id.place_sheet_scroll_view;
+    return dependency.getId() == R.id.bottom_sheet_scroll_view;
   }
 
   @Override

@@ -38,7 +38,7 @@ public class PlaceSheetChromeBehavior extends OnSheetSlideBehavior<ViewGroup> {
   @Override
   protected void onSheetScrolled(
     CoordinatorLayout parent, ViewGroup layout, SheetSlideMetrics metrics) {
-    View scrim = layout.findViewById(R.id.place_sheet_bottom_scrim);
+    View scrim = layout.findViewById(R.id.bottom_sheet_bottom_inset_scrim);
     View addRecordButton = layout.findViewById(R.id.add_record_btn);
     metrics.showWithSheet(scrim, HIDE_SCRIM_THRESHOLD, SHOW_SCRIM_THRESHOLD);
     metrics.showWithSheet(addRecordButton, HIDE_ADD_BUTTON_THRESHOLD, SHOW_ADD_BUTTON_THRESHOLD);

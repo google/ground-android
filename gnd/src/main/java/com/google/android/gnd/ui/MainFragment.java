@@ -32,7 +32,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import butterknife.BindView;
 import com.google.android.gnd.R;
-import com.google.android.gnd.model.Place;
 import com.google.android.gnd.model.Point;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.ProjectActivationEvent;
@@ -54,15 +53,15 @@ public class MainFragment extends GndFragment {
   @Inject
   AddPlaceDialogFragment addPlaceDialogFragment;
 
-  @BindView(R.id.place_sheet_scroll_view)
-  NestedScrollView placeSheetScrollView;
+  @BindView(R.id.bottom_sheet_scroll_view)
+  NestedScrollView bottomSheetScrollView;
 
-  @BindView(R.id.place_sheet_bottom_scrim)
-  View placeSheetBottomScrim;
+  @BindView(R.id.bottom_sheet_bottom_inset_scrim)
+  View bottomSheetBottomInsetScrim;
 
   private ProgressDialog progressDialog;
   private MainViewModel viewModel;
-  private BottomSheetBehavior<NestedScrollView> placeSheetBehavior;
+  private BottomSheetBehavior<NestedScrollView> bottomSheetBehavior;
 
   @Override
   public void createViewModel() {
@@ -76,15 +75,15 @@ public class MainFragment extends GndFragment {
 
   @Override
   protected void initializeViews() {
-    placeSheetBehavior = BottomSheetBehavior.from(placeSheetScrollView);
-    placeSheetBehavior.setHideable(true);
-    placeSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
-    placeSheetBehavior.setBottomSheetCallback(new PlaceSheetBehaviorCallback());
+    bottomSheetBehavior = BottomSheetBehavior.from(bottomSheetScrollView);
+    bottomSheetBehavior.setHideable(true);
+    bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
+    bottomSheetBehavior.setBottomSheetCallback(new BottomSheetCallback());
     ViewCompat.setOnApplyWindowInsetsListener(getView(), this::onApplyWindowInsets);
   }
 
   private WindowInsetsCompat onApplyWindowInsets(View view, WindowInsetsCompat windowInsetsCompat) {
-    placeSheetBottomScrim.setMinimumHeight(windowInsetsCompat.getSystemWindowInsetBottom());
+    bottomSheetBottomInsetScrim.setMinimumHeight(windowInsetsCompat.getSystemWindowInsetBottom());
     return windowInsetsCompat;
   }
 
@@ -99,7 +98,7 @@ public class MainFragment extends GndFragment {
       .observe(this, this::onShowProjectSelectorDialogRequest);
     viewModel.projectActivationEvents().observe(this, this::onProjectActivationEvent);
     viewModel.showAddPlaceDialogRequests().observe(this, this::onShowAddPlaceDialogRequest);
-    viewModel.getShowPlaceSheetRequests().observe(this, this::onShowPlaceSheetRequest);
+    viewModel.getBottomSheetEvents().observe(this, this::onBottomSheetEvent);
   }
 
   private void onShowProjectSelectorDialogRequest(List<Project> projects) {
@@ -119,15 +118,30 @@ public class MainFragment extends GndFragment {
     addPlaceDialogFragment.show(getChildFragmentManager()).subscribe(viewModel::onAddPlace);
   }
 
-  private void onShowPlaceSheetRequest(Place place) {
+  private void onBottomSheetEvent(BottomSheetEvent event) {
+    switch (event.getType()) {
+      case SHOW:
+        showBottomSheet();
+        break;
+      case HIDE:
+        hideBottomSheet();
+        break;
+    }
+  }
+
+  private void showBottomSheet() {
     double width = getScreenWidth(getActivity());
     double screenHeight = getScreenHeight(getActivity());
     double mapHeight = width / COLLAPSED_MAP_ASPECT_RATIO;
     double peekHeight = screenHeight - mapHeight;
     // TODO: Take window insets into account; COLLAPSED_MAP_ASPECT_RATIO will be wrong on older
     // devices w/o translucent system windows.
-    placeSheetBehavior.setPeekHeight((int) peekHeight);
-    placeSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+    bottomSheetBehavior.setPeekHeight((int) peekHeight);
+    bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+  }
+
+  private void hideBottomSheet() {
+    bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
   }
 
   @Override
@@ -156,22 +170,17 @@ public class MainFragment extends GndFragment {
     }
   }
 
-  private class PlaceSheetBehaviorCallback extends BottomSheetBehavior.BottomSheetCallback {
+  private class BottomSheetCallback extends BottomSheetBehavior.BottomSheetCallback {
     @Override
     public void onStateChanged(@NonNull View bottomSheet, int newState) {
-      switch (newState) {
-        case BottomSheetBehavior.STATE_COLLAPSED:
-          viewModel.onPlaceSheetCollapsed();
-          break;
-        case BottomSheetBehavior.STATE_HIDDEN:
-          viewModel.onPlaceSheetHidden();
-          break;
+      if (newState == BottomSheetBehavior.STATE_HIDDEN) {
+        viewModel.onBottomSheetHidden();
       }
     }
 
     @Override
     public void onSlide(@NonNull View bottomSheet, float slideOffset) {
-      // TODO
+      // no-op.
     }
   }
 }
