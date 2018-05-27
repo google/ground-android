@@ -27,9 +27,18 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 public class RecordListFragment extends Fragment {
-  public static final String FORM_NO = "formNo";
+  private static final String FORM_NO = "formNo";
 
   private LinearLayout layout;
+
+  static RecordListFragment newInstance(int formId) {
+    RecordListFragment fragment = new RecordListFragment();
+    Bundle args = new Bundle();
+    args.putInt(FORM_NO, formId);
+    fragment.setArguments(args);
+    return fragment;
+  }
+
   //  private DataSheetPresenter dataSheetPresenter;
   //  private Form form;
   int getFormId() {
@@ -53,7 +62,7 @@ public class RecordListFragment extends Fragment {
     layout.setOrientation(LinearLayout.VERTICAL);
     TextView text = new TextView(getActivity());
     text.setTextSize(28);
-    text.setText("Page");
+    text.setText("Page " + getFormId());
     layout.addView(text);
     return layout;
   }

@@ -45,10 +45,10 @@ public abstract class GndFragment extends Fragment implements HasSupportFragment
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    onCreateViewModel();
+    createViewModel();
   }
 
-  protected void onCreateViewModel() {
+  protected void createViewModel() {
   }
 
   @Nullable
@@ -57,22 +57,22 @@ public abstract class GndFragment extends Fragment implements HasSupportFragment
     @NonNull LayoutInflater inflater,
     @Nullable ViewGroup container,
     @Nullable Bundle savedInstanceState) {
-    View view = onInflateView(inflater, container, savedInstanceState);
-    onAddFragments();
-    onObserveViewModel();
+    View view = createView(inflater, container, savedInstanceState);
+    addFragments();
+    observeViewModel();
     return view;
   }
 
-  protected View onInflateView(
+  protected View createView(
     LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     throw new UnsupportedOperationException(
-      "Subclasses much override either onCreateView or inflateView");
+      "Subclasses much override either createView or onCreateView");
   }
 
-  protected void onAddFragments() {
+  protected void addFragments() {
   }
 
-  protected void onObserveViewModel() {
+  protected void observeViewModel() {
   }
 
   @Override
@@ -86,10 +86,10 @@ public abstract class GndFragment extends Fragment implements HasSupportFragment
     super.onViewStateRestored(savedInstanceState);
     // Bind views here instead of onViewCreated to avoid invoking view listeners.
     unbinder = ButterKnife.bind(this, getView());
-    onBindViews();
+    initializeViews();
   }
 
-  protected void onBindViews() {
+  protected void initializeViews() {
   }
 
   @Override

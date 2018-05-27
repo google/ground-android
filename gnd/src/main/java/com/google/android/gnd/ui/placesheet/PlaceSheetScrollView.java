@@ -16,45 +16,22 @@
 
 package com.google.android.gnd.ui.placesheet;
 
-import static com.google.android.gnd.ui.OnSheetSlideBehavior.SheetSlideMetrics.scale;
-import static com.google.android.gnd.ui.util.ViewUtil.children;
-import static com.google.android.gnd.ui.util.ViewUtil.getScreenHeight;
-import static com.google.android.gnd.ui.util.ViewUtil.getScreenWidth;
-
-import android.app.Activity;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.NestedScrollView;
-import android.support.v7.widget.Toolbar;
 import android.util.AttributeSet;
 import android.view.View;
-import android.widget.FrameLayout;
-import android.widget.LinearLayout;
-import android.widget.TextView;
-
-import com.google.android.gnd.MainActivity;
-import com.google.android.gnd.R;
-import com.google.android.gnd.model.Form;
-import com.google.android.gnd.model.PlaceUpdate;
-import com.google.android.gnd.ui.OnSheetSlideBehavior.SheetSlideMetrics;
-import com.google.android.gnd.ui.placesheet.input.Editable.Mode;
-import com.h6ah4i.android.tablayouthelper.TabLayoutHelper;
-
-import java.util.List;
-
-import butterknife.BindView;
 import butterknife.ButterKnife;
 
-/** Container for data sheet components. */
 // TODO: Use with RecyclerView?
 public class PlaceSheetScrollView extends NestedScrollView {
   private static final float COLLAPSED_MAP_ASPECT_RATIO = 16.0f / 9.0f;
 
-  @BindView(R.id.data_sheet_layout)
-  LinearLayout layout;
+  //  @BindView(R.id.data_sheet_layout)
+  //  LinearLayout layout;
 
   private Runnable onHideListener;
   private Runnable onShowListener;
@@ -63,15 +40,15 @@ public class PlaceSheetScrollView extends NestedScrollView {
   private TabLayout tabLayout;
   private BottomSheetBehavior<PlaceSheetScrollView> behavior;
 
-  @BindView(R.id.data_sheet_body)
-  PlaceSheetBody body;
+  //  @BindView(R.id.data_sheet_body)
+  //  PlaceSheetBody body;
+  //
+  //  @BindView(R.id.data_sheet_header)
+  //  PlaceSheetHeader header;
 
-  @BindView(R.id.data_sheet_header)
-  PlaceSheetHeader header;
-
-  private Toolbar toolbar;
-  private Mode mode;
-  private boolean saved;
+  //  private Toolbar toolbar;
+  //  private Mode mode;
+  //  private boolean saved;
 
   public PlaceSheetScrollView(Context context, AttributeSet attrs) {
     super(context, attrs);
@@ -99,83 +76,83 @@ public class PlaceSheetScrollView extends NestedScrollView {
     behavior.setState(BottomSheetBehavior.STATE_HIDDEN);
   }
 
-  public RecordListPagerAdapter getRecordListPagerAdapter() {
-    return recordListPagerAdapter;
-  }
+  //  public RecordListPagerAdapter getRecordListPagerAdapter() {
+  //    return recordListPagerAdapter;
+  //  }
 
-  public PlaceSheetHeader getHeader() {
-    return header;
-  }
+  //  public PlaceSheetHeader getHeader() {
+  //    return header;
+  //  }
 
-  public PlaceSheetBody getBody() {
-    return body;
-  }
+  //  public PlaceSheetBody getBody() {
+  //    return body;
+  //  }
 
-  public void slideOpen() {
+  private void show() {
     behavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
   }
 
-  public void hide() {
+  private void hide() {
     behavior.setState(BottomSheetBehavior.STATE_HIDDEN);
   }
 
-  public void setOnHideListener(Runnable callback) {
-    this.onHideListener = callback;
-  }
+  //  public void setOnHideListener(Runnable callback) {
+  //    this.onHideListener = callback;
+  //  }
 
-  public void setOnShowListener(Runnable callback) {
-    this.onShowListener = callback;
-  }
+  //  public void setOnShowListener(Runnable callback) {
+  //    this.onShowListener = callback;
+  //  }
 
-  public void updateFormSelectorTabs(List<Form> forms) {
-    // TODO: Finish implementing and move into Tabs class (this class should just be a container).
-    RecordListPagerAdapter adapter =
-        new RecordListPagerAdapter(
-            ((MainActivity) getContext()).getSupportFragmentManager(), getContext(), forms);
-    recordListPager.setAdapter(adapter);
-    TabLayoutHelper tabLayoutHelper = new TabLayoutHelper(tabLayout, recordListPager);
-    tabLayoutHelper.setAutoAdjustTabModeEnabled(true);
-  }
+  //  public void updateFormSelectorTabs(List<Form> forms) {
+  //     TODO: Finish implementing and move into Tabs class (this class should just be a container).
+  //    RecordListPagerAdapter adapter =
+  //        new RecordListPagerAdapter(
+  //            ((MainActivity) getContext()).getSupportFragmentManager(), getContext(), forms);
+  //    recordListPager.setAdapter(adapter);
+  //    TabLayoutHelper tabLayoutHelper = new TabLayoutHelper(tabLayout, recordListPager);
+  //    tabLayoutHelper.setAutoAdjustTabModeEnabled(true);
+  //  }
 
-  public PlaceUpdate getUpdates() {
-    PlaceUpdate.Builder updates = header.getPlaceUpdateBuilder();
-    updates.addAllRecordUpdates(body.getUpdates());
-    return updates.build();
-  }
+  //  public PlaceUpdate getUpdates() {
+  //    PlaceUpdate.Builder updates = header.getPlaceUpdateBuilder();
+  //    updates.addAllRecordUpdates(body.getUpdates());
+  //    return updates.build();
+  //  }
+  //
+  //  public void setMode(Mode mode) {
+  //    this.mode = mode;
+  //    //    int initialDataPanelHeight = (int) (screenHeight * COLLAPSED_MAP_ASPECT_RATIO);
+  //    double width = getScreenWidth((Activity) getContext());
+  //    double screenHeight = getScreenHeight((Activity) getContext());
+  //    double mapHeight = width / COLLAPSED_MAP_ASPECT_RATIO;
+  //    double peekHeight = screenHeight - mapHeight;
+  //    // TODO: Take window insets into account; COLLAPSED_MAP_ASPECT_RATIO will be wrong on older
+  //    // devices w/o
+  //    // translucent system windows.
+  //    behavior.setPeekHeight((int) peekHeight);
+  //    updateUiForSlide();
+  //  }
 
-  public void setMode(Mode mode) {
-    this.mode = mode;
-    //    int initialDataPanelHeight = (int) (screenHeight * COLLAPSED_MAP_ASPECT_RATIO);
-    double width = getScreenWidth((Activity) getContext());
-    double screenHeight = getScreenHeight((Activity) getContext());
-    double mapHeight = width / COLLAPSED_MAP_ASPECT_RATIO;
-    double peekHeight = screenHeight - mapHeight;
-    // TODO: Take window insets into account; COLLAPSED_MAP_ASPECT_RATIO will be wrong on older
-    // devices w/o
-    // translucent system windows.
-    behavior.setPeekHeight((int) peekHeight);
-    updateUiForSlide();
-  }
+  //  public Mode getMode() {
+  //    return mode;
+  //  }
 
-  public Mode getMode() {
-    return mode;
-  }
+  //  public boolean isValid() {
+  //    return body.isValid();
+  //  }
 
-  public boolean isValid() {
-    return body.isValid();
-  }
+  //  public void updateValidationMessages() {
+  //    body.updateValidationMessages();
+  //  }
 
-  public void updateValidationMessages() {
-    body.updateValidationMessages();
-  }
+  //  public boolean isModified() {
+  //    return !body.isSaved() && !body.getUpdates().isEmpty();
+  //  }
 
-  public boolean isModified() {
-    return !body.isSaved() && !body.getUpdates().isEmpty();
-  }
-
-  public void markAsSaved() {
-    body.markAsSaved();
-  }
+  //  public void markAsSaved() {
+  //    body.markAsSaved();
+  //  }
 
   private class DataSheetCallback extends BottomSheetBehavior.BottomSheetCallback {
     private boolean shown;
@@ -205,21 +182,21 @@ public class PlaceSheetScrollView extends NestedScrollView {
   }
 
   private void updateUiForSlide() {
-    SheetSlideMetrics metrics = new SheetSlideMetrics(this);
-    toolbar = ((MainActivity) getContext()).getToolbar();
-    FrameLayout toolbarWrapper = (FrameLayout) toolbar.getParent();
-    toolbarWrapper.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
-    toolbarWrapper.setTranslationY(
-        scale(metrics.getVisibleRatio(), 0.3f, 0.5f, -toolbarWrapper.getHeight(), 0));
-    if (mode == Mode.VIEW) {
-      metrics.showWithSheet(toolbarWrapper.getBackground(), 0.9f, 1);
-      float alpha = scale(getTop(), 0, toolbar.getHeight(), 1f, 0f);
-      // Fade in toolbar text labels with sheet expansion.
-      children(toolbar).filter(TextView.class::isInstance).forEach(v -> v.setAlpha(alpha));
-      // Fade out header text labels with sheet expansion.
-    } else {
-      toolbarWrapper.setAlpha(1.0f);
-      children(toolbar).filter(TextView.class::isInstance).forEach(v -> v.setAlpha(1.0f));
-    }
+    //    SheetSlideMetrics metrics = new SheetSlideMetrics(this);
+    //    toolbar = ((MainActivity) getContext()).getToolbar();
+    //    FrameLayout toolbarWrapper = (FrameLayout) toolbar.getParent();
+    //    toolbarWrapper.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
+    //    toolbarWrapper.setTranslationY(
+    //        scale(metrics.getVisibleRatio(), 0.3f, 0.5f, -toolbarWrapper.getHeight(), 0));
+    //    if (mode == Mode.VIEW) {
+    //      metrics.showWithSheet(toolbarWrapper.getBackground(), 0.9f, 1);
+    //      float alpha = scale(getTop(), 0, toolbar.getHeight(), 1f, 0f);
+    //      // Fade in toolbar text labels with sheet expansion.
+    //      children(toolbar).filter(TextView.class::isInstance).forEach(v -> v.setAlpha(alpha));
+    //      // Fade out header text labels with sheet expansion.
+    //    } else {
+    //      toolbarWrapper.setAlpha(1.0f);
+    //      children(toolbar).filter(TextView.class::isInstance).forEach(v -> v.setAlpha(1.0f));
+    //    }
   }
 }

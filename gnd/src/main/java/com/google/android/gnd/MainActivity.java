@@ -16,19 +16,12 @@
 
 package com.google.android.gnd;
 
-import static android.support.design.widget.BottomSheetBehavior.STATE_COLLAPSED;
-import static android.support.design.widget.BottomSheetBehavior.STATE_EXPANDED;
-
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender.SendIntentException;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.design.widget.BottomSheetBehavior;
-import android.support.design.widget.CoordinatorLayout;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
@@ -36,7 +29,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.FrameLayout;
 import android.widget.Toast;
 import butterknife.ButterKnife;
 import com.google.android.gnd.model.GndDataRepository;
@@ -47,8 +39,6 @@ import com.google.android.gnd.system.PermissionsManager.PermissionsRequest;
 import com.google.android.gnd.system.SettingsManager;
 import com.google.android.gnd.system.SettingsManager.SettingsChangeRequest;
 import com.google.android.gnd.ui.common.GndActivity;
-import com.google.android.gnd.ui.placesheet.PlaceSheetScrollView;
-import com.google.android.gnd.ui.util.ViewUtil;
 import io.reactivex.plugins.RxJavaPlugins;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -84,22 +74,22 @@ public class MainActivity extends GndActivity {
     // Sheet doesn't scroll properly w/translucent status due to obscure Android bug. This should
     // be resolved once add/edit is in its own fragment that uses fitsSystemWindows. For now we
     // just expand the sheet when focus + layout change (i.e., keyboard appeared).
-    decorView
-        .getViewTreeObserver()
-        .addOnGlobalLayoutListener(
-            () -> {
-              View newFocus = getCurrentFocus();
-              if (newFocus != null) {
-                PlaceSheetScrollView dataSheetView = getDataSheetView();
-                BottomSheetBehavior behavior =
-                    (BottomSheetBehavior)
-                        ((CoordinatorLayout.LayoutParams) dataSheetView.getLayoutParams())
-                            .getBehavior();
-                if (behavior.getState() == STATE_COLLAPSED) {
-                  behavior.setState(STATE_EXPANDED);
-                }
-              }
-            });
+//    decorView
+//        .getViewTreeObserver()
+//        .addOnGlobalLayoutListener(
+//            () -> {
+//              View newFocus = getCurrentFocus();
+//              if (newFocus != null) {
+//                PlaceSheetScrollView dataSheetView = getDataSheetView();
+//                BottomSheetBehavior behavior =
+//                    (BottomSheetBehavior)
+//                        ((CoordinatorLayout.LayoutParams) dataSheetView.getLayoutParams())
+//                            .getBehavior();
+//                if (behavior.getState() == STATE_COLLAPSED) {
+//                  behavior.setState(STATE_EXPANDED);
+//                }
+//              }
+//            });
   }
 
   private void requestPermissions(PermissionsRequest permissionsRequest) {
@@ -121,29 +111,29 @@ public class MainActivity extends GndActivity {
   }
 
   private void updatePaddingForWindowInsets() {
-    FrameLayout toolbarWrapper = findViewById(R.id.toolbar_wrapper);
-    // TODO: Each view should consume its own insets and update the insets for consumption by
-    // child views.
-    ViewCompat.setOnApplyWindowInsetsListener(
-        toolbarWrapper,
-        (v, insets) -> {
-          // TODO: Move inset behaviors into respectives fragments.
-          int bottomPadding = insets.getSystemWindowInsetBottom();
-          int topPadding = insets.getSystemWindowInsetTop();
-          View dataSheetWrapper = findViewById(R.id.place_details_fragment);
-          View dataSheetLayout = findViewById(R.id.data_sheet_layout);
-          View bottomSheetScrim = findViewById(R.id.bottom_sheet_scrim);
-          View mapBtnLayout = findViewById(R.id.map_btn_layout);
-          View recordBtnLayout = findViewById(R.id.record_btn_layout);
-          dataSheetLayout.setMinimumHeight(
-              ViewUtil.getScreenHeight(MainActivity.this) - topPadding);
-          dataSheetWrapper.setPadding(0, topPadding, 0, bottomPadding);
-          toolbarWrapper.setPadding(0, topPadding, 0, 0);
-          bottomSheetScrim.setMinimumHeight(bottomPadding);
-          mapBtnLayout.setTranslationY(-bottomPadding);
-          recordBtnLayout.setTranslationY(-bottomPadding);
-          return insets.replaceSystemWindowInsets(0, 0, 0, insets.getSystemWindowInsetBottom());
-        });
+//    FrameLayout toolbarWrapper = findViewById(R.id.toolbar_wrapper);
+//    // TODO: Each view should consume its own insets and update the insets for consumption by
+//    // child views.
+//    ViewCompat.setOnApplyWindowInsetsListener(
+//        toolbarWrapper,
+//        (v, insets) -> {
+//          // TODO: Move inset behaviors into respectives fragments.
+//          int bottomPadding = insets.getSystemWindowInsetBottom();
+//          int topPadding = insets.getSystemWindowInsetTop();
+//          View dataSheetWrapper = findViewById(R.id.place_details_fragment);
+//          View dataSheetLayout = findViewById(R.id.data_sheet_layout);
+//          View bottomSheetScrim = findViewById(R.id.bottom_sheet_scrim);
+//          View mapBtnLayout = findViewById(R.id.map_btn_layout);
+//          View recordBtnLayout = findViewById(R.id.record_btn_layout);
+//          dataSheetLayout.setMinimumHeight(
+//              ViewUtil.getScreenHeight(MainActivity.this) - topPadding);
+//          dataSheetWrapper.setPadding(0, topPadding, 0, bottomPadding);
+//          toolbarWrapper.setPadding(0, topPadding, 0, 0);
+//          bottomSheetScrim.setMinimumHeight(bottomPadding);
+//          mapBtnLayout.setTranslationY(-bottomPadding);
+//          recordBtnLayout.setTranslationY(-bottomPadding);
+//          return insets.replaceSystemWindowInsets(0, 0, 0, insets.getSystemWindowInsetBottom());
+//        });
   }
 
   public void showErrorMessage(String message) {
@@ -170,18 +160,6 @@ public class MainActivity extends GndActivity {
 //        return mainPresenter.onToolbarSaveButtonClick();
     }
     return super.onOptionsItemSelected(item);
-  }
-
-  public FloatingActionButton getAddPlaceButton() {
-    return null;
-  }
-
-  public FloatingActionButton getAddRecordButton() {
-    return (FloatingActionButton) findViewById(R.id.add_record_btn);
-  }
-
-  public PlaceSheetScrollView getDataSheetView() {
-    return findViewById(R.id.data_sheet);
   }
 
   public void hideSoftInput() {

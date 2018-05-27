@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright 2018 Google LLC
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     https://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent">
+
+  <android.support.v7.widget.CardView
+    android:id="@+id/place_sheet_card_view"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_marginTop="32dp"
+    app:cardBackgroundColor="@android:color/white"
+    app:cardCornerRadius="3dp"
+    app:cardElevation="3dp"
+    android:elevation="0dp">
+
+    <LinearLayout
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      android:layout_gravity="top"
+      android:paddingTop="36dp"
+      android:orientation="vertical">
+      <TextView
+        android:id="@+id/place_sheet_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Place Sheet Title"
+        android:textAlignment="center"
+        android:textAppearance="@style/TextAppearance.AppCompat.Title"/>
+      <TextView
+        android:id="@+id/place_sheet_subtitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Place Subtitle"
+        android:textAlignment="center"
+        android:textAppearance="@style/TextAppearance.AppCompat.Subhead"/>
+
+      <android.support.design.widget.TabLayout
+        app:tabTextColor="@color/colorAccent"
+        app:tabSelectedTextColor="@color/colorAccent"
+        android:id="@+id/forms_tab_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top"/>
+
+      <android.support.v4.view.ViewPager
+        android:id="@+id/record_list_view_pager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
+    </LinearLayout>
+  </android.support.v7.widget.CardView>
+
+  <!-- TODO: Add drop shadow to top of circle and card -->
+  <ImageView
+    android:id="@+id/place_header_icon_background"
+    android:layout_width="72dp"
+    android:layout_height="72dp"
+    android:layout_gravity="top|center_horizontal"
+    android:src="@drawable/place_header_icon_background_drawable"
+    android:elevation="3dp"/>
+  <ImageView
+    android:id="@+id/place_header_icon"
+    android:paddingTop="8dp"
+    android:layout_width="64dp"
+    android:layout_height="64dp"
+    android:layout_gravity="top|center_horizontal"
+    app:srcCompat="@drawable/ic_marker_house_map_marker"
+    android:tint="@color/colorGrey500"
+    android:elevation="4dp"/>
+
+</FrameLayout>

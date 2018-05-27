@@ -67,7 +67,7 @@ public class MapContainerFragment extends GndFragment {
   }
 
   @Override
-  protected void onCreateViewModel() {
+  protected void createViewModel() {
     mapContainerViewModel =
       ViewModelProviders.of(this, viewModelFactory).get(MapContainerViewModel.class);
     mainViewModel =
@@ -75,24 +75,24 @@ public class MapContainerFragment extends GndFragment {
   }
 
   @Override
-  protected void onBindViews() {
+  protected void initializeViews() {
     disableLocationLockBtn();
     disableAddPlaceBtn();
   }
 
   @Override
-  protected View onInflateView(
+  protected View createView(
     LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-    return inflater.inflate(R.layout.fragment_map, container, false);
+    return inflater.inflate(R.layout.fragment_map_container, container, false);
   }
 
   @Override
-  protected void onAddFragments() {
+  protected void addFragments() {
     addFragment(R.id.map, mapAdapter.getFragment());
   }
 
   @Override
-  protected void onObserveViewModel() {
+  protected void observeViewModel() {
     mapAdapter.getViewModel().subscribe(this::onMapReady);
   }
 
@@ -205,4 +205,5 @@ public class MapContainerFragment extends GndFragment {
         break;
     }
   }
+
 }

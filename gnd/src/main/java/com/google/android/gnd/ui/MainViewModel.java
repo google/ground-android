@@ -37,6 +37,7 @@ public class MainViewModel extends ViewModel {
   private final LiveData<ProjectActivationEvent> projectActivationEvents;
   private final MutableLiveData<List<Project>> showProjectSelectorDialogRequests;
   private final MutableLiveData<Point> addPlaceDialogRequests;
+  private final MutableLiveData<Place> showPlaceSheetRequests;
 
   @Inject
   MainViewModel(GndDataRepository dataRepository) {
@@ -44,6 +45,7 @@ public class MainViewModel extends ViewModel {
     this.showProjectSelectorDialogRequests = new MutableLiveData<>();
     this.addPlaceDialogRequests = new MutableLiveData<>();
     this.projectActivationEvents = RxLiveData.fromObservable(dataRepository.activeProject());
+    this.showPlaceSheetRequests = new MutableLiveData<>();
   }
 
   public LiveData<List<Project>> showProjectSelectorDialogRequests() {
@@ -58,6 +60,10 @@ public class MainViewModel extends ViewModel {
     return addPlaceDialogRequests;
   }
 
+  public LiveData<Place> getShowPlaceSheetRequests() {
+    return showPlaceSheetRequests;
+  }
+
   @SuppressLint("CheckResult")
   public void showProjectSelectorDialog() {
     // TODO: Dispose of this and other subscriptions correctly.
@@ -68,6 +74,7 @@ public class MainViewModel extends ViewModel {
     Log.d(TAG, "User clicked marker");
     if (marker.getObject() instanceof Place) {
       Log.e(TAG, "TODO: Implement onMarkerClick");
+      showPlaceSheetRequests.setValue((Place) marker.getObject());
     }
   }
 
@@ -80,5 +87,11 @@ public class MainViewModel extends ViewModel {
 
   public void onAddPlace(AddPlaceRequest addPlaceRequest) {
     Log.e(TAG, "TODO: Implement Add Place functionality");
+  }
+
+  public void onPlaceSheetCollapsed() {
+  }
+
+  public void onPlaceSheetHidden() {
   }
 }

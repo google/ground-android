@@ -20,11 +20,10 @@ import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.CoordinatorLayout;
+import android.support.v4.widget.NestedScrollView;
 import android.util.AttributeSet;
 import android.view.View;
-
 import com.google.android.gnd.R;
-import com.google.android.gnd.ui.placesheet.PlaceSheetScrollView;
 
 public abstract class OnSheetSlideBehavior<V extends View> extends CoordinatorLayout.Behavior<V> {
   public OnSheetSlideBehavior(Context context, AttributeSet attrs) {
@@ -36,32 +35,28 @@ public abstract class OnSheetSlideBehavior<V extends View> extends CoordinatorLa
 
   @Override
   public boolean layoutDependsOn(CoordinatorLayout parent, V child, View dependency) {
-    return dependency instanceof PlaceSheetScrollView;
+    return dependency.getId() == R.id.place_sheet_scroll_view;
   }
 
   @Override
   public boolean onDependentViewChanged(CoordinatorLayout parent, V child, View dependency) {
-    if (!(dependency instanceof PlaceSheetScrollView)) {
+    if (!(dependency instanceof NestedScrollView)) {
       return false;
     }
-    PlaceSheetScrollView dataSheetView = (PlaceSheetScrollView) dependency;
+    NestedScrollView dataSheetView = (NestedScrollView) dependency;
     onSheetScrolled(parent, child, new SheetSlideMetrics(parent, dataSheetView));
     return false;
   }
 
   public static class SheetSlideMetrics {
     private final CoordinatorLayout parent;
-    private final PlaceSheetScrollView dataSheetView;
+    private final NestedScrollView dataSheetView;
 
-    public SheetSlideMetrics(CoordinatorLayout parent, PlaceSheetScrollView dataSheetView) {
+    public SheetSlideMetrics(CoordinatorLayout parent, NestedScrollView dataSheetView) {
       this.parent = parent;
       this.dataSheetView = dataSheetView;
     }
 
-    public SheetSlideMetrics(PlaceSheetScrollView bottomSheet) {
-      this.parent = (CoordinatorLayout) bottomSheet.getParent();
-      this.dataSheetView = bottomSheet;
-    }
 
     public static float scale(
         float value, float before1, float before2, float after1, float after2) {

@@ -21,24 +21,39 @@
   android:layout_height="match_parent">
 
   <FrameLayout
-    android:id="@+id/map_fragment"
+    android:id="@+id/map_container_fragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    />
+    app:layout_behavior="com.google.android.gnd.ui.mapcontainer.MapContainerLayoutBehavior"/>
 
-  <com.google.android.gnd.ui.placesheet.PlaceSheetScrollView
-    android:id="@+id/data_sheet"
+  <android.support.v4.widget.NestedScrollView
+    android:id="@+id/place_sheet_scroll_view"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fillViewport="true"
     app:layout_behavior="@string/bottom_sheet_behavior">
 
     <fragment
-      android:id="@+id/place_details_fragment"
+      android:id="@+id/place_sheet_fragment"
       android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:name="com.google.android.gnd.ui.placesheet.PlaceDetailsFragment"/>
+      android:layout_height="match_parent"
+      android:name="com.google.android.gnd.ui.placesheet.PlaceSheetFragment"/>
 
-  </com.google.android.gnd.ui.placesheet.PlaceSheetScrollView>
+  </android.support.v4.widget.NestedScrollView>
+
+  <!--<com.google.android.gnd.ui.placesheet.PlaceSheetScrollView-->
+  <!--android:id="@+id/data_sheet"-->
+  <!--android:layout_width="match_parent"-->
+  <!--android:layout_height="match_parent"-->
+  <!--app:layout_behavior="@string/bottom_sheet_behavior">-->
+
+  <!--<fragment-->
+  <!--android:id="@+id/place_details_fragment"-->
+  <!--android:layout_width="match_parent"-->
+  <!--android:layout_height="wrap_content"-->
+  <!--android:name="com.google.android.gnd.ui.placesheet.PlaceDetailsFragment"/>-->
+
+  <!--</com.google.android.gnd.ui.placesheet.PlaceSheetScrollView>-->
 
   <FrameLayout
     android:id="@+id/toolbar_wrapper"
@@ -54,35 +69,34 @@
       android:elevation="4dp"
       android:subtitleTextAppearance="@style/Toolbar.Subtitle"
       android:theme="@style/ToolbarTheme"
-      android:titleTextAppearance="@style/Toolbar.Title"
-      />
+      android:titleTextAppearance="@style/Toolbar.Title"/>
   </FrameLayout>
 
-  <!-- Covers navigation buttons when sheet is expanded. -->
-  <FrameLayout
-    android:id="@+id/bottom_sheet_scrim"
+  <RelativeLayout
+    android:id="@+id/place_sheet_chrome"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_gravity="bottom"
-    android:alpha="0"
-    android:background="@color/colorWhite"
-    app:layout_behavior="com.google.android.gnd.ui.placesheet.BottomScrimBehavior"/>
+    app:layout_behavior="com.google.android.gnd.ui.placesheet.PlaceSheetChromeBehavior">
 
-  <!-- TODO: Since there is now only one button, remove RelativeLayout -->
-  <RelativeLayout
-    android:id="@+id/record_btn_layout"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_marginBottom="@dimen/sheet_btn_margin_bottom"
-    android:layout_marginRight="@dimen/sheet_btn_margin_right"
-    android:layout_gravity="bottom|right|end"
-    android:alpha="0"
-    app:layout_behavior="com.google.android.gnd.ui.placesheet.AddRecordButtonBehavior">
+    <!-- Prevents place sheet UI from bleeding through to navigation buttons when expanded. -->
+    <FrameLayout
+      android:id="@+id/place_sheet_bottom_scrim"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_alignParentBottom="true"
+      android:alpha="0"
+      android:background="@color/colorWhite"/>
 
+    <!-- TODO: Replace with chip MD style button -->
     <android.support.design.widget.FloatingActionButton
       android:id="@+id/add_record_btn"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
+      android:layout_marginBottom="@dimen/sheet_btn_margin_bottom"
+      android:layout_marginRight="@dimen/sheet_btn_margin_right"
+      android:layout_above="@id/place_sheet_bottom_scrim"
+      android:layout_alignParentEnd="true"
+      android:layout_alignParentRight="true"
       android:clickable="false"
       android:focusable="false"
       android:src="@drawable/ic_add_dark"

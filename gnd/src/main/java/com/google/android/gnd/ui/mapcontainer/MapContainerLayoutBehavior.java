@@ -17,59 +17,45 @@
 package com.google.android.gnd.ui.mapcontainer;
 
 import android.content.Context;
-import android.os.Parcelable;
 import android.support.design.widget.CoordinatorLayout;
 import android.util.AttributeSet;
 import android.view.View;
-import android.widget.ImageView;
-import android.widget.RelativeLayout;
-
-import com.google.android.gnd.MainActivity;
+import android.widget.FrameLayout;
 import com.google.android.gnd.R;
 import com.google.android.gnd.ui.OnSheetSlideBehavior;
 
-public class MapLayoutBehavior extends OnSheetSlideBehavior<RelativeLayout> {
+public class MapContainerLayoutBehavior extends OnSheetSlideBehavior<FrameLayout> {
   private static final float SHOW_CROSSHAIRS_THRESHOLD = 0.5f;
   private static final float HIDE_CROSSHAIRS_THRESHOLD = 0.1f;
-  private final MainActivity activity;
-  private View toolbarWrapper;
-  private ImageView crosshairs;
-  private View map;
+  private static final float SHOW_BUTTONS_THRESHOLD = 0.1f;
+  private static final float HIDE_BUTTONS_THRESOLD = 0.3f;
 
-  public MapLayoutBehavior(Context context, AttributeSet attrs) {
+  public MapContainerLayoutBehavior(Context context, AttributeSet attrs) {
     super(context, attrs);
-    activity = (MainActivity) context;
-  }
-
-  @Override
-  public void onRestoreInstanceState(
-    CoordinatorLayout parent, RelativeLayout child, Parcelable state) {
-    super.onRestoreInstanceState(parent, child, state);
   }
 
   @Override
   protected void onSheetScrolled(
-    CoordinatorLayout parent, RelativeLayout layout, SheetSlideMetrics metrics) {
+    CoordinatorLayout parent, FrameLayout mapContainerLayout, SheetSlideMetrics metrics) {
     if (metrics.getPeekHeight() <= 0) {
       return;
     }
-    slideMap(layout, metrics);
-    fadeCrosshairs(metrics);
-  }
-
-  private void slideMap(RelativeLayout layout, SheetSlideMetrics metrics) {
-    toolbarWrapper =
-      toolbarWrapper == null ? activity.findViewById(R.id.toolbar_wrapper) : toolbarWrapper;
-    map = map == null ? layout.findViewById(R.id.map) : map;
-    float visibleToolbarHeight =
-      Math.max(toolbarWrapper.getHeight() + toolbarWrapper.getTranslationY(), 0f);
+    //    toolbarWrapper =
+//      toolbarWrapper == null ? activity.findViewById(R.id.toolbar_wrapper) : toolbarWrapper;
+//    map = map == null ? mapContainerLayout.findViewById(R.id.map) : map;
+//    float visibleToolbarHeight =
+//      Math.max(toolbarWrapper.getHeight() + toolbarWrapper.getTranslationY(), 0f);
+    View map = mapContainerLayout.findViewById(R.id.map);
+    View crosshairs = mapContainerLayout.findViewById(R.id.map_crosshairs);
+    View mapButtonLayout = mapContainerLayout.findViewById(R.id.map_btn_layout);
+    float visibleToolbarHeight = 0;
     float bottomOffset = Math.min(metrics.getPeekHeight(), metrics.getVisibleHeight());
     float offset = Math.max(bottomOffset - visibleToolbarHeight, 0f);
-    layout.setTranslationY(-offset / 2.0f);
+    float translationY = -offset / 2.0f;
+    map.setTranslationY(translationY);
+    crosshairs.setTranslationY(translationY);
+    metrics.hideWithSheet(crosshairs, SHOW_CROSSHAIRS_THRESHOLD, HIDE_CROSSHAIRS_THRESHOLD);
+    metrics.hideWithSheet(mapButtonLayout, SHOW_BUTTONS_THRESHOLD, HIDE_BUTTONS_THRESOLD);
   }
 
-  private void fadeCrosshairs(SheetSlideMetrics metrics) {
-    crosshairs = crosshairs == null ? activity.findViewById(R.id.map_crosshairs) : crosshairs;
-    metrics.hideWithSheet(crosshairs, SHOW_CROSSHAIRS_THRESHOLD, HIDE_CROSSHAIRS_THRESHOLD);
-  }
 }

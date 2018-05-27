@@ -20,19 +20,27 @@ import android.content.Context;
 import android.support.design.widget.CoordinatorLayout;
 import android.util.AttributeSet;
 import android.view.View;
+import android.view.ViewGroup;
+import com.google.android.gnd.R;
 import com.google.android.gnd.ui.OnSheetSlideBehavior;
 
-public class AddRecordButtonBehavior extends OnSheetSlideBehavior<View> {
-  private static final float HIDE_THRESHOLD = 0.3f;
-  private static final float SHOW_THRESHOLD = 0.5f;
+public class PlaceSheetChromeBehavior extends OnSheetSlideBehavior<ViewGroup> {
+  // TODO: Refactor transitions into "TransitionEffect" classes.
+  private static final float HIDE_SCRIM_THRESHOLD = 0.0f;
+  private static final float SHOW_SCRIM_THRESHOLD = 0.1f;
+  private static final float HIDE_ADD_BUTTON_THRESHOLD = 0.3f;
+  private static final float SHOW_ADD_BUTTON_THRESHOLD = 0.5f;
 
-  public AddRecordButtonBehavior(Context context, AttributeSet attrs) {
+  public PlaceSheetChromeBehavior(Context context, AttributeSet attrs) {
     super(context, attrs);
   }
 
   @Override
   protected void onSheetScrolled(
-      CoordinatorLayout parent, View wrapper, SheetSlideMetrics metrics) {
-    metrics.showWithSheet(wrapper, HIDE_THRESHOLD, SHOW_THRESHOLD);
+    CoordinatorLayout parent, ViewGroup layout, SheetSlideMetrics metrics) {
+    View scrim = layout.findViewById(R.id.place_sheet_bottom_scrim);
+    View addRecordButton = layout.findViewById(R.id.add_record_btn);
+    metrics.showWithSheet(scrim, HIDE_SCRIM_THRESHOLD, SHOW_SCRIM_THRESHOLD);
+    metrics.showWithSheet(addRecordButton, HIDE_ADD_BUTTON_THRESHOLD, SHOW_ADD_BUTTON_THRESHOLD);
   }
 }

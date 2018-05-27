@@ -16,24 +16,24 @@
 
 package com.google.android.gnd.ui.placesheet;
 
-import android.content.Context;
-import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
-
 import com.google.android.gnd.model.Form;
-
+import java.util.Arrays;
 import java.util.List;
+import javax.inject.Inject;
 
 public class RecordListPagerAdapter extends FragmentPagerAdapter {
-  private Context context;
   private List<Form> forms;
 
-  public RecordListPagerAdapter(FragmentManager fm, Context context, List<Form> forms) {
+  @Inject
+  public RecordListPagerAdapter(FragmentManager fm) {
     super(fm);
-    this.context = context;
-    this.forms = forms;
+    this.forms = Arrays.asList(
+      Form.newBuilder().putTitle("pt", "Form One").build(),
+      Form.newBuilder().putTitle("pt", "Form Two").build()
+    );
   }
 
   @Override
@@ -43,10 +43,7 @@ public class RecordListPagerAdapter extends FragmentPagerAdapter {
 
   @Override
   public Fragment getItem(int position) {
-    RecordListFragment fragment = new RecordListFragment();
-    Bundle args = new Bundle();
-    args.putInt(RecordListFragment.FORM_NO, position);
-    return fragment;
+    return RecordListFragment.newInstance(position);
   }
 
   @Override

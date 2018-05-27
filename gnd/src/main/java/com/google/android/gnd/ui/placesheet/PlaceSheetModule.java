@@ -16,20 +16,29 @@
 
 package com.google.android.gnd.ui.placesheet;
 
-import android.content.Context;
-import android.support.design.widget.CoordinatorLayout;
-import android.util.AttributeSet;
-import android.widget.FrameLayout;
-import com.google.android.gnd.ui.OnSheetSlideBehavior;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import com.google.android.gnd.inject.PerFragment;
+import com.google.android.gnd.ui.common.GndFragmentModule;
+import dagger.Module;
+import dagger.Provides;
 
-public class BottomScrimBehavior extends OnSheetSlideBehavior<FrameLayout> {
-  public BottomScrimBehavior(Context context, AttributeSet attrs) {
-    super(context, attrs);
+// TODO: Remove "Fragment" from other other Module names.
+@Module(includes = GndFragmentModule.class)
+public class PlaceSheetModule {
+
+  @Provides
+  @PerFragment
+  public Fragment fragment(PlaceSheetFragment fragment) {
+    return fragment;
   }
 
-  @Override
-  protected void onSheetScrolled(
-      CoordinatorLayout parent, FrameLayout scrim, SheetSlideMetrics metrics) {
-    metrics.showWithSheet(scrim, 0.0f, 0.1f);
+  @Provides
+  @PerFragment
+  public FragmentManager fragmentManager(PlaceSheetFragment fragment) {
+    return fragment.getChildFragmentManager();
   }
+
 }
+
+

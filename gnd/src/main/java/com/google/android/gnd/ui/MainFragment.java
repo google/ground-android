@@ -16,13 +16,23 @@
 
 package com.google.android.gnd.ui;
 
+import static com.google.android.gnd.ui.util.ViewUtil.getScreenHeight;
+import static com.google.android.gnd.ui.util.ViewUtil.getScreenWidth;
+
 import android.app.ProgressDialog;
 import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.design.widget.BottomSheetBehavior;
+import android.support.v4.view.ViewCompat;
+import android.support.v4.view.WindowInsetsCompat;
+import android.support.v4.widget.NestedScrollView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import butterknife.BindView;
 import com.google.android.gnd.R;
+import com.google.android.gnd.model.Place;
 import com.google.android.gnd.model.Point;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.ProjectActivationEvent;
@@ -33,6 +43,8 @@ import java.util.List;
 import javax.inject.Inject;
 
 public class MainFragment extends GndFragment {
+  private static final float COLLAPSED_MAP_ASPECT_RATIO = 16.0f / 9.0f;
+
   @Inject
   GndViewModelFactory viewModelFactory;
 
@@ -42,31 +54,52 @@ public class MainFragment extends GndFragment {
   @Inject
   AddPlaceDialogFragment addPlaceDialogFragment;
 
+  @BindView(R.id.place_sheet_scroll_view)
+  NestedScrollView placeSheetScrollView;
+
+  @BindView(R.id.place_sheet_bottom_scrim)
+  View placeSheetBottomScrim;
+
   private ProgressDialog progressDialog;
   private MainViewModel viewModel;
+  private BottomSheetBehavior<NestedScrollView> placeSheetBehavior;
 
   @Override
-  public void onCreateViewModel() {
+  public void createViewModel() {
     viewModel = ViewModelProviders.of(this, viewModelFactory).get(MainViewModel.class);
   }
 
   @Override
-  public View onInflateView(
-    LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+  public View createView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     return inflater.inflate(R.layout.fragment_main, container, false);
   }
 
   @Override
-  protected void onAddFragments() {
-    addFragment(R.id.map_fragment, mapContainerFragment);
+  protected void initializeViews() {
+    placeSheetBehavior = BottomSheetBehavior.from(placeSheetScrollView);
+    placeSheetBehavior.setHideable(true);
+    placeSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
+    placeSheetBehavior.setBottomSheetCallback(new PlaceSheetBehaviorCallback());
+    ViewCompat.setOnApplyWindowInsetsListener(getView(), this::onApplyWindowInsets);
   }
 
-  protected void onObserveViewModel() {
+  private WindowInsetsCompat onApplyWindowInsets(View view, WindowInsetsCompat windowInsetsCompat) {
+    placeSheetBottomScrim.setMinimumHeight(windowInsetsCompat.getSystemWindowInsetBottom());
+    return windowInsetsCompat;
+  }
+
+  @Override
+  protected void addFragments() {
+    addFragment(R.id.map_container_fragment, mapContainerFragment);
+  }
+
+  protected void observeViewModel() {
     viewModel
       .showProjectSelectorDialogRequests()
       .observe(this, this::onShowProjectSelectorDialogRequest);
     viewModel.projectActivationEvents().observe(this, this::onProjectActivationEvent);
     viewModel.showAddPlaceDialogRequests().observe(this, this::onShowAddPlaceDialogRequest);
+    viewModel.getShowPlaceSheetRequests().observe(this, this::onShowPlaceSheetRequest);
   }
 
   private void onShowProjectSelectorDialogRequest(List<Project> projects) {
@@ -83,10 +116,18 @@ public class MainFragment extends GndFragment {
 
   private void onShowAddPlaceDialogRequest(Point location) {
     // TODO: Pause location updates while dialog is open.
-    addPlaceDialogFragment
-      .show(getChildFragmentManager())
-      .subscribe(viewModel::onAddPlace);
+    addPlaceDialogFragment.show(getChildFragmentManager()).subscribe(viewModel::onAddPlace);
+  }
 
+  private void onShowPlaceSheetRequest(Place place) {
+    double width = getScreenWidth(getActivity());
+    double screenHeight = getScreenHeight(getActivity());
+    double mapHeight = width / COLLAPSED_MAP_ASPECT_RATIO;
+    double peekHeight = screenHeight - mapHeight;
+    // TODO: Take window insets into account; COLLAPSED_MAP_ASPECT_RATIO will be wrong on older
+    // devices w/o translucent system windows.
+    placeSheetBehavior.setPeekHeight((int) peekHeight);
+    placeSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
   }
 
   @Override
@@ -112,6 +153,25 @@ public class MainFragment extends GndFragment {
     if (progressDialog != null) {
       progressDialog.dismiss();
       progressDialog = null;
+    }
+  }
+
+  private class PlaceSheetBehaviorCallback extends BottomSheetBehavior.BottomSheetCallback {
+    @Override
+    public void onStateChanged(@NonNull View bottomSheet, int newState) {
+      switch (newState) {
+        case BottomSheetBehavior.STATE_COLLAPSED:
+          viewModel.onPlaceSheetCollapsed();
+          break;
+        case BottomSheetBehavior.STATE_HIDDEN:
+          viewModel.onPlaceSheetHidden();
+          break;
+      }
+    }
+
+    @Override
+    public void onSlide(@NonNull View bottomSheet, float slideOffset) {
+      // TODO
     }
   }
 }
