@@ -22,6 +22,7 @@ import android.arch.lifecycle.ViewModel;
 import android.util.Log;
 import com.google.android.gnd.model.GndDataRepository;
 import com.google.android.gnd.model.Place;
+import com.google.android.gnd.model.PlaceType;
 import com.google.android.gnd.model.Point;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.ProjectActivationEvent;
@@ -29,6 +30,7 @@ import com.google.android.gnd.rx.RxLiveData;
 import com.google.android.gnd.ui.AddPlaceDialogFragment.AddPlaceRequest;
 import com.google.android.gnd.ui.map.MapMarker;
 import java.util.List;
+import java8.util.Optional;
 import javax.inject.Inject;
 
 public class MainViewModel extends ViewModel {
@@ -71,10 +73,15 @@ public class MainViewModel extends ViewModel {
   }
 
   public void onMarkerClick(MapMarker marker) {
-    Log.d(TAG, "User clicked marker");
     if (marker.getObject() instanceof Place) {
-      Log.e(TAG, "TODO: Implement onMarkerClick");
-      bottomSheetEvents.setValue(BottomSheetEvent.show((Place) marker.getObject()));
+      Place place = (Place) marker.getObject();
+      Optional<PlaceType> placeType = dataRepository.getPlaceType(place.getPlaceTypeId());
+      if (!placeType.isPresent()) {
+        Log.e(TAG, "Place " + place.getId() + " has unknown type: " + place.getPlaceTypeId());
+        // TODO: Show error message to user.
+        return;
+      }
+      bottomSheetEvents.setValue(BottomSheetEvent.show(placeType.get(), place));
     }
   }
 

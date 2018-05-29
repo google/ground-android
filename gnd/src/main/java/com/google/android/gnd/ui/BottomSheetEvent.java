@@ -17,26 +17,34 @@
 package com.google.android.gnd.ui;
 
 import com.google.android.gnd.model.Place;
+import com.google.android.gnd.model.PlaceType;
 
 public class BottomSheetEvent {
+
   public enum Type {
     SHOW, HIDE
   }
 
-  private Type type;
-  private Place place;
+  private final Type type;
+  private final PlaceType placeType;
+  private final Place place;
 
-  private BottomSheetEvent(Type type, Place place) {
+  private BottomSheetEvent(Type type, PlaceType placeType, Place place) {
     this.type = type;
+    this.placeType = placeType;
     this.place = place;
   }
 
-  public static BottomSheetEvent show(Place place) {
-    return new BottomSheetEvent(Type.SHOW, place);
+  public static BottomSheetEvent show(PlaceType placeType, Place place) {
+    return new BottomSheetEvent(Type.SHOW, placeType, place);
   }
 
   public static BottomSheetEvent hide() {
-    return new BottomSheetEvent(Type.HIDE, null);
+    return new BottomSheetEvent(Type.HIDE, null, null);
+  }
+
+  public PlaceType getPlaceType() {
+    return placeType;
   }
 
   public Place getPlace() {

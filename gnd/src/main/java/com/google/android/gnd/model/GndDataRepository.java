@@ -36,7 +36,6 @@ public class GndDataRepository {
 
   private final DataService dataService;
   // TODO: Delete this once we're fulling migrated to MVVM arch.
-  private Project oldActiveProject;
   private BehaviorSubject<ProjectActivationEvent> projectActivationObservable;
 
   @Inject
@@ -67,17 +66,20 @@ public class GndDataRepository {
   }
 
   public Place update(PlaceUpdate placeUpdate) {
-    return dataService.update(oldActiveProject.getId(), placeUpdate);
+    Project activeProject = projectActivationObservable.getValue().getProject();
+    return dataService.update(activeProject.getId(), placeUpdate);
   }
 
   public Optional<PlaceType> getPlaceType(String placeTypeId) {
-    return stream(oldActiveProject.getPlaceTypesList())
-        .filter(ft -> ft.getId().equals(placeTypeId))
+    Project activeProject = projectActivationObservable.getValue().getProject();
+    return stream(activeProject.getPlaceTypesList())
+      .filter(pt -> pt.getId().equals(placeTypeId))
         .findFirst();
   }
 
   public CompletableFuture<List<Record>> getRecordData(String placeId) {
-    return dataService.loadRecordData(oldActiveProject.getId(), placeId);
+    Project activeProject = projectActivationObservable.getValue().getProject();
+    return dataService.loadRecordData(activeProject.getId(), placeId);
   }
 
   public Single<List<Project>> getProjectSummaries() {

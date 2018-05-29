@@ -19,8 +19,7 @@
   xmlns:app="http://schemas.android.com/apk/res-auto"
   android:layout_width="match_parent"
   android:layout_height="wrap_content">
-  <!--android:paddingTop="@dimen/place_sheet_padding_top"-->
-  <!-- TODO: Make margin dynamic (toolbarWrapper = insetTop + toolbarHeight) -->
+
   <LinearLayout
     android:id="@+id/place_sheet_card_contents"
     android:layout_width="match_parent"
