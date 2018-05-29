@@ -33,9 +33,10 @@ public class PlaceSheetBodyViewModel extends ViewModel {
   }
 
   void onBottomSheetEvent(BottomSheetEvent bottomSheetEvent) {
-    placeSheetBodyUpdates.setValue(PlaceSheetBodyUpdate.reset(bottomSheetEvent
-      .getPlaceType()
-      .getFormsList()));
+    if (bottomSheetEvent.getType().equals(BottomSheetEvent.Type.SHOW)) {
+      placeSheetBodyUpdates.setValue(
+        PlaceSheetBodyUpdate.reset(bottomSheetEvent.getPlaceType().getFormsList()));
+    }
   }
 
   LiveData<PlaceSheetBodyUpdate> getPlaceSheetBodyUpdates() {
