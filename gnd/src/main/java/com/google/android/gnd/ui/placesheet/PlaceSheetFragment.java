@@ -16,19 +16,31 @@
 
 package com.google.android.gnd.ui.placesheet;
 
+import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
+import android.support.v4.view.WindowInsetsCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import butterknife.BindView;
+import com.google.android.gnd.MainActivityViewModel;
 import com.google.android.gnd.R;
 import com.google.android.gnd.ui.common.GndFragment;
+import com.google.android.gnd.ui.common.GndViewModelFactory;
 import com.h6ah4i.android.tablayouthelper.TabLayoutHelper;
 import javax.inject.Inject;
 
 public class PlaceSheetFragment extends GndFragment {
+  @Inject
+  RecordListPagerAdapter recordListPagerAdapter;
+
+  @Inject
+  GndViewModelFactory viewModelFactory;
+
+  private MainActivityViewModel mainActivityViewModel;
+
   @BindView(R.id.record_list_view_pager)
   ViewPager recordListViewPager;
 
@@ -36,10 +48,14 @@ public class PlaceSheetFragment extends GndFragment {
   TabLayout formsTabLayout;
 
   @Inject
-  RecordListPagerAdapter recordListPagerAdapter;
-
-  @Inject
   public PlaceSheetFragment() {
+  }
+
+  @Override
+  protected void createViewModel() {
+    mainActivityViewModel = ViewModelProviders
+      .of(getActivity(), viewModelFactory)
+      .get(MainActivityViewModel.class);
   }
 
   @Override
@@ -55,5 +71,14 @@ public class PlaceSheetFragment extends GndFragment {
     TabLayoutHelper tabLayoutHelper = new TabLayoutHelper(formsTabLayout, recordListViewPager);
     // Stretch tabs if they all fit on screen, otherwise scroll:
     tabLayoutHelper.setAutoAdjustTabModeEnabled(true);
+  }
+
+  @Override
+  protected void observeViewModel() {
+    mainActivityViewModel.getWindowInsetsLiveData().observe(this, this::onApplyWindowInsets);
+  }
+
+  private void onApplyWindowInsets(WindowInsetsCompat insets) {
+    recordListViewPager.setPadding(0, 0, 0, insets.getSystemWindowInsetBottom());
   }
 }

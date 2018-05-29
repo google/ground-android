@@ -25,8 +25,9 @@ import android.util.AttributeSet;
 import android.view.View;
 import com.google.android.gnd.R;
 
-public abstract class OnSheetSlideBehavior<V extends View> extends CoordinatorLayout.Behavior<V> {
-  public OnSheetSlideBehavior(Context context, AttributeSet attrs) {
+public abstract class OnBottomSheetSlideBehavior<V extends View> extends
+  CoordinatorLayout.Behavior<V> {
+  public OnBottomSheetSlideBehavior(Context context, AttributeSet attrs) {
     super(context, attrs);
   }
 

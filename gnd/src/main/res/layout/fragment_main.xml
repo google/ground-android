@@ -41,51 +41,30 @@
 
   </android.support.v4.widget.NestedScrollView>
 
-  <!--<com.google.android.gnd.ui.placesheet.PlaceSheetScrollView-->
-  <!--android:id="@+id/data_sheet"-->
-  <!--android:layout_width="match_parent"-->
-  <!--android:layout_height="match_parent"-->
-  <!--app:layout_behavior="@string/bottom_sheet_behavior">-->
-
-  <!--<fragment-->
-  <!--android:id="@+id/place_details_fragment"-->
-  <!--android:layout_width="match_parent"-->
-  <!--android:layout_height="wrap_content"-->
-  <!--android:name="com.google.android.gnd.ui.placesheet.PlaceDetailsFragment"/>-->
-
-  <!--</com.google.android.gnd.ui.placesheet.PlaceSheetScrollView>-->
-
-  <FrameLayout
-    android:id="@+id/toolbar_wrapper"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:background="@color/colorPrimary"
-    android:translationY="-1000dp">
-
-    <android.support.v7.widget.Toolbar
-      android:id="@+id/toolbar"
-      android:layout_width="match_parent"
-      android:layout_height="?attr/actionBarSize"
-      android:elevation="4dp"
-      android:subtitleTextAppearance="@style/Toolbar.Subtitle"
-      android:theme="@style/ToolbarTheme"
-      android:titleTextAppearance="@style/Toolbar.Title"/>
-  </FrameLayout>
-
   <RelativeLayout
-    android:id="@+id/place_sheet_chrome"
+    android:id="@+id/bottom_sheet_chrome"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    app:layout_behavior="com.google.android.gnd.ui.placesheet.PlaceSheetChromeBehavior">
+    android:layout_height="match_parent"
+    app:layout_behavior="com.google.android.gnd.ui.BottomSheetChromeBehavior">
 
-    <!-- Prevents place sheet UI from bleeding through to navigation buttons when expanded. -->
     <FrameLayout
-      android:id="@+id/bottom_sheet_bottom_inset_scrim"
+      android:id="@+id/toolbar_wrapper"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:layout_alignParentBottom="true"
-      android:alpha="0"
-      android:background="@color/colorWhite"/>
+      android:layout_alignParentTop="true"
+      android:background="@color/colorPrimary"
+      android:translationY="-1000dp">
+
+      <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:elevation="4dp"
+        android:subtitleTextAppearance="@style/Toolbar.Subtitle"
+        android:theme="@style/ToolbarTheme"
+        android:titleTextAppearance="@style/Toolbar.Title"/>
+
+    </FrameLayout>
 
     <!-- TODO: Replace with chip MD style button -->
     <android.support.design.widget.FloatingActionButton
@@ -103,5 +82,14 @@
       app:backgroundTint="@color/colorWhite"
       app:fabSize="normal"
       app:useCompatPadding="true"/>
+
+    <!-- Prevents place sheet UI from bleeding through to navigation buttons when expanded. -->
+    <FrameLayout
+      android:id="@+id/bottom_sheet_bottom_inset_scrim"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_alignParentBottom="true"
+      android:alpha="0"
+      android:background="@color/colorWhite"/>
   </RelativeLayout>
 </android.support.design.widget.CoordinatorLayout>

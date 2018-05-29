@@ -16,12 +16,14 @@
 
 package com.google.android.gnd;
 
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender.SendIntentException;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
@@ -29,7 +31,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.Toast;
 import butterknife.ButterKnife;
 import com.google.android.gnd.model.GndDataRepository;
 import com.google.android.gnd.rx.RxErrors;
@@ -39,6 +40,7 @@ import com.google.android.gnd.system.PermissionsManager.PermissionsRequest;
 import com.google.android.gnd.system.SettingsManager;
 import com.google.android.gnd.system.SettingsManager.SettingsChangeRequest;
 import com.google.android.gnd.ui.common.GndActivity;
+import com.google.android.gnd.ui.common.GndViewModelFactory;
 import io.reactivex.plugins.RxJavaPlugins;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -47,7 +49,8 @@ import javax.inject.Singleton;
 public class MainActivity extends GndActivity {
   private static final String TAG = MainActivity.class.getSimpleName();
 
-  private Menu toolbarMenu;
+  @Inject
+  GndViewModelFactory viewModelFactory;
 
   @Inject PermissionsManager permissionsManager;
 
@@ -56,6 +59,9 @@ public class MainActivity extends GndActivity {
   @Inject DataService dataService;
 
   @Inject GndDataRepository model;
+
+  private Menu toolbarMenu;
+  private MainActivityViewModel viewModel;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -67,29 +73,12 @@ public class MainActivity extends GndActivity {
     setContentView(R.layout.activity_main);
     ButterKnife.bind(this);
     initToolbar();
-    updatePaddingForWindowInsets();
-    View decorView = getWindow().getDecorView();
+    viewModel = ViewModelProviders.of(this, viewModelFactory).get(MainActivityViewModel.class);
+
+    ViewCompat.setOnApplyWindowInsetsListener(
+      getWindow().getDecorView().getRootView(), viewModel::updateWindowInsets);
     permissionsManager.permissionsRequests().subscribe(this::requestPermissions);
     settingsManager.settingsChangeRequests().subscribe(this::requestSettingsChange);
-    // Sheet doesn't scroll properly w/translucent status due to obscure Android bug. This should
-    // be resolved once add/edit is in its own fragment that uses fitsSystemWindows. For now we
-    // just expand the sheet when focus + layout change (i.e., keyboard appeared).
-//    decorView
-//        .getViewTreeObserver()
-//        .addOnGlobalLayoutListener(
-//            () -> {
-//              View newFocus = getCurrentFocus();
-//              if (newFocus != null) {
-//                PlaceSheetScrollView dataSheetView = getDataSheetView();
-//                BottomSheetBehavior behavior =
-//                    (BottomSheetBehavior)
-//                        ((CoordinatorLayout.LayoutParams) dataSheetView.getLayoutParams())
-//                            .getBehavior();
-//                if (behavior.getState() == STATE_COLLAPSED) {
-//                  behavior.setState(STATE_EXPANDED);
-//                }
-//              }
-//            });
   }
 
   private void requestPermissions(PermissionsRequest permissionsRequest) {
@@ -110,36 +99,6 @@ public class MainActivity extends GndActivity {
     }
   }
 
-  private void updatePaddingForWindowInsets() {
-//    FrameLayout toolbarWrapper = findViewById(R.id.toolbar_wrapper);
-//    // TODO: Each view should consume its own insets and update the insets for consumption by
-//    // child views.
-//    ViewCompat.setOnApplyWindowInsetsListener(
-//        toolbarWrapper,
-//        (v, insets) -> {
-//          // TODO: Move inset behaviors into respectives fragments.
-//          int bottomPadding = insets.getSystemWindowInsetBottom();
-//          int topPadding = insets.getSystemWindowInsetTop();
-//          View dataSheetWrapper = findViewById(R.id.place_details_fragment);
-//          View dataSheetLayout = findViewById(R.id.data_sheet_layout);
-//          View bottomSheetScrim = findViewById(R.id.bottom_sheet_scrim);
-//          View mapBtnLayout = findViewById(R.id.map_btn_layout);
-//          View recordBtnLayout = findViewById(R.id.record_btn_layout);
-//          dataSheetLayout.setMinimumHeight(
-//              ViewUtil.getScreenHeight(MainActivity.this) - topPadding);
-//          dataSheetWrapper.setPadding(0, topPadding, 0, bottomPadding);
-//          toolbarWrapper.setPadding(0, topPadding, 0, 0);
-//          bottomSheetScrim.setMinimumHeight(bottomPadding);
-//          mapBtnLayout.setTranslationY(-bottomPadding);
-//          recordBtnLayout.setTranslationY(-bottomPadding);
-//          return insets.replaceSystemWindowInsets(0, 0, 0, insets.getSystemWindowInsetBottom());
-//        });
-  }
-
-  public void showErrorMessage(String message) {
-    Toast.makeText(this, message, Toast.LENGTH_LONG).show();
-  }
-
   private void initToolbar() {
     setSupportActionBar(getToolbar());
     getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -149,7 +108,7 @@ public class MainActivity extends GndActivity {
   public boolean onCreateOptionsMenu(Menu menu) {
     toolbarMenu = menu;
     MenuInflater inflater = getMenuInflater();
-    inflater.inflate(R.menu.place_header_menu, menu);
+    inflater.inflate(R.menu.place_sheet_menu, menu);
 
     return true;
   }
@@ -157,7 +116,7 @@ public class MainActivity extends GndActivity {
   public boolean onOptionsItemSelected(MenuItem item) {
     switch (item.getItemId()) {
       case R.id.toolbar_save_link:
-//        return mainPresenter.onToolbarSaveButtonClick();
+        //        return mainPresenter.onToolbarSaveButtonClick();
     }
     return super.onOptionsItemSelected(item);
   }

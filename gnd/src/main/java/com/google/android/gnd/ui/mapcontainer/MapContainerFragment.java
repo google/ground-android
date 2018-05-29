@@ -47,7 +47,7 @@ import javax.inject.Inject;
 public class MapContainerFragment extends GndFragment {
   private static final String TAG = MapContainerFragment.class.getSimpleName();
 
-  // TODO: Get VieModel from GndViewModelFactory instead.
+  // TODO: Get ViewModel from GndViewModelFactory instead.
   @Inject
   ViewModelProvider.Factory viewModelFactory;
 

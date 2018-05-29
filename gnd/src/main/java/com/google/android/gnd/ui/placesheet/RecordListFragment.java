@@ -16,20 +16,19 @@
 
 package com.google.android.gnd.ui.placesheet;
 
-import android.content.Context;
+import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
-import android.widget.TextView;
 
 public class RecordListFragment extends Fragment {
   private static final String FORM_NO = "formNo";
-
-  private LinearLayout layout;
 
   static RecordListFragment newInstance(int formId) {
     RecordListFragment fragment = new RecordListFragment();
@@ -45,25 +44,15 @@ public class RecordListFragment extends Fragment {
     return getArguments().getInt(FORM_NO);
   }
 
-  @Override
-  public void onAttach(Context context) {
-    super.onAttach(context);
-    //    DataSheetPresenter dataSheetPresenter = ((MainActivity) context).getMainPresenter()
-    //        .getDataSheetPresenter();
-    //    form = (Form) args.get(FORM);
-
-  }
-
+  @RequiresApi(api = VERSION_CODES.KITKAT_WATCH)
   @Nullable
   @Override
   public View onCreateView(
       LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
-    layout = new LinearLayout(getActivity());
-    layout.setOrientation(LinearLayout.VERTICAL);
-    TextView text = new TextView(getActivity());
-    text.setTextSize(28);
-    text.setText("Page " + getFormId());
-    layout.addView(text);
-    return layout;
+    RecyclerView recyclerView = new RecyclerView(getContext());
+    recyclerView.setNestedScrollingEnabled(true);
+    recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+    recyclerView.setAdapter(new RecordListRecyclerViewAdapter());
+    return recyclerView;
   }
 }

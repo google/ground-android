@@ -24,13 +24,13 @@ import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetBehavior;
-import android.support.v4.view.ViewCompat;
 import android.support.v4.view.WindowInsetsCompat;
 import android.support.v4.widget.NestedScrollView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import butterknife.BindView;
+import com.google.android.gnd.MainActivityViewModel;
 import com.google.android.gnd.R;
 import com.google.android.gnd.model.Point;
 import com.google.android.gnd.model.Project;
@@ -53,6 +53,9 @@ public class MainFragment extends GndFragment {
   @Inject
   AddPlaceDialogFragment addPlaceDialogFragment;
 
+  @BindView(R.id.toolbar_wrapper)
+  ViewGroup toolbarWrapper;
+
   @BindView(R.id.bottom_sheet_scroll_view)
   NestedScrollView bottomSheetScrollView;
 
@@ -62,10 +65,14 @@ public class MainFragment extends GndFragment {
   private ProgressDialog progressDialog;
   private MainViewModel viewModel;
   private BottomSheetBehavior<NestedScrollView> bottomSheetBehavior;
+  private MainActivityViewModel mainActivityViewModel;
 
   @Override
   public void createViewModel() {
     viewModel = ViewModelProviders.of(this, viewModelFactory).get(MainViewModel.class);
+    mainActivityViewModel = ViewModelProviders
+      .of(getActivity(), viewModelFactory)
+      .get(MainActivityViewModel.class);
   }
 
   @Override
@@ -79,12 +86,6 @@ public class MainFragment extends GndFragment {
     bottomSheetBehavior.setHideable(true);
     bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
     bottomSheetBehavior.setBottomSheetCallback(new BottomSheetCallback());
-    ViewCompat.setOnApplyWindowInsetsListener(getView(), this::onApplyWindowInsets);
-  }
-
-  private WindowInsetsCompat onApplyWindowInsets(View view, WindowInsetsCompat windowInsetsCompat) {
-    bottomSheetBottomInsetScrim.setMinimumHeight(windowInsetsCompat.getSystemWindowInsetBottom());
-    return windowInsetsCompat;
   }
 
   @Override
@@ -99,6 +100,12 @@ public class MainFragment extends GndFragment {
     viewModel.projectActivationEvents().observe(this, this::onProjectActivationEvent);
     viewModel.showAddPlaceDialogRequests().observe(this, this::onShowAddPlaceDialogRequest);
     viewModel.getBottomSheetEvents().observe(this, this::onBottomSheetEvent);
+    mainActivityViewModel.getWindowInsetsLiveData().observe(this, this::onApplyWindowInsets);
+  }
+
+  private void onApplyWindowInsets(WindowInsetsCompat windowInsetsCompat) {
+    bottomSheetBottomInsetScrim.setMinimumHeight(windowInsetsCompat.getSystemWindowInsetBottom());
+    toolbarWrapper.setPadding(0, windowInsetsCompat.getSystemWindowInsetTop(), 0, 0);
   }
 
   private void onShowProjectSelectorDialogRequest(List<Project> projects) {

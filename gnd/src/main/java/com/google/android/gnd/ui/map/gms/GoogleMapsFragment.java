@@ -17,15 +17,14 @@
 package com.google.android.gnd.ui.map.gms;
 
 import android.os.Bundle;
+import android.support.v4.view.ViewCompat;
+import android.support.v4.view.WindowInsetsCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowInsets;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
-
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gnd.system.DeviceCapabilities;
 
 /**
  * Customization of Google Maps API Fragment that automatically adjusts the Google watermark based
@@ -35,21 +34,17 @@ public class GoogleMapsFragment extends SupportMapFragment {
   @Override
   public View onCreateView(LayoutInflater layoutInflater, ViewGroup viewGroup, Bundle bundle) {
     View view = super.onCreateView(layoutInflater, viewGroup, bundle);
-    if (DeviceCapabilities.isWindowInsetsSupported()) {
-      view.setOnApplyWindowInsetsListener(this::onApplyWindowInsets);
-    }
+    ViewCompat.setOnApplyWindowInsetsListener(view, this::onApplyWindowInsets);
     return view;
   }
 
-  private WindowInsets onApplyWindowInsets(View view, WindowInsets insets) {
-    if (DeviceCapabilities.isWindowInsetsSupported()) {
-      int insetBottom = insets.getSystemWindowInsetBottom();
-      // TODO: Move extra padding to dimens.xml.
-      // HACK: Fix padding when keyboard is shown; we limit the padding here to prevent the
-      // watermark from flying up too high due to the combination of translateY and big inset
-      // size due to keyboard.
-      setWatermarkPadding(view, 20, 0, 0, Math.min(insetBottom, 250) + 8);
-    }
+  private WindowInsetsCompat onApplyWindowInsets(View view, WindowInsetsCompat insets) {
+    int insetBottom = insets.getSystemWindowInsetBottom();
+    // TODO: Move extra padding to dimens.xml.
+    // HACK: Fix padding when keyboard is shown; we limit the padding here to prevent the
+    // watermark from flying up too high due to the combination of translateY and big inset
+    // size due to keyboard.
+    setWatermarkPadding(view, 20, 0, 0, Math.min(insetBottom, 250) + 8);
     return insets;
   }
 

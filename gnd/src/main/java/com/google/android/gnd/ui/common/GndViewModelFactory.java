@@ -18,18 +18,14 @@ package com.google.android.gnd.ui.common;
 
 import android.arch.lifecycle.ViewModel;
 import android.arch.lifecycle.ViewModelProvider;
-
 import java.util.Map;
-
 import javax.inject.Inject;
 import javax.inject.Provider;
 
 /**
  * Generic factory class to create ViewModels using Dagger 2 injections, working around the fact
  * that we cannot inject view models directly. Based on Android Architecture Components example:
- * https://github.com/googlesamples/android-architecture-components/blob
- * /b1a194c1ae267258cd002e2e1c102df7180be473/GithubBrowserSample/app/src/main/java/com/android
- * /example/github/viewmodel/GithubViewModelFactory.java
+ * https://github.com/googlesamples/android-architecture-components/blob/b1a194c1ae267258cd002e2e1c102df7180be473/GithubBrowserSample/app/src/main/java/com/android/example/github/viewmodel/GithubViewModelFactory.java
  */
 public class GndViewModelFactory implements ViewModelProvider.Factory {
   private final Map<Class<? extends ViewModel>, Provider<ViewModel>> creators;

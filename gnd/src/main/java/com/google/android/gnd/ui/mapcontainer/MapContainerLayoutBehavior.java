@@ -22,9 +22,9 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.widget.FrameLayout;
 import com.google.android.gnd.R;
-import com.google.android.gnd.ui.OnSheetSlideBehavior;
+import com.google.android.gnd.ui.OnBottomSheetSlideBehavior;
 
-public class MapContainerLayoutBehavior extends OnSheetSlideBehavior<FrameLayout> {
+public class MapContainerLayoutBehavior extends OnBottomSheetSlideBehavior<FrameLayout> {
   private static final float SHOW_CROSSHAIRS_THRESHOLD = 0.5f;
   private static final float HIDE_CROSSHAIRS_THRESHOLD = 0.1f;
   private static final float SHOW_BUTTONS_THRESHOLD = 0.1f;

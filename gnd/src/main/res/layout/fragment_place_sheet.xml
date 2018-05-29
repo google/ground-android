@@ -18,21 +18,21 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:app="http://schemas.android.com/apk/res-auto"
   android:layout_width="match_parent"
-  android:layout_height="match_parent">
+  android:layout_height="wrap_content">
 
   <android.support.v7.widget.CardView
     android:id="@+id/place_sheet_card_view"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:layout_marginTop="@dimen/place_sheet_margin_top"
     app:cardBackgroundColor="@android:color/white"
     app:cardCornerRadius="3dp"
-    app:cardElevation="3dp"
-    android:elevation="0dp">
+    app:cardElevation="3dp">
 
     <LinearLayout
+      android:id="@+id/place_sheet_card_contents"
       android:layout_width="match_parent"
-      android:layout_height="match_parent"
+      android:layout_height="wrap_content"
       android:layout_gravity="top"
       android:paddingTop="@dimen/place_sheet_padding_top"
       android:orientation="vertical">
@@ -52,17 +52,18 @@
         android:textAppearance="@style/TextAppearance.AppCompat.Subhead"/>
 
       <android.support.design.widget.TabLayout
+        android:id="@+id/forms_tab_layout"
         app:tabTextColor="@color/colorAccent"
         app:tabSelectedTextColor="@color/colorAccent"
-        android:id="@+id/forms_tab_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="top"/>
 
       <android.support.v4.view.ViewPager
         android:id="@+id/record_list_view_pager"
+        android:minHeight="600dp"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="wrap_content"/>
 
     </LinearLayout>
   </android.support.v7.widget.CardView>
