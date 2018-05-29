@@ -39,13 +39,13 @@ public class PlaceSheetFragment extends GndFragment {
   @Inject
   GndViewModelFactory viewModelFactory;
 
-  private MainActivityViewModel mainActivityViewModel;
-
   @BindView(R.id.record_list_view_pager)
   ViewPager recordListViewPager;
 
   @BindView(R.id.forms_tab_layout)
   TabLayout formsTabLayout;
+
+  private MainActivityViewModel mainActivityViewModel;
 
   @Inject
   public PlaceSheetFragment() {

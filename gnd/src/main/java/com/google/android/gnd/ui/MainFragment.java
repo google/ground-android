@@ -103,9 +103,9 @@ public class MainFragment extends GndFragment {
     mainActivityViewModel.getWindowInsetsLiveData().observe(this, this::onApplyWindowInsets);
   }
 
-  private void onApplyWindowInsets(WindowInsetsCompat windowInsetsCompat) {
-    bottomSheetBottomInsetScrim.setMinimumHeight(windowInsetsCompat.getSystemWindowInsetBottom());
-    toolbarWrapper.setPadding(0, windowInsetsCompat.getSystemWindowInsetTop(), 0, 0);
+  private void onApplyWindowInsets(WindowInsetsCompat insets) {
+    bottomSheetBottomInsetScrim.setMinimumHeight(insets.getSystemWindowInsetBottom());
+    toolbarWrapper.setPadding(0, insets.getSystemWindowInsetTop(), 0, 0);
   }
 
   private void onShowProjectSelectorDialogRequest(List<Project> projects) {
@@ -141,6 +141,7 @@ public class MainFragment extends GndFragment {
     double screenHeight = getScreenHeight(getActivity());
     double mapHeight = width / COLLAPSED_MAP_ASPECT_RATIO;
     double peekHeight = screenHeight - mapHeight;
+    bottomSheetScrollView.setPadding(0, toolbarWrapper.getHeight(), 0, 0);
     // TODO: Take window insets into account; COLLAPSED_MAP_ASPECT_RATIO will be wrong on older
     // devices w/o translucent system windows.
     bottomSheetBehavior.setPeekHeight((int) peekHeight);

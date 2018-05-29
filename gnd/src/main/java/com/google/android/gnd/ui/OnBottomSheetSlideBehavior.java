@@ -51,11 +51,11 @@ public abstract class OnBottomSheetSlideBehavior<V extends View> extends
 
   public static class SheetSlideMetrics {
     private final CoordinatorLayout parent;
-    private final NestedScrollView dataSheetView;
+    private final NestedScrollView nestedScrollView;
 
-    public SheetSlideMetrics(CoordinatorLayout parent, NestedScrollView dataSheetView) {
+    public SheetSlideMetrics(CoordinatorLayout parent, NestedScrollView nestedScrollView) {
       this.parent = parent;
-      this.dataSheetView = dataSheetView;
+      this.nestedScrollView = nestedScrollView;
     }
 
 
@@ -84,7 +84,7 @@ public abstract class OnBottomSheetSlideBehavior<V extends View> extends
     }
 
     public float getVisibleRatio() {
-      return 1 - ((float) dataSheetView.getTop()) / ((float) parent.getHeight());
+      return 1 - ((float) nestedScrollView.getTop()) / ((float) parent.getHeight());
     }
 
     public void showWithSheet(Drawable view, float hideThreshold, float showThreshold) {
@@ -108,15 +108,15 @@ public abstract class OnBottomSheetSlideBehavior<V extends View> extends
     }
 
     public int getVisibleHeight() {
-      return Math.max(parent.getHeight() - dataSheetView.getTop(), 0);
+      return Math.max(parent.getHeight() - nestedScrollView.getTop(), 0);
     }
 
     public int getTop() {
-      return dataSheetView.getTop();
+      return nestedScrollView.getTop() + nestedScrollView.getPaddingTop();
     }
 
     public int getPeekHeight() {
-      return BottomSheetBehavior.from(dataSheetView).getPeekHeight();
+      return BottomSheetBehavior.from(nestedScrollView).getPeekHeight();
     }
   }
 }

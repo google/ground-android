@@ -26,6 +26,14 @@
     android:layout_height="match_parent"
     app:layout_behavior="com.google.android.gnd.ui.mapcontainer.MapContainerLayoutBehavior"/>
 
+  <fragment
+    android:id="@+id/place_sheet_header"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:name="com.google.android.gnd.ui.placesheet.PlaceSheetHeaderFragment"
+    app:layout_behavior="com.google.android.gnd.ui.placesheet.PlaceSheetHeaderLayoutBehavior"
+    />
+
   <android.support.v4.widget.NestedScrollView
     android:id="@+id/bottom_sheet_scroll_view"
     android:layout_width="match_parent"

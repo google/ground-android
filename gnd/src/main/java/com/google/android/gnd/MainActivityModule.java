@@ -28,6 +28,7 @@ import com.google.android.gnd.ui.common.GndActivityModule;
 import com.google.android.gnd.ui.mapcontainer.MapContainerFragment;
 import com.google.android.gnd.ui.mapcontainer.MapContainerFragmentModule;
 import com.google.android.gnd.ui.placesheet.PlaceSheetFragment;
+import com.google.android.gnd.ui.placesheet.PlaceSheetHeaderFragment;
 import com.google.android.gnd.ui.placesheet.PlaceSheetModule;
 import dagger.Binds;
 import dagger.Module;
@@ -63,4 +64,8 @@ public abstract class MainActivityModule {
   @PerFragment
   @ContributesAndroidInjector(modules = PlaceSheetModule.class)
   abstract PlaceSheetFragment placeSheetFragmentInjector();
+
+  @PerFragment
+  @ContributesAndroidInjector(modules = PlaceSheetModule.class)
+  abstract PlaceSheetHeaderFragment placeSheetHeaderFragmentInjector();
 }
