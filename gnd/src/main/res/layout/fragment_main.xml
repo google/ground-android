@@ -45,7 +45,7 @@
       android:id="@+id/place_sheet_fragment"
       android:layout_width="match_parent"
       android:layout_height="match_parent"
-      android:name="com.google.android.gnd.ui.placesheet.PlaceSheetFragment"/>
+      android:name="com.google.android.gnd.ui.placesheet.PlaceSheetBodyFragment"/>
 
   </android.support.v4.widget.NestedScrollView>
 

@@ -36,6 +36,10 @@ public class RecordListPagerAdapter extends FragmentPagerAdapter {
     );
   }
 
+  public void setForms(List<Form> forms) {
+    this.forms = forms;
+  }
+
   @Override
   public int getCount() {
     return forms.size();

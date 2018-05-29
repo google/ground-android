@@ -29,13 +29,13 @@ public class PlaceSheetModule {
 
   @Provides
   @PerFragment
-  public Fragment fragment(PlaceSheetFragment fragment) {
+  public Fragment fragment(PlaceSheetBodyFragment fragment) {
     return fragment;
   }
 
   @Provides
   @PerFragment
-  public FragmentManager fragmentManager(PlaceSheetFragment fragment) {
+  public FragmentManager fragmentManager(PlaceSheetBodyFragment fragment) {
     return fragment.getChildFragmentManager();
   }
 

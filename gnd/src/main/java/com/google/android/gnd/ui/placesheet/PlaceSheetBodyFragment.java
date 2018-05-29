@@ -27,17 +27,19 @@ import android.view.ViewGroup;
 import butterknife.BindView;
 import com.google.android.gnd.MainActivityViewModel;
 import com.google.android.gnd.R;
+import com.google.android.gnd.ui.MainViewModel;
 import com.google.android.gnd.ui.common.GndFragment;
 import com.google.android.gnd.ui.common.GndViewModelFactory;
+import com.google.android.gnd.ui.placesheet.PlaceSheetBodyViewModel.PlaceSheetBodyUpdate;
 import com.h6ah4i.android.tablayouthelper.TabLayoutHelper;
 import javax.inject.Inject;
 
-public class PlaceSheetFragment extends GndFragment {
-  @Inject
-  RecordListPagerAdapter recordListPagerAdapter;
-
+public class PlaceSheetBodyFragment extends GndFragment {
   @Inject
   GndViewModelFactory viewModelFactory;
+
+  @Inject
+  RecordListPagerAdapter recordListPagerAdapter;
 
   @BindView(R.id.record_list_view_pager)
   ViewPager recordListViewPager;
@@ -45,10 +47,12 @@ public class PlaceSheetFragment extends GndFragment {
   @BindView(R.id.forms_tab_layout)
   TabLayout formsTabLayout;
 
+  private MainViewModel mainViewModel;
   private MainActivityViewModel mainActivityViewModel;
+  private PlaceSheetBodyViewModel viewModel;
 
   @Inject
-  public PlaceSheetFragment() {
+  public PlaceSheetBodyFragment() {
   }
 
   @Override
@@ -56,6 +60,9 @@ public class PlaceSheetFragment extends GndFragment {
     mainActivityViewModel = ViewModelProviders
       .of(getActivity(), viewModelFactory)
       .get(MainActivityViewModel.class);
+    mainViewModel =
+      ViewModelProviders.of(getParentFragment(), viewModelFactory).get(MainViewModel.class);
+    viewModel = ViewModelProviders.of(this, viewModelFactory).get(PlaceSheetBodyViewModel.class);
   }
 
   @Override
@@ -69,13 +76,20 @@ public class PlaceSheetFragment extends GndFragment {
     recordListViewPager.setAdapter(recordListPagerAdapter);
     formsTabLayout.setupWithViewPager(recordListViewPager);
     TabLayoutHelper tabLayoutHelper = new TabLayoutHelper(formsTabLayout, recordListViewPager);
-    // Stretch tabs if they all fit on screen, otherwise scroll:
+    // Stretch tabs if they all fit on screen, otherwise scroll.
     tabLayoutHelper.setAutoAdjustTabModeEnabled(true);
   }
 
   @Override
   protected void observeViewModel() {
     mainActivityViewModel.getWindowInsetsLiveData().observe(this, this::onApplyWindowInsets);
+    mainViewModel.getBottomSheetEvents().observe(this, viewModel::onBottomSheetEvent);
+    viewModel.getPlaceSheetBodyUpdates().observe(this, this::onPlaceSheetBodyUpdate);
+  }
+
+  private void onPlaceSheetBodyUpdate(PlaceSheetBodyUpdate placeSheetBodyUpdate) {
+    recordListPagerAdapter.setForms(placeSheetBodyUpdate.getForms());
+    recordListPagerAdapter.notifyDataSetChanged();
   }
 
   private void onApplyWindowInsets(WindowInsetsCompat insets) {

@@ -38,9 +38,9 @@ public class PlaceSheetHeaderViewModel extends ViewModel {
 
   public void onBottomSheetEvent(BottomSheetEvent bottomSheetEvent) {
     if (bottomSheetEvent.getType() == BottomSheetEvent.Type.SHOW) {
-      Place place = bottomSheetEvent.getPlace();
       placeSheetHeaderUpdates.setValue(
-        PlaceSheetHeaderUpdate.from(bottomSheetEvent.getPlaceType(), place));
+        PlaceSheetHeaderUpdate.from(
+          bottomSheetEvent.getPlaceType(), bottomSheetEvent.getPlace()));
     }
   }
 
