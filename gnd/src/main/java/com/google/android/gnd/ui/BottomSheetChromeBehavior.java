@@ -21,7 +21,6 @@ import static com.google.android.gnd.ui.OnBottomSheetSlideBehavior.SheetSlideMet
 import android.content.Context;
 import android.support.design.widget.CoordinatorLayout;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import com.google.android.gnd.R;
@@ -54,6 +53,5 @@ public class BottomSheetChromeBehavior extends OnBottomSheetSlideBehavior<ViewGr
     // Fade in toolbar text labels with sheet expansion.
     float alpha = scale(metrics.getTop(), 0, toolbarWrapper.getHeight(), 1f, 0f);
     toolbarTitles.setAlpha(alpha);
-    Log.e("!!!", "" + alpha + " h: " + toolbarWrapper.getHeight() + " t: " + metrics.getTop());
   }
 }
