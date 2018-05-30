@@ -24,11 +24,11 @@ import java.util.Arrays;
 import java.util.List;
 import javax.inject.Inject;
 
-public class RecordListPagerAdapter extends FragmentPagerAdapter {
+public class FormTypePagerAdapter extends FragmentPagerAdapter {
   private List<Form> forms;
 
   @Inject
-  public RecordListPagerAdapter(FragmentManager fm) {
+  public FormTypePagerAdapter(FragmentManager fm) {
     super(fm);
     this.forms = Arrays.asList(
       Form.newBuilder().putTitle("pt", "Form One").build(),

@@ -39,7 +39,7 @@ public class PlaceSheetBodyFragment extends GndFragment {
   GndViewModelFactory viewModelFactory;
 
   @Inject
-  RecordListPagerAdapter recordListPagerAdapter;
+  FormTypePagerAdapter formTypePagerAdapter;
 
   @BindView(R.id.record_list_view_pager)
   ViewPager recordListViewPager;
@@ -73,7 +73,7 @@ public class PlaceSheetBodyFragment extends GndFragment {
 
   @Override
   protected void initializeViews() {
-    recordListViewPager.setAdapter(recordListPagerAdapter);
+    recordListViewPager.setAdapter(formTypePagerAdapter);
     formsTabLayout.setupWithViewPager(recordListViewPager);
     TabLayoutHelper tabLayoutHelper = new TabLayoutHelper(formsTabLayout, recordListViewPager);
     // Stretch tabs if they all fit on screen, otherwise scroll.
@@ -88,8 +88,8 @@ public class PlaceSheetBodyFragment extends GndFragment {
   }
 
   private void onPlaceSheetBodyUpdate(PlaceSheetBodyUpdate placeSheetBodyUpdate) {
-    recordListPagerAdapter.setForms(placeSheetBodyUpdate.getForms());
-    recordListPagerAdapter.notifyDataSetChanged();
+    formTypePagerAdapter.setForms(placeSheetBodyUpdate.getForms());
+    formTypePagerAdapter.notifyDataSetChanged();
   }
 
   private void onApplyWindowInsets(WindowInsetsCompat insets) {

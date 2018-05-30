@@ -35,7 +35,7 @@ public class PlaceSheetHeaderLayoutBehavior extends OnBottomSheetSlideBehavior {
     CoordinatorLayout parent, View child, SheetSlideMetrics metrics) {
     View cardView = child.findViewById(R.id.place_sheet_card_view);
     // Let header and body overlap to cover bottom corner radius.
-    cardView.setPadding(0, 0, 0, 8);
-    child.setTranslationY(metrics.getTop() + 8 - child.getHeight());
+    cardView.setPadding(0, 0, 0, 16);
+    child.setTranslationY(metrics.getTop() + 16 - child.getHeight());
   }
 }
