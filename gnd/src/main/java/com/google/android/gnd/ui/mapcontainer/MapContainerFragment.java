@@ -33,8 +33,8 @@ import com.google.android.gnd.model.PlaceIcon;
 import com.google.android.gnd.model.ProjectActivationEvent;
 import com.google.android.gnd.system.PermissionsManager.PermissionDeniedException;
 import com.google.android.gnd.system.SettingsManager.SettingsChangeRequestCanceled;
-import com.google.android.gnd.ui.BottomSheetEvent;
 import com.google.android.gnd.ui.MainViewModel;
+import com.google.android.gnd.ui.PlaceSheetEvent;
 import com.google.android.gnd.ui.common.GndFragment;
 import com.google.android.gnd.ui.map.MapAdapter;
 import com.google.android.gnd.ui.map.MapAdapter.MapViewModel;
@@ -115,11 +115,11 @@ public class MapContainerFragment extends GndFragment {
     RxView.clicks(locationLockBtn).subscribe(__ -> mapContainerViewModel.onLocationLockClick());
     mapViewModel.markerClicks().subscribe(mainViewModel::onMarkerClick);
     mapViewModel.dragInteractions().subscribe(mapContainerViewModel::onMapDrag);
-    mainViewModel.getBottomSheetEvents().observe(this, ev -> onBottomSheetEvent(ev, mapViewModel));
+    mainViewModel.getPlaceSheetEvents().observe(this, ev -> onPlaceSheetEvent(ev, mapViewModel));
     enableLocationLockBtn();
   }
 
-  private void onBottomSheetEvent(BottomSheetEvent event, MapViewModel mapViewModel) {
+  private void onPlaceSheetEvent(PlaceSheetEvent event, MapViewModel mapViewModel) {
     switch (event.getType()) {
       case SHOW:
         mapViewModel.disable();

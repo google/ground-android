@@ -112,6 +112,10 @@ public abstract class OnBottomSheetSlideBehavior<V extends View> extends
     }
 
     public int getTop() {
+      return nestedScrollView.getTop();
+    }
+
+    public int getTabLayoutTop() {
       return nestedScrollView.getTop() + nestedScrollView.getPaddingTop();
     }
 

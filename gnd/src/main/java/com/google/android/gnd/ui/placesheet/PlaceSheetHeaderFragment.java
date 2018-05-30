@@ -25,9 +25,9 @@ import android.widget.TextView;
 import butterknife.BindView;
 import com.google.android.gnd.R;
 import com.google.android.gnd.ui.MainViewModel;
+import com.google.android.gnd.ui.PlaceSheetEvent;
 import com.google.android.gnd.ui.common.GndFragment;
 import com.google.android.gnd.ui.common.GndViewModelFactory;
-import com.google.android.gnd.ui.placesheet.PlaceSheetHeaderViewModel.PlaceSheetHeaderUpdate;
 import javax.inject.Inject;
 
 public class PlaceSheetHeaderFragment extends GndFragment {
@@ -40,7 +40,6 @@ public class PlaceSheetHeaderFragment extends GndFragment {
   @BindView(R.id.place_sheet_subtitle)
   TextView placeSheetSubtitle;
 
-  private PlaceSheetHeaderViewModel viewModel;
   private MainViewModel mainViewModel;
 
   @Inject
@@ -55,21 +54,19 @@ public class PlaceSheetHeaderFragment extends GndFragment {
 
   @Override
   protected void createViewModel() {
-    viewModel =
-      ViewModelProviders.of(getParentFragment(), viewModelFactory)
-                        .get(PlaceSheetHeaderViewModel.class);
     mainViewModel =
       ViewModelProviders.of(getParentFragment(), viewModelFactory).get(MainViewModel.class);
   }
 
   @Override
   protected void observeViewModel() {
-    mainViewModel.getBottomSheetEvents().observe(this, viewModel::onBottomSheetEvent);
-    viewModel.getPlaceSheetHeaderUpdates().observe(this, this::onPlaceSheetHeaderUpdate);
+    mainViewModel.getPlaceSheetEvents().observe(this, this::onPlaceSheetEvent);
   }
 
-  private void onPlaceSheetHeaderUpdate(PlaceSheetHeaderUpdate placeSheetHeaderUpdate) {
-    placeSheetTitle.setText(placeSheetHeaderUpdate.getTitle());
-    placeSheetSubtitle.setText(placeSheetHeaderUpdate.getSubheading());
+  private void onPlaceSheetEvent(PlaceSheetEvent placeSheetEvent) {
+    if (placeSheetEvent.isShowEvent()) {
+      placeSheetTitle.setText(placeSheetEvent.getTitle());
+      placeSheetSubtitle.setText(placeSheetEvent.getSubtitle());
+    }
   }
 }

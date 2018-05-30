@@ -19,28 +19,35 @@ package com.google.android.gnd.ui;
 import com.google.android.gnd.model.Place;
 import com.google.android.gnd.model.PlaceType;
 
-public class BottomSheetEvent {
+public class PlaceSheetEvent {
 
   public enum Type {
-    SHOW, HIDE
+    SHOW,
+    HIDE
   }
 
   private final Type type;
   private final PlaceType placeType;
   private final Place place;
+  private final String title;
+  private final String subtitle;
 
-  private BottomSheetEvent(Type type, PlaceType placeType, Place place) {
+  private PlaceSheetEvent(Type type, PlaceType placeType, Place place) {
     this.type = type;
     this.placeType = placeType;
     this.place = place;
+    String caption = place.getCaption();
+    String placeTypeLabel = placeType.getItemLabelOrDefault("pt", "");
+    this.title = caption.isEmpty() ? placeTypeLabel : caption;
+    this.subtitle = caption.isEmpty() ? "" : placeTypeLabel + " " + place.getCustomId();
   }
 
-  public static BottomSheetEvent show(PlaceType placeType, Place place) {
-    return new BottomSheetEvent(Type.SHOW, placeType, place);
+  public static PlaceSheetEvent show(PlaceType placeType, Place place) {
+    return new PlaceSheetEvent(Type.SHOW, placeType, place);
   }
 
-  public static BottomSheetEvent hide() {
-    return new BottomSheetEvent(Type.HIDE, null, null);
+  public static PlaceSheetEvent hide() {
+    return new PlaceSheetEvent(Type.HIDE, null, null);
   }
 
   public PlaceType getPlaceType() {
@@ -53,5 +60,17 @@ public class BottomSheetEvent {
 
   public Type getType() {
     return type;
+  }
+
+  public String getTitle() {
+    return title;
+  }
+
+  public String getSubtitle() {
+    return subtitle;
+  }
+
+  public boolean isShowEvent() {
+    return type == Type.SHOW;
   }
 }

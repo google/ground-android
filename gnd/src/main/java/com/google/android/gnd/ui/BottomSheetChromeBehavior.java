@@ -17,14 +17,13 @@
 package com.google.android.gnd.ui;
 
 import static com.google.android.gnd.ui.OnBottomSheetSlideBehavior.SheetSlideMetrics.scale;
-import static com.google.android.gnd.ui.util.ViewUtil.children;
 
 import android.content.Context;
 import android.support.design.widget.CoordinatorLayout;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 import com.google.android.gnd.R;
 
 public class BottomSheetChromeBehavior extends OnBottomSheetSlideBehavior<ViewGroup> {
@@ -45,14 +44,16 @@ public class BottomSheetChromeBehavior extends OnBottomSheetSlideBehavior<ViewGr
     View addRecordButton = layout.findViewById(R.id.add_record_btn);
     ViewGroup toolbarWrapper = layout.findViewById(R.id.toolbar_wrapper);
     ViewGroup toolbar = toolbarWrapper.findViewById(R.id.toolbar);
+    ViewGroup toolbarTitles = toolbarWrapper.findViewById(R.id.toolbar_titles_layout);
     metrics.showWithSheet(scrim, HIDE_SCRIM_THRESHOLD, SHOW_SCRIM_THRESHOLD);
     metrics.showWithSheet(addRecordButton, HIDE_ADD_BUTTON_THRESHOLD, SHOW_ADD_BUTTON_THRESHOLD);
     toolbarWrapper.setBackgroundColor(layout.getResources().getColor(R.color.colorPrimary));
     toolbarWrapper.setTranslationY(
       scale(metrics.getVisibleRatio(), 0.3f, 0.5f, -toolbarWrapper.getHeight(), 0));
     metrics.showWithSheet(toolbarWrapper.getBackground(), 0.9f, 1);
-    float alpha = scale(metrics.getTop(), 0, toolbar.getHeight(), 1f, 0f);
     // Fade in toolbar text labels with sheet expansion.
-    children(toolbar).filter(TextView.class::isInstance).forEach(v -> v.setAlpha(alpha));
+    float alpha = scale(metrics.getTop(), 0, toolbarWrapper.getHeight(), 1f, 0f);
+    toolbarTitles.setAlpha(alpha);
+    Log.e("!!!", "" + alpha + " h: " + toolbarWrapper.getHeight() + " t: " + metrics.getTop());
   }
 }

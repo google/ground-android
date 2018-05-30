@@ -39,7 +39,7 @@ public class MainViewModel extends ViewModel {
   private final LiveData<ProjectActivationEvent> projectActivationEvents;
   private final MutableLiveData<List<Project>> showProjectSelectorDialogRequests;
   private final MutableLiveData<Point> addPlaceDialogRequests;
-  private final MutableLiveData<BottomSheetEvent> bottomSheetEvents;
+  private final MutableLiveData<PlaceSheetEvent> placeSheetEvents;
 
   @Inject
   MainViewModel(GndDataRepository dataRepository) {
@@ -47,7 +47,7 @@ public class MainViewModel extends ViewModel {
     this.showProjectSelectorDialogRequests = new MutableLiveData<>();
     this.addPlaceDialogRequests = new MutableLiveData<>();
     this.projectActivationEvents = RxLiveData.fromObservable(dataRepository.activeProject());
-    this.bottomSheetEvents = new MutableLiveData<>();
+    this.placeSheetEvents = new MutableLiveData<>();
   }
 
   public LiveData<List<Project>> showProjectSelectorDialogRequests() {
@@ -62,8 +62,8 @@ public class MainViewModel extends ViewModel {
     return addPlaceDialogRequests;
   }
 
-  public LiveData<BottomSheetEvent> getBottomSheetEvents() {
-    return bottomSheetEvents;
+  public LiveData<PlaceSheetEvent> getPlaceSheetEvents() {
+    return placeSheetEvents;
   }
 
   @SuppressLint("CheckResult")
@@ -81,7 +81,7 @@ public class MainViewModel extends ViewModel {
         // TODO: Show error message to user.
         return;
       }
-      bottomSheetEvents.setValue(BottomSheetEvent.show(placeType.get(), place));
+      placeSheetEvents.setValue(PlaceSheetEvent.show(placeType.get(), place));
     }
   }
 
@@ -97,6 +97,6 @@ public class MainViewModel extends ViewModel {
   }
 
   public void onBottomSheetHidden() {
-    bottomSheetEvents.setValue(BottomSheetEvent.hide());
+    placeSheetEvents.setValue(PlaceSheetEvent.hide());
   }
 }

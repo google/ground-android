@@ -26,10 +26,13 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.v4.view.WindowInsetsCompat;
 import android.support.v4.widget.NestedScrollView;
+import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import butterknife.BindView;
+import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.MainActivityViewModel;
 import com.google.android.gnd.R;
 import com.google.android.gnd.model.Point;
@@ -56,6 +59,15 @@ public class MainFragment extends GndFragment {
   @BindView(R.id.toolbar_wrapper)
   ViewGroup toolbarWrapper;
 
+  @BindView(R.id.toolbar)
+  Toolbar toolbar;
+
+  @BindView(R.id.toolbar_title_text)
+  TextView toolbarTitle;
+
+  @BindView(R.id.toolbar_subtitle_text)
+  TextView toolbarSubtitle;
+
   @BindView(R.id.bottom_sheet_scroll_view)
   NestedScrollView bottomSheetScrollView;
 
@@ -70,9 +82,8 @@ public class MainFragment extends GndFragment {
   @Override
   public void createViewModel() {
     viewModel = ViewModelProviders.of(this, viewModelFactory).get(MainViewModel.class);
-    mainActivityViewModel = ViewModelProviders
-      .of(getActivity(), viewModelFactory)
-      .get(MainActivityViewModel.class);
+    mainActivityViewModel =
+      ViewModelProviders.of(getActivity(), viewModelFactory).get(MainActivityViewModel.class);
   }
 
   @Override
@@ -86,6 +97,17 @@ public class MainFragment extends GndFragment {
     bottomSheetBehavior.setHideable(true);
     bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
     bottomSheetBehavior.setBottomSheetCallback(new BottomSheetCallback());
+    hideDefaultToolbarTitle();
+  }
+
+  /**
+   * Workaround to get rid of application title from toolbar. Setting "" here or in layout XML
+   * doesn't work.
+   */
+  private void hideDefaultToolbarTitle() {
+    MainActivity activity = (MainActivity) getActivity();
+    activity.setSupportActionBar(toolbar);
+    activity.getSupportActionBar().setDisplayShowTitleEnabled(false);
   }
 
   @Override
@@ -99,7 +121,7 @@ public class MainFragment extends GndFragment {
       .observe(this, this::onShowProjectSelectorDialogRequest);
     viewModel.projectActivationEvents().observe(this, this::onProjectActivationEvent);
     viewModel.showAddPlaceDialogRequests().observe(this, this::onShowAddPlaceDialogRequest);
-    viewModel.getBottomSheetEvents().observe(this, this::onBottomSheetEvent);
+    viewModel.getPlaceSheetEvents().observe(this, this::onPlaceSheetEvent);
     mainActivityViewModel.getWindowInsetsLiveData().observe(this, this::onApplyWindowInsets);
   }
 
@@ -125,15 +147,22 @@ public class MainFragment extends GndFragment {
     addPlaceDialogFragment.show(getChildFragmentManager()).subscribe(viewModel::onAddPlace);
   }
 
-  private void onBottomSheetEvent(BottomSheetEvent event) {
+  private void onPlaceSheetEvent(PlaceSheetEvent event) {
     switch (event.getType()) {
       case SHOW:
+        updateToolbar(event);
         showBottomSheet();
         break;
       case HIDE:
         hideBottomSheet();
         break;
     }
+  }
+
+  private void updateToolbar(PlaceSheetEvent event) {
+    toolbarTitle.setText(event.getTitle());
+    toolbarSubtitle.setText(event.getSubtitle());
+    toolbarSubtitle.setVisibility(event.getSubtitle().isEmpty() ? View.GONE : View.VISIBLE);
   }
 
   private void showBottomSheet() {

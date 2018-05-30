@@ -83,7 +83,7 @@ public class PlaceSheetBodyFragment extends GndFragment {
   @Override
   protected void observeViewModel() {
     mainActivityViewModel.getWindowInsetsLiveData().observe(this, this::onApplyWindowInsets);
-    mainViewModel.getBottomSheetEvents().observe(this, viewModel::onBottomSheetEvent);
+    mainViewModel.getPlaceSheetEvents().observe(this, viewModel::onPlaceSheetEvent);
     viewModel.getPlaceSheetBodyUpdates().observe(this, this::onPlaceSheetBodyUpdate);
   }
 

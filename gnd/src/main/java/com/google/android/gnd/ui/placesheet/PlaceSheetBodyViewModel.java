@@ -20,7 +20,7 @@ import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.ViewModel;
 import com.google.android.gnd.model.Form;
-import com.google.android.gnd.ui.BottomSheetEvent;
+import com.google.android.gnd.ui.PlaceSheetEvent;
 import java.util.List;
 import javax.inject.Inject;
 
@@ -32,10 +32,10 @@ public class PlaceSheetBodyViewModel extends ViewModel {
     placeSheetBodyUpdates = new MutableLiveData<PlaceSheetBodyUpdate>();
   }
 
-  void onBottomSheetEvent(BottomSheetEvent bottomSheetEvent) {
-    if (bottomSheetEvent.getType().equals(BottomSheetEvent.Type.SHOW)) {
+  void onPlaceSheetEvent(PlaceSheetEvent placeSheetEvent) {
+    if (placeSheetEvent.getType().equals(PlaceSheetEvent.Type.SHOW)) {
       placeSheetBodyUpdates.setValue(
-        PlaceSheetBodyUpdate.reset(bottomSheetEvent.getPlaceType().getFormsList()));
+        PlaceSheetBodyUpdate.reset(placeSheetEvent.getPlaceType().getFormsList()));
     }
   }
 
