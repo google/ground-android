@@ -18,7 +18,7 @@ apply plugin: 'com.android.application'
 apply plugin: 'com.google.protobuf'
 
 project.ext {
-    supportLibraryVersion = "27.1.0"
+    supportLibraryVersion = "28.0.0-alpha1"
     daggerVersion = "2.14.1"
     butterKnifeVersion = "8.8.1"
     rxJavaVersion = "2.1.6"
@@ -39,12 +39,12 @@ project.ext {
 def homePath = System.properties['user.home']
 
 android {
-    compileSdkVersion 26
+    compileSdkVersion "android-P"
     defaultConfig {
         // https://developer.android.com/about/dashboards/index.html for reference.
         applicationId "com.google.android.gnd"
         minSdkVersion 15
-        targetSdkVersion 26
+        targetSdkVersion 27
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
@@ -71,7 +71,6 @@ android {
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation 'com.android.support:support-v4:26.1.0'
     androidTestImplementation('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
