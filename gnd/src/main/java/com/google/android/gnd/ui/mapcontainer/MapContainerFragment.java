@@ -113,6 +113,7 @@ public class MapContainerFragment extends GndFragment {
     RxView.clicks(addPlaceBtn)
           .subscribe(__ -> mainViewModel.onAddPlaceBtnClick(mapViewModel.getCenter()));
     RxView.clicks(locationLockBtn).subscribe(__ -> mapContainerViewModel.onLocationLockClick());
+    mapViewModel.markerClicks().subscribe(mapContainerViewModel::onMarkerClick);
     mapViewModel.markerClicks().subscribe(mainViewModel::onMarkerClick);
     mapViewModel.dragInteractions().subscribe(mapContainerViewModel::onMapDrag);
     mainViewModel.getPlaceSheetEvents().observe(this, ev -> onPlaceSheetEvent(ev, mapViewModel));
@@ -193,8 +194,10 @@ public class MapContainerFragment extends GndFragment {
       .getViewModel()
       .subscribe(
         map -> {
-          if (update.getZoomLevel().isPresent()) {
-            map.moveCamera(update.getCenter(), update.getZoomLevel().get());
+          if (update.getMinZoomLevel().isPresent()) {
+            map.moveCamera(
+              update.getCenter(),
+              Math.max(update.getMinZoomLevel().get(), map.getCurrentZoomLevel()));
           } else {
             map.moveCamera(update.getCenter());
           }
@@ -218,5 +221,4 @@ public class MapContainerFragment extends GndFragment {
         break;
     }
   }
-
 }

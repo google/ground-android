@@ -31,6 +31,7 @@ import com.google.android.gnd.rx.RxLiveData;
 import com.google.android.gnd.service.DatastoreEvent;
 import com.google.android.gnd.system.LocationManager;
 import com.google.android.gnd.ui.AddPlaceDialogFragment.AddPlaceRequest;
+import com.google.android.gnd.ui.map.MapMarker;
 import io.reactivex.Flowable;
 import io.reactivex.Observable;
 import io.reactivex.disposables.Disposable;
@@ -146,8 +147,8 @@ public class MapContainerViewModel extends ViewModel {
     locationUpdateSubscription =
       locationUpdates
         .take(1)
-        .map(CameraUpdate::moveAndZoom)
-        .concatWith(locationUpdates.map(CameraUpdate::move))
+        .map(CameraUpdate::panAndZoom)
+        .concatWith(locationUpdates.map(CameraUpdate::pan))
         .subscribe(cameraUpdates::setValue);
   }
 
@@ -178,6 +179,10 @@ public class MapContainerViewModel extends ViewModel {
       Log.d(TAG, "User dragged map. Disabling location lock");
       disableLocationLock();
     }
+  }
+
+  public void onMarkerClick(MapMarker mapMarker) {
+    cameraUpdates.setValue(CameraUpdate.panAndZoom(mapMarker.getPosition()));
   }
 
   public static class LocationLockStatus {
@@ -219,32 +224,32 @@ public class MapContainerViewModel extends ViewModel {
 
   static class CameraUpdate {
     private Point center;
-    private Optional<Float> zoomLevel;
+    private Optional<Float> minZoomLevel;
 
-    public CameraUpdate(Point center, Optional<Float> zoomLevel) {
+    public CameraUpdate(Point center, Optional<Float> minZoomLevel) {
       this.center = center;
-      this.zoomLevel = zoomLevel;
+      this.minZoomLevel = minZoomLevel;
     }
 
     public Point getCenter() {
       return center;
     }
 
-    public Optional<Float> getZoomLevel() {
-      return zoomLevel;
+    public Optional<Float> getMinZoomLevel() {
+      return minZoomLevel;
     }
 
-    private static CameraUpdate move(Point center) {
+    private static CameraUpdate pan(Point center) {
       return new CameraUpdate(center, Optional.empty());
     }
 
-    private static CameraUpdate moveAndZoom(Point center) {
+    private static CameraUpdate panAndZoom(Point center) {
       return new CameraUpdate(center, Optional.of(DEFAULT_ZOOM_LEVEL));
     }
 
     @Override
     public String toString() {
-      if (zoomLevel.isPresent()) {
+      if (minZoomLevel.isPresent()) {
         return "Pan + zoom";
       } else {
         return "Pan";
