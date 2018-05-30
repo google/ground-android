@@ -69,7 +69,7 @@
     android:layout_height="@dimen/place_header_icon_height"
     android:layout_gravity="top|center_horizontal"
     app:srcCompat="@drawable/ic_marker_house_map_marker"
-    android:tint="@color/colorGrey500"
+    android:tint="@color/colorGrey600"
     android:elevation="4dp"/>
 
 </FrameLayout>

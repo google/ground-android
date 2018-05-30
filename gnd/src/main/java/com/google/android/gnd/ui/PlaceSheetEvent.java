@@ -27,10 +27,10 @@ public class PlaceSheetEvent {
   }
 
   private final Type type;
-  private final PlaceType placeType;
-  private final Place place;
-  private final String title;
-  private final String subtitle;
+  private PlaceType placeType;
+  private Place place;
+  private String title;
+  private String subtitle;
 
   private PlaceSheetEvent(Type type, PlaceType placeType, Place place) {
     this.type = type;
@@ -42,12 +42,16 @@ public class PlaceSheetEvent {
     this.subtitle = caption.isEmpty() ? "" : placeTypeLabel + " " + place.getCustomId();
   }
 
+  private PlaceSheetEvent(Type type) {
+    this.type = type;
+  }
+
   public static PlaceSheetEvent show(PlaceType placeType, Place place) {
     return new PlaceSheetEvent(Type.SHOW, placeType, place);
   }
 
   public static PlaceSheetEvent hide() {
-    return new PlaceSheetEvent(Type.HIDE, null, null);
+    return new PlaceSheetEvent(Type.HIDE);
   }
 
   public PlaceType getPlaceType() {

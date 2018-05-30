@@ -42,7 +42,6 @@ public class BottomSheetChromeBehavior extends OnBottomSheetSlideBehavior<ViewGr
     View scrim = layout.findViewById(R.id.bottom_sheet_bottom_inset_scrim);
     View addRecordButton = layout.findViewById(R.id.add_record_btn);
     ViewGroup toolbarWrapper = layout.findViewById(R.id.toolbar_wrapper);
-    ViewGroup toolbar = toolbarWrapper.findViewById(R.id.toolbar);
     ViewGroup toolbarTitles = toolbarWrapper.findViewById(R.id.toolbar_titles_layout);
     metrics.showWithSheet(scrim, HIDE_SCRIM_THRESHOLD, SHOW_SCRIM_THRESHOLD);
     metrics.showWithSheet(addRecordButton, HIDE_ADD_BUTTON_THRESHOLD, SHOW_ADD_BUTTON_THRESHOLD);
