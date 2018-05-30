@@ -21,10 +21,12 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 import butterknife.BindView;
 import com.google.android.gnd.R;
 import com.google.android.gnd.ui.MainViewModel;
+import com.google.android.gnd.ui.PlaceIcon;
 import com.google.android.gnd.ui.PlaceSheetEvent;
 import com.google.android.gnd.ui.common.GndFragment;
 import com.google.android.gnd.ui.common.GndViewModelFactory;
@@ -39,6 +41,9 @@ public class PlaceSheetHeaderFragment extends GndFragment {
 
   @BindView(R.id.place_sheet_subtitle)
   TextView placeSheetSubtitle;
+
+  @BindView(R.id.place_header_icon)
+  ImageView placeHeaderIcon;
 
   private MainViewModel mainViewModel;
 
@@ -65,8 +70,12 @@ public class PlaceSheetHeaderFragment extends GndFragment {
 
   private void onPlaceSheetEvent(PlaceSheetEvent placeSheetEvent) {
     if (placeSheetEvent.isShowEvent()) {
+      placeHeaderIcon.setImageResource(
+        PlaceIcon.getResourceId(getContext(), placeSheetEvent.getPlaceType().getIconId()));
       placeSheetTitle.setText(placeSheetEvent.getTitle());
       placeSheetSubtitle.setText(placeSheetEvent.getSubtitle());
+      placeSheetSubtitle.setVisibility(
+        placeSheetEvent.getSubtitle().isEmpty() ? View.GONE : View.VISIBLE);
     }
   }
 }

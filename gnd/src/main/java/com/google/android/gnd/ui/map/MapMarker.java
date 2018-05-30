@@ -16,8 +16,8 @@
 
 package com.google.android.gnd.ui.map;
 
-import com.google.android.gnd.model.PlaceIcon;
 import com.google.android.gnd.model.Point;
+import com.google.android.gnd.ui.PlaceIcon;
 
 public class MapMarker<T> {
   private String id;

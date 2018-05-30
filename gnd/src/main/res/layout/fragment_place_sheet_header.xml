@@ -68,7 +68,7 @@
     android:layout_width="@dimen/place_header_icon_width"
     android:layout_height="@dimen/place_header_icon_height"
     android:layout_gravity="top|center_horizontal"
-    app:srcCompat="@drawable/ic_marker_house_map_marker"
+    app:srcCompat="@drawable/ic_default_place_marker"
     android:tint="@color/colorGrey600"
     android:elevation="4dp"/>
 

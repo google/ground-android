@@ -118,6 +118,7 @@ public class MapContainerViewModel extends ViewModel {
 
   private static int getIconColor(PlaceType placeType) {
     // TODO: Return default color if invalid.
+    // TODO: Refactor into model.
     return Color.parseColor(placeType.getIconColor());
   }
 

@@ -14,15 +14,16 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.model;
+package com.google.android.gnd.ui;
 
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
+import android.support.annotation.DrawableRes;
+import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
-
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gnd.R;
@@ -36,16 +37,26 @@ public class PlaceIcon {
 
   public PlaceIcon(Context context, String iconId, int color) {
     this.context = context;
-    String resourceName = "ic_marker_" + iconId.replace("-", "_");
     this.color = color;
+    int resourceId = getResourceId(context, iconId);
+    this.drawable = (BitmapDrawable) ContextCompat.getDrawable(context, resourceId);
+  }
+
+  @NonNull
+  public static @DrawableRes
+  int getResourceId(Context context, String iconId) {
     try {
-      int resourceId =
-          context.getResources().getIdentifier(resourceName, "drawable", context.getPackageName());
-      drawable = (BitmapDrawable) ContextCompat.getDrawable(context, resourceId);
+      String resourceName = "ic_marker_" + iconId.replace("-", "_");
+      int resourceId = context
+        .getResources()
+        .getIdentifier(resourceName, "drawable", context.getPackageName());
+      if (resourceId > 0) {
+        return resourceId;
+      }
     } catch (Resources.NotFoundException e) {
-      // TODO: Fall back to default marker.
-      Log.e(TAG, e + toString());
+      Log.w(TAG, e);
     }
+    return R.drawable.ic_default_place_marker;
   }
 
   // TODO: Cache tinted bitmaps.
