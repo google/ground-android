@@ -35,4 +35,5 @@
   <!--<color name="colorPink500">#E91E63</color>-->
   <color name="colorAccentLight">#69ba87</color>
   <color name="colorYellow">#ffff00</color>
+  <color name="colorOffWhite">#f9f9f9</color>
 </resources>

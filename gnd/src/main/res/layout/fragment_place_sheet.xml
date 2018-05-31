@@ -28,13 +28,19 @@
     android:orientation="vertical"
     android:background="@color/colorWhite">
 
+    <!--
+      @background is required to make @elevation show drop shadow
+      https://stackoverflow.com/questions/31151180/material-tablayout-elevation-not-working/31777078
+      -->
     <android.support.design.widget.TabLayout
       android:id="@+id/forms_tab_layout"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:layout_gravity="top"
       app:tabSelectedTextColor="@color/colorAccent"
-      app:tabTextColor="@color/colorAccent"/>
+      app:tabTextColor="@color/colorAccent"
+      android:background="@color/colorWhite"
+      android:elevation="5dp"/>
 
     <android.support.v4.view.ViewPager
       android:id="@+id/record_list_view_pager"
