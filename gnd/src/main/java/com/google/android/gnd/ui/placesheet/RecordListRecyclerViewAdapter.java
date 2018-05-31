@@ -18,17 +18,23 @@ package com.google.android.gnd.ui.placesheet;
 
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import com.google.android.gnd.R;
 
 class RecordListRecyclerViewAdapter extends
   RecyclerView.Adapter<RecordListRecyclerViewAdapter.ViewHolder> {
-  public static class ViewHolder extends RecyclerView.ViewHolder {
-    private TextView view;
+  static class ViewHolder extends RecyclerView.ViewHolder {
+    @BindView(R.id.record_summary)
+    TextView recordSummaryTextView;
 
-    public ViewHolder(TextView view) {
+    ViewHolder(View view) {
       super(view);
-      this.view = view;
+      ButterKnife.bind(this, view);
     }
   }
 
@@ -36,12 +42,14 @@ class RecordListRecyclerViewAdapter extends
   @Override
   public ViewHolder onCreateViewHolder(
     @NonNull ViewGroup parent, int viewType) {
-    return new ViewHolder(new TextView(parent.getContext()));
+    LayoutInflater inflater = LayoutInflater.from(parent.getContext());
+    View view = inflater.inflate(R.layout.record_list_item, parent, false);
+    return new ViewHolder(view);
   }
 
   @Override
   public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-    holder.view.setText("Item " + position);
+//    holder.recordSummaryTextView.setText("");
   }
 
   @Override

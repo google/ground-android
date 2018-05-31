@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright 2018 Google LLC
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     https://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<RelativeLayout
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  android:layout_width="match_parent"
+  android:layout_height="wrap_content"
+  android:paddingHorizontal="12dp"
+  android:paddingTop="6dp">
+  <TextView
+    android:id="@+id/creator_name"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="Gino M."
+    android:textAppearance="@style/RecordListText.CreatorName"/>
+  <TextView
+    android:id="@+id/separator_dot1"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_toRightOf="@id/creator_name"
+    android:textAppearance="@style/RecordListText.Separator"
+    android:text=" · "/>
+  <TextView
+    android:id="@+id/last_modified_date"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_toRightOf="@id/separator_dot1"
+    android:textAppearance="@style/RecordListText.Timestamp"
+    android:text="May 24, 2018"/>
+  <TextView
+    android:id="@+id/separator_dot2"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_toRightOf="@id/last_modified_date"
+    android:textAppearance="@style/RecordListText.Separator"
+    android:text=" · "/>
+  <TextView
+    android:id="@+id/last_modified_time"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_toRightOf="@id/separator_dot2"
+    android:textAppearance="@style/RecordListText.Timestamp"
+    android:text="12:14 PM"/>
+
+  <TextView
+    android:id="@+id/record_summary"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_below="@id/creator_name"
+    android:minLines="2"
+    android:maxLines="2"
+    android:paddingTop="4dp"
+    android:paddingRight="32dp"
+    android:textSize="12sp"
+    android:lineSpacingExtra="6dp"
+    android:textColor="@color/colorGrey800"
+    android:ellipsize="end"
+    android:text="Field 1: Value one · Field 2: Value two · Long field name: 1 · Answer: Y · Something: More · Description: Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur."
+    />
+
+  <View
+    android:layout_width="match_parent"
+    android:layout_height="1dp"
+    android:layout_below="@id/record_summary"
+    android:background="@color/colorGrey300"
+    android:layout_marginTop="8dp"
+    android:elevation="1dp"/>
+
+  <!-- TODO: Colored chevron with circle background -->
+  <ImageButton
+    android:id="@+id/view_record_button"
+    android:layout_width="32dp"
+    android:layout_height="32dp"
+    android:layout_alignParentRight="true"
+    android:layout_centerVertical="true"
+    android:src="@drawable/ic_chevron_right"
+    />
+</RelativeLayout>

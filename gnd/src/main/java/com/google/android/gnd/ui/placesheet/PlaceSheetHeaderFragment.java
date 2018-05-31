@@ -73,9 +73,10 @@ public class PlaceSheetHeaderFragment extends GndFragment {
       placeHeaderIcon.setImageResource(
         PlaceIcon.getResourceId(getContext(), placeSheetEvent.getPlaceType().getIconId()));
       placeSheetTitle.setText(placeSheetEvent.getTitle());
-      placeSheetSubtitle.setText(placeSheetEvent.getSubtitle());
-      placeSheetSubtitle.setVisibility(
-        placeSheetEvent.getSubtitle().isEmpty() ? View.GONE : View.VISIBLE);
+      placeSheetSubtitle.setText("8GC2CMXR+X6");
+//      placeSheetSubtitle.setText(placeSheetEvent.getSubtitle());
+//      placeSheetSubtitle.setVisibility(
+//        placeSheetEvent.getSubtitle().isEmpty() ? View.GONE : View.VISIBLE);
     }
   }
 }

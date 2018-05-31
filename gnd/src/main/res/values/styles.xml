@@ -91,4 +91,24 @@
   <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar"/>
 
   <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light"/>
+
+  <style name="RecordListText">
+    <item name="android:textSize">12sp</item>
+  </style>
+
+
+  <style name="RecordListText.CreatorName">
+    <item name="android:textColor">?android:textColorPrimary</item>
+    <item name="android:textStyle">bold</item>
+  </style>
+
+  <style name="RecordListText.Separator">
+    <item name="android:textColor">?android:textColorPrimary</item>
+    <!--<item name="android:textColor">@color/colorGrey600</item>-->
+  </style>
+
+  <style name="RecordListText.Timestamp">
+    <item name="android:textColor">?android:textColorPrimary</item>
+    <!--<item name="android:textColor">@color/colorGrey600</item>-->
+  </style>
 </resources>

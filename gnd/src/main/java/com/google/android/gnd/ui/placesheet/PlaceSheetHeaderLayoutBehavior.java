@@ -20,7 +20,6 @@ import android.content.Context;
 import android.support.design.widget.CoordinatorLayout;
 import android.util.AttributeSet;
 import android.view.View;
-import com.google.android.gnd.R;
 import com.google.android.gnd.ui.OnBottomSheetSlideBehavior;
 
 public class PlaceSheetHeaderLayoutBehavior extends OnBottomSheetSlideBehavior {
@@ -33,9 +32,7 @@ public class PlaceSheetHeaderLayoutBehavior extends OnBottomSheetSlideBehavior {
   @Override
   protected void onSheetScrolled(
     CoordinatorLayout parent, View child, SheetSlideMetrics metrics) {
-    View cardView = child.findViewById(R.id.place_sheet_card_view);
     // Let header and body overlap to cover bottom corner radius.
-    cardView.setPadding(0, 0, 0, 16);
     child.setTranslationY(metrics.getTabLayoutTop() + 16 - child.getHeight());
   }
 }

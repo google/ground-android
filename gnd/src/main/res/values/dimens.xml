@@ -65,6 +65,6 @@
   <dimen name="place_header_icon_background_diameter">52dp</dimen>
   <dimen name="place_header_icon_top_padding">5dp</dimen>
   <dimen name="place_sheet_margin_top">10dp</dimen>
-  <dimen name="place_sheet_padding_top">42dp</dimen>
+  <dimen name="place_sheet_padding_top">32dp</dimen>
   <dimen name="place_sheet_corner_radius">6dp</dimen>
 </resources>
