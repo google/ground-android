@@ -25,8 +25,8 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_gravity="top"
-    android:orientation="vertical"
-    android:background="@color/colorWhite">
+    android:background="@color/colorWhite"
+    android:orientation="vertical">
 
     <!--
       @background is required to make @elevation show drop shadow
@@ -37,10 +37,10 @@
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:layout_gravity="top"
-      app:tabSelectedTextColor="@color/colorAccent"
-      app:tabTextColor="@color/colorAccent"
       android:background="@color/colorWhite"
-      android:elevation="5dp"/>
+      android:elevation="5dp"
+      app:tabSelectedTextColor="@color/colorAccent"
+      app:tabTextColor="@color/colorAccent"/>
 
     <android.support.v4.view.ViewPager
       android:id="@+id/record_list_view_pager"

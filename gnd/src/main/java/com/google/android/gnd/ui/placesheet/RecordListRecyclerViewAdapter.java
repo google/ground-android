@@ -21,16 +21,14 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
-import butterknife.BindView;
 import butterknife.ButterKnife;
 import com.google.android.gnd.R;
 
 class RecordListRecyclerViewAdapter extends
   RecyclerView.Adapter<RecordListRecyclerViewAdapter.ViewHolder> {
   static class ViewHolder extends RecyclerView.ViewHolder {
-    @BindView(R.id.record_summary)
-    TextView recordSummaryTextView;
+//    @BindView(R.id.record_summary)
+//    TextView recordSummaryTextView;
 
     ViewHolder(View view) {
       super(view);

@@ -20,7 +20,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import com.google.android.gnd.model.Form;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import javax.inject.Inject;
 
@@ -30,10 +30,7 @@ public class FormTypePagerAdapter extends FragmentPagerAdapter {
   @Inject
   public FormTypePagerAdapter(FragmentManager fm) {
     super(fm);
-    this.forms = Arrays.asList(
-      Form.newBuilder().putTitle("pt", "Form One").build(),
-      Form.newBuilder().putTitle("pt", "Form Two").build()
-    );
+    this.forms = Collections.emptyList();
   }
 
   public void setForms(List<Form> forms) {

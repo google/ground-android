@@ -104,11 +104,25 @@
 
   <style name="RecordListText.Separator">
     <item name="android:textColor">?android:textColorPrimary</item>
-    <!--<item name="android:textColor">@color/colorGrey600</item>-->
   </style>
 
   <style name="RecordListText.Timestamp">
     <item name="android:textColor">?android:textColorPrimary</item>
-    <!--<item name="android:textColor">@color/colorGrey600</item>-->
+    <item name="android:textStyle">bold</item>
   </style>
+
+  <style name="RecordListText.Field">
+    <item name="android:textColor">@color/colorGrey800</item>
+    <item name="android:maxWidth">128dp</item>
+    <item name="android:singleLine">true</item>
+    <item name="android:ellipsize">end</item>
+    <item name="android:paddingRight">8dp</item>
+  </style>
+
+  <style name="RecordListText.Field.Name">
+  </style>
+
+  <style name="RecordListText.Field.Value">
+  </style>
+
 </resources>

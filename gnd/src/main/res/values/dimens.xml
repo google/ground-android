@@ -67,4 +67,8 @@
   <dimen name="place_sheet_margin_top">10dp</dimen>
   <dimen name="place_sheet_padding_top">32dp</dimen>
   <dimen name="place_sheet_corner_radius">6dp</dimen>
+  <dimen name="view_record_button_width">12dp</dimen>
+  <dimen name="view_record_button_height">12dp</dimen>
+  <dimen name="record_list_item_horizontal_margin">14dp</dimen>
+  <dimen name="record_list_item_horizontal_vertical">10dp</dimen>
 </resources>

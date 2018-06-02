@@ -15,78 +15,131 @@
   ~ limitations under the License.
   -->
 
-<RelativeLayout
+<FrameLayout
   xmlns:android="http://schemas.android.com/apk/res/android"
   android:layout_width="match_parent"
   android:layout_height="wrap_content"
-  android:paddingHorizontal="12dp"
-  android:paddingTop="6dp">
-  <TextView
-    android:id="@+id/creator_name"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:text="Gino M."
-    android:textAppearance="@style/RecordListText.CreatorName"/>
-  <TextView
-    android:id="@+id/separator_dot1"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_toRightOf="@id/creator_name"
-    android:textAppearance="@style/RecordListText.Separator"
-    android:text=" · "/>
-  <TextView
-    android:id="@+id/last_modified_date"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_toRightOf="@id/separator_dot1"
-    android:textAppearance="@style/RecordListText.Timestamp"
-    android:text="May 24, 2018"/>
-  <TextView
-    android:id="@+id/separator_dot2"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_toRightOf="@id/last_modified_date"
-    android:textAppearance="@style/RecordListText.Separator"
-    android:text=" · "/>
-  <TextView
-    android:id="@+id/last_modified_time"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_toRightOf="@id/separator_dot2"
-    android:textAppearance="@style/RecordListText.Timestamp"
-    android:text="12:14 PM"/>
-
-  <TextView
-    android:id="@+id/record_summary"
+  android:background="?android:attr/selectableItemBackground"
+  android:clickable="true">
+  <RelativeLayout
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_below="@id/creator_name"
-    android:minLines="2"
-    android:maxLines="2"
-    android:paddingTop="4dp"
-    android:paddingRight="32dp"
-    android:textSize="12sp"
-    android:lineSpacingExtra="6dp"
-    android:textColor="@color/colorGrey800"
-    android:ellipsize="end"
-    android:text="Field 1: Value one · Field 2: Value two · Long field name: 1 · Answer: Y · Something: More · Description: Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur."
-    />
+    android:layout_marginHorizontal="@dimen/record_list_item_horizontal_margin"
+    android:layout_marginVertical="@dimen/record_list_item_horizontal_vertical">
+    <TextView
+      android:id="@+id/creator_name"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:text="Gino M."
+      android:textAppearance="@style/RecordListText.CreatorName"/>
+    <TextView
+      android:id="@+id/separator_dot1"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_toRightOf="@id/creator_name"
+      android:text=" · "
+      android:textAppearance="@style/RecordListText.Separator"/>
+    <TextView
+      android:id="@+id/last_modified_date"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_toRightOf="@id/separator_dot1"
+      android:text="May 24, 2018"
+      android:textAppearance="@style/RecordListText.Timestamp"/>
+    <TextView
+      android:id="@+id/separator_dot2"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_toRightOf="@id/last_modified_date"
+      android:text=" · "
+      android:textAppearance="@style/RecordListText.Separator"/>
+    <TextView
+      android:id="@+id/last_modified_time"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_toRightOf="@id/separator_dot2"
+      android:text="12:14 PM"
+      android:textAppearance="@style/RecordListText.Timestamp"/>
+
+    <TableLayout
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_marginRight="@dimen/view_record_button_width"
+      android:layout_below="@id/creator_name"
+      android:paddingRight="14dp"
+      android:shrinkColumns="*"
+      android:stretchColumns="*">
+
+      <TableRow
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="4dp">
+        <TextView
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:text="Interviewer Name"
+          android:theme="@style/RecordListText.Field.Name"/>
+        <TextView
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:text="Interviewee"
+          android:theme="@style/RecordListText.Field.Name"/>
+        <TextView
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:text="Head of Household"
+          android:theme="@style/RecordListText.Field.Name"/>
+        <TextView
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:text="Age"
+          android:theme="@style/RecordListText.Field.Name"/>
+      </TableRow>
+
+      <TableRow
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="4dp">
+        <TextView
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:text="Colleen O'Banion"
+          android:theme="@style/RecordListText.Field.Value"/>
+        <TextView
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:text="Chang Li"
+          android:theme="@style/RecordListText.Field.Value"/>
+        <TextView
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:text="Raleigh Seamster"
+          android:theme="@style/RecordListText.Field.Value"/>
+        <TextView
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:text="28"
+          android:theme="@style/RecordListText.Field.Value"/>
+      </TableRow>
+    </TableLayout>
+    <ImageView
+      android:id="@+id/view_record_button"
+      android:layout_width="@dimen/view_record_button_width"
+      android:layout_height="@dimen/view_record_button_height"
+      android:layout_marginRight="6dp"
+      android:layout_alignParentRight="true"
+      android:layout_centerVertical="true"
+      android:src="@drawable/ic_chevron_right"
+      android:tint="@color/colorAccent"
+      />
+  </RelativeLayout>
 
   <View
+    android:id="@+id/record_item_divider"
     android:layout_width="match_parent"
     android:layout_height="1dp"
-    android:layout_below="@id/record_summary"
-    android:background="@color/colorGrey300"
-    android:layout_marginTop="8dp"
-    android:elevation="1dp"/>
+    android:layout_gravity="bottom"
+    android:layout_marginHorizontal="@dimen/record_list_item_horizontal_margin"
+    android:background="@color/colorGrey300"/>
 
-  <!-- TODO: Colored chevron with circle background -->
-  <ImageButton
-    android:id="@+id/view_record_button"
-    android:layout_width="32dp"
-    android:layout_height="32dp"
-    android:layout_alignParentRight="true"
-    android:layout_centerVertical="true"
-    android:src="@drawable/ic_chevron_right"
-    />
-</RelativeLayout>
+</FrameLayout>
