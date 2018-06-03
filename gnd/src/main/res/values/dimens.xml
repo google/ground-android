@@ -71,4 +71,6 @@
   <dimen name="view_record_button_height">12dp</dimen>
   <dimen name="record_list_item_horizontal_margin">14dp</dimen>
   <dimen name="record_list_item_horizontal_vertical">10dp</dimen>
+  <dimen name="record_summary_text_padding_right">8dp</dimen>
+  <dimen name="record_summary_text_max_width">128dp</dimen>
 </resources>

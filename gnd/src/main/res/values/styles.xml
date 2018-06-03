@@ -111,18 +111,12 @@
     <item name="android:textStyle">bold</item>
   </style>
 
+  <!--
+    NOTE: Most attributes do not work when style is set programmatically, so individual layout
+    attributes are set in RecordListRecyclerViewAdapter instead.
+    -->
   <style name="RecordListText.Field">
     <item name="android:textColor">@color/colorGrey800</item>
-    <item name="android:maxWidth">128dp</item>
-    <item name="android:singleLine">true</item>
-    <item name="android:ellipsize">end</item>
-    <item name="android:paddingRight">8dp</item>
-  </style>
-
-  <style name="RecordListText.Field.Name">
-  </style>
-
-  <style name="RecordListText.Field.Value">
   </style>
 
 </resources>

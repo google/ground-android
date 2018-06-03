@@ -30,7 +30,6 @@ import com.google.android.gnd.R;
 import com.google.android.gnd.ui.MainViewModel;
 import com.google.android.gnd.ui.common.GndFragment;
 import com.google.android.gnd.ui.common.GndViewModelFactory;
-import com.google.android.gnd.ui.placesheet.PlaceSheetBodyViewModel.PlaceSheetBodyUpdate;
 import com.h6ah4i.android.tablayouthelper.TabLayoutHelper;
 import javax.inject.Inject;
 
@@ -49,7 +48,6 @@ public class PlaceSheetBodyFragment extends GndFragment {
 
   private MainViewModel mainViewModel;
   private MainActivityViewModel mainActivityViewModel;
-  private PlaceSheetBodyViewModel viewModel;
 
   @Inject
   public PlaceSheetBodyFragment() {
@@ -57,12 +55,10 @@ public class PlaceSheetBodyFragment extends GndFragment {
 
   @Override
   protected void createViewModel() {
-    mainActivityViewModel = ViewModelProviders
-      .of(getActivity(), viewModelFactory)
-      .get(MainActivityViewModel.class);
+    mainActivityViewModel =
+      ViewModelProviders.of(getActivity(), viewModelFactory).get(MainActivityViewModel.class);
     mainViewModel =
       ViewModelProviders.of(getParentFragment(), viewModelFactory).get(MainViewModel.class);
-    viewModel = ViewModelProviders.of(this, viewModelFactory).get(PlaceSheetBodyViewModel.class);
   }
 
   @Override
@@ -83,13 +79,7 @@ public class PlaceSheetBodyFragment extends GndFragment {
   @Override
   protected void observeViewModel() {
     mainActivityViewModel.getWindowInsetsLiveData().observe(this, this::onApplyWindowInsets);
-    mainViewModel.getPlaceSheetEvents().observe(this, viewModel::onPlaceSheetEvent);
-    viewModel.getPlaceSheetBodyUpdates().observe(this, this::onPlaceSheetBodyUpdate);
-  }
-
-  private void onPlaceSheetBodyUpdate(PlaceSheetBodyUpdate placeSheetBodyUpdate) {
-    formTypePagerAdapter.setForms(placeSheetBodyUpdate.getForms());
-    formTypePagerAdapter.notifyDataSetChanged();
+    mainViewModel.getPlaceSheetEvents().observe(this, formTypePagerAdapter::onPlaceSheetEvent);
   }
 
   private void onApplyWindowInsets(WindowInsetsCompat insets) {

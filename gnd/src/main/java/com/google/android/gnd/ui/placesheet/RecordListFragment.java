@@ -16,43 +16,77 @@
 
 package com.google.android.gnd.ui.placesheet;
 
-import android.os.Build.VERSION_CODES;
+import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.annotation.RequiresApi;
-import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import com.google.android.gnd.ui.common.GndFragment;
+import com.google.android.gnd.ui.common.GndViewModelFactory;
+import javax.inject.Inject;
 
-public class RecordListFragment extends Fragment {
-  private static final String FORM_NO = "formNo";
+public class RecordListFragment extends GndFragment {
+  private static final String PLACE_TYPE_ID = "placeTypeId";
+  private static final String PLACE_ID = "placeId";
+  private static final String FORM_ID = "formId";
 
-  static RecordListFragment newInstance(int formId) {
+  @Inject
+  GndViewModelFactory viewModelFactory;
+
+  private RecordListViewModel viewModel;
+  private RecordListRecyclerViewAdapter adapter;
+
+  static RecordListFragment newInstance(String placeTypeId, String placeId, String formId) {
     RecordListFragment fragment = new RecordListFragment();
     Bundle args = new Bundle();
-    args.putInt(FORM_NO, formId);
+    args.putString(PLACE_TYPE_ID, placeTypeId);
+    args.putString(PLACE_ID, placeId);
+    args.putString(FORM_ID, formId);
     fragment.setArguments(args);
     return fragment;
   }
 
-  //  private DataSheetPresenter dataSheetPresenter;
-  //  private Form form;
-  int getFormId() {
-    return getArguments().getInt(FORM_NO);
+  private String getPlaceTypeId() {
+    return getArguments().getString(PLACE_TYPE_ID);
   }
 
-  @RequiresApi(api = VERSION_CODES.KITKAT_WATCH)
+  private String getPlaceId() {
+    return getArguments().getString(PLACE_ID);
+  }
+
+  private String getFormId() {
+    return getArguments().getString(FORM_ID);
+  }
+
+  @Override
+  public void onCreate(@Nullable Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    adapter = new RecordListRecyclerViewAdapter();
+
+  }
+
+  @Override
+  protected void createViewModel() {
+    viewModel = ViewModelProviders.of(this, viewModelFactory).get(RecordListViewModel.class);
+  }
+
   @Nullable
   @Override
-  public View onCreateView(
-      LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
+  public View createView(
+    LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
     RecyclerView recyclerView = new RecyclerView(getContext());
     recyclerView.setNestedScrollingEnabled(true);
     recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-    recyclerView.setAdapter(new RecordListRecyclerViewAdapter());
+    recyclerView.setAdapter(adapter);
+    viewModel.loadRecords(getPlaceTypeId(), getFormId(), getPlaceId());
     return recyclerView;
+  }
+
+  @Override
+  protected void observeViewModel() {
+    viewModel.getRecords().observe(this, adapter::update);
   }
 }

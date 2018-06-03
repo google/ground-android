@@ -22,7 +22,7 @@ import com.google.android.gnd.MainActivityViewModel;
 import com.google.android.gnd.ui.MainViewModel;
 import com.google.android.gnd.ui.ProjectSelectorViewModel;
 import com.google.android.gnd.ui.mapcontainer.MapContainerViewModel;
-import com.google.android.gnd.ui.placesheet.PlaceSheetBodyViewModel;
+import com.google.android.gnd.ui.placesheet.RecordListViewModel;
 import dagger.Binds;
 import dagger.Module;
 import dagger.multibindings.IntoMap;
@@ -46,14 +46,13 @@ public abstract class GndViewModelModule {
 
   @Binds
   @IntoMap
-  @GndViewModelKey(PlaceSheetBodyViewModel.class)
-  abstract ViewModel bindPlaceSheetBodyViewModel(PlaceSheetBodyViewModel viewModel);
+  @GndViewModelKey(ProjectSelectorViewModel.class)
+  abstract ViewModel bindProjectSelectorViewModel(ProjectSelectorViewModel viewModel);
 
   @Binds
   @IntoMap
-  @GndViewModelKey(ProjectSelectorViewModel.class)
-  abstract ViewModel bindProjectSelectorViewModel(
-    ProjectSelectorViewModel viewModel);
+  @GndViewModelKey(RecordListViewModel.class)
+  abstract ViewModel bindRecordListViewModel(RecordListViewModel viewModel);
 
   @Binds
   abstract ViewModelProvider.Factory bindViewModelFactory(GndViewModelFactory factory);

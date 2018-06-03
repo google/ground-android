@@ -20,21 +20,22 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import com.google.android.gnd.model.Form;
+import com.google.android.gnd.model.Place;
+import com.google.android.gnd.model.PlaceType;
+import com.google.android.gnd.ui.PlaceSheetEvent;
 import java.util.Collections;
 import java.util.List;
 import javax.inject.Inject;
 
 public class FormTypePagerAdapter extends FragmentPagerAdapter {
   private List<Form> forms;
+  private Place place;
+  private PlaceType placeType;
 
   @Inject
   public FormTypePagerAdapter(FragmentManager fm) {
     super(fm);
     this.forms = Collections.emptyList();
-  }
-
-  public void setForms(List<Form> forms) {
-    this.forms = forms;
   }
 
   @Override
@@ -44,12 +45,22 @@ public class FormTypePagerAdapter extends FragmentPagerAdapter {
 
   @Override
   public Fragment getItem(int position) {
-    return RecordListFragment.newInstance(position);
+    return RecordListFragment.newInstance(
+      place.getPlaceTypeId(), place.getId(), forms.get(position).getId());
   }
 
   @Override
   public CharSequence getPageTitle(int position) {
     // TODO: i18n.
     return forms.get(position).getTitleOrDefault("pt", "Form " + position);
+  }
+
+  public void onPlaceSheetEvent(PlaceSheetEvent event) {
+    if (event.isShowEvent()) {
+      this.place = event.getPlace();
+      this.placeType = event.getPlaceType();
+      this.forms = event.getPlaceType().getFormsList();
+      notifyDataSetChanged();
+    }
   }
 }

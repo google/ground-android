@@ -77,6 +77,14 @@ public class ProjectActivationEvent {
     return Optional.ofNullable(placeTypes.get(placeTypeId));
   }
 
+  public Optional<Form> getForm(String placeTypeId, String formId) {
+    return getPlaceType(placeTypeId).flatMap(placeType -> findForm(placeType, formId));
+  }
+
+  private static Optional<Form> findForm(PlaceType placeType, String formId) {
+    return stream(placeType.getFormsList()).filter(form -> form.getId().equals(formId)).findFirst();
+  }
+
   public boolean isActivated() {
     return status.equals(ProjectActivationEvent.Status.ACTIVATED);
   }

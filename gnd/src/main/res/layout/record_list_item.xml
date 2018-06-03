@@ -71,56 +71,16 @@
       android:stretchColumns="*">
 
       <TableRow
+        android:id="@+id/field_label_row"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingTop="4dp">
-        <TextView
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:text="Interviewer Name"
-          android:theme="@style/RecordListText.Field.Name"/>
-        <TextView
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:text="Interviewee"
-          android:theme="@style/RecordListText.Field.Name"/>
-        <TextView
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:text="Head of Household"
-          android:theme="@style/RecordListText.Field.Name"/>
-        <TextView
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:text="Age"
-          android:theme="@style/RecordListText.Field.Name"/>
-      </TableRow>
+        android:paddingTop="4dp"/>
 
       <TableRow
+        android:id="@+id/field_value_row"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingTop="4dp">
-        <TextView
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:text="Colleen O'Banion"
-          android:theme="@style/RecordListText.Field.Value"/>
-        <TextView
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:text="Chang Li"
-          android:theme="@style/RecordListText.Field.Value"/>
-        <TextView
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:text="Raleigh Seamster"
-          android:theme="@style/RecordListText.Field.Value"/>
-        <TextView
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:text="28"
-          android:theme="@style/RecordListText.Field.Value"/>
-      </TableRow>
+        android:paddingTop="4dp"/>
     </TableLayout>
     <ImageView
       android:id="@+id/view_record_button"

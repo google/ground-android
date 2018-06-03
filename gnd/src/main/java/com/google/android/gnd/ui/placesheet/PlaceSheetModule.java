@@ -38,7 +38,6 @@ public class PlaceSheetModule {
   public FragmentManager fragmentManager(PlaceSheetBodyFragment fragment) {
     return fragment.getChildFragmentManager();
   }
-
 }
 
 
