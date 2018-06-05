@@ -52,8 +52,8 @@
     android:layout_marginBottom="@dimen/map_btn_margin_bottom"
     android:layout_marginRight="@dimen/map_btn_margin_right"
     android:layout_gravity="bottom|right|end"
-    android:orientation="vertical"
-    android:fitsSystemWindows="true">
+    android:fitsSystemWindows="true"
+    android:orientation="vertical">
     <!--app:layout_behavior="com.google.android.gnd.ui.map.MapButtonBehavior"-->
 
     <android.support.design.widget.FloatingActionButton
