@@ -94,8 +94,9 @@
     </FrameLayout>
 
     <!-- TODO: Replace with chip MD style button -->
-    <android.support.design.widget.FloatingActionButton
+    <android.support.design.chip.Chip
       android:id="@+id/add_record_btn"
+      style="@style/Widget.MaterialComponents.Chip.Action"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:layout_marginBottom="@dimen/sheet_btn_margin_bottom"
@@ -103,11 +104,15 @@
       android:layout_above="@id/bottom_sheet_bottom_inset_scrim"
       android:layout_alignParentEnd="true"
       android:layout_alignParentRight="true"
-      android:clickable="false"
-      android:focusable="false"
-      android:src="@drawable/ic_add_dark"
-      app:backgroundTint="@color/colorWhite"
-      app:fabSize="normal"
+      android:elevation="6dp"
+      android:paddingVertical="@dimen/add_record_button_padding"
+      android:textAppearance="@style/AddRecordButtonText"
+      app:chipBackgroundColor="@color/colorAccent"
+      app:chipCornerRadius="24dp"
+      app:chipEndPadding="@dimen/add_record_button_padding"
+      app:chipIcon="@drawable/ic_add_light"
+      app:chipStartPadding="@dimen/add_record_button_padding"
+      app:chipText="@string/add_record_button_label"
       app:useCompatPadding="true"/>
 
     <!-- Prevents place sheet UI from bleeding through to navigation buttons when expanded. -->

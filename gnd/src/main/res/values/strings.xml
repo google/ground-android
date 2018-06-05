@@ -123,5 +123,6 @@
   your responses and try again.</string>
   <string name="invalid_data_ok">OK</string>
   <string name="select_project_dialog_title">Select Project</string>
+  <string name="add_record_button_label">Add record</string>
 
 </resources>

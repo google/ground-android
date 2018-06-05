@@ -50,8 +50,8 @@
   <dimen name="map_btn_spacing">8dp</dimen>
   <dimen name="map_btn_margin_right">8dp</dimen>
   <dimen name="map_btn_margin_bottom">8dp</dimen>
-  <dimen name="sheet_btn_margin_bottom">8dp</dimen>
-  <dimen name="sheet_btn_margin_right">8dp</dimen>
+  <dimen name="sheet_btn_margin_bottom">14dp</dimen>
+  <dimen name="sheet_btn_margin_right">10 dp</dimen>
   <dimen name="fab_margin">16dp</dimen>
   <dimen name="sheet_subtitle_text_size">14dp</dimen>
   <dimen name="record_heading_height">32dp</dimen>
@@ -73,4 +73,5 @@
   <dimen name="record_list_item_horizontal_vertical">10dp</dimen>
   <dimen name="record_summary_text_padding_right">8dp</dimen>
   <dimen name="record_summary_text_max_width">128dp</dimen>
+  <dimen name="add_record_button_padding">12dp</dimen>
 </resources>

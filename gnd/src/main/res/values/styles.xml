@@ -96,7 +96,6 @@
     <item name="android:textSize">12sp</item>
   </style>
 
-
   <style name="RecordListText.CreatorName">
     <item name="android:textColor">?android:textColorPrimary</item>
     <item name="android:textStyle">bold</item>
@@ -117,6 +116,11 @@
     -->
   <style name="RecordListText.Field">
     <item name="android:textColor">@color/colorGrey800</item>
+  </style>
+
+  <style name="AddRecordButtonText">
+    <item name="android:textSize">14sp</item>
+    <item name="android:textColor">@color/colorWhite</item>
   </style>
 
 </resources>
