@@ -19,7 +19,8 @@ package com.google.android.gnd.model;
 import static java8.util.stream.StreamSupport.stream;
 
 import com.google.android.gnd.service.DataService;
-import io.reactivex.Observable;
+import io.reactivex.BackpressureStrategy;
+import io.reactivex.Flowable;
 import io.reactivex.Single;
 import io.reactivex.subjects.BehaviorSubject;
 import java.util.List;
@@ -48,8 +49,8 @@ public class GndDataRepository {
     dataService.onCreate();
   }
 
-  public Observable<ProjectActivationEvent> activeProject() {
-    return projectActivationObservable;
+  public Flowable<ProjectActivationEvent> activeProject() {
+    return projectActivationObservable.toFlowable(BackpressureStrategy.LATEST);
   }
 
   public CompletableFuture<Project> activateProject(String projectId) {

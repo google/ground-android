@@ -33,7 +33,6 @@ import com.google.android.gnd.system.LocationManager;
 import com.google.android.gnd.ui.AddPlaceDialogFragment.AddPlaceRequest;
 import com.google.android.gnd.ui.map.MapMarker;
 import io.reactivex.Flowable;
-import io.reactivex.Observable;
 import io.reactivex.disposables.Disposable;
 import java8.util.Optional;
 import javax.inject.Inject;
@@ -57,18 +56,17 @@ public class MapContainerViewModel extends ViewModel {
     this.cameraUpdates = new MutableLiveData<>();
     this.projectActivationEvents = new MutableLiveData<>();
     this.markerUpdates =
-      RxLiveData.fromObservable(
+      RxLiveData.fromFlowable(
         dataRepository
           .activeProject()
-          .doOnNext(projectActivationEvents::setValue)
+          .doOnNext(projectActivationEvents::postValue)
           .filter(ProjectActivationEvent::isActivated)
-          .switchMap(this::toMarkerUpdateObservable));
+          .switchMap(this::toMarkerUpdateFlowable));
   }
 
-  private Observable<MarkerUpdate> toMarkerUpdateObservable(ProjectActivationEvent project) {
+  private Flowable<MarkerUpdate> toMarkerUpdateFlowable(ProjectActivationEvent project) {
     return project
       .getPlacesFlowable()
-      .toObservable()
       // Convert each place update into a marker update.
       .map(placeData -> toMarkerUpdate(project, placeData))
       // Drop updates that are invalid or do not apply.

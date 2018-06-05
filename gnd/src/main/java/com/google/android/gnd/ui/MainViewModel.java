@@ -46,7 +46,7 @@ public class MainViewModel extends ViewModel {
     this.dataRepository = dataRepository;
     this.showProjectSelectorDialogRequests = new MutableLiveData<>();
     this.addPlaceDialogRequests = new MutableLiveData<>();
-    this.projectActivationEvents = RxLiveData.fromObservable(dataRepository.activeProject());
+    this.projectActivationEvents = RxLiveData.fromFlowable(dataRepository.activeProject());
     this.placeSheetEvents = new MutableLiveData<>();
   }
 

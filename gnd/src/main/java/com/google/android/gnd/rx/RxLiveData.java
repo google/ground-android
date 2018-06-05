@@ -18,7 +18,6 @@ package com.google.android.gnd.rx;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.LiveDataReactiveStreams;
-
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Flowable;
 import io.reactivex.Observable;
@@ -33,6 +32,7 @@ public abstract class RxLiveData {
         observable.toFlowable(BackpressureStrategy.BUFFER));
   }
 
+  // TODO: Handle errors.
   public static <T> LiveData<T> fromFlowable(Flowable<T> flowable) {
     return LiveDataReactiveStreams.fromPublisher(flowable);
   }
