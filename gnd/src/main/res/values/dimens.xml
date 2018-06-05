@@ -51,7 +51,7 @@
   <dimen name="map_btn_margin_right">8dp</dimen>
   <dimen name="map_btn_margin_bottom">8dp</dimen>
   <dimen name="sheet_btn_margin_bottom">14dp</dimen>
-  <dimen name="sheet_btn_margin_right">10 dp</dimen>
+  <dimen name="sheet_btn_margin_right">10dp</dimen>
   <dimen name="fab_margin">16dp</dimen>
   <dimen name="sheet_subtitle_text_size">14dp</dimen>
   <dimen name="record_heading_height">32dp</dimen>
