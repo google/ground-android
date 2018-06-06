@@ -36,6 +36,7 @@ import com.google.android.gnd.model.Record.Value;
 import com.google.android.gnd.model.RecordSummary;
 
 class RecordListItemViewHolder extends RecyclerView.ViewHolder {
+  private static final int MAX_SUMMARY_COLUMNS = 4;
   private final Context context;
 
   @BindView(R.id.field_label_row)
@@ -60,7 +61,7 @@ class RecordListItemViewHolder extends RecyclerView.ViewHolder {
     fieldLabelRow.removeAllViews();
     fieldValueRow.removeAllViews();
     Form form = summary.getForm();
-    for (int i = 0; i < 4 && i < form.getElementsCount(); i++) {
+    for (int i = 0; i < MAX_SUMMARY_COLUMNS && i < form.getElementsCount(); i++) {
       Element elem = form.getElements(i);
       switch (elem.getElementTypeCase()) {
         case FIELD:
