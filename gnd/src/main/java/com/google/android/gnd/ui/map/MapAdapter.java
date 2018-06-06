@@ -18,9 +18,7 @@ package com.google.android.gnd.ui.map;
 
 import android.annotation.SuppressLint;
 import android.support.v4.app.Fragment;
-
-import com.google.android.gnd.model.Point;
-
+import com.google.android.gnd.repository.Point;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 

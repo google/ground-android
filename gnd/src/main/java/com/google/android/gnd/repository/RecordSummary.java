@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.model;
+package com.google.android.gnd.repository;
 
 import static java8.util.stream.StreamSupport.stream;
 
-import com.google.android.gnd.model.Record.Value;
+import com.google.android.gnd.repository.Record.Value;
 import java8.util.stream.Collectors;
 
 public class RecordSummary {

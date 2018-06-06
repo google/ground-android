@@ -17,7 +17,7 @@ package com.google.android.gnd.ui;
 
 import android.annotation.SuppressLint;
 import android.arch.lifecycle.ViewModel;
-import com.google.android.gnd.model.GndDataRepository;
+import com.google.android.gnd.repository.GndDataRepository;
 import javax.inject.Inject;
 
 public class ProjectSelectorViewModel extends ViewModel {

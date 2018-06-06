@@ -16,27 +16,22 @@
 
 package com.google.android.gnd.service.firestore;
 
-import static com.google.android.gnd.service.firestore.GndFirestorePathBuilder.place;
-import static com.google.android.gnd.service.firestore.GndFirestorePathBuilder.placeType;
-import static com.google.android.gnd.service.firestore.GndFirestorePathBuilder.project;
-import static com.google.android.gnd.util.Futures.allOf;
-import static com.google.android.gnd.util.Futures.fromTask;
-import static com.google.android.gnd.util.Streams.map;
+import static com.google.android.gnd.rx.RxFirestoreUtil.mapSingle;
 import static java8.util.stream.Collectors.toList;
 import static java8.util.stream.StreamSupport.stream;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
-import com.google.android.gnd.model.Form;
-import com.google.android.gnd.model.Place;
-import com.google.android.gnd.model.PlaceType;
-import com.google.android.gnd.model.PlaceUpdate;
-import com.google.android.gnd.model.PlaceUpdate.RecordUpdate;
-import com.google.android.gnd.model.PlaceUpdate.RecordUpdate.ValueUpdate;
-import com.google.android.gnd.model.Project;
-import com.google.android.gnd.model.Record;
-import com.google.android.gnd.model.Timestamps;
+import com.google.android.gnd.repository.Form;
+import com.google.android.gnd.repository.Place;
+import com.google.android.gnd.repository.PlaceType;
+import com.google.android.gnd.repository.PlaceUpdate;
+import com.google.android.gnd.repository.PlaceUpdate.RecordUpdate;
+import com.google.android.gnd.repository.PlaceUpdate.RecordUpdate.ValueUpdate;
+import com.google.android.gnd.repository.Project;
+import com.google.android.gnd.repository.Record;
+import com.google.android.gnd.repository.Timestamps;
 import com.google.android.gnd.service.DataService;
 import com.google.android.gnd.service.DatastoreEvent;
 import com.google.firebase.firestore.CollectionReference;
@@ -52,14 +47,15 @@ import com.google.firebase.firestore.WriteBatch;
 import com.google.protobuf.Timestamp;
 import durdinapps.rxfirebase2.RxFirestore;
 import io.reactivex.Flowable;
+import io.reactivex.Maybe;
+import io.reactivex.Observable;
 import io.reactivex.Single;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java8.util.concurrent.CompletableFuture;
 import java8.util.function.Function;
+import java8.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -102,38 +98,44 @@ public class FirestoreDataService implements DataService {
     FirebaseFirestore.setLoggingEnabled(true);
   }
 
-  private GndFirestorePathBuilder db() {
-    return GndFirestorePathBuilder.db(db);
+  private GndFirestorePath db() {
+    return GndFirestorePath.db(db);
   }
 
   // TODO: Naming: fetch - get doc, load - get object/proto.
   @Override
-  public CompletableFuture<Project> loadProject(String projectId) {
-    return fetchDocument(db().project(projectId).ref())
-        .thenCompose(p -> fetchPlaceTypes(p).thenApply(fts -> ProjectDoc.toProto(p, fts)));
+  public Maybe<Project> loadProject(String projectId) {
+    return RxFirestore.getDocument(db().project(projectId).ref())
+                      .flatMap(
+                        this::loadPlaceTypes,
+                        (documentSnapshot, placeTypes) -> ProjectDoc.toProto(
+                          documentSnapshot,
+                          placeTypes));
   }
 
-  private CompletableFuture<List<PlaceType>> fetchPlaceTypes(DocumentSnapshot project) {
-    return fetchDocuments(project(project).placeTypes().ref())
-        .thenCompose(this::loadAndAssembleForms);
+  /**
+   * Loads place types and related forms.
+   */
+  private Maybe<List<PlaceType>> loadPlaceTypes(DocumentSnapshot projectDocSnapshot) {
+    return RxFirestore.getCollection(
+      GndFirestorePath.project(projectDocSnapshot).placeTypes().ref())
+                      .map(QuerySnapshot::getDocuments) // Maybe<List<DocumentSnapshot>>
+                      .toObservable()
+                      .flatMapIterable(i -> i) // Observable<DocumentSnapshot>>
+                      .flatMap(this::loadForms, PlaceTypeDoc::toProto)
+                      .toList()
+                      .toMaybe();
   }
 
-  private CompletableFuture<List<PlaceType>> loadAndAssembleForms(
-      List<DocumentSnapshot> placeTypes) {
-    return allOf(map(placeTypes, d -> loadForms(d).thenApply(f -> PlaceTypeDoc.toProto(d, f))));
-  }
-
-  private CompletableFuture<List<Form>> loadForms(DocumentSnapshot placeTypeSnapshot) {
-    return fetchDocuments(placeType(placeTypeSnapshot).forms().ref())
-        .thenApply(docs -> map(docs, FormDoc::toProto));
-  }
-
-  private CompletableFuture<List<DocumentSnapshot>> fetchDocuments(CollectionReference coll) {
-    return fromTask(coll.get(), t -> t.getDocuments());
-  }
-
-  private CompletableFuture<DocumentSnapshot> fetchDocument(DocumentReference doc) {
-    return fromTask(doc.get());
+  private Observable<List<Form>> loadForms(DocumentSnapshot placeTypeDocSnapshot) {
+    return RxFirestore.getCollection(GndFirestorePath.placeType(placeTypeDocSnapshot).forms().ref())
+                      .map(QuerySnapshot::getDocuments)
+                      .map(
+                        formDocSnapshots ->
+                          stream(formDocSnapshots)
+                            .map(FormDoc::toProto)
+                            .collect(Collectors.toList()))
+                      .toObservable();
   }
 
   // Differentiate generic "update" (CRUD operation) from database "update".
@@ -190,20 +192,15 @@ public class FirestoreDataService implements DataService {
   }
 
   @Override
-  public CompletableFuture<List<Record>> loadRecordData(String projectId, String placeId) {
-    return fetchDocuments(db().project(projectId).place(placeId).records().ref())
-        .thenApply(docs -> map(docs, doc -> RecordDoc.toProto(doc.getId(), doc)));
+  public Single<List<Record>> loadRecordData(String projectId, String placeId) {
+    return mapSingle(
+      RxFirestore.getCollection(db().project(projectId).place(placeId).records().ref()),
+      doc -> RecordDoc.toProto(doc.getId(), doc));
   }
 
   @Override
   public Single<List<Project>> fetchProjectSummaries() {
-    return RxFirestore.getCollection(db().projects().ref())
-                      .map(
-                        querySnapshot ->
-                          stream(querySnapshot.getDocuments())
-                            .map(ProjectDoc::toProto)
-                            .collect(toList()))
-                      .toSingle(Collections.emptyList());
+    return mapSingle(RxFirestore.getCollection(db().projects().ref()), ProjectDoc::toProto);
   }
 
   @Override
@@ -253,7 +250,7 @@ public class FirestoreDataService implements DataService {
 
   private void updateRecords(
       WriteBatch batch, DocumentReference placeRef, PlaceUpdate placeUpdate) {
-    CollectionReference records = place(placeRef).records().ref();
+    CollectionReference records = GndFirestorePath.place(placeRef).records().ref();
     for (RecordUpdate recordUpdate : placeUpdate.getRecordUpdatesList()) {
       Record.Builder record = recordUpdate.getRecord().toBuilder();
       switch (recordUpdate.getOperation()) {

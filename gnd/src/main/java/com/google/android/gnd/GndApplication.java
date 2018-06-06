@@ -19,7 +19,7 @@ package com.google.android.gnd;
 import android.app.Activity;
 import android.support.multidex.MultiDexApplication;
 import com.akaita.java.rxjava2debug.RxJava2Debug;
-import com.google.android.gnd.model.GndDataRepository;
+import com.google.android.gnd.repository.GndDataRepository;
 import dagger.android.AndroidInjector;
 import dagger.android.DispatchingAndroidInjector;
 import dagger.android.HasActivityInjector;

@@ -26,7 +26,7 @@ import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gnd.model.Point;
+import com.google.android.gnd.repository.Point;
 import com.google.android.gnd.ui.PlaceIcon;
 import com.google.android.gnd.ui.map.MapAdapter;
 import com.google.android.gnd.ui.map.MapMarker;

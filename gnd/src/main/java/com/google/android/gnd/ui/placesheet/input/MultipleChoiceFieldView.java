@@ -16,12 +16,11 @@
 
 package com.google.android.gnd.ui.placesheet.input;
 
-import static com.google.android.gnd.model.PlaceUpdate.Operation.CREATE;
-import static com.google.android.gnd.model.PlaceUpdate.Operation.DELETE;
-import static com.google.android.gnd.model.PlaceUpdate.Operation.NO_CHANGE;
-import static com.google.android.gnd.model.PlaceUpdate.Operation.UPDATE;
+import static com.google.android.gnd.repository.PlaceUpdate.Operation.CREATE;
+import static com.google.android.gnd.repository.PlaceUpdate.Operation.DELETE;
+import static com.google.android.gnd.repository.PlaceUpdate.Operation.NO_CHANGE;
+import static com.google.android.gnd.repository.PlaceUpdate.Operation.UPDATE;
 import static com.google.android.gnd.ui.util.ViewUtil.getColorForStates;
-
 import static java8.util.stream.StreamSupport.stream;
 
 import android.content.Context;
@@ -32,19 +31,16 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
-
-import com.google.android.gnd.R;
-import com.google.android.gnd.model.Form.MultipleChoice;
-import com.google.android.gnd.model.PlaceUpdate;
-import com.google.android.gnd.model.Record;
-import com.google.android.gnd.model.Record.Choices;
-
-import java.util.List;
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.OnFocusChange;
+import com.google.android.gnd.R;
+import com.google.android.gnd.repository.Form.MultipleChoice;
+import com.google.android.gnd.repository.PlaceUpdate;
+import com.google.android.gnd.repository.Record;
+import com.google.android.gnd.repository.Record.Choices;
+import java.util.List;
 import java8.util.Optional;
 import java8.util.stream.Collectors;
 

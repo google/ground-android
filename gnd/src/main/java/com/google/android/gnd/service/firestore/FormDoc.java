@@ -17,22 +17,19 @@
 package com.google.android.gnd.service.firestore;
 
 import static com.google.android.gnd.util.Protos.toEnum;
-
 import static java8.util.stream.Collectors.toList;
 import static java8.util.stream.StreamSupport.stream;
 
-import com.google.android.gnd.model.Form;
-import com.google.android.gnd.model.Form.Field.FieldTypeCase;
-import com.google.android.gnd.model.Form.MultipleChoice;
+import com.google.android.gnd.repository.Form;
+import com.google.android.gnd.repository.Form.Field.FieldTypeCase;
+import com.google.android.gnd.repository.Form.MultipleChoice;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.IgnoreExtraProperties;
 import com.google.firebase.firestore.ServerTimestamp;
-
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import java8.util.Optional;
 
 @IgnoreExtraProperties

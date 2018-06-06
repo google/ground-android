@@ -16,15 +16,14 @@
 
 package com.google.android.gnd.service;
 
-import android.support.annotation.Nullable;
-import com.google.android.gnd.model.Place;
-import com.google.android.gnd.model.PlaceUpdate;
-import com.google.android.gnd.model.Project;
-import com.google.android.gnd.model.Record;
+import com.google.android.gnd.repository.Place;
+import com.google.android.gnd.repository.PlaceUpdate;
+import com.google.android.gnd.repository.Project;
+import com.google.android.gnd.repository.Record;
 import io.reactivex.Flowable;
+import io.reactivex.Maybe;
 import io.reactivex.Single;
 import java.util.List;
-import java8.util.concurrent.CompletableFuture;
 
 /**
  * Data service is also responsible for caching data locally and persisting data for when network
@@ -33,24 +32,13 @@ import java8.util.concurrent.CompletableFuture;
 public interface DataService {
   void onCreate();
 
-  CompletableFuture<Project> loadProject(String projectId);
+  Maybe<Project> loadProject(String projectId);
 
   Place update(String projectId, PlaceUpdate placeUpdate);
 
-  CompletableFuture<List<Record>> loadRecordData(String projectId, String placeId);
+  Single<List<Record>> loadRecordData(String projectId, String placeId);
 
   Single<List<Project>> fetchProjectSummaries();
 
   Flowable<DatastoreEvent<Place>> observePlaces(String projectId);
-
-  interface DataChangeListener<T> {
-    void onChange(String id, @Nullable T obj, ChangeType changeType, boolean hasPendingWrites);
-
-    enum ChangeType {
-      UNKNOWN,
-      ADDED,
-      MODIFIED,
-      REMOVED
-    }
-  }
 }

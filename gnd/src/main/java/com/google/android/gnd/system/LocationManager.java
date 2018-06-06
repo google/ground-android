@@ -24,22 +24,19 @@ import android.content.Context;
 import android.location.Location;
 import android.os.Looper;
 import android.util.Log;
-
 import com.google.android.gms.location.LocationAvailability;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gnd.inject.PerActivity;
-import com.google.android.gnd.model.Point;
+import com.google.android.gnd.repository.Point;
 import com.google.android.gnd.rx.RxLocationServices;
-
-import javax.inject.Inject;
-
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Single;
 import io.reactivex.subjects.PublishSubject;
+import javax.inject.Inject;
 
 @PerActivity
 public class LocationManager {

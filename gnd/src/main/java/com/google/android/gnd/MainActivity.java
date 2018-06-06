@@ -32,7 +32,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import butterknife.ButterKnife;
-import com.google.android.gnd.model.GndDataRepository;
+import com.google.android.gnd.repository.GndDataRepository;
 import com.google.android.gnd.rx.RxErrors;
 import com.google.android.gnd.service.DataService;
 import com.google.android.gnd.system.PermissionsManager;

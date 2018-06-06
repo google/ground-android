@@ -29,7 +29,7 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 import butterknife.BindView;
 import com.google.android.gnd.R;
-import com.google.android.gnd.model.ProjectActivationEvent;
+import com.google.android.gnd.repository.ProjectActivationEvent;
 import com.google.android.gnd.system.PermissionsManager.PermissionDeniedException;
 import com.google.android.gnd.system.SettingsManager.SettingsChangeRequestCanceled;
 import com.google.android.gnd.ui.MainViewModel;

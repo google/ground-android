@@ -16,8 +16,8 @@
 
 package com.google.android.gnd.ui.mapcontainer;
 
-import com.google.android.gnd.model.Place;
-import com.google.android.gnd.model.Point;
+import com.google.android.gnd.repository.Place;
+import com.google.android.gnd.repository.Point;
 
 class MarkerUpdate {
 

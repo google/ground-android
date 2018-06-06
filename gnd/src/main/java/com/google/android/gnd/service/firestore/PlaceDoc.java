@@ -19,13 +19,12 @@ package com.google.android.gnd.service.firestore;
 import static com.google.android.gnd.service.firestore.FirestoreDataService.toDate;
 import static com.google.android.gnd.service.firestore.FirestoreDataService.toTimestamps;
 
-import com.google.android.gnd.model.Place;
-import com.google.android.gnd.model.Point;
+import com.google.android.gnd.repository.Place;
+import com.google.android.gnd.repository.Point;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.IgnoreExtraProperties;
 import com.google.firebase.firestore.ServerTimestamp;
-
 import java.util.Date;
 
 @IgnoreExtraProperties

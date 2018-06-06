@@ -19,7 +19,7 @@ package com.google.android.gnd.ui.placesheet;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.ViewGroup;
-import com.google.android.gnd.model.RecordSummary;
+import com.google.android.gnd.repository.RecordSummary;
 import java.util.Collections;
 import java.util.List;
 

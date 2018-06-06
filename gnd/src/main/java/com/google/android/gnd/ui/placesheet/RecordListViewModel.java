@@ -23,10 +23,10 @@ import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.ViewModel;
 import android.util.Log;
-import com.google.android.gnd.model.Form;
-import com.google.android.gnd.model.GndDataRepository;
-import com.google.android.gnd.model.ProjectActivationEvent;
-import com.google.android.gnd.model.RecordSummary;
+import com.google.android.gnd.repository.Form;
+import com.google.android.gnd.repository.GndDataRepository;
+import com.google.android.gnd.repository.ProjectActivationEvent;
+import com.google.android.gnd.repository.RecordSummary;
 import java.util.List;
 import java8.util.Optional;
 import java8.util.stream.Collectors;
@@ -55,6 +55,7 @@ public class RecordListViewModel extends ViewModel {
       .subscribe(project -> loadRecords(project, placeTypeId, formId, placeId));
   }
 
+  @SuppressLint("CheckResult")
   private void loadRecords(
     ProjectActivationEvent project, String placeTypeId, String formId, String placeId) {
     Optional<Form> form = project.getForm(placeTypeId, formId);
@@ -62,10 +63,9 @@ public class RecordListViewModel extends ViewModel {
       Log.d(TAG, "Form " + formId + " not found!");
       return;
     }
-    // TODO: Convert to Rx.
     dataRepository
       .getRecordData(placeId)
-      .thenAccept(
+      .subscribe(
         // TODO: Only fetch records w/current formId.
         records ->
           recordSummaries.setValue(

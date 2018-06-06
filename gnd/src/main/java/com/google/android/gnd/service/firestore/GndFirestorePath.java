@@ -20,19 +20,19 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-public class GndFirestorePathBuilder extends FirestorePathBuilder {
+public class GndFirestorePath extends FirestorePath {
   public static final String PROJECTS = "projects";
   public static final String PLACE_TYPES = "featureTypes";
   public static final String FORMS = "forms";
   public static final String PLACES = "features";
   public static final String RECORDS = "records";
 
-  private GndFirestorePathBuilder(FirebaseFirestore db) {
+  private GndFirestorePath(FirebaseFirestore db) {
     super(db);
   }
 
-  public static GndFirestorePathBuilder db(FirebaseFirestore db) {
-    return new GndFirestorePathBuilder(db);
+  public static GndFirestorePath db(FirebaseFirestore db) {
+    return new GndFirestorePath(db);
   }
 
   public ProjectsRef projects() {

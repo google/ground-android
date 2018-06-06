@@ -16,11 +16,10 @@
 
 package com.google.android.gnd.service.firestore;
 
-import com.google.android.gnd.model.Form;
-import com.google.android.gnd.model.PlaceType;
+import com.google.android.gnd.repository.Form;
+import com.google.android.gnd.repository.PlaceType;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.IgnoreExtraProperties;
-
 import java.util.List;
 import java.util.Map;
 

@@ -20,10 +20,10 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-public class FirestorePathBuilder {
+public class FirestorePath {
   private final FirebaseFirestore db;
 
-  protected FirestorePathBuilder(FirebaseFirestore db) {
+  protected FirestorePath(FirebaseFirestore db) {
     this.db = db;
   }
 

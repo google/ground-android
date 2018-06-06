@@ -16,8 +16,8 @@
 
 package com.google.android.gnd.ui;
 
-import com.google.android.gnd.model.Place;
-import com.google.android.gnd.model.PlaceType;
+import com.google.android.gnd.repository.Place;
+import com.google.android.gnd.repository.PlaceType;
 
 public class PlaceSheetEvent {
 

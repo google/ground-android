@@ -29,11 +29,11 @@ import android.widget.TextView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import com.google.android.gnd.R;
-import com.google.android.gnd.model.Form;
-import com.google.android.gnd.model.Form.Element;
-import com.google.android.gnd.model.Form.Field;
-import com.google.android.gnd.model.Record.Value;
-import com.google.android.gnd.model.RecordSummary;
+import com.google.android.gnd.repository.Form;
+import com.google.android.gnd.repository.Form.Element;
+import com.google.android.gnd.repository.Form.Field;
+import com.google.android.gnd.repository.Record.Value;
+import com.google.android.gnd.repository.RecordSummary;
 
 class RecordListItemViewHolder extends RecyclerView.ViewHolder {
   private static final int MAX_SUMMARY_COLUMNS = 4;

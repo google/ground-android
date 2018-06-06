@@ -24,7 +24,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import com.google.android.gnd.R;
-import com.google.android.gnd.model.Project;
+import com.google.android.gnd.repository.Project;
 import com.google.android.gnd.ui.common.GndDialogFragment;
 import com.google.android.gnd.ui.common.GndViewModelFactory;
 import java.io.Serializable;

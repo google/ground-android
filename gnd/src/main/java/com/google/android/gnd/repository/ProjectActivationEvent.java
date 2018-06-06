@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.model;
+package com.google.android.gnd.repository;
 
 import static java8.util.stream.StreamSupport.stream;
 
