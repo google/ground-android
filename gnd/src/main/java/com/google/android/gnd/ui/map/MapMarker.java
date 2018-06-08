@@ -17,6 +17,7 @@
 package com.google.android.gnd.ui.map;
 
 import com.google.android.gnd.ui.PlaceIcon;
+import com.google.android.gnd.vo.Point;
 
 public class MapMarker<T> {
   private String id;

@@ -28,6 +28,7 @@ import com.google.android.gnd.R;
 import com.google.android.gnd.repository.ProjectActivationEvent;
 import com.google.android.gnd.ui.common.GndDialogFragment;
 import com.google.android.gnd.vo.PlaceType;
+import com.google.android.gnd.vo.Point;
 import com.google.android.gnd.vo.Project;
 import io.reactivex.Maybe;
 import io.reactivex.subjects.MaybeSubject;

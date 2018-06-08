@@ -21,6 +21,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import com.google.android.gnd.ui.PlaceSheetEvent;
 import com.google.android.gnd.vo.Form;
+import com.google.android.gnd.vo.Place;
 import com.google.android.gnd.vo.PlaceType;
 import java.util.Collections;
 import java.util.List;

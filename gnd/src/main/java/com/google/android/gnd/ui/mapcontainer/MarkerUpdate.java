@@ -16,6 +16,9 @@
 
 package com.google.android.gnd.ui.mapcontainer;
 
+import com.google.android.gnd.vo.Place;
+import com.google.android.gnd.vo.Point;
+
 class MarkerUpdate {
 
   enum Type {

@@ -29,6 +29,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gnd.ui.PlaceIcon;
 import com.google.android.gnd.ui.map.MapAdapter;
 import com.google.android.gnd.ui.map.MapMarker;
+import com.google.android.gnd.vo.Point;
 import io.reactivex.Observable;
 import io.reactivex.subjects.PublishSubject;
 import java.util.HashMap;
