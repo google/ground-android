@@ -16,8 +16,7 @@
 
 package com.google.android.gnd.ui;
 
-import com.google.android.gnd.repository.Place;
-import com.google.android.gnd.repository.PlaceType;
+import com.google.android.gnd.vo.PlaceType;
 
 public class PlaceSheetEvent {
 
@@ -37,7 +36,7 @@ public class PlaceSheetEvent {
     this.placeType = placeType;
     this.place = place;
     String caption = place.getCaption();
-    String placeTypeLabel = placeType.getItemLabelOrDefault("pt", "");
+    String placeTypeLabel = placeType.getItemLabel();
     this.title = caption.isEmpty() ? placeTypeLabel : caption;
     this.subtitle = caption.isEmpty() ? "" : placeTypeLabel + " " + place.getCustomId();
   }

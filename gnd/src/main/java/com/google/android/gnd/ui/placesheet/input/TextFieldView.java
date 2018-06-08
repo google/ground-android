@@ -16,11 +16,11 @@
 
 package com.google.android.gnd.ui.placesheet.input;
 
-import static com.google.android.gnd.repository.PlaceUpdate.Operation.CREATE;
-import static com.google.android.gnd.repository.PlaceUpdate.Operation.DELETE;
-import static com.google.android.gnd.repository.PlaceUpdate.Operation.NO_CHANGE;
-import static com.google.android.gnd.repository.PlaceUpdate.Operation.UPDATE;
 import static com.google.android.gnd.ui.util.ViewUtil.getColorForStates;
+import static com.google.android.gnd.vo.PlaceUpdate.Operation.CREATE;
+import static com.google.android.gnd.vo.PlaceUpdate.Operation.DELETE;
+import static com.google.android.gnd.vo.PlaceUpdate.Operation.NO_CHANGE;
+import static com.google.android.gnd.vo.PlaceUpdate.Operation.UPDATE;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
@@ -33,8 +33,8 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnFocusChange;
 import com.google.android.gnd.R;
-import com.google.android.gnd.repository.PlaceUpdate;
-import com.google.android.gnd.repository.Record;
+import com.google.android.gnd.vo.PlaceUpdate;
+import com.google.android.gnd.vo.Record;
 import java8.util.Optional;
 
 public class TextFieldView extends ConstraintLayout implements Editable {
@@ -112,7 +112,7 @@ public class TextFieldView extends ConstraintLayout implements Editable {
     if (text.isEmpty()) {
       return Optional.empty();
     }
-    return Optional.of(Record.Value.newBuilder().setText(text).build());
+    return Optional.of(Record.Value.ofText(text));
   }
 
   @NonNull

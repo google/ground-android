@@ -35,12 +35,12 @@ import butterknife.BindView;
 import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.MainActivityViewModel;
 import com.google.android.gnd.R;
-import com.google.android.gnd.repository.Point;
-import com.google.android.gnd.repository.Project;
 import com.google.android.gnd.repository.ProjectActivationEvent;
 import com.google.android.gnd.ui.common.GndFragment;
 import com.google.android.gnd.ui.common.GndViewModelFactory;
 import com.google.android.gnd.ui.mapcontainer.MapContainerFragment;
+import com.google.android.gnd.vo.Point;
+import com.google.android.gnd.vo.Project;
 import java.util.List;
 import javax.inject.Inject;
 

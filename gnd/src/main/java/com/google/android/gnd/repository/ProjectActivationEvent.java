@@ -19,6 +19,10 @@ package com.google.android.gnd.repository;
 import static java8.util.stream.StreamSupport.stream;
 
 import com.google.android.gnd.service.DatastoreEvent;
+import com.google.android.gnd.vo.Form;
+import com.google.android.gnd.vo.Place;
+import com.google.android.gnd.vo.PlaceType;
+import com.google.android.gnd.vo.Project;
 import io.reactivex.Flowable;
 import java.util.Collection;
 import java.util.Map;

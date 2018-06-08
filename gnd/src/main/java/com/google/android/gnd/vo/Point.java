@@ -14,31 +14,26 @@
  * limitations under the License.
  */
 
-syntax = "proto3";
+package com.google.android.gnd.vo;
 
-option java_multiple_files = true;
-option java_package = "com.google.android.gnd.repository";
+import com.google.auto.value.AutoValue;
 
-import "model/point.proto";
-import "model/timestamps.proto";
+@AutoValue
+public abstract class Point {
+  public abstract double getLatitude();
 
-package gnd;
+  public abstract double getLongitude();
 
-message Place {
-  // Will be unset for new unsaved instances.
-  string id = 1;
+  public static Builder newBuilder() {
+    return new AutoValue_Point.Builder();
+  }
 
-  string place_type_id = 2;
+  @AutoValue.Builder
+  public abstract static class Builder {
+    public abstract Builder setLatitude(double newLatitude);
 
-  string custom_id = 3;
+    public abstract Builder setLongitude(double newLongitude);
 
-  // TODO: Rename to "label"?
-  // TODO: i18n.
-  string caption = 4;
-
-  Point point = 5;
-
-  Timestamps server_timestamps = 6;
-
-  Timestamps client_timestamps = 7;
+    public abstract Point build();
+  }
 }

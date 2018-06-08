@@ -20,6 +20,11 @@ import static java8.util.stream.StreamSupport.stream;
 
 import android.annotation.SuppressLint;
 import com.google.android.gnd.service.DataService;
+import com.google.android.gnd.vo.Place;
+import com.google.android.gnd.vo.PlaceType;
+import com.google.android.gnd.vo.PlaceUpdate;
+import com.google.android.gnd.vo.Project;
+import com.google.android.gnd.vo.Record;
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Flowable;
 import io.reactivex.Single;
@@ -62,7 +67,7 @@ public class GndDataRepository {
             ProjectActivationEvent.activated(
               project,
               dataService.observePlaces(projectId),
-              project.getPlaceTypesList())));
+              project.getPlaceTypes())));
   }
 
   public Place update(PlaceUpdate placeUpdate) {
@@ -72,7 +77,7 @@ public class GndDataRepository {
 
   public Optional<PlaceType> getPlaceType(String placeTypeId) {
     Project activeProject = projectActivationObservable.getValue().getProject();
-    return stream(activeProject.getPlaceTypesList())
+    return stream(activeProject.getPlaceTypes())
       .filter(pt -> pt.getId().equals(placeTypeId))
       .findFirst();
   }

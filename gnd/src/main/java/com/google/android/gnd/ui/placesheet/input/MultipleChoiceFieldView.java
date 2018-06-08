@@ -16,11 +16,11 @@
 
 package com.google.android.gnd.ui.placesheet.input;
 
-import static com.google.android.gnd.repository.PlaceUpdate.Operation.CREATE;
-import static com.google.android.gnd.repository.PlaceUpdate.Operation.DELETE;
-import static com.google.android.gnd.repository.PlaceUpdate.Operation.NO_CHANGE;
-import static com.google.android.gnd.repository.PlaceUpdate.Operation.UPDATE;
 import static com.google.android.gnd.ui.util.ViewUtil.getColorForStates;
+import static com.google.android.gnd.vo.PlaceUpdate.Operation.CREATE;
+import static com.google.android.gnd.vo.PlaceUpdate.Operation.DELETE;
+import static com.google.android.gnd.vo.PlaceUpdate.Operation.NO_CHANGE;
+import static com.google.android.gnd.vo.PlaceUpdate.Operation.UPDATE;
 import static java8.util.stream.StreamSupport.stream;
 
 import android.content.Context;
@@ -36,10 +36,10 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.OnFocusChange;
 import com.google.android.gnd.R;
-import com.google.android.gnd.repository.Form.MultipleChoice;
-import com.google.android.gnd.repository.PlaceUpdate;
-import com.google.android.gnd.repository.Record;
-import com.google.android.gnd.repository.Record.Choices;
+import com.google.android.gnd.vo.Form.MultipleChoice;
+import com.google.android.gnd.vo.PlaceUpdate;
+import com.google.android.gnd.vo.Record;
+import com.google.android.gnd.vo.Record.Choices;
 import java.util.List;
 import java8.util.Optional;
 import java8.util.stream.Collectors;
@@ -141,12 +141,12 @@ public class MultipleChoiceFieldView extends ConstraintLayout implements Editabl
       return;
     }
     AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getContext());
-    List<MultipleChoice.Option> options = multipleChoice.getOptionsList();
+    List<MultipleChoice.Option> options = multipleChoice.getOptions();
     String[] labels = new String[options.size()];
     boolean[] values = new boolean[options.size()];
     for (int i = 0; i < options.size(); i++) {
       // TODO: i18n.
-      labels[i] = options.get(i).getLabelsOrDefault("pt", "?");
+      labels[i] = options.get(i).getLabel();
       values[i] = isOptionSelected(options.get(i));
     }
     dialogBuilder.setMultiChoiceItems(labels, values, (dialog, which, isChecked) -> {});
@@ -160,13 +160,13 @@ public class MultipleChoiceFieldView extends ConstraintLayout implements Editabl
           Choices.Builder choices = Choices.newBuilder();
           for (int i = 0; i < options.size(); i++) {
             if (values[i]) {
-              choices.addCodes(options.get(i).getCode());
+              choices.codesBuilder().add(options.get(i).getCode());
             }
           }
           onValueUpdate(
-              choices.getCodesCount() == 0
-                  ? Optional.empty()
-                  : Optional.of(Record.Value.newBuilder().setChoices(choices).build()));
+            Optional.of(choices.build())
+                    .filter(ch -> !ch.getCodes().isEmpty())
+                    .map(Record.Value::ofChoices));
           valueText.requestFocus();
           updateValidationMessage();
         });
@@ -180,12 +180,12 @@ public class MultipleChoiceFieldView extends ConstraintLayout implements Editabl
       return;
     }
     AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getContext());
-    List<MultipleChoice.Option> options = multipleChoice.getOptionsList();
+    List<MultipleChoice.Option> options = multipleChoice.getOptions();
     String[] labels = new String[options.size()];
     selectedItem = -1;
     for (int i = 0; i < options.size(); i++) {
       // TODO: i18n.
-      labels[i] = options.get(i).getLabelsOrDefault("pt", "?");
+      labels[i] = options.get(i).getLabel();
       if (isOptionSelected(options.get(i))) {
         selectedItem = i;
       }
@@ -211,12 +211,11 @@ public class MultipleChoiceFieldView extends ConstraintLayout implements Editabl
         (dialog, which) -> {
           Choices.Builder choices = Choices.newBuilder();
           if (selectedItem >= 0) {
-            choices.addCodes(options.get(selectedItem).getCode());
+            choices.codesBuilder().add(options.get(selectedItem).getCode());
+            onValueUpdate(Optional.of(Record.Value.ofChoices(choices.build())));
+          } else {
+            onValueUpdate(Optional.empty());
           }
-          onValueUpdate(
-              choices.getCodesCount() == 0
-                  ? Optional.empty()
-                  : Optional.of(Record.Value.newBuilder().setChoices(choices).build()));
           valueText.requestFocus();
           updateValidationMessage();
         });
@@ -227,7 +226,7 @@ public class MultipleChoiceFieldView extends ConstraintLayout implements Editabl
 
   private boolean isOptionSelected(MultipleChoice.Option option) {
     return currentValue.isPresent()
-        && currentValue.get().getChoices().getCodesList().contains(option.getCode());
+      && currentValue.get().getChoices().getCodes().contains(option.getCode());
   }
 
   private void onValueUpdate(Optional<Record.Value> value) {
@@ -237,18 +236,18 @@ public class MultipleChoiceFieldView extends ConstraintLayout implements Editabl
       return;
     }
     valueText.setText(
-        stream(value.get().getChoices().getCodesList())
+      stream(value.get().getChoices().getCodes())
             .map(this::getOptionLabel)
             .collect(Collectors.joining(", ")));
   }
 
   private String getOptionLabel(String code) {
     // TODO: i18n.
-    return stream(multipleChoice.getOptionsList())
-        .filter(o -> o.getCode().equals(code))
-        .map(o -> o.getLabelsOrDefault("pt", "?"))
-        .findFirst()
-        .orElse("?");
+    return stream(multipleChoice.getOptions())
+      .filter(o -> o.getCode().equals(code))
+      .map(o -> o.getLabel())
+      .findFirst()
+      .orElse("?");
   }
 
   private Optional<Record.Value> getCurrentValue() {

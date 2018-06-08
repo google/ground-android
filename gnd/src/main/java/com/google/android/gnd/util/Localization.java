@@ -14,21 +14,19 @@
  * limitations under the License.
  */
 
-syntax = "proto3";
+package com.google.android.gnd.util;
 
-option java_multiple_files = true;
-option java_package = "com.google.android.gnd.repository";
+import com.google.common.base.Optional;
+import java.util.Map;
 
-import "model/place_type.proto";
+public abstract class Localization {
+  private Localization() {
+  }
 
-package gnd;
-
-message Project {
-  string id = 1;
-
-  map<string, string> title = 2;
-
-  map<string, string> description = 3;
-
-  repeated PlaceType place_types = 4;
+  public static String getLocalizedMessage(Map<String, String> messages) {
+    // TODO: i18n.
+    return Optional.fromNullable(messages.get("pt"))
+                   .or(Optional.fromNullable(messages.get("en")))
+                   .or("");
+  }
 }

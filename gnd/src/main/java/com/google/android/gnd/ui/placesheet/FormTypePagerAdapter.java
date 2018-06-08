@@ -19,10 +19,9 @@ package com.google.android.gnd.ui.placesheet;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
-import com.google.android.gnd.repository.Form;
-import com.google.android.gnd.repository.Place;
-import com.google.android.gnd.repository.PlaceType;
 import com.google.android.gnd.ui.PlaceSheetEvent;
+import com.google.android.gnd.vo.Form;
+import com.google.android.gnd.vo.PlaceType;
 import java.util.Collections;
 import java.util.List;
 import javax.inject.Inject;
@@ -52,7 +51,7 @@ public class FormTypePagerAdapter extends FragmentPagerAdapter {
   @Override
   public CharSequence getPageTitle(int position) {
     // TODO: i18n.
-    return forms.get(position).getTitleOrDefault("pt", "Form " + position);
+    return forms.get(position).getTitle();
   }
 
   public void onPlaceSheetEvent(PlaceSheetEvent event) {

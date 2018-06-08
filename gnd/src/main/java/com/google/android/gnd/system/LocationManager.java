@@ -29,7 +29,6 @@ import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gnd.inject.PerActivity;
-import com.google.android.gnd.repository.Point;
 import com.google.android.gnd.rx.RxLocationServices;
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Completable;

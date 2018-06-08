@@ -25,11 +25,10 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
 import com.google.android.gnd.R;
-import com.google.android.gnd.repository.PlaceType;
-import com.google.android.gnd.repository.Point;
-import com.google.android.gnd.repository.Project;
 import com.google.android.gnd.repository.ProjectActivationEvent;
 import com.google.android.gnd.ui.common.GndDialogFragment;
+import com.google.android.gnd.vo.PlaceType;
+import com.google.android.gnd.vo.Project;
 import io.reactivex.Maybe;
 import io.reactivex.subjects.MaybeSubject;
 import java.util.List;
@@ -76,9 +75,9 @@ public class AddPlaceDialogFragment extends GndDialogFragment {
       });
     // TODO: Add icons.
     // TODO: i18n.
-    List<PlaceType> placeTypes = activeProject.getProject().getPlaceTypesList();
+    List<PlaceType> placeTypes = activeProject.getProject().getPlaceTypes();
     String[] items =
-      stream(placeTypes).map(t -> t.getListHeadingOrDefault("pt", "?")).toArray(String[]::new);
+      stream(placeTypes).map(t -> t.getListHeading()).toArray(String[]::new);
     builder.setItems(
       items,
       (dialog, idx) -> onSelectPlaceType(activeProject.getProject(),

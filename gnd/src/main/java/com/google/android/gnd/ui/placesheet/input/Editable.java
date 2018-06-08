@@ -16,7 +16,7 @@
 
 package com.google.android.gnd.ui.placesheet.input;
 
-import com.google.android.gnd.repository.PlaceUpdate.RecordUpdate.ValueUpdate;
+import com.google.android.gnd.vo.PlaceUpdate.RecordUpdate.ValueUpdate;
 
 public interface Editable {
   void updateValidationMessage();

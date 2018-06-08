@@ -24,9 +24,9 @@ import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import com.google.android.gnd.R;
-import com.google.android.gnd.repository.Project;
 import com.google.android.gnd.ui.common.GndDialogFragment;
 import com.google.android.gnd.ui.common.GndViewModelFactory;
+import com.google.android.gnd.vo.Project;
 import java.io.Serializable;
 import java.util.List;
 import javax.inject.Inject;
@@ -71,7 +71,7 @@ public class ProjectSelectorDialogFragment extends GndDialogFragment {
     // TODO: i18n.
     String[] projectTitles =
       stream(availableProjects)
-        .map(p -> p.getTitleOrDefault("pt", "<Untitled project>"))
+        .map(p -> p.getTitle())
         .toArray(String[]::new);
     dialog.setItems(
       projectTitles,

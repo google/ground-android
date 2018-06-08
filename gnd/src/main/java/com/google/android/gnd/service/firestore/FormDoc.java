@@ -16,13 +16,16 @@
 
 package com.google.android.gnd.service.firestore;
 
-import static com.google.android.gnd.util.Protos.toEnum;
-import static java8.util.stream.Collectors.toList;
+import static com.google.android.gnd.util.Enums.toEnum;
+import static com.google.android.gnd.util.Localization.getLocalizedMessage;
+import static com.google.android.gnd.util.Streams.toImmutableList;
 import static java8.util.stream.StreamSupport.stream;
 
-import com.google.android.gnd.repository.Form;
-import com.google.android.gnd.repository.Form.Field.FieldTypeCase;
-import com.google.android.gnd.repository.Form.MultipleChoice;
+import com.google.android.gnd.vo.Form;
+import com.google.android.gnd.vo.Form.Field;
+import com.google.android.gnd.vo.Form.Field.Type;
+import com.google.android.gnd.vo.Form.MultipleChoice;
+import com.google.common.base.Optional;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.IgnoreExtraProperties;
 import com.google.firebase.firestore.ServerTimestamp;
@@ -30,11 +33,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java8.util.Optional;
 
 @IgnoreExtraProperties
 public class FormDoc {
-  // TODO: -> title
   public Map<String, String> titles = new HashMap<>();
 
   public List<Element> elements;
@@ -46,10 +47,10 @@ public class FormDoc {
   public static Form toProto(DocumentSnapshot doc) {
     FormDoc f = doc.toObject(FormDoc.class);
     return Form.newBuilder()
-        .setId(doc.getId())
-        .putAllTitle(f.titles)
-        .addAllElements(stream(f.elements).map(Element::toProto).collect(toList()))
-        .build();
+               .setId(doc.getId())
+               .setTitle(getLocalizedMessage(f.titles))
+               .setElements(stream(f.elements).map(Element::toProto).collect(toImmutableList()))
+               .build();
   }
 
   @IgnoreExtraProperties
@@ -68,27 +69,25 @@ public class FormDoc {
     public boolean required;
 
     static Form.Element toProto(Element em) {
-      Form.Element.Builder element = Form.Element.newBuilder();
-      element.setId(em.id);
-      toField(em).ifPresent(element::setField);
-      return element.build();
+      return toField(em).transform(Form.Element::ofField).or(Form.Element.ofUnknown());
     }
 
-    private static Optional<Form.Field> toField(Element em) {
+    private static Optional<Field> toField(Element em) {
       Form.Field.Builder field = Form.Field.newBuilder();
-      switch (toEnum(FieldTypeCase.class, em.type)) {
-        case TEXT_FIELD:
-          field.setTextField(Form.TextField.getDefaultInstance());
+      switch (toEnum(Field.Type.class, em.type)) {
+        case TEXT:
+          field.setType(Type.TEXT);
           break;
         case MULTIPLE_CHOICE:
+          field.setType(Type.MULTIPLE_CHOICE);
           field.setMultipleChoice(toMultipleChoice(em));
           break;
         default:
-          return Optional.empty();
+          return Optional.absent();
       }
       field.setRequired(em.required);
       field.setId(em.id);
-      field.putAllLabel(em.labels);
+      field.setLabel(getLocalizedMessage(em.labels));
       return Optional.of(field.build());
     }
 
@@ -96,7 +95,7 @@ public class FormDoc {
       MultipleChoice.Builder mc = MultipleChoice.newBuilder();
       mc.setCardinality(toEnum(MultipleChoice.Cardinality.class, em.cardinality));
       if (em.options != null) {
-        stream(em.options).map(Option::toOption).forEach(mc::addOptions);
+        mc.setOptions(stream(em.options).map(Option::toOption).collect(toImmutableList()));
       }
       return mc.build();
     }
@@ -111,7 +110,7 @@ public class FormDoc {
           builder.setCode(option.code);
         }
         if (option.labels != null) {
-          builder.putAllLabels(option.labels);
+          builder.setLabel(getLocalizedMessage(option.labels));
         }
         return builder.build();
       }

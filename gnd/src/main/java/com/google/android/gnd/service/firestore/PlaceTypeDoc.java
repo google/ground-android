@@ -16,11 +16,13 @@
 
 package com.google.android.gnd.service.firestore;
 
-import com.google.android.gnd.repository.Form;
-import com.google.android.gnd.repository.PlaceType;
+import static com.google.android.gnd.util.Localization.getLocalizedMessage;
+
+import com.google.android.gnd.vo.Form;
+import com.google.android.gnd.vo.PlaceType;
+import com.google.common.collect.ImmutableList;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.IgnoreExtraProperties;
-import java.util.List;
 import java.util.Map;
 
 @IgnoreExtraProperties
@@ -36,16 +38,15 @@ public class PlaceTypeDoc {
 
   public String iconColor;
 
-  static PlaceType toProto(DocumentSnapshot doc, List<Form> forms) {
+  static PlaceType toProto(DocumentSnapshot doc, ImmutableList<Form> forms) {
     PlaceTypeDoc ft = doc.toObject(PlaceTypeDoc.class);
     return PlaceType.newBuilder()
-        .setId(doc.getId())
-        .putAllListHeading(ft.listHeading)
-        .putAllItemLabel(ft.itemLabel)
-        .setUrlSubpath(ft.pathKey)
-        .setIconId(ft.iconId)
-        .addAllForms(forms)
-        .setIconColor(ft.iconColor)
-        .build();
+                    .setId(doc.getId())
+                    .setListHeading(getLocalizedMessage(ft.listHeading))
+                    .setItemLabel(getLocalizedMessage(ft.itemLabel))
+                    .setIconId(ft.iconId)
+                    .setFormsList(forms)
+                    .setIconColor(ft.iconColor)
+                    .build();
   }
 }

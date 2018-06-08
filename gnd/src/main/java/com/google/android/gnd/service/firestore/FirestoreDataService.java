@@ -17,23 +17,25 @@
 package com.google.android.gnd.service.firestore;
 
 import static com.google.android.gnd.rx.RxFirestoreUtil.mapSingle;
+import static com.google.android.gnd.util.Streams.toImmutableList;
 import static java8.util.stream.Collectors.toList;
 import static java8.util.stream.StreamSupport.stream;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
-import com.google.android.gnd.repository.Form;
-import com.google.android.gnd.repository.Place;
-import com.google.android.gnd.repository.PlaceType;
-import com.google.android.gnd.repository.PlaceUpdate;
-import com.google.android.gnd.repository.PlaceUpdate.RecordUpdate;
-import com.google.android.gnd.repository.PlaceUpdate.RecordUpdate.ValueUpdate;
-import com.google.android.gnd.repository.Project;
-import com.google.android.gnd.repository.Record;
-import com.google.android.gnd.repository.Timestamps;
 import com.google.android.gnd.service.DataService;
 import com.google.android.gnd.service.DatastoreEvent;
+import com.google.android.gnd.vo.Form;
+import com.google.android.gnd.vo.Place;
+import com.google.android.gnd.vo.PlaceType;
+import com.google.android.gnd.vo.PlaceUpdate;
+import com.google.android.gnd.vo.PlaceUpdate.RecordUpdate;
+import com.google.android.gnd.vo.PlaceUpdate.RecordUpdate.ValueUpdate;
+import com.google.android.gnd.vo.Project;
+import com.google.android.gnd.vo.Record;
+import com.google.android.gnd.vo.Timestamps;
+import com.google.common.collect.ImmutableList;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentReference;
@@ -44,7 +46,6 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.firestore.SnapshotMetadata;
 import com.google.firebase.firestore.WriteBatch;
-import com.google.protobuf.Timestamp;
 import durdinapps.rxfirebase2.RxFirestore;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
@@ -55,7 +56,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java8.util.function.Function;
-import java8.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -71,24 +71,15 @@ public class FirestoreDataService implements DataService {
   @Inject
   FirestoreDataService() {}
 
-  // TODO: Move to shared util, since this isn't specific to Firebase.
-  public static Date toDate(Timestamp timestamp) {
-    return new Date(timestamp.getSeconds() * 1000);
-  }
-
   static Timestamps toTimestamps(@Nullable Date created, @Nullable Date modified) {
     Timestamps.Builder timestamps = Timestamps.newBuilder();
     if (created != null) {
-      timestamps.setCreated(toTimestamp(created));
+      timestamps.setCreated(created);
     }
     if (modified != null) {
-      timestamps.setModified(toTimestamp(modified));
+      timestamps.setModified(modified);
     }
     return timestamps.build();
-  }
-
-  private static Timestamp.Builder toTimestamp(@NonNull Date serverTimeCreated) {
-    return Timestamp.newBuilder().setSeconds(serverTimeCreated.getTime() / 1000);
   }
 
   @Override
@@ -127,14 +118,14 @@ public class FirestoreDataService implements DataService {
                       .toMaybe();
   }
 
-  private Observable<List<Form>> loadForms(DocumentSnapshot placeTypeDocSnapshot) {
+  private Observable<ImmutableList<Form>> loadForms(DocumentSnapshot placeTypeDocSnapshot) {
     return RxFirestore.getCollection(GndFirestorePath.placeType(placeTypeDocSnapshot).forms().ref())
                       .map(QuerySnapshot::getDocuments)
                       .map(
                         formDocSnapshots ->
                           stream(formDocSnapshots)
                             .map(FormDoc::toProto)
-                            .collect(Collectors.toList()))
+                            .collect(toImmutableList()))
                       .toObservable();
   }
 
@@ -164,11 +155,11 @@ public class FirestoreDataService implements DataService {
     Place.Builder place = placeUpdate.getPlace().toBuilder();
     DocumentReference fdRef = db().project(projectId).places().ref().document();
     place.setId(fdRef.getId());
-    place.clearServerTimestamps();
+    place.setServerTimestamps(Timestamps.getDefaultInstance());
     place.setClientTimestamps(
         Timestamps.newBuilder()
-            .setCreated(placeUpdate.getClientTimestamp())
-            .setModified(placeUpdate.getClientTimestamp()));
+                  .setCreated(placeUpdate.getClientTimestamp())
+                  .setModified(placeUpdate.getClientTimestamp()).build());
     batch.set(fdRef, PlaceDoc.fromProto(place.build()));
     updateRecords(batch, fdRef, placeUpdate);
     // We don't wait for commit() to finish because task only completes once data is stored to
@@ -180,15 +171,16 @@ public class FirestoreDataService implements DataService {
 
   private Place updatePlace(String projectId, PlaceUpdate placeUpdate) {
     WriteBatch batch = db.batch();
-    Place.Builder place = placeUpdate.getPlace().toBuilder();
+    Place place = placeUpdate.getPlace();
     DocumentReference fdRef = db().project(projectId).place(place.getId()).ref();
-    place.setServerTimestamps(place.getServerTimestamps().toBuilder().clearModified());
-    place.setClientTimestamps(
-        place.getClientTimestamps().toBuilder().setModified(placeUpdate.getClientTimestamp()));
-    batch.set(fdRef, PlaceDoc.fromProto(place.build()), MERGE);
+    // TODO: Set timestamps during serialization.
+//    place.setServerTimestamps(place.getServerTimestamps().toBuilder().clearModified());
+//    place.setClientTimestamps(
+//        place.getClientTimestamps().toBuilder().setModified(placeUpdate.getClientTimestamp()));
+    batch.set(fdRef, PlaceDoc.fromProto(place), MERGE);
     updateRecords(batch, fdRef, placeUpdate);
     batch.commit();
-    return place.build();
+    return place;
   }
 
   @Override
@@ -251,26 +243,27 @@ public class FirestoreDataService implements DataService {
   private void updateRecords(
       WriteBatch batch, DocumentReference placeRef, PlaceUpdate placeUpdate) {
     CollectionReference records = GndFirestorePath.place(placeRef).records().ref();
+    // TODO: Set timestamps during serialization.
     for (RecordUpdate recordUpdate : placeUpdate.getRecordUpdatesList()) {
-      Record.Builder record = recordUpdate.getRecord().toBuilder();
+      Record record = recordUpdate.getRecord();
       switch (recordUpdate.getOperation()) {
         case CREATE:
-          record.setClientTimestamps(
-              Timestamps.newBuilder()
-                  .setCreated(placeUpdate.getClientTimestamp())
-                  .setModified(placeUpdate.getClientTimestamp()));
+//          record.setClientTimestamps(
+//              Timestamps.newBuilder()
+//                  .setCreated(placeUpdate.getClientTimestamp())
+//                  .setModified(placeUpdate.getClientTimestamp()));
           batch.set(
-              records.document(), RecordDoc.fromProto(record.build(), updatedValues(recordUpdate)));
+            records.document(), RecordDoc.fromProto(record, updatedValues(recordUpdate)));
           break;
         case UPDATE:
-          record.setClientTimestamps(
-              record
-                  .getClientTimestamps()
-                  .toBuilder()
-                  .setModified(placeUpdate.getClientTimestamp()));
+//          record.setClientTimestamps(
+//              record
+//                  .getClientTimestamps()
+//                  .toBuilder()
+//                  .setModified(placeUpdate.getClientTimestamp()));
           batch.set(
               records.document(record.getId()),
-              RecordDoc.fromProto(record.build(), updatedValues(recordUpdate)),
+            RecordDoc.fromProto(record, updatedValues(recordUpdate)),
               MERGE);
           break;
       }

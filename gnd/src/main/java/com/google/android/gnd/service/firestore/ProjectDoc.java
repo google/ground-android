@@ -16,8 +16,11 @@
 
 package com.google.android.gnd.service.firestore;
 
-import com.google.android.gnd.repository.PlaceType;
-import com.google.android.gnd.repository.Project;
+import static com.google.android.gnd.util.Localization.getLocalizedMessage;
+
+import com.google.android.gnd.vo.PlaceType;
+import com.google.android.gnd.vo.Project;
+import com.google.common.collect.ImmutableList;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.IgnoreExtraProperties;
 import com.google.firebase.firestore.ServerTimestamp;
@@ -43,11 +46,11 @@ public class ProjectDoc {
   public static Project toProto(DocumentSnapshot doc, List<PlaceType> placeTypes) {
     ProjectDoc pd = doc.toObject(ProjectDoc.class);
     return Project.newBuilder()
-        .setId(doc.getId())
-        .putAllTitle(pd.title)
-        .putAllDescription(pd.description)
-        .addAllPlaceTypes(placeTypes)
-        .build();
+                  .setId(doc.getId())
+                  .setTitle(getLocalizedMessage(pd.title))
+                  .setDescription(getLocalizedMessage(pd.description))
+                  .setPlaceTypes(ImmutableList.copyOf(placeTypes))
+                  .build();
   }
 
   public static Project toProto(DocumentSnapshot doc) {

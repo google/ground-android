@@ -15,9 +15,9 @@
  */
 
 apply plugin: 'com.android.application'
-apply plugin: 'com.google.protobuf'
 
 project.ext {
+    autoValueVersion = "1.6"
     supportLibraryVersion = "28.0.0-alpha1"
     daggerVersion = "2.14.1"
     butterKnifeVersion = "8.8.1"
@@ -29,11 +29,11 @@ project.ext {
     lifecycleVersion = "1.1.1"
     gmsVersion = "11.8.0"
     firebaseVersion = "11.8.0"
-    protobufVersion = "3.0.0"
     junitVersion = "4.12"
     constraintLayoutVersion = "1.0.2"
     streamSupportVersion = "1.6.0"
     tabLayoutHelper = "0.9.0"
+    guavaVersion = "23.0-android"
 }
 
 def homePath = System.properties['user.home']
@@ -122,33 +122,15 @@ dependencies {
     implementation "android.arch.lifecycle:reactivestreams:$project.lifecycleVersion"
     annotationProcessor "android.arch.lifecycle:compiler:$project.lifecycleVersion"
 
-    // Protobuf
-    protobuf "com.google.protobuf:protobuf-java:$project.protobufVersion"
-    implementation "com.google.protobuf:protobuf-lite:$project.protobufVersion"
+    // Auto-value
+    provided "com.google.auto.value:auto-value-annotations:$project.autoValueVersion"
+    annotationProcessor "com.google.auto.value:auto-value:$project.autoValueVersion"
+
+    // Guava
+    implementation "com.google.guava:guava:$project.guavaVersion"
 
     // Testing
     testImplementation "junit:junit:$project.junitVersion"
-}
-
-protobuf {
-    protoc {
-        artifact = 'com.google.protobuf:protoc:3.0.0'
-    }
-    plugins {
-        javalite {
-            artifact = 'com.google.protobuf:protoc-gen-javalite:3.0.0'
-        }
-    }
-    generateProtoTasks {
-        all().each { task ->
-            task.builtins {
-                remove java
-            }
-            task.plugins {
-                javalite {}
-            }
-        }
-    }
 }
 
 // This must be last to avoid dependency collisions.

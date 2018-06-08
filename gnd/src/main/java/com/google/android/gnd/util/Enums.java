@@ -14,35 +14,17 @@
  * limitations under the License.
  */
 
-syntax = "proto3";
+package com.google.android.gnd.util;
 
-option java_multiple_files = true;
-option java_package = "com.google.android.gnd.repository";
+public abstract class Enums {
+  private Enums() {
+  }
 
-import "model/form.proto";
-import "model/timestamps.proto";
-
-package gnd;
-
-message PlaceType {
-  string id = 1;
-
-  // TODO: Plural?
-  map<string, string> list_heading = 2;
-
-  map<string, string> item_label = 3;
-
-  string url_subpath = 4;
-
-  string icon_id = 5;
-
-  string icon_color = 6;
-
-  repeated Form forms = 7;
-
-  Timestamps server_timestamps = 8;
-
-  Timestamps client_timestamps = 9;
-
-  bool required = 10;
+  public static <T extends Enum<T>> T toEnum(Class<T> enumClass, String value) {
+    try {
+      return Enum.valueOf(enumClass, value.toUpperCase());
+    } catch (IllegalArgumentException e) {
+      return enumClass.getEnumConstants()[0];
+    }
+  }
 }

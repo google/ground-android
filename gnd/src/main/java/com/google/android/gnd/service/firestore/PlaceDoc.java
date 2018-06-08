@@ -16,11 +16,10 @@
 
 package com.google.android.gnd.service.firestore;
 
-import static com.google.android.gnd.service.firestore.FirestoreDataService.toDate;
 import static com.google.android.gnd.service.firestore.FirestoreDataService.toTimestamps;
 
-import com.google.android.gnd.repository.Place;
-import com.google.android.gnd.repository.Point;
+import com.google.android.gnd.vo.Place;
+import com.google.android.gnd.vo.Point;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.IgnoreExtraProperties;
@@ -74,18 +73,10 @@ public class PlaceDoc {
     // TODO: Don't echo server timestamp in client. When we implement a proper DAL we can
     // use FieldValue.serverTimestamp() to signal when to update the value, or not set it,
     // depending on whether the operation is a CREATE or UPDATE.
-    if (place.getServerTimestamps().hasCreated()) {
-      doc.serverTimeCreated = toDate(place.getServerTimestamps().getCreated());
-    }
-    if (place.getServerTimestamps().hasModified()) {
-      doc.serverTimeModified = toDate(place.getServerTimestamps().getModified());
-    }
-    if (place.getClientTimestamps().hasCreated()) {
-      doc.clientTimeCreated = toDate(place.getClientTimestamps().getCreated());
-    }
-    if (place.getClientTimestamps().hasModified()) {
-      doc.clientTimeModified = toDate(place.getClientTimestamps().getModified());
-    }
+    doc.serverTimeCreated = place.getServerTimestamps().getCreated().orNull();
+    doc.serverTimeModified = place.getServerTimestamps().getModified().orNull();
+    doc.clientTimeCreated = place.getClientTimestamps().getCreated().orNull();
+    doc.clientTimeModified = place.getClientTimestamps().getModified().orNull();
     return doc;
   }
 }

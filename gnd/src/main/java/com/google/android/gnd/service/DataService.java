@@ -16,10 +16,10 @@
 
 package com.google.android.gnd.service;
 
-import com.google.android.gnd.repository.Place;
-import com.google.android.gnd.repository.PlaceUpdate;
-import com.google.android.gnd.repository.Project;
-import com.google.android.gnd.repository.Record;
+import com.google.android.gnd.vo.Place;
+import com.google.android.gnd.vo.PlaceUpdate;
+import com.google.android.gnd.vo.Project;
+import com.google.android.gnd.vo.Record;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;

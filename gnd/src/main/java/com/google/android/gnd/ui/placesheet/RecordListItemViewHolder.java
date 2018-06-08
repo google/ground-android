@@ -29,11 +29,12 @@ import android.widget.TextView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import com.google.android.gnd.R;
-import com.google.android.gnd.repository.Form;
-import com.google.android.gnd.repository.Form.Element;
-import com.google.android.gnd.repository.Form.Field;
-import com.google.android.gnd.repository.Record.Value;
 import com.google.android.gnd.repository.RecordSummary;
+import com.google.android.gnd.vo.Form;
+import com.google.android.gnd.vo.Form.Element;
+import com.google.android.gnd.vo.Form.Field;
+import com.google.android.gnd.vo.Record.Value;
+import com.google.common.base.Optional;
 
 class RecordListItemViewHolder extends RecyclerView.ViewHolder {
   private static final int MAX_SUMMARY_COLUMNS = 4;
@@ -61,16 +62,16 @@ class RecordListItemViewHolder extends RecyclerView.ViewHolder {
     fieldLabelRow.removeAllViews();
     fieldValueRow.removeAllViews();
     Form form = summary.getForm();
-    for (int i = 0; i < MAX_SUMMARY_COLUMNS && i < form.getElementsCount(); i++) {
-      Element elem = form.getElements(i);
-      switch (elem.getElementTypeCase()) {
+    for (int i = 0; i < MAX_SUMMARY_COLUMNS && i < form.getElements().size(); i++) {
+      Element elem = form.getElements().get(i);
+      switch (elem.getType()) {
         case FIELD:
           Field field = elem.getField();
-          Value value =
-            summary.getRecord().getValuesOrDefault(elem.getId(), Value.getDefaultInstance());
-          // TODO: i18n!
-          fieldLabelRow.addView(newFieldTextView(field.getLabelOrDefault("pt", "?")));
-          fieldValueRow.addView(newFieldTextView(RecordSummary.toSummaryText(value)));
+          Optional<Value> value =
+            Optional.fromNullable(summary.getRecord().getValueMap().get(field.getId()));
+          fieldLabelRow.addView(newFieldTextView(field.getLabel()));
+          fieldValueRow.addView(
+            newFieldTextView(value.transform(RecordSummary::toSummaryText).or("")));
           break;
       }
     }

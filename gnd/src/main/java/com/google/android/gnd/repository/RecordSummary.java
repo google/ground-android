@@ -18,7 +18,9 @@ package com.google.android.gnd.repository;
 
 import static java8.util.stream.StreamSupport.stream;
 
-import com.google.android.gnd.repository.Record.Value;
+import com.google.android.gnd.vo.Form;
+import com.google.android.gnd.vo.Record;
+import com.google.android.gnd.vo.Record.Value;
 import java8.util.stream.Collectors;
 
 public class RecordSummary {
@@ -40,16 +42,15 @@ public class RecordSummary {
   }
 
   public static String toSummaryText(Value value) {
-    switch (value.getTypeCase()) {
+    switch (value.getType()) {
       case TEXT:
         return value.getText();
       case NUMBER:
         // TODO: int vs float? Format correctly.
         return Float.toString(value.getNumber());
       case CHOICES:
-        return stream(value.getChoices().getCodesList())
+        return stream(value.getChoices().getCodes())
           .collect(Collectors.joining(CODE_SEPARATOR));
-      case TYPE_NOT_SET:
       default:
         return "";
     }

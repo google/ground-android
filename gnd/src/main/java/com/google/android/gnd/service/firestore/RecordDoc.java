@@ -16,12 +16,12 @@
 
 package com.google.android.gnd.service.firestore;
 
-import static com.google.android.gnd.service.firestore.FirestoreDataService.toDate;
 import static com.google.android.gnd.service.firestore.FirestoreDataService.toTimestamps;
 
 import android.util.Log;
-import com.google.android.gnd.repository.Record;
-import com.google.android.gnd.repository.Record.Value;
+import com.google.android.gnd.vo.Record;
+import com.google.android.gnd.vo.Record.Value;
+import com.google.common.collect.ImmutableList;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.IgnoreExtraProperties;
 import com.google.firebase.firestore.ServerTimestamp;
@@ -53,31 +53,23 @@ public class RecordDoc {
     rd.featureTypeId = r.getPlaceTypeId();
     rd.formId = r.getFormId();
     rd.responses = valueUpdates;
-    if (r.getServerTimestamps().hasCreated()) {
-      rd.serverTimeCreated = toDate(r.getServerTimestamps().getCreated());
-    }
-    if (r.getServerTimestamps().hasModified()) {
-      rd.serverTimeModified = toDate(r.getServerTimestamps().getModified());
-    }
-    if (r.getClientTimestamps().hasCreated()) {
-      rd.clientTimeCreated = toDate(r.getClientTimestamps().getCreated());
-    }
-    if (r.getClientTimestamps().hasModified()) {
-      rd.clientTimeModified = toDate(r.getClientTimestamps().getModified());
-    }
+    rd.serverTimeCreated = r.getServerTimestamps().getCreated().orNull();
+    rd.serverTimeModified = r.getServerTimestamps().getModified().orNull();
+    rd.clientTimeCreated = r.getClientTimestamps().getCreated().orNull();
+    rd.clientTimeModified = r.getClientTimestamps().getModified().orNull();
     return rd;
   }
 
   public static Record toProto(String id, DocumentSnapshot doc) {
     RecordDoc rd = doc.toObject(RecordDoc.class);
     return Record.newBuilder()
-        .setId(id)
-        .setPlaceTypeId(rd.featureTypeId)
-        .setFormId(rd.formId)
-        .putAllValues(convertValues(rd.responses))
-        .setServerTimestamps(toTimestamps(rd.serverTimeCreated, rd.serverTimeModified))
-        .setClientTimestamps(toTimestamps(rd.clientTimeCreated, rd.clientTimeModified))
-        .build();
+                 .setId(id)
+                 .setPlaceTypeId(rd.featureTypeId)
+                 .setFormId(rd.formId)
+                 .setValueMap(convertValues(rd.responses))
+                 .setServerTimestamps(toTimestamps(rd.serverTimeCreated, rd.serverTimeModified))
+                 .setClientTimestamps(toTimestamps(rd.clientTimeCreated, rd.clientTimeModified))
+                 .build();
   }
 
   private static Map<String, Value> convertValues(Map<String, Object> docValues) {
@@ -89,28 +81,30 @@ public class RecordDoc {
   }
 
   private static void putValue(Map<String, Value> values, String key, Object value) {
-    Value.Builder builder = Value.newBuilder();
     if (value instanceof String) {
-      builder.setText((String) value);
+      values.put(key, Value.ofText((String) value));
     } else if (value instanceof Float) {
-      builder.setNumber((Float) value);
+      values.put(key, Value.ofNumber((Float) value));
     } else if (value instanceof List) {
-      builder.setChoices(Record.Choices.newBuilder().addAllCodes((List<String>) value));
+      values.put(
+        key,
+        Value.ofChoices(
+          Record.Choices.newBuilder()
+                        .setCodes(ImmutableList.copyOf((List) value))
+                        .build()));
     } else {
       Log.d(TAG, "Unsupported value in db: " + value.getClass().getName());
-      return;
     }
-    values.put(key, builder.build());
   }
 
   public static Object toObject(Value value) {
-    switch (value.getTypeCase()) {
+    switch (value.getType()) {
       case TEXT:
         return value.getText();
       case NUMBER:
         return value.getNumber();
       case CHOICES:
-        return value.getChoices().getCodesList();
+        return value.getChoices().getCodes();
       default:
         Log.d(TAG, "Unsupported value in client: " + value.getClass().getName());
         return "";
