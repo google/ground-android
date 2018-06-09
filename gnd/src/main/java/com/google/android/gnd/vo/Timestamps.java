@@ -17,17 +17,20 @@
 package com.google.android.gnd.vo;
 
 import com.google.auto.value.AutoValue;
-import com.google.common.base.Optional;
 import java.util.Date;
+import java8.util.Optional;
+import javax.annotation.Nullable;
 
 @AutoValue
 public abstract class Timestamps {
 
   public static final Timestamps DEFAULT_INSTANCE = Timestamps.newBuilder().build();
 
-  public abstract Optional<Date> getCreated();
+  @Nullable
+  public abstract Date getCreated();
 
-  public abstract Optional<Date> getModified();
+  @Nullable
+  public abstract Date getModified();
 
   public static Builder newBuilder() {
     return new AutoValue_Timestamps.Builder();
@@ -39,9 +42,9 @@ public abstract class Timestamps {
 
   @AutoValue.Builder
   public abstract static class Builder {
-    public abstract Builder setCreated(Date newCreated);
+    public abstract Builder setCreated(@Nullable Date newCreated);
 
-    public abstract Builder setModified(Date newModified);
+    public abstract Builder setModified(@Nullable Date newModified);
 
     public abstract Timestamps build();
   }

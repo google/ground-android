@@ -73,10 +73,10 @@ public class PlaceDoc {
     // TODO: Don't echo server timestamp in client. When we implement a proper DAL we can
     // use FieldValue.serverTimestamp() to signal when to update the value, or not set it,
     // depending on whether the operation is a CREATE or UPDATE.
-    doc.serverTimeCreated = place.getServerTimestamps().getCreated().orNull();
-    doc.serverTimeModified = place.getServerTimestamps().getModified().orNull();
-    doc.clientTimeCreated = place.getClientTimestamps().getCreated().orNull();
-    doc.clientTimeModified = place.getClientTimestamps().getModified().orNull();
+    doc.serverTimeCreated = place.getServerTimestamps().getCreated();
+    doc.serverTimeModified = place.getServerTimestamps().getModified();
+    doc.clientTimeCreated = place.getClientTimestamps().getCreated();
+    doc.clientTimeModified = place.getClientTimestamps().getModified();
     return doc;
   }
 }

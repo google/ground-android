@@ -53,10 +53,10 @@ public class RecordDoc {
     rd.featureTypeId = r.getPlaceTypeId();
     rd.formId = r.getFormId();
     rd.responses = valueUpdates;
-    rd.serverTimeCreated = r.getServerTimestamps().getCreated().orNull();
-    rd.serverTimeModified = r.getServerTimestamps().getModified().orNull();
-    rd.clientTimeCreated = r.getClientTimestamps().getCreated().orNull();
-    rd.clientTimeModified = r.getClientTimestamps().getModified().orNull();
+    rd.serverTimeCreated = r.getServerTimestamps().getCreated();
+    rd.serverTimeModified = r.getServerTimestamps().getModified();
+    rd.clientTimeCreated = r.getClientTimestamps().getCreated();
+    rd.clientTimeModified = r.getClientTimestamps().getModified();
     return rd;
   }
 

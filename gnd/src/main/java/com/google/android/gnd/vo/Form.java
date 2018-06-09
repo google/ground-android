@@ -18,8 +18,8 @@ package com.google.android.gnd.vo;
 
 import com.google.auto.value.AutoOneOf;
 import com.google.auto.value.AutoValue;
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
+import javax.annotation.Nullable;
 
 @AutoValue
 public abstract class Form {
@@ -88,7 +88,8 @@ public abstract class Form {
 
     public abstract boolean isRequired();
 
-    public abstract Optional<MultipleChoice> getMultipleChoice();
+    @Nullable
+    public abstract MultipleChoice getMultipleChoice();
 
     public static Builder newBuilder() {
       return new AutoValue_Form_Field.Builder();
@@ -104,7 +105,7 @@ public abstract class Form {
 
       public abstract Builder setRequired(boolean newRequired);
 
-      public abstract Builder setMultipleChoice(MultipleChoice multipleChoice);
+      public abstract Builder setMultipleChoice(@Nullable MultipleChoice multipleChoice);
 
       public abstract Field build();
     }
