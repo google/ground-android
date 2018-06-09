@@ -45,7 +45,7 @@ public class PlaceTypeDoc {
                     .setListHeading(getLocalizedMessage(ft.listHeading))
                     .setItemLabel(getLocalizedMessage(ft.itemLabel))
                     .setIconId(ft.iconId)
-                    .setFormsList(forms)
+                    .setForms(forms)
                     .setIconColor(ft.iconColor)
                     .build();
   }

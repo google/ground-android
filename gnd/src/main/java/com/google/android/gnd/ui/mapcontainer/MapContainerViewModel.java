@@ -99,7 +99,7 @@ public class MapContainerViewModel extends ViewModel {
         return placeData
           .getEntity()
           .map(Place::getPlaceTypeId)
-          .flatMap(project::getPlaceType)
+          .flatMap(pt -> project.getProject().getPlaceType(pt))
           .map(
             placeType ->
               MarkerUpdate.addOrUpdatePlace(

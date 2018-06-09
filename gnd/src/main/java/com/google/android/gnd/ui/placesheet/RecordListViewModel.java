@@ -58,7 +58,8 @@ public class RecordListViewModel extends ViewModel {
   @SuppressLint("CheckResult")
   private void loadRecords(
     ProjectActivationEvent project, String placeTypeId, String formId, String placeId) {
-    Optional<Form> form = project.getForm(placeTypeId, formId);
+    Optional<Form> form =
+      project.getProject().getPlaceType(placeTypeId).flatMap(pt -> pt.getForm(formId));
     if (!form.isPresent()) {
       Log.d(TAG, "Form " + formId + " not found!");
       return;

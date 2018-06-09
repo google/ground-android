@@ -59,7 +59,7 @@ public class FormTypePagerAdapter extends FragmentPagerAdapter {
     if (event.isShowEvent()) {
       this.place = event.getPlace();
       this.placeType = event.getPlaceType();
-      this.forms = event.getPlaceType().getFormsList();
+      this.forms = event.getPlaceType().getForms();
       notifyDataSetChanged();
     }
   }

@@ -16,8 +16,11 @@
 
 package com.google.android.gnd.vo;
 
+import static java8.util.stream.StreamSupport.stream;
+
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
+import java8.util.Optional;
 
 @AutoValue
 public abstract class PlaceType {
@@ -31,11 +34,15 @@ public abstract class PlaceType {
 
   public abstract String getIconColor();
 
-  public abstract ImmutableList<Form> getFormsList();
+  public abstract ImmutableList<Form> getForms();
 
   public abstract Timestamps getServerTimestamps();
 
   public abstract Timestamps getClientTimestamps();
+
+  public Optional<Form> getForm(String formId) {
+    return stream(getForms()).filter(form -> form.getId().equals(formId)).findFirst();
+  }
 
   public static Builder newBuilder() {
     return new AutoValue_PlaceType.Builder()
@@ -55,7 +62,7 @@ public abstract class PlaceType {
 
     public abstract Builder setIconColor(String newIconColor);
 
-    public abstract Builder setFormsList(ImmutableList<Form> newFormsList);
+    public abstract Builder setForms(ImmutableList<Form> newForms);
 
     public abstract Builder setServerTimestamps(Timestamps newServerTimestamps);
 

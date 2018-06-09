@@ -38,7 +38,6 @@ public class ProjectActivationEvent {
   }
 
   private Project project;
-  private Map<String, PlaceType> placeTypes;
   private Flowable<DatastoreEvent<Place>> placesFlowable;
   private Status status;
 
@@ -56,12 +55,10 @@ public class ProjectActivationEvent {
 
   public static ProjectActivationEvent activated(
       Project project,
-      Flowable<DatastoreEvent<Place>> placesObservable,
-      Collection<PlaceType> placeTypes) {
+    Flowable<DatastoreEvent<Place>> placesObservable) {
     ProjectActivationEvent ev = new ProjectActivationEvent(Status.ACTIVATED);
     ev.project = project;
     ev.placesFlowable = placesObservable;
-    ev.placeTypes = stream(placeTypes).collect(Collectors.toMap(PlaceType::getId, ft -> ft));
     return ev;
   }
 
@@ -75,18 +72,6 @@ public class ProjectActivationEvent {
 
   public Flowable<DatastoreEvent<Place>> getPlacesFlowable() {
     return placesFlowable;
-  }
-
-  public Optional<PlaceType> getPlaceType(String placeTypeId) {
-    return Optional.ofNullable(placeTypes.get(placeTypeId));
-  }
-
-  public Optional<Form> getForm(String placeTypeId, String formId) {
-    return getPlaceType(placeTypeId).flatMap(placeType -> findForm(placeType, formId));
-  }
-
-  private static Optional<Form> findForm(PlaceType placeType, String formId) {
-    return stream(placeType.getFormsList()).filter(form -> form.getId().equals(formId)).findFirst();
   }
 
   public boolean isActivated() {

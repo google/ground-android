@@ -16,8 +16,11 @@
 
 package com.google.android.gnd.vo;
 
+import static java8.util.stream.StreamSupport.stream;
+
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
+import java8.util.Optional;
 
 @AutoValue
 public abstract class Project {
@@ -28,6 +31,10 @@ public abstract class Project {
   public abstract String getDescription();
 
   public abstract ImmutableList<PlaceType> getPlaceTypes();
+
+  public Optional<PlaceType> getPlaceType(String placeTypeId) {
+    return stream(getPlaceTypes()).filter(p -> p.getId().equals(placeTypeId)).findFirst();
+  }
 
   public static Builder newBuilder() {
     return new AutoValue_Project.Builder();

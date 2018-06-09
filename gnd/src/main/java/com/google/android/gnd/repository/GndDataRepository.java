@@ -66,8 +66,7 @@ public class GndDataRepository {
           projectActivationObservable.onNext(
             ProjectActivationEvent.activated(
               project,
-              dataService.observePlaces(projectId),
-              project.getPlaceTypes())));
+              dataService.observePlaces(projectId))));
   }
 
   public Place update(PlaceUpdate placeUpdate) {
