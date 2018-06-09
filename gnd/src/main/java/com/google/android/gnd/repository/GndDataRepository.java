@@ -40,31 +40,31 @@ public class GndDataRepository {
   private static final String TAG = GndDataRepository.class.getSimpleName();
 
   private final DataService dataService;
-  private BehaviorSubject<ProjectActivationEvent> projectActivationObservable;
+  private BehaviorSubject<ProjectState> projectActivationObservable;
 
   @Inject
   public GndDataRepository(DataService dataService) {
     this.dataService = dataService;
-    projectActivationObservable = BehaviorSubject.createDefault(ProjectActivationEvent.noProject());
+    projectActivationObservable = BehaviorSubject.createDefault(ProjectState.inactive());
   }
 
   public void onCreate() {
     dataService.onCreate();
   }
 
-  public Flowable<ProjectActivationEvent> activeProject() {
+  public Flowable<ProjectState> activeProject() {
     return projectActivationObservable.toFlowable(BackpressureStrategy.LATEST);
   }
 
   @SuppressLint("CheckResult")
   public void activateProject(String projectId) {
-    projectActivationObservable.onNext(ProjectActivationEvent.loading());
+    projectActivationObservable.onNext(ProjectState.loading());
     dataService
       .loadProject(projectId)
       .subscribe(
         project ->
           projectActivationObservable.onNext(
-            ProjectActivationEvent.activated(
+            ProjectState.activated(
               project,
               dataService.observePlaces(projectId))));
   }

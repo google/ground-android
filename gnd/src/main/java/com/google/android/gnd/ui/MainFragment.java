@@ -35,7 +35,7 @@ import butterknife.BindView;
 import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.MainActivityViewModel;
 import com.google.android.gnd.R;
-import com.google.android.gnd.repository.ProjectActivationEvent;
+import com.google.android.gnd.repository.ProjectState;
 import com.google.android.gnd.ui.common.GndFragment;
 import com.google.android.gnd.ui.common.GndViewModelFactory;
 import com.google.android.gnd.ui.mapcontainer.MapContainerFragment;
@@ -119,7 +119,7 @@ public class MainFragment extends GndFragment {
     viewModel
       .showProjectSelectorDialogRequests()
       .observe(this, this::onShowProjectSelectorDialogRequest);
-    viewModel.projectActivationEvents().observe(this, this::onProjectActivationEvent);
+    viewModel.projectStates().observe(this, this::projectStateChange);
     viewModel.showAddPlaceDialogRequests().observe(this, this::onShowAddPlaceDialogRequest);
     viewModel.getPlaceSheetEvents().observe(this, this::onPlaceSheetEvent);
     mainActivityViewModel.getWindowInsetsLiveData().observe(this, this::onApplyWindowInsets);
@@ -134,7 +134,7 @@ public class MainFragment extends GndFragment {
     ProjectSelectorDialogFragment.show(getFragmentManager(), projects);
   }
 
-  private void onProjectActivationEvent(ProjectActivationEvent event) {
+  private void projectStateChange(ProjectState event) {
     if (event.isLoading()) {
       showProjectLoadingDialog();
     } else if (event.isActivated()) {

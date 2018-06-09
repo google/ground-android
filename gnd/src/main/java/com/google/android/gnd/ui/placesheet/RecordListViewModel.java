@@ -24,7 +24,7 @@ import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.ViewModel;
 import android.util.Log;
 import com.google.android.gnd.repository.GndDataRepository;
-import com.google.android.gnd.repository.ProjectActivationEvent;
+import com.google.android.gnd.repository.ProjectState;
 import com.google.android.gnd.repository.RecordSummary;
 import com.google.android.gnd.vo.Form;
 import java.util.List;
@@ -57,7 +57,7 @@ public class RecordListViewModel extends ViewModel {
 
   @SuppressLint("CheckResult")
   private void loadRecords(
-    ProjectActivationEvent project, String placeTypeId, String formId, String placeId) {
+    ProjectState project, String placeTypeId, String formId, String placeId) {
     Optional<Form> form =
       project.getProject().getPlaceType(placeTypeId).flatMap(pt -> pt.getForm(formId));
     if (!form.isPresent()) {

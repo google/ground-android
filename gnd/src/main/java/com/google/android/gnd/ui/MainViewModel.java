@@ -21,7 +21,7 @@ import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.ViewModel;
 import android.util.Log;
 import com.google.android.gnd.repository.GndDataRepository;
-import com.google.android.gnd.repository.ProjectActivationEvent;
+import com.google.android.gnd.repository.ProjectState;
 import com.google.android.gnd.rx.RxLiveData;
 import com.google.android.gnd.ui.AddPlaceDialogFragment.AddPlaceRequest;
 import com.google.android.gnd.ui.map.MapMarker;
@@ -36,7 +36,7 @@ import javax.inject.Inject;
 public class MainViewModel extends ViewModel {
   private static final String TAG = MainViewModel.class.getSimpleName();
   private final GndDataRepository dataRepository;
-  private final LiveData<ProjectActivationEvent> projectActivationEvents;
+  private final LiveData<ProjectState> projectStates;
   private final MutableLiveData<List<Project>> showProjectSelectorDialogRequests;
   private final MutableLiveData<Point> addPlaceDialogRequests;
   private final MutableLiveData<PlaceSheetEvent> placeSheetEvents;
@@ -46,7 +46,7 @@ public class MainViewModel extends ViewModel {
     this.dataRepository = dataRepository;
     this.showProjectSelectorDialogRequests = new MutableLiveData<>();
     this.addPlaceDialogRequests = new MutableLiveData<>();
-    this.projectActivationEvents = RxLiveData.fromFlowable(dataRepository.activeProject());
+    this.projectStates = RxLiveData.fromFlowable(dataRepository.activeProject());
     this.placeSheetEvents = new MutableLiveData<>();
   }
 
@@ -54,8 +54,8 @@ public class MainViewModel extends ViewModel {
     return showProjectSelectorDialogRequests;
   }
 
-  public LiveData<ProjectActivationEvent> projectActivationEvents() {
-    return projectActivationEvents;
+  public LiveData<ProjectState> projectStates() {
+    return projectStates;
   }
 
   public LiveData<Point> showAddPlaceDialogRequests() {
@@ -86,7 +86,7 @@ public class MainViewModel extends ViewModel {
   }
 
   public void onAddPlaceBtnClick(Point location) {
-    if (projectActivationEvents.getValue().isActivated()) {
+    if (projectStates.getValue().isActivated()) {
       // TODO: Pause location updates while dialog is open.
       addPlaceDialogRequests.setValue(location);
     }

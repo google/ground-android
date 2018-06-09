@@ -23,7 +23,7 @@ import android.arch.lifecycle.ViewModel;
 import android.graphics.Color;
 import android.util.Log;
 import com.google.android.gnd.repository.GndDataRepository;
-import com.google.android.gnd.repository.ProjectActivationEvent;
+import com.google.android.gnd.repository.ProjectState;
 import com.google.android.gnd.rx.RxLiveData;
 import com.google.android.gnd.service.DatastoreEvent;
 import com.google.android.gnd.system.LocationManager;
@@ -40,7 +40,7 @@ import javax.inject.Inject;
 public class MapContainerViewModel extends ViewModel {
   private static final String TAG = MapContainerViewModel.class.getSimpleName();
   private static final float DEFAULT_ZOOM_LEVEL = 14.0f;
-  private final MutableLiveData<ProjectActivationEvent> projectActivationEvents;
+  private final MutableLiveData<ProjectState> projectStates;
   private final LiveData<MarkerUpdate> markerUpdates;
   private final MutableLiveData<LocationLockStatus> locationLockStatus;
   private final MutableLiveData<CameraUpdate> cameraUpdates;
@@ -54,17 +54,17 @@ public class MapContainerViewModel extends ViewModel {
     this.locationLockStatus = new MutableLiveData<>();
     locationLockStatus.setValue(LocationLockStatus.disabled());
     this.cameraUpdates = new MutableLiveData<>();
-    this.projectActivationEvents = new MutableLiveData<>();
+    this.projectStates = new MutableLiveData<>();
     this.markerUpdates =
       RxLiveData.fromFlowable(
         dataRepository
           .activeProject()
-          .doOnNext(projectActivationEvents::postValue)
-          .filter(ProjectActivationEvent::isActivated)
+          .doOnNext(projectStates::postValue)
+          .filter(ProjectState::isActivated)
           .switchMap(this::toMarkerUpdateFlowable));
   }
 
-  private Flowable<MarkerUpdate> toMarkerUpdateFlowable(ProjectActivationEvent project) {
+  private Flowable<MarkerUpdate> toMarkerUpdateFlowable(ProjectState project) {
     return project
       .getPlacesFlowable()
       // Convert each place update into a marker update.
@@ -75,8 +75,8 @@ public class MapContainerViewModel extends ViewModel {
       .startWith(MarkerUpdate.clearAll());
   }
 
-  public MutableLiveData<ProjectActivationEvent> projectActivationEvents() {
-    return projectActivationEvents;
+  public MutableLiveData<ProjectState> projectStates() {
+    return projectStates;
   }
 
   LiveData<MarkerUpdate> mapMarkers() {
@@ -92,7 +92,7 @@ public class MapContainerViewModel extends ViewModel {
   }
 
   private static MarkerUpdate toMarkerUpdate(
-    ProjectActivationEvent project, DatastoreEvent<Place> placeData) {
+    ProjectState project, DatastoreEvent<Place> placeData) {
     switch (placeData.getType()) {
       case ENTITY_LOADED:
       case ENTITY_MODIFIED:

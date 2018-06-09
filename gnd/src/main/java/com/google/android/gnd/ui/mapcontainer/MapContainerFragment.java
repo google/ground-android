@@ -29,7 +29,7 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 import butterknife.BindView;
 import com.google.android.gnd.R;
-import com.google.android.gnd.repository.ProjectActivationEvent;
+import com.google.android.gnd.repository.ProjectState;
 import com.google.android.gnd.system.PermissionsManager.PermissionDeniedException;
 import com.google.android.gnd.system.SettingsManager.SettingsChangeRequestCanceled;
 import com.google.android.gnd.ui.MainViewModel;
@@ -105,7 +105,7 @@ public class MapContainerFragment extends GndFragment {
       .observe(this, update -> onMarkerUpdate(mapViewModel, update));
     mapContainerViewModel.locationLockStatus().observe(this, this::onLocationLockStatusChange);
     mapContainerViewModel.cameraUpdates().observe(this, this::onCameraUpdate);
-    mapContainerViewModel.projectActivationEvents().observe(this, this::onProjectActivationEvent);
+    mapContainerViewModel.projectStates().observe(this, this::projectStateChange);
     // Pass UI events to the ViewModel.
     // TODO: Route "add place" action through an interactor and down to dialog instead of binding
     // here to implement "Clean Architecture".
@@ -131,8 +131,8 @@ public class MapContainerFragment extends GndFragment {
     }
   }
 
-  private void onProjectActivationEvent(ProjectActivationEvent projectActivationEvent) {
-    if (projectActivationEvent.isActivated()) {
+  private void projectStateChange(ProjectState projectState) {
+    if (projectState.isActivated()) {
       enableAddPlaceBtn();
     } else {
       disableAddPlaceBtn();

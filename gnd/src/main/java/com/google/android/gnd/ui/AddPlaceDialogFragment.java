@@ -25,7 +25,7 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
 import com.google.android.gnd.R;
-import com.google.android.gnd.repository.ProjectActivationEvent;
+import com.google.android.gnd.repository.ProjectState;
 import com.google.android.gnd.ui.common.GndDialogFragment;
 import com.google.android.gnd.vo.PlaceType;
 import com.google.android.gnd.vo.Point;
@@ -59,8 +59,8 @@ public class AddPlaceDialogFragment extends GndDialogFragment {
   public Dialog onCreateDialog(Bundle savedInstanceState) {
     MainViewModel mainViewModel =
       ViewModelProviders.of(getParentFragment()).get(MainViewModel.class);
-    ProjectActivationEvent activeProject =
-      mainViewModel.projectActivationEvents().getValue();
+    ProjectState activeProject =
+      mainViewModel.projectStates().getValue();
     Point location = mainViewModel.showAddPlaceDialogRequests().getValue();
     if (!activeProject.isActivated()) {
       // TODO: Handle this error upstream.
