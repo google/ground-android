@@ -36,7 +36,7 @@ import javax.inject.Inject;
 public class MainViewModel extends ViewModel {
   private static final String TAG = MainViewModel.class.getSimpleName();
   private final GndDataRepository dataRepository;
-  private final LiveData<ProjectState> projectStates;
+  private final LiveData<ProjectState> projectState;
   private final MutableLiveData<List<Project>> showProjectSelectorDialogRequests;
   private final MutableLiveData<Point> addPlaceDialogRequests;
   private final MutableLiveData<PlaceSheetEvent> placeSheetEvents;
@@ -46,7 +46,7 @@ public class MainViewModel extends ViewModel {
     this.dataRepository = dataRepository;
     this.showProjectSelectorDialogRequests = new MutableLiveData<>();
     this.addPlaceDialogRequests = new MutableLiveData<>();
-    this.projectStates = RxLiveData.fromFlowable(dataRepository.activeProject());
+    this.projectState = RxLiveData.fromFlowable(dataRepository.projectState());
     this.placeSheetEvents = new MutableLiveData<>();
   }
 
@@ -54,8 +54,8 @@ public class MainViewModel extends ViewModel {
     return showProjectSelectorDialogRequests;
   }
 
-  public LiveData<ProjectState> projectStates() {
-    return projectStates;
+  public LiveData<ProjectState> projectState() {
+    return projectState;
   }
 
   public LiveData<Point> showAddPlaceDialogRequests() {
@@ -69,13 +69,17 @@ public class MainViewModel extends ViewModel {
   @SuppressLint("CheckResult")
   public void showProjectSelectorDialog() {
     // TODO: Dispose of this and other subscriptions correctly.
-    dataRepository.getProjectSummaries().subscribe(showProjectSelectorDialogRequests::setValue);
+    dataRepository.loadProjectSummaries().subscribe(showProjectSelectorDialogRequests::setValue);
   }
 
   public void onMarkerClick(MapMarker marker) {
     if (marker.getObject() instanceof Place) {
       Place place = (Place) marker.getObject();
-      Optional<PlaceType> placeType = dataRepository.getPlaceType(place.getPlaceTypeId());
+      Optional<PlaceType> placeType =
+        projectState()
+          .getValue()
+          .getActiveProject()
+          .flatMap(project -> project.getPlaceType(place.getPlaceTypeId()));
       if (!placeType.isPresent()) {
         Log.e(TAG, "Place " + place.getId() + " has unknown type: " + place.getPlaceTypeId());
         // TODO: Show error message to user.
@@ -86,7 +90,7 @@ public class MainViewModel extends ViewModel {
   }
 
   public void onAddPlaceBtnClick(Point location) {
-    if (projectStates.getValue().isActivated()) {
+    if (projectState.getValue().isActivated()) {
       // TODO: Pause location updates while dialog is open.
       addPlaceDialogRequests.setValue(location);
     }

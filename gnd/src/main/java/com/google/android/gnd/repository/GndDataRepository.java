@@ -16,13 +16,8 @@
 
 package com.google.android.gnd.repository;
 
-import static java8.util.stream.StreamSupport.stream;
-
 import android.annotation.SuppressLint;
 import com.google.android.gnd.service.DataService;
-import com.google.android.gnd.vo.Place;
-import com.google.android.gnd.vo.PlaceType;
-import com.google.android.gnd.vo.PlaceUpdate;
 import com.google.android.gnd.vo.Project;
 import com.google.android.gnd.vo.Record;
 import io.reactivex.BackpressureStrategy;
@@ -30,7 +25,6 @@ import io.reactivex.Flowable;
 import io.reactivex.Single;
 import io.reactivex.subjects.BehaviorSubject;
 import java.util.List;
-import java8.util.Optional;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -40,53 +34,47 @@ public class GndDataRepository {
   private static final String TAG = GndDataRepository.class.getSimpleName();
 
   private final DataService dataService;
-  private BehaviorSubject<ProjectState> projectActivationObservable;
+  private BehaviorSubject<ProjectState> projectStateObservable;
 
   @Inject
   public GndDataRepository(DataService dataService) {
     this.dataService = dataService;
-    projectActivationObservable = BehaviorSubject.createDefault(ProjectState.inactive());
+    projectStateObservable = BehaviorSubject.createDefault(ProjectState.inactive());
   }
 
   public void onCreate() {
     dataService.onCreate();
   }
 
-  public Flowable<ProjectState> activeProject() {
-    return projectActivationObservable.toFlowable(BackpressureStrategy.LATEST);
+  public Flowable<ProjectState> projectState() {
+    return projectStateObservable.toFlowable(BackpressureStrategy.LATEST);
   }
 
   @SuppressLint("CheckResult")
   public void activateProject(String projectId) {
-    projectActivationObservable.onNext(ProjectState.loading());
+    projectStateObservable.onNext(ProjectState.loading());
     dataService
       .loadProject(projectId)
       .subscribe(
         project ->
-          projectActivationObservable.onNext(
+          projectStateObservable.onNext(
             ProjectState.activated(
               project,
               dataService.observePlaces(projectId))));
   }
 
-  public Place update(PlaceUpdate placeUpdate) {
-    Project activeProject = projectActivationObservable.getValue().getProject();
-    return dataService.update(activeProject.getId(), placeUpdate);
+//  public Place update(PlaceUpdate placeUpdate) {
+//    projectStateObservable.getValue().getActiveProject()
+//
+//    return dataService.update(activeProject.getId(), placeUpdate);
+//  }
+
+  public Single<List<Record>> loadRecordSummaries(Project project, String placeId) {
+    // TODO: Only fetch first n fields.
+    return dataService.loadRecordData(project.getId(), placeId);
   }
 
-  public Optional<PlaceType> getPlaceType(String placeTypeId) {
-    Project activeProject = projectActivationObservable.getValue().getProject();
-    return stream(activeProject.getPlaceTypes())
-      .filter(pt -> pt.getId().equals(placeTypeId))
-      .findFirst();
-  }
-
-  public Single<List<Record>> getRecordData(String placeId) {
-    Project activeProject = projectActivationObservable.getValue().getProject();
-    return dataService.loadRecordData(activeProject.getId(), placeId);
-  }
-
-  public Single<List<Project>> getProjectSummaries() {
-    return dataService.fetchProjectSummaries();
+  public Single<List<Project>> loadProjectSummaries() {
+    return dataService.loadProjectSummaries();
   }
 }

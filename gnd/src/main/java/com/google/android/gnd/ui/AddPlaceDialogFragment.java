@@ -30,9 +30,10 @@ import com.google.android.gnd.ui.common.GndDialogFragment;
 import com.google.android.gnd.vo.PlaceType;
 import com.google.android.gnd.vo.Point;
 import com.google.android.gnd.vo.Project;
+import com.google.common.collect.ImmutableList;
 import io.reactivex.Maybe;
 import io.reactivex.subjects.MaybeSubject;
-import java.util.List;
+import java8.util.Optional;
 import javax.inject.Inject;
 
 public class AddPlaceDialogFragment extends GndDialogFragment {
@@ -59,37 +60,32 @@ public class AddPlaceDialogFragment extends GndDialogFragment {
   public Dialog onCreateDialog(Bundle savedInstanceState) {
     MainViewModel mainViewModel =
       ViewModelProviders.of(getParentFragment()).get(MainViewModel.class);
-    ProjectState activeProject =
-      mainViewModel.projectStates().getValue();
+    ProjectState projectState = mainViewModel.projectState().getValue();
     Point location = mainViewModel.showAddPlaceDialogRequests().getValue();
-    if (!activeProject.isActivated()) {
+    Optional<Project> activeProject = projectState.getActiveProject();
+    if (activeProject.isPresent()) {
+      return createDialog(activeProject.get(), location);
+    } else {
       // TODO: Handle this error upstream.
       addPlaceRequestSubject.onError(new IllegalStateException("No project loaded"));
       return null;
     }
+  }
+
+  private Dialog createDialog(Project project, Point location) {
     AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
     builder.setTitle(R.string.add_place_select_type_dialog_title);
-    builder.setNegativeButton(
-      R.string.add_place_cancel,
-      (dialog, id) -> {
-        onCancel();
-      });
+    builder.setNegativeButton(R.string.add_place_cancel, (dialog, id) -> onCancel());
     // TODO: Add icons.
-    // TODO: i18n.
-    List<PlaceType> placeTypes = activeProject.getProject().getPlaceTypes();
-    String[] items =
-      stream(placeTypes).map(t -> t.getListHeading()).toArray(String[]::new);
+    ImmutableList<PlaceType> placeTypes = project.getPlaceTypes();
+    String[] items = stream(placeTypes).map(t -> t.getListHeading()).toArray(String[]::new);
     builder.setItems(
-      items,
-      (dialog, idx) -> onSelectPlaceType(activeProject.getProject(),
-        placeTypes.get(idx),
-        location));
+      items, (dialog, idx) -> onSelectPlaceType(project, placeTypes.get(idx), location));
     return builder.create();
   }
 
   private void onSelectPlaceType(Project project, PlaceType placeType, Point location) {
-    addPlaceRequestSubject.onSuccess(
-      new AddPlaceRequest(project, location, placeType));
+    addPlaceRequestSubject.onSuccess(new AddPlaceRequest(project, location, placeType));
   }
 
   private void onCancel() {

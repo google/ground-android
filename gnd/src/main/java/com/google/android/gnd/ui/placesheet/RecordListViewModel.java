@@ -27,6 +27,7 @@ import com.google.android.gnd.repository.GndDataRepository;
 import com.google.android.gnd.repository.ProjectState;
 import com.google.android.gnd.repository.RecordSummary;
 import com.google.android.gnd.vo.Form;
+import com.google.android.gnd.vo.Project;
 import java.util.List;
 import java8.util.Optional;
 import java8.util.stream.Collectors;
@@ -49,23 +50,25 @@ public class RecordListViewModel extends ViewModel {
 
   @SuppressLint("CheckResult")
   public void loadRecords(String placeTypeId, String formId, String placeId) {
-    // TODO: Do this won't work! What to do?
+    // TODO: Unsubscribe, handle failures.
     dataRepository
-      .activeProject()
+      .projectState()
+      .map(ProjectState::getActiveProject)
+      .filter(Optional::isPresent)
+      .map(Optional::get)
       .subscribe(project -> loadRecords(project, placeTypeId, formId, placeId));
   }
 
   @SuppressLint("CheckResult")
   private void loadRecords(
-    ProjectState project, String placeTypeId, String formId, String placeId) {
-    Optional<Form> form =
-      project.getProject().getPlaceType(placeTypeId).flatMap(pt -> pt.getForm(formId));
+    Project project, String placeTypeId, String formId, String placeId) {
+    Optional<Form> form = project.getPlaceType(placeTypeId).flatMap(pt -> pt.getForm(formId));
     if (!form.isPresent()) {
       Log.d(TAG, "Form " + formId + " not found!");
       return;
     }
     dataRepository
-      .getRecordData(placeId)
+      .loadRecordSummaries(project, placeId)
       .subscribe(
         // TODO: Only fetch records w/current formId.
         records ->

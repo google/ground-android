@@ -191,7 +191,7 @@ public class FirestoreDataService implements DataService {
   }
 
   @Override
-  public Single<List<Project>> fetchProjectSummaries() {
+  public Single<List<Project>> loadProjectSummaries() {
     return mapSingle(RxFirestore.getCollection(db().projects().ref()), ProjectDoc::toProto);
   }
 

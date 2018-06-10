@@ -58,7 +58,7 @@ public class MapContainerViewModel extends ViewModel {
     this.markerUpdates =
       RxLiveData.fromFlowable(
         dataRepository
-          .activeProject()
+          .projectState()
           .doOnNext(projectStates::postValue)
           .filter(ProjectState::isActivated)
           .switchMap(this::toMarkerUpdateFlowable));
@@ -99,7 +99,9 @@ public class MapContainerViewModel extends ViewModel {
         return placeData
           .getEntity()
           .map(Place::getPlaceTypeId)
-          .flatMap(pt -> project.getProject().getPlaceType(pt))
+          .flatMap(placeTypeId -> project
+            .getActiveProject()
+            .flatMap(p -> p.getPlaceType(placeTypeId)))
           .map(
             placeType ->
               MarkerUpdate.addOrUpdatePlace(
