@@ -16,37 +16,44 @@
 
 package com.google.android.gnd.ui.map;
 
-import com.google.android.gnd.ui.PlaceIcon;
+import com.google.android.gnd.ui.MapIcon;
+import com.google.android.gnd.vo.Place;
 import com.google.android.gnd.vo.Point;
+import com.google.auto.value.AutoValue;
+import java8.util.Optional;
+import javax.annotation.Nullable;
 
-// TODO: @AutoValue
-// TODO: Is this still needed? Can use Place directly?
-public class MapMarker<T> {
-  private String id;
-  private Point position;
-  private PlaceIcon icon;
-  private T object;
+@AutoValue
+public abstract class MapMarker {
+  public abstract String getId();
 
-  public MapMarker(String id, Point position, PlaceIcon icon, T object) {
-    this.id = id;
-    this.position = position;
-    this.icon = icon;
-    this.object = object;
+  public abstract Point getPosition();
+
+  public abstract MapIcon getIcon();
+
+  @Nullable
+  public abstract Object getObject();
+
+  public Optional<Place> getPlace() {
+    return getObject() != null && getObject() instanceof Place
+      ? Optional.of((Place) getObject())
+      : Optional.empty();
   }
 
-  public String getId() {
-    return id;
+  public static Builder newBuilder() {
+    return new AutoValue_MapMarker.Builder();
   }
 
-  public Point getPosition() {
-    return position;
-  }
+  @AutoValue.Builder
+  public abstract static class Builder {
+    public abstract Builder setId(String newId);
 
-  public PlaceIcon getIcon() {
-    return icon;
-  }
+    public abstract Builder setPosition(Point newPosition);
 
-  public T getObject() {
-    return object;
+    public abstract Builder setIcon(MapIcon newIcon);
+
+    public abstract Builder setObject(Object newObject);
+
+    public abstract MapMarker build();
   }
 }

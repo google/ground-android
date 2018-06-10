@@ -26,7 +26,7 @@ import android.widget.TextView;
 import butterknife.BindView;
 import com.google.android.gnd.R;
 import com.google.android.gnd.ui.MainViewModel;
-import com.google.android.gnd.ui.PlaceIcon;
+import com.google.android.gnd.ui.MapIcon;
 import com.google.android.gnd.ui.PlaceSheetEvent;
 import com.google.android.gnd.ui.common.GndFragment;
 import com.google.android.gnd.ui.common.GndViewModelFactory;
@@ -71,7 +71,7 @@ public class PlaceSheetHeaderFragment extends GndFragment {
   private void onPlaceSheetEvent(PlaceSheetEvent placeSheetEvent) {
     if (placeSheetEvent.isShowEvent()) {
       placeHeaderIcon.setImageResource(
-        PlaceIcon.getResourceId(
+        MapIcon.getResourceId(
           getContext(), placeSheetEvent.getPlace().getPlaceType().getIconId()));
       placeSheetTitle.setText(placeSheetEvent.getTitle());
       placeSheetSubtitle.setText(placeSheetEvent.getSubtitle());

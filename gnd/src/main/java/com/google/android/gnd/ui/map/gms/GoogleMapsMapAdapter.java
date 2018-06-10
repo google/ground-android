@@ -17,6 +17,7 @@
 package com.google.android.gnd.ui.map.gms;
 
 import static com.google.android.gms.maps.GoogleMap.OnCameraMoveStartedListener.REASON_DEVELOPER_ANIMATION;
+import static java8.util.stream.StreamSupport.stream;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -29,7 +30,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gnd.R;
-import com.google.android.gnd.ui.PlaceIcon;
+import com.google.android.gnd.ui.MapIcon;
 import com.google.android.gnd.ui.map.MapMarker;
 import com.google.android.gnd.ui.map.MapProvider.MapAdapter;
 import com.google.android.gnd.vo.Place;
@@ -43,6 +44,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.Set;
+import java8.util.Optional;
 import javax.annotation.Nullable;
 
 /**
@@ -121,7 +123,7 @@ class GoogleMapsMapAdapter implements MapAdapter {
 
   private void addMarker(MapMarker mapMarker, boolean hasPendingWrites, boolean isHighlighted) {
     LatLng position = mapMarker.getPosition().toLatLng();
-    PlaceIcon icon = mapMarker.getIcon();
+    MapIcon icon = mapMarker.getIcon();
     BitmapDescriptor bitmap =
         isHighlighted
             ? icon.getWhiteBitmap()
@@ -160,28 +162,52 @@ class GoogleMapsMapAdapter implements MapAdapter {
       removeAllMarkers();
       return;
     }
-    Iterator<Entry<String, Marker>> it = markers.entrySet().iterator();
     Set<Place> newPlaces = new HashSet<>(places);
+    Iterator<Entry<String, Marker>> it = markers.entrySet().iterator();
     while (it.hasNext()) {
       Entry<String, Marker> entry = it.next();
       Marker marker = entry.getValue();
-      MapMarker mapMarker = (MapMarker) marker.getTag();
-      Place place = (Place) mapMarker.getObject();
-      if (places.contains(place)) {
-        newPlaces.remove(place);
-      } else {
-        Log.v(TAG, "Removing marker " + place.getId());
-        marker.remove();
-        it.remove();
-      }
+      getMapMarker(marker)
+        .flatMap(MapMarker::getPlace)
+        .ifPresent(
+          place -> {
+            if (places.contains(place)) {
+              newPlaces.remove(place);
+            } else {
+              removeMarker(marker);
+              it.remove();
+            }
+          });
     }
-    for (Place place : newPlaces) {
-      PlaceType placeType = place.getPlaceType();
-      PlaceIcon icon = new PlaceIcon(context, placeType.getIconId(), getIconColor(placeType));
-      Log.v(TAG, "Adding marker for " + place.getId());
-      // TODO: Reimplement hasPendingWrites.
-      addMarker(new MapMarker<>(place.getId(), place.getPoint(), icon, place), false, false);
-    }
+    stream(newPlaces).forEach(this::addMarker);
+  }
+
+  private Optional<MapMarker> getMapMarker(Marker marker) {
+    Object tag = marker.getTag();
+    return tag != null && tag instanceof MapMarker
+      ? Optional.of((MapMarker) tag)
+      : Optional.empty();
+  }
+
+  private void removeMarker(Marker marker) {
+    Log.v(TAG, "Removing marker " + marker.getId());
+    marker.remove();
+  }
+
+  private void addMarker(Place place) {
+    Log.v(TAG, "Adding marker for " + place.getId());
+    PlaceType placeType = place.getPlaceType();
+    MapIcon icon = new MapIcon(context, placeType.getIconId(), getIconColor(placeType));
+    // TODO: Reimplement hasPendingWrites.
+    addMarker(
+      MapMarker.newBuilder()
+               .setId(place.getId())
+               .setPosition(place.getPoint())
+               .setIcon(icon)
+               .setObject(place)
+               .build(),
+      false,
+      false);
   }
 
   private int getIconColor(PlaceType placeType) {

@@ -29,13 +29,13 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gnd.R;
 import com.google.android.gnd.ui.util.ViewUtil;
 
-public class PlaceIcon {
-  private static final String TAG = PlaceIcon.class.getSimpleName();
+public class MapIcon {
+  private static final String TAG = MapIcon.class.getSimpleName();
   private final Context context;
   private BitmapDrawable drawable;
   private int color;
 
-  public PlaceIcon(Context context, String iconId, int color) {
+  public MapIcon(Context context, String iconId, int color) {
     this.context = context;
     this.color = color;
     int resourceId = getResourceId(context, iconId);

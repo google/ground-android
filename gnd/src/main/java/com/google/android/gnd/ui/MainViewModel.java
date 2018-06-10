@@ -25,7 +25,6 @@ import com.google.android.gnd.repository.ProjectState;
 import com.google.android.gnd.rx.RxLiveData;
 import com.google.android.gnd.ui.AddPlaceDialogFragment.AddPlaceRequest;
 import com.google.android.gnd.ui.map.MapMarker;
-import com.google.android.gnd.vo.Place;
 import com.google.android.gnd.vo.Point;
 import com.google.android.gnd.vo.Project;
 import java.util.List;
@@ -71,10 +70,7 @@ public class MainViewModel extends ViewModel {
   }
 
   public void onMarkerClick(MapMarker marker) {
-    if (marker.getObject() instanceof Place) {
-      Place place = (Place) marker.getObject();
-      placeSheetEvents.setValue(PlaceSheetEvent.show(place));
-    }
+    marker.getPlace().ifPresent(place -> placeSheetEvents.setValue(PlaceSheetEvent.show(place)));
   }
 
   public void onAddPlaceBtnClick(Point location) {
@@ -85,7 +81,7 @@ public class MainViewModel extends ViewModel {
   }
 
   public void onAddPlace(AddPlaceRequest addPlaceRequest) {
-    Log.e(TAG, "TODO: Implement Add Place functinality");
+    Log.e(TAG, "TODO: Implement Add Place functionality");
   }
 
   public void onBottomSheetHidden() {
