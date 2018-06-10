@@ -19,12 +19,15 @@ package com.google.android.gnd.service.firestore;
 import static com.google.android.gnd.service.firestore.FirestoreDataService.toTimestamps;
 
 import com.google.android.gnd.vo.Place;
+import com.google.android.gnd.vo.PlaceType;
 import com.google.android.gnd.vo.Point;
+import com.google.android.gnd.vo.Project;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.IgnoreExtraProperties;
 import com.google.firebase.firestore.ServerTimestamp;
 import java.util.Date;
+import java8.util.Optional;
 
 @IgnoreExtraProperties
 public class PlaceDoc {
@@ -45,28 +48,33 @@ public class PlaceDoc {
 
   public Date clientTimeModified;
 
-  public static Place toProto(DocumentSnapshot doc) {
+  public static Place toProto(Project project, DocumentSnapshot doc) {
     PlaceDoc f = doc.toObject(PlaceDoc.class);
     Point point =
         Point.newBuilder()
             .setLatitude(f.center.getLatitude())
             .setLongitude(f.center.getLongitude())
             .build();
+    Optional<PlaceType> placeType = project.getPlaceType(f.featureTypeId);
+    if (!placeType.isPresent()) {
+      throw new DatastoreException(
+        "Unknown place type " + f.featureTypeId + " in lace " + doc.getId());
+    }
     return Place.newBuilder()
-        .setId(doc.getId())
-        .setCustomId(f.customId)
-        .setCaption(f.caption)
-        .setPlaceTypeId(f.featureTypeId)
-        .setPoint(point)
-        .setServerTimestamps(toTimestamps(f.serverTimeCreated, f.serverTimeModified))
-        .setClientTimestamps(toTimestamps(f.clientTimeCreated, f.clientTimeModified))
-        .build();
+                .setId(doc.getId())
+                .setCustomId(f.customId)
+                .setCaption(f.caption)
+                .setPlaceType(placeType.get())
+                .setPoint(point)
+                .setServerTimestamps(toTimestamps(f.serverTimeCreated, f.serverTimeModified))
+                .setClientTimestamps(toTimestamps(f.clientTimeCreated, f.clientTimeModified))
+                .build();
   }
 
   public static PlaceDoc fromProto(Place place) {
     PlaceDoc doc = new PlaceDoc();
     Point point = place.getPoint();
-    doc.featureTypeId = place.getPlaceTypeId();
+    doc.featureTypeId = place.getPlaceType().getId();
     doc.center = new GeoPoint(point.getLatitude(), point.getLongitude());
     doc.customId = place.getCustomId();
     doc.caption = place.getCaption();

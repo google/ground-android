@@ -122,9 +122,7 @@ public class FirestoreDataService implements DataService {
                       .map(QuerySnapshot::getDocuments)
                       .map(
                         formDocSnapshots ->
-                          stream(formDocSnapshots)
-                            .map(FormDoc::toProto)
-                            .collect(toImmutableList()))
+                          stream(formDocSnapshots).map(FormDoc::toProto).collect(toImmutableList()))
                       .toObservable();
   }
 
@@ -158,7 +156,8 @@ public class FirestoreDataService implements DataService {
     place.setClientTimestamps(
         Timestamps.newBuilder()
                   .setCreated(placeUpdate.getClientTimestamp())
-                  .setModified(placeUpdate.getClientTimestamp()).build());
+                  .setModified(placeUpdate.getClientTimestamp())
+                  .build());
     batch.set(fdRef, PlaceDoc.fromProto(place.build()));
     updateRecords(batch, fdRef, placeUpdate);
     // We don't wait for commit() to finish because task only completes once data is stored to
@@ -173,9 +172,10 @@ public class FirestoreDataService implements DataService {
     Place place = placeUpdate.getPlace();
     DocumentReference fdRef = db().project(projectId).place(place.getId()).ref();
     // TODO: Set timestamps during serialization.
-//    place.setServerTimestamps(place.getServerTimestamps().toBuilder().clearModified());
-//    place.setClientTimestamps(
-//        place.getClientTimestamps().toBuilder().setModified(placeUpdate.getClientTimestamp()));
+    //    place.setServerTimestamps(place.getServerTimestamps().toBuilder().clearModified());
+    //    place.setClientTimestamps(
+    //
+    // place.getClientTimestamps().toBuilder().setModified(placeUpdate.getClientTimestamp()));
     batch.set(fdRef, PlaceDoc.fromProto(place), MERGE);
     updateRecords(batch, fdRef, placeUpdate);
     batch.commit();
@@ -195,13 +195,18 @@ public class FirestoreDataService implements DataService {
   }
 
   @Override
-  public Flowable<DatastoreEvent<Place>> observePlaces(String projectId) {
-    return RxFirestore.observeQueryRef(db().project(projectId).places().ref())
-                      .flatMapIterable(snapshot -> toDatastoreEvents(snapshot, PlaceDoc::toProto))
+  public Flowable<DatastoreEvent<Place>> observePlaces(Project project) {
+    return RxFirestore.observeQueryRef(db().project(project.getId()).places().ref())
+                      .flatMapIterable(
+                        placeQuerySnapshot ->
+                          toDatastoreEvents(
+                            placeQuerySnapshot,
+                            placeDocSnapshot -> PlaceDoc.toProto(project, placeDocSnapshot)))
                       .doOnTerminate(
-                        () -> Log.d(
-                          TAG,
-                          "observePlaces stream for project " + projectId + " terminated."));
+                        () ->
+                          Log.d(
+                            TAG,
+                            "observePlaces stream for project " + project.getId() + " terminated."));
   }
 
   private <T> Iterable<DatastoreEvent<T>> toDatastoreEvents(
@@ -216,14 +221,18 @@ public class FirestoreDataService implements DataService {
   private <T> DatastoreEvent<T> toDatastoreEvent(
     DocumentChange dc, DatastoreEvent.Source source, Function<DocumentSnapshot, T> converter) {
     Log.v(TAG, toString(dc));
-    String id = dc.getDocument().getId();
-    switch (dc.getType()) {
-      case ADDED:
-        return DatastoreEvent.loaded(id, source, converter.apply(dc.getDocument()));
-      case MODIFIED:
-        return DatastoreEvent.modified(id, source, converter.apply(dc.getDocument()));
-      case REMOVED:
-        return DatastoreEvent.removed(id, source);
+    try {
+      String id = dc.getDocument().getId();
+      switch (dc.getType()) {
+        case ADDED:
+          return DatastoreEvent.loaded(id, source, converter.apply(dc.getDocument()));
+        case MODIFIED:
+          return DatastoreEvent.modified(id, source, converter.apply(dc.getDocument()));
+        case REMOVED:
+          return DatastoreEvent.removed(id, source);
+      }
+    } catch (DatastoreException e) {
+      Log.d(TAG, "Datastore error:", e);
     }
     return DatastoreEvent.invalidResponse();
   }
@@ -247,19 +256,18 @@ public class FirestoreDataService implements DataService {
       Record record = recordUpdate.getRecord();
       switch (recordUpdate.getOperation()) {
         case CREATE:
-//          record.setClientTimestamps(
-//              Timestamps.newBuilder()
-//                  .setCreated(placeUpdate.getClientTimestamp())
-//                  .setModified(placeUpdate.getClientTimestamp()));
-          batch.set(
-            records.document(), RecordDoc.fromProto(record, updatedValues(recordUpdate)));
+          //          record.setClientTimestamps(
+          //              Timestamps.newBuilder()
+          //                  .setCreated(placeUpdate.getClientTimestamp())
+          //                  .setModified(placeUpdate.getClientTimestamp()));
+          batch.set(records.document(), RecordDoc.fromProto(record, updatedValues(recordUpdate)));
           break;
         case UPDATE:
-//          record.setClientTimestamps(
-//              record
-//                  .getClientTimestamps()
-//                  .toBuilder()
-//                  .setModified(placeUpdate.getClientTimestamp()));
+          //          record.setClientTimestamps(
+          //              record
+          //                  .getClientTimestamps()
+          //                  .toBuilder()
+          //                  .setModified(placeUpdate.getClientTimestamp()));
           batch.set(
               records.document(record.getId()),
             RecordDoc.fromProto(record, updatedValues(recordUpdate)),

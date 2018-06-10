@@ -26,11 +26,9 @@ import com.google.android.gnd.rx.RxLiveData;
 import com.google.android.gnd.ui.AddPlaceDialogFragment.AddPlaceRequest;
 import com.google.android.gnd.ui.map.MapMarker;
 import com.google.android.gnd.vo.Place;
-import com.google.android.gnd.vo.PlaceType;
 import com.google.android.gnd.vo.Point;
 import com.google.android.gnd.vo.Project;
 import java.util.List;
-import java8.util.Optional;
 import javax.inject.Inject;
 
 public class MainViewModel extends ViewModel {
@@ -75,17 +73,7 @@ public class MainViewModel extends ViewModel {
   public void onMarkerClick(MapMarker marker) {
     if (marker.getObject() instanceof Place) {
       Place place = (Place) marker.getObject();
-      Optional<PlaceType> placeType =
-        getProjectState()
-          .getValue()
-          .getActiveProject()
-          .flatMap(project -> project.getPlaceType(place.getPlaceTypeId()));
-      if (!placeType.isPresent()) {
-        Log.e(TAG, "Place " + place.getId() + " has unknown type: " + place.getPlaceTypeId());
-        // TODO: Show error message to user.
-        return;
-      }
-      placeSheetEvents.setValue(PlaceSheetEvent.show(placeType.get(), place));
+      placeSheetEvents.setValue(PlaceSheetEvent.show(place));
     }
   }
 

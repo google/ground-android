@@ -65,7 +65,6 @@ public class RecordListFragment extends GndFragment {
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     adapter = new RecordListRecyclerViewAdapter();
-
   }
 
   @Override

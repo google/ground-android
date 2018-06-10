@@ -61,14 +61,14 @@ public class MapContainerViewModel extends ViewModel {
           .getProjectState()
           .doOnNext(projectStates::postValue)
           .filter(ProjectState::isActivated)
-          .switchMap(this::toMarkerUpdateFlowable));
+          .switchMap(MapContainerViewModel::toMarkerUpdateFlowable));
   }
 
-  private Flowable<MarkerUpdate> toMarkerUpdateFlowable(ProjectState project) {
-    return project
+  private static Flowable<MarkerUpdate> toMarkerUpdateFlowable(ProjectState projectState) {
+    return projectState
       .getPlaces()
       // Convert each place update into a marker update.
-      .map(placeData -> toMarkerUpdate(project, placeData))
+      .map(placeData -> toMarkerUpdate(placeData))
       // Drop updates that are invalid or do not apply.
       .filter(MarkerUpdate::isValid)
       // Clear all markers when active project changes.
@@ -91,23 +91,18 @@ public class MapContainerViewModel extends ViewModel {
     return locationLockStatus;
   }
 
-  private static MarkerUpdate toMarkerUpdate(
-    ProjectState project, DatastoreEvent<Place> placeData) {
+  private static MarkerUpdate toMarkerUpdate(DatastoreEvent<Place> placeData) {
     switch (placeData.getType()) {
       case ENTITY_LOADED:
       case ENTITY_MODIFIED:
         return placeData
           .getEntity()
-          .map(Place::getPlaceTypeId)
-          .flatMap(placeTypeId -> project
-            .getActiveProject()
-            .flatMap(p -> p.getPlaceType(placeTypeId)))
           .map(
-            placeType ->
+            place ->
               MarkerUpdate.addOrUpdatePlace(
-                placeData.getEntity().get(), // TODO: Remove Place from MarkerUpdate.
-                placeType.getIconId(),
-                getIconColor(placeType),
+                place, // TODO: Remove Place from MarkerUpdate.
+                place.getPlaceType().getIconId(),
+                getIconColor(place.getPlaceType()),
                 placeData.hasPendingWrites()))
           .orElse(MarkerUpdate.invalid());
       case ENTITY_REMOVED:

@@ -40,5 +40,5 @@ public interface DataService {
 
   Single<List<Project>> loadProjectSummaries();
 
-  Flowable<DatastoreEvent<Place>> observePlaces(String projectId);
+  Flowable<DatastoreEvent<Place>> observePlaces(Project project);
 }

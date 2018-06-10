@@ -22,7 +22,7 @@ import com.google.auto.value.AutoValue;
 public abstract class Place {
   public abstract String getId();
 
-  public abstract String getPlaceTypeId();
+  public abstract PlaceType getPlaceType();
 
   // TODO: Rename to getExternalId() or similar.
   public abstract String getCustomId();
@@ -44,19 +44,19 @@ public abstract class Place {
 
   @AutoValue.Builder
   public abstract static class Builder {
-    public abstract Builder setId(String value);
+    public abstract Builder setId(String newId);
 
-    public abstract Builder setPlaceTypeId(String value);
+    public abstract Builder setPlaceType(PlaceType newPlaceType);
 
-    public abstract Builder setCustomId(String value);
+    public abstract Builder setCustomId(String newCustomId);
 
-    public abstract Builder setCaption(String value);
+    public abstract Builder setCaption(String newCaption);
 
-    public abstract Builder setPoint(Point value);
+    public abstract Builder setPoint(Point newPoint);
 
-    public abstract Builder setServerTimestamps(Timestamps value);
+    public abstract Builder setServerTimestamps(Timestamps newServerTimestamps);
 
-    public abstract Builder setClientTimestamps(Timestamps value);
+    public abstract Builder setClientTimestamps(Timestamps newClientTimestamps);
 
     public abstract Place build();
   }

@@ -23,43 +23,44 @@ import com.google.android.gnd.ui.PlaceSheetEvent;
 import com.google.android.gnd.vo.Form;
 import com.google.android.gnd.vo.Place;
 import com.google.android.gnd.vo.PlaceType;
-import java.util.Collections;
-import java.util.List;
+import com.google.common.collect.ImmutableList;
+import java8.util.Optional;
 import javax.inject.Inject;
 
 public class FormTypePagerAdapter extends FragmentPagerAdapter {
-  private List<Form> forms;
-  private Place place;
-  private PlaceType placeType;
+  private Optional<Place> place;
 
   @Inject
   public FormTypePagerAdapter(FragmentManager fm) {
     super(fm);
-    this.forms = Collections.emptyList();
+    place = Optional.empty();
   }
 
   @Override
   public int getCount() {
-    return forms.size();
+    return place
+      .map(Place::getPlaceType)
+      .map(PlaceType::getForms)
+      .map(ImmutableList::size)
+      .orElse(0);
   }
 
   @Override
   public Fragment getItem(int position) {
+    PlaceType placeType = place.get().getPlaceType();
+    Form form = placeType.getForms().get(position);
     return RecordListFragment.newInstance(
-      place.getPlaceTypeId(), place.getId(), forms.get(position).getId());
+      placeType.getId(), place.get().getId(), form.getId());
   }
 
   @Override
   public CharSequence getPageTitle(int position) {
-    // TODO: i18n.
-    return forms.get(position).getTitle();
+    return place.get().getPlaceType().getForms().get(position).getTitle();
   }
 
   public void onPlaceSheetEvent(PlaceSheetEvent event) {
     if (event.isShowEvent()) {
-      this.place = event.getPlace();
-      this.placeType = event.getPlaceType();
-      this.forms = event.getPlaceType().getForms();
+      this.place = Optional.of(event.getPlace());
       notifyDataSetChanged();
     }
   }

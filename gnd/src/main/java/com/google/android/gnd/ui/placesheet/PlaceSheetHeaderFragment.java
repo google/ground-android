@@ -71,7 +71,8 @@ public class PlaceSheetHeaderFragment extends GndFragment {
   private void onPlaceSheetEvent(PlaceSheetEvent placeSheetEvent) {
     if (placeSheetEvent.isShowEvent()) {
       placeHeaderIcon.setImageResource(
-        PlaceIcon.getResourceId(getContext(), placeSheetEvent.getPlaceType().getIconId()));
+        PlaceIcon.getResourceId(
+          getContext(), placeSheetEvent.getPlace().getPlaceType().getIconId()));
       placeSheetTitle.setText(placeSheetEvent.getTitle());
       placeSheetSubtitle.setText(placeSheetEvent.getSubtitle());
       placeSheetSubtitle.setVisibility(

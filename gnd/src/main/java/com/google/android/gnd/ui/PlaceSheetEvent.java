@@ -17,7 +17,6 @@
 package com.google.android.gnd.ui;
 
 import com.google.android.gnd.vo.Place;
-import com.google.android.gnd.vo.PlaceType;
 
 public class PlaceSheetEvent {
 
@@ -27,17 +26,15 @@ public class PlaceSheetEvent {
   }
 
   private final Type type;
-  private PlaceType placeType;
   private Place place;
   private String title;
   private String subtitle;
 
-  private PlaceSheetEvent(Type type, PlaceType placeType, Place place) {
+  private PlaceSheetEvent(Type type, Place place) {
     this.type = type;
-    this.placeType = placeType;
     this.place = place;
     String caption = place.getCaption();
-    String placeTypeLabel = placeType.getItemLabel();
+    String placeTypeLabel = place.getPlaceType().getItemLabel();
     this.title = caption.isEmpty() ? placeTypeLabel : caption;
     this.subtitle = caption.isEmpty() ? "" : placeTypeLabel + " " + place.getCustomId();
   }
@@ -46,16 +43,12 @@ public class PlaceSheetEvent {
     this.type = type;
   }
 
-  public static PlaceSheetEvent show(PlaceType placeType, Place place) {
-    return new PlaceSheetEvent(Type.SHOW, placeType, place);
+  public static PlaceSheetEvent show(Place place) {
+    return new PlaceSheetEvent(Type.SHOW, place);
   }
 
   public static PlaceSheetEvent hide() {
     return new PlaceSheetEvent(Type.HIDE);
-  }
-
-  public PlaceType getPlaceType() {
-    return placeType;
   }
 
   public Place getPlace() {
