@@ -19,7 +19,6 @@ package com.google.android.gnd.ui.map.gms;
 import static com.google.android.gms.maps.GoogleMap.OnCameraMoveStartedListener.REASON_DEVELOPER_ANIMATION;
 
 import android.annotation.SuppressLint;
-import android.arch.lifecycle.ViewModel;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptor;
@@ -27,48 +26,49 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gnd.ui.PlaceIcon;
-import com.google.android.gnd.ui.map.MapAdapter;
+import com.google.android.gnd.ui.map.MapAdapter.Map;
 import com.google.android.gnd.ui.map.MapMarker;
 import com.google.android.gnd.vo.Point;
 import io.reactivex.Observable;
 import io.reactivex.subjects.PublishSubject;
 import java.util.HashMap;
+import javax.annotation.Nullable;
 
 /**
- * Wrapper around {@link GoogleMap} object, exposing Google Maps API functionality using Ground's
- * standard {@link MapAdapter.MapViewModel} interface.
+ * Wrapper around {@link GoogleMap}, exposing Google Maps API functionality to Ground as a
+ * {@link Map}.
  */
-class GoogleMapsViewModel extends ViewModel implements MapAdapter.MapViewModel {
+class GoogleMapsMap implements Map {
 
-  // TODO: Either keep state a LiveData or restore using ReactiveX streams.
-  private GoogleMap map;
-  private boolean enabled;
+  private final GoogleMap map;
+  // TODO: Replace w/full cache of Places, move into new ViewModel.
   private java.util.Map<String, Marker> markers = new HashMap<>();
+  private final PublishSubject<MapMarker> markerClickSubject = PublishSubject.create();
+  private final PublishSubject<Point> dragInteractionSubject = PublishSubject.create();
+  @Nullable
   private LatLng cameraTargetBeforeDrag;
-  private PublishSubject<MapMarker> markerClickSubject = PublishSubject.create();
-  private PublishSubject<Point> dragInteractionSubject = PublishSubject.create();
 
-  public void attachMap(GoogleMap map) {
+  public GoogleMapsMap(GoogleMap map) {
     this.map = map;
     map.setMapType(GoogleMap.MAP_TYPE_HYBRID);
     map.getUiSettings().setRotateGesturesEnabled(false);
     map.getUiSettings().setMyLocationButtonEnabled(false);
     map.getUiSettings().setMapToolbarEnabled(false);
+    map.setOnMarkerClickListener(this::onMarkerClick);
     map.setOnCameraIdleListener(this::onCameraIdle);
     map.setOnCameraMoveStartedListener(this::onCameraMoveStarted);
     map.setOnCameraMoveListener(this::onCameraMove);
-    map.setOnMarkerClickListener(
-      marker -> {
-        if (enabled) {
-          markerClickSubject.onNext((MapMarker) marker.getTag());
-          // Allow map to pan to marker.
-          return false;
-        } else {
-          // Prevent map from panning to marker.
-          return true;
-        }
-      });
-    this.enabled = true;
+  }
+
+  private boolean onMarkerClick(Marker marker) {
+    if (map.getUiSettings().isZoomGesturesEnabled()) {
+      markerClickSubject.onNext((MapMarker) marker.getTag());
+      // Allow map to pan to marker.
+      return false;
+    } else {
+      // Prevent map from panning to marker.
+      return true;
+    }
   }
 
   @Override
@@ -83,31 +83,29 @@ class GoogleMapsViewModel extends ViewModel implements MapAdapter.MapViewModel {
 
   @Override
   public void enable() {
-    enabled = true;
     map.getUiSettings().setAllGesturesEnabled(true);
   }
 
   @Override
   public void disable() {
-    enabled = false;
     map.getUiSettings().setAllGesturesEnabled(false);
   }
 
   @Override
   public void moveCamera(Point point) {
-    map.moveCamera(CameraUpdateFactory.newLatLng(toLatLng(point)));
+    map.moveCamera(CameraUpdateFactory.newLatLng(point.toLatLng()));
   }
 
   @Override
   public void moveCamera(Point point, float zoomLevel) {
-    map.moveCamera(CameraUpdateFactory.newLatLngZoom(toLatLng(point), zoomLevel));
+    map.moveCamera(CameraUpdateFactory.newLatLngZoom(point.toLatLng(), zoomLevel));
   }
 
   @Override
   public void addOrUpdateMarker(
       MapMarker mapMarker, boolean hasPendingWrites, boolean isHighlighted) {
     Marker marker = markers.get(mapMarker.getId());
-    LatLng position = toLatLng(mapMarker.getPosition());
+    LatLng position = mapMarker.getPosition().toLatLng();
     PlaceIcon icon = mapMarker.getIcon();
     BitmapDescriptor bitmap =
         isHighlighted
@@ -141,7 +139,7 @@ class GoogleMapsViewModel extends ViewModel implements MapAdapter.MapViewModel {
 
   @Override
   public Point getCenter() {
-    return toPoint(map.getCameraPosition().target);
+    return Point.fromLatLng(map.getCameraPosition().target);
   }
 
   @Override
@@ -175,15 +173,7 @@ class GoogleMapsViewModel extends ViewModel implements MapAdapter.MapViewModel {
     }
     LatLng cameraTarget = map.getCameraPosition().target;
     if (!cameraTarget.equals(cameraTargetBeforeDrag)) {
-      dragInteractionSubject.onNext(toPoint(cameraTarget));
+      dragInteractionSubject.onNext(Point.fromLatLng(cameraTarget));
     }
-  }
-
-  private static Point toPoint(LatLng latLng) {
-    return Point.newBuilder().setLatitude(latLng.latitude).setLongitude(latLng.longitude).build();
-  }
-
-  private static LatLng toLatLng(Point position) {
-    return new LatLng(position.getLatitude(), position.getLongitude());
   }
 }

@@ -26,13 +26,13 @@ import io.reactivex.Single;
 public interface MapAdapter {
   Fragment getFragment();
 
-  Single<MapViewModel> getViewModel();
+  Single<Map> getMap();
 
   /**
-   * Interface defining map interactions and events. This a separate class from {@link MapAdapter}
-   * so that it can be returned asynchronously by {@link MapAdapter#getViewModel()} if necessary.
+   * Interface defining map interactions and events. This a separate class from {@link com.google.android.gnd.ui.map.MapAdapter}
+   * so that it can be returned asynchronously by {@link com.google.android.gnd.ui.map.MapAdapter#getMap()} if necessary.
    */
-  interface MapViewModel {
+  interface Map {
 
     Observable<MapMarker> getMarkerClicks();
 

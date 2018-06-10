@@ -16,35 +16,24 @@
 
 package com.google.android.gnd.ui.map.gms;
 
-import android.arch.lifecycle.ViewModelProviders;
-import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
-
-import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gnd.ui.map.MapAdapter;
-
 import io.reactivex.Single;
+import io.reactivex.SingleEmitter;
 
 /** Ground map adapter implementation for Google Maps API. */
 public class GoogleMapsAdapter implements MapAdapter {
 
   private final GoogleMapsFragment fragment;
-  private final Single map;
+  private final Single<Map> map;
 
   public GoogleMapsAdapter() {
     this.fragment = new GoogleMapsFragment();
-    this.map =
-      Single.create(
-        source -> fragment.getMapAsync(map -> source.onSuccess(attachViewModel(map))))
-        .cache();
+    this.map = Single.create(this::createMapAsync).cache();
   }
 
-  @NonNull
-  private GoogleMapsViewModel attachViewModel(GoogleMap map) {
-    GoogleMapsViewModel viewModel = ViewModelProviders.of(fragment).get(
-      GoogleMapsViewModel.class);
-    viewModel.attachMap(map);
-    return viewModel;
+  private void createMapAsync(SingleEmitter<Map> emitter) {
+    fragment.getMapAsync(googleMap -> emitter.onSuccess(new GoogleMapsMap(googleMap)));
   }
 
   @Override
@@ -53,7 +42,7 @@ public class GoogleMapsAdapter implements MapAdapter {
   }
 
   @Override
-  public Single<MapViewModel> getViewModel() {
+  public Single<Map> getMap() {
     return map;
   }
 }

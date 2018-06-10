@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.vo;
 
+import com.google.android.gms.maps.model.LatLng;
 import com.google.auto.value.AutoValue;
 
 @AutoValue
@@ -26,6 +27,14 @@ public abstract class Point {
 
   public static Builder newBuilder() {
     return new AutoValue_Point.Builder();
+  }
+
+  public static Point fromLatLng(LatLng latLng) {
+    return Point.newBuilder().setLatitude(latLng.latitude).setLongitude(latLng.longitude).build();
+  }
+
+  public LatLng toLatLng() {
+    return new LatLng(getLatitude(), getLongitude());
   }
 
   @AutoValue.Builder

@@ -36,8 +36,7 @@ import com.google.android.gnd.ui.MainViewModel;
 import com.google.android.gnd.ui.PlaceIcon;
 import com.google.android.gnd.ui.PlaceSheetEvent;
 import com.google.android.gnd.ui.common.GndFragment;
-import com.google.android.gnd.ui.map.MapAdapter;
-import com.google.android.gnd.ui.map.MapAdapter.MapViewModel;
+import com.google.android.gnd.ui.map.MapAdapter.Map;
 import com.google.android.gnd.ui.map.MapMarker;
 import com.google.android.gnd.ui.mapcontainer.MapContainerViewModel.LocationLockStatus;
 import com.jakewharton.rxbinding2.view.RxView;
@@ -52,7 +51,7 @@ public class MapContainerFragment extends GndFragment {
   ViewModelProvider.Factory viewModelFactory;
 
   @Inject
-  MapAdapter mapAdapter;
+  com.google.android.gnd.ui.map.MapAdapter mapAdapter;
 
   @BindView(R.id.add_place_btn)
   FloatingActionButton addPlaceBtn;
@@ -94,15 +93,15 @@ public class MapContainerFragment extends GndFragment {
 
   @Override
   protected void observeViewModel() {
-    mapAdapter.getViewModel().subscribe(this::onMapReady);
+    mapAdapter.getMap().subscribe(this::onMapReady);
   }
 
-  private void onMapReady(MapViewModel mapViewModel) {
+  private void onMapReady(Map map) {
     Log.d(TAG, "Map ready. Updating subscriptions");
     // Observe events emitted by the ViewModel.
     mapContainerViewModel
       .mapMarkers()
-      .observe(this, update -> onMarkerUpdate(mapViewModel, update));
+      .observe(this, update -> onMarkerUpdate(map, update));
     mapContainerViewModel.locationLockStatus().observe(this, this::onLocationLockStatusChange);
     mapContainerViewModel.cameraUpdates().observe(this, this::onCameraUpdate);
     mapContainerViewModel.projectStates().observe(this, this::projectStateChange);
@@ -111,22 +110,22 @@ public class MapContainerFragment extends GndFragment {
     // here to implement "Clean Architecture".
     // TODO: Dispose of these correctly.
     RxView.clicks(addPlaceBtn)
-          .subscribe(__ -> mainViewModel.onAddPlaceBtnClick(mapViewModel.getCenter()));
+          .subscribe(__ -> mainViewModel.onAddPlaceBtnClick(map.getCenter()));
     RxView.clicks(locationLockBtn).subscribe(__ -> mapContainerViewModel.onLocationLockClick());
-    mapViewModel.getMarkerClicks().subscribe(mapContainerViewModel::onMarkerClick);
-    mapViewModel.getMarkerClicks().subscribe(mainViewModel::onMarkerClick);
-    mapViewModel.getDragInteractions().subscribe(mapContainerViewModel::onMapDrag);
-    mainViewModel.getPlaceSheetEvents().observe(this, ev -> onPlaceSheetEvent(ev, mapViewModel));
+    map.getMarkerClicks().subscribe(mapContainerViewModel::onMarkerClick);
+    map.getMarkerClicks().subscribe(mainViewModel::onMarkerClick);
+    map.getDragInteractions().subscribe(mapContainerViewModel::onMapDrag);
+    mainViewModel.getPlaceSheetEvents().observe(this, ev -> onPlaceSheetEvent(ev, map));
     enableLocationLockBtn();
   }
 
-  private void onPlaceSheetEvent(PlaceSheetEvent event, MapViewModel mapViewModel) {
+  private void onPlaceSheetEvent(PlaceSheetEvent event, Map map) {
     switch (event.getType()) {
       case SHOW:
-        mapViewModel.disable();
+        map.disable();
         break;
       case HIDE:
-        mapViewModel.enable();
+        map.enable();
         break;
     }
   }
@@ -165,7 +164,7 @@ public class MapContainerFragment extends GndFragment {
     }
     if (status.isEnabled()) {
       Log.d(TAG, "Location lock enabled");
-      mapAdapter.getViewModel().subscribe(map -> map.enableCurrentLocationIndicator());
+      mapAdapter.getMap().subscribe(map -> map.enableCurrentLocationIndicator());
       locationLockBtn.setImageResource(R.drawable.ic_gps_blue);
     } else {
       Log.d(TAG, "Location lock disabled");
@@ -191,7 +190,7 @@ public class MapContainerFragment extends GndFragment {
   private void onCameraUpdate(MapContainerViewModel.CameraUpdate update) {
     Log.d(TAG, "Update camera: " + update);
     mapAdapter
-      .getViewModel()
+      .getMap()
       .subscribe(
         map -> {
           if (update.getMinZoomLevel().isPresent()) {
@@ -204,7 +203,7 @@ public class MapContainerFragment extends GndFragment {
         });
   }
 
-  private void onMarkerUpdate(MapViewModel map, MarkerUpdate update) {
+  private void onMarkerUpdate(Map map, MarkerUpdate update) {
     switch (update.getType()) {
       case CLEAR_ALL:
         map.removeAllMarkers();
