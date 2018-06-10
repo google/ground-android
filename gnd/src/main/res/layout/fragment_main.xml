@@ -107,7 +107,7 @@
       android:elevation="6dp"
       android:paddingVertical="@dimen/add_record_button_padding"
       android:textAppearance="@style/AddRecordButtonText"
-      app:chipBackgroundColor="@color/colorAccent"
+      app:chipBackgroundColor="@color/colorPrimary"
       app:chipCornerRadius="24dp"
       app:chipEndPadding="@dimen/add_record_button_padding"
       app:chipIcon="@drawable/ic_add_light"

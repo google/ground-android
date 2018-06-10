@@ -39,8 +39,9 @@
       android:layout_gravity="top"
       android:background="@color/colorWhite"
       android:elevation="5dp"
-      app:tabSelectedTextColor="@color/colorAccent"
-      app:tabTextColor="@color/colorAccent"/>
+      app:tabSelectedTextColor="@color/colorPrimary"
+      app:tabTextColor="@color/colorPrimary"
+      app:tabIndicatorColor="@color/colorPrimary"/>
 
     <com.google.android.gnd.ui.common.UnswipeableViewPaper
       android:id="@+id/record_list_view_pager"
