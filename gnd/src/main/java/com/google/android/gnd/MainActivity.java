@@ -77,8 +77,8 @@ public class MainActivity extends GndActivity {
 
     ViewCompat.setOnApplyWindowInsetsListener(
       getWindow().getDecorView().getRootView(), viewModel::updateWindowInsets);
-    permissionsManager.permissionsRequests().subscribe(this::requestPermissions);
-    settingsManager.settingsChangeRequests().subscribe(this::requestSettingsChange);
+    permissionsManager.getPermissionsRequests().subscribe(this::requestPermissions);
+    settingsManager.getSettingsChangeRequests().subscribe(this::requestSettingsChange);
   }
 
   private void requestPermissions(PermissionsRequest permissionsRequest) {

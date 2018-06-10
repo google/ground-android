@@ -113,9 +113,9 @@ public class MapContainerFragment extends GndFragment {
     RxView.clicks(addPlaceBtn)
           .subscribe(__ -> mainViewModel.onAddPlaceBtnClick(mapViewModel.getCenter()));
     RxView.clicks(locationLockBtn).subscribe(__ -> mapContainerViewModel.onLocationLockClick());
-    mapViewModel.markerClicks().subscribe(mapContainerViewModel::onMarkerClick);
-    mapViewModel.markerClicks().subscribe(mainViewModel::onMarkerClick);
-    mapViewModel.dragInteractions().subscribe(mapContainerViewModel::onMapDrag);
+    mapViewModel.getMarkerClicks().subscribe(mapContainerViewModel::onMarkerClick);
+    mapViewModel.getMarkerClicks().subscribe(mainViewModel::onMarkerClick);
+    mapViewModel.getDragInteractions().subscribe(mapContainerViewModel::onMapDrag);
     mainViewModel.getPlaceSheetEvents().observe(this, ev -> onPlaceSheetEvent(ev, mapViewModel));
     enableLocationLockBtn();
   }

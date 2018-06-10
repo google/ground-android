@@ -64,7 +64,7 @@ public class ProjectState {
     return project;
   }
 
-  public Flowable<DatastoreEvent<Place>> getPlacesFlowable() {
+  public Flowable<DatastoreEvent<Place>> getPlaces() {
     return placesFlowable;
   }
 

@@ -31,8 +31,6 @@ import javax.inject.Singleton;
 @Singleton
 public class GndDataRepository {
 
-  private static final String TAG = GndDataRepository.class.getSimpleName();
-
   private final DataService dataService;
   private BehaviorSubject<ProjectState> projectStateObservable;
 
@@ -46,7 +44,7 @@ public class GndDataRepository {
     dataService.onCreate();
   }
 
-  public Flowable<ProjectState> projectState() {
+  public Flowable<ProjectState> getProjectState() {
     return projectStateObservable.toFlowable(BackpressureStrategy.LATEST);
   }
 

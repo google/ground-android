@@ -72,12 +72,12 @@ class GoogleMapsViewModel extends ViewModel implements MapAdapter.MapViewModel {
   }
 
   @Override
-  public Observable<MapMarker> markerClicks() {
+  public Observable<MapMarker> getMarkerClicks() {
     return markerClickSubject;
   }
 
   @Override
-  public Observable<Point> dragInteractions() {
+  public Observable<Point> getDragInteractions() {
     return dragInteractionSubject;
   }
 

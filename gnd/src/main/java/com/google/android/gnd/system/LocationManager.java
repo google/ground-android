@@ -107,7 +107,8 @@ public class LocationManager {
               // the user a quicker response when enabling location lock. This will fail, however,
               // immediately after enabling location settings, in which case just ignore the failure
               // and wait for the next location update.
-              lastLocation().subscribe(locationUpdateSubject::onNext, t -> {});
+              getLastLocation().subscribe(locationUpdateSubject::onNext, t -> {
+              });
             });
   }
 
@@ -121,7 +122,7 @@ public class LocationManager {
   }
 
   @SuppressLint("MissingPermission")
-  public Single<Point> lastLocation() {
+  public Single<Point> getLastLocation() {
     // TODO: Should we be sending the request onSubscribe instead of immediately? In this specific
     // case it might not matter, but there may be others where it does?
     Log.d(TAG, "Requesting last known location");

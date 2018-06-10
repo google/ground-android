@@ -93,7 +93,6 @@ public class FirestoreDataService implements DataService {
     return GndFirestorePath.db(db);
   }
 
-  // TODO: Naming: fetch - get doc, load - get object/proto.
   @Override
   public Maybe<Project> loadProject(String projectId) {
     return RxFirestore.getDocument(db().project(projectId).ref())

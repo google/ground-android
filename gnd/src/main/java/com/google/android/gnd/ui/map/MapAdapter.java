@@ -34,9 +34,9 @@ public interface MapAdapter {
    */
   interface MapViewModel {
 
-    Observable<MapMarker> markerClicks();
+    Observable<MapMarker> getMarkerClicks();
 
-    Observable<Point> dragInteractions();
+    Observable<Point> getDragInteractions();
 
     void enable();
 

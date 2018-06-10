@@ -46,19 +46,19 @@ public class MainViewModel extends ViewModel {
     this.dataRepository = dataRepository;
     this.showProjectSelectorDialogRequests = new MutableLiveData<>();
     this.addPlaceDialogRequests = new MutableLiveData<>();
-    this.projectState = RxLiveData.fromFlowable(dataRepository.projectState());
+    this.projectState = RxLiveData.fromFlowable(dataRepository.getProjectState());
     this.placeSheetEvents = new MutableLiveData<>();
   }
 
-  public LiveData<List<Project>> showProjectSelectorDialogRequests() {
+  public LiveData<List<Project>> getShowProjectSelectorDialogRequests() {
     return showProjectSelectorDialogRequests;
   }
 
-  public LiveData<ProjectState> projectState() {
+  public LiveData<ProjectState> getProjectState() {
     return projectState;
   }
 
-  public LiveData<Point> showAddPlaceDialogRequests() {
+  public LiveData<Point> getShowAddPlaceDialogRequests() {
     return addPlaceDialogRequests;
   }
 
@@ -76,7 +76,7 @@ public class MainViewModel extends ViewModel {
     if (marker.getObject() instanceof Place) {
       Place place = (Place) marker.getObject();
       Optional<PlaceType> placeType =
-        projectState()
+        getProjectState()
           .getValue()
           .getActiveProject()
           .flatMap(project -> project.getPlaceType(place.getPlaceTypeId()));

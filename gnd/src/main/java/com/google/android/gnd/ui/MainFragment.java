@@ -117,10 +117,10 @@ public class MainFragment extends GndFragment {
 
   protected void observeViewModel() {
     viewModel
-      .showProjectSelectorDialogRequests()
+      .getShowProjectSelectorDialogRequests()
       .observe(this, this::onShowProjectSelectorDialogRequest);
-    viewModel.projectState().observe(this, this::projectStateChange);
-    viewModel.showAddPlaceDialogRequests().observe(this, this::onShowAddPlaceDialogRequest);
+    viewModel.getProjectState().observe(this, this::projectStateChange);
+    viewModel.getShowAddPlaceDialogRequests().observe(this, this::onShowAddPlaceDialogRequest);
     viewModel.getPlaceSheetEvents().observe(this, this::onPlaceSheetEvent);
     mainActivityViewModel.getWindowInsetsLiveData().observe(this, this::onApplyWindowInsets);
   }

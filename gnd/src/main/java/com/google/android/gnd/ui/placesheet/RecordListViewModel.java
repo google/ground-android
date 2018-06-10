@@ -52,7 +52,7 @@ public class RecordListViewModel extends ViewModel {
   public void loadRecords(String placeTypeId, String formId, String placeId) {
     // TODO: Unsubscribe, handle failures.
     dataRepository
-      .projectState()
+      .getProjectState()
       .map(ProjectState::getActiveProject)
       .filter(Optional::isPresent)
       .map(Optional::get)

@@ -24,16 +24,14 @@ import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
-
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.reactivex.Completable;
 import io.reactivex.CompletableEmitter;
 import io.reactivex.CompletableSource;
 import io.reactivex.Observable;
 import io.reactivex.subjects.PublishSubject;
 import io.reactivex.subjects.Subject;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 
 @Singleton
 public class PermissionsManager {
@@ -51,7 +49,7 @@ public class PermissionsManager {
     context = app.getApplicationContext();
   }
 
-  public Observable<PermissionsRequest> permissionsRequests() {
+  public Observable<PermissionsRequest> getPermissionsRequests() {
     return permissionsRequestSubject;
   }
 
