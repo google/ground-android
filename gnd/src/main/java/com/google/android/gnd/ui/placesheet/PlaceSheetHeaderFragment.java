@@ -70,6 +70,7 @@ public class PlaceSheetHeaderFragment extends GndFragment {
 
   private void onPlaceSheetEvent(PlaceSheetEvent placeSheetEvent) {
     if (placeSheetEvent.isShowEvent()) {
+      getView().setVisibility(View.VISIBLE);
       placeHeaderIcon.setImageResource(
         MapIcon.getResourceId(
           getContext(), placeSheetEvent.getPlace().getPlaceType().getIconId()));
