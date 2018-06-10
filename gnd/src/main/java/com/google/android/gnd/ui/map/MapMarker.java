@@ -19,6 +19,8 @@ package com.google.android.gnd.ui.map;
 import com.google.android.gnd.ui.PlaceIcon;
 import com.google.android.gnd.vo.Point;
 
+// TODO: @AutoValue
+// TODO: Is this still needed? Can use Place directly?
 public class MapMarker<T> {
   private String id;
   private Point position;

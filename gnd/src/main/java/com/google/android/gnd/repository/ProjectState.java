@@ -16,9 +16,9 @@
 
 package com.google.android.gnd.repository;
 
-import com.google.android.gnd.service.DatastoreEvent;
 import com.google.android.gnd.vo.Place;
 import com.google.android.gnd.vo.Project;
+import com.google.common.collect.ImmutableSet;
 import io.reactivex.Flowable;
 import java8.util.Optional;
 
@@ -32,7 +32,7 @@ public class ProjectState {
 
   private Status status;
   private Optional<Project> project;
-  private Flowable<DatastoreEvent<Place>> placesFlowable;
+  private Flowable<ImmutableSet<Place>> places;
 
   private ProjectState(Status status) {
     this.status = status;
@@ -47,12 +47,10 @@ public class ProjectState {
     return new ProjectState(Status.LOADING);
   }
 
-  public static ProjectState activated(
-    Project project,
-    Flowable<DatastoreEvent<Place>> placesObservable) {
+  public static ProjectState activated(Project project, Flowable<ImmutableSet<Place>> places) {
     ProjectState ev = new ProjectState(Status.ACTIVATED);
     ev.project = Optional.of(project);
-    ev.placesFlowable = placesObservable;
+    ev.places = places;
     return ev;
   }
 
@@ -64,8 +62,8 @@ public class ProjectState {
     return project;
   }
 
-  public Flowable<DatastoreEvent<Place>> getPlaces() {
-    return placesFlowable;
+  public Flowable<ImmutableSet<Place>> getPlaces() {
+    return places;
   }
 
   public boolean isActivated() {

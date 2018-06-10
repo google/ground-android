@@ -21,6 +21,7 @@ import static java8.util.stream.StreamSupport.stream;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import java8.util.Optional;
+import javax.annotation.Nullable;
 
 @AutoValue
 public abstract class PlaceType {
@@ -32,6 +33,7 @@ public abstract class PlaceType {
 
   public abstract String getIconId();
 
+  @Nullable
   public abstract String getIconColor();
 
   public abstract ImmutableList<Form> getForms();

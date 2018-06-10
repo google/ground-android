@@ -17,23 +17,24 @@
 package com.google.android.gnd.ui.map.gms;
 
 import android.support.v4.app.Fragment;
-import com.google.android.gnd.ui.map.MapAdapter;
+import com.google.android.gnd.ui.map.MapProvider;
 import io.reactivex.Single;
 import io.reactivex.SingleEmitter;
 
 /** Ground map adapter implementation for Google Maps API. */
-public class GoogleMapsAdapter implements MapAdapter {
+public class GoogleMapsMapProvider implements MapProvider {
 
   private final GoogleMapsFragment fragment;
-  private final Single<Map> map;
+  private final Single<MapAdapter> map;
 
-  public GoogleMapsAdapter() {
+  public GoogleMapsMapProvider() {
     this.fragment = new GoogleMapsFragment();
     this.map = Single.create(this::createMapAsync).cache();
   }
 
-  private void createMapAsync(SingleEmitter<Map> emitter) {
-    fragment.getMapAsync(googleMap -> emitter.onSuccess(new GoogleMapsMap(googleMap)));
+  private void createMapAsync(SingleEmitter<MapAdapter> emitter) {
+    fragment.getMapAsync(
+      googleMap -> emitter.onSuccess(new GoogleMapsMapAdapter(googleMap, fragment.getContext())));
   }
 
   @Override
@@ -42,7 +43,7 @@ public class GoogleMapsAdapter implements MapAdapter {
   }
 
   @Override
-  public Single<Map> getMap() {
+  public Single<MapAdapter> getMapAdapter() {
     return map;
   }
 }

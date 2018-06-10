@@ -19,37 +19,55 @@ package com.google.android.gnd.ui.map.gms;
 import static com.google.android.gms.maps.GoogleMap.OnCameraMoveStartedListener.REASON_DEVELOPER_ANIMATION;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
+import android.graphics.Color;
+import android.util.Log;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gnd.R;
 import com.google.android.gnd.ui.PlaceIcon;
-import com.google.android.gnd.ui.map.MapAdapter.Map;
 import com.google.android.gnd.ui.map.MapMarker;
+import com.google.android.gnd.ui.map.MapProvider.MapAdapter;
+import com.google.android.gnd.vo.Place;
+import com.google.android.gnd.vo.PlaceType;
 import com.google.android.gnd.vo.Point;
+import com.google.common.collect.ImmutableSet;
 import io.reactivex.Observable;
 import io.reactivex.subjects.PublishSubject;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map.Entry;
+import java.util.Set;
 import javax.annotation.Nullable;
 
 /**
- * Wrapper around {@link GoogleMap}, exposing Google Maps API functionality to Ground as a
- * {@link Map}.
+ * Wrapper around {@link GoogleMap}, exposing Google Maps API functionality to Ground as a {@link
+ * MapAdapter}.
  */
-class GoogleMapsMap implements Map {
+class GoogleMapsMapAdapter implements MapAdapter {
 
+  private static final String TAG = GoogleMapsMapAdapter.class.getSimpleName();
   private final GoogleMap map;
-  // TODO: Replace w/full cache of Places, move into new ViewModel.
+  private final Context context;
+  /**
+   * Cache of ids to map markers. We don't mind this being destroyed on lifecycle events since the
+   * GoogleMap markers themselves are destroyed as well.
+   */
   private java.util.Map<String, Marker> markers = new HashMap<>();
+
   private final PublishSubject<MapMarker> markerClickSubject = PublishSubject.create();
   private final PublishSubject<Point> dragInteractionSubject = PublishSubject.create();
   @Nullable
   private LatLng cameraTargetBeforeDrag;
 
-  public GoogleMapsMap(GoogleMap map) {
+  public GoogleMapsMapAdapter(GoogleMap map, Context context) {
     this.map = map;
+    this.context = context;
     map.setMapType(GoogleMap.MAP_TYPE_HYBRID);
     map.getUiSettings().setRotateGesturesEnabled(false);
     map.getUiSettings().setMyLocationButtonEnabled(false);
@@ -101,38 +119,19 @@ class GoogleMapsMap implements Map {
     map.moveCamera(CameraUpdateFactory.newLatLngZoom(point.toLatLng(), zoomLevel));
   }
 
-  @Override
-  public void addOrUpdateMarker(
-      MapMarker mapMarker, boolean hasPendingWrites, boolean isHighlighted) {
-    Marker marker = markers.get(mapMarker.getId());
+  private void addMarker(MapMarker mapMarker, boolean hasPendingWrites, boolean isHighlighted) {
     LatLng position = mapMarker.getPosition().toLatLng();
     PlaceIcon icon = mapMarker.getIcon();
     BitmapDescriptor bitmap =
         isHighlighted
             ? icon.getWhiteBitmap()
             : (hasPendingWrites ? icon.getGreyBitmap() : icon.getBitmap());
-    if (marker == null) {
-      marker = map.addMarker(new MarkerOptions().position(position).icon(bitmap).alpha(1.0f));
-      markers.put(mapMarker.getId(), marker);
-    } else {
-      marker.setIcon(bitmap);
-      marker.setPosition(position);
-    }
+    Marker marker = map.addMarker(new MarkerOptions().position(position).icon(bitmap).alpha(1.0f));
+    markers.put(mapMarker.getId(), marker);
     marker.setTag(mapMarker);
   }
 
-  @Override
-  public void removeMarker(String id) {
-    Marker marker = markers.get(id);
-    if (marker == null) {
-      return;
-    }
-    marker.remove();
-    markers.remove(id);
-  }
-
-  @Override
-  public void removeAllMarkers() {
+  private void removeAllMarkers() {
     map.clear();
     markers.clear();
   }
@@ -155,13 +154,51 @@ class GoogleMapsMap implements Map {
     }
   }
 
+  @Override
+  public void updateMarkers(ImmutableSet<Place> places) {
+    if (places.isEmpty()) {
+      removeAllMarkers();
+      return;
+    }
+    Iterator<Entry<String, Marker>> it = markers.entrySet().iterator();
+    Set<Place> newPlaces = new HashSet<>(places);
+    while (it.hasNext()) {
+      Entry<String, Marker> entry = it.next();
+      Marker marker = entry.getValue();
+      MapMarker mapMarker = (MapMarker) marker.getTag();
+      Place place = (Place) mapMarker.getObject();
+      if (places.contains(place)) {
+        newPlaces.remove(place);
+      } else {
+        Log.v(TAG, "Removing marker " + place.getId());
+        marker.remove();
+        it.remove();
+      }
+    }
+    for (Place place : newPlaces) {
+      PlaceType placeType = place.getPlaceType();
+      PlaceIcon icon = new PlaceIcon(context, placeType.getIconId(), getIconColor(placeType));
+      Log.v(TAG, "Adding marker for " + place.getId());
+      // TODO: Reimplement hasPendingWrites.
+      addMarker(new MapMarker<>(place.getId(), place.getPoint(), icon, place), false, false);
+    }
+  }
+
+  private int getIconColor(PlaceType placeType) {
+    try {
+      return Color.parseColor(placeType.getIconColor());
+    } catch (Exception e) {
+      return context.getResources().getColor(R.color.markerDefault);
+    }
+  }
+
   private void onCameraIdle() {
     cameraTargetBeforeDrag = null;
   }
 
   private void onCameraMoveStarted(int reason) {
     if (reason == REASON_DEVELOPER_ANIMATION) {
-      // Map was panned by the app, not the user.
+      // MapAdapter was panned by the app, not the user.
       return;
     }
     cameraTargetBeforeDrag = map.getCameraPosition().target;

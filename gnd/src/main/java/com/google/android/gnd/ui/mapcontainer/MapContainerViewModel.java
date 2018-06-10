@@ -20,18 +20,16 @@ import android.annotation.SuppressLint;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.ViewModel;
-import android.graphics.Color;
 import android.util.Log;
 import com.google.android.gnd.repository.GndDataRepository;
 import com.google.android.gnd.repository.ProjectState;
 import com.google.android.gnd.rx.RxLiveData;
-import com.google.android.gnd.service.DatastoreEvent;
 import com.google.android.gnd.system.LocationManager;
 import com.google.android.gnd.ui.AddPlaceDialogFragment.AddPlaceRequest;
 import com.google.android.gnd.ui.map.MapMarker;
 import com.google.android.gnd.vo.Place;
-import com.google.android.gnd.vo.PlaceType;
 import com.google.android.gnd.vo.Point;
+import com.google.common.collect.ImmutableSet;
 import io.reactivex.Flowable;
 import io.reactivex.disposables.Disposable;
 import java8.util.Optional;
@@ -40,8 +38,8 @@ import javax.inject.Inject;
 public class MapContainerViewModel extends ViewModel {
   private static final String TAG = MapContainerViewModel.class.getSimpleName();
   private static final float DEFAULT_ZOOM_LEVEL = 14.0f;
-  private final MutableLiveData<ProjectState> projectStates;
-  private final LiveData<MarkerUpdate> markerUpdates;
+  private final MutableLiveData<ProjectState> projectState;
+  private final LiveData<ImmutableSet<Place>> places;
   private final MutableLiveData<LocationLockStatus> locationLockStatus;
   private final MutableLiveData<CameraUpdate> cameraUpdates;
   private final LocationManager locationManager;
@@ -54,67 +52,51 @@ public class MapContainerViewModel extends ViewModel {
     this.locationLockStatus = new MutableLiveData<>();
     locationLockStatus.setValue(LocationLockStatus.disabled());
     this.cameraUpdates = new MutableLiveData<>();
-    this.projectStates = new MutableLiveData<>();
-    this.markerUpdates =
+    this.projectState = new MutableLiveData<>();
+    this.places =
       RxLiveData.fromFlowable(
         dataRepository
           .getProjectState()
-          .doOnNext(projectStates::postValue)
+          .doOnNext(projectState::postValue)
           .filter(ProjectState::isActivated)
-          .switchMap(MapContainerViewModel::toMarkerUpdateFlowable));
+          .switchMap(ProjectState::getPlaces));
   }
 
-  private static Flowable<MarkerUpdate> toMarkerUpdateFlowable(ProjectState projectState) {
-    return projectState
-      .getPlaces()
-      // Convert each place update into a marker update.
-      .map(placeData -> toMarkerUpdate(placeData))
-      // Drop updates that are invalid or do not apply.
-      .filter(MarkerUpdate::isValid)
-      // Clear all markers when active project changes.
-      .startWith(MarkerUpdate.clearAll());
+  //  private void updatePlaces(MarkerUpdate markerUpdate) {
+  //    switch (markerUpdate.getType()) {
+  //
+  //      case CLEAR_ALL:
+  //        places.setValue(ImmutableSet.of());
+  //        break;
+  //      case ADD_OR_UPDATE_MARKER:
+  //        places.setValue(
+  //        ImmutableSet.<Place>builder()
+  //          .addAll(places.getValue())
+  //          .add(markerUpdate.getPlace())
+  //          .build());
+  //        break;
+  //      case REMOVE_MARKER:
+  //        places.setValue(
+  //          stream(places.getValue()).filter(p -> !p.getPlaceType(markerUpdate.getPlace())).
+  //            );
+  //        break;
+  //    }
+  //  }
+
+  public LiveData<ProjectState> getProjectState() {
+    return projectState;
   }
 
-  public MutableLiveData<ProjectState> projectStates() {
-    return projectStates;
+  public LiveData<ImmutableSet<Place>> getPlaces() {
+    return places;
   }
 
-  LiveData<MarkerUpdate> mapMarkers() {
-    return markerUpdates;
-  }
-
-  LiveData<CameraUpdate> cameraUpdates() {
+  LiveData<CameraUpdate> getCameraUpdates() {
     return cameraUpdates;
   }
 
-  public MutableLiveData<LocationLockStatus> locationLockStatus() {
+  public MutableLiveData<LocationLockStatus> getLocationLockStatus() {
     return locationLockStatus;
-  }
-
-  private static MarkerUpdate toMarkerUpdate(DatastoreEvent<Place> placeData) {
-    switch (placeData.getType()) {
-      case ENTITY_LOADED:
-      case ENTITY_MODIFIED:
-        return placeData
-          .getEntity()
-          .map(
-            place ->
-              MarkerUpdate.addOrUpdatePlace(
-                place, // TODO: Remove Place from MarkerUpdate.
-                place.getPlaceType().getIconId(),
-                getIconColor(place.getPlaceType()),
-                placeData.hasPendingWrites()))
-          .orElse(MarkerUpdate.invalid());
-      case ENTITY_REMOVED:
-        return MarkerUpdate.remove(placeData.getId());
-    }
-    return MarkerUpdate.invalid();
-  }
-
-  private static int getIconColor(PlaceType placeType) {
-    // TODO: Return default color if invalid.
-    // TODO: Refactor into model.
-    return Color.parseColor(placeType.getIconColor());
   }
 
   public void onLocationLockClick() {

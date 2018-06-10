@@ -17,6 +17,7 @@
 package com.google.android.gnd.vo;
 
 import com.google.auto.value.AutoValue;
+import com.google.auto.value.extension.memoized.Memoized;
 
 @AutoValue
 public abstract class Place {
@@ -37,6 +38,10 @@ public abstract class Place {
   public abstract Timestamps getClientTimestamps();
 
   public abstract Builder toBuilder();
+
+  @Memoized
+  @Override
+  public abstract int hashCode();
 
   public static Builder newBuilder() {
     return new AutoValue_Place.Builder();

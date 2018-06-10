@@ -16,18 +16,16 @@
 
 package com.google.android.gnd.ui.map;
 
-import com.google.android.gnd.ui.map.gms.GoogleMapsAdapter;
-
-import javax.inject.Singleton;
-
+import com.google.android.gnd.ui.map.gms.GoogleMapsMapProvider;
 import dagger.Module;
 import dagger.Provides;
+import javax.inject.Singleton;
 
 @Module
-public class MapAdapterModule {
+public class MapProviderModule {
   @Provides
   @Singleton
-  static MapAdapter googleMapsAdapter() {
-    return new GoogleMapsAdapter();
+  static MapProvider googleMapsProvider() {
+    return new GoogleMapsMapProvider();
   }
 }

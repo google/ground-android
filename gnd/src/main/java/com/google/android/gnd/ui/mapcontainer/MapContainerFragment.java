@@ -33,11 +33,10 @@ import com.google.android.gnd.repository.ProjectState;
 import com.google.android.gnd.system.PermissionsManager.PermissionDeniedException;
 import com.google.android.gnd.system.SettingsManager.SettingsChangeRequestCanceled;
 import com.google.android.gnd.ui.MainViewModel;
-import com.google.android.gnd.ui.PlaceIcon;
 import com.google.android.gnd.ui.PlaceSheetEvent;
 import com.google.android.gnd.ui.common.GndFragment;
-import com.google.android.gnd.ui.map.MapAdapter.Map;
-import com.google.android.gnd.ui.map.MapMarker;
+import com.google.android.gnd.ui.map.MapProvider;
+import com.google.android.gnd.ui.map.MapProvider.MapAdapter;
 import com.google.android.gnd.ui.mapcontainer.MapContainerViewModel.LocationLockStatus;
 import com.jakewharton.rxbinding2.view.RxView;
 import javax.inject.Inject;
@@ -51,7 +50,7 @@ public class MapContainerFragment extends GndFragment {
   ViewModelProvider.Factory viewModelFactory;
 
   @Inject
-  com.google.android.gnd.ui.map.MapAdapter mapAdapter;
+  MapProvider mapAdapter;
 
   @BindView(R.id.add_place_btn)
   FloatingActionButton addPlaceBtn;
@@ -93,18 +92,18 @@ public class MapContainerFragment extends GndFragment {
 
   @Override
   protected void observeViewModel() {
-    mapAdapter.getMap().subscribe(this::onMapReady);
+    mapAdapter.getMapAdapter().subscribe(this::onMapReady);
   }
 
-  private void onMapReady(Map map) {
-    Log.d(TAG, "Map ready. Updating subscriptions");
+  private void onMapReady(MapAdapter map) {
+    Log.d(TAG, "MapAdapter ready. Updating subscriptions");
     // Observe events emitted by the ViewModel.
     mapContainerViewModel
-      .mapMarkers()
-      .observe(this, update -> onMarkerUpdate(map, update));
-    mapContainerViewModel.locationLockStatus().observe(this, this::onLocationLockStatusChange);
-    mapContainerViewModel.cameraUpdates().observe(this, this::onCameraUpdate);
-    mapContainerViewModel.projectStates().observe(this, this::projectStateChange);
+      .getPlaces()
+      .observe(this, map::updateMarkers);
+    mapContainerViewModel.getLocationLockStatus().observe(this, this::onLocationLockStatusChange);
+    mapContainerViewModel.getCameraUpdates().observe(this, this::onCameraUpdate);
+    mapContainerViewModel.getProjectState().observe(this, this::projectStateChange);
     // Pass UI events to the ViewModel.
     // TODO: Route "add place" action through an interactor and down to dialog instead of binding
     // here to implement "Clean Architecture".
@@ -119,7 +118,7 @@ public class MapContainerFragment extends GndFragment {
     enableLocationLockBtn();
   }
 
-  private void onPlaceSheetEvent(PlaceSheetEvent event, Map map) {
+  private void onPlaceSheetEvent(PlaceSheetEvent event, MapAdapter map) {
     switch (event.getType()) {
       case SHOW:
         map.disable();
@@ -164,7 +163,7 @@ public class MapContainerFragment extends GndFragment {
     }
     if (status.isEnabled()) {
       Log.d(TAG, "Location lock enabled");
-      mapAdapter.getMap().subscribe(map -> map.enableCurrentLocationIndicator());
+      mapAdapter.getMapAdapter().subscribe(map -> map.enableCurrentLocationIndicator());
       locationLockBtn.setImageResource(R.drawable.ic_gps_blue);
     } else {
       Log.d(TAG, "Location lock disabled");
@@ -190,7 +189,7 @@ public class MapContainerFragment extends GndFragment {
   private void onCameraUpdate(MapContainerViewModel.CameraUpdate update) {
     Log.d(TAG, "Update camera: " + update);
     mapAdapter
-      .getMap()
+      .getMapAdapter()
       .subscribe(
         map -> {
           if (update.getMinZoomLevel().isPresent()) {
@@ -201,23 +200,5 @@ public class MapContainerFragment extends GndFragment {
             map.moveCamera(update.getCenter());
           }
         });
-  }
-
-  private void onMarkerUpdate(Map map, MarkerUpdate update) {
-    switch (update.getType()) {
-      case CLEAR_ALL:
-        map.removeAllMarkers();
-        break;
-      case ADD_OR_UPDATE_MARKER:
-        PlaceIcon icon = new PlaceIcon(getContext(), update.getIconId(), update.getIconColor());
-        map.addOrUpdateMarker(
-          new MapMarker<>(update.getId(), update.getPlace().getPoint(), icon, update.getPlace()),
-          update.hasPendingWrites(),
-          false);
-        break;
-      case REMOVE_MARKER:
-        map.removeMarker(update.getId());
-        break;
-    }
   }
 }

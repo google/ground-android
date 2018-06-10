@@ -18,21 +18,23 @@ package com.google.android.gnd.ui.map;
 
 import android.annotation.SuppressLint;
 import android.support.v4.app.Fragment;
+import com.google.android.gnd.vo.Place;
 import com.google.android.gnd.vo.Point;
+import com.google.common.collect.ImmutableSet;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 
 /** Common interface for various map provider libraries. */
-public interface MapAdapter {
+public interface MapProvider {
   Fragment getFragment();
 
-  Single<Map> getMap();
+  Single<MapAdapter> getMapAdapter();
 
   /**
-   * Interface defining map interactions and events. This a separate class from {@link com.google.android.gnd.ui.map.MapAdapter}
-   * so that it can be returned asynchronously by {@link com.google.android.gnd.ui.map.MapAdapter#getMap()} if necessary.
+   * Interface defining map interactions and events. This a separate class from {@link MapProvider}
+   * so that it can be returned asynchronously by {@link MapProvider#getMapAdapter()} if necessary.
    */
-  interface Map {
+  interface MapAdapter {
 
     Observable<MapMarker> getMarkerClicks();
 
@@ -46,17 +48,13 @@ public interface MapAdapter {
 
     void moveCamera(Point point, float zoomLevel);
 
-    void addOrUpdateMarker(MapMarker mapMarker, boolean hasPendingWrites, boolean isHighlighted);
-
-    void removeMarker(String id);
-
-    void removeAllMarkers();
-
     Point getCenter();
 
     float getCurrentZoomLevel();
 
     @SuppressLint("MissingPermission")
     void enableCurrentLocationIndicator();
+
+    void updateMarkers(ImmutableSet<Place> places);
   }
 }

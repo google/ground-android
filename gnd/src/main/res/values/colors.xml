@@ -31,4 +31,5 @@
   <color name="colorRed">#CC0000</color>
   <color name="colorAccentLight">#69ba87</color>
   <color name="colorYellow">#ffff00</color>
+  <color name="markerDefault">#d65f30</color>
 </resources>

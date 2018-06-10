@@ -85,7 +85,7 @@ public class MainViewModel extends ViewModel {
   }
 
   public void onAddPlace(AddPlaceRequest addPlaceRequest) {
-    Log.e(TAG, "TODO: Implement Add Place functionality");
+    Log.e(TAG, "TODO: Implement Add Place functinality");
   }
 
   public void onBottomSheetHidden() {

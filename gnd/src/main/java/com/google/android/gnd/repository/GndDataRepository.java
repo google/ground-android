@@ -18,8 +18,11 @@ package com.google.android.gnd.repository;
 
 import android.annotation.SuppressLint;
 import com.google.android.gnd.service.DataService;
+import com.google.android.gnd.service.DatastoreEvent;
+import com.google.android.gnd.vo.Place;
 import com.google.android.gnd.vo.Project;
 import com.google.android.gnd.vo.Record;
+import com.google.common.collect.ImmutableSet;
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Flowable;
 import io.reactivex.Single;
@@ -32,11 +35,13 @@ import javax.inject.Singleton;
 public class GndDataRepository {
 
   private final DataService dataService;
+  private final InMemoryCache inMemoryCache;
   private BehaviorSubject<ProjectState> projectStateObservable;
 
   @Inject
-  public GndDataRepository(DataService dataService) {
+  public GndDataRepository(DataService dataService, InMemoryCache inMemoryCache) {
     this.dataService = dataService;
+    this.inMemoryCache = inMemoryCache;
     projectStateObservable = BehaviorSubject.createDefault(ProjectState.inactive());
   }
 
@@ -51,21 +56,32 @@ public class GndDataRepository {
   @SuppressLint("CheckResult")
   public void activateProject(String projectId) {
     projectStateObservable.onNext(ProjectState.loading());
-    dataService
-      .loadProject(projectId)
-      .subscribe(
-        project ->
-          projectStateObservable.onNext(
-            ProjectState.activated(
-              project,
-              dataService.observePlaces(project))));
+    dataService.loadProject(projectId).subscribe(this::onProjectLoaded);
   }
 
-//  public Place update(PlaceUpdate placeUpdate) {
-//    projectStateObservable.getValue().getActiveProject()
-//
-//    return dataService.update(activeProject.getId(), placeUpdate);
-//  }
+  private void onProjectLoaded(Project project) {
+    inMemoryCache.clear();
+    projectStateObservable.onNext(ProjectState.activated(project, getPlaces(project)));
+  }
+
+  private Flowable<ImmutableSet<Place>> getPlaces(Project project) {
+    return dataService
+      .observePlaces(project)
+      .doOnNext(this::updateCache)
+      .map(__ -> inMemoryCache.getPlaces());
+  }
+
+  private void updateCache(DatastoreEvent<Place> event) {
+    event
+      .getEntity()
+      .ifPresentOrElse(inMemoryCache::putPlace, () -> inMemoryCache.removePlace(event.getId()));
+  }
+
+  //  public Place update(PlaceUpdate placeUpdate) {
+  //    projectStateObservable.getValue().getActiveProject()
+  //
+  //    return dataService.update(activeProject.getId(), placeUpdate);
+  //  }
 
   public Single<List<Record>> loadRecordSummaries(Project project, String placeId) {
     // TODO: Only fetch first n fields.
