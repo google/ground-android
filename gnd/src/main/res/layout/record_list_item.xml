@@ -90,8 +90,7 @@
       android:layout_alignParentRight="true"
       android:layout_centerVertical="true"
       android:src="@drawable/ic_chevron_right"
-      android:tint="@color/colorAccent"
-      />
+      android:tint="@color/colorPrimary"/>
   </RelativeLayout>
 
   <View
