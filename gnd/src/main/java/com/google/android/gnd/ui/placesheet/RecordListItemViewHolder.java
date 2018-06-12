@@ -34,7 +34,7 @@ import com.google.android.gnd.vo.Form;
 import com.google.android.gnd.vo.Form.Element;
 import com.google.android.gnd.vo.Form.Field;
 import com.google.android.gnd.vo.Record.Value;
-import com.google.common.base.Optional;
+import java8.util.Optional;
 
 class RecordListItemViewHolder extends RecyclerView.ViewHolder {
   private static final int MAX_SUMMARY_COLUMNS = 4;
@@ -68,10 +68,10 @@ class RecordListItemViewHolder extends RecyclerView.ViewHolder {
         case FIELD:
           Field field = elem.getField();
           Optional<Value> value =
-            Optional.fromNullable(summary.getRecord().getValueMap().get(field.getId()));
+            Optional.ofNullable(summary.getRecord().getValueMap().get(field.getId()));
           fieldLabelRow.addView(newFieldTextView(field.getLabel()));
           fieldValueRow.addView(
-            newFieldTextView(value.transform(RecordSummary::toSummaryText).or("")));
+            newFieldTextView(value.map(RecordSummary::toSummaryText).orElse("")));
           break;
       }
     }

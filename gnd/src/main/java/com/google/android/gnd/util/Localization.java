@@ -16,8 +16,8 @@
 
 package com.google.android.gnd.util;
 
-import com.google.common.base.Optional;
 import java.util.Map;
+import java8.util.Optional;
 
 public abstract class Localization {
   private Localization() {
@@ -25,8 +25,7 @@ public abstract class Localization {
 
   public static String getLocalizedMessage(Map<String, String> messages) {
     // TODO: i18n.
-    return Optional.fromNullable(messages.get("pt"))
-                   .or(Optional.fromNullable(messages.get("en")))
-                   .or("");
+    return Optional.ofNullable(messages.get("pt"))
+                   .orElse(Optional.ofNullable(messages.get("en")).orElse(""));
   }
 }

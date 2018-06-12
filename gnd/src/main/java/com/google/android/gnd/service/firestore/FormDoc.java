@@ -25,7 +25,6 @@ import com.google.android.gnd.vo.Form;
 import com.google.android.gnd.vo.Form.Field;
 import com.google.android.gnd.vo.Form.Field.Type;
 import com.google.android.gnd.vo.Form.MultipleChoice;
-import com.google.common.base.Optional;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.IgnoreExtraProperties;
 import com.google.firebase.firestore.ServerTimestamp;
@@ -33,6 +32,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java8.util.Optional;
 
 @IgnoreExtraProperties
 public class FormDoc {
@@ -69,7 +69,7 @@ public class FormDoc {
     public boolean required;
 
     static Form.Element toProto(Element em) {
-      return toField(em).transform(Form.Element::ofField).or(Form.Element.ofUnknown());
+      return toField(em).map(Form.Element::ofField).orElse(Form.Element.ofUnknown());
     }
 
     private static Optional<Field> toField(Element em) {
@@ -83,7 +83,7 @@ public class FormDoc {
           field.setMultipleChoice(toMultipleChoice(em));
           break;
         default:
-          return Optional.absent();
+          return Optional.empty();
       }
       field.setRequired(em.required);
       field.setId(em.id);
