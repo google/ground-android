@@ -28,19 +28,18 @@ import android.support.design.widget.BottomSheetBehavior;
 import android.support.v4.view.WindowInsetsCompat;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.ActionBar;
-import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 import butterknife.BindView;
 import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.MainActivityViewModel;
 import com.google.android.gnd.R;
 import com.google.android.gnd.repository.ProjectState;
 import com.google.android.gnd.ui.common.GndFragment;
+import com.google.android.gnd.ui.common.GndToolbar;
 import com.google.android.gnd.ui.common.GndViewModelFactory;
 import com.google.android.gnd.ui.mapcontainer.MapContainerFragment;
 import com.google.android.gnd.vo.Point;
@@ -64,13 +63,7 @@ public class MainFragment extends GndFragment {
   ViewGroup toolbarWrapper;
 
   @BindView(R.id.toolbar)
-  Toolbar toolbar;
-
-  @BindView(R.id.toolbar_title_text)
-  TextView toolbarTitle;
-
-  @BindView(R.id.toolbar_subtitle_text)
-  TextView toolbarSubtitle;
+  GndToolbar toolbar;
 
   @BindView(R.id.bottom_sheet_scroll_view)
   NestedScrollView bottomSheetScrollView;
@@ -145,15 +138,6 @@ public class MainFragment extends GndFragment {
     inflater.inflate(R.menu.place_sheet_menu, menu);
   }
 
-//
-//  public boolean onOptionsItemSelected(MenuItem item) {
-//    switch (item.getItemId()) {
-//      case R.id.toolbar_save_link:
-//        //        return mainPresenter.onToolbarSaveButtonClick();
-//    }
-//    return super.onOptionsItemSelected(item);
-//  }
-
   private void onApplyWindowInsets(WindowInsetsCompat insets) {
     bottomSheetBottomInsetScrim.setMinimumHeight(insets.getSystemWindowInsetBottom());
     toolbarWrapper.setPadding(0, insets.getSystemWindowInsetTop(), 0, 0);
@@ -189,9 +173,8 @@ public class MainFragment extends GndFragment {
   }
 
   private void updateToolbar(PlaceSheetEvent event) {
-    toolbarTitle.setText(event.getTitle());
-    toolbarSubtitle.setText(event.getSubtitle());
-    toolbarSubtitle.setVisibility(event.getSubtitle().isEmpty() ? View.GONE : View.VISIBLE);
+    toolbar.setTitle(event.getTitle());
+    toolbar.setSubtitle(event.getSubtitle());
   }
 
   private void showBottomSheet() {

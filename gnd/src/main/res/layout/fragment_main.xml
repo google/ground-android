@@ -63,34 +63,13 @@
       android:background="@color/colorPrimary"
       android:translationY="-1000dp">
 
-      <android.support.v7.widget.Toolbar
+      <com.google.android.gnd.ui.common.GndToolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:elevation="4dp"
-        android:theme="@style/ToolbarTheme">
-        <LinearLayout
-          android:id="@+id/toolbar_titles_layout"
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:layout_gravity="center"
-          android:orientation="vertical">
-          <TextView
-            android:id="@+id/toolbar_title_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="Title"
-            android:textAppearance="@style/Toolbar.Title"/>
-          <TextView
-            android:id="@+id/toolbar_subtitle_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="Subtitle"
-            android:textAppearance="@style/Toolbar.Subtitle"/>
-        </LinearLayout>
-      </android.support.v7.widget.Toolbar>
+        android:elevation="@dimen/toolbar_elevation"
+        android:theme="@style/ToolbarTheme"/>
+
     </FrameLayout>
 
     <!-- TODO: Replace with chip MD style button -->

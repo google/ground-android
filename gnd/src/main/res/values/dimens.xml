@@ -31,7 +31,7 @@
   <dimen name="menu_btn_width">24dp</dimen>
   <dimen name="menu_btn_height">24dp</dimen>
 
-  <!-- Sheet title -->
+  <!-- Sheet titleText -->
   <dimen name="sheet_title_text_size">20sp</dimen>
   <dimen name="sheet_title_horizontal_margin">10dp</dimen>
   <dimen name="sheet_title_top_margin">8dp</dimen>
@@ -74,4 +74,5 @@
   <dimen name="record_summary_text_padding_right">8dp</dimen>
   <dimen name="record_summary_text_max_width">128dp</dimen>
   <dimen name="add_record_button_padding">12dp</dimen>
+  <dimen name="toolbar_elevation">4dp</dimen>
 </resources>
