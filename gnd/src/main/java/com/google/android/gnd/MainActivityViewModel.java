@@ -35,7 +35,7 @@ public class MainActivityViewModel extends ViewModel {
     return windowInsetsLiveData;
   }
 
-  WindowInsetsCompat updateWindowInsets(View view, WindowInsetsCompat insets) {
+  WindowInsetsCompat onApplyWindowInsets(View view, WindowInsetsCompat insets) {
     windowInsetsLiveData.setValue(insets);
     return insets;
   }

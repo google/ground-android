@@ -23,11 +23,15 @@ import android.app.ProgressDialog;
 import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.v4.view.WindowInsetsCompat;
 import android.support.v4.widget.NestedScrollView;
+import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -80,6 +84,12 @@ public class MainFragment extends GndFragment {
   private MainActivityViewModel mainActivityViewModel;
 
   @Override
+  public void onCreate(@Nullable Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    setHasOptionsMenu(true);
+  }
+
+  @Override
   public void createViewModel() {
     viewModel = ViewModelProviders.of(this, viewModelFactory).get(MainViewModel.class);
     mainActivityViewModel =
@@ -93,21 +103,26 @@ public class MainFragment extends GndFragment {
 
   @Override
   protected void initializeViews() {
+    setUpBottomSheetBehavior();
+    setUpToolbar();
+  }
+
+  private void setUpBottomSheetBehavior() {
     bottomSheetBehavior = BottomSheetBehavior.from(bottomSheetScrollView);
     bottomSheetBehavior.setHideable(true);
     bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
     bottomSheetBehavior.setBottomSheetCallback(new BottomSheetCallback());
-    hideDefaultToolbarTitle();
   }
 
-  /**
-   * Workaround to get rid of application title from toolbar. Setting "" here or in layout XML
-   * doesn't work.
-   */
-  private void hideDefaultToolbarTitle() {
+  private void setUpToolbar() {
     MainActivity activity = (MainActivity) getActivity();
     activity.setSupportActionBar(toolbar);
-    activity.getSupportActionBar().setDisplayShowTitleEnabled(false);
+    ActionBar actionBar = activity.getSupportActionBar();
+    // Workaround to get rid of application title from toolbar. Setting "" here or in layout XML
+    // doesn't work.
+    actionBar.setDisplayShowTitleEnabled(false);
+    actionBar.setDisplayHomeAsUpEnabled(true);
+    actionBar.setDisplayShowHomeEnabled(true);
   }
 
   @Override
@@ -124,6 +139,20 @@ public class MainFragment extends GndFragment {
     viewModel.getPlaceSheetEvents().observe(this, this::onPlaceSheetEvent);
     mainActivityViewModel.getWindowInsetsLiveData().observe(this, this::onApplyWindowInsets);
   }
+
+  @Override
+  public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+    inflater.inflate(R.menu.place_sheet_menu, menu);
+  }
+
+//
+//  public boolean onOptionsItemSelected(MenuItem item) {
+//    switch (item.getItemId()) {
+//      case R.id.toolbar_save_link:
+//        //        return mainPresenter.onToolbarSaveButtonClick();
+//    }
+//    return super.onOptionsItemSelected(item);
+//  }
 
   private void onApplyWindowInsets(WindowInsetsCompat insets) {
     bottomSheetBottomInsetScrim.setMinimumHeight(insets.getSystemWindowInsetBottom());

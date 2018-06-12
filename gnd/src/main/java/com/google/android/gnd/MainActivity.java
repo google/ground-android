@@ -17,20 +17,13 @@
 package com.google.android.gnd;
 
 import android.arch.lifecycle.ViewModelProviders;
-import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender.SendIntentException;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.view.ViewCompat;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.inputmethod.InputMethodManager;
 import butterknife.ButterKnife;
 import com.google.android.gnd.repository.GndDataRepository;
 import com.google.android.gnd.rx.RxErrors;
@@ -60,7 +53,6 @@ public class MainActivity extends GndActivity {
 
   @Inject GndDataRepository model;
 
-  private Menu toolbarMenu;
   private MainActivityViewModel viewModel;
 
   @Override
@@ -71,22 +63,24 @@ public class MainActivity extends GndActivity {
     super.onCreate(savedInstanceState);
 
     setContentView(R.layout.activity_main);
+
     ButterKnife.bind(this);
-    initToolbar();
+
     viewModel = ViewModelProviders.of(this, viewModelFactory).get(MainActivityViewModel.class);
 
     ViewCompat.setOnApplyWindowInsetsListener(
-      getWindow().getDecorView().getRootView(), viewModel::updateWindowInsets);
-    permissionsManager.getPermissionsRequests().subscribe(this::requestPermissions);
-    settingsManager.getSettingsChangeRequests().subscribe(this::requestSettingsChange);
+      getWindow().getDecorView().getRootView(), viewModel::onApplyWindowInsets);
+
+    permissionsManager.getPermissionsRequests().subscribe(this::onPermissionsRequest);
+    settingsManager.getSettingsChangeRequests().subscribe(this::onSettingsChangeRequest);
   }
 
-  private void requestPermissions(PermissionsRequest permissionsRequest) {
+  private void onPermissionsRequest(PermissionsRequest permissionsRequest) {
     ActivityCompat.requestPermissions(
         this, permissionsRequest.getPermissions(), permissionsRequest.getRequestCode());
   }
 
-  private void requestSettingsChange(SettingsChangeRequest settingsChangeRequest) {
+  private void onSettingsChangeRequest(SettingsChangeRequest settingsChangeRequest) {
     try {
       // The result of this call is received by {@link #onActivityResult}.
       Log.d(TAG, "Sending settings resolution request");
@@ -97,44 +91,6 @@ public class MainActivity extends GndActivity {
       // TODO: Report error.
       Log.e(TAG, e.toString());
     }
-  }
-
-  private void initToolbar() {
-    setSupportActionBar(getToolbar());
-    getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-    getSupportActionBar().setDisplayShowHomeEnabled(true);
-  }
-
-  public boolean onCreateOptionsMenu(Menu menu) {
-    toolbarMenu = menu;
-    MenuInflater inflater = getMenuInflater();
-    inflater.inflate(R.menu.place_sheet_menu, menu);
-
-    return true;
-  }
-
-  public boolean onOptionsItemSelected(MenuItem item) {
-    switch (item.getItemId()) {
-      case R.id.toolbar_save_link:
-        //        return mainPresenter.onToolbarSaveButtonClick();
-    }
-    return super.onOptionsItemSelected(item);
-  }
-
-  public void hideSoftInput() {
-    View view = this.getCurrentFocus();
-    if (view != null) {
-      InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-      imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
-    }
-  }
-
-  public Toolbar getToolbar() {
-    return findViewById(R.id.toolbar);
-  }
-
-  public MenuItem getToolbarSaveButton() {
-    return toolbarMenu.findItem(R.id.toolbar_save_link);
   }
 
   /**
@@ -148,6 +104,10 @@ public class MainActivity extends GndActivity {
     permissionsManager.onRequestPermissionsResult(requestCode, permissions, grantResults);
   }
 
+  /**
+   * The Android settings API requires this callback to live in an Activity; here we dispatch the
+   * result back to the SettingsManager for handling.
+   */
   @Override
   protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
     settingsManager.onActivityResult(requestCode, resultCode);
