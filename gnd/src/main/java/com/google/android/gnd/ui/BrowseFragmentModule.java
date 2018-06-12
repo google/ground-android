@@ -23,9 +23,9 @@ import dagger.Binds;
 import dagger.Module;
 
 @Module(includes = GndFragmentModule.class)
-public abstract class MainFragmentModule {
+public abstract class BrowseFragmentModule {
 
   @Binds
   @PerFragment
-  abstract Fragment fragment(MainFragment fragment);
+  abstract Fragment fragment(BrowseFragment fragment);
 }

@@ -20,8 +20,8 @@ import android.support.v7.app.AppCompatActivity;
 import com.google.android.gnd.inject.PerActivity;
 import com.google.android.gnd.inject.PerFragment;
 import com.google.android.gnd.ui.AddPlaceDialogFragment;
-import com.google.android.gnd.ui.MainFragment;
-import com.google.android.gnd.ui.MainFragmentModule;
+import com.google.android.gnd.ui.BrowseFragment;
+import com.google.android.gnd.ui.BrowseFragmentModule;
 import com.google.android.gnd.ui.ProjectSelectorDialogFragment;
 import com.google.android.gnd.ui.common.GndActivity;
 import com.google.android.gnd.ui.common.GndActivityModule;
@@ -47,15 +47,15 @@ public abstract class MainActivityModule {
   abstract AppCompatActivity appCompatActivity(MainActivity mainActivity);
 
   @PerFragment
-  @ContributesAndroidInjector(modules = MainFragmentModule.class)
-  abstract MainFragment mainFragmentInjector();
+  @ContributesAndroidInjector(modules = BrowseFragmentModule.class)
+  abstract BrowseFragment browseFragmentInjector();
 
   @PerFragment
   @ContributesAndroidInjector(modules = MapContainerFragmentModule.class)
   abstract MapContainerFragment mapContainerFragmentInjector();
 
   @PerFragment
-  @ContributesAndroidInjector(modules = MainFragmentModule.class)
+  @ContributesAndroidInjector(modules = BrowseFragmentModule.class)
   abstract ProjectSelectorDialogFragment projectSelectorDialogFragment();
 
   @PerFragment

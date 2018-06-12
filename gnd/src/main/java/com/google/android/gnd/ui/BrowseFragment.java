@@ -47,7 +47,12 @@ import com.google.android.gnd.vo.Project;
 import java.util.List;
 import javax.inject.Inject;
 
-public class MainFragment extends GndFragment {
+/**
+ * Fragment containing the map container and place sheet fragments. This is the default view in the
+ * application, and gets swapped out for other fragments (e.g., view record and edit record) at
+ * runtime.
+ */
+public class BrowseFragment extends GndFragment {
   private static final float COLLAPSED_MAP_ASPECT_RATIO = 16.0f / 9.0f;
 
   @Inject
