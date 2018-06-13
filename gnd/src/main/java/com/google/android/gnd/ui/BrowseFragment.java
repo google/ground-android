@@ -132,7 +132,7 @@ public class BrowseFragment extends GndFragment {
     viewModel
       .getShowProjectSelectorDialogRequests()
       .observe(this, this::onShowProjectSelectorDialogRequest);
-    viewModel.getProjectState().observe(this, this::projectStateChange);
+    viewModel.getProjectState().observe(this, this::onProjectStateChange);
     viewModel.getShowAddPlaceDialogRequests().observe(this, this::onShowAddPlaceDialogRequest);
     viewModel.getPlaceSheetEvents().observe(this, this::onPlaceSheetEvent);
     mainViewModel.getWindowInsetsLiveData().observe(this, this::onApplyWindowInsets);
@@ -152,7 +152,7 @@ public class BrowseFragment extends GndFragment {
     ProjectSelectorDialogFragment.show(getFragmentManager(), projects);
   }
 
-  private void projectStateChange(ProjectState event) {
+  private void onProjectStateChange(ProjectState event) {
     if (event.isLoading()) {
       showProjectLoadingDialog();
     } else if (event.isActivated()) {

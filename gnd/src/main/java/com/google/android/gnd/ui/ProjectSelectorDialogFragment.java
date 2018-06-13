@@ -83,7 +83,6 @@ public class ProjectSelectorDialogFragment extends GndDialogFragment {
   }
 
   private void onProjectSelection(String id) {
-    // TODO: Convert to Rx flow, handle errors.
     viewModel.activateProject(id);
   }
 }
