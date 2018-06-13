@@ -30,8 +30,8 @@ import com.google.android.gnd.vo.Project;
 import java.util.List;
 import javax.inject.Inject;
 
-public class MainViewModel extends ViewModel {
-  private static final String TAG = MainViewModel.class.getSimpleName();
+public class BrowseViewModel extends ViewModel {
+  private static final String TAG = BrowseViewModel.class.getSimpleName();
   private final GndDataRepository dataRepository;
   private final LiveData<ProjectState> projectState;
   private final MutableLiveData<List<Project>> showProjectSelectorDialogRequests;
@@ -39,7 +39,7 @@ public class MainViewModel extends ViewModel {
   private final MutableLiveData<PlaceSheetEvent> placeSheetEvents;
 
   @Inject
-  MainViewModel(GndDataRepository dataRepository) {
+  BrowseViewModel(GndDataRepository dataRepository) {
     this.dataRepository = dataRepository;
     this.showProjectSelectorDialogRequests = new MutableLiveData<>();
     this.addPlaceDialogRequests = new MutableLiveData<>();

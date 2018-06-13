@@ -59,7 +59,6 @@ public class ProjectSelectorDialogFragment extends GndDialogFragment {
   // TODO: Replace AlertDialog with a properly designed project selector.
   @Override
   public Dialog onCreateDialog(Bundle savedInstanceState) {
-    // TODO: Get args from mainViewModel instead.
     List<Project> availableProjects =
       (List<Project>) getArguments().getSerializable(PROJECTS_BUNDLE_KEY);
     if (availableProjects == null) {

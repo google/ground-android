@@ -25,7 +25,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import butterknife.BindView;
 import com.google.android.gnd.R;
-import com.google.android.gnd.ui.MainViewModel;
+import com.google.android.gnd.ui.BrowseViewModel;
 import com.google.android.gnd.ui.MapIcon;
 import com.google.android.gnd.ui.PlaceSheetEvent;
 import com.google.android.gnd.ui.common.GndFragment;
@@ -45,7 +45,7 @@ public class PlaceSheetHeaderFragment extends GndFragment {
   @BindView(R.id.place_header_icon)
   ImageView placeHeaderIcon;
 
-  private MainViewModel mainViewModel;
+  private BrowseViewModel browseViewModel;
 
   @Inject
   public PlaceSheetHeaderFragment() {
@@ -59,13 +59,13 @@ public class PlaceSheetHeaderFragment extends GndFragment {
 
   @Override
   protected void createViewModel() {
-    mainViewModel =
-      ViewModelProviders.of(getParentFragment(), viewModelFactory).get(MainViewModel.class);
+    browseViewModel =
+      ViewModelProviders.of(getParentFragment(), viewModelFactory).get(BrowseViewModel.class);
   }
 
   @Override
   protected void observeViewModel() {
-    mainViewModel.getPlaceSheetEvents().observe(this, this::onPlaceSheetEvent);
+    browseViewModel.getPlaceSheetEvents().observe(this, this::onPlaceSheetEvent);
   }
 
   private void onPlaceSheetEvent(PlaceSheetEvent placeSheetEvent) {

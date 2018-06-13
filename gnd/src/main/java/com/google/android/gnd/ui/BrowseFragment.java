@@ -77,7 +77,7 @@ public class BrowseFragment extends GndFragment {
   View bottomSheetBottomInsetScrim;
 
   private ProgressDialog progressDialog;
-  private MainViewModel viewModel;
+  private BrowseViewModel viewModel;
   private BottomSheetBehavior<NestedScrollView> bottomSheetBehavior;
   private MainActivityViewModel mainActivityViewModel;
 
@@ -89,7 +89,7 @@ public class BrowseFragment extends GndFragment {
 
   @Override
   public void createViewModel() {
-    viewModel = ViewModelProviders.of(this, viewModelFactory).get(MainViewModel.class);
+    viewModel = ViewModelProviders.of(this, viewModelFactory).get(BrowseViewModel.class);
     mainActivityViewModel =
       ViewModelProviders.of(getActivity(), viewModelFactory).get(MainActivityViewModel.class);
   }

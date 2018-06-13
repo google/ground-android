@@ -32,7 +32,7 @@ import com.google.android.gnd.R;
 import com.google.android.gnd.repository.ProjectState;
 import com.google.android.gnd.system.PermissionsManager.PermissionDeniedException;
 import com.google.android.gnd.system.SettingsManager.SettingsChangeRequestCanceled;
-import com.google.android.gnd.ui.MainViewModel;
+import com.google.android.gnd.ui.BrowseViewModel;
 import com.google.android.gnd.ui.PlaceSheetEvent;
 import com.google.android.gnd.ui.common.GndFragment;
 import com.google.android.gnd.ui.map.MapProvider;
@@ -59,7 +59,7 @@ public class MapContainerFragment extends GndFragment {
   FloatingActionButton locationLockBtn;
 
   private MapContainerViewModel mapContainerViewModel;
-  private MainViewModel mainViewModel;
+  private BrowseViewModel browseViewModel;
 
   @Inject
   public MapContainerFragment() {
@@ -69,8 +69,8 @@ public class MapContainerFragment extends GndFragment {
   protected void createViewModel() {
     mapContainerViewModel =
       ViewModelProviders.of(this, viewModelFactory).get(MapContainerViewModel.class);
-    mainViewModel =
-      ViewModelProviders.of(getParentFragment(), viewModelFactory).get(MainViewModel.class);
+    browseViewModel =
+      ViewModelProviders.of(getParentFragment(), viewModelFactory).get(BrowseViewModel.class);
   }
 
   @Override
@@ -109,12 +109,12 @@ public class MapContainerFragment extends GndFragment {
     // here to implement "Clean Architecture".
     // TODO: Dispose of these correctly.
     RxView.clicks(addPlaceBtn)
-          .subscribe(__ -> mainViewModel.onAddPlaceBtnClick(map.getCenter()));
+          .subscribe(__ -> browseViewModel.onAddPlaceBtnClick(map.getCenter()));
     RxView.clicks(locationLockBtn).subscribe(__ -> mapContainerViewModel.onLocationLockClick());
     map.getMarkerClicks().subscribe(mapContainerViewModel::onMarkerClick);
-    map.getMarkerClicks().subscribe(mainViewModel::onMarkerClick);
+    map.getMarkerClicks().subscribe(browseViewModel::onMarkerClick);
     map.getDragInteractions().subscribe(mapContainerViewModel::onMapDrag);
-    mainViewModel.getPlaceSheetEvents().observe(this, ev -> onPlaceSheetEvent(ev, map));
+    browseViewModel.getPlaceSheetEvents().observe(this, ev -> onPlaceSheetEvent(ev, map));
     enableLocationLockBtn();
   }
 
