@@ -53,7 +53,7 @@ public class MainActivity extends GndActivity {
 
   @Inject GndDataRepository model;
 
-  private MainActivityViewModel viewModel;
+  private MainViewModel viewModel;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -66,7 +66,7 @@ public class MainActivity extends GndActivity {
 
     ButterKnife.bind(this);
 
-    viewModel = ViewModelProviders.of(this, viewModelFactory).get(MainActivityViewModel.class);
+    viewModel = ViewModelProviders.of(this, viewModelFactory).get(MainViewModel.class);
 
     ViewCompat.setOnApplyWindowInsetsListener(
       getWindow().getDecorView().getRootView(), viewModel::onApplyWindowInsets);

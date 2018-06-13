@@ -23,11 +23,11 @@ import android.support.v4.view.WindowInsetsCompat;
 import android.view.View;
 import javax.inject.Inject;
 
-public class MainActivityViewModel extends ViewModel {
+public class MainViewModel extends ViewModel {
   private MutableLiveData<WindowInsetsCompat> windowInsetsLiveData;
 
   @Inject
-  public MainActivityViewModel() {
+  public MainViewModel() {
     windowInsetsLiveData = new MutableLiveData<>();
   }
 

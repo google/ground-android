@@ -18,7 +18,7 @@ package com.google.android.gnd.ui.common;
 
 import android.arch.lifecycle.ViewModel;
 import android.arch.lifecycle.ViewModelProvider;
-import com.google.android.gnd.MainActivityViewModel;
+import com.google.android.gnd.MainViewModel;
 import com.google.android.gnd.ui.BrowseViewModel;
 import com.google.android.gnd.ui.ProjectSelectorViewModel;
 import com.google.android.gnd.ui.mapcontainer.MapContainerViewModel;
@@ -36,8 +36,8 @@ public abstract class GndViewModelModule {
 
   @Binds
   @IntoMap
-  @GndViewModelKey(MainActivityViewModel.class)
-  abstract ViewModel bindMainActivityViewModel(MainActivityViewModel viewModel);
+  @GndViewModelKey(MainViewModel.class)
+  abstract ViewModel bindMainViewModel(MainViewModel viewModel);
 
   @Binds
   @IntoMap

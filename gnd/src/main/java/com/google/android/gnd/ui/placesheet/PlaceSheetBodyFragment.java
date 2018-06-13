@@ -25,7 +25,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import butterknife.BindView;
-import com.google.android.gnd.MainActivityViewModel;
+import com.google.android.gnd.MainViewModel;
 import com.google.android.gnd.R;
 import com.google.android.gnd.ui.BrowseViewModel;
 import com.google.android.gnd.ui.common.GndFragment;
@@ -47,7 +47,7 @@ public class PlaceSheetBodyFragment extends GndFragment {
   TabLayout formsTabLayout;
 
   private BrowseViewModel browseViewModel;
-  private MainActivityViewModel mainActivityViewModel;
+  private MainViewModel mainViewModel;
 
   @Inject
   public PlaceSheetBodyFragment() {
@@ -55,8 +55,8 @@ public class PlaceSheetBodyFragment extends GndFragment {
 
   @Override
   protected void createViewModel() {
-    mainActivityViewModel =
-      ViewModelProviders.of(getActivity(), viewModelFactory).get(MainActivityViewModel.class);
+    mainViewModel =
+      ViewModelProviders.of(getActivity(), viewModelFactory).get(MainViewModel.class);
     browseViewModel =
       ViewModelProviders.of(getParentFragment(), viewModelFactory).get(BrowseViewModel.class);
   }
@@ -78,7 +78,7 @@ public class PlaceSheetBodyFragment extends GndFragment {
 
   @Override
   protected void observeViewModel() {
-    mainActivityViewModel.getWindowInsetsLiveData().observe(this, this::onApplyWindowInsets);
+    mainViewModel.getWindowInsetsLiveData().observe(this, this::onApplyWindowInsets);
     browseViewModel.getPlaceSheetEvents().observe(this, formTypePagerAdapter::onPlaceSheetEvent);
   }
 

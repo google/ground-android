@@ -35,7 +35,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import butterknife.BindView;
 import com.google.android.gnd.MainActivity;
-import com.google.android.gnd.MainActivityViewModel;
+import com.google.android.gnd.MainViewModel;
 import com.google.android.gnd.R;
 import com.google.android.gnd.repository.ProjectState;
 import com.google.android.gnd.ui.common.GndFragment;
@@ -79,7 +79,7 @@ public class BrowseFragment extends GndFragment {
   private ProgressDialog progressDialog;
   private BrowseViewModel viewModel;
   private BottomSheetBehavior<NestedScrollView> bottomSheetBehavior;
-  private MainActivityViewModel mainActivityViewModel;
+  private MainViewModel mainViewModel;
 
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -90,8 +90,8 @@ public class BrowseFragment extends GndFragment {
   @Override
   public void createViewModel() {
     viewModel = ViewModelProviders.of(this, viewModelFactory).get(BrowseViewModel.class);
-    mainActivityViewModel =
-      ViewModelProviders.of(getActivity(), viewModelFactory).get(MainActivityViewModel.class);
+    mainViewModel =
+      ViewModelProviders.of(getActivity(), viewModelFactory).get(MainViewModel.class);
   }
 
   @Override
@@ -135,7 +135,7 @@ public class BrowseFragment extends GndFragment {
     viewModel.getProjectState().observe(this, this::projectStateChange);
     viewModel.getShowAddPlaceDialogRequests().observe(this, this::onShowAddPlaceDialogRequest);
     viewModel.getPlaceSheetEvents().observe(this, this::onPlaceSheetEvent);
-    mainActivityViewModel.getWindowInsetsLiveData().observe(this, this::onApplyWindowInsets);
+    mainViewModel.getWindowInsetsLiveData().observe(this, this::onApplyWindowInsets);
   }
 
   @Override
