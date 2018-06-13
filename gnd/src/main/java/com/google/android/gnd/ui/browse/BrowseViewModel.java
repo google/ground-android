@@ -66,6 +66,7 @@ public class BrowseViewModel extends ViewModel {
   @SuppressLint("CheckResult")
   public void showProjectSelectorDialog() {
     // TODO: Dispose of this and other subscriptions correctly.
+    // TODO: Show spinner while loading project summaries.
     dataRepository.loadProjectSummaries().subscribe(showProjectSelectorDialogRequests::setValue);
   }
 

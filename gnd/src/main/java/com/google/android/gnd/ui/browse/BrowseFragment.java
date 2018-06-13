@@ -158,6 +158,10 @@ public class BrowseFragment extends GndFragment {
       showProjectLoadingDialog();
     } else if (event.isActivated()) {
       dismissLoadingDialog();
+    } else {
+      // TODO: Reuse last selected project instead of asking to sign in every time.
+      // TODO: Trigger this from welcome flow and nav drawer instead of here.
+      viewModel.showProjectSelectorDialog();
     }
   }
 
@@ -197,14 +201,6 @@ public class BrowseFragment extends GndFragment {
 
   private void hideBottomSheet() {
     bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
-  }
-
-  @Override
-  public void onStart() {
-    super.onStart();
-    // TODO: Reuse last selected project instead of asking to sign in every time.
-    // TODO: Trigger this from welcome flow and nav drawer instead of here.
-    viewModel.showProjectSelectorDialog();
   }
 
   public void showProjectLoadingDialog() {
