@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.ui;
+package com.google.android.gnd.ui.projectselector;
 
 import static java8.util.stream.StreamSupport.stream;
 

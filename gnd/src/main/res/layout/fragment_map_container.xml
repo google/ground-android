@@ -26,7 +26,7 @@
     android:layout_height="match_parent"
     android:layout_gravity="center"
     android:gravity="center"
-    app:layout_behavior="com.google.android.gnd.ui.mapcontainer.MapLayoutBehavior">
+    app:layout_behavior="com.google.android.gnd.ui.browse.mapcontainer.MapLayoutBehavior">
 
     <!-- Placeholder for map implementation -->
     <FrameLayout

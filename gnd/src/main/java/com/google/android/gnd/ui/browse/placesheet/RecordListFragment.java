@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.ui.placesheet;
+package com.google.android.gnd.ui.browse.placesheet;
 
 import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;

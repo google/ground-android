@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.ui.placesheet.input;
+package com.google.android.gnd.ui.browse.placesheet.input;
 
 import static com.google.android.gnd.ui.util.ViewUtil.getColorForStates;
 import static com.google.android.gnd.vo.PlaceUpdate.Operation.CREATE;

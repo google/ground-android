@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.gnd.ui;
+package com.google.android.gnd.ui.browse;
 
 import android.annotation.SuppressLint;
 import android.arch.lifecycle.LiveData;
@@ -23,7 +23,7 @@ import android.util.Log;
 import com.google.android.gnd.repository.GndDataRepository;
 import com.google.android.gnd.repository.ProjectState;
 import com.google.android.gnd.rx.RxLiveData;
-import com.google.android.gnd.ui.AddPlaceDialogFragment.AddPlaceRequest;
+import com.google.android.gnd.ui.browse.AddPlaceDialogFragment.AddPlaceRequest;
 import com.google.android.gnd.ui.map.MapMarker;
 import com.google.android.gnd.vo.Point;
 import com.google.android.gnd.vo.Project;

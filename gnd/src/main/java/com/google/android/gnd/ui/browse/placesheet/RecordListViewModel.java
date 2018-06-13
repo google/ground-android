@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.ui.placesheet;
+package com.google.android.gnd.ui.browse.placesheet;
 
 import static java8.util.stream.StreamSupport.stream;
 

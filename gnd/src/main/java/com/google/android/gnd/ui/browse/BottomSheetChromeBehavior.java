@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.ui;
+package com.google.android.gnd.ui.browse;
 
-import static com.google.android.gnd.ui.OnBottomSheetSlideBehavior.SheetSlideMetrics.scale;
+import static com.google.android.gnd.ui.browse.OnBottomSheetSlideBehavior.SheetSlideMetrics.scale;
 
 import android.content.Context;
 import android.support.design.widget.CoordinatorLayout;

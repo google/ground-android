@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.ui.mapcontainer;
+package com.google.android.gnd.ui.browse.mapcontainer;
 
 import android.content.Context;
 import android.support.design.widget.CoordinatorLayout;
@@ -22,7 +22,7 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.widget.FrameLayout;
 import com.google.android.gnd.R;
-import com.google.android.gnd.ui.OnBottomSheetSlideBehavior;
+import com.google.android.gnd.ui.browse.OnBottomSheetSlideBehavior;
 
 public class MapContainerLayoutBehavior extends OnBottomSheetSlideBehavior<FrameLayout> {
   private static final float SHOW_CROSSHAIRS_THRESHOLD = 0.5f;

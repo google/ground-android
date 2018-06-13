@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.ui.placesheet;
+package com.google.android.gnd.ui.browse.placesheet;
 
 import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
@@ -27,7 +27,7 @@ import android.view.ViewGroup;
 import butterknife.BindView;
 import com.google.android.gnd.MainViewModel;
 import com.google.android.gnd.R;
-import com.google.android.gnd.ui.BrowseViewModel;
+import com.google.android.gnd.ui.browse.BrowseViewModel;
 import com.google.android.gnd.ui.common.GndFragment;
 import com.google.android.gnd.ui.common.GndViewModelFactory;
 import com.h6ah4i.android.tablayouthelper.TabLayoutHelper;

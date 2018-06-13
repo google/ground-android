@@ -22,7 +22,7 @@
 
   <fragment
     android:id="@+id/browse_fragment"
-    android:name="com.google.android.gnd.ui.BrowseFragment"
+    android:name="com.google.android.gnd.ui.browse.BrowseFragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     />

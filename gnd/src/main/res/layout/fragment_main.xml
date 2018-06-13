@@ -24,14 +24,14 @@
     android:id="@+id/map_container_fragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    app:layout_behavior="com.google.android.gnd.ui.mapcontainer.MapContainerLayoutBehavior"/>
+    app:layout_behavior="com.google.android.gnd.ui.browse.mapcontainer.MapContainerLayoutBehavior"/>
 
   <fragment
     android:id="@+id/place_sheet_header"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:name="com.google.android.gnd.ui.placesheet.PlaceSheetHeaderFragment"
-    app:layout_behavior="com.google.android.gnd.ui.placesheet.PlaceSheetHeaderLayoutBehavior"
+    android:name="com.google.android.gnd.ui.browse.placesheet.PlaceSheetHeaderFragment"
+    app:layout_behavior="com.google.android.gnd.ui.browse.placesheet.PlaceSheetHeaderLayoutBehavior"
     />
 
   <android.support.v4.widget.NestedScrollView
@@ -45,7 +45,7 @@
       android:id="@+id/place_sheet_fragment"
       android:layout_width="match_parent"
       android:layout_height="match_parent"
-      android:name="com.google.android.gnd.ui.placesheet.PlaceSheetBodyFragment"/>
+      android:name="com.google.android.gnd.ui.browse.placesheet.PlaceSheetBodyFragment"/>
 
   </android.support.v4.widget.NestedScrollView>
 
@@ -53,7 +53,7 @@
     android:id="@+id/bottom_sheet_chrome"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    app:layout_behavior="com.google.android.gnd.ui.BottomSheetChromeBehavior">
+    app:layout_behavior="com.google.android.gnd.ui.browse.BottomSheetChromeBehavior">
 
     <FrameLayout
       android:id="@+id/toolbar_wrapper"
@@ -72,7 +72,6 @@
 
     </FrameLayout>
 
-    <!-- TODO: Replace with chip MD style button -->
     <android.support.design.chip.Chip
       android:id="@+id/add_record_btn"
       style="@style/Widget.MaterialComponents.Chip.Action"

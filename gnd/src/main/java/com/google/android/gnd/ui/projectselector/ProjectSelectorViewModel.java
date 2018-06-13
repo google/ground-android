@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.gnd.ui;
+package com.google.android.gnd.ui.projectselector;
 
 import android.annotation.SuppressLint;
 import android.arch.lifecycle.ViewModel;

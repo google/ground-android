@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.ui.mapcontainer;
+package com.google.android.gnd.ui.browse;
 
 import android.support.v4.app.Fragment;
-import com.google.android.gnd.inject.PerChildFragment;
+import com.google.android.gnd.inject.PerFragment;
 import com.google.android.gnd.ui.common.GndFragmentModule;
 import dagger.Binds;
 import dagger.Module;
 
 @Module(includes = GndFragmentModule.class)
-public abstract class MapContainerFragmentModule {
+public abstract class BrowseFragmentModule {
 
   @Binds
-  @PerChildFragment
-  abstract Fragment fragment(MapContainerFragment fragment);
+  @PerFragment
+  abstract Fragment fragment(BrowseFragment fragment);
 }
