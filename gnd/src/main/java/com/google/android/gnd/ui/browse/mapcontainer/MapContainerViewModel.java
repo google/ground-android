@@ -43,7 +43,6 @@ public class MapContainerViewModel extends ViewModel {
   private final MutableLiveData<LocationLockStatus> locationLockStatus;
   private final MutableLiveData<CameraUpdate> cameraUpdates;
   private final LocationManager locationManager;
-  // TODO: Use pure Rx rather than disposable.
   private Disposable locationUpdateSubscription;
 
   @Inject
@@ -113,6 +112,7 @@ public class MapContainerViewModel extends ViewModel {
 
   @SuppressLint("CheckResult")
   private void enableLocationLock() {
+    Log.d(TAG, "Enabling location lock");
     locationManager
       .enableLocationUpdates()
       .subscribe(this::onEnableLocationLockSuccess, this::onLocationFailure);
@@ -120,14 +120,26 @@ public class MapContainerViewModel extends ViewModel {
 
   private void onEnableLocationLockSuccess() {
     locationLockStatus.setValue(LocationLockStatus.enabled());
-    Flowable<Point> locationUpdates = locationManager.locationUpdates();
-    // TODO: Use pure Rx rather than disposable.
+
+    // Sometimes there is visible latency between when location update request succeeds and when
+    // the first location update is received. Requesting the last know location is usually
+    // immediate, so we request it first here to reduce perceived latency.
+    Flowable<Point> locationUpdates =
+      locationManager
+        .getLastLocation()
+        .toFlowable()
+        .concatWith(locationManager.getLocationUpdates());
+
+    // The first update pans and zooms the camera to the appropriate zoom level; subsequent ones
+    // only pan the map.
     locationUpdateSubscription =
       locationUpdates
         .take(1)
         .map(CameraUpdate::panAndZoom)
         .concatWith(locationUpdates.map(CameraUpdate::pan))
         .subscribe(cameraUpdates::setValue);
+
+    Log.d(TAG, "Enable location lock succeeded");
   }
 
   private void onLocationFailure(Throwable t) {
@@ -146,6 +158,7 @@ public class MapContainerViewModel extends ViewModel {
       locationUpdateSubscription.dispose();
       locationUpdateSubscription = null;
     }
+    Log.d(TAG, "Disable location lock succeeded");
   }
 
   public void onAddPlace(AddPlaceRequest addPlaceRequest) {

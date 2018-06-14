@@ -20,22 +20,25 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.location.Location;
 import android.os.Looper;
-import android.support.annotation.NonNull;
-
+import android.util.Log;
 import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationAvailability;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.LocationSettingsResponse;
 import com.google.android.gms.location.SettingsClient;
-
+import com.google.android.gms.tasks.Task;
+import io.reactivex.BackpressureStrategy;
 import io.reactivex.Completable;
+import io.reactivex.Flowable;
 import io.reactivex.Single;
+import io.reactivex.subjects.BehaviorSubject;
 
 /** Exposes select Android Location Services using Rx Observables. */
 public class RxLocationServices {
-
   public static RxSettingsClient getSettingsClient(Context context) {
     return new RxSettingsClient(context);
   }
@@ -59,8 +62,11 @@ public class RxLocationServices {
   }
 
   public static class RxFusedLocationProviderClient {
+    private final String TAG = RxFusedLocationProviderClient.class.getSimpleName();
 
     private final FusedLocationProviderClient fusedLocationProviderClient;
+    private RxLocationCallback locationCallback;
+    private BehaviorSubject<Location> locationUpdateSubject = BehaviorSubject.create();
 
     private RxFusedLocationProviderClient(Context context) {
       this.fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(context);
@@ -71,15 +77,45 @@ public class RxLocationServices {
       return RxTask.toSingle(() -> fusedLocationProviderClient.getLastLocation());
     }
 
+    public Completable requestLocationUpdates(LocationRequest locationRequest) {
+      return RxTask.toCompletable(() -> requestLocationUpdatesInternal(locationRequest));
+    }
+
     @SuppressLint("MissingPermission")
-    public Completable requestLocationUpdates(
-        LocationRequest locationRequest,
-        @NonNull LocationCallback locationCallback,
-        Looper looper) {
-      return RxTask.toCompletable(
-          () ->
-              fusedLocationProviderClient.requestLocationUpdates(
-                  locationRequest, locationCallback, looper));
+    private synchronized Task requestLocationUpdatesInternal(LocationRequest locationRequest) {
+      Log.d(TAG, "Requesting location updates");
+      locationCallback = new RxLocationCallback();
+      return fusedLocationProviderClient.requestLocationUpdates(
+        locationRequest, locationCallback, Looper.myLooper());
+    }
+
+    public Flowable<Location> getLocationUpdates() {
+      return locationUpdateSubject.toFlowable(BackpressureStrategy.LATEST);
+    }
+
+    public synchronized Completable removeLocationUpdates() {
+      if (locationCallback != null) {
+        fusedLocationProviderClient.removeLocationUpdates(locationCallback);
+        locationCallback = null;
+      }
+      return Completable.complete();
+    }
+
+    private class RxLocationCallback extends LocationCallback {
+      @Override
+      public void onLocationResult(LocationResult locationResult) {
+        Location lastLocation = locationResult.getLastLocation();
+        Log.v(TAG, lastLocation.toString());
+        locationUpdateSubject.onNext(lastLocation);
+      }
+
+      @Override
+      public void onLocationAvailability(LocationAvailability locationAvailability) {
+        // This happens sometimes when GPS signal is temporarily lost.
+        if (!locationAvailability.isLocationAvailable()) {
+          Log.v(TAG, "Location unavailable");
+        }
+      }
     }
   }
 }

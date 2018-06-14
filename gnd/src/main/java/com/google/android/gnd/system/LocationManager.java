@@ -16,26 +16,19 @@
 
 package com.google.android.gnd.system;
 
-import static com.google.android.gms.location.LocationServices.getFusedLocationProviderClient;
-
 import android.annotation.SuppressLint;
 import android.app.Application;
 import android.content.Context;
 import android.location.Location;
-import android.os.Looper;
 import android.util.Log;
-import com.google.android.gms.location.LocationAvailability;
-import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationResult;
 import com.google.android.gnd.inject.PerActivity;
 import com.google.android.gnd.rx.RxLocationServices;
+import com.google.android.gnd.rx.RxLocationServices.RxFusedLocationProviderClient;
 import com.google.android.gnd.vo.Point;
-import io.reactivex.BackpressureStrategy;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Single;
-import io.reactivex.subjects.PublishSubject;
 import javax.inject.Inject;
 
 @PerActivity
@@ -51,8 +44,7 @@ public class LocationManager {
   private final Context context;
   private final PermissionsManager permissionsManager;
   private final SettingsManager settingsManager;
-  private LocationCallbackImpl locationCallback;
-  private PublishSubject<Point> locationUpdateSubject;
+  private final RxFusedLocationProviderClient locationClient;
 
   @Inject
   public LocationManager(
@@ -60,11 +52,7 @@ public class LocationManager {
     this.context = app.getApplicationContext();
     this.permissionsManager = permissionsManager;
     this.settingsManager = settingsManager;
-    this.locationUpdateSubject = PublishSubject.create();
-  }
-
-  private Completable enableLocationSettings() {
-    return settingsManager.enableLocationSettings(FINE_LOCATION_UPDATES_REQUEST);
+    this.locationClient = RxLocationServices.getFusedLocationProviderClient(context);
   }
 
   private static Point toPoint(Location location) {
@@ -78,47 +66,25 @@ public class LocationManager {
    * Returns the location update stream. New subscribers and downstream subscribers that can't keep
    * up will only see the latest location.
    */
-  public Flowable<Point> locationUpdates() {
-    return locationUpdateSubject.toFlowable(BackpressureStrategy.LATEST);
+  public Flowable<Point> getLocationUpdates() {
+    return locationClient.getLocationUpdates().map(LocationManager::toPoint);
   }
 
   /**
    * Asynchronously try to enable location permissions and settings, and if successful, turns on
-   * location updates exposed by {@link #locationUpdates()}.
+   * location updates exposed by {@link #getLocationUpdates()}.
    */
   public Completable enableLocationUpdates() {
     Log.d(TAG, "Attempting to enable location updates");
     return permissionsManager
-        .obtainFineLocationPermission()
-        .andThen(enableLocationSettings())
-        .andThen(requestLocationUpdates());
-  }
-
-  @SuppressLint("MissingPermission")
-  private Completable requestLocationUpdates() {
-    Log.d(TAG, "Requesting location updates");
-    locationCallback = new LocationCallbackImpl();
-    return RxLocationServices.getFusedLocationProviderClient(context)
-        .requestLocationUpdates(FINE_LOCATION_UPDATES_REQUEST, locationCallback, Looper.myLooper())
-        .doOnComplete(
-            () -> {
-              Log.d(TAG, "requestLocationUpdates() successful");
-              // Requesting last location rather than waiting for next update usually gives
-              // the user a quicker response when enabling location lock. This will fail, however,
-              // immediately after enabling location settings, in which case just ignore the failure
-              // and wait for the next location update.
-              getLastLocation().subscribe(locationUpdateSubject::onNext, t -> {
-              });
-            });
+      .obtainFineLocationPermission()
+      .andThen(settingsManager.enableLocationSettings(FINE_LOCATION_UPDATES_REQUEST))
+      .andThen(locationClient.requestLocationUpdates(FINE_LOCATION_UPDATES_REQUEST));
   }
 
   // TODO: Request/remove updates on resume/pause.
   public Completable disableLocationUpdates() {
-    if (locationCallback != null) {
-      getFusedLocationProviderClient(context).removeLocationUpdates(locationCallback);
-      locationCallback = null;
-    }
-    return Completable.complete();
+    return locationClient.removeLocationUpdates();
   }
 
   @SuppressLint("MissingPermission")
@@ -126,27 +92,6 @@ public class LocationManager {
     // TODO: Should we be sending the request onSubscribe instead of immediately? In this specific
     // case it might not matter, but there may be others where it does?
     Log.d(TAG, "Requesting last known location");
-    return RxLocationServices.getFusedLocationProviderClient(context)
-        .getLastLocation()
-        .map(LocationManager::toPoint);
-  }
-
-  // TODO: Implement Publisher instead of relying on locationUpdateSubject.
-  private class LocationCallbackImpl extends LocationCallback {
-
-    @Override
-    public void onLocationResult(LocationResult locationResult) {
-      Location lastLocation = locationResult.getLastLocation();
-      Log.v(TAG, lastLocation.toString());
-      locationUpdateSubject.onNext(toPoint(lastLocation));
-    }
-
-    @Override
-    public void onLocationAvailability(LocationAvailability locationAvailability) {
-      if (!locationAvailability.isLocationAvailable()) {
-        Log.d(TAG, "Location unavailable");
-        // TODO: Warn user and disable location lock.
-      }
-    }
+    return locationClient.getLastLocation().map(LocationManager::toPoint);
   }
 }
