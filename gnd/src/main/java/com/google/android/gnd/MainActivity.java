@@ -16,6 +16,8 @@
 
 package com.google.android.gnd;
 
+import static com.google.android.gnd.rx.RxAutoDispose.autoDisposable;
+
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.content.IntentSender.SendIntentException;
@@ -71,8 +73,15 @@ public class MainActivity extends GndActivity {
     ViewCompat.setOnApplyWindowInsetsListener(
       getWindow().getDecorView().getRootView(), viewModel::onApplyWindowInsets);
 
-    permissionsManager.getPermissionsRequests().subscribe(this::onPermissionsRequest);
-    settingsManager.getSettingsChangeRequests().subscribe(this::onSettingsChangeRequest);
+    permissionsManager
+      .getPermissionsRequests()
+      .as(autoDisposable(this))
+      .subscribe(this::onPermissionsRequest);
+
+    settingsManager
+      .getSettingsChangeRequests()
+      .as(autoDisposable(this))
+      .subscribe(this::onSettingsChangeRequest);
   }
 
   private void onPermissionsRequest(PermissionsRequest permissionsRequest) {

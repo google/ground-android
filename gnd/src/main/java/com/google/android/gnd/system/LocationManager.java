@@ -89,8 +89,6 @@ public class LocationManager {
 
   @SuppressLint("MissingPermission")
   public Single<Point> getLastLocation() {
-    // TODO: Should we be sending the request onSubscribe instead of immediately? In this specific
-    // case it might not matter, but there may be others where it does?
     Log.d(TAG, "Requesting last known location");
     return locationClient.getLastLocation().map(LocationManager::toPoint);
   }

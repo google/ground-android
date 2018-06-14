@@ -16,7 +16,6 @@
 
 package com.google.android.gnd.ui.browse.mapcontainer;
 
-import android.annotation.SuppressLint;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.ViewModel;
@@ -30,7 +29,6 @@ import com.google.android.gnd.ui.map.MapMarker;
 import com.google.android.gnd.vo.Place;
 import com.google.android.gnd.vo.Point;
 import com.google.common.collect.ImmutableSet;
-import io.reactivex.Flowable;
 import io.reactivex.disposables.Disposable;
 import java8.util.Optional;
 import javax.inject.Inject;
@@ -44,6 +42,7 @@ public class MapContainerViewModel extends ViewModel {
   private final MutableLiveData<CameraUpdate> cameraUpdates;
   private final LocationManager locationManager;
   private Disposable locationUpdateSubscription;
+  private Disposable locationLockSubscription;
 
   @Inject
   MapContainerViewModel(GndDataRepository dataRepository, LocationManager locationManager) {
@@ -110,33 +109,29 @@ public class MapContainerViewModel extends ViewModel {
     return locationLockStatus.getValue().isEnabled();
   }
 
-  @SuppressLint("CheckResult")
   private void enableLocationLock() {
     Log.d(TAG, "Enabling location lock");
-    locationManager
-      .enableLocationUpdates()
-      .subscribe(this::onEnableLocationLockSuccess, this::onLocationFailure);
+    disposeLocationLockSubscription();
+    locationLockSubscription =
+      locationManager
+        .enableLocationUpdates()
+        .subscribe(this::onEnableLocationLockSuccess, this::onLocationFailure);
   }
 
-  private void onEnableLocationLockSuccess() {
+  private synchronized void onEnableLocationLockSuccess() {
     locationLockStatus.setValue(LocationLockStatus.enabled());
 
     // Sometimes there is visible latency between when location update request succeeds and when
     // the first location update is received. Requesting the last know location is usually
     // immediate, so we request it first here to reduce perceived latency.
-    Flowable<Point> locationUpdates =
-      locationManager
-        .getLastLocation()
-        .toFlowable()
-        .concatWith(locationManager.getLocationUpdates());
-
     // The first update pans and zooms the camera to the appropriate zoom level; subsequent ones
     // only pan the map.
     locationUpdateSubscription =
-      locationUpdates
-        .take(1)
+      locationManager
+        .getLastLocation()
         .map(CameraUpdate::panAndZoom)
-        .concatWith(locationUpdates.map(CameraUpdate::pan))
+        .toFlowable()
+        .concatWith(locationManager.getLocationUpdates().map(CameraUpdate::pan))
         .subscribe(cameraUpdates::setValue);
 
     Log.d(TAG, "Enable location lock succeeded");
@@ -146,18 +141,16 @@ public class MapContainerViewModel extends ViewModel {
     locationLockStatus.setValue(LocationLockStatus.error(t));
   }
 
-  @SuppressLint("CheckResult")
   private void disableLocationLock() {
     Log.d(TAG, "Disabling location lock");
-    locationManager.disableLocationUpdates().subscribe(this::onDisableLocationLockSuccess);
+    disposeLocationLockSubscription();
+    locationLockSubscription =
+      locationManager.disableLocationUpdates().subscribe(this::onDisableLocationLockSuccess);
   }
 
-  private void onDisableLocationLockSuccess() {
+  private synchronized void onDisableLocationLockSuccess() {
     locationLockStatus.setValue(LocationLockStatus.disabled());
-    if (locationUpdateSubscription != null) {
-      locationUpdateSubscription.dispose();
-      locationUpdateSubscription = null;
-    }
+    disposeLocationUpdateSubscription();
     Log.d(TAG, "Disable location lock succeeded");
   }
 
@@ -176,7 +169,27 @@ public class MapContainerViewModel extends ViewModel {
     cameraUpdates.setValue(CameraUpdate.panAndZoom(mapMarker.getPosition()));
   }
 
-  public static class LocationLockStatus {
+  @Override
+  protected void onCleared() {
+    disposeLocationUpdateSubscription();
+    disposeLocationLockSubscription();
+  }
+
+  private synchronized void disposeLocationUpdateSubscription() {
+    if (locationUpdateSubscription != null) {
+      locationUpdateSubscription.dispose();
+      locationUpdateSubscription = null;
+    }
+  }
+
+  private void disposeLocationLockSubscription() {
+    if (locationLockSubscription != null) {
+      locationLockSubscription.dispose();
+      locationLockSubscription = null;
+    }
+  }
+
+  static class LocationLockStatus {
     private boolean enabled;
     private Throwable error;
 

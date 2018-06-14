@@ -94,11 +94,12 @@ public class RxLocationServices {
     }
 
     public synchronized Completable removeLocationUpdates() {
-      if (locationCallback != null) {
-        fusedLocationProviderClient.removeLocationUpdates(locationCallback);
-        locationCallback = null;
+      if (locationCallback == null) {
+        return Completable.complete();
       }
-      return Completable.complete();
+      return RxTask.toCompletable(
+        () -> fusedLocationProviderClient.removeLocationUpdates(locationCallback))
+                   .doOnComplete(() -> locationCallback = null);
     }
 
     private class RxLocationCallback extends LocationCallback {
