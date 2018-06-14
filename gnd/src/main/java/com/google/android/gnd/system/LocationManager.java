@@ -16,9 +16,10 @@
 
 package com.google.android.gnd.system;
 
+import static android.Manifest.permission.ACCESS_FINE_LOCATION;
+
 import android.annotation.SuppressLint;
 import android.app.Application;
-import android.content.Context;
 import android.location.Location;
 import android.util.Log;
 import com.google.android.gms.location.LocationRequest;
@@ -41,7 +42,6 @@ public class LocationManager {
           .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
           .setInterval(UPDATE_INTERVAL)
           .setFastestInterval(FASTEST_INTERVAL);
-  private final Context context;
   private final PermissionsManager permissionsManager;
   private final SettingsManager settingsManager;
   private final RxFusedLocationProviderClient locationClient;
@@ -49,10 +49,10 @@ public class LocationManager {
   @Inject
   public LocationManager(
       Application app, PermissionsManager permissionsManager, SettingsManager settingsManager) {
-    this.context = app.getApplicationContext();
     this.permissionsManager = permissionsManager;
     this.settingsManager = settingsManager;
-    this.locationClient = RxLocationServices.getFusedLocationProviderClient(context);
+    this.locationClient =
+      RxLocationServices.getFusedLocationProviderClient(app.getApplicationContext());
   }
 
   private static Point toPoint(Location location) {
@@ -77,7 +77,7 @@ public class LocationManager {
   public Completable enableLocationUpdates() {
     Log.d(TAG, "Attempting to enable location updates");
     return permissionsManager
-      .obtainFineLocationPermission()
+      .obtainPermission(ACCESS_FINE_LOCATION)
       .andThen(settingsManager.enableLocationSettings(FINE_LOCATION_UPDATES_REQUEST))
       .andThen(locationClient.requestLocationUpdates(FINE_LOCATION_UPDATES_REQUEST));
   }

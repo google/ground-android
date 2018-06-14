@@ -76,6 +76,7 @@ public class MainActivity extends GndActivity {
   }
 
   private void onPermissionsRequest(PermissionsRequest permissionsRequest) {
+    Log.d(TAG, "Sending permissions request to system");
     ActivityCompat.requestPermissions(
         this, permissionsRequest.getPermissions(), permissionsRequest.getRequestCode());
   }
@@ -100,6 +101,7 @@ public class MainActivity extends GndActivity {
   @Override
   public void onRequestPermissionsResult(
       int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+    Log.d(TAG, "Permission result received");
     super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     permissionsManager.onRequestPermissionsResult(requestCode, permissions, grantResults);
   }
