@@ -96,11 +96,7 @@ public class FirestoreDataService implements DataService {
   @Override
   public Maybe<Project> loadProject(String projectId) {
     return RxFirestore.getDocument(db().project(projectId).ref())
-                      .flatMap(
-                        this::loadPlaceTypes,
-                        (documentSnapshot, placeTypes) -> ProjectDoc.toProto(
-                          documentSnapshot,
-                          placeTypes));
+                      .flatMap(this::loadPlaceTypes, ProjectDoc::toProto);
   }
 
   /**
