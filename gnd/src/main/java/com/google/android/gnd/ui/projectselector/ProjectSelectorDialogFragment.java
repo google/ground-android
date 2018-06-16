@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.ui.projectselector;
 
+import static com.google.android.gnd.rx.RxAutoDispose.autoDisposable;
 import static java8.util.stream.StreamSupport.stream;
 
 import android.app.Dialog;
@@ -69,9 +70,7 @@ public class ProjectSelectorDialogFragment extends GndDialogFragment {
     dialog.setTitle(R.string.select_project_dialog_title);
     // TODO: i18n.
     String[] projectTitles =
-      stream(availableProjects)
-        .map(p -> p.getTitle())
-        .toArray(String[]::new);
+      stream(availableProjects).map(p -> p.getTitle()).toArray(String[]::new);
     dialog.setItems(
       projectTitles,
       (d, which) -> {
@@ -83,6 +82,6 @@ public class ProjectSelectorDialogFragment extends GndDialogFragment {
   }
 
   private void onProjectSelection(String id) {
-    viewModel.activateProject(id);
+    viewModel.activateProject(id).as(autoDisposable(this)).subscribe();
   }
 }

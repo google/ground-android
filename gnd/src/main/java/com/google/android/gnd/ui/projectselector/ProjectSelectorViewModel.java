@@ -15,9 +15,9 @@
  */
 package com.google.android.gnd.ui.projectselector;
 
-import android.annotation.SuppressLint;
 import android.arch.lifecycle.ViewModel;
 import com.google.android.gnd.repository.GndDataRepository;
+import io.reactivex.Completable;
 import javax.inject.Inject;
 
 public class ProjectSelectorViewModel extends ViewModel {
@@ -28,8 +28,7 @@ public class ProjectSelectorViewModel extends ViewModel {
     this.dataRepository = dataRepository;
   }
 
-  @SuppressLint("CheckResult")
-  public void activateProject(String id) {
-    dataRepository.activateProject(id);
+  public Completable activateProject(String id) {
+    return dataRepository.activateProject(id);
   }
 }

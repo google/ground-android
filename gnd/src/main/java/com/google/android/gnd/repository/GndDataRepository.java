@@ -24,9 +24,11 @@ import com.google.android.gnd.vo.Project;
 import com.google.android.gnd.vo.Record;
 import com.google.common.collect.ImmutableSet;
 import io.reactivex.BackpressureStrategy;
+import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Single;
 import io.reactivex.subjects.BehaviorSubject;
+import java.io.IOException;
 import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -54,9 +56,17 @@ public class GndDataRepository {
   }
 
   @SuppressLint("CheckResult")
-  public void activateProject(String projectId) {
+  public Completable activateProject(String projectId) {
     projectStateObservable.onNext(ProjectState.loading());
-    dataService.loadProject(projectId).subscribe(this::onProjectLoaded);
+    // TODO: Make loadProject return Completable instead of Maybe?
+    return dataService
+      .loadProject(projectId)
+      .doOnSuccess(this::onProjectLoaded)
+      .flatMapCompletable(
+        p ->
+          p == null
+            ? Completable.error(new IOException("Error loading project"))
+            : Completable.complete());
   }
 
   private void onProjectLoaded(Project project) {
