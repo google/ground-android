@@ -17,19 +17,20 @@ package com.google.android.gnd.ui.browse;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
+import android.arch.lifecycle.ViewModel;
 import android.util.Log;
 import com.google.android.gnd.repository.GndDataRepository;
 import com.google.android.gnd.repository.ProjectState;
 import com.google.android.gnd.rx.RxLiveData;
 import com.google.android.gnd.ui.browse.AddPlaceDialogFragment.AddPlaceRequest;
-import com.google.android.gnd.ui.common.GndViewModel;
 import com.google.android.gnd.ui.map.MapMarker;
 import com.google.android.gnd.vo.Point;
 import com.google.android.gnd.vo.Project;
+import io.reactivex.Completable;
 import java.util.List;
 import javax.inject.Inject;
 
-public class BrowseViewModel extends GndViewModel {
+public class BrowseViewModel extends ViewModel {
   private static final String TAG = BrowseViewModel.class.getSimpleName();
   private final GndDataRepository dataRepository;
   private final LiveData<ProjectState> projectState;
@@ -62,12 +63,12 @@ public class BrowseViewModel extends GndViewModel {
     return placeSheetEvents;
   }
 
-  public void showProjectSelectorDialog() {
+  public Completable showProjectSelectorDialog() {
     // TODO: Show spinner while loading project summaries.
-    autoDispose(
-      dataRepository
-        .loadProjectSummaries()
-        .subscribe(showProjectSelectorDialogRequests::setValue));
+    return dataRepository
+      .loadProjectSummaries()
+      .doOnSuccess(showProjectSelectorDialogRequests::setValue)
+      .toCompletable();
   }
 
   public void onMarkerClick(MapMarker marker) {

@@ -18,22 +18,21 @@ package com.google.android.gnd.ui.browse.placesheet;
 
 import static java8.util.stream.StreamSupport.stream;
 
-import android.annotation.SuppressLint;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
-import android.util.Log;
+import android.arch.lifecycle.ViewModel;
 import com.google.android.gnd.repository.GndDataRepository;
 import com.google.android.gnd.repository.ProjectState;
 import com.google.android.gnd.repository.RecordSummary;
-import com.google.android.gnd.ui.common.GndViewModel;
 import com.google.android.gnd.vo.Form;
 import com.google.android.gnd.vo.Project;
+import io.reactivex.Completable;
 import java.util.List;
 import java8.util.Optional;
 import java8.util.stream.Collectors;
 import javax.inject.Inject;
 
-public class RecordListViewModel extends GndViewModel {
+public class RecordListViewModel extends ViewModel {
   private static final String TAG = RecordListViewModel.class.getSimpleName();
   private final GndDataRepository dataRepository;
   private MutableLiveData<List<RecordSummary>> recordSummaries;
@@ -48,34 +47,31 @@ public class RecordListViewModel extends GndViewModel {
     return recordSummaries;
   }
 
-  @SuppressLint("CheckResult")
-  public void loadRecords(String placeTypeId, String formId, String placeId) {
-    autoDispose(
-      dataRepository
-        .getProjectState()
-        .map(ProjectState::getActiveProject)
-        .filter(Optional::isPresent)
-        .map(Optional::get)
-        .subscribe(project -> loadRecords(project, placeTypeId, formId, placeId)));
+  public Completable loadRecords(String placeTypeId, String formId, String placeId) {
+    return dataRepository
+      .getProjectState()
+      .map(ProjectState::getActiveProject)
+      .filter(Optional::isPresent)
+      .map(Optional::get)
+      .flatMapCompletable(project -> loadRecords(project, placeTypeId, formId, placeId));
   }
 
-  @SuppressLint("CheckResult")
-  private void loadRecords(Project project, String placeTypeId, String formId, String placeId) {
+  private Completable loadRecords(
+    Project project, String placeTypeId, String formId, String placeId) {
     Optional<Form> form = project.getPlaceType(placeTypeId).flatMap(pt -> pt.getForm(formId));
     if (!form.isPresent()) {
-      Log.d(TAG, "Form " + formId + " not found!");
-      return;
+      return Completable.error(new IllegalArgumentException("Form " + formId + " not found!"));
     }
-    autoDispose(
-      dataRepository
-        .loadRecordSummaries(project, placeId)
-        .subscribe(
-          // TODO: Only fetch records w/current formId.
-          records ->
-            recordSummaries.setValue(
-              stream(records)
-                .filter(record -> record.getFormId().equals(formId))
-                .map(record -> new RecordSummary(form.get(), record))
-                .collect(Collectors.toList()))));
+    return dataRepository
+      .loadRecordSummaries(project, placeId)
+      .doOnSuccess(
+        // TODO: Only fetch records w/current formId.
+        records ->
+          recordSummaries.setValue(
+            stream(records)
+              .filter(record -> record.getFormId().equals(formId))
+              .map(record -> new RecordSummary(form.get(), record))
+              .collect(Collectors.toList())))
+      .toCompletable();
   }
 }

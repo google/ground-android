@@ -92,8 +92,7 @@ public class BrowseFragment extends GndFragment {
   @Override
   public void createViewModel() {
     viewModel = ViewModelProviders.of(this, viewModelFactory).get(BrowseViewModel.class);
-    mainViewModel =
-      ViewModelProviders.of(getActivity(), viewModelFactory).get(MainViewModel.class);
+    mainViewModel = ViewModelProviders.of(getActivity(), viewModelFactory).get(MainViewModel.class);
   }
 
   @Override
@@ -162,7 +161,7 @@ public class BrowseFragment extends GndFragment {
     } else {
       // TODO: Reuse last selected project instead of asking to sign in every time.
       // TODO: Trigger this from welcome flow and nav drawer instead of here.
-      viewModel.showProjectSelectorDialog();
+      viewModel.showProjectSelectorDialog().as(autoDisposable(this)).subscribe();
     }
   }
 
