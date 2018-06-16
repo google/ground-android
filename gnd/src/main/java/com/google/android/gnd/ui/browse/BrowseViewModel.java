@@ -66,9 +66,9 @@ public class BrowseViewModel extends ViewModel {
   public Completable showProjectSelectorDialog() {
     // TODO: Show spinner while loading project summaries.
     return dataRepository
-      .loadProjectSummaries()
-      .doOnSuccess(showProjectSelectorDialogRequests::setValue)
-      .toCompletable();
+        .loadProjectSummaries()
+        .doOnSuccess(showProjectSelectorDialogRequests::setValue)
+        .toCompletable();
   }
 
   public void onMarkerClick(MapMarker marker) {

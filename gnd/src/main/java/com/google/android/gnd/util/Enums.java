@@ -17,8 +17,7 @@
 package com.google.android.gnd.util;
 
 public abstract class Enums {
-  private Enums() {
-  }
+  private Enums() {}
 
   public static <T extends Enum<T>> T toEnum(Class<T> enumClass, String value) {
     try {

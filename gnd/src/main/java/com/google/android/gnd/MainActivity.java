@@ -44,8 +44,7 @@ import javax.inject.Singleton;
 public class MainActivity extends GndActivity {
   private static final String TAG = MainActivity.class.getSimpleName();
 
-  @Inject
-  GndViewModelFactory viewModelFactory;
+  @Inject GndViewModelFactory viewModelFactory;
 
   @Inject PermissionsManager permissionsManager;
 
@@ -71,17 +70,17 @@ public class MainActivity extends GndActivity {
     viewModel = ViewModelProviders.of(this, viewModelFactory).get(MainViewModel.class);
 
     ViewCompat.setOnApplyWindowInsetsListener(
-      getWindow().getDecorView().getRootView(), viewModel::onApplyWindowInsets);
+        getWindow().getDecorView().getRootView(), viewModel::onApplyWindowInsets);
 
     permissionsManager
-      .getPermissionsRequests()
-      .as(autoDisposable(this))
-      .subscribe(this::onPermissionsRequest);
+        .getPermissionsRequests()
+        .as(autoDisposable(this))
+        .subscribe(this::onPermissionsRequest);
 
     settingsManager
-      .getSettingsChangeRequests()
-      .as(autoDisposable(this))
-      .subscribe(this::onSettingsChangeRequest);
+        .getSettingsChangeRequests()
+        .as(autoDisposable(this))
+        .subscribe(this::onSettingsChangeRequest);
   }
 
   private void onPermissionsRequest(PermissionsRequest permissionsRequest) {

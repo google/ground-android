@@ -64,8 +64,7 @@ class GoogleMapsMapAdapter implements MapAdapter {
 
   private final PublishSubject<MapMarker> markerClickSubject = PublishSubject.create();
   private final PublishSubject<Point> dragInteractionSubject = PublishSubject.create();
-  @Nullable
-  private LatLng cameraTargetBeforeDrag;
+  @Nullable private LatLng cameraTargetBeforeDrag;
 
   public GoogleMapsMapAdapter(GoogleMap map, Context context) {
     this.map = map;
@@ -168,16 +167,16 @@ class GoogleMapsMapAdapter implements MapAdapter {
       Entry<String, Marker> entry = it.next();
       Marker marker = entry.getValue();
       getMapMarker(marker)
-        .flatMap(MapMarker::getPlace)
-        .ifPresent(
-          place -> {
-            if (places.contains(place)) {
-              newPlaces.remove(place);
-            } else {
-              removeMarker(marker);
-              it.remove();
-            }
-          });
+          .flatMap(MapMarker::getPlace)
+          .ifPresent(
+              place -> {
+                if (places.contains(place)) {
+                  newPlaces.remove(place);
+                } else {
+                  removeMarker(marker);
+                  it.remove();
+                }
+              });
     }
     stream(newPlaces).forEach(this::addMarker);
   }
@@ -185,8 +184,8 @@ class GoogleMapsMapAdapter implements MapAdapter {
   private Optional<MapMarker> getMapMarker(Marker marker) {
     Object tag = marker.getTag();
     return tag != null && tag instanceof MapMarker
-      ? Optional.of((MapMarker) tag)
-      : Optional.empty();
+        ? Optional.of((MapMarker) tag)
+        : Optional.empty();
   }
 
   private void removeMarker(Marker marker) {
@@ -200,14 +199,14 @@ class GoogleMapsMapAdapter implements MapAdapter {
     MapIcon icon = new MapIcon(context, placeType.getIconId(), getIconColor(placeType));
     // TODO: Reimplement hasPendingWrites.
     addMarker(
-      MapMarker.newBuilder()
-               .setId(place.getId())
-               .setPosition(place.getPoint())
-               .setIcon(icon)
-               .setObject(place)
-               .build(),
-      false,
-      false);
+        MapMarker.newBuilder()
+            .setId(place.getId())
+            .setPosition(place.getPoint())
+            .setIcon(icon)
+            .setObject(place)
+            .build(),
+        false,
+        false);
   }
 
   private int getIconColor(PlaceType placeType) {

@@ -23,15 +23,12 @@ import android.view.View;
 import com.google.android.gnd.ui.browse.OnBottomSheetSlideBehavior;
 
 public class PlaceSheetHeaderLayoutBehavior extends OnBottomSheetSlideBehavior {
-  public PlaceSheetHeaderLayoutBehavior(
-    Context context,
-    AttributeSet attrs) {
+  public PlaceSheetHeaderLayoutBehavior(Context context, AttributeSet attrs) {
     super(context, attrs);
   }
 
   @Override
-  protected void onSheetScrolled(
-    CoordinatorLayout parent, View child, SheetSlideMetrics metrics) {
+  protected void onSheetScrolled(CoordinatorLayout parent, View child, SheetSlideMetrics metrics) {
     // Let header and body overlap to cover bottom corner radius.
     child.setTranslationY(metrics.getTabLayoutTop() + 16 - child.getHeight());
   }

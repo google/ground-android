@@ -33,8 +33,7 @@ public class RecordListFragment extends GndFragment {
   private static final String PLACE_ID = "placeId";
   private static final String FORM_ID = "formId";
 
-  @Inject
-  GndViewModelFactory viewModelFactory;
+  @Inject GndViewModelFactory viewModelFactory;
 
   private RecordListViewModel viewModel;
   private RecordListRecyclerViewAdapter adapter;
@@ -75,7 +74,7 @@ public class RecordListFragment extends GndFragment {
   @Nullable
   @Override
   public View createView(
-    LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
+      LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
     RecyclerView recyclerView = new RecyclerView(getContext());
     recyclerView.setNestedScrollingEnabled(true);
     recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));

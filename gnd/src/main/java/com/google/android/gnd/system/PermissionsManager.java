@@ -64,7 +64,7 @@ public class PermissionsManager {
 
   public Completable obtainPermission(String permission) {
     return RxCompletable.completeIf(() -> requestPermission(permission))
-                        .ambWith(getPermissionsResult(permission));
+        .ambWith(getPermissionsResult(permission));
   }
 
   private boolean requestPermission(String permission) {
@@ -74,17 +74,17 @@ public class PermissionsManager {
     } else {
       Log.i(TAG, "Requesting " + permission);
       permissionsRequestSubject.onNext(
-        new PermissionsRequest(PERMISSIONS_REQUEST_CODE, new String[]{permission}));
+          new PermissionsRequest(PERMISSIONS_REQUEST_CODE, new String[] {permission}));
       return false;
     }
   }
 
   private Completable getPermissionsResult(String permission) {
     return permissionsResultSubject
-      .filter(r -> r.getPermission().equals(permission))
-      .take(1)
-      .singleOrError()
-      .flatMapCompletable(PermissionsResult::toCompletable);
+        .filter(r -> r.getPermission().equals(permission))
+        .take(1)
+        .singleOrError()
+        .flatMapCompletable(PermissionsResult::toCompletable);
   }
 
   private boolean isGranted(String permission) {

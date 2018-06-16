@@ -36,13 +36,11 @@ public class ProjectSelectorDialogFragment extends GndDialogFragment {
   private static final String TAG = ProjectSelectorDialogFragment.class.getSimpleName();
   private static final String PROJECTS_BUNDLE_KEY = "projects";
 
-  @Inject
-  GndViewModelFactory viewModelFactory;
+  @Inject GndViewModelFactory viewModelFactory;
 
   private ProjectSelectorViewModel viewModel;
 
-  public ProjectSelectorDialogFragment() {
-  }
+  public ProjectSelectorDialogFragment() {}
 
   public static void show(FragmentManager fragmentManager, List<Project> availableProjects) {
     ProjectSelectorDialogFragment dialog = new ProjectSelectorDialogFragment();
@@ -61,7 +59,7 @@ public class ProjectSelectorDialogFragment extends GndDialogFragment {
   @Override
   public Dialog onCreateDialog(Bundle savedInstanceState) {
     List<Project> availableProjects =
-      (List<Project>) getArguments().getSerializable(PROJECTS_BUNDLE_KEY);
+        (List<Project>) getArguments().getSerializable(PROJECTS_BUNDLE_KEY);
     if (availableProjects == null) {
       Log.e(TAG, "Null availableProjects when showing project selector dialog");
       return null;
@@ -70,12 +68,12 @@ public class ProjectSelectorDialogFragment extends GndDialogFragment {
     dialog.setTitle(R.string.select_project_dialog_title);
     // TODO: i18n.
     String[] projectTitles =
-      stream(availableProjects).map(p -> p.getTitle()).toArray(String[]::new);
+        stream(availableProjects).map(p -> p.getTitle()).toArray(String[]::new);
     dialog.setItems(
-      projectTitles,
-      (d, which) -> {
-        onProjectSelection(availableProjects.get(which).getId());
-      });
+        projectTitles,
+        (d, which) -> {
+          onProjectSelection(availableProjects.get(which).getId());
+        });
     dialog.setCancelable(false);
 
     return dialog.create();

@@ -26,11 +26,8 @@ import com.uber.autodispose.android.lifecycle.AndroidLifecycleScopeProvider;
  * library.
  */
 public abstract class RxAutoDispose {
-  /**
-   * Do not instantiate.
-   */
-  private RxAutoDispose() {
-  }
+  /** Do not instantiate. */
+  private RxAutoDispose() {}
 
   public static <T> AutoDisposeConverter<T> autoDisposable(final LifecycleOwner lifecycleOwner) {
     return AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(lifecycleOwner));

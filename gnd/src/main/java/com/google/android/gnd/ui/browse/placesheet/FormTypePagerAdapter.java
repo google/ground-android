@@ -39,18 +39,17 @@ public class FormTypePagerAdapter extends FragmentPagerAdapter {
   @Override
   public int getCount() {
     return place
-      .map(Place::getPlaceType)
-      .map(PlaceType::getForms)
-      .map(ImmutableList::size)
-      .orElse(0);
+        .map(Place::getPlaceType)
+        .map(PlaceType::getForms)
+        .map(ImmutableList::size)
+        .orElse(0);
   }
 
   @Override
   public Fragment getItem(int position) {
     PlaceType placeType = place.get().getPlaceType();
     Form form = placeType.getForms().get(position);
-    return RecordListFragment.newInstance(
-      placeType.getId(), place.get().getId(), form.getId());
+    return RecordListFragment.newInstance(placeType.getId(), place.get().getId(), form.getId());
   }
 
   @Override

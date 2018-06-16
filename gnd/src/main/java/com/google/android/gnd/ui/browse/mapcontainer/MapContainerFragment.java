@@ -47,11 +47,9 @@ public class MapContainerFragment extends GndFragment {
   private static final String TAG = MapContainerFragment.class.getSimpleName();
 
   // TODO: Get ViewModel from GndViewModelFactory instead.
-  @Inject
-  ViewModelProvider.Factory viewModelFactory;
+  @Inject ViewModelProvider.Factory viewModelFactory;
 
-  @Inject
-  MapProvider mapAdapter;
+  @Inject MapProvider mapAdapter;
 
   @BindView(R.id.add_place_btn)
   FloatingActionButton addPlaceBtn;
@@ -63,15 +61,14 @@ public class MapContainerFragment extends GndFragment {
   private BrowseViewModel browseViewModel;
 
   @Inject
-  public MapContainerFragment() {
-  }
+  public MapContainerFragment() {}
 
   @Override
   protected void createViewModel() {
     mapContainerViewModel =
-      ViewModelProviders.of(this, viewModelFactory).get(MapContainerViewModel.class);
+        ViewModelProviders.of(this, viewModelFactory).get(MapContainerViewModel.class);
     browseViewModel =
-      ViewModelProviders.of(getParentFragment(), viewModelFactory).get(BrowseViewModel.class);
+        ViewModelProviders.of(getParentFragment(), viewModelFactory).get(BrowseViewModel.class);
   }
 
   @Override
@@ -82,7 +79,7 @@ public class MapContainerFragment extends GndFragment {
 
   @Override
   protected View createView(
-    LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+      LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     return inflater.inflate(R.layout.fragment_map_container, container, false);
   }
 
@@ -101,18 +98,18 @@ public class MapContainerFragment extends GndFragment {
     // Observe events emitted by the ViewModel.
     mapContainerViewModel.getPlaces().observe(this, map::updateMarkers);
     mapContainerViewModel
-      .getLocationLockStatus()
-      .observe(this, status -> onLocationLockStatusChange(status, map));
+        .getLocationLockStatus()
+        .observe(this, status -> onLocationLockStatusChange(status, map));
     mapContainerViewModel.getCameraUpdates().observe(this, update -> onCameraUpdate(update, map));
     mapContainerViewModel.getProjectState().observe(this, this::projectStateChange);
     browseViewModel.getPlaceSheetEvents().observe(this, event -> onPlaceSheetEvent(event, map));
     // Pass UI events to the ViewModel.
     RxView.clicks(addPlaceBtn)
-          .as(autoDisposable(this))
-          .subscribe(__ -> browseViewModel.onAddPlaceBtnClick(map.getCenter()));
+        .as(autoDisposable(this))
+        .subscribe(__ -> browseViewModel.onAddPlaceBtnClick(map.getCenter()));
     RxView.clicks(locationLockBtn)
-          .as(autoDisposable(this))
-          .subscribe(__ -> mapContainerViewModel.onLocationLockClick());
+        .as(autoDisposable(this))
+        .subscribe(__ -> mapContainerViewModel.onLocationLockClick());
     map.getMarkerClicks().as(autoDisposable(this)).subscribe(mapContainerViewModel::onMarkerClick);
     map.getMarkerClicks().as(autoDisposable(this)).subscribe(browseViewModel::onMarkerClick);
     map.getDragInteractions().as(autoDisposable(this)).subscribe(mapContainerViewModel::onMapDrag);
@@ -148,14 +145,14 @@ public class MapContainerFragment extends GndFragment {
 
   private void enableAddPlaceBtn() {
     addPlaceBtn.setBackgroundTintList(
-      ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
+        ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
   }
 
   private void disableAddPlaceBtn() {
     // NOTE: We don't call addPlaceBtn.setEnabled(false) here since calling it before the fab is
     // shown corrupts its padding when used with useCompatPadding="true".
     addPlaceBtn.setBackgroundTintList(
-      ColorStateList.valueOf(getResources().getColor(R.color.colorGrey500)));
+        ColorStateList.valueOf(getResources().getColor(R.color.colorGrey500)));
   }
 
   private void onLocationLockStatusChange(LocationLockStatus status, MapAdapter map) {
@@ -190,7 +187,7 @@ public class MapContainerFragment extends GndFragment {
     Log.d(TAG, "Update camera: " + update);
     if (update.getMinZoomLevel().isPresent()) {
       map.moveCamera(
-        update.getCenter(), Math.max(update.getMinZoomLevel().get(), map.getCurrentZoomLevel()));
+          update.getCenter(), Math.max(update.getMinZoomLevel().get(), map.getCurrentZoomLevel()));
     } else {
       map.moveCamera(update.getCenter());
     }

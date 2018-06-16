@@ -18,7 +18,6 @@ package com.google.android.gnd.inject;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-
 import javax.inject.Scope;
 
 /**

@@ -52,12 +52,12 @@ public class MapContainerViewModel extends ViewModel {
     this.cameraUpdates = new MutableLiveData<>();
     this.projectState = new MutableLiveData<>();
     this.places =
-      RxLiveData.fromFlowable(
-        dataRepository
-          .getProjectState()
-          .doOnNext(projectState::postValue)
-          .filter(ProjectState::isActivated)
-          .switchMap(ProjectState::getPlaces));
+        RxLiveData.fromFlowable(
+            dataRepository
+                .getProjectState()
+                .doOnNext(projectState::postValue)
+                .filter(ProjectState::isActivated)
+                .switchMap(ProjectState::getPlaces));
   }
 
   //  private void updatePlaces(MarkerUpdate markerUpdate) {
@@ -113,9 +113,9 @@ public class MapContainerViewModel extends ViewModel {
     Log.d(TAG, "Enabling location lock");
     disposeLocationLockSubscription();
     locationLockSubscription =
-      locationManager
-        .enableLocationUpdates()
-        .subscribe(this::onEnableLocationLockSuccess, this::onLocationFailure);
+        locationManager
+            .enableLocationUpdates()
+            .subscribe(this::onEnableLocationLockSuccess, this::onLocationFailure);
   }
 
   private synchronized void onEnableLocationLockSuccess() {
@@ -127,12 +127,12 @@ public class MapContainerViewModel extends ViewModel {
     // The first update pans and zooms the camera to the appropriate zoom level; subsequent ones
     // only pan the map.
     locationUpdateSubscription =
-      locationManager
-        .getLastLocation()
-        .map(CameraUpdate::panAndZoom)
-        .toFlowable()
-        .concatWith(locationManager.getLocationUpdates().map(CameraUpdate::pan))
-        .subscribe(cameraUpdates::setValue);
+        locationManager
+            .getLastLocation()
+            .map(CameraUpdate::panAndZoom)
+            .toFlowable()
+            .concatWith(locationManager.getLocationUpdates().map(CameraUpdate::pan))
+            .subscribe(cameraUpdates::setValue);
 
     Log.d(TAG, "Enable location lock succeeded");
   }
@@ -145,7 +145,7 @@ public class MapContainerViewModel extends ViewModel {
     Log.d(TAG, "Disabling location lock");
     disposeLocationLockSubscription();
     locationLockSubscription =
-      locationManager.disableLocationUpdates().subscribe(this::onDisableLocationLockSuccess);
+        locationManager.disableLocationUpdates().subscribe(this::onDisableLocationLockSuccess);
   }
 
   private synchronized void onDisableLocationLockSuccess() {

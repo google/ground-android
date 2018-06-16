@@ -60,13 +60,13 @@ public class GndDataRepository {
     projectStateObservable.onNext(ProjectState.loading());
     // TODO: Make loadProject return Completable instead of Maybe?
     return dataService
-      .loadProject(projectId)
-      .doOnSuccess(this::onProjectLoaded)
-      .flatMapCompletable(
-        p ->
-          p == null
-            ? Completable.error(new IOException("Error loading project"))
-            : Completable.complete());
+        .loadProject(projectId)
+        .doOnSuccess(this::onProjectLoaded)
+        .flatMapCompletable(
+            p ->
+                p == null
+                    ? Completable.error(new IOException("Error loading project"))
+                    : Completable.complete());
   }
 
   private void onProjectLoaded(Project project) {
@@ -76,15 +76,15 @@ public class GndDataRepository {
 
   private Flowable<ImmutableSet<Place>> getPlaces(Project project) {
     return dataService
-      .observePlaces(project)
-      .doOnNext(this::updateCache)
-      .map(__ -> inMemoryCache.getPlaces());
+        .observePlaces(project)
+        .doOnNext(this::updateCache)
+        .map(__ -> inMemoryCache.getPlaces());
   }
 
   private void updateCache(DatastoreEvent<Place> event) {
     event
-      .getEntity()
-      .ifPresentOrElse(inMemoryCache::putPlace, () -> inMemoryCache.removePlace(event.getId()));
+        .getEntity()
+        .ifPresentOrElse(inMemoryCache::putPlace, () -> inMemoryCache.removePlace(event.getId()));
   }
 
   //  public Place update(PlaceUpdate placeUpdate) {

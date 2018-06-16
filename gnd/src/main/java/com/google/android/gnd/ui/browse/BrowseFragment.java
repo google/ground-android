@@ -57,14 +57,11 @@ import javax.inject.Inject;
 public class BrowseFragment extends GndFragment {
   private static final float COLLAPSED_MAP_ASPECT_RATIO = 16.0f / 9.0f;
 
-  @Inject
-  GndViewModelFactory viewModelFactory;
+  @Inject GndViewModelFactory viewModelFactory;
 
-  @Inject
-  MapContainerFragment mapContainerFragment;
+  @Inject MapContainerFragment mapContainerFragment;
 
-  @Inject
-  AddPlaceDialogFragment addPlaceDialogFragment;
+  @Inject AddPlaceDialogFragment addPlaceDialogFragment;
 
   @BindView(R.id.toolbar_wrapper)
   ViewGroup toolbarWrapper;
@@ -131,8 +128,8 @@ public class BrowseFragment extends GndFragment {
 
   protected void observeViewModel() {
     viewModel
-      .getShowProjectSelectorDialogRequests()
-      .observe(this, this::onShowProjectSelectorDialogRequest);
+        .getShowProjectSelectorDialogRequests()
+        .observe(this, this::onShowProjectSelectorDialogRequest);
     viewModel.getProjectState().observe(this, this::onProjectStateChange);
     viewModel.getShowAddPlaceDialogRequests().observe(this, this::onShowAddPlaceDialogRequest);
     viewModel.getPlaceSheetEvents().observe(this, this::onPlaceSheetEvent);
@@ -168,9 +165,9 @@ public class BrowseFragment extends GndFragment {
   private void onShowAddPlaceDialogRequest(Point location) {
     // TODO: Pause location updates while dialog is open.
     addPlaceDialogFragment
-      .show(getChildFragmentManager())
-      .as(autoDisposable(this))
-      .subscribe(viewModel::onAddPlace);
+        .show(getChildFragmentManager())
+        .as(autoDisposable(this))
+        .subscribe(viewModel::onAddPlace);
   }
 
   private void onPlaceSheetEvent(PlaceSheetEvent event) {

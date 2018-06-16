@@ -33,8 +33,7 @@ import com.google.android.gnd.ui.common.GndViewModelFactory;
 import javax.inject.Inject;
 
 public class PlaceSheetHeaderFragment extends GndFragment {
-  @Inject
-  GndViewModelFactory viewModelFactory;
+  @Inject GndViewModelFactory viewModelFactory;
 
   @BindView(R.id.place_sheet_title)
   TextView placeSheetTitle;
@@ -48,19 +47,18 @@ public class PlaceSheetHeaderFragment extends GndFragment {
   private BrowseViewModel browseViewModel;
 
   @Inject
-  public PlaceSheetHeaderFragment() {
-  }
+  public PlaceSheetHeaderFragment() {}
 
   @Override
   protected View createView(
-    LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+      LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     return inflater.inflate(R.layout.fragment_place_sheet_header, container, false);
   }
 
   @Override
   protected void createViewModel() {
     browseViewModel =
-      ViewModelProviders.of(getParentFragment(), viewModelFactory).get(BrowseViewModel.class);
+        ViewModelProviders.of(getParentFragment(), viewModelFactory).get(BrowseViewModel.class);
   }
 
   @Override
@@ -72,12 +70,12 @@ public class PlaceSheetHeaderFragment extends GndFragment {
     if (placeSheetEvent.isShowEvent()) {
       getView().setVisibility(View.VISIBLE);
       placeHeaderIcon.setImageResource(
-        MapIcon.getResourceId(
-          getContext(), placeSheetEvent.getPlace().getPlaceType().getIconId()));
+          MapIcon.getResourceId(
+              getContext(), placeSheetEvent.getPlace().getPlaceType().getIconId()));
       placeSheetTitle.setText(placeSheetEvent.getTitle());
       placeSheetSubtitle.setText(placeSheetEvent.getSubtitle());
       placeSheetSubtitle.setVisibility(
-        placeSheetEvent.getSubtitle().isEmpty() ? View.GONE : View.VISIBLE);
+          placeSheetEvent.getSubtitle().isEmpty() ? View.GONE : View.VISIBLE);
     }
   }
 }

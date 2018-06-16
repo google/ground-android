@@ -34,11 +34,9 @@ import com.h6ah4i.android.tablayouthelper.TabLayoutHelper;
 import javax.inject.Inject;
 
 public class PlaceSheetBodyFragment extends GndFragment {
-  @Inject
-  GndViewModelFactory viewModelFactory;
+  @Inject GndViewModelFactory viewModelFactory;
 
-  @Inject
-  FormTypePagerAdapter formTypePagerAdapter;
+  @Inject FormTypePagerAdapter formTypePagerAdapter;
 
   @BindView(R.id.record_list_view_pager)
   ViewPager recordListViewPager;
@@ -50,20 +48,18 @@ public class PlaceSheetBodyFragment extends GndFragment {
   private MainViewModel mainViewModel;
 
   @Inject
-  public PlaceSheetBodyFragment() {
-  }
+  public PlaceSheetBodyFragment() {}
 
   @Override
   protected void createViewModel() {
-    mainViewModel =
-      ViewModelProviders.of(getActivity(), viewModelFactory).get(MainViewModel.class);
+    mainViewModel = ViewModelProviders.of(getActivity(), viewModelFactory).get(MainViewModel.class);
     browseViewModel =
-      ViewModelProviders.of(getParentFragment(), viewModelFactory).get(BrowseViewModel.class);
+        ViewModelProviders.of(getParentFragment(), viewModelFactory).get(BrowseViewModel.class);
   }
 
   @Override
   protected View createView(
-    LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+      LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     return inflater.inflate(R.layout.fragment_place_sheet, container, false);
   }
 

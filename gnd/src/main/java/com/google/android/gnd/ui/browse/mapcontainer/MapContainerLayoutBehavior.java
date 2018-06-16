@@ -36,15 +36,15 @@ public class MapContainerLayoutBehavior extends OnBottomSheetSlideBehavior<Frame
 
   @Override
   protected void onSheetScrolled(
-    CoordinatorLayout parent, FrameLayout mapContainerLayout, SheetSlideMetrics metrics) {
+      CoordinatorLayout parent, FrameLayout mapContainerLayout, SheetSlideMetrics metrics) {
     if (metrics.getPeekHeight() <= 0) {
       return;
     }
     //    toolbarWrapper =
-//      toolbarWrapper == null ? activity.findViewById(R.id.toolbar_wrapper) : toolbarWrapper;
-//    map = map == null ? mapContainerLayout.findViewById(R.id.map) : map;
-//    float visibleToolbarHeight =
-//      Math.max(toolbarWrapper.getHeight() + toolbarWrapper.getTranslationY(), 0f);
+    //      toolbarWrapper == null ? activity.findViewById(R.id.toolbar_wrapper) : toolbarWrapper;
+    //    map = map == null ? mapContainerLayout.findViewById(R.id.map) : map;
+    //    float visibleToolbarHeight =
+    //      Math.max(toolbarWrapper.getHeight() + toolbarWrapper.getTranslationY(), 0f);
     View map = mapContainerLayout.findViewById(R.id.map);
     View crosshairs = mapContainerLayout.findViewById(R.id.map_crosshairs);
     View mapButtonLayout = mapContainerLayout.findViewById(R.id.map_btn_layout);
@@ -57,5 +57,4 @@ public class MapContainerLayoutBehavior extends OnBottomSheetSlideBehavior<Frame
     metrics.hideWithSheet(crosshairs, SHOW_CROSSHAIRS_THRESHOLD, HIDE_CROSSHAIRS_THRESHOLD);
     metrics.hideWithSheet(mapButtonLayout, SHOW_BUTTONS_THRESHOLD, HIDE_BUTTONS_THRESOLD);
   }
-
 }

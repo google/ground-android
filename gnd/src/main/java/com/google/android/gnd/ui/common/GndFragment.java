@@ -48,15 +48,14 @@ public abstract class GndFragment extends Fragment implements HasSupportFragment
     createViewModel();
   }
 
-  protected void createViewModel() {
-  }
+  protected void createViewModel() {}
 
   @Nullable
   @Override
   public View onCreateView(
-    @NonNull LayoutInflater inflater,
-    @Nullable ViewGroup container,
-    @Nullable Bundle savedInstanceState) {
+      @NonNull LayoutInflater inflater,
+      @Nullable ViewGroup container,
+      @Nullable Bundle savedInstanceState) {
     View view = createView(inflater, container, savedInstanceState);
     addFragments();
     observeViewModel();
@@ -64,16 +63,14 @@ public abstract class GndFragment extends Fragment implements HasSupportFragment
   }
 
   protected View createView(
-    LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+      LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     throw new UnsupportedOperationException(
-      "Subclasses much override either createView or onCreateView");
+        "Subclasses much override either createView or onCreateView");
   }
 
-  protected void addFragments() {
-  }
+  protected void addFragments() {}
 
-  protected void observeViewModel() {
-  }
+  protected void observeViewModel() {}
 
   @Override
   public void onAttach(Context context) {
@@ -89,8 +86,7 @@ public abstract class GndFragment extends Fragment implements HasSupportFragment
     initializeViews();
   }
 
-  protected void initializeViews() {
-  }
+  protected void initializeViews() {}
 
   @Override
   public void onDestroyView() {

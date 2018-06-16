@@ -30,8 +30,7 @@ import javax.inject.Inject;
 // without extending MultiDexApplication.
 public class GndApplication extends MultiDexApplication implements HasActivityInjector {
 
-  @Inject
-  GndDataRepository dataRepository;
+  @Inject GndDataRepository dataRepository;
   @Inject DispatchingAndroidInjector<Activity> activityInjector;
 
   @Override

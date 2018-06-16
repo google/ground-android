@@ -25,8 +25,8 @@ import android.util.AttributeSet;
 import android.view.View;
 import com.google.android.gnd.R;
 
-public abstract class OnBottomSheetSlideBehavior<V extends View> extends
-  CoordinatorLayout.Behavior<V> {
+public abstract class OnBottomSheetSlideBehavior<V extends View>
+    extends CoordinatorLayout.Behavior<V> {
   public OnBottomSheetSlideBehavior(Context context, AttributeSet attrs) {
     super(context, attrs);
   }
@@ -57,7 +57,6 @@ public abstract class OnBottomSheetSlideBehavior<V extends View> extends
       this.parent = parent;
       this.nestedScrollView = nestedScrollView;
     }
-
 
     public static float scale(
         float value, float before1, float before2, float after1, float after2) {

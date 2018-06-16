@@ -43,8 +43,7 @@ public abstract class GndDialogFragment extends DaggerAppCompatDialogFragment {
     onCreateViewModel();
   }
 
-  protected void onCreateViewModel() {
-  }
+  protected void onCreateViewModel() {}
 
   @Override
   public AndroidInjector<Fragment> supportFragmentInjector() {

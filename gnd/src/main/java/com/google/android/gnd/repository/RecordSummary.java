@@ -49,8 +49,7 @@ public class RecordSummary {
         // TODO: int vs float? Format correctly.
         return Float.toString(value.getNumber());
       case CHOICES:
-        return stream(value.getChoices().getCodes())
-          .collect(Collectors.joining(CODE_SEPARATOR));
+        return stream(value.getChoices().getCodes()).collect(Collectors.joining(CODE_SEPARATOR));
       default:
         return "";
     }

@@ -49,29 +49,29 @@ public class RecordListViewModel extends ViewModel {
 
   public Completable loadRecords(String placeTypeId, String formId, String placeId) {
     return dataRepository
-      .getProjectState()
-      .map(ProjectState::getActiveProject)
-      .filter(Optional::isPresent)
-      .map(Optional::get)
-      .flatMapCompletable(project -> loadRecords(project, placeTypeId, formId, placeId));
+        .getProjectState()
+        .map(ProjectState::getActiveProject)
+        .filter(Optional::isPresent)
+        .map(Optional::get)
+        .flatMapCompletable(project -> loadRecords(project, placeTypeId, formId, placeId));
   }
 
   private Completable loadRecords(
-    Project project, String placeTypeId, String formId, String placeId) {
+      Project project, String placeTypeId, String formId, String placeId) {
     Optional<Form> form = project.getPlaceType(placeTypeId).flatMap(pt -> pt.getForm(formId));
     if (!form.isPresent()) {
       return Completable.error(new IllegalArgumentException("Form " + formId + " not found!"));
     }
     return dataRepository
-      .loadRecordSummaries(project, placeId)
-      .doOnSuccess(
-        // TODO: Only fetch records w/current formId.
-        records ->
-          recordSummaries.setValue(
-            stream(records)
-              .filter(record -> record.getFormId().equals(formId))
-              .map(record -> new RecordSummary(form.get(), record))
-              .collect(Collectors.toList())))
-      .toCompletable();
+        .loadRecordSummaries(project, placeId)
+        .doOnSuccess(
+            // TODO: Only fetch records w/current formId.
+            records ->
+                recordSummaries.setValue(
+                    stream(records)
+                        .filter(record -> record.getFormId().equals(formId))
+                        .map(record -> new RecordSummary(form.get(), record))
+                        .collect(Collectors.toList())))
+        .toCompletable();
   }
 }

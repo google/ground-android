@@ -63,13 +63,13 @@ public class RecordDoc {
   public static Record toProto(String id, DocumentSnapshot doc) {
     RecordDoc rd = doc.toObject(RecordDoc.class);
     return Record.newBuilder()
-                 .setId(id)
-                 .setPlaceTypeId(rd.featureTypeId)
-                 .setFormId(rd.formId)
-                 .setValueMap(convertValues(rd.responses))
-                 .setServerTimestamps(toTimestamps(rd.serverTimeCreated, rd.serverTimeModified))
-                 .setClientTimestamps(toTimestamps(rd.clientTimeCreated, rd.clientTimeModified))
-                 .build();
+        .setId(id)
+        .setPlaceTypeId(rd.featureTypeId)
+        .setFormId(rd.formId)
+        .setValueMap(convertValues(rd.responses))
+        .setServerTimestamps(toTimestamps(rd.serverTimeCreated, rd.serverTimeModified))
+        .setClientTimestamps(toTimestamps(rd.clientTimeCreated, rd.clientTimeModified))
+        .build();
   }
 
   private static Map<String, Value> convertValues(Map<String, Object> docValues) {
@@ -87,11 +87,9 @@ public class RecordDoc {
       values.put(key, Value.ofNumber((Float) value));
     } else if (value instanceof List) {
       values.put(
-        key,
-        Value.ofChoices(
-          Record.Choices.newBuilder()
-                        .setCodes(ImmutableList.copyOf((List) value))
-                        .build()));
+          key,
+          Value.ofChoices(
+              Record.Choices.newBuilder().setCodes(ImmutableList.copyOf((List) value)).build()));
     } else {
       Log.d(TAG, "Unsupported value in db: " + value.getClass().getName());
     }

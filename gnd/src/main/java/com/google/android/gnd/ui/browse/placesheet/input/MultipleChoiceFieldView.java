@@ -164,9 +164,9 @@ public class MultipleChoiceFieldView extends ConstraintLayout implements Editabl
             }
           }
           onValueUpdate(
-            Optional.of(choices.build())
-                    .filter(ch -> !ch.getCodes().isEmpty())
-                    .map(Record.Value::ofChoices));
+              Optional.of(choices.build())
+                  .filter(ch -> !ch.getCodes().isEmpty())
+                  .map(Record.Value::ofChoices));
           valueText.requestFocus();
           updateValidationMessage();
         });
@@ -226,7 +226,7 @@ public class MultipleChoiceFieldView extends ConstraintLayout implements Editabl
 
   private boolean isOptionSelected(MultipleChoice.Option option) {
     return currentValue.isPresent()
-      && currentValue.get().getChoices().getCodes().contains(option.getCode());
+        && currentValue.get().getChoices().getCodes().contains(option.getCode());
   }
 
   private void onValueUpdate(Optional<Record.Value> value) {
@@ -236,7 +236,7 @@ public class MultipleChoiceFieldView extends ConstraintLayout implements Editabl
       return;
     }
     valueText.setText(
-      stream(value.get().getChoices().getCodes())
+        stream(value.get().getChoices().getCodes())
             .map(this::getOptionLabel)
             .collect(Collectors.joining(", ")));
   }
@@ -244,10 +244,10 @@ public class MultipleChoiceFieldView extends ConstraintLayout implements Editabl
   private String getOptionLabel(String code) {
     // TODO: i18n.
     return stream(multipleChoice.getOptions())
-      .filter(o -> o.getCode().equals(code))
-      .map(o -> o.getLabel())
-      .findFirst()
-      .orElse("?");
+        .filter(o -> o.getCode().equals(code))
+        .map(o -> o.getLabel())
+        .findFirst()
+        .orElse("?");
   }
 
   private Optional<Record.Value> getCurrentValue() {

@@ -58,17 +58,17 @@ public class PlaceDoc {
     Optional<PlaceType> placeType = project.getPlaceType(f.featureTypeId);
     if (!placeType.isPresent()) {
       throw new DatastoreException(
-        "Unknown place type " + f.featureTypeId + " in lace " + doc.getId());
+          "Unknown place type " + f.featureTypeId + " in lace " + doc.getId());
     }
     return Place.newBuilder()
-                .setId(doc.getId())
-                .setCustomId(f.customId)
-                .setCaption(f.caption)
-                .setPlaceType(placeType.get())
-                .setPoint(point)
-                .setServerTimestamps(toTimestamps(f.serverTimeCreated, f.serverTimeModified))
-                .setClientTimestamps(toTimestamps(f.clientTimeCreated, f.clientTimeModified))
-                .build();
+        .setId(doc.getId())
+        .setCustomId(f.customId)
+        .setCaption(f.caption)
+        .setPlaceType(placeType.get())
+        .setPoint(point)
+        .setServerTimestamps(toTimestamps(f.serverTimeCreated, f.serverTimeModified))
+        .setClientTimestamps(toTimestamps(f.clientTimeCreated, f.clientTimeModified))
+        .build();
   }
 
   public static PlaceDoc fromProto(Place place) {

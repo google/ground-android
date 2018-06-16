@@ -52,7 +52,7 @@ public class LocationManager {
     this.permissionsManager = permissionsManager;
     this.settingsManager = settingsManager;
     this.locationClient =
-      RxLocationServices.getFusedLocationProviderClient(app.getApplicationContext());
+        RxLocationServices.getFusedLocationProviderClient(app.getApplicationContext());
   }
 
   private static Point toPoint(Location location) {
@@ -77,9 +77,9 @@ public class LocationManager {
   public Completable enableLocationUpdates() {
     Log.d(TAG, "Attempting to enable location updates");
     return permissionsManager
-      .obtainPermission(ACCESS_FINE_LOCATION)
-      .andThen(settingsManager.enableLocationSettings(FINE_LOCATION_UPDATES_REQUEST))
-      .andThen(locationClient.requestLocationUpdates(FINE_LOCATION_UPDATES_REQUEST));
+        .obtainPermission(ACCESS_FINE_LOCATION)
+        .andThen(settingsManager.enableLocationSettings(FINE_LOCATION_UPDATES_REQUEST))
+        .andThen(locationClient.requestLocationUpdates(FINE_LOCATION_UPDATES_REQUEST));
   }
 
   // TODO: Request/remove updates on resume/pause.

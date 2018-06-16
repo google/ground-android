@@ -41,12 +41,12 @@ public class PlaceTypeDoc {
   static PlaceType toProto(DocumentSnapshot doc, ImmutableList<Form> forms) {
     PlaceTypeDoc ft = doc.toObject(PlaceTypeDoc.class);
     return PlaceType.newBuilder()
-                    .setId(doc.getId())
-                    .setListHeading(getLocalizedMessage(ft.listHeading))
-                    .setItemLabel(getLocalizedMessage(ft.itemLabel))
-                    .setIconId(ft.iconId)
-                    .setForms(forms)
-                    .setIconColor(ft.iconColor)
-                    .build();
+        .setId(doc.getId())
+        .setListHeading(getLocalizedMessage(ft.listHeading))
+        .setItemLabel(getLocalizedMessage(ft.itemLabel))
+        .setIconId(ft.iconId)
+        .setForms(forms)
+        .setIconColor(ft.iconColor)
+        .build();
   }
 }

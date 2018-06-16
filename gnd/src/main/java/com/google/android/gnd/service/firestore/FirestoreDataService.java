@@ -96,30 +96,28 @@ public class FirestoreDataService implements DataService {
   @Override
   public Maybe<Project> loadProject(String projectId) {
     return RxFirestore.getDocument(db().project(projectId).ref())
-                      .flatMap(this::loadPlaceTypes, ProjectDoc::toProto);
+        .flatMap(this::loadPlaceTypes, ProjectDoc::toProto);
   }
 
-  /**
-   * Loads place types and related forms.
-   */
+  /** Loads place types and related forms. */
   private Maybe<List<PlaceType>> loadPlaceTypes(DocumentSnapshot projectDocSnapshot) {
     return RxFirestore.getCollection(
-      GndFirestorePath.project(projectDocSnapshot).placeTypes().ref())
-                      .map(QuerySnapshot::getDocuments) // Maybe<List<DocumentSnapshot>>
-                      .toObservable()
-                      .flatMapIterable(i -> i) // Observable<DocumentSnapshot>>
-                      .flatMap(this::loadForms, PlaceTypeDoc::toProto)
-                      .toList()
-                      .toMaybe();
+            GndFirestorePath.project(projectDocSnapshot).placeTypes().ref())
+        .map(QuerySnapshot::getDocuments) // Maybe<List<DocumentSnapshot>>
+        .toObservable()
+        .flatMapIterable(i -> i) // Observable<DocumentSnapshot>>
+        .flatMap(this::loadForms, PlaceTypeDoc::toProto)
+        .toList()
+        .toMaybe();
   }
 
   private Observable<ImmutableList<Form>> loadForms(DocumentSnapshot placeTypeDocSnapshot) {
     return RxFirestore.getCollection(GndFirestorePath.placeType(placeTypeDocSnapshot).forms().ref())
-                      .map(QuerySnapshot::getDocuments)
-                      .map(
-                        formDocSnapshots ->
-                          stream(formDocSnapshots).map(FormDoc::toProto).collect(toImmutableList()))
-                      .toObservable();
+        .map(QuerySnapshot::getDocuments)
+        .map(
+            formDocSnapshots ->
+                stream(formDocSnapshots).map(FormDoc::toProto).collect(toImmutableList()))
+        .toObservable();
   }
 
   // Differentiate generic "update" (CRUD operation) from database "update".
@@ -151,9 +149,9 @@ public class FirestoreDataService implements DataService {
     place.setServerTimestamps(Timestamps.getDefaultInstance());
     place.setClientTimestamps(
         Timestamps.newBuilder()
-                  .setCreated(placeUpdate.getClientTimestamp())
-                  .setModified(placeUpdate.getClientTimestamp())
-                  .build());
+            .setCreated(placeUpdate.getClientTimestamp())
+            .setModified(placeUpdate.getClientTimestamp())
+            .build());
     batch.set(fdRef, PlaceDoc.fromProto(place.build()));
     updateRecords(batch, fdRef, placeUpdate);
     // We don't wait for commit() to finish because task only completes once data is stored to
@@ -181,8 +179,8 @@ public class FirestoreDataService implements DataService {
   @Override
   public Single<List<Record>> loadRecordData(String projectId, String placeId) {
     return mapSingle(
-      RxFirestore.getCollection(db().project(projectId).place(placeId).records().ref()),
-      doc -> RecordDoc.toProto(doc.getId(), doc));
+        RxFirestore.getCollection(db().project(projectId).place(placeId).records().ref()),
+        doc -> RecordDoc.toProto(doc.getId(), doc));
   }
 
   @Override
@@ -193,29 +191,27 @@ public class FirestoreDataService implements DataService {
   @Override
   public Flowable<DatastoreEvent<Place>> observePlaces(Project project) {
     return RxFirestore.observeQueryRef(db().project(project.getId()).places().ref())
-                      .flatMapIterable(
-                        placeQuerySnapshot ->
-                          toDatastoreEvents(
-                            placeQuerySnapshot,
-                            placeDocSnapshot -> PlaceDoc.toProto(project, placeDocSnapshot)))
-                      .doOnTerminate(
-                        () ->
-                          Log.d(
-                            TAG,
-                            "observePlaces stream for project " + project.getId() + " terminated."));
+        .flatMapIterable(
+            placeQuerySnapshot ->
+                toDatastoreEvents(
+                    placeQuerySnapshot,
+                    placeDocSnapshot -> PlaceDoc.toProto(project, placeDocSnapshot)))
+        .doOnTerminate(
+            () ->
+                Log.d(TAG, "observePlaces stream for project " + project.getId() + " terminated."));
   }
 
   private <T> Iterable<DatastoreEvent<T>> toDatastoreEvents(
       QuerySnapshot snapshot, Function<DocumentSnapshot, T> converter) {
     DatastoreEvent.Source source = getSource(snapshot.getMetadata());
     return stream(snapshot.getDocumentChanges())
-      .map(dc -> toDatastoreEvent(dc, source, converter))
-      .filter(DatastoreEvent::isValid)
-      .collect(toList());
+        .map(dc -> toDatastoreEvent(dc, source, converter))
+        .filter(DatastoreEvent::isValid)
+        .collect(toList());
   }
 
   private <T> DatastoreEvent<T> toDatastoreEvent(
-    DocumentChange dc, DatastoreEvent.Source source, Function<DocumentSnapshot, T> converter) {
+      DocumentChange dc, DatastoreEvent.Source source, Function<DocumentSnapshot, T> converter) {
     Log.v(TAG, toString(dc));
     try {
       String id = dc.getDocument().getId();
@@ -266,7 +262,7 @@ public class FirestoreDataService implements DataService {
           //                  .setModified(placeUpdate.getClientTimestamp()));
           batch.set(
               records.document(record.getId()),
-            RecordDoc.fromProto(record, updatedValues(recordUpdate)),
+              RecordDoc.fromProto(record, updatedValues(recordUpdate)),
               MERGE);
           break;
       }

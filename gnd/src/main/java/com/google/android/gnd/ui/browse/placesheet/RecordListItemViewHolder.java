@@ -68,10 +68,10 @@ class RecordListItemViewHolder extends RecyclerView.ViewHolder {
         case FIELD:
           Field field = elem.getField();
           Optional<Value> value =
-            Optional.ofNullable(summary.getRecord().getValueMap().get(field.getId()));
+              Optional.ofNullable(summary.getRecord().getValueMap().get(field.getId()));
           fieldLabelRow.addView(newFieldTextView(field.getLabel()));
           fieldValueRow.addView(
-            newFieldTextView(value.map(RecordSummary::toSummaryText).orElse("")));
+              newFieldTextView(value.map(RecordSummary::toSummaryText).orElse("")));
           break;
       }
     }
@@ -85,7 +85,7 @@ class RecordListItemViewHolder extends RecyclerView.ViewHolder {
     // NOTE: These attributes don't work when applying text appearance programmatically, so we set
     // them here individually instead.
     v.setPadding(
-      0, 0, resources.getDimensionPixelSize(R.dimen.record_summary_text_padding_right), 0);
+        0, 0, resources.getDimensionPixelSize(R.dimen.record_summary_text_padding_right), 0);
     v.setMaxWidth(resources.getDimensionPixelSize(R.dimen.record_summary_text_max_width));
     v.setMaxLines(1);
     v.setSingleLine();

@@ -17,7 +17,6 @@
 package com.google.android.gnd.rx;
 
 import android.util.Log;
-
 import com.akaita.java.rxjava2debug.RxJava2Debug;
 
 public abstract class RxErrors {

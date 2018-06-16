@@ -21,9 +21,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import javax.inject.Inject;
 
-/**
- * Ephemeral storage of application state. This can be destroyed without notice.
- */
+/** Ephemeral storage of application state. This can be destroyed without notice. */
 public class InMemoryCache {
   private Map<String, Place> places;
 

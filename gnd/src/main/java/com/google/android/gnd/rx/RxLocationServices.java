@@ -86,7 +86,7 @@ public class RxLocationServices {
       Log.d(TAG, "Requesting location updates");
       locationCallback = new RxLocationCallback();
       return fusedLocationProviderClient.requestLocationUpdates(
-        locationRequest, locationCallback, Looper.myLooper());
+          locationRequest, locationCallback, Looper.myLooper());
     }
 
     public Flowable<Location> getLocationUpdates() {
@@ -98,8 +98,8 @@ public class RxLocationServices {
         return Completable.complete();
       }
       return RxTask.toCompletable(
-        () -> fusedLocationProviderClient.removeLocationUpdates(locationCallback))
-                   .doOnComplete(() -> locationCallback = null);
+              () -> fusedLocationProviderClient.removeLocationUpdates(locationCallback))
+          .doOnComplete(() -> locationCallback = null);
     }
 
     private class RxLocationCallback extends LocationCallback {

@@ -42,8 +42,7 @@ public class AddPlaceDialogFragment extends GndDialogFragment {
   private MaybeSubject<AddPlaceRequest> addPlaceRequestSubject;
 
   @Inject
-  public AddPlaceDialogFragment() {
-  }
+  public AddPlaceDialogFragment() {}
 
   @Override
   public void onAttach(Context context) {
@@ -59,7 +58,7 @@ public class AddPlaceDialogFragment extends GndDialogFragment {
   @Override
   public Dialog onCreateDialog(Bundle savedInstanceState) {
     BrowseViewModel browseViewModel =
-      ViewModelProviders.of(getParentFragment()).get(BrowseViewModel.class);
+        ViewModelProviders.of(getParentFragment()).get(BrowseViewModel.class);
     ProjectState projectState = browseViewModel.getProjectState().getValue();
     Point location = browseViewModel.getShowAddPlaceDialogRequests().getValue();
     Optional<Project> activeProject = projectState.getActiveProject();
@@ -80,7 +79,7 @@ public class AddPlaceDialogFragment extends GndDialogFragment {
     ImmutableList<PlaceType> placeTypes = project.getPlaceTypes();
     String[] items = stream(placeTypes).map(t -> t.getListHeading()).toArray(String[]::new);
     builder.setItems(
-      items, (dialog, idx) -> onSelectPlaceType(project, placeTypes.get(idx), location));
+        items, (dialog, idx) -> onSelectPlaceType(project, placeTypes.get(idx), location));
     return builder.create();
   }
 

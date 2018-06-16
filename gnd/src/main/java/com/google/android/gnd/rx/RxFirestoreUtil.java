@@ -30,19 +30,16 @@ import java8.util.stream.Collectors;
 import java8.util.stream.Stream;
 
 public abstract class RxFirestoreUtil {
-  /**
-   * Container for static helper methods. Do not instantiate.
-   */
-  private RxFirestoreUtil() {
-  }
+  /** Container for static helper methods. Do not instantiate. */
+  private RxFirestoreUtil() {}
 
   public static <T> Single<List<T>> mapSingle(
-    Maybe<QuerySnapshot> result, Function<DocumentSnapshot, T> mappingFunction) {
+      Maybe<QuerySnapshot> result, Function<DocumentSnapshot, T> mappingFunction) {
     return result
-      .map(
-        querySnapshot ->
-          documentStream(querySnapshot).map(mappingFunction).collect(Collectors.toList()))
-      .toSingle(Collections.emptyList());
+        .map(
+            querySnapshot ->
+                documentStream(querySnapshot).map(mappingFunction).collect(Collectors.toList()))
+        .toSingle(Collections.emptyList());
   }
 
   @NonNull

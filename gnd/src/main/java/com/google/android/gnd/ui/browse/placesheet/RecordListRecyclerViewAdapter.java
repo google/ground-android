@@ -23,8 +23,7 @@ import com.google.android.gnd.repository.RecordSummary;
 import java.util.Collections;
 import java.util.List;
 
-class RecordListRecyclerViewAdapter
-  extends RecyclerView.Adapter<RecordListItemViewHolder> {
+class RecordListRecyclerViewAdapter extends RecyclerView.Adapter<RecordListItemViewHolder> {
 
   private List<RecordSummary> recordSummaries;
 

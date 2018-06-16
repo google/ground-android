@@ -20,12 +20,11 @@ import java.util.Map;
 import java8.util.Optional;
 
 public abstract class Localization {
-  private Localization() {
-  }
+  private Localization() {}
 
   public static String getLocalizedMessage(Map<String, String> messages) {
     // TODO: i18n.
     return Optional.ofNullable(messages.get("pt"))
-                   .orElse(Optional.ofNullable(messages.get("en")).orElse(""));
+        .orElse(Optional.ofNullable(messages.get("en")).orElse(""));
   }
 }

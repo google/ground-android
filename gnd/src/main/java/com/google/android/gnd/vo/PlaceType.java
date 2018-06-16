@@ -48,8 +48,8 @@ public abstract class PlaceType {
 
   public static Builder newBuilder() {
     return new AutoValue_PlaceType.Builder()
-      .setServerTimestamps(Timestamps.getDefaultInstance())
-      .setClientTimestamps(Timestamps.getDefaultInstance());
+        .setServerTimestamps(Timestamps.getDefaultInstance())
+        .setClientTimestamps(Timestamps.getDefaultInstance());
   }
 
   @AutoValue.Builder

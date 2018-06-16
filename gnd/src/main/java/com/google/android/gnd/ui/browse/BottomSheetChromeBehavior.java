@@ -38,7 +38,7 @@ public class BottomSheetChromeBehavior extends OnBottomSheetSlideBehavior<ViewGr
 
   @Override
   protected void onSheetScrolled(
-    CoordinatorLayout parent, ViewGroup layout, SheetSlideMetrics metrics) {
+      CoordinatorLayout parent, ViewGroup layout, SheetSlideMetrics metrics) {
     View scrim = layout.findViewById(R.id.bottom_sheet_bottom_inset_scrim);
     View addRecordButton = layout.findViewById(R.id.add_record_btn);
     ViewGroup toolbarWrapper = layout.findViewById(R.id.toolbar_wrapper);
@@ -47,7 +47,7 @@ public class BottomSheetChromeBehavior extends OnBottomSheetSlideBehavior<ViewGr
     metrics.showWithSheet(addRecordButton, HIDE_ADD_BUTTON_THRESHOLD, SHOW_ADD_BUTTON_THRESHOLD);
     toolbarWrapper.setBackgroundColor(layout.getResources().getColor(R.color.colorPrimary));
     toolbarWrapper.setTranslationY(
-      scale(metrics.getVisibleRatio(), 0.3f, 0.5f, -toolbarWrapper.getHeight(), 0));
+        scale(metrics.getVisibleRatio(), 0.3f, 0.5f, -toolbarWrapper.getHeight(), 0));
     metrics.showWithSheet(toolbarWrapper.getBackground(), 0.9f, 1);
     // Fade in toolbar text labels with sheet expansion.
     float alpha = scale(metrics.getTop(), 0, toolbarWrapper.getHeight(), 1f, 0f);

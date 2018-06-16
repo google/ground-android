@@ -47,10 +47,10 @@ public class FormDoc {
   public static Form toProto(DocumentSnapshot doc) {
     FormDoc f = doc.toObject(FormDoc.class);
     return Form.newBuilder()
-               .setId(doc.getId())
-               .setTitle(getLocalizedMessage(f.titles))
-               .setElements(stream(f.elements).map(Element::toProto).collect(toImmutableList()))
-               .build();
+        .setId(doc.getId())
+        .setTitle(getLocalizedMessage(f.titles))
+        .setElements(stream(f.elements).map(Element::toProto).collect(toImmutableList()))
+        .build();
   }
 
   @IgnoreExtraProperties

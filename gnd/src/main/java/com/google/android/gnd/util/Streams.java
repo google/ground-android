@@ -40,16 +40,15 @@ public abstract class Streams {
   }
 
   private static final Collector<Object, ?, ImmutableList<Object>> TO_IMMUTABLE_LIST =
-    Collectors.of(
-      ImmutableList::<Object>builder,
-      ImmutableList.Builder::add,
-      (a, b) -> {
-        throw new UnsupportedOperationException();
-      },
-      ImmutableList.Builder::build);
+      Collectors.of(
+          ImmutableList::<Object>builder,
+          ImmutableList.Builder::add,
+          (a, b) -> {
+            throw new UnsupportedOperationException();
+          },
+          ImmutableList.Builder::build);
 
   public static <E> Collector<E, ?, ImmutableList<E>> toImmutableList() {
     return (Collector) TO_IMMUTABLE_LIST;
   }
-
 }

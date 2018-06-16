@@ -43,13 +43,11 @@ public class MapIcon {
   }
 
   @NonNull
-  public static @DrawableRes
-  int getResourceId(Context context, String iconId) {
+  public static @DrawableRes int getResourceId(Context context, String iconId) {
     try {
       String resourceName = "ic_marker_" + iconId.replace("-", "_");
-      int resourceId = context
-        .getResources()
-        .getIdentifier(resourceName, "drawable", context.getPackageName());
+      int resourceId =
+          context.getResources().getIdentifier(resourceName, "drawable", context.getPackageName());
       if (resourceId > 0) {
         return resourceId;
       }

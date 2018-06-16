@@ -34,7 +34,7 @@ public class GoogleMapsMapProvider implements MapProvider {
 
   private void createMapAsync(SingleEmitter<MapAdapter> emitter) {
     fragment.getMapAsync(
-      googleMap -> emitter.onSuccess(new GoogleMapsMapAdapter(googleMap, fragment.getContext())));
+        googleMap -> emitter.onSuccess(new GoogleMapsMapAdapter(googleMap, fragment.getContext())));
   }
 
   @Override

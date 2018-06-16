@@ -36,8 +36,8 @@ public abstract class MapMarker {
 
   public Optional<Place> getPlace() {
     return getObject() != null && getObject() instanceof Place
-      ? Optional.of((Place) getObject())
-      : Optional.empty();
+        ? Optional.of((Place) getObject())
+        : Optional.empty();
   }
 
   public static Builder newBuilder() {

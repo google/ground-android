@@ -46,11 +46,11 @@ public class ProjectDoc {
   public static Project toProto(DocumentSnapshot doc, List<PlaceType> placeTypes) {
     ProjectDoc pd = doc.toObject(ProjectDoc.class);
     return Project.newBuilder()
-                  .setId(doc.getId())
-                  .setTitle(getLocalizedMessage(pd.title))
-                  .setDescription(getLocalizedMessage(pd.description))
-                  .setPlaceTypes(ImmutableList.copyOf(placeTypes))
-                  .build();
+        .setId(doc.getId())
+        .setTitle(getLocalizedMessage(pd.title))
+        .setDescription(getLocalizedMessage(pd.description))
+        .setPlaceTypes(ImmutableList.copyOf(placeTypes))
+        .build();
   }
 
   public static Project toProto(DocumentSnapshot doc) {
