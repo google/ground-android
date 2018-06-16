@@ -24,16 +24,13 @@ import io.reactivex.disposables.Disposable;
  * Base class for ViewModels.
  */
 public class GndViewModel extends ViewModel {
-  CompositeDisposable subscriptions = new CompositeDisposable();
+  private CompositeDisposable subscriptions = new CompositeDisposable();
 
   /**
    * Causes the provided subscription to be disposed when the ViewModel is about to be destroyed.
-   * This is necessary to prevent memory leaks due to subscriptions holding references to destroyed
-   * objects.
-   * <p>
-   * NOTE: Even though Single and Maybe types dispose themselves when they complete, their
-   * subscriptions are tracked here so that they can be disposed of in cases when they never
-   * terminate.
+   * This is necessary to prevent memory leaks due to subscriptions that never completed holding
+   * references to the ViewModel and related objects. This include Single, Maybe, and Completable,
+   * which like other Rx streams, are not guaranteed to complete.
    */
   protected void autoDispose(Disposable subscription) {
     subscriptions.add(subscription);
