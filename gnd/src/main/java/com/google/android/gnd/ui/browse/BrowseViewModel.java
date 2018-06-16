@@ -15,22 +15,21 @@
  */
 package com.google.android.gnd.ui.browse;
 
-import android.annotation.SuppressLint;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
-import android.arch.lifecycle.ViewModel;
 import android.util.Log;
 import com.google.android.gnd.repository.GndDataRepository;
 import com.google.android.gnd.repository.ProjectState;
 import com.google.android.gnd.rx.RxLiveData;
 import com.google.android.gnd.ui.browse.AddPlaceDialogFragment.AddPlaceRequest;
+import com.google.android.gnd.ui.common.GndViewModel;
 import com.google.android.gnd.ui.map.MapMarker;
 import com.google.android.gnd.vo.Point;
 import com.google.android.gnd.vo.Project;
 import java.util.List;
 import javax.inject.Inject;
 
-public class BrowseViewModel extends ViewModel {
+public class BrowseViewModel extends GndViewModel {
   private static final String TAG = BrowseViewModel.class.getSimpleName();
   private final GndDataRepository dataRepository;
   private final LiveData<ProjectState> projectState;
@@ -63,11 +62,12 @@ public class BrowseViewModel extends ViewModel {
     return placeSheetEvents;
   }
 
-  @SuppressLint("CheckResult")
   public void showProjectSelectorDialog() {
-    // TODO: Dispose of this and other subscriptions correctly.
     // TODO: Show spinner while loading project summaries.
-    dataRepository.loadProjectSummaries().subscribe(showProjectSelectorDialogRequests::setValue);
+    autoDispose(
+      dataRepository
+        .loadProjectSummaries()
+        .subscribe(showProjectSelectorDialogRequests::setValue));
   }
 
   public void onMarkerClick(MapMarker marker) {

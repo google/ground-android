@@ -21,11 +21,11 @@ import static java8.util.stream.StreamSupport.stream;
 import android.annotation.SuppressLint;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
-import android.arch.lifecycle.ViewModel;
 import android.util.Log;
 import com.google.android.gnd.repository.GndDataRepository;
 import com.google.android.gnd.repository.ProjectState;
 import com.google.android.gnd.repository.RecordSummary;
+import com.google.android.gnd.ui.common.GndViewModel;
 import com.google.android.gnd.vo.Form;
 import com.google.android.gnd.vo.Project;
 import java.util.List;
@@ -33,7 +33,7 @@ import java8.util.Optional;
 import java8.util.stream.Collectors;
 import javax.inject.Inject;
 
-public class RecordListViewModel extends ViewModel {
+public class RecordListViewModel extends GndViewModel {
   private static final String TAG = RecordListViewModel.class.getSimpleName();
   private final GndDataRepository dataRepository;
   private MutableLiveData<List<RecordSummary>> recordSummaries;
@@ -50,32 +50,32 @@ public class RecordListViewModel extends ViewModel {
 
   @SuppressLint("CheckResult")
   public void loadRecords(String placeTypeId, String formId, String placeId) {
-    // TODO: Unsubscribe, handle failures.
-    dataRepository
-      .getProjectState()
-      .map(ProjectState::getActiveProject)
-      .filter(Optional::isPresent)
-      .map(Optional::get)
-      .subscribe(project -> loadRecords(project, placeTypeId, formId, placeId));
+    autoDispose(
+      dataRepository
+        .getProjectState()
+        .map(ProjectState::getActiveProject)
+        .filter(Optional::isPresent)
+        .map(Optional::get)
+        .subscribe(project -> loadRecords(project, placeTypeId, formId, placeId)));
   }
 
   @SuppressLint("CheckResult")
-  private void loadRecords(
-    Project project, String placeTypeId, String formId, String placeId) {
+  private void loadRecords(Project project, String placeTypeId, String formId, String placeId) {
     Optional<Form> form = project.getPlaceType(placeTypeId).flatMap(pt -> pt.getForm(formId));
     if (!form.isPresent()) {
       Log.d(TAG, "Form " + formId + " not found!");
       return;
     }
-    dataRepository
-      .loadRecordSummaries(project, placeId)
-      .subscribe(
-        // TODO: Only fetch records w/current formId.
-        records ->
-          recordSummaries.setValue(
-            stream(records)
-              .filter(record -> record.getFormId().equals(formId))
-              .map(record -> new RecordSummary(form.get(), record))
-              .collect(Collectors.toList())));
+    autoDispose(
+      dataRepository
+        .loadRecordSummaries(project, placeId)
+        .subscribe(
+          // TODO: Only fetch records w/current formId.
+          records ->
+            recordSummaries.setValue(
+              stream(records)
+                .filter(record -> record.getFormId().equals(formId))
+                .map(record -> new RecordSummary(form.get(), record))
+                .collect(Collectors.toList()))));
   }
 }

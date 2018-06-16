@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.ui.browse;
 
+import static com.google.android.gnd.rx.RxAutoDispose.autoDisposable;
 import static com.google.android.gnd.ui.util.ViewUtil.getScreenHeight;
 import static com.google.android.gnd.ui.util.ViewUtil.getScreenWidth;
 
@@ -167,7 +168,10 @@ public class BrowseFragment extends GndFragment {
 
   private void onShowAddPlaceDialogRequest(Point location) {
     // TODO: Pause location updates while dialog is open.
-    addPlaceDialogFragment.show(getChildFragmentManager()).subscribe(viewModel::onAddPlace);
+    addPlaceDialogFragment
+      .show(getChildFragmentManager())
+      .as(autoDisposable(this))
+      .subscribe(viewModel::onAddPlace);
   }
 
   private void onPlaceSheetEvent(PlaceSheetEvent event) {
