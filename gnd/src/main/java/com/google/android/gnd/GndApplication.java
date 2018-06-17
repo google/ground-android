@@ -17,7 +17,9 @@
 package com.google.android.gnd;
 
 import android.app.Activity;
+import android.os.StrictMode;
 import android.support.multidex.MultiDexApplication;
+import android.util.Log;
 import com.akaita.java.rxjava2debug.RxJava2Debug;
 import com.google.android.gnd.repository.GndDataRepository;
 import dagger.android.AndroidInjector;
@@ -29,13 +31,20 @@ import javax.inject.Inject;
 // should then extend DaggerApplication instead. If MultiDex is still needed, we can install it
 // without extending MultiDexApplication.
 public class GndApplication extends MultiDexApplication implements HasActivityInjector {
+  private static final String TAG = GndApplication.class.getSimpleName();
 
   @Inject GndDataRepository dataRepository;
   @Inject DispatchingAndroidInjector<Activity> activityInjector;
 
   @Override
   public void onCreate() {
+    if (BuildConfig.DEBUG) {
+      Log.d(TAG, "DEBUG build config active; enabling debug tooling");
+      setStrictMode();
+    }
+
     super.onCreate();
+
     // Root of dependency injection.
     DaggerGndApplicationComponent.builder().create(this).inject(this);
 
@@ -49,5 +58,17 @@ public class GndApplication extends MultiDexApplication implements HasActivityIn
   @Override
   public AndroidInjector<Activity> activityInjector() {
     return activityInjector;
+  }
+
+  private void setStrictMode() {
+    StrictMode.setThreadPolicy(
+      new StrictMode.ThreadPolicy.Builder().detectAll().penaltyLog().build());
+
+    StrictMode.setVmPolicy(
+      new StrictMode.VmPolicy.Builder()
+        .detectLeakedSqlLiteObjects()
+        .penaltyLog()
+        .penaltyDeath()
+        .build());
   }
 }
