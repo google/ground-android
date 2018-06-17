@@ -80,6 +80,6 @@ public class ProjectSelectorDialogFragment extends GndDialogFragment {
   }
 
   private void onProjectSelection(String id) {
-    viewModel.activateProject(id).as(autoDisposable(this)).subscribe();
+    viewModel.activateProject(id).as(autoDisposable(getActivity())).subscribe();
   }
 }
