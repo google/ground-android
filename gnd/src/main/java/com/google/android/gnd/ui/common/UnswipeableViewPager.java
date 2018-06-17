@@ -21,9 +21,9 @@ import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 
-public class UnswipeableViewPaper extends ViewPager {
+public class UnswipeableViewPager extends ViewPager {
 
-  public UnswipeableViewPaper(Context context, AttributeSet attrs) {
+  public UnswipeableViewPager(Context context, AttributeSet attrs) {
     super(context, attrs);
   }
 
