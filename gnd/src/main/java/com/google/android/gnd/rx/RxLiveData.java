@@ -18,21 +18,13 @@ package com.google.android.gnd.rx;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.LiveDataReactiveStreams;
-import io.reactivex.BackpressureStrategy;
 import io.reactivex.Flowable;
-import io.reactivex.Observable;
 
 public abstract class RxLiveData {
 
   /** Container for static helper methods. Do not instantiate. */
   private RxLiveData() {}
 
-  public static <T> LiveData<T> fromObservable(Observable<T> observable) {
-    return LiveDataReactiveStreams.fromPublisher(
-        observable.toFlowable(BackpressureStrategy.BUFFER));
-  }
-
-  // TODO: Does LiveData properly dispose of Rx subscriptions?
   // TODO: Handle errors.
   public static <T> LiveData<T> fromFlowable(Flowable<T> flowable) {
     return LiveDataReactiveStreams.fromPublisher(flowable);
