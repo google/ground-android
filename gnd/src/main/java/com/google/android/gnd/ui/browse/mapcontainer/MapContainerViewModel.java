@@ -29,6 +29,7 @@ import com.google.android.gnd.ui.map.MapMarker;
 import com.google.android.gnd.vo.Place;
 import com.google.android.gnd.vo.Point;
 import com.google.common.collect.ImmutableSet;
+import io.reactivex.Completable;
 import io.reactivex.disposables.Disposable;
 import java8.util.Optional;
 import javax.inject.Inject;
@@ -42,7 +43,6 @@ public class MapContainerViewModel extends ViewModel {
   private final MutableLiveData<CameraUpdate> cameraUpdates;
   private final LocationManager locationManager;
   private Disposable locationUpdateSubscription;
-  private Disposable locationLockSubscription;
 
   @Inject
   MapContainerViewModel(GndDataRepository dataRepository, LocationManager locationManager) {
@@ -93,34 +93,24 @@ public class MapContainerViewModel extends ViewModel {
     return cameraUpdates;
   }
 
-  public MutableLiveData<LocationLockStatus> getLocationLockStatus() {
+  public LiveData<LocationLockStatus> getLocationLockStatus() {
     return locationLockStatus;
   }
 
-  public void onLocationLockClick() {
-    if (isLocationLockEnabled()) {
-      disableLocationLock();
-    } else {
-      enableLocationLock();
-    }
-  }
-
-  private boolean isLocationLockEnabled() {
+  public boolean isLocationLockEnabled() {
     return locationLockStatus.getValue().isEnabled();
   }
 
-  private void enableLocationLock() {
-    Log.d(TAG, "Enabling location lock");
-    disposeLocationLockSubscription();
-    locationLockSubscription =
-        locationManager
-            .enableLocationUpdates()
-            .subscribe(this::onEnableLocationLockSuccess, this::onLocationFailure);
+  public Completable enableLocationLock() {
+    return locationManager
+      .enableLocationUpdates()
+      .doOnComplete(() -> locationLockStatus.setValue(LocationLockStatus.enabled()))
+      .doOnComplete(() -> restartLocationUpdates())
+      .doOnError(t -> locationLockStatus.setValue(LocationLockStatus.error(t)));
   }
 
-  private synchronized void onEnableLocationLockSuccess() {
-    locationLockStatus.setValue(LocationLockStatus.enabled());
-
+  private void restartLocationUpdates() {
+    disposeLocationUpdateSubscription();
     // Sometimes there is visible latency between when location update request succeeds and when
     // the first location update is received. Requesting the last know location is usually
     // immediate, so we request it first here to reduce perceived latency.
@@ -137,21 +127,11 @@ public class MapContainerViewModel extends ViewModel {
     Log.d(TAG, "Enable location lock succeeded");
   }
 
-  private void onLocationFailure(Throwable t) {
-    locationLockStatus.setValue(LocationLockStatus.error(t));
-  }
-
-  private void disableLocationLock() {
-    Log.d(TAG, "Disabling location lock");
-    disposeLocationLockSubscription();
-    locationLockSubscription =
-        locationManager.disableLocationUpdates().subscribe(this::onDisableLocationLockSuccess);
-  }
-
-  private synchronized void onDisableLocationLockSuccess() {
-    locationLockStatus.setValue(LocationLockStatus.disabled());
-    disposeLocationUpdateSubscription();
-    Log.d(TAG, "Disable location lock succeeded");
+  public Completable disableLocationLock() {
+    return locationManager
+      .disableLocationUpdates()
+      .doOnSubscribe(s -> disposeLocationUpdateSubscription())
+      .doOnComplete(() -> locationLockStatus.setValue(LocationLockStatus.disabled()));
   }
 
   public void onAddPlace(AddPlaceRequest addPlaceRequest) {
@@ -172,20 +152,12 @@ public class MapContainerViewModel extends ViewModel {
   @Override
   protected void onCleared() {
     disposeLocationUpdateSubscription();
-    disposeLocationLockSubscription();
   }
 
   private synchronized void disposeLocationUpdateSubscription() {
     if (locationUpdateSubscription != null) {
       locationUpdateSubscription.dispose();
       locationUpdateSubscription = null;
-    }
-  }
-
-  private void disposeLocationLockSubscription() {
-    if (locationLockSubscription != null) {
-      locationLockSubscription.dispose();
-      locationLockSubscription = null;
     }
   }
 

@@ -32,6 +32,7 @@ public abstract class RxLiveData {
         observable.toFlowable(BackpressureStrategy.BUFFER));
   }
 
+  // TODO: Does LiveData properly dispose of Rx subscriptions?
   // TODO: Handle errors.
   public static <T> LiveData<T> fromFlowable(Flowable<T> flowable) {
     return LiveDataReactiveStreams.fromPublisher(flowable);

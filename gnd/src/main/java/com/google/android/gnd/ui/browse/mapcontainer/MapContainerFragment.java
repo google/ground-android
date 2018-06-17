@@ -108,12 +108,20 @@ public class MapContainerFragment extends GndFragment {
         .as(autoDisposable(this))
         .subscribe(__ -> browseViewModel.onAddPlaceBtnClick(map.getCenter()));
     RxView.clicks(locationLockBtn)
-        .as(autoDisposable(this))
-        .subscribe(__ -> mapContainerViewModel.onLocationLockClick());
+          .as(autoDisposable(this))
+          .subscribe(__ -> onLocationLockClick(map));
     map.getMarkerClicks().as(autoDisposable(this)).subscribe(mapContainerViewModel::onMarkerClick);
     map.getMarkerClicks().as(autoDisposable(this)).subscribe(browseViewModel::onMarkerClick);
     map.getDragInteractions().as(autoDisposable(this)).subscribe(mapContainerViewModel::onMapDrag);
     enableLocationLockBtn();
+  }
+
+  public void onLocationLockClick(MapAdapter map) {
+    if (mapContainerViewModel.isLocationLockEnabled()) {
+      mapContainerViewModel.disableLocationLock().as(autoDisposable(this)).subscribe();
+    } else {
+      mapContainerViewModel.enableLocationLock().as(autoDisposable(this)).subscribe();
+    }
   }
 
   private void onPlaceSheetEvent(PlaceSheetEvent event, MapAdapter map) {
