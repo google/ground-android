@@ -62,14 +62,18 @@ import javax.inject.Singleton;
 @Singleton
 public class FirestoreDataService implements DataService {
 
-  public static final FirebaseFirestoreSettings FIRESTORE_SETTINGS =
+  private static final FirebaseFirestoreSettings FIRESTORE_SETTINGS =
       new FirebaseFirestoreSettings.Builder().setPersistenceEnabled(true).build();
-  public static final SetOptions MERGE = SetOptions.merge();
+  private static final SetOptions MERGE = SetOptions.merge();
   private static final String TAG = FirestoreDataService.class.getSimpleName();
-  private FirebaseFirestore db;
+  private final FirebaseFirestore db;
 
   @Inject
-  FirestoreDataService() {}
+  FirestoreDataService() {
+    this.db = FirebaseFirestore.getInstance();
+    db.setFirestoreSettings(FIRESTORE_SETTINGS);
+    FirebaseFirestore.setLoggingEnabled(true);
+  }
 
   static Timestamps toTimestamps(@Nullable Date created, @Nullable Date modified) {
     Timestamps.Builder timestamps = Timestamps.newBuilder();
@@ -80,13 +84,6 @@ public class FirestoreDataService implements DataService {
       timestamps.setModified(modified);
     }
     return timestamps.build();
-  }
-
-  @Override
-  public void onCreate() {
-    db = FirebaseFirestore.getInstance();
-    db.setFirestoreSettings(FIRESTORE_SETTINGS);
-    FirebaseFirestore.setLoggingEnabled(true);
   }
 
   private GndFirestorePath db() {

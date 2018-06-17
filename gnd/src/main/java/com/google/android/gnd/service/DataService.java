@@ -30,8 +30,6 @@ import java.util.List;
  * connection is unavailable.
  */
 public interface DataService {
-  void onCreate();
-
   Maybe<Project> loadProject(String projectId);
 
   Place update(String projectId, PlaceUpdate placeUpdate);

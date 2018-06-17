@@ -50,9 +50,6 @@ public class GndApplication extends MultiDexApplication implements HasActivityIn
 
     // Enable RxJava assembly stack collection for more useful stack traces.
     RxJava2Debug.enableRxJava2AssemblyTracking(new String[] {getClass().getPackage().getName()});
-
-    // TODO: Implement GndDataRepository as LifecycleObserver.
-    dataRepository.onCreate();
   }
 
   @Override

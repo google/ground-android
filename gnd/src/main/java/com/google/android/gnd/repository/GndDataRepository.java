@@ -47,10 +47,6 @@ public class GndDataRepository {
     projectStateObservable = BehaviorSubject.createDefault(ProjectState.inactive());
   }
 
-  public void onCreate() {
-    dataService.onCreate();
-  }
-
   public Flowable<ProjectState> getProjectState() {
     return projectStateObservable.toFlowable(BackpressureStrategy.LATEST);
   }
