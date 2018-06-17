@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <!--
   ~ Copyright 2018 Google LLC
   ~
@@ -15,23 +14,13 @@
   ~ limitations under the License.
   -->
 
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
-  >
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
 
-  <!--<item-->
-  <!--android:id="@+id/toolbar_save_link"-->
-  <!--android:title="@string/save"-->
-  <!--android:visible="false"-->
-  <!--app:showAsAction="always"/>-->
-
-  <!--<item-->
-  <!--android:id="@+id/edit_place_metadata_menu_item"-->
-  <!--android:title="@string/edit_place_id_and_caption"/>-->
   <item
     android:id="@+id/move_place_menu_item"
-      android:title="@string/move_place"/>
+    android:title="@string/move_place"/>
   <item
     android:id="@+id/delete_place_menu_item"
-      android:title="@string/delete_place"/>
+    android:title="@string/delete_place"/>
 
 </menu>

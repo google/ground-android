@@ -88,8 +88,8 @@
     IN BOTH ADD/EDIT AND VIEW PLACE SCREENS
   -->
 
-  <!-- Shown in toolbar overflow menu to enter "move" mode to reposition a place (TBD). -->
-  <string name="move_place">Move</string>
+  <!-- Shown in toolbar overflow menu to enter "move" mode to reposition a place. -->
+  <string name="move_place">Move place</string>
   <!-- Shown in toolbar overflow menu to open popup dialog to edit place metadata. -->
   <string name="edit_place_id_and_caption">Edit ID &amp; caption</string>
   <!-- Shown in edit id/caption popup (TBD) above place ID. -->
