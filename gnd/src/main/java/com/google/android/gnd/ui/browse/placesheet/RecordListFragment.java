@@ -16,6 +16,8 @@
 
 package com.google.android.gnd.ui.browse.placesheet;
 
+import static com.google.android.gnd.rx.RxAutoDispose.autoDisposable;
+
 import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -79,7 +81,10 @@ public class RecordListFragment extends GndFragment {
     recyclerView.setNestedScrollingEnabled(true);
     recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
     recyclerView.setAdapter(adapter);
-    viewModel.loadRecords(getPlaceTypeId(), getFormId(), getPlaceId());
+    viewModel
+      .loadRecords(getPlaceTypeId(), getFormId(), getPlaceId())
+      .as(autoDisposable(this))
+      .subscribe();
     return recyclerView;
   }
 
