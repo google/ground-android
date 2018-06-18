@@ -1,0 +1,59 @@
+<!--
+  ~ Copyright 2018 Google LLC
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     https://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<RelativeLayout
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent"
+  android:orientation="vertical">
+
+  <com.google.android.gnd.ui.common.GndToolbar
+    android:id="@+id/view_record_toolbar"
+    android:layout_width="match_parent"
+    android:layout_height="?attr/actionBarSize"
+    android:layout_alignParentTop="true"
+    android:elevation="@dimen/toolbar_elevation"
+    android:theme="@style/ToolbarTheme"/>
+
+  <!--
+    @background is required to make @elevation show drop shadow
+    https://stackoverflow.com/questions/31151180/material-tablayout-elevation-not-working/31777078
+  -->
+  <!-- TODO: Refactor? -->
+  <android.support.design.widget.TabLayout
+    android:id="@+id/form_tab_layout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_below="@+id/view_record_toolbar"
+    android:background="@color/colorWhite"
+    android:elevation="5dp"
+    app:tabIndicatorColor="@color/colorPrimary"
+    app:tabSelectedTextColor="@color/colorPrimary"
+    app:tabTextColor="@color/colorPrimary"/>
+
+  <ScrollView
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_below="@id/form_tab_layout"
+    android:background="@color/colorWhite">
+    <TextView
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:text="Test"/>
+  </ScrollView>
+
+</RelativeLayout>

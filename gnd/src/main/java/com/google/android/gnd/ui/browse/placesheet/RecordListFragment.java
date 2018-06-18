@@ -26,6 +26,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import com.google.android.gnd.MainViewModel;
 import com.google.android.gnd.ui.common.GndFragment;
 import com.google.android.gnd.ui.common.GndViewModelFactory;
 import com.google.android.gnd.vo.Form;
@@ -38,6 +39,7 @@ public class RecordListFragment extends GndFragment {
 
   private RecordListAdapter recordListAdapter;
 
+  private MainViewModel mainViewModel;
   private RecordListViewModel viewModel;
   private PlaceSheetBodyViewModel placeSheetViewModel;
 
@@ -53,7 +55,9 @@ public class RecordListFragment extends GndFragment {
 
   @Override
   protected void createViewModel() {
+    // TODO: Roll "get()" calls into GndViewModelFactory to enforce scoping.
     viewModel = ViewModelProviders.of(this, viewModelFactory).get(RecordListViewModel.class);
+    mainViewModel = ViewModelProviders.of(getActivity(), viewModelFactory).get(MainViewModel.class);
     placeSheetViewModel =
       ViewModelProviders.of(getActivity(), viewModelFactory).get(PlaceSheetBodyViewModel.class);
   }
@@ -73,6 +77,10 @@ public class RecordListFragment extends GndFragment {
   protected void observeViewModel() {
     viewModel.getRecords().observe(this, recordListAdapter::update);
     placeSheetViewModel.getSelectedForm().observe(this, this::update);
+    recordListAdapter
+      .getItemClicks()
+      .as(autoDisposable(this))
+      .subscribe(mainViewModel::onRecordListItemClick);
   }
 
   private void update(Optional<Form> form) {

@@ -19,16 +19,22 @@ package com.google.android.gnd;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.ViewModel;
+import android.support.annotation.Nullable;
 import android.support.v4.view.WindowInsetsCompat;
 import android.view.View;
+import com.google.android.gnd.repository.RecordSummary;
+import com.google.android.gnd.vo.Record;
 import javax.inject.Inject;
 
 public class MainViewModel extends ViewModel {
   private MutableLiveData<WindowInsetsCompat> windowInsetsLiveData;
+  private MutableLiveData<MainViewState> mainViewState;
 
   @Inject
   public MainViewModel() {
     windowInsetsLiveData = new MutableLiveData<>();
+    mainViewState = new MutableLiveData<>();
+    mainViewState.setValue(new MainViewState(MainViewState.View.MAP));
   }
 
   public LiveData<WindowInsetsCompat> getWindowInsetsLiveData() {
@@ -38,5 +44,48 @@ public class MainViewModel extends ViewModel {
   WindowInsetsCompat onApplyWindowInsets(View view, WindowInsetsCompat insets) {
     windowInsetsLiveData.setValue(insets);
     return insets;
+  }
+
+  public void onRecordListItemClick(RecordSummary recordSummary) {
+    mainViewState.setValue(MainViewState.viewRecord(recordSummary.getRecord()));
+  }
+
+  public LiveData<MainViewState> getViewState() {
+    return mainViewState;
+  }
+
+  // TODO: Merge PlaceSheetEvent into this state.
+  public static class MainViewState {
+    enum View {
+      MAP,
+      PLACE_SHEET,
+      VIEW_RECORD
+    }
+
+    private View view;
+    @Nullable
+    private Record record;
+
+    MainViewState(View view) {
+      this.view = view;
+    }
+
+    MainViewState(View view, Record record) {
+      this.view = view;
+      this.record = record;
+    }
+
+    public static MainViewState viewRecord(Record record) {
+      return new MainViewState(View.VIEW_RECORD, record);
+    }
+
+    public View getView() {
+      return view;
+    }
+
+    @Nullable
+    public Record getRecord() {
+      return record;
+    }
   }
 }

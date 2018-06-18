@@ -34,11 +34,13 @@ import com.google.android.gnd.vo.Form;
 import com.google.android.gnd.vo.Form.Element;
 import com.google.android.gnd.vo.Form.Field;
 import com.google.android.gnd.vo.Record.Value;
+import io.reactivex.subjects.Subject;
 import java8.util.Optional;
 
 class RecordListItemViewHolder extends RecyclerView.ViewHolder {
   private static final int MAX_SUMMARY_COLUMNS = 4;
-  private final Context context;
+  private final View view;
+  private final Subject<RecordSummary> clickSubject;
 
   @BindView(R.id.field_label_row)
   TableRow fieldLabelRow;
@@ -46,15 +48,20 @@ class RecordListItemViewHolder extends RecyclerView.ViewHolder {
   @BindView(R.id.field_value_row)
   TableRow fieldValueRow;
 
-  public static RecordListItemViewHolder newInstance(ViewGroup parent) {
+  public static RecordListItemViewHolder newInstance(
+    ViewGroup parent,
+    Subject<RecordSummary> clickSubject) {
     LayoutInflater inflater = LayoutInflater.from(parent.getContext());
     View view = inflater.inflate(R.layout.record_list_item, parent, false);
-    return new RecordListItemViewHolder(view);
+    return new RecordListItemViewHolder(view, clickSubject);
   }
 
-  private RecordListItemViewHolder(View view) {
+  private RecordListItemViewHolder(
+    View view,
+    Subject<RecordSummary> clickSubject) {
     super(view);
-    this.context = view.getContext();
+    this.view = view;
+    this.clickSubject = clickSubject;
     ButterKnife.bind(this, view);
   }
 
@@ -75,10 +82,12 @@ class RecordListItemViewHolder extends RecyclerView.ViewHolder {
           break;
       }
     }
+    view.setOnClickListener(__ -> clickSubject.onNext(summary));
   }
 
   @NonNull
   private TextView newFieldTextView(String text) {
+    Context context = view.getContext();
     Resources resources = context.getResources();
     TextView v = new TextView(context);
     v.setTextAppearance(context, R.style.RecordListText_Field);

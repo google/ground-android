@@ -31,6 +31,8 @@ import com.google.android.gnd.ui.browse.placesheet.RecordListFragment;
 import com.google.android.gnd.ui.common.GndActivity;
 import com.google.android.gnd.ui.common.GndActivityModule;
 import com.google.android.gnd.ui.projectselector.ProjectSelectorDialogFragment;
+import com.google.android.gnd.ui.viewrecord.ViewRecordFragment;
+import com.google.android.gnd.ui.viewrecord.ViewRecordModule;
 import dagger.Binds;
 import dagger.Module;
 import dagger.android.ContributesAndroidInjector;
@@ -45,6 +47,10 @@ public abstract class MainActivityModule {
   @Binds
   @PerActivity
   abstract AppCompatActivity appCompatActivity(MainActivity mainActivity);
+
+  // TODO: Merge Fragment and activities modules into one.
+  // Discussion:
+  // https://stackoverflow.com/questions/36206989/dagger-should-we-create-each-component-and-module-for-each-activity-fragment
 
   @PerFragment
   @ContributesAndroidInjector(modules = BrowseFragmentModule.class)
@@ -73,4 +79,8 @@ public abstract class MainActivityModule {
   @PerFragment
   @ContributesAndroidInjector(modules = PlaceSheetModule.class)
   abstract RecordListFragment recordListFragmentInjector();
+
+  @PerFragment
+  @ContributesAndroidInjector(modules = ViewRecordModule.class)
+  abstract ViewRecordFragment ViewRecordFragmentInjector();
 }

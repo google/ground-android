@@ -24,6 +24,8 @@ import android.content.IntentSender.SendIntentException;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewCompat;
 import android.util.Log;
 import butterknife.ButterKnife;
@@ -36,6 +38,8 @@ import com.google.android.gnd.system.SettingsManager;
 import com.google.android.gnd.system.SettingsManager.SettingsChangeRequest;
 import com.google.android.gnd.ui.common.GndActivity;
 import com.google.android.gnd.ui.common.GndViewModelFactory;
+import com.google.android.gnd.ui.viewrecord.ViewRecordFragment;
+import com.google.android.gnd.vo.Record;
 import io.reactivex.plugins.RxJavaPlugins;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -70,17 +74,40 @@ public class MainActivity extends GndActivity {
     viewModel = ViewModelProviders.of(this, viewModelFactory).get(MainViewModel.class);
 
     ViewCompat.setOnApplyWindowInsetsListener(
-        getWindow().getDecorView().getRootView(), viewModel::onApplyWindowInsets);
+      getWindow().getDecorView().getRootView(), viewModel::onApplyWindowInsets);
 
     permissionsManager
-        .getPermissionsRequests()
-        .as(autoDisposable(this))
-        .subscribe(this::onPermissionsRequest);
+      .getPermissionsRequests()
+      .as(autoDisposable(this))
+      .subscribe(this::onPermissionsRequest);
 
     settingsManager
-        .getSettingsChangeRequests()
-        .as(autoDisposable(this))
-        .subscribe(this::onSettingsChangeRequest);
+      .getSettingsChangeRequests()
+      .as(autoDisposable(this))
+      .subscribe(this::onSettingsChangeRequest);
+
+    viewModel.getViewState().observe(this, this::setViewState);
+  }
+
+  private void setViewState(MainViewModel.MainViewState state) {
+    switch (state.getView()) {
+      case MAP:
+        break;
+      case PLACE_SHEET:
+        break;
+      case VIEW_RECORD:
+        showViewRecordFragment(state.getRecord());
+        break;
+    }
+
+  }
+
+  private void showViewRecordFragment(Record record) {
+    FragmentManager manager = getSupportFragmentManager();
+    FragmentTransaction transaction = manager.beginTransaction();
+    // TODO: Replace first child of parent container instead.
+    transaction.replace(R.id.browse_fragment, new ViewRecordFragment());
+    transaction.commit();
   }
 
   private void onPermissionsRequest(PermissionsRequest permissionsRequest) {

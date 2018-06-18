@@ -20,21 +20,26 @@ import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.ViewGroup;
 import com.google.android.gnd.repository.RecordSummary;
+import io.reactivex.Observable;
+import io.reactivex.subjects.PublishSubject;
+import io.reactivex.subjects.Subject;
 import java.util.Collections;
 import java.util.List;
 
 class RecordListAdapter extends RecyclerView.Adapter<RecordListItemViewHolder> {
 
   private List<RecordSummary> recordSummaries;
+  private Subject<RecordSummary> clickSubject;
 
   public RecordListAdapter() {
     recordSummaries = Collections.emptyList();
+    clickSubject = PublishSubject.create();
   }
 
   @NonNull
   @Override
   public RecordListItemViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-    return RecordListItemViewHolder.newInstance(parent);
+    return RecordListItemViewHolder.newInstance(parent, clickSubject);
   }
 
   @Override
@@ -45,6 +50,10 @@ class RecordListAdapter extends RecyclerView.Adapter<RecordListItemViewHolder> {
   @Override
   public int getItemCount() {
     return recordSummaries.size();
+  }
+
+  Observable<RecordSummary> getItemClicks() {
+    return clickSubject;
   }
 
   void update(List<RecordSummary> recordSummaries) {
