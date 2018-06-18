@@ -58,7 +58,7 @@ public class PlaceSheetHeaderFragment extends GndFragment {
   @Override
   protected void createViewModel() {
     browseViewModel =
-        ViewModelProviders.of(getParentFragment(), viewModelFactory).get(BrowseViewModel.class);
+      ViewModelProviders.of(getActivity(), viewModelFactory).get(BrowseViewModel.class);
   }
 
   @Override

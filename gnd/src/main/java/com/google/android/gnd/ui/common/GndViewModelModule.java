@@ -21,6 +21,7 @@ import android.arch.lifecycle.ViewModelProvider;
 import com.google.android.gnd.MainViewModel;
 import com.google.android.gnd.ui.browse.BrowseViewModel;
 import com.google.android.gnd.ui.browse.mapcontainer.MapContainerViewModel;
+import com.google.android.gnd.ui.browse.placesheet.PlaceSheetBodyViewModel;
 import com.google.android.gnd.ui.browse.placesheet.RecordListViewModel;
 import com.google.android.gnd.ui.projectselector.ProjectSelectorViewModel;
 import dagger.Binds;
@@ -43,6 +44,11 @@ public abstract class GndViewModelModule {
   @IntoMap
   @GndViewModelKey(BrowseViewModel.class)
   abstract ViewModel bindBrowseViewModel(BrowseViewModel viewModel);
+
+  @Binds
+  @IntoMap
+  @GndViewModelKey(PlaceSheetBodyViewModel.class)
+  abstract ViewModel bindPlaceSheetBodyViewModel(PlaceSheetBodyViewModel viewModel);
 
   @Binds
   @IntoMap

@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.ui.browse;
 
+import android.support.annotation.Nullable;
 import com.google.android.gnd.vo.Place;
 
 public class PlaceSheetEvent {
@@ -26,8 +27,11 @@ public class PlaceSheetEvent {
   }
 
   private final Type type;
+  @Nullable
   private Place place;
+  @Nullable
   private String title;
+  @Nullable
   private String subtitle;
 
   private PlaceSheetEvent(Type type, Place place) {

@@ -25,8 +25,11 @@ import com.google.android.gnd.repository.GndDataRepository;
 import com.google.android.gnd.repository.ProjectState;
 import com.google.android.gnd.repository.RecordSummary;
 import com.google.android.gnd.vo.Form;
+import com.google.android.gnd.vo.Place;
+import com.google.android.gnd.vo.PlaceType;
 import com.google.android.gnd.vo.Project;
 import io.reactivex.Completable;
+import java.util.Collections;
 import java.util.List;
 import java8.util.Optional;
 import java8.util.stream.Collectors;
@@ -47,13 +50,19 @@ public class RecordListViewModel extends ViewModel {
     return recordSummaries;
   }
 
-  public Completable loadRecords(String placeTypeId, String formId, String placeId) {
+  public void clearRecords() {
+    recordSummaries.setValue(Collections.emptyList());
+  }
+
+  public Completable loadRecords(Place place, Form form) {
+    PlaceType placeType = place.getPlaceType();
     return dataRepository
-        .getProjectState()
-        .map(ProjectState::getActiveProject)
-        .filter(Optional::isPresent)
-        .map(Optional::get)
-        .flatMapCompletable(project -> loadRecords(project, placeTypeId, formId, placeId));
+      .getProjectState()
+      .map(ProjectState::getActiveProject)
+      .filter(Optional::isPresent)
+      .map(Optional::get)
+      .flatMapCompletable(
+        project -> loadRecords(project, placeType.getId(), form.getId(), place.getId()));
   }
 
   private Completable loadRecords(

@@ -112,7 +112,7 @@
 
   <!--
     NOTE: Most attributes do not work when style is set programmatically, so individual layout
-    attributes are set in RecordListRecyclerViewAdapter instead.
+    attributes are set in RecordListAdapter instead.
     -->
   <style name="RecordListText.Field">
     <item name="android:textColor">@color/colorGrey800</item>

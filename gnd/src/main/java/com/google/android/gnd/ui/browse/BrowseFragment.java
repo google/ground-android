@@ -88,7 +88,7 @@ public class BrowseFragment extends GndFragment {
 
   @Override
   public void createViewModel() {
-    viewModel = ViewModelProviders.of(this, viewModelFactory).get(BrowseViewModel.class);
+    viewModel = ViewModelProviders.of(getActivity(), viewModelFactory).get(BrowseViewModel.class);
     mainViewModel = ViewModelProviders.of(getActivity(), viewModelFactory).get(MainViewModel.class);
   }
 

@@ -58,7 +58,7 @@ public class AddPlaceDialogFragment extends GndDialogFragment {
   @Override
   public Dialog onCreateDialog(Bundle savedInstanceState) {
     BrowseViewModel browseViewModel =
-        ViewModelProviders.of(getParentFragment()).get(BrowseViewModel.class);
+      ViewModelProviders.of(getActivity()).get(BrowseViewModel.class);
     ProjectState projectState = browseViewModel.getProjectState().getValue();
     Point location = browseViewModel.getShowAddPlaceDialogRequests().getValue();
     Optional<Project> activeProject = projectState.getActiveProject();

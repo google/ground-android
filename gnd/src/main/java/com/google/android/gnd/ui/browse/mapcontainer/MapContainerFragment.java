@@ -68,7 +68,7 @@ public class MapContainerFragment extends GndFragment {
     mapContainerViewModel =
         ViewModelProviders.of(this, viewModelFactory).get(MapContainerViewModel.class);
     browseViewModel =
-        ViewModelProviders.of(getParentFragment(), viewModelFactory).get(BrowseViewModel.class);
+      ViewModelProviders.of(getActivity(), viewModelFactory).get(BrowseViewModel.class);
   }
 
   @Override

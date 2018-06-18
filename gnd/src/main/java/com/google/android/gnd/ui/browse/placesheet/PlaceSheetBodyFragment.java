@@ -36,14 +36,16 @@ import javax.inject.Inject;
 public class PlaceSheetBodyFragment extends GndFragment {
   @Inject GndViewModelFactory viewModelFactory;
 
-  @Inject FormTypePagerAdapter formTypePagerAdapter;
-
-  @BindView(R.id.record_list_view_pager)
-  ViewPager recordListViewPager;
+  @Inject
+  FormTabPagerAdapter formTypePagerAdapter;
 
   @BindView(R.id.forms_tab_layout)
   TabLayout formsTabLayout;
 
+  @BindView(R.id.record_list_view_pager)
+  ViewPager recordListViewPager;
+
+  private PlaceSheetBodyViewModel viewModel;
   private BrowseViewModel browseViewModel;
   private MainViewModel mainViewModel;
 
@@ -52,9 +54,12 @@ public class PlaceSheetBodyFragment extends GndFragment {
 
   @Override
   protected void createViewModel() {
+    viewModel = ViewModelProviders
+      .of(getActivity(), viewModelFactory)
+      .get(PlaceSheetBodyViewModel.class);
     mainViewModel = ViewModelProviders.of(getActivity(), viewModelFactory).get(MainViewModel.class);
     browseViewModel =
-        ViewModelProviders.of(getParentFragment(), viewModelFactory).get(BrowseViewModel.class);
+      ViewModelProviders.of(getActivity(), viewModelFactory).get(BrowseViewModel.class);
   }
 
   @Override
@@ -66,6 +71,7 @@ public class PlaceSheetBodyFragment extends GndFragment {
   @Override
   protected void initializeViews() {
     recordListViewPager.setAdapter(formTypePagerAdapter);
+    recordListViewPager.addOnPageChangeListener(viewModel);
     formsTabLayout.setupWithViewPager(recordListViewPager);
     TabLayoutHelper tabLayoutHelper = new TabLayoutHelper(formsTabLayout, recordListViewPager);
     // Stretch tabs if they all fit on screen, otherwise scroll.
@@ -75,7 +81,8 @@ public class PlaceSheetBodyFragment extends GndFragment {
   @Override
   protected void observeViewModel() {
     mainViewModel.getWindowInsetsLiveData().observe(this, this::onApplyWindowInsets);
-    browseViewModel.getPlaceSheetEvents().observe(this, formTypePagerAdapter::onPlaceSheetEvent);
+    browseViewModel.getPlaceSheetEvents().observe(this, viewModel::onPlaceSheetEvent);
+    viewModel.getSelectedPlace().observe(this, formTypePagerAdapter::update);
   }
 
   private void onApplyWindowInsets(WindowInsetsCompat insets) {

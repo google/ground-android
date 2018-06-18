@@ -18,20 +18,18 @@ package com.google.android.gnd.ui.browse.placesheet;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
-import com.google.android.gnd.ui.browse.PlaceSheetEvent;
-import com.google.android.gnd.vo.Form;
+import android.support.v4.app.FragmentStatePagerAdapter;
 import com.google.android.gnd.vo.Place;
 import com.google.android.gnd.vo.PlaceType;
 import com.google.common.collect.ImmutableList;
 import java8.util.Optional;
 import javax.inject.Inject;
 
-public class FormTypePagerAdapter extends FragmentPagerAdapter {
+public class FormTabPagerAdapter extends FragmentStatePagerAdapter {
   private Optional<Place> place;
 
   @Inject
-  public FormTypePagerAdapter(FragmentManager fm) {
+  public FormTabPagerAdapter(FragmentManager fm) {
     super(fm);
     place = Optional.empty();
   }
@@ -47,9 +45,7 @@ public class FormTypePagerAdapter extends FragmentPagerAdapter {
 
   @Override
   public Fragment getItem(int position) {
-    PlaceType placeType = place.get().getPlaceType();
-    Form form = placeType.getForms().get(position);
-    return RecordListFragment.newInstance(placeType.getId(), place.get().getId(), form.getId());
+    return RecordListFragment.newInstance();
   }
 
   @Override
@@ -57,10 +53,8 @@ public class FormTypePagerAdapter extends FragmentPagerAdapter {
     return place.get().getPlaceType().getForms().get(position).getTitle();
   }
 
-  public void onPlaceSheetEvent(PlaceSheetEvent event) {
-    if (event.isShowEvent()) {
-      this.place = Optional.of(event.getPlace());
-      notifyDataSetChanged();
-    }
+  void update(Optional<Place> place) {
+    this.place = place;
+    notifyDataSetChanged();
   }
 }

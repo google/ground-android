@@ -28,49 +28,34 @@ import android.view.View;
 import android.view.ViewGroup;
 import com.google.android.gnd.ui.common.GndFragment;
 import com.google.android.gnd.ui.common.GndViewModelFactory;
+import com.google.android.gnd.vo.Form;
+import com.google.android.gnd.vo.Place;
+import java8.util.Optional;
 import javax.inject.Inject;
 
 public class RecordListFragment extends GndFragment {
-  private static final String PLACE_TYPE_ID = "placeTypeId";
-  private static final String PLACE_ID = "placeId";
-  private static final String FORM_ID = "formId";
-
   @Inject GndViewModelFactory viewModelFactory;
 
+  private RecordListAdapter recordListAdapter;
+
   private RecordListViewModel viewModel;
-  private RecordListRecyclerViewAdapter adapter;
+  private PlaceSheetBodyViewModel placeSheetViewModel;
 
-  static RecordListFragment newInstance(String placeTypeId, String placeId, String formId) {
-    RecordListFragment fragment = new RecordListFragment();
-    Bundle args = new Bundle();
-    args.putString(PLACE_TYPE_ID, placeTypeId);
-    args.putString(PLACE_ID, placeId);
-    args.putString(FORM_ID, formId);
-    fragment.setArguments(args);
-    return fragment;
-  }
-
-  private String getPlaceTypeId() {
-    return getArguments().getString(PLACE_TYPE_ID);
-  }
-
-  private String getPlaceId() {
-    return getArguments().getString(PLACE_ID);
-  }
-
-  private String getFormId() {
-    return getArguments().getString(FORM_ID);
+  static RecordListFragment newInstance() {
+    return new RecordListFragment();
   }
 
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    adapter = new RecordListRecyclerViewAdapter();
+    recordListAdapter = new RecordListAdapter();
   }
 
   @Override
   protected void createViewModel() {
     viewModel = ViewModelProviders.of(this, viewModelFactory).get(RecordListViewModel.class);
+    placeSheetViewModel =
+      ViewModelProviders.of(getActivity(), viewModelFactory).get(PlaceSheetBodyViewModel.class);
   }
 
   @Nullable
@@ -80,16 +65,22 @@ public class RecordListFragment extends GndFragment {
     RecyclerView recyclerView = new RecyclerView(getContext());
     recyclerView.setNestedScrollingEnabled(true);
     recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-    recyclerView.setAdapter(adapter);
-    viewModel
-      .loadRecords(getPlaceTypeId(), getFormId(), getPlaceId())
-      .as(autoDisposable(this))
-      .subscribe();
+    recyclerView.setAdapter(recordListAdapter);
     return recyclerView;
   }
 
   @Override
   protected void observeViewModel() {
-    viewModel.getRecords().observe(this, adapter::update);
+    viewModel.getRecords().observe(this, recordListAdapter::update);
+    placeSheetViewModel.getSelectedForm().observe(this, this::update);
+  }
+
+  private void update(Optional<Form> form) {
+    viewModel.clearRecords();
+    Optional<Place> place = placeSheetViewModel.getSelectedPlace().getValue();
+    if (!form.isPresent() || !place.isPresent()) {
+      return;
+    }
+    viewModel.loadRecords(place.get(), form.get()).as(autoDisposable(this)).subscribe();
   }
 }
