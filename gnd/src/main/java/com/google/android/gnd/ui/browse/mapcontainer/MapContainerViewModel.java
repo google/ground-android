@@ -141,7 +141,7 @@ public class MapContainerViewModel extends ViewModel {
   public void onMapDrag(Point point) {
     if (isLocationLockEnabled()) {
       Log.d(TAG, "User dragged map. Disabling location lock");
-      disableLocationLock();
+      locationLockStatus.setValue(LocationLockStatus.disabled());
     }
   }
 
