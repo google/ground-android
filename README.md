@@ -29,7 +29,7 @@ You can generate new keys at:
 
 Be sure SHA1 fingerprint in keystore is registered in:
 
-  https://pantheon.corp.google.com/apis/credentials
+  https://console.cloud.google.com/apis/credentials
 
 ### Set up Firebase
 
