@@ -30,7 +30,7 @@ You can generate new keys at:
 Be sure the SHA-1 certificate fingerprint described in the API key generation instructions is  
 registered with package name ```com.google.android.gnd``` in:
 
-  https://pantheon.corp.google.com/apis/credentials
+  https://console.cloud.google.com/apis/credentials
 
 ### Set up Firebase
 
