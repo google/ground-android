@@ -22,6 +22,7 @@ buildscript {
         jcenter()
         mavenLocal()
         maven { url 'https://maven.google.com'  }
+        maven { url "https://github.com/ben-manes/gradle-versions-plugin/raw/mvnrepo" }
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:3.0.1'
@@ -32,7 +33,14 @@ buildscript {
     }
 }
 
+// Lets us check which deps are out of date with:
+// ./gradlew dependencyUpdates -Drevision=release
+plugins {
+    id "com.github.ben-manes.versions" version "0.20.0"
+}
+
 allprojects {
+
     repositories {
         jcenter()
         mavenLocal()

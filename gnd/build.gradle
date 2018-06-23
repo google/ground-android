@@ -124,7 +124,7 @@ dependencies {
     annotationProcessor "android.arch.lifecycle:compiler:$project.lifecycleVersion"
 
     // Auto-value
-    provided "com.google.auto.value:auto-value-annotations:$project.autoValueVersion"
+    compileOnly "com.google.auto.value:auto-value-annotations:$project.autoValueVersion"
     annotationProcessor "com.google.auto.value:auto-value:$project.autoValueVersion"
 
     // Guava
