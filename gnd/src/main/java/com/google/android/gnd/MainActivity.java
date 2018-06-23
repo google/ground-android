@@ -24,10 +24,9 @@ import android.content.IntentSender.SendIntentException;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewCompat;
 import android.util.Log;
+import androidx.navigation.fragment.NavHostFragment;
 import butterknife.ButterKnife;
 import com.google.android.gnd.repository.GndDataRepository;
 import com.google.android.gnd.rx.RxErrors;
@@ -38,7 +37,6 @@ import com.google.android.gnd.system.SettingsManager;
 import com.google.android.gnd.system.SettingsManager.SettingsChangeRequest;
 import com.google.android.gnd.ui.common.GndActivity;
 import com.google.android.gnd.ui.common.GndViewModelFactory;
-import com.google.android.gnd.ui.viewrecord.ViewRecordFragment;
 import com.google.android.gnd.vo.Record;
 import io.reactivex.plugins.RxJavaPlugins;
 import javax.inject.Inject;
@@ -58,6 +56,8 @@ public class MainActivity extends GndActivity {
 
   @Inject GndDataRepository model;
 
+  private NavHostFragment navHostFragment;
+
   private MainViewModel viewModel;
 
   @Override
@@ -70,6 +70,8 @@ public class MainActivity extends GndActivity {
     setContentView(R.layout.activity_main);
 
     ButterKnife.bind(this);
+
+    navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
 
     viewModel = ViewModelProviders.of(this, viewModelFactory).get(MainViewModel.class);
 
@@ -99,15 +101,11 @@ public class MainActivity extends GndActivity {
         showViewRecordFragment(state.getRecord());
         break;
     }
-
   }
 
   private void showViewRecordFragment(Record record) {
-    FragmentManager manager = getSupportFragmentManager();
-    FragmentTransaction transaction = manager.beginTransaction();
-    // TODO: Replace first child of parent container instead.
-    transaction.replace(R.id.browse_fragment, new ViewRecordFragment());
-    transaction.commit();
+    // TODO: Pass data in and show.
+    navHostFragment.getNavController().navigate(R.id.view_record_fragment);
   }
 
   private void onPermissionsRequest(PermissionsRequest permissionsRequest) {

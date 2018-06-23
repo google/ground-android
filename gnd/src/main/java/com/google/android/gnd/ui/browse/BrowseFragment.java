@@ -156,7 +156,7 @@ public class BrowseFragment extends GndFragment {
     } else if (event.isActivated()) {
       dismissLoadingDialog();
     } else {
-      // TODO: Reuse last selected project instead of asking to sign in every time.
+      // TODO: Reuse last selected project instead of asking to select every time.
       // TODO: Trigger this from welcome flow and nav drawer instead of here.
       viewModel.showProjectSelectorDialog().as(autoDisposable(this)).subscribe();
     }

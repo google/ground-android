@@ -14,19 +14,24 @@
   ~ limitations under the License.
   -->
 
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:app="http://schemas.android.com/apk/res-auto"
   xmlns:tools="http://schemas.android.com/tools"
-  android:layout_width="match_parent"
-  android:layout_height="match_parent"
-  tools:context=".MainActivity">
+  android:id="@+id/nav_main.xml"
+  app:startDestination="@id/browse_fragment">
 
   <fragment
-    android:id="@+id/nav_host_fragment"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:name="androidx.navigation.fragment.NavHostFragment"
-    app:defaultNavHost="true"
-    app:navGraph="@navigation/nav_main"/>
-
-</FrameLayout>
+    android:id="@+id/browse_fragment"
+    android:name="com.google.android.gnd.ui.browse.BrowseFragment"
+    android:label="@string/map_view"
+    tools:layout="@layout/fragment_main">
+    <action
+      android:id="@+id/action_browse_to_view_record"
+      app:destination="@id/view_record_fragment"/>
+  </fragment>
+  <fragment
+    android:id="@+id/view_record_fragment"
+    android:name="com.google.android.gnd.ui.viewrecord.ViewRecordFragment"
+    android:label="@string/view_record_details"
+    tools:layout="@layout/fragment_view_record"/>
+</navigation>

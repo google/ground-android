@@ -122,7 +122,11 @@
   <string name="invalid_data">The form contains incomplete or invalid data. Please check
   your responses and try again.</string>
   <string name="invalid_data_ok">OK</string>
+
+  <!-- TODO: Translate into Portuguese -->
   <string name="select_project_dialog_title">Select Project</string>
   <string name="add_record_button_label">Add record</string>
+  <string name="view_record_details">View record details</string>
+  <string name="map_view">Map view</string>
 
 </resources>

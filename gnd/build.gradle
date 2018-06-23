@@ -19,22 +19,23 @@ apply plugin: 'com.android.application'
 project.ext {
     autoDisposeVersion = "0.8.0"
     autoValueVersion = "1.6"
-    supportLibraryVersion = "28.0.0-alpha1"
-    daggerVersion = "2.14.1"
     butterKnifeVersion = "8.8.1"
-    rxJavaVersion = "2.1.6"
+    constraintLayoutVersion = "1.0.2"
+    daggerVersion = "2.14.1"
+    firebaseVersion = "11.8.0"
+    gmsVersion = "11.8.0"
+    guavaVersion = "23.0-android"
+    junitVersion = "4.12"
+    lifecycleVersion = "1.1.1"
+    navigationVersion = "1.0.0-alpha01"
     rxAndroidVersion = "2.0.1"
+    rxBindingVersion = "2.1.1"
     rxFirebaseVersion = "1.4.1"
     rxJava2DebugVersion = "1.2.2"
-    rxBindingVersion = "2.1.1"
-    lifecycleVersion = "1.1.1"
-    gmsVersion = "11.8.0"
-    firebaseVersion = "11.8.0"
-    junitVersion = "4.12"
-    constraintLayoutVersion = "1.0.2"
+    rxJavaVersion = "2.1.6"
     streamSupportVersion = "1.6.0"
+    supportLibraryVersion = "28.0.0-alpha1"
     tabLayoutHelper = "0.9.0"
-    guavaVersion = "23.0-android"
 }
 
 def homePath = System.properties['user.home']
@@ -117,11 +118,13 @@ dependencies {
     implementation "com.jakewharton.rxbinding2:rxbinding-appcompat-v7:$project.rxBindingVersion"
     implementation "com.jakewharton.rxbinding2:rxbinding-design:$project.rxBindingVersion"
 
-    // Android Arch Lifecycle
+    // Android Arch
     implementation "android.arch.lifecycle:runtime:$project.lifecycleVersion"
     implementation "android.arch.lifecycle:extensions:$project.lifecycleVersion"
     implementation "android.arch.lifecycle:reactivestreams:$project.lifecycleVersion"
     annotationProcessor "android.arch.lifecycle:compiler:$project.lifecycleVersion"
+    implementation "android.arch.navigation:navigation-fragment:$project.navigationVersion"
+    implementation "android.arch.navigation:navigation-ui:$project.navigationVersion"
 
     // Auto-value
     compileOnly "com.google.auto.value:auto-value-annotations:$project.autoValueVersion"
