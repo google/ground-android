@@ -22,7 +22,7 @@ import java8.util.Optional;
 /**
  * Represents an event that should be consumed and processed only once.
  *
- * Based on "LiveData with SnackBar, Navigation and other events (the SingleLiveEvent case)":
+ * <p>Based on "LiveData with SnackBar, Navigation and other events (the SingleLiveEvent case)":
  * https://medium.com/google-developers/livedata-with-snackbar-navigation-and-other-events-the-singleliveevent-case-ac2622673150
  */
 public class Consumable<T> {
@@ -37,9 +37,7 @@ public class Consumable<T> {
     return consumed;
   }
 
-  /**
-   * Returns the content on first invocation, returns empty Optional thereafter.
-   */
+  /** Returns the content on first invocation, returns empty Optional thereafter. */
   public Optional<T> get() {
     if (consumed) {
       return Optional.empty();
@@ -49,9 +47,7 @@ public class Consumable<T> {
     }
   }
 
-  /**
-   * Returns the content, regardless of whether it's already been consumed.
-   */
+  /** Returns the content, regardless of whether it's already been consumed. */
   public T peek() {
     return content;
   }

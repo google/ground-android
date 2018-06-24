@@ -19,7 +19,6 @@ import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.ViewModel;
 import android.util.Log;
-
 import com.google.android.gnd.repository.GndDataRepository;
 import com.google.android.gnd.repository.ProjectState;
 import com.google.android.gnd.rx.RxLiveData;
@@ -28,12 +27,9 @@ import com.google.android.gnd.ui.common.Consumable;
 import com.google.android.gnd.ui.map.MapMarker;
 import com.google.android.gnd.vo.Point;
 import com.google.android.gnd.vo.Project;
-
-import java.util.List;
-
-import javax.inject.Inject;
-
 import io.reactivex.Completable;
+import java.util.List;
+import javax.inject.Inject;
 
 public class BrowseViewModel extends ViewModel {
   private static final String TAG = BrowseViewModel.class.getSimpleName();
@@ -72,10 +68,10 @@ public class BrowseViewModel extends ViewModel {
   public Completable showProjectSelectorDialog() {
     // TODO: Show spinner while loading project summaries.
     return dataRepository
-            .loadProjectSummaries()
-            .map(Consumable::new)
-            .doOnSuccess(showProjectSelectorDialogRequests::setValue)
-            .toCompletable();
+        .loadProjectSummaries()
+        .map(Consumable::new)
+        .doOnSuccess(showProjectSelectorDialogRequests::setValue)
+        .toCompletable();
   }
 
   public void onMarkerClick(MapMarker marker) {

@@ -36,8 +36,7 @@ public class ProjectSelectorDialogFragment extends AbstractDialogFragment {
   private static final String TAG = ProjectSelectorDialogFragment.class.getSimpleName();
   private static final String PROJECTS_BUNDLE_KEY = "projects";
 
-  @Inject
-  AbstractViewModelFactory viewModelFactory;
+  @Inject AbstractViewModelFactory viewModelFactory;
 
   private ProjectSelectorViewModel viewModel;
 

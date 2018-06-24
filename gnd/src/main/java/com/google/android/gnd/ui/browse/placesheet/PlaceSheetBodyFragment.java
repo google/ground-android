@@ -24,24 +24,19 @@ import android.support.v4.view.WindowInsetsCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
+import butterknife.BindView;
 import com.google.android.gnd.MainViewModel;
 import com.google.android.gnd.R;
 import com.google.android.gnd.ui.browse.BrowseViewModel;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.AbstractViewModelFactory;
 import com.h6ah4i.android.tablayouthelper.TabLayoutHelper;
-
 import javax.inject.Inject;
 
-import butterknife.BindView;
-
 public class PlaceSheetBodyFragment extends AbstractFragment {
-  @Inject
-  AbstractViewModelFactory viewModelFactory;
+  @Inject AbstractViewModelFactory viewModelFactory;
 
-  @Inject
-  FormTabPagerAdapter formTypePagerAdapter;
+  @Inject FormTabPagerAdapter formTypePagerAdapter;
 
   @BindView(R.id.forms_tab_layout)
   TabLayout formsTabLayout;
@@ -58,12 +53,11 @@ public class PlaceSheetBodyFragment extends AbstractFragment {
 
   @Override
   protected void obtainViewModels() {
-    viewModel = ViewModelProviders
-      .of(getActivity(), viewModelFactory)
-      .get(PlaceSheetBodyViewModel.class);
+    viewModel =
+        ViewModelProviders.of(getActivity(), viewModelFactory).get(PlaceSheetBodyViewModel.class);
     mainViewModel = ViewModelProviders.of(getActivity(), viewModelFactory).get(MainViewModel.class);
     browseViewModel =
-      ViewModelProviders.of(getActivity(), viewModelFactory).get(BrowseViewModel.class);
+        ViewModelProviders.of(getActivity(), viewModelFactory).get(BrowseViewModel.class);
   }
 
   @Override
@@ -85,7 +79,7 @@ public class PlaceSheetBodyFragment extends AbstractFragment {
   @Override
   protected void observeViewModels() {
     mainViewModel.getWindowInsets().observe(this, this::onApplyWindowInsets);
-      browseViewModel.getPlaceSheetState().observe(this, viewModel::onPlaceSheetStateChange);
+    browseViewModel.getPlaceSheetState().observe(this, viewModel::onPlaceSheetStateChange);
     viewModel.getSelectedPlace().observe(this, formTypePagerAdapter::update);
   }
 

@@ -49,16 +49,13 @@ class RecordListItemViewHolder extends RecyclerView.ViewHolder {
   TableRow fieldValueRow;
 
   public static RecordListItemViewHolder newInstance(
-    ViewGroup parent,
-    Subject<RecordSummary> clickSubject) {
+      ViewGroup parent, Subject<RecordSummary> clickSubject) {
     LayoutInflater inflater = LayoutInflater.from(parent.getContext());
     View view = inflater.inflate(R.layout.record_list_item, parent, false);
     return new RecordListItemViewHolder(view, clickSubject);
   }
 
-  private RecordListItemViewHolder(
-    View view,
-    Subject<RecordSummary> clickSubject) {
+  private RecordListItemViewHolder(View view, Subject<RecordSummary> clickSubject) {
     super(view);
     this.view = view;
     this.clickSubject = clickSubject;

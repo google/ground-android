@@ -23,21 +23,17 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-
+import butterknife.BindView;
 import com.google.android.gnd.R;
 import com.google.android.gnd.ui.MapIcon;
 import com.google.android.gnd.ui.browse.BrowseViewModel;
 import com.google.android.gnd.ui.browse.PlaceSheetState;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.AbstractViewModelFactory;
-
 import javax.inject.Inject;
 
-import butterknife.BindView;
-
 public class PlaceSheetHeaderFragment extends AbstractFragment {
-  @Inject
-  AbstractViewModelFactory viewModelFactory;
+  @Inject AbstractViewModelFactory viewModelFactory;
 
   @BindView(R.id.place_sheet_title)
   TextView placeSheetTitle;
@@ -62,24 +58,24 @@ public class PlaceSheetHeaderFragment extends AbstractFragment {
   @Override
   protected void obtainViewModels() {
     browseViewModel =
-      ViewModelProviders.of(getActivity(), viewModelFactory).get(BrowseViewModel.class);
+        ViewModelProviders.of(getActivity(), viewModelFactory).get(BrowseViewModel.class);
   }
 
   @Override
   protected void observeViewModels() {
-      browseViewModel.getPlaceSheetState().observe(this, this::onPlaceSheetStateChange);
+    browseViewModel.getPlaceSheetState().observe(this, this::onPlaceSheetStateChange);
   }
 
-    private void onPlaceSheetStateChange(PlaceSheetState placeSheetState) {
-        if (placeSheetState.isVisible()) {
+  private void onPlaceSheetStateChange(PlaceSheetState placeSheetState) {
+    if (placeSheetState.isVisible()) {
       getView().setVisibility(View.VISIBLE);
       placeHeaderIcon.setImageResource(
-        MapIcon.getResourceId(
-                getContext(), placeSheetState.getPlace().getPlaceType().getIconId()));
-            placeSheetTitle.setText(placeSheetState.getTitle());
-            placeSheetSubtitle.setText(placeSheetState.getSubtitle());
+          MapIcon.getResourceId(
+              getContext(), placeSheetState.getPlace().getPlaceType().getIconId()));
+      placeSheetTitle.setText(placeSheetState.getTitle());
+      placeSheetSubtitle.setText(placeSheetState.getSubtitle());
       placeSheetSubtitle.setVisibility(
-              placeSheetState.getSubtitle().isEmpty() ? View.GONE : View.VISIBLE);
+          placeSheetState.getSubtitle().isEmpty() ? View.GONE : View.VISIBLE);
     } else {
       getView().setVisibility(View.GONE);
     }

@@ -16,6 +16,8 @@
 
 package com.google.android.gnd.ui.browse.mapcontainer;
 
+import static com.google.android.gnd.rx.RxAutoDispose.autoDisposable;
+
 import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.res.ColorStateList;
@@ -27,7 +29,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
-
+import butterknife.BindView;
 import com.google.android.gnd.MainViewModel;
 import com.google.android.gnd.R;
 import com.google.android.gnd.repository.ProjectState;
@@ -40,12 +42,7 @@ import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.map.MapProvider;
 import com.google.android.gnd.ui.map.MapProvider.MapAdapter;
 import com.jakewharton.rxbinding2.view.RxView;
-
 import javax.inject.Inject;
-
-import butterknife.BindView;
-
-import static com.google.android.gnd.rx.RxAutoDispose.autoDisposable;
 
 /** Main app view, displaying the map and related controls (center cross-hairs, add button, etc). */
 public class MapContainerFragment extends AbstractFragment {
@@ -77,10 +74,9 @@ public class MapContainerFragment extends AbstractFragment {
     mapContainerViewModel =
         ViewModelProviders.of(this, viewModelFactory).get(MapContainerViewModel.class);
     browseViewModel =
-      ViewModelProviders.of(getActivity(), viewModelFactory).get(BrowseViewModel.class);
+        ViewModelProviders.of(getActivity(), viewModelFactory).get(BrowseViewModel.class);
     mainViewModel = ViewModelProviders.of(getActivity(), viewModelFactory).get(MainViewModel.class);
   }
-
 
   @Override
   protected View createView(
@@ -110,14 +106,16 @@ public class MapContainerFragment extends AbstractFragment {
         .observe(this, status -> onLocationLockStatusChange(status, map));
     mapContainerViewModel.getCameraUpdates().observe(this, update -> onCameraUpdate(update, map));
     mapContainerViewModel.getProjectState().observe(this, this::projectStateChange);
-      browseViewModel.getPlaceSheetState().observe(this, state -> onPlaceSheetStateChange(state, map));
+    browseViewModel
+        .getPlaceSheetState()
+        .observe(this, state -> onPlaceSheetStateChange(state, map));
     // Pass UI events to the ViewModel.
     RxView.clicks(addPlaceBtn)
         .as(autoDisposable(this))
         .subscribe(__ -> browseViewModel.onAddPlaceBtnClick(map.getCenter()));
     RxView.clicks(locationLockBtn)
-          .as(autoDisposable(this))
-          .subscribe(__ -> onLocationLockClick(map));
+        .as(autoDisposable(this))
+        .subscribe(__ -> onLocationLockClick(map));
     map.getMarkerClicks().as(autoDisposable(this)).subscribe(mapContainerViewModel::onMarkerClick);
     map.getMarkerClicks().as(autoDisposable(this)).subscribe(browseViewModel::onMarkerClick);
     map.getDragInteractions().as(autoDisposable(this)).subscribe(mapContainerViewModel::onMapDrag);
@@ -132,12 +130,12 @@ public class MapContainerFragment extends AbstractFragment {
     }
   }
 
-    private void onPlaceSheetStateChange(PlaceSheetState state, MapAdapter map) {
-        switch (state.getVisibility()) {
-            case VISIBLE:
+  private void onPlaceSheetStateChange(PlaceSheetState state, MapAdapter map) {
+    switch (state.getVisibility()) {
+      case VISIBLE:
         map.disable();
         break;
-            case HIDDEN:
+      case HIDDEN:
         map.enable();
         break;
     }

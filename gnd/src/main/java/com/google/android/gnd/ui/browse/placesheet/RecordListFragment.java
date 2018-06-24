@@ -35,8 +35,7 @@ import java8.util.Optional;
 import javax.inject.Inject;
 
 public class RecordListFragment extends AbstractFragment {
-  @Inject
-  AbstractViewModelFactory viewModelFactory;
+  @Inject AbstractViewModelFactory viewModelFactory;
 
   private RecordListAdapter recordListAdapter;
 
@@ -60,7 +59,7 @@ public class RecordListFragment extends AbstractFragment {
     viewModel = ViewModelProviders.of(this, viewModelFactory).get(RecordListViewModel.class);
     mainViewModel = ViewModelProviders.of(getActivity(), viewModelFactory).get(MainViewModel.class);
     placeSheetViewModel =
-      ViewModelProviders.of(getActivity(), viewModelFactory).get(PlaceSheetBodyViewModel.class);
+        ViewModelProviders.of(getActivity(), viewModelFactory).get(PlaceSheetBodyViewModel.class);
   }
 
   @Nullable
@@ -79,9 +78,9 @@ public class RecordListFragment extends AbstractFragment {
     viewModel.getRecords().observe(this, recordListAdapter::update);
     placeSheetViewModel.getSelectedForm().observe(this, this::update);
     recordListAdapter
-      .getItemClicks()
-      .as(autoDisposable(this))
-      .subscribe(mainViewModel::onRecordListItemClick);
+        .getItemClicks()
+        .as(autoDisposable(this))
+        .subscribe(mainViewModel::onRecordListItemClick);
   }
 
   private void update(Optional<Form> form) {

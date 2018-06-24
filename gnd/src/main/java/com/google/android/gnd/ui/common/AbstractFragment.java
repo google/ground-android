@@ -57,8 +57,7 @@ public abstract class AbstractFragment extends Fragment implements HasSupportFra
     obtainViewModels();
   }
 
-  protected void obtainViewModels() {
-  }
+  protected void obtainViewModels() {}
 
   @Nullable
   @Override
@@ -74,8 +73,7 @@ public abstract class AbstractFragment extends Fragment implements HasSupportFra
     return view;
   }
 
-  protected void setUpView() {
-  }
+  protected void setUpView() {}
 
   protected View createView(
       LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -83,8 +81,7 @@ public abstract class AbstractFragment extends Fragment implements HasSupportFra
         "Subclasses much override either createView or onCreateView");
   }
 
-  protected void observeViewModels() {
-  }
+  protected void observeViewModels() {}
 
   @Override
   public void onStart() {

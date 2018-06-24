@@ -17,7 +17,6 @@
 package com.google.android.gnd.ui.browse;
 
 import android.support.annotation.Nullable;
-
 import com.google.android.gnd.vo.Place;
 
 public class PlaceSheetState {
@@ -28,12 +27,9 @@ public class PlaceSheetState {
   }
 
   private final Visibility visibility;
-  @Nullable
-  private Place place;
-  @Nullable
-  private String title;
-  @Nullable
-  private String subtitle;
+  @Nullable private Place place;
+  @Nullable private String title;
+  @Nullable private String subtitle;
 
   private PlaceSheetState(Visibility visibility, Place place) {
     this.visibility = visibility;

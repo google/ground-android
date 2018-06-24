@@ -20,15 +20,12 @@ import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.ViewModel;
 import android.support.v4.view.ViewPager;
-
 import com.google.android.gnd.ui.browse.PlaceSheetState;
 import com.google.android.gnd.vo.Form;
 import com.google.android.gnd.vo.Place;
 import com.google.android.gnd.vo.PlaceType;
-
-import javax.inject.Inject;
-
 import java8.util.Optional;
+import javax.inject.Inject;
 
 public class PlaceSheetBodyViewModel extends ViewModel implements ViewPager.OnPageChangeListener {
   private MutableLiveData<Optional<Place>> selectedPlace;
@@ -53,17 +50,17 @@ public class PlaceSheetBodyViewModel extends ViewModel implements ViewPager.OnPa
   @Override
   public void onPageSelected(int position) {
     selectedForm.setValue(
-      selectedPlace
-        .getValue()
-        .map(Place::getPlaceType)
-        .map(PlaceType::getForms)
-        .filter(f -> f.size() > position)
-        .map(f -> f.get(position)));
+        selectedPlace
+            .getValue()
+            .map(Place::getPlaceType)
+            .map(PlaceType::getForms)
+            .filter(f -> f.size() > position)
+            .map(f -> f.get(position)));
   }
 
-    public void onPlaceSheetStateChange(PlaceSheetState state) {
-        if (state.isVisible()) {
-            selectedPlace.setValue(Optional.of(state.getPlace()));
+  public void onPlaceSheetStateChange(PlaceSheetState state) {
+    if (state.isVisible()) {
+      selectedPlace.setValue(Optional.of(state.getPlace()));
       onPageSelected(0);
     } else {
       selectedPlace.setValue(Optional.empty());
@@ -72,10 +69,8 @@ public class PlaceSheetBodyViewModel extends ViewModel implements ViewPager.OnPa
   }
 
   @Override
-  public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-  }
+  public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {}
 
   @Override
-  public void onPageScrollStateChanged(int state) {
-  }
+  public void onPageScrollStateChanged(int state) {}
 }

@@ -57,12 +57,12 @@ public class RecordListViewModel extends ViewModel {
   public Completable loadRecords(Place place, Form form) {
     PlaceType placeType = place.getPlaceType();
     return dataRepository
-      .getProjectState()
-      .map(ProjectState::getActiveProject)
-      .filter(Optional::isPresent)
-      .map(Optional::get)
-      .flatMapCompletable(
-        project -> loadRecords(project, placeType.getId(), form.getId(), place.getId()));
+        .getProjectState()
+        .map(ProjectState::getActiveProject)
+        .filter(Optional::isPresent)
+        .map(Optional::get)
+        .flatMapCompletable(
+            project -> loadRecords(project, placeType.getId(), form.getId(), place.getId()));
   }
 
   private Completable loadRecords(

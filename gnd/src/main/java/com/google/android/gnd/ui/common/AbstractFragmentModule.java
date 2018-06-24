@@ -24,5 +24,4 @@ import dagger.Module;
  * android.support.v4.app.Fragment}.
  */
 @Module
-public abstract class AbstractFragmentModule {
-}
+public abstract class AbstractFragmentModule {}

@@ -29,8 +29,7 @@ import javax.inject.Inject;
 public abstract class AbstractDialogFragment extends DaggerAppCompatDialogFragment {
   @Inject DispatchingAndroidInjector<Fragment> childFragmentInjector;
 
-  public AbstractDialogFragment() {
-  }
+  public AbstractDialogFragment() {}
 
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {

@@ -52,8 +52,7 @@ public class MainActivity extends AppCompatActivity implements HasSupportFragmen
 
   private static final String TAG = MainActivity.class.getSimpleName();
 
-  @Inject
-  AbstractViewModelFactory viewModelFactory;
+  @Inject AbstractViewModelFactory viewModelFactory;
 
   @Inject PermissionsManager permissionsManager;
 
@@ -62,8 +61,7 @@ public class MainActivity extends AppCompatActivity implements HasSupportFragmen
   @Inject DataService dataService;
 
   @Inject GndDataRepository model;
-  @Inject
-  DispatchingAndroidInjector<Fragment> fragmentInjector;
+  @Inject DispatchingAndroidInjector<Fragment> fragmentInjector;
 
   private NavHostFragment navHostFragment;
 
@@ -85,22 +83,22 @@ public class MainActivity extends AppCompatActivity implements HasSupportFragmen
     ButterKnife.bind(this);
 
     navHostFragment =
-      (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
+        (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
 
     viewModel = ViewModelProviders.of(this, viewModelFactory).get(MainViewModel.class);
 
     ViewCompat.setOnApplyWindowInsetsListener(
-      getWindow().getDecorView().getRootView(), viewModel::onApplyWindowInsets);
+        getWindow().getDecorView().getRootView(), viewModel::onApplyWindowInsets);
 
     permissionsManager
-      .getPermissionsRequests()
-      .as(autoDisposable(this))
-      .subscribe(this::onPermissionsRequest);
+        .getPermissionsRequests()
+        .as(autoDisposable(this))
+        .subscribe(this::onPermissionsRequest);
 
     settingsManager
-      .getSettingsChangeRequests()
-      .as(autoDisposable(this))
-      .subscribe(this::onSettingsChangeRequest);
+        .getSettingsChangeRequests()
+        .as(autoDisposable(this))
+        .subscribe(this::onSettingsChangeRequest);
 
     viewModel.getViewState().observe(this, this::setViewState);
   }

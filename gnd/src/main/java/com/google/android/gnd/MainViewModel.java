@@ -22,10 +22,8 @@ import android.arch.lifecycle.ViewModel;
 import android.support.annotation.Nullable;
 import android.support.v4.view.WindowInsetsCompat;
 import android.view.View;
-
 import com.google.android.gnd.repository.RecordSummary;
 import com.google.android.gnd.vo.Record;
-
 import javax.inject.Inject;
 
 public class MainViewModel extends ViewModel {
@@ -65,8 +63,7 @@ public class MainViewModel extends ViewModel {
     }
 
     private View view;
-    @Nullable
-    private Record record;
+    @Nullable private Record record;
 
     MainViewState(View view) {
       this.view = view;

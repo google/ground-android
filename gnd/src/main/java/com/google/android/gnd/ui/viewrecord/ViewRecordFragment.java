@@ -24,12 +24,11 @@ import com.google.android.gnd.R;
 import com.google.android.gnd.ui.common.AbstractFragment;
 
 public class ViewRecordFragment extends AbstractFragment {
-  public ViewRecordFragment() {
-  }
+  public ViewRecordFragment() {}
 
   @Override
   protected View createView(
-    LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+      LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     return inflater.inflate(R.layout.fragment_view_record, container, false);
   }
 }

@@ -16,6 +16,10 @@
 
 package com.google.android.gnd.ui.browse;
 
+import static com.google.android.gnd.rx.RxAutoDispose.autoDisposable;
+import static com.google.android.gnd.ui.util.ViewUtil.getScreenHeight;
+import static com.google.android.gnd.ui.util.ViewUtil.getScreenWidth;
+
 import android.app.ProgressDialog;
 import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
@@ -30,7 +34,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
+import butterknife.BindView;
 import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.MainViewModel;
 import com.google.android.gnd.R;
@@ -43,16 +47,8 @@ import com.google.android.gnd.ui.common.TwoLineToolbar;
 import com.google.android.gnd.ui.projectselector.ProjectSelectorDialogFragment;
 import com.google.android.gnd.vo.Point;
 import com.google.android.gnd.vo.Project;
-
 import java.util.List;
-
 import javax.inject.Inject;
-
-import butterknife.BindView;
-
-import static com.google.android.gnd.rx.RxAutoDispose.autoDisposable;
-import static com.google.android.gnd.ui.util.ViewUtil.getScreenHeight;
-import static com.google.android.gnd.ui.util.ViewUtil.getScreenWidth;
 
 /**
  * Fragment containing the map container and place sheet fragments. This is the default view in the
@@ -62,8 +58,7 @@ import static com.google.android.gnd.ui.util.ViewUtil.getScreenWidth;
 public class BrowseFragment extends AbstractFragment {
   private static final float COLLAPSED_MAP_ASPECT_RATIO = 16.0f / 9.0f;
 
-  @Inject
-  AbstractViewModelFactory viewModelFactory;
+  @Inject AbstractViewModelFactory viewModelFactory;
 
   @Inject MapContainerFragment mapContainerFragment;
 

@@ -59,12 +59,9 @@ public class GndApplication extends MultiDexApplication implements HasActivityIn
 
   private void setStrictMode() {
     StrictMode.setThreadPolicy(
-      new StrictMode.ThreadPolicy.Builder().detectAll().penaltyLog().build());
+        new StrictMode.ThreadPolicy.Builder().detectAll().penaltyLog().build());
 
     StrictMode.setVmPolicy(
-      new StrictMode.VmPolicy.Builder()
-        .detectLeakedSqlLiteObjects()
-        .penaltyLog()
-        .build());
+        new StrictMode.VmPolicy.Builder().detectLeakedSqlLiteObjects().penaltyLog().build());
   }
 }
