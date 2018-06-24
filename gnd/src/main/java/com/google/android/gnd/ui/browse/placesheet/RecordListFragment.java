@@ -55,7 +55,7 @@ public class RecordListFragment extends AbstractFragment {
   }
 
   @Override
-  protected void createViewModel() {
+  protected void obtainViewModels() {
     // TODO: Roll "get()" calls into AbstractViewModelFactory to enforce scoping.
     viewModel = ViewModelProviders.of(this, viewModelFactory).get(RecordListViewModel.class);
     mainViewModel = ViewModelProviders.of(getActivity(), viewModelFactory).get(MainViewModel.class);

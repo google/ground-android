@@ -45,11 +45,11 @@ public abstract class AbstractFragment extends Fragment implements HasSupportFra
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    createViewModel();
+    obtainViewModels();
   }
 
-  // TODO: Rename to "bindViewModels".
-  protected void createViewModel() {}
+  protected void obtainViewModels() {
+  }
 
   @Nullable
   @Override

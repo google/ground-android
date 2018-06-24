@@ -70,7 +70,7 @@ public class MapContainerFragment extends AbstractFragment {
   public MapContainerFragment() {}
 
   @Override
-  protected void createViewModel() {
+  protected void obtainViewModels() {
     mapContainerViewModel =
         ViewModelProviders.of(this, viewModelFactory).get(MapContainerViewModel.class);
     browseViewModel =

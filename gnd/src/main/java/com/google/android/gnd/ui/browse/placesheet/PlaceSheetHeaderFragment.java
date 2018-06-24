@@ -57,7 +57,7 @@ public class PlaceSheetHeaderFragment extends AbstractFragment {
   }
 
   @Override
-  protected void createViewModel() {
+  protected void obtainViewModels() {
     browseViewModel =
       ViewModelProviders.of(getActivity(), viewModelFactory).get(BrowseViewModel.class);
   }

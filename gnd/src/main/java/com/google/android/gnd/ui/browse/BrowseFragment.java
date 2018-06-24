@@ -92,7 +92,7 @@ public class BrowseFragment extends AbstractFragment {
   }
 
   @Override
-  public void createViewModel() {
+  public void obtainViewModels() {
     viewModel = ViewModelProviders.of(getActivity(), viewModelFactory).get(BrowseViewModel.class);
     mainViewModel = ViewModelProviders.of(getActivity(), viewModelFactory).get(MainViewModel.class);
   }

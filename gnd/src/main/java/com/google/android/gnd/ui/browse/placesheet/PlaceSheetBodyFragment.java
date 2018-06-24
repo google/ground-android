@@ -54,7 +54,7 @@ public class PlaceSheetBodyFragment extends AbstractFragment {
   public PlaceSheetBodyFragment() {}
 
   @Override
-  protected void createViewModel() {
+  protected void obtainViewModels() {
     viewModel = ViewModelProviders
       .of(getActivity(), viewModelFactory)
       .get(PlaceSheetBodyViewModel.class);
