@@ -28,14 +28,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import com.google.android.gnd.MainViewModel;
 import com.google.android.gnd.ui.common.AbstractFragment;
-import com.google.android.gnd.ui.common.AbstractViewModelFactory;
+import com.google.android.gnd.ui.common.ViewModelFactory;
 import com.google.android.gnd.vo.Form;
 import com.google.android.gnd.vo.Place;
 import java8.util.Optional;
 import javax.inject.Inject;
 
 public class RecordListFragment extends AbstractFragment {
-  @Inject AbstractViewModelFactory viewModelFactory;
+  @Inject
+  ViewModelFactory viewModelFactory;
 
   private RecordListAdapter recordListAdapter;
 
@@ -55,7 +56,7 @@ public class RecordListFragment extends AbstractFragment {
 
   @Override
   protected void obtainViewModels() {
-    // TODO: Roll "get()" calls into AbstractViewModelFactory to enforce scoping.
+    // TODO: Roll "get()" calls into ViewModelFactory to enforce scoping.
     viewModel = ViewModelProviders.of(this, viewModelFactory).get(RecordListViewModel.class);
     mainViewModel = ViewModelProviders.of(getActivity(), viewModelFactory).get(MainViewModel.class);
     placeSheetViewModel =

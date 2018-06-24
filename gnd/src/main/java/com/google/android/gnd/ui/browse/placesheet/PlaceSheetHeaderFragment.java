@@ -29,11 +29,12 @@ import com.google.android.gnd.ui.MapIcon;
 import com.google.android.gnd.ui.browse.BrowseViewModel;
 import com.google.android.gnd.ui.browse.PlaceSheetState;
 import com.google.android.gnd.ui.common.AbstractFragment;
-import com.google.android.gnd.ui.common.AbstractViewModelFactory;
+import com.google.android.gnd.ui.common.ViewModelFactory;
 import javax.inject.Inject;
 
 public class PlaceSheetHeaderFragment extends AbstractFragment {
-  @Inject AbstractViewModelFactory viewModelFactory;
+  @Inject
+  ViewModelFactory viewModelFactory;
 
   @BindView(R.id.place_sheet_title)
   TextView placeSheetTitle;

@@ -48,7 +48,7 @@ import javax.inject.Inject;
 public class MapContainerFragment extends AbstractFragment {
   private static final String TAG = MapContainerFragment.class.getSimpleName();
 
-  // TODO: Get ViewModel from AbstractViewModelFactory instead.
+  // TODO: Get ViewModel from ViewModelFactory instead.
   @Inject ViewModelProvider.Factory viewModelFactory;
 
   @Inject MapProvider mapAdapter;

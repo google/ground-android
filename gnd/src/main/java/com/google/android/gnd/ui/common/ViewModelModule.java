@@ -61,5 +61,5 @@ public abstract class ViewModelModule {
   abstract ViewModel bindRecordListViewModel(RecordListViewModel viewModel);
 
   @Binds
-  abstract ViewModelProvider.Factory bindViewModelFactory(AbstractViewModelFactory factory);
+  abstract ViewModelProvider.Factory bindViewModelFactory(ViewModelFactory factory);
 }

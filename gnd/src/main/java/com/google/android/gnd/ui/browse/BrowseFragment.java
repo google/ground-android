@@ -41,9 +41,9 @@ import com.google.android.gnd.R;
 import com.google.android.gnd.repository.ProjectState;
 import com.google.android.gnd.ui.browse.mapcontainer.MapContainerFragment;
 import com.google.android.gnd.ui.common.AbstractFragment;
-import com.google.android.gnd.ui.common.AbstractViewModelFactory;
 import com.google.android.gnd.ui.common.Consumable;
 import com.google.android.gnd.ui.common.TwoLineToolbar;
+import com.google.android.gnd.ui.common.ViewModelFactory;
 import com.google.android.gnd.ui.projectselector.ProjectSelectorDialogFragment;
 import com.google.android.gnd.vo.Point;
 import com.google.android.gnd.vo.Project;
@@ -58,7 +58,8 @@ import javax.inject.Inject;
 public class BrowseFragment extends AbstractFragment {
   private static final float COLLAPSED_MAP_ASPECT_RATIO = 16.0f / 9.0f;
 
-  @Inject AbstractViewModelFactory viewModelFactory;
+  @Inject
+  ViewModelFactory viewModelFactory;
 
   @Inject MapContainerFragment mapContainerFragment;
 

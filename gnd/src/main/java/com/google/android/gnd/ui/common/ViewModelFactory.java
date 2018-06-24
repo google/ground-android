@@ -27,11 +27,11 @@ import javax.inject.Provider;
  * that we cannot inject view models directly. Based on Android Architecture Components example:
  * https://github.com/googlesamples/android-architecture-components/blob/b1a194c1ae267258cd002e2e1c102df7180be473/GithubBrowserSample/app/src/main/java/com/android/example/github/viewmodel/GithubViewModelFactory.java
  */
-public class AbstractViewModelFactory implements ViewModelProvider.Factory {
+public class ViewModelFactory implements ViewModelProvider.Factory {
   private final Map<Class<? extends ViewModel>, Provider<ViewModel>> creators;
 
   @Inject
-  public AbstractViewModelFactory(Map<Class<? extends ViewModel>, Provider<ViewModel>> creators) {
+  public ViewModelFactory(Map<Class<? extends ViewModel>, Provider<ViewModel>> creators) {
     this.creators = creators;
   }
 

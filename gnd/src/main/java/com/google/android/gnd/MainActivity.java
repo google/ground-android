@@ -37,7 +37,7 @@ import com.google.android.gnd.system.PermissionsManager;
 import com.google.android.gnd.system.PermissionsManager.PermissionsRequest;
 import com.google.android.gnd.system.SettingsManager;
 import com.google.android.gnd.system.SettingsManager.SettingsChangeRequest;
-import com.google.android.gnd.ui.common.AbstractViewModelFactory;
+import com.google.android.gnd.ui.common.ViewModelFactory;
 import com.google.android.gnd.vo.Record;
 import dagger.android.AndroidInjection;
 import dagger.android.AndroidInjector;
@@ -52,7 +52,8 @@ public class MainActivity extends AppCompatActivity implements HasSupportFragmen
 
   private static final String TAG = MainActivity.class.getSimpleName();
 
-  @Inject AbstractViewModelFactory viewModelFactory;
+  @Inject
+  ViewModelFactory viewModelFactory;
 
   @Inject PermissionsManager permissionsManager;
 

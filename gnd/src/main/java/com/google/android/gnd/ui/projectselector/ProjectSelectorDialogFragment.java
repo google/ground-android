@@ -26,7 +26,7 @@ import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import com.google.android.gnd.R;
 import com.google.android.gnd.ui.common.AbstractDialogFragment;
-import com.google.android.gnd.ui.common.AbstractViewModelFactory;
+import com.google.android.gnd.ui.common.ViewModelFactory;
 import com.google.android.gnd.vo.Project;
 import java.io.Serializable;
 import java.util.List;
@@ -36,7 +36,8 @@ public class ProjectSelectorDialogFragment extends AbstractDialogFragment {
   private static final String TAG = ProjectSelectorDialogFragment.class.getSimpleName();
   private static final String PROJECTS_BUNDLE_KEY = "projects";
 
-  @Inject AbstractViewModelFactory viewModelFactory;
+  @Inject
+  ViewModelFactory viewModelFactory;
 
   private ProjectSelectorViewModel viewModel;
 

@@ -29,12 +29,13 @@ import com.google.android.gnd.MainViewModel;
 import com.google.android.gnd.R;
 import com.google.android.gnd.ui.browse.BrowseViewModel;
 import com.google.android.gnd.ui.common.AbstractFragment;
-import com.google.android.gnd.ui.common.AbstractViewModelFactory;
+import com.google.android.gnd.ui.common.ViewModelFactory;
 import com.h6ah4i.android.tablayouthelper.TabLayoutHelper;
 import javax.inject.Inject;
 
 public class PlaceSheetBodyFragment extends AbstractFragment {
-  @Inject AbstractViewModelFactory viewModelFactory;
+  @Inject
+  ViewModelFactory viewModelFactory;
 
   @Inject FormTabPagerAdapter formTypePagerAdapter;
 
