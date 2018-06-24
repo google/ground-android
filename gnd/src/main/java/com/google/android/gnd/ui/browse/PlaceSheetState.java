@@ -17,16 +17,17 @@
 package com.google.android.gnd.ui.browse;
 
 import android.support.annotation.Nullable;
+
 import com.google.android.gnd.vo.Place;
 
-public class PlaceSheetEvent {
+public class PlaceSheetState {
 
-  public enum Type {
-    SHOW,
-    HIDE
+  public enum Visibility {
+    VISIBLE,
+    HIDDEN
   }
 
-  private final Type type;
+  private final Visibility visibility;
   @Nullable
   private Place place;
   @Nullable
@@ -34,8 +35,8 @@ public class PlaceSheetEvent {
   @Nullable
   private String subtitle;
 
-  private PlaceSheetEvent(Type type, Place place) {
-    this.type = type;
+  private PlaceSheetState(Visibility visibility, Place place) {
+    this.visibility = visibility;
     this.place = place;
     String caption = place.getCaption();
     String placeTypeLabel = place.getPlaceType().getItemLabel();
@@ -43,24 +44,24 @@ public class PlaceSheetEvent {
     this.subtitle = caption.isEmpty() ? "" : placeTypeLabel + " " + place.getCustomId();
   }
 
-  private PlaceSheetEvent(Type type) {
-    this.type = type;
+  private PlaceSheetState(Visibility visibility) {
+    this.visibility = visibility;
   }
 
-  public static PlaceSheetEvent show(Place place) {
-    return new PlaceSheetEvent(Type.SHOW, place);
+  public static PlaceSheetState visible(Place place) {
+    return new PlaceSheetState(Visibility.VISIBLE, place);
   }
 
-  public static PlaceSheetEvent hide() {
-    return new PlaceSheetEvent(Type.HIDE);
+  public static PlaceSheetState hidden() {
+    return new PlaceSheetState(Visibility.HIDDEN);
   }
 
   public Place getPlace() {
     return place;
   }
 
-  public Type getType() {
-    return type;
+  public Visibility getVisibility() {
+    return visibility;
   }
 
   public String getTitle() {
@@ -71,7 +72,7 @@ public class PlaceSheetEvent {
     return subtitle;
   }
 
-  public boolean isShowEvent() {
-    return type == Type.SHOW;
+  public boolean isVisible() {
+    return Visibility.VISIBLE.equals(visibility);
   }
 }

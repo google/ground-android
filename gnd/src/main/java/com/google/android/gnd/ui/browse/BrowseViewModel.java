@@ -19,6 +19,7 @@ import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.ViewModel;
 import android.util.Log;
+
 import com.google.android.gnd.repository.GndDataRepository;
 import com.google.android.gnd.repository.ProjectState;
 import com.google.android.gnd.rx.RxLiveData;
@@ -27,17 +28,21 @@ import com.google.android.gnd.ui.common.Consumable;
 import com.google.android.gnd.ui.map.MapMarker;
 import com.google.android.gnd.vo.Point;
 import com.google.android.gnd.vo.Project;
-import io.reactivex.Completable;
+
 import java.util.List;
+
 import javax.inject.Inject;
+
+import io.reactivex.Completable;
 
 public class BrowseViewModel extends ViewModel {
   private static final String TAG = BrowseViewModel.class.getSimpleName();
   private final GndDataRepository dataRepository;
   private final LiveData<ProjectState> projectState;
+  // TODO: Implement this as a state and remove Consumable.
   private final MutableLiveData<Consumable<List<Project>>> showProjectSelectorDialogRequests;
   private final MutableLiveData<Point> addPlaceDialogRequests;
-  private final MutableLiveData<PlaceSheetEvent> placeSheetEvents;
+  private final MutableLiveData<PlaceSheetState> placeSheetState;
 
   @Inject
   BrowseViewModel(GndDataRepository dataRepository) {
@@ -45,7 +50,7 @@ public class BrowseViewModel extends ViewModel {
     this.showProjectSelectorDialogRequests = new MutableLiveData<>();
     this.addPlaceDialogRequests = new MutableLiveData<>();
     this.projectState = RxLiveData.fromFlowable(dataRepository.getProjectState());
-    this.placeSheetEvents = new MutableLiveData<>();
+    this.placeSheetState = new MutableLiveData<>();
   }
 
   public LiveData<Consumable<List<Project>>> getShowProjectSelectorDialogRequests() {
@@ -60,21 +65,21 @@ public class BrowseViewModel extends ViewModel {
     return addPlaceDialogRequests;
   }
 
-  public LiveData<PlaceSheetEvent> getPlaceSheetEvents() {
-    return placeSheetEvents;
+  public LiveData<PlaceSheetState> getPlaceSheetState() {
+    return placeSheetState;
   }
 
   public Completable showProjectSelectorDialog() {
     // TODO: Show spinner while loading project summaries.
     return dataRepository
-      .loadProjectSummaries()
-      .map(Consumable::new)
-      .doOnSuccess(showProjectSelectorDialogRequests::setValue)
-      .toCompletable();
+            .loadProjectSummaries()
+            .map(Consumable::new)
+            .doOnSuccess(showProjectSelectorDialogRequests::setValue)
+            .toCompletable();
   }
 
   public void onMarkerClick(MapMarker marker) {
-    marker.getPlace().ifPresent(place -> placeSheetEvents.setValue(PlaceSheetEvent.show(place)));
+    marker.getPlace().ifPresent(place -> placeSheetState.setValue(PlaceSheetState.visible(place)));
   }
 
   public void onAddPlaceBtnClick(Point location) {
@@ -89,6 +94,6 @@ public class BrowseViewModel extends ViewModel {
   }
 
   public void onBottomSheetHidden() {
-    placeSheetEvents.setValue(PlaceSheetEvent.hide());
+    placeSheetState.setValue(PlaceSheetState.hidden());
   }
 }

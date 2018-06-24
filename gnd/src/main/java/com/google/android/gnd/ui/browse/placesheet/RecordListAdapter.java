@@ -19,13 +19,17 @@ package com.google.android.gnd.ui.browse.placesheet;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.ViewGroup;
+
 import com.google.android.gnd.repository.RecordSummary;
-import io.reactivex.Observable;
-import io.reactivex.subjects.PublishSubject;
-import io.reactivex.subjects.Subject;
+
 import java.util.Collections;
 import java.util.List;
 
+import io.reactivex.Observable;
+import io.reactivex.subjects.PublishSubject;
+import io.reactivex.subjects.Subject;
+
+// TODO: Consider passing in ViewModel and using DataBinding like todoapp example.
 class RecordListAdapter extends RecyclerView.Adapter<RecordListItemViewHolder> {
 
   private List<RecordSummary> recordSummaries;

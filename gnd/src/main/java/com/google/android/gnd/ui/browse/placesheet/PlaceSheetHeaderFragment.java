@@ -23,14 +23,17 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import butterknife.BindView;
+
 import com.google.android.gnd.R;
 import com.google.android.gnd.ui.MapIcon;
 import com.google.android.gnd.ui.browse.BrowseViewModel;
-import com.google.android.gnd.ui.browse.PlaceSheetEvent;
+import com.google.android.gnd.ui.browse.PlaceSheetState;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.AbstractViewModelFactory;
+
 import javax.inject.Inject;
+
+import butterknife.BindView;
 
 public class PlaceSheetHeaderFragment extends AbstractFragment {
   @Inject
@@ -64,19 +67,19 @@ public class PlaceSheetHeaderFragment extends AbstractFragment {
 
   @Override
   protected void observeViewModels() {
-    browseViewModel.getPlaceSheetEvents().observe(this, this::onPlaceSheetEvent);
+      browseViewModel.getPlaceSheetState().observe(this, this::onPlaceSheetStateChange);
   }
 
-  private void onPlaceSheetEvent(PlaceSheetEvent placeSheetEvent) {
-    if (placeSheetEvent.isShowEvent()) {
+    private void onPlaceSheetStateChange(PlaceSheetState placeSheetState) {
+        if (placeSheetState.isVisible()) {
       getView().setVisibility(View.VISIBLE);
       placeHeaderIcon.setImageResource(
         MapIcon.getResourceId(
-          getContext(), placeSheetEvent.getPlace().getPlaceType().getIconId()));
-      placeSheetTitle.setText(placeSheetEvent.getTitle());
-      placeSheetSubtitle.setText(placeSheetEvent.getSubtitle());
+                getContext(), placeSheetState.getPlace().getPlaceType().getIconId()));
+            placeSheetTitle.setText(placeSheetState.getTitle());
+            placeSheetSubtitle.setText(placeSheetState.getSubtitle());
       placeSheetSubtitle.setVisibility(
-        placeSheetEvent.getSubtitle().isEmpty() ? View.GONE : View.VISIBLE);
+              placeSheetState.getSubtitle().isEmpty() ? View.GONE : View.VISIBLE);
     } else {
       getView().setVisibility(View.GONE);
     }

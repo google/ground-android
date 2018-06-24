@@ -16,10 +16,6 @@
 
 package com.google.android.gnd.ui.browse;
 
-import static com.google.android.gnd.rx.RxAutoDispose.autoDisposable;
-import static com.google.android.gnd.ui.util.ViewUtil.getScreenHeight;
-import static com.google.android.gnd.ui.util.ViewUtil.getScreenWidth;
-
 import android.app.ProgressDialog;
 import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
@@ -34,7 +30,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import butterknife.BindView;
+
 import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.MainViewModel;
 import com.google.android.gnd.R;
@@ -47,8 +43,16 @@ import com.google.android.gnd.ui.common.TwoLineToolbar;
 import com.google.android.gnd.ui.projectselector.ProjectSelectorDialogFragment;
 import com.google.android.gnd.vo.Point;
 import com.google.android.gnd.vo.Project;
+
 import java.util.List;
+
 import javax.inject.Inject;
+
+import butterknife.BindView;
+
+import static com.google.android.gnd.rx.RxAutoDispose.autoDisposable;
+import static com.google.android.gnd.ui.util.ViewUtil.getScreenHeight;
+import static com.google.android.gnd.ui.util.ViewUtil.getScreenWidth;
 
 /**
  * Fragment containing the map container and place sheet fragments. This is the default view in the
@@ -133,7 +137,7 @@ public class BrowseFragment extends AbstractFragment {
         .observe(this, this::onShowProjectSelectorDialogRequest);
     viewModel.getProjectState().observe(this, this::onProjectStateChange);
     viewModel.getShowAddPlaceDialogRequests().observe(this, this::onShowAddPlaceDialogRequest);
-    viewModel.getPlaceSheetEvents().observe(this, this::onPlaceSheetEvent);
+    viewModel.getPlaceSheetState().observe(this, this::onPlaceSheetStateChange);
     mainViewModel.getWindowInsets().observe(this, this::onApplyWindowInsets);
   }
 
@@ -171,15 +175,15 @@ public class BrowseFragment extends AbstractFragment {
         .subscribe(viewModel::onAddPlace);
   }
 
-  private void onPlaceSheetEvent(PlaceSheetEvent event) {
+  private void onPlaceSheetStateChange(PlaceSheetState state) {
     // TODO: WHY IS CALLED 3x ON CLICK?
-    switch (event.getType()) {
-      case SHOW:
-        toolbar.setTitle(event.getTitle());
-        toolbar.setSubtitle(event.getSubtitle());
+    switch (state.getVisibility()) {
+      case VISIBLE:
+        toolbar.setTitle(state.getTitle());
+        toolbar.setSubtitle(state.getSubtitle());
         showBottomSheet();
         break;
-      case HIDE:
+      case HIDDEN:
         hideBottomSheet();
         break;
     }

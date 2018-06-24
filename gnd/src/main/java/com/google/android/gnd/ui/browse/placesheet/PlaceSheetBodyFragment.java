@@ -24,14 +24,17 @@ import android.support.v4.view.WindowInsetsCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import butterknife.BindView;
+
 import com.google.android.gnd.MainViewModel;
 import com.google.android.gnd.R;
 import com.google.android.gnd.ui.browse.BrowseViewModel;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.AbstractViewModelFactory;
 import com.h6ah4i.android.tablayouthelper.TabLayoutHelper;
+
 import javax.inject.Inject;
+
+import butterknife.BindView;
 
 public class PlaceSheetBodyFragment extends AbstractFragment {
   @Inject
@@ -82,7 +85,7 @@ public class PlaceSheetBodyFragment extends AbstractFragment {
   @Override
   protected void observeViewModels() {
     mainViewModel.getWindowInsets().observe(this, this::onApplyWindowInsets);
-    browseViewModel.getPlaceSheetEvents().observe(this, viewModel::onPlaceSheetEvent);
+      browseViewModel.getPlaceSheetState().observe(this, viewModel::onPlaceSheetStateChange);
     viewModel.getSelectedPlace().observe(this, formTypePagerAdapter::update);
   }
 
