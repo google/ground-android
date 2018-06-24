@@ -71,6 +71,8 @@ public class MainActivity extends AppCompatActivity implements HasSupportFragmen
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
+    logLifecycleEvent("onCreate()");
+
     // Prevent RxJava from force-quitting when multiple Completables terminate with onError.
     RxJavaPlugins.setErrorHandler(t -> RxErrors.logEnhancedStackTrace(t));
 
@@ -139,6 +141,36 @@ public class MainActivity extends AppCompatActivity implements HasSupportFragmen
     }
   }
 
+  @Override
+  protected void onStart() {
+    logLifecycleEvent("onStart()");
+    super.onStart();
+  }
+
+  @Override
+  protected void onResume() {
+    logLifecycleEvent("onResume()");
+    super.onResume();
+  }
+
+  @Override
+  protected void onPause() {
+    logLifecycleEvent("onPause()");
+    super.onPause();
+  }
+
+  @Override
+  protected void onStop() {
+    logLifecycleEvent("onStop()");
+    super.onStop();
+  }
+
+  @Override
+  protected void onDestroy() {
+    logLifecycleEvent("onDestroy()");
+    super.onDestroy();
+  }
+
   /**
    * The Android permissions API requires this callback to live in an Activity; here we dispatch the
    * result back to the PermissionManager for handling.
@@ -163,5 +195,9 @@ public class MainActivity extends AppCompatActivity implements HasSupportFragmen
   @Override
   public final AndroidInjector<Fragment> supportFragmentInjector() {
     return fragmentInjector;
+  }
+
+  private void logLifecycleEvent(String event) {
+    Log.d(getClass().getSimpleName(), "Lifecycle event: " + event);
   }
 }

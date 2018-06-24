@@ -104,7 +104,7 @@ public class BrowseFragment extends AbstractFragment {
 
   @Override
   protected void setUpView() {
-    addFragment(R.id.map_container_fragment, mapContainerFragment);
+    replaceFragment(R.id.map_container_fragment, mapContainerFragment);
     setUpBottomSheetBehavior();
     setUpToolbar();
   }

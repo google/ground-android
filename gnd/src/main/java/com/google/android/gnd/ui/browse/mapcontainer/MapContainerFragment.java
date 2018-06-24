@@ -89,7 +89,7 @@ public class MapContainerFragment extends AbstractFragment {
   protected void setUpView() {
     disableLocationLockBtn();
     disableAddPlaceBtn();
-    addFragment(R.id.map, mapAdapter.getFragment());
+    replaceFragment(R.id.map, mapAdapter.getFragment());
   }
 
   @Override
