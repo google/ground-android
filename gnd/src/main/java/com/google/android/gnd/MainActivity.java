@@ -24,7 +24,9 @@ import android.content.IntentSender.SendIntentException;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewCompat;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import androidx.navigation.fragment.NavHostFragment;
 import butterknife.ButterKnife;
@@ -35,15 +37,19 @@ import com.google.android.gnd.system.PermissionsManager;
 import com.google.android.gnd.system.PermissionsManager.PermissionsRequest;
 import com.google.android.gnd.system.SettingsManager;
 import com.google.android.gnd.system.SettingsManager.SettingsChangeRequest;
-import com.google.android.gnd.ui.common.GndActivity;
 import com.google.android.gnd.ui.common.GndViewModelFactory;
 import com.google.android.gnd.vo.Record;
+import dagger.android.AndroidInjection;
+import dagger.android.AndroidInjector;
+import dagger.android.DispatchingAndroidInjector;
+import dagger.android.support.HasSupportFragmentInjector;
 import io.reactivex.plugins.RxJavaPlugins;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
 @Singleton
-public class MainActivity extends GndActivity {
+public class MainActivity extends AppCompatActivity implements HasSupportFragmentInjector {
+
   private static final String TAG = MainActivity.class.getSimpleName();
 
   @Inject GndViewModelFactory viewModelFactory;
@@ -55,6 +61,8 @@ public class MainActivity extends GndActivity {
   @Inject DataService dataService;
 
   @Inject GndDataRepository model;
+  @Inject
+  DispatchingAndroidInjector<Fragment> fragmentInjector;
 
   private NavHostFragment navHostFragment;
 
@@ -67,11 +75,14 @@ public class MainActivity extends GndActivity {
 
     super.onCreate(savedInstanceState);
 
+    AndroidInjection.inject(this);
+
     setContentView(R.layout.activity_main);
 
     ButterKnife.bind(this);
 
-    navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
+    navHostFragment =
+      (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
 
     viewModel = ViewModelProviders.of(this, viewModelFactory).get(MainViewModel.class);
 
@@ -146,5 +157,10 @@ public class MainActivity extends GndActivity {
   @Override
   protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
     settingsManager.onActivityResult(requestCode, resultCode);
+  }
+
+  @Override
+  public final AndroidInjector<Fragment> supportFragmentInjector() {
+    return fragmentInjector;
   }
 }

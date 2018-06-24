@@ -28,7 +28,6 @@ import com.google.android.gnd.ui.browse.placesheet.PlaceSheetBodyFragment;
 import com.google.android.gnd.ui.browse.placesheet.PlaceSheetHeaderFragment;
 import com.google.android.gnd.ui.browse.placesheet.PlaceSheetModule;
 import com.google.android.gnd.ui.browse.placesheet.RecordListFragment;
-import com.google.android.gnd.ui.common.GndActivity;
 import com.google.android.gnd.ui.common.GndActivityModule;
 import com.google.android.gnd.ui.projectselector.ProjectSelectorDialogFragment;
 import com.google.android.gnd.ui.viewrecord.ViewRecordFragment;
