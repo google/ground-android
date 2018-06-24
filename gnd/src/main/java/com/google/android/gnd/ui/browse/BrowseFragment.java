@@ -103,7 +103,8 @@ public class BrowseFragment extends AbstractFragment {
   }
 
   @Override
-  protected void restoreViewState() {
+  protected void setUpView() {
+    addFragment(R.id.map_container_fragment, mapContainerFragment);
     setUpBottomSheetBehavior();
     setUpToolbar();
   }
@@ -126,12 +127,7 @@ public class BrowseFragment extends AbstractFragment {
     actionBar.setDisplayShowHomeEnabled(true);
   }
 
-  @Override
-  protected void addFragments() {
-    addFragment(R.id.map_container_fragment, mapContainerFragment);
-  }
-
-  protected void observeViewModel() {
+  protected void observeViewModels() {
     viewModel
         .getShowProjectSelectorDialogRequests()
         .observe(this, this::onShowProjectSelectorDialogRequest);

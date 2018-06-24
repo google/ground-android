@@ -86,18 +86,14 @@ public class MapContainerFragment extends AbstractFragment {
   }
 
   @Override
-  protected void initializeView() {
+  protected void setUpView() {
     disableLocationLockBtn();
     disableAddPlaceBtn();
-  }
-
-  @Override
-  protected void addFragments() {
     addFragment(R.id.map, mapAdapter.getFragment());
   }
 
   @Override
-  protected void observeViewModel() {
+  protected void observeViewModels() {
     mainViewModel.getWindowInsets().observe(this, this::onApplyWindowInsets);
     mapAdapter.getMapAdapter().as(autoDisposable(this)).subscribe(this::onMapReady);
   }

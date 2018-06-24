@@ -75,7 +75,7 @@ public class RecordListFragment extends AbstractFragment {
   }
 
   @Override
-  protected void observeViewModel() {
+  protected void observeViewModels() {
     viewModel.getRecords().observe(this, recordListAdapter::update);
     placeSheetViewModel.getSelectedForm().observe(this, this::update);
     recordListAdapter

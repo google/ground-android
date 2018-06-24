@@ -70,7 +70,7 @@ public class PlaceSheetBodyFragment extends AbstractFragment {
   }
 
   @Override
-  protected void restoreViewState() {
+  protected void setUpView() {
     recordListViewPager.setAdapter(formTypePagerAdapter);
     recordListViewPager.addOnPageChangeListener(viewModel);
     formsTabLayout.setupWithViewPager(recordListViewPager);
@@ -80,7 +80,7 @@ public class PlaceSheetBodyFragment extends AbstractFragment {
   }
 
   @Override
-  protected void observeViewModel() {
+  protected void observeViewModels() {
     mainViewModel.getWindowInsets().observe(this, this::onApplyWindowInsets);
     browseViewModel.getPlaceSheetEvents().observe(this, viewModel::onPlaceSheetEvent);
     viewModel.getSelectedPlace().observe(this, formTypePagerAdapter::update);

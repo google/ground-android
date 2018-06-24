@@ -59,13 +59,12 @@ public abstract class AbstractFragment extends Fragment implements HasSupportFra
       @Nullable Bundle savedInstanceState) {
     View view = createView(inflater, container, savedInstanceState);
     unbinder = ButterKnife.bind(this, view);
-    initializeView();
-    addFragments();
-    observeViewModel();
+    setUpView();
+    observeViewModels();
     return view;
   }
 
-  protected void initializeView() {
+  protected void setUpView() {
   }
 
   protected View createView(
@@ -74,24 +73,13 @@ public abstract class AbstractFragment extends Fragment implements HasSupportFra
         "Subclasses much override either createView or onCreateView");
   }
 
-  protected void addFragments() {}
-
-  // TODO: Rename to "observeViewModels".
-  protected void observeViewModel() {}
+  protected void observeViewModels() {
+  }
 
   @Override
   public void onAttach(Context context) {
     AndroidSupportInjection.inject(this);
     super.onAttach(context);
-  }
-
-  @Override
-  public void onViewStateRestored(Bundle savedInstanceState) {
-    super.onViewStateRestored(savedInstanceState);
-    restoreViewState();
-  }
-
-  protected void restoreViewState() {
   }
 
   @Override

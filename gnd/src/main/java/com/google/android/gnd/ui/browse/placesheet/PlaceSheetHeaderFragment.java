@@ -63,7 +63,7 @@ public class PlaceSheetHeaderFragment extends AbstractFragment {
   }
 
   @Override
-  protected void observeViewModel() {
+  protected void observeViewModels() {
     browseViewModel.getPlaceSheetEvents().observe(this, this::onPlaceSheetEvent);
   }
 
