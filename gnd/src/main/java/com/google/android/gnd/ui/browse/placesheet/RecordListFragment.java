@@ -27,15 +27,16 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import com.google.android.gnd.MainViewModel;
-import com.google.android.gnd.ui.common.GndFragment;
-import com.google.android.gnd.ui.common.GndViewModelFactory;
+import com.google.android.gnd.ui.common.AbstractFragment;
+import com.google.android.gnd.ui.common.AbstractViewModelFactory;
 import com.google.android.gnd.vo.Form;
 import com.google.android.gnd.vo.Place;
 import java8.util.Optional;
 import javax.inject.Inject;
 
-public class RecordListFragment extends GndFragment {
-  @Inject GndViewModelFactory viewModelFactory;
+public class RecordListFragment extends AbstractFragment {
+  @Inject
+  AbstractViewModelFactory viewModelFactory;
 
   private RecordListAdapter recordListAdapter;
 
@@ -55,7 +56,7 @@ public class RecordListFragment extends GndFragment {
 
   @Override
   protected void createViewModel() {
-    // TODO: Roll "get()" calls into GndViewModelFactory to enforce scoping.
+    // TODO: Roll "get()" calls into AbstractViewModelFactory to enforce scoping.
     viewModel = ViewModelProviders.of(this, viewModelFactory).get(RecordListViewModel.class);
     mainViewModel = ViewModelProviders.of(getActivity(), viewModelFactory).get(MainViewModel.class);
     placeSheetViewModel =

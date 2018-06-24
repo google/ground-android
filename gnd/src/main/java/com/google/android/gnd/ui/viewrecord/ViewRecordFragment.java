@@ -21,9 +21,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import com.google.android.gnd.R;
-import com.google.android.gnd.ui.common.GndFragment;
+import com.google.android.gnd.ui.common.AbstractFragment;
 
-public class ViewRecordFragment extends GndFragment {
+public class ViewRecordFragment extends AbstractFragment {
   public ViewRecordFragment() {
   }
 

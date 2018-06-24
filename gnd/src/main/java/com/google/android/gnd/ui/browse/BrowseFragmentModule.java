@@ -18,11 +18,11 @@ package com.google.android.gnd.ui.browse;
 
 import android.support.v4.app.Fragment;
 import com.google.android.gnd.inject.PerFragment;
-import com.google.android.gnd.ui.common.GndFragmentModule;
+import com.google.android.gnd.ui.common.AbstractFragmentModule;
 import dagger.Binds;
 import dagger.Module;
 
-@Module(includes = GndFragmentModule.class)
+@Module(includes = AbstractFragmentModule.class)
 public abstract class BrowseFragmentModule {
 
   @Binds

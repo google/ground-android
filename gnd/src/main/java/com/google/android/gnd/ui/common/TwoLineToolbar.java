@@ -26,7 +26,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import com.google.android.gnd.R;
 
-public class GndToolbar extends Toolbar {
+public class TwoLineToolbar extends Toolbar {
 
   @BindView(R.id.toolbar_title_text)
   TextView titleText;
@@ -34,7 +34,7 @@ public class GndToolbar extends Toolbar {
   @BindView(R.id.toolbar_subtitle_text)
   TextView subtitleText;
 
-  public GndToolbar(Context context, @Nullable AttributeSet attrs) {
+  public TwoLineToolbar(Context context, @Nullable AttributeSet attrs) {
     super(context, attrs);
     inflate(getContext(), R.layout.toolbar, this);
     ButterKnife.bind(this);

@@ -28,12 +28,13 @@ import com.google.android.gnd.R;
 import com.google.android.gnd.ui.MapIcon;
 import com.google.android.gnd.ui.browse.BrowseViewModel;
 import com.google.android.gnd.ui.browse.PlaceSheetEvent;
-import com.google.android.gnd.ui.common.GndFragment;
-import com.google.android.gnd.ui.common.GndViewModelFactory;
+import com.google.android.gnd.ui.common.AbstractFragment;
+import com.google.android.gnd.ui.common.AbstractViewModelFactory;
 import javax.inject.Inject;
 
-public class PlaceSheetHeaderFragment extends GndFragment {
-  @Inject GndViewModelFactory viewModelFactory;
+public class PlaceSheetHeaderFragment extends AbstractFragment {
+  @Inject
+  AbstractViewModelFactory viewModelFactory;
 
   @BindView(R.id.place_sheet_title)
   TextView placeSheetTitle;

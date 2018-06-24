@@ -65,7 +65,7 @@
       android:background="@color/colorPrimary"
       android:translationY="-1000dp">
 
-      <com.google.android.gnd.ui.common.GndToolbar
+      <com.google.android.gnd.ui.common.TwoLineToolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"

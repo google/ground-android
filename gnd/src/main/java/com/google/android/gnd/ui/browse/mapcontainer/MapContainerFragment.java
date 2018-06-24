@@ -38,17 +38,17 @@ import com.google.android.gnd.system.SettingsManager.SettingsChangeRequestCancel
 import com.google.android.gnd.ui.browse.BrowseViewModel;
 import com.google.android.gnd.ui.browse.PlaceSheetEvent;
 import com.google.android.gnd.ui.browse.mapcontainer.MapContainerViewModel.LocationLockStatus;
-import com.google.android.gnd.ui.common.GndFragment;
+import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.map.MapProvider;
 import com.google.android.gnd.ui.map.MapProvider.MapAdapter;
 import com.jakewharton.rxbinding2.view.RxView;
 import javax.inject.Inject;
 
 /** Main app view, displaying the map and related controls (center cross-hairs, add button, etc). */
-public class MapContainerFragment extends GndFragment {
+public class MapContainerFragment extends AbstractFragment {
   private static final String TAG = MapContainerFragment.class.getSimpleName();
 
-  // TODO: Get ViewModel from GndViewModelFactory instead.
+  // TODO: Get ViewModel from AbstractViewModelFactory instead.
   @Inject ViewModelProvider.Factory viewModelFactory;
 
   @Inject MapProvider mapAdapter;

@@ -40,10 +40,10 @@ import com.google.android.gnd.MainViewModel;
 import com.google.android.gnd.R;
 import com.google.android.gnd.repository.ProjectState;
 import com.google.android.gnd.ui.browse.mapcontainer.MapContainerFragment;
+import com.google.android.gnd.ui.common.AbstractFragment;
+import com.google.android.gnd.ui.common.AbstractViewModelFactory;
 import com.google.android.gnd.ui.common.Consumable;
-import com.google.android.gnd.ui.common.GndFragment;
-import com.google.android.gnd.ui.common.GndToolbar;
-import com.google.android.gnd.ui.common.GndViewModelFactory;
+import com.google.android.gnd.ui.common.TwoLineToolbar;
 import com.google.android.gnd.ui.projectselector.ProjectSelectorDialogFragment;
 import com.google.android.gnd.vo.Point;
 import com.google.android.gnd.vo.Project;
@@ -55,10 +55,11 @@ import javax.inject.Inject;
  * application, and gets swapped out for other fragments (e.g., view record and edit record) at
  * runtime.
  */
-public class BrowseFragment extends GndFragment {
+public class BrowseFragment extends AbstractFragment {
   private static final float COLLAPSED_MAP_ASPECT_RATIO = 16.0f / 9.0f;
 
-  @Inject GndViewModelFactory viewModelFactory;
+  @Inject
+  AbstractViewModelFactory viewModelFactory;
 
   @Inject MapContainerFragment mapContainerFragment;
 
@@ -68,7 +69,7 @@ public class BrowseFragment extends GndFragment {
   ViewGroup toolbarWrapper;
 
   @BindView(R.id.toolbar)
-  GndToolbar toolbar;
+  TwoLineToolbar toolbar;
 
   @BindView(R.id.bottom_sheet_scroll_view)
   NestedScrollView bottomSheetScrollView;

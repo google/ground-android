@@ -16,13 +16,13 @@
 
 package com.google.android.gnd.ui.common;
 
-import android.arch.lifecycle.ViewModel;
-import dagger.MapKey;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
+import dagger.Module;
 
-@MapKey
-@Retention(RetentionPolicy.RUNTIME)
-public @interface GndViewModelKey {
-  Class<? extends ViewModel> value();
+/**
+ * Provides dependencies of {@link AbstractFragment}. This must be included in all fragment modules,
+ * which in turn must provide the appropriate implementation of {@link
+ * android.support.v4.app.Fragment}.
+ */
+@Module
+public abstract class AbstractFragmentModule {
 }

@@ -29,37 +29,37 @@ import dagger.Module;
 import dagger.multibindings.IntoMap;
 
 @Module
-public abstract class GndViewModelModule {
+public abstract class ViewModelModule {
   @Binds
   @IntoMap
-  @GndViewModelKey(MapContainerViewModel.class)
+  @ViewModelKey(MapContainerViewModel.class)
   abstract ViewModel bindMapContainerViewModel(MapContainerViewModel viewModel);
 
   @Binds
   @IntoMap
-  @GndViewModelKey(MainViewModel.class)
+  @ViewModelKey(MainViewModel.class)
   abstract ViewModel bindMainViewModel(MainViewModel viewModel);
 
   @Binds
   @IntoMap
-  @GndViewModelKey(BrowseViewModel.class)
+  @ViewModelKey(BrowseViewModel.class)
   abstract ViewModel bindBrowseViewModel(BrowseViewModel viewModel);
 
   @Binds
   @IntoMap
-  @GndViewModelKey(PlaceSheetBodyViewModel.class)
+  @ViewModelKey(PlaceSheetBodyViewModel.class)
   abstract ViewModel bindPlaceSheetBodyViewModel(PlaceSheetBodyViewModel viewModel);
 
   @Binds
   @IntoMap
-  @GndViewModelKey(ProjectSelectorViewModel.class)
+  @ViewModelKey(ProjectSelectorViewModel.class)
   abstract ViewModel bindProjectSelectorViewModel(ProjectSelectorViewModel viewModel);
 
   @Binds
   @IntoMap
-  @GndViewModelKey(RecordListViewModel.class)
+  @ViewModelKey(RecordListViewModel.class)
   abstract ViewModel bindRecordListViewModel(RecordListViewModel viewModel);
 
   @Binds
-  abstract ViewModelProvider.Factory bindViewModelFactory(GndViewModelFactory factory);
+  abstract ViewModelProvider.Factory bindViewModelFactory(AbstractViewModelFactory factory);
 }

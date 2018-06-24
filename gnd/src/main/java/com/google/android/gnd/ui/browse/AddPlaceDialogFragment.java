@@ -26,7 +26,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
 import com.google.android.gnd.R;
 import com.google.android.gnd.repository.ProjectState;
-import com.google.android.gnd.ui.common.GndDialogFragment;
+import com.google.android.gnd.ui.common.AbstractDialogFragment;
 import com.google.android.gnd.vo.PlaceType;
 import com.google.android.gnd.vo.Point;
 import com.google.android.gnd.vo.Project;
@@ -36,7 +36,7 @@ import io.reactivex.subjects.MaybeSubject;
 import java8.util.Optional;
 import javax.inject.Inject;
 
-public class AddPlaceDialogFragment extends GndDialogFragment {
+public class AddPlaceDialogFragment extends AbstractDialogFragment {
   private static final String TAG = AddPlaceDialogFragment.class.getSimpleName();
 
   private MaybeSubject<AddPlaceRequest> addPlaceRequestSubject;

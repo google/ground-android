@@ -19,12 +19,12 @@ package com.google.android.gnd.ui.browse.placesheet;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import com.google.android.gnd.inject.PerFragment;
-import com.google.android.gnd.ui.common.GndFragmentModule;
+import com.google.android.gnd.ui.common.AbstractFragmentModule;
 import dagger.Module;
 import dagger.Provides;
 
 // TODO: Remove "Fragment" from other other Module names.
-@Module(includes = GndFragmentModule.class)
+@Module(includes = AbstractFragmentModule.class)
 public class PlaceSheetModule {
 
   @Provides

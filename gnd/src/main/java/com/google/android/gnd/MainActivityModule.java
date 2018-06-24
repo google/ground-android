@@ -28,7 +28,6 @@ import com.google.android.gnd.ui.browse.placesheet.PlaceSheetBodyFragment;
 import com.google.android.gnd.ui.browse.placesheet.PlaceSheetHeaderFragment;
 import com.google.android.gnd.ui.browse.placesheet.PlaceSheetModule;
 import com.google.android.gnd.ui.browse.placesheet.RecordListFragment;
-import com.google.android.gnd.ui.common.GndActivityModule;
 import com.google.android.gnd.ui.projectselector.ProjectSelectorDialogFragment;
 import com.google.android.gnd.ui.viewrecord.ViewRecordFragment;
 import com.google.android.gnd.ui.viewrecord.ViewRecordModule;
@@ -37,11 +36,10 @@ import dagger.Module;
 import dagger.android.ContributesAndroidInjector;
 
 /** Provides dependencies to {@link MainActivity}. */
-@Module(includes = GndActivityModule.class)
+@Module
 public abstract class MainActivityModule {
-
   /**
-   * This provides the activity required to inject the fragment manager into {@link GndActivity}.
+   * This provides the activity required to inject the fragment manager into {@link MainActivity}.
    */
   @Binds
   @PerActivity

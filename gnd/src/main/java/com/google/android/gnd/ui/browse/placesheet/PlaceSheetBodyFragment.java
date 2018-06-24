@@ -28,13 +28,14 @@ import butterknife.BindView;
 import com.google.android.gnd.MainViewModel;
 import com.google.android.gnd.R;
 import com.google.android.gnd.ui.browse.BrowseViewModel;
-import com.google.android.gnd.ui.common.GndFragment;
-import com.google.android.gnd.ui.common.GndViewModelFactory;
+import com.google.android.gnd.ui.common.AbstractFragment;
+import com.google.android.gnd.ui.common.AbstractViewModelFactory;
 import com.h6ah4i.android.tablayouthelper.TabLayoutHelper;
 import javax.inject.Inject;
 
-public class PlaceSheetBodyFragment extends GndFragment {
-  @Inject GndViewModelFactory viewModelFactory;
+public class PlaceSheetBodyFragment extends AbstractFragment {
+  @Inject
+  AbstractViewModelFactory viewModelFactory;
 
   @Inject
   FormTabPagerAdapter formTypePagerAdapter;

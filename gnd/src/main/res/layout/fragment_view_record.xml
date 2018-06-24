@@ -21,7 +21,7 @@
   android:layout_height="match_parent"
   android:orientation="vertical">
 
-  <com.google.android.gnd.ui.common.GndToolbar
+  <com.google.android.gnd.ui.common.TwoLineToolbar
     android:id="@+id/view_record_toolbar"
     android:layout_width="match_parent"
     android:layout_height="?attr/actionBarSize"
