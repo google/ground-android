@@ -69,7 +69,7 @@ public class PlaceSheetBodyFragment extends GndFragment {
   }
 
   @Override
-  protected void initializeViews() {
+  protected void restoreViewState() {
     recordListViewPager.setAdapter(formTypePagerAdapter);
     recordListViewPager.addOnPageChangeListener(viewModel);
     formsTabLayout.setupWithViewPager(recordListViewPager);
@@ -80,7 +80,7 @@ public class PlaceSheetBodyFragment extends GndFragment {
 
   @Override
   protected void observeViewModel() {
-    mainViewModel.getWindowInsetsLiveData().observe(this, this::onApplyWindowInsets);
+    mainViewModel.getWindowInsets().observe(this, this::onApplyWindowInsets);
     browseViewModel.getPlaceSheetEvents().observe(this, viewModel::onPlaceSheetEvent);
     viewModel.getSelectedPlace().observe(this, formTypePagerAdapter::update);
   }

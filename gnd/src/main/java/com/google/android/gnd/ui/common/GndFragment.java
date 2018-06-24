@@ -48,6 +48,7 @@ public abstract class GndFragment extends Fragment implements HasSupportFragment
     createViewModel();
   }
 
+  // TODO: Rename to "bindViewModels".
   protected void createViewModel() {}
 
   @Nullable
@@ -57,9 +58,14 @@ public abstract class GndFragment extends Fragment implements HasSupportFragment
       @Nullable ViewGroup container,
       @Nullable Bundle savedInstanceState) {
     View view = createView(inflater, container, savedInstanceState);
+    unbinder = ButterKnife.bind(this, view);
+    initializeView();
     addFragments();
     observeViewModel();
     return view;
+  }
+
+  protected void initializeView() {
   }
 
   protected View createView(
@@ -70,6 +76,7 @@ public abstract class GndFragment extends Fragment implements HasSupportFragment
 
   protected void addFragments() {}
 
+  // TODO: Rename to "observeViewModels".
   protected void observeViewModel() {}
 
   @Override
@@ -81,12 +88,11 @@ public abstract class GndFragment extends Fragment implements HasSupportFragment
   @Override
   public void onViewStateRestored(Bundle savedInstanceState) {
     super.onViewStateRestored(savedInstanceState);
-    // Bind views here instead of onViewCreated to avoid invoking view listeners.
-    unbinder = ButterKnife.bind(this, getView());
-    initializeViews();
+    restoreViewState();
   }
 
-  protected void initializeViews() {}
+  protected void restoreViewState() {
+  }
 
   @Override
   public void onDestroyView() {

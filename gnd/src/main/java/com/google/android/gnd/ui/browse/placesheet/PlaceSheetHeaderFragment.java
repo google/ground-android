@@ -70,12 +70,14 @@ public class PlaceSheetHeaderFragment extends GndFragment {
     if (placeSheetEvent.isShowEvent()) {
       getView().setVisibility(View.VISIBLE);
       placeHeaderIcon.setImageResource(
-          MapIcon.getResourceId(
-              getContext(), placeSheetEvent.getPlace().getPlaceType().getIconId()));
+        MapIcon.getResourceId(
+          getContext(), placeSheetEvent.getPlace().getPlaceType().getIconId()));
       placeSheetTitle.setText(placeSheetEvent.getTitle());
       placeSheetSubtitle.setText(placeSheetEvent.getSubtitle());
       placeSheetSubtitle.setVisibility(
-          placeSheetEvent.getSubtitle().isEmpty() ? View.GONE : View.VISIBLE);
+        placeSheetEvent.getSubtitle().isEmpty() ? View.GONE : View.VISIBLE);
+    } else {
+      getView().setVisibility(View.GONE);
     }
   }
 }

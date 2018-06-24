@@ -23,6 +23,7 @@ import com.google.android.gnd.repository.GndDataRepository;
 import com.google.android.gnd.repository.ProjectState;
 import com.google.android.gnd.rx.RxLiveData;
 import com.google.android.gnd.ui.browse.AddPlaceDialogFragment.AddPlaceRequest;
+import com.google.android.gnd.ui.common.Consumable;
 import com.google.android.gnd.ui.map.MapMarker;
 import com.google.android.gnd.vo.Point;
 import com.google.android.gnd.vo.Project;
@@ -34,7 +35,7 @@ public class BrowseViewModel extends ViewModel {
   private static final String TAG = BrowseViewModel.class.getSimpleName();
   private final GndDataRepository dataRepository;
   private final LiveData<ProjectState> projectState;
-  private final MutableLiveData<List<Project>> showProjectSelectorDialogRequests;
+  private final MutableLiveData<Consumable<List<Project>>> showProjectSelectorDialogRequests;
   private final MutableLiveData<Point> addPlaceDialogRequests;
   private final MutableLiveData<PlaceSheetEvent> placeSheetEvents;
 
@@ -47,7 +48,7 @@ public class BrowseViewModel extends ViewModel {
     this.placeSheetEvents = new MutableLiveData<>();
   }
 
-  public LiveData<List<Project>> getShowProjectSelectorDialogRequests() {
+  public LiveData<Consumable<List<Project>>> getShowProjectSelectorDialogRequests() {
     return showProjectSelectorDialogRequests;
   }
 
@@ -66,9 +67,10 @@ public class BrowseViewModel extends ViewModel {
   public Completable showProjectSelectorDialog() {
     // TODO: Show spinner while loading project summaries.
     return dataRepository
-        .loadProjectSummaries()
-        .doOnSuccess(showProjectSelectorDialogRequests::setValue)
-        .toCompletable();
+      .loadProjectSummaries()
+      .map(Consumable::new)
+      .doOnSuccess(showProjectSelectorDialogRequests::setValue)
+      .toCompletable();
   }
 
   public void onMarkerClick(MapMarker marker) {

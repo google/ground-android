@@ -23,12 +23,14 @@ import android.arch.lifecycle.ViewModelProviders;
 import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.view.WindowInsetsCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 import butterknife.BindView;
+import com.google.android.gnd.MainViewModel;
 import com.google.android.gnd.R;
 import com.google.android.gnd.repository.ProjectState;
 import com.google.android.gnd.system.PermissionsManager.PermissionDeniedException;
@@ -57,8 +59,12 @@ public class MapContainerFragment extends GndFragment {
   @BindView(R.id.location_lock_btn)
   FloatingActionButton locationLockBtn;
 
+  @BindView(R.id.map_btn_layout)
+  ViewGroup mapBtnLayout;
+
   private MapContainerViewModel mapContainerViewModel;
   private BrowseViewModel browseViewModel;
+  private MainViewModel mainViewModel;
 
   @Inject
   public MapContainerFragment() {}
@@ -69,18 +75,20 @@ public class MapContainerFragment extends GndFragment {
         ViewModelProviders.of(this, viewModelFactory).get(MapContainerViewModel.class);
     browseViewModel =
       ViewModelProviders.of(getActivity(), viewModelFactory).get(BrowseViewModel.class);
+    mainViewModel = ViewModelProviders.of(getActivity(), viewModelFactory).get(MainViewModel.class);
   }
 
-  @Override
-  protected void initializeViews() {
-    disableLocationLockBtn();
-    disableAddPlaceBtn();
-  }
 
   @Override
   protected View createView(
       LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     return inflater.inflate(R.layout.fragment_map_container, container, false);
+  }
+
+  @Override
+  protected void initializeView() {
+    disableLocationLockBtn();
+    disableAddPlaceBtn();
   }
 
   @Override
@@ -90,6 +98,7 @@ public class MapContainerFragment extends GndFragment {
 
   @Override
   protected void observeViewModel() {
+    mainViewModel.getWindowInsets().observe(this, this::onApplyWindowInsets);
     mapAdapter.getMapAdapter().as(autoDisposable(this)).subscribe(this::onMapReady);
   }
 
@@ -199,5 +208,9 @@ public class MapContainerFragment extends GndFragment {
     } else {
       map.moveCamera(update.getCenter());
     }
+  }
+
+  private void onApplyWindowInsets(WindowInsetsCompat windowInsets) {
+    mapBtnLayout.setTranslationY(-windowInsets.getSystemWindowInsetBottom());
   }
 }

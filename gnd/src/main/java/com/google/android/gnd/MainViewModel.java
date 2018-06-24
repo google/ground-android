@@ -37,7 +37,7 @@ public class MainViewModel extends ViewModel {
     mainViewState.setValue(new MainViewState(MainViewState.View.MAP));
   }
 
-  public LiveData<WindowInsetsCompat> getWindowInsetsLiveData() {
+  public LiveData<WindowInsetsCompat> getWindowInsets() {
     return windowInsetsLiveData;
   }
 

@@ -40,6 +40,7 @@ import com.google.android.gnd.MainViewModel;
 import com.google.android.gnd.R;
 import com.google.android.gnd.repository.ProjectState;
 import com.google.android.gnd.ui.browse.mapcontainer.MapContainerFragment;
+import com.google.android.gnd.ui.common.Consumable;
 import com.google.android.gnd.ui.common.GndFragment;
 import com.google.android.gnd.ui.common.GndToolbar;
 import com.google.android.gnd.ui.common.GndViewModelFactory;
@@ -72,6 +73,9 @@ public class BrowseFragment extends GndFragment {
   @BindView(R.id.bottom_sheet_scroll_view)
   NestedScrollView bottomSheetScrollView;
 
+  @BindView(R.id.add_record_btn)
+  View addRecordBtn;
+
   @BindView(R.id.bottom_sheet_bottom_inset_scrim)
   View bottomSheetBottomInsetScrim;
 
@@ -98,7 +102,7 @@ public class BrowseFragment extends GndFragment {
   }
 
   @Override
-  protected void initializeViews() {
+  protected void restoreViewState() {
     setUpBottomSheetBehavior();
     setUpToolbar();
   }
@@ -133,7 +137,7 @@ public class BrowseFragment extends GndFragment {
     viewModel.getProjectState().observe(this, this::onProjectStateChange);
     viewModel.getShowAddPlaceDialogRequests().observe(this, this::onShowAddPlaceDialogRequest);
     viewModel.getPlaceSheetEvents().observe(this, this::onPlaceSheetEvent);
-    mainViewModel.getWindowInsetsLiveData().observe(this, this::onApplyWindowInsets);
+    mainViewModel.getWindowInsets().observe(this, this::onApplyWindowInsets);
   }
 
   @Override
@@ -146,8 +150,8 @@ public class BrowseFragment extends GndFragment {
     toolbarWrapper.setPadding(0, insets.getSystemWindowInsetTop(), 0, 0);
   }
 
-  private void onShowProjectSelectorDialogRequest(List<Project> projects) {
-    ProjectSelectorDialogFragment.show(getFragmentManager(), projects);
+  private void onShowProjectSelectorDialogRequest(Consumable<List<Project>> projects) {
+    projects.get().ifPresent(p -> ProjectSelectorDialogFragment.show(getFragmentManager(), p));
   }
 
   private void onProjectStateChange(ProjectState event) {
@@ -171,20 +175,17 @@ public class BrowseFragment extends GndFragment {
   }
 
   private void onPlaceSheetEvent(PlaceSheetEvent event) {
+    // TODO: WHY IS CALLED 3x ON CLICK?
     switch (event.getType()) {
       case SHOW:
-        updateToolbar(event);
+        toolbar.setTitle(event.getTitle());
+        toolbar.setSubtitle(event.getSubtitle());
         showBottomSheet();
         break;
       case HIDE:
         hideBottomSheet();
         break;
     }
-  }
-
-  private void updateToolbar(PlaceSheetEvent event) {
-    toolbar.setTitle(event.getTitle());
-    toolbar.setSubtitle(event.getSubtitle());
   }
 
   private void showBottomSheet() {
@@ -197,15 +198,15 @@ public class BrowseFragment extends GndFragment {
     // devices w/o translucent system windows.
     bottomSheetBehavior.setPeekHeight((int) peekHeight);
     bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+    addRecordBtn.setVisibility(View.VISIBLE);
   }
 
   private void hideBottomSheet() {
     bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
+    addRecordBtn.setVisibility(View.GONE);
   }
 
-  public void showProjectLoadingDialog() {
-    // TODO: Move this into ProjectSelectorDialogFragment and observe Rx stream emitted by
-    // activateProject rather than keeping reference here.
+  private void showProjectLoadingDialog() {
     progressDialog = new ProgressDialog(getContext());
     progressDialog.setMessage(getResources().getString(R.string.project_loading_please_wait));
     progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);

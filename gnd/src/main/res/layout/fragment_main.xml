@@ -26,6 +26,8 @@
     android:layout_height="match_parent"
     app:layout_behavior="com.google.android.gnd.ui.browse.mapcontainer.MapContainerLayoutBehavior"/>
 
+  <!-- TODO: Move into layout file for place sheet and chrome -->
+
   <fragment
     android:id="@+id/place_sheet_header"
     android:layout_width="match_parent"
