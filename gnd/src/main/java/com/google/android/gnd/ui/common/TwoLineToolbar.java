@@ -36,7 +36,7 @@ public class TwoLineToolbar extends Toolbar {
 
   public TwoLineToolbar(Context context, @Nullable AttributeSet attrs) {
     super(context, attrs);
-    inflate(getContext(), R.layout.toolbar, this);
+    inflate(getContext(), R.layout.two_line_toolbar, this);
     ButterKnife.bind(this);
   }
 
@@ -48,4 +48,5 @@ public class TwoLineToolbar extends Toolbar {
     subtitleText.setText(subtitle);
     subtitleText.setVisibility(subtitle.isEmpty() ? View.GONE : View.VISIBLE);
   }
+
 }

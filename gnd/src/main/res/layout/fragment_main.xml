@@ -70,7 +70,7 @@
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:elevation="@dimen/toolbar_elevation"
-        android:theme="@style/ToolbarTheme"/>
+        android:theme="@style/GreenToolbarTheme"/>
 
     </FrameLayout>
 

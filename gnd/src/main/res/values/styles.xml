@@ -32,15 +32,32 @@
     <item name="windowNoTitle">true</item>
   </style>
 
-  <style name="ToolbarTheme" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
+  <style name="GreenToolbarTheme" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
+    <item name="gndToolbarTitleStyle">@style/GreenToolbarTitle</item>
+    <item name="gndToolbarSubtitleStyle">@style/GreenToolbarSubtitle</item>
   </style>
 
-  <style name="Toolbar.Title" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">
+  <style name="GreenToolbarTitle" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">
     <item name="android:textColor">@color/colorWhite</item>
   </style>
 
-  <style name="Toolbar.Subtitle" parent="TextAppearance.Widget.AppCompat.Toolbar.Subtitle">
+  <style name="GreenToolbarSubtitle" parent="TextAppearance.Widget.AppCompat.Toolbar.Subtitle">
     <item name="android:textColor">@color/colorGrey300</item>
+    <item name="android:textSize">12sp</item>
+  </style>
+
+  <style name="WhiteToolbarTheme" parent="ThemeOverlay.AppCompat.ActionBar">
+    <item name="android:background">@color/colorWhite</item>
+    <item name="gndToolbarTitleStyle">@style/WhiteToolbarTitle</item>
+    <item name="gndToolbarSubtitleStyle">@style/WhiteToolbarSubtitle</item>
+  </style>
+
+  <style name="WhiteToolbarTitle" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">
+    <item name="android:textColor">@color/colorGrey900</item>
+  </style>
+
+  <style name="WhiteToolbarSubtitle" parent="TextAppearance.Widget.AppCompat.Toolbar.Subtitle">
+    <item name="android:textColor">@color/colorGrey600</item>
     <item name="android:textSize">12sp</item>
   </style>
 

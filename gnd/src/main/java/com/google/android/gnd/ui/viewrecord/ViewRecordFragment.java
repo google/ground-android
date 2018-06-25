@@ -20,15 +20,26 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import butterknife.BindView;
+import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.R;
 import com.google.android.gnd.ui.common.AbstractFragment;
+import com.google.android.gnd.ui.common.TwoLineToolbar;
 
 public class ViewRecordFragment extends AbstractFragment {
+  @BindView(R.id.view_record_toolbar)
+  TwoLineToolbar toolbar;
+
   public ViewRecordFragment() {}
 
   @Override
   protected View createView(
       LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     return inflater.inflate(R.layout.fragment_view_record, container, false);
+  }
+
+  @Override
+  protected void setUpView() {
+    ((MainActivity) getActivity()).setActionBar(toolbar);
   }
 }

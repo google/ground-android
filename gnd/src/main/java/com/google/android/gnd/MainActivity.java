@@ -29,6 +29,7 @@ import android.support.v4.view.ViewCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import androidx.navigation.fragment.NavHostFragment;
+import androidx.navigation.ui.NavigationUI;
 import butterknife.ButterKnife;
 import com.google.android.gnd.repository.GndDataRepository;
 import com.google.android.gnd.rx.RxErrors;
@@ -37,6 +38,7 @@ import com.google.android.gnd.system.PermissionsManager;
 import com.google.android.gnd.system.PermissionsManager.PermissionsRequest;
 import com.google.android.gnd.system.SettingsManager;
 import com.google.android.gnd.system.SettingsManager.SettingsChangeRequest;
+import com.google.android.gnd.ui.common.TwoLineToolbar;
 import com.google.android.gnd.ui.common.ViewModelFactory;
 import com.google.android.gnd.vo.Record;
 import dagger.android.AndroidInjection;
@@ -194,6 +196,17 @@ public class MainActivity extends AppCompatActivity implements HasSupportFragmen
   @Override
   public final AndroidInjector<Fragment> supportFragmentInjector() {
     return fragmentInjector;
+  }
+
+  public void setActionBar(TwoLineToolbar toolbar) {
+    setSupportActionBar(toolbar);
+    // Workaround to get rid of application title from toolbar. Simply setting "" here or in layout
+    // XML doesn't work.
+    getSupportActionBar().setDisplayShowTitleEnabled(false);
+    NavigationUI.setupActionBarWithNavController(this, navHostFragment.getNavController());
+    // TODO: Remove this workaround once setupActionBarWithNavController() works with custom
+    // Toolbars (https://issuetracker.google.com/issues/109868820).
+    toolbar.setNavigationOnClickListener(__ -> navHostFragment.getNavController().navigateUp());
   }
 
   private void logLifecycleEvent(String event) {

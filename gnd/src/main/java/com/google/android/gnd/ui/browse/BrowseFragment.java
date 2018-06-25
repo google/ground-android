@@ -28,7 +28,6 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.v4.view.WindowInsetsCompat;
 import android.support.v4.widget.NestedScrollView;
-import android.support.v7.app.ActionBar;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -106,7 +105,7 @@ public class BrowseFragment extends AbstractFragment {
   protected void setUpView() {
     replaceFragment(R.id.map_container_fragment, mapContainerFragment);
     setUpBottomSheetBehavior();
-    setUpToolbar();
+    ((MainActivity) getActivity()).setActionBar(toolbar);
   }
 
   private void setUpBottomSheetBehavior() {
@@ -114,17 +113,6 @@ public class BrowseFragment extends AbstractFragment {
     bottomSheetBehavior.setHideable(true);
     bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
     bottomSheetBehavior.setBottomSheetCallback(new BottomSheetCallback());
-  }
-
-  private void setUpToolbar() {
-    MainActivity activity = (MainActivity) getActivity();
-    activity.setSupportActionBar(toolbar);
-    ActionBar actionBar = activity.getSupportActionBar();
-    // Workaround to get rid of application title from toolbar. Setting "" here or in layout XML
-    // doesn't work.
-    actionBar.setDisplayShowTitleEnabled(false);
-    actionBar.setDisplayHomeAsUpEnabled(true);
-    actionBar.setDisplayShowHomeEnabled(true);
   }
 
   protected void observeViewModels() {
