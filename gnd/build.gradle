@@ -41,7 +41,7 @@ project.ext {
 def homePath = System.properties['user.home']
 
 android {
-    compileSdkVersion "android-P"
+    compileSdkVersion 28
     defaultConfig {
         // https://developer.android.com/about/dashboards/index.html for reference.
         applicationId "com.google.android.gnd"
