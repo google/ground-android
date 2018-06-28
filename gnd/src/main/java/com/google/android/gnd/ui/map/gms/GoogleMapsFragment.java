@@ -50,6 +50,10 @@ public class GoogleMapsFragment extends SupportMapFragment {
 
   private void setWatermarkPadding(View view, int left, int top, int right, int bottom) {
     ImageView watermark = view.findViewWithTag("GoogleWatermark");
+    // Watermark may be null if Maps failed to load.
+    if (watermark == null) {
+      return;
+    }
     RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) watermark.getLayoutParams();
     params.setMargins(left, top, right, bottom);
     watermark.setLayoutParams(params);
