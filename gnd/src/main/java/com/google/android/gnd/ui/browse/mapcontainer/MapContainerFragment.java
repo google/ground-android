@@ -32,7 +32,7 @@ import android.widget.Toast;
 import butterknife.BindView;
 import com.google.android.gnd.MainViewModel;
 import com.google.android.gnd.R;
-import com.google.android.gnd.repository.ProjectState;
+import com.google.android.gnd.repository.Resource;
 import com.google.android.gnd.system.PermissionsManager.PermissionDeniedException;
 import com.google.android.gnd.system.SettingsManager.SettingsChangeRequestCanceled;
 import com.google.android.gnd.ui.browse.BrowseViewModel;
@@ -41,6 +41,7 @@ import com.google.android.gnd.ui.browse.mapcontainer.MapContainerViewModel.Locat
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.map.MapProvider;
 import com.google.android.gnd.ui.map.MapProvider.MapAdapter;
+import com.google.android.gnd.vo.Project;
 import com.jakewharton.rxbinding2.view.RxView;
 import javax.inject.Inject;
 
@@ -105,7 +106,7 @@ public class MapContainerFragment extends AbstractFragment {
         .getLocationLockStatus()
         .observe(this, status -> onLocationLockStatusChange(status, map));
     mapContainerViewModel.getCameraUpdates().observe(this, update -> onCameraUpdate(update, map));
-    mapContainerViewModel.getProjectState().observe(this, this::projectStateChange);
+    mapContainerViewModel.getActiveProject().observe(this, this::onProjectChange);
     browseViewModel
         .getPlaceSheetState()
         .observe(this, state -> onPlaceSheetStateChange(state, map));
@@ -141,8 +142,8 @@ public class MapContainerFragment extends AbstractFragment {
     }
   }
 
-  private void projectStateChange(ProjectState projectState) {
-    if (projectState.isActivated()) {
+  private void onProjectChange(Resource<Project> project) {
+    if (project.isLoaded()) {
       enableAddPlaceBtn();
     } else {
       disableAddPlaceBtn();

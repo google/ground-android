@@ -31,9 +31,9 @@ import android.util.Log;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.NavigationUI;
 import butterknife.ButterKnife;
-import com.google.android.gnd.repository.GndDataRepository;
+import com.google.android.gnd.repository.DataRepository;
 import com.google.android.gnd.rx.RxErrors;
-import com.google.android.gnd.service.DataService;
+import com.google.android.gnd.service.RemoteDataService;
 import com.google.android.gnd.system.PermissionsManager;
 import com.google.android.gnd.system.PermissionsManager.PermissionsRequest;
 import com.google.android.gnd.system.SettingsManager;
@@ -61,9 +61,11 @@ public class MainActivity extends AppCompatActivity implements HasSupportFragmen
 
   @Inject SettingsManager settingsManager;
 
-  @Inject DataService dataService;
+  @Inject
+  RemoteDataService remoteDataService;
 
-  @Inject GndDataRepository model;
+  @Inject
+  DataRepository model;
   @Inject DispatchingAndroidInjector<Fragment> fragmentInjector;
 
   private NavHostFragment navHostFragment;

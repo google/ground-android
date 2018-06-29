@@ -21,7 +21,7 @@ import android.os.StrictMode;
 import android.support.multidex.MultiDexApplication;
 import android.util.Log;
 import com.akaita.java.rxjava2debug.RxJava2Debug;
-import com.google.android.gnd.repository.GndDataRepository;
+import com.google.android.gnd.repository.DataRepository;
 import dagger.android.AndroidInjector;
 import dagger.android.DispatchingAndroidInjector;
 import dagger.android.HasActivityInjector;
@@ -33,7 +33,8 @@ import javax.inject.Inject;
 public class GndApplication extends MultiDexApplication implements HasActivityInjector {
   private static final String TAG = GndApplication.class.getSimpleName();
 
-  @Inject GndDataRepository dataRepository;
+  @Inject
+  DataRepository dataRepository;
   @Inject DispatchingAndroidInjector<Activity> activityInjector;
 
   @Override

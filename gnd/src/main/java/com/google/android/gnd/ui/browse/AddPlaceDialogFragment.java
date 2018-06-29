@@ -25,7 +25,7 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
 import com.google.android.gnd.R;
-import com.google.android.gnd.repository.ProjectState;
+import com.google.android.gnd.repository.Resource;
 import com.google.android.gnd.ui.common.AbstractDialogFragment;
 import com.google.android.gnd.vo.PlaceType;
 import com.google.android.gnd.vo.Point;
@@ -33,7 +33,6 @@ import com.google.android.gnd.vo.Project;
 import com.google.common.collect.ImmutableList;
 import io.reactivex.Maybe;
 import io.reactivex.subjects.MaybeSubject;
-import java8.util.Optional;
 import javax.inject.Inject;
 
 public class AddPlaceDialogFragment extends AbstractDialogFragment {
@@ -57,18 +56,17 @@ public class AddPlaceDialogFragment extends AbstractDialogFragment {
 
   @Override
   public Dialog onCreateDialog(Bundle savedInstanceState) {
+    // TODO: Inject and use custom factory.
     BrowseViewModel browseViewModel =
         ViewModelProviders.of(getActivity()).get(BrowseViewModel.class);
-    ProjectState projectState = browseViewModel.getProjectState().getValue();
+    Resource<Project> activeProject = Resource.getValue(browseViewModel.getActiveProject());
+    // TODO: It there a better way to get this? Maybe just get camera center instead of "request"?
     Point location = browseViewModel.getShowAddPlaceDialogRequests().getValue();
-    Optional<Project> activeProject = projectState.getActiveProject();
-    if (activeProject.isPresent()) {
-      return createDialog(activeProject.get(), location);
-    } else {
+    if (!activeProject.isLoaded()) {
       // TODO: Handle this error upstream.
       addPlaceRequestSubject.onError(new IllegalStateException("No project loaded"));
-      return null;
     }
+    return activeProject.get().map(p -> createDialog(p, location)).orElse(null);
   }
 
   private Dialog createDialog(Project project, Point location) {

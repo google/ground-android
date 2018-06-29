@@ -21,9 +21,9 @@ import static java8.util.stream.StreamSupport.stream;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.ViewModel;
-import com.google.android.gnd.repository.GndDataRepository;
-import com.google.android.gnd.repository.ProjectState;
+import com.google.android.gnd.repository.DataRepository;
 import com.google.android.gnd.repository.RecordSummary;
+import com.google.android.gnd.repository.Resource;
 import com.google.android.gnd.vo.Form;
 import com.google.android.gnd.vo.Place;
 import com.google.android.gnd.vo.PlaceType;
@@ -37,11 +37,11 @@ import javax.inject.Inject;
 
 public class RecordListViewModel extends ViewModel {
   private static final String TAG = RecordListViewModel.class.getSimpleName();
-  private final GndDataRepository dataRepository;
+  private final DataRepository dataRepository;
   private MutableLiveData<List<RecordSummary>> recordSummaries;
 
   @Inject
-  public RecordListViewModel(GndDataRepository dataRepository) {
+  public RecordListViewModel(DataRepository dataRepository) {
     this.dataRepository = dataRepository;
     recordSummaries = new MutableLiveData<>();
   }
@@ -56,9 +56,10 @@ public class RecordListViewModel extends ViewModel {
 
   public Completable loadRecords(Place place, Form form) {
     PlaceType placeType = place.getPlaceType();
+    // TODO: Warn if project not loaded?
     return dataRepository
-        .getProjectState()
-        .map(ProjectState::getActiveProject)
+        .getActiveProject()
+        .map(Resource::get)
         .filter(Optional::isPresent)
         .map(Optional::get)
         .flatMapCompletable(

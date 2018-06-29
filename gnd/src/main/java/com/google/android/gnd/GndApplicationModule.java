@@ -18,7 +18,7 @@ package com.google.android.gnd;
 
 import android.app.Application;
 import com.google.android.gnd.inject.PerActivity;
-import com.google.android.gnd.service.DataService;
+import com.google.android.gnd.service.RemoteDataService;
 import com.google.android.gnd.service.firestore.FirestoreDataService;
 import com.google.android.gnd.ui.common.ViewModelModule;
 import dagger.Binds;
@@ -40,7 +40,7 @@ abstract class GndApplicationModule {
    */
   @Binds
   @Singleton
-  abstract DataService dataService(FirestoreDataService ds);
+  abstract RemoteDataService remoteDataService(FirestoreDataService ds);
 
   @Binds
   @Singleton

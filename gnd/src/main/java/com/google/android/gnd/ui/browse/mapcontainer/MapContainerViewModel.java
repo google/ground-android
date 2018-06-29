@@ -20,14 +20,15 @@ import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.ViewModel;
 import android.util.Log;
-import com.google.android.gnd.repository.GndDataRepository;
-import com.google.android.gnd.repository.ProjectState;
+import com.google.android.gnd.repository.DataRepository;
+import com.google.android.gnd.repository.Resource;
 import com.google.android.gnd.rx.RxLiveData;
 import com.google.android.gnd.system.LocationManager;
 import com.google.android.gnd.ui.browse.AddPlaceDialogFragment.AddPlaceRequest;
 import com.google.android.gnd.ui.map.MapMarker;
 import com.google.android.gnd.vo.Place;
 import com.google.android.gnd.vo.Point;
+import com.google.android.gnd.vo.Project;
 import com.google.common.collect.ImmutableSet;
 import io.reactivex.Completable;
 import io.reactivex.disposables.Disposable;
@@ -37,7 +38,7 @@ import javax.inject.Inject;
 public class MapContainerViewModel extends ViewModel {
   private static final String TAG = MapContainerViewModel.class.getSimpleName();
   private static final float DEFAULT_ZOOM_LEVEL = 14.0f;
-  private final MutableLiveData<ProjectState> projectState;
+  private final LiveData<Resource<Project>> activeProject;
   private final LiveData<ImmutableSet<Place>> places;
   private final MutableLiveData<LocationLockStatus> locationLockStatus;
   private final MutableLiveData<CameraUpdate> cameraUpdates;
@@ -45,19 +46,15 @@ public class MapContainerViewModel extends ViewModel {
   private Disposable locationUpdateSubscription;
 
   @Inject
-  MapContainerViewModel(GndDataRepository dataRepository, LocationManager locationManager) {
+  MapContainerViewModel(DataRepository dataRepository, LocationManager locationManager) {
     this.locationManager = locationManager;
     this.locationLockStatus = new MutableLiveData<>();
     locationLockStatus.setValue(LocationLockStatus.disabled());
     this.cameraUpdates = new MutableLiveData<>();
-    this.projectState = new MutableLiveData<>();
+    this.activeProject = RxLiveData.fromFlowable(dataRepository.getActiveProject());
     this.places =
-        RxLiveData.fromFlowable(
-            dataRepository
-                .getProjectState()
-                .doOnNext(projectState::postValue)
-                .filter(ProjectState::isActivated)
-                .switchMap(ProjectState::getPlaces));
+        RxLiveData.fromFlowable(dataRepository.getActiveProject().compose(Resource.ifPresentGet())
+            .switchMap(project -> dataRepository.getPlaceVectors(project)));
   }
 
   //  private void updatePlaces(MarkerUpdate markerUpdate) {
@@ -81,8 +78,8 @@ public class MapContainerViewModel extends ViewModel {
   //    }
   //  }
 
-  public LiveData<ProjectState> getProjectState() {
-    return projectState;
+  public LiveData<Resource<Project>> getActiveProject() {
+    return activeProject;
   }
 
   public LiveData<ImmutableSet<Place>> getPlaces() {

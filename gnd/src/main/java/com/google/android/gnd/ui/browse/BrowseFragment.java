@@ -37,7 +37,7 @@ import butterknife.BindView;
 import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.MainViewModel;
 import com.google.android.gnd.R;
-import com.google.android.gnd.repository.ProjectState;
+import com.google.android.gnd.repository.Resource;
 import com.google.android.gnd.ui.browse.mapcontainer.MapContainerFragment;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.Consumable;
@@ -57,8 +57,7 @@ import javax.inject.Inject;
 public class BrowseFragment extends AbstractFragment {
   private static final float COLLAPSED_MAP_ASPECT_RATIO = 16.0f / 9.0f;
 
-  @Inject
-  ViewModelFactory viewModelFactory;
+  @Inject ViewModelFactory viewModelFactory;
 
   @Inject MapContainerFragment mapContainerFragment;
 
@@ -119,7 +118,7 @@ public class BrowseFragment extends AbstractFragment {
     viewModel
         .getShowProjectSelectorDialogRequests()
         .observe(this, this::onShowProjectSelectorDialogRequest);
-    viewModel.getProjectState().observe(this, this::onProjectStateChange);
+    viewModel.getActiveProject().observe(this, this::onActiveProjectChange);
     viewModel.getShowAddPlaceDialogRequests().observe(this, this::onShowAddPlaceDialogRequest);
     viewModel.getPlaceSheetState().observe(this, this::onPlaceSheetStateChange);
     mainViewModel.getWindowInsets().observe(this, this::onApplyWindowInsets);
@@ -139,15 +138,32 @@ public class BrowseFragment extends AbstractFragment {
     projects.get().ifPresent(p -> ProjectSelectorDialogFragment.show(getFragmentManager(), p));
   }
 
-  private void onProjectStateChange(ProjectState event) {
-    if (event.isLoading()) {
-      showProjectLoadingDialog();
-    } else if (event.isActivated()) {
-      dismissLoadingDialog();
-    } else {
-      // TODO: Reuse last selected project instead of asking to select every time.
+  @Override
+  public void onStart() {
+    super.onStart();
+    // TODO: Show loading dialog.
+    //    if (project.isLoading()) {
+    //      showProjectLoadingDialog();
+    //    } else if (project.isLoaded()) {
+    //    } else {
+    if (!Resource.getValue(viewModel.getActiveProject()).isLoaded()) {
+      // TODO: Persist last selected project in local db instead of asking to select every time.
       // TODO: Trigger this from welcome flow and nav drawer instead of here.
+      // TODO: Let viewModel dispose of this.
       viewModel.showProjectSelectorDialog().as(autoDisposable(this)).subscribe();
+    }
+  }
+
+  private void onActiveProjectChange(Resource<Project> project) {
+    switch (project.getState()) {
+      case NOT_LOADED:
+      case LOADED:
+        dismissLoadingDialog();
+        break;
+      case NOT_FOUND:
+      case ERROR:
+        // TODO: Show error message.
+        break;
     }
   }
 

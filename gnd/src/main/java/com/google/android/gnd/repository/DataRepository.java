@@ -17,45 +17,44 @@
 package com.google.android.gnd.repository;
 
 import android.annotation.SuppressLint;
-import com.google.android.gnd.service.DataService;
 import com.google.android.gnd.service.DatastoreEvent;
+import com.google.android.gnd.service.RemoteDataService;
 import com.google.android.gnd.vo.Place;
 import com.google.android.gnd.vo.Project;
 import com.google.android.gnd.vo.Record;
 import com.google.common.collect.ImmutableSet;
-import io.reactivex.BackpressureStrategy;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Single;
-import io.reactivex.subjects.BehaviorSubject;
 import java.io.IOException;
 import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
 @Singleton
-public class GndDataRepository {
+public class DataRepository {
 
-  private final DataService dataService;
-  private final InMemoryCache inMemoryCache;
-  private BehaviorSubject<ProjectState> projectStateObservable;
+  // TODO: Implement local data persistence.
+  // For cached data, InMemoryCache is the source of truth that the repository subscribes to.
+  // For non-cached data, the local database will be the source of truth.
+  // Remote data is written to the database, and then optionally to the InMemoryCache.
+  private final InMemoryCache cache;
+  private final RemoteDataService remoteDataService;
 
   @Inject
-  public GndDataRepository(DataService dataService, InMemoryCache inMemoryCache) {
-    this.dataService = dataService;
-    this.inMemoryCache = inMemoryCache;
-    projectStateObservable = BehaviorSubject.createDefault(ProjectState.inactive());
+  public DataRepository(RemoteDataService remoteDataService, InMemoryCache cache) {
+    this.remoteDataService = remoteDataService;
+    this.cache = cache;
   }
 
-  public Flowable<ProjectState> getProjectState() {
-    return projectStateObservable.toFlowable(BackpressureStrategy.LATEST);
+  public Flowable<Resource<Project>> getActiveProject() {
+    return cache.getActiveProject();
   }
 
   @SuppressLint("CheckResult")
   public Completable activateProject(String projectId) {
-    projectStateObservable.onNext(ProjectState.loading());
     // TODO: Make loadProject return Completable instead of Maybe?
-    return dataService
+    return remoteDataService
         .loadProject(projectId)
         .doOnSuccess(this::onProjectLoaded)
         .flatMapCompletable(
@@ -66,35 +65,36 @@ public class GndDataRepository {
   }
 
   private void onProjectLoaded(Project project) {
-    inMemoryCache.clear();
-    projectStateObservable.onNext(ProjectState.activated(project, getPlaces(project)));
+    cache.setActiveProject(Resource.loaded(project));
   }
 
-  private Flowable<ImmutableSet<Place>> getPlaces(Project project) {
-    return dataService
-        .observePlaces(project)
-        .doOnNext(this::updateCache)
-        .map(__ -> inMemoryCache.getPlaces());
+  // TODO: Only return data needed to render place PLPs.
+  // TODO: Wrap Place in Resource<>.
+  public Flowable<ImmutableSet<Place>> getPlaceVectors(Project project) {
+    return remoteDataService
+      .observePlaces(project)
+      .doOnNext(this::updateCache)
+      .map(__ -> cache.getPlaces());
   }
 
   private void updateCache(DatastoreEvent<Place> event) {
     event
         .getEntity()
-        .ifPresentOrElse(inMemoryCache::putPlace, () -> inMemoryCache.removePlace(event.getId()));
+        .ifPresentOrElse(cache::putPlace, () -> cache.removePlace(event.getId()));
   }
 
   //  public Place update(PlaceUpdate placeUpdate) {
   //    projectStateObservable.getValue().getActiveProject()
   //
-  //    return dataService.update(activeProject.getId(), placeUpdate);
+  //    return remoteDataService.update(activeProject.getId(), placeUpdate);
   //  }
 
   public Single<List<Record>> loadRecordSummaries(Project project, String placeId) {
     // TODO: Only fetch first n fields.
-    return dataService.loadRecordData(project.getId(), placeId);
+    return remoteDataService.loadRecordData(project.getId(), placeId);
   }
 
   public Single<List<Project>> loadProjectSummaries() {
-    return dataService.loadProjectSummaries();
+    return remoteDataService.loadProjectSummaries();
   }
 }

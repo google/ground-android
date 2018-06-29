@@ -24,8 +24,8 @@ import static java8.util.stream.StreamSupport.stream;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
-import com.google.android.gnd.service.DataService;
 import com.google.android.gnd.service.DatastoreEvent;
+import com.google.android.gnd.service.RemoteDataService;
 import com.google.android.gnd.vo.Form;
 import com.google.android.gnd.vo.Place;
 import com.google.android.gnd.vo.PlaceType;
@@ -60,7 +60,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 @Singleton
-public class FirestoreDataService implements DataService {
+public class FirestoreDataService implements RemoteDataService {
 
   private static final FirebaseFirestoreSettings FIRESTORE_SETTINGS =
       new FirebaseFirestoreSettings.Builder().setPersistenceEnabled(true).build();

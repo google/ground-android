@@ -13,22 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.gnd.ui.projectselector;
 
-import android.arch.lifecycle.ViewModel;
-import com.google.android.gnd.repository.DataRepository;
-import io.reactivex.Completable;
-import javax.inject.Inject;
+package com.google.android.gnd.rx;
 
-public class ProjectSelectorViewModel extends ViewModel {
-  private final DataRepository dataRepository;
+import io.reactivex.FlowableTransformer;
+import java8.util.Optional;
 
-  @Inject
-  ProjectSelectorViewModel(DataRepository dataRepository) {
-    this.dataRepository = dataRepository;
-  }
-
-  public Completable activateProject(String id) {
-    return dataRepository.activateProject(id);
+public class RxTransformers {
+  public static <T> FlowableTransformer<Optional<T>, T> ifPresentGet() {
+    return upstream -> upstream.filter(Optional::isPresent).map(Optional::get);
   }
 }

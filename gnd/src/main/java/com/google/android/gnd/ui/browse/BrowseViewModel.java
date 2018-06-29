@@ -19,8 +19,8 @@ import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.ViewModel;
 import android.util.Log;
-import com.google.android.gnd.repository.GndDataRepository;
-import com.google.android.gnd.repository.ProjectState;
+import com.google.android.gnd.repository.DataRepository;
+import com.google.android.gnd.repository.Resource;
 import com.google.android.gnd.rx.RxLiveData;
 import com.google.android.gnd.ui.browse.AddPlaceDialogFragment.AddPlaceRequest;
 import com.google.android.gnd.ui.common.Consumable;
@@ -33,28 +33,28 @@ import javax.inject.Inject;
 
 public class BrowseViewModel extends ViewModel {
   private static final String TAG = BrowseViewModel.class.getSimpleName();
-  private final GndDataRepository dataRepository;
-  private final LiveData<ProjectState> projectState;
+  private final DataRepository dataRepository;
+  private final LiveData<Resource<Project>> activeProject;
   // TODO: Implement this as a state and remove Consumable.
   private final MutableLiveData<Consumable<List<Project>>> showProjectSelectorDialogRequests;
   private final MutableLiveData<Point> addPlaceDialogRequests;
   private final MutableLiveData<PlaceSheetState> placeSheetState;
 
   @Inject
-  BrowseViewModel(GndDataRepository dataRepository) {
+  BrowseViewModel(DataRepository dataRepository) {
     this.dataRepository = dataRepository;
     this.showProjectSelectorDialogRequests = new MutableLiveData<>();
     this.addPlaceDialogRequests = new MutableLiveData<>();
-    this.projectState = RxLiveData.fromFlowable(dataRepository.getProjectState());
     this.placeSheetState = new MutableLiveData<>();
+    this.activeProject = RxLiveData.fromFlowable(dataRepository.getActiveProject());
   }
 
   public LiveData<Consumable<List<Project>>> getShowProjectSelectorDialogRequests() {
     return showProjectSelectorDialogRequests;
   }
 
-  public LiveData<ProjectState> getProjectState() {
-    return projectState;
+  public LiveData<Resource<Project>> getActiveProject() {
+    return activeProject;
   }
 
   public LiveData<Point> getShowAddPlaceDialogRequests() {
@@ -79,7 +79,7 @@ public class BrowseViewModel extends ViewModel {
   }
 
   public void onAddPlaceBtnClick(Point location) {
-    if (projectState.getValue().isActivated()) {
+    if (activeProject.getValue().isLoaded()) {
       // TODO: Pause location updates while dialog is open.
       addPlaceDialogRequests.setValue(location);
     }
