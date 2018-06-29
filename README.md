@@ -1,12 +1,14 @@
 # Ground for Android
 
-*Ground* is a free, map-centric platform for occasionally connected devices.
+Ground is a map-centric data collection platform for occasionally
+connected devices.
 
-This is not an officially supported Google product; it is currently being
-developed on a best-effort basis.
+This is not an officially supported Google product; it is currently
+being developed by volunteers on a best-effort basis.
 
 The project is currently undergoing major architectural and UI changes.
-Please check back periodically for updates.
+Please check back periodically for updates. The stable demo version is
+in branch "[prototype](tree/prototype)".
 
 ## Initial build configuration
 
@@ -39,6 +41,7 @@ $ keytool -list -v -keystore "$HOME/.android/debug.keystore" \
   -alias androiddebugkey \
   -storepass android -keypass android
 ```
+
 ### Set up Firebase
 
 1. Create a new Firebase project at:
