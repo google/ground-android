@@ -35,7 +35,7 @@ public class ViewRecordFragment extends AbstractFragment {
   @Override
   protected View createView(
       LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-    return inflater.inflate(R.layout.fragment_view_record, container, false);
+    return inflater.inflate(R.layout.view_record_frag, container, false);
   }
 
   @Override

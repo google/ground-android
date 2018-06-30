@@ -64,7 +64,7 @@ public class PlaceSheetBodyFragment extends AbstractFragment {
   @Override
   protected View createView(
       LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-    return inflater.inflate(R.layout.fragment_place_sheet, container, false);
+    return inflater.inflate(R.layout.place_sheet_frag, container, false);
   }
 
   @Override

@@ -24,7 +24,7 @@
     android:id="@+id/browse_fragment"
     android:name="com.google.android.gnd.ui.browse.BrowseFragment"
     android:label="@string/map_view"
-    tools:layout="@layout/fragment_main">
+    tools:layout="@layout/browse_frag">
     <action
       android:id="@+id/action_browse_to_view_record"
       app:destination="@id/view_record_fragment"/>
@@ -33,5 +33,5 @@
     android:id="@+id/view_record_fragment"
     android:name="com.google.android.gnd.ui.viewrecord.ViewRecordFragment"
     android:label="@string/view_record_details"
-    tools:layout="@layout/fragment_view_record"/>
+    tools:layout="@layout/view_record_frag"/>
 </navigation>

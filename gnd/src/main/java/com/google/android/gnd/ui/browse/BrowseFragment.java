@@ -97,7 +97,7 @@ public class BrowseFragment extends AbstractFragment {
 
   @Override
   public View createView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-    return inflater.inflate(R.layout.fragment_main, container, false);
+    return inflater.inflate(R.layout.browse_frag, container, false);
   }
 
   @Override
