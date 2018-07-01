@@ -62,6 +62,7 @@ public class PlaceDoc {
     }
     return Place.newBuilder()
         .setId(doc.getId())
+        .setProject(project)
         .setCustomId(f.customId)
         .setCaption(f.caption)
         .setPlaceType(placeType.get())

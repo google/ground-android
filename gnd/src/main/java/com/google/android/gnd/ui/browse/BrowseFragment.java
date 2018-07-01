@@ -54,6 +54,7 @@ import javax.inject.Inject;
  * runtime.
  */
 public class BrowseFragment extends AbstractFragment {
+  // TODO: Rename to "HomeScreen" or similar.
   private static final float COLLAPSED_MAP_ASPECT_RATIO = 16.0f / 9.0f;
 
   @Inject ViewModelFactory viewModelFactory;

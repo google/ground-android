@@ -20,8 +20,7 @@ import static com.google.android.gnd.service.firestore.FirestoreDataService.toTi
 
 import android.util.Log;
 import com.google.android.gnd.vo.Form;
-import com.google.android.gnd.vo.PlaceType;
-import com.google.android.gnd.vo.Project;
+import com.google.android.gnd.vo.Place;
 import com.google.android.gnd.vo.Record;
 import com.google.android.gnd.vo.Record.Value;
 import com.google.common.collect.ImmutableList;
@@ -54,7 +53,7 @@ public class RecordDoc {
 
   public static RecordDoc fromProto(Record r, Map<String, Object> valueUpdates) {
     RecordDoc rd = new RecordDoc();
-    rd.featureTypeId = r.getPlaceType().getId();
+    rd.featureTypeId = r.getPlace().getPlaceType().getId();
     rd.formId = r.getForm().getId();
     rd.responses = valueUpdates;
     rd.serverTimeCreated = r.getServerTimestamps().getCreated();
@@ -64,18 +63,19 @@ public class RecordDoc {
     return rd;
   }
 
-  public static Record toProto(Project project, String recordId, DocumentSnapshot doc) {
+  public static Record toProto(Place place, String recordId, DocumentSnapshot doc) {
     RecordDoc rd = doc.toObject(RecordDoc.class);
-    Optional<PlaceType> placeType = project.getPlaceType(rd.featureTypeId);
-    Optional<Form> form = placeType.flatMap(pt -> pt.getForm(rd.formId));
-    if (!placeType.isPresent() || !form.isPresent()) {
-      // TODO: Handle in a more consistent way.
-      throw new RuntimeException("Inconsistent data");
+    if (!place.getPlaceType().getId().equals(rd.featureTypeId)) {
+      // TODO: Handle error.
+    }
+    Optional<Form> form = place.getPlaceType().getForm(rd.formId);
+    if (!!form.isPresent()) {
+      // TODO: Handle error.
     }
     return Record.newBuilder()
         .setId(recordId)
-        .setProject(project)
-        .setPlaceType(placeType.get())
+        .setProject(place.getProject())
+        .setPlace(place)
         .setForm(form.get())
         .setValueMap(convertValues(rd.responses))
         .setServerTimestamps(toTimestamps(rd.serverTimeCreated, rd.serverTimeModified))

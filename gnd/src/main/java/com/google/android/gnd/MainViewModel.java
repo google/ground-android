@@ -51,8 +51,8 @@ public class MainViewModel extends ViewModel {
   public void onRecordListItemClick(RecordSummary recordSummary) {
     mainViewState.setValue(
         MainViewState.recordDetails(
-            recordSummary.getProject().getId(),
-            recordSummary.getForm().getId(),
+            recordSummary.getRecord().getProject().getId(),
+            recordSummary.getRecord().getPlace().getId(),
             recordSummary.getRecord().getId()));
   }
 

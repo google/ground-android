@@ -55,4 +55,8 @@ public class InMemoryCache {
     activeProject = Optional.of(project);
     places.clear();
   }
+
+  public Optional<Place> getPlace(String placeId) {
+    return Optional.ofNullable(places.get(placeId));
+  }
 }

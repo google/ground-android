@@ -19,6 +19,7 @@ package com.google.android.gnd.repository;
 import android.util.Log;
 import com.google.android.gnd.service.DatastoreEvent;
 import com.google.android.gnd.service.RemoteDataService;
+import com.google.android.gnd.service.firestore.DocumentNotFoundException;
 import com.google.android.gnd.vo.Place;
 import com.google.android.gnd.vo.Project;
 import com.google.android.gnd.vo.Record;
@@ -104,16 +105,29 @@ public class DataRepository {
   //  }
 
   // TODO: Return Resource.
-  public Flowable<List<Record>> getRecordSummaries(Project project, String placeId) {
+  public Flowable<List<Record>> getRecordSummaries(String projectId, String placeId) {
     // TODO: Only fetch first n fields.
     // TODO: Also load from db.
-    return remoteDataService.loadRecordSummaries(project, placeId).toFlowable();
+    return getPlace(projectId, placeId)
+        .flatMap(place -> remoteDataService.loadRecordSummaries(place))
+        .toFlowable();
+  }
+
+  private Single<Place> getPlace(String projectId, String placeId) {
+    // TODO: Load from db if not in cache.
+    return getProject(projectId)
+        .flatMap(
+            project ->
+                cache
+                    .getPlace(placeId)
+                    .map(Single::just)
+                    .orElse(Single.error(new DocumentNotFoundException())));
   }
 
   public Flowable<Resource<Record>> getRecordDetails(
       String projectId, String placeId, String recordId) {
-    return getProject(projectId)
-        .flatMap(project -> remoteDataService.loadRecordDetails(project, placeId, recordId))
+    return getPlace(projectId, placeId)
+        .flatMap(place -> remoteDataService.loadRecordDetails(place, recordId))
         .map(Resource::loaded)
         .onErrorReturn(Resource::error)
         .toFlowable();

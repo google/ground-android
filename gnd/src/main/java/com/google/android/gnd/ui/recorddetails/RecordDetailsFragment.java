@@ -32,6 +32,7 @@ import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.EphemeralPopups;
 import com.google.android.gnd.ui.common.TwoLineToolbar;
 import com.google.android.gnd.ui.common.ViewModelFactory;
+import com.google.android.gnd.vo.Form;
 import com.google.android.gnd.vo.Record;
 import javax.inject.Inject;
 
@@ -84,26 +85,47 @@ public class RecordDetailsFragment extends AbstractFragment {
 
   private void onUpdate(Resource<Record> record) {
     switch (record.getStatus()) {
+      case LOADING:
+        showProgressBar();
+        break;
       case LOADED:
         record.ifPresent(this::update);
         break;
       case NOT_FOUND:
       case ERROR:
-        Log.d(TAG, "Failed to load record");
+        // TODO: Replace w/error view?
+        Log.e(TAG, "Failed to load record");
         EphemeralPopups.showError(getContext());
         break;
     }
   }
 
+  private void showProgressBar() {
+    progressBar.setVisibility(View.VISIBLE);
+    recordDetailsLayout.setVisibility(View.GONE);
+  }
+
   private void update(Record record) {
     progressBar.setVisibility(View.GONE);
     recordDetailsLayout.removeAllViews();
-    for (Record.Value val : record.getValueMap().values()) {
-      TextView text = new TextView(getContext());
-      text.setText(val.toString());
-      recordDetailsLayout.addView(text);
+    for (Form.Element element : record.getForm().getElements()) {
+      switch (element.getType()) {
+        case FIELD:
+          addField(element.getField());
+          break;
+        case SUBFORM:
+          Log.d(TAG, "Subforms not yet supported");
+          break;
+        default:
+      }
     }
     // TODO: Attach place to Record.
     // TODO: Attach form to Record.
+  }
+
+  private void addField(Form.Field field) {
+    TextView text = new TextView(getContext());
+    text.setText(field.getLabel());
+    recordDetailsLayout.addView(text);
   }
 }

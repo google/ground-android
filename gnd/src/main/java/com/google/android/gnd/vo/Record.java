@@ -28,7 +28,7 @@ public abstract class Record {
 
   public abstract Project getProject();
 
-  public abstract PlaceType getPlaceType();
+  public abstract Place getPlace();
 
   public abstract Form getForm();
 
@@ -49,7 +49,7 @@ public abstract class Record {
 
     public abstract Builder setProject(Project project);
 
-    public abstract Builder setPlaceType(PlaceType placeType);
+    public abstract Builder setPlace(Place place);
 
     public abstract Builder setForm(Form form);
 

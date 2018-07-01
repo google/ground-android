@@ -28,15 +28,15 @@ import java.util.List;
  * Data service is treated as if it's remote, though implementations may cache data locally as well.
  */
 public interface RemoteDataService {
-  Single<Project> loadProject(String projectId);
-
-  Place update(String projectId, PlaceUpdate placeUpdate);
-
-  Single<List<Record>> loadRecordSummaries(Project project, String placeId);
-
   Single<List<Project>> loadProjectSummaries();
+
+  Single<Project> loadProject(String projectId);
 
   Flowable<DatastoreEvent<Place>> getPlaceVectorStream(Project project);
 
-  Single<Record> loadRecordDetails(Project project, String placeId, String recordId);
+  Single<List<Record>> loadRecordSummaries(Place place);
+
+  Single<Record> loadRecordDetails(Place place, String recordId);
+
+  Place update(String projectId, PlaceUpdate placeUpdate);
 }

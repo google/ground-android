@@ -23,6 +23,8 @@ import com.google.auto.value.extension.memoized.Memoized;
 public abstract class Place {
   public abstract String getId();
 
+  public abstract Project getProject();
+
   public abstract PlaceType getPlaceType();
 
   // TODO: Rename to getExternalId() or similar.
@@ -50,6 +52,8 @@ public abstract class Place {
   @AutoValue.Builder
   public abstract static class Builder {
     public abstract Builder setId(String newId);
+
+    public abstract Builder setProject(Project project);
 
     public abstract Builder setPlaceType(PlaceType newPlaceType);
 

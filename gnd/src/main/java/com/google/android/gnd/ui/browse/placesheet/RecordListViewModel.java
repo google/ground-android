@@ -71,9 +71,10 @@ public class RecordListViewModel extends AbstractViewModel {
       // TODO: Show error.
       return;
     }
+    // TODO: Use project id instead of object.
     disposeOnClear(
         dataRepository
-            .getRecordSummaries(project, placeId)
+            .getRecordSummaries(project.getId(), placeId)
             .subscribe(
                 // TODO: Only fetch records w/current formId.
                 records ->
