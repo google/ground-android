@@ -111,7 +111,7 @@ public class RecordDetailsFragment extends AbstractFragment {
     for (Form.Element element : record.getForm().getElements()) {
       switch (element.getType()) {
         case FIELD:
-          addField(element.getField());
+          addField(element.getField(), record);
           break;
         case SUBFORM:
           Log.d(TAG, "Subforms not yet supported");
@@ -123,9 +123,13 @@ public class RecordDetailsFragment extends AbstractFragment {
     // TODO: Attach form to Record.
   }
 
-  private void addField(Form.Field field) {
+  private void addField(Form.Field field, Record record) {
     TextView text = new TextView(getContext());
     text.setText(field.getLabel());
     recordDetailsLayout.addView(text);
+
+    TextView text2 = new TextView(getContext());
+    record.getValue(field.getId()).map(Record.Value::toString).ifPresent(text2::setText);
+    recordDetailsLayout.addView(text2);
   }
 }

@@ -21,6 +21,7 @@ import com.google.auto.value.AutoOneOf;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import java.util.Map;
+import java8.util.Optional;
 
 @AutoValue
 public abstract class Record {
@@ -41,6 +42,10 @@ public abstract class Record {
 
   public static Builder newBuilder() {
     return new AutoValue_Record.Builder();
+  }
+
+  public Optional<Value> getValue(String id) {
+    return Optional.ofNullable(getValueMap().get(id));
   }
 
   @AutoValue.Builder
