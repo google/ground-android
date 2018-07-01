@@ -33,6 +33,7 @@ import com.google.android.gnd.vo.Project;
 import com.google.common.collect.ImmutableList;
 import io.reactivex.Maybe;
 import io.reactivex.subjects.MaybeSubject;
+import java8.util.Optional;
 import javax.inject.Inject;
 
 public class AddPlaceDialogFragment extends AbstractDialogFragment {
@@ -59,14 +60,14 @@ public class AddPlaceDialogFragment extends AbstractDialogFragment {
     // TODO: Inject and use custom factory.
     BrowseViewModel browseViewModel =
         ViewModelProviders.of(getActivity()).get(BrowseViewModel.class);
-    Resource<Project> activeProject = Resource.getValue(browseViewModel.getActiveProject());
+    Optional<Project> activeProject = Resource.getData(browseViewModel.getActiveProject());
     // TODO: It there a better way to get this? Maybe just get camera center instead of "request"?
     Point location = browseViewModel.getShowAddPlaceDialogRequests().getValue();
-    if (!activeProject.isLoaded()) {
+    if (!activeProject.isPresent()) {
       // TODO: Handle this error upstream.
       addPlaceRequestSubject.onError(new IllegalStateException("No project loaded"));
     }
-    return activeProject.get().map(p -> createDialog(p, location)).orElse(null);
+    return activeProject.map(p -> createDialog(p, location)).orElse(null);
   }
 
   private Dialog createDialog(Project project, Point location) {

@@ -59,9 +59,7 @@ public class RecordListViewModel extends ViewModel {
     // TODO: Warn if project not loaded?
     return dataRepository
         .getActiveProject()
-        .map(Resource::get)
-        .filter(Optional::isPresent)
-        .map(Optional::get)
+        .compose(Resource.filterAndGetData())
         .flatMapCompletable(
             project -> loadRecords(project, placeType.getId(), form.getId(), place.getId()));
   }

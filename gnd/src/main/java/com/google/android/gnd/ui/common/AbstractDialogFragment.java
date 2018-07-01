@@ -32,18 +32,18 @@ public abstract class AbstractDialogFragment extends DaggerAppCompatDialogFragme
   public AbstractDialogFragment() {}
 
   @Override
-  public void onCreate(@Nullable Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
-  }
-
-  @Override
   public void onAttach(Context context) {
     AndroidSupportInjection.inject(this);
     super.onAttach(context);
-    onCreateViewModel();
   }
 
-  protected void onCreateViewModel() {}
+  @Override
+  public void onCreate(@Nullable Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    obtainViewModels();
+  }
+
+  protected void obtainViewModels() {}
 
   @Override
   public AndroidInjector<Fragment> supportFragmentInjector() {

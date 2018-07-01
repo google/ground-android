@@ -18,23 +18,21 @@ package com.google.android.gnd.repository;
 import com.google.android.gnd.vo.Place;
 import com.google.android.gnd.vo.Project;
 import com.google.common.collect.ImmutableSet;
-import io.reactivex.BackpressureStrategy;
-import io.reactivex.Flowable;
-import io.reactivex.subjects.BehaviorSubject;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java8.util.Optional;
 import javax.inject.Inject;
 
 /** Ephemeral storage of application state. This can be destroyed without notice. */
 public class InMemoryCache {
-  private final BehaviorSubject<Resource<Project>> activeProject;
+  private Optional<Project> activeProject;
   // TODO: Store map vector objects here instead of Place objects.
   private final Map<String, Place> places;
 
   @Inject
   public InMemoryCache() {
     this.places = new LinkedHashMap<>();
-    this.activeProject = BehaviorSubject.create();
+    this.activeProject = Optional.empty();
   }
 
   public synchronized void putPlace(Place place) {
@@ -49,12 +47,12 @@ public class InMemoryCache {
     return ImmutableSet.copyOf(places.values());
   }
 
-  public Flowable<Resource<Project>> getActiveProject() {
-    return activeProject.toFlowable(BackpressureStrategy.LATEST);
+  public Optional<Project> getActiveProject() {
+    return activeProject;
   }
 
-  public void setActiveProject(Resource<Project> project) {
-    activeProject.onNext(project);
+  public void setActiveProject(Project project) {
+    activeProject = Optional.of(project);
     places.clear();
   }
 }

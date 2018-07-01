@@ -15,20 +15,35 @@
  */
 package com.google.android.gnd.ui.projectselector;
 
-import android.arch.lifecycle.ViewModel;
+import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.MutableLiveData;
 import com.google.android.gnd.repository.DataRepository;
-import io.reactivex.Completable;
+import com.google.android.gnd.repository.Resource;
+import com.google.android.gnd.ui.common.AbstractViewModel;
+import com.google.android.gnd.vo.Project;
+import java.util.List;
 import javax.inject.Inject;
 
-public class ProjectSelectorViewModel extends ViewModel {
+public class ProjectSelectorViewModel extends AbstractViewModel {
   private final DataRepository dataRepository;
+  private final MutableLiveData<Resource<List<Project>>> projectSummaries;
 
   @Inject
   ProjectSelectorViewModel(DataRepository dataRepository) {
     this.dataRepository = dataRepository;
+    this.projectSummaries = new MutableLiveData<>();
   }
 
-  public Completable activateProject(String id) {
-    return dataRepository.activateProject(id);
+  public void loadProjectSummaries() {
+    disposeOnClear(
+        dataRepository.loadProjectSummaries().subscribe(v -> projectSummaries.setValue(v)));
+  }
+
+  public LiveData<Resource<List<Project>>> getProjectSummaries() {
+    return projectSummaries;
+  }
+
+  public void activateProject(String id) {
+    disposeOnClear(dataRepository.activateProject(id).subscribe());
   }
 }
