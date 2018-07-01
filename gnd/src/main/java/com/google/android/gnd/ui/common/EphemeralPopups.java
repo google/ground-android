@@ -18,6 +18,7 @@ package com.google.android.gnd.ui.common;
 
 import android.content.Context;
 import android.widget.Toast;
+import com.google.android.gnd.R;
 
 public class EphemeralPopups {
   /** Do not instantiate */
@@ -25,5 +26,9 @@ public class EphemeralPopups {
 
   public static void showError(Context context, int messageId) {
     Toast.makeText(context, messageId, Toast.LENGTH_LONG).show();
+  }
+
+  public static void showError(Context context) {
+    showError(context, R.string.unexpected_error);
   }
 }

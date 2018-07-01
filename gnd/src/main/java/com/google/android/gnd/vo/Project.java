@@ -22,6 +22,9 @@ import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import java8.util.Optional;
 
+/**
+ * Metadata and schema for a single Ground project.
+ */
 @AutoValue
 public abstract class Project {
   public abstract String getId();

@@ -20,22 +20,21 @@ import static java8.util.stream.StreamSupport.stream;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
-import android.arch.lifecycle.ViewModel;
 import com.google.android.gnd.repository.DataRepository;
 import com.google.android.gnd.repository.RecordSummary;
 import com.google.android.gnd.repository.Resource;
+import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.vo.Form;
 import com.google.android.gnd.vo.Place;
 import com.google.android.gnd.vo.PlaceType;
 import com.google.android.gnd.vo.Project;
-import io.reactivex.Completable;
 import java.util.Collections;
 import java.util.List;
 import java8.util.Optional;
 import java8.util.stream.Collectors;
 import javax.inject.Inject;
 
-public class RecordListViewModel extends ViewModel {
+public class RecordListViewModel extends AbstractViewModel {
   private static final String TAG = RecordListViewModel.class.getSimpleName();
   private final DataRepository dataRepository;
   private MutableLiveData<List<RecordSummary>> recordSummaries;
@@ -54,32 +53,34 @@ public class RecordListViewModel extends ViewModel {
     recordSummaries.setValue(Collections.emptyList());
   }
 
-  public Completable loadRecords(Place place, Form form) {
+  public void loadRecordSummaries(Place place, Form form) {
     PlaceType placeType = place.getPlaceType();
     // TODO: Warn if project not loaded?
-    return dataRepository
-        .getActiveProject()
-        .compose(Resource.filterAndGetData())
-        .flatMapCompletable(
-            project -> loadRecords(project, placeType.getId(), form.getId(), place.getId()));
+    // TODO: Pass project id and push getProject into repo.
+    disposeOnClear(
+        dataRepository
+            .getActiveProjectStream()
+            .compose(Resource.filterAndGetData())
+            .subscribe(
+                project -> loadRecords(project, placeType.getId(), form.getId(), place.getId())));
   }
 
-  private Completable loadRecords(
-      Project project, String placeTypeId, String formId, String placeId) {
+  private void loadRecords(Project project, String placeTypeId, String formId, String placeId) {
     Optional<Form> form = project.getPlaceType(placeTypeId).flatMap(pt -> pt.getForm(formId));
     if (!form.isPresent()) {
-      return Completable.error(new IllegalArgumentException("Form " + formId + " not found!"));
+      // TODO: Show error.
+      return;
     }
-    return dataRepository
-        .loadRecordSummaries(project, placeId)
-        .doOnSuccess(
-            // TODO: Only fetch records w/current formId.
-            records ->
-                recordSummaries.setValue(
-                    stream(records)
-                        .filter(record -> record.getFormId().equals(formId))
-                        .map(record -> new RecordSummary(form.get(), record))
-                        .collect(Collectors.toList())))
-        .toCompletable();
+    disposeOnClear(
+        dataRepository
+            .getRecordSummaries(project, placeId)
+            .subscribe(
+                // TODO: Only fetch records w/current formId.
+                records ->
+                    recordSummaries.setValue(
+                        stream(records)
+                            .filter(record -> record.getFormId().equals(formId))
+                            .map(record -> new RecordSummary(project, form.get(), record))
+                            .collect(Collectors.toList()))));
   }
 }

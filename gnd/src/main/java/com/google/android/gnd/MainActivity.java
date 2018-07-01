@@ -40,7 +40,6 @@ import com.google.android.gnd.system.SettingsManager;
 import com.google.android.gnd.system.SettingsManager.SettingsChangeRequest;
 import com.google.android.gnd.ui.common.TwoLineToolbar;
 import com.google.android.gnd.ui.common.ViewModelFactory;
-import com.google.android.gnd.vo.Record;
 import dagger.android.AndroidInjection;
 import dagger.android.AndroidInjector;
 import dagger.android.DispatchingAndroidInjector;
@@ -54,22 +53,14 @@ public class MainActivity extends AppCompatActivity implements HasSupportFragmen
 
   private static final String TAG = MainActivity.class.getSimpleName();
 
-  @Inject
-  ViewModelFactory viewModelFactory;
-
+  @Inject ViewModelFactory viewModelFactory;
   @Inject PermissionsManager permissionsManager;
-
   @Inject SettingsManager settingsManager;
-
-  @Inject
-  RemoteDataService remoteDataService;
-
-  @Inject
-  DataRepository model;
+  @Inject RemoteDataService remoteDataService;
+  @Inject DataRepository model;
   @Inject DispatchingAndroidInjector<Fragment> fragmentInjector;
 
   private NavHostFragment navHostFragment;
-
   private MainViewModel viewModel;
 
   @Override
@@ -109,20 +100,7 @@ public class MainActivity extends AppCompatActivity implements HasSupportFragmen
   }
 
   private void setViewState(MainViewModel.MainViewState state) {
-    switch (state.getView()) {
-      case MAP:
-        break;
-      case PLACE_SHEET:
-        break;
-      case RECORD_DETAILS:
-        showRecordDetailsFragment(state.getRecord());
-        break;
-    }
-  }
-
-  private void showRecordDetailsFragment(Record record) {
-    // TODO: Pass data in and show.
-    navHostFragment.getNavController().navigate(R.id.record_details_fragment);
+    state.navigate(navHostFragment.getNavController());
   }
 
   private void onPermissionsRequest(PermissionsRequest permissionsRequest) {

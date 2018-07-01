@@ -86,10 +86,12 @@ public class RecordListFragment extends AbstractFragment {
 
   private void update(Optional<Form> form) {
     viewModel.clearRecords();
+    // TODO: Use fragment args, load form and place if not present.
     Optional<Place> place = placeSheetViewModel.getSelectedPlace().getValue();
     if (!form.isPresent() || !place.isPresent()) {
+      // TODO: Report error.
       return;
     }
-    viewModel.loadRecords(place.get(), form.get()).as(autoDisposable(this)).subscribe();
+    viewModel.loadRecordSummaries(place.get(), form.get());
   }
 }

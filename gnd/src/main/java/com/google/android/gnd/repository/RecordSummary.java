@@ -19,18 +19,26 @@ package com.google.android.gnd.repository;
 import static java8.util.stream.StreamSupport.stream;
 
 import com.google.android.gnd.vo.Form;
+import com.google.android.gnd.vo.Project;
 import com.google.android.gnd.vo.Record;
 import com.google.android.gnd.vo.Record.Value;
 import java8.util.stream.Collectors;
 
+// TODO: Merge into Record class.
 public class RecordSummary {
   private static final CharSequence CODE_SEPARATOR = ",";
+  private Project project;
   private Record record;
   private Form form;
 
-  public RecordSummary(Form form, Record record) {
+  public RecordSummary(Project project, Form form, Record record) {
+    this.project = project;
     this.form = form;
     this.record = record;
+  }
+
+  public Project getProject() {
+    return project;
   }
 
   public Record getRecord() {

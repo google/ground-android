@@ -110,7 +110,7 @@ public class ProjectSelectorDialogFragment extends AbstractDialogFragment {
     List<Project> projectSummaries =
         Resource.getData(viewModel.getProjectSummaries()).orElse(Collections.emptyList());
     if (position >= projectSummaries.size()) {
-      EphemeralPopups.showError(getContext(), R.string.unexpected_error);
+      EphemeralPopups.showError(getContext());
       Log.e(TAG, "Project list item out of bounds");
       return;
     }

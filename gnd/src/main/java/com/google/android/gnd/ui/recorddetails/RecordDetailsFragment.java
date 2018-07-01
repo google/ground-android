@@ -17,25 +17,34 @@
 package com.google.android.gnd.ui.recorddetails;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 import butterknife.BindView;
 import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.R;
+import com.google.android.gnd.repository.Resource;
 import com.google.android.gnd.ui.common.AbstractFragment;
+import com.google.android.gnd.ui.common.EphemeralPopups;
 import com.google.android.gnd.ui.common.TwoLineToolbar;
 import com.google.android.gnd.ui.common.ViewModelFactory;
+import com.google.android.gnd.vo.Record;
 import javax.inject.Inject;
 
 public class RecordDetailsFragment extends AbstractFragment {
+  private static final String TAG = RecordDetailsFragment.class.getSimpleName();
 
-  @Inject
-  ViewModelFactory viewModelFactory;
+  @Inject ViewModelFactory viewModelFactory;
 
   @BindView(R.id.record_details_toolbar)
   TwoLineToolbar toolbar;
+
+  @BindView(R.id.record_details_progress_bar)
+  ProgressBar progressBar;
 
   @BindView(R.id.record_details_layout)
   LinearLayout recordDetailsLayout;
@@ -58,5 +67,43 @@ public class RecordDetailsFragment extends AbstractFragment {
   @Override
   protected void setUpView() {
     ((MainActivity) getActivity()).setActionBar(toolbar);
+  }
+
+  @Override
+  protected void observeViewModels() {
+    RecordDetailsFragmentArgs args = RecordDetailsFragmentArgs.fromBundle(getArguments());
+    if (args.getProjectId() == null || args.getPlaceId() == null || args.getRecordId() == null) {
+      Log.e(TAG, "Missing fragment args");
+      EphemeralPopups.showError(getContext());
+      return;
+    }
+    viewModel
+        .getRecordDetails(args.getProjectId(), args.getPlaceId(), args.getRecordId())
+        .observe(this, this::onUpdate);
+  }
+
+  private void onUpdate(Resource<Record> record) {
+    switch (record.getStatus()) {
+      case LOADED:
+        record.ifPresent(this::update);
+        break;
+      case NOT_FOUND:
+      case ERROR:
+        Log.d(TAG, "Failed to load record");
+        EphemeralPopups.showError(getContext());
+        break;
+    }
+  }
+
+  private void update(Record record) {
+    progressBar.setVisibility(View.GONE);
+    recordDetailsLayout.removeAllViews();
+    for (Record.Value val : record.getValueMap().values()) {
+      TextView text = new TextView(getContext());
+      text.setText(val.toString());
+      recordDetailsLayout.addView(text);
+    }
+    // TODO: Attach place to Record.
+    // TODO: Attach form to Record.
   }
 }

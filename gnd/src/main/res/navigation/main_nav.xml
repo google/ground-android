@@ -22,16 +22,28 @@
 
   <fragment
     android:id="@+id/browse_fragment"
-    android:name="com.google.android.gnd.ui.browse.BrowseFragment"
     android:label="@string/map_view"
+    android:name="com.google.android.gnd.ui.browse.BrowseFragment"
     tools:layout="@layout/browse_frag">
     <action
-      android:id="@+id/browse_to_record_details_action"
+      android:id="@+id/showRecordDetails"
       app:destination="@id/record_details_fragment"/>
   </fragment>
+
   <fragment
     android:id="@+id/record_details_fragment"
-    android:name="com.google.android.gnd.ui.recorddetails.RecordDetailsFragment"
     android:label="@string/view_record_details"
-    tools:layout="@layout/record_details_frag"/>
+    android:name="com.google.android.gnd.ui.recorddetails.RecordDetailsFragment"
+    tools:layout="@layout/record_details_frag">
+    <argument
+      android:name="projectId"
+      app:type="string"/>
+    <argument
+      android:name="placeId"
+      app:type="string"/>
+    <argument
+      android:name="recordId"
+      app:type="string"/>
+  </fragment>
+
 </navigation>

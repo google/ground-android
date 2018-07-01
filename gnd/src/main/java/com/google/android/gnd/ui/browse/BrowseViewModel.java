@@ -41,7 +41,7 @@ public class BrowseViewModel extends AbstractViewModel {
     this.dataRepository = dataRepository;
     this.addPlaceDialogRequests = new MutableLiveData<>();
     this.placeSheetState = new MutableLiveData<>();
-    this.activeProject = RxLiveData.fromFlowable(dataRepository.getActiveProject());
+    this.activeProject = RxLiveData.fromFlowable(dataRepository.getActiveProjectStream());
   }
 
   public LiveData<Resource<Project>> getActiveProject() {

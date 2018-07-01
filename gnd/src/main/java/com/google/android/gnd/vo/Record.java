@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.vo;
 
+import com.google.android.gnd.repository.RecordSummary;
 import com.google.auto.value.AutoOneOf;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
@@ -83,6 +84,11 @@ public abstract class Record {
 
     public static Value ofChoices(Choices choices) {
       return AutoOneOf_Record_Value.choices(choices);
+    }
+
+    @Override
+    public String toString() {
+      return RecordSummary.toSummaryText(this);
     }
   }
 

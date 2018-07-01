@@ -66,6 +66,7 @@ class RecordListItemViewHolder extends RecyclerView.ViewHolder {
     fieldLabelRow.removeAllViews();
     fieldValueRow.removeAllViews();
     Form form = summary.getForm();
+    // TODO: Clean this up.
     for (int i = 0; i < MAX_SUMMARY_COLUMNS && i < form.getElements().size(); i++) {
       Element elem = form.getElements().get(i);
       switch (elem.getType()) {

@@ -36,7 +36,7 @@ public class ProjectSelectorViewModel extends AbstractViewModel {
 
   public void loadProjectSummaries() {
     disposeOnClear(
-        dataRepository.loadProjectSummaries().subscribe(v -> projectSummaries.setValue(v)));
+        dataRepository.getProjectSummaries().subscribe(v -> projectSummaries.setValue(v)));
   }
 
   public LiveData<Resource<List<Project>>> getProjectSummaries() {

@@ -16,8 +16,12 @@
 
 package com.google.android.gnd.ui.recorddetails;
 
+import android.arch.lifecycle.LiveData;
 import com.google.android.gnd.repository.DataRepository;
+import com.google.android.gnd.repository.Resource;
+import com.google.android.gnd.rx.RxLiveData;
 import com.google.android.gnd.ui.common.AbstractViewModel;
+import com.google.android.gnd.vo.Record;
 import javax.inject.Inject;
 
 public class RecordDetailsViewModel extends AbstractViewModel {
@@ -29,4 +33,7 @@ public class RecordDetailsViewModel extends AbstractViewModel {
     this.dataRepository = dataRepository;
   }
 
+  public LiveData<Resource<Record>> getRecordDetails(String projectId, String placeId, String recordId) {
+    return RxLiveData.fromFlowable(dataRepository.getRecordDetails(projectId, placeId, recordId));
+  }
 }

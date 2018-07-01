@@ -16,7 +16,6 @@
 
 package com.google.android.gnd.repository;
 
-import android.annotation.SuppressLint;
 import android.util.Log;
 import com.google.android.gnd.service.DatastoreEvent;
 import com.google.android.gnd.service.RemoteDataService;
@@ -53,24 +52,13 @@ public class DataRepository {
     this.activeProjectSubject = PublishSubject.create();
   }
 
-  public Flowable<Resource<Project>> getActiveProject() {
+  public Flowable<Resource<Project>> getActiveProjectStream() {
     // TODO: On subscribe and project in cache not loaded, read last active project from local db.
     return activeProjectSubject
         .toFlowable(BackpressureStrategy.LATEST)
         .startWith(cache.getActiveProject().map(Resource::loaded).orElse(Resource.notLoaded()));
   }
 
-  public Flowable<Resource<List<Project>>> loadProjectSummaries() {
-    // TODO: Get from load db if network connection not available or remote times out.
-    return remoteDataService
-        .loadProjectSummaries()
-        .map(Resource::loaded)
-        .onErrorReturn(Resource::error)
-        .toFlowable()
-        .startWith(Resource.loading());
-  }
-
-  @SuppressLint("CheckResult")
   public Completable activateProject(String projectId) {
     Log.d(TAG, " Activating project " + projectId);
     return remoteDataService
@@ -85,27 +73,58 @@ public class DataRepository {
     activeProjectSubject.onNext(Resource.loaded(project));
   }
 
+  public Flowable<Resource<List<Project>>> getProjectSummaries() {
+    // TODO: Get from load db if network connection not available or remote times out.
+    return remoteDataService
+        .loadProjectSummaries()
+        .map(Resource::loaded)
+        .onErrorReturn(Resource::error)
+        .toFlowable()
+        .startWith(Resource.loading());
+  }
+
   // TODO: Only return data needed to render place PLPs.
   // TODO: Wrap Place in Resource<>.
-  public Flowable<ImmutableSet<Place>> getPlaceVectors(Project project) {
+  // TODO: Accept id instead.
+  public Flowable<ImmutableSet<Place>> getPlaceVectorStream(Project project) {
     return remoteDataService
-        .observePlaces(project)
-        .doOnNext(this::updateCache)
+        .getPlaceVectorStream(project)
+        .doOnNext(this::onRemotePlaceVectorChange)
         .map(__ -> cache.getPlaces());
   }
 
-  private void updateCache(DatastoreEvent<Place> event) {
+  private void onRemotePlaceVectorChange(DatastoreEvent<Place> event) {
     event.getEntity().ifPresentOrElse(cache::putPlace, () -> cache.removePlace(event.getId()));
   }
 
   //  public Place update(PlaceUpdate placeUpdate) {
-  //    projectStateObservable.getValue().getActiveProject()
+  //    projectStateObservable.getValue().getActiveProjectStream()
   //
   //    return remoteDataService.update(activeProject.getId(), placeUpdate);
   //  }
 
-  public Single<List<Record>> loadRecordSummaries(Project project, String placeId) {
+  // TODO: Return Resource.
+  public Flowable<List<Record>> getRecordSummaries(Project project, String placeId) {
     // TODO: Only fetch first n fields.
-    return remoteDataService.loadRecordData(project.getId(), placeId);
+    // TODO: Also load from db.
+    return remoteDataService.loadRecordSummaries(project.getId(), placeId).toFlowable();
+  }
+
+  public Flowable<Resource<Record>> getRecordDetails(
+      String projectId, String placeId, String recordId) {
+    return getProject(projectId)
+        .flatMap(project -> remoteDataService.loadRecord(project, placeId, recordId))
+        .map(Resource::loaded)
+        .onErrorReturn(Resource::error)
+        .toFlowable();
+  }
+
+  private Single<Project> getProject(String projectId) {
+    // TODO: Try to load from db if network not available or times out.
+    return cache
+        .getActiveProject()
+        .filter(p -> projectId.equals(p.getId()))
+        .map(Single::just)
+        .orElse(remoteDataService.loadProject(projectId));
   }
 }

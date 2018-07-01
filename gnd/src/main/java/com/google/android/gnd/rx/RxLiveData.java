@@ -19,14 +19,20 @@ package com.google.android.gnd.rx;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.LiveDataReactiveStreams;
 import io.reactivex.Flowable;
+import io.reactivex.Single;
 
+// TODO: Handle errors.
 public abstract class RxLiveData {
 
   /** Container for static helper methods. Do not instantiate. */
   private RxLiveData() {}
 
-  // TODO: Handle errors.
   public static <T> LiveData<T> fromFlowable(Flowable<T> flowable) {
     return LiveDataReactiveStreams.fromPublisher(flowable);
+  }
+
+  // TODO: Apply throughout.
+  public static <T> LiveData<T> fromSingle(Single<T> single) {
+    return fromFlowable(single.toFlowable());
   }
 }

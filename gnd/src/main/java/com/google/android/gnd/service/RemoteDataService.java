@@ -32,9 +32,11 @@ public interface RemoteDataService {
 
   Place update(String projectId, PlaceUpdate placeUpdate);
 
-  Single<List<Record>> loadRecordData(String projectId, String placeId);
+  Single<List<Record>> loadRecordSummaries(String projectId, String placeId);
 
   Single<List<Project>> loadProjectSummaries();
 
-  Flowable<DatastoreEvent<Place>> observePlaces(Project project);
+  Flowable<DatastoreEvent<Place>> getPlaceVectorStream(Project project);
+
+  Single<Record> loadRecord(Project project, String placeId, String recordId);
 }

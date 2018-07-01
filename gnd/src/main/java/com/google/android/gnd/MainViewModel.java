@@ -21,9 +21,11 @@ import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.ViewModel;
 import android.support.annotation.Nullable;
 import android.support.v4.view.WindowInsetsCompat;
+import android.util.Log;
 import android.view.View;
+import androidx.navigation.NavController;
 import com.google.android.gnd.repository.RecordSummary;
-import com.google.android.gnd.vo.Record;
+import com.google.android.gnd.ui.browse.BrowseFragmentDirections;
 import javax.inject.Inject;
 
 public class MainViewModel extends ViewModel {
@@ -47,15 +49,26 @@ public class MainViewModel extends ViewModel {
   }
 
   public void onRecordListItemClick(RecordSummary recordSummary) {
-    mainViewState.setValue(MainViewState.recordDetails(recordSummary.getRecord()));
+    mainViewState.setValue(
+        MainViewState.recordDetails(
+            recordSummary.getProject().getId(),
+            recordSummary.getForm().getId(),
+            recordSummary.getRecord().getId()));
   }
 
   public LiveData<MainViewState> getViewState() {
     return mainViewState;
   }
 
+  /**
+   * Top-level view state for application. Contains IDs instead of actual objects to reduce surface
+   * area of shared state; to allow UIs to be reinitialized after independently, each Fragment is
+   * responsible for restoring its own ViewModel state from IDs.
+   */
   // TODO: Merge PlaceSheetState into this state.
   public static class MainViewState {
+    private static final String TAG = MainViewState.class.getSimpleName();
+
     enum View {
       // TODO: Rename to Browse or Home.
       MAP,
@@ -63,29 +76,39 @@ public class MainViewModel extends ViewModel {
       RECORD_DETAILS
     }
 
+    // TODO: Rename to something other than View.
     private View view;
-    @Nullable private Record record;
+    @Nullable private String projectId;
+    @Nullable private String placeId;
+    @Nullable private String recordId;
 
     MainViewState(View view) {
       this.view = view;
     }
 
-    MainViewState(View view, Record record) {
+    MainViewState(View view, String projectId, String placeId, String recordId) {
       this.view = view;
-      this.record = record;
+      this.projectId = projectId;
+      this.placeId = placeId;
+      this.recordId = recordId;
     }
 
-    public static MainViewState recordDetails(Record record) {
-      return new MainViewState(View.RECORD_DETAILS, record);
+    public static MainViewState recordDetails(String projectId, String placeId, String recordId) {
+      return new MainViewState(View.RECORD_DETAILS, projectId, placeId, recordId);
     }
 
     public View getView() {
       return view;
     }
 
-    @Nullable
-    public Record getRecord() {
-      return record;
+    public void navigate(NavController navController) {
+      switch (view) {
+        case RECORD_DETAILS:
+          navController.navigate(
+              BrowseFragmentDirections.showRecordDetails(projectId, placeId, recordId));
+        default:
+          Log.e(TAG, "Unimplemented transition: " + view);
+      }
     }
   }
 }

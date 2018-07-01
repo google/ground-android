@@ -178,10 +178,18 @@ public class FirestoreDataService implements RemoteDataService {
   }
 
   @Override
-  public Single<List<Record>> loadRecordData(String projectId, String placeId) {
+  public Single<List<Record>> loadRecordSummaries(String projectId, String placeId) {
     return mapSingle(
         RxFirestore.getCollection(db().project(projectId).place(placeId).records().ref()),
         doc -> RecordDoc.toProto(doc.getId(), doc));
+  }
+
+  @Override
+  public Single<Record> loadRecord(Project project, String placeId, String recordId) {
+    return RxFirestore.getDocument(
+            db().project(project.getId()).place(placeId).records().record(recordId).ref())
+        .map(doc -> RecordDoc.toProto(doc.getId(), doc))
+        .toSingle();
   }
 
   @Override
@@ -190,7 +198,7 @@ public class FirestoreDataService implements RemoteDataService {
   }
 
   @Override
-  public Flowable<DatastoreEvent<Place>> observePlaces(Project project) {
+  public Flowable<DatastoreEvent<Place>> getPlaceVectorStream(Project project) {
     return RxFirestore.observeQueryRef(db().project(project.getId()).places().ref())
         .flatMapIterable(
             placeQuerySnapshot ->
@@ -199,7 +207,9 @@ public class FirestoreDataService implements RemoteDataService {
                     placeDocSnapshot -> PlaceDoc.toProto(project, placeDocSnapshot)))
         .doOnTerminate(
             () ->
-                Log.d(TAG, "observePlaces stream for project " + project.getId() + " terminated."));
+                Log.d(
+                    TAG,
+                    "getPlaceVectorStream stream for project " + project.getId() + " terminated."));
   }
 
   private <T> Iterable<DatastoreEvent<T>> toDatastoreEvents(

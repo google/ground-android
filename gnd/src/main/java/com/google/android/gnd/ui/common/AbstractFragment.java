@@ -73,13 +73,13 @@ public abstract class AbstractFragment extends Fragment implements HasSupportFra
     return view;
   }
 
-  protected void setUpView() {}
-
   protected View createView(
       LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     throw new UnsupportedOperationException(
         "Subclasses much override either createView or onCreateView");
   }
+
+  protected void setUpView() {}
 
   protected void observeViewModels() {}
 
