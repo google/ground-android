@@ -114,15 +114,15 @@ public class MainActivity extends AppCompatActivity implements HasSupportFragmen
         break;
       case PLACE_SHEET:
         break;
-      case VIEW_RECORD:
-        showViewRecordFragment(state.getRecord());
+      case RECORD_DETAILS:
+        showRecordDetailsFragment(state.getRecord());
         break;
     }
   }
 
-  private void showViewRecordFragment(Record record) {
+  private void showRecordDetailsFragment(Record record) {
     // TODO: Pass data in and show.
-    navHostFragment.getNavController().navigate(R.id.view_record_fragment);
+    navHostFragment.getNavController().navigate(R.id.record_details_fragment);
   }
 
   private void onPermissionsRequest(PermissionsRequest permissionsRequest) {

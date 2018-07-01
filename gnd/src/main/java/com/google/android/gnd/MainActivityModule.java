@@ -29,8 +29,8 @@ import com.google.android.gnd.ui.browse.placesheet.PlaceSheetHeaderFragment;
 import com.google.android.gnd.ui.browse.placesheet.PlaceSheetModule;
 import com.google.android.gnd.ui.browse.placesheet.RecordListFragment;
 import com.google.android.gnd.ui.projectselector.ProjectSelectorDialogFragment;
-import com.google.android.gnd.ui.viewrecord.ViewRecordFragment;
-import com.google.android.gnd.ui.viewrecord.ViewRecordModule;
+import com.google.android.gnd.ui.recorddetails.RecordDetailsFragment;
+import com.google.android.gnd.ui.recorddetails.RecordDetailsModule;
 import dagger.Binds;
 import dagger.Module;
 import dagger.android.ContributesAndroidInjector;
@@ -78,6 +78,6 @@ public abstract class MainActivityModule {
   abstract RecordListFragment recordListFragmentInjector();
 
   @PerFragment
-  @ContributesAndroidInjector(modules = ViewRecordModule.class)
-  abstract ViewRecordFragment ViewRecordFragmentInjector();
+  @ContributesAndroidInjector(modules = RecordDetailsModule.class)
+  abstract RecordDetailsFragment recordDetailsFragmentInjector();
 }

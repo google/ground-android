@@ -64,7 +64,7 @@
     <TableLayout
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:layout_marginRight="@dimen/view_record_button_width"
+      android:layout_marginRight="@dimen/record_details_button_width"
       android:layout_below="@id/creator_name"
       android:paddingRight="14dp"
       android:shrinkColumns="*"
@@ -83,9 +83,9 @@
         android:paddingTop="4dp"/>
     </TableLayout>
     <ImageView
-      android:id="@+id/view_record_button"
-      android:layout_width="@dimen/view_record_button_width"
-      android:layout_height="@dimen/view_record_button_height"
+      android:id="@+id/record_details_btn"
+      android:layout_width="@dimen/record_details_button_width"
+      android:layout_height="@dimen/record_details_button_height"
       android:layout_marginRight="6dp"
       android:layout_alignParentRight="true"
       android:layout_centerVertical="true"

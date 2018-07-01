@@ -14,28 +14,45 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.ui.viewrecord;
+package com.google.android.gnd.ui.recorddetails;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import butterknife.BindView;
 import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.R;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.TwoLineToolbar;
+import com.google.android.gnd.ui.common.ViewModelFactory;
+import javax.inject.Inject;
 
-public class ViewRecordFragment extends AbstractFragment {
-  @BindView(R.id.view_record_toolbar)
+public class RecordDetailsFragment extends AbstractFragment {
+
+  @Inject
+  ViewModelFactory viewModelFactory;
+
+  @BindView(R.id.record_details_toolbar)
   TwoLineToolbar toolbar;
 
-  public ViewRecordFragment() {}
+  @BindView(R.id.record_details_layout)
+  LinearLayout recordDetailsLayout;
+
+  private RecordDetailsViewModel viewModel;
+
+  public RecordDetailsFragment() {}
 
   @Override
   protected View createView(
       LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-    return inflater.inflate(R.layout.view_record_frag, container, false);
+    return inflater.inflate(R.layout.record_details_frag, container, false);
+  }
+
+  @Override
+  protected void obtainViewModels() {
+    viewModel = viewModelFactory.create(RecordDetailsViewModel.class);
   }
 
   @Override

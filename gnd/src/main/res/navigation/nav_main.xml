@@ -26,12 +26,12 @@
     android:label="@string/map_view"
     tools:layout="@layout/browse_frag">
     <action
-      android:id="@+id/action_browse_to_view_record"
-      app:destination="@id/view_record_fragment"/>
+      android:id="@+id/browse_to_record_details_action"
+      app:destination="@id/record_details_fragment"/>
   </fragment>
   <fragment
-    android:id="@+id/view_record_fragment"
-    android:name="com.google.android.gnd.ui.viewrecord.ViewRecordFragment"
+    android:id="@+id/record_details_fragment"
+    android:name="com.google.android.gnd.ui.recorddetails.RecordDetailsFragment"
     android:label="@string/view_record_details"
-    tools:layout="@layout/view_record_frag"/>
+    tools:layout="@layout/record_details_frag"/>
 </navigation>

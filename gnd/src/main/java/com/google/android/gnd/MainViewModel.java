@@ -47,7 +47,7 @@ public class MainViewModel extends ViewModel {
   }
 
   public void onRecordListItemClick(RecordSummary recordSummary) {
-    mainViewState.setValue(MainViewState.viewRecord(recordSummary.getRecord()));
+    mainViewState.setValue(MainViewState.recordDetails(recordSummary.getRecord()));
   }
 
   public LiveData<MainViewState> getViewState() {
@@ -57,9 +57,10 @@ public class MainViewModel extends ViewModel {
   // TODO: Merge PlaceSheetState into this state.
   public static class MainViewState {
     enum View {
+      // TODO: Rename to Browse or Home.
       MAP,
       PLACE_SHEET,
-      VIEW_RECORD
+      RECORD_DETAILS
     }
 
     private View view;
@@ -74,8 +75,8 @@ public class MainViewModel extends ViewModel {
       this.record = record;
     }
 
-    public static MainViewState viewRecord(Record record) {
-      return new MainViewState(View.VIEW_RECORD, record);
+    public static MainViewState recordDetails(Record record) {
+      return new MainViewState(View.RECORD_DETAILS, record);
     }
 
     public View getView() {

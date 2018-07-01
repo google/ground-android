@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.ui.viewrecord;
+package com.google.android.gnd.ui.recorddetails;
 
 import android.support.v4.app.Fragment;
 import com.google.android.gnd.inject.PerFragment;
@@ -23,9 +23,9 @@ import dagger.Binds;
 import dagger.Module;
 
 @Module(includes = AbstractFragmentModule.class)
-public abstract class ViewRecordModule {
+public abstract class RecordDetailsModule {
 
   @Binds
   @PerFragment
-  abstract Fragment fragment(ViewRecordFragment fragment);
+  abstract Fragment fragment(RecordDetailsFragment fragment);
 }

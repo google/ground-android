@@ -13,6 +13,7 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
+
 <android.support.design.widget.CoordinatorLayout
   xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -28,48 +29,51 @@
     android:orientation="vertical">
 
     <android.support.v7.widget.CardView
-      android:id="@+id/view_record_header"
+      android:id="@+id/record_details_header"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      app:cardElevation="@dimen/toolbar_elevation"
-      app:cardCornerRadius="0dp">
+      app:cardCornerRadius="0dp"
+      app:cardElevation="@dimen/toolbar_elevation">
       <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
-      <com.google.android.gnd.ui.common.TwoLineToolbar
-        android:id="@+id/view_record_toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:layout_gravity="top"
-        android:theme="@style/WhiteToolbarTheme"/>
+        <com.google.android.gnd.ui.common.TwoLineToolbar
+          android:id="@+id/record_details_toolbar"
+          android:layout_width="match_parent"
+          android:layout_height="?attr/actionBarSize"
+          android:layout_gravity="top"
+          android:theme="@style/WhiteToolbarTheme"/>
 
-      <!--
-        @background is required to make @elevation show drop shadow
-        https://stackoverflow.com/questions/31151180/material-tablayout-elevation-not-working/31777078
-      -->
-      <!-- TODO: Refactor? -->
-      <android.support.design.widget.TabLayout
-        android:id="@+id/form_tab_layout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
-        android:background="@color/colorWhite"
-        app:tabIndicatorColor="@color/colorPrimary"
-        app:tabSelectedTextColor="@color/colorPrimary"
-        app:tabTextColor="@color/colorPrimary"/>
+        <!--
+          @background is required to make @elevation show drop shadow
+          https://stackoverflow.com/questions/31151180/material-tablayout-elevation-not-working/31777078
+        -->
+        <!-- TODO: Refactor? -->
+        <android.support.design.widget.TabLayout
+          android:id="@+id/form_tab_layout"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:layout_gravity="bottom"
+          android:background="@color/colorWhite"
+          app:tabIndicatorColor="@color/colorPrimary"
+          app:tabSelectedTextColor="@color/colorPrimary"
+          app:tabTextColor="@color/colorPrimary"/>
       </LinearLayout>
     </android.support.v7.widget.CardView>
 
     <ScrollView
       android:layout_width="match_parent"
       android:layout_height="match_parent"
-      android:layout_below="@id/view_record_header"
+      android:layout_below="@id/record_details_header"
       android:background="@color/colorWhite">
-      <TextView
-        android:layout_width="wrap_content"
+
+      <LinearLayout
+        android:id="@+id/record_details_layout"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Test"/>
+        android:orientation="vertical"/>
+
     </ScrollView>
 
   </RelativeLayout>

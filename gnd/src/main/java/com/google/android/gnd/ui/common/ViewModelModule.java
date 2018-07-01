@@ -24,6 +24,7 @@ import com.google.android.gnd.ui.browse.mapcontainer.MapContainerViewModel;
 import com.google.android.gnd.ui.browse.placesheet.PlaceSheetBodyViewModel;
 import com.google.android.gnd.ui.browse.placesheet.RecordListViewModel;
 import com.google.android.gnd.ui.projectselector.ProjectSelectorViewModel;
+import com.google.android.gnd.ui.recorddetails.RecordDetailsViewModel;
 import dagger.Binds;
 import dagger.Module;
 import dagger.multibindings.IntoMap;
@@ -59,6 +60,12 @@ public abstract class ViewModelModule {
   @IntoMap
   @ViewModelKey(RecordListViewModel.class)
   abstract ViewModel bindRecordListViewModel(RecordListViewModel viewModel);
+
+
+  @Binds
+  @IntoMap
+  @ViewModelKey(RecordDetailsViewModel.class)
+  abstract ViewModel bindRecordDetailsViewModel(RecordDetailsViewModel viewModel);
 
   @Binds
   abstract ViewModelProvider.Factory bindViewModelFactory(ViewModelFactory factory);
