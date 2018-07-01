@@ -178,17 +178,17 @@ public class FirestoreDataService implements RemoteDataService {
   }
 
   @Override
-  public Single<List<Record>> loadRecordSummaries(String projectId, String placeId) {
+  public Single<List<Record>> loadRecordSummaries(Project project, String placeId) {
     return mapSingle(
-        RxFirestore.getCollection(db().project(projectId).place(placeId).records().ref()),
-        doc -> RecordDoc.toProto(doc.getId(), doc));
+        RxFirestore.getCollection(db().project(project.getId()).place(placeId).records().ref()),
+        doc -> RecordDoc.toProto(project, doc.getId(), doc));
   }
 
   @Override
-  public Single<Record> loadRecord(Project project, String placeId, String recordId) {
+  public Single<Record> loadRecordDetails(Project project, String placeId, String recordId) {
     return RxFirestore.getDocument(
             db().project(project.getId()).place(placeId).records().record(recordId).ref())
-        .map(doc -> RecordDoc.toProto(doc.getId(), doc))
+        .map(doc -> RecordDoc.toProto(project, doc.getId(), doc))
         .toSingle();
   }
 

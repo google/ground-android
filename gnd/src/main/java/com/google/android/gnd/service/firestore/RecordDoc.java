@@ -19,6 +19,9 @@ package com.google.android.gnd.service.firestore;
 import static com.google.android.gnd.service.firestore.FirestoreDataService.toTimestamps;
 
 import android.util.Log;
+import com.google.android.gnd.vo.Form;
+import com.google.android.gnd.vo.PlaceType;
+import com.google.android.gnd.vo.Project;
 import com.google.android.gnd.vo.Record;
 import com.google.android.gnd.vo.Record.Value;
 import com.google.common.collect.ImmutableList;
@@ -29,6 +32,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java8.util.Optional;
 
 @IgnoreExtraProperties
 public class RecordDoc {
@@ -50,8 +54,8 @@ public class RecordDoc {
 
   public static RecordDoc fromProto(Record r, Map<String, Object> valueUpdates) {
     RecordDoc rd = new RecordDoc();
-    rd.featureTypeId = r.getPlaceTypeId();
-    rd.formId = r.getFormId();
+    rd.featureTypeId = r.getPlaceType().getId();
+    rd.formId = r.getForm().getId();
     rd.responses = valueUpdates;
     rd.serverTimeCreated = r.getServerTimestamps().getCreated();
     rd.serverTimeModified = r.getServerTimestamps().getModified();
@@ -60,12 +64,19 @@ public class RecordDoc {
     return rd;
   }
 
-  public static Record toProto(String id, DocumentSnapshot doc) {
+  public static Record toProto(Project project, String recordId, DocumentSnapshot doc) {
     RecordDoc rd = doc.toObject(RecordDoc.class);
+    Optional<PlaceType> placeType = project.getPlaceType(rd.featureTypeId);
+    Optional<Form> form = placeType.flatMap(pt -> pt.getForm(rd.formId));
+    if (!placeType.isPresent() || !form.isPresent()) {
+      // TODO: Handle in a more consistent way.
+      throw new RuntimeException("Inconsistent data");
+    }
     return Record.newBuilder()
-        .setId(id)
-        .setPlaceTypeId(rd.featureTypeId)
-        .setFormId(rd.formId)
+        .setId(recordId)
+        .setProject(project)
+        .setPlaceType(placeType.get())
+        .setForm(form.get())
         .setValueMap(convertValues(rd.responses))
         .setServerTimestamps(toTimestamps(rd.serverTimeCreated, rd.serverTimeModified))
         .setClientTimestamps(toTimestamps(rd.clientTimeCreated, rd.clientTimeModified))

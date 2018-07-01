@@ -79,7 +79,7 @@ public class RecordListViewModel extends AbstractViewModel {
                 records ->
                     recordSummaries.setValue(
                         stream(records)
-                            .filter(record -> record.getFormId().equals(formId))
+                            .filter(record -> record.getForm().getId().equals(formId))
                             .map(record -> new RecordSummary(project, form.get(), record))
                             .collect(Collectors.toList()))));
   }

@@ -26,9 +26,11 @@ import java.util.Map;
 public abstract class Record {
   public abstract String getId();
 
-  public abstract String getPlaceTypeId();
+  public abstract Project getProject();
 
-  public abstract String getFormId();
+  public abstract PlaceType getPlaceType();
+
+  public abstract Form getForm();
 
   public abstract Timestamps getServerTimestamps();
 
@@ -45,9 +47,11 @@ public abstract class Record {
   public abstract static class Builder {
     public abstract Builder setId(String newId);
 
-    public abstract Builder setPlaceTypeId(String newPlaceTypeId);
+    public abstract Builder setProject(Project project);
 
-    public abstract Builder setFormId(String newFormId);
+    public abstract Builder setPlaceType(PlaceType placeType);
+
+    public abstract Builder setForm(Form form);
 
     public abstract Builder setServerTimestamps(Timestamps newServerTimestamps);
 

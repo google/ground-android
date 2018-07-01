@@ -107,13 +107,13 @@ public class DataRepository {
   public Flowable<List<Record>> getRecordSummaries(Project project, String placeId) {
     // TODO: Only fetch first n fields.
     // TODO: Also load from db.
-    return remoteDataService.loadRecordSummaries(project.getId(), placeId).toFlowable();
+    return remoteDataService.loadRecordSummaries(project, placeId).toFlowable();
   }
 
   public Flowable<Resource<Record>> getRecordDetails(
       String projectId, String placeId, String recordId) {
     return getProject(projectId)
-        .flatMap(project -> remoteDataService.loadRecord(project, placeId, recordId))
+        .flatMap(project -> remoteDataService.loadRecordDetails(project, placeId, recordId))
         .map(Resource::loaded)
         .onErrorReturn(Resource::error)
         .toFlowable();
