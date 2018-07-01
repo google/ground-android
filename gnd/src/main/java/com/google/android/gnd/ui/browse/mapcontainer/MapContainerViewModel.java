@@ -52,8 +52,11 @@ public class MapContainerViewModel extends ViewModel {
     locationLockStatus.setValue(LocationLockStatus.disabled());
     this.cameraUpdates = new MutableLiveData<>();
     this.activeProject = RxLiveData.fromFlowable(dataRepository.getActiveProject());
+    // TODO: Clear place markers when project is deactivated.
+    // TODO: Since we depend on project stream from repo anyway, this transformation can be moved
+    // into the repo.
     this.places =
-        RxLiveData.fromFlowable(dataRepository.getActiveProject().compose(Resource.ifPresentGet())
+        RxLiveData.fromFlowable(dataRepository.getActiveProject().compose(Resource.filterAndGetData())
             .switchMap(project -> dataRepository.getPlaceVectors(project)));
   }
 

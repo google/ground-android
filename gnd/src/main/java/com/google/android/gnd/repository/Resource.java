@@ -17,9 +17,11 @@
 package com.google.android.gnd.repository;
 
 import android.arch.lifecycle.LiveData;
+import android.support.annotation.NonNull;
 import com.google.android.gnd.rx.RxTransformers;
 import io.reactivex.FlowableTransformer;
 import java8.util.Optional;
+import java8.util.function.Consumer;
 import javax.annotation.Nullable;
 
 /**
@@ -29,15 +31,9 @@ import javax.annotation.Nullable;
  * @param <T>
  */
 public class Resource<T> {
-  /**
-   * Note that "loading" state is intentionally not represented here. This is to prevent streams and
-   * LiveData from getting stuck in the loading state if a fetch is interrupted while in progress.
-   * Rather than manage these cases explicitly, we leave it up to the triggering UIs to display
-   * loading affordances upon requesting new data. Those states can then be cleared once the
-   * Resource request is complete. TODO: Is this actually a good idea?
-   */
-  public enum State {
+  public enum Status {
     NOT_LOADED,
+    LOADING,
     LOADED,
     NOT_FOUND,
     // REMOVED? ID?
@@ -46,12 +42,12 @@ public class Resource<T> {
 
   public enum SyncStatus {
     UNKNOWN,
-    NO_PENDING_CHANGES,
+    NO_CHANGES_PENDING,
     LOCAL_CHANGES_PENDING
   }
 
   // TODO: Enable Nullness checking, NonNull by default.
-  private final State state;
+  private final Status status;
 
   @Nullable private final T data;
 
@@ -60,34 +56,38 @@ public class Resource<T> {
   private final SyncStatus syncStatus;
 
   private Resource(
-      State state, @Nullable T data, @Nullable Throwable error, SyncStatus syncStatus) {
-    this.state = state;
+      Status status, @Nullable T data, @Nullable Throwable error, SyncStatus syncStatus) {
+    this.status = status;
     this.data = data;
     this.error = error;
     this.syncStatus = syncStatus;
   }
 
   public static <T> Resource<T> notLoaded() {
-    return new Resource<>(State.NOT_LOADED, null, null, SyncStatus.UNKNOWN);
+    return new Resource<>(Status.NOT_LOADED, null, null, SyncStatus.UNKNOWN);
+  }
+
+  public static <T> Resource<T> loading() {
+    return new Resource<>(Status.LOADING, null, null, SyncStatus.UNKNOWN);
   }
 
   public static <T> Resource<T> loaded(T data) {
-    return new Resource<>(State.LOADED, data, null, SyncStatus.NO_PENDING_CHANGES);
+    return new Resource<>(Status.LOADED, data, null, SyncStatus.NO_CHANGES_PENDING);
   }
 
   public static <T> Resource<T> loaded(T data, SyncStatus syncStatus) {
-    return new Resource<>(State.LOADED, data, null, syncStatus);
+    return new Resource<>(Status.LOADED, data, null, syncStatus);
   }
 
   public static <T> Resource<T> error(Throwable t) {
-    return new Resource<>(State.ERROR, null, t, SyncStatus.UNKNOWN);
+    return new Resource<>(Status.ERROR, null, t, SyncStatus.UNKNOWN);
   }
 
-  public State getState() {
-    return state;
+  public Status getStatus() {
+    return status;
   }
 
-  public Optional<T> get() {
+  public Optional<T> getData() {
     return Optional.ofNullable(data);
   }
 
@@ -100,25 +100,31 @@ public class Resource<T> {
   }
 
   public boolean isLoaded() {
-    return state.equals(State.LOADED);
+    return status.equals(Status.LOADED);
   }
 
   public boolean isSynced() {
-    return syncStatus.equals(SyncStatus.NO_PENDING_CHANGES);
+    return syncStatus.equals(SyncStatus.NO_CHANGES_PENDING);
   }
 
-  /**
-   * Get value from LiveData in a null-safe way.
-   *
-   * @param liveData
-   * @param <T>
-   * @return
-   */
+  public void ifPresent(Consumer<T> consumer) {
+    if (data != null) {
+      consumer.accept(data);
+    }
+  }
+
+  @NonNull
   public static <T> Resource<T> getValue(LiveData<Resource<T>> liveData) {
     return Optional.ofNullable(liveData.getValue()).orElse(notLoaded());
   }
 
-  public static <T> FlowableTransformer<Resource<T>, T> ifPresentGet() {
-    return upstream -> upstream.map(Resource::get).compose(RxTransformers.ifPresentGet());
+  @NonNull
+  public static <T> Optional<T> getData(LiveData<Resource<T>> liveData) {
+    return getValue(liveData).getData();
+  }
+
+  public static <T> FlowableTransformer<Resource<T>, T> filterAndGetData() {
+    return upstream ->
+        upstream.map(Resource::getData).compose(RxTransformers.filterAndGetOptional());
   }
 }

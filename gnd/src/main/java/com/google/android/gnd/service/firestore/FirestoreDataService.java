@@ -91,13 +91,15 @@ public class FirestoreDataService implements RemoteDataService {
   }
 
   @Override
-  public Maybe<Project> loadProject(String projectId) {
+  public Single<Project> loadProject(String projectId) {
     return RxFirestore.getDocument(db().project(projectId).ref())
-        .flatMap(this::loadPlaceTypes, ProjectDoc::toProto);
+        .flatMap(this::loadPlaceTypes, ProjectDoc::toProto)
+        .switchIfEmpty(Single.error(new DocumentNotFoundException()));
   }
 
   /** Loads place types and related forms. */
   private Maybe<List<PlaceType>> loadPlaceTypes(DocumentSnapshot projectDocSnapshot) {
+    // TODO: Return Single.
     return RxFirestore.getCollection(
             GndFirestorePath.project(projectDocSnapshot).placeTypes().ref())
         .map(QuerySnapshot::getDocuments) // Maybe<List<DocumentSnapshot>>
@@ -109,11 +111,13 @@ public class FirestoreDataService implements RemoteDataService {
   }
 
   private Observable<ImmutableList<Form>> loadForms(DocumentSnapshot placeTypeDocSnapshot) {
+    // TODO: Return Single.
     return RxFirestore.getCollection(GndFirestorePath.placeType(placeTypeDocSnapshot).forms().ref())
         .map(QuerySnapshot::getDocuments)
         .map(
             formDocSnapshots ->
                 stream(formDocSnapshots).map(FormDoc::toProto).collect(toImmutableList()))
+        .defaultIfEmpty(ImmutableList.of())
         .toObservable();
   }
 

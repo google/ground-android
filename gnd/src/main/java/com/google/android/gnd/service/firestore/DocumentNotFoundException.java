@@ -14,13 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.rx;
+package com.google.android.gnd.service.firestore;
 
-import io.reactivex.FlowableTransformer;
-import java8.util.Optional;
-
-public class RxTransformers {
-  public static <T> FlowableTransformer<Optional<T>, T> filterAndGetOptional() {
-    return upstream -> upstream.filter(Optional::isPresent).map(Optional::get);
-  }
+public class DocumentNotFoundException extends Exception {
 }

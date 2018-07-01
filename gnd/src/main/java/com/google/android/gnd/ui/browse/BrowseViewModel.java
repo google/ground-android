@@ -17,40 +17,31 @@ package com.google.android.gnd.ui.browse;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
-import android.arch.lifecycle.ViewModel;
 import android.util.Log;
 import com.google.android.gnd.repository.DataRepository;
 import com.google.android.gnd.repository.Resource;
 import com.google.android.gnd.rx.RxLiveData;
 import com.google.android.gnd.ui.browse.AddPlaceDialogFragment.AddPlaceRequest;
-import com.google.android.gnd.ui.common.Consumable;
+import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.map.MapMarker;
 import com.google.android.gnd.vo.Point;
 import com.google.android.gnd.vo.Project;
-import io.reactivex.Completable;
-import java.util.List;
 import javax.inject.Inject;
 
-public class BrowseViewModel extends ViewModel {
+public class BrowseViewModel extends AbstractViewModel {
   private static final String TAG = BrowseViewModel.class.getSimpleName();
   private final DataRepository dataRepository;
   private final LiveData<Resource<Project>> activeProject;
   // TODO: Implement this as a state and remove Consumable.
-  private final MutableLiveData<Consumable<List<Project>>> showProjectSelectorDialogRequests;
   private final MutableLiveData<Point> addPlaceDialogRequests;
   private final MutableLiveData<PlaceSheetState> placeSheetState;
 
   @Inject
   BrowseViewModel(DataRepository dataRepository) {
     this.dataRepository = dataRepository;
-    this.showProjectSelectorDialogRequests = new MutableLiveData<>();
     this.addPlaceDialogRequests = new MutableLiveData<>();
     this.placeSheetState = new MutableLiveData<>();
     this.activeProject = RxLiveData.fromFlowable(dataRepository.getActiveProject());
-  }
-
-  public LiveData<Consumable<List<Project>>> getShowProjectSelectorDialogRequests() {
-    return showProjectSelectorDialogRequests;
   }
 
   public LiveData<Resource<Project>> getActiveProject() {
@@ -65,24 +56,14 @@ public class BrowseViewModel extends ViewModel {
     return placeSheetState;
   }
 
-  public Completable showProjectSelectorDialog() {
-    // TODO: Show spinner while loading project summaries.
-    return dataRepository
-        .loadProjectSummaries()
-        .map(Consumable::new)
-        .doOnSuccess(showProjectSelectorDialogRequests::setValue)
-        .toCompletable();
-  }
-
   public void onMarkerClick(MapMarker marker) {
     marker.getPlace().ifPresent(place -> placeSheetState.setValue(PlaceSheetState.visible(place)));
   }
 
   public void onAddPlaceBtnClick(Point location) {
-    if (activeProject.getValue().isLoaded()) {
-      // TODO: Pause location updates while dialog is open.
-      addPlaceDialogRequests.setValue(location);
-    }
+    // TODO: Pause location updates while dialog is open.
+    // TODO: Ignore clicks when project not active.
+    addPlaceDialogRequests.setValue(location);
   }
 
   public void onAddPlace(AddPlaceRequest addPlaceRequest) {

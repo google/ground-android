@@ -14,13 +14,16 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.rx;
+package com.google.android.gnd.ui.common;
 
-import io.reactivex.FlowableTransformer;
-import java8.util.Optional;
+import android.content.Context;
+import android.widget.Toast;
 
-public class RxTransformers {
-  public static <T> FlowableTransformer<Optional<T>, T> filterAndGetOptional() {
-    return upstream -> upstream.filter(Optional::isPresent).map(Optional::get);
+public class EphemeralPopups {
+  /** Do not instantiate */
+  private EphemeralPopups() {}
+
+  public static void showError(Context context, int messageId) {
+    Toast.makeText(context, messageId, Toast.LENGTH_LONG).show();
   }
 }

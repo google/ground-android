@@ -128,5 +128,8 @@
   <string name="add_record_button_label">Add record</string>
   <string name="view_record_details">View record details</string>
   <string name="map_view">Map view</string>
+  <string name="project_load_error">Project could not be loaded</string>
+  <string name="project_list_load_error">Project list not available</string>
+  <string name="unexpected_error">An unexpected error has occured</string>
 
 </resources>

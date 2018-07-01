@@ -21,7 +21,6 @@ import com.google.android.gnd.vo.PlaceUpdate;
 import com.google.android.gnd.vo.Project;
 import com.google.android.gnd.vo.Record;
 import io.reactivex.Flowable;
-import io.reactivex.Maybe;
 import io.reactivex.Single;
 import java.util.List;
 
@@ -29,7 +28,7 @@ import java.util.List;
  * Data service is treated as if it's remote, though implementations may cache data locally as well.
  */
 public interface RemoteDataService {
-  Maybe<Project> loadProject(String projectId);
+  Single<Project> loadProject(String projectId);
 
   Place update(String projectId, PlaceUpdate placeUpdate);
 

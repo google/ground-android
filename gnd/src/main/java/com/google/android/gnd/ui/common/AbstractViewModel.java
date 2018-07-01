@@ -14,13 +14,21 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.rx;
+package com.google.android.gnd.ui.common;
 
-import io.reactivex.FlowableTransformer;
-import java8.util.Optional;
+import android.arch.lifecycle.ViewModel;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.disposables.Disposable;
 
-public class RxTransformers {
-  public static <T> FlowableTransformer<Optional<T>, T> filterAndGetOptional() {
-    return upstream -> upstream.filter(Optional::isPresent).map(Optional::get);
+public abstract class AbstractViewModel extends ViewModel {
+  private CompositeDisposable disposables = new CompositeDisposable();
+
+  protected void disposeOnClear(Disposable subscription) {
+    disposables.add(subscription);
+  }
+
+  @Override
+  protected void onCleared() {
+    disposables.clear();
   }
 }
