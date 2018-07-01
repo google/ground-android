@@ -86,6 +86,9 @@ public class BrowseFragment extends AbstractFragment {
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setHasOptionsMenu(true);
+    // TODO: Persist last selected project in local db instead of asking to select every time.
+    // TODO: Trigger this from welcome flow and nav drawer instead of here.
+    ProjectSelectorDialogFragment.show(getFragmentManager());
   }
 
   @Override
@@ -134,9 +137,6 @@ public class BrowseFragment extends AbstractFragment {
     switch (project.getStatus()) {
       case NOT_LOADED:
         dismissLoadingDialog();
-        // TODO: Persist last selected project in local db instead of asking to select every time.
-        // TODO: Trigger this from welcome flow and nav drawer instead of here.
-        ProjectSelectorDialogFragment.show(getFragmentManager());
         break;
       case LOADING:
         showProjectLoadingDialog();
