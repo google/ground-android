@@ -16,17 +16,12 @@
 
 package com.google.android.gnd.repository;
 
-import static java8.util.stream.StreamSupport.stream;
-
 import com.google.android.gnd.vo.Form;
 import com.google.android.gnd.vo.Project;
 import com.google.android.gnd.vo.Record;
-import com.google.android.gnd.vo.Record.Value;
-import java8.util.stream.Collectors;
 
 // TODO: Merge into Record class.
 public class RecordSummary {
-  private static final CharSequence CODE_SEPARATOR = ",";
   private Project project;
   private Record record;
   private Form form;
@@ -47,19 +42,5 @@ public class RecordSummary {
 
   public Form getForm() {
     return form;
-  }
-
-  public static String toSummaryText(Value value) {
-    switch (value.getType()) {
-      case TEXT:
-        return value.getText();
-      case NUMBER:
-        // TODO: int vs float? Format correctly.
-        return Float.toString(value.getNumber());
-      case CHOICES:
-        return stream(value.getChoices().getCodes()).collect(Collectors.joining(CODE_SEPARATOR));
-      default:
-        return "";
-    }
   }
 }

@@ -16,9 +16,12 @@
 
 package com.google.android.gnd.vo;
 
+import static java8.util.stream.StreamSupport.stream;
+
 import com.google.auto.value.AutoOneOf;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
+import java8.util.Optional;
 import javax.annotation.Nullable;
 
 @AutoValue
@@ -28,6 +31,13 @@ public abstract class Form {
   public abstract String getTitle();
 
   public abstract ImmutableList<Element> getElements();
+
+  public Optional<Field> getField(String id) {
+    return stream(getElements())
+        .map(Element::getField)
+        .filter(f -> f != null && f.getId().equals(id))
+        .findFirst();
+  }
 
   public static Builder newBuilder() {
     return new AutoValue_Form.Builder();
@@ -120,6 +130,10 @@ public abstract class Form {
     }
 
     public abstract ImmutableList<Option> getOptions();
+
+    public Optional<Option> getOption(String code) {
+      return stream(getOptions()).filter(o -> o.getCode().equals(code)).findFirst();
+    }
 
     public abstract Cardinality getCardinality();
 

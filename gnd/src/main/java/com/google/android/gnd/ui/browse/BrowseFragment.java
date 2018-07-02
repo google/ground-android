@@ -164,8 +164,8 @@ public class BrowseFragment extends AbstractFragment {
     // TODO: WHY IS CALLED 3x ON CLICK?
     switch (state.getVisibility()) {
       case VISIBLE:
-        toolbar.setTitle(state.getTitle());
-        toolbar.setSubtitle(state.getSubtitle());
+        toolbar.setTitle(state.getPlace().getTitle());
+        toolbar.setSubtitle(state.getPlace().getSubtitle());
         showBottomSheet();
         break;
       case HIDDEN:

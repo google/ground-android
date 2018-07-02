@@ -48,5 +48,4 @@ public class TwoLineToolbar extends Toolbar {
     subtitleText.setText(subtitle);
     subtitleText.setVisibility(subtitle.isEmpty() ? View.GONE : View.VISIBLE);
   }
-
 }

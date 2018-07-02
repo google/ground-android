@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <!--
   ~ Copyright 2018 Google LLC
   ~
@@ -16,24 +17,27 @@
 
 <LinearLayout
   xmlns:android="http://schemas.android.com/apk/res/android"
-  android:id="@+id/toolbar_titles_layout"
   android:layout_width="wrap_content"
   android:layout_height="wrap_content"
-  android:layout_gravity="center"
   android:orientation="vertical">
 
   <TextView
-    android:id="@+id/toolbar_title_text"
+    android:id="@+id/field_label"
+    style="@style/RecordDetails.Field.Label"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_gravity="center"
-    android:textAppearance="?gndToolbarTitleStyle"/>
+    android:paddingTop="@dimen/field_top_padding"
+    android:ellipsize="end"
+    android:paddingHorizontal="@dimen/field_horizontal_padding"/>
 
   <TextView
-    android:id="@+id/toolbar_subtitle_text"
+    android:id="@+id/field_value"
+    style="@style/RecordDetails.Field.Value"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_gravity="center"
-    android:textAppearance="?gndToolbarSubtitleStyle"/>
+    android:paddingTop="@dimen/field_value_top_padding"
+    android:paddingBottom="@dimen/field_bottom_padding"
+    android:ellipsize="end"
+    android:paddingHorizontal="@dimen/field_horizontal_padding"/>
 
 </LinearLayout>

@@ -28,16 +28,19 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
+    <!-- CardView is used to create the drop shadow effect -->
     <android.support.v7.widget.CardView
       android:id="@+id/record_details_header"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       app:cardCornerRadius="0dp"
       app:cardElevation="@dimen/toolbar_elevation">
+
       <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
+
         <com.google.android.gnd.ui.common.TwoLineToolbar
           android:id="@+id/record_details_toolbar"
           android:layout_width="match_parent"
@@ -45,21 +48,21 @@
           android:layout_gravity="top"
           android:theme="@style/WhiteToolbarTheme"/>
 
-        <!--
-          @background is required to make @elevation show drop shadow
-          https://stackoverflow.com/questions/31151180/material-tablayout-elevation-not-working/31777078
-        -->
-        <!-- TODO: Refactor? -->
-        <android.support.design.widget.TabLayout
-          android:id="@+id/form_tab_layout"
+        <TextView
+          android:id="@+id/form_name"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
-          android:layout_gravity="bottom"
+          android:textAlignment="center"
+          android:textAllCaps="true"
+          android:textSize="12sp"
+          android:textStyle="bold"
+          android:textColor="@color/colorGrey900"
+          android:paddingBottom="6dp"
           android:background="@color/colorWhite"
-          app:tabIndicatorColor="@color/colorPrimary"
-          app:tabSelectedTextColor="@color/colorPrimary"
-          app:tabTextColor="@color/colorPrimary"/>
+          />
+
       </LinearLayout>
+
     </android.support.v7.widget.CardView>
 
     <ProgressBar

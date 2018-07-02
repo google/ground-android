@@ -28,16 +28,10 @@ public class PlaceSheetState {
 
   private final Visibility visibility;
   @Nullable private Place place;
-  @Nullable private String title;
-  @Nullable private String subtitle;
 
   private PlaceSheetState(Visibility visibility, Place place) {
     this.visibility = visibility;
     this.place = place;
-    String caption = place.getCaption();
-    String placeTypeLabel = place.getPlaceType().getItemLabel();
-    this.title = caption.isEmpty() ? placeTypeLabel : caption;
-    this.subtitle = caption.isEmpty() ? "" : placeTypeLabel + " " + place.getCustomId();
   }
 
   private PlaceSheetState(Visibility visibility) {
@@ -58,14 +52,6 @@ public class PlaceSheetState {
 
   public Visibility getVisibility() {
     return visibility;
-  }
-
-  public String getTitle() {
-    return title;
-  }
-
-  public String getSubtitle() {
-    return subtitle;
   }
 
   public boolean isVisible() {

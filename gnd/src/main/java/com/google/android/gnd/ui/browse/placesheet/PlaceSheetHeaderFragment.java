@@ -73,10 +73,10 @@ public class PlaceSheetHeaderFragment extends AbstractFragment {
       placeHeaderIcon.setImageResource(
           MapIcon.getResourceId(
               getContext(), placeSheetState.getPlace().getPlaceType().getIconId()));
-      placeSheetTitle.setText(placeSheetState.getTitle());
-      placeSheetSubtitle.setText(placeSheetState.getSubtitle());
+      placeSheetTitle.setText(placeSheetState.getPlace().getTitle());
+      placeSheetSubtitle.setText(placeSheetState.getPlace().getSubtitle());
       placeSheetSubtitle.setVisibility(
-          placeSheetState.getSubtitle().isEmpty() ? View.GONE : View.VISIBLE);
+          placeSheetState.getPlace().getSubtitle().isEmpty() ? View.GONE : View.VISIBLE);
     } else {
       getView().setVisibility(View.GONE);
     }

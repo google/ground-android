@@ -16,12 +16,14 @@
 
 package com.google.android.gnd.vo;
 
-import com.google.android.gnd.repository.RecordSummary;
+import static java8.util.stream.StreamSupport.stream;
+
 import com.google.auto.value.AutoOneOf;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import java.util.Map;
 import java8.util.Optional;
+import java8.util.stream.Collectors;
 
 @AutoValue
 public abstract class Record {
@@ -95,9 +97,41 @@ public abstract class Record {
       return AutoOneOf_Record_Value.choices(choices);
     }
 
-    @Override
-    public String toString() {
-      return RecordSummary.toSummaryText(this);
+    public String getSummaryText() {
+      switch (getType()) {
+        case TEXT:
+          return getText();
+        case NUMBER:
+          // TODO: int vs float? Format correctly.
+          return Float.toString(getNumber());
+        case CHOICES:
+          // TODO: i18n of separator.
+          return stream(getChoices().getCodes()).sorted().collect(Collectors.joining(","));
+        default:
+          return "";
+      }
+    }
+
+      // TODO: Make these inner classes non-static and access Form directly.
+    public String getDetailsText(Form.Field field) {
+      switch (getType()) {
+        case TEXT:
+          return getText();
+        case NUMBER:
+          // TODO: int vs float? Format correctly.
+          return Float.toString(getNumber());
+        case CHOICES:
+          // TODO: i18n of separator.
+          return stream(getChoices().getCodes())
+              .map(v -> field.getMultipleChoice().getOption(v))
+              .filter(Optional::isPresent)
+              .map(Optional::get)
+              .map(Form.MultipleChoice.Option::getLabel)
+              .sorted()
+              .collect(Collectors.joining(", "));
+        default:
+          return "";
+      }
     }
   }
 

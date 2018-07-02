@@ -16,12 +16,16 @@
   -->
 
 <resources>
-  <dimen name="field_label">14sp</dimen>
-  <dimen name="field_value">16sp</dimen>
-  <dimen name="field_vertical_margin">2dp</dimen>
-  <dimen name="field_value_top_padding">6dp</dimen>
-  <dimen name="record_vertical_margin">12dp</dimen>
-  <dimen name="place_menu_btn_top">6dp</dimen>
+  <dimen name="field_label_text_size">14sp</dimen>
+  <dimen name="field_value_text_size">18sp</dimen>
+  <dimen name="field_horizontal_padding">16dp</dimen>
+  <dimen name="field_top_padding">18dp</dimen>
+  <dimen name="field_value_top_padding">4dp</dimen>
+  <dimen name="field_bottom_padding">0dp</dimen>
+
+  <!-- TODO: Delete these -->
+  <dimen name="field_horizontal_margin">14dp</dimen>
+  <dimen name="field_vertical_margin">8dp</dimen>
 
   <!-- Space between fields in Record Details View -->
   <dimen name="details_field_spacing">4dp</dimen>
@@ -36,7 +40,6 @@
   <dimen name="sheet_title_horizontal_margin">10dp</dimen>
   <dimen name="sheet_title_top_margin">8dp</dimen>
 
-  <dimen name="field_horizontal_margin">12dp</dimen>
   <dimen name="header_field_horizontal_margin">12dp</dimen>
 
   <!-- Form selection tabs -->
@@ -44,7 +47,6 @@
   <dimen name="tab_padding_bottom">16dp</dimen>
   <dimen name="tab_label">14sp</dimen>
   <dimen name="custom_tab_layout_height">72dp</dimen>
-  <dimen name="field_horizontal_padding">4dp</dimen>
   <dimen name="input_error">12sp</dimen>
   <dimen name="record_menu_btn_right">2dp</dimen>
   <dimen name="map_btn_spacing">8dp</dimen>

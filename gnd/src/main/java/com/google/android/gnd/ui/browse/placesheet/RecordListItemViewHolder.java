@@ -76,7 +76,7 @@ class RecordListItemViewHolder extends RecyclerView.ViewHolder {
               Optional.ofNullable(summary.getRecord().getValueMap().get(field.getId()));
           fieldLabelRow.addView(newFieldTextView(field.getLabel()));
           fieldValueRow.addView(
-              newFieldTextView(value.map(RecordSummary::toSummaryText).orElse("")));
+              newFieldTextView(value.map(v -> v.getSummaryText()).orElse("")));
           break;
       }
     }

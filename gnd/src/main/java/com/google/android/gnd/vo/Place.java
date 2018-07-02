@@ -39,6 +39,15 @@ public abstract class Place {
 
   public abstract Timestamps getClientTimestamps();
 
+  public String getTitle() {
+    return getCaption().isEmpty() ? getPlaceType().getItemLabel() : getCaption();
+  }
+
+  public String getSubtitle() {
+    // TODO: Implement subtitle logic.
+    return "";
+  }
+
   public abstract Builder toBuilder();
 
   @Memoized

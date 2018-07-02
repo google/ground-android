@@ -25,6 +25,7 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import butterknife.BindView;
+import butterknife.ButterKnife;
 import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.R;
 import com.google.android.gnd.repository.Resource;
@@ -43,6 +44,9 @@ public class RecordDetailsFragment extends AbstractFragment {
 
   @BindView(R.id.record_details_toolbar)
   TwoLineToolbar toolbar;
+
+  @BindView(R.id.form_name)
+  TextView formNameView;
 
   @BindView(R.id.record_details_progress_bar)
   ProgressBar progressBar;
@@ -101,12 +105,18 @@ public class RecordDetailsFragment extends AbstractFragment {
   }
 
   private void showProgressBar() {
-    progressBar.setVisibility(View.VISIBLE);
+    toolbar.setTitle("");
+    toolbar.setSubtitle("");
+    formNameView.setText("");
     recordDetailsLayout.setVisibility(View.GONE);
+    progressBar.setVisibility(View.VISIBLE);
   }
 
   private void update(Record record) {
     progressBar.setVisibility(View.GONE);
+    toolbar.setTitle(record.getPlace().getTitle());
+    toolbar.setSubtitle(record.getPlace().getSubtitle());
+    formNameView.setText(record.getForm().getTitle());
     recordDetailsLayout.removeAllViews();
     for (Form.Element element : record.getForm().getElements()) {
       switch (element.getType()) {
@@ -119,17 +129,48 @@ public class RecordDetailsFragment extends AbstractFragment {
         default:
       }
     }
-    // TODO: Attach place to Record.
-    // TODO: Attach form to Record.
   }
 
   private void addField(Form.Field field, Record record) {
-    TextView text = new TextView(getContext());
-    text.setText(field.getLabel());
-    recordDetailsLayout.addView(text);
+    FieldViewHolder fieldViewHolder = FieldViewHolder.newInstance(getLayoutInflater());
+    fieldViewHolder.setLabel(field.getLabel());
+    record
+        .getValue(field.getId())
+        .map(v -> v.getDetailsText(field))
+        .ifPresent(fieldViewHolder::setValue);
+    recordDetailsLayout.addView(fieldViewHolder.getRoot());
+  }
 
-    TextView text2 = new TextView(getContext());
-    record.getValue(field.getId()).map(Record.Value::toString).ifPresent(text2::setText);
-    recordDetailsLayout.addView(text2);
+  static class FieldViewHolder {
+    private ViewGroup root;
+
+    @BindView(R.id.field_label)
+    TextView labelView;
+
+    @BindView(R.id.field_value)
+    TextView valueView;
+
+    FieldViewHolder(ViewGroup root) {
+      this.root = root;
+    }
+
+    static FieldViewHolder newInstance(LayoutInflater inflater) {
+      ViewGroup root = (ViewGroup) inflater.inflate(R.layout.record_details_field, null);
+      FieldViewHolder holder = new FieldViewHolder(root);
+      ButterKnife.bind(holder, root);
+      return holder;
+    }
+
+    void setLabel(String label) {
+      labelView.setText(label);
+    }
+
+    void setValue(String value) {
+      valueView.setText(value);
+    }
+
+    public ViewGroup getRoot() {
+      return root;
+    }
   }
 }

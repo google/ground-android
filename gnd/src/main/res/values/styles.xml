@@ -44,12 +44,14 @@
   <style name="GreenToolbarSubtitle" parent="TextAppearance.Widget.AppCompat.Toolbar.Subtitle">
     <item name="android:textColor">@color/colorGrey300</item>
     <item name="android:textSize">12sp</item>
+    <item name="colorControlNormal">@color/colorWhite</item>
   </style>
 
   <style name="WhiteToolbarTheme" parent="ThemeOverlay.AppCompat.ActionBar">
     <item name="android:background">@color/colorWhite</item>
     <item name="gndToolbarTitleStyle">@style/WhiteToolbarTitle</item>
     <item name="gndToolbarSubtitleStyle">@style/WhiteToolbarSubtitle</item>
+    <item name="colorControlNormal">@color/colorPrimary</item>
   </style>
 
   <style name="WhiteToolbarTitle" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">
@@ -83,14 +85,14 @@
     <item name="android:paddingLeft">@dimen/field_horizontal_padding</item>
     <item name="android:paddingRight">@dimen/field_horizontal_padding</item>
     <item name="android:textColor">@color/field_label</item>
-    <item name="android:textSize">@dimen/field_label</item>
+    <item name="android:textSize">@dimen/field_label_text_size</item>
   </style>
 
   <style name="FieldValue" parent="AppTheme.Base">
     <item name="android:paddingLeft">@dimen/field_horizontal_padding</item>
     <item name="android:paddingRight">@dimen/field_horizontal_padding</item>
     <item name="android:textColor">@color/field_value</item>
-    <item name="android:textSize">@dimen/field_value</item>
+    <item name="android:textSize">@dimen/field_value_text_size</item>
   </style>
 
   <style name="InputError" parent="AppTheme.Base">
@@ -102,7 +104,7 @@
 
   <style name="TextInputHintLight" parent="TextAppearance.AppCompat">
     <item name="android:textColor">@color/colorPrimaryLight</item>
-    <item name="android:textSize">@dimen/field_label</item>
+    <item name="android:textSize">@dimen/field_label_text_size</item>
   </style>
 
   <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar"/>
@@ -140,4 +142,16 @@
     <item name="android:textColor">@color/colorWhite</item>
   </style>
 
+
+  <style name="RecordDetails.Field.Label" parent="AppTheme.Base">
+    <item name="android:paddingLeft">@dimen/field_horizontal_padding</item>
+    <item name="android:paddingRight">@dimen/field_horizontal_padding</item>
+    <item name="android:textColor">@color/colorGrey600</item>
+    <item name="android:textSize">@dimen/field_label_text_size</item>
+  </style>
+
+  <style name="RecordDetails.Field.Value" parent="AppTheme.Base">
+    <item name="android:textColor">@color/colorGrey900</item>
+    <item name="android:textSize">@dimen/field_value_text_size</item>
+  </style>
 </resources>

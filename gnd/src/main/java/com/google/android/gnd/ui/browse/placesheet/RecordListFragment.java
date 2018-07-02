@@ -77,14 +77,14 @@ public class RecordListFragment extends AbstractFragment {
   @Override
   protected void observeViewModels() {
     viewModel.getRecords().observe(this, recordListAdapter::update);
-    placeSheetViewModel.getSelectedForm().observe(this, this::update);
+    placeSheetViewModel.getSelectedForm().observe(this, this::onFormChange);
     recordListAdapter
         .getItemClicks()
         .as(autoDisposable(this))
         .subscribe(mainViewModel::onRecordListItemClick);
   }
 
-  private void update(Optional<Form> form) {
+  private void onFormChange(Optional<Form> form) {
     viewModel.clearRecords();
     // TODO: Use fragment args, load form and place if not present.
     Optional<Place> place = placeSheetViewModel.getSelectedPlace().getValue();
