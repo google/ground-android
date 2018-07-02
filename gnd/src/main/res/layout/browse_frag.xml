@@ -76,22 +76,16 @@
 
     <android.support.design.chip.Chip
       android:id="@+id/add_record_btn"
-      style="@style/Widget.MaterialComponents.Chip.Action"
+      style="@style/ChipButton"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:layout_marginBottom="@dimen/sheet_btn_margin_bottom"
-      android:layout_marginRight="@dimen/sheet_btn_margin_right"
+      android:layout_marginBottom="@dimen/chip_button_margin_bottom"
+      android:layout_marginRight="@dimen/chip_button_margin_right"
       android:layout_above="@id/bottom_sheet_bottom_inset_scrim"
       android:layout_alignParentEnd="true"
       android:layout_alignParentRight="true"
       android:elevation="6dp"
-      android:paddingVertical="@dimen/add_record_button_padding"
-      android:textAppearance="@style/AddRecordButtonText"
-      app:chipBackgroundColor="@color/colorPrimary"
-      app:chipCornerRadius="24dp"
-      app:chipEndPadding="@dimen/add_record_button_padding"
       app:chipIcon="@drawable/ic_add_light"
-      app:chipStartPadding="@dimen/add_record_button_padding"
       app:chipText="@string/add_record_button_label"
       app:useCompatPadding="true"/>
 

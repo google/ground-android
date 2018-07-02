@@ -50,15 +50,15 @@
 
         <TextView
           android:id="@+id/form_name"
+          android:textStyle="bold"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
-          android:textAlignment="center"
-          android:textAllCaps="true"
-          android:textSize="12sp"
-          android:textStyle="bold"
-          android:textColor="@color/colorGrey900"
           android:paddingBottom="6dp"
           android:background="@color/colorWhite"
+          android:textAlignment="center"
+          android:textAllCaps="true"
+          android:textColor="@color/colorGrey900"
+          android:textSize="12sp"
           />
 
       </LinearLayout>
@@ -88,4 +88,19 @@
     </ScrollView>
 
   </RelativeLayout>
+
+  <android.support.design.chip.Chip
+    android:id="@+id/edit_record_btn"
+    style="@style/ChipButton"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="@dimen/chip_button_margin_bottom"
+    android:layout_marginRight="@dimen/chip_button_margin_right"
+    android:layout_above="@id/bottom_sheet_bottom_inset_scrim"
+    android:layout_gravity="bottom|right|end"
+    android:elevation="6dp"
+    app:chipIcon="@drawable/ic_edit"
+    app:chipText="@string/edit_record_button_label"
+    app:useCompatPadding="true"/>
+
 </android.support.design.widget.CoordinatorLayout>
