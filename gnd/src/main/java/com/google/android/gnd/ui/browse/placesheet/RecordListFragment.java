@@ -79,9 +79,9 @@ public class RecordListFragment extends AbstractFragment {
     viewModel.getRecords().observe(this, recordListAdapter::update);
     placeSheetViewModel.getSelectedForm().observe(this, this::onFormChange);
     recordListAdapter
-        .getItemClicks()
-        .as(autoDisposable(this))
-        .subscribe(mainViewModel::onRecordListItemClick);
+      .getItemClicks()
+      .as(autoDisposable(this))
+      .subscribe(mainViewModel::showRecordDetails);
   }
 
   private void onFormChange(Optional<Form> form) {

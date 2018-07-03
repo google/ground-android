@@ -151,12 +151,21 @@
 
   <style name="ChipButton" parent="Widget.MaterialComponents.Chip.Action">
     <item name="chipBackgroundColor">@color/colorPrimary</item>
-    <item name="chipCornerRadius">24dp</item>
+    <item name="chipCornerRadius">@dimen/chip_button_corner_radius</item>
     <item name="chipStartPadding">@dimen/chip_button_padding</item>
     <item name="chipEndPadding">@dimen/chip_button_padding</item>
     <item name="android:paddingTop">@dimen/chip_button_padding</item>
     <item name="android:paddingBottom">@dimen/chip_button_padding</item>
     <item name="android:textAppearance">@style/ChipButtonText</item>
+  </style>
+
+
+  <style name="ChipButton.Toolbar">
+    <item name="chipCornerRadius">@dimen/chip_toolbar_button_corner_radius</item>
+    <item name="chipStartPadding">@dimen/chip_toolbar_button_padding</item>
+    <item name="chipEndPadding">@dimen/chip_toolbar_button_padding</item>
+    <item name="android:paddingTop">@dimen/chip_toolbar_button_padding</item>
+    <item name="android:paddingBottom">@dimen/chip_toolbar_button_padding</item>
   </style>
 
   <style name="ChipButtonText">

@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.ui.browse.placesheet.input;
+package com.google.android.gnd.ui.editrecord.input;
 
 import static com.google.android.gnd.ui.util.ViewUtil.getColorForStates;
-import static com.google.android.gnd.vo.PlaceUpdate.Operation.CREATE;
-import static com.google.android.gnd.vo.PlaceUpdate.Operation.DELETE;
-import static com.google.android.gnd.vo.PlaceUpdate.Operation.NO_CHANGE;
-import static com.google.android.gnd.vo.PlaceUpdate.Operation.UPDATE;
+import static com.google.android.gnd.vo.PlaceUpdate.Operation.CREATE;
+import static com.google.android.gnd.vo.PlaceUpdate.Operation.DELETE;
+import static com.google.android.gnd.vo.PlaceUpdate.Operation.NO_CHANGE;
+import static com.google.android.gnd.vo.PlaceUpdate.Operation.UPDATE;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
@@ -33,6 +33,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnFocusChange;
 import com.google.android.gnd.R;
+import com.google.android.gnd.vo.Form;
 import com.google.android.gnd.vo.PlaceUpdate;
 import com.google.android.gnd.vo.Record;
 import java8.util.Optional;
@@ -99,7 +100,16 @@ public class TextFieldView extends ConstraintLayout implements Editable {
     }
   }
 
-  public void init(String elementId, String label, Optional<Record.Value> value, boolean required) {
+  @Override
+  public void init(Form.Field field, Record record) {
+    init(field.getId(), field.getLabel(), record.getValue(field.getId()), field.isRequired());
+  }
+
+  private void init(
+    String elementId,
+    String label,
+    Optional<Record.Value> value,
+    boolean required) {
     this.elementId = elementId;
     originalValue = value;
     labelText.setText(label);
@@ -145,14 +155,11 @@ public class TextFieldView extends ConstraintLayout implements Editable {
     return update.build();
   }
 
-  @Override
-  public void setMode(Mode mode) {
-    editText.setEnabled(mode == Mode.EDIT);
-  }
 
   @Override
   public void setFocus() {
-    this.requestFocus();
+//    this.requestFocus();
+    editText.requestFocus();
     //    ViewUtil.showSoftInputMode((Activity) getContext()); // TODO: Why doesn't this work?
   }
 }

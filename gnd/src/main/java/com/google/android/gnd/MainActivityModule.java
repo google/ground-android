@@ -28,6 +28,8 @@ import com.google.android.gnd.ui.browse.placesheet.PlaceSheetBodyFragment;
 import com.google.android.gnd.ui.browse.placesheet.PlaceSheetHeaderFragment;
 import com.google.android.gnd.ui.browse.placesheet.PlaceSheetModule;
 import com.google.android.gnd.ui.browse.placesheet.RecordListFragment;
+import com.google.android.gnd.ui.editrecord.EditRecordFragment;
+import com.google.android.gnd.ui.editrecord.EditRecordModule;
 import com.google.android.gnd.ui.projectselector.ProjectSelectorDialogFragment;
 import com.google.android.gnd.ui.recorddetails.RecordDetailsFragment;
 import com.google.android.gnd.ui.recorddetails.RecordDetailsModule;
@@ -80,4 +82,8 @@ public abstract class MainActivityModule {
   @PerFragment
   @ContributesAndroidInjector(modules = RecordDetailsModule.class)
   abstract RecordDetailsFragment recordDetailsFragmentInjector();
+
+  @PerFragment
+  @ContributesAndroidInjector(modules = EditRecordModule.class)
+  abstract EditRecordFragment editRecordFragmentInjector();
 }

@@ -132,5 +132,6 @@
   <string name="project_list_load_error">Project list not available</string>
   <string name="unexpected_error">An unexpected error has occured</string>
   <string name="edit_record_button_label">Edit</string>
+  <string name="save_record_button_label">Save</string>
 
 </resources>

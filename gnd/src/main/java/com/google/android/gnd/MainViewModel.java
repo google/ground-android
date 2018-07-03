@@ -26,6 +26,7 @@ import android.view.View;
 import androidx.navigation.NavController;
 import com.google.android.gnd.repository.RecordSummary;
 import com.google.android.gnd.ui.browse.BrowseFragmentDirections;
+import com.google.android.gnd.ui.recorddetails.RecordDetailsFragmentDirections;
 import javax.inject.Inject;
 
 public class MainViewModel extends ViewModel {
@@ -48,12 +49,17 @@ public class MainViewModel extends ViewModel {
     return insets;
   }
 
-  public void onRecordListItemClick(RecordSummary recordSummary) {
+  // TODO: Accept ids instead of obj?
+  public void showRecordDetails(RecordSummary recordSummary) {
     mainViewState.setValue(
         MainViewState.recordDetails(
             recordSummary.getRecord().getProject().getId(),
             recordSummary.getRecord().getPlace().getId(),
             recordSummary.getRecord().getId()));
+  }
+
+  public void editRecord(String projectId, String placeId, String recordId) {
+    mainViewState.setValue(MainViewState.editRecord(projectId, placeId, recordId));
   }
 
   public LiveData<MainViewState> getViewState() {
@@ -66,6 +72,7 @@ public class MainViewModel extends ViewModel {
    * responsible for restoring its own ViewModel state from IDs.
    */
   // TODO: Merge PlaceSheetState into this state.
+  // TODO: Let views emit NavDirections directly instead of this wrapper?
   public static class MainViewState {
     private static final String TAG = MainViewState.class.getSimpleName();
 
@@ -73,7 +80,8 @@ public class MainViewModel extends ViewModel {
       // TODO: Rename to Browse or Home.
       MAP,
       PLACE_SHEET,
-      RECORD_DETAILS
+      RECORD_DETAILS,
+      EDIT_RECORD
     }
 
     // TODO: Rename to something other than View.
@@ -97,6 +105,10 @@ public class MainViewModel extends ViewModel {
       return new MainViewState(View.RECORD_DETAILS, projectId, placeId, recordId);
     }
 
+    public static MainViewState editRecord(String projectId, String placeId, String recordId) {
+      return new MainViewState(View.EDIT_RECORD, projectId, placeId, recordId);
+    }
+
     public View getView() {
       return view;
     }
@@ -106,6 +118,11 @@ public class MainViewModel extends ViewModel {
         case RECORD_DETAILS:
           navController.navigate(
               BrowseFragmentDirections.showRecordDetails(projectId, placeId, recordId));
+          break;
+        case EDIT_RECORD:
+          navController.navigate(
+            RecordDetailsFragmentDirections.editRecord(projectId, placeId, recordId));
+          break;
         default:
           Log.e(TAG, "Unimplemented transition: " + view);
       }

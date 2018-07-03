@@ -61,7 +61,7 @@ public abstract class PlaceUpdate {
 
     public abstract Operation getOperation();
 
-    public abstract ImmutableList<ValueUpdate> getValueUpdatesList();
+    public abstract ImmutableList<ValueUpdate> getValueUpdates();
 
     public static Builder newBuilder() {
       return new AutoValue_PlaceUpdate_RecordUpdate.Builder();
@@ -73,7 +73,7 @@ public abstract class PlaceUpdate {
 
       public abstract Builder setOperation(Operation newOperation);
 
-      public abstract Builder setValueUpdatesList(ImmutableList<ValueUpdate> newValueUpdatesList);
+      public abstract Builder setValueUpdates(ImmutableList<ValueUpdate> newValueUpdatesList);
 
       public abstract RecordUpdate build();
     }

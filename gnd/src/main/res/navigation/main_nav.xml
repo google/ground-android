@@ -27,7 +27,11 @@
     tools:layout="@layout/browse_frag">
     <action
       android:id="@+id/showRecordDetails"
-      app:destination="@id/record_details_fragment"/>
+      app:destination="@id/record_details_fragment"
+      app:enterAnim="@anim/nav_default_enter_anim"
+      app:exitAnim="@anim/nav_default_exit_anim"
+      app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+      app:popExitAnim="@anim/nav_default_pop_exit_anim"/>
   </fragment>
 
   <fragment
@@ -35,6 +39,28 @@
     android:label="@string/view_record_details"
     android:name="com.google.android.gnd.ui.recorddetails.RecordDetailsFragment"
     tools:layout="@layout/record_details_frag">
+    <argument
+      android:name="projectId"
+      app:type="string"/>
+    <argument
+      android:name="placeId"
+      app:type="string"/>
+    <argument
+      android:name="recordId"
+      app:type="string"/>
+    <action
+      android:id="@+id/editRecord"
+      app:destination="@id/editRecordFragment"
+      app:enterAnim="@anim/nav_default_enter_anim"
+      app:exitAnim="@anim/nav_default_exit_anim"
+      app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+      app:popExitAnim="@anim/nav_default_pop_exit_anim"/>
+  </fragment>
+  <fragment
+    android:id="@+id/editRecordFragment"
+    android:name="com.google.android.gnd.ui.editrecord.EditRecordFragment"
+    android:label="edit_record_frag"
+    tools:layout="@layout/edit_record_frag">
     <argument
       android:name="projectId"
       app:type="string"/>

@@ -14,25 +14,22 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.ui.browse.placesheet.input;
+package com.google.android.gnd.ui.editrecord.input;
 
+import com.google.android.gnd.vo.Form;
 import com.google.android.gnd.vo.PlaceUpdate.RecordUpdate.ValueUpdate;
+import com.google.android.gnd.vo.Record;
 
 public interface Editable {
-  void updateValidationMessage();
+  void init(Form.Field field, Record record);
 
-  enum Mode {
-    EDIT,
-    VIEW
-  }
+  void updateValidationMessage();
 
   void setFocus();
 
   boolean isModified();
 
   ValueUpdate getUpdate();
-
-  void setMode(Mode mode);
 
   boolean isValid();
 }

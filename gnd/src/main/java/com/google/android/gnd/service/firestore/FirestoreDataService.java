@@ -287,7 +287,7 @@ public class FirestoreDataService implements RemoteDataService {
 
   private Map<String, Object> updatedValues(RecordUpdate recordUpdate) {
     Map<String, Object> updatedValues = new HashMap<>();
-    for (ValueUpdate valueUpdate : recordUpdate.getValueUpdatesList()) {
+    for (ValueUpdate valueUpdate : recordUpdate.getValueUpdates()) {
       switch (valueUpdate.getOperation()) {
         case CREATE:
         case UPDATE:

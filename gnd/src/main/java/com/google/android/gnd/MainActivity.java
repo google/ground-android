@@ -21,6 +21,7 @@ import static com.google.android.gnd.rx.RxAutoDispose.autoDisposable;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.content.IntentSender.SendIntentException;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -40,6 +41,7 @@ import com.google.android.gnd.system.SettingsManager;
 import com.google.android.gnd.system.SettingsManager.SettingsChangeRequest;
 import com.google.android.gnd.ui.common.TwoLineToolbar;
 import com.google.android.gnd.ui.common.ViewModelFactory;
+import com.google.android.gnd.ui.util.DrawableUtil;
 import dagger.android.AndroidInjection;
 import dagger.android.AndroidInjector;
 import dagger.android.DispatchingAndroidInjector;
@@ -176,6 +178,15 @@ public class MainActivity extends AppCompatActivity implements HasSupportFragmen
   @Override
   public final AndroidInjector<Fragment> supportFragmentInjector() {
     return fragmentInjector;
+  }
+
+  public void setActionBar(TwoLineToolbar toolbar, int upIconId) {
+    setActionBar(toolbar);
+    // We override the color here programmatically since calling setHomeAsUpIndicator uses the color
+    // of the set icon, not the applied theme. This allows us to change the primary color
+    // programmatically without needing to remember to update the icon.
+    Drawable icon = new DrawableUtil(getResources()).getDrawable(upIconId, R.color.colorPrimary);
+    getSupportActionBar().setHomeAsUpIndicator(icon);
   }
 
   public void setActionBar(TwoLineToolbar toolbar) {

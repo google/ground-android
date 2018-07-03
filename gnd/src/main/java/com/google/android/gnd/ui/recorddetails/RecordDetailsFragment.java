@@ -16,6 +16,9 @@
 
 package com.google.android.gnd.ui.recorddetails;
 
+import static com.google.android.gnd.rx.RxAutoDispose.autoDisposable;
+
+import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -27,6 +30,7 @@ import android.widget.TextView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import com.google.android.gnd.MainActivity;
+import com.google.android.gnd.MainViewModel;
 import com.google.android.gnd.R;
 import com.google.android.gnd.repository.Resource;
 import com.google.android.gnd.ui.common.AbstractFragment;
@@ -35,6 +39,7 @@ import com.google.android.gnd.ui.common.TwoLineToolbar;
 import com.google.android.gnd.ui.common.ViewModelFactory;
 import com.google.android.gnd.vo.Form;
 import com.google.android.gnd.vo.Record;
+import com.jakewharton.rxbinding2.view.RxView;
 import javax.inject.Inject;
 
 public class RecordDetailsFragment extends AbstractFragment {
@@ -54,9 +59,11 @@ public class RecordDetailsFragment extends AbstractFragment {
   @BindView(R.id.record_details_layout)
   LinearLayout recordDetailsLayout;
 
-  private RecordDetailsViewModel viewModel;
+  @BindView(R.id.edit_record_btn)
+  View editRecordButton;
 
-  public RecordDetailsFragment() {}
+  private RecordDetailsViewModel viewModel;
+  private MainViewModel mainViewModel;
 
   @Override
   protected View createView(
@@ -67,6 +74,7 @@ public class RecordDetailsFragment extends AbstractFragment {
   @Override
   protected void obtainViewModels() {
     viewModel = viewModelFactory.create(RecordDetailsViewModel.class);
+    mainViewModel = ViewModelProviders.of(getActivity(), viewModelFactory).get(MainViewModel.class);
   }
 
   @Override
@@ -85,6 +93,12 @@ public class RecordDetailsFragment extends AbstractFragment {
     viewModel
         .getRecordDetails(args.getProjectId(), args.getPlaceId(), args.getRecordId())
         .observe(this, this::onUpdate);
+    RxView.clicks(editRecordButton)
+          .as(autoDisposable(this))
+          .subscribe(
+            __ ->
+              mainViewModel.editRecord(
+                args.getProjectId(), args.getPlaceId(), args.getRecordId()));
   }
 
   private void onUpdate(Resource<Record> record) {
@@ -93,7 +107,7 @@ public class RecordDetailsFragment extends AbstractFragment {
         showProgressBar();
         break;
       case LOADED:
-        record.ifPresent(this::update);
+        record.ifPresent(this::showRecord);
         break;
       case NOT_FOUND:
       case ERROR:
@@ -112,7 +126,7 @@ public class RecordDetailsFragment extends AbstractFragment {
     progressBar.setVisibility(View.VISIBLE);
   }
 
-  private void update(Record record) {
+  private void showRecord(Record record) {
     progressBar.setVisibility(View.GONE);
     toolbar.setTitle(record.getPlace().getTitle());
     toolbar.setSubtitle(record.getPlace().getSubtitle());

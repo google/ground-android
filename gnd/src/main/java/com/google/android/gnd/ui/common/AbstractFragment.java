@@ -70,6 +70,7 @@ public abstract class AbstractFragment extends Fragment implements HasSupportFra
     unbinder = ButterKnife.bind(this, view);
     setUpView();
     observeViewModels();
+    observeViews();
     return view;
   }
 
@@ -82,6 +83,9 @@ public abstract class AbstractFragment extends Fragment implements HasSupportFra
   protected void setUpView() {}
 
   protected void observeViewModels() {}
+
+  protected void observeViews() {
+  }
 
   @Override
   public void onStart() {

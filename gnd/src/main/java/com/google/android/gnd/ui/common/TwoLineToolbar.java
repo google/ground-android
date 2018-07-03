@@ -26,6 +26,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import com.google.android.gnd.R;
 
+// TODO: Improve logic for toolbar heading and possibly extra line below.
 public class TwoLineToolbar extends Toolbar {
 
   @BindView(R.id.toolbar_title_text)

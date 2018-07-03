@@ -21,6 +21,7 @@ import com.google.android.gnd.service.DatastoreEvent;
 import com.google.android.gnd.service.RemoteDataService;
 import com.google.android.gnd.service.firestore.DocumentNotFoundException;
 import com.google.android.gnd.vo.Place;
+import com.google.android.gnd.vo.PlaceUpdate;
 import com.google.android.gnd.vo.Project;
 import com.google.android.gnd.vo.Record;
 import com.google.common.collect.ImmutableSet;
@@ -133,6 +134,15 @@ public class DataRepository {
         .toFlowable();
   }
 
+  public Single<Resource<Record>> getRecordSnapshot(
+    String projectId, String placeId, String recordId) {
+    // TODO: Store and retrieve latest edits from cache and/or db.
+    return getPlace(projectId, placeId)
+      .flatMap(place -> remoteDataService.loadRecordDetails(place, recordId))
+      .map(Resource::loaded)
+      .onErrorReturn(Resource::error);
+  }
+
   private Single<Project> getProject(String projectId) {
     // TODO: Try to load from db if network not available or times out.
     return cache
@@ -140,5 +150,9 @@ public class DataRepository {
         .filter(p -> projectId.equals(p.getId()))
         .map(Single::just)
         .orElse(remoteDataService.loadProject(projectId));
+  }
+
+  public void update(String projectId, PlaceUpdate update) {
+    remoteDataService.update(projectId, update);
   }
 }

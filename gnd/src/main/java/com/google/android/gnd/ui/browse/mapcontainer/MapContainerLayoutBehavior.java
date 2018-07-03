@@ -48,6 +48,10 @@ public class MapContainerLayoutBehavior extends OnBottomSheetSlideBehavior<Frame
     View map = mapContainerLayout.findViewById(R.id.map);
     View crosshairs = mapContainerLayout.findViewById(R.id.map_crosshairs);
     View mapButtonLayout = mapContainerLayout.findViewById(R.id.map_btn_layout);
+    if (map == null || crosshairs == null || mapButtonLayout == null) {
+      // View already destroyed.
+      return;
+    }
     float visibleToolbarHeight = 0;
     float bottomOffset = Math.min(metrics.getPeekHeight(), metrics.getVisibleHeight());
     float offset = Math.max(bottomOffset - visibleToolbarHeight, 0f);
