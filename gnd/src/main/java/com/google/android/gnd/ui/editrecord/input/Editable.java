@@ -21,6 +21,7 @@ import com.google.android.gnd.vo.PlaceUpdate.RecordUpdate.ValueUpdate;
 import com.google.android.gnd.vo.Record;
 
 public interface Editable {
+  // TODO: Reverse order.
   void init(Form.Field field, Record record);
 
   void updateValidationMessage();

@@ -42,7 +42,7 @@ import com.google.android.gnd.ui.common.TwoLineToolbar;
 import com.google.android.gnd.ui.common.ViewModelFactory;
 import com.google.android.gnd.ui.editrecord.input.Editable;
 import com.google.android.gnd.ui.editrecord.input.MultipleChoiceFieldView;
-import com.google.android.gnd.ui.editrecord.input.TextFieldView;
+import com.google.android.gnd.ui.editrecord.input.TextInputViewHolder;
 import com.google.android.gnd.vo.Form;
 import com.google.android.gnd.vo.Record;
 import java.util.ArrayList;
@@ -158,11 +158,10 @@ public class EditRecordFragment extends AbstractFragment {
       case TEXT:
         // TODO: Refactor these views into ViewHolders and use normal instances of Android view
         // components instead of extending them.
-        TextFieldView textFieldView =
-          (TextFieldView) getLayoutInflater().inflate(R.layout.text_field, formLayout, false);
-        textFieldView.init(field, record);
-        formLayout.addView(textFieldView);
-        return textFieldView;
+        TextInputViewHolder textInputViewHolder = TextInputViewHolder.newInstance(formLayout);
+        textInputViewHolder.init(field, record);
+        formLayout.addView(textInputViewHolder.getView());
+        return textInputViewHolder;
       case MULTIPLE_CHOICE:
         MultipleChoiceFieldView multipleChoiceFieldView =
           (MultipleChoiceFieldView)

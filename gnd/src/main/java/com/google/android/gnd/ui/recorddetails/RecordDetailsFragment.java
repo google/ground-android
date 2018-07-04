@@ -155,6 +155,7 @@ public class RecordDetailsFragment extends AbstractFragment {
     recordDetailsLayout.addView(fieldViewHolder.getRoot());
   }
 
+  // TODO: Extract into outer class.
   static class FieldViewHolder {
     private ViewGroup root;
 
