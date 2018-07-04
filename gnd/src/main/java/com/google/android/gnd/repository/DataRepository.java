@@ -21,9 +21,10 @@ import com.google.android.gnd.service.DatastoreEvent;
 import com.google.android.gnd.service.RemoteDataService;
 import com.google.android.gnd.service.firestore.DocumentNotFoundException;
 import com.google.android.gnd.vo.Place;
-import com.google.android.gnd.vo.PlaceUpdate;
+import com.google.android.gnd.vo.PlaceUpdate.RecordUpdate.ValueUpdate;
 import com.google.android.gnd.vo.Project;
 import com.google.android.gnd.vo.Record;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Completable;
@@ -152,7 +153,7 @@ public class DataRepository {
         .orElse(remoteDataService.loadProject(projectId));
   }
 
-  public void update(String projectId, PlaceUpdate update) {
-    remoteDataService.update(projectId, update);
+  public Completable saveChanges(Record record, ImmutableList<ValueUpdate> updates) {
+    return remoteDataService.saveChanges(record, updates);
   }
 }

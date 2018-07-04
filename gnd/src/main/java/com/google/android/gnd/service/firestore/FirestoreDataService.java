@@ -24,29 +24,26 @@ import static java8.util.stream.StreamSupport.stream;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
+import com.google.android.gnd.rx.RxTask;
 import com.google.android.gnd.service.DatastoreEvent;
 import com.google.android.gnd.service.RemoteDataService;
 import com.google.android.gnd.vo.Form;
 import com.google.android.gnd.vo.Place;
 import com.google.android.gnd.vo.PlaceType;
-import com.google.android.gnd.vo.PlaceUpdate;
-import com.google.android.gnd.vo.PlaceUpdate.RecordUpdate;
 import com.google.android.gnd.vo.PlaceUpdate.RecordUpdate.ValueUpdate;
 import com.google.android.gnd.vo.Project;
 import com.google.android.gnd.vo.Record;
 import com.google.android.gnd.vo.Timestamps;
 import com.google.common.collect.ImmutableList;
-import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentChange;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreSettings;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.firestore.SnapshotMetadata;
-import com.google.firebase.firestore.WriteBatch;
 import durdinapps.rxfirebase2.RxFirestore;
+import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Observable;
@@ -119,62 +116,6 @@ public class FirestoreDataService implements RemoteDataService {
                 stream(formDocSnapshots).map(FormDoc::toProto).collect(toImmutableList()))
         .defaultIfEmpty(ImmutableList.of())
         .toObservable();
-  }
-
-  // Differentiate generic "update" (CRUD operation) from database "update".
-  @Override
-  public Place update(String projectId, PlaceUpdate placeUpdate) {
-    // NOTE: Batched writes are atomic in Firestore. We always update the timestamps on
-    // Places, even when Records are added or modified, so that there will always a
-    // pending write on the Place until the Record is written. We then can use hasPendingWrites
-    // on the Place to guarantee all related updates have been written.
-    Log.i(TAG, "Db op requested: " + placeUpdate);
-    switch (placeUpdate.getOperation()) {
-      case CREATE:
-        return createPlace(projectId, placeUpdate);
-      case UPDATE:
-      case NO_CHANGE:
-        return updatePlace(projectId, placeUpdate);
-      case DELETE:
-        // TODO: Implement delete..
-      default:
-        throw new IllegalArgumentException("Unknown update type: " + placeUpdate.getOperation());
-    }
-  }
-
-  private Place createPlace(String projectId, PlaceUpdate placeUpdate) {
-    WriteBatch batch = db.batch();
-    Place.Builder place = placeUpdate.getPlace().toBuilder();
-    DocumentReference fdRef = db().project(projectId).places().ref().document();
-    place.setId(fdRef.getId());
-    place.setServerTimestamps(Timestamps.getDefaultInstance());
-    place.setClientTimestamps(
-        Timestamps.newBuilder()
-            .setCreated(placeUpdate.getClientTimestamp())
-            .setModified(placeUpdate.getClientTimestamp())
-            .build());
-    batch.set(fdRef, PlaceDoc.fromProto(place.build()));
-    updateRecords(batch, fdRef, placeUpdate);
-    // We don't wait for commit() to finish because task only completes once data is stored to
-    // server.
-    batch.commit();
-    // Pass place back with ID populated.
-    return place.build();
-  }
-
-  private Place updatePlace(String projectId, PlaceUpdate placeUpdate) {
-    WriteBatch batch = db.batch();
-    Place place = placeUpdate.getPlace();
-    DocumentReference fdRef = db().project(projectId).place(place.getId()).ref();
-    // TODO: Set timestamps during serialization.
-    //    place.setServerTimestamps(place.getServerTimestamps().toBuilder().clearModified());
-    //    place.setClientTimestamps(
-    //
-    // place.getClientTimestamps().toBuilder().setModified(placeUpdate.getClientTimestamp()));
-    batch.set(fdRef, PlaceDoc.fromProto(place), MERGE);
-    updateRecords(batch, fdRef, placeUpdate);
-    batch.commit();
-    return place;
   }
 
   @Override
@@ -256,42 +197,36 @@ public class FirestoreDataService implements RemoteDataService {
         : DatastoreEvent.Source.REMOTE_DATASTORE;
   }
 
-  private void updateRecords(
-      WriteBatch batch, DocumentReference placeRef, PlaceUpdate placeUpdate) {
-    CollectionReference records = GndFirestorePath.place(placeRef).records().ref();
-    // TODO: Set timestamps during serialization.
-    for (RecordUpdate recordUpdate : placeUpdate.getRecordUpdatesList()) {
-      Record record = recordUpdate.getRecord();
-      switch (recordUpdate.getOperation()) {
-        case CREATE:
-          //          record.setClientTimestamps(
-          //              Timestamps.newBuilder()
-          //                  .setCreated(placeUpdate.getClientTimestamp())
-          //                  .setModified(placeUpdate.getClientTimestamp()));
-          batch.set(records.document(), RecordDoc.fromProto(record, updatedValues(recordUpdate)));
-          break;
-        case UPDATE:
-          //          record.setClientTimestamps(
-          //              record
-          //                  .getClientTimestamps()
-          //                  .toBuilder()
-          //                  .setModified(placeUpdate.getClientTimestamp()));
-          batch.set(
-              records.document(record.getId()),
-              RecordDoc.fromProto(record, updatedValues(recordUpdate)),
-              MERGE);
-          break;
-      }
-    }
+  // TODO: Move relevant Record fields and updates into "RecordUpdate" object.
+  @Override
+  public Completable saveChanges(Record record, ImmutableList<ValueUpdate> updates) {
+    return RxTask.toCompletable(
+      () ->
+        db.batch()
+          .set(
+            db().projects()
+                .project(record.getProject().getId())
+                .places()
+                .place(record.getPlace().getId())
+                .records()
+                .record(record.getId())
+                .ref(),
+            RecordDoc.forUpdates(record, updatedValues(updates)),
+            MERGE)
+          .commit());
   }
 
-  private Map<String, Object> updatedValues(RecordUpdate recordUpdate) {
+  private Map<String, Object> updatedValues(ImmutableList<ValueUpdate> updates) {
     Map<String, Object> updatedValues = new HashMap<>();
-    for (ValueUpdate valueUpdate : recordUpdate.getValueUpdates()) {
+    for (ValueUpdate valueUpdate : updates) {
       switch (valueUpdate.getOperation()) {
         case CREATE:
         case UPDATE:
-          updatedValues.put(valueUpdate.getElementId(), RecordDoc.toObject(valueUpdate.getValue()));
+          valueUpdate
+            .getValue()
+            .ifPresent(
+              value ->
+                updatedValues.put(valueUpdate.getElementId(), RecordDoc.toObject(value)));
           break;
         case DELETE:
           // FieldValue.delete() is not working in nested objects; if it doesn't work in the future

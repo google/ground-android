@@ -34,7 +34,7 @@ import butterknife.ButterKnife;
 import butterknife.OnFocusChange;
 import com.google.android.gnd.R;
 import com.google.android.gnd.vo.Form;
-import com.google.android.gnd.vo.PlaceUpdate;
+import com.google.android.gnd.vo.PlaceUpdate.RecordUpdate.ValueUpdate;
 import com.google.android.gnd.vo.Record;
 import java8.util.Optional;
 
@@ -106,10 +106,7 @@ public class TextFieldView extends ConstraintLayout implements Editable {
   }
 
   private void init(
-    String elementId,
-    String label,
-    Optional<Record.Value> value,
-    boolean required) {
+    String elementId, String label, Optional<Record.Value> value, boolean required) {
     this.elementId = elementId;
     originalValue = value;
     labelText.setText(label);
@@ -136,9 +133,8 @@ public class TextFieldView extends ConstraintLayout implements Editable {
   }
 
   @Override
-  public PlaceUpdate.RecordUpdate.ValueUpdate getUpdate() {
-    PlaceUpdate.RecordUpdate.ValueUpdate.Builder update =
-        PlaceUpdate.RecordUpdate.ValueUpdate.newBuilder();
+  public ValueUpdate getUpdate() {
+    ValueUpdate.Builder update = ValueUpdate.newBuilder();
     update.setElementId(elementId);
     Optional<Record.Value> currentValue = getCurrentValue();
     if (currentValue.equals(originalValue)) {
@@ -147,19 +143,11 @@ public class TextFieldView extends ConstraintLayout implements Editable {
       update.setOperation(DELETE);
     } else if (originalValue.isPresent()) {
       update.setOperation(UPDATE);
-      update.setValue(currentValue.get());
+      update.setValue(currentValue);
     } else {
       update.setOperation(CREATE);
-      update.setValue(currentValue.get());
+      update.setValue(currentValue);
     }
     return update.build();
-  }
-
-
-  @Override
-  public void setFocus() {
-//    this.requestFocus();
-    editText.requestFocus();
-    //    ViewUtil.showSoftInputMode((Activity) getContext()); // TODO: Why doesn't this work?
   }
 }

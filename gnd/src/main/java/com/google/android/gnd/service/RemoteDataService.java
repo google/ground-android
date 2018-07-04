@@ -17,9 +17,11 @@
 package com.google.android.gnd.service;
 
 import com.google.android.gnd.vo.Place;
-import com.google.android.gnd.vo.PlaceUpdate;
+import com.google.android.gnd.vo.PlaceUpdate.RecordUpdate.ValueUpdate;
 import com.google.android.gnd.vo.Project;
 import com.google.android.gnd.vo.Record;
+import com.google.common.collect.ImmutableList;
+import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Single;
 import java.util.List;
@@ -38,5 +40,7 @@ public interface RemoteDataService {
 
   Single<Record> loadRecordDetails(Place place, String recordId);
 
-  Place update(String projectId, PlaceUpdate placeUpdate);
+  Completable saveChanges(
+    Record record,
+    ImmutableList<ValueUpdate> updates);
 }

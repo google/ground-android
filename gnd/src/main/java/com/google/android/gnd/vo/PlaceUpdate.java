@@ -19,6 +19,7 @@ package com.google.android.gnd.vo;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import java.util.Date;
+import java8.util.Optional;
 
 @AutoValue
 public abstract class PlaceUpdate {
@@ -82,19 +83,20 @@ public abstract class PlaceUpdate {
     public abstract static class ValueUpdate {
       public abstract String getElementId();
 
-      public abstract Record.Value getValue();
+      public abstract Optional<Record.Value> getValue();
 
       public abstract Operation getOperation();
 
       public static Builder newBuilder() {
-        return new AutoValue_PlaceUpdate_RecordUpdate_ValueUpdate.Builder();
+        return new AutoValue_PlaceUpdate_RecordUpdate_ValueUpdate.Builder()
+          .setValue(Optional.empty());
       }
 
       @AutoValue.Builder
       public abstract static class Builder {
         public abstract Builder setElementId(String newElementId);
 
-        public abstract Builder setValue(Record.Value newValue);
+        public abstract Builder setValue(Optional<Record.Value> newValue);
 
         public abstract Builder setOperation(Operation newOperation);
 

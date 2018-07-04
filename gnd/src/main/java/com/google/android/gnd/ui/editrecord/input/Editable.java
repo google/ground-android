@@ -25,8 +25,6 @@ public interface Editable {
 
   void updateValidationMessage();
 
-  void setFocus();
-
   boolean isModified();
 
   ValueUpdate getUpdate();

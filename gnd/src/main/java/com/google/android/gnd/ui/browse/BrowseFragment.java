@@ -41,6 +41,7 @@ import com.google.android.gnd.repository.Resource;
 import com.google.android.gnd.ui.browse.mapcontainer.MapContainerFragment;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.EphemeralPopups;
+import com.google.android.gnd.ui.common.ProgressDialogs;
 import com.google.android.gnd.ui.common.TwoLineToolbar;
 import com.google.android.gnd.ui.common.ViewModelFactory;
 import com.google.android.gnd.ui.projectselector.ProjectSelectorDialogFragment;
@@ -193,11 +194,8 @@ public class BrowseFragment extends AbstractFragment {
   }
 
   private void showProjectLoadingDialog() {
-    progressDialog = new ProgressDialog(getContext());
-    progressDialog.setMessage(getResources().getString(R.string.project_loading_please_wait));
-    progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-    progressDialog.setCancelable(false);
-    progressDialog.setCanceledOnTouchOutside(false);
+    progressDialog =
+      ProgressDialogs.modalSpinner(getContext(), R.string.project_loading_please_wait);
     progressDialog.show();
   }
 

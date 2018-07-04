@@ -16,31 +16,42 @@
 
 package com.google.android.gnd.ui.editrecord;
 
-import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.MutableLiveData;
 import com.google.android.gnd.repository.DataRepository;
 import com.google.android.gnd.repository.Resource;
-import com.google.android.gnd.rx.RxLiveData;
 import com.google.android.gnd.ui.common.AbstractViewModel;
-import com.google.android.gnd.vo.PlaceUpdate;
+import com.google.android.gnd.vo.PlaceUpdate.RecordUpdate.ValueUpdate;
 import com.google.android.gnd.vo.Record;
+import com.google.common.collect.ImmutableList;
+import io.reactivex.Completable;
+import io.reactivex.Single;
+import java8.util.Optional;
 import javax.inject.Inject;
 
+// TODO: Save draft to local db on each change.
 public class EditRecordViewModel extends AbstractViewModel {
+  private static final String TAG = EditRecordViewModel.class.getSimpleName();
   private final DataRepository dataRepository;
+  private final MutableLiveData<Record> record;
 
   @Inject
   EditRecordViewModel(DataRepository dataRepository) {
     this.dataRepository = dataRepository;
+    this.record = new MutableLiveData<>();
   }
 
-  public LiveData<Resource<Record>> getRecordSnapshot(
-    String projectId,
-    String placeId,
-    String recordId) {
-    return RxLiveData.fromSingle(dataRepository.getRecordSnapshot(projectId, placeId, recordId));
+  public Single<Resource<Record>> getRecordSnapshot(
+    String projectId, String placeId, String recordId) {
+    return dataRepository
+      .getRecordSnapshot(projectId, placeId, recordId)
+      .doOnSuccess(r -> r.ifPresent(record::setValue));
   }
 
-  public void saveChanges(String projectId, PlaceUpdate update) {
-    dataRepository.update(projectId, update);
+  public Completable saveChanges(ImmutableList<ValueUpdate> updates) {
+    return dataRepository.saveChanges(record.getValue(), updates);
+  }
+
+  public Optional<Record> getCurrentRecord() {
+    return Optional.ofNullable(record.getValue());
   }
 }

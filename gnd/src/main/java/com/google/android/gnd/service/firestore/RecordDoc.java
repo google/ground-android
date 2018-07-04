@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java8.util.Optional;
 
+// TODO: Refactor into cleaner peristence layer.
 @IgnoreExtraProperties
 public class RecordDoc {
   private static final String TAG = RecordDoc.class.getSimpleName();
@@ -51,15 +52,12 @@ public class RecordDoc {
 
   public Map<String, Object> responses;
 
-  public static RecordDoc fromProto(Record r, Map<String, Object> valueUpdates) {
+  public static RecordDoc forUpdates(Record record, Map<String, Object> valueUpdates) {
     RecordDoc rd = new RecordDoc();
-    rd.featureTypeId = r.getPlace().getPlaceType().getId();
-    rd.formId = r.getForm().getId();
+    rd.featureTypeId = record.getPlace().getPlaceType().getId();
+    rd.formId = record.getForm().getId();
     rd.responses = valueUpdates;
-    rd.serverTimeCreated = r.getServerTimestamps().getCreated();
-    rd.serverTimeModified = r.getServerTimestamps().getModified();
-    rd.clientTimeCreated = r.getClientTimestamps().getCreated();
-    rd.clientTimeModified = r.getClientTimestamps().getModified();
+    rd.clientTimeModified = new Date();
     return rd;
   }
 
@@ -73,14 +71,14 @@ public class RecordDoc {
       // TODO: Handle error.
     }
     return Record.newBuilder()
-        .setId(recordId)
-        .setProject(place.getProject())
-        .setPlace(place)
-        .setForm(form.get())
-        .setValueMap(convertValues(rd.responses))
-        .setServerTimestamps(toTimestamps(rd.serverTimeCreated, rd.serverTimeModified))
-        .setClientTimestamps(toTimestamps(rd.clientTimeCreated, rd.clientTimeModified))
-        .build();
+                 .setId(recordId)
+                 .setProject(place.getProject())
+                 .setPlace(place)
+                 .setForm(form.get())
+                 .putAllValues(convertValues(rd.responses))
+                 .setServerTimestamps(toTimestamps(rd.serverTimeCreated, rd.serverTimeModified))
+                 .setClientTimestamps(toTimestamps(rd.clientTimeCreated, rd.clientTimeModified))
+                 .build();
   }
 
   private static Map<String, Value> convertValues(Map<String, Object> docValues) {
@@ -98,9 +96,9 @@ public class RecordDoc {
       values.put(key, Value.ofNumber((Float) value));
     } else if (value instanceof List) {
       values.put(
-          key,
-          Value.ofChoices(
-              Record.Choices.newBuilder().setCodes(ImmutableList.copyOf((List) value)).build()));
+        key,
+        Value.ofChoices(
+          Record.Choices.newBuilder().setCodes(ImmutableList.copyOf((List) value)).build()));
     } else {
       Log.d(TAG, "Unsupported value in db: " + value.getClass().getName());
     }

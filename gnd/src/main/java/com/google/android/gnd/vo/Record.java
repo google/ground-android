@@ -21,6 +21,7 @@ import static java8.util.stream.StreamSupport.stream;
 import com.google.auto.value.AutoOneOf;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import java.util.Map;
 import java8.util.Optional;
 import java8.util.stream.Collectors;
@@ -40,7 +41,7 @@ public abstract class Record {
   public abstract Timestamps getClientTimestamps();
 
   // TODO: Make Immutable and/or make private and expose custom accessors.
-  public abstract Map<String, Value> getValueMap();
+  public abstract ImmutableMap<String, Value> getValueMap();
 
   public static Builder newBuilder() {
     return new AutoValue_Record.Builder();
@@ -49,6 +50,8 @@ public abstract class Record {
   public Optional<Value> getValue(String id) {
     return Optional.ofNullable(getValueMap().get(id));
   }
+
+  public abstract Record.Builder toBuilder();
 
   @AutoValue.Builder
   public abstract static class Builder {
@@ -64,7 +67,17 @@ public abstract class Record {
 
     public abstract Builder setClientTimestamps(Timestamps newClientTimestamps);
 
-    public abstract Builder setValueMap(Map<String, Value> newValue);
+    public abstract ImmutableMap.Builder<String, Value> valueMapBuilder();
+
+    public Builder putValue(String id, Value value) {
+      valueMapBuilder().put(id, value);
+      return this;
+    }
+
+    public Builder putAllValues(Map<String, Value> values) {
+      valueMapBuilder().putAll(values);
+      return this;
+    }
 
     public abstract Record build();
   }
@@ -112,7 +125,7 @@ public abstract class Record {
       }
     }
 
-      // TODO: Make these inner classes non-static and access Form directly.
+    // TODO: Make these inner classes non-static and access Form directly.
     public String getDetailsText(Form.Field field) {
       switch (getType()) {
         case TEXT:

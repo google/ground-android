@@ -38,7 +38,7 @@ import butterknife.OnFocusChange;
 import com.google.android.gnd.R;
 import com.google.android.gnd.vo.Form;
 import com.google.android.gnd.vo.Form.MultipleChoice;
-import com.google.android.gnd.vo.PlaceUpdate;
+import com.google.android.gnd.vo.PlaceUpdate.RecordUpdate.ValueUpdate;
 import com.google.android.gnd.vo.Record;
 import com.google.android.gnd.vo.Record.Choices;
 import java.util.List;
@@ -276,9 +276,8 @@ public class MultipleChoiceFieldView extends ConstraintLayout implements Editabl
   }
 
   @Override
-  public PlaceUpdate.RecordUpdate.ValueUpdate getUpdate() {
-    PlaceUpdate.RecordUpdate.ValueUpdate.Builder update =
-        PlaceUpdate.RecordUpdate.ValueUpdate.newBuilder();
+  public ValueUpdate getUpdate() {
+    ValueUpdate.Builder update = ValueUpdate.newBuilder();
     update.setElementId(elementId);
     Optional<Record.Value> currentValue = getCurrentValue();
     if (currentValue.equals(originalValue)) {
@@ -287,18 +286,13 @@ public class MultipleChoiceFieldView extends ConstraintLayout implements Editabl
       update.setOperation(DELETE);
     } else if (originalValue.isPresent()) {
       update.setOperation(UPDATE);
-      update.setValue(currentValue.get());
+      update.setValue(currentValue);
     } else {
       update.setOperation(CREATE);
-      update.setValue(currentValue.get());
+      update.setValue(currentValue);
     }
     return update.build();
   }
-
-//  @Override
-//
-//    valueText.setEnabled(mode == Mode.EDIT);
-//  }
 
   @Override
   public boolean isValid() {
@@ -317,12 +311,5 @@ public class MultipleChoiceFieldView extends ConstraintLayout implements Editabl
     } else {
       errorMessageTextView.setVisibility(GONE);
     }
-  }
-
-  @Override
-  public void setFocus() {
-//    this.requestFocus();
-    valueText.requestFocus();
-    //    ViewUtil.showSoftInputMode((Activity) getContext()); // TODO: Why doesn't this work?
   }
 }

@@ -49,13 +49,16 @@ public class MainViewModel extends ViewModel {
     return insets;
   }
 
-  // TODO: Accept ids instead of obj?
+  // TODO: Always use ids instead of obj.
   public void showRecordDetails(RecordSummary recordSummary) {
-    mainViewState.setValue(
-        MainViewState.recordDetails(
-            recordSummary.getRecord().getProject().getId(),
-            recordSummary.getRecord().getPlace().getId(),
-            recordSummary.getRecord().getId()));
+    showRecordDetails(
+      recordSummary.getRecord().getProject().getId(),
+      recordSummary.getRecord().getPlace().getId(),
+      recordSummary.getRecord().getId());
+  }
+
+  public void showRecordDetails(String projectId, String placeId, String recordId) {
+    mainViewState.setValue(MainViewState.recordDetails(projectId, placeId, recordId));
   }
 
   public void editRecord(String projectId, String placeId, String recordId) {

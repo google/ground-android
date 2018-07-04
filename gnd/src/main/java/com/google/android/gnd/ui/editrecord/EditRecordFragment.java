@@ -16,11 +16,12 @@
 
 package com.google.android.gnd.ui.editrecord;
 
+import static com.google.android.gnd.rx.RxAutoDispose.autoDisposable;
 import static com.google.android.gnd.util.Streams.toImmutableList;
 import static com.google.android.gnd.vo.PlaceUpdate.Operation;
-import static com.google.android.gnd.vo.PlaceUpdate.RecordUpdate;
 import static java8.util.stream.StreamSupport.stream;
 
+import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -29,23 +30,21 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import androidx.navigation.fragment.NavHostFragment;
 import butterknife.BindView;
 import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.R;
 import com.google.android.gnd.repository.Resource;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.EphemeralPopups;
+import com.google.android.gnd.ui.common.ProgressDialogs;
 import com.google.android.gnd.ui.common.TwoLineToolbar;
 import com.google.android.gnd.ui.common.ViewModelFactory;
 import com.google.android.gnd.ui.editrecord.input.Editable;
 import com.google.android.gnd.ui.editrecord.input.MultipleChoiceFieldView;
 import com.google.android.gnd.ui.editrecord.input.TextFieldView;
 import com.google.android.gnd.vo.Form;
-import com.google.android.gnd.vo.Place;
-import com.google.android.gnd.vo.PlaceUpdate;
-import com.google.android.gnd.vo.PlaceUpdate.RecordUpdate.ValueUpdate;
 import com.google.android.gnd.vo.Record;
-import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nullable;
@@ -53,6 +52,7 @@ import javax.inject.Inject;
 
 public class EditRecordFragment extends AbstractFragment {
   private static final String TAG = EditRecordFragment.class.getSimpleName();
+  private ProgressDialog savingProgressDialog;
 
   // TODO: Refactor viewModel creation and access into AbstractFragment.
   @Inject
@@ -79,6 +79,7 @@ public class EditRecordFragment extends AbstractFragment {
   @Override
   protected View createView(
     LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+
     return inflater.inflate(R.layout.edit_record_frag, container, false);
   }
 
@@ -90,6 +91,7 @@ public class EditRecordFragment extends AbstractFragment {
   @Override
   protected void setUpView() {
     ((MainActivity) getActivity()).setActionBar(toolbar, R.drawable.ic_close);
+    savingProgressDialog = ProgressDialogs.modalSpinner(getContext(), R.string.saving);
   }
 
   @Override
@@ -103,7 +105,8 @@ public class EditRecordFragment extends AbstractFragment {
     // TODO: Store and retrieve latest edits from cache and/or db.
     viewModel
       .getRecordSnapshot(args.getProjectId(), args.getPlaceId(), args.getRecordId())
-      .observe(this, this::onSnapshotLoaded);
+      .as(autoDisposable(this))
+      .subscribe(this::onSnapshotLoaded);
   }
 
   @Override
@@ -173,24 +176,21 @@ public class EditRecordFragment extends AbstractFragment {
   }
 
   private void onSaveClick() {
-    EditRecordFragmentArgs args = EditRecordFragmentArgs.fromBundle(getArguments());
-    ImmutableList<ValueUpdate> valueUpdates =
-      stream(fields)
-        .map(Editable::getUpdate)
-        .filter(u -> !u.getOperation().equals(Operation.NO_CHANGE))
-        .collect(toImmutableList());
-    // TODO: Simplify update objects.
-    PlaceUpdate update =
-      PlaceUpdate.newBuilder()
-                 .setPlace(Place.newBuilder().setId(args.getPlaceId()).build())
-                 .setRecordUpdatesList(
-                   ImmutableList.of(
-                     RecordUpdate.newBuilder()
-                                 .setOperation(Operation.UPDATE)
-                                 .setRecord(Record.newBuilder().setId(args.getRecordId()).build())
-                                 .setValueUpdates(valueUpdates)
-                                 .build()))
-                 .build();
-    viewModel.saveChanges(args.getProjectId(), update);
+    savingProgressDialog.show();
+    viewModel
+      .saveChanges(
+        stream(fields)
+          .map(Editable::getUpdate)
+          .filter(u -> !u.getOperation().equals(Operation.NO_CHANGE))
+          .collect(toImmutableList()))
+      .as(autoDisposable(this))
+      .subscribe(
+        () -> {
+          savingProgressDialog.hide();
+          EphemeralPopups.showSuccess(getContext(), R.string.saved);
+          NavHostFragment.findNavController(this).navigateUp();
+          // TODO: Hide saving spinner, return to view mode.
+        },
+        t -> EphemeralPopups.showError(getContext()));
   }
 }

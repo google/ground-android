@@ -16,27 +16,24 @@
 
 package com.google.android.gnd.ui.common;
 
+import android.app.ProgressDialog;
 import android.content.Context;
-import android.widget.Toast;
-import com.google.android.gnd.R;
 
-public class EphemeralPopups {
-  /** Do not instantiate */
-  private EphemeralPopups() {}
-
-  public static void showSuccess(Context context, int messageId) {
-    showLong(context, messageId);
+public abstract class ProgressDialogs {
+  /**
+   * Do not instantiate
+   */
+  private ProgressDialogs() {
   }
 
-  public static void showError(Context context, int messageId) {
-    showLong(context, messageId);
-  }
+  ;
 
-  public static void showError(Context context) {
-    showLong(context, R.string.unexpected_error);
-  }
-
-  private static void showLong(Context context, int messageId) {
-    Toast.makeText(context, messageId, Toast.LENGTH_LONG).show();
+  public static ProgressDialog modalSpinner(Context context, int messageId) {
+    ProgressDialog dialog = new ProgressDialog(context);
+    dialog.setMessage(context.getResources().getString(messageId));
+    dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+    dialog.setCancelable(false);
+    dialog.setCanceledOnTouchOutside(false);
+    return dialog;
   }
 }
