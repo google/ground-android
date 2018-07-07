@@ -54,7 +54,7 @@
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
           android:paddingBottom="6dp"
-          android:background="@color/colorWhite"
+          android:background="@color/colorGrey50"
           android:textAlignment="center"
           android:textAllCaps="true"
           android:textColor="@color/colorGrey900"
@@ -77,7 +77,7 @@
       android:layout_width="match_parent"
       android:layout_height="match_parent"
       android:layout_below="@id/record_details_header"
-      android:background="@color/colorWhite">
+      android:background="@color/colorGrey50">
 
       <LinearLayout
         android:id="@+id/record_details_layout"

@@ -59,7 +59,7 @@
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:src="@drawable/ic_gps_grey600"
-      app:backgroundTint="@color/colorWhite"
+      app:backgroundTint="@color/colorGrey50"
       app:fabSize="normal"
       app:useCompatPadding="true"/>
 

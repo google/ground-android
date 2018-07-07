@@ -75,7 +75,7 @@ public class MapIcon {
   public BitmapDescriptor getWhiteBitmap() {
     Bitmap tintedBitmap =
         ViewUtil.tintBitmap(
-            drawable.getBitmap(), context.getResources().getColor(R.color.colorWhite));
+          drawable.getBitmap(), context.getResources().getColor(R.color.colorGrey50));
     return BitmapDescriptorFactory.fromBitmap(tintedBitmap);
   }
 }

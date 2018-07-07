@@ -96,6 +96,6 @@
       android:layout_height="wrap_content"
       android:layout_alignParentBottom="true"
       android:alpha="0"
-      android:background="@color/colorWhite"/>
+      android:background="@color/colorGrey50"/>
   </RelativeLayout>
 </android.support.design.widget.CoordinatorLayout>

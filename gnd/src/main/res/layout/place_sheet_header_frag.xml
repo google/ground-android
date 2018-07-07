@@ -26,7 +26,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginTop="@dimen/place_sheet_margin_top"
-    app:cardBackgroundColor="@color/colorWhite"
+    app:cardBackgroundColor="@color/colorGrey50"
     app:cardCornerRadius="@dimen/place_sheet_corner_radius"
     app:cardElevation="3dp">
 

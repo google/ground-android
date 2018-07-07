@@ -17,7 +17,6 @@
 <resources>
 
   <style name="AppTheme" parent="AppTheme.Base">
-
   </style>
 
   <style name="MenuTheme" parent="TextAppearance.AppCompat.Widget.ActionBar.Menu">
@@ -38,17 +37,17 @@
   </style>
 
   <style name="GreenToolbarTitle" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">
-    <item name="android:textColor">@color/colorWhite</item>
+    <item name="android:textColor">@color/colorGrey50</item>
   </style>
 
   <style name="GreenToolbarSubtitle" parent="TextAppearance.Widget.AppCompat.Toolbar.Subtitle">
     <item name="android:textColor">@color/colorGrey300</item>
     <item name="android:textSize">12sp</item>
-    <item name="colorControlNormal">@color/colorWhite</item>
+    <item name="colorControlNormal">@color/colorGrey50</item>
   </style>
 
   <style name="WhiteToolbarTheme" parent="ThemeOverlay.AppCompat.ActionBar">
-    <item name="android:background">@color/colorWhite</item>
+    <item name="android:background">@color/colorGrey50</item>
     <item name="gndToolbarTitleStyle">@style/WhiteToolbarTitle</item>
     <item name="gndToolbarSubtitleStyle">@style/WhiteToolbarSubtitle</item>
     <item name="colorControlNormal">@color/colorPrimary</item>
@@ -149,6 +148,10 @@
     <item name="android:textSize">@dimen/field_value_text_size</item>
   </style>
 
+  <style name="EditRecord.Field.Text" parent="Widget.MaterialComponents.TextInputLayout.OutlineBox">
+    <!-- TODO -->
+  </style>
+
   <style name="ChipButton" parent="Widget.MaterialComponents.Chip.Action">
     <item name="chipBackgroundColor">@color/colorPrimary</item>
     <item name="chipCornerRadius">@dimen/chip_button_corner_radius</item>
@@ -170,7 +173,7 @@
 
   <style name="ChipButtonText">
     <item name="android:textSize">@dimen/chip_button_text_size</item>
-    <item name="android:textColor">@color/colorWhite</item>
+    <item name="android:textColor">@color/colorGrey50</item>
     <item name="android:textStyle">bold</item>
   </style>
 </resources>

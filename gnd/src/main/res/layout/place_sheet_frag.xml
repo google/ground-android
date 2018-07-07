@@ -25,7 +25,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_gravity="top"
-    android:background="@color/colorWhite"
+    android:background="@color/colorGrey50"
     android:orientation="vertical">
 
     <!--
@@ -37,7 +37,7 @@
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:layout_gravity="top"
-      android:background="@color/colorWhite"
+      android:background="@color/colorGrey50"
       android:elevation="5dp"
       app:tabSelectedTextColor="@color/colorPrimary"
       app:tabTextColor="@color/colorPrimary"

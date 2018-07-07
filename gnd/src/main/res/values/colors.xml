@@ -20,14 +20,15 @@
   <color name="colorPrimaryLight">#6bb27c</color>
   <color name="colorPrimaryDark">#035526</color>
   <color name="colorAccent">#89385a</color>
-  <color name="colorWhite">#F9F9F9</color>
   <color name="colorMapsBlue">#4688f1</color>
   <color name="colorBlueA200">#448AFF</color>
+  <color name="colorWhite">#FFFFFF</color>
+  <color name="colorGrey50">#FAFAFA</color>
+  <color name="colorGrey300">#E0E0E0</color>
   <color name="colorGrey500">#9E9E9E</color>
   <color name="colorGrey600">#757575</color>
   <color name="colorGrey800">#424242</color>
   <color name="colorGrey900">#212121</color>
-  <color name="colorGrey300">#E0E0E0</color>
   <color name="colorRed">#CC0000</color>
   <color name="colorAccentLight">#69ba87</color>
   <color name="colorYellow">#ffff00</color>
