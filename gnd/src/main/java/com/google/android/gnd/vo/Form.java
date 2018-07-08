@@ -123,7 +123,6 @@ public abstract class Form {
 
   @AutoValue
   public abstract static class MultipleChoice {
-
     public enum Cardinality {
       SELECT_ONE,
       SELECT_MULTIPLE
@@ -136,6 +135,15 @@ public abstract class Form {
     }
 
     public abstract Cardinality getCardinality();
+
+    public Optional<Integer> getIndex(String code) {
+      for (int i = 0; i < getOptions().size(); i++) {
+        if (getOptions().get(i).getCode().equals(code)) {
+          return Optional.of(i);
+        }
+      }
+      return Optional.empty();
+    }
 
     public static Builder newBuilder() {
       return new AutoValue_Form_MultipleChoice.Builder();

@@ -13,7 +13,7 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<LinearLayout
+<FrameLayout
   xmlns:android="http://schemas.android.com/apk/res/android"
   android:layout_width="match_parent"
   android:layout_height="wrap_content"
@@ -22,20 +22,42 @@
   android:layout_marginStart="@dimen/field_horizontal_margin"
   android:layout_marginEnd="@dimen/field_horizontal_margin"
   android:layout_marginLeft="@dimen/field_horizontal_margin"
-  android:layout_marginRight="@dimen/field_horizontal_margin"
-  android:orientation="vertical">
+  android:layout_marginRight="@dimen/field_horizontal_margin">
 
   <android.support.design.widget.TextInputLayout
-    android:id="@+id/text_input_layout"
+    android:id="@+id/multiple_choice_input_layout"
     style="@style/EditRecord.Field.Text"
+    android:clickable="false"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
     <android.support.design.widget.TextInputEditText
-      android:id="@+id/text_input_edit_text"
+      android:id="@+id/multiple_choice_input_edit_text"
       android:layout_width="match_parent"
-      android:layout_height="wrap_content"/>
+      android:layout_height="wrap_content"
+      android:textColor="@color/field_value"
+      android:clickable="false"
+      android:focusable="true"
+      android:focusableInTouchMode="true"/>
 
   </android.support.design.widget.TextInputLayout>
 
-</LinearLayout>
+  <ImageButton
+    android:id="@+id/multiple_choice_dropdown_btn"
+    android:layout_width="32dp"
+    android:layout_height="32dp"
+    android:layout_marginRight="4dp"
+    android:layout_gravity="center_vertical|right"
+    android:background="@android:color/transparent"
+    android:focusable="false"
+    android:focusableInTouchMode="false"
+    android:src="@drawable/ic_arrow_drop_down"/>
+
+  <View
+    android:id="@+id/multiple_choice_tap_target"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:alpha="0"
+    android:clickable="true"/>
+
+</FrameLayout>

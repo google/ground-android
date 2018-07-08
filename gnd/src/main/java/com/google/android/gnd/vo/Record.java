@@ -110,6 +110,13 @@ public abstract class Record {
       return AutoOneOf_Record_Value.choices(choices);
     }
 
+    public Optional<String> getFirstCode() {
+      if (!getType().equals(Type.CHOICES)) {
+        return Optional.empty();
+      }
+      return stream(getChoices().getCodes()).findFirst();
+    }
+
     public String getSummaryText() {
       switch (getType()) {
         case TEXT:

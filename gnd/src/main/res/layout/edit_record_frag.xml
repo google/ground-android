@@ -77,7 +77,8 @@
       android:layout_width="match_parent"
       android:layout_height="match_parent"
       android:layout_below="@id/edit_record_header"
-      android:background="@color/colorGrey50">
+      android:background="@color/colorGrey50"
+      android:paddingTop="10dp">
 
       <LinearLayout
         android:id="@+id/edit_record_layout"

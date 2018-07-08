@@ -41,7 +41,7 @@ import com.google.android.gnd.ui.common.ProgressDialogs;
 import com.google.android.gnd.ui.common.TwoLineToolbar;
 import com.google.android.gnd.ui.common.ViewModelFactory;
 import com.google.android.gnd.ui.editrecord.input.Editable;
-import com.google.android.gnd.ui.editrecord.input.MultipleChoiceFieldView;
+import com.google.android.gnd.ui.editrecord.input.MultipleChoiceFieldViewHolder;
 import com.google.android.gnd.ui.editrecord.input.TextInputViewHolder;
 import com.google.android.gnd.vo.Form;
 import com.google.android.gnd.vo.Record;
@@ -158,17 +158,16 @@ public class EditRecordFragment extends AbstractFragment {
       case TEXT:
         // TODO: Refactor these views into ViewHolders and use normal instances of Android view
         // components instead of extending them.
-        TextInputViewHolder textInputViewHolder = TextInputViewHolder.newInstance(formLayout);
-        textInputViewHolder.init(field, record);
-        formLayout.addView(textInputViewHolder.getView());
-        return textInputViewHolder;
+        TextInputViewHolder textInput = TextInputViewHolder.newInstance(formLayout);
+        textInput.init(field, record);
+        formLayout.addView(textInput.getView());
+        return textInput;
       case MULTIPLE_CHOICE:
-        MultipleChoiceFieldView multipleChoiceFieldView =
-          (MultipleChoiceFieldView)
-            getLayoutInflater().inflate(R.layout.multiple_choice_field, formLayout, false);
-        multipleChoiceFieldView.init(field, record);
-        formLayout.addView(multipleChoiceFieldView);
-        return multipleChoiceFieldView;
+        MultipleChoiceFieldViewHolder multipleChoice =
+          MultipleChoiceFieldViewHolder.newInstance(formLayout);
+        multipleChoice.init(field, record);
+        formLayout.addView(multipleChoice.getView());
+        return multipleChoice;
       default:
         return null;
     }

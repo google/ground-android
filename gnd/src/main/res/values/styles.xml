@@ -87,6 +87,7 @@
     <item name="android:textColor">@color/field_label</item>
     <item name="android:textSize">@dimen/field_label_text_size</item>
   </style>
+
   <style name="FieldValue" parent="AppTheme.Base">
     <item name="android:paddingLeft">@dimen/field_horizontal_padding</item>
     <item name="android:paddingRight">@dimen/field_horizontal_padding</item>
@@ -149,6 +150,10 @@
   </style>
 
   <style name="EditRecord.Field.Text" parent="Widget.MaterialComponents.TextInputLayout.OutlineBox">
+    <!-- TODO -->
+  </style>
+
+  <style name="EditRecord.Field.MultipleChoice" parent="Widget.MaterialComponents.TextInputLayout.OutlineBox">
     <!-- TODO -->
   </style>
 
