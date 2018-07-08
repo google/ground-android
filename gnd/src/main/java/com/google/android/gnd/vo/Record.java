@@ -18,6 +18,7 @@ package com.google.android.gnd.vo;
 
 import static java8.util.stream.StreamSupport.stream;
 
+import com.google.android.gnd.vo.Form.MultipleChoice.Option;
 import com.google.auto.value.AutoOneOf;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
@@ -117,6 +118,10 @@ public abstract class Record {
       return stream(getChoices().getCodes()).findFirst();
     }
 
+    public boolean isSelected(Option option) {
+      return getChoices().getCodes().contains(option.getCode());
+    }
+
     public String getSummaryText() {
       switch (getType()) {
         case TEXT:
@@ -143,12 +148,12 @@ public abstract class Record {
         case CHOICES:
           // TODO: i18n of separator.
           return stream(getChoices().getCodes())
-              .map(v -> field.getMultipleChoice().getOption(v))
-              .filter(Optional::isPresent)
-              .map(Optional::get)
-              .map(Form.MultipleChoice.Option::getLabel)
-              .sorted()
-              .collect(Collectors.joining(", "));
+            .map(v -> field.getMultipleChoice().getOption(v))
+            .filter(Optional::isPresent)
+            .map(Optional::get)
+            .map(Option::getLabel)
+            .sorted()
+            .collect(Collectors.joining(", "));
         default:
           return "";
       }

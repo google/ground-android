@@ -43,7 +43,8 @@ public class MultipleChoiceFieldViewHolder implements Editable {
   private static final String TAG = MultipleChoiceFieldViewHolder.class.getSimpleName();
 
   private final View view;
-  private final SelectOneDialogFactory selectOneDialogFactory;
+  private final SingleSelectDialogFactory singleSelectDialogFactory;
+  private final MultiSelectDialogFactory multiSelectDialogFactory;
 
   @BindView(R.id.multiple_choice_input_layout)
   TextInputLayout layout;
@@ -58,7 +59,8 @@ public class MultipleChoiceFieldViewHolder implements Editable {
   private MultipleChoiceFieldViewHolder(View view) {
     this.view = view;
     // TODO: Use AutoFactory and Inject?
-    this.selectOneDialogFactory = new SelectOneDialogFactory(view.getContext());
+    this.singleSelectDialogFactory = new SingleSelectDialogFactory(view.getContext());
+    this.multiSelectDialogFactory = new MultiSelectDialogFactory(view.getContext());
   }
 
   public static MultipleChoiceFieldViewHolder newInstance(ViewGroup parent) {
@@ -149,10 +151,10 @@ public class MultipleChoiceFieldViewHolder implements Editable {
     Cardinality cardinality = field.getMultipleChoice().getCardinality();
     switch (cardinality) {
       case SELECT_MULTIPLE:
-        // TODO: Multi-select fields.
+        multiSelectDialogFactory.create(field, currentValue, this::onValueUpdate).show();
         break;
       case SELECT_ONE:
-        selectOneDialogFactory.create(field, currentValue, this::onValueUpdate).show();
+        singleSelectDialogFactory.create(field, currentValue, this::onValueUpdate).show();
         break;
       default:
         Log.e(TAG, "Unknown cardinality: " + cardinality);

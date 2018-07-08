@@ -30,10 +30,10 @@ import java.util.List;
 import java8.util.Optional;
 import java8.util.function.Consumer;
 
-class SelectOneDialogFactory {
+class SingleSelectDialogFactory {
   private Context context;
 
-  SelectOneDialogFactory(Context context) {
+  SingleSelectDialogFactory(Context context) {
     this.context = context;
   }
 
@@ -42,9 +42,9 @@ class SelectOneDialogFactory {
     MultipleChoice multipleChoice = field.getMultipleChoice();
     AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(context);
     List<Option> options = multipleChoice.getOptions();
-    String[] labels = getLabels(multipleChoice);
-    final DialogState state = new DialogState(multipleChoice, initialValue);
-    dialogBuilder.setSingleChoiceItems(labels, state.checkedItem, state::onSelect);
+    DialogState state = new DialogState(multipleChoice, initialValue);
+    dialogBuilder.setSingleChoiceItems(
+      getLabels(multipleChoice), state.checkedItem, state::onSelect);
     dialogBuilder.setCancelable(false);
     dialogBuilder.setTitle(field.getLabel());
     dialogBuilder.setPositiveButton(
