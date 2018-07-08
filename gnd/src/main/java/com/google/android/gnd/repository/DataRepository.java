@@ -156,4 +156,8 @@ public class DataRepository {
   public Completable saveChanges(Record record, ImmutableList<ValueUpdate> updates) {
     return remoteDataService.saveChanges(record, updates);
   }
+
+  public Single<Place> addPlace(Place place) {
+    return remoteDataService.addPlace(place);
+  }
 }

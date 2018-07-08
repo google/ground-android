@@ -156,9 +156,10 @@ public class BrowseFragment extends AbstractFragment {
   private void onShowAddPlaceDialogRequest(Point location) {
     // TODO: Pause location updates while dialog is open.
     addPlaceDialogFragment
-        .show(getChildFragmentManager())
-        .as(autoDisposable(this))
-        .subscribe(viewModel::onAddPlace);
+      .show(getChildFragmentManager())
+      .flatMapSingle(viewModel::addPlace)
+      .as(autoDisposable(this))
+      .subscribe();
   }
 
   private void onPlaceSheetStateChange(PlaceSheetState state) {

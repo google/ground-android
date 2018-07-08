@@ -110,7 +110,7 @@ public class MapContainerFragment extends AbstractFragment {
     browseViewModel
         .getPlaceSheetState()
         .observe(this, state -> onPlaceSheetStateChange(state, map));
-    // Pass UI events to the ViewModel.
+    // TODO: Use Butterknife here instead for better readability/less boilerplate.
     RxView.clicks(addPlaceBtn)
         .as(autoDisposable(this))
         .subscribe(__ -> browseViewModel.onAddPlaceBtnClick(map.getCenter()));

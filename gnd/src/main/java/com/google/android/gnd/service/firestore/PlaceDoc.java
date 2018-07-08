@@ -79,13 +79,10 @@ public class PlaceDoc {
     doc.center = new GeoPoint(point.getLatitude(), point.getLongitude());
     doc.customId = place.getCustomId();
     doc.caption = place.getCaption();
+    // TODO: Implement timestamps.
     // TODO: Don't echo server timestamp in client. When we implement a proper DAL we can
     // use FieldValue.serverTimestamp() to signal when to update the value, or not set it,
     // depending on whether the operation is a CREATE or UPDATE.
-    doc.serverTimeCreated = place.getServerTimestamps().getCreated();
-    doc.serverTimeModified = place.getServerTimestamps().getModified();
-    doc.clientTimeCreated = place.getClientTimestamps().getCreated();
-    doc.clientTimeModified = place.getClientTimestamps().getModified();
     return doc;
   }
 }

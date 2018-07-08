@@ -216,6 +216,13 @@ public class FirestoreDataService implements RemoteDataService {
           .commit());
   }
 
+  @Override
+  public Single<Place> addPlace(Place place) {
+    return RxFirestore.addDocument(
+      db().project(place.getProject().getId()).places().ref(), PlaceDoc.fromProto(place))
+                      .map(docRef -> place.toBuilder().setId(docRef.getId()).build());
+  }
+
   private Map<String, Object> updatedValues(ImmutableList<ValueUpdate> updates) {
     Map<String, Object> updatedValues = new HashMap<>();
     for (ValueUpdate valueUpdate : updates) {

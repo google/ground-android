@@ -43,4 +43,6 @@ public interface RemoteDataService {
   Completable saveChanges(
     Record record,
     ImmutableList<ValueUpdate> updates);
+
+  Single<Place> addPlace(Place place);
 }

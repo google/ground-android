@@ -17,15 +17,16 @@ package com.google.android.gnd.ui.browse;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
-import android.util.Log;
 import com.google.android.gnd.repository.DataRepository;
 import com.google.android.gnd.repository.Resource;
 import com.google.android.gnd.rx.RxLiveData;
 import com.google.android.gnd.ui.browse.AddPlaceDialogFragment.AddPlaceRequest;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.map.MapMarker;
+import com.google.android.gnd.vo.Place;
 import com.google.android.gnd.vo.Point;
 import com.google.android.gnd.vo.Project;
+import io.reactivex.Single;
 import javax.inject.Inject;
 
 public class BrowseViewModel extends AbstractViewModel {
@@ -56,8 +57,13 @@ public class BrowseViewModel extends AbstractViewModel {
     return placeSheetState;
   }
 
+  // TODO: Remove extra indirection here?
   public void onMarkerClick(MapMarker marker) {
-    marker.getPlace().ifPresent(place -> placeSheetState.setValue(PlaceSheetState.visible(place)));
+    marker.getPlace().ifPresent(this::showPlaceSheet);
+  }
+
+  private void showPlaceSheet(Place place) {
+    placeSheetState.setValue(PlaceSheetState.visible(place));
   }
 
   public void onAddPlaceBtnClick(Point location) {
@@ -66,8 +72,15 @@ public class BrowseViewModel extends AbstractViewModel {
     addPlaceDialogRequests.setValue(location);
   }
 
-  public void onAddPlace(AddPlaceRequest addPlaceRequest) {
-    Log.e(TAG, "TODO: Implement Add Place functionality");
+  public Single<Place> addPlace(AddPlaceRequest addPlaceRequest) {
+    // TODO: Zoom if necessary.
+    return dataRepository.addPlace(
+      Place.newBuilder()
+           .setProject(addPlaceRequest.getProject())
+           .setPlaceType(addPlaceRequest.getPlaceType())
+           .setPoint(addPlaceRequest.getLocation())
+           .build())
+                         .doOnSuccess(this::showPlaceSheet);
   }
 
   public void onBottomSheetHidden() {

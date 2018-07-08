@@ -18,9 +18,12 @@ package com.google.android.gnd.vo;
 
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.extension.memoized.Memoized;
+import javax.annotation.Nullable;
 
 @AutoValue
 public abstract class Place {
+  // TODO: Replace Optionals with Nullables in VOs for consistency .
+  @Nullable
   public abstract String getId();
 
   public abstract Project getProject();
@@ -28,19 +31,24 @@ public abstract class Place {
   public abstract PlaceType getPlaceType();
 
   // TODO: Rename to getExternalId() or similar.
+  @Nullable
   public abstract String getCustomId();
 
   // TODO: Rename to getLabel().
+  @Nullable
   public abstract String getCaption();
 
   public abstract Point getPoint();
 
+  @Nullable
   public abstract Timestamps getServerTimestamps();
 
+  @Nullable
   public abstract Timestamps getClientTimestamps();
 
   public String getTitle() {
-    return getCaption().isEmpty() ? getPlaceType().getItemLabel() : getCaption();
+    return getCaption() == null || getCaption().isEmpty() ? getPlaceType().getItemLabel()
+      : getCaption();
   }
 
   public String getSubtitle() {
