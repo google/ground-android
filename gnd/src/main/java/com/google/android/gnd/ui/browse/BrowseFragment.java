@@ -155,6 +155,7 @@ public class BrowseFragment extends AbstractFragment {
 
   private void onShowAddPlaceDialogRequest(Point location) {
     // TODO: Pause location updates while dialog is open.
+    // TODO: Show spinner?
     addPlaceDialogFragment
       .show(getChildFragmentManager())
       .flatMapSingle(viewModel::addPlace)

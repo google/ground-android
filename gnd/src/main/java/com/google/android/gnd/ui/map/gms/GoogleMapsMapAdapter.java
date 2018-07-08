@@ -38,6 +38,7 @@ import com.google.android.gnd.vo.PlaceType;
 import com.google.android.gnd.vo.Point;
 import com.google.common.collect.ImmutableSet;
 import io.reactivex.Observable;
+import io.reactivex.subjects.BehaviorSubject;
 import io.reactivex.subjects.PublishSubject;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -64,6 +65,8 @@ class GoogleMapsMapAdapter implements MapAdapter {
 
   private final PublishSubject<MapMarker> markerClickSubject = PublishSubject.create();
   private final PublishSubject<Point> dragInteractionSubject = PublishSubject.create();
+  private final BehaviorSubject<Point> cameraPositionSubject = BehaviorSubject.create();
+
   @Nullable private LatLng cameraTargetBeforeDrag;
 
   public GoogleMapsMapAdapter(GoogleMap map, Context context) {
@@ -77,6 +80,7 @@ class GoogleMapsMapAdapter implements MapAdapter {
     map.setOnCameraIdleListener(this::onCameraIdle);
     map.setOnCameraMoveStartedListener(this::onCameraMoveStarted);
     map.setOnCameraMoveListener(this::onCameraMove);
+    onCameraMove();
   }
 
   private boolean onMarkerClick(Marker marker) {
@@ -98,6 +102,11 @@ class GoogleMapsMapAdapter implements MapAdapter {
   @Override
   public Observable<Point> getDragInteractions() {
     return dragInteractionSubject;
+  }
+
+  @Override
+  public Observable<Point> getCameraPosition() {
+    return cameraPositionSubject;
   }
 
   @Override
@@ -230,12 +239,11 @@ class GoogleMapsMapAdapter implements MapAdapter {
   }
 
   private void onCameraMove() {
-    if (cameraTargetBeforeDrag == null) {
-      return;
-    }
     LatLng cameraTarget = map.getCameraPosition().target;
+    Point target = Point.fromLatLng(cameraTarget);
+    cameraPositionSubject.onNext(target);
     if (!cameraTarget.equals(cameraTargetBeforeDrag)) {
-      dragInteractionSubject.onNext(Point.fromLatLng(cameraTarget));
+      dragInteractionSubject.onNext(target);
     }
   }
 }

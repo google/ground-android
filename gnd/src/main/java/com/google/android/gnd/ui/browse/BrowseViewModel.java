@@ -20,8 +20,8 @@ import android.arch.lifecycle.MutableLiveData;
 import com.google.android.gnd.repository.DataRepository;
 import com.google.android.gnd.repository.Resource;
 import com.google.android.gnd.rx.RxLiveData;
-import com.google.android.gnd.ui.browse.AddPlaceDialogFragment.AddPlaceRequest;
 import com.google.android.gnd.ui.common.AbstractViewModel;
+import com.google.android.gnd.ui.common.SingleLiveEvent;
 import com.google.android.gnd.ui.map.MapMarker;
 import com.google.android.gnd.vo.Place;
 import com.google.android.gnd.vo.Point;
@@ -34,13 +34,13 @@ public class BrowseViewModel extends AbstractViewModel {
   private final DataRepository dataRepository;
   private final LiveData<Resource<Project>> activeProject;
   // TODO: Implement this as a state and remove Consumable.
-  private final MutableLiveData<Point> addPlaceDialogRequests;
+  private final SingleLiveEvent<Point> addPlaceDialogRequests;
   private final MutableLiveData<PlaceSheetState> placeSheetState;
 
   @Inject
   BrowseViewModel(DataRepository dataRepository) {
     this.dataRepository = dataRepository;
-    this.addPlaceDialogRequests = new MutableLiveData<>();
+    this.addPlaceDialogRequests = new SingleLiveEvent<>();
     this.placeSheetState = new MutableLiveData<>();
     this.activeProject = RxLiveData.fromFlowable(dataRepository.getActiveProjectStream());
   }
@@ -72,15 +72,9 @@ public class BrowseViewModel extends AbstractViewModel {
     addPlaceDialogRequests.setValue(location);
   }
 
-  public Single<Place> addPlace(AddPlaceRequest addPlaceRequest) {
+  public Single<Place> addPlace(Place place) {
     // TODO: Zoom if necessary.
-    return dataRepository.addPlace(
-      Place.newBuilder()
-           .setProject(addPlaceRequest.getProject())
-           .setPlaceType(addPlaceRequest.getPlaceType())
-           .setPoint(addPlaceRequest.getLocation())
-           .build())
-                         .doOnSuccess(this::showPlaceSheet);
+    return dataRepository.addPlace(place).doOnSuccess(this::showPlaceSheet);
   }
 
   public void onBottomSheetHidden() {

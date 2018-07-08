@@ -118,6 +118,7 @@ public class Resource<T> {
     return Optional.ofNullable(liveData.getValue()).orElse(notLoaded());
   }
 
+  // TODO: Move this into new extended LiveData class (LiveResource?).
   @NonNull
   public static <T> Optional<T> getData(LiveData<Resource<T>> liveData) {
     return getValue(liveData).getData();

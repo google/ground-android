@@ -26,7 +26,10 @@ import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
 import com.google.android.gnd.R;
 import com.google.android.gnd.repository.Resource;
+import com.google.android.gnd.ui.browse.mapcontainer.MapContainerViewModel;
 import com.google.android.gnd.ui.common.AbstractDialogFragment;
+import com.google.android.gnd.ui.common.ViewModelFactory;
+import com.google.android.gnd.vo.Place;
 import com.google.android.gnd.vo.PlaceType;
 import com.google.android.gnd.vo.Point;
 import com.google.android.gnd.vo.Project;
@@ -39,7 +42,12 @@ import javax.inject.Inject;
 public class AddPlaceDialogFragment extends AbstractDialogFragment {
   private static final String TAG = AddPlaceDialogFragment.class.getSimpleName();
 
-  private MaybeSubject<AddPlaceRequest> addPlaceRequestSubject;
+  @Inject
+  ViewModelFactory viewModelFactory;
+
+  private MaybeSubject<Place> addPlaceRequestSubject;
+  private BrowseViewModel browseViewModel;
+  private MapContainerViewModel mapContainerViewModel;
 
   @Inject
   public AddPlaceDialogFragment() {}
@@ -49,7 +57,17 @@ public class AddPlaceDialogFragment extends AbstractDialogFragment {
     super.onAttach(context);
   }
 
-  public Maybe<AddPlaceRequest> show(FragmentManager fragmentManager) {
+  @Override
+  protected void obtainViewModels() {
+    // TODO: Move into new AddPlaceDialogViewModel?
+    this.browseViewModel = ViewModelProviders
+      .of(getActivity(), viewModelFactory)
+      .get(BrowseViewModel.class);
+    this.mapContainerViewModel =
+      ViewModelProviders.of(getActivity(), viewModelFactory).get(MapContainerViewModel.class);
+  }
+
+  public Maybe<Place> show(FragmentManager fragmentManager) {
     addPlaceRequestSubject = MaybeSubject.create();
     show(fragmentManager, TAG);
     return addPlaceRequestSubject;
@@ -58,19 +76,17 @@ public class AddPlaceDialogFragment extends AbstractDialogFragment {
   @Override
   public Dialog onCreateDialog(Bundle savedInstanceState) {
     // TODO: Inject and use custom factory.
-    BrowseViewModel browseViewModel =
-        ViewModelProviders.of(getActivity()).get(BrowseViewModel.class);
     Optional<Project> activeProject = Resource.getData(browseViewModel.getActiveProject());
-    // TODO: It there a better way to get this? Maybe just get camera center instead of "request"?
-    Point location = browseViewModel.getShowAddPlaceDialogRequests().getValue();
-    if (!activeProject.isPresent()) {
+    Optional<Point> cameraPosition =
+      Optional.ofNullable(mapContainerViewModel.getCameraPosition().getValue());
+    if (!activeProject.isPresent() || !cameraPosition.isPresent()) {
       // TODO: Handle this error upstream.
-      addPlaceRequestSubject.onError(new IllegalStateException("No project loaded"));
+      addPlaceRequestSubject.onError(new IllegalStateException());
     }
-    return activeProject.map(p -> createDialog(p, location)).orElse(null);
+    return createDialog(activeProject.get(), cameraPosition.get());
   }
 
-  private Dialog createDialog(Project project, Point location) {
+  private Dialog createDialog(Project project, Point cameraPosition) {
     AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
     builder.setTitle(R.string.add_place_select_type_dialog_title);
     builder.setNegativeButton(R.string.add_place_cancel, (dialog, id) -> onCancel());
@@ -78,39 +94,20 @@ public class AddPlaceDialogFragment extends AbstractDialogFragment {
     ImmutableList<PlaceType> placeTypes = project.getPlaceTypes();
     String[] items = stream(placeTypes).map(t -> t.getListHeading()).toArray(String[]::new);
     builder.setItems(
-        items, (dialog, idx) -> onSelectPlaceType(project, placeTypes.get(idx), location));
+      items, (dialog, idx) -> onSelectPlaceType(project, placeTypes.get(idx), cameraPosition));
     return builder.create();
   }
 
-  private void onSelectPlaceType(Project project, PlaceType placeType, Point location) {
-    addPlaceRequestSubject.onSuccess(new AddPlaceRequest(project, location, placeType));
+  private void onSelectPlaceType(Project project, PlaceType placeType, Point cameraPosition) {
+    addPlaceRequestSubject.onSuccess(
+      Place.newBuilder()
+           .setProject(project)
+           .setPlaceType(placeType)
+           .setPoint(cameraPosition)
+           .build());
   }
 
   private void onCancel() {
     addPlaceRequestSubject.onComplete();
-  }
-
-  public static class AddPlaceRequest {
-    private final Project project;
-    private final Point location;
-    private final PlaceType placeType;
-
-    public AddPlaceRequest(Project project, Point location, PlaceType placeType) {
-      this.project = project;
-      this.location = location;
-      this.placeType = placeType;
-    }
-
-    public Project getProject() {
-      return project;
-    }
-
-    public Point getLocation() {
-      return location;
-    }
-
-    public PlaceType getPlaceType() {
-      return placeType;
-    }
   }
 }

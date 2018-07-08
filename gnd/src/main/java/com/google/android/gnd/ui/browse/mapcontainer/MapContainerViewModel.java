@@ -24,7 +24,6 @@ import com.google.android.gnd.repository.DataRepository;
 import com.google.android.gnd.repository.Resource;
 import com.google.android.gnd.rx.RxLiveData;
 import com.google.android.gnd.system.LocationManager;
-import com.google.android.gnd.ui.browse.AddPlaceDialogFragment.AddPlaceRequest;
 import com.google.android.gnd.ui.map.MapMarker;
 import com.google.android.gnd.vo.Place;
 import com.google.android.gnd.vo.Point;
@@ -42,6 +41,7 @@ public class MapContainerViewModel extends ViewModel {
   private final LiveData<ImmutableSet<Place>> places;
   private final MutableLiveData<LocationLockStatus> locationLockStatus;
   private final MutableLiveData<CameraUpdate> cameraUpdates;
+  private final MutableLiveData<Point> cameraPosition;
   private final LocationManager locationManager;
   private Disposable locationUpdateSubscription;
 
@@ -51,6 +51,7 @@ public class MapContainerViewModel extends ViewModel {
     this.locationLockStatus = new MutableLiveData<>();
     locationLockStatus.setValue(LocationLockStatus.disabled());
     this.cameraUpdates = new MutableLiveData<>();
+    this.cameraPosition = new MutableLiveData<>();
     this.activeProject = RxLiveData.fromFlowable(dataRepository.getActiveProjectStream());
     // TODO: Clear place markers when project is deactivated.
     // TODO: Since we depend on project stream from repo anyway, this transformation can be moved
@@ -91,6 +92,10 @@ public class MapContainerViewModel extends ViewModel {
 
   LiveData<CameraUpdate> getCameraUpdates() {
     return cameraUpdates;
+  }
+
+  public LiveData<Point> getCameraPosition() {
+    return cameraPosition;
   }
 
   public LiveData<LocationLockStatus> getLocationLockStatus() {
@@ -134,11 +139,11 @@ public class MapContainerViewModel extends ViewModel {
         .doOnComplete(() -> locationLockStatus.setValue(LocationLockStatus.disabled()));
   }
 
-  public void onAddPlace(AddPlaceRequest addPlaceRequest) {
-    // TODO: Transition to add place view.
+  public void onCameraMove(Point newCameraPosition) {
+    this.cameraPosition.setValue(newCameraPosition);
   }
 
-  public void onMapDrag(Point point) {
+  public void onMapDrag(Point newCameraPosition) {
     if (isLocationLockEnabled()) {
       Log.d(TAG, "User dragged map. Disabling location lock");
       locationLockStatus.setValue(LocationLockStatus.disabled());

@@ -73,7 +73,7 @@ public class MapContainerFragment extends AbstractFragment {
   @Override
   protected void obtainViewModels() {
     mapContainerViewModel =
-        ViewModelProviders.of(this, viewModelFactory).get(MapContainerViewModel.class);
+      ViewModelProviders.of(getActivity(), viewModelFactory).get(MapContainerViewModel.class);
     browseViewModel =
         ViewModelProviders.of(getActivity(), viewModelFactory).get(BrowseViewModel.class);
     mainViewModel = ViewModelProviders.of(getActivity(), viewModelFactory).get(MainViewModel.class);
@@ -120,6 +120,7 @@ public class MapContainerFragment extends AbstractFragment {
     map.getMarkerClicks().as(autoDisposable(this)).subscribe(mapContainerViewModel::onMarkerClick);
     map.getMarkerClicks().as(autoDisposable(this)).subscribe(browseViewModel::onMarkerClick);
     map.getDragInteractions().as(autoDisposable(this)).subscribe(mapContainerViewModel::onMapDrag);
+    map.getCameraPosition().as(autoDisposable(this)).subscribe(mapContainerViewModel::onCameraMove);
     enableLocationLockBtn();
   }
 
