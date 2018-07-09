@@ -69,7 +69,7 @@
     android:elevation="4dp"/>
 
   <ImageView
-    android:id="@+id/place_header_icon"
+    android:id="@+id/place_header_icon"r
     android:paddingTop="@dimen/place_header_icon_top_padding"
     android:layout_width="@dimen/place_header_icon_width"
     android:layout_height="@dimen/place_header_icon_height"
