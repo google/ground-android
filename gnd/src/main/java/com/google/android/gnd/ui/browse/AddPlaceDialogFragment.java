@@ -79,9 +79,13 @@ public class AddPlaceDialogFragment extends AbstractDialogFragment {
     Optional<Project> activeProject = Resource.getData(browseViewModel.getActiveProject());
     Optional<Point> cameraPosition =
       Optional.ofNullable(mapContainerViewModel.getCameraPosition().getValue());
-    if (!activeProject.isPresent() || !cameraPosition.isPresent()) {
-      // TODO: Handle this error upstream.
-      addPlaceRequestSubject.onError(new IllegalStateException());
+    if (!activeProject.isPresent()) {
+      addPlaceRequestSubject.onError(new IllegalStateException("No active project"));
+      return fail("Could not get active project");
+    }
+    if (!cameraPosition.isPresent()) {
+      addPlaceRequestSubject.onError(new IllegalStateException("No camera position"));
+      return fail("Could not get camera position");
     }
     return createDialog(activeProject.get(), cameraPosition.get());
   }

@@ -69,7 +69,7 @@ public class MainActivity extends AppCompatActivity implements HasSupportFragmen
   protected void onCreate(Bundle savedInstanceState) {
     logLifecycleEvent("onCreate()");
 
-    // Prevent RxJava from force-quitting when multiple Completables terminate with onError.
+    // Prevent RxJava from force-quitting on unhandled errros.
     RxJavaPlugins.setErrorHandler(t -> RxErrors.logEnhancedStackTrace(t));
 
     super.onCreate(savedInstanceState);

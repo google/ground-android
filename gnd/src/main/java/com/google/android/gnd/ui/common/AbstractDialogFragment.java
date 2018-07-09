@@ -16,10 +16,12 @@
 
 package com.google.android.gnd.ui.common;
 
+import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import dagger.android.AndroidInjector;
 import dagger.android.DispatchingAndroidInjector;
 import dagger.android.support.AndroidSupportInjection;
@@ -44,6 +46,11 @@ public abstract class AbstractDialogFragment extends DaggerAppCompatDialogFragme
   }
 
   protected void obtainViewModels() {}
+
+  protected Dialog fail(String message) {
+    EphemeralPopups.showError(getContext(), message);
+    return new AlertDialog.Builder(getContext()).create();
+  }
 
   @Override
   public AndroidInjector<Fragment> supportFragmentInjector() {

@@ -32,6 +32,11 @@ public class EphemeralPopups {
     showLong(context, messageId);
   }
 
+  public static void showError(Context context, String message) {
+    Toast.makeText(context, message, Toast.LENGTH_LONG).show();
+  }
+
+  // TODO: Rename to unknownError?
   public static void showError(Context context) {
     showLong(context, R.string.unexpected_error);
   }
