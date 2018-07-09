@@ -30,7 +30,7 @@ import io.reactivex.BackpressureStrategy;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Single;
-import io.reactivex.subjects.PublishSubject;
+import io.reactivex.subjects.BehaviorSubject;
 import io.reactivex.subjects.Subject;
 import java.util.List;
 import javax.inject.Inject;
@@ -52,7 +52,7 @@ public class DataRepository {
   public DataRepository(RemoteDataService remoteDataService, InMemoryCache cache) {
     this.remoteDataService = remoteDataService;
     this.cache = cache;
-    this.activeProjectSubject = PublishSubject.create();
+    this.activeProjectSubject = BehaviorSubject.create();
   }
 
   public Flowable<Resource<Project>> getActiveProjectStream() {
