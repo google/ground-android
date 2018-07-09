@@ -87,6 +87,7 @@
       android:elevation="6dp"
       app:chipIcon="@drawable/ic_add_light"
       app:chipText="@string/add_record_button_label"
+      android:visibility="gone"
       app:useCompatPadding="true"/>
 
     <!-- Prevents place sheet UI from bleeding through to navigation buttons when expanded. -->
