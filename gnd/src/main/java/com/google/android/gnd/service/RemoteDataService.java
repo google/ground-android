@@ -21,7 +21,6 @@ import com.google.android.gnd.vo.PlaceUpdate.RecordUpdate.ValueUpdate;
 import com.google.android.gnd.vo.Project;
 import com.google.android.gnd.vo.Record;
 import com.google.common.collect.ImmutableList;
-import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Single;
 import java.util.List;
@@ -40,7 +39,7 @@ public interface RemoteDataService {
 
   Single<Record> loadRecordDetails(Place place, String recordId);
 
-  Completable saveChanges(
+  Single<Record> saveChanges(
     Record record,
     ImmutableList<ValueUpdate> updates);
 

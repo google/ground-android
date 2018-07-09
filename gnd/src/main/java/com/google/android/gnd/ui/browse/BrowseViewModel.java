@@ -23,6 +23,7 @@ import com.google.android.gnd.rx.RxLiveData;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.common.SingleLiveEvent;
 import com.google.android.gnd.ui.map.MapMarker;
+import com.google.android.gnd.vo.Form;
 import com.google.android.gnd.vo.Place;
 import com.google.android.gnd.vo.Point;
 import com.google.android.gnd.vo.Project;
@@ -36,13 +37,15 @@ public class BrowseViewModel extends AbstractViewModel {
   // TODO: Implement this as a state and remove Consumable.
   private final SingleLiveEvent<Point> addPlaceDialogRequests;
   private final MutableLiveData<PlaceSheetState> placeSheetState;
-
+  // TODO: Move into appropriate ViewModel.
+  private final MutableLiveData<Form> selectedForm;
   @Inject
   BrowseViewModel(DataRepository dataRepository) {
     this.dataRepository = dataRepository;
     this.addPlaceDialogRequests = new SingleLiveEvent<>();
     this.placeSheetState = new MutableLiveData<>();
     this.activeProject = RxLiveData.fromFlowable(dataRepository.getActiveProjectStream());
+    this.selectedForm = new MutableLiveData<>();
   }
 
   public LiveData<Resource<Project>> getActiveProject() {
@@ -79,5 +82,13 @@ public class BrowseViewModel extends AbstractViewModel {
 
   public void onBottomSheetHidden() {
     placeSheetState.setValue(PlaceSheetState.hidden());
+  }
+
+  public void onFormChange(Form form) {
+    selectedForm.setValue(form);
+  }
+
+  public LiveData<Form> getSelectedForm() {
+    return selectedForm;
   }
 }

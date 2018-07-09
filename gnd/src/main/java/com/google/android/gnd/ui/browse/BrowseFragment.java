@@ -28,12 +28,15 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.v4.view.WindowInsetsCompat;
 import android.support.v4.widget.NestedScrollView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import androidx.navigation.fragment.NavHostFragment;
 import butterknife.BindView;
+import butterknife.OnClick;
 import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.MainViewModel;
 import com.google.android.gnd.R;
@@ -45,6 +48,8 @@ import com.google.android.gnd.ui.common.ProgressDialogs;
 import com.google.android.gnd.ui.common.TwoLineToolbar;
 import com.google.android.gnd.ui.common.ViewModelFactory;
 import com.google.android.gnd.ui.projectselector.ProjectSelectorDialogFragment;
+import com.google.android.gnd.vo.Form;
+import com.google.android.gnd.vo.Place;
 import com.google.android.gnd.vo.Point;
 import com.google.android.gnd.vo.Project;
 import javax.inject.Inject;
@@ -57,6 +62,7 @@ import javax.inject.Inject;
 public class BrowseFragment extends AbstractFragment {
   // TODO: Rename to "HomeScreen" or similar.
   private static final float COLLAPSED_MAP_ASPECT_RATIO = 16.0f / 9.0f;
+  private static final String TAG = BrowseFragment.class.getSimpleName();
 
   @Inject ViewModelFactory viewModelFactory;
 
@@ -151,6 +157,26 @@ public class BrowseFragment extends AbstractFragment {
         EphemeralPopups.showError(getContext(), R.string.project_load_error);
         break;
     }
+  }
+
+  // TODO: Put record button and chrome into its own fragment.
+  @OnClick(R.id.add_record_btn)
+  void addRecord() {
+    PlaceSheetState placeSheetState = viewModel.getPlaceSheetState().getValue();
+    if (placeSheetState == null) {
+      Log.e(TAG, "Missing placeSheetState");
+      return;
+    }
+    Form form = viewModel.getSelectedForm().getValue();
+    if (form == null) {
+      Log.e(TAG, "Missing form");
+      return;
+    }
+    Place place = placeSheetState.getPlace();
+    NavHostFragment.findNavController(this)
+                   .navigate(
+                     BrowseFragmentDirections.addRecord(
+                       place.getProject().getId(), place.getId(), form.getId()));
   }
 
   private void onShowAddPlaceDialogRequest(Point location) {

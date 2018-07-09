@@ -18,6 +18,7 @@ package com.google.android.gnd.vo;
 
 import static java8.util.stream.StreamSupport.stream;
 
+import android.support.annotation.Nullable;
 import com.google.android.gnd.vo.Form.MultipleChoice.Option;
 import com.google.auto.value.AutoOneOf;
 import com.google.auto.value.AutoValue;
@@ -29,6 +30,7 @@ import java8.util.stream.Collectors;
 
 @AutoValue
 public abstract class Record {
+  @Nullable
   public abstract String getId();
 
   public abstract Project getProject();
@@ -37,8 +39,10 @@ public abstract class Record {
 
   public abstract Form getForm();
 
+  @Nullable
   public abstract Timestamps getServerTimestamps();
 
+  @Nullable
   public abstract Timestamps getClientTimestamps();
 
   // TODO: Make Immutable and/or make private and expose custom accessors.
@@ -56,7 +60,7 @@ public abstract class Record {
 
   @AutoValue.Builder
   public abstract static class Builder {
-    public abstract Builder setId(String newId);
+    public abstract Builder setId(@Nullable String newId);
 
     public abstract Builder setProject(Project project);
 
@@ -64,9 +68,9 @@ public abstract class Record {
 
     public abstract Builder setForm(Form form);
 
-    public abstract Builder setServerTimestamps(Timestamps newServerTimestamps);
+    public abstract Builder setServerTimestamps(@Nullable Timestamps newServerTimestamps);
 
-    public abstract Builder setClientTimestamps(Timestamps newClientTimestamps);
+    public abstract Builder setClientTimestamps(@Nullable Timestamps newClientTimestamps);
 
     public abstract ImmutableMap.Builder<String, Value> valueMapBuilder();
 

@@ -144,6 +144,18 @@ public class DataRepository {
       .onErrorReturn(Resource::error);
   }
 
+  public Single<Record> createRecord(String projectId, String placeId, String formId) {
+    // TODO: Handle invalid formId.
+    return getPlace(projectId, placeId)
+      .map(
+        place ->
+          Record.newBuilder()
+                .setProject(place.getProject())
+                .setPlace(place)
+                .setForm(place.getPlaceType().getForm(formId).get())
+                .build());
+  }
+
   private Single<Project> getProject(String projectId) {
     // TODO: Try to load from db if network not available or times out.
     return cache
@@ -153,7 +165,7 @@ public class DataRepository {
         .orElse(remoteDataService.loadProject(projectId));
   }
 
-  public Completable saveChanges(Record record, ImmutableList<ValueUpdate> updates) {
+  public Single<Record> saveChanges(Record record, ImmutableList<ValueUpdate> updates) {
     return remoteDataService.saveChanges(record, updates);
   }
 

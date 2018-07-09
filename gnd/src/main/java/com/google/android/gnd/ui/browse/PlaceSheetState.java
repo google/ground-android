@@ -27,6 +27,7 @@ public class PlaceSheetState {
   }
 
   private final Visibility visibility;
+
   @Nullable private Place place;
 
   private PlaceSheetState(Visibility visibility, Place place) {

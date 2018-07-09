@@ -52,6 +52,8 @@ import javax.inject.Inject;
 
 public class EditRecordFragment extends AbstractFragment {
   private static final String TAG = EditRecordFragment.class.getSimpleName();
+  private static final String NEW_RECORD_ID_ARG_PLACEHOLDER = "NEW_RECORD";
+
   private ProgressDialog savingProgressDialog;
 
   // TODO: Refactor viewModel creation and access into AbstractFragment.
@@ -97,16 +99,26 @@ public class EditRecordFragment extends AbstractFragment {
   @Override
   protected void observeViewModels() {
     EditRecordFragmentArgs args = EditRecordFragmentArgs.fromBundle(getArguments());
-    if (args.getProjectId() == null || args.getPlaceId() == null || args.getRecordId() == null) {
+    if (args.getProjectId() == null
+      || args.getPlaceId() == null
+      || args.getRecordId() == null
+      || args.getFormId() == null) {
       Log.e(TAG, "Missing fragment args");
       EphemeralPopups.showError(getContext());
       return;
     }
-    // TODO: Store and retrieve latest edits from cache and/or db.
-    viewModel
-      .getRecordSnapshot(args.getProjectId(), args.getPlaceId(), args.getRecordId())
-      .as(autoDisposable(this))
-      .subscribe(this::onSnapshotLoaded);
+    if (args.getRecordId().equals(NEW_RECORD_ID_ARG_PLACEHOLDER)) {
+      viewModel
+        .createRecord(args.getProjectId(), args.getPlaceId(), args.getFormId())
+        .as(autoDisposable(this))
+        .subscribe(this::editRecord);
+    } else {
+      // TODO: Store and retrieve latest edits from cache and/or db.
+      viewModel
+        .getRecordSnapshot(args.getProjectId(), args.getPlaceId(), args.getRecordId())
+        .as(autoDisposable(this))
+        .subscribe(this::onSnapshotLoaded);
+    }
   }
 
   @Override
@@ -183,7 +195,7 @@ public class EditRecordFragment extends AbstractFragment {
           .collect(toImmutableList()))
       .as(autoDisposable(this))
       .subscribe(
-        () -> {
+        record -> {
           savingProgressDialog.hide();
           EphemeralPopups.showSuccess(getContext(), R.string.saved);
           NavHostFragment.findNavController(this).navigateUp();

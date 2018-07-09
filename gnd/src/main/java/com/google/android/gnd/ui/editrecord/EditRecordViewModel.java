@@ -23,9 +23,7 @@ import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.vo.PlaceUpdate.RecordUpdate.ValueUpdate;
 import com.google.android.gnd.vo.Record;
 import com.google.common.collect.ImmutableList;
-import io.reactivex.Completable;
 import io.reactivex.Single;
-import java8.util.Optional;
 import javax.inject.Inject;
 
 // TODO: Save draft to local db on each change.
@@ -40,6 +38,12 @@ public class EditRecordViewModel extends AbstractViewModel {
     this.record = new MutableLiveData<>();
   }
 
+  public Single<Record> createRecord(String projectId, String placeId, String formId) {
+    return dataRepository
+      .createRecord(projectId, placeId, formId)
+      .doOnSuccess(record::setValue);
+  }
+
   public Single<Resource<Record>> getRecordSnapshot(
     String projectId, String placeId, String recordId) {
     return dataRepository
@@ -47,11 +51,7 @@ public class EditRecordViewModel extends AbstractViewModel {
       .doOnSuccess(r -> r.ifPresent(record::setValue));
   }
 
-  public Completable saveChanges(ImmutableList<ValueUpdate> updates) {
+  public Single<Record> saveChanges(ImmutableList<ValueUpdate> updates) {
     return dataRepository.saveChanges(record.getValue(), updates);
-  }
-
-  public Optional<Record> getCurrentRecord() {
-    return Optional.ofNullable(record.getValue());
   }
 }

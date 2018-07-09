@@ -32,6 +32,13 @@
       app:exitAnim="@anim/nav_default_exit_anim"
       app:popEnterAnim="@anim/nav_default_pop_enter_anim"
       app:popExitAnim="@anim/nav_default_pop_exit_anim"/>
+    <action
+      android:id="@+id/addRecord"
+      app:destination="@id/editRecordFragment">
+      <argument
+        android:defaultValue="NEW_RECORD"
+        android:name="recordId"/>
+    </action>
   </fragment>
 
   <fragment
@@ -54,7 +61,9 @@
       app:enterAnim="@anim/nav_default_enter_anim"
       app:exitAnim="@anim/nav_default_exit_anim"
       app:popEnterAnim="@anim/nav_default_pop_enter_anim"
-      app:popExitAnim="@anim/nav_default_pop_exit_anim"/>
+      app:popExitAnim="@anim/nav_default_pop_exit_anim">
+      <argument android:name="formId"/>
+    </action>
   </fragment>
   <fragment
     android:id="@+id/editRecordFragment"
@@ -69,6 +78,9 @@
       app:type="string"/>
     <argument
       android:name="recordId"
+      app:type="string"/>
+    <argument
+      android:name="formId"
       app:type="string"/>
   </fragment>
 

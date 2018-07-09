@@ -36,6 +36,7 @@ import com.google.android.gnd.vo.Record;
 import com.google.android.gnd.vo.Timestamps;
 import com.google.common.collect.ImmutableList;
 import com.google.firebase.firestore.DocumentChange;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreSettings;
@@ -43,7 +44,6 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.firestore.SnapshotMetadata;
 import durdinapps.rxfirebase2.RxFirestore;
-import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Observable;
@@ -199,21 +199,31 @@ public class FirestoreDataService implements RemoteDataService {
 
   // TODO: Move relevant Record fields and updates into "RecordUpdate" object.
   @Override
-  public Completable saveChanges(Record record, ImmutableList<ValueUpdate> updates) {
+  public Single<Record> saveChanges(Record record, ImmutableList<ValueUpdate> updates) {
+    GndFirestorePath.RecordsRef records =
+      db().projects()
+          .project(record.getProject().getId())
+          .places()
+          .place(record.getPlace().getId())
+          .records();
+
+    if (record.getId() == null) {
+      DocumentReference recordDocRef = records.ref().document();
+      record = record.toBuilder().setId(recordDocRef.getId()).build();
+      return saveChanges(recordDocRef, record, updates);
+    } else {
+      return saveChanges(records.record(record.getId()).ref(), record, updates);
+    }
+  }
+
+  private Single<Record> saveChanges(
+    DocumentReference recordDocRef, Record record, ImmutableList<ValueUpdate> updates) {
     return RxTask.toCompletable(
       () ->
         db.batch()
-          .set(
-            db().projects()
-                .project(record.getProject().getId())
-                .places()
-                .place(record.getPlace().getId())
-                .records()
-                .record(record.getId())
-                .ref(),
-            RecordDoc.forUpdates(record, updatedValues(updates)),
-            MERGE)
-          .commit());
+          .set(recordDocRef, RecordDoc.forUpdates(record, updatedValues(updates)), MERGE)
+          .commit())
+                 .andThen(Single.just(record));
   }
 
   @Override

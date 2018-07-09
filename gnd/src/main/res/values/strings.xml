@@ -46,7 +46,7 @@
   <!-- Shown on save when connection was not available. -->
   <string name="save_queued">Saved locally, queued for sync.</string>
   <!-- Shown on save when connection is available (TBD). -->
-  <string name="saved">Changes saved.</string>
+  <string name="saved">Changes saved</string>
 
   <!--
     PLACE DATA FORMS

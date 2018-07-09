@@ -34,6 +34,7 @@ import java8.util.Optional;
 import java8.util.stream.Collectors;
 import javax.inject.Inject;
 
+// TODO: Roll up into parent viewmodel. Simplify VMs overall.
 public class RecordListViewModel extends AbstractViewModel {
   private static final String TAG = RecordListViewModel.class.getSimpleName();
   private final DataRepository dataRepository;
@@ -58,11 +59,11 @@ public class RecordListViewModel extends AbstractViewModel {
     // TODO: Warn if project not loaded?
     // TODO: Pass project id and push getProject into repo.
     disposeOnClear(
-        dataRepository
-            .getActiveProjectStream()
-            .compose(Resource.filterAndGetData())
-            .subscribe(
-                project -> loadRecords(project, placeType.getId(), form.getId(), place.getId())));
+      dataRepository
+        .getActiveProjectStream()
+        .compose(Resource.filterAndGetData())
+        .subscribe(
+          project -> loadRecords(project, placeType.getId(), form.getId(), place.getId())));
   }
 
   private void loadRecords(Project project, String placeTypeId, String formId, String placeId) {
@@ -73,15 +74,15 @@ public class RecordListViewModel extends AbstractViewModel {
     }
     // TODO: Use project id instead of object.
     disposeOnClear(
-        dataRepository
-            .getRecordSummaries(project.getId(), placeId)
-            .subscribe(
-                // TODO: Only fetch records w/current formId.
-                records ->
-                    recordSummaries.setValue(
-                        stream(records)
-                            .filter(record -> record.getForm().getId().equals(formId))
-                            .map(record -> new RecordSummary(project, form.get(), record))
-                            .collect(Collectors.toList()))));
+      dataRepository
+        .getRecordSummaries(project.getId(), placeId)
+        .subscribe(
+          // TODO: Only fetch records w/current formId.
+          records ->
+            recordSummaries.setValue(
+              stream(records)
+                .filter(record -> record.getForm().getId().equals(formId))
+                .map(record -> new RecordSummary(project, form.get(), record))
+                .collect(Collectors.toList()))));
   }
 }
