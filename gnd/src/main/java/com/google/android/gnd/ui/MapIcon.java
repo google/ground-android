@@ -19,9 +19,11 @@ package com.google.android.gnd.ui;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import com.google.android.gms.maps.model.BitmapDescriptor;
@@ -35,15 +37,27 @@ public class MapIcon {
   private BitmapDrawable drawable;
   private int color;
 
-  public MapIcon(Context context, String iconId, int color) {
+  public MapIcon(Context context, @Nullable String iconId, @Nullable String color) {
     this.context = context;
-    this.color = color;
+    this.color = getIconColor(context, color);
     int resourceId = getResourceId(context, iconId);
     this.drawable = (BitmapDrawable) ContextCompat.getDrawable(context, resourceId);
   }
 
+  private static int getIconColor(Context context, String color) {
+    try {
+      return Color.parseColor(color);
+    } catch (Exception e) {
+      return context.getResources().getColor(R.color.colorMarkerDefault);
+    }
+  }
+
   @NonNull
-  public static @DrawableRes int getResourceId(Context context, String iconId) {
+  public static @DrawableRes
+  int getResourceId(Context context, @Nullable String iconId) {
+    if (iconId == null) {
+      return R.drawable.ic_default_place_marker;
+    }
     try {
       String resourceName = "ic_marker_" + iconId.replace("-", "_");
       int resourceId =

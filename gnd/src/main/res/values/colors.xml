@@ -21,6 +21,7 @@
   <color name="colorPrimaryDark">#035526</color>
   <color name="colorAccent">#89385a</color>
   <color name="colorMapsBlue">#4688f1</color>
+  <color name="colorMarkerDefault">#ff9131</color>
   <color name="colorBlueA200">#448AFF</color>
   <color name="colorWhite">#FFFFFF</color>
   <color name="colorGrey50">#FAFAFA</color>
@@ -32,5 +33,4 @@
   <color name="colorRed">#CC0000</color>
   <color name="colorAccentLight">#69ba87</color>
   <color name="colorYellow">#ffff00</color>
-  <color name="markerDefault">#d65f30</color>
 </resources>

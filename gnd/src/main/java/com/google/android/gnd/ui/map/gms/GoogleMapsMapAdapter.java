@@ -21,7 +21,6 @@ import static java8.util.stream.StreamSupport.stream;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.graphics.Color;
 import android.util.Log;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -29,7 +28,6 @@ import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gnd.R;
 import com.google.android.gnd.ui.MapIcon;
 import com.google.android.gnd.ui.map.MapMarker;
 import com.google.android.gnd.ui.map.MapProvider.MapAdapter;
@@ -205,7 +203,7 @@ class GoogleMapsMapAdapter implements MapAdapter {
   private void addMarker(Place place) {
     Log.v(TAG, "Adding marker for " + place.getId());
     PlaceType placeType = place.getPlaceType();
-    MapIcon icon = new MapIcon(context, placeType.getIconId(), getIconColor(placeType));
+    MapIcon icon = new MapIcon(context, placeType.getIconId(), placeType.getIconColor());
     // TODO: Reimplement hasPendingWrites.
     addMarker(
         MapMarker.newBuilder()
@@ -216,14 +214,6 @@ class GoogleMapsMapAdapter implements MapAdapter {
             .build(),
         false,
         false);
-  }
-
-  private int getIconColor(PlaceType placeType) {
-    try {
-      return Color.parseColor(placeType.getIconColor());
-    } catch (Exception e) {
-      return context.getResources().getColor(R.color.markerDefault);
-    }
   }
 
   private void onCameraIdle() {

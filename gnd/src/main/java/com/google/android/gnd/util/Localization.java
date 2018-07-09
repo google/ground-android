@@ -23,6 +23,9 @@ public abstract class Localization {
   private Localization() {}
 
   public static String getLocalizedMessage(Map<String, String> messages) {
+    if (messages == null) {
+      return "";
+    }
     // TODO: i18n.
     return Optional.ofNullable(messages.get("pt"))
         .orElse(Optional.ofNullable(messages.get("en")).orElse(""));

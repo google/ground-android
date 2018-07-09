@@ -31,6 +31,7 @@ public abstract class PlaceType {
 
   public abstract String getItemLabel();
 
+  @Nullable
   public abstract String getIconId();
 
   @Nullable
@@ -60,8 +61,10 @@ public abstract class PlaceType {
 
     public abstract Builder setItemLabel(String newItemLabel);
 
+    @Nullable
     public abstract Builder setIconId(String newIconId);
 
+    @Nullable
     public abstract Builder setIconColor(String newIconColor);
 
     public abstract Builder setForms(ImmutableList<Form> newForms);

@@ -25,6 +25,7 @@ import javax.annotation.Nullable;
 
 @AutoValue
 public abstract class MapMarker {
+
   public abstract String getId();
 
   public abstract Point getPosition();
