@@ -184,7 +184,7 @@ public class BrowseFragment extends AbstractFragment {
     // TODO: Show spinner?
     addPlaceDialogFragment
       .show(getChildFragmentManager())
-      .flatMapSingle(viewModel::addPlace)
+      .flatMap(place -> viewModel.addPlace(place).toMaybe())
       .as(autoDisposable(this))
       .subscribe();
   }
