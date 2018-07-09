@@ -60,9 +60,8 @@ public class AddPlaceDialogFragment extends AbstractDialogFragment {
   @Override
   protected void obtainViewModels() {
     // TODO: Move into new AddPlaceDialogViewModel?
-    this.browseViewModel = ViewModelProviders
-      .of(getActivity(), viewModelFactory)
-      .get(BrowseViewModel.class);
+    this.browseViewModel =
+      ViewModelProviders.of(getActivity(), viewModelFactory).get(BrowseViewModel.class);
     this.mapContainerViewModel =
       ViewModelProviders.of(getActivity(), viewModelFactory).get(MapContainerViewModel.class);
   }
@@ -96,7 +95,8 @@ public class AddPlaceDialogFragment extends AbstractDialogFragment {
     builder.setNegativeButton(R.string.add_place_cancel, (dialog, id) -> onCancel());
     // TODO: Add icons.
     ImmutableList<PlaceType> placeTypes = project.getPlaceTypes();
-    String[] items = stream(placeTypes).map(t -> t.getListHeading()).toArray(String[]::new);
+    String[] items =
+      stream(placeTypes).map(t -> t.getItemLabel()).sorted().toArray(String[]::new);
     builder.setItems(
       items, (dialog, idx) -> onSelectPlaceType(project, placeTypes.get(idx), cameraPosition));
     return builder.create();
