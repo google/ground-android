@@ -87,8 +87,6 @@ public class MapContainerFragment extends AbstractFragment {
 
   @Override
   protected void setUpView() {
-    disableLocationLockBtn();
-    disableAddPlaceBtn();
     replaceFragment(R.id.map, mapAdapter.getFragment());
   }
 
@@ -153,10 +151,6 @@ public class MapContainerFragment extends AbstractFragment {
 
   private void enableLocationLockBtn() {
     locationLockBtn.setEnabled(true);
-  }
-
-  private void disableLocationLockBtn() {
-    locationLockBtn.setEnabled(false);
   }
 
   private void enableAddPlaceBtn() {

@@ -180,6 +180,9 @@ public class BrowseFragment extends AbstractFragment {
   }
 
   private void onShowAddPlaceDialogRequest(Point location) {
+    if (!Resource.getData(viewModel.getActiveProject()).isPresent()) {
+      return;
+    }
     // TODO: Pause location updates while dialog is open.
     // TODO: Show spinner?
     addPlaceDialogFragment

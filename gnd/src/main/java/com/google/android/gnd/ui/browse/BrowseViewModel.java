@@ -39,6 +39,7 @@ public class BrowseViewModel extends AbstractViewModel {
   private final MutableLiveData<PlaceSheetState> placeSheetState;
   // TODO: Move into appropriate ViewModel.
   private final MutableLiveData<Form> selectedForm;
+
   @Inject
   BrowseViewModel(DataRepository dataRepository) {
     this.dataRepository = dataRepository;
@@ -71,7 +72,6 @@ public class BrowseViewModel extends AbstractViewModel {
 
   public void onAddPlaceBtnClick(Point location) {
     // TODO: Pause location updates while dialog is open.
-    // TODO: Ignore clicks when project not active.
     addPlaceDialogRequests.setValue(location);
   }
 
