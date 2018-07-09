@@ -66,7 +66,7 @@
     android:layout_height="@dimen/place_header_icon_background_diameter"
     android:layout_gravity="top|center_horizontal"
     android:src="@drawable/place_header_icon_background_drawable"
-    android:elevation="3dp"/>
+    android:elevation="4dp"/>
 
   <ImageView
     android:id="@+id/place_header_icon"
@@ -76,6 +76,6 @@
     android:layout_gravity="top|center_horizontal"
     app:srcCompat="@drawable/ic_default_place_marker"
     android:tint="@color/colorGrey900"
-    android:elevation="4dp"/>
+    android:elevation="5dp"/>
 
 </FrameLayout>
