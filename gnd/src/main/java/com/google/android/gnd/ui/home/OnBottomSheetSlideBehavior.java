@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.ui.browse;
+package com.google.android.gnd.ui.home;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;

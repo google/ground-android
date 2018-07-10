@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.ui.browse.placesheet;
+package com.google.android.gnd.ui.home.placesheet;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.ViewModel;
 import android.support.v4.view.ViewPager;
-import com.google.android.gnd.ui.browse.PlaceSheetState;
+import com.google.android.gnd.ui.home.PlaceSheetState;
 import com.google.android.gnd.vo.Form;
 import com.google.android.gnd.vo.Place;
 import com.google.android.gnd.vo.PlaceType;

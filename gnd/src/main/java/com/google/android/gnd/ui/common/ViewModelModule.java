@@ -19,11 +19,11 @@ package com.google.android.gnd.ui.common;
 import android.arch.lifecycle.ViewModel;
 import android.arch.lifecycle.ViewModelProvider;
 import com.google.android.gnd.MainViewModel;
-import com.google.android.gnd.ui.browse.BrowseViewModel;
-import com.google.android.gnd.ui.browse.mapcontainer.MapContainerViewModel;
-import com.google.android.gnd.ui.browse.placesheet.PlaceSheetBodyViewModel;
-import com.google.android.gnd.ui.browse.placesheet.RecordListViewModel;
 import com.google.android.gnd.ui.editrecord.EditRecordViewModel;
+import com.google.android.gnd.ui.home.HomeScreenViewModel;
+import com.google.android.gnd.ui.home.mapcontainer.MapContainerViewModel;
+import com.google.android.gnd.ui.home.placesheet.PlaceSheetBodyViewModel;
+import com.google.android.gnd.ui.home.placesheet.RecordListViewModel;
 import com.google.android.gnd.ui.projectselector.ProjectSelectorViewModel;
 import com.google.android.gnd.ui.recorddetails.RecordDetailsViewModel;
 import dagger.Binds;
@@ -44,8 +44,8 @@ public abstract class ViewModelModule {
 
   @Binds
   @IntoMap
-  @ViewModelKey(BrowseViewModel.class)
-  abstract ViewModel bindBrowseViewModel(BrowseViewModel viewModel);
+  @ViewModelKey(HomeScreenViewModel.class)
+  abstract ViewModel bindHomeScreenViewModel(HomeScreenViewModel viewModel);
 
   @Binds
   @IntoMap

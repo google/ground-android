@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.ui.browse.mapcontainer;
+package com.google.android.gnd.ui.home.mapcontainer;
 
 import static com.google.android.gnd.rx.RxAutoDispose.autoDisposable;
 
@@ -35,10 +35,10 @@ import com.google.android.gnd.R;
 import com.google.android.gnd.repository.Resource;
 import com.google.android.gnd.system.PermissionsManager.PermissionDeniedException;
 import com.google.android.gnd.system.SettingsManager.SettingsChangeRequestCanceled;
-import com.google.android.gnd.ui.browse.BrowseViewModel;
-import com.google.android.gnd.ui.browse.PlaceSheetState;
-import com.google.android.gnd.ui.browse.mapcontainer.MapContainerViewModel.LocationLockStatus;
 import com.google.android.gnd.ui.common.AbstractFragment;
+import com.google.android.gnd.ui.home.HomeScreenViewModel;
+import com.google.android.gnd.ui.home.PlaceSheetState;
+import com.google.android.gnd.ui.home.mapcontainer.MapContainerViewModel.LocationLockStatus;
 import com.google.android.gnd.ui.map.MapProvider;
 import com.google.android.gnd.ui.map.MapProvider.MapAdapter;
 import com.google.android.gnd.vo.Project;
@@ -64,7 +64,7 @@ public class MapContainerFragment extends AbstractFragment {
   ViewGroup mapBtnLayout;
 
   private MapContainerViewModel mapContainerViewModel;
-  private BrowseViewModel browseViewModel;
+  private HomeScreenViewModel homeScreenViewModel;
   private MainViewModel mainViewModel;
 
   @Inject
@@ -74,8 +74,8 @@ public class MapContainerFragment extends AbstractFragment {
   protected void obtainViewModels() {
     mapContainerViewModel =
       ViewModelProviders.of(getActivity(), viewModelFactory).get(MapContainerViewModel.class);
-    browseViewModel =
-        ViewModelProviders.of(getActivity(), viewModelFactory).get(BrowseViewModel.class);
+    homeScreenViewModel =
+        ViewModelProviders.of(getActivity(), viewModelFactory).get(HomeScreenViewModel.class);
     mainViewModel = ViewModelProviders.of(getActivity(), viewModelFactory).get(MainViewModel.class);
   }
 
@@ -105,18 +105,18 @@ public class MapContainerFragment extends AbstractFragment {
         .observe(this, status -> onLocationLockStatusChange(status, map));
     mapContainerViewModel.getCameraUpdates().observe(this, update -> onCameraUpdate(update, map));
     mapContainerViewModel.getActiveProject().observe(this, this::onProjectChange);
-    browseViewModel
+    homeScreenViewModel
         .getPlaceSheetState()
         .observe(this, state -> onPlaceSheetStateChange(state, map));
     // TODO: Use Butterknife here instead for better readability/less boilerplate.
     RxView.clicks(addPlaceBtn)
         .as(autoDisposable(this))
-        .subscribe(__ -> browseViewModel.onAddPlaceBtnClick(map.getCenter()));
+        .subscribe(__ -> homeScreenViewModel.onAddPlaceBtnClick(map.getCenter()));
     RxView.clicks(locationLockBtn)
         .as(autoDisposable(this))
         .subscribe(__ -> onLocationLockClick(map));
     map.getMarkerClicks().as(autoDisposable(this)).subscribe(mapContainerViewModel::onMarkerClick);
-    map.getMarkerClicks().as(autoDisposable(this)).subscribe(browseViewModel::onMarkerClick);
+    map.getMarkerClicks().as(autoDisposable(this)).subscribe(homeScreenViewModel::onMarkerClick);
     map.getDragInteractions().as(autoDisposable(this)).subscribe(mapContainerViewModel::onMapDrag);
     map.getCameraPosition().as(autoDisposable(this)).subscribe(mapContainerViewModel::onCameraMove);
     enableLocationLockBtn();

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.ui.browse.placesheet;
+package com.google.android.gnd.ui.home.placesheet;
 
 import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
@@ -27,9 +27,9 @@ import android.view.ViewGroup;
 import butterknife.BindView;
 import com.google.android.gnd.MainViewModel;
 import com.google.android.gnd.R;
-import com.google.android.gnd.ui.browse.BrowseViewModel;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.ViewModelFactory;
+import com.google.android.gnd.ui.home.HomeScreenViewModel;
 import com.h6ah4i.android.tablayouthelper.TabLayoutHelper;
 import javax.inject.Inject;
 
@@ -46,7 +46,7 @@ public class PlaceSheetBodyFragment extends AbstractFragment {
   ViewPager recordListViewPager;
 
   private PlaceSheetBodyViewModel viewModel;
-  private BrowseViewModel browseViewModel;
+  private HomeScreenViewModel homeScreenViewModel;
   private MainViewModel mainViewModel;
 
   @Inject
@@ -57,8 +57,8 @@ public class PlaceSheetBodyFragment extends AbstractFragment {
     viewModel =
         ViewModelProviders.of(getActivity(), viewModelFactory).get(PlaceSheetBodyViewModel.class);
     mainViewModel = ViewModelProviders.of(getActivity(), viewModelFactory).get(MainViewModel.class);
-    browseViewModel =
-        ViewModelProviders.of(getActivity(), viewModelFactory).get(BrowseViewModel.class);
+    homeScreenViewModel =
+        ViewModelProviders.of(getActivity(), viewModelFactory).get(HomeScreenViewModel.class);
   }
 
   @Override
@@ -80,7 +80,7 @@ public class PlaceSheetBodyFragment extends AbstractFragment {
   @Override
   protected void observeViewModels() {
     mainViewModel.getWindowInsets().observe(this, this::onApplyWindowInsets);
-    browseViewModel.getPlaceSheetState().observe(this, viewModel::onPlaceSheetStateChange);
+    homeScreenViewModel.getPlaceSheetState().observe(this, viewModel::onPlaceSheetStateChange);
     viewModel.getSelectedPlace().observe(this, formTypePagerAdapter::update);
   }
 

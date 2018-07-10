@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.ui.browse.placesheet;
+package com.google.android.gnd.ui.home.placesheet;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;

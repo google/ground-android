@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.ui.browse.placesheet;
+package com.google.android.gnd.ui.home.placesheet;
 
 import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
@@ -26,10 +26,10 @@ import android.widget.TextView;
 import butterknife.BindView;
 import com.google.android.gnd.R;
 import com.google.android.gnd.ui.MapIcon;
-import com.google.android.gnd.ui.browse.BrowseViewModel;
-import com.google.android.gnd.ui.browse.PlaceSheetState;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.ViewModelFactory;
+import com.google.android.gnd.ui.home.HomeScreenViewModel;
+import com.google.android.gnd.ui.home.PlaceSheetState;
 import javax.inject.Inject;
 
 public class PlaceSheetHeaderFragment extends AbstractFragment {
@@ -45,7 +45,7 @@ public class PlaceSheetHeaderFragment extends AbstractFragment {
   @BindView(R.id.place_header_icon)
   ImageView placeHeaderIcon;
 
-  private BrowseViewModel browseViewModel;
+  private HomeScreenViewModel homeScreenViewModel;
 
   @Inject
   public PlaceSheetHeaderFragment() {}
@@ -58,13 +58,13 @@ public class PlaceSheetHeaderFragment extends AbstractFragment {
 
   @Override
   protected void obtainViewModels() {
-    browseViewModel =
-        ViewModelProviders.of(getActivity(), viewModelFactory).get(BrowseViewModel.class);
+    homeScreenViewModel =
+        ViewModelProviders.of(getActivity(), viewModelFactory).get(HomeScreenViewModel.class);
   }
 
   @Override
   protected void observeViewModels() {
-    browseViewModel.getPlaceSheetState().observe(this, this::onPlaceSheetStateChange);
+    homeScreenViewModel.getPlaceSheetState().observe(this, this::onPlaceSheetStateChange);
   }
 
   private void onPlaceSheetStateChange(PlaceSheetState placeSheetState) {

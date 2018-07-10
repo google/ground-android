@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.gnd.ui.browse;
+package com.google.android.gnd.ui.home;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
@@ -30,8 +30,9 @@ import com.google.android.gnd.vo.Project;
 import io.reactivex.Single;
 import javax.inject.Inject;
 
-public class BrowseViewModel extends AbstractViewModel {
-  private static final String TAG = BrowseViewModel.class.getSimpleName();
+public class HomeScreenViewModel extends AbstractViewModel {
+
+  private static final String TAG = HomeScreenViewModel.class.getSimpleName();
   private final DataRepository dataRepository;
   private final LiveData<Resource<Project>> activeProject;
   // TODO: Implement this as a state and remove Consumable.
@@ -41,7 +42,7 @@ public class BrowseViewModel extends AbstractViewModel {
   private final MutableLiveData<Form> selectedForm;
 
   @Inject
-  BrowseViewModel(DataRepository dataRepository) {
+  HomeScreenViewModel(DataRepository dataRepository) {
     this.dataRepository = dataRepository;
     this.addPlaceDialogRequests = new SingleLiveEvent<>();
     this.placeSheetState = new MutableLiveData<>();

@@ -24,7 +24,7 @@
     android:id="@+id/map_container_fragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    app:layout_behavior="com.google.android.gnd.ui.browse.mapcontainer.MapContainerLayoutBehavior"/>
+      app:layout_behavior="com.google.android.gnd.ui.home.mapcontainer.MapContainerLayoutBehavior"/>
 
   <!-- TODO: Move into layout file for place sheet and chrome -->
 
@@ -32,8 +32,8 @@
     android:id="@+id/place_sheet_header"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:name="com.google.android.gnd.ui.browse.placesheet.PlaceSheetHeaderFragment"
-    app:layout_behavior="com.google.android.gnd.ui.browse.placesheet.PlaceSheetHeaderLayoutBehavior"
+      android:name="com.google.android.gnd.ui.home.placesheet.PlaceSheetHeaderFragment"
+      app:layout_behavior="com.google.android.gnd.ui.home.placesheet.PlaceSheetHeaderLayoutBehavior"
     />
 
   <android.support.v4.widget.NestedScrollView
@@ -47,7 +47,7 @@
       android:id="@+id/place_sheet_fragment"
       android:layout_width="match_parent"
       android:layout_height="match_parent"
-      android:name="com.google.android.gnd.ui.browse.placesheet.PlaceSheetBodyFragment"/>
+        android:name="com.google.android.gnd.ui.home.placesheet.PlaceSheetBodyFragment"/>
 
   </android.support.v4.widget.NestedScrollView>
 
@@ -55,7 +55,7 @@
     android:id="@+id/bottom_sheet_chrome"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    app:layout_behavior="com.google.android.gnd.ui.browse.BottomSheetChromeBehavior">
+      app:layout_behavior="com.google.android.gnd.ui.home.BottomSheetChromeBehavior">
 
     <FrameLayout
       android:id="@+id/toolbar_wrapper"

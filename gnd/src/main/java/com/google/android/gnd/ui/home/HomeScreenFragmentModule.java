@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.ui.browse;
+package com.google.android.gnd.ui.home;
 
 import android.support.v4.app.Fragment;
 import com.google.android.gnd.inject.PerFragment;
@@ -23,9 +23,9 @@ import dagger.Binds;
 import dagger.Module;
 
 @Module(includes = AbstractFragmentModule.class)
-public abstract class BrowseFragmentModule {
+public abstract class HomeScreenFragmentModule {
 
   @Binds
   @PerFragment
-  abstract Fragment fragment(BrowseFragment fragment);
+  abstract Fragment fragment(HomeScreenFragment fragment);
 }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.ui.browse.placesheet;
+package com.google.android.gnd.ui.home.placesheet;
 
 import static com.google.android.gnd.rx.RxAutoDispose.autoDisposable;
 
@@ -27,9 +27,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import com.google.android.gnd.MainViewModel;
-import com.google.android.gnd.ui.browse.BrowseViewModel;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.ViewModelFactory;
+import com.google.android.gnd.ui.home.HomeScreenViewModel;
 import com.google.android.gnd.vo.Form;
 import com.google.android.gnd.vo.Place;
 import java8.util.Optional;
@@ -44,7 +44,7 @@ public class RecordListFragment extends AbstractFragment {
   private MainViewModel mainViewModel;
   private RecordListViewModel viewModel;
   private PlaceSheetBodyViewModel placeSheetViewModel;
-  private BrowseViewModel browseViewModel;
+  private HomeScreenViewModel homeScreenViewModel;
 
   static RecordListFragment newInstance() {
     return new RecordListFragment();
@@ -63,8 +63,8 @@ public class RecordListFragment extends AbstractFragment {
     mainViewModel = ViewModelProviders.of(getActivity(), viewModelFactory).get(MainViewModel.class);
     placeSheetViewModel =
         ViewModelProviders.of(getActivity(), viewModelFactory).get(PlaceSheetBodyViewModel.class);
-    browseViewModel =
-      ViewModelProviders.of(getActivity(), viewModelFactory).get(BrowseViewModel.class);
+    homeScreenViewModel =
+        ViewModelProviders.of(getActivity(), viewModelFactory).get(HomeScreenViewModel.class);
   }
 
   @Nullable
@@ -96,7 +96,7 @@ public class RecordListFragment extends AbstractFragment {
       // TODO: Report error.
       return;
     }
-    browseViewModel.onFormChange(form.get());
+    homeScreenViewModel.onFormChange(form.get());
     viewModel.loadRecordSummaries(place.get(), form.get());
   }
 }

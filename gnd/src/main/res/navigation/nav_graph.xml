@@ -18,13 +18,13 @@
   xmlns:app="http://schemas.android.com/apk/res-auto"
   xmlns:tools="http://schemas.android.com/tools"
   android:id="@+id/nav_main.xml"
-  app:startDestination="@id/browse_fragment">
+    app:startDestination="@id/home_screen_fragment">
 
   <fragment
-    android:id="@+id/browse_fragment"
+      android:id="@+id/home_screen_fragment"
     android:label="@string/map_view"
-    android:name="com.google.android.gnd.ui.browse.BrowseFragment"
-    tools:layout="@layout/browse_frag">
+      android:name="com.google.android.gnd.ui.home.HomeScreenFragment"
+      tools:layout="@layout/home_screen_frag">
     <action
       android:id="@+id/showRecordDetails"
       app:destination="@id/record_details_fragment"

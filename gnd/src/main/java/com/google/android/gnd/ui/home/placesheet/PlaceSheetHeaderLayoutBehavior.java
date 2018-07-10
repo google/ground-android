@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.ui.browse.placesheet;
+package com.google.android.gnd.ui.home.placesheet;
 
 import android.content.Context;
 import android.support.design.widget.CoordinatorLayout;
 import android.util.AttributeSet;
 import android.view.View;
-import com.google.android.gnd.ui.browse.OnBottomSheetSlideBehavior;
+import com.google.android.gnd.ui.home.OnBottomSheetSlideBehavior;
 
 public class PlaceSheetHeaderLayoutBehavior extends OnBottomSheetSlideBehavior {
   public PlaceSheetHeaderLayoutBehavior(Context context, AttributeSet attrs) {

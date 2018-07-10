@@ -25,7 +25,7 @@ import android.util.Log;
 import android.view.View;
 import androidx.navigation.NavController;
 import com.google.android.gnd.repository.RecordSummary;
-import com.google.android.gnd.ui.browse.BrowseFragmentDirections;
+import com.google.android.gnd.ui.home.HomeScreenFragmentDirections;
 import com.google.android.gnd.ui.recorddetails.RecordDetailsFragmentDirections;
 import javax.inject.Inject;
 
@@ -37,7 +37,7 @@ public class MainViewModel extends ViewModel {
   public MainViewModel() {
     windowInsetsLiveData = new MutableLiveData<>();
     mainViewState = new MutableLiveData<>();
-    mainViewState.setValue(new MainViewState(MainViewState.View.MAP));
+    mainViewState.setValue(new MainViewState(MainViewState.View.HOME));
   }
 
   public LiveData<WindowInsetsCompat> getWindowInsets() {
@@ -80,8 +80,7 @@ public class MainViewModel extends ViewModel {
     private static final String TAG = MainViewState.class.getSimpleName();
 
     enum View {
-      // TODO: Rename to Browse or Home.
-      MAP,
+      HOME,
       PLACE_SHEET,
       RECORD_DETAILS,
       EDIT_RECORD
@@ -120,7 +119,7 @@ public class MainViewModel extends ViewModel {
       switch (view) {
         case RECORD_DETAILS:
           navController.navigate(
-              BrowseFragmentDirections.showRecordDetails(projectId, placeId, recordId));
+              HomeScreenFragmentDirections.showRecordDetails(projectId, placeId, recordId));
           break;
         case EDIT_RECORD:
           navController.navigate(

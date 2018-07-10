@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.ui.browse;
+package com.google.android.gnd.ui.home;
 
 import static java8.util.stream.StreamSupport.stream;
 
@@ -26,9 +26,9 @@ import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
 import com.google.android.gnd.R;
 import com.google.android.gnd.repository.Resource;
-import com.google.android.gnd.ui.browse.mapcontainer.MapContainerViewModel;
 import com.google.android.gnd.ui.common.AbstractDialogFragment;
 import com.google.android.gnd.ui.common.ViewModelFactory;
+import com.google.android.gnd.ui.home.mapcontainer.MapContainerViewModel;
 import com.google.android.gnd.vo.Place;
 import com.google.android.gnd.vo.PlaceType;
 import com.google.android.gnd.vo.Point;
@@ -46,7 +46,7 @@ public class AddPlaceDialogFragment extends AbstractDialogFragment {
   ViewModelFactory viewModelFactory;
 
   private MaybeSubject<Place> addPlaceRequestSubject;
-  private BrowseViewModel browseViewModel;
+  private HomeScreenViewModel homeScreenViewModel;
   private MapContainerViewModel mapContainerViewModel;
 
   @Inject
@@ -60,8 +60,8 @@ public class AddPlaceDialogFragment extends AbstractDialogFragment {
   @Override
   protected void obtainViewModels() {
     // TODO: Move into new AddPlaceDialogViewModel?
-    this.browseViewModel =
-      ViewModelProviders.of(getActivity(), viewModelFactory).get(BrowseViewModel.class);
+    this.homeScreenViewModel =
+        ViewModelProviders.of(getActivity(), viewModelFactory).get(HomeScreenViewModel.class);
     this.mapContainerViewModel =
       ViewModelProviders.of(getActivity(), viewModelFactory).get(MapContainerViewModel.class);
   }
@@ -75,7 +75,7 @@ public class AddPlaceDialogFragment extends AbstractDialogFragment {
   @Override
   public Dialog onCreateDialog(Bundle savedInstanceState) {
     // TODO: Inject and use custom factory.
-    Optional<Project> activeProject = Resource.getData(browseViewModel.getActiveProject());
+    Optional<Project> activeProject = Resource.getData(homeScreenViewModel.getActiveProject());
     Optional<Point> cameraPosition =
       Optional.ofNullable(mapContainerViewModel.getCameraPosition().getValue());
     if (!activeProject.isPresent()) {

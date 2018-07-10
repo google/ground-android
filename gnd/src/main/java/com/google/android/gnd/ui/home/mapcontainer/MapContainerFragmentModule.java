@@ -14,28 +14,18 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.ui.browse.placesheet;
+package com.google.android.gnd.ui.home.mapcontainer;
 
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import com.google.android.gnd.inject.PerFragment;
+import com.google.android.gnd.inject.PerChildFragment;
 import com.google.android.gnd.ui.common.AbstractFragmentModule;
+import dagger.Binds;
 import dagger.Module;
-import dagger.Provides;
 
-// TODO: Remove "Fragment" from other other Module names.
 @Module(includes = AbstractFragmentModule.class)
-public class PlaceSheetModule {
+public abstract class MapContainerFragmentModule {
 
-  @Provides
-  @PerFragment
-  public Fragment fragment(PlaceSheetBodyFragment fragment) {
-    return fragment;
-  }
-
-  @Provides
-  @PerFragment
-  public FragmentManager fragmentManager(PlaceSheetBodyFragment fragment) {
-    return fragment.getChildFragmentManager();
-  }
+  @Binds
+  @PerChildFragment
+  abstract Fragment fragment(MapContainerFragment fragment);
 }

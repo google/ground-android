@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.ui.browse;
+package com.google.android.gnd.ui.home;
 
 import static com.google.android.gnd.rx.RxAutoDispose.autoDisposable;
 import static com.google.android.gnd.ui.util.ViewUtil.getScreenHeight;
@@ -41,12 +41,12 @@ import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.MainViewModel;
 import com.google.android.gnd.R;
 import com.google.android.gnd.repository.Resource;
-import com.google.android.gnd.ui.browse.mapcontainer.MapContainerFragment;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.EphemeralPopups;
 import com.google.android.gnd.ui.common.ProgressDialogs;
 import com.google.android.gnd.ui.common.TwoLineToolbar;
 import com.google.android.gnd.ui.common.ViewModelFactory;
+import com.google.android.gnd.ui.home.mapcontainer.MapContainerFragment;
 import com.google.android.gnd.ui.projectselector.ProjectSelectorDialogFragment;
 import com.google.android.gnd.vo.Form;
 import com.google.android.gnd.vo.Place;
@@ -59,10 +59,9 @@ import javax.inject.Inject;
  * application, and gets swapped out for other fragments (e.g., view record and edit record) at
  * runtime.
  */
-public class BrowseFragment extends AbstractFragment {
-  // TODO: Rename to "HomeScreen" or similar.
+public class HomeScreenFragment extends AbstractFragment {
   private static final float COLLAPSED_MAP_ASPECT_RATIO = 16.0f / 9.0f;
-  private static final String TAG = BrowseFragment.class.getSimpleName();
+  private static final String TAG = HomeScreenFragment.class.getSimpleName();
 
   @Inject ViewModelFactory viewModelFactory;
 
@@ -86,7 +85,7 @@ public class BrowseFragment extends AbstractFragment {
   View bottomSheetBottomInsetScrim;
 
   private ProgressDialog progressDialog;
-  private BrowseViewModel viewModel;
+  private HomeScreenViewModel viewModel;
   private BottomSheetBehavior<NestedScrollView> bottomSheetBehavior;
   private MainViewModel mainViewModel;
 
@@ -101,13 +100,14 @@ public class BrowseFragment extends AbstractFragment {
 
   @Override
   public void obtainViewModels() {
-    viewModel = ViewModelProviders.of(getActivity(), viewModelFactory).get(BrowseViewModel.class);
+    viewModel = ViewModelProviders.of(getActivity(), viewModelFactory)
+        .get(HomeScreenViewModel.class);
     mainViewModel = ViewModelProviders.of(getActivity(), viewModelFactory).get(MainViewModel.class);
   }
 
   @Override
   public View createView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-    return inflater.inflate(R.layout.browse_frag, container, false);
+    return inflater.inflate(R.layout.home_screen_frag, container, false);
   }
 
   @Override
@@ -175,7 +175,7 @@ public class BrowseFragment extends AbstractFragment {
     Place place = placeSheetState.getPlace();
     NavHostFragment.findNavController(this)
                    .navigate(
-                     BrowseFragmentDirections.addRecord(
+                       HomeScreenFragmentDirections.addRecord(
                        place.getProject().getId(), place.getId(), form.getId()));
   }
 
