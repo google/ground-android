@@ -39,6 +39,7 @@ import com.google.android.gnd.system.PermissionsManager;
 import com.google.android.gnd.system.PermissionsManager.PermissionsRequest;
 import com.google.android.gnd.system.SettingsManager;
 import com.google.android.gnd.system.SettingsManager.SettingsChangeRequest;
+import com.google.android.gnd.ui.common.OnBackListener;
 import com.google.android.gnd.ui.common.TwoLineToolbar;
 import com.google.android.gnd.ui.common.ViewModelFactory;
 import com.google.android.gnd.ui.util.DrawableUtil;
@@ -196,5 +197,18 @@ public class MainActivity extends AppCompatActivity implements HasSupportFragmen
 
   private void logLifecycleEvent(String event) {
     Log.d(getClass().getSimpleName(), "Lifecycle event: " + event);
+  }
+
+  @Override
+  public void onBackPressed() {
+    Fragment currentFragment = getCurrentFragment();
+    if (!(currentFragment instanceof OnBackListener)
+      || !((OnBackListener) currentFragment).onBack()) {
+      super.onBackPressed();
+    }
+  }
+
+  private Fragment getCurrentFragment() {
+    return navHostFragment.getChildFragmentManager().findFragmentById(R.id.nav_host_fragment);
   }
 }

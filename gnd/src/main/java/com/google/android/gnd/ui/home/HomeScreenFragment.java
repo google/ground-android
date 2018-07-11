@@ -43,6 +43,7 @@ import com.google.android.gnd.R;
 import com.google.android.gnd.repository.Resource;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.EphemeralPopups;
+import com.google.android.gnd.ui.common.OnBackListener;
 import com.google.android.gnd.ui.common.ProgressDialogs;
 import com.google.android.gnd.ui.common.TwoLineToolbar;
 import com.google.android.gnd.ui.common.ViewModelFactory;
@@ -59,7 +60,7 @@ import javax.inject.Inject;
  * application, and gets swapped out for other fragments (e.g., view record and edit record) at
  * runtime.
  */
-public class HomeScreenFragment extends AbstractFragment {
+public class HomeScreenFragment extends AbstractFragment implements OnBackListener {
   private static final float COLLAPSED_MAP_ASPECT_RATIO = 16.0f / 9.0f;
   private static final String TAG = HomeScreenFragment.class.getSimpleName();
 
@@ -234,6 +235,16 @@ public class HomeScreenFragment extends AbstractFragment {
     if (progressDialog != null) {
       progressDialog.dismiss();
       progressDialog = null;
+    }
+  }
+
+  @Override
+  public boolean onBack() {
+    if (bottomSheetBehavior.getState() == BottomSheetBehavior.STATE_HIDDEN) {
+      return false;
+    } else {
+      hideBottomSheet();
+      return true;
     }
   }
 
