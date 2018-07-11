@@ -186,6 +186,8 @@ public class RecordDetailsFragment extends AbstractFragment {
     RecordDetailsFragmentArgs args = RecordDetailsFragmentArgs.fromBundle(getArguments());
     switch (item.getItemId()) {
       case R.id.edit_record_menu_item:
+        // This is required to prevent menu from reappearing on back.
+        getActivity().closeOptionsMenu();
         mainViewModel.editRecord(args.getProjectId(), args.getPlaceId(), args.getRecordId());
         return true;
       case R.id.delete_record_menu_item:
