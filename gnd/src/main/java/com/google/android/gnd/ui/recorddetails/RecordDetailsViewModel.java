@@ -17,9 +17,9 @@
 package com.google.android.gnd.ui.recorddetails;
 
 import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.MutableLiveData;
 import com.google.android.gnd.repository.DataRepository;
 import com.google.android.gnd.repository.Resource;
-import com.google.android.gnd.rx.RxLiveData;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.vo.Record;
 import javax.inject.Inject;
@@ -27,13 +27,20 @@ import javax.inject.Inject;
 public class RecordDetailsViewModel extends AbstractViewModel {
 
   private final DataRepository dataRepository;
+  private final MutableLiveData<Resource<Record>> record;
 
   @Inject
   RecordDetailsViewModel(DataRepository dataRepository) {
     this.dataRepository = dataRepository;
+    this.record = new MutableLiveData<>();
   }
 
-  public LiveData<Resource<Record>> getRecordDetails(String projectId, String placeId, String recordId) {
-    return RxLiveData.fromFlowable(dataRepository.getRecordDetails(projectId, placeId, recordId));
+  public LiveData<Resource<Record>> getRecord() {
+    return record;
+  }
+
+  public void loadRecordDetails(String projectId, String placeId, String recordId) {
+    disposeOnClear(
+      dataRepository.getRecordDetails(projectId, placeId, recordId).subscribe(record::setValue));
   }
 }

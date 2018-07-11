@@ -87,10 +87,14 @@ public class RecordDetailsFragment extends AbstractFragment {
 
   @Override
   protected void observeViewModels() {
+    viewModel.getRecord().observe(this, this::onUpdate);
+  }
+
+  @Override
+  protected void start() {
     RecordDetailsFragmentArgs args = RecordDetailsFragmentArgs.fromBundle(getArguments());
     viewModel
-      .getRecordDetails(args.getProjectId(), args.getPlaceId(), args.getRecordId())
-      .observe(this, this::onUpdate);
+      .loadRecordDetails(args.getProjectId(), args.getPlaceId(), args.getRecordId());
   }
 
   private void onUpdate(Resource<Record> record) {
@@ -118,6 +122,7 @@ public class RecordDetailsFragment extends AbstractFragment {
     progressBar.setVisibility(View.VISIBLE);
   }
 
+  // TODO: Move into separate ViewHolder class.
   private void showRecord(Record record) {
     progressBar.setVisibility(View.GONE);
     toolbar.setTitle(record.getPlace().getTitle());
