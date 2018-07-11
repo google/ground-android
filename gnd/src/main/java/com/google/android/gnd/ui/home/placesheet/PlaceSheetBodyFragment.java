@@ -68,7 +68,7 @@ public class PlaceSheetBodyFragment extends AbstractFragment {
   }
 
   @Override
-  protected void setUpView() {
+  protected void initializeViews() {
     recordListViewPager.setAdapter(formTypePagerAdapter);
     recordListViewPager.addOnPageChangeListener(viewModel);
     formsTabLayout.setupWithViewPager(recordListViewPager);

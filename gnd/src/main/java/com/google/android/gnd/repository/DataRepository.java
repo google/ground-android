@@ -165,8 +165,12 @@ public class DataRepository {
         .orElse(remoteDataService.loadProject(projectId));
   }
 
-  public Single<Record> saveChanges(Record record, ImmutableList<ValueUpdate> updates) {
-    return remoteDataService.saveChanges(record, updates);
+  public Flowable<Resource<Record>> saveChanges(Record record, ImmutableList<ValueUpdate> updates) {
+    return remoteDataService
+      .saveChanges(record, updates)
+      .map(Resource::saved)
+      .toFlowable()
+      .startWith(Resource.saving(record));
   }
 
   public Single<Place> addPlace(Place place) {

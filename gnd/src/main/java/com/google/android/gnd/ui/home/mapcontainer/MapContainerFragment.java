@@ -86,7 +86,7 @@ public class MapContainerFragment extends AbstractFragment {
   }
 
   @Override
-  protected void setUpView() {
+  protected void initializeViews() {
     replaceFragment(R.id.map, mapAdapter.getFragment());
   }
 

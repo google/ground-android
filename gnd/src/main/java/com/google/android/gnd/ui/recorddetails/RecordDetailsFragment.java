@@ -78,7 +78,7 @@ public class RecordDetailsFragment extends AbstractFragment {
   }
 
   @Override
-  protected void setUpView() {
+  protected void initializeViews() {
     ((MainActivity) getActivity()).setActionBar(toolbar);
   }
 

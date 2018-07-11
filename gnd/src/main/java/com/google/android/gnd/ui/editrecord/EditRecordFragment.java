@@ -16,7 +16,6 @@
 
 package com.google.android.gnd.ui.editrecord;
 
-import static com.google.android.gnd.rx.RxAutoDispose.autoDisposable;
 import static com.google.android.gnd.util.Streams.toImmutableList;
 import static com.google.android.gnd.vo.PlaceUpdate.Operation;
 import static java8.util.stream.StreamSupport.stream;
@@ -32,6 +31,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import androidx.navigation.fragment.NavHostFragment;
 import butterknife.BindView;
+import butterknife.OnClick;
 import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.R;
 import com.google.android.gnd.repository.Resource;
@@ -73,9 +73,6 @@ public class EditRecordFragment extends AbstractFragment {
   @BindView(R.id.edit_record_layout)
   LinearLayout formLayout;
 
-  @BindView(R.id.save_record_btn)
-  View saveButton;
-
   private List<Editable> fields;
 
   @Override
@@ -91,50 +88,43 @@ public class EditRecordFragment extends AbstractFragment {
   }
 
   @Override
-  protected void setUpView() {
+  protected void initializeViews() {
     ((MainActivity) getActivity()).setActionBar(toolbar, R.drawable.ic_close);
     savingProgressDialog = ProgressDialogs.modalSpinner(getContext(), R.string.saving);
   }
 
   @Override
   protected void observeViewModels() {
-    EditRecordFragmentArgs args = EditRecordFragmentArgs.fromBundle(getArguments());
-    if (args.getProjectId() == null
-      || args.getPlaceId() == null
-      || args.getRecordId() == null
-      || args.getFormId() == null) {
-      Log.e(TAG, "Missing fragment args");
-      EphemeralPopups.showError(getContext());
-      return;
-    }
-    if (args.getRecordId().equals(NEW_RECORD_ID_ARG_PLACEHOLDER)) {
-      viewModel
-        .createRecord(args.getProjectId(), args.getPlaceId(), args.getFormId())
-        .as(autoDisposable(this))
-        .subscribe(this::editRecord);
-    } else {
-      // TODO: Store and retrieve latest edits from cache and/or db.
-      viewModel
-        .getRecordSnapshot(args.getProjectId(), args.getPlaceId(), args.getRecordId())
-        .as(autoDisposable(this))
-        .subscribe(this::onSnapshotLoaded);
-    }
+    viewModel.getRecord().observe(this, this::onRecordChange);
   }
 
   @Override
-  protected void observeViews() {
-    saveButton.setOnClickListener(__ -> onSaveClick());
+  protected void start() {
+    EditRecordFragmentArgs args = EditRecordFragmentArgs.fromBundle(getArguments());
+    if (args.getRecordId().equals(NEW_RECORD_ID_ARG_PLACEHOLDER)) {
+      viewModel.editNewRecord(args.getProjectId(), args.getPlaceId(), args.getFormId());
+    } else {
+      viewModel.editExistingRecord(args.getProjectId(), args.getPlaceId(), args.getRecordId());
+    }
   }
 
-  private void onSnapshotLoaded(Resource<Record> record) {
+  private void onRecordChange(Resource<Record> record) {
     switch (record.getStatus()) {
       case LOADED:
         record.ifPresent(this::editRecord);
         break;
+      case SAVING:
+        savingProgressDialog.show();
+        break;
+      case SAVED:
+        savingProgressDialog.hide();
+        EphemeralPopups.showSuccess(getContext(), R.string.saved);
+        NavHostFragment.findNavController(this).navigateUp();
+        break;
       case NOT_FOUND:
       case ERROR:
         // TODO: Replace w/error view?
-        Log.e(TAG, "Failed to load record");
+        record.getError().ifPresent(t -> Log.e(TAG, "Failed to load/save record", t));
         EphemeralPopups.showError(getContext());
         break;
     }
@@ -145,6 +135,11 @@ public class EditRecordFragment extends AbstractFragment {
     toolbar.setTitle(record.getPlace().getTitle());
     toolbar.setSubtitle(record.getPlace().getSubtitle());
     formNameView.setText(record.getForm().getTitle());
+    rebuildForm(record);
+  }
+
+  // TODO: Move into EditRecordFormViewHolder class.
+  private void rebuildForm(Record record) {
     formLayout.removeAllViews();
     fields = new ArrayList<>();
     for (Form.Element element : record.getForm().getElements()) {
@@ -185,22 +180,12 @@ public class EditRecordFragment extends AbstractFragment {
     }
   }
 
-  private void onSaveClick() {
-    savingProgressDialog.show();
-    viewModel
-      .saveChanges(
+  @OnClick(R.id.save_record_btn)
+  void onSaveClick() {
+    viewModel.saveChanges(
         stream(fields)
           .map(Editable::getUpdate)
           .filter(u -> !u.getOperation().equals(Operation.NO_CHANGE))
-          .collect(toImmutableList()))
-      .as(autoDisposable(this))
-      .subscribe(
-        record -> {
-          savingProgressDialog.hide();
-          EphemeralPopups.showSuccess(getContext(), R.string.saved);
-          NavHostFragment.findNavController(this).navigateUp();
-          // TODO: Hide saving spinner, return to view mode.
-        },
-        t -> EphemeralPopups.showError(getContext()));
+          .collect(toImmutableList()));
   }
 }

@@ -111,7 +111,7 @@ public class HomeScreenFragment extends AbstractFragment {
   }
 
   @Override
-  protected void setUpView() {
+  protected void initializeViews() {
     replaceFragment(R.id.map_container_fragment, mapContainerFragment);
     setUpBottomSheetBehavior();
     ((MainActivity) getActivity()).setActionBar(toolbar);

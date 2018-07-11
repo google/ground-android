@@ -35,6 +35,8 @@ public class Resource<T> {
     NOT_LOADED,
     LOADING,
     LOADED,
+    SAVING,
+    SAVED,
     NOT_FOUND,
     // REMOVED? ID?
     ERROR
@@ -77,6 +79,18 @@ public class Resource<T> {
 
   public static <T> Resource<T> loaded(T data, SyncStatus syncStatus) {
     return new Resource<>(Status.LOADED, data, null, syncStatus);
+  }
+
+  public static <T> Resource<T> saving(T data) {
+    return new Resource<>(Status.SAVING, data, null, SyncStatus.LOCAL_CHANGES_PENDING);
+  }
+
+  public static <T> Resource<T> saved(T data) {
+    return new Resource<>(Status.SAVED, data, null, SyncStatus.LOCAL_CHANGES_PENDING);
+  }
+
+  public static <T> Resource<T> saved(T data, SyncStatus syncStatus) {
+    return new Resource<>(Status.SAVED, data, null, syncStatus);
   }
 
   public static <T> Resource<T> error(Throwable t) {

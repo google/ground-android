@@ -68,9 +68,10 @@ public abstract class AbstractFragment extends Fragment implements HasSupportFra
     logLifecycleEvent("onCreateView()");
     View view = createView(inflater, container, savedInstanceState);
     unbinder = ButterKnife.bind(this, view);
-    setUpView();
+    initializeViews();
     observeViewModels();
     observeViews();
+    start();
     return view;
   }
 
@@ -80,11 +81,15 @@ public abstract class AbstractFragment extends Fragment implements HasSupportFra
         "Subclasses much override either createView or onCreateView");
   }
 
-  protected void setUpView() {}
+  protected void initializeViews() {
+  }
 
   protected void observeViewModels() {}
 
   protected void observeViews() {
+  }
+
+  protected void start() {
   }
 
   @Override
