@@ -22,7 +22,6 @@ import android.app.Dialog;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,7 +36,6 @@ import com.google.android.gnd.ui.common.AbstractDialogFragment;
 import com.google.android.gnd.ui.common.EphemeralPopups;
 import com.google.android.gnd.ui.common.ViewModelFactory;
 import com.google.android.gnd.vo.Project;
-import java.util.Collections;
 import java.util.List;
 import javax.inject.Inject;
 
@@ -91,12 +89,7 @@ public class ProjectSelectorDialogFragment extends AbstractDialogFragment {
   private void update(Resource<List<Project>> projectSummaries) {
     switch (projectSummaries.getStatus()) {
       case LOADED:
-        projectSummaries.ifPresent(
-            list -> {
-              listLoadingProgressBar.setVisibility(View.GONE);
-              stream(list).map(Project::getTitle).forEach(listAdapter::add);
-              listView.setVisibility(View.VISIBLE);
-            });
+        projectSummaries.ifPresent(this::showProjectList);
         break;
       case NOT_FOUND:
       case ERROR:
@@ -106,16 +99,14 @@ public class ProjectSelectorDialogFragment extends AbstractDialogFragment {
     }
   }
 
+  private void showProjectList(List<Project> list) {
+    listLoadingProgressBar.setVisibility(View.GONE);
+    stream(list).map(Project::getTitle).forEach(listAdapter::add);
+    listView.setVisibility(View.VISIBLE);
+  }
+
   private void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-    List<Project> projectSummaries =
-        Resource.getData(viewModel.getProjectSummaries()).orElse(Collections.emptyList());
-    if (position >= projectSummaries.size()) {
-      EphemeralPopups.showError(getContext());
-      Log.e(TAG, "Project list item out of bounds");
-      return;
-    }
-    String projectId = projectSummaries.get(position).getId();
-    viewModel.activateProject(projectId);
+    viewModel.onProjectSelected(position);
     dismiss();
   }
 }

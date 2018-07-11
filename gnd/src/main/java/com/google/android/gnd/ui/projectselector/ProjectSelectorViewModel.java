@@ -17,14 +17,18 @@ package com.google.android.gnd.ui.projectselector;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
+import android.util.Log;
 import com.google.android.gnd.repository.DataRepository;
 import com.google.android.gnd.repository.Resource;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.vo.Project;
+import java.util.Collections;
 import java.util.List;
 import javax.inject.Inject;
 
 public class ProjectSelectorViewModel extends AbstractViewModel {
+  private static final String TAG = ProjectSelectorViewModel.class.getSimpleName();
+
   private final DataRepository dataRepository;
   private final MutableLiveData<Resource<List<Project>>> projectSummaries;
 
@@ -43,7 +47,20 @@ public class ProjectSelectorViewModel extends AbstractViewModel {
     return projectSummaries;
   }
 
-  public void activateProject(String id) {
+  void onProjectSelected(int position) {
+    List<Project> projects =
+      Resource.getData(this.projectSummaries).orElse(Collections.emptyList());
+    if (position >= projects.size()) {
+      Log.e(TAG, "Project list item out of bounds");
+      return;
+    }
+    String projectId = projects.get(position).getId();
+    activateProject(projectId);
+
+  }
+
+  private void activateProject(String id) {
     disposeOnClear(dataRepository.activateProject(id).subscribe());
   }
+
 }
