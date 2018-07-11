@@ -64,9 +64,9 @@
   -->
 
   <!-- Shown in record overflow menu to open popup dialog to edit place metadata. -->
-  <string name="edit_record">Edit</string>
+  <string name="edit_record">Edit record</string>
   <!-- Shown in record overflow menu to delete a record. -->
-  <string name="delete_record">Delete</string>
+  <string name="delete_record">Delete record</string>
   <!-- Confirmation shown when deleting a record (TBD). -->
   <string name="delete_record_confirmation">
     This will permanently delete the selected record. This cannot be undone. Are you sure?

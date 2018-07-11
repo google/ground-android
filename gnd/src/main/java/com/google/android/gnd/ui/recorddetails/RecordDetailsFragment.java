@@ -16,12 +16,13 @@
 
 package com.google.android.gnd.ui.recorddetails;
 
-import static com.google.android.gnd.rx.RxAutoDispose.autoDisposable;
-
 import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
@@ -39,7 +40,6 @@ import com.google.android.gnd.ui.common.TwoLineToolbar;
 import com.google.android.gnd.ui.common.ViewModelFactory;
 import com.google.android.gnd.vo.Form;
 import com.google.android.gnd.vo.Record;
-import com.jakewharton.rxbinding2.view.RxView;
 import javax.inject.Inject;
 
 public class RecordDetailsFragment extends AbstractFragment {
@@ -59,9 +59,6 @@ public class RecordDetailsFragment extends AbstractFragment {
   @BindView(R.id.record_details_layout)
   LinearLayout recordDetailsLayout;
 
-  @BindView(R.id.edit_record_btn)
-  View editRecordButton;
-
   private RecordDetailsViewModel viewModel;
   private MainViewModel mainViewModel;
 
@@ -80,25 +77,20 @@ public class RecordDetailsFragment extends AbstractFragment {
   @Override
   protected void initializeViews() {
     ((MainActivity) getActivity()).setActionBar(toolbar);
+    setHasOptionsMenu(true);
+  }
+
+  @Override
+  public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+    inflater.inflate(R.menu.record_details_menu, menu);
   }
 
   @Override
   protected void observeViewModels() {
     RecordDetailsFragmentArgs args = RecordDetailsFragmentArgs.fromBundle(getArguments());
-    if (args.getProjectId() == null || args.getPlaceId() == null || args.getRecordId() == null) {
-      Log.e(TAG, "Missing fragment args");
-      EphemeralPopups.showError(getContext());
-      return;
-    }
     viewModel
-        .getRecordDetails(args.getProjectId(), args.getPlaceId(), args.getRecordId())
-        .observe(this, this::onUpdate);
-    RxView.clicks(editRecordButton)
-          .as(autoDisposable(this))
-          .subscribe(
-            __ ->
-              mainViewModel.editRecord(
-                args.getProjectId(), args.getPlaceId(), args.getRecordId()));
+      .getRecordDetails(args.getProjectId(), args.getPlaceId(), args.getRecordId())
+      .observe(this, this::onUpdate);
   }
 
   private void onUpdate(Resource<Record> record) {
@@ -186,6 +178,21 @@ public class RecordDetailsFragment extends AbstractFragment {
 
     public ViewGroup getRoot() {
       return root;
+    }
+  }
+
+  @Override
+  public boolean onOptionsItemSelected(MenuItem item) {
+    RecordDetailsFragmentArgs args = RecordDetailsFragmentArgs.fromBundle(getArguments());
+    switch (item.getItemId()) {
+      case R.id.edit_record_menu_item:
+        mainViewModel.editRecord(args.getProjectId(), args.getPlaceId(), args.getRecordId());
+        return true;
+      case R.id.delete_record_menu_item:
+        // TODO: Implement delete record.
+        return true;
+      default:
+        return false;
     }
   }
 }

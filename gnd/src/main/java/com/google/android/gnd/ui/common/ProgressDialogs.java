@@ -26,8 +26,6 @@ public abstract class ProgressDialogs {
   private ProgressDialogs() {
   }
 
-  ;
-
   public static ProgressDialog modalSpinner(Context context, int messageId) {
     ProgressDialog dialog = new ProgressDialog(context);
     dialog.setMessage(context.getResources().getString(messageId));

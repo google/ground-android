@@ -89,19 +89,4 @@
 
   </RelativeLayout>
 
-  <!-- TODO: Move into overflow menu -->
-  <android.support.design.chip.Chip
-    android:id="@+id/edit_record_btn"
-    style="@style/ChipButton"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_marginBottom="@dimen/chip_button_margin_bottom"
-    android:layout_marginRight="@dimen/chip_button_margin_right"
-    android:layout_above="@id/bottom_sheet_bottom_inset_scrim"
-    android:layout_gravity="bottom|right|end"
-    android:elevation="6dp"
-    app:chipIcon="@drawable/ic_edit"
-    app:chipText="@string/edit_record_button_label"
-    app:useCompatPadding="true"/>
-
 </android.support.design.widget.CoordinatorLayout>

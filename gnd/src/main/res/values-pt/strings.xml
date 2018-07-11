@@ -63,9 +63,9 @@
   -->
 
   <!-- Shown in record overflow menu to open popup dialog to edit place metadata. -->
-  <string name="edit_record">Editar</string>
+  <string name="edit_record">Editar registro</string>
   <!-- Shown in record overflow menu to delete a record. -->
-  <string name="delete_record">Apagar</string>
+  <string name="delete_record">Apagar registro</string>
   <!-- Confirmation shown when deleting a record (TBD). -->
   <string name="delete_record_confirmation">
     Tem certeza que deseja apagar permanentemente os dados? Isso não pode ser desfeito.
