@@ -29,10 +29,10 @@ import android.widget.TextView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import com.google.android.gnd.R;
-import com.google.android.gnd.repository.RecordSummary;
 import com.google.android.gnd.vo.Form;
 import com.google.android.gnd.vo.Form.Element;
 import com.google.android.gnd.vo.Form.Field;
+import com.google.android.gnd.vo.Record;
 import com.google.android.gnd.vo.Record.Value;
 import io.reactivex.subjects.Subject;
 import java8.util.Optional;
@@ -40,7 +40,7 @@ import java8.util.Optional;
 class RecordListItemViewHolder extends RecyclerView.ViewHolder {
   private static final int MAX_SUMMARY_COLUMNS = 4;
   private final View view;
-  private final Subject<RecordSummary> clickSubject;
+  private final Subject<Record> clickSubject;
 
   @BindView(R.id.field_label_row)
   TableRow fieldLabelRow;
@@ -49,23 +49,23 @@ class RecordListItemViewHolder extends RecyclerView.ViewHolder {
   TableRow fieldValueRow;
 
   public static RecordListItemViewHolder newInstance(
-      ViewGroup parent, Subject<RecordSummary> clickSubject) {
+    ViewGroup parent, Subject<Record> clickSubject) {
     LayoutInflater inflater = LayoutInflater.from(parent.getContext());
     View view = inflater.inflate(R.layout.record_list_item, parent, false);
     return new RecordListItemViewHolder(view, clickSubject);
   }
 
-  private RecordListItemViewHolder(View view, Subject<RecordSummary> clickSubject) {
+  private RecordListItemViewHolder(View view, Subject<Record> clickSubject) {
     super(view);
     this.view = view;
     this.clickSubject = clickSubject;
     ButterKnife.bind(this, view);
   }
 
-  void update(RecordSummary summary) {
+  void update(Record record) {
     fieldLabelRow.removeAllViews();
     fieldValueRow.removeAllViews();
-    Form form = summary.getForm();
+    Form form = record.getForm();
     // TODO: Clean this up.
     for (int i = 0; i < MAX_SUMMARY_COLUMNS && i < form.getElements().size(); i++) {
       Element elem = form.getElements().get(i);
@@ -73,14 +73,14 @@ class RecordListItemViewHolder extends RecyclerView.ViewHolder {
         case FIELD:
           Field field = elem.getField();
           Optional<Value> value =
-              Optional.ofNullable(summary.getRecord().getValueMap().get(field.getId()));
+            Optional.ofNullable(record.getValueMap().get(field.getId()));
           fieldLabelRow.addView(newFieldTextView(field.getLabel()));
           fieldValueRow.addView(
               newFieldTextView(value.map(v -> v.getSummaryText()).orElse("")));
           break;
       }
     }
-    view.setOnClickListener(__ -> clickSubject.onNext(summary));
+    view.setOnClickListener(__ -> clickSubject.onNext(record));
   }
 
   @NonNull

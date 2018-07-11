@@ -19,7 +19,7 @@ package com.google.android.gnd.ui.home.placesheet;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.ViewGroup;
-import com.google.android.gnd.repository.RecordSummary;
+import com.google.android.gnd.vo.Record;
 import io.reactivex.Observable;
 import io.reactivex.subjects.PublishSubject;
 import io.reactivex.subjects.Subject;
@@ -29,8 +29,8 @@ import java.util.List;
 // TODO: Consider passing in ViewModel and using DataBinding like todoapp example.
 class RecordListAdapter extends RecyclerView.Adapter<RecordListItemViewHolder> {
 
-  private List<RecordSummary> recordSummaries;
-  private Subject<RecordSummary> clickSubject;
+  private List<Record> recordSummaries;
+  private Subject<Record> clickSubject;
 
   public RecordListAdapter() {
     recordSummaries = Collections.emptyList();
@@ -53,11 +53,11 @@ class RecordListAdapter extends RecyclerView.Adapter<RecordListItemViewHolder> {
     return recordSummaries.size();
   }
 
-  Observable<RecordSummary> getItemClicks() {
+  Observable<Record> getItemClicks() {
     return clickSubject;
   }
 
-  void update(List<RecordSummary> recordSummaries) {
+  void update(List<Record> recordSummaries) {
     this.recordSummaries = recordSummaries;
     notifyDataSetChanged();
   }

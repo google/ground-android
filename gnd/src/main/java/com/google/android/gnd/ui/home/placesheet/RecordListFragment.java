@@ -27,14 +27,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import androidx.navigation.fragment.NavHostFragment;
-import com.google.android.gnd.MainViewModel;
-import com.google.android.gnd.repository.RecordSummary;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.ViewModelFactory;
 import com.google.android.gnd.ui.home.HomeScreenFragmentDirections;
 import com.google.android.gnd.ui.home.HomeScreenViewModel;
 import com.google.android.gnd.vo.Form;
 import com.google.android.gnd.vo.Place;
+import com.google.android.gnd.vo.Record;
 import java8.util.Optional;
 import javax.inject.Inject;
 
@@ -44,7 +43,6 @@ public class RecordListFragment extends AbstractFragment {
 
   private RecordListAdapter recordListAdapter;
 
-  private MainViewModel mainViewModel;
   private RecordListViewModel viewModel;
   private PlaceSheetBodyViewModel placeSheetViewModel;
   private HomeScreenViewModel homeScreenViewModel;
@@ -63,7 +61,6 @@ public class RecordListFragment extends AbstractFragment {
   protected void obtainViewModels() {
     // TODO: Roll "get()" calls into ViewModelFactory to enforce scoping.
     viewModel = ViewModelProviders.of(this, viewModelFactory).get(RecordListViewModel.class);
-    mainViewModel = ViewModelProviders.of(getActivity(), viewModelFactory).get(MainViewModel.class);
     placeSheetViewModel =
         ViewModelProviders.of(getActivity(), viewModelFactory).get(PlaceSheetBodyViewModel.class);
     homeScreenViewModel =
@@ -83,21 +80,20 @@ public class RecordListFragment extends AbstractFragment {
 
   @Override
   protected void observeViewModels() {
-    viewModel.getRecords().observe(this, recordListAdapter::update);
+    viewModel.getRecordSummaries().observe(this, recordListAdapter::update);
     placeSheetViewModel.getSelectedForm().observe(this, this::onFormChange);
     recordListAdapter.getItemClicks().as(autoDisposable(this)).subscribe(this::showRecordDetails);
   }
 
-  private void showRecordDetails(RecordSummary recordSummary) {
+  private void showRecordDetails(Record record) {
     NavHostFragment.findNavController(this)
                    .navigate(
                      HomeScreenFragmentDirections.showRecordDetails(
-                       recordSummary.getProject().getId(),
-                       recordSummary.getRecord().getPlace().getId(),
-                       recordSummary.getRecord().getId()));
+                       record.getProject().getId(),
+                       record.getPlace().getId(),
+                       record.getId()));
   }
 
-  x
   private void onFormChange(Optional<Form> form) {
     viewModel.clearRecords();
     // TODO: Use fragment args, load form and place if not present.

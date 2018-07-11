@@ -21,13 +21,13 @@ import static java8.util.stream.StreamSupport.stream;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import com.google.android.gnd.repository.DataRepository;
-import com.google.android.gnd.repository.RecordSummary;
 import com.google.android.gnd.repository.Resource;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.vo.Form;
 import com.google.android.gnd.vo.Place;
 import com.google.android.gnd.vo.PlaceType;
 import com.google.android.gnd.vo.Project;
+import com.google.android.gnd.vo.Record;
 import java.util.Collections;
 import java.util.List;
 import java8.util.Optional;
@@ -38,7 +38,7 @@ import javax.inject.Inject;
 public class RecordListViewModel extends AbstractViewModel {
   private static final String TAG = RecordListViewModel.class.getSimpleName();
   private final DataRepository dataRepository;
-  private MutableLiveData<List<RecordSummary>> recordSummaries;
+  private MutableLiveData<List<Record>> recordSummaries;
 
   @Inject
   public RecordListViewModel(DataRepository dataRepository) {
@@ -46,7 +46,7 @@ public class RecordListViewModel extends AbstractViewModel {
     recordSummaries = new MutableLiveData<>();
   }
 
-  public LiveData<List<RecordSummary>> getRecords() {
+  public LiveData<List<Record>> getRecordSummaries() {
     return recordSummaries;
   }
 
@@ -82,7 +82,6 @@ public class RecordListViewModel extends AbstractViewModel {
             recordSummaries.setValue(
               stream(records)
                 .filter(record -> record.getForm().getId().equals(formId))
-                .map(record -> new RecordSummary(project, form.get(), record))
                 .collect(Collectors.toList()))));
   }
 }
