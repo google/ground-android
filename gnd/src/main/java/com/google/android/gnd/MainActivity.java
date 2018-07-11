@@ -97,12 +97,6 @@ public class MainActivity extends AppCompatActivity implements HasSupportFragmen
         .getSettingsChangeRequests()
         .as(autoDisposable(this))
         .subscribe(this::onSettingsChangeRequest);
-
-    viewModel.getViewState().observe(this, this::setViewState);
-  }
-
-  private void setViewState(MainViewModel.MainViewState state) {
-    state.navigate(navHostFragment.getNavController());
   }
 
   private void onPermissionsRequest(PermissionsRequest permissionsRequest) {

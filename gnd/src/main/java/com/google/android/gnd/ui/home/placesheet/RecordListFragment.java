@@ -26,9 +26,12 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import androidx.navigation.fragment.NavHostFragment;
 import com.google.android.gnd.MainViewModel;
+import com.google.android.gnd.repository.RecordSummary;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.ViewModelFactory;
+import com.google.android.gnd.ui.home.HomeScreenFragmentDirections;
 import com.google.android.gnd.ui.home.HomeScreenViewModel;
 import com.google.android.gnd.vo.Form;
 import com.google.android.gnd.vo.Place;
@@ -82,12 +85,19 @@ public class RecordListFragment extends AbstractFragment {
   protected void observeViewModels() {
     viewModel.getRecords().observe(this, recordListAdapter::update);
     placeSheetViewModel.getSelectedForm().observe(this, this::onFormChange);
-    recordListAdapter
-      .getItemClicks()
-      .as(autoDisposable(this))
-      .subscribe(mainViewModel::showRecordDetails);
+    recordListAdapter.getItemClicks().as(autoDisposable(this)).subscribe(this::showRecordDetails);
   }
 
+  private void showRecordDetails(RecordSummary recordSummary) {
+    NavHostFragment.findNavController(this)
+                   .navigate(
+                     HomeScreenFragmentDirections.showRecordDetails(
+                       recordSummary.getProject().getId(),
+                       recordSummary.getRecord().getPlace().getId(),
+                       recordSummary.getRecord().getId()));
+  }
+
+  x
   private void onFormChange(Optional<Form> form) {
     viewModel.clearRecords();
     // TODO: Use fragment args, load form and place if not present.
