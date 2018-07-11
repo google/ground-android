@@ -123,7 +123,7 @@ public class MainViewModel extends ViewModel {
           break;
         case EDIT_RECORD:
           navController.navigate(
-            RecordDetailsFragmentDirections.editRecord("", projectId, placeId, recordId));
+            RecordDetailsFragmentDirections.editRecord(projectId, placeId, recordId));
           break;
         default:
           Log.e(TAG, "Unimplemented transition: " + view);

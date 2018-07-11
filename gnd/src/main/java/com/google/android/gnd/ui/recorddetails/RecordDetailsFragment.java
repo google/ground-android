@@ -16,7 +16,6 @@
 
 package com.google.android.gnd.ui.recorddetails;
 
-import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -28,10 +27,10 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import androidx.navigation.fragment.NavHostFragment;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import com.google.android.gnd.MainActivity;
-import com.google.android.gnd.MainViewModel;
 import com.google.android.gnd.R;
 import com.google.android.gnd.repository.Resource;
 import com.google.android.gnd.ui.common.AbstractFragment;
@@ -60,7 +59,6 @@ public class RecordDetailsFragment extends AbstractFragment {
   LinearLayout recordDetailsLayout;
 
   private RecordDetailsViewModel viewModel;
-  private MainViewModel mainViewModel;
 
   @Override
   protected View createView(
@@ -71,7 +69,6 @@ public class RecordDetailsFragment extends AbstractFragment {
   @Override
   protected void obtainViewModels() {
     viewModel = viewModelFactory.create(RecordDetailsViewModel.class);
-    mainViewModel = ViewModelProviders.of(getActivity(), viewModelFactory).get(MainViewModel.class);
   }
 
   @Override
@@ -92,9 +89,8 @@ public class RecordDetailsFragment extends AbstractFragment {
 
   @Override
   protected void start() {
-    RecordDetailsFragmentArgs args = RecordDetailsFragmentArgs.fromBundle(getArguments());
-    viewModel
-      .loadRecordDetails(args.getProjectId(), args.getPlaceId(), args.getRecordId());
+    RecordDetailsFragmentArgs args = getRecordDetailFragmentArgs();
+    viewModel.loadRecordDetails(args.getProjectId(), args.getPlaceId(), args.getRecordId());
   }
 
   private void onUpdate(Resource<Record> record) {
@@ -188,12 +184,15 @@ public class RecordDetailsFragment extends AbstractFragment {
 
   @Override
   public boolean onOptionsItemSelected(MenuItem item) {
-    RecordDetailsFragmentArgs args = RecordDetailsFragmentArgs.fromBundle(getArguments());
     switch (item.getItemId()) {
       case R.id.edit_record_menu_item:
         // This is required to prevent menu from reappearing on back.
         getActivity().closeOptionsMenu();
-        mainViewModel.editRecord(args.getProjectId(), args.getPlaceId(), args.getRecordId());
+        RecordDetailsFragmentArgs args = getRecordDetailFragmentArgs();
+        NavHostFragment.findNavController(this)
+                       .navigate(
+                         RecordDetailsFragmentDirections.editRecord(
+                           args.getProjectId(), args.getPlaceId(), args.getRecordId()));
         return true;
       case R.id.delete_record_menu_item:
         // TODO: Implement delete record.
@@ -201,5 +200,9 @@ public class RecordDetailsFragment extends AbstractFragment {
       default:
         return false;
     }
+  }
+
+  private RecordDetailsFragmentArgs getRecordDetailFragmentArgs() {
+    return RecordDetailsFragmentArgs.fromBundle(getArguments());
   }
 }
