@@ -30,6 +30,7 @@ import com.google.android.gnd.vo.Point;
 import com.google.android.gnd.vo.Project;
 import com.google.common.collect.ImmutableSet;
 import io.reactivex.Completable;
+import io.reactivex.Flowable;
 import io.reactivex.disposables.Disposable;
 import java8.util.Optional;
 import javax.inject.Inject;
@@ -57,8 +58,11 @@ public class MapContainerViewModel extends ViewModel {
     // TODO: Since we depend on project stream from repo anyway, this transformation can be moved
     // into the repo.
     this.places =
-        RxLiveData.fromFlowable(dataRepository.getActiveProjectStream().compose(Resource.filterAndGetData())
-                                              .switchMap(project -> dataRepository.getPlaceVectorStream(project)));
+      RxLiveData.fromFlowable(
+        dataRepository
+          .getActiveProjectStream()
+          .compose(Resource.filterAndGetData())
+          .switchMap(project -> dataRepository.getPlaceVectorStream(project)));
   }
 
   public LiveData<Resource<Project>> getActiveProject() {
@@ -95,17 +99,23 @@ public class MapContainerViewModel extends ViewModel {
 
   private void restartLocationUpdates() {
     disposeLocationUpdateSubscription();
+
     // Sometimes there is visible latency between when location update request succeeds and when
     // the first location update is received. Requesting the last know location is usually
     // immediate, so we request it first here to reduce perceived latency.
     // The first update pans and zooms the camera to the appropriate zoom level; subsequent ones
     // only pan the map.
-    locationUpdateSubscription =
+    Flowable<Point> locations =
         locationManager
-            .getLastLocation()
-            .map(CameraUpdate::panAndZoom)
-            .toFlowable()
-            .concatWith(locationManager.getLocationUpdates().map(CameraUpdate::pan))
+          .getLastLocation()
+          .toFlowable()
+          .concatWith(locationManager.getLocationUpdates());
+
+    locationUpdateSubscription =
+      locations
+        .take(1)
+        .map(CameraUpdate::panAndZoom)
+        .concatWith(locations.map(CameraUpdate::pan).skip(1))
             .subscribe(cameraUpdates::setValue);
 
     Log.d(TAG, "Enable location lock succeeded");
