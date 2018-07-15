@@ -61,27 +61,6 @@ public class MapContainerViewModel extends ViewModel {
                                               .switchMap(project -> dataRepository.getPlaceVectorStream(project)));
   }
 
-  //  private void updatePlaces(MarkerUpdate markerUpdate) {
-  //    switch (markerUpdate.getVisibility()) {
-  //
-  //      case CLEAR_ALL:
-  //        places.setValue(ImmutableSet.of());
-  //        break;
-  //      case ADD_OR_UPDATE_MARKER:
-  //        places.setValue(
-  //        ImmutableSet.<Place>builder()
-  //          .addAll(places.getValue())
-  //          .add(markerUpdate.getPlace())
-  //          .build());
-  //        break;
-  //      case REMOVE_MARKER:
-  //        places.setValue(
-  //          stream(places.getValue()).filter(p -> !p.getPlaceType(markerUpdate.getPlace())).
-  //            );
-  //        break;
-  //    }
-  //  }
-
   public LiveData<Resource<Project>> getActiveProject() {
     return activeProject;
   }

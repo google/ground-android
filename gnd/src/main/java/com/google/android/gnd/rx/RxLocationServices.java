@@ -34,6 +34,7 @@ import com.google.android.gms.tasks.Task;
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
+import io.reactivex.Maybe;
 import io.reactivex.Single;
 import io.reactivex.subjects.BehaviorSubject;
 
@@ -73,8 +74,8 @@ public class RxLocationServices {
     }
 
     @SuppressLint("MissingPermission")
-    public Single<Location> getLastLocation() {
-      return RxTask.toSingle(() -> fusedLocationProviderClient.getLastLocation());
+    public Maybe<Location> getLastLocation() {
+      return RxTask.toMaybe(() -> fusedLocationProviderClient.getLastLocation());
     }
 
     public Completable requestLocationUpdates(LocationRequest locationRequest) {

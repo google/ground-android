@@ -232,7 +232,7 @@ class GoogleMapsMapAdapter implements MapAdapter {
     LatLng cameraTarget = map.getCameraPosition().target;
     Point target = Point.fromLatLng(cameraTarget);
     cameraPositionSubject.onNext(target);
-    if (!cameraTarget.equals(cameraTargetBeforeDrag)) {
+    if (cameraTargetBeforeDrag != null && !cameraTarget.equals(cameraTargetBeforeDrag)) {
       dragInteractionSubject.onNext(target);
     }
   }

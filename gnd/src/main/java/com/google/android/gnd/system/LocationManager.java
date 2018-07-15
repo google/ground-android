@@ -29,7 +29,7 @@ import com.google.android.gnd.rx.RxLocationServices.RxFusedLocationProviderClien
 import com.google.android.gnd.vo.Point;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
-import io.reactivex.Single;
+import io.reactivex.Maybe;
 import javax.inject.Inject;
 
 @PerActivity
@@ -88,7 +88,7 @@ public class LocationManager {
   }
 
   @SuppressLint("MissingPermission")
-  public Single<Point> getLastLocation() {
+  public Maybe<Point> getLastLocation() {
     Log.d(TAG, "Requesting last known location");
     return locationClient.getLastLocation().map(LocationManager::toPoint);
   }

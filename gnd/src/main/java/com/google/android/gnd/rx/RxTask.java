@@ -19,6 +19,8 @@ package com.google.android.gnd.rx;
 import android.support.annotation.Nullable;
 import com.google.android.gms.tasks.Task;
 import io.reactivex.Completable;
+import io.reactivex.Maybe;
+import io.reactivex.MaybeEmitter;
 import io.reactivex.Single;
 import io.reactivex.SingleEmitter;
 import java8.util.function.Supplier;
@@ -32,11 +34,32 @@ public abstract class RxTask {
    * Turns a non-void {@link Task} into an Rx {@link Single}. Null values are reported as an error
    * result of {@link NullPointerException}. The provided supplier will be invoked only onSubscribe.
    */
+  public static <T> Maybe<T> toMaybe(Supplier<Task<T>> task) {
+    return Maybe.create(
+      emitter ->
+        task.get()
+            .addOnSuccessListener(v -> onSuccess(v, emitter))
+            .addOnFailureListener(emitter::onError));
+  }
+
+  private static <T> void onSuccess(@Nullable T v, MaybeEmitter<T> emitter) {
+    if (v == null) {
+      emitter.onComplete();
+    } else {
+      emitter.onSuccess(v);
+    }
+
+  }
+
+  /**
+   * Turns a non-void {@link Task} into an Rx {@link Single}. Null values are reported as an error
+   * result of {@link NullPointerException}. The provided supplier will be invoked only onSubscribe.
+   */
   public static <T> Single<T> toSingle(Supplier<Task<T>> task) {
     return Single.create(
         emitter ->
             task.get()
-                .addOnSuccessListener(v -> onNullable(v, emitter))
+                .addOnSuccessListener(v -> onNullableSuccess(v, emitter))
                 .addOnFailureListener(emitter::onError));
   }
 
@@ -53,11 +76,12 @@ public abstract class RxTask {
                 .addOnFailureListener(emitter::onError));
   }
 
-  private static <T> void onNullable(@Nullable T v, SingleEmitter<T> emitter) {
+  private static <T> void onNullableSuccess(@Nullable T v, SingleEmitter<T> emitter) {
     if (v == null) {
       emitter.onError(new NullPointerException());
     } else {
       emitter.onSuccess(v);
     }
   }
+
 }
