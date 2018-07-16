@@ -27,7 +27,6 @@ import com.google.android.gnd.vo.Form;
 import com.google.android.gnd.vo.Place;
 import com.google.android.gnd.vo.Point;
 import com.google.android.gnd.vo.Project;
-import io.reactivex.Single;
 import javax.inject.Inject;
 
 public class HomeScreenViewModel extends AbstractViewModel {
@@ -76,9 +75,9 @@ public class HomeScreenViewModel extends AbstractViewModel {
     addPlaceDialogRequests.setValue(location);
   }
 
-  public Single<Place> addPlace(Place place) {
+  public void addPlace(Place place) {
     // TODO: Zoom if necessary.
-    return dataRepository.addPlace(place).doOnSuccess(this::showPlaceSheet);
+    disposeOnClear(dataRepository.addPlace(place).subscribe(this::showPlaceSheet));
   }
 
   public void onBottomSheetHidden() {

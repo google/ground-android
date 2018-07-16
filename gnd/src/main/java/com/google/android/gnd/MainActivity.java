@@ -33,7 +33,7 @@ import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.NavigationUI;
 import butterknife.ButterKnife;
 import com.google.android.gnd.repository.DataRepository;
-import com.google.android.gnd.rx.RxErrors;
+import com.google.android.gnd.rx.RxDebug;
 import com.google.android.gnd.service.RemoteDataService;
 import com.google.android.gnd.system.PermissionsManager;
 import com.google.android.gnd.system.PermissionsManager.PermissionsRequest;
@@ -70,8 +70,8 @@ public class MainActivity extends AppCompatActivity implements HasSupportFragmen
   protected void onCreate(Bundle savedInstanceState) {
     logLifecycleEvent("onCreate()");
 
-    // Prevent RxJava from force-quitting on unhandled errros.
-    RxJavaPlugins.setErrorHandler(t -> RxErrors.logEnhancedStackTrace(t));
+    // Prevent RxJava from force-quitting on unhandled errors.
+    RxJavaPlugins.setErrorHandler(t -> RxDebug.logEnhancedStackTrace(t));
 
     super.onCreate(savedInstanceState);
 

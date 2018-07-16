@@ -188,9 +188,9 @@ public class HomeScreenFragment extends AbstractFragment implements OnBackListen
     // TODO: Show spinner?
     addPlaceDialogFragment
       .show(getChildFragmentManager())
-      .flatMap(place -> viewModel.addPlace(place).toMaybe())
       .as(autoDisposable(this))
-      .subscribe();
+      .subscribe(viewModel::addPlace);
+
   }
 
   private void onPlaceSheetStateChange(PlaceSheetState state) {
