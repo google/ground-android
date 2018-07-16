@@ -95,13 +95,13 @@ public class HomeScreenFragment extends AbstractFragment implements OnBackListen
     setHasOptionsMenu(true);
     // TODO: Persist last selected project in local db instead of asking to select every time.
     // TODO: Trigger this from welcome flow and nav drawer instead of here.
-    ProjectSelectorDialogFragment.show(getFragmentManager());
   }
 
   @Override
   protected void initializeInstanceState() {
     mapContainerFragment = new MapContainerFragment();
     replaceFragment(R.id.map_container_fragment, mapContainerFragment);
+    ProjectSelectorDialogFragment.show(getFragmentManager());
   }
 
   @Override
