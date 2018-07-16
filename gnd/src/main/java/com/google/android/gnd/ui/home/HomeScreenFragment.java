@@ -66,8 +66,6 @@ public class HomeScreenFragment extends AbstractFragment implements OnBackListen
 
   @Inject ViewModelFactory viewModelFactory;
 
-  @Inject MapContainerFragment mapContainerFragment;
-
   @Inject AddPlaceDialogFragment addPlaceDialogFragment;
 
   @BindView(R.id.toolbar_wrapper)
@@ -87,6 +85,7 @@ public class HomeScreenFragment extends AbstractFragment implements OnBackListen
 
   private ProgressDialog progressDialog;
   private HomeScreenViewModel viewModel;
+  private MapContainerFragment mapContainerFragment;
   private BottomSheetBehavior<NestedScrollView> bottomSheetBehavior;
   private MainViewModel mainViewModel;
 
@@ -100,9 +99,26 @@ public class HomeScreenFragment extends AbstractFragment implements OnBackListen
   }
 
   @Override
+  protected void initializeInstanceState() {
+    mapContainerFragment = new MapContainerFragment();
+    replaceFragment(R.id.map_container_fragment, mapContainerFragment);
+  }
+
+  @Override
+  protected void restoreInstanceState(Bundle savedInstanceState) {
+    mapContainerFragment =
+      restoreChildFragment(savedInstanceState, MapContainerFragment.class);
+  }
+
+  @Override
+  public void onSaveInstanceState(@NonNull Bundle outState) {
+    saveChildFragment(outState, mapContainerFragment);
+  }
+
+  @Override
   public void obtainViewModels() {
-    viewModel = ViewModelProviders.of(getActivity(), viewModelFactory)
-        .get(HomeScreenViewModel.class);
+    viewModel =
+      ViewModelProviders.of(getActivity(), viewModelFactory).get(HomeScreenViewModel.class);
     mainViewModel = ViewModelProviders.of(getActivity(), viewModelFactory).get(MainViewModel.class);
   }
 
@@ -113,7 +129,6 @@ public class HomeScreenFragment extends AbstractFragment implements OnBackListen
 
   @Override
   protected void initializeViews() {
-    replaceFragment(R.id.map_container_fragment, mapContainerFragment);
     setUpBottomSheetBehavior();
     ((MainActivity) getActivity()).setActionBar(toolbar);
   }
@@ -176,7 +191,7 @@ public class HomeScreenFragment extends AbstractFragment implements OnBackListen
     Place place = placeSheetState.getPlace();
     NavHostFragment.findNavController(this)
                    .navigate(
-                       HomeScreenFragmentDirections.addRecord(
+                     HomeScreenFragmentDirections.addRecord(
                        place.getProject().getId(), place.getId(), form.getId()));
   }
 
@@ -190,7 +205,6 @@ public class HomeScreenFragment extends AbstractFragment implements OnBackListen
       .show(getChildFragmentManager())
       .as(autoDisposable(this))
       .subscribe(viewModel::addPlace);
-
   }
 
   private void onPlaceSheetStateChange(PlaceSheetState state) {

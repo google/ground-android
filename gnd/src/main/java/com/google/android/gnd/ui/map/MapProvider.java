@@ -26,6 +26,8 @@ import io.reactivex.Single;
 
 /** Common interface for various map provider libraries. */
 public interface MapProvider {
+  void restore(Fragment fragment);
+
   Fragment getFragment();
 
   Single<MapAdapter> getMapAdapter();

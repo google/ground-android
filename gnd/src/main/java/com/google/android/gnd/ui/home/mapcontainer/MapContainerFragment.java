@@ -23,6 +23,7 @@ import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.res.ColorStateList;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.view.WindowInsetsCompat;
 import android.util.Log;
@@ -49,11 +50,13 @@ import javax.inject.Inject;
 /** Main app view, displaying the map and related controls (center cross-hairs, add button, etc). */
 public class MapContainerFragment extends AbstractFragment {
   private static final String TAG = MapContainerFragment.class.getSimpleName();
+  private static final String MAP_FRAGMENT_KEY = MapProvider.class.getName() + "#fragment";
 
   // TODO: Get ViewModel from ViewModelFactory instead.
   @Inject ViewModelProvider.Factory viewModelFactory;
 
-  @Inject MapProvider mapAdapter;
+  @Inject
+  MapProvider mapProvider;
 
   @BindView(R.id.add_place_btn)
   FloatingActionButton addPlaceBtn;
@@ -68,9 +71,6 @@ public class MapContainerFragment extends AbstractFragment {
   private HomeScreenViewModel homeScreenViewModel;
   private MainViewModel mainViewModel;
   private SingleSubject<MapAdapter> map = SingleSubject.create();
-
-  @Inject
-  public MapContainerFragment() {}
 
   @Override
   protected void obtainViewModels() {
@@ -88,14 +88,24 @@ public class MapContainerFragment extends AbstractFragment {
   }
 
   @Override
-  protected void initializeViews() {
-    replaceFragment(R.id.map, mapAdapter.getFragment());
+  protected void initializeInstanceState() {
+    replaceFragment(R.id.map, mapProvider.getFragment());
+  }
+
+  @Override
+  protected void restoreInstanceState(Bundle savedInstanceState) {
+    mapProvider.restore(restoreChildFragment(savedInstanceState, MAP_FRAGMENT_KEY));
   }
 
   @Override
   protected void observeViewModels() {
     mainViewModel.getWindowInsets().observe(this, this::onApplyWindowInsets);
-    mapAdapter.getMapAdapter().as(autoDisposable(this)).subscribe(this::onMapReady);
+    mapProvider.getMapAdapter().as(autoDisposable(this)).subscribe(this::onMapReady);
+  }
+
+  @Override
+  public void onSaveInstanceState(@NonNull Bundle outState) {
+    saveChildFragment(outState, mapProvider.getFragment(), MAP_FRAGMENT_KEY);
   }
 
   private void onMapReady(MapAdapter map) {

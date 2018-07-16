@@ -19,12 +19,10 @@ package com.google.android.gnd.ui.map;
 import com.google.android.gnd.ui.map.gms.GoogleMapsMapProvider;
 import dagger.Module;
 import dagger.Provides;
-import javax.inject.Singleton;
 
 @Module
 public class MapProviderModule {
   @Provides
-  @Singleton
   static MapProvider googleMapsProvider() {
     return new GoogleMapsMapProvider();
   }

@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.ui.map.gms;
 
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import com.google.android.gnd.ui.map.MapProvider;
 import io.reactivex.Single;
@@ -24,26 +25,42 @@ import io.reactivex.SingleEmitter;
 /** Ground map adapter implementation for Google Maps API. */
 public class GoogleMapsMapProvider implements MapProvider {
 
-  private final GoogleMapsFragment fragment;
-  private final Single<MapAdapter> map;
+  @Nullable
+  private GoogleMapsFragment fragment;
+  @Nullable
+  private Single<MapAdapter> map;
 
-  public GoogleMapsMapProvider() {
-    this.fragment = new GoogleMapsFragment();
+  @Override
+  public void restore(Fragment fragment) {
+    init((GoogleMapsFragment) fragment);
+  }
+
+  private void init(GoogleMapsFragment fragment) {
+    if (this.fragment != null) {
+      throw new IllegalStateException("Map fragment already initialized");
+    }
+    this.fragment = fragment;
     this.map = Single.create(this::createMapAsync).cache();
   }
 
   private void createMapAsync(SingleEmitter<MapAdapter> emitter) {
-    fragment.getMapAsync(
+    ((GoogleMapsFragment) getFragment()).getMapAsync(
         googleMap -> emitter.onSuccess(new GoogleMapsMapAdapter(googleMap, fragment.getContext())));
   }
 
   @Override
   public Fragment getFragment() {
+    if (fragment == null) {
+      init(new GoogleMapsFragment());
+    }
     return fragment;
   }
 
   @Override
   public Single<MapAdapter> getMapAdapter() {
+    if (map == null) {
+      throw new IllegalStateException("Called before provider initialized");
+    }
     return map;
   }
 }

@@ -68,11 +68,22 @@ public abstract class AbstractFragment extends Fragment implements HasSupportFra
     logLifecycleEvent("onCreateView()");
     View view = createView(inflater, container, savedInstanceState);
     unbinder = ButterKnife.bind(this, view);
+    if (savedInstanceState == null) {
+      initializeInstanceState();
+    } else {
+      restoreInstanceState(savedInstanceState);
+    }
     initializeViews();
     observeViewModels();
     observeViews();
     start();
     return view;
+  }
+
+  protected void initializeInstanceState() {
+  }
+
+  protected void restoreInstanceState(Bundle savedInstanceState) {
   }
 
   protected View createView(
@@ -144,6 +155,22 @@ public abstract class AbstractFragment extends Fragment implements HasSupportFra
 
   protected final void replaceFragment(@IdRes int containerViewId, Fragment fragment) {
     getChildFragmentManager().beginTransaction().replace(containerViewId, fragment).commit();
+  }
+
+  protected <T> void saveChildFragment(Bundle outState, Fragment fragment) {
+    saveChildFragment(outState, fragment, fragment.getClass().getName());
+  }
+
+  protected <T> void saveChildFragment(Bundle outState, Fragment fragment, String key) {
+    getChildFragmentManager().putFragment(outState, key, fragment);
+  }
+
+  protected <T> T restoreChildFragment(Bundle savedInstanceState, String key) {
+    return (T) getChildFragmentManager().getFragment(savedInstanceState, key);
+  }
+
+  protected <T> T restoreChildFragment(Bundle savedInstanceState, Class<T> fragmentClass) {
+    return (T) restoreChildFragment(savedInstanceState, fragmentClass.getName());
   }
 
   private void logLifecycleEvent(String event) {
