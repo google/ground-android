@@ -18,24 +18,23 @@ package com.google.android.gnd.ui.home.mapcontainer;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
-import android.arch.lifecycle.ViewModel;
 import android.util.Log;
 import com.google.android.gnd.repository.DataRepository;
 import com.google.android.gnd.repository.Resource;
 import com.google.android.gnd.rx.RxLiveData;
 import com.google.android.gnd.system.LocationManager;
+import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.map.MapMarker;
 import com.google.android.gnd.vo.Place;
 import com.google.android.gnd.vo.Point;
 import com.google.android.gnd.vo.Project;
 import com.google.common.collect.ImmutableSet;
-import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.disposables.Disposable;
 import java8.util.Optional;
 import javax.inject.Inject;
 
-public class MapContainerViewModel extends ViewModel {
+public class MapContainerViewModel extends AbstractViewModel {
   private static final String TAG = MapContainerViewModel.class.getSimpleName();
   private static final float DEFAULT_ZOOM_LEVEL = 14.0f;
   private final LiveData<Resource<Project>> activeProject;
@@ -89,12 +88,14 @@ public class MapContainerViewModel extends ViewModel {
     return locationLockStatus.getValue().isEnabled();
   }
 
-  public Completable enableLocationLock() {
-    return locationManager
+  public void enableLocationLock() {
+    disposeOnClear(
+      locationManager
         .enableLocationUpdates()
         .doOnComplete(() -> locationLockStatus.setValue(LocationLockStatus.enabled()))
         .doOnComplete(() -> restartLocationUpdates())
-        .doOnError(t -> locationLockStatus.setValue(LocationLockStatus.error(t)));
+        .doOnError(t -> locationLockStatus.setValue(LocationLockStatus.error(t)))
+        .subscribe());
   }
 
   private void restartLocationUpdates() {
@@ -121,11 +122,14 @@ public class MapContainerViewModel extends ViewModel {
     Log.d(TAG, "Enable location lock succeeded");
   }
 
-  public Completable disableLocationLock() {
-    return locationManager
-        .disableLocationUpdates()
-        .doOnSubscribe(s -> disposeLocationUpdateSubscription())
-        .doOnComplete(() -> locationLockStatus.setValue(LocationLockStatus.disabled()));
+  public void disableLocationLock() {
+    disposeOnClear(
+      locationManager.disableLocationUpdates().subscribe(this::onLocationLockDisabled));
+  }
+
+  private void onLocationLockDisabled() {
+    disposeLocationUpdateSubscription();
+    locationLockStatus.setValue(LocationLockStatus.disabled());
   }
 
   public void onCameraMove(Point newCameraPosition) {
@@ -135,7 +139,7 @@ public class MapContainerViewModel extends ViewModel {
   public void onMapDrag(Point newCameraPosition) {
     if (isLocationLockEnabled()) {
       Log.d(TAG, "User dragged map. Disabling location lock");
-      locationLockStatus.setValue(LocationLockStatus.disabled());
+      disableLocationLock();
     }
   }
 

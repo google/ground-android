@@ -72,7 +72,7 @@ public class PermissionsManager {
       Log.d(TAG, permission + " already granted");
       return true;
     } else {
-      Log.i(TAG, "Requesting " + permission);
+      Log.d(TAG, "Requesting " + permission);
       permissionsRequestSubject.onNext(
           new PermissionsRequest(PERMISSIONS_REQUEST_CODE, new String[] {permission}));
       return false;
@@ -81,10 +81,9 @@ public class PermissionsManager {
 
   private Completable getPermissionsResult(String permission) {
     return permissionsResultSubject
-        .filter(r -> r.getPermission().equals(permission))
-        .take(1)
-        .singleOrError()
-        .flatMapCompletable(PermissionsResult::toCompletable);
+      .filter(r -> r.getPermission().equals(permission))
+      .take(1)
+      .flatMapCompletable(PermissionsResult::completeOrError);
   }
 
   private boolean isGranted(String permission) {
@@ -123,7 +122,7 @@ public class PermissionsManager {
       return permission;
     }
 
-    public static CompletableSource toCompletable(PermissionsResult result) {
+    public static CompletableSource completeOrError(PermissionsResult result) {
       return result.isGranted()
           ? Completable.complete()
           : Completable.error(new PermissionDeniedException());

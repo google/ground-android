@@ -42,7 +42,7 @@ import com.google.android.gnd.ui.home.mapcontainer.MapContainerViewModel.Locatio
 import com.google.android.gnd.ui.map.MapProvider;
 import com.google.android.gnd.ui.map.MapProvider.MapAdapter;
 import com.google.android.gnd.vo.Project;
-import com.jakewharton.rxbinding2.view.RxView;
+import io.reactivex.subjects.SingleSubject;
 import javax.inject.Inject;
 
 /** Main app view, displaying the map and related controls (center cross-hairs, add button, etc). */
@@ -66,6 +66,7 @@ public class MapContainerFragment extends AbstractFragment {
   private MapContainerViewModel mapContainerViewModel;
   private HomeScreenViewModel homeScreenViewModel;
   private MainViewModel mainViewModel;
+  private SingleSubject<MapAdapter> map = SingleSubject.create();
 
   @Inject
   public MapContainerFragment() {}
@@ -108,13 +109,8 @@ public class MapContainerFragment extends AbstractFragment {
     homeScreenViewModel
         .getPlaceSheetState()
         .observe(this, state -> onPlaceSheetStateChange(state, map));
-    // TODO: Use Butterknife here instead for better readability/less boilerplate.
-    RxView.clicks(addPlaceBtn)
-        .as(autoDisposable(this))
-        .subscribe(__ -> homeScreenViewModel.onAddPlaceBtnClick(map.getCenter()));
-    RxView.clicks(locationLockBtn)
-        .as(autoDisposable(this))
-        .subscribe(__ -> onLocationLockClick(map));
+    addPlaceBtn.setOnClickListener(__ -> homeScreenViewModel.onAddPlaceBtnClick(map.getCenter()));
+    locationLockBtn.setOnClickListener(__ -> onLocationLockClick(map));
     map.getMarkerClicks().as(autoDisposable(this)).subscribe(mapContainerViewModel::onMarkerClick);
     map.getMarkerClicks().as(autoDisposable(this)).subscribe(homeScreenViewModel::onMarkerClick);
     map.getDragInteractions().as(autoDisposable(this)).subscribe(mapContainerViewModel::onMapDrag);
@@ -124,9 +120,9 @@ public class MapContainerFragment extends AbstractFragment {
 
   public void onLocationLockClick(MapAdapter map) {
     if (mapContainerViewModel.isLocationLockEnabled()) {
-      mapContainerViewModel.disableLocationLock().as(autoDisposable(this)).subscribe();
+      mapContainerViewModel.disableLocationLock();
     } else {
-      mapContainerViewModel.enableLocationLock().as(autoDisposable(this)).subscribe();
+      mapContainerViewModel.enableLocationLock();
     }
   }
 
@@ -194,7 +190,7 @@ public class MapContainerFragment extends AbstractFragment {
   }
 
   private void onCameraUpdate(MapContainerViewModel.CameraUpdate update, MapAdapter map) {
-    Log.d(TAG, "Update camera: " + update);
+    Log.v(TAG, "Update camera: " + update);
     if (update.getMinZoomLevel().isPresent()) {
       map.moveCamera(
           update.getCenter(), Math.max(update.getMinZoomLevel().get(), map.getCurrentZoomLevel()));
