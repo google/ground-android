@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.rx;
 
+import android.arch.lifecycle.Lifecycle;
 import android.arch.lifecycle.LifecycleOwner;
 import com.uber.autodispose.AutoDispose;
 import com.uber.autodispose.AutoDisposeConverter;
@@ -31,5 +32,10 @@ public abstract class RxAutoDispose {
 
   public static <T> AutoDisposeConverter<T> autoDisposable(final LifecycleOwner lifecycleOwner) {
     return AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(lifecycleOwner));
+  }
+
+  public static <T> AutoDisposeConverter<T> disposeOnDestroy(final LifecycleOwner lifecycleOwner) {
+    return AutoDispose.autoDisposable(
+      AndroidLifecycleScopeProvider.from(lifecycleOwner, Lifecycle.Event.ON_DESTROY));
   }
 }

@@ -17,6 +17,7 @@
 package com.google.android.gnd.ui.home.mapcontainer;
 
 import static com.google.android.gnd.rx.RxAutoDispose.autoDisposable;
+import static com.google.android.gnd.rx.RxAutoDispose.disposeOnDestroy;
 
 import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
@@ -111,10 +112,16 @@ public class MapContainerFragment extends AbstractFragment {
         .observe(this, state -> onPlaceSheetStateChange(state, map));
     addPlaceBtn.setOnClickListener(__ -> homeScreenViewModel.onAddPlaceBtnClick(map.getCenter()));
     locationLockBtn.setOnClickListener(__ -> onLocationLockClick(map));
-    map.getMarkerClicks().as(autoDisposable(this)).subscribe(mapContainerViewModel::onMarkerClick);
-    map.getMarkerClicks().as(autoDisposable(this)).subscribe(homeScreenViewModel::onMarkerClick);
-    map.getDragInteractions().as(autoDisposable(this)).subscribe(mapContainerViewModel::onMapDrag);
-    map.getCameraPosition().as(autoDisposable(this)).subscribe(mapContainerViewModel::onCameraMove);
+    map.getMarkerClicks()
+       .as(disposeOnDestroy(this))
+       .subscribe(mapContainerViewModel::onMarkerClick);
+    map.getMarkerClicks().as(disposeOnDestroy(this)).subscribe(homeScreenViewModel::onMarkerClick);
+    map.getDragInteractions()
+       .as(disposeOnDestroy(this))
+       .subscribe(mapContainerViewModel::onMapDrag);
+    map.getCameraPosition()
+       .as(disposeOnDestroy(this))
+       .subscribe(mapContainerViewModel::onCameraMove);
     enableLocationLockBtn();
   }
 
