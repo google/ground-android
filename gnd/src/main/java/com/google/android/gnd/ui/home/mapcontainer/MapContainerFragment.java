@@ -19,8 +19,6 @@ package com.google.android.gnd.ui.home.mapcontainer;
 import static com.google.android.gnd.rx.RxAutoDispose.autoDisposable;
 import static com.google.android.gnd.rx.RxAutoDispose.disposeOnDestroy;
 
-import android.arch.lifecycle.ViewModelProvider;
-import android.arch.lifecycle.ViewModelProviders;
 import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -39,6 +37,7 @@ import com.google.android.gnd.repository.Resource;
 import com.google.android.gnd.system.PermissionsManager.PermissionDeniedException;
 import com.google.android.gnd.system.SettingsManager.SettingsChangeRequestCanceled;
 import com.google.android.gnd.ui.common.AbstractFragment;
+import com.google.android.gnd.ui.common.ViewModelFactory;
 import com.google.android.gnd.ui.home.HomeScreenViewModel;
 import com.google.android.gnd.ui.home.PlaceSheetState;
 import com.google.android.gnd.ui.home.mapcontainer.MapContainerViewModel.LocationLockStatus;
@@ -53,8 +52,8 @@ public class MapContainerFragment extends AbstractFragment {
   private static final String TAG = MapContainerFragment.class.getSimpleName();
   private static final String MAP_FRAGMENT_KEY = MapProvider.class.getName() + "#fragment";
 
-  // TODO: Get ViewModel from ViewModelFactory instead.
-  @Inject ViewModelProvider.Factory viewModelFactory;
+  @Inject
+  ViewModelFactory viewModelFactory;
 
   @Inject
   MapProvider mapProvider;
@@ -76,11 +75,9 @@ public class MapContainerFragment extends AbstractFragment {
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    mapContainerViewModel =
-      ViewModelProviders.of(getActivity(), viewModelFactory).get(MapContainerViewModel.class);
-    homeScreenViewModel =
-        ViewModelProviders.of(getActivity(), viewModelFactory).get(HomeScreenViewModel.class);
-    mainViewModel = ViewModelProviders.of(getActivity(), viewModelFactory).get(MainViewModel.class);
+    mapContainerViewModel = viewModelFactory.get(this, MapContainerViewModel.class);
+    homeScreenViewModel = viewModelFactory.get(this, HomeScreenViewModel.class);
+    mainViewModel = viewModelFactory.get(this, MainViewModel.class);
   }
 
   @Override
@@ -114,15 +111,15 @@ public class MapContainerFragment extends AbstractFragment {
     addPlaceBtn.setOnClickListener(__ -> homeScreenViewModel.onAddPlaceBtnClick(map.getCenter()));
     locationLockBtn.setOnClickListener(__ -> onLocationLockClick(map));
     map.getMarkerClicks()
-       .as(disposeOnDestroy(this))
-       .subscribe(mapContainerViewModel::onMarkerClick);
+        .as(disposeOnDestroy(this))
+        .subscribe(mapContainerViewModel::onMarkerClick);
     map.getMarkerClicks().as(disposeOnDestroy(this)).subscribe(homeScreenViewModel::onMarkerClick);
     map.getDragInteractions()
-       .as(disposeOnDestroy(this))
-       .subscribe(mapContainerViewModel::onMapDrag);
+        .as(disposeOnDestroy(this))
+        .subscribe(mapContainerViewModel::onMapDrag);
     map.getCameraPosition()
-       .as(disposeOnDestroy(this))
-       .subscribe(mapContainerViewModel::onCameraMove);
+        .as(disposeOnDestroy(this))
+        .subscribe(mapContainerViewModel::onCameraMove);
     enableLocationLockBtn();
   }
 

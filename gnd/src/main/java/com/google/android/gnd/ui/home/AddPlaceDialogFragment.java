@@ -19,7 +19,6 @@ package com.google.android.gnd.ui.home;
 import static java8.util.stream.StreamSupport.stream;
 
 import android.app.Dialog;
-import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -63,9 +62,8 @@ public class AddPlaceDialogFragment extends AbstractDialogFragment {
     super.onCreate(savedInstanceState);
     // TODO: Move into new AddPlaceDialogViewModel?
     this.homeScreenViewModel =
-        ViewModelProviders.of(getActivity(), viewModelFactory).get(HomeScreenViewModel.class);
-    this.mapContainerViewModel =
-      ViewModelProviders.of(getActivity(), viewModelFactory).get(MapContainerViewModel.class);
+        viewModelFactory.get(this, HomeScreenViewModel.class);
+    this.mapContainerViewModel = viewModelFactory.get(this, MapContainerViewModel.class);
   }
 
   public Maybe<Place> show(FragmentManager fragmentManager) {

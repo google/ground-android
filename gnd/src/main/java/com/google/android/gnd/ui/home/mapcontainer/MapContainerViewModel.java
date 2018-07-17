@@ -24,6 +24,7 @@ import com.google.android.gnd.repository.Resource;
 import com.google.android.gnd.rx.RxLiveData;
 import com.google.android.gnd.system.LocationManager;
 import com.google.android.gnd.ui.common.AbstractViewModel;
+import com.google.android.gnd.ui.common.ActivityScope;
 import com.google.android.gnd.ui.map.MapMarker;
 import com.google.android.gnd.vo.Place;
 import com.google.android.gnd.vo.Point;
@@ -34,7 +35,9 @@ import io.reactivex.disposables.Disposable;
 import java8.util.Optional;
 import javax.inject.Inject;
 
+@ActivityScope
 public class MapContainerViewModel extends AbstractViewModel {
+
   private static final String TAG = MapContainerViewModel.class.getSimpleName();
   private static final float DEFAULT_ZOOM_LEVEL = 14.0f;
   private final LiveData<Resource<Project>> activeProject;
@@ -57,11 +60,11 @@ public class MapContainerViewModel extends AbstractViewModel {
     // TODO: Since we depend on project stream from repo anyway, this transformation can be moved
     // into the repo.
     this.places =
-      RxLiveData.fromFlowable(
-        dataRepository
-          .getActiveProjectStream()
-          .compose(Resource.filterAndGetData())
-          .switchMap(project -> dataRepository.getPlaceVectorStream(project)));
+        RxLiveData.fromFlowable(
+            dataRepository
+                .getActiveProjectStream()
+                .compose(Resource.filterAndGetData())
+                .switchMap(project -> dataRepository.getPlaceVectorStream(project)));
   }
 
   public LiveData<Resource<Project>> getActiveProject() {
@@ -90,12 +93,12 @@ public class MapContainerViewModel extends AbstractViewModel {
 
   public void enableLocationLock() {
     disposeOnClear(
-      locationManager
-        .enableLocationUpdates()
-        .doOnComplete(() -> locationLockStatus.setValue(LocationLockStatus.enabled()))
-        .doOnComplete(() -> restartLocationUpdates())
-        .doOnError(t -> locationLockStatus.setValue(LocationLockStatus.error(t)))
-        .subscribe());
+        locationManager
+            .enableLocationUpdates()
+            .doOnComplete(() -> locationLockStatus.setValue(LocationLockStatus.enabled()))
+            .doOnComplete(() -> restartLocationUpdates())
+            .doOnError(t -> locationLockStatus.setValue(LocationLockStatus.error(t)))
+            .subscribe());
   }
 
   private void restartLocationUpdates() {
@@ -108,15 +111,15 @@ public class MapContainerViewModel extends AbstractViewModel {
     // only pan the map.
     Flowable<Point> locations =
         locationManager
-          .getLastLocation()
-          .toFlowable()
-          .concatWith(locationManager.getLocationUpdates());
+            .getLastLocation()
+            .toFlowable()
+            .concatWith(locationManager.getLocationUpdates());
 
     locationUpdateSubscription =
-      locations
-        .take(1)
-        .map(CameraUpdate::panAndZoom)
-        .concatWith(locations.map(CameraUpdate::pan).skip(1))
+        locations
+            .take(1)
+            .map(CameraUpdate::panAndZoom)
+            .concatWith(locations.map(CameraUpdate::pan).skip(1))
             .subscribe(cameraUpdates::setValue);
 
     Log.d(TAG, "Enable location lock succeeded");
@@ -124,7 +127,7 @@ public class MapContainerViewModel extends AbstractViewModel {
 
   public void disableLocationLock() {
     disposeOnClear(
-      locationManager.disableLocationUpdates().subscribe(this::onLocationLockDisabled));
+        locationManager.disableLocationUpdates().subscribe(this::onLocationLockDisabled));
   }
 
   private void onLocationLockDisabled() {
@@ -160,6 +163,7 @@ public class MapContainerViewModel extends AbstractViewModel {
   }
 
   static class LocationLockStatus {
+
     private boolean enabled;
     private Throwable error;
 
@@ -197,6 +201,7 @@ public class MapContainerViewModel extends AbstractViewModel {
   }
 
   static class CameraUpdate {
+
     private Point center;
     private Optional<Float> minZoomLevel;
 

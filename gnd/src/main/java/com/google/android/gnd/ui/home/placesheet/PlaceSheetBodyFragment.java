@@ -16,7 +16,6 @@
 
 package com.google.android.gnd.ui.home.placesheet;
 
-import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -57,11 +56,9 @@ public class PlaceSheetBodyFragment extends AbstractFragment {
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    viewModel =
-      ViewModelProviders.of(getActivity(), viewModelFactory).get(PlaceSheetBodyViewModel.class);
-    mainViewModel = ViewModelProviders.of(getActivity(), viewModelFactory).get(MainViewModel.class);
-    homeScreenViewModel =
-      ViewModelProviders.of(getActivity(), viewModelFactory).get(HomeScreenViewModel.class);
+    viewModel = viewModelFactory.get(this, PlaceSheetBodyViewModel.class);
+    mainViewModel = viewModelFactory.get(this, MainViewModel.class);
+    homeScreenViewModel = viewModelFactory.get(this, HomeScreenViewModel.class);
   }
 
   @Override

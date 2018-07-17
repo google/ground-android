@@ -18,6 +18,9 @@ package com.google.android.gnd.ui.common;
 
 import android.arch.lifecycle.ViewModel;
 import android.arch.lifecycle.ViewModelProvider;
+import android.arch.lifecycle.ViewModelProviders;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import java.util.Map;
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -42,5 +45,17 @@ public class ViewModelFactory implements ViewModelProvider.Factory {
       throw new IllegalArgumentException("Unknown model class " + modelClass);
     }
     return (T) creator.get();
+  }
+
+  public <T extends ViewModel> T get(Fragment fragment, Class<T> modelClass) {
+    if (modelClass.getAnnotation(ActivityScope.class) == null) {
+      return ViewModelProviders.of(fragment, this).get(modelClass);
+    } else {
+      return get(fragment.getActivity(), modelClass);
+    }
+  }
+
+  public <T extends ViewModel> T get(FragmentActivity activity, Class<T> modelClass) {
+    return ViewModelProviders.of(activity, this).get(modelClass);
   }
 }

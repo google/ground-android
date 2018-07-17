@@ -18,7 +18,6 @@ package com.google.android.gnd.ui.home.placesheet;
 
 import static com.google.android.gnd.rx.RxAutoDispose.autoDisposable;
 
-import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
@@ -38,6 +37,7 @@ import java8.util.Optional;
 import javax.inject.Inject;
 
 public class RecordListFragment extends AbstractFragment {
+
   @Inject
   ViewModelFactory viewModelFactory;
 
@@ -55,12 +55,9 @@ public class RecordListFragment extends AbstractFragment {
   public void onCreate(@Nullable Bundle savedInstanceState) {
     recordListAdapter = new RecordListAdapter();
     super.onCreate(savedInstanceState);
-    // TODO: Roll "get()" calls into ViewModelFactory to enforce scoping.
-    viewModel = ViewModelProviders.of(this, viewModelFactory).get(RecordListViewModel.class);
-    placeSheetViewModel =
-        ViewModelProviders.of(getActivity(), viewModelFactory).get(PlaceSheetBodyViewModel.class);
-    homeScreenViewModel =
-        ViewModelProviders.of(getActivity(), viewModelFactory).get(HomeScreenViewModel.class);
+    viewModel = viewModelFactory.get(this, RecordListViewModel.class);
+    placeSheetViewModel = viewModelFactory.get(this, PlaceSheetBodyViewModel.class);
+    homeScreenViewModel = viewModelFactory.get(this, HomeScreenViewModel.class);
   }
 
   @Nullable
@@ -85,11 +82,9 @@ public class RecordListFragment extends AbstractFragment {
 
   private void showRecordDetails(Record record) {
     NavHostFragment.findNavController(this)
-                   .navigate(
-                     HomeScreenFragmentDirections.showRecordDetails(
-                       record.getProject().getId(),
-                       record.getPlace().getId(),
-                       record.getId()));
+        .navigate(
+            HomeScreenFragmentDirections.showRecordDetails(
+                record.getProject().getId(), record.getPlace().getId(), record.getId()));
   }
 
   private void onFormChange(Optional<Form> form) {

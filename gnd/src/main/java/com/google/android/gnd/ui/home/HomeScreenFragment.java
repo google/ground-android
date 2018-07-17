@@ -21,7 +21,6 @@ import static com.google.android.gnd.ui.util.ViewUtil.getScreenHeight;
 import static com.google.android.gnd.ui.util.ViewUtil.getScreenWidth;
 
 import android.app.ProgressDialog;
-import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -92,9 +91,8 @@ public class HomeScreenFragment extends AbstractFragment implements OnBackListen
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    viewModel =
-      ViewModelProviders.of(getActivity(), viewModelFactory).get(HomeScreenViewModel.class);
-    mainViewModel = ViewModelProviders.of(getActivity(), viewModelFactory).get(MainViewModel.class);
+    viewModel = viewModelFactory.get(this, HomeScreenViewModel.class);
+    mainViewModel = viewModelFactory.get(this, MainViewModel.class);
   }
 
   @Override

@@ -21,9 +21,12 @@ import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.ViewModel;
 import android.support.v4.view.WindowInsetsCompat;
 import android.view.View;
+import com.google.android.gnd.ui.common.ActivityScope;
 import javax.inject.Inject;
 
+@ActivityScope
 public class MainViewModel extends ViewModel {
+
   private MutableLiveData<WindowInsetsCompat> windowInsetsLiveData;
 
   @Inject

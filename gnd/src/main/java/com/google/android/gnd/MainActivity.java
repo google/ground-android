@@ -18,7 +18,6 @@ package com.google.android.gnd;
 
 import static com.google.android.gnd.rx.RxAutoDispose.autoDisposable;
 
-import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.content.IntentSender.SendIntentException;
 import android.graphics.drawable.Drawable;
@@ -84,7 +83,7 @@ public class MainActivity extends AppCompatActivity implements HasSupportFragmen
     navHostFragment =
         (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
 
-    viewModel = ViewModelProviders.of(this, viewModelFactory).get(MainViewModel.class);
+    viewModel = viewModelFactory.get(this, MainViewModel.class);
 
     ViewCompat.setOnApplyWindowInsetsListener(
         getWindow().getDecorView().getRootView(), viewModel::onApplyWindowInsets);
