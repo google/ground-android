@@ -73,7 +73,7 @@ public class MapContainerFragment extends AbstractFragment {
   private SingleSubject<MapAdapter> map = SingleSubject.create();
 
   @Override
-  protected void obtainViewModels() {
+  protected void onCreateViewModels() {
     mapContainerViewModel =
       ViewModelProviders.of(getActivity(), viewModelFactory).get(MapContainerViewModel.class);
     homeScreenViewModel =
@@ -82,7 +82,7 @@ public class MapContainerFragment extends AbstractFragment {
   }
 
   @Override
-  protected View createView(
+  public View onCreateView(
       LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     return inflater.inflate(R.layout.map_container_frag, container, false);
   }
@@ -98,7 +98,7 @@ public class MapContainerFragment extends AbstractFragment {
   }
 
   @Override
-  protected void observeViewModels() {
+  protected void onObserveViewModels() {
     mainViewModel.getWindowInsets().observe(this, this::onApplyWindowInsets);
     mapProvider.getMapAdapter().as(autoDisposable(this)).subscribe(this::onMapReady);
   }

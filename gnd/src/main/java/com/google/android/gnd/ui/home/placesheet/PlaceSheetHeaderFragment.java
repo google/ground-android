@@ -51,19 +51,19 @@ public class PlaceSheetHeaderFragment extends AbstractFragment {
   public PlaceSheetHeaderFragment() {}
 
   @Override
-  protected View createView(
+  public View onCreateView(
       LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     return inflater.inflate(R.layout.place_sheet_header_frag, container, false);
   }
 
   @Override
-  protected void obtainViewModels() {
+  protected void onCreateViewModels() {
     homeScreenViewModel =
         ViewModelProviders.of(getActivity(), viewModelFactory).get(HomeScreenViewModel.class);
   }
 
   @Override
-  protected void observeViewModels() {
+  protected void onObserveViewModels() {
     homeScreenViewModel.getPlaceSheetState().observe(this, this::onPlaceSheetStateChange);
   }
 

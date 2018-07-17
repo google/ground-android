@@ -20,7 +20,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import com.google.android.gnd.ui.map.MapProvider;
 import io.reactivex.Single;
-import io.reactivex.SingleEmitter;
+import io.reactivex.subjects.SingleSubject;
 
 /** Ground map adapter implementation for Google Maps API. */
 public class GoogleMapsMapProvider implements MapProvider {
@@ -28,7 +28,7 @@ public class GoogleMapsMapProvider implements MapProvider {
   @Nullable
   private GoogleMapsFragment fragment;
   @Nullable
-  private Single<MapAdapter> map;
+  private SingleSubject<MapAdapter> map = SingleSubject.create();
 
   @Override
   public void restore(Fragment fragment) {
@@ -40,12 +40,13 @@ public class GoogleMapsMapProvider implements MapProvider {
       throw new IllegalStateException("Map fragment already initialized");
     }
     this.fragment = fragment;
-    this.map = Single.create(this::createMapAsync).cache();
+    createMapAsync();
   }
 
-  private void createMapAsync(SingleEmitter<MapAdapter> emitter) {
-    ((GoogleMapsFragment) getFragment()).getMapAsync(
-        googleMap -> emitter.onSuccess(new GoogleMapsMapAdapter(googleMap, fragment.getContext())));
+  private void createMapAsync() {
+    ((GoogleMapsFragment) getFragment())
+      .getMapAsync(
+        googleMap -> map.onSuccess(new GoogleMapsMapAdapter(googleMap, fragment.getContext())));
   }
 
   @Override
@@ -58,9 +59,6 @@ public class GoogleMapsMapProvider implements MapProvider {
 
   @Override
   public Single<MapAdapter> getMapAdapter() {
-    if (map == null) {
-      throw new IllegalStateException("Called before provider initialized");
-    }
     return map;
   }
 }

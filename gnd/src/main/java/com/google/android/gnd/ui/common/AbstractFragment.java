@@ -52,12 +52,16 @@ public abstract class AbstractFragment extends Fragment implements HasSupportFra
 
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
-    logLifecycleEvent("onCreate()");
+    logLifecycleEvent("onCreate() " + getView());
     super.onCreate(savedInstanceState);
-    obtainViewModels();
+    onCreateViewModels();
+    // TODO: Update remaining uses to not depend on views at this point.
+    // ViewModels get unsubscribed in onDestroy(), so they should only be created here.
+    onObserveViewModels();
   }
 
-  protected void obtainViewModels() {}
+  protected void onCreateViewModels() {
+  }
 
   @Nullable
   @Override
@@ -66,7 +70,19 @@ public abstract class AbstractFragment extends Fragment implements HasSupportFra
       @Nullable ViewGroup container,
       @Nullable Bundle savedInstanceState) {
     logLifecycleEvent("onCreateView()");
-    View view = createView(inflater, container, savedInstanceState);
+    return super.onCreateView(inflater, container, savedInstanceState);
+  }
+
+  @Override
+  public void onSaveInstanceState(@NonNull Bundle outState) {
+    logLifecycleEvent("onSaveInstanceState()");
+    super.onSaveInstanceState(outState);
+  }
+
+  @Override
+  public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+    logLifecycleEvent("onViewCreated() " + savedInstanceState);
+    super.onViewCreated(view, savedInstanceState);
     unbinder = ButterKnife.bind(this, view);
     if (savedInstanceState == null) {
       initializeInstanceState();
@@ -74,10 +90,9 @@ public abstract class AbstractFragment extends Fragment implements HasSupportFra
       restoreInstanceState(savedInstanceState);
     }
     initializeViews();
-    observeViewModels();
-    observeViews();
-    start();
-    return view;
+  }
+
+  protected void initializeViews() {
   }
 
   protected void initializeInstanceState() {
@@ -86,21 +101,19 @@ public abstract class AbstractFragment extends Fragment implements HasSupportFra
   protected void restoreInstanceState(Bundle savedInstanceState) {
   }
 
-  protected View createView(
-      LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-    throw new UnsupportedOperationException(
-        "Subclasses much override either createView or onCreateView");
+  @Override
+  public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+    logLifecycleEvent("onActivityCreated() " + savedInstanceState);
+    super.onActivityCreated(savedInstanceState);
   }
 
-  protected void initializeViews() {
+  protected void onObserveViewModels() {
   }
 
-  protected void observeViewModels() {}
-
-  protected void observeViews() {
-  }
-
-  protected void start() {
+  @Override
+  public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+    logLifecycleEvent("onViewStateRestored() " + savedInstanceState);
+    super.onViewStateRestored(savedInstanceState);
   }
 
   @Override

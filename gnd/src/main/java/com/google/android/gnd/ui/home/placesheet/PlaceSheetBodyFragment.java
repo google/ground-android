@@ -53,7 +53,7 @@ public class PlaceSheetBodyFragment extends AbstractFragment {
   public PlaceSheetBodyFragment() {}
 
   @Override
-  protected void obtainViewModels() {
+  protected void onCreateViewModels() {
     viewModel =
         ViewModelProviders.of(getActivity(), viewModelFactory).get(PlaceSheetBodyViewModel.class);
     mainViewModel = ViewModelProviders.of(getActivity(), viewModelFactory).get(MainViewModel.class);
@@ -62,7 +62,7 @@ public class PlaceSheetBodyFragment extends AbstractFragment {
   }
 
   @Override
-  protected View createView(
+  public View onCreateView(
       LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     return inflater.inflate(R.layout.place_sheet_frag, container, false);
   }
@@ -78,7 +78,7 @@ public class PlaceSheetBodyFragment extends AbstractFragment {
   }
 
   @Override
-  protected void observeViewModels() {
+  protected void onObserveViewModels() {
     mainViewModel.getWindowInsets().observe(this, this::onApplyWindowInsets);
     homeScreenViewModel.getPlaceSheetState().observe(this, viewModel::onPlaceSheetStateChange);
     viewModel.getSelectedPlace().observe(this, formTypePagerAdapter::update);

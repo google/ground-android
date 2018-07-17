@@ -76,14 +76,14 @@ public class EditRecordFragment extends AbstractFragment {
   private List<Editable> fields;
 
   @Override
-  protected View createView(
+  public View onCreateView(
     LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
     return inflater.inflate(R.layout.edit_record_frag, container, false);
   }
 
   @Override
-  protected void obtainViewModels() {
+  protected void onCreateViewModels() {
     viewModel = viewModelFactory.create(EditRecordViewModel.class);
   }
 
@@ -94,12 +94,13 @@ public class EditRecordFragment extends AbstractFragment {
   }
 
   @Override
-  protected void observeViewModels() {
+  protected void onObserveViewModels() {
     viewModel.getRecord().observe(this, this::onRecordChange);
   }
 
   @Override
-  protected void start() {
+  public void onStart() {
+    super.onStart();
     EditRecordFragmentArgs args = EditRecordFragmentArgs.fromBundle(getArguments());
     if (args.getRecordId().equals(NEW_RECORD_ID_ARG_PLACEHOLDER)) {
       viewModel.editNewRecord(args.getProjectId(), args.getPlaceId(), args.getFormId());

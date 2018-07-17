@@ -90,41 +90,41 @@ public class HomeScreenFragment extends AbstractFragment implements OnBackListen
   private MainViewModel mainViewModel;
 
   @Override
-  public void onCreate(@Nullable Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
+  public View onCreateView(
+    LayoutInflater inflater,
+    ViewGroup container,
+    Bundle savedInstanceState) {
+    return inflater.inflate(R.layout.home_screen_frag, container, false);
+  }
+
+  @Override
+  public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+    super.onActivityCreated(savedInstanceState);
     setHasOptionsMenu(true);
-    // TODO: Persist last selected project in local db instead of asking to select every time.
-    // TODO: Trigger this from welcome flow and nav drawer instead of here.
   }
 
   @Override
   protected void initializeInstanceState() {
     mapContainerFragment = new MapContainerFragment();
     replaceFragment(R.id.map_container_fragment, mapContainerFragment);
-    ProjectSelectorDialogFragment.show(getFragmentManager());
   }
 
   @Override
   protected void restoreInstanceState(Bundle savedInstanceState) {
-    mapContainerFragment =
-      restoreChildFragment(savedInstanceState, MapContainerFragment.class);
+    mapContainerFragment = restoreChildFragment(savedInstanceState, MapContainerFragment.class);
   }
 
   @Override
   public void onSaveInstanceState(@NonNull Bundle outState) {
+    super.onSaveInstanceState(outState);
     saveChildFragment(outState, mapContainerFragment);
   }
 
   @Override
-  public void obtainViewModels() {
+  public void onCreateViewModels() {
     viewModel =
       ViewModelProviders.of(getActivity(), viewModelFactory).get(HomeScreenViewModel.class);
     mainViewModel = ViewModelProviders.of(getActivity(), viewModelFactory).get(MainViewModel.class);
-  }
-
-  @Override
-  public View createView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-    return inflater.inflate(R.layout.home_screen_frag, container, false);
   }
 
   @Override
@@ -140,7 +140,7 @@ public class HomeScreenFragment extends AbstractFragment implements OnBackListen
     bottomSheetBehavior.setBottomSheetCallback(new BottomSheetCallback());
   }
 
-  protected void observeViewModels() {
+  protected void onObserveViewModels() {
     viewModel.getActiveProject().observe(this, this::onActiveProjectChange);
     viewModel.getShowAddPlaceDialogRequests().observe(this, this::onShowAddPlaceDialogRequest);
     viewModel.getPlaceSheetState().observe(this, this::onPlaceSheetStateChange);
@@ -150,6 +150,16 @@ public class HomeScreenFragment extends AbstractFragment implements OnBackListen
   @Override
   public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
     inflater.inflate(R.menu.place_sheet_menu, menu);
+  }
+
+  @Override
+  public void onStart() {
+    super.onStart();
+    // TODO: Persist last selected project in local db instead of asking to select every time.
+    // TODO: Trigger this from welcome flow and nav drawer instead of here.
+    if (viewModel.getActiveProject().getValue() == null) {
+      ProjectSelectorDialogFragment.show(getFragmentManager());
+    }
   }
 
   private void onApplyWindowInsets(WindowInsetsCompat insets) {
