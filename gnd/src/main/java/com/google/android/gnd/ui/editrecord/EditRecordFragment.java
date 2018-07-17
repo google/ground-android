@@ -22,6 +22,7 @@ import static java8.util.stream.StreamSupport.stream;
 
 import android.app.ProgressDialog;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -76,25 +77,28 @@ public class EditRecordFragment extends AbstractFragment {
   private List<Editable> fields;
 
   @Override
-  public View onCreateView(
-    LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-
-    return inflater.inflate(R.layout.edit_record_frag, container, false);
-  }
-
-  @Override
-  protected void onCreateViewModels() {
+  public void onCreate(@android.support.annotation.Nullable Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
     viewModel = viewModelFactory.create(EditRecordViewModel.class);
   }
 
   @Override
-  protected void initializeViews() {
+  public View onCreateView(
+    LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    return inflater.inflate(R.layout.edit_record_frag, container, false);
+  }
+
+  @Override
+  public void onViewCreated(
+    @NonNull View view, @android.support.annotation.Nullable Bundle savedInstanceState) {
+    super.onViewCreated(view, savedInstanceState);
     ((MainActivity) getActivity()).setActionBar(toolbar, R.drawable.ic_close);
     savingProgressDialog = ProgressDialogs.modalSpinner(getContext(), R.string.saving);
   }
 
   @Override
-  protected void onObserveViewModels() {
+  public void onActivityCreated(@android.support.annotation.Nullable Bundle savedInstanceState) {
+    super.onActivityCreated(savedInstanceState);
     viewModel.getRecord().observe(this, this::onRecordChange);
   }
 

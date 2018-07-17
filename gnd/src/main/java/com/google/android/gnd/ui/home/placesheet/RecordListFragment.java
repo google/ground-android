@@ -55,10 +55,6 @@ public class RecordListFragment extends AbstractFragment {
   public void onCreate(@Nullable Bundle savedInstanceState) {
     recordListAdapter = new RecordListAdapter();
     super.onCreate(savedInstanceState);
-  }
-
-  @Override
-  protected void onCreateViewModels() {
     // TODO: Roll "get()" calls into ViewModelFactory to enforce scoping.
     viewModel = ViewModelProviders.of(this, viewModelFactory).get(RecordListViewModel.class);
     placeSheetViewModel =
@@ -80,7 +76,8 @@ public class RecordListFragment extends AbstractFragment {
   }
 
   @Override
-  protected void onObserveViewModels() {
+  public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+    super.onActivityCreated(savedInstanceState);
     viewModel.getRecordSummaries().observe(this, recordListAdapter::update);
     placeSheetViewModel.getSelectedForm().observe(this, this::onFormChange);
     recordListAdapter.getItemClicks().as(autoDisposable(this)).subscribe(this::showRecordDetails);

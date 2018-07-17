@@ -18,6 +18,7 @@ package com.google.android.gnd.ui.home.placesheet;
 
 import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -51,19 +52,21 @@ public class PlaceSheetHeaderFragment extends AbstractFragment {
   public PlaceSheetHeaderFragment() {}
 
   @Override
+  public void onCreate(@Nullable Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    homeScreenViewModel =
+      ViewModelProviders.of(getActivity(), viewModelFactory).get(HomeScreenViewModel.class);
+  }
+
+  @Override
   public View onCreateView(
-      LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     return inflater.inflate(R.layout.place_sheet_header_frag, container, false);
   }
 
   @Override
-  protected void onCreateViewModels() {
-    homeScreenViewModel =
-        ViewModelProviders.of(getActivity(), viewModelFactory).get(HomeScreenViewModel.class);
-  }
-
-  @Override
-  protected void onObserveViewModels() {
+  public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+    super.onActivityCreated(savedInstanceState);
     homeScreenViewModel.getPlaceSheetState().observe(this, this::onPlaceSheetStateChange);
   }
 

@@ -20,6 +20,7 @@ import static java8.util.stream.StreamSupport.stream;
 
 import android.app.Dialog;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
@@ -59,12 +60,14 @@ public class ProjectSelectorDialogFragment extends AbstractDialogFragment {
   }
 
   @Override
-  protected void obtainViewModels() {
+  public void onCreate(@Nullable Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
     this.viewModel = viewModelFactory.create(ProjectSelectorViewModel.class);
   }
 
   @Override
   public Dialog onCreateDialog(Bundle savedInstanceState) {
+    super.onCreateDialog(savedInstanceState);
     AlertDialog.Builder dialog = new AlertDialog.Builder(getContext());
     dialog.setTitle(R.string.select_project_dialog_title);
     LayoutInflater inflater = getActivity().getLayoutInflater();

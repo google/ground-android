@@ -90,28 +90,19 @@ public class HomeScreenFragment extends AbstractFragment implements OnBackListen
   private MainViewModel mainViewModel;
 
   @Override
+  public void onCreate(@Nullable Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    viewModel =
+      ViewModelProviders.of(getActivity(), viewModelFactory).get(HomeScreenViewModel.class);
+    mainViewModel = ViewModelProviders.of(getActivity(), viewModelFactory).get(MainViewModel.class);
+  }
+
+  @Override
   public View onCreateView(
     LayoutInflater inflater,
     ViewGroup container,
     Bundle savedInstanceState) {
     return inflater.inflate(R.layout.home_screen_frag, container, false);
-  }
-
-  @Override
-  public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-    super.onActivityCreated(savedInstanceState);
-    setHasOptionsMenu(true);
-  }
-
-  @Override
-  protected void initializeInstanceState() {
-    mapContainerFragment = new MapContainerFragment();
-    replaceFragment(R.id.map_container_fragment, mapContainerFragment);
-  }
-
-  @Override
-  protected void restoreInstanceState(Bundle savedInstanceState) {
-    mapContainerFragment = restoreChildFragment(savedInstanceState, MapContainerFragment.class);
   }
 
   @Override
@@ -121,16 +112,17 @@ public class HomeScreenFragment extends AbstractFragment implements OnBackListen
   }
 
   @Override
-  public void onCreateViewModels() {
-    viewModel =
-      ViewModelProviders.of(getActivity(), viewModelFactory).get(HomeScreenViewModel.class);
-    mainViewModel = ViewModelProviders.of(getActivity(), viewModelFactory).get(MainViewModel.class);
-  }
+  public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+    super.onViewCreated(view, savedInstanceState);
 
-  @Override
-  protected void initializeViews() {
+    if (savedInstanceState == null) {
+      mapContainerFragment = new MapContainerFragment();
+      replaceFragment(R.id.map_container_fragment, mapContainerFragment);
+    } else {
+      mapContainerFragment = restoreChildFragment(savedInstanceState, MapContainerFragment.class);
+    }
+
     setUpBottomSheetBehavior();
-    ((MainActivity) getActivity()).setActionBar(toolbar);
   }
 
   private void setUpBottomSheetBehavior() {
@@ -140,7 +132,12 @@ public class HomeScreenFragment extends AbstractFragment implements OnBackListen
     bottomSheetBehavior.setBottomSheetCallback(new BottomSheetCallback());
   }
 
-  protected void onObserveViewModels() {
+  @Override
+  public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+    super.onActivityCreated(savedInstanceState);
+    setHasOptionsMenu(true);
+    ((MainActivity) getActivity()).setActionBar(toolbar);
+
     viewModel.getActiveProject().observe(this, this::onActiveProjectChange);
     viewModel.getShowAddPlaceDialogRequests().observe(this, this::onShowAddPlaceDialogRequest);
     viewModel.getPlaceSheetState().observe(this, this::onPlaceSheetStateChange);

@@ -22,6 +22,7 @@ import android.app.Dialog;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
 import com.google.android.gnd.R;
@@ -58,7 +59,8 @@ public class AddPlaceDialogFragment extends AbstractDialogFragment {
   }
 
   @Override
-  protected void obtainViewModels() {
+  public void onCreate(@Nullable Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
     // TODO: Move into new AddPlaceDialogViewModel?
     this.homeScreenViewModel =
         ViewModelProviders.of(getActivity(), viewModelFactory).get(HomeScreenViewModel.class);
@@ -74,6 +76,7 @@ public class AddPlaceDialogFragment extends AbstractDialogFragment {
 
   @Override
   public Dialog onCreateDialog(Bundle savedInstanceState) {
+    super.onCreateDialog(savedInstanceState);
     // TODO: Inject and use custom factory.
     Optional<Project> activeProject = Resource.getData(homeScreenViewModel.getActiveProject());
     Optional<Point> cameraPosition =

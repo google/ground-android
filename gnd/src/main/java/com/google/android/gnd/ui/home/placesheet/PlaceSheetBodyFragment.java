@@ -18,6 +18,8 @@ package com.google.android.gnd.ui.home.placesheet;
 
 import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.WindowInsetsCompat;
@@ -53,12 +55,13 @@ public class PlaceSheetBodyFragment extends AbstractFragment {
   public PlaceSheetBodyFragment() {}
 
   @Override
-  protected void onCreateViewModels() {
+  public void onCreate(@Nullable Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
     viewModel =
-        ViewModelProviders.of(getActivity(), viewModelFactory).get(PlaceSheetBodyViewModel.class);
+      ViewModelProviders.of(getActivity(), viewModelFactory).get(PlaceSheetBodyViewModel.class);
     mainViewModel = ViewModelProviders.of(getActivity(), viewModelFactory).get(MainViewModel.class);
     homeScreenViewModel =
-        ViewModelProviders.of(getActivity(), viewModelFactory).get(HomeScreenViewModel.class);
+      ViewModelProviders.of(getActivity(), viewModelFactory).get(HomeScreenViewModel.class);
   }
 
   @Override
@@ -68,7 +71,10 @@ public class PlaceSheetBodyFragment extends AbstractFragment {
   }
 
   @Override
-  protected void initializeViews() {
+  public void onViewCreated(
+    @NonNull View view, @Nullable Bundle savedInstanceState) {
+    super.onViewCreated(view, savedInstanceState);
+
     recordListViewPager.setAdapter(formTypePagerAdapter);
     recordListViewPager.addOnPageChangeListener(viewModel);
     formsTabLayout.setupWithViewPager(recordListViewPager);
@@ -78,7 +84,8 @@ public class PlaceSheetBodyFragment extends AbstractFragment {
   }
 
   @Override
-  protected void onObserveViewModels() {
+  public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+    super.onActivityCreated(savedInstanceState);
     mainViewModel.getWindowInsets().observe(this, this::onApplyWindowInsets);
     homeScreenViewModel.getPlaceSheetState().observe(this, viewModel::onPlaceSheetStateChange);
     viewModel.getSelectedPlace().observe(this, formTypePagerAdapter::update);

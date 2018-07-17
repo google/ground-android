@@ -24,6 +24,7 @@ import android.arch.lifecycle.ViewModelProviders;
 import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.view.WindowInsetsCompat;
 import android.util.Log;
@@ -73,7 +74,8 @@ public class MapContainerFragment extends AbstractFragment {
   private SingleSubject<MapAdapter> map = SingleSubject.create();
 
   @Override
-  protected void onCreateViewModels() {
+  public void onCreate(@Nullable Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
     mapContainerViewModel =
       ViewModelProviders.of(getActivity(), viewModelFactory).get(MapContainerViewModel.class);
     homeScreenViewModel =
@@ -88,24 +90,13 @@ public class MapContainerFragment extends AbstractFragment {
   }
 
   @Override
-  protected void initializeInstanceState() {
-    replaceFragment(R.id.map, mapProvider.getFragment());
-  }
-
-  @Override
-  protected void restoreInstanceState(Bundle savedInstanceState) {
-    mapProvider.restore(restoreChildFragment(savedInstanceState, MAP_FRAGMENT_KEY));
-  }
-
-  @Override
-  protected void onObserveViewModels() {
-    mainViewModel.getWindowInsets().observe(this, this::onApplyWindowInsets);
-    mapProvider.getMapAdapter().as(autoDisposable(this)).subscribe(this::onMapReady);
-  }
-
-  @Override
-  public void onSaveInstanceState(@NonNull Bundle outState) {
-    saveChildFragment(outState, mapProvider.getFragment(), MAP_FRAGMENT_KEY);
+  public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+    super.onViewCreated(view, savedInstanceState);
+    if (savedInstanceState == null) {
+      replaceFragment(R.id.map, mapProvider.getFragment());
+    } else {
+      mapProvider.restore(restoreChildFragment(savedInstanceState, MAP_FRAGMENT_KEY));
+    }
   }
 
   private void onMapReady(MapAdapter map) {
@@ -133,6 +124,13 @@ public class MapContainerFragment extends AbstractFragment {
        .as(disposeOnDestroy(this))
        .subscribe(mapContainerViewModel::onCameraMove);
     enableLocationLockBtn();
+  }
+
+  @Override
+  public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+    super.onActivityCreated(savedInstanceState);
+    mainViewModel.getWindowInsets().observe(this, this::onApplyWindowInsets);
+    mapProvider.getMapAdapter().as(autoDisposable(this)).subscribe(this::onMapReady);
   }
 
   public void onLocationLockClick(MapAdapter map) {
@@ -218,5 +216,10 @@ public class MapContainerFragment extends AbstractFragment {
 
   private void onApplyWindowInsets(WindowInsetsCompat windowInsets) {
     mapBtnLayout.setTranslationY(-windowInsets.getSystemWindowInsetBottom());
+  }
+
+  @Override
+  public void onSaveInstanceState(@NonNull Bundle outState) {
+    saveChildFragment(outState, mapProvider.getFragment(), MAP_FRAGMENT_KEY);
   }
 }

@@ -54,13 +54,6 @@ public abstract class AbstractFragment extends Fragment implements HasSupportFra
   public void onCreate(@Nullable Bundle savedInstanceState) {
     logLifecycleEvent("onCreate() " + getView());
     super.onCreate(savedInstanceState);
-    onCreateViewModels();
-    // TODO: Update remaining uses to not depend on views at this point.
-    // ViewModels get unsubscribed in onDestroy(), so they should only be created here.
-    onObserveViewModels();
-  }
-
-  protected void onCreateViewModels() {
   }
 
   @Nullable
@@ -84,30 +77,12 @@ public abstract class AbstractFragment extends Fragment implements HasSupportFra
     logLifecycleEvent("onViewCreated() " + savedInstanceState);
     super.onViewCreated(view, savedInstanceState);
     unbinder = ButterKnife.bind(this, view);
-    if (savedInstanceState == null) {
-      initializeInstanceState();
-    } else {
-      restoreInstanceState(savedInstanceState);
-    }
-    initializeViews();
-  }
-
-  protected void initializeViews() {
-  }
-
-  protected void initializeInstanceState() {
-  }
-
-  protected void restoreInstanceState(Bundle savedInstanceState) {
   }
 
   @Override
   public void onActivityCreated(@Nullable Bundle savedInstanceState) {
     logLifecycleEvent("onActivityCreated() " + savedInstanceState);
     super.onActivityCreated(savedInstanceState);
-  }
-
-  protected void onObserveViewModels() {
   }
 
   @Override
@@ -187,6 +162,6 @@ public abstract class AbstractFragment extends Fragment implements HasSupportFra
   }
 
   private void logLifecycleEvent(String event) {
-    Log.d(getClass().getSimpleName(), "Lifecycle event: " + event);
+    Log.v(getClass().getSimpleName(), "Lifecycle event: " + event);
   }
 }

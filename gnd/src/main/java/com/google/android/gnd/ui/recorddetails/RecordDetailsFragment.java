@@ -17,6 +17,7 @@
 package com.google.android.gnd.ui.recorddetails;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -62,18 +63,21 @@ public class RecordDetailsFragment extends AbstractFragment {
   private RecordDetailsViewModel viewModel;
 
   @Override
+  public void onCreate(@Nullable Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    viewModel = viewModelFactory.create(RecordDetailsViewModel.class);
+  }
+
+  @Override
   public View onCreateView(
       LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     return inflater.inflate(R.layout.record_details_frag, container, false);
   }
 
   @Override
-  protected void onCreateViewModels() {
-    viewModel = viewModelFactory.create(RecordDetailsViewModel.class);
-  }
-
-  @Override
-  protected void initializeViews() {
+  public void onViewCreated(
+    @NonNull View view, @Nullable Bundle savedInstanceState) {
+    super.onViewCreated(view, savedInstanceState);
     ((MainActivity) getActivity()).setActionBar(toolbar);
   }
 
@@ -83,14 +87,10 @@ public class RecordDetailsFragment extends AbstractFragment {
   }
 
   @Override
-  protected void onObserveViewModels() {
-    viewModel.getRecord().observe(this, this::onUpdate);
-  }
-
-  @Override
   public void onActivityCreated(@Nullable Bundle savedInstanceState) {
     super.onActivityCreated(savedInstanceState);
     setHasOptionsMenu(true);
+    viewModel.getRecord().observe(this, this::onUpdate);
   }
 
   @Override
