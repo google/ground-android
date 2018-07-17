@@ -35,16 +35,12 @@ import com.google.android.gnd.R;
 import com.google.android.gnd.repository.Resource;
 import com.google.android.gnd.ui.common.AbstractDialogFragment;
 import com.google.android.gnd.ui.common.EphemeralPopups;
-import com.google.android.gnd.ui.common.ViewModelFactory;
 import com.google.android.gnd.vo.Project;
 import java.util.List;
-import javax.inject.Inject;
 
 public class ProjectSelectorDialogFragment extends AbstractDialogFragment {
 
   private static final String TAG = ProjectSelectorDialogFragment.class.getSimpleName();
-
-  @Inject ViewModelFactory viewModelFactory;
 
   @BindView(R.id.list_loading_progress_bar)
   View listLoadingProgressBar;
@@ -62,7 +58,7 @@ public class ProjectSelectorDialogFragment extends AbstractDialogFragment {
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    this.viewModel = viewModelFactory.create(ProjectSelectorViewModel.class);
+    this.viewModel = get(ProjectSelectorViewModel.class);
   }
 
   @Override

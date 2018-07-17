@@ -37,7 +37,6 @@ import com.google.android.gnd.repository.Resource;
 import com.google.android.gnd.system.PermissionsManager.PermissionDeniedException;
 import com.google.android.gnd.system.SettingsManager.SettingsChangeRequestCanceled;
 import com.google.android.gnd.ui.common.AbstractFragment;
-import com.google.android.gnd.ui.common.ViewModelFactory;
 import com.google.android.gnd.ui.home.HomeScreenViewModel;
 import com.google.android.gnd.ui.home.PlaceSheetState;
 import com.google.android.gnd.ui.home.mapcontainer.MapContainerViewModel.LocationLockStatus;
@@ -51,9 +50,6 @@ import javax.inject.Inject;
 public class MapContainerFragment extends AbstractFragment {
   private static final String TAG = MapContainerFragment.class.getSimpleName();
   private static final String MAP_FRAGMENT_KEY = MapProvider.class.getName() + "#fragment";
-
-  @Inject
-  ViewModelFactory viewModelFactory;
 
   @Inject
   MapProvider mapProvider;
@@ -75,9 +71,9 @@ public class MapContainerFragment extends AbstractFragment {
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    mapContainerViewModel = viewModelFactory.get(this, MapContainerViewModel.class);
-    homeScreenViewModel = viewModelFactory.get(this, HomeScreenViewModel.class);
-    mainViewModel = viewModelFactory.get(this, MainViewModel.class);
+    mapContainerViewModel = get(MapContainerViewModel.class);
+    homeScreenViewModel = get(HomeScreenViewModel.class);
+    mainViewModel = get(MainViewModel.class);
   }
 
   @Override

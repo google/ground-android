@@ -29,15 +29,11 @@ import butterknife.BindView;
 import com.google.android.gnd.MainViewModel;
 import com.google.android.gnd.R;
 import com.google.android.gnd.ui.common.AbstractFragment;
-import com.google.android.gnd.ui.common.ViewModelFactory;
 import com.google.android.gnd.ui.home.HomeScreenViewModel;
 import com.h6ah4i.android.tablayouthelper.TabLayoutHelper;
 import javax.inject.Inject;
 
 public class PlaceSheetBodyFragment extends AbstractFragment {
-  @Inject
-  ViewModelFactory viewModelFactory;
-
   @Inject FormTabPagerAdapter formTypePagerAdapter;
 
   @BindView(R.id.forms_tab_layout)
@@ -56,9 +52,9 @@ public class PlaceSheetBodyFragment extends AbstractFragment {
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    viewModel = viewModelFactory.get(this, PlaceSheetBodyViewModel.class);
-    mainViewModel = viewModelFactory.get(this, MainViewModel.class);
-    homeScreenViewModel = viewModelFactory.get(this, HomeScreenViewModel.class);
+    viewModel = get(PlaceSheetBodyViewModel.class);
+    mainViewModel = get(MainViewModel.class);
+    homeScreenViewModel = get(HomeScreenViewModel.class);
   }
 
   @Override

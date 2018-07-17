@@ -17,6 +17,7 @@
 package com.google.android.gnd.ui.common;
 
 import android.app.Dialog;
+import android.arch.lifecycle.ViewModel;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -34,9 +35,17 @@ import dagger.android.support.DaggerAppCompatDialogFragment;
 import javax.inject.Inject;
 
 public abstract class AbstractDialogFragment extends DaggerAppCompatDialogFragment {
+
+  @Inject
+  ViewModelFactory viewModelFactory;
+
   @Inject DispatchingAndroidInjector<Fragment> childFragmentInjector;
 
   public AbstractDialogFragment() {}
+
+  protected <T extends ViewModel> T get(Class<T> modelClass) {
+    return viewModelFactory.get(this, modelClass);
+  }
 
   @Override
   public void onAttach(Context context) {
@@ -54,9 +63,9 @@ public abstract class AbstractDialogFragment extends DaggerAppCompatDialogFragme
   @Nullable
   @Override
   public View onCreateView(
-    @NonNull LayoutInflater inflater,
-    @Nullable ViewGroup container,
-    @Nullable Bundle savedInstanceState) {
+      @NonNull LayoutInflater inflater,
+      @Nullable ViewGroup container,
+      @Nullable Bundle savedInstanceState) {
     logLifecycleEvent("onCreateView()");
     return super.onCreateView(inflater, container, savedInstanceState);
   }
@@ -68,8 +77,7 @@ public abstract class AbstractDialogFragment extends DaggerAppCompatDialogFragme
   }
 
   @Override
-  public void onViewCreated(
-    @NonNull View view, @Nullable Bundle savedInstanceState) {
+  public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
     logLifecycleEvent("onViewCreated()");
     super.onViewCreated(view, savedInstanceState);
   }

@@ -40,7 +40,6 @@ import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.EphemeralPopups;
 import com.google.android.gnd.ui.common.ProgressDialogs;
 import com.google.android.gnd.ui.common.TwoLineToolbar;
-import com.google.android.gnd.ui.common.ViewModelFactory;
 import com.google.android.gnd.ui.editrecord.input.Editable;
 import com.google.android.gnd.ui.editrecord.input.MultipleChoiceFieldViewHolder;
 import com.google.android.gnd.ui.editrecord.input.TextInputViewHolder;
@@ -49,7 +48,6 @@ import com.google.android.gnd.vo.Record;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nullable;
-import javax.inject.Inject;
 
 public class EditRecordFragment extends AbstractFragment {
   private static final String TAG = EditRecordFragment.class.getSimpleName();
@@ -57,9 +55,6 @@ public class EditRecordFragment extends AbstractFragment {
 
   private ProgressDialog savingProgressDialog;
 
-  // TODO: Refactor viewModel creation and access into AbstractFragment.
-  @Inject
-  ViewModelFactory viewModelFactory;
   private EditRecordViewModel viewModel;
 
   @BindView(R.id.edit_record_toolbar)
@@ -79,7 +74,7 @@ public class EditRecordFragment extends AbstractFragment {
   @Override
   public void onCreate(@android.support.annotation.Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    viewModel = viewModelFactory.create(EditRecordViewModel.class);
+    viewModel = get(EditRecordViewModel.class);
   }
 
   @Override

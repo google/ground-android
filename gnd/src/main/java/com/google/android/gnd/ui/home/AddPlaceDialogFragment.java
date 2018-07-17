@@ -27,7 +27,6 @@ import android.support.v7.app.AlertDialog;
 import com.google.android.gnd.R;
 import com.google.android.gnd.repository.Resource;
 import com.google.android.gnd.ui.common.AbstractDialogFragment;
-import com.google.android.gnd.ui.common.ViewModelFactory;
 import com.google.android.gnd.ui.home.mapcontainer.MapContainerViewModel;
 import com.google.android.gnd.vo.Place;
 import com.google.android.gnd.vo.PlaceType;
@@ -41,9 +40,6 @@ import javax.inject.Inject;
 
 public class AddPlaceDialogFragment extends AbstractDialogFragment {
   private static final String TAG = AddPlaceDialogFragment.class.getSimpleName();
-
-  @Inject
-  ViewModelFactory viewModelFactory;
 
   private MaybeSubject<Place> addPlaceRequestSubject;
   private HomeScreenViewModel homeScreenViewModel;
@@ -62,8 +58,8 @@ public class AddPlaceDialogFragment extends AbstractDialogFragment {
     super.onCreate(savedInstanceState);
     // TODO: Move into new AddPlaceDialogViewModel?
     this.homeScreenViewModel =
-        viewModelFactory.get(this, HomeScreenViewModel.class);
-    this.mapContainerViewModel = viewModelFactory.get(this, MapContainerViewModel.class);
+        get(HomeScreenViewModel.class);
+    this.mapContainerViewModel = get(MapContainerViewModel.class);
   }
 
   public Maybe<Place> show(FragmentManager fragmentManager) {

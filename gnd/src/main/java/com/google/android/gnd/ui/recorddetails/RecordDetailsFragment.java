@@ -38,15 +38,11 @@ import com.google.android.gnd.repository.Resource;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.EphemeralPopups;
 import com.google.android.gnd.ui.common.TwoLineToolbar;
-import com.google.android.gnd.ui.common.ViewModelFactory;
 import com.google.android.gnd.vo.Form;
 import com.google.android.gnd.vo.Record;
-import javax.inject.Inject;
 
 public class RecordDetailsFragment extends AbstractFragment {
   private static final String TAG = RecordDetailsFragment.class.getSimpleName();
-
-  @Inject ViewModelFactory viewModelFactory;
 
   @BindView(R.id.record_details_toolbar)
   TwoLineToolbar toolbar;
@@ -65,7 +61,7 @@ public class RecordDetailsFragment extends AbstractFragment {
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    viewModel = viewModelFactory.create(RecordDetailsViewModel.class);
+    viewModel = get(RecordDetailsViewModel.class);
   }
 
   @Override

@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.ui.common;
 
+import android.arch.lifecycle.ViewModel;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.IdRes;
@@ -41,7 +42,14 @@ public abstract class AbstractFragment extends Fragment implements HasSupportFra
    */
   private Unbinder unbinder;
 
+  @Inject
+  ViewModelFactory viewModelFactory;
+
   @Inject DispatchingAndroidInjector<Fragment> childFragmentInjector;
+
+  protected <T extends ViewModel> T get(Class<T> modelClass) {
+    return viewModelFactory.get(this, modelClass);
+  }
 
   @Override
   public void onAttach(Context context) {

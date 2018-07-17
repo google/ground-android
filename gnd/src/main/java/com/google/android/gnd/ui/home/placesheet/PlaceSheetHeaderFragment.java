@@ -27,15 +27,11 @@ import butterknife.BindView;
 import com.google.android.gnd.R;
 import com.google.android.gnd.ui.MapIcon;
 import com.google.android.gnd.ui.common.AbstractFragment;
-import com.google.android.gnd.ui.common.ViewModelFactory;
 import com.google.android.gnd.ui.home.HomeScreenViewModel;
 import com.google.android.gnd.ui.home.PlaceSheetState;
 import javax.inject.Inject;
 
 public class PlaceSheetHeaderFragment extends AbstractFragment {
-  @Inject
-  ViewModelFactory viewModelFactory;
-
   @BindView(R.id.place_sheet_title)
   TextView placeSheetTitle;
 
@@ -54,7 +50,7 @@ public class PlaceSheetHeaderFragment extends AbstractFragment {
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     homeScreenViewModel =
-        viewModelFactory.get(this, HomeScreenViewModel.class);
+        get(HomeScreenViewModel.class);
   }
 
   @Override

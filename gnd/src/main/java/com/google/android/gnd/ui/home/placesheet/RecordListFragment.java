@@ -27,19 +27,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import androidx.navigation.fragment.NavHostFragment;
 import com.google.android.gnd.ui.common.AbstractFragment;
-import com.google.android.gnd.ui.common.ViewModelFactory;
 import com.google.android.gnd.ui.home.HomeScreenFragmentDirections;
 import com.google.android.gnd.ui.home.HomeScreenViewModel;
 import com.google.android.gnd.vo.Form;
 import com.google.android.gnd.vo.Place;
 import com.google.android.gnd.vo.Record;
 import java8.util.Optional;
-import javax.inject.Inject;
 
 public class RecordListFragment extends AbstractFragment {
-
-  @Inject
-  ViewModelFactory viewModelFactory;
 
   private RecordListAdapter recordListAdapter;
 
@@ -55,9 +50,9 @@ public class RecordListFragment extends AbstractFragment {
   public void onCreate(@Nullable Bundle savedInstanceState) {
     recordListAdapter = new RecordListAdapter();
     super.onCreate(savedInstanceState);
-    viewModel = viewModelFactory.get(this, RecordListViewModel.class);
-    placeSheetViewModel = viewModelFactory.get(this, PlaceSheetBodyViewModel.class);
-    homeScreenViewModel = viewModelFactory.get(this, HomeScreenViewModel.class);
+    viewModel = get(RecordListViewModel.class);
+    placeSheetViewModel = get(PlaceSheetBodyViewModel.class);
+    homeScreenViewModel = get(HomeScreenViewModel.class);
   }
 
   @Nullable

@@ -45,7 +45,6 @@ import com.google.android.gnd.ui.common.EphemeralPopups;
 import com.google.android.gnd.ui.common.OnBackListener;
 import com.google.android.gnd.ui.common.ProgressDialogs;
 import com.google.android.gnd.ui.common.TwoLineToolbar;
-import com.google.android.gnd.ui.common.ViewModelFactory;
 import com.google.android.gnd.ui.home.mapcontainer.MapContainerFragment;
 import com.google.android.gnd.ui.projectselector.ProjectSelectorDialogFragment;
 import com.google.android.gnd.vo.Form;
@@ -62,8 +61,6 @@ import javax.inject.Inject;
 public class HomeScreenFragment extends AbstractFragment implements OnBackListener {
   private static final float COLLAPSED_MAP_ASPECT_RATIO = 16.0f / 9.0f;
   private static final String TAG = HomeScreenFragment.class.getSimpleName();
-
-  @Inject ViewModelFactory viewModelFactory;
 
   @Inject AddPlaceDialogFragment addPlaceDialogFragment;
 
@@ -91,8 +88,8 @@ public class HomeScreenFragment extends AbstractFragment implements OnBackListen
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    viewModel = viewModelFactory.get(this, HomeScreenViewModel.class);
-    mainViewModel = viewModelFactory.get(this, MainViewModel.class);
+    viewModel = get(HomeScreenViewModel.class);
+    mainViewModel = get(MainViewModel.class);
   }
 
   @Override
