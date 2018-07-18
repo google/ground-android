@@ -16,6 +16,8 @@
 
 package com.google.android.gnd.ui.common;
 
+import static com.google.android.gnd.util.Debug.logLifecycleEvent;
+
 import android.app.Dialog;
 import android.arch.lifecycle.ViewModel;
 import android.content.Context;
@@ -24,7 +26,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -49,14 +50,14 @@ public abstract class AbstractDialogFragment extends DaggerAppCompatDialogFragme
 
   @Override
   public void onAttach(Context context) {
-    logLifecycleEvent("onAttach()");
+    logLifecycleEvent(this);
     AndroidSupportInjection.inject(this);
     super.onAttach(context);
   }
 
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
-    logLifecycleEvent("onCreate()");
+    logLifecycleEvent(this);
     super.onCreate(savedInstanceState);
   }
 
@@ -66,85 +67,85 @@ public abstract class AbstractDialogFragment extends DaggerAppCompatDialogFragme
       @NonNull LayoutInflater inflater,
       @Nullable ViewGroup container,
       @Nullable Bundle savedInstanceState) {
-    logLifecycleEvent("onCreateView()");
+    logLifecycleEvent(this);
     return super.onCreateView(inflater, container, savedInstanceState);
   }
 
   @Override
   public Dialog onCreateDialog(Bundle savedInstanceState) {
-    logLifecycleEvent("onCreateDialog()");
+    logLifecycleEvent(this);
     return super.onCreateDialog(savedInstanceState);
   }
 
   @Override
   public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-    logLifecycleEvent("onViewCreated()");
+    logLifecycleEvent(this);
     super.onViewCreated(view, savedInstanceState);
   }
 
   @Override
   public void onAttachFragment(Fragment childFragment) {
-    logLifecycleEvent("onAttachFragment()");
+    logLifecycleEvent(this);
     super.onAttachFragment(childFragment);
   }
 
   @Override
   public void onActivityCreated(Bundle savedInstanceState) {
-    logLifecycleEvent("onActivityCreated()");
+    logLifecycleEvent(this);
     super.onActivityCreated(savedInstanceState);
   }
 
   @Override
   public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
-    logLifecycleEvent("onViewStateRestored()");
+    logLifecycleEvent(this);
     super.onViewStateRestored(savedInstanceState);
   }
 
   @Override
   public void onStart() {
-    logLifecycleEvent("onStart()");
+    logLifecycleEvent(this);
     super.onStart();
   }
 
   @Override
   public void onResume() {
-    logLifecycleEvent("onResume()");
+    logLifecycleEvent(this);
     super.onResume();
   }
 
   @Override
   public void onPause() {
-    logLifecycleEvent("onPause()");
+    logLifecycleEvent(this);
     super.onPause();
   }
 
   @Override
   public void onSaveInstanceState(Bundle outState) {
-    logLifecycleEvent("onSaveInstanceState()");
+    logLifecycleEvent(this);
     super.onSaveInstanceState(outState);
   }
 
   @Override
   public void onStop() {
-    logLifecycleEvent("onStop()");
+    logLifecycleEvent(this);
     super.onStop();
   }
 
   @Override
   public void onDestroyView() {
-    logLifecycleEvent("onDestroyView()");
+    logLifecycleEvent(this);
     super.onDestroyView();
   }
 
   @Override
   public void onDestroy() {
-    logLifecycleEvent("onDestroy()");
+    logLifecycleEvent(this);
     super.onDestroy();
   }
 
   @Override
   public void onDetach() {
-    logLifecycleEvent("onDetach()");
+    logLifecycleEvent(this);
     super.onDetach();
   }
 
@@ -156,9 +157,5 @@ public abstract class AbstractDialogFragment extends DaggerAppCompatDialogFragme
   @Override
   public AndroidInjector<Fragment> supportFragmentInjector() {
     return childFragmentInjector;
-  }
-
-  private void logLifecycleEvent(String event) {
-    Log.v(getClass().getSimpleName(), "Lifecycle event: " + event);
   }
 }

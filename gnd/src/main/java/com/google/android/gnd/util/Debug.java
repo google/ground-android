@@ -16,21 +16,18 @@
 
 package com.google.android.gnd.util;
 
-import java.util.Map;
-import java8.util.Optional;
+import android.util.Log;
 
-public abstract class Localization {
+public abstract class Debug {
   /**
    * Do not instantiate.
    */
-  private Localization() {}
+  private Debug() {
+  }
 
-  public static String getLocalizedMessage(Map<String, String> messages) {
-    if (messages == null) {
-      return "";
-    }
-    // TODO: i18n.
-    return Optional.ofNullable(messages.get("pt"))
-        .orElse(Optional.ofNullable(messages.get("en")).orElse(""));
+  public static void logLifecycleEvent(Object instance) {
+    StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+    String callingMethod = stackTrace[3].getMethodName() + "()";
+    Log.v(instance.getClass().getSimpleName(), "Lifecycle event: " + callingMethod);
   }
 }
