@@ -16,8 +16,6 @@
 
 package com.google.android.gnd.ui.home.placesheet;
 
-import static com.google.android.gnd.rx.RxAutoDispose.autoDisposable;
-
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
@@ -53,6 +51,8 @@ public class RecordListFragment extends AbstractFragment {
     viewModel = get(RecordListViewModel.class);
     placeSheetViewModel = get(PlaceSheetBodyViewModel.class);
     homeScreenViewModel = get(HomeScreenViewModel.class);
+
+    recordListAdapter.getItemClicks().observe(this, this::showRecordDetails);
   }
 
   @Nullable
@@ -72,7 +72,6 @@ public class RecordListFragment extends AbstractFragment {
     super.onActivityCreated(savedInstanceState);
     viewModel.getRecordSummaries().observe(this, recordListAdapter::update);
     placeSheetViewModel.getSelectedForm().observe(this, this::onFormChange);
-    recordListAdapter.getItemClicks().as(autoDisposable(this)).subscribe(this::showRecordDetails);
   }
 
   private void showRecordDetails(Record record) {

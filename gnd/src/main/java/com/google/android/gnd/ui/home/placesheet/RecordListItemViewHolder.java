@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.ui.home.placesheet;
 
+import android.arch.lifecycle.MutableLiveData;
 import android.content.Context;
 import android.content.res.Resources;
 import android.support.annotation.NonNull;
@@ -34,13 +35,12 @@ import com.google.android.gnd.vo.Form.Element;
 import com.google.android.gnd.vo.Form.Field;
 import com.google.android.gnd.vo.Record;
 import com.google.android.gnd.vo.Record.Value;
-import io.reactivex.subjects.Subject;
 import java8.util.Optional;
 
 class RecordListItemViewHolder extends RecyclerView.ViewHolder {
   private static final int MAX_SUMMARY_COLUMNS = 4;
   private final View view;
-  private final Subject<Record> clickSubject;
+  private final MutableLiveData<Record> itemClicks;
 
   @BindView(R.id.field_label_row)
   TableRow fieldLabelRow;
@@ -49,16 +49,16 @@ class RecordListItemViewHolder extends RecyclerView.ViewHolder {
   TableRow fieldValueRow;
 
   public static RecordListItemViewHolder newInstance(
-    ViewGroup parent, Subject<Record> clickSubject) {
+    ViewGroup parent, MutableLiveData<Record> itemClicks) {
     LayoutInflater inflater = LayoutInflater.from(parent.getContext());
     View view = inflater.inflate(R.layout.record_list_item, parent, false);
-    return new RecordListItemViewHolder(view, clickSubject);
+    return new RecordListItemViewHolder(view, itemClicks);
   }
 
-  private RecordListItemViewHolder(View view, Subject<Record> clickSubject) {
+  private RecordListItemViewHolder(View view, MutableLiveData<Record> itemClicks) {
     super(view);
     this.view = view;
-    this.clickSubject = clickSubject;
+    this.itemClicks = itemClicks;
     ButterKnife.bind(this, view);
   }
 
@@ -80,7 +80,7 @@ class RecordListItemViewHolder extends RecyclerView.ViewHolder {
           break;
       }
     }
-    view.setOnClickListener(__ -> clickSubject.onNext(record));
+    view.setOnClickListener(__ -> itemClicks.setValue(record));
   }
 
   @NonNull

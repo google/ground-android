@@ -16,13 +16,12 @@
 
 package com.google.android.gnd.ui.home.placesheet;
 
+import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.MutableLiveData;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.ViewGroup;
 import com.google.android.gnd.vo.Record;
-import io.reactivex.Observable;
-import io.reactivex.subjects.PublishSubject;
-import io.reactivex.subjects.Subject;
 import java.util.Collections;
 import java.util.List;
 
@@ -30,17 +29,17 @@ import java.util.List;
 class RecordListAdapter extends RecyclerView.Adapter<RecordListItemViewHolder> {
 
   private List<Record> recordSummaries;
-  private Subject<Record> clickSubject;
+  private MutableLiveData<Record> itemClicks;
 
   public RecordListAdapter() {
     recordSummaries = Collections.emptyList();
-    clickSubject = PublishSubject.create();
+    itemClicks = new MutableLiveData<>();
   }
 
   @NonNull
   @Override
   public RecordListItemViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-    return RecordListItemViewHolder.newInstance(parent, clickSubject);
+    return RecordListItemViewHolder.newInstance(parent, itemClicks);
   }
 
   @Override
@@ -53,8 +52,8 @@ class RecordListAdapter extends RecyclerView.Adapter<RecordListItemViewHolder> {
     return recordSummaries.size();
   }
 
-  Observable<Record> getItemClicks() {
-    return clickSubject;
+  LiveData<Record> getItemClicks() {
+    return itemClicks;
   }
 
   void update(List<Record> recordSummaries) {
