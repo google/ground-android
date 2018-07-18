@@ -106,6 +106,7 @@ public class ProjectSelectorDialogFragment extends AbstractDialogFragment {
   }
 
   private void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+    getDialog().hide();
     viewModel.activateProject(position).as(autoDisposable(this)).subscribe(this::dismiss);
   }
 }
