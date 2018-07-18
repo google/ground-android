@@ -17,6 +17,7 @@
 package com.google.android.gnd;
 
 import static com.google.android.gnd.rx.RxAutoDispose.autoDisposable;
+import static com.google.android.gnd.util.Debug.logLifecycleEvent;
 
 import android.content.Intent;
 import android.content.IntentSender.SendIntentException;
@@ -67,7 +68,7 @@ public class MainActivity extends AppCompatActivity implements HasSupportFragmen
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
-    logLifecycleEvent("onCreate()");
+    logLifecycleEvent(this);
 
     // Prevent RxJava from force-quitting on unhandled errors.
     RxJavaPlugins.setErrorHandler(t -> RxDebug.logEnhancedStackTrace(t));
@@ -120,31 +121,31 @@ public class MainActivity extends AppCompatActivity implements HasSupportFragmen
 
   @Override
   protected void onStart() {
-    logLifecycleEvent("onStart()");
+    logLifecycleEvent(this);
     super.onStart();
   }
 
   @Override
   protected void onResume() {
-    logLifecycleEvent("onResume()");
+    logLifecycleEvent(this);
     super.onResume();
   }
 
   @Override
   protected void onPause() {
-    logLifecycleEvent("onPause()");
+    logLifecycleEvent(this);
     super.onPause();
   }
 
   @Override
   protected void onStop() {
-    logLifecycleEvent("onStop()");
+    logLifecycleEvent(this);
     super.onStop();
   }
 
   @Override
   protected void onDestroy() {
-    logLifecycleEvent("onDestroy()");
+    logLifecycleEvent(this);
     super.onDestroy();
   }
 
@@ -192,10 +193,6 @@ public class MainActivity extends AppCompatActivity implements HasSupportFragmen
     // TODO: Remove this workaround once setupActionBarWithNavController() works with custom
     // Toolbars (https://issuetracker.google.com/issues/109868820).
     toolbar.setNavigationOnClickListener(__ -> navHostFragment.getNavController().navigateUp());
-  }
-
-  private void logLifecycleEvent(String event) {
-    Log.d(getClass().getSimpleName(), "Lifecycle event: " + event);
   }
 
   @Override

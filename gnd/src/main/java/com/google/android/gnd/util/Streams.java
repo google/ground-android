@@ -27,7 +27,9 @@ import java8.util.stream.Collector;
 import java8.util.stream.Collectors;
 
 public abstract class Streams {
-
+  /**
+   * Do not instantiate.
+   */
   private Streams() {}
 
   public static <X, Y> List<Y> map(List<X> in, Function<X, Y> mappingFunction) {

@@ -20,6 +20,9 @@ import java.util.Map;
 import java8.util.Optional;
 
 public abstract class Localization {
+  /**
+   * Do not instantiate.
+   */
   private Localization() {}
 
   public static String getLocalizedMessage(Map<String, String> messages) {

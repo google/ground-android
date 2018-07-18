@@ -16,6 +16,8 @@
 
 package com.google.android.gnd.ui.common;
 
+import static com.google.android.gnd.util.Debug.logLifecycleEvent;
+
 import android.arch.lifecycle.ViewModel;
 import android.content.Context;
 import android.os.Bundle;
@@ -23,7 +25,6 @@ import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -53,14 +54,14 @@ public abstract class AbstractFragment extends Fragment implements HasSupportFra
 
   @Override
   public void onAttach(Context context) {
-    logLifecycleEvent("onAttach()");
+    logLifecycleEvent(this);
     AndroidSupportInjection.inject(this);
     super.onAttach(context);
   }
 
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
-    logLifecycleEvent("onCreate() " + getView());
+    logLifecycleEvent(this);
     super.onCreate(savedInstanceState);
   }
 
@@ -70,62 +71,62 @@ public abstract class AbstractFragment extends Fragment implements HasSupportFra
       @NonNull LayoutInflater inflater,
       @Nullable ViewGroup container,
       @Nullable Bundle savedInstanceState) {
-    logLifecycleEvent("onCreateView()");
+    logLifecycleEvent(this);
     return super.onCreateView(inflater, container, savedInstanceState);
   }
 
   @Override
   public void onSaveInstanceState(@NonNull Bundle outState) {
-    logLifecycleEvent("onSaveInstanceState()");
+    logLifecycleEvent(this);
     super.onSaveInstanceState(outState);
   }
 
   @Override
   public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-    logLifecycleEvent("onViewCreated() " + savedInstanceState);
+    logLifecycleEvent(this);
     super.onViewCreated(view, savedInstanceState);
     unbinder = ButterKnife.bind(this, view);
   }
 
   @Override
   public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-    logLifecycleEvent("onActivityCreated() " + savedInstanceState);
+    logLifecycleEvent(this);
     super.onActivityCreated(savedInstanceState);
   }
 
   @Override
   public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
-    logLifecycleEvent("onViewStateRestored() " + savedInstanceState);
+    logLifecycleEvent(this);
     super.onViewStateRestored(savedInstanceState);
   }
 
   @Override
   public void onStart() {
-    logLifecycleEvent("onStart()");
+    logLifecycleEvent(this);
     super.onStart();
   }
 
   @Override
   public void onResume() {
-    logLifecycleEvent("onResume()");
+    logLifecycleEvent(this);
     super.onResume();
   }
 
   @Override
   public void onPause() {
-    logLifecycleEvent("onPause()");
+    logLifecycleEvent(this);
     super.onPause();
   }
 
   @Override
   public void onStop() {
-    logLifecycleEvent("onStop()");
+    logLifecycleEvent(this);
     super.onStop();
   }
 
   @Override
   public void onDestroyView() {
-    logLifecycleEvent("onDestroyView()");
+    logLifecycleEvent(this);
     if (unbinder != null) {
       unbinder.unbind();
     }
@@ -134,13 +135,13 @@ public abstract class AbstractFragment extends Fragment implements HasSupportFra
 
   @Override
   public void onDestroy() {
-    logLifecycleEvent("onDestroy()");
+    logLifecycleEvent(this);
     super.onDestroy();
   }
 
   @Override
   public void onDetach() {
-    logLifecycleEvent("onDetach()");
+    logLifecycleEvent(this);
     super.onDetach();
   }
 
@@ -167,9 +168,5 @@ public abstract class AbstractFragment extends Fragment implements HasSupportFra
 
   protected <T> T restoreChildFragment(Bundle savedInstanceState, Class<T> fragmentClass) {
     return (T) restoreChildFragment(savedInstanceState, fragmentClass.getName());
-  }
-
-  private void logLifecycleEvent(String event) {
-    Log.v(getClass().getSimpleName(), "Lifecycle event: " + event);
   }
 }
