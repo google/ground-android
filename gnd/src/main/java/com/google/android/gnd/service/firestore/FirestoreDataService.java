@@ -67,6 +67,7 @@ public class FirestoreDataService implements RemoteDataService {
 
   @Inject
   FirestoreDataService() {
+    // TODO: Run on I/O thread, return asynchronously.
     this.db = FirebaseFirestore.getInstance();
     db.setFirestoreSettings(FIRESTORE_SETTINGS);
     FirebaseFirestore.setLoggingEnabled(true);

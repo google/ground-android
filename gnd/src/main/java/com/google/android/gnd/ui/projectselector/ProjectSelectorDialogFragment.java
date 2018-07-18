@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.ui.projectselector;
 
+import static com.google.android.gnd.rx.RxAutoDispose.autoDisposable;
 import static java8.util.stream.StreamSupport.stream;
 
 import android.app.Dialog;
@@ -105,7 +106,6 @@ public class ProjectSelectorDialogFragment extends AbstractDialogFragment {
   }
 
   private void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-    viewModel.onProjectSelected(position);
-    dismiss();
+    viewModel.activateProject(position).as(autoDisposable(this)).subscribe(this::dismiss);
   }
 }

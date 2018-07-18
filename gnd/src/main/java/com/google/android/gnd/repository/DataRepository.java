@@ -100,12 +100,6 @@ public class DataRepository {
     event.getEntity().ifPresentOrElse(cache::putPlace, () -> cache.removePlace(event.getId()));
   }
 
-  //  public Place update(PlaceUpdate placeUpdate) {
-  //    projectStateObservable.getValue().getActiveProjectStream()
-  //
-  //    return remoteDataService.update(activeProject.getId(), placeUpdate);
-  //  }
-
   // TODO: Return Resource.
   public Flowable<List<Record>> getRecordSummaries(String projectId, String placeId) {
     // TODO: Only fetch first n fields.
