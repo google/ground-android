@@ -92,7 +92,7 @@ public class MultipleChoiceFieldViewHolder implements Editable {
 
   @Override
   public boolean isModified() {
-    return false;
+    return !getCurrentValue().equals(originalValue);
   }
 
   @Override

@@ -74,7 +74,7 @@ public class TextInputViewHolder implements Editable {
 
   @Override
   public boolean isModified() {
-    return false;
+    return !getCurrentValue().equals(originalValue);
   }
 
 

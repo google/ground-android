@@ -21,8 +21,10 @@ import static com.google.android.gnd.vo.PlaceUpdate.Operation;
 import static java8.util.stream.StreamSupport.stream;
 
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -38,6 +40,7 @@ import com.google.android.gnd.R;
 import com.google.android.gnd.repository.Resource;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.EphemeralPopups;
+import com.google.android.gnd.ui.common.OnBackListener;
 import com.google.android.gnd.ui.common.ProgressDialogs;
 import com.google.android.gnd.ui.common.TwoLineToolbar;
 import com.google.android.gnd.ui.editrecord.input.Editable;
@@ -46,10 +49,11 @@ import com.google.android.gnd.ui.editrecord.input.TextInputViewHolder;
 import com.google.android.gnd.vo.Form;
 import com.google.android.gnd.vo.Record;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import javax.annotation.Nullable;
 
-public class EditRecordFragment extends AbstractFragment {
+public class EditRecordFragment extends AbstractFragment implements OnBackListener {
   private static final String TAG = EditRecordFragment.class.getSimpleName();
   private static final String NEW_RECORD_ID_ARG_PLACEHOLDER = "NEW_RECORD";
 
@@ -69,7 +73,8 @@ public class EditRecordFragment extends AbstractFragment {
   @BindView(R.id.edit_record_layout)
   LinearLayout formLayout;
 
-  private List<Editable> fields;
+  // TODO: Wrap collection and related accessors into Adapter class.
+  private List<Editable> fields = Collections.emptyList();
 
   @Override
   public void onCreate(@android.support.annotation.Nullable Bundle savedInstanceState) {
@@ -79,15 +84,16 @@ public class EditRecordFragment extends AbstractFragment {
 
   @Override
   public View onCreateView(
-    LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+      LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     return inflater.inflate(R.layout.edit_record_frag, container, false);
   }
 
   @Override
   public void onViewCreated(
-    @NonNull View view, @android.support.annotation.Nullable Bundle savedInstanceState) {
+      @NonNull View view, @android.support.annotation.Nullable Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
     ((MainActivity) getActivity()).setActionBar(toolbar, R.drawable.ic_close);
+    toolbar.setNavigationOnClickListener(this::onCloseButtonClick);
     savingProgressDialog = ProgressDialogs.modalSpinner(getContext(), R.string.saving);
   }
 
@@ -110,6 +116,9 @@ public class EditRecordFragment extends AbstractFragment {
 
   private void onRecordChange(Resource<Record> record) {
     switch (record.getStatus()) {
+      case LOADING:
+        // TODO.
+        break;
       case LOADED:
         record.ifPresent(this::editRecord);
         break;
@@ -171,7 +180,7 @@ public class EditRecordFragment extends AbstractFragment {
         return textInput;
       case MULTIPLE_CHOICE:
         MultipleChoiceFieldViewHolder multipleChoice =
-          MultipleChoiceFieldViewHolder.newInstance(formLayout);
+            MultipleChoiceFieldViewHolder.newInstance(formLayout);
         multipleChoice.init(field, record);
         formLayout.addView(multipleChoice.getView());
         return multipleChoice;
@@ -182,10 +191,62 @@ public class EditRecordFragment extends AbstractFragment {
 
   @OnClick(R.id.save_record_btn)
   void onSaveClick() {
+    save();
+  }
+
+  private void save() {
     viewModel.saveChanges(
         stream(fields)
-          .map(Editable::getUpdate)
-          .filter(u -> !u.getOperation().equals(Operation.NO_CHANGE))
-          .collect(toImmutableList()));
+            .map(Editable::getUpdate)
+            .filter(u -> !u.getOperation().equals(Operation.NO_CHANGE))
+            .collect(toImmutableList()));
+  }
+
+  private void onCloseButtonClick(View view) {
+    if (hasChanges()) {
+      showUnsavedChangesDialog();
+    } else {
+      close();
+    }
+  }
+
+  private void showUnsavedChangesDialog() {
+    new AlertDialog.Builder(getContext())
+        .setMessage(R.string.unsaved_changes)
+        .setPositiveButton(R.string.save_unsaved_changes, this::onConfirmSaveUnsavedChanges)
+        .setNegativeButton(R.string.close_without_saving, this::onConfirmAbandonUnsavedChanges)
+        .setNeutralButton(R.string.continue_editing, this::onContinueEditing)
+        .create()
+        .show();
+  }
+
+  private void onConfirmSaveUnsavedChanges(DialogInterface dialogInterface, int i) {
+    save();
+  }
+
+  private void onConfirmAbandonUnsavedChanges(DialogInterface dialogInterface, int i) {
+    close();
+  }
+
+  private void close() {
+    NavHostFragment.findNavController(this).navigateUp();
+  }
+
+  private void onContinueEditing(DialogInterface dialogInterface, int i) {
+    // No-op.
+  }
+
+  @Override
+  public boolean onBack() {
+    if (hasChanges()) {
+      showUnsavedChangesDialog();
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  private boolean hasChanges() {
+    return stream(fields).anyMatch(f -> f.isModified());
   }
 }
