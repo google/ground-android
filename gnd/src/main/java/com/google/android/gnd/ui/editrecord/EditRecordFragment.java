@@ -67,11 +67,14 @@ public class EditRecordFragment extends AbstractFragment implements OnBackListen
   @BindView(R.id.form_name)
   TextView formNameView;
 
-  @BindView(R.id.edit_record_progress_bar)
+  @BindView(R.id.loading_progress_bar)
   ProgressBar progressBar;
 
   @BindView(R.id.edit_record_layout)
   LinearLayout formLayout;
+
+  @BindView(R.id.save_record_btn)
+  View saveRecordButton;
 
   // TODO: Wrap collection and related accessors into Adapter class.
   private List<Editable> fields = Collections.emptyList();
@@ -117,7 +120,8 @@ public class EditRecordFragment extends AbstractFragment implements OnBackListen
   private void onRecordChange(Resource<Record> record) {
     switch (record.getStatus()) {
       case LOADING:
-        // TODO.
+        progressBar.setVisibility(View.VISIBLE);
+        saveRecordButton.setVisibility(View.GONE);
         break;
       case LOADED:
         record.ifPresent(this::editRecord);
@@ -132,9 +136,9 @@ public class EditRecordFragment extends AbstractFragment implements OnBackListen
         break;
       case NOT_FOUND:
       case ERROR:
-        // TODO: Replace w/error view?
         record.getError().ifPresent(t -> Log.e(TAG, "Failed to load/save record", t));
         EphemeralPopups.showError(getContext());
+        close();
         break;
     }
   }
@@ -145,6 +149,7 @@ public class EditRecordFragment extends AbstractFragment implements OnBackListen
     toolbar.setSubtitle(record.getPlace().getSubtitle());
     formNameView.setText(record.getForm().getTitle());
     rebuildForm(record);
+    saveRecordButton.setVisibility(View.VISIBLE);
   }
 
   // TODO: Move into EditRecordFormViewHolder class.
