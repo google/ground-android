@@ -77,7 +77,6 @@ public class TextInputViewHolder implements Editable {
     return !getCurrentValue().equals(originalValue);
   }
 
-
   @Override
   public ValueUpdate getUpdate() {
     ValueUpdate.Builder update = ValueUpdate.newBuilder();

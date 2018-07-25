@@ -195,8 +195,13 @@ public class EditRecordFragment extends AbstractFragment implements OnBackListen
   }
 
   @OnClick(R.id.save_record_btn)
-  void onSaveClick() {
-    save();
+  void onSaveButtonClick() {
+    if (hasChanges()) {
+      save();
+    } else {
+      EphemeralPopups.showFyi(getContext(), R.string.no_changes_to_save);
+      close();
+    }
   }
 
   private void save() {

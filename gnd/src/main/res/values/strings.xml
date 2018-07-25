@@ -134,5 +134,6 @@
   <string name="edit_record_button_label">Edit</string>
   <string name="save_record_button_label">Save</string>
   <string name="saving">Saving...</string>
+  <string name="no_changes_to_save">No changes to save</string>
 
 </resources>

@@ -32,6 +32,10 @@ public class EphemeralPopups {
     showLong(context, messageId);
   }
 
+  public static void showFyi(Context context, int messageId) {
+    showLong(context, messageId);
+  }
+
   public static void showError(Context context, String message) {
     Toast.makeText(context, message, Toast.LENGTH_LONG).show();
   }
@@ -44,4 +48,5 @@ public class EphemeralPopups {
   private static void showLong(Context context, int messageId) {
     Toast.makeText(context, messageId, Toast.LENGTH_LONG).show();
   }
+
 }
