@@ -119,9 +119,9 @@
   <string name="location_updates_request_failed">Failed to enable location updates</string>
 
   <!-- Shown when saving a form that contains missing or invalid data -->
-  <string name="invalid_data">The form contains incomplete or invalid data. Please check
+  <string name="invalid_data_warning">The form contains incomplete or invalid data. Please check
   your responses and try again.</string>
-  <string name="invalid_data_ok">OK</string>
+  <string name="invalid_data_confirm">OK</string>
 
   <!-- TODO: Translate into Portuguese -->
   <string name="select_project_dialog_title">Select Project</string>

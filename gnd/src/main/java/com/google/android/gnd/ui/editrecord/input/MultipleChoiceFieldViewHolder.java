@@ -87,7 +87,7 @@ public class MultipleChoiceFieldViewHolder implements Editable {
   private void onValueUpdate(Optional<Value> value) {
     currentValue = value;
     editText.setText(value.map(v -> v.getDetailsText(field)).orElse(""));
-    updateValidationMessage();
+    validate();
   }
 
   @Override
@@ -118,11 +118,6 @@ public class MultipleChoiceFieldViewHolder implements Editable {
     return currentValue;
   }
 
-  @Override
-  public boolean isValid() {
-    return !isMissingRequired();
-  }
-
   private boolean isMissingRequired() {
     return field.isRequired() && !getCurrentValue().isPresent();
   }
@@ -134,7 +129,7 @@ public class MultipleChoiceFieldViewHolder implements Editable {
       showDialog();
     } else {
       editText.setEnabled(true);
-      updateValidationMessage();
+      validate();
     }
   }
 
@@ -163,12 +158,14 @@ public class MultipleChoiceFieldViewHolder implements Editable {
   }
 
   @Override
-  public void updateValidationMessage() {
+  public boolean validate() {
     // TODO: Move validation to ViewModel.
     if (isMissingRequired()) {
       editText.setError(view.getResources().getString(R.string.required_field));
+      return false;
     } else {
       editText.setError(null);
+      return true;
     }
   }
 }

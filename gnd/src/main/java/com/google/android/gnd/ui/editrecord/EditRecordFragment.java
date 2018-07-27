@@ -136,7 +136,7 @@ public class EditRecordFragment extends AbstractFragment implements OnBackListen
         break;
       case NOT_FOUND:
       case ERROR:
-        record.getError().ifPresent(t -> Log.e(TAG, "Failed to load/save record", t));
+        record.getError().ifPresent(t -> Log.e(TAG, "Failed to load/validateAndSave record", t));
         EphemeralPopups.showError(getContext());
         close();
         break;
@@ -197,19 +197,23 @@ public class EditRecordFragment extends AbstractFragment implements OnBackListen
   @OnClick(R.id.save_record_btn)
   void onSaveButtonClick() {
     if (hasChanges()) {
-      save();
+      validateAndSave();
     } else {
       EphemeralPopups.showFyi(getContext(), R.string.no_changes_to_save);
       close();
     }
   }
 
-  private void save() {
-    viewModel.saveChanges(
-        stream(fields)
-            .map(Editable::getUpdate)
-            .filter(u -> !u.getOperation().equals(Operation.NO_CHANGE))
-            .collect(toImmutableList()));
+  private void validateAndSave() {
+    if (validateAll()) {
+      viewModel.saveChanges(
+          stream(fields)
+              .map(Editable::getUpdate)
+              .filter(u -> !u.getOperation().equals(Operation.NO_CHANGE))
+              .collect(toImmutableList()));
+    } else {
+      showFormErrorsDialog();
+    }
   }
 
   private void onCloseButtonClick(View view) {
@@ -230,8 +234,17 @@ public class EditRecordFragment extends AbstractFragment implements OnBackListen
         .show();
   }
 
+  private void showFormErrorsDialog() {
+    new AlertDialog.Builder(getContext())
+        .setMessage(R.string.invalid_data_warning)
+        .setPositiveButton(R.string.invalid_data_confirm, (a, b) -> {
+        })
+        .create()
+        .show();
+  }
+
   private void onConfirmSaveUnsavedChanges(DialogInterface dialogInterface, int i) {
-    save();
+    validateAndSave();
   }
 
   private void onConfirmAbandonUnsavedChanges(DialogInterface dialogInterface, int i) {
@@ -258,5 +271,9 @@ public class EditRecordFragment extends AbstractFragment implements OnBackListen
 
   private boolean hasChanges() {
     return stream(fields).anyMatch(f -> f.isModified());
+  }
+
+  private boolean validateAll() {
+    return stream(fields).map(f -> f.validate()).reduce((a, b) -> a && b).get();
   }
 }

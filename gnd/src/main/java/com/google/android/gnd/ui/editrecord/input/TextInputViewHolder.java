@@ -45,6 +45,8 @@ public class TextInputViewHolder implements Editable {
   @BindView(R.id.text_input_edit_text)
   TextInputEditText editText;
 
+  // TODO: Use Android Data Binding to associate Editables to ViewModel.
+  // TODO: Move state and related logic into ViewModel.
   private Form.Field field;
   private Optional<Record.Value> originalValue;
 
@@ -109,11 +111,6 @@ public class TextInputViewHolder implements Editable {
     return Optional.of(Record.Value.ofText(text));
   }
 
-  @Override
-  public boolean isValid() {
-    return !isMissingRequired();
-  }
-
   private boolean isMissingRequired() {
     return field.isRequired() && !getCurrentValue().isPresent();
   }
@@ -122,16 +119,18 @@ public class TextInputViewHolder implements Editable {
   void onFocusChange(View target, boolean hasFocus) {
     if (!hasFocus) {
       // TODO: Move validation to ViewModel.
-      updateValidationMessage();
+      validate();
     }
   }
 
   @Override
-  public void updateValidationMessage() {
+  public boolean validate() {
     if (isMissingRequired()) {
       editText.setError(view.getResources().getString(R.string.required_field));
+      return false;
     } else {
       editText.setError(null);
+      return true;
     }
   }
 }

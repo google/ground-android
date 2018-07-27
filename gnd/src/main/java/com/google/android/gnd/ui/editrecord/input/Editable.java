@@ -24,11 +24,9 @@ public interface Editable {
   // TODO: Reverse order.
   void init(Form.Field field, Record record);
 
-  void updateValidationMessage();
-
   boolean isModified();
 
   ValueUpdate getUpdate();
 
-  boolean isValid();
+  boolean validate();
 }

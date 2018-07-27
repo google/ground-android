@@ -118,7 +118,7 @@ Tem certeza que deseja apagar o local e todos os dados associados? Isso não pod
   <!-- NEW STRINGS FOR TRANSLATION -->
 
   <!-- Shown when saving a form that contains missing or invalid data -->
-  <string name="invalid_data">The form contains incomplete or invalid data. Please check
+  <string name="invalid_data_warning">The form contains incomplete or invalid data. Please check
   your responses and try again.</string>
-  <string name="invalid_data_ok">OK</string>
+  <string name="invalid_data_confirm">OK</string>
 </resources>
