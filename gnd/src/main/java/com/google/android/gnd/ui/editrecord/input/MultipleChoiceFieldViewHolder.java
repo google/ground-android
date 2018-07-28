@@ -79,14 +79,17 @@ public class MultipleChoiceFieldViewHolder implements Editable {
   public void init(Form.Field field, Record record) {
     this.field = field;
     this.originalValue = record.getValue(field.getId());
-    this.currentValue = this.originalValue;
     layout.setHint(field.getLabel());
-    onValueUpdate(this.currentValue);
+    setValue(this.originalValue);
   }
 
-  private void onValueUpdate(Optional<Value> value) {
+  private void setValue(Optional<Value> value) {
     currentValue = value;
     editText.setText(value.map(v -> v.getDetailsText(field)).orElse(""));
+  }
+
+  private void onValueChange(Optional<Value> newValue) {
+    setValue(newValue);
     validate();
   }
 
@@ -146,10 +149,10 @@ public class MultipleChoiceFieldViewHolder implements Editable {
     Cardinality cardinality = field.getMultipleChoice().getCardinality();
     switch (cardinality) {
       case SELECT_MULTIPLE:
-        multiSelectDialogFactory.create(field, currentValue, this::onValueUpdate).show();
+        multiSelectDialogFactory.create(field, currentValue, this::onValueChange).show();
         break;
       case SELECT_ONE:
-        singleSelectDialogFactory.create(field, currentValue, this::onValueUpdate).show();
+        singleSelectDialogFactory.create(field, currentValue, this::onValueChange).show();
         break;
       default:
         Log.e(TAG, "Unknown cardinality: " + cardinality);
