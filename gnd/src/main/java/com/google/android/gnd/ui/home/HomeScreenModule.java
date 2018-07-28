@@ -23,7 +23,7 @@ import dagger.Binds;
 import dagger.Module;
 
 @Module(includes = AbstractFragmentModule.class)
-public abstract class HomeScreenFragmentModule {
+public abstract class HomeScreenModule {
 
   @Binds
   @PerFragment

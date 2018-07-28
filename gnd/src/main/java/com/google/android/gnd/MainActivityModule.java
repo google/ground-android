@@ -23,9 +23,9 @@ import com.google.android.gnd.ui.editrecord.EditRecordFragment;
 import com.google.android.gnd.ui.editrecord.EditRecordModule;
 import com.google.android.gnd.ui.home.AddPlaceDialogFragment;
 import com.google.android.gnd.ui.home.HomeScreenFragment;
-import com.google.android.gnd.ui.home.HomeScreenFragmentModule;
+import com.google.android.gnd.ui.home.HomeScreenModule;
 import com.google.android.gnd.ui.home.mapcontainer.MapContainerFragment;
-import com.google.android.gnd.ui.home.mapcontainer.MapContainerFragmentModule;
+import com.google.android.gnd.ui.home.mapcontainer.MapContainerModule;
 import com.google.android.gnd.ui.home.placesheet.PlaceSheetBodyFragment;
 import com.google.android.gnd.ui.home.placesheet.PlaceSheetHeaderFragment;
 import com.google.android.gnd.ui.home.placesheet.PlaceSheetModule;
@@ -52,19 +52,19 @@ public abstract class MainActivityModule {
   // https://stackoverflow.com/questions/36206989/dagger-should-we-create-each-component-and-module-for-each-activity-fragment
 
   @PerFragment
-  @ContributesAndroidInjector(modules = HomeScreenFragmentModule.class)
+  @ContributesAndroidInjector(modules = HomeScreenModule.class)
   abstract HomeScreenFragment homeScreenFragmentInjector();
 
   @PerFragment
-  @ContributesAndroidInjector(modules = MapContainerFragmentModule.class)
+  @ContributesAndroidInjector(modules = MapContainerModule.class)
   abstract MapContainerFragment mapContainerFragmentInjector();
 
   @PerFragment
-  @ContributesAndroidInjector(modules = HomeScreenFragmentModule.class)
+  @ContributesAndroidInjector(modules = HomeScreenModule.class)
   abstract ProjectSelectorDialogFragment projectSelectorDialogFragment();
 
   @PerFragment
-  @ContributesAndroidInjector(modules = MapContainerFragmentModule.class)
+  @ContributesAndroidInjector(modules = MapContainerModule.class)
   abstract AddPlaceDialogFragment addPlaceDialogFragmentInjector();
 
   @PerFragment

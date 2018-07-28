@@ -22,8 +22,6 @@
   <dimen name="field_top_padding">18dp</dimen>
   <dimen name="field_value_top_padding">4dp</dimen>
   <dimen name="field_bottom_padding">0dp</dimen>
-
-  <!-- TODO: Delete these -->
   <dimen name="field_horizontal_margin">14dp</dimen>
   <dimen name="field_vertical_margin">8dp</dimen>
 

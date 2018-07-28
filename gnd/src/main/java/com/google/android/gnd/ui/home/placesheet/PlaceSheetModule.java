@@ -23,7 +23,6 @@ import com.google.android.gnd.ui.common.AbstractFragmentModule;
 import dagger.Module;
 import dagger.Provides;
 
-// TODO: Remove "Fragment" from other other Module names.
 @Module(includes = AbstractFragmentModule.class)
 public class PlaceSheetModule {
 

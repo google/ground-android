@@ -23,7 +23,7 @@ import dagger.Binds;
 import dagger.Module;
 
 @Module(includes = AbstractFragmentModule.class)
-public abstract class MapContainerFragmentModule {
+public abstract class MapContainerModule {
 
   @Binds
   @PerChildFragment
