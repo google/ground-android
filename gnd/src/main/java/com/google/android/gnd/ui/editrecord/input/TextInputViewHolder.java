@@ -31,12 +31,16 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnFocusChange;
 import com.google.android.gnd.R;
+import com.google.android.gnd.databinding.TextInputFieldBinding;
+import com.google.android.gnd.ui.editrecord.EditRecordFragment;
+import com.google.android.gnd.ui.editrecord.EditRecordViewModel;
 import com.google.android.gnd.vo.Form;
 import com.google.android.gnd.vo.PlaceUpdate.RecordUpdate.ValueUpdate;
 import com.google.android.gnd.vo.Record;
 import java8.util.Optional;
 
 public class TextInputViewHolder implements Editable {
+  private static TextInputFieldBinding binding;
   private final View view;
 
   @BindView(R.id.text_input_layout)
@@ -52,11 +56,17 @@ public class TextInputViewHolder implements Editable {
     this.view = view;
   }
 
-  public static TextInputViewHolder newInstance(ViewGroup parent) {
+  public static TextInputViewHolder newInstance(
+    EditRecordFragment fragment,
+    EditRecordViewModel viewModel,
+    ViewGroup parent) {
     LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-    View view = inflater.inflate(R.layout.text_input_field, parent, false);
-    TextInputViewHolder holder = new TextInputViewHolder(view);
-    ButterKnife.bind(holder, view);
+    binding = TextInputFieldBinding.inflate(inflater, parent, false);
+    binding.setViewModel(viewModel);
+    binding.setLifecycleOwner(fragment);
+//    View view = inflater.inflate(R.layout.text_input_field, parent, false);
+    TextInputViewHolder holder = new TextInputViewHolder(binding.getRoot());
+    ButterKnife.bind(holder, binding.getRoot());
     return holder;
   }
 
@@ -69,7 +79,8 @@ public class TextInputViewHolder implements Editable {
     this.field = field;
     this.originalValue = record.getValue(field.getId());
     layout.setHint(field.getLabel());
-    editText.setText(originalValue.map(Record.Value::getText).orElse(""));
+    binding.setKey(field.getId());
+//    editText.setText(originalValue.map(Record.Value::getText).orElse(""));
   }
 
   @Override

@@ -100,6 +100,11 @@ public class EditRecordFragment extends AbstractFragment {
   @Override
   public void onStart() {
     super.onStart();
+    Resource<Record> record = Resource.getValue(viewModel.getRecord());
+    if (record.isLoaded()) {
+      onRecordChange(record);
+      return;
+    }
     EditRecordFragmentArgs args = EditRecordFragmentArgs.fromBundle(getArguments());
     if (args.getRecordId().equals(NEW_RECORD_ID_ARG_PLACEHOLDER)) {
       viewModel.editNewRecord(args.getProjectId(), args.getPlaceId(), args.getFormId());
@@ -165,7 +170,10 @@ public class EditRecordFragment extends AbstractFragment {
       case TEXT:
         // TODO: Refactor these views into ViewHolders and use normal instances of Android view
         // components instead of extending them.
-        TextInputViewHolder textInput = TextInputViewHolder.newInstance(formLayout);
+        TextInputViewHolder textInput = TextInputViewHolder.newInstance(
+          this,
+          viewModel,
+          formLayout);
         textInput.init(field, record);
         formLayout.addView(textInput.getView());
         return textInput;
