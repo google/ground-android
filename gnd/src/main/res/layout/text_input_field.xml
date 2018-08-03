@@ -15,7 +15,8 @@
   -->
 <layout
   xmlns:android="http://schemas.android.com/apk/res/android"
-  xmlns:tools="http://schemas.android.com/tools">
+  xmlns:tools="http://schemas.android.com/tools"
+  xmlns:app="http://schemas.android.com/apk/res-auto">
   <data>
     <variable
       name="key"
@@ -45,8 +46,9 @@
         android:id="@+id/text_input_edit_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@={viewModel.fieldValue[key]}"
-        tools:text="Text value"/>
+        android:text="@{viewModel.textValues[key]}"
+        tools:text="Text value"
+        app:textChangedListener="@{s -> viewModel.onTextChanged(key, (String) s)}"/>
 
     </android.support.design.widget.TextInputLayout>
 

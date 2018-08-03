@@ -32,6 +32,7 @@ import butterknife.ButterKnife;
 import butterknife.OnFocusChange;
 import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.TextInputFieldBinding;
+import com.google.android.gnd.system.DeviceCapabilities;
 import com.google.android.gnd.ui.editrecord.EditRecordFragment;
 import com.google.android.gnd.ui.editrecord.EditRecordViewModel;
 import com.google.android.gnd.vo.Form;
@@ -64,9 +65,11 @@ public class TextInputViewHolder implements Editable {
     binding = TextInputFieldBinding.inflate(inflater, parent, false);
     binding.setViewModel(viewModel);
     binding.setLifecycleOwner(fragment);
-//    View view = inflater.inflate(R.layout.text_input_field, parent, false);
     TextInputViewHolder holder = new TextInputViewHolder(binding.getRoot());
     ButterKnife.bind(holder, binding.getRoot());
+    if (DeviceCapabilities.isGenerateViewIdSupported()) {
+      holder.editText.setId(View.generateViewId());
+    }
     return holder;
   }
 
@@ -80,7 +83,6 @@ public class TextInputViewHolder implements Editable {
     this.originalValue = record.getValue(field.getId());
     layout.setHint(field.getLabel());
     binding.setKey(field.getId());
-//    editText.setText(originalValue.map(Record.Value::getText).orElse(""));
   }
 
   @Override

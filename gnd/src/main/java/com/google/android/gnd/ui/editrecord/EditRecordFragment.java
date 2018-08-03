@@ -16,10 +16,6 @@
 
 package com.google.android.gnd.ui.editrecord;
 
-import static com.google.android.gnd.util.Streams.toImmutableList;
-import static com.google.android.gnd.vo.PlaceUpdate.Operation;
-import static java8.util.stream.StreamSupport.stream;
-
 import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -179,7 +175,7 @@ public class EditRecordFragment extends AbstractFragment {
         return textInput;
       case MULTIPLE_CHOICE:
         MultipleChoiceFieldViewHolder multipleChoice =
-          MultipleChoiceFieldViewHolder.newInstance(formLayout);
+          MultipleChoiceFieldViewHolder.newInstance(this, viewModel, formLayout);
         multipleChoice.init(field, record);
         formLayout.addView(multipleChoice.getView());
         return multipleChoice;
@@ -190,10 +186,6 @@ public class EditRecordFragment extends AbstractFragment {
 
   @OnClick(R.id.save_record_btn)
   void onSaveClick() {
-    viewModel.saveChanges(
-        stream(fields)
-          .map(Editable::getUpdate)
-          .filter(u -> !u.getOperation().equals(Operation.NO_CHANGE))
-          .collect(toImmutableList()));
+    viewModel.saveChanges();
   }
 }

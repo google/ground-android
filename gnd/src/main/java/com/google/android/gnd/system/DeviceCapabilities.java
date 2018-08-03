@@ -16,6 +16,8 @@
 
 package com.google.android.gnd.system;
 
+import android.os.Build;
+
 /** Reports various device capabilities based on Android OS version. */
 public final class DeviceCapabilities {
   /** Do not instantiate. */
@@ -27,6 +29,10 @@ public final class DeviceCapabilities {
    * whether relevant UI elements need to be repositioned to above/below the insets.
    */
   public static boolean isWindowInsetsSupported() {
-    return android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT_WATCH;
+    return Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT_WATCH;
+  }
+
+  public static boolean isGenerateViewIdSupported() {
+    return Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1;
   }
 }

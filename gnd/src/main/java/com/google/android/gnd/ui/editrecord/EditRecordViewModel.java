@@ -16,19 +16,33 @@
 
 package com.google.android.gnd.ui.editrecord;
 
+import static com.google.android.gnd.util.Streams.toImmutableList;
+import static com.google.android.gnd.vo.PlaceUpdate.Operation.CREATE;
+import static com.google.android.gnd.vo.PlaceUpdate.Operation.DELETE;
+import static com.google.android.gnd.vo.PlaceUpdate.Operation.UPDATE;
+import static java8.util.Maps.getOrDefault;
+import static java8.util.stream.StreamSupport.stream;
+
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.databinding.ObservableArrayMap;
 import android.databinding.ObservableMap;
-import android.util.Log;
 import com.google.android.gnd.repository.DataRepository;
 import com.google.android.gnd.repository.Resource;
 import com.google.android.gnd.ui.common.AbstractViewModel;
-import com.google.android.gnd.vo.Form;
+import com.google.android.gnd.vo.Form.Element;
+import com.google.android.gnd.vo.Form.Field;
 import com.google.android.gnd.vo.PlaceUpdate.RecordUpdate.ValueUpdate;
 import com.google.android.gnd.vo.Record;
+import com.google.android.gnd.vo.Record.Value;
 import com.google.common.collect.ImmutableList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java8.util.Maps;
 import java8.util.Optional;
+import java8.util.stream.Stream;
 import javax.inject.Inject;
 
 // TODO: Save draft to local db on each change.
@@ -37,20 +51,14 @@ public class EditRecordViewModel extends AbstractViewModel {
 
   private final DataRepository dataRepository;
   private final MutableLiveData<Resource<Record>> record;
+
   private final ObservableMap<String, String> textValues = new ObservableArrayMap<>();
+  private final Map<String, Value> values = new HashMap<>();
 
   @Inject
   EditRecordViewModel(DataRepository dataRepository) {
     this.dataRepository = dataRepository;
     this.record = new MutableLiveData<>();
-    textValues.addOnMapChangedCallback(
-      new ObservableMap.OnMapChangedCallback<ObservableMap<String, String>, String, String>() {
-        @Override
-        public void onMapChanged(ObservableMap<String, String> sender, String key) {
-
-          Log.e("!!!", "Change: " + key);
-        }
-      });
   }
 
   LiveData<Resource<Record>> getRecord() {
@@ -61,39 +69,59 @@ public class EditRecordViewModel extends AbstractViewModel {
     disposeOnClear(
       dataRepository
         .createRecord(projectId, placeId, formId)
-        .doOnSuccess(this::clearValues)
+        .doOnSuccess(__ -> clearValues())
         .map(Resource::loaded)
         .subscribe(record::setValue));
   }
 
-  private void clearValues(Record record) {
+  private void clearValues() {
     textValues.clear();
+    values.clear();
   }
 
   private void updateMap(Resource<Record> record) {
     record.getData().ifPresent(this::updateMap);
   }
 
-  private void updateMap(Record record) {
-    textValues.clear();
-    for (String key : record.getValueMap().keySet()) {
-      Optional<Record.Value> value = record.getValue(key);
-      Optional<Form.Field> field = record.getForm().getField(key);
-      field.ifPresent(f -> value.ifPresent(v -> putValue(f, v)));
-    }
+  private void updateMap(Record r) {
+    clearValues();
+    Maps.forEach(r.getValueMap(), (k, v) -> onValueChanged(r, k, Optional.of(v), false));
   }
 
-  private void putValue(Form.Field field, Record.Value value) {
-    textValues.put(field.getId(), value.getDetailsText(field));
+  void saveChanges() {
+    Resource.getData(record).ifPresent(this::saveChanges);
   }
 
-  void saveChanges(ImmutableList<ValueUpdate> updates) {
-    Optional<Record> recordData = Resource.getData(record);
-    if (!recordData.isPresent()) {
-      return;
+  private void saveChanges(Record r) {
+    ImmutableList<ValueUpdate> updates =
+      stream(r.getForm().getElements())
+        .filter(e -> e.getType() == Element.Type.FIELD)
+        .map(e -> e.getField())
+        .flatMap(f -> getChanges(r, f))
+        .collect(toImmutableList());
+    disposeOnClear(dataRepository.saveChanges(r, updates).subscribe(record::setValue));
+  }
+
+  private Stream<ValueUpdate> getChanges(Record r, Field field) {
+    String id = field.getId();
+    Optional<Value> originalValue = r.getValue(id);
+    Optional<Value> currentValue = Optional.ofNullable(values.get(id));
+    if (currentValue.equals(originalValue)) {
+      return stream(Collections.emptyList());
     }
-    disposeOnClear(
-      dataRepository.saveChanges(recordData.get(), updates).subscribe(record::setValue));
+
+    ValueUpdate.Builder update = ValueUpdate.newBuilder();
+    update.setElementId(id);
+    if (!currentValue.isPresent()) {
+      update.setOperation(DELETE);
+    } else if (originalValue.isPresent()) {
+      update.setOperation(UPDATE);
+      update.setValue(currentValue);
+    } else {
+      update.setOperation(CREATE);
+      update.setValue(currentValue);
+    }
+    return stream(Arrays.asList(update.build()));
   }
 
   void editExistingRecord(String projectId, String placeId, String recordId) {
@@ -105,12 +133,28 @@ public class EditRecordViewModel extends AbstractViewModel {
         .subscribe(record::setValue));
   }
 
-  public ObservableMap<String, String> getFieldValue() {
-    Log.e("!!!", "Get");
+  public ObservableMap<String, String> getTextValues() {
     return textValues;
   }
 
-  //  public void setFieldValue(String value) {
-  //    Log.e("!!!", "Set " + value);
-  //  }
+  public void onValueChanged(String key, Optional<Value> value) {
+    Resource.getData(record).ifPresent(r -> onValueChanged(r, key, value, true));
+  }
+
+  private void onValueChanged(Record r, String key, Optional<Value> value, boolean validate) {
+    String prevText = getOrDefault(textValues, key, "");
+    String newText =
+      r.getForm()
+       .getField(key)
+       .flatMap(field -> value.map(v -> v.getDetailsText(field)))
+       .orElse("");
+    if (!prevText.equals(newText)) {
+      textValues.put(key, newText);
+    }
+    value.ifPresentOrElse(v -> values.put(key, v), () -> values.remove(key));
+  }
+
+  public void onTextChanged(String key, String text) {
+    onValueChanged(key, text.isEmpty() ? Optional.empty() : Optional.of(Value.ofText(text)));
+  }
 }

@@ -13,53 +13,67 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<FrameLayout
+<layout
   xmlns:android="http://schemas.android.com/apk/res/android"
-  xmlns:tools="http://schemas.android.com/tools"
-  android:layout_width="match_parent"
-  android:layout_height="wrap_content"
-  android:layout_marginTop="@dimen/field_vertical_margin"
-  android:layout_marginBottom="@dimen/field_vertical_margin"
-  android:layout_marginStart="@dimen/field_horizontal_margin"
-  android:layout_marginEnd="@dimen/field_horizontal_margin"
-  android:layout_marginLeft="@dimen/field_horizontal_margin"
-  android:layout_marginRight="@dimen/field_horizontal_margin">
-
-  <android.support.design.widget.TextInputLayout
-    android:id="@+id/multiple_choice_input_layout"
-    style="@style/EditRecord.Field.Text"
-    android:clickable="false"
+  xmlns:tools="http://schemas.android.com/tools">
+  <data>
+    <variable
+      name="key"
+      type="String"/>
+    <variable
+      name="viewModel"
+      type="com.google.android.gnd.ui.editrecord.EditRecordViewModel"/>
+  </data>
+  <FrameLayout
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:layout_marginTop="@dimen/field_vertical_margin"
+    android:layout_marginBottom="@dimen/field_vertical_margin"
+    android:layout_marginStart="@dimen/field_horizontal_margin"
+    android:layout_marginEnd="@dimen/field_horizontal_margin"
+    android:layout_marginLeft="@dimen/field_horizontal_margin"
+    android:layout_marginRight="@dimen/field_horizontal_margin">
 
-    <android.support.design.widget.TextInputEditText
-      android:id="@+id/multiple_choice_input_edit_text"
+    <android.support.design.widget.TextInputLayout
+      android:id="@+id/multiple_choice_input_layout"
+      style="@style/EditRecord.Field.Text"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:textColor="@color/field_value"
       android:clickable="false"
-      android:focusable="true"
-      android:focusableInTouchMode="true"
-      tools:text="One, two, three, four, five"/>
+      android:elevation="2dp">
 
-  </android.support.design.widget.TextInputLayout>
+      <android.support.design.widget.TextInputEditText
+        android:id="@+id/multiple_choice_input_edit_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:clickable="false"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:textColor="@color/field_value"
+        android:text="@{viewModel.textValues[key]}"
+        tools:text="One, two, three, four, five"
+        android:elevation="2dp"/>
 
-  <ImageButton
-    android:id="@+id/multiple_choice_dropdown_btn"
-    android:layout_width="32dp"
-    android:layout_height="32dp"
-    android:layout_marginRight="4dp"
-    android:layout_gravity="center_vertical|right"
-    android:background="@android:color/transparent"
-    android:focusable="false"
-    android:focusableInTouchMode="false"
-    android:src="@drawable/ic_arrow_drop_down"/>
+    </android.support.design.widget.TextInputLayout>
 
-  <View
-    android:id="@+id/multiple_choice_tap_target"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:alpha="0"
-    android:clickable="true"/>
+    <ImageButton
+      android:id="@+id/multiple_choice_dropdown_btn"
+      android:layout_width="32dp"
+      android:layout_height="32dp"
+      android:layout_marginRight="4dp"
+      android:layout_gravity="center_vertical|right"
+      android:background="@android:color/transparent"
+      android:focusable="false"
+      android:focusableInTouchMode="false"
+      android:elevation="0dp"
+      android:src="@drawable/ic_arrow_drop_down"/>
 
-</FrameLayout>
+    <View
+      android:id="@+id/multiple_choice_tap_target"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      android:alpha="0"
+      android:clickable="true"/>
+
+  </FrameLayout>
+</layout>

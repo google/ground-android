@@ -33,6 +33,10 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.OnFocusChange;
 import com.google.android.gnd.R;
+import com.google.android.gnd.databinding.MultipleChoiceInputFieldBinding;
+import com.google.android.gnd.system.DeviceCapabilities;
+import com.google.android.gnd.ui.editrecord.EditRecordFragment;
+import com.google.android.gnd.ui.editrecord.EditRecordViewModel;
 import com.google.android.gnd.vo.Form;
 import com.google.android.gnd.vo.Form.MultipleChoice.Cardinality;
 import com.google.android.gnd.vo.PlaceUpdate.RecordUpdate.ValueUpdate;
@@ -41,6 +45,7 @@ import java8.util.Optional;
 
 public class MultipleChoiceFieldViewHolder implements Editable {
   private static final String TAG = MultipleChoiceFieldViewHolder.class.getSimpleName();
+  private static MultipleChoiceInputFieldBinding binding;
 
   private final View view;
   private final SingleSelectDialogFactory singleSelectDialogFactory;
@@ -63,11 +68,17 @@ public class MultipleChoiceFieldViewHolder implements Editable {
     this.multiSelectDialogFactory = new MultiSelectDialogFactory(view.getContext());
   }
 
-  public static MultipleChoiceFieldViewHolder newInstance(ViewGroup parent) {
+  public static MultipleChoiceFieldViewHolder newInstance(
+    EditRecordFragment fragment, EditRecordViewModel viewModel, ViewGroup parent) {
     LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-    View view = inflater.inflate(R.layout.multiple_choice_input_field, parent, false);
-    MultipleChoiceFieldViewHolder holder = new MultipleChoiceFieldViewHolder(view);
-    ButterKnife.bind(holder, view);
+    binding = MultipleChoiceInputFieldBinding.inflate(inflater, parent, false);
+    binding.setViewModel(viewModel);
+    binding.setLifecycleOwner(fragment);
+    MultipleChoiceFieldViewHolder holder = new MultipleChoiceFieldViewHolder(binding.getRoot());
+    ButterKnife.bind(holder, binding.getRoot());
+    if (DeviceCapabilities.isGenerateViewIdSupported()) {
+      holder.editText.setId(View.generateViewId());
+    }
     return holder;
   }
 
@@ -80,14 +91,12 @@ public class MultipleChoiceFieldViewHolder implements Editable {
     this.field = field;
     this.originalValue = record.getValue(field.getId());
     this.currentValue = this.originalValue;
+    binding.setKey(field.getId());
     layout.setHint(field.getLabel());
-    onValueUpdate(this.currentValue);
   }
 
   private void onValueUpdate(Optional<Value> value) {
-    currentValue = value;
-    editText.setText(value.map(v -> v.getDetailsText(field)).orElse(""));
-    updateValidationMessage();
+    binding.getViewModel().onValueChanged(binding.getKey(), value);
   }
 
   @Override

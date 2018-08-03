@@ -23,7 +23,7 @@ import java8.util.Optional;
 
 @AutoValue
 public abstract class PlaceUpdate {
-  // TODO: Move to top level and rename?
+  // TODO: Simplify and delete?
   public enum Operation {
     NO_CHANGE,
     CREATE,
