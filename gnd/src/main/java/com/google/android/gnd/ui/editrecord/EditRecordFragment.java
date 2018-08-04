@@ -170,13 +170,13 @@ public class EditRecordFragment extends AbstractFragment {
           this,
           viewModel,
           formLayout);
-        textInput.init(field, record);
+        textInput.init(record, field);
         formLayout.addView(textInput.getView());
         return textInput;
       case MULTIPLE_CHOICE:
         MultipleChoiceFieldViewHolder multipleChoice =
           MultipleChoiceFieldViewHolder.newInstance(this, viewModel, formLayout);
-        multipleChoice.init(field, record);
+        multipleChoice.init(record, field);
         formLayout.addView(multipleChoice.getView());
         return multipleChoice;
       default:

@@ -43,4 +43,9 @@ public class BindingAdapters {
         }
       });
   }
+
+  @BindingAdapter("app:errorText")
+  public static void bindError(TextInputEditText view, String error) {
+    view.setError(error);
+  }
 }

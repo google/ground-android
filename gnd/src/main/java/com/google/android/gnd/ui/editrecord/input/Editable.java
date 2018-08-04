@@ -16,19 +16,10 @@
 
 package com.google.android.gnd.ui.editrecord.input;
 
-import com.google.android.gnd.vo.Form;
-import com.google.android.gnd.vo.PlaceUpdate.RecordUpdate.ValueUpdate;
+import com.google.android.gnd.vo.Form.Field;
 import com.google.android.gnd.vo.Record;
 
 public interface Editable {
-  // TODO: Reverse order.
-  void init(Form.Field field, Record record);
 
-  void updateValidationMessage();
-
-  boolean isModified();
-
-  ValueUpdate getUpdate();
-
-  boolean isValid();
+  void init(Record record, Field field);
 }

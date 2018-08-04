@@ -16,10 +16,6 @@
 
 package com.google.android.gnd.ui.editrecord.input;
 
-import static com.google.android.gnd.vo.PlaceUpdate.Operation.CREATE;
-import static com.google.android.gnd.vo.PlaceUpdate.Operation.DELETE;
-import static com.google.android.gnd.vo.PlaceUpdate.Operation.NO_CHANGE;
-import static com.google.android.gnd.vo.PlaceUpdate.Operation.UPDATE;
 import static com.google.android.gnd.vo.Record.Value;
 
 import android.support.design.widget.TextInputEditText;
@@ -38,18 +34,18 @@ import com.google.android.gnd.system.DeviceCapabilities;
 import com.google.android.gnd.ui.editrecord.EditRecordFragment;
 import com.google.android.gnd.ui.editrecord.EditRecordViewModel;
 import com.google.android.gnd.vo.Form;
+import com.google.android.gnd.vo.Form.Field;
 import com.google.android.gnd.vo.Form.MultipleChoice.Cardinality;
-import com.google.android.gnd.vo.PlaceUpdate.RecordUpdate.ValueUpdate;
 import com.google.android.gnd.vo.Record;
 import java8.util.Optional;
 
 public class MultipleChoiceFieldViewHolder implements Editable {
   private static final String TAG = MultipleChoiceFieldViewHolder.class.getSimpleName();
-  private static MultipleChoiceInputFieldBinding binding;
 
   private final View view;
   private final SingleSelectDialogFactory singleSelectDialogFactory;
   private final MultiSelectDialogFactory multiSelectDialogFactory;
+  private MultipleChoiceInputFieldBinding binding;
 
   @BindView(R.id.multiple_choice_input_layout)
   TextInputLayout layout;
@@ -58,11 +54,10 @@ public class MultipleChoiceFieldViewHolder implements Editable {
   TextInputEditText editText;
 
   private Form.Field field;
-  private Optional<Value> originalValue;
-  private Optional<Value> currentValue;
 
-  private MultipleChoiceFieldViewHolder(View view) {
-    this.view = view;
+  private MultipleChoiceFieldViewHolder(MultipleChoiceInputFieldBinding binding) {
+    this.binding = binding;
+    this.view = binding.getRoot();
     // TODO: Use AutoFactory and Inject?
     this.singleSelectDialogFactory = new SingleSelectDialogFactory(view.getContext());
     this.multiSelectDialogFactory = new MultiSelectDialogFactory(view.getContext());
@@ -71,10 +66,11 @@ public class MultipleChoiceFieldViewHolder implements Editable {
   public static MultipleChoiceFieldViewHolder newInstance(
     EditRecordFragment fragment, EditRecordViewModel viewModel, ViewGroup parent) {
     LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-    binding = MultipleChoiceInputFieldBinding.inflate(inflater, parent, false);
+    MultipleChoiceInputFieldBinding binding = MultipleChoiceInputFieldBinding
+        .inflate(inflater, parent, false);
     binding.setViewModel(viewModel);
     binding.setLifecycleOwner(fragment);
-    MultipleChoiceFieldViewHolder holder = new MultipleChoiceFieldViewHolder(binding.getRoot());
+    MultipleChoiceFieldViewHolder holder = new MultipleChoiceFieldViewHolder(binding);
     ButterKnife.bind(holder, binding.getRoot());
     if (DeviceCapabilities.isGenerateViewIdSupported()) {
       holder.editText.setId(View.generateViewId());
@@ -87,53 +83,14 @@ public class MultipleChoiceFieldViewHolder implements Editable {
   }
 
   @Override
-  public void init(Form.Field field, Record record) {
+  public void init(Record record, Field field) {
     this.field = field;
-    this.originalValue = record.getValue(field.getId());
-    this.currentValue = this.originalValue;
     binding.setKey(field.getId());
     layout.setHint(field.getLabel());
   }
 
   private void onValueUpdate(Optional<Value> value) {
     binding.getViewModel().onValueChanged(binding.getKey(), value);
-  }
-
-  @Override
-  public boolean isModified() {
-    return false;
-  }
-
-  @Override
-  public ValueUpdate getUpdate() {
-    ValueUpdate.Builder update = ValueUpdate.newBuilder();
-    update.setElementId(field.getId());
-    Optional<Value> currentValue = getCurrentValue();
-    if (currentValue.equals(originalValue)) {
-      update.setOperation(NO_CHANGE);
-    } else if (!currentValue.isPresent()) {
-      update.setOperation(DELETE);
-    } else if (originalValue.isPresent()) {
-      update.setOperation(UPDATE);
-      update.setValue(currentValue);
-    } else {
-      update.setOperation(CREATE);
-      update.setValue(currentValue);
-    }
-    return update.build();
-  }
-
-  private Optional<Value> getCurrentValue() {
-    return currentValue;
-  }
-
-  @Override
-  public boolean isValid() {
-    return !isMissingRequired();
-  }
-
-  private boolean isMissingRequired() {
-    return field.isRequired() && !getCurrentValue().isPresent();
   }
 
   @OnFocusChange(R.id.multiple_choice_input_edit_text)
@@ -143,7 +100,6 @@ public class MultipleChoiceFieldViewHolder implements Editable {
       showDialog();
     } else {
       editText.setEnabled(true);
-      updateValidationMessage();
     }
   }
 
@@ -158,6 +114,7 @@ public class MultipleChoiceFieldViewHolder implements Editable {
 
   private void showDialog() {
     Cardinality cardinality = field.getMultipleChoice().getCardinality();
+    Optional<Value> currentValue = binding.getViewModel().getValue(binding.getKey());
     switch (cardinality) {
       case SELECT_MULTIPLE:
         multiSelectDialogFactory.create(field, currentValue, this::onValueUpdate).show();
@@ -168,16 +125,6 @@ public class MultipleChoiceFieldViewHolder implements Editable {
       default:
         Log.e(TAG, "Unknown cardinality: " + cardinality);
         return;
-    }
-  }
-
-  @Override
-  public void updateValidationMessage() {
-    // TODO: Move validation to ViewModel.
-    if (isMissingRequired()) {
-      editText.setError(view.getResources().getString(R.string.required_field));
-    } else {
-      editText.setError(null);
     }
   }
 }

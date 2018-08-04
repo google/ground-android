@@ -48,6 +48,7 @@
         android:layout_height="wrap_content"
         android:text="@{viewModel.textValues[key]}"
         tools:text="Text value"
+          app:errorText="@{viewModel.errors[key]}"
         app:textChangedListener="@{s -> viewModel.onTextChanged(key, (String) s)}"/>
 
     </android.support.design.widget.TextInputLayout>
