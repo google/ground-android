@@ -35,6 +35,7 @@ import com.google.android.gnd.repository.DataRepository;
 import com.google.android.gnd.repository.Resource;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.vo.Form.Element;
+import com.google.android.gnd.vo.Form.Element.Type;
 import com.google.android.gnd.vo.Form.Field;
 import com.google.android.gnd.vo.PlaceUpdate.RecordUpdate.ValueUpdate;
 import com.google.android.gnd.vo.Record;
@@ -88,7 +89,7 @@ public class EditRecordViewModel extends AbstractViewModel {
   }
 
   public void onValueChanged(Field field, Optional<Value> newValue) {
-    Log.v(TAG, "onValueChanged: " + field.getId());
+    Log.v(TAG, "onValueChanged: " + field.getId() + " = '" + Value.toString(newValue) + "'");
     newValue.ifPresentOrElse(v -> values.put(field.getId(), v), () -> values.remove(field.getId()));
     updateError(field, newValue);
   }
@@ -98,17 +99,18 @@ public class EditRecordViewModel extends AbstractViewModel {
         dataRepository
             .createRecord(projectId, placeId, formId)
             .map(Resource::loaded)
-            .doOnSuccess(__ -> clearValues())
+            .doOnSuccess(__ -> reset())
             .subscribe(record::setValue));
   }
 
-  private void clearValues() {
+  private void reset() {
     values.clear();
+    errors.clear();
   }
 
   private void updateMap(Record r) {
     Log.v(TAG, "Updating map");
-    clearValues();
+    reset();
     forEach(
         r.getValueMap(),
         (k, v) ->
@@ -157,13 +159,18 @@ public class EditRecordViewModel extends AbstractViewModel {
         dataRepository
             .getRecordSnapshot(projectId, placeId, recordId)
             .doOnSuccess(r -> r.getData().ifPresent(this::updateMap))
+            .doOnSuccess(r -> r.getData().ifPresent(this::updateErrors))
             .subscribe(record::setValue));
   }
 
   public void onFocusChange(Field field, boolean hasFocus) {
     if (!hasFocus) {
-      updateError(field, getValue(field.getId()));
+      updateError(field);
     }
+  }
+
+  private void updateError(Field field) {
+    updateError(field, getValue(field.getId()));
   }
 
   private void updateError(Field field, Optional<Value> value) {
@@ -175,5 +182,12 @@ public class EditRecordViewModel extends AbstractViewModel {
       Log.d(TAG, "Valid: " + key);
       errors.remove(field.getId());
     }
+  }
+
+  private void updateErrors(Record r) {
+    stream(r.getForm().getElements())
+        .filter(e -> e.getType().equals(Type.FIELD))
+        .map(e -> e.getField())
+        .forEach(this::updateError);
   }
 }

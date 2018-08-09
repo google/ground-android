@@ -88,10 +88,13 @@ public abstract class Record {
   }
 
   public interface Value {
-
     String getSummaryText(Field field);
 
     String getDetailsText(Field field);
+
+    static String toString(Optional<Value> value) {
+      return value.map(Value::toString).orElse("");
+    }
   }
 
   public static class TextValue implements Value {
@@ -116,7 +119,26 @@ public abstract class Record {
       return text;
     }
 
+    @Override
+    public boolean equals(Object obj) {
+      if (obj == null || !(obj instanceof TextValue)) {
+        return false;
+      }
+      return text.equals(((TextValue) obj).text);
+    }
+
+    @Override
+    public int hashCode() {
+      return text.hashCode();
+    }
+
+    @Override
+    public String toString() {
+      return text;
+    }
+
     public static Optional<Value> fromString(String text) {
+      text = text.trim();
       return text.isEmpty() ? Optional.empty() : Optional.of(new TextValue(text));
     }
   }
@@ -142,7 +164,7 @@ public abstract class Record {
     }
 
     public String getSummaryText(Field field) {
-      return stream(choices).sorted().collect(Collectors.joining(","));
+      return toString();
     }
 
     // TODO: Make these inner classes non-static and access Form directly.
@@ -154,6 +176,24 @@ public abstract class Record {
           .map(Option::getLabel)
           .sorted()
           .collect(Collectors.joining(", "));
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+      if (obj == null || !(obj instanceof MultipleChoiceValue)) {
+        return false;
+      }
+      return choices.equals(((MultipleChoiceValue) obj).choices);
+    }
+
+    @Override
+    public int hashCode() {
+      return choices.hashCode();
+    }
+
+    @Override
+    public String toString() {
+      return stream(choices).sorted().collect(Collectors.joining(","));
     }
 
     public static Optional<Value> fromList(List<String> codes) {

@@ -25,7 +25,6 @@ import com.google.android.gnd.vo.Record;
 import com.google.android.gnd.vo.Record.MultipleChoiceValue;
 import com.google.android.gnd.vo.Record.TextValue;
 import com.google.android.gnd.vo.Record.Value;
-import com.google.common.collect.ImmutableList;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.IgnoreExtraProperties;
 import com.google.firebase.firestore.ServerTimestamp;
@@ -93,15 +92,11 @@ public class RecordDoc {
 
   private static void putValue(Map<String, Value> values, String fieldId, Object obj) {
     if (obj instanceof String) {
-      if (!((String) obj).trim().isEmpty()) {
-        values.put(fieldId, new TextValue((String) obj));
-      }
+      TextValue.fromString(((String) obj)).ifPresent(v -> values.put(fieldId, v));
       // } else if (obj instanceof Float) {
       //   values.put(key, new NumberValue((Float) obj));
     } else if (obj instanceof List) {
-      if (!((List<String>) obj).isEmpty()) {
-        values.put(fieldId, new MultipleChoiceValue(ImmutableList.copyOf((List<String>) obj)));
-      }
+      MultipleChoiceValue.fromList(((List<String>) obj)).ifPresent(v -> values.put(fieldId, v));
     } else {
       Log.d(TAG, "Unsupported obj in db: " + obj.getClass().getName());
     }
