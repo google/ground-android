@@ -24,36 +24,37 @@ import com.google.android.gnd.R;
 import com.google.android.gnd.vo.Form.Field;
 import com.google.android.gnd.vo.Form.MultipleChoice;
 import com.google.android.gnd.vo.Form.MultipleChoice.Option;
-import com.google.android.gnd.vo.Record.Choices;
+import com.google.android.gnd.vo.Record.MultipleChoiceValue;
 import com.google.android.gnd.vo.Record.Value;
+import com.google.common.collect.ImmutableList;
 import java.util.List;
 import java8.util.Optional;
 import java8.util.function.Consumer;
 
 // TODO: Replace with modal bottom sheet.
-class SingleSelectDialogFactory {
+public class SingleSelectDialogFactory {
   private Context context;
 
-  SingleSelectDialogFactory(Context context) {
+  public SingleSelectDialogFactory(Context context) {
     this.context = context;
   }
 
-  AlertDialog create(
-    Field field, Optional<Value> initialValue, Consumer<Optional<Value>> valueChangeCallback) {
+  public AlertDialog create(
+      Field field, Optional<Value> initialValue, Consumer<Optional<Value>> valueChangeCallback) {
     MultipleChoice multipleChoice = field.getMultipleChoice();
     AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(context);
     List<Option> options = multipleChoice.getOptions();
     DialogState state = new DialogState(multipleChoice, initialValue);
     dialogBuilder.setSingleChoiceItems(
-      getLabels(multipleChoice), state.checkedItem, state::onSelect);
+        getLabels(multipleChoice), state.checkedItem, state::onSelect);
     dialogBuilder.setCancelable(false);
     dialogBuilder.setTitle(field.getLabel());
     dialogBuilder.setPositiveButton(
-      R.string.apply_multiple_choice_changes,
-      (dialog, which) -> valueChangeCallback.accept(state.getSelectedValue(options)));
+        R.string.apply_multiple_choice_changes,
+        (dialog, which) -> valueChangeCallback.accept(state.getSelectedValue(field, options)));
     dialogBuilder.setNegativeButton(
-      R.string.discard_multiple_choice_changes, (dialog, which) -> {
-      });
+        R.string.discard_multiple_choice_changes, (dialog, which) -> {
+        });
     return dialogBuilder.create();
   }
 
@@ -65,8 +66,13 @@ class SingleSelectDialogFactory {
     private int checkedItem;
 
     public DialogState(MultipleChoice multipleChoice, Optional<Value> initialValue) {
+      // TODO: Check type.
       checkedItem =
-        initialValue.flatMap(Value::getFirstCode).flatMap(multipleChoice::getIndex).orElse(-1);
+          initialValue
+              .map(MultipleChoiceValue.class::cast)
+              .flatMap(MultipleChoiceValue::getFirstCode)
+              .flatMap(multipleChoice::getIndex)
+              .orElse(-1);
     }
 
     private void onSelect(DialogInterface dialog, int which) {
@@ -79,11 +85,10 @@ class SingleSelectDialogFactory {
       }
     }
 
-    private Optional<Value> getSelectedValue(List<Option> options) {
-      Choices.Builder choices = Choices.newBuilder();
+    private Optional<Value> getSelectedValue(Field field, List<Option> options) {
       if (checkedItem >= 0) {
-        choices.codesBuilder().add(options.get(checkedItem).getCode());
-        return Optional.of(Value.ofChoices(choices.build()));
+        return Optional.of(
+            new MultipleChoiceValue(ImmutableList.of((options.get(checkedItem).getCode()))));
       } else {
         return Optional.empty();
       }

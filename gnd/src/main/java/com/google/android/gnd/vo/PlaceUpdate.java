@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.vo;
 
+import com.google.android.gnd.vo.Record.Value;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import java.util.Date;
@@ -83,7 +84,7 @@ public abstract class PlaceUpdate {
     public abstract static class ValueUpdate {
       public abstract String getElementId();
 
-      public abstract Optional<Record.Value> getValue();
+      public abstract Optional<Value> getValue();
 
       public abstract Operation getOperation();
 
@@ -96,7 +97,7 @@ public abstract class PlaceUpdate {
       public abstract static class Builder {
         public abstract Builder setElementId(String newElementId);
 
-        public abstract Builder setValue(Optional<Record.Value> newValue);
+        public abstract Builder setValue(Optional<Value> newValue);
 
         public abstract Builder setOperation(Operation newOperation);
 

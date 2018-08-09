@@ -19,11 +19,11 @@ package com.google.android.gnd.vo;
 import static java8.util.stream.StreamSupport.stream;
 
 import android.support.annotation.Nullable;
+import com.google.android.gnd.vo.Form.Field;
 import com.google.android.gnd.vo.Form.MultipleChoice.Option;
-import com.google.auto.value.AutoOneOf;
 import com.google.auto.value.AutoValue;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import java.util.List;
 import java.util.Map;
 import java8.util.Optional;
 import java8.util.stream.Collectors;
@@ -87,98 +87,81 @@ public abstract class Record {
     public abstract Record build();
   }
 
-  @AutoOneOf(Value.Type.class)
-  public abstract static class Value {
-    public enum Type {
-      TEXT,
-      NUMBER,
-      CHOICES
+  public interface Value {
+
+    String getSummaryText(Field field);
+
+    String getDetailsText(Field field);
+  }
+
+  public static class TextValue implements Value {
+
+    private String text;
+
+    public TextValue(String text) {
+      this.text = text;
     }
 
-    public abstract Type getType();
-
-    public abstract String getText();
-
-    public abstract float getNumber();
-
-    public abstract Choices getChoices();
-
-    public static Value ofText(String text) {
-      return AutoOneOf_Record_Value.text(text);
+    public String getText() {
+      return text;
     }
 
-    public static Value ofNumber(float number) {
-      return AutoOneOf_Record_Value.number(number);
+    @Override
+    public String getSummaryText(Field field) {
+      return text;
     }
 
-    public static Value ofChoices(Choices choices) {
-      return AutoOneOf_Record_Value.choices(choices);
+    @Override
+    public String getDetailsText(Field field) {
+      return text;
     }
 
-    public Optional<String> getFirstCode() {
-      if (!getType().equals(Type.CHOICES)) {
-        return Optional.empty();
-      }
-      return stream(getChoices().getCodes()).findFirst();
-    }
-
-    public boolean isSelected(Option option) {
-      return getChoices().getCodes().contains(option.getCode());
-    }
-
-    public String getSummaryText() {
-      switch (getType()) {
-        case TEXT:
-          return getText();
-        case NUMBER:
-          // TODO: int vs float? Format correctly.
-          return Float.toString(getNumber());
-        case CHOICES:
-          // TODO: i18n of separator.
-          return stream(getChoices().getCodes()).sorted().collect(Collectors.joining(","));
-        default:
-          return "";
-      }
-    }
-
-    // TODO: Make these inner classes non-static and access Form directly.
-    public String getDetailsText(Form.Field field) {
-      switch (getType()) {
-        case TEXT:
-          return getText();
-        case NUMBER:
-          // TODO: int vs float? Format correctly.
-          return Float.toString(getNumber());
-        case CHOICES:
-          // TODO: i18n of separator.
-          return stream(getChoices().getCodes())
-            .map(v -> field.getMultipleChoice().getOption(v))
-            .filter(Optional::isPresent)
-            .map(Optional::get)
-            .map(Option::getLabel)
-            .sorted()
-            .collect(Collectors.joining(", "));
-        default:
-          return "";
-      }
+    public static Optional<Value> fromString(String text) {
+      return text.isEmpty() ? Optional.empty() : Optional.of(new TextValue(text));
     }
   }
 
-  @AutoValue
-  public abstract static class Choices {
-    public abstract ImmutableList<String> getCodes();
+  public static class MultipleChoiceValue implements Value {
 
-    public static Builder newBuilder() {
-      return new AutoValue_Record_Choices.Builder();
+    private List<String> choices;
+
+    public MultipleChoiceValue(List<String> choices) {
+      this.choices = choices;
     }
 
-    @AutoValue.Builder
-    public abstract static class Builder {
-      public abstract Builder setCodes(ImmutableList<String> newCodes);
+    public List<String> getChoices() {
+      return choices;
+    }
 
-      public abstract ImmutableList.Builder<String> codesBuilder();
+    public Optional<String> getFirstCode() {
+      return stream(choices).findFirst();
+    }
 
-      public abstract Choices build();
+    public boolean isSelected(Option option) {
+      return choices.contains(option.getCode());
+    }
+
+    public String getSummaryText(Field field) {
+      return stream(choices).sorted().collect(Collectors.joining(","));
+    }
+
+    // TODO: Make these inner classes non-static and access Form directly.
+    public String getDetailsText(Field field) {
+      return stream(choices)
+          .map(v -> field.getMultipleChoice().getOption(v))
+          .filter(Optional::isPresent)
+          .map(Optional::get)
+          .map(Option::getLabel)
+          .sorted()
+          .collect(Collectors.joining(", "));
+    }
+
+    public static Optional<Value> fromList(List<String> codes) {
+      if (codes.isEmpty()) {
+        return Optional.empty();
+      } else {
+        return Optional.of(new MultipleChoiceValue(codes));
+      }
     }
   }
 }

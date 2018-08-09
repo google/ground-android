@@ -17,35 +17,94 @@
 package com.google.android.gnd.ui.common;
 
 import android.databinding.BindingAdapter;
+import android.databinding.DataBindingUtil;
+import android.databinding.ViewDataBinding;
+import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputEditText;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.View;
+import com.google.android.gnd.databinding.MultipleChoiceInputFieldBinding;
+import com.google.android.gnd.databinding.TextInputFieldBinding;
+import com.google.android.gnd.ui.editrecord.input.MultipleChoiceFieldLayout;
+import com.google.android.gnd.vo.Form.Field;
+import com.google.android.gnd.vo.Record.Value;
 import java8.util.function.Consumer;
 
 public class BindingAdapters {
+
+  private static final String TAG = BindingAdapters.class.getSimpleName();
+
+  @BindingAdapter("android:text")
+  public static void bindText(TextInputEditText view, Value value) {
+    ViewDataBinding binding = findBinding(view);
+    Field field = getField(binding);
+    if (field == null) {
+      // Binding update before attached to field.
+      return;
+    }
+    String newText = value == null ? "" : value.getDetailsText(field);
+    if (!view.getText().toString().equals(newText)) {
+      view.setText(newText);
+    }
+  }
+
+  private static ViewDataBinding findBinding(View view) {
+    for (View v = view; v.getParent() instanceof View; v = (View) v.getParent()) {
+      ViewDataBinding binding = DataBindingUtil.getBinding(v);
+      if (binding != null) {
+        return binding;
+      }
+    }
+    return null;
+  }
+
+  private static Field getField(ViewDataBinding binding) {
+    if (binding == null) {
+      return null;
+    } else if (binding instanceof TextInputFieldBinding) {
+      return ((TextInputFieldBinding) binding).getField();
+    } else if (binding instanceof MultipleChoiceInputFieldBinding) {
+      return ((MultipleChoiceInputFieldBinding) binding).getField();
+    } else {
+      throw new IllegalArgumentException("Unknown binding type: " + binding.getClass());
+    }
+  }
+
   @BindingAdapter("textChangedListener")
   public static void bindTextWatcher(TextInputEditText editText, Consumer onTextChanged) {
     editText.addTextChangedListener(
-      new TextWatcher() {
-        @Override
-        public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-          // No-op.
-        }
+        new TextWatcher() {
+          @Override
+          public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            // No-op.
+          }
 
-        @Override
-        public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-          onTextChanged.accept(charSequence.toString());
-        }
+          @Override
+          public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            onTextChanged.accept(charSequence.toString());
+          }
 
-        @Override
-        public void afterTextChanged(Editable editable) {
-          // No-op.
-        }
-      });
+          @Override
+          public void afterTextChanged(Editable editable) {
+            // No-op.
+          }
+        });
   }
 
-  @BindingAdapter("app:errorText")
-  public static void bindError(TextInputEditText view, String error) {
-    view.setError(error);
+  @BindingAdapter("errorText")
+  public static void bindError(TextInputEditText view, @Nullable String newErrorText) {
+    if (view.getError() == null) {
+      if (newErrorText != null) {
+        view.setError(newErrorText);
+      }
+    } else if (!view.getError().equals(newErrorText)) {
+      view.setError(newErrorText);
+    }
+  }
+
+  @BindingAdapter("onShowDialog")
+  public static void setOnShowDialogListener(MultipleChoiceFieldLayout view, Runnable listener) {
+    view.setOnShowDialogListener(listener);
   }
 }

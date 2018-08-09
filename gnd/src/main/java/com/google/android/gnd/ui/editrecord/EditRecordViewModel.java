@@ -38,12 +38,11 @@ import com.google.android.gnd.vo.Form.Element;
 import com.google.android.gnd.vo.Form.Field;
 import com.google.android.gnd.vo.PlaceUpdate.RecordUpdate.ValueUpdate;
 import com.google.android.gnd.vo.Record;
+import com.google.android.gnd.vo.Record.TextValue;
 import com.google.android.gnd.vo.Record.Value;
 import com.google.common.collect.ImmutableList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 import java8.util.Optional;
 import java8.util.stream.Stream;
 import javax.inject.Inject;
@@ -56,9 +55,8 @@ public class EditRecordViewModel extends AbstractViewModel {
   private final MutableLiveData<Resource<Record>> record;
 
   private final Resources resources;
-  private final ObservableMap<String, String> textValues = new ObservableArrayMap<>();
+  private final ObservableMap<String, Value> values = new ObservableArrayMap<>();
   private final ObservableMap<String, String> errors = new ObservableArrayMap<>();
-  private final Map<String, Value> values = new HashMap<>();
 
   @Inject
   EditRecordViewModel(GndApplication application, DataRepository dataRepository) {
@@ -71,48 +69,28 @@ public class EditRecordViewModel extends AbstractViewModel {
     return record;
   }
 
-  public Optional<Value> getValue(String key) {
-    return Optional.ofNullable(values.get(key));
+  public Optional<Value> getValue(String fieldId) {
+    return Optional.ofNullable(values.get(fieldId));
   }
 
-  public ObservableMap<String, String> getTextValues() {
-    return textValues;
+  public ObservableMap<String, Value> getValues() {
+    return values;
   }
 
   public ObservableMap<String, String> getErrors() {
     return errors;
   }
 
-  public void onTextChanged(String key, String text) {
-    Log.d(TAG, "onTextChanged: " + key);
-    text = text.trim();
-    onValueChanged(key, text.isEmpty() ? Optional.empty() : Optional.of(Value.ofText(text)));
+  public void onTextChanged(Field field, String text) {
+    Log.v(TAG, "onTextChanged: " + field.getId());
+
+    onValueChanged(field, TextValue.fromString(text.trim()));
   }
 
-  public void onValueChanged(String key, Optional<Value> value) {
-    Log.d(TAG, "onValueChanged: " + key);
-    Resource.getData(record)
-        .map(Record::getForm)
-        .flatMap(form -> form.getField(key))
-        .ifPresent(
-            field -> {
-              onValueChanged(field, value);
-              validate(field);
-            });
-  }
-
-  private void onValueChanged(Field field, Optional<Value> newValue) {
-    String key = field.getId();
-    Optional<Value> prevValue = getValue(field.getId());
-    if (prevValue.equals(newValue)) {
-      Log.d(TAG, "No change: " + key);
-      return;
-    }
-    String newText = newValue.map(v -> v.getDetailsText(field)).orElse("");
-    textValues.put(key, newText);
-    newValue.ifPresentOrElse(v -> values.put(key, v), () -> values.remove(key));
-    Log.d(TAG, "Value changed: " + key + "  Text: " + newText);
-    return;
+  public void onValueChanged(Field field, Optional<Value> newValue) {
+    Log.v(TAG, "onValueChanged: " + field.getId());
+    newValue.ifPresentOrElse(v -> values.put(field.getId(), v), () -> values.remove(field.getId()));
+    validate(field, newValue);
   }
 
   void editNewRecord(String projectId, String placeId, String formId) {
@@ -125,12 +103,11 @@ public class EditRecordViewModel extends AbstractViewModel {
   }
 
   private void clearValues() {
-    textValues.clear();
     values.clear();
   }
 
   private void updateMap(Record r) {
-    Log.d(TAG, "Updating map");
+    Log.v(TAG, "Updating map");
     clearValues();
     forEach(
         r.getValueMap(),
@@ -153,15 +130,15 @@ public class EditRecordViewModel extends AbstractViewModel {
   }
 
   private Stream<ValueUpdate> getChanges(Record r, Field field) {
-    String id = field.getId();
-    Optional<Value> originalValue = r.getValue(id);
-    Optional<Value> currentValue = getValue(id);
+    String fieldId = field.getId();
+    Optional<Value> originalValue = r.getValue(fieldId);
+    Optional<Value> currentValue = getValue(fieldId);
     if (currentValue.equals(originalValue)) {
       return stream(Collections.emptyList());
     }
 
     ValueUpdate.Builder update = ValueUpdate.newBuilder();
-    update.setElementId(id);
+    update.setElementId(fieldId);
     if (!currentValue.isPresent()) {
       update.setOperation(DELETE);
     } else if (originalValue.isPresent()) {
@@ -183,20 +160,15 @@ public class EditRecordViewModel extends AbstractViewModel {
             .subscribe(record::setValue));
   }
 
-  // TODO: Replace String key with Field?
-  public void validate(String key) {
-    Resource.getData(record).flatMap(r -> r.getForm().getField(key)).ifPresent(this::validate);
-  }
-
-  private void validate(Field field) {
+  private void validate(Field field, Optional<Value> value) {
     String key = field.getId();
-    Optional<Value> value = Optional.ofNullable(values.get(key));
+    // Optional<Value> value = Optional.ofNullable(values.get(field));
     if (field.isRequired() && !value.isPresent()) {
       Log.d(TAG, "Missing: " + key);
-      errors.put(key, resources.getString(R.string.required_field));
+      errors.put(field.getId(), resources.getString(R.string.required_field));
     } else {
       Log.d(TAG, "Valid: " + key);
-      errors.remove(key);
+      errors.remove(field.getId());
     }
   }
 }

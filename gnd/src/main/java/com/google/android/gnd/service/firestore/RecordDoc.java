@@ -22,6 +22,8 @@ import android.util.Log;
 import com.google.android.gnd.vo.Form;
 import com.google.android.gnd.vo.Place;
 import com.google.android.gnd.vo.Record;
+import com.google.android.gnd.vo.Record.MultipleChoiceValue;
+import com.google.android.gnd.vo.Record.TextValue;
 import com.google.android.gnd.vo.Record.Value;
 import com.google.common.collect.ImmutableList;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -67,18 +69,18 @@ public class RecordDoc {
       // TODO: Handle error.
     }
     Optional<Form> form = place.getPlaceType().getForm(rd.formId);
-    if (!!form.isPresent()) {
+    if (!form.isPresent()) {
       // TODO: Handle error.
     }
     return Record.newBuilder()
-                 .setId(recordId)
-                 .setProject(place.getProject())
-                 .setPlace(place)
-                 .setForm(form.get())
-                 .putAllValues(convertValues(rd.responses))
-                 .setServerTimestamps(toTimestamps(rd.serverTimeCreated, rd.serverTimeModified))
-                 .setClientTimestamps(toTimestamps(rd.clientTimeCreated, rd.clientTimeModified))
-                 .build();
+        .setId(recordId)
+        .setProject(place.getProject())
+        .setPlace(place)
+        .setForm(form.get())
+        .putAllValues(convertValues(rd.responses))
+        .setServerTimestamps(toTimestamps(rd.serverTimeCreated, rd.serverTimeModified))
+        .setClientTimestamps(toTimestamps(rd.clientTimeCreated, rd.clientTimeModified))
+        .build();
   }
 
   private static Map<String, Value> convertValues(Map<String, Object> docValues) {
@@ -89,32 +91,26 @@ public class RecordDoc {
     return values;
   }
 
-  private static void putValue(Map<String, Value> values, String key, Object value) {
-    if (value instanceof String) {
-      values.put(key, Value.ofText((String) value));
-    } else if (value instanceof Float) {
-      values.put(key, Value.ofNumber((Float) value));
-    } else if (value instanceof List) {
-      values.put(
-        key,
-        Value.ofChoices(
-          Record.Choices.newBuilder().setCodes(ImmutableList.copyOf((List) value)).build()));
+  private static void putValue(Map<String, Value> values, String fieldId, Object obj) {
+    if (obj instanceof String) {
+      values.put(fieldId, new TextValue((String) obj));
+      // } else if (obj instanceof Float) {
+      //   values.put(key, new NumberValue((Float) obj));
+    } else if (obj instanceof List) {
+      values.put(fieldId, new MultipleChoiceValue(ImmutableList.copyOf((List<String>) obj)));
     } else {
-      Log.d(TAG, "Unsupported value in db: " + value.getClass().getName());
+      Log.d(TAG, "Unsupported obj in db: " + obj.getClass().getName());
     }
   }
 
   public static Object toObject(Value value) {
-    switch (value.getType()) {
-      case TEXT:
-        return value.getText();
-      case NUMBER:
-        return value.getNumber();
-      case CHOICES:
-        return value.getChoices().getCodes();
-      default:
-        Log.d(TAG, "Unsupported value in client: " + value.getClass().getName());
-        return "";
+    if (value instanceof TextValue) {
+      return ((TextValue) value).getText();
+    } else if (value instanceof MultipleChoiceValue) {
+      return ((MultipleChoiceValue) value).getChoices();
+    } else {
+      Log.w(TAG, "Unknown value type: " + value.getClass().getName());
+      return null;
     }
   }
 }
