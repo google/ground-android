@@ -29,7 +29,7 @@
         type="com.google.android.gnd.ui.editrecord.EditRecordViewModel"/>
   </data>
 
-  <com.google.android.gnd.ui.editrecord.input.MultipleChoiceFieldLayout
+  <com.google.android.gnd.ui.editrecord.MultipleChoiceFieldLayout
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:layout_marginTop="@dimen/field_vertical_margin"
@@ -81,5 +81,5 @@
         android:alpha="0"
         android:clickable="true"/>
 
-  </com.google.android.gnd.ui.editrecord.input.MultipleChoiceFieldLayout>
+  </com.google.android.gnd.ui.editrecord.MultipleChoiceFieldLayout>
 </layout>

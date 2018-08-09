@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.ui.editrecord.input;
+package com.google.android.gnd.ui.editrecord;
 
 import android.content.Context;
 import android.support.annotation.NonNull;

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.gnd.ui.editrecord.input;
+package com.google.android.gnd.ui.editrecord;
 
 import static java8.util.stream.StreamSupport.stream;
 
@@ -32,14 +32,14 @@ import java8.util.function.Consumer;
 import java8.util.stream.IntStreams;
 
 // TODO: Replace with modal bottom sheet.
-public class MultiSelectDialogFactory {
+class MultiSelectDialogFactory {
   private Context context;
 
-  public MultiSelectDialogFactory(Context context) {
+  MultiSelectDialogFactory(Context context) {
     this.context = context;
   }
 
-  public AlertDialog create(
+  AlertDialog create(
       Field field,
       Optional<Value> initialValue,
       Consumer<Optional<Value>> valueChangeCallback) {
