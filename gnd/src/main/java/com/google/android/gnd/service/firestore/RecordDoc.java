@@ -93,11 +93,15 @@ public class RecordDoc {
 
   private static void putValue(Map<String, Value> values, String fieldId, Object obj) {
     if (obj instanceof String) {
-      values.put(fieldId, new TextValue((String) obj));
+      if (!((String) obj).trim().isEmpty()) {
+        values.put(fieldId, new TextValue((String) obj));
+      }
       // } else if (obj instanceof Float) {
       //   values.put(key, new NumberValue((Float) obj));
     } else if (obj instanceof List) {
-      values.put(fieldId, new MultipleChoiceValue(ImmutableList.copyOf((List<String>) obj)));
+      if (!((List<String>) obj).isEmpty()) {
+        values.put(fieldId, new MultipleChoiceValue(ImmutableList.copyOf((List<String>) obj)));
+      }
     } else {
       Log.d(TAG, "Unsupported obj in db: " + obj.getClass().getName());
     }
