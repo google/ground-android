@@ -71,7 +71,7 @@ public class BindingAdapters {
     }
   }
 
-  @BindingAdapter("textChangedListener")
+  @BindingAdapter("onTextChanged")
   public static void bindTextWatcher(TextInputEditText editText, Consumer onTextChanged) {
     editText.addTextChangedListener(
         new TextWatcher() {
@@ -101,6 +101,12 @@ public class BindingAdapters {
     } else if (!view.getError().equals(newErrorText)) {
       view.setError(newErrorText);
     }
+  }
+
+  @BindingAdapter("onFocusChange")
+  public static void setOnFocusChangeListener(View view,
+      final View.OnFocusChangeListener listener) {
+    view.setOnFocusChangeListener(listener);
   }
 
   @BindingAdapter("onShowDialog")

@@ -90,7 +90,7 @@ public class EditRecordViewModel extends AbstractViewModel {
   public void onValueChanged(Field field, Optional<Value> newValue) {
     Log.v(TAG, "onValueChanged: " + field.getId());
     newValue.ifPresentOrElse(v -> values.put(field.getId(), v), () -> values.remove(field.getId()));
-    validate(field, newValue);
+    updateError(field, newValue);
   }
 
   void editNewRecord(String projectId, String placeId, String formId) {
@@ -160,9 +160,14 @@ public class EditRecordViewModel extends AbstractViewModel {
             .subscribe(record::setValue));
   }
 
-  private void validate(Field field, Optional<Value> value) {
+  public void onFocusChange(Field field, boolean hasFocus) {
+    if (!hasFocus) {
+      updateError(field, getValue(field.getId()));
+    }
+  }
+
+  private void updateError(Field field, Optional<Value> value) {
     String key = field.getId();
-    // Optional<Value> value = Optional.ofNullable(values.get(field));
     if (field.isRequired() && !value.isPresent()) {
       Log.d(TAG, "Missing: " + key);
       errors.put(field.getId(), resources.getString(R.string.required_field));
