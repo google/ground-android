@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.gnd.ui.editrecord.input;
+package com.google.android.gnd.ui.editrecord;
 
 import static java8.util.stream.StreamSupport.stream;
 
@@ -23,7 +23,7 @@ import com.google.android.gnd.R;
 import com.google.android.gnd.vo.Form.Field;
 import com.google.android.gnd.vo.Form.MultipleChoice;
 import com.google.android.gnd.vo.Form.MultipleChoice.Option;
-import com.google.android.gnd.vo.Record;
+import com.google.android.gnd.vo.Record.MultipleChoiceValue;
 import com.google.android.gnd.vo.Record.Value;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
@@ -31,6 +31,7 @@ import java8.util.Optional;
 import java8.util.function.Consumer;
 import java8.util.stream.IntStreams;
 
+// TODO: Replace with modal bottom sheet.
 class MultiSelectDialogFactory {
   private Context context;
 
@@ -39,22 +40,24 @@ class MultiSelectDialogFactory {
   }
 
   AlertDialog create(
-    Field field, Optional<Value> initialValue, Consumer<Optional<Value>> valueChangeCallback) {
+      Field field,
+      Optional<Value> initialValue,
+      Consumer<Optional<Value>> valueChangeCallback) {
     MultipleChoice multipleChoice = field.getMultipleChoice();
     AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(context);
     List<Option> options = multipleChoice.getOptions();
     final DialogState state = new DialogState(multipleChoice, initialValue);
     dialogBuilder.setMultiChoiceItems(
-      getLabels(multipleChoice), state.checkedItems, (dialog, which, isChecked) -> {
-      });
+        getLabels(multipleChoice), state.checkedItems, (dialog, which, isChecked) -> {
+        });
     dialogBuilder.setCancelable(false);
     dialogBuilder.setTitle(field.getLabel());
     dialogBuilder.setPositiveButton(
-      R.string.apply_multiple_choice_changes,
-      (dialog, which) -> valueChangeCallback.accept(state.getSelectedValues(options)));
+        R.string.apply_multiple_choice_changes,
+        (dialog, which) -> valueChangeCallback.accept(state.getSelectedValues(options)));
     dialogBuilder.setNegativeButton(
-      R.string.discard_multiple_choice_changes, (dialog, which) -> {
-      });
+        R.string.discard_multiple_choice_changes, (dialog, which) -> {
+        });
     return dialogBuilder.create();
   }
 
@@ -68,22 +71,22 @@ class MultiSelectDialogFactory {
     public DialogState(MultipleChoice multipleChoice, Optional<Value> initialValue) {
       ImmutableList<Option> options = multipleChoice.getOptions();
       checkedItems = new boolean[options.size()];
+      // TODO: Check cast.
       initialValue.ifPresent(
-        v ->
-          IntStreams.range(0, options.size())
-                    .forEach(i -> checkedItems[i] = v.isSelected(options.get(i))));
+          v ->
+              IntStreams.range(0, options.size())
+                  .forEach(
+                      i -> checkedItems[i] = ((MultipleChoiceValue) v).isSelected(options.get(i))));
     }
 
     private Optional<Value> getSelectedValues(List<Option> options) {
-      Record.Choices.Builder choices = Record.Choices.newBuilder();
+      ImmutableList.Builder<String> choices = new ImmutableList.Builder<>();
       for (int i = 0; i < options.size(); i++) {
         if (checkedItems[i]) {
-          choices.codesBuilder().add(options.get(i).getCode());
+          choices.add(options.get(i).getCode());
         }
       }
-      return Optional.of(choices.build())
-                     .filter(ch -> !ch.getCodes().isEmpty())
-                     .map(Record.Value::ofChoices);
+      return MultipleChoiceValue.fromList(choices.build());
     }
   }
 }

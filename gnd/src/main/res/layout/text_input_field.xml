@@ -13,30 +13,50 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<LinearLayout
+<layout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_marginTop="@dimen/field_vertical_margin"
-    android:layout_marginBottom="@dimen/field_vertical_margin"
-    android:layout_marginStart="@dimen/field_horizontal_margin"
-    android:layout_marginEnd="@dimen/field_horizontal_margin"
-    android:layout_marginLeft="@dimen/field_horizontal_margin"
-    android:layout_marginRight="@dimen/field_horizontal_margin"
-    android:orientation="vertical">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
-  <android.support.design.widget.TextInputLayout
-      android:id="@+id/text_input_layout"
-      style="@style/EditRecord.Field.Text"
+  <data>
+    <variable
+        name="field"
+        type="com.google.android.gnd.vo.Form.Field"/>
+    <variable
+        name="viewModel"
+        type="com.google.android.gnd.ui.editrecord.EditRecordViewModel"/>
+  </data>
+
+  <LinearLayout
       android:layout_width="match_parent"
-      android:layout_height="wrap_content">
+      android:layout_height="wrap_content"
+      android:layout_marginTop="@dimen/field_vertical_margin"
+      android:layout_marginBottom="@dimen/field_vertical_margin"
+      android:layout_marginStart="@dimen/field_horizontal_margin"
+      android:layout_marginEnd="@dimen/field_horizontal_margin"
+      android:layout_marginLeft="@dimen/field_horizontal_margin"
+      android:layout_marginRight="@dimen/field_horizontal_margin"
+      android:orientation="vertical">
 
-    <android.support.design.widget.TextInputEditText
-        android:id="@+id/text_input_edit_text"
+    <android.support.design.widget.TextInputLayout
+        android:id="@+id/text_input_layout"
+        style="@style/EditRecord.Field.Text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:maxLines="1"/>
+        android:hint="@{field.label}">
 
-  </android.support.design.widget.TextInputLayout>
+      <android.support.design.widget.TextInputEditText
+          android:id="@+id/text_input_edit_text"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:maxLines="1"
+          android:text="@{viewModel.values[field.id]}"
+          app:errorText="@{viewModel.errors[field.id]}"
+          app:onTextChanged="@{s -> viewModel.onTextChanged(field, (String) s)}"
+          app:onFocusChange="@{(v, hasFocus) -> viewModel.onFocusChange(field, hasFocus)}"
+          tools:text="Text value"/>
 
-</LinearLayout>
+    </android.support.design.widget.TextInputLayout>
+
+  </LinearLayout>
+</layout>

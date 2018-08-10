@@ -16,9 +16,7 @@
 
 package com.google.android.gnd.ui.editrecord;
 
-import static com.google.android.gnd.util.Streams.toImmutableList;
-import static com.google.android.gnd.vo.PlaceUpdate.Operation;
-import static java8.util.stream.StreamSupport.stream;
+import static com.google.android.gnd.ui.util.ViewUtil.assignGeneratedId;
 
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
@@ -37,21 +35,23 @@ import butterknife.BindView;
 import butterknife.OnClick;
 import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.R;
+import com.google.android.gnd.databinding.MultipleChoiceInputFieldBinding;
+import com.google.android.gnd.databinding.TextInputFieldBinding;
 import com.google.android.gnd.repository.Resource;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.EphemeralPopups;
 import com.google.android.gnd.ui.common.OnBackListener;
 import com.google.android.gnd.ui.common.ProgressDialogs;
 import com.google.android.gnd.ui.common.TwoLineToolbar;
-import com.google.android.gnd.ui.editrecord.input.Editable;
-import com.google.android.gnd.ui.editrecord.input.MultipleChoiceFieldViewHolder;
-import com.google.android.gnd.ui.editrecord.input.TextInputViewHolder;
 import com.google.android.gnd.vo.Form;
+import com.google.android.gnd.vo.Form.Field;
+import com.google.android.gnd.vo.Form.MultipleChoice.Cardinality;
 import com.google.android.gnd.vo.Record;
+import com.google.android.gnd.vo.Record.Value;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import javax.annotation.Nullable;
+import java8.util.Optional;
 
 public class EditRecordFragment extends AbstractFragment implements OnBackListener {
   private static final String TAG = EditRecordFragment.class.getSimpleName();
@@ -60,6 +60,8 @@ public class EditRecordFragment extends AbstractFragment implements OnBackListen
   private ProgressDialog savingProgressDialog;
 
   private EditRecordViewModel viewModel;
+  private SingleSelectDialogFactory singleSelectDialogFactory;
+  private MultiSelectDialogFactory multiSelectDialogFactory;
 
   @BindView(R.id.edit_record_toolbar)
   TwoLineToolbar toolbar;
@@ -76,12 +78,11 @@ public class EditRecordFragment extends AbstractFragment implements OnBackListen
   @BindView(R.id.save_record_btn)
   View saveRecordButton;
 
-  // TODO: Wrap collection and related accessors into Adapter class.
-  private List<Editable> fields = Collections.emptyList();
-
   @Override
   public void onCreate(@android.support.annotation.Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+    singleSelectDialogFactory = new SingleSelectDialogFactory(getContext());
+    multiSelectDialogFactory = new MultiSelectDialogFactory(getContext());
     viewModel = get(EditRecordViewModel.class);
   }
 
@@ -109,6 +110,11 @@ public class EditRecordFragment extends AbstractFragment implements OnBackListen
   @Override
   public void onStart() {
     super.onStart();
+    Resource<Record> record = Resource.getValue(viewModel.getRecord());
+    if (record.isLoaded()) {
+      onRecordChange(record);
+      return;
+    }
     EditRecordFragmentArgs args = EditRecordFragmentArgs.fromBundle(getArguments());
     if (args.getRecordId().equals(NEW_RECORD_ID_ARG_PLACEHOLDER)) {
       viewModel.editNewRecord(args.getProjectId(), args.getPlaceId(), args.getFormId());
@@ -155,63 +161,81 @@ public class EditRecordFragment extends AbstractFragment implements OnBackListen
   // TODO: Move into EditRecordFormViewHolder class.
   private void rebuildForm(Record record) {
     formLayout.removeAllViews();
-    fields = new ArrayList<>();
     for (Form.Element element : record.getForm().getElements()) {
       switch (element.getType()) {
         case FIELD:
-          Editable editable = addField(element.getField(), record);
-          if (editable != null) {
-            fields.add(editable);
-          }
+          addField(element.getField());
           break;
         default:
           Log.d(TAG, element.getType() + " elements not yet supported");
       }
     }
-    if (fields.isEmpty()) {
-      // TODO: Show "empty form" error message.
+  }
+
+  private void addField(Field field) {
+    switch (field.getType()) {
+      case TEXT:
+        addTextField(field);
+        break;
+      case MULTIPLE_CHOICE:
+        addMultipleChoiceField(field);
+        break;
+      default:
+        Log.w(TAG, "Unimplemented field type: " + field.getType());
     }
   }
 
-  @Nullable
-  private Editable addField(Form.Field field, Record record) {
-    switch (field.getType()) {
-      case TEXT:
-        // TODO: Refactor these views into ViewHolders and use normal instances of Android view
-        // components instead of extending them.
-        TextInputViewHolder textInput = TextInputViewHolder.newInstance(formLayout);
-        textInput.init(field, record);
-        formLayout.addView(textInput.getView());
-        return textInput;
-      case MULTIPLE_CHOICE:
-        MultipleChoiceFieldViewHolder multipleChoice =
-            MultipleChoiceFieldViewHolder.newInstance(formLayout);
-        multipleChoice.init(field, record);
-        formLayout.addView(multipleChoice.getView());
-        return multipleChoice;
+  private void addTextField(Field field) {
+    TextInputFieldBinding binding =
+        TextInputFieldBinding.inflate(getLayoutInflater(), formLayout, false);
+    binding.setViewModel(viewModel);
+    binding.setLifecycleOwner(this);
+    binding.setField(field);
+    assignGeneratedId(binding.getRoot().findViewById(R.id.text_input_edit_text));
+    formLayout.addView(binding.getRoot());
+  }
+
+  public void addMultipleChoiceField(Field field) {
+    MultipleChoiceInputFieldBinding binding =
+        MultipleChoiceInputFieldBinding.inflate(getLayoutInflater(), formLayout, false);
+    // holders.add(new MultipleChoiceFieldLayout(binding));
+    binding.setFragment(this);
+    binding.setViewModel(viewModel);
+    binding.setLifecycleOwner(this);
+    binding.setField(field);
+    formLayout.addView(binding.getRoot());
+    assignGeneratedId(binding.getRoot().findViewById(R.id.multiple_choice_input_edit_text));
+  }
+
+  public void onShowDialog(Field field) {
+    Cardinality cardinality = field.getMultipleChoice().getCardinality();
+    Optional<Value> currentValue = viewModel.getValue(field.getId());
+    switch (cardinality) {
+      case SELECT_MULTIPLE:
+        multiSelectDialogFactory
+            .create(field, currentValue, v -> viewModel.onValueChanged(field, v))
+            .show();
+        break;
+      case SELECT_ONE:
+        singleSelectDialogFactory
+            .create(field, currentValue, v -> viewModel.onValueChanged(field, v))
+            .show();
+        break;
       default:
-        return null;
+        Log.e(TAG, "Unknown cardinality: " + cardinality);
+        return;
     }
   }
 
   @OnClick(R.id.save_record_btn)
-  void onSaveButtonClick() {
-    if (hasChanges()) {
-      validateAndSave();
-    } else {
-      EphemeralPopups.showFyi(getContext(), R.string.no_changes_to_save);
-      close();
-    }
+  void onSaveClick() {
+    viewModel.saveChanges();
   }
 
   private void validateAndSave() {
     if (validateAll()) {
-      viewModel.saveChanges(
-          stream(fields)
-              .map(Editable::getUpdate)
-              .filter(u -> !u.getOperation().equals(Operation.NO_CHANGE))
-              .collect(toImmutableList()));
-    } else {
+    viewModel.saveChanges(
+        );} else {
       showFormErrorsDialog();
     }
   }
