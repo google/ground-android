@@ -24,6 +24,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.view.ViewCompat;
 import android.support.v4.view.WindowInsetsCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -208,6 +209,7 @@ public class MapContainerFragment extends AbstractFragment {
   }
 
   private void onApplyWindowInsets(WindowInsetsCompat windowInsets) {
+    ViewCompat.onApplyWindowInsets(mapProvider.getFragment().getView(), windowInsets);
     mapBtnLayout.setTranslationY(-windowInsets.getSystemWindowInsetBottom());
   }
 
