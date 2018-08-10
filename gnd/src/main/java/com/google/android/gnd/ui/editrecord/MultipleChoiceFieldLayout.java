@@ -30,6 +30,7 @@ import butterknife.OnFocusChange;
 import com.google.android.gnd.R;
 
 public class MultipleChoiceFieldLayout extends FrameLayout {
+
   @BindView(R.id.multiple_choice_input_edit_text)
   TextInputEditText editText;
 

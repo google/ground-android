@@ -33,6 +33,7 @@ import java8.util.function.Consumer;
 
 // TODO: Replace with modal bottom sheet.
 class SingleSelectDialogFactory {
+
   private Context context;
 
   SingleSelectDialogFactory(Context context) {
@@ -63,6 +64,7 @@ class SingleSelectDialogFactory {
   }
 
   private static class DialogState {
+
     private int checkedItem;
 
     public DialogState(MultipleChoice multipleChoice, Optional<Value> initialValue) {

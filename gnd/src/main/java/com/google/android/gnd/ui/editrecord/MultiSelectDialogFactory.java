@@ -33,6 +33,7 @@ import java8.util.stream.IntStreams;
 
 // TODO: Replace with modal bottom sheet.
 class MultiSelectDialogFactory {
+
   private Context context;
 
   MultiSelectDialogFactory(Context context) {
@@ -66,6 +67,7 @@ class MultiSelectDialogFactory {
   }
 
   private static class DialogState {
+
     private boolean[] checkedItems;
 
     public DialogState(MultipleChoice multipleChoice, Optional<Value> initialValue) {

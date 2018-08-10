@@ -33,7 +33,7 @@ project.ext {
     rxFirebaseVersion = "1.4.1"
     rxJava2DebugVersion = "1.2.2"
     rxJavaVersion = "2.1.6"
-    streamSupportVersion = "1.6.0"
+    streamSupportVersion = "1.6.3"
     supportLibraryVersion = "28.0.0-alpha1"
     tabLayoutHelper = "0.9.0"
 }

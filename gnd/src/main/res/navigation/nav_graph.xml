@@ -15,75 +15,75 @@
   -->
 
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
-  xmlns:app="http://schemas.android.com/apk/res-auto"
-  xmlns:tools="http://schemas.android.com/tools"
-  android:id="@+id/nav_main.xml"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_main.xml"
     app:startDestination="@id/home_screen_fragment">
 
   <fragment
       android:id="@+id/home_screen_fragment"
-    android:label="@string/map_view"
       android:name="com.google.android.gnd.ui.home.HomeScreenFragment"
+      android:label="@string/map_view"
       tools:layout="@layout/home_screen_frag">
     <action
-      android:id="@+id/showRecordDetails"
-      app:destination="@id/record_details_fragment"
-      app:enterAnim="@anim/nav_default_enter_anim"
-      app:exitAnim="@anim/nav_default_exit_anim"
-      app:popEnterAnim="@anim/nav_default_pop_enter_anim"
-      app:popExitAnim="@anim/nav_default_pop_exit_anim"/>
+        android:id="@+id/showRecordDetails"
+        app:destination="@id/record_details_fragment"
+        app:enterAnim="@anim/nav_default_enter_anim"
+        app:exitAnim="@anim/nav_default_exit_anim"
+        app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+        app:popExitAnim="@anim/nav_default_pop_exit_anim"/>
     <action
-      android:id="@+id/addRecord"
-      app:destination="@id/edit_record_fragment">
+        android:id="@+id/addRecord"
+        app:destination="@id/edit_record_fragment">
       <argument
-        android:defaultValue="NEW_RECORD"
-        android:name="recordId"/>
+          android:name="recordId"
+          android:defaultValue="NEW_RECORD"/>
     </action>
   </fragment>
 
   <fragment
-    android:id="@+id/record_details_fragment"
-    android:label="@string/view_record_details"
-    android:name="com.google.android.gnd.ui.recorddetails.RecordDetailsFragment"
-    tools:layout="@layout/record_details_frag">
+      android:id="@+id/record_details_fragment"
+      android:name="com.google.android.gnd.ui.recorddetails.RecordDetailsFragment"
+      android:label="@string/view_record_details"
+      tools:layout="@layout/record_details_frag">
     <argument
-      android:name="projectId"
-      app:type="string"/>
+        android:name="projectId"
+        app:type="string"/>
     <argument
-      android:name="placeId"
-      app:type="string"/>
+        android:name="placeId"
+        app:type="string"/>
     <argument
-      android:name="recordId"
-      app:type="string"/>
+        android:name="recordId"
+        app:type="string"/>
     <action
-      android:id="@+id/editRecord"
-      app:destination="@id/edit_record_fragment"
-      app:enterAnim="@anim/nav_default_enter_anim"
-      app:exitAnim="@anim/nav_default_exit_anim"
-      app:popEnterAnim="@anim/nav_default_pop_enter_anim"
-      app:popExitAnim="@anim/nav_default_pop_exit_anim">
+        android:id="@+id/editRecord"
+        app:destination="@id/edit_record_fragment"
+        app:enterAnim="@anim/nav_default_enter_anim"
+        app:exitAnim="@anim/nav_default_exit_anim"
+        app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+        app:popExitAnim="@anim/nav_default_pop_exit_anim">
       <argument
-        android:defaultValue="N/A"
-        android:name="formId"/>
+          android:name="formId"
+          android:defaultValue="N/A"/>
     </action>
   </fragment>
   <fragment
-    android:id="@+id/edit_record_fragment"
-    android:name="com.google.android.gnd.ui.editrecord.EditRecordFragment"
-    android:label="edit_record_frag"
-    tools:layout="@layout/edit_record_frag">
+      android:id="@+id/edit_record_fragment"
+      android:name="com.google.android.gnd.ui.editrecord.EditRecordFragment"
+      android:label="edit_record_frag"
+      tools:layout="@layout/edit_record_frag">
     <argument
-      android:name="projectId"
-      app:type="string"/>
+        android:name="projectId"
+        app:type="string"/>
     <argument
-      android:name="placeId"
-      app:type="string"/>
+        android:name="placeId"
+        app:type="string"/>
     <argument
-      android:name="recordId"
-      app:type="string"/>
+        android:name="recordId"
+        app:type="string"/>
     <argument
-      android:name="formId"
-      app:type="string"/>
+        android:name="formId"
+        app:type="string"/>
   </fragment>
 
 </navigation>

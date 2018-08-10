@@ -19,7 +19,6 @@ package com.google.android.gnd.ui.editrecord;
 import static com.google.android.gnd.ui.util.ViewUtil.assignGeneratedId;
 
 import android.app.ProgressDialog;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
@@ -48,9 +47,6 @@ import com.google.android.gnd.vo.Form.Field;
 import com.google.android.gnd.vo.Form.MultipleChoice.Cardinality;
 import com.google.android.gnd.vo.Record;
 import com.google.android.gnd.vo.Record.Value;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import java8.util.Optional;
 
 public class EditRecordFragment extends AbstractFragment implements OnBackListener {
@@ -97,7 +93,7 @@ public class EditRecordFragment extends AbstractFragment implements OnBackListen
       @NonNull View view, @android.support.annotation.Nullable Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
     ((MainActivity) getActivity()).setActionBar(toolbar, R.drawable.ic_close);
-    toolbar.setNavigationOnClickListener(this::onCloseButtonClick);
+    toolbar.setNavigationOnClickListener(__ -> onCloseButtonClick());
     savingProgressDialog = ProgressDialogs.modalSpinner(getContext(), R.string.saving);
   }
 
@@ -105,6 +101,8 @@ public class EditRecordFragment extends AbstractFragment implements OnBackListen
   public void onActivityCreated(@android.support.annotation.Nullable Bundle savedInstanceState) {
     super.onActivityCreated(savedInstanceState);
     viewModel.getRecord().observe(this, this::onRecordChange);
+    viewModel.getShowUnsavedChangesDialogEvents().observe(this, __ -> showUnsavedChangesDialog());
+    viewModel.getShowErrorDialogEvents().observe(this, __ -> showFormErrorsDialog());
   }
 
   @Override
@@ -144,7 +142,7 @@ public class EditRecordFragment extends AbstractFragment implements OnBackListen
       case ERROR:
         record.getError().ifPresent(t -> Log.e(TAG, "Failed to load/validateAndSave record", t));
         EphemeralPopups.showError(getContext());
-        close();
+        navigateUp();
         break;
     }
   }
@@ -158,7 +156,6 @@ public class EditRecordFragment extends AbstractFragment implements OnBackListen
     saveRecordButton.setVisibility(View.VISIBLE);
   }
 
-  // TODO: Move into EditRecordFormViewHolder class.
   private void rebuildForm(Record record) {
     formLayout.removeAllViews();
     for (Form.Element element : record.getForm().getElements()) {
@@ -229,31 +226,29 @@ public class EditRecordFragment extends AbstractFragment implements OnBackListen
 
   @OnClick(R.id.save_record_btn)
   void onSaveClick() {
-    viewModel.saveChanges();
-  }
-
-  private void validateAndSave() {
-    if (validateAll()) {
-    viewModel.saveChanges(
-        );} else {
-      showFormErrorsDialog();
+    if (!viewModel.onSaveClick()) {
+      EphemeralPopups.showFyi(getContext(), R.string.no_changes_to_save);
+      navigateUp();
     }
   }
 
-  private void onCloseButtonClick(View view) {
-    if (hasChanges()) {
-      showUnsavedChangesDialog();
-    } else {
-      close();
+  @Override
+  public boolean onBack() {
+    return viewModel.onBack();
+  }
+
+  private void onCloseButtonClick() {
+    if (!viewModel.onBack()) {
+      navigateUp();
     }
   }
 
   private void showUnsavedChangesDialog() {
     new AlertDialog.Builder(getContext())
         .setMessage(R.string.unsaved_changes)
-        .setPositiveButton(R.string.save_unsaved_changes, this::onConfirmSaveUnsavedChanges)
-        .setNegativeButton(R.string.close_without_saving, this::onConfirmAbandonUnsavedChanges)
-        .setNeutralButton(R.string.continue_editing, this::onContinueEditing)
+        .setPositiveButton(R.string.close_without_saving, (d, i) -> navigateUp())
+        .setNegativeButton(R.string.continue_editing, (d, i) -> {
+        })
         .create()
         .show();
   }
@@ -267,37 +262,7 @@ public class EditRecordFragment extends AbstractFragment implements OnBackListen
         .show();
   }
 
-  private void onConfirmSaveUnsavedChanges(DialogInterface dialogInterface, int i) {
-    validateAndSave();
-  }
-
-  private void onConfirmAbandonUnsavedChanges(DialogInterface dialogInterface, int i) {
-    close();
-  }
-
-  private void close() {
+  private void navigateUp() {
     NavHostFragment.findNavController(this).navigateUp();
-  }
-
-  private void onContinueEditing(DialogInterface dialogInterface, int i) {
-    // No-op.
-  }
-
-  @Override
-  public boolean onBack() {
-    if (hasChanges()) {
-      showUnsavedChangesDialog();
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-  private boolean hasChanges() {
-    return stream(fields).anyMatch(f -> f.isModified());
-  }
-
-  private boolean validateAll() {
-    return stream(fields).map(f -> f.validate()).reduce((a, b) -> a && b).get();
   }
 }

@@ -28,20 +28,20 @@ import android.arch.lifecycle.MutableLiveData;
 import android.content.res.Resources;
 import android.databinding.ObservableArrayMap;
 import android.databinding.ObservableMap;
+import android.support.annotation.NonNull;
 import android.util.Log;
 import com.google.android.gnd.GndApplication;
 import com.google.android.gnd.R;
 import com.google.android.gnd.repository.DataRepository;
 import com.google.android.gnd.repository.Resource;
 import com.google.android.gnd.ui.common.AbstractViewModel;
-import com.google.android.gnd.vo.Form.Element;
+import com.google.android.gnd.ui.common.SingleLiveEvent;
 import com.google.android.gnd.vo.Form.Element.Type;
 import com.google.android.gnd.vo.Form.Field;
 import com.google.android.gnd.vo.PlaceUpdate.RecordUpdate.ValueUpdate;
 import com.google.android.gnd.vo.Record;
 import com.google.android.gnd.vo.Record.TextValue;
 import com.google.android.gnd.vo.Record.Value;
-import com.google.common.collect.ImmutableList;
 import java.util.Arrays;
 import java.util.Collections;
 import java8.util.Optional;
@@ -54,7 +54,8 @@ public class EditRecordViewModel extends AbstractViewModel {
 
   private final DataRepository dataRepository;
   private final MutableLiveData<Resource<Record>> record;
-
+  private final SingleLiveEvent<Void> showUnsavedChangesDialogEvents;
+  private final SingleLiveEvent<Void> showErrorDialogEvents;
   private final Resources resources;
   private final ObservableMap<String, Value> values = new ObservableArrayMap<>();
   private final ObservableMap<String, String> errors = new ObservableArrayMap<>();
@@ -64,18 +65,16 @@ public class EditRecordViewModel extends AbstractViewModel {
     this.resources = application.getResources();
     this.dataRepository = dataRepository;
     this.record = new MutableLiveData<>();
-  }
-
-  LiveData<Resource<Record>> getRecord() {
-    return record;
-  }
-
-  public Optional<Value> getValue(String fieldId) {
-    return Optional.ofNullable(values.get(fieldId));
+    this.showUnsavedChangesDialogEvents = new SingleLiveEvent<>();
+    this.showErrorDialogEvents = new SingleLiveEvent<>();
   }
 
   public ObservableMap<String, Value> getValues() {
     return values;
+  }
+
+  public Optional<Value> getValue(String fieldId) {
+    return Optional.ofNullable(values.get(fieldId));
   }
 
   public ObservableMap<String, String> getErrors() {
@@ -94,6 +93,24 @@ public class EditRecordViewModel extends AbstractViewModel {
     updateError(field, newValue);
   }
 
+  public void onFocusChange(Field field, boolean hasFocus) {
+    if (!hasFocus) {
+      updateError(field);
+    }
+  }
+
+  LiveData<Resource<Record>> getRecord() {
+    return record;
+  }
+
+  LiveData<Void> getShowUnsavedChangesDialogEvents() {
+    return showUnsavedChangesDialogEvents;
+  }
+
+  public LiveData<Void> getShowErrorDialogEvents() {
+    return showErrorDialogEvents;
+  }
+
   void editNewRecord(String projectId, String placeId, String formId) {
     disposeOnClear(
         dataRepository
@@ -103,6 +120,11 @@ public class EditRecordViewModel extends AbstractViewModel {
             .subscribe(record::setValue));
   }
 
+  @NonNull
+  private Optional<Record> getCurrentRecord() {
+    return Resource.getData(record);
+  }
+
   private void reset() {
     values.clear();
     errors.clear();
@@ -110,25 +132,58 @@ public class EditRecordViewModel extends AbstractViewModel {
 
   private void updateMap(Record r) {
     Log.v(TAG, "Updating map");
-    reset();
     forEach(
         r.getValueMap(),
         (k, v) ->
             r.getForm().getField(k).ifPresent(field -> onValueChanged(field, Optional.of(v))));
   }
 
-  void saveChanges() {
-    Resource.getData(record).ifPresent(this::saveChanges);
+  void editExistingRecord(String projectId, String placeId, String recordId) {
+    // TODO: Store and retrieve latest edits from cache and/or db.
+    disposeOnClear(
+        dataRepository
+            .getRecordSnapshot(projectId, placeId, recordId)
+            .doOnSuccess(r -> r.getData().ifPresent(this::update))
+            .subscribe(record::setValue));
+  }
+
+  boolean onSaveClick() {
+    if (hasErrors()) {
+      showErrorDialogEvents.setValue(null);
+      return true;
+    }
+    if (hasUnsavedChanges()) {
+      saveChanges();
+      return true;
+    }
+    return false;
+  }
+
+  boolean onBack() {
+    if (hasUnsavedChanges()) {
+      showUnsavedChangesDialogEvents.setValue(null);
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  private void saveChanges() {
+    getCurrentRecord().ifPresent(this::saveChanges);
   }
 
   private void saveChanges(Record r) {
-    ImmutableList<ValueUpdate> updates =
-        stream(r.getForm().getElements())
-            .filter(e -> e.getType() == Element.Type.FIELD)
-            .map(e -> e.getField())
-            .flatMap(f -> getChanges(r, f))
-            .collect(toImmutableList());
-    disposeOnClear(dataRepository.saveChanges(r, updates).subscribe(record::setValue));
+    disposeOnClear(
+        dataRepository
+            .saveChanges(r, getChanges(r).collect(toImmutableList()))
+            .subscribe(record::setValue));
+  }
+
+  private Stream<ValueUpdate> getChanges(Record r) {
+    return stream(r.getForm().getElements())
+        .filter(e -> e.getType() == Type.FIELD)
+        .map(e -> e.getField())
+        .flatMap(f -> getChanges(r, f));
   }
 
   private Stream<ValueUpdate> getChanges(Record r, Field field) {
@@ -153,20 +208,17 @@ public class EditRecordViewModel extends AbstractViewModel {
     return stream(Arrays.asList(update.build()));
   }
 
-  void editExistingRecord(String projectId, String placeId, String recordId) {
-    // TODO: Store and retrieve latest edits from cache and/or db.
-    disposeOnClear(
-        dataRepository
-            .getRecordSnapshot(projectId, placeId, recordId)
-            .doOnSuccess(r -> r.getData().ifPresent(this::updateMap))
-            .doOnSuccess(r -> r.getData().ifPresent(this::updateErrors))
-            .subscribe(record::setValue));
+  private void update(Record record) {
+    reset();
+    updateMap(record);
+    updateErrors(record);
   }
 
-  public void onFocusChange(Field field, boolean hasFocus) {
-    if (!hasFocus) {
-      updateError(field);
-    }
+  private void updateErrors(Record r) {
+    stream(r.getForm().getElements())
+        .filter(e -> e.getType().equals(Type.FIELD))
+        .map(e -> e.getField())
+        .forEach(this::updateError);
   }
 
   private void updateError(Field field) {
@@ -184,10 +236,11 @@ public class EditRecordViewModel extends AbstractViewModel {
     }
   }
 
-  private void updateErrors(Record r) {
-    stream(r.getForm().getElements())
-        .filter(e -> e.getType().equals(Type.FIELD))
-        .map(e -> e.getField())
-        .forEach(this::updateError);
+  private boolean hasUnsavedChanges() {
+    return getCurrentRecord().map(r -> getChanges(r).findAny().isPresent()).orElse(false);
+  }
+
+  private boolean hasErrors() {
+    return !errors.isEmpty();
   }
 }

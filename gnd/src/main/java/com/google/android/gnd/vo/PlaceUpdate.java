@@ -24,6 +24,7 @@ import java8.util.Optional;
 
 @AutoValue
 public abstract class PlaceUpdate {
+
   // TODO: Simplify and delete?
   public enum Operation {
     NO_CHANGE,

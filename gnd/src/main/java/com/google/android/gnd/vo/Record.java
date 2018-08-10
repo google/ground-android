@@ -88,6 +88,7 @@ public abstract class Record {
   }
 
   public interface Value {
+
     String getSummaryText(Field field);
 
     String getDetailsText(Field field);
