@@ -28,20 +28,20 @@
 
   <!-- TODO: Move into layout file for place sheet and chrome -->
 
-  <fragment
-    android:id="@+id/place_sheet_header"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:name="com.google.android.gnd.ui.home.placesheet.PlaceSheetHeaderFragment"
-    app:layout_behavior="com.google.android.gnd.ui.home.placesheet.PlaceSheetHeaderLayoutBehavior"
-    />
+  <!--<fragment-->
+  <!--android:id="@+id/place_sheet_header"-->
+  <!--android:layout_width="match_parent"-->
+  <!--android:layout_height="wrap_content"-->
+  <!--android:name="com.google.android.gnd.ui.home.placesheet.PlaceSheetHeaderFragment"-->
+  <!--app:layout_behavior="com.google.android.gnd.ui.home.placesheet.PlaceSheetHeaderLayoutBehavior"-->
+  <!--/>-->
 
   <android.support.v4.widget.NestedScrollView
     android:id="@+id/bottom_sheet_scroll_view"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true"
-    app:layout_behavior="@string/bottom_sheet_behavior">
+      app:layout_behavior="com.google.android.gnd.ui.common.BottomSheetBehavior">
 
     <fragment
       android:id="@+id/place_sheet_fragment"

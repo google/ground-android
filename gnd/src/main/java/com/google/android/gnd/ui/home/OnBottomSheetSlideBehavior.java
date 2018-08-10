@@ -18,12 +18,12 @@ package com.google.android.gnd.ui.home;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
-import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.widget.NestedScrollView;
 import android.util.AttributeSet;
 import android.view.View;
 import com.google.android.gnd.R;
+import com.google.android.gnd.ui.common.BottomSheetBehavior;
 
 public abstract class OnBottomSheetSlideBehavior<V extends View>
     extends CoordinatorLayout.Behavior<V> {

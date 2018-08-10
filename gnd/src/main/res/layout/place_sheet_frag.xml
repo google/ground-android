@@ -28,6 +28,11 @@
     android:background="@color/colorGrey50"
     android:orientation="vertical">
 
+    <FrameLayout
+        android:id="@+id/bottom_sheet_header"
+        android:layout_width="match_parent"
+        android:layout_height="250dp"
+        android:background="@color/colorBlueA200"></FrameLayout>
     <!--
       @background is required to make @elevation show drop shadow
       https://stackoverflow.com/questions/31151180/material-tablayout-elevation-not-working/31777078
