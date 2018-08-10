@@ -30,7 +30,6 @@ import android.support.v4.view.ViewCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import androidx.navigation.fragment.NavHostFragment;
-import androidx.navigation.ui.NavigationUI;
 import butterknife.ButterKnife;
 import com.google.android.gnd.repository.DataRepository;
 import com.google.android.gnd.rx.RxDebug;
@@ -186,22 +185,34 @@ public class MainActivity extends AppCompatActivity implements HasSupportFragmen
 
   public void setActionBar(TwoLineToolbar toolbar) {
     setSupportActionBar(toolbar);
+
     // Workaround to get rid of application title from toolbar. Simply setting "" here or in layout
     // XML doesn't work.
     getSupportActionBar().setDisplayShowTitleEnabled(false);
-    NavigationUI.setupActionBarWithNavController(this, navHostFragment.getNavController());
+    getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+    getSupportActionBar().setDisplayShowHomeEnabled(true);
+
     // TODO: Remove this workaround once setupActionBarWithNavController() works with custom
     // Toolbars (https://issuetracker.google.com/issues/109868820).
-    toolbar.setNavigationOnClickListener(__ -> navHostFragment.getNavController().navigateUp());
+    toolbar.setNavigationOnClickListener(__ -> navigateUp());
+  }
+
+  private void navigateUp() {
+    if (!callFragmentBackHandler()) {
+      navHostFragment.getNavController().navigateUp();
+    }
   }
 
   @Override
   public void onBackPressed() {
-    Fragment currentFragment = getCurrentFragment();
-    if (!(currentFragment instanceof OnBackListener)
-      || !((OnBackListener) currentFragment).onBack()) {
+    if (!callFragmentBackHandler()) {
       super.onBackPressed();
     }
+  }
+
+  private boolean callFragmentBackHandler() {
+    Fragment currentFragment = getCurrentFragment();
+    return currentFragment instanceof OnBackListener && ((OnBackListener) currentFragment).onBack();
   }
 
   private Fragment getCurrentFragment() {
