@@ -136,11 +136,11 @@ public class EditRecordFragment extends AbstractFragment implements OnBackListen
       case SAVED:
         savingProgressDialog.hide();
         EphemeralPopups.showSuccess(getContext(), R.string.saved);
-        NavHostFragment.findNavController(this).navigateUp();
+        navigateUp();
         break;
       case NOT_FOUND:
       case ERROR:
-        record.getError().ifPresent(t -> Log.e(TAG, "Failed to load/validateAndSave record", t));
+        record.getError().ifPresent(t -> Log.e(TAG, "Failed to load/save record", t));
         EphemeralPopups.showError(getContext());
         navigateUp();
         break;
@@ -188,14 +188,13 @@ public class EditRecordFragment extends AbstractFragment implements OnBackListen
     binding.setViewModel(viewModel);
     binding.setLifecycleOwner(this);
     binding.setField(field);
-    assignGeneratedId(binding.getRoot().findViewById(R.id.text_input_edit_text));
     formLayout.addView(binding.getRoot());
+    assignGeneratedId(binding.getRoot().findViewById(R.id.text_input_edit_text));
   }
 
   public void addMultipleChoiceField(Field field) {
     MultipleChoiceInputFieldBinding binding =
         MultipleChoiceInputFieldBinding.inflate(getLayoutInflater(), formLayout, false);
-    // holders.add(new MultipleChoiceFieldLayout(binding));
     binding.setFragment(this);
     binding.setViewModel(viewModel);
     binding.setLifecycleOwner(this);

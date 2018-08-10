@@ -116,7 +116,7 @@ public class EditRecordViewModel extends AbstractViewModel {
         dataRepository
             .createRecord(projectId, placeId, formId)
             .map(Resource::loaded)
-            .doOnSuccess(__ -> reset())
+            .doOnSuccess(__ -> onNewRecordLoaded())
             .subscribe(record::setValue));
   }
 
@@ -125,13 +125,14 @@ public class EditRecordViewModel extends AbstractViewModel {
     return Resource.getData(record);
   }
 
-  private void reset() {
+  private void onNewRecordLoaded() {
     values.clear();
     errors.clear();
   }
 
   private void updateMap(Record r) {
     Log.v(TAG, "Updating map");
+    values.clear();
     forEach(
         r.getValueMap(),
         (k, v) ->
@@ -148,6 +149,7 @@ public class EditRecordViewModel extends AbstractViewModel {
   }
 
   boolean onSaveClick() {
+    getCurrentRecord().ifPresent(this::updateErrors);
     if (hasErrors()) {
       showErrorDialogEvents.setValue(null);
       return true;
@@ -209,12 +211,12 @@ public class EditRecordViewModel extends AbstractViewModel {
   }
 
   private void update(Record record) {
-    reset();
     updateMap(record);
     updateErrors(record);
   }
 
   private void updateErrors(Record r) {
+    errors.clear();
     stream(r.getForm().getElements())
         .filter(e -> e.getType().equals(Type.FIELD))
         .map(e -> e.getField())
