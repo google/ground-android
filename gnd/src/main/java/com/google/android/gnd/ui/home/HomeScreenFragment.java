@@ -110,6 +110,10 @@ public class HomeScreenFragment extends AbstractFragment implements OnBackListen
   public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
 
+    toolbarWrapper
+      .getViewTreeObserver()
+      .addOnGlobalLayoutListener(this::onToolbarLayout);
+
     if (savedInstanceState == null) {
       mapContainerFragment = new MapContainerFragment();
       replaceFragment(R.id.map_container_fragment, mapContainerFragment);
@@ -118,6 +122,12 @@ public class HomeScreenFragment extends AbstractFragment implements OnBackListen
     }
 
     setUpBottomSheetBehavior();
+  }
+
+  private void onToolbarLayout() {
+    if (toolbarWrapper != null && bottomSheetScrollView != null) {
+      bottomSheetScrollView.setPadding(0, toolbarWrapper.getHeight(), 0, 0);
+    }
   }
 
   private void setUpBottomSheetBehavior() {
@@ -230,7 +240,6 @@ public class HomeScreenFragment extends AbstractFragment implements OnBackListen
     double screenHeight = getScreenHeight(getActivity());
     double mapHeight = width / COLLAPSED_MAP_ASPECT_RATIO;
     double peekHeight = screenHeight - mapHeight;
-    bottomSheetScrollView.setPadding(0, toolbarWrapper.getHeight(), 0, 0);
     // TODO: Take window insets into account; COLLAPSED_MAP_ASPECT_RATIO will be wrong on older
     // devices w/o translucent system windows.
     bottomSheetBehavior.setPeekHeight((int) peekHeight);
