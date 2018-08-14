@@ -17,21 +17,29 @@
 package com.google.android.gnd.ui.home.placesheet;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.TabLayout;
+import android.support.v4.view.ViewPager;
+import android.support.v4.view.WindowInsetsCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 import butterknife.BindView;
+import com.google.android.gnd.MainViewModel;
 import com.google.android.gnd.R;
 import com.google.android.gnd.ui.MapIcon;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.home.HomeScreenViewModel;
 import com.google.android.gnd.ui.home.PlaceSheetState;
+import com.h6ah4i.android.tablayouthelper.TabLayoutHelper;
 import javax.inject.Inject;
 
-public class PlaceSheetHeaderFragment extends AbstractFragment {
+public class PlaceSheetFragment extends AbstractFragment {
+  @Inject FormTabPagerAdapter formTypePagerAdapter;
+
   @BindView(R.id.place_sheet_title)
   TextView placeSheetTitle;
 
@@ -41,42 +49,70 @@ public class PlaceSheetHeaderFragment extends AbstractFragment {
   @BindView(R.id.place_header_icon)
   ImageView placeHeaderIcon;
 
+  @BindView(R.id.forms_tab_layout)
+  TabLayout formsTabLayout;
+
+  @BindView(R.id.record_list_view_pager)
+  ViewPager recordListViewPager;
+
+  private PlaceSheetViewModel viewModel;
   private HomeScreenViewModel homeScreenViewModel;
+  private MainViewModel mainViewModel;
 
   @Inject
-  public PlaceSheetHeaderFragment() {}
+  public PlaceSheetFragment() {
+  }
 
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    homeScreenViewModel =
-        get(HomeScreenViewModel.class);
+    viewModel = get(PlaceSheetViewModel.class);
+    mainViewModel = get(MainViewModel.class);
+    homeScreenViewModel = get(HomeScreenViewModel.class);
   }
 
   @Override
   public View onCreateView(
-    LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-    return inflater.inflate(R.layout.place_sheet_header_frag, container, false);
+      LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    return inflater.inflate(R.layout.place_sheet_frag, container, false);
+  }
+
+  @Override
+  public void onViewCreated(
+    @NonNull View view, @Nullable Bundle savedInstanceState) {
+    super.onViewCreated(view, savedInstanceState);
+
+    recordListViewPager.setAdapter(formTypePagerAdapter);
+    recordListViewPager.addOnPageChangeListener(viewModel);
+    formsTabLayout.setupWithViewPager(recordListViewPager);
+    TabLayoutHelper tabLayoutHelper = new TabLayoutHelper(formsTabLayout, recordListViewPager);
+    // Stretch tabs if they all fit on screen, otherwise scroll.
+    tabLayoutHelper.setAutoAdjustTabModeEnabled(true);
   }
 
   @Override
   public void onActivityCreated(@Nullable Bundle savedInstanceState) {
     super.onActivityCreated(savedInstanceState);
+    mainViewModel.getWindowInsets().observe(this, this::onApplyWindowInsets);
     homeScreenViewModel.getPlaceSheetState().observe(this, this::onPlaceSheetStateChange);
+    viewModel.getSelectedPlace().observe(this, formTypePagerAdapter::update);
   }
 
   private void onPlaceSheetStateChange(PlaceSheetState placeSheetState) {
     if (placeSheetState.isVisible()) {
-      getView().setVisibility(View.VISIBLE);
       placeHeaderIcon.setImageResource(
-          MapIcon.getResourceId(
-              getContext(), placeSheetState.getPlace().getPlaceType().getIconId()));
+        MapIcon.getResourceId(
+          getContext(), placeSheetState.getPlace().getPlaceType().getIconId()));
       placeSheetTitle.setText(placeSheetState.getPlace().getTitle());
       placeSheetSubtitle.setText(placeSheetState.getPlace().getSubtitle());
       placeSheetSubtitle.setVisibility(
-          placeSheetState.getPlace().getSubtitle().isEmpty() ? View.GONE : View.VISIBLE);
-    } else {
-      getView().setVisibility(View.GONE);
+        placeSheetState.getPlace().getSubtitle().isEmpty() ? View.GONE : View.VISIBLE);
     }
+
+    viewModel.onPlaceSheetStateChange(placeSheetState);
+  }
+
+  private void onApplyWindowInsets(WindowInsetsCompat insets) {
+    recordListViewPager.setPadding(0, 0, 0, insets.getSystemWindowInsetBottom());
   }
 }

@@ -37,7 +37,7 @@ public class RecordListFragment extends AbstractFragment {
   private RecordListAdapter recordListAdapter;
 
   private RecordListViewModel viewModel;
-  private PlaceSheetBodyViewModel placeSheetViewModel;
+  private PlaceSheetViewModel placeSheetViewModel;
   private HomeScreenViewModel homeScreenViewModel;
 
   static RecordListFragment newInstance() {
@@ -49,7 +49,7 @@ public class RecordListFragment extends AbstractFragment {
     recordListAdapter = new RecordListAdapter();
     super.onCreate(savedInstanceState);
     viewModel = get(RecordListViewModel.class);
-    placeSheetViewModel = get(PlaceSheetBodyViewModel.class);
+    placeSheetViewModel = get(PlaceSheetViewModel.class);
     homeScreenViewModel = get(HomeScreenViewModel.class);
 
     recordListAdapter.getItemClicks().observe(this, this::showRecordDetails);

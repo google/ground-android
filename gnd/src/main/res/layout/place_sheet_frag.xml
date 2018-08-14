@@ -25,14 +25,10 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_gravity="top"
-    android:background="@color/colorGrey50"
     android:orientation="vertical">
 
-    <FrameLayout
-        android:id="@+id/bottom_sheet_header"
-        android:layout_width="match_parent"
-        android:layout_height="250dp"
-        android:background="@color/colorBlueA200"></FrameLayout>
+    <include layout="@layout/place_sheet_header"/>
+
     <!--
       @background is required to make @elevation show drop shadow
       https://stackoverflow.com/questions/31151180/material-tablayout-elevation-not-working/31777078
@@ -51,7 +47,8 @@
     <com.google.android.gnd.ui.common.UnswipeableViewPager
       android:id="@+id/record_list_view_pager"
       android:layout_width="match_parent"
-      android:layout_height="wrap_content"/>
+      android:layout_height="wrap_content"
+      android:background="@color/colorGrey50"/>
 
   </LinearLayout>
 

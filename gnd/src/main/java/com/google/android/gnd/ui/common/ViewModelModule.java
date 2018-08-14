@@ -22,7 +22,7 @@ import com.google.android.gnd.MainViewModel;
 import com.google.android.gnd.ui.editrecord.EditRecordViewModel;
 import com.google.android.gnd.ui.home.HomeScreenViewModel;
 import com.google.android.gnd.ui.home.mapcontainer.MapContainerViewModel;
-import com.google.android.gnd.ui.home.placesheet.PlaceSheetBodyViewModel;
+import com.google.android.gnd.ui.home.placesheet.PlaceSheetViewModel;
 import com.google.android.gnd.ui.home.placesheet.RecordListViewModel;
 import com.google.android.gnd.ui.projectselector.ProjectSelectorViewModel;
 import com.google.android.gnd.ui.recorddetails.RecordDetailsViewModel;
@@ -49,8 +49,8 @@ public abstract class ViewModelModule {
 
   @Binds
   @IntoMap
-  @ViewModelKey(PlaceSheetBodyViewModel.class)
-  abstract ViewModel bindPlaceSheetBodyViewModel(PlaceSheetBodyViewModel viewModel);
+  @ViewModelKey(PlaceSheetViewModel.class)
+  abstract ViewModel bindPlaceSheetViewModel(PlaceSheetViewModel viewModel);
 
   @Binds
   @IntoMap

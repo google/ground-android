@@ -26,8 +26,7 @@ import com.google.android.gnd.ui.home.HomeScreenFragment;
 import com.google.android.gnd.ui.home.HomeScreenModule;
 import com.google.android.gnd.ui.home.mapcontainer.MapContainerFragment;
 import com.google.android.gnd.ui.home.mapcontainer.MapContainerModule;
-import com.google.android.gnd.ui.home.placesheet.PlaceSheetBodyFragment;
-import com.google.android.gnd.ui.home.placesheet.PlaceSheetHeaderFragment;
+import com.google.android.gnd.ui.home.placesheet.PlaceSheetFragment;
 import com.google.android.gnd.ui.home.placesheet.PlaceSheetModule;
 import com.google.android.gnd.ui.home.placesheet.RecordListFragment;
 import com.google.android.gnd.ui.projectselector.ProjectSelectorDialogFragment;
@@ -69,11 +68,7 @@ public abstract class MainActivityModule {
 
   @PerFragment
   @ContributesAndroidInjector(modules = PlaceSheetModule.class)
-  abstract PlaceSheetBodyFragment placeSheetBodyFragmentInjector();
-
-  @PerFragment
-  @ContributesAndroidInjector(modules = PlaceSheetModule.class)
-  abstract PlaceSheetHeaderFragment placeSheetHeaderFragmentInjector();
+  abstract PlaceSheetFragment placeSheetFragmentInjector();
 
   @PerFragment
   @ContributesAndroidInjector(modules = PlaceSheetModule.class)

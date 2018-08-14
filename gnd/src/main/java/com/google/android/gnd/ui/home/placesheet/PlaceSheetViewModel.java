@@ -29,13 +29,13 @@ import java8.util.Optional;
 import javax.inject.Inject;
 
 @ActivityScope
-public class PlaceSheetBodyViewModel extends ViewModel implements ViewPager.OnPageChangeListener {
+public class PlaceSheetViewModel extends ViewModel implements ViewPager.OnPageChangeListener {
 
   private MutableLiveData<Optional<Place>> selectedPlace;
   private MutableLiveData<Optional<Form>> selectedForm;
 
   @Inject
-  public PlaceSheetBodyViewModel() {
+  public PlaceSheetViewModel() {
     this.selectedPlace = new MutableLiveData<>();
     this.selectedForm = new MutableLiveData<>();
     selectedPlace.setValue(Optional.empty());

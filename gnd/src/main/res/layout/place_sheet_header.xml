@@ -17,9 +17,9 @@
 
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:app="http://schemas.android.com/apk/res-auto"
+  android:id="@+id/bottom_sheet_header"
   android:layout_width="match_parent"
-  android:layout_height="wrap_content"
-  android:visibility="gone">
+  android:layout_height="wrap_content">
 
   <android.support.v7.widget.CardView
     android:id="@+id/place_sheet_card_view"
@@ -36,6 +36,7 @@
       android:layout_height="wrap_content"
       android:layout_gravity="top"
       android:paddingTop="@dimen/place_sheet_padding_top"
+      android:paddingBottom="@dimen/place_sheet_header_padding_bottom"
       android:orientation="vertical">
       <TextView
         android:id="@+id/place_sheet_title"
@@ -52,12 +53,16 @@
         android:textAlignment="center"
         android:textSize="12sp"
         android:textColor="@color/colorGrey600"/>
-      <!-- HACK: Additional padding to obscure bottom rounded corners -->
-      <View
-        android:layout_width="match_parent"
-        android:layout_height="16dp"/>
     </LinearLayout>
   </android.support.v7.widget.CardView>
+
+  <!-- HACK: Scrim to obscure bottom rounded corners -->
+  <FrameLayout
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/place_sheet_corner_radius"
+    android:layout_gravity="bottom"
+    android:background="@color/colorGrey50"
+    android:elevation="3dp"/>
 
   <!-- TODO: Add drop shadow to top of circle and card -->
   <ImageView

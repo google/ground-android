@@ -83,4 +83,5 @@
   <dimen name="chip_toolbar_button_corner_radius">20dp</dimen>
   <dimen name="chip_toolbar_button_padding">10dp</dimen>
   <dimen name="toolbar_elevation">4dp</dimen>
+  <dimen name="place_sheet_header_padding_bottom">16dp</dimen>
 </resources>
