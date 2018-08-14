@@ -70,6 +70,9 @@ public class HomeScreenFragment extends AbstractFragment implements OnBackListen
   @BindView(R.id.toolbar)
   TwoLineToolbar toolbar;
 
+  @BindView(R.id.bottom_sheet_header)
+  ViewGroup bottomSheetHeader;
+
   @BindView(R.id.bottom_sheet_scroll_view)
   NestedScrollView bottomSheetScrollView;
 
@@ -110,7 +113,7 @@ public class HomeScreenFragment extends AbstractFragment implements OnBackListen
   public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
 
-    toolbarWrapper
+    getView()
       .getViewTreeObserver()
       .addOnGlobalLayoutListener(this::onToolbarLayout);
 
@@ -125,9 +128,11 @@ public class HomeScreenFragment extends AbstractFragment implements OnBackListen
   }
 
   private void onToolbarLayout() {
-    if (toolbarWrapper != null && bottomSheetScrollView != null) {
-      bottomSheetScrollView.setPadding(0, toolbarWrapper.getHeight(), 0, 0);
+    if (toolbarWrapper == null || bottomSheetBehavior == null || bottomSheetHeader == null) {
+      return;
     }
+    bottomSheetBehavior.setExpandedOffset(
+      toolbarWrapper.getHeight() - bottomSheetHeader.getHeight());
   }
 
   private void setUpBottomSheetBehavior() {

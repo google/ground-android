@@ -1,21 +1,17 @@
 /*
- * Copyright (C) 2015 The Android Open Source Project
- *
- * This is a modified version of
- * Modifications Copyright 2018 Google LLC
+ * Copyright 2018 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *     https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package com.google.android.gnd.ui.common;
@@ -43,7 +39,6 @@ import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.ViewParent;
-import com.google.android.gnd.R;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.ref.WeakReference;
@@ -54,7 +49,7 @@ import java.lang.ref.WeakReference;
  */
 public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behavior<V> {
 
-  private View bottomSheetHeader;
+  private int expandedOffset;
 
   /**
    * Callback for monitoring events about bottom sheets.
@@ -311,7 +306,6 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
       lastPeekHeight = peekHeight;
     }
     fitToContentsOffset = Math.max(0, parentHeight - child.getHeight());
-    fitToContentsOffset = -350;
     halfExpandedOffset = parentHeight / 2;
     calculateCollapsedOffset();
 
@@ -331,8 +325,6 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
     }
     viewRef = new WeakReference<>(child);
     nestedScrollingChildRef = new WeakReference<>(findScrollingChild(child));
-    // TODO: Find header by TAG or other means.
-    bottomSheetHeader = child.findViewById(R.id.bottom_sheet_header);
     return true;
   }
 
@@ -790,9 +782,19 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
     return velocityTracker.getYVelocity(activePointerId);
   }
 
+  // CUSTOM
+  public void setExpandedOffset(int expandedOffset) {
+    this.expandedOffset = expandedOffset;
+  }
+  // END CUSTOM
+
   private int getExpandedOffset() {
-    return -bottomSheetHeader.getHeight();
-    // return fitToContents ? fitToContentsOffset : 0;
+    // CUSTOM
+    if (expandedOffset != 0) {
+      return expandedOffset;
+    }
+    // END CUSTOM
+    return fitToContents ? fitToContentsOffset : 0;
   }
 
   void startSettlingAnimation(View child, int state) {
