@@ -59,7 +59,7 @@ import javax.inject.Inject;
  * runtime.
  */
 public class HomeScreenFragment extends AbstractFragment implements OnBackListener {
-  private static final float COLLAPSED_MAP_ASPECT_RATIO = 16.0f / 9.0f;
+  private static final float COLLAPSED_MAP_ASPECT_RATIO = 3.0f / 2.0f;
   private static final String TAG = HomeScreenFragment.class.getSimpleName();
 
   @Inject AddPlaceDialogFragment addPlaceDialogFragment;
@@ -97,9 +97,7 @@ public class HomeScreenFragment extends AbstractFragment implements OnBackListen
 
   @Override
   public View onCreateView(
-    LayoutInflater inflater,
-    ViewGroup container,
-    Bundle savedInstanceState) {
+    LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     return inflater.inflate(R.layout.home_screen_frag, container, false);
   }
 
@@ -113,9 +111,7 @@ public class HomeScreenFragment extends AbstractFragment implements OnBackListen
   public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
 
-    getView()
-      .getViewTreeObserver()
-      .addOnGlobalLayoutListener(this::onToolbarLayout);
+    getView().getViewTreeObserver().addOnGlobalLayoutListener(this::onToolbarLayout);
 
     if (savedInstanceState == null) {
       mapContainerFragment = new MapContainerFragment();
@@ -174,6 +170,21 @@ public class HomeScreenFragment extends AbstractFragment implements OnBackListen
   private void onApplyWindowInsets(WindowInsetsCompat insets) {
     bottomSheetBottomInsetScrim.setMinimumHeight(insets.getSystemWindowInsetBottom());
     toolbarWrapper.setPadding(0, insets.getSystemWindowInsetTop(), 0, 0);
+    updateBottomSheetPeekHeight(insets);
+  }
+
+  private void updateBottomSheetPeekHeight(WindowInsetsCompat insets) {
+    double width =
+      getScreenWidth(getActivity())
+        + insets.getSystemWindowInsetLeft()
+        + insets.getSystemWindowInsetRight();
+    double height =
+      getScreenHeight(getActivity())
+        + insets.getSystemWindowInsetTop()
+        + insets.getSystemWindowInsetBottom();
+    double mapHeight = width / COLLAPSED_MAP_ASPECT_RATIO;
+    double peekHeight = height - mapHeight;
+    bottomSheetBehavior.setPeekHeight((int) peekHeight);
   }
 
   private void onActiveProjectChange(Resource<Project> project) {
@@ -241,13 +252,6 @@ public class HomeScreenFragment extends AbstractFragment implements OnBackListen
   }
 
   private void showBottomSheet() {
-    double width = getScreenWidth(getActivity());
-    double screenHeight = getScreenHeight(getActivity());
-    double mapHeight = width / COLLAPSED_MAP_ASPECT_RATIO;
-    double peekHeight = screenHeight - mapHeight;
-    // TODO: Take window insets into account; COLLAPSED_MAP_ASPECT_RATIO will be wrong on older
-    // devices w/o translucent system windows.
-    bottomSheetBehavior.setPeekHeight((int) peekHeight);
     bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
     addRecordBtn.setVisibility(View.VISIBLE);
   }
