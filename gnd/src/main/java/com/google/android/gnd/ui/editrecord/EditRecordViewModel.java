@@ -84,7 +84,7 @@ public class EditRecordViewModel extends AbstractViewModel {
   public void onTextChanged(Field field, String text) {
     Log.v(TAG, "onTextChanged: " + field.getId());
 
-    onValueChanged(field, TextValue.fromString(text.trim()));
+    onValueChanged(field, TextValue.fromString(text));
   }
 
   public void onValueChanged(Field field, Optional<Value> newValue) {
@@ -191,7 +191,7 @@ public class EditRecordViewModel extends AbstractViewModel {
   private Stream<ValueUpdate> getChanges(Record r, Field field) {
     String fieldId = field.getId();
     Optional<Value> originalValue = r.getValue(fieldId);
-    Optional<Value> currentValue = getValue(fieldId);
+    Optional<Value> currentValue = getValue(fieldId).filter(v -> !v.isEmpty());
     if (currentValue.equals(originalValue)) {
       return stream(Collections.emptyList());
     }
@@ -229,7 +229,7 @@ public class EditRecordViewModel extends AbstractViewModel {
 
   private void updateError(Field field, Optional<Value> value) {
     String key = field.getId();
-    if (field.isRequired() && !value.isPresent()) {
+    if (field.isRequired() && !value.filter(v -> !v.isEmpty()).isPresent()) {
       Log.d(TAG, "Missing: " + key);
       errors.put(field.getId(), resources.getString(R.string.required_field));
     } else {

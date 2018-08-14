@@ -96,6 +96,8 @@ public abstract class Record {
     static String toString(Optional<Value> value) {
       return value.map(Value::toString).orElse("");
     }
+
+    boolean isEmpty();
   }
 
   public static class TextValue implements Value {
@@ -121,6 +123,11 @@ public abstract class Record {
     }
 
     @Override
+    public boolean isEmpty() {
+      return text.trim().isEmpty();
+    }
+
+    @Override
     public boolean equals(Object obj) {
       if (obj == null || !(obj instanceof TextValue)) {
         return false;
@@ -139,7 +146,6 @@ public abstract class Record {
     }
 
     public static Optional<Value> fromString(String text) {
-      text = text.trim();
       return text.isEmpty() ? Optional.empty() : Optional.of(new TextValue(text));
     }
   }
@@ -177,6 +183,11 @@ public abstract class Record {
           .map(Option::getLabel)
           .sorted()
           .collect(Collectors.joining(", "));
+    }
+
+    @Override
+    public boolean isEmpty() {
+      return choices.isEmpty();
     }
 
     @Override

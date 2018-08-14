@@ -92,7 +92,7 @@ public class RecordDoc {
 
   private static void putValue(Map<String, Value> values, String fieldId, Object obj) {
     if (obj instanceof String) {
-      TextValue.fromString(((String) obj)).ifPresent(v -> values.put(fieldId, v));
+      TextValue.fromString(((String) obj).trim()).ifPresent(v -> values.put(fieldId, v));
       // } else if (obj instanceof Float) {
       //   values.put(key, new NumberValue((Float) obj));
     } else if (obj instanceof List) {
