@@ -25,7 +25,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.view.WindowInsetsCompat;
-import android.support.v4.widget.NestedScrollView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -74,7 +73,7 @@ public class HomeScreenFragment extends AbstractFragment implements OnBackListen
   ViewGroup bottomSheetHeader;
 
   @BindView(R.id.bottom_sheet_scroll_view)
-  NestedScrollView bottomSheetScrollView;
+  View bottomSheetScrollView;
 
   @BindView(R.id.add_record_btn)
   View addRecordBtn;
@@ -85,7 +84,7 @@ public class HomeScreenFragment extends AbstractFragment implements OnBackListen
   private ProgressDialog progressDialog;
   private HomeScreenViewModel viewModel;
   private MapContainerFragment mapContainerFragment;
-  private BottomSheetBehavior<NestedScrollView> bottomSheetBehavior;
+  private BottomSheetBehavior<View> bottomSheetBehavior;
   private MainViewModel mainViewModel;
 
   @Override

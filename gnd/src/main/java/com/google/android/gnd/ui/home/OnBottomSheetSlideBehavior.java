@@ -19,7 +19,6 @@ package com.google.android.gnd.ui.home;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.support.design.widget.CoordinatorLayout;
-import android.support.v4.widget.NestedScrollView;
 import android.util.AttributeSet;
 import android.view.View;
 import com.google.android.gnd.R;
@@ -41,21 +40,17 @@ public abstract class OnBottomSheetSlideBehavior<V extends View>
 
   @Override
   public boolean onDependentViewChanged(CoordinatorLayout parent, V child, View dependency) {
-    if (!(dependency instanceof NestedScrollView)) {
-      return false;
-    }
-    NestedScrollView dataSheetView = (NestedScrollView) dependency;
-    onSheetScrolled(parent, child, new SheetSlideMetrics(parent, dataSheetView));
+    onSheetScrolled(parent, child, new SheetSlideMetrics(parent, dependency));
     return false;
   }
 
   public static class SheetSlideMetrics {
     private final CoordinatorLayout parent;
-    private final NestedScrollView nestedScrollView;
+    private final View view;
 
-    public SheetSlideMetrics(CoordinatorLayout parent, NestedScrollView nestedScrollView) {
+    public SheetSlideMetrics(CoordinatorLayout parent, View view) {
       this.parent = parent;
-      this.nestedScrollView = nestedScrollView;
+      this.view = view;
     }
 
     public static float scale(
@@ -83,7 +78,7 @@ public abstract class OnBottomSheetSlideBehavior<V extends View>
     }
 
     public float getVisibleRatio() {
-      return 1 - ((float) nestedScrollView.getTop()) / ((float) parent.getHeight());
+      return 1 - ((float) view.getTop()) / ((float) parent.getHeight());
     }
 
     public void showWithSheet(Drawable view, float hideThreshold, float showThreshold) {
@@ -107,19 +102,19 @@ public abstract class OnBottomSheetSlideBehavior<V extends View>
     }
 
     public int getVisibleHeight() {
-      return Math.max(parent.getHeight() - nestedScrollView.getTop(), 0);
+      return Math.max(parent.getHeight() - view.getTop(), 0);
     }
 
     public int getTop() {
-      return nestedScrollView.getTop();
+      return view.getTop();
     }
 
     public int getTabLayoutTop() {
-      return nestedScrollView.getTop() + nestedScrollView.getPaddingTop();
+      return view.getTop() + view.getPaddingTop();
     }
 
     public int getPeekHeight() {
-      return BottomSheetBehavior.from(nestedScrollView).getPeekHeight();
+      return BottomSheetBehavior.from(view).getPeekHeight();
     }
   }
 }

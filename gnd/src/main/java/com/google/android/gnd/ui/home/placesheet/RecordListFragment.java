@@ -61,7 +61,6 @@ public class RecordListFragment extends AbstractFragment {
       LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
     super.onCreateView(inflater, container, savedInstanceState);
     RecyclerView recyclerView = new RecyclerView(getContext());
-    recyclerView.setNestedScrollingEnabled(true);
     recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
     recyclerView.setAdapter(recordListAdapter);
     return recyclerView;

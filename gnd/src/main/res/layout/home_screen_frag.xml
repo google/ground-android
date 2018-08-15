@@ -15,80 +15,79 @@
   -->
 
 <android.support.design.widget.CoordinatorLayout
-  xmlns:android="http://schemas.android.com/apk/res/android"
-  xmlns:app="http://schemas.android.com/apk/res-auto"
-  android:layout_width="match_parent"
-  android:layout_height="match_parent">
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
   <FrameLayout
-    android:id="@+id/map_container_fragment"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    app:layout_behavior="com.google.android.gnd.ui.home.mapcontainer.MapContainerLayoutBehavior"/>
+      android:id="@+id/map_container_fragment"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      app:layout_behavior="com.google.android.gnd.ui.home.mapcontainer.MapContainerLayoutBehavior"/>
 
   <!-- TODO: Move place sheet and chrome into separate layout files. -->
 
-  <android.support.v4.widget.NestedScrollView
-    android:id="@+id/bottom_sheet_scroll_view"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:fillViewport="true"
+  <FrameLayout
+      android:id="@+id/bottom_sheet_scroll_view"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
       app:layout_behavior="com.google.android.gnd.ui.common.BottomSheetBehavior">
 
     <fragment
-      android:id="@+id/place_sheet_fragment"
-      android:layout_width="match_parent"
-      android:layout_height="match_parent"
-      android:name="com.google.android.gnd.ui.home.placesheet.PlaceSheetFragment"/>
+        android:id="@+id/place_sheet_fragment"
+        android:name="com.google.android.gnd.ui.home.placesheet.PlaceSheetFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
 
-  </android.support.v4.widget.NestedScrollView>
+  </FrameLayout>
 
   <RelativeLayout
-    android:id="@+id/bottom_sheet_chrome"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    app:layout_behavior="com.google.android.gnd.ui.home.BottomSheetChromeBehavior">
+      android:id="@+id/bottom_sheet_chrome"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      app:layout_behavior="com.google.android.gnd.ui.home.BottomSheetChromeBehavior">
 
     <FrameLayout
-      android:id="@+id/toolbar_wrapper"
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:layout_alignParentTop="true"
-      android:background="@color/colorPrimary"
-      android:translationY="-1000dp">
+        android:id="@+id/toolbar_wrapper"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:background="@color/colorPrimary"
+        android:translationY="-1000dp">
 
       <com.google.android.gnd.ui.common.TwoLineToolbar
-        android:id="@+id/toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:elevation="@dimen/toolbar_elevation"
-        android:theme="@style/GreenToolbarTheme"/>
+          android:id="@+id/toolbar"
+          android:layout_width="match_parent"
+          android:layout_height="?attr/actionBarSize"
+          android:elevation="@dimen/toolbar_elevation"
+          android:theme="@style/GreenToolbarTheme"/>
 
     </FrameLayout>
 
     <android.support.design.chip.Chip
-      android:id="@+id/add_record_btn"
-      style="@style/ChipButton"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:layout_marginBottom="@dimen/chip_button_margin_bottom"
-      android:layout_marginRight="@dimen/chip_button_margin_right"
-      android:layout_above="@id/bottom_sheet_bottom_inset_scrim"
-      android:layout_alignParentEnd="true"
-      android:layout_alignParentRight="true"
-      android:elevation="6dp"
-      android:visibility="gone"
-      app:chipIcon="@drawable/ic_add_light"
-      app:chipText="@string/add_record_button_label"
-      app:useCompatPadding="true"/>
+        android:id="@+id/add_record_btn"
+        style="@style/ChipButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/chip_button_margin_bottom"
+        android:layout_marginRight="@dimen/chip_button_margin_right"
+        android:layout_above="@id/bottom_sheet_bottom_inset_scrim"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:elevation="6dp"
+        android:visibility="gone"
+        app:chipIcon="@drawable/ic_add_light"
+        app:chipText="@string/add_record_button_label"
+        app:useCompatPadding="true"/>
 
     <!-- Prevents place sheet UI from bleeding through to navigation buttons when expanded. -->
     <FrameLayout
-      android:id="@+id/bottom_sheet_bottom_inset_scrim"
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:layout_alignParentBottom="true"
-      android:alpha="0"
-      android:background="@color/colorGrey50"/>
+        android:id="@+id/bottom_sheet_bottom_inset_scrim"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:alpha="0"
+        android:background="@color/colorGrey50"/>
   </RelativeLayout>
 </android.support.design.widget.CoordinatorLayout>
