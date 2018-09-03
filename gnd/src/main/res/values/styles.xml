@@ -22,13 +22,14 @@
   <style name="MenuTheme" parent="TextAppearance.AppCompat.Widget.ActionBar.Menu">
 
   </style>
-
+  x
   <style name="AppTheme.Base" parent="Theme.AppCompat.Light.NoActionBar">
     <item name="colorPrimary">@color/colorPrimary</item>
     <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
     <item name="colorAccent">@color/colorAccent</item>I
     <item name="windowActionBar">false</item>
     <item name="windowNoTitle">true</item>
+
   </style>
 
   <style name="GreenToolbarTheme" parent="ThemeOverlay.AppCompat.Dark.ActionBar">

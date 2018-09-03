@@ -29,7 +29,6 @@
     <!-- Support library compatibility -->
     <item name="windowActionBar">false</item>
     <item name="windowActionBarOverlay">true</item>
-
   </style>
 
   <style name="ToolbarTheme" parent="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
