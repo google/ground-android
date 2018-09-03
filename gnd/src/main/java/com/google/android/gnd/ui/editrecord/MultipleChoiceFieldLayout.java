@@ -53,10 +53,7 @@ public class MultipleChoiceFieldLayout extends FrameLayout {
   @OnFocusChange(R.id.multiple_choice_input_edit_text)
   void onFocusChange(View target, boolean hasFocus) {
     if (hasFocus) {
-      editText.setEnabled(false);
       showDialogListener.run();
-    } else {
-      editText.setEnabled(true);
     }
   }
 
