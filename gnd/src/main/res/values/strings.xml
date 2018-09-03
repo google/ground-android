@@ -135,5 +135,6 @@
   <string name="save_record_button_label">Save</string>
   <string name="saving">Saving...</string>
   <string name="no_changes_to_save">No changes to save</string>
+  <string name="select_project_menu_item">Select project</string>
 
 </resources>

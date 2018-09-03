@@ -99,6 +99,7 @@ dependencies {
     // Firebase and related libraries.
     implementation "com.google.firebase:firebase-core:$project.firebaseVersion"
     implementation "com.google.firebase:firebase-firestore:$project.firebaseVersion"
+    implementation "com.google.firebase:firebase-auth:$project.firebaseVersion"
     implementation "com.github.frangsierra:rx2firebase:$project.rxFirebaseVersion"
 
     // Dagger core
@@ -144,7 +145,8 @@ dependencies {
     implementation "com.uber.autodispose:autodispose-android-archcomponents:$project.autoDisposeVersion"
 }
 
+apply plugin: 'androidx.navigation.safeargs'
+
 // This must be last to avoid dependency collisions.
 // https://developers.google.com/android/guides/google-services-plugin#introduction
 apply plugin: 'com.google.gms.google-services'
-apply plugin: 'androidx.navigation.safeargs'

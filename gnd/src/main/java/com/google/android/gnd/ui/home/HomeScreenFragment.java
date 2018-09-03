@@ -24,7 +24,9 @@ import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.NavigationView;
 import android.support.v4.view.WindowInsetsCompat;
+import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -69,6 +71,12 @@ public class HomeScreenFragment extends AbstractFragment implements OnBackListen
   @BindView(R.id.toolbar)
   TwoLineToolbar toolbar;
 
+  @BindView(R.id.drawer_layout)
+  DrawerLayout drawerLayout;
+
+  @BindView(R.id.nav_view)
+  NavigationView navView;
+
   @BindView(R.id.bottom_sheet_header)
   ViewGroup bottomSheetHeader;
 
@@ -109,6 +117,9 @@ public class HomeScreenFragment extends AbstractFragment implements OnBackListen
   @Override
   public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
+
+    // Ensure nav drawer cannot be swiped out, which would conflict with map pan gestures.
+    drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
 
     getView().getViewTreeObserver().addOnGlobalLayoutListener(this::onToolbarLayout);
 
