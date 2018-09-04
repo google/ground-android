@@ -16,8 +16,6 @@
 
 package com.google.android.gnd.ui.common;
 
-import static com.google.android.gnd.util.Debug.logLifecycleEvent;
-
 import android.arch.lifecycle.ViewModel;
 import android.content.Context;
 import android.os.Bundle;
@@ -28,13 +26,17 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import javax.inject.Inject;
+
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
 import dagger.android.AndroidInjector;
 import dagger.android.DispatchingAndroidInjector;
 import dagger.android.support.AndroidSupportInjection;
 import dagger.android.support.HasSupportFragmentInjector;
-import javax.inject.Inject;
+
+import static com.google.android.gnd.util.Debug.logLifecycleEvent;
 
 public abstract class AbstractFragment extends Fragment implements HasSupportFragmentInjector {
   /**
@@ -43,8 +45,7 @@ public abstract class AbstractFragment extends Fragment implements HasSupportFra
    */
   private Unbinder unbinder;
 
-  @Inject
-  ViewModelFactory viewModelFactory;
+  @Inject ViewModelFactory viewModelFactory;
 
   @Inject DispatchingAndroidInjector<Fragment> childFragmentInjector;
 

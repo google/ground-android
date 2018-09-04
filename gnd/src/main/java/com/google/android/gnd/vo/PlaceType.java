@@ -16,12 +16,14 @@
 
 package com.google.android.gnd.vo;
 
-import static java8.util.stream.StreamSupport.stream;
-
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
-import java8.util.Optional;
+
 import javax.annotation.Nullable;
+
+import java8.util.Optional;
+
+import static java8.util.stream.StreamSupport.stream;
 
 @AutoValue
 public abstract class PlaceType {

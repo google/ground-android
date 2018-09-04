@@ -20,10 +20,8 @@ import static com.google.android.gnd.rx.RxAutoDispose.autoDisposable;
 
 public class StartupFragment extends AbstractFragment {
   private static final String TAG = StartupFragment.class.getSimpleName();
-  @Inject
-  GoogleApiManager googleApiManager;
-  @Inject
-  AuthenticationManager authenticationManager;
+  @Inject GoogleApiManager googleApiManager;
+  @Inject AuthenticationManager authenticationManager;
 
   @Override
   public void onStart() {
@@ -46,8 +44,7 @@ public class StartupFragment extends AbstractFragment {
     //    FirebaseAuth.getInstance().signOut();
   }
 
-  private void openHomeScreen() {
-  }
+  private void openHomeScreen() {}
 
   private void onGooglePlayServicesInstallError(Throwable throwable) {
     Log.e(TAG, "Google Play Services install failed", throwable);
@@ -64,9 +61,8 @@ public class StartupFragment extends AbstractFragment {
   }
 
   @Override
-  public View onCreateView(LayoutInflater inflater,
-      ViewGroup container,
-      Bundle savedInstanceState) {
+  public View onCreateView(
+      LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     return inflater.inflate(R.layout.startup_frag, container, false);
   }
 }

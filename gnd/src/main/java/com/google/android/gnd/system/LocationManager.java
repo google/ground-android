@@ -16,21 +16,24 @@
 
 package com.google.android.gnd.system;
 
-import static android.Manifest.permission.ACCESS_FINE_LOCATION;
-
 import android.annotation.SuppressLint;
 import android.app.Application;
 import android.location.Location;
 import android.util.Log;
+
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gnd.inject.PerActivity;
 import com.google.android.gnd.rx.RxLocationServices;
 import com.google.android.gnd.rx.RxLocationServices.RxFusedLocationProviderClient;
 import com.google.android.gnd.vo.Point;
+
+import javax.inject.Inject;
+
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
-import javax.inject.Inject;
+
+import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 
 @PerActivity
 public class LocationManager {

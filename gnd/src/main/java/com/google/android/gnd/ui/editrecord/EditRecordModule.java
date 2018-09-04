@@ -17,8 +17,10 @@
 package com.google.android.gnd.ui.editrecord;
 
 import android.support.v4.app.Fragment;
+
 import com.google.android.gnd.inject.PerFragment;
 import com.google.android.gnd.ui.common.AbstractFragmentModule;
+
 import dagger.Binds;
 import dagger.Module;
 
@@ -29,5 +31,4 @@ public abstract class EditRecordModule {
   @Binds
   @PerFragment
   abstract Fragment fragment(EditRecordFragment fragment);
-
 }

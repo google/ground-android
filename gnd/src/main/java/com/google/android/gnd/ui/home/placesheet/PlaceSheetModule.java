@@ -18,8 +18,10 @@ package com.google.android.gnd.ui.home.placesheet;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+
 import com.google.android.gnd.inject.PerFragment;
 import com.google.android.gnd.ui.common.AbstractFragmentModule;
+
 import dagger.Module;
 import dagger.Provides;
 

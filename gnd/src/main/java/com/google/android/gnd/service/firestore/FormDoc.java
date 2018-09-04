@@ -16,11 +16,6 @@
 
 package com.google.android.gnd.service.firestore;
 
-import static com.google.android.gnd.util.Enums.toEnum;
-import static com.google.android.gnd.util.Localization.getLocalizedMessage;
-import static com.google.android.gnd.util.Streams.toImmutableList;
-import static java8.util.stream.StreamSupport.stream;
-
 import com.google.android.gnd.vo.Form;
 import com.google.android.gnd.vo.Form.Field;
 import com.google.android.gnd.vo.Form.Field.Type;
@@ -28,11 +23,18 @@ import com.google.android.gnd.vo.Form.MultipleChoice;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.IgnoreExtraProperties;
 import com.google.firebase.firestore.ServerTimestamp;
+
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import java8.util.Optional;
+
+import static com.google.android.gnd.util.Enums.toEnum;
+import static com.google.android.gnd.util.Localization.getLocalizedMessage;
+import static com.google.android.gnd.util.Streams.toImmutableList;
+import static java8.util.stream.StreamSupport.stream;
 
 @IgnoreExtraProperties
 public class FormDoc {

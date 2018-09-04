@@ -21,6 +21,7 @@ import android.support.design.widget.CoordinatorLayout;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.FrameLayout;
+
 import com.google.android.gnd.R;
 import com.google.android.gnd.ui.home.OnBottomSheetSlideBehavior;
 

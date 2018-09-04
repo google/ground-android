@@ -75,33 +75,34 @@ public class AuthenticationManager {
     FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
     firebaseAuth
         .signInWithCredential(credential)
-        .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-          @Override
-          public void onComplete(@NonNull Task<AuthResult> task) {
-            if (task.isSuccessful()) {
-              // Sign in success, update UI with the signed-in user's information
-              Log.d(TAG, "signInWithCredential:success");
-              // TODO: Update UI
-              //                  FirebaseUser user = firebaseAuth.getCurrentUser();
+        .addOnCompleteListener(
+            new OnCompleteListener<AuthResult>() {
+              @Override
+              public void onComplete(@NonNull Task<AuthResult> task) {
+                if (task.isSuccessful()) {
+                  // Sign in success, update UI with the signed-in user's information
+                  Log.d(TAG, "signInWithCredential:success");
+                  // TODO: Update UI
+                  //                  FirebaseUser user = firebaseAuth.getCurrentUser();
 
-              Log.i(TAG, "User logged in");
-              // TODO: Move into its own fragment.
-              // TODO: Move into AuthenticationService?
-              // TODO: Store/update user profile in Firestore.
-              // TODO: Store/update user profile and image locally.
-              //               updateUI(user);
-            } else {
-              // If sign in fails, display a message to the user.
-              Log.w(TAG, "signInWithCredential:failure", task.getException());
-              // TODO: Log error.
-              //               Snackbar
-              //                 .make(findViewById(R.id.main_layout), "Authentication Failed.",
-              // Snackbar.LENGTH_SHORT).show();
-              //               updateUI(null);
-            }
+                  Log.i(TAG, "User logged in");
+                  // TODO: Move into its own fragment.
+                  // TODO: Move into AuthenticationService?
+                  // TODO: Store/update user profile in Firestore.
+                  // TODO: Store/update user profile and image locally.
+                  //               updateUI(user);
+                } else {
+                  // If sign in fails, display a message to the user.
+                  Log.w(TAG, "signInWithCredential:failure", task.getException());
+                  // TODO: Log error.
+                  //               Snackbar
+                  //                 .make(findViewById(R.id.main_layout), "Authentication Failed.",
+                  // Snackbar.LENGTH_SHORT).show();
+                  //               updateUI(null);
+                }
 
-            // ...
-          }
-        });
+                // ...
+              }
+            });
   }
 }

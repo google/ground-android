@@ -16,14 +16,15 @@
 
 package com.google.android.gnd.service.firestore;
 
-import static com.google.android.gnd.util.Localization.getLocalizedMessage;
-
 import com.google.android.gnd.vo.Form;
 import com.google.android.gnd.vo.PlaceType;
 import com.google.common.collect.ImmutableList;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.IgnoreExtraProperties;
+
 import java.util.Map;
+
+import static com.google.android.gnd.util.Localization.getLocalizedMessage;
 
 @IgnoreExtraProperties
 public class PlaceTypeDoc {

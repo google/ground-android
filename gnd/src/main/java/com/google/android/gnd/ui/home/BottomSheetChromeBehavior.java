@@ -16,14 +16,15 @@
 
 package com.google.android.gnd.ui.home;
 
-import static com.google.android.gnd.ui.home.OnBottomSheetSlideBehavior.SheetSlideMetrics.scale;
-
 import android.content.Context;
 import android.support.design.widget.CoordinatorLayout;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
+
 import com.google.android.gnd.R;
+
+import static com.google.android.gnd.ui.home.OnBottomSheetSlideBehavior.SheetSlideMetrics.scale;
 
 public class BottomSheetChromeBehavior extends OnBottomSheetSlideBehavior<ViewGroup> {
   // TODO: Refactor transitions into "TransitionEffect" classes.

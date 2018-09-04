@@ -59,15 +59,12 @@ import static com.google.android.gnd.util.Debug.logLifecycleEvent;
 public class MainActivity extends AppCompatActivity implements HasSupportFragmentInjector {
 
   private static final String TAG = MainActivity.class.getSimpleName();
-  private static final int RC_SIGN_IN = 1234;
 
   @Inject ViewModelFactory viewModelFactory;
   @Inject PermissionsManager permissionsManager;
   @Inject SettingsManager settingsManager;
-  @Inject
-  GoogleApiManager googleApiManager;
-  @Inject
-  AuthenticationManager authenticationManager;
+  @Inject GoogleApiManager googleApiManager;
+  @Inject AuthenticationManager authenticationManager;
   @Inject RemoteDataService remoteDataService;
   @Inject DataRepository model;
   @Inject DispatchingAndroidInjector<Fragment> fragmentInjector;
@@ -95,8 +92,8 @@ public class MainActivity extends AppCompatActivity implements HasSupportFragmen
 
     viewModel = viewModelFactory.get(this, MainViewModel.class);
 
-    ViewCompat.setOnApplyWindowInsetsListener(getWindow().getDecorView().getRootView(),
-                                              viewModel::onApplyWindowInsets);
+    ViewCompat.setOnApplyWindowInsetsListener(
+        getWindow().getDecorView().getRootView(), viewModel::onApplyWindowInsets);
 
     permissionsManager
         .getPermissionsRequests()

@@ -20,18 +20,21 @@ import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
 import android.util.Log;
+
 import com.google.android.gms.common.api.ResolvableApiException;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.LocationSettingsStatusCodes;
 import com.google.android.gnd.rx.RxLocationServices;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
 import io.reactivex.Completable;
 import io.reactivex.CompletableEmitter;
 import io.reactivex.Observable;
 import io.reactivex.subjects.PublishSubject;
 import io.reactivex.subjects.Subject;
-import javax.inject.Inject;
-import javax.inject.Singleton;
 
 @Singleton
 public class SettingsManager {

@@ -16,9 +16,6 @@
 
 package com.google.android.gnd.ui.projectselector;
 
-import static com.google.android.gnd.rx.RxAutoDispose.autoDisposable;
-import static java8.util.stream.StreamSupport.stream;
-
 import android.app.Dialog;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -30,14 +27,20 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import butterknife.BindView;
-import butterknife.ButterKnife;
+
 import com.google.android.gnd.R;
 import com.google.android.gnd.repository.Resource;
 import com.google.android.gnd.ui.common.AbstractDialogFragment;
 import com.google.android.gnd.ui.common.EphemeralPopups;
 import com.google.android.gnd.vo.Project;
+
 import java.util.List;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
+import static com.google.android.gnd.rx.RxAutoDispose.autoDisposable;
+import static java8.util.stream.StreamSupport.stream;
 
 public class ProjectSelectorDialogFragment extends AbstractDialogFragment {
 

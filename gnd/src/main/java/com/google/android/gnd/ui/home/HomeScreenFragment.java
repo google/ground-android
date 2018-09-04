@@ -16,10 +16,6 @@
 
 package com.google.android.gnd.ui.home;
 
-import static com.google.android.gnd.rx.RxAutoDispose.autoDisposable;
-import static com.google.android.gnd.ui.util.ViewUtil.getScreenHeight;
-import static com.google.android.gnd.ui.util.ViewUtil.getScreenWidth;
-
 import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -33,9 +29,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import androidx.navigation.fragment.NavHostFragment;
-import butterknife.BindView;
-import butterknife.OnClick;
+
 import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.MainViewModel;
 import com.google.android.gnd.R;
@@ -52,7 +46,16 @@ import com.google.android.gnd.vo.Form;
 import com.google.android.gnd.vo.Place;
 import com.google.android.gnd.vo.Point;
 import com.google.android.gnd.vo.Project;
+
 import javax.inject.Inject;
+
+import androidx.navigation.fragment.NavHostFragment;
+import butterknife.BindView;
+import butterknife.OnClick;
+
+import static com.google.android.gnd.rx.RxAutoDispose.autoDisposable;
+import static com.google.android.gnd.ui.util.ViewUtil.getScreenHeight;
+import static com.google.android.gnd.ui.util.ViewUtil.getScreenWidth;
 
 /**
  * Fragment containing the map container and place sheet fragments. This is the default view in the
@@ -104,7 +107,7 @@ public class HomeScreenFragment extends AbstractFragment implements OnBackListen
 
   @Override
   public View onCreateView(
-    LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+      LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     return inflater.inflate(R.layout.home_screen_frag, container, false);
   }
 
@@ -138,7 +141,7 @@ public class HomeScreenFragment extends AbstractFragment implements OnBackListen
       return;
     }
     bottomSheetBehavior.setExpandedOffset(
-      toolbarWrapper.getHeight() - bottomSheetHeader.getHeight());
+        toolbarWrapper.getHeight() - bottomSheetHeader.getHeight());
   }
 
   private void setUpBottomSheetBehavior() {
@@ -185,13 +188,13 @@ public class HomeScreenFragment extends AbstractFragment implements OnBackListen
 
   private void updateBottomSheetPeekHeight(WindowInsetsCompat insets) {
     double width =
-      getScreenWidth(getActivity())
-        + insets.getSystemWindowInsetLeft()
-        + insets.getSystemWindowInsetRight();
+        getScreenWidth(getActivity())
+            + insets.getSystemWindowInsetLeft()
+            + insets.getSystemWindowInsetRight();
     double height =
-      getScreenHeight(getActivity())
-        + insets.getSystemWindowInsetTop()
-        + insets.getSystemWindowInsetBottom();
+        getScreenHeight(getActivity())
+            + insets.getSystemWindowInsetTop()
+            + insets.getSystemWindowInsetBottom();
     double mapHeight = width / COLLAPSED_MAP_ASPECT_RATIO;
     double peekHeight = height - mapHeight;
     bottomSheetBehavior.setPeekHeight((int) peekHeight);
@@ -230,9 +233,9 @@ public class HomeScreenFragment extends AbstractFragment implements OnBackListen
     }
     Place place = placeSheetState.getPlace();
     NavHostFragment.findNavController(this)
-                   .navigate(
-                     HomeScreenFragmentDirections.addRecord(
-                       place.getProject().getId(), place.getId(), form.getId()));
+        .navigate(
+            HomeScreenFragmentDirections.addRecord(
+                place.getProject().getId(), place.getId(), form.getId()));
   }
 
   private void onShowAddPlaceDialogRequest(Point location) {
@@ -242,9 +245,9 @@ public class HomeScreenFragment extends AbstractFragment implements OnBackListen
     // TODO: Pause location updates while dialog is open.
     // TODO: Show spinner?
     addPlaceDialogFragment
-      .show(getChildFragmentManager())
-      .as(autoDisposable(this))
-      .subscribe(viewModel::addPlace);
+        .show(getChildFragmentManager())
+        .as(autoDisposable(this))
+        .subscribe(viewModel::addPlace);
   }
 
   private void onPlaceSheetStateChange(PlaceSheetState state) {
@@ -273,7 +276,7 @@ public class HomeScreenFragment extends AbstractFragment implements OnBackListen
 
   private void showProjectLoadingDialog() {
     progressDialog =
-      ProgressDialogs.modalSpinner(getContext(), R.string.project_loading_please_wait);
+        ProgressDialogs.modalSpinner(getContext(), R.string.project_loading_please_wait);
     progressDialog.show();
   }
 

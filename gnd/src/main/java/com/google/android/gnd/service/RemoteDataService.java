@@ -21,9 +21,11 @@ import com.google.android.gnd.vo.PlaceUpdate.RecordUpdate.ValueUpdate;
 import com.google.android.gnd.vo.Project;
 import com.google.android.gnd.vo.Record;
 import com.google.common.collect.ImmutableList;
+
+import java.util.List;
+
 import io.reactivex.Flowable;
 import io.reactivex.Single;
-import java.util.List;
 
 /**
  * Data service is treated as if it's remote, though implementations may cache data locally as well.
@@ -39,9 +41,7 @@ public interface RemoteDataService {
 
   Single<Record> loadRecordDetails(Place place, String recordId);
 
-  Single<Record> saveChanges(
-    Record record,
-    ImmutableList<ValueUpdate> updates);
+  Single<Record> saveChanges(Record record, ImmutableList<ValueUpdate> updates);
 
   Single<Place> addPlace(Place place);
 }

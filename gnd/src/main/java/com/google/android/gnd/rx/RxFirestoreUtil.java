@@ -16,18 +16,21 @@
 
 package com.google.android.gnd.rx;
 
-import static java8.util.stream.StreamSupport.stream;
-
 import android.support.annotation.NonNull;
+
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
-import io.reactivex.Maybe;
-import io.reactivex.Single;
+
 import java.util.Collections;
 import java.util.List;
+
+import io.reactivex.Maybe;
+import io.reactivex.Single;
 import java8.util.function.Function;
 import java8.util.stream.Collectors;
 import java8.util.stream.Stream;
+
+import static java8.util.stream.StreamSupport.stream;
 
 public abstract class RxFirestoreUtil {
   /** Container for static helper methods. Do not instantiate. */

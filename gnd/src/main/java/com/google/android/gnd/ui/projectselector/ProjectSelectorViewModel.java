@@ -17,14 +17,18 @@ package com.google.android.gnd.ui.projectselector;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
+
 import com.google.android.gnd.repository.DataRepository;
 import com.google.android.gnd.repository.Resource;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.vo.Project;
-import io.reactivex.Completable;
+
 import java.util.Collections;
 import java.util.List;
+
 import javax.inject.Inject;
+
+import io.reactivex.Completable;
 
 public class ProjectSelectorViewModel extends AbstractViewModel {
   private static final String TAG = ProjectSelectorViewModel.class.getSimpleName();
@@ -49,9 +53,9 @@ public class ProjectSelectorViewModel extends AbstractViewModel {
 
   Completable activateProject(int position) {
     return dataRepository.activateProject(
-      Resource.getData(this.projectSummaries)
-              .orElse(Collections.emptyList())
-              .get(position)
-              .getId());
+        Resource.getData(this.projectSummaries)
+            .orElse(Collections.emptyList())
+            .get(position)
+            .getId());
   }
 }

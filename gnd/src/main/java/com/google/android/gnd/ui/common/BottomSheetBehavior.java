@@ -16,8 +16,6 @@
 
 package com.google.android.gnd.ui.common;
 
-import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
-
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.os.Parcel;
@@ -39,9 +37,12 @@ import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.ViewParent;
+
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.ref.WeakReference;
+
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 /**
  * An interaction behavior plugin for a child view of {@link CoordinatorLayout} to make it work as a
@@ -51,9 +52,7 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
 
   private int expandedOffset;
 
-  /**
-   * Callback for monitoring events about bottom sheets.
-   */
+  /** Callback for monitoring events about bottom sheets. */
   public abstract static class BottomSheetCallback {
 
     /**
@@ -61,8 +60,8 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
      *
      * @param bottomSheet The bottom sheet view.
      * @param newState The new state. This will be one of {@link #STATE_DRAGGING}, {@link
-     * #STATE_SETTLING}, {@link #STATE_EXPANDED}, {@link #STATE_COLLAPSED}, {@link #STATE_HIDDEN},
-     * or {@link #STATE_HALF_EXPANDED}.
+     *     #STATE_SETTLING}, {@link #STATE_EXPANDED}, {@link #STATE_COLLAPSED}, {@link
+     *     #STATE_HIDDEN}, or {@link #STATE_HALF_EXPANDED}.
      */
     public abstract void onStateChanged(@NonNull View bottomSheet, @State int newState);
 
@@ -71,58 +70,42 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
      *
      * @param bottomSheet The bottom sheet view.
      * @param slideOffset The new offset of this bottom sheet within [-1,1] range. Offset increases
-     * as this bottom sheet is moving upward. From 0 to 1 the sheet is between collapsed and
-     * expanded states and from -1 to 0 it is between hidden and collapsed states.
+     *     as this bottom sheet is moving upward. From 0 to 1 the sheet is between collapsed and
+     *     expanded states and from -1 to 0 it is between hidden and collapsed states.
      */
     public abstract void onSlide(@NonNull View bottomSheet, float slideOffset);
   }
 
-  /**
-   * The bottom sheet is dragging.
-   */
+  /** The bottom sheet is dragging. */
   public static final int STATE_DRAGGING = 1;
 
-  /**
-   * The bottom sheet is settling.
-   */
+  /** The bottom sheet is settling. */
   public static final int STATE_SETTLING = 2;
 
-  /**
-   * The bottom sheet is expanded.
-   */
+  /** The bottom sheet is expanded. */
   public static final int STATE_EXPANDED = 3;
 
-  /**
-   * The bottom sheet is collapsed.
-   */
+  /** The bottom sheet is collapsed. */
   public static final int STATE_COLLAPSED = 4;
 
-  /**
-   * The bottom sheet is hidden.
-   */
+  /** The bottom sheet is hidden. */
   public static final int STATE_HIDDEN = 5;
 
-  /**
-   * The bottom sheet is half-expanded (used when mFitToContents is false).
-   */
+  /** The bottom sheet is half-expanded (used when mFitToContents is false). */
   public static final int STATE_HALF_EXPANDED = 6;
 
-  /**
-   * @hide
-   */
+  /** @hide */
   @RestrictTo(LIBRARY_GROUP)
   @IntDef({
-      STATE_EXPANDED,
-      STATE_COLLAPSED,
-      STATE_DRAGGING,
-      STATE_SETTLING,
-      STATE_HIDDEN,
-      STATE_HALF_EXPANDED
+    STATE_EXPANDED,
+    STATE_COLLAPSED,
+    STATE_DRAGGING,
+    STATE_SETTLING,
+    STATE_HIDDEN,
+    STATE_HALF_EXPANDED
   })
   @Retention(RetentionPolicy.SOURCE)
-  public @interface State {
-
-  }
+  public @interface State {}
 
   /**
    * Peek at the 16:9 ratio keyline of its parent.
@@ -140,24 +123,16 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
 
   private float maximumVelocity;
 
-  /**
-   * Peek height set by the user.
-   */
+  /** Peek height set by the user. */
   private int peekHeight;
 
-  /**
-   * Whether or not to use automatic peek height.
-   */
+  /** Whether or not to use automatic peek height. */
   private boolean peekHeightAuto;
 
-  /**
-   * Minimum peek height permitted.
-   */
+  /** Minimum peek height permitted. */
   private int peekHeightMin;
 
-  /**
-   * The last peek height calculated in onLayoutChild.
-   */
+  /** The last peek height calculated in onLayoutChild. */
   private int lastPeekHeight;
 
   int fitToContentsOffset;
@@ -170,8 +145,7 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
 
   private boolean skipCollapsed;
 
-  @State
-  int state = STATE_COLLAPSED;
+  @State int state = STATE_COLLAPSED;
 
   ViewDragHelper viewDragHelper;
 
@@ -197,11 +171,8 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
 
   boolean touchingScrollingChild;
 
-  /**
-   * Default constructor for instantiating BottomSheetBehaviors.
-   */
-  public BottomSheetBehavior() {
-  }
+  /** Default constructor for instantiating BottomSheetBehaviors. */
+  public BottomSheetBehavior() {}
 
   /**
    * Default constructor for inflating BottomSheetBehaviors from layout.
@@ -545,13 +516,13 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
       float velocityY) {
     return target == nestedScrollingChildRef.get()
         && (state != STATE_EXPANDED
-        || super.onNestedPreFling(coordinatorLayout, child, target, velocityX, velocityY));
+            || super.onNestedPreFling(coordinatorLayout, child, target, velocityX, velocityY));
   }
 
   /**
    * @return whether the height of the expanded sheet is determined by the height of its contents,
-   * or if it is expanded in two stages (half the height of the parent container, full height of
-   * parent container).
+   *     or if it is expanded in two stages (half the height of the parent container, full height of
+   *     parent container).
    */
   public boolean isFitToContents() {
     return fitToContents;
@@ -583,7 +554,7 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
    * Sets the height of the bottom sheet when it is collapsed.
    *
    * @param peekHeight The height of the collapsed bottom sheet in pixels, or {@link
-   * #PEEK_HEIGHT_AUTO} to configure the sheet to peek automatically at 16:9 ratio keyline.
+   *     #PEEK_HEIGHT_AUTO} to configure the sheet to peek automatically at 16:9 ratio keyline.
    * @attr ref android.support.design.R.styleable#BottomSheetBehavior_Layout_behavior_peekHeight
    */
   public final void setPeekHeight(int peekHeight) {
@@ -611,7 +582,7 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
    * Gets the height of the bottom sheet when it is collapsed.
    *
    * @return The height of the collapsed bottom sheet in pixels, or {@link #PEEK_HEIGHT_AUTO} if the
-   * sheet is configured to peek automatically at 16:9 ratio keyline
+   *     sheet is configured to peek automatically at 16:9 ratio keyline
    * @attr ref android.support.design.R.styleable#BottomSheetBehavior_Layout_behavior_peekHeight
    */
   public final int getPeekHeight() {
@@ -674,7 +645,7 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
    * animation.
    *
    * @param state One of {@link #STATE_COLLAPSED}, {@link #STATE_EXPANDED}, {@link #STATE_HIDDEN},
-   * or {@link #STATE_HALF_EXPANDED}.
+   *     or {@link #STATE_HALF_EXPANDED}.
    */
   public final void setState(@State int state) {
     if (state == this.state) {
@@ -714,7 +685,7 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
    * Gets the current state of the bottom sheet.
    *
    * @return One of {@link #STATE_EXPANDED}, {@link #STATE_HALF_EXPANDED}, {@link #STATE_COLLAPSED},
-   * {@link #STATE_DRAGGING}, {@link #STATE_SETTLING}, or {@link #STATE_HALF_EXPANDED}.
+   *     {@link #STATE_DRAGGING}, {@link #STATE_SETTLING}, or {@link #STATE_HALF_EXPANDED}.
    */
   @State
   public final int getState() {
@@ -965,8 +936,7 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
 
     private final View view;
 
-    @State
-    private final int targetState;
+    @State private final int targetState;
 
     SettleRunnable(View view, @State int targetState) {
       this.view = view;
@@ -985,8 +955,7 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
 
   protected static class SavedState extends AbsSavedState {
 
-    @State
-    final int state;
+    @State final int state;
 
     public SavedState(Parcel source) {
       this(source, null);

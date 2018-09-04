@@ -16,18 +16,19 @@
 
 package com.google.android.gnd.service.firestore;
 
-import static com.google.android.gnd.util.Localization.getLocalizedMessage;
-
 import com.google.android.gnd.vo.PlaceType;
 import com.google.android.gnd.vo.Project;
 import com.google.common.collect.ImmutableList;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.IgnoreExtraProperties;
 import com.google.firebase.firestore.ServerTimestamp;
+
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+
+import static com.google.android.gnd.util.Localization.getLocalizedMessage;
 
 @IgnoreExtraProperties
 public class ProjectDoc {

@@ -17,6 +17,7 @@
 package com.google.android.gnd.repository;
 
 import android.util.Log;
+
 import com.google.android.gnd.service.DatastoreEvent;
 import com.google.android.gnd.service.RemoteDataService;
 import com.google.android.gnd.service.firestore.DocumentNotFoundException;
@@ -26,15 +27,18 @@ import com.google.android.gnd.vo.Project;
 import com.google.android.gnd.vo.Record;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+
+import java.util.List;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Single;
 import io.reactivex.subjects.BehaviorSubject;
 import io.reactivex.subjects.Subject;
-import java.util.List;
-import javax.inject.Inject;
-import javax.inject.Singleton;
 
 @Singleton
 public class DataRepository {
@@ -130,24 +134,24 @@ public class DataRepository {
   }
 
   public Single<Resource<Record>> getRecordSnapshot(
-    String projectId, String placeId, String recordId) {
+      String projectId, String placeId, String recordId) {
     // TODO: Store and retrieve latest edits from cache and/or db.
     return getPlace(projectId, placeId)
-      .flatMap(place -> remoteDataService.loadRecordDetails(place, recordId))
-      .map(Resource::loaded)
-      .onErrorReturn(Resource::error);
+        .flatMap(place -> remoteDataService.loadRecordDetails(place, recordId))
+        .map(Resource::loaded)
+        .onErrorReturn(Resource::error);
   }
 
   public Single<Record> createRecord(String projectId, String placeId, String formId) {
     // TODO: Handle invalid formId.
     return getPlace(projectId, placeId)
-      .map(
-        place ->
-          Record.newBuilder()
-                .setProject(place.getProject())
-                .setPlace(place)
-                .setForm(place.getPlaceType().getForm(formId).get())
-                .build());
+        .map(
+            place ->
+                Record.newBuilder()
+                    .setProject(place.getProject())
+                    .setPlace(place)
+                    .setForm(place.getPlaceType().getForm(formId).get())
+                    .build());
   }
 
   private Single<Project> getProject(String projectId) {
@@ -161,10 +165,10 @@ public class DataRepository {
 
   public Flowable<Resource<Record>> saveChanges(Record record, ImmutableList<ValueUpdate> updates) {
     return remoteDataService
-      .saveChanges(record, updates)
-      .map(Resource::saved)
-      .toFlowable()
-      .startWith(Resource.saving(record));
+        .saveChanges(record, updates)
+        .map(Resource::saved)
+        .toFlowable()
+        .startWith(Resource.saving(record));
   }
 
   public Single<Place> addPlace(Place place) {

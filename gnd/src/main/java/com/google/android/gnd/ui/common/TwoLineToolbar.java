@@ -22,9 +22,11 @@ import android.support.v7.widget.Toolbar;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.TextView;
+
+import com.google.android.gnd.R;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import com.google.android.gnd.R;
 
 // TODO: Improve logic for toolbar heading and possibly extra line below.
 public class TwoLineToolbar extends Toolbar {

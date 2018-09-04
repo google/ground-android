@@ -20,11 +20,8 @@ import android.app.ProgressDialog;
 import android.content.Context;
 
 public abstract class ProgressDialogs {
-  /**
-   * Do not instantiate
-   */
-  private ProgressDialogs() {
-  }
+  /** Do not instantiate */
+  private ProgressDialogs() {}
 
   public static ProgressDialog modalSpinner(Context context, int messageId) {
     ProgressDialog dialog = new ProgressDialog(context);

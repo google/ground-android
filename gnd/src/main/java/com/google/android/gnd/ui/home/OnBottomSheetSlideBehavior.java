@@ -21,6 +21,7 @@ import android.graphics.drawable.Drawable;
 import android.support.design.widget.CoordinatorLayout;
 import android.util.AttributeSet;
 import android.view.View;
+
 import com.google.android.gnd.R;
 import com.google.android.gnd.ui.common.BottomSheetBehavior;
 

@@ -17,6 +17,7 @@
 package com.google.android.gnd.ui.map;
 
 import com.google.android.gnd.ui.map.gms.GoogleMapsMapProvider;
+
 import dagger.Module;
 import dagger.Provides;
 

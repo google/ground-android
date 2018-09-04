@@ -17,15 +17,18 @@
 package com.google.android.gnd;
 
 import android.app.Application;
+
 import com.google.android.gnd.inject.PerActivity;
 import com.google.android.gnd.service.RemoteDataService;
 import com.google.android.gnd.service.firestore.FirestoreDataService;
 import com.google.android.gnd.ui.common.ViewModelModule;
+
+import javax.inject.Singleton;
+
 import dagger.Binds;
 import dagger.Module;
 import dagger.android.ContributesAndroidInjector;
 import dagger.android.support.AndroidSupportInjectionModule;
-import javax.inject.Singleton;
 
 @Module(includes = {AndroidSupportInjectionModule.class, ViewModelModule.class})
 abstract class GndApplicationModule {

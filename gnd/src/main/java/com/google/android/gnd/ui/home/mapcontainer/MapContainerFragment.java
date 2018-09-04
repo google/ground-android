@@ -16,9 +16,6 @@
 
 package com.google.android.gnd.ui.home.mapcontainer;
 
-import static com.google.android.gnd.rx.RxAutoDispose.autoDisposable;
-import static com.google.android.gnd.rx.RxAutoDispose.disposeOnDestroy;
-
 import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -31,7 +28,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
-import butterknife.BindView;
+
 import com.google.android.gnd.MainViewModel;
 import com.google.android.gnd.R;
 import com.google.android.gnd.repository.Resource;
@@ -44,16 +41,21 @@ import com.google.android.gnd.ui.home.mapcontainer.MapContainerViewModel.Locatio
 import com.google.android.gnd.ui.map.MapProvider;
 import com.google.android.gnd.ui.map.MapProvider.MapAdapter;
 import com.google.android.gnd.vo.Project;
-import io.reactivex.subjects.SingleSubject;
+
 import javax.inject.Inject;
+
+import butterknife.BindView;
+import io.reactivex.subjects.SingleSubject;
+
+import static com.google.android.gnd.rx.RxAutoDispose.autoDisposable;
+import static com.google.android.gnd.rx.RxAutoDispose.disposeOnDestroy;
 
 /** Main app view, displaying the map and related controls (center cross-hairs, add button, etc). */
 public class MapContainerFragment extends AbstractFragment {
   private static final String TAG = MapContainerFragment.class.getSimpleName();
   private static final String MAP_FRAGMENT_KEY = MapProvider.class.getName() + "#fragment";
 
-  @Inject
-  MapProvider mapProvider;
+  @Inject MapProvider mapProvider;
 
   @BindView(R.id.add_place_btn)
   FloatingActionButton addPlaceBtn;

@@ -15,8 +15,7 @@ import io.reactivex.CompletableEmitter;
 
 @PerActivity
 public class GoogleApiManager {
-  private static final int
-      INSTALL_API_REQUEST_CODE =
+  private static final int INSTALL_API_REQUEST_CODE =
       GoogleApiAvailability.class.hashCode() & 0xffff;
   private final GoogleApiAvailability googleApiAvailability;
   private CompletableEmitter installApiResultEmitter;
@@ -29,18 +28,21 @@ public class GoogleApiManager {
   }
 
   public Completable installGooglePlayServices(FragmentActivity activity) {
-    return Completable.create(src -> {
-      installApiResultEmitter = src;
-      googleApiAvailabilityResult = googleApiAvailability.isGooglePlayServicesAvailable(activity);
-      if (googleApiAvailabilityResult == ConnectionResult.SUCCESS) {
-        src.onComplete();
-      } else {
-        googleApiAvailability.showErrorDialogFragment(activity,
-                                                      googleApiAvailabilityResult,
-                                                      INSTALL_API_REQUEST_CODE,
-                                                      di -> src.onError(cancelled()));
-      }
-    });
+    return Completable.create(
+        src -> {
+          installApiResultEmitter = src;
+          googleApiAvailabilityResult =
+              googleApiAvailability.isGooglePlayServicesAvailable(activity);
+          if (googleApiAvailabilityResult == ConnectionResult.SUCCESS) {
+            src.onComplete();
+          } else {
+            googleApiAvailability.showErrorDialogFragment(
+                activity,
+                googleApiAvailabilityResult,
+                INSTALL_API_REQUEST_CODE,
+                di -> src.onError(cancelled()));
+          }
+        });
   }
 
   @NonNull

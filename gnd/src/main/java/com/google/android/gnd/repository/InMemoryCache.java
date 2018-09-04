@@ -18,10 +18,13 @@ package com.google.android.gnd.repository;
 import com.google.android.gnd.vo.Place;
 import com.google.android.gnd.vo.Project;
 import com.google.common.collect.ImmutableSet;
+
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java8.util.Optional;
+
 import javax.inject.Inject;
+
+import java8.util.Optional;
 
 /** Ephemeral storage of application state. This can be destroyed without notice. */
 public class InMemoryCache {

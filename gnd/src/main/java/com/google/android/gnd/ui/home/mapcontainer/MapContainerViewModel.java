@@ -19,6 +19,7 @@ package com.google.android.gnd.ui.home.mapcontainer;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.util.Log;
+
 import com.google.android.gnd.repository.DataRepository;
 import com.google.android.gnd.repository.Resource;
 import com.google.android.gnd.rx.RxLiveData;
@@ -30,10 +31,12 @@ import com.google.android.gnd.vo.Place;
 import com.google.android.gnd.vo.Point;
 import com.google.android.gnd.vo.Project;
 import com.google.common.collect.ImmutableSet;
+
+import javax.inject.Inject;
+
 import io.reactivex.Flowable;
 import io.reactivex.disposables.Disposable;
 import java8.util.Optional;
-import javax.inject.Inject;
 
 @ActivityScope
 public class MapContainerViewModel extends AbstractViewModel {

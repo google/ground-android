@@ -16,12 +16,10 @@
 
 package com.google.android.gnd.ui.map.gms;
 
-import static com.google.android.gms.maps.GoogleMap.OnCameraMoveStartedListener.REASON_DEVELOPER_ANIMATION;
-import static java8.util.stream.StreamSupport.stream;
-
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.util.Log;
+
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptor;
@@ -35,16 +33,23 @@ import com.google.android.gnd.vo.Place;
 import com.google.android.gnd.vo.PlaceType;
 import com.google.android.gnd.vo.Point;
 import com.google.common.collect.ImmutableSet;
-import io.reactivex.Observable;
-import io.reactivex.subjects.BehaviorSubject;
-import io.reactivex.subjects.PublishSubject;
+
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.Set;
-import java8.util.Optional;
+
 import javax.annotation.Nullable;
+
+import io.reactivex.Observable;
+import io.reactivex.subjects.BehaviorSubject;
+import io.reactivex.subjects.PublishSubject;
+import java8.util.Optional;
+
+import static com.google.android.gms.maps.GoogleMap.OnCameraMoveStartedListener
+    .REASON_DEVELOPER_ANIMATION;
+import static java8.util.stream.StreamSupport.stream;
 
 /**
  * Wrapper around {@link GoogleMap}, exposing Google Maps API functionality to Ground as a {@link

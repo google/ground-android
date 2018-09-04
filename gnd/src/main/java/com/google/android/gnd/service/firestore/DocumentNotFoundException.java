@@ -16,5 +16,4 @@
 
 package com.google.android.gnd.service.firestore;
 
-public class DocumentNotFoundException extends Exception {
-}
+public class DocumentNotFoundException extends Exception {}

@@ -16,14 +16,10 @@
 
 package com.google.android.gnd.service.firestore;
 
-import static com.google.android.gnd.rx.RxFirestoreUtil.mapSingle;
-import static com.google.android.gnd.util.Streams.toImmutableList;
-import static java8.util.stream.Collectors.toList;
-import static java8.util.stream.StreamSupport.stream;
-
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
+
 import com.google.android.gnd.rx.RxTask;
 import com.google.android.gnd.service.DatastoreEvent;
 import com.google.android.gnd.service.RemoteDataService;
@@ -43,18 +39,26 @@ import com.google.firebase.firestore.FirebaseFirestoreSettings;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.firestore.SnapshotMetadata;
+
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
 import durdinapps.rxfirebase2.RxFirestore;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Observable;
 import io.reactivex.Single;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java8.util.function.Function;
-import javax.inject.Inject;
-import javax.inject.Singleton;
+
+import static com.google.android.gnd.rx.RxFirestoreUtil.mapSingle;
+import static com.google.android.gnd.util.Streams.toImmutableList;
+import static java8.util.stream.Collectors.toList;
+import static java8.util.stream.StreamSupport.stream;
 
 @Singleton
 public class FirestoreDataService implements RemoteDataService {
@@ -156,7 +160,7 @@ public class FirestoreDataService implements RemoteDataService {
             () ->
                 Log.d(
                     TAG,
-                  "getPlaceVectorStream stream for project " + project.getId() + " terminated."));
+                    "getPlaceVectorStream stream for project " + project.getId() + " terminated."));
   }
 
   private <T> Iterable<DatastoreEvent<T>> toDatastoreEvents(
@@ -202,11 +206,11 @@ public class FirestoreDataService implements RemoteDataService {
   @Override
   public Single<Record> saveChanges(Record record, ImmutableList<ValueUpdate> updates) {
     GndFirestorePath.RecordsRef records =
-      db().projects()
-          .project(record.getProject().getId())
-          .places()
-          .place(record.getPlace().getId())
-          .records();
+        db().projects()
+            .project(record.getProject().getId())
+            .places()
+            .place(record.getPlace().getId())
+            .records();
 
     if (record.getId() == null) {
       DocumentReference recordDocRef = records.ref().document();
@@ -218,20 +222,20 @@ public class FirestoreDataService implements RemoteDataService {
   }
 
   private Single<Record> saveChanges(
-    DocumentReference recordDocRef, Record record, ImmutableList<ValueUpdate> updates) {
+      DocumentReference recordDocRef, Record record, ImmutableList<ValueUpdate> updates) {
     return RxTask.toCompletable(
-      () ->
-        db.batch()
-          .set(recordDocRef, RecordDoc.forUpdates(record, updatedValues(updates)), MERGE)
-          .commit())
-                 .andThen(Single.just(record));
+            () ->
+                db.batch()
+                    .set(recordDocRef, RecordDoc.forUpdates(record, updatedValues(updates)), MERGE)
+                    .commit())
+        .andThen(Single.just(record));
   }
 
   @Override
   public Single<Place> addPlace(Place place) {
     return RxFirestore.addDocument(
-      db().project(place.getProject().getId()).places().ref(), PlaceDoc.fromProto(place))
-                      .map(docRef -> place.toBuilder().setId(docRef.getId()).build());
+            db().project(place.getProject().getId()).places().ref(), PlaceDoc.fromProto(place))
+        .map(docRef -> place.toBuilder().setId(docRef.getId()).build());
   }
 
   private Map<String, Object> updatedValues(ImmutableList<ValueUpdate> updates) {
@@ -241,10 +245,10 @@ public class FirestoreDataService implements RemoteDataService {
         case CREATE:
         case UPDATE:
           valueUpdate
-            .getValue()
-            .ifPresent(
-              value ->
-                updatedValues.put(valueUpdate.getElementId(), RecordDoc.toObject(value)));
+              .getValue()
+              .ifPresent(
+                  value ->
+                      updatedValues.put(valueUpdate.getElementId(), RecordDoc.toObject(value)));
           break;
         case DELETE:
           // FieldValue.delete() is not working in nested objects; if it doesn't work in the future

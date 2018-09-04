@@ -22,14 +22,17 @@ import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
+
 import com.google.android.gnd.rx.RxCompletable;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
 import io.reactivex.Completable;
 import io.reactivex.CompletableSource;
 import io.reactivex.Observable;
 import io.reactivex.subjects.PublishSubject;
 import io.reactivex.subjects.Subject;
-import javax.inject.Inject;
-import javax.inject.Singleton;
 
 @Singleton
 public class PermissionsManager {
@@ -81,9 +84,9 @@ public class PermissionsManager {
 
   private Completable getPermissionsResult(String permission) {
     return permissionsResultSubject
-      .filter(r -> r.getPermission().equals(permission))
-      .take(1)
-      .flatMapCompletable(PermissionsResult::completeOrError);
+        .filter(r -> r.getPermission().equals(permission))
+        .take(1)
+        .flatMapCompletable(PermissionsResult::completeOrError);
   }
 
   private boolean isGranted(String permission) {

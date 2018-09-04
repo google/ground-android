@@ -17,8 +17,10 @@
 package com.google.android.gnd.ui.recorddetails;
 
 import android.support.v4.app.Fragment;
+
 import com.google.android.gnd.inject.PerFragment;
 import com.google.android.gnd.ui.common.AbstractFragmentModule;
+
 import dagger.Binds;
 import dagger.Module;
 

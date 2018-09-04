@@ -40,9 +40,7 @@ import dagger.Binds;
 import dagger.Module;
 import dagger.android.ContributesAndroidInjector;
 
-/**
- * Provides dependencies to {@link MainActivity} and fragments.
- */
+/** Provides dependencies to {@link MainActivity} and fragments. */
 @Module
 public abstract class MainActivityModule {
   /**

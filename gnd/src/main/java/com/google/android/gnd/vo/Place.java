@@ -18,6 +18,7 @@ package com.google.android.gnd.vo;
 
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.extension.memoized.Memoized;
+
 import javax.annotation.Nullable;
 
 @AutoValue
@@ -47,8 +48,9 @@ public abstract class Place {
   public abstract Timestamps getClientTimestamps();
 
   public String getTitle() {
-    return getCaption() == null || getCaption().isEmpty() ? getPlaceType().getItemLabel()
-      : getCaption();
+    return getCaption() == null || getCaption().isEmpty()
+        ? getPlaceType().getItemLabel()
+        : getCaption();
   }
 
   public String getSubtitle() {

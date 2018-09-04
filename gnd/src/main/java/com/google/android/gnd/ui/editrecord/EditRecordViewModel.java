@@ -16,13 +16,6 @@
 
 package com.google.android.gnd.ui.editrecord;
 
-import static com.google.android.gnd.util.Streams.toImmutableList;
-import static com.google.android.gnd.vo.PlaceUpdate.Operation.CREATE;
-import static com.google.android.gnd.vo.PlaceUpdate.Operation.DELETE;
-import static com.google.android.gnd.vo.PlaceUpdate.Operation.UPDATE;
-import static java8.util.Maps.forEach;
-import static java8.util.stream.StreamSupport.stream;
-
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.content.res.Resources;
@@ -30,6 +23,7 @@ import android.databinding.ObservableArrayMap;
 import android.databinding.ObservableMap;
 import android.support.annotation.NonNull;
 import android.util.Log;
+
 import com.google.android.gnd.GndApplication;
 import com.google.android.gnd.R;
 import com.google.android.gnd.repository.DataRepository;
@@ -42,11 +36,21 @@ import com.google.android.gnd.vo.PlaceUpdate.RecordUpdate.ValueUpdate;
 import com.google.android.gnd.vo.Record;
 import com.google.android.gnd.vo.Record.TextValue;
 import com.google.android.gnd.vo.Record.Value;
+
 import java.util.Arrays;
 import java.util.Collections;
+
+import javax.inject.Inject;
+
 import java8.util.Optional;
 import java8.util.stream.Stream;
-import javax.inject.Inject;
+
+import static com.google.android.gnd.util.Streams.toImmutableList;
+import static com.google.android.gnd.vo.PlaceUpdate.Operation.CREATE;
+import static com.google.android.gnd.vo.PlaceUpdate.Operation.DELETE;
+import static com.google.android.gnd.vo.PlaceUpdate.Operation.UPDATE;
+import static java8.util.Maps.forEach;
+import static java8.util.stream.StreamSupport.stream;
 
 // TODO: Save draft to local db on each change.
 public class EditRecordViewModel extends AbstractViewModel {

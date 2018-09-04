@@ -20,13 +20,16 @@ import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.ViewModel;
 import android.support.v4.view.ViewPager;
+
 import com.google.android.gnd.ui.common.ActivityScope;
 import com.google.android.gnd.ui.home.PlaceSheetState;
 import com.google.android.gnd.vo.Form;
 import com.google.android.gnd.vo.Place;
 import com.google.android.gnd.vo.PlaceType;
-import java8.util.Optional;
+
 import javax.inject.Inject;
+
+import java8.util.Optional;
 
 @ActivityScope
 public class PlaceSheetViewModel extends ViewModel implements ViewPager.OnPageChangeListener {

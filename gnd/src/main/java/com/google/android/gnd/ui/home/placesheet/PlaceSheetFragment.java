@@ -27,7 +27,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import butterknife.BindView;
+
 import com.google.android.gnd.MainViewModel;
 import com.google.android.gnd.R;
 import com.google.android.gnd.ui.MapIcon;
@@ -35,7 +35,10 @@ import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.home.HomeScreenViewModel;
 import com.google.android.gnd.ui.home.PlaceSheetState;
 import com.h6ah4i.android.tablayouthelper.TabLayoutHelper;
+
 import javax.inject.Inject;
+
+import butterknife.BindView;
 
 public class PlaceSheetFragment extends AbstractFragment {
   @Inject FormTabPagerAdapter formTypePagerAdapter;
@@ -60,8 +63,7 @@ public class PlaceSheetFragment extends AbstractFragment {
   private MainViewModel mainViewModel;
 
   @Inject
-  public PlaceSheetFragment() {
-  }
+  public PlaceSheetFragment() {}
 
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -78,8 +80,7 @@ public class PlaceSheetFragment extends AbstractFragment {
   }
 
   @Override
-  public void onViewCreated(
-    @NonNull View view, @Nullable Bundle savedInstanceState) {
+  public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
 
     recordListViewPager.setAdapter(formTypePagerAdapter);
@@ -101,12 +102,12 @@ public class PlaceSheetFragment extends AbstractFragment {
   private void onPlaceSheetStateChange(PlaceSheetState placeSheetState) {
     if (placeSheetState.isVisible()) {
       placeHeaderIcon.setImageResource(
-        MapIcon.getResourceId(
-          getContext(), placeSheetState.getPlace().getPlaceType().getIconId()));
+          MapIcon.getResourceId(
+              getContext(), placeSheetState.getPlace().getPlaceType().getIconId()));
       placeSheetTitle.setText(placeSheetState.getPlace().getTitle());
       placeSheetSubtitle.setText(placeSheetState.getPlace().getSubtitle());
       placeSheetSubtitle.setVisibility(
-        placeSheetState.getPlace().getSubtitle().isEmpty() ? View.GONE : View.VISIBLE);
+          placeSheetState.getPlace().getSubtitle().isEmpty() ? View.GONE : View.VISIBLE);
     }
 
     viewModel.onPlaceSheetStateChange(placeSheetState);

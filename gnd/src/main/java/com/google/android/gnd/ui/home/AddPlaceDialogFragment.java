@@ -16,14 +16,13 @@
 
 package com.google.android.gnd.ui.home;
 
-import static java8.util.stream.StreamSupport.stream;
-
 import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
+
 import com.google.android.gnd.R;
 import com.google.android.gnd.repository.Resource;
 import com.google.android.gnd.ui.common.AbstractDialogFragment;
@@ -33,10 +32,14 @@ import com.google.android.gnd.vo.PlaceType;
 import com.google.android.gnd.vo.Point;
 import com.google.android.gnd.vo.Project;
 import com.google.common.collect.ImmutableList;
+
+import javax.inject.Inject;
+
 import io.reactivex.Maybe;
 import io.reactivex.subjects.MaybeSubject;
 import java8.util.Optional;
-import javax.inject.Inject;
+
+import static java8.util.stream.StreamSupport.stream;
 
 public class AddPlaceDialogFragment extends AbstractDialogFragment {
   private static final String TAG = AddPlaceDialogFragment.class.getSimpleName();
@@ -57,8 +60,7 @@ public class AddPlaceDialogFragment extends AbstractDialogFragment {
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     // TODO: Move into new AddPlaceDialogViewModel?
-    this.homeScreenViewModel =
-        get(HomeScreenViewModel.class);
+    this.homeScreenViewModel = get(HomeScreenViewModel.class);
     this.mapContainerViewModel = get(MapContainerViewModel.class);
   }
 
@@ -74,7 +76,7 @@ public class AddPlaceDialogFragment extends AbstractDialogFragment {
     // TODO: Inject and use custom factory.
     Optional<Project> activeProject = Resource.getData(homeScreenViewModel.getActiveProject());
     Optional<Point> cameraPosition =
-      Optional.ofNullable(mapContainerViewModel.getCameraPosition().getValue());
+        Optional.ofNullable(mapContainerViewModel.getCameraPosition().getValue());
     if (!activeProject.isPresent()) {
       addPlaceRequestSubject.onError(new IllegalStateException("No active project"));
       return fail("Could not get active project");
@@ -92,20 +94,19 @@ public class AddPlaceDialogFragment extends AbstractDialogFragment {
     builder.setNegativeButton(R.string.add_place_cancel, (dialog, id) -> onCancel());
     // TODO: Add icons.
     ImmutableList<PlaceType> placeTypes = project.getPlaceTypes();
-    String[] items =
-      stream(placeTypes).map(t -> t.getItemLabel()).sorted().toArray(String[]::new);
+    String[] items = stream(placeTypes).map(t -> t.getItemLabel()).sorted().toArray(String[]::new);
     builder.setItems(
-      items, (dialog, idx) -> onSelectPlaceType(project, placeTypes.get(idx), cameraPosition));
+        items, (dialog, idx) -> onSelectPlaceType(project, placeTypes.get(idx), cameraPosition));
     return builder.create();
   }
 
   private void onSelectPlaceType(Project project, PlaceType placeType, Point cameraPosition) {
     addPlaceRequestSubject.onSuccess(
-      Place.newBuilder()
-           .setProject(project)
-           .setPlaceType(placeType)
-           .setPoint(cameraPosition)
-           .build());
+        Place.newBuilder()
+            .setProject(project)
+            .setPlaceType(placeType)
+            .setPoint(cameraPosition)
+            .build());
   }
 
   private void onCancel() {

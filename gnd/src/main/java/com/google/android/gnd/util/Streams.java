@@ -16,20 +16,20 @@
 
 package com.google.android.gnd.util;
 
-import static java8.util.stream.Collectors.toList;
-import static java8.util.stream.StreamSupport.stream;
-
 import com.google.common.collect.ImmutableList;
+
 import java.util.List;
 import java.util.Map;
+
 import java8.util.function.Function;
 import java8.util.stream.Collector;
 import java8.util.stream.Collectors;
 
+import static java8.util.stream.Collectors.toList;
+import static java8.util.stream.StreamSupport.stream;
+
 public abstract class Streams {
-  /**
-   * Do not instantiate.
-   */
+  /** Do not instantiate. */
   private Streams() {}
 
   public static <X, Y> List<Y> map(List<X> in, Function<X, Y> mappingFunction) {

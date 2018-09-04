@@ -16,17 +16,20 @@
 
 package com.google.android.gnd.vo;
 
-import static java8.util.stream.StreamSupport.stream;
-
 import android.support.annotation.Nullable;
+
 import com.google.android.gnd.vo.Form.Field;
 import com.google.android.gnd.vo.Form.MultipleChoice.Option;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableMap;
+
 import java.util.List;
 import java.util.Map;
+
 import java8.util.Optional;
 import java8.util.stream.Collectors;
+
+import static java8.util.stream.StreamSupport.stream;
 
 @AutoValue
 public abstract class Record {

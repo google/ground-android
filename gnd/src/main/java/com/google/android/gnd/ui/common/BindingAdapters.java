@@ -24,11 +24,13 @@ import android.support.design.widget.TextInputEditText;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
+
 import com.google.android.gnd.databinding.MultipleChoiceInputFieldBinding;
 import com.google.android.gnd.databinding.TextInputFieldBinding;
 import com.google.android.gnd.ui.editrecord.MultipleChoiceFieldLayout;
 import com.google.android.gnd.vo.Form.Field;
 import com.google.android.gnd.vo.Record.Value;
+
 import java8.util.function.Consumer;
 
 public class BindingAdapters {
@@ -104,8 +106,8 @@ public class BindingAdapters {
   }
 
   @BindingAdapter("onFocusChange")
-  public static void setOnFocusChangeListener(View view,
-      final View.OnFocusChangeListener listener) {
+  public static void setOnFocusChangeListener(
+      View view, final View.OnFocusChangeListener listener) {
     view.setOnFocusChangeListener(listener);
   }
 

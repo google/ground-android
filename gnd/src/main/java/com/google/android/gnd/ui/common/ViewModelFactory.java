@@ -21,7 +21,9 @@ import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
+
 import java.util.Map;
+
 import javax.inject.Inject;
 import javax.inject.Provider;
 

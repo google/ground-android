@@ -18,6 +18,7 @@ package com.google.android.gnd.ui.common;
 
 import android.content.Context;
 import android.widget.Toast;
+
 import com.google.android.gnd.R;
 
 public class EphemeralPopups {
@@ -48,5 +49,4 @@ public class EphemeralPopups {
   private static void showLong(Context context, int messageId) {
     Toast.makeText(context, messageId, Toast.LENGTH_LONG).show();
   }
-
 }

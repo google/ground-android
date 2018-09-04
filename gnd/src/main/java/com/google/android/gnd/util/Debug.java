@@ -19,11 +19,8 @@ package com.google.android.gnd.util;
 import android.util.Log;
 
 public abstract class Debug {
-  /**
-   * Do not instantiate.
-   */
-  private Debug() {
-  }
+  /** Do not instantiate. */
+  private Debug() {}
 
   public static void logLifecycleEvent(Object instance) {
     StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();

@@ -15,10 +15,9 @@
  */
 package com.google.android.gnd.ui.editrecord;
 
-import static java8.util.stream.StreamSupport.stream;
-
 import android.content.Context;
 import android.support.v7.app.AlertDialog;
+
 import com.google.android.gnd.R;
 import com.google.android.gnd.vo.Form.Field;
 import com.google.android.gnd.vo.Form.MultipleChoice;
@@ -26,10 +25,14 @@ import com.google.android.gnd.vo.Form.MultipleChoice.Option;
 import com.google.android.gnd.vo.Record.MultipleChoiceValue;
 import com.google.android.gnd.vo.Record.Value;
 import com.google.common.collect.ImmutableList;
+
 import java.util.List;
+
 import java8.util.Optional;
 import java8.util.function.Consumer;
 import java8.util.stream.IntStreams;
+
+import static java8.util.stream.StreamSupport.stream;
 
 // TODO: Replace with modal bottom sheet.
 class MultiSelectDialogFactory {
@@ -41,24 +44,20 @@ class MultiSelectDialogFactory {
   }
 
   AlertDialog create(
-      Field field,
-      Optional<Value> initialValue,
-      Consumer<Optional<Value>> valueChangeCallback) {
+      Field field, Optional<Value> initialValue, Consumer<Optional<Value>> valueChangeCallback) {
     MultipleChoice multipleChoice = field.getMultipleChoice();
     AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(context);
     List<Option> options = multipleChoice.getOptions();
     final DialogState state = new DialogState(multipleChoice, initialValue);
     dialogBuilder.setMultiChoiceItems(
-        getLabels(multipleChoice), state.checkedItems, (dialog, which, isChecked) -> {
-        });
+        getLabels(multipleChoice), state.checkedItems, (dialog, which, isChecked) -> {});
     dialogBuilder.setCancelable(false);
     dialogBuilder.setTitle(field.getLabel());
     dialogBuilder.setPositiveButton(
         R.string.apply_multiple_choice_changes,
         (dialog, which) -> valueChangeCallback.accept(state.getSelectedValues(options)));
     dialogBuilder.setNegativeButton(
-        R.string.discard_multiple_choice_changes, (dialog, which) -> {
-        });
+        R.string.discard_multiple_choice_changes, (dialog, which) -> {});
     return dialogBuilder.create();
   }
 

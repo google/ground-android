@@ -16,8 +16,6 @@
 
 package com.google.android.gnd.ui.editrecord;
 
-import static com.google.android.gnd.ui.util.ViewUtil.assignGeneratedId;
-
 import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -29,9 +27,7 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import androidx.navigation.fragment.NavHostFragment;
-import butterknife.BindView;
-import butterknife.OnClick;
+
 import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.MultipleChoiceInputFieldBinding;
@@ -47,7 +43,13 @@ import com.google.android.gnd.vo.Form.Field;
 import com.google.android.gnd.vo.Form.MultipleChoice.Cardinality;
 import com.google.android.gnd.vo.Record;
 import com.google.android.gnd.vo.Record.Value;
+
+import androidx.navigation.fragment.NavHostFragment;
+import butterknife.BindView;
+import butterknife.OnClick;
 import java8.util.Optional;
+
+import static com.google.android.gnd.ui.util.ViewUtil.assignGeneratedId;
 
 public class EditRecordFragment extends AbstractFragment implements OnBackListener {
   private static final String TAG = EditRecordFragment.class.getSimpleName();
@@ -246,8 +248,7 @@ public class EditRecordFragment extends AbstractFragment implements OnBackListen
     new AlertDialog.Builder(getContext())
         .setMessage(R.string.unsaved_changes)
         .setPositiveButton(R.string.close_without_saving, (d, i) -> navigateUp())
-        .setNegativeButton(R.string.continue_editing, (d, i) -> {
-        })
+        .setNegativeButton(R.string.continue_editing, (d, i) -> {})
         .create()
         .show();
   }
@@ -255,8 +256,7 @@ public class EditRecordFragment extends AbstractFragment implements OnBackListen
   private void showFormErrorsDialog() {
     new AlertDialog.Builder(getContext())
         .setMessage(R.string.invalid_data_warning)
-        .setPositiveButton(R.string.invalid_data_confirm, (a, b) -> {
-        })
+        .setPositiveButton(R.string.invalid_data_confirm, (a, b) -> {})
         .create()
         .show();
   }

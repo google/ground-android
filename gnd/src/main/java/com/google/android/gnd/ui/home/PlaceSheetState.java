@@ -17,6 +17,7 @@
 package com.google.android.gnd.ui.home;
 
 import android.support.annotation.Nullable;
+
 import com.google.android.gnd.vo.Place;
 
 public class PlaceSheetState {

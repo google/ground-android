@@ -26,6 +26,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
+
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gnd.R;
@@ -53,8 +54,7 @@ public class MapIcon {
   }
 
   @NonNull
-  public static @DrawableRes
-  int getResourceId(Context context, @Nullable String iconId) {
+  public static @DrawableRes int getResourceId(Context context, @Nullable String iconId) {
     if (iconId == null) {
       return R.drawable.ic_default_place_marker;
     }
@@ -89,7 +89,7 @@ public class MapIcon {
   public BitmapDescriptor getWhiteBitmap() {
     Bitmap tintedBitmap =
         ViewUtil.tintBitmap(
-          drawable.getBitmap(), context.getResources().getColor(R.color.colorGrey50));
+            drawable.getBitmap(), context.getResources().getColor(R.color.colorGrey50));
     return BitmapDescriptorFactory.fromBitmap(tintedBitmap);
   }
 }

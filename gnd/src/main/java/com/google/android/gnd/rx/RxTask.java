@@ -17,7 +17,9 @@
 package com.google.android.gnd.rx;
 
 import android.support.annotation.Nullable;
+
 import com.google.android.gms.tasks.Task;
+
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
 import io.reactivex.MaybeEmitter;
@@ -36,10 +38,10 @@ public abstract class RxTask {
    */
   public static <T> Maybe<T> toMaybe(Supplier<Task<T>> task) {
     return Maybe.create(
-      emitter ->
-        task.get()
-            .addOnSuccessListener(v -> onSuccess(v, emitter))
-            .addOnFailureListener(emitter::onError));
+        emitter ->
+            task.get()
+                .addOnSuccessListener(v -> onSuccess(v, emitter))
+                .addOnFailureListener(emitter::onError));
   }
 
   private static <T> void onSuccess(@Nullable T v, MaybeEmitter<T> emitter) {
@@ -48,7 +50,6 @@ public abstract class RxTask {
     } else {
       emitter.onSuccess(v);
     }
-
   }
 
   /**
@@ -83,5 +84,4 @@ public abstract class RxTask {
       emitter.onSuccess(v);
     }
   }
-
 }

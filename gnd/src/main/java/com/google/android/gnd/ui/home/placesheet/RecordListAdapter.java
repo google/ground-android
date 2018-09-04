@@ -21,7 +21,9 @@ import android.arch.lifecycle.MutableLiveData;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.ViewGroup;
+
 import com.google.android.gnd.vo.Record;
+
 import java.util.Collections;
 import java.util.List;
 

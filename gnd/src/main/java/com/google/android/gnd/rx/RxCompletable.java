@@ -16,8 +16,9 @@
 
 package com.google.android.gnd.rx;
 
-import io.reactivex.Completable;
 import java.util.concurrent.Callable;
+
+import io.reactivex.Completable;
 
 /** Helpers for working with RxJava Completable classes. */
 public abstract class RxCompletable {

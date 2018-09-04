@@ -18,10 +18,12 @@ package com.google.android.gnd.ui.recorddetails;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
+
 import com.google.android.gnd.repository.DataRepository;
 import com.google.android.gnd.repository.Resource;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.vo.Record;
+
 import javax.inject.Inject;
 
 public class RecordDetailsViewModel extends AbstractViewModel {
@@ -41,6 +43,6 @@ public class RecordDetailsViewModel extends AbstractViewModel {
 
   public void loadRecordDetails(String projectId, String placeId, String recordId) {
     disposeOnClear(
-      dataRepository.getRecordDetails(projectId, placeId, recordId).subscribe(record::setValue));
+        dataRepository.getRecordDetails(projectId, placeId, recordId).subscribe(record::setValue));
   }
 }

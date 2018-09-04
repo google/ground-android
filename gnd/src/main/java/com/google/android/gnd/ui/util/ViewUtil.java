@@ -33,7 +33,9 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
 import com.google.android.gnd.system.DeviceCapabilities;
+
 import java8.util.stream.IntStreams;
 import java8.util.stream.Stream;
 

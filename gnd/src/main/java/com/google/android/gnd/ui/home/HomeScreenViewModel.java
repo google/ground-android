@@ -17,6 +17,7 @@ package com.google.android.gnd.ui.home;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
+
 import com.google.android.gnd.repository.DataRepository;
 import com.google.android.gnd.repository.Resource;
 import com.google.android.gnd.rx.RxLiveData;
@@ -28,6 +29,7 @@ import com.google.android.gnd.vo.Form;
 import com.google.android.gnd.vo.Place;
 import com.google.android.gnd.vo.Point;
 import com.google.android.gnd.vo.Project;
+
 import javax.inject.Inject;
 
 @ActivityScope

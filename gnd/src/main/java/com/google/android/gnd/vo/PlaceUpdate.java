@@ -19,7 +19,9 @@ package com.google.android.gnd.vo;
 import com.google.android.gnd.vo.Record.Value;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
+
 import java.util.Date;
+
 import java8.util.Optional;
 
 @AutoValue
@@ -91,7 +93,7 @@ public abstract class PlaceUpdate {
 
       public static Builder newBuilder() {
         return new AutoValue_PlaceUpdate_RecordUpdate_ValueUpdate.Builder()
-          .setValue(Optional.empty());
+            .setValue(Optional.empty());
       }
 
       @AutoValue.Builder

@@ -18,11 +18,14 @@ package com.google.android.gnd.repository;
 
 import android.arch.lifecycle.LiveData;
 import android.support.annotation.NonNull;
+
 import com.google.android.gnd.rx.RxTransformers;
+
+import javax.annotation.Nullable;
+
 import io.reactivex.FlowableTransformer;
 import java8.util.Optional;
 import java8.util.function.Consumer;
-import javax.annotation.Nullable;
 
 /**
  * Represents a resource that can be loaded from local or remote data stores. Based on Android Guide

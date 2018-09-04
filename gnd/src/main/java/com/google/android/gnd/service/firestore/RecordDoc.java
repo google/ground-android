@@ -16,9 +16,8 @@
 
 package com.google.android.gnd.service.firestore;
 
-import static com.google.android.gnd.service.firestore.FirestoreDataService.toTimestamps;
-
 import android.util.Log;
+
 import com.google.android.gnd.vo.Form;
 import com.google.android.gnd.vo.Place;
 import com.google.android.gnd.vo.Record;
@@ -28,11 +27,15 @@ import com.google.android.gnd.vo.Record.Value;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.IgnoreExtraProperties;
 import com.google.firebase.firestore.ServerTimestamp;
+
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import java8.util.Optional;
+
+import static com.google.android.gnd.service.firestore.FirestoreDataService.toTimestamps;
 
 // TODO: Refactor into cleaner peristence layer.
 @IgnoreExtraProperties

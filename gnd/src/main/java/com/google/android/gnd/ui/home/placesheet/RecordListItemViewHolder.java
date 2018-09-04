@@ -27,14 +27,16 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TableRow;
 import android.widget.TextView;
-import butterknife.BindView;
-import butterknife.ButterKnife;
+
 import com.google.android.gnd.R;
 import com.google.android.gnd.vo.Form;
 import com.google.android.gnd.vo.Form.Element;
 import com.google.android.gnd.vo.Form.Field;
 import com.google.android.gnd.vo.Record;
 import com.google.android.gnd.vo.Record.Value;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import java8.util.Optional;
 
 class RecordListItemViewHolder extends RecyclerView.ViewHolder {
@@ -49,7 +51,7 @@ class RecordListItemViewHolder extends RecyclerView.ViewHolder {
   TableRow fieldValueRow;
 
   public static RecordListItemViewHolder newInstance(
-    ViewGroup parent, MutableLiveData<Record> itemClicks) {
+      ViewGroup parent, MutableLiveData<Record> itemClicks) {
     LayoutInflater inflater = LayoutInflater.from(parent.getContext());
     View view = inflater.inflate(R.layout.record_list_item, parent, false);
     return new RecordListItemViewHolder(view, itemClicks);
@@ -72,8 +74,7 @@ class RecordListItemViewHolder extends RecyclerView.ViewHolder {
       switch (elem.getType()) {
         case FIELD:
           Field field = elem.getField();
-          Optional<Value> value =
-            Optional.ofNullable(record.getValueMap().get(field.getId()));
+          Optional<Value> value = Optional.ofNullable(record.getValueMap().get(field.getId()));
           fieldLabelRow.addView(newFieldTextView(field.getLabel()));
           fieldValueRow.addView(
               newFieldTextView(value.map(v -> v.getSummaryText(field)).orElse("")));

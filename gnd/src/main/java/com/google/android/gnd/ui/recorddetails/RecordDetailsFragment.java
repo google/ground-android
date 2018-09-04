@@ -29,9 +29,7 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import androidx.navigation.fragment.NavHostFragment;
-import butterknife.BindView;
-import butterknife.ButterKnife;
+
 import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.R;
 import com.google.android.gnd.repository.Resource;
@@ -40,6 +38,10 @@ import com.google.android.gnd.ui.common.EphemeralPopups;
 import com.google.android.gnd.ui.common.TwoLineToolbar;
 import com.google.android.gnd.vo.Form;
 import com.google.android.gnd.vo.Record;
+
+import androidx.navigation.fragment.NavHostFragment;
+import butterknife.BindView;
+import butterknife.ButterKnife;
 
 public class RecordDetailsFragment extends AbstractFragment {
   private static final String TAG = RecordDetailsFragment.class.getSimpleName();
@@ -71,8 +73,7 @@ public class RecordDetailsFragment extends AbstractFragment {
   }
 
   @Override
-  public void onViewCreated(
-    @NonNull View view, @Nullable Bundle savedInstanceState) {
+  public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
     ((MainActivity) getActivity()).setActionBar(toolbar);
   }
@@ -193,9 +194,9 @@ public class RecordDetailsFragment extends AbstractFragment {
         getActivity().closeOptionsMenu();
         RecordDetailsFragmentArgs args = getRecordDetailFragmentArgs();
         NavHostFragment.findNavController(this)
-                       .navigate(
-                         RecordDetailsFragmentDirections.editRecord(
-                           args.getProjectId(), args.getPlaceId(), args.getRecordId()));
+            .navigate(
+                RecordDetailsFragmentDirections.editRecord(
+                    args.getProjectId(), args.getPlaceId(), args.getRecordId()));
         return true;
       case R.id.delete_record_menu_item:
         // TODO: Implement delete record.
