@@ -156,7 +156,7 @@ public class FirestoreDataService implements RemoteDataService {
             () ->
                 Log.d(
                     TAG,
-                    "getPlaceVectorStream stream for project " + project.getId() + " terminated."));
+                  "getPlaceVectorStream stream for project " + project.getId() + " terminated."));
   }
 
   private <T> Iterable<DatastoreEvent<T>> toDatastoreEvents(

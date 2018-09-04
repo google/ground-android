@@ -22,15 +22,17 @@ project.ext {
     butterKnifeVersion = "8.8.1"
     constraintLayoutVersion = "1.0.2"
     daggerVersion = "2.14.1"
-    firebaseVersion = "11.8.0"
-    gmsVersion = "11.8.0"
+    // Latest: https://firebase.google.com/support/release-notes/android#latest_sdk_versions
+    firebaseCoreVersion = "16.0.3"
+    firebaseFirestoreVersion = "17.1.0"
+    gmsVersion = "15.0.1"
     guavaVersion = "23.0-android"
     junitVersion = "4.12"
     lifecycleVersion = "1.1.1"
     navigationVersion = "1.0.0-alpha01"
     rxAndroidVersion = "2.0.1"
     rxBindingVersion = "2.1.1"
-    rxFirebaseVersion = "1.4.1"
+    rxFirebaseVersion = "1.5.0"
     rxJava2DebugVersion = "1.2.2"
     rxJavaVersion = "2.1.6"
     streamSupportVersion = "1.6.3"
@@ -93,14 +95,15 @@ dependencies {
 
     // For dynamic tab bar style.
     implementation "com.h6ah4i.android.tablayouthelper:tablayouthelper:$project.tabLayoutHelper"
+    implementation "com.google.android.gms:play-services-auth:$project.gmsVersion"
     implementation "com.google.android.gms:play-services-maps:$project.gmsVersion"
     implementation "com.google.android.gms:play-services-location:$project.gmsVersion"
     
     // Firebase and related libraries.
-    implementation "com.google.firebase:firebase-core:$project.firebaseVersion"
-    implementation "com.google.firebase:firebase-firestore:$project.firebaseVersion"
-    implementation "com.google.firebase:firebase-auth:$project.firebaseVersion"
-    implementation "com.github.frangsierra:rx2firebase:$project.rxFirebaseVersion"
+    implementation "com.google.firebase:firebase-core:$project.firebaseCoreVersion"
+    implementation "com.google.firebase:firebase-firestore:$project.firebaseFirestoreVersion"
+    implementation "com.google.firebase:firebase-auth:$project.firebaseCoreVersion"
+    implementation "com.github.FrangSierra:RxFirebase:$project.rxFirebaseVersion"
 
     // Dagger core
     annotationProcessor "com.google.dagger:dagger-compiler:$project.daggerVersion"
