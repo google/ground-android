@@ -136,5 +136,6 @@
   <string name="saving">Saving...</string>
   <string name="no_changes_to_save">No changes to save</string>
   <string name="select_project_menu_item">Select project</string>
+  <string name="google_api_install_failed">Google Play Services installation failed</string>
 
 </resources>

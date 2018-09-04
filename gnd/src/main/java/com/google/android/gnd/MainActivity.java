@@ -16,9 +16,6 @@
 
 package com.google.android.gnd;
 
-import static com.google.android.gnd.rx.RxAutoDispose.autoDisposable;
-import static com.google.android.gnd.util.Debug.logLifecycleEvent;
-
 import android.content.Intent;
 import android.content.IntentSender.SendIntentException;
 import android.graphics.drawable.Drawable;
@@ -29,18 +26,12 @@ import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import androidx.navigation.fragment.NavHostFragment;
-import butterknife.ButterKnife;
-import com.google.android.gms.auth.api.signin.GoogleSignIn;
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
-import com.google.android.gms.auth.api.signin.GoogleSignInClient;
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
-import com.google.android.gms.common.api.ApiException;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
+
 import com.google.android.gnd.repository.DataRepository;
 import com.google.android.gnd.rx.RxDebug;
 import com.google.android.gnd.service.RemoteDataService;
+import com.google.android.gnd.system.AuthenticationManager;
+import com.google.android.gnd.system.GoogleApiManager;
 import com.google.android.gnd.system.PermissionsManager;
 import com.google.android.gnd.system.PermissionsManager.PermissionsRequest;
 import com.google.android.gnd.system.SettingsManager;
@@ -49,17 +40,20 @@ import com.google.android.gnd.ui.common.OnBackListener;
 import com.google.android.gnd.ui.common.TwoLineToolbar;
 import com.google.android.gnd.ui.common.ViewModelFactory;
 import com.google.android.gnd.ui.util.DrawableUtil;
-import com.google.firebase.auth.AuthCredential;
-import com.google.firebase.auth.AuthResult;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.GoogleAuthProvider;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
+import androidx.navigation.fragment.NavHostFragment;
+import butterknife.ButterKnife;
 import dagger.android.AndroidInjection;
 import dagger.android.AndroidInjector;
 import dagger.android.DispatchingAndroidInjector;
 import dagger.android.support.HasSupportFragmentInjector;
 import io.reactivex.plugins.RxJavaPlugins;
-import javax.inject.Inject;
-import javax.inject.Singleton;
+
+import static com.google.android.gnd.rx.RxAutoDispose.autoDisposable;
+import static com.google.android.gnd.util.Debug.logLifecycleEvent;
 
 @Singleton
 public class MainActivity extends AppCompatActivity implements HasSupportFragmentInjector {
@@ -70,15 +64,16 @@ public class MainActivity extends AppCompatActivity implements HasSupportFragmen
   @Inject ViewModelFactory viewModelFactory;
   @Inject PermissionsManager permissionsManager;
   @Inject SettingsManager settingsManager;
+  @Inject
+  GoogleApiManager googleApiManager;
+  @Inject
+  AuthenticationManager authenticationManager;
   @Inject RemoteDataService remoteDataService;
   @Inject DataRepository model;
   @Inject DispatchingAndroidInjector<Fragment> fragmentInjector;
 
   private NavHostFragment navHostFragment;
   private MainViewModel viewModel;
-  private GoogleSignInClient googleSignInClient;
-  private GoogleSignInAccount account;
-  private FirebaseAuth firebaseAuth;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -96,36 +91,22 @@ public class MainActivity extends AppCompatActivity implements HasSupportFragmen
     ButterKnife.bind(this);
 
     navHostFragment =
-      (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
+        (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
 
     viewModel = viewModelFactory.get(this, MainViewModel.class);
 
-    ViewCompat.setOnApplyWindowInsetsListener(
-      getWindow().getDecorView().getRootView(), viewModel::onApplyWindowInsets);
+    ViewCompat.setOnApplyWindowInsetsListener(getWindow().getDecorView().getRootView(),
+                                              viewModel::onApplyWindowInsets);
 
     permissionsManager
-      .getPermissionsRequests()
-      .as(autoDisposable(this))
-      .subscribe(this::onPermissionsRequest);
+        .getPermissionsRequests()
+        .as(autoDisposable(this))
+        .subscribe(this::onPermissionsRequest);
 
     settingsManager
-      .getSettingsChangeRequests()
-      .as(autoDisposable(this))
-      .subscribe(this::onSettingsChangeRequest);
-
-    GoogleSignInOptions gso =
-      new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-        .requestIdToken(getString(R.string.default_web_client_id))
-        .requestEmail()
-        .requestProfile()
-        .build();
-    this.googleSignInClient = GoogleSignIn.getClient(this, gso);
-    this.firebaseAuth = FirebaseAuth.getInstance();
-  }
-
-  private void signIn() {
-    Intent signInIntent = googleSignInClient.getSignInIntent();
-    startActivityForResult(signInIntent, RC_SIGN_IN);
+        .getSettingsChangeRequests()
+        .as(autoDisposable(this))
+        .subscribe(this::onSettingsChangeRequest);
   }
 
   private void onPermissionsRequest(PermissionsRequest permissionsRequest) {
@@ -151,14 +132,6 @@ public class MainActivity extends AppCompatActivity implements HasSupportFragmen
   protected void onStart() {
     logLifecycleEvent(this);
     super.onStart();
-    if (account == null) {
-      account = GoogleSignIn.getLastSignedInAccount(this);
-    }
-    if (account == null) {
-      signIn();
-    }
-    // TODO: Implement sign out with:
-    //    FirebaseAuth.getInstance().signOut();
   }
 
   @Override
@@ -203,66 +176,9 @@ public class MainActivity extends AppCompatActivity implements HasSupportFragmen
    */
   @Override
   protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+    googleApiManager.onActivityResult(requestCode, resultCode);
+    authenticationManager.onActivityResult(requestCode, resultCode, intent);
     settingsManager.onActivityResult(requestCode, resultCode);
-    if (requestCode == RC_SIGN_IN) {
-      // The Task returned from this call is always completed, no need to attach
-      // a listener.
-      Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(intent);
-      handleSignInResult(task);
-    }
-  }
-
-  private void handleSignInResult(Task<GoogleSignInAccount> completedTask) {
-    try {
-      account = completedTask.getResult(ApiException.class);
-      firebaseAuthWithGoogle(account);
-
-      // Signed in successfully, show authenticated UI.
-      //      updateUI(account);
-    } catch (ApiException e) {
-      // The ApiException status code indicates the detailed failure reason.
-      // Please refer to the GoogleSignInStatusCodes class reference for more information.
-      Log.w(TAG, "signInResult:failed code=" + e.getStatusCode());
-      //      updateUI(null);
-    }
-  }
-
-  private void firebaseAuthWithGoogle(GoogleSignInAccount acct) {
-    Log.d(TAG, "firebaseAuthWithGoogle:" + acct.getId());
-
-    AuthCredential credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);
-    firebaseAuth
-      .signInWithCredential(credential)
-      .addOnCompleteListener(
-        this,
-        new OnCompleteListener<AuthResult>() {
-          @Override
-          public void onComplete(@NonNull Task<AuthResult> task) {
-            if (task.isSuccessful()) {
-              // Sign in success, update UI with the signed-in user's information
-              Log.d(TAG, "signInWithCredential:success");
-              // TODO: Update UI
-//                  FirebaseUser user = firebaseAuth.getCurrentUser();
-
-              Log.i(TAG, "User logged in");
-              // TODO: Move into its own fragment.
-              // TODO: Move into AuthenticationService?
-              // TODO: Store/update user profile in Firestore.
-              // TODO: Store/update user profile and image locally.
-              //               updateUI(user);
-            } else {
-              // If sign in fails, display a message to the user.
-              Log.w(TAG, "signInWithCredential:failure", task.getException());
-              // TODO: Log error.
-              //               Snackbar
-              //                 .make(findViewById(R.id.main_layout), "Authentication Failed.",
-              // Snackbar.LENGTH_SHORT).show();
-              //               updateUI(null);
-            }
-
-            // ...
-          }
-        });
   }
 
   @Override

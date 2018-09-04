@@ -17,6 +17,7 @@
 package com.google.android.gnd;
 
 import android.support.v7.app.AppCompatActivity;
+
 import com.google.android.gnd.inject.PerActivity;
 import com.google.android.gnd.inject.PerFragment;
 import com.google.android.gnd.ui.editrecord.EditRecordFragment;
@@ -32,11 +33,16 @@ import com.google.android.gnd.ui.home.placesheet.RecordListFragment;
 import com.google.android.gnd.ui.projectselector.ProjectSelectorDialogFragment;
 import com.google.android.gnd.ui.recorddetails.RecordDetailsFragment;
 import com.google.android.gnd.ui.recorddetails.RecordDetailsModule;
+import com.google.android.gnd.ui.startup.StartupFragment;
+import com.google.android.gnd.ui.startup.StartupModule;
+
 import dagger.Binds;
 import dagger.Module;
 import dagger.android.ContributesAndroidInjector;
 
-/** Provides dependencies to {@link MainActivity}. */
+/**
+ * Provides dependencies to {@link MainActivity} and fragments.
+ */
 @Module
 public abstract class MainActivityModule {
   /**
@@ -49,6 +55,10 @@ public abstract class MainActivityModule {
   // TODO: Merge Fragment and activities modules into one.
   // Discussion:
   // https://stackoverflow.com/questions/36206989/dagger-should-we-create-each-component-and-module-for-each-activity-fragment
+
+  @PerFragment
+  @ContributesAndroidInjector(modules = StartupModule.class)
+  abstract StartupFragment startupFragmentInjector();
 
   @PerFragment
   @ContributesAndroidInjector(modules = HomeScreenModule.class)

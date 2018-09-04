@@ -15,10 +15,10 @@
   -->
 
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/nav_main.xml"
-    app:startDestination="@id/home_screen_fragment">
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            xmlns:tools="http://schemas.android.com/tools"
+            android:id="@+id/nav_main.xml"
+            app:startDestination="@+id/startup_fragment">
 
   <fragment
       android:id="@+id/home_screen_fragment"
@@ -84,6 +84,15 @@
     <argument
         android:name="formId"
         app:type="string"/>
+  </fragment>
+  <fragment
+      android:id="@+id/startup_fragment"
+      android:name="com.google.android.gnd.ui.startup.StartupFragment"
+      android:label="startup_frag"
+      tools:layout="@layout/startup_frag">
+    <action
+        android:id="@+id/action_startup_fragment_to_home_screen_fragment"
+        app:destination="@id/home_screen_fragment"/>
   </fragment>
 
 </navigation>
