@@ -25,6 +25,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
+import android.support.design.widget.NavigationView.OnNavigationItemSelectedListener;
 import android.support.v4.view.WindowInsetsCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
@@ -32,6 +33,7 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import androidx.navigation.fragment.NavHostFragment;
@@ -60,7 +62,8 @@ import javax.inject.Inject;
  * application, and gets swapped out for other fragments (e.g., view record and edit record) at
  * runtime.
  */
-public class HomeScreenFragment extends AbstractFragment implements OnBackListener {
+public class HomeScreenFragment extends AbstractFragment
+    implements OnBackListener, OnNavigationItemSelectedListener {
   private static final float COLLAPSED_MAP_ASPECT_RATIO = 3.0f / 2.0f;
   private static final String TAG = HomeScreenFragment.class.getSimpleName();
 
@@ -72,11 +75,11 @@ public class HomeScreenFragment extends AbstractFragment implements OnBackListen
   @BindView(R.id.toolbar)
   TwoLineToolbar toolbar;
 
-  @BindView(R.id.drawer_layout)
-  DrawerLayout drawerLayout;
-
   @BindView(R.id.status_bar_scrim)
   View statusBarScrim;
+
+  @BindView(R.id.drawer_layout)
+  DrawerLayout drawerLayout;
 
   @BindView(R.id.nav_view)
   NavigationView navView;
@@ -125,6 +128,7 @@ public class HomeScreenFragment extends AbstractFragment implements OnBackListen
     // Ensure nav drawer cannot be swiped out, which would conflict with map pan gestures.
     drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
 
+    navView.setNavigationItemSelectedListener(this);
     getView().getViewTreeObserver().addOnGlobalLayoutListener(this::onToolbarLayout);
 
     if (savedInstanceState == null) {
@@ -170,6 +174,10 @@ public class HomeScreenFragment extends AbstractFragment implements OnBackListen
     drawerLayout.openDrawer(Gravity.START);
   }
 
+  private void closeDrawer() {
+    drawerLayout.closeDrawer(Gravity.START);
+  }
+
   @Override
   public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
     inflater.inflate(R.menu.place_sheet_menu, menu);
@@ -182,8 +190,12 @@ public class HomeScreenFragment extends AbstractFragment implements OnBackListen
     // TODO: Persist last selected project in local db instead of asking to select every time.
     // TODO: Trigger this from welcome flow and nav drawer instead of here.
     if (viewModel.getActiveProject().getValue() == null) {
-      ProjectSelectorDialogFragment.show(getFragmentManager());
+      showProjectSelector();
     }
+  }
+
+  private void showProjectSelector() {
+    ProjectSelectorDialogFragment.show(getFragmentManager());
   }
 
   private void onApplyWindowInsets(WindowInsetsCompat insets) {
@@ -302,6 +314,21 @@ public class HomeScreenFragment extends AbstractFragment implements OnBackListen
       hideBottomSheet();
       return true;
     }
+  }
+
+  @Override
+  public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+    switch (item.getItemId()) {
+      case R.id.nav_join_project:
+        showProjectSelector();
+        closeDrawer();
+        break;
+      case R.id.nav_sign_out:
+        // TODO: Implement sign out with:
+        //    FirebaseAuth.getInstance().signOut();
+        break;
+    }
+    return false;
   }
 
   private class BottomSheetCallback extends BottomSheetBehavior.BottomSheetCallback {

@@ -66,9 +66,6 @@ public class StartupFragment extends AbstractFragment {
         .doOnError(this::onGooglePlayServicesInstallError)
         .as(autoDisposable(getActivity()))
         .subscribe(this::onGooglePlaceServiceReady, __ -> quit());
-
-    // TODO: Implement sign out with:
-    //    FirebaseAuth.getInstance().signOut();
   }
 
   private void onGooglePlaceServiceReady() {
