@@ -16,6 +16,10 @@
 
 package com.google.android.gnd.ui.home;
 
+import static com.google.android.gnd.rx.RxAutoDispose.autoDisposable;
+import static com.google.android.gnd.ui.util.ViewUtil.getScreenHeight;
+import static com.google.android.gnd.ui.util.ViewUtil.getScreenWidth;
+
 import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -29,7 +33,9 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
+import androidx.navigation.fragment.NavHostFragment;
+import butterknife.BindView;
+import butterknife.OnClick;
 import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.MainViewModel;
 import com.google.android.gnd.R;
@@ -46,16 +52,7 @@ import com.google.android.gnd.vo.Form;
 import com.google.android.gnd.vo.Place;
 import com.google.android.gnd.vo.Point;
 import com.google.android.gnd.vo.Project;
-
 import javax.inject.Inject;
-
-import androidx.navigation.fragment.NavHostFragment;
-import butterknife.BindView;
-import butterknife.OnClick;
-
-import static com.google.android.gnd.rx.RxAutoDispose.autoDisposable;
-import static com.google.android.gnd.ui.util.ViewUtil.getScreenHeight;
-import static com.google.android.gnd.ui.util.ViewUtil.getScreenWidth;
 
 /**
  * Fragment containing the map container and place sheet fragments. This is the default view in the
