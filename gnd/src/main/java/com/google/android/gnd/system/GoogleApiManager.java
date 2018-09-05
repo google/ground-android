@@ -2,6 +2,7 @@ package com.google.android.gnd.system;
 
 import android.app.Activity;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentActivity;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -18,6 +19,8 @@ public class GoogleApiManager {
   private static final int INSTALL_API_REQUEST_CODE =
       GoogleApiAvailability.class.hashCode() & 0xffff;
   private final GoogleApiAvailability googleApiAvailability;
+  // TODO: Replace with CompletableSubject?
+  @Nullable
   private CompletableEmitter installApiResultEmitter;
   private int googleApiAvailabilityResult;
 

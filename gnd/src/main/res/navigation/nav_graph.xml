@@ -91,7 +91,7 @@
       android:label="startup_frag"
       tools:layout="@layout/startup_frag">
     <action
-        android:id="@+id/action_startup_fragment_to_home_screen_fragment"
+        android:id="@+id/proceedToHomeScreen"
         app:destination="@id/home_screen_fragment"/>
   </fragment>
 

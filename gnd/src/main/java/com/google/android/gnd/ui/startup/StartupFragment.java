@@ -1,6 +1,8 @@
 package com.google.android.gnd.ui.startup;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,7 +16,9 @@ import com.google.android.gnd.ui.common.EphemeralPopups;
 
 import javax.inject.Inject;
 
-import io.reactivex.Completable;
+import androidx.navigation.fragment.NavHostFragment;
+import butterknife.BindView;
+import butterknife.OnClick;
 
 import static com.google.android.gnd.rx.RxAutoDispose.autoDisposable;
 
@@ -23,41 +27,69 @@ public class StartupFragment extends AbstractFragment {
   @Inject GoogleApiManager googleApiManager;
   @Inject AuthenticationManager authenticationManager;
 
-  @Override
-  public void onStart() {
-    super.onStart();
+  @BindView(R.id.sign_in_button)
+  View signInButton;
 
+  @Override
+  public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+    super.onViewCreated(view, savedInstanceState);
+    signInButton.setEnabled(false);
+  }
+
+  @Override
+  public void onResume() {
+    super.onResume();
+
+    // Run through required first-time steps. We do this in onResume() so that they'll be rerun if
+    // the user clicks "back" from sign in flow as well.
     googleApiManager
         .installGooglePlayServices(getActivity())
         .doOnError(this::onGooglePlayServicesInstallError)
-        .andThen(signIn())
-        .as(autoDisposable(this))
-        .subscribe(this::openHomeScreen, __ -> quit());
+        .as(autoDisposable(getActivity()))
+        .subscribe(this::onGooglePlaceServiceReady, __ -> quit());
 
-    //    if (account == null) {
-    //      account = GoogleSignIn.getLastSignedInAccount(this);
-    //    }
-    //    if (account == null) {
-    //      signIn();
-    //    }
     // TODO: Implement sign out with:
     //    FirebaseAuth.getInstance().signOut();
   }
 
-  private void openHomeScreen() {}
+  private void onGooglePlaceServiceReady() {
+    authenticationManager
+        .refresh(getActivity())
+        .as(autoDisposable(getActivity()))
+        .subscribe(
+            success -> {
+              if (success) {
+                navigateToHomeScreen();
+              } else {
+                signInButton.setEnabled(true);
+              }
+            },
+            __ -> EphemeralPopups.showError(getContext()));
+  }
+
+  @OnClick(R.id.sign_in_button)
+  public void onSignInButtonClick() {
+    authenticationManager
+        .signIn(getActivity())
+        .as(autoDisposable(getActivity()))
+        .subscribe(
+            this::navigateToHomeScreen,
+            e -> EphemeralPopups.showError(getContext(), R.string.sign_in_unsuccessful));
+  }
+
+  private void navigateToHomeScreen() {
+    NavHostFragment.findNavController(this)
+        .navigate(StartupFragmentDirections.proceedToHomeScreen());
+  }
 
   private void onGooglePlayServicesInstallError(Throwable throwable) {
     Log.e(TAG, "Google Play Services install failed", throwable);
+
     EphemeralPopups.showError(getContext(), R.string.google_api_install_failed);
   }
 
   private void quit() {
     getActivity().finish();
-  }
-
-  private Completable signIn() {
-    authenticationManager.signIn(getActivity());
-    return Completable.complete();
   }
 
   @Override
