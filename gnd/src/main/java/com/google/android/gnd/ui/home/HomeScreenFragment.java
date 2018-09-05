@@ -74,6 +74,9 @@ public class HomeScreenFragment extends AbstractFragment implements OnBackListen
   @BindView(R.id.drawer_layout)
   DrawerLayout drawerLayout;
 
+  @BindView(R.id.status_bar_scrim)
+  View statusBarScrim;
+
   @BindView(R.id.nav_view)
   NavigationView navView;
 
@@ -178,8 +181,9 @@ public class HomeScreenFragment extends AbstractFragment implements OnBackListen
   }
 
   private void onApplyWindowInsets(WindowInsetsCompat insets) {
-    bottomSheetBottomInsetScrim.setMinimumHeight(insets.getSystemWindowInsetBottom());
+    statusBarScrim.setPadding(0, insets.getSystemWindowInsetTop(), 0, 0);
     toolbarWrapper.setPadding(0, insets.getSystemWindowInsetTop(), 0, 0);
+    bottomSheetBottomInsetScrim.setMinimumHeight(insets.getSystemWindowInsetBottom());
     updateBottomSheetPeekHeight(insets);
   }
 

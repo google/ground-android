@@ -97,6 +97,20 @@
         android:alpha="0"
         android:background="@color/colorGrey50"/>
     </RelativeLayout>
+
+    <!--
+      Translucent scrim to make status bar legible when shown overlayed on map or toolbar.
+      Workaround for possible bug in Navigation Architecture Components where translucent system
+      bars get replaced with solid white background in fragment after navigation.
+     -->
+    <FrameLayout
+      android:id="@+id/status_bar_scrim"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_gravity="top"
+      android:alpha="0.4"
+      android:background="@android:color/black"/>
+
   </android.support.design.widget.CoordinatorLayout>
 
   <android.support.design.widget.NavigationView
