@@ -18,7 +18,7 @@
             xmlns:app="http://schemas.android.com/apk/res-auto"
             xmlns:tools="http://schemas.android.com/tools"
             android:id="@+id/nav_main.xml"
-            app:startDestination="@+id/startup_fragment">
+  app:startDestination="@id/startup_fragment">
 
   <fragment
       android:id="@+id/home_screen_fragment"
@@ -48,13 +48,13 @@
       tools:layout="@layout/record_details_frag">
     <argument
         android:name="projectId"
-        app:type="string"/>
+      type="string"/>
     <argument
         android:name="placeId"
-        app:type="string"/>
+      type="string"/>
     <argument
         android:name="recordId"
-        app:type="string"/>
+      type="string"/>
     <action
         android:id="@+id/editRecord"
         app:destination="@id/edit_record_fragment"
@@ -74,16 +74,16 @@
       tools:layout="@layout/edit_record_frag">
     <argument
         android:name="projectId"
-        app:type="string"/>
+      type="string"/>
     <argument
         android:name="placeId"
-        app:type="string"/>
+      type="string"/>
     <argument
         android:name="recordId"
-        app:type="string"/>
+      type="string"/>
     <argument
         android:name="formId"
-        app:type="string"/>
+      type="string"/>
   </fragment>
   <fragment
       android:id="@+id/startup_fragment"
