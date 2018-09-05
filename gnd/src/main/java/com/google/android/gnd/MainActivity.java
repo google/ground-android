@@ -31,10 +31,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import androidx.navigation.fragment.NavHostFragment;
 import butterknife.ButterKnife;
-import com.google.android.gnd.repository.DataRepository;
 import com.google.android.gnd.rx.RxDebug;
-import com.google.android.gnd.service.RemoteDataService;
 import com.google.android.gnd.system.AuthenticationManager;
+import com.google.android.gnd.system.AuthenticationManager.AuthStatus;
 import com.google.android.gnd.system.GoogleApiManager;
 import com.google.android.gnd.system.PermissionsManager;
 import com.google.android.gnd.system.PermissionsManager.PermissionsRequest;
@@ -62,8 +61,6 @@ public class MainActivity extends AppCompatActivity implements HasSupportFragmen
   @Inject SettingsManager settingsManager;
   @Inject GoogleApiManager googleApiManager;
   @Inject AuthenticationManager authenticationManager;
-  @Inject RemoteDataService remoteDataService;
-  @Inject DataRepository model;
   @Inject DispatchingAndroidInjector<Fragment> fragmentInjector;
 
   private NavHostFragment navHostFragment;
@@ -101,6 +98,8 @@ public class MainActivity extends AppCompatActivity implements HasSupportFragmen
         .getSettingsChangeRequests()
         .as(autoDisposable(this))
         .subscribe(this::onSettingsChangeRequest);
+
+    authenticationManager.getStatus().as(autoDisposable(this)).subscribe(this::onAuthStatusChange);
   }
 
   private void onPermissionsRequest(PermissionsRequest permissionsRequest) {
@@ -119,6 +118,14 @@ public class MainActivity extends AppCompatActivity implements HasSupportFragmen
     } catch (SendIntentException e) {
       // TODO: Report error.
       Log.e(TAG, e.toString());
+    }
+  }
+
+  private void onAuthStatusChange(AuthStatus status) {
+    if (!status.isAuthenticated()) {
+      // TODO: Check auth status whenever fragments resumes.
+      Log.d(TAG, "Signed out, navigating to startup screen");
+      navHostFragment.getNavController().navigate(R.id.signOut);
     }
   }
 

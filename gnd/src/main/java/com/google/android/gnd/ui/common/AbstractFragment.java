@@ -16,6 +16,8 @@
 
 package com.google.android.gnd.ui.common;
 
+import static com.google.android.gnd.util.Debug.logLifecycleEvent;
+
 import android.arch.lifecycle.ViewModel;
 import android.content.Context;
 import android.os.Bundle;
@@ -26,17 +28,15 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
-import javax.inject.Inject;
-
+import androidx.navigation.NavController;
+import androidx.navigation.fragment.NavHostFragment;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
 import dagger.android.AndroidInjector;
 import dagger.android.DispatchingAndroidInjector;
 import dagger.android.support.AndroidSupportInjection;
 import dagger.android.support.HasSupportFragmentInjector;
-
-import static com.google.android.gnd.util.Debug.logLifecycleEvent;
+import javax.inject.Inject;
 
 public abstract class AbstractFragment extends Fragment implements HasSupportFragmentInjector {
   /**
@@ -169,5 +169,9 @@ public abstract class AbstractFragment extends Fragment implements HasSupportFra
 
   protected <T> T restoreChildFragment(Bundle savedInstanceState, Class<T> fragmentClass) {
     return (T) restoreChildFragment(savedInstanceState, fragmentClass.getName());
+  }
+
+  protected NavController getNavController() {
+    return NavHostFragment.findNavController(this);
   }
 }

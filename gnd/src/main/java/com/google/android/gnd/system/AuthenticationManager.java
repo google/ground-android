@@ -28,14 +28,17 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.gnd.GndApplication;
 import com.google.android.gnd.R;
 import com.google.android.gnd.inject.PerActivity;
-import com.google.android.gnd.rx.RxTask;
 import com.google.firebase.auth.AuthCredential;
+import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
-import io.reactivex.Completable;
-import io.reactivex.Single;
-import io.reactivex.subjects.CompletableSubject;
+import io.reactivex.Observable;
+import io.reactivex.subjects.BehaviorSubject;
+import io.reactivex.subjects.PublishSubject;
+import io.reactivex.subjects.Subject;
+import java8.util.Optional;
+import java8.util.function.Consumer;
 import javax.inject.Inject;
 
 @PerActivity
@@ -43,10 +46,13 @@ public class AuthenticationManager {
   private static final String TAG = AuthenticationManager.class.getSimpleName();
   private static final int SIGN_IN_REQUEST_CODE = AuthenticationManager.class.hashCode() & 0xffff;
   private final GoogleSignInOptions googleSignInOptions;
-  private CompletableSubject signInSubject;
+  private final Subject<AuthStatus> authStatusSubject;
+  private final Subject<Throwable> authErrorSubject;
 
   @Inject
   public AuthenticationManager(GndApplication application) {
+    this.authStatusSubject = BehaviorSubject.createDefault(AuthStatus.unknown());
+    this.authErrorSubject = PublishSubject.create();
     this.googleSignInOptions =
         new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestIdToken(application.getResources().getString(R.string.default_web_client_id))
@@ -55,28 +61,42 @@ public class AuthenticationManager {
             .build();
   }
 
-  public Single<Boolean> refresh(Activity activity) {
-    return Single.create(
-        src -> {
-          GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(activity);
-          if (account == null) {
-            src.onSuccess(false);
-            return;
-          }
-          FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-          if (firebaseUser != null) {
-            src.onSuccess(true);
-            return;
-          }
-          signInToFirebase(account).subscribe(() -> src.onSuccess(true), t -> src.onError(t));
-        });
+  public Observable<AuthStatus> getStatus() {
+    return authStatusSubject;
   }
 
-  public Completable signIn(Activity activity) {
-    signInSubject = CompletableSubject.create();
+  public Observable<Throwable> getErrors() {
+    return authErrorSubject;
+  }
+
+  public boolean refresh(Activity activity) {
+    GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(activity);
+    if (account == null) {
+      return false;
+    }
+    FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+    if (firebaseUser != null) {
+      onAuthSuccess(new User());
+      return true;
+    }
+    signInToFirebase(account);
+    return false;
+  }
+
+  private void onAuthSuccess(User user) {
+    // TODO: Store/update user profile and image locally.
+    authStatusSubject.onNext(AuthStatus.authenticated(user));
+  }
+
+  public void signIn(Activity activity) {
     Intent signInIntent = GoogleSignIn.getClient(activity, googleSignInOptions).getSignInIntent();
     activity.startActivityForResult(signInIntent, SIGN_IN_REQUEST_CODE);
-    return signInSubject;
+  }
+
+  public void signOut(Activity activity) {
+    GoogleSignIn.getClient(activity, googleSignInOptions).signOut();
+    FirebaseAuth.getInstance().signOut();
+    authStatusSubject.onNext(AuthStatus.unknown());
   }
 
   public void onActivityResult(int requestCode, int resultCode, Intent intent) {
@@ -89,26 +109,64 @@ public class AuthenticationManager {
 
   private void onGoogleSignInResult(Task<GoogleSignInAccount> completedTask) {
     try {
-      if (signInSubject == null) {
+      if (authStatusSubject == null) {
         Log.e(TAG, "Sign in subject not initialized");
         return;
       }
-      signInToFirebase(completedTask.getResult(ApiException.class)).subscribe(signInSubject);
+      signInToFirebase(completedTask.getResult(ApiException.class));
     } catch (ApiException e) {
       Log.w(TAG, "Sign in failed, GoogleSignInStatusCodes:  " + e.getStatusCode());
-      signInSubject.onError(e);
+      onAuthError(e);
     }
   }
 
-  private static Completable signInToFirebase(GoogleSignInAccount account) {
+  private void signInToFirebase(GoogleSignInAccount account) {
+    FirebaseAuth.getInstance().signInWithCredential(getAuthCredential(account))
+        .addOnSuccessListener(this::onFirebaseAuthSuccess)
+        .addOnFailureListener(this::onAuthError);
+
+  }
+
+  private void onFirebaseAuthSuccess(AuthResult authResult) {
     // TODO: Store/update user profile in Firestore.
-    // TODO: Store/update user profile and image locally.
-    return RxTask.toCompletable(
-        () -> FirebaseAuth.getInstance().signInWithCredential(getAuthCredential(account)));
+    onAuthSuccess(new User());
+  }
+
+  private void onAuthError(Throwable t) {
+    authErrorSubject.onNext(t);
   }
 
   @NonNull
   private static AuthCredential getAuthCredential(GoogleSignInAccount account) {
     return GoogleAuthProvider.getCredential(account.getIdToken(), null);
+  }
+
+  public static class AuthStatus {
+
+    private Optional<User> user;
+
+    private AuthStatus(Optional<User> user) {
+      this.user = user;
+    }
+
+    public static AuthStatus unknown() {
+      return new AuthStatus(Optional.empty());
+    }
+
+    public static AuthStatus authenticated(User user) {
+      return new AuthStatus(Optional.of(user));
+    }
+
+    public boolean isAuthenticated() {
+      return !user.isEmpty();
+    }
+
+    public void ifAuthenticated(Consumer<User> action) {
+      user.ifPresent(action);
+    }
+  }
+
+  public static class User {
+
   }
 }

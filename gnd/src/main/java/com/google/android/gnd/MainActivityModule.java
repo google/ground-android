@@ -17,7 +17,6 @@
 package com.google.android.gnd;
 
 import android.support.v7.app.AppCompatActivity;
-
 import com.google.android.gnd.inject.PerActivity;
 import com.google.android.gnd.inject.PerFragment;
 import com.google.android.gnd.ui.editrecord.EditRecordFragment;
@@ -33,9 +32,10 @@ import com.google.android.gnd.ui.home.placesheet.RecordListFragment;
 import com.google.android.gnd.ui.projectselector.ProjectSelectorDialogFragment;
 import com.google.android.gnd.ui.recorddetails.RecordDetailsFragment;
 import com.google.android.gnd.ui.recorddetails.RecordDetailsModule;
+import com.google.android.gnd.ui.signin.SignInFragment;
+import com.google.android.gnd.ui.signin.SignInModule;
 import com.google.android.gnd.ui.startup.StartupFragment;
 import com.google.android.gnd.ui.startup.StartupModule;
-
 import dagger.Binds;
 import dagger.Module;
 import dagger.android.ContributesAndroidInjector;
@@ -57,6 +57,10 @@ public abstract class MainActivityModule {
   @PerFragment
   @ContributesAndroidInjector(modules = StartupModule.class)
   abstract StartupFragment startupFragmentInjector();
+
+  @PerFragment
+  @ContributesAndroidInjector(modules = SignInModule.class)
+  abstract SignInFragment signInFragmentInjector();
 
   @PerFragment
   @ContributesAndroidInjector(modules = HomeScreenModule.class)

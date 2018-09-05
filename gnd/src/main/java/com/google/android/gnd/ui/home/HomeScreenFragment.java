@@ -43,6 +43,7 @@ import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.MainViewModel;
 import com.google.android.gnd.R;
 import com.google.android.gnd.repository.Resource;
+import com.google.android.gnd.system.AuthenticationManager;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.BottomSheetBehavior;
 import com.google.android.gnd.ui.common.EphemeralPopups;
@@ -68,6 +69,8 @@ public class HomeScreenFragment extends AbstractFragment
   private static final String TAG = HomeScreenFragment.class.getSimpleName();
 
   @Inject AddPlaceDialogFragment addPlaceDialogFragment;
+  @Inject
+  AuthenticationManager authenticationManager;
 
   @BindView(R.id.toolbar_wrapper)
   ViewGroup toolbarWrapper;
@@ -324,8 +327,7 @@ public class HomeScreenFragment extends AbstractFragment
         closeDrawer();
         break;
       case R.id.nav_sign_out:
-        // TODO: Implement sign out with:
-        //    FirebaseAuth.getInstance().signOut();
+        authenticationManager.signOut(getActivity());
         break;
     }
     return false;

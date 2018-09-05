@@ -19,15 +19,10 @@ package com.google.android.gnd.ui.startup;
 import static com.google.android.gnd.rx.RxAutoDispose.autoDisposable;
 
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import androidx.navigation.fragment.NavHostFragment;
-import butterknife.BindView;
-import butterknife.OnClick;
 import com.google.android.gnd.R;
 import com.google.android.gnd.system.AuthenticationManager;
 import com.google.android.gnd.system.GoogleApiManager;
@@ -37,22 +32,14 @@ import javax.inject.Inject;
 
 public class StartupFragment extends AbstractFragment {
   private static final String TAG = StartupFragment.class.getSimpleName();
+
   @Inject GoogleApiManager googleApiManager;
   @Inject AuthenticationManager authenticationManager;
 
-  @BindView(R.id.sign_in_button)
-  View signInButton;
-
   @Override
   public View onCreateView(
-    LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+      LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     return inflater.inflate(R.layout.startup_frag, container, false);
-  }
-
-  @Override
-  public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-    super.onViewCreated(view, savedInstanceState);
-    signInButton.setEnabled(false);
   }
 
   @Override
@@ -63,48 +50,21 @@ public class StartupFragment extends AbstractFragment {
     // the user clicks "back" from sign in flow as well.
     googleApiManager
         .installGooglePlayServices(getActivity())
-        .doOnError(this::onGooglePlayServicesInstallError)
         .as(autoDisposable(getActivity()))
-        .subscribe(this::onGooglePlaceServiceReady, __ -> quit());
+        .subscribe(this::onGooglePlayServiceReady, this::onGooglePlayServicesFailed);
   }
 
-  private void onGooglePlaceServiceReady() {
-    authenticationManager
-        .refresh(getActivity())
-        .as(autoDisposable(getActivity()))
-        .subscribe(
-            success -> {
-              if (success) {
-                navigateToHomeScreen();
-              } else {
-                signInButton.setEnabled(true);
-              }
-            },
-            __ -> EphemeralPopups.showError(getContext()));
+  private void onGooglePlayServiceReady() {
+    if (!authenticationManager.refresh(getActivity())) {
+      getNavController().navigate(StartupFragmentDirections.showSignInScreen());
+    }
   }
 
-  @OnClick(R.id.sign_in_button)
-  public void onSignInButtonClick() {
-    authenticationManager
-        .signIn(getActivity())
-        .as(autoDisposable(getActivity()))
-        .subscribe(
-            this::navigateToHomeScreen,
-            e -> EphemeralPopups.showError(getContext(), R.string.sign_in_unsuccessful));
-  }
+  private void onGooglePlayServicesFailed(Throwable t) {
+    Log.e(TAG, "Google Play Services install failed", t);
 
-  private void navigateToHomeScreen() {
-    NavHostFragment.findNavController(this)
-        .navigate(StartupFragmentDirections.proceedToHomeScreen());
-  }
+    EphemeralPopups.showError(getActivity(), R.string.google_api_install_failed);
 
-  private void onGooglePlayServicesInstallError(Throwable throwable) {
-    Log.e(TAG, "Google Play Services install failed", throwable);
-
-    EphemeralPopups.showError(getContext(), R.string.google_api_install_failed);
-  }
-
-  private void quit() {
     getActivity().finish();
   }
 }

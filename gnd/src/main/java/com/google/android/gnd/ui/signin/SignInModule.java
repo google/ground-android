@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.ui.startup;
+package com.google.android.gnd.ui.signin;
 
 import android.support.v4.app.Fragment;
 import com.google.android.gnd.inject.PerFragment;
@@ -24,9 +24,9 @@ import dagger.Module;
 
 // TODO: Merge app-scoped Dagger modules.
 @Module(includes = AbstractFragmentModule.class)
-public abstract class StartupModule {
+public abstract class SignInModule {
 
   @Binds
   @PerFragment
-  abstract Fragment fragment(StartupFragment fragment);
+  abstract Fragment fragment(SignInFragment fragment);
 }
