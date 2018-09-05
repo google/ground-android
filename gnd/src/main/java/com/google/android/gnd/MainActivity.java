@@ -16,6 +16,9 @@
 
 package com.google.android.gnd;
 
+import static com.google.android.gnd.rx.RxAutoDispose.autoDisposable;
+import static com.google.android.gnd.util.Debug.logLifecycleEvent;
+
 import android.content.Intent;
 import android.content.IntentSender.SendIntentException;
 import android.graphics.drawable.Drawable;
@@ -26,7 +29,8 @@ import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-
+import androidx.navigation.fragment.NavHostFragment;
+import butterknife.ButterKnife;
 import com.google.android.gnd.repository.DataRepository;
 import com.google.android.gnd.rx.RxDebug;
 import com.google.android.gnd.service.RemoteDataService;
@@ -40,20 +44,13 @@ import com.google.android.gnd.ui.common.OnBackListener;
 import com.google.android.gnd.ui.common.TwoLineToolbar;
 import com.google.android.gnd.ui.common.ViewModelFactory;
 import com.google.android.gnd.ui.util.DrawableUtil;
-
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
-import androidx.navigation.fragment.NavHostFragment;
-import butterknife.ButterKnife;
 import dagger.android.AndroidInjection;
 import dagger.android.AndroidInjector;
 import dagger.android.DispatchingAndroidInjector;
 import dagger.android.support.HasSupportFragmentInjector;
 import io.reactivex.plugins.RxJavaPlugins;
-
-import static com.google.android.gnd.rx.RxAutoDispose.autoDisposable;
-import static com.google.android.gnd.util.Debug.logLifecycleEvent;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 
 @Singleton
 public class MainActivity extends AppCompatActivity implements HasSupportFragmentInjector {
