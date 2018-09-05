@@ -16,6 +16,9 @@
 
 package com.google.android.gnd.ui.projectselector;
 
+import static com.google.android.gnd.rx.RxAutoDispose.autoDisposable;
+import static java8.util.stream.StreamSupport.stream;
+
 import android.app.Dialog;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -27,20 +30,14 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import com.google.android.gnd.R;
 import com.google.android.gnd.repository.Resource;
 import com.google.android.gnd.ui.common.AbstractDialogFragment;
 import com.google.android.gnd.ui.common.EphemeralPopups;
 import com.google.android.gnd.vo.Project;
-
 import java.util.List;
-
-import butterknife.BindView;
-import butterknife.ButterKnife;
-
-import static com.google.android.gnd.rx.RxAutoDispose.autoDisposable;
-import static java8.util.stream.StreamSupport.stream;
 
 public class ProjectSelectorDialogFragment extends AbstractDialogFragment {
 
@@ -69,7 +66,7 @@ public class ProjectSelectorDialogFragment extends AbstractDialogFragment {
   public Dialog onCreateDialog(Bundle savedInstanceState) {
     super.onCreateDialog(savedInstanceState);
     AlertDialog.Builder dialog = new AlertDialog.Builder(getContext());
-    dialog.setTitle(R.string.select_project_dialog_title);
+    dialog.setTitle(R.string.join_project_dialog_title);
     LayoutInflater inflater = getActivity().getLayoutInflater();
     ViewGroup dialogView = (ViewGroup) inflater.inflate(R.layout.project_selector_dialog, null);
     ButterKnife.bind(this, dialogView);

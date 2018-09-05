@@ -15,73 +15,84 @@
   ~ limitations under the License.
   -->
 
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-  xmlns:app="http://schemas.android.com/apk/res-auto"
-  android:layout_width="match_parent"
-  android:layout_height="match_parent">
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
-  <RelativeLayout
-    android:id="@+id/map_layout"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:layout_gravity="center"
-    android:gravity="center"
-    app:layout_behavior="com.google.android.gnd.ui.home.mapcontainer.MapLayoutBehavior">
+  <data>
+    <variable
+        name="homeScreenViewModel"
+        type="com.google.android.gnd.ui.home.HomeScreenViewModel"/>
+  </data>
 
-    <!-- Placeholder for map implementation -->
-    <FrameLayout
-      android:id="@+id/map"
+  <FrameLayout
       android:layout_width="match_parent"
-      android:layout_height="match_parent"/>
+      android:layout_height="match_parent">
 
-    <!-- TODO: Add highlighted icon overlay when showing place sheet -->
-    <ImageView
-      android:id="@+id/map_crosshairs"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:layout_centerInParent="true"
-      android:adjustViewBounds="false"
-      android:cropToPadding="false"
-      android:src="@drawable/ic_crosshairs"/>
-  </RelativeLayout>
 
-  <LinearLayout
-    android:id="@+id/map_btn_layout"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_marginBottom="@dimen/map_btn_margin_bottom"
-    android:layout_marginRight="@dimen/map_btn_margin_right"
-    android:layout_gravity="bottom|right|end"
-    android:orientation="vertical">
+    <RelativeLayout
+        android:id="@+id/map_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:gravity="center"
+        app:layout_behavior="com.google.android.gnd.ui.home.mapcontainer.MapLayoutBehavior">
 
-    <android.support.design.widget.FloatingActionButton
-      android:id="@+id/location_lock_btn"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:src="@drawable/ic_gps_grey600"
-      app:backgroundTint="@color/colorGrey50"
-      app:fabSize="normal"
-      app:useCompatPadding="true"/>
+      <!-- Placeholder for map implementation -->
+      <FrameLayout
+          android:id="@+id/map"
+          android:layout_width="match_parent"
+          android:layout_height="match_parent"/>
 
-    <android.support.design.widget.FloatingActionButton
-      android:id="@+id/add_place_btn"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:src="@drawable/ic_add_light"
-      app:backgroundTint="@color/colorGrey500"
-      app:fabSize="normal"
-      app:useCompatPadding="true"/>
-  </LinearLayout>
+      <!-- TODO: Add highlighted icon overlay when showing place sheet -->
+      <ImageView
+          android:id="@+id/map_crosshairs"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_centerInParent="true"
+          android:adjustViewBounds="false"
+          android:cropToPadding="false"
+          android:src="@drawable/ic_crosshairs"/>
+    </RelativeLayout>
 
-  <ImageButton
-    android:id="@+id/hamburger_btn"
-    android:visibility="invisible"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_margin="14dp"
-    android:layout_gravity="top|start|left"
-    android:background="?attr/selectableItemBackgroundBorderless"
-    android:src="@drawable/ic_hamburger"
-    android:clickable="true"/>
+    <LinearLayout
+        android:id="@+id/map_btn_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/map_btn_margin_bottom"
+        android:layout_marginRight="@dimen/map_btn_margin_right"
+        android:layout_gravity="bottom|right|end"
+        android:orientation="vertical">
 
-</FrameLayout>
+      <android.support.design.widget.FloatingActionButton
+          android:id="@+id/location_lock_btn"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:src="@drawable/ic_gps_grey600"
+          app:backgroundTint="@color/colorGrey50"
+          app:fabSize="normal"
+          app:useCompatPadding="true"/>
+
+      <android.support.design.widget.FloatingActionButton
+          android:id="@+id/add_place_btn"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:src="@drawable/ic_add_light"
+          app:backgroundTint="@color/colorGrey500"
+          app:fabSize="normal"
+          app:useCompatPadding="true"/>
+    </LinearLayout>
+
+    <ImageButton
+        android:id="@+id/hamburger_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="14dp"
+        android:layout_gravity="top|start|left"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:clickable="true"
+        android:onClick="@{() -> homeScreenViewModel.openNavDrawer()}"
+        android:src="@drawable/ic_hamburger"/>
+
+  </FrameLayout>
+</layout>

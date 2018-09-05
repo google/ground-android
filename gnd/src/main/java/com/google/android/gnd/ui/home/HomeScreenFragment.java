@@ -28,6 +28,7 @@ import android.support.design.widget.NavigationView;
 import android.support.v4.view.WindowInsetsCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -161,7 +162,12 @@ public class HomeScreenFragment extends AbstractFragment implements OnBackListen
     viewModel.getActiveProject().observe(this, this::onActiveProjectChange);
     viewModel.getShowAddPlaceDialogRequests().observe(this, this::onShowAddPlaceDialogRequest);
     viewModel.getPlaceSheetState().observe(this, this::onPlaceSheetStateChange);
+    viewModel.getOpenDrawerRequests().observe(this, __ -> openDrawer());
     mainViewModel.getWindowInsets().observe(this, this::onApplyWindowInsets);
+  }
+
+  private void openDrawer() {
+    drawerLayout.openDrawer(Gravity.START);
   }
 
   @Override

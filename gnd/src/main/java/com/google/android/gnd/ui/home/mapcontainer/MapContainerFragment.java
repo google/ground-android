@@ -33,9 +33,9 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.Toast;
 import butterknife.BindView;
-import butterknife.OnClick;
 import com.google.android.gnd.MainViewModel;
 import com.google.android.gnd.R;
+import com.google.android.gnd.databinding.MapContainerFragBinding;
 import com.google.android.gnd.repository.Resource;
 import com.google.android.gnd.system.PermissionsManager.PermissionDeniedException;
 import com.google.android.gnd.system.SettingsManager.SettingsChangeRequestCanceled;
@@ -84,7 +84,9 @@ public class MapContainerFragment extends AbstractFragment {
   @Override
   public View onCreateView(
       LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-    return inflater.inflate(R.layout.map_container_frag, container, false);
+    MapContainerFragBinding binding = MapContainerFragBinding.inflate(inflater, container, false);
+    binding.setHomeScreenViewModel(homeScreenViewModel);
+    return binding.getRoot();
   }
 
   @Override
@@ -221,10 +223,5 @@ public class MapContainerFragment extends AbstractFragment {
   @Override
   public void onSaveInstanceState(@NonNull Bundle outState) {
     saveChildFragment(outState, mapProvider.getFragment(), MAP_FRAGMENT_KEY);
-  }
-
-  @OnClick(R.id.hamburger_btn)
-  public void onHamburgerButtonClick() {
-    // TODO: Show menu.
   }
 }

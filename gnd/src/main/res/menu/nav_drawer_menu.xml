@@ -18,8 +18,12 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
   <group android:checkableBehavior="single">
     <item
-      android:id="@+id/nav_select_project"
-      android:icon="@drawable/ic_menu_project"
-      android:title="@string/select_project_menu_item"/>
+        android:id="@+id/nav_join_project"
+        android:icon="@drawable/ic_menu_project"
+        android:title="@string/select_project_menu_item"/>
+    <item
+        android:id="@+id/nav_sign_out"
+        android:icon="@drawable/ic_sign_out"
+        android:title="@string/sign_out"/>
   </group>
 </menu>

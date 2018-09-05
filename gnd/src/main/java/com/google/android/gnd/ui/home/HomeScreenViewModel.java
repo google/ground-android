@@ -17,7 +17,6 @@ package com.google.android.gnd.ui.home;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
-
 import com.google.android.gnd.repository.DataRepository;
 import com.google.android.gnd.repository.Resource;
 import com.google.android.gnd.rx.RxLiveData;
@@ -29,7 +28,6 @@ import com.google.android.gnd.vo.Form;
 import com.google.android.gnd.vo.Place;
 import com.google.android.gnd.vo.Point;
 import com.google.android.gnd.vo.Project;
-
 import javax.inject.Inject;
 
 @ActivityScope
@@ -40,6 +38,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
   private final LiveData<Resource<Project>> activeProject;
   // TODO: Implement this as a state and remove Consumable.
   private final SingleLiveEvent<Point> addPlaceDialogRequests;
+  private final SingleLiveEvent<Void> openDrawerRequests;
   private final MutableLiveData<PlaceSheetState> placeSheetState;
   // TODO: Move into appropriate ViewModel.
   private final MutableLiveData<Form> selectedForm;
@@ -48,9 +47,18 @@ public class HomeScreenViewModel extends AbstractViewModel {
   HomeScreenViewModel(DataRepository dataRepository) {
     this.dataRepository = dataRepository;
     this.addPlaceDialogRequests = new SingleLiveEvent<>();
+    this.openDrawerRequests = new SingleLiveEvent<>();
     this.placeSheetState = new MutableLiveData<>();
     this.activeProject = RxLiveData.fromFlowable(dataRepository.getActiveProjectStream());
     this.selectedForm = new MutableLiveData<>();
+  }
+
+  public LiveData<Void> getOpenDrawerRequests() {
+    return openDrawerRequests;
+  }
+
+  public void openNavDrawer() {
+    openDrawerRequests.setValue(null);
   }
 
   public LiveData<Resource<Project>> getActiveProject() {
