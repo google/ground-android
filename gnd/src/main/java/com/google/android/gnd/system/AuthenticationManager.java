@@ -1,11 +1,25 @@
+/*
+ * Copyright 2018 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.google.android.gnd.system;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.util.Log;
-
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
@@ -16,24 +30,19 @@ import com.google.android.gnd.R;
 import com.google.android.gnd.inject.PerActivity;
 import com.google.android.gnd.rx.RxTask;
 import com.google.firebase.auth.AuthCredential;
-import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
-
-import javax.inject.Inject;
-
 import io.reactivex.Completable;
-import io.reactivex.CompletableEmitter;
 import io.reactivex.Single;
 import io.reactivex.subjects.CompletableSubject;
+import javax.inject.Inject;
 
 @PerActivity
 public class AuthenticationManager {
   private static final String TAG = AuthenticationManager.class.getSimpleName();
   private static final int SIGN_IN_REQUEST_CODE = AuthenticationManager.class.hashCode() & 0xffff;
   private final GoogleSignInOptions googleSignInOptions;
-  @Nullable private CompletableEmitter signInResultEmitter;
   private CompletableSubject signInSubject;
 
   @Inject
@@ -87,7 +96,7 @@ public class AuthenticationManager {
       signInToFirebase(completedTask.getResult(ApiException.class)).subscribe(signInSubject);
     } catch (ApiException e) {
       Log.w(TAG, "Sign in failed, GoogleSignInStatusCodes:  " + e.getStatusCode());
-      signInResultEmitter.onError(e);
+      signInSubject.onError(e);
     }
   }
 
@@ -101,16 +110,5 @@ public class AuthenticationManager {
   @NonNull
   private static AuthCredential getAuthCredential(GoogleSignInAccount account) {
     return GoogleAuthProvider.getCredential(account.getIdToken(), null);
-  }
-
-  private void onFirebaseSignInComplete(Task<AuthResult> task) {
-    if (task.isSuccessful()) {
-      signInResultEmitter.onComplete();
-
-      Log.d(TAG, "Firebase sign in succeeded");
-    } else {
-      Log.d(TAG, "Firebase sign in failed", task.getException());
-      signInResultEmitter.onError(task.getException());
-    }
   }
 }
