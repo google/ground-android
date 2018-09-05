@@ -16,6 +16,9 @@
 
 package com.google.android.gnd.ui.home.mapcontainer;
 
+import static com.google.android.gnd.rx.RxAutoDispose.autoDisposable;
+import static com.google.android.gnd.rx.RxAutoDispose.disposeOnDestroy;
+
 import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -27,8 +30,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.Toast;
-
+import butterknife.BindView;
+import butterknife.OnClick;
 import com.google.android.gnd.MainViewModel;
 import com.google.android.gnd.R;
 import com.google.android.gnd.repository.Resource;
@@ -41,14 +46,8 @@ import com.google.android.gnd.ui.home.mapcontainer.MapContainerViewModel.Locatio
 import com.google.android.gnd.ui.map.MapProvider;
 import com.google.android.gnd.ui.map.MapProvider.MapAdapter;
 import com.google.android.gnd.vo.Project;
-
-import javax.inject.Inject;
-
-import butterknife.BindView;
 import io.reactivex.subjects.SingleSubject;
-
-import static com.google.android.gnd.rx.RxAutoDispose.autoDisposable;
-import static com.google.android.gnd.rx.RxAutoDispose.disposeOnDestroy;
+import javax.inject.Inject;
 
 /** Main app view, displaying the map and related controls (center cross-hairs, add button, etc). */
 public class MapContainerFragment extends AbstractFragment {
@@ -56,6 +55,9 @@ public class MapContainerFragment extends AbstractFragment {
   private static final String MAP_FRAGMENT_KEY = MapProvider.class.getName() + "#fragment";
 
   @Inject MapProvider mapProvider;
+
+  @BindView(R.id.hamburger_btn)
+  ImageButton hamburgerBtn;
 
   @BindView(R.id.add_place_btn)
   FloatingActionButton addPlaceBtn;
@@ -212,11 +214,17 @@ public class MapContainerFragment extends AbstractFragment {
 
   private void onApplyWindowInsets(WindowInsetsCompat windowInsets) {
     ViewCompat.onApplyWindowInsets(mapProvider.getFragment().getView(), windowInsets);
+    hamburgerBtn.setTranslationY(windowInsets.getSystemWindowInsetTop());
     mapBtnLayout.setTranslationY(-windowInsets.getSystemWindowInsetBottom());
   }
 
   @Override
   public void onSaveInstanceState(@NonNull Bundle outState) {
     saveChildFragment(outState, mapProvider.getFragment(), MAP_FRAGMENT_KEY);
+  }
+
+  @OnClick(R.id.hamburger_btn)
+  public void onHamburgerButtonClick() {
+    // TODO: Show menu.
   }
 }
