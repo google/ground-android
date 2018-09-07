@@ -16,6 +16,8 @@
 
 package com.google.android.gnd.ui.common;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.os.Parcel;
@@ -24,8 +26,8 @@ import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
 import android.support.annotation.VisibleForTesting;
-import android.support.design.math.MathUtils;
 import android.support.design.widget.CoordinatorLayout;
+import android.support.v4.math.MathUtils;
 import android.support.v4.view.AbsSavedState;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.ViewDragHelper;
@@ -37,12 +39,9 @@ import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.ViewParent;
-
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.ref.WeakReference;
-
-import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 /**
  * An interaction behavior plugin for a child view of {@link CoordinatorLayout} to make it work as a
@@ -184,13 +183,12 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
     super(context, attrs);
     TypedArray a =
         context.obtainStyledAttributes(
-            attrs, android.support.design.widget.R.styleable.BottomSheetBehavior_Layout);
+          attrs, android.support.design.R.styleable.BottomSheetBehavior_Layout);
     TypedValue value =
         a.peekValue(
             android
                 .support
                 .design
-                .widget
                 .R
                 .styleable
                 .BottomSheetBehavior_Layout_behavior_peekHeight);
@@ -202,7 +200,6 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
               android
                   .support
                   .design
-                  .widget
                   .R
                   .styleable
                   .BottomSheetBehavior_Layout_behavior_peekHeight,
@@ -210,14 +207,13 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
     }
     setHideable(
         a.getBoolean(
-            android.support.design.widget.R.styleable.BottomSheetBehavior_Layout_behavior_hideable,
+          android.support.design.R.styleable.BottomSheetBehavior_Layout_behavior_hideable,
             false));
     setFitToContents(
         a.getBoolean(
             android
                 .support
                 .design
-                .widget
                 .R
                 .styleable
                 .BottomSheetBehavior_Layout_behavior_fitToContents,
@@ -227,7 +223,6 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
             android
                 .support
                 .design
-                .widget
                 .R
                 .styleable
                 .BottomSheetBehavior_Layout_behavior_skipCollapsed,
@@ -270,7 +265,7 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
             parent
                 .getResources()
                 .getDimensionPixelSize(
-                    android.support.design.widget.R.dimen.design_bottom_sheet_peek_height_min);
+                  android.support.design.R.dimen.design_bottom_sheet_peek_height_min);
       }
       lastPeekHeight = Math.max(peekHeightMin, parentHeight - parent.getWidth() * 9 / 16);
     } else {
@@ -895,7 +890,7 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
 
         @Override
         public int clampViewPositionVertical(@NonNull View child, int top, int dy) {
-          return MathUtils.constrain(
+          return MathUtils.clamp(
               top, getExpandedOffset(), hideable ? parentHeight : collapsedOffset);
         }
 

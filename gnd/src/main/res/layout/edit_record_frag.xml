@@ -102,7 +102,7 @@
       android:layout_gravity="top|right|end"
       android:elevation="2dp"
       android:visibility="gone"
-      app:chipText="@string/save_record_button_label"
+    android:text="@string/save_record_button_label"
       app:useCompatPadding="true"/>
 
 </android.support.design.widget.CoordinatorLayout>

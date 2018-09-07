@@ -27,18 +27,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-
+import butterknife.BindView;
 import com.google.android.gnd.MainViewModel;
 import com.google.android.gnd.R;
 import com.google.android.gnd.ui.MapIcon;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.home.HomeScreenViewModel;
 import com.google.android.gnd.ui.home.PlaceSheetState;
-import com.h6ah4i.android.tablayouthelper.TabLayoutHelper;
-
 import javax.inject.Inject;
-
-import butterknife.BindView;
 
 public class PlaceSheetFragment extends AbstractFragment {
   @Inject FormTabPagerAdapter formTypePagerAdapter;
@@ -86,9 +82,10 @@ public class PlaceSheetFragment extends AbstractFragment {
     recordListViewPager.setAdapter(formTypePagerAdapter);
     recordListViewPager.addOnPageChangeListener(viewModel);
     formsTabLayout.setupWithViewPager(recordListViewPager);
-    TabLayoutHelper tabLayoutHelper = new TabLayoutHelper(formsTabLayout, recordListViewPager);
+    // TODO: See if this is still needed; not compatible with latest v4 support libs.
     // Stretch tabs if they all fit on screen, otherwise scroll.
-    tabLayoutHelper.setAutoAdjustTabModeEnabled(true);
+    // TabLayoutHelper tabLayoutHelper = new TabLayoutHelper(formsTabLayout, recordListViewPager);
+    // tabLayoutHelper.setAutoAdjustTabModeEnabled(true);
   }
 
   @Override

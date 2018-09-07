@@ -146,11 +146,11 @@
     <item name="android:textSize">@dimen/field_value_text_size</item>
   </style>
 
-  <style name="EditRecord.Field.Text" parent="Widget.MaterialComponents.TextInputLayout.OutlineBox">
+  <style name="EditRecord.Field.Text" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense">
     <!-- TODO -->
   </style>
 
-  <style name="EditRecord.Field.MultipleChoice" parent="Widget.MaterialComponents.TextInputLayout.OutlineBox">
+  <style name="EditRecord.Field.MultipleChoice" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense">
     <!-- TODO -->
   </style>
 
@@ -161,6 +161,8 @@
     <item name="chipEndPadding">@dimen/chip_button_padding</item>
     <item name="android:paddingTop">@dimen/chip_button_padding</item>
     <item name="android:paddingBottom">@dimen/chip_button_padding</item>
+    <!-- textColor inside textAppearance stopped working in 28.0.0-rc02. -->
+    <item name="android:textColor">@color/colorGrey50</item>
     <item name="android:textAppearance">@style/ChipButtonText</item>
   </style>
 
@@ -175,7 +177,6 @@
 
   <style name="ChipButtonText">
     <item name="android:textSize">@dimen/chip_button_text_size</item>
-    <item name="android:textColor">@color/colorGrey50</item>
     <item name="android:textStyle">bold</item>
   </style>
 </resources>
