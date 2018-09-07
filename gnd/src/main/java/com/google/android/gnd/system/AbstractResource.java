@@ -46,6 +46,6 @@ public abstract class AbstractResource<S, T> {
   }
 
   public Optional<T> getData() {
-    return Optional.of(data);
+    return Optional.ofNullable(data);
   }
 }
