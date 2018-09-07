@@ -29,7 +29,7 @@ public abstract class Localization {
       return "";
     }
     // TODO: i18n.
-    return Optional.ofNullable(messages.get("pt"))
-        .orElse(Optional.ofNullable(messages.get("en")).orElse(""));
+    return Optional.ofNullable(messages.get("en"))
+        .orElse(Optional.ofNullable(messages.get("pt")).orElse(""));
   }
 }
