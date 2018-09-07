@@ -205,7 +205,13 @@ public class HomeScreenFragment extends AbstractFragment
     statusBarScrim.setPadding(0, insets.getSystemWindowInsetTop(), 0, 0);
     toolbarWrapper.setPadding(0, insets.getSystemWindowInsetTop(), 0, 0);
     bottomSheetBottomInsetScrim.setMinimumHeight(insets.getSystemWindowInsetBottom());
+    updateNavViewInsets(insets);
     updateBottomSheetPeekHeight(insets);
+  }
+
+  private void updateNavViewInsets(WindowInsetsCompat insets) {
+    View headerView = navView.getHeaderView(0);
+    headerView.setPadding(0, insets.getSystemWindowInsetTop(), 0, 0);
   }
 
   private void updateBottomSheetPeekHeight(WindowInsetsCompat insets) {
