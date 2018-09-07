@@ -126,12 +126,13 @@ public class MainActivity extends AppCompatActivity implements HasSupportFragmen
   }
 
   private void onAuthStatusChange(AuthStatus authStatus) {
-    if (!authStatus.isSignedIn()) {
+    Log.d(TAG, "Auth status change: " + authStatus.getState());
+    if (authStatus.getState().equals(AuthStatus.State.SIGNED_OUT)) {
       // TODO: Check auth status whenever fragments resumes.
       NavController navController = navHostFragment.getNavController();
       if (navController.getCurrentDestination().getId() != R.id.sign_in_fragment) {
         Log.d(TAG, "Signed out, navigating to startup screen");
-        navController.navigate(R.id.signOut);
+        navController.popBackStack(R.id.sign_in_fragment, true);
       }
     }
   }

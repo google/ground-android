@@ -34,6 +34,8 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import io.reactivex.BackpressureStrategy;
+import io.reactivex.Flowable;
 import io.reactivex.Observable;
 import io.reactivex.subjects.BehaviorSubject;
 import io.reactivex.subjects.Subject;
@@ -48,7 +50,7 @@ public class AuthenticationManager {
 
   @Inject
   public AuthenticationManager(GndApplication application) {
-    this.authStateSubject = BehaviorSubject.createDefault(new AuthStatus(State.SIGNED_OUT));
+    this.authStateSubject = BehaviorSubject.create();
     this.googleSignInOptions =
         new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestIdToken(application.getResources().getString(R.string.default_web_client_id))
@@ -61,23 +63,24 @@ public class AuthenticationManager {
     return authStateSubject;
   }
 
-  public boolean refresh(Activity activity) {
-    GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(activity);
-    if (account == null) {
-      return false;
-    }
-    FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-    if (firebaseUser != null) {
-      onAuthSuccess(new User());
-      return true;
-    }
-    signInToFirebase(account);
-    return false;
+  public Flowable<User> withUser() {
+    return getAuthStatus().map(AuthStatus::getUser).toFlowable(BackpressureStrategy.LATEST);
   }
 
-  private void onAuthSuccess(User user) {
-    // TODO: Store/update user profile and image locally.
-    authStateSubject.onNext(new AuthStatus(user));
+  public void refresh(Activity activity) {
+    GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(activity);
+    if (account == null) {
+      authStateSubject.onNext(new AuthStatus(State.SIGNED_OUT));
+      return;
+    }
+    FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+    if (firebaseUser == null) {
+      authStateSubject.onNext(new AuthStatus(State.SIGNING_IN));
+      signInToFirebase(account);
+    } else {
+      // TODO: Store/update user profile and image locally.
+      authStateSubject.onNext(new AuthStatus(new User(firebaseUser)));
+    }
   }
 
   public void signIn(Activity activity) {
@@ -105,7 +108,7 @@ public class AuthenticationManager {
       signInToFirebase(completedTask.getResult(ApiException.class));
     } catch (ApiException e) {
       Log.w(TAG, "Sign in failed, GoogleSignInStatusCodes:  " + e.getStatusCode());
-      onAuthError(e);
+      authStateSubject.onNext(new AuthStatus(e));
     }
   }
 
@@ -113,16 +116,13 @@ public class AuthenticationManager {
     FirebaseAuth.getInstance()
                 .signInWithCredential(getAuthCredential(account))
                 .addOnSuccessListener(this::onFirebaseAuthSuccess)
-                .addOnFailureListener(this::onAuthError);
+                .addOnFailureListener(t -> authStateSubject.onNext(new AuthStatus(t)));
   }
 
   private void onFirebaseAuthSuccess(AuthResult authResult) {
     // TODO: Store/update user profile in Firestore.
-    onAuthSuccess(new User());
-  }
-
-  private void onAuthError(Throwable t) {
-    authStateSubject.onNext(new AuthStatus(t));
+    // TODO: Store/update user profile and image locally.
+    authStateSubject.onNext(new AuthStatus(new User(authResult.getUser())));
   }
 
   @NonNull
@@ -155,8 +155,27 @@ public class AuthenticationManager {
     public boolean isSignedIn() {
       return getState().equals(State.SIGNED_IN);
     }
+
+    public User getUser() {
+      return getData().orElse(User.ANONYMOUS);
+    }
   }
 
   public static class User {
+    public static final User ANONYMOUS = new User("");
+
+    private final String uid;
+
+    private User(String uid) {
+      this.uid = uid;
+    }
+
+    private User(FirebaseUser firebaseUser) {
+      this(firebaseUser.getUid());
+    }
+
+    public String getId() {
+      return uid;
+    }
   }
 }

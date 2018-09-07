@@ -17,34 +17,37 @@ package com.google.android.gnd.ui.projectselector;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
-
 import com.google.android.gnd.repository.DataRepository;
 import com.google.android.gnd.repository.Resource;
+import com.google.android.gnd.system.AuthenticationManager;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.vo.Project;
-
+import io.reactivex.Completable;
 import java.util.Collections;
 import java.util.List;
-
 import javax.inject.Inject;
-
-import io.reactivex.Completable;
 
 public class ProjectSelectorViewModel extends AbstractViewModel {
   private static final String TAG = ProjectSelectorViewModel.class.getSimpleName();
 
   private final DataRepository dataRepository;
   private final MutableLiveData<Resource<List<Project>>> projectSummaries;
+  private final AuthenticationManager authManager;
 
   @Inject
-  ProjectSelectorViewModel(DataRepository dataRepository) {
+  ProjectSelectorViewModel(DataRepository dataRepository, AuthenticationManager authManager) {
     this.dataRepository = dataRepository;
     this.projectSummaries = new MutableLiveData<>();
+    this.authManager = authManager;
   }
 
+  // TODO: Show message when no visible projects found.
   public void loadProjectSummaries() {
     disposeOnClear(
-        dataRepository.getProjectSummaries().subscribe(v -> projectSummaries.setValue(v)));
+      authManager
+        .withUser()
+        .flatMap(user -> dataRepository.getProjectSummaries(user))
+        .subscribe(v -> projectSummaries.setValue(v)));
   }
 
   public LiveData<Resource<List<Project>>> getProjectSummaries() {

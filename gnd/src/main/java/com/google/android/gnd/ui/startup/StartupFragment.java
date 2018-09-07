@@ -25,6 +25,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import com.google.android.gnd.R;
 import com.google.android.gnd.system.AuthenticationManager;
+import com.google.android.gnd.system.AuthenticationManager.AuthStatus;
 import com.google.android.gnd.system.GoogleApiManager;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.EphemeralPopups;
@@ -55,8 +56,24 @@ public class StartupFragment extends AbstractFragment {
   }
 
   private void onGooglePlayServiceReady() {
-    if (!authenticationManager.refresh(getActivity())) {
-      getNavController().navigate(StartupFragmentDirections.showSignInScreen());
+    authenticationManager
+      .getAuthStatus()
+      .as(autoDisposable(this))
+      .subscribe(this::onAuthStatusChanged);
+    authenticationManager.refresh(getActivity());
+  }
+
+  private void onAuthStatusChanged(AuthStatus authStatus) {
+    switch (authStatus.getState()) {
+      case SIGNING_IN:
+        break;
+      case SIGNED_IN:
+        getNavController().navigate(StartupFragmentDirections.proceedDirectlyToHomeScreen());
+        break;
+      case SIGNED_OUT:
+      case ERROR:
+        getNavController().navigate(StartupFragmentDirections.showSignInScreen());
+        break;
     }
   }
 

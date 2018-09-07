@@ -16,22 +16,21 @@
 
 package com.google.android.gnd.service;
 
+import com.google.android.gnd.system.AuthenticationManager.User;
 import com.google.android.gnd.vo.Place;
 import com.google.android.gnd.vo.PlaceUpdate.RecordUpdate.ValueUpdate;
 import com.google.android.gnd.vo.Project;
 import com.google.android.gnd.vo.Record;
 import com.google.common.collect.ImmutableList;
-
-import java.util.List;
-
 import io.reactivex.Flowable;
 import io.reactivex.Single;
+import java.util.List;
 
 /**
  * Data service is treated as if it's remote, though implementations may cache data locally as well.
  */
 public interface RemoteDataService {
-  Single<List<Project>> loadProjectSummaries();
+  Single<List<Project>> loadProjectSummaries(User user);
 
   Single<Project> loadProject(String projectId);
 

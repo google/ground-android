@@ -17,28 +17,25 @@
 package com.google.android.gnd.repository;
 
 import android.util.Log;
-
 import com.google.android.gnd.service.DatastoreEvent;
 import com.google.android.gnd.service.RemoteDataService;
 import com.google.android.gnd.service.firestore.DocumentNotFoundException;
+import com.google.android.gnd.system.AuthenticationManager.User;
 import com.google.android.gnd.vo.Place;
 import com.google.android.gnd.vo.PlaceUpdate.RecordUpdate.ValueUpdate;
 import com.google.android.gnd.vo.Project;
 import com.google.android.gnd.vo.Record;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-
-import java.util.List;
-
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Single;
 import io.reactivex.subjects.BehaviorSubject;
 import io.reactivex.subjects.Subject;
+import java.util.List;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 
 @Singleton
 public class DataRepository {
@@ -80,14 +77,14 @@ public class DataRepository {
     activeProjectSubject.onNext(Resource.loaded(project));
   }
 
-  public Flowable<Resource<List<Project>>> getProjectSummaries() {
+  public Flowable<Resource<List<Project>>> getProjectSummaries(User user) {
     // TODO: Get from load db if network connection not available or remote times out.
     return remoteDataService
-        .loadProjectSummaries()
-        .map(Resource::loaded)
-        .onErrorReturn(Resource::error)
-        .toFlowable()
-        .startWith(Resource.loading());
+      .loadProjectSummaries(user)
+      .map(Resource::loaded)
+      .onErrorReturn(Resource::error)
+      .toFlowable()
+      .startWith(Resource.loading());
   }
 
   // TODO: Only return data needed to render place PLPs.

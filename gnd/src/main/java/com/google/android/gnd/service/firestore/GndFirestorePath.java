@@ -16,9 +16,12 @@
 
 package com.google.android.gnd.service.firestore;
 
+import com.google.android.gnd.system.AuthenticationManager.User;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldPath;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 
 public class GndFirestorePath extends FirestorePath {
   public static final String PROJECTS = "projects";
@@ -70,6 +73,10 @@ public class GndFirestorePath extends FirestorePath {
   public static class ProjectsRef extends FluentCollectionReference {
     public ProjectRef project(String id) {
       return new ProjectRef().setRef(document(id));
+    }
+
+    public Query whereCanRead(User user) {
+      return ref().whereEqualTo(FieldPath.of("permissions", "read", user.getId()), true);
     }
   }
 
