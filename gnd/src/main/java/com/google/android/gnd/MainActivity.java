@@ -29,6 +29,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 import butterknife.ButterKnife;
 import com.google.android.gnd.rx.RxDebug;
@@ -99,7 +100,10 @@ public class MainActivity extends AppCompatActivity implements HasSupportFragmen
         .as(autoDisposable(this))
         .subscribe(this::onSettingsChangeRequest);
 
-    authenticationManager.getStatus().as(autoDisposable(this)).subscribe(this::onAuthStatusChange);
+    authenticationManager
+      .getAuthStatus()
+      .as(autoDisposable(this))
+      .subscribe(this::onAuthStatusChange);
   }
 
   private void onPermissionsRequest(PermissionsRequest permissionsRequest) {
@@ -121,11 +125,14 @@ public class MainActivity extends AppCompatActivity implements HasSupportFragmen
     }
   }
 
-  private void onAuthStatusChange(AuthStatus status) {
-    if (!status.isAuthenticated()) {
+  private void onAuthStatusChange(AuthStatus authStatus) {
+    if (!authStatus.isSignedIn()) {
       // TODO: Check auth status whenever fragments resumes.
-      Log.d(TAG, "Signed out, navigating to startup screen");
-      navHostFragment.getNavController().navigate(R.id.signOut);
+      NavController navController = navHostFragment.getNavController();
+      if (navController.getCurrentDestination().getId() != R.id.sign_in_fragment) {
+        Log.d(TAG, "Signed out, navigating to startup screen");
+        navController.navigate(R.id.signOut);
+      }
     }
   }
 

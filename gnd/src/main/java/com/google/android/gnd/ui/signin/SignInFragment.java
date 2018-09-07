@@ -54,8 +54,10 @@ public class SignInFragment extends AbstractFragment {
   public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
 
-    authenticationManager.getStatus().as(autoDisposable(this)).subscribe(this::onAuthStatusChange);
-    authenticationManager.getErrors().as(autoDisposable(this)).subscribe(this::onAuthError);
+    authenticationManager
+      .getAuthStatus()
+      .as(autoDisposable(this))
+      .subscribe(this::onAuthStatusChange);
   }
 
   @OnClick(R.id.sign_in_button)
@@ -65,13 +67,20 @@ public class SignInFragment extends AbstractFragment {
   }
 
   public void onAuthStatusChange(AuthStatus status) {
-    if (status.isAuthenticated()) {
-      getNavController().navigate(SignInFragmentDirections.proceedToHomeScreen());
+    switch (status.getState()) {
+      case SIGNED_OUT:
+        // TODO: Hide spinner.
+        break;
+      case SIGNING_IN:
+        // TODO: Show spinner.
+        break;
+      case SIGNED_IN:
+        getNavController().navigate(SignInFragmentDirections.proceedToHomeScreen());
+        break;
+      case ERROR:
+        Log.d(TAG, "Authentication error", status.getError());
+        EphemeralPopups.showError(getContext(), R.string.sign_in_unsuccessful);
+        break;
     }
-  }
-
-  public void onAuthError(Throwable t) {
-    Log.d(TAG, "Authentication error", t);
-    EphemeralPopups.showError(getContext(), R.string.sign_in_unsuccessful);
   }
 }
