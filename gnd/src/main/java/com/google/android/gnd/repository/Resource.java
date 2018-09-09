@@ -18,14 +18,9 @@ package com.google.android.gnd.repository;
 
 import android.arch.lifecycle.LiveData;
 import android.support.annotation.NonNull;
-
-import com.google.android.gnd.rx.RxTransformers;
-
-import javax.annotation.Nullable;
-
-import io.reactivex.FlowableTransformer;
 import java8.util.Optional;
 import java8.util.function.Consumer;
+import javax.annotation.Nullable;
 
 /**
  * Represents a resource that can be loaded from local or remote data stores. Based on Android Guide
@@ -139,10 +134,5 @@ public class Resource<T> {
   @NonNull
   public static <T> Optional<T> getData(LiveData<Resource<T>> liveData) {
     return getValue(liveData).getData();
-  }
-
-  public static <T> FlowableTransformer<Resource<T>, T> filterAndGetData() {
-    return upstream ->
-        upstream.map(Resource::getData).compose(RxTransformers.filterAndGetOptional());
   }
 }

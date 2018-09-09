@@ -21,19 +21,20 @@ import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.ViewModel;
 import android.support.v4.view.WindowInsetsCompat;
 import android.view.View;
-
+import com.google.android.gnd.repository.DataRepository;
 import com.google.android.gnd.ui.common.ActivityScope;
-
 import javax.inject.Inject;
 
 @ActivityScope
 public class MainViewModel extends ViewModel {
 
+  private final DataRepository dataRespository;
   private MutableLiveData<WindowInsetsCompat> windowInsetsLiveData;
 
   @Inject
-  public MainViewModel() {
+  public MainViewModel(DataRepository dataRepository) {
     windowInsetsLiveData = new MutableLiveData<>();
+    this.dataRespository = dataRepository;
   }
 
   public LiveData<WindowInsetsCompat> getWindowInsets() {
@@ -43,5 +44,9 @@ public class MainViewModel extends ViewModel {
   WindowInsetsCompat onApplyWindowInsets(View view, WindowInsetsCompat insets) {
     windowInsetsLiveData.setValue(insets);
     return insets;
+  }
+
+  public void onSignedOut() {
+    dataRespository.clearActiveProject();
   }
 }

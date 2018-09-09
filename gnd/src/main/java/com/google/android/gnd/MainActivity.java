@@ -136,7 +136,7 @@ public class MainActivity extends AppCompatActivity implements HasSupportFragmen
         // TODO: Show/hide spinner.
         break;
       case SIGNED_IN:
-        onSignIn();
+        onSignedIn();
         break;
       case ERROR:
         onAuthError(authStatus);
@@ -144,13 +144,14 @@ public class MainActivity extends AppCompatActivity implements HasSupportFragmen
     }
   }
 
-  private void onSignIn() {
+  private void onSignedIn() {
     // TODO: Store/update user profile and image locally.
     getNavController().navigate(NavGraphDirections.signedIn());
   }
 
   private void onSignedOut() {
     // TODO: Check auth status whenever fragments resumes.
+    viewModel.onSignedOut();
     getNavController().navigate(NavGraphDirections.signedOut());
   }
 

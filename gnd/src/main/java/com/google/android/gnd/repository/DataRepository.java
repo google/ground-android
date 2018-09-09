@@ -56,7 +56,7 @@ public class DataRepository {
     this.activeProjectSubject = BehaviorSubject.create();
   }
 
-  public Flowable<Resource<Project>> getActiveProjectStream() {
+  public Flowable<Resource<Project>> getActiveProject() {
     // TODO: On subscribe and project in cache not loaded, read last active project from local db.
     return activeProjectSubject
         .toFlowable(BackpressureStrategy.LATEST)
@@ -170,5 +170,10 @@ public class DataRepository {
 
   public Single<Place> addPlace(Place place) {
     return remoteDataService.addPlace(place);
+  }
+
+  public void clearActiveProject() {
+    cache.clearActiveProject();
+    activeProjectSubject.onNext(Resource.notLoaded());
   }
 }

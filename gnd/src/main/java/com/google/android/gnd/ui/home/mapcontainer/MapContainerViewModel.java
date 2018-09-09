@@ -19,7 +19,6 @@ package com.google.android.gnd.ui.home.mapcontainer;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.util.Log;
-
 import com.google.android.gnd.repository.DataRepository;
 import com.google.android.gnd.repository.Resource;
 import com.google.android.gnd.rx.RxLiveData;
@@ -31,12 +30,10 @@ import com.google.android.gnd.vo.Place;
 import com.google.android.gnd.vo.Point;
 import com.google.android.gnd.vo.Project;
 import com.google.common.collect.ImmutableSet;
-
-import javax.inject.Inject;
-
 import io.reactivex.Flowable;
 import io.reactivex.disposables.Disposable;
 import java8.util.Optional;
+import javax.inject.Inject;
 
 @ActivityScope
 public class MapContainerViewModel extends AbstractViewModel {
@@ -49,25 +46,35 @@ public class MapContainerViewModel extends AbstractViewModel {
   private final MutableLiveData<CameraUpdate> cameraUpdates;
   private final MutableLiveData<Point> cameraPosition;
   private final LocationManager locationManager;
+  private final DataRepository dataRepository;
   private Disposable locationUpdateSubscription;
 
   @Inject
   MapContainerViewModel(DataRepository dataRepository, LocationManager locationManager) {
+    this.dataRepository = dataRepository;
     this.locationManager = locationManager;
     this.locationLockStatus = new MutableLiveData<>();
     locationLockStatus.setValue(LocationLockStatus.disabled());
     this.cameraUpdates = new MutableLiveData<>();
     this.cameraPosition = new MutableLiveData<>();
-    this.activeProject = RxLiveData.fromFlowable(dataRepository.getActiveProjectStream());
+    this.activeProject = RxLiveData.fromFlowable(dataRepository.getActiveProject());
     // TODO: Clear place markers when project is deactivated.
     // TODO: Since we depend on project stream from repo anyway, this transformation can be moved
     // into the repo.
     this.places =
         RxLiveData.fromFlowable(
             dataRepository
-                .getActiveProjectStream()
-                .compose(Resource.filterAndGetData())
-                .switchMap(project -> dataRepository.getPlaceVectorStream(project)));
+              .getActiveProject()
+              .map(Resource::getData)
+              .switchMap(this::getPlacesStream));
+  }
+
+  private Flowable<ImmutableSet<Place>> getPlacesStream(Optional<Project> activeProject) {
+    // Emit empty set in separate stream to force unsubscribe from Place updates and update
+    // subscribers.
+    return activeProject
+      .map(dataRepository::getPlaceVectorStream)
+      .orElse(Flowable.just(ImmutableSet.of()));
   }
 
   public LiveData<Resource<Project>> getActiveProject() {

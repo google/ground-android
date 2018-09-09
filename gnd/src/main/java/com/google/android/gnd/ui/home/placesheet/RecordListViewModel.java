@@ -16,9 +16,11 @@
 
 package com.google.android.gnd.ui.home.placesheet;
 
+import static com.google.android.gnd.rx.RxTransformers.filterIfPresentAndGet;
+import static java8.util.stream.StreamSupport.stream;
+
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
-
 import com.google.android.gnd.repository.DataRepository;
 import com.google.android.gnd.repository.Resource;
 import com.google.android.gnd.ui.common.AbstractViewModel;
@@ -27,16 +29,11 @@ import com.google.android.gnd.vo.Place;
 import com.google.android.gnd.vo.PlaceType;
 import com.google.android.gnd.vo.Project;
 import com.google.android.gnd.vo.Record;
-
 import java.util.Collections;
 import java.util.List;
-
-import javax.inject.Inject;
-
 import java8.util.Optional;
 import java8.util.stream.Collectors;
-
-import static java8.util.stream.StreamSupport.stream;
+import javax.inject.Inject;
 
 // TODO: Roll up into parent viewmodel. Simplify VMs overall.
 public class RecordListViewModel extends AbstractViewModel {
@@ -64,9 +61,10 @@ public class RecordListViewModel extends AbstractViewModel {
     // TODO: Pass project id and push getProject into repo.
     disposeOnClear(
         dataRepository
-            .getActiveProjectStream()
-            .compose(Resource.filterAndGetData())
-            .subscribe(
+          .getActiveProject()
+          .map(Resource::getData)
+          .compose(filterIfPresentAndGet())
+          .subscribe(
                 project -> loadRecords(project, placeType.getId(), form.getId(), place.getId())));
   }
 

@@ -49,7 +49,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
     this.addPlaceDialogRequests = new SingleLiveEvent<>();
     this.openDrawerRequests = new SingleLiveEvent<>();
     this.placeSheetState = new MutableLiveData<>();
-    this.activeProject = RxLiveData.fromFlowable(dataRepository.getActiveProjectStream());
+    this.activeProject = RxLiveData.fromFlowable(dataRepository.getActiveProject());
     this.selectedForm = new MutableLiveData<>();
   }
 

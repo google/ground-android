@@ -190,10 +190,9 @@ public class HomeScreenFragment extends AbstractFragment
   @Override
   public void onStart() {
     super.onStart();
-
-    // TODO: Persist last selected project in local db instead of asking to select every time.
-    // TODO: Trigger this from welcome flow and nav drawer instead of here.
-    if (viewModel.getActiveProject().getValue() == null) {
+    // TODO: Persist last selected project in local db.
+    Resource<Project> activeProject = viewModel.getActiveProject().getValue();
+    if (activeProject == null || !activeProject.isLoaded()) {
       showProjectSelector();
     }
   }

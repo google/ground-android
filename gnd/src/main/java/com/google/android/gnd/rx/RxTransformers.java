@@ -20,7 +20,7 @@ import io.reactivex.FlowableTransformer;
 import java8.util.Optional;
 
 public class RxTransformers {
-  public static <T> FlowableTransformer<Optional<T>, T> filterAndGetOptional() {
+  public static <T> FlowableTransformer<Optional<T>, T> filterIfPresentAndGet() {
     return upstream -> upstream.filter(Optional::isPresent).map(Optional::get);
   }
 }
