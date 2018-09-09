@@ -16,12 +16,15 @@
 
 package com.google.android.gnd.ui.map.gms;
 
+import static com.google.android.gms.maps.GoogleMap.OnCameraMoveStartedListener.REASON_DEVELOPER_ANIMATION;
+import static java8.util.stream.StreamSupport.stream;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.util.Log;
-
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
@@ -33,23 +36,16 @@ import com.google.android.gnd.vo.Place;
 import com.google.android.gnd.vo.PlaceType;
 import com.google.android.gnd.vo.Point;
 import com.google.common.collect.ImmutableSet;
-
+import io.reactivex.Observable;
+import io.reactivex.subjects.BehaviorSubject;
+import io.reactivex.subjects.PublishSubject;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.Set;
-
-import javax.annotation.Nullable;
-
-import io.reactivex.Observable;
-import io.reactivex.subjects.BehaviorSubject;
-import io.reactivex.subjects.PublishSubject;
 import java8.util.Optional;
-
-import static com.google.android.gms.maps.GoogleMap.OnCameraMoveStartedListener
-    .REASON_DEVELOPER_ANIMATION;
-import static java8.util.stream.StreamSupport.stream;
+import javax.annotation.Nullable;
 
 /**
  * Wrapper around {@link GoogleMap}, exposing Google Maps API functionality to Ground as a {@link
@@ -76,9 +72,11 @@ class GoogleMapsMapAdapter implements MapAdapter {
     this.map = map;
     this.context = context;
     map.setMapType(GoogleMap.MAP_TYPE_HYBRID);
-    map.getUiSettings().setRotateGesturesEnabled(false);
-    map.getUiSettings().setMyLocationButtonEnabled(false);
-    map.getUiSettings().setMapToolbarEnabled(false);
+    UiSettings uiSettings = map.getUiSettings();
+    uiSettings.setRotateGesturesEnabled(false);
+    uiSettings.setTiltGesturesEnabled(false);
+    uiSettings.setMyLocationButtonEnabled(false);
+    uiSettings.setMapToolbarEnabled(false);
     map.setOnMarkerClickListener(this::onMarkerClick);
     map.setOnCameraIdleListener(this::onCameraIdle);
     map.setOnCameraMoveStartedListener(this::onCameraMoveStarted);
