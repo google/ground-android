@@ -16,12 +16,7 @@
 
 package com.google.android.gnd.ui.signin;
 
-import static com.google.android.gnd.rx.RxAutoDispose.autoDisposable;
-
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,15 +24,11 @@ import butterknife.BindView;
 import butterknife.OnClick;
 import com.google.android.gnd.R;
 import com.google.android.gnd.system.AuthenticationManager;
-import com.google.android.gnd.system.AuthenticationManager.AuthStatus;
 import com.google.android.gnd.ui.common.AbstractFragment;
-import com.google.android.gnd.ui.common.EphemeralPopups;
+import com.google.android.gnd.ui.common.BackPressListener;
 import javax.inject.Inject;
 
-public class SignInFragment extends AbstractFragment {
-
-  private static final String TAG = SignInFragment.class.getSimpleName();
-
+public class SignInFragment extends AbstractFragment implements BackPressListener {
   @Inject
   AuthenticationManager authenticationManager;
 
@@ -50,37 +41,15 @@ public class SignInFragment extends AbstractFragment {
     return inflater.inflate(R.layout.sign_in_frag, container, false);
   }
 
-  @Override
-  public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-    super.onViewCreated(view, savedInstanceState);
-
-    authenticationManager
-      .getAuthStatus()
-      .as(autoDisposable(this))
-      .subscribe(this::onAuthStatusChange);
-  }
-
   @OnClick(R.id.sign_in_button)
   public void onSignInButtonClick() {
-    // TODO: Show spinner.
     authenticationManager.signIn(getActivity());
   }
 
-  public void onAuthStatusChange(AuthStatus status) {
-    switch (status.getState()) {
-      case SIGNED_OUT:
-        // TODO: Hide spinner.
-        break;
-      case SIGNING_IN:
-        // TODO: Show spinner.
-        break;
-      case SIGNED_IN:
-        getNavController().navigate(SignInFragmentDirections.proceedToHomeScreen());
-        break;
-      case ERROR:
-        Log.d(TAG, "Authentication error", status.getError());
-        EphemeralPopups.showError(getContext(), R.string.sign_in_unsuccessful);
-        break;
-    }
+  @Override
+  public boolean onBack() {
+    // TODO: Figure out why popUpTo is not working on signOut action and remove this workaround.
+    getActivity().finish();
+    return false;
   }
 }

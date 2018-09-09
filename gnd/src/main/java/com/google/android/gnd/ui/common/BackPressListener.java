@@ -16,6 +16,6 @@
 
 package com.google.android.gnd.ui.common;
 
-public interface OnBackListener {
+public interface BackPressListener {
   boolean onBack();
 }

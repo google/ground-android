@@ -18,6 +18,7 @@ package com.google.android.gnd.ui.startup;
 
 import static com.google.android.gnd.rx.RxAutoDispose.autoDisposable;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -25,7 +26,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import com.google.android.gnd.R;
 import com.google.android.gnd.system.AuthenticationManager;
-import com.google.android.gnd.system.AuthenticationManager.AuthStatus;
 import com.google.android.gnd.system.GoogleApiManager;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.EphemeralPopups;
@@ -44,37 +44,19 @@ public class StartupFragment extends AbstractFragment {
   }
 
   @Override
-  public void onResume() {
-    super.onResume();
+  public void onAttach(Context context) {
+    super.onAttach(context);
 
     // Run through required first-time steps. We do this in onResume() so that they'll be rerun if
     // the user clicks "back" from sign in flow as well.
     googleApiManager
-        .installGooglePlayServices(getActivity())
-        .as(autoDisposable(getActivity()))
-        .subscribe(this::onGooglePlayServiceReady, this::onGooglePlayServicesFailed);
+      .installGooglePlayServices(getActivity())
+      .as(autoDisposable(getActivity()))
+      .subscribe(this::onGooglePlayServicesReady, this::onGooglePlayServicesFailed);
   }
 
-  private void onGooglePlayServiceReady() {
-    authenticationManager
-      .getAuthStatus()
-      .as(autoDisposable(this))
-      .subscribe(this::onAuthStatusChanged);
-    authenticationManager.refresh(getActivity());
-  }
-
-  private void onAuthStatusChanged(AuthStatus authStatus) {
-    switch (authStatus.getState()) {
-      case SIGNING_IN:
-        break;
-      case SIGNED_IN:
-        getNavController().navigate(StartupFragmentDirections.proceedDirectlyToHomeScreen());
-        break;
-      case SIGNED_OUT:
-      case ERROR:
-        getNavController().navigate(StartupFragmentDirections.showSignInScreen());
-        break;
-    }
+  private void onGooglePlayServicesReady() {
+    authenticationManager.init();
   }
 
   private void onGooglePlayServicesFailed(Throwable t) {

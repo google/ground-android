@@ -16,6 +16,8 @@
 
 package com.google.android.gnd.ui.editrecord;
 
+import static com.google.android.gnd.ui.util.ViewUtil.assignGeneratedId;
+
 import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -27,15 +29,17 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-
+import androidx.navigation.fragment.NavHostFragment;
+import butterknife.BindView;
+import butterknife.OnClick;
 import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.MultipleChoiceInputFieldBinding;
 import com.google.android.gnd.databinding.TextInputFieldBinding;
 import com.google.android.gnd.repository.Resource;
 import com.google.android.gnd.ui.common.AbstractFragment;
+import com.google.android.gnd.ui.common.BackPressListener;
 import com.google.android.gnd.ui.common.EphemeralPopups;
-import com.google.android.gnd.ui.common.OnBackListener;
 import com.google.android.gnd.ui.common.ProgressDialogs;
 import com.google.android.gnd.ui.common.TwoLineToolbar;
 import com.google.android.gnd.vo.Form;
@@ -43,15 +47,9 @@ import com.google.android.gnd.vo.Form.Field;
 import com.google.android.gnd.vo.Form.MultipleChoice.Cardinality;
 import com.google.android.gnd.vo.Record;
 import com.google.android.gnd.vo.Record.Value;
-
-import androidx.navigation.fragment.NavHostFragment;
-import butterknife.BindView;
-import butterknife.OnClick;
 import java8.util.Optional;
 
-import static com.google.android.gnd.ui.util.ViewUtil.assignGeneratedId;
-
-public class EditRecordFragment extends AbstractFragment implements OnBackListener {
+public class EditRecordFragment extends AbstractFragment implements BackPressListener {
   private static final String TAG = EditRecordFragment.class.getSimpleName();
   private static final String NEW_RECORD_ID_ARG_PLACEHOLDER = "NEW_RECORD";
 

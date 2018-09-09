@@ -40,7 +40,8 @@ import com.google.android.gnd.system.PermissionsManager;
 import com.google.android.gnd.system.PermissionsManager.PermissionsRequest;
 import com.google.android.gnd.system.SettingsManager;
 import com.google.android.gnd.system.SettingsManager.SettingsChangeRequest;
-import com.google.android.gnd.ui.common.OnBackListener;
+import com.google.android.gnd.ui.common.BackPressListener;
+import com.google.android.gnd.ui.common.EphemeralPopups;
 import com.google.android.gnd.ui.common.TwoLineToolbar;
 import com.google.android.gnd.ui.common.ViewModelFactory;
 import com.google.android.gnd.ui.util.DrawableUtil;
@@ -127,14 +128,36 @@ public class MainActivity extends AppCompatActivity implements HasSupportFragmen
 
   private void onAuthStatusChange(AuthStatus authStatus) {
     Log.d(TAG, "Auth status change: " + authStatus.getState());
-    if (authStatus.getState().equals(AuthStatus.State.SIGNED_OUT)) {
-      // TODO: Check auth status whenever fragments resumes.
-      NavController navController = navHostFragment.getNavController();
-      if (navController.getCurrentDestination().getId() != R.id.sign_in_fragment) {
-        Log.d(TAG, "Signed out, navigating to startup screen");
-        navController.popBackStack(R.id.sign_in_fragment, true);
-      }
+    switch (authStatus.getState()) {
+      case SIGNED_OUT:
+        onSignedOut();
+        break;
+      case SIGNING_IN:
+        // TODO: Show/hide spinner.
+        break;
+      case SIGNED_IN:
+        onSignIn();
+        break;
+      case ERROR:
+        onAuthError(authStatus);
+        break;
     }
+  }
+
+  private void onSignIn() {
+    // TODO: Store/update user profile and image locally.
+    getNavController().navigate(NavGraphDirections.signedIn());
+  }
+
+  private void onSignedOut() {
+    // TODO: Check auth status whenever fragments resumes.
+    getNavController().navigate(NavGraphDirections.signedOut());
+  }
+
+  private void onAuthError(AuthStatus authStatus) {
+    Log.d(TAG, "Authentication error", authStatus.getError());
+    EphemeralPopups.showError(this, R.string.sign_in_unsuccessful);
+    getNavController().navigate(NavGraphDirections.signedOut());
   }
 
   @Override
@@ -218,22 +241,32 @@ public class MainActivity extends AppCompatActivity implements HasSupportFragmen
     toolbar.setNavigationOnClickListener(__ -> navigateUp());
   }
 
+  @Override
+  public boolean onSupportNavigateUp() {
+    return getNavController().navigateUp();
+  }
+
+  private NavController getNavController() {
+    return navHostFragment.getNavController();
+  }
+
   private void navigateUp() {
-    if (!callFragmentBackHandler()) {
-      navHostFragment.getNavController().navigateUp();
+    if (!dispatchBackPressed()) {
+      getNavController().navigateUp();
     }
   }
 
   @Override
   public void onBackPressed() {
-    if (!callFragmentBackHandler()) {
+    if (!dispatchBackPressed()) {
       super.onBackPressed();
     }
   }
 
-  private boolean callFragmentBackHandler() {
+  private boolean dispatchBackPressed() {
     Fragment currentFragment = getCurrentFragment();
-    return currentFragment instanceof OnBackListener && ((OnBackListener) currentFragment).onBack();
+    return currentFragment instanceof BackPressListener
+      && ((BackPressListener) currentFragment).onBack();
   }
 
   private Fragment getCurrentFragment() {

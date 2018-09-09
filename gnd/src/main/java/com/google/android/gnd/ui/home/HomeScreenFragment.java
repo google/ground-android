@@ -45,9 +45,9 @@ import com.google.android.gnd.R;
 import com.google.android.gnd.repository.Resource;
 import com.google.android.gnd.system.AuthenticationManager;
 import com.google.android.gnd.ui.common.AbstractFragment;
+import com.google.android.gnd.ui.common.BackPressListener;
 import com.google.android.gnd.ui.common.BottomSheetBehavior;
 import com.google.android.gnd.ui.common.EphemeralPopups;
-import com.google.android.gnd.ui.common.OnBackListener;
 import com.google.android.gnd.ui.common.ProgressDialogs;
 import com.google.android.gnd.ui.common.TwoLineToolbar;
 import com.google.android.gnd.ui.home.mapcontainer.MapContainerFragment;
@@ -64,7 +64,7 @@ import javax.inject.Inject;
  * runtime.
  */
 public class HomeScreenFragment extends AbstractFragment
-    implements OnBackListener, OnNavigationItemSelectedListener {
+  implements BackPressListener, OnNavigationItemSelectedListener {
   private static final float COLLAPSED_MAP_ASPECT_RATIO = 3.0f / 2.0f;
   private static final String TAG = HomeScreenFragment.class.getSimpleName();
 
@@ -112,9 +112,10 @@ public class HomeScreenFragment extends AbstractFragment
     mainViewModel = get(MainViewModel.class);
   }
 
+  @Nullable
   @Override
   public View onCreateView(
-      LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     return inflater.inflate(R.layout.home_screen_frag, container, false);
   }
 

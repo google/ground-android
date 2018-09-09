@@ -21,20 +21,30 @@
   xmlns:tools="http://schemas.android.com/tools"
   android:id="@+id/navGraph"
   app:startDestination="@id/startup_fragment">
+  <action
+    android:id="@+id/signedIn"
+    app:destination="@id/home_screen_fragment"
+    app:popUpTo="@id/sign_in_fragment"
+    app:popUpToInclusive="true"/>
+  <action
+    android:id="@+id/signedOut"
+    app:destination="@id/sign_in_fragment"
+    app:popUpTo="@id/navGraph"
+    app:popUpToInclusive="true"/>
   <fragment
     android:id="@+id/startup_fragment"
     android:label="startup_frag"
     android:name="com.google.android.gnd.ui.startup.StartupFragment"
     tools:layout="@layout/startup_frag">
     <action
-      android:id="@+id/showSignInScreen"
-      app:destination="@+id/sign_in_fragment"
-      app:popUpTo="@+id/navGraph"
+      android:id="@+id/proceedToSignInScreen"
+      app:destination="@id/sign_in_fragment"
+      app:popUpTo="@id/navGraph"
       app:popUpToInclusive="true"/>
     <action
       android:id="@+id/proceedDirectlyToHomeScreen"
       app:destination="@id/home_screen_fragment"
-      app:popUpTo="@+id/navGraph"
+      app:popUpTo="@id/navGraph"
       app:popUpToInclusive="true"/>
   </fragment>
 
@@ -111,7 +121,7 @@
     <action
       android:id="@+id/proceedToHomeScreen"
       app:destination="@id/home_screen_fragment"
-      app:launchSingleTop="false"
-      app:popUpTo="@+id/navGraph"/>
+      app:popUpTo="@id/navGraph"
+      app:popUpToInclusive="true"/>
   </fragment>
 </navigation>
