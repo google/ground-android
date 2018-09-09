@@ -101,6 +101,7 @@ public class ProjectSelectorDialogFragment extends AbstractDialogFragment {
 
   private void showProjectList(List<Project> list) {
     listLoadingProgressBar.setVisibility(View.GONE);
+    listAdapter.clear();
     stream(list).map(Project::getTitle).forEach(listAdapter::add);
     listView.setVisibility(View.VISIBLE);
   }
