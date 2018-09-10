@@ -30,7 +30,7 @@
       android:id="@+id/creator_name"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:text="Gino M."
+      android:text="Ground Test User"
       android:textAppearance="@style/RecordListText.CreatorName"/>
     <TextView
       android:id="@+id/separator_dot1"

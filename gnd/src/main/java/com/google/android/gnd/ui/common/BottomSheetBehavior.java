@@ -748,14 +748,14 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
     return velocityTracker.getYVelocity(activePointerId);
   }
 
-  // CUSTOM
+  // START CUSTOM
   public void setExpandedOffset(int expandedOffset) {
     this.expandedOffset = expandedOffset;
   }
   // END CUSTOM
 
   private int getExpandedOffset() {
-    // CUSTOM
+    // START CUSTOM
     if (expandedOffset != 0) {
       return expandedOffset;
     }
