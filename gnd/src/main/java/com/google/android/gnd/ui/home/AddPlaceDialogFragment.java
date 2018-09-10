@@ -16,13 +16,15 @@
 
 package com.google.android.gnd.ui.home;
 
+import static com.google.android.gnd.util.Streams.toImmutableList;
+import static java8.util.stream.StreamSupport.stream;
+
 import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
-
 import com.google.android.gnd.R;
 import com.google.android.gnd.repository.Resource;
 import com.google.android.gnd.ui.common.AbstractDialogFragment;
@@ -32,14 +34,10 @@ import com.google.android.gnd.vo.PlaceType;
 import com.google.android.gnd.vo.Point;
 import com.google.android.gnd.vo.Project;
 import com.google.common.collect.ImmutableList;
-
-import javax.inject.Inject;
-
 import io.reactivex.Maybe;
 import io.reactivex.subjects.MaybeSubject;
 import java8.util.Optional;
-
-import static java8.util.stream.StreamSupport.stream;
+import javax.inject.Inject;
 
 public class AddPlaceDialogFragment extends AbstractDialogFragment {
   private static final String TAG = AddPlaceDialogFragment.class.getSimpleName();
@@ -93,8 +91,11 @@ public class AddPlaceDialogFragment extends AbstractDialogFragment {
     builder.setTitle(R.string.add_place_select_type_dialog_title);
     builder.setNegativeButton(R.string.add_place_cancel, (dialog, id) -> onCancel());
     // TODO: Add icons.
-    ImmutableList<PlaceType> placeTypes = project.getPlaceTypes();
-    String[] items = stream(placeTypes).map(t -> t.getItemLabel()).sorted().toArray(String[]::new);
+    ImmutableList<PlaceType> placeTypes =
+      stream(project.getPlaceTypes())
+        .sorted((pt1, pt2) -> pt1.getItemLabel().compareTo(pt2.getItemLabel()))
+        .collect(toImmutableList());
+    String[] items = stream(placeTypes).map(t -> t.getItemLabel()).toArray(String[]::new);
     builder.setItems(
         items, (dialog, idx) -> onSelectPlaceType(project, placeTypes.get(idx), cameraPosition));
     return builder.create();
