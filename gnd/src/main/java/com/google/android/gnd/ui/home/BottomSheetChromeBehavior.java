@@ -16,15 +16,14 @@
 
 package com.google.android.gnd.ui.home;
 
+import static com.google.android.gnd.ui.home.OnBottomSheetSlideBehavior.SheetSlideMetrics.scale;
+
 import android.content.Context;
 import android.support.design.widget.CoordinatorLayout;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
-
 import com.google.android.gnd.R;
-
-import static com.google.android.gnd.ui.home.OnBottomSheetSlideBehavior.SheetSlideMetrics.scale;
 
 public class BottomSheetChromeBehavior extends OnBottomSheetSlideBehavior<ViewGroup> {
   // TODO: Refactor transitions into "TransitionEffect" classes.
@@ -40,11 +39,15 @@ public class BottomSheetChromeBehavior extends OnBottomSheetSlideBehavior<ViewGr
   @Override
   protected void onSheetScrolled(
       CoordinatorLayout parent, ViewGroup layout, SheetSlideMetrics metrics) {
-    View scrim = layout.findViewById(R.id.bottom_sheet_bottom_inset_scrim);
+    View mapScrim = parent.findViewById(R.id.map_scrim);
+    View hamburgerButton = parent.findViewById(R.id.hamburger_btn);
+    View bottomSheetScrim = layout.findViewById(R.id.bottom_sheet_bottom_inset_scrim);
     View addRecordButton = layout.findViewById(R.id.add_record_btn);
     ViewGroup toolbarWrapper = layout.findViewById(R.id.toolbar_wrapper);
     ViewGroup toolbarTitles = toolbarWrapper.findViewById(R.id.toolbar_titles_layout);
-    metrics.showWithSheet(scrim, HIDE_SCRIM_THRESHOLD, SHOW_SCRIM_THRESHOLD);
+    metrics.showWithSheet(mapScrim, 0.75f, 1.0f);
+    metrics.showWithSheet(bottomSheetScrim, HIDE_SCRIM_THRESHOLD, SHOW_SCRIM_THRESHOLD);
+    metrics.hideWithSheet(hamburgerButton, HIDE_ADD_BUTTON_THRESHOLD, SHOW_ADD_BUTTON_THRESHOLD);
     metrics.showWithSheet(addRecordButton, HIDE_ADD_BUTTON_THRESHOLD, SHOW_ADD_BUTTON_THRESHOLD);
     toolbarWrapper.setBackgroundColor(layout.getResources().getColor(R.color.colorPrimary));
     toolbarWrapper.setTranslationY(

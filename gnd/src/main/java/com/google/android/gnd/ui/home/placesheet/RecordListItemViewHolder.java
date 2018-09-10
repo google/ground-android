@@ -27,16 +27,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TableRow;
 import android.widget.TextView;
-
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import com.google.android.gnd.R;
 import com.google.android.gnd.vo.Form;
 import com.google.android.gnd.vo.Form.Element;
 import com.google.android.gnd.vo.Form.Field;
 import com.google.android.gnd.vo.Record;
 import com.google.android.gnd.vo.Record.Value;
-
-import butterknife.BindView;
-import butterknife.ButterKnife;
 import java8.util.Optional;
 
 class RecordListItemViewHolder extends RecyclerView.ViewHolder {
@@ -67,6 +65,11 @@ class RecordListItemViewHolder extends RecyclerView.ViewHolder {
   void update(Record record) {
     fieldLabelRow.removeAllViews();
     fieldValueRow.removeAllViews();
+
+    View recordDetailsButton = view.findViewById(R.id.record_details_btn);
+    view.setOnClickListener(__ -> itemClicks.setValue(record));
+    recordDetailsButton.setOnClickListener(__ -> itemClicks.setValue(record));
+
     Form form = record.getForm();
     // TODO: Clean this up.
     for (int i = 0; i < MAX_SUMMARY_COLUMNS && i < form.getElements().size(); i++) {
@@ -81,7 +84,6 @@ class RecordListItemViewHolder extends RecyclerView.ViewHolder {
           break;
       }
     }
-    view.setOnClickListener(__ -> itemClicks.setValue(record));
   }
 
   @NonNull

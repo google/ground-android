@@ -64,7 +64,7 @@
     <TableLayout
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:layout_marginRight="@dimen/record_details_button_width"
+      android:layout_marginRight="@dimen/record_list_item_preview_table_right_margin"
       android:layout_below="@id/creator_name"
       android:paddingRight="14dp"
       android:shrinkColumns="*"
@@ -82,15 +82,17 @@
         android:layout_height="wrap_content"
         android:paddingTop="4dp"/>
     </TableLayout>
-    <ImageView
+
+    <ImageButton
       android:id="@+id/record_details_btn"
-      android:layout_width="@dimen/record_details_button_width"
-      android:layout_height="@dimen/record_details_button_height"
+      style="@style/ImageButton"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
       android:layout_marginRight="6dp"
       android:layout_alignParentRight="true"
       android:layout_centerVertical="true"
-      android:src="@drawable/ic_chevron_right"
-      android:tint="@color/colorPrimary"/>
+      android:src="@drawable/ic_chevron_right_black_36dp"/>
+
   </RelativeLayout>
 
   <View

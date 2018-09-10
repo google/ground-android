@@ -38,17 +38,16 @@
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:layout_gravity="top"
-      android:background="@color/colorGrey50"
+      android:background="@color/colorBackground"
       android:elevation="5dp"
-      app:tabSelectedTextColor="@color/colorPrimary"
-      app:tabTextColor="@color/colorPrimary"
-      app:tabIndicatorColor="@color/colorPrimary"/>
+      app:tabSelectedTextColor="@color/colorAccent"
+      app:tabTextColor="@color/colorAccent"/>
 
     <com.google.android.gnd.ui.common.UnswipeableViewPager
       android:id="@+id/record_list_view_pager"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:background="@color/colorGrey50"/>
+      android:background="@color/colorBackground"/>
 
   </LinearLayout>
 

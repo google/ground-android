@@ -77,6 +77,8 @@ class GoogleMapsMapAdapter implements MapAdapter {
     uiSettings.setTiltGesturesEnabled(false);
     uiSettings.setMyLocationButtonEnabled(false);
     uiSettings.setMapToolbarEnabled(false);
+    uiSettings.setCompassEnabled(false);
+    uiSettings.setIndoorLevelPickerEnabled(false);
     map.setOnMarkerClickListener(this::onMarkerClick);
     map.setOnCameraIdleListener(this::onCameraIdle);
     map.setOnCameraMoveStartedListener(this::onCameraMoveStarted);

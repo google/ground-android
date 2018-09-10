@@ -26,7 +26,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginTop="@dimen/place_sheet_margin_top"
-    app:cardBackgroundColor="@color/colorGrey50"
+    app:cardBackgroundColor="@color/colorBackground"
     app:cardCornerRadius="@dimen/place_sheet_corner_radius"
     app:cardElevation="3dp">
 
@@ -61,7 +61,7 @@
     android:layout_width="match_parent"
     android:layout_height="@dimen/place_sheet_corner_radius"
     android:layout_gravity="bottom"
-    android:background="@color/colorGrey50"
+    android:background="@color/colorBackground"
     android:elevation="3dp"/>
 
   <!-- TODO: Add drop shadow to top of circle and card -->
@@ -80,7 +80,7 @@
     android:layout_height="@dimen/place_header_icon_height"
     android:layout_gravity="top|center_horizontal"
     app:srcCompat="@drawable/ic_default_place_marker"
-    android:tint="@color/colorGrey900"
+    android:tint="@color/colorForeground"
     android:elevation="5dp"/>
 
 </FrameLayout>

@@ -94,7 +94,6 @@ dependencies {
             "$project.streamSupportVersion"
 
     // For dynamic tab bar style.
-    implementation "com.h6ah4i.android.tablayouthelper:tablayouthelper:$project.tabLayoutHelper"
     implementation "com.google.android.gms:play-services-auth:$project.gmsVersion"
     implementation "com.google.android.gms:play-services-maps:$project.gmsVersion"
     implementation "com.google.android.gms:play-services-location:$project.gmsVersion"

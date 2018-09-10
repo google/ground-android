@@ -18,10 +18,10 @@ package com.google.android.gnd.ui.home;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.support.annotation.Nullable;
 import android.support.design.widget.CoordinatorLayout;
 import android.util.AttributeSet;
 import android.view.View;
-
 import com.google.android.gnd.R;
 import com.google.android.gnd.ui.common.BottomSheetBehavior;
 
@@ -90,12 +90,16 @@ public abstract class OnBottomSheetSlideBehavior<V extends View>
       view.setAlpha((int) scale(getVisibleRatio(), showThreshold, hideThreshold, 255.0f, 0.0f));
     }
 
-    public void showWithSheet(View view, float hideThreshold, float showThreshold) {
-      view.setAlpha(scale(getVisibleRatio(), hideThreshold, showThreshold, 0.0f, 1.0f));
+    public void showWithSheet(@Nullable View view, float hideThreshold, float showThreshold) {
+      if (view != null) {
+        view.setAlpha(scale(getVisibleRatio(), hideThreshold, showThreshold, 0.0f, 1.0f));
+      }
     }
 
-    public void hideWithSheet(View view, float showThreshold, float hideThreshold) {
-      view.setAlpha(scale(getVisibleRatio(), showThreshold, hideThreshold, 1.0f, 0.0f));
+    public void hideWithSheet(@Nullable View view, float showThreshold, float hideThreshold) {
+      if (view != null) {
+        view.setAlpha(scale(getVisibleRatio(), showThreshold, hideThreshold, 1.0f, 0.0f));
+      }
     }
 
     public int getToolbarHeight() {

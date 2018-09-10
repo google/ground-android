@@ -71,8 +71,6 @@
   <!-- place_header_icon_background_diameter - place_sheet_margin_top - overlap -->
   <dimen name="place_sheet_padding_top">42dp</dimen>
   <dimen name="place_sheet_corner_radius">6dp</dimen>
-  <dimen name="record_details_button_width">12dp</dimen>
-  <dimen name="record_details_button_height">12dp</dimen>
   <dimen name="record_list_item_horizontal_margin">14dp</dimen>
   <dimen name="record_list_item_horizontal_vertical">10dp</dimen>
   <dimen name="record_summary_text_padding_right">8dp</dimen>
@@ -84,4 +82,5 @@
   <dimen name="chip_toolbar_button_padding">10dp</dimen>
   <dimen name="toolbar_elevation">4dp</dimen>
   <dimen name="place_sheet_header_padding_bottom">16dp</dimen>
+  <dimen name="record_list_item_preview_table_right_margin">18dp</dimen>
 </resources>

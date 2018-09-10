@@ -92,7 +92,7 @@ public class EditRecordFragment extends AbstractFragment implements BackPressLis
   public void onViewCreated(
       @NonNull View view, @android.support.annotation.Nullable Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
-    ((MainActivity) getActivity()).setActionBar(toolbar, R.drawable.ic_close);
+    ((MainActivity) getActivity()).setActionBar(toolbar, R.drawable.ic_close_black_24dp);
     toolbar.setNavigationOnClickListener(__ -> onCloseButtonClick());
     savingProgressDialog = ProgressDialogs.modalSpinner(getContext(), R.string.saving);
   }

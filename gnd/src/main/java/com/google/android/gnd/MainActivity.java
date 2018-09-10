@@ -67,10 +67,13 @@ public class MainActivity extends AppCompatActivity implements HasSupportFragmen
 
   private NavHostFragment navHostFragment;
   private MainViewModel viewModel;
+  private DrawableUtil drawableUtil;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     logLifecycleEvent(this);
+
+    drawableUtil = new DrawableUtil(getResources());
 
     // Prevent RxJava from force-quitting on unhandled errors.
     RxJavaPlugins.setErrorHandler(t -> RxDebug.logEnhancedStackTrace(t));
@@ -224,7 +227,7 @@ public class MainActivity extends AppCompatActivity implements HasSupportFragmen
     // We override the color here programmatically since calling setHomeAsUpIndicator uses the color
     // of the set icon, not the applied theme. This allows us to change the primary color
     // programmatically without needing to remember to update the icon.
-    Drawable icon = new DrawableUtil(getResources()).getDrawable(upIconId, R.color.colorPrimary);
+    Drawable icon = drawableUtil.getDrawable(upIconId, R.color.colorAccent);
     getSupportActionBar().setHomeAsUpIndicator(icon);
   }
 

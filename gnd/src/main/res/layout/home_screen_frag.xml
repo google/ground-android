@@ -37,6 +37,14 @@
         app:layout_behavior="com.google.android.gnd.ui.home.mapcontainer.MapContainerLayoutBehavior"/>
 
       <!-- TODO: Move place sheet and chrome into separate layout files. -->
+      <FrameLayout
+        android:id="@+id/map_scrim"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/colorPrimary"
+        android:clickable="false"
+        android:focusable="false"
+        android:alpha="0"/>
 
       <FrameLayout
         android:id="@+id/bottom_sheet_scroll_view"
@@ -98,7 +106,7 @@
           android:layout_height="wrap_content"
           android:layout_alignParentBottom="true"
           android:alpha="0"
-          android:background="@color/colorGrey50"/>
+          android:background="@color/colorBackground"/>
       </RelativeLayout>
 
     </android.support.design.widget.CoordinatorLayout>
@@ -108,7 +116,7 @@
       android:layout_width="wrap_content"
       android:layout_height="match_parent"
       android:layout_gravity="start"
-      android:background="@color/colorGrey50"
+      android:background="@color/colorBackground"
       app:headerLayout="@layout/nav_drawer_header"
       app:menu="@menu/nav_drawer_menu"/>
 
