@@ -107,7 +107,7 @@
   <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light"/>
 
   <style name="RecordListText">
-    <item name="android:textSize">12sp</item>
+    <item name="android:textSize">@dimen/record_list_text_size</item>
   </style>
 
   <style name="RecordListText.CreatorName">
@@ -122,6 +122,11 @@
   <style name="RecordListText.Timestamp">
     <item name="android:textColor">?android:textColorPrimary</item>
     <item name="android:textStyle">bold</item>
+  </style>
+
+  <style name="RecordListText.FieldLabel">
+    <item name="android:textColor">@color/colorGrey600</item>
+    <item name="android:textSize">@dimen/record_list_field_label_size</item>
   </style>
 
   <!--
@@ -158,7 +163,7 @@
   </style>
 
   <style name="ChipButton" parent="Widget.MaterialComponents.Chip.Action">
-    <item name="chipBackgroundColor">@color/colorPrimary</item>
+    <item name="chipBackgroundColor">@color/colorAccent</item>
     <item name="chipCornerRadius">@dimen/chip_button_corner_radius</item>
     <item name="chipStartPadding">@dimen/chip_button_padding</item>
     <item name="chipEndPadding">@dimen/chip_button_padding</item>
@@ -171,7 +176,6 @@
 
 
   <style name="ChipButton.Toolbar">
-    <item name="chipBackgroundColor">@color/colorPrimary</item>
     <item name="chipCornerRadius">@dimen/chip_toolbar_button_corner_radius</item>
     <item name="chipStartPadding">@dimen/chip_toolbar_button_padding</item>
     <item name="chipEndPadding">@dimen/chip_toolbar_button_padding</item>

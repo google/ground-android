@@ -78,20 +78,23 @@ class RecordListItemViewHolder extends RecyclerView.ViewHolder {
         case FIELD:
           Field field = elem.getField();
           Optional<Value> value = Optional.ofNullable(record.getValueMap().get(field.getId()));
-          fieldLabelRow.addView(newFieldTextView(field.getLabel()));
+          fieldLabelRow.addView(
+            newFieldTextView(field.getLabel(), R.style.RecordListText_FieldLabel));
           fieldValueRow.addView(
-              newFieldTextView(value.map(v -> v.getSummaryText(field)).orElse("")));
+            newFieldTextView(
+              value.map(v -> v.getSummaryText(field)).orElse(""),
+              R.style.RecordListText_Field));
           break;
       }
     }
   }
 
   @NonNull
-  private TextView newFieldTextView(String text) {
+  private TextView newFieldTextView(String text, int textAppearance) {
     Context context = view.getContext();
     Resources resources = context.getResources();
     TextView v = new TextView(context);
-    v.setTextAppearance(context, R.style.RecordListText_Field);
+    v.setTextAppearance(context, textAppearance);
     // NOTE: These attributes don't work when applying text appearance programmatically, so we set
     // them here individually instead.
     v.setPadding(
