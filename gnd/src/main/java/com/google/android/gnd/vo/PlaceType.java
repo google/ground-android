@@ -16,21 +16,22 @@
 
 package com.google.android.gnd.vo;
 
+import static java8.util.stream.StreamSupport.stream;
+
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
-
-import javax.annotation.Nullable;
-
 import java8.util.Optional;
-
-import static java8.util.stream.StreamSupport.stream;
+import javax.annotation.Nullable;
 
 @AutoValue
 public abstract class PlaceType {
+  @Nullable
   public abstract String getId();
 
+  @Nullable
   public abstract String getListHeading();
 
+  @Nullable
   public abstract String getItemLabel();
 
   @Nullable
@@ -41,8 +42,10 @@ public abstract class PlaceType {
 
   public abstract ImmutableList<Form> getForms();
 
+  @Nullable
   public abstract Timestamps getServerTimestamps();
 
+  @Nullable
   public abstract Timestamps getClientTimestamps();
 
   public Optional<Form> getForm(String formId) {
@@ -59,17 +62,20 @@ public abstract class PlaceType {
   public abstract static class Builder {
     public abstract Builder setId(String newId);
 
-    public abstract Builder setListHeading(String newListHeading);
+    public abstract Builder setListHeading(@Nullable String newListHeading);
 
-    public abstract Builder setItemLabel(String newItemLabel);
+    public abstract Builder setItemLabel(@Nullable String newItemLabel);
 
-    @Nullable
-    public abstract Builder setIconId(String newIconId);
+    public abstract Builder setIconId(@Nullable String newIconId);
 
-    @Nullable
-    public abstract Builder setIconColor(String newIconColor);
+    public abstract Builder setIconColor(@Nullable String newIconColor);
 
-    public abstract Builder setForms(ImmutableList<Form> newForms);
+    public abstract ImmutableList.Builder<Form> formsBuilder();
+
+    public Builder addForm(Form newForm) {
+      formsBuilder().add(newForm);
+      return this;
+    }
 
     public abstract Builder setServerTimestamps(Timestamps newServerTimestamps);
 

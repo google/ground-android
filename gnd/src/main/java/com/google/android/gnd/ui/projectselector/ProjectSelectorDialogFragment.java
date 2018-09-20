@@ -106,8 +106,8 @@ public class ProjectSelectorDialogFragment extends AbstractDialogFragment {
     listView.setVisibility(View.VISIBLE);
   }
 
-  private void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+  private void onItemSelected(AdapterView<?> parent, View view, int idx, long id) {
     getDialog().hide();
-    viewModel.activateProject(position).as(autoDisposable(this)).subscribe(this::dismiss);
+    viewModel.activateProject(idx).as(autoDisposable(this)).subscribe(this::dismiss);
   }
 }

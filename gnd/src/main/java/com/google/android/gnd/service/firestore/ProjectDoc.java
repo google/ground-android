@@ -16,45 +16,52 @@
 
 package com.google.android.gnd.service.firestore;
 
-import com.google.android.gnd.vo.PlaceType;
+import static com.google.android.gnd.util.Localization.getLocalizedMessage;
+
+import android.support.annotation.Nullable;
 import com.google.android.gnd.vo.Project;
-import com.google.common.collect.ImmutableList;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.IgnoreExtraProperties;
 import com.google.firebase.firestore.ServerTimestamp;
-
-import java.util.Collections;
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
-
-import static com.google.android.gnd.util.Localization.getLocalizedMessage;
+import java8.util.Maps;
 
 @IgnoreExtraProperties
 public class ProjectDoc {
+  @Nullable
   public Map<String, String> title;
 
+  @Nullable
   public Map<String, String> description;
 
-  public @ServerTimestamp Date serverTimeCreated;
+  @Nullable
+  public @ServerTimestamp
+  Date serverTimeCreated;
 
-  public @ServerTimestamp Date serverTimeModified;
+  @Nullable
+  public @ServerTimestamp
+  Date serverTimeModified;
 
+  @Nullable
   public Date clientTimeCreated;
 
+  @Nullable
   public Date clientTimeModified;
 
-  public static Project toProto(DocumentSnapshot doc, List<PlaceType> placeTypes) {
-    ProjectDoc pd = doc.toObject(ProjectDoc.class);
-    return Project.newBuilder()
-        .setId(doc.getId())
-        .setTitle(getLocalizedMessage(pd.title))
-        .setDescription(getLocalizedMessage(pd.description))
-        .setPlaceTypes(ImmutableList.copyOf(placeTypes))
-        .build();
-  }
+  @Nullable
+  public Map<String, PlaceTypeDoc> featureTypes;
 
   public static Project toProto(DocumentSnapshot doc) {
-    return toProto(doc, Collections.emptyList());
+    ProjectDoc pd = doc.toObject(ProjectDoc.class);
+    Project.Builder project = Project.newBuilder();
+    project
+      .setId(doc.getId())
+      .setTitle(getLocalizedMessage(pd.title))
+      .setDescription(getLocalizedMessage(pd.description));
+    if (pd.featureTypes != null) {
+      Maps.forEach(pd.featureTypes, (id, ptDoc) -> project.putPlaceType(id, ptDoc.toProto(id)));
+    }
+    return project.build();
   }
 }

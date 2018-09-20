@@ -16,20 +16,17 @@
 
 package com.google.android.gnd.vo;
 
-import android.support.annotation.Nullable;
+import static java8.util.stream.StreamSupport.stream;
 
+import android.support.annotation.Nullable;
 import com.google.android.gnd.vo.Form.Field;
 import com.google.android.gnd.vo.Form.MultipleChoice.Option;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableMap;
-
 import java.util.List;
 import java.util.Map;
-
 import java8.util.Optional;
 import java8.util.stream.Collectors;
-
-import static java8.util.stream.StreamSupport.stream;
 
 @AutoValue
 public abstract class Record {
@@ -48,7 +45,6 @@ public abstract class Record {
   @Nullable
   public abstract Timestamps getClientTimestamps();
 
-  // TODO: Make Immutable and/or make private and expose custom accessors.
   public abstract ImmutableMap<String, Value> getValueMap();
 
   public static Builder newBuilder() {

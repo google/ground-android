@@ -17,7 +17,6 @@
 package com.google.android.gnd.service.firestore;
 
 import static com.google.android.gnd.rx.RxFirestoreUtil.mapSingle;
-import static com.google.android.gnd.util.Streams.toImmutableList;
 import static java8.util.stream.Collectors.toList;
 import static java8.util.stream.StreamSupport.stream;
 
@@ -28,9 +27,7 @@ import com.google.android.gnd.rx.RxTask;
 import com.google.android.gnd.service.DatastoreEvent;
 import com.google.android.gnd.service.RemoteDataService;
 import com.google.android.gnd.system.AuthenticationManager.User;
-import com.google.android.gnd.vo.Form;
 import com.google.android.gnd.vo.Place;
-import com.google.android.gnd.vo.PlaceType;
 import com.google.android.gnd.vo.PlaceUpdate.RecordUpdate.ValueUpdate;
 import com.google.android.gnd.vo.Project;
 import com.google.android.gnd.vo.Record;
@@ -46,8 +43,6 @@ import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.firestore.SnapshotMetadata;
 import durdinapps.rxfirebase2.RxFirestore;
 import io.reactivex.Flowable;
-import io.reactivex.Maybe;
-import io.reactivex.Observable;
 import io.reactivex.Single;
 import java.util.Date;
 import java.util.HashMap;
@@ -92,32 +87,8 @@ public class FirestoreDataService implements RemoteDataService {
   @Override
   public Single<Project> loadProject(String projectId) {
     return RxFirestore.getDocument(db().project(projectId).ref())
-        .flatMap(this::loadPlaceTypes, ProjectDoc::toProto)
-        .switchIfEmpty(Single.error(new DocumentNotFoundException()));
-  }
-
-  /** Loads place types and related forms. */
-  private Maybe<List<PlaceType>> loadPlaceTypes(DocumentSnapshot projectDocSnapshot) {
-    // TODO: Return Single.
-    return RxFirestore.getCollection(
-            GndFirestorePath.project(projectDocSnapshot).placeTypes().ref())
-        .map(QuerySnapshot::getDocuments) // Maybe<List<DocumentSnapshot>>
-        .toObservable()
-        .flatMapIterable(i -> i) // Observable<DocumentSnapshot>>
-        .flatMap(this::loadForms, PlaceTypeDoc::toProto)
-        .toList()
-        .toMaybe();
-  }
-
-  private Observable<ImmutableList<Form>> loadForms(DocumentSnapshot placeTypeDocSnapshot) {
-    // TODO: Return Single.
-    return RxFirestore.getCollection(GndFirestorePath.placeType(placeTypeDocSnapshot).forms().ref())
-        .map(QuerySnapshot::getDocuments)
-        .map(
-            formDocSnapshots ->
-                stream(formDocSnapshots).map(FormDoc::toProto).collect(toImmutableList()))
-        .defaultIfEmpty(ImmutableList.of())
-        .toObservable();
+                      .map(ProjectDoc::toProto)
+                      .switchIfEmpty(Single.error(new DocumentNotFoundException()));
   }
 
   @Override

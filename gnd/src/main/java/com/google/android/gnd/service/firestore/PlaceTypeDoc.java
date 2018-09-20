@@ -16,38 +16,46 @@
 
 package com.google.android.gnd.service.firestore;
 
-import com.google.android.gnd.vo.Form;
-import com.google.android.gnd.vo.PlaceType;
-import com.google.common.collect.ImmutableList;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.IgnoreExtraProperties;
-
-import java.util.Map;
-
 import static com.google.android.gnd.util.Localization.getLocalizedMessage;
+
+import android.support.annotation.Nullable;
+import com.google.android.gnd.vo.PlaceType;
+import com.google.firebase.firestore.IgnoreExtraProperties;
+import java.util.Map;
+import java8.util.Maps;
 
 @IgnoreExtraProperties
 public class PlaceTypeDoc {
   // TODO: Better name than pathKey? urlSubpath?
+  @Nullable
   public String pathKey;
 
+  @Nullable
   public Map<String, String> listHeading;
 
+  @Nullable
   public Map<String, String> itemLabel;
 
+  @Nullable
   public String iconId;
 
+  @Nullable
   public String iconColor;
 
-  static PlaceType toProto(DocumentSnapshot doc, ImmutableList<Form> forms) {
-    PlaceTypeDoc ft = doc.toObject(PlaceTypeDoc.class);
-    return PlaceType.newBuilder()
-        .setId(doc.getId())
-        .setListHeading(getLocalizedMessage(ft.listHeading))
-        .setItemLabel(getLocalizedMessage(ft.itemLabel))
-        .setIconId(ft.iconId)
-        .setForms(forms)
-        .setIconColor(ft.iconColor)
-        .build();
+  @Nullable
+  Map<String, FormDoc> forms;
+
+  public PlaceType toProto(String id) {
+    PlaceType.Builder placeType = PlaceType.newBuilder();
+    placeType
+      .setId(id)
+      .setListHeading(getLocalizedMessage(listHeading))
+      .setItemLabel(getLocalizedMessage(itemLabel))
+      .setIconId(iconId)
+      .setIconColor(iconColor);
+    if (forms != null) {
+      Maps.forEach(forms, (formId, formDoc) -> placeType.addForm(formDoc.toProto(formId)));
+    }
+    return placeType.build();
   }
 }

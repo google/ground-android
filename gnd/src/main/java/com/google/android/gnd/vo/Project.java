@@ -18,10 +18,8 @@ package com.google.android.gnd.vo;
 
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
-
+import com.google.common.collect.ImmutableMap;
 import java8.util.Optional;
-
-import static java8.util.stream.StreamSupport.stream;
 
 /** Metadata and schema for a single Ground project. */
 @AutoValue
@@ -32,10 +30,14 @@ public abstract class Project {
 
   public abstract String getDescription();
 
-  public abstract ImmutableList<PlaceType> getPlaceTypes();
+  protected abstract ImmutableMap<String, PlaceType> getPlaceTypeMap();
+
+  public ImmutableList<PlaceType> getPlaceTypes() {
+    return getPlaceTypeMap().values().asList();
+  }
 
   public Optional<PlaceType> getPlaceType(String placeTypeId) {
-    return stream(getPlaceTypes()).filter(p -> p.getId().equals(placeTypeId)).findFirst();
+    return Optional.ofNullable(getPlaceTypeMap().get(placeTypeId));
   }
 
   public static Builder newBuilder() {
@@ -50,7 +52,11 @@ public abstract class Project {
 
     public abstract Builder setDescription(String newDescription);
 
-    public abstract Builder setPlaceTypes(ImmutableList<PlaceType> newPlaceTypes);
+    public abstract ImmutableMap.Builder<String, PlaceType> placeTypeMapBuilder();
+
+    public void putPlaceType(String id, PlaceType placeType) {
+      placeTypeMapBuilder().put(id, placeType);
+    }
 
     public abstract Project build();
   }
