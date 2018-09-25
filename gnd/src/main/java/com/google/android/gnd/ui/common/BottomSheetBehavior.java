@@ -49,7 +49,7 @@ import java.lang.ref.WeakReference;
  */
 public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behavior<V> {
 
-  private int expandedOffset;
+  private int expandedOffset = Integer.MIN_VALUE;
 
   /** Callback for monitoring events about bottom sheets. */
   public abstract static class BottomSheetCallback {
@@ -756,7 +756,7 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
 
   private int getExpandedOffset() {
     // START CUSTOM
-    if (expandedOffset != 0) {
+    if (expandedOffset != -Integer.MIN_VALUE) {
       return expandedOffset;
     }
     // END CUSTOM
