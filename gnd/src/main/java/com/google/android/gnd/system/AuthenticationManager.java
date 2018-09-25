@@ -123,9 +123,9 @@ public class AuthenticationManager {
 
   private void signInToFirebase(GoogleSignInAccount account) {
     firebaseAuth
-      .signInWithCredential(getAuthCredential(account))
-      .addOnSuccessListener(this::onFirebaseAuthSuccess)
-      .addOnFailureListener(t -> authStateSubject.onNext(new AuthStatus(t)));
+        .signInWithCredential(getAuthCredential(account))
+        .addOnSuccessListener(this::onFirebaseAuthSuccess)
+        .addOnFailureListener(t -> authStateSubject.onNext(new AuthStatus(t)));
   }
 
   private void onFirebaseAuthSuccess(AuthResult authResult) {
@@ -169,20 +169,27 @@ public class AuthenticationManager {
   }
 
   public static class User {
-    public static final User ANONYMOUS = new User("");
+
+    public static final User ANONYMOUS = new User("", "");
 
     private final String uid;
+    private final String email;
 
-    private User(String uid) {
+    private User(String uid, String email) {
       this.uid = uid;
+      this.email = email;
     }
 
     private User(FirebaseUser firebaseUser) {
-      this(firebaseUser.getUid());
+      this(firebaseUser.getUid(), firebaseUser.getEmail());
     }
 
     public String getId() {
       return uid;
+    }
+
+    public String getEmail() {
+      return email;
     }
   }
 }

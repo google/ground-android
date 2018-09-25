@@ -76,7 +76,7 @@ public class GndFirestorePath extends FirestorePath {
     }
 
     public Query whereCanRead(User user) {
-      return ref().whereEqualTo(FieldPath.of("permissions", "read", user.getId()), true);
+      return ref().whereArrayContains(FieldPath.of("acl", user.getEmail()), "r");
     }
   }
 
