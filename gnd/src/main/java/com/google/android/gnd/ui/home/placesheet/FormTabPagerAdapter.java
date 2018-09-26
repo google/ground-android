@@ -19,14 +19,11 @@ package com.google.android.gnd.ui.home.placesheet;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
-
 import com.google.android.gnd.vo.Place;
 import com.google.android.gnd.vo.PlaceType;
 import com.google.common.collect.ImmutableList;
-
-import javax.inject.Inject;
-
 import java8.util.Optional;
+import javax.inject.Inject;
 
 public class FormTabPagerAdapter extends FragmentStatePagerAdapter {
   private Optional<Place> place;
