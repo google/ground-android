@@ -56,7 +56,6 @@ import com.google.android.gnd.vo.Form;
 import com.google.android.gnd.vo.Place;
 import com.google.android.gnd.vo.Point;
 import com.google.android.gnd.vo.Project;
-import com.google.common.collect.ImmutableList;
 import javax.inject.Inject;
 
 /**
@@ -264,7 +263,7 @@ public class HomeScreenFragment extends AbstractFragment
     showAddRecord(place, form);
   }
 
-  private void showAddRecord(Place place, Form form) {
+  public void showAddRecord(Place place, Form form) {
     NavHostFragment.findNavController(this)
                    .navigate(
                      HomeScreenFragmentDirections.addRecord(
@@ -350,15 +349,6 @@ public class HomeScreenFragment extends AbstractFragment
     public void onStateChanged(@NonNull View bottomSheet, int newState) {
       if (newState == BottomSheetBehavior.STATE_HIDDEN) {
         viewModel.onBottomSheetHidden();
-      }
-
-      if (newState == BottomSheetBehavior.STATE_COLLAPSED) {
-        PlaceSheetState placeSheetState = viewModel.getPlaceSheetState().getValue();
-        Place place = placeSheetState.getPlace();
-        ImmutableList<Form> forms = place.getPlaceType().getForms();
-        if (placeSheetState.isNewPlace() && forms.size() == 1) {
-          showAddRecord(place, forms.get(0));
-        }
       }
     }
 
