@@ -73,6 +73,7 @@ public class MapIcon {
   // TODO: Cache tinted bitmaps.
   public BitmapDescriptor getBitmap() {
     Bitmap tintedBitmap = ViewUtil.tintBitmap(drawable.getBitmap(), color);
+    // TODO: Figure out consistent way to scale images.
     return BitmapDescriptorFactory.fromBitmap(tintedBitmap);
   }
 
