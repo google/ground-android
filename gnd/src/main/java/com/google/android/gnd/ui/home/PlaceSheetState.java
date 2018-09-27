@@ -27,26 +27,20 @@ public class PlaceSheetState {
   }
 
   private final Visibility visibility;
-  private final boolean newPlace;
 
   @Nullable private Place place;
 
-  private PlaceSheetState(Visibility visibility, Place place, boolean newPlace) {
+  private PlaceSheetState(Visibility visibility, Place place) {
     this.visibility = visibility;
     this.place = place;
-    this.newPlace = newPlace;
   }
 
   private PlaceSheetState(Visibility visibility) {
-    this(visibility, null, false);
+    this(visibility, null);
   }
 
   public static PlaceSheetState visible(Place place) {
-    return PlaceSheetState.visible(place, false);
-  }
-
-  public static PlaceSheetState visible(Place place, boolean addRecord) {
-    return new PlaceSheetState(Visibility.VISIBLE, place, addRecord);
+    return new PlaceSheetState(Visibility.VISIBLE, place);
   }
 
   public static PlaceSheetState hidden() {
@@ -63,9 +57,5 @@ public class PlaceSheetState {
 
   public boolean isVisible() {
     return Visibility.VISIBLE.equals(visibility);
-  }
-
-  public boolean isNewPlace() {
-    return newPlace;
   }
 }
