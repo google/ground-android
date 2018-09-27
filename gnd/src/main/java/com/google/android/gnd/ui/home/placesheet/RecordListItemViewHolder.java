@@ -30,6 +30,7 @@ import android.widget.TextView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import com.google.android.gnd.R;
+import com.google.android.gnd.system.AuthenticationManager;
 import com.google.android.gnd.vo.Form;
 import com.google.android.gnd.vo.Form.Element;
 import com.google.android.gnd.vo.Form.Field;
@@ -43,6 +44,9 @@ class RecordListItemViewHolder extends RecyclerView.ViewHolder {
   private static final int MAX_SUMMARY_COLUMNS = 4;
   private final View view;
   private final MutableLiveData<Record> itemClicks;
+
+  @BindView(R.id.user_name)
+  TextView userNameView;
 
   @BindView(R.id.last_modified_date)
   TextView lastModifiedDateView;
@@ -71,16 +75,13 @@ class RecordListItemViewHolder extends RecyclerView.ViewHolder {
   }
 
   void update(Record record) {
+    updateHeading(record);
+    updatePreview(record);
+  }
+
+  private void updatePreview(Record record) {
     fieldLabelRow.removeAllViews();
     fieldValueRow.removeAllViews();
-
-    Date dateModified = record.getServerTimestamps().getModified();
-    if (dateModified != null) {
-      DateFormat dateFormat = android.text.format.DateFormat.getMediumDateFormat(view.getContext());
-      lastModifiedDateView.setText(dateFormat.format(dateModified));
-      DateFormat timeFormat = android.text.format.DateFormat.getTimeFormat(view.getContext());
-      lastModifiedTimeView.setText(timeFormat.format(dateModified));
-    }
 
     View recordDetailsButton = view.findViewById(R.id.record_details_btn);
     view.setOnClickListener(__ -> itemClicks.setValue(record));
@@ -102,6 +103,20 @@ class RecordListItemViewHolder extends RecyclerView.ViewHolder {
               R.style.RecordListText_Field));
           break;
       }
+    }
+  }
+
+  private void updateHeading(Record record) {
+    AuthenticationManager.User modifiedBy = record.getModifiedBy();
+    // TODO: i18n.
+    userNameView.setText(modifiedBy == null ? "Unknown user" : modifiedBy.getDisplayName());
+
+    Date dateModified = record.getServerTimestamps().getModified();
+    if (dateModified != null) {
+      DateFormat dateFormat = android.text.format.DateFormat.getMediumDateFormat(view.getContext());
+      lastModifiedDateView.setText(dateFormat.format(dateModified));
+      DateFormat timeFormat = android.text.format.DateFormat.getTimeFormat(view.getContext());
+      lastModifiedTimeView.setText(timeFormat.format(dateModified));
     }
   }
 
