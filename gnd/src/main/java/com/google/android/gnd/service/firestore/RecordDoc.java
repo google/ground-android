@@ -16,8 +16,9 @@
 
 package com.google.android.gnd.service.firestore;
 
-import android.util.Log;
+import static com.google.android.gnd.service.firestore.FirestoreDataService.toTimestamps;
 
+import android.util.Log;
 import com.google.android.gnd.vo.Form;
 import com.google.android.gnd.vo.Place;
 import com.google.android.gnd.vo.Record;
@@ -27,20 +28,18 @@ import com.google.android.gnd.vo.Record.Value;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.IgnoreExtraProperties;
 import com.google.firebase.firestore.ServerTimestamp;
-
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import java8.util.Optional;
-
-import static com.google.android.gnd.service.firestore.FirestoreDataService.toTimestamps;
 
 // TODO: Refactor into cleaner peristence layer.
 @IgnoreExtraProperties
 public class RecordDoc {
   private static final String TAG = RecordDoc.class.getSimpleName();
+
+  public String featureId;
 
   public String featureTypeId;
 
@@ -58,6 +57,7 @@ public class RecordDoc {
 
   public static RecordDoc forUpdates(Record record, Map<String, Object> valueUpdates) {
     RecordDoc rd = new RecordDoc();
+    rd.featureId = record.getPlace().getId();
     rd.featureTypeId = record.getPlace().getPlaceType().getId();
     rd.formId = record.getForm().getId();
     rd.responses = valueUpdates;
@@ -67,6 +67,9 @@ public class RecordDoc {
 
   public static Record toProto(Place place, String recordId, DocumentSnapshot doc) {
     RecordDoc rd = doc.toObject(RecordDoc.class);
+    if (!place.getId().equals(rd.featureId)) {
+      // TODO: Handle error.
+    }
     if (!place.getPlaceType().getId().equals(rd.featureTypeId)) {
       // TODO: Handle error.
     }

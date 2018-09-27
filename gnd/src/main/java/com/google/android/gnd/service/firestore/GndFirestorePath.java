@@ -96,6 +96,10 @@ public class GndFirestorePath extends FirestorePath {
     public PlaceTypeRef placeType(String id) {
       return placeTypes().placeType(id);
     }
+
+    public RecordsRef records() {
+      return new RecordsRef().setRef(collection(RECORDS));
+    }
   }
 
   public static class PlacesRef extends FluentCollectionReference {
@@ -136,6 +140,10 @@ public class GndFirestorePath extends FirestorePath {
   public static class RecordsRef extends FluentCollectionReference {
     public FluentDocumentReference record(String id) {
       return new FluentDocumentReference().setRef(document(id));
+    }
+
+    public Query whereFeatureIdEqualTo(String featureId) {
+      return ref().whereEqualTo(FieldPath.of("featureId"), featureId);
     }
   }
 }

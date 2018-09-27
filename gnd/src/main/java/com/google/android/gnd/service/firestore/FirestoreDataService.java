@@ -95,7 +95,7 @@ public class FirestoreDataService implements RemoteDataService {
   public Single<List<Record>> loadRecordSummaries(Place place) {
     return mapSingle(
         RxFirestore.getCollection(
-            db().project(place.getProject().getId()).place(place.getId()).records().ref()),
+          db().project(place.getProject().getId()).records().whereFeatureIdEqualTo(place.getId())),
         doc -> RecordDoc.toProto(place, doc.getId(), doc));
   }
 
@@ -103,7 +103,6 @@ public class FirestoreDataService implements RemoteDataService {
   public Single<Record> loadRecordDetails(Place place, String recordId) {
     return RxFirestore.getDocument(
             db().project(place.getProject().getId())
-                .place(place.getId())
                 .records()
                 .record(recordId)
                 .ref())
@@ -177,8 +176,6 @@ public class FirestoreDataService implements RemoteDataService {
     GndFirestorePath.RecordsRef records =
         db().projects()
             .project(record.getProject().getId())
-            .places()
-            .place(record.getPlace().getId())
             .records();
 
     if (record.getId() == null) {
