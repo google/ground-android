@@ -18,6 +18,7 @@ package com.google.android.gnd.service.firestore;
 
 import static com.google.android.gnd.service.firestore.FirestoreDataService.toTimestamps;
 
+import android.support.annotation.Nullable;
 import android.util.Log;
 import com.google.android.gnd.vo.Form;
 import com.google.android.gnd.vo.Place;
@@ -34,25 +35,41 @@ import java.util.List;
 import java.util.Map;
 import java8.util.Optional;
 
-// TODO: Refactor into cleaner peristence layer.
+// TODO: Refactor into cleaner persistence layer.
 @IgnoreExtraProperties
 public class RecordDoc {
   private static final String TAG = RecordDoc.class.getSimpleName();
 
+  @Nullable
   public String featureId;
 
+  @Nullable
   public String featureTypeId;
 
+  @Nullable
   public String formId;
 
-  public @ServerTimestamp Date serverTimeCreated;
+  @Nullable
+  public UserDoc createdBy;
 
-  public @ServerTimestamp Date serverTimeModified;
+  @Nullable
+  public UserDoc modifiedBy;
 
+  public @Nullable
+  @ServerTimestamp
+  Date serverTimeCreated;
+
+  public @Nullable
+  @ServerTimestamp
+  Date serverTimeModified;
+
+  @Nullable
   public Date clientTimeCreated;
 
+  @Nullable
   public Date clientTimeModified;
 
+  @Nullable
   public Map<String, Object> responses;
 
   public static RecordDoc forUpdates(Record record, Map<String, Object> valueUpdates) {
@@ -62,6 +79,8 @@ public class RecordDoc {
     rd.formId = record.getForm().getId();
     rd.responses = valueUpdates;
     rd.clientTimeModified = new Date();
+    rd.createdBy = UserDoc.fromProto(record.getCreatedBy());
+    rd.modifiedBy = UserDoc.fromProto(record.getModifiedBy());
     return rd;
   }
 
@@ -78,14 +97,16 @@ public class RecordDoc {
       // TODO: Handle error.
     }
     return Record.newBuilder()
-        .setId(recordId)
-        .setProject(place.getProject())
-        .setPlace(place)
-        .setForm(form.get())
-        .putAllValues(convertValues(rd.responses))
-        .setServerTimestamps(toTimestamps(rd.serverTimeCreated, rd.serverTimeModified))
-        .setClientTimestamps(toTimestamps(rd.clientTimeCreated, rd.clientTimeModified))
-        .build();
+                 .setId(recordId)
+                 .setProject(place.getProject())
+                 .setPlace(place)
+                 .setForm(form.get())
+                 .putAllValues(convertValues(rd.responses))
+                 .setCreatedBy(UserDoc.toProto(rd.createdBy))
+                 .setModifiedBy(UserDoc.toProto(rd.modifiedBy))
+                 .setServerTimestamps(toTimestamps(rd.serverTimeCreated, rd.serverTimeModified))
+                 .setClientTimestamps(toTimestamps(rd.clientTimeCreated, rd.clientTimeModified))
+                 .build();
   }
 
   private static Map<String, Value> convertValues(Map<String, Object> docValues) {

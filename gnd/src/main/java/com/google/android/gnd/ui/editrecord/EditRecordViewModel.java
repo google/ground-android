@@ -16,6 +16,13 @@
 
 package com.google.android.gnd.ui.editrecord;
 
+import static com.google.android.gnd.util.Streams.toImmutableList;
+import static com.google.android.gnd.vo.PlaceUpdate.Operation.CREATE;
+import static com.google.android.gnd.vo.PlaceUpdate.Operation.DELETE;
+import static com.google.android.gnd.vo.PlaceUpdate.Operation.UPDATE;
+import static java8.util.Maps.forEach;
+import static java8.util.stream.StreamSupport.stream;
+
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.content.res.Resources;
@@ -23,11 +30,11 @@ import android.databinding.ObservableArrayMap;
 import android.databinding.ObservableMap;
 import android.support.annotation.NonNull;
 import android.util.Log;
-
 import com.google.android.gnd.GndApplication;
 import com.google.android.gnd.R;
 import com.google.android.gnd.repository.DataRepository;
 import com.google.android.gnd.repository.Resource;
+import com.google.android.gnd.system.AuthenticationManager;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.common.SingleLiveEvent;
 import com.google.android.gnd.vo.Form.Element.Type;
@@ -36,27 +43,19 @@ import com.google.android.gnd.vo.PlaceUpdate.RecordUpdate.ValueUpdate;
 import com.google.android.gnd.vo.Record;
 import com.google.android.gnd.vo.Record.TextValue;
 import com.google.android.gnd.vo.Record.Value;
-
+import com.google.common.collect.ImmutableList;
 import java.util.Arrays;
 import java.util.Collections;
-
-import javax.inject.Inject;
-
 import java8.util.Optional;
 import java8.util.stream.Stream;
-
-import static com.google.android.gnd.util.Streams.toImmutableList;
-import static com.google.android.gnd.vo.PlaceUpdate.Operation.CREATE;
-import static com.google.android.gnd.vo.PlaceUpdate.Operation.DELETE;
-import static com.google.android.gnd.vo.PlaceUpdate.Operation.UPDATE;
-import static java8.util.Maps.forEach;
-import static java8.util.stream.StreamSupport.stream;
+import javax.inject.Inject;
 
 // TODO: Save draft to local db on each change.
 public class EditRecordViewModel extends AbstractViewModel {
   private static final String TAG = EditRecordViewModel.class.getSimpleName();
 
   private final DataRepository dataRepository;
+  private final AuthenticationManager authManager;
   private final MutableLiveData<Resource<Record>> record;
   private final SingleLiveEvent<Void> showUnsavedChangesDialogEvents;
   private final SingleLiveEvent<Void> showErrorDialogEvents;
@@ -65,12 +64,16 @@ public class EditRecordViewModel extends AbstractViewModel {
   private final ObservableMap<String, String> errors = new ObservableArrayMap<>();
 
   @Inject
-  EditRecordViewModel(GndApplication application, DataRepository dataRepository) {
+  EditRecordViewModel(
+    GndApplication application,
+    DataRepository dataRepository,
+    AuthenticationManager authenticationManager) {
     this.resources = application.getResources();
     this.dataRepository = dataRepository;
     this.record = new MutableLiveData<>();
     this.showUnsavedChangesDialogEvents = new SingleLiveEvent<>();
     this.showErrorDialogEvents = new SingleLiveEvent<>();
+    this.authManager = authenticationManager;
   }
 
   public ObservableMap<String, Value> getValues() {
@@ -180,8 +183,9 @@ public class EditRecordViewModel extends AbstractViewModel {
 
   private void saveChanges(Record r) {
     disposeOnClear(
-        dataRepository
-            .saveChanges(r, getChanges(r).collect(toImmutableList()))
+      authManager
+        .withUser()
+        .flatMap(user -> dataRepository.saveChanges(r, getChangeList(r), user))
             .subscribe(record::setValue));
   }
 
@@ -190,6 +194,10 @@ public class EditRecordViewModel extends AbstractViewModel {
         .filter(e -> e.getType() == Type.FIELD)
         .map(e -> e.getField())
         .flatMap(f -> getChanges(r, f));
+  }
+
+  private ImmutableList<ValueUpdate> getChangeList(Record r) {
+    return getChanges(r).collect(toImmutableList());
   }
 
   private Stream<ValueUpdate> getChanges(Record r, Field field) {

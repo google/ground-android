@@ -19,6 +19,7 @@ package com.google.android.gnd.vo;
 import static java8.util.stream.StreamSupport.stream;
 
 import android.support.annotation.Nullable;
+import com.google.android.gnd.system.AuthenticationManager.User;
 import com.google.android.gnd.vo.Form.Field;
 import com.google.android.gnd.vo.Form.MultipleChoice.Option;
 import com.google.auto.value.AutoValue;
@@ -38,6 +39,12 @@ public abstract class Record {
   public abstract Place getPlace();
 
   public abstract Form getForm();
+
+  @Nullable
+  public abstract User getCreatedBy();
+
+  @Nullable
+  public abstract User getModifiedBy();
 
   @Nullable
   public abstract Timestamps getServerTimestamps();
@@ -66,6 +73,10 @@ public abstract class Record {
     public abstract Builder setPlace(Place place);
 
     public abstract Builder setForm(Form form);
+
+    public abstract Builder setCreatedBy(@Nullable User user);
+
+    public abstract Builder setModifiedBy(@Nullable User user);
 
     public abstract Builder setServerTimestamps(@Nullable Timestamps newServerTimestamps);
 

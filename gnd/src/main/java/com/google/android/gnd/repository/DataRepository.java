@@ -160,12 +160,23 @@ public class DataRepository {
         .orElse(remoteDataService.loadProject(projectId));
   }
 
-  public Flowable<Resource<Record>> saveChanges(Record record, ImmutableList<ValueUpdate> updates) {
+  public Flowable<Resource<Record>> saveChanges(
+    Record record, ImmutableList<ValueUpdate> updates, User user) {
+    record = attachUser(record, user);
     return remoteDataService
-        .saveChanges(record, updates)
-        .map(Resource::saved)
-        .toFlowable()
-        .startWith(Resource.saving(record));
+      .saveChanges(record, updates)
+      .map(Resource::saved)
+      .toFlowable()
+      .startWith(Resource.saving(record));
+  }
+
+  private Record attachUser(Record record, User user) {
+    Record.Builder builder = record.toBuilder();
+    if (record.getId() == null && record.getCreatedBy() == null) {
+      builder.setCreatedBy(user);
+    }
+    builder.setModifiedBy(user);
+    return builder.build();
   }
 
   public Single<Place> addPlace(Place place) {
