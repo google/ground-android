@@ -35,12 +35,20 @@ import com.google.android.gnd.vo.Form.Element;
 import com.google.android.gnd.vo.Form.Field;
 import com.google.android.gnd.vo.Record;
 import com.google.android.gnd.vo.Record.Value;
+import java.text.DateFormat;
+import java.util.Date;
 import java8.util.Optional;
 
 class RecordListItemViewHolder extends RecyclerView.ViewHolder {
   private static final int MAX_SUMMARY_COLUMNS = 4;
   private final View view;
   private final MutableLiveData<Record> itemClicks;
+
+  @BindView(R.id.last_modified_date)
+  TextView lastModifiedDateView;
+
+  @BindView(R.id.last_modified_time)
+  TextView lastModifiedTimeView;
 
   @BindView(R.id.field_label_row)
   TableRow fieldLabelRow;
@@ -65,6 +73,14 @@ class RecordListItemViewHolder extends RecyclerView.ViewHolder {
   void update(Record record) {
     fieldLabelRow.removeAllViews();
     fieldValueRow.removeAllViews();
+
+    Date dateModified = record.getServerTimestamps().getModified();
+    if (dateModified != null) {
+      DateFormat dateFormat = android.text.format.DateFormat.getDateFormat(view.getContext());
+      lastModifiedDateView.setText(dateFormat.format(dateModified));
+      DateFormat timeFormat = android.text.format.DateFormat.getTimeFormat(view.getContext());
+      lastModifiedTimeView.setText(timeFormat.format(dateModified));
+    }
 
     View recordDetailsButton = view.findViewById(R.id.record_details_btn);
     view.setOnClickListener(__ -> itemClicks.setValue(record));

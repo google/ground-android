@@ -44,7 +44,6 @@
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:layout_toRightOf="@id/separator_dot1"
-      android:text="May 24, 2018"
       android:textAppearance="@style/RecordListText.Timestamp"/>
     <TextView
       android:id="@+id/separator_dot2"
@@ -58,7 +57,6 @@
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:layout_toRightOf="@id/separator_dot2"
-      android:text="12:14 PM"
       android:textAppearance="@style/RecordListText.Timestamp"/>
 
     <TableLayout
