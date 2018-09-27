@@ -29,7 +29,9 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-
+import androidx.navigation.fragment.NavHostFragment;
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.R;
 import com.google.android.gnd.repository.Resource;
@@ -38,10 +40,6 @@ import com.google.android.gnd.ui.common.EphemeralPopups;
 import com.google.android.gnd.ui.common.TwoLineToolbar;
 import com.google.android.gnd.vo.Form;
 import com.google.android.gnd.vo.Record;
-
-import androidx.navigation.fragment.NavHostFragment;
-import butterknife.BindView;
-import butterknife.ButterKnife;
 
 public class RecordDetailsFragment extends AbstractFragment {
   private static final String TAG = RecordDetailsFragment.class.getSimpleName();

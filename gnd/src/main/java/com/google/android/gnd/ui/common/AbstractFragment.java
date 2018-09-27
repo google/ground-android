@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.ui.common;
 
+import static com.google.android.gnd.ui.util.ViewUtil.hideSoftInputFrom;
 import static com.google.android.gnd.util.Debug.logLifecycleEvent;
 
 import android.arch.lifecycle.ViewModel;
@@ -111,6 +112,7 @@ public abstract class AbstractFragment extends Fragment implements HasSupportFra
   public void onResume() {
     logLifecycleEvent(this);
     super.onResume();
+    hideSoftInputFrom(this);
   }
 
   @Override
