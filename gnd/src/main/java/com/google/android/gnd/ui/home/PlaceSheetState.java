@@ -17,7 +17,6 @@
 package com.google.android.gnd.ui.home;
 
 import android.support.annotation.Nullable;
-
 import com.google.android.gnd.vo.Place;
 
 public class PlaceSheetState {
@@ -28,20 +27,26 @@ public class PlaceSheetState {
   }
 
   private final Visibility visibility;
+  private final boolean newPlace;
 
   @Nullable private Place place;
 
-  private PlaceSheetState(Visibility visibility, Place place) {
+  private PlaceSheetState(Visibility visibility, Place place, boolean newPlace) {
     this.visibility = visibility;
     this.place = place;
+    this.newPlace = newPlace;
   }
 
   private PlaceSheetState(Visibility visibility) {
-    this.visibility = visibility;
+    this(visibility, null, false);
   }
 
   public static PlaceSheetState visible(Place place) {
-    return new PlaceSheetState(Visibility.VISIBLE, place);
+    return PlaceSheetState.visible(place, false);
+  }
+
+  public static PlaceSheetState visible(Place place, boolean addRecord) {
+    return new PlaceSheetState(Visibility.VISIBLE, place, addRecord);
   }
 
   public static PlaceSheetState hidden() {
@@ -58,5 +63,9 @@ public class PlaceSheetState {
 
   public boolean isVisible() {
     return Visibility.VISIBLE.equals(visibility);
+  }
+
+  public boolean isNewPlace() {
+    return newPlace;
   }
 }

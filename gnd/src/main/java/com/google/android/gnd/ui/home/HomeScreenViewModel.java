@@ -82,6 +82,12 @@ public class HomeScreenViewModel extends AbstractViewModel {
     placeSheetState.setValue(PlaceSheetState.visible(place));
   }
 
+  private void onPlaceAdded(Place place) {
+    placeSheetState.setValue(PlaceSheetState.visible(
+      place,
+      place.getPlaceType().getForms().size() == 1));
+  }
+
   public void onAddPlaceBtnClick(Point location) {
     // TODO: Pause location updates while dialog is open.
     addPlaceDialogRequests.setValue(location);
@@ -89,7 +95,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
 
   public void addPlace(Place place) {
     // TODO: Zoom if necessary.
-    disposeOnClear(dataRepository.addPlace(place).subscribe(this::showPlaceSheet));
+    disposeOnClear(dataRepository.addPlace(place).subscribe(this::onPlaceAdded));
   }
 
   public void onBottomSheetHidden() {
