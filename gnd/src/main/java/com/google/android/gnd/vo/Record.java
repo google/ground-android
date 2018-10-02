@@ -34,10 +34,13 @@ public abstract class Record {
   @Nullable
   public abstract String getId();
 
+  @Nullable
   public abstract Project getProject();
 
+  @Nullable
   public abstract Place getPlace();
 
+  @Nullable
   public abstract Form getForm();
 
   @Nullable
@@ -68,11 +71,11 @@ public abstract class Record {
   public abstract static class Builder {
     public abstract Builder setId(@Nullable String newId);
 
-    public abstract Builder setProject(Project project);
+    public abstract Builder setProject(@Nullable Project project);
 
-    public abstract Builder setPlace(Place place);
+    public abstract Builder setPlace(@Nullable Place place);
 
-    public abstract Builder setForm(Form form);
+    public abstract Builder setForm(@Nullable Form form);
 
     public abstract Builder setCreatedBy(@Nullable User user);
 

@@ -16,20 +16,20 @@
 
 package com.google.android.gnd.vo;
 
+import static java8.util.stream.StreamSupport.stream;
+
 import com.google.auto.value.AutoOneOf;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
-
-import javax.annotation.Nullable;
-
 import java8.util.Optional;
-
-import static java8.util.stream.StreamSupport.stream;
+import javax.annotation.Nullable;
 
 @AutoValue
 public abstract class Form {
+  @Nullable
   public abstract String getId();
 
+  @Nullable
   public abstract String getTitle();
 
   public abstract ImmutableList<Element> getElements();
@@ -42,14 +42,14 @@ public abstract class Form {
   }
 
   public static Builder newBuilder() {
-    return new AutoValue_Form.Builder();
+    return new AutoValue_Form.Builder().setElements(ImmutableList.of());
   }
 
   @AutoValue.Builder
   public abstract static class Builder {
-    public abstract Builder setId(String newId);
+    public abstract Builder setId(@Nullable String newId);
 
-    public abstract Builder setTitle(String newTitle);
+    public abstract Builder setTitle(@Nullable String newTitle);
 
     public abstract Builder setElements(ImmutableList<Element> newElementsList);
 
@@ -66,10 +66,13 @@ public abstract class Form {
 
     public abstract Type getType();
 
+    @Nullable
     public abstract Field getField();
 
+    @Nullable
     public abstract Form getSubform();
 
+    @Nullable
     public abstract Object getUnknown();
 
     public static Element ofField(Field field) {
@@ -92,10 +95,13 @@ public abstract class Form {
       MULTIPLE_CHOICE
     }
 
+    @Nullable
     public abstract String getId();
 
+    @Nullable
     public abstract Type getType();
 
+    @Nullable
     public abstract String getLabel();
 
     public abstract boolean isRequired();
@@ -109,11 +115,11 @@ public abstract class Form {
 
     @AutoValue.Builder
     public abstract static class Builder {
-      public abstract Builder setId(String newId);
+      public abstract Builder setId(@Nullable String newId);
 
-      public abstract Builder setType(Type newType);
+      public abstract Builder setType(@Nullable Type newType);
 
-      public abstract Builder setLabel(String newLabel);
+      public abstract Builder setLabel(@Nullable String newLabel);
 
       public abstract Builder setRequired(boolean newRequired);
 
@@ -136,6 +142,7 @@ public abstract class Form {
       return stream(getOptions()).filter(o -> o.getCode().equals(code)).findFirst();
     }
 
+    @Nullable
     public abstract Cardinality getCardinality();
 
     public Optional<Integer> getIndex(String code) {
@@ -148,7 +155,7 @@ public abstract class Form {
     }
 
     public static Builder newBuilder() {
-      return new AutoValue_Form_MultipleChoice.Builder();
+      return new AutoValue_Form_MultipleChoice.Builder().setOptions(ImmutableList.of());
     }
 
     @AutoValue.Builder
@@ -157,15 +164,17 @@ public abstract class Form {
 
       public abstract ImmutableList.Builder<Option> optionsBuilder();
 
-      public abstract Builder setCardinality(Cardinality newCardinality);
+      public abstract Builder setCardinality(@Nullable Cardinality newCardinality);
 
       public abstract MultipleChoice build();
     }
 
     @AutoValue
     public abstract static class Option {
+      @Nullable
       public abstract String getCode();
 
+      @Nullable
       public abstract String getLabel();
 
       public static Builder newBuilder() {
@@ -174,9 +183,9 @@ public abstract class Form {
 
       @AutoValue.Builder
       public abstract static class Builder {
-        public abstract Builder setCode(String newCode);
+        public abstract Builder setCode(@Nullable String newCode);
 
-        public abstract Builder setLabel(String newLabel);
+        public abstract Builder setLabel(@Nullable String newLabel);
 
         public abstract Option build();
       }

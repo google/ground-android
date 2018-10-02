@@ -53,14 +53,12 @@ public abstract class PlaceType {
   }
 
   public static Builder newBuilder() {
-    return new AutoValue_PlaceType.Builder()
-        .setServerTimestamps(Timestamps.getDefaultInstance())
-        .setClientTimestamps(Timestamps.getDefaultInstance());
+    return new AutoValue_PlaceType.Builder().setClientTimestamps(Timestamps.getDefaultInstance());
   }
 
   @AutoValue.Builder
   public abstract static class Builder {
-    public abstract Builder setId(String newId);
+    public abstract Builder setId(@Nullable String newId);
 
     public abstract Builder setListHeading(@Nullable String newListHeading);
 
@@ -77,9 +75,9 @@ public abstract class PlaceType {
       return this;
     }
 
-    public abstract Builder setServerTimestamps(Timestamps newServerTimestamps);
+    public abstract Builder setServerTimestamps(@Nullable Timestamps newServerTimestamps);
 
-    public abstract Builder setClientTimestamps(Timestamps newClientTimestamps);
+    public abstract Builder setClientTimestamps(@Nullable Timestamps newClientTimestamps);
 
     public abstract PlaceType build();
   }
