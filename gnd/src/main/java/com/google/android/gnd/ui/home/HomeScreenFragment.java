@@ -242,6 +242,7 @@ public class HomeScreenFragment extends AbstractFragment
       case NOT_FOUND:
       case ERROR:
         EphemeralPopups.showError(getContext(), R.string.project_load_error);
+        Log.e(TAG, "Project load error", project.getError().orElse(new UnknownError()));
         break;
     }
   }
@@ -308,9 +309,11 @@ public class HomeScreenFragment extends AbstractFragment
   }
 
   private void showProjectLoadingDialog() {
-    progressDialog =
+    if (progressDialog == null) {
+      progressDialog =
         ProgressDialogs.modalSpinner(getContext(), R.string.project_loading_please_wait);
-    progressDialog.show();
+      progressDialog.show();
+    }
   }
 
   public void dismissLoadingDialog() {

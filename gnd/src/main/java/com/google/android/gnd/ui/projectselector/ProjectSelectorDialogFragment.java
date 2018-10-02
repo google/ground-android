@@ -113,6 +113,15 @@ public class ProjectSelectorDialogFragment extends AbstractDialogFragment {
 
   private void onItemSelected(AdapterView<?> parent, View view, int idx, long id) {
     getDialog().hide();
-    viewModel.activateProject(idx).as(autoDisposable(this)).subscribe(this::dismiss);
+    viewModel
+      .activateProject(idx)
+      .as(autoDisposable(this))
+      .subscribe(this::dismiss, this::onActivateProjectFailure);
+  }
+
+  private void onActivateProjectFailure(Throwable throwable) {
+    Log.e(TAG, "Project load exception", throwable);
+    dismiss();
+    EphemeralPopups.showError(getContext(), R.string.project_load_error);
   }
 }

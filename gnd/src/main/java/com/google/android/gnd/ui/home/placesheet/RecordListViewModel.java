@@ -16,17 +16,14 @@
 
 package com.google.android.gnd.ui.home.placesheet;
 
-import static com.google.android.gnd.rx.RxTransformers.filterIfPresentAndGet;
 import static java8.util.stream.StreamSupport.stream;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import com.google.android.gnd.repository.DataRepository;
-import com.google.android.gnd.repository.Resource;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.vo.Form;
 import com.google.android.gnd.vo.Place;
-import com.google.android.gnd.vo.PlaceType;
 import com.google.android.gnd.vo.Project;
 import com.google.android.gnd.vo.Record;
 import java.util.Collections;
@@ -56,16 +53,7 @@ public class RecordListViewModel extends AbstractViewModel {
   }
 
   public void loadRecordSummaries(Place place, Form form) {
-    PlaceType placeType = place.getPlaceType();
-    // TODO: Warn if project not loaded?
-    // TODO: Pass project id and push getProject into repo.
-    disposeOnClear(
-        dataRepository
-          .getActiveProject()
-          .map(Resource::getData)
-          .compose(filterIfPresentAndGet())
-          .subscribe(
-                project -> loadRecords(project, placeType.getId(), form.getId(), place.getId())));
+    loadRecords(place.getProject(), place.getPlaceType().getId(), form.getId(), place.getId());
   }
 
   private void loadRecords(Project project, String placeTypeId, String formId, String placeId) {
