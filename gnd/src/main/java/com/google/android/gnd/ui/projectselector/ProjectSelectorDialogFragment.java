@@ -113,6 +113,9 @@ public class ProjectSelectorDialogFragment extends AbstractDialogFragment {
 
   private void onItemSelected(AdapterView<?> parent, View view, int idx, long id) {
     getDialog().hide();
+    // TODO: Get item from listAdapter.getItem and pass to activateProject.
+    // TODO: Use simple action + reactive listener instead of subscribing to result.
+    // TODO: ViewModel should maintain loading state, not subscription.
     viewModel
       .activateProject(idx)
       .as(autoDisposable(this))

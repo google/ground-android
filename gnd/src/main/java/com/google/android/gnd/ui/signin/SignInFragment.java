@@ -48,7 +48,8 @@ public class SignInFragment extends AbstractFragment implements BackPressListene
 
   @Override
   public boolean onBack() {
-    // TODO: Figure out why popUpTo is not working on signOut action and remove this workaround.
+    // Workaround to exit on back from sign-in screen since for some reason
+    // popUpTo is not working on signOut action.
     getActivity().finish();
     return false;
   }
