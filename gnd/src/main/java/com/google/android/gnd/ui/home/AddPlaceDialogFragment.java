@@ -76,7 +76,7 @@ public class AddPlaceDialogFragment extends AbstractDialogFragment {
     // TODO: Inject and use custom factory.
     Optional<Project> activeProject = Resource.getData(homeScreenViewModel.getActiveProject());
     Optional<Point> cameraPosition =
-      Optional.ofNullable(mapContainerViewModel.getCameraPosition().getValue());
+        Optional.ofNullable(mapContainerViewModel.getCameraPosition().getValue());
     if (!activeProject.isPresent()) {
       addPlaceRequestSubject.onError(new IllegalStateException("No active project"));
       return fail("Could not get active project");
@@ -94,22 +94,22 @@ public class AddPlaceDialogFragment extends AbstractDialogFragment {
     builder.setNegativeButton(R.string.add_place_cancel, (dialog, id) -> onCancel());
     // TODO: Add icons.
     ImmutableList<PlaceType> placeTypes =
-      stream(project.getPlaceTypes())
-        .sorted((pt1, pt2) -> pt1.getItemLabel().compareTo(pt2.getItemLabel()))
-        .collect(toImmutableList());
+        stream(project.getPlaceTypes())
+            .sorted((pt1, pt2) -> pt1.getItemLabel().compareTo(pt2.getItemLabel()))
+            .collect(toImmutableList());
     String[] items = stream(placeTypes).map(t -> t.getItemLabel()).toArray(String[]::new);
     builder.setItems(
-      items, (dialog, idx) -> onSelectPlaceType(project, placeTypes.get(idx), cameraPosition));
+        items, (dialog, idx) -> onSelectPlaceType(project, placeTypes.get(idx), cameraPosition));
     return builder.create();
   }
 
   private void onSelectPlaceType(Project project, PlaceType placeType, Point cameraPosition) {
     addPlaceRequestSubject.onSuccess(
-      Place.newBuilder()
-           .setProject(project)
-           .setPlaceType(placeType)
-           .setPoint(cameraPosition)
-           .build());
+        Place.newBuilder()
+            .setProject(project)
+            .setPlaceType(placeType)
+            .setPoint(cameraPosition)
+            .build());
   }
 
   private void onCancel() {

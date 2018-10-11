@@ -68,7 +68,7 @@ public class RecordDetailsFragment extends AbstractFragment {
 
   @Override
   public View onCreateView(
-    LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+      LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     return inflater.inflate(R.layout.record_details_frag, container, false);
   }
 
@@ -146,9 +146,9 @@ public class RecordDetailsFragment extends AbstractFragment {
     FieldViewHolder fieldViewHolder = FieldViewHolder.newInstance(getLayoutInflater());
     fieldViewHolder.setLabel(field.getLabel());
     record
-      .getValue(field.getId())
-      .map(v -> v.getDetailsText(field))
-      .ifPresent(fieldViewHolder::setValue);
+        .getValue(field.getId())
+        .map(v -> v.getDetailsText(field))
+        .ifPresent(fieldViewHolder::setValue);
     recordDetailsLayout.addView(fieldViewHolder.getRoot());
   }
 
@@ -194,9 +194,9 @@ public class RecordDetailsFragment extends AbstractFragment {
         getActivity().closeOptionsMenu();
         RecordDetailsFragmentArgs args = getRecordDetailFragmentArgs();
         NavHostFragment.findNavController(this)
-                       .navigate(
-                         RecordDetailsFragmentDirections.editRecord(
-                           args.getProjectId(), args.getPlaceId(), args.getRecordId()));
+            .navigate(
+                RecordDetailsFragmentDirections.editRecord(
+                    args.getProjectId(), args.getPlaceId(), args.getRecordId()));
         return true;
       case R.id.delete_record_menu_item:
         // TODO: Implement delete record.

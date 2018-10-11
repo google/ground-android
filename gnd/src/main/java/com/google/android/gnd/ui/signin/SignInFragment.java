@@ -31,15 +31,14 @@ import javax.inject.Inject;
 
 @ActivityScoped
 public class SignInFragment extends AbstractFragment implements BackPressListener {
-  @Inject
-  AuthenticationManager authenticationManager;
+  @Inject AuthenticationManager authenticationManager;
 
   @BindView(R.id.sign_in_button)
   View signInButton;
 
   @Override
   public View onCreateView(
-    LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+      LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     return inflater.inflate(R.layout.sign_in_frag, container, false);
   }
 

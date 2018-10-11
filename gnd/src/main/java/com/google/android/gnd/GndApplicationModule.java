@@ -30,9 +30,7 @@ import javax.inject.Singleton;
 @Module(includes = {AndroidSupportInjectionModule.class, ViewModelModule.class})
 abstract class GndApplicationModule {
 
-  /**
-   * Causes Dagger Android to generate a sub-component for the MainActivity.
-   */
+  /** Causes Dagger Android to generate a sub-component for the MainActivity. */
   @ActivityScoped
   @ContributesAndroidInjector(modules = MainActivityModule.class)
   abstract MainActivity mainActivityInjector();

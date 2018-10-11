@@ -19,16 +19,12 @@ package com.google.android.gnd.system;
 import android.support.annotation.Nullable;
 import java8.util.Optional;
 
-/**
- * Represents the state of an async process whose result can be represented as an object.
- */
+/** Represents the state of an async process whose result can be represented as an object. */
 // TODO: Refactor common logic in {@link com.google.android.gnd.repository.Resource}.
 public abstract class AbstractResource<S, T> {
   private final S state;
-  @Nullable
-  private final T data;
-  @Nullable
-  private final Throwable error;
+  @Nullable private final T data;
+  @Nullable private final Throwable error;
 
   protected AbstractResource(S state, T data, Throwable error) {
     this.state = state;

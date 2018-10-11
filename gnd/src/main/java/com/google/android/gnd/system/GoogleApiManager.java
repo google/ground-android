@@ -33,8 +33,7 @@ public class GoogleApiManager {
       GoogleApiAvailability.class.hashCode() & 0xffff;
   private final GoogleApiAvailability googleApiAvailability;
   // TODO: Replace with CompletableSubject?
-  @Nullable
-  private CompletableEmitter installApiResultEmitter;
+  @Nullable private CompletableEmitter installApiResultEmitter;
   private int googleApiAvailabilityResult;
 
   @Inject

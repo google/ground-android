@@ -105,9 +105,9 @@ public class MainActivity extends AppCompatActivity implements HasSupportFragmen
         .subscribe(this::onSettingsChangeRequest);
 
     authenticationManager
-      .getAuthStatus()
-      .as(autoDisposable(this))
-      .subscribe(this::onAuthStatusChange);
+        .getAuthStatus()
+        .as(autoDisposable(this))
+        .subscribe(this::onAuthStatusChange);
   }
 
   private void onPermissionsRequest(PermissionsRequest permissionsRequest) {
@@ -270,7 +270,7 @@ public class MainActivity extends AppCompatActivity implements HasSupportFragmen
   private boolean dispatchBackPressed() {
     Fragment currentFragment = getCurrentFragment();
     return currentFragment instanceof BackPressListener
-      && ((BackPressListener) currentFragment).onBack();
+        && ((BackPressListener) currentFragment).onBack();
   }
 
   private Fragment getCurrentFragment() {

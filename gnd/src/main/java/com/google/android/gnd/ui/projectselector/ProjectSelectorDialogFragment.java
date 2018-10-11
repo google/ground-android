@@ -74,7 +74,7 @@ public class ProjectSelectorDialogFragment extends AbstractDialogFragment {
     ViewGroup dialogView = (ViewGroup) inflater.inflate(R.layout.project_selector_dialog, null);
     ButterKnife.bind(this, dialogView);
     listAdapter =
-      new ArrayAdapter(getContext(), R.layout.project_selector_list_item, R.id.project_name);
+        new ArrayAdapter(getContext(), R.layout.project_selector_list_item, R.id.project_name);
     listView.setAdapter(listAdapter);
     viewModel.getProjectSummaries().observe(this, this::update);
     listView.setOnItemClickListener(this::onItemSelected);
@@ -97,9 +97,9 @@ public class ProjectSelectorDialogFragment extends AbstractDialogFragment {
       case NOT_FOUND:
       case ERROR:
         Log.e(
-          TAG,
-          "Project list not available",
-          projectSummaries.getError().orElse(new UnknownError()));
+            TAG,
+            "Project list not available",
+            projectSummaries.getError().orElse(new UnknownError()));
         EphemeralPopups.showError(getContext(), R.string.project_list_load_error);
         dismiss();
         break;
@@ -119,9 +119,9 @@ public class ProjectSelectorDialogFragment extends AbstractDialogFragment {
     // TODO: Use simple action + reactive listener instead of subscribing to result.
     // TODO: ViewModel should maintain loading state, not subscription.
     viewModel
-      .activateProject(idx)
-      .as(autoDisposable(this))
-      .subscribe(this::dismiss, this::onActivateProjectFailure);
+        .activateProject(idx)
+        .as(autoDisposable(this))
+        .subscribe(this::dismiss, this::onActivateProjectFailure);
   }
 
   private void onActivateProjectFailure(Throwable throwable) {

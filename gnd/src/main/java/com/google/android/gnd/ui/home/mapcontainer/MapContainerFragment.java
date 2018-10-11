@@ -167,7 +167,7 @@ public class MapContainerFragment extends AbstractFragment {
 
   private void enableAddPlaceBtn() {
     addPlaceBtn.setBackgroundTintList(
-      ColorStateList.valueOf(getResources().getColor(R.color.colorMapAccent)));
+        ColorStateList.valueOf(getResources().getColor(R.color.colorMapAccent)));
   }
 
   private void disableAddPlaceBtn() {

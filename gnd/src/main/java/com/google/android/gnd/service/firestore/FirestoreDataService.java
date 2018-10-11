@@ -87,24 +87,24 @@ public class FirestoreDataService implements RemoteDataService {
   @Override
   public Single<Project> loadProject(String projectId) {
     return RxFirestore.getDocument(db().project(projectId).ref())
-                      .map(ProjectDoc::toProto)
-                      .switchIfEmpty(Single.error(new DocumentNotFoundException()));
+        .map(ProjectDoc::toProto)
+        .switchIfEmpty(Single.error(new DocumentNotFoundException()));
   }
 
   @Override
   public Single<List<Record>> loadRecordSummaries(Place place) {
     return mapSingle(
         RxFirestore.getCollection(
-          db().project(place.getProject().getId())
-              .records()
-              .whereFeatureIdEqualTo(place.getId())),
+            db().project(place.getProject().getId())
+                .records()
+                .whereFeatureIdEqualTo(place.getId())),
         doc -> RecordDoc.toProto(place, doc.getId(), doc));
   }
 
   @Override
   public Single<Record> loadRecordDetails(Place place, String recordId) {
     return RxFirestore.getDocument(
-      db().project(place.getProject().getId()).records().record(recordId).ref())
+            db().project(place.getProject().getId()).records().record(recordId).ref())
         .map(doc -> RecordDoc.toProto(place, doc.getId(), doc))
         .toSingle();
   }
@@ -112,7 +112,7 @@ public class FirestoreDataService implements RemoteDataService {
   @Override
   public Single<List<Project>> loadProjectSummaries(User user) {
     return mapSingle(
-      RxFirestore.getCollection(db().projects().whereCanRead(user)), ProjectDoc::toProto);
+        RxFirestore.getCollection(db().projects().whereCanRead(user)), ProjectDoc::toProto);
   }
 
   @Override
@@ -173,7 +173,7 @@ public class FirestoreDataService implements RemoteDataService {
   @Override
   public Single<Record> saveChanges(Record record, ImmutableList<ValueUpdate> updates) {
     GndFirestorePath.RecordsRef records =
-      db().projects().project(record.getProject().getId()).records();
+        db().projects().project(record.getProject().getId()).records();
 
     if (record.getId() == null) {
       DocumentReference recordDocRef = records.ref().document();

@@ -86,13 +86,13 @@ public class EditRecordFragment extends AbstractFragment implements BackPressLis
 
   @Override
   public View onCreateView(
-    LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+      LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     return inflater.inflate(R.layout.edit_record_frag, container, false);
   }
 
   @Override
   public void onViewCreated(
-    @NonNull View view, @android.support.annotation.Nullable Bundle savedInstanceState) {
+      @NonNull View view, @android.support.annotation.Nullable Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
     ((MainActivity) getActivity()).setActionBar(toolbar, R.drawable.ic_close_black_24dp);
     toolbar.setNavigationOnClickListener(__ -> onCloseButtonClick());
@@ -186,7 +186,7 @@ public class EditRecordFragment extends AbstractFragment implements BackPressLis
 
   private void addTextField(Field field) {
     TextInputFieldBinding binding =
-      TextInputFieldBinding.inflate(getLayoutInflater(), formLayout, false);
+        TextInputFieldBinding.inflate(getLayoutInflater(), formLayout, false);
     binding.setViewModel(viewModel);
     binding.setLifecycleOwner(this);
     binding.setField(field);
@@ -196,7 +196,7 @@ public class EditRecordFragment extends AbstractFragment implements BackPressLis
 
   public void addMultipleChoiceField(Field field) {
     MultipleChoiceInputFieldBinding binding =
-      MultipleChoiceInputFieldBinding.inflate(getLayoutInflater(), formLayout, false);
+        MultipleChoiceInputFieldBinding.inflate(getLayoutInflater(), formLayout, false);
     binding.setFragment(this);
     binding.setViewModel(viewModel);
     binding.setLifecycleOwner(this);
@@ -211,13 +211,13 @@ public class EditRecordFragment extends AbstractFragment implements BackPressLis
     switch (cardinality) {
       case SELECT_MULTIPLE:
         multiSelectDialogFactory
-          .create(field, currentValue, v -> viewModel.onValueChanged(field, v))
-          .show();
+            .create(field, currentValue, v -> viewModel.onValueChanged(field, v))
+            .show();
         break;
       case SELECT_ONE:
         singleSelectDialogFactory
-          .create(field, currentValue, v -> viewModel.onValueChanged(field, v))
-          .show();
+            .create(field, currentValue, v -> viewModel.onValueChanged(field, v))
+            .show();
         break;
       default:
         Log.e(TAG, "Unknown cardinality: " + cardinality);
@@ -246,21 +246,19 @@ public class EditRecordFragment extends AbstractFragment implements BackPressLis
 
   private void showUnsavedChangesDialog() {
     new AlertDialog.Builder(getContext())
-      .setMessage(R.string.unsaved_changes)
-      .setPositiveButton(R.string.close_without_saving, (d, i) -> navigateUp())
-      .setNegativeButton(R.string.continue_editing, (d, i) -> {
-      })
-      .create()
-      .show();
+        .setMessage(R.string.unsaved_changes)
+        .setPositiveButton(R.string.close_without_saving, (d, i) -> navigateUp())
+        .setNegativeButton(R.string.continue_editing, (d, i) -> {})
+        .create()
+        .show();
   }
 
   private void showFormErrorsDialog() {
     new AlertDialog.Builder(getContext())
-      .setMessage(R.string.invalid_data_warning)
-      .setPositiveButton(R.string.invalid_data_confirm, (a, b) -> {
-      })
-      .create()
-      .show();
+        .setMessage(R.string.invalid_data_warning)
+        .setPositiveButton(R.string.invalid_data_confirm, (a, b) -> {})
+        .create()
+        .show();
   }
 
   private void navigateUp() {

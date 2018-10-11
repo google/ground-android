@@ -56,11 +56,11 @@ public class AuthenticationManager {
     this.authStateSubject = BehaviorSubject.create();
     this.firebaseAuth = FirebaseAuth.getInstance();
     this.googleSignInOptions =
-      new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-        .requestIdToken(application.getResources().getString(R.string.default_web_client_id))
-        .requestEmail()
-        .requestProfile()
-        .build();
+        new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestIdToken(application.getResources().getString(R.string.default_web_client_id))
+            .requestEmail()
+            .requestProfile()
+            .build();
   }
 
   public Observable<AuthStatus> getAuthStatus() {
