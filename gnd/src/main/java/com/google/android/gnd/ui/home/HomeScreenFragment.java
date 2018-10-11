@@ -104,14 +104,12 @@ public class HomeScreenFragment extends AbstractFragment
   private HomeScreenViewModel viewModel;
   private MapContainerFragment mapContainerFragment;
   private BottomSheetBehavior<View> bottomSheetBehavior;
-  private MainViewModel mainViewModel;
 
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
 
-    mainViewModel = get(MainViewModel.class);
-    mainViewModel.getWindowInsets().observe(this, this::onApplyWindowInsets);
+    get(MainViewModel.class).getWindowInsets().observe(this, this::onApplyWindowInsets);
 
     viewModel = get(HomeScreenViewModel.class);
     viewModel.getActiveProject().observe(this, this::onActiveProjectChange);
@@ -125,12 +123,6 @@ public class HomeScreenFragment extends AbstractFragment
   public View onCreateView(
       LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     return inflater.inflate(R.layout.home_screen_frag, container, false);
-  }
-
-  @Override
-  public void onSaveInstanceState(@NonNull Bundle outState) {
-    super.onSaveInstanceState(outState);
-    saveChildFragment(outState, mapContainerFragment);
   }
 
   @Override
@@ -151,6 +143,12 @@ public class HomeScreenFragment extends AbstractFragment
     }
 
     setUpBottomSheetBehavior();
+  }
+
+  @Override
+  public void onSaveInstanceState(@NonNull Bundle outState) {
+    super.onSaveInstanceState(outState);
+    saveChildFragment(outState, mapContainerFragment);
   }
 
   private void onToolbarLayout() {
