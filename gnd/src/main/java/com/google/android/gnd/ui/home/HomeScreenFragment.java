@@ -42,6 +42,7 @@ import butterknife.OnClick;
 import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.MainViewModel;
 import com.google.android.gnd.R;
+import com.google.android.gnd.inject.ActivityScoped;
 import com.google.android.gnd.repository.Resource;
 import com.google.android.gnd.system.AuthenticationManager;
 import com.google.android.gnd.ui.common.AbstractFragment;
@@ -63,6 +64,7 @@ import javax.inject.Inject;
  * application, and gets swapped out for other fragments (e.g., view record and edit record) at
  * runtime.
  */
+@ActivityScoped
 public class HomeScreenFragment extends AbstractFragment
   implements BackPressListener, OnNavigationItemSelectedListener {
   private static final float COLLAPSED_MAP_ASPECT_RATIO = 3.0f / 2.0f;

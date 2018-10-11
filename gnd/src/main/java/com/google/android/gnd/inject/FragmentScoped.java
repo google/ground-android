@@ -14,14 +14,18 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.ui.common;
+package com.google.android.gnd.inject;
 
-import dagger.Module;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import javax.inject.Scope;
 
 /**
- * Provides dependencies of {@link AbstractFragment}. This must be included in all fragment modules,
- * which in turn must provide the appropriate implementation of {@link
- * android.support.v4.app.Fragment}.
+ * Specifies that a dependency has the same lifespan as its associated Fragment. For dependencies
+ * with this annotation, only one instance will exist per Fragment, and this instance will be shared
+ * among all Fragments and child Fragments.
  */
-@Module
-public abstract class AbstractFragmentModule {}
+@Scope
+@Retention(RetentionPolicy.RUNTIME)
+public @interface FragmentScoped {
+}

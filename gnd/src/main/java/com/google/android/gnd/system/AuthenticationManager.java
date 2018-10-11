@@ -28,7 +28,7 @@ import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gnd.GndApplication;
 import com.google.android.gnd.R;
-import com.google.android.gnd.inject.PerActivity;
+import com.google.android.gnd.inject.ActivityScoped;
 import com.google.android.gnd.system.AuthenticationManager.AuthStatus.State;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
@@ -42,7 +42,7 @@ import io.reactivex.subjects.BehaviorSubject;
 import io.reactivex.subjects.Subject;
 import javax.inject.Inject;
 
-@PerActivity
+@ActivityScoped
 public class AuthenticationManager {
   private static final String TAG = AuthenticationManager.class.getSimpleName();
   private static final int SIGN_IN_REQUEST_CODE = AuthenticationManager.class.hashCode() & 0xffff;

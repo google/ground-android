@@ -34,12 +34,14 @@ import android.widget.ListView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import com.google.android.gnd.R;
+import com.google.android.gnd.inject.ActivityScoped;
 import com.google.android.gnd.repository.Resource;
 import com.google.android.gnd.ui.common.AbstractDialogFragment;
 import com.google.android.gnd.ui.common.EphemeralPopups;
 import com.google.android.gnd.vo.Project;
 import java.util.List;
 
+@ActivityScoped
 public class ProjectSelectorDialogFragment extends AbstractDialogFragment {
 
   private static final String TAG = ProjectSelectorDialogFragment.class.getSimpleName();
@@ -72,7 +74,7 @@ public class ProjectSelectorDialogFragment extends AbstractDialogFragment {
     ViewGroup dialogView = (ViewGroup) inflater.inflate(R.layout.project_selector_dialog, null);
     ButterKnife.bind(this, dialogView);
     listAdapter =
-        new ArrayAdapter(getContext(), R.layout.project_selector_list_item, R.id.project_name);
+      new ArrayAdapter(getContext(), R.layout.project_selector_list_item, R.id.project_name);
     listView.setAdapter(listAdapter);
     viewModel.getProjectSummaries().observe(this, this::update);
     listView.setOnItemClickListener(this::onItemSelected);

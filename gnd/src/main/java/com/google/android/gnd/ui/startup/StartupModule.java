@@ -17,16 +17,14 @@
 package com.google.android.gnd.ui.startup;
 
 import android.support.v4.app.Fragment;
-import com.google.android.gnd.inject.PerFragment;
-import com.google.android.gnd.ui.common.AbstractFragmentModule;
+import com.google.android.gnd.inject.FragmentScoped;
 import dagger.Binds;
 import dagger.Module;
 
-// TODO: Merge app-scoped Dagger modules.
-@Module(includes = AbstractFragmentModule.class)
+@Module
 public abstract class StartupModule {
 
   @Binds
-  @PerFragment
+  @FragmentScoped
   abstract Fragment fragment(StartupFragment fragment);
 }

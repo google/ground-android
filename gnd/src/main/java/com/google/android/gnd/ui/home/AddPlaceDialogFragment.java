@@ -26,6 +26,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
 import com.google.android.gnd.R;
+import com.google.android.gnd.inject.ActivityScoped;
 import com.google.android.gnd.repository.Resource;
 import com.google.android.gnd.ui.common.AbstractDialogFragment;
 import com.google.android.gnd.ui.home.mapcontainer.MapContainerViewModel;
@@ -39,6 +40,7 @@ import io.reactivex.subjects.MaybeSubject;
 import java8.util.Optional;
 import javax.inject.Inject;
 
+@ActivityScoped
 public class AddPlaceDialogFragment extends AbstractDialogFragment {
   private static final String TAG = AddPlaceDialogFragment.class.getSimpleName();
 
@@ -74,7 +76,7 @@ public class AddPlaceDialogFragment extends AbstractDialogFragment {
     // TODO: Inject and use custom factory.
     Optional<Project> activeProject = Resource.getData(homeScreenViewModel.getActiveProject());
     Optional<Point> cameraPosition =
-        Optional.ofNullable(mapContainerViewModel.getCameraPosition().getValue());
+      Optional.ofNullable(mapContainerViewModel.getCameraPosition().getValue());
     if (!activeProject.isPresent()) {
       addPlaceRequestSubject.onError(new IllegalStateException("No active project"));
       return fail("Could not get active project");
@@ -97,17 +99,17 @@ public class AddPlaceDialogFragment extends AbstractDialogFragment {
         .collect(toImmutableList());
     String[] items = stream(placeTypes).map(t -> t.getItemLabel()).toArray(String[]::new);
     builder.setItems(
-        items, (dialog, idx) -> onSelectPlaceType(project, placeTypes.get(idx), cameraPosition));
+      items, (dialog, idx) -> onSelectPlaceType(project, placeTypes.get(idx), cameraPosition));
     return builder.create();
   }
 
   private void onSelectPlaceType(Project project, PlaceType placeType, Point cameraPosition) {
     addPlaceRequestSubject.onSuccess(
-        Place.newBuilder()
-            .setProject(project)
-            .setPlaceType(placeType)
-            .setPoint(cameraPosition)
-            .build());
+      Place.newBuilder()
+           .setProject(project)
+           .setPlaceType(placeType)
+           .setPoint(cameraPosition)
+           .build());
   }
 
   private void onCancel() {

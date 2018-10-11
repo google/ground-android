@@ -23,11 +23,13 @@ import android.view.ViewGroup;
 import butterknife.BindView;
 import butterknife.OnClick;
 import com.google.android.gnd.R;
+import com.google.android.gnd.inject.ActivityScoped;
 import com.google.android.gnd.system.AuthenticationManager;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.BackPressListener;
 import javax.inject.Inject;
 
+@ActivityScoped
 public class SignInFragment extends AbstractFragment implements BackPressListener {
   @Inject
   AuthenticationManager authenticationManager;
@@ -37,7 +39,7 @@ public class SignInFragment extends AbstractFragment implements BackPressListene
 
   @Override
   public View onCreateView(
-      LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     return inflater.inflate(R.layout.sign_in_frag, container, false);
   }
 
