@@ -248,7 +248,8 @@ public class EditRecordFragment extends AbstractFragment implements BackPressLis
     new AlertDialog.Builder(getContext())
       .setMessage(R.string.unsaved_changes)
       .setPositiveButton(R.string.close_without_saving, (d, i) -> navigateUp())
-      .setNegativeButton(R.string.continue_editing, (d, i) -> {})
+      .setNegativeButton(R.string.continue_editing, (d, i) -> {
+      })
       .create()
       .show();
   }
@@ -256,7 +257,8 @@ public class EditRecordFragment extends AbstractFragment implements BackPressLis
   private void showFormErrorsDialog() {
     new AlertDialog.Builder(getContext())
       .setMessage(R.string.invalid_data_warning)
-      .setPositiveButton(R.string.invalid_data_confirm, (a, b) -> {})
+      .setPositiveButton(R.string.invalid_data_confirm, (a, b) -> {
+      })
       .create()
       .show();
   }

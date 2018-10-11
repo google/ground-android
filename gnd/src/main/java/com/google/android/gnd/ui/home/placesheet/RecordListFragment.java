@@ -23,15 +23,13 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
+import androidx.navigation.fragment.NavHostFragment;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.home.HomeScreenFragmentDirections;
 import com.google.android.gnd.ui.home.HomeScreenViewModel;
 import com.google.android.gnd.vo.Form;
 import com.google.android.gnd.vo.Place;
 import com.google.android.gnd.vo.Record;
-
-import androidx.navigation.fragment.NavHostFragment;
 import java8.util.Optional;
 
 public class RecordListFragment extends AbstractFragment {

@@ -15,10 +15,11 @@
  */
 package com.google.android.gnd.ui.editrecord;
 
+import static java8.util.stream.StreamSupport.stream;
+
 import android.content.Context;
 import android.content.DialogInterface;
 import android.support.v7.app.AlertDialog;
-
 import com.google.android.gnd.R;
 import com.google.android.gnd.vo.Form.Field;
 import com.google.android.gnd.vo.Form.MultipleChoice;
@@ -26,13 +27,9 @@ import com.google.android.gnd.vo.Form.MultipleChoice.Option;
 import com.google.android.gnd.vo.Record.MultipleChoiceValue;
 import com.google.android.gnd.vo.Record.Value;
 import com.google.common.collect.ImmutableList;
-
 import java.util.List;
-
 import java8.util.Optional;
 import java8.util.function.Consumer;
-
-import static java8.util.stream.StreamSupport.stream;
 
 // TODO: Replace with modal bottom sheet.
 class SingleSelectDialogFactory {

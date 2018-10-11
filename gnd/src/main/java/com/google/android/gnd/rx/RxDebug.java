@@ -17,9 +17,7 @@
 package com.google.android.gnd.rx;
 
 import android.util.Log;
-
 import com.akaita.java.rxjava2debug.RxJava2Debug;
-
 import io.reactivex.ObservableTransformer;
 import io.reactivex.SingleTransformer;
 

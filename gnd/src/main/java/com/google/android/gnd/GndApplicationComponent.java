@@ -17,11 +17,9 @@
 package com.google.android.gnd;
 
 import com.google.android.gnd.ui.map.MapProviderModule;
-
-import javax.inject.Singleton;
-
 import dagger.Component;
 import dagger.android.AndroidInjector;
+import javax.inject.Singleton;
 
 @Singleton
 @Component(modules = {GndApplicationModule.class, MapProviderModule.class})

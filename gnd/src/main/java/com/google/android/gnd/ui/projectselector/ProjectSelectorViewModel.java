@@ -56,9 +56,6 @@ public class ProjectSelectorViewModel extends AbstractViewModel {
 
   Completable activateProject(int idx) {
     return dataRepository.activateProject(
-        Resource.getData(this.projectSummaries)
-                .orElse(Collections.emptyList())
-                .get(idx)
-                .getId());
+      Resource.getData(this.projectSummaries).orElse(Collections.emptyList()).get(idx).getId());
   }
 }
