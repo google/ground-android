@@ -110,8 +110,15 @@ public class HomeScreenFragment extends AbstractFragment
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    viewModel = get(HomeScreenViewModel.class);
+
     mainViewModel = get(MainViewModel.class);
+    mainViewModel.getWindowInsets().observe(this, this::onApplyWindowInsets);
+
+    viewModel = get(HomeScreenViewModel.class);
+    viewModel.getActiveProject().observe(this, this::onActiveProjectChange);
+    viewModel.getShowAddPlaceDialogRequests().observe(this, this::onShowAddPlaceDialogRequest);
+    viewModel.getPlaceSheetState().observe(this, this::onPlaceSheetStateChange);
+    viewModel.getOpenDrawerRequests().observe(this, __ -> openDrawer());
   }
 
   @Nullable
@@ -168,12 +175,6 @@ public class HomeScreenFragment extends AbstractFragment
     setHasOptionsMenu(true);
 
     ((MainActivity) getActivity()).setActionBar(toolbar);
-
-    viewModel.getActiveProject().observe(this, this::onActiveProjectChange);
-    viewModel.getShowAddPlaceDialogRequests().observe(this, this::onShowAddPlaceDialogRequest);
-    viewModel.getPlaceSheetState().observe(this, this::onPlaceSheetStateChange);
-    viewModel.getOpenDrawerRequests().observe(this, __ -> openDrawer());
-    mainViewModel.getWindowInsets().observe(this, this::onApplyWindowInsets);
   }
 
   private void openDrawer() {

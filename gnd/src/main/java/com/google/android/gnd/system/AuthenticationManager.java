@@ -50,16 +50,17 @@ public class AuthenticationManager {
   private final Subject<AuthStatus> authStateSubject;
   private final FirebaseAuth firebaseAuth;
 
+  // TODO: Update Fragments to access via DataRepository rather than directly.
   @Inject
   public AuthenticationManager(GndApplication application) {
     this.authStateSubject = BehaviorSubject.create();
     this.firebaseAuth = FirebaseAuth.getInstance();
     this.googleSignInOptions =
-        new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken(application.getResources().getString(R.string.default_web_client_id))
-            .requestEmail()
-            .requestProfile()
-            .build();
+      new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+        .requestIdToken(application.getResources().getString(R.string.default_web_client_id))
+        .requestEmail()
+        .requestProfile()
+        .build();
   }
 
   public Observable<AuthStatus> getAuthStatus() {
