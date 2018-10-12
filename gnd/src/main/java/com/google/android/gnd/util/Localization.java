@@ -16,9 +16,8 @@
 
 package com.google.android.gnd.util;
 
+import android.support.annotation.Nullable;
 import java.util.Map;
-
-import java8.util.Optional;
 
 public abstract class Localization {
   /** Do not instantiate. */
@@ -26,10 +25,21 @@ public abstract class Localization {
 
   public static String getLocalizedMessage(Map<String, String> messages) {
     if (messages == null) {
-      return "";
+      return "<Untitled>";
     }
-    // TODO: i18n.
-    return Optional.ofNullable(messages.get("en"))
-        .orElse(Optional.ofNullable(messages.get("pt")).orElse(""));
+    // TODO: i18n: Use proper locale.
+    @Nullable
+    String msg = messages.get("_");
+    if (msg == null) {
+      msg = messages.get("en");
+    }
+    if (msg == null) {
+      msg = messages.get("pt");
+    }
+    if (msg == null) {
+      // TODO: Return Optional and handle empty strings in client code.
+      msg = "<Untitled>";
+    }
+    return msg;
   }
 }

@@ -16,8 +16,10 @@
 
 package com.google.android.gnd.service.firestore;
 
-import android.util.Log;
+import static com.google.android.gnd.service.firestore.FirestoreDataService.toTimestamps;
 
+import android.support.annotation.Nullable;
+import android.util.Log;
 import com.google.android.gnd.vo.Form;
 import com.google.android.gnd.vo.Place;
 import com.google.android.gnd.vo.Record;
@@ -27,46 +29,66 @@ import com.google.android.gnd.vo.Record.Value;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.IgnoreExtraProperties;
 import com.google.firebase.firestore.ServerTimestamp;
-
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import java8.util.Optional;
 
-import static com.google.android.gnd.service.firestore.FirestoreDataService.toTimestamps;
-
-// TODO: Refactor into cleaner peristence layer.
+// TODO: Refactor into cleaner persistence layer.
 @IgnoreExtraProperties
 public class RecordDoc {
   private static final String TAG = RecordDoc.class.getSimpleName();
 
+  @Nullable
+  public String featureId;
+
+  @Nullable
   public String featureTypeId;
 
+  @Nullable
   public String formId;
 
-  public @ServerTimestamp Date serverTimeCreated;
+  @Nullable
+  public UserDoc createdBy;
 
-  public @ServerTimestamp Date serverTimeModified;
+  @Nullable
+  public UserDoc modifiedBy;
 
+  public @Nullable
+  @ServerTimestamp
+  Date serverTimeCreated;
+
+  public @Nullable
+  @ServerTimestamp
+  Date serverTimeModified;
+
+  @Nullable
   public Date clientTimeCreated;
 
+  @Nullable
   public Date clientTimeModified;
 
+  @Nullable
   public Map<String, Object> responses;
 
   public static RecordDoc forUpdates(Record record, Map<String, Object> valueUpdates) {
     RecordDoc rd = new RecordDoc();
+    rd.featureId = record.getPlace().getId();
     rd.featureTypeId = record.getPlace().getPlaceType().getId();
     rd.formId = record.getForm().getId();
     rd.responses = valueUpdates;
     rd.clientTimeModified = new Date();
+    rd.createdBy = UserDoc.fromProto(record.getCreatedBy());
+    rd.modifiedBy = UserDoc.fromProto(record.getModifiedBy());
     return rd;
   }
 
   public static Record toProto(Place place, String recordId, DocumentSnapshot doc) {
     RecordDoc rd = doc.toObject(RecordDoc.class);
+    if (!place.getId().equals(rd.featureId)) {
+      // TODO: Handle error.
+    }
     if (!place.getPlaceType().getId().equals(rd.featureTypeId)) {
       // TODO: Handle error.
     }
@@ -75,14 +97,16 @@ public class RecordDoc {
       // TODO: Handle error.
     }
     return Record.newBuilder()
-        .setId(recordId)
-        .setProject(place.getProject())
-        .setPlace(place)
-        .setForm(form.get())
-        .putAllValues(convertValues(rd.responses))
-        .setServerTimestamps(toTimestamps(rd.serverTimeCreated, rd.serverTimeModified))
-        .setClientTimestamps(toTimestamps(rd.clientTimeCreated, rd.clientTimeModified))
-        .build();
+                 .setId(recordId)
+                 .setProject(place.getProject())
+                 .setPlace(place)
+                 .setForm(form.get())
+                 .putAllValues(convertValues(rd.responses))
+                 .setCreatedBy(UserDoc.toProto(rd.createdBy))
+                 .setModifiedBy(UserDoc.toProto(rd.modifiedBy))
+                 .setServerTimestamps(toTimestamps(rd.serverTimeCreated, rd.serverTimeModified))
+                 .setClientTimestamps(toTimestamps(rd.clientTimeCreated, rd.clientTimeModified))
+                 .build();
   }
 
   private static Map<String, Value> convertValues(Map<String, Object> docValues) {

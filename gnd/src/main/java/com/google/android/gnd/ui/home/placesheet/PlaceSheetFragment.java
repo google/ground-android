@@ -105,6 +105,13 @@ public class PlaceSheetFragment extends AbstractFragment {
       placeSheetSubtitle.setText(placeSheetState.getPlace().getSubtitle());
       placeSheetSubtitle.setVisibility(
           placeSheetState.getPlace().getSubtitle().isEmpty() ? View.GONE : View.VISIBLE);
+
+      // TODO: Auto add record if there's only one form.
+//      Place place = placeSheetState.getPlace();
+//      ImmutableList<Form> forms = place.getPlaceType().getForms();
+//      if (placeSheetState.isNewPlace() && forms.size() == 1) {
+//        showAddRecord(place, forms.get(0));
+//      }
     }
 
     viewModel.onPlaceSheetStateChange(placeSheetState);

@@ -170,18 +170,20 @@ public class AuthenticationManager {
 
   public static class User {
 
-    public static final User ANONYMOUS = new User("", "");
+    public static final User ANONYMOUS = new User("", "", "");
 
     private final String uid;
     private final String email;
+    private final String displayName;
 
-    private User(String uid, String email) {
+    public User(String uid, String email, String displayName) {
       this.uid = uid;
       this.email = email;
+      this.displayName = displayName;
     }
 
     private User(FirebaseUser firebaseUser) {
-      this(firebaseUser.getUid(), firebaseUser.getEmail());
+      this(firebaseUser.getUid(), firebaseUser.getEmail(), firebaseUser.getDisplayName());
     }
 
     public String getId() {
@@ -190,6 +192,10 @@ public class AuthenticationManager {
 
     public String getEmail() {
       return email;
+    }
+
+    public String getDisplayName() {
+      return displayName;
     }
   }
 }

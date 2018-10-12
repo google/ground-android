@@ -43,7 +43,7 @@ public class PlaceTypeDoc {
   public String iconColor;
 
   @Nullable
-  Map<String, FormDoc> forms;
+  public Map<String, FormDoc> forms;
 
   public PlaceType toProto(String id) {
     PlaceType.Builder placeType = PlaceType.newBuilder();

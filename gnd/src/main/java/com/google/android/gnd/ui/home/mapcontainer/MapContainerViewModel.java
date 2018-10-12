@@ -39,7 +39,7 @@ import javax.inject.Inject;
 public class MapContainerViewModel extends AbstractViewModel {
 
   private static final String TAG = MapContainerViewModel.class.getSimpleName();
-  private static final float DEFAULT_ZOOM_LEVEL = 14.0f;
+  private static final float DEFAULT_ZOOM_LEVEL = 20.0f;
   private final LiveData<Resource<Project>> activeProject;
   private final LiveData<ImmutableSet<Place>> places;
   private final MutableLiveData<LocationLockStatus> locationLockStatus;
@@ -157,7 +157,11 @@ public class MapContainerViewModel extends AbstractViewModel {
   }
 
   public void onMarkerClick(MapMarker mapMarker) {
-    cameraUpdates.setValue(CameraUpdate.panAndZoom(mapMarker.getPosition()));
+    panAndZoomCamera(mapMarker.getPosition());
+  }
+
+  public void panAndZoomCamera(Point position) {
+    cameraUpdates.setValue(CameraUpdate.panAndZoom(position));
   }
 
   @Override

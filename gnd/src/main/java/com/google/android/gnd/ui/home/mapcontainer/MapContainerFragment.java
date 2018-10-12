@@ -145,6 +145,7 @@ public class MapContainerFragment extends AbstractFragment {
     switch (state.getVisibility()) {
       case VISIBLE:
         map.disable();
+        mapContainerViewModel.panAndZoomCamera(state.getPlace().getPoint());
         break;
       case HIDDEN:
         map.enable();

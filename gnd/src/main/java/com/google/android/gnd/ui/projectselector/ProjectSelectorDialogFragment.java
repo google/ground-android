@@ -24,6 +24,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -93,6 +94,10 @@ public class ProjectSelectorDialogFragment extends AbstractDialogFragment {
         break;
       case NOT_FOUND:
       case ERROR:
+        Log.e(
+          TAG,
+          "Project list not available",
+          projectSummaries.getError().orElse(new UnknownError()));
         EphemeralPopups.showError(getContext(), R.string.project_list_load_error);
         dismiss();
         break;
@@ -108,6 +113,15 @@ public class ProjectSelectorDialogFragment extends AbstractDialogFragment {
 
   private void onItemSelected(AdapterView<?> parent, View view, int idx, long id) {
     getDialog().hide();
-    viewModel.activateProject(idx).as(autoDisposable(this)).subscribe(this::dismiss);
+    viewModel
+      .activateProject(idx)
+      .as(autoDisposable(this))
+      .subscribe(this::dismiss, this::onActivateProjectFailure);
+  }
+
+  private void onActivateProjectFailure(Throwable throwable) {
+    Log.e(TAG, "Project load exception", throwable);
+    dismiss();
+    EphemeralPopups.showError(getContext(), R.string.project_load_error);
   }
 }

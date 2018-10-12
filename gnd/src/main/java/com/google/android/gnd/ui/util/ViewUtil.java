@@ -26,16 +26,14 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 import android.util.DisplayMetrics;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-
 import com.google.android.gnd.system.DeviceCapabilities;
-
 import java8.util.stream.IntStreams;
 import java8.util.stream.Stream;
 
@@ -60,12 +58,13 @@ public class ViewUtil {
     return displayMetrics.heightPixels;
   }
 
-  public static void showSoftInputMode(Activity activity) {
-    activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+  public static void hideSoftInputFrom(Fragment fragment) {
+    hideSoftInputFrom(fragment.getContext(), fragment.getView().getRootView());
   }
 
-  public static View inflateDetached(Context context, int layoutId, ViewGroup root) {
-    return LayoutInflater.from(context).inflate(layoutId, root, false);
+  public static void hideSoftInputFrom(Context context, View view) {
+    InputMethodManager imm = (InputMethodManager) context.getSystemService(Activity.INPUT_METHOD_SERVICE);
+    imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
   }
 
   public static Stream<View> children(ViewGroup view) {

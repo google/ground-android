@@ -17,7 +17,6 @@
 package com.google.android.gnd.ui.home;
 
 import android.support.annotation.Nullable;
-
 import com.google.android.gnd.vo.Place;
 
 public class PlaceSheetState {
@@ -37,7 +36,7 @@ public class PlaceSheetState {
   }
 
   private PlaceSheetState(Visibility visibility) {
-    this.visibility = visibility;
+    this(visibility, null);
   }
 
   public static PlaceSheetState visible(Place place) {
