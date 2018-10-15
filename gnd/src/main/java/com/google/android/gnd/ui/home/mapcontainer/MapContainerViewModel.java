@@ -64,17 +64,17 @@ public class MapContainerViewModel extends AbstractViewModel {
     this.places =
         RxLiveData.fromFlowable(
             dataRepository
-              .getActiveProject()
-              .map(Resource::getData)
-              .switchMap(this::getPlacesStream));
+                .getActiveProject()
+                .map(Resource::getData)
+                .switchMap(this::getPlacesStream));
   }
 
   private Flowable<ImmutableSet<Place>> getPlacesStream(Optional<Project> activeProject) {
     // Emit empty set in separate stream to force unsubscribe from Place updates and update
     // subscribers.
     return activeProject
-      .map(dataRepository::getPlaceVectorStream)
-      .orElse(Flowable.just(ImmutableSet.of()));
+        .map(dataRepository::getPlaceVectorStream)
+        .orElse(Flowable.just(ImmutableSet.of()));
   }
 
   public LiveData<Resource<Project>> getActiveProject() {

@@ -23,14 +23,15 @@ import android.view.ViewGroup;
 import butterknife.BindView;
 import butterknife.OnClick;
 import com.google.android.gnd.R;
+import com.google.android.gnd.inject.ActivityScoped;
 import com.google.android.gnd.system.AuthenticationManager;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.BackPressListener;
 import javax.inject.Inject;
 
+@ActivityScoped
 public class SignInFragment extends AbstractFragment implements BackPressListener {
-  @Inject
-  AuthenticationManager authenticationManager;
+  @Inject AuthenticationManager authenticationManager;
 
   @BindView(R.id.sign_in_button)
   View signInButton;
@@ -48,7 +49,8 @@ public class SignInFragment extends AbstractFragment implements BackPressListene
 
   @Override
   public boolean onBack() {
-    // TODO: Figure out why popUpTo is not working on signOut action and remove this workaround.
+    // Workaround to exit on back from sign-in screen since for some reason
+    // popUpTo is not working on signOut action.
     getActivity().finish();
     return false;
   }

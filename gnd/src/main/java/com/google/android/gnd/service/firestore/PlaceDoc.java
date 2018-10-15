@@ -16,6 +16,8 @@
 
 package com.google.android.gnd.service.firestore;
 
+import static com.google.android.gnd.service.firestore.FirestoreDataService.toTimestamps;
+
 import com.google.android.gnd.vo.Place;
 import com.google.android.gnd.vo.PlaceType;
 import com.google.android.gnd.vo.Point;
@@ -24,12 +26,8 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.IgnoreExtraProperties;
 import com.google.firebase.firestore.ServerTimestamp;
-
 import java.util.Date;
-
 import java8.util.Optional;
-
-import static com.google.android.gnd.service.firestore.FirestoreDataService.toTimestamps;
 
 @IgnoreExtraProperties
 public class PlaceDoc {

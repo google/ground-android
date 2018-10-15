@@ -65,9 +65,9 @@ public class EditRecordViewModel extends AbstractViewModel {
 
   @Inject
   EditRecordViewModel(
-    GndApplication application,
-    DataRepository dataRepository,
-    AuthenticationManager authenticationManager) {
+      GndApplication application,
+      DataRepository dataRepository,
+      AuthenticationManager authenticationManager) {
     this.resources = application.getResources();
     this.dataRepository = dataRepository;
     this.record = new MutableLiveData<>();
@@ -183,9 +183,9 @@ public class EditRecordViewModel extends AbstractViewModel {
 
   private void saveChanges(Record r) {
     disposeOnClear(
-      authManager
-        .withUser()
-        .flatMap(user -> dataRepository.saveChanges(r, getChangeList(r), user))
+        authManager
+            .withUser()
+            .flatMap(user -> dataRepository.saveChanges(r, getChangeList(r), user))
             .subscribe(record::setValue));
   }
 

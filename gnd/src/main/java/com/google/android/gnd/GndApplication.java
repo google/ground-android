@@ -20,15 +20,12 @@ import android.app.Activity;
 import android.os.StrictMode;
 import android.support.multidex.MultiDexApplication;
 import android.util.Log;
-
 import com.akaita.java.rxjava2debug.RxJava2Debug;
 import com.google.android.gnd.repository.DataRepository;
-
-import javax.inject.Inject;
-
 import dagger.android.AndroidInjector;
 import dagger.android.DispatchingAndroidInjector;
 import dagger.android.HasActivityInjector;
+import javax.inject.Inject;
 
 // TODO: When implementing background data sync service, we'll need to inject a Service here; we
 // should then extend DaggerApplication instead. If MultiDex is still needed, we can install it

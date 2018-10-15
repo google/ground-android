@@ -20,10 +20,8 @@ import com.google.android.gnd.ui.MapIcon;
 import com.google.android.gnd.vo.Place;
 import com.google.android.gnd.vo.Point;
 import com.google.auto.value.AutoValue;
-
-import javax.annotation.Nullable;
-
 import java8.util.Optional;
+import javax.annotation.Nullable;
 
 @AutoValue
 public abstract class MapMarker {

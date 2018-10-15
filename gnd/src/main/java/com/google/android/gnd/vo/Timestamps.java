@@ -17,9 +17,7 @@
 package com.google.android.gnd.vo;
 
 import com.google.auto.value.AutoValue;
-
 import java.util.Date;
-
 import javax.annotation.Nullable;
 
 @AutoValue

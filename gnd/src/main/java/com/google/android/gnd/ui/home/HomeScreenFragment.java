@@ -42,6 +42,7 @@ import butterknife.OnClick;
 import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.MainViewModel;
 import com.google.android.gnd.R;
+import com.google.android.gnd.inject.ActivityScoped;
 import com.google.android.gnd.repository.Resource;
 import com.google.android.gnd.system.AuthenticationManager;
 import com.google.android.gnd.ui.common.AbstractFragment;
@@ -63,14 +64,14 @@ import javax.inject.Inject;
  * application, and gets swapped out for other fragments (e.g., view record and edit record) at
  * runtime.
  */
+@ActivityScoped
 public class HomeScreenFragment extends AbstractFragment
-  implements BackPressListener, OnNavigationItemSelectedListener {
+    implements BackPressListener, OnNavigationItemSelectedListener {
   private static final float COLLAPSED_MAP_ASPECT_RATIO = 3.0f / 2.0f;
   private static final String TAG = HomeScreenFragment.class.getSimpleName();
 
   @Inject AddPlaceDialogFragment addPlaceDialogFragment;
-  @Inject
-  AuthenticationManager authenticationManager;
+  @Inject AuthenticationManager authenticationManager;
 
   @BindView(R.id.toolbar_wrapper)
   ViewGroup toolbarWrapper;
@@ -103,26 +104,25 @@ public class HomeScreenFragment extends AbstractFragment
   private HomeScreenViewModel viewModel;
   private MapContainerFragment mapContainerFragment;
   private BottomSheetBehavior<View> bottomSheetBehavior;
-  private MainViewModel mainViewModel;
 
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+
+    get(MainViewModel.class).getWindowInsets().observe(this, this::onApplyWindowInsets);
+
     viewModel = get(HomeScreenViewModel.class);
-    mainViewModel = get(MainViewModel.class);
+    viewModel.getActiveProject().observe(this, this::onActiveProjectChange);
+    viewModel.getShowAddPlaceDialogRequests().observe(this, this::onShowAddPlaceDialogRequest);
+    viewModel.getPlaceSheetState().observe(this, this::onPlaceSheetStateChange);
+    viewModel.getOpenDrawerRequests().observe(this, __ -> openDrawer());
   }
 
   @Nullable
   @Override
   public View onCreateView(
-    LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+      LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     return inflater.inflate(R.layout.home_screen_frag, container, false);
-  }
-
-  @Override
-  public void onSaveInstanceState(@NonNull Bundle outState) {
-    super.onSaveInstanceState(outState);
-    saveChildFragment(outState, mapContainerFragment);
   }
 
   @Override
@@ -143,6 +143,12 @@ public class HomeScreenFragment extends AbstractFragment
     }
 
     setUpBottomSheetBehavior();
+  }
+
+  @Override
+  public void onSaveInstanceState(@NonNull Bundle outState) {
+    super.onSaveInstanceState(outState);
+    saveChildFragment(outState, mapContainerFragment);
   }
 
   private void onToolbarLayout() {
@@ -166,12 +172,6 @@ public class HomeScreenFragment extends AbstractFragment
     setHasOptionsMenu(true);
 
     ((MainActivity) getActivity()).setActionBar(toolbar);
-
-    viewModel.getActiveProject().observe(this, this::onActiveProjectChange);
-    viewModel.getShowAddPlaceDialogRequests().observe(this, this::onShowAddPlaceDialogRequest);
-    viewModel.getPlaceSheetState().observe(this, this::onPlaceSheetStateChange);
-    viewModel.getOpenDrawerRequests().observe(this, __ -> openDrawer());
-    mainViewModel.getWindowInsets().observe(this, this::onApplyWindowInsets);
   }
 
   private void openDrawer() {
@@ -266,9 +266,9 @@ public class HomeScreenFragment extends AbstractFragment
 
   public void showAddRecord(Place place, Form form) {
     NavHostFragment.findNavController(this)
-                   .navigate(
-                     HomeScreenFragmentDirections.addRecord(
-                       place.getProject().getId(), place.getId(), form.getId()));
+        .navigate(
+            HomeScreenFragmentDirections.addRecord(
+                place.getProject().getId(), place.getId(), form.getId()));
   }
 
   private void onShowAddPlaceDialogRequest(Point location) {
@@ -311,7 +311,7 @@ public class HomeScreenFragment extends AbstractFragment
   private void showProjectLoadingDialog() {
     if (progressDialog == null) {
       progressDialog =
-        ProgressDialogs.modalSpinner(getContext(), R.string.project_loading_please_wait);
+          ProgressDialogs.modalSpinner(getContext(), R.string.project_loading_please_wait);
       progressDialog.show();
     }
   }

@@ -45,10 +45,10 @@ public class FormDoc {
 
   public Form toProto(String formId) {
     return Form.newBuilder()
-               .setId(formId)
-               .setTitle(getLocalizedMessage(titles))
-               .setElements(stream(elements).map(Element::toProto).collect(toImmutableList()))
-               .build();
+        .setId(formId)
+        .setTitle(getLocalizedMessage(titles))
+        .setElements(stream(elements).map(Element::toProto).collect(toImmutableList()))
+        .build();
   }
 
   @IgnoreExtraProperties

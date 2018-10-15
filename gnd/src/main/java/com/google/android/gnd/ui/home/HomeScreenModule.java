@@ -17,17 +17,14 @@
 package com.google.android.gnd.ui.home;
 
 import android.support.v4.app.Fragment;
-
-import com.google.android.gnd.inject.PerFragment;
-import com.google.android.gnd.ui.common.AbstractFragmentModule;
-
+import com.google.android.gnd.inject.FragmentScoped;
 import dagger.Binds;
 import dagger.Module;
 
-@Module(includes = AbstractFragmentModule.class)
+@Module
 public abstract class HomeScreenModule {
 
   @Binds
-  @PerFragment
+  @FragmentScoped
   abstract Fragment fragment(HomeScreenFragment fragment);
 }

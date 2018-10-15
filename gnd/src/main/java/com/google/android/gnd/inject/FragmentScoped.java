@@ -18,14 +18,13 @@ package com.google.android.gnd.inject;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-
 import javax.inject.Scope;
 
 /**
- * Specifies that a dependency has the same lifespan as its associated Activity. For dependencies
- * with this annotation, only one instance will exist per Activity, and this instance will be shared
+ * Specifies that a dependency has the same lifespan as its associated Fragment. For dependencies
+ * with this annotation, only one instance will exist per Fragment, and this instance will be shared
  * among all Fragments and child Fragments.
  */
 @Scope
 @Retention(RetentionPolicy.RUNTIME)
-public @interface PerActivity {}
+public @interface FragmentScoped {}

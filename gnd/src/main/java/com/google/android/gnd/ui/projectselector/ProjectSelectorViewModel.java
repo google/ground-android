@@ -44,10 +44,10 @@ public class ProjectSelectorViewModel extends AbstractViewModel {
   // TODO: Show message when no visible projects found.
   public void loadProjectSummaries() {
     disposeOnClear(
-      authManager
-        .withUser()
-        .flatMap(user -> dataRepository.getProjectSummaries(user))
-        .subscribe(v -> projectSummaries.setValue(v)));
+        authManager
+            .withUser()
+            .flatMap(user -> dataRepository.getProjectSummaries(user))
+            .subscribe(v -> projectSummaries.setValue(v)));
   }
 
   public LiveData<Resource<List<Project>>> getProjectSummaries() {
@@ -56,9 +56,6 @@ public class ProjectSelectorViewModel extends AbstractViewModel {
 
   Completable activateProject(int idx) {
     return dataRepository.activateProject(
-        Resource.getData(this.projectSummaries)
-                .orElse(Collections.emptyList())
-                .get(idx)
-                .getId());
+        Resource.getData(this.projectSummaries).orElse(Collections.emptyList()).get(idx).getId());
   }
 }

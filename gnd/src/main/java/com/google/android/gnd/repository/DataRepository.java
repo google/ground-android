@@ -80,11 +80,11 @@ public class DataRepository {
   public Flowable<Resource<List<Project>>> getProjectSummaries(User user) {
     // TODO: Get from load db if network connection not available or remote times out.
     return remoteDataService
-      .loadProjectSummaries(user)
-      .map(Resource::loaded)
-      .onErrorReturn(Resource::error)
-      .toFlowable()
-      .startWith(Resource.loading());
+        .loadProjectSummaries(user)
+        .map(Resource::loaded)
+        .onErrorReturn(Resource::error)
+        .toFlowable()
+        .startWith(Resource.loading());
   }
 
   // TODO: Only return data needed to render place PLPs.
@@ -161,13 +161,13 @@ public class DataRepository {
   }
 
   public Flowable<Resource<Record>> saveChanges(
-    Record record, ImmutableList<ValueUpdate> updates, User user) {
+      Record record, ImmutableList<ValueUpdate> updates, User user) {
     record = attachUser(record, user);
     return remoteDataService
-      .saveChanges(record, updates)
-      .map(Resource::saved)
-      .toFlowable()
-      .startWith(Resource.saving(record));
+        .saveChanges(record, updates)
+        .map(Resource::saved)
+        .toFlowable()
+        .startWith(Resource.saving(record));
   }
 
   private Record attachUser(Record record, User user) {

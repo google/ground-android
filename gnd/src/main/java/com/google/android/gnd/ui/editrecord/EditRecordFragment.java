@@ -36,6 +36,7 @@ import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.MultipleChoiceInputFieldBinding;
 import com.google.android.gnd.databinding.TextInputFieldBinding;
+import com.google.android.gnd.inject.ActivityScoped;
 import com.google.android.gnd.repository.Resource;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.BackPressListener;
@@ -49,6 +50,7 @@ import com.google.android.gnd.vo.Record;
 import com.google.android.gnd.vo.Record.Value;
 import java8.util.Optional;
 
+@ActivityScoped
 public class EditRecordFragment extends AbstractFragment implements BackPressListener {
   private static final String TAG = EditRecordFragment.class.getSimpleName();
   private static final String NEW_RECORD_ID_ARG_PLACEHOLDER = "NEW_RECORD";

@@ -18,7 +18,6 @@ package com.google.android.gnd.rx;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.LiveDataReactiveStreams;
-
 import io.reactivex.Flowable;
 import io.reactivex.Single;
 

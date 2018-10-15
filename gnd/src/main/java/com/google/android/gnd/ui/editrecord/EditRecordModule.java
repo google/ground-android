@@ -17,18 +17,15 @@
 package com.google.android.gnd.ui.editrecord;
 
 import android.support.v4.app.Fragment;
-
-import com.google.android.gnd.inject.PerFragment;
-import com.google.android.gnd.ui.common.AbstractFragmentModule;
-
+import com.google.android.gnd.inject.FragmentScoped;
 import dagger.Binds;
 import dagger.Module;
 
 // TODO: Consolidate fragment modules into single module.
-@Module(includes = AbstractFragmentModule.class)
+@Module
 public abstract class EditRecordModule {
 
   @Binds
-  @PerFragment
+  @FragmentScoped
   abstract Fragment fragment(EditRecordFragment fragment);
 }

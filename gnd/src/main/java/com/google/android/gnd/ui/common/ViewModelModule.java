@@ -18,7 +18,6 @@ package com.google.android.gnd.ui.common;
 
 import android.arch.lifecycle.ViewModel;
 import android.arch.lifecycle.ViewModelProvider;
-
 import com.google.android.gnd.MainViewModel;
 import com.google.android.gnd.ui.editrecord.EditRecordViewModel;
 import com.google.android.gnd.ui.home.HomeScreenViewModel;
@@ -27,7 +26,6 @@ import com.google.android.gnd.ui.home.placesheet.PlaceSheetViewModel;
 import com.google.android.gnd.ui.home.placesheet.RecordListViewModel;
 import com.google.android.gnd.ui.projectselector.ProjectSelectorViewModel;
 import com.google.android.gnd.ui.recorddetails.RecordDetailsViewModel;
-
 import dagger.Binds;
 import dagger.Module;
 import dagger.multibindings.IntoMap;

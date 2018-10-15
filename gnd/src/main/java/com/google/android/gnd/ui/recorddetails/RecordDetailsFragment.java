@@ -34,6 +34,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.R;
+import com.google.android.gnd.inject.ActivityScoped;
 import com.google.android.gnd.repository.Resource;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.EphemeralPopups;
@@ -41,6 +42,7 @@ import com.google.android.gnd.ui.common.TwoLineToolbar;
 import com.google.android.gnd.vo.Form;
 import com.google.android.gnd.vo.Record;
 
+@ActivityScoped
 public class RecordDetailsFragment extends AbstractFragment {
   private static final String TAG = RecordDetailsFragment.class.getSimpleName();
 
