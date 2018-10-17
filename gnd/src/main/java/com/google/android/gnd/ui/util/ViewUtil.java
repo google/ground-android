@@ -62,7 +62,7 @@ public class ViewUtil {
     hideSoftInputFrom(fragment.getContext(), fragment.getView().getRootView());
   }
 
-  public static void hideSoftInputFrom(Context context, View view) {
+  private static void hideSoftInputFrom(Context context, View view) {
     InputMethodManager imm =
         (InputMethodManager) context.getSystemService(Activity.INPUT_METHOD_SERVICE);
     imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
