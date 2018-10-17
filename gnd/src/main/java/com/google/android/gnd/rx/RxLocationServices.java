@@ -38,7 +38,7 @@ import io.reactivex.Maybe;
 import io.reactivex.Single;
 import io.reactivex.subjects.BehaviorSubject;
 
-/** Exposes select Android Location Services using Rx Observables. */
+/** Thin wrapper around LocationServices exposing key features as reactive streams. */
 public class RxLocationServices {
   public static RxSettingsClient getSettingsClient(Context context) {
     return new RxSettingsClient(context);
