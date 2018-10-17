@@ -26,6 +26,7 @@ import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.subjects.PublishSubject;
 import io.reactivex.subjects.Subject;
+import io.reactivex.subjects.UnicastSubject;
 import java8.util.function.Consumer;
 import java8.util.function.Supplier;
 import javax.inject.Inject;
@@ -38,11 +39,15 @@ public class ActivityStreams {
 
   @Inject
   public ActivityStreams() {
-    activityRequests = PublishSubject.create();
+    activityRequests = UnicastSubject.create();
     activityResults = PublishSubject.create();
   }
 
-  public void onCreate(AppCompatActivity activity) {
+  /**
+   * Subscribes the specified activity to callbacks.
+   */
+  public void attach(AppCompatActivity activity) {
+    // TODO: Test unsubscribe and resubscribe.
     activityRequests.as(autoDisposable(activity)).subscribe(callback -> callback.accept(activity));
   }
 

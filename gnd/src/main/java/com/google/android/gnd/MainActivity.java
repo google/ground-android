@@ -91,7 +91,7 @@ public class MainActivity extends AppCompatActivity implements HasSupportFragmen
     ViewCompat.setOnApplyWindowInsetsListener(
         getWindow().getDecorView().getRootView(), viewModel::onApplyWindowInsets);
 
-    activityStreams.onCreate(this);
+    activityStreams.attach(this);
 
     permissionsManager
         .getPermissionsRequests()

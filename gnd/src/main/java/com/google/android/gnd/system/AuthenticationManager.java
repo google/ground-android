@@ -35,6 +35,8 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import io.reactivex.BackpressureStrategy;
+import io.reactivex.Flowable;
 import io.reactivex.Observable;
 import io.reactivex.subjects.BehaviorSubject;
 import io.reactivex.subjects.Subject;
@@ -68,8 +70,9 @@ public class AuthenticationManager {
   }
 
   // TODO: Rename getUser().
-  public Observable<User> withUser() {
-    return getAuthStatus().map(AuthStatus::getUser);
+  // TODO: Replace with Observable.
+  public Flowable<User> withUser() {
+    return getAuthStatus().map(AuthStatus::getUser).toFlowable(BackpressureStrategy.LATEST);
   }
 
   public void init() {
