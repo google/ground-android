@@ -134,11 +134,7 @@ public class MapContainerFragment extends AbstractFragment {
   }
 
   public void onLocationLockClick(MapAdapter map) {
-    if (mapContainerViewModel.isLocationLockEnabled()) {
-      mapContainerViewModel.disableLocationLock();
-    } else {
-      mapContainerViewModel.enableLocationLock();
-    }
+    mapContainerViewModel.toggleLocationLock();
   }
 
   private void onPlaceSheetStateChange(PlaceSheetState state, MapAdapter map) {
