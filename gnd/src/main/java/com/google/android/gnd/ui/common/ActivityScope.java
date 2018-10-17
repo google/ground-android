@@ -19,5 +19,6 @@ package com.google.android.gnd.ui.common;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
+// TODO: Differentiate w/ActivityScoped inject annotation.
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ActivityScope {}
