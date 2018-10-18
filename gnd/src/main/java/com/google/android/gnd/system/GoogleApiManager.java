@@ -77,9 +77,7 @@ public class GoogleApiManager {
   private Completable getNextInstallApiResult() {
     // TODO: Throw appropriate Exception.
     return activityStreams
-        .getResults()
-        .filter(r -> r.getRequestCode() == INSTALL_API_REQUEST_CODE)
-        .take(1)
+        .getNextResult(INSTALL_API_REQUEST_CODE)
         .flatMapCompletable(r -> r.toCompletableOrError(() -> new Exception()));
   }
 }

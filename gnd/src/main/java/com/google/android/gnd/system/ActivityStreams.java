@@ -43,9 +43,7 @@ public class ActivityStreams {
     activityResults = PublishSubject.create();
   }
 
-  /**
-   * Subscribes the specified activity to callbacks.
-   */
+  /** Subscribes the specified activity to callbacks. */
   public void attach(AppCompatActivity activity) {
     // TODO: Test unsubscribe and resubscribe.
     activityRequests.as(autoDisposable(activity)).subscribe(callback -> callback.accept(activity));
@@ -59,8 +57,8 @@ public class ActivityStreams {
     activityResults.onNext(new ActivityResult(requestCode, resultCode, data));
   }
 
-  public Observable<ActivityResult> getResults() {
-    return activityResults;
+  public Observable<ActivityResult> getNextResult(int requestCode) {
+    return activityResults.filter(r -> r.getRequestCode() == requestCode).take(1);
   }
 
   public static class ActivityResult {
@@ -89,6 +87,7 @@ public class ActivityStreams {
                 em.onError(t.get());
                 break;
               default:
+                em.onError(new UnsupportedOperationException("Unknown result code: " + resultCode));
                 break;
             }
           });

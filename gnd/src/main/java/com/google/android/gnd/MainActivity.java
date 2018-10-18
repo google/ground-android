@@ -98,11 +98,6 @@ public class MainActivity extends AppCompatActivity implements HasSupportFragmen
         .as(autoDisposable(this))
         .subscribe(this::onPermissionsRequest);
 
-    settingsManager
-        .getResolvableSettingsFailures()
-        .as(autoDisposable(this))
-        .subscribe(r -> r.showSettingsPrompt(this));
-
     authenticationManager
         .getAuthStatus()
         .as(autoDisposable(this))
@@ -198,8 +193,8 @@ public class MainActivity extends AppCompatActivity implements HasSupportFragmen
    */
   @Override
   protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+    super.onActivityResult(requestCode, resultCode, intent);
     activityStreams.onActivityResult(requestCode, resultCode, intent);
-    settingsManager.onActivityResult(requestCode, resultCode);
   }
 
   @Override
