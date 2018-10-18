@@ -18,17 +18,29 @@ package com.google.android.gnd.service.firestore;
 
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.WriteBatch;
+import durdinapps.rxfirebase2.RxFirestore;
+import io.reactivex.Flowable;
+import io.reactivex.Maybe;
+import io.reactivex.Single;
 
-public class FirestorePath {
+public abstract class AbstractFluentFirestore {
   private final FirebaseFirestore db;
 
-  protected FirestorePath(FirebaseFirestore db) {
+  protected AbstractFluentFirestore(FirebaseFirestore db) {
     this.db = db;
   }
 
   protected CollectionReference collection(String name) {
     return db.collection(name);
+  }
+
+  // TOOD: Wrap in fluent version of WriteBatch.
+  public WriteBatch batch() {
+    return db.batch();
   }
 
   protected static class FluentCollectionReference {
@@ -51,6 +63,14 @@ public class FirestorePath {
     public String toString() {
       return ref.getPath();
     }
+
+    public Flowable<QuerySnapshot> getFlowable() {
+      return RxFirestore.observeQueryRef(ref);
+    }
+
+    public Single<DocumentReference> add(Object object) {
+      return RxFirestore.addDocument(ref, object);
+    }
   }
 
   protected static class FluentDocumentReference {
@@ -67,6 +87,10 @@ public class FirestorePath {
 
     public DocumentReference ref() {
       return ref;
+    }
+
+    public Maybe<DocumentSnapshot> getDocument() {
+      return RxFirestore.getDocument(ref);
     }
 
     @Override
