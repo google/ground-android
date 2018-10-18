@@ -16,19 +16,22 @@
 
 package com.google.android.gnd.system;
 
+import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 import static com.google.android.gnd.rx.RxAutoDispose.autoDisposable;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
-import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.subjects.PublishSubject;
 import io.reactivex.subjects.Subject;
 import io.reactivex.subjects.UnicastSubject;
+import java.util.Map;
 import java8.util.function.Consumer;
-import java8.util.function.Supplier;
+import java8.util.stream.Collectors;
+import java8.util.stream.IntStreams;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -36,16 +39,18 @@ import javax.inject.Singleton;
 public class ActivityStreams {
   private final Subject<Consumer<Activity>> activityRequests;
   private final Subject<ActivityResult> activityResults;
+  private final Subject<RequestPermissionsResult> requestPermissionsResults;
 
   @Inject
   public ActivityStreams() {
     activityRequests = UnicastSubject.create();
     activityResults = PublishSubject.create();
+    requestPermissionsResults = PublishSubject.create();
   }
 
   /** Subscribes the specified activity to callbacks. */
   public void attach(AppCompatActivity activity) {
-    // TODO: Test unsubscribe and resubscribe.
+    // TODO: Test unsubscribe and resubscribe with UnicastPublisher.
     activityRequests.as(autoDisposable(activity)).subscribe(callback -> callback.accept(activity));
   }
 
@@ -57,8 +62,18 @@ public class ActivityStreams {
     activityResults.onNext(new ActivityResult(requestCode, resultCode, data));
   }
 
-  public Observable<ActivityResult> getNextResult(int requestCode) {
+  public void onRequestPermissionsResult(
+      int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+    requestPermissionsResults.onNext(
+        new RequestPermissionsResult(requestCode, permissions, grantResults));
+  }
+
+  public Observable<ActivityResult> getNextActivityResult(int requestCode) {
     return activityResults.filter(r -> r.getRequestCode() == requestCode).take(1);
+  }
+
+  public Observable<RequestPermissionsResult> getNextRequestPermissionsResult(int requestCode) {
+    return requestPermissionsResults.filter(r -> r.getRequestCode() == requestCode).take(1);
   }
 
   public static class ActivityResult {
@@ -76,21 +91,32 @@ public class ActivityStreams {
       return requestCode;
     }
 
-    public Completable toCompletableOrError(Supplier<Throwable> t) {
-      return Completable.create(
-          em -> {
-            switch (resultCode) {
-              case Activity.RESULT_OK:
-                em.onComplete();
-                break;
-              case Activity.RESULT_CANCELED:
-                em.onError(t.get());
-                break;
-              default:
-                em.onError(new UnsupportedOperationException("Unknown result code: " + resultCode));
-                break;
-            }
-          });
+    public boolean isOk() {
+      return resultCode == Activity.RESULT_OK;
+    }
+  }
+
+
+  public static class RequestPermissionsResult {
+    private final int requestCode;
+    private final Map<String, Integer> permissionGrantResults;
+
+    private RequestPermissionsResult(
+        int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+      this.requestCode = requestCode;
+      this.permissionGrantResults =
+          IntStreams.range(0, permissions.length)
+              .boxed()
+              .collect(Collectors.toMap(i -> permissions[i], i -> grantResults[i]));
+    }
+
+    public int getRequestCode() {
+      return requestCode;
+    }
+
+    public boolean isGranted(String permission) {
+      Integer grantResult = permissionGrantResults.get(permission);
+      return grantResult != null && grantResult == PERMISSION_GRANTED;
     }
   }
 }

@@ -26,9 +26,21 @@ public abstract class RxCompletable {
 
   public static Completable completeIf(Callable<Boolean> conditionFunction) {
     return Completable.create(
-        emitter -> {
+        em -> {
           if (conditionFunction.call()) {
-            emitter.onComplete();
+            em.onComplete();
+          }
+        });
+  }
+
+  public static Completable completeOrError(
+      boolean condition, Class<? extends Throwable> errorClass) {
+    return Completable.create(
+        em -> {
+          if (condition) {
+            em.onComplete();
+          } else {
+            em.onError(errorClass.newInstance());
           }
         });
   }

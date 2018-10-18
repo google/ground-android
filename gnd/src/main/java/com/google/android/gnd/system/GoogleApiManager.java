@@ -16,6 +16,8 @@
 
 package com.google.android.gnd.system;
 
+import static com.google.android.gnd.rx.RxCompletable.completeOrError;
+
 import android.app.Application;
 import android.content.Context;
 import com.google.android.gms.common.ConnectionResult;
@@ -77,7 +79,7 @@ public class GoogleApiManager {
   private Completable getNextInstallApiResult() {
     // TODO: Throw appropriate Exception.
     return activityStreams
-        .getNextResult(INSTALL_API_REQUEST_CODE)
-        .flatMapCompletable(r -> r.toCompletableOrError(() -> new Exception()));
+        .getNextActivityResult(INSTALL_API_REQUEST_CODE)
+        .flatMapCompletable(r -> completeOrError(r.isOk(), Exception.class));
   }
 }

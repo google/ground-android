@@ -16,6 +16,8 @@
 
 package com.google.android.gnd.system;
 
+import static com.google.android.gnd.rx.RxCompletable.completeOrError;
+
 import android.app.Application;
 import android.content.Context;
 import android.content.IntentSender.SendIntentException;
@@ -89,8 +91,8 @@ public class SettingsManager {
 
   private Completable waitForResult(int requestCode) {
     return activityStreams
-        .getNextResult(requestCode)
-        .flatMapCompletable(r -> r.toCompletableOrError(() -> new SettingsChangeRequestCanceled()))
+        .getNextActivityResult(requestCode)
+        .flatMapCompletable(r -> completeOrError(r.isOk(), SettingsChangeRequestCanceled.class))
         .doOnComplete(() -> Log.d(TAG, "Settings change request successful"))
         .doOnError(t -> Log.d(TAG, "Settings change request failed", t));
   }

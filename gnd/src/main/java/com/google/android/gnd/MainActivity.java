@@ -23,7 +23,6 @@ import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -35,8 +34,6 @@ import com.google.android.gnd.rx.RxDebug;
 import com.google.android.gnd.system.ActivityStreams;
 import com.google.android.gnd.system.AuthenticationManager;
 import com.google.android.gnd.system.AuthenticationManager.AuthStatus;
-import com.google.android.gnd.system.PermissionsManager;
-import com.google.android.gnd.system.PermissionsManager.PermissionsRequest;
 import com.google.android.gnd.system.SettingsManager;
 import com.google.android.gnd.ui.common.BackPressListener;
 import com.google.android.gnd.ui.common.EphemeralPopups;
@@ -58,7 +55,6 @@ public class MainActivity extends AppCompatActivity implements HasSupportFragmen
 
   @Inject ActivityStreams activityStreams;
   @Inject ViewModelFactory viewModelFactory;
-  @Inject PermissionsManager permissionsManager;
   @Inject SettingsManager settingsManager;
   @Inject AuthenticationManager authenticationManager;
   @Inject DispatchingAndroidInjector<Fragment> fragmentInjector;
@@ -93,21 +89,11 @@ public class MainActivity extends AppCompatActivity implements HasSupportFragmen
 
     activityStreams.attach(this);
 
-    permissionsManager
-        .getPermissionsRequests()
-        .as(autoDisposable(this))
-        .subscribe(this::onPermissionsRequest);
-
+    // TODO: Remove once we switch to persisted auth tokens / multiple offline users.
     authenticationManager
         .getAuthStatus()
         .as(autoDisposable(this))
         .subscribe(this::onAuthStatusChange);
-  }
-
-  private void onPermissionsRequest(PermissionsRequest permissionsRequest) {
-    Log.d(TAG, "Sending permissions request to system");
-    ActivityCompat.requestPermissions(
-        this, permissionsRequest.getPermissions(), permissionsRequest.getRequestCode());
   }
 
   private void onAuthStatusChange(AuthStatus authStatus) {
@@ -184,7 +170,7 @@ public class MainActivity extends AppCompatActivity implements HasSupportFragmen
       int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
     Log.d(TAG, "Permission result received");
     super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-    permissionsManager.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    activityStreams.onRequestPermissionsResult(requestCode, permissions, grantResults);
   }
 
   /**
@@ -193,6 +179,7 @@ public class MainActivity extends AppCompatActivity implements HasSupportFragmen
    */
   @Override
   protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+    Log.d(TAG, "Activity result received");
     super.onActivityResult(requestCode, resultCode, intent);
     activityStreams.onActivityResult(requestCode, resultCode, intent);
   }
