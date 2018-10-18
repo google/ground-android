@@ -20,11 +20,9 @@ import static com.google.android.gnd.rx.RxAutoDispose.autoDisposable;
 import static com.google.android.gnd.util.Debug.logLifecycleEvent;
 
 import android.content.Intent;
-import android.content.IntentSender.SendIntentException;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -33,13 +31,10 @@ import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 import butterknife.ButterKnife;
 import com.google.android.gnd.rx.RxDebug;
+import com.google.android.gnd.system.ActivityStreams;
 import com.google.android.gnd.system.AuthenticationManager;
 import com.google.android.gnd.system.AuthenticationManager.AuthStatus;
-import com.google.android.gnd.system.GoogleApiManager;
-import com.google.android.gnd.system.PermissionsManager;
-import com.google.android.gnd.system.PermissionsManager.PermissionsRequest;
 import com.google.android.gnd.system.SettingsManager;
-import com.google.android.gnd.system.SettingsManager.SettingsChangeRequest;
 import com.google.android.gnd.ui.common.BackPressListener;
 import com.google.android.gnd.ui.common.EphemeralPopups;
 import com.google.android.gnd.ui.common.TwoLineToolbar;
@@ -58,10 +53,9 @@ public class MainActivity extends AppCompatActivity implements HasSupportFragmen
 
   private static final String TAG = MainActivity.class.getSimpleName();
 
+  @Inject ActivityStreams activityStreams;
   @Inject ViewModelFactory viewModelFactory;
-  @Inject PermissionsManager permissionsManager;
   @Inject SettingsManager settingsManager;
-  @Inject GoogleApiManager googleApiManager;
   @Inject AuthenticationManager authenticationManager;
   @Inject DispatchingAndroidInjector<Fragment> fragmentInjector;
 
@@ -72,7 +66,6 @@ public class MainActivity extends AppCompatActivity implements HasSupportFragmen
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     logLifecycleEvent(this);
-
     drawableUtil = new DrawableUtil(getResources());
 
     // Prevent RxJava from force-quitting on unhandled errors.
@@ -94,39 +87,13 @@ public class MainActivity extends AppCompatActivity implements HasSupportFragmen
     ViewCompat.setOnApplyWindowInsetsListener(
         getWindow().getDecorView().getRootView(), viewModel::onApplyWindowInsets);
 
-    permissionsManager
-        .getPermissionsRequests()
-        .as(autoDisposable(this))
-        .subscribe(this::onPermissionsRequest);
+    activityStreams.attach(this);
 
-    settingsManager
-        .getSettingsChangeRequests()
-        .as(autoDisposable(this))
-        .subscribe(this::onSettingsChangeRequest);
-
+    // TODO: Remove once we switch to persisted auth tokens / multiple offline users.
     authenticationManager
         .getAuthStatus()
         .as(autoDisposable(this))
         .subscribe(this::onAuthStatusChange);
-  }
-
-  private void onPermissionsRequest(PermissionsRequest permissionsRequest) {
-    Log.d(TAG, "Sending permissions request to system");
-    ActivityCompat.requestPermissions(
-        this, permissionsRequest.getPermissions(), permissionsRequest.getRequestCode());
-  }
-
-  private void onSettingsChangeRequest(SettingsChangeRequest settingsChangeRequest) {
-    try {
-      // The result of this call is received by {@link #onActivityResult}.
-      Log.d(TAG, "Sending settings resolution request");
-      settingsChangeRequest
-          .getException()
-          .startResolutionForResult(this, settingsChangeRequest.getRequestCode());
-    } catch (SendIntentException e) {
-      // TODO: Report error.
-      Log.e(TAG, e.toString());
-    }
   }
 
   private void onAuthStatusChange(AuthStatus authStatus) {
@@ -203,7 +170,7 @@ public class MainActivity extends AppCompatActivity implements HasSupportFragmen
       int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
     Log.d(TAG, "Permission result received");
     super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-    permissionsManager.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    activityStreams.onRequestPermissionsResult(requestCode, permissions, grantResults);
   }
 
   /**
@@ -212,9 +179,9 @@ public class MainActivity extends AppCompatActivity implements HasSupportFragmen
    */
   @Override
   protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
-    googleApiManager.onActivityResult(requestCode, resultCode);
-    authenticationManager.onActivityResult(requestCode, resultCode, intent);
-    settingsManager.onActivityResult(requestCode, resultCode);
+    Log.d(TAG, "Activity result received");
+    super.onActivityResult(requestCode, resultCode, intent);
+    activityStreams.onActivityResult(requestCode, resultCode, intent);
   }
 
   @Override

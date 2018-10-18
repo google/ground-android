@@ -14,11 +14,27 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.ui.common;
+package com.google.android.gnd;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
+import android.content.Context;
+import com.google.android.gnd.ui.common.EphemeralPopups;
 
-// TODO: Differentiate w/ActivityScoped inject annotation.
-@Retention(RetentionPolicy.RUNTIME)
-public @interface ActivityScope {}
+public class UserVisibleError extends RuntimeException {
+  private int errorMessageId = 0;
+
+  public UserVisibleError(String message) {
+    super(message);
+  }
+
+  public UserVisibleError(int errorMessageId) {
+    this.errorMessageId = errorMessageId;
+  }
+
+  public void show(Context context) {
+    if (errorMessageId > 0) {
+      EphemeralPopups.showError(context, errorMessageId);
+    } else {
+      EphemeralPopups.showError(context, getMessage());
+    }
+  }
+}

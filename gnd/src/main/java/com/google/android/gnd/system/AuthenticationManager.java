@@ -17,6 +17,7 @@
 package com.google.android.gnd.system;
 
 import android.app.Activity;
+import android.app.Application;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.util.Log;
@@ -26,7 +27,6 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
-import com.google.android.gnd.GndApplication;
 import com.google.android.gnd.R;
 import com.google.android.gnd.inject.ActivityScoped;
 import com.google.android.gnd.system.AuthenticationManager.AuthStatus.State;
@@ -46,14 +46,15 @@ import javax.inject.Inject;
 public class AuthenticationManager {
   private static final String TAG = AuthenticationManager.class.getSimpleName();
   private static final int SIGN_IN_REQUEST_CODE = AuthenticationManager.class.hashCode() & 0xffff;
+  private final ActivityStreams activityStreams;
   private final GoogleSignInOptions googleSignInOptions;
-  private final Subject<AuthStatus> authStateSubject;
+  private final Subject<AuthStatus> authStatus;
   private final FirebaseAuth firebaseAuth;
 
   // TODO: Update Fragments to access via DataRepository rather than directly.
   @Inject
-  public AuthenticationManager(GndApplication application) {
-    this.authStateSubject = BehaviorSubject.create();
+  public AuthenticationManager(Application application, ActivityStreams activityStreams) {
+    this.authStatus = BehaviorSubject.create();
     this.firebaseAuth = FirebaseAuth.getInstance();
     this.googleSignInOptions =
         new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -61,18 +62,21 @@ public class AuthenticationManager {
             .requestEmail()
             .requestProfile()
             .build();
+    this.activityStreams = activityStreams;
   }
 
   public Observable<AuthStatus> getAuthStatus() {
-    return authStateSubject;
+    return authStatus;
   }
 
+  // TODO: Rename getUser().
+  // TODO: Replace with Observable.
   public Flowable<User> withUser() {
     return getAuthStatus().map(AuthStatus::getUser).toFlowable(BackpressureStrategy.LATEST);
   }
 
   public void init() {
-    authStateSubject.onNext(getStatus());
+    authStatus.onNext(getStatus());
   }
 
   public boolean isSignedIn() {
@@ -89,7 +93,7 @@ public class AuthenticationManager {
   }
 
   public void signIn(Activity activity) {
-    authStateSubject.onNext(new AuthStatus(State.SIGNING_IN));
+    authStatus.onNext(new AuthStatus(State.SIGNING_IN));
     Intent signInIntent = getGoogleSignInClient(activity).getSignInIntent();
     activity.startActivityForResult(signInIntent, SIGN_IN_REQUEST_CODE);
   }
@@ -97,11 +101,12 @@ public class AuthenticationManager {
   public void signOut(Activity activity) {
     getGoogleSignInClient(activity).signOut();
     firebaseAuth.signOut();
-    authStateSubject.onNext(new AuthStatus(State.SIGNED_OUT));
+    authStatus.onNext(new AuthStatus(State.SIGNED_OUT));
   }
 
   @NonNull
   private GoogleSignInClient getGoogleSignInClient(Activity activity) {
+    // TODO: Use app context instead of activity?
     return GoogleSignIn.getClient(activity, googleSignInOptions);
   }
 
@@ -118,7 +123,7 @@ public class AuthenticationManager {
       signInToFirebase(completedTask.getResult(ApiException.class));
     } catch (ApiException e) {
       Log.w(TAG, "Sign in failed, GoogleSignInStatusCodes:  " + e.getStatusCode());
-      authStateSubject.onNext(new AuthStatus(e));
+      authStatus.onNext(new AuthStatus(e));
     }
   }
 
@@ -126,13 +131,13 @@ public class AuthenticationManager {
     firebaseAuth
         .signInWithCredential(getAuthCredential(account))
         .addOnSuccessListener(this::onFirebaseAuthSuccess)
-        .addOnFailureListener(t -> authStateSubject.onNext(new AuthStatus(t)));
+        .addOnFailureListener(t -> authStatus.onNext(new AuthStatus(t)));
   }
 
   private void onFirebaseAuthSuccess(AuthResult authResult) {
     // TODO: Store/update user profile in Firestore.
     // TODO: Store/update user profile and image locally.
-    authStateSubject.onNext(new AuthStatus(new User(authResult.getUser())));
+    authStatus.onNext(new AuthStatus(new User(authResult.getUser())));
   }
 
   @NonNull
