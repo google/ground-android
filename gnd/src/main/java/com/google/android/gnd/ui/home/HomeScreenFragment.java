@@ -149,6 +149,7 @@ public class HomeScreenFragment extends AbstractFragment
     if (toolbarWrapper == null || bottomSheetBehavior == null || bottomSheetHeader == null) {
       return;
     }
+    bottomSheetBehavior.setFitToContents(false);
     bottomSheetBehavior.setExpandedOffset(
         toolbarWrapper.getHeight() - bottomSheetHeader.getHeight());
   }
