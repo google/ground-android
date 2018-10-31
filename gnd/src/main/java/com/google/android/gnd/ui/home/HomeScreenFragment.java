@@ -121,7 +121,7 @@ public class HomeScreenFragment extends AbstractFragment
   public View onCreateView(
       LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     HomeScreenFragBinding binding = HomeScreenFragBinding.inflate(inflater, container, false);
-    binding.setViewModel(viewModel);
+    binding.placeSheetChrome.setViewModel(viewModel);
     return binding.getRoot();
   }
 
