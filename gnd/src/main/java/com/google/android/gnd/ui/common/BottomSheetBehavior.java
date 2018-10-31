@@ -49,7 +49,9 @@ import java.lang.ref.WeakReference;
  */
 public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behavior<V> {
 
+  // START CUSTOM
   private int expandedOffset;
+  // END CUSTOM
 
   /** Callback for monitoring events about bottom sheets. */
   public abstract static class BottomSheetCallback {
@@ -251,7 +253,8 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
     } else {
       lastPeekHeight = peekHeight;
     }
-    fitToContentsOffset = Math.max(0, parentHeight - child.getHeight());
+    fitToContentsOffset =
+        expandedOffset == 0 ? Math.max(0, parentHeight - child.getHeight()) : expandedOffset;
     halfExpandedOffset = parentHeight / 2;
     calculateCollapsedOffset();
 
@@ -453,7 +456,9 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
       } else {
         if (currentTop < halfExpandedOffset) {
           if (currentTop < Math.abs(currentTop - collapsedOffset)) {
-            top = 0;
+            // START CUSTOM
+            top = expandedOffset;
+            // END CUSTOM
             targetState = STATE_EXPANDED;
           } else {
             top = halfExpandedOffset;
@@ -735,12 +740,7 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
   // END CUSTOM
 
   private int getExpandedOffset() {
-    // START CUSTOM
-    if (expandedOffset != 0) {
-      return expandedOffset;
-    }
-    // END CUSTOM
-    return fitToContents ? fitToContentsOffset : 0;
+    return fitToContents ? fitToContentsOffset : expandedOffset;
   }
 
   void startSettlingAnimation(View child, int state) {
@@ -817,7 +817,9 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
                 top = halfExpandedOffset;
                 targetState = STATE_HALF_EXPANDED;
               } else {
-                top = 0;
+                // START CUSTOM
+                top = expandedOffset;
+                // END CUSTOM
                 targetState = STATE_EXPANDED;
               }
             }
@@ -838,7 +840,9 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
             } else {
               if (currentTop < halfExpandedOffset) {
                 if (currentTop < Math.abs(currentTop - collapsedOffset)) {
-                  top = 0;
+                  // START CUSTOM
+                  top = expandedOffset;
+                  // END CUSTOM
                   targetState = STATE_EXPANDED;
                 } else {
                   top = halfExpandedOffset;
