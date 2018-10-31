@@ -21,6 +21,8 @@ import static com.google.android.gnd.ui.util.ViewUtil.getScreenHeight;
 import static com.google.android.gnd.ui.util.ViewUtil.getScreenWidth;
 
 import android.app.ProgressDialog;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -36,6 +38,8 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
+import androidx.navigation.fragment.NavHostFragment;
 import butterknife.BindView;
 import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.MainViewModel;
@@ -98,6 +102,9 @@ public class HomeScreenFragment extends AbstractFragment
   @BindView(R.id.bottom_sheet_bottom_inset_scrim)
   View bottomSheetBottomInsetScrim;
 
+  @BindView(R.id.version_text)
+  TextView versionTextView;
+
   private ProgressDialog progressDialog;
   private HomeScreenViewModel viewModel;
   private MapContainerFragment mapContainerFragment;
@@ -128,7 +135,7 @@ public class HomeScreenFragment extends AbstractFragment
   @Override
   public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
-
+    versionTextView.setText("Build " + getVersionName());
     // Ensure nav drawer cannot be swiped out, which would conflict with map pan gestures.
     drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
 
@@ -145,10 +152,13 @@ public class HomeScreenFragment extends AbstractFragment
     setUpBottomSheetBehavior();
   }
 
-  @Override
-  public void onSaveInstanceState(@NonNull Bundle outState) {
-    super.onSaveInstanceState(outState);
-    saveChildFragment(outState, mapContainerFragment);
+  private String getVersionName() {
+    try {
+      PackageInfo pInfo = getContext().getPackageManager().getPackageInfo(getContext().getPackageName(), 0);
+      return pInfo.versionName;
+    } catch (PackageManager.NameNotFoundException e) {
+      return "?";
+    }
   }
 
   private void onToolbarLayout() {

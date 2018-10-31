@@ -49,8 +49,8 @@ android {
         applicationId "com.google.android.gnd"
         minSdkVersion 15
         targetSdkVersion 26
-        versionCode 1
-        versionName "1.0"
+        versionCode gitVersioner.versionCode
+        versionName gitVersioner.versionName
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
     }
