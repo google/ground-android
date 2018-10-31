@@ -21,13 +21,14 @@ buildscript {
         google()
         jcenter()
         mavenLocal()
-        maven { url 'https://maven.google.com'  }
+        maven { url 'https://maven.google.com' }
         maven { url "https://github.com/ben-manes/gradle-versions-plugin/raw/mvnrepo" }
     }
     dependencies {
         classpath "android.arch.navigation:navigation-safe-args-gradle-plugin:1.0.0-alpha02"
         classpath 'com.android.tools.build:gradle:3.3.0-alpha13'
         classpath 'com.google.gms:google-services:4.2.0'
+        classpath 'com.pascalwelsch.gitversioner:gitversioner:0.3.1'
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
     }
@@ -44,7 +45,7 @@ allprojects {
     repositories {
         google() // For github repos.
         mavenLocal()
-        maven { url 'https://maven.google.com'  }
+        maven { url 'https://maven.google.com' }
         maven { url "https://jitpack.io" }
         jcenter()
     }
@@ -52,4 +53,10 @@ allprojects {
 
 task clean(type: Delete) {
     delete rootProject.buildDir
+}
+
+// https://github.com/passsy/gradle-gitVersioner-plugin
+apply plugin: 'com.pascalwelsch.gitversioner'
+gitVersioner {
+    baseBranch 'master'
 }
