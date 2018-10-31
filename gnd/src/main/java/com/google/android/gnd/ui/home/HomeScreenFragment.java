@@ -36,12 +36,11 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import androidx.navigation.fragment.NavHostFragment;
 import butterknife.BindView;
-import butterknife.OnClick;
 import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.MainViewModel;
 import com.google.android.gnd.R;
+import com.google.android.gnd.databinding.HomeScreenFragBinding;
 import com.google.android.gnd.inject.ActivityScoped;
 import com.google.android.gnd.repository.Resource;
 import com.google.android.gnd.system.AuthenticationManager;
@@ -53,7 +52,6 @@ import com.google.android.gnd.ui.common.ProgressDialogs;
 import com.google.android.gnd.ui.common.TwoLineToolbar;
 import com.google.android.gnd.ui.home.mapcontainer.MapContainerFragment;
 import com.google.android.gnd.ui.projectselector.ProjectSelectorDialogFragment;
-import com.google.android.gnd.vo.Form;
 import com.google.android.gnd.vo.Place;
 import com.google.android.gnd.vo.Point;
 import com.google.android.gnd.vo.Project;
@@ -122,7 +120,9 @@ public class HomeScreenFragment extends AbstractFragment
   @Override
   public View onCreateView(
       LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-    return inflater.inflate(R.layout.home_screen_frag, container, false);
+    HomeScreenFragBinding binding = HomeScreenFragBinding.inflate(inflater, container, false);
+    binding.setViewModel(viewModel);
+    return binding.getRoot();
   }
 
   @Override
@@ -246,30 +246,6 @@ public class HomeScreenFragment extends AbstractFragment
         Log.e(TAG, "Project load error", project.getError().orElse(new UnknownError()));
         break;
     }
-  }
-
-  // TODO: Put record button and chrome into its own fragment.
-  @OnClick(R.id.add_record_btn)
-  void addRecord() {
-    PlaceSheetState placeSheetState = viewModel.getPlaceSheetState().getValue();
-    if (placeSheetState == null) {
-      Log.e(TAG, "Missing placeSheetState");
-      return;
-    }
-    Form form = viewModel.getSelectedForm().getValue();
-    if (form == null) {
-      Log.e(TAG, "Missing form");
-      return;
-    }
-    Place place = placeSheetState.getPlace();
-    showAddRecord(place, form);
-  }
-
-  public void showAddRecord(Place place, Form form) {
-    NavHostFragment.findNavController(this)
-        .navigate(
-            HomeScreenFragmentDirections.addRecord(
-                place.getProject().getId(), place.getId(), form.getId()));
   }
 
   private void onShowAddPlaceDialogRequest(Point location) {

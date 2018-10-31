@@ -28,6 +28,7 @@ import android.support.v4.view.ViewCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import androidx.navigation.NavController;
+import androidx.navigation.NavDirections;
 import androidx.navigation.fragment.NavHostFragment;
 import butterknife.ButterKnife;
 import com.google.android.gnd.rx.RxDebug;
@@ -37,6 +38,7 @@ import com.google.android.gnd.system.AuthenticationManager.AuthStatus;
 import com.google.android.gnd.system.SettingsManager;
 import com.google.android.gnd.ui.common.BackPressListener;
 import com.google.android.gnd.ui.common.EphemeralPopups;
+import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.TwoLineToolbar;
 import com.google.android.gnd.ui.common.ViewModelFactory;
 import com.google.android.gnd.ui.util.DrawableUtil;
@@ -58,7 +60,7 @@ public class MainActivity extends AppCompatActivity implements HasSupportFragmen
   @Inject SettingsManager settingsManager;
   @Inject AuthenticationManager authenticationManager;
   @Inject DispatchingAndroidInjector<Fragment> fragmentInjector;
-
+  @Inject Navigator navigator;
   private NavHostFragment navHostFragment;
   private MainViewModel viewModel;
   private DrawableUtil drawableUtil;
@@ -94,6 +96,12 @@ public class MainActivity extends AppCompatActivity implements HasSupportFragmen
         .getAuthStatus()
         .as(autoDisposable(this))
         .subscribe(this::onAuthStatusChange);
+
+    navigator.getNavDirections().as(autoDisposable(this)).subscribe(this::navigate);
+  }
+
+  private void navigate(NavDirections navDirections) {
+    getNavController().navigate(navDirections);
   }
 
   private void onAuthStatusChange(AuthStatus authStatus) {
