@@ -17,25 +17,19 @@
 package com.google.android.gnd.service.firestore;
 
 import com.google.android.gnd.system.AuthenticationManager.User;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldPath;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QuerySnapshot;
+import durdinapps.rxfirebase2.RxFirestore;
+import io.reactivex.Maybe;
 
-public class GndFirestorePath extends FirestorePath {
+public class GndFirestore extends AbstractFluentFirestore {
   public static final String PROJECTS = "projects";
-  public static final String PLACE_TYPES = "featureTypes";
-  public static final String FORMS = "forms";
   public static final String PLACES = "features";
   public static final String RECORDS = "records";
 
-  private GndFirestorePath(FirebaseFirestore db) {
+  public GndFirestore(FirebaseFirestore db) {
     super(db);
-  }
-
-  public static GndFirestorePath db(FirebaseFirestore db) {
-    return new GndFirestorePath(db);
   }
 
   public ProjectsRef projects() {
@@ -46,37 +40,14 @@ public class GndFirestorePath extends FirestorePath {
     return projects().project(id);
   }
 
-  public static ProjectRef project(DocumentSnapshot projectDocSnapshot) {
-    return project(projectDocSnapshot.getReference());
-  }
-
-  public static ProjectRef project(DocumentReference projectDocRef) {
-    return new ProjectRef().setRef(projectDocRef);
-  }
-
-  public static PlaceRef place(DocumentSnapshot placeDocSnapshot) {
-    return place(placeDocSnapshot.getReference());
-  }
-
-  public static PlaceRef place(DocumentReference placeDocRef) {
-    return new PlaceRef().setRef(placeDocRef);
-  }
-
-  public static PlaceTypeRef placeType(DocumentSnapshot placeTypeDocSnapshot) {
-    return placeType(placeTypeDocSnapshot.getReference());
-  }
-
-  public static PlaceTypeRef placeType(DocumentReference placeTypeDocRef) {
-    return new PlaceTypeRef().setRef(placeTypeDocRef);
-  }
-
   public static class ProjectsRef extends FluentCollectionReference {
     public ProjectRef project(String id) {
       return new ProjectRef().setRef(document(id));
     }
 
-    public Query whereCanRead(User user) {
-      return ref().whereArrayContains(FieldPath.of("acl", user.getEmail()), "r");
+    public Maybe<QuerySnapshot> getReadable(User user) {
+      return RxFirestore.getCollection(
+          ref().whereArrayContains(FieldPath.of("acl", user.getEmail()), "r"));
     }
   }
 
@@ -89,14 +60,6 @@ public class GndFirestorePath extends FirestorePath {
       return places().place(id);
     }
 
-    public PlaceTypesRef placeTypes() {
-      return new PlaceTypesRef().setRef(collection(PLACE_TYPES));
-    }
-
-    public PlaceTypeRef placeType(String id) {
-      return placeTypes().placeType(id);
-    }
-
     public RecordsRef records() {
       return new RecordsRef().setRef(collection(RECORDS));
     }
@@ -105,25 +68,6 @@ public class GndFirestorePath extends FirestorePath {
   public static class PlacesRef extends FluentCollectionReference {
     public PlaceRef place(String id) {
       return new PlaceRef().setRef(document(id));
-    }
-  }
-
-  public static class PlaceTypesRef extends FluentCollectionReference {
-
-    public PlaceTypeRef placeType(String id) {
-      return new PlaceTypeRef().setRef(document(id));
-    }
-  }
-
-  public static class PlaceTypeRef extends FluentDocumentReference {
-    public FormsRef forms() {
-      return new FormsRef().setRef(collection(FORMS));
-    }
-  }
-
-  public static class FormsRef extends FluentCollectionReference {
-    public FluentDocumentReference form(String id) {
-      return new FluentDocumentReference().setRef(document(id));
     }
   }
 
@@ -142,8 +86,8 @@ public class GndFirestorePath extends FirestorePath {
       return new FluentDocumentReference().setRef(document(id));
     }
 
-    public Query whereFeatureIdEqualTo(String featureId) {
-      return ref().whereEqualTo(FieldPath.of("featureId"), featureId);
+    public Maybe<QuerySnapshot> getByFeatureId(String featureId) {
+      return RxFirestore.getCollection(ref().whereEqualTo(FieldPath.of("featureId"), featureId));
     }
   }
 }

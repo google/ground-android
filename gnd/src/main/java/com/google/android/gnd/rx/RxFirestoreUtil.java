@@ -33,7 +33,11 @@ public abstract class RxFirestoreUtil {
   /** Container for static helper methods. Do not instantiate. */
   private RxFirestoreUtil() {}
 
-  public static <T> Single<List<T>> mapSingle(
+  /**
+   * Applies the provided mapping function to each document in the specified query snapshot, if
+   * present. If no results are present, completes with an empty list.
+   */
+  public static <T> Single<List<T>> mapToSingle(
       Maybe<QuerySnapshot> result, Function<DocumentSnapshot, T> mappingFunction) {
     return result
         .map(
