@@ -30,6 +30,7 @@ import com.google.android.gnd.vo.Place;
 import com.google.android.gnd.vo.Point;
 import com.google.android.gnd.vo.Project;
 import com.google.common.collect.ImmutableSet;
+import io.reactivex.BackpressureStrategy;
 import io.reactivex.Flowable;
 import io.reactivex.disposables.Disposable;
 import java8.util.Optional;
@@ -57,7 +58,7 @@ public class MapContainerViewModel extends AbstractViewModel {
     locationLockStatus.setValue(LocationLockStatus.disabled());
     this.cameraUpdates = new MutableLiveData<>();
     this.cameraPosition = new MutableLiveData<>();
-    this.activeProject = RxLiveData.fromFlowable(dataRepository.getActiveProject());
+    this.activeProject = RxLiveData.fromObservable(dataRepository.getActiveProject());
     // TODO: Clear place markers when project is deactivated.
     // TODO: Since we depend on project stream from repo anyway, this transformation can be moved
     // into the repo.
@@ -66,6 +67,7 @@ public class MapContainerViewModel extends AbstractViewModel {
             dataRepository
                 .getActiveProject()
                 .map(Resource::getData)
+                .toFlowable(BackpressureStrategy.LATEST)
                 .switchMap(this::getPlacesStream));
   }
 

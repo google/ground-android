@@ -184,7 +184,7 @@ public class EditRecordViewModel extends AbstractViewModel {
   private void saveChanges(Record r) {
     disposeOnClear(
         authManager
-            .withUser()
+            .getUser()
             .flatMap(user -> dataRepository.saveChanges(r, getChangeList(r), user))
             .subscribe(record::setValue));
   }

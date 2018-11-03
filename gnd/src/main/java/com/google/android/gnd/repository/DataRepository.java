@@ -27,9 +27,9 @@ import com.google.android.gnd.vo.Project;
 import com.google.android.gnd.vo.Record;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import io.reactivex.BackpressureStrategy;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
+import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.subjects.BehaviorSubject;
 import io.reactivex.subjects.Subject;
@@ -56,11 +56,10 @@ public class DataRepository {
     this.activeProjectSubject = BehaviorSubject.create();
   }
 
-  public Flowable<Resource<Project>> getActiveProject() {
+  public Observable<Resource<Project>> getActiveProject() {
     // TODO: On subscribe and project in cache not loaded, read last active project from local db.
-    return activeProjectSubject
-        .toFlowable(BackpressureStrategy.LATEST)
-        .startWith(cache.getActiveProject().map(Resource::loaded).orElse(Resource.notLoaded()));
+    return activeProjectSubject.startWith(
+        cache.getActiveProject().map(Resource::loaded).orElse(Resource.notLoaded()));
   }
 
   public Completable activateProject(String projectId) {
@@ -77,13 +76,13 @@ public class DataRepository {
     activeProjectSubject.onNext(Resource.loaded(project));
   }
 
-  public Flowable<Resource<List<Project>>> getProjectSummaries(User user) {
+  public Observable<Resource<List<Project>>> getProjectSummaries(User user) {
     // TODO: Get from load db if network connection not available or remote times out.
     return remoteDataService
         .loadProjectSummaries(user)
         .map(Resource::loaded)
         .onErrorReturn(Resource::error)
-        .toFlowable()
+        .toObservable()
         .startWith(Resource.loading());
   }
 
@@ -102,12 +101,11 @@ public class DataRepository {
   }
 
   // TODO: Return Resource.
-  public Flowable<List<Record>> getRecordSummaries(String projectId, String placeId) {
+  public Single<List<Record>> getRecordSummaries(String projectId, String placeId) {
     // TODO: Only fetch first n fields.
     // TODO: Also load from db.
     return getPlace(projectId, placeId)
-        .flatMap(place -> remoteDataService.loadRecordSummaries(place))
-        .toFlowable();
+        .flatMap(place -> remoteDataService.loadRecordSummaries(place));
   }
 
   private Single<Place> getPlace(String projectId, String placeId) {
@@ -121,13 +119,13 @@ public class DataRepository {
                     .orElse(Single.error(new DocumentNotFoundException())));
   }
 
-  public Flowable<Resource<Record>> getRecordDetails(
+  public Observable<Resource<Record>> getRecordDetails(
       String projectId, String placeId, String recordId) {
     return getPlace(projectId, placeId)
         .flatMap(place -> remoteDataService.loadRecordDetails(place, recordId))
         .map(Resource::loaded)
         .onErrorReturn(Resource::error)
-        .toFlowable();
+        .toObservable();
   }
 
   public Single<Resource<Record>> getRecordSnapshot(
@@ -160,18 +158,19 @@ public class DataRepository {
         .orElse(remoteDataService.loadProject(projectId));
   }
 
-  public Flowable<Resource<Record>> saveChanges(
+  public Observable<Resource<Record>> saveChanges(
       Record record, ImmutableList<ValueUpdate> updates, User user) {
     record = attachUser(record, user);
     return remoteDataService
         .saveChanges(record, updates)
         .map(Resource::saved)
-        .toFlowable()
+        .toObservable()
         .startWith(Resource.saving(record));
   }
 
   private Record attachUser(Record record, User user) {
     Record.Builder builder = record.toBuilder();
+    // TODO: Set these creation time instead.
     if (record.getId() == null && record.getCreatedBy() == null) {
       builder.setCreatedBy(user);
     }

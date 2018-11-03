@@ -45,7 +45,7 @@ public class ProjectSelectorViewModel extends AbstractViewModel {
   public void loadProjectSummaries() {
     disposeOnClear(
         authManager
-            .withUser()
+            .getUser()
             .flatMap(user -> dataRepository.getProjectSummaries(user))
             .subscribe(v -> projectSummaries.setValue(v)));
   }

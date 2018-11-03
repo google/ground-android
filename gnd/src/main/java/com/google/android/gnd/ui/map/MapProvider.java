@@ -38,7 +38,6 @@ public interface MapProvider {
    */
   interface MapAdapter {
 
-    // TODO: Should these be Flowable instead?
     Observable<MapMarker> getMarkerClicks();
 
     Observable<Point> getDragInteractions();
