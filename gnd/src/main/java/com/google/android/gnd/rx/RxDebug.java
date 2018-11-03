@@ -18,8 +18,6 @@ package com.google.android.gnd.rx;
 
 import android.util.Log;
 import com.akaita.java.rxjava2debug.RxJava2Debug;
-import io.reactivex.ObservableTransformer;
-import io.reactivex.SingleTransformer;
 
 public abstract class RxDebug {
   private static final String TAG = RxDebug.class.getSimpleName();
@@ -29,27 +27,5 @@ public abstract class RxDebug {
 
   public static void logEnhancedStackTrace(Throwable t) {
     Log.e(TAG, "Unhandled Rx error", RxJava2Debug.getEnhancedStackTrace(t));
-  }
-
-  public static <T> ObservableTransformer<T, T> logObservable(String name) {
-    return single ->
-        single
-            .doOnSubscribe(__ -> logDebug(name, "Subscribe"))
-            .doOnNext(__ -> logDebug(name, "Next"))
-            .doOnDispose(() -> logDebug(name, "Disposed"))
-            .doOnError(__ -> logDebug(name, "Error"));
-  }
-
-  public static <T> SingleTransformer<T, T> logSingle(String name) {
-    return single ->
-        single
-            .doOnSubscribe(__ -> logDebug(name, "Subscribe"))
-            .doOnSuccess(__ -> logDebug(name, "Success"))
-            .doOnDispose(() -> logDebug(name, "Disposed"))
-            .doOnError(__ -> logDebug(name, "Error"));
-  }
-
-  private static void logDebug(String name, String action) {
-    Log.d(TAG, name + ": " + action);
   }
 }

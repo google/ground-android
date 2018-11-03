@@ -16,7 +16,6 @@
 
 package com.google.android.gnd.service.firestore;
 
-import static com.google.android.gnd.rx.RxFirestoreUtil.mapToSingle;
 import static java8.util.stream.Collectors.toList;
 import static java8.util.stream.StreamSupport.stream;
 
@@ -42,12 +41,15 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.firestore.SnapshotMetadata;
 import io.reactivex.Flowable;
+import io.reactivex.Maybe;
 import io.reactivex.Single;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java8.util.function.Function;
+import java8.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -90,7 +92,7 @@ public class FirestoreDataService implements RemoteDataService {
 
   @Override
   public Single<List<Record>> loadRecordSummaries(Place place) {
-    return mapToSingle(
+    return toSingleList(
         db.project(place.getProject().getId()).records().getByFeatureId(place.getId()),
         doc -> RecordDoc.toProto(place, doc.getId(), doc));
   }
@@ -107,7 +109,7 @@ public class FirestoreDataService implements RemoteDataService {
 
   @Override
   public Single<List<Project>> loadProjectSummaries(User user) {
-    return mapToSingle(db.projects().getReadable(user), ProjectDoc::toProto);
+    return toSingleList(db.projects().getReadable(user), ProjectDoc::toProto);
   }
 
   @Override
@@ -169,8 +171,7 @@ public class FirestoreDataService implements RemoteDataService {
   // TODO: Move relevant Record fields and updates into "RecordUpdate" object.
   @Override
   public Single<Record> saveChanges(Record record, ImmutableList<ValueUpdate> updates) {
-    GndFirestore.RecordsRef records =
-        db.projects().project(record.getProject().getId()).records();
+    GndFirestore.RecordsRef records = db.projects().project(record.getProject().getId()).records();
 
     if (record.getId() == null) {
       DocumentReference recordDocRef = records.ref().document();
@@ -219,5 +220,20 @@ public class FirestoreDataService implements RemoteDataService {
       }
     }
     return updatedValues;
+  }
+
+  /**
+   * Applies the provided mapping function to each document in the specified query snapshot, if
+   * present. If no results are present, completes with an empty list.
+   */
+  private static <T> Single<List<T>> toSingleList(
+      Maybe<QuerySnapshot> result, Function<DocumentSnapshot, T> mappingFunction) {
+    return result
+        .map(
+            querySnapshot ->
+                stream(querySnapshot.getDocuments())
+                    .map(mappingFunction)
+                    .collect(Collectors.toList()))
+        .toSingle(Collections.emptyList());
   }
 }
