@@ -68,8 +68,13 @@ public class ActivityStreams {
         new RequestPermissionsResult(requestCode, permissions, grantResults));
   }
 
+  public Observable<ActivityResult> getActivityResults(int requestCode) {
+    return activityResults.filter(r -> r.getRequestCode() == requestCode);
+  }
+
+  // TODO: Merge streams instead of taking one.
   public Observable<ActivityResult> getNextActivityResult(int requestCode) {
-    return activityResults.filter(r -> r.getRequestCode() == requestCode).take(1);
+    return getActivityResults(requestCode).take(1);
   }
 
   public Observable<RequestPermissionsResult> getNextRequestPermissionsResult(int requestCode) {
@@ -94,8 +99,12 @@ public class ActivityStreams {
     public boolean isOk() {
       return resultCode == Activity.RESULT_OK;
     }
-  }
 
+    @Nullable
+    public Intent getData() {
+      return data;
+    }
+  }
 
   public static class RequestPermissionsResult {
     private final int requestCode;

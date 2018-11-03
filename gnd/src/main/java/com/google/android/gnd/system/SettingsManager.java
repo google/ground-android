@@ -70,7 +70,7 @@ public class SettingsManager {
       return Completable.error(t);
     }
     return startResolution(requestCode, (ResolvableApiException) t)
-        .andThen(waitForResult(requestCode));
+        .andThen(getNextResult(requestCode));
   }
 
   private Completable startResolution(int requestCode, ResolvableApiException resolvableException) {
@@ -89,7 +89,7 @@ public class SettingsManager {
         });
   }
 
-  private Completable waitForResult(int requestCode) {
+  private Completable getNextResult(int requestCode) {
     return activityStreams
         .getNextActivityResult(requestCode)
         .flatMapCompletable(r -> completeOrError(r.isOk(), SettingsChangeRequestCanceled.class))
