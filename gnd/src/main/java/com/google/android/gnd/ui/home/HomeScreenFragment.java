@@ -39,7 +39,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import androidx.navigation.fragment.NavHostFragment;
 import butterknife.BindView;
 import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.MainViewModel;
@@ -154,7 +153,8 @@ public class HomeScreenFragment extends AbstractFragment
 
   private String getVersionName() {
     try {
-      PackageInfo pInfo = getContext().getPackageManager().getPackageInfo(getContext().getPackageName(), 0);
+      PackageInfo pInfo =
+          getContext().getPackageManager().getPackageInfo(getContext().getPackageName(), 0);
       return pInfo.versionName;
     } catch (PackageManager.NameNotFoundException e) {
       return "?";
@@ -328,7 +328,7 @@ public class HomeScreenFragment extends AbstractFragment
         closeDrawer();
         break;
       case R.id.nav_sign_out:
-        authenticationManager.signOut(getActivity());
+        authenticationManager.signOut();
         break;
     }
     return false;

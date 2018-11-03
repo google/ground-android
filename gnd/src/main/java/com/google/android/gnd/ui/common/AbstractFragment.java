@@ -29,8 +29,6 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import androidx.navigation.NavController;
-import androidx.navigation.fragment.NavHostFragment;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
 import dagger.android.AndroidInjector;
@@ -171,9 +169,5 @@ public abstract class AbstractFragment extends Fragment implements HasSupportFra
 
   protected <T> T restoreChildFragment(Bundle savedInstanceState, Class<T> fragmentClass) {
     return (T) restoreChildFragment(savedInstanceState, fragmentClass.getName());
-  }
-
-  protected NavController getNavController() {
-    return NavHostFragment.findNavController(this);
   }
 }

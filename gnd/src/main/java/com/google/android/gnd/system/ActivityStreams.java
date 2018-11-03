@@ -17,17 +17,14 @@
 package com.google.android.gnd.system;
 
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
-import static com.google.android.gnd.rx.RxAutoDispose.autoDisposable;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
 import io.reactivex.Observable;
 import io.reactivex.subjects.PublishSubject;
 import io.reactivex.subjects.Subject;
-import io.reactivex.subjects.UnicastSubject;
 import java.util.Map;
 import java8.util.function.Consumer;
 import java8.util.stream.Collectors;
@@ -43,15 +40,9 @@ public class ActivityStreams {
 
   @Inject
   public ActivityStreams() {
-    activityRequests = UnicastSubject.create();
+    activityRequests = PublishSubject.create();
     activityResults = PublishSubject.create();
     requestPermissionsResults = PublishSubject.create();
-  }
-
-  /** Subscribes the specified activity to callbacks. */
-  public void attach(AppCompatActivity activity) {
-    // TODO: Test unsubscribe and resubscribe with UnicastPublisher.
-    activityRequests.as(autoDisposable(activity)).subscribe(callback -> callback.accept(activity));
   }
 
   public void withActivity(Consumer<Activity> callback) {
@@ -66,6 +57,10 @@ public class ActivityStreams {
       int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
     requestPermissionsResults.onNext(
         new RequestPermissionsResult(requestCode, permissions, grantResults));
+  }
+
+  public Observable<Consumer<Activity>> getActivityRequests() {
+    return activityRequests;
   }
 
   public Observable<ActivityResult> getActivityResults(int requestCode) {

@@ -18,6 +18,7 @@ package com.google.android.gnd.ui.common;
 import androidx.navigation.NavDirections;
 import com.google.android.gnd.inject.ActivityScoped;
 import com.google.android.gnd.ui.home.HomeScreenFragmentDirections;
+import com.google.android.gnd.ui.recorddetails.RecordDetailsFragmentDirections;
 import io.reactivex.Observable;
 import io.reactivex.subjects.PublishSubject;
 import io.reactivex.subjects.Subject;
@@ -31,19 +32,58 @@ import javax.inject.Inject;
  */
 @ActivityScoped
 public class Navigator {
-  private final Subject<NavDirections> navDirections;
+  private final Subject<NavDirections> navigateRequests;
+  private final Subject<Object> navigateUpRequests;
 
   @Inject
   public Navigator() {
-    this.navDirections = PublishSubject.create();
+    this.navigateRequests = PublishSubject.create();
+    this.navigateUpRequests = PublishSubject.create();
   }
 
-  public Observable<NavDirections> getNavDirections() {
-    return navDirections;
+  /**
+   * Stream of navigation requests for fulfillment by the view layer.
+   */
+  public Observable<NavDirections> getNavigateRequests() {
+    return navigateRequests;
   }
 
-  /** Shows the "Add Record" fragment for the specified form. */
+  public Observable<Object> getNavigateUpRequests() {
+    return navigateUpRequests;
+  }
+
+  /**
+   * Navigates up one level on the back stack.
+   */
+  public void navigateUp() {
+    navigateUpRequests.onNext(new Object());
+  }
+
+  private void navigate(NavDirections n) {
+    navigateRequests.onNext(n);
+  }
+
+  /**
+   * Navigates to {@link com.google.android.gnd.ui.recorddetails.RecordDetailsFragment} populated
+   * with the specified record.
+   */
+  public void showRecordDetails(String projectId, String placeId, String recordId) {
+    navigate(HomeScreenFragmentDirections.showRecordDetails(projectId, placeId, recordId));
+  }
+
+  /**
+   * Navigates to {@link com.google.android.gnd.ui.editrecord.EditRecordFragment} initialized with
+   * a new empty record using the specified form.
+   */
   public void addRecord(String projectId, String placeId, String formId) {
-    navDirections.onNext(HomeScreenFragmentDirections.addRecord(projectId, placeId, formId));
+    navigate(HomeScreenFragmentDirections.addRecord(projectId, placeId, formId));
+  }
+
+  /**
+   * Navigates to {@link com.google.android.gnd.ui.editrecord.EditRecordFragment} populated with the
+   * specified record.
+   */
+  public void editRecord(String projectId, String placeId, String recordId) {
+    navigate(RecordDetailsFragmentDirections.editRecord(projectId, placeId, recordId));
   }
 }

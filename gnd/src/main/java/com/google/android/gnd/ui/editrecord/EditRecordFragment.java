@@ -29,7 +29,6 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import androidx.navigation.fragment.NavHostFragment;
 import butterknife.BindView;
 import butterknife.OnClick;
 import com.google.android.gnd.MainActivity;
@@ -41,6 +40,7 @@ import com.google.android.gnd.repository.Resource;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.BackPressListener;
 import com.google.android.gnd.ui.common.EphemeralPopups;
+import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.ProgressDialogs;
 import com.google.android.gnd.ui.common.TwoLineToolbar;
 import com.google.android.gnd.vo.Form;
@@ -49,6 +49,7 @@ import com.google.android.gnd.vo.Form.MultipleChoice.Cardinality;
 import com.google.android.gnd.vo.Record;
 import com.google.android.gnd.vo.Record.Value;
 import java8.util.Optional;
+import javax.inject.Inject;
 
 @ActivityScoped
 public class EditRecordFragment extends AbstractFragment implements BackPressListener {
@@ -60,6 +61,8 @@ public class EditRecordFragment extends AbstractFragment implements BackPressLis
   private EditRecordViewModel viewModel;
   private SingleSelectDialogFactory singleSelectDialogFactory;
   private MultiSelectDialogFactory multiSelectDialogFactory;
+
+  @Inject Navigator navigator;
 
   @BindView(R.id.edit_record_toolbar)
   TwoLineToolbar toolbar;
@@ -138,13 +141,13 @@ public class EditRecordFragment extends AbstractFragment implements BackPressLis
       case SAVED:
         savingProgressDialog.hide();
         EphemeralPopups.showSuccess(getContext(), R.string.saved);
-        navigateUp();
+        navigator.navigateUp();
         break;
       case NOT_FOUND:
       case ERROR:
         record.getError().ifPresent(t -> Log.e(TAG, "Failed to load/save record", t));
         EphemeralPopups.showError(getContext());
-        navigateUp();
+        navigator.navigateUp();
         break;
     }
   }
@@ -229,7 +232,7 @@ public class EditRecordFragment extends AbstractFragment implements BackPressLis
   void onSaveClick() {
     if (!viewModel.onSaveClick()) {
       EphemeralPopups.showFyi(getContext(), R.string.no_changes_to_save);
-      navigateUp();
+      navigator.navigateUp();
     }
   }
 
@@ -240,14 +243,14 @@ public class EditRecordFragment extends AbstractFragment implements BackPressLis
 
   private void onCloseButtonClick() {
     if (!viewModel.onBack()) {
-      navigateUp();
+      navigator.navigateUp();
     }
   }
 
   private void showUnsavedChangesDialog() {
     new AlertDialog.Builder(getContext())
         .setMessage(R.string.unsaved_changes)
-        .setPositiveButton(R.string.close_without_saving, (d, i) -> navigateUp())
+        .setPositiveButton(R.string.close_without_saving, (d, i) -> navigator.navigateUp())
         .setNegativeButton(R.string.continue_editing, (d, i) -> {})
         .create()
         .show();
@@ -259,9 +262,5 @@ public class EditRecordFragment extends AbstractFragment implements BackPressLis
         .setPositiveButton(R.string.invalid_data_confirm, (a, b) -> {})
         .create()
         .show();
-  }
-
-  private void navigateUp() {
-    NavHostFragment.findNavController(this).navigateUp();
   }
 }

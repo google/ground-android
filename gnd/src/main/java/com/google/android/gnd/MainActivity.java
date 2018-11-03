@@ -89,7 +89,10 @@ public class MainActivity extends AppCompatActivity implements HasSupportFragmen
     ViewCompat.setOnApplyWindowInsetsListener(
         getWindow().getDecorView().getRootView(), viewModel::onApplyWindowInsets);
 
-    activityStreams.attach(this);
+    activityStreams
+        .getActivityRequests()
+        .as(autoDisposable(this))
+        .subscribe(callback -> callback.accept(this));
 
     // TODO: Remove once we switch to persisted auth tokens / multiple offline users.
     authenticationManager
@@ -97,10 +100,11 @@ public class MainActivity extends AppCompatActivity implements HasSupportFragmen
         .as(autoDisposable(this))
         .subscribe(this::onAuthStatusChange);
 
-    navigator.getNavDirections().as(autoDisposable(this)).subscribe(this::navigate);
+    navigator.getNavigateRequests().as(autoDisposable(this)).subscribe(this::onNavigate);
+    navigator.getNavigateUpRequests().as(autoDisposable(this)).subscribe(__ -> navigateUp());
   }
 
-  private void navigate(NavDirections navDirections) {
+  private void onNavigate(NavDirections navDirections) {
     getNavController().navigate(navDirections);
   }
 
@@ -217,11 +221,16 @@ public class MainActivity extends AppCompatActivity implements HasSupportFragmen
 
     // TODO: Remove this workaround once setupActionBarWithNavController() works with custom
     // Toolbars (https://issuetracker.google.com/issues/109868820).
-    toolbar.setNavigationOnClickListener(__ -> navigateUp());
+    toolbar.setNavigationOnClickListener(__ -> onToolbarUpClicked());
   }
 
+  /** Override up button behavior to use Navigation Components back stack. */
   @Override
   public boolean onSupportNavigateUp() {
+    return navigateUp();
+  }
+
+  private boolean navigateUp() {
     return getNavController().navigateUp();
   }
 
@@ -229,9 +238,9 @@ public class MainActivity extends AppCompatActivity implements HasSupportFragmen
     return navHostFragment.getNavController();
   }
 
-  private void navigateUp() {
+  private void onToolbarUpClicked() {
     if (!dispatchBackPressed()) {
-      getNavController().navigateUp();
+      navigateUp();
     }
   }
 

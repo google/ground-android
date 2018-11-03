@@ -44,7 +44,7 @@ public class SignInFragment extends AbstractFragment implements BackPressListene
 
   @OnClick(R.id.sign_in_button)
   public void onSignInButtonClick() {
-    authenticationManager.signIn(getActivity());
+    authenticationManager.signIn();
   }
 
   @Override

@@ -51,6 +51,7 @@ public class AuthenticationManager {
   private final GoogleSignInOptions googleSignInOptions;
   private final Subject<AuthStatus> authStatus;
   private final FirebaseAuth firebaseAuth;
+  private final ActivityStreams activityStreams;
   private final Disposable activityResultsSubscription;
 
   // TODO: Update Fragments to access via DataRepository rather than directly.
@@ -64,6 +65,7 @@ public class AuthenticationManager {
             .requestEmail()
             .requestProfile()
             .build();
+    this.activityStreams = activityStreams;
     this.activityResultsSubscription =
         activityStreams.getActivityResults(SIGN_IN_REQUEST_CODE).subscribe(this::onActivityResult);
   }
@@ -95,16 +97,19 @@ public class AuthenticationManager {
     }
   }
 
-  public void signIn(Activity activity) {
+  public void signIn() {
     authStatus.onNext(new AuthStatus(State.SIGNING_IN));
-    Intent signInIntent = getGoogleSignInClient(activity).getSignInIntent();
-    activity.startActivityForResult(signInIntent, SIGN_IN_REQUEST_CODE);
+    activityStreams.withActivity(
+        activity -> {
+          Intent signInIntent = getGoogleSignInClient(activity).getSignInIntent();
+          activity.startActivityForResult(signInIntent, SIGN_IN_REQUEST_CODE);
+        });
   }
 
-  public void signOut(Activity activity) {
-    getGoogleSignInClient(activity).signOut();
+  public void signOut() {
     firebaseAuth.signOut();
     authStatus.onNext(new AuthStatus(State.SIGNED_OUT));
+    activityStreams.withActivity(activity -> getGoogleSignInClient(activity).signOut());
   }
 
   @NonNull

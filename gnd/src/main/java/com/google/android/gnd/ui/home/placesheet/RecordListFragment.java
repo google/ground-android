@@ -23,17 +23,18 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import androidx.navigation.fragment.NavHostFragment;
 import com.google.android.gnd.ui.common.AbstractFragment;
-import com.google.android.gnd.ui.home.HomeScreenFragmentDirections;
+import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.home.HomeScreenViewModel;
 import com.google.android.gnd.vo.Form;
 import com.google.android.gnd.vo.Place;
 import com.google.android.gnd.vo.Record;
 import java8.util.Optional;
+import javax.inject.Inject;
 
 public class RecordListFragment extends AbstractFragment {
 
+  @Inject Navigator navigator;
   private RecordListAdapter recordListAdapter;
 
   private RecordListViewModel viewModel;
@@ -52,7 +53,7 @@ public class RecordListFragment extends AbstractFragment {
     placeSheetViewModel = get(PlaceSheetViewModel.class);
     homeScreenViewModel = get(HomeScreenViewModel.class);
 
-    recordListAdapter.getItemClicks().observe(this, this::showRecordDetails);
+    recordListAdapter.getItemClicks().observe(this, this::onItemClick);
   }
 
   @Nullable
@@ -73,11 +74,9 @@ public class RecordListFragment extends AbstractFragment {
     placeSheetViewModel.getSelectedForm().observe(this, this::onFormChange);
   }
 
-  private void showRecordDetails(Record record) {
-    NavHostFragment.findNavController(this)
-        .navigate(
-            HomeScreenFragmentDirections.showRecordDetails(
-                record.getProject().getId(), record.getPlace().getId(), record.getId()));
+  private void onItemClick(Record record) {
+    navigator.showRecordDetails(
+      record.getProject().getId(), record.getPlace().getId(), record.getId());
   }
 
   private void onFormChange(Optional<Form> form) {
