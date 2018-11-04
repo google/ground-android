@@ -48,6 +48,7 @@ public abstract class AbstractFragment extends Fragment implements HasSupportFra
 
   @Inject DispatchingAndroidInjector<Fragment> childFragmentInjector;
 
+  // TODO: Rename getViewModel().
   protected <T extends ViewModel> T get(Class<T> modelClass) {
     return viewModelFactory.get(this, modelClass);
   }

@@ -17,34 +17,32 @@
 package com.google.android.gnd.ui.signin;
 
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import butterknife.BindView;
-import butterknife.OnClick;
-import com.google.android.gnd.R;
+import com.google.android.gnd.databinding.SignInFragBinding;
 import com.google.android.gnd.inject.ActivityScoped;
-import com.google.android.gnd.system.AuthenticationManager;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.BackPressListener;
-import javax.inject.Inject;
 
+// TODO: Remove scoping since Fragments are no longer injected.
 @ActivityScoped
 public class SignInFragment extends AbstractFragment implements BackPressListener {
-  @Inject AuthenticationManager authenticationManager;
+  private SignInViewModel viewModel;
 
-  @BindView(R.id.sign_in_button)
-  View signInButton;
+  @Override
+  public void onCreate(@Nullable Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    this.viewModel = get(SignInViewModel.class);
+  }
 
   @Override
   public View onCreateView(
       LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-    return inflater.inflate(R.layout.sign_in_frag, container, false);
-  }
-
-  @OnClick(R.id.sign_in_button)
-  public void onSignInButtonClick() {
-    authenticationManager.signIn();
+    SignInFragBinding binding = SignInFragBinding.inflate(inflater, container, false);
+    binding.setViewModel(viewModel);
+    return binding.getRoot();
   }
 
   @Override

@@ -24,6 +24,7 @@ import android.support.design.widget.TextInputEditText;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
+import com.google.android.gms.common.SignInButton;
 import com.google.android.gnd.databinding.MultipleChoiceInputFieldBinding;
 import com.google.android.gnd.databinding.TextInputFieldBinding;
 import com.google.android.gnd.ui.editrecord.MultipleChoiceFieldLayout;
@@ -69,6 +70,12 @@ public class BindingAdapters {
     } else {
       throw new IllegalArgumentException("Unknown binding type: " + binding.getClass());
     }
+  }
+
+  @BindingAdapter("onClick")
+  public static void bindGoogleSignOnButtonClick(
+      SignInButton button, View.OnClickListener onClickCallback) {
+    button.setOnClickListener(onClickCallback);
   }
 
   @BindingAdapter("onTextChanged")

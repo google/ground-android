@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <!--
   ~ Copyright 2018 Google LLC
   ~
@@ -14,21 +13,27 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto">
 
-<android.support.design.widget.CoordinatorLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+  <data>
+    <variable
+      name="viewModel"
+      type="com.google.android.gnd.ui.signin.SignInViewModel"/>
+  </data>
+
+  <android.support.design.widget.CoordinatorLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
     android:navigationBarColor="@color/colorGrey500"
     app:statusBarBackground="@color/colorGrey500">
 
-  <android.support.constraint.ConstraintLayout
+    <android.support.constraint.ConstraintLayout
       android:layout_width="match_parent"
       android:layout_height="match_parent">
 
-    <ImageView
+      <ImageView
         android:id="@+id/imageView"
         android:layout_width="112dp"
         android:layout_height="109dp"
@@ -39,7 +44,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@mipmap/ic_launcher_round"/>
 
-    <TextView
+      <TextView
         android:id="@+id/textView2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -55,7 +60,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/imageView"/>
 
-    <com.google.android.gms.common.SignInButton
+      <com.google.android.gms.common.SignInButton
         android:id="@+id/sign_in_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -65,6 +70,7 @@
         android:layout_marginEnd="8dp"
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
+        app:onClick="@{__ -> viewModel.onSignInButtonClick()}"
         app:buttonSize="wide"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -72,5 +78,6 @@
         app:layout_constraintTop_toBottomOf="@+id/textView2"
         app:layout_constraintVertical_bias="1.0"/>
 
-  </android.support.constraint.ConstraintLayout>
-</android.support.design.widget.CoordinatorLayout>
+    </android.support.constraint.ConstraintLayout>
+  </android.support.design.widget.CoordinatorLayout>
+</layout>
