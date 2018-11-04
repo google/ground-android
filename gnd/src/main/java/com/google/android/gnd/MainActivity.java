@@ -112,13 +112,15 @@ public class MainActivity extends AppCompatActivity implements HasSupportFragmen
     Log.d(TAG, "Auth status change: " + authStatus.getStatus());
     switch (authStatus.getStatus()) {
       case SIGNED_OUT:
-        onSignedOut();
+        // TODO: Check auth status whenever fragments resumes.
+        viewModel.onSignedOut();
         break;
       case SIGNING_IN:
         // TODO: Show/hide spinner.
         break;
       case SIGNED_IN:
-        onSignedIn();
+        // TODO: Store/update user profile and image locally.
+        viewModel.onSignedIn();
         break;
       case ERROR:
         onAuthError(authStatus);
@@ -126,21 +128,10 @@ public class MainActivity extends AppCompatActivity implements HasSupportFragmen
     }
   }
 
-  private void onSignedIn() {
-    // TODO: Store/update user profile and image locally.
-    getNavController().navigate(NavGraphDirections.signedIn());
-  }
-
-  private void onSignedOut() {
-    // TODO: Check auth status whenever fragments resumes.
-    viewModel.onSignedOut();
-    getNavController().navigate(NavGraphDirections.signedOut());
-  }
-
   private void onAuthError(AuthStatus authStatus) {
     Log.d(TAG, "Authentication error", authStatus.getError().orElse(null));
     EphemeralPopups.showError(this, R.string.sign_in_unsuccessful);
-    getNavController().navigate(NavGraphDirections.signedOut());
+    viewModel.onSignedOut();
   }
 
   @Override

@@ -23,18 +23,21 @@ import android.support.v4.view.WindowInsetsCompat;
 import android.view.View;
 import com.google.android.gnd.repository.DataRepository;
 import com.google.android.gnd.ui.common.ActivityScope;
+import com.google.android.gnd.ui.common.Navigator;
 import javax.inject.Inject;
 
 @ActivityScope
 public class MainViewModel extends ViewModel {
 
   private final DataRepository dataRepository;
+  private final Navigator navigator;
   private MutableLiveData<WindowInsetsCompat> windowInsetsLiveData;
 
   @Inject
-  public MainViewModel(DataRepository dataRepository) {
+  public MainViewModel(DataRepository dataRepository, Navigator navigator) {
     windowInsetsLiveData = new MutableLiveData<>();
     this.dataRepository = dataRepository;
+    this.navigator = navigator;
   }
 
   public LiveData<WindowInsetsCompat> getWindowInsets() {
@@ -48,5 +51,10 @@ public class MainViewModel extends ViewModel {
 
   public void onSignedOut() {
     dataRepository.clearActiveProject();
+    navigator.showSignInScreen();
+  }
+
+  public void onSignedIn() {
+    navigator.showHomeScreen();
   }
 }

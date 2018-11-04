@@ -16,6 +16,7 @@
 package com.google.android.gnd.ui.common;
 
 import androidx.navigation.NavDirections;
+import com.google.android.gnd.NavGraphDirections;
 import com.google.android.gnd.inject.ActivityScoped;
 import com.google.android.gnd.ui.home.HomeScreenFragmentDirections;
 import com.google.android.gnd.ui.recorddetails.RecordDetailsFragmentDirections;
@@ -41,9 +42,7 @@ public class Navigator {
     this.navigateUpRequests = PublishSubject.create();
   }
 
-  /**
-   * Stream of navigation requests for fulfillment by the view layer.
-   */
+  /** Stream of navigation requests for fulfillment by the view layer. */
   public Observable<NavDirections> getNavigateRequests() {
     return navigateRequests;
   }
@@ -52,9 +51,7 @@ public class Navigator {
     return navigateUpRequests;
   }
 
-  /**
-   * Navigates up one level on the back stack.
-   */
+  /** Navigates up one level on the back stack. */
   public void navigateUp() {
     navigateUpRequests.onNext(new Object());
   }
@@ -64,26 +61,39 @@ public class Navigator {
   }
 
   /**
-   * Navigates to {@link com.google.android.gnd.ui.recorddetails.RecordDetailsFragment} populated
-   * with the specified record.
+   * Navigates from a {@link com.google.android.gnd.ui.home.HomeScreenFragment} to a {@link
+   * com.google.android.gnd.ui.recorddetails.RecordDetailsFragment} populated with the specified
+   * record.
    */
   public void showRecordDetails(String projectId, String placeId, String recordId) {
     navigate(HomeScreenFragmentDirections.showRecordDetails(projectId, placeId, recordId));
   }
 
   /**
-   * Navigates to {@link com.google.android.gnd.ui.editrecord.EditRecordFragment} initialized with
-   * a new empty record using the specified form.
+   * Navigates from the {@link com.google.android.gnd.ui.home.HomeScreenFragment} to a {@link
+   * com.google.android.gnd.ui.editrecord.EditRecordFragment} initialized with a new empty record
+   * using the specified form.
    */
   public void addRecord(String projectId, String placeId, String formId) {
     navigate(HomeScreenFragmentDirections.addRecord(projectId, placeId, formId));
   }
 
   /**
-   * Navigates to {@link com.google.android.gnd.ui.editrecord.EditRecordFragment} populated with the
-   * specified record.
+   * Navigates from the {@link com.google.android.gnd.ui.recorddetails.RecordDetailsFragment} to a
+   * {@link com.google.android.gnd.ui.editrecord.EditRecordFragment} populated with the specified
+   * record.
    */
   public void editRecord(String projectId, String placeId, String recordId) {
     navigate(RecordDetailsFragmentDirections.editRecord(projectId, placeId, recordId));
+  }
+
+  /** Navigates to the home screen. */
+  public void showHomeScreen() {
+    navigate(NavGraphDirections.showHomeScreen());
+  }
+
+  /** Navigates to the sign in screen. */
+  public void showSignInScreen() {
+    navigate(NavGraphDirections.showSignInScreen());
   }
 }
