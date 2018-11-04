@@ -48,7 +48,9 @@ android {
         // https://developer.android.com/about/dashboards/index.html for reference.
         applicationId "com.google.android.gnd"
         minSdkVersion 15
-        targetSdkVersion 28
+        // Switching targetSdkVersion to 27 or 28 causes the app to hang on map drags; diagnose and
+        // fix before increasing this value.
+        targetSdkVersion 26
         versionCode gitVersioner.versionCode
         versionName gitVersioner.versionName
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
