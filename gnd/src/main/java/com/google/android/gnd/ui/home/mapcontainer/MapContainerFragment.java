@@ -46,7 +46,6 @@ import com.google.android.gnd.ui.home.mapcontainer.MapContainerViewModel.Locatio
 import com.google.android.gnd.ui.map.MapProvider;
 import com.google.android.gnd.ui.map.MapProvider.MapAdapter;
 import com.google.android.gnd.vo.Project;
-import io.reactivex.subjects.SingleSubject;
 import javax.inject.Inject;
 
 /** Main app view, displaying the map and related controls (center cross-hairs, add button, etc). */
@@ -71,7 +70,6 @@ public class MapContainerFragment extends AbstractFragment {
   private MapContainerViewModel mapContainerViewModel;
   private HomeScreenViewModel homeScreenViewModel;
   private MainViewModel mainViewModel;
-  private SingleSubject<MapAdapter> map = SingleSubject.create();
 
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {

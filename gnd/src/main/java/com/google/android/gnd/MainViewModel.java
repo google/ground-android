@@ -28,13 +28,13 @@ import javax.inject.Inject;
 @ActivityScope
 public class MainViewModel extends ViewModel {
 
-  private final DataRepository dataRespository;
+  private final DataRepository dataRepository;
   private MutableLiveData<WindowInsetsCompat> windowInsetsLiveData;
 
   @Inject
   public MainViewModel(DataRepository dataRepository) {
     windowInsetsLiveData = new MutableLiveData<>();
-    this.dataRespository = dataRepository;
+    this.dataRepository = dataRepository;
   }
 
   public LiveData<WindowInsetsCompat> getWindowInsets() {
@@ -47,6 +47,6 @@ public class MainViewModel extends ViewModel {
   }
 
   public void onSignedOut() {
-    dataRespository.clearActiveProject();
+    dataRepository.clearActiveProject();
   }
 }

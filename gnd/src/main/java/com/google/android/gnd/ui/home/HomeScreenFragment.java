@@ -202,6 +202,7 @@ public class HomeScreenFragment extends AbstractFragment
   public void onStart() {
     super.onStart();
     // TODO: Persist last selected project in local db.
+    // TODO: Create startup flow and move this logic there.
     Resource<Project> activeProject = viewModel.getActiveProject().getValue();
     if (activeProject == null || !activeProject.isLoaded()) {
       showProjectSelector();
