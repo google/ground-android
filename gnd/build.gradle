@@ -48,7 +48,7 @@ android {
         // https://developer.android.com/about/dashboards/index.html for reference.
         applicationId "com.google.android.gnd"
         minSdkVersion 15
-        targetSdkVersion 26
+        targetSdkVersion 28
         versionCode gitVersioner.versionCode
         versionName gitVersioner.versionName
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
