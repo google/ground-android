@@ -14,34 +14,43 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.system;
+package com.google.android.gnd.rx;
 
 import android.support.annotation.Nullable;
 import java8.util.Optional;
+import java8.util.function.Consumer;
 
-/** Represents the state of an async process whose result can be represented as an object. */
-// TODO: Refactor common logic in {@link com.google.android.gnd.repository.Resource}.
+/**
+ * Represents the state of an async process whose result can be represented as an object.
+ * @param <S> the type to use to represent the resource's state (e.g., loading, complete, error).
+ * @param <T> the type of data payload the resource contains.
+ */
 public abstract class AbstractResource<S, T> {
-  private final S state;
+  private final S status;
   @Nullable private final T data;
   @Nullable private final Throwable error;
 
-  protected AbstractResource(S state, T data, Throwable error) {
-    this.state = state;
+  protected AbstractResource(S status, @Nullable T data, @Nullable Throwable error) {
+    this.status = status;
     this.data = data;
     this.error = error;
   }
 
-  public S getState() {
-    return state;
-  }
-
-  @Nullable
-  public Throwable getError() {
-    return error;
+  public S getStatus() {
+    return status;
   }
 
   public Optional<T> getData() {
     return Optional.ofNullable(data);
+  }
+
+  public Optional<Throwable> getError() {
+    return Optional.ofNullable(error);
+  }
+
+  public void ifPresent(Consumer<T> consumer) {
+    if (data != null) {
+      consumer.accept(data);
+    }
   }
 }

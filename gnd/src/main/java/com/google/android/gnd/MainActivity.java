@@ -109,8 +109,8 @@ public class MainActivity extends AppCompatActivity implements HasSupportFragmen
   }
 
   private void onAuthStatusChange(AuthStatus authStatus) {
-    Log.d(TAG, "Auth status change: " + authStatus.getState());
-    switch (authStatus.getState()) {
+    Log.d(TAG, "Auth status change: " + authStatus.getStatus());
+    switch (authStatus.getStatus()) {
       case SIGNED_OUT:
         onSignedOut();
         break;
@@ -138,7 +138,7 @@ public class MainActivity extends AppCompatActivity implements HasSupportFragmen
   }
 
   private void onAuthError(AuthStatus authStatus) {
-    Log.d(TAG, "Authentication error", authStatus.getError());
+    Log.d(TAG, "Authentication error", authStatus.getError().orElse(null));
     EphemeralPopups.showError(this, R.string.sign_in_unsuccessful);
     getNavController().navigate(NavGraphDirections.signedOut());
   }

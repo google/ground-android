@@ -29,6 +29,7 @@ import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gnd.R;
 import com.google.android.gnd.inject.ActivityScoped;
+import com.google.android.gnd.rx.AbstractResource;
 import com.google.android.gnd.system.ActivityStreams.ActivityResult;
 import com.google.android.gnd.system.AuthenticationManager.AuthStatus.State;
 import com.google.firebase.auth.AuthCredential;
@@ -146,7 +147,7 @@ public class AuthenticationManager {
   }
 
   @Override
-  protected void finalize() throws Throwable {
+  protected void finalize() {
     activityResultsSubscription.dispose();
   }
 
@@ -171,7 +172,7 @@ public class AuthenticationManager {
     }
 
     public boolean isSignedIn() {
-      return getState().equals(State.SIGNED_IN);
+      return getStatus().equals(State.SIGNED_IN);
     }
 
     public User getUser() {
