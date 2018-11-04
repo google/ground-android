@@ -84,7 +84,7 @@ public class EditRecordFragment extends AbstractFragment implements BackPressLis
     super.onCreate(savedInstanceState);
     singleSelectDialogFactory = new SingleSelectDialogFactory(getContext());
     multiSelectDialogFactory = new MultiSelectDialogFactory(getContext());
-    viewModel = get(EditRecordViewModel.class);
+    viewModel = getViewModel(EditRecordViewModel.class);
   }
 
   @Override

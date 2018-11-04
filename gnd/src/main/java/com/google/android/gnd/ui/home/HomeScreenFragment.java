@@ -113,9 +113,9 @@ public class HomeScreenFragment extends AbstractFragment
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
 
-    get(MainViewModel.class).getWindowInsets().observe(this, this::onApplyWindowInsets);
+    getViewModel(MainViewModel.class).getWindowInsets().observe(this, this::onApplyWindowInsets);
 
-    viewModel = get(HomeScreenViewModel.class);
+    viewModel = getViewModel(HomeScreenViewModel.class);
     viewModel.getActiveProject().observe(this, this::onActiveProjectChange);
     viewModel.getShowAddPlaceDialogRequests().observe(this, this::onShowAddPlaceDialogRequest);
     viewModel.getPlaceSheetState().observe(this, this::onPlaceSheetStateChange);

@@ -64,9 +64,9 @@ public class PlaceSheetFragment extends AbstractFragment {
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    viewModel = get(PlaceSheetViewModel.class);
-    mainViewModel = get(MainViewModel.class);
-    homeScreenViewModel = get(HomeScreenViewModel.class);
+    viewModel = getViewModel(PlaceSheetViewModel.class);
+    mainViewModel = getViewModel(MainViewModel.class);
+    homeScreenViewModel = getViewModel(HomeScreenViewModel.class);
   }
 
   @Override

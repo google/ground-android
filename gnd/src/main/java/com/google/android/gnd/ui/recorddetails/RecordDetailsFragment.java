@@ -66,7 +66,7 @@ public class RecordDetailsFragment extends AbstractFragment {
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    viewModel = get(RecordDetailsViewModel.class);
+    viewModel = getViewModel(RecordDetailsViewModel.class);
   }
 
   @Override

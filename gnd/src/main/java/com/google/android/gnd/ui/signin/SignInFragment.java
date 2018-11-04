@@ -34,7 +34,7 @@ public class SignInFragment extends AbstractFragment implements BackPressListene
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    this.viewModel = get(SignInViewModel.class);
+    this.viewModel = getViewModel(SignInViewModel.class);
   }
 
   @Override

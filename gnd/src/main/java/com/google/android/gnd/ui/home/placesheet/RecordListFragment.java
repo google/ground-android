@@ -49,9 +49,9 @@ public class RecordListFragment extends AbstractFragment {
   public void onCreate(@Nullable Bundle savedInstanceState) {
     recordListAdapter = new RecordListAdapter();
     super.onCreate(savedInstanceState);
-    viewModel = get(RecordListViewModel.class);
-    placeSheetViewModel = get(PlaceSheetViewModel.class);
-    homeScreenViewModel = get(HomeScreenViewModel.class);
+    viewModel = getViewModel(RecordListViewModel.class);
+    placeSheetViewModel = getViewModel(PlaceSheetViewModel.class);
+    homeScreenViewModel = getViewModel(HomeScreenViewModel.class);
 
     recordListAdapter.getItemClicks().observe(this, this::onItemClick);
   }
@@ -76,7 +76,7 @@ public class RecordListFragment extends AbstractFragment {
 
   private void onItemClick(Record record) {
     navigator.showRecordDetails(
-      record.getProject().getId(), record.getPlace().getId(), record.getId());
+        record.getProject().getId(), record.getPlace().getId(), record.getId());
   }
 
   private void onFormChange(Optional<Form> form) {

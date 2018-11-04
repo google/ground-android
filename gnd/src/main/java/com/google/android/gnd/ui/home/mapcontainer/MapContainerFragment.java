@@ -74,9 +74,9 @@ public class MapContainerFragment extends AbstractFragment {
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    mapContainerViewModel = get(MapContainerViewModel.class);
-    homeScreenViewModel = get(HomeScreenViewModel.class);
-    mainViewModel = get(MainViewModel.class);
+    mapContainerViewModel = getViewModel(MapContainerViewModel.class);
+    homeScreenViewModel = getViewModel(HomeScreenViewModel.class);
+    mainViewModel = getViewModel(MainViewModel.class);
   }
 
   @Override
