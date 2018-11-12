@@ -21,6 +21,8 @@ import static com.google.android.gnd.ui.util.ViewUtil.getScreenHeight;
 import static com.google.android.gnd.ui.util.ViewUtil.getScreenWidth;
 
 import android.app.ProgressDialog;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -36,6 +38,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import androidx.navigation.fragment.NavHostFragment;
 import butterknife.BindView;
 import butterknife.OnClick;
@@ -64,13 +67,12 @@ import javax.inject.Inject;
  * runtime.
  */
 public class HomeScreenFragment extends AbstractFragment
-  implements BackPressListener, OnNavigationItemSelectedListener {
+    implements BackPressListener, OnNavigationItemSelectedListener {
   private static final float COLLAPSED_MAP_ASPECT_RATIO = 3.0f / 2.0f;
   private static final String TAG = HomeScreenFragment.class.getSimpleName();
 
   @Inject AddPlaceDialogFragment addPlaceDialogFragment;
-  @Inject
-  AuthenticationManager authenticationManager;
+  @Inject AuthenticationManager authenticationManager;
 
   @BindView(R.id.toolbar_wrapper)
   ViewGroup toolbarWrapper;
@@ -99,6 +101,9 @@ public class HomeScreenFragment extends AbstractFragment
   @BindView(R.id.bottom_sheet_bottom_inset_scrim)
   View bottomSheetBottomInsetScrim;
 
+  @BindView(R.id.version_text)
+  TextView versionTextView;
+
   private ProgressDialog progressDialog;
   private HomeScreenViewModel viewModel;
   private MapContainerFragment mapContainerFragment;
@@ -115,7 +120,7 @@ public class HomeScreenFragment extends AbstractFragment
   @Nullable
   @Override
   public View onCreateView(
-    LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+      LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     return inflater.inflate(R.layout.home_screen_frag, container, false);
   }
 
@@ -128,7 +133,7 @@ public class HomeScreenFragment extends AbstractFragment
   @Override
   public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
-
+    versionTextView.setText("Build " + getVersionName());
     // Ensure nav drawer cannot be swiped out, which would conflict with map pan gestures.
     drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
 
@@ -143,6 +148,15 @@ public class HomeScreenFragment extends AbstractFragment
     }
 
     setUpBottomSheetBehavior();
+  }
+
+  private String getVersionName() {
+    try {
+      PackageInfo pInfo = getContext().getPackageManager().getPackageInfo(getContext().getPackageName(), 0);
+      return pInfo.versionName;
+    } catch (PackageManager.NameNotFoundException e) {
+      return "?";
+    }
   }
 
   private void onToolbarLayout() {
@@ -267,9 +281,9 @@ public class HomeScreenFragment extends AbstractFragment
 
   public void showAddRecord(Place place, Form form) {
     NavHostFragment.findNavController(this)
-                   .navigate(
-                     HomeScreenFragmentDirections.addRecord(
-                       place.getProject().getId(), place.getId(), form.getId()));
+        .navigate(
+            HomeScreenFragmentDirections.addRecord(
+                place.getProject().getId(), place.getId(), form.getId()));
   }
 
   private void onShowAddPlaceDialogRequest(Point location) {
@@ -312,7 +326,7 @@ public class HomeScreenFragment extends AbstractFragment
   private void showProjectLoadingDialog() {
     if (progressDialog == null) {
       progressDialog =
-        ProgressDialogs.modalSpinner(getContext(), R.string.project_loading_please_wait);
+          ProgressDialogs.modalSpinner(getContext(), R.string.project_loading_please_wait);
       progressDialog.show();
     }
   }
