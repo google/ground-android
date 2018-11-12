@@ -14,18 +14,21 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.inject;
+package com.google.android.gnd.ui.signin;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
+import com.google.android.gnd.system.AuthenticationManager;
+import com.google.android.gnd.ui.common.AbstractViewModel;
+import javax.inject.Inject;
 
-import javax.inject.Scope;
+public class SignInViewModel extends AbstractViewModel {
+  private final AuthenticationManager authenticationManager;
 
-/**
- * Specifies that a dependency has the same lifespan as its associated Activity. For dependencies
- * with this annotation, only one instance will exist per Activity, and this instance will be shared
- * among all Fragments and child Fragments.
- */
-@Scope
-@Retention(RetentionPolicy.RUNTIME)
-public @interface PerActivity {}
+  @Inject
+  SignInViewModel(AuthenticationManager authenticationManager) {
+    this.authenticationManager = authenticationManager;
+  }
+
+  public void onSignInButtonClick() {
+    authenticationManager.signIn();
+  }
+}

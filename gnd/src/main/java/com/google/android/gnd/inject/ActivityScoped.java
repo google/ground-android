@@ -14,13 +14,17 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.rx;
+package com.google.android.gnd.inject;
 
-import io.reactivex.FlowableTransformer;
-import java8.util.Optional;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import javax.inject.Scope;
 
-public class RxTransformers {
-  public static <T> FlowableTransformer<Optional<T>, T> filterIfPresentAndGet() {
-    return upstream -> upstream.filter(Optional::isPresent).map(Optional::get);
-  }
-}
+/**
+ * Specifies that a dependency has the same lifespan as its associated Activity. For dependencies
+ * with this annotation, only one instance will exist per Activity, and this instance will be shared
+ * among all Fragments and child Fragments.
+ */
+@Scope
+@Retention(RetentionPolicy.RUNTIME)
+public @interface ActivityScoped {}

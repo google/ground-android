@@ -17,8 +17,8 @@
 package com.google.android.gnd;
 
 import android.support.v7.app.AppCompatActivity;
-import com.google.android.gnd.inject.PerActivity;
-import com.google.android.gnd.inject.PerFragment;
+import com.google.android.gnd.inject.ActivityScoped;
+import com.google.android.gnd.inject.FragmentScoped;
 import com.google.android.gnd.ui.editrecord.EditRecordFragment;
 import com.google.android.gnd.ui.editrecord.EditRecordModule;
 import com.google.android.gnd.ui.home.AddPlaceDialogFragment;
@@ -47,50 +47,50 @@ public abstract class MainActivityModule {
    * This provides the activity required to inject the fragment manager into {@link MainActivity}.
    */
   @Binds
-  @PerActivity
+  @ActivityScoped
   abstract AppCompatActivity appCompatActivity(MainActivity mainActivity);
 
   // TODO: Merge Fragment and activities modules into one.
   // Discussion:
   // https://stackoverflow.com/questions/36206989/dagger-should-we-create-each-component-and-module-for-each-activity-fragment
 
-  @PerFragment
+  @FragmentScoped
   @ContributesAndroidInjector(modules = StartupModule.class)
   abstract StartupFragment startupFragmentInjector();
 
-  @PerFragment
+  @FragmentScoped
   @ContributesAndroidInjector(modules = SignInModule.class)
   abstract SignInFragment signInFragmentInjector();
 
-  @PerFragment
+  @FragmentScoped
   @ContributesAndroidInjector(modules = HomeScreenModule.class)
   abstract HomeScreenFragment homeScreenFragmentInjector();
 
-  @PerFragment
+  @FragmentScoped
   @ContributesAndroidInjector(modules = MapContainerModule.class)
   abstract MapContainerFragment mapContainerFragmentInjector();
 
-  @PerFragment
+  @FragmentScoped
   @ContributesAndroidInjector(modules = HomeScreenModule.class)
   abstract ProjectSelectorDialogFragment projectSelectorDialogFragment();
 
-  @PerFragment
+  @FragmentScoped
   @ContributesAndroidInjector(modules = MapContainerModule.class)
   abstract AddPlaceDialogFragment addPlaceDialogFragmentInjector();
 
-  @PerFragment
+  @FragmentScoped
   @ContributesAndroidInjector(modules = PlaceSheetModule.class)
   abstract PlaceSheetFragment placeSheetFragmentInjector();
 
-  @PerFragment
+  @FragmentScoped
   @ContributesAndroidInjector(modules = PlaceSheetModule.class)
   abstract RecordListFragment recordListFragmentInjector();
 
-  @PerFragment
+  @FragmentScoped
   @ContributesAndroidInjector(modules = RecordDetailsModule.class)
   abstract RecordDetailsFragment recordDetailsFragmentInjector();
 
-  @PerFragment
+  @FragmentScoped
   @ContributesAndroidInjector(modules = EditRecordModule.class)
   abstract EditRecordFragment editRecordFragmentInjector();
 }

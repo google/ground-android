@@ -30,6 +30,7 @@ import com.google.android.gnd.vo.Place;
 import com.google.android.gnd.vo.Point;
 import com.google.android.gnd.vo.Project;
 import com.google.common.collect.ImmutableSet;
+import io.reactivex.BackpressureStrategy;
 import io.reactivex.Flowable;
 import io.reactivex.disposables.Disposable;
 import java8.util.Optional;
@@ -57,24 +58,25 @@ public class MapContainerViewModel extends AbstractViewModel {
     locationLockStatus.setValue(LocationLockStatus.disabled());
     this.cameraUpdates = new MutableLiveData<>();
     this.cameraPosition = new MutableLiveData<>();
-    this.activeProject = RxLiveData.fromFlowable(dataRepository.getActiveProject());
+    this.activeProject = RxLiveData.fromObservable(dataRepository.getActiveProject());
     // TODO: Clear place markers when project is deactivated.
     // TODO: Since we depend on project stream from repo anyway, this transformation can be moved
     // into the repo.
     this.places =
         RxLiveData.fromFlowable(
             dataRepository
-              .getActiveProject()
-              .map(Resource::getData)
-              .switchMap(this::getPlacesStream));
+                .getActiveProject()
+                .map(Resource::getData)
+                .toFlowable(BackpressureStrategy.LATEST)
+                .switchMap(this::getPlacesStream));
   }
 
   private Flowable<ImmutableSet<Place>> getPlacesStream(Optional<Project> activeProject) {
     // Emit empty set in separate stream to force unsubscribe from Place updates and update
     // subscribers.
     return activeProject
-      .map(dataRepository::getPlaceVectorStream)
-      .orElse(Flowable.just(ImmutableSet.of()));
+        .map(dataRepository::getPlaceVectorStream)
+        .orElse(Flowable.just(ImmutableSet.of()));
   }
 
   public LiveData<Resource<Project>> getActiveProject() {
@@ -97,18 +99,26 @@ public class MapContainerViewModel extends AbstractViewModel {
     return locationLockStatus;
   }
 
-  public boolean isLocationLockEnabled() {
+  private boolean isLocationLockEnabled() {
     return locationLockStatus.getValue().isEnabled();
   }
 
-  public void enableLocationLock() {
+  private void enableLocationLock() {
+    // TODO: Resolve memory leak; disposables accumulate each time this is called.
+    // TODO: Replace single-use observables with streams, dispose on start/stop.
     disposeOnClear(
         locationManager
             .enableLocationUpdates()
-            .doOnComplete(() -> locationLockStatus.setValue(LocationLockStatus.enabled()))
-            .doOnComplete(() -> restartLocationUpdates())
-            .doOnError(t -> locationLockStatus.setValue(LocationLockStatus.error(t)))
-            .subscribe());
+            .subscribe(this::onLocationLockEnabled, this::onLocationLockError));
+  }
+
+  private void onLocationLockEnabled() {
+    locationLockStatus.setValue(LocationLockStatus.enabled());
+    restartLocationUpdates();
+  }
+
+  private void onLocationLockError(Throwable t) {
+    locationLockStatus.setValue(LocationLockStatus.error(t));
   }
 
   private void restartLocationUpdates() {
@@ -125,6 +135,7 @@ public class MapContainerViewModel extends AbstractViewModel {
             .toFlowable()
             .concatWith(locationManager.getLocationUpdates());
 
+    // TODO: Replace multiple subscriptions w/single stream.
     locationUpdateSubscription =
         locations
             .take(1)
@@ -135,7 +146,8 @@ public class MapContainerViewModel extends AbstractViewModel {
     Log.d(TAG, "Enable location lock succeeded");
   }
 
-  public void disableLocationLock() {
+  private void disableLocationLock() {
+    // TODO: Resolve memory leak; disposables accumulate each time this is called.
     disposeOnClear(
         locationManager.disableLocationUpdates().subscribe(this::onLocationLockDisabled));
   }
@@ -176,9 +188,18 @@ public class MapContainerViewModel extends AbstractViewModel {
     }
   }
 
+  public void toggleLocationLock() {
+    if (isLocationLockEnabled()) {
+      disableLocationLock();
+    } else {
+      enableLocationLock();
+    }
+  }
+
   static class LocationLockStatus {
 
     private boolean enabled;
+    // TODO: Handle error outside of lock status and replace with Boolean.
     private Throwable error;
 
     private LocationLockStatus(boolean enabled) {

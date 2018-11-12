@@ -1,0 +1,74 @@
+<!--
+  ~ Copyright 2018 Google LLC
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     https://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto">
+
+  <data>
+    <variable
+      name="viewModel"
+      type="com.google.android.gnd.ui.home.HomeScreenViewModel"/>
+  </data>
+
+  <RelativeLayout
+    android:id="@+id/bottom_sheet_chrome"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:layout_behavior="com.google.android.gnd.ui.home.BottomSheetChromeBehavior">
+
+    <FrameLayout
+      android:id="@+id/toolbar_wrapper"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_alignParentTop="true"
+      android:background="@color/colorPrimary"
+      android:translationY="-1000dp">
+
+      <com.google.android.gnd.ui.common.TwoLineToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:elevation="@dimen/toolbar_elevation"
+        android:theme="@style/GreenToolbarTheme"/>
+
+    </FrameLayout>
+
+    <android.support.design.chip.Chip
+      android:id="@+id/add_record_btn"
+      style="@style/ChipButton"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginBottom="@dimen/chip_button_margin_bottom"
+      android:layout_marginRight="@dimen/chip_button_margin_right"
+      android:layout_above="@id/bottom_sheet_bottom_inset_scrim"
+      android:layout_alignParentEnd="true"
+      android:layout_alignParentRight="true"
+      android:elevation="6dp"
+      android:onClick="@{() -> viewModel.addRecord()}"
+      android:text="@string/add_record_button_label"
+      android:visibility="gone"
+      app:chipIcon="@drawable/ic_add_light"
+      app:useCompatPadding="true"/>
+
+    <!-- Prevents place sheet UI from bleeding through to navigation buttons when expanded. -->
+    <FrameLayout
+      android:id="@+id/bottom_sheet_bottom_inset_scrim"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_alignParentBottom="true"
+      android:alpha="0"
+      android:background="@color/colorBackground"/>
+  </RelativeLayout>
+</layout>

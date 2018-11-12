@@ -18,7 +18,6 @@ package com.google.android.gnd.ui.common;
 
 import android.arch.lifecycle.ViewModel;
 import android.arch.lifecycle.ViewModelProvider;
-
 import com.google.android.gnd.MainViewModel;
 import com.google.android.gnd.ui.editrecord.EditRecordViewModel;
 import com.google.android.gnd.ui.home.HomeScreenViewModel;
@@ -27,7 +26,7 @@ import com.google.android.gnd.ui.home.placesheet.PlaceSheetViewModel;
 import com.google.android.gnd.ui.home.placesheet.RecordListViewModel;
 import com.google.android.gnd.ui.projectselector.ProjectSelectorViewModel;
 import com.google.android.gnd.ui.recorddetails.RecordDetailsViewModel;
-
+import com.google.android.gnd.ui.signin.SignInViewModel;
 import dagger.Binds;
 import dagger.Module;
 import dagger.multibindings.IntoMap;
@@ -43,6 +42,11 @@ public abstract class ViewModelModule {
   @IntoMap
   @ViewModelKey(MainViewModel.class)
   abstract ViewModel bindMainViewModel(MainViewModel viewModel);
+
+  @Binds
+  @IntoMap
+  @ViewModelKey(SignInViewModel.class)
+  abstract ViewModel bindSignInVideModel(SignInViewModel viewModel);
 
   @Binds
   @IntoMap

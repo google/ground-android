@@ -28,8 +28,7 @@ public abstract class Localization {
       return "<Untitled>";
     }
     // TODO: i18n: Use proper locale.
-    @Nullable
-    String msg = messages.get("_");
+    @Nullable String msg = messages.get("_");
     if (msg == null) {
       msg = messages.get("en");
     }

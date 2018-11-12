@@ -40,37 +40,25 @@ import java8.util.Optional;
 public class RecordDoc {
   private static final String TAG = RecordDoc.class.getSimpleName();
 
-  @Nullable
-  public String featureId;
+  @Nullable public String featureId;
 
-  @Nullable
-  public String featureTypeId;
+  @Nullable public String featureTypeId;
 
-  @Nullable
-  public String formId;
+  @Nullable public String formId;
 
-  @Nullable
-  public UserDoc createdBy;
+  @Nullable public UserDoc createdBy;
 
-  @Nullable
-  public UserDoc modifiedBy;
+  @Nullable public UserDoc modifiedBy;
 
-  public @Nullable
-  @ServerTimestamp
-  Date serverTimeCreated;
+  public @Nullable @ServerTimestamp Date serverTimeCreated;
 
-  public @Nullable
-  @ServerTimestamp
-  Date serverTimeModified;
+  public @Nullable @ServerTimestamp Date serverTimeModified;
 
-  @Nullable
-  public Date clientTimeCreated;
+  @Nullable public Date clientTimeCreated;
 
-  @Nullable
-  public Date clientTimeModified;
+  @Nullable public Date clientTimeModified;
 
-  @Nullable
-  public Map<String, Object> responses;
+  @Nullable public Map<String, Object> responses;
 
   public static RecordDoc forUpdates(Record record, Map<String, Object> valueUpdates) {
     RecordDoc rd = new RecordDoc();
@@ -97,16 +85,16 @@ public class RecordDoc {
       // TODO: Handle error.
     }
     return Record.newBuilder()
-                 .setId(recordId)
-                 .setProject(place.getProject())
-                 .setPlace(place)
-                 .setForm(form.get())
-                 .putAllValues(convertValues(rd.responses))
-                 .setCreatedBy(UserDoc.toProto(rd.createdBy))
-                 .setModifiedBy(UserDoc.toProto(rd.modifiedBy))
-                 .setServerTimestamps(toTimestamps(rd.serverTimeCreated, rd.serverTimeModified))
-                 .setClientTimestamps(toTimestamps(rd.clientTimeCreated, rd.clientTimeModified))
-                 .build();
+        .setId(recordId)
+        .setProject(place.getProject())
+        .setPlace(place)
+        .setForm(form.get())
+        .putAllValues(convertValues(rd.responses))
+        .setCreatedBy(UserDoc.toProto(rd.createdBy))
+        .setModifiedBy(UserDoc.toProto(rd.modifiedBy))
+        .setServerTimestamps(toTimestamps(rd.serverTimeCreated, rd.serverTimeModified))
+        .setClientTimestamps(toTimestamps(rd.clientTimeCreated, rd.clientTimeModified))
+        .build();
   }
 
   private static Map<String, Value> convertValues(Map<String, Object> docValues) {

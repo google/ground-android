@@ -16,45 +16,45 @@
 
 package com.google.android.gnd.system;
 
-import android.app.Activity;
+import static com.google.android.gnd.rx.RxCompletable.completeOrError;
+
 import android.app.Application;
 import android.content.Context;
+import android.content.IntentSender.SendIntentException;
 import android.util.Log;
-
 import com.google.android.gms.common.api.ResolvableApiException;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationSettingsRequest;
-import com.google.android.gms.location.LocationSettingsStatusCodes;
 import com.google.android.gnd.rx.RxLocationServices;
-
+import io.reactivex.Completable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import io.reactivex.Completable;
-import io.reactivex.CompletableEmitter;
-import io.reactivex.Observable;
-import io.reactivex.subjects.PublishSubject;
-import io.reactivex.subjects.Subject;
-
+/**
+ * Manages enabling of settings and related flows to/from the Activity.
+ *
+ * <p>Note: Currently only supports location settings, but could be expanded to support other
+ * settings types in the future.
+ */
 @Singleton
 public class SettingsManager {
   private static final String TAG = SettingsManager.class.getSimpleName();
-  private static final int CHECK_SETTINGS_REQUEST_CODE = SettingsManager.class.hashCode() & 0xffff;
+  private static final int LOCATION_SETTINGS_REQUEST_CODE =
+      SettingsManager.class.hashCode() & 0xffff;
 
   private final Context context;
-  private final Subject<SettingsChangeRequest> settingsChangeRequestSubject;
-  private CompletableEmitter settingsChangeResultEmitter;
+  private final ActivityStreams activityStreams;
 
   @Inject
-  public SettingsManager(Application app) {
+  public SettingsManager(Application app, ActivityStreams activityStreams) {
     this.context = app.getApplicationContext();
-    this.settingsChangeRequestSubject = PublishSubject.create();
+    this.activityStreams = activityStreams;
   }
 
-  public Observable<SettingsChangeRequest> getSettingsChangeRequests() {
-    return settingsChangeRequestSubject;
-  }
-
+  /**
+   * Try to enable location settings. If location settings are already enabled, this will complete
+   * immediately on subscribe.
+   */
   public Completable enableLocationSettings(LocationRequest locationRequest) {
     Log.d(TAG, "Checking location settings");
     LocationSettingsRequest settingsRequest =
@@ -62,61 +62,39 @@ public class SettingsManager {
     return RxLocationServices.getSettingsClient(context)
         .checkLocationSettings(settingsRequest)
         .toCompletable()
-        .doOnComplete(() -> Log.d(TAG, "Location settings already enabled"))
-        .onErrorResumeNext(this::onCheckLocationSettingsFailure);
+        .onErrorResumeNext(t -> onCheckSettingsFailure(LOCATION_SETTINGS_REQUEST_CODE, t));
   }
 
-  private Completable onCheckLocationSettingsFailure(Throwable t) {
-    if ((t instanceof ResolvableApiException) && isResolutionRequired((ResolvableApiException) t)) {
-      Log.d(TAG, "Prompting user to enable location settings");
-      // Attach settings change result stream to Completable returned by checkLocationSettings().
-      Completable completable = Completable.create(src -> this.settingsChangeResultEmitter = src);
-      // Prompt user to enable Location in Settings.
-      settingsChangeRequestSubject.onNext(new SettingsChangeRequest((ResolvableApiException) t));
-      return completable;
-    } else {
-      Log.d(TAG, "Unable to prompt user to enable location settings");
+  private Completable onCheckSettingsFailure(int requestCode, Throwable t) {
+    if (!(t instanceof ResolvableApiException)) {
       return Completable.error(t);
     }
+    return startResolution(requestCode, (ResolvableApiException) t)
+        .andThen(getNextResult(requestCode));
   }
 
-  private boolean isResolutionRequired(ResolvableApiException e) {
-    return e.getStatusCode() == LocationSettingsStatusCodes.RESOLUTION_REQUIRED;
+  private Completable startResolution(int requestCode, ResolvableApiException resolvableException) {
+    return Completable.create(
+        em -> {
+          Log.d(TAG, "Prompting user to enable settings");
+          activityStreams.withActivity(
+              act -> {
+                try {
+                  resolvableException.startResolutionForResult(act, requestCode);
+                  em.onComplete();
+                } catch (SendIntentException e) {
+                  em.onError(e);
+                }
+              });
+        });
   }
 
-  public void onActivityResult(int requestCode, int resultCode) {
-    if (requestCode != CHECK_SETTINGS_REQUEST_CODE || settingsChangeResultEmitter == null) {
-      return;
-    }
-    Log.d(TAG, "Location settings resultCode received: " + resultCode);
-    switch (resultCode) {
-      case Activity.RESULT_OK:
-        settingsChangeResultEmitter.onComplete();
-        break;
-      case Activity.RESULT_CANCELED:
-        settingsChangeResultEmitter.onError(new SettingsChangeRequestCanceled());
-        break;
-      default:
-        break;
-    }
-  }
-
-  public static class SettingsChangeRequest {
-    private ResolvableApiException exception;
-    private int requestCode;
-
-    private SettingsChangeRequest(ResolvableApiException exception) {
-      this.exception = exception;
-      this.requestCode = CHECK_SETTINGS_REQUEST_CODE;
-    }
-
-    public ResolvableApiException getException() {
-      return exception;
-    }
-
-    public int getRequestCode() {
-      return requestCode;
-    }
+  private Completable getNextResult(int requestCode) {
+    return activityStreams
+        .getNextActivityResult(requestCode)
+        .flatMapCompletable(r -> completeOrError(r.isOk(), SettingsChangeRequestCanceled.class))
+        .doOnComplete(() -> Log.d(TAG, "Settings change request successful"))
+        .doOnError(t -> Log.d(TAG, "Settings change request failed", t));
   }
 
   public static class SettingsChangeRequestCanceled extends Exception {}

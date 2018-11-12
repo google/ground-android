@@ -34,12 +34,14 @@ import android.widget.ListView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import com.google.android.gnd.R;
+import com.google.android.gnd.inject.ActivityScoped;
 import com.google.android.gnd.repository.Resource;
 import com.google.android.gnd.ui.common.AbstractDialogFragment;
 import com.google.android.gnd.ui.common.EphemeralPopups;
 import com.google.android.gnd.vo.Project;
 import java.util.List;
 
+@ActivityScoped
 public class ProjectSelectorDialogFragment extends AbstractDialogFragment {
 
   private static final String TAG = ProjectSelectorDialogFragment.class.getSimpleName();
@@ -95,9 +97,9 @@ public class ProjectSelectorDialogFragment extends AbstractDialogFragment {
       case NOT_FOUND:
       case ERROR:
         Log.e(
-          TAG,
-          "Project list not available",
-          projectSummaries.getError().orElse(new UnknownError()));
+            TAG,
+            "Project list not available",
+            projectSummaries.getError().orElse(new UnknownError()));
         EphemeralPopups.showError(getContext(), R.string.project_list_load_error);
         dismiss();
         break;
@@ -113,10 +115,13 @@ public class ProjectSelectorDialogFragment extends AbstractDialogFragment {
 
   private void onItemSelected(AdapterView<?> parent, View view, int idx, long id) {
     getDialog().hide();
+    // TODO: Get item from listAdapter.getItem and pass to activateProject.
+    // TODO: Use simple action + reactive listener instead of subscribing to result.
+    // TODO: ViewModel should maintain loading state, not subscription.
     viewModel
-      .activateProject(idx)
-      .as(autoDisposable(this))
-      .subscribe(this::dismiss, this::onActivateProjectFailure);
+        .activateProject(idx)
+        .as(autoDisposable(this))
+        .subscribe(this::dismiss, this::onActivateProjectFailure);
   }
 
   private void onActivateProjectFailure(Throwable throwable) {

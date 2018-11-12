@@ -14,23 +14,27 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.rx;
+package com.google.android.gnd;
 
-import io.reactivex.Maybe;
+import android.content.Context;
+import com.google.android.gnd.ui.common.EphemeralPopups;
 
-/** Helpers for working with RxJava Maybe classes. */
-public abstract class RxMaybe {
-  /** Do not instantiate */
-  private RxMaybe() {}
+public class UserVisibleError extends RuntimeException {
+  private int errorMessageId = 0;
 
-  public static <T> Maybe<T> ofNullable(T value) {
-    return Maybe.create(
-        src -> {
-          if (value == null) {
-            src.onComplete();
-          } else {
-            src.onSuccess(value);
-          }
-        });
+  public UserVisibleError(String message) {
+    super(message);
+  }
+
+  public UserVisibleError(int errorMessageId) {
+    this.errorMessageId = errorMessageId;
+  }
+
+  public void show(Context context) {
+    if (errorMessageId > 0) {
+      EphemeralPopups.showError(context, errorMessageId);
+    } else {
+      EphemeralPopups.showError(context, getMessage());
+    }
   }
 }

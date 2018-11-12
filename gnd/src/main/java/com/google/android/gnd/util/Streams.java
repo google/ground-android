@@ -17,33 +17,16 @@
 package com.google.android.gnd.util;
 
 import com.google.common.collect.ImmutableList;
-
-import java.util.List;
-import java.util.Map;
-
-import java8.util.function.Function;
 import java8.util.stream.Collector;
 import java8.util.stream.Collectors;
-
-import static java8.util.stream.Collectors.toList;
-import static java8.util.stream.StreamSupport.stream;
 
 public abstract class Streams {
   /** Do not instantiate. */
   private Streams() {}
 
-  public static <X, Y> List<Y> map(List<X> in, Function<X, Y> mappingFunction) {
-    return stream(in).map(mappingFunction).collect(toList());
-  }
-
-  public static <T, K, V> Map<K, V> toMap(
-      List<T> values, Function<T, K> keyFunction, Function<T, V> valueFunction) {
-    return stream(values).collect(Collectors.toMap(keyFunction, valueFunction));
-  }
-
   private static final Collector<Object, ?, ImmutableList<Object>> TO_IMMUTABLE_LIST =
       Collectors.of(
-          ImmutableList::<Object>builder,
+          ImmutableList::builder,
           ImmutableList.Builder::add,
           (a, b) -> {
             throw new UnsupportedOperationException();

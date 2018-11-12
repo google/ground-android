@@ -46,7 +46,6 @@ import com.google.android.gnd.ui.home.mapcontainer.MapContainerViewModel.Locatio
 import com.google.android.gnd.ui.map.MapProvider;
 import com.google.android.gnd.ui.map.MapProvider.MapAdapter;
 import com.google.android.gnd.vo.Project;
-import io.reactivex.subjects.SingleSubject;
 import javax.inject.Inject;
 
 /** Main app view, displaying the map and related controls (center cross-hairs, add button, etc). */
@@ -71,14 +70,13 @@ public class MapContainerFragment extends AbstractFragment {
   private MapContainerViewModel mapContainerViewModel;
   private HomeScreenViewModel homeScreenViewModel;
   private MainViewModel mainViewModel;
-  private SingleSubject<MapAdapter> map = SingleSubject.create();
 
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    mapContainerViewModel = get(MapContainerViewModel.class);
-    homeScreenViewModel = get(HomeScreenViewModel.class);
-    mainViewModel = get(MainViewModel.class);
+    mapContainerViewModel = getViewModel(MapContainerViewModel.class);
+    homeScreenViewModel = getViewModel(HomeScreenViewModel.class);
+    mainViewModel = getViewModel(MainViewModel.class);
   }
 
   @Override
@@ -134,11 +132,7 @@ public class MapContainerFragment extends AbstractFragment {
   }
 
   public void onLocationLockClick(MapAdapter map) {
-    if (mapContainerViewModel.isLocationLockEnabled()) {
-      mapContainerViewModel.disableLocationLock();
-    } else {
-      mapContainerViewModel.enableLocationLock();
-    }
+    mapContainerViewModel.toggleLocationLock();
   }
 
   private void onPlaceSheetStateChange(PlaceSheetState state, MapAdapter map) {
@@ -167,7 +161,7 @@ public class MapContainerFragment extends AbstractFragment {
 
   private void enableAddPlaceBtn() {
     addPlaceBtn.setBackgroundTintList(
-      ColorStateList.valueOf(getResources().getColor(R.color.colorMapAccent)));
+        ColorStateList.valueOf(getResources().getColor(R.color.colorMapAccent)));
   }
 
   private void disableAddPlaceBtn() {

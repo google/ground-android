@@ -20,28 +20,25 @@ import static com.google.android.gnd.rx.RxAutoDispose.autoDisposable;
 import static com.google.android.gnd.util.Debug.logLifecycleEvent;
 
 import android.content.Intent;
-import android.content.IntentSender.SendIntentException;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import androidx.navigation.NavController;
+import androidx.navigation.NavDirections;
 import androidx.navigation.fragment.NavHostFragment;
 import butterknife.ButterKnife;
 import com.google.android.gnd.rx.RxDebug;
+import com.google.android.gnd.system.ActivityStreams;
 import com.google.android.gnd.system.AuthenticationManager;
 import com.google.android.gnd.system.AuthenticationManager.AuthStatus;
-import com.google.android.gnd.system.GoogleApiManager;
-import com.google.android.gnd.system.PermissionsManager;
-import com.google.android.gnd.system.PermissionsManager.PermissionsRequest;
 import com.google.android.gnd.system.SettingsManager;
-import com.google.android.gnd.system.SettingsManager.SettingsChangeRequest;
 import com.google.android.gnd.ui.common.BackPressListener;
 import com.google.android.gnd.ui.common.EphemeralPopups;
+import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.TwoLineToolbar;
 import com.google.android.gnd.ui.common.ViewModelFactory;
 import com.google.android.gnd.ui.util.DrawableUtil;
@@ -58,13 +55,12 @@ public class MainActivity extends AppCompatActivity implements HasSupportFragmen
 
   private static final String TAG = MainActivity.class.getSimpleName();
 
+  @Inject ActivityStreams activityStreams;
   @Inject ViewModelFactory viewModelFactory;
-  @Inject PermissionsManager permissionsManager;
   @Inject SettingsManager settingsManager;
-  @Inject GoogleApiManager googleApiManager;
   @Inject AuthenticationManager authenticationManager;
   @Inject DispatchingAndroidInjector<Fragment> fragmentInjector;
-
+  @Inject Navigator navigator;
   private NavHostFragment navHostFragment;
   private MainViewModel viewModel;
   private DrawableUtil drawableUtil;
@@ -72,7 +68,6 @@ public class MainActivity extends AppCompatActivity implements HasSupportFragmen
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     logLifecycleEvent(this);
-
     drawableUtil = new DrawableUtil(getResources());
 
     // Prevent RxJava from force-quitting on unhandled errors.
@@ -94,52 +89,38 @@ public class MainActivity extends AppCompatActivity implements HasSupportFragmen
     ViewCompat.setOnApplyWindowInsetsListener(
         getWindow().getDecorView().getRootView(), viewModel::onApplyWindowInsets);
 
-    permissionsManager
-        .getPermissionsRequests()
+    activityStreams
+        .getActivityRequests()
         .as(autoDisposable(this))
-        .subscribe(this::onPermissionsRequest);
+        .subscribe(callback -> callback.accept(this));
 
-    settingsManager
-        .getSettingsChangeRequests()
-        .as(autoDisposable(this))
-        .subscribe(this::onSettingsChangeRequest);
-
+    // TODO: Remove once we switch to persisted auth tokens / multiple offline users.
     authenticationManager
-      .getAuthStatus()
-      .as(autoDisposable(this))
-      .subscribe(this::onAuthStatusChange);
+        .getAuthStatus()
+        .as(autoDisposable(this))
+        .subscribe(this::onAuthStatusChange);
+
+    navigator.getNavigateRequests().as(autoDisposable(this)).subscribe(this::onNavigate);
+    navigator.getNavigateUpRequests().as(autoDisposable(this)).subscribe(__ -> navigateUp());
   }
 
-  private void onPermissionsRequest(PermissionsRequest permissionsRequest) {
-    Log.d(TAG, "Sending permissions request to system");
-    ActivityCompat.requestPermissions(
-        this, permissionsRequest.getPermissions(), permissionsRequest.getRequestCode());
-  }
-
-  private void onSettingsChangeRequest(SettingsChangeRequest settingsChangeRequest) {
-    try {
-      // The result of this call is received by {@link #onActivityResult}.
-      Log.d(TAG, "Sending settings resolution request");
-      settingsChangeRequest
-          .getException()
-          .startResolutionForResult(this, settingsChangeRequest.getRequestCode());
-    } catch (SendIntentException e) {
-      // TODO: Report error.
-      Log.e(TAG, e.toString());
-    }
+  private void onNavigate(NavDirections navDirections) {
+    getNavController().navigate(navDirections);
   }
 
   private void onAuthStatusChange(AuthStatus authStatus) {
-    Log.d(TAG, "Auth status change: " + authStatus.getState());
-    switch (authStatus.getState()) {
+    Log.d(TAG, "Auth status change: " + authStatus.getStatus());
+    switch (authStatus.getStatus()) {
       case SIGNED_OUT:
-        onSignedOut();
+        // TODO: Check auth status whenever fragments resumes.
+        viewModel.onSignedOut();
         break;
       case SIGNING_IN:
         // TODO: Show/hide spinner.
         break;
       case SIGNED_IN:
-        onSignedIn();
+        // TODO: Store/update user profile and image locally.
+        viewModel.onSignedIn();
         break;
       case ERROR:
         onAuthError(authStatus);
@@ -147,21 +128,10 @@ public class MainActivity extends AppCompatActivity implements HasSupportFragmen
     }
   }
 
-  private void onSignedIn() {
-    // TODO: Store/update user profile and image locally.
-    getNavController().navigate(NavGraphDirections.signedIn());
-  }
-
-  private void onSignedOut() {
-    // TODO: Check auth status whenever fragments resumes.
-    viewModel.onSignedOut();
-    getNavController().navigate(NavGraphDirections.signedOut());
-  }
-
   private void onAuthError(AuthStatus authStatus) {
-    Log.d(TAG, "Authentication error", authStatus.getError());
+    Log.d(TAG, "Authentication error", authStatus.getError().orElse(null));
     EphemeralPopups.showError(this, R.string.sign_in_unsuccessful);
-    getNavController().navigate(NavGraphDirections.signedOut());
+    viewModel.onSignedOut();
   }
 
   @Override
@@ -203,7 +173,7 @@ public class MainActivity extends AppCompatActivity implements HasSupportFragmen
       int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
     Log.d(TAG, "Permission result received");
     super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-    permissionsManager.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    activityStreams.onRequestPermissionsResult(requestCode, permissions, grantResults);
   }
 
   /**
@@ -212,9 +182,9 @@ public class MainActivity extends AppCompatActivity implements HasSupportFragmen
    */
   @Override
   protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
-    googleApiManager.onActivityResult(requestCode, resultCode);
-    authenticationManager.onActivityResult(requestCode, resultCode, intent);
-    settingsManager.onActivityResult(requestCode, resultCode);
+    Log.d(TAG, "Activity result received");
+    super.onActivityResult(requestCode, resultCode, intent);
+    activityStreams.onActivityResult(requestCode, resultCode, intent);
   }
 
   @Override
@@ -242,11 +212,16 @@ public class MainActivity extends AppCompatActivity implements HasSupportFragmen
 
     // TODO: Remove this workaround once setupActionBarWithNavController() works with custom
     // Toolbars (https://issuetracker.google.com/issues/109868820).
-    toolbar.setNavigationOnClickListener(__ -> navigateUp());
+    toolbar.setNavigationOnClickListener(__ -> onToolbarUpClicked());
   }
 
+  /** Override up button behavior to use Navigation Components back stack. */
   @Override
   public boolean onSupportNavigateUp() {
+    return navigateUp();
+  }
+
+  private boolean navigateUp() {
     return getNavController().navigateUp();
   }
 
@@ -254,9 +229,9 @@ public class MainActivity extends AppCompatActivity implements HasSupportFragmen
     return navHostFragment.getNavController();
   }
 
-  private void navigateUp() {
+  private void onToolbarUpClicked() {
     if (!dispatchBackPressed()) {
-      getNavController().navigateUp();
+      navigateUp();
     }
   }
 
@@ -270,7 +245,7 @@ public class MainActivity extends AppCompatActivity implements HasSupportFragmen
   private boolean dispatchBackPressed() {
     Fragment currentFragment = getCurrentFragment();
     return currentFragment instanceof BackPressListener
-      && ((BackPressListener) currentFragment).onBack();
+        && ((BackPressListener) currentFragment).onBack();
   }
 
   private Fragment getCurrentFragment() {

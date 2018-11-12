@@ -19,20 +19,13 @@ package com.google.android.gnd.system;
 import android.app.Application;
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
-
 import com.google.android.gnd.rx.RxCompletable;
-
+import io.reactivex.Completable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-
-import io.reactivex.Completable;
-import io.reactivex.CompletableSource;
-import io.reactivex.Observable;
-import io.reactivex.subjects.PublishSubject;
-import io.reactivex.subjects.Subject;
 
 @Singleton
 public class PermissionsManager {
@@ -40,29 +33,12 @@ public class PermissionsManager {
   private static final int PERMISSIONS_REQUEST_CODE = PermissionsManager.class.hashCode() & 0xffff;
 
   private final Context context;
-  private final Subject<PermissionsRequest> permissionsRequestSubject;
-  private final Subject<PermissionsResult> permissionsResultSubject;
+  private final ActivityStreams activityStreams;
 
   @Inject
-  public PermissionsManager(Application app) {
-    permissionsRequestSubject = PublishSubject.create();
-    permissionsResultSubject = PublishSubject.create();
+  public PermissionsManager(Application app, ActivityStreams activityStreams) {
     context = app.getApplicationContext();
-  }
-
-  public Observable<PermissionsRequest> getPermissionsRequests() {
-    return permissionsRequestSubject;
-  }
-
-  /** Callback for use from onRequestPermissionsResult() in Activity. */
-  public void onRequestPermissionsResult(
-      int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-    if (requestCode != PERMISSIONS_REQUEST_CODE) {
-      return;
-    }
-    for (int i = 0; i < permissions.length; i++) {
-      permissionsResultSubject.onNext(new PermissionsResult(permissions[i], grantResults[i]));
-    }
+    this.activityStreams = activityStreams;
   }
 
   public Completable obtainPermission(String permission) {
@@ -76,17 +52,12 @@ public class PermissionsManager {
       return true;
     } else {
       Log.d(TAG, "Requesting " + permission);
-      permissionsRequestSubject.onNext(
-          new PermissionsRequest(PERMISSIONS_REQUEST_CODE, new String[] {permission}));
+      activityStreams.withActivity(
+          activity ->
+              ActivityCompat.requestPermissions(
+                  activity, new String[] {permission}, PERMISSIONS_REQUEST_CODE));
       return false;
     }
-  }
-
-  private Completable getPermissionsResult(String permission) {
-    return permissionsResultSubject
-        .filter(r -> r.getPermission().equals(permission))
-        .take(1)
-        .flatMapCompletable(PermissionsResult::completeOrError);
   }
 
   private boolean isGranted(String permission) {
@@ -94,51 +65,13 @@ public class PermissionsManager {
         == PackageManager.PERMISSION_GRANTED;
   }
 
-  public static class PermissionsRequest {
-    private int requestCode;
-    private String[] permissions;
-
-    private PermissionsRequest(int requestCode, String[] permissions) {
-      this.requestCode = requestCode;
-      this.permissions = permissions;
-    }
-
-    public int getRequestCode() {
-      return requestCode;
-    }
-
-    public String[] getPermissions() {
-      return permissions;
-    }
-  }
-
-  private static class PermissionsResult {
-    private String permission;
-    private int grantResult;
-
-    private PermissionsResult(String permission, int grantResult) {
-      this.permission = permission;
-      this.grantResult = grantResult;
-    }
-
-    public String getPermission() {
-      return permission;
-    }
-
-    public static CompletableSource completeOrError(PermissionsResult result) {
-      return result.isGranted()
-          ? Completable.complete()
-          : Completable.error(new PermissionDeniedException());
-    }
-
-    @Override
-    public String toString() {
-      return permission + " granted = " + isGranted();
-    }
-
-    private boolean isGranted() {
-      return grantResult == PackageManager.PERMISSION_GRANTED;
-    }
+  private Completable getPermissionsResult(String permission) {
+    return activityStreams
+        .getNextRequestPermissionsResult(PERMISSIONS_REQUEST_CODE)
+        .flatMapCompletable(
+            r ->
+                RxCompletable.completeOrError(
+                    r.isGranted(permission), PermissionDeniedException.class));
   }
 
   public static class PermissionDeniedException extends Exception {}

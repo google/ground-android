@@ -13,135 +13,95 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<FrameLayout
+<layout
   xmlns:android="http://schemas.android.com/apk/res/android"
-  xmlns:app="http://schemas.android.com/apk/res-auto"
-  android:layout_width="match_parent"
-  android:layout_height="match_parent">
+  xmlns:app="http://schemas.android.com/apk/res-auto">
 
-  <android.support.v4.widget.DrawerLayout
-    android:id="@+id/drawer_layout"
+  <FrameLayout
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:clickable="true"
-    android:focusableInTouchMode="true">
+    android:layout_height="match_parent">
 
-    <android.support.design.widget.CoordinatorLayout
+    <android.support.v4.widget.DrawerLayout
+      android:id="@+id/drawer_layout"
       android:layout_width="match_parent"
-      android:layout_height="match_parent">
+      android:layout_height="match_parent"
+      android:clickable="true"
+      android:focusableInTouchMode="true">
 
-      <FrameLayout
-        android:id="@+id/map_container_fragment"
+      <android.support.design.widget.CoordinatorLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_behavior="com.google.android.gnd.ui.home.mapcontainer.MapContainerLayoutBehavior"/>
-
-      <!-- TODO: Move place sheet and chrome into separate layout files. -->
-      <FrameLayout
-        android:id="@+id/map_scrim"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/colorPrimary"
-        android:clickable="false"
-        android:focusable="false"
-        android:alpha="0"/>
-
-      <FrameLayout
-        android:id="@+id/bottom_sheet_scroll_view"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_behavior="com.google.android.gnd.ui.common.BottomSheetBehavior">
-
-        <fragment
-          android:id="@+id/place_sheet_fragment"
-          android:layout_width="match_parent"
-          android:layout_height="match_parent"
-          android:name="com.google.android.gnd.ui.home.placesheet.PlaceSheetFragment"/>
-
-      </FrameLayout>
-
-      <RelativeLayout
-        android:id="@+id/bottom_sheet_chrome"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_behavior="com.google.android.gnd.ui.home.BottomSheetChromeBehavior">
+        android:layout_height="match_parent">
 
         <FrameLayout
-          android:id="@+id/toolbar_wrapper"
+          android:id="@+id/map_container_fragment"
           android:layout_width="match_parent"
-          android:layout_height="wrap_content"
-          android:layout_alignParentTop="true"
-          android:background="@color/colorPrimary"
-          android:translationY="-1000dp">
+          android:layout_height="match_parent"
+          app:layout_behavior="com.google.android.gnd.ui.home.mapcontainer.MapContainerLayoutBehavior"/>
 
-          <com.google.android.gnd.ui.common.TwoLineToolbar
-            android:id="@+id/toolbar"
+        <!-- TODO: Move place sheet and chrome into separate layout files. -->
+        <FrameLayout
+          android:id="@+id/map_scrim"
+          android:layout_width="match_parent"
+          android:layout_height="match_parent"
+          android:alpha="0"
+          android:background="@color/colorPrimary"
+          android:clickable="false"
+          android:focusable="false"/>
+
+        <FrameLayout
+          android:id="@+id/bottom_sheet_scroll_view"
+          android:layout_width="match_parent"
+          android:layout_height="match_parent"
+          app:layout_behavior="com.google.android.gnd.ui.common.BottomSheetBehavior">
+
+          <fragment
+            android:id="@+id/place_sheet_fragment"
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:elevation="@dimen/toolbar_elevation"
-            android:theme="@style/GreenToolbarTheme"/>
+            android:layout_height="match_parent"
+            android:name="com.google.android.gnd.ui.home.placesheet.PlaceSheetFragment"/>
 
         </FrameLayout>
 
-        <android.support.design.chip.Chip
-          android:id="@+id/add_record_btn"
-          style="@style/ChipButton"
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:layout_marginBottom="@dimen/chip_button_margin_bottom"
-          android:layout_marginRight="@dimen/chip_button_margin_right"
-          android:layout_above="@id/bottom_sheet_bottom_inset_scrim"
-          android:layout_alignParentEnd="true"
-          android:layout_alignParentRight="true"
-          android:elevation="6dp"
-          android:text="@string/add_record_button_label"
-          android:visibility="gone"
-          app:chipIcon="@drawable/ic_add_light"
-          app:useCompatPadding="true"/>
+        <include
+          android:id="@+id/place_sheet_chrome"
+          layout="@layout/place_sheet_chrome"/>
 
-        <!-- Prevents place sheet UI from bleeding through to navigation buttons when expanded. -->
-        <FrameLayout
-          android:id="@+id/bottom_sheet_bottom_inset_scrim"
+      </android.support.design.widget.CoordinatorLayout>
+
+      <!-- Application side drawer -->
+      <android.support.design.widget.NavigationView
+        android:id="@+id/nav_view"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        android:background="@color/colorBackground"
+        app:headerLayout="@layout/nav_drawer_header"
+        app:menu="@menu/nav_drawer_menu">
+
+        <TextView
+          android:id="@+id/version_text"
+          android:paddingBottom="48dp"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
-          android:layout_alignParentBottom="true"
-          android:alpha="0"
-          android:background="@color/colorBackground"/>
-      </RelativeLayout>
+          android:layout_gravity="bottom"
+          android:text="Build number"/>
 
-    </android.support.design.widget.CoordinatorLayout>
+      </android.support.design.widget.NavigationView>
 
-    <android.support.design.widget.NavigationView
-      android:id="@+id/nav_view"
-      android:layout_width="wrap_content"
-      android:layout_height="match_parent"
-      android:layout_gravity="start"
-      android:background="@color/colorBackground"
-      app:headerLayout="@layout/nav_drawer_header"
-      app:menu="@menu/nav_drawer_menu">
+    </android.support.v4.widget.DrawerLayout>
 
-      <TextView
-        android:id="@+id/version_text"
-        android:paddingBottom="48dp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
-        android:text="Version number"/>
-    </android.support.design.widget.NavigationView>
+    <!--
+      Translucent scrim to make status bar legible when shown overlaid on map or toolbar.
+      Workaround for possible bug in Navigation Architecture Components where translucent system
+      bars get replaced with solid white background in fragment after navigation.
+     -->
+    <FrameLayout
+      android:id="@+id/status_bar_scrim"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_gravity="top"
+      android:alpha="0.4"
+      android:background="@android:color/black"/>
 
-  </android.support.v4.widget.DrawerLayout>
-
-  <!--
-    Translucent scrim to make status bar legible when shown overlaid on map or toolbar.
-    Workaround for possible bug in Navigation Architecture Components where translucent system
-    bars get replaced with solid white background in fragment after navigation.
-   -->
-  <FrameLayout
-    android:id="@+id/status_bar_scrim"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_gravity="top"
-    android:alpha="0.4"
-    android:background="@android:color/black"/>
-
-</FrameLayout>
+  </FrameLayout>
+</layout>

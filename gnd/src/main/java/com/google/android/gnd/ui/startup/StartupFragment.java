@@ -47,12 +47,10 @@ public class StartupFragment extends AbstractFragment {
   public void onAttach(Context context) {
     super.onAttach(context);
 
-    // Run through required first-time steps. We do this in onResume() so that they'll be rerun if
-    // the user clicks "back" from sign in flow as well.
     googleApiManager
-      .installGooglePlayServices(getActivity())
-      .as(autoDisposable(getActivity()))
-      .subscribe(this::onGooglePlayServicesReady, this::onGooglePlayServicesFailed);
+        .installGooglePlayServices()
+        .as(autoDisposable(getActivity()))
+        .subscribe(this::onGooglePlayServicesReady, this::onGooglePlayServicesFailed);
   }
 
   private void onGooglePlayServicesReady() {

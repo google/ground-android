@@ -18,7 +18,6 @@ package com.google.android.gnd.ui.common;
 
 import android.content.Context;
 import android.widget.Toast;
-
 import com.google.android.gnd.R;
 
 public class EphemeralPopups {

@@ -18,7 +18,6 @@ package com.google.android.gnd.vo;
 
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.extension.memoized.Memoized;
-
 import javax.annotation.Nullable;
 
 @AutoValue

@@ -22,12 +22,12 @@
   android:id="@+id/navGraph"
   app:startDestination="@id/startup_fragment">
   <action
-    android:id="@+id/signedIn"
+    android:id="@+id/showHomeScreen"
     app:destination="@id/home_screen_fragment"
     app:popUpTo="@id/sign_in_fragment"
     app:popUpToInclusive="true"/>
   <action
-    android:id="@+id/signedOut"
+    android:id="@+id/showSignInScreen"
     app:destination="@id/sign_in_fragment"
     app:popUpTo="@id/navGraph"
     app:popUpToInclusive="true"/>

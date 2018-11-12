@@ -20,12 +20,9 @@ import android.support.annotation.Nullable;
 import com.google.android.gnd.system.AuthenticationManager.User;
 
 public class UserDoc {
-  @Nullable
-  public String id;
-  @Nullable
-  public String email;
-  @Nullable
-  public String displayName;
+  @Nullable public String id;
+  @Nullable public String email;
+  @Nullable public String displayName;
 
   @Nullable
   public static UserDoc fromProto(@Nullable User user) {

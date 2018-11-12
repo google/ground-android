@@ -29,20 +29,25 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import androidx.navigation.fragment.NavHostFragment;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.R;
+import com.google.android.gnd.inject.ActivityScoped;
 import com.google.android.gnd.repository.Resource;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.EphemeralPopups;
+import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.TwoLineToolbar;
 import com.google.android.gnd.vo.Form;
 import com.google.android.gnd.vo.Record;
+import javax.inject.Inject;
 
+@ActivityScoped
 public class RecordDetailsFragment extends AbstractFragment {
   private static final String TAG = RecordDetailsFragment.class.getSimpleName();
+
+  @Inject Navigator navigator;
 
   @BindView(R.id.record_details_toolbar)
   TwoLineToolbar toolbar;
@@ -61,7 +66,7 @@ public class RecordDetailsFragment extends AbstractFragment {
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    viewModel = get(RecordDetailsViewModel.class);
+    viewModel = getViewModel(RecordDetailsViewModel.class);
   }
 
   @Override
@@ -191,10 +196,7 @@ public class RecordDetailsFragment extends AbstractFragment {
         // This is required to prevent menu from reappearing on back.
         getActivity().closeOptionsMenu();
         RecordDetailsFragmentArgs args = getRecordDetailFragmentArgs();
-        NavHostFragment.findNavController(this)
-            .navigate(
-                RecordDetailsFragmentDirections.editRecord(
-                    args.getProjectId(), args.getPlaceId(), args.getRecordId()));
+        navigator.editRecord(args.getProjectId(), args.getPlaceId(), args.getRecordId());
         return true;
       case R.id.delete_record_menu_item:
         // TODO: Implement delete record.

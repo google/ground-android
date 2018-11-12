@@ -18,17 +18,17 @@ package com.google.android.gnd.repository;
 
 import android.arch.lifecycle.LiveData;
 import android.support.annotation.NonNull;
+import com.google.android.gnd.rx.AbstractResource;
 import java8.util.Optional;
-import java8.util.function.Consumer;
 import javax.annotation.Nullable;
 
 /**
  * Represents a resource that can be loaded from local or remote data stores. Based on Android Guide
  * to App Architecture: https://developer.android.com/jetpack/docs/guide#addendum
  *
- * @param <T>
+ * @param <T> the type of data payload the resource contains.
  */
-public class Resource<T> {
+public class Resource<T> extends AbstractResource<Resource.Status, T> {
   public enum Status {
     NOT_LOADED,
     LOADING,
@@ -36,7 +36,6 @@ public class Resource<T> {
     SAVING,
     SAVED,
     NOT_FOUND,
-    // REMOVED? ID?
     ERROR
   }
 
@@ -46,20 +45,11 @@ public class Resource<T> {
     LOCAL_CHANGES_PENDING
   }
 
-  // TODO: Enable Nullness checking, NonNull by default.
-  private final Status status;
-
-  @Nullable private final T data;
-
-  @Nullable private final Throwable error;
-
   private final SyncStatus syncStatus;
 
   private Resource(
       Status status, @Nullable T data, @Nullable Throwable error, SyncStatus syncStatus) {
-    this.status = status;
-    this.data = data;
-    this.error = error;
+    super(status, data, error);
     this.syncStatus = syncStatus;
   }
 
@@ -95,34 +85,12 @@ public class Resource<T> {
     return new Resource<>(Status.ERROR, null, t, SyncStatus.UNKNOWN);
   }
 
-  public Status getStatus() {
-    return status;
-  }
-
-  public Optional<T> getData() {
-    return Optional.ofNullable(data);
-  }
-
-  public Optional<Throwable> getError() {
-    return Optional.ofNullable(error);
-  }
-
   public SyncStatus getSyncStatus() {
     return syncStatus;
   }
 
   public boolean isLoaded() {
-    return status.equals(Status.LOADED);
-  }
-
-  public boolean isSynced() {
-    return syncStatus.equals(SyncStatus.NO_CHANGES_PENDING);
-  }
-
-  public void ifPresent(Consumer<T> consumer) {
-    if (data != null) {
-      consumer.accept(data);
-    }
+    return getStatus().equals(Status.LOADED);
   }
 
   @NonNull

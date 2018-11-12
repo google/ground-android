@@ -17,17 +17,14 @@
 package com.google.android.gnd.ui.recorddetails;
 
 import android.support.v4.app.Fragment;
-
-import com.google.android.gnd.inject.PerFragment;
-import com.google.android.gnd.ui.common.AbstractFragmentModule;
-
+import com.google.android.gnd.inject.FragmentScoped;
 import dagger.Binds;
 import dagger.Module;
 
-@Module(includes = AbstractFragmentModule.class)
+@Module
 public abstract class RecordDetailsModule {
 
   @Binds
-  @PerFragment
+  @FragmentScoped
   abstract Fragment fragment(RecordDetailsFragment fragment);
 }

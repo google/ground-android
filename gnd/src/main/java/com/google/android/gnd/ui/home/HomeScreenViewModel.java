@@ -17,17 +17,20 @@ package com.google.android.gnd.ui.home;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
+import android.util.Log;
 import com.google.android.gnd.repository.DataRepository;
 import com.google.android.gnd.repository.Resource;
 import com.google.android.gnd.rx.RxLiveData;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.common.ActivityScope;
+import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.SingleLiveEvent;
 import com.google.android.gnd.ui.map.MapMarker;
 import com.google.android.gnd.vo.Form;
 import com.google.android.gnd.vo.Place;
 import com.google.android.gnd.vo.Point;
 import com.google.android.gnd.vo.Project;
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 @ActivityScope
@@ -35,22 +38,25 @@ public class HomeScreenViewModel extends AbstractViewModel {
 
   private static final String TAG = HomeScreenViewModel.class.getSimpleName();
   private final DataRepository dataRepository;
+  private final Navigator navigator;
   private final LiveData<Resource<Project>> activeProject;
-  // TODO: Implement this as a state and remove Consumable.
+
+  // TODO: Move in MapContainersViewModel
   private final SingleLiveEvent<Point> addPlaceDialogRequests;
+
+  // TODO: Move into PlaceSheetViewModel.
   private final SingleLiveEvent<Void> openDrawerRequests;
   private final MutableLiveData<PlaceSheetState> placeSheetState;
-  // TODO: Move into appropriate ViewModel.
-  private final MutableLiveData<Form> selectedForm;
+  @Nullable private Form selectedForm;
 
   @Inject
-  HomeScreenViewModel(DataRepository dataRepository) {
+  HomeScreenViewModel(DataRepository dataRepository, Navigator navigator) {
     this.dataRepository = dataRepository;
     this.addPlaceDialogRequests = new SingleLiveEvent<>();
     this.openDrawerRequests = new SingleLiveEvent<>();
     this.placeSheetState = new MutableLiveData<>();
-    this.activeProject = RxLiveData.fromFlowable(dataRepository.getActiveProject());
-    this.selectedForm = new MutableLiveData<>();
+    this.activeProject = RxLiveData.fromObservable(dataRepository.getActiveProject());
+    this.navigator = navigator;
   }
 
   public LiveData<Void> getOpenDrawerRequests() {
@@ -100,10 +106,20 @@ public class HomeScreenViewModel extends AbstractViewModel {
   }
 
   public void onFormChange(Form form) {
-    selectedForm.setValue(form);
+    this.selectedForm = form;
   }
 
-  public LiveData<Form> getSelectedForm() {
-    return selectedForm;
+  public void addRecord() {
+    PlaceSheetState state = placeSheetState.getValue();
+    if (state == null) {
+      Log.e(TAG, "Missing placeSheetState");
+      return;
+    }
+    if (selectedForm == null) {
+      Log.e(TAG, "Missing form");
+      return;
+    }
+    Place place = state.getPlace();
+    navigator.addRecord(place.getProject().getId(), place.getId(), selectedForm.getId());
   }
 }

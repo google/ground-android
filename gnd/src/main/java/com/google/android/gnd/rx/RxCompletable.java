@@ -16,9 +16,8 @@
 
 package com.google.android.gnd.rx;
 
-import java.util.concurrent.Callable;
-
 import io.reactivex.Completable;
+import java.util.concurrent.Callable;
 
 /** Helpers for working with RxJava Completable classes. */
 public abstract class RxCompletable {
@@ -27,9 +26,21 @@ public abstract class RxCompletable {
 
   public static Completable completeIf(Callable<Boolean> conditionFunction) {
     return Completable.create(
-        emitter -> {
+        em -> {
           if (conditionFunction.call()) {
-            emitter.onComplete();
+            em.onComplete();
+          }
+        });
+  }
+
+  public static Completable completeOrError(
+      boolean condition, Class<? extends Throwable> errorClass) {
+    return Completable.create(
+        em -> {
+          if (condition) {
+            em.onComplete();
+          } else {
+            em.onError(errorClass.newInstance());
           }
         });
   }

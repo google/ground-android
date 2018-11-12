@@ -17,17 +17,14 @@
 package com.google.android.gnd.ui.home.mapcontainer;
 
 import android.support.v4.app.Fragment;
-
-import com.google.android.gnd.inject.PerChildFragment;
-import com.google.android.gnd.ui.common.AbstractFragmentModule;
-
+import com.google.android.gnd.inject.FragmentScoped;
 import dagger.Binds;
 import dagger.Module;
 
-@Module(includes = AbstractFragmentModule.class)
+@Module
 public abstract class MapContainerModule {
 
   @Binds
-  @PerChildFragment
+  @FragmentScoped
   abstract Fragment fragment(MapContainerFragment fragment);
 }

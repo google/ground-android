@@ -26,6 +26,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
 import com.google.android.gnd.R;
+import com.google.android.gnd.inject.ActivityScoped;
 import com.google.android.gnd.repository.Resource;
 import com.google.android.gnd.ui.common.AbstractDialogFragment;
 import com.google.android.gnd.ui.home.mapcontainer.MapContainerViewModel;
@@ -39,6 +40,7 @@ import io.reactivex.subjects.MaybeSubject;
 import java8.util.Optional;
 import javax.inject.Inject;
 
+@ActivityScoped
 public class AddPlaceDialogFragment extends AbstractDialogFragment {
   private static final String TAG = AddPlaceDialogFragment.class.getSimpleName();
 
@@ -92,9 +94,9 @@ public class AddPlaceDialogFragment extends AbstractDialogFragment {
     builder.setNegativeButton(R.string.add_place_cancel, (dialog, id) -> onCancel());
     // TODO: Add icons.
     ImmutableList<PlaceType> placeTypes =
-      stream(project.getPlaceTypes())
-        .sorted((pt1, pt2) -> pt1.getItemLabel().compareTo(pt2.getItemLabel()))
-        .collect(toImmutableList());
+        stream(project.getPlaceTypes())
+            .sorted((pt1, pt2) -> pt1.getItemLabel().compareTo(pt2.getItemLabel()))
+            .collect(toImmutableList());
     String[] items = stream(placeTypes).map(t -> t.getItemLabel()).toArray(String[]::new);
     builder.setItems(
         items, (dialog, idx) -> onSelectPlaceType(project, placeTypes.get(idx), cameraPosition));

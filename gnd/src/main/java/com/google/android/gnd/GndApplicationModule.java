@@ -17,30 +17,27 @@
 package com.google.android.gnd;
 
 import android.app.Application;
-
-import com.google.android.gnd.inject.PerActivity;
+import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.android.gnd.inject.ActivityScoped;
 import com.google.android.gnd.service.RemoteDataService;
 import com.google.android.gnd.service.firestore.FirestoreDataService;
 import com.google.android.gnd.ui.common.ViewModelModule;
-
-import javax.inject.Singleton;
-
 import dagger.Binds;
 import dagger.Module;
+import dagger.Provides;
 import dagger.android.ContributesAndroidInjector;
 import dagger.android.support.AndroidSupportInjectionModule;
+import javax.inject.Singleton;
 
 @Module(includes = {AndroidSupportInjectionModule.class, ViewModelModule.class})
 abstract class GndApplicationModule {
 
-  @PerActivity
+  /** Causes Dagger Android to generate a sub-component for the MainActivity. */
+  @ActivityScoped
   @ContributesAndroidInjector(modules = MainActivityModule.class)
   abstract MainActivity mainActivityInjector();
 
-  /**
-   * Provide the Firestore implementation of our backend data service. TODO: Make the implementation
-   * configurable via custom connectors to allow supporting other backend datastores.
-   */
+  /** Provide the Firestore implementation of our backend data service. */
   @Binds
   @Singleton
   abstract RemoteDataService remoteDataService(FirestoreDataService ds);
@@ -48,4 +45,10 @@ abstract class GndApplicationModule {
   @Binds
   @Singleton
   abstract Application application(GndApplication app);
+
+  @Provides
+  @Singleton
+  static GoogleApiAvailability googleApiAvailability() {
+    return GoogleApiAvailability.getInstance();
+  }
 }

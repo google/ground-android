@@ -27,32 +27,26 @@ import java8.util.Maps;
 @IgnoreExtraProperties
 public class PlaceTypeDoc {
   // TODO: Better name than pathKey? urlSubpath?
-  @Nullable
-  public String pathKey;
+  @Nullable public String pathKey;
 
-  @Nullable
-  public Map<String, String> listHeading;
+  @Nullable public Map<String, String> listHeading;
 
-  @Nullable
-  public Map<String, String> itemLabel;
+  @Nullable public Map<String, String> itemLabel;
 
-  @Nullable
-  public String iconId;
+  @Nullable public String iconId;
 
-  @Nullable
-  public String iconColor;
+  @Nullable public String iconColor;
 
-  @Nullable
-  public Map<String, FormDoc> forms;
+  @Nullable public Map<String, FormDoc> forms;
 
   public PlaceType toProto(String id) {
     PlaceType.Builder placeType = PlaceType.newBuilder();
     placeType
-      .setId(id)
-      .setListHeading(getLocalizedMessage(listHeading))
-      .setItemLabel(getLocalizedMessage(itemLabel))
-      .setIconId(iconId)
-      .setIconColor(iconColor);
+        .setId(id)
+        .setListHeading(getLocalizedMessage(listHeading))
+        .setItemLabel(getLocalizedMessage(itemLabel))
+        .setIconId(iconId)
+        .setIconColor(iconColor);
     if (forms != null) {
       Maps.forEach(forms, (formId, formDoc) -> placeType.addForm(formDoc.toProto(formId)));
     }

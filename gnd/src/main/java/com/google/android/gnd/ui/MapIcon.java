@@ -31,6 +31,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gnd.R;
 import com.google.android.gnd.ui.util.ViewUtil;
 
+// TODO: Move to common, rename Marker.
 public class MapIcon {
   private static final String TAG = MapIcon.class.getSimpleName();
   private final Context context;
@@ -89,7 +90,7 @@ public class MapIcon {
   public BitmapDescriptor getWhiteBitmap() {
     Bitmap tintedBitmap =
         ViewUtil.tintBitmap(
-          drawable.getBitmap(), context.getResources().getColor(R.color.colorBackground));
+            drawable.getBitmap(), context.getResources().getColor(R.color.colorBackground));
     return BitmapDescriptorFactory.fromBitmap(tintedBitmap);
   }
 }

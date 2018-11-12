@@ -23,13 +23,11 @@ import android.support.design.widget.TextInputEditText;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.FrameLayout;
-
-import com.google.android.gnd.R;
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.OnFocusChange;
+import com.google.android.gnd.R;
 
 public class MultipleChoiceFieldLayout extends FrameLayout {
 

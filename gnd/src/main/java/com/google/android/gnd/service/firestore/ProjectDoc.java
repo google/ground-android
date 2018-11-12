@@ -29,36 +29,27 @@ import java8.util.Maps;
 
 @IgnoreExtraProperties
 public class ProjectDoc {
-  @Nullable
-  public Map<String, String> title;
+  @Nullable public Map<String, String> title;
 
-  @Nullable
-  public Map<String, String> description;
+  @Nullable public Map<String, String> description;
 
-  @Nullable
-  public @ServerTimestamp
-  Date serverTimeCreated;
+  @Nullable public @ServerTimestamp Date serverTimeCreated;
 
-  @Nullable
-  public @ServerTimestamp
-  Date serverTimeModified;
+  @Nullable public @ServerTimestamp Date serverTimeModified;
 
-  @Nullable
-  public Date clientTimeCreated;
+  @Nullable public Date clientTimeCreated;
 
-  @Nullable
-  public Date clientTimeModified;
+  @Nullable public Date clientTimeModified;
 
-  @Nullable
-  public Map<String, PlaceTypeDoc> featureTypes;
+  @Nullable public Map<String, PlaceTypeDoc> featureTypes;
 
   public static Project toProto(DocumentSnapshot doc) {
     ProjectDoc pd = doc.toObject(ProjectDoc.class);
     Project.Builder project = Project.newBuilder();
     project
-      .setId(doc.getId())
-      .setTitle(getLocalizedMessage(pd.title))
-      .setDescription(getLocalizedMessage(pd.description));
+        .setId(doc.getId())
+        .setTitle(getLocalizedMessage(pd.title))
+        .setDescription(getLocalizedMessage(pd.description));
     if (pd.featureTypes != null) {
       Maps.forEach(pd.featureTypes, (id, ptDoc) -> project.putPlaceType(id, ptDoc.toProto(id)));
     }

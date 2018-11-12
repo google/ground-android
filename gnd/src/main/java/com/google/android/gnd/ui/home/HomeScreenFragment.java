@@ -39,12 +39,12 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import androidx.navigation.fragment.NavHostFragment;
 import butterknife.BindView;
-import butterknife.OnClick;
 import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.MainViewModel;
 import com.google.android.gnd.R;
+import com.google.android.gnd.databinding.HomeScreenFragBinding;
+import com.google.android.gnd.inject.ActivityScoped;
 import com.google.android.gnd.repository.Resource;
 import com.google.android.gnd.system.AuthenticationManager;
 import com.google.android.gnd.ui.common.AbstractFragment;
@@ -55,7 +55,6 @@ import com.google.android.gnd.ui.common.ProgressDialogs;
 import com.google.android.gnd.ui.common.TwoLineToolbar;
 import com.google.android.gnd.ui.home.mapcontainer.MapContainerFragment;
 import com.google.android.gnd.ui.projectselector.ProjectSelectorDialogFragment;
-import com.google.android.gnd.vo.Form;
 import com.google.android.gnd.vo.Place;
 import com.google.android.gnd.vo.Point;
 import com.google.android.gnd.vo.Project;
@@ -66,6 +65,7 @@ import javax.inject.Inject;
  * application, and gets swapped out for other fragments (e.g., view record and edit record) at
  * runtime.
  */
+@ActivityScoped
 public class HomeScreenFragment extends AbstractFragment
     implements BackPressListener, OnNavigationItemSelectedListener {
   private static final float COLLAPSED_MAP_ASPECT_RATIO = 3.0f / 2.0f;
@@ -108,26 +108,27 @@ public class HomeScreenFragment extends AbstractFragment
   private HomeScreenViewModel viewModel;
   private MapContainerFragment mapContainerFragment;
   private BottomSheetBehavior<View> bottomSheetBehavior;
-  private MainViewModel mainViewModel;
 
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    viewModel = get(HomeScreenViewModel.class);
-    mainViewModel = get(MainViewModel.class);
+
+    getViewModel(MainViewModel.class).getWindowInsets().observe(this, this::onApplyWindowInsets);
+
+    viewModel = getViewModel(HomeScreenViewModel.class);
+    viewModel.getActiveProject().observe(this, this::onActiveProjectChange);
+    viewModel.getShowAddPlaceDialogRequests().observe(this, this::onShowAddPlaceDialogRequest);
+    viewModel.getPlaceSheetState().observe(this, this::onPlaceSheetStateChange);
+    viewModel.getOpenDrawerRequests().observe(this, __ -> openDrawer());
   }
 
   @Nullable
   @Override
   public View onCreateView(
       LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-    return inflater.inflate(R.layout.home_screen_frag, container, false);
-  }
-
-  @Override
-  public void onSaveInstanceState(@NonNull Bundle outState) {
-    super.onSaveInstanceState(outState);
-    saveChildFragment(outState, mapContainerFragment);
+    HomeScreenFragBinding binding = HomeScreenFragBinding.inflate(inflater, container, false);
+    binding.placeSheetChrome.setViewModel(viewModel);
+    return binding.getRoot();
   }
 
   @Override
@@ -152,7 +153,8 @@ public class HomeScreenFragment extends AbstractFragment
 
   private String getVersionName() {
     try {
-      PackageInfo pInfo = getContext().getPackageManager().getPackageInfo(getContext().getPackageName(), 0);
+      PackageInfo pInfo =
+          getContext().getPackageManager().getPackageInfo(getContext().getPackageName(), 0);
       return pInfo.versionName;
     } catch (PackageManager.NameNotFoundException e) {
       return "?";
@@ -181,12 +183,6 @@ public class HomeScreenFragment extends AbstractFragment
     setHasOptionsMenu(true);
 
     ((MainActivity) getActivity()).setActionBar(toolbar);
-
-    viewModel.getActiveProject().observe(this, this::onActiveProjectChange);
-    viewModel.getShowAddPlaceDialogRequests().observe(this, this::onShowAddPlaceDialogRequest);
-    viewModel.getPlaceSheetState().observe(this, this::onPlaceSheetStateChange);
-    viewModel.getOpenDrawerRequests().observe(this, __ -> openDrawer());
-    mainViewModel.getWindowInsets().observe(this, this::onApplyWindowInsets);
   }
 
   private void openDrawer() {
@@ -206,6 +202,7 @@ public class HomeScreenFragment extends AbstractFragment
   public void onStart() {
     super.onStart();
     // TODO: Persist last selected project in local db.
+    // TODO: Create startup flow and move this logic there.
     Resource<Project> activeProject = viewModel.getActiveProject().getValue();
     if (activeProject == null || !activeProject.isLoaded()) {
       showProjectSelector();
@@ -260,30 +257,6 @@ public class HomeScreenFragment extends AbstractFragment
         Log.e(TAG, "Project load error", project.getError().orElse(new UnknownError()));
         break;
     }
-  }
-
-  // TODO: Put record button and chrome into its own fragment.
-  @OnClick(R.id.add_record_btn)
-  void addRecord() {
-    PlaceSheetState placeSheetState = viewModel.getPlaceSheetState().getValue();
-    if (placeSheetState == null) {
-      Log.e(TAG, "Missing placeSheetState");
-      return;
-    }
-    Form form = viewModel.getSelectedForm().getValue();
-    if (form == null) {
-      Log.e(TAG, "Missing form");
-      return;
-    }
-    Place place = placeSheetState.getPlace();
-    showAddRecord(place, form);
-  }
-
-  public void showAddRecord(Place place, Form form) {
-    NavHostFragment.findNavController(this)
-        .navigate(
-            HomeScreenFragmentDirections.addRecord(
-                place.getProject().getId(), place.getId(), form.getId()));
   }
 
   private void onShowAddPlaceDialogRequest(Point location) {
@@ -356,7 +329,7 @@ public class HomeScreenFragment extends AbstractFragment
         closeDrawer();
         break;
       case R.id.nav_sign_out:
-        authenticationManager.signOut(getActivity());
+        authenticationManager.signOut();
         break;
     }
     return false;

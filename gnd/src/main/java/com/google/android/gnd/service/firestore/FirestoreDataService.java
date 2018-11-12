@@ -16,7 +16,6 @@
 
 package com.google.android.gnd.service.firestore;
 
-import static com.google.android.gnd.rx.RxFirestoreUtil.mapSingle;
 import static java8.util.stream.Collectors.toList;
 import static java8.util.stream.StreamSupport.stream;
 
@@ -41,14 +40,16 @@ import com.google.firebase.firestore.FirebaseFirestoreSettings;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.firestore.SnapshotMetadata;
-import durdinapps.rxfirebase2.RxFirestore;
 import io.reactivex.Flowable;
+import io.reactivex.Maybe;
 import io.reactivex.Single;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java8.util.function.Function;
+import java8.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -59,14 +60,15 @@ public class FirestoreDataService implements RemoteDataService {
       new FirebaseFirestoreSettings.Builder().setPersistenceEnabled(true).build();
   private static final SetOptions MERGE = SetOptions.merge();
   private static final String TAG = FirestoreDataService.class.getSimpleName();
-  private final FirebaseFirestore db;
+  private final GndFirestore db;
 
   @Inject
   FirestoreDataService() {
     // TODO: Run on I/O thread, return asynchronously.
-    this.db = FirebaseFirestore.getInstance();
-    db.setFirestoreSettings(FIRESTORE_SETTINGS);
+    final FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+    firestore.setFirestoreSettings(FIRESTORE_SETTINGS);
     FirebaseFirestore.setLoggingEnabled(true);
+    db = new GndFirestore(firestore);
   }
 
   static Timestamps toTimestamps(@Nullable Date created, @Nullable Date modified) {
@@ -80,45 +82,41 @@ public class FirestoreDataService implements RemoteDataService {
     return timestamps.build();
   }
 
-  private GndFirestorePath db() {
-    return GndFirestorePath.db(db);
-  }
-
   @Override
   public Single<Project> loadProject(String projectId) {
-    return RxFirestore.getDocument(db().project(projectId).ref())
-                      .map(ProjectDoc::toProto)
-                      .switchIfEmpty(Single.error(new DocumentNotFoundException()));
+    return db.project(projectId)
+        .getDocument()
+        .map(ProjectDoc::toProto)
+        .switchIfEmpty(Single.error(new DocumentNotFoundException()));
   }
 
   @Override
   public Single<List<Record>> loadRecordSummaries(Place place) {
-    return mapSingle(
-        RxFirestore.getCollection(
-          db().project(place.getProject().getId()).records().whereFeatureIdEqualTo(place.getId())),
+    return toSingleList(
+        db.project(place.getProject().getId()).records().getByFeatureId(place.getId()),
         doc -> RecordDoc.toProto(place, doc.getId(), doc));
   }
 
   @Override
   public Single<Record> loadRecordDetails(Place place, String recordId) {
-    return RxFirestore.getDocument(
-            db().project(place.getProject().getId())
-                .records()
-                .record(recordId)
-                .ref())
+    return db.project(place.getProject().getId())
+        .records()
+        .record(recordId)
+        .getDocument()
         .map(doc -> RecordDoc.toProto(place, doc.getId(), doc))
         .toSingle();
   }
 
   @Override
   public Single<List<Project>> loadProjectSummaries(User user) {
-    return mapSingle(
-      RxFirestore.getCollection(db().projects().whereCanRead(user)), ProjectDoc::toProto);
+    return toSingleList(db.projects().getReadable(user), ProjectDoc::toProto);
   }
 
   @Override
   public Flowable<DatastoreEvent<Place>> getPlaceVectorStream(Project project) {
-    return RxFirestore.observeQueryRef(db().project(project.getId()).places().ref())
+    return db.project(project.getId())
+        .places()
+        .getFlowable()
         .flatMapIterable(
             placeQuerySnapshot ->
                 toDatastoreEvents(
@@ -173,10 +171,7 @@ public class FirestoreDataService implements RemoteDataService {
   // TODO: Move relevant Record fields and updates into "RecordUpdate" object.
   @Override
   public Single<Record> saveChanges(Record record, ImmutableList<ValueUpdate> updates) {
-    GndFirestorePath.RecordsRef records =
-        db().projects()
-            .project(record.getProject().getId())
-            .records();
+    GndFirestore.RecordsRef records = db.projects().project(record.getProject().getId()).records();
 
     if (record.getId() == null) {
       DocumentReference recordDocRef = records.ref().document();
@@ -199,8 +194,9 @@ public class FirestoreDataService implements RemoteDataService {
 
   @Override
   public Single<Place> addPlace(Place place) {
-    return RxFirestore.addDocument(
-            db().project(place.getProject().getId()).places().ref(), PlaceDoc.fromProto(place))
+    return db.project(place.getProject().getId())
+        .places()
+        .add(PlaceDoc.fromProto(place))
         .map(docRef -> place.toBuilder().setId(docRef.getId()).build());
   }
 
@@ -224,5 +220,20 @@ public class FirestoreDataService implements RemoteDataService {
       }
     }
     return updatedValues;
+  }
+
+  /**
+   * Applies the provided mapping function to each document in the specified query snapshot, if
+   * present. If no results are present, completes with an empty list.
+   */
+  private static <T> Single<List<T>> toSingleList(
+      Maybe<QuerySnapshot> result, Function<DocumentSnapshot, T> mappingFunction) {
+    return result
+        .map(
+            querySnapshot ->
+                stream(querySnapshot.getDocuments())
+                    .map(mappingFunction)
+                    .collect(Collectors.toList()))
+        .toSingle(Collections.emptyList());
   }
 }

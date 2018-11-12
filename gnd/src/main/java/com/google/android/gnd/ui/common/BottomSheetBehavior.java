@@ -185,49 +185,29 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
     super(context, attrs);
     TypedArray a =
         context.obtainStyledAttributes(
-          attrs, android.support.design.R.styleable.BottomSheetBehavior_Layout);
+            attrs, android.support.design.R.styleable.BottomSheetBehavior_Layout);
     TypedValue value =
         a.peekValue(
-            android
-                .support
-                .design
-                .R
-                .styleable
-                .BottomSheetBehavior_Layout_behavior_peekHeight);
+            android.support.design.R.styleable.BottomSheetBehavior_Layout_behavior_peekHeight);
     if (value != null && value.data == PEEK_HEIGHT_AUTO) {
       setPeekHeight(value.data);
     } else {
       setPeekHeight(
           a.getDimensionPixelSize(
-              android
-                  .support
-                  .design
-                  .R
-                  .styleable
-                  .BottomSheetBehavior_Layout_behavior_peekHeight,
+              android.support.design.R.styleable.BottomSheetBehavior_Layout_behavior_peekHeight,
               PEEK_HEIGHT_AUTO));
     }
     setHideable(
         a.getBoolean(
-          android.support.design.R.styleable.BottomSheetBehavior_Layout_behavior_hideable,
+            android.support.design.R.styleable.BottomSheetBehavior_Layout_behavior_hideable,
             false));
     setFitToContents(
         a.getBoolean(
-            android
-                .support
-                .design
-                .R
-                .styleable
-                .BottomSheetBehavior_Layout_behavior_fitToContents,
+            android.support.design.R.styleable.BottomSheetBehavior_Layout_behavior_fitToContents,
             true));
     setSkipCollapsed(
         a.getBoolean(
-            android
-                .support
-                .design
-                .R
-                .styleable
-                .BottomSheetBehavior_Layout_behavior_skipCollapsed,
+            android.support.design.R.styleable.BottomSheetBehavior_Layout_behavior_skipCollapsed,
             false));
     a.recycle();
     ViewConfiguration configuration = ViewConfiguration.get(context);
@@ -267,7 +247,7 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
             parent
                 .getResources()
                 .getDimensionPixelSize(
-                  android.support.design.R.dimen.design_bottom_sheet_peek_height_min);
+                    android.support.design.R.dimen.design_bottom_sheet_peek_height_min);
       }
       lastPeekHeight = Math.max(peekHeightMin, parentHeight - parent.getWidth() * 9 / 16);
     } else {
