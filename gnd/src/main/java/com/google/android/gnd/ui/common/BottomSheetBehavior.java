@@ -253,8 +253,10 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
     } else {
       lastPeekHeight = peekHeight;
     }
+    // START CUSTOM
     fitToContentsOffset =
         expandedOffset == 0 ? Math.max(0, parentHeight - child.getHeight()) : expandedOffset;
+    // END CUSTOM
     halfExpandedOffset = parentHeight / 2;
     calculateCollapsedOffset();
 
@@ -740,7 +742,9 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
   // END CUSTOM
 
   private int getExpandedOffset() {
+    // START CUSTOM
     return fitToContents ? fitToContentsOffset : expandedOffset;
+    // END CUSTOM
   }
 
   void startSettlingAnimation(View child, int state) {
