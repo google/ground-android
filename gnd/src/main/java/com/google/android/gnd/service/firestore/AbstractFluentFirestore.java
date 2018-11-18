@@ -16,26 +16,15 @@
 
 package com.google.android.gnd.service.firestore;
 
-import static java8.util.stream.Collectors.toList;
-import static java8.util.stream.StreamSupport.stream;
-
-import android.util.Log;
-import com.google.android.gnd.service.DatastoreEvent;
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QuerySnapshot;
-import com.google.firebase.firestore.SnapshotMetadata;
 import com.google.firebase.firestore.WriteBatch;
-import durdinapps.rxfirebase2.RxFirestore;
-import io.reactivex.Flowable;
-import io.reactivex.Single;
-import java8.util.function.Function;
 
+/**
+ * Base class for representing Firestore databases as object hierarchies.
+ */
 public abstract class AbstractFluentFirestore {
-  private static final String TAG = AbstractFluentFirestore.class.getSimpleName();
   protected final FirebaseFirestore db;
 
   protected AbstractFluentFirestore(FirebaseFirestore db) {
@@ -62,14 +51,6 @@ public abstract class AbstractFluentFirestore {
     public String toString() {
       return ref.getPath();
     }
-
-    protected Flowable<QuerySnapshot> observe() {
-      return RxFirestore.observeQueryRef(ref);
-    }
-
-    protected Single<DocumentReference> add(Object object) {
-      return RxFirestore.addDocument(ref, object);
-    }
   }
 
   protected static class FluentDocumentReference {
@@ -87,39 +68,5 @@ public abstract class AbstractFluentFirestore {
     public String toString() {
       return ref.getPath();
     }
-  }
-
-  protected static <T> Iterable<DatastoreEvent<T>> toDatastoreEvents(
-      QuerySnapshot snapshot, Function<DocumentSnapshot, T> converter) {
-    DatastoreEvent.Source source = getSource(snapshot.getMetadata());
-    return stream(snapshot.getDocumentChanges())
-        .map(dc -> toDatastoreEvent(dc, source, converter))
-        .filter(DatastoreEvent::isValid)
-        .collect(toList());
-  }
-
-  private static <T> DatastoreEvent<T> toDatastoreEvent(
-      DocumentChange dc, DatastoreEvent.Source source, Function<DocumentSnapshot, T> converter) {
-    Log.v(TAG, dc.getDocument().getReference().getPath() + " " + dc.getType());
-    try {
-      String id = dc.getDocument().getId();
-      switch (dc.getType()) {
-        case ADDED:
-          return DatastoreEvent.loaded(id, source, converter.apply(dc.getDocument()));
-        case MODIFIED:
-          return DatastoreEvent.modified(id, source, converter.apply(dc.getDocument()));
-        case REMOVED:
-          return DatastoreEvent.removed(id, source);
-      }
-    } catch (DatastoreException e) {
-      Log.d(TAG, "Datastore error:", e);
-    }
-    return DatastoreEvent.invalidResponse();
-  }
-
-  private static DatastoreEvent.Source getSource(SnapshotMetadata metadata) {
-    return metadata.hasPendingWrites()
-        ? DatastoreEvent.Source.LOCAL_DATASTORE
-        : DatastoreEvent.Source.REMOTE_DATASTORE;
   }
 }

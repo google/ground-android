@@ -16,19 +16,23 @@
 
 package com.google.android.gnd.service.firestore;
 
+import static java8.util.stream.Collectors.toList;
 import static java8.util.stream.StreamSupport.stream;
 
+import android.util.Log;
 import com.google.android.gnd.service.DatastoreEvent;
 import com.google.android.gnd.system.AuthenticationManager.User;
 import com.google.android.gnd.vo.Place;
 import com.google.android.gnd.vo.Project;
 import com.google.android.gnd.vo.Record;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldPath;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.SnapshotMetadata;
 import durdinapps.rxfirebase2.RxFirestore;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
@@ -38,12 +42,17 @@ import java.util.List;
 import java8.util.function.Function;
 import java8.util.stream.Collectors;
 
+/**
+ * Object representation of Ground Firestore database.
+ */
 public class GndFirestore extends AbstractFluentFirestore {
-  public static final String PROJECTS = "projects";
-  public static final String PLACES = "features";
-  public static final String RECORDS = "records";
+  private static final String TAG = GndFirestore.class.getSimpleName();
 
-  public GndFirestore(FirebaseFirestore db) {
+  private static final String PROJECTS = "projects";
+  private static final String PLACES = "features";
+  private static final String RECORDS = "records";
+
+  GndFirestore(FirebaseFirestore db) {
     super(db);
   }
 
@@ -67,7 +76,7 @@ public class GndFirestore extends AbstractFluentFirestore {
       return toSingleList(
           RxFirestore.getCollection(
               ref.whereArrayContains(FieldPath.of(ACL_FIELD, user.getEmail()), READ_ACCESS)),
-          ProjectDoc::toProto);
+          ProjectDoc::toObject);
     }
   }
 
@@ -85,7 +94,7 @@ public class GndFirestore extends AbstractFluentFirestore {
     }
 
     public Maybe<Project> get() {
-      return RxFirestore.getDocument(ref).map(ProjectDoc::toProto);
+      return RxFirestore.getDocument(ref).map(ProjectDoc::toObject);
     }
   }
 
@@ -99,17 +108,17 @@ public class GndFirestore extends AbstractFluentFirestore {
     }
 
     public Single<Place> add(Place place) {
-      return add(PlaceDoc.fromProto(place))
+      return RxFirestore.addDocument(ref, PlaceDoc.fromObject(place))
           .map(docRef -> place.toBuilder().setId(docRef.getId()).build());
     }
 
     public Flowable<DatastoreEvent<Place>> observe(Project project) {
-      return super.observe()
+      return RxFirestore.observeQueryRef(ref)
           .flatMapIterable(
               placeQuerySnapshot ->
                   toDatastoreEvents(
                       placeQuerySnapshot,
-                      placeDocSnapshot -> PlaceDoc.toProto(project, placeDocSnapshot)));
+                      placeDocSnapshot -> PlaceDoc.toObject(project, placeDocSnapshot)));
     }
   }
 
@@ -135,7 +144,7 @@ public class GndFirestore extends AbstractFluentFirestore {
     public Single<List<Record>> getByFeature(Place feature) {
       return toSingleList(
           RxFirestore.getCollection(ref().whereEqualTo(FieldPath.of("featureId"), feature.getId())),
-          doc -> RecordDoc.toProto(feature, doc.getId(), doc));
+          doc -> RecordDoc.toObject(feature, doc.getId(), doc));
     }
   }
 
@@ -145,7 +154,7 @@ public class GndFirestore extends AbstractFluentFirestore {
     }
 
     public Maybe<Record> get(Place place) {
-      return RxFirestore.getDocument(ref).map(doc -> RecordDoc.toProto(place, doc.getId(), doc));
+      return RxFirestore.getDocument(ref).map(doc -> RecordDoc.toObject(place, doc.getId(), doc));
     }
   }
 
@@ -162,5 +171,39 @@ public class GndFirestore extends AbstractFluentFirestore {
                     .map(mappingFunction)
                     .collect(Collectors.toList()))
         .toSingle(Collections.emptyList());
+  }
+
+  private static <T> Iterable<DatastoreEvent<T>> toDatastoreEvents(
+      QuerySnapshot snapshot, Function<DocumentSnapshot, T> converter) {
+    DatastoreEvent.Source source = getSource(snapshot.getMetadata());
+    return stream(snapshot.getDocumentChanges())
+        .map(dc -> toDatastoreEvent(dc, source, converter))
+        .filter(DatastoreEvent::isValid)
+        .collect(toList());
+  }
+
+  private static <T> DatastoreEvent<T> toDatastoreEvent(
+      DocumentChange dc, DatastoreEvent.Source source, Function<DocumentSnapshot, T> converter) {
+    Log.v(TAG, dc.getDocument().getReference().getPath() + " " + dc.getType());
+    try {
+      String id = dc.getDocument().getId();
+      switch (dc.getType()) {
+        case ADDED:
+          return DatastoreEvent.loaded(id, source, converter.apply(dc.getDocument()));
+        case MODIFIED:
+          return DatastoreEvent.modified(id, source, converter.apply(dc.getDocument()));
+        case REMOVED:
+          return DatastoreEvent.removed(id, source);
+      }
+    } catch (DatastoreException e) {
+      Log.d(TAG, "Datastore error:", e);
+    }
+    return DatastoreEvent.invalidResponse();
+  }
+
+  private static DatastoreEvent.Source getSource(SnapshotMetadata metadata) {
+    return metadata.hasPendingWrites()
+        ? DatastoreEvent.Source.LOCAL_DATASTORE
+        : DatastoreEvent.Source.REMOTE_DATASTORE;
   }
 }

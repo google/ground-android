@@ -25,7 +25,7 @@ public class UserDoc {
   @Nullable public String displayName;
 
   @Nullable
-  public static UserDoc fromProto(@Nullable User user) {
+  public static UserDoc fromObject(@Nullable User user) {
     if (user == null) {
       return null;
     }
@@ -37,7 +37,7 @@ public class UserDoc {
   }
 
   @Nullable
-  public static User toProto(UserDoc ud) {
+  public static User toObject(UserDoc ud) {
     return ud == null ? null : new User(ud.id, ud.email, ud.displayName);
   }
 }

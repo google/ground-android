@@ -67,12 +67,12 @@ public class RecordDoc {
     rd.formId = record.getForm().getId();
     rd.responses = valueUpdates;
     rd.clientTimeModified = new Date();
-    rd.createdBy = UserDoc.fromProto(record.getCreatedBy());
-    rd.modifiedBy = UserDoc.fromProto(record.getModifiedBy());
+    rd.createdBy = UserDoc.fromObject(record.getCreatedBy());
+    rd.modifiedBy = UserDoc.fromObject(record.getModifiedBy());
     return rd;
   }
 
-  public static Record toProto(Place place, String recordId, DocumentSnapshot doc) {
+  public static Record toObject(Place place, String recordId, DocumentSnapshot doc) {
     RecordDoc rd = doc.toObject(RecordDoc.class);
     if (!place.getId().equals(rd.featureId)) {
       // TODO: Handle error.
@@ -90,8 +90,8 @@ public class RecordDoc {
         .setPlace(place)
         .setForm(form.get())
         .putAllValues(convertValues(rd.responses))
-        .setCreatedBy(UserDoc.toProto(rd.createdBy))
-        .setModifiedBy(UserDoc.toProto(rd.modifiedBy))
+        .setCreatedBy(UserDoc.toObject(rd.createdBy))
+        .setModifiedBy(UserDoc.toObject(rd.modifiedBy))
         .setServerTimestamps(toTimestamps(rd.serverTimeCreated, rd.serverTimeModified))
         .setClientTimestamps(toTimestamps(rd.clientTimeCreated, rd.clientTimeModified))
         .build();

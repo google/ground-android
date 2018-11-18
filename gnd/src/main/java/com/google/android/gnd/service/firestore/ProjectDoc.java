@@ -43,7 +43,7 @@ public class ProjectDoc {
 
   @Nullable public Map<String, PlaceTypeDoc> featureTypes;
 
-  public static Project toProto(DocumentSnapshot doc) {
+  public static Project toObject(DocumentSnapshot doc) {
     ProjectDoc pd = doc.toObject(ProjectDoc.class);
     Project.Builder project = Project.newBuilder();
     project
@@ -51,7 +51,7 @@ public class ProjectDoc {
         .setTitle(getLocalizedMessage(pd.title))
         .setDescription(getLocalizedMessage(pd.description));
     if (pd.featureTypes != null) {
-      Maps.forEach(pd.featureTypes, (id, ptDoc) -> project.putPlaceType(id, ptDoc.toProto(id)));
+      Maps.forEach(pd.featureTypes, (id, ptDoc) -> project.putPlaceType(id, ptDoc.toObject(id)));
     }
     return project.build();
   }

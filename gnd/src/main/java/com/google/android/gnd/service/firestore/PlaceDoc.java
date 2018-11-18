@@ -48,7 +48,7 @@ public class PlaceDoc {
 
   public Date clientTimeModified;
 
-  public static Place toProto(Project project, DocumentSnapshot doc) {
+  public static Place toObject(Project project, DocumentSnapshot doc) {
     PlaceDoc f = doc.toObject(PlaceDoc.class);
     Point point =
         Point.newBuilder()
@@ -72,7 +72,7 @@ public class PlaceDoc {
         .build();
   }
 
-  public static PlaceDoc fromProto(Place place) {
+  public static PlaceDoc fromObject(Place place) {
     PlaceDoc doc = new PlaceDoc();
     Point point = place.getPoint();
     doc.featureTypeId = place.getPlaceType().getId();

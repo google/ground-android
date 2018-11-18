@@ -43,11 +43,11 @@ public class FormDoc {
 
   public @ServerTimestamp Date serverTimeModified;
 
-  public Form toProto(String formId) {
+  public Form toObject(String formId) {
     return Form.newBuilder()
         .setId(formId)
         .setTitle(getLocalizedMessage(titles))
-        .setElements(stream(elements).map(Element::toProto).collect(toImmutableList()))
+        .setElements(stream(elements).map(Element::toObject).collect(toImmutableList()))
         .build();
   }
 
@@ -66,7 +66,7 @@ public class FormDoc {
 
     public boolean required;
 
-    static Form.Element toProto(Element em) {
+    static Form.Element toObject(Element em) {
       return toField(em).map(Form.Element::ofField).orElse(Form.Element.ofUnknown());
     }
 

@@ -39,7 +39,7 @@ public class PlaceTypeDoc {
 
   @Nullable public Map<String, FormDoc> forms;
 
-  public PlaceType toProto(String id) {
+  public PlaceType toObject(String id) {
     PlaceType.Builder placeType = PlaceType.newBuilder();
     placeType
         .setId(id)
@@ -48,7 +48,7 @@ public class PlaceTypeDoc {
         .setIconId(iconId)
         .setIconColor(iconColor);
     if (forms != null) {
-      Maps.forEach(forms, (formId, formDoc) -> placeType.addForm(formDoc.toProto(formId)));
+      Maps.forEach(forms, (formId, formDoc) -> placeType.addForm(formDoc.toObject(formId)));
     }
     return placeType.build();
   }
