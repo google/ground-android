@@ -16,12 +16,7 @@
 
 package com.google.android.gnd.service.firestore;
 
-import static java8.util.stream.Collectors.toList;
-import static java8.util.stream.StreamSupport.stream;
-
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.util.Log;
 import com.google.android.gnd.rx.RxTask;
 import com.google.android.gnd.service.DatastoreEvent;
 import com.google.android.gnd.service.RemoteDataService;
@@ -32,24 +27,16 @@ import com.google.android.gnd.vo.Project;
 import com.google.android.gnd.vo.Record;
 import com.google.android.gnd.vo.Timestamps;
 import com.google.common.collect.ImmutableList;
-import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreSettings;
-import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
-import com.google.firebase.firestore.SnapshotMetadata;
 import io.reactivex.Flowable;
-import io.reactivex.Maybe;
 import io.reactivex.Single;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java8.util.function.Function;
-import java8.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -84,94 +71,43 @@ public class FirestoreDataService implements RemoteDataService {
 
   @Override
   public Single<Project> loadProject(String projectId) {
-    return db.project(projectId)
-        .getDocument()
-        .map(ProjectDoc::toProto)
+    return db.projects()
+        .project(projectId)
+        .get()
         .switchIfEmpty(Single.error(new DocumentNotFoundException()));
   }
 
   @Override
   public Single<List<Record>> loadRecordSummaries(Place place) {
-    return toSingleList(
-        db.project(place.getProject().getId()).records().getByFeatureId(place.getId()),
-        doc -> RecordDoc.toProto(place, doc.getId(), doc));
+    return db.projects().project(place.getProject().getId()).records().getByFeature(place);
   }
 
   @Override
   public Single<Record> loadRecordDetails(Place place, String recordId) {
-    return db.project(place.getProject().getId())
+    // TODO: Replace Singles with Maybes?
+    return db.projects()
+        .project(place.getProject().getId())
         .records()
         .record(recordId)
-        .getDocument()
-        .map(doc -> RecordDoc.toProto(place, doc.getId(), doc))
+        .get(place)
         .toSingle();
   }
 
   @Override
   public Single<List<Project>> loadProjectSummaries(User user) {
-    return toSingleList(db.projects().getReadable(user), ProjectDoc::toProto);
+    return db.projects().getReadable(user);
   }
 
   @Override
   public Flowable<DatastoreEvent<Place>> getPlaceVectorStream(Project project) {
-    return db.project(project.getId())
-        .places()
-        .getFlowable()
-        .flatMapIterable(
-            placeQuerySnapshot ->
-                toDatastoreEvents(
-                    placeQuerySnapshot,
-                    placeDocSnapshot -> PlaceDoc.toProto(project, placeDocSnapshot)))
-        .doOnTerminate(
-            () ->
-                Log.d(
-                    TAG,
-                    "getPlaceVectorStream stream for project " + project.getId() + " terminated."));
-  }
-
-  private <T> Iterable<DatastoreEvent<T>> toDatastoreEvents(
-      QuerySnapshot snapshot, Function<DocumentSnapshot, T> converter) {
-    DatastoreEvent.Source source = getSource(snapshot.getMetadata());
-    return stream(snapshot.getDocumentChanges())
-        .map(dc -> toDatastoreEvent(dc, source, converter))
-        .filter(DatastoreEvent::isValid)
-        .collect(toList());
-  }
-
-  private <T> DatastoreEvent<T> toDatastoreEvent(
-      DocumentChange dc, DatastoreEvent.Source source, Function<DocumentSnapshot, T> converter) {
-    Log.v(TAG, toString(dc));
-    try {
-      String id = dc.getDocument().getId();
-      switch (dc.getType()) {
-        case ADDED:
-          return DatastoreEvent.loaded(id, source, converter.apply(dc.getDocument()));
-        case MODIFIED:
-          return DatastoreEvent.modified(id, source, converter.apply(dc.getDocument()));
-        case REMOVED:
-          return DatastoreEvent.removed(id, source);
-      }
-    } catch (DatastoreException e) {
-      Log.d(TAG, "Datastore error:", e);
-    }
-    return DatastoreEvent.invalidResponse();
-  }
-
-  @NonNull
-  private static String toString(DocumentChange dc) {
-    return dc.getDocument().getReference().getPath() + " " + dc.getType();
-  }
-
-  private static DatastoreEvent.Source getSource(SnapshotMetadata metadata) {
-    return metadata.hasPendingWrites()
-        ? DatastoreEvent.Source.LOCAL_DATASTORE
-        : DatastoreEvent.Source.REMOTE_DATASTORE;
+    return db.projects().project(project.getId()).places().observe(project);
   }
 
   // TODO: Move relevant Record fields and updates into "RecordUpdate" object.
   @Override
   public Single<Record> saveChanges(Record record, ImmutableList<ValueUpdate> updates) {
-    GndFirestore.RecordsRef records = db.projects().project(record.getProject().getId()).records();
+    GndFirestore.RecordsCollectionReference records =
+        db.projects().project(record.getProject().getId()).records();
 
     if (record.getId() == null) {
       DocumentReference recordDocRef = records.ref().document();
@@ -194,10 +130,8 @@ public class FirestoreDataService implements RemoteDataService {
 
   @Override
   public Single<Place> addPlace(Place place) {
-    return db.project(place.getProject().getId())
-        .places()
-        .add(PlaceDoc.fromProto(place))
-        .map(docRef -> place.toBuilder().setId(docRef.getId()).build());
+    String projectId = place.getProject().getId();
+    return db.projects().project(projectId).places().add(place);
   }
 
   private Map<String, Object> updatedValues(ImmutableList<ValueUpdate> updates) {
@@ -220,20 +154,5 @@ public class FirestoreDataService implements RemoteDataService {
       }
     }
     return updatedValues;
-  }
-
-  /**
-   * Applies the provided mapping function to each document in the specified query snapshot, if
-   * present. If no results are present, completes with an empty list.
-   */
-  private static <T> Single<List<T>> toSingleList(
-      Maybe<QuerySnapshot> result, Function<DocumentSnapshot, T> mappingFunction) {
-    return result
-        .map(
-            querySnapshot ->
-                stream(querySnapshot.getDocuments())
-                    .map(mappingFunction)
-                    .collect(Collectors.toList()))
-        .toSingle(Collections.emptyList());
   }
 }

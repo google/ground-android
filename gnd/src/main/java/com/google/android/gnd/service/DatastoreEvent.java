@@ -18,6 +18,7 @@ package com.google.android.gnd.service;
 
 import java8.util.Optional;
 
+// TODO: Harmonize with com.google.android.gnd.rx.AbstractResource.
 public class DatastoreEvent<T> {
 
   public enum Type {
