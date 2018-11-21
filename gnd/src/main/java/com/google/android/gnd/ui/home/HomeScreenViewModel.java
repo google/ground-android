@@ -41,7 +41,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
   private final Navigator navigator;
   private final LiveData<Resource<Project>> activeProject;
 
-  // TODO: Move in MapContainersViewModel
+  // TODO: Move into MapContainersViewModel
   private final SingleLiveEvent<Point> addPlaceDialogRequests;
 
   // TODO: Move into PlaceSheetViewModel.

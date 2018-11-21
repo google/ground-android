@@ -272,7 +272,6 @@ public class HomeScreenFragment extends AbstractFragment
   }
 
   private void onPlaceSheetStateChange(PlaceSheetState state) {
-    // TODO: WHY IS CALLED 3x ON CLICK?
     switch (state.getVisibility()) {
       case VISIBLE:
         Place place = state.getPlace();

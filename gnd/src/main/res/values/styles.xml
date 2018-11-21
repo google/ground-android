@@ -76,21 +76,6 @@
     <item name="textAllCaps">true</item>
   </style>
 
-  <!-- TODO: Remove these -->
-  <style name="FieldLabel" parent="AppTheme.Base">
-    <item name="android:paddingLeft">@dimen/field_horizontal_padding</item>
-    <item name="android:paddingRight">@dimen/field_horizontal_padding</item>
-    <item name="android:textColor">@color/field_label</item>
-    <item name="android:textSize">@dimen/field_label_text_size</item>
-  </style>
-
-  <style name="FieldValue" parent="AppTheme.Base">
-    <item name="android:paddingLeft">@dimen/field_horizontal_padding</item>
-    <item name="android:paddingRight">@dimen/field_horizontal_padding</item>
-    <item name="android:textColor">@color/field_value</item>
-    <item name="android:textSize">@dimen/field_value_text_size</item>
-  </style>
-
   <style name="InputError" parent="AppTheme.Base">
     <item name="android:paddingLeft">@dimen/field_horizontal_padding</item>
     <item name="android:paddingRight">@dimen/field_horizontal_padding</item>

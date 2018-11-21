@@ -50,10 +50,6 @@ public abstract class MainActivityModule {
   @ActivityScoped
   abstract AppCompatActivity appCompatActivity(MainActivity mainActivity);
 
-  // TODO: Merge Fragment and activities modules into one.
-  // Discussion:
-  // https://stackoverflow.com/questions/36206989/dagger-should-we-create-each-component-and-module-for-each-activity-fragment
-
   @FragmentScoped
   @ContributesAndroidInjector(modules = StartupModule.class)
   abstract StartupFragment startupFragmentInjector();
