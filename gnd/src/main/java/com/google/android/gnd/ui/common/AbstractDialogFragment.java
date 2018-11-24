@@ -43,7 +43,10 @@ public abstract class AbstractDialogFragment extends DaggerAppCompatDialogFragme
 
   public AbstractDialogFragment() {}
 
-  protected <T extends ViewModel> T get(Class<T> modelClass) {
+  /**
+   * Uses {@link ViewModelFactory} to obtain an instance of the view model of the specified class.
+   */
+  protected <T extends ViewModel> T getViewModel(Class<T> modelClass) {
     return viewModelFactory.get(this, modelClass);
   }
 

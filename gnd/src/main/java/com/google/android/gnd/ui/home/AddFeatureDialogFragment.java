@@ -60,8 +60,8 @@ public class AddFeatureDialogFragment extends AbstractDialogFragment {
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     // TODO: Move into new AddFeatureDialogViewModel?
-    this.homeScreenViewModel = get(HomeScreenViewModel.class);
-    this.mapContainerViewModel = get(MapContainerViewModel.class);
+    this.homeScreenViewModel = getViewModel(HomeScreenViewModel.class);
+    this.mapContainerViewModel = getViewModel(MapContainerViewModel.class);
   }
 
   public Maybe<Feature> show(FragmentManager fragmentManager) {

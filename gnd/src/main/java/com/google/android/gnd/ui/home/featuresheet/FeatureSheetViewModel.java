@@ -20,7 +20,7 @@ import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.ViewModel;
 import android.support.v4.view.ViewPager;
-import com.google.android.gnd.ui.common.ActivityScope;
+import com.google.android.gnd.ui.common.SharedViewModel;
 import com.google.android.gnd.ui.home.FeatureSheetState;
 import com.google.android.gnd.vo.Feature;
 import com.google.android.gnd.vo.FeatureType;
@@ -28,7 +28,7 @@ import com.google.android.gnd.vo.Form;
 import java8.util.Optional;
 import javax.inject.Inject;
 
-@ActivityScope
+@SharedViewModel
 public class FeatureSheetViewModel extends ViewModel implements ViewPager.OnPageChangeListener {
 
   private MutableLiveData<Optional<Feature>> selectedFeature;

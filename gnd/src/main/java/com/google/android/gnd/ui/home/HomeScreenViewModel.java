@@ -22,8 +22,8 @@ import com.google.android.gnd.repository.DataRepository;
 import com.google.android.gnd.repository.Resource;
 import com.google.android.gnd.rx.RxLiveData;
 import com.google.android.gnd.ui.common.AbstractViewModel;
-import com.google.android.gnd.ui.common.ActivityScope;
 import com.google.android.gnd.ui.common.Navigator;
+import com.google.android.gnd.ui.common.SharedViewModel;
 import com.google.android.gnd.ui.common.SingleLiveEvent;
 import com.google.android.gnd.ui.map.MapMarker;
 import com.google.android.gnd.vo.Feature;
@@ -33,7 +33,7 @@ import com.google.android.gnd.vo.Project;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
-@ActivityScope
+@SharedViewModel
 public class HomeScreenViewModel extends AbstractViewModel {
 
   private static final String TAG = HomeScreenViewModel.class.getSimpleName();

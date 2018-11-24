@@ -22,11 +22,11 @@ import android.arch.lifecycle.ViewModel;
 import android.support.v4.view.WindowInsetsCompat;
 import android.view.View;
 import com.google.android.gnd.repository.DataRepository;
-import com.google.android.gnd.ui.common.ActivityScope;
 import com.google.android.gnd.ui.common.Navigator;
+import com.google.android.gnd.ui.common.SharedViewModel;
 import javax.inject.Inject;
 
-@ActivityScope
+@SharedViewModel
 public class MainViewModel extends ViewModel {
 
   private final DataRepository dataRepository;

@@ -24,7 +24,7 @@ import com.google.android.gnd.repository.Resource;
 import com.google.android.gnd.rx.RxLiveData;
 import com.google.android.gnd.system.LocationManager;
 import com.google.android.gnd.ui.common.AbstractViewModel;
-import com.google.android.gnd.ui.common.ActivityScope;
+import com.google.android.gnd.ui.common.SharedViewModel;
 import com.google.android.gnd.ui.map.MapMarker;
 import com.google.android.gnd.vo.Feature;
 import com.google.android.gnd.vo.Point;
@@ -36,7 +36,7 @@ import io.reactivex.disposables.Disposable;
 import java8.util.Optional;
 import javax.inject.Inject;
 
-@ActivityScope
+@SharedViewModel
 public class MapContainerViewModel extends AbstractViewModel {
 
   private static final String TAG = MapContainerViewModel.class.getSimpleName();

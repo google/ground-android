@@ -16,9 +16,14 @@
 
 package com.google.android.gnd.ui.common;
 
+import android.support.v4.app.Fragment;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
-// TODO: Differentiate w/ActivityScoped inject annotation.
+/**
+ * Annotates view models to indicate that a single instance should be shared by all fragments in an
+ * activity. Only one instance of such view models will be created per activity by {@link
+ * ViewModelFactory#get(Fragment, Class)}.
+ */
 @Retention(RetentionPolicy.RUNTIME)
-public @interface ActivityScope {}
+public @interface SharedViewModel {}

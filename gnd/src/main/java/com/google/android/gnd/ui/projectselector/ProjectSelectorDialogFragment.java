@@ -62,7 +62,7 @@ public class ProjectSelectorDialogFragment extends AbstractDialogFragment {
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    this.viewModel = get(ProjectSelectorViewModel.class);
+    this.viewModel = getViewModel(ProjectSelectorViewModel.class);
   }
 
   @Override
