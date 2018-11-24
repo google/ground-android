@@ -38,13 +38,13 @@
       android:gravity="center"
       app:layout_behavior="com.google.android.gnd.ui.home.mapcontainer.MapLayoutBehavior">
 
-      <!-- Placeholder for map implementation -->
+      <!-- Featureholder for map implementation -->
       <FrameLayout
         android:id="@+id/map"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 
-      <!-- TODO: Add highlighted icon overlay when showing place sheet -->
+      <!-- TODO: Add highlighted icon overlay when showing feature sheet -->
       <ImageView
         android:id="@+id/map_crosshairs"
         android:layout_width="wrap_content"
@@ -74,7 +74,7 @@
         app:useCompatPadding="true"/>
 
       <android.support.design.widget.FloatingActionButton
-        android:id="@+id/add_place_btn"
+        android:id="@+id/add_feature_btn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/ic_plus_black_24dp"

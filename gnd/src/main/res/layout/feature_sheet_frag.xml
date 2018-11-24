@@ -21,13 +21,13 @@
   android:layout_height="wrap_content">
 
   <LinearLayout
-    android:id="@+id/place_sheet_card_contents"
+    android:id="@+id/feature_sheet_card_contents"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_gravity="top"
     android:orientation="vertical">
 
-    <include layout="@layout/place_sheet_header"/>
+    <include layout="@layout/feature_sheet_header"/>
 
     <!--
       @background is required to make @elevation show drop shadow

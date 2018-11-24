@@ -20,8 +20,8 @@ import static com.google.android.gnd.service.firestore.FirestoreDataService.toTi
 
 import android.support.annotation.Nullable;
 import android.util.Log;
+import com.google.android.gnd.vo.Feature;
 import com.google.android.gnd.vo.Form;
-import com.google.android.gnd.vo.Place;
 import com.google.android.gnd.vo.Record;
 import com.google.android.gnd.vo.Record.MultipleChoiceValue;
 import com.google.android.gnd.vo.Record.TextValue;
@@ -62,8 +62,8 @@ public class RecordDoc {
 
   public static RecordDoc forUpdates(Record record, Map<String, Object> valueUpdates) {
     RecordDoc rd = new RecordDoc();
-    rd.featureId = record.getPlace().getId();
-    rd.featureTypeId = record.getPlace().getPlaceType().getId();
+    rd.featureId = record.getFeature().getId();
+    rd.featureTypeId = record.getFeature().getFeatureType().getId();
     rd.formId = record.getForm().getId();
     rd.responses = valueUpdates;
     rd.clientTimeModified = new Date();
@@ -72,22 +72,22 @@ public class RecordDoc {
     return rd;
   }
 
-  public static Record toObject(Place place, String recordId, DocumentSnapshot doc) {
+  public static Record toObject(Feature feature, String recordId, DocumentSnapshot doc) {
     RecordDoc rd = doc.toObject(RecordDoc.class);
-    if (!place.getId().equals(rd.featureId)) {
+    if (!feature.getId().equals(rd.featureId)) {
       // TODO: Handle error.
     }
-    if (!place.getPlaceType().getId().equals(rd.featureTypeId)) {
+    if (!feature.getFeatureType().getId().equals(rd.featureTypeId)) {
       // TODO: Handle error.
     }
-    Optional<Form> form = place.getPlaceType().getForm(rd.formId);
+    Optional<Form> form = feature.getFeatureType().getForm(rd.formId);
     if (!form.isPresent()) {
       // TODO: Handle error.
     }
     return Record.newBuilder()
         .setId(recordId)
-        .setProject(place.getProject())
-        .setPlace(place)
+        .setProject(feature.getProject())
+        .setFeature(feature)
         .setForm(form.get())
         .putAllValues(convertValues(rd.responses))
         .setCreatedBy(UserDoc.toObject(rd.createdBy))

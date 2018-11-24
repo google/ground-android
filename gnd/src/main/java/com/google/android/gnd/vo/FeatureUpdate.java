@@ -23,7 +23,7 @@ import java.util.Date;
 import java8.util.Optional;
 
 @AutoValue
-public abstract class PlaceUpdate {
+public abstract class FeatureUpdate {
 
   // TODO: Simplify and delete?
   public enum Operation {
@@ -33,7 +33,7 @@ public abstract class PlaceUpdate {
     DELETE
   }
 
-  public abstract Place getPlace();
+  public abstract Feature getFeature();
 
   public abstract Operation getOperation();
 
@@ -42,12 +42,12 @@ public abstract class PlaceUpdate {
   public abstract ImmutableList<RecordUpdate> getRecordUpdatesList();
 
   public static Builder newBuilder() {
-    return new AutoValue_PlaceUpdate.Builder();
+    return new AutoValue_FeatureUpdate.Builder();
   }
 
   @AutoValue.Builder
   public abstract static class Builder {
-    public abstract Builder setPlace(Place newPlace);
+    public abstract Builder setFeature(Feature newFeature);
 
     public abstract Builder setOperation(Operation newOperation);
 
@@ -55,7 +55,7 @@ public abstract class PlaceUpdate {
 
     public abstract Builder setRecordUpdatesList(ImmutableList<RecordUpdate> newRecordUpdatesList);
 
-    public abstract PlaceUpdate build();
+    public abstract FeatureUpdate build();
   }
 
   @AutoValue
@@ -67,7 +67,7 @@ public abstract class PlaceUpdate {
     public abstract ImmutableList<ValueUpdate> getValueUpdates();
 
     public static Builder newBuilder() {
-      return new AutoValue_PlaceUpdate_RecordUpdate.Builder();
+      return new AutoValue_FeatureUpdate_RecordUpdate.Builder();
     }
 
     @AutoValue.Builder
@@ -90,7 +90,7 @@ public abstract class PlaceUpdate {
       public abstract Operation getOperation();
 
       public static Builder newBuilder() {
-        return new AutoValue_PlaceUpdate_RecordUpdate_ValueUpdate.Builder()
+        return new AutoValue_FeatureUpdate_RecordUpdate_ValueUpdate.Builder()
             .setValue(Optional.empty());
       }
 

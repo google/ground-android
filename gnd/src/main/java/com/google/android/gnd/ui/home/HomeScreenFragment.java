@@ -55,14 +55,14 @@ import com.google.android.gnd.ui.common.ProgressDialogs;
 import com.google.android.gnd.ui.common.TwoLineToolbar;
 import com.google.android.gnd.ui.home.mapcontainer.MapContainerFragment;
 import com.google.android.gnd.ui.projectselector.ProjectSelectorDialogFragment;
-import com.google.android.gnd.vo.Place;
+import com.google.android.gnd.vo.Feature;
 import com.google.android.gnd.vo.Point;
 import com.google.android.gnd.vo.Project;
 import javax.inject.Inject;
 
 /**
- * Fragment containing the map container and place sheet fragments. This is the default view in the
- * application, and gets swapped out for other fragments (e.g., view record and edit record) at
+ * Fragment containing the map container and feature sheet fragments. This is the default view in
+ * the application, and gets swapped out for other fragments (e.g., view record and edit record) at
  * runtime.
  */
 @ActivityScoped
@@ -71,7 +71,7 @@ public class HomeScreenFragment extends AbstractFragment
   private static final float COLLAPSED_MAP_ASPECT_RATIO = 3.0f / 2.0f;
   private static final String TAG = HomeScreenFragment.class.getSimpleName();
 
-  @Inject AddPlaceDialogFragment addPlaceDialogFragment;
+  @Inject AddFeatureDialogFragment addFeatureDialogFragment;
   @Inject AuthenticationManager authenticationManager;
 
   @BindView(R.id.toolbar_wrapper)
@@ -117,8 +117,8 @@ public class HomeScreenFragment extends AbstractFragment
 
     viewModel = getViewModel(HomeScreenViewModel.class);
     viewModel.getActiveProject().observe(this, this::onActiveProjectChange);
-    viewModel.getShowAddPlaceDialogRequests().observe(this, this::onShowAddPlaceDialogRequest);
-    viewModel.getPlaceSheetState().observe(this, this::onPlaceSheetStateChange);
+    viewModel.getShowAddFeatureDialogRequests().observe(this, this::onShowAddFeatureDialogRequest);
+    viewModel.getFeatureSheetState().observe(this, this::onFeatureSheetStateChange);
     viewModel.getOpenDrawerRequests().observe(this, __ -> openDrawer());
   }
 
@@ -127,7 +127,7 @@ public class HomeScreenFragment extends AbstractFragment
   public View onCreateView(
       LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     HomeScreenFragBinding binding = HomeScreenFragBinding.inflate(inflater, container, false);
-    binding.placeSheetChrome.setViewModel(viewModel);
+    binding.featureSheetChrome.setViewModel(viewModel);
     return binding.getRoot();
   }
 
@@ -195,7 +195,7 @@ public class HomeScreenFragment extends AbstractFragment
 
   @Override
   public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-    inflater.inflate(R.menu.place_sheet_menu, menu);
+    inflater.inflate(R.menu.feature_sheet_menu, menu);
   }
 
   @Override
@@ -259,24 +259,24 @@ public class HomeScreenFragment extends AbstractFragment
     }
   }
 
-  private void onShowAddPlaceDialogRequest(Point location) {
+  private void onShowAddFeatureDialogRequest(Point location) {
     if (!Resource.getData(viewModel.getActiveProject()).isPresent()) {
       return;
     }
     // TODO: Pause location updates while dialog is open.
     // TODO: Show spinner?
-    addPlaceDialogFragment
+    addFeatureDialogFragment
         .show(getChildFragmentManager())
         .as(autoDisposable(this))
-        .subscribe(viewModel::addPlace);
+        .subscribe(viewModel::addFeature);
   }
 
-  private void onPlaceSheetStateChange(PlaceSheetState state) {
+  private void onFeatureSheetStateChange(FeatureSheetState state) {
     switch (state.getVisibility()) {
       case VISIBLE:
-        Place place = state.getPlace();
-        toolbar.setTitle(place.getTitle());
-        toolbar.setSubtitle(place.getSubtitle());
+        Feature feature = state.getFeature();
+        toolbar.setTitle(feature.getTitle());
+        toolbar.setSubtitle(feature.getSubtitle());
         showBottomSheet();
         break;
       case HIDDEN:

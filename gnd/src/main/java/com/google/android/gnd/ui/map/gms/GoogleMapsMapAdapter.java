@@ -32,8 +32,8 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gnd.ui.MapIcon;
 import com.google.android.gnd.ui.map.MapMarker;
 import com.google.android.gnd.ui.map.MapProvider.MapAdapter;
-import com.google.android.gnd.vo.Place;
-import com.google.android.gnd.vo.PlaceType;
+import com.google.android.gnd.vo.Feature;
+import com.google.android.gnd.vo.FeatureType;
 import com.google.android.gnd.vo.Point;
 import com.google.common.collect.ImmutableSet;
 import io.reactivex.Observable;
@@ -168,29 +168,29 @@ class GoogleMapsMapAdapter implements MapAdapter {
   }
 
   @Override
-  public void updateMarkers(ImmutableSet<Place> places) {
-    if (places.isEmpty()) {
+  public void updateMarkers(ImmutableSet<Feature> features) {
+    if (features.isEmpty()) {
       removeAllMarkers();
       return;
     }
-    Set<Place> newPlaces = new HashSet<>(places);
+    Set<Feature> newFeatures = new HashSet<>(features);
     Iterator<Entry<String, Marker>> it = markers.entrySet().iterator();
     while (it.hasNext()) {
       Entry<String, Marker> entry = it.next();
       Marker marker = entry.getValue();
       getMapMarker(marker)
-          .flatMap(MapMarker::getPlace)
+          .flatMap(MapMarker::getFeature)
           .ifPresent(
-              place -> {
-                if (places.contains(place)) {
-                  newPlaces.remove(place);
+              feature -> {
+                if (features.contains(feature)) {
+                  newFeatures.remove(feature);
                 } else {
                   removeMarker(marker);
                   it.remove();
                 }
               });
     }
-    stream(newPlaces).forEach(this::addMarker);
+    stream(newFeatures).forEach(this::addMarker);
   }
 
   private Optional<MapMarker> getMapMarker(Marker marker) {
@@ -205,17 +205,17 @@ class GoogleMapsMapAdapter implements MapAdapter {
     marker.remove();
   }
 
-  private void addMarker(Place place) {
-    Log.v(TAG, "Adding marker for " + place.getId());
-    PlaceType placeType = place.getPlaceType();
-    MapIcon icon = new MapIcon(context, placeType.getIconId(), placeType.getIconColor());
+  private void addMarker(Feature feature) {
+    Log.v(TAG, "Adding marker for " + feature.getId());
+    FeatureType featureType = feature.getFeatureType();
+    MapIcon icon = new MapIcon(context, featureType.getIconId(), featureType.getIconColor());
     // TODO: Reimplement hasPendingWrites.
     addMarker(
         MapMarker.newBuilder()
-            .setId(place.getId())
-            .setPosition(place.getPoint())
+            .setId(feature.getId())
+            .setPosition(feature.getPoint())
             .setIcon(icon)
-            .setObject(place)
+            .setObject(feature)
             .build(),
         false,
         false);

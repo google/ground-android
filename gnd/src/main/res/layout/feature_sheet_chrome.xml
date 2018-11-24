@@ -62,7 +62,7 @@
       app:chipIcon="@drawable/ic_add_light"
       app:useCompatPadding="true"/>
 
-    <!-- Prevents place sheet UI from bleeding through to navigation buttons when expanded. -->
+    <!-- Prevents feature sheet UI from bleeding through to navigation buttons when expanded. -->
     <FrameLayout
       android:id="@+id/bottom_sheet_bottom_inset_scrim"
       android:layout_width="match_parent"

@@ -38,7 +38,7 @@
           android:layout_height="match_parent"
           app:layout_behavior="com.google.android.gnd.ui.home.mapcontainer.MapContainerLayoutBehavior"/>
 
-        <!-- TODO: Move place sheet and chrome into separate layout files. -->
+        <!-- TODO: Move feature sheet and chrome into separate layout files. -->
         <FrameLayout
           android:id="@+id/map_scrim"
           android:layout_width="match_parent"
@@ -55,16 +55,16 @@
           app:layout_behavior="com.google.android.gnd.ui.common.BottomSheetBehavior">
 
           <fragment
-            android:id="@+id/place_sheet_fragment"
+            android:id="@+id/feature_sheet_fragment"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:name="com.google.android.gnd.ui.home.placesheet.PlaceSheetFragment"/>
+            android:name="com.google.android.gnd.ui.home.featuresheet.FeatureSheetFragment"/>
 
         </FrameLayout>
 
         <include
-          android:id="@+id/place_sheet_chrome"
-          layout="@layout/place_sheet_chrome"/>
+          android:id="@+id/feature_sheet_chrome"
+          layout="@layout/feature_sheet_chrome"/>
 
       </android.support.design.widget.CoordinatorLayout>
 

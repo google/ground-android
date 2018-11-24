@@ -40,8 +40,8 @@ import com.google.android.gnd.repository.Resource;
 import com.google.android.gnd.system.PermissionsManager.PermissionDeniedException;
 import com.google.android.gnd.system.SettingsManager.SettingsChangeRequestCanceled;
 import com.google.android.gnd.ui.common.AbstractFragment;
+import com.google.android.gnd.ui.home.FeatureSheetState;
 import com.google.android.gnd.ui.home.HomeScreenViewModel;
-import com.google.android.gnd.ui.home.PlaceSheetState;
 import com.google.android.gnd.ui.home.mapcontainer.MapContainerViewModel.LocationLockStatus;
 import com.google.android.gnd.ui.map.MapProvider;
 import com.google.android.gnd.ui.map.MapProvider.MapAdapter;
@@ -58,8 +58,8 @@ public class MapContainerFragment extends AbstractFragment {
   @BindView(R.id.hamburger_btn)
   ImageButton hamburgerBtn;
 
-  @BindView(R.id.add_place_btn)
-  FloatingActionButton addPlaceBtn;
+  @BindView(R.id.add_feature_btn)
+  FloatingActionButton addFeatureBtn;
 
   @BindView(R.id.location_lock_btn)
   FloatingActionButton locationLockBtn;
@@ -100,16 +100,17 @@ public class MapContainerFragment extends AbstractFragment {
   private void onMapReady(MapAdapter map) {
     Log.d(TAG, "MapAdapter ready. Updating subscriptions");
     // Observe events emitted by the ViewModel.
-    mapContainerViewModel.getPlaces().observe(this, map::updateMarkers);
+    mapContainerViewModel.getFeatures().observe(this, map::updateMarkers);
     mapContainerViewModel
         .getLocationLockStatus()
         .observe(this, status -> onLocationLockStatusChange(status, map));
     mapContainerViewModel.getCameraUpdates().observe(this, update -> onCameraUpdate(update, map));
     mapContainerViewModel.getActiveProject().observe(this, this::onProjectChange);
     homeScreenViewModel
-        .getPlaceSheetState()
-        .observe(this, state -> onPlaceSheetStateChange(state, map));
-    addPlaceBtn.setOnClickListener(__ -> homeScreenViewModel.onAddPlaceBtnClick(map.getCenter()));
+        .getFeatureSheetState()
+        .observe(this, state -> onFeatureSheetStateChange(state, map));
+    addFeatureBtn.setOnClickListener(
+        __ -> homeScreenViewModel.onAddFeatureBtnClick(map.getCenter()));
     locationLockBtn.setOnClickListener(__ -> onLocationLockClick(map));
     map.getMarkerClicks()
         .as(disposeOnDestroy(this))
@@ -135,11 +136,11 @@ public class MapContainerFragment extends AbstractFragment {
     mapContainerViewModel.toggleLocationLock();
   }
 
-  private void onPlaceSheetStateChange(PlaceSheetState state, MapAdapter map) {
+  private void onFeatureSheetStateChange(FeatureSheetState state, MapAdapter map) {
     switch (state.getVisibility()) {
       case VISIBLE:
         map.disable();
-        mapContainerViewModel.panAndZoomCamera(state.getPlace().getPoint());
+        mapContainerViewModel.panAndZoomCamera(state.getFeature().getPoint());
         break;
       case HIDDEN:
         map.enable();
@@ -149,9 +150,9 @@ public class MapContainerFragment extends AbstractFragment {
 
   private void onProjectChange(Resource<Project> project) {
     if (project.isLoaded()) {
-      enableAddPlaceBtn();
+      enableAddFeatureBtn();
     } else {
-      disableAddPlaceBtn();
+      disableAddFeatureBtn();
     }
   }
 
@@ -159,15 +160,15 @@ public class MapContainerFragment extends AbstractFragment {
     locationLockBtn.setEnabled(true);
   }
 
-  private void enableAddPlaceBtn() {
-    addPlaceBtn.setBackgroundTintList(
+  private void enableAddFeatureBtn() {
+    addFeatureBtn.setBackgroundTintList(
         ColorStateList.valueOf(getResources().getColor(R.color.colorMapAccent)));
   }
 
-  private void disableAddPlaceBtn() {
-    // NOTE: We don't call addPlaceBtn.setEnabled(false) here since calling it before the fab is
+  private void disableAddFeatureBtn() {
+    // NOTE: We don't call addFeatureBtn.setEnabled(false) here since calling it before the fab is
     // shown corrupts its padding when used with useCompatPadding="true".
-    addPlaceBtn.setBackgroundTintList(
+    addFeatureBtn.setBackgroundTintList(
         ColorStateList.valueOf(getResources().getColor(R.color.colorGrey500)));
   }
 

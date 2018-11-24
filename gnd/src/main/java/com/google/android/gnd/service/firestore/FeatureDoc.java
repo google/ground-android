@@ -18,8 +18,8 @@ package com.google.android.gnd.service.firestore;
 
 import static com.google.android.gnd.service.firestore.FirestoreDataService.toTimestamps;
 
-import com.google.android.gnd.vo.Place;
-import com.google.android.gnd.vo.PlaceType;
+import com.google.android.gnd.vo.Feature;
+import com.google.android.gnd.vo.FeatureType;
 import com.google.android.gnd.vo.Point;
 import com.google.android.gnd.vo.Project;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -30,7 +30,7 @@ import java.util.Date;
 import java8.util.Optional;
 
 @IgnoreExtraProperties
-public class PlaceDoc {
+public class FeatureDoc {
   public String featureTypeId;
 
   public String customId;
@@ -48,37 +48,37 @@ public class PlaceDoc {
 
   public Date clientTimeModified;
 
-  public static Place toObject(Project project, DocumentSnapshot doc) {
-    PlaceDoc f = doc.toObject(PlaceDoc.class);
+  public static Feature toObject(Project project, DocumentSnapshot doc) {
+    FeatureDoc f = doc.toObject(FeatureDoc.class);
     Point point =
         Point.newBuilder()
             .setLatitude(f.center.getLatitude())
             .setLongitude(f.center.getLongitude())
             .build();
-    Optional<PlaceType> placeType = project.getPlaceType(f.featureTypeId);
-    if (!placeType.isPresent()) {
+    Optional<FeatureType> featureType = project.getFeatureType(f.featureTypeId);
+    if (!featureType.isPresent()) {
       throw new DatastoreException(
-          "Unknown place type " + f.featureTypeId + " in lace " + doc.getId());
+          "Unknown feature type " + f.featureTypeId + " in lace " + doc.getId());
     }
-    return Place.newBuilder()
+    return Feature.newBuilder()
         .setId(doc.getId())
         .setProject(project)
         .setCustomId(f.customId)
         .setCaption(f.caption)
-        .setPlaceType(placeType.get())
+        .setFeatureType(featureType.get())
         .setPoint(point)
         .setServerTimestamps(toTimestamps(f.serverTimeCreated, f.serverTimeModified))
         .setClientTimestamps(toTimestamps(f.clientTimeCreated, f.clientTimeModified))
         .build();
   }
 
-  public static PlaceDoc fromObject(Place place) {
-    PlaceDoc doc = new PlaceDoc();
-    Point point = place.getPoint();
-    doc.featureTypeId = place.getPlaceType().getId();
+  public static FeatureDoc fromObject(Feature feature) {
+    FeatureDoc doc = new FeatureDoc();
+    Point point = feature.getPoint();
+    doc.featureTypeId = feature.getFeatureType().getId();
     doc.center = new GeoPoint(point.getLatitude(), point.getLongitude());
-    doc.customId = place.getCustomId();
-    doc.caption = place.getCaption();
+    doc.customId = feature.getCustomId();
+    doc.caption = feature.getCaption();
     // TODO: Implement timestamps.
     // TODO: Don't echo server timestamp in client. When we implement a proper DAL we can
     // use FieldValue.serverTimestamp() to signal when to update the value, or not set it,

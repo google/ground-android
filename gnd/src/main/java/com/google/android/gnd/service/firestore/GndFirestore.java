@@ -22,7 +22,7 @@ import static java8.util.stream.StreamSupport.stream;
 import android.util.Log;
 import com.google.android.gnd.service.DatastoreEvent;
 import com.google.android.gnd.system.AuthenticationManager.User;
-import com.google.android.gnd.vo.Place;
+import com.google.android.gnd.vo.Feature;
 import com.google.android.gnd.vo.Project;
 import com.google.android.gnd.vo.Record;
 import com.google.firebase.firestore.CollectionReference;
@@ -42,14 +42,12 @@ import java.util.List;
 import java8.util.function.Function;
 import java8.util.stream.Collectors;
 
-/**
- * Object representation of Ground Firestore database.
- */
+/** Object representation of Ground Firestore database. */
 public class GndFirestore extends AbstractFluentFirestore {
   private static final String TAG = GndFirestore.class.getSimpleName();
 
   private static final String PROJECTS = "projects";
-  private static final String PLACES = "features";
+  private static final String FEATURES = "features";
   private static final String RECORDS = "records";
 
   GndFirestore(FirebaseFirestore db) {
@@ -85,8 +83,8 @@ public class GndFirestore extends AbstractFluentFirestore {
       super(ref);
     }
 
-    public FeaturesCollectionReference places() {
-      return new FeaturesCollectionReference(ref.collection(PLACES));
+    public FeaturesCollectionReference features() {
+      return new FeaturesCollectionReference(ref.collection(FEATURES));
     }
 
     public RecordsCollectionReference records() {
@@ -107,18 +105,18 @@ public class GndFirestore extends AbstractFluentFirestore {
       return new FeatureDocumentReference(ref.document(id));
     }
 
-    public Single<Place> add(Place place) {
-      return RxFirestore.addDocument(ref, PlaceDoc.fromObject(place))
-          .map(docRef -> place.toBuilder().setId(docRef.getId()).build());
+    public Single<Feature> add(Feature feature) {
+      return RxFirestore.addDocument(ref, FeatureDoc.fromObject(feature))
+          .map(docRef -> feature.toBuilder().setId(docRef.getId()).build());
     }
 
-    public Flowable<DatastoreEvent<Place>> observe(Project project) {
+    public Flowable<DatastoreEvent<Feature>> observe(Project project) {
       return RxFirestore.observeQueryRef(ref)
           .flatMapIterable(
-              placeQuerySnapshot ->
+              featureQuerySnapshot ->
                   toDatastoreEvents(
-                      placeQuerySnapshot,
-                      placeDocSnapshot -> PlaceDoc.toObject(project, placeDocSnapshot)));
+                      featureQuerySnapshot,
+                      featureDocSnapshot -> FeatureDoc.toObject(project, featureDocSnapshot)));
     }
   }
 
@@ -141,7 +139,7 @@ public class GndFirestore extends AbstractFluentFirestore {
       return new RecordDocumentReference(ref.document(id));
     }
 
-    public Single<List<Record>> getByFeature(Place feature) {
+    public Single<List<Record>> getByFeature(Feature feature) {
       return toSingleList(
           RxFirestore.getCollection(ref().whereEqualTo(FieldPath.of("featureId"), feature.getId())),
           doc -> RecordDoc.toObject(feature, doc.getId(), doc));
@@ -153,8 +151,8 @@ public class GndFirestore extends AbstractFluentFirestore {
       super(ref);
     }
 
-    public Maybe<Record> get(Place place) {
-      return RxFirestore.getDocument(ref).map(doc -> RecordDoc.toObject(place, doc.getId(), doc));
+    public Maybe<Record> get(Feature feature) {
+      return RxFirestore.getDocument(ref).map(doc -> RecordDoc.toObject(feature, doc.getId(), doc));
     }
   }
 

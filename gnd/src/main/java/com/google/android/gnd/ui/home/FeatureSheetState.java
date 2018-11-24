@@ -17,9 +17,9 @@
 package com.google.android.gnd.ui.home;
 
 import android.support.annotation.Nullable;
-import com.google.android.gnd.vo.Place;
+import com.google.android.gnd.vo.Feature;
 
-public class PlaceSheetState {
+public class FeatureSheetState {
 
   public enum Visibility {
     VISIBLE,
@@ -28,27 +28,27 @@ public class PlaceSheetState {
 
   private final Visibility visibility;
 
-  @Nullable private Place place;
+  @Nullable private Feature feature;
 
-  private PlaceSheetState(Visibility visibility, Place place) {
+  private FeatureSheetState(Visibility visibility, Feature feature) {
     this.visibility = visibility;
-    this.place = place;
+    this.feature = feature;
   }
 
-  private PlaceSheetState(Visibility visibility) {
+  private FeatureSheetState(Visibility visibility) {
     this(visibility, null);
   }
 
-  public static PlaceSheetState visible(Place place) {
-    return new PlaceSheetState(Visibility.VISIBLE, place);
+  public static FeatureSheetState visible(Feature feature) {
+    return new FeatureSheetState(Visibility.VISIBLE, feature);
   }
 
-  public static PlaceSheetState hidden() {
-    return new PlaceSheetState(Visibility.HIDDEN);
+  public static FeatureSheetState hidden() {
+    return new FeatureSheetState(Visibility.HIDDEN);
   }
 
-  public Place getPlace() {
-    return place;
+  public Feature getFeature() {
+    return feature;
   }
 
   public Visibility getVisibility() {

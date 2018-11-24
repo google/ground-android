@@ -65,8 +65,8 @@ public class Navigator {
    * com.google.android.gnd.ui.recorddetails.RecordDetailsFragment} populated with the specified
    * record.
    */
-  public void showRecordDetails(String projectId, String placeId, String recordId) {
-    navigate(HomeScreenFragmentDirections.showRecordDetails(projectId, placeId, recordId));
+  public void showRecordDetails(String projectId, String featureId, String recordId) {
+    navigate(HomeScreenFragmentDirections.showRecordDetails(projectId, featureId, recordId));
   }
 
   /**
@@ -74,8 +74,8 @@ public class Navigator {
    * com.google.android.gnd.ui.editrecord.EditRecordFragment} initialized with a new empty record
    * using the specified form.
    */
-  public void addRecord(String projectId, String placeId, String formId) {
-    navigate(HomeScreenFragmentDirections.addRecord(projectId, placeId, formId));
+  public void addRecord(String projectId, String featureId, String formId) {
+    navigate(HomeScreenFragmentDirections.addRecord(projectId, featureId, formId));
   }
 
   /**
@@ -83,8 +83,8 @@ public class Navigator {
    * {@link com.google.android.gnd.ui.editrecord.EditRecordFragment} populated with the specified
    * record.
    */
-  public void editRecord(String projectId, String placeId, String recordId) {
-    navigate(RecordDetailsFragmentDirections.editRecord(projectId, placeId, recordId));
+  public void editRecord(String projectId, String featureId, String recordId) {
+    navigate(RecordDetailsFragmentDirections.editRecord(projectId, featureId, recordId));
   }
 
   /** Navigates to the home screen. */

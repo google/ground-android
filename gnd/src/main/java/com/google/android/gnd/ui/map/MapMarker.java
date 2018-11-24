@@ -17,7 +17,7 @@
 package com.google.android.gnd.ui.map;
 
 import com.google.android.gnd.ui.MapIcon;
-import com.google.android.gnd.vo.Place;
+import com.google.android.gnd.vo.Feature;
 import com.google.android.gnd.vo.Point;
 import com.google.auto.value.AutoValue;
 import java8.util.Optional;
@@ -35,9 +35,9 @@ public abstract class MapMarker {
   @Nullable
   public abstract Object getObject();
 
-  public Optional<Place> getPlace() {
-    return getObject() != null && getObject() instanceof Place
-        ? Optional.of((Place) getObject())
+  public Optional<Feature> getFeature() {
+    return getObject() != null && getObject() instanceof Feature
+        ? Optional.of((Feature) getObject())
         : Optional.empty();
   }
 

@@ -39,8 +39,10 @@ public class RecordDetailsViewModel extends AbstractViewModel {
     return record;
   }
 
-  public void loadRecordDetails(String projectId, String placeId, String recordId) {
+  public void loadRecordDetails(String projectId, String featureId, String recordId) {
     disposeOnClear(
-        dataRepository.getRecordDetails(projectId, placeId, recordId).subscribe(record::setValue));
+        dataRepository
+            .getRecordDetails(projectId, featureId, recordId)
+            .subscribe(record::setValue));
   }
 }

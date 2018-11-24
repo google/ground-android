@@ -15,7 +15,7 @@
  */
 package com.google.android.gnd.repository;
 
-import com.google.android.gnd.vo.Place;
+import com.google.android.gnd.vo.Feature;
 import com.google.android.gnd.vo.Project;
 import com.google.common.collect.ImmutableSet;
 import java.util.LinkedHashMap;
@@ -26,25 +26,25 @@ import javax.inject.Inject;
 /** Ephemeral storage of application state. This can be destroyed without notice. */
 public class InMemoryCache {
   private Optional<Project> activeProject;
-  // TODO: Store map vector objects here instead of Place objects.
-  private final Map<String, Place> places;
+  // TODO: Store map vector objects here instead of Feature objects.
+  private final Map<String, Feature> features;
 
   @Inject
   public InMemoryCache() {
-    this.places = new LinkedHashMap<>();
+    this.features = new LinkedHashMap<>();
     this.activeProject = Optional.empty();
   }
 
-  public synchronized void putPlace(Place place) {
-    places.put(place.getId(), place);
+  public synchronized void putFeature(Feature feature) {
+    features.put(feature.getId(), feature);
   }
 
-  public void removePlace(String id) {
-    places.remove(id);
+  public void removeFeature(String id) {
+    features.remove(id);
   }
 
-  public synchronized ImmutableSet<Place> getPlaces() {
-    return ImmutableSet.copyOf(places.values());
+  public synchronized ImmutableSet<Feature> getFeatures() {
+    return ImmutableSet.copyOf(features.values());
   }
 
   public Optional<Project> getActiveProject() {
@@ -53,15 +53,15 @@ public class InMemoryCache {
 
   public void setActiveProject(Project project) {
     activeProject = Optional.of(project);
-    places.clear();
+    features.clear();
   }
 
   public void clearActiveProject() {
     activeProject = Optional.empty();
-    places.clear();
+    features.clear();
   }
 
-  public Optional<Place> getPlace(String placeId) {
-    return Optional.ofNullable(places.get(placeId));
+  public Optional<Feature> getFeature(String featureId) {
+    return Optional.ofNullable(features.get(featureId));
   }
 }

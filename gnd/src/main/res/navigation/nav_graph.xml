@@ -79,7 +79,7 @@
       android:name="projectId"/>
     <argument
       type="string"
-      android:name="placeId"/>
+      android:name="featureId"/>
     <argument
       type="string"
       android:name="recordId"/>
@@ -105,7 +105,7 @@
       android:name="projectId"/>
     <argument
       type="string"
-      android:name="placeId"/>
+      android:name="featureId"/>
     <argument
       type="string"
       android:name="recordId"/>

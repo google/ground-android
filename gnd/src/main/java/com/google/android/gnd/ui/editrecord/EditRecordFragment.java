@@ -120,9 +120,9 @@ public class EditRecordFragment extends AbstractFragment implements BackPressLis
     }
     EditRecordFragmentArgs args = EditRecordFragmentArgs.fromBundle(getArguments());
     if (args.getRecordId().equals(NEW_RECORD_ID_ARG_PLACEHOLDER)) {
-      viewModel.editNewRecord(args.getProjectId(), args.getPlaceId(), args.getFormId());
+      viewModel.editNewRecord(args.getProjectId(), args.getFeatureId(), args.getFormId());
     } else {
-      viewModel.editExistingRecord(args.getProjectId(), args.getPlaceId(), args.getRecordId());
+      viewModel.editExistingRecord(args.getProjectId(), args.getFeatureId(), args.getRecordId());
     }
   }
 
@@ -154,8 +154,8 @@ public class EditRecordFragment extends AbstractFragment implements BackPressLis
 
   private void editRecord(Record record) {
     progressBar.setVisibility(View.GONE);
-    toolbar.setTitle(record.getPlace().getTitle());
-    toolbar.setSubtitle(record.getPlace().getSubtitle());
+    toolbar.setTitle(record.getFeature().getTitle());
+    toolbar.setSubtitle(record.getFeature().getSubtitle());
     formNameView.setText(record.getForm().getTitle());
     rebuildForm(record);
     saveRecordButton.setVisibility(View.VISIBLE);

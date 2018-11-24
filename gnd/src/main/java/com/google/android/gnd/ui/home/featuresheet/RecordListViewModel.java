@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.ui.home.placesheet;
+package com.google.android.gnd.ui.home.featuresheet;
 
 import static java8.util.stream.StreamSupport.stream;
 
@@ -22,8 +22,8 @@ import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import com.google.android.gnd.repository.DataRepository;
 import com.google.android.gnd.ui.common.AbstractViewModel;
+import com.google.android.gnd.vo.Feature;
 import com.google.android.gnd.vo.Form;
-import com.google.android.gnd.vo.Place;
 import com.google.android.gnd.vo.Project;
 import com.google.android.gnd.vo.Record;
 import java.util.Collections;
@@ -52,12 +52,13 @@ public class RecordListViewModel extends AbstractViewModel {
     recordSummaries.setValue(Collections.emptyList());
   }
 
-  public void loadRecordSummaries(Place place, Form form) {
-    loadRecords(place.getProject(), place.getPlaceType().getId(), form.getId(), place.getId());
+  public void loadRecordSummaries(Feature feature, Form form) {
+    loadRecords(
+        feature.getProject(), feature.getFeatureType().getId(), form.getId(), feature.getId());
   }
 
-  private void loadRecords(Project project, String placeTypeId, String formId, String placeId) {
-    Optional<Form> form = project.getPlaceType(placeTypeId).flatMap(pt -> pt.getForm(formId));
+  private void loadRecords(Project project, String featureTypeId, String formId, String featureId) {
+    Optional<Form> form = project.getFeatureType(featureTypeId).flatMap(pt -> pt.getForm(formId));
     if (!form.isPresent()) {
       // TODO: Show error.
       return;
@@ -65,7 +66,7 @@ public class RecordListViewModel extends AbstractViewModel {
     // TODO: Use project id instead of object.
     disposeOnClear(
         dataRepository
-            .getRecordSummaries(project.getId(), placeId)
+            .getRecordSummaries(project.getId(), featureId)
             .subscribe(
                 // TODO: Only fetch records w/current formId.
                 records ->

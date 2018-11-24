@@ -30,8 +30,8 @@ import com.google.android.gnd.inject.ActivityScoped;
 import com.google.android.gnd.repository.Resource;
 import com.google.android.gnd.ui.common.AbstractDialogFragment;
 import com.google.android.gnd.ui.home.mapcontainer.MapContainerViewModel;
-import com.google.android.gnd.vo.Place;
-import com.google.android.gnd.vo.PlaceType;
+import com.google.android.gnd.vo.Feature;
+import com.google.android.gnd.vo.FeatureType;
 import com.google.android.gnd.vo.Point;
 import com.google.android.gnd.vo.Project;
 import com.google.common.collect.ImmutableList;
@@ -41,15 +41,15 @@ import java8.util.Optional;
 import javax.inject.Inject;
 
 @ActivityScoped
-public class AddPlaceDialogFragment extends AbstractDialogFragment {
-  private static final String TAG = AddPlaceDialogFragment.class.getSimpleName();
+public class AddFeatureDialogFragment extends AbstractDialogFragment {
+  private static final String TAG = AddFeatureDialogFragment.class.getSimpleName();
 
-  private MaybeSubject<Place> addPlaceRequestSubject;
+  private MaybeSubject<Feature> addFeatureRequestSubject;
   private HomeScreenViewModel homeScreenViewModel;
   private MapContainerViewModel mapContainerViewModel;
 
   @Inject
-  public AddPlaceDialogFragment() {}
+  public AddFeatureDialogFragment() {}
 
   @Override
   public void onAttach(Context context) {
@@ -59,15 +59,15 @@ public class AddPlaceDialogFragment extends AbstractDialogFragment {
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    // TODO: Move into new AddPlaceDialogViewModel?
+    // TODO: Move into new AddFeatureDialogViewModel?
     this.homeScreenViewModel = get(HomeScreenViewModel.class);
     this.mapContainerViewModel = get(MapContainerViewModel.class);
   }
 
-  public Maybe<Place> show(FragmentManager fragmentManager) {
-    addPlaceRequestSubject = MaybeSubject.create();
+  public Maybe<Feature> show(FragmentManager fragmentManager) {
+    addFeatureRequestSubject = MaybeSubject.create();
     show(fragmentManager, TAG);
-    return addPlaceRequestSubject;
+    return addFeatureRequestSubject;
   }
 
   @Override
@@ -78,11 +78,11 @@ public class AddPlaceDialogFragment extends AbstractDialogFragment {
     Optional<Point> cameraPosition =
         Optional.ofNullable(mapContainerViewModel.getCameraPosition().getValue());
     if (!activeProject.isPresent()) {
-      addPlaceRequestSubject.onError(new IllegalStateException("No active project"));
+      addFeatureRequestSubject.onError(new IllegalStateException("No active project"));
       return fail("Could not get active project");
     }
     if (!cameraPosition.isPresent()) {
-      addPlaceRequestSubject.onError(new IllegalStateException("No camera position"));
+      addFeatureRequestSubject.onError(new IllegalStateException("No camera position"));
       return fail("Could not get camera position");
     }
     return createDialog(activeProject.get(), cameraPosition.get());
@@ -90,29 +90,30 @@ public class AddPlaceDialogFragment extends AbstractDialogFragment {
 
   private Dialog createDialog(Project project, Point cameraPosition) {
     AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-    builder.setTitle(R.string.add_place_select_type_dialog_title);
-    builder.setNegativeButton(R.string.add_place_cancel, (dialog, id) -> onCancel());
+    builder.setTitle(R.string.add_feature_select_type_dialog_title);
+    builder.setNegativeButton(R.string.add_feature_cancel, (dialog, id) -> onCancel());
     // TODO: Add icons.
-    ImmutableList<PlaceType> placeTypes =
-        stream(project.getPlaceTypes())
+    ImmutableList<FeatureType> featureTypes =
+        stream(project.getFeatureTypes())
             .sorted((pt1, pt2) -> pt1.getItemLabel().compareTo(pt2.getItemLabel()))
             .collect(toImmutableList());
-    String[] items = stream(placeTypes).map(t -> t.getItemLabel()).toArray(String[]::new);
+    String[] items = stream(featureTypes).map(t -> t.getItemLabel()).toArray(String[]::new);
     builder.setItems(
-        items, (dialog, idx) -> onSelectPlaceType(project, placeTypes.get(idx), cameraPosition));
+        items,
+        (dialog, idx) -> onSelectFeatureType(project, featureTypes.get(idx), cameraPosition));
     return builder.create();
   }
 
-  private void onSelectPlaceType(Project project, PlaceType placeType, Point cameraPosition) {
-    addPlaceRequestSubject.onSuccess(
-        Place.newBuilder()
+  private void onSelectFeatureType(Project project, FeatureType featureType, Point cameraPosition) {
+    addFeatureRequestSubject.onSuccess(
+        Feature.newBuilder()
             .setProject(project)
-            .setPlaceType(placeType)
+            .setFeatureType(featureType)
             .setPoint(cameraPosition)
             .build());
   }
 
   private void onCancel() {
-    addPlaceRequestSubject.onComplete();
+    addFeatureRequestSubject.onComplete();
   }
 }

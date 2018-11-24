@@ -26,7 +26,7 @@ import com.google.android.gnd.system.LocationManager;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.common.ActivityScope;
 import com.google.android.gnd.ui.map.MapMarker;
-import com.google.android.gnd.vo.Place;
+import com.google.android.gnd.vo.Feature;
 import com.google.android.gnd.vo.Point;
 import com.google.android.gnd.vo.Project;
 import com.google.common.collect.ImmutableSet;
@@ -42,7 +42,7 @@ public class MapContainerViewModel extends AbstractViewModel {
   private static final String TAG = MapContainerViewModel.class.getSimpleName();
   private static final float DEFAULT_ZOOM_LEVEL = 20.0f;
   private final LiveData<Resource<Project>> activeProject;
-  private final LiveData<ImmutableSet<Place>> places;
+  private final LiveData<ImmutableSet<Feature>> features;
   private final MutableLiveData<LocationLockStatus> locationLockStatus;
   private final MutableLiveData<CameraUpdate> cameraUpdates;
   private final MutableLiveData<Point> cameraPosition;
@@ -59,23 +59,23 @@ public class MapContainerViewModel extends AbstractViewModel {
     this.cameraUpdates = new MutableLiveData<>();
     this.cameraPosition = new MutableLiveData<>();
     this.activeProject = RxLiveData.fromObservable(dataRepository.getActiveProject());
-    // TODO: Clear place markers when project is deactivated.
+    // TODO: Clear feature markers when project is deactivated.
     // TODO: Since we depend on project stream from repo anyway, this transformation can be moved
     // into the repo.
-    this.places =
+    this.features =
         RxLiveData.fromFlowable(
             dataRepository
                 .getActiveProject()
                 .map(Resource::getData)
                 .toFlowable(BackpressureStrategy.LATEST)
-                .switchMap(this::getPlacesStream));
+                .switchMap(this::getFeaturesStream));
   }
 
-  private Flowable<ImmutableSet<Place>> getPlacesStream(Optional<Project> activeProject) {
-    // Emit empty set in separate stream to force unsubscribe from Place updates and update
+  private Flowable<ImmutableSet<Feature>> getFeaturesStream(Optional<Project> activeProject) {
+    // Emit empty set in separate stream to force unsubscribe from Feature updates and update
     // subscribers.
     return activeProject
-        .map(dataRepository::getPlaceVectorStream)
+        .map(dataRepository::getFeatureVectorStream)
         .orElse(Flowable.just(ImmutableSet.of()));
   }
 
@@ -83,8 +83,8 @@ public class MapContainerViewModel extends AbstractViewModel {
     return activeProject;
   }
 
-  public LiveData<ImmutableSet<Place>> getPlaces() {
-    return places;
+  public LiveData<ImmutableSet<Feature>> getFeatures() {
+    return features;
   }
 
   LiveData<CameraUpdate> getCameraUpdates() {

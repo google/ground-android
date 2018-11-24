@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.ui.home.placesheet;
+package com.google.android.gnd.ui.home.featuresheet;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -23,17 +23,17 @@ import dagger.Module;
 import dagger.Provides;
 
 @Module
-public class PlaceSheetModule {
+public class FeatureSheetModule {
 
   @Provides
   @FragmentScoped
-  public Fragment fragment(PlaceSheetFragment fragment) {
+  public Fragment fragment(FeatureSheetFragment fragment) {
     return fragment;
   }
 
   @Provides
   @FragmentScoped
-  public FragmentManager fragmentManager(PlaceSheetFragment fragment) {
+  public FragmentManager fragmentManager(FeatureSheetFragment fragment) {
     return fragment.getChildFragmentManager();
   }
 }

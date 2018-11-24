@@ -17,10 +17,10 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
   <item
-    android:id="@+id/move_place_menu_item"
-    android:title="@string/move_place"/>
+    android:id="@+id/move_feature_menu_item"
+    android:title="@string/move_feature"/>
   <item
-    android:id="@+id/delete_place_menu_item"
-    android:title="@string/delete_place"/>
+    android:id="@+id/delete_feature_menu_item"
+    android:title="@string/delete_feature"/>
 
 </menu>

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.ui.home.placesheet;
+package com.google.android.gnd.ui.home.featuresheet;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -26,8 +26,8 @@ import android.view.ViewGroup;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.home.HomeScreenViewModel;
+import com.google.android.gnd.vo.Feature;
 import com.google.android.gnd.vo.Form;
-import com.google.android.gnd.vo.Place;
 import com.google.android.gnd.vo.Record;
 import java8.util.Optional;
 import javax.inject.Inject;
@@ -38,7 +38,7 @@ public class RecordListFragment extends AbstractFragment {
   private RecordListAdapter recordListAdapter;
 
   private RecordListViewModel viewModel;
-  private PlaceSheetViewModel placeSheetViewModel;
+  private FeatureSheetViewModel featureSheetViewModel;
   private HomeScreenViewModel homeScreenViewModel;
 
   static RecordListFragment newInstance() {
@@ -50,7 +50,7 @@ public class RecordListFragment extends AbstractFragment {
     recordListAdapter = new RecordListAdapter();
     super.onCreate(savedInstanceState);
     viewModel = getViewModel(RecordListViewModel.class);
-    placeSheetViewModel = getViewModel(PlaceSheetViewModel.class);
+    featureSheetViewModel = getViewModel(FeatureSheetViewModel.class);
     homeScreenViewModel = getViewModel(HomeScreenViewModel.class);
 
     recordListAdapter.getItemClicks().observe(this, this::onItemClick);
@@ -71,23 +71,23 @@ public class RecordListFragment extends AbstractFragment {
   public void onActivityCreated(@Nullable Bundle savedInstanceState) {
     super.onActivityCreated(savedInstanceState);
     viewModel.getRecordSummaries().observe(this, recordListAdapter::update);
-    placeSheetViewModel.getSelectedForm().observe(this, this::onFormChange);
+    featureSheetViewModel.getSelectedForm().observe(this, this::onFormChange);
   }
 
   private void onItemClick(Record record) {
     navigator.showRecordDetails(
-        record.getProject().getId(), record.getPlace().getId(), record.getId());
+        record.getProject().getId(), record.getFeature().getId(), record.getId());
   }
 
   private void onFormChange(Optional<Form> form) {
     viewModel.clearRecords();
-    // TODO: Use fragment args, load form and place if not present.
-    Optional<Place> place = placeSheetViewModel.getSelectedPlace().getValue();
-    if (!form.isPresent() || !place.isPresent()) {
+    // TODO: Use fragment args, load form and feature if not present.
+    Optional<Feature> feature = featureSheetViewModel.getSelectedFeature().getValue();
+    if (!form.isPresent() || !feature.isPresent()) {
       // TODO: Report error.
       return;
     }
     homeScreenViewModel.onFormChange(form.get());
-    viewModel.loadRecordSummaries(place.get(), form.get());
+    viewModel.loadRecordSummaries(feature.get(), form.get());
   }
 }

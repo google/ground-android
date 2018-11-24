@@ -17,9 +17,9 @@
 package com.google.android.gnd.ui.editrecord;
 
 import static com.google.android.gnd.util.Streams.toImmutableList;
-import static com.google.android.gnd.vo.PlaceUpdate.Operation.CREATE;
-import static com.google.android.gnd.vo.PlaceUpdate.Operation.DELETE;
-import static com.google.android.gnd.vo.PlaceUpdate.Operation.UPDATE;
+import static com.google.android.gnd.vo.FeatureUpdate.Operation.CREATE;
+import static com.google.android.gnd.vo.FeatureUpdate.Operation.DELETE;
+import static com.google.android.gnd.vo.FeatureUpdate.Operation.UPDATE;
 import static java8.util.Maps.forEach;
 import static java8.util.stream.StreamSupport.stream;
 
@@ -37,9 +37,9 @@ import com.google.android.gnd.repository.Resource;
 import com.google.android.gnd.system.AuthenticationManager;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.common.SingleLiveEvent;
+import com.google.android.gnd.vo.FeatureUpdate.RecordUpdate.ValueUpdate;
 import com.google.android.gnd.vo.Form.Element.Type;
 import com.google.android.gnd.vo.Form.Field;
-import com.google.android.gnd.vo.PlaceUpdate.RecordUpdate.ValueUpdate;
 import com.google.android.gnd.vo.Record;
 import com.google.android.gnd.vo.Record.TextValue;
 import com.google.android.gnd.vo.Record.Value;
@@ -118,10 +118,10 @@ public class EditRecordViewModel extends AbstractViewModel {
     return showErrorDialogEvents;
   }
 
-  void editNewRecord(String projectId, String placeId, String formId) {
+  void editNewRecord(String projectId, String featureId, String formId) {
     disposeOnClear(
         dataRepository
-            .createRecord(projectId, placeId, formId)
+            .createRecord(projectId, featureId, formId)
             .map(Resource::loaded)
             .doOnSuccess(__ -> onNewRecordLoaded())
             .subscribe(record::setValue));
@@ -146,11 +146,11 @@ public class EditRecordViewModel extends AbstractViewModel {
             r.getForm().getField(k).ifPresent(field -> onValueChanged(field, Optional.of(v))));
   }
 
-  void editExistingRecord(String projectId, String placeId, String recordId) {
+  void editExistingRecord(String projectId, String featureId, String recordId) {
     // TODO: Store and retrieve latest edits from cache and/or db.
     disposeOnClear(
         dataRepository
-            .getRecordSnapshot(projectId, placeId, recordId)
+            .getRecordSnapshot(projectId, featureId, recordId)
             .doOnSuccess(r -> r.getData().ifPresent(this::update))
             .subscribe(record::setValue));
   }

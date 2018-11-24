@@ -17,8 +17,8 @@
 package com.google.android.gnd.service;
 
 import com.google.android.gnd.system.AuthenticationManager.User;
-import com.google.android.gnd.vo.Place;
-import com.google.android.gnd.vo.PlaceUpdate.RecordUpdate.ValueUpdate;
+import com.google.android.gnd.vo.Feature;
+import com.google.android.gnd.vo.FeatureUpdate.RecordUpdate.ValueUpdate;
 import com.google.android.gnd.vo.Project;
 import com.google.android.gnd.vo.Record;
 import com.google.common.collect.ImmutableList;
@@ -34,13 +34,13 @@ public interface RemoteDataService {
 
   Single<Project> loadProject(String projectId);
 
-  Flowable<DatastoreEvent<Place>> getPlaceVectorStream(Project project);
+  Flowable<DatastoreEvent<Feature>> getFeatureVectorStream(Project project);
 
-  Single<List<Record>> loadRecordSummaries(Place place);
+  Single<List<Record>> loadRecordSummaries(Feature feature);
 
-  Single<Record> loadRecordDetails(Place place, String recordId);
+  Single<Record> loadRecordDetails(Feature feature, String recordId);
 
   Single<Record> saveChanges(Record record, ImmutableList<ValueUpdate> updates);
 
-  Single<Place> addPlace(Place place);
+  Single<Feature> addFeature(Feature feature);
 }

@@ -34,14 +34,14 @@ public abstract class Project {
   @Nullable
   public abstract String getDescription();
 
-  protected abstract ImmutableMap<String, PlaceType> getPlaceTypeMap();
+  protected abstract ImmutableMap<String, FeatureType> getFeatureTypeMap();
 
-  public ImmutableList<PlaceType> getPlaceTypes() {
-    return getPlaceTypeMap().values().asList();
+  public ImmutableList<FeatureType> getFeatureTypes() {
+    return getFeatureTypeMap().values().asList();
   }
 
-  public Optional<PlaceType> getPlaceType(String placeTypeId) {
-    return Optional.ofNullable(getPlaceTypeMap().get(placeTypeId));
+  public Optional<FeatureType> getFeatureType(String featureTypeId) {
+    return Optional.ofNullable(getFeatureTypeMap().get(featureTypeId));
   }
 
   public static Builder newBuilder() {
@@ -56,10 +56,10 @@ public abstract class Project {
 
     public abstract Builder setDescription(@Nullable String newDescription);
 
-    public abstract ImmutableMap.Builder<String, PlaceType> placeTypeMapBuilder();
+    public abstract ImmutableMap.Builder<String, FeatureType> featureTypeMapBuilder();
 
-    public void putPlaceType(String id, PlaceType placeType) {
-      placeTypeMapBuilder().put(id, placeType);
+    public void putFeatureType(String id, FeatureType featureType) {
+      featureTypeMapBuilder().put(id, featureType);
     }
 
     public abstract Project build();

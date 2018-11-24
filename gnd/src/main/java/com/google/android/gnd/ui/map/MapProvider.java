@@ -18,7 +18,7 @@ package com.google.android.gnd.ui.map;
 
 import android.annotation.SuppressLint;
 import android.support.v4.app.Fragment;
-import com.google.android.gnd.vo.Place;
+import com.google.android.gnd.vo.Feature;
 import com.google.android.gnd.vo.Point;
 import com.google.common.collect.ImmutableSet;
 import io.reactivex.Observable;
@@ -59,6 +59,6 @@ public interface MapProvider {
     @SuppressLint("MissingPermission")
     void enableCurrentLocationIndicator();
 
-    void updateMarkers(ImmutableSet<Place> places);
+    void updateMarkers(ImmutableSet<Feature> features);
   }
 }

@@ -56,7 +56,7 @@ public class MapIcon {
   @NonNull
   public static @DrawableRes int getResourceId(Context context, @Nullable String iconId) {
     if (iconId == null) {
-      return R.drawable.ic_default_place_marker;
+      return R.drawable.ic_default_map_marker;
     }
     try {
       String resourceName = "ic_marker_" + iconId.replace("-", "_");
@@ -68,7 +68,7 @@ public class MapIcon {
     } catch (Resources.NotFoundException e) {
       Log.w(TAG, e);
     }
-    return R.drawable.ic_default_place_marker;
+    return R.drawable.ic_default_map_marker;
   }
 
   // TODO: Cache tinted bitmaps.

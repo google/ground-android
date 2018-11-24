@@ -24,7 +24,7 @@ import java8.util.Optional;
 import javax.annotation.Nullable;
 
 @AutoValue
-public abstract class PlaceType {
+public abstract class FeatureType {
   @Nullable
   public abstract String getId();
 
@@ -53,7 +53,7 @@ public abstract class PlaceType {
   }
 
   public static Builder newBuilder() {
-    return new AutoValue_PlaceType.Builder().setClientTimestamps(Timestamps.getDefaultInstance());
+    return new AutoValue_FeatureType.Builder().setClientTimestamps(Timestamps.getDefaultInstance());
   }
 
   @AutoValue.Builder
@@ -79,6 +79,6 @@ public abstract class PlaceType {
 
     public abstract Builder setClientTimestamps(@Nullable Timestamps newClientTimestamps);
 
-    public abstract PlaceType build();
+    public abstract FeatureType build();
   }
 }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.ui.home.placesheet;
+package com.google.android.gnd.ui.home.featuresheet;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -32,21 +32,21 @@ import com.google.android.gnd.MainViewModel;
 import com.google.android.gnd.R;
 import com.google.android.gnd.ui.MapIcon;
 import com.google.android.gnd.ui.common.AbstractFragment;
+import com.google.android.gnd.ui.home.FeatureSheetState;
 import com.google.android.gnd.ui.home.HomeScreenViewModel;
-import com.google.android.gnd.ui.home.PlaceSheetState;
 import javax.inject.Inject;
 
-public class PlaceSheetFragment extends AbstractFragment {
+public class FeatureSheetFragment extends AbstractFragment {
   @Inject FormTabPagerAdapter formTypePagerAdapter;
 
-  @BindView(R.id.place_sheet_title)
-  TextView placeSheetTitle;
+  @BindView(R.id.feature_sheet_title)
+  TextView featureSheetTitle;
 
-  @BindView(R.id.place_sheet_subtitle)
-  TextView placeSheetSubtitle;
+  @BindView(R.id.feature_sheet_subtitle)
+  TextView featureSheetSubtitle;
 
-  @BindView(R.id.place_header_icon)
-  ImageView placeHeaderIcon;
+  @BindView(R.id.feature_header_icon)
+  ImageView featureHeaderIcon;
 
   @BindView(R.id.forms_tab_layout)
   TabLayout formsTabLayout;
@@ -54,17 +54,17 @@ public class PlaceSheetFragment extends AbstractFragment {
   @BindView(R.id.record_list_view_pager)
   ViewPager recordListViewPager;
 
-  private PlaceSheetViewModel viewModel;
+  private FeatureSheetViewModel viewModel;
   private HomeScreenViewModel homeScreenViewModel;
   private MainViewModel mainViewModel;
 
   @Inject
-  public PlaceSheetFragment() {}
+  public FeatureSheetFragment() {}
 
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    viewModel = getViewModel(PlaceSheetViewModel.class);
+    viewModel = getViewModel(FeatureSheetViewModel.class);
     mainViewModel = getViewModel(MainViewModel.class);
     homeScreenViewModel = getViewModel(HomeScreenViewModel.class);
   }
@@ -72,7 +72,7 @@ public class PlaceSheetFragment extends AbstractFragment {
   @Override
   public View onCreateView(
       LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-    return inflater.inflate(R.layout.place_sheet_frag, container, false);
+    return inflater.inflate(R.layout.feature_sheet_frag, container, false);
   }
 
   @Override
@@ -92,29 +92,29 @@ public class PlaceSheetFragment extends AbstractFragment {
   public void onActivityCreated(@Nullable Bundle savedInstanceState) {
     super.onActivityCreated(savedInstanceState);
     mainViewModel.getWindowInsets().observe(this, this::onApplyWindowInsets);
-    homeScreenViewModel.getPlaceSheetState().observe(this, this::onPlaceSheetStateChange);
-    viewModel.getSelectedPlace().observe(this, formTypePagerAdapter::update);
+    homeScreenViewModel.getFeatureSheetState().observe(this, this::onFeatureSheetStateChange);
+    viewModel.getSelectedFeature().observe(this, formTypePagerAdapter::update);
   }
 
-  private void onPlaceSheetStateChange(PlaceSheetState placeSheetState) {
-    if (placeSheetState.isVisible()) {
-      placeHeaderIcon.setImageResource(
+  private void onFeatureSheetStateChange(FeatureSheetState featureSheetState) {
+    if (featureSheetState.isVisible()) {
+      featureHeaderIcon.setImageResource(
           MapIcon.getResourceId(
-              getContext(), placeSheetState.getPlace().getPlaceType().getIconId()));
-      placeSheetTitle.setText(placeSheetState.getPlace().getTitle());
-      placeSheetSubtitle.setText(placeSheetState.getPlace().getSubtitle());
-      placeSheetSubtitle.setVisibility(
-          placeSheetState.getPlace().getSubtitle().isEmpty() ? View.GONE : View.VISIBLE);
+              getContext(), featureSheetState.getFeature().getFeatureType().getIconId()));
+      featureSheetTitle.setText(featureSheetState.getFeature().getTitle());
+      featureSheetSubtitle.setText(featureSheetState.getFeature().getSubtitle());
+      featureSheetSubtitle.setVisibility(
+          featureSheetState.getFeature().getSubtitle().isEmpty() ? View.GONE : View.VISIBLE);
 
       // TODO: Auto add record if there's only one form.
-      //      Place place = placeSheetState.getPlace();
-      //      ImmutableList<Form> forms = place.getPlaceType().getForms();
-      //      if (placeSheetState.isNewPlace() && forms.size() == 1) {
-      //        showAddRecord(place, forms.get(0));
+      //      Feature feature = featureSheetState.getFeature();
+      //      ImmutableList<Form> forms = feature.getFeatureType().getForms();
+      //      if (featureSheetState.isNewFeature() && forms.size() == 1) {
+      //        showAddRecord(feature, forms.get(0));
       //      }
     }
 
-    viewModel.onPlaceSheetStateChange(placeSheetState);
+    viewModel.onFeatureSheetStateChange(featureSheetState);
   }
 
   private void onApplyWindowInsets(WindowInsetsCompat insets) {

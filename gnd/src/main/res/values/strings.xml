@@ -22,21 +22,21 @@
   <string name="project_loading_please_wait">Project loading, please wait...</string>
 
   <!--
-    ADD/EDIT PLACE DATA
+    ADD/EDIT FEATURE DATA
   -->
 
-  <!-- Title shown above list of place types when (+) is clicked on map. -->
-  <string name="add_place_select_type_dialog_title">What would you like to add?</string>
-  <!-- Text shown to dismiss "Add a place" dialog -->
-  <string name="add_place_cancel">Cancel</string>
+  <!-- Title shown above list of feature types when (+) is clicked on map. -->
+  <string name="add_feature_select_type_dialog_title">What would you like to add?</string>
+  <!-- Text shown to dismiss "Add a feature" dialog -->
+  <string name="add_feature_cancel">Cancel</string>
 
-  <!-- Shown in toolbar when adding a new place and form instance. -->
-  <string name="add_place_toolbar_title">Add a place</string>
+  <!-- Shown in toolbar when adding a new feature and form instance. -->
+  <string name="add_feature_toolbar_title">Add a feature</string>
   <!-- Shown in toolbar when editing an existing record (form instance). -->
-  <string name="edit_place_data_toolbar_title">Edit place data</string>
-  <!-- Shown in toolbar when adding a new record (form instance) to a place. -->
-  <string name="add_place_data_toolbar_title">Add place data</string>
-  <!-- Shown in toolbar to save changes to place data. -->
+  <string name="edit_feature_data_toolbar_title">Edit feature data</string>
+  <!-- Shown in toolbar when adding a new record (form instance) to a feature. -->
+  <string name="add_feature_data_toolbar_title">Add feature data</string>
+  <!-- Shown in toolbar to save changes to feature data. -->
   <string name="save">Save</string>
   <!-- Shown when leaving edit mode without saving changes. -->
   <string name="unsaved_changes">Save changes before closing?</string>
@@ -49,7 +49,7 @@
   <string name="saved">Changes saved</string>
 
   <!--
-    PLACE DATA FORMS
+    FEATURE DATA FORMS
   -->
 
   <!-- Text in multiple-choice popup dialogs that when clicked, applied new selection to form -->
@@ -60,10 +60,10 @@
   <string name="required_field">This field is required</string>
 
   <!--
-    VIEW PLACE DATA
+    VIEW FEATURE DATA
   -->
 
-  <!-- Shown in record overflow menu to open popup dialog to edit place metadata. -->
+  <!-- Shown in record overflow menu to open popup dialog to edit feature metadata. -->
   <string name="edit_record">Edit record</string>
   <!-- Shown in record overflow menu to delete a record. -->
   <string name="delete_record">Delete record</string>
@@ -85,22 +85,22 @@
   <string name="updated_status">Updated %1$s</string>
 
   <!--
-    IN BOTH ADD/EDIT AND VIEW PLACE SCREENS
+    IN BOTH ADD/EDIT AND VIEW FEATURE SCREENS
   -->
 
-  <!-- Shown in toolbar overflow menu to enter "move" mode to reposition a place. -->
-  <string name="move_place">Move place</string>
-  <!-- Shown in toolbar overflow menu to open popup dialog to edit place metadata. -->
-  <string name="edit_place_id_and_caption">Edit ID &amp; caption</string>
-  <!-- Shown in edit id/caption popup (TBD) above place ID. -->
-  <string name="place_id">ID</string>
-  <!-- Shown in edit id/caption popup (TBD) above place caption. -->
-  <string name="place_caption">Caption</string>
-  <!-- Shown in toolbar overflow menu to delete a place and all related data. -->
-  <string name="delete_place">Delete place</string>
-  <!-- Shown in toolbar overflow menu to delete a place and all related data. -->
-  <string name="delete_place_confirmation">
-    This will delete the currently selected place and all related data. This cannot be undone.
+  <!-- Shown in toolbar overflow menu to enter "move" mode to reposition a feature. -->
+  <string name="move_feature">Move feature</string>
+  <!-- Shown in toolbar overflow menu to open popup dialog to edit feature metadata. -->
+  <string name="edit_feature_id_and_caption">Edit ID &amp; caption</string>
+  <!-- Shown in edit id/caption popup (TBD) above feature ID. -->
+  <string name="feature_id">ID</string>
+  <!-- Shown in edit id/caption popup (TBD) above feature caption. -->
+  <string name="feature_caption">Caption</string>
+  <!-- Shown in toolbar overflow menu to delete a feature and all related data. -->
+  <string name="delete_feature">Delete feature</string>
+  <!-- Shown in toolbar overflow menu to delete a feature and all related data. -->
+  <string name="delete_feature_confirmation">
+    This will delete the currently selected feature and all related data. This cannot be undone.
     Are you sure?
   </string>
 

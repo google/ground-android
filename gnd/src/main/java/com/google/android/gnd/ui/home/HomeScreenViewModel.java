@@ -26,8 +26,8 @@ import com.google.android.gnd.ui.common.ActivityScope;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.SingleLiveEvent;
 import com.google.android.gnd.ui.map.MapMarker;
+import com.google.android.gnd.vo.Feature;
 import com.google.android.gnd.vo.Form;
-import com.google.android.gnd.vo.Place;
 import com.google.android.gnd.vo.Point;
 import com.google.android.gnd.vo.Project;
 import javax.annotation.Nullable;
@@ -42,19 +42,19 @@ public class HomeScreenViewModel extends AbstractViewModel {
   private final LiveData<Resource<Project>> activeProject;
 
   // TODO: Move into MapContainersViewModel
-  private final SingleLiveEvent<Point> addPlaceDialogRequests;
+  private final SingleLiveEvent<Point> addFeatureDialogRequests;
 
-  // TODO: Move into PlaceSheetViewModel.
+  // TODO: Move into FeatureSheetViewModel.
   private final SingleLiveEvent<Void> openDrawerRequests;
-  private final MutableLiveData<PlaceSheetState> placeSheetState;
+  private final MutableLiveData<FeatureSheetState> featureSheetState;
   @Nullable private Form selectedForm;
 
   @Inject
   HomeScreenViewModel(DataRepository dataRepository, Navigator navigator) {
     this.dataRepository = dataRepository;
-    this.addPlaceDialogRequests = new SingleLiveEvent<>();
+    this.addFeatureDialogRequests = new SingleLiveEvent<>();
     this.openDrawerRequests = new SingleLiveEvent<>();
-    this.placeSheetState = new MutableLiveData<>();
+    this.featureSheetState = new MutableLiveData<>();
     this.activeProject = RxLiveData.fromObservable(dataRepository.getActiveProject());
     this.navigator = navigator;
   }
@@ -71,38 +71,38 @@ public class HomeScreenViewModel extends AbstractViewModel {
     return activeProject;
   }
 
-  public LiveData<Point> getShowAddPlaceDialogRequests() {
-    return addPlaceDialogRequests;
+  public LiveData<Point> getShowAddFeatureDialogRequests() {
+    return addFeatureDialogRequests;
   }
 
-  public LiveData<PlaceSheetState> getPlaceSheetState() {
-    return placeSheetState;
+  public LiveData<FeatureSheetState> getFeatureSheetState() {
+    return featureSheetState;
   }
 
   // TODO: Remove extra indirection here?
   public void onMarkerClick(MapMarker marker) {
-    marker.getPlace().ifPresent(this::showPlaceSheet);
+    marker.getFeature().ifPresent(this::showFeatureSheet);
   }
 
-  private void showPlaceSheet(Place place) {
-    placeSheetState.setValue(PlaceSheetState.visible(place));
+  private void showFeatureSheet(Feature feature) {
+    featureSheetState.setValue(FeatureSheetState.visible(feature));
   }
 
-  private void onPlaceAdded(Place place) {
-    showPlaceSheet(place);
+  private void onFeatureAdded(Feature feature) {
+    showFeatureSheet(feature);
   }
 
-  public void onAddPlaceBtnClick(Point location) {
+  public void onAddFeatureBtnClick(Point location) {
     // TODO: Pause location updates while dialog is open.
-    addPlaceDialogRequests.setValue(location);
+    addFeatureDialogRequests.setValue(location);
   }
 
-  public void addPlace(Place place) {
-    disposeOnClear(dataRepository.addPlace(place).subscribe(this::onPlaceAdded));
+  public void addFeature(Feature feature) {
+    disposeOnClear(dataRepository.addFeature(feature).subscribe(this::onFeatureAdded));
   }
 
   public void onBottomSheetHidden() {
-    placeSheetState.setValue(PlaceSheetState.hidden());
+    featureSheetState.setValue(FeatureSheetState.hidden());
   }
 
   public void onFormChange(Form form) {
@@ -110,16 +110,16 @@ public class HomeScreenViewModel extends AbstractViewModel {
   }
 
   public void addRecord() {
-    PlaceSheetState state = placeSheetState.getValue();
+    FeatureSheetState state = featureSheetState.getValue();
     if (state == null) {
-      Log.e(TAG, "Missing placeSheetState");
+      Log.e(TAG, "Missing featureSheetState");
       return;
     }
     if (selectedForm == null) {
       Log.e(TAG, "Missing form");
       return;
     }
-    Place place = state.getPlace();
-    navigator.addRecord(place.getProject().getId(), place.getId(), selectedForm.getId());
+    Feature feature = state.getFeature();
+    navigator.addRecord(feature.getProject().getId(), feature.getId(), selectedForm.getId());
   }
 }

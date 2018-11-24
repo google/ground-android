@@ -21,14 +21,14 @@ import com.google.auto.value.extension.memoized.Memoized;
 import javax.annotation.Nullable;
 
 @AutoValue
-public abstract class Place {
+public abstract class Feature {
   // TODO: Replace Optionals with Nullables in VOs for consistency .
   @Nullable
   public abstract String getId();
 
   public abstract Project getProject();
 
-  public abstract PlaceType getPlaceType();
+  public abstract FeatureType getFeatureType();
 
   // TODO: Rename to getExternalId() or similar.
   @Nullable
@@ -48,7 +48,7 @@ public abstract class Place {
 
   public String getTitle() {
     return getCaption() == null || getCaption().isEmpty()
-        ? getPlaceType().getItemLabel()
+        ? getFeatureType().getItemLabel()
         : getCaption();
   }
 
@@ -64,7 +64,7 @@ public abstract class Place {
   public abstract int hashCode();
 
   public static Builder newBuilder() {
-    return new AutoValue_Place.Builder();
+    return new AutoValue_Feature.Builder();
   }
 
   @AutoValue.Builder
@@ -73,7 +73,7 @@ public abstract class Place {
 
     public abstract Builder setProject(Project project);
 
-    public abstract Builder setPlaceType(PlaceType newPlaceType);
+    public abstract Builder setFeatureType(FeatureType newFeatureType);
 
     public abstract Builder setCustomId(String newCustomId);
 
@@ -85,6 +85,6 @@ public abstract class Place {
 
     public abstract Builder setClientTimestamps(Timestamps newClientTimestamps);
 
-    public abstract Place build();
+    public abstract Feature build();
   }
 }

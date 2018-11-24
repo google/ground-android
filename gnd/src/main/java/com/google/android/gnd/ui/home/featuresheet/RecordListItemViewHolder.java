@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.ui.home.placesheet;
+package com.google.android.gnd.ui.home.featuresheet;
 
 import android.arch.lifecycle.MutableLiveData;
 import android.content.Context;

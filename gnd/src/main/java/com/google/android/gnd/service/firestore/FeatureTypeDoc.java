@@ -19,13 +19,13 @@ package com.google.android.gnd.service.firestore;
 import static com.google.android.gnd.util.Localization.getLocalizedMessage;
 
 import android.support.annotation.Nullable;
-import com.google.android.gnd.vo.PlaceType;
+import com.google.android.gnd.vo.FeatureType;
 import com.google.firebase.firestore.IgnoreExtraProperties;
 import java.util.Map;
 import java8.util.Maps;
 
 @IgnoreExtraProperties
-public class PlaceTypeDoc {
+public class FeatureTypeDoc {
   // TODO: Better name than pathKey? urlSubpath?
   @Nullable public String pathKey;
 
@@ -39,17 +39,17 @@ public class PlaceTypeDoc {
 
   @Nullable public Map<String, FormDoc> forms;
 
-  public PlaceType toObject(String id) {
-    PlaceType.Builder placeType = PlaceType.newBuilder();
-    placeType
+  public FeatureType toObject(String id) {
+    FeatureType.Builder featureType = FeatureType.newBuilder();
+    featureType
         .setId(id)
         .setListHeading(getLocalizedMessage(listHeading))
         .setItemLabel(getLocalizedMessage(itemLabel))
         .setIconId(iconId)
         .setIconColor(iconColor);
     if (forms != null) {
-      Maps.forEach(forms, (formId, formDoc) -> placeType.addForm(formDoc.toObject(formId)));
+      Maps.forEach(forms, (formId, formDoc) -> featureType.addForm(formDoc.toObject(formId)));
     }
-    return placeType.build();
+    return featureType.build();
   }
 }

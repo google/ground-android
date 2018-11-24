@@ -38,7 +38,7 @@ public abstract class Record {
   public abstract Project getProject();
 
   @Nullable
-  public abstract Place getPlace();
+  public abstract Feature getFeature();
 
   @Nullable
   public abstract Form getForm();
@@ -73,7 +73,7 @@ public abstract class Record {
 
     public abstract Builder setProject(@Nullable Project project);
 
-    public abstract Builder setPlace(@Nullable Place place);
+    public abstract Builder setFeature(@Nullable Feature feature);
 
     public abstract Builder setForm(@Nullable Form form);
 

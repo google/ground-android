@@ -14,31 +14,31 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.ui.home.placesheet;
+package com.google.android.gnd.ui.home.featuresheet;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
-import com.google.android.gnd.vo.Place;
-import com.google.android.gnd.vo.PlaceType;
+import com.google.android.gnd.vo.Feature;
+import com.google.android.gnd.vo.FeatureType;
 import com.google.common.collect.ImmutableList;
 import java8.util.Optional;
 import javax.inject.Inject;
 
 public class FormTabPagerAdapter extends FragmentStatePagerAdapter {
-  private Optional<Place> place;
+  private Optional<Feature> feature;
 
   @Inject
   public FormTabPagerAdapter(FragmentManager fm) {
     super(fm);
-    place = Optional.empty();
+    feature = Optional.empty();
   }
 
   @Override
   public int getCount() {
-    return place
-        .map(Place::getPlaceType)
-        .map(PlaceType::getForms)
+    return feature
+        .map(Feature::getFeatureType)
+        .map(FeatureType::getForms)
         .map(ImmutableList::size)
         .orElse(0);
   }
@@ -50,11 +50,11 @@ public class FormTabPagerAdapter extends FragmentStatePagerAdapter {
 
   @Override
   public CharSequence getPageTitle(int position) {
-    return place.get().getPlaceType().getForms().get(position).getTitle();
+    return feature.get().getFeatureType().getForms().get(position).getTitle();
   }
 
-  void update(Optional<Place> place) {
-    this.place = place;
+  void update(Optional<Feature> feature) {
+    this.feature = feature;
     notifyDataSetChanged();
   }
 }

@@ -21,8 +21,8 @@ import com.google.android.gnd.rx.RxTask;
 import com.google.android.gnd.service.DatastoreEvent;
 import com.google.android.gnd.service.RemoteDataService;
 import com.google.android.gnd.system.AuthenticationManager.User;
-import com.google.android.gnd.vo.Place;
-import com.google.android.gnd.vo.PlaceUpdate.RecordUpdate.ValueUpdate;
+import com.google.android.gnd.vo.Feature;
+import com.google.android.gnd.vo.FeatureUpdate.RecordUpdate.ValueUpdate;
 import com.google.android.gnd.vo.Project;
 import com.google.android.gnd.vo.Record;
 import com.google.android.gnd.vo.Timestamps;
@@ -78,18 +78,18 @@ public class FirestoreDataService implements RemoteDataService {
   }
 
   @Override
-  public Single<List<Record>> loadRecordSummaries(Place place) {
-    return db.projects().project(place.getProject().getId()).records().getByFeature(place);
+  public Single<List<Record>> loadRecordSummaries(Feature feature) {
+    return db.projects().project(feature.getProject().getId()).records().getByFeature(feature);
   }
 
   @Override
-  public Single<Record> loadRecordDetails(Place place, String recordId) {
+  public Single<Record> loadRecordDetails(Feature feature, String recordId) {
     // TODO: Replace Singles with Maybes?
     return db.projects()
-        .project(place.getProject().getId())
+        .project(feature.getProject().getId())
         .records()
         .record(recordId)
-        .get(place)
+        .get(feature)
         .toSingle();
   }
 
@@ -99,8 +99,8 @@ public class FirestoreDataService implements RemoteDataService {
   }
 
   @Override
-  public Flowable<DatastoreEvent<Place>> getPlaceVectorStream(Project project) {
-    return db.projects().project(project.getId()).places().observe(project);
+  public Flowable<DatastoreEvent<Feature>> getFeatureVectorStream(Project project) {
+    return db.projects().project(project.getId()).features().observe(project);
   }
 
   // TODO: Move relevant Record fields and updates into "RecordUpdate" object.
@@ -129,9 +129,9 @@ public class FirestoreDataService implements RemoteDataService {
   }
 
   @Override
-  public Single<Place> addPlace(Place place) {
-    String projectId = place.getProject().getId();
-    return db.projects().project(projectId).places().add(place);
+  public Single<Feature> addFeature(Feature feature) {
+    String projectId = feature.getProject().getId();
+    return db.projects().project(projectId).features().add(feature);
   }
 
   private Map<String, Object> updatedValues(ImmutableList<ValueUpdate> updates) {

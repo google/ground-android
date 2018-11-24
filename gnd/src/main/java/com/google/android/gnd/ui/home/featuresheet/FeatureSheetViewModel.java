@@ -14,36 +14,36 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.ui.home.placesheet;
+package com.google.android.gnd.ui.home.featuresheet;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.ViewModel;
 import android.support.v4.view.ViewPager;
 import com.google.android.gnd.ui.common.ActivityScope;
-import com.google.android.gnd.ui.home.PlaceSheetState;
+import com.google.android.gnd.ui.home.FeatureSheetState;
+import com.google.android.gnd.vo.Feature;
+import com.google.android.gnd.vo.FeatureType;
 import com.google.android.gnd.vo.Form;
-import com.google.android.gnd.vo.Place;
-import com.google.android.gnd.vo.PlaceType;
 import java8.util.Optional;
 import javax.inject.Inject;
 
 @ActivityScope
-public class PlaceSheetViewModel extends ViewModel implements ViewPager.OnPageChangeListener {
+public class FeatureSheetViewModel extends ViewModel implements ViewPager.OnPageChangeListener {
 
-  private MutableLiveData<Optional<Place>> selectedPlace;
+  private MutableLiveData<Optional<Feature>> selectedFeature;
   private MutableLiveData<Optional<Form>> selectedForm;
 
   @Inject
-  public PlaceSheetViewModel() {
-    this.selectedPlace = new MutableLiveData<>();
+  public FeatureSheetViewModel() {
+    this.selectedFeature = new MutableLiveData<>();
     this.selectedForm = new MutableLiveData<>();
-    selectedPlace.setValue(Optional.empty());
+    selectedFeature.setValue(Optional.empty());
     selectedForm.setValue(Optional.empty());
   }
 
-  public LiveData<Optional<Place>> getSelectedPlace() {
-    return selectedPlace;
+  public LiveData<Optional<Feature>> getSelectedFeature() {
+    return selectedFeature;
   }
 
   public LiveData<Optional<Form>> getSelectedForm() {
@@ -53,20 +53,20 @@ public class PlaceSheetViewModel extends ViewModel implements ViewPager.OnPageCh
   @Override
   public void onPageSelected(int position) {
     selectedForm.setValue(
-        selectedPlace
+        selectedFeature
             .getValue()
-            .map(Place::getPlaceType)
-            .map(PlaceType::getForms)
+            .map(Feature::getFeatureType)
+            .map(FeatureType::getForms)
             .filter(f -> f.size() > position)
             .map(f -> f.get(position)));
   }
 
-  public void onPlaceSheetStateChange(PlaceSheetState state) {
+  public void onFeatureSheetStateChange(FeatureSheetState state) {
     if (state.isVisible()) {
-      selectedPlace.setValue(Optional.of(state.getPlace()));
+      selectedFeature.setValue(Optional.of(state.getFeature()));
       onPageSelected(0);
     } else {
-      selectedPlace.setValue(Optional.empty());
+      selectedFeature.setValue(Optional.empty());
       selectedForm.setValue(Optional.empty());
     }
   }

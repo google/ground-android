@@ -21,14 +21,14 @@ import com.google.android.gnd.inject.ActivityScoped;
 import com.google.android.gnd.inject.FragmentScoped;
 import com.google.android.gnd.ui.editrecord.EditRecordFragment;
 import com.google.android.gnd.ui.editrecord.EditRecordModule;
-import com.google.android.gnd.ui.home.AddPlaceDialogFragment;
+import com.google.android.gnd.ui.home.AddFeatureDialogFragment;
 import com.google.android.gnd.ui.home.HomeScreenFragment;
 import com.google.android.gnd.ui.home.HomeScreenModule;
+import com.google.android.gnd.ui.home.featuresheet.FeatureSheetFragment;
+import com.google.android.gnd.ui.home.featuresheet.FeatureSheetModule;
+import com.google.android.gnd.ui.home.featuresheet.RecordListFragment;
 import com.google.android.gnd.ui.home.mapcontainer.MapContainerFragment;
 import com.google.android.gnd.ui.home.mapcontainer.MapContainerModule;
-import com.google.android.gnd.ui.home.placesheet.PlaceSheetFragment;
-import com.google.android.gnd.ui.home.placesheet.PlaceSheetModule;
-import com.google.android.gnd.ui.home.placesheet.RecordListFragment;
 import com.google.android.gnd.ui.projectselector.ProjectSelectorDialogFragment;
 import com.google.android.gnd.ui.recorddetails.RecordDetailsFragment;
 import com.google.android.gnd.ui.recorddetails.RecordDetailsModule;
@@ -72,14 +72,14 @@ public abstract class MainActivityModule {
 
   @FragmentScoped
   @ContributesAndroidInjector(modules = MapContainerModule.class)
-  abstract AddPlaceDialogFragment addPlaceDialogFragmentInjector();
+  abstract AddFeatureDialogFragment addFeatureDialogFragmentInjector();
 
   @FragmentScoped
-  @ContributesAndroidInjector(modules = PlaceSheetModule.class)
-  abstract PlaceSheetFragment placeSheetFragmentInjector();
+  @ContributesAndroidInjector(modules = FeatureSheetModule.class)
+  abstract FeatureSheetFragment featureSheetFragmentInjector();
 
   @FragmentScoped
-  @ContributesAndroidInjector(modules = PlaceSheetModule.class)
+  @ContributesAndroidInjector(modules = FeatureSheetModule.class)
   abstract RecordListFragment recordListFragmentInjector();
 
   @FragmentScoped

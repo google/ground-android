@@ -21,8 +21,8 @@ import com.google.android.gnd.service.DatastoreEvent;
 import com.google.android.gnd.service.RemoteDataService;
 import com.google.android.gnd.service.firestore.DocumentNotFoundException;
 import com.google.android.gnd.system.AuthenticationManager.User;
-import com.google.android.gnd.vo.Place;
-import com.google.android.gnd.vo.PlaceUpdate.RecordUpdate.ValueUpdate;
+import com.google.android.gnd.vo.Feature;
+import com.google.android.gnd.vo.FeatureUpdate.RecordUpdate.ValueUpdate;
 import com.google.android.gnd.vo.Project;
 import com.google.android.gnd.vo.Record;
 import com.google.common.collect.ImmutableList;
@@ -86,66 +86,66 @@ public class DataRepository {
         .startWith(Resource.loading());
   }
 
-  // TODO: Only return data needed to render place PLPs.
-  // TODO: Wrap Place in Resource<>.
+  // TODO: Only return data needed to render feature PLPs.
+  // TODO: Wrap Feature in Resource<>.
   // TODO: Accept id instead.
-  public Flowable<ImmutableSet<Place>> getPlaceVectorStream(Project project) {
+  public Flowable<ImmutableSet<Feature>> getFeatureVectorStream(Project project) {
     return remoteDataService
-        .getPlaceVectorStream(project)
-        .doOnNext(this::onRemotePlaceVectorChange)
-        .map(__ -> cache.getPlaces());
+        .getFeatureVectorStream(project)
+        .doOnNext(this::onRemoteFeatureVectorChange)
+        .map(__ -> cache.getFeatures());
   }
 
-  private void onRemotePlaceVectorChange(DatastoreEvent<Place> event) {
-    event.getEntity().ifPresentOrElse(cache::putPlace, () -> cache.removePlace(event.getId()));
+  private void onRemoteFeatureVectorChange(DatastoreEvent<Feature> event) {
+    event.getEntity().ifPresentOrElse(cache::putFeature, () -> cache.removeFeature(event.getId()));
   }
 
   // TODO: Return Resource.
-  public Single<List<Record>> getRecordSummaries(String projectId, String placeId) {
+  public Single<List<Record>> getRecordSummaries(String projectId, String featureId) {
     // TODO: Only fetch first n fields.
     // TODO: Also load from db.
-    return getPlace(projectId, placeId)
-        .flatMap(place -> remoteDataService.loadRecordSummaries(place));
+    return getFeature(projectId, featureId)
+        .flatMap(feature -> remoteDataService.loadRecordSummaries(feature));
   }
 
-  private Single<Place> getPlace(String projectId, String placeId) {
+  private Single<Feature> getFeature(String projectId, String featureId) {
     // TODO: Load from db if not in cache.
     return getProject(projectId)
         .flatMap(
             project ->
                 cache
-                    .getPlace(placeId)
+                    .getFeature(featureId)
                     .map(Single::just)
                     .orElse(Single.error(new DocumentNotFoundException())));
   }
 
   public Observable<Resource<Record>> getRecordDetails(
-      String projectId, String placeId, String recordId) {
-    return getPlace(projectId, placeId)
-        .flatMap(place -> remoteDataService.loadRecordDetails(place, recordId))
+      String projectId, String featureId, String recordId) {
+    return getFeature(projectId, featureId)
+        .flatMap(feature -> remoteDataService.loadRecordDetails(feature, recordId))
         .map(Resource::loaded)
         .onErrorReturn(Resource::error)
         .toObservable();
   }
 
   public Single<Resource<Record>> getRecordSnapshot(
-      String projectId, String placeId, String recordId) {
+      String projectId, String featureId, String recordId) {
     // TODO: Store and retrieve latest edits from cache and/or db.
-    return getPlace(projectId, placeId)
-        .flatMap(place -> remoteDataService.loadRecordDetails(place, recordId))
+    return getFeature(projectId, featureId)
+        .flatMap(feature -> remoteDataService.loadRecordDetails(feature, recordId))
         .map(Resource::loaded)
         .onErrorReturn(Resource::error);
   }
 
-  public Single<Record> createRecord(String projectId, String placeId, String formId) {
+  public Single<Record> createRecord(String projectId, String featureId, String formId) {
     // TODO: Handle invalid formId.
-    return getPlace(projectId, placeId)
+    return getFeature(projectId, featureId)
         .map(
-            place ->
+            feature ->
                 Record.newBuilder()
-                    .setProject(place.getProject())
-                    .setPlace(place)
-                    .setForm(place.getPlaceType().getForm(formId).get())
+                    .setProject(feature.getProject())
+                    .setFeature(feature)
+                    .setForm(feature.getFeatureType().getForm(formId).get())
                     .build());
   }
 
@@ -178,8 +178,8 @@ public class DataRepository {
     return builder.build();
   }
 
-  public Single<Place> addPlace(Place place) {
-    return remoteDataService.addPlace(place);
+  public Single<Feature> addFeature(Feature feature) {
+    return remoteDataService.addFeature(feature);
   }
 
   public void clearActiveProject() {

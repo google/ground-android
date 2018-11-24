@@ -97,7 +97,7 @@ public class RecordDetailsFragment extends AbstractFragment {
   public void onStart() {
     super.onStart();
     RecordDetailsFragmentArgs args = getRecordDetailFragmentArgs();
-    viewModel.loadRecordDetails(args.getProjectId(), args.getPlaceId(), args.getRecordId());
+    viewModel.loadRecordDetails(args.getProjectId(), args.getFeatureId(), args.getRecordId());
   }
 
   private void onUpdate(Resource<Record> record) {
@@ -128,8 +128,8 @@ public class RecordDetailsFragment extends AbstractFragment {
   // TODO: Move into separate ViewHolder class.
   private void showRecord(Record record) {
     progressBar.setVisibility(View.GONE);
-    toolbar.setTitle(record.getPlace().getTitle());
-    toolbar.setSubtitle(record.getPlace().getSubtitle());
+    toolbar.setTitle(record.getFeature().getTitle());
+    toolbar.setSubtitle(record.getFeature().getSubtitle());
     formNameView.setText(record.getForm().getTitle());
     recordDetailsLayout.removeAllViews();
     for (Form.Element element : record.getForm().getElements()) {
@@ -196,7 +196,7 @@ public class RecordDetailsFragment extends AbstractFragment {
         // This is required to prevent menu from reappearing on back.
         getActivity().closeOptionsMenu();
         RecordDetailsFragmentArgs args = getRecordDetailFragmentArgs();
-        navigator.editRecord(args.getProjectId(), args.getPlaceId(), args.getRecordId());
+        navigator.editRecord(args.getProjectId(), args.getFeatureId(), args.getRecordId());
         return true;
       case R.id.delete_record_menu_item:
         // TODO: Implement delete record.

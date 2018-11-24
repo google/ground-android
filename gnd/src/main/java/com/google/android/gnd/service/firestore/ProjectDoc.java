@@ -41,7 +41,7 @@ public class ProjectDoc {
 
   @Nullable public Date clientTimeModified;
 
-  @Nullable public Map<String, PlaceTypeDoc> featureTypes;
+  @Nullable public Map<String, FeatureTypeDoc> featureTypes;
 
   public static Project toObject(DocumentSnapshot doc) {
     ProjectDoc pd = doc.toObject(ProjectDoc.class);
@@ -51,7 +51,7 @@ public class ProjectDoc {
         .setTitle(getLocalizedMessage(pd.title))
         .setDescription(getLocalizedMessage(pd.description));
     if (pd.featureTypes != null) {
-      Maps.forEach(pd.featureTypes, (id, ptDoc) -> project.putPlaceType(id, ptDoc.toObject(id)));
+      Maps.forEach(pd.featureTypes, (id, ptDoc) -> project.putFeatureType(id, ptDoc.toObject(id)));
     }
     return project.build();
   }
