@@ -16,6 +16,8 @@
 
 package com.google.android.gnd.ui.home.mapcontainer;
 
+import static android.arch.lifecycle.LiveDataReactiveStreams.fromPublisher;
+
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.LiveDataReactiveStreams;
 import android.arch.lifecycle.MutableLiveData;
@@ -31,8 +33,11 @@ import com.google.android.gnd.vo.Feature;
 import com.google.android.gnd.vo.Point;
 import com.google.android.gnd.vo.Project;
 import com.google.common.collect.ImmutableSet;
+import io.reactivex.BackpressureStrategy;
 import io.reactivex.Flowable;
-import io.reactivex.disposables.Disposable;
+import io.reactivex.subjects.PublishSubject;
+import io.reactivex.subjects.Subject;
+import java.util.concurrent.TimeUnit;
 import java8.util.Optional;
 import javax.inject.Inject;
 
@@ -43,31 +48,71 @@ public class MapContainerViewModel extends AbstractViewModel {
   private static final float DEFAULT_ZOOM_LEVEL = 20.0f;
   private final LiveData<Resource<Project>> activeProject;
   private final LiveData<ImmutableSet<Feature>> features;
-  private final MutableLiveData<EnableState> locationLockState;
-  private final MutableLiveData<CameraUpdate> cameraUpdateRequests;
+  private final LiveData<EnableState> locationLockState;
+  private final LiveData<CameraUpdate> cameraUpdateRequests;
   private final MutableLiveData<Point> cameraPosition;
   private final LocationManager locationManager;
   private final DataRepository dataRepository;
-  private Disposable locationUpdateSubscription;
+  private final Subject<Boolean> locationLockChangeRequests;
+  private final Subject<CameraUpdate> cameraUpdateSubject;
 
   @Inject
   MapContainerViewModel(DataRepository dataRepository, LocationManager locationManager) {
     this.dataRepository = dataRepository;
     this.locationManager = locationManager;
-    this.locationLockState = new MutableLiveData<>();
-    locationLockState.setValue(EnableState.disabled());
-    this.cameraUpdateRequests = new MutableLiveData<>();
+    this.locationLockChangeRequests = PublishSubject.create();
+    this.cameraUpdateSubject = PublishSubject.create();
+
+    Flowable<EnableState> locationLockStateFlowable = createLocationLockStateFlowable().share();
+    this.locationLockState =
+        fromPublisher(locationLockStateFlowable.startWith(EnableState.disabled()));
+    this.cameraUpdateRequests =
+        LiveDataReactiveStreams.fromPublisher(
+            createCameraUpdateFlowable(locationLockStateFlowable));
     this.cameraPosition = new MutableLiveData<>();
     this.activeProject = LiveDataReactiveStreams.fromPublisher(dataRepository.getActiveProject());
     // TODO: Clear feature markers when project is deactivated.
     // TODO: Since we depend on project stream from repo anyway, this transformation can be moved
     // into the repo.
     this.features =
-        LiveDataReactiveStreams.fromPublisher(
+        fromPublisher(
             dataRepository
                 .getActiveProject()
                 .map(Resource::data)
                 .switchMap(this::getFeaturesStream));
+  }
+
+  private Flowable<CameraUpdate> createCameraUpdateFlowable(
+      Flowable<EnableState> locationLockStateFlowable) {
+    return cameraUpdateSubject
+        .toFlowable(BackpressureStrategy.LATEST)
+        .mergeWith(
+            locationLockStateFlowable.switchMap(
+                state -> createLocationLockCameraUpdateFlowable(state)));
+  }
+
+  private Flowable<CameraUpdate> createLocationLockCameraUpdateFlowable(EnableState lockState) {
+    if (!lockState.isEnabled()) {
+      return Flowable.empty();
+    }
+    // The first update pans and zooms the camera to the appropriate zoom level; subsequent ones
+    // only pan the map.
+    Flowable<Point> locationUpdates = locationManager.getLocationUpdates();
+    return locationUpdates
+        .take(1)
+        .map(CameraUpdate::panAndZoom)
+        .concatWith(locationUpdates.map(CameraUpdate::pan).skip(1));
+  }
+
+  private Flowable<EnableState> createLocationLockStateFlowable() {
+    return locationLockChangeRequests
+        .throttleFirst(200, TimeUnit.MILLISECONDS)
+        .switchMapSingle(
+            enabled ->
+                enabled
+                    ? this.locationManager.enableLocationUpdates()
+                    : this.locationManager.disableLocationUpdates())
+        .toFlowable(BackpressureStrategy.LATEST);
   }
 
   private Flowable<ImmutableSet<Feature>> getFeaturesStream(Optional<Project> activeProject) {
@@ -102,60 +147,6 @@ public class MapContainerViewModel extends AbstractViewModel {
     return locationLockState.getValue().isEnabled();
   }
 
-  private void enableLocationLock() {
-    // TODO: Resolve memory leak; disposables accumulate each time this is called.
-    // TODO: Replace single-use observables with streams, dispose on start/stop.
-    disposeOnClear(
-        locationManager
-            .enableLocationUpdates()
-            .subscribe(this::onLocationLockEnabled, this::onLocationLockError));
-  }
-
-  private void onLocationLockEnabled() {
-    locationLockState.setValue(EnableState.enabled());
-    restartLocationUpdates();
-  }
-
-  private void onLocationLockError(Throwable t) {
-    locationLockState.setValue(EnableState.error(t));
-  }
-
-  private void restartLocationUpdates() {
-    disposeLocationUpdateSubscription();
-
-    // Sometimes there is visible latency between when location update request succeeds and when
-    // the first location update is received. Requesting the last know location is usually
-    // immediate, so we request it first here to reduce perceived latency.
-    // The first update pans and zooms the camera to the appropriate zoom level; subsequent ones
-    // only pan the map.
-    Flowable<Point> locations =
-        locationManager
-            .getLastLocation()
-            .toFlowable()
-            .concatWith(locationManager.getLocationUpdates());
-
-    // TODO: Replace multiple subscriptions w/single stream.
-    locationUpdateSubscription =
-        locations
-            .take(1)
-            .map(CameraUpdate::panAndZoom)
-            .concatWith(locations.map(CameraUpdate::pan).skip(1))
-            .subscribe(cameraUpdateRequests::setValue);
-
-    Log.d(TAG, "Enable location lock succeeded");
-  }
-
-  private void disableLocationLock() {
-    // TODO: Resolve memory leak; disposables accumulate each time this is called.
-    disposeOnClear(
-        locationManager.disableLocationUpdates().subscribe(this::onLocationLockDisabled));
-  }
-
-  private void onLocationLockDisabled() {
-    disposeLocationUpdateSubscription();
-    locationLockState.setValue(EnableState.disabled());
-  }
-
   public void onCameraMove(Point newCameraPosition) {
     this.cameraPosition.setValue(newCameraPosition);
   }
@@ -163,7 +154,7 @@ public class MapContainerViewModel extends AbstractViewModel {
   public void onMapDrag(Point newCameraPosition) {
     if (isLocationLockEnabled()) {
       Log.d(TAG, "User dragged map. Disabling location lock");
-      disableLocationLock();
+      locationLockChangeRequests.onNext(false);
     }
   }
 
@@ -172,27 +163,11 @@ public class MapContainerViewModel extends AbstractViewModel {
   }
 
   public void panAndZoomCamera(Point position) {
-    cameraUpdateRequests.setValue(CameraUpdate.panAndZoom(position));
+    cameraUpdateSubject.onNext(CameraUpdate.panAndZoom(position));
   }
 
-  @Override
-  protected void onCleared() {
-    disposeLocationUpdateSubscription();
-  }
-
-  private synchronized void disposeLocationUpdateSubscription() {
-    if (locationUpdateSubscription != null) {
-      locationUpdateSubscription.dispose();
-      locationUpdateSubscription = null;
-    }
-  }
-
-  public void toggleLocationLock() {
-    if (isLocationLockEnabled()) {
-      disableLocationLock();
-    } else {
-      enableLocationLock();
-    }
+  public void onLocationLockClick() {
+    locationLockChangeRequests.onNext(!isLocationLockEnabled());
   }
 
   static class CameraUpdate {

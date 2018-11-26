@@ -21,6 +21,9 @@
 
   <data>
     <variable
+      name="viewModel"
+      type="com.google.android.gnd.ui.home.mapcontainer.MapContainerViewModel"/>
+    <variable
       name="homeScreenViewModel"
       type="com.google.android.gnd.ui.home.HomeScreenViewModel"/>
   </data>
@@ -68,6 +71,7 @@
         android:id="@+id/location_lock_btn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:onClick="@{() -> viewModel.onLocationLockClick()}"
         android:src="@drawable/ic_gps_grey600"
         app:backgroundTint="@color/colorBackground"
         app:fabSize="normal"
@@ -88,8 +92,8 @@
       android:id="@+id/hamburger_btn"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:padding="16dp"
       android:layout_gravity="top|start|left"
+      android:padding="16dp"
       android:background="?android:attr/selectableItemBackground"
       android:clickable="true"
       android:onClick="@{() -> homeScreenViewModel.openNavDrawer()}"

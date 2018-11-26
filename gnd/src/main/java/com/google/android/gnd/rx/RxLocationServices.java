@@ -20,7 +20,6 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.location.Location;
 import android.os.Looper;
-import android.util.Log;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationAvailability;
 import com.google.android.gms.location.LocationCallback;
@@ -30,13 +29,10 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.LocationSettingsResponse;
 import com.google.android.gms.location.SettingsClient;
-import com.google.android.gms.tasks.Task;
-import io.reactivex.BackpressureStrategy;
 import io.reactivex.Completable;
-import io.reactivex.Flowable;
 import io.reactivex.Maybe;
+import io.reactivex.Observer;
 import io.reactivex.Single;
-import io.reactivex.subjects.BehaviorSubject;
 
 /** Thin wrapper around LocationServices exposing key features as reactive streams. */
 public class RxLocationServices {
@@ -63,11 +59,7 @@ public class RxLocationServices {
   }
 
   public static class RxFusedLocationProviderClient {
-    private final String TAG = RxFusedLocationProviderClient.class.getSimpleName();
-
     private final FusedLocationProviderClient fusedLocationProviderClient;
-    private RxLocationCallback locationCallback;
-    private BehaviorSubject<Location> locationUpdateSubject = BehaviorSubject.create();
 
     private RxFusedLocationProviderClient(Context context) {
       this.fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(context);
@@ -78,45 +70,39 @@ public class RxLocationServices {
       return RxTask.toMaybe(() -> fusedLocationProviderClient.getLastLocation());
     }
 
-    public Completable requestLocationUpdates(LocationRequest locationRequest) {
-      return RxTask.toCompletable(() -> requestLocationUpdatesInternal(locationRequest));
-    }
-
     @SuppressLint("MissingPermission")
-    private synchronized Task requestLocationUpdatesInternal(LocationRequest locationRequest) {
-      Log.d(TAG, "Requesting location updates");
-      locationCallback = new RxLocationCallback();
-      return fusedLocationProviderClient.requestLocationUpdates(
-          locationRequest, locationCallback, Looper.myLooper());
-    }
-
-    public Flowable<Location> getLocationUpdates() {
-      return locationUpdateSubject.toFlowable(BackpressureStrategy.LATEST);
-    }
-
-    public synchronized Completable removeLocationUpdates() {
-      if (locationCallback == null) {
-        return Completable.complete();
-      }
+    public Completable requestLocationUpdates(
+        LocationRequest locationRequest, RxLocationCallback locationCallback) {
       return RxTask.toCompletable(
-              () -> fusedLocationProviderClient.removeLocationUpdates(locationCallback))
-          .doOnComplete(() -> locationCallback = null);
+          () ->
+              fusedLocationProviderClient.requestLocationUpdates(
+                  locationRequest, locationCallback, Looper.myLooper()));
     }
 
-    private class RxLocationCallback extends LocationCallback {
+    public Completable removeLocationUpdates(RxLocationCallback locationCallback) {
+      return RxTask.toCompletable(
+          () -> fusedLocationProviderClient.removeLocationUpdates(locationCallback));
+    }
+
+    public static class RxLocationCallback extends LocationCallback {
+      private final Observer<Location> locationObserver;
+
+      private RxLocationCallback(Observer<Location> locationObserver) {
+        this.locationObserver = locationObserver;
+      }
+
+      public static RxLocationCallback create(Observer<Location> locationObserver) {
+        return new RxLocationCallback(locationObserver);
+      }
+
       @Override
       public void onLocationResult(LocationResult locationResult) {
-        Location lastLocation = locationResult.getLastLocation();
-        Log.v(TAG, lastLocation.toString());
-        locationUpdateSubject.onNext(lastLocation);
+        locationObserver.onNext(locationResult.getLastLocation());
       }
 
       @Override
       public void onLocationAvailability(LocationAvailability locationAvailability) {
         // This happens sometimes when GPS signal is temporarily lost.
-        if (!locationAvailability.isLocationAvailable()) {
-          Log.v(TAG, "Location unavailable");
-        }
       }
     }
   }

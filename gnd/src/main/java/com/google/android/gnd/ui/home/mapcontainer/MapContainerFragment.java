@@ -83,6 +83,7 @@ public class MapContainerFragment extends AbstractFragment {
   public View onCreateView(
       LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     MapContainerFragBinding binding = MapContainerFragBinding.inflate(inflater, container, false);
+    binding.setViewModel(mapContainerViewModel);
     binding.setHomeScreenViewModel(homeScreenViewModel);
     return binding.getRoot();
   }
@@ -111,7 +112,6 @@ public class MapContainerFragment extends AbstractFragment {
         .observe(this, state -> onFeatureSheetStateChange(state, map));
     addFeatureBtn.setOnClickListener(
         __ -> homeScreenViewModel.onAddFeatureBtnClick(map.getCenter()));
-    locationLockBtn.setOnClickListener(__ -> onLocationLockClick(map));
     map.getMarkerClicks()
         .as(disposeOnDestroy(this))
         .subscribe(mapContainerViewModel::onMarkerClick);
@@ -130,10 +130,6 @@ public class MapContainerFragment extends AbstractFragment {
     super.onActivityCreated(savedInstanceState);
     mainViewModel.getWindowInsets().observe(this, this::onApplyWindowInsets);
     mapProvider.getMapAdapter().as(autoDisposable(this)).subscribe(this::onMapReady);
-  }
-
-  public void onLocationLockClick(MapAdapter map) {
-    mapContainerViewModel.toggleLocationLock();
   }
 
   private void onFeatureSheetStateChange(FeatureSheetState state, MapAdapter map) {
