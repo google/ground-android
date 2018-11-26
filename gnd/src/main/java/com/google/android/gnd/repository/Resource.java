@@ -91,7 +91,7 @@ public class Resource<T> extends AbstractResource<Resource.Status, T> {
   }
 
   public boolean isLoaded() {
-    return operationState().equals(Status.LOADED);
+    return operationState().get() == Status.LOADED;
   }
 
   @NonNull
