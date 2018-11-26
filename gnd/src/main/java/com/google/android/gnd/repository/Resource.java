@@ -19,6 +19,7 @@ package com.google.android.gnd.repository;
 import android.arch.lifecycle.LiveData;
 import android.support.annotation.NonNull;
 import com.google.android.gnd.rx.AbstractResource;
+import com.google.android.gnd.rx.OperationState;
 import java8.util.Optional;
 import javax.annotation.Nullable;
 
@@ -48,41 +49,41 @@ public class Resource<T> extends AbstractResource<Resource.Status, T> {
   private final SyncStatus syncStatus;
 
   private Resource(
-      Status status, @Nullable T data, @Nullable Throwable error, SyncStatus syncStatus) {
-    super(status, data, error);
+      OperationState<Status> operationState, @Nullable T data, SyncStatus syncStatus) {
+    super(operationState, data);
     this.syncStatus = syncStatus;
   }
 
   public static <T> Resource<T> notLoaded() {
-    return new Resource<>(Status.NOT_LOADED, null, null, SyncStatus.UNKNOWN);
+    return new Resource<>(OperationState.of(Status.NOT_LOADED), null, SyncStatus.UNKNOWN);
   }
 
   public static <T> Resource<T> loading() {
-    return new Resource<>(Status.LOADING, null, null, SyncStatus.UNKNOWN);
+    return new Resource<>(OperationState.of(Status.LOADING), null, SyncStatus.UNKNOWN);
   }
 
   public static <T> Resource<T> loaded(T data) {
-    return new Resource<>(Status.LOADED, data, null, SyncStatus.NO_CHANGES_PENDING);
+    return new Resource<>(OperationState.of(Status.LOADED), data, SyncStatus.NO_CHANGES_PENDING);
   }
 
   public static <T> Resource<T> loaded(T data, SyncStatus syncStatus) {
-    return new Resource<>(Status.LOADED, data, null, syncStatus);
+    return new Resource<>(OperationState.of(Status.LOADED), data, syncStatus);
   }
 
   public static <T> Resource<T> saving(T data) {
-    return new Resource<>(Status.SAVING, data, null, SyncStatus.LOCAL_CHANGES_PENDING);
+    return new Resource<>(OperationState.of(Status.SAVING), data, SyncStatus.LOCAL_CHANGES_PENDING);
   }
 
   public static <T> Resource<T> saved(T data) {
-    return new Resource<>(Status.SAVED, data, null, SyncStatus.LOCAL_CHANGES_PENDING);
+    return new Resource<>(OperationState.of(Status.SAVED), data, SyncStatus.LOCAL_CHANGES_PENDING);
   }
 
   public static <T> Resource<T> saved(T data, SyncStatus syncStatus) {
-    return new Resource<>(Status.SAVED, data, null, syncStatus);
+    return new Resource<>(OperationState.of(Status.SAVED), data, syncStatus);
   }
 
   public static <T> Resource<T> error(Throwable t) {
-    return new Resource<>(Status.ERROR, null, t, SyncStatus.UNKNOWN);
+    return new Resource<>(OperationState.error(Status.ERROR, t), null, SyncStatus.UNKNOWN);
   }
 
   public SyncStatus getSyncStatus() {
@@ -90,7 +91,7 @@ public class Resource<T> extends AbstractResource<Resource.Status, T> {
   }
 
   public boolean isLoaded() {
-    return getStatus().equals(Status.LOADED);
+    return operationState().equals(Status.LOADED);
   }
 
   @NonNull
@@ -101,6 +102,6 @@ public class Resource<T> extends AbstractResource<Resource.Status, T> {
   // TODO: Move this into new extended LiveData class (LiveResource?).
   @NonNull
   public static <T> Optional<T> getData(LiveData<Resource<T>> liveData) {
-    return getValue(liveData).getData();
+    return getValue(liveData).data();
   }
 }

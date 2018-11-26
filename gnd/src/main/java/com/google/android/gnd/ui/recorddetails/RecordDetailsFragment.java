@@ -101,7 +101,7 @@ public class RecordDetailsFragment extends AbstractFragment {
   }
 
   private void onUpdate(Resource<Record> record) {
-    switch (record.getStatus()) {
+    switch (record.operationState().get()) {
       case LOADING:
         showProgressBar();
         break;

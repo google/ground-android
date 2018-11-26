@@ -151,7 +151,7 @@ public class EditRecordViewModel extends AbstractViewModel {
     disposeOnClear(
         dataRepository
             .getRecordSnapshot(projectId, featureId, recordId)
-            .doOnSuccess(r -> r.getData().ifPresent(this::update))
+            .doOnSuccess(r -> r.data().ifPresent(this::update))
             .subscribe(record::setValue));
   }
 

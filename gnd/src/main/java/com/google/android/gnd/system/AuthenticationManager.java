@@ -30,8 +30,9 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.gnd.R;
 import com.google.android.gnd.inject.ActivityScoped;
 import com.google.android.gnd.rx.AbstractResource;
+import com.google.android.gnd.rx.OperationState;
 import com.google.android.gnd.system.ActivityStreams.ActivityResult;
-import com.google.android.gnd.system.AuthenticationManager.AuthStatus.State;
+import com.google.android.gnd.system.AuthenticationManager.SignInState.State;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
@@ -48,7 +49,7 @@ public class AuthenticationManager {
   private static final String TAG = AuthenticationManager.class.getSimpleName();
   private static final int SIGN_IN_REQUEST_CODE = AuthenticationManager.class.hashCode() & 0xffff;
   private final GoogleSignInOptions googleSignInOptions;
-  private final Subject<AuthStatus> authStatus;
+  private final Subject<SignInState> signInState;
   private final FirebaseAuth firebaseAuth;
   private final ActivityStreams activityStreams;
   private final Disposable activityResultsSubscription;
@@ -56,7 +57,7 @@ public class AuthenticationManager {
   // TODO: Update Fragments to access via DataRepository rather than directly.
   @Inject
   public AuthenticationManager(Application application, ActivityStreams activityStreams) {
-    this.authStatus = BehaviorSubject.create();
+    this.signInState = BehaviorSubject.create();
     this.firebaseAuth = FirebaseAuth.getInstance();
     this.googleSignInOptions =
         new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -69,33 +70,33 @@ public class AuthenticationManager {
         activityStreams.getActivityResults(SIGN_IN_REQUEST_CODE).subscribe(this::onActivityResult);
   }
 
-  public Observable<AuthStatus> getAuthStatus() {
-    return authStatus;
+  public Observable<SignInState> getSignInState() {
+    return signInState;
   }
 
   public Observable<User> getUser() {
-    return getAuthStatus().map(AuthStatus::getUser);
+    return getSignInState().map(SignInState::getUser);
   }
 
   public void init() {
-    authStatus.onNext(getStatus());
+    signInState.onNext(getStatus());
   }
 
   public boolean isSignedIn() {
     return firebaseAuth.getCurrentUser() != null;
   }
 
-  private AuthStatus getStatus() {
+  private SignInState getStatus() {
     FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
     if (firebaseUser == null) {
-      return new AuthStatus(State.SIGNED_OUT);
+      return new SignInState(State.SIGNED_OUT);
     } else {
-      return new AuthStatus(new User(firebaseUser));
+      return new SignInState(new User(firebaseUser));
     }
   }
 
   public void signIn() {
-    authStatus.onNext(new AuthStatus(State.SIGNING_IN));
+    signInState.onNext(new SignInState(State.SIGNING_IN));
     activityStreams.withActivity(
         activity -> {
           Intent signInIntent = getGoogleSignInClient(activity).getSignInIntent();
@@ -105,7 +106,7 @@ public class AuthenticationManager {
 
   public void signOut() {
     firebaseAuth.signOut();
-    authStatus.onNext(new AuthStatus(State.SIGNED_OUT));
+    signInState.onNext(new SignInState(State.SIGNED_OUT));
     activityStreams.withActivity(activity -> getGoogleSignInClient(activity).signOut());
   }
 
@@ -124,7 +125,7 @@ public class AuthenticationManager {
       onGoogleSignIn(googleSignInTask.getResult(ApiException.class));
     } catch (ApiException e) {
       Log.w(TAG, "Sign in failed, GoogleSignInStatusCodes:  " + e.getStatusCode());
-      authStatus.onNext(new AuthStatus(e));
+      signInState.onNext(new SignInState(e));
     }
   }
 
@@ -132,13 +133,13 @@ public class AuthenticationManager {
     firebaseAuth
         .signInWithCredential(getFirebaseAuthCredential(googleAccount))
         .addOnSuccessListener(this::onFirebaseAuthSuccess)
-        .addOnFailureListener(t -> authStatus.onNext(new AuthStatus(t)));
+        .addOnFailureListener(t -> signInState.onNext(new SignInState(t)));
   }
 
   private void onFirebaseAuthSuccess(AuthResult authResult) {
     // TODO: Store/update user profile in Firestore.
     // TODO: Store/update user profile and image locally.
-    authStatus.onNext(new AuthStatus(new User(authResult.getUser())));
+    signInState.onNext(new SignInState(new User(authResult.getUser())));
   }
 
   @NonNull
@@ -151,7 +152,7 @@ public class AuthenticationManager {
     activityResultsSubscription.dispose();
   }
 
-  public static class AuthStatus extends AbstractResource<AuthStatus.State, User> {
+  public static class SignInState extends AbstractResource<SignInState.State, User> {
     public enum State {
       SIGNED_OUT,
       SIGNING_IN,
@@ -159,24 +160,24 @@ public class AuthenticationManager {
       ERROR
     }
 
-    private AuthStatus(State state) {
-      super(state, null, null);
+    private SignInState(State state) {
+      super(OperationState.of(state), null);
     }
 
-    private AuthStatus(User user) {
-      super(State.SIGNED_IN, user, null);
+    private SignInState(User user) {
+      super(OperationState.of(State.SIGNED_IN), user);
     }
 
-    private AuthStatus(Throwable error) {
-      super(State.ERROR, null, error);
+    private SignInState(Throwable error) {
+      super(OperationState.error(State.ERROR, error), null);
     }
 
     public boolean isSignedIn() {
-      return getStatus().equals(State.SIGNED_IN);
+      return operationState().get() == State.SIGNED_IN;
     }
 
     public User getUser() {
-      return getData().orElse(User.ANONYMOUS);
+      return data().orElse(User.ANONYMOUS);
     }
   }
 

@@ -65,7 +65,7 @@ public class MapContainerViewModel extends AbstractViewModel {
         LiveDataReactiveStreams.fromPublisher(
             dataRepository
                 .getActiveProject()
-                .map(Resource::getData)
+                .map(Resource::data)
                 .switchMap(this::getFeaturesStream));
   }
 

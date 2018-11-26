@@ -34,7 +34,7 @@ import butterknife.ButterKnife;
 import com.google.android.gnd.rx.RxDebug;
 import com.google.android.gnd.system.ActivityStreams;
 import com.google.android.gnd.system.AuthenticationManager;
-import com.google.android.gnd.system.AuthenticationManager.AuthStatus;
+import com.google.android.gnd.system.AuthenticationManager.SignInState;
 import com.google.android.gnd.system.SettingsManager;
 import com.google.android.gnd.ui.common.BackPressListener;
 import com.google.android.gnd.ui.common.EphemeralPopups;
@@ -96,9 +96,9 @@ public class MainActivity extends AppCompatActivity implements HasSupportFragmen
 
     // TODO: Remove once we switch to persisted auth tokens / multiple offline users.
     authenticationManager
-        .getAuthStatus()
+        .getSignInState()
         .as(autoDisposable(this))
-        .subscribe(this::onAuthStatusChange);
+        .subscribe(this::onSignInStateChange);
 
     navigator.getNavigateRequests().as(autoDisposable(this)).subscribe(this::onNavigate);
     navigator.getNavigateUpRequests().as(autoDisposable(this)).subscribe(__ -> navigateUp());
@@ -108,9 +108,9 @@ public class MainActivity extends AppCompatActivity implements HasSupportFragmen
     getNavController().navigate(navDirections);
   }
 
-  private void onAuthStatusChange(AuthStatus authStatus) {
-    Log.d(TAG, "Auth status change: " + authStatus.getStatus());
-    switch (authStatus.getStatus()) {
+  private void onSignInStateChange(SignInState signInState) {
+    Log.d(TAG, "Auth status change: " + signInState.operationState());
+    switch (signInState.operationState().get()) {
       case SIGNED_OUT:
         // TODO: Check auth status whenever fragments resumes.
         viewModel.onSignedOut();
@@ -123,13 +123,13 @@ public class MainActivity extends AppCompatActivity implements HasSupportFragmen
         viewModel.onSignedIn();
         break;
       case ERROR:
-        onAuthError(authStatus);
+        onSignInError(signInState);
         break;
     }
   }
 
-  private void onAuthError(AuthStatus authStatus) {
-    Log.d(TAG, "Authentication error", authStatus.getError().orElse(null));
+  private void onSignInError(SignInState signInState) {
+    Log.d(TAG, "Authentication error", signInState.operationState().error().orElse(null));
     EphemeralPopups.showError(this, R.string.sign_in_unsuccessful);
     viewModel.onSignedOut();
   }

@@ -90,7 +90,7 @@ public class ProjectSelectorDialogFragment extends AbstractDialogFragment {
   }
 
   private void update(Resource<List<Project>> projectSummaries) {
-    switch (projectSummaries.getStatus()) {
+    switch (projectSummaries.operationState().get()) {
       case LOADED:
         projectSummaries.ifPresent(this::showProjectList);
         break;
@@ -99,7 +99,7 @@ public class ProjectSelectorDialogFragment extends AbstractDialogFragment {
         Log.e(
             TAG,
             "Project list not available",
-            projectSummaries.getError().orElse(new UnknownError()));
+            projectSummaries.operationState().error().orElse(new UnknownError()));
         EphemeralPopups.showError(getContext(), R.string.project_list_load_error);
         dismiss();
         break;

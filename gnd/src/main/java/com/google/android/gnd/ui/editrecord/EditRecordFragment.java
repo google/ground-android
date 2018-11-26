@@ -127,7 +127,7 @@ public class EditRecordFragment extends AbstractFragment implements BackPressLis
   }
 
   private void onRecordChange(Resource<Record> record) {
-    switch (record.getStatus()) {
+    switch (record.operationState().get()) {
       case LOADING:
         progressBar.setVisibility(View.VISIBLE);
         saveRecordButton.setVisibility(View.GONE);
@@ -145,7 +145,7 @@ public class EditRecordFragment extends AbstractFragment implements BackPressLis
         break;
       case NOT_FOUND:
       case ERROR:
-        record.getError().ifPresent(t -> Log.e(TAG, "Failed to load/save record", t));
+        record.operationState().error().ifPresent(t -> Log.e(TAG, "Failed to load/save record", t));
         EphemeralPopups.showError(getContext());
         navigator.navigateUp();
         break;

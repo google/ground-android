@@ -21,33 +21,26 @@ import java8.util.Optional;
 import java8.util.function.Consumer;
 
 /**
- * Represents the state of an async process whose result can be represented as an object.
+ * Represents the state of an async process whose results can be represented as a single object.
+ *
  * @param <S> the type to use to represent the resource's state (e.g., loading, complete, error).
  * @param <T> the type of data payload the resource contains.
  */
-// TODO: Refactor AbstractStatus (Resource without data).
-// TODO: Use composition instead of inheritance.
 public abstract class AbstractResource<S, T> {
-  private final S status;
+  private final OperationState<S> operationState;
   @Nullable private final T data;
-  @Nullable private final Throwable error;
 
-  protected AbstractResource(S status, @Nullable T data, @Nullable Throwable error) {
-    this.status = status;
+  protected AbstractResource(OperationState<S> operationState, @Nullable T data) {
+    this.operationState = operationState;
     this.data = data;
-    this.error = error;
   }
 
-  public S getStatus() {
-    return status;
+  public OperationState<S> operationState() {
+    return operationState;
   }
 
-  public Optional<T> getData() {
+  public Optional<T> data() {
     return Optional.ofNullable(data);
-  }
-
-  public Optional<Throwable> getError() {
-    return Optional.ofNullable(error);
   }
 
   public void ifPresent(Consumer<T> consumer) {
