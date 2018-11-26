@@ -27,6 +27,7 @@ import com.google.android.gnd.vo.Project;
 import com.google.android.gnd.vo.Record;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import io.reactivex.BackpressureStrategy;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Observable;
@@ -56,10 +57,11 @@ public class DataRepository {
     this.activeProjectSubject = BehaviorSubject.create();
   }
 
-  public Observable<Resource<Project>> getActiveProject() {
+  public Flowable<Resource<Project>> getActiveProject() {
     // TODO: On subscribe and project in cache not loaded, read last active project from local db.
-    return activeProjectSubject.startWith(
-        cache.getActiveProject().map(Resource::loaded).orElse(Resource.notLoaded()));
+    return activeProjectSubject
+        .startWith(cache.getActiveProject().map(Resource::loaded).orElse(Resource.notLoaded()))
+        .toFlowable(BackpressureStrategy.LATEST);
   }
 
   public Completable activateProject(String projectId) {

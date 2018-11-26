@@ -16,11 +16,11 @@
 package com.google.android.gnd.ui.home;
 
 import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.LiveDataReactiveStreams;
 import android.arch.lifecycle.MutableLiveData;
 import android.util.Log;
 import com.google.android.gnd.repository.DataRepository;
 import com.google.android.gnd.repository.Resource;
-import com.google.android.gnd.rx.RxLiveData;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.SharedViewModel;
@@ -55,7 +55,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
     this.addFeatureDialogRequests = new SingleLiveEvent<>();
     this.openDrawerRequests = new SingleLiveEvent<>();
     this.featureSheetState = new MutableLiveData<>();
-    this.activeProject = RxLiveData.fromObservable(dataRepository.getActiveProject());
+    this.activeProject = LiveDataReactiveStreams.fromPublisher(dataRepository.getActiveProject());
     this.navigator = navigator;
   }
 
