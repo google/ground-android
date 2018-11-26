@@ -25,6 +25,8 @@ import java8.util.function.Consumer;
  * @param <S> the type to use to represent the resource's state (e.g., loading, complete, error).
  * @param <T> the type of data payload the resource contains.
  */
+// TODO: Refactor AbstractStatus (Resource without data).
+// TODO: Use composition instead of inheritance.
 public abstract class AbstractResource<S, T> {
   private final S status;
   @Nullable private final T data;
