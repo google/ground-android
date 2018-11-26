@@ -22,6 +22,7 @@ import android.arch.lifecycle.MutableLiveData;
 import android.util.Log;
 import com.google.android.gnd.repository.DataRepository;
 import com.google.android.gnd.repository.Resource;
+import com.google.android.gnd.rx.EnableState;
 import com.google.android.gnd.system.LocationManager;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.common.SharedViewModel;
@@ -42,7 +43,7 @@ public class MapContainerViewModel extends AbstractViewModel {
   private static final float DEFAULT_ZOOM_LEVEL = 20.0f;
   private final LiveData<Resource<Project>> activeProject;
   private final LiveData<ImmutableSet<Feature>> features;
-  private final MutableLiveData<LocationLockStatus> locationLockStatus;
+  private final MutableLiveData<EnableState> locationLockState;
   private final MutableLiveData<CameraUpdate> cameraUpdates;
   private final MutableLiveData<Point> cameraPosition;
   private final LocationManager locationManager;
@@ -53,8 +54,8 @@ public class MapContainerViewModel extends AbstractViewModel {
   MapContainerViewModel(DataRepository dataRepository, LocationManager locationManager) {
     this.dataRepository = dataRepository;
     this.locationManager = locationManager;
-    this.locationLockStatus = new MutableLiveData<>();
-    locationLockStatus.setValue(LocationLockStatus.disabled());
+    this.locationLockState = new MutableLiveData<>();
+    locationLockState.setValue(EnableState.disabled());
     this.cameraUpdates = new MutableLiveData<>();
     this.cameraPosition = new MutableLiveData<>();
     this.activeProject = LiveDataReactiveStreams.fromPublisher(dataRepository.getActiveProject());
@@ -93,12 +94,12 @@ public class MapContainerViewModel extends AbstractViewModel {
     return cameraPosition;
   }
 
-  public LiveData<LocationLockStatus> getLocationLockStatus() {
-    return locationLockStatus;
+  public LiveData<EnableState> getLocationLockState() {
+    return locationLockState;
   }
 
   private boolean isLocationLockEnabled() {
-    return locationLockStatus.getValue().isEnabled();
+    return locationLockState.getValue().isEnabled();
   }
 
   private void enableLocationLock() {
@@ -111,12 +112,12 @@ public class MapContainerViewModel extends AbstractViewModel {
   }
 
   private void onLocationLockEnabled() {
-    locationLockStatus.setValue(LocationLockStatus.enabled());
+    locationLockState.setValue(EnableState.enabled());
     restartLocationUpdates();
   }
 
   private void onLocationLockError(Throwable t) {
-    locationLockStatus.setValue(LocationLockStatus.error(t));
+    locationLockState.setValue(EnableState.error(t));
   }
 
   private void restartLocationUpdates() {
@@ -152,7 +153,7 @@ public class MapContainerViewModel extends AbstractViewModel {
 
   private void onLocationLockDisabled() {
     disposeLocationUpdateSubscription();
-    locationLockStatus.setValue(LocationLockStatus.disabled());
+    locationLockState.setValue(EnableState.disabled());
   }
 
   public void onCameraMove(Point newCameraPosition) {
@@ -191,45 +192,6 @@ public class MapContainerViewModel extends AbstractViewModel {
       disableLocationLock();
     } else {
       enableLocationLock();
-    }
-  }
-
-  static class LocationLockStatus {
-
-    private boolean enabled;
-    // TODO: Handle error outside of lock status and replace with Boolean.
-    private Throwable error;
-
-    private LocationLockStatus(boolean enabled) {
-      this.enabled = enabled;
-    }
-
-    private LocationLockStatus(Throwable error) {
-      this.error = error;
-    }
-
-    private static LocationLockStatus enabled() {
-      return new LocationLockStatus(true);
-    }
-
-    private static LocationLockStatus disabled() {
-      return new LocationLockStatus(false);
-    }
-
-    private static LocationLockStatus error(Throwable t) {
-      return new LocationLockStatus(t);
-    }
-
-    public boolean isEnabled() {
-      return enabled;
-    }
-
-    public boolean isError() {
-      return error != null;
-    }
-
-    public Throwable getError() {
-      return error;
     }
   }
 

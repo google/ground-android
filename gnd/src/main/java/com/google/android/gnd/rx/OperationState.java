@@ -24,16 +24,16 @@ import javax.annotation.Nullable;
  * @param <S> the type used to represent the status of an operation. Usually a Boolean or Enum.
  */
 public class OperationState<S> {
-  private S status;
+  private S state;
   @Nullable private Throwable error;
 
-  private OperationState(S status, @Nullable Throwable error) {
-    this.status = status;
+  protected OperationState(S state, @Nullable Throwable error) {
+    this.state = state;
     this.error = error;
   }
 
   public S get() {
-    return status;
+    return state;
   }
 
   public boolean hasError() {
@@ -44,11 +44,11 @@ public class OperationState<S> {
     return Optional.ofNullable(error);
   }
 
-  public static <S> OperationState<S> of(S status) {
-    return new OperationState(status, null);
+  public static <S> OperationState<S> of(S state) {
+    return new OperationState(state, null);
   }
 
-  public static <S> OperationState<S> error(S status, Throwable t) {
-    return new OperationState(status, t);
+  public static <S> OperationState<S> error(S state, Throwable t) {
+    return new OperationState(state, t);
   }
 }

@@ -37,12 +37,12 @@ import com.google.android.gnd.MainViewModel;
 import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.MapContainerFragBinding;
 import com.google.android.gnd.repository.Resource;
+import com.google.android.gnd.rx.EnableState;
 import com.google.android.gnd.system.PermissionsManager.PermissionDeniedException;
 import com.google.android.gnd.system.SettingsManager.SettingsChangeRequestCanceled;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.home.FeatureSheetState;
 import com.google.android.gnd.ui.home.HomeScreenViewModel;
-import com.google.android.gnd.ui.home.mapcontainer.MapContainerViewModel.LocationLockStatus;
 import com.google.android.gnd.ui.map.MapProvider;
 import com.google.android.gnd.ui.map.MapProvider.MapAdapter;
 import com.google.android.gnd.vo.Project;
@@ -102,8 +102,8 @@ public class MapContainerFragment extends AbstractFragment {
     // Observe events emitted by the ViewModel.
     mapContainerViewModel.getFeatures().observe(this, map::updateMarkers);
     mapContainerViewModel
-        .getLocationLockStatus()
-        .observe(this, status -> onLocationLockStatusChange(status, map));
+        .getLocationLockState()
+        .observe(this, state -> onLocationLockStateChange(state, map));
     mapContainerViewModel.getCameraUpdates().observe(this, update -> onCameraUpdate(update, map));
     mapContainerViewModel.getActiveProject().observe(this, this::onProjectChange);
     homeScreenViewModel
@@ -172,10 +172,8 @@ public class MapContainerFragment extends AbstractFragment {
         ColorStateList.valueOf(getResources().getColor(R.color.colorGrey500)));
   }
 
-  private void onLocationLockStatusChange(LocationLockStatus status, MapAdapter map) {
-    if (status.isError()) {
-      onLocationLockError(status.getError());
-    }
+  private void onLocationLockStateChange(EnableState status, MapAdapter map) {
+    status.error().ifPresent(this::onLocationLockError);
     if (status.isEnabled()) {
       Log.d(TAG, "Location lock enabled");
       map.enableCurrentLocationIndicator();
