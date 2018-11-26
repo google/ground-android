@@ -104,7 +104,7 @@ public class MapContainerFragment extends AbstractFragment {
     mapContainerViewModel
         .getLocationLockState()
         .observe(this, state -> onLocationLockStateChange(state, map));
-    mapContainerViewModel.getCameraUpdates().observe(this, update -> onCameraUpdate(update, map));
+    mapContainerViewModel.getCameraUpdateRequests().observe(this, update -> onCameraUpdate(update, map));
     mapContainerViewModel.getActiveProject().observe(this, this::onProjectChange);
     homeScreenViewModel
         .getFeatureSheetState()

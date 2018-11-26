@@ -44,7 +44,7 @@ public class MapContainerViewModel extends AbstractViewModel {
   private final LiveData<Resource<Project>> activeProject;
   private final LiveData<ImmutableSet<Feature>> features;
   private final MutableLiveData<EnableState> locationLockState;
-  private final MutableLiveData<CameraUpdate> cameraUpdates;
+  private final MutableLiveData<CameraUpdate> cameraUpdateRequests;
   private final MutableLiveData<Point> cameraPosition;
   private final LocationManager locationManager;
   private final DataRepository dataRepository;
@@ -56,7 +56,7 @@ public class MapContainerViewModel extends AbstractViewModel {
     this.locationManager = locationManager;
     this.locationLockState = new MutableLiveData<>();
     locationLockState.setValue(EnableState.disabled());
-    this.cameraUpdates = new MutableLiveData<>();
+    this.cameraUpdateRequests = new MutableLiveData<>();
     this.cameraPosition = new MutableLiveData<>();
     this.activeProject = LiveDataReactiveStreams.fromPublisher(dataRepository.getActiveProject());
     // TODO: Clear feature markers when project is deactivated.
@@ -86,8 +86,8 @@ public class MapContainerViewModel extends AbstractViewModel {
     return features;
   }
 
-  LiveData<CameraUpdate> getCameraUpdates() {
-    return cameraUpdates;
+  LiveData<CameraUpdate> getCameraUpdateRequests() {
+    return cameraUpdateRequests;
   }
 
   public LiveData<Point> getCameraPosition() {
@@ -140,7 +140,7 @@ public class MapContainerViewModel extends AbstractViewModel {
             .take(1)
             .map(CameraUpdate::panAndZoom)
             .concatWith(locations.map(CameraUpdate::pan).skip(1))
-            .subscribe(cameraUpdates::setValue);
+            .subscribe(cameraUpdateRequests::setValue);
 
     Log.d(TAG, "Enable location lock succeeded");
   }
@@ -172,7 +172,7 @@ public class MapContainerViewModel extends AbstractViewModel {
   }
 
   public void panAndZoomCamera(Point position) {
-    cameraUpdates.setValue(CameraUpdate.panAndZoom(position));
+    cameraUpdateRequests.setValue(CameraUpdate.panAndZoom(position));
   }
 
   @Override
