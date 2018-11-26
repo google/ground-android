@@ -16,8 +16,6 @@
 
 package com.google.android.gnd.ui.home.mapcontainer;
 
-import static android.arch.lifecycle.LiveDataReactiveStreams.fromPublisher;
-
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.LiveDataReactiveStreams;
 import android.arch.lifecycle.MutableLiveData;
@@ -65,7 +63,8 @@ public class MapContainerViewModel extends AbstractViewModel {
 
     Flowable<EnableState> locationLockStateFlowable = createLocationLockStateFlowable().share();
     this.locationLockState =
-        fromPublisher(locationLockStateFlowable.startWith(EnableState.disabled()));
+        LiveDataReactiveStreams.fromPublisher(
+            locationLockStateFlowable.startWith(EnableState.disabled()));
     this.cameraUpdateRequests =
         LiveDataReactiveStreams.fromPublisher(
             createCameraUpdateFlowable(locationLockStateFlowable));
@@ -75,7 +74,7 @@ public class MapContainerViewModel extends AbstractViewModel {
     // TODO: Since we depend on project stream from repo anyway, this transformation can be moved
     // into the repo.
     this.features =
-        fromPublisher(
+        LiveDataReactiveStreams.fromPublisher(
             dataRepository
                 .getActiveProject()
                 .map(Resource::data)
