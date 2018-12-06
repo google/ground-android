@@ -1,14 +1,10 @@
 # Ground for Android
 
-Ground is a map-centric data collection platform for occasionally
+Ground is a free, map-centric data collection platform for occasionally
 connected devices.
 
 This is not an officially supported Google product; it is currently
 being developed by volunteers on a best-effort basis.
-
-The project is currently undergoing major architectural and UI changes.
-Please check back periodically for updates. The stable demo version is
-in branch [`prototype`](https://github.com/google/ground-android/tree/prototype).
 
 ## Initial build configuration
 
