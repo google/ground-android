@@ -17,9 +17,9 @@ again.
 
 ## Code reviews
 
-Before starting work on a change, comment on one of the [open issues](https://github.com/google/gnd-android/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen)
+Before starting work on a change, comment on one of the [open issues](https://github.com/google/ground-android/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen)
 saying you'd like to take it on. If one does not exist, you can also
-[create one here](https://github.com/google/gnd-android/issues/new).
+[create one here](https://github.com/google/ground-android/issues/new).
 
 Be sure to reference this issue number in your pull request (e.g., 
 "Fix truncated text values #27"), and preferably in your commit message.
