@@ -8,7 +8,7 @@ being developed by volunteers on a best-effort basis.
 
 The project is currently undergoing major architectural and UI changes.
 Please check back periodically for updates. The stable demo version is
-in branch [`prototype`](https://github.com/google/gnd-android/tree/prototype).
+in branch [`prototype`](https://github.com/google/ground-android/tree/prototype).
 
 ## Initial build configuration
 
