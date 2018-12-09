@@ -27,9 +27,11 @@ import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.content.res.Resources;
 import android.databinding.ObservableArrayMap;
+import android.databinding.ObservableInt;
 import android.databinding.ObservableMap;
 import android.support.annotation.NonNull;
 import android.util.Log;
+import android.view.View;
 import com.google.android.gnd.GndApplication;
 import com.google.android.gnd.R;
 import com.google.android.gnd.repository.DataRepository;
@@ -62,6 +64,8 @@ public class EditRecordViewModel extends AbstractViewModel {
   private final Resources resources;
   private final ObservableMap<String, Value> values = new ObservableArrayMap<>();
   private final ObservableMap<String, String> errors = new ObservableArrayMap<>();
+
+  public final ObservableInt loadingSpinnerVisibility = new ObservableInt();
 
   @Inject
   EditRecordViewModel(
@@ -124,7 +128,7 @@ public class EditRecordViewModel extends AbstractViewModel {
             .createRecord(projectId, featureId, formId)
             .map(Resource::loaded)
             .doOnSuccess(__ -> onNewRecordLoaded())
-            .subscribe(record::setValue));
+            .subscribe(this::onRecordSnapshot));
   }
 
   @NonNull
@@ -152,7 +156,27 @@ public class EditRecordViewModel extends AbstractViewModel {
         dataRepository
             .getRecordSnapshot(projectId, featureId, recordId)
             .doOnSuccess(r -> r.data().ifPresent(this::update))
-            .subscribe(record::setValue));
+            .subscribe(this::onRecordSnapshot));
+  }
+
+  private void onRecordSnapshot(Resource<Record> r) {
+    switch (r.operationState().get()) {
+      case LOADING:
+        loadingSpinnerVisibility.set(View.VISIBLE);
+        break;
+      case LOADED:
+        loadingSpinnerVisibility.set(View.GONE);
+        break;
+      case SAVING:
+        break;
+      case SAVED:
+        break;
+      case NOT_FOUND:
+      case ERROR:
+        break;
+    }
+    // TODO: Replace with functional stream.
+    record.setValue(r);
   }
 
   boolean onSaveClick() {

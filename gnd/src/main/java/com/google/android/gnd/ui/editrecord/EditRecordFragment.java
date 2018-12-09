@@ -27,12 +27,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import butterknife.BindView;
 import butterknife.OnClick;
 import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.R;
+import com.google.android.gnd.databinding.EditRecordFragBinding;
 import com.google.android.gnd.databinding.MultipleChoiceInputFieldBinding;
 import com.google.android.gnd.databinding.TextInputFieldBinding;
 import com.google.android.gnd.inject.ActivityScoped;
@@ -70,9 +70,6 @@ public class EditRecordFragment extends AbstractFragment implements BackPressLis
   @BindView(R.id.form_name)
   TextView formNameView;
 
-  @BindView(R.id.loading_progress_bar)
-  ProgressBar progressBar;
-
   @BindView(R.id.edit_record_layout)
   LinearLayout formLayout;
 
@@ -90,7 +87,9 @@ public class EditRecordFragment extends AbstractFragment implements BackPressLis
   @Override
   public View onCreateView(
       LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-    return inflater.inflate(R.layout.edit_record_frag, container, false);
+    EditRecordFragBinding binding = EditRecordFragBinding.inflate(inflater, container, false);
+    binding.setViewModel(viewModel);
+    return binding.getRoot();
   }
 
   @Override
@@ -129,7 +128,6 @@ public class EditRecordFragment extends AbstractFragment implements BackPressLis
   private void onRecordChange(Resource<Record> record) {
     switch (record.operationState().get()) {
       case LOADING:
-        progressBar.setVisibility(View.VISIBLE);
         saveRecordButton.setVisibility(View.GONE);
         break;
       case LOADED:
@@ -153,7 +151,6 @@ public class EditRecordFragment extends AbstractFragment implements BackPressLis
   }
 
   private void editRecord(Record record) {
-    progressBar.setVisibility(View.GONE);
     toolbar.setTitle(record.getFeature().getTitle());
     toolbar.setSubtitle(record.getFeature().getSubtitle());
     formNameView.setText(record.getForm().getTitle());
