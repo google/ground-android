@@ -6,6 +6,56 @@ connected devices.
 This is not an officially supported Google product; it is currently
 being developed by volunteers on a best-effort basis.
 
+## Contributing
+
+First, read the [contribution guidelines](CONTRIBUTING.md). 
+
+After you have read and understood the contribution guidelines, read the 
+following sections to learn how to fork this repository and contribute.
+
+### Setup
+
+The following instructions describe how to fork this repository in order 
+to contribute to the ground-android codebase.
+
+1. Fork this repository, see <https://help.github.com/articles/fork-a-repo/>.
+2. Clone your fork:
+    `git clone https://github.com/<username>/ground-android.git`
+    Where `<username>` is your github username.
+3. Add the base repository as a remote:
+    `git remote add upstream https://github.com/google/ground-android.git`
+4. Follow the instructions under the [Initial build configuration](#initial-build-configuration) section of this readme to set up your development environment.
+
+### Development Workflow
+
+After you have forked and cloned the repository, use the following steps to
+make and manage changes. After you have finished making changes, you can 
+submit them to the base repository using a pull request. 
+
+1. Pull changes from the base repository's master branch:
+    `git pull upstream master`
+1. Create a new branch to track your changes:
+    `git checkout -b <branch>`
+    Where `<branch>` is a meaningful name for the branch you'll use to track
+    changes.
+1. Make and test changes locally.
+1. Add your changes to the staging area:
+    `git add <files>`
+    Where `<files>` are the files you changed.
+1. Commit your changes:
+    `git commit -m <message>`
+    Where `<message>` is a meaningful, short message describing the purpose of
+    your changes.
+1. Pull changes from the base repository's master branch, resolve conflicts if
+   necessary:
+      `git pull upstream master`
+1. Push your changes to your github account:
+      `git push -u origin <branch>`
+      Where `<branch>` is the branch name you used in step 2.
+1. Create a Pull Request to have your changes reviewed and merged into the base 
+repository, see <https://help.github.com/articles/creating-a-pull-request/>.
+1. Celebrate!
+
 ## Initial build configuration
 
 ### Add Google Maps API Key(s)
