@@ -9,10 +9,12 @@ being developed by volunteers on a best-effort basis.
 ## Contributing
 
 First, read the [contribution guidelines](CONTRIBUTING.md). Ensure you
-understand the code review and community guidelines and have signed a [CLA](https://cla.developers.google.com/). 
+understand the code review and community guidelines and have signed 
+the appropriate [CLA](https://cla.developers.google.com/). 
 
-> :exclamation: We cannot accept contributions from contributors that have not signed a CLA, so
-> please be sure to sign one before submitting your hard work!
+> :exclamation: We cannot accept contributions from contributors that 
+> have not signed the appropriate CLA, so please be sure to sign one 
+> before submitting your hard work!
 
 After you have read and understood the contribution guidelines, read the 
 following sections to learn how to fork this repository and contribute.
