@@ -27,10 +27,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import com.google.android.gnd.databinding.RecordDetailsFragBinding;
 import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.R;
 import com.google.android.gnd.inject.ActivityScoped;
@@ -55,9 +55,6 @@ public class RecordDetailsFragment extends AbstractFragment {
   @BindView(R.id.form_name)
   TextView formNameView;
 
-  @BindView(R.id.record_details_progress_bar)
-  ProgressBar progressBar;
-
   @BindView(R.id.record_details_layout)
   LinearLayout recordDetailsLayout;
 
@@ -72,7 +69,10 @@ public class RecordDetailsFragment extends AbstractFragment {
   @Override
   public View onCreateView(
       LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-    return inflater.inflate(R.layout.record_details_frag, container, false);
+    RecordDetailsFragBinding binding = 
+      RecordDetailsFragBinding.inflate(inflater, container, false);
+    binding.setViewModel(viewModel);
+    return binding.getRoot();
   }
 
   @Override
@@ -122,12 +122,10 @@ public class RecordDetailsFragment extends AbstractFragment {
     toolbar.setSubtitle("");
     formNameView.setText("");
     recordDetailsLayout.setVisibility(View.GONE);
-    progressBar.setVisibility(View.VISIBLE);
   }
 
   // TODO: Move into separate ViewHolder class.
   private void showRecord(Record record) {
-    progressBar.setVisibility(View.GONE);
     toolbar.setTitle(record.getFeature().getTitle());
     toolbar.setSubtitle(record.getFeature().getSubtitle());
     formNameView.setText(record.getForm().getTitle());

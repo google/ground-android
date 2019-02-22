@@ -18,6 +18,9 @@ package com.google.android.gnd.ui.recorddetails;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
+import android.databinding.ObservableInt;
+import android.view.View;
+
 import com.google.android.gnd.repository.DataRepository;
 import com.google.android.gnd.repository.Resource;
 import com.google.android.gnd.ui.common.AbstractViewModel;
@@ -28,6 +31,7 @@ public class RecordDetailsViewModel extends AbstractViewModel {
 
   private final DataRepository dataRepository;
   private final MutableLiveData<Resource<Record>> record;
+  public final ObservableInt progressBarVisibility = new ObservableInt();
 
   @Inject
   RecordDetailsViewModel(DataRepository dataRepository) {
@@ -43,6 +47,21 @@ public class RecordDetailsViewModel extends AbstractViewModel {
     disposeOnClear(
         dataRepository
             .getRecordDetails(projectId, featureId, recordId)
-            .subscribe(record::setValue));
+            .subscribe(this::onRecordUpdate));
+  }
+
+  private void onRecordUpdate(Resource<Record> r) {
+    switch (r.operationState().get()) {
+      case LOADING:
+        progressBarVisibility.set(View.VISIBLE);
+        break;
+      case LOADED:
+        progressBarVisibility.set(View.GONE);
+        break;
+      case NOT_FOUND:
+      case ERROR:
+        break;
+    }
+    record.setValue(r);
   }
 }
