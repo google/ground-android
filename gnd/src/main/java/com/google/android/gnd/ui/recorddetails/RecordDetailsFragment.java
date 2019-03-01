@@ -72,6 +72,7 @@ public class RecordDetailsFragment extends AbstractFragment {
     RecordDetailsFragBinding binding = 
       RecordDetailsFragBinding.inflate(inflater, container, false);
     binding.setViewModel(viewModel);
+    binding.setLifecycleOwner(this);
     return binding.getRoot();
   }
 

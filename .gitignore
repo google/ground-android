@@ -41,3 +41,6 @@ captures/
 
 # IntelliJ
 *.iml
+
+# Ctags
+**/tags

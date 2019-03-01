@@ -17,51 +17,62 @@
 package com.google.android.gnd.ui.recorddetails;
 
 import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.MutableLiveData;
-import android.databinding.ObservableInt;
+import android.arch.lifecycle.LiveDataReactiveStreams;
 import android.view.View;
 
 import com.google.android.gnd.repository.DataRepository;
 import com.google.android.gnd.repository.Resource;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.vo.Record;
+
+import io.reactivex.BackpressureStrategy;
+import io.reactivex.Observable;
+
 import javax.inject.Inject;
 
 public class RecordDetailsViewModel extends AbstractViewModel {
 
   private final DataRepository dataRepository;
-  private final MutableLiveData<Resource<Record>> record;
-  public final ObservableInt progressBarVisibility = new ObservableInt();
+  private LiveData<Resource<Record>> record;
+  private LiveData<Integer> progressBarVisibility;
 
   @Inject
   RecordDetailsViewModel(DataRepository dataRepository) {
     this.dataRepository = dataRepository;
-    this.record = new MutableLiveData<>();
   }
 
   public LiveData<Resource<Record>> getRecord() {
     return record;
   }
 
-  public void loadRecordDetails(String projectId, String featureId, String recordId) {
-    disposeOnClear(
-        dataRepository
-            .getRecordDetails(projectId, featureId, recordId)
-            .subscribe(this::onRecordUpdate));
+  public LiveData<Integer> getProgressBarVisibility() {
+    return progressBarVisibility;
   }
 
-  private void onRecordUpdate(Resource<Record> r) {
-    switch (r.operationState().get()) {
-      case LOADING:
-        progressBarVisibility.set(View.VISIBLE);
-        break;
-      case LOADED:
-        progressBarVisibility.set(View.GONE);
-        break;
-      case NOT_FOUND:
-      case ERROR:
-        break;
+  public void loadRecordDetails(String projectId, String featureId, String recordId) {
+    Observable<Resource<Record>> recordDetials =
+      dataRepository.getRecordDetails(projectId, featureId, recordId);
+
+    progressBarVisibility =
+      LiveDataReactiveStreams.fromPublisher(
+        recordDetials
+          .map(this::toProgressBarVisibility)
+          .onErrorReturn(err -> View.GONE)
+          .toFlowable(BackpressureStrategy.LATEST));
+
+    record =
+      LiveDataReactiveStreams.fromPublisher(
+        recordDetials
+          .map(r -> r)
+          .onErrorReturn(err -> Resource.error(err))
+          .toFlowable(BackpressureStrategy.LATEST));
+  }
+
+  private Integer toProgressBarVisibility(Resource<Record> r) {
+    if(r.operationState().get() == Resource.Status.LOADING) {
+      return View.VISIBLE;
+    } else {
+      return View.GONE;
     }
-    record.setValue(r);
   }
 }
