@@ -52,9 +52,6 @@ public class RecordDetailsFragment extends AbstractFragment {
   @BindView(R.id.record_details_toolbar)
   TwoLineToolbar toolbar;
 
-  @BindView(R.id.form_name)
-  TextView formNameView;
-
   @BindView(R.id.record_details_layout)
   LinearLayout recordDetailsLayout;
 
@@ -63,13 +60,21 @@ public class RecordDetailsFragment extends AbstractFragment {
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+    RecordDetailsFragmentArgs args = getRecordDetailFragmentArgs();
     viewModel = getViewModel(RecordDetailsViewModel.class);
+    viewModel.getRecordDetailsRequest(args);
+    //TODO: Move toolbar setting logic into the ViewModel once we have
+    // determined the fate of the toolbar.
+    viewModel.toolbarTitle.observe(this, this::setToolbarTitle);
+    viewModel.toolbarSubtitle.observe(this, this::setToolbarSubtitle);
+    viewModel.records.observe(this, this::onUpdate);
   }
 
   @Override
   public View onCreateView(
       LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-    RecordDetailsFragBinding binding = 
+    super.onCreateView(inflater, container, savedInstanceState);
+    RecordDetailsFragBinding binding =
       RecordDetailsFragBinding.inflate(inflater, container, false);
     binding.setViewModel(viewModel);
     binding.setLifecycleOwner(this);
@@ -91,21 +96,23 @@ public class RecordDetailsFragment extends AbstractFragment {
   public void onActivityCreated(@Nullable Bundle savedInstanceState) {
     super.onActivityCreated(savedInstanceState);
     setHasOptionsMenu(true);
-    viewModel.getRecord().observe(this, this::onUpdate);
   }
 
   @Override
   public void onStart() {
     super.onStart();
-    RecordDetailsFragmentArgs args = getRecordDetailFragmentArgs();
-    viewModel.loadRecordDetails(args.getProjectId(), args.getFeatureId(), args.getRecordId());
+  }
+
+  private void setToolbarTitle(String title) {
+    toolbar.setTitle(title);
+  }
+
+  private void setToolbarSubtitle(String subtitle) {
+    toolbar.setSubtitle(subtitle);
   }
 
   private void onUpdate(Resource<Record> record) {
     switch (record.operationState().get()) {
-      case LOADING:
-        showProgressBar();
-        break;
       case LOADED:
         record.ifPresent(this::showRecord);
         break;
@@ -118,18 +125,7 @@ public class RecordDetailsFragment extends AbstractFragment {
     }
   }
 
-  private void showProgressBar() {
-    toolbar.setTitle("");
-    toolbar.setSubtitle("");
-    formNameView.setText("");
-    recordDetailsLayout.setVisibility(View.GONE);
-  }
-
-  // TODO: Move into separate ViewHolder class.
   private void showRecord(Record record) {
-    toolbar.setTitle(record.getFeature().getTitle());
-    toolbar.setSubtitle(record.getFeature().getSubtitle());
-    formNameView.setText(record.getForm().getTitle());
     recordDetailsLayout.removeAllViews();
     for (Form.Element element : record.getForm().getElements()) {
       switch (element.getType()) {

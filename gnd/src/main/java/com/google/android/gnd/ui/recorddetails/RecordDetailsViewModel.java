@@ -18,61 +18,123 @@ package com.google.android.gnd.ui.recorddetails;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.LiveDataReactiveStreams;
+import android.util.Log;
 import android.view.View;
 
 import com.google.android.gnd.repository.DataRepository;
 import com.google.android.gnd.repository.Resource;
 import com.google.android.gnd.ui.common.AbstractViewModel;
+import com.google.android.gnd.vo.Form;
 import com.google.android.gnd.vo.Record;
+import com.google.common.collect.ImmutableList;
 
 import io.reactivex.BackpressureStrategy;
-import io.reactivex.Observable;
+import io.reactivex.Flowable;
+import io.reactivex.subjects.BehaviorSubject;
+import io.reactivex.subjects.Subject;
 
 import javax.inject.Inject;
 
 public class RecordDetailsViewModel extends AbstractViewModel {
 
+  private static final String TAG = RecordDetailsViewModel.class.getSimpleName();
+
   private final DataRepository dataRepository;
-  private LiveData<Resource<Record>> record;
-  private LiveData<Integer> progressBarVisibility;
+  private final Subject<RecordDetailsFragmentArgs> recordDetailsRequest;
+  public final Flowable<Resource<Record>> recordStream;
+  public final LiveData<Resource<Record>> records;
+  public final LiveData<Integer> progressBarVisibility;
+  public final LiveData<String> toolbarTitle;
+  public final LiveData<String> toolbarSubtitle;
+  public final LiveData<String> formNameView;
 
   @Inject
   RecordDetailsViewModel(DataRepository dataRepository) {
     this.dataRepository = dataRepository;
+
+    this.recordDetailsRequest = BehaviorSubject.create();
+
+    this.recordStream =
+        recordDetailsRequest
+          .switchMap(a ->
+              this.dataRepository.getRecordDetails(a.getProjectId(), a.getFeatureId(), a.getRecordId()))
+          .toFlowable(BackpressureStrategy.LATEST);
+
+    //TODO: Refactor to expose the fetched record directly.
+    this.records = LiveDataReactiveStreams.fromPublisher(
+        recordStream
+    );
+
+    this.progressBarVisibility = LiveDataReactiveStreams.fromPublisher(
+        recordStream.map(this::toProgressBarVisibility)
+        .onErrorReturn(x -> View.GONE)
+    );
+
+    this.toolbarTitle = LiveDataReactiveStreams.fromPublisher(
+        recordStream.map(this::toToolbarTitle)
+        .onErrorReturn(x -> "")
+    );
+
+    this.toolbarSubtitle = LiveDataReactiveStreams.fromPublisher(
+        recordStream.map(this::toToolbarSubtitle)
+        .onErrorReturn(x -> "")
+    );
+
+    this.formNameView = LiveDataReactiveStreams.fromPublisher(
+        recordStream.map(this::toFormNameView)
+        .onErrorReturn(x -> "")
+    );
+
+    recordDetailsRequest.subscribe(args -> {
+      Log.d(TAG, "" + args);
+    });
   }
 
-  public LiveData<Resource<Record>> getRecord() {
-    return record;
+  public void getRecordDetailsRequest(RecordDetailsFragmentArgs args) {
+    this.recordDetailsRequest.onNext(args);
   }
 
-  public LiveData<Integer> getProgressBarVisibility() {
-    return progressBarVisibility;
+  private Integer toProgressBarVisibility(Resource<Record> record) {
+    switch (record.operationState().get()) {
+      case LOADING:
+        return View.VISIBLE;
+      default:
+        return View.GONE;
+    }
   }
 
-  public void loadRecordDetails(String projectId, String featureId, String recordId) {
-    Observable<Resource<Record>> recordDetials =
-      dataRepository.getRecordDetails(projectId, featureId, recordId);
-
-    progressBarVisibility =
-      LiveDataReactiveStreams.fromPublisher(
-        recordDetials
-          .map(this::toProgressBarVisibility)
-          .onErrorReturn(err -> View.GONE)
-          .toFlowable(BackpressureStrategy.LATEST));
-
-    record =
-      LiveDataReactiveStreams.fromPublisher(
-        recordDetials
-          .map(r -> r)
-          .onErrorReturn(err -> Resource.error(err))
-          .toFlowable(BackpressureStrategy.LATEST));
+  private String toToolbarTitle(Resource<Record> record) {
+    switch (record.operationState().get()) {
+      case LOADED:
+        return record.data()
+          .map(r -> r.getFeature().getTitle())
+          .orElse("");
+      default:
+        return "";
+    }
   }
 
-  private Integer toProgressBarVisibility(Resource<Record> r) {
-    if(r.operationState().get() == Resource.Status.LOADING) {
-      return View.VISIBLE;
-    } else {
-      return View.GONE;
+  private String toToolbarSubtitle(Resource<Record> record) {
+    switch (record.operationState().get()) {
+      case LOADED:
+        return
+          record.data()
+            .map(r -> r.getFeature().getSubtitle())
+            .orElse("");
+      default:
+        return "";
+    }
+  }
+
+  private String toFormNameView(Resource<Record> record) {
+    switch (record.operationState().get()) {
+      case LOADED:
+        return
+          record.data()
+            .map(r -> r.getForm().getTitle())
+            .orElse("");
+      default:
+        return "";
     }
   }
 }

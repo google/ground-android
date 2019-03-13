@@ -75,6 +75,7 @@
             android:textAllCaps="true"
             android:textColor="@color/colorForeground"
             android:textSize="12sp"
+            android:text="@{viewModel.formNameView}"
             />
   
         </LinearLayout>
