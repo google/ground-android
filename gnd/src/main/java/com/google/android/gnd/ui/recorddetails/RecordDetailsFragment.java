@@ -62,8 +62,8 @@ public class RecordDetailsFragment extends AbstractFragment {
     super.onCreate(savedInstanceState);
     RecordDetailsFragmentArgs args = getRecordDetailFragmentArgs();
     viewModel = getViewModel(RecordDetailsViewModel.class);
-    viewModel.getRecordDetailsRequest(args);
-    //TODO: Move toolbar setting logic into the ViewModel once we have
+    viewModel.loadRecordDetails(args);
+    // TODO: Move toolbar setting logic into the ViewModel once we have
     // determined the fate of the toolbar.
     viewModel.toolbarTitle.observe(this, this::setToolbarTitle);
     viewModel.toolbarSubtitle.observe(this, this::setToolbarSubtitle);
@@ -74,8 +74,7 @@ public class RecordDetailsFragment extends AbstractFragment {
   public View onCreateView(
       LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     super.onCreateView(inflater, container, savedInstanceState);
-    RecordDetailsFragBinding binding =
-      RecordDetailsFragBinding.inflate(inflater, container, false);
+    RecordDetailsFragBinding binding = RecordDetailsFragBinding.inflate(inflater, container, false);
     binding.setViewModel(viewModel);
     binding.setLifecycleOwner(this);
     return binding.getRoot();
