@@ -62,12 +62,12 @@ public class RecordDetailsFragment extends AbstractFragment {
     super.onCreate(savedInstanceState);
     RecordDetailsFragmentArgs args = getRecordDetailFragmentArgs();
     viewModel = getViewModel(RecordDetailsViewModel.class);
-    viewModel.loadRecordDetails(args);
     // TODO: Move toolbar setting logic into the ViewModel once we have
     // determined the fate of the toolbar.
     viewModel.toolbarTitle.observe(this, this::setToolbarTitle);
     viewModel.toolbarSubtitle.observe(this, this::setToolbarSubtitle);
     viewModel.records.observe(this, this::onUpdate);
+    viewModel.loadRecordDetails(args);
   }
 
   @Override
@@ -103,11 +103,15 @@ public class RecordDetailsFragment extends AbstractFragment {
   }
 
   private void setToolbarTitle(String title) {
-    toolbar.setTitle(title);
+    if (toolbar != null) {
+      toolbar.setTitle(title);
+    }
   }
 
   private void setToolbarSubtitle(String subtitle) {
-    toolbar.setSubtitle(subtitle);
+    if (toolbar != null) {
+      toolbar.setSubtitle(subtitle);
+    }
   }
 
   private void onUpdate(Resource<Record> record) {

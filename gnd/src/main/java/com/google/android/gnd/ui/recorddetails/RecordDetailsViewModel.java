@@ -46,7 +46,7 @@ public class RecordDetailsViewModel extends AbstractViewModel {
   private static final String TAG = RecordDetailsViewModel.class.getSimpleName();
 
   private final DataRepository dataRepository;
-  private final BehaviorProcessor<Resource<Record>> recordProcessor;
+  private final BehaviorProcessor<RecordDetailsFragmentArgs> argsProcessor;
   public final LiveData<Resource<Record>> records;
   public final LiveData<Integer> progressBarVisibility;
   public final LiveData<String> toolbarTitle;
@@ -57,32 +57,36 @@ public class RecordDetailsViewModel extends AbstractViewModel {
   RecordDetailsViewModel(DataRepository dataRepository) {
     this.dataRepository = dataRepository;
 
-    this.recordProcessor = BehaviorProcessor.create();
+    this.argsProcessor = BehaviorProcessor.create();
+
+    Flowable<Resource<Record>> recordStream =
+        argsProcessor.switchMap(
+            args ->
+                this.dataRepository.getRecordDetails(
+                    args.getProjectId(), args.getFeatureId(), args.getRecordId()));
 
     // TODO: Refactor to expose the fetched record directly.
-    this.records = LiveDataReactiveStreams.fromPublisher(recordProcessor);
+    this.records = LiveDataReactiveStreams.fromPublisher(recordStream);
 
     this.progressBarVisibility =
         LiveDataReactiveStreams.fromPublisher(
-            recordProcessor.map(this::toProgressBarVisibility).onErrorReturn(x -> View.GONE));
+            recordStream.map(this::toProgressBarVisibility).onErrorReturn(x -> View.GONE));
 
     this.toolbarTitle =
         LiveDataReactiveStreams.fromPublisher(
-            recordProcessor.map(this::toToolbarTitle).onErrorReturn(x -> ""));
+            recordStream.map(this::toToolbarTitle).onErrorReturn(x -> ""));
 
     this.toolbarSubtitle =
         LiveDataReactiveStreams.fromPublisher(
-            recordProcessor.map(this::toToolbarSubtitle).onErrorReturn(x -> ""));
+            recordStream.map(this::toToolbarSubtitle).onErrorReturn(x -> ""));
 
     this.formNameView =
         LiveDataReactiveStreams.fromPublisher(
-            recordProcessor.map(this::toFormNameView).onErrorReturn(x -> ""));
+            recordStream.map(this::toFormNameView).onErrorReturn(x -> ""));
   }
 
   public void loadRecordDetails(RecordDetailsFragmentArgs args) {
-    this.dataRepository
-        .getRecordDetails(args.getProjectId(), args.getFeatureId(), args.getRecordId())
-        .subscribe(record -> this.recordProcessor.onNext(record));
+    this.argsProcessor.onNext(args);
   }
 
   private Integer toProgressBarVisibility(Resource<Record> record) {
