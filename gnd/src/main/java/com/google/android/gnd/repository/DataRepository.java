@@ -121,13 +121,13 @@ public class DataRepository {
                     .orElse(Single.error(new DocumentNotFoundException())));
   }
 
-  public Observable<Resource<Record>> getRecordDetails(
+  public Flowable<Resource<Record>> getRecordDetails(
       String projectId, String featureId, String recordId) {
     return getFeature(projectId, featureId)
         .flatMap(feature -> remoteDataService.loadRecordDetails(feature, recordId))
         .map(Resource::loaded)
         .onErrorReturn(Resource::error)
-        .toObservable();
+        .toFlowable();
   }
 
   public Single<Resource<Record>> getRecordSnapshot(
