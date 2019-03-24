@@ -16,7 +16,7 @@
 
 package com.google.android.gnd.ui.home;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import com.google.android.gnd.vo.Feature;
 
 public class FeatureSheetState {

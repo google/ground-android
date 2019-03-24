@@ -16,7 +16,7 @@
 
 package com.google.android.gnd.ui.common;
 
-import android.support.v4.app.Fragment;
+import androidx.fragment.app.Fragment;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 

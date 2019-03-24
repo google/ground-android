@@ -18,7 +18,7 @@ package com.google.android.gnd;
 
 import android.app.Activity;
 import android.os.StrictMode;
-import android.support.multidex.MultiDexApplication;
+import androidx.multidex.MultiDexApplication;
 import android.util.Log;
 import com.akaita.java.rxjava2debug.RxJava2Debug;
 import com.google.android.gnd.repository.DataRepository;

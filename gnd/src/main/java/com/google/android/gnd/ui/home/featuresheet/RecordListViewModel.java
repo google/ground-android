@@ -18,8 +18,8 @@ package com.google.android.gnd.ui.home.featuresheet;
 
 import static java8.util.stream.StreamSupport.stream;
 
-import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.MutableLiveData;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 import com.google.android.gnd.repository.DataRepository;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.vo.Feature;

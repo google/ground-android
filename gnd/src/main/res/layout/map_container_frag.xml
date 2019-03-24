@@ -67,7 +67,7 @@
       android:layout_gravity="bottom|right|end"
       android:orientation="vertical">
 
-      <android.support.design.widget.FloatingActionButton
+      <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/location_lock_btn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -77,7 +77,7 @@
         app:fabSize="normal"
         app:useCompatPadding="true"/>
 
-      <android.support.design.widget.FloatingActionButton
+      <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/add_feature_btn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

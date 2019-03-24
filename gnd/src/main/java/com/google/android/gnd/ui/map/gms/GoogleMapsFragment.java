@@ -17,8 +17,8 @@
 package com.google.android.gnd.ui.map.gms;
 
 import android.os.Bundle;
-import android.support.v4.view.ViewCompat;
-import android.support.v4.view.WindowInsetsCompat;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;

@@ -16,7 +16,7 @@
 
 package com.google.android.gnd.rx;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import java8.util.Optional;
 import java8.util.function.Consumer;
 

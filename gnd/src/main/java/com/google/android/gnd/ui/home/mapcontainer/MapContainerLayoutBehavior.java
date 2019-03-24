@@ -17,7 +17,7 @@
 package com.google.android.gnd.ui.home.mapcontainer;
 
 import android.content.Context;
-import android.support.design.widget.CoordinatorLayout;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.FrameLayout;
