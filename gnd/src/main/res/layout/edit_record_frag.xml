@@ -20,7 +20,7 @@
       type="com.google.android.gnd.ui.editrecord.EditRecordViewModel"/>
   </data>
 
-  <android.support.design.widget.CoordinatorLayout
+  <androidx.coordinatorlayout.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
@@ -35,7 +35,7 @@
       android:orientation="vertical">
 
       <!-- CardView is used to create the drop shadow effect -->
-      <android.support.v7.widget.CardView
+      <androidx.cardview.widget.CardView
         android:id="@+id/edit_record_header"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -69,7 +69,7 @@
 
         </LinearLayout>
 
-      </android.support.v7.widget.CardView>
+      </androidx.cardview.widget.CardView>
 
       <ScrollView
         android:layout_width="match_parent"
@@ -99,7 +99,7 @@
     </RelativeLayout>
 
     <!-- TODO: Move into toolbar, maybe use showAsAction in menu xml w/custom style. -->
-    <android.support.design.chip.Chip
+    <com.google.android.material.chip.Chip
       android:id="@+id/save_record_btn"
       style="@style/ChipButton.Toolbar"
       android:layout_width="wrap_content"
@@ -112,5 +112,5 @@
       android:visibility="gone"
       app:useCompatPadding="true"/>
 
-  </android.support.design.widget.CoordinatorLayout>
+  </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </layout>

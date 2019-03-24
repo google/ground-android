@@ -17,7 +17,7 @@
 package com.google.android.gnd.ui.map;
 
 import android.annotation.SuppressLint;
-import android.support.v4.app.Fragment;
+import androidx.fragment.app.Fragment;
 import com.google.android.gnd.vo.Feature;
 import com.google.android.gnd.vo.Point;
 import com.google.common.collect.ImmutableSet;

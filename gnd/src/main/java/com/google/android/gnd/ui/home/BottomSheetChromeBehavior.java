@@ -19,7 +19,7 @@ package com.google.android.gnd.ui.home;
 import static com.google.android.gnd.ui.home.OnBottomSheetSlideBehavior.SheetSlideMetrics.scale;
 
 import android.content.Context;
-import android.support.design.widget.CoordinatorLayout;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;

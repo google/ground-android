@@ -16,9 +16,8 @@
 
 package com.google.android.gnd.ui.recorddetails;
 
-import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.LiveDataReactiveStreams;
-import android.util.Log;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.LiveDataReactiveStreams;
 import android.view.View;
 
 import com.google.android.gnd.repository.DataRepository;
@@ -27,17 +26,9 @@ import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.vo.Feature;
 import com.google.android.gnd.vo.Form;
 import com.google.android.gnd.vo.Record;
-import com.google.common.collect.ImmutableList;
 
-import org.reactivestreams.Processor;
-
-import io.reactivex.BackpressureStrategy;
 import io.reactivex.Flowable;
-import io.reactivex.Observable;
 import io.reactivex.processors.BehaviorProcessor;
-import io.reactivex.processors.PublishProcessor;
-import io.reactivex.subjects.BehaviorSubject;
-import io.reactivex.subjects.Subject;
 
 import javax.inject.Inject;
 

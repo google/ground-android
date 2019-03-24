@@ -18,7 +18,7 @@ package com.google.android.gnd.vo;
 
 import static java8.util.stream.StreamSupport.stream;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import com.google.android.gnd.system.AuthenticationManager.User;
 import com.google.android.gnd.vo.Form.Field;
 import com.google.android.gnd.vo.Form.MultipleChoice.Option;

@@ -21,14 +21,14 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <android.support.v4.widget.DrawerLayout
+    <androidx.drawerlayout.widget.DrawerLayout
       android:id="@+id/drawer_layout"
       android:layout_width="match_parent"
       android:layout_height="match_parent"
       android:clickable="true"
       android:focusableInTouchMode="true">
 
-      <android.support.design.widget.CoordinatorLayout
+      <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
@@ -66,10 +66,10 @@
           android:id="@+id/feature_sheet_chrome"
           layout="@layout/feature_sheet_chrome"/>
 
-      </android.support.design.widget.CoordinatorLayout>
+      </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
       <!-- Application side drawer -->
-      <android.support.design.widget.NavigationView
+      <com.google.android.material.navigation.NavigationView
         android:id="@+id/nav_view"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
@@ -86,9 +86,9 @@
           android:layout_gravity="bottom"
           android:text="Build number"/>
 
-      </android.support.design.widget.NavigationView>
+      </com.google.android.material.navigation.NavigationView>
 
-    </android.support.v4.widget.DrawerLayout>
+    </androidx.drawerlayout.widget.DrawerLayout>
 
     <!--
       Translucent scrim to make status bar legible when shown overlaid on map or toolbar.

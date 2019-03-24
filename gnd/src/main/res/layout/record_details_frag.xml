@@ -21,7 +21,7 @@
         type="com.google.android.gnd.ui.recorddetails.RecordDetailsViewModel"/>
   </data>
 
-  <android.support.design.widget.CoordinatorLayout
+  <androidx.coordinatorlayout.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
@@ -45,7 +45,7 @@
         android:visibility="@{safeUnbox(viewModel.progressBarVisibility)}"/>
 
       <!-- CardView is used to create the drop shadow effect -->
-      <android.support.v7.widget.CardView
+      <androidx.cardview.widget.CardView
         android:id="@+id/record_details_header"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -80,7 +80,7 @@
   
         </LinearLayout>
   
-      </android.support.v7.widget.CardView>
+      </androidx.cardview.widget.CardView>
   
       <ScrollView
         android:layout_width="match_parent"
@@ -98,5 +98,5 @@
   
     </RelativeLayout>
   
-  </android.support.design.widget.CoordinatorLayout>
+  </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </layout>

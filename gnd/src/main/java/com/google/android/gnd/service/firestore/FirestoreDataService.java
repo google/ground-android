@@ -16,7 +16,7 @@
 
 package com.google.android.gnd.service.firestore;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import com.google.android.gnd.rx.RxTask;
 import com.google.android.gnd.service.DatastoreEvent;
 import com.google.android.gnd.service.RemoteDataService;

@@ -16,7 +16,7 @@
 
 package com.google.android.gnd.util;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import java.util.Map;
 
 public abstract class Localization {
