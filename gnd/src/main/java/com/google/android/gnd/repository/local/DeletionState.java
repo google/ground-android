@@ -16,31 +16,18 @@
 
 package com.google.android.gnd.repository.local;
 
-import androidx.room.Embedded;
-import androidx.room.Entity;
-import androidx.room.Index;
-import androidx.room.PrimaryKey;
+public enum DeletionState implements IntEnum {
+  UNKNOWN(0),
+  NONE(1),
+  DELETED(2);
 
-@Entity(indices = {@Index("id")})
-public class FeatureSnapshot {
-  @PrimaryKey(autoGenerate = true)
-  public int id;
+  private final int intValue;
 
-  public SnapshotType type;
-
-  public DeletionState deletionState;
-
-  public String featureId;
-
-  public String projectId;
-
-  @Embedded
-  public Coordinates location;
-
-  public static class Coordinates {
-    public double latitude;
-
-    public double longitude;
+  DeletionState(int intValue) {
+    this.intValue = intValue;
   }
 
+  public int intValue() {
+    return intValue;
+  }
 }

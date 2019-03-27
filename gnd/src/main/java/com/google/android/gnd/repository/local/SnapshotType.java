@@ -17,14 +17,18 @@
 package com.google.android.gnd.repository.local;
 
 /* Types may only be renamed or added, never removed. */
-public enum SnapshotType {
+public enum SnapshotType implements IntEnum {
   UNKNOWN(0),
   PRIMARY(1),
   ROLLBACK(2);
 
-  public final int intValue;
+  private final int intValue;
 
   SnapshotType(int intValue) {
     this.intValue = intValue;
+  }
+
+  public int intValue() {
+    return intValue;
   }
 }

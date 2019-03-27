@@ -16,31 +16,6 @@
 
 package com.google.android.gnd.repository.local;
 
-import androidx.room.Embedded;
-import androidx.room.Entity;
-import androidx.room.Index;
-import androidx.room.PrimaryKey;
-
-@Entity(indices = {@Index("id")})
-public class FeatureSnapshot {
-  @PrimaryKey(autoGenerate = true)
-  public int id;
-
-  public SnapshotType type;
-
-  public DeletionState deletionState;
-
-  public String featureId;
-
-  public String projectId;
-
-  @Embedded
-  public Coordinates location;
-
-  public static class Coordinates {
-    public double latitude;
-
-    public double longitude;
-  }
-
+public interface IntEnum {
+  int intValue();
 }

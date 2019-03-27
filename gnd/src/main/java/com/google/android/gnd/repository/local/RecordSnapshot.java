@@ -22,7 +22,7 @@ import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
 @Entity(indices = {@Index("id")})
-public class FeatureSnapshot {
+public class RecordSnapshot {
   @PrimaryKey(autoGenerate = true)
   public int id;
 
@@ -30,17 +30,7 @@ public class FeatureSnapshot {
 
   public DeletionState deletionState;
 
-  public String featureId;
+  public String featureSnapshotId;
 
-  public String projectId;
-
-  @Embedded
-  public Coordinates location;
-
-  public static class Coordinates {
-    public double latitude;
-
-    public double longitude;
-  }
-
+  public String recordId;
 }

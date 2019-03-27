@@ -18,7 +18,10 @@ package com.google.android.gnd.repository.local;
 
 import static java8.util.J8Arrays.stream;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.room.TypeConverter;
+import java8.util.stream.Stream;
 
 public abstract class Converters {
 
@@ -27,28 +30,45 @@ public abstract class Converters {
   }
 
   @TypeConverter
-  public static int fromSnapshotType(SnapshotType snapshotType) {
-    return snapshotType == null ? SnapshotType.UNKNOWN.intValue : snapshotType.intValue;
+  private static int fromSnapshotType(@Nullable SnapshotType value) {
+    return fromIntEnum(value, SnapshotType.UNKNOWN);
   }
 
+  @TypeConverter
+  private static int fromEditType(@Nullable EditType value) {
+    return fromIntEnum(value, EditType.UNKNOWN);
+  }
+
+  @TypeConverter
+  private static int fromDeletionState(@Nullable DeletionState value) {
+    return fromIntEnum(value, DeletionState.UNKNOWN);
+  }
+
+  private static <E extends IntEnum> int fromIntEnum(E enumValue, @NonNull E defaultValue) {
+    return enumValue == null ? defaultValue.intValue() : enumValue.intValue();
+  }
+
+  @NonNull
   @TypeConverter
   public static SnapshotType toSnapshotType(int intValue) {
-    return stream(SnapshotType.values())
-        .filter(s -> s.intValue == intValue)
-        .findFirst()
-        .orElse(SnapshotType.UNKNOWN);
+    return toIntEnum(stream(SnapshotType.values()), intValue, SnapshotType.UNKNOWN);
   }
 
-  @TypeConverter
-  public static int fromEditType(EditType editType) {
-    return editType.intValue;
-  }
-
+  @NonNull
   @TypeConverter
   public static EditType toEditType(int intValue) {
-    return stream(EditType.values())
-        .filter(s -> s.intValue == intValue)
-        .findFirst()
-        .orElse(EditType.UNKNOWN);
+    return toIntEnum(stream(EditType.values()), intValue, EditType.UNKNOWN);
+  }
+
+  @NonNull
+  @TypeConverter
+  public static DeletionState toDeletionState(int intValue) {
+    return toIntEnum(stream(DeletionState.values()), intValue, DeletionState.UNKNOWN);
+  }
+
+  @NonNull
+  private static <E extends Enum<E> & IntEnum> E toIntEnum(
+      @NonNull Stream<E> values, int intValue, @NonNull E defaultValue) {
+    return values.filter(s -> s.intValue() == intValue).findFirst().orElse(defaultValue);
   }
 }

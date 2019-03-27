@@ -16,15 +16,19 @@
 
 package com.google.android.gnd.repository.local;
 
-public enum EditType {
+public enum EditType implements IntEnum {
   UNKNOWN(0),
   CREATE(1),
   UPDATE(2),
   DELETE(3);
 
-  public final int intValue;
+  private final int intValue;
 
   EditType(int intValue) {
     this.intValue = intValue;
+  }
+
+  public int intValue() {
+    return intValue;
   }
 }
