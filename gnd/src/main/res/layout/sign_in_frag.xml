@@ -22,14 +22,14 @@
       type="com.google.android.gnd.ui.signin.SignInViewModel"/>
   </data>
 
-  <android.support.design.widget.CoordinatorLayout
+  <androidx.coordinatorlayout.widget.CoordinatorLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
     android:navigationBarColor="@color/colorGrey500"
     app:statusBarBackground="@color/colorGrey500">
 
-    <android.support.constraint.ConstraintLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
       android:layout_width="match_parent"
       android:layout_height="match_parent">
 
@@ -78,6 +78,6 @@
         app:layout_constraintTop_toBottomOf="@+id/textView2"
         app:layout_constraintVertical_bias="1.0"/>
 
-    </android.support.constraint.ConstraintLayout>
-  </android.support.design.widget.CoordinatorLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+  </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </layout>

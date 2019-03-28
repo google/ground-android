@@ -16,10 +16,10 @@
 
 package com.google.android.gnd.ui.home.featuresheet;
 
-import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.MutableLiveData;
-import android.support.annotation.NonNull;
-import android.support.v7.widget.RecyclerView;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
 import android.view.ViewGroup;
 import com.google.android.gnd.vo.Record;
 import java.util.Collections;

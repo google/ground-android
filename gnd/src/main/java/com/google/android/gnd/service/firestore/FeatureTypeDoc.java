@@ -18,7 +18,7 @@ package com.google.android.gnd.service.firestore;
 
 import static com.google.android.gnd.util.Localization.getLocalizedMessage;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import com.google.android.gnd.vo.FeatureType;
 import com.google.firebase.firestore.IgnoreExtraProperties;
 import java.util.Map;

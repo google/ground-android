@@ -16,8 +16,8 @@
 
 package com.google.android.gnd.ui.home.featuresheet;
 
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import com.google.android.gnd.inject.FragmentScoped;
 import dagger.Module;
 import dagger.Provides;

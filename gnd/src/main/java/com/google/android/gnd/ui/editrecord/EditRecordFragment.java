@@ -20,8 +20,8 @@ import static com.google.android.gnd.ui.util.ViewUtil.assignGeneratedId;
 
 import android.app.ProgressDialog;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v7.app.AlertDialog;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -77,7 +77,7 @@ public class EditRecordFragment extends AbstractFragment implements BackPressLis
   View saveRecordButton;
 
   @Override
-  public void onCreate(@android.support.annotation.Nullable Bundle savedInstanceState) {
+  public void onCreate(@androidx.annotation.Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     singleSelectDialogFactory = new SingleSelectDialogFactory(getContext());
     multiSelectDialogFactory = new MultiSelectDialogFactory(getContext());
@@ -94,7 +94,7 @@ public class EditRecordFragment extends AbstractFragment implements BackPressLis
 
   @Override
   public void onViewCreated(
-      @NonNull View view, @android.support.annotation.Nullable Bundle savedInstanceState) {
+      @NonNull View view, @androidx.annotation.Nullable Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
     ((MainActivity) getActivity()).setActionBar(toolbar, R.drawable.ic_close_black_24dp);
     toolbar.setNavigationOnClickListener(__ -> onCloseButtonClick());
@@ -102,7 +102,7 @@ public class EditRecordFragment extends AbstractFragment implements BackPressLis
   }
 
   @Override
-  public void onActivityCreated(@android.support.annotation.Nullable Bundle savedInstanceState) {
+  public void onActivityCreated(@androidx.annotation.Nullable Bundle savedInstanceState) {
     super.onActivityCreated(savedInstanceState);
     viewModel.getRecord().observe(this, this::onRecordChange);
     viewModel.getShowUnsavedChangesDialogEvents().observe(this, __ -> showUnsavedChangesDialog());

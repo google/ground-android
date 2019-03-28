@@ -16,7 +16,7 @@
 
 package com.google.android.gnd.rx;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import com.google.android.gms.tasks.Task;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;

@@ -16,9 +16,9 @@
 
 package com.google.android.gnd.ui.home.featuresheet;
 
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentStatePagerAdapter;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentStatePagerAdapter;
 import com.google.android.gnd.vo.Feature;
 import com.google.android.gnd.vo.FeatureType;
 import com.google.common.collect.ImmutableList;

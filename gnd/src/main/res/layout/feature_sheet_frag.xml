@@ -33,7 +33,7 @@
       @background is required to make @elevation show drop shadow
       https://stackoverflow.com/questions/31151180/material-tablayout-elevation-not-working/31777078
       -->
-    <android.support.design.widget.TabLayout
+    <com.google.android.material.tabs.TabLayout
       android:id="@+id/forms_tab_layout"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"

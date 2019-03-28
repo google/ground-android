@@ -16,11 +16,11 @@
 
 package com.google.android.gnd.ui.common;
 
-import android.databinding.BindingAdapter;
-import android.databinding.DataBindingUtil;
-import android.databinding.ViewDataBinding;
-import android.support.annotation.Nullable;
-import android.support.design.widget.TextInputEditText;
+import androidx.databinding.BindingAdapter;
+import androidx.databinding.DataBindingUtil;
+import androidx.databinding.ViewDataBinding;
+import androidx.annotation.Nullable;
+import com.google.android.material.textfield.TextInputEditText;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;

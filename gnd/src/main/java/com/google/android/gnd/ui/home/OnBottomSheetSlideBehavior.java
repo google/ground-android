@@ -18,8 +18,8 @@ package com.google.android.gnd.ui.home;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
-import android.support.annotation.Nullable;
-import android.support.design.widget.CoordinatorLayout;
+import androidx.annotation.Nullable;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import android.util.AttributeSet;
 import android.view.View;
 import com.google.android.gnd.R;

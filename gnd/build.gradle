@@ -19,16 +19,16 @@ apply plugin: 'com.android.application'
 project.ext {
     autoDisposeVersion = "0.8.0"
     autoValueVersion = "1.6"
-    butterKnifeVersion = "8.8.1"
+    butterKnifeVersion = "10.1.0"
     constraintLayoutVersion = "1.0.2"
-    daggerVersion = "2.14.1"
+    daggerVersion = "2.21"
     // Latest: https://firebase.google.com/support/release-notes/android#latest_sdk_versions
     firebaseCoreVersion = "16.0.3"
     firebaseFirestoreVersion = "17.1.0"
     gmsVersion = "15.0.1"
     guavaVersion = "23.0-android"
     junitVersion = "4.12"
-    lifecycleVersion = "1.1.1"
+    lifecycleVersion = "2.0.0-beta01"
     navigationVersion = "1.0.0-alpha05"
     rxAndroidVersion = "2.0.1"
     rxBindingVersion = "2.1.1"
@@ -36,7 +36,7 @@ project.ext {
     rxJava2DebugVersion = "1.2.2"
     rxJavaVersion = "2.1.6"
     streamSupportVersion = "1.6.3"
-    supportLibraryVersion = "28.0.0"
+    supportLibraryVersion = "1.0.0-beta01"
     tabLayoutHelper = "0.9.0"
 }
 
@@ -53,7 +53,7 @@ android {
         targetSdkVersion 26
         versionCode gitVersioner.versionCode
         versionName gitVersioner.versionName
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
     }
     buildTypes {
@@ -78,20 +78,25 @@ android {
     }
 }
 
+
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    androidTestImplementation('com.android.support.test.espresso:espresso-core:2.2.2', {
+    androidTestImplementation('androidx.test.espresso:espresso-core:3.1.0-alpha4', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
-    implementation 'com.android.support:multidex:1.0.1'
+    implementation 'androidx.multidex:multidex:2.0.0'
 
-    // Android Support Libraries.
-    implementation "com.android.support:support-v4:$project.supportLibraryVersion"
-    implementation "com.android.support:appcompat-v7:$project.supportLibraryVersion"
-    implementation "com.android.support:cardview-v7:$project.supportLibraryVersion"
-    implementation "com.android.support:design:$project.supportLibraryVersion"
+    // Android legacy support Libraries.
+    implementation "androidx.legacy:legacy-support-v4:$project.supportLibraryVersion"
+    implementation "androidx.appcompat:appcompat:$project.supportLibraryVersion"
+
+    // UI widgets.
+    implementation "androidx.cardview:cardview:$project.supportLibraryVersion"
+    implementation "com.google.android.material:material:$project.supportLibraryVersion"
     implementation "com.android.support.constraint:constraint-layout:" +
             "$project.constraintLayoutVersion"
+
+    // Support for Java streams.
     implementation "net.sourceforge.streamsupport:streamsupport-cfuture:" +
             "$project.streamSupportVersion"
 
@@ -99,7 +104,7 @@ dependencies {
     implementation "com.google.android.gms:play-services-auth:$project.gmsVersion"
     implementation "com.google.android.gms:play-services-maps:$project.gmsVersion"
     implementation "com.google.android.gms:play-services-location:$project.gmsVersion"
-    
+
     // Firebase and related libraries.
     implementation "com.google.firebase:firebase-core:$project.firebaseCoreVersion"
     implementation "com.google.firebase:firebase-firestore:$project.firebaseFirestoreVersion"
@@ -111,6 +116,7 @@ dependencies {
     implementation "com.google.dagger:dagger:$project.daggerVersion"
 
     // Dagger Android
+    implementation "com.google.dagger:dagger-android:$project.daggerVersion"
     annotationProcessor "com.google.dagger:dagger-android-processor:$project.daggerVersion"
     implementation "com.google.dagger:dagger-android-support:$project.daggerVersion"
 
@@ -127,11 +133,13 @@ dependencies {
     implementation "com.jakewharton.rxbinding2:rxbinding-appcompat-v7:$project.rxBindingVersion"
     implementation "com.jakewharton.rxbinding2:rxbinding-design:$project.rxBindingVersion"
 
-    // Android Arch
-    implementation "android.arch.lifecycle:runtime:$project.lifecycleVersion"
-    implementation "android.arch.lifecycle:extensions:$project.lifecycleVersion"
-    implementation "android.arch.lifecycle:reactivestreams:$project.lifecycleVersion"
-    annotationProcessor "android.arch.lifecycle:compiler:$project.lifecycleVersion"
+    // Android Arch Lifecycle
+    implementation "androidx.lifecycle:lifecycle-runtime:$project.lifecycleVersion"
+    implementation "androidx.lifecycle:lifecycle-extensions:$project.lifecycleVersion"
+    implementation "androidx.lifecycle:lifecycle-reactivestreams:$project.lifecycleVersion"
+    annotationProcessor "androidx.lifecycle:lifecycle-compiler:$project.lifecycleVersion"
+
+    // Android Navigation
     implementation "android.arch.navigation:navigation-fragment:$project.navigationVersion"
     implementation "android.arch.navigation:navigation-ui:$project.navigationVersion"
 
@@ -148,7 +156,6 @@ dependencies {
     implementation "com.uber.autodispose:autodispose-android:$project.autoDisposeVersion"
     implementation "com.uber.autodispose:autodispose-android-archcomponents:$project.autoDisposeVersion"
 }
-
 apply plugin: 'androidx.navigation.safeargs'
 
 // This must be last to avoid dependency collisions.

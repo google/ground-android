@@ -16,8 +16,8 @@
 
 package com.google.android.gnd.repository;
 
-import android.arch.lifecycle.LiveData;
-import android.support.annotation.NonNull;
+import androidx.lifecycle.LiveData;
+import androidx.annotation.NonNull;
 import com.google.android.gnd.rx.AbstractResource;
 import com.google.android.gnd.rx.OperationState;
 import java8.util.Optional;
