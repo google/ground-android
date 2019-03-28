@@ -28,7 +28,7 @@ project.ext {
     gmsVersion = "15.0.1"
     guavaVersion = "23.0-android"
     junitVersion = "4.12"
-    lifecycleVersion = "1.1.1"
+    lifecycleVersion = "2.0.0-beta01"
     navigationVersion = "1.0.0-alpha05"
     rxAndroidVersion = "2.0.1"
     rxBindingVersion = "2.1.1"
@@ -36,6 +36,7 @@ project.ext {
     rxJava2DebugVersion = "1.2.2"
     rxJavaVersion = "2.1.6"
     streamSupportVersion = "1.6.3"
+    supportLibraryVersion = "1.0.0-beta01"
     tabLayoutHelper = "0.9.0"
 }
 
@@ -86,12 +87,12 @@ dependencies {
     implementation 'androidx.multidex:multidex:2.0.0'
 
     // Android legacy support Libraries.
-    implementation "androidx.legacy:legacy-support-v4:1.0.0-beta01"
-    implementation "androidx.appcompat:appcompat:1.0.0-beta01"
+    implementation "androidx.legacy:legacy-support-v4:$project.supportLibraryVersion"
+    implementation "androidx.appcompat:appcompat:$project.supportLibraryVersion"
 
     // UI widgets.
-    implementation "androidx.cardview:cardview:1.0.0-beta01"
-    implementation "com.google.android.material:material:1.0.0-beta01"
+    implementation "androidx.cardview:cardview:$project.supportLibraryVersion"
+    implementation "com.google.android.material:material:$project.supportLibraryVersion"
     implementation "com.android.support.constraint:constraint-layout:" +
             "$project.constraintLayoutVersion"
 
@@ -132,11 +133,13 @@ dependencies {
     implementation "com.jakewharton.rxbinding2:rxbinding-appcompat-v7:$project.rxBindingVersion"
     implementation "com.jakewharton.rxbinding2:rxbinding-design:$project.rxBindingVersion"
 
-    // Android Arch
-    implementation "androidx.lifecycle:lifecycle-runtime:2.0.0-beta01"
-    implementation "androidx.lifecycle:lifecycle-extensions:2.0.0-beta01"
-    implementation "androidx.lifecycle:lifecycle-reactivestreams:2.0.0-beta01"
-    annotationProcessor "androidx.lifecycle:lifecycle-compiler:2.0.0-beta01"
+    // Android Arch Lifecycle
+    implementation "androidx.lifecycle:lifecycle-runtime:$project.lifecycleVersion"
+    implementation "androidx.lifecycle:lifecycle-extensions:$project.lifecycleVersion"
+    implementation "androidx.lifecycle:lifecycle-reactivestreams:$project.lifecycleVersion"
+    annotationProcessor "androidx.lifecycle:lifecycle-compiler:$project.lifecycleVersion"
+
+    // Android Navigation
     implementation "android.arch.navigation:navigation-fragment:$project.navigationVersion"
     implementation "android.arch.navigation:navigation-ui:$project.navigationVersion"
 
