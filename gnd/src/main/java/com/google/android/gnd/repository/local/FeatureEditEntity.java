@@ -16,21 +16,35 @@
 
 package com.google.android.gnd.repository.local;
 
+import static androidx.room.ForeignKey.CASCADE;
+
+import androidx.annotation.NonNull;
+import androidx.room.ColumnInfo;
 import androidx.room.Embedded;
 import androidx.room.Entity;
+import androidx.room.ForeignKey;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
-@Entity(indices = {@Index("id")})
-public class RecordSnapshot {
+/** Representation of a {@link com.google.android.gnd.vo.FeatureUpdate} in local db. */
+// TODO: Convert to AutoValue class.
+@Entity(
+    tableName = "feature_edit",
+    foreignKeys =
+        @ForeignKey(
+            entity = FeatureEntity.class,
+            parentColumns = "id",
+            childColumns = "feature_id",
+            onDelete = CASCADE),
+    indices = {@Index("feature_id")})
+public class FeatureEditEntity {
   @PrimaryKey(autoGenerate = true)
+  @ColumnInfo(name = "id")
   public int id;
 
-  public SnapshotType type;
+  @ColumnInfo(name = "feature_id")
+  @NonNull
+  public String featureId;
 
-  public DeletionState deletionState;
-
-  public String featureSnapshotId;
-
-  public String recordId;
+  @Embedded @NonNull public Edit edit;
 }

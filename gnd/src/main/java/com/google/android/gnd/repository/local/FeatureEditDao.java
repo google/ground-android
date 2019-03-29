@@ -20,15 +20,19 @@ import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.Update;
+import io.reactivex.Completable;
 
+/**
+ * Data access object for database operations related to {@link FeatureEditEntity}.
+ */
 @Dao
 public interface FeatureEditDao {
   @Insert
-  void insert(FeatureEdit featureEdit);
+  Completable insert(FeatureEditEntity featureEdit);
 
   @Update
-  void update(FeatureEdit featureEdit);
+  Completable update(FeatureEditEntity featureEdit);
 
   @Delete
-  void delete(FeatureEdit featureEdit);
+  Completable delete(FeatureEditEntity featureEdit);
 }

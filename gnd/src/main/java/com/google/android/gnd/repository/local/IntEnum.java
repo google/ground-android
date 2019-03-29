@@ -16,6 +16,11 @@
 
 package com.google.android.gnd.repository.local;
 
+/**
+ * Common interface for Java enums with explicitly defined int representations. This is used instead
+ * of relying on enum ordinal values to prevent accidentally breaking backwards compatibility when
+ * adding and/or removing new enum values in the future.
+ */
 public interface IntEnum {
   int intValue();
 }

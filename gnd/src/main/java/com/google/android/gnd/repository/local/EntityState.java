@@ -16,15 +16,18 @@
 
 package com.google.android.gnd.repository.local;
 
-/* Types may only be renamed or added, never removed. */
-public enum SnapshotType implements IntEnum {
+/**
+ * Optional new or deleted state shared by Features and Records.
+ */
+public enum EntityState implements IntEnum {
   UNKNOWN(0),
-  PRIMARY(1),
-  ROLLBACK(2);
+  DEFAULT(1),
+  NEW(2),
+  DELETED(3);
 
   private final int intValue;
 
-  SnapshotType(int intValue) {
+  EntityState(int intValue) {
     this.intValue = intValue;
   }
 

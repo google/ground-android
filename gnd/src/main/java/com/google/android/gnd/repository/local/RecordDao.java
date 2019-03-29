@@ -16,26 +16,23 @@
 
 package com.google.android.gnd.repository.local;
 
-import static androidx.room.ForeignKey.CASCADE;
+import androidx.room.Dao;
+import androidx.room.Delete;
+import androidx.room.Insert;
+import androidx.room.Update;
+import io.reactivex.Completable;
 
-import androidx.room.Entity;
-import androidx.room.ForeignKey;
-import androidx.room.Index;
-import androidx.room.PrimaryKey;
+/**
+ * Data access object for database operations related to {@link RecordEntity}.
+ */
+@Dao
+public interface RecordDao {
+  @Insert
+  Completable insert(RecordEntity record);
 
-@Entity(
-    foreignKeys =
-        @ForeignKey(
-            entity = FeatureSnapshot.class,
-            parentColumns = "snapshotId",
-            childColumns = "snapshotId",
-            onDelete = CASCADE),
-    indices = {@Index("snapshotId")})
-public class FeatureEdit {
-  @PrimaryKey(autoGenerate = true)
-  public int editId;
+  @Update
+  Completable update(RecordEntity record);
 
-  public int snapshotId;
-
-  public EditType editType;
+  @Delete
+  Completable delete(RecordEntity record);
 }

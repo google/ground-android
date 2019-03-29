@@ -16,31 +16,23 @@
 
 package com.google.android.gnd.repository.local;
 
-import androidx.room.Embedded;
-import androidx.room.Entity;
-import androidx.room.Index;
-import androidx.room.PrimaryKey;
+import androidx.room.Dao;
+import androidx.room.Delete;
+import androidx.room.Insert;
+import androidx.room.Update;
+import io.reactivex.Completable;
 
-@Entity(indices = {@Index("id")})
-public class FeatureSnapshot {
-  @PrimaryKey(autoGenerate = true)
-  public int id;
+/**
+ * Data access object for database operations related to {@link RecordEditEntity}.
+ */
+@Dao
+public interface RecordEditDao {
+  @Insert
+  Completable insert(RecordEditEntity recordEdit);
 
-  public SnapshotType type;
+  @Update
+  Completable update(RecordEditEntity recordEdit);
 
-  public DeletionState deletionState;
-
-  public String featureId;
-
-  public String projectId;
-
-  @Embedded
-  public Coordinates location;
-
-  public static class Coordinates {
-    public double latitude;
-
-    public double longitude;
-  }
-
+  @Delete
+  Completable delete(RecordEditEntity recordEdit);
 }

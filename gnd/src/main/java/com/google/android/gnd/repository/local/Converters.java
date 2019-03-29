@@ -23,47 +23,39 @@ import androidx.annotation.Nullable;
 import androidx.room.TypeConverter;
 import java8.util.stream.Stream;
 
-public abstract class Converters {
+/**
+ * Room type converters required to (de)serialize custom objects to/from database.
+ */
+final class Converters {
 
-  public Converters() {
+  private Converters() {
     // DO NOT INSTANTIATE.
   }
 
   @TypeConverter
-  private static int fromSnapshotType(@Nullable SnapshotType value) {
-    return fromIntEnum(value, SnapshotType.UNKNOWN);
+  public static int fromEditType(@Nullable Edit.Type value) {
+    return fromIntEnum(value, Edit.Type.UNKNOWN);
+  }
+
+  @NonNull
+  @TypeConverter
+  public static Edit.Type toEditType(int intValue) {
+    return toIntEnum(stream(Edit.Type.values()), intValue, Edit.Type.UNKNOWN);
   }
 
   @TypeConverter
-  private static int fromEditType(@Nullable EditType value) {
-    return fromIntEnum(value, EditType.UNKNOWN);
+  public static int fromEntityState(@Nullable EntityState value) {
+    return fromIntEnum(value, EntityState.UNKNOWN);
   }
 
+  @NonNull
   @TypeConverter
-  private static int fromDeletionState(@Nullable DeletionState value) {
-    return fromIntEnum(value, DeletionState.UNKNOWN);
+  public static EntityState toEntityState(int intValue) {
+    return toIntEnum(stream(EntityState.values()), intValue, EntityState.UNKNOWN);
   }
 
   private static <E extends IntEnum> int fromIntEnum(E enumValue, @NonNull E defaultValue) {
     return enumValue == null ? defaultValue.intValue() : enumValue.intValue();
-  }
-
-  @NonNull
-  @TypeConverter
-  public static SnapshotType toSnapshotType(int intValue) {
-    return toIntEnum(stream(SnapshotType.values()), intValue, SnapshotType.UNKNOWN);
-  }
-
-  @NonNull
-  @TypeConverter
-  public static EditType toEditType(int intValue) {
-    return toIntEnum(stream(EditType.values()), intValue, EditType.UNKNOWN);
-  }
-
-  @NonNull
-  @TypeConverter
-  public static DeletionState toDeletionState(int intValue) {
-    return toIntEnum(stream(DeletionState.values()), intValue, DeletionState.UNKNOWN);
   }
 
   @NonNull

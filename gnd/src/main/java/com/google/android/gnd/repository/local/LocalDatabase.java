@@ -18,17 +18,33 @@ package com.google.android.gnd.repository.local;
 
 import androidx.room.Database;
 import androidx.room.RoomDatabase;
-import androidx.room.TypeConverter;
 import androidx.room.TypeConverters;
-import com.google.android.gnd.vo.Feature;
 
+/**
+ * Main entry point to local database API, exposing data access objects (DAOs) for interacting with
+ * various entities persisted in tables in db.
+ *
+ * <p>A separate data model is used to represent data stored locally to prevent leaking db-level
+ * design details into main API * and to allow us to guarantee backwards compatibility.
+ */
+// TODO: Make injectable via Dagger.
 @Database(
-    entities = {FeatureSnapshot.class, FeatureEdit.class},
-    version = 1)
+    entities = {
+      FeatureEntity.class,
+      FeatureEditEntity.class,
+      RecordEntity.class,
+      RecordEditEntity.class
+    },
+    version = 1,
+    exportSchema = false)
 @TypeConverters({Converters.class})
 public abstract class LocalDatabase extends RoomDatabase {
 
-  public abstract FeatureSnapshotDao featureSnapshotDao();
+  public abstract FeatureDao featureDao();
 
   public abstract FeatureEditDao featureEditDao();
+
+  public abstract RecordDao recordDao();
+
+  public abstract RecordEditDao recordEditDao();
 }

@@ -16,18 +16,23 @@
 
 package com.google.android.gnd.repository.local;
 
-public enum DeletionState implements IntEnum {
-  UNKNOWN(0),
-  NONE(1),
-  DELETED(2);
+import androidx.room.Dao;
+import androidx.room.Delete;
+import androidx.room.Insert;
+import androidx.room.Update;
+import io.reactivex.Completable;
 
-  private final int intValue;
+/**
+ * Data access object for database operations related to {@link FeatureEntity}.
+ */
+@Dao
+public interface FeatureDao {
+  @Insert
+  Completable insert(FeatureEntity feature);
 
-  DeletionState(int intValue) {
-    this.intValue = intValue;
-  }
+  @Update
+  Completable update(FeatureEntity feature);
 
-  public int intValue() {
-    return intValue;
-  }
+  @Delete
+  Completable delete(FeatureEntity feature);
 }
