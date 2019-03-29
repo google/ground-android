@@ -17,13 +17,12 @@
 package com.google.android.gnd.repository.local;
 
 /**
- * Optional new or deleted state shared by Features and Records.
+ * Mutually exclusive entity states shared by Features and Records.
  */
 public enum EntityState implements IntEnum {
+  DELETED(-1),
   UNKNOWN(0),
-  DEFAULT(1),
-  NEW(2),
-  DELETED(3);
+  DEFAULT(1);
 
   private final int intValue;
 
