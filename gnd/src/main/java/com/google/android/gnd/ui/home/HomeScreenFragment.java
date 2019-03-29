@@ -265,6 +265,7 @@ public class HomeScreenFragment extends AbstractFragment
     }
     // TODO: Pause location updates while dialog is open.
     // TODO: Show spinner?
+    // TODO(#24): Fix leaky subscriptions!
     addFeatureDialogFragment
         .show(getChildFragmentManager())
         .as(autoDisposable(this))

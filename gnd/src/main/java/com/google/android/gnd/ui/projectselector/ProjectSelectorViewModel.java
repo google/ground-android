@@ -43,6 +43,7 @@ public class ProjectSelectorViewModel extends AbstractViewModel {
 
   // TODO: Show message when no visible projects found.
   public void loadProjectSummaries() {
+    // TODO(#24): Fix leaky subscriptions!
     disposeOnClear(
         authManager
             .getUser()

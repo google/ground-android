@@ -123,6 +123,7 @@ public class EditRecordViewModel extends AbstractViewModel {
   }
 
   void editNewRecord(String projectId, String featureId, String formId) {
+    // TODO(#24): Fix leaky subscriptions!
     disposeOnClear(
         dataRepository
             .createRecord(projectId, featureId, formId)
@@ -152,6 +153,7 @@ public class EditRecordViewModel extends AbstractViewModel {
 
   void editExistingRecord(String projectId, String featureId, String recordId) {
     // TODO: Store and retrieve latest edits from cache and/or db.
+    // TODO(#24): Fix leaky subscriptions!
     disposeOnClear(
         dataRepository
             .getRecordSnapshot(projectId, featureId, recordId)
@@ -206,6 +208,7 @@ public class EditRecordViewModel extends AbstractViewModel {
   }
 
   private void saveChanges(Record r) {
+    // TODO(#24): Fix leaky subscriptions!
     disposeOnClear(
         authManager
             .getUser()
