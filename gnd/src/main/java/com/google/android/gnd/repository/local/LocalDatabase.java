@@ -37,7 +37,7 @@ import androidx.room.TypeConverters;
     },
     version = 1,
     exportSchema = false)
-@TypeConverters({Converters.class})
+@TypeConverters({Edit.Type.class, EntityState.class})
 public abstract class LocalDatabase extends RoomDatabase {
 
   public abstract FeatureDao featureDao();

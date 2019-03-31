@@ -23,26 +23,64 @@ import androidx.room.Ignore;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
 import com.google.android.gnd.vo.Record.Value;
+import com.google.auto.value.AutoValue;
+import com.google.auto.value.AutoValue.CopyAnnotations;
+import com.google.common.collect.ImmutableMap;
 import java.util.Map;
 
 /** Representation of a {@link com.google.android.gnd.vo.Record} in local db. */
-// TODO: Convert to AutoValue class.
+@AutoValue
 @Entity(
     tableName = "record",
     indices = {@Index("id")})
-public class RecordEntity {
+public abstract class RecordEntity {
+  @CopyAnnotations
   @PrimaryKey
   @ColumnInfo(name = "id")
   @NonNull
-  public String id;
+  public abstract String getId();
 
+  @CopyAnnotations
   @ColumnInfo(name = "state")
   @NonNull
-  public EntityState state;
+  public abstract EntityState getState();
 
-  // Add Converter to convert to/from JSON.
+  // TODO: Add Converter to convert to/from JSON, add @ColumnInfo annotation and add to create()
+  // method.
+  @CopyAnnotations
   @Ignore
-  @ColumnInfo(name = "values")
   @NonNull
-  public Map<String, Value> values;
+  public abstract ImmutableMap<String, Value> getValueMap();
+
+  // Auto-generated boilerplate:
+
+  public static RecordEntity create(String id, EntityState state) {
+    return builder().setId(id).setState(state).build();
+  }
+
+  public static Builder builder() {
+    return new AutoValue_RecordEntity.Builder();
+  }
+
+  @AutoValue.Builder
+  public abstract static class Builder {
+
+    public abstract Builder setId(String newId);
+
+    public abstract Builder setState(EntityState newState);
+
+    public abstract ImmutableMap.Builder<String, Value> valueMapBuilder();
+
+    public Builder putValue(String key, Value value) {
+      valueMapBuilder().put(key, value);
+      return this;
+    }
+
+    public Builder putAllValues(Map<String, Value> values) {
+      valueMapBuilder().putAll(values);
+      return this;
+    }
+
+    public abstract RecordEntity build();
+  }
 }

@@ -22,41 +22,68 @@ import androidx.room.Embedded;
 import androidx.room.Entity;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
+import com.google.auto.value.AutoValue;
+import com.google.auto.value.AutoValue.CopyAnnotations;
 
 /** Representation of a {@link com.google.android.gnd.vo.Feature} in local db. */
-// TODO: Convert to AutoValue class.
+@AutoValue
 @Entity(
     tableName = "feature",
     indices = {@Index("id")})
-public class FeatureEntity {
+public abstract class FeatureEntity {
   /**
    * Key used in {@link com.google.android.gnd.repository.local.FeatureEditEntity} when edit
    * modified location field.
    */
-  public static final String LOCATION_EDIT_KEY = "location";
+  public static final String LOCATION_FIELD_KEY = "ll";
 
+  @CopyAnnotations
   @PrimaryKey
   @ColumnInfo(name = "id")
   @NonNull
-  public String id;
+  public abstract String getId();
 
+  @CopyAnnotations
   @NonNull
   @ColumnInfo(name = "state")
-  public EntityState state;
+  public abstract EntityState getState();
 
+  @CopyAnnotations
   @NonNull
   @ColumnInfo(name = "project_id")
-  public String projectId;
+  public abstract String getProjectId();
 
-  @Embedded public Coordinates location;
+  @CopyAnnotations
+  @Embedded
+  public abstract Coordinates getLocation();
 
-  public static class Coordinates {
-    @NonNull
-    @ColumnInfo(name = "latitude")
-    public double latitude;
+  // Auto-generated boilerplate:
 
-    @NonNull
-    @ColumnInfo(name = "longitude")
-    public double longitude;
+  public static FeatureEntity create(
+      String id, EntityState state, String projectId, Coordinates location) {
+    return builder()
+        .setId(id)
+        .setState(state)
+        .setProjectId(projectId)
+        .setLocation(location)
+        .build();
+  }
+
+  public static Builder builder() {
+    return new AutoValue_FeatureEntity.Builder();
+  }
+
+  @AutoValue.Builder
+  public abstract static class Builder {
+
+    public abstract Builder setId(String newId);
+
+    public abstract Builder setState(EntityState newState);
+
+    public abstract Builder setProjectId(String newProjectId);
+
+    public abstract Builder setLocation(Coordinates newCoordinates);
+
+    public abstract FeatureEntity build();
   }
 }

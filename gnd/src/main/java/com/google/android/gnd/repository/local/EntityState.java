@@ -16,9 +16,13 @@
 
 package com.google.android.gnd.repository.local;
 
-/**
- * Mutually exclusive entity states shared by Features and Records.
- */
+import static java8.util.J8Arrays.stream;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.room.TypeConverter;
+
+/** Mutually exclusive entity states shared by Features and Records. */
 public enum EntityState implements IntEnum {
   DELETED(-1),
   UNKNOWN(0),
@@ -32,5 +36,16 @@ public enum EntityState implements IntEnum {
 
   public int intValue() {
     return intValue;
+  }
+
+  @TypeConverter
+  public static int fromEntityState(@Nullable EntityState value) {
+    return IntEnum.fromIntEnum(value, UNKNOWN);
+  }
+
+  @NonNull
+  @TypeConverter
+  public static EntityState toEntityState(int intValue) {
+    return IntEnum.toIntEnum(stream(values()), intValue, UNKNOWN);
   }
 }

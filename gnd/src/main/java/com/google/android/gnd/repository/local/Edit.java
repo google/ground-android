@@ -16,12 +16,14 @@
 
 package com.google.android.gnd.repository.local;
 
+import static java8.util.J8Arrays.stream;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.room.ColumnInfo;
 import androidx.room.Ignore;
+import androidx.room.TypeConverter;
 import com.google.android.gnd.vo.Record.Value;
-import java.util.List;
 
 /** Fields describing operation type, old, and new values, common to Feature and Record edits. */
 public class Edit {
@@ -40,6 +42,17 @@ public class Edit {
     public int intValue() {
       return intValue;
     }
+
+    @TypeConverter
+    public static int fromEditType(@Nullable Edit.Type value) {
+      return IntEnum.fromIntEnum(value, UNKNOWN);
+    }
+
+    @NonNull
+    @TypeConverter
+    public static Edit.Type toEditType(int intValue) {
+      return IntEnum.toIntEnum(stream(values()), intValue, UNKNOWN);
+    }
   }
 
   @ColumnInfo(name = "type")
@@ -52,8 +65,8 @@ public class Edit {
   public String key;
 
   // TODO: Add Converter to convert to/from JSON.
-  @Ignore @Nullable public List<Value> oldValue;
+  @Ignore @Nullable public Value oldValue;
 
   // TODO: Add Converter to convert to/from JSON.
-  @Ignore @Nullable public List<Value> newValue;
+  @Ignore @Nullable public Value newValue;
 }

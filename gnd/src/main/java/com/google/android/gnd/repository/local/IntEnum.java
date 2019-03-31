@@ -16,6 +16,9 @@
 
 package com.google.android.gnd.repository.local;
 
+import androidx.annotation.NonNull;
+import java8.util.stream.Stream;
+
 /**
  * Common interface for Java enums with explicitly defined int representations. This is used instead
  * of relying on enum ordinal values to prevent accidentally breaking backwards compatibility when
@@ -23,4 +26,14 @@ package com.google.android.gnd.repository.local;
  */
 public interface IntEnum {
   int intValue();
+
+  static <E extends IntEnum> int fromIntEnum(E enumValue, @NonNull E defaultValue) {
+    return enumValue == null ? defaultValue.intValue() : enumValue.intValue() ;
+  }
+
+  @NonNull
+  static <E extends Enum<E> & IntEnum> E toIntEnum(
+      @NonNull Stream<E> values, int intValue, @NonNull E defaultValue) {
+    return values.filter(s -> s.intValue() == intValue).findFirst().orElse(defaultValue);
+  }
 }

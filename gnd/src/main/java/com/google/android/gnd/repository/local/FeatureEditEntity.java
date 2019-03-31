@@ -25,9 +25,11 @@ import androidx.room.Entity;
 import androidx.room.ForeignKey;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
+import com.google.auto.value.AutoValue;
+import com.google.auto.value.AutoValue.CopyAnnotations;
 
 /** Representation of a {@link com.google.android.gnd.vo.FeatureUpdate} in local db. */
-// TODO: Convert to AutoValue class.
+@AutoValue
 @Entity(
     tableName = "feature_edit",
     foreignKeys =
@@ -37,14 +39,41 @@ import androidx.room.PrimaryKey;
             childColumns = "feature_id",
             onDelete = CASCADE),
     indices = {@Index("feature_id")})
-public class FeatureEditEntity {
+public abstract class FeatureEditEntity {
+  @CopyAnnotations
   @PrimaryKey(autoGenerate = true)
   @ColumnInfo(name = "id")
-  public int id;
+  public abstract int getId();
 
+  @CopyAnnotations
   @ColumnInfo(name = "feature_id")
   @NonNull
-  public String featureId;
+  public abstract String getFeatureId();
 
-  @Embedded @NonNull public Edit edit;
+  @CopyAnnotations
+  @Embedded
+  @NonNull
+  public abstract Edit getEdit();
+
+  // Auto-generated boilerplate:
+
+  public static FeatureEditEntity create(int id, String featureId, Edit edit) {
+    return builder().setId(id).setFeatureId(featureId).setEdit(edit).build();
+  }
+
+  public static Builder builder() {
+    return new AutoValue_FeatureEditEntity.Builder();
+  }
+
+  @AutoValue.Builder
+  public abstract static class Builder {
+
+    public abstract Builder setId(int newId);
+
+    public abstract Builder setFeatureId(String newFeatureId);
+
+    public abstract Builder setEdit(Edit newEdit);
+
+    public abstract FeatureEditEntity build();
+  }
 }
