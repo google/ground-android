@@ -39,13 +39,13 @@ public enum EntityState implements IntEnum {
   }
 
   @TypeConverter
-  public static int fromEntityState(@Nullable EntityState value) {
+  public static int toInt(@Nullable EntityState value) {
     return IntEnum.fromIntEnum(value, UNKNOWN);
   }
 
   @NonNull
   @TypeConverter
-  public static EntityState toEntityState(int intValue) {
+  public static EntityState fromInt(int intValue) {
     return IntEnum.toIntEnum(stream(values()), intValue, UNKNOWN);
   }
 }

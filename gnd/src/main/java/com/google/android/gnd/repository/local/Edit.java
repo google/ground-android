@@ -44,13 +44,13 @@ public class Edit {
     }
 
     @TypeConverter
-    public static int fromEditType(@Nullable Edit.Type value) {
+    public static int toInt(@Nullable Edit.Type value) {
       return IntEnum.fromIntEnum(value, UNKNOWN);
     }
 
     @NonNull
     @TypeConverter
-    public static Edit.Type toEditType(int intValue) {
+    public static Edit.Type fromInt(int intValue) {
       return IntEnum.toIntEnum(stream(values()), intValue, UNKNOWN);
     }
   }
