@@ -16,7 +16,7 @@
 
 package com.google.android.gnd.vo;
 
-import com.google.android.gnd.vo.Record.Value;
+import com.google.android.gnd.vo.Record.Response;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import java.util.Date;
@@ -64,7 +64,7 @@ public abstract class FeatureUpdate {
 
     public abstract Operation getOperation();
 
-    public abstract ImmutableList<ValueUpdate> getValueUpdates();
+    public abstract ImmutableList<ResponseUpdate> getResponseUpdates();
 
     public static Builder newBuilder() {
       return new AutoValue_FeatureUpdate_RecordUpdate.Builder();
@@ -76,33 +76,34 @@ public abstract class FeatureUpdate {
 
       public abstract Builder setOperation(Operation newOperation);
 
-      public abstract Builder setValueUpdates(ImmutableList<ValueUpdate> newValueUpdatesList);
+      public abstract Builder setResponseUpdates(
+          ImmutableList<ResponseUpdate> newResponseUpdatesList);
 
       public abstract RecordUpdate build();
     }
 
     @AutoValue
-    public abstract static class ValueUpdate {
+    public abstract static class ResponseUpdate {
       public abstract String getElementId();
 
-      public abstract Optional<Value> getValue();
+      public abstract Optional<Response> getResponse();
 
       public abstract Operation getOperation();
 
       public static Builder newBuilder() {
-        return new AutoValue_FeatureUpdate_RecordUpdate_ValueUpdate.Builder()
-            .setValue(Optional.empty());
+        return new AutoValue_FeatureUpdate_RecordUpdate_ResponseUpdate.Builder()
+            .setResponse(Optional.empty());
       }
 
       @AutoValue.Builder
       public abstract static class Builder {
         public abstract Builder setElementId(String newElementId);
 
-        public abstract Builder setValue(Optional<Value> newValue);
+        public abstract Builder setResponse(Optional<Response> newResponse);
 
         public abstract Builder setOperation(Operation newOperation);
 
-        public abstract ValueUpdate build();
+        public abstract ResponseUpdate build();
       }
     }
   }

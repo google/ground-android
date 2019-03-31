@@ -47,7 +47,7 @@ import com.google.android.gnd.vo.Form;
 import com.google.android.gnd.vo.Form.Field;
 import com.google.android.gnd.vo.Form.MultipleChoice.Cardinality;
 import com.google.android.gnd.vo.Record;
-import com.google.android.gnd.vo.Record.Value;
+import com.google.android.gnd.vo.Record.Response;
 import java8.util.Optional;
 import javax.inject.Inject;
 
@@ -207,7 +207,7 @@ public class EditRecordFragment extends AbstractFragment implements BackPressLis
 
   public void onShowDialog(Field field) {
     Cardinality cardinality = field.getMultipleChoice().getCardinality();
-    Optional<Value> currentValue = viewModel.getValue(field.getId());
+    Optional<Response> currentValue = viewModel.getValue(field.getId());
     switch (cardinality) {
       case SELECT_MULTIPLE:
         multiSelectDialogFactory

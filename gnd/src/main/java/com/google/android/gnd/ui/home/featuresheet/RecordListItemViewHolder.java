@@ -35,7 +35,7 @@ import com.google.android.gnd.vo.Form;
 import com.google.android.gnd.vo.Form.Element;
 import com.google.android.gnd.vo.Form.Field;
 import com.google.android.gnd.vo.Record;
-import com.google.android.gnd.vo.Record.Value;
+import com.google.android.gnd.vo.Record.Response;
 import java.text.DateFormat;
 import java.util.Date;
 import java8.util.Optional;
@@ -94,7 +94,7 @@ class RecordListItemViewHolder extends RecyclerView.ViewHolder {
       switch (elem.getType()) {
         case FIELD:
           Field field = elem.getField();
-          Optional<Value> value = Optional.ofNullable(record.getValueMap().get(field.getId()));
+          Optional<Response> value = Optional.ofNullable(record.getResponseMap().get(field.getId()));
           fieldLabelRow.addView(
               newFieldTextView(field.getLabel(), R.style.RecordListText_FieldLabel));
           fieldValueRow.addView(

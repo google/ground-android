@@ -23,8 +23,8 @@ import com.google.android.gnd.R;
 import com.google.android.gnd.vo.Form.Field;
 import com.google.android.gnd.vo.Form.MultipleChoice;
 import com.google.android.gnd.vo.Form.MultipleChoice.Option;
-import com.google.android.gnd.vo.Record.MultipleChoiceValue;
-import com.google.android.gnd.vo.Record.Value;
+import com.google.android.gnd.vo.Record.MultipleChoiceResponse;
+import com.google.android.gnd.vo.Record.Response;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
 import java8.util.Optional;
@@ -41,7 +41,7 @@ class MultiSelectDialogFactory {
   }
 
   AlertDialog create(
-      Field field, Optional<Value> initialValue, Consumer<Optional<Value>> valueChangeCallback) {
+      Field field, Optional<Response> initialValue, Consumer<Optional<Response>> valueChangeCallback) {
     MultipleChoice multipleChoice = field.getMultipleChoice();
     AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(context);
     List<Option> options = multipleChoice.getOptions();
@@ -66,7 +66,7 @@ class MultiSelectDialogFactory {
 
     private boolean[] checkedItems;
 
-    public DialogState(MultipleChoice multipleChoice, Optional<Value> initialValue) {
+    public DialogState(MultipleChoice multipleChoice, Optional<Response> initialValue) {
       ImmutableList<Option> options = multipleChoice.getOptions();
       checkedItems = new boolean[options.size()];
       // TODO: Check cast.
@@ -74,17 +74,17 @@ class MultiSelectDialogFactory {
           v ->
               IntStreams.range(0, options.size())
                   .forEach(
-                      i -> checkedItems[i] = ((MultipleChoiceValue) v).isSelected(options.get(i))));
+                      i -> checkedItems[i] = ((MultipleChoiceResponse) v).isSelected(options.get(i))));
     }
 
-    private Optional<Value> getSelectedValues(List<Option> options) {
+    private Optional<Response> getSelectedValues(List<Option> options) {
       ImmutableList.Builder<String> choices = new ImmutableList.Builder<>();
       for (int i = 0; i < options.size(); i++) {
         if (checkedItems[i]) {
           choices.add(options.get(i).getCode());
         }
       }
-      return MultipleChoiceValue.fromList(choices.build());
+      return MultipleChoiceResponse.fromList(choices.build());
     }
   }
 }

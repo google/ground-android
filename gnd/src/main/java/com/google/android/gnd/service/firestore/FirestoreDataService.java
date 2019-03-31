@@ -22,7 +22,7 @@ import com.google.android.gnd.service.DatastoreEvent;
 import com.google.android.gnd.service.RemoteDataService;
 import com.google.android.gnd.system.AuthenticationManager.User;
 import com.google.android.gnd.vo.Feature;
-import com.google.android.gnd.vo.FeatureUpdate.RecordUpdate.ValueUpdate;
+import com.google.android.gnd.vo.FeatureUpdate.RecordUpdate.ResponseUpdate;
 import com.google.android.gnd.vo.Project;
 import com.google.android.gnd.vo.Record;
 import com.google.android.gnd.vo.Timestamps;
@@ -105,7 +105,7 @@ public class FirestoreDataService implements RemoteDataService {
 
   // TODO: Move relevant Record fields and updates into "RecordUpdate" object.
   @Override
-  public Single<Record> saveChanges(Record record, ImmutableList<ValueUpdate> updates) {
+  public Single<Record> saveChanges(Record record, ImmutableList<ResponseUpdate> updates) {
     GndFirestore.RecordsCollectionReference records =
         db.projects().project(record.getProject().getId()).records();
 
@@ -119,7 +119,7 @@ public class FirestoreDataService implements RemoteDataService {
   }
 
   private Single<Record> saveChanges(
-      DocumentReference recordDocRef, Record record, ImmutableList<ValueUpdate> updates) {
+      DocumentReference recordDocRef, Record record, ImmutableList<ResponseUpdate> updates) {
     return RxTask.toCompletable(
             () ->
                 db.batch()
@@ -134,22 +134,22 @@ public class FirestoreDataService implements RemoteDataService {
     return db.projects().project(projectId).features().add(feature);
   }
 
-  private Map<String, Object> updatedValues(ImmutableList<ValueUpdate> updates) {
+  private Map<String, Object> updatedValues(ImmutableList<ResponseUpdate> updates) {
     Map<String, Object> updatedValues = new HashMap<>();
-    for (ValueUpdate valueUpdate : updates) {
-      switch (valueUpdate.getOperation()) {
+    for (ResponseUpdate responseUpdate : updates) {
+      switch (responseUpdate.getOperation()) {
         case CREATE:
         case UPDATE:
-          valueUpdate
-              .getValue()
+          responseUpdate
+              .getResponse()
               .ifPresent(
                   value ->
-                      updatedValues.put(valueUpdate.getElementId(), RecordDoc.toObject(value)));
+                      updatedValues.put(responseUpdate.getElementId(), RecordDoc.toObject(value)));
           break;
         case DELETE:
           // FieldValue.delete() is not working in nested objects; if it doesn't work in the future
           // we can remove them using dot notation ("responses.{elementId}").
-          updatedValues.put(valueUpdate.getElementId(), "");
+          updatedValues.put(responseUpdate.getElementId(), "");
           break;
       }
     }
