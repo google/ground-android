@@ -92,10 +92,10 @@ changes reviewed and merged into the base repository. Reference the
 [issue](https://github.com/google/ground-android/issues) your changes resolve in
 either the commit message for your changes or in your pull request.
     
-    > :exclamation: Any changes you subsequently commit to the branch you used
+    > :exclamation: Any subsequent changes committed to the branch you used
     > to open your PR are automatically included in the PR. If you've opened a
-    > PR but would like to continue to make other unrelated changes, be sure to
-    > start a new branch to track those change and follow this workflow.
+    > PR but would like to continue to work on unrelated changes, be sure to
+    > start a new branch to track those changes. 
 
     For more information on creating pull requests, see
     <https://help.github.com/articles/creating-a-pull-request/>. 
