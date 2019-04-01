@@ -41,18 +41,20 @@ class MultiSelectDialogFactory {
   }
 
   AlertDialog create(
-      Field field, Optional<Response> initialValue, Consumer<Optional<Response>> valueChangeCallback) {
+      Field field,
+      Optional<Response> initialResponse,
+      Consumer<Optional<Response>> responseChangeCallback) {
     MultipleChoice multipleChoice = field.getMultipleChoice();
     AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(context);
     List<Option> options = multipleChoice.getOptions();
-    final DialogState state = new DialogState(multipleChoice, initialValue);
+    final DialogState state = new DialogState(multipleChoice, initialResponse);
     dialogBuilder.setMultiChoiceItems(
         getLabels(multipleChoice), state.checkedItems, (dialog, which, isChecked) -> {});
     dialogBuilder.setCancelable(false);
     dialogBuilder.setTitle(field.getLabel());
     dialogBuilder.setPositiveButton(
         R.string.apply_multiple_choice_changes,
-        (dialog, which) -> valueChangeCallback.accept(state.getSelectedValues(options)));
+        (dialog, which) -> responseChangeCallback.accept(state.getSelectedValues(options)));
     dialogBuilder.setNegativeButton(
         R.string.discard_multiple_choice_changes, (dialog, which) -> {});
     return dialogBuilder.create();
@@ -66,15 +68,17 @@ class MultiSelectDialogFactory {
 
     private boolean[] checkedItems;
 
-    public DialogState(MultipleChoice multipleChoice, Optional<Response> initialValue) {
+    public DialogState(MultipleChoice multipleChoice, Optional<Response> initialResponse) {
       ImmutableList<Option> options = multipleChoice.getOptions();
       checkedItems = new boolean[options.size()];
       // TODO: Check cast.
-      initialValue.ifPresent(
+      initialResponse.ifPresent(
           v ->
               IntStreams.range(0, options.size())
                   .forEach(
-                      i -> checkedItems[i] = ((MultipleChoiceResponse) v).isSelected(options.get(i))));
+                      i ->
+                          checkedItems[i] =
+                              ((MultipleChoiceResponse) v).isSelected(options.get(i))));
     }
 
     private Optional<Response> getSelectedValues(List<Option> options) {

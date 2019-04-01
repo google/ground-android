@@ -123,7 +123,10 @@ public class FirestoreDataService implements RemoteDataService {
     return RxTask.toCompletable(
             () ->
                 db.batch()
-                    .set(recordDocRef, RecordDoc.forUpdates(record, updatedValues(updates)), MERGE)
+                    .set(
+                        recordDocRef,
+                        RecordDoc.forUpdates(record, updatedResponses(updates)),
+                        MERGE)
                     .commit())
         .andThen(Single.just(record));
   }
@@ -134,8 +137,8 @@ public class FirestoreDataService implements RemoteDataService {
     return db.projects().project(projectId).features().add(feature);
   }
 
-  private Map<String, Object> updatedValues(ImmutableList<ResponseUpdate> updates) {
-    Map<String, Object> updatedValues = new HashMap<>();
+  private Map<String, Object> updatedResponses(ImmutableList<ResponseUpdate> updates) {
+    Map<String, Object> updatedResponses = new HashMap<>();
     for (ResponseUpdate responseUpdate : updates) {
       switch (responseUpdate.getOperation()) {
         case CREATE:
@@ -144,15 +147,16 @@ public class FirestoreDataService implements RemoteDataService {
               .getResponse()
               .ifPresent(
                   value ->
-                      updatedValues.put(responseUpdate.getElementId(), RecordDoc.toObject(value)));
+                      updatedResponses.put(
+                          responseUpdate.getElementId(), RecordDoc.toObject(value)));
           break;
         case DELETE:
           // FieldValue.delete() is not working in nested objects; if it doesn't work in the future
           // we can remove them using dot notation ("responses.{elementId}").
-          updatedValues.put(responseUpdate.getElementId(), "");
+          updatedResponses.put(responseUpdate.getElementId(), "");
           break;
       }
     }
-    return updatedValues;
+    return updatedResponses;
   }
 }

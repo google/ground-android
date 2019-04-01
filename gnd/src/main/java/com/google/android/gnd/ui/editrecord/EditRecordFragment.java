@@ -207,16 +207,16 @@ public class EditRecordFragment extends AbstractFragment implements BackPressLis
 
   public void onShowDialog(Field field) {
     Cardinality cardinality = field.getMultipleChoice().getCardinality();
-    Optional<Response> currentValue = viewModel.getValue(field.getId());
+    Optional<Response> currentResponse = viewModel.getResponse(field.getId());
     switch (cardinality) {
       case SELECT_MULTIPLE:
         multiSelectDialogFactory
-            .create(field, currentValue, v -> viewModel.onValueChanged(field, v))
+            .create(field, currentResponse, v -> viewModel.onResponseChanged(field, v))
             .show();
         break;
       case SELECT_ONE:
         singleSelectDialogFactory
-            .create(field, currentValue, v -> viewModel.onValueChanged(field, v))
+            .create(field, currentResponse, v -> viewModel.onResponseChanged(field, v))
             .show();
         break;
       default:

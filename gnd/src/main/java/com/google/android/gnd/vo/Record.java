@@ -61,7 +61,7 @@ public abstract class Record {
     return new AutoValue_Record.Builder();
   }
 
-  public Optional<Response> getValue(String id) {
+  public Optional<Response> getResponse(String id) {
     return Optional.ofNullable(getResponseMap().get(id));
   }
 
