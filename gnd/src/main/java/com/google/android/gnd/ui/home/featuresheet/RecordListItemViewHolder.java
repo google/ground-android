@@ -16,17 +16,17 @@
 
 package com.google.android.gnd.ui.home.featuresheet;
 
-import androidx.lifecycle.MutableLiveData;
 import android.content.Context;
 import android.content.res.Resources;
-import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.RecyclerView;
 import android.text.TextUtils.TruncateAt;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TableRow;
 import android.widget.TextView;
+import androidx.annotation.NonNull;
+import androidx.lifecycle.MutableLiveData;
+import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import com.google.android.gnd.R;
@@ -94,12 +94,13 @@ class RecordListItemViewHolder extends RecyclerView.ViewHolder {
       switch (elem.getType()) {
         case FIELD:
           Field field = elem.getField();
-          Optional<Response> value = Optional.ofNullable(record.getResponseMap().get(field.getId()));
+          Optional<Response> response =
+              Optional.ofNullable(record.getResponseMap().get(field.getId()));
           fieldLabelRow.addView(
               newFieldTextView(field.getLabel(), R.style.RecordListText_FieldLabel));
           fieldValueRow.addView(
               newFieldTextView(
-                  value.map(v -> v.getSummaryText(field)).orElse(""),
+                  response.map(r -> r.getSummaryText(field)).orElse(""),
                   R.style.RecordListText_Field));
           break;
       }

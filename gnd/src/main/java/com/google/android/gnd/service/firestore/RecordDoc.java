@@ -18,8 +18,8 @@ package com.google.android.gnd.service.firestore;
 
 import static com.google.android.gnd.service.firestore.FirestoreDataService.toTimestamps;
 
-import androidx.annotation.Nullable;
 import android.util.Log;
+import androidx.annotation.Nullable;
 import com.google.android.gnd.vo.Feature;
 import com.google.android.gnd.vo.Form;
 import com.google.android.gnd.vo.Record;
@@ -107,11 +107,12 @@ public class RecordDoc {
 
   private static void putResponse(Map<String, Response> responses, String fieldId, Object obj) {
     if (obj instanceof String) {
-      TextResponse.fromString(((String) obj).trim()).ifPresent(v -> responses.put(fieldId, v));
+      TextResponse.fromString(((String) obj).trim()).ifPresent(r -> responses.put(fieldId, r));
       // } else if (obj instanceof Float) {
       //   responses.put(key, new NumericResponse((Float) obj));
     } else if (obj instanceof List) {
-      MultipleChoiceResponse.fromList(((List<String>) obj)).ifPresent(v -> responses.put(fieldId, v));
+      MultipleChoiceResponse.fromList(((List<String>) obj))
+          .ifPresent(r -> responses.put(fieldId, r));
     } else {
       Log.d(TAG, "Unsupported obj in db: " + obj.getClass().getName());
     }

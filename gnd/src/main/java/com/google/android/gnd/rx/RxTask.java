@@ -38,7 +38,7 @@ public abstract class RxTask {
     return Maybe.create(
         emitter ->
             task.get()
-                .addOnSuccessListener(v -> onSuccess(v, emitter))
+                .addOnSuccessListener(result -> onSuccess(result, emitter))
                 .addOnFailureListener(emitter::onError));
   }
 
@@ -58,7 +58,7 @@ public abstract class RxTask {
     return Single.create(
         emitter ->
             task.get()
-                .addOnSuccessListener(v -> onNullableSuccess(v, emitter))
+                .addOnSuccessListener(result -> onNullableSuccess(result, emitter))
                 .addOnFailureListener(emitter::onError));
   }
 

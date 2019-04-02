@@ -20,14 +20,14 @@ import static com.google.android.gnd.ui.util.ViewUtil.assignGeneratedId;
 
 import android.app.ProgressDialog;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import butterknife.BindView;
 import butterknife.OnClick;
 import com.google.android.gnd.MainActivity;
@@ -211,12 +211,12 @@ public class EditRecordFragment extends AbstractFragment implements BackPressLis
     switch (cardinality) {
       case SELECT_MULTIPLE:
         multiSelectDialogFactory
-            .create(field, currentResponse, v -> viewModel.onResponseChanged(field, v))
+            .create(field, currentResponse, r -> viewModel.onResponseChanged(field, r))
             .show();
         break;
       case SELECT_ONE:
         singleSelectDialogFactory
-            .create(field, currentResponse, v -> viewModel.onResponseChanged(field, v))
+            .create(field, currentResponse, r -> viewModel.onResponseChanged(field, r))
             .show();
         break;
       default:

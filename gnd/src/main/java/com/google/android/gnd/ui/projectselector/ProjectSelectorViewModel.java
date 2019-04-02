@@ -48,7 +48,7 @@ public class ProjectSelectorViewModel extends AbstractViewModel {
         authManager
             .getUser()
             .flatMap(user -> dataRepository.getProjectSummaries(user))
-            .subscribe(v -> projectSummaries.setValue(v)));
+            .subscribe(summaries -> projectSummaries.setValue(summaries)));
   }
 
   public LiveData<Resource<List<Project>>> getProjectSummaries() {
