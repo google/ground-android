@@ -73,12 +73,12 @@ class MultiSelectDialogFactory {
       checkedItems = new boolean[options.size()];
       // TODO: Check cast.
       initialResponse.ifPresent(
-          v ->
+          response ->
               IntStreams.range(0, options.size())
                   .forEach(
                       i ->
                           checkedItems[i] =
-                              ((MultipleChoiceResponse) v).isSelected(options.get(i))));
+                              ((MultipleChoiceResponse) response).isSelected(options.get(i))));
     }
 
     private Optional<Response> getSelectedValues(List<Option> options) {

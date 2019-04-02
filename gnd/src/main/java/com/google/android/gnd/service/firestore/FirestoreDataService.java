@@ -146,9 +146,9 @@ public class FirestoreDataService implements RemoteDataService {
           responseUpdate
               .getResponse()
               .ifPresent(
-                  value ->
+                  response ->
                       updatedResponses.put(
-                          responseUpdate.getElementId(), RecordDoc.toObject(value)));
+                          responseUpdate.getElementId(), RecordDoc.toObject(response)));
           break;
         case DELETE:
           // FieldValue.delete() is not working in nested objects; if it doesn't work in the future
