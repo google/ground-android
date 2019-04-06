@@ -19,14 +19,11 @@ package com.google.android.gnd.repository.local;
 import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
-import androidx.room.Ignore;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
-import com.google.android.gnd.vo.Record.Value;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.AutoValue.CopyAnnotations;
-import com.google.common.collect.ImmutableMap;
-import java.util.Map;
+import org.json.JSONObject;
 
 /** Representation of a {@link com.google.android.gnd.vo.Record} in local db. */
 @AutoValue
@@ -45,17 +42,15 @@ public abstract class RecordEntity {
   @NonNull
   public abstract EntityState getState();
 
-  // TODO: Add Converter to convert to/from JSON, add @ColumnInfo annotation and add to create()
-  // method.
   @CopyAnnotations
-  @Ignore
+  @ColumnInfo(name = "responses")
   @NonNull
-  public abstract ImmutableMap<String, Value> getValueMap();
+  public abstract JSONObject getResponses();
 
   // Auto-generated boilerplate:
 
-  public static RecordEntity create(String id, EntityState state) {
-    return builder().setId(id).setState(state).build();
+  public static RecordEntity create(String id, EntityState state, JSONObject responses) {
+    return builder().setId(id).setState(state).setResponses(responses).build();
   }
 
   public static Builder builder() {
@@ -69,17 +64,7 @@ public abstract class RecordEntity {
 
     public abstract Builder setState(EntityState newState);
 
-    public abstract ImmutableMap.Builder<String, Value> valueMapBuilder();
-
-    public Builder putValue(String key, Value value) {
-      valueMapBuilder().put(key, value);
-      return this;
-    }
-
-    public Builder putAllValues(Map<String, Value> values) {
-      valueMapBuilder().putAll(values);
-      return this;
-    }
+    public abstract Builder setResponses(JSONObject newResponses);
 
     public abstract RecordEntity build();
   }
