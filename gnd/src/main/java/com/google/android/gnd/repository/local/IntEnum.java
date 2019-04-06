@@ -27,12 +27,12 @@ import java8.util.stream.Stream;
 public interface IntEnum {
   int intValue();
 
-  static <E extends IntEnum> int fromIntEnum(E enumValue, @NonNull E defaultValue) {
+  static <E extends IntEnum> int toInt(E enumValue, @NonNull E defaultValue) {
     return enumValue == null ? defaultValue.intValue() : enumValue.intValue() ;
   }
 
   @NonNull
-  static <E extends Enum<E> & IntEnum> E toIntEnum(
+  static <E extends Enum<E> & IntEnum> E fromInt(
       @NonNull Stream<E> values, int intValue, @NonNull E defaultValue) {
     return values.filter(s -> s.intValue() == intValue).findFirst().orElse(defaultValue);
   }

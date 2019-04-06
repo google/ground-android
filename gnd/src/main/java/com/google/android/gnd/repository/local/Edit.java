@@ -47,13 +47,13 @@ public abstract class Edit {
 
     @TypeConverter
     public static int toInt(@Nullable Edit.Type value) {
-      return IntEnum.fromIntEnum(value, UNKNOWN);
+      return IntEnum.toInt(value, UNKNOWN);
     }
 
     @NonNull
     @TypeConverter
     public static Edit.Type fromInt(int intValue) {
-      return IntEnum.toIntEnum(stream(values()), intValue, UNKNOWN);
+      return IntEnum.fromInt(stream(values()), intValue, UNKNOWN);
     }
   }
 
