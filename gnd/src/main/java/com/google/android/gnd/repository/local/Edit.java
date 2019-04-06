@@ -21,12 +21,14 @@ import static java8.util.J8Arrays.stream;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.room.ColumnInfo;
-import androidx.room.Ignore;
 import androidx.room.TypeConverter;
-import com.google.android.gnd.vo.Record.Value;
+import com.google.auto.value.AutoValue;
+import com.google.auto.value.AutoValue.CopyAnnotations;
+import org.json.JSONObject;
 
 /** Fields describing operation type, old, and new values, common to Feature and Record edits. */
-public class Edit {
+@AutoValue
+public abstract class Edit {
   public enum Type implements IntEnum {
     UNKNOWN(0),
     CREATE(1),
@@ -55,18 +57,38 @@ public class Edit {
     }
   }
 
+  @CopyAnnotations
   @ColumnInfo(name = "type")
   @NonNull
-  public Type type;
+  public abstract Type getType();
 
-  /** When null the edit refers to the entity itself. */
-  @ColumnInfo(name = "key")
+  @CopyAnnotations
   @Nullable
-  public String key;
+  public abstract JSONObject getOldValues();
 
-  // TODO: Add Converter to convert to/from JSON.
-  @Ignore @Nullable public Value oldValue;
+  @CopyAnnotations
+  @Nullable
+  public abstract JSONObject getNewValues();
 
-  // TODO: Add Converter to convert to/from JSON.
-  @Ignore @Nullable public Value newValue;
+  @NonNull
+  public static Edit create(
+      @NonNull Type type, @Nullable JSONObject oldValues, @Nullable JSONObject newValues) {
+    return builder().setType(type).setOldValues(oldValues).setNewValues(newValues).build();
+  }
+
+  public static Builder builder() {
+    return new AutoValue_Edit.Builder();
+  }
+
+  @AutoValue.Builder
+  public abstract static class Builder {
+
+    public abstract Builder setType(Type type);
+
+    public abstract Builder setOldValues(JSONObject oldValues);
+
+    public abstract Builder setNewValues(JSONObject newValues);
+
+    public abstract Edit build();
+  }
 }
