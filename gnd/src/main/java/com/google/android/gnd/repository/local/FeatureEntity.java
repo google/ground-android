@@ -31,12 +31,6 @@ import com.google.auto.value.AutoValue.CopyAnnotations;
     tableName = "feature",
     indices = {@Index("id")})
 public abstract class FeatureEntity {
-  /**
-   * Key used in {@link com.google.android.gnd.repository.local.FeatureEditEntity} when edit
-   * modified location field.
-   */
-  public static final String LOCATION_FIELD_KEY = "ll";
-
   @CopyAnnotations
   @PrimaryKey
   @ColumnInfo(name = "id")
