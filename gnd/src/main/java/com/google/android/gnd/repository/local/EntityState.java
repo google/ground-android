@@ -24,9 +24,9 @@ import androidx.room.TypeConverter;
 
 /** Mutually exclusive entity states shared by Features and Records. */
 public enum EntityState implements IntEnum {
-  DELETED(-1),
   UNKNOWN(0),
-  DEFAULT(1);
+  DEFAULT(1),
+  DELETED(2);
 
   private final int intValue;
 
