@@ -63,10 +63,12 @@ public abstract class Edit {
   public abstract Type getType();
 
   @CopyAnnotations
+  @ColumnInfo(name = "old_values")
   @Nullable
   public abstract JSONObject getOldValues();
 
   @CopyAnnotations
+  @ColumnInfo(name = "new_values")
   @Nullable
   public abstract JSONObject getNewValues();
 
