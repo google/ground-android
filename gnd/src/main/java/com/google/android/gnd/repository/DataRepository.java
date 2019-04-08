@@ -22,7 +22,7 @@ import com.google.android.gnd.service.RemoteDataService;
 import com.google.android.gnd.service.firestore.DocumentNotFoundException;
 import com.google.android.gnd.system.AuthenticationManager.User;
 import com.google.android.gnd.vo.Feature;
-import com.google.android.gnd.vo.FeatureUpdate.RecordUpdate.ValueUpdate;
+import com.google.android.gnd.vo.FeatureUpdate.RecordUpdate.ResponseUpdate;
 import com.google.android.gnd.vo.Project;
 import com.google.android.gnd.vo.Record;
 import com.google.common.collect.ImmutableList;
@@ -161,7 +161,7 @@ public class DataRepository {
   }
 
   public Observable<Resource<Record>> saveChanges(
-      Record record, ImmutableList<ValueUpdate> updates, User user) {
+      Record record, ImmutableList<ResponseUpdate> updates, User user) {
     record = attachUser(record, user);
     return remoteDataService
         .saveChanges(record, updates)

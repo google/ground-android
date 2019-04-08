@@ -55,14 +55,14 @@ public abstract class Record {
   @Nullable
   public abstract Timestamps getClientTimestamps();
 
-  public abstract ImmutableMap<String, Value> getValueMap();
+  public abstract ImmutableMap<String, Response> getResponseMap();
 
   public static Builder newBuilder() {
     return new AutoValue_Record.Builder();
   }
 
-  public Optional<Value> getValue(String id) {
-    return Optional.ofNullable(getValueMap().get(id));
+  public Optional<Response> getResponse(String id) {
+    return Optional.ofNullable(getResponseMap().get(id));
   }
 
   public abstract Record.Builder toBuilder();
@@ -85,39 +85,39 @@ public abstract class Record {
 
     public abstract Builder setClientTimestamps(@Nullable Timestamps newClientTimestamps);
 
-    public abstract ImmutableMap.Builder<String, Value> valueMapBuilder();
+    public abstract ImmutableMap.Builder<String, Response> responseMapBuilder();
 
-    public Builder putValue(String id, Value value) {
-      valueMapBuilder().put(id, value);
+    public Builder putResponse(String id, Response response) {
+      responseMapBuilder().put(id, response);
       return this;
     }
 
-    public Builder putAllValues(Map<String, Value> values) {
-      valueMapBuilder().putAll(values);
+    public Builder putAllResponses(Map<String, Response> responses) {
+      responseMapBuilder().putAll(responses);
       return this;
     }
 
     public abstract Record build();
   }
 
-  public interface Value {
+  public interface Response {
 
     String getSummaryText(Field field);
 
     String getDetailsText(Field field);
 
-    static String toString(Optional<Value> value) {
-      return value.map(Value::toString).orElse("");
+    static String toString(Optional<Response> response) {
+      return response.map(Response::toString).orElse("");
     }
 
     boolean isEmpty();
   }
 
-  public static class TextValue implements Value {
+  public static class TextResponse implements Response {
 
     private String text;
 
-    public TextValue(String text) {
+    public TextResponse(String text) {
       this.text = text;
     }
 
@@ -142,10 +142,10 @@ public abstract class Record {
 
     @Override
     public boolean equals(Object obj) {
-      if (obj == null || !(obj instanceof TextValue)) {
+      if (obj == null || !(obj instanceof TextResponse)) {
         return false;
       }
-      return text.equals(((TextValue) obj).text);
+      return text.equals(((TextResponse) obj).text);
     }
 
     @Override
@@ -158,16 +158,16 @@ public abstract class Record {
       return text;
     }
 
-    public static Optional<Value> fromString(String text) {
-      return text.isEmpty() ? Optional.empty() : Optional.of(new TextValue(text));
+    public static Optional<Response> fromString(String text) {
+      return text.isEmpty() ? Optional.empty() : Optional.of(new TextResponse(text));
     }
   }
 
-  public static class MultipleChoiceValue implements Value {
+  public static class MultipleChoiceResponse implements Response {
 
     private List<String> choices;
 
-    public MultipleChoiceValue(List<String> choices) {
+    public MultipleChoiceResponse(List<String> choices) {
       this.choices = choices;
     }
 
@@ -190,7 +190,7 @@ public abstract class Record {
     // TODO: Make these inner classes non-static and access Form directly.
     public String getDetailsText(Field field) {
       return stream(choices)
-          .map(v -> field.getMultipleChoice().getOption(v))
+          .map(code -> field.getMultipleChoice().getOption(code))
           .filter(Optional::isPresent)
           .map(Optional::get)
           .map(Option::getLabel)
@@ -205,10 +205,10 @@ public abstract class Record {
 
     @Override
     public boolean equals(Object obj) {
-      if (obj == null || !(obj instanceof MultipleChoiceValue)) {
+      if (obj == null || !(obj instanceof MultipleChoiceResponse)) {
         return false;
       }
-      return choices.equals(((MultipleChoiceValue) obj).choices);
+      return choices.equals(((MultipleChoiceResponse) obj).choices);
     }
 
     @Override
@@ -221,11 +221,11 @@ public abstract class Record {
       return stream(choices).sorted().collect(Collectors.joining(","));
     }
 
-    public static Optional<Value> fromList(List<String> codes) {
+    public static Optional<Response> fromList(List<String> codes) {
       if (codes.isEmpty()) {
         return Optional.empty();
       } else {
-        return Optional.of(new MultipleChoiceValue(codes));
+        return Optional.of(new MultipleChoiceResponse(codes));
       }
     }
   }
