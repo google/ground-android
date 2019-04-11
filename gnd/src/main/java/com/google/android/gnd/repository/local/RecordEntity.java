@@ -42,6 +42,10 @@ public abstract class RecordEntity {
   @NonNull
   public abstract EntityState getState();
 
+  /**
+   * Returns a JSON object containing user responses keyed by their respective elementId, or an
+   * empty JSON object if no responses have been provided.
+   */
   @CopyAnnotations
   @ColumnInfo(name = "responses")
   @NonNull

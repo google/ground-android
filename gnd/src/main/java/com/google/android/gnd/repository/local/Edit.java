@@ -60,11 +60,19 @@ public abstract class Edit {
   @NonNull
   public abstract Type getType();
 
+  /**
+   * For edits of type UPDATE, returns a JSON object with the original value of modified attributes
+   * before this edit. For all other edit types this will return null.
+   */
   @CopyAnnotations
   @ColumnInfo(name = "old_values")
   @Nullable
   public abstract JSONObject getOldValues();
 
+  /**
+   * For edits of type UPDATE, returns a JSON object with the new value of modified attributes after
+   * this edit. For all other edit types this will return null.
+   */
   @CopyAnnotations
   @ColumnInfo(name = "new_values")
   @Nullable
