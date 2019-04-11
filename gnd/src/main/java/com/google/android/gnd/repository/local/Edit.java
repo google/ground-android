@@ -16,8 +16,6 @@
 
 package com.google.android.gnd.repository.local;
 
-import static java8.util.J8Arrays.stream;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.room.ColumnInfo;
@@ -53,7 +51,7 @@ public abstract class Edit {
     @NonNull
     @TypeConverter
     public static Edit.Type fromInt(int intValue) {
-      return IntEnum.fromInt(stream(values()), intValue, UNKNOWN);
+      return IntEnum.fromInt(values(), intValue, UNKNOWN);
     }
   }
 

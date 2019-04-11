@@ -16,8 +16,9 @@
 
 package com.google.android.gnd.repository.local;
 
+import static java8.util.J8Arrays.stream;
+
 import androidx.annotation.NonNull;
-import java8.util.stream.Stream;
 
 /**
  * Common interface for Java enums with explicitly defined int representations. This is used instead
@@ -28,12 +29,12 @@ public interface IntEnum {
   int intValue();
 
   static <E extends IntEnum> int toInt(E enumValue, @NonNull E defaultValue) {
-    return enumValue == null ? defaultValue.intValue() : enumValue.intValue() ;
+    return enumValue == null ? defaultValue.intValue() : enumValue.intValue();
   }
 
   @NonNull
   static <E extends Enum<E> & IntEnum> E fromInt(
-      @NonNull Stream<E> values, int intValue, @NonNull E defaultValue) {
-    return values.filter(s -> s.intValue() == intValue).findFirst().orElse(defaultValue);
+      @NonNull E[] values, int intValue, @NonNull E defaultValue) {
+    return stream(values).filter(s -> s.intValue() == intValue).findFirst().orElse(defaultValue);
   }
 }
