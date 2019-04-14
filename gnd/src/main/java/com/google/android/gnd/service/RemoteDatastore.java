@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google LLC
+ * Copyright 2019 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,9 +27,10 @@ import io.reactivex.Single;
 import java.util.List;
 
 /**
- * Data service is treated as if it's remote, though implementations may cache data locally as well.
+ * Defines API for accessing data in a remote datastore. The store is treated as if it's remote,
+ * though implementations may cache data locally as well.
  */
-public interface RemoteDataService {
+public interface RemoteDatastore {
   Single<List<Project>> loadProjectSummaries(User user);
 
   Single<Project> loadProject(String projectId);
