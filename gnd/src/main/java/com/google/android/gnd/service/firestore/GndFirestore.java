@@ -193,7 +193,7 @@ public class GndFirestore extends AbstractFluentFirestore {
         case REMOVED:
           return DataStoreEvent.removed(id, source);
       }
-    } catch (DatastoreException e) {
+    } catch (DataStoreException e) {
       Log.d(TAG, "Datastore error:", e);
     }
     return DataStoreEvent.invalidResponse();

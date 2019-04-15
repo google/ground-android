@@ -57,7 +57,7 @@ public class FeatureDoc {
             .build();
     Optional<FeatureType> featureType = project.getFeatureType(f.featureTypeId);
     if (!featureType.isPresent()) {
-      throw new DatastoreException(
+      throw new DataStoreException(
           "Unknown feature type " + f.featureTypeId + " in lace " + doc.getId());
     }
     return Feature.newBuilder()

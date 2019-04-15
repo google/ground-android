@@ -16,8 +16,8 @@
 
 package com.google.android.gnd.service.firestore;
 
-public class DatastoreException extends RuntimeException {
-  public DatastoreException(String message) {
+public class DataStoreException extends RuntimeException {
+  public DataStoreException(String message) {
     super(message);
   }
 }
