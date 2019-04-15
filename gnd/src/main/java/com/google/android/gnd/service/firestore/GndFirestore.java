@@ -114,7 +114,7 @@ public class GndFirestore extends AbstractFluentFirestore {
       return RxFirestore.observeQueryRef(ref)
           .flatMapIterable(
               featureQuerySnapshot ->
-                  toDatastoreEvents(
+                  toDataStoreEvents(
                       featureQuerySnapshot,
                       featureDocSnapshot -> FeatureDoc.toObject(project, featureDocSnapshot)));
     }
@@ -171,16 +171,16 @@ public class GndFirestore extends AbstractFluentFirestore {
         .toSingle(Collections.emptyList());
   }
 
-  private static <T> Iterable<DataStoreEvent<T>> toDatastoreEvents(
+  private static <T> Iterable<DataStoreEvent<T>> toDataStoreEvents(
       QuerySnapshot snapshot, Function<DocumentSnapshot, T> converter) {
     DataStoreEvent.Source source = getSource(snapshot.getMetadata());
     return stream(snapshot.getDocumentChanges())
-        .map(dc -> toDatastoreEvent(dc, source, converter))
+        .map(dc -> toDataStoreEvent(dc, source, converter))
         .filter(DataStoreEvent::isValid)
         .collect(toList());
   }
 
-  private static <T> DataStoreEvent<T> toDatastoreEvent(
+  private static <T> DataStoreEvent<T> toDataStoreEvent(
       DocumentChange dc, DataStoreEvent.Source source, Function<DocumentSnapshot, T> converter) {
     Log.v(TAG, dc.getDocument().getReference().getPath() + " " + dc.getType());
     try {
@@ -194,7 +194,7 @@ public class GndFirestore extends AbstractFluentFirestore {
           return DataStoreEvent.removed(id, source);
       }
     } catch (DataStoreException e) {
-      Log.d(TAG, "Datastore error:", e);
+      Log.d(TAG, "Data store error:", e);
     }
     return DataStoreEvent.invalidResponse();
   }
