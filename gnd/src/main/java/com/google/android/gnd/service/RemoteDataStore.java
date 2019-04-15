@@ -27,10 +27,10 @@ import io.reactivex.Single;
 import java.util.List;
 
 /**
- * Defines API for accessing data in a remote datastore. The store is treated as if it's remote,
+ * Defines API for accessing data in a remote data store. The store is treated as if it's remote,
  * though implementations may cache data locally as well.
  */
-public interface RemoteDatastore {
+public interface RemoteDataStore {
   Single<List<Project>> loadProjectSummaries(User user);
 
   Single<Project> loadProject(String projectId);

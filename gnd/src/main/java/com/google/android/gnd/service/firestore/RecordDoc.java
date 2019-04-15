@@ -16,7 +16,7 @@
 
 package com.google.android.gnd.service.firestore;
 
-import static com.google.android.gnd.service.firestore.FirestoreDatastore.toTimestamps;
+import static com.google.android.gnd.service.firestore.FirestoreDataStore.toTimestamps;
 
 import android.util.Log;
 import androidx.annotation.Nullable;

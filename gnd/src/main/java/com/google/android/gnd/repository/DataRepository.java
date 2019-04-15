@@ -18,7 +18,7 @@ package com.google.android.gnd.repository;
 
 import android.util.Log;
 import com.google.android.gnd.service.DatastoreEvent;
-import com.google.android.gnd.service.RemoteDatastore;
+import com.google.android.gnd.service.RemoteDataStore;
 import com.google.android.gnd.service.firestore.DocumentNotFoundException;
 import com.google.android.gnd.system.AuthenticationManager.User;
 import com.google.android.gnd.vo.Feature;
@@ -47,12 +47,12 @@ public class DataRepository {
   // For non-cached data, the local database will be the source of truth.
   // Remote data is written to the database, and then optionally to the InMemoryCache.
   private final InMemoryCache cache;
-  private final RemoteDatastore remoteDatastore;
+  private final RemoteDataStore remoteDataStore;
   private final Subject<Resource<Project>> activeProjectSubject;
 
   @Inject
-  public DataRepository(RemoteDatastore remoteDatastore, InMemoryCache cache) {
-    this.remoteDatastore = remoteDatastore;
+  public DataRepository(RemoteDataStore remoteDataStore, InMemoryCache cache) {
+    this.remoteDataStore = remoteDataStore;
     this.cache = cache;
     this.activeProjectSubject = BehaviorSubject.create();
   }
@@ -66,7 +66,7 @@ public class DataRepository {
 
   public Completable activateProject(String projectId) {
     Log.d(TAG, " Activating project " + projectId);
-    return remoteDatastore
+    return remoteDataStore
         .loadProject(projectId)
         .doOnSubscribe(__ -> activeProjectSubject.onNext(Resource.loading()))
         .doOnSuccess(this::onProjectLoaded)
@@ -80,7 +80,7 @@ public class DataRepository {
 
   public Observable<Resource<List<Project>>> getProjectSummaries(User user) {
     // TODO: Get from load db if network connection not available or remote times out.
-    return remoteDatastore
+    return remoteDataStore
         .loadProjectSummaries(user)
         .map(Resource::loaded)
         .onErrorReturn(Resource::error)
@@ -92,7 +92,7 @@ public class DataRepository {
   // TODO: Wrap Feature in Resource<>.
   // TODO: Accept id instead.
   public Flowable<ImmutableSet<Feature>> getFeatureVectorStream(Project project) {
-    return remoteDatastore
+    return remoteDataStore
         .getFeatureVectorStream(project)
         .doOnNext(this::onRemoteFeatureVectorChange)
         .map(__ -> cache.getFeatures());
@@ -107,7 +107,7 @@ public class DataRepository {
     // TODO: Only fetch first n fields.
     // TODO: Also load from db.
     return getFeature(projectId, featureId)
-        .flatMap(feature -> remoteDatastore.loadRecordSummaries(feature));
+        .flatMap(feature -> remoteDataStore.loadRecordSummaries(feature));
   }
 
   private Single<Feature> getFeature(String projectId, String featureId) {
@@ -124,7 +124,7 @@ public class DataRepository {
   public Flowable<Resource<Record>> getRecordDetails(
       String projectId, String featureId, String recordId) {
     return getFeature(projectId, featureId)
-        .flatMap(feature -> remoteDatastore.loadRecordDetails(feature, recordId))
+        .flatMap(feature -> remoteDataStore.loadRecordDetails(feature, recordId))
         .map(Resource::loaded)
         .onErrorReturn(Resource::error)
         .toFlowable();
@@ -134,7 +134,7 @@ public class DataRepository {
       String projectId, String featureId, String recordId) {
     // TODO: Store and retrieve latest edits from cache and/or db.
     return getFeature(projectId, featureId)
-        .flatMap(feature -> remoteDatastore.loadRecordDetails(feature, recordId))
+        .flatMap(feature -> remoteDataStore.loadRecordDetails(feature, recordId))
         .map(Resource::loaded)
         .onErrorReturn(Resource::error);
   }
@@ -157,13 +157,13 @@ public class DataRepository {
         .getActiveProject()
         .filter(p -> projectId.equals(p.getId()))
         .map(Single::just)
-        .orElse(remoteDatastore.loadProject(projectId));
+        .orElse(remoteDataStore.loadProject(projectId));
   }
 
   public Observable<Resource<Record>> saveChanges(
       Record record, ImmutableList<ValueUpdate> updates, User user) {
     record = attachUser(record, user);
-    return remoteDatastore
+    return remoteDataStore
         .saveChanges(record, updates)
         .map(Resource::saved)
         .toObservable()
@@ -181,7 +181,7 @@ public class DataRepository {
   }
 
   public Single<Feature> addFeature(Feature feature) {
-    return remoteDatastore.addFeature(feature);
+    return remoteDataStore.addFeature(feature);
   }
 
   public void clearActiveProject() {

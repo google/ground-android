@@ -19,7 +19,7 @@ package com.google.android.gnd.service.firestore;
 import androidx.annotation.Nullable;
 import com.google.android.gnd.rx.RxTask;
 import com.google.android.gnd.service.DatastoreEvent;
-import com.google.android.gnd.service.RemoteDatastore;
+import com.google.android.gnd.service.RemoteDataStore;
 import com.google.android.gnd.system.AuthenticationManager.User;
 import com.google.android.gnd.vo.Feature;
 import com.google.android.gnd.vo.FeatureUpdate.RecordUpdate.ValueUpdate;
@@ -41,16 +41,16 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 @Singleton
-public class FirestoreDatastore implements RemoteDatastore {
+public class FirestoreDataStore implements RemoteDataStore {
 
   private static final FirebaseFirestoreSettings FIRESTORE_SETTINGS =
       new FirebaseFirestoreSettings.Builder().setPersistenceEnabled(true).build();
   private static final SetOptions MERGE = SetOptions.merge();
-  private static final String TAG = FirestoreDatastore.class.getSimpleName();
+  private static final String TAG = FirestoreDataStore.class.getSimpleName();
   private final GndFirestore db;
 
   @Inject
-  FirestoreDatastore() {
+  FirestoreDataStore() {
     // TODO: Run on I/O thread, return asynchronously.
     final FirebaseFirestore firestore = FirebaseFirestore.getInstance();
     firestore.setFirestoreSettings(FIRESTORE_SETTINGS);
