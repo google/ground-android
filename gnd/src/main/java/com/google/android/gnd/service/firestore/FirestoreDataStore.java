@@ -18,7 +18,7 @@ package com.google.android.gnd.service.firestore;
 
 import androidx.annotation.Nullable;
 import com.google.android.gnd.rx.RxTask;
-import com.google.android.gnd.service.DatastoreEvent;
+import com.google.android.gnd.service.DataStoreEvent;
 import com.google.android.gnd.service.RemoteDataStore;
 import com.google.android.gnd.system.AuthenticationManager.User;
 import com.google.android.gnd.vo.Feature;
@@ -99,7 +99,7 @@ public class FirestoreDataStore implements RemoteDataStore {
   }
 
   @Override
-  public Flowable<DatastoreEvent<Feature>> getFeatureVectorStream(Project project) {
+  public Flowable<DataStoreEvent<Feature>> getFeatureVectorStream(Project project) {
     return db.projects().project(project.getId()).features().observe(project);
   }
 

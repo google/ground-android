@@ -17,7 +17,7 @@
 package com.google.android.gnd.repository;
 
 import android.util.Log;
-import com.google.android.gnd.service.DatastoreEvent;
+import com.google.android.gnd.service.DataStoreEvent;
 import com.google.android.gnd.service.RemoteDataStore;
 import com.google.android.gnd.service.firestore.DocumentNotFoundException;
 import com.google.android.gnd.system.AuthenticationManager.User;
@@ -98,7 +98,7 @@ public class DataRepository {
         .map(__ -> cache.getFeatures());
   }
 
-  private void onRemoteFeatureVectorChange(DatastoreEvent<Feature> event) {
+  private void onRemoteFeatureVectorChange(DataStoreEvent<Feature> event) {
     event.getEntity().ifPresentOrElse(cache::putFeature, () -> cache.removeFeature(event.getId()));
   }
 

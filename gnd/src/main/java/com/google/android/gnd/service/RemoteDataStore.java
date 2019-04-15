@@ -35,7 +35,7 @@ public interface RemoteDataStore {
 
   Single<Project> loadProject(String projectId);
 
-  Flowable<DatastoreEvent<Feature>> getFeatureVectorStream(Project project);
+  Flowable<DataStoreEvent<Feature>> getFeatureVectorStream(Project project);
 
   Single<List<Record>> loadRecordSummaries(Feature feature);
 

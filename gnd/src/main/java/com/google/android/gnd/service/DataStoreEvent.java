@@ -19,7 +19,7 @@ package com.google.android.gnd.service;
 import java8.util.Optional;
 
 // TODO: Harmonize with com.google.android.gnd.rx.AbstractResource.
-public class DatastoreEvent<T> {
+public class DataStoreEvent<T> {
 
   public enum Type {
     ENTITY_LOADED,
@@ -38,11 +38,11 @@ public class DatastoreEvent<T> {
   private Type type;
   private Source source;
 
-  private DatastoreEvent(Type type) {
+  private DataStoreEvent(Type type) {
     this.type = type;
   }
 
-  private DatastoreEvent(String id, Type type, Source source, Optional<T> entity) {
+  private DataStoreEvent(String id, Type type, Source source, Optional<T> entity) {
     this.id = id;
     this.type = type;
     this.source = source;
@@ -66,26 +66,26 @@ public class DatastoreEvent<T> {
   }
 
   public boolean hasPendingWrites() {
-    return source == DatastoreEvent.Source.LOCAL_DATASTORE;
+    return source == DataStoreEvent.Source.LOCAL_DATASTORE;
   }
 
   public boolean isValid() {
     return !Type.INVALID_RESPONSE.equals(type);
   }
 
-  public static <T> DatastoreEvent<T> loaded(String id, Source source, T entity) {
-    return new DatastoreEvent<>(id, Type.ENTITY_LOADED, source, Optional.of(entity));
+  public static <T> DataStoreEvent<T> loaded(String id, Source source, T entity) {
+    return new DataStoreEvent<>(id, Type.ENTITY_LOADED, source, Optional.of(entity));
   }
 
-  public static <T> DatastoreEvent<T> modified(String id, Source source, T entity) {
-    return new DatastoreEvent<>(id, Type.ENTITY_MODIFIED, source, Optional.of(entity));
+  public static <T> DataStoreEvent<T> modified(String id, Source source, T entity) {
+    return new DataStoreEvent<>(id, Type.ENTITY_MODIFIED, source, Optional.of(entity));
   }
 
-  public static <T> DatastoreEvent<T> removed(String id, Source source) {
-    return new DatastoreEvent<>(id, Type.ENTITY_MODIFIED, source, Optional.empty());
+  public static <T> DataStoreEvent<T> removed(String id, Source source) {
+    return new DataStoreEvent<>(id, Type.ENTITY_MODIFIED, source, Optional.empty());
   }
 
-  public static <T> DatastoreEvent<T> invalidResponse() {
-    return new DatastoreEvent<>(Type.INVALID_RESPONSE);
+  public static <T> DataStoreEvent<T> invalidResponse() {
+    return new DataStoreEvent<>(Type.INVALID_RESPONSE);
   }
 }
