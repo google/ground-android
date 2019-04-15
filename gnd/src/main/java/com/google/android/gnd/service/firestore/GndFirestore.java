@@ -201,7 +201,7 @@ public class GndFirestore extends AbstractFluentFirestore {
 
   private static DataStoreEvent.Source getSource(SnapshotMetadata metadata) {
     return metadata.hasPendingWrites()
-        ? DataStoreEvent.Source.LOCAL_DATASTORE
-        : DataStoreEvent.Source.REMOTE_DATASTORE;
+        ? DataStoreEvent.Source.LOCAL_DATA_STORE
+        : DataStoreEvent.Source.REMOTE_DATA_STORE;
   }
 }

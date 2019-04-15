@@ -29,8 +29,8 @@ public class DataStoreEvent<T> {
   }
 
   public enum Source {
-    LOCAL_DATASTORE,
-    REMOTE_DATASTORE
+    LOCAL_DATA_STORE,
+    REMOTE_DATA_STORE
   }
 
   private String id;
@@ -66,7 +66,7 @@ public class DataStoreEvent<T> {
   }
 
   public boolean hasPendingWrites() {
-    return source == DataStoreEvent.Source.LOCAL_DATASTORE;
+    return source == DataStoreEvent.Source.LOCAL_DATA_STORE;
   }
 
   public boolean isValid() {
