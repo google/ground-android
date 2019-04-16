@@ -19,6 +19,7 @@ package com.google.android.gnd.repository.local;
 import static androidx.room.ForeignKey.CASCADE;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.room.ColumnInfo;
 import androidx.room.Embedded;
 import androidx.room.Entity;
@@ -43,12 +44,12 @@ public abstract class FeatureEditEntity {
   @CopyAnnotations
   @PrimaryKey(autoGenerate = true)
   @ColumnInfo(name = "id")
-  public abstract int getId();
+  public abstract Long getId();
 
   @CopyAnnotations
   @ColumnInfo(name = "feature_id")
   @NonNull
-  public abstract String getFeatureId();
+  public abstract Long getFeatureId();
 
   @CopyAnnotations
   @Embedded
@@ -57,7 +58,7 @@ public abstract class FeatureEditEntity {
 
   // Auto-generated boilerplate:
 
-  public static FeatureEditEntity create(int id, String featureId, Edit edit) {
+  public static FeatureEditEntity create(@Nullable Long id, @NonNull Long featureId, Edit edit) {
     return builder().setId(id).setFeatureId(featureId).setEdit(edit).build();
   }
 
@@ -68,9 +69,9 @@ public abstract class FeatureEditEntity {
   @AutoValue.Builder
   public abstract static class Builder {
 
-    public abstract Builder setId(int newId);
+    public abstract Builder setId(@Nullable Long newId);
 
-    public abstract Builder setFeatureId(String newFeatureId);
+    public abstract Builder setFeatureId(Long newFeatureId);
 
     public abstract Builder setEdit(Edit newEdit);
 

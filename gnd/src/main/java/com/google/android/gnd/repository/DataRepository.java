@@ -17,6 +17,7 @@
 package com.google.android.gnd.repository;
 
 import android.util.Log;
+import com.google.android.gnd.repository.local.LocalDataStore;
 import com.google.android.gnd.service.DataStoreEvent;
 import com.google.android.gnd.service.RemoteDataStore;
 import com.google.android.gnd.service.firestore.DocumentNotFoundException;
@@ -46,12 +47,15 @@ public class DataRepository {
   // For cached data, InMemoryCache is the source of truth that the repository subscribes to.
   // For non-cached data, the local database will be the source of truth.
   // Remote data is written to the database, and then optionally to the InMemoryCache.
-  private final InMemoryCache cache;
+  private final LocalDataStore localDataStore;
   private final RemoteDataStore remoteDataStore;
+  private final InMemoryCache cache;
   private final Subject<Resource<Project>> activeProjectSubject;
 
   @Inject
-  public DataRepository(RemoteDataStore remoteDataStore, InMemoryCache cache) {
+  public DataRepository(
+      LocalDataStore localDataStore, RemoteDataStore remoteDataStore, InMemoryCache cache) {
+    this.localDataStore = localDataStore;
     this.remoteDataStore = remoteDataStore;
     this.cache = cache;
     this.activeProjectSubject = BehaviorSubject.create();
@@ -181,7 +185,7 @@ public class DataRepository {
   }
 
   public Single<Feature> addFeature(Feature feature) {
-    return remoteDataStore.addFeature(feature);
+    return localDataStore.addNewFeature(feature);
   }
 
   public void clearActiveProject() {

@@ -17,6 +17,7 @@
 package com.google.android.gnd.repository.local;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.room.ColumnInfo;
 import androidx.room.Embedded;
 import androidx.room.Entity;
@@ -32,10 +33,15 @@ import com.google.auto.value.AutoValue.CopyAnnotations;
     indices = {@Index("id")})
 public abstract class FeatureEntity {
   @CopyAnnotations
-  @PrimaryKey
+  @PrimaryKey(autoGenerate = true)
   @ColumnInfo(name = "id")
   @NonNull
-  public abstract String getId();
+  public abstract Long getId();
+
+  @CopyAnnotations
+  @Nullable
+  @ColumnInfo(name = "remote_id")
+  public abstract String getRemoteId();
 
   @CopyAnnotations
   @NonNull
@@ -54,9 +60,14 @@ public abstract class FeatureEntity {
   // Auto-generated boilerplate:
 
   public static FeatureEntity create(
-      String id, EntityState state, String projectId, Coordinates location) {
+      @Nullable Long id,
+      @Nullable String remoteId,
+      EntityState state,
+      String projectId,
+      Coordinates location) {
     return builder()
         .setId(id)
+        .setRemoteId(remoteId)
         .setState(state)
         .setProjectId(projectId)
         .setLocation(location)
@@ -70,7 +81,9 @@ public abstract class FeatureEntity {
   @AutoValue.Builder
   public abstract static class Builder {
 
-    public abstract Builder setId(String newId);
+    public abstract Builder setId(@Nullable Long newId);
+
+    public abstract Builder setRemoteId(@Nullable String newRemoteId);
 
     public abstract Builder setState(EntityState newState);
 
