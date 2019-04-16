@@ -118,6 +118,7 @@ public class ProjectSelectorDialogFragment extends AbstractDialogFragment {
     // TODO: Get item from listAdapter.getItem and pass to activateProject.
     // TODO: Use simple action + reactive listener instead of subscribing to result.
     // TODO: ViewModel should maintain loading state, not subscription.
+    // TODO(#24): Fix leaky subscriptions!
     viewModel
         .activateProject(idx)
         .as(autoDisposable(this))

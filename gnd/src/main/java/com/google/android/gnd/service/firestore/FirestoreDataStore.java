@@ -22,7 +22,7 @@ import com.google.android.gnd.service.DataStoreEvent;
 import com.google.android.gnd.service.RemoteDataStore;
 import com.google.android.gnd.system.AuthenticationManager.User;
 import com.google.android.gnd.vo.Feature;
-import com.google.android.gnd.vo.FeatureUpdate.RecordUpdate.ValueUpdate;
+import com.google.android.gnd.vo.FeatureUpdate.RecordUpdate.ResponseUpdate;
 import com.google.android.gnd.vo.Project;
 import com.google.android.gnd.vo.Record;
 import com.google.android.gnd.vo.Timestamps;
@@ -105,7 +105,7 @@ public class FirestoreDataStore implements RemoteDataStore {
 
   // TODO: Move relevant Record fields and updates into "RecordUpdate" object.
   @Override
-  public Single<Record> saveChanges(Record record, ImmutableList<ValueUpdate> updates) {
+  public Single<Record> saveChanges(Record record, ImmutableList<ResponseUpdate> updates) {
     GndFirestore.RecordsCollectionReference records =
         db.projects().project(record.getProject().getId()).records();
 
@@ -119,11 +119,14 @@ public class FirestoreDataStore implements RemoteDataStore {
   }
 
   private Single<Record> saveChanges(
-      DocumentReference recordDocRef, Record record, ImmutableList<ValueUpdate> updates) {
+      DocumentReference recordDocRef, Record record, ImmutableList<ResponseUpdate> updates) {
     return RxTask.toCompletable(
             () ->
                 db.batch()
-                    .set(recordDocRef, RecordDoc.forUpdates(record, updatedValues(updates)), MERGE)
+                    .set(
+                        recordDocRef,
+                        RecordDoc.forUpdates(record, updatedResponses(updates)),
+                        MERGE)
                     .commit())
         .andThen(Single.just(record));
   }
@@ -134,25 +137,24 @@ public class FirestoreDataStore implements RemoteDataStore {
     return db.projects().project(projectId).features().add(feature);
   }
 
-  private Map<String, Object> updatedValues(ImmutableList<ValueUpdate> updates) {
-    Map<String, Object> updatedValues = new HashMap<>();
-    for (ValueUpdate valueUpdate : updates) {
-      switch (valueUpdate.getOperation()) {
+  private Map<String, Object> updatedResponses(ImmutableList<ResponseUpdate> updates) {
+    Map<String, Object> updatedResponses = new HashMap<>();
+    for (ResponseUpdate responseUpdate : updates) {
+      switch (responseUpdate.getOperation()) {
         case CREATE:
         case UPDATE:
-          valueUpdate
-              .getValue()
+          responseUpdate
+              .getResponse()
               .ifPresent(
-                  value ->
-                      updatedValues.put(valueUpdate.getElementId(), RecordDoc.toObject(value)));
+                  r -> updatedResponses.put(responseUpdate.getElementId(), RecordDoc.toObject(r)));
           break;
         case DELETE:
           // FieldValue.delete() is not working in nested objects; if it doesn't work in the future
           // we can remove them using dot notation ("responses.{elementId}").
-          updatedValues.put(valueUpdate.getElementId(), "");
+          updatedResponses.put(responseUpdate.getElementId(), "");
           break;
       }
     }
-    return updatedValues;
+    return updatedResponses;
   }
 }

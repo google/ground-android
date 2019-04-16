@@ -18,7 +18,7 @@ package com.google.android.gnd.service;
 
 import com.google.android.gnd.system.AuthenticationManager.User;
 import com.google.android.gnd.vo.Feature;
-import com.google.android.gnd.vo.FeatureUpdate.RecordUpdate.ValueUpdate;
+import com.google.android.gnd.vo.FeatureUpdate.RecordUpdate.ResponseUpdate;
 import com.google.android.gnd.vo.Project;
 import com.google.android.gnd.vo.Record;
 import com.google.common.collect.ImmutableList;
@@ -41,7 +41,7 @@ public interface RemoteDataStore {
 
   Single<Record> loadRecordDetails(Feature feature, String recordId);
 
-  Single<Record> saveChanges(Record record, ImmutableList<ValueUpdate> updates);
+  Single<Record> saveChanges(Record record, ImmutableList<ResponseUpdate> updates);
 
   Single<Feature> addFeature(Feature feature);
 }

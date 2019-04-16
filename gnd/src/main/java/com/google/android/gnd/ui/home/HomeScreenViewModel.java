@@ -98,6 +98,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
   }
 
   public void addFeature(Feature feature) {
+    // TODO(#24): Fix leaky subscriptions!
     disposeOnClear(dataRepository.addFeature(feature).subscribe(this::onFeatureAdded));
   }
 

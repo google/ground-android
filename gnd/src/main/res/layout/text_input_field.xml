@@ -50,7 +50,7 @@
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
           android:maxLines="1"
-          android:text="@{viewModel.values[field.id]}"
+          android:text="@{viewModel.responses[field.id]}"
           app:errorText="@{viewModel.errors[field.id]}"
           app:onTextChanged="@{s -> viewModel.onTextChanged(field, (String) s)}"
           app:onFocusChange="@{(v, hasFocus) -> viewModel.onFocusChange(field, hasFocus)}"

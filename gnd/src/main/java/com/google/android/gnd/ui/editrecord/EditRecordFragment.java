@@ -20,14 +20,14 @@ import static com.google.android.gnd.ui.util.ViewUtil.assignGeneratedId;
 
 import android.app.ProgressDialog;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import butterknife.BindView;
 import butterknife.OnClick;
 import com.google.android.gnd.MainActivity;
@@ -47,7 +47,7 @@ import com.google.android.gnd.vo.Form;
 import com.google.android.gnd.vo.Form.Field;
 import com.google.android.gnd.vo.Form.MultipleChoice.Cardinality;
 import com.google.android.gnd.vo.Record;
-import com.google.android.gnd.vo.Record.Value;
+import com.google.android.gnd.vo.Record.Response;
 import java8.util.Optional;
 import javax.inject.Inject;
 
@@ -207,16 +207,16 @@ public class EditRecordFragment extends AbstractFragment implements BackPressLis
 
   public void onShowDialog(Field field) {
     Cardinality cardinality = field.getMultipleChoice().getCardinality();
-    Optional<Value> currentValue = viewModel.getValue(field.getId());
+    Optional<Response> currentResponse = viewModel.getResponse(field.getId());
     switch (cardinality) {
       case SELECT_MULTIPLE:
         multiSelectDialogFactory
-            .create(field, currentValue, v -> viewModel.onValueChanged(field, v))
+            .create(field, currentResponse, r -> viewModel.onResponseChanged(field, r))
             .show();
         break;
       case SELECT_ONE:
         singleSelectDialogFactory
-            .create(field, currentValue, v -> viewModel.onValueChanged(field, v))
+            .create(field, currentResponse, r -> viewModel.onResponseChanged(field, r))
             .show();
         break;
       default:

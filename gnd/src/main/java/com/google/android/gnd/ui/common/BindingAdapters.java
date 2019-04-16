@@ -20,6 +20,7 @@ import androidx.databinding.BindingAdapter;
 import androidx.databinding.DataBindingUtil;
 import androidx.databinding.ViewDataBinding;
 import androidx.annotation.Nullable;
+import com.google.android.gnd.vo.Record.Response;
 import com.google.android.material.textfield.TextInputEditText;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -29,7 +30,6 @@ import com.google.android.gnd.databinding.MultipleChoiceInputFieldBinding;
 import com.google.android.gnd.databinding.TextInputFieldBinding;
 import com.google.android.gnd.ui.editrecord.MultipleChoiceFieldLayout;
 import com.google.android.gnd.vo.Form.Field;
-import com.google.android.gnd.vo.Record.Value;
 import java8.util.function.Consumer;
 
 public class BindingAdapters {
@@ -37,14 +37,14 @@ public class BindingAdapters {
   private static final String TAG = BindingAdapters.class.getSimpleName();
 
   @BindingAdapter("android:text")
-  public static void bindText(TextInputEditText view, Value value) {
+  public static void bindText(TextInputEditText view, Response response) {
     ViewDataBinding binding = findBinding(view);
     Field field = getField(binding);
     if (field == null) {
       // Binding update before attached to field.
       return;
     }
-    String newText = value == null ? "" : value.getDetailsText(field);
+    String newText = response == null ? "" : response.getDetailsText(field);
     if (!view.getText().toString().equals(newText)) {
       view.setText(newText);
     }

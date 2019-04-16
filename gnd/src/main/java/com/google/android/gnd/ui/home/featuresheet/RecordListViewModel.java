@@ -64,6 +64,7 @@ public class RecordListViewModel extends AbstractViewModel {
       return;
     }
     // TODO: Use project id instead of object.
+    // TODO(#24): Fix leaky subscriptions!
     disposeOnClear(
         dataRepository
             .getRecordSummaries(project.getId(), featureId)

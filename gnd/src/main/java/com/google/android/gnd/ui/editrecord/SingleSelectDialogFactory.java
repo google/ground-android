@@ -24,8 +24,8 @@ import com.google.android.gnd.R;
 import com.google.android.gnd.vo.Form.Field;
 import com.google.android.gnd.vo.Form.MultipleChoice;
 import com.google.android.gnd.vo.Form.MultipleChoice.Option;
-import com.google.android.gnd.vo.Record.MultipleChoiceValue;
-import com.google.android.gnd.vo.Record.Value;
+import com.google.android.gnd.vo.Record.MultipleChoiceResponse;
+import com.google.android.gnd.vo.Record.Response;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
 import java8.util.Optional;
@@ -41,7 +41,7 @@ class SingleSelectDialogFactory {
   }
 
   AlertDialog create(
-      Field field, Optional<Value> initialValue, Consumer<Optional<Value>> valueChangeCallback) {
+      Field field, Optional<Response> initialValue, Consumer<Optional<Response>> valueChangeCallback) {
     MultipleChoice multipleChoice = field.getMultipleChoice();
     AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(context);
     List<Option> options = multipleChoice.getOptions();
@@ -66,12 +66,12 @@ class SingleSelectDialogFactory {
 
     private int checkedItem;
 
-    public DialogState(MultipleChoice multipleChoice, Optional<Value> initialValue) {
+    public DialogState(MultipleChoice multipleChoice, Optional<Response> initialValue) {
       // TODO: Check type.
       checkedItem =
           initialValue
-              .map(MultipleChoiceValue.class::cast)
-              .flatMap(MultipleChoiceValue::getFirstCode)
+              .map(MultipleChoiceResponse.class::cast)
+              .flatMap(MultipleChoiceResponse::getFirstCode)
               .flatMap(multipleChoice::getIndex)
               .orElse(-1);
     }
@@ -86,10 +86,10 @@ class SingleSelectDialogFactory {
       }
     }
 
-    private Optional<Value> getSelectedValue(Field field, List<Option> options) {
+    private Optional<Response> getSelectedValue(Field field, List<Option> options) {
       if (checkedItem >= 0) {
         return Optional.of(
-            new MultipleChoiceValue(ImmutableList.of((options.get(checkedItem).getCode()))));
+            new MultipleChoiceResponse(ImmutableList.of((options.get(checkedItem).getCode()))));
       } else {
         return Optional.empty();
       }
