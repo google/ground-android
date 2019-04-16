@@ -65,9 +65,9 @@ public abstract class Edit {
   public abstract Type getType();
 
   /**
-   * For edits of type {@link Edit.Type.UPDATE}, returns a JSON object with the original values of
-   * modified attributes before this edit. For all other edit types this will return null. The old
-   * values are maintained to allow rollback in case remote sync fails.
+   * For edits of type {@link Type#DELETE} and {@link Type#UPDATE}, returns a JSON object with the
+   * original values of modified attributes before this edit. For all other edit types this will
+   * return null. The old values are maintained to allow rollback in case remote sync fails.
    */
   @CopyAnnotations
   @ColumnInfo(name = "old_values")
@@ -75,9 +75,9 @@ public abstract class Edit {
   public abstract JSONObject getOldValues();
 
   /**
-   * For edits of type {@link Edit.Type.CREATE} and {@link Edit.Type.UPDATE}, returns a JSON object
-   * with the new value of modified attributes after this edit. For all other edit types this will
-   * return null.
+   * For edits of type {@link Type#CREATE} and {@link Type#UPDATE}, returns a JSON object with the
+   * new value of modified attributes after this edit. For all other edit types this will return
+   * null.
    *
    * <p>Taken together, the old and new values represent changes as follows:
    *
