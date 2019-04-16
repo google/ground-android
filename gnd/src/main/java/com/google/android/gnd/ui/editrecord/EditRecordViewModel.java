@@ -102,7 +102,7 @@ public class EditRecordViewModel extends AbstractViewModel {
     Log.v(
         TAG, "onResponseChanged: " + field.getId() + " = '" + Response.toString(newResponse) + "'");
     newResponse.ifPresentOrElse(
-        v -> responses.put(field.getId(), v), () -> responses.remove(field.getId()));
+        r -> responses.put(field.getId(), r), () -> responses.remove(field.getId()));
     updateError(field, newResponse);
   }
 
@@ -229,10 +229,10 @@ public class EditRecordViewModel extends AbstractViewModel {
     return getChanges(r).collect(toImmutableList());
   }
 
-  private Stream<ResponseUpdate> getChanges(Record r, Field field) {
+  private Stream<ResponseUpdate> getChanges(Record record, Field field) {
     String fieldId = field.getId();
-    Optional<Response> originalResponse = r.getResponse(fieldId);
-    Optional<Response> currentResponse = getResponse(fieldId).filter(v -> !v.isEmpty());
+    Optional<Response> originalResponse = record.getResponse(fieldId);
+    Optional<Response> currentResponse = getResponse(fieldId).filter(r -> !r.isEmpty());
     if (currentResponse.equals(originalResponse)) {
       return stream(Collections.emptyList());
     }
@@ -270,7 +270,7 @@ public class EditRecordViewModel extends AbstractViewModel {
 
   private void updateError(Field field, Optional<Response> response) {
     String key = field.getId();
-    if (field.isRequired() && !response.filter(v -> !v.isEmpty()).isPresent()) {
+    if (field.isRequired() && !response.filter(r -> !r.isEmpty()).isPresent()) {
       Log.d(TAG, "Missing: " + key);
       errors.put(field.getId(), resources.getString(R.string.required_field));
     } else {

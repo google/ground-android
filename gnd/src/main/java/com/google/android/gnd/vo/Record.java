@@ -190,7 +190,7 @@ public abstract class Record {
     // TODO: Make these inner classes non-static and access Form directly.
     public String getDetailsText(Field field) {
       return stream(choices)
-          .map(v -> field.getMultipleChoice().getOption(v))
+          .map(code -> field.getMultipleChoice().getOption(code))
           .filter(Optional::isPresent)
           .map(Optional::get)
           .map(Option::getLabel)

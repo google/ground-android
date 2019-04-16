@@ -17,8 +17,6 @@
 package com.google.android.gnd.ui.recorddetails;
 
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -28,11 +26,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import com.google.android.gnd.databinding.RecordDetailsFragBinding;
 import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.R;
+import com.google.android.gnd.databinding.RecordDetailsFragBinding;
 import com.google.android.gnd.inject.ActivityScoped;
 import com.google.android.gnd.repository.Resource;
 import com.google.android.gnd.ui.common.AbstractFragment;
@@ -148,7 +148,7 @@ public class RecordDetailsFragment extends AbstractFragment {
     fieldViewHolder.setLabel(field.getLabel());
     record
         .getResponse(field.getId())
-        .map(v -> v.getDetailsText(field))
+        .map(r -> r.getDetailsText(field))
         .ifPresent(fieldViewHolder::setValue);
     recordDetailsLayout.addView(fieldViewHolder.getRoot());
   }
