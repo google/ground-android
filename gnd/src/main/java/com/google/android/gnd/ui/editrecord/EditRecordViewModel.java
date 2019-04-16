@@ -23,15 +23,15 @@ import static com.google.android.gnd.vo.FeatureUpdate.Operation.UPDATE;
 import static java8.util.Maps.forEach;
 import static java8.util.stream.StreamSupport.stream;
 
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
 import android.content.res.Resources;
+import android.util.Log;
+import android.view.View;
+import androidx.annotation.NonNull;
 import androidx.databinding.ObservableArrayMap;
 import androidx.databinding.ObservableInt;
 import androidx.databinding.ObservableMap;
-import androidx.annotation.NonNull;
-import android.util.Log;
-import android.view.View;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 import com.google.android.gnd.GndApplication;
 import com.google.android.gnd.R;
 import com.google.android.gnd.repository.DataRepository;
@@ -39,12 +39,12 @@ import com.google.android.gnd.repository.Resource;
 import com.google.android.gnd.system.AuthenticationManager;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.common.SingleLiveEvent;
-import com.google.android.gnd.vo.FeatureUpdate.RecordUpdate.ValueUpdate;
+import com.google.android.gnd.vo.FeatureUpdate.RecordUpdate.ResponseUpdate;
 import com.google.android.gnd.vo.Form.Element.Type;
 import com.google.android.gnd.vo.Form.Field;
 import com.google.android.gnd.vo.Record;
-import com.google.android.gnd.vo.Record.TextValue;
-import com.google.android.gnd.vo.Record.Value;
+import com.google.android.gnd.vo.Record.Response;
+import com.google.android.gnd.vo.Record.TextResponse;
 import com.google.common.collect.ImmutableList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -62,7 +62,7 @@ public class EditRecordViewModel extends AbstractViewModel {
   private final SingleLiveEvent<Void> showUnsavedChangesDialogEvents;
   private final SingleLiveEvent<Void> showErrorDialogEvents;
   private final Resources resources;
-  private final ObservableMap<String, Value> values = new ObservableArrayMap<>();
+  private final ObservableMap<String, Response> responses = new ObservableArrayMap<>();
   private final ObservableMap<String, String> errors = new ObservableArrayMap<>();
 
   public final ObservableInt loadingSpinnerVisibility = new ObservableInt();
@@ -80,12 +80,12 @@ public class EditRecordViewModel extends AbstractViewModel {
     this.authManager = authenticationManager;
   }
 
-  public ObservableMap<String, Value> getValues() {
-    return values;
+  public ObservableMap<String, Response> getResponses() {
+    return responses;
   }
 
-  public Optional<Value> getValue(String fieldId) {
-    return Optional.ofNullable(values.get(fieldId));
+  public Optional<Response> getResponse(String fieldId) {
+    return Optional.ofNullable(responses.get(fieldId));
   }
 
   public ObservableMap<String, String> getErrors() {
@@ -95,13 +95,15 @@ public class EditRecordViewModel extends AbstractViewModel {
   public void onTextChanged(Field field, String text) {
     Log.v(TAG, "onTextChanged: " + field.getId());
 
-    onValueChanged(field, TextValue.fromString(text));
+    onResponseChanged(field, TextResponse.fromString(text));
   }
 
-  public void onValueChanged(Field field, Optional<Value> newValue) {
-    Log.v(TAG, "onValueChanged: " + field.getId() + " = '" + Value.toString(newValue) + "'");
-    newValue.ifPresentOrElse(v -> values.put(field.getId(), v), () -> values.remove(field.getId()));
-    updateError(field, newValue);
+  public void onResponseChanged(Field field, Optional<Response> newResponse) {
+    Log.v(
+        TAG, "onResponseChanged: " + field.getId() + " = '" + Response.toString(newResponse) + "'");
+    newResponse.ifPresentOrElse(
+        r -> responses.put(field.getId(), r), () -> responses.remove(field.getId()));
+    updateError(field, newResponse);
   }
 
   public void onFocusChange(Field field, boolean hasFocus) {
@@ -123,6 +125,7 @@ public class EditRecordViewModel extends AbstractViewModel {
   }
 
   void editNewRecord(String projectId, String featureId, String formId) {
+    // TODO(#24): Fix leaky subscriptions!
     disposeOnClear(
         dataRepository
             .createRecord(projectId, featureId, formId)
@@ -137,21 +140,22 @@ public class EditRecordViewModel extends AbstractViewModel {
   }
 
   private void onNewRecordLoaded() {
-    values.clear();
+    responses.clear();
     errors.clear();
   }
 
   private void updateMap(Record r) {
     Log.v(TAG, "Updating map");
-    values.clear();
+    responses.clear();
     forEach(
-        r.getValueMap(),
+        r.getResponseMap(),
         (k, v) ->
-            r.getForm().getField(k).ifPresent(field -> onValueChanged(field, Optional.of(v))));
+            r.getForm().getField(k).ifPresent(field -> onResponseChanged(field, Optional.of(v))));
   }
 
   void editExistingRecord(String projectId, String featureId, String recordId) {
     // TODO: Store and retrieve latest edits from cache and/or db.
+    // TODO(#24): Fix leaky subscriptions!
     disposeOnClear(
         dataRepository
             .getRecordSnapshot(projectId, featureId, recordId)
@@ -206,6 +210,7 @@ public class EditRecordViewModel extends AbstractViewModel {
   }
 
   private void saveChanges(Record r) {
+    // TODO(#24): Fix leaky subscriptions!
     disposeOnClear(
         authManager
             .getUser()
@@ -213,35 +218,35 @@ public class EditRecordViewModel extends AbstractViewModel {
             .subscribe(record::setValue));
   }
 
-  private Stream<ValueUpdate> getChanges(Record r) {
+  private Stream<ResponseUpdate> getChanges(Record r) {
     return stream(r.getForm().getElements())
         .filter(e -> e.getType() == Type.FIELD)
         .map(e -> e.getField())
         .flatMap(f -> getChanges(r, f));
   }
 
-  private ImmutableList<ValueUpdate> getChangeList(Record r) {
+  private ImmutableList<ResponseUpdate> getChangeList(Record r) {
     return getChanges(r).collect(toImmutableList());
   }
 
-  private Stream<ValueUpdate> getChanges(Record r, Field field) {
+  private Stream<ResponseUpdate> getChanges(Record record, Field field) {
     String fieldId = field.getId();
-    Optional<Value> originalValue = r.getValue(fieldId);
-    Optional<Value> currentValue = getValue(fieldId).filter(v -> !v.isEmpty());
-    if (currentValue.equals(originalValue)) {
+    Optional<Response> originalResponse = record.getResponse(fieldId);
+    Optional<Response> currentResponse = getResponse(fieldId).filter(r -> !r.isEmpty());
+    if (currentResponse.equals(originalResponse)) {
       return stream(Collections.emptyList());
     }
 
-    ValueUpdate.Builder update = ValueUpdate.newBuilder();
+    ResponseUpdate.Builder update = ResponseUpdate.newBuilder();
     update.setElementId(fieldId);
-    if (!currentValue.isPresent()) {
+    if (!currentResponse.isPresent()) {
       update.setOperation(DELETE);
-    } else if (originalValue.isPresent()) {
+    } else if (originalResponse.isPresent()) {
       update.setOperation(UPDATE);
-      update.setValue(currentValue);
+      update.setResponse(currentResponse);
     } else {
       update.setOperation(CREATE);
-      update.setValue(currentValue);
+      update.setResponse(currentResponse);
     }
     return stream(Arrays.asList(update.build()));
   }
@@ -260,12 +265,12 @@ public class EditRecordViewModel extends AbstractViewModel {
   }
 
   private void updateError(Field field) {
-    updateError(field, getValue(field.getId()));
+    updateError(field, getResponse(field.getId()));
   }
 
-  private void updateError(Field field, Optional<Value> value) {
+  private void updateError(Field field, Optional<Response> response) {
     String key = field.getId();
-    if (field.isRequired() && !value.filter(v -> !v.isEmpty()).isPresent()) {
+    if (field.isRequired() && !response.filter(r -> !r.isEmpty()).isPresent()) {
       Log.d(TAG, "Missing: " + key);
       errors.put(field.getId(), resources.getString(R.string.required_field));
     } else {

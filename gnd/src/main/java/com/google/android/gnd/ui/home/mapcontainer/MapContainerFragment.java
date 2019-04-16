@@ -112,6 +112,7 @@ public class MapContainerFragment extends AbstractFragment {
         .observe(this, state -> onFeatureSheetStateChange(state, map));
     addFeatureBtn.setOnClickListener(
         __ -> homeScreenViewModel.onAddFeatureBtnClick(map.getCenter()));
+    // TODO(#24): Fix leaky subscriptions!
     map.getMarkerClicks()
         .as(disposeOnDestroy(this))
         .subscribe(mapContainerViewModel::onMarkerClick);
@@ -129,6 +130,7 @@ public class MapContainerFragment extends AbstractFragment {
   public void onActivityCreated(@Nullable Bundle savedInstanceState) {
     super.onActivityCreated(savedInstanceState);
     mainViewModel.getWindowInsets().observe(this, this::onApplyWindowInsets);
+    // TODO(#24): Fix leaky subscriptions!
     mapProvider.getMapAdapter().as(autoDisposable(this)).subscribe(this::onMapReady);
   }
 

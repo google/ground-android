@@ -58,7 +58,7 @@
         android:editable="false"
         android:focusable="true"
         android:focusableInTouchMode="true"
-        android:text="@{viewModel.values[field.id]}"
+        android:text="@{viewModel.responses[field.id]}"
         android:textColor="@color/field_value"
         app:errorText="@{viewModel.errors[field.id]}"
         tools:text="One, two, three, four, five"/>

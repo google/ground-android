@@ -43,11 +43,12 @@ public class ProjectSelectorViewModel extends AbstractViewModel {
 
   // TODO: Show message when no visible projects found.
   public void loadProjectSummaries() {
+    // TODO(#24): Fix leaky subscriptions!
     disposeOnClear(
         authManager
             .getUser()
             .flatMap(user -> dataRepository.getProjectSummaries(user))
-            .subscribe(v -> projectSummaries.setValue(v)));
+            .subscribe(summaries -> projectSummaries.setValue(summaries)));
   }
 
   public LiveData<Resource<List<Project>>> getProjectSummaries() {

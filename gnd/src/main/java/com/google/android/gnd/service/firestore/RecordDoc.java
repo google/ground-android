@@ -18,14 +18,14 @@ package com.google.android.gnd.service.firestore;
 
 import static com.google.android.gnd.service.firestore.FirestoreDataService.toTimestamps;
 
-import androidx.annotation.Nullable;
 import android.util.Log;
+import androidx.annotation.Nullable;
 import com.google.android.gnd.vo.Feature;
 import com.google.android.gnd.vo.Form;
 import com.google.android.gnd.vo.Record;
-import com.google.android.gnd.vo.Record.MultipleChoiceValue;
-import com.google.android.gnd.vo.Record.TextValue;
-import com.google.android.gnd.vo.Record.Value;
+import com.google.android.gnd.vo.Record.MultipleChoiceResponse;
+import com.google.android.gnd.vo.Record.Response;
+import com.google.android.gnd.vo.Record.TextResponse;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.IgnoreExtraProperties;
 import com.google.firebase.firestore.ServerTimestamp;
@@ -60,12 +60,12 @@ public class RecordDoc {
 
   @Nullable public Map<String, Object> responses;
 
-  public static RecordDoc forUpdates(Record record, Map<String, Object> valueUpdates) {
+  public static RecordDoc forUpdates(Record record, Map<String, Object> responseUpdates) {
     RecordDoc rd = new RecordDoc();
     rd.featureId = record.getFeature().getId();
     rd.featureTypeId = record.getFeature().getFeatureType().getId();
     rd.formId = record.getForm().getId();
-    rd.responses = valueUpdates;
+    rd.responses = responseUpdates;
     rd.clientTimeModified = new Date();
     rd.createdBy = UserDoc.fromObject(record.getCreatedBy());
     rd.modifiedBy = UserDoc.fromObject(record.getModifiedBy());
@@ -89,7 +89,7 @@ public class RecordDoc {
         .setProject(feature.getProject())
         .setFeature(feature)
         .setForm(form.get())
-        .putAllValues(convertValues(rd.responses))
+        .putAllResponses(convertResponses(rd.responses))
         .setCreatedBy(UserDoc.toObject(rd.createdBy))
         .setModifiedBy(UserDoc.toObject(rd.modifiedBy))
         .setServerTimestamps(toTimestamps(rd.serverTimeCreated, rd.serverTimeModified))
@@ -97,33 +97,34 @@ public class RecordDoc {
         .build();
   }
 
-  private static Map<String, Value> convertValues(Map<String, Object> docValues) {
-    Map<String, Value> values = new HashMap<>();
-    for (Map.Entry<String, Object> entry : docValues.entrySet()) {
-      putValue(values, entry.getKey(), entry.getValue());
+  private static Map<String, Response> convertResponses(Map<String, Object> docResponses) {
+    Map<String, Response> responses = new HashMap<>();
+    for (Map.Entry<String, Object> entry : docResponses.entrySet()) {
+      putResponse(responses, entry.getKey(), entry.getValue());
     }
-    return values;
+    return responses;
   }
 
-  private static void putValue(Map<String, Value> values, String fieldId, Object obj) {
+  private static void putResponse(Map<String, Response> responses, String fieldId, Object obj) {
     if (obj instanceof String) {
-      TextValue.fromString(((String) obj).trim()).ifPresent(v -> values.put(fieldId, v));
+      TextResponse.fromString(((String) obj).trim()).ifPresent(r -> responses.put(fieldId, r));
       // } else if (obj instanceof Float) {
-      //   values.put(key, new NumberValue((Float) obj));
+      //   responses.put(key, new NumericResponse((Float) obj));
     } else if (obj instanceof List) {
-      MultipleChoiceValue.fromList(((List<String>) obj)).ifPresent(v -> values.put(fieldId, v));
+      MultipleChoiceResponse.fromList(((List<String>) obj))
+          .ifPresent(r -> responses.put(fieldId, r));
     } else {
       Log.d(TAG, "Unsupported obj in db: " + obj.getClass().getName());
     }
   }
 
-  public static Object toObject(Value value) {
-    if (value instanceof TextValue) {
-      return ((TextValue) value).getText();
-    } else if (value instanceof MultipleChoiceValue) {
-      return ((MultipleChoiceValue) value).getChoices();
+  public static Object toObject(Response response) {
+    if (response instanceof TextResponse) {
+      return ((TextResponse) response).getText();
+    } else if (response instanceof MultipleChoiceResponse) {
+      return ((MultipleChoiceResponse) response).getChoices();
     } else {
-      Log.w(TAG, "Unknown value type: " + value.getClass().getName());
+      Log.w(TAG, "Unknown response type: " + response.getClass().getName());
       return null;
     }
   }
