@@ -118,8 +118,7 @@ In `gnd/src/debug/res/values` and `gnd/src/release/res/values` create
 `google_maps_api.xml` with the following contents:
 
 ```xml 
-<resources><string name="google_maps_key" templateMergeStrategy="preserve" translatable="false">API_KEY</string>
-</resources> 
+<resources><string name="google_maps_key" templateMergeStrategy="preserve" translatable="false">API_KEY</string></resources> 
 ```
 
 In `gnd/src/debug/res/values` replace `API_KEY` with your Google Maps debug API
