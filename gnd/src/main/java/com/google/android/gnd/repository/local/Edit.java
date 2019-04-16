@@ -26,7 +26,11 @@ import com.google.auto.value.AutoValue;
 import com.google.auto.value.AutoValue.CopyAnnotations;
 import org.json.JSONObject;
 
-/** Fields describing operation type, old, and new values, common to Feature and Record edits. */
+/**
+ * Fields describing operation type and old and new attribute values. Edits are maintained in
+ * addition to latest local snapshot of entities to allow two-way data sync (merging local changes
+ * with remote edits and vice versa) and rollback on sync failure.
+ */
 @AutoValue
 public abstract class Edit {
   public enum Type implements IntEnum {
@@ -63,8 +67,9 @@ public abstract class Edit {
   public abstract Type getType();
 
   /**
-   * For edits of type UPDATE, returns a JSON object with the original value of modified attributes
-   * before this edit. For all other edit types this will return null.
+   * For edits of type {@link Edit.Type.UPDATE}, returns a JSON object with the original values of
+   * modified attributes before this edit. For all other edit types this will return null. The old
+   * values are maintained to allow rollback in case remote sync fails.
    */
   @CopyAnnotations
   @ColumnInfo(name = "old_values")
@@ -72,8 +77,20 @@ public abstract class Edit {
   public abstract JSONObject getOldValues();
 
   /**
-   * For edits of type UPDATE, returns a JSON object with the new value of modified attributes after
-   * this edit. For all other edit types this will return null.
+   * For edits of type {@link Edit.Type.CREATE} and {@link Edit.Type.UPDATE}, returns a JSON object
+   * with the new value of modified attributes after this edit. For all other edit types this will
+   * return null.
+   *
+   * <p>Taken together, the old and new values represent changes as follows:
+   *
+   * <ul>
+   *   <li>If a key is present in new values, but not the old, the entry represents an unset
+   *       attribute that is now being set.
+   *   <li>If a key is present in both old and new values, the entry represents an attribute that
+   *       was already set but has now been modified.
+   *   <li>If a key is present in old values but not the new, the entry represents an attribute that
+   *       was present, but has been removed.
+   * </ul>
    */
   @CopyAnnotations
   @ColumnInfo(name = "new_values")
