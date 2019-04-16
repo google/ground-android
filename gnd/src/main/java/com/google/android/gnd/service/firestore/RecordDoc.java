@@ -16,10 +16,10 @@
 
 package com.google.android.gnd.service.firestore;
 
-import static com.google.android.gnd.service.firestore.FirestoreDataService.toTimestamps;
+import static com.google.android.gnd.service.firestore.FirestoreDataStore.toTimestamps;
 
-import androidx.annotation.Nullable;
 import android.util.Log;
+import androidx.annotation.Nullable;
 import com.google.android.gnd.vo.Feature;
 import com.google.android.gnd.vo.Form;
 import com.google.android.gnd.vo.Record;

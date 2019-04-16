@@ -16,6 +16,8 @@
 
 package com.google.android.gnd.repository.local;
 
+import static java8.util.J8Arrays.stream;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.room.TypeConverter;
@@ -44,6 +46,6 @@ public enum EntityState implements IntEnum {
   @NonNull
   @TypeConverter
   public static EntityState fromInt(int intValue) {
-    return IntEnum.fromInt(values(), intValue, UNKNOWN);
+    return IntEnum.fromInt(stream(values()), intValue, UNKNOWN);
   }
 }

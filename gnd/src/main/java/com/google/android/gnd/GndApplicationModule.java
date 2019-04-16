@@ -19,8 +19,8 @@ package com.google.android.gnd;
 import android.app.Application;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gnd.inject.ActivityScoped;
-import com.google.android.gnd.service.RemoteDataService;
-import com.google.android.gnd.service.firestore.FirestoreDataService;
+import com.google.android.gnd.service.RemoteDataStore;
+import com.google.android.gnd.service.firestore.FirestoreDataStore;
 import com.google.android.gnd.ui.common.ViewModelModule;
 import dagger.Binds;
 import dagger.Module;
@@ -37,10 +37,10 @@ abstract class GndApplicationModule {
   @ContributesAndroidInjector(modules = MainActivityModule.class)
   abstract MainActivity mainActivityInjector();
 
-  /** Provide the Firestore implementation of our backend data service. */
+  /** Provides the Firestore implementation of our remote data store. */
   @Binds
   @Singleton
-  abstract RemoteDataService remoteDataService(FirestoreDataService ds);
+  abstract RemoteDataStore remoteDataStore(FirestoreDataStore ds);
 
   @Binds
   @Singleton
