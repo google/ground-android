@@ -37,11 +37,23 @@ public abstract class RecordEntity {
   @NonNull
   public abstract String getId();
 
+  /**
+   * Returns the id of the form to which this record's responses apply.
+   */
+  @CopyAnnotations
+  @ColumnInfo(name = "form_id")
+  @NonNull
+  public abstract String getFormId();
+
   @CopyAnnotations
   @ColumnInfo(name = "state")
   @NonNull
   public abstract EntityState getState();
 
+  /**
+   * Returns a JSON object containing user responses keyed by their respective elementId in the form
+   * identified by formId. Returns an empty JSON object if no responses have been provided.
+   */
   @CopyAnnotations
   @ColumnInfo(name = "responses")
   @NonNull
@@ -49,8 +61,9 @@ public abstract class RecordEntity {
 
   // Auto-generated boilerplate:
 
-  public static RecordEntity create(String id, EntityState state, JSONObject responses) {
-    return builder().setId(id).setState(state).setResponses(responses).build();
+  public static RecordEntity create(
+      String id, EntityState state, String formId, JSONObject responses) {
+    return builder().setId(id).setState(state).setResponses(responses).setFormId(formId).build();
   }
 
   public static Builder builder() {
@@ -63,6 +76,8 @@ public abstract class RecordEntity {
     public abstract Builder setId(String newId);
 
     public abstract Builder setState(EntityState newState);
+
+    public abstract Builder setFormId(String newFormId);
 
     public abstract Builder setResponses(JSONObject newResponses);
 
