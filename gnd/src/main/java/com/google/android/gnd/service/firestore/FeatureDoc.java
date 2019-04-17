@@ -16,7 +16,7 @@
 
 package com.google.android.gnd.service.firestore;
 
-import static com.google.android.gnd.service.firestore.FirestoreDataService.toTimestamps;
+import static com.google.android.gnd.service.firestore.FirestoreDataStore.toTimestamps;
 
 import com.google.android.gnd.vo.Feature;
 import com.google.android.gnd.vo.FeatureType;
@@ -57,7 +57,7 @@ public class FeatureDoc {
             .build();
     Optional<FeatureType> featureType = project.getFeatureType(f.featureTypeId);
     if (!featureType.isPresent()) {
-      throw new DatastoreException(
+      throw new DataStoreException(
           "Unknown feature type " + f.featureTypeId + " in lace " + doc.getId());
     }
     return Feature.newBuilder()
