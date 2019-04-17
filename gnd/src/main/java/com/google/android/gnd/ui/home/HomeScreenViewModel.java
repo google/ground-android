@@ -18,6 +18,10 @@ package com.google.android.gnd.ui.home;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
 import androidx.lifecycle.MutableLiveData;
+import io.reactivex.Flowable;
+import io.reactivex.Single;
+import io.reactivex.processors.BehaviorProcessor;
+
 import android.util.Log;
 import com.google.android.gnd.repository.DataRepository;
 import com.google.android.gnd.repository.Resource;
@@ -40,6 +44,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
   private final DataRepository dataRepository;
   private final Navigator navigator;
   private final LiveData<Resource<Project>> activeProject;
+  private final BehaviorProcessor<Feature> featureProcessor;
 
   // TODO: Move into MapContainersViewModel
   private final SingleLiveEvent<Point> addFeatureDialogRequests;
@@ -57,6 +62,9 @@ public class HomeScreenViewModel extends AbstractViewModel {
     this.featureSheetState = new MutableLiveData<>();
     this.activeProject = LiveDataReactiveStreams.fromPublisher(dataRepository.getActiveProject());
     this.navigator = navigator;
+    this.featureProcessor = BehaviorProcessor.create();
+
+    disposeOnClear(featureProcessor.flatMap(feature -> this.dataRepository.addFeature(feature).toFlowable()).subscribe(this::onFeatureAdded));
   }
 
   public LiveData<Void> getOpenDrawerRequests() {
@@ -98,8 +106,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
   }
 
   public void addFeature(Feature feature) {
-    // TODO(#24): Fix leaky subscriptions!
-    disposeOnClear(dataRepository.addFeature(feature).subscribe(this::onFeatureAdded));
+    featureProcessor.onNext(feature);
   }
 
   public void onBottomSheetHidden() {
