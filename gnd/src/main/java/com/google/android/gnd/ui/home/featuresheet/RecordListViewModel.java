@@ -18,6 +18,7 @@ package com.google.android.gnd.ui.home.featuresheet;
 
 import static java8.util.stream.StreamSupport.stream;
 
+import androidx.core.util.Pair;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import com.google.android.gnd.repository.DataRepository;
@@ -28,20 +29,56 @@ import com.google.android.gnd.vo.Project;
 import com.google.android.gnd.vo.Record;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+
+import io.reactivex.Flowable;
+import io.reactivex.Single;
+import io.reactivex.processors.BehaviorProcessor;
 import java8.util.Optional;
 import java8.util.stream.Collectors;
 import javax.inject.Inject;
 
 // TODO: Roll up into parent viewmodel. Simplify VMs overall.
 public class RecordListViewModel extends AbstractViewModel {
+
+  class ArgumentWrapper {
+    public Project project;
+    public String featureId;
+    public String formId;
+
+    public ArgumentWrapper(Project project, String featureId, String formId) {
+      this.project = project;
+      this.featureId = featureId;
+      this.formId = formId;
+    }
+  }
+
   private static final String TAG = RecordListViewModel.class.getSimpleName();
   private final DataRepository dataRepository;
   private MutableLiveData<List<Record>> recordSummaries;
+  private BehaviorProcessor<ArgumentWrapper> argumentProcessor;
 
   @Inject
   public RecordListViewModel(DataRepository dataRepository) {
     this.dataRepository = dataRepository;
     recordSummaries = new MutableLiveData<>();
+    argumentProcessor = BehaviorProcessor.create();
+
+    Flowable<Pair<List<Record>, String>> recordsWithFormContext =
+        argumentProcessor.flatMap(
+            args ->
+                dataRepository
+                    .getRecordSummaries(args.project.getId(), args.featureId)
+                    .toFlowable()
+                    .map(records -> Pair.create(records, args.formId)));
+
+    disposeOnClear(
+        recordsWithFormContext.subscribe(
+            pairs ->
+                recordSummaries.setValue(
+                    stream(pairs.first)
+                        .filter(record -> record.getForm().getId().equals(pairs.second))
+                        .collect(Collectors.toList()))));
   }
 
   public LiveData<List<Record>> getRecordSummaries() {
@@ -65,15 +102,6 @@ public class RecordListViewModel extends AbstractViewModel {
     }
     // TODO: Use project id instead of object.
     // TODO(#24): Fix leaky subscriptions!
-    disposeOnClear(
-        dataRepository
-            .getRecordSummaries(project.getId(), featureId)
-            .subscribe(
-                // TODO: Only fetch records w/current formId.
-                records ->
-                    recordSummaries.setValue(
-                        stream(records)
-                            .filter(record -> record.getForm().getId().equals(formId))
-                            .collect(Collectors.toList()))));
+    argumentProcessor.onNext(new ArgumentWrapper(project, featureId, formId));
   }
 }
