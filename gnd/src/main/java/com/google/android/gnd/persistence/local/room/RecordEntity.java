@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.repository.local;
+package com.google.android.gnd.persistence.local.room;
 
 import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
@@ -37,9 +37,7 @@ public abstract class RecordEntity {
   @NonNull
   public abstract String getId();
 
-  /**
-   * Returns the id of the form to which this record's responses apply.
-   */
+  /** Returns the id of the form to which this record's responses apply. */
   @CopyAnnotations
   @ColumnInfo(name = "form_id")
   @NonNull

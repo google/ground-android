@@ -14,24 +14,23 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.repository.local;
+package com.google.android.gnd.persistence.local.room;
 
 import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.Update;
 import io.reactivex.Completable;
-import io.reactivex.Single;
 
-/** Data access object for database operations related to {@link FeatureEntity}. */
+/** Data access object for database operations related to {@link RecordEditEntity}. */
 @Dao
-public interface FeatureDao {
+public interface RecordEditDao {
   @Insert
-  Single<Long> insert(FeatureEntity feature);
+  Completable insert(RecordEditEntity recordEdit);
 
   @Update
-  Completable update(FeatureEntity feature);
+  Completable update(RecordEditEntity recordEdit);
 
   @Delete
-  Completable delete(FeatureEntity feature);
+  Completable delete(RecordEditEntity recordEdit);
 }

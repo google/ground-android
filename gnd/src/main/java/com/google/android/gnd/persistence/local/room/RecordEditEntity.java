@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.repository.local;
+package com.google.android.gnd.persistence.local.room;
 
 import static androidx.room.ForeignKey.CASCADE;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.room.ColumnInfo;
 import androidx.room.Embedded;
 import androidx.room.Entity;
@@ -29,27 +28,27 @@ import androidx.room.PrimaryKey;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.AutoValue.CopyAnnotations;
 
-/** Representation of a {@link com.google.android.gnd.vo.FeatureUpdate} in local db. */
+/** Representation of a {@link com.google.android.gnd.vo.FeatureUpdate.RecordUpdate} in local db. */
 @AutoValue
 @Entity(
-    tableName = "feature_edit",
+    tableName = "record_edit",
     foreignKeys =
         @ForeignKey(
-            entity = FeatureEntity.class,
+            entity = RecordEntity.class,
             parentColumns = "id",
-            childColumns = "feature_id",
+            childColumns = "record_id",
             onDelete = CASCADE),
-    indices = {@Index("feature_id")})
-public abstract class FeatureEditEntity {
+    indices = {@Index("record_id")})
+public abstract class RecordEditEntity {
   @CopyAnnotations
   @PrimaryKey(autoGenerate = true)
   @ColumnInfo(name = "id")
-  public abstract Long getId();
+  public abstract int getId();
 
   @CopyAnnotations
-  @ColumnInfo(name = "feature_id")
+  @ColumnInfo(name = "record_id")
   @NonNull
-  public abstract Long getFeatureId();
+  public abstract String getRecordId();
 
   @CopyAnnotations
   @Embedded
@@ -58,23 +57,23 @@ public abstract class FeatureEditEntity {
 
   // Auto-generated boilerplate:
 
-  public static FeatureEditEntity create(@Nullable Long id, @NonNull Long featureId, Edit edit) {
-    return builder().setId(id).setFeatureId(featureId).setEdit(edit).build();
+  public static RecordEditEntity create(int id, String recordId, Edit edit) {
+    return builder().setId(id).setRecordId(recordId).setEdit(edit).build();
   }
 
   public static Builder builder() {
-    return new AutoValue_FeatureEditEntity.Builder();
+    return new AutoValue_RecordEditEntity.Builder();
   }
 
   @AutoValue.Builder
   public abstract static class Builder {
 
-    public abstract Builder setId(@Nullable Long newId);
+    public abstract Builder setId(int newId);
 
-    public abstract Builder setFeatureId(Long newFeatureId);
+    public abstract Builder setRecordId(String newRecordId);
 
     public abstract Builder setEdit(Edit newEdit);
 
-    public abstract FeatureEditEntity build();
+    public abstract RecordEditEntity build();
   }
 }

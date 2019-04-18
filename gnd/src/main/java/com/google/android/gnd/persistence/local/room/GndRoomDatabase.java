@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.repository.local;
+package com.google.android.gnd.persistence.local.room;
 
 import androidx.room.Database;
 import androidx.room.RoomDatabase;
