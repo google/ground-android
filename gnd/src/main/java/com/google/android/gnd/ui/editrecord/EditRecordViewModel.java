@@ -48,6 +48,11 @@ import com.google.android.gnd.vo.Record.TextResponse;
 import com.google.common.collect.ImmutableList;
 import java.util.Arrays;
 import java.util.Collections;
+
+import io.reactivex.BackpressureStrategy;
+import io.reactivex.Flowable;
+import io.reactivex.Single;
+import io.reactivex.processors.BehaviorProcessor;
 import java8.util.Optional;
 import java8.util.stream.Stream;
 import javax.inject.Inject;
@@ -64,6 +69,8 @@ public class EditRecordViewModel extends AbstractViewModel {
   private final Resources resources;
   private final ObservableMap<String, Response> responses = new ObservableArrayMap<>();
   private final ObservableMap<String, String> errors = new ObservableArrayMap<>();
+  private final BehaviorProcessor<EditRecordFragmentArgs> argumentProcessor;
+  private final BehaviorProcessor<Record> recordProcessor;
 
   public final ObservableInt loadingSpinnerVisibility = new ObservableInt();
 
@@ -78,6 +85,20 @@ public class EditRecordViewModel extends AbstractViewModel {
     this.showUnsavedChangesDialogEvents = new SingleLiveEvent<>();
     this.showErrorDialogEvents = new SingleLiveEvent<>();
     this.authManager = authenticationManager;
+    this.argumentProcessor = BehaviorProcessor.create();
+    this.recordProcessor = BehaviorProcessor.create();
+
+    Flowable<Resource<Record>> recordStream =
+        recordProcessor.flatMap(
+            r ->
+                this.authManager
+                    .getUser()
+                    .flatMap(user -> this.dataRepository.saveChanges(r, getChangeList(r), user))
+                    .toFlowable(BackpressureStrategy.LATEST));
+
+    Single<Resource<Record>> newRecord = argumentProcessor.map()
+
+    disposeOnClear(recordStream.subscribe(record::setValue));
   }
 
   public ObservableMap<String, Response> getResponses() {
@@ -126,6 +147,9 @@ public class EditRecordViewModel extends AbstractViewModel {
 
   void editNewRecord(String projectId, String featureId, String formId) {
     // TODO(#24): Fix leaky subscriptions!
+
+    argumentProcessor.onNext(args);
+
     disposeOnClear(
         dataRepository
             .createRecord(projectId, featureId, formId)
@@ -210,12 +234,7 @@ public class EditRecordViewModel extends AbstractViewModel {
   }
 
   private void saveChanges(Record r) {
-    // TODO(#24): Fix leaky subscriptions!
-    disposeOnClear(
-        authManager
-            .getUser()
-            .flatMap(user -> dataRepository.saveChanges(r, getChangeList(r), user))
-            .subscribe(record::setValue));
+    recordProcessor.onNext(r);
   }
 
   private Stream<ResponseUpdate> getChanges(Record r) {
