@@ -17,7 +17,7 @@
 package com.google.android.gnd.repository;
 
 import android.util.Log;
-import com.google.android.gnd.repository.local.LocalDataStore;
+import com.google.android.gnd.persistence.local.LocalDataStore;
 import com.google.android.gnd.service.DataStoreEvent;
 import com.google.android.gnd.service.RemoteDataStore;
 import com.google.android.gnd.service.firestore.DocumentNotFoundException;

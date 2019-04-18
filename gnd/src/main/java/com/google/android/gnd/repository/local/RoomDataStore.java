@@ -19,6 +19,7 @@ package com.google.android.gnd.repository.local;
 import androidx.room.Room;
 import androidx.room.Transaction;
 import com.google.android.gnd.GndApplication;
+import com.google.android.gnd.persistence.local.LocalDataStore;
 import com.google.android.gnd.repository.local.Edit.Type;
 import com.google.android.gnd.vo.Feature;
 import com.google.android.gnd.vo.Point;

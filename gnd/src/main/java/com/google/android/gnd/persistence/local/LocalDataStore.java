@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.repository.local;
+package com.google.android.gnd.persistence.local;
 
 import com.google.android.gnd.vo.Feature;
 import io.reactivex.Single;
