@@ -20,7 +20,7 @@ import static java8.util.stream.Collectors.toList;
 import static java8.util.stream.StreamSupport.stream;
 
 import android.util.Log;
-import com.google.android.gnd.service.DataStoreEvent;
+import com.google.android.gnd.persistence.DataStoreEvent;
 import com.google.android.gnd.system.AuthenticationManager.User;
 import com.google.android.gnd.vo.Feature;
 import com.google.android.gnd.vo.Project;

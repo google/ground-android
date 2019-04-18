@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.service;
 
+import com.google.android.gnd.persistence.DataStoreEvent;
 import com.google.android.gnd.system.AuthenticationManager.User;
 import com.google.android.gnd.vo.Feature;
 import com.google.android.gnd.vo.FeatureUpdate.RecordUpdate.ResponseUpdate;
