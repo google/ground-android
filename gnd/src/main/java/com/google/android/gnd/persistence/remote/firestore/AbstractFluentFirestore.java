@@ -14,16 +14,14 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.service.firestore;
+package com.google.android.gnd.persistence.remote.firestore;
 
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.WriteBatch;
 
-/**
- * Base class for representing Firestore databases as object hierarchies.
- */
+/** Base class for representing Firestore databases as object hierarchies. */
 public abstract class AbstractFluentFirestore {
   protected final FirebaseFirestore db;
 

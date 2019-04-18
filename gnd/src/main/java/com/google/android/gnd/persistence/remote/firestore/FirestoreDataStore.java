@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.service.firestore;
+package com.google.android.gnd.persistence.remote.firestore;
 
 import androidx.annotation.Nullable;
 import com.google.android.gnd.persistence.DataStoreEvent;
-import com.google.android.gnd.rx.RxTask;
 import com.google.android.gnd.persistence.remote.RemoteDataStore;
+import com.google.android.gnd.rx.RxTask;
 import com.google.android.gnd.system.AuthenticationManager.User;
 import com.google.android.gnd.vo.Feature;
 import com.google.android.gnd.vo.FeatureUpdate.RecordUpdate.ResponseUpdate;
