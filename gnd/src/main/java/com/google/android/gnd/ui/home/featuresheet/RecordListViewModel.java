@@ -29,10 +29,8 @@ import com.google.android.gnd.vo.Project;
 import com.google.android.gnd.vo.Record;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 import io.reactivex.Flowable;
-import io.reactivex.Single;
 import io.reactivex.processors.BehaviorProcessor;
 import java8.util.Optional;
 import java8.util.stream.Collectors;
@@ -101,7 +99,6 @@ public class RecordListViewModel extends AbstractViewModel {
       return;
     }
     // TODO: Use project id instead of object.
-    // TODO(#24): Fix leaky subscriptions!
     argumentProcessor.onNext(new ArgumentWrapper(project, featureId, formId));
   }
 }
