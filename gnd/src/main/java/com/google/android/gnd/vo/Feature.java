@@ -23,6 +23,11 @@ import javax.annotation.Nullable;
 @AutoValue
 public abstract class Feature {
   // TODO: Replace Optionals with Nullables in VOs for consistency .
+
+  // TODO: Remove String id and rename this to getId() once offline sync is implemented.
+  @Nullable
+  public abstract Long getLocalId();
+
   @Nullable
   public abstract String getId();
 
@@ -69,6 +74,8 @@ public abstract class Feature {
 
   @AutoValue.Builder
   public abstract static class Builder {
+    public abstract Builder setLocalId(@Nullable Long newLocalId);
+
     public abstract Builder setId(String newId);
 
     public abstract Builder setProject(Project project);

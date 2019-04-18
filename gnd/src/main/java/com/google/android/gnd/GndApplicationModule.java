@@ -19,6 +19,8 @@ package com.google.android.gnd;
 import android.app.Application;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gnd.inject.ActivityScoped;
+import com.google.android.gnd.repository.local.LocalDataStore;
+import com.google.android.gnd.repository.local.RoomDataStore;
 import com.google.android.gnd.service.RemoteDataStore;
 import com.google.android.gnd.service.firestore.FirestoreDataStore;
 import com.google.android.gnd.ui.common.ViewModelModule;
@@ -36,6 +38,11 @@ abstract class GndApplicationModule {
   @ActivityScoped
   @ContributesAndroidInjector(modules = MainActivityModule.class)
   abstract MainActivity mainActivityInjector();
+
+  /** Provides the Room implementation of offline local data store. */
+  @Binds
+  @Singleton
+  abstract LocalDataStore localDataStore(RoomDataStore ds);
 
   /** Provides the Firestore implementation of our remote data store. */
   @Binds

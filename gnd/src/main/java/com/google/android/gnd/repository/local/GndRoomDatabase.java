@@ -27,7 +27,8 @@ import androidx.room.TypeConverters;
  * <p>A separate data model is used to represent data stored locally to prevent leaking db-level
  * design details into main API * and to allow us to guarantee backwards compatibility.
  */
-// TODO: Make injectable via Dagger.
+// TODO: Make DAOs injectable via Dagger.
+// TODO: Make all Room impls package private.
 @Database(
     entities = {
       FeatureEntity.class,
@@ -38,7 +39,7 @@ import androidx.room.TypeConverters;
     version = 1,
     exportSchema = false)
 @TypeConverters({Edit.Type.class, EntityState.class, JSONObjectTypeConverter.class})
-public abstract class LocalDatabase extends RoomDatabase {
+public abstract class GndRoomDatabase extends RoomDatabase {
 
   public abstract FeatureDao featureDao();
 
