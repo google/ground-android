@@ -65,7 +65,7 @@ public class RecordListViewModel extends AbstractViewModel {
     Flowable<Pair<List<Record>, String>> recordsWithFormContext =
         argumentProcessor.flatMap(
             args ->
-                dataRepository
+                this.dataRepository
                     .getRecordSummaries(args.project.getId(), args.featureId)
                     .toFlowable()
                     .map(records -> Pair.create(records, args.formId)));
