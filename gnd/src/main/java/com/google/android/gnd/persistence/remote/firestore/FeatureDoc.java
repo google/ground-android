@@ -61,7 +61,7 @@ public class FeatureDoc {
           "Unknown feature type " + f.featureTypeId + " in lace " + doc.getId());
     }
     return Feature.newBuilder()
-        .setId(doc.getId())
+        .setRemoteId(doc.getId())
         .setProject(project)
         .setCustomId(f.customId)
         .setCaption(f.caption)

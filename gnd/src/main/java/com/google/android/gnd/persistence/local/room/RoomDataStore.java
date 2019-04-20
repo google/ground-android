@@ -44,11 +44,11 @@ public class RoomDataStore implements LocalDataStore {
 
   @Override
   @Transaction
-  public Single<Feature> addNewFeature(Feature feature) {
+  public Single<Feature> createNewFeature(Feature feature) {
     return db.featureDao()
         .insert(toFeatureEntity(feature))
         .map(newId -> feature.toBuilder().setLocalId(newId).build())
-        .flatMap(f -> db.featureEditDao().insert(toFeatureEditEntity(f)).map(__ -> f));
+        .flatMap(f -> db.featureEditDao().insert(toCreateFeatureEditEntity(f)).map(__ -> f));
   }
 
   private static FeatureEntity toFeatureEntity(Feature feature) {
@@ -59,7 +59,7 @@ public class RoomDataStore implements LocalDataStore {
         .build();
   }
 
-  private static FeatureEditEntity toFeatureEditEntity(Feature feature) throws JSONException {
+  private static FeatureEditEntity toCreateFeatureEditEntity(Feature feature) throws JSONException {
     return FeatureEditEntity.builder()
         .setFeatureId(feature.getLocalId())
         .setEdit(Edit.builder().setType(Type.CREATE).setNewValues(toJSONObject(feature)).build())
