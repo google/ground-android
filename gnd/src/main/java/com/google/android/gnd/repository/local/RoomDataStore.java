@@ -47,7 +47,12 @@ public class RoomDataStore implements LocalDataStore {
     return db.featureDao()
         .insert(toFeatureEntity(feature))
         .map(newId -> feature.toBuilder().setLocalId(newId).build())
-        .flatMap(f -> db.featureEditDao().insert(toCreateFeatureEditEntity(f)).map(__ -> f));
+        .flatMap(
+            f ->
+                db.featureEditDao()
+                    .insert(toCreateFeatureEditEntity(f))
+                    .toCompletable()
+                    .toSingle(() -> f));
   }
 
   private static FeatureEntity toFeatureEntity(Feature feature) {
