@@ -43,7 +43,7 @@ public class RoomDataStore implements LocalDataStore {
 
   @Override
   @Transaction
-  public Single<Feature> addNewFeature(Feature feature) {
+  public Single<Feature> createNewFeature(Feature feature) {
     return db.featureDao()
         .insert(toFeatureEntity(feature))
         .map(newId -> feature.toBuilder().setLocalId(newId).build())

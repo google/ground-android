@@ -27,10 +27,10 @@ import io.reactivex.Single;
 public interface LocalDataStore {
 
   /**
-   * Adds a new {@link Feature} to the local db, queueing it to be written to the remote data store.
+   * Adds a new {@link Feature} to the local db, queueing it to be created in the remote data store.
    *
    * @param feature the new feature to be created. Its localId and remoteId fields are ignored.
    * @return once local writes are complete, emits the new feature with a generated localId set.
    */
-  Single<Feature> addNewFeature(Feature feature);
+  Single<Feature> createNewFeature(Feature feature);
 }

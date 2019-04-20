@@ -185,7 +185,7 @@ public class DataRepository {
   }
 
   public Single<Feature> addFeature(Feature feature) {
-    return localDataStore.addNewFeature(feature);
+    return localDataStore.createNewFeature(feature);
   }
 
   public void clearActiveProject() {
