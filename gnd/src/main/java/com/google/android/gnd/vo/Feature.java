@@ -71,6 +71,13 @@ public abstract class Feature {
     return new AutoValue_Feature.Builder();
   }
 
+  /**
+   * Returns a new instance with the specified {@code newLocalId}.
+   */
+  public Feature withLocalId(long newLocalId) {
+    return toBuilder().setLocalId(newLocalId).build();
+  }
+
   @AutoValue.Builder
   public abstract static class Builder {
     public abstract Builder setLocalId(@Nullable Long newLocalId);
