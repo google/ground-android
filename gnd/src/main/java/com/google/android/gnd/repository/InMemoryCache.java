@@ -36,7 +36,7 @@ public class InMemoryCache {
   }
 
   public synchronized void putFeature(Feature feature) {
-    features.put(feature.getId(), feature);
+    features.put(feature.getRemoteId(), feature);
   }
 
   public void removeFeature(String id) {

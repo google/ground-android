@@ -206,13 +206,13 @@ class GoogleMapsMapAdapter implements MapAdapter {
   }
 
   private void addMarker(Feature feature) {
-    Log.v(TAG, "Adding marker for " + feature.getId());
+    Log.v(TAG, "Adding marker for " + feature.getRemoteId());
     FeatureType featureType = feature.getFeatureType();
     MapIcon icon = new MapIcon(context, featureType.getIconId(), featureType.getIconColor());
     // TODO: Reimplement hasPendingWrites.
     addMarker(
         MapMarker.newBuilder()
-            .setId(feature.getId())
+            .setId(feature.getRemoteId())
             .setPosition(feature.getPoint())
             .setIcon(icon)
             .setObject(feature)

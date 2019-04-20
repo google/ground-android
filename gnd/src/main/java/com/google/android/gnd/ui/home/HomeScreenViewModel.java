@@ -15,10 +15,10 @@
  */
 package com.google.android.gnd.ui.home;
 
+import android.util.Log;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
 import androidx.lifecycle.MutableLiveData;
-import android.util.Log;
 import com.google.android.gnd.repository.DataRepository;
 import com.google.android.gnd.repository.Resource;
 import com.google.android.gnd.ui.common.AbstractViewModel;
@@ -121,6 +121,6 @@ public class HomeScreenViewModel extends AbstractViewModel {
       return;
     }
     Feature feature = state.getFeature();
-    navigator.addRecord(feature.getProject().getId(), feature.getId(), selectedForm.getId());
+    navigator.addRecord(feature.getProject().getId(), feature.getRemoteId(), selectedForm.getId());
   }
 }
