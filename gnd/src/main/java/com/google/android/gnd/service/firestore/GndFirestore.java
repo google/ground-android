@@ -107,7 +107,7 @@ public class GndFirestore extends AbstractFluentFirestore {
 
     public Single<Feature> add(Feature feature) {
       return RxFirestore.addDocument(ref, FeatureDoc.fromObject(feature))
-          .map(docRef -> feature.toBuilder().setId(docRef.getId()).build());
+          .map(docRef -> feature.toBuilder().setRemoteId(docRef.getId()).build());
     }
 
     public Flowable<DataStoreEvent<Feature>> observe(Project project) {
@@ -141,7 +141,8 @@ public class GndFirestore extends AbstractFluentFirestore {
 
     public Single<List<Record>> getByFeature(Feature feature) {
       return toSingleList(
-          RxFirestore.getCollection(ref().whereEqualTo(FieldPath.of("featureId"), feature.getId())),
+          RxFirestore.getCollection(
+              ref().whereEqualTo(FieldPath.of("featureId"), feature.getRemoteId())),
           doc -> RecordDoc.toObject(feature, doc.getId(), doc));
     }
   }

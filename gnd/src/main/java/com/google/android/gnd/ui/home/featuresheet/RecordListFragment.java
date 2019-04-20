@@ -17,12 +17,12 @@
 package com.google.android.gnd.ui.home.featuresheet;
 
 import android.os.Bundle;
-import androidx.annotation.Nullable;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import androidx.annotation.Nullable;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.home.HomeScreenViewModel;
@@ -76,7 +76,7 @@ public class RecordListFragment extends AbstractFragment {
 
   private void onItemClick(Record record) {
     navigator.showRecordDetails(
-        record.getProject().getId(), record.getFeature().getId(), record.getId());
+        record.getProject().getId(), record.getFeature().getRemoteId(), record.getId());
   }
 
   private void onFormChange(Optional<Form> form) {

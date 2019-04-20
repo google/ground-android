@@ -62,7 +62,7 @@ public class RecordDoc {
 
   public static RecordDoc forUpdates(Record record, Map<String, Object> responseUpdates) {
     RecordDoc rd = new RecordDoc();
-    rd.featureId = record.getFeature().getId();
+    rd.featureId = record.getFeature().getRemoteId();
     rd.featureTypeId = record.getFeature().getFeatureType().getId();
     rd.formId = record.getForm().getId();
     rd.responses = responseUpdates;
@@ -74,7 +74,7 @@ public class RecordDoc {
 
   public static Record toObject(Feature feature, String recordId, DocumentSnapshot doc) {
     RecordDoc rd = doc.toObject(RecordDoc.class);
-    if (!feature.getId().equals(rd.featureId)) {
+    if (!feature.getRemoteId().equals(rd.featureId)) {
       // TODO: Handle error.
     }
     if (!feature.getFeatureType().getId().equals(rd.featureTypeId)) {

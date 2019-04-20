@@ -54,7 +54,10 @@ public class RecordListViewModel extends AbstractViewModel {
 
   public void loadRecordSummaries(Feature feature, Form form) {
     loadRecords(
-        feature.getProject(), feature.getFeatureType().getId(), form.getId(), feature.getId());
+        feature.getProject(),
+        feature.getFeatureType().getId(),
+        form.getId(),
+        feature.getRemoteId());
   }
 
   private void loadRecords(Project project, String featureTypeId, String formId, String featureId) {
