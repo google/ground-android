@@ -60,6 +60,7 @@ import javax.inject.Inject;
 // TODO: Save draft to local db on each change.
 public class EditRecordViewModel extends AbstractViewModel {
   private static final String TAG = EditRecordViewModel.class.getSimpleName();
+  private static final String NEW_RECORD_ID_ARG_PLACEHOLDER = "NEW_RECORD";
 
   private final DataRepository dataRepository;
   private final AuthenticationManager authManager;
@@ -88,7 +89,7 @@ public class EditRecordViewModel extends AbstractViewModel {
     this.argumentProcessor = BehaviorProcessor.create();
     this.recordProcessor = BehaviorProcessor.create();
 
-    Flowable<Resource<Record>> recordStream =
+    Flowable<Resource<Record>> saveRecordStream =
         recordProcessor.flatMap(
             r ->
                 this.authManager
@@ -96,9 +97,23 @@ public class EditRecordViewModel extends AbstractViewModel {
                     .flatMap(user -> this.dataRepository.saveChanges(r, getChangeList(r), user))
                     .toFlowable(BackpressureStrategy.LATEST));
 
-    Single<Resource<Record>> newRecord = argumentProcessor.map()
+    Flowable<Resource<Record>> editRecordStream =
+        argumentProcessor.flatMap(
+            args -> {
+              if (args.getRecordId().equals(NEW_RECORD_ID_ARG_PLACEHOLDER)) {
+                return this.dataRepository
+                    .createRecord(args.getProjectId(), args.getFeatureId(), args.getFormId())
+                    .map(Resource::loaded)
+                    .doOnSuccess(__ -> onNewRecordLoaded()).toFlowable();
+              } else {
+                return this.dataRepository
+                    .getRecordSnapshot(args.getProjectId(), args.getFeatureId(), args.getRecordId())
+                    .doOnSuccess(r -> r.data().ifPresent(this::update)).toFlowable();
+              }
+            });
 
-    disposeOnClear(recordStream.subscribe(record::setValue));
+    disposeOnClear(saveRecordStream.subscribe(record::setValue));
+    disposeOnClear(editRecordStream.subscribe(this::onRecordSnapshot));
   }
 
   public ObservableMap<String, Response> getResponses() {
@@ -145,19 +160,6 @@ public class EditRecordViewModel extends AbstractViewModel {
     return showErrorDialogEvents;
   }
 
-  void editNewRecord(String projectId, String featureId, String formId) {
-    // TODO(#24): Fix leaky subscriptions!
-
-    argumentProcessor.onNext(args);
-
-    disposeOnClear(
-        dataRepository
-            .createRecord(projectId, featureId, formId)
-            .map(Resource::loaded)
-            .doOnSuccess(__ -> onNewRecordLoaded())
-            .subscribe(this::onRecordSnapshot));
-  }
-
   @NonNull
   private Optional<Record> getCurrentRecord() {
     return Resource.getData(record);
@@ -177,14 +179,8 @@ public class EditRecordViewModel extends AbstractViewModel {
             r.getForm().getField(k).ifPresent(field -> onResponseChanged(field, Optional.of(v))));
   }
 
-  void editExistingRecord(String projectId, String featureId, String recordId) {
-    // TODO: Store and retrieve latest edits from cache and/or db.
-    // TODO(#24): Fix leaky subscriptions!
-    disposeOnClear(
-        dataRepository
-            .getRecordSnapshot(projectId, featureId, recordId)
-            .doOnSuccess(r -> r.data().ifPresent(this::update))
-            .subscribe(this::onRecordSnapshot));
+  void editRecord(EditRecordFragmentArgs args) {
+    argumentProcessor.onNext(args);
   }
 
   private void onRecordSnapshot(Resource<Record> r) {
