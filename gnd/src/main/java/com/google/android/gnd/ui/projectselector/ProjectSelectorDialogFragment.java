@@ -22,6 +22,7 @@ import static java8.util.stream.StreamSupport.stream;
 import android.app.Dialog;
 import android.os.Bundle;
 import androidx.annotation.Nullable;
+import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.appcompat.app.AlertDialog;
 import android.util.Log;
@@ -63,6 +64,8 @@ public class ProjectSelectorDialogFragment extends AbstractDialogFragment {
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     this.viewModel = getViewModel(ProjectSelectorViewModel.class);
+    viewModel.activeProjectStream.as(autoDisposable(this))
+        .subscribe(this::dismiss, this::onActivateProjectFailure);
   }
 
   @Override
@@ -117,11 +120,7 @@ public class ProjectSelectorDialogFragment extends AbstractDialogFragment {
     // TODO: Get item from listAdapter.getItem and pass to activateProject.
     // TODO: Use simple action + reactive listener instead of subscribing to result.
     // TODO: ViewModel should maintain loading state, not subscription.
-    // TODO(#24): Fix leaky subscriptions!
-    viewModel
-        .activateProject(idx)
-        .as(autoDisposable(this))
-        .subscribe(this::dismiss, this::onActivateProjectFailure);
+    viewModel.activateProject(idx);
   }
 
   private void onActivateProjectFailure(Throwable throwable) {
