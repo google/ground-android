@@ -100,16 +100,18 @@ public class EditRecordViewModel extends AbstractViewModel {
     Flowable<Resource<Record>> editRecordStream =
         argumentProcessor.flatMap(
             args -> {
+              Single<Resource<Record>> value;
               if (args.getRecordId().equals(NEW_RECORD_ID_ARG_PLACEHOLDER)) {
-                return this.dataRepository
+                value = this.dataRepository
                     .createRecord(args.getProjectId(), args.getFeatureId(), args.getFormId())
                     .map(Resource::loaded)
-                    .doOnSuccess(__ -> onNewRecordLoaded()).toFlowable();
+                    .doOnSuccess(__ -> onNewRecordLoaded());
               } else {
-                return this.dataRepository
+                value = this.dataRepository
                     .getRecordSnapshot(args.getProjectId(), args.getFeatureId(), args.getRecordId())
-                    .doOnSuccess(r -> r.data().ifPresent(this::update)).toFlowable();
+                    .doOnSuccess(r -> r.data().ifPresent(this::update));
               }
+              return value.toFlowable();
             });
 
     disposeOnClear(saveRecordStream.subscribe(record::setValue));
