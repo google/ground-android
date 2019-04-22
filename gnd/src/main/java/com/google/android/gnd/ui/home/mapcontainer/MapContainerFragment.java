@@ -33,6 +33,8 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.Toast;
 import butterknife.BindView;
+import io.reactivex.Single;
+
 import com.google.android.gnd.MainViewModel;
 import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.MapContainerFragBinding;
@@ -77,6 +79,28 @@ public class MapContainerFragment extends AbstractFragment {
     mapContainerViewModel = getViewModel(MapContainerViewModel.class);
     homeScreenViewModel = getViewModel(HomeScreenViewModel.class);
     mainViewModel = getViewModel(MainViewModel.class);
+    Single<MapAdapter> mapAdapter = mapProvider.getMapAdapter();
+    mapAdapter.as(autoDisposable(this)).subscribe(this::onMapReady);
+    mapAdapter
+        .toObservable()
+        .flatMap(MapAdapter::getMarkerClicks)
+        .as(disposeOnDestroy(this))
+        .subscribe(mapContainerViewModel::onMarkerClick);
+    mapAdapter
+        .toObservable()
+        .flatMap(MapAdapter::getMarkerClicks)
+        .as(disposeOnDestroy(this))
+        .subscribe(homeScreenViewModel::onMarkerClick);
+    mapAdapter
+        .toObservable()
+        .flatMap(MapAdapter::getDragInteractions)
+        .as(disposeOnDestroy(this))
+        .subscribe(mapContainerViewModel::onMapDrag);
+    mapAdapter
+        .toObservable()
+        .flatMap(MapAdapter::getCameraPosition)
+        .as(disposeOnDestroy(this))
+        .subscribe(mapContainerViewModel::onCameraMove);
   }
 
   @Override
@@ -105,24 +129,15 @@ public class MapContainerFragment extends AbstractFragment {
     mapContainerViewModel
         .getLocationLockState()
         .observe(this, state -> onLocationLockStateChange(state, map));
-    mapContainerViewModel.getCameraUpdateRequests().observe(this, update -> onCameraUpdate(update, map));
+    mapContainerViewModel
+        .getCameraUpdateRequests()
+        .observe(this, update -> onCameraUpdate(update, map));
     mapContainerViewModel.getActiveProject().observe(this, this::onProjectChange);
     homeScreenViewModel
         .getFeatureSheetState()
         .observe(this, state -> onFeatureSheetStateChange(state, map));
     addFeatureBtn.setOnClickListener(
         __ -> homeScreenViewModel.onAddFeatureBtnClick(map.getCenter()));
-    // TODO(#24): Fix leaky subscriptions!
-    map.getMarkerClicks()
-        .as(disposeOnDestroy(this))
-        .subscribe(mapContainerViewModel::onMarkerClick);
-    map.getMarkerClicks().as(disposeOnDestroy(this)).subscribe(homeScreenViewModel::onMarkerClick);
-    map.getDragInteractions()
-        .as(disposeOnDestroy(this))
-        .subscribe(mapContainerViewModel::onMapDrag);
-    map.getCameraPosition()
-        .as(disposeOnDestroy(this))
-        .subscribe(mapContainerViewModel::onCameraMove);
     enableLocationLockBtn();
   }
 
@@ -130,8 +145,6 @@ public class MapContainerFragment extends AbstractFragment {
   public void onActivityCreated(@Nullable Bundle savedInstanceState) {
     super.onActivityCreated(savedInstanceState);
     mainViewModel.getWindowInsets().observe(this, this::onApplyWindowInsets);
-    // TODO(#24): Fix leaky subscriptions!
-    mapProvider.getMapAdapter().as(autoDisposable(this)).subscribe(this::onMapReady);
   }
 
   private void onFeatureSheetStateChange(FeatureSheetState state, MapAdapter map) {
