@@ -35,6 +35,8 @@ import io.reactivex.subjects.Subject;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
+
 import javax.inject.Inject;
 
 public class ProjectSelectorViewModel extends AbstractViewModel {
@@ -42,16 +44,28 @@ public class ProjectSelectorViewModel extends AbstractViewModel {
 
   private final DataRepository dataRepository;
   private final MutableLiveData<Resource<List<Project>>> projectSummaries;
+  private final BehaviorProcessor<Integer> indexProcessor;
+  public final Completable activeProjectStream;
 
   @Inject
   ProjectSelectorViewModel(DataRepository dataRepository, AuthenticationManager authManager) {
     this.dataRepository = dataRepository;
     this.projectSummaries = new MutableLiveData<>();
+    this.indexProcessor = BehaviorProcessor.create();
+
     Observable<AuthenticationManager.User> user = authManager.getUser();
 
     Observable<Resource<List<Project>>> summaryStream =
-        user
-            .flatMap(this.dataRepository::getProjectSummaries);
+        user.flatMap(this.dataRepository::getProjectSummaries);
+
+    this.activeProjectStream =
+        indexProcessor.flatMapCompletable(
+            idx ->
+                this.dataRepository.activateProject(
+                    Resource.getData(this.projectSummaries)
+                        .orElse(Collections.emptyList())
+                        .get(idx)
+                        .getId()));
 
     disposeOnClear(summaryStream.subscribe(projectSummaries::setValue));
   }
@@ -60,8 +74,7 @@ public class ProjectSelectorViewModel extends AbstractViewModel {
     return projectSummaries;
   }
 
-  Completable activateProject(int idx) {
-    return dataRepository.activateProject(
-        Resource.getData(this.projectSummaries).orElse(Collections.emptyList()).get(idx).getId());
+  void activateProject(int idx) {
+    indexProcessor.onNext(idx);
   }
 }
