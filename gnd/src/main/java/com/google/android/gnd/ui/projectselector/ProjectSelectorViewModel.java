@@ -17,12 +17,22 @@ package com.google.android.gnd.ui.projectselector;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
+
+import com.google.android.gms.auth.api.Auth;
 import com.google.android.gnd.repository.DataRepository;
 import com.google.android.gnd.repository.Resource;
 import com.google.android.gnd.system.AuthenticationManager;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.vo.Project;
+
+import io.reactivex.BackpressureStrategy;
 import io.reactivex.Completable;
+import io.reactivex.Flowable;
+import io.reactivex.Observable;
+import io.reactivex.processors.BehaviorProcessor;
+import io.reactivex.subjects.BehaviorSubject;
+import io.reactivex.subjects.Subject;
+
 import java.util.Collections;
 import java.util.List;
 import javax.inject.Inject;
@@ -32,23 +42,18 @@ public class ProjectSelectorViewModel extends AbstractViewModel {
 
   private final DataRepository dataRepository;
   private final MutableLiveData<Resource<List<Project>>> projectSummaries;
-  private final AuthenticationManager authManager;
 
   @Inject
   ProjectSelectorViewModel(DataRepository dataRepository, AuthenticationManager authManager) {
     this.dataRepository = dataRepository;
     this.projectSummaries = new MutableLiveData<>();
-    this.authManager = authManager;
-  }
+    Observable<AuthenticationManager.User> user = authManager.getUser();
 
-  // TODO: Show message when no visible projects found.
-  public void loadProjectSummaries() {
-    // TODO(#24): Fix leaky subscriptions!
-    disposeOnClear(
-        authManager
-            .getUser()
-            .flatMap(user -> dataRepository.getProjectSummaries(user))
-            .subscribe(summaries -> projectSummaries.setValue(summaries)));
+    Observable<Resource<List<Project>>> summaryStream =
+        user
+            .flatMap(this.dataRepository::getProjectSummaries);
+
+    disposeOnClear(summaryStream.subscribe(projectSummaries::setValue));
   }
 
   public LiveData<Resource<List<Project>>> getProjectSummaries() {

@@ -86,7 +86,6 @@ public class ProjectSelectorDialogFragment extends AbstractDialogFragment {
   @Override
   public void onStart() {
     super.onStart();
-    viewModel.loadProjectSummaries();
   }
 
   private void update(Resource<List<Project>> projectSummaries) {
