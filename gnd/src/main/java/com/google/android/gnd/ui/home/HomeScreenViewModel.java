@@ -18,9 +18,7 @@ package com.google.android.gnd.ui.home;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
 import androidx.lifecycle.MutableLiveData;
-import io.reactivex.Flowable;
-import io.reactivex.Single;
-import io.reactivex.processors.BehaviorProcessor;
+import io.reactivex.subjects.PublishSubject;
 
 import android.util.Log;
 import com.google.android.gnd.repository.DataRepository;
@@ -44,7 +42,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
   private final DataRepository dataRepository;
   private final Navigator navigator;
   private final LiveData<Resource<Project>> activeProject;
-  private final BehaviorProcessor<Feature> featureProcessor;
+  private final PublishSubject<Feature> addFeatureRequests;
 
   // TODO: Move into MapContainersViewModel
   private final SingleLiveEvent<Point> addFeatureDialogRequests;
@@ -62,9 +60,12 @@ public class HomeScreenViewModel extends AbstractViewModel {
     this.featureSheetState = new MutableLiveData<>();
     this.activeProject = LiveDataReactiveStreams.fromPublisher(dataRepository.getActiveProject());
     this.navigator = navigator;
-    this.featureProcessor = BehaviorProcessor.create();
+    this.addFeatureRequests = PublishSubject.create();
 
-    disposeOnClear(featureProcessor.flatMap(feature -> this.dataRepository.addFeature(feature).toFlowable()).subscribe(this::onFeatureAdded));
+    disposeOnClear(
+        addFeatureRequests
+            .flatMap(f -> this.dataRepository.addFeature(f).toObservable())
+            .subscribe(this::onFeatureAdded));
   }
 
   public LiveData<Void> getOpenDrawerRequests() {
@@ -97,6 +98,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
   }
 
   private void onFeatureAdded(Feature feature) {
+    Log.i(TAG, "onFeatureAdded called with feature: " + feature);
     showFeatureSheet(feature);
   }
 
@@ -106,7 +108,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
   }
 
   public void addFeature(Feature feature) {
-    featureProcessor.onNext(feature);
+    addFeatureRequests.onNext(feature);
   }
 
   public void onBottomSheetHidden() {
