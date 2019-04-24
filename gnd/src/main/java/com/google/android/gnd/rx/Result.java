@@ -16,9 +16,10 @@
 
 package com.google.android.gnd.rx;
 
-import androidx.annotation.NonNull;
 import io.reactivex.Single;
+import io.reactivex.annotations.NonNull;
 import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
 import javax.annotation.Nullable;
 
 public class Result<T> {
@@ -61,11 +62,12 @@ public class Result<T> {
     return error;
   }
 
-  public static <T> Single<Result<T>> wrap(Single<T> single) {
-    return single.map(Result::success).onErrorReturn(Result::error);
+  public static <T, R> Function<T, Single<Result<R>>> wrapErrors(
+      @NonNull Function<T, Single<R>> fn) {
+    return (T value) -> fn.apply(value).map(Result::success).onErrorReturn(Result::error);
   }
 
-  public static <T> Consumer<? super Result<T>> unwrap(
+  public static <T> Consumer<? super Result<T>> unwrapErrors(
       Consumer<T> onSuccess, Consumer<Throwable> onError) {
     return result -> {
       switch (result.getState()) {
