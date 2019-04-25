@@ -17,9 +17,9 @@
 package com.google.android.gnd.repository;
 
 import android.util.Log;
+import com.google.android.gnd.persistence.remote.DataStoreEvent;
 import com.google.android.gnd.persistence.remote.RemoteDataStore;
 import com.google.android.gnd.persistence.remote.firestore.DocumentNotFoundException;
-import com.google.android.gnd.service.DataStoreEvent;
 import com.google.android.gnd.system.AuthenticationManager.User;
 import com.google.android.gnd.vo.Feature;
 import com.google.android.gnd.vo.FeatureUpdate.RecordUpdate.ResponseUpdate;
