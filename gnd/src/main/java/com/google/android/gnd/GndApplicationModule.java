@@ -20,7 +20,7 @@ import android.app.Application;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gnd.inject.ActivityScoped;
 import com.google.android.gnd.persistence.remote.RemoteDataStore;
-import com.google.android.gnd.service.firestore.FirestoreDataStore;
+import com.google.android.gnd.persistence.remote.firestore.FirestoreDataStore;
 import com.google.android.gnd.ui.common.ViewModelModule;
 import dagger.Binds;
 import dagger.Module;

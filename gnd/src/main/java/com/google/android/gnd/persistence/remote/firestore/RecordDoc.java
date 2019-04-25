@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.service.firestore;
+package com.google.android.gnd.persistence.remote.firestore;
 
-import static com.google.android.gnd.service.firestore.FirestoreDataStore.toTimestamps;
+import static com.google.android.gnd.persistence.remote.firestore.FirestoreDataStore.toTimestamps;
 
 import android.util.Log;
 import androidx.annotation.Nullable;

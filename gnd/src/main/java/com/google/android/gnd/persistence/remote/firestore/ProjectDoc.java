@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.service.firestore;
+package com.google.android.gnd.persistence.remote.firestore;
 
 import static com.google.android.gnd.util.Localization.getLocalizedMessage;
 
