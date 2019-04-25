@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.repository.local;
+package com.google.android.gnd.persistence.local.room;
 
 import static androidx.room.ForeignKey.CASCADE;
 
@@ -28,27 +28,27 @@ import androidx.room.PrimaryKey;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.AutoValue.CopyAnnotations;
 
-/** Representation of a {@link com.google.android.gnd.vo.FeatureUpdate.RecordUpdate} in local db. */
+/** Representation of a {@link com.google.android.gnd.vo.FeatureUpdate} in local db. */
 @AutoValue
 @Entity(
-    tableName = "record_edit",
+    tableName = "feature_edit",
     foreignKeys =
         @ForeignKey(
-            entity = RecordEntity.class,
+            entity = FeatureEntity.class,
             parentColumns = "id",
-            childColumns = "record_id",
+            childColumns = "feature_id",
             onDelete = CASCADE),
-    indices = {@Index("record_id")})
-public abstract class RecordEditEntity {
+    indices = {@Index("feature_id")})
+public abstract class FeatureEditEntity {
   @CopyAnnotations
   @PrimaryKey(autoGenerate = true)
   @ColumnInfo(name = "id")
   public abstract int getId();
 
   @CopyAnnotations
-  @ColumnInfo(name = "record_id")
+  @ColumnInfo(name = "feature_id")
   @NonNull
-  public abstract String getRecordId();
+  public abstract String getFeatureId();
 
   @CopyAnnotations
   @Embedded
@@ -57,12 +57,12 @@ public abstract class RecordEditEntity {
 
   // Auto-generated boilerplate:
 
-  public static RecordEditEntity create(int id, String recordId, Edit edit) {
-    return builder().setId(id).setRecordId(recordId).setEdit(edit).build();
+  public static FeatureEditEntity create(int id, String featureId, Edit edit) {
+    return builder().setId(id).setFeatureId(featureId).setEdit(edit).build();
   }
 
   public static Builder builder() {
-    return new AutoValue_RecordEditEntity.Builder();
+    return new AutoValue_FeatureEditEntity.Builder();
   }
 
   @AutoValue.Builder
@@ -70,10 +70,10 @@ public abstract class RecordEditEntity {
 
     public abstract Builder setId(int newId);
 
-    public abstract Builder setRecordId(String newRecordId);
+    public abstract Builder setFeatureId(String newFeatureId);
 
     public abstract Builder setEdit(Edit newEdit);
 
-    public abstract RecordEditEntity build();
+    public abstract FeatureEditEntity build();
   }
 }
