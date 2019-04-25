@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.service;
+package com.google.android.gnd.persistence.remote;
 
+import com.google.android.gnd.service.DataStoreEvent;
 import com.google.android.gnd.system.AuthenticationManager.User;
 import com.google.android.gnd.vo.Feature;
 import com.google.android.gnd.vo.FeatureUpdate.RecordUpdate.ResponseUpdate;
