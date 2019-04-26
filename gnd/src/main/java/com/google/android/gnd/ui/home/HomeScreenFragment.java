@@ -117,7 +117,7 @@ public class HomeScreenFragment extends AbstractFragment
   private HomeScreenViewModel viewModel;
   private MapContainerFragment mapContainerFragment;
   private BottomSheetBehavior<View> bottomSheetBehavior;
-  private PublishSubject<FragmentManager> showFeatureDialogRequests;
+  private PublishSubject<Object> showFeatureDialogRequests;
 
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -133,11 +133,10 @@ public class HomeScreenFragment extends AbstractFragment
 
     showFeatureDialogRequests = PublishSubject.create();
 
-    Observable<Feature> featureStream =
-        showFeatureDialogRequests.flatMapMaybe(
-            fragmentManager -> addFeatureDialogFragment.show(fragmentManager));
-
-    featureStream.as(autoDisposable(this)).subscribe(viewModel::addFeature);
+    showFeatureDialogRequests
+        .flatMapMaybe(__ -> addFeatureDialogFragment.show(getChildFragmentManager()))
+        .as(autoDisposable(this))
+        .subscribe(viewModel::addFeature);
   }
 
   @Nullable
@@ -284,7 +283,7 @@ public class HomeScreenFragment extends AbstractFragment
     }
     // TODO: Pause location updates while dialog is open.
     // TODO: Show spinner?
-    showFeatureDialogRequests.onNext(getChildFragmentManager());
+    showFeatureDialogRequests.onNext(new Object());
   }
 
   private void onFeatureSheetStateChange(FeatureSheetState state) {
