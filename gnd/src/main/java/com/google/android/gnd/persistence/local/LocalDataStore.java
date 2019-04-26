@@ -21,14 +21,39 @@ import com.google.common.collect.ImmutableList;
 import io.reactivex.Completable;
 import io.reactivex.Single;
 
+/**
+ * Provides access to local persistent data store, the canonical store for latest state. Local
+ * changes are saved here before being written to the remote data store, and both local and remote
+ * updates are always persisted here before being made visible to the user.
+ */
 public interface LocalDataStore {
+  /**
+   * Applies the provided change to existing local data store and adds it to the queue of pending
+   * changes. Returns the new id of the {@link LocalChange} in the queue. The {@code id} in the
+   * provided {@link LocalChange} is ignored.
+   */
   Single<Long> applyAndEnqueue(LocalChange localChange);
 
-  ImmutableList<LocalChange> getPendingChanges(String featureId);
+  /**
+   * Returns all pending changes in the queue that apply to the feature with the specified id, or an
+   * empty list if none are present. Changes marked "failed" are not returned.
+   */
+  Single<ImmutableList<LocalChange>> getPendingChanges(String featureId);
 
-  void dequeue(ImmutableList<LocalChange> localChanges);
+  /**
+   * Removes the specified changes from the queue, called once the changes have successfully been
+   * written to the remote store.
+   */
+  Completable dequeue(ImmutableList<LocalChange> localChanges);
 
-  void markFailed(ImmutableList<LocalChange> localChanges);
+  /** Flags the specified changes as failed, allowing the user to later retry or abandon them. */
+  Completable markFailed(ImmutableList<LocalChange> localChanges);
 
+  // TODO: Define methods to allow retry or rollback of failed changes.
+
+  /**
+   * Merges remote changes with pending local edits by overwriting the local data store with the
+   * remote change, and reapplying any unsynced pending local changes.
+   */
   Completable merge(RemoteChange<?> remoteChange);
 }
