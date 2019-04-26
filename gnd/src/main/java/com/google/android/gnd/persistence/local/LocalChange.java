@@ -17,5 +17,11 @@
 package com.google.android.gnd.persistence.local;
 
 interface LocalChange {
-
+  // TODO: Model the semantics of the following operations:
+  //  createFeature(Feature feature);
+  //  updateFeatureLocation(String featureId, Coordinates newLocation);
+  //  updateFeatureDeletionState(String featureId, DeletionState newDeletionState);
+  //  createRecord(Record record);
+  //  updateRecordResponses(String recordId, ValueMap modifiedResponses);
+  //  updateRecordDeletionState(String recordId, DeletionState newDeletionState);
 }
