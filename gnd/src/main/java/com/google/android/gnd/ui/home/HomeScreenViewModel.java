@@ -70,7 +70,8 @@ public class HomeScreenViewModel extends AbstractViewModel {
   }
 
   private void onAddFeatureError(Throwable throwable) {
-    Log.d(TAG, "Couldn't add feature.");
+    //TODO: Show an error message to the user.
+    Log.e(TAG, "Couldn't add feature.", throwable);
   }
 
   public LiveData<Void> getOpenDrawerRequests() {
