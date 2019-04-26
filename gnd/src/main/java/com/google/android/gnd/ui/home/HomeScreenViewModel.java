@@ -18,13 +18,12 @@ package com.google.android.gnd.ui.home;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
 import androidx.lifecycle.MutableLiveData;
-import io.reactivex.Flowable;
-import io.reactivex.Single;
-import io.reactivex.processors.BehaviorProcessor;
+import io.reactivex.subjects.PublishSubject;
 
 import android.util.Log;
 import com.google.android.gnd.repository.DataRepository;
 import com.google.android.gnd.repository.Resource;
+import com.google.android.gnd.rx.Result;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.SharedViewModel;
@@ -44,7 +43,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
   private final DataRepository dataRepository;
   private final Navigator navigator;
   private final LiveData<Resource<Project>> activeProject;
-  private final BehaviorProcessor<Feature> featureProcessor;
+  private final PublishSubject<Feature> addFeatureClicks;
 
   // TODO: Move into MapContainersViewModel
   private final SingleLiveEvent<Point> addFeatureDialogRequests;
@@ -62,9 +61,16 @@ public class HomeScreenViewModel extends AbstractViewModel {
     this.featureSheetState = new MutableLiveData<>();
     this.activeProject = LiveDataReactiveStreams.fromPublisher(dataRepository.getActiveProject());
     this.navigator = navigator;
-    this.featureProcessor = BehaviorProcessor.create();
+    this.addFeatureClicks = PublishSubject.create();
 
-    disposeOnClear(featureProcessor.flatMap(feature -> this.dataRepository.addFeature(feature).toFlowable()).subscribe(this::onFeatureAdded));
+    disposeOnClear(
+        addFeatureClicks
+            .switchMapSingle(Result.wrapErrors(dataRepository::addFeature))
+            .subscribe(Result.unwrapErrors(this::showFeatureSheet, this::onAddFeatureError)));
+  }
+
+  private void onAddFeatureError(Throwable throwable) {
+    Log.d(TAG, "Couldn't add feature.");
   }
 
   public LiveData<Void> getOpenDrawerRequests() {
@@ -96,17 +102,13 @@ public class HomeScreenViewModel extends AbstractViewModel {
     featureSheetState.setValue(FeatureSheetState.visible(feature));
   }
 
-  private void onFeatureAdded(Feature feature) {
-    showFeatureSheet(feature);
-  }
-
   public void onAddFeatureBtnClick(Point location) {
     // TODO: Pause location updates while dialog is open.
     addFeatureDialogRequests.setValue(location);
   }
 
   public void addFeature(Feature feature) {
-    featureProcessor.onNext(feature);
+    addFeatureClicks.onNext(feature);
   }
 
   public void onBottomSheetHidden() {
