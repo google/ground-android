@@ -16,8 +16,6 @@
 
 package com.google.android.gnd.persistence.local;
 
-import java8.util.Optional;
-
 /**
  * Represents the smallest unit of change to an entity made locally that can be merged with changes
  * received from the remote data store.
@@ -25,36 +23,16 @@ import java8.util.Optional;
  * @param <T> the class of a builder for the type under mutation.
  * @param <V> the class of the value being set or cleared.
  */
-public interface LocalChange<T, V> {
-  /** Returns the builder class to which this change applies. */
-  Class<T> getEntityBuilderType();
+public interface LocalChange<T> {
+  // NOTE: It's not clear if EntityType and EntityId fields are needed here. We'll add them to
+  // the right place while implementing.
 
-  /** Returns the value class to which this change applies. */
-  Class<V> getValueType();
+  /** Returns the type to which this change applies. */
+  Class<T> getEntityType();
 
   /** Returns the locally unique id of this change. */
   long getChangeId();
 
   /** Returns to globally unique id of the entity being modified. */
   String getEntityId();
-
-  /**
-   * Returns the value before this change is applied, if present. If the value was not specified
-   * (missing) empty is returned.
-   */
-  Optional<V> getOldValue();
-
-  /**
-   * Returns the value to be set after this change is applied. If empty, the change indicates the
-   * current value should be cleared.
-   */
-  Optional<V> getNewValue();
-
-  /** Applies the change to the provided builder, returning a reference to the same for chaining. */
-  T apply(T entityBuilder);
-
-  /**
-   * Rolls back the change on the provided builder, returning a reference to the same for chaining.
-   */
-  T rollBack(T entityBuilder);
 }

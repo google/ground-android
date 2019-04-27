@@ -18,9 +18,22 @@ package com.google.android.gnd.persistence.local;
 
 import com.google.android.gnd.vo.Record;
 import com.google.android.gnd.vo.Record.Response;
+import java8.util.Optional;
 
-/** Represents a change in a response for a */
-public interface LocalResponseChange extends LocalChange<Record.Builder, Response> {
+/** Represents a change in a form response. */
+public interface LocalResponseChange extends LocalChange<Record> {
   /** Returns the unique id of the element being modified. */
   String getElementId();
+
+  /**
+   * Returns the response before this change is applied, if present. If the response was not
+   * specified (missing) empty is returned.
+   */
+  Optional<Response> getOldResponse();
+
+  /**
+   * Returns the response to be set after this change is applied. If empty, the response indicates
+   * the current response should be cleared.
+   */
+  Optional<Response> getNewResponse();
 }
