@@ -35,6 +35,6 @@ public interface LocalChange<T> {
   /** Returns to globally unique id of the entity being modified. */
   String getEntityId();
 
-  /** Returns the global unique identifier of the user requesting the change. */
+  /** Returns the globally unique id of the user requesting the change. */
   String getUserId();
 }
