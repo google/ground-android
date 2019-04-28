@@ -34,7 +34,7 @@ public interface LocalDataStore {
    * once all changes have been applied and enqueued. {@code changeId} in {@link LocalChange}s
    * is ignored.
    */
-  Completable applyAndEnqueue(ImmutableList<LocalChange<?>> localChange);
+  Completable applyAndEnqueue(ImmutableList<LocalChange<?>> localChanges);
 
   /**
    * Returns all pending changes in the queue that apply to the feature with the specified id, or an
