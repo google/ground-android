@@ -20,8 +20,7 @@ package com.google.android.gnd.persistence.local.change;
  * Represents the smallest unit of change to an entity made locally that can be merged with changes
  * received from the remote data store.
  *
- * @param <T> the class of a builder for the type under mutation.
- * @param <V> the class of the value being set or cleared.
+ * @param <T> the type of entity being modified.
  */
 public interface LocalChange<T> {
   // NOTE: It's not clear if EntityType and EntityId fields are needed here. We'll add them to

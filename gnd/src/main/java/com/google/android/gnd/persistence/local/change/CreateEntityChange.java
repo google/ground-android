@@ -22,6 +22,6 @@ package com.google.android.gnd.persistence.local.change;
  * remote data stores (i.e., "set" operation), the "create" operation must be queued separately to
  * allow rollback on sync failure.
  *
- * @param <T> the type of entity to be created.
+ * @param <T> the type of entity being created.
  */
 public interface CreateEntityChange<T> extends LocalChange<T> {}

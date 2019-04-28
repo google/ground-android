@@ -19,9 +19,10 @@ package com.google.android.gnd.persistence.local.change;
 import com.google.android.gnd.vo.DeletionState;
 
 /**
- * Represents a change in an entity's deletion state.
+ * Represents a change in an entity's soft deletion state. Soft deletion is represented by a field
+ * on the entity that causes the entity to be hidden, rather actual permanent removal from stores.
  *
- * @param <T> the class of a builder for the type whose deletion state is being modified.
+ * @param <T> the type of entity whose deletion state is being modified.
  */
 public interface DeletionStateChange<T> extends LocalChange<T> {
   /** Returns the deletion state before this change is applied. */
