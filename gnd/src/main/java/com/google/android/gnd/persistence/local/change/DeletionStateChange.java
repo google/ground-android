@@ -17,6 +17,7 @@
 package com.google.android.gnd.persistence.local.change;
 
 import com.google.android.gnd.vo.DeletionState;
+import com.google.auto.value.AutoValue;
 
 /**
  * Represents a change in an entity's soft deletion state. Soft deletion is represented by a field
@@ -24,10 +25,33 @@ import com.google.android.gnd.vo.DeletionState;
  *
  * @param <T> the type of entity whose deletion state is being modified.
  */
-public interface DeletionStateChange<T> extends LocalChange<T> {
+@AutoValue
+public abstract class DeletionStateChange<T> implements LocalChange<T> {
   /** Returns the deletion state before this change is applied. */
-  DeletionState getOldDeletionState();
+  public abstract DeletionState getOldDeletionState();
 
   /** Returns the deletion state after this change is applied. */
-  DeletionState getNewDeletionState();
+  public abstract DeletionState getNewDeletionState();
+
+  public static <T> Builder<T> builder() {
+    return new AutoValue_DeletionStateChange.Builder<>();
+  }
+
+  @AutoValue.Builder
+  public abstract static class Builder<T> {
+
+    public abstract Builder<T> setChangeId(long newChangeId);
+
+    public abstract Builder<T> setEntityId(String newEntityId);
+
+    public abstract Builder<T> setUserId(String newUserId);
+
+    public abstract Builder<T> setEntityType(Class<T> newEntityType);
+
+    public abstract Builder<T> setOldDeletionState(DeletionState newOldDeletionState);
+
+    public abstract Builder<T> setNewDeletionState(DeletionState newNewDeletionState);
+
+    public abstract DeletionStateChange<T> build();
+  }
 }

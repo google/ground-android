@@ -18,22 +18,51 @@ package com.google.android.gnd.persistence.local.change;
 
 import com.google.android.gnd.vo.Record;
 import com.google.android.gnd.vo.Record.Response;
+import com.google.auto.value.AutoValue;
 import java8.util.Optional;
 
 /** Represents a change in a form response. */
-public interface ResponseChange extends LocalChange<Record> {
+@AutoValue
+public abstract class ResponseChange implements LocalChange<Record> {
   /** Returns the unique id of the element being modified. */
-  String getElementId();
+  public abstract String getElementId();
 
   /**
    * Returns the response before this change is applied, if present. If the response was not
    * specified (missing) empty is returned.
    */
-  Optional<Response> getOldResponse();
+  public abstract Optional<Response> getOldResponse();
 
   /**
    * Returns the response to be set after this change is applied. If empty, the response indicates
    * the current response should be cleared.
    */
-  Optional<Response> getNewResponse();
+  public abstract Optional<Response> getNewResponse();
+
+  @Override
+  public Class<Record> getEntityType() {
+    return Record.class;
+  }
+
+  public static Builder builder() {
+    return new AutoValue_ResponseChange.Builder();
+  }
+
+  @AutoValue.Builder
+  public abstract static class Builder {
+
+    public abstract Builder setChangeId(long newChangeId);
+
+    public abstract Builder setEntityId(String newEntityId);
+
+    public abstract Builder setUserId(String newUserId);
+
+    public abstract Builder setElementId(String newElementId);
+
+    public abstract Builder setOldResponse(Optional<Response> newOldResponse);
+
+    public abstract Builder setNewResponse(Optional<Response> newNewResponse);
+
+    public abstract ResponseChange build();
+  }
 }

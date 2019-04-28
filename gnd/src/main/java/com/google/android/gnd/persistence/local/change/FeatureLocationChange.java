@@ -18,12 +18,39 @@ package com.google.android.gnd.persistence.local.change;
 
 import com.google.android.gnd.vo.Feature;
 import com.google.android.gnd.vo.Point;
+import com.google.auto.value.AutoValue;
 
 /** Represents a change in a feature's location. */
-public interface FeatureLocationChange extends LocalChange<Feature> {
+@AutoValue
+public abstract class FeatureLocationChange implements LocalChange<Feature> {
   /** Returns the feature's location before this change is applied. */
-  Point getOldLocation();
+  public abstract Point getOldLocation();
 
   /** Returns the feature's location after this change is applied. */
-  Point getNewLocation();
+  public abstract Point getNewLocation();
+
+  @Override
+  public Class<Feature> getEntityType() {
+    return Feature.class;
+  }
+
+  public static Builder builder() {
+    return new AutoValue_FeatureLocationChange.Builder();
+  }
+
+  @AutoValue.Builder
+  public abstract static class Builder {
+
+    public abstract Builder setChangeId(long newChangeId);
+
+    public abstract Builder setEntityId(String newEntityId);
+
+    public abstract Builder setUserId(String newUserId);
+
+    public abstract Builder setOldLocation(Point newOldLocation);
+
+    public abstract Builder setNewLocation(Point newNewLocation);
+
+    public abstract FeatureLocationChange build();
+  }
 }

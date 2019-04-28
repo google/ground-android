@@ -16,6 +16,8 @@
 
 package com.google.android.gnd.persistence.local.change;
 
+import com.google.auto.value.AutoValue;
+
 /**
  * Represents the creation of a new entity in the local data store that needs to be also created in
  * the remote data store. Even add and update with a locally generated id may be equivalent on some
@@ -24,4 +26,23 @@ package com.google.android.gnd.persistence.local.change;
  *
  * @param <T> the type of entity being created.
  */
-public interface CreateEntityChange<T> extends LocalChange<T> {}
+@AutoValue
+public abstract class CreateEntityChange<T> implements LocalChange<T> {
+
+  public static <T> Builder<T> builder() {
+    return new AutoValue_CreateEntityChange.Builder<>();
+  }
+
+  @AutoValue.Builder
+  public abstract static class Builder<T> {
+    public abstract Builder<T> setEntityType(Class<T> newEntityType);
+
+    public abstract Builder<T> setChangeId(long newChangeId);
+
+    public abstract Builder<T> setEntityId(String newEntityId);
+
+    public abstract Builder<T> setUserId(String newUserId);
+
+    public abstract CreateEntityChange<T> build();
+  }
+}
