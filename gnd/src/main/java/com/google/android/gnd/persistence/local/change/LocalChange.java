@@ -17,8 +17,7 @@
 package com.google.android.gnd.persistence.local.change;
 
 /**
- * Represents the smallest unit of change to an entity made locally that can be merged with changes
- * received from the remote data store.
+ * Represents the smallest local mutation that can be merged with data in the remote data store.
  *
  * @param <T> the type of entity being modified.
  */
