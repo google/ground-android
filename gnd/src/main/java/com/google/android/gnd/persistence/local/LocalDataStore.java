@@ -29,11 +29,12 @@ import io.reactivex.Single;
  */
 public interface LocalDataStore {
   /**
-   * Applies the provided change to existing local data store and adds it to the queue of pending
-   * changes. Returns the new id of the {@link LocalChange} in the queue. The {@code id} in the
-   * provided {@link LocalChange} is ignored.
+   * Applies the provided changes to existing local data store and adds them to the queue of pending
+   * changes. Changes are applied in a single transaction. The returned {@link Completable} succeeds
+   * once all changes have been applied and enqueued. The {@code id} in {@link LocalChange}s is
+   * ignored.
    */
-  Single<Long> applyAndEnqueue(LocalChange localChange);
+  Completable applyAndEnqueue(ImmutableList<LocalChange<?>> localChange);
 
   /**
    * Returns all pending changes in the queue that apply to the feature with the specified id, or an
