@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.persistence.local;
+package com.google.android.gnd.persistence.local.change;
 
 /**
  * Represents the smallest unit of change to an entity made locally that can be merged with changes

@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.persistence.local;
 
+import com.google.android.gnd.persistence.local.change.LocalChange;
 import com.google.android.gnd.persistence.remote.RemoteChange;
 import com.google.common.collect.ImmutableList;
 import io.reactivex.Completable;

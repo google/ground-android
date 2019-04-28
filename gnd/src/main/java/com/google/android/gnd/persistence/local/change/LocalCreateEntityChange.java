@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.persistence.local;
+package com.google.android.gnd.persistence.local.change;
 
 /**
  * Represents the creation of a new entity in the local data store that needs to be also created in

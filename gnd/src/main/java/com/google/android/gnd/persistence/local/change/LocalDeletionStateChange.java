@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.persistence.local;
+package com.google.android.gnd.persistence.local.change;
 
 import com.google.android.gnd.vo.DeletionState;
 
