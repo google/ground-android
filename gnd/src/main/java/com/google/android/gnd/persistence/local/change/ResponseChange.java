@@ -21,7 +21,7 @@ import com.google.android.gnd.vo.Record.Response;
 import java8.util.Optional;
 
 /** Represents a change in a form response. */
-public interface LocalResponseChange extends LocalChange<Record> {
+public interface ResponseChange extends LocalChange<Record> {
   /** Returns the unique id of the element being modified. */
   String getElementId();
 

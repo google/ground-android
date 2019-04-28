@@ -24,4 +24,4 @@ package com.google.android.gnd.persistence.local.change;
  *
  * @param <T> the type of entity to be created.
  */
-public interface LocalCreateEntityChange<T> extends LocalChange<T> {}
+public interface CreateEntityChange<T> extends LocalChange<T> {}

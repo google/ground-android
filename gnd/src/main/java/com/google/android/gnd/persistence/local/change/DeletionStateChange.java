@@ -23,7 +23,7 @@ import com.google.android.gnd.vo.DeletionState;
  *
  * @param <T> the class of a builder for the type whose deletion state is being modified.
  */
-public interface LocalDeletionStateChange<T> extends LocalChange<T> {
+public interface DeletionStateChange<T> extends LocalChange<T> {
   /** Returns the deletion state before this change is applied. */
   DeletionState getOldDeletionState();
 
