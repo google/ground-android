@@ -16,24 +16,37 @@
 
 package com.google.android.gnd.persistence.local.change;
 
+import com.google.common.collect.ImmutableList;
+
 /**
  * Represents the smallest local mutation that can be merged with data in the remote data store.
  *
  * @param <T> the type of entity being modified.
  */
-public interface LocalChange<T> {
-  // NOTE: It's not clear if EntityType and EntityId fields are needed here. We'll add them to
-  // the right place while implementing.
+public interface LocalChange {
+  enum ChangeType {
+    /** Indicates the entity should be created. */
+    CREATE,
 
-  /** Returns the type to which this change applies. */
-  Class<T> getEntityType();
+    /** Indicates the exists and is being updated. */
+    UPDATE,
+
+    /** Indicated the entity exists, and should be marked for deletion. */
+    DELETE,
+  }
 
   /** Returns the locally unique id of this change. */
   long getChangeId();
+
+  /** Returns the type to which this change applies. */
+  Class<?> getEntityType();
 
   /** Returns to globally unique id of the entity being modified. */
   String getEntityId();
 
   /** Returns the globally unique id of the user requesting the change. */
   String getUserId();
+
+  /** Returns the list of individual changes applied to the entity. */
+  ImmutableList<AttributeChange> getAttributeChanges();
 }

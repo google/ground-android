@@ -16,14 +16,13 @@
 
 package com.google.android.gnd.persistence.local.change;
 
-import com.google.android.gnd.vo.Record;
 import com.google.android.gnd.vo.Record.Response;
 import com.google.auto.value.AutoValue;
 import java8.util.Optional;
 
 /** Represents a change in a form response. */
 @AutoValue
-public abstract class ResponseChange implements LocalChange<Record> {
+public abstract class ResponseChange implements AttributeChange {
   /** Returns the unique id of the element being modified. */
   public abstract String getElementId();
 
@@ -39,23 +38,12 @@ public abstract class ResponseChange implements LocalChange<Record> {
    */
   public abstract Optional<Response> getNewResponse();
 
-  @Override
-  public Class<Record> getEntityType() {
-    return Record.class;
-  }
-
   public static Builder builder() {
     return new AutoValue_ResponseChange.Builder();
   }
 
   @AutoValue.Builder
   public abstract static class Builder {
-
-    public abstract Builder setChangeId(long newChangeId);
-
-    public abstract Builder setEntityId(String newEntityId);
-
-    public abstract Builder setUserId(String newUserId);
 
     public abstract Builder setElementId(String newElementId);
 
