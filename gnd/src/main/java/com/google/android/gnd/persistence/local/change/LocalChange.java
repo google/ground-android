@@ -28,10 +28,10 @@ public interface LocalChange {
     /** Indicates the entity should be created. */
     CREATE,
 
-    /** Indicates the exists and is being updated. */
+    /** Indicates an existing entity is to be updated. */
     UPDATE,
 
-    /** Indicated the entity exists, and should be marked for deletion. */
+    /** Indicates an existing entity should be marked for deletion. */
     DELETE,
   }
 
