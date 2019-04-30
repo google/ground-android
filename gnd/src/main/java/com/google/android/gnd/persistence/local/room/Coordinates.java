@@ -14,16 +14,14 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.repository.local;
+package com.google.android.gnd.persistence.local.room;
 
 import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.AutoValue.CopyAnnotations;
 
-/**
- * Represents a lat/lng coordinate in FeatureEdit instances.
- */
+/** Represents a lat/lng coordinate in FeatureEdit instances. */
 @AutoValue
 public abstract class Coordinates {
   @CopyAnnotations
@@ -39,10 +37,7 @@ public abstract class Coordinates {
   // Auto-generated boilerplate:
 
   public static Coordinates create(double latitude, double longitude) {
-    return builder()
-        .setLatitude(latitude)
-        .setLongitude(longitude)
-        .build();
+    return builder().setLatitude(latitude).setLongitude(longitude).build();
   }
 
   public static Builder builder() {

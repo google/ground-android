@@ -14,60 +14,57 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.repository.local;
+package com.google.android.gnd.persistence.local.room;
 
 import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
+import androidx.room.Embedded;
 import androidx.room.Entity;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.AutoValue.CopyAnnotations;
-import org.json.JSONObject;
 
-/** Representation of a {@link com.google.android.gnd.vo.Record} in local db. */
+/** Representation of a {@link com.google.android.gnd.vo.Feature} in local db. */
 @AutoValue
 @Entity(
-    tableName = "record",
+    tableName = "feature",
     indices = {@Index("id")})
-public abstract class RecordEntity {
+public abstract class FeatureEntity {
   @CopyAnnotations
   @PrimaryKey
   @ColumnInfo(name = "id")
   @NonNull
   public abstract String getId();
 
-  /**
-   * Returns the id of the form to which this record's responses apply.
-   */
   @CopyAnnotations
-  @ColumnInfo(name = "form_id")
   @NonNull
-  public abstract String getFormId();
-
-  @CopyAnnotations
   @ColumnInfo(name = "state")
-  @NonNull
   public abstract EntityState getState();
 
-  /**
-   * Returns a JSON object containing user responses keyed by their respective elementId in the form
-   * identified by formId. Returns an empty JSON object if no responses have been provided.
-   */
   @CopyAnnotations
-  @ColumnInfo(name = "responses")
   @NonNull
-  public abstract JSONObject getResponses();
+  @ColumnInfo(name = "project_id")
+  public abstract String getProjectId();
+
+  @CopyAnnotations
+  @Embedded
+  public abstract Coordinates getLocation();
 
   // Auto-generated boilerplate:
 
-  public static RecordEntity create(
-      String id, EntityState state, String formId, JSONObject responses) {
-    return builder().setId(id).setState(state).setResponses(responses).setFormId(formId).build();
+  public static FeatureEntity create(
+      String id, EntityState state, String projectId, Coordinates location) {
+    return builder()
+        .setId(id)
+        .setState(state)
+        .setProjectId(projectId)
+        .setLocation(location)
+        .build();
   }
 
   public static Builder builder() {
-    return new AutoValue_RecordEntity.Builder();
+    return new AutoValue_FeatureEntity.Builder();
   }
 
   @AutoValue.Builder
@@ -77,10 +74,10 @@ public abstract class RecordEntity {
 
     public abstract Builder setState(EntityState newState);
 
-    public abstract Builder setFormId(String newFormId);
+    public abstract Builder setProjectId(String newProjectId);
 
-    public abstract Builder setResponses(JSONObject newResponses);
+    public abstract Builder setLocation(Coordinates newCoordinates);
 
-    public abstract RecordEntity build();
+    public abstract FeatureEntity build();
   }
 }

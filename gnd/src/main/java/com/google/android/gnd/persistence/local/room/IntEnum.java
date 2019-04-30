@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.repository.local;
+package com.google.android.gnd.persistence.local.room;
 
 import static java8.util.J8Arrays.stream;
 

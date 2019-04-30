@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google LLC
+ * Copyright 2019 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,6 +14,23 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.service.firestore;
+package com.google.android.gnd.persistence.local.room;
 
-public class DocumentNotFoundException extends Exception {}
+import androidx.room.Dao;
+import androidx.room.Delete;
+import androidx.room.Insert;
+import androidx.room.Update;
+import io.reactivex.Completable;
+
+/** Data access object for database operations related to {@link FeatureEditEntity}. */
+@Dao
+public interface FeatureEditDao {
+  @Insert
+  Completable insert(FeatureEditEntity featureEdit);
+
+  @Update
+  Completable update(FeatureEditEntity featureEdit);
+
+  @Delete
+  Completable delete(FeatureEditEntity featureEdit);
+}

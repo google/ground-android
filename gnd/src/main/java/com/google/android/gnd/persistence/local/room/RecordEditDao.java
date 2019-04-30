@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.repository.local;
+package com.google.android.gnd.persistence.local.room;
 
 import androidx.room.Dao;
 import androidx.room.Delete;
@@ -22,17 +22,15 @@ import androidx.room.Insert;
 import androidx.room.Update;
 import io.reactivex.Completable;
 
-/**
- * Data access object for database operations related to {@link RecordEntity}.
- */
+/** Data access object for database operations related to {@link RecordEditEntity}. */
 @Dao
-public interface RecordDao {
+public interface RecordEditDao {
   @Insert
-  Completable insert(RecordEntity record);
+  Completable insert(RecordEditEntity recordEdit);
 
   @Update
-  Completable update(RecordEntity record);
+  Completable update(RecordEditEntity recordEdit);
 
   @Delete
-  Completable delete(RecordEntity record);
+  Completable delete(RecordEditEntity recordEdit);
 }
