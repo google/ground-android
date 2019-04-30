@@ -134,7 +134,7 @@ public class HomeScreenFragment extends AbstractFragment
     showFeatureDialogRequests = PublishSubject.create();
 
     showFeatureDialogRequests
-        .flatMapMaybe(__ -> addFeatureDialogFragment.show(getChildFragmentManager()))
+        .switchMapMaybe(__ -> addFeatureDialogFragment.show(getChildFragmentManager()))
         .as(autoDisposable(this))
         .subscribe(viewModel::addFeature);
   }
