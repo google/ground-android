@@ -16,12 +16,15 @@
 
 package com.google.android.gnd.ui.home.featuresheet;
 
+import android.util.Log;
+
 import static java8.util.stream.StreamSupport.stream;
 
 import androidx.core.util.Pair;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import com.google.android.gnd.repository.DataRepository;
+import com.google.android.gnd.rx.Result;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.vo.Feature;
 import com.google.android.gnd.vo.Form;
@@ -30,10 +33,13 @@ import com.google.android.gnd.vo.Record;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
+import io.reactivex.BackpressureStrategy;
 import io.reactivex.Flowable;
 import io.reactivex.Single;
 import io.reactivex.processors.BehaviorProcessor;
+import io.reactivex.subjects.PublishSubject;
 import java8.util.Optional;
 import java8.util.stream.Collectors;
 import javax.inject.Inject;
@@ -41,44 +47,21 @@ import javax.inject.Inject;
 // TODO: Roll up into parent viewmodel. Simplify VMs overall.
 public class RecordListViewModel extends AbstractViewModel {
 
-  class ArgumentWrapper {
-    public Project project;
-    public String featureId;
-    public String formId;
-
-    public ArgumentWrapper(Project project, String featureId, String formId) {
-      this.project = project;
-      this.featureId = featureId;
-      this.formId = formId;
-    }
-  }
-
   private static final String TAG = RecordListViewModel.class.getSimpleName();
   private final DataRepository dataRepository;
   private MutableLiveData<List<Record>> recordSummaries;
-  private BehaviorProcessor<ArgumentWrapper> argumentProcessor;
+  private PublishSubject<RecordSummaryRequest> recordSummaryRequests;
 
   @Inject
   public RecordListViewModel(DataRepository dataRepository) {
     this.dataRepository = dataRepository;
     recordSummaries = new MutableLiveData<>();
-    argumentProcessor = BehaviorProcessor.create();
-
-    Flowable<Pair<List<Record>, String>> recordsWithFormContext =
-        argumentProcessor.flatMap(
-            args ->
-                dataRepository
-                    .getRecordSummaries(args.project.getId(), args.featureId)
-                    .toFlowable()
-                    .map(records -> Pair.create(records, args.formId)));
+    recordSummaryRequests = PublishSubject.create();
 
     disposeOnClear(
-        recordsWithFormContext.subscribe(
-            pairs ->
-                recordSummaries.setValue(
-                    stream(pairs.first)
-                        .filter(record -> record.getForm().getId().equals(pairs.second))
-                        .collect(Collectors.toList()))));
+        recordSummaryRequests
+            .switchMapSingle(Result.wrapErrors(this::fetchRecordSummaries))
+            .subscribe(Result.unwrapErrors(recordSummaries::setValue, this::onRecordSummaryError)));
   }
 
   public LiveData<List<Record>> getRecordSummaries() {
@@ -94,6 +77,28 @@ public class RecordListViewModel extends AbstractViewModel {
         feature.getProject(), feature.getFeatureType().getId(), form.getId(), feature.getId());
   }
 
+  /**
+   * Attempts to fetch a list of records based on the contents of a {@link RecordSummaryRequest}.
+   *
+   * @param request A record summary request. A triple of project, featureId, and formId.
+   * @return A list containing fetched records with forms that satisfy the formId
+   *     provided in the request.
+   */
+  private Single<List<Record>> fetchRecordSummaries(RecordSummaryRequest request) {
+    return dataRepository
+        .getRecordSummaries(request.project.getId(), request.featureId)
+        .map(
+            records ->
+                stream(records)
+                    .filter(record -> record.getForm().getId().equals(request.formId))
+                    .collect(Collectors.toList()));
+  }
+
+  private void onRecordSummaryError(Throwable t) {
+    // TODO: Show an appropriate error message to the user.
+    Log.d(TAG, "Failed to fetch record summaries.", t);
+  }
+
   private void loadRecords(Project project, String featureTypeId, String formId, String featureId) {
     Optional<Form> form = project.getFeatureType(featureTypeId).flatMap(pt -> pt.getForm(formId));
     if (!form.isPresent()) {
@@ -101,7 +106,18 @@ public class RecordListViewModel extends AbstractViewModel {
       return;
     }
     // TODO: Use project id instead of object.
-    // TODO(#24): Fix leaky subscriptions!
-    argumentProcessor.onNext(new ArgumentWrapper(project, featureId, formId));
+    recordSummaryRequests.onNext(new RecordSummaryRequest(project, featureId, formId));
+  }
+
+  class RecordSummaryRequest {
+    public Project project;
+    public String featureId;
+    public String formId;
+
+    public RecordSummaryRequest(Project project, String featureId, String formId) {
+      this.project = project;
+      this.featureId = featureId;
+      this.formId = formId;
+    }
   }
 }
