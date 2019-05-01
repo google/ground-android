@@ -25,7 +25,7 @@ import com.google.common.collect.ImmutableList;
  */
 @AutoValue
 public abstract class LocalChange {
-  public enum ChangeType {
+  public enum Type {
     /** Indicates a new feature should be created. */
     CREATE_FEATURE,
 
@@ -52,7 +52,7 @@ public abstract class LocalChange {
    * Returns the type of change (i.e., create, update, delete) and the type of entity this change
    * represents.
    */
-  public abstract ChangeType getChangeType();
+  public abstract Type getType();
 
   /** Returns the unique id of the project in which this feature resides. */
   public abstract String getProjectId();
@@ -75,7 +75,7 @@ public abstract class LocalChange {
 
     public abstract Builder setChangeId(long newChangeId);
 
-    public abstract Builder setChangeType(ChangeType newChangeType);
+    public abstract Builder setType(Type newType);
 
     public abstract Builder setProjectId(String newProjectId);
 
