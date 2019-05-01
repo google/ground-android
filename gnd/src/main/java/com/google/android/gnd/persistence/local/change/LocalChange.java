@@ -25,25 +25,34 @@ import com.google.common.collect.ImmutableList;
  */
 @AutoValue
 public abstract class LocalChange {
-  enum ChangeType {
-    /** Indicates the entity should be created. */
-    CREATE,
+  public enum ChangeType {
+    /** Indicates a new feature should be created. */
+    CREATE_FEATURE,
 
-    /** Indicates an existing entity is to be updated. */
-    UPDATE,
+    /** Indicates an existing feature should be updated. */
+    UPDATE_FEATURE,
 
-    /** Indicates an existing entity should be marked for deletion. */
-    DELETE,
+    /** Indicates an existing feature should be marked for deletion. */
+    DELETE_FEATURE,
+
+    /** Indicates a new record should be created. */
+    CREATE_RECORD,
+
+    /** Indicates an existing record should be updated. */
+    UPDATE_RECORD,
+
+    /** Indicates an existing record should be marked for deletion. */
+    DELETE_RECORD
   }
 
   /** Returns the locally unique id of this change. */
   public abstract long getChangeId();
 
-  /** Returns the type of change being represented (i.e., create, update, delete). */
+  /**
+   * Returns the type of change (i.e., create, update, delete) and the type of entity this change
+   * represents.
+   */
   public abstract ChangeType getChangeType();
-
-  /** Returns the type to which this change applies. */
-  public abstract Class<?> getEntityType();
 
   /** Returns to globally unique id of the entity being modified. */
   public abstract String getEntityId();
@@ -64,8 +73,6 @@ public abstract class LocalChange {
     public abstract Builder setChangeId(long newChangeId);
 
     public abstract Builder setChangeType(ChangeType newChangeType);
-
-    public abstract Builder setEntityType(Class<?> newEntityType);
 
     public abstract Builder setEntityId(String newEntityId);
 
