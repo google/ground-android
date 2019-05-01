@@ -85,6 +85,7 @@ public class RecordListViewModel extends AbstractViewModel {
    *     provided in the request.
    */
   private Single<List<Record>> fetchRecordSummaries(RecordSummaryRequest request) {
+    // TODO: Only fetch records with current formId.
     return dataRepository
         .getRecordSummaries(request.project.getId(), request.featureId)
         .map(
