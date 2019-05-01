@@ -181,8 +181,7 @@ public class AuthenticationManager {
     }
   }
 
-  public static class
-  User {
+  public static class User {
 
     public static final User ANONYMOUS = new User("", "", "");
 
