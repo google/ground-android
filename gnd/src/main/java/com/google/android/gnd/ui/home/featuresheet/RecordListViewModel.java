@@ -20,7 +20,6 @@ import android.util.Log;
 
 import static java8.util.stream.StreamSupport.stream;
 
-import androidx.core.util.Pair;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import com.google.android.gnd.repository.DataRepository;
@@ -32,13 +31,8 @@ import com.google.android.gnd.vo.Project;
 import com.google.android.gnd.vo.Record;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Stream;
 
-import io.reactivex.BackpressureStrategy;
-import io.reactivex.Flowable;
 import io.reactivex.Single;
-import io.reactivex.processors.BehaviorProcessor;
 import io.reactivex.subjects.PublishSubject;
 import java8.util.Optional;
 import java8.util.stream.Collectors;
