@@ -16,14 +16,15 @@
 
 package com.google.android.gnd.persistence.local.change;
 
+import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 
 /**
- * Represents the smallest local mutation that can be merged with data in the remote data store.
- *
- * @param <T> the type of entity being modified.
+ * Represents a mutation that can be applied to local data and queued for sync with the remote data
+ * store.
  */
-public interface LocalChange {
+@AutoValue
+public abstract class LocalChange {
   enum ChangeType {
     /** Indicates the entity should be created. */
     CREATE,
@@ -36,17 +37,42 @@ public interface LocalChange {
   }
 
   /** Returns the locally unique id of this change. */
-  long getChangeId();
+  public abstract long getChangeId();
+
+  /** Returns the type of change being represented (i.e., create, update, delete). */
+  public abstract ChangeType getChangeType();
 
   /** Returns the type to which this change applies. */
-  Class<?> getEntityType();
+  public abstract Class<?> getEntityType();
 
   /** Returns to globally unique id of the entity being modified. */
-  String getEntityId();
+  public abstract String getEntityId();
 
   /** Returns the globally unique id of the user requesting the change. */
-  String getUserId();
+  public abstract String getUserId();
 
   /** Returns the list of individual changes applied to the entity. */
-  ImmutableList<AttributeChange> getAttributeChanges();
+  public abstract ImmutableList<AttributeChange> getAttributeChanges();
+
+  public static Builder builder() {
+    return new AutoValue_LocalChange.Builder();
+  }
+
+  @AutoValue.Builder
+  public abstract static class Builder {
+
+    public abstract Builder setChangeId(long newChangeId);
+
+    public abstract Builder setChangeType(ChangeType newChangeType);
+
+    public abstract Builder setEntityType(Class<?> newEntityType);
+
+    public abstract Builder setEntityId(String newEntityId);
+
+    public abstract Builder setUserId(String newUserId);
+
+    public abstract Builder setAttributeChanges(ImmutableList<AttributeChange> newAttributeChanges);
+
+    public abstract LocalChange build();
+  }
 }
