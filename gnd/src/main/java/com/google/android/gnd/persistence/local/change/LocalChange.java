@@ -54,7 +54,10 @@ public abstract class LocalChange {
    */
   public abstract ChangeType getChangeType();
 
-  /** Returns to globally unique id of the entity being modified. */
+  /** Returns the unique id of the project in which this feature resides. */
+  public abstract String getProjectId();
+
+  /** Returns the globally unique id of the entity being modified. */
   public abstract String getEntityId();
 
   /** Returns the globally unique id of the user requesting the change. */
@@ -73,6 +76,8 @@ public abstract class LocalChange {
     public abstract Builder setChangeId(long newChangeId);
 
     public abstract Builder setChangeType(ChangeType newChangeType);
+
+    public abstract Builder setProjectId(String newProjectId);
 
     public abstract Builder setEntityId(String newEntityId);
 
