@@ -18,24 +18,17 @@ package com.google.android.gnd.ui.projectselector;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
-import com.google.android.gms.auth.api.Auth;
 import com.google.android.gnd.repository.DataRepository;
 import com.google.android.gnd.repository.Resource;
 import com.google.android.gnd.system.AuthenticationManager;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.vo.Project;
 
-import io.reactivex.BackpressureStrategy;
-import io.reactivex.Completable;
-import io.reactivex.Flowable;
 import io.reactivex.Observable;
-import io.reactivex.processors.BehaviorProcessor;
-import io.reactivex.subjects.BehaviorSubject;
-import io.reactivex.subjects.Subject;
+import io.reactivex.subjects.PublishSubject;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
@@ -44,37 +37,42 @@ public class ProjectSelectorViewModel extends AbstractViewModel {
 
   private final DataRepository dataRepository;
   private final MutableLiveData<Resource<List<Project>>> projectSummaries;
-  private final BehaviorProcessor<Integer> indexProcessor;
-  public final Completable activeProjectStream;
+  private final PublishSubject<Integer> projectSelections;
+  public final MutableLiveData<Project> activeProject;
+  public final Observable<Project> activeProjectStream;
 
   @Inject
   ProjectSelectorViewModel(DataRepository dataRepository, AuthenticationManager authManager) {
     this.dataRepository = dataRepository;
     this.projectSummaries = new MutableLiveData<>();
-    this.indexProcessor = BehaviorProcessor.create();
+    this.activeProject = new MutableLiveData<>();
+    this.projectSelections = PublishSubject.create();
 
     Observable<AuthenticationManager.User> user = authManager.getUser();
 
-    Observable<Resource<List<Project>>> summaryStream =
-        user.flatMap(this.dataRepository::getProjectSummaries);
+    Observable<Resource<List<Project>>> availableProjects =
+        user.switchMap(this.dataRepository::getProjectSummaries);
 
     this.activeProjectStream =
-        indexProcessor.flatMapCompletable(
+        projectSelections.flatMapCompletable(
             idx ->
                 this.dataRepository.activateProject(
                     Resource.getData(this.projectSummaries)
                         .orElse(Collections.emptyList())
                         .get(idx)
-                        .getId()));
+                        .getId())).toObservable();
 
-    disposeOnClear(summaryStream.subscribe(projectSummaries::setValue));
+    disposeOnClear(activeProjectStream.subscribe(activeProject::setValue));
+    disposeOnClear(availableProjects.subscribe(projectSummaries::setValue));
   }
 
   public LiveData<Resource<List<Project>>> getProjectSummaries() {
     return projectSummaries;
   }
 
+  public LiveData<Project> getActiveProject() {return activeProject;}
   void activateProject(int idx) {
-    indexProcessor.onNext(idx);
+    projectSelections.onNext(idx);
   }
+
 }
