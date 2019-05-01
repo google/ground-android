@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.rx;
 
+import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.functions.Consumer;
@@ -62,12 +63,32 @@ public class Result<T> {
     return error;
   }
 
-  public static <T, R> Function<T, Single<Result<R>>> wrapErrors(
+  public static <T, R> Function<T, Single<Result<R>>> wrapSingle(
       @NonNull Function<T, Single<R>> fn) {
     return (T value) -> fn.apply(value).map(Result::success).onErrorReturn(Result::error);
   }
 
-  public static <T> Consumer<? super Result<T>> unwrapErrors(
+  public static <T, R> Function<T, Observable<Result<R>>> wrapObservable(
+      @NonNull Function<T, Observable<R>> fn) {
+    return (T value) -> fn.apply(value).map(Result::success).onErrorReturn(Result::error);
+  }
+
+  /**
+   * Wraps observables in a Result without applying any operation. Equivalent to mapping "id" on the
+   * observable or "casting" or "lifting" a given observable into a Result.
+   *
+   * <p>This is mostly needed for situations in which we need to use a different operator aside from
+   * map, such as zipWith, but want to eventually catch any errors that might propagate downstream.
+   *
+   * @param observable
+   * @param <T> The type of the observable's emissions.
+   * @return
+   */
+  public static <T> Observable<Result<T>> wrapObservable(Observable<T> observable) {
+    return observable.map(Result::success).onErrorReturn(Result::error);
+  }
+
+  public static <T> Consumer<? super Result<T>> unwrap(
       Consumer<T> onSuccess, Consumer<Throwable> onError) {
     return result -> {
       switch (result.getState()) {
