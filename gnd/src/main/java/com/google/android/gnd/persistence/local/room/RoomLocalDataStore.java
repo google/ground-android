@@ -44,12 +44,12 @@ public class RoomLocalDataStore implements LocalDataStore {
   public Completable applyAndEnqueue(LocalChange localChange) {
     try {
       return apply(localChange).andThen(enqueue(localChange));
-    } catch (Throwable t) {
-      return Completable.error(t);
+    } catch (LocalDataStoreException e) {
+      return Completable.error(e);
     }
   }
 
-  private Completable apply(LocalChange localChange) {
+  private Completable apply(LocalChange localChange) throws LocalDataStoreException {
     switch (localChange.getType()) {
       case CREATE_FEATURE:
         return db.featureDao()
@@ -66,7 +66,7 @@ public class RoomLocalDataStore implements LocalDataStore {
       case DELETE_RECORD:
         // TODO: Implement.
       default:
-        throw new UnsupportedOperationException("ChangeType." + localChange.getType());
+        throw new LocalDataStoreException("ChangeType." + localChange.getType());
     }
   }
 
