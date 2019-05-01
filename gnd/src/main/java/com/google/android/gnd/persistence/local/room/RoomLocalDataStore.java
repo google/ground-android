@@ -42,13 +42,19 @@ public class RoomLocalDataStore implements LocalDataStore {
   @Transaction
   @Override
   public Completable applyAndEnqueue(LocalChange localChange) {
-    return apply(localChange).andThen(enqueue(localChange));
+    try {
+      return apply(localChange).andThen(enqueue(localChange));
+    } catch (Throwable t) {
+      return Completable.error(t);
+    }
   }
 
   private Completable apply(LocalChange localChange) {
-    switch (localChange.getChangeType()) {
+    switch (localChange.getType()) {
       case CREATE_FEATURE:
-        // TODO: Implement.
+        return db.featureDao()
+            .insert(newFeatureEntity(localChange))
+            .andThen(applyFeatureAttributeChanges(localChange));
       case UPDATE_FEATURE:
         // TODO: Implement.
       case DELETE_FEATURE:
@@ -60,9 +66,21 @@ public class RoomLocalDataStore implements LocalDataStore {
       case DELETE_RECORD:
         // TODO: Implement.
       default:
-        return Completable.error(
-            new UnsupportedOperationException("ChangeType." + localChange.getChangeType()));
+        throw new UnsupportedOperationException("ChangeType." + localChange.getType());
     }
+  }
+
+  private Completable applyFeatureAttributeChanges(LocalChange localChange) {
+    // TODO: Implement.
+    return Completable.complete();
+  }
+
+  private FeatureEntity newFeatureEntity(LocalChange localChange) {
+    return FeatureEntity.builder()
+        .setId(localChange.getEntityId())
+        .setProjectId(localChange.getProjectId())
+        .setState(EntityState.DEFAULT)
+        .build();
   }
 
   private Completable enqueue(LocalChange localChange) {
