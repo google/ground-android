@@ -60,6 +60,7 @@ public class EditRecordFragment extends AbstractFragment implements BackPressLis
   private EditRecordViewModel viewModel;
   private SingleSelectDialogFactory singleSelectDialogFactory;
   private MultiSelectDialogFactory multiSelectDialogFactory;
+  private static final String NEW_RECORD_ID_ARG_PLACEHOLDER = "NEW_RECORD";
 
   @Inject Navigator navigator;
 
@@ -117,7 +118,15 @@ public class EditRecordFragment extends AbstractFragment implements BackPressLis
       return;
     }
     EditRecordFragmentArgs args = EditRecordFragmentArgs.fromBundle(getArguments());
-    viewModel.editRecord(args);
+    viewModel.editRecord(
+            EditRecordViewModel.EditRecordRequest.newBuilder()
+            .setProjectId(args.getProjectId())
+            .setFeatureId(args.getFeatureId())
+            .setFormId(args.getFormId())
+            .setRecordId(args.getRecordId())
+            .setIsNew(args.getRecordId().equals(NEW_RECORD_ID_ARG_PLACEHOLDER))
+            .build()
+    );
   }
 
   private void onRecordChange(Resource<Record> record) {

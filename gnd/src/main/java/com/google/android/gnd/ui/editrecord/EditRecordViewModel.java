@@ -36,6 +36,7 @@ import com.google.android.gnd.GndApplication;
 import com.google.android.gnd.R;
 import com.google.android.gnd.repository.DataRepository;
 import com.google.android.gnd.repository.Resource;
+import com.google.android.gnd.rx.Result;
 import com.google.android.gnd.system.AuthenticationManager;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.common.SingleLiveEvent;
@@ -45,14 +46,14 @@ import com.google.android.gnd.vo.Form.Field;
 import com.google.android.gnd.vo.Record;
 import com.google.android.gnd.vo.Record.Response;
 import com.google.android.gnd.vo.Record.TextResponse;
+import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import java.util.Arrays;
 import java.util.Collections;
 
-import io.reactivex.BackpressureStrategy;
-import io.reactivex.Flowable;
+import io.reactivex.Observable;
 import io.reactivex.Single;
-import io.reactivex.processors.BehaviorProcessor;
+import io.reactivex.subjects.PublishSubject;
 import java8.util.Optional;
 import java8.util.stream.Stream;
 import javax.inject.Inject;
@@ -60,7 +61,6 @@ import javax.inject.Inject;
 // TODO: Save draft to local db on each change.
 public class EditRecordViewModel extends AbstractViewModel {
   private static final String TAG = EditRecordViewModel.class.getSimpleName();
-  private static final String NEW_RECORD_ID_ARG_PLACEHOLDER = "NEW_RECORD";
 
   private final DataRepository dataRepository;
   private final AuthenticationManager authManager;
@@ -70,8 +70,8 @@ public class EditRecordViewModel extends AbstractViewModel {
   private final Resources resources;
   private final ObservableMap<String, Response> responses = new ObservableArrayMap<>();
   private final ObservableMap<String, String> errors = new ObservableArrayMap<>();
-  private final BehaviorProcessor<EditRecordFragmentArgs> argumentProcessor;
-  private final BehaviorProcessor<Record> recordProcessor;
+  private final PublishSubject<EditRecordRequest> editRecordRequests;
+  private final PublishSubject<Record> recordSaveRequests;
 
   public final ObservableInt loadingSpinnerVisibility = new ObservableInt();
 
@@ -86,36 +86,47 @@ public class EditRecordViewModel extends AbstractViewModel {
     this.showUnsavedChangesDialogEvents = new SingleLiveEvent<>();
     this.showErrorDialogEvents = new SingleLiveEvent<>();
     this.authManager = authenticationManager;
-    this.argumentProcessor = BehaviorProcessor.create();
-    this.recordProcessor = BehaviorProcessor.create();
+    this.editRecordRequests = PublishSubject.create();
+    this.recordSaveRequests = PublishSubject.create();
 
-    Flowable<Resource<Record>> saveRecordStream =
-        recordProcessor.flatMap(
-            r ->
-                this.authManager
-                    .getUser()
-                    .flatMap(user -> this.dataRepository.saveChanges(r, getChangeList(r), user))
-                    .toFlowable(BackpressureStrategy.LATEST));
+    disposeOnClear(
+            recordSaveRequests.zipWith(authManager.getUser(), this::saveRecord)
+            .switchMap(Result::wrapObservable)
+            .subscribe(Result.unwrap(record::setValue, this::onSaveRecordError)));
 
-    Flowable<Resource<Record>> editRecordStream =
-        argumentProcessor.flatMap(
-            args -> {
-              Single<Resource<Record>> value;
-              if (args.getRecordId().equals(NEW_RECORD_ID_ARG_PLACEHOLDER)) {
-                value = this.dataRepository
-                    .createRecord(args.getProjectId(), args.getFeatureId(), args.getFormId())
-                    .map(Resource::loaded)
-                    .doOnSuccess(__ -> onNewRecordLoaded());
-              } else {
-                value = this.dataRepository
-                    .getRecordSnapshot(args.getProjectId(), args.getFeatureId(), args.getRecordId())
-                    .doOnSuccess(r -> r.data().ifPresent(this::update));
-              }
-              return value.toFlowable();
-            });
+    disposeOnClear(
+        editRecordRequests
+            .switchMapSingle(Result.wrapSingle(this::createOrUpdateRecord))
+            .subscribe(Result.unwrap(this::onRecordSnapshot, this::onEditRecordError)));
+  }
 
-    disposeOnClear(saveRecordStream.subscribe(record::setValue));
-    disposeOnClear(editRecordStream.subscribe(this::onRecordSnapshot));
+  private Single<Resource<Record>> createOrUpdateRecord(EditRecordRequest request) {
+    return request.getIsNew() ? createRecord(request) : updateRecord(request);
+  }
+
+  private Single<Resource<Record>> createRecord(EditRecordRequest request) {
+    return this.dataRepository
+        .createRecord(request.getProjectId(), request.getFeatureId(), request.getFormId())
+        .map(Resource::loaded)
+        .doFinally(this::onNewRecordLoaded);
+  }
+
+  private Single<Resource<Record>> updateRecord(EditRecordRequest request) {
+    return this.dataRepository
+        .getRecordSnapshot(request.getProjectId(), request.getFeatureId(), request.getRecordId())
+        .doOnSuccess(r -> r.data().ifPresent(this::update));
+  }
+
+  private Observable<Resource<Record>> saveRecord(Record r, AuthenticationManager.User user) {
+    return this.dataRepository.saveChanges(r, getChangeList(r), user);
+  }
+
+  private void onSaveRecordError (Throwable t) {
+    Log.d(TAG, "Failed to save the record.", t);
+  }
+
+  private void onEditRecordError (Throwable t) {
+    Log.d(TAG, "Unable to create or update record", t);
   }
 
   public ObservableMap<String, Response> getResponses() {
@@ -181,8 +192,8 @@ public class EditRecordViewModel extends AbstractViewModel {
             r.getForm().getField(k).ifPresent(field -> onResponseChanged(field, Optional.of(v))));
   }
 
-  void editRecord(EditRecordFragmentArgs args) {
-    argumentProcessor.onNext(args);
+  void editRecord(EditRecordRequest request) {
+    editRecordRequests.onNext(request);
   }
 
   private void onRecordSnapshot(Resource<Record> r) {
@@ -232,7 +243,7 @@ public class EditRecordViewModel extends AbstractViewModel {
   }
 
   private void saveChanges(Record r) {
-    recordProcessor.onNext(r);
+    recordSaveRequests.onNext(r);
   }
 
   private Stream<ResponseUpdate> getChanges(Record r) {
@@ -302,5 +313,37 @@ public class EditRecordViewModel extends AbstractViewModel {
 
   private boolean hasErrors() {
     return !errors.isEmpty();
+  }
+
+  @AutoValue
+  public abstract static class EditRecordRequest {
+    public abstract String getProjectId();
+
+    public abstract String getFeatureId();
+
+    public abstract String getFormId();
+
+    public abstract String getRecordId();
+
+    public abstract boolean getIsNew();
+
+    public static Builder newBuilder() {
+      return new AutoValue_EditRecordViewModel_EditRecordRequest.Builder();
+    }
+
+    @AutoValue.Builder
+    public abstract static class Builder {
+      public abstract Builder setProjectId(String projectId);
+
+      public abstract Builder setFeatureId(String featureId);
+
+      public abstract Builder setFormId(String formId);
+
+      public abstract Builder setRecordId(String recordId);
+
+      public abstract Builder setIsNew(boolean isNew);
+
+      public abstract EditRecordRequest build();
+    }
   }
 }
