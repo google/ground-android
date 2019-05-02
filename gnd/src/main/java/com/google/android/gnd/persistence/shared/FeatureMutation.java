@@ -18,21 +18,27 @@ package com.google.android.gnd.persistence.shared;
 
 import com.google.android.gnd.vo.Point;
 import com.google.auto.value.AutoValue;
+import java8.util.Optional;
 
-/** Represents a change in a feature's location. */
+/** Represents mutation of a feature in the local to be queued for sync with remote store. */
 @AutoValue
-public abstract class LocationChange implements AttributeChange {
-  /** Returns the feature's location after this change is applied. */
-  public abstract Point getNewLocation();
+public abstract class FeatureMutation extends Mutation {
+
+  /**
+   * Indicates the new location of the feature. If empty, indicates no change to the feature's
+   * location.
+   */
+  public abstract Optional<Point> getNewLocation();
 
   public static Builder builder() {
-    return new AutoValue_LocationChange.Builder();
+    return new AutoValue_FeatureMutation.Builder();
   }
 
   @AutoValue.Builder
-  public abstract static class Builder {
-    public abstract Builder setNewLocation(Point newNewLocation);
+  public abstract static class Builder extends Mutation.Builder<Builder> {
 
-    public abstract LocationChange build();
+    public abstract Builder setNewLocation(Optional<Point> newNewLocation);
+
+    public abstract FeatureMutation build();
   }
 }

@@ -16,45 +16,26 @@
 
 package com.google.android.gnd.persistence.shared;
 
-import com.google.auto.value.AutoValue;
-import com.google.common.collect.ImmutableList;
-
 /**
  * Represents a mutation that can be applied to local data and queued for sync with the remote data
  * store.
  */
-@AutoValue
 public abstract class Mutation {
   public enum Type {
-    /** Indicates a new feature should be created. */
-    CREATE_FEATURE,
+    /** Indicates a new entity should be created. */
+    CREATE,
 
-    /** Indicates an existing feature should be updated. */
-    UPDATE_FEATURE,
+    /** Indicates an existing entity should be updated. */
+    UPDATE,
 
-    /** Indicates an existing feature should be marked for deletion. */
-    DELETE_FEATURE,
-
-    /**
-     * Indicates that the feature should be overwritten with latest remote version. This occurs when
-     * the user chooses to abandon a change that failed to sync.
-     */
-    RELOAD_FEATURE,
-
-    /** Indicates a new record should be created. */
-    CREATE_RECORD,
-
-    /** Indicates an existing record should be updated. */
-    UPDATE_RECORD,
-
-    /** Indicates an existing record should be marked for deletion. */
-    DELETE_RECORD,
+    /** Indicates an existing entity should be marked for deletion. */
+    DELETE,
 
     /**
-     * Indicates that the record should be overwritten with latest remote version. This occurs when
-     * the user chooses to abandon a change that failed to sync.
+     * Indicates the entity should be overwritten with latest remote version. This occurs when the
+     * user chooses to abandon a change that failed to sync.
      */
-    RELOAD_RECORD,
+    RELOAD
   }
 
   /** Returns the locally unique id of this change. */
@@ -75,28 +56,16 @@ public abstract class Mutation {
   /** Returns the globally unique id of the user requesting the change. */
   public abstract String getUserId();
 
-  /** Returns the list of individual changes applied to the entity. */
-  public abstract ImmutableList<AttributeChange> getAttributeChanges();
+  public abstract static class Builder<T extends Builder> {
 
-  public static Builder builder() {
-    return new AutoValue_Mutation.Builder();
-  }
+    public abstract T setChangeId(long newChangeId);
 
-  @AutoValue.Builder
-  public abstract static class Builder {
+    public abstract T setType(Type newType);
 
-    public abstract Builder setChangeId(long newChangeId);
+    public abstract T setProjectId(String newProjectId);
 
-    public abstract Builder setType(Type newType);
+    public abstract T setEntityId(String newEntityId);
 
-    public abstract Builder setProjectId(String newProjectId);
-
-    public abstract Builder setEntityId(String newEntityId);
-
-    public abstract Builder setUserId(String newUserId);
-
-    public abstract Builder setAttributeChanges(ImmutableList<AttributeChange> newAttributeChanges);
-
-    public abstract Mutation build();
+    public abstract T setUserId(String newUserId);
   }
 }

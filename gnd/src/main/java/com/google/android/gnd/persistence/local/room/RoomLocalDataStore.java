@@ -20,8 +20,10 @@ import androidx.room.Room;
 import androidx.room.Transaction;
 import com.google.android.gnd.GndApplication;
 import com.google.android.gnd.persistence.local.LocalDataStore;
-import com.google.android.gnd.persistence.shared.Mutation;
 import com.google.android.gnd.persistence.remote.RemoteChange;
+import com.google.android.gnd.persistence.shared.FeatureMutation;
+import com.google.android.gnd.persistence.shared.Mutation;
+import com.google.android.gnd.persistence.shared.RecordMutation;
 import com.google.common.collect.ImmutableList;
 import io.reactivex.Completable;
 import io.reactivex.Single;
@@ -50,41 +52,52 @@ public class RoomLocalDataStore implements LocalDataStore {
   }
 
   private Completable apply(Mutation mutation) throws LocalDataStoreException {
-    switch (mutation.getType()) {
-      case CREATE_FEATURE:
-        return db.featureDao()
-            .insert(newFeatureEntity(mutation))
-            .andThen(applyFeatureAttributeChanges(mutation));
-      case UPDATE_FEATURE:
-        // TODO: Implement.
-      case DELETE_FEATURE:
-        // TODO: Implement.
-      case RELOAD_FEATURE:
-        // TODO: Implement.
-      case CREATE_RECORD:
-        // TODO: Implement.
-      case UPDATE_RECORD:
-        // TODO: Implement.
-      case DELETE_RECORD:
-        // TODO: Implement.
-      case RELOAD_RECORD:
-        // TODO: Implement.
-      default:
-        throw new LocalDataStoreException("ChangeType." + mutation.getType());
+    if (mutation instanceof FeatureMutation) {
+      return apply((FeatureMutation) mutation);
+    } else if (mutation instanceof RecordMutation) {
+      return apply((RecordMutation) mutation);
+    } else {
+      throw new LocalDataStoreException("Unimplemented Mutation " + mutation.getClass());
     }
   }
 
-  private Completable applyFeatureAttributeChanges(Mutation mutation) {
-    // TODO: Implement.
-    return Completable.complete();
+  private Completable apply(FeatureMutation mutation) throws LocalDataStoreException {
+    switch (mutation.getType()) {
+      case CREATE:
+        return db.featureDao().insert(newFeatureEntity(mutation));
+      case UPDATE:
+        // TODO: Implement.
+      case DELETE:
+        // TODO: Implement.
+      case RELOAD:
+        // TODO: Implement.
+      default:
+        throw new LocalDataStoreException("Unimplemented Mutation.Type." + mutation.getType());
+    }
   }
 
-  private FeatureEntity newFeatureEntity(Mutation mutation) {
+  private FeatureEntity newFeatureEntity(FeatureMutation mutation) {
+    // TODO: Convert coordinates.
     return FeatureEntity.builder()
         .setId(mutation.getEntityId())
         .setProjectId(mutation.getProjectId())
         .setState(EntityState.DEFAULT)
         .build();
+  }
+
+  private Completable apply(RecordMutation mutation) throws LocalDataStoreException {
+    switch (mutation.getType()) {
+      case CREATE:
+        // TODO: Implement.
+      case UPDATE:
+        // TODO: Implement.
+      case DELETE:
+        // TODO: Implement.
+      case RELOAD:
+        // TODO: Implement.
+      default:
+        throw new LocalDataStoreException("ChangeType." + mutation.getType());
+    }
   }
 
   private Completable enqueue(Mutation mutation) {

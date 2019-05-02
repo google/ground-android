@@ -18,31 +18,27 @@ package com.google.android.gnd.persistence.shared;
 
 import com.google.android.gnd.vo.Record.Response;
 import com.google.auto.value.AutoValue;
+import java.util.Map;
 import java8.util.Optional;
 
-/** Represents a change in a form response. */
-@AutoValue
-public abstract class ResponseChange implements AttributeChange {
-  /** Returns the unique id of the element being modified. */
-  public abstract String getElementId();
+/** Represents mutation of a record in the local to be queued for sync with remote store. */
+public abstract @AutoValue class RecordMutation extends Mutation {
 
   /**
-   * Returns the response to be set after this change is applied. If empty, the response indicates
-   * the current response should be cleared.
+   * Returns a map keyed by response element id. The presence of a map entry indicates a specific
+   * response was modified. If the value is empty, it indicates the response was removed/cleared.
    */
-  public abstract Optional<Response> getNewResponse();
+  public abstract Map<String, Optional<Response>> getNewResponses();
 
   public static Builder builder() {
-    return new AutoValue_ResponseChange.Builder();
+    return new AutoValue_RecordMutation.Builder();
   }
 
   @AutoValue.Builder
-  public abstract static class Builder {
+  public abstract static class Builder extends Mutation.Builder<Builder> {
 
-    public abstract Builder setElementId(String newElementId);
+    public abstract Builder setNewResponses(Map<String, Optional<Response>> newNewResponses);
 
-    public abstract Builder setNewResponse(Optional<Response> newNewResponse);
-
-    public abstract ResponseChange build();
+    public abstract RecordMutation build();
   }
 }
