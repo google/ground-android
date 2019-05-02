@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.persistence.local.change;
+package com.google.android.gnd.persistence.shared;
 
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;

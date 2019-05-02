@@ -20,7 +20,7 @@ import androidx.room.Room;
 import androidx.room.Transaction;
 import com.google.android.gnd.GndApplication;
 import com.google.android.gnd.persistence.local.LocalDataStore;
-import com.google.android.gnd.persistence.local.change.LocalChange;
+import com.google.android.gnd.persistence.shared.LocalChange;
 import com.google.android.gnd.persistence.remote.RemoteChange;
 import com.google.common.collect.ImmutableList;
 import io.reactivex.Completable;

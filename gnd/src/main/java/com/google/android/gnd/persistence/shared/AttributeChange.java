@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.persistence.local.change;
+package com.google.android.gnd.persistence.shared;
 
 /** Represents the smallest local mutation that can be merged with data in the remote data store. */
 public interface AttributeChange {}
