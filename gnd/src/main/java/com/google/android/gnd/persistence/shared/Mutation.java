@@ -24,7 +24,7 @@ import com.google.common.collect.ImmutableList;
  * store.
  */
 @AutoValue
-public abstract class LocalChange {
+public abstract class Mutation {
   public enum Type {
     /** Indicates a new feature should be created. */
     CREATE_FEATURE,
@@ -79,7 +79,7 @@ public abstract class LocalChange {
   public abstract ImmutableList<AttributeChange> getAttributeChanges();
 
   public static Builder builder() {
-    return new AutoValue_LocalChange.Builder();
+    return new AutoValue_Mutation.Builder();
   }
 
   @AutoValue.Builder
@@ -97,6 +97,6 @@ public abstract class LocalChange {
 
     public abstract Builder setAttributeChanges(ImmutableList<AttributeChange> newAttributeChanges);
 
-    public abstract LocalChange build();
+    public abstract Mutation build();
   }
 }

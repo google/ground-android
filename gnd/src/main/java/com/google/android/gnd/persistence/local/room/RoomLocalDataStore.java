@@ -20,7 +20,7 @@ import androidx.room.Room;
 import androidx.room.Transaction;
 import com.google.android.gnd.GndApplication;
 import com.google.android.gnd.persistence.local.LocalDataStore;
-import com.google.android.gnd.persistence.shared.LocalChange;
+import com.google.android.gnd.persistence.shared.Mutation;
 import com.google.android.gnd.persistence.remote.RemoteChange;
 import com.google.common.collect.ImmutableList;
 import io.reactivex.Completable;
@@ -41,20 +41,20 @@ public class RoomLocalDataStore implements LocalDataStore {
 
   @Transaction
   @Override
-  public Completable applyAndEnqueue(LocalChange localChange) {
+  public Completable applyAndEnqueue(Mutation mutation) {
     try {
-      return apply(localChange).andThen(enqueue(localChange));
+      return apply(mutation).andThen(enqueue(mutation));
     } catch (LocalDataStoreException e) {
       return Completable.error(e);
     }
   }
 
-  private Completable apply(LocalChange localChange) throws LocalDataStoreException {
-    switch (localChange.getType()) {
+  private Completable apply(Mutation mutation) throws LocalDataStoreException {
+    switch (mutation.getType()) {
       case CREATE_FEATURE:
         return db.featureDao()
-            .insert(newFeatureEntity(localChange))
-            .andThen(applyFeatureAttributeChanges(localChange));
+            .insert(newFeatureEntity(mutation))
+            .andThen(applyFeatureAttributeChanges(mutation));
       case UPDATE_FEATURE:
         // TODO: Implement.
       case DELETE_FEATURE:
@@ -70,44 +70,44 @@ public class RoomLocalDataStore implements LocalDataStore {
       case RELOAD_RECORD:
         // TODO: Implement.
       default:
-        throw new LocalDataStoreException("ChangeType." + localChange.getType());
+        throw new LocalDataStoreException("ChangeType." + mutation.getType());
     }
   }
 
-  private Completable applyFeatureAttributeChanges(LocalChange localChange) {
+  private Completable applyFeatureAttributeChanges(Mutation mutation) {
     // TODO: Implement.
     return Completable.complete();
   }
 
-  private FeatureEntity newFeatureEntity(LocalChange localChange) {
+  private FeatureEntity newFeatureEntity(Mutation mutation) {
     return FeatureEntity.builder()
-        .setId(localChange.getEntityId())
-        .setProjectId(localChange.getProjectId())
+        .setId(mutation.getEntityId())
+        .setProjectId(mutation.getProjectId())
         .setState(EntityState.DEFAULT)
         .build();
   }
 
-  private Completable enqueue(LocalChange localChange) {
+  private Completable enqueue(Mutation mutation) {
     // TODO: Implement.
     return Completable.error(new UnsupportedOperationException());
   }
 
   @Override
-  public Single<ImmutableList<LocalChange>> getPendingChanges(String featureId) {
+  public Single<ImmutableList<Mutation>> getPendingChanges(String featureId) {
     // TODO: Implement.
     throw new UnsupportedOperationException();
   }
 
   @Transaction
   @Override
-  public Completable dequeue(ImmutableList<LocalChange> localChanges) {
+  public Completable dequeue(ImmutableList<Mutation> mutations) {
     // TODO: Implement.
     throw new UnsupportedOperationException();
   }
 
   @Transaction
   @Override
-  public Completable markFailed(ImmutableList<LocalChange> localChanges) {
+  public Completable markFailed(ImmutableList<Mutation> mutations) {
     // TODO: Implement.
     throw new UnsupportedOperationException();
   }

@@ -16,7 +16,7 @@
 
 package com.google.android.gnd.persistence.local;
 
-import com.google.android.gnd.persistence.shared.LocalChange;
+import com.google.android.gnd.persistence.shared.Mutation;
 import com.google.android.gnd.persistence.remote.RemoteChange;
 import com.google.common.collect.ImmutableList;
 import io.reactivex.Completable;
@@ -30,25 +30,25 @@ import io.reactivex.Single;
 public interface LocalDataStore {
   /**
    * Applies the specified changes to the local data store and adds it to the queue of pending
-   * changes. Note the {@link LocalChange} is assumed to be a new, unsaved instance, so {@code
+   * changes. Note the {@link Mutation} is assumed to be a new, unsaved instance, so {@code
    * changeId} is ignored.
    */
-  Completable applyAndEnqueue(LocalChange localChange);
+  Completable applyAndEnqueue(Mutation mutation);
 
   /**
    * Returns all pending changes in the queue that apply to the feature with the specified id, or an
    * empty list if none are present. Changes marked "failed" are not returned.
    */
-  Single<ImmutableList<LocalChange>> getPendingChanges(String featureId);
+  Single<ImmutableList<Mutation>> getPendingChanges(String featureId);
 
   /**
    * Removes the specified changes from the queue, called once the changes have successfully been
    * written to the remote store.
    */
-  Completable dequeue(ImmutableList<LocalChange> localChanges);
+  Completable dequeue(ImmutableList<Mutation> mutations);
 
   /** Flags the specified changes as failed, allowing the user to later retry or abandon them. */
-  Completable markFailed(ImmutableList<LocalChange> localChanges);
+  Completable markFailed(ImmutableList<Mutation> mutations);
 
   // TODO: Define methods to allow retry or rollback of failed changes.
 
