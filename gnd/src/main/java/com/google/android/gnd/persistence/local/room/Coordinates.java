@@ -18,6 +18,7 @@ package com.google.android.gnd.persistence.local.room;
 
 import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
+import com.google.android.gnd.vo.Point;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.AutoValue.CopyAnnotations;
 
@@ -33,6 +34,13 @@ public abstract class Coordinates {
   @NonNull
   @ColumnInfo(name = "longitude")
   public abstract double getLongitude();
+
+  public static Coordinates fromPoint(Point point) {
+    return Coordinates.builder()
+        .setLatitude(point.getLatitude())
+        .setLongitude(point.getLongitude())
+        .build();
+  }
 
   // Auto-generated boilerplate:
 

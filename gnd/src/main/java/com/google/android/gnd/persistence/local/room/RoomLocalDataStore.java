@@ -20,6 +20,7 @@ import androidx.room.Room;
 import androidx.room.Transaction;
 import com.google.android.gnd.GndApplication;
 import com.google.android.gnd.persistence.local.LocalDataStore;
+import com.google.android.gnd.persistence.local.room.FeatureEntity.Builder;
 import com.google.android.gnd.persistence.remote.RemoteChange;
 import com.google.android.gnd.persistence.shared.FeatureMutation;
 import com.google.android.gnd.persistence.shared.Mutation;
@@ -77,12 +78,12 @@ public class RoomLocalDataStore implements LocalDataStore {
   }
 
   private FeatureEntity newFeatureEntity(FeatureMutation mutation) {
-    // TODO: Convert coordinates.
-    return FeatureEntity.builder()
+    FeatureEntity.Builder builder = FeatureEntity.builder()
         .setId(mutation.getEntityId())
         .setProjectId(mutation.getProjectId())
-        .setState(EntityState.DEFAULT)
-        .build();
+        .setState(EntityState.DEFAULT);
+    mutation.getNewLocation().ifPresent(l -> builder.setLocation(Coordinates.fromPoint(l)));
+    return builder.build();
   }
 
   private Completable apply(RecordMutation mutation) throws LocalDataStoreException {
