@@ -27,12 +27,6 @@ public abstract class ResponseChange implements AttributeChange {
   public abstract String getElementId();
 
   /**
-   * Returns the response before this change is applied, if present. If the response was not
-   * specified (missing) empty is returned.
-   */
-  public abstract Optional<Response> getOldResponse();
-
-  /**
    * Returns the response to be set after this change is applied. If empty, the response indicates
    * the current response should be cleared.
    */
@@ -46,8 +40,6 @@ public abstract class ResponseChange implements AttributeChange {
   public abstract static class Builder {
 
     public abstract Builder setElementId(String newElementId);
-
-    public abstract Builder setOldResponse(Optional<Response> newOldResponse);
 
     public abstract Builder setNewResponse(Optional<Response> newNewResponse);
 

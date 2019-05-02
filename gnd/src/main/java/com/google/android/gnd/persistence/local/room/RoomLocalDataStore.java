@@ -59,11 +59,15 @@ public class RoomLocalDataStore implements LocalDataStore {
         // TODO: Implement.
       case DELETE_FEATURE:
         // TODO: Implement.
+      case RELOAD_FEATURE:
+        // TODO: Implement.
       case CREATE_RECORD:
         // TODO: Implement.
       case UPDATE_RECORD:
         // TODO: Implement.
       case DELETE_RECORD:
+        // TODO: Implement.
+      case RELOAD_RECORD:
         // TODO: Implement.
       default:
         throw new LocalDataStoreException("ChangeType." + localChange.getType());

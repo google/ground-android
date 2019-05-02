@@ -22,9 +22,6 @@ import com.google.auto.value.AutoValue;
 /** Represents a change in a feature's location. */
 @AutoValue
 public abstract class LocationChange implements AttributeChange {
-  /** Returns the feature's location before this change is applied. */
-  public abstract Point getOldLocation();
-
   /** Returns the feature's location after this change is applied. */
   public abstract Point getNewLocation();
 
@@ -34,9 +31,6 @@ public abstract class LocationChange implements AttributeChange {
 
   @AutoValue.Builder
   public abstract static class Builder {
-
-    public abstract Builder setOldLocation(Point newOldLocation);
-
     public abstract Builder setNewLocation(Point newNewLocation);
 
     public abstract LocationChange build();

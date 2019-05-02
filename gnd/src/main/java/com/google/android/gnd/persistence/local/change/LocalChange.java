@@ -35,6 +35,12 @@ public abstract class LocalChange {
     /** Indicates an existing feature should be marked for deletion. */
     DELETE_FEATURE,
 
+    /**
+     * Indicates that the feature should be overwritten with latest remote version. This occurs when
+     * the user chooses to abandon a change that failed to sync.
+     */
+    RELOAD_FEATURE,
+
     /** Indicates a new record should be created. */
     CREATE_RECORD,
 
@@ -42,7 +48,13 @@ public abstract class LocalChange {
     UPDATE_RECORD,
 
     /** Indicates an existing record should be marked for deletion. */
-    DELETE_RECORD
+    DELETE_RECORD,
+
+    /**
+     * Indicates that the record should be overwritten with latest remote version. This occurs when
+     * the user chooses to abandon a change that failed to sync.
+     */
+    RELOAD_RECORD,
   }
 
   /** Returns the locally unique id of this change. */
