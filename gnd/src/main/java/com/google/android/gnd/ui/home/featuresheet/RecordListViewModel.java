@@ -105,9 +105,9 @@ public class RecordListViewModel extends AbstractViewModel {
   }
 
   class RecordSummaryRequest {
-    public Project project;
-    public String featureId;
-    public String formId;
+    public final Project project;
+    public final String featureId;
+    public final String formId;
 
     public RecordSummaryRequest(Project project, String featureId, String formId) {
       this.project = project;
