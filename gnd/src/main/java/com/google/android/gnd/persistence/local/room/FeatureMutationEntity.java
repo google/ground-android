@@ -19,6 +19,7 @@ package com.google.android.gnd.persistence.local.room;
 import static androidx.room.ForeignKey.CASCADE;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.room.Embedded;
 import androidx.room.Entity;
 import androidx.room.ForeignKey;
@@ -45,5 +46,8 @@ public class FeatureMutationEntity {
 
   @NonNull public String featureId;
 
-  @Embedded @NonNull public Edit edit;
+  @NonNull public MutationEntityType type;
+
+  /** Non-null of the feature's location was updated, null if unchanged. */
+  @Nullable @Embedded public Coordinates newLocation;
 }

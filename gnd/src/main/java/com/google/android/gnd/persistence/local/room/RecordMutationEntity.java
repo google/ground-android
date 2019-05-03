@@ -19,11 +19,12 @@ package com.google.android.gnd.persistence.local.room;
 import static androidx.room.ForeignKey.CASCADE;
 
 import androidx.annotation.NonNull;
-import androidx.room.Embedded;
+import androidx.annotation.Nullable;
 import androidx.room.Entity;
 import androidx.room.ForeignKey;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
+import org.json.JSONObject;
 
 /**
  * Representation of a {@link com.google.android.gnd.persistence.shared.RecordMutation} in local
@@ -44,5 +45,14 @@ public class RecordMutationEntity {
 
   @NonNull public String recordId;
 
-  @Embedded @NonNull public Edit edit;
+  @NonNull public MutationEntityType type;
+
+  /**
+   * For edits of type {@link MutationEntityType#CREATE} and {@link MutationEntityType#UPDATE}, a
+   * JSON object with the new value of modified attributes after this mutation. For all other
+   * mutation types this will be null.
+   *
+   * <p>Null values in the responses indicates a response was removed/cleared.
+   */
+  @Nullable public JSONObject newResponses;
 }
