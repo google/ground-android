@@ -65,8 +65,8 @@ public class HomeScreenViewModel extends AbstractViewModel {
 
     disposeOnClear(
         addFeatureClicks
-            .switchMapSingle(Result.wrapErrors(dataRepository::addFeature))
-            .subscribe(Result.unwrapErrors(this::showFeatureSheet, this::onAddFeatureError)));
+            .switchMapSingle(Result.mapSingle(dataRepository::addFeature))
+            .subscribe(Result.unwrap(this::showFeatureSheet, this::onAddFeatureError)));
   }
 
   private void onAddFeatureError(Throwable throwable) {
