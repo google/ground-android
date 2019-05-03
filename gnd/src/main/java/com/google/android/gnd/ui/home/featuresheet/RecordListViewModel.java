@@ -39,6 +39,7 @@ import java8.util.stream.Collectors;
 import javax.inject.Inject;
 
 // TODO: Roll up into parent viewmodel. Simplify VMs overall.
+// TODO(#71): Simplify VM project, form, and feature access.
 public class RecordListViewModel extends AbstractViewModel {
 
   private static final String TAG = RecordListViewModel.class.getSimpleName();
