@@ -32,7 +32,7 @@ import com.google.android.gnd.vo.Record;
 import java.util.Collections;
 import java.util.List;
 
-import io.reactivex.Single;
+import io.reactivex.Observable;
 import io.reactivex.subjects.PublishSubject;
 import java8.util.Optional;
 import java8.util.stream.Collectors;
@@ -54,39 +54,55 @@ public class RecordListViewModel extends AbstractViewModel {
 
     disposeOnClear(
         recordSummaryRequests
-            .switchMapSingle(Result.wrapErrors(this::fetchRecordSummaries))
-            .subscribe(Result.unwrapErrors(recordSummaries::setValue, this::onRecordSummaryError)));
+            .flatMap(Result.mapObservable(this::fetchRecordSummaries), this::filterByRequestForm)
+            .subscribe(Result.unwrap(recordSummaries::setValue, this::onRecordSummaryError)));
   }
 
+  /**
+   * Returns the list of current record summaries.
+   * @return A list of records.
+   */
   public LiveData<List<Record>> getRecordSummaries() {
     return recordSummaries;
   }
 
+  /**
+   * Clears the current list of record summaries.
+   */
   public void clearRecords() {
     recordSummaries.setValue(Collections.emptyList());
   }
 
+  /**
+   * Loads a list of records associated with a given feature and fetches summaries for them.
+   * @param feature
+   * @param form
+   */
   public void loadRecordSummaries(Feature feature, Form form) {
     loadRecords(
         feature.getProject(), feature.getFeatureType().getId(), form.getId(), feature.getId());
   }
 
-  /**
-   * Attempts to fetch a list of records based on the contents of a {@link RecordSummaryRequest}.
-   *
-   * @param request A record summary request. A triple of project, featureId, and formId.
-   * @return A list containing fetched records with forms that satisfy the formId
-   *     provided in the request.
-   */
-  private Single<List<Record>> fetchRecordSummaries(RecordSummaryRequest request) {
+  private Observable<List<Record>> fetchRecordSummaries(RecordSummaryRequest request) {
     // TODO: Only fetch records with current formId.
     return dataRepository
         .getRecordSummaries(request.project.getId(), request.featureId)
-        .map(
-            records ->
-                stream(records)
-                    .filter(record -> record.getForm().getId().equals(request.formId))
-                    .collect(Collectors.toList()));
+        .toObservable();
+  }
+
+  private Result<List<Record>> filterByRequestForm(
+      RecordSummaryRequest request, Result<List<Record>> recordResult) {
+    switch (recordResult.getState()) {
+      case SUCCESS:
+        return Result.success(
+            stream(recordResult.get())
+                .filter(record -> record.getForm().getId().equals(request.formId))
+                .collect(Collectors.toList()));
+      case ERROR:
+        return Result.error(new Throwable("Failed to filter records by request form ID."));
+      default:
+        return Result.error(new Throwable("Failed to filter records by request form ID."));
+    }
   }
 
   private void onRecordSummaryError(Throwable t) {
