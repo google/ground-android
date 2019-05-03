@@ -17,79 +17,33 @@
 package com.google.android.gnd.persistence.local.room;
 
 import androidx.annotation.NonNull;
-import androidx.room.ColumnInfo;
 import androidx.room.Embedded;
 import androidx.room.Entity;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
 import com.google.android.gnd.persistence.shared.FeatureMutation;
-import com.google.auto.value.AutoValue;
-import com.google.auto.value.AutoValue.CopyAnnotations;
 
 /** Representation of a {@link com.google.android.gnd.vo.Feature} in local db. */
-@AutoValue
 @Entity(
     tableName = "feature",
     indices = {@Index("id")})
-public abstract class FeatureEntity {
+public class FeatureEntity {
 
-  @CopyAnnotations
-  @PrimaryKey
-  @ColumnInfo(name = "id")
+  @NonNull @PrimaryKey public String id;
+
+  @NonNull public EntityState state;
+
+  @NonNull public String projectId;
+
+  @NonNull @Embedded public Coordinates location;
+
   @NonNull
-  public abstract String getId();
-
-  @CopyAnnotations
-  @NonNull
-  @ColumnInfo(name = "state")
-  public abstract EntityState getState();
-
-  @CopyAnnotations
-  @NonNull
-  @ColumnInfo(name = "project_id")
-  public abstract String getProjectId();
-
-  @CopyAnnotations
-  @Embedded
-  public abstract Coordinates getLocation();
-
-  public static FeatureEntity fromMutation(FeatureMutation mutation) {
-    FeatureEntity.Builder builder =
-        FeatureEntity.builder()
-            .setId(mutation.getEntityId())
-            .setProjectId(mutation.getProjectId())
-            .setState(EntityState.DEFAULT);
-    mutation.getNewLocation().ifPresent(l -> builder.setLocation(Coordinates.fromPoint(l)));
-    return builder.build();
-  }
-
-  // Auto-generated boilerplate:
-
-  public static FeatureEntity create(
-      String id, EntityState state, String projectId, Coordinates location) {
-    return builder()
-        .setId(id)
-        .setState(state)
-        .setProjectId(projectId)
-        .setLocation(location)
-        .build();
-  }
-
-  public static Builder builder() {
-    return new AutoValue_FeatureEntity.Builder();
-  }
-
-  @AutoValue.Builder
-  public abstract static class Builder {
-
-    public abstract Builder setId(String newId);
-
-    public abstract Builder setState(EntityState newState);
-
-    public abstract Builder setProjectId(String newProjectId);
-
-    public abstract Builder setLocation(Coordinates newCoordinates);
-
-    public abstract FeatureEntity build();
+  public static FeatureEntity fromMutation(FeatureMutation m) {
+    FeatureEntity fe = new FeatureEntity();
+    fe.id = m.getEntityId();
+    fe.projectId = m.getProjectId();
+    fe.state = EntityState.DEFAULT;
+    m.getNewLocation().ifPresent(l -> fe.location = Coordinates.fromPoint(l));
+    return fe;
   }
 }

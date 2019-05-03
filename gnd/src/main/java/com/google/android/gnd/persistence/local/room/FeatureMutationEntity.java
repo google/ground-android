@@ -19,64 +19,31 @@ package com.google.android.gnd.persistence.local.room;
 import static androidx.room.ForeignKey.CASCADE;
 
 import androidx.annotation.NonNull;
-import androidx.room.ColumnInfo;
 import androidx.room.Embedded;
 import androidx.room.Entity;
 import androidx.room.ForeignKey;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
-import com.google.auto.value.AutoValue;
-import com.google.auto.value.AutoValue.CopyAnnotations;
 
 /**
  * Representation of a {@link com.google.android.gnd.persistence.shared.FeatureMutation} in local
  * data store.
  */
-@AutoValue
 @Entity(
-    tableName = "feature_mutation",
+    tableName = "featureMutation",
     foreignKeys =
         @ForeignKey(
             entity = FeatureEntity.class,
             parentColumns = "id",
-            childColumns = "feature_id",
+            childColumns = "featureId",
             onDelete = CASCADE),
-    indices = {@Index("feature_id")})
-public abstract class FeatureMutationEntity {
-  @CopyAnnotations
+    indices = {@Index("featureId")})
+public class FeatureMutationEntity {
+
   @PrimaryKey(autoGenerate = true)
-  @ColumnInfo(name = "id")
-  public abstract int getId();
+  public int id;
 
-  @CopyAnnotations
-  @ColumnInfo(name = "feature_id")
-  @NonNull
-  public abstract String getFeatureId();
+  @NonNull public String featureId;
 
-  @CopyAnnotations
-  @Embedded
-  @NonNull
-  public abstract Edit getEdit();
-
-  // Auto-generated boilerplate:
-
-  public static FeatureMutationEntity create(int id, String featureId, Edit edit) {
-    return builder().setId(id).setFeatureId(featureId).setEdit(edit).build();
-  }
-
-  public static Builder builder() {
-    return new AutoValue_FeatureMutationEntity.Builder();
-  }
-
-  @AutoValue.Builder
-  public abstract static class Builder {
-
-    public abstract Builder setId(int newId);
-
-    public abstract Builder setFeatureId(String newFeatureId);
-
-    public abstract Builder setEdit(Edit newEdit);
-
-    public abstract FeatureMutationEntity build();
-  }
+  @Embedded @NonNull public Edit edit;
 }

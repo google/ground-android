@@ -19,64 +19,30 @@ package com.google.android.gnd.persistence.local.room;
 import static androidx.room.ForeignKey.CASCADE;
 
 import androidx.annotation.NonNull;
-import androidx.room.ColumnInfo;
 import androidx.room.Embedded;
 import androidx.room.Entity;
 import androidx.room.ForeignKey;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
-import com.google.auto.value.AutoValue;
-import com.google.auto.value.AutoValue.CopyAnnotations;
 
 /**
  * Representation of a {@link com.google.android.gnd.persistence.shared.RecordMutation} in local
  * data store.
  */
-@AutoValue
 @Entity(
-    tableName = "record_mutation",
+    tableName = "recordMutation",
     foreignKeys =
         @ForeignKey(
             entity = RecordEntity.class,
             parentColumns = "id",
-            childColumns = "record_id",
+            childColumns = "recordId",
             onDelete = CASCADE),
-    indices = {@Index("record_id")})
-public abstract class RecordMutationEntity {
-  @CopyAnnotations
+    indices = {@Index("recordId")})
+public class RecordMutationEntity {
   @PrimaryKey(autoGenerate = true)
-  @ColumnInfo(name = "id")
-  public abstract int getId();
+  public int id;
 
-  @CopyAnnotations
-  @ColumnInfo(name = "record_id")
-  @NonNull
-  public abstract String getRecordId();
+  @NonNull public String recordId;
 
-  @CopyAnnotations
-  @Embedded
-  @NonNull
-  public abstract Edit getEdit();
-
-  // Auto-generated boilerplate:
-
-  public static RecordMutationEntity create(int id, String recordId, Edit edit) {
-    return builder().setId(id).setRecordId(recordId).setEdit(edit).build();
-  }
-
-  public static Builder builder() {
-    return new AutoValue_RecordMutationEntity.Builder();
-  }
-
-  @AutoValue.Builder
-  public abstract static class Builder {
-
-    public abstract Builder setId(int newId);
-
-    public abstract Builder setRecordId(String newRecordId);
-
-    public abstract Builder setEdit(Edit newEdit);
-
-    public abstract RecordMutationEntity build();
-  }
+  @Embedded @NonNull public Edit edit;
 }

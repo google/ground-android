@@ -17,48 +17,23 @@
 package com.google.android.gnd.persistence.local.room;
 
 import androidx.annotation.NonNull;
-import androidx.room.ColumnInfo;
 import com.google.android.gnd.vo.Point;
-import com.google.auto.value.AutoValue;
-import com.google.auto.value.AutoValue.CopyAnnotations;
 
-/** Represents a lat/lng coordinate in FeatureMutation instances. */
-@AutoValue
-public abstract class Coordinates {
-  @CopyAnnotations
+/**
+ * Represents a lat/lng coordinate in {@link
+ * com.google.android.gnd.persistence.shared.FeatureMutation} instances.
+ */
+public class Coordinates {
+
+  @NonNull public double latitude;
+
+  @NonNull public double longitude;
+
   @NonNull
-  @ColumnInfo(name = "latitude")
-  public abstract double getLatitude();
-
-  @CopyAnnotations
-  @NonNull
-  @ColumnInfo(name = "longitude")
-  public abstract double getLongitude();
-
   public static Coordinates fromPoint(Point point) {
-    return Coordinates.builder()
-        .setLatitude(point.getLatitude())
-        .setLongitude(point.getLongitude())
-        .build();
-  }
-
-  // Auto-generated boilerplate:
-
-  public static Coordinates create(double latitude, double longitude) {
-    return builder().setLatitude(latitude).setLongitude(longitude).build();
-  }
-
-  public static Builder builder() {
-    return new AutoValue_Coordinates.Builder();
-  }
-
-  @AutoValue.Builder
-  public abstract static class Builder {
-
-    public abstract Builder setLatitude(double newLatitude);
-
-    public abstract Builder setLongitude(double newLongitude);
-
-    public abstract Coordinates build();
+    Coordinates c = new Coordinates();
+    c.latitude = point.getLatitude();
+    c.longitude = point.getLongitude();
+    return c;
   }
 }
