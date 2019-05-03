@@ -22,15 +22,15 @@ import androidx.room.Insert;
 import androidx.room.Update;
 import io.reactivex.Completable;
 
-/** Data access object for database operations related to {@link RecordEditEntity}. */
+/** Data access object for database operations related to {@link RecordMutationEntity}. */
 @Dao
-public interface RecordEditDao {
+public interface RecordMutationDao {
   @Insert
-  Completable insert(RecordEditEntity recordEdit);
+  Completable insert(RecordMutationEntity entity);
 
   @Update
-  Completable update(RecordEditEntity recordEdit);
+  Completable update(RecordMutationEntity entity);
 
   @Delete
-  Completable delete(RecordEditEntity recordEdit);
+  Completable delete(RecordMutationEntity entity);
 }

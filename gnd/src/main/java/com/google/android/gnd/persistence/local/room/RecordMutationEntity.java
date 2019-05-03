@@ -28,10 +28,13 @@ import androidx.room.PrimaryKey;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.AutoValue.CopyAnnotations;
 
-/** Representation of a {@link com.google.android.gnd.vo.FeatureUpdate.RecordUpdate} in local db. */
+/**
+ * Representation of a {@link com.google.android.gnd.persistence.shared.FeatureMutation} in local
+ * data store.
+ */
 @AutoValue
 @Entity(
-    tableName = "record_edit",
+    tableName = "record_mutation",
     foreignKeys =
         @ForeignKey(
             entity = RecordEntity.class,
@@ -39,7 +42,7 @@ import com.google.auto.value.AutoValue.CopyAnnotations;
             childColumns = "record_id",
             onDelete = CASCADE),
     indices = {@Index("record_id")})
-public abstract class RecordEditEntity {
+public abstract class RecordMutationEntity {
   @CopyAnnotations
   @PrimaryKey(autoGenerate = true)
   @ColumnInfo(name = "id")
@@ -57,12 +60,12 @@ public abstract class RecordEditEntity {
 
   // Auto-generated boilerplate:
 
-  public static RecordEditEntity create(int id, String recordId, Edit edit) {
+  public static RecordMutationEntity create(int id, String recordId, Edit edit) {
     return builder().setId(id).setRecordId(recordId).setEdit(edit).build();
   }
 
   public static Builder builder() {
-    return new AutoValue_RecordEditEntity.Builder();
+    return new AutoValue_RecordMutationEntity.Builder();
   }
 
   @AutoValue.Builder
@@ -74,6 +77,6 @@ public abstract class RecordEditEntity {
 
     public abstract Builder setEdit(Edit newEdit);
 
-    public abstract RecordEditEntity build();
+    public abstract RecordMutationEntity build();
   }
 }
