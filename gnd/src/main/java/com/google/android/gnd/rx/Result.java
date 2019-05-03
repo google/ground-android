@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.rx;
 
+import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.functions.Consumer;
@@ -62,12 +63,92 @@ public class Result<T> {
     return error;
   }
 
-  public static <T, R> Function<T, Single<Result<R>>> wrapErrors(
+  /**
+   * Transforms a Single, returned by applying fn to an argument of type T, into a Single that emits
+   * Results, returning Result::error on error.
+   *
+   * <p>This function is useful for handling nested RX streams, for example, in situations in which
+   * a function passed to the RX {@code map} operator returns a Single. {@code mapSingle} ensures we
+   * handle errors produced by such 'interior' Singles without breaking the 'exterior' stream.
+   *
+   * <pre>
+   *     public Single<Project> getProject(String projectId) {
+   *        return dataRepository.getProject(projectId);
+   *     }
+   *
+   *     somePublishSubject.onNext("foobar");
+   *
+   *     somePublishSubject.map(Result.mapSingle(getSingleProject))
+   *                       .subscribe(Result.unwrap(onProjectSuccess, onProjectError))
+   * </pre>
+   *
+   * @param fn A function that takes an argument of type T and returns a Single with emissions of
+   *     type R.
+   * @param <T> The initial type of values passed to fn.
+   * @param <R> The type of emissions produced by the Single returned by fn.
+   * @return
+   */
+  public static <T, R> Function<T, Single<Result<R>>> mapSingle(
       @NonNull Function<T, Single<R>> fn) {
     return (T value) -> fn.apply(value).map(Result::success).onErrorReturn(Result::error);
   }
 
-  public static <T> Consumer<? super Result<T>> unwrapErrors(
+  /**
+   * Wraps single emissions in a Result without applying any other transformations. Use this
+   * function to wrap and handle potential errors at a given point in a chain of RX transformations.
+   *
+   * @param single
+   * @param <T> The type of the Single's emissions.
+   * @return A Single that emits Results.
+   */
+  public static <T> Single<Result<T>> wrapSingle(Single<T> single) {
+    return single.map(Result::success).onErrorReturn(Result::error);
+  }
+
+  /**
+   * Transforms an Observable, returned by applying fn to an argument of type T, into an Observable
+   * that emits Results, returning Result::error on error.
+   *
+   *<p>This function is useful for handling nested RX streams, for example, in situations in which
+   * a function passed to the RX {@code map} operator returns a Observable. {@code mapObservable} ensures we
+   * handle errors produced by such 'interior' Observables without breaking the 'exterior' stream.
+   *
+   * <pre>
+   *     public Observable<Project> getProject(String projectId) {
+   *        return dataRepository.getProject(projectId);
+   *     }
+   *
+   *     somePublishSubject.onNext("foobar");
+   *
+   *     somePublishSubject.map(Result.mapObservable(getProject))
+   *                       .subscribe(Result.unwrap(onProjectSuccess, onProjectError))
+   * </pre>
+   *
+   *
+   * @param fn A function that takes an argument of type T and returns an Observable with emissions
+   *     of type R.
+   * @param <T> The initial type of values passed to fn.
+   * @param <R> The type of emissions produced by the Observable returned by fn.
+   * @return
+   */
+  public static <T, R> Function<T, Observable<Result<R>>> mapObservable(
+      @NonNull Function<T, Observable<R>> fn) {
+    return (T value) -> fn.apply(value).map(Result::success).onErrorReturn(Result::error);
+  }
+
+  /**
+   * Wraps observable emissions in a Result without applying any other transformations. Use this
+   * function to wrap and handle potential errors at a given point in a chain of RX transformations.
+   *
+   * @param observable
+   * @param <T> The type of the observable's emissions.
+   * @return An Observable that emits Results.
+   */
+  public static <T> Observable<Result<T>> wrapObservable(Observable<T> observable) {
+    return observable.map(Result::success).onErrorReturn(Result::error);
+  }
+
+  public static <T> Consumer<? super Result<T>> unwrap(
       Consumer<T> onSuccess, Consumer<Throwable> onError) {
     return result -> {
       switch (result.getState()) {
