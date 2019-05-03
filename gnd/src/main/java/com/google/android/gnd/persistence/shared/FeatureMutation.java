@@ -16,6 +16,9 @@
 
 package com.google.android.gnd.persistence.shared;
 
+import com.google.android.gnd.persistence.local.room.Coordinates;
+import com.google.android.gnd.persistence.local.room.EntityState;
+import com.google.android.gnd.persistence.local.room.FeatureEntity;
 import com.google.android.gnd.vo.Point;
 import com.google.auto.value.AutoValue;
 import java8.util.Optional;
@@ -32,6 +35,15 @@ public abstract class FeatureMutation extends Mutation {
 
   public static Builder builder() {
     return new AutoValue_FeatureMutation.Builder();
+  }
+
+  public FeatureEntity toNewFeatureEntity() {
+    FeatureEntity.Builder builder = FeatureEntity.builder()
+        .setId(getEntityId())
+        .setProjectId(getProjectId())
+        .setState(EntityState.DEFAULT);
+    getNewLocation().ifPresent(l -> builder.setLocation(Coordinates.fromPoint(l)));
+    return builder.build();
   }
 
   @AutoValue.Builder

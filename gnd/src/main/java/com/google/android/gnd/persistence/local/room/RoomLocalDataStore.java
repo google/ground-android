@@ -65,7 +65,7 @@ public class RoomLocalDataStore implements LocalDataStore {
   private Completable apply(FeatureMutation mutation) throws LocalDataStoreException {
     switch (mutation.getType()) {
       case CREATE:
-        return db.featureDao().insert(newFeatureEntity(mutation));
+        return db.featureDao().insert(mutation.toNewFeatureEntity());
       case UPDATE:
         // TODO: Implement.
       case DELETE:
@@ -75,15 +75,6 @@ public class RoomLocalDataStore implements LocalDataStore {
       default:
         throw new LocalDataStoreException("Unimplemented Mutation.Type." + mutation.getType());
     }
-  }
-
-  private FeatureEntity newFeatureEntity(FeatureMutation mutation) {
-    FeatureEntity.Builder builder = FeatureEntity.builder()
-        .setId(mutation.getEntityId())
-        .setProjectId(mutation.getProjectId())
-        .setState(EntityState.DEFAULT);
-    mutation.getNewLocation().ifPresent(l -> builder.setLocation(Coordinates.fromPoint(l)));
-    return builder.build();
   }
 
   private Completable apply(RecordMutation mutation) throws LocalDataStoreException {
