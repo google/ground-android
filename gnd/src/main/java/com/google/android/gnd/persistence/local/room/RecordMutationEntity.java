@@ -29,7 +29,7 @@ import com.google.auto.value.AutoValue;
 import com.google.auto.value.AutoValue.CopyAnnotations;
 
 /**
- * Representation of a {@link com.google.android.gnd.persistence.shared.FeatureMutation} in local
+ * Representation of a {@link com.google.android.gnd.persistence.shared.RecordMutation} in local
  * data store.
  */
 @AutoValue

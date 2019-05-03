@@ -28,7 +28,10 @@ import androidx.room.PrimaryKey;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.AutoValue.CopyAnnotations;
 
-/** Representation of a {@link com.google.android.gnd.vo.FeatureUpdate} in local db. */
+/**
+ * Representation of a {@link com.google.android.gnd.persistence.shared.FeatureMutation} in local
+ * data store.
+ */
 @AutoValue
 @Entity(
     tableName = "feature_mutation",
