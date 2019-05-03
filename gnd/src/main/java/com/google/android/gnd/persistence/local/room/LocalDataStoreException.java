@@ -16,9 +16,19 @@
 
 package com.google.android.gnd.persistence.local.room;
 
+import com.google.android.gnd.persistence.shared.Mutation;
+
 public class LocalDataStoreException extends Exception {
 
   public LocalDataStoreException(String message) {
     super(message);
+  }
+
+  public static LocalDataStoreException unknownMutationType(Mutation.Type type) {
+    return new LocalDataStoreException("Unknown Mutation.Type." + type);
+  }
+
+  public static LocalDataStoreException unknownMutationClass(Class clz) {
+    return new LocalDataStoreException("Unknown mutation " + clz);
   }
 }

@@ -57,7 +57,7 @@ public class RoomLocalDataStore implements LocalDataStore {
     } else if (mutation instanceof RecordMutation) {
       return apply((RecordMutation) mutation);
     } else {
-      throw new LocalDataStoreException("Unimplemented Mutation " + mutation.getClass());
+      throw LocalDataStoreException.unknownMutationClass(mutation.getClass());
     }
   }
 
@@ -72,7 +72,7 @@ public class RoomLocalDataStore implements LocalDataStore {
       case RELOAD:
         // TODO: Implement.
       default:
-        throw new LocalDataStoreException("Unimplemented Mutation.Type." + mutation.getType());
+        throw LocalDataStoreException.unknownMutationType(mutation.getType());
     }
   }
 
@@ -87,7 +87,7 @@ public class RoomLocalDataStore implements LocalDataStore {
       case RELOAD:
         // TODO: Implement.
       default:
-        throw new LocalDataStoreException("ChangeType." + mutation.getType());
+        throw LocalDataStoreException.unknownMutationType(mutation.getType());
     }
   }
 
@@ -97,7 +97,7 @@ public class RoomLocalDataStore implements LocalDataStore {
     } else if (mutation instanceof RecordMutation) {
       return enqueue((RecordMutation) mutation);
     } else {
-      throw new LocalDataStoreException("Unimplemented Mutation " + mutation.getClass());
+      throw LocalDataStoreException.unknownMutationClass(mutation.getClass());
     }
   }
 
