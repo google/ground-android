@@ -20,7 +20,6 @@ import androidx.room.Room;
 import androidx.room.Transaction;
 import com.google.android.gnd.GndApplication;
 import com.google.android.gnd.persistence.local.LocalDataStore;
-import com.google.android.gnd.persistence.local.room.FeatureEntity.Builder;
 import com.google.android.gnd.persistence.remote.RemoteChange;
 import com.google.android.gnd.persistence.shared.FeatureMutation;
 import com.google.android.gnd.persistence.shared.Mutation;
@@ -92,9 +91,24 @@ public class RoomLocalDataStore implements LocalDataStore {
     }
   }
 
-  private Completable enqueue(Mutation mutation) {
+  private Completable enqueue(Mutation mutation) throws LocalDataStoreException {
+    if (mutation instanceof FeatureMutation) {
+      return enqueue((FeatureMutation) mutation);
+    } else if (mutation instanceof RecordMutation) {
+      return enqueue((RecordMutation) mutation);
+    } else {
+      throw new LocalDataStoreException("Unimplemented Mutation " + mutation.getClass());
+    }
+  }
+
+  private Completable enqueue(FeatureMutation mutation) throws LocalDataStoreException {
     // TODO: Implement.
-    return Completable.error(new UnsupportedOperationException());
+    return Completable.complete();
+  }
+
+  private Completable enqueue(RecordMutation mutation) throws LocalDataStoreException {
+    // TODO: Implement.
+    return Completable.complete();
   }
 
   @Override
