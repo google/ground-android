@@ -31,7 +31,7 @@ import com.google.auto.value.AutoValue.CopyAnnotations;
 /** Representation of a {@link com.google.android.gnd.vo.FeatureUpdate} in local db. */
 @AutoValue
 @Entity(
-    tableName = "feature_edit",
+    tableName = "feature_mutation",
     foreignKeys =
         @ForeignKey(
             entity = FeatureEntity.class,
@@ -39,7 +39,7 @@ import com.google.auto.value.AutoValue.CopyAnnotations;
             childColumns = "feature_id",
             onDelete = CASCADE),
     indices = {@Index("feature_id")})
-public abstract class FeatureEditEntity {
+public abstract class FeatureMutationEntity {
   @CopyAnnotations
   @PrimaryKey(autoGenerate = true)
   @ColumnInfo(name = "id")
@@ -57,12 +57,12 @@ public abstract class FeatureEditEntity {
 
   // Auto-generated boilerplate:
 
-  public static FeatureEditEntity create(int id, String featureId, Edit edit) {
+  public static FeatureMutationEntity create(int id, String featureId, Edit edit) {
     return builder().setId(id).setFeatureId(featureId).setEdit(edit).build();
   }
 
   public static Builder builder() {
-    return new AutoValue_FeatureEditEntity.Builder();
+    return new AutoValue_FeatureMutationEntity.Builder();
   }
 
   @AutoValue.Builder
@@ -74,6 +74,6 @@ public abstract class FeatureEditEntity {
 
     public abstract Builder setEdit(Edit newEdit);
 
-    public abstract FeatureEditEntity build();
+    public abstract FeatureMutationEntity build();
   }
 }

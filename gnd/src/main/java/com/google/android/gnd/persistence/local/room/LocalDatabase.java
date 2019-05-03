@@ -31,7 +31,7 @@ import androidx.room.TypeConverters;
 @Database(
     entities = {
       FeatureEntity.class,
-      FeatureEditEntity.class,
+      FeatureMutationEntity.class,
       RecordEntity.class,
       RecordEditEntity.class
     },
@@ -42,7 +42,7 @@ public abstract class LocalDatabase extends RoomDatabase {
 
   public abstract FeatureDao featureDao();
 
-  public abstract FeatureEditDao featureEditDao();
+  public abstract FeatureMutationDao featureMutationDao();
 
   public abstract RecordDao recordDao();
 

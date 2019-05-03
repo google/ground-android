@@ -22,7 +22,7 @@ import com.google.android.gnd.vo.Point;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.AutoValue.CopyAnnotations;
 
-/** Represents a lat/lng coordinate in FeatureEdit instances. */
+/** Represents a lat/lng coordinate in FeatureMutation instances. */
 @AutoValue
 public abstract class Coordinates {
   @CopyAnnotations
