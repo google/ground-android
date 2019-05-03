@@ -50,9 +50,6 @@ public abstract class Mutation {
   /** Returns the unique id of the project in which this feature resides. */
   public abstract String getProjectId();
 
-  /** Returns the globally unique id of the entity being modified. */
-  public abstract String getEntityId();
-
   /** Returns the globally unique id of the user requesting the change. */
   public abstract String getUserId();
 
@@ -63,8 +60,6 @@ public abstract class Mutation {
     public abstract T setType(Type newType);
 
     public abstract T setProjectId(String newProjectId);
-
-    public abstract T setEntityId(String newEntityId);
 
     public abstract T setUserId(String newUserId);
   }

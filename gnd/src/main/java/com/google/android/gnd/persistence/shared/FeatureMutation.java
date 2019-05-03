@@ -16,9 +16,6 @@
 
 package com.google.android.gnd.persistence.shared;
 
-import com.google.android.gnd.persistence.local.room.Coordinates;
-import com.google.android.gnd.persistence.local.room.EntityState;
-import com.google.android.gnd.persistence.local.room.FeatureEntity;
 import com.google.android.gnd.vo.Point;
 import com.google.auto.value.AutoValue;
 import java8.util.Optional;
@@ -26,6 +23,9 @@ import java8.util.Optional;
 /** Represents mutation of a feature in the local to be queued for sync with remote store. */
 @AutoValue
 public abstract class FeatureMutation extends Mutation {
+
+  /** Returns the globally unique id of the feature being modified. */
+  public abstract String getFeatureId();
 
   /**
    * Indicates the new location of the feature. If empty, indicates no change to the feature's
@@ -39,6 +39,8 @@ public abstract class FeatureMutation extends Mutation {
 
   @AutoValue.Builder
   public abstract static class Builder extends Mutation.Builder<Builder> {
+
+    public abstract Builder setFeatureId(String newFeatureId);
 
     public abstract Builder setNewLocation(Optional<Point> newNewLocation);
 

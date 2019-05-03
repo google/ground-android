@@ -24,6 +24,9 @@ import java8.util.Optional;
 /** Represents mutation of a record in the local to be queued for sync with remote store. */
 public abstract @AutoValue class RecordMutation extends Mutation {
 
+  /** Returns the globally unique id of the record being modified. */
+  public abstract String getRecordId();
+
   /**
    * Returns a map keyed by response element id. The presence of a map entry indicates a specific
    * response was modified. If the value is empty, it indicates the response was removed/cleared.
@@ -36,6 +39,7 @@ public abstract @AutoValue class RecordMutation extends Mutation {
 
   @AutoValue.Builder
   public abstract static class Builder extends Mutation.Builder<Builder> {
+    public abstract Builder setRecordId(String newRecordId);
 
     public abstract Builder setNewResponses(Map<String, Optional<Response>> newNewResponses);
 

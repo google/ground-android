@@ -40,7 +40,7 @@ public class FeatureEntity {
   @NonNull
   public static FeatureEntity fromMutation(FeatureMutation m) {
     FeatureEntity fe = new FeatureEntity();
-    fe.id = m.getEntityId();
+    fe.id = m.getFeatureId();
     fe.projectId = m.getProjectId();
     fe.state = EntityState.DEFAULT;
     m.getNewLocation().ifPresent(l -> fe.location = Coordinates.fromPoint(l));
