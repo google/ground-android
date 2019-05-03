@@ -96,7 +96,7 @@ public class EditRecordViewModel extends AbstractViewModel {
 
     disposeOnClear(
         editRecordRequests
-            .switchMapSingle(Result.wrapSingle(this::createOrUpdateRecord))
+            .switchMapSingle(Result.mapSingle(this::createOrUpdateRecord))
             .subscribe(Result.unwrap(this::onRecordSnapshot, this::onEditRecordError)));
   }
 
