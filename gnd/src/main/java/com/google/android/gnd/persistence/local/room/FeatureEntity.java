@@ -22,6 +22,7 @@ import androidx.room.Embedded;
 import androidx.room.Entity;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
+import com.google.android.gnd.persistence.shared.FeatureMutation;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.AutoValue.CopyAnnotations;
 
@@ -31,6 +32,7 @@ import com.google.auto.value.AutoValue.CopyAnnotations;
     tableName = "feature",
     indices = {@Index("id")})
 public abstract class FeatureEntity {
+
   @CopyAnnotations
   @PrimaryKey
   @ColumnInfo(name = "id")
@@ -50,6 +52,16 @@ public abstract class FeatureEntity {
   @CopyAnnotations
   @Embedded
   public abstract Coordinates getLocation();
+
+  public static FeatureEntity fromMutation(FeatureMutation mutation) {
+    FeatureEntity.Builder builder =
+        FeatureEntity.builder()
+            .setId(mutation.getEntityId())
+            .setProjectId(mutation.getProjectId())
+            .setState(EntityState.DEFAULT);
+    mutation.getNewLocation().ifPresent(l -> builder.setLocation(Coordinates.fromPoint(l)));
+    return builder.build();
+  }
 
   // Auto-generated boilerplate:
 

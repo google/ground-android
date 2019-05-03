@@ -64,7 +64,7 @@ public class RoomLocalDataStore implements LocalDataStore {
   private Completable apply(FeatureMutation mutation) throws LocalDataStoreException {
     switch (mutation.getType()) {
       case CREATE:
-        return db.featureDao().insert(mutation.toNewFeatureEntity());
+        return db.featureDao().insert(FeatureEntity.fromMutation(mutation));
       case UPDATE:
         // TODO: Implement.
       case DELETE:

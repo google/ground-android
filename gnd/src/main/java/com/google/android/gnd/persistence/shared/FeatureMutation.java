@@ -37,15 +37,6 @@ public abstract class FeatureMutation extends Mutation {
     return new AutoValue_FeatureMutation.Builder();
   }
 
-  public FeatureEntity toNewFeatureEntity() {
-    FeatureEntity.Builder builder = FeatureEntity.builder()
-        .setId(getEntityId())
-        .setProjectId(getProjectId())
-        .setState(EntityState.DEFAULT);
-    getNewLocation().ifPresent(l -> builder.setLocation(Coordinates.fromPoint(l)));
-    return builder.build();
-  }
-
   @AutoValue.Builder
   public abstract static class Builder extends Mutation.Builder<Builder> {
 
