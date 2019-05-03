@@ -16,13 +16,11 @@
 
 package com.google.android.gnd.ui.projectselector;
 
-import static com.google.android.gnd.rx.RxAutoDispose.autoDisposable;
 import static java8.util.stream.StreamSupport.stream;
 
 import android.app.Dialog;
 import android.os.Bundle;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.appcompat.app.AlertDialog;
 import android.util.Log;
@@ -64,8 +62,12 @@ public class ProjectSelectorDialogFragment extends AbstractDialogFragment {
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     this.viewModel = getViewModel(ProjectSelectorViewModel.class);
-    viewModel.activeProjectStream.as(autoDisposable(this))
-        .subscribe(this::dismiss, this::onActivateProjectFailure);
+    viewModel.activateProjectErrors.observe(this, this::onActivateProjectFailure);
+    viewModel.activeProject.observe(this, this::dismiss);
+  }
+
+  private void dismiss(Project project) {
+    dismiss();
   }
 
   @Override

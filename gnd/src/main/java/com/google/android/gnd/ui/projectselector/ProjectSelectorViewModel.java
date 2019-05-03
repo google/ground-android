@@ -15,11 +15,14 @@
  */
 package com.google.android.gnd.ui.projectselector;
 
+import android.util.Log;
+
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.google.android.gnd.repository.DataRepository;
 import com.google.android.gnd.repository.Resource;
+import com.google.android.gnd.rx.Result;
 import com.google.android.gnd.system.AuthenticationManager;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.vo.Project;
@@ -39,40 +42,61 @@ public class ProjectSelectorViewModel extends AbstractViewModel {
   private final MutableLiveData<Resource<List<Project>>> projectSummaries;
   private final PublishSubject<Integer> projectSelections;
   public final MutableLiveData<Project> activeProject;
-  public final Observable<Project> activeProjectStream;
+  public final MutableLiveData<Throwable> activateProjectErrors;
+  public final Observable<Result<Project>> activeProjectStream;
 
   @Inject
   ProjectSelectorViewModel(DataRepository dataRepository, AuthenticationManager authManager) {
     this.dataRepository = dataRepository;
     this.projectSummaries = new MutableLiveData<>();
     this.activeProject = new MutableLiveData<>();
+    this.activateProjectErrors = new MutableLiveData<>();
     this.projectSelections = PublishSubject.create();
 
     Observable<AuthenticationManager.User> user = authManager.getUser();
 
-    Observable<Resource<List<Project>>> availableProjects =
-        user.switchMap(this.dataRepository::getProjectSummaries);
+    Observable<Result<Resource<List<Project>>>> availableProjects =
+        user.switchMap(Result.mapObservable(this.dataRepository::getProjectSummaries));
 
     this.activeProjectStream =
-        projectSelections.flatMapCompletable(
-            idx ->
-                this.dataRepository.activateProject(
-                    Resource.getData(this.projectSummaries)
-                        .orElse(Collections.emptyList())
-                        .get(idx)
-                        .getId())).toObservable();
+        projectSelections.switchMap(Result.mapObservable(this::selectActiveProject));
 
-    disposeOnClear(activeProjectStream.subscribe(activeProject::setValue));
-    disposeOnClear(availableProjects.subscribe(projectSummaries::setValue));
+    disposeOnClear(
+        activeProjectStream.subscribe(
+            Result.unwrap(activeProject::setValue, this::onActiveProjectError)));
+    disposeOnClear(
+        availableProjects.subscribe(
+            Result.unwrap(projectSummaries::setValue, this::onProjectSummariesError)));
   }
 
   public LiveData<Resource<List<Project>>> getProjectSummaries() {
     return projectSummaries;
   }
 
-  public LiveData<Project> getActiveProject() {return activeProject;}
+  public LiveData<Project> getActiveProject() {
+    return activeProject;
+  }
+
+  private Observable<Project> selectActiveProject(int idx) {
+    return this.dataRepository
+        .activateProject(
+            Resource.getData(this.projectSummaries)
+                .orElse(Collections.emptyList())
+                .get(idx)
+                .getId())
+        .toObservable();
+  }
+
+  private void onProjectSummariesError(Throwable t) {
+    Log.d(TAG, "Failed to retrieve project summaries.", t);
+  }
+
+  private void onActiveProjectError(Throwable t) {
+    Log.d(TAG, "Could not activate project.", t);
+    this.activateProjectErrors.setValue(t);
+  }
+
   void activateProject(int idx) {
     projectSelections.onNext(idx);
   }
-
 }
