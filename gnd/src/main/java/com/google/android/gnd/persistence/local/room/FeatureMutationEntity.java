@@ -25,6 +25,7 @@ import androidx.room.Entity;
 import androidx.room.ForeignKey;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
+import com.google.android.gnd.persistence.shared.FeatureMutation;
 
 /**
  * Representation of a {@link com.google.android.gnd.persistence.shared.FeatureMutation} in local
@@ -50,4 +51,12 @@ public class FeatureMutationEntity {
 
   /** Non-null of the feature's location was updated, null if unchanged. */
   @Nullable @Embedded public Coordinates newLocation;
+
+  static FeatureMutationEntity fromMutation(FeatureMutation m) {
+    FeatureMutationEntity me = new FeatureMutationEntity();
+    me.featureId = m.getFeatureId();
+    me.newLocation = m.getNewLocation().map(Coordinates::fromPoint).orElse(null);
+    me.type = MutationEntityType.fromMutationType(m.getType());
+    return me;
+  }
 }

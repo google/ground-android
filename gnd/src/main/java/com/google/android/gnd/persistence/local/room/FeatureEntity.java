@@ -38,7 +38,7 @@ public class FeatureEntity {
   @NonNull @Embedded public Coordinates location;
 
   @NonNull
-  public static FeatureEntity fromMutation(FeatureMutation m) {
+  static FeatureEntity fromMutation(FeatureMutation m) {
     FeatureEntity fe = new FeatureEntity();
     fe.id = m.getFeatureId();
     fe.projectId = m.getProjectId();

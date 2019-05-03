@@ -101,12 +101,11 @@ public class RoomLocalDataStore implements LocalDataStore {
     }
   }
 
-  private Completable enqueue(FeatureMutation mutation) throws LocalDataStoreException {
-    // TODO: Implement.
-    return Completable.complete();
+  private Completable enqueue(FeatureMutation mutation) {
+    return db.featureMutationDao().insert(FeatureMutationEntity.fromMutation(mutation));
   }
 
-  private Completable enqueue(RecordMutation mutation) throws LocalDataStoreException {
+  private Completable enqueue(RecordMutation mutation) {
     // TODO: Implement.
     return Completable.complete();
   }

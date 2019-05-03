@@ -19,18 +19,34 @@ package com.google.android.gnd.persistence.local.room;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.room.TypeConverter;
+import com.google.android.gnd.persistence.shared.Mutation;
 
 public enum MutationEntityType implements IntEnum {
   UNKNOWN(0),
   CREATE(1),
   UPDATE(2),
   DELETE(3),
-  REVERT(4);
+  RELOAD(4);
 
   private final int intValue;
 
   MutationEntityType(int intValue) {
     this.intValue = intValue;
+  }
+
+  static MutationEntityType fromMutationType(Mutation.Type type) {
+    switch (type) {
+      case CREATE:
+        return CREATE;
+      case UPDATE:
+        return UPDATE;
+      case DELETE:
+        return DELETE;
+      case RELOAD:
+        return RELOAD;
+      default:
+        return UNKNOWN;
+    }
   }
 
   public int intValue() {
