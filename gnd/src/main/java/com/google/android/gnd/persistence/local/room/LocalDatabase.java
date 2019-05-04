@@ -31,20 +31,21 @@ import androidx.room.TypeConverters;
 @Database(
     entities = {
       FeatureEntity.class,
-      FeatureEditEntity.class,
+      FeatureMutationEntity.class,
       RecordEntity.class,
       RecordEditEntity.class
     },
     version = 1,
     exportSchema = false)
-@TypeConverters({Edit.Type.class, EntityState.class, JSONObjectTypeConverter.class})
+@TypeConverters({
+  MutationEntityType.class,
+  Edit.Type.class,
+  EntityState.class,
+  JSONObjectTypeConverter.class
+})
 public abstract class LocalDatabase extends RoomDatabase {
 
   public abstract FeatureDao featureDao();
 
-  public abstract FeatureEditDao featureEditDao();
-
-  public abstract RecordDao recordDao();
-
-  public abstract RecordEditDao recordEditDao();
+  public abstract FeatureMutationDao featureMutationDao();
 }
