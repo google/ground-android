@@ -48,6 +48,7 @@ public class FirestoreDataStore implements RemoteDataStore, OfflineUuidGenerator
       new FirebaseFirestoreSettings.Builder().setPersistenceEnabled(true).build();
   private static final SetOptions MERGE = SetOptions.merge();
   private static final String TAG = FirestoreDataStore.class.getSimpleName();
+  private static final String ID_COLLECTION = "/ids";
   private final GndFirestore db;
   private final FirebaseFirestore firestore;
 
@@ -162,6 +163,6 @@ public class FirestoreDataStore implements RemoteDataStore, OfflineUuidGenerator
 
   @Override
   public String generateUuid() {
-    return firestore.collection("/").document().getId();
+    return firestore.collection(ID_COLLECTION).document().getId();
   }
 }
