@@ -180,8 +180,8 @@ public class DataRepository {
     return builder.build();
   }
 
-  public Single<Feature> addFeature(Feature feature) {
-    return remoteDataStore.addFeature(feature);
+  public Completable saveFeature(Feature feature) {
+    return remoteDataStore.saveFeature(feature);
   }
 
   public void clearActiveProject() {

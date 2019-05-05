@@ -32,6 +32,7 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreSettings;
 import com.google.firebase.firestore.SetOptions;
+import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Single;
 import java.util.Date;
@@ -135,9 +136,9 @@ public class FirestoreDataStore implements RemoteDataStore, OfflineUuidGenerator
   }
 
   @Override
-  public Single<Feature> addFeature(Feature feature) {
+  public Completable saveFeature(Feature feature) {
     String projectId = feature.getProject().getId();
-    return db.projects().project(projectId).features().add(feature);
+    return db.projects().project(projectId).features().feature(feature.getId()).set(feature);
   }
 
   private Map<String, Object> updatedResponses(ImmutableList<ResponseUpdate> updates) {

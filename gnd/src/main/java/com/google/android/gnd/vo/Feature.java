@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.vo;
 
+import androidx.annotation.NonNull;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.extension.memoized.Memoized;
 import javax.annotation.Nullable;
@@ -23,7 +24,7 @@ import javax.annotation.Nullable;
 @AutoValue
 public abstract class Feature {
   // TODO: Replace Optionals with Nullables in VOs for consistency .
-  @Nullable
+  @NonNull
   public abstract String getId();
 
   public abstract Project getProject();
