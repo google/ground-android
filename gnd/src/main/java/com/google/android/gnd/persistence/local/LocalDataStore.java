@@ -16,7 +16,7 @@
 
 package com.google.android.gnd.persistence.local;
 
-import com.google.android.gnd.persistence.shared.Mutation;
+import com.google.android.gnd.persistence.shared.FeatureMutation;
 import io.reactivex.Completable;
 
 /**
@@ -27,9 +27,9 @@ import io.reactivex.Completable;
  */
 public interface LocalDataStore {
   /**
-   * Applies the specified {@link Mutation} to the local data store and appends it to the queue for
-   * remote sync. It is assumed to be a new, unsaved instance, and as such its {@code changeId} is
-   * ignored.
+   * Applies the specified {@link FeatureMutation} to the local data store, appending the mutation
+   * to the local queue for remote sync. It is assumed to be a new, unsaved instance, and as such
+   * its {@code changeId} is ignored.
    */
-  Completable applyAndEnqueue(Mutation mutation);
+  Completable applyAndEnqueue(FeatureMutation mutation);
 }

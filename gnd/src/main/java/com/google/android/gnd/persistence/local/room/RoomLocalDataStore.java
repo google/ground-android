@@ -21,7 +21,6 @@ import androidx.room.Transaction;
 import com.google.android.gnd.GndApplication;
 import com.google.android.gnd.persistence.local.LocalDataStore;
 import com.google.android.gnd.persistence.shared.FeatureMutation;
-import com.google.android.gnd.persistence.shared.Mutation;
 import io.reactivex.Completable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -48,19 +47,11 @@ public class RoomLocalDataStore implements LocalDataStore {
   /** {@inheritDoc} */
   @Transaction
   @Override
-  public Completable applyAndEnqueue(Mutation mutation) {
+  public Completable applyAndEnqueue(FeatureMutation mutation) {
     try {
       return apply(mutation).andThen(enqueue(mutation));
     } catch (LocalDataStoreException e) {
       return Completable.error(e);
-    }
-  }
-
-  private Completable apply(Mutation mutation) throws LocalDataStoreException {
-    if (mutation instanceof FeatureMutation) {
-      return apply((FeatureMutation) mutation);
-    } else {
-      throw LocalDataStoreException.unknownMutationClass(mutation.getClass());
     }
   }
 
@@ -70,14 +61,6 @@ public class RoomLocalDataStore implements LocalDataStore {
         return db.featureDao().insert(FeatureEntity.fromMutation(mutation));
       default:
         throw LocalDataStoreException.unknownMutationType(mutation.getType());
-    }
-  }
-
-  private Completable enqueue(Mutation mutation) throws LocalDataStoreException {
-    if (mutation instanceof FeatureMutation) {
-      return enqueue((FeatureMutation) mutation);
-    } else {
-      throw LocalDataStoreException.unknownMutationClass(mutation.getClass());
     }
   }
 
