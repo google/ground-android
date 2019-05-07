@@ -90,8 +90,8 @@ public class EditRecordViewModel extends AbstractViewModel {
 
     disposeOnClear(
             recordSaveRequests.zipWith(authManager.getUser(), this::saveRecord)
-            .switchMap(Result::wrapObservable)
-            .subscribe(Result.unwrap(record::setValue, this::onSaveRecordError)));
+            .switchMap(r -> r)
+            .subscribe(record::setValue, this::onSaveRecordError));
 
     disposeOnClear(
         editRecordRequests
