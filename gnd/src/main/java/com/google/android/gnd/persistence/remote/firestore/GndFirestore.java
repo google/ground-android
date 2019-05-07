@@ -34,6 +34,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SnapshotMetadata;
 import durdinapps.rxfirebase2.RxFirestore;
+import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
@@ -105,11 +106,6 @@ public class GndFirestore extends AbstractFluentFirestore {
       return new FeatureDocumentReference(ref.document(id));
     }
 
-    public Single<Feature> add(Feature feature) {
-      return RxFirestore.addDocument(ref, FeatureDoc.fromObject(feature))
-          .map(docRef -> feature.toBuilder().setId(docRef.getId()).build());
-    }
-
     public Flowable<DataStoreEvent<Feature>> observe(Project project) {
       return RxFirestore.observeQueryRef(ref)
           .flatMapIterable(
@@ -123,6 +119,10 @@ public class GndFirestore extends AbstractFluentFirestore {
   public static class FeatureDocumentReference extends FluentDocumentReference {
     protected FeatureDocumentReference(DocumentReference ref) {
       super(ref);
+    }
+
+    public Completable set(Feature feature) {
+      return RxFirestore.setDocument(ref, FeatureDoc.fromObject(feature));
     }
 
     public RecordsCollectionReference records() {

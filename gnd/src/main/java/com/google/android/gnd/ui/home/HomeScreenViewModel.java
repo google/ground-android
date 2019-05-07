@@ -15,10 +15,10 @@
  */
 package com.google.android.gnd.ui.home;
 
+import android.util.Log;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
 import androidx.lifecycle.MutableLiveData;
-import android.util.Log;
 import com.google.android.gnd.repository.DataRepository;
 import com.google.android.gnd.repository.Resource;
 import com.google.android.gnd.ui.common.AbstractViewModel;
@@ -99,7 +99,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
 
   public void addFeature(Feature feature) {
     // TODO(#24): Fix leaky subscriptions!
-    disposeOnClear(dataRepository.addFeature(feature).subscribe(this::onFeatureAdded));
+    disposeOnClear(dataRepository.saveFeature(feature).subscribe(() -> onFeatureAdded(feature)));
   }
 
   public void onBottomSheetHidden() {
