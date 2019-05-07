@@ -247,7 +247,6 @@ public class EditRecordViewModel extends AbstractViewModel {
   }
 
   private void saveChanges(Record r) {
-    Log.d(TAG, "Saving record as user: " + this.currentUser.getDisplayName());
     recordSaveRequests.onNext(new SaveRecordRequest(r, this.currentUser));
   }
 
