@@ -53,10 +53,11 @@ public class ProjectSelectorViewModel extends AbstractViewModel {
     this.activateProjectErrors = new MutableLiveData<>();
     this.projectSelections = PublishSubject.create();
 
-    Observable<AuthenticationManager.User> user = authManager.getUser();
+    AuthenticationManager.User user =
+        authManager.getUser().blockingFirst(AuthenticationManager.User.ANONYMOUS);
 
-    Observable<Result<Resource<List<Project>>>> availableProjects =
-        user.switchMap(Result.mapObservable(this.dataRepository::getProjectSummaries));
+    Observable<Resource<List<Project>>> availableProjects =
+        dataRepository.getProjectSummaries(user);
 
     this.activeProjectStream =
         projectSelections.switchMap(Result.mapObservable(this::selectActiveProject));
@@ -64,9 +65,9 @@ public class ProjectSelectorViewModel extends AbstractViewModel {
     disposeOnClear(
         activeProjectStream.subscribe(
             Result.unwrap(activeProject::setValue, this::onActiveProjectError)));
+
     disposeOnClear(
-        availableProjects.subscribe(
-            Result.unwrap(projectSummaries::setValue, this::onProjectSummariesError)));
+        availableProjects.subscribe(projectSummaries::setValue, this::onProjectSummariesError));
   }
 
   public LiveData<Resource<List<Project>>> getProjectSummaries() {
