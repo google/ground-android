@@ -118,15 +118,7 @@ public class EditRecordFragment extends AbstractFragment implements BackPressLis
       return;
     }
     EditRecordFragmentArgs args = EditRecordFragmentArgs.fromBundle(getArguments());
-    viewModel.editRecord(
-            EditRecordViewModel.EditRecordRequest.newBuilder()
-            .setProjectId(args.getProjectId())
-            .setFeatureId(args.getFeatureId())
-            .setFormId(args.getFormId())
-            .setRecordId(args.getRecordId())
-            .setIsNew(args.getRecordId().equals(NEW_RECORD_ID_ARG_PLACEHOLDER))
-            .build()
-    );
+    viewModel.editRecord(args, args.getRecordId().equals(NEW_RECORD_ID_ARG_PLACEHOLDER));
   }
 
   private void onRecordChange(Resource<Record> record) {

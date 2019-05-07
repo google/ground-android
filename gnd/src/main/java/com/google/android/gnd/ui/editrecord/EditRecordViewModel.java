@@ -46,7 +46,6 @@ import com.google.android.gnd.vo.Form.Field;
 import com.google.android.gnd.vo.Record;
 import com.google.android.gnd.vo.Record.Response;
 import com.google.android.gnd.vo.Record.TextResponse;
-import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -101,19 +100,19 @@ public class EditRecordViewModel extends AbstractViewModel {
   }
 
   private Single<Resource<Record>> createOrUpdateRecord(EditRecordRequest request) {
-    return request.getIsNew() ? createRecord(request) : updateRecord(request);
+    return request.isNew ? createRecord(request) : updateRecord(request);
   }
 
   private Single<Resource<Record>> createRecord(EditRecordRequest request) {
     return this.dataRepository
-        .createRecord(request.getProjectId(), request.getFeatureId(), request.getFormId())
+        .createRecord(request.args.getProjectId(), request.args.getFeatureId(), request.args.getFormId())
         .map(Resource::loaded)
         .doFinally(this::onNewRecordLoaded);
   }
 
   private Single<Resource<Record>> updateRecord(EditRecordRequest request) {
     return this.dataRepository
-        .getRecordSnapshot(request.getProjectId(), request.getFeatureId(), request.getRecordId())
+        .getRecordSnapshot(request.args.getProjectId(), request.args.getFeatureId(), request.args.getRecordId())
         .doOnSuccess(r -> r.data().ifPresent(this::update));
   }
 
@@ -192,8 +191,8 @@ public class EditRecordViewModel extends AbstractViewModel {
             r.getForm().getField(k).ifPresent(field -> onResponseChanged(field, Optional.of(v))));
   }
 
-  void editRecord(EditRecordRequest request) {
-    editRecordRequests.onNext(request);
+  void editRecord(EditRecordFragmentArgs args, boolean isNew) {
+    editRecordRequests.onNext(new EditRecordRequest(args, isNew));
   }
 
   private void onRecordSnapshot(Resource<Record> r) {
@@ -315,35 +314,13 @@ public class EditRecordViewModel extends AbstractViewModel {
     return !errors.isEmpty();
   }
 
-  @AutoValue
-  public abstract static class EditRecordRequest {
-    public abstract String getProjectId();
+  public static class EditRecordRequest {
+    public final EditRecordFragmentArgs args;
+    public final boolean isNew;
 
-    public abstract String getFeatureId();
-
-    public abstract String getFormId();
-
-    public abstract String getRecordId();
-
-    public abstract boolean getIsNew();
-
-    public static Builder newBuilder() {
-      return new AutoValue_EditRecordViewModel_EditRecordRequest.Builder();
-    }
-
-    @AutoValue.Builder
-    public abstract static class Builder {
-      public abstract Builder setProjectId(String projectId);
-
-      public abstract Builder setFeatureId(String featureId);
-
-      public abstract Builder setFormId(String formId);
-
-      public abstract Builder setRecordId(String recordId);
-
-      public abstract Builder setIsNew(boolean isNew);
-
-      public abstract EditRecordRequest build();
+    EditRecordRequest(EditRecordFragmentArgs args, boolean isNew) {
+      this.args = args;
+      this.isNew = isNew;
     }
   }
 }
