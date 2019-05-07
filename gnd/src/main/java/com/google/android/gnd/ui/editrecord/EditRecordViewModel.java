@@ -70,9 +70,10 @@ public class EditRecordViewModel extends AbstractViewModel {
   private final ObservableMap<String, Response> responses = new ObservableArrayMap<>();
   private final ObservableMap<String, String> errors = new ObservableArrayMap<>();
   private final PublishSubject<EditRecordRequest> editRecordRequests;
-  private final PublishSubject<Record> recordSaveRequests;
+  private final PublishSubject<SaveRecordRequest> recordSaveRequests;
 
   public final ObservableInt loadingSpinnerVisibility = new ObservableInt();
+  private AuthenticationManager.User currentUser;
 
   @Inject
   EditRecordViewModel(
@@ -89,8 +90,8 @@ public class EditRecordViewModel extends AbstractViewModel {
     this.recordSaveRequests = PublishSubject.create();
 
     disposeOnClear(
-            recordSaveRequests.zipWith(authManager.getUser(), this::saveRecord)
-            .switchMap(r -> r)
+        recordSaveRequests
+            .switchMap(this::saveRecord)
             .subscribe(record::setValue, this::onSaveRecordError));
 
     disposeOnClear(
@@ -105,26 +106,28 @@ public class EditRecordViewModel extends AbstractViewModel {
 
   private Single<Resource<Record>> createRecord(EditRecordRequest request) {
     return this.dataRepository
-        .createRecord(request.args.getProjectId(), request.args.getFeatureId(), request.args.getFormId())
+        .createRecord(
+            request.args.getProjectId(), request.args.getFeatureId(), request.args.getFormId())
         .map(Resource::loaded)
         .doFinally(this::onNewRecordLoaded);
   }
 
   private Single<Resource<Record>> updateRecord(EditRecordRequest request) {
     return this.dataRepository
-        .getRecordSnapshot(request.args.getProjectId(), request.args.getFeatureId(), request.args.getRecordId())
+        .getRecordSnapshot(
+            request.args.getProjectId(), request.args.getFeatureId(), request.args.getRecordId())
         .doOnSuccess(r -> r.data().ifPresent(this::update));
   }
 
-  private Observable<Resource<Record>> saveRecord(Record r, AuthenticationManager.User user) {
-    return this.dataRepository.saveChanges(r, getChangeList(r), user);
+  private Observable<Resource<Record>> saveRecord(SaveRecordRequest request) {
+    return this.dataRepository.saveChanges(request.record, getChangeList(request.record), request.user);
   }
 
-  private void onSaveRecordError (Throwable t) {
+  private void onSaveRecordError(Throwable t) {
     Log.d(TAG, "Failed to save the record.", t);
   }
 
-  private void onEditRecordError (Throwable t) {
+  private void onEditRecordError(Throwable t) {
     Log.d(TAG, "Unable to create or update record", t);
   }
 
@@ -192,6 +195,8 @@ public class EditRecordViewModel extends AbstractViewModel {
   }
 
   void editRecord(EditRecordFragmentArgs args, boolean isNew) {
+    this.currentUser = authManager
+        .getUser().blockingFirst(AuthenticationManager.User.ANONYMOUS);
     editRecordRequests.onNext(new EditRecordRequest(args, isNew));
   }
 
@@ -242,7 +247,8 @@ public class EditRecordViewModel extends AbstractViewModel {
   }
 
   private void saveChanges(Record r) {
-    recordSaveRequests.onNext(r);
+    Log.d(TAG, "Saving record as user: " + this.currentUser.getDisplayName());
+    recordSaveRequests.onNext(new SaveRecordRequest(r, this.currentUser));
   }
 
   private Stream<ResponseUpdate> getChanges(Record r) {
@@ -321,6 +327,16 @@ public class EditRecordViewModel extends AbstractViewModel {
     EditRecordRequest(EditRecordFragmentArgs args, boolean isNew) {
       this.args = args;
       this.isNew = isNew;
+    }
+  }
+
+  public static class SaveRecordRequest {
+    public final Record record;
+    public final AuthenticationManager.User user;
+
+    SaveRecordRequest(Record record, AuthenticationManager.User user) {
+      this.record = record;
+      this.user = user;
     }
   }
 }
