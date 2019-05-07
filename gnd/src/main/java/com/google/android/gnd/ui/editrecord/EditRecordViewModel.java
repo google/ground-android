@@ -109,18 +109,21 @@ public class EditRecordViewModel extends AbstractViewModel {
         .createRecord(
             request.args.getProjectId(), request.args.getFeatureId(), request.args.getFormId())
         .map(Resource::loaded)
-        .doFinally(this::onNewRecordLoaded);
+        // TODO(#78): Avoid side-effects.
+        .doOnSuccess(this::onNewRecordLoaded);
   }
 
   private Single<Resource<Record>> updateRecord(EditRecordRequest request) {
     return this.dataRepository
         .getRecordSnapshot(
             request.args.getProjectId(), request.args.getFeatureId(), request.args.getRecordId())
+        // TODO(#78): Avoid side-effects.
         .doOnSuccess(r -> r.data().ifPresent(this::update));
   }
 
   private Observable<Resource<Record>> saveRecord(SaveRecordRequest request) {
-    return this.dataRepository.saveChanges(request.record, getChangeList(request.record), request.user);
+    return this.dataRepository.saveChanges(
+        request.record, getChangeList(request.record), request.user);
   }
 
   private void onSaveRecordError(Throwable t) {
@@ -180,7 +183,7 @@ public class EditRecordViewModel extends AbstractViewModel {
     return Resource.getData(record);
   }
 
-  private void onNewRecordLoaded() {
+  private void onNewRecordLoaded(Resource<Record> r) {
     responses.clear();
     errors.clear();
   }
@@ -195,8 +198,7 @@ public class EditRecordViewModel extends AbstractViewModel {
   }
 
   void editRecord(EditRecordFragmentArgs args, boolean isNew) {
-    this.currentUser = authManager
-        .getUser().blockingFirst(AuthenticationManager.User.ANONYMOUS);
+    this.currentUser = authManager.getUser().blockingFirst(AuthenticationManager.User.ANONYMOUS);
     editRecordRequests.onNext(new EditRecordRequest(args, isNew));
   }
 
