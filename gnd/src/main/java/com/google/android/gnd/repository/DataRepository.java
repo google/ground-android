@@ -17,9 +17,12 @@
 package com.google.android.gnd.repository;
 
 import android.util.Log;
+import com.google.android.gnd.persistence.local.LocalDataStore;
 import com.google.android.gnd.persistence.remote.DataStoreEvent;
 import com.google.android.gnd.persistence.remote.RemoteDataStore;
 import com.google.android.gnd.persistence.remote.firestore.DocumentNotFoundException;
+import com.google.android.gnd.persistence.shared.FeatureMutation;
+import com.google.android.gnd.persistence.shared.Mutation;
 import com.google.android.gnd.system.AuthenticationManager.User;
 import com.google.android.gnd.vo.Feature;
 import com.google.android.gnd.vo.FeatureUpdate.RecordUpdate.ResponseUpdate;
@@ -35,6 +38,7 @@ import io.reactivex.Single;
 import io.reactivex.subjects.BehaviorSubject;
 import io.reactivex.subjects.Subject;
 import java.util.List;
+import java8.util.Optional;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -47,11 +51,14 @@ public class DataRepository {
   // For non-cached data, the local database will be the source of truth.
   // Remote data is written to the database, and then optionally to the InMemoryCache.
   private final InMemoryCache cache;
+  private final LocalDataStore localDataStore;
   private final RemoteDataStore remoteDataStore;
   private final Subject<Resource<Project>> activeProjectSubject;
 
   @Inject
-  public DataRepository(RemoteDataStore remoteDataStore, InMemoryCache cache) {
+  public DataRepository(
+      LocalDataStore localDataStore, RemoteDataStore remoteDataStore, InMemoryCache cache) {
+    this.localDataStore = localDataStore;
     this.remoteDataStore = remoteDataStore;
     this.cache = cache;
     this.activeProjectSubject = BehaviorSubject.create();
@@ -181,7 +188,15 @@ public class DataRepository {
   }
 
   public Completable saveFeature(Feature feature) {
-    return remoteDataStore.saveFeature(feature);
+    // TODO(#79): Assign owner and timestamps when creating new feature.
+    // TODO(#80): Update UI to provide FeatureMutations instead of Features here.
+    return localDataStore.applyAndEnqueue(
+        FeatureMutation.builder()
+            .setType(Mutation.Type.CREATE)
+            .setProjectId(feature.getProject().getId())
+            .setFeatureId(feature.getId())
+            .setNewLocation(Optional.of(feature.getPoint()))
+            .build());
   }
 
   public void clearActiveProject() {
