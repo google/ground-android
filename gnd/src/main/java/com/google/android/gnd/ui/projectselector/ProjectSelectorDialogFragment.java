@@ -62,8 +62,8 @@ public class ProjectSelectorDialogFragment extends AbstractDialogFragment {
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     this.viewModel = getViewModel(ProjectSelectorViewModel.class);
-    viewModel.activateProjectErrors.observe(this, this::onActivateProjectFailure);
-    viewModel.activeProject.observe(this, this::dismiss);
+    viewModel.getActivateProjectErrors().observe(this, this::onActivateProjectFailure);
+    viewModel.getActiveProject().observe(this, this::dismiss);
   }
 
   private void dismiss(Project project) {

@@ -41,9 +41,9 @@ public class ProjectSelectorViewModel extends AbstractViewModel {
   private final DataRepository dataRepository;
   private final MutableLiveData<Resource<List<Project>>> projectSummaries;
   private final PublishSubject<Integer> projectSelections;
-  public final MutableLiveData<Project> activeProject;
-  public final MutableLiveData<Throwable> activateProjectErrors;
-  public final Observable<Result<Project>> activeProjectStream;
+  private final MutableLiveData<Project> activeProject;
+  private final MutableLiveData<Throwable> activateProjectErrors;
+  private final Observable<Result<Project>> activeProjectStream;
 
   @Inject
   ProjectSelectorViewModel(DataRepository dataRepository, AuthenticationManager authManager) {
@@ -73,6 +73,8 @@ public class ProjectSelectorViewModel extends AbstractViewModel {
   public LiveData<Resource<List<Project>>> getProjectSummaries() {
     return projectSummaries;
   }
+
+  public LiveData<Throwable> getActivateProjectErrors() {return activateProjectErrors; };
 
   public LiveData<Project> getActiveProject() {
     return activeProject;
