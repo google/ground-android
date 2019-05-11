@@ -44,7 +44,6 @@ public class RoomLocalDataStore implements LocalDataStore {
         Room.databaseBuilder(app.getApplicationContext(), LocalDatabase.class, DB_NAME).build();
   }
 
-  /** {@inheritDoc} */
   @Transaction
   @Override
   public Completable applyAndEnqueue(FeatureMutation mutation) {
