@@ -55,6 +55,7 @@ public class FirestoreDataStore implements RemoteDataStore, OfflineUuidGenerator
   @Inject
   FirestoreDataStore() {
     // TODO: Run on I/O thread, return asynchronously.
+    // TODO: Bind the Firestore instance in a module and inject it here.
     this.firestore = FirebaseFirestore.getInstance();
     firestore.setFirestoreSettings(FIRESTORE_SETTINGS);
     FirebaseFirestore.setLoggingEnabled(true);
