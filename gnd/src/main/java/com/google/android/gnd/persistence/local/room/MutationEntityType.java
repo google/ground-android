@@ -23,10 +23,22 @@ import com.google.android.gnd.persistence.shared.Mutation;
 
 /** Defines how Room represents mutation types in the remote sync queue in the local db. */
 public enum MutationEntityType implements IntEnum {
+  /** Indicates the field was missing or contained an unrecognized value. */
   UNKNOWN(0),
+
+  /** Indicates a new entity should be created. */
   CREATE(1),
+
+  /** Indicates an existing entity should be updated. */
   UPDATE(2),
+
+  /** Indicates an existing entity should be marked for deletion. */
   DELETE(3),
+
+  /**
+   * Indicates the entity should be overwritten with latest remote version. This occurs when the
+   * user chooses to abandon a change that failed to sync.
+   */
   RELOAD(4);
 
   private final int intValue;
