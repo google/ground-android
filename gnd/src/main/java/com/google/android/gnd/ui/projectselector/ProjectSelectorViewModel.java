@@ -15,16 +15,24 @@
  */
 package com.google.android.gnd.ui.projectselector;
 
+import android.util.Log;
+
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
+
 import com.google.android.gnd.repository.DataRepository;
 import com.google.android.gnd.repository.Resource;
+import com.google.android.gnd.rx.Result;
 import com.google.android.gnd.system.AuthenticationManager;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.vo.Project;
-import io.reactivex.Completable;
+
+import io.reactivex.Observable;
+import io.reactivex.subjects.PublishSubject;
+
 import java.util.Collections;
 import java.util.List;
+
 import javax.inject.Inject;
 
 public class ProjectSelectorViewModel extends AbstractViewModel {
@@ -32,31 +40,66 @@ public class ProjectSelectorViewModel extends AbstractViewModel {
 
   private final DataRepository dataRepository;
   private final MutableLiveData<Resource<List<Project>>> projectSummaries;
-  private final AuthenticationManager authManager;
+  private final PublishSubject<Integer> projectSelections;
+  private final MutableLiveData<Project> activeProject;
+  private final MutableLiveData<Throwable> activateProjectErrors;
+  private final Observable<Result<Project>> activeProjectStream;
 
   @Inject
   ProjectSelectorViewModel(DataRepository dataRepository, AuthenticationManager authManager) {
     this.dataRepository = dataRepository;
     this.projectSummaries = new MutableLiveData<>();
-    this.authManager = authManager;
-  }
+    this.activeProject = new MutableLiveData<>();
+    this.activateProjectErrors = new MutableLiveData<>();
+    this.projectSelections = PublishSubject.create();
 
-  // TODO: Show message when no visible projects found.
-  public void loadProjectSummaries() {
-    // TODO(#24): Fix leaky subscriptions!
+    AuthenticationManager.User user =
+        authManager.getUser().blockingFirst(AuthenticationManager.User.ANONYMOUS);
+
+    Observable<Resource<List<Project>>> availableProjects =
+        dataRepository.getProjectSummaries(user);
+
+    this.activeProjectStream =
+        projectSelections.switchMap(Result.mapObservable(this::selectActiveProject));
+
     disposeOnClear(
-        authManager
-            .getUser()
-            .flatMap(user -> dataRepository.getProjectSummaries(user))
-            .subscribe(summaries -> projectSummaries.setValue(summaries)));
+        activeProjectStream.subscribe(
+            Result.unwrap(activeProject::setValue, this::onActiveProjectError)));
+
+    disposeOnClear(
+        availableProjects.subscribe(projectSummaries::setValue, this::onProjectSummariesError));
   }
 
   public LiveData<Resource<List<Project>>> getProjectSummaries() {
     return projectSummaries;
   }
 
-  Completable activateProject(int idx) {
-    return dataRepository.activateProject(
-        Resource.getData(this.projectSummaries).orElse(Collections.emptyList()).get(idx).getId());
+  public LiveData<Throwable> getActivateProjectErrors() {return activateProjectErrors; };
+
+  public LiveData<Project> getActiveProject() {
+    return activeProject;
+  }
+
+  private Observable<Project> selectActiveProject(int idx) {
+    return this.dataRepository
+        .activateProject(
+            Resource.getData(this.projectSummaries)
+                .orElse(Collections.emptyList())
+                .get(idx)
+                .getId())
+        .toObservable();
+  }
+
+  private void onProjectSummariesError(Throwable t) {
+    Log.d(TAG, "Failed to retrieve project summaries.", t);
+  }
+
+  private void onActiveProjectError(Throwable t) {
+    Log.d(TAG, "Could not activate project.", t);
+    this.activateProjectErrors.setValue(t);
+  }
+
+  void activateProject(int idx) {
+    projectSelections.onNext(idx);
   }
 }
