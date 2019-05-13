@@ -145,8 +145,6 @@ public class MapContainerFragment extends AbstractFragment {
   public void onActivityCreated(@Nullable Bundle savedInstanceState) {
     super.onActivityCreated(savedInstanceState);
     mainViewModel.getWindowInsets().observe(this, this::onApplyWindowInsets);
-    // TODO(#24): Fix leaky subscriptions!
-    mapProvider.getMapAdapter().as(autoDisposable(this)).subscribe(this::onMapReady);
   }
 
   private void onFeatureSheetStateChange(FeatureSheetState state, MapAdapter map) {
