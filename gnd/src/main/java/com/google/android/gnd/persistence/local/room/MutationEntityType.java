@@ -33,13 +33,7 @@ public enum MutationEntityType implements IntEnum {
   UPDATE(2),
 
   /** Indicates an existing entity should be marked for deletion. */
-  DELETE(3),
-
-  /**
-   * Indicates the entity should be overwritten with latest remote version. This occurs when the
-   * user chooses to abandon a change that failed to sync.
-   */
-  RELOAD(4);
+  DELETE(3);
 
   private final int intValue;
 
@@ -55,8 +49,6 @@ public enum MutationEntityType implements IntEnum {
         return UPDATE;
       case DELETE:
         return DELETE;
-      case RELOAD:
-        return RELOAD;
       default:
         return UNKNOWN;
     }
