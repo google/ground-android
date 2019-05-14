@@ -26,12 +26,15 @@ import androidx.room.ForeignKey;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
 import com.google.android.gnd.persistence.shared.FeatureMutation;
+import com.google.auto.value.AutoValue;
+import com.google.auto.value.AutoValue.CopyAnnotations;
 
 /**
  * Defines how Room persists feature mutations for remote sync in the local db. By default, Room
  * uses the name of object fields and their respective types to determine database column names and
  * types.
  */
+@AutoValue
 @Entity(
     tableName = "featureMutation",
     foreignKeys =
@@ -41,23 +44,61 @@ import com.google.android.gnd.persistence.shared.FeatureMutation;
             childColumns = "featureId",
             onDelete = CASCADE),
     indices = {@Index("featureId")})
-public class FeatureMutationEntity {
+public abstract class FeatureMutationEntity {
 
+  @CopyAnnotations
   @PrimaryKey(autoGenerate = true)
-  public int id;
+  public abstract int getId();
 
-  @NonNull public String featureId;
+  @CopyAnnotations
+  @NonNull
+  public abstract String getFeatureId();
 
-  @NonNull public MutationEntityType type;
+  @CopyAnnotations
+  @NonNull
+  public abstract MutationEntityType getType();
 
   /** Non-null if the feature's location was updated, null if unchanged. */
-  @Nullable @Embedded public Coordinates newLocation;
+  @CopyAnnotations
+  @Nullable
+  @Embedded
+  public abstract Coordinates getNewLocation();
 
   static FeatureMutationEntity fromMutation(FeatureMutation m) {
-    FeatureMutationEntity me = new FeatureMutationEntity();
-    me.featureId = m.getFeatureId();
-    me.newLocation = m.getNewLocation().map(Coordinates::fromPoint).orElse(null);
-    me.type = MutationEntityType.fromMutationType(m.getType());
-    return me;
+    return FeatureMutationEntity.builder()
+        .setFeatureId(m.getFeatureId())
+        .setNewLocation(m.getNewLocation().map(Coordinates::fromPoint).orElse(null))
+        .setType(MutationEntityType.fromMutationType(m.getType()))
+        .build();
+  }
+
+  // Auto-generated boilerplate.
+
+  public static FeatureMutationEntity create(
+      int id, String featureId, MutationEntityType type, Coordinates newLocation) {
+    return builder()
+        .setId(id)
+        .setFeatureId(featureId)
+        .setType(type)
+        .setNewLocation(newLocation)
+        .build();
+  }
+
+  public static Builder builder() {
+    return new AutoValue_FeatureMutationEntity.Builder();
+  }
+
+  @AutoValue.Builder
+  public abstract static class Builder {
+
+    public abstract Builder setId(int newId);
+
+    public abstract Builder setFeatureId(String newFeatureId);
+
+    public abstract Builder setType(MutationEntityType newType);
+
+    public abstract Builder setNewLocation(Coordinates newNewLocation);
+
+    public abstract FeatureMutationEntity build();
   }
 }
