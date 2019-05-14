@@ -20,6 +20,7 @@ import static androidx.room.ForeignKey.CASCADE;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.room.ColumnInfo;
 import androidx.room.Embedded;
 import androidx.room.Entity;
 import androidx.room.ForeignKey;
@@ -41,21 +42,24 @@ import com.google.auto.value.AutoValue.CopyAnnotations;
         @ForeignKey(
             entity = FeatureEntity.class,
             parentColumns = "id",
-            childColumns = "featureId",
+            childColumns = "feature_id",
             onDelete = CASCADE),
-    indices = {@Index("featureId")})
+    indices = {@Index("feature_id")})
 public abstract class FeatureMutationEntity {
 
   @CopyAnnotations
   @PrimaryKey(autoGenerate = true)
+  @ColumnInfo(name = "id")
   public abstract int getId();
 
   @CopyAnnotations
   @NonNull
+  @ColumnInfo(name = "feature_id")
   public abstract String getFeatureId();
 
   @CopyAnnotations
   @NonNull
+  @ColumnInfo(name = "type")
   public abstract MutationEntityType getType();
 
   /** Non-null if the feature's location was updated, null if unchanged. */

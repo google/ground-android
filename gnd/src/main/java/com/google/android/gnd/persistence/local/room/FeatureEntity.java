@@ -17,6 +17,7 @@
 package com.google.android.gnd.persistence.local.room;
 
 import androidx.annotation.NonNull;
+import androidx.room.ColumnInfo;
 import androidx.room.Embedded;
 import androidx.room.Entity;
 import androidx.room.Index;
@@ -37,15 +38,18 @@ public abstract class FeatureEntity {
   @CopyAnnotations
   @NonNull
   @PrimaryKey
+  @ColumnInfo(name = "id")
   public abstract String getId();
 
   // TODO: Rename to DeletionState.
   @CopyAnnotations
   @NonNull
+  @ColumnInfo(name = "state")
   public abstract EntityState getState();
 
   @CopyAnnotations
   @NonNull
+  @ColumnInfo(name = "project_id")
   public abstract String getProjectId();
 
   @CopyAnnotations

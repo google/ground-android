@@ -30,12 +30,12 @@ import com.google.auto.value.AutoValue.CopyAnnotations;
 public abstract class Coordinates {
   @CopyAnnotations
   @NonNull
-  @ColumnInfo(name = "latitude")
+  @ColumnInfo(name = "lat")
   public abstract double getLatitude();
 
   @CopyAnnotations
   @NonNull
-  @ColumnInfo(name = "longitude")
+  @ColumnInfo(name = "lng")
   public abstract double getLongitude();
 
   // Auto-generated boilerplate:
