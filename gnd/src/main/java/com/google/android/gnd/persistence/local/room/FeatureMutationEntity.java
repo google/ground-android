@@ -37,7 +37,7 @@ import com.google.auto.value.AutoValue.CopyAnnotations;
  */
 @AutoValue
 @Entity(
-    tableName = "featureMutation",
+    tableName = "feature_mutation",
     foreignKeys =
         @ForeignKey(
             entity = FeatureEntity.class,
