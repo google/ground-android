@@ -21,6 +21,7 @@ import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gnd.inject.ActivityScoped;
 import com.google.android.gnd.persistence.remote.RemoteDataStore;
 import com.google.android.gnd.persistence.remote.firestore.FirestoreDataStore;
+import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator;
 import com.google.android.gnd.ui.common.ViewModelModule;
 import dagger.Binds;
 import dagger.Module;
@@ -41,6 +42,11 @@ abstract class GndApplicationModule {
   @Binds
   @Singleton
   abstract RemoteDataStore remoteDataStore(FirestoreDataStore ds);
+
+  /** Provides the Firestore implementation of offline unique id generation. */
+  @Binds
+  @Singleton
+  abstract OfflineUuidGenerator offlineUuidGenerator(FirestoreDataStore ds);
 
   @Binds
   @Singleton
