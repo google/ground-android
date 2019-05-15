@@ -17,9 +17,9 @@
 package com.google.android.gnd.persistence.remote.firestore;
 
 import androidx.annotation.Nullable;
+import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator;
 import com.google.android.gnd.persistence.remote.DataStoreEvent;
 import com.google.android.gnd.persistence.remote.RemoteDataStore;
-import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator;
 import com.google.android.gnd.rx.RxTask;
 import com.google.android.gnd.system.AuthenticationManager.User;
 import com.google.android.gnd.vo.Feature;
@@ -42,6 +42,7 @@ import java.util.Map;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+// TODO(#92): Break implementation of OfflineUuidGenerator into a separate class.
 @Singleton
 public class FirestoreDataStore implements RemoteDataStore, OfflineUuidGenerator {
 
@@ -56,6 +57,7 @@ public class FirestoreDataStore implements RemoteDataStore, OfflineUuidGenerator
   @Inject
   FirestoreDataStore() {
     // TODO: Run on I/O thread, return asynchronously.
+    // TODO: Bind the Firestore instance in a module and inject it here.
     this.firestore = FirebaseFirestore.getInstance();
     firestore.setFirestoreSettings(FIRESTORE_SETTINGS);
     FirebaseFirestore.setLoggingEnabled(true);

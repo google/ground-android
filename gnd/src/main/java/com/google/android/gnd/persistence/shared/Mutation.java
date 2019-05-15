@@ -29,13 +29,7 @@ public abstract class Mutation {
     UPDATE,
 
     /** Indicates an existing entity should be marked for deletion. */
-    DELETE,
-
-    /**
-     * Indicates the entity should be overwritten with latest remote version. This occurs when the
-     * user chooses to abandon a change that failed to sync.
-     */
-    RELOAD
+    DELETE;
   }
 
   /** Returns the locally unique id of this change. */

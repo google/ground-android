@@ -17,37 +17,84 @@
 package com.google.android.gnd.persistence.local.room;
 
 import androidx.annotation.NonNull;
+import androidx.room.ColumnInfo;
 import androidx.room.Embedded;
 import androidx.room.Entity;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
 import com.google.android.gnd.persistence.shared.FeatureMutation;
+import com.google.auto.value.AutoValue;
+import com.google.auto.value.AutoValue.CopyAnnotations;
 
 /**
  * Defines how Room persists features in the local db. By default, Room uses the name of object
  * fields and their respective types to determine database column names and types.
  */
+@AutoValue
 @Entity(
     tableName = "feature",
     indices = {@Index("id")})
-public class FeatureEntity {
-
-  @NonNull @PrimaryKey public String id;
+public abstract class FeatureEntity {
+  @CopyAnnotations
+  @NonNull
+  @PrimaryKey
+  @ColumnInfo(name = "id")
+  public abstract String getId();
 
   // TODO: Rename to DeletionState.
-  @NonNull public EntityState state;
+  @CopyAnnotations
+  @NonNull
+  @ColumnInfo(name = "state")
+  public abstract EntityState getState();
 
-  @NonNull public String projectId;
+  @CopyAnnotations
+  @NonNull
+  @ColumnInfo(name = "project_id")
+  public abstract String getProjectId();
 
-  @NonNull @Embedded public Coordinates location;
+  @CopyAnnotations
+  @NonNull
+  @Embedded
+  public abstract Coordinates getLocation();
 
   @NonNull
-  static FeatureEntity fromMutation(FeatureMutation m) {
-    FeatureEntity fe = new FeatureEntity();
-    fe.id = m.getFeatureId();
-    fe.projectId = m.getProjectId();
-    fe.state = EntityState.DEFAULT;
-    m.getNewLocation().ifPresent(l -> fe.location = Coordinates.fromPoint(l));
-    return fe;
+  static FeatureEntity fromMutation(FeatureMutation mutation) {
+    FeatureEntity.Builder entity =
+        FeatureEntity.builder()
+            .setId(mutation.getFeatureId())
+            .setProjectId(mutation.getProjectId())
+            .setState(EntityState.DEFAULT);
+    mutation.getNewLocation().map(Coordinates::fromPoint).ifPresent(entity::setLocation);
+    return entity.build();
+  }
+
+  // Auto-generated boilerplate.
+
+  public static FeatureEntity create(
+      String id, EntityState state, String projectId, Coordinates location) {
+    return builder()
+        .setId(id)
+        .setState(state)
+        .setProjectId(projectId)
+        .setLocation(location)
+        .build();
+  }
+
+  public static Builder builder() {
+    return new AutoValue_FeatureEntity.Builder();
+  }
+
+  @AutoValue.Builder
+  public abstract static class Builder {
+
+    public abstract Builder setId(String newId);
+
+    public abstract Builder setState(EntityState newState);
+
+    public abstract Builder setProjectId(String newProjectId);
+
+    public abstract Builder setLocation(Coordinates newLocation);
+
+    public abstract FeatureEntity build();
   }
 }

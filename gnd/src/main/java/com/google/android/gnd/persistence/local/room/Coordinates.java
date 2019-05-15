@@ -17,24 +17,53 @@
 package com.google.android.gnd.persistence.local.room;
 
 import androidx.annotation.NonNull;
+import androidx.room.ColumnInfo;
 import com.google.android.gnd.vo.Point;
+import com.google.auto.value.AutoValue;
+import com.google.auto.value.AutoValue.CopyAnnotations;
 
 /**
  * Defines how Room persists coordinates in the local db. By default, Room uses the name of object
  * fields and their respective types to determine database column names and types.
  */
-public class Coordinates {
+@AutoValue
+public abstract class Coordinates {
+  @CopyAnnotations
+  @NonNull
+  @ColumnInfo(name = "lat")
+  public abstract double getLatitude();
 
-  @NonNull public double latitude;
+  @CopyAnnotations
+  @NonNull
+  @ColumnInfo(name = "lng")
+  public abstract double getLongitude();
 
-  @NonNull public double longitude;
+  // Auto-generated boilerplate:
+
+  public static Coordinates create(double latitude, double longitude) {
+    return builder().setLatitude(latitude).setLongitude(longitude).build();
+  }
+
+  public static Builder builder() {
+    return new AutoValue_Coordinates.Builder();
+  }
+
+  @AutoValue.Builder
+  public abstract static class Builder {
+
+    public abstract Builder setLatitude(double newLatitude);
+
+    public abstract Builder setLongitude(double newLongitude);
+
+    public abstract Coordinates build();
+  }
 
   /** Returns a new instance equivalent to the provided {@link Point}. */
   @NonNull
   public static Coordinates fromPoint(Point point) {
-    Coordinates c = new Coordinates();
-    c.latitude = point.getLatitude();
-    c.longitude = point.getLongitude();
-    return c;
+    return Coordinates.builder()
+        .setLatitude(point.getLatitude())
+        .setLongitude(point.getLongitude())
+        .build();
   }
 }
