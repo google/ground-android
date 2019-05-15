@@ -41,6 +41,7 @@ import java.util.Map;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+// TODO(#92): Break implementation of OfflineUuidGenerator into a separate class.
 @Singleton
 public class FirestoreDataStore implements RemoteDataStore, OfflineUuidGenerator {
 
