@@ -23,10 +23,11 @@ import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.FragmentManager;
 import androidx.appcompat.app.AlertDialog;
+import androidx.fragment.app.FragmentManager;
 import com.google.android.gnd.R;
 import com.google.android.gnd.inject.ActivityScoped;
+import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator;
 import com.google.android.gnd.repository.Resource;
 import com.google.android.gnd.ui.common.AbstractDialogFragment;
 import com.google.android.gnd.ui.home.mapcontainer.MapContainerViewModel;
@@ -43,13 +44,16 @@ import javax.inject.Inject;
 @ActivityScoped
 public class AddFeatureDialogFragment extends AbstractDialogFragment {
   private static final String TAG = AddFeatureDialogFragment.class.getSimpleName();
+  private final OfflineUuidGenerator uuidGenerator;
 
   private MaybeSubject<Feature> addFeatureRequestSubject;
   private HomeScreenViewModel homeScreenViewModel;
   private MapContainerViewModel mapContainerViewModel;
 
   @Inject
-  public AddFeatureDialogFragment() {}
+  public AddFeatureDialogFragment(OfflineUuidGenerator uuidGenerator) {
+    this.uuidGenerator = uuidGenerator;
+  }
 
   @Override
   public void onAttach(Context context) {
@@ -105,8 +109,11 @@ public class AddFeatureDialogFragment extends AbstractDialogFragment {
   }
 
   private void onSelectFeatureType(Project project, FeatureType featureType, Point cameraPosition) {
+    // TODO(#9): Move creating a new Feature into the ViewModel or DataRepository. Doing it here
+    // for now to avoid conflicting with soon-to-be-merged commits for Issue #24.
     addFeatureRequestSubject.onSuccess(
         Feature.newBuilder()
+            .setId(uuidGenerator.generateUuid())
             .setProject(project)
             .setFeatureType(featureType)
             .setPoint(cameraPosition)

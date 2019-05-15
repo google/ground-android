@@ -22,6 +22,7 @@ import com.google.android.gnd.vo.FeatureUpdate.RecordUpdate.ResponseUpdate;
 import com.google.android.gnd.vo.Project;
 import com.google.android.gnd.vo.Record;
 import com.google.common.collect.ImmutableList;
+import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Single;
 import java.util.List;
@@ -43,5 +44,6 @@ public interface RemoteDataStore {
 
   Single<Record> saveChanges(Record record, ImmutableList<ResponseUpdate> updates);
 
-  Single<Feature> addFeature(Feature feature);
+  // TODO(#57): Replace with apply(FeatureMutation) in upcoming PRs.
+  Completable saveFeature(Feature feature);
 }
