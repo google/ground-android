@@ -17,20 +17,12 @@
 package com.google.android.gnd.persistence.local.room;
 
 import androidx.room.Dao;
-import androidx.room.Delete;
 import androidx.room.Insert;
-import androidx.room.Update;
 import io.reactivex.Completable;
 
-/** Data access object for database operations related to {@link FeatureEntity}. */
+/** Provides low-level read/write operations of {@link FeatureEntity} to/from the local db. */
 @Dao
 public interface FeatureDao {
   @Insert
   Completable insert(FeatureEntity feature);
-
-  @Update
-  Completable update(FeatureEntity feature);
-
-  @Delete
-  Completable delete(FeatureEntity feature);
 }

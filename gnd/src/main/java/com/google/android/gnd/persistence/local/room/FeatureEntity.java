@@ -22,21 +22,26 @@ import androidx.room.Embedded;
 import androidx.room.Entity;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
+import com.google.android.gnd.persistence.shared.FeatureMutation;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.AutoValue.CopyAnnotations;
 
-/** Representation of a {@link com.google.android.gnd.vo.Feature} in local db. */
+/**
+ * Defines how Room persists features in the local db. By default, Room uses the name of object
+ * fields and their respective types to determine database column names and types.
+ */
 @AutoValue
 @Entity(
     tableName = "feature",
     indices = {@Index("id")})
 public abstract class FeatureEntity {
   @CopyAnnotations
+  @NonNull
   @PrimaryKey
   @ColumnInfo(name = "id")
-  @NonNull
   public abstract String getId();
 
+  // TODO: Rename to DeletionState.
   @CopyAnnotations
   @NonNull
   @ColumnInfo(name = "state")
@@ -48,10 +53,22 @@ public abstract class FeatureEntity {
   public abstract String getProjectId();
 
   @CopyAnnotations
+  @NonNull
   @Embedded
   public abstract Coordinates getLocation();
 
-  // Auto-generated boilerplate:
+  @NonNull
+  static FeatureEntity fromMutation(FeatureMutation mutation) {
+    FeatureEntity.Builder entity =
+        FeatureEntity.builder()
+            .setId(mutation.getFeatureId())
+            .setProjectId(mutation.getProjectId())
+            .setState(EntityState.DEFAULT);
+    mutation.getNewLocation().map(Coordinates::fromPoint).ifPresent(entity::setLocation);
+    return entity.build();
+  }
+
+  // Auto-generated boilerplate.
 
   public static FeatureEntity create(
       String id, EntityState state, String projectId, Coordinates location) {
@@ -76,7 +93,7 @@ public abstract class FeatureEntity {
 
     public abstract Builder setProjectId(String newProjectId);
 
-    public abstract Builder setLocation(Coordinates newCoordinates);
+    public abstract Builder setLocation(Coordinates newLocation);
 
     public abstract FeatureEntity build();
   }

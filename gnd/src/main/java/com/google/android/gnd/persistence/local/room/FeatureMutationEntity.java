@@ -19,19 +19,25 @@ package com.google.android.gnd.persistence.local.room;
 import static androidx.room.ForeignKey.CASCADE;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.room.ColumnInfo;
 import androidx.room.Embedded;
 import androidx.room.Entity;
 import androidx.room.ForeignKey;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
+import com.google.android.gnd.persistence.shared.FeatureMutation;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.AutoValue.CopyAnnotations;
 
-/** Representation of a {@link com.google.android.gnd.vo.FeatureUpdate} in local db. */
+/**
+ * Defines how Room persists feature mutations for remote sync in the local db. By default, Room
+ * uses the name of object fields and their respective types to determine database column names and
+ * types.
+ */
 @AutoValue
 @Entity(
-    tableName = "feature_edit",
+    tableName = "feature_mutation",
     foreignKeys =
         @ForeignKey(
             entity = FeatureEntity.class,
@@ -39,30 +45,51 @@ import com.google.auto.value.AutoValue.CopyAnnotations;
             childColumns = "feature_id",
             onDelete = CASCADE),
     indices = {@Index("feature_id")})
-public abstract class FeatureEditEntity {
+public abstract class FeatureMutationEntity {
+
   @CopyAnnotations
   @PrimaryKey(autoGenerate = true)
   @ColumnInfo(name = "id")
   public abstract int getId();
 
   @CopyAnnotations
-  @ColumnInfo(name = "feature_id")
   @NonNull
+  @ColumnInfo(name = "feature_id")
   public abstract String getFeatureId();
 
   @CopyAnnotations
-  @Embedded
   @NonNull
-  public abstract Edit getEdit();
+  @ColumnInfo(name = "type")
+  public abstract MutationEntityType getType();
 
-  // Auto-generated boilerplate:
+  /** Non-null if the feature's location was updated, null if unchanged. */
+  @CopyAnnotations
+  @Nullable
+  @Embedded
+  public abstract Coordinates getNewLocation();
 
-  public static FeatureEditEntity create(int id, String featureId, Edit edit) {
-    return builder().setId(id).setFeatureId(featureId).setEdit(edit).build();
+  static FeatureMutationEntity fromMutation(FeatureMutation m) {
+    return FeatureMutationEntity.builder()
+        .setFeatureId(m.getFeatureId())
+        .setNewLocation(m.getNewLocation().map(Coordinates::fromPoint).orElse(null))
+        .setType(MutationEntityType.fromMutationType(m.getType()))
+        .build();
+  }
+
+  // Auto-generated boilerplate.
+
+  public static FeatureMutationEntity create(
+      int id, String featureId, MutationEntityType type, Coordinates newLocation) {
+    return builder()
+        .setId(id)
+        .setFeatureId(featureId)
+        .setType(type)
+        .setNewLocation(newLocation)
+        .build();
   }
 
   public static Builder builder() {
-    return new AutoValue_FeatureEditEntity.Builder();
+    return new AutoValue_FeatureMutationEntity.Builder();
   }
 
   @AutoValue.Builder
@@ -72,8 +99,10 @@ public abstract class FeatureEditEntity {
 
     public abstract Builder setFeatureId(String newFeatureId);
 
-    public abstract Builder setEdit(Edit newEdit);
+    public abstract Builder setType(MutationEntityType newType);
 
-    public abstract FeatureEditEntity build();
+    public abstract Builder setNewLocation(Coordinates newNewLocation);
+
+    public abstract FeatureMutationEntity build();
   }
 }

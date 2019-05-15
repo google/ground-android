@@ -18,20 +18,24 @@ package com.google.android.gnd.persistence.local.room;
 
 import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
+import com.google.android.gnd.vo.Point;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.AutoValue.CopyAnnotations;
 
-/** Represents a lat/lng coordinate in FeatureEdit instances. */
+/**
+ * Defines how Room persists coordinates in the local db. By default, Room uses the name of object
+ * fields and their respective types to determine database column names and types.
+ */
 @AutoValue
 public abstract class Coordinates {
   @CopyAnnotations
   @NonNull
-  @ColumnInfo(name = "latitude")
+  @ColumnInfo(name = "lat")
   public abstract double getLatitude();
 
   @CopyAnnotations
   @NonNull
-  @ColumnInfo(name = "longitude")
+  @ColumnInfo(name = "lng")
   public abstract double getLongitude();
 
   // Auto-generated boilerplate:
@@ -52,5 +56,14 @@ public abstract class Coordinates {
     public abstract Builder setLongitude(double newLongitude);
 
     public abstract Coordinates build();
+  }
+
+  /** Returns a new instance equivalent to the provided {@link Point}. */
+  @NonNull
+  public static Coordinates fromPoint(Point point) {
+    return Coordinates.builder()
+        .setLatitude(point.getLatitude())
+        .setLongitude(point.getLongitude())
+        .build();
   }
 }
