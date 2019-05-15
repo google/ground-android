@@ -57,7 +57,7 @@ public class AuthenticationManager {
   // TODO: Update Fragments to access via DataRepository rather than directly.
   @Inject
   public AuthenticationManager(Application application, ActivityStreams activityStreams) {
-    this.signInState = BehaviorSubject.create();
+    this.signInState = BehaviorSubject.createDefault(new SignInState  (SignInState.State.SIGNED_OUT));
     this.firebaseAuth = FirebaseAuth.getInstance();
     this.googleSignInOptions =
         new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
