@@ -36,7 +36,6 @@ import com.google.android.gnd.GndApplication;
 import com.google.android.gnd.R;
 import com.google.android.gnd.repository.DataRepository;
 import com.google.android.gnd.repository.Resource;
-import com.google.android.gnd.rx.Result;
 import com.google.android.gnd.system.AuthenticationManager;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.common.SingleLiveEvent;
@@ -47,12 +46,11 @@ import com.google.android.gnd.vo.Record;
 import com.google.android.gnd.vo.Record.Response;
 import com.google.android.gnd.vo.Record.TextResponse;
 import com.google.common.collect.ImmutableList;
-import java.util.Arrays;
-import java.util.Collections;
-
 import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.subjects.PublishSubject;
+import java.util.Arrays;
+import java.util.Collections;
 import java8.util.Optional;
 import java8.util.stream.Stream;
 import javax.inject.Inject;
@@ -96,8 +94,10 @@ public class EditRecordViewModel extends AbstractViewModel {
 
     disposeOnClear(
         editRecordRequests
-            .switchMapSingle(Result.mapSingle(this::createOrUpdateRecord))
-            .subscribe(Result.unwrap(this::onRecordSnapshot, this::onEditRecordError)));
+            .switchMapSingle(
+                record ->
+                    createOrUpdateRecord(record).onErrorResumeNext(t -> __ -> onEditRecordError(t)))
+            .subscribe(this::onRecordSnapshot));
   }
 
   private Single<Resource<Record>> createOrUpdateRecord(EditRecordRequest request) {
