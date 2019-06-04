@@ -96,7 +96,9 @@ public class EditRecordViewModel extends AbstractViewModel {
         editRecordRequests
             .switchMapSingle(
                 record ->
-                    createOrUpdateRecord(record).onErrorResumeNext(t -> __ -> onEditRecordError(t)))
+                    createOrUpdateRecord(record)
+                        .doOnError(this::onEditRecordError)
+                        .onErrorResumeNext(Single.never()))  // Prevent from breaking upstream.
             .subscribe(this::onRecordSnapshot));
   }
 

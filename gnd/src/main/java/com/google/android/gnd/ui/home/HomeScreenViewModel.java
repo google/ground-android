@@ -30,6 +30,7 @@ import com.google.android.gnd.vo.Feature;
 import com.google.android.gnd.vo.Form;
 import com.google.android.gnd.vo.Point;
 import com.google.android.gnd.vo.Project;
+import io.reactivex.Single;
 import io.reactivex.subjects.PublishSubject;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
@@ -67,7 +68,8 @@ public class HomeScreenViewModel extends AbstractViewModel {
                 newFeature ->
                     dataRepository
                         .addFeature(newFeature)
-                        .onErrorResumeNext(t -> __ -> onAddFeatureError(t)))
+                        .doOnError(this::onAddFeatureError)
+                        .onErrorResumeNext(Single.never()))  // Prevent from breaking upstream.
             .subscribe(this::showFeatureSheet));
   }
 
