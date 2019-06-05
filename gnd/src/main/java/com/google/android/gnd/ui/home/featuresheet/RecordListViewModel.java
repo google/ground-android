@@ -17,25 +17,19 @@
 package com.google.android.gnd.ui.home.featuresheet;
 
 import android.util.Log;
-
-import static java8.util.stream.StreamSupport.stream;
-
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import com.google.android.gnd.repository.DataRepository;
-import com.google.android.gnd.rx.Result;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.vo.Feature;
 import com.google.android.gnd.vo.Form;
 import com.google.android.gnd.vo.Project;
 import com.google.android.gnd.vo.Record;
+import io.reactivex.Single;
+import io.reactivex.subjects.PublishSubject;
 import java.util.Collections;
 import java.util.List;
-
-import io.reactivex.Observable;
-import io.reactivex.subjects.PublishSubject;
 import java8.util.Optional;
-import java8.util.stream.Collectors;
 import javax.inject.Inject;
 
 // TODO: Roll up into parent viewmodel. Simplify VMs overall.
@@ -55,27 +49,31 @@ public class RecordListViewModel extends AbstractViewModel {
 
     disposeOnClear(
         recordSummaryRequests
-            .flatMap(Result.mapObservable(this::fetchRecordSummaries), this::filterByRequestForm)
-            .subscribe(Result.unwrap(recordSummaries::setValue, this::onRecordSummaryError)));
+            .switchMapSingle(
+                recordSummaryRequest ->
+                    fetchRecordSummaries(recordSummaryRequest)
+                        .doOnError(this::onFetchRecordSummariesError)
+                        .onErrorResumeNext(Single.never()))
+            .subscribe(recordSummaries::setValue));
   }
 
   /**
    * Returns the list of current record summaries.
+   *
    * @return A list of records.
    */
   public LiveData<List<Record>> getRecordSummaries() {
     return recordSummaries;
   }
 
-  /**
-   * Clears the current list of record summaries.
-   */
+  /** Clears the current list of record summaries. */
   public void clearRecords() {
     recordSummaries.setValue(Collections.emptyList());
   }
 
   /**
    * Loads a list of records associated with a given feature and fetches summaries for them.
+   *
    * @param feature
    * @param form
    */
@@ -84,29 +82,12 @@ public class RecordListViewModel extends AbstractViewModel {
         feature.getProject(), feature.getFeatureType().getId(), form.getId(), feature.getId());
   }
 
-  private Observable<List<Record>> fetchRecordSummaries(RecordSummaryRequest request) {
+  private Single<List<Record>> fetchRecordSummaries(RecordSummaryRequest request) {
     // TODO: Only fetch records with current formId.
-    return dataRepository
-        .getRecordSummaries(request.project.getId(), request.featureId)
-        .toObservable();
+    return dataRepository.getRecordSummaries(request.project.getId(), request.featureId, request.formId);
   }
 
-  private Result<List<Record>> filterByRequestForm(
-      RecordSummaryRequest request, Result<List<Record>> recordResult) {
-    switch (recordResult.getState()) {
-      case SUCCESS:
-        return Result.success(
-            stream(recordResult.get())
-                .filter(record -> record.getForm().getId().equals(request.formId))
-                .collect(Collectors.toList()));
-      case ERROR:
-        return Result.error(new Throwable("Failed to filter records by request form ID."));
-      default:
-        return Result.error(new Throwable("Failed to filter records by request form ID."));
-    }
-  }
-
-  private void onRecordSummaryError(Throwable t) {
+  private void onFetchRecordSummariesError(Throwable t) {
     // TODO: Show an appropriate error message to the user.
     Log.d(TAG, "Failed to fetch record summaries.", t);
   }
