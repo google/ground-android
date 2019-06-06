@@ -16,78 +16,67 @@
 package com.google.android.gnd.ui.projectselector;
 
 import android.util.Log;
-
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-
 import com.google.android.gnd.repository.DataRepository;
 import com.google.android.gnd.repository.Resource;
-import com.google.android.gnd.rx.Result;
 import com.google.android.gnd.system.AuthenticationManager;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.vo.Project;
-
-import io.reactivex.Observable;
+import io.reactivex.Single;
 import io.reactivex.subjects.PublishSubject;
-
 import java.util.Collections;
 import java.util.List;
-
 import javax.inject.Inject;
 
 public class ProjectSelectorViewModel extends AbstractViewModel {
   private static final String TAG = ProjectSelectorViewModel.class.getSimpleName();
 
-  private final DataRepository dataRepository;
   private final MutableLiveData<Resource<List<Project>>> projectSummaries;
   private final PublishSubject<Integer> projectSelections;
   private final MutableLiveData<Project> activeProject;
   private final MutableLiveData<Throwable> activateProjectErrors;
-  private final Observable<Result<Project>> activeProjectStream;
 
   @Inject
   ProjectSelectorViewModel(DataRepository dataRepository, AuthenticationManager authManager) {
-    this.dataRepository = dataRepository;
     this.projectSummaries = new MutableLiveData<>();
     this.activeProject = new MutableLiveData<>();
     this.activateProjectErrors = new MutableLiveData<>();
     this.projectSelections = PublishSubject.create();
 
+    disposeOnClear(
+        projectSelections
+            .switchMapSingle(
+                idx ->
+                    dataRepository
+                        .activateProject(getProjectSummary(idx).getId())
+                        .doOnError(this::onActiveProjectError)
+                        .onErrorResumeNext(Single.never()))
+            .subscribe(activeProject::setValue));
+
     AuthenticationManager.User user =
         authManager.getUser().blockingFirst(AuthenticationManager.User.ANONYMOUS);
 
-    Observable<Resource<List<Project>>> availableProjects =
-        dataRepository.getProjectSummaries(user);
-
-    this.activeProjectStream =
-        projectSelections.switchMap(Result.mapObservable(this::selectActiveProject));
-
     disposeOnClear(
-        activeProjectStream.subscribe(
-            Result.unwrap(activeProject::setValue, this::onActiveProjectError)));
-
-    disposeOnClear(
-        availableProjects.subscribe(projectSummaries::setValue, this::onProjectSummariesError));
+        dataRepository
+            .getProjectSummaries(user)
+            .subscribe(projectSummaries::setValue, this::onProjectSummariesError));
   }
 
   public LiveData<Resource<List<Project>>> getProjectSummaries() {
     return projectSummaries;
   }
 
-  public LiveData<Throwable> getActivateProjectErrors() {return activateProjectErrors; };
+  public LiveData<Throwable> getActivateProjectErrors() {
+    return activateProjectErrors;
+  };
 
   public LiveData<Project> getActiveProject() {
     return activeProject;
   }
 
-  private Observable<Project> selectActiveProject(int idx) {
-    return this.dataRepository
-        .activateProject(
-            Resource.getData(this.projectSummaries)
-                .orElse(Collections.emptyList())
-                .get(idx)
-                .getId())
-        .toObservable();
+  private Project getProjectSummary(int idx) {
+    return Resource.getData(this.projectSummaries).orElse(Collections.emptyList()).get(idx);
   }
 
   private void onProjectSummariesError(Throwable t) {
