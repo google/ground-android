@@ -16,6 +16,8 @@
 
 package com.google.android.gnd.repository;
 
+import static java8.util.stream.StreamSupport.stream;
+
 import android.util.Log;
 import com.google.android.gnd.service.DatastoreEvent;
 import com.google.android.gnd.service.RemoteDataService;
@@ -34,6 +36,7 @@ import io.reactivex.Single;
 import io.reactivex.subjects.BehaviorSubject;
 import io.reactivex.subjects.Subject;
 import java.util.List;
+import java8.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -100,12 +103,19 @@ public class DataRepository {
     event.getEntity().ifPresentOrElse(cache::putFeature, () -> cache.removeFeature(event.getId()));
   }
 
-  // TODO: Return Resource.
-  public Single<List<Record>> getRecordSummaries(String projectId, String featureId) {
+  public Single<List<Record>> getRecordSummaries(
+      String projectId, String featureId, String formId) {
     // TODO: Only fetch first n fields.
     // TODO: Also load from db.
     return getFeature(projectId, featureId)
-        .flatMap(feature -> remoteDataService.loadRecordSummaries(feature));
+        .flatMap(feature -> remoteDataService.loadRecordSummaries(feature))
+        .map(summaries -> filterSummariesByFormId(summaries, formId));
+  }
+
+  private List<Record> filterSummariesByFormId(List<Record> summaries, String formId) {
+    return stream(summaries)
+        .filter(record -> record.getForm().getId().equals(formId))
+        .collect(Collectors.toList());
   }
 
   private Single<Feature> getFeature(String projectId, String featureId) {
