@@ -15,15 +15,12 @@
  */
 package com.google.android.gnd.ui.home;
 
+import android.util.Log;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
 import androidx.lifecycle.MutableLiveData;
-import io.reactivex.subjects.PublishSubject;
-
-import android.util.Log;
 import com.google.android.gnd.repository.DataRepository;
 import com.google.android.gnd.repository.Resource;
-import com.google.android.gnd.rx.Result;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.SharedViewModel;
@@ -33,6 +30,8 @@ import com.google.android.gnd.vo.Feature;
 import com.google.android.gnd.vo.Form;
 import com.google.android.gnd.vo.Point;
 import com.google.android.gnd.vo.Project;
+import io.reactivex.Single;
+import io.reactivex.subjects.PublishSubject;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
@@ -65,8 +64,13 @@ public class HomeScreenViewModel extends AbstractViewModel {
 
     disposeOnClear(
         addFeatureClicks
-            .switchMapSingle(Result.mapSingle(dataRepository::addFeature))
-            .subscribe(Result.unwrap(this::showFeatureSheet, this::onAddFeatureError)));
+            .switchMapSingle(
+                newFeature ->
+                    dataRepository
+                        .addFeature(newFeature)
+                        .doOnError(this::onAddFeatureError)
+                        .onErrorResumeNext(Single.never()))  // Prevent from breaking upstream.
+            .subscribe(this::showFeatureSheet));
   }
 
   private void onAddFeatureError(Throwable throwable) {
