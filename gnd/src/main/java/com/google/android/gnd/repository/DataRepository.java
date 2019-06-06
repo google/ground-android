@@ -30,7 +30,6 @@ import com.google.android.gnd.vo.Record;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import io.reactivex.BackpressureStrategy;
-import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Observable;
 import io.reactivex.Single;
@@ -67,13 +66,12 @@ public class DataRepository {
         .toFlowable(BackpressureStrategy.LATEST);
   }
 
-  public Completable activateProject(String projectId) {
+  public Single<Project> activateProject(String projectId) {
     Log.d(TAG, " Activating project " + projectId);
     return remoteDataService
         .loadProject(projectId)
         .doOnSubscribe(__ -> activeProjectSubject.onNext(Resource.loading()))
-        .doOnSuccess(this::onProjectLoaded)
-        .toCompletable();
+        .doOnSuccess(this::onProjectLoaded);
   }
 
   private void onProjectLoaded(Project project) {
