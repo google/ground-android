@@ -19,9 +19,12 @@ package com.google.android.gnd.repository;
 import static java8.util.stream.StreamSupport.stream;
 
 import android.util.Log;
-import com.google.android.gnd.service.DatastoreEvent;
-import com.google.android.gnd.service.RemoteDataService;
-import com.google.android.gnd.service.firestore.DocumentNotFoundException;
+import com.google.android.gnd.persistence.local.LocalDataStore;
+import com.google.android.gnd.persistence.remote.DataStoreEvent;
+import com.google.android.gnd.persistence.remote.RemoteDataStore;
+import com.google.android.gnd.persistence.remote.firestore.DocumentNotFoundException;
+import com.google.android.gnd.persistence.shared.FeatureMutation;
+import com.google.android.gnd.persistence.shared.Mutation;
 import com.google.android.gnd.system.AuthenticationManager.User;
 import com.google.android.gnd.vo.Feature;
 import com.google.android.gnd.vo.FeatureUpdate.RecordUpdate.ResponseUpdate;
@@ -30,6 +33,7 @@ import com.google.android.gnd.vo.Record;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import io.reactivex.BackpressureStrategy;
+import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Observable;
 import io.reactivex.Single;
@@ -37,6 +41,7 @@ import io.reactivex.subjects.BehaviorSubject;
 import io.reactivex.subjects.Subject;
 import java.util.List;
 import java8.util.stream.Collectors;
+import java8.util.Optional;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -49,12 +54,15 @@ public class DataRepository {
   // For non-cached data, the local database will be the source of truth.
   // Remote data is written to the database, and then optionally to the InMemoryCache.
   private final InMemoryCache cache;
-  private final RemoteDataService remoteDataService;
+  private final LocalDataStore localDataStore;
+  private final RemoteDataStore remoteDataStore;
   private final Subject<Resource<Project>> activeProjectSubject;
 
   @Inject
-  public DataRepository(RemoteDataService remoteDataService, InMemoryCache cache) {
-    this.remoteDataService = remoteDataService;
+  public DataRepository(
+      LocalDataStore localDataStore, RemoteDataStore remoteDataStore, InMemoryCache cache) {
+    this.localDataStore = localDataStore;
+    this.remoteDataStore = remoteDataStore;
     this.cache = cache;
     this.activeProjectSubject = BehaviorSubject.create();
   }
@@ -68,7 +76,7 @@ public class DataRepository {
 
   public Single<Project> activateProject(String projectId) {
     Log.d(TAG, " Activating project " + projectId);
-    return remoteDataService
+    return remoteDataStore
         .loadProject(projectId)
         .doOnSubscribe(__ -> activeProjectSubject.onNext(Resource.loading()))
         .doOnSuccess(this::onProjectLoaded);
@@ -81,7 +89,7 @@ public class DataRepository {
 
   public Observable<Resource<List<Project>>> getProjectSummaries(User user) {
     // TODO: Get from load db if network connection not available or remote times out.
-    return remoteDataService
+    return remoteDataStore
         .loadProjectSummaries(user)
         .map(Resource::loaded)
         .onErrorReturn(Resource::error)
@@ -93,13 +101,13 @@ public class DataRepository {
   // TODO: Wrap Feature in Resource<>.
   // TODO: Accept id instead.
   public Flowable<ImmutableSet<Feature>> getFeatureVectorStream(Project project) {
-    return remoteDataService
+    return remoteDataStore
         .getFeatureVectorStream(project)
         .doOnNext(this::onRemoteFeatureVectorChange)
         .map(__ -> cache.getFeatures());
   }
 
-  private void onRemoteFeatureVectorChange(DatastoreEvent<Feature> event) {
+  private void onRemoteFeatureVectorChange(DataStoreEvent<Feature> event) {
     event.getEntity().ifPresentOrElse(cache::putFeature, () -> cache.removeFeature(event.getId()));
   }
 
@@ -108,7 +116,7 @@ public class DataRepository {
     // TODO: Only fetch first n fields.
     // TODO: Also load from db.
     return getFeature(projectId, featureId)
-        .flatMap(feature -> remoteDataService.loadRecordSummaries(feature))
+        .flatMap(feature -> remoteDataStore.loadRecordSummaries(feature))
         .map(summaries -> filterSummariesByFormId(summaries, formId));
   }
 
@@ -132,7 +140,7 @@ public class DataRepository {
   public Flowable<Resource<Record>> getRecordDetails(
       String projectId, String featureId, String recordId) {
     return getFeature(projectId, featureId)
-        .flatMap(feature -> remoteDataService.loadRecordDetails(feature, recordId))
+        .flatMap(feature -> remoteDataStore.loadRecordDetails(feature, recordId))
         .map(Resource::loaded)
         .onErrorReturn(Resource::error)
         .toFlowable();
@@ -142,7 +150,7 @@ public class DataRepository {
       String projectId, String featureId, String recordId) {
     // TODO: Store and retrieve latest edits from cache and/or db.
     return getFeature(projectId, featureId)
-        .flatMap(feature -> remoteDataService.loadRecordDetails(feature, recordId))
+        .flatMap(feature -> remoteDataStore.loadRecordDetails(feature, recordId))
         .map(Resource::loaded)
         .onErrorReturn(Resource::error);
   }
@@ -165,13 +173,13 @@ public class DataRepository {
         .getActiveProject()
         .filter(p -> projectId.equals(p.getId()))
         .map(Single::just)
-        .orElse(remoteDataService.loadProject(projectId));
+        .orElse(remoteDataStore.loadProject(projectId));
   }
 
   public Observable<Resource<Record>> saveChanges(
       Record record, ImmutableList<ResponseUpdate> updates, User user) {
     record = attachUser(record, user);
-    return remoteDataService
+    return remoteDataStore
         .saveChanges(record, updates)
         .map(Resource::saved)
         .toObservable()
@@ -188,8 +196,16 @@ public class DataRepository {
     return builder.build();
   }
 
-  public Single<Feature> addFeature(Feature feature) {
-    return remoteDataService.addFeature(feature);
+  public Completable saveFeature(Feature feature) {
+    // TODO(#79): Assign owner and timestamps when creating new feature.
+    // TODO(#80): Update UI to provide FeatureMutations instead of Features here.
+    return localDataStore.applyAndEnqueue(
+        FeatureMutation.builder()
+            .setType(Mutation.Type.CREATE)
+            .setProjectId(feature.getProject().getId())
+            .setFeatureId(feature.getId())
+            .setNewLocation(Optional.of(feature.getPoint()))
+            .build());
   }
 
   public void clearActiveProject() {

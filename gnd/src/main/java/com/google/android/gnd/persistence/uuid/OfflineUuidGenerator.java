@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google LLC
+ * Copyright 2019 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,6 +14,18 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.service.firestore;
+package com.google.android.gnd.persistence.uuid;
 
-public class DocumentNotFoundException extends Exception {}
+/**
+ * Generator for unique identifier strings while offline. Implementations must assume the network
+ * will be unavailable when invoked.
+ */
+public interface OfflineUuidGenerator {
+
+  /**
+   * Returns an identifier that is universally unique for all practical intents and purposes.
+   * Implementations should ensure that the probability of collision is so small to be considered
+   * insignificant.
+   */
+  String generateUuid();
+}

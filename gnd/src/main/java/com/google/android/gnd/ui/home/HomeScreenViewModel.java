@@ -67,9 +67,10 @@ public class HomeScreenViewModel extends AbstractViewModel {
             .switchMapSingle(
                 newFeature ->
                     dataRepository
-                        .addFeature(newFeature)
+                        .saveFeature(newFeature)
+                        .toSingleDefault(newFeature)
                         .doOnError(this::onAddFeatureError)
-                        .onErrorResumeNext(Single.never()))  // Prevent from breaking upstream.
+                        .onErrorResumeNext(Single.never())) // Prevent from breaking upstream.
             .subscribe(this::showFeatureSheet));
   }
 

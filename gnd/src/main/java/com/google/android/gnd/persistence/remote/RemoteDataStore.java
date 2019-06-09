@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.service;
+package com.google.android.gnd.persistence.remote;
 
 import com.google.android.gnd.system.AuthenticationManager.User;
 import com.google.android.gnd.vo.Feature;
@@ -22,19 +22,21 @@ import com.google.android.gnd.vo.FeatureUpdate.RecordUpdate.ResponseUpdate;
 import com.google.android.gnd.vo.Project;
 import com.google.android.gnd.vo.Record;
 import com.google.common.collect.ImmutableList;
+import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Single;
 import java.util.List;
 
 /**
- * Data service is treated as if it's remote, though implementations may cache data locally as well.
+ * Defines API for accessing data in a remote data store. The store is treated as if it's remote,
+ * though implementations may cache data locally as well.
  */
-public interface RemoteDataService {
+public interface RemoteDataStore {
   Single<List<Project>> loadProjectSummaries(User user);
 
   Single<Project> loadProject(String projectId);
 
-  Flowable<DatastoreEvent<Feature>> getFeatureVectorStream(Project project);
+  Flowable<DataStoreEvent<Feature>> getFeatureVectorStream(Project project);
 
   Single<List<Record>> loadRecordSummaries(Feature feature);
 
@@ -42,5 +44,6 @@ public interface RemoteDataService {
 
   Single<Record> saveChanges(Record record, ImmutableList<ResponseUpdate> updates);
 
-  Single<Feature> addFeature(Feature feature);
+  // TODO(#57): Replace with apply(FeatureMutation) in upcoming PRs.
+  Completable saveFeature(Feature feature);
 }

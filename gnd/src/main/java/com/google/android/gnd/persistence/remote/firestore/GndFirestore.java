@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.service.firestore;
+package com.google.android.gnd.persistence.remote.firestore;
 
 import static java8.util.stream.Collectors.toList;
 import static java8.util.stream.StreamSupport.stream;
 
 import android.util.Log;
-import com.google.android.gnd.service.DatastoreEvent;
+import com.google.android.gnd.persistence.remote.DataStoreEvent;
 import com.google.android.gnd.system.AuthenticationManager.User;
 import com.google.android.gnd.vo.Feature;
 import com.google.android.gnd.vo.Project;
@@ -34,6 +34,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SnapshotMetadata;
 import durdinapps.rxfirebase2.RxFirestore;
+import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
@@ -105,16 +106,11 @@ public class GndFirestore extends AbstractFluentFirestore {
       return new FeatureDocumentReference(ref.document(id));
     }
 
-    public Single<Feature> add(Feature feature) {
-      return RxFirestore.addDocument(ref, FeatureDoc.fromObject(feature))
-          .map(docRef -> feature.toBuilder().setId(docRef.getId()).build());
-    }
-
-    public Flowable<DatastoreEvent<Feature>> observe(Project project) {
+    public Flowable<DataStoreEvent<Feature>> observe(Project project) {
       return RxFirestore.observeQueryRef(ref)
           .flatMapIterable(
               featureQuerySnapshot ->
-                  toDatastoreEvents(
+                  toDataStoreEvents(
                       featureQuerySnapshot,
                       featureDocSnapshot -> FeatureDoc.toObject(project, featureDocSnapshot)));
     }
@@ -123,6 +119,10 @@ public class GndFirestore extends AbstractFluentFirestore {
   public static class FeatureDocumentReference extends FluentDocumentReference {
     protected FeatureDocumentReference(DocumentReference ref) {
       super(ref);
+    }
+
+    public Completable set(Feature feature) {
+      return RxFirestore.setDocument(ref, FeatureDoc.fromObject(feature));
     }
 
     public RecordsCollectionReference records() {
@@ -171,37 +171,37 @@ public class GndFirestore extends AbstractFluentFirestore {
         .toSingle(Collections.emptyList());
   }
 
-  private static <T> Iterable<DatastoreEvent<T>> toDatastoreEvents(
+  private static <T> Iterable<DataStoreEvent<T>> toDataStoreEvents(
       QuerySnapshot snapshot, Function<DocumentSnapshot, T> converter) {
-    DatastoreEvent.Source source = getSource(snapshot.getMetadata());
+    DataStoreEvent.Source source = getSource(snapshot.getMetadata());
     return stream(snapshot.getDocumentChanges())
-        .map(dc -> toDatastoreEvent(dc, source, converter))
-        .filter(DatastoreEvent::isValid)
+        .map(dc -> toDataStoreEvent(dc, source, converter))
+        .filter(DataStoreEvent::isValid)
         .collect(toList());
   }
 
-  private static <T> DatastoreEvent<T> toDatastoreEvent(
-      DocumentChange dc, DatastoreEvent.Source source, Function<DocumentSnapshot, T> converter) {
+  private static <T> DataStoreEvent<T> toDataStoreEvent(
+      DocumentChange dc, DataStoreEvent.Source source, Function<DocumentSnapshot, T> converter) {
     Log.v(TAG, dc.getDocument().getReference().getPath() + " " + dc.getType());
     try {
       String id = dc.getDocument().getId();
       switch (dc.getType()) {
         case ADDED:
-          return DatastoreEvent.loaded(id, source, converter.apply(dc.getDocument()));
+          return DataStoreEvent.loaded(id, source, converter.apply(dc.getDocument()));
         case MODIFIED:
-          return DatastoreEvent.modified(id, source, converter.apply(dc.getDocument()));
+          return DataStoreEvent.modified(id, source, converter.apply(dc.getDocument()));
         case REMOVED:
-          return DatastoreEvent.removed(id, source);
+          return DataStoreEvent.removed(id, source);
       }
-    } catch (DatastoreException e) {
-      Log.d(TAG, "Datastore error:", e);
+    } catch (DataStoreException e) {
+      Log.d(TAG, "Data store error:", e);
     }
-    return DatastoreEvent.invalidResponse();
+    return DataStoreEvent.invalidResponse();
   }
 
-  private static DatastoreEvent.Source getSource(SnapshotMetadata metadata) {
+  private static DataStoreEvent.Source getSource(SnapshotMetadata metadata) {
     return metadata.hasPendingWrites()
-        ? DatastoreEvent.Source.LOCAL_DATASTORE
-        : DatastoreEvent.Source.REMOTE_DATASTORE;
+        ? DataStoreEvent.Source.LOCAL_DATA_STORE
+        : DataStoreEvent.Source.REMOTE_DATA_STORE;
   }
 }

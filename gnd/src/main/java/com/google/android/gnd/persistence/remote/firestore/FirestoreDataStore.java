@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.service.firestore;
+package com.google.android.gnd.persistence.remote.firestore;
 
 import androidx.annotation.Nullable;
+import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator;
+import com.google.android.gnd.persistence.remote.DataStoreEvent;
+import com.google.android.gnd.persistence.remote.RemoteDataStore;
 import com.google.android.gnd.rx.RxTask;
-import com.google.android.gnd.service.DatastoreEvent;
-import com.google.android.gnd.service.RemoteDataService;
 import com.google.android.gnd.system.AuthenticationManager.User;
 import com.google.android.gnd.vo.Feature;
 import com.google.android.gnd.vo.FeatureUpdate.RecordUpdate.ResponseUpdate;
@@ -31,6 +32,7 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreSettings;
 import com.google.firebase.firestore.SetOptions;
+import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Single;
 import java.util.Date;
@@ -40,22 +42,26 @@ import java.util.Map;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+// TODO(#92): Break implementation of OfflineUuidGenerator into a separate class.
 @Singleton
-public class FirestoreDataService implements RemoteDataService {
+public class FirestoreDataStore implements RemoteDataStore, OfflineUuidGenerator {
 
   private static final FirebaseFirestoreSettings FIRESTORE_SETTINGS =
       new FirebaseFirestoreSettings.Builder().setPersistenceEnabled(true).build();
   private static final SetOptions MERGE = SetOptions.merge();
-  private static final String TAG = FirestoreDataService.class.getSimpleName();
+  private static final String TAG = FirestoreDataStore.class.getSimpleName();
+  private static final String ID_COLLECTION = "/ids";
   private final GndFirestore db;
+  private final FirebaseFirestore firestore;
 
   @Inject
-  FirestoreDataService() {
+  FirestoreDataStore() {
     // TODO: Run on I/O thread, return asynchronously.
-    final FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+    // TODO: Bind the Firestore instance in a module and inject it here.
+    this.firestore = FirebaseFirestore.getInstance();
     firestore.setFirestoreSettings(FIRESTORE_SETTINGS);
     FirebaseFirestore.setLoggingEnabled(true);
-    db = new GndFirestore(firestore);
+    this.db = new GndFirestore(firestore);
   }
 
   static Timestamps toTimestamps(@Nullable Date created, @Nullable Date modified) {
@@ -99,7 +105,7 @@ public class FirestoreDataService implements RemoteDataService {
   }
 
   @Override
-  public Flowable<DatastoreEvent<Feature>> getFeatureVectorStream(Project project) {
+  public Flowable<DataStoreEvent<Feature>> getFeatureVectorStream(Project project) {
     return db.projects().project(project.getId()).features().observe(project);
   }
 
@@ -132,9 +138,9 @@ public class FirestoreDataService implements RemoteDataService {
   }
 
   @Override
-  public Single<Feature> addFeature(Feature feature) {
+  public Completable saveFeature(Feature feature) {
     String projectId = feature.getProject().getId();
-    return db.projects().project(projectId).features().add(feature);
+    return db.projects().project(projectId).features().feature(feature.getId()).set(feature);
   }
 
   private Map<String, Object> updatedResponses(ImmutableList<ResponseUpdate> updates) {
@@ -156,5 +162,10 @@ public class FirestoreDataService implements RemoteDataService {
       }
     }
     return updatedResponses;
+  }
+
+  @Override
+  public String generateUuid() {
+    return firestore.collection(ID_COLLECTION).document().getId();
   }
 }

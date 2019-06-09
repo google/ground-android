@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google LLC
+ * Copyright 2019 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,10 +14,15 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.service.firestore;
+package com.google.android.gnd.persistence.local.room;
 
-public class DatastoreException extends RuntimeException {
-  public DatastoreException(String message) {
-    super(message);
-  }
+import androidx.room.Dao;
+import androidx.room.Insert;
+import io.reactivex.Completable;
+
+/** Provides low-level read/write operations of {@link FeatureEntity} to/from the local db. */
+@Dao
+public interface FeatureDao {
+  @Insert
+  Completable insert(FeatureEntity feature);
 }
