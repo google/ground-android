@@ -87,6 +87,7 @@ public class EditRecordViewModel extends AbstractViewModel {
     this.editRecordRequests = PublishSubject.create();
     this.recordSaveRequests = PublishSubject.create();
 
+    // TODO(#84): Handle errors on inner stream to avoid breaking outer one.
     disposeOnClear(
         recordSaveRequests
             .switchMap(this::saveRecord)
