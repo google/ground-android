@@ -18,11 +18,16 @@ package com.google.android.gnd.persistence.local.room;
 
 import androidx.room.Dao;
 import androidx.room.Insert;
+import androidx.room.Query;
 import io.reactivex.Completable;
+import io.reactivex.Flowable;
 
 /** Provides low-level read/write operations of {@link FeatureEntity} to/from the local db. */
 @Dao
 public interface FeatureDao {
   @Insert
   Completable insert(FeatureEntity feature);
+
+  @Query("SELECT * FROM feature WHERE project_id = :projectId")
+  Flowable<FeatureEntity> getFeaturesByProjectIdOnceAndStream(String projectId);
 }
