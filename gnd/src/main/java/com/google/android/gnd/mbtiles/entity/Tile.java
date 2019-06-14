@@ -1,4 +1,4 @@
-package com.google.android.gnd.mapbox.entity;
+package com.google.android.gnd.mbtiles.entity;
 
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;

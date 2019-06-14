@@ -1,4 +1,4 @@
-package com.google.android.gnd.mapbox.dao;
+package com.google.android.gnd.mbtiles.dao;
 
 import androidx.room.Dao;
 

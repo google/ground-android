@@ -1,9 +1,9 @@
-package com.google.android.gnd.mapbox.dao;
+package com.google.android.gnd.mbtiles.dao;
 
 import androidx.room.Dao;
 import androidx.room.Query;
 
-import com.google.android.gnd.mapbox.entity.Tile;
+import com.google.android.gnd.mbtiles.entity.Tile;
 
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;

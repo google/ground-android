@@ -1,9 +1,8 @@
-package com.google.android.gnd.mapbox.entity;
+package com.google.android.gnd.mbtiles.entity;
 
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
-import androidx.room.util.TableInfo;
 
 @Entity(tableName = "metadata")
 public class Metadata {

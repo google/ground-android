@@ -1,10 +1,10 @@
-package com.google.android.gnd.mapbox.dao;
+package com.google.android.gnd.mbtiles.dao;
 
 import androidx.room.Dao;
 import androidx.room.Insert;
 import androidx.room.Query;
 
-import com.google.android.gnd.mapbox.entity.Metadata;
+import com.google.android.gnd.mbtiles.entity.Metadata;
 
 import io.reactivex.Maybe;
 
