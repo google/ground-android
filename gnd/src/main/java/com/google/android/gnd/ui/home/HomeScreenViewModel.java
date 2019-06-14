@@ -30,6 +30,8 @@ import com.google.android.gnd.vo.Feature;
 import com.google.android.gnd.vo.Form;
 import com.google.android.gnd.vo.Point;
 import com.google.android.gnd.vo.Project;
+import io.reactivex.Single;
+import io.reactivex.subjects.PublishSubject;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
@@ -40,6 +42,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
   private final DataRepository dataRepository;
   private final Navigator navigator;
   private final LiveData<Resource<Project>> activeProject;
+  private final PublishSubject<Feature> addFeatureClicks;
 
   // TODO: Move into MapContainersViewModel
   private final SingleLiveEvent<Point> addFeatureDialogRequests;
@@ -57,6 +60,23 @@ public class HomeScreenViewModel extends AbstractViewModel {
     this.featureSheetState = new MutableLiveData<>();
     this.activeProject = LiveDataReactiveStreams.fromPublisher(dataRepository.getActiveProject());
     this.navigator = navigator;
+    this.addFeatureClicks = PublishSubject.create();
+
+    disposeOnClear(
+        addFeatureClicks
+            .switchMapSingle(
+                newFeature ->
+                    dataRepository
+                        .saveFeature(newFeature)
+                        .toSingleDefault(newFeature)
+                        .doOnError(this::onAddFeatureError)
+                        .onErrorResumeNext(Single.never())) // Prevent from breaking upstream.
+            .subscribe(this::showFeatureSheet));
+  }
+
+  private void onAddFeatureError(Throwable throwable) {
+    // TODO: Show an error message to the user.
+    Log.e(TAG, "Couldn't add feature.", throwable);
   }
 
   public LiveData<Void> getOpenDrawerRequests() {
@@ -88,18 +108,13 @@ public class HomeScreenViewModel extends AbstractViewModel {
     featureSheetState.setValue(FeatureSheetState.visible(feature));
   }
 
-  private void onFeatureAdded(Feature feature) {
-    showFeatureSheet(feature);
-  }
-
   public void onAddFeatureBtnClick(Point location) {
     // TODO: Pause location updates while dialog is open.
     addFeatureDialogRequests.setValue(location);
   }
 
   public void addFeature(Feature feature) {
-    // TODO(#24): Fix leaky subscriptions!
-    disposeOnClear(dataRepository.saveFeature(feature).subscribe(() -> onFeatureAdded(feature)));
+    addFeatureClicks.onNext(feature);
   }
 
   public void onBottomSheetHidden() {

@@ -16,6 +16,8 @@
 
 package com.google.android.gnd.repository;
 
+import static java8.util.stream.StreamSupport.stream;
+
 import android.util.Log;
 import com.google.android.gnd.persistence.local.LocalDataStore;
 import com.google.android.gnd.persistence.remote.DataStoreEvent;
@@ -38,6 +40,7 @@ import io.reactivex.Single;
 import io.reactivex.subjects.BehaviorSubject;
 import io.reactivex.subjects.Subject;
 import java.util.List;
+import java8.util.stream.Collectors;
 import java8.util.Optional;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -71,13 +74,12 @@ public class DataRepository {
         .toFlowable(BackpressureStrategy.LATEST);
   }
 
-  public Completable activateProject(String projectId) {
+  public Single<Project> activateProject(String projectId) {
     Log.d(TAG, " Activating project " + projectId);
     return remoteDataStore
         .loadProject(projectId)
         .doOnSubscribe(__ -> activeProjectSubject.onNext(Resource.loading()))
-        .doOnSuccess(this::onProjectLoaded)
-        .toCompletable();
+        .doOnSuccess(this::onProjectLoaded);
   }
 
   private void onProjectLoaded(Project project) {
@@ -109,12 +111,19 @@ public class DataRepository {
     event.getEntity().ifPresentOrElse(cache::putFeature, () -> cache.removeFeature(event.getId()));
   }
 
-  // TODO: Return Resource.
-  public Single<List<Record>> getRecordSummaries(String projectId, String featureId) {
+  public Single<List<Record>> getRecordSummaries(
+      String projectId, String featureId, String formId) {
     // TODO: Only fetch first n fields.
     // TODO: Also load from db.
     return getFeature(projectId, featureId)
-        .flatMap(feature -> remoteDataStore.loadRecordSummaries(feature));
+        .flatMap(feature -> remoteDataStore.loadRecordSummaries(feature))
+        .map(summaries -> filterSummariesByFormId(summaries, formId));
+  }
+
+  private List<Record> filterSummariesByFormId(List<Record> summaries, String formId) {
+    return stream(summaries)
+        .filter(record -> record.getForm().getId().equals(formId))
+        .collect(Collectors.toList());
   }
 
   private Single<Feature> getFeature(String projectId, String featureId) {

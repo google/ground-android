@@ -39,7 +39,15 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import androidx.fragment.app.FragmentManager;
 import butterknife.BindView;
+import io.reactivex.Flowable;
+import io.reactivex.Observable;
+import io.reactivex.Observer;
+import io.reactivex.processors.BehaviorProcessor;
+import io.reactivex.subjects.PublishSubject;
+
 import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.MainViewModel;
 import com.google.android.gnd.R;
@@ -58,6 +66,7 @@ import com.google.android.gnd.ui.projectselector.ProjectSelectorDialogFragment;
 import com.google.android.gnd.vo.Feature;
 import com.google.android.gnd.vo.Point;
 import com.google.android.gnd.vo.Project;
+
 import javax.inject.Inject;
 
 /**
@@ -108,6 +117,7 @@ public class HomeScreenFragment extends AbstractFragment
   private HomeScreenViewModel viewModel;
   private MapContainerFragment mapContainerFragment;
   private BottomSheetBehavior<View> bottomSheetBehavior;
+  private PublishSubject<Object> showFeatureDialogRequests;
 
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -120,6 +130,13 @@ public class HomeScreenFragment extends AbstractFragment
     viewModel.getShowAddFeatureDialogRequests().observe(this, this::onShowAddFeatureDialogRequest);
     viewModel.getFeatureSheetState().observe(this, this::onFeatureSheetStateChange);
     viewModel.getOpenDrawerRequests().observe(this, __ -> openDrawer());
+
+    showFeatureDialogRequests = PublishSubject.create();
+
+    showFeatureDialogRequests
+        .switchMapMaybe(__ -> addFeatureDialogFragment.show(getChildFragmentManager()))
+        .as(autoDisposable(this))
+        .subscribe(viewModel::addFeature);
   }
 
   @Nullable
@@ -254,7 +271,8 @@ public class HomeScreenFragment extends AbstractFragment
       case NOT_FOUND:
       case ERROR:
         EphemeralPopups.showError(getContext(), R.string.project_load_error);
-        Log.e(TAG, "Project load error", project.operationState().error().orElse(new UnknownError()));
+        Log.e(
+            TAG, "Project load error", project.operationState().error().orElse(new UnknownError()));
         break;
     }
   }
@@ -265,11 +283,7 @@ public class HomeScreenFragment extends AbstractFragment
     }
     // TODO: Pause location updates while dialog is open.
     // TODO: Show spinner?
-    // TODO(#24): Fix leaky subscriptions!
-    addFeatureDialogFragment
-        .show(getChildFragmentManager())
-        .as(autoDisposable(this))
-        .subscribe(viewModel::addFeature);
+    showFeatureDialogRequests.onNext(new Object());
   }
 
   private void onFeatureSheetStateChange(FeatureSheetState state) {

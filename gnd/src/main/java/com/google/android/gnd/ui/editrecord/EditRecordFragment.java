@@ -54,13 +54,13 @@ import javax.inject.Inject;
 @ActivityScoped
 public class EditRecordFragment extends AbstractFragment implements BackPressListener {
   private static final String TAG = EditRecordFragment.class.getSimpleName();
-  private static final String NEW_RECORD_ID_ARG_PLACEHOLDER = "NEW_RECORD";
 
   private ProgressDialog savingProgressDialog;
 
   private EditRecordViewModel viewModel;
   private SingleSelectDialogFactory singleSelectDialogFactory;
   private MultiSelectDialogFactory multiSelectDialogFactory;
+  private static final String NEW_RECORD_ID_ARG_PLACEHOLDER = "NEW_RECORD";
 
   @Inject Navigator navigator;
 
@@ -118,11 +118,7 @@ public class EditRecordFragment extends AbstractFragment implements BackPressLis
       return;
     }
     EditRecordFragmentArgs args = EditRecordFragmentArgs.fromBundle(getArguments());
-    if (args.getRecordId().equals(NEW_RECORD_ID_ARG_PLACEHOLDER)) {
-      viewModel.editNewRecord(args.getProjectId(), args.getFeatureId(), args.getFormId());
-    } else {
-      viewModel.editExistingRecord(args.getProjectId(), args.getFeatureId(), args.getRecordId());
-    }
+    viewModel.editRecord(args, args.getRecordId().equals(NEW_RECORD_ID_ARG_PLACEHOLDER));
   }
 
   private void onRecordChange(Resource<Record> record) {

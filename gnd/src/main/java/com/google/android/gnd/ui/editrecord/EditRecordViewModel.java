@@ -46,6 +46,9 @@ import com.google.android.gnd.vo.Record;
 import com.google.android.gnd.vo.Record.Response;
 import com.google.android.gnd.vo.Record.TextResponse;
 import com.google.common.collect.ImmutableList;
+import io.reactivex.Observable;
+import io.reactivex.Single;
+import io.reactivex.subjects.PublishSubject;
 import java.util.Arrays;
 import java.util.Collections;
 import java8.util.Optional;
@@ -64,8 +67,11 @@ public class EditRecordViewModel extends AbstractViewModel {
   private final Resources resources;
   private final ObservableMap<String, Response> responses = new ObservableArrayMap<>();
   private final ObservableMap<String, String> errors = new ObservableArrayMap<>();
+  private final PublishSubject<EditRecordRequest> editRecordRequests;
+  private final PublishSubject<SaveRecordRequest> recordSaveRequests;
 
   public final ObservableInt loadingSpinnerVisibility = new ObservableInt();
+  private AuthenticationManager.User currentUser;
 
   @Inject
   EditRecordViewModel(
@@ -78,6 +84,57 @@ public class EditRecordViewModel extends AbstractViewModel {
     this.showUnsavedChangesDialogEvents = new SingleLiveEvent<>();
     this.showErrorDialogEvents = new SingleLiveEvent<>();
     this.authManager = authenticationManager;
+    this.editRecordRequests = PublishSubject.create();
+    this.recordSaveRequests = PublishSubject.create();
+
+    // TODO(#84): Handle errors on inner stream to avoid breaking outer one.
+    disposeOnClear(
+        recordSaveRequests
+            .switchMap(this::saveRecord)
+            .subscribe(record::setValue, this::onSaveRecordError));
+
+    disposeOnClear(
+        editRecordRequests
+            .switchMapSingle(
+                record ->
+                    createOrUpdateRecord(record)
+                        .doOnError(this::onEditRecordError)
+                        .onErrorResumeNext(Single.never()))  // Prevent from breaking upstream.
+            .subscribe(this::onRecordSnapshot));
+  }
+
+  private Single<Resource<Record>> createOrUpdateRecord(EditRecordRequest request) {
+    return request.isNew ? createRecord(request) : updateRecord(request);
+  }
+
+  private Single<Resource<Record>> createRecord(EditRecordRequest request) {
+    return this.dataRepository
+        .createRecord(
+            request.args.getProjectId(), request.args.getFeatureId(), request.args.getFormId())
+        .map(Resource::loaded)
+        // TODO(#78): Avoid side-effects.
+        .doOnSuccess(this::onNewRecordLoaded);
+  }
+
+  private Single<Resource<Record>> updateRecord(EditRecordRequest request) {
+    return this.dataRepository
+        .getRecordSnapshot(
+            request.args.getProjectId(), request.args.getFeatureId(), request.args.getRecordId())
+        // TODO(#78): Avoid side-effects.
+        .doOnSuccess(r -> r.data().ifPresent(this::update));
+  }
+
+  private Observable<Resource<Record>> saveRecord(SaveRecordRequest request) {
+    return this.dataRepository.saveChanges(
+        request.record, getChangeList(request.record), request.user);
+  }
+
+  private void onSaveRecordError(Throwable t) {
+    Log.d(TAG, "Failed to save the record.", t);
+  }
+
+  private void onEditRecordError(Throwable t) {
+    Log.d(TAG, "Unable to create or update record", t);
   }
 
   public ObservableMap<String, Response> getResponses() {
@@ -124,22 +181,12 @@ public class EditRecordViewModel extends AbstractViewModel {
     return showErrorDialogEvents;
   }
 
-  void editNewRecord(String projectId, String featureId, String formId) {
-    // TODO(#24): Fix leaky subscriptions!
-    disposeOnClear(
-        dataRepository
-            .createRecord(projectId, featureId, formId)
-            .map(Resource::loaded)
-            .doOnSuccess(__ -> onNewRecordLoaded())
-            .subscribe(this::onRecordSnapshot));
-  }
-
   @NonNull
   private Optional<Record> getCurrentRecord() {
     return Resource.getData(record);
   }
 
-  private void onNewRecordLoaded() {
+  private void onNewRecordLoaded(Resource<Record> r) {
     responses.clear();
     errors.clear();
   }
@@ -153,14 +200,9 @@ public class EditRecordViewModel extends AbstractViewModel {
             r.getForm().getField(k).ifPresent(field -> onResponseChanged(field, Optional.of(v))));
   }
 
-  void editExistingRecord(String projectId, String featureId, String recordId) {
-    // TODO: Store and retrieve latest edits from cache and/or db.
-    // TODO(#24): Fix leaky subscriptions!
-    disposeOnClear(
-        dataRepository
-            .getRecordSnapshot(projectId, featureId, recordId)
-            .doOnSuccess(r -> r.data().ifPresent(this::update))
-            .subscribe(this::onRecordSnapshot));
+  void editRecord(EditRecordFragmentArgs args, boolean isNew) {
+    this.currentUser = authManager.getUser().blockingFirst(AuthenticationManager.User.ANONYMOUS);
+    editRecordRequests.onNext(new EditRecordRequest(args, isNew));
   }
 
   private void onRecordSnapshot(Resource<Record> r) {
@@ -210,12 +252,7 @@ public class EditRecordViewModel extends AbstractViewModel {
   }
 
   private void saveChanges(Record r) {
-    // TODO(#24): Fix leaky subscriptions!
-    disposeOnClear(
-        authManager
-            .getUser()
-            .flatMap(user -> dataRepository.saveChanges(r, getChangeList(r), user))
-            .subscribe(record::setValue));
+    recordSaveRequests.onNext(new SaveRecordRequest(r, this.currentUser));
   }
 
   private Stream<ResponseUpdate> getChanges(Record r) {
@@ -285,5 +322,25 @@ public class EditRecordViewModel extends AbstractViewModel {
 
   private boolean hasErrors() {
     return !errors.isEmpty();
+  }
+
+  public static class EditRecordRequest {
+    public final EditRecordFragmentArgs args;
+    public final boolean isNew;
+
+    EditRecordRequest(EditRecordFragmentArgs args, boolean isNew) {
+      this.args = args;
+      this.isNew = isNew;
+    }
+  }
+
+  public static class SaveRecordRequest {
+    public final Record record;
+    public final AuthenticationManager.User user;
+
+    SaveRecordRequest(Record record, AuthenticationManager.User user) {
+      this.record = record;
+      this.user = user;
+    }
   }
 }

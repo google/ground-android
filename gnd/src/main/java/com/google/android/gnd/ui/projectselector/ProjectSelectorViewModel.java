@@ -15,6 +15,7 @@
  */
 package com.google.android.gnd.ui.projectselector;
 
+import android.util.Log;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import com.google.android.gnd.repository.DataRepository;
@@ -22,7 +23,8 @@ import com.google.android.gnd.repository.Resource;
 import com.google.android.gnd.system.AuthenticationManager;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.vo.Project;
-import io.reactivex.Completable;
+import io.reactivex.Single;
+import io.reactivex.subjects.PublishSubject;
 import java.util.Collections;
 import java.util.List;
 import javax.inject.Inject;
@@ -30,33 +32,63 @@ import javax.inject.Inject;
 public class ProjectSelectorViewModel extends AbstractViewModel {
   private static final String TAG = ProjectSelectorViewModel.class.getSimpleName();
 
-  private final DataRepository dataRepository;
   private final MutableLiveData<Resource<List<Project>>> projectSummaries;
-  private final AuthenticationManager authManager;
+  private final PublishSubject<Integer> projectSelections;
+  private final MutableLiveData<Project> activeProject;
+  private final MutableLiveData<Throwable> activateProjectErrors;
 
   @Inject
   ProjectSelectorViewModel(DataRepository dataRepository, AuthenticationManager authManager) {
-    this.dataRepository = dataRepository;
     this.projectSummaries = new MutableLiveData<>();
-    this.authManager = authManager;
-  }
+    this.activeProject = new MutableLiveData<>();
+    this.activateProjectErrors = new MutableLiveData<>();
+    this.projectSelections = PublishSubject.create();
 
-  // TODO: Show message when no visible projects found.
-  public void loadProjectSummaries() {
-    // TODO(#24): Fix leaky subscriptions!
     disposeOnClear(
-        authManager
-            .getUser()
-            .flatMap(user -> dataRepository.getProjectSummaries(user))
-            .subscribe(summaries -> projectSummaries.setValue(summaries)));
+        projectSelections
+            .switchMapSingle(
+                idx ->
+                    dataRepository
+                        .activateProject(getProjectSummary(idx).getId())
+                        .doOnError(this::onActiveProjectError)
+                        .onErrorResumeNext(Single.never()))
+            .subscribe(activeProject::setValue));
+
+    AuthenticationManager.User user =
+        authManager.getUser().blockingFirst(AuthenticationManager.User.ANONYMOUS);
+
+    disposeOnClear(
+        dataRepository
+            .getProjectSummaries(user)
+            .subscribe(projectSummaries::setValue, this::onProjectSummariesError));
   }
 
   public LiveData<Resource<List<Project>>> getProjectSummaries() {
     return projectSummaries;
   }
 
-  Completable activateProject(int idx) {
-    return dataRepository.activateProject(
-        Resource.getData(this.projectSummaries).orElse(Collections.emptyList()).get(idx).getId());
+  public LiveData<Throwable> getActivateProjectErrors() {
+    return activateProjectErrors;
+  };
+
+  public LiveData<Project> getActiveProject() {
+    return activeProject;
+  }
+
+  private Project getProjectSummary(int idx) {
+    return Resource.getData(this.projectSummaries).orElse(Collections.emptyList()).get(idx);
+  }
+
+  private void onProjectSummariesError(Throwable t) {
+    Log.d(TAG, "Failed to retrieve project summaries.", t);
+  }
+
+  private void onActiveProjectError(Throwable t) {
+    Log.d(TAG, "Could not activate project.", t);
+    this.activateProjectErrors.setValue(t);
+  }
+
+  void activateProject(int idx) {
+    projectSelections.onNext(idx);
   }
 }
