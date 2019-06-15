@@ -20,7 +20,6 @@ import static java8.util.stream.StreamSupport.stream;
 
 import android.util.Log;
 import com.google.android.gnd.persistence.local.LocalDataStore;
-import com.google.android.gnd.persistence.remote.DataStoreEvent;
 import com.google.android.gnd.persistence.remote.RemoteDataStore;
 import com.google.android.gnd.persistence.remote.firestore.DocumentNotFoundException;
 import com.google.android.gnd.persistence.shared.FeatureMutation;
@@ -97,18 +96,10 @@ public class DataRepository {
         .startWith(Resource.loading());
   }
 
-  // TODO: Only return data needed to render feature PLPs.
-  // TODO: Wrap Feature in Resource<>.
-  // TODO: Accept id instead.
-  public Flowable<ImmutableSet<Feature>> getFeatureVectorStream(Project project) {
-    return remoteDataStore
-        .getFeatureVectorStream(project)
-        .doOnNext(this::onRemoteFeatureVectorChange)
-        .map(__ -> cache.getFeatures());
-  }
-
-  private void onRemoteFeatureVectorChange(DataStoreEvent<Feature> event) {
-    event.getEntity().ifPresentOrElse(cache::putFeature, () -> cache.removeFeature(event.getId()));
+  // TODO: Only return feature fields needed to render.
+  // TODO(#127): Decouple from Project and accept id instead.
+  public Flowable<ImmutableSet<Feature>> getFeaturesOnceAndStream(Project project) {
+    return localDataStore.getFeaturesOnceAndStream(project);
   }
 
   public Single<List<Record>> getRecordSummaries(
@@ -204,7 +195,10 @@ public class DataRepository {
             .setType(Mutation.Type.CREATE)
             .setProjectId(feature.getProject().getId())
             .setFeatureId(feature.getId())
+            .setFeatureTypeId(feature.getFeatureType().getId())
             .setNewLocation(Optional.of(feature.getPoint()))
+            // TODO(#101): Attach real credentials.
+            .setUserId("")
             .build());
   }
 

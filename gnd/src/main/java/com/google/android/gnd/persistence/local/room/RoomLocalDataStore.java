@@ -16,12 +16,19 @@
 
 package com.google.android.gnd.persistence.local.room;
 
+import static com.google.android.gnd.util.ImmutableSetCollector.toImmutableSet;
+import static java8.util.stream.StreamSupport.stream;
+
 import androidx.room.Room;
 import androidx.room.Transaction;
 import com.google.android.gnd.GndApplication;
 import com.google.android.gnd.persistence.local.LocalDataStore;
 import com.google.android.gnd.persistence.shared.FeatureMutation;
+import com.google.android.gnd.vo.Feature;
+import com.google.android.gnd.vo.Project;
+import com.google.common.collect.ImmutableSet;
 import io.reactivex.Completable;
+import io.reactivex.Flowable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -41,7 +48,10 @@ public class RoomLocalDataStore implements LocalDataStore {
   public RoomLocalDataStore(GndApplication app) {
     // TODO: Create db in module and inject DAOs directly.
     this.db =
-        Room.databaseBuilder(app.getApplicationContext(), LocalDatabase.class, DB_NAME).build();
+        Room.databaseBuilder(app.getApplicationContext(), LocalDatabase.class, DB_NAME)
+            // TODO(#128): Disable before official release.
+            .fallbackToDestructiveMigration()
+            .build();
   }
 
   @Transaction
@@ -52,6 +62,18 @@ public class RoomLocalDataStore implements LocalDataStore {
     } catch (LocalDataStoreException e) {
       return Completable.error(e);
     }
+  }
+
+  // TODO(#127): Decouple from Project and pass in project id instead.
+  @Override
+  public Flowable<ImmutableSet<Feature>> getFeaturesOnceAndStream(Project project) {
+    return db.featureDao()
+        .getFeatureEntitiesStream(project.getId())
+        .map(
+            list ->
+                stream(list)
+                    .map(f -> FeatureEntity.toFeature(f, project))
+                    .collect(toImmutableSet()));
   }
 
   private Completable apply(FeatureMutation mutation) throws LocalDataStoreException {

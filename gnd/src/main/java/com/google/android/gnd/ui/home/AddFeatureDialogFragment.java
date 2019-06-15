@@ -16,7 +16,7 @@
 
 package com.google.android.gnd.ui.home;
 
-import static com.google.android.gnd.util.Streams.toImmutableList;
+import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList;
 import static java8.util.stream.StreamSupport.stream;
 
 import android.app.Dialog;

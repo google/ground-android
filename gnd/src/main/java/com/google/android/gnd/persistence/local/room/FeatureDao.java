@@ -21,6 +21,7 @@ import androidx.room.Insert;
 import androidx.room.Query;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
+import java.util.List;
 
 /** Provides low-level read/write operations of {@link FeatureEntity} to/from the local db. */
 @Dao
@@ -28,6 +29,7 @@ public interface FeatureDao {
   @Insert
   Completable insert(FeatureEntity feature);
 
+
   @Query("SELECT * FROM feature WHERE project_id = :projectId")
-  Flowable<FeatureEntity> getFeaturesByProjectIdOnceAndStream(String projectId);
+  Flowable<List<FeatureEntity>> getFeatureEntitiesStream(String projectId);
 }

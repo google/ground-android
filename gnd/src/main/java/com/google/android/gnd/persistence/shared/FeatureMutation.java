@@ -24,8 +24,11 @@ import java8.util.Optional;
 @AutoValue
 public abstract class FeatureMutation extends Mutation {
 
-  /** Returns the globally unique id of the feature being modified. */
+  /** Returns the UUID the feature being modified. */
   public abstract String getFeatureId();
+
+  /** Returns the UUID of the feature type being modified. */
+  public abstract String getFeatureTypeId();
 
   /**
    * Indicates the new location of the feature. If empty, indicates no change to the feature's
@@ -41,6 +44,8 @@ public abstract class FeatureMutation extends Mutation {
   public abstract static class Builder extends Mutation.Builder<Builder> {
 
     public abstract Builder setFeatureId(String newFeatureId);
+
+    public abstract Builder setFeatureTypeId(String newFeatureTypeId);
 
     public abstract Builder setNewLocation(Optional<Point> newNewLocation);
 

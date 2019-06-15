@@ -50,7 +50,8 @@ public abstract class FeatureMutationEntity {
   @CopyAnnotations
   @PrimaryKey(autoGenerate = true)
   @ColumnInfo(name = "id")
-  public abstract int getId();
+  @Nullable
+  public abstract Long getId();
 
   @CopyAnnotations
   @NonNull
@@ -79,7 +80,7 @@ public abstract class FeatureMutationEntity {
   // Auto-generated boilerplate.
 
   public static FeatureMutationEntity create(
-      int id, String featureId, MutationEntityType type, Coordinates newLocation) {
+      @Nullable Long id, String featureId, MutationEntityType type, Coordinates newLocation) {
     return builder()
         .setId(id)
         .setFeatureId(featureId)
@@ -95,7 +96,7 @@ public abstract class FeatureMutationEntity {
   @AutoValue.Builder
   public abstract static class Builder {
 
-    public abstract Builder setId(int newId);
+    public abstract Builder setId(@Nullable Long newId);
 
     public abstract Builder setFeatureId(String newFeatureId);
 

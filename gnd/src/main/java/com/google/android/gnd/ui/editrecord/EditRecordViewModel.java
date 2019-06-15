@@ -16,7 +16,7 @@
 
 package com.google.android.gnd.ui.editrecord;
 
-import static com.google.android.gnd.util.Streams.toImmutableList;
+import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList;
 import static com.google.android.gnd.vo.FeatureUpdate.Operation.CREATE;
 import static com.google.android.gnd.vo.FeatureUpdate.Operation.DELETE;
 import static com.google.android.gnd.vo.FeatureUpdate.Operation.UPDATE;
