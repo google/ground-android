@@ -34,13 +34,14 @@ import com.google.common.collect.ImmutableSet;
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
+import io.reactivex.Maybe;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.subjects.BehaviorSubject;
 import io.reactivex.subjects.Subject;
 import java.util.List;
-import java8.util.stream.Collectors;
 import java8.util.Optional;
+import java8.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -106,7 +107,9 @@ public class DataRepository {
       String projectId, String featureId, String formId) {
     // TODO: Only fetch first n fields.
     // TODO: Also load from db.
+    // TODO(#127): Decouple feature from record so that we don't need to fetch record here.
     return getFeature(projectId, featureId)
+        .switchIfEmpty(Single.error(new DocumentNotFoundException()))
         .flatMap(feature -> remoteDataStore.loadRecordSummaries(feature))
         .map(summaries -> filterSummariesByFormId(summaries, formId));
   }
@@ -117,20 +120,17 @@ public class DataRepository {
         .collect(Collectors.toList());
   }
 
-  private Single<Feature> getFeature(String projectId, String featureId) {
-    // TODO: Load from db if not in cache.
+  // TODO(#127): Decouple Project from Feature and remove projectId.
+  private Maybe<Feature> getFeature(String projectId, String featureId) {
     return getProject(projectId)
-        .flatMap(
-            project ->
-                cache
-                    .getFeature(featureId)
-                    .map(Single::just)
-                    .orElse(Single.error(new DocumentNotFoundException())));
+        .flatMapMaybe(project -> localDataStore.getFeature(project, featureId));
   }
 
   public Flowable<Resource<Record>> getRecordDetails(
       String projectId, String featureId, String recordId) {
+    // TODO(#127): Decouple feature from record so that we don't need to fetch record here.
     return getFeature(projectId, featureId)
+        .switchIfEmpty(Single.error(new DocumentNotFoundException()))
         .flatMap(feature -> remoteDataStore.loadRecordDetails(feature, recordId))
         .map(Resource::loaded)
         .onErrorReturn(Resource::error)
@@ -140,7 +140,9 @@ public class DataRepository {
   public Single<Resource<Record>> getRecordSnapshot(
       String projectId, String featureId, String recordId) {
     // TODO: Store and retrieve latest edits from cache and/or db.
+    // TODO(#127): Decouple feature from record so that we don't need to fetch record here.
     return getFeature(projectId, featureId)
+        .switchIfEmpty(Single.error(new DocumentNotFoundException()))
         .flatMap(feature -> remoteDataStore.loadRecordDetails(feature, recordId))
         .map(Resource::loaded)
         .onErrorReturn(Resource::error);
@@ -148,7 +150,9 @@ public class DataRepository {
 
   public Single<Record> createRecord(String projectId, String featureId, String formId) {
     // TODO: Handle invalid formId.
+    // TODO(#127): Decouple feature from record so that we don't need to fetch record here.
     return getFeature(projectId, featureId)
+        .switchIfEmpty(Single.error(new DocumentNotFoundException()))
         .map(
             feature ->
                 Record.newBuilder()

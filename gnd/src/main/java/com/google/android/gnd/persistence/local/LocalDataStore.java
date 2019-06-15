@@ -22,6 +22,7 @@ import com.google.android.gnd.vo.Project;
 import com.google.common.collect.ImmutableSet;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
+import io.reactivex.Maybe;
 
 /**
  * Provides access to local persistent data store, the canonical store for latest state and
@@ -38,10 +39,13 @@ public interface LocalDataStore {
   Completable applyAndEnqueue(FeatureMutation mutation);
 
   /**
-   * Returns a long-lived stream that emits the full set of features for a project on subscribe,
-   * and continues to return the full set each time a feature is added/changed/removed. The full
-   * set is returned rather than deltas for simplicity and to implement a fully reactive UI in which
-   * each update is idempotent.
+   * Returns a long-lived stream that emits the full set of features for a project on subscribe, and
+   * continues to return the full set each time a feature is added/changed/removed. The full set is
+   * returned rather than deltas for simplicity and to implement a fully reactive UI in which each
+   * update is idempotent.
    */
   Flowable<ImmutableSet<Feature>> getFeaturesOnceAndStream(Project project);
+
+  /** Returns the feature with the specified UUID from the local data store, if found. */
+  Maybe<Feature> getFeature(Project project, String featureId);
 }

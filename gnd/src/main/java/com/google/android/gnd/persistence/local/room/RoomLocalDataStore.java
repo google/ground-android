@@ -29,6 +29,7 @@ import com.google.android.gnd.vo.Project;
 import com.google.common.collect.ImmutableSet;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
+import io.reactivex.Maybe;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -74,6 +75,12 @@ public class RoomLocalDataStore implements LocalDataStore {
                 stream(list)
                     .map(f -> FeatureEntity.toFeature(f, project))
                     .collect(toImmutableSet()));
+  }
+
+  // TODO(#127): Decouple from Project and remove project from args.
+  @Override
+  public Maybe<Feature> getFeature(Project project, String featureId) {
+    return db.featureDao().getFeature(featureId).map(f -> FeatureEntity.toFeature(f, project));
   }
 
   private Completable apply(FeatureMutation mutation) throws LocalDataStoreException {
