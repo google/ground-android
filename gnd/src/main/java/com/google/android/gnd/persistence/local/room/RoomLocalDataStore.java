@@ -24,6 +24,7 @@ import androidx.room.Transaction;
 import com.google.android.gnd.GndApplication;
 import com.google.android.gnd.persistence.local.LocalDataStore;
 import com.google.android.gnd.persistence.shared.FeatureMutation;
+import com.google.android.gnd.persistence.shared.RecordMutation;
 import com.google.android.gnd.vo.Feature;
 import com.google.android.gnd.vo.Project;
 import com.google.common.collect.ImmutableSet;
@@ -41,7 +42,7 @@ import javax.inject.Singleton;
  */
 @Singleton
 public class RoomLocalDataStore implements LocalDataStore {
-  private static final String DB_NAME = "gnd-db";
+  private static final String DB_NAME = "gnd.db";
 
   private final LocalDatabase db;
 
@@ -94,5 +95,28 @@ public class RoomLocalDataStore implements LocalDataStore {
 
   private Completable enqueue(FeatureMutation mutation) {
     return db.featureMutationDao().insert(FeatureMutationEntity.fromMutation(mutation));
+  }
+
+  @Transaction
+  @Override
+  public Completable applyAndEnqueue(RecordMutation mutation) {
+    try {
+      return apply(mutation).andThen(enqueue(mutation));
+    } catch (LocalDataStoreException e) {
+      return Completable.error(e);
+    }
+  }
+
+  private Completable apply(RecordMutation mutation) throws LocalDataStoreException {
+    switch (mutation.getType()) {
+      case CREATE:
+        return db.recordDao().insert(RecordEntity.fromMutation(mutation));
+      default:
+        throw LocalDataStoreException.unknownMutationType(mutation.getType());
+    }
+  }
+
+  private Completable enqueue(RecordMutation mutation) {
+    return db.recordMutationDao().insert(RecordMutationEntity.fromMutation(mutation));
   }
 }

@@ -48,6 +48,8 @@ public abstract class Mutation {
   public abstract String getProjectId();
 
   /** Returns the globally unique id of the user requesting the change. */
+  // TODO(#101): Make NonNull.
+  @Nullable
   public abstract String getUserId();
 
   public abstract static class Builder<T extends Builder> {

@@ -26,6 +26,8 @@ import com.google.android.gnd.vo.Form;
 import com.google.android.gnd.vo.Project;
 import com.google.android.gnd.vo.Record;
 import io.reactivex.Single;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subjects.PublishSubject;
 import java.util.Collections;
 import java.util.List;
@@ -52,8 +54,9 @@ public class RecordListViewModel extends AbstractViewModel {
             .switchMapSingle(
                 recordSummaryRequest ->
                     fetchRecordSummaries(recordSummaryRequest)
-                        .doOnError(this::onFetchRecordSummariesError)
-                        .onErrorResumeNext(Single.never()))
+                        .onErrorResumeNext(this::onFetchRecordSummariesError)
+                        .subscribeOn(Schedulers.io()))
+            .observeOn(AndroidSchedulers.mainThread())
             .subscribe(recordSummaries::setValue));
   }
 
@@ -84,12 +87,14 @@ public class RecordListViewModel extends AbstractViewModel {
 
   private Single<List<Record>> fetchRecordSummaries(RecordSummaryRequest request) {
     // TODO: Only fetch records with current formId.
-    return dataRepository.getRecordSummaries(request.project.getId(), request.featureId, request.formId);
+    return dataRepository.getRecordSummaries(
+        request.project.getId(), request.featureId, request.formId);
   }
 
-  private void onFetchRecordSummariesError(Throwable t) {
+  private Single<List<Record>> onFetchRecordSummariesError(Throwable t) {
     // TODO: Show an appropriate error message to the user.
     Log.d(TAG, "Failed to fetch record summaries.", t);
+    return Single.just(Collections.emptyList());
   }
 
   private void loadRecords(Project project, String featureTypeId, String formId, String featureId) {

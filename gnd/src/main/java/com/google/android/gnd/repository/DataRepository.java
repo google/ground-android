@@ -24,12 +24,12 @@ import com.google.android.gnd.persistence.remote.RemoteDataStore;
 import com.google.android.gnd.persistence.remote.firestore.DocumentNotFoundException;
 import com.google.android.gnd.persistence.shared.FeatureMutation;
 import com.google.android.gnd.persistence.shared.Mutation;
+import com.google.android.gnd.persistence.shared.RecordMutation;
+import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator;
 import com.google.android.gnd.system.AuthenticationManager.User;
 import com.google.android.gnd.vo.Feature;
-import com.google.android.gnd.vo.FeatureUpdate.RecordUpdate.ResponseUpdate;
 import com.google.android.gnd.vo.Project;
 import com.google.android.gnd.vo.Record;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Completable;
@@ -57,14 +57,19 @@ public class DataRepository {
   private final LocalDataStore localDataStore;
   private final RemoteDataStore remoteDataStore;
   private final Subject<Resource<Project>> activeProjectSubject;
+  private final OfflineUuidGenerator uuidGenerator;
 
   @Inject
   public DataRepository(
-      LocalDataStore localDataStore, RemoteDataStore remoteDataStore, InMemoryCache cache) {
+      LocalDataStore localDataStore,
+      RemoteDataStore remoteDataStore,
+      InMemoryCache cache,
+      OfflineUuidGenerator uuidGenerator) {
     this.localDataStore = localDataStore;
     this.remoteDataStore = remoteDataStore;
     this.cache = cache;
     this.activeProjectSubject = BehaviorSubject.create();
+    this.uuidGenerator = uuidGenerator;
   }
 
   public Flowable<Resource<Project>> getActiveProject() {
@@ -137,8 +142,7 @@ public class DataRepository {
         .toFlowable();
   }
 
-  public Single<Resource<Record>> getRecordSnapshot(
-      String projectId, String featureId, String recordId) {
+  public Single<Resource<Record>> getRecord(String projectId, String featureId, String recordId) {
     // TODO: Store and retrieve latest edits from cache and/or db.
     // TODO(#127): Decouple feature from record so that we don't need to fetch record here.
     return getFeature(projectId, featureId)
@@ -156,6 +160,7 @@ public class DataRepository {
         .map(
             feature ->
                 Record.newBuilder()
+                    .setId(uuidGenerator.generateUuid())
                     .setProject(feature.getProject())
                     .setFeature(feature)
                     .setForm(feature.getFeatureType().getForm(formId).get())
@@ -171,24 +176,9 @@ public class DataRepository {
         .orElse(remoteDataStore.loadProject(projectId));
   }
 
-  public Observable<Resource<Record>> saveChanges(
-      Record record, ImmutableList<ResponseUpdate> updates, User user) {
-    record = attachUser(record, user);
-    return remoteDataStore
-        .saveChanges(record, updates)
-        .map(Resource::saved)
-        .toObservable()
-        .startWith(Resource.saving(record));
-  }
-
-  private Record attachUser(Record record, User user) {
-    Record.Builder builder = record.toBuilder();
-    // TODO: Set these creation time instead.
-    if (record.getId() == null && record.getCreatedBy() == null) {
-      builder.setCreatedBy(user);
-    }
-    builder.setModifiedBy(user);
-    return builder.build();
+  public Completable applyAndEnqueue(RecordMutation mutation) {
+    // TODO(#101): Store user id and timestamp on save.
+    return localDataStore.applyAndEnqueue(mutation);
   }
 
   public Completable saveFeature(Feature feature) {

@@ -17,6 +17,7 @@
 package com.google.android.gnd.persistence.local;
 
 import com.google.android.gnd.persistence.shared.FeatureMutation;
+import com.google.android.gnd.persistence.shared.RecordMutation;
 import com.google.android.gnd.vo.Feature;
 import com.google.android.gnd.vo.Project;
 import com.google.common.collect.ImmutableSet;
@@ -33,10 +34,15 @@ import io.reactivex.Maybe;
 public interface LocalDataStore {
   /**
    * Applies the specified {@link FeatureMutation} to the local data store, appending the mutation
-   * to the local queue for remote sync. It is assumed to be a new, unsaved instance, and as such
-   * its {@code changeId} is ignored.
+   * to the local queue for remote sync.
    */
   Completable applyAndEnqueue(FeatureMutation mutation);
+
+  /**
+   * Applies the specified {@link RecordMutation} to the local data store, appending the mutation to
+   * the local queue for remote sync.
+   */
+  Completable applyAndEnqueue(RecordMutation mutation);
 
   /**
    * Returns a long-lived stream that emits the full set of features for a project on subscribe, and

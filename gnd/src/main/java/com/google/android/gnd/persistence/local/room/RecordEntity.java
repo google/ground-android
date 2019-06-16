@@ -16,13 +16,22 @@
 
 package com.google.android.gnd.persistence.local.room;
 
+import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
+import com.google.android.gnd.persistence.shared.RecordMutation;
+import com.google.android.gnd.vo.Record.MultipleChoiceResponse;
+import com.google.android.gnd.vo.Record.Response;
+import com.google.android.gnd.vo.Record.TextResponse;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.AutoValue.CopyAnnotations;
+import java.util.Map;
+import java.util.Map.Entry;
+import java8.util.Optional;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 /** Representation of a {@link com.google.android.gnd.vo.Record} in local db. */
@@ -31,6 +40,9 @@ import org.json.JSONObject;
     tableName = "record",
     indices = {@Index("id")})
 public abstract class RecordEntity {
+
+  private static final String TAG = RecordEntity.class.getSimpleName();
+
   @CopyAnnotations
   @PrimaryKey
   @ColumnInfo(name = "id")
@@ -56,6 +68,39 @@ public abstract class RecordEntity {
   @ColumnInfo(name = "responses")
   @NonNull
   public abstract JSONObject getResponses();
+
+  public static RecordEntity fromMutation(RecordMutation mutation) {
+    return RecordEntity.builder()
+        .setId(mutation.getRecordId())
+        .setFormId(mutation.getFormId())
+        .setState(EntityState.DEFAULT)
+        .setResponses(convertResponsesToJson(mutation.getModifiedResponses()))
+        .build();
+  }
+
+  static JSONObject convertResponsesToJson(Map<String, Optional<Response>> responses) {
+    JSONObject json = new JSONObject();
+    for (Entry<String, Optional<Response>> entry : responses.entrySet()) {
+      String elementId = entry.getKey();
+      Optional<Response> response = entry.getValue();
+      try {
+        json.put(elementId, response.map(RecordEntity::toJsonObject).orElse(null));
+      } catch (JSONException e) {
+        Log.e(TAG, "Error building JSON", e);
+      }
+    }
+    return json;
+  }
+
+  private static Object toJsonObject(Response response) {
+    if (response instanceof TextResponse) {
+      return ((TextResponse) response).getText();
+    } else if (response instanceof MultipleChoiceResponse) {
+      return ((MultipleChoiceResponse) response).getChoices();
+    } else {
+      throw new UnsupportedOperationException("Unimplemented Response " + response.getClass());
+    }
+  }
 
   // Auto-generated boilerplate:
 

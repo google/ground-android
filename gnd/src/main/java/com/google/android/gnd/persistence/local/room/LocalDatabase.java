@@ -33,10 +33,10 @@ import androidx.room.TypeConverters;
       FeatureEntity.class,
       FeatureMutationEntity.class,
       RecordEntity.class,
-      RecordEditEntity.class
+      RecordMutationEntity.class
     },
-    // TODO(#128): Reset to 1 before releasing.
-    version = 3,
+    // TODO(#128): Reset version to 1 before releasing.
+    version = 4,
     exportSchema = false)
 @TypeConverters({
   MutationEntityType.class,
@@ -49,4 +49,8 @@ public abstract class LocalDatabase extends RoomDatabase {
   public abstract FeatureDao featureDao();
 
   public abstract FeatureMutationDao featureMutationDao();
+
+  public abstract RecordDao recordDao();
+
+  public abstract RecordMutationDao recordMutationDao();
 }
