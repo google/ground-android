@@ -115,7 +115,7 @@ public class DataRepository {
     // TODO(#127): Decouple feature from record so that we don't need to fetch record here.
     return getFeature(projectId, featureId)
         .switchIfEmpty(Single.error(new DocumentNotFoundException()))
-        .flatMap(feature -> remoteDataStore.loadRecordSummaries(feature))
+        .flatMap(feature -> localDataStore.getRecords(feature))
         .map(summaries -> filterSummariesByFormId(summaries, formId));
   }
 

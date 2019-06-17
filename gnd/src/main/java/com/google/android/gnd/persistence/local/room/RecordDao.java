@@ -18,10 +18,20 @@ package com.google.android.gnd.persistence.local.room;
 
 import androidx.room.Dao;
 import androidx.room.Insert;
+import androidx.room.Query;
 import io.reactivex.Completable;
+import io.reactivex.Single;
+import java.util.List;
 
 @Dao
 public interface RecordDao {
   @Insert
   Completable insert(RecordEntity entity);
+
+  /**
+   * Returns the list records associated with the specified featureId, ignoring deleted records
+   * (i.e., returns on records with state = State.DEFAULT (1)).
+   */
+  @Query("SELECT * FROM record WHERE feature_id = :featureId AND state = 1")
+  Single<List<RecordEntity>> getRecordsByFeatureId(String featureId);
 }

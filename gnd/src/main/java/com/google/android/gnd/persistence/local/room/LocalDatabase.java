@@ -36,7 +36,7 @@ import androidx.room.TypeConverters;
       RecordMutationEntity.class
     },
     // TODO(#128): Reset version to 1 before releasing.
-    version = 4,
+    version = 6,
     exportSchema = false)
 @TypeConverters({
   MutationEntityType.class,

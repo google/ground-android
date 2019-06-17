@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.persistence.local.room;
 
+import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList;
 import static com.google.android.gnd.util.ImmutableSetCollector.toImmutableSet;
 import static java8.util.stream.StreamSupport.stream;
 
@@ -27,10 +28,13 @@ import com.google.android.gnd.persistence.shared.FeatureMutation;
 import com.google.android.gnd.persistence.shared.RecordMutation;
 import com.google.android.gnd.vo.Feature;
 import com.google.android.gnd.vo.Project;
+import com.google.android.gnd.vo.Record;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
+import io.reactivex.Single;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -82,6 +86,17 @@ public class RoomLocalDataStore implements LocalDataStore {
   @Override
   public Maybe<Feature> getFeature(Project project, String featureId) {
     return db.featureDao().getFeature(featureId).map(f -> FeatureEntity.toFeature(f, project));
+  }
+
+  @Override
+  public Single<ImmutableList<Record>> getRecords(Feature feature) {
+    return db.recordDao()
+        .getRecordsByFeatureId(feature.getId())
+        .map(
+            list ->
+                stream(list)
+                    .map(record -> RecordEntity.toRecord(feature, record))
+                    .collect(toImmutableList()));
   }
 
   private Completable apply(FeatureMutation mutation) throws LocalDataStoreException {

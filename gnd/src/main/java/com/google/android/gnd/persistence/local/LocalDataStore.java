@@ -20,10 +20,13 @@ import com.google.android.gnd.persistence.shared.FeatureMutation;
 import com.google.android.gnd.persistence.shared.RecordMutation;
 import com.google.android.gnd.vo.Feature;
 import com.google.android.gnd.vo.Project;
+import com.google.android.gnd.vo.Record;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
+import io.reactivex.Single;
 
 /**
  * Provides access to local persistent data store, the canonical store for latest state and
@@ -54,4 +57,7 @@ public interface LocalDataStore {
 
   /** Returns the feature with the specified UUID from the local data store, if found. */
   Maybe<Feature> getFeature(Project project, String featureId);
+
+  /** Returns the records associated with the specified feature, or an empty list if none found. */
+  Single<ImmutableList<Record>> getRecords(Feature feature);
 }
