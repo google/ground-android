@@ -16,6 +16,8 @@
 
 package com.google.android.gnd.persistence.local.room;
 
+import static java8.lang.Iterables.forEach;
+
 import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
@@ -31,6 +33,7 @@ import com.google.auto.value.AutoValue.CopyAnnotations;
 import java.util.Map;
 import java.util.Map.Entry;
 import java8.util.Optional;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -96,10 +99,16 @@ public abstract class RecordEntity {
     if (response instanceof TextResponse) {
       return ((TextResponse) response).getText();
     } else if (response instanceof MultipleChoiceResponse) {
-      return ((MultipleChoiceResponse) response).getChoices();
+      return toJSONArray((MultipleChoiceResponse) response);
     } else {
       throw new UnsupportedOperationException("Unimplemented Response " + response.getClass());
     }
+  }
+
+  private static Object toJSONArray(MultipleChoiceResponse response) {
+    JSONArray array = new JSONArray();
+    forEach(response.getChoices(), array::put);
+    return array;
   }
 
   // Auto-generated boilerplate:
