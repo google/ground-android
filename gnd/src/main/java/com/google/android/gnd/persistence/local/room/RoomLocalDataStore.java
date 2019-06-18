@@ -133,6 +133,8 @@ public class RoomLocalDataStore implements LocalDataStore {
     switch (mutation.getType()) {
       case CREATE:
         return db.recordDao().insert(RecordEntity.fromMutation(mutation));
+      case UPDATE:
+        return db.recordDao().update(RecordEntity.fromMutation(mutation));
       default:
         throw LocalDataStoreException.unknownMutationType(mutation.getType());
     }

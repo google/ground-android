@@ -19,6 +19,7 @@ package com.google.android.gnd.persistence.local.room;
 import androidx.room.Dao;
 import androidx.room.Insert;
 import androidx.room.Query;
+import androidx.room.Update;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
@@ -26,8 +27,17 @@ import java.util.List;
 
 @Dao
 public interface RecordDao {
+
+  /**
+   * Inserts the provided entity into the record table. Record id must already be assigned to a
+   * valid UUID, or the returned Completable will terminate with an error.
+   */
   @Insert
-  Completable insert(RecordEntity entity);
+  Completable insert(RecordEntity record);
+
+  /** Overwrites an existing record with the provided entity. */
+  @Update
+  Completable update(RecordEntity record);
 
   /** Returns the record with the specified UUID, if found. */
   @Query("SELECT * FROM record WHERE id = :recordId")
