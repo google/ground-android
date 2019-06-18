@@ -89,6 +89,13 @@ public class RoomLocalDataStore implements LocalDataStore {
   }
 
   @Override
+  public Maybe<Record> getRecord(Feature feature, String recordId) {
+    return db.recordDao()
+        .getRecordById(recordId)
+        .map(record -> RecordEntity.toRecord(feature, record));
+  }
+
+  @Override
   public Single<ImmutableList<Record>> getRecords(Feature feature) {
     return db.recordDao()
         .getRecordsByFeatureId(feature.getId())

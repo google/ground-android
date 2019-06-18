@@ -134,7 +134,8 @@ public class EditRecordViewModel extends AbstractViewModel {
         .getRecord(
             request.args.getProjectId(), request.args.getFeatureId(), request.args.getRecordId())
         // TODO(#78): Avoid side-effects.
-        .doOnSuccess(r -> r.data().ifPresent(this::update));
+        .doOnSuccess(this::update)
+        .map(Resource::loaded);
   }
 
   private Completable saveRecord(SaveRecordRequest request) {

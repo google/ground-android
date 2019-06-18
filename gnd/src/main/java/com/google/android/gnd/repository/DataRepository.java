@@ -126,35 +126,27 @@ public class DataRepository {
   }
 
   // TODO(#127): Decouple Project from Feature and remove projectId.
+  // TODO: Replace with Single and treat missing id as error.
   private Maybe<Feature> getFeature(String projectId, String featureId) {
     return getProject(projectId)
         .flatMapMaybe(project -> localDataStore.getFeature(project, featureId));
   }
 
-  public Flowable<Resource<Record>> getRecordDetails(
-      String projectId, String featureId, String recordId) {
-    // TODO(#127): Decouple feature from record so that we don't need to fetch record here.
-    return getFeature(projectId, featureId)
-        .switchIfEmpty(Single.error(new DocumentNotFoundException()))
-        .flatMap(feature -> remoteDataStore.loadRecordDetails(feature, recordId))
-        .map(Resource::loaded)
-        .onErrorReturn(Resource::error)
-        .toFlowable();
-  }
-
-  public Single<Resource<Record>> getRecord(String projectId, String featureId, String recordId) {
+  public Single<Record> getRecord(String projectId, String featureId, String recordId) {
     // TODO: Store and retrieve latest edits from cache and/or db.
-    // TODO(#127): Decouple feature from record so that we don't need to fetch record here.
+    // TODO(#127): Decouple feature from record so that we don't need to fetch feature here.
     return getFeature(projectId, featureId)
         .switchIfEmpty(Single.error(new DocumentNotFoundException()))
-        .flatMap(feature -> remoteDataStore.loadRecordDetails(feature, recordId))
-        .map(Resource::loaded)
-        .onErrorReturn(Resource::error);
+        .flatMap(
+            feature ->
+                localDataStore
+                    .getRecord(feature, recordId)
+                    .switchIfEmpty(Single.error(new DocumentNotFoundException())));
   }
 
   public Single<Record> createRecord(String projectId, String featureId, String formId) {
     // TODO: Handle invalid formId.
-    // TODO(#127): Decouple feature from record so that we don't need to fetch record here.
+    // TODO(#127): Decouple feature from record so that we don't need to fetch feature here.
     return getFeature(projectId, featureId)
         .switchIfEmpty(Single.error(new DocumentNotFoundException()))
         .map(

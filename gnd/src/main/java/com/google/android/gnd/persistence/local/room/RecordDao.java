@@ -20,6 +20,7 @@ import androidx.room.Dao;
 import androidx.room.Insert;
 import androidx.room.Query;
 import io.reactivex.Completable;
+import io.reactivex.Maybe;
 import io.reactivex.Single;
 import java.util.List;
 
@@ -27,6 +28,10 @@ import java.util.List;
 public interface RecordDao {
   @Insert
   Completable insert(RecordEntity entity);
+
+  /** Returns the record with the specified UUID, if found. */
+  @Query("SELECT * FROM record WHERE id = :recordId")
+  Maybe<RecordEntity> getRecordById(String recordId);
 
   /**
    * Returns the list records associated with the specified featureId, ignoring deleted records

@@ -58,6 +58,9 @@ public interface LocalDataStore {
   /** Returns the feature with the specified UUID from the local data store, if found. */
   Maybe<Feature> getFeature(Project project, String featureId);
 
+  /** Returns the record with the specified UUID from the local data store, if found. */
+  Maybe<Record> getRecord(Feature feature, String recordId);
+
   /** Returns the records associated with the specified feature, or an empty list if none found. */
   Single<ImmutableList<Record>> getRecords(Feature feature);
 }
