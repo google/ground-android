@@ -16,12 +16,25 @@
 
 package com.google.android.gnd.persistence.local.room;
 
+import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList;
+import static com.google.android.gnd.util.ImmutableSetCollector.toImmutableSet;
+import static java8.util.stream.StreamSupport.stream;
+
 import androidx.room.Room;
 import androidx.room.Transaction;
 import com.google.android.gnd.GndApplication;
 import com.google.android.gnd.persistence.local.LocalDataStore;
 import com.google.android.gnd.persistence.shared.FeatureMutation;
+import com.google.android.gnd.persistence.shared.RecordMutation;
+import com.google.android.gnd.vo.Feature;
+import com.google.android.gnd.vo.Project;
+import com.google.android.gnd.vo.Record;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import io.reactivex.Completable;
+import io.reactivex.Flowable;
+import io.reactivex.Maybe;
+import io.reactivex.Single;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -33,7 +46,7 @@ import javax.inject.Singleton;
  */
 @Singleton
 public class RoomLocalDataStore implements LocalDataStore {
-  private static final String DB_NAME = "gnd-db";
+  private static final String DB_NAME = "gnd.db";
 
   private final LocalDatabase db;
 
@@ -41,7 +54,10 @@ public class RoomLocalDataStore implements LocalDataStore {
   public RoomLocalDataStore(GndApplication app) {
     // TODO: Create db in module and inject DAOs directly.
     this.db =
-        Room.databaseBuilder(app.getApplicationContext(), LocalDatabase.class, DB_NAME).build();
+        Room.databaseBuilder(app.getApplicationContext(), LocalDatabase.class, DB_NAME)
+            // TODO(#128): Disable before official release.
+            .fallbackToDestructiveMigration()
+            .build();
   }
 
   @Transaction
@@ -52,6 +68,42 @@ public class RoomLocalDataStore implements LocalDataStore {
     } catch (LocalDataStoreException e) {
       return Completable.error(e);
     }
+  }
+
+  // TODO(#127): Decouple from Project and pass in project id instead.
+  @Override
+  public Flowable<ImmutableSet<Feature>> getFeaturesOnceAndStream(Project project) {
+    return db.featureDao()
+        .getFeatureEntitiesStream(project.getId())
+        .map(
+            list ->
+                stream(list)
+                    .map(f -> FeatureEntity.toFeature(f, project))
+                    .collect(toImmutableSet()));
+  }
+
+  // TODO(#127): Decouple from Project and remove project from args.
+  @Override
+  public Maybe<Feature> getFeature(Project project, String featureId) {
+    return db.featureDao().getFeature(featureId).map(f -> FeatureEntity.toFeature(f, project));
+  }
+
+  @Override
+  public Maybe<Record> getRecord(Feature feature, String recordId) {
+    return db.recordDao()
+        .getRecordById(recordId)
+        .map(record -> RecordEntity.toRecord(feature, record));
+  }
+
+  @Override
+  public Single<ImmutableList<Record>> getRecords(Feature feature) {
+    return db.recordDao()
+        .getRecordsByFeatureId(feature.getId())
+        .map(
+            list ->
+                stream(list)
+                    .map(record -> RecordEntity.toRecord(feature, record))
+                    .collect(toImmutableList()));
   }
 
   private Completable apply(FeatureMutation mutation) throws LocalDataStoreException {
@@ -65,5 +117,30 @@ public class RoomLocalDataStore implements LocalDataStore {
 
   private Completable enqueue(FeatureMutation mutation) {
     return db.featureMutationDao().insert(FeatureMutationEntity.fromMutation(mutation));
+  }
+
+  @Transaction
+  @Override
+  public Completable applyAndEnqueue(RecordMutation mutation) {
+    try {
+      return apply(mutation).andThen(enqueue(mutation));
+    } catch (LocalDataStoreException e) {
+      return Completable.error(e);
+    }
+  }
+
+  private Completable apply(RecordMutation mutation) throws LocalDataStoreException {
+    switch (mutation.getType()) {
+      case CREATE:
+        return db.recordDao().insert(RecordEntity.fromMutation(mutation));
+      case UPDATE:
+        return db.recordDao().update(RecordEntity.fromMutation(mutation));
+      default:
+        throw LocalDataStoreException.unknownMutationType(mutation.getType());
+    }
+  }
+
+  private Completable enqueue(RecordMutation mutation) {
+    return db.recordMutationDao().insert(RecordMutationEntity.fromMutation(mutation));
   }
 }

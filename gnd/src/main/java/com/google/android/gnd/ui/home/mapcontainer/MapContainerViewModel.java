@@ -118,7 +118,7 @@ public class MapContainerViewModel extends AbstractViewModel {
     // Emit empty set in separate stream to force unsubscribe from Feature updates and update
     // subscribers.
     return activeProject
-        .map(dataRepository::getFeatureVectorStream)
+        .map(dataRepository::getFeaturesOnceAndStream)
         .orElse(Flowable.just(ImmutableSet.of()));
   }
 

@@ -16,6 +16,8 @@
 
 package com.google.android.gnd.persistence.shared;
 
+import androidx.annotation.Nullable;
+
 /**
  * Represents a mutation that can be applied to local data and queued for sync with the remote data
  * store.
@@ -33,7 +35,8 @@ public abstract class Mutation {
   }
 
   /** Returns the locally unique id of this change. */
-  public abstract long getChangeId();
+  @Nullable
+  public abstract Long getChangeId();
 
   /**
    * Returns the type of change (i.e., create, update, delete) and the type of entity this change
@@ -45,11 +48,13 @@ public abstract class Mutation {
   public abstract String getProjectId();
 
   /** Returns the globally unique id of the user requesting the change. */
+  // TODO(#101): Make NonNull.
+  @Nullable
   public abstract String getUserId();
 
   public abstract static class Builder<T extends Builder> {
 
-    public abstract T setChangeId(long newChangeId);
+    public abstract T setChangeId(@Nullable Long newChangeId);
 
     public abstract T setType(Type newType);
 

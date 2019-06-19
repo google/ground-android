@@ -38,6 +38,14 @@ public abstract class Coordinates {
   @ColumnInfo(name = "lng")
   public abstract double getLongitude();
 
+  @NonNull
+  public Point toPoint() {
+    return Point.newBuilder()
+        .setLatitude(getLatitude())
+        .setLongitude(getLongitude())
+        .build();
+  }
+
   // Auto-generated boilerplate:
 
   public static Coordinates create(double latitude, double longitude) {

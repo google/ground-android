@@ -112,8 +112,9 @@ class RecordListItemViewHolder extends RecyclerView.ViewHolder {
     // TODO: i18n.
     userNameView.setText(modifiedBy == null ? "Unknown user" : modifiedBy.getDisplayName());
 
-    Date dateModified = record.getServerTimestamps().getModified();
-    if (dateModified != null) {
+    if (record.getServerTimestamps() != null
+        && record.getServerTimestamps().getModified() != null) {
+      Date dateModified = record.getServerTimestamps().getModified();
       DateFormat dateFormat = android.text.format.DateFormat.getMediumDateFormat(view.getContext());
       lastModifiedDateView.setText(dateFormat.format(dateModified));
       DateFormat timeFormat = android.text.format.DateFormat.getTimeFormat(view.getContext());

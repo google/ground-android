@@ -30,7 +30,7 @@ project.ext {
     junitVersion = "4.12"
     lifecycleVersion = "2.0.0-beta01"
     navigationVersion = "1.0.0-alpha05"
-    roomVersion = "2.1.0-alpha04"
+    roomVersion = "2.1.0-rc01"
     rxAndroidVersion = "2.1.1"
     rxBindingVersion = "2.1.1"
     rxFirebaseVersion = "1.5.0"
@@ -163,14 +163,6 @@ dependencies {
 
     implementation "com.uber.autodispose:autodispose-android:$project.autoDisposeVersion"
     implementation "com.uber.autodispose:autodispose-android-archcomponents:$project.autoDisposeVersion"
-}
-
-// Hold back ANTLR version to silence warnings due to Room and Data Binding using different
-// versions: "ANTLR Tool version 4.5.3 used for code generation does not match the current runtime
-// version 4.7.1"
-configurations.all() {
-    resolutionStrategy.force "org.antlr:antlr4-runtime:4.5.3"
-    resolutionStrategy.force "org.antlr:antlr4-tool:4.5.3"
 }
 
 apply plugin: 'androidx.navigation.safeargs'

@@ -23,6 +23,8 @@ import androidx.room.Entity;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
 import com.google.android.gnd.persistence.shared.FeatureMutation;
+import com.google.android.gnd.vo.Feature;
+import com.google.android.gnd.vo.Project;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.AutoValue.CopyAnnotations;
 
@@ -33,7 +35,7 @@ import com.google.auto.value.AutoValue.CopyAnnotations;
 @AutoValue
 @Entity(
     tableName = "feature",
-    indices = {@Index("id")})
+    indices = {@Index("id"), @Index("project_id")})
 public abstract class FeatureEntity {
   @CopyAnnotations
   @NonNull
@@ -54,6 +56,11 @@ public abstract class FeatureEntity {
 
   @CopyAnnotations
   @NonNull
+  @ColumnInfo(name = "feature_type_id")
+  public abstract String getFeatureTypeId();
+
+  @CopyAnnotations
+  @NonNull
   @Embedded
   public abstract Coordinates getLocation();
 
@@ -63,19 +70,31 @@ public abstract class FeatureEntity {
         FeatureEntity.builder()
             .setId(mutation.getFeatureId())
             .setProjectId(mutation.getProjectId())
+            .setFeatureTypeId(mutation.getFeatureTypeId())
             .setState(EntityState.DEFAULT);
     mutation.getNewLocation().map(Coordinates::fromPoint).ifPresent(entity::setLocation);
     return entity.build();
   }
 
+  // TODO(#127): Decouple from Project and remove 2nd argument.
+  public static Feature toFeature(FeatureEntity featureEntity, Project project) {
+    return Feature.newBuilder()
+        .setId(featureEntity.getId())
+        .setProject(project)
+        .setFeatureType(project.getFeatureType(featureEntity.getFeatureTypeId()).get())
+        .setPoint(featureEntity.getLocation().toPoint())
+        .build();
+  }
+
   // Auto-generated boilerplate.
 
   public static FeatureEntity create(
-      String id, EntityState state, String projectId, Coordinates location) {
+      String id, EntityState state, String projectId, String featureTypeId, Coordinates location) {
     return builder()
         .setId(id)
         .setState(state)
         .setProjectId(projectId)
+        .setFeatureTypeId(featureTypeId)
         .setLocation(location)
         .build();
   }
@@ -92,6 +111,8 @@ public abstract class FeatureEntity {
     public abstract Builder setState(EntityState newState);
 
     public abstract Builder setProjectId(String newProjectId);
+
+    public abstract Builder setFeatureTypeId(String newFeatureTypeId);
 
     public abstract Builder setLocation(Coordinates newLocation);
 

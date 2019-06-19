@@ -20,28 +20,28 @@ import static java8.util.stream.StreamSupport.stream;
 
 import android.util.Log;
 import com.google.android.gnd.persistence.local.LocalDataStore;
-import com.google.android.gnd.persistence.remote.DataStoreEvent;
 import com.google.android.gnd.persistence.remote.RemoteDataStore;
 import com.google.android.gnd.persistence.remote.firestore.DocumentNotFoundException;
 import com.google.android.gnd.persistence.shared.FeatureMutation;
 import com.google.android.gnd.persistence.shared.Mutation;
+import com.google.android.gnd.persistence.shared.RecordMutation;
+import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator;
 import com.google.android.gnd.system.AuthenticationManager.User;
 import com.google.android.gnd.vo.Feature;
-import com.google.android.gnd.vo.FeatureUpdate.RecordUpdate.ResponseUpdate;
 import com.google.android.gnd.vo.Project;
 import com.google.android.gnd.vo.Record;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
+import io.reactivex.Maybe;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.subjects.BehaviorSubject;
 import io.reactivex.subjects.Subject;
 import java.util.List;
-import java8.util.stream.Collectors;
 import java8.util.Optional;
+import java8.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -57,14 +57,19 @@ public class DataRepository {
   private final LocalDataStore localDataStore;
   private final RemoteDataStore remoteDataStore;
   private final Subject<Resource<Project>> activeProjectSubject;
+  private final OfflineUuidGenerator uuidGenerator;
 
   @Inject
   public DataRepository(
-      LocalDataStore localDataStore, RemoteDataStore remoteDataStore, InMemoryCache cache) {
+      LocalDataStore localDataStore,
+      RemoteDataStore remoteDataStore,
+      InMemoryCache cache,
+      OfflineUuidGenerator uuidGenerator) {
     this.localDataStore = localDataStore;
     this.remoteDataStore = remoteDataStore;
     this.cache = cache;
     this.activeProjectSubject = BehaviorSubject.create();
+    this.uuidGenerator = uuidGenerator;
   }
 
   public Flowable<Resource<Project>> getActiveProject() {
@@ -97,26 +102,20 @@ public class DataRepository {
         .startWith(Resource.loading());
   }
 
-  // TODO: Only return data needed to render feature PLPs.
-  // TODO: Wrap Feature in Resource<>.
-  // TODO: Accept id instead.
-  public Flowable<ImmutableSet<Feature>> getFeatureVectorStream(Project project) {
-    return remoteDataStore
-        .getFeatureVectorStream(project)
-        .doOnNext(this::onRemoteFeatureVectorChange)
-        .map(__ -> cache.getFeatures());
-  }
-
-  private void onRemoteFeatureVectorChange(DataStoreEvent<Feature> event) {
-    event.getEntity().ifPresentOrElse(cache::putFeature, () -> cache.removeFeature(event.getId()));
+  // TODO: Only return feature fields needed to render.
+  // TODO(#127): Decouple from Project and accept id instead.
+  public Flowable<ImmutableSet<Feature>> getFeaturesOnceAndStream(Project project) {
+    return localDataStore.getFeaturesOnceAndStream(project);
   }
 
   public Single<List<Record>> getRecordSummaries(
       String projectId, String featureId, String formId) {
     // TODO: Only fetch first n fields.
     // TODO: Also load from db.
+    // TODO(#127): Decouple feature from record so that we don't need to fetch record here.
     return getFeature(projectId, featureId)
-        .flatMap(feature -> remoteDataStore.loadRecordSummaries(feature))
+        .switchIfEmpty(Single.error(new DocumentNotFoundException()))
+        .flatMap(feature -> localDataStore.getRecords(feature))
         .map(summaries -> filterSummariesByFormId(summaries, formId));
   }
 
@@ -126,41 +125,34 @@ public class DataRepository {
         .collect(Collectors.toList());
   }
 
-  private Single<Feature> getFeature(String projectId, String featureId) {
-    // TODO: Load from db if not in cache.
+  // TODO(#127): Decouple Project from Feature and remove projectId.
+  // TODO: Replace with Single and treat missing id as error.
+  private Maybe<Feature> getFeature(String projectId, String featureId) {
     return getProject(projectId)
-        .flatMap(
-            project ->
-                cache
-                    .getFeature(featureId)
-                    .map(Single::just)
-                    .orElse(Single.error(new DocumentNotFoundException())));
+        .flatMapMaybe(project -> localDataStore.getFeature(project, featureId));
   }
 
-  public Flowable<Resource<Record>> getRecordDetails(
-      String projectId, String featureId, String recordId) {
-    return getFeature(projectId, featureId)
-        .flatMap(feature -> remoteDataStore.loadRecordDetails(feature, recordId))
-        .map(Resource::loaded)
-        .onErrorReturn(Resource::error)
-        .toFlowable();
-  }
-
-  public Single<Resource<Record>> getRecordSnapshot(
-      String projectId, String featureId, String recordId) {
+  public Single<Record> getRecord(String projectId, String featureId, String recordId) {
     // TODO: Store and retrieve latest edits from cache and/or db.
+    // TODO(#127): Decouple feature from record so that we don't need to fetch feature here.
     return getFeature(projectId, featureId)
-        .flatMap(feature -> remoteDataStore.loadRecordDetails(feature, recordId))
-        .map(Resource::loaded)
-        .onErrorReturn(Resource::error);
+        .switchIfEmpty(Single.error(new DocumentNotFoundException()))
+        .flatMap(
+            feature ->
+                localDataStore
+                    .getRecord(feature, recordId)
+                    .switchIfEmpty(Single.error(new DocumentNotFoundException())));
   }
 
   public Single<Record> createRecord(String projectId, String featureId, String formId) {
     // TODO: Handle invalid formId.
+    // TODO(#127): Decouple feature from record so that we don't need to fetch feature here.
     return getFeature(projectId, featureId)
+        .switchIfEmpty(Single.error(new DocumentNotFoundException()))
         .map(
             feature ->
                 Record.newBuilder()
+                    .setId(uuidGenerator.generateUuid())
                     .setProject(feature.getProject())
                     .setFeature(feature)
                     .setForm(feature.getFeatureType().getForm(formId).get())
@@ -176,24 +168,9 @@ public class DataRepository {
         .orElse(remoteDataStore.loadProject(projectId));
   }
 
-  public Observable<Resource<Record>> saveChanges(
-      Record record, ImmutableList<ResponseUpdate> updates, User user) {
-    record = attachUser(record, user);
-    return remoteDataStore
-        .saveChanges(record, updates)
-        .map(Resource::saved)
-        .toObservable()
-        .startWith(Resource.saving(record));
-  }
-
-  private Record attachUser(Record record, User user) {
-    Record.Builder builder = record.toBuilder();
-    // TODO: Set these creation time instead.
-    if (record.getId() == null && record.getCreatedBy() == null) {
-      builder.setCreatedBy(user);
-    }
-    builder.setModifiedBy(user);
-    return builder.build();
+  public Completable applyAndEnqueue(RecordMutation mutation) {
+    // TODO(#101): Store user id and timestamp on save.
+    return localDataStore.applyAndEnqueue(mutation);
   }
 
   public Completable saveFeature(Feature feature) {
@@ -204,7 +181,10 @@ public class DataRepository {
             .setType(Mutation.Type.CREATE)
             .setProjectId(feature.getProject().getId())
             .setFeatureId(feature.getId())
+            .setFeatureTypeId(feature.getFeatureType().getId())
             .setNewLocation(Optional.of(feature.getPoint()))
+            // TODO(#101): Attach real credentials.
+            .setUserId("")
             .build());
   }
 

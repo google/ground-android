@@ -20,9 +20,13 @@ import com.google.common.collect.ImmutableList;
 import java8.util.stream.Collector;
 import java8.util.stream.Collectors;
 
-public abstract class Streams {
+/**
+ * Custom collector for compatibility between {@link Collector} compat class and Guava {@link
+ * ImmutableList}.
+ */
+public abstract class ImmutableListCollector {
   /** Do not instantiate. */
-  private Streams() {}
+  private ImmutableListCollector() {}
 
   private static final Collector<Object, ?, ImmutableList<Object>> TO_IMMUTABLE_LIST =
       Collectors.of(
@@ -33,6 +37,10 @@ public abstract class Streams {
           },
           ImmutableList.Builder::build);
 
+  /**
+   * Returns a {@link Collector} that accumulates the input elements into a new ImmutableList, in
+   * encounter order.
+   */
   public static <E> Collector<E, ?, ImmutableList<E>> toImmutableList() {
     return (Collector) TO_IMMUTABLE_LIST;
   }

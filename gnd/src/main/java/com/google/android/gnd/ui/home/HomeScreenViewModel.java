@@ -31,6 +31,8 @@ import com.google.android.gnd.vo.Form;
 import com.google.android.gnd.vo.Point;
 import com.google.android.gnd.vo.Project;
 import io.reactivex.Single;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subjects.PublishSubject;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
@@ -70,7 +72,9 @@ public class HomeScreenViewModel extends AbstractViewModel {
                         .saveFeature(newFeature)
                         .toSingleDefault(newFeature)
                         .doOnError(this::onAddFeatureError)
-                        .onErrorResumeNext(Single.never())) // Prevent from breaking upstream.
+                        .onErrorResumeNext(Single.never()) // Prevent from breaking upstream.
+                        .subscribeOn(Schedulers.io()))
+            .observeOn(AndroidSchedulers.mainThread())
             .subscribe(this::showFeatureSheet));
   }
 

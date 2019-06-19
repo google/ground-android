@@ -16,20 +16,19 @@
 
 package com.google.android.gnd.ui.recorddetails;
 
+import android.view.View;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
-import android.view.View;
-
 import com.google.android.gnd.repository.DataRepository;
 import com.google.android.gnd.repository.Resource;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.vo.Feature;
 import com.google.android.gnd.vo.Form;
 import com.google.android.gnd.vo.Record;
-
 import io.reactivex.Flowable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.processors.BehaviorProcessor;
-
+import io.reactivex.schedulers.Schedulers;
 import javax.inject.Inject;
 
 public class RecordDetailsViewModel extends AbstractViewModel {
@@ -51,48 +50,53 @@ public class RecordDetailsViewModel extends AbstractViewModel {
     this.argsProcessor = BehaviorProcessor.create();
 
     Flowable<Resource<Record>> recordStream =
-        argsProcessor.switchMap(
-            args ->
-                this.dataRepository.getRecordDetails(
-                    args.getProjectId(), args.getFeatureId(), args.getRecordId()));
+        argsProcessor
+            .switchMapSingle(
+                args ->
+                    this.dataRepository
+                        .getRecord(args.getProjectId(), args.getFeatureId(), args.getRecordId())
+                        .map(Resource::loaded)
+                        .onErrorReturn(Resource::error)
+                        .subscribeOn(Schedulers.io()))
+            .observeOn(AndroidSchedulers.mainThread());
 
     // TODO: Refactor to expose the fetched record directly.
     this.records = LiveDataReactiveStreams.fromPublisher(recordStream);
 
     this.progressBarVisibility =
         LiveDataReactiveStreams.fromPublisher(
-            recordStream.map(this::toProgressBarVisibility).onErrorReturn(x -> View.GONE));
+            recordStream.map(RecordDetailsViewModel::getProgressBarVisibility));
 
     this.toolbarTitle =
         LiveDataReactiveStreams.fromPublisher(
-            recordStream.map(this::toToolbarTitle).onErrorReturn(x -> ""));
+            recordStream.map(RecordDetailsViewModel::getToolbarTitle));
 
     this.toolbarSubtitle =
         LiveDataReactiveStreams.fromPublisher(
-            recordStream.map(this::toToolbarSubtitle).onErrorReturn(x -> ""));
+            recordStream.map(RecordDetailsViewModel::getToolbarSubtitle));
 
     this.formNameView =
         LiveDataReactiveStreams.fromPublisher(
-            recordStream.map(this::toFormNameView).onErrorReturn(x -> ""));
+            recordStream.map(RecordDetailsViewModel::getFormNameView));
   }
 
   public void loadRecordDetails(RecordDetailsFragmentArgs args) {
     this.argsProcessor.onNext(args);
   }
 
-  private Integer toProgressBarVisibility(Resource<Record> record) {
+  private static Integer getProgressBarVisibility(Resource<Record> record) {
     return record.data().isPresent() ? View.VISIBLE : View.GONE;
   }
 
-  private String toToolbarTitle(Resource<Record> record) {
+  private static String getToolbarTitle(Resource<Record> record) {
     return record.data().map(Record::getFeature).map(Feature::getTitle).orElse("");
   }
 
-  private String toToolbarSubtitle(Resource<Record> record) {
+  private static String getToolbarSubtitle(Resource<Record> record) {
     return record.data().map(Record::getFeature).map(Feature::getSubtitle).orElse("");
   }
 
-  private String toFormNameView(Resource<Record> record) {
+  private static String getFormNameView(Resource<Record> record) {
     return record.data().map(Record::getForm).map(Form::getTitle).orElse("");
   }
 }
