@@ -18,6 +18,8 @@ package com.google.android.gnd.ui.map;
 
 import android.annotation.SuppressLint;
 import androidx.fragment.app.Fragment;
+
+import com.google.android.gms.maps.model.TileProvider;
 import com.google.android.gnd.vo.Feature;
 import com.google.android.gnd.vo.Point;
 import com.google.common.collect.ImmutableSet;
@@ -60,5 +62,7 @@ public interface MapProvider {
     void enableCurrentLocationIndicator();
 
     void updateMarkers(ImmutableSet<Feature> features);
+
+    void addTileOverlay(TileProvider tileProvider);
   }
 }

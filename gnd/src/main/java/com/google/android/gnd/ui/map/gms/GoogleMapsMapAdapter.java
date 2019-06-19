@@ -29,6 +29,9 @@ import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.TileOverlay;
+import com.google.android.gms.maps.model.TileOverlayOptions;
+import com.google.android.gms.maps.model.TileProvider;
 import com.google.android.gnd.ui.MapIcon;
 import com.google.android.gnd.ui.map.MapMarker;
 import com.google.android.gnd.ui.map.MapProvider.MapAdapter;
@@ -56,6 +59,7 @@ class GoogleMapsMapAdapter implements MapAdapter {
   private static final String TAG = GoogleMapsMapAdapter.class.getSimpleName();
   private final GoogleMap map;
   private final Context context;
+  private TileOverlay overlay;
   /**
    * Cache of ids to map markers. We don't mind this being destroyed on lifecycle events since the
    * GoogleMap markers themselves are destroyed as well.
@@ -130,6 +134,11 @@ class GoogleMapsMapAdapter implements MapAdapter {
   @Override
   public void moveCamera(Point point, float zoomLevel) {
     map.moveCamera(CameraUpdateFactory.newLatLngZoom(point.toLatLng(), zoomLevel));
+  }
+
+  public void addTileOverlay(TileProvider tileProvider) {
+    this.overlay = map.addTileOverlay(new TileOverlayOptions().tileProvider(tileProvider));
+    Log.d(TAG, "Tile overlay visibility: " + overlay.isVisible());
   }
 
   private void addMarker(MapMarker mapMarker, boolean hasPendingWrites, boolean isHighlighted) {
