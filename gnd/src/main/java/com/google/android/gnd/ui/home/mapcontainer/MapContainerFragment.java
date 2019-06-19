@@ -23,6 +23,8 @@ import android.content.res.ColorStateList;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
+import com.google.android.gnd.offline_imagery.mbtiles.MBTilesTileProvider;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -48,6 +50,9 @@ import com.google.android.gnd.ui.home.HomeScreenViewModel;
 import com.google.android.gnd.ui.map.MapProvider;
 import com.google.android.gnd.ui.map.MapProvider.MapAdapter;
 import com.google.android.gnd.vo.Project;
+
+import java.io.File;
+
 import javax.inject.Inject;
 
 /** Main app view, displaying the map and related controls (center cross-hairs, add button, etc). */
@@ -139,6 +144,10 @@ public class MapContainerFragment extends AbstractFragment {
     addFeatureBtn.setOnClickListener(
         __ -> homeScreenViewModel.onAddFeatureBtnClick(map.getCenter()));
     enableLocationLockBtn();
+    //TODO: Only load the overlay if a files exist.
+    // Presently, we're using a smaple file.
+    Log.d(TAG, "Loading mbtile overlay.");
+    map.addTileOverlay(new MBTilesTileProvider(new File("data/data/com.google.android.gnd/smaple.mbtiles"), 256,256));
   }
 
   @Override
