@@ -21,7 +21,10 @@ import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableMap;
 import java8.util.Optional;
 
-/** Represents mutation of a record in the local to be queued for sync with remote store. */
+/**
+ * Represents a mutation of a record performed on the local device. Mutations are queued locally by
+ * the UI, and are dequeued and sent to the remote data store by the background data sync service.
+ */
 @AutoValue
 public abstract class RecordMutation extends Mutation {
 

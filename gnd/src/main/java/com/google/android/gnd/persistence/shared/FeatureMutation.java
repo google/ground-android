@@ -20,7 +20,10 @@ import com.google.android.gnd.vo.Point;
 import com.google.auto.value.AutoValue;
 import java8.util.Optional;
 
-/** Represents mutation of a feature in the local to be queued for sync with remote store. */
+/**
+ * Represents a mutation of a feature performed on the local device. Mutations are queued locally by
+ * the UI, and are dequeued and sent to the remote data store by the background data sync service.
+ */
 @AutoValue
 public abstract class FeatureMutation extends Mutation {
 
