@@ -62,11 +62,11 @@ public abstract class RecordMutationEntity {
   public abstract MutationEntityType getType();
 
   /**
-   * For edits of type {@link MutationEntityType#CREATE} and {@link MutationEntityType#UPDATE}, a
-   * JSON object with the new value of modified attributes after this mutation. For all other
-   * mutation types this will be null.
+   * For mutations of type {@link MutationEntityType#CREATE} and {@link MutationEntityType#UPDATE},
+   * returns a {@link JSONObject} with the new values of modified form responses, with {@code null}
+   * values representing responses that were removed/cleared.
    *
-   * <p>Null values in the responses indicates a response was removed/cleared.
+   * <p>This method returns {@code null} for mutation type {@link MutationEntityType#DELETE}.
    */
   @CopyAnnotations
   @Nullable
