@@ -25,6 +25,7 @@ import com.google.android.gnd.persistence.remote.firestore.DocumentNotFoundExcep
 import com.google.android.gnd.persistence.shared.FeatureMutation;
 import com.google.android.gnd.persistence.shared.Mutation;
 import com.google.android.gnd.persistence.shared.RecordMutation;
+import com.google.android.gnd.persistence.sync.DataSyncWorkManager;
 import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator;
 import com.google.android.gnd.system.AuthenticationManager.User;
 import com.google.android.gnd.vo.Feature;
@@ -56,6 +57,7 @@ public class DataRepository {
   private final InMemoryCache cache;
   private final LocalDataStore localDataStore;
   private final RemoteDataStore remoteDataStore;
+  private final DataSyncWorkManager dataSyncWorkManager;
   private final Subject<Resource<Project>> activeProjectSubject;
   private final OfflineUuidGenerator uuidGenerator;
 
@@ -63,10 +65,12 @@ public class DataRepository {
   public DataRepository(
       LocalDataStore localDataStore,
       RemoteDataStore remoteDataStore,
+      DataSyncWorkManager dataSyncWorkManager,
       InMemoryCache cache,
       OfflineUuidGenerator uuidGenerator) {
     this.localDataStore = localDataStore;
     this.remoteDataStore = remoteDataStore;
+    this.dataSyncWorkManager = dataSyncWorkManager;
     this.cache = cache;
     this.activeProjectSubject = BehaviorSubject.create();
     this.uuidGenerator = uuidGenerator;
@@ -170,22 +174,26 @@ public class DataRepository {
 
   public Completable applyAndEnqueue(RecordMutation mutation) {
     // TODO(#101): Store user id and timestamp on save.
-    return localDataStore.applyAndEnqueue(mutation);
+    return localDataStore
+        .applyAndEnqueue(mutation)
+        .andThen(dataSyncWorkManager.enqueueSyncWorker());
   }
 
   public Completable saveFeature(Feature feature) {
     // TODO(#79): Assign owner and timestamps when creating new feature.
     // TODO(#80): Update UI to provide FeatureMutations instead of Features here.
-    return localDataStore.applyAndEnqueue(
-        FeatureMutation.builder()
-            .setType(Mutation.Type.CREATE)
-            .setProjectId(feature.getProject().getId())
-            .setFeatureId(feature.getId())
-            .setFeatureTypeId(feature.getFeatureType().getId())
-            .setNewLocation(Optional.of(feature.getPoint()))
-            // TODO(#101): Attach real credentials.
-            .setUserId("")
-            .build());
+    return localDataStore
+        .applyAndEnqueue(
+            FeatureMutation.builder()
+                .setType(Mutation.Type.CREATE)
+                .setProjectId(feature.getProject().getId())
+                .setFeatureId(feature.getId())
+                .setFeatureTypeId(feature.getFeatureType().getId())
+                .setNewLocation(Optional.of(feature.getPoint()))
+                // TODO(#101): Attach real credentials.
+                .setUserId("")
+                .build())
+        .andThen(dataSyncWorkManager.enqueueSyncWorker());
   }
 
   public void clearActiveProject() {
