@@ -31,8 +31,8 @@ public interface FeatureDao {
   Completable insert(FeatureEntity feature);
 
   @Query("SELECT * FROM feature WHERE project_id = :projectId")
-  Flowable<List<FeatureEntity>> getFeatureEntitiesStream(String projectId);
+  Flowable<List<FeatureEntity>> findByProjectIdStream(String projectId);
 
   @Query("SELECT * FROM feature WHERE id = :id")
-  Maybe<FeatureEntity> getFeature(String id);
+  Maybe<FeatureEntity> findById(String id);
 }

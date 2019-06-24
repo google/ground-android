@@ -74,7 +74,7 @@ public class RoomLocalDataStore implements LocalDataStore {
   @Override
   public Flowable<ImmutableSet<Feature>> getFeaturesOnceAndStream(Project project) {
     return db.featureDao()
-        .getFeatureEntitiesStream(project.getId())
+        .findByProjectIdStream(project.getId())
         .map(
             list ->
                 stream(list)
@@ -85,20 +85,18 @@ public class RoomLocalDataStore implements LocalDataStore {
   // TODO(#127): Decouple from Project and remove project from args.
   @Override
   public Maybe<Feature> getFeature(Project project, String featureId) {
-    return db.featureDao().getFeature(featureId).map(f -> FeatureEntity.toFeature(f, project));
+    return db.featureDao().findById(featureId).map(f -> FeatureEntity.toFeature(f, project));
   }
 
   @Override
   public Maybe<Record> getRecord(Feature feature, String recordId) {
-    return db.recordDao()
-        .getRecordById(recordId)
-        .map(record -> RecordEntity.toRecord(feature, record));
+    return db.recordDao().findById(recordId).map(record -> RecordEntity.toRecord(feature, record));
   }
 
   @Override
   public Single<ImmutableList<Record>> getRecords(Feature feature) {
     return db.recordDao()
-        .getRecordsByFeatureId(feature.getId())
+        .findByFeatureId(feature.getId())
         .map(
             list ->
                 stream(list)
