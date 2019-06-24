@@ -21,16 +21,25 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
+import com.google.android.gnd.persistence.local.LocalDataStore;
+import com.google.android.gnd.persistence.remote.RemoteDataStore;
 
-/**
- * A worker that sends changes made locally to the remote data store.
- */
+/** A worker that sends changes made locally to the remote data store. */
 public class LocalMutationSyncWorker extends Worker {
 
   private static final String TAG = LocalMutationSyncWorker.class.getSimpleName();
 
-  public LocalMutationSyncWorker(@NonNull Context context, @NonNull WorkerParameters params) {
+  private final LocalDataStore localDataStore;
+  private final RemoteDataStore remoteDataStore;
+
+  public LocalMutationSyncWorker(
+      @NonNull Context context,
+      @NonNull WorkerParameters params,
+      LocalDataStore localDataStore,
+      RemoteDataStore remoteDataStore) {
     super(context, params);
+    this.localDataStore = localDataStore;
+    this.remoteDataStore = remoteDataStore;
   }
 
   @NonNull

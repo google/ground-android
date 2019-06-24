@@ -18,9 +18,12 @@ package com.google.android.gnd;
 
 import android.app.Activity;
 import android.os.StrictMode;
-import androidx.multidex.MultiDexApplication;
 import android.util.Log;
+import androidx.multidex.MultiDexApplication;
+import androidx.work.Configuration;
+import androidx.work.WorkManager;
 import com.akaita.java.rxjava2debug.RxJava2Debug;
+import com.google.android.gnd.inject.GndWorkerFactory;
 import com.google.android.gnd.repository.DataRepository;
 import dagger.android.AndroidInjector;
 import dagger.android.DispatchingAndroidInjector;
@@ -35,6 +38,7 @@ public class GndApplication extends MultiDexApplication implements HasActivityIn
 
   @Inject DataRepository dataRepository;
   @Inject DispatchingAndroidInjector<Activity> activityInjector;
+  @Inject GndWorkerFactory workerFactory;
 
   @Override
   public void onCreate() {
@@ -50,6 +54,11 @@ public class GndApplication extends MultiDexApplication implements HasActivityIn
 
     // Enable RxJava assembly stack collection for more useful stack traces.
     RxJava2Debug.enableRxJava2AssemblyTracking(new String[] {getClass().getPackage().getName()});
+
+    // Set custom worker factory that allow Workers to use Dagger injection.
+    // TODO(github.com/google/dagger/issues/1183): Remove once Workers support injection.
+    WorkManager.initialize(
+        this, new Configuration.Builder().setWorkerFactory(workerFactory).build());
   }
 
   @Override

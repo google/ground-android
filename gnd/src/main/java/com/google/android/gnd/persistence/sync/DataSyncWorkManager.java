@@ -25,16 +25,22 @@ import androidx.work.WorkManager;
 import io.reactivex.Completable;
 import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
+import javax.inject.Provider;
 
 /** Enqueues data sync work to be done in the background. */
 public class DataSyncWorkManager {
+  /** Number of seconds to wait before retrying failed sync tasks. */
   private static final long SYNC_RETRY_BACKOFF_SECS = 5;
-  private final WorkManager workManager;
+
+  /**
+   * WorkManager is injected via {@code Provider} rather than directly to ensure the {@code
+   * Application} has a change to initialize it before {@code WorkManager.getInstance()} is called.
+   */
+  private final Provider<WorkManager> workManagerProvider;
 
   @Inject
-  public DataSyncWorkManager() {
-    // TODO: Inject WorkManager to allow stubbing in unit tests.
-    this.workManager = WorkManager.getInstance();
+  public DataSyncWorkManager(Provider<WorkManager> workManagerProvider) {
+    this.workManagerProvider = workManagerProvider;
   }
 
   /**
@@ -50,8 +56,15 @@ public class DataSyncWorkManager {
     // Rather than have running workers monitor the queue for new mutations, we instead queue a
     // new worker on new mutations. This simplified worker implementation and avoids race conditions
     // in case the worker finishes just when new mutations are added to the db.
-    workManager.enqueueUniqueWork(
-        LocalMutationSyncWorker.class.getName(), ExistingWorkPolicy.APPEND, buildWorkerRequest());
+    getWorkManager()
+        .enqueueUniqueWork(
+            LocalMutationSyncWorker.class.getName(),
+            ExistingWorkPolicy.APPEND,
+            buildWorkerRequest());
+  }
+
+  private WorkManager getWorkManager() {
+    return workManagerProvider.get().getInstance();
   }
 
   private Constraints getWorkerConstraints() {
