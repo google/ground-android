@@ -18,11 +18,17 @@ package com.google.android.gnd.persistence.local.room;
 
 import androidx.room.Dao;
 import androidx.room.Insert;
+import androidx.room.Query;
 import io.reactivex.Completable;
+import io.reactivex.Single;
+import java.util.List;
 
 /** Data access object for database operations related to {@link RecordMutationEntity}. */
 @Dao
 public interface RecordMutationDao {
   @Insert
   Completable insert(RecordMutationEntity entity);
+
+  @Query("SELECT * FROM record_mutation")
+  Single<List<RecordMutationEntity>> loadAll();
 }

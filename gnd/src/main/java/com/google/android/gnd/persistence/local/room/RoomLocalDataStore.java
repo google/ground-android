@@ -18,6 +18,7 @@ package com.google.android.gnd.persistence.local.room;
 
 import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList;
 import static com.google.android.gnd.util.ImmutableSetCollector.toImmutableSet;
+import static java8.lang.Iterables.forEach;
 import static java8.util.stream.StreamSupport.stream;
 
 import androidx.room.Room;
@@ -25,6 +26,7 @@ import androidx.room.Transaction;
 import com.google.android.gnd.GndApplication;
 import com.google.android.gnd.persistence.local.LocalDataStore;
 import com.google.android.gnd.persistence.shared.FeatureMutation;
+import com.google.android.gnd.persistence.shared.Mutation;
 import com.google.android.gnd.persistence.shared.RecordMutation;
 import com.google.android.gnd.vo.Feature;
 import com.google.android.gnd.vo.Project;
@@ -35,6 +37,7 @@ import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
+import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -102,6 +105,22 @@ public class RoomLocalDataStore implements LocalDataStore {
                 stream(list)
                     .map(record -> RecordEntity.toRecord(feature, record))
                     .collect(toImmutableList()));
+  }
+
+  @Override
+  public Single<ImmutableList<Mutation>> getPendingMutations() {
+    return db.featureMutationDao()
+        .loadAll()
+        .zipWith(db.recordMutationDao().loadAll(), this::mergeMutations);
+  }
+
+  private ImmutableList<Mutation> mergeMutations(
+      List<FeatureMutationEntity> featureMutationEntities,
+      List<RecordMutationEntity> recordMutationEntities) {
+    ImmutableList.Builder<Mutation> mutations = ImmutableList.builder();
+    forEach(featureMutationEntities, fm -> mutations.add(fm.toMutation()));
+    forEach(recordMutationEntities, rm -> mutations.add(rm.toMutation()));
+    return mutations.build();
   }
 
   private Completable apply(FeatureMutation mutation) throws LocalDataStoreException {

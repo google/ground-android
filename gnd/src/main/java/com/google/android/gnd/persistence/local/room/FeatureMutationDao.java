@@ -18,7 +18,10 @@ package com.google.android.gnd.persistence.local.room;
 
 import androidx.room.Dao;
 import androidx.room.Insert;
+import androidx.room.Query;
 import io.reactivex.Completable;
+import io.reactivex.Single;
+import java.util.List;
 
 /**
  * Provides low-level read/write operations of {@link FeatureMutationEntity} to/from the local db.
@@ -27,4 +30,7 @@ import io.reactivex.Completable;
 public interface FeatureMutationDao {
   @Insert
   Completable insert(FeatureMutationEntity entity);
+
+  @Query("SELECT * FROM feature_mutation")
+  Single<List<FeatureMutationEntity>> loadAll();
 }

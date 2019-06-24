@@ -23,6 +23,7 @@ import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 import com.google.android.gnd.persistence.local.LocalDataStore;
 import com.google.android.gnd.persistence.remote.RemoteDataStore;
+import com.google.android.gnd.persistence.shared.Mutation;
 
 /** A worker that sends changes made locally to the remote data store. */
 public class LocalMutationSyncWorker extends Worker {
@@ -46,6 +47,12 @@ public class LocalMutationSyncWorker extends Worker {
   @Override
   public Result doWork() {
     Log.d(TAG, "Connection available; starting sync...");
+    localDataStore
+        .getPendingMutations()
+        .subscribe(
+            ms -> {
+              for (Mutation m : ms) Log.d(TAG, "Mutation: " + m.getClass() + "   Id: " + m);
+            });
     // TODO(#18): Implement me!
     return Result.success();
   }

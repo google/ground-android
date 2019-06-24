@@ -17,6 +17,7 @@
 package com.google.android.gnd.persistence.local;
 
 import com.google.android.gnd.persistence.shared.FeatureMutation;
+import com.google.android.gnd.persistence.shared.Mutation;
 import com.google.android.gnd.persistence.shared.RecordMutation;
 import com.google.android.gnd.vo.Feature;
 import com.google.android.gnd.vo.Project;
@@ -63,4 +64,7 @@ public interface LocalDataStore {
 
   /** Returns the records associated with the specified feature, or an empty list if none found. */
   Single<ImmutableList<Record>> getRecords(Feature feature);
+
+  /** Returns all feature and record mutations in the local mutation queue. */
+  Single<ImmutableList<Mutation>> getPendingMutations();
 }

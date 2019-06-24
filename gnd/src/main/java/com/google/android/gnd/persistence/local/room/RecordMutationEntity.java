@@ -55,6 +55,21 @@ public abstract class RecordMutationEntity {
 
   @CopyAnnotations
   @NonNull
+  @ColumnInfo(name = "project_id")
+  public abstract String getProjectId();
+
+  @CopyAnnotations
+  @NonNull
+  @ColumnInfo(name = "form_id")
+  public abstract String getFormId();
+
+  @CopyAnnotations
+  @NonNull
+  @ColumnInfo(name = "feature_id")
+  public abstract String getFeatureId();
+
+  @CopyAnnotations
+  @NonNull
   @ColumnInfo(name = "record_id")
   public abstract String getRecordId();
 
@@ -77,22 +92,44 @@ public abstract class RecordMutationEntity {
 
   public static RecordMutationEntity create(
       long id,
+      String projectId,
+      String featureId,
+      String formId,
       String recordId,
       MutationEntityType type,
       ImmutableList<ResponseDelta> responseDeltas) {
     return builder()
         .setId(id)
+        .setProjectId(projectId)
+        .setFeatureId(featureId)
+        .setFormId(formId)
         .setRecordId(recordId)
         .setType(type)
         .setResponseDeltas(responseDeltas)
         .build();
   }
 
-  public static RecordMutationEntity fromMutation(RecordMutation mutation) {
+  public static RecordMutationEntity fromMutation(RecordMutation m) {
     return RecordMutationEntity.builder()
-        .setRecordId(mutation.getRecordId())
-        .setType(MutationEntityType.fromMutationType(mutation.getType()))
-        .setResponseDeltas(mutation.getResponseDeltas())
+        .setId(m.getId())
+        .setProjectId(m.getProjectId())
+        .setFeatureId(m.getFeatureId())
+        .setFormId(m.getFormId())
+        .setRecordId(m.getRecordId())
+        .setType(MutationEntityType.fromMutationType(m.getType()))
+        .setResponseDeltas(m.getResponseDeltas())
+        .build();
+  }
+
+  public RecordMutation toMutation() {
+    return RecordMutation.builder()
+        .setId(getId())
+        .setProjectId(getProjectId())
+        .setFeatureId(getFeatureId())
+        .setFormId(getFormId())
+        .setRecordId(getRecordId())
+        .setType(getType().toMutationType())
+        .setResponseDeltas(getResponseDeltas())
         .build();
   }
 
@@ -106,6 +143,12 @@ public abstract class RecordMutationEntity {
   public abstract static class Builder {
 
     public abstract Builder setId(@Nullable Long newId);
+
+    public abstract Builder setProjectId(@Nullable String newProjectId);
+
+    public abstract Builder setFeatureId(@Nullable String newFeatureId);
+
+    public abstract Builder setFormId(@Nullable String newFormId);
 
     public abstract Builder setRecordId(String newRecordId);
 

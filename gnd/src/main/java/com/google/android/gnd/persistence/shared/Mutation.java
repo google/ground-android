@@ -31,7 +31,10 @@ public abstract class Mutation {
     UPDATE,
 
     /** Indicates an existing entity should be marked for deletion. */
-    DELETE;
+    DELETE,
+
+    /** Indicates database skew or an implementation bug. */
+    UNKNOWN
   }
 
   /** Returns the locally unique id of this change. */
@@ -51,6 +54,11 @@ public abstract class Mutation {
   // TODO(#101): Make NonNull.
   @Nullable
   public abstract String getUserId();
+
+  @Override
+  public String toString() {
+    return getClass().getSimpleName() + " type=" + getType() + " id=" + getId();
+  }
 
   public abstract static class Builder<T extends Builder> {
 

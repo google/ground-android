@@ -38,6 +38,11 @@ public abstract class RecordMutation extends Mutation {
   /** Returns list of changes to responses included in this record mutation. */
   public abstract ImmutableList<ResponseDelta> getResponseDeltas();
 
+  @Override
+  public String toString() {
+    return super.toString() + " deltas=" + getResponseDeltas();
+  }
+
   // Auto-generated boilerplate.
 
   public static Builder builder() {
