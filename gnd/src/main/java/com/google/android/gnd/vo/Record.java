@@ -23,9 +23,7 @@ import com.google.android.gnd.system.AuthenticationManager.User;
 import com.google.android.gnd.vo.Form.Field;
 import com.google.android.gnd.vo.Form.MultipleChoice.Option;
 import com.google.auto.value.AutoValue;
-import com.google.common.collect.ImmutableMap;
 import java.util.List;
-import java.util.Map;
 import java8.util.Optional;
 import java8.util.stream.Collectors;
 
@@ -55,14 +53,10 @@ public abstract class Record {
   @Nullable
   public abstract Timestamps getClientTimestamps();
 
-  public abstract ImmutableMap<String, Response> getResponseMap();
+  public abstract ResponseMap getResponses();
 
   public static Builder newBuilder() {
-    return new AutoValue_Record.Builder();
-  }
-
-  public Optional<Response> getResponse(String id) {
-    return Optional.ofNullable(getResponseMap().get(id));
+    return new AutoValue_Record.Builder().setResponses(ResponseMap.builder().build());
   }
 
   public abstract Record.Builder toBuilder();
@@ -85,17 +79,7 @@ public abstract class Record {
 
     public abstract Builder setClientTimestamps(@Nullable Timestamps newClientTimestamps);
 
-    public abstract ImmutableMap.Builder<String, Response> responseMapBuilder();
-
-    public Builder putResponse(String id, Response response) {
-      responseMapBuilder().put(id, response);
-      return this;
-    }
-
-    public Builder putAllResponses(Map<String, Response> responses) {
-      responseMapBuilder().putAll(responses);
-      return this;
-    }
+    public abstract Builder setResponses(ResponseMap responses);
 
     public abstract Record build();
   }

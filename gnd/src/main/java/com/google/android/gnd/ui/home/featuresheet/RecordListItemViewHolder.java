@@ -94,8 +94,7 @@ class RecordListItemViewHolder extends RecyclerView.ViewHolder {
       switch (elem.getType()) {
         case FIELD:
           Field field = elem.getField();
-          Optional<Response> response =
-              Optional.ofNullable(record.getResponseMap().get(field.getId()));
+          Optional<Response> response = record.getResponses().getResponse(field.getId());
           fieldLabelRow.addView(
               newFieldTextView(field.getLabel(), R.style.RecordListText_FieldLabel));
           fieldValueRow.addView(

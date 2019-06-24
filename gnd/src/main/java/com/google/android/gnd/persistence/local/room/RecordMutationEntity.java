@@ -26,8 +26,10 @@ import androidx.room.ForeignKey;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
 import com.google.android.gnd.persistence.shared.RecordMutation;
+import com.google.android.gnd.persistence.shared.ResponseDelta;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.AutoValue.CopyAnnotations;
+import com.google.common.collect.ImmutableList;
 import org.json.JSONObject;
 
 /**
@@ -70,16 +72,19 @@ public abstract class RecordMutationEntity {
    */
   @CopyAnnotations
   @Nullable
-  @ColumnInfo(name = "new_responses")
-  public abstract JSONObject getModifiedResponses();
+  @ColumnInfo(name = "response_deltas")
+  public abstract ImmutableList<ResponseDelta> getResponseDeltas();
 
   public static RecordMutationEntity create(
-      long id, String recordId, MutationEntityType type, JSONObject modifiedResponses) {
+      long id,
+      String recordId,
+      MutationEntityType type,
+      ImmutableList<ResponseDelta> responseDeltas) {
     return builder()
         .setId(id)
         .setRecordId(recordId)
         .setType(type)
-        .setModifiedResponses(modifiedResponses)
+        .setResponseDeltas(responseDeltas)
         .build();
   }
 
@@ -87,7 +92,7 @@ public abstract class RecordMutationEntity {
     return RecordMutationEntity.builder()
         .setRecordId(mutation.getRecordId())
         .setType(MutationEntityType.fromMutationType(mutation.getType()))
-        .setModifiedResponses(RecordEntity.convertResponsesToJson(mutation.getModifiedResponses()))
+        .setResponseDeltas(mutation.getResponseDeltas())
         .build();
   }
 
@@ -106,7 +111,7 @@ public abstract class RecordMutationEntity {
 
     public abstract Builder setType(MutationEntityType newType);
 
-    public abstract Builder setModifiedResponses(JSONObject newModifiedResponses);
+    public abstract Builder setResponseDeltas(ImmutableList<ResponseDelta> newResponseDeltas);
 
     public abstract RecordMutationEntity build();
   }

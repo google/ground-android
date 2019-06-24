@@ -39,6 +39,8 @@ public abstract class FeatureMutation extends Mutation {
    */
   public abstract Optional<Point> getNewLocation();
 
+  // Auto-generated boilerplate.
+
   public static Builder builder() {
     return new AutoValue_FeatureMutation.Builder();
   }

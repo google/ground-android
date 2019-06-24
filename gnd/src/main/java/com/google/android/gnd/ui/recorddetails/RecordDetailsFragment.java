@@ -147,6 +147,7 @@ public class RecordDetailsFragment extends AbstractFragment {
     FieldViewHolder fieldViewHolder = FieldViewHolder.newInstance(getLayoutInflater());
     fieldViewHolder.setLabel(field.getLabel());
     record
+        .getResponses()
         .getResponse(field.getId())
         .map(r -> r.getDetailsText(field))
         .ifPresent(fieldViewHolder::setValue);

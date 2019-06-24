@@ -26,11 +26,11 @@ import com.google.android.gnd.vo.Record;
 import com.google.android.gnd.vo.Record.MultipleChoiceResponse;
 import com.google.android.gnd.vo.Record.Response;
 import com.google.android.gnd.vo.Record.TextResponse;
+import com.google.android.gnd.vo.ResponseMap;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.IgnoreExtraProperties;
 import com.google.firebase.firestore.ServerTimestamp;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java8.util.Optional;
@@ -89,7 +89,7 @@ public class RecordDoc {
         .setProject(feature.getProject())
         .setFeature(feature)
         .setForm(form.get())
-        .putAllResponses(convertResponses(rd.responses))
+        .setResponses(convertResponses(rd.responses))
         .setCreatedBy(UserDoc.toObject(rd.createdBy))
         .setModifiedBy(UserDoc.toObject(rd.modifiedBy))
         .setServerTimestamps(toTimestamps(rd.serverTimeCreated, rd.serverTimeModified))
@@ -97,25 +97,23 @@ public class RecordDoc {
         .build();
   }
 
-  private static Map<String, Response> convertResponses(Map<String, Object> docResponses) {
-    Map<String, Response> responses = new HashMap<>();
-    for (Map.Entry<String, Object> entry : docResponses.entrySet()) {
-      putResponse(responses, entry.getKey(), entry.getValue());
+  private static ResponseMap convertResponses(Map<String, Object> docResponses) {
+    ResponseMap.Builder responses = ResponseMap.builder();
+    for (String fieldId : docResponses.keySet()) {
+      Object obj = docResponses.get(fieldId);
+      if (obj instanceof String) {
+        TextResponse.fromString(((String) obj).trim())
+            .ifPresent(r -> responses.putResponse(fieldId, r));
+        // } else if (obj instanceof Float) {
+        //   responses.put(key, new NumericResponse((Float) obj));
+      } else if (obj instanceof List) {
+        MultipleChoiceResponse.fromList(((List<String>) obj))
+            .ifPresent(r -> responses.putResponse(fieldId, r));
+      } else {
+        Log.d(TAG, "Unsupported obj in db: " + obj.getClass().getName());
+      }
     }
-    return responses;
-  }
-
-  private static void putResponse(Map<String, Response> responses, String fieldId, Object obj) {
-    if (obj instanceof String) {
-      TextResponse.fromString(((String) obj).trim()).ifPresent(r -> responses.put(fieldId, r));
-      // } else if (obj instanceof Float) {
-      //   responses.put(key, new NumericResponse((Float) obj));
-    } else if (obj instanceof List) {
-      MultipleChoiceResponse.fromList(((List<String>) obj))
-          .ifPresent(r -> responses.put(fieldId, r));
-    } else {
-      Log.d(TAG, "Unsupported obj in db: " + obj.getClass().getName());
-    }
+    return responses.build();
   }
 
   public static Object toObject(Response response) {
