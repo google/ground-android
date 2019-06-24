@@ -36,7 +36,7 @@ public abstract class Mutation {
 
   /** Returns the locally unique id of this change. */
   @Nullable
-  public abstract Long getChangeId();
+  public abstract Long getId();
 
   /**
    * Returns the type of change (i.e., create, update, delete) and the type of entity this change
@@ -54,7 +54,7 @@ public abstract class Mutation {
 
   public abstract static class Builder<T extends Builder> {
 
-    public abstract T setChangeId(@Nullable Long newChangeId);
+    public abstract T setId(@Nullable Long newId);
 
     public abstract T setType(Type newType);
 
