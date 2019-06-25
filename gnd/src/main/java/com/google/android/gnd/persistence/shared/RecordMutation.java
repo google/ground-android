@@ -29,9 +29,6 @@ public abstract class RecordMutation extends Mutation {
   /** Returns the UUID of the record being modified. */
   public abstract String getRecordId();
 
-  /** Returns the UUID of the feature to which the mutated record belongs. */
-  public abstract String getFeatureId();
-
   /** Returns the UUID of the form associated with this record. */
   public abstract String getFormId();
 
@@ -52,8 +49,6 @@ public abstract class RecordMutation extends Mutation {
   @AutoValue.Builder
   public abstract static class Builder extends Mutation.Builder<Builder> {
     public abstract Builder setRecordId(String newRecordId);
-
-    public abstract Builder setFeatureId(String newFeatureId);
 
     public abstract Builder setFormId(String newFormId);
 

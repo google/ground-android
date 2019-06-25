@@ -50,6 +50,9 @@ public abstract class Mutation {
   /** Returns the unique id of the project in which this feature resides. */
   public abstract String getProjectId();
 
+  /** Returns the UUID of the feature to which the mutated record belongs. */
+  public abstract String getFeatureId();
+
   /** Returns the globally unique id of the user requesting the change. */
   // TODO(#101): Make NonNull.
   @Nullable
@@ -63,6 +66,8 @@ public abstract class Mutation {
   public abstract static class Builder<T extends Builder> {
 
     public abstract T setId(@Nullable Long newId);
+
+    public abstract T setFeatureId(String newFeatureId);
 
     public abstract T setType(Type newType);
 
