@@ -17,9 +17,10 @@
 package com.google.android.gnd.persistence.remote.firestore;
 
 import androidx.annotation.Nullable;
-import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator;
 import com.google.android.gnd.persistence.remote.DataStoreEvent;
 import com.google.android.gnd.persistence.remote.RemoteDataStore;
+import com.google.android.gnd.persistence.shared.Mutation;
+import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator;
 import com.google.android.gnd.rx.RxTask;
 import com.google.android.gnd.system.AuthenticationManager.User;
 import com.google.android.gnd.vo.Feature;
@@ -27,6 +28,7 @@ import com.google.android.gnd.vo.FeatureUpdate.RecordUpdate.ResponseUpdate;
 import com.google.android.gnd.vo.Project;
 import com.google.android.gnd.vo.Record;
 import com.google.android.gnd.vo.Timestamps;
+import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -141,6 +143,12 @@ public class FirestoreDataStore implements RemoteDataStore, OfflineUuidGenerator
   public Completable saveFeature(Feature feature) {
     String projectId = feature.getProject().getId();
     return db.projects().project(projectId).features().feature(feature.getId()).set(feature);
+  }
+
+  @Override
+  public Completable applyMutations(ImmutableCollection<Mutation> mutations) {
+    // TODO: Implement me!
+    return Completable.never();
   }
 
   private Map<String, Object> updatedResponses(ImmutableList<ResponseUpdate> updates) {
