@@ -53,9 +53,10 @@ public class DataSyncWorkManager {
   }
 
   private void enqueueSyncWorkerInternal() {
-    // Rather than have running workers monitor the queue for new mutations, we instead queue a
-    // new worker on new mutations. This simplified worker implementation and avoids race conditions
-    // in case the worker finishes just when new mutations are added to the db.
+    // Rather than having running workers monitor the queue for new mutations , we instead queue a
+    // new worker on each new mutation. This simplifies the worker implementation and avoids race
+    // conditions in the rare event the worker finishes just when new
+    // mutations are added to the db.
     getWorkManager()
         .enqueueUniqueWork(
             LocalMutationSyncWorker.class.getName(),

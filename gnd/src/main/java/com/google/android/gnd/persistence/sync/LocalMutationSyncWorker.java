@@ -25,7 +25,7 @@ import com.google.android.gnd.persistence.local.LocalDataStore;
 import com.google.android.gnd.persistence.remote.RemoteDataStore;
 import com.google.android.gnd.persistence.shared.Mutation;
 
-/** A worker that sends changes made locally to the remote data store. */
+/** A worker that syncs local changes to the remote data store. */
 public class LocalMutationSyncWorker extends Worker {
 
   private static final String TAG = LocalMutationSyncWorker.class.getSimpleName();
