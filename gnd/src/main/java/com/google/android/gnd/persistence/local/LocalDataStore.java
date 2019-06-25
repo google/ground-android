@@ -65,6 +65,9 @@ public interface LocalDataStore {
   /** Returns the records associated with the specified feature, or an empty list if none found. */
   Single<ImmutableList<Record>> getRecords(Feature feature);
 
-  /** Returns all feature and record mutations in the local mutation queue. */
-  Single<ImmutableList<Mutation>> getPendingMutations();
+  /**
+   * Returns all feature and record mutations in the local mutation queue relating to feature with
+   * the specified id.
+   */
+  Single<ImmutableList<Mutation>> getPendingMutations(String featureId);
 }

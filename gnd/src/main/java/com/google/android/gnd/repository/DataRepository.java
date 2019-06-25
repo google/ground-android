@@ -176,7 +176,7 @@ public class DataRepository {
     // TODO(#101): Store user id and timestamp on save.
     return localDataStore
         .applyAndEnqueue(mutation)
-        .andThen(dataSyncWorkManager.enqueueSyncWorker());
+        .andThen(dataSyncWorkManager.enqueueSyncWorker(mutation.getFeatureId()));
   }
 
   public Completable saveFeature(Feature feature) {
@@ -193,7 +193,7 @@ public class DataRepository {
                 // TODO(#101): Attach real credentials.
                 .setUserId("")
                 .build())
-        .andThen(dataSyncWorkManager.enqueueSyncWorker());
+        .andThen(dataSyncWorkManager.enqueueSyncWorker(feature.getId()));
   }
 
   public void clearActiveProject() {

@@ -19,19 +19,26 @@ package com.google.android.gnd.persistence.sync;
 import android.content.Context;
 import android.util.Log;
 import androidx.annotation.NonNull;
+import androidx.work.Data;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 import com.google.android.gnd.persistence.local.LocalDataStore;
 import com.google.android.gnd.persistence.remote.RemoteDataStore;
 import com.google.android.gnd.persistence.shared.Mutation;
 
-/** A worker that syncs local changes to the remote data store. */
+/**
+ * A worker that syncs local changes to the remote data store. Each instance handles mutations for a
+ * specific map feature, whose id is provided in the {@link Data} object built by {@link
+ * #createInputData} and provided to the worker request while being enqueued.
+ */
 public class LocalMutationSyncWorker extends Worker {
 
   private static final String TAG = LocalMutationSyncWorker.class.getSimpleName();
+  public static final String FEATURE_ID_PARAM_KEY = "featureId";
 
   private final LocalDataStore localDataStore;
   private final RemoteDataStore remoteDataStore;
+  private final String featureId;
 
   public LocalMutationSyncWorker(
       @NonNull Context context,
@@ -41,6 +48,12 @@ public class LocalMutationSyncWorker extends Worker {
     super(context, params);
     this.localDataStore = localDataStore;
     this.remoteDataStore = remoteDataStore;
+    this.featureId = params.getInputData().getString(FEATURE_ID_PARAM_KEY);
+  }
+
+  /** Returns a new work {@link Data} object containing the specified feature id. */
+  public static Data createInputData(String featureId) {
+    return new Data.Builder().putString(FEATURE_ID_PARAM_KEY, featureId).build();
   }
 
   @NonNull
@@ -48,7 +61,7 @@ public class LocalMutationSyncWorker extends Worker {
   public Result doWork() {
     Log.d(TAG, "Connection available; starting sync...");
     localDataStore
-        .getPendingMutations()
+        .getPendingMutations(featureId)
         .subscribe(
             ms -> {
               for (Mutation m : ms) Log.d(TAG, "Mutation: " + m.getClass() + "   Id: " + m);

@@ -108,10 +108,10 @@ public class RoomLocalDataStore implements LocalDataStore {
   }
 
   @Override
-  public Single<ImmutableList<Mutation>> getPendingMutations() {
+  public Single<ImmutableList<Mutation>> getPendingMutations(String featureId) {
     return db.featureMutationDao()
-        .loadAll()
-        .zipWith(db.recordMutationDao().loadAll(), this::mergeMutations);
+        .findByFeatureId(featureId)
+        .zipWith(db.recordMutationDao().findByFeatureId(featureId), this::mergeMutations);
   }
 
   private ImmutableList<Mutation> mergeMutations(

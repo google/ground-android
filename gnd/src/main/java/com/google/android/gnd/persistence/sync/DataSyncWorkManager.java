@@ -48,20 +48,20 @@ public class DataSyncWorkManager {
    * connection is available. The returned {@code Completable} completes immediately as soon as the
    * worker is added to the work queue (not once the sync job completes).
    */
-  public Completable enqueueSyncWorker() {
-    return Completable.fromRunnable(this::enqueueSyncWorkerInternal);
+  public Completable enqueueSyncWorker(String featureId) {
+    return Completable.fromRunnable(() -> enqueueSyncWorkerInternal(featureId));
   }
 
-  private void enqueueSyncWorkerInternal() {
-    // Rather than having running workers monitor the queue for new mutations , we instead queue a
-    // new worker on each new mutation. This simplifies the worker implementation and avoids race
-    // conditions in the rare event the worker finishes just when new
+  private void enqueueSyncWorkerInternal(String featureId) {
+    // Rather than having running workers monitor the queue for new mutations for their respective
+    // featureId, we instead queue a new worker on each new mutation. This simplifies the worker
+    // implementation and avoids race conditions in the rare event the worker finishes just when new
     // mutations are added to the db.
     getWorkManager()
         .enqueueUniqueWork(
             LocalMutationSyncWorker.class.getName(),
             ExistingWorkPolicy.APPEND,
-            buildWorkerRequest());
+            buildWorkerRequest(featureId));
   }
 
   private WorkManager getWorkManager() {
@@ -73,10 +73,11 @@ public class DataSyncWorkManager {
     return new Constraints.Builder().setRequiredNetworkType(NetworkType.NOT_ROAMING).build();
   }
 
-  private OneTimeWorkRequest buildWorkerRequest() {
+  private OneTimeWorkRequest buildWorkerRequest(String featureId) {
     return new OneTimeWorkRequest.Builder(LocalMutationSyncWorker.class)
         .setConstraints(getWorkerConstraints())
         .setBackoffCriteria(BackoffPolicy.LINEAR, SYNC_RETRY_BACKOFF_SECS, TimeUnit.SECONDS)
+        .setInputData(LocalMutationSyncWorker.createInputData(featureId))
         .build();
   }
 }

@@ -31,6 +31,6 @@ public interface FeatureMutationDao {
   @Insert
   Completable insert(FeatureMutationEntity entity);
 
-  @Query("SELECT * FROM feature_mutation")
-  Single<List<FeatureMutationEntity>> loadAll();
+  @Query("SELECT * FROM feature_mutation WHERE feature_id = :featureId")
+  Single<List<FeatureMutationEntity>> findByFeatureId(String featureId);
 }
