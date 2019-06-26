@@ -20,6 +20,8 @@ import static com.google.android.gnd.persistence.remote.firestore.FirestoreDataS
 
 import android.util.Log;
 import androidx.annotation.Nullable;
+import com.google.android.gnd.persistence.shared.RecordMutation;
+import com.google.android.gnd.persistence.shared.ResponseDelta;
 import com.google.android.gnd.vo.Feature;
 import com.google.android.gnd.vo.Form;
 import com.google.android.gnd.vo.Record;
@@ -27,7 +29,10 @@ import com.google.android.gnd.vo.Record.MultipleChoiceResponse;
 import com.google.android.gnd.vo.Record.Response;
 import com.google.android.gnd.vo.Record.TextResponse;
 import com.google.android.gnd.vo.ResponseMap;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.IgnoreExtraProperties;
 import com.google.firebase.firestore.ServerTimestamp;
 import java.util.Date;
@@ -39,6 +44,10 @@ import java8.util.Optional;
 @IgnoreExtraProperties
 public class RecordDoc {
   private static final String TAG = RecordDoc.class.getSimpleName();
+  private static final String FEATURE_ID = "featureId";
+  private static final String FEATURE_TYPE_ID = "featureTypeId";
+  private static final String FORM_ID = "formId";
+  private static final String RESPONSES = "responses";
 
   @Nullable public String featureId;
 
@@ -89,7 +98,7 @@ public class RecordDoc {
         .setProject(feature.getProject())
         .setFeature(feature)
         .setForm(form.get())
-        .setResponses(convertResponses(rd.responses))
+        .setResponses(toResponseMap(rd.responses))
         .setCreatedBy(UserDoc.toObject(rd.createdBy))
         .setModifiedBy(UserDoc.toObject(rd.modifiedBy))
         .setServerTimestamps(toTimestamps(rd.serverTimeCreated, rd.serverTimeModified))
@@ -97,7 +106,7 @@ public class RecordDoc {
         .build();
   }
 
-  private static ResponseMap convertResponses(Map<String, Object> docResponses) {
+  private static ResponseMap toResponseMap(Map<String, Object> docResponses) {
     ResponseMap.Builder responses = ResponseMap.builder();
     for (String fieldId : docResponses.keySet()) {
       Object obj = docResponses.get(fieldId);
@@ -125,5 +134,26 @@ public class RecordDoc {
       Log.w(TAG, "Unknown response type: " + response.getClass().getName());
       return null;
     }
+  }
+
+  public static ImmutableMap<String, Object> toMap(RecordMutation mutation) {
+    return ImmutableMap.<String, Object>builder()
+        .put(FEATURE_ID, mutation.getFeatureId())
+        // TODO: Add featureTypeId.
+        .put(FORM_ID, mutation.getFormId())
+        .put(RESPONSES, toMap(mutation.getResponseDeltas()))
+        // TODO: Set user id and timestamps.
+        // TODO: Don't echo server timestamp in client. When we implement a proper DAL we can
+        .build();
+  }
+
+  private static Map<String, Object> toMap(ImmutableList<ResponseDelta> responseDeltas) {
+    ImmutableMap.Builder<String, Object> map = ImmutableMap.builder();
+    for (ResponseDelta delta : responseDeltas) {
+      map.put(
+          delta.getFieldId(),
+          delta.getNewResponse().map(RecordDoc::toObject).orElse(FieldValue.delete()));
+    }
+    return map.build();
   }
 }

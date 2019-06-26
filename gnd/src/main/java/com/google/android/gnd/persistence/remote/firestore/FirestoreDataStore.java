@@ -160,7 +160,7 @@ public class FirestoreDataStore implements RemoteDataStore, OfflineUuidGenerator
     if (mutation instanceof FeatureMutation) {
       addFeatureMutationToBatch((FeatureMutation) mutation, batch);
     } else if (mutation instanceof RecordMutation) {
-      // TODO: Implement me!
+      addRecordMutationToBatch((RecordMutation) mutation, batch);
     } else {
       throw new IllegalArgumentException("Unsupported mutation " + mutation.getClass());
     }
@@ -171,6 +171,14 @@ public class FirestoreDataStore implements RemoteDataStore, OfflineUuidGenerator
         .project(mutation.getProjectId())
         .features()
         .feature(mutation.getFeatureId())
+        .addMutationToBatch(mutation, batch);
+  }
+
+  private void addRecordMutationToBatch(RecordMutation mutation, WriteBatch batch) {
+    db.projects()
+        .project(mutation.getProjectId())
+        .records()
+        .record(mutation.getRecordId())
         .addMutationToBatch(mutation, batch);
   }
 

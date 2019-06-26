@@ -22,6 +22,7 @@ import static java8.util.stream.StreamSupport.stream;
 import android.util.Log;
 import com.google.android.gnd.persistence.remote.DataStoreEvent;
 import com.google.android.gnd.persistence.shared.FeatureMutation;
+import com.google.android.gnd.persistence.shared.RecordMutation;
 import com.google.android.gnd.system.AuthenticationManager.User;
 import com.google.android.gnd.vo.Feature;
 import com.google.android.gnd.vo.Project;
@@ -122,9 +123,7 @@ public class GndFirestore extends AbstractFluentFirestore {
       super(ref);
     }
 
-    /**
-     * Appends the operation described by the specified mutation to the provided write batch.
-     */
+    /** Appends the operation described by the specified mutation to the provided write batch. */
     public void addMutationToBatch(FeatureMutation mutation, WriteBatch batch) {
       switch (mutation.getType()) {
         case CREATE:
@@ -167,6 +166,21 @@ public class GndFirestore extends AbstractFluentFirestore {
 
     public Maybe<Record> get(Feature feature) {
       return RxFirestore.getDocument(ref).map(doc -> RecordDoc.toObject(feature, doc.getId(), doc));
+    }
+
+    /** Appends the operation described by the specified mutation to the provided write batch. */
+    public void addMutationToBatch(RecordMutation mutation, WriteBatch batch) {
+      switch (mutation.getType()) {
+        case CREATE:
+        case UPDATE:
+          merge(RecordDoc.toMap(mutation), batch);
+          break;
+        case DELETE:
+          // TODO: Implement me!
+          break;
+        default:
+          throw new IllegalArgumentException("Unknown mutation type " + mutation.getType());
+      }
     }
   }
 
