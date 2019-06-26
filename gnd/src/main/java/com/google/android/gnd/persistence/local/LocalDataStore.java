@@ -70,4 +70,6 @@ public interface LocalDataStore {
    * the specified id.
    */
   Single<ImmutableList<Mutation>> getPendingMutations(String featureId);
+
+  Completable removePendingMutations(ImmutableList<Mutation> mutations);
 }

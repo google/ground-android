@@ -114,6 +114,23 @@ public class RoomLocalDataStore implements LocalDataStore {
         .zipWith(db.recordMutationDao().findByFeatureId(featureId), this::mergeMutations);
   }
 
+  @Override
+  public Completable removePendingMutations(ImmutableList<Mutation> mutations) {
+    ImmutableList<Long> featureMutationIds =
+        stream(mutations)
+            .filter(FeatureMutation.class::isInstance)
+            .map(Mutation::getId)
+            .collect(toImmutableList());
+    ImmutableList<Long> recordMutationIds =
+        stream(mutations)
+            .filter(RecordMutation.class::isInstance)
+            .map(Mutation::getId)
+            .collect(toImmutableList());
+    return db.featureMutationDao()
+        .deleteAll(featureMutationIds)
+        .andThen(db.recordMutationDao().deleteAll(recordMutationIds));
+  }
+
   private ImmutableList<Mutation> mergeMutations(
       List<FeatureMutationEntity> featureMutationEntities,
       List<RecordMutationEntity> recordMutationEntities) {

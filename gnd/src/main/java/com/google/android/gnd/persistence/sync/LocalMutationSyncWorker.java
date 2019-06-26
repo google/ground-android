@@ -24,6 +24,8 @@ import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 import com.google.android.gnd.persistence.local.LocalDataStore;
 import com.google.android.gnd.persistence.remote.RemoteDataStore;
+import com.google.android.gnd.persistence.shared.Mutation;
+import com.google.common.collect.ImmutableList;
 
 /**
  * A worker that syncs local changes to the remote data store. Each instance handles mutations for a
@@ -60,9 +62,10 @@ public class LocalMutationSyncWorker extends Worker {
   public Result doWork() {
     try {
       Log.d(TAG, "Connected. Syncing changes to feature " + featureId);
-      remoteDataStore
-          .applyMutations(localDataStore.getPendingMutations(featureId).blockingGet())
-          .blockingAwait();
+      ImmutableList<Mutation> pendingMutations =
+          localDataStore.getPendingMutations(featureId).blockingGet();
+      remoteDataStore.applyMutations(pendingMutations).blockingAwait();
+      localDataStore.removePendingMutations(pendingMutations).blockingAwait();
       return Result.success();
     } catch (Throwable t) {
       Log.e(TAG, "Updates for feature " + featureId + " failed", t);

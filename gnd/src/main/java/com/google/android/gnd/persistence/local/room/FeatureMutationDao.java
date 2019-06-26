@@ -31,6 +31,9 @@ public interface FeatureMutationDao {
   @Insert
   Completable insert(FeatureMutationEntity entity);
 
+  @Query("DELETE FROM feature_mutation WHERE id IN (:ids)")
+  Completable deleteAll(List<Long> ids);
+
   @Query("SELECT * FROM feature_mutation WHERE feature_id = :featureId")
   Single<List<FeatureMutationEntity>> findByFeatureId(String featureId);
 }
