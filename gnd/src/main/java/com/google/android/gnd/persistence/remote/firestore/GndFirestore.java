@@ -21,6 +21,7 @@ import static java8.util.stream.StreamSupport.stream;
 
 import android.util.Log;
 import com.google.android.gnd.persistence.remote.DataStoreEvent;
+import com.google.android.gnd.persistence.shared.FeatureMutation;
 import com.google.android.gnd.system.AuthenticationManager.User;
 import com.google.android.gnd.vo.Feature;
 import com.google.android.gnd.vo.Project;
@@ -33,8 +34,8 @@ import com.google.firebase.firestore.FieldPath;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SnapshotMetadata;
+import com.google.firebase.firestore.WriteBatch;
 import durdinapps.rxfirebase2.RxFirestore;
-import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
@@ -121,8 +122,21 @@ public class GndFirestore extends AbstractFluentFirestore {
       super(ref);
     }
 
-    public Completable set(Feature feature) {
-      return RxFirestore.setDocument(ref, FeatureDoc.fromObject(feature));
+    /**
+     * Appends the operation described by the specified mutation to the provided write batch.
+     */
+    public void addMutationToBatch(FeatureMutation mutation, WriteBatch batch) {
+      switch (mutation.getType()) {
+        case CREATE:
+        case UPDATE:
+          merge(FeatureDoc.toMap(mutation), batch);
+          break;
+        case DELETE:
+          // TODO: Implement me!
+          break;
+        default:
+          throw new IllegalArgumentException("Unknown mutation type " + mutation.getType());
+      }
     }
 
     public RecordsCollectionReference records() {

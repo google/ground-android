@@ -46,9 +46,6 @@ public interface RemoteDataStore {
 
   Single<Record> saveChanges(Record record, ImmutableList<ResponseUpdate> updates);
 
-  // TODO(#57): Replace with apply(FeatureMutation) in upcoming PRs.
-  Completable saveFeature(Feature feature);
-
   /**
    * Applies the provided mutations to the remote data store in a single batched transaction. If one
    * update fails, none of the mutations will be applied.

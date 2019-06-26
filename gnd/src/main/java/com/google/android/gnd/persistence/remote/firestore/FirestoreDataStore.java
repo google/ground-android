@@ -17,9 +17,12 @@
 package com.google.android.gnd.persistence.remote.firestore;
 
 import androidx.annotation.Nullable;
+import com.google.android.gms.tasks.Task;
 import com.google.android.gnd.persistence.remote.DataStoreEvent;
 import com.google.android.gnd.persistence.remote.RemoteDataStore;
+import com.google.android.gnd.persistence.shared.FeatureMutation;
 import com.google.android.gnd.persistence.shared.Mutation;
+import com.google.android.gnd.persistence.shared.RecordMutation;
 import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator;
 import com.google.android.gnd.rx.RxTask;
 import com.google.android.gnd.system.AuthenticationManager.User;
@@ -34,6 +37,7 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreSettings;
 import com.google.firebase.firestore.SetOptions;
+import com.google.firebase.firestore.WriteBatch;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Single;
@@ -140,15 +144,34 @@ public class FirestoreDataStore implements RemoteDataStore, OfflineUuidGenerator
   }
 
   @Override
-  public Completable saveFeature(Feature feature) {
-    String projectId = feature.getProject().getId();
-    return db.projects().project(projectId).features().feature(feature.getId()).set(feature);
+  public Completable applyMutations(ImmutableCollection<Mutation> mutations) {
+    return RxTask.toCompletable(() -> applyMutationsInternal(mutations));
   }
 
-  @Override
-  public Completable applyMutations(ImmutableCollection<Mutation> mutations) {
-    // TODO: Implement me!
-    return Completable.never();
+  private Task<?> applyMutationsInternal(ImmutableCollection<Mutation> mutations) {
+    WriteBatch batch = db.batch();
+    for (Mutation mutation : mutations) {
+      addMutationToBatch(mutation, batch);
+    }
+    return batch.commit();
+  }
+
+  private void addMutationToBatch(Mutation mutation, WriteBatch batch) {
+    if (mutation instanceof FeatureMutation) {
+      addFeatureMutationToBatch((FeatureMutation) mutation, batch);
+    } else if (mutation instanceof RecordMutation) {
+      // TODO: Implement me!
+    } else {
+      throw new IllegalArgumentException("Unsupported mutation " + mutation.getClass());
+    }
+  }
+
+  private void addFeatureMutationToBatch(FeatureMutation mutation, WriteBatch batch) {
+    db.projects()
+        .project(mutation.getProjectId())
+        .features()
+        .feature(mutation.getFeatureId())
+        .addMutationToBatch(mutation, batch);
   }
 
   private Map<String, Object> updatedResponses(ImmutableList<ResponseUpdate> updates) {
