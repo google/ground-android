@@ -29,7 +29,7 @@ public abstract class ResponseDelta {
   /** Returns the new value of the response, or empty if removed. */
   public abstract Optional<Response> getNewResponse();
 
-  // Auto-generated boilerplate.
+  // Boilerplate generated using Android Studio AutoValue plugin:
 
   public static Builder builder() {
     return new AutoValue_ResponseDelta.Builder();

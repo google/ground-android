@@ -133,7 +133,7 @@ public abstract class RecordMutationEntity {
         .build();
   }
 
-  // Auto-generated boilerplate.
+  // Boilerplate generated using Android Studio AutoValue plugin:
 
   public static Builder builder() {
     return new AutoValue_RecordMutationEntity.Builder();

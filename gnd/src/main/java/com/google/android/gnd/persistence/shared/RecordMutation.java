@@ -40,7 +40,7 @@ public abstract class RecordMutation extends Mutation {
     return super.toString() + " deltas=" + getResponseDeltas();
   }
 
-  // Auto-generated boilerplate.
+  // Boilerplate generated using Android Studio AutoValue plugin:
 
   public static Builder builder() {
     return new AutoValue_RecordMutation.Builder();

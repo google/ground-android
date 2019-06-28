@@ -36,7 +36,7 @@ public abstract class FeatureMutation extends Mutation {
    */
   public abstract Optional<Point> getNewLocation();
 
-  // Auto-generated boilerplate.
+  // Boilerplate generated using Android Studio AutoValue plugin:
 
   public static Builder builder() {
     return new AutoValue_FeatureMutation.Builder();

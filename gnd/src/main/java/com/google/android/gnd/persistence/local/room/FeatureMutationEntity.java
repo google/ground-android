@@ -102,7 +102,7 @@ public abstract class FeatureMutationEntity {
         .build();
   }
 
-  // Auto-generated boilerplate.
+  // Boilerplate generated using Android Studio AutoValue plugin:
 
   public static FeatureMutationEntity create(
       @Nullable Long id,

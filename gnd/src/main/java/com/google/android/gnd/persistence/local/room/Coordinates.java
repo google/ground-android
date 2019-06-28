@@ -46,7 +46,7 @@ public abstract class Coordinates {
         .build();
   }
 
-  // Auto-generated boilerplate:
+  // Boilerplate generated using Android Studio AutoValue plugin:
 
   public static Coordinates create(double latitude, double longitude) {
     return builder().setLatitude(latitude).setLongitude(longitude).build();

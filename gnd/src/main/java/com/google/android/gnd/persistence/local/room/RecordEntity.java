@@ -92,7 +92,7 @@ public abstract class RecordEntity {
         .build();
   }
 
-  // Auto-generated boilerplate:
+  // Boilerplate generated using Android Studio AutoValue plugin:
 
   public static RecordEntity create(
       String id, EntityState state, String featureId, String formId, ResponseMap responses) {
