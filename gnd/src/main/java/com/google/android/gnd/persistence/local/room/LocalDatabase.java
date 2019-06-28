@@ -36,13 +36,14 @@ import androidx.room.TypeConverters;
       RecordMutationEntity.class
     },
     // TODO(#128): Reset version to 1 before releasing.
-    version = 6,
+    version = 11,
     exportSchema = false)
 @TypeConverters({
   MutationEntityType.class,
   Edit.Type.class,
   EntityState.class,
-  JSONObjectTypeConverter.class
+  ResponseDeltasTypeConverter.class,
+  ResponseMapTypeConverter.class
 })
 public abstract class LocalDatabase extends RoomDatabase {
 

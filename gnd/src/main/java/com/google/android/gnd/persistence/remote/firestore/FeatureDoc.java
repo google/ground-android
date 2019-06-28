@@ -18,10 +18,12 @@ package com.google.android.gnd.persistence.remote.firestore;
 
 import static com.google.android.gnd.persistence.remote.firestore.FirestoreDataStore.toTimestamps;
 
+import com.google.android.gnd.persistence.shared.FeatureMutation;
 import com.google.android.gnd.vo.Feature;
 import com.google.android.gnd.vo.FeatureType;
 import com.google.android.gnd.vo.Point;
 import com.google.android.gnd.vo.Project;
+import com.google.common.collect.ImmutableMap;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.IgnoreExtraProperties;
@@ -31,13 +33,17 @@ import java8.util.Optional;
 
 @IgnoreExtraProperties
 public class FeatureDoc {
+  // TODO: Implement type safe field definition enums.
+  private static final String FEATURE_TYPE_ID = "featureTypeId";
+  private static final String CENTER = "center";
+
   public String featureTypeId;
 
   public String customId;
 
   public String caption;
 
-  // TODO: Rename to "point".
+  // TODO: Replace with consistent name throughout.
   public GeoPoint center;
 
   public @ServerTimestamp Date serverTimeCreated;
@@ -72,17 +78,22 @@ public class FeatureDoc {
         .build();
   }
 
-  public static FeatureDoc fromObject(Feature feature) {
-    FeatureDoc doc = new FeatureDoc();
-    Point point = feature.getPoint();
-    doc.featureTypeId = feature.getFeatureType().getId();
-    doc.center = new GeoPoint(point.getLatitude(), point.getLongitude());
-    doc.customId = feature.getCustomId();
-    doc.caption = feature.getCaption();
-    // TODO: Implement timestamps.
+  private static GeoPoint toGeoPoint(Point point) {
+    return new GeoPoint(point.getLatitude(), point.getLongitude());
+  }
+
+  /**
+   * Returns a map containing key-value pairs usable by Firestore constructed from the provided
+   * mutation.
+   */
+  public static ImmutableMap<String, Object> toMap(FeatureMutation mutation) {
+    ImmutableMap.Builder<String, Object> map = ImmutableMap.builder();
+    map.put(FEATURE_TYPE_ID, mutation.getFeatureTypeId());
+    mutation.getNewLocation().map(FeatureDoc::toGeoPoint).ifPresent(p -> map.put(CENTER, p));
+    // TODO: Set user id and timestamps.
     // TODO: Don't echo server timestamp in client. When we implement a proper DAL we can
     // use FieldValue.serverTimestamp() to signal when to update the value, or not set it,
     // depending on whether the operation is a CREATE or UPDATE.
-    return doc;
+    return map.build();
   }
 }

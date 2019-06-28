@@ -17,6 +17,8 @@
 package com.google.android.gnd;
 
 import android.app.Application;
+import androidx.work.WorkManager;
+import androidx.work.WorkerFactory;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gnd.inject.ActivityScoped;
 import com.google.android.gnd.persistence.local.LocalDataStore;
@@ -63,5 +65,11 @@ abstract class GndApplicationModule {
   @Singleton
   static GoogleApiAvailability googleApiAvailability() {
     return GoogleApiAvailability.getInstance();
+  }
+
+  @Provides
+  @Singleton
+  static WorkManager workManager() {
+    return WorkManager.getInstance();
   }
 }

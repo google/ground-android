@@ -29,6 +29,7 @@ import androidx.room.PrimaryKey;
 import com.google.android.gnd.persistence.shared.FeatureMutation;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.AutoValue.CopyAnnotations;
+import java8.util.Optional;
 
 /**
  * Defines how Room persists feature mutations for remote sync in the local db. By default, Room
@@ -55,8 +56,18 @@ public abstract class FeatureMutationEntity {
 
   @CopyAnnotations
   @NonNull
+  @ColumnInfo(name = "project_id")
+  public abstract String getProjectId();
+
+  @CopyAnnotations
+  @NonNull
   @ColumnInfo(name = "feature_id")
   public abstract String getFeatureId();
+
+  @CopyAnnotations
+  @NonNull
+  @ColumnInfo(name = "feature_type_id")
+  public abstract String getFeatureTypeId();
 
   @CopyAnnotations
   @NonNull
@@ -71,19 +82,40 @@ public abstract class FeatureMutationEntity {
 
   static FeatureMutationEntity fromMutation(FeatureMutation m) {
     return FeatureMutationEntity.builder()
+        .setId(m.getId())
+        .setProjectId(m.getProjectId())
         .setFeatureId(m.getFeatureId())
+        .setFeatureTypeId(m.getFeatureTypeId())
         .setNewLocation(m.getNewLocation().map(Coordinates::fromPoint).orElse(null))
         .setType(MutationEntityType.fromMutationType(m.getType()))
         .build();
   }
 
-  // Auto-generated boilerplate.
+  public FeatureMutation toMutation() {
+    return FeatureMutation.builder()
+        .setId(getId())
+        .setProjectId(getProjectId())
+        .setFeatureId(getFeatureId())
+        .setFeatureTypeId(getFeatureTypeId())
+        .setNewLocation(Optional.ofNullable(getNewLocation().toPoint()))
+        .setType(getType().toMutationType())
+        .build();
+  }
+
+  // Boilerplate generated using Android Studio AutoValue plugin:
 
   public static FeatureMutationEntity create(
-      @Nullable Long id, String featureId, MutationEntityType type, Coordinates newLocation) {
+      @Nullable Long id,
+      String projectId,
+      String featureId,
+      String featureTypeId,
+      MutationEntityType type,
+      Coordinates newLocation) {
     return builder()
         .setId(id)
+        .setProjectId(projectId)
         .setFeatureId(featureId)
+        .setFeatureTypeId(featureTypeId)
         .setType(type)
         .setNewLocation(newLocation)
         .build();
@@ -98,7 +130,11 @@ public abstract class FeatureMutationEntity {
 
     public abstract Builder setId(@Nullable Long newId);
 
+    public abstract Builder setProjectId(String newProjectId);
+
     public abstract Builder setFeatureId(String newFeatureId);
+
+    public abstract Builder setFeatureTypeId(String newFeatureTypeId);
 
     public abstract Builder setType(MutationEntityType newType);
 

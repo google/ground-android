@@ -16,7 +16,6 @@
 
 package com.google.android.gnd.ui.editrecord;
 
-import static java8.util.Maps.forEach;
 import static java8.util.stream.StreamSupport.stream;
 
 import android.content.res.Resources;
@@ -32,6 +31,7 @@ import com.google.android.gnd.GndApplication;
 import com.google.android.gnd.R;
 import com.google.android.gnd.persistence.shared.Mutation;
 import com.google.android.gnd.persistence.shared.RecordMutation;
+import com.google.android.gnd.persistence.shared.ResponseDelta;
 import com.google.android.gnd.repository.DataRepository;
 import com.google.android.gnd.repository.Resource;
 import com.google.android.gnd.system.AuthenticationManager;
@@ -43,7 +43,7 @@ import com.google.android.gnd.vo.Form.Field;
 import com.google.android.gnd.vo.Record;
 import com.google.android.gnd.vo.Record.Response;
 import com.google.android.gnd.vo.Record.TextResponse;
-import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableList;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.Single;
@@ -146,7 +146,7 @@ public class EditRecordViewModel extends AbstractViewModel {
             .setFeatureId(request.record.getFeature().getId())
             .setRecordId(request.record.getId())
             .setFormId(request.record.getForm().getId())
-            .setModifiedResponses(getModifiedResponses(request.record))
+            .setResponseDeltas(getResponseDeltas(request.record))
             .setUserId(request.user.getId())
             .build();
     return dataRepository.applyAndEnqueue(recordMutation);
@@ -217,10 +217,11 @@ public class EditRecordViewModel extends AbstractViewModel {
   private void updateMap(Record r) {
     Log.v(TAG, "Updating map");
     responses.clear();
-    forEach(
-        r.getResponseMap(),
-        (k, v) ->
-            r.getForm().getField(k).ifPresent(field -> onResponseChanged(field, Optional.of(v))));
+    for (String fieldId : r.getResponses().fieldIds()) {
+      r.getForm()
+          .getField(fieldId)
+          .ifPresent(field -> onResponseChanged(field, r.getResponses().getResponse(fieldId)));
+    }
   }
 
   void editRecord(EditRecordFragmentArgs args, boolean isNew) {
@@ -282,20 +283,21 @@ public class EditRecordViewModel extends AbstractViewModel {
             r, this.currentUser, isNew ? Mutation.Type.CREATE : Mutation.Type.UPDATE));
   }
 
-  private ImmutableMap<String, Optional<Response>> getModifiedResponses(Record record) {
-    ImmutableMap.Builder<String, Optional<Response>> modifiedResponses = ImmutableMap.builder();
+  private ImmutableList<ResponseDelta> getResponseDeltas(Record record) {
+    ImmutableList.Builder<ResponseDelta> deltas = ImmutableList.builder();
     for (Element e : record.getForm().getElements()) {
       if (e.getType() != Type.FIELD) {
         continue;
       }
       String fieldId = e.getField().getId();
-      Optional<Response> originalResponse = record.getResponse(fieldId);
+      Optional<Response> originalResponse = record.getResponses().getResponse(fieldId);
       Optional<Response> currentResponse = getResponse(fieldId).filter(r -> !r.isEmpty());
       if (!currentResponse.equals(originalResponse)) {
-        modifiedResponses.put(fieldId, currentResponse);
+        deltas.add(
+            ResponseDelta.builder().setFieldId(fieldId).setNewResponse(currentResponse).build());
       }
     }
-    return modifiedResponses.build();
+    return deltas.build();
   }
 
   private void update(Record record) {
@@ -327,7 +329,7 @@ public class EditRecordViewModel extends AbstractViewModel {
   }
 
   private boolean hasUnsavedChanges() {
-    return getCurrentRecord().map(record -> !getModifiedResponses(record).isEmpty()).orElse(false);
+    return getCurrentRecord().map(record -> !getResponseDeltas(record).isEmpty()).orElse(false);
   }
 
   private boolean hasErrors() {

@@ -39,6 +39,7 @@ project.ext {
     streamSupportVersion = "1.6.3"
     supportLibraryVersion = "1.0.0-beta01"
     tabLayoutHelper = "0.9.0"
+    workVersion = "2.0.1"
 }
 
 def homePath = System.properties['user.home']
@@ -157,6 +158,12 @@ dependencies {
     implementation "androidx.room:room-rxjava2:$roomVersion"
     implementation "androidx.room:room-guava:$roomVersion"
     testImplementation "androidx.room:room-testing:$roomVersion"
+
+    // WorkManager
+    implementation "androidx.work:work-runtime:$workVersion"
+    implementation "androidx.work:work-rxjava2:$workVersion"
+    androidTestImplementation "androidx.work:work-testing:$workVersion"
+
 
     // Testing
     testImplementation "junit:junit:$project.junitVersion"

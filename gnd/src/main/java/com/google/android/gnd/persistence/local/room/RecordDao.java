@@ -41,12 +41,12 @@ public interface RecordDao {
 
   /** Returns the record with the specified UUID, if found. */
   @Query("SELECT * FROM record WHERE id = :recordId")
-  Maybe<RecordEntity> getRecordById(String recordId);
+  Maybe<RecordEntity> findById(String recordId);
 
   /**
    * Returns the list records associated with the specified featureId, ignoring deleted records
    * (i.e., returns on records with state = State.DEFAULT (1)).
    */
   @Query("SELECT * FROM record WHERE feature_id = :featureId AND state = 1")
-  Single<List<RecordEntity>> getRecordsByFeatureId(String featureId);
+  Single<List<RecordEntity>> findByFeatureId(String featureId);
 }

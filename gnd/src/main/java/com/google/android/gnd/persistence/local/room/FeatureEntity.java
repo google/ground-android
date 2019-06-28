@@ -86,7 +86,7 @@ public abstract class FeatureEntity {
         .build();
   }
 
-  // Auto-generated boilerplate.
+  // Boilerplate generated using Android Studio AutoValue plugin:
 
   public static FeatureEntity create(
       String id, EntityState state, String projectId, String featureTypeId, Coordinates location) {

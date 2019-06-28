@@ -26,8 +26,10 @@ import androidx.room.ForeignKey;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
 import com.google.android.gnd.persistence.shared.RecordMutation;
+import com.google.android.gnd.persistence.shared.ResponseDelta;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.AutoValue.CopyAnnotations;
+import com.google.common.collect.ImmutableList;
 import org.json.JSONObject;
 
 /**
@@ -53,6 +55,21 @@ public abstract class RecordMutationEntity {
 
   @CopyAnnotations
   @NonNull
+  @ColumnInfo(name = "project_id")
+  public abstract String getProjectId();
+
+  @CopyAnnotations
+  @NonNull
+  @ColumnInfo(name = "form_id")
+  public abstract String getFormId();
+
+  @CopyAnnotations
+  @NonNull
+  @ColumnInfo(name = "feature_id")
+  public abstract String getFeatureId();
+
+  @CopyAnnotations
+  @NonNull
   @ColumnInfo(name = "record_id")
   public abstract String getRecordId();
 
@@ -70,28 +87,53 @@ public abstract class RecordMutationEntity {
    */
   @CopyAnnotations
   @Nullable
-  @ColumnInfo(name = "new_responses")
-  public abstract JSONObject getModifiedResponses();
+  @ColumnInfo(name = "response_deltas")
+  public abstract ImmutableList<ResponseDelta> getResponseDeltas();
 
   public static RecordMutationEntity create(
-      long id, String recordId, MutationEntityType type, JSONObject modifiedResponses) {
+      long id,
+      String projectId,
+      String featureId,
+      String formId,
+      String recordId,
+      MutationEntityType type,
+      ImmutableList<ResponseDelta> responseDeltas) {
     return builder()
         .setId(id)
+        .setProjectId(projectId)
+        .setFeatureId(featureId)
+        .setFormId(formId)
         .setRecordId(recordId)
         .setType(type)
-        .setModifiedResponses(modifiedResponses)
+        .setResponseDeltas(responseDeltas)
         .build();
   }
 
-  public static RecordMutationEntity fromMutation(RecordMutation mutation) {
+  public static RecordMutationEntity fromMutation(RecordMutation m) {
     return RecordMutationEntity.builder()
-        .setRecordId(mutation.getRecordId())
-        .setType(MutationEntityType.fromMutationType(mutation.getType()))
-        .setModifiedResponses(RecordEntity.convertResponsesToJson(mutation.getModifiedResponses()))
+        .setId(m.getId())
+        .setProjectId(m.getProjectId())
+        .setFeatureId(m.getFeatureId())
+        .setFormId(m.getFormId())
+        .setRecordId(m.getRecordId())
+        .setType(MutationEntityType.fromMutationType(m.getType()))
+        .setResponseDeltas(m.getResponseDeltas())
         .build();
   }
 
-  // Auto-generated boilerplate.
+  public RecordMutation toMutation() {
+    return RecordMutation.builder()
+        .setId(getId())
+        .setProjectId(getProjectId())
+        .setFeatureId(getFeatureId())
+        .setFormId(getFormId())
+        .setRecordId(getRecordId())
+        .setType(getType().toMutationType())
+        .setResponseDeltas(getResponseDeltas())
+        .build();
+  }
+
+  // Boilerplate generated using Android Studio AutoValue plugin:
 
   public static Builder builder() {
     return new AutoValue_RecordMutationEntity.Builder();
@@ -102,11 +144,17 @@ public abstract class RecordMutationEntity {
 
     public abstract Builder setId(@Nullable Long newId);
 
+    public abstract Builder setProjectId(@Nullable String newProjectId);
+
+    public abstract Builder setFeatureId(@Nullable String newFeatureId);
+
+    public abstract Builder setFormId(@Nullable String newFormId);
+
     public abstract Builder setRecordId(String newRecordId);
 
     public abstract Builder setType(MutationEntityType newType);
 
-    public abstract Builder setModifiedResponses(JSONObject newModifiedResponses);
+    public abstract Builder setResponseDeltas(ImmutableList<ResponseDelta> newResponseDeltas);
 
     public abstract RecordMutationEntity build();
   }

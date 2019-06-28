@@ -18,6 +18,7 @@ package com.google.android.gnd.persistence.local.room;
 
 import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList;
 import static com.google.android.gnd.util.ImmutableSetCollector.toImmutableSet;
+import static java8.lang.Iterables.forEach;
 import static java8.util.stream.StreamSupport.stream;
 
 import androidx.room.Room;
@@ -25,6 +26,7 @@ import androidx.room.Transaction;
 import com.google.android.gnd.GndApplication;
 import com.google.android.gnd.persistence.local.LocalDataStore;
 import com.google.android.gnd.persistence.shared.FeatureMutation;
+import com.google.android.gnd.persistence.shared.Mutation;
 import com.google.android.gnd.persistence.shared.RecordMutation;
 import com.google.android.gnd.vo.Feature;
 import com.google.android.gnd.vo.Project;
@@ -35,6 +37,7 @@ import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
+import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -74,7 +77,7 @@ public class RoomLocalDataStore implements LocalDataStore {
   @Override
   public Flowable<ImmutableSet<Feature>> getFeaturesOnceAndStream(Project project) {
     return db.featureDao()
-        .getFeatureEntitiesStream(project.getId())
+        .findByProjectIdStream(project.getId())
         .map(
             list ->
                 stream(list)
@@ -85,25 +88,56 @@ public class RoomLocalDataStore implements LocalDataStore {
   // TODO(#127): Decouple from Project and remove project from args.
   @Override
   public Maybe<Feature> getFeature(Project project, String featureId) {
-    return db.featureDao().getFeature(featureId).map(f -> FeatureEntity.toFeature(f, project));
+    return db.featureDao().findById(featureId).map(f -> FeatureEntity.toFeature(f, project));
   }
 
   @Override
   public Maybe<Record> getRecord(Feature feature, String recordId) {
-    return db.recordDao()
-        .getRecordById(recordId)
-        .map(record -> RecordEntity.toRecord(feature, record));
+    return db.recordDao().findById(recordId).map(record -> RecordEntity.toRecord(feature, record));
   }
 
   @Override
   public Single<ImmutableList<Record>> getRecords(Feature feature) {
     return db.recordDao()
-        .getRecordsByFeatureId(feature.getId())
+        .findByFeatureId(feature.getId())
         .map(
             list ->
                 stream(list)
                     .map(record -> RecordEntity.toRecord(feature, record))
                     .collect(toImmutableList()));
+  }
+
+  @Override
+  public Single<ImmutableList<Mutation>> getPendingMutations(String featureId) {
+    return db.featureMutationDao()
+        .findByFeatureId(featureId)
+        .zipWith(db.recordMutationDao().findByFeatureId(featureId), this::mergeMutations);
+  }
+
+  @Override
+  public Completable removePendingMutations(ImmutableList<Mutation> mutations) {
+    ImmutableList<Long> featureMutationIds =
+        stream(mutations)
+            .filter(FeatureMutation.class::isInstance)
+            .map(Mutation::getId)
+            .collect(toImmutableList());
+    ImmutableList<Long> recordMutationIds =
+        stream(mutations)
+            .filter(RecordMutation.class::isInstance)
+            .map(Mutation::getId)
+            .collect(toImmutableList());
+    return db.featureMutationDao()
+        .deleteAll(featureMutationIds)
+        .andThen(db.recordMutationDao().deleteAll(recordMutationIds));
+  }
+
+  private ImmutableList<Mutation> mergeMutations(
+      List<FeatureMutationEntity> featureMutationEntities,
+      List<RecordMutationEntity> recordMutationEntities) {
+    ImmutableList.Builder<Mutation> mutations = ImmutableList.builder();
+    forEach(featureMutationEntities, fm -> mutations.add(fm.toMutation()));
+    forEach(recordMutationEntities, rm -> mutations.add(rm.toMutation()));
+    return mutations.build();
   }
 
   private Completable apply(FeatureMutation mutation) throws LocalDataStoreException {

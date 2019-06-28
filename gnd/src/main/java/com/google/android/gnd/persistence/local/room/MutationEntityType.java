@@ -54,6 +54,19 @@ public enum MutationEntityType implements IntEnum {
     }
   }
 
+  Mutation.Type toMutationType() {
+    switch (this) {
+      case CREATE:
+        return Mutation.Type.CREATE;
+      case UPDATE:
+        return Mutation.Type.UPDATE;
+      case DELETE:
+        return Mutation.Type.DELETE;
+      default:
+        return Mutation.Type.UNKNOWN;
+    }
+  }
+
   public int intValue() {
     return intValue;
   }

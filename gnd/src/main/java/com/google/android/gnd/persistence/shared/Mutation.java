@@ -31,12 +31,15 @@ public abstract class Mutation {
     UPDATE,
 
     /** Indicates an existing entity should be marked for deletion. */
-    DELETE;
+    DELETE,
+
+    /** Indicates database skew or an implementation bug. */
+    UNKNOWN
   }
 
   /** Returns the locally unique id of this change. */
   @Nullable
-  public abstract Long getChangeId();
+  public abstract Long getId();
 
   /**
    * Returns the type of change (i.e., create, update, delete) and the type of entity this change
@@ -47,14 +50,24 @@ public abstract class Mutation {
   /** Returns the unique id of the project in which this feature resides. */
   public abstract String getProjectId();
 
+  /** Returns the UUID of the feature to which the mutated record belongs. */
+  public abstract String getFeatureId();
+
   /** Returns the globally unique id of the user requesting the change. */
   // TODO(#101): Make NonNull.
   @Nullable
   public abstract String getUserId();
 
+  @Override
+  public String toString() {
+    return getClass().getSimpleName() + " type=" + getType() + " id=" + getId();
+  }
+
   public abstract static class Builder<T extends Builder> {
 
-    public abstract T setChangeId(@Nullable Long newChangeId);
+    public abstract T setId(@Nullable Long newId);
+
+    public abstract T setFeatureId(String newFeatureId);
 
     public abstract T setType(Type newType);
 

@@ -16,11 +16,13 @@
 
 package com.google.android.gnd.persistence.remote;
 
+import com.google.android.gnd.persistence.shared.Mutation;
 import com.google.android.gnd.system.AuthenticationManager.User;
 import com.google.android.gnd.vo.Feature;
 import com.google.android.gnd.vo.FeatureUpdate.RecordUpdate.ResponseUpdate;
 import com.google.android.gnd.vo.Project;
 import com.google.android.gnd.vo.Record;
+import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
@@ -44,6 +46,9 @@ public interface RemoteDataStore {
 
   Single<Record> saveChanges(Record record, ImmutableList<ResponseUpdate> updates);
 
-  // TODO(#57): Replace with apply(FeatureMutation) in upcoming PRs.
-  Completable saveFeature(Feature feature);
+  /**
+   * Applies the provided mutations to the remote data store in a single batched transaction. If one
+   * update fails, none of the mutations will be applied.
+   */
+  Completable applyMutations(ImmutableCollection<Mutation> mutations);
 }

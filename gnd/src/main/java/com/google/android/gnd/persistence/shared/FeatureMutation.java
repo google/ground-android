@@ -27,9 +27,6 @@ import java8.util.Optional;
 @AutoValue
 public abstract class FeatureMutation extends Mutation {
 
-  /** Returns the UUID the feature being modified. */
-  public abstract String getFeatureId();
-
   /** Returns the UUID of the feature type being modified. */
   public abstract String getFeatureTypeId();
 
@@ -39,14 +36,14 @@ public abstract class FeatureMutation extends Mutation {
    */
   public abstract Optional<Point> getNewLocation();
 
+  // Boilerplate generated using Android Studio AutoValue plugin:
+
   public static Builder builder() {
     return new AutoValue_FeatureMutation.Builder();
   }
 
   @AutoValue.Builder
   public abstract static class Builder extends Mutation.Builder<Builder> {
-
-    public abstract Builder setFeatureId(String newFeatureId);
 
     public abstract Builder setFeatureTypeId(String newFeatureTypeId);
 
