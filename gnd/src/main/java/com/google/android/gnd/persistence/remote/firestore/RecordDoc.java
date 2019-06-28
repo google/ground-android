@@ -113,6 +113,7 @@ public class RecordDoc {
       if (obj instanceof String) {
         TextResponse.fromString(((String) obj).trim())
             .ifPresent(r -> responses.putResponse(fieldId, r));
+        // TODO(#23): Implement number fields, e.g.:
         // } else if (obj instanceof Float) {
         //   responses.put(key, new NumericResponse((Float) obj));
       } else if (obj instanceof List) {
