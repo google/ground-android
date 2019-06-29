@@ -41,54 +41,33 @@ public class Persistable<T> extends AbstractResource<PersistenceState, T> {
     ERROR
   }
 
-  public enum SyncStatus {
-    UNKNOWN,
-    NO_CHANGES_PENDING,
-    LOCAL_CHANGES_PENDING
-  }
-
-  private final SyncStatus syncStatus;
-
   private Persistable(
-      OperationState<PersistenceState> operationState, @Nullable T data, SyncStatus syncStatus) {
+      OperationState<PersistenceState> operationState, @Nullable T data) {
     super(operationState, data);
-    this.syncStatus = syncStatus;
   }
 
   public static <T> Persistable<T> notLoaded() {
-    return new Persistable<>(OperationState.of(PersistenceState.NOT_LOADED), null, SyncStatus.UNKNOWN);
+    return new Persistable<>(OperationState.of(PersistenceState.NOT_LOADED), null);
   }
 
   public static <T> Persistable<T> loading() {
-    return new Persistable<>(OperationState.of(PersistenceState.LOADING), null, SyncStatus.UNKNOWN);
+    return new Persistable<>(OperationState.of(PersistenceState.LOADING), null);
   }
 
   public static <T> Persistable<T> loaded(T data) {
-    return new Persistable<>(OperationState.of(PersistenceState.LOADED), data, SyncStatus.NO_CHANGES_PENDING);
-  }
-
-  public static <T> Persistable<T> loaded(T data, SyncStatus syncStatus) {
-    return new Persistable<>(OperationState.of(PersistenceState.LOADED), data, syncStatus);
+    return new Persistable<>(OperationState.of(PersistenceState.LOADED), data);
   }
 
   public static <T> Persistable<T> saving(T data) {
-    return new Persistable<>(OperationState.of(PersistenceState.SAVING), data, SyncStatus.LOCAL_CHANGES_PENDING);
+    return new Persistable<>(OperationState.of(PersistenceState.SAVING), data);
   }
 
   public static <T> Persistable<T> saved(T data) {
-    return new Persistable<>(OperationState.of(PersistenceState.SAVED), data, SyncStatus.LOCAL_CHANGES_PENDING);
-  }
-
-  public static <T> Persistable<T> saved(T data, SyncStatus syncStatus) {
-    return new Persistable<>(OperationState.of(PersistenceState.SAVED), data, syncStatus);
+    return new Persistable<>(OperationState.of(PersistenceState.SAVED), data);
   }
 
   public static <T> Persistable<T> error(Throwable t) {
-    return new Persistable<>(OperationState.error(PersistenceState.ERROR, t), null, SyncStatus.UNKNOWN);
-  }
-
-  public SyncStatus getSyncStatus() {
-    return syncStatus;
+    return new Persistable<>(OperationState.error(PersistenceState.ERROR, t), null);
   }
 
   public boolean isLoaded() {
