@@ -111,7 +111,7 @@ public class FirestoreDataStore implements RemoteDataStore, OfflineUuidGenerator
   }
 
   @Override
-  public Flowable<DataStoreEvent<Feature>> getFeatureVectorStream(Project project) {
+  public Flowable<DataStoreEvent<Feature>> loadFeaturesOnceAndStreamChanges(Project project) {
     return db.projects().project(project.getId()).features().observe(project);
   }
 
