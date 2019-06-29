@@ -34,7 +34,7 @@ import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.RecordDetailsFragBinding;
 import com.google.android.gnd.inject.ActivityScoped;
-import com.google.android.gnd.repository.Resource;
+import com.google.android.gnd.repository.Persistable;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.EphemeralPopups;
 import com.google.android.gnd.ui.common.Navigator;
@@ -114,7 +114,7 @@ public class RecordDetailsFragment extends AbstractFragment {
     }
   }
 
-  private void onUpdate(Resource<Record> record) {
+  private void onUpdate(Persistable<Record> record) {
     switch (record.operationState().get()) {
       case LOADED:
         record.ifPresent(this::showRecord);

@@ -36,7 +36,7 @@ import com.google.android.gnd.databinding.EditRecordFragBinding;
 import com.google.android.gnd.databinding.MultipleChoiceInputFieldBinding;
 import com.google.android.gnd.databinding.TextInputFieldBinding;
 import com.google.android.gnd.inject.ActivityScoped;
-import com.google.android.gnd.repository.Resource;
+import com.google.android.gnd.repository.Persistable;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.BackPressListener;
 import com.google.android.gnd.ui.common.EphemeralPopups;
@@ -112,7 +112,7 @@ public class EditRecordFragment extends AbstractFragment implements BackPressLis
   @Override
   public void onStart() {
     super.onStart();
-    Resource<Record> record = Resource.getValue(viewModel.getRecord());
+    Persistable<Record> record = Persistable.getValue(viewModel.getRecord());
     if (record.isLoaded()) {
       onRecordChange(record);
       return;
@@ -121,7 +121,7 @@ public class EditRecordFragment extends AbstractFragment implements BackPressLis
     viewModel.editRecord(args, args.getRecordId().equals(NEW_RECORD_ID_ARG_PLACEHOLDER));
   }
 
-  private void onRecordChange(Resource<Record> record) {
+  private void onRecordChange(Persistable<Record> record) {
     switch (record.operationState().get()) {
       case LOADING:
         saveRecordButton.setVisibility(View.GONE);

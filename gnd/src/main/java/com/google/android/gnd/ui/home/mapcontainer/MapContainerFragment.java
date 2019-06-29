@@ -38,7 +38,7 @@ import io.reactivex.Single;
 import com.google.android.gnd.MainViewModel;
 import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.MapContainerFragBinding;
-import com.google.android.gnd.repository.Resource;
+import com.google.android.gnd.repository.Persistable;
 import com.google.android.gnd.rx.EnableState;
 import com.google.android.gnd.system.PermissionsManager.PermissionDeniedException;
 import com.google.android.gnd.system.SettingsManager.SettingsChangeRequestCanceled;
@@ -159,7 +159,7 @@ public class MapContainerFragment extends AbstractFragment {
     }
   }
 
-  private void onProjectChange(Resource<Project> project) {
+  private void onProjectChange(Persistable<Project> project) {
     if (project.isLoaded()) {
       enableAddFeatureBtn();
     } else {

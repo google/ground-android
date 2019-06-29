@@ -21,7 +21,7 @@ import androidx.lifecycle.LiveDataReactiveStreams;
 import androidx.lifecycle.MutableLiveData;
 import android.util.Log;
 import com.google.android.gnd.repository.DataRepository;
-import com.google.android.gnd.repository.Resource;
+import com.google.android.gnd.repository.Persistable;
 import com.google.android.gnd.rx.EnableState;
 import com.google.android.gnd.system.LocationManager;
 import com.google.android.gnd.ui.common.AbstractViewModel;
@@ -44,7 +44,7 @@ public class MapContainerViewModel extends AbstractViewModel {
 
   private static final String TAG = MapContainerViewModel.class.getSimpleName();
   private static final float DEFAULT_ZOOM_LEVEL = 20.0f;
-  private final LiveData<Resource<Project>> activeProject;
+  private final LiveData<Persistable<Project>> activeProject;
   private final LiveData<ImmutableSet<Feature>> features;
   private final LiveData<EnableState> locationLockState;
   private final LiveData<CameraUpdate> cameraUpdateRequests;
@@ -77,7 +77,7 @@ public class MapContainerViewModel extends AbstractViewModel {
         LiveDataReactiveStreams.fromPublisher(
             dataRepository
                 .getActiveProject()
-                .map(Resource::data)
+                .map(Persistable::data)
                 .switchMap(this::getFeaturesStream));
   }
 
@@ -122,7 +122,7 @@ public class MapContainerViewModel extends AbstractViewModel {
         .orElse(Flowable.just(ImmutableSet.of()));
   }
 
-  public LiveData<Resource<Project>> getActiveProject() {
+  public LiveData<Persistable<Project>> getActiveProject() {
     return activeProject;
   }
 

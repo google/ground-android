@@ -34,7 +34,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import com.google.android.gnd.R;
 import com.google.android.gnd.inject.ActivityScoped;
-import com.google.android.gnd.repository.Resource;
+import com.google.android.gnd.repository.Persistable;
 import com.google.android.gnd.ui.common.AbstractDialogFragment;
 import com.google.android.gnd.ui.common.EphemeralPopups;
 import com.google.android.gnd.vo.Project;
@@ -93,7 +93,7 @@ public class ProjectSelectorDialogFragment extends AbstractDialogFragment {
     super.onStart();
   }
 
-  private void update(Resource<List<Project>> projectSummaries) {
+  private void update(Persistable<List<Project>> projectSummaries) {
     switch (projectSummaries.operationState().get()) {
       case LOADED:
         projectSummaries.ifPresent(this::showProjectList);

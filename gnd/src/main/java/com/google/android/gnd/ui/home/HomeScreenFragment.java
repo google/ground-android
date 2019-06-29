@@ -40,12 +40,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import androidx.fragment.app.FragmentManager;
 import butterknife.BindView;
-import io.reactivex.Flowable;
-import io.reactivex.Observable;
-import io.reactivex.Observer;
-import io.reactivex.processors.BehaviorProcessor;
 import io.reactivex.subjects.PublishSubject;
 
 import com.google.android.gnd.MainActivity;
@@ -53,7 +48,7 @@ import com.google.android.gnd.MainViewModel;
 import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.HomeScreenFragBinding;
 import com.google.android.gnd.inject.ActivityScoped;
-import com.google.android.gnd.repository.Resource;
+import com.google.android.gnd.repository.Persistable;
 import com.google.android.gnd.system.AuthenticationManager;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.BackPressListener;
@@ -220,7 +215,7 @@ public class HomeScreenFragment extends AbstractFragment
     super.onStart();
     // TODO: Persist last selected project in local db.
     // TODO: Create startup flow and move this logic there.
-    Resource<Project> activeProject = viewModel.getActiveProject().getValue();
+    Persistable<Project> activeProject = viewModel.getActiveProject().getValue();
     if (activeProject == null || !activeProject.isLoaded()) {
       showProjectSelector();
     }
@@ -257,7 +252,7 @@ public class HomeScreenFragment extends AbstractFragment
     bottomSheetBehavior.setPeekHeight((int) peekHeight);
   }
 
-  private void onActiveProjectChange(Resource<Project> project) {
+  private void onActiveProjectChange(Persistable<Project> project) {
     switch (project.operationState().get()) {
       case NOT_LOADED:
         dismissLoadingDialog();
@@ -278,7 +273,7 @@ public class HomeScreenFragment extends AbstractFragment
   }
 
   private void onShowAddFeatureDialogRequest(Point location) {
-    if (!Resource.getData(viewModel.getActiveProject()).isPresent()) {
+    if (!Persistable.getData(viewModel.getActiveProject()).isPresent()) {
       return;
     }
     // TODO: Pause location updates while dialog is open.
