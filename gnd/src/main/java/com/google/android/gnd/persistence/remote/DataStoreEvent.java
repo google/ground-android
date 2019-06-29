@@ -65,10 +65,6 @@ public class DataStoreEvent<T> {
     return source;
   }
 
-  public boolean hasPendingWrites() {
-    return source == DataStoreEvent.Source.LOCAL_DATA_STORE;
-  }
-
   public boolean isValid() {
     return !Type.INVALID_RESPONSE.equals(type);
   }
