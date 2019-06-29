@@ -38,7 +38,7 @@ public interface RemoteDataStore {
 
   Single<Project> loadProject(String projectId);
 
-  Flowable<DataStoreEvent<Feature>> loadFeaturesOnceAndStreamChanges(Project project);
+  Flowable<RemoteDataEvent<Feature>> loadFeaturesOnceAndStreamChanges(Project project);
 
   Single<List<Record>> loadRecordSummaries(Feature feature);
 

@@ -18,7 +18,7 @@ package com.google.android.gnd.persistence.remote.firestore;
 
 import androidx.annotation.Nullable;
 import com.google.android.gms.tasks.Task;
-import com.google.android.gnd.persistence.remote.DataStoreEvent;
+import com.google.android.gnd.persistence.remote.RemoteDataEvent;
 import com.google.android.gnd.persistence.remote.RemoteDataStore;
 import com.google.android.gnd.persistence.shared.FeatureMutation;
 import com.google.android.gnd.persistence.shared.Mutation;
@@ -111,7 +111,7 @@ public class FirestoreDataStore implements RemoteDataStore, OfflineUuidGenerator
   }
 
   @Override
-  public Flowable<DataStoreEvent<Feature>> loadFeaturesOnceAndStreamChanges(Project project) {
+  public Flowable<RemoteDataEvent<Feature>> loadFeaturesOnceAndStreamChanges(Project project) {
     return db.projects().project(project.getId()).features().observe(project);
   }
 
