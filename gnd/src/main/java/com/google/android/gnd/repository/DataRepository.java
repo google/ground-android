@@ -106,7 +106,7 @@ public class DataRepository {
         .startWith(Resource.loading());
   }
 
-  // TODO: Only return feature fields needed to render.
+  // TODO: Only return feature fields needed to render features on map.
   // TODO(#127): Decouple from Project and accept id instead.
   public Flowable<ImmutableSet<Feature>> getFeaturesOnceAndStream(Project project) {
     return localDataStore.getFeaturesOnceAndStream(project);
