@@ -33,18 +33,18 @@ public class RemoteDataEvent<T> extends Result<T> {
     ERROR
   }
 
-  private String id;
+  private String entityId;
   private EventType eventType;
 
   private RemoteDataEvent(
-      String id, EventType eventType, @Nullable T entity, @Nullable Throwable error) {
+      String entityId, EventType eventType, @Nullable T entity, @Nullable Throwable error) {
     super(entity, error);
-    this.id = id;
+    this.entityId = entityId;
     this.eventType = eventType;
   }
 
-  public String getId() {
-    return id;
+  public String getEntityId() {
+    return entityId;
   }
 
   public EventType getEventType() {
@@ -55,16 +55,16 @@ public class RemoteDataEvent<T> extends Result<T> {
     return !EventType.ERROR.equals(eventType);
   }
 
-  public static <T> RemoteDataEvent<T> loaded(String id, T entity) {
-    return new RemoteDataEvent<>(id, EventType.ENTITY_LOADED, entity, null);
+  public static <T> RemoteDataEvent<T> loaded(String entityId, T entity) {
+    return new RemoteDataEvent<>(entityId, EventType.ENTITY_LOADED, entity, null);
   }
 
-  public static <T> RemoteDataEvent<T> modified(String id, T entity) {
-    return new RemoteDataEvent<>(id, EventType.ENTITY_MODIFIED, entity, null);
+  public static <T> RemoteDataEvent<T> modified(String entityId, T entity) {
+    return new RemoteDataEvent<>(entityId, EventType.ENTITY_MODIFIED, entity, null);
   }
 
-  public static <T> RemoteDataEvent<T> removed(String id) {
-    return new RemoteDataEvent<>(id, EventType.ENTITY_MODIFIED, null, null);
+  public static <T> RemoteDataEvent<T> removed(String entityId) {
+    return new RemoteDataEvent<>(entityId, EventType.ENTITY_MODIFIED, null, null);
   }
 
   public static <T> RemoteDataEvent<T> error(Throwable error) {
