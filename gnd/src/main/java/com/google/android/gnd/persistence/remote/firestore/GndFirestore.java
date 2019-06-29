@@ -34,7 +34,6 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldPath;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.google.firebase.firestore.SnapshotMetadata;
 import com.google.firebase.firestore.WriteBatch;
 import durdinapps.rxfirebase2.RxFirestore;
 import io.reactivex.Flowable;
@@ -201,35 +200,28 @@ public class GndFirestore extends AbstractFluentFirestore {
 
   private static <T> Iterable<DataStoreEvent<T>> toDataStoreEvents(
       QuerySnapshot snapshot, Function<DocumentSnapshot, T> converter) {
-    DataStoreEvent.Source source = getSource(snapshot.getMetadata());
     return stream(snapshot.getDocumentChanges())
-        .map(dc -> toDataStoreEvent(dc, source, converter))
+        .map(dc -> toDataStoreEvent(dc, converter))
         .filter(DataStoreEvent::isValid)
         .collect(toList());
   }
 
   private static <T> DataStoreEvent<T> toDataStoreEvent(
-      DocumentChange dc, DataStoreEvent.Source source, Function<DocumentSnapshot, T> converter) {
+      DocumentChange dc, Function<DocumentSnapshot, T> converter) {
     Log.v(TAG, dc.getDocument().getReference().getPath() + " " + dc.getType());
     try {
       String id = dc.getDocument().getId();
       switch (dc.getType()) {
         case ADDED:
-          return DataStoreEvent.loaded(id, source, converter.apply(dc.getDocument()));
+          return DataStoreEvent.loaded(id, converter.apply(dc.getDocument()));
         case MODIFIED:
-          return DataStoreEvent.modified(id, source, converter.apply(dc.getDocument()));
+          return DataStoreEvent.modified(id, converter.apply(dc.getDocument()));
         case REMOVED:
-          return DataStoreEvent.removed(id, source);
+          return DataStoreEvent.removed(id);
       }
     } catch (DataStoreException e) {
       Log.d(TAG, "Data store error:", e);
     }
     return DataStoreEvent.invalidResponse();
-  }
-
-  private static DataStoreEvent.Source getSource(SnapshotMetadata metadata) {
-    return metadata.hasPendingWrites()
-        ? DataStoreEvent.Source.LOCAL_DATA_STORE
-        : DataStoreEvent.Source.REMOTE_DATA_STORE;
   }
 }
