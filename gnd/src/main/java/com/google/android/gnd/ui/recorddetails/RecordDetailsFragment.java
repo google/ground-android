@@ -115,9 +115,9 @@ public class RecordDetailsFragment extends AbstractFragment {
   }
 
   private void onUpdate(Persistable<Record> record) {
-    switch (record.operationState().get()) {
+    switch (record.state()) {
       case LOADED:
-        record.ifPresent(this::showRecord);
+        record.get().ifPresent(this::showRecord);
         break;
       case NOT_FOUND:
       case ERROR:

@@ -16,13 +16,13 @@
 
 package com.google.android.gnd.ui.home.mapcontainer;
 
+import android.util.Log;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
 import androidx.lifecycle.MutableLiveData;
-import android.util.Log;
 import com.google.android.gnd.repository.DataRepository;
 import com.google.android.gnd.repository.Persistable;
-import com.google.android.gnd.rx.EnableState;
+import com.google.android.gnd.rx.BooleanResult;
 import com.google.android.gnd.system.LocationManager;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.common.SharedViewModel;
@@ -46,7 +46,7 @@ public class MapContainerViewModel extends AbstractViewModel {
   private static final float DEFAULT_ZOOM_LEVEL = 20.0f;
   private final LiveData<Persistable<Project>> activeProject;
   private final LiveData<ImmutableSet<Feature>> features;
-  private final LiveData<EnableState> locationLockState;
+  private final LiveData<BooleanResult> locationLockState;
   private final LiveData<CameraUpdate> cameraUpdateRequests;
   private final MutableLiveData<Point> cameraPosition;
   private final LocationManager locationManager;
@@ -61,10 +61,10 @@ public class MapContainerViewModel extends AbstractViewModel {
     this.locationLockChangeRequests = PublishSubject.create();
     this.cameraUpdateSubject = PublishSubject.create();
 
-    Flowable<EnableState> locationLockStateFlowable = createLocationLockStateFlowable().share();
+    Flowable<BooleanResult> locationLockStateFlowable = createLocationLockStateFlowable().share();
     this.locationLockState =
         LiveDataReactiveStreams.fromPublisher(
-            locationLockStateFlowable.startWith(EnableState.disabled()));
+            locationLockStateFlowable.startWith(BooleanResult.ofFalse()));
     this.cameraUpdateRequests =
         LiveDataReactiveStreams.fromPublisher(
             createCameraUpdateFlowable(locationLockStateFlowable));
@@ -77,12 +77,12 @@ public class MapContainerViewModel extends AbstractViewModel {
         LiveDataReactiveStreams.fromPublisher(
             dataRepository
                 .getActiveProject()
-                .map(Persistable::data)
+                .map(Persistable::get)
                 .switchMap(this::getFeaturesStream));
   }
 
   private Flowable<CameraUpdate> createCameraUpdateFlowable(
-      Flowable<EnableState> locationLockStateFlowable) {
+      Flowable<BooleanResult> locationLockStateFlowable) {
     return cameraUpdateSubject
         .toFlowable(BackpressureStrategy.LATEST)
         .mergeWith(
@@ -90,8 +90,8 @@ public class MapContainerViewModel extends AbstractViewModel {
                 state -> createLocationLockCameraUpdateFlowable(state)));
   }
 
-  private Flowable<CameraUpdate> createLocationLockCameraUpdateFlowable(EnableState lockState) {
-    if (!lockState.isEnabled()) {
+  private Flowable<CameraUpdate> createLocationLockCameraUpdateFlowable(BooleanResult lockState) {
+    if (!lockState.isTrue()) {
       return Flowable.empty();
     }
     // The first update pans and zooms the camera to the appropriate zoom level; subsequent ones
@@ -103,7 +103,7 @@ public class MapContainerViewModel extends AbstractViewModel {
         .concatWith(locationUpdates.map(CameraUpdate::pan).skip(1));
   }
 
-  private Flowable<EnableState> createLocationLockStateFlowable() {
+  private Flowable<BooleanResult> createLocationLockStateFlowable() {
     return locationLockChangeRequests
         .throttleFirst(200, TimeUnit.MILLISECONDS)
         .switchMapSingle(
@@ -138,12 +138,12 @@ public class MapContainerViewModel extends AbstractViewModel {
     return cameraPosition;
   }
 
-  public LiveData<EnableState> getLocationLockState() {
+  public LiveData<BooleanResult> getLocationLockState() {
     return locationLockState;
   }
 
   private boolean isLocationLockEnabled() {
-    return locationLockState.getValue().isEnabled();
+    return locationLockState.getValue().isTrue();
   }
 
   public void onCameraMove(Point newCameraPosition) {

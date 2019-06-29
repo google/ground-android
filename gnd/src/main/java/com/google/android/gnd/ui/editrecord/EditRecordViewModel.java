@@ -231,7 +231,7 @@ public class EditRecordViewModel extends AbstractViewModel {
   }
 
   private void onRecordSnapshot(Persistable<Record> r) {
-    switch (r.operationState().get()) {
+    switch (r.state()) {
       case LOADING:
         loadingSpinnerVisibility.set(View.VISIBLE);
         break;

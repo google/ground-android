@@ -28,6 +28,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
+import androidx.lifecycle.LiveData;
 import butterknife.BindView;
 import butterknife.OnClick;
 import com.google.android.gnd.MainActivity;
@@ -112,8 +113,10 @@ public class EditRecordFragment extends AbstractFragment implements BackPressLis
   @Override
   public void onStart() {
     super.onStart();
-    Persistable<Record> record = Persistable.getValue(viewModel.getRecord());
-    if (record.isLoaded()) {
+    // TODO: Make reactive instead of reading getValue explicitly.
+    LiveData<Persistable<Record>> liveData = viewModel.getRecord();
+    Persistable<Record> record = liveData.getValue();
+    if (record != null && record.isLoaded()) {
       onRecordChange(record);
       return;
     }
@@ -122,12 +125,12 @@ public class EditRecordFragment extends AbstractFragment implements BackPressLis
   }
 
   private void onRecordChange(Persistable<Record> record) {
-    switch (record.operationState().get()) {
+    switch (record.state()) {
       case LOADING:
         saveRecordButton.setVisibility(View.GONE);
         break;
       case LOADED:
-        record.ifPresent(this::editRecord);
+        record.get().ifPresent(this::editRecord);
         break;
       case SAVING:
         savingProgressDialog.show();
@@ -139,7 +142,7 @@ public class EditRecordFragment extends AbstractFragment implements BackPressLis
         break;
       case NOT_FOUND:
       case ERROR:
-        record.operationState().error().ifPresent(t -> Log.e(TAG, "Failed to load/save record", t));
+        record.error().ifPresent(t -> Log.e(TAG, "Failed to load/save record", t));
         EphemeralPopups.showError(getContext());
         navigator.navigateUp();
         break;

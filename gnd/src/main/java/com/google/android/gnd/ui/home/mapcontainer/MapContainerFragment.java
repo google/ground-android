@@ -21,25 +21,22 @@ import static com.google.android.gnd.rx.RxAutoDispose.disposeOnDestroy;
 
 import android.content.res.ColorStateList;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.Toast;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import butterknife.BindView;
-import io.reactivex.Single;
-
 import com.google.android.gnd.MainViewModel;
 import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.MapContainerFragBinding;
 import com.google.android.gnd.repository.Persistable;
-import com.google.android.gnd.rx.EnableState;
+import com.google.android.gnd.rx.BooleanResult;
 import com.google.android.gnd.system.PermissionsManager.PermissionDeniedException;
 import com.google.android.gnd.system.SettingsManager.SettingsChangeRequestCanceled;
 import com.google.android.gnd.ui.common.AbstractFragment;
@@ -48,6 +45,8 @@ import com.google.android.gnd.ui.home.HomeScreenViewModel;
 import com.google.android.gnd.ui.map.MapProvider;
 import com.google.android.gnd.ui.map.MapProvider.MapAdapter;
 import com.google.android.gnd.vo.Project;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import io.reactivex.Single;
 import javax.inject.Inject;
 
 /** Main app view, displaying the map and related controls (center cross-hairs, add button, etc). */
@@ -183,9 +182,9 @@ public class MapContainerFragment extends AbstractFragment {
         ColorStateList.valueOf(getResources().getColor(R.color.colorGrey500)));
   }
 
-  private void onLocationLockStateChange(EnableState status, MapAdapter map) {
-    status.error().ifPresent(this::onLocationLockError);
-    if (status.isEnabled()) {
+  private void onLocationLockStateChange(BooleanResult result, MapAdapter map) {
+    result.error().ifPresent(this::onLocationLockError);
+    if (result.isTrue()) {
       Log.d(TAG, "Location lock enabled");
       map.enableCurrentLocationIndicator();
       locationLockBtn.setImageResource(R.drawable.ic_gps_blue);

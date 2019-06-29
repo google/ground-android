@@ -16,11 +16,9 @@
 
 package com.google.android.gnd.repository;
 
-import androidx.lifecycle.LiveData;
 import androidx.annotation.NonNull;
-import com.google.android.gnd.repository.Persistable.PersistenceState;
-import com.google.android.gnd.rx.AbstractResource;
-import com.google.android.gnd.rx.OperationState;
+import androidx.lifecycle.LiveData;
+import com.google.android.gnd.rx.Result;
 import java8.util.Optional;
 import javax.annotation.Nullable;
 
@@ -30,7 +28,9 @@ import javax.annotation.Nullable;
  *
  * @param <T> the type of data payload the resource contains.
  */
-public class Persistable<T> extends AbstractResource<PersistenceState, T> {
+public class Persistable<T> extends Result<T> {
+  private final PersistenceState state;
+
   public enum PersistenceState {
     NOT_LOADED,
     LOADING,
@@ -41,47 +41,46 @@ public class Persistable<T> extends AbstractResource<PersistenceState, T> {
     ERROR
   }
 
-  private Persistable(
-      OperationState<PersistenceState> operationState, @Nullable T data) {
-    super(operationState, data);
+  private Persistable(PersistenceState state, @Nullable T data, Throwable error) {
+    super(data, error);
+    this.state = state;
   }
 
   public static <T> Persistable<T> notLoaded() {
-    return new Persistable<>(OperationState.of(PersistenceState.NOT_LOADED), null);
+    return new Persistable<>(PersistenceState.NOT_LOADED, null, null);
   }
 
   public static <T> Persistable<T> loading() {
-    return new Persistable<>(OperationState.of(PersistenceState.LOADING), null);
+    return new Persistable<>(PersistenceState.LOADING, null, null);
   }
 
   public static <T> Persistable<T> loaded(T data) {
-    return new Persistable<>(OperationState.of(PersistenceState.LOADED), data);
+    return new Persistable<>(PersistenceState.LOADED, data, null);
   }
 
   public static <T> Persistable<T> saving(T data) {
-    return new Persistable<>(OperationState.of(PersistenceState.SAVING), data);
+    return new Persistable<>(PersistenceState.SAVING, data, null);
   }
 
   public static <T> Persistable<T> saved(T data) {
-    return new Persistable<>(OperationState.of(PersistenceState.SAVED), data);
+    return new Persistable<>(PersistenceState.SAVED, data, null);
   }
 
   public static <T> Persistable<T> error(Throwable t) {
-    return new Persistable<>(OperationState.error(PersistenceState.ERROR, t), null);
+    return new Persistable<>(PersistenceState.ERROR, null, t);
+  }
+
+  public PersistenceState state() {
+    return state;
   }
 
   public boolean isLoaded() {
-    return operationState().get() == PersistenceState.LOADED;
-  }
-
-  @NonNull
-  public static <T> Persistable<T> getValue(LiveData<Persistable<T>> liveData) {
-    return Optional.ofNullable(liveData.getValue()).orElse(notLoaded());
+    return state == PersistenceState.LOADED;
   }
 
   // TODO: Move this into new extended LiveData class (LiveResource?).
   @NonNull
   public static <T> Optional<T> getData(LiveData<Persistable<T>> liveData) {
-    return getValue(liveData).data();
+    return liveData.getValue() == null ? Optional.empty() : liveData.getValue().get();
   }
 }

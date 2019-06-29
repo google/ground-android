@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google LLC
+ * Copyright 2019 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,35 +20,38 @@ import java8.util.Optional;
 import javax.annotation.Nullable;
 
 /**
- * Represents a streamable operation state represented by an enum with an optional error state.
- * @param <S> the type used to represent the status of an operation. Usually a Boolean or Enum.
+ * Represents the result of an operation that either succeeds with a value, or fails with an
+ * exception.
+ *
+ * @param <T> the type of value held by the {@link Result}.
  */
-public class OperationState<S> {
-  private S state;
+public class Result<T> {
+  @Nullable private T value;
   @Nullable private Throwable error;
 
-  protected OperationState(S state, @Nullable Throwable error) {
-    this.state = state;
+  protected Result(@Nullable T value, @Nullable Throwable error) {
+    this.value = value;
     this.error = error;
   }
 
-  public S get() {
-    return state;
-  }
-
-  public boolean hasError() {
-    return error != null;
+  public Optional<T> get() {
+    return Optional.ofNullable(value);
   }
 
   public Optional<Throwable> error() {
     return Optional.ofNullable(error);
   }
 
-  public static <S> OperationState<S> of(S state) {
-    return new OperationState(state, null);
+  public static <T> Result<T> of(T value) {
+    return new Result(value, null);
   }
 
-  public static <S> OperationState<S> error(S state, Throwable t) {
-    return new OperationState(state, t);
+  public static <T> Result<T> error(Throwable t) {
+    return new Result(null, t);
+  }
+
+  @Override
+  public String toString() {
+    return error().map(t -> "Error: " + t).orElse("Value: " + value);
   }
 }

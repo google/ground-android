@@ -20,9 +20,6 @@ import static java8.util.stream.StreamSupport.stream;
 
 import android.app.Dialog;
 import android.os.Bundle;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.FragmentManager;
-import androidx.appcompat.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -30,6 +27,9 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.fragment.app.FragmentManager;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import com.google.android.gnd.R;
@@ -94,16 +94,14 @@ public class ProjectSelectorDialogFragment extends AbstractDialogFragment {
   }
 
   private void update(Persistable<List<Project>> projectSummaries) {
-    switch (projectSummaries.operationState().get()) {
+    switch (projectSummaries.state()) {
       case LOADED:
-        projectSummaries.ifPresent(this::showProjectList);
+        projectSummaries.get().ifPresent(this::showProjectList);
         break;
       case NOT_FOUND:
       case ERROR:
         Log.e(
-            TAG,
-            "Project list not available",
-            projectSummaries.operationState().error().orElse(new UnknownError()));
+            TAG, "Project list not available", projectSummaries.error().orElse(new UnknownError()));
         EphemeralPopups.showError(getContext(), R.string.project_list_load_error);
         dismiss();
         break;

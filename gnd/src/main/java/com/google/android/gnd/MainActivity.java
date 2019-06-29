@@ -22,11 +22,11 @@ import static com.google.android.gnd.util.Debug.logLifecycleEvent;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
-import androidx.core.view.ViewCompat;
-import androidx.appcompat.app.AppCompatActivity;
 import android.util.Log;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.ViewCompat;
+import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.NavDirections;
 import androidx.navigation.fragment.NavHostFragment;
@@ -109,8 +109,8 @@ public class MainActivity extends AppCompatActivity implements HasSupportFragmen
   }
 
   private void onSignInStateChange(SignInState signInState) {
-    Log.d(TAG, "Auth status change: " + signInState.operationState());
-    switch (signInState.operationState().get()) {
+    Log.d(TAG, "Auth status change: " + signInState.state());
+    switch (signInState.state()) {
       case SIGNED_OUT:
         // TODO: Check auth status whenever fragments resumes.
         viewModel.onSignedOut();
@@ -129,7 +129,7 @@ public class MainActivity extends AppCompatActivity implements HasSupportFragmen
   }
 
   private void onSignInError(SignInState signInState) {
-    Log.d(TAG, "Authentication error", signInState.operationState().error().orElse(null));
+    Log.d(TAG, "Authentication error", signInState.error().orElse(null));
     EphemeralPopups.showError(this, R.string.sign_in_unsuccessful);
     viewModel.onSignedOut();
   }
