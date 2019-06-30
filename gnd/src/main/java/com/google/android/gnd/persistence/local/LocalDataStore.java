@@ -58,10 +58,11 @@ public interface LocalDataStore {
   Flowable<ImmutableSet<Feature>> getFeaturesOnceAndStream(Project project);
 
   /**
-   * Returns a long-lived stream that emits the full set of records for a feature on subscribe, and
-   * continues to return the full set each time a record is added/changed/removed.
+   * Returns a long-lived stream that emits the full set of records for a particular feature and
+   * form on subscribe, and continues to return the full set each time a record is
+   * added/changed/removed.
    */
-  Flowable<ImmutableList<Record>> getRecordsOnceAndStream(Feature feature);
+  Flowable<ImmutableList<Record>> getRecordsOnceAndStream(Feature feature, String formId);
 
   /** Returns the feature with the specified UUID from the local data store, if found. */
   Maybe<Feature> getFeature(Project project, String featureId);

@@ -44,9 +44,9 @@ public interface RecordDao {
   Maybe<RecordEntity> findById(String recordId);
 
   /**
-   * Returns the list records associated with the specified featureId, ignoring deleted records
-   * (i.e., returns on records with state = State.DEFAULT (1)).
+   * Returns the list records associated with the specified feature and form, ignoring deleted
+   * records (i.e., returns only records with state = State.DEFAULT (1)).
    */
-  @Query("SELECT * FROM record WHERE feature_id = :featureId AND state = 1")
-  Flowable<List<RecordEntity>> findByFeatureIdOnceAndStream(String featureId);
+  @Query("SELECT * FROM record WHERE feature_id = :featureId AND form_id = :formId AND state = 1")
+  Flowable<List<RecordEntity>> findByFeatureIdOnceAndStream(String featureId, String formId);
 }

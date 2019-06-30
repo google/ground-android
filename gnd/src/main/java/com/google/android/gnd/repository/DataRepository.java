@@ -16,9 +16,6 @@
 
 package com.google.android.gnd.repository;
 
-import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList;
-import static java8.util.stream.StreamSupport.stream;
-
 import android.util.Log;
 import com.google.android.gnd.persistence.local.LocalDataStore;
 import com.google.android.gnd.persistence.remote.RemoteDataEvent;
@@ -151,14 +148,7 @@ public class DataRepository {
     return getFeature(projectId, featureId)
         .switchIfEmpty(Single.error(new DocumentNotFoundException()))
         .toFlowable()
-        .switchMap(feature -> localDataStore.getRecordsOnceAndStream(feature))
-        .map(summaries -> filterSummariesByFormId(summaries, formId));
-  }
-
-  private ImmutableList<Record> filterSummariesByFormId(List<Record> summaries, String formId) {
-    return stream(summaries)
-        .filter(record -> record.getForm().getId().equals(formId))
-        .collect(toImmutableList());
+        .switchMap(feature -> localDataStore.getRecordsOnceAndStream(feature, formId));
   }
 
   // TODO(#127): Decouple Project from Feature and remove projectId.
