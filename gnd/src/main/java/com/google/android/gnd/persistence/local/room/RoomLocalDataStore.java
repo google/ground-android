@@ -114,6 +114,7 @@ public class RoomLocalDataStore implements LocalDataStore {
         .zipWith(db.recordMutationDao().findByFeatureId(featureId), this::mergeMutations);
   }
 
+  @Transaction
   @Override
   public Completable removePendingMutations(ImmutableList<Mutation> mutations) {
     ImmutableList<Long> featureMutationIds =
@@ -131,15 +132,17 @@ public class RoomLocalDataStore implements LocalDataStore {
         .andThen(db.recordMutationDao().deleteAll(recordMutationIds));
   }
 
+  @Transaction
   @Override
   public Completable mergeFeature(Feature feature) {
     // TODO: Apply pending mutations (update feature currently not implemented).
     return db.featureDao().insertOrUpdate(FeatureEntity.fromFeature(feature));
   }
 
+  @Transaction
   @Override
   public Completable mergeRecord(Record record) {
-    // TODO: Apply pending mutations (update feature currently not implemented).
+    // TODO: Apply pending mutations once update feature is implemented.
     return db.recordDao().insertOrUpdate(RecordEntity.fromRecord(record));
   }
 
