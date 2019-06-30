@@ -33,6 +33,7 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldPath;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.WriteBatch;
 import durdinapps.rxfirebase2.RxFirestore;
@@ -151,10 +152,19 @@ public class GndFirestore extends AbstractFluentFirestore {
       return new RecordDocumentReference(ref.document(id));
     }
 
-    public Single<List<Record>> getByFeature(Feature feature) {
-      return toSingleList(
-          RxFirestore.getCollection(ref().whereEqualTo(FieldPath.of("featureId"), feature.getId())),
-          doc -> RecordDoc.toObject(feature, doc.getId(), doc));
+    public Flowable<RemoteDataEvent<Record>> getRecordsByFeatureOnceAndStreamChanges(
+        Feature feature) {
+      return RxFirestore.observeQueryRef(byFeatureId(feature.getId()))
+          .flatMapIterable(
+              querySnapshot ->
+                  toEvents(
+                      querySnapshot,
+                      docSnapshot ->
+                          RecordDoc.toObject(feature, docSnapshot.getId(), docSnapshot)));
+    }
+
+    private Query byFeatureId(String featureId) {
+      return ref().whereEqualTo(FieldPath.of(RecordDoc.FEATURE_ID), featureId);
     }
   }
 

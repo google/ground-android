@@ -222,4 +222,17 @@ public class DataRepository {
     cache.clearActiveProject();
     activeProjectSubject.onNext(Persistable.notLoaded());
   }
+
+  public Flowable<Object> syncRecords(String projectId, String featureId, String formId) {
+    return getFeature(projectId, featureId)
+        .switchIfEmpty(Single.error(new DocumentNotFoundException()))
+        .toFlowable()
+        .switchMap(feature -> remoteDataStore.loadRecordSummariesOnceAndStreamChanges(feature))
+        .switchMap(this::onRemoteRecordChange);
+  }
+
+  private Flowable<?> onRemoteRecordChange(RemoteDataEvent<Record> event) {
+    // TODO: Update record in local db.
+    return Flowable.never();
+  }
 }

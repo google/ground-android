@@ -44,10 +44,10 @@ import java8.util.Optional;
 @IgnoreExtraProperties
 public class RecordDoc {
   private static final String TAG = RecordDoc.class.getSimpleName();
-  private static final String FEATURE_ID = "featureId";
-  private static final String FEATURE_TYPE_ID = "featureTypeId";
-  private static final String FORM_ID = "formId";
-  private static final String RESPONSES = "responses";
+  public static final String FEATURE_ID = "featureId";
+  public static final String FEATURE_TYPE_ID = "featureTypeId";
+  public static final String FORM_ID = "formId";
+  public static final String RESPONSES = "responses";
 
   @Nullable public String featureId;
 

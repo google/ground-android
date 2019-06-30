@@ -48,6 +48,7 @@ public class RecordListViewModel extends AbstractViewModel {
     recordSummaries =
         LiveDataReactiveStreams.fromPublisher(
             recordSummaryRequests.switchMap(this::getRecordSummariesOnceAndStream));
+    disposeOnClear(recordSummaryRequests.switchMap(this::syncRecordsStream).subscribe());
   }
 
   public LiveData<ImmutableList<Record>> getRecordSummaries() {
@@ -68,10 +69,23 @@ public class RecordListViewModel extends AbstractViewModel {
         .subscribeOn(Schedulers.io());
   }
 
+  private Flowable<?> syncRecordsStream(RecordSummaryRequest req) {
+    return dataRepository
+        .syncRecords(req.project.getId(), req.featureId, req.formId)
+        .onErrorResumeNext(this::onSyncRecordsError)
+        .subscribeOn(Schedulers.io());
+  }
+
   private Flowable<ImmutableList<Record>> onGetRecordSummariesError(Throwable t) {
     // TODO: Show an appropriate error message to the user.
     Log.d(TAG, "Failed to fetch record summaries.", t);
     return Flowable.just(ImmutableList.of());
+  }
+
+  private Flowable<?> onSyncRecordsError(Throwable t) {
+    // TODO: Show an appropriate error message to the user.
+    Log.d(TAG, "Error syncing records from remote", t);
+    return Flowable.never();
   }
 
   private void loadRecords(Project project, String featureTypeId, String formId, String featureId) {

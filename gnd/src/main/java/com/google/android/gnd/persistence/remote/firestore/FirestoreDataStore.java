@@ -90,8 +90,12 @@ public class FirestoreDataStore implements RemoteDataStore, OfflineUuidGenerator
   }
 
   @Override
-  public Single<List<Record>> loadRecordSummaries(Feature feature) {
-    return db.projects().project(feature.getProject().getId()).records().getByFeature(feature);
+  public Flowable<RemoteDataEvent<Record>> loadRecordSummariesOnceAndStreamChanges(
+      Feature feature) {
+    return db.projects()
+        .project(feature.getProject().getId())
+        .records()
+        .getRecordsByFeatureOnceAndStreamChanges(feature);
   }
 
   @Override
