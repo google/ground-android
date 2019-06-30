@@ -27,6 +27,7 @@ import com.google.android.gnd.persistence.shared.RecordMutation;
 import com.google.android.gnd.persistence.sync.DataSyncWorkManager;
 import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator;
 import com.google.android.gnd.system.AuthenticationManager.User;
+import com.google.android.gnd.system.NetworkManager;
 import com.google.android.gnd.vo.Feature;
 import com.google.android.gnd.vo.Project;
 import com.google.android.gnd.vo.Record;
@@ -42,6 +43,7 @@ import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subjects.BehaviorSubject;
 import io.reactivex.subjects.Subject;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java8.util.Optional;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -49,6 +51,7 @@ import javax.inject.Singleton;
 @Singleton
 public class DataRepository {
   private static final String TAG = DataRepository.class.getSimpleName();
+  private static final long GET_REMOTE_RECORDS_TIMEOUT_SECS = 5;
 
   // TODO: Implement local data persistence.
   // For cached data, InMemoryCache is the source of truth that the repository subscribes to.
@@ -60,6 +63,7 @@ public class DataRepository {
   private final DataSyncWorkManager dataSyncWorkManager;
   private final Subject<Persistable<Project>> activeProjectSubject;
   private final OfflineUuidGenerator uuidGenerator;
+  private final NetworkManager networkManager;
 
   @Inject
   public DataRepository(
@@ -67,13 +71,15 @@ public class DataRepository {
       RemoteDataStore remoteDataStore,
       DataSyncWorkManager dataSyncWorkManager,
       InMemoryCache cache,
-      OfflineUuidGenerator uuidGenerator) {
+      OfflineUuidGenerator uuidGenerator,
+      NetworkManager networkManager) {
     this.localDataStore = localDataStore;
     this.remoteDataStore = remoteDataStore;
     this.dataSyncWorkManager = dataSyncWorkManager;
     this.cache = cache;
     this.activeProjectSubject = BehaviorSubject.create();
     this.uuidGenerator = uuidGenerator;
+    this.networkManager = networkManager;
     // TODO: Move to Application or background service.
     activeProjectSubject
         .map(Persistable::get)
@@ -165,11 +171,36 @@ public class DataRepository {
                   localDataStore
                       .getRecordsOnceAndStream(feature, formId)
                       .subscribeOn(Schedulers.io());
-              // TODO: If has network, first wait for first remote emission and update local store,
-              // then proceed as below.
-              return localChanges.mergeWith(
-                  remoteChanges.flatMapCompletable(this::mergeRemoteRecordChange));
+              return maybeSyncFirst(remoteChanges)
+                  .toFlowable()
+                  .map(o -> (ImmutableList<Record>) o)
+                  .concatWith(
+                      // This will rewrite the first update in remoteChanges to the local db
+                      // even if already successful. We allow this in case the first update
+                      // timed out or failed or the network wasn't available.
+                      localChanges.mergeWith(
+                          remoteChanges.flatMapCompletable(this::mergeRemoteRecordChange)));
             });
+  }
+
+  /**
+   * If network if available, wait for first remote emission and update of local store then
+   * complete, otherwise complete immediately. Also completes with success if record sync fails or
+   * times out.
+   */
+  private Completable maybeSyncFirst(Flowable<RemoteDataEvent<Record>> remoteChanges) {
+    if (networkManager.isNetworkAvailable()) {
+      Log.d(TAG, "Has network; syncing records before showing");
+      return remoteChanges
+          .firstElement()
+          .flatMapCompletable(this::mergeRemoteRecordChange)
+          .timeout(GET_REMOTE_RECORDS_TIMEOUT_SECS, TimeUnit.SECONDS)
+          .doOnError(t -> Log.d(TAG, "Record sync timed out"))
+          .onErrorComplete();
+    } else {
+      Log.d(TAG, "No network; skipping remote sync");
+      return Completable.complete();
+    }
   }
 
   private Completable mergeRemoteRecordChange(RemoteDataEvent<Record> event) {

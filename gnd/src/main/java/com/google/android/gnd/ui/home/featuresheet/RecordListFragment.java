@@ -36,7 +36,6 @@ public class RecordListFragment extends AbstractFragment {
 
   @Inject Navigator navigator;
   private RecordListAdapter recordListAdapter;
-
   private RecordListViewModel viewModel;
   private FeatureSheetViewModel featureSheetViewModel;
   private HomeScreenViewModel homeScreenViewModel;

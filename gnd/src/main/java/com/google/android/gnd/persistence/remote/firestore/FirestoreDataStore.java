@@ -53,7 +53,7 @@ import javax.inject.Singleton;
 public class FirestoreDataStore implements RemoteDataStore, OfflineUuidGenerator {
 
   private static final FirebaseFirestoreSettings FIRESTORE_SETTINGS =
-      new FirebaseFirestoreSettings.Builder().setPersistenceEnabled(true).build();
+      new FirebaseFirestoreSettings.Builder().setPersistenceEnabled(false).build();
   private static final SetOptions MERGE = SetOptions.merge();
   private static final String TAG = FirestoreDataStore.class.getSimpleName();
   private static final String ID_COLLECTION = "/ids";
