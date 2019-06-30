@@ -79,6 +79,9 @@ public interface LocalDataStore {
   /** Removes the provided feature and record mutations from the local mutation queue. */
   Completable removePendingMutations(ImmutableList<Mutation> mutations);
 
-  /** Insert or replace feature in the local database. */
+  /** Insert or replace feature in the local data store. */
   Completable mergeFeature(Feature feature);
+
+  /** Insert or replace record in the local data store. */
+  Completable mergeRecord(Record record);
 }

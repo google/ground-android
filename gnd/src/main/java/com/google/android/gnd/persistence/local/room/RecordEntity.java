@@ -69,6 +69,16 @@ public abstract class RecordEntity {
   @NonNull
   public abstract ResponseMap getResponses();
 
+  public static RecordEntity fromRecord(Record record) {
+    return RecordEntity.builder()
+        .setId(record.getId())
+        .setFormId(record.getForm().getId())
+        .setFeatureId(record.getFeature().getId())
+        .setState(EntityState.DEFAULT)
+        .setResponses(record.getResponses())
+        .build();
+  }
+
   public static RecordEntity fromMutation(RecordMutation mutation) {
     return RecordEntity.builder()
         .setId(mutation.getRecordId())

@@ -140,6 +140,14 @@ public class DataRepository {
     return localDataStore.getFeaturesOnceAndStream(project);
   }
 
+  /**
+   * Retrieves the record summaries for the specified project, feature, and form, streaming
+   * successive changes ad infinitum. If the network is available on subscribe, will attempt to sync
+   * remote record changes to the local data store before returning the first set. If the network is
+   * not available, relevant records will be returned directly from the local db. After the first
+   * set is emitted, will continue to monitor the remote db for changes, writing updates to records
+   * to the local db and emitting a new set on each change.
+   */
   public Flowable<ImmutableList<Record>> getRecordSummariesOnceAndStream(
       String projectId, String featureId, String formId) {
     // TODO: Only fetch first n fields.
@@ -147,10 +155,47 @@ public class DataRepository {
     // TODO(#127): Decouple feature from record so that we don't need to fetch record here.
     return getFeature(projectId, featureId)
         .switchIfEmpty(Single.error(new DocumentNotFoundException()))
-        .toFlowable()
-        .switchMap(feature -> localDataStore.getRecordsOnceAndStream(feature, formId));
+        .flatMapPublisher(
+            feature -> {
+              Flowable<RemoteDataEvent<Record>> remoteChanges =
+                  remoteDataStore
+                      .loadRecordSummariesOnceAndStreamChanges(feature)
+                      .subscribeOn(Schedulers.io());
+              Flowable<ImmutableList<Record>> localChanges =
+                  localDataStore
+                      .getRecordsOnceAndStream(feature, formId)
+                      .subscribeOn(Schedulers.io());
+              // TODO: If has network, first wait for first remote emission and update local store,
+              // then proceed as below.
+              return localChanges.mergeWith(
+                  remoteChanges.flatMapCompletable(this::mergeRemoteRecordChange));
+            });
   }
 
+  private Completable mergeRemoteRecordChange(RemoteDataEvent<Record> event) {
+    switch (event.getEventType()) {
+      case ENTITY_LOADED:
+      case ENTITY_MODIFIED:
+        return event
+            .get()
+            .map(
+                record ->
+                    localDataStore
+                        .mergeRecord(record)
+                        .subscribeOn(Schedulers.io())
+                        .doOnError(e -> Log.e(TAG, "ERROR: ", e)))
+            .orElse(Completable.never());
+      case ENTITY_REMOVED:
+        // TODO: Delete record from local db.
+        break;
+      case ERROR:
+        event.error().ifPresent(t -> Log.e(TAG, "Error in remote record update", t));
+        break;
+      default:
+        Log.e(TAG, "Unknown event type: " + event.getEventType());
+    }
+    return Completable.never();
+  }
   // TODO(#127): Decouple Project from Feature and remove projectId.
   // TODO: Replace with Single and treat missing id as error.
   private Maybe<Feature> getFeature(String projectId, String featureId) {
@@ -221,18 +266,5 @@ public class DataRepository {
   public void clearActiveProject() {
     cache.clearActiveProject();
     activeProjectSubject.onNext(Persistable.notLoaded());
-  }
-
-  public Flowable<Object> syncRecords(String projectId, String featureId, String formId) {
-    return getFeature(projectId, featureId)
-        .switchIfEmpty(Single.error(new DocumentNotFoundException()))
-        .toFlowable()
-        .switchMap(feature -> remoteDataStore.loadRecordSummariesOnceAndStreamChanges(feature))
-        .switchMap(this::onRemoteRecordChange);
-  }
-
-  private Flowable<?> onRemoteRecordChange(RemoteDataEvent<Record> event) {
-    // TODO: Update record in local db.
-    return Flowable.never();
   }
 }
