@@ -97,9 +97,9 @@ public class RoomLocalDataStore implements LocalDataStore {
   }
 
   @Override
-  public Single<ImmutableList<Record>> getRecords(Feature feature) {
+  public Flowable<ImmutableList<Record>> getRecordsOnceAndStream(Feature feature) {
     return db.recordDao()
-        .findByFeatureId(feature.getId())
+        .findByFeatureIdOnceAndStream(feature.getId())
         .map(
             list ->
                 stream(list)

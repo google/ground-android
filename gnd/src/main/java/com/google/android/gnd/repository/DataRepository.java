@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.repository;
 
+import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList;
 import static java8.util.stream.StreamSupport.stream;
 
 import android.util.Log;
@@ -32,6 +33,7 @@ import com.google.android.gnd.system.AuthenticationManager.User;
 import com.google.android.gnd.vo.Feature;
 import com.google.android.gnd.vo.Project;
 import com.google.android.gnd.vo.Record;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Completable;
@@ -44,7 +46,6 @@ import io.reactivex.subjects.BehaviorSubject;
 import io.reactivex.subjects.Subject;
 import java.util.List;
 import java8.util.Optional;
-import java8.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -142,21 +143,22 @@ public class DataRepository {
     return localDataStore.getFeaturesOnceAndStream(project);
   }
 
-  public Single<List<Record>> getRecordSummaries(
+  public Flowable<ImmutableList<Record>> getRecordSummariesOnceAndStream(
       String projectId, String featureId, String formId) {
     // TODO: Only fetch first n fields.
     // TODO: Also load from db.
     // TODO(#127): Decouple feature from record so that we don't need to fetch record here.
     return getFeature(projectId, featureId)
         .switchIfEmpty(Single.error(new DocumentNotFoundException()))
-        .flatMap(feature -> localDataStore.getRecords(feature))
+        .toFlowable()
+        .switchMap(feature -> localDataStore.getRecordsOnceAndStream(feature))
         .map(summaries -> filterSummariesByFormId(summaries, formId));
   }
 
-  private List<Record> filterSummariesByFormId(List<Record> summaries, String formId) {
+  private ImmutableList<Record> filterSummariesByFormId(List<Record> summaries, String formId) {
     return stream(summaries)
         .filter(record -> record.getForm().getId().equals(formId))
-        .collect(Collectors.toList());
+        .collect(toImmutableList());
   }
 
   // TODO(#127): Decouple Project from Feature and remove projectId.

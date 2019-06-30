@@ -34,6 +34,9 @@ import io.reactivex.Single;
  * mutations queued for sync with remote. Local changes are saved here before being written to the
  * remote data store, and both local and remote updates are always persisted here before being made
  * visible to the user.
+ *
+ * <p>Note that long-lived streams return the full set of entities on each emission rather than
+ * deltas to allow changes to not rely on prior UI state (i.e., emissions are idempotent).
  */
 public interface LocalDataStore {
   /**
@@ -50,20 +53,21 @@ public interface LocalDataStore {
 
   /**
    * Returns a long-lived stream that emits the full set of features for a project on subscribe, and
-   * continues to return the full set each time a feature is added/changed/removed. The full set is
-   * returned rather than deltas for simplicity and to implement a fully reactive UI in which each
-   * update is idempotent.
+   * continues to return the full set each time a feature is added/changed/removed.
    */
   Flowable<ImmutableSet<Feature>> getFeaturesOnceAndStream(Project project);
+
+  /**
+   * Returns a long-lived stream that emits the full set of records for a feature on subscribe, and
+   * continues to return the full set each time a record is added/changed/removed.
+   */
+  Flowable<ImmutableList<Record>> getRecordsOnceAndStream(Feature feature);
 
   /** Returns the feature with the specified UUID from the local data store, if found. */
   Maybe<Feature> getFeature(Project project, String featureId);
 
   /** Returns the record with the specified UUID from the local data store, if found. */
   Maybe<Record> getRecord(Feature feature, String recordId);
-
-  /** Returns the records associated with the specified feature, or an empty list if none found. */
-  Single<ImmutableList<Record>> getRecords(Feature feature);
 
   /**
    * Returns all feature and record mutations in the local mutation queue relating to feature with

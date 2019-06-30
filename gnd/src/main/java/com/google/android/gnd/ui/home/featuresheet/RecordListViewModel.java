@@ -25,7 +25,9 @@ import com.google.android.gnd.vo.Feature;
 import com.google.android.gnd.vo.Form;
 import com.google.android.gnd.vo.Project;
 import com.google.android.gnd.vo.Record;
-import io.reactivex.Single;
+import com.google.common.collect.ImmutableList;
+import io.reactivex.BackpressureStrategy;
+import io.reactivex.Flowable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subjects.PublishSubject;
@@ -51,10 +53,11 @@ public class RecordListViewModel extends AbstractViewModel {
 
     disposeOnClear(
         recordSummaryRequests
-            .switchMapSingle(
-                recordSummaryRequest ->
-                    fetchRecordSummaries(recordSummaryRequest)
-                        .onErrorResumeNext(this::onFetchRecordSummariesError)
+            .toFlowable(BackpressureStrategy.LATEST)
+            .switchMap(
+                req ->
+                    getRecordSummariesOnceAndStream(req)
+                        .onErrorResumeNext(this::onGetRecordSummariesError)
                         .subscribeOn(Schedulers.io()))
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(recordSummaries::setValue));
@@ -74,27 +77,22 @@ public class RecordListViewModel extends AbstractViewModel {
     recordSummaries.setValue(Collections.emptyList());
   }
 
-  /**
-   * Loads a list of records associated with a given feature and fetches summaries for them.
-   *
-   * @param feature
-   * @param form
-   */
+  /** Loads a list of records associated with a given feature and fetches summaries for them. */
   public void loadRecordSummaries(Feature feature, Form form) {
     loadRecords(
         feature.getProject(), feature.getFeatureType().getId(), form.getId(), feature.getId());
   }
 
-  private Single<List<Record>> fetchRecordSummaries(RecordSummaryRequest request) {
-    // TODO: Only fetch records with current formId.
-    return dataRepository.getRecordSummaries(
-        request.project.getId(), request.featureId, request.formId);
+  private Flowable<ImmutableList<Record>> getRecordSummariesOnceAndStream(
+      RecordSummaryRequest req) {
+    return dataRepository.getRecordSummariesOnceAndStream(
+        req.project.getId(), req.featureId, req.formId);
   }
 
-  private Single<List<Record>> onFetchRecordSummariesError(Throwable t) {
+  private Flowable<ImmutableList<Record>> onGetRecordSummariesError(Throwable t) {
     // TODO: Show an appropriate error message to the user.
     Log.d(TAG, "Failed to fetch record summaries.", t);
-    return Single.just(Collections.emptyList());
+    return Flowable.just(ImmutableList.of());
   }
 
   private void loadRecords(Project project, String featureTypeId, String formId, String featureId) {
