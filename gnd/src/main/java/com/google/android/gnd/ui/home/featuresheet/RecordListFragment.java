@@ -17,12 +17,12 @@
 package com.google.android.gnd.ui.home.featuresheet;
 
 import android.os.Bundle;
-import androidx.annotation.Nullable;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import androidx.annotation.Nullable;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.home.HomeScreenViewModel;
@@ -80,7 +80,6 @@ public class RecordListFragment extends AbstractFragment {
   }
 
   private void onFormChange(Optional<Form> form) {
-    viewModel.clearRecords();
     // TODO: Use fragment args, load form and feature if not present.
     Optional<Feature> feature = featureSheetViewModel.getSelectedFeature().getValue();
     if (!form.isPresent() || !feature.isPresent()) {

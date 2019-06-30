@@ -18,7 +18,7 @@ package com.google.android.gnd.ui.home.featuresheet;
 
 import android.util.Log;
 import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.LiveDataReactiveStreams;
 import com.google.android.gnd.repository.DataRepository;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.vo.Feature;
@@ -26,13 +26,9 @@ import com.google.android.gnd.vo.Form;
 import com.google.android.gnd.vo.Project;
 import com.google.android.gnd.vo.Record;
 import com.google.common.collect.ImmutableList;
-import io.reactivex.BackpressureStrategy;
 import io.reactivex.Flowable;
-import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.processors.PublishProcessor;
 import io.reactivex.schedulers.Schedulers;
-import io.reactivex.subjects.PublishSubject;
-import java.util.Collections;
-import java.util.List;
 import java8.util.Optional;
 import javax.inject.Inject;
 
@@ -42,39 +38,20 @@ public class RecordListViewModel extends AbstractViewModel {
 
   private static final String TAG = RecordListViewModel.class.getSimpleName();
   private final DataRepository dataRepository;
-  private MutableLiveData<List<Record>> recordSummaries;
-  private PublishSubject<RecordSummaryRequest> recordSummaryRequests;
+  private PublishProcessor<RecordSummaryRequest> recordSummaryRequests;
+  private LiveData<ImmutableList<Record>> recordSummaries;
 
   @Inject
   public RecordListViewModel(DataRepository dataRepository) {
     this.dataRepository = dataRepository;
-    recordSummaries = new MutableLiveData<>();
-    recordSummaryRequests = PublishSubject.create();
-
-    disposeOnClear(
-        recordSummaryRequests
-            .toFlowable(BackpressureStrategy.LATEST)
-            .switchMap(
-                req ->
-                    getRecordSummariesOnceAndStream(req)
-                        .onErrorResumeNext(this::onGetRecordSummariesError)
-                        .subscribeOn(Schedulers.io()))
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(recordSummaries::setValue));
+    recordSummaryRequests = PublishProcessor.create();
+    recordSummaries =
+        LiveDataReactiveStreams.fromPublisher(
+            recordSummaryRequests.switchMap(this::getRecordSummariesOnceAndStream));
   }
 
-  /**
-   * Returns the list of current record summaries.
-   *
-   * @return A list of records.
-   */
-  public LiveData<List<Record>> getRecordSummaries() {
+  public LiveData<ImmutableList<Record>> getRecordSummaries() {
     return recordSummaries;
-  }
-
-  /** Clears the current list of record summaries. */
-  public void clearRecords() {
-    recordSummaries.setValue(Collections.emptyList());
   }
 
   /** Loads a list of records associated with a given feature and fetches summaries for them. */
@@ -85,8 +62,10 @@ public class RecordListViewModel extends AbstractViewModel {
 
   private Flowable<ImmutableList<Record>> getRecordSummariesOnceAndStream(
       RecordSummaryRequest req) {
-    return dataRepository.getRecordSummariesOnceAndStream(
-        req.project.getId(), req.featureId, req.formId);
+    return dataRepository
+        .getRecordSummariesOnceAndStream(req.project.getId(), req.featureId, req.formId)
+        .onErrorResumeNext(this::onGetRecordSummariesError)
+        .subscribeOn(Schedulers.io());
   }
 
   private Flowable<ImmutableList<Record>> onGetRecordSummariesError(Throwable t) {
