@@ -131,6 +131,12 @@ public class RoomLocalDataStore implements LocalDataStore {
         .andThen(db.recordMutationDao().deleteAll(recordMutationIds));
   }
 
+  @Override
+  public Completable mergeFeature(Feature feature) {
+    // TODO: Apply pending mutations (update feature currently not implemented).
+    return db.featureDao().insertOrUpdate(FeatureEntity.fromFeature(feature));
+  }
+
   private ImmutableList<Mutation> mergeMutations(
       List<FeatureMutationEntity> featureMutationEntities,
       List<RecordMutationEntity> recordMutationEntities) {
@@ -143,7 +149,7 @@ public class RoomLocalDataStore implements LocalDataStore {
   private Completable apply(FeatureMutation mutation) throws LocalDataStoreException {
     switch (mutation.getType()) {
       case CREATE:
-        return db.featureDao().insert(FeatureEntity.fromMutation(mutation));
+        return db.featureDao().insertOrUpdate(FeatureEntity.fromMutation(mutation));
       default:
         throw LocalDataStoreException.unknownMutationType(mutation.getType());
     }

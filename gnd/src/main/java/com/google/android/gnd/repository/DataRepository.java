@@ -20,6 +20,7 @@ import static java8.util.stream.StreamSupport.stream;
 
 import android.util.Log;
 import com.google.android.gnd.persistence.local.LocalDataStore;
+import com.google.android.gnd.persistence.remote.RemoteDataEvent;
 import com.google.android.gnd.persistence.remote.RemoteDataStore;
 import com.google.android.gnd.persistence.remote.firestore.DocumentNotFoundException;
 import com.google.android.gnd.persistence.shared.FeatureMutation;
@@ -38,6 +39,7 @@ import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Observable;
 import io.reactivex.Single;
+import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subjects.BehaviorSubject;
 import io.reactivex.subjects.Subject;
 import java.util.List;
@@ -74,12 +76,40 @@ public class DataRepository {
     this.cache = cache;
     this.activeProjectSubject = BehaviorSubject.create();
     this.uuidGenerator = uuidGenerator;
+    // TODO: Move to Application or background service.
+    activeProjectSubject
+        .map(Persistable::get)
+        .filter(Optional::isPresent)
+        .map(Optional::get)
+        .toFlowable(BackpressureStrategy.BUFFER)
+        .switchMap(
+            p -> remoteDataStore.loadFeaturesOnceAndStreamChanges(p).subscribeOn(Schedulers.io()))
+        .switchMap(event -> updateLocalFeature(event).subscribeOn(Schedulers.io()).toFlowable())
+        .subscribe();
+  }
+
+  private Completable updateLocalFeature(RemoteDataEvent<Feature> event) {
+    switch (event.getEventType()) {
+      case ENTITY_LOADED:
+      case ENTITY_MODIFIED:
+        return event.get().map(localDataStore::mergeFeature).orElse(Completable.complete());
+      case ENTITY_REMOVED:
+        // TODO: Delete features:
+        // localDataStore.removeFeature(event.getEntityId());
+        return Completable.complete();
+      case ERROR:
+        return Completable.error(event.error().get());
+      default:
+        return Completable.error(
+            new UnsupportedOperationException("Event type: " + event.getEventType()));
+    }
   }
 
   public Flowable<Persistable<Project>> getActiveProject() {
     // TODO: On subscribe and project in cache not loaded, read last active project from local db.
     return activeProjectSubject
-        .startWith(cache.getActiveProject().map(Persistable::loaded).orElse(Persistable.notLoaded()))
+        .startWith(
+            cache.getActiveProject().map(Persistable::loaded).orElse(Persistable.notLoaded()))
         .toFlowable(BackpressureStrategy.LATEST);
   }
 
