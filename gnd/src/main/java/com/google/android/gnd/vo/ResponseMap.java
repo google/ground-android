@@ -93,4 +93,9 @@ public class ResponseMap {
       return new ResponseMap(map);
     }
   }
+
+  @Override
+  public String toString() {
+    return responses.toString();
+  }
 }
