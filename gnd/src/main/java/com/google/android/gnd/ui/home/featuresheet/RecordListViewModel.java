@@ -17,6 +17,8 @@
 package com.google.android.gnd.ui.home.featuresheet;
 
 import android.util.Log;
+import android.view.View;
+import androidx.databinding.ObservableInt;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
 import com.google.android.gnd.repository.DataRepository;
@@ -32,8 +34,6 @@ import io.reactivex.schedulers.Schedulers;
 import java8.util.Optional;
 import javax.inject.Inject;
 
-// TODO: Roll up into parent viewmodel. Simplify VMs overall.
-// TODO(#71): Simplify VM project, form, and feature access.
 public class RecordListViewModel extends AbstractViewModel {
 
   private static final String TAG = RecordListViewModel.class.getSimpleName();
@@ -41,13 +41,18 @@ public class RecordListViewModel extends AbstractViewModel {
   private PublishProcessor<RecordSummaryRequest> recordSummaryRequests;
   private LiveData<ImmutableList<Record>> recordSummaries;
 
+  public final ObservableInt loadingSpinnerVisibility = new ObservableInt();
+
   @Inject
   public RecordListViewModel(DataRepository dataRepository) {
     this.dataRepository = dataRepository;
     recordSummaryRequests = PublishProcessor.create();
     recordSummaries =
         LiveDataReactiveStreams.fromPublisher(
-            recordSummaryRequests.switchMap(this::getRecordSummariesOnceAndStream));
+            recordSummaryRequests
+                .doOnNext(__ -> loadingSpinnerVisibility.set(View.VISIBLE))
+                .switchMap(this::getRecordSummariesOnceAndStream)
+                .doOnNext(__ -> loadingSpinnerVisibility.set(View.GONE)));
   }
 
   public LiveData<ImmutableList<Record>> getRecordSummaries() {

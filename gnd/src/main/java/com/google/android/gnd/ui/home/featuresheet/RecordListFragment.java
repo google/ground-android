@@ -20,9 +20,13 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import butterknife.BindView;
+import com.google.android.gnd.R;
+import com.google.android.gnd.databinding.RecordListFragBinding;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.home.HomeScreenViewModel;
@@ -39,6 +43,9 @@ public class RecordListFragment extends AbstractFragment {
   private RecordListViewModel viewModel;
   private FeatureSheetViewModel featureSheetViewModel;
   private HomeScreenViewModel homeScreenViewModel;
+
+  @BindView(R.id.record_list_container)
+  RecyclerView recyclerView;
 
   static RecordListFragment newInstance() {
     return new RecordListFragment();
@@ -60,10 +67,17 @@ public class RecordListFragment extends AbstractFragment {
   public View onCreateView(
       LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
     super.onCreateView(inflater, container, savedInstanceState);
-    RecyclerView recyclerView = new RecyclerView(getContext());
+    RecordListFragBinding binding = RecordListFragBinding.inflate(inflater, container, false);
+    binding.setViewModel(viewModel);
+    binding.setLifecycleOwner(this);
+    return binding.getRoot();
+  }
+
+  @Override
+  public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+    super.onViewCreated(view, savedInstanceState);
     recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
     recyclerView.setAdapter(recordListAdapter);
-    return recyclerView;
   }
 
   @Override
@@ -79,6 +93,7 @@ public class RecordListFragment extends AbstractFragment {
   }
 
   private void onFormChange(Optional<Form> form) {
+    recordListAdapter.clear();
     // TODO: Use fragment args, load form and feature if not present.
     Optional<Feature> feature = featureSheetViewModel.getSelectedFeature().getValue();
     if (!form.isPresent() || !feature.isPresent()) {
