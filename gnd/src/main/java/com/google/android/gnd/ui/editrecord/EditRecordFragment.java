@@ -130,7 +130,7 @@ public class EditRecordFragment extends AbstractFragment implements BackPressLis
         saveRecordButton.setVisibility(View.GONE);
         break;
       case LOADED:
-        record.get().ifPresent(this::editRecord);
+        record.value().ifPresent(this::editRecord);
         break;
       case SAVING:
         savingProgressDialog.show();

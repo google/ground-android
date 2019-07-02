@@ -34,7 +34,7 @@ public class Result<T> {
     this.error = error;
   }
 
-  public Optional<T> get() {
+  public Optional<T> value() {
     return Optional.ofNullable(value);
   }
 

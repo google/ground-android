@@ -85,18 +85,18 @@ public class RecordDetailsViewModel extends AbstractViewModel {
   }
 
   private static Integer getProgressBarVisibility(Persistable<Record> record) {
-    return record.get().isPresent() ? View.VISIBLE : View.GONE;
+    return record.value().isPresent() ? View.VISIBLE : View.GONE;
   }
 
   private static String getToolbarTitle(Persistable<Record> record) {
-    return record.get().map(Record::getFeature).map(Feature::getTitle).orElse("");
+    return record.value().map(Record::getFeature).map(Feature::getTitle).orElse("");
   }
 
   private static String getToolbarSubtitle(Persistable<Record> record) {
-    return record.get().map(Record::getFeature).map(Feature::getSubtitle).orElse("");
+    return record.value().map(Record::getFeature).map(Feature::getSubtitle).orElse("");
   }
 
   private static String getFormNameView(Persistable<Record> record) {
-    return record.get().map(Record::getForm).map(Form::getTitle).orElse("");
+    return record.value().map(Record::getForm).map(Form::getTitle).orElse("");
   }
 }

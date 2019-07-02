@@ -81,6 +81,6 @@ public class Persistable<T> extends Result<T> {
   // TODO: Move this into new extended LiveData class (LiveResource?).
   @NonNull
   public static <T> Optional<T> getData(LiveData<Persistable<T>> liveData) {
-    return liveData.getValue() == null ? Optional.empty() : liveData.getValue().get();
+    return liveData.getValue() == null ? Optional.empty() : liveData.getValue().value();
   }
 }

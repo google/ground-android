@@ -178,7 +178,7 @@ public class AuthenticationManager {
     }
 
     public User getUser() {
-      return get().orElse(User.ANONYMOUS);
+      return value().orElse(User.ANONYMOUS);
     }
   }
 

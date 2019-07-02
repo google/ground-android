@@ -82,7 +82,7 @@ public class DataRepository {
     this.networkManager = networkManager;
     // TODO: Move to Application or background service.
     activeProjectSubject
-        .map(Persistable::get)
+        .map(Persistable::value)
         .filter(Optional::isPresent)
         .map(Optional::get)
         .toFlowable(BackpressureStrategy.BUFFER)
@@ -96,7 +96,7 @@ public class DataRepository {
     switch (event.getEventType()) {
       case ENTITY_LOADED:
       case ENTITY_MODIFIED:
-        return event.get().map(localDataStore::mergeFeature).orElse(Completable.complete());
+        return event.value().map(localDataStore::mergeFeature).orElse(Completable.complete());
       case ENTITY_REMOVED:
         // TODO: Delete features:
         // localDataStore.removeFeature(event.getEntityId());
@@ -208,7 +208,7 @@ public class DataRepository {
       case ENTITY_LOADED:
       case ENTITY_MODIFIED:
         return event
-            .get()
+            .value()
             .map(
                 record ->
                     localDataStore
