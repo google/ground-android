@@ -20,7 +20,7 @@ import android.view.View;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
 import com.google.android.gnd.repository.DataRepository;
-import com.google.android.gnd.repository.Resource;
+import com.google.android.gnd.repository.Persistable;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.vo.Feature;
 import com.google.android.gnd.vo.Form;
@@ -37,7 +37,7 @@ public class RecordDetailsViewModel extends AbstractViewModel {
 
   private final DataRepository dataRepository;
   private final BehaviorProcessor<RecordDetailsFragmentArgs> argsProcessor;
-  public final LiveData<Resource<Record>> records;
+  public final LiveData<Persistable<Record>> records;
   public final LiveData<Integer> progressBarVisibility;
   public final LiveData<String> toolbarTitle;
   public final LiveData<String> toolbarSubtitle;
@@ -49,14 +49,14 @@ public class RecordDetailsViewModel extends AbstractViewModel {
 
     this.argsProcessor = BehaviorProcessor.create();
 
-    Flowable<Resource<Record>> recordStream =
+    Flowable<Persistable<Record>> recordStream =
         argsProcessor
             .switchMapSingle(
                 args ->
                     this.dataRepository
                         .getRecord(args.getProjectId(), args.getFeatureId(), args.getRecordId())
-                        .map(Resource::loaded)
-                        .onErrorReturn(Resource::error)
+                        .map(Persistable::loaded)
+                        .onErrorReturn(Persistable::error)
                         .subscribeOn(Schedulers.io()))
             .observeOn(AndroidSchedulers.mainThread());
 
@@ -84,19 +84,19 @@ public class RecordDetailsViewModel extends AbstractViewModel {
     this.argsProcessor.onNext(args);
   }
 
-  private static Integer getProgressBarVisibility(Resource<Record> record) {
-    return record.data().isPresent() ? View.VISIBLE : View.GONE;
+  private static Integer getProgressBarVisibility(Persistable<Record> record) {
+    return record.value().isPresent() ? View.VISIBLE : View.GONE;
   }
 
-  private static String getToolbarTitle(Resource<Record> record) {
-    return record.data().map(Record::getFeature).map(Feature::getTitle).orElse("");
+  private static String getToolbarTitle(Persistable<Record> record) {
+    return record.value().map(Record::getFeature).map(Feature::getTitle).orElse("");
   }
 
-  private static String getToolbarSubtitle(Resource<Record> record) {
-    return record.data().map(Record::getFeature).map(Feature::getSubtitle).orElse("");
+  private static String getToolbarSubtitle(Persistable<Record> record) {
+    return record.value().map(Record::getFeature).map(Feature::getSubtitle).orElse("");
   }
 
-  private static String getFormNameView(Resource<Record> record) {
-    return record.data().map(Record::getForm).map(Form::getTitle).orElse("");
+  private static String getFormNameView(Persistable<Record> record) {
+    return record.value().map(Record::getForm).map(Form::getTitle).orElse("");
   }
 }

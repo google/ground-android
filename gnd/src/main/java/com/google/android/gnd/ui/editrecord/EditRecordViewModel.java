@@ -33,7 +33,7 @@ import com.google.android.gnd.persistence.shared.Mutation;
 import com.google.android.gnd.persistence.shared.RecordMutation;
 import com.google.android.gnd.persistence.shared.ResponseDelta;
 import com.google.android.gnd.repository.DataRepository;
-import com.google.android.gnd.repository.Resource;
+import com.google.android.gnd.repository.Persistable;
 import com.google.android.gnd.system.AuthenticationManager;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.common.SingleLiveEvent;
@@ -59,7 +59,7 @@ public class EditRecordViewModel extends AbstractViewModel {
 
   private final DataRepository dataRepository;
   private final AuthenticationManager authManager;
-  private final MutableLiveData<Resource<Record>> record;
+  private final MutableLiveData<Persistable<Record>> record;
   private final SingleLiveEvent<Void> showUnsavedChangesDialogEvents;
   private final SingleLiveEvent<Void> showErrorDialogEvents;
   private final Resources resources;
@@ -94,8 +94,8 @@ public class EditRecordViewModel extends AbstractViewModel {
                 request ->
                     saveRecord(request)
                         .toObservable()
-                        .startWith(Resource.saving(request.record))
-                        .map(__ -> Resource.saved(request.record))
+                        .startWith(Persistable.saving(request.record))
+                        .map(__ -> Persistable.saved(request.record))
                         .doOnError(this::onSaveRecordError)
                         // Prevent from breaking upstream.
                         .onErrorResumeNext(Observable.never())
@@ -115,27 +115,27 @@ public class EditRecordViewModel extends AbstractViewModel {
             .subscribe(this::onRecordSnapshot));
   }
 
-  private Single<Resource<Record>> createOrUpdateRecord(EditRecordRequest request) {
+  private Single<Persistable<Record>> createOrUpdateRecord(EditRecordRequest request) {
     this.isNew = request.isNew;
     return isNew ? newRecord(request) : editRecord(request);
   }
 
-  private Single<Resource<Record>> newRecord(EditRecordRequest request) {
+  private Single<Persistable<Record>> newRecord(EditRecordRequest request) {
     return dataRepository
         .createRecord(
             request.args.getProjectId(), request.args.getFeatureId(), request.args.getFormId())
-        .map(Resource::loaded)
+        .map(Persistable::loaded)
         // TODO(#78): Avoid side-effects.
         .doOnSuccess(this::onNewRecordLoaded);
   }
 
-  private Single<Resource<Record>> editRecord(EditRecordRequest request) {
+  private Single<Persistable<Record>> editRecord(EditRecordRequest request) {
     return dataRepository
         .getRecord(
             request.args.getProjectId(), request.args.getFeatureId(), request.args.getRecordId())
         // TODO(#78): Avoid side-effects.
         .doOnSuccess(this::update)
-        .map(Resource::loaded);
+        .map(Persistable::loaded);
   }
 
   private Completable saveRecord(SaveRecordRequest request) {
@@ -192,7 +192,7 @@ public class EditRecordViewModel extends AbstractViewModel {
     }
   }
 
-  LiveData<Resource<Record>> getRecord() {
+  LiveData<Persistable<Record>> getRecord() {
     return record;
   }
 
@@ -206,10 +206,10 @@ public class EditRecordViewModel extends AbstractViewModel {
 
   @NonNull
   private Optional<Record> getCurrentRecord() {
-    return Resource.getData(record);
+    return Persistable.getData(record);
   }
 
-  private void onNewRecordLoaded(Resource<Record> r) {
+  private void onNewRecordLoaded(Persistable<Record> r) {
     responses.clear();
     errors.clear();
   }
@@ -230,8 +230,8 @@ public class EditRecordViewModel extends AbstractViewModel {
     editRecordRequests.onNext(new EditRecordRequest(args, isNew));
   }
 
-  private void onRecordSnapshot(Resource<Record> r) {
-    switch (r.operationState().get()) {
+  private void onRecordSnapshot(Persistable<Record> r) {
+    switch (r.state()) {
       case LOADING:
         loadingSpinnerVisibility.set(View.VISIBLE);
         break;

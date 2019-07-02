@@ -20,7 +20,7 @@ import static java8.util.stream.Collectors.toList;
 import static java8.util.stream.StreamSupport.stream;
 
 import android.util.Log;
-import com.google.android.gnd.persistence.remote.DataStoreEvent;
+import com.google.android.gnd.persistence.remote.RemoteDataEvent;
 import com.google.android.gnd.persistence.shared.FeatureMutation;
 import com.google.android.gnd.persistence.shared.RecordMutation;
 import com.google.android.gnd.system.AuthenticationManager.User;
@@ -34,7 +34,6 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldPath;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.google.firebase.firestore.SnapshotMetadata;
 import com.google.firebase.firestore.WriteBatch;
 import durdinapps.rxfirebase2.RxFirestore;
 import io.reactivex.Flowable;
@@ -108,11 +107,11 @@ public class GndFirestore extends AbstractFluentFirestore {
       return new FeatureDocumentReference(ref.document(id));
     }
 
-    public Flowable<DataStoreEvent<Feature>> observe(Project project) {
+    public Flowable<RemoteDataEvent<Feature>> observe(Project project) {
       return RxFirestore.observeQueryRef(ref)
           .flatMapIterable(
               featureQuerySnapshot ->
-                  toDataStoreEvents(
+                  toEvents(
                       featureQuerySnapshot,
                       featureDocSnapshot -> FeatureDoc.toObject(project, featureDocSnapshot)));
     }
@@ -199,37 +198,28 @@ public class GndFirestore extends AbstractFluentFirestore {
         .toSingle(Collections.emptyList());
   }
 
-  private static <T> Iterable<DataStoreEvent<T>> toDataStoreEvents(
+  private static <T> Iterable<RemoteDataEvent<T>> toEvents(
       QuerySnapshot snapshot, Function<DocumentSnapshot, T> converter) {
-    DataStoreEvent.Source source = getSource(snapshot.getMetadata());
     return stream(snapshot.getDocumentChanges())
-        .map(dc -> toDataStoreEvent(dc, source, converter))
-        .filter(DataStoreEvent::isValid)
+        .map(dc -> toEvent(dc, converter))
+        .filter(RemoteDataEvent::isValid)
         .collect(toList());
   }
 
-  private static <T> DataStoreEvent<T> toDataStoreEvent(
-      DocumentChange dc, DataStoreEvent.Source source, Function<DocumentSnapshot, T> converter) {
+  private static <T> RemoteDataEvent<T> toEvent(
+      DocumentChange dc, Function<DocumentSnapshot, T> converter) {
     Log.v(TAG, dc.getDocument().getReference().getPath() + " " + dc.getType());
-    try {
-      String id = dc.getDocument().getId();
-      switch (dc.getType()) {
-        case ADDED:
-          return DataStoreEvent.loaded(id, source, converter.apply(dc.getDocument()));
-        case MODIFIED:
-          return DataStoreEvent.modified(id, source, converter.apply(dc.getDocument()));
-        case REMOVED:
-          return DataStoreEvent.removed(id, source);
-      }
-    } catch (DataStoreException e) {
-      Log.d(TAG, "Data store error:", e);
+    String id = dc.getDocument().getId();
+    switch (dc.getType()) {
+      case ADDED:
+        return RemoteDataEvent.loaded(id, converter.apply(dc.getDocument()));
+      case MODIFIED:
+        return RemoteDataEvent.modified(id, converter.apply(dc.getDocument()));
+      case REMOVED:
+        return RemoteDataEvent.removed(id);
+      default:
+        return RemoteDataEvent.error(
+            new DataStoreException("Unknown DocumentChange type: " + dc.getType()));
     }
-    return DataStoreEvent.invalidResponse();
-  }
-
-  private static DataStoreEvent.Source getSource(SnapshotMetadata metadata) {
-    return metadata.hasPendingWrites()
-        ? DataStoreEvent.Source.LOCAL_DATA_STORE
-        : DataStoreEvent.Source.REMOTE_DATA_STORE;
   }
 }

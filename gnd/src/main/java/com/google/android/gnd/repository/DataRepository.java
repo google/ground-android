@@ -58,7 +58,7 @@ public class DataRepository {
   private final LocalDataStore localDataStore;
   private final RemoteDataStore remoteDataStore;
   private final DataSyncWorkManager dataSyncWorkManager;
-  private final Subject<Resource<Project>> activeProjectSubject;
+  private final Subject<Persistable<Project>> activeProjectSubject;
   private final OfflineUuidGenerator uuidGenerator;
 
   @Inject
@@ -76,10 +76,10 @@ public class DataRepository {
     this.uuidGenerator = uuidGenerator;
   }
 
-  public Flowable<Resource<Project>> getActiveProject() {
+  public Flowable<Persistable<Project>> getActiveProject() {
     // TODO: On subscribe and project in cache not loaded, read last active project from local db.
     return activeProjectSubject
-        .startWith(cache.getActiveProject().map(Resource::loaded).orElse(Resource.notLoaded()))
+        .startWith(cache.getActiveProject().map(Persistable::loaded).orElse(Persistable.notLoaded()))
         .toFlowable(BackpressureStrategy.LATEST);
   }
 
@@ -87,26 +87,26 @@ public class DataRepository {
     Log.d(TAG, " Activating project " + projectId);
     return remoteDataStore
         .loadProject(projectId)
-        .doOnSubscribe(__ -> activeProjectSubject.onNext(Resource.loading()))
+        .doOnSubscribe(__ -> activeProjectSubject.onNext(Persistable.loading()))
         .doOnSuccess(this::onProjectLoaded);
   }
 
   private void onProjectLoaded(Project project) {
     cache.setActiveProject(project);
-    activeProjectSubject.onNext(Resource.loaded(project));
+    activeProjectSubject.onNext(Persistable.loaded(project));
   }
 
-  public Observable<Resource<List<Project>>> getProjectSummaries(User user) {
+  public Observable<Persistable<List<Project>>> getProjectSummaries(User user) {
     // TODO: Get from load db if network connection not available or remote times out.
     return remoteDataStore
         .loadProjectSummaries(user)
-        .map(Resource::loaded)
-        .onErrorReturn(Resource::error)
+        .map(Persistable::loaded)
+        .onErrorReturn(Persistable::error)
         .toObservable()
-        .startWith(Resource.loading());
+        .startWith(Persistable.loading());
   }
 
-  // TODO: Only return feature fields needed to render.
+  // TODO: Only return feature fields needed to render features on map.
   // TODO(#127): Decouple from Project and accept id instead.
   public Flowable<ImmutableSet<Feature>> getFeaturesOnceAndStream(Project project) {
     return localDataStore.getFeaturesOnceAndStream(project);
@@ -198,6 +198,6 @@ public class DataRepository {
 
   public void clearActiveProject() {
     cache.clearActiveProject();
-    activeProjectSubject.onNext(Resource.notLoaded());
+    activeProjectSubject.onNext(Persistable.notLoaded());
   }
 }

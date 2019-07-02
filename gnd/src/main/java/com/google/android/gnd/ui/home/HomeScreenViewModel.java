@@ -20,7 +20,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
 import androidx.lifecycle.MutableLiveData;
 import com.google.android.gnd.repository.DataRepository;
-import com.google.android.gnd.repository.Resource;
+import com.google.android.gnd.repository.Persistable;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.SharedViewModel;
@@ -43,7 +43,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
   private static final String TAG = HomeScreenViewModel.class.getSimpleName();
   private final DataRepository dataRepository;
   private final Navigator navigator;
-  private final LiveData<Resource<Project>> activeProject;
+  private final LiveData<Persistable<Project>> activeProject;
   private final PublishSubject<Feature> addFeatureClicks;
 
   // TODO: Move into MapContainersViewModel
@@ -91,7 +91,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
     openDrawerRequests.setValue(null);
   }
 
-  public LiveData<Resource<Project>> getActiveProject() {
+  public LiveData<Persistable<Project>> getActiveProject() {
     return activeProject;
   }
 
