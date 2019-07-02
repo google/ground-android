@@ -96,7 +96,7 @@ public class ProjectSelectorDialogFragment extends AbstractDialogFragment {
   private void update(Persistable<List<Project>> projectSummaries) {
     switch (projectSummaries.state()) {
       case LOADED:
-        projectSummaries.get().ifPresent(this::showProjectList);
+        projectSummaries.value().ifPresent(this::showProjectList);
         break;
       case NOT_FOUND:
       case ERROR:

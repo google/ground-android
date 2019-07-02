@@ -41,6 +41,6 @@ public class BooleanResult extends Result<Boolean> {
    * that false is also returned if the operation failed in error.
    */
   public boolean isTrue() {
-    return get().orElse(false);
+    return value().orElse(false);
   }
 }
