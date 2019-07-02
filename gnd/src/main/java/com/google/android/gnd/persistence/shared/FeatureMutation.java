@@ -16,8 +16,12 @@
 
 package com.google.android.gnd.persistence.shared;
 
+import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList;
+import static java8.util.stream.StreamSupport.stream;
+
 import com.google.android.gnd.vo.Point;
 import com.google.auto.value.AutoValue;
+import com.google.common.collect.ImmutableList;
 import java8.util.Optional;
 
 /**
@@ -35,6 +39,16 @@ public abstract class FeatureMutation extends Mutation {
    * location.
    */
   public abstract Optional<Point> getNewLocation();
+
+  /**
+   * Returns the ids of mutations of type {@link FeatureMutation} contained in the specified list.
+   */
+  public static ImmutableList<Long> ids(ImmutableList<? extends Mutation> mutations) {
+    return stream(mutations)
+        .filter(FeatureMutation.class::isInstance)
+        .map(Mutation::getId)
+        .collect(toImmutableList());
+  }
 
   // Boilerplate generated using Android Studio AutoValue plugin:
 

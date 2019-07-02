@@ -117,19 +117,9 @@ public class RoomLocalDataStore implements LocalDataStore {
   @Transaction
   @Override
   public Completable removePendingMutations(ImmutableList<Mutation> mutations) {
-    ImmutableList<Long> featureMutationIds =
-        stream(mutations)
-            .filter(FeatureMutation.class::isInstance)
-            .map(Mutation::getId)
-            .collect(toImmutableList());
-    ImmutableList<Long> recordMutationIds =
-        stream(mutations)
-            .filter(RecordMutation.class::isInstance)
-            .map(Mutation::getId)
-            .collect(toImmutableList());
     return db.featureMutationDao()
-        .deleteAll(featureMutationIds)
-        .andThen(db.recordMutationDao().deleteAll(recordMutationIds));
+        .deleteAll(FeatureMutation.ids(mutations))
+        .andThen(db.recordMutationDao().deleteAll(RecordMutation.ids(mutations)));
   }
 
   @Transaction
