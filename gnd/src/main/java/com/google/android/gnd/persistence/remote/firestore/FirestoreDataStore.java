@@ -52,8 +52,10 @@ import javax.inject.Singleton;
 @Singleton
 public class FirestoreDataStore implements RemoteDataStore, OfflineUuidGenerator {
 
+  // TODO(#57): Set to false to disable Firebase-managed offline persistence once local db sync
+  // is implemented for project config and users.
   private static final FirebaseFirestoreSettings FIRESTORE_SETTINGS =
-      new FirebaseFirestoreSettings.Builder().setPersistenceEnabled(false).build();
+      new FirebaseFirestoreSettings.Builder().setPersistenceEnabled(true).build();
   private static final SetOptions MERGE = SetOptions.merge();
   private static final String TAG = FirestoreDataStore.class.getSimpleName();
   private static final String ID_COLLECTION = "/ids";
