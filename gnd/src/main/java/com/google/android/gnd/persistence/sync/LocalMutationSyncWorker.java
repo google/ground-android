@@ -26,6 +26,7 @@ import com.google.android.gnd.persistence.local.LocalDataStore;
 import com.google.android.gnd.persistence.remote.RemoteDataStore;
 import com.google.android.gnd.persistence.shared.Mutation;
 import com.google.common.collect.ImmutableList;
+import io.reactivex.Completable;
 
 /**
  * A worker that syncs local changes to the remote data store. Each instance handles mutations for a
@@ -62,15 +63,21 @@ public class LocalMutationSyncWorker extends Worker {
   public Result doWork() {
     try {
       Log.d(TAG, "Connected. Syncing changes to feature " + featureId);
-      ImmutableList<Mutation> pendingMutations =
-          localDataStore.getPendingMutations(featureId).blockingGet();
-      remoteDataStore.applyMutations(pendingMutations).blockingAwait();
-      localDataStore.removePendingMutations(pendingMutations).blockingAwait();
+      localDataStore
+          .getPendingMutations(featureId)
+          .flatMapCompletable(this::processMutations)
+          .blockingAwait();
       return Result.success();
     } catch (Throwable t) {
       Log.e(TAG, "Updates for feature " + featureId + " failed", t);
       // TODO: Update retry count in mutations.
       return Result.retry();
     }
+  }
+
+  private Completable processMutations(ImmutableList<Mutation> pendingMutations) {
+    return remoteDataStore
+        .applyMutations(pendingMutations)
+        .andThen(localDataStore.removePendingMutations(pendingMutations));
   }
 }
