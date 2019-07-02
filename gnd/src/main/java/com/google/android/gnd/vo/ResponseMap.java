@@ -52,6 +52,10 @@ public class ResponseMap {
     return responses.keySet();
   }
 
+  public ResponseMap.Builder toBuilder() {
+    return builder().putAllResponses(responses);
+  }
+
   /** Returns a builder for constructing and populating new {@link ResponseMap} instances. */
   public static Builder builder() {
     return new Builder();
@@ -63,6 +67,11 @@ public class ResponseMap {
     /** Sets or overwrites the response with the specified field id. */
     public Builder putResponse(String fieldId, Response response) {
       map.put(fieldId, response);
+      return this;
+    }
+
+    public Builder putAllResponses(Map<String, Response> responses) {
+      map.putAll(responses);
       return this;
     }
 

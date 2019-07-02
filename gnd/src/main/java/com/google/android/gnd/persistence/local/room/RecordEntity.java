@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.persistence.local.room;
 
+import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
@@ -69,6 +70,20 @@ public abstract class RecordEntity {
   @NonNull
   public abstract ResponseMap getResponses();
 
+  /**
+   * Returns a new instance whose state is the same as the current one, but with the specified
+   * mutations applied.
+   */
+  public RecordEntity applyMutations(Iterable<RecordMutationEntity> mutations) {
+    Log.v(TAG, "Merging record " + this + " with mutations " + mutations);
+    RecordEntity.Builder builder = toBuilder();
+    for (RecordMutationEntity mutation : mutations) {
+      builder.responsesBuilder().applyDeltas(mutation.getResponseDeltas());
+    }
+    Log.v(TAG, "Merged record " + builder.build());
+    return builder.build();
+  }
+
   public static RecordEntity fromRecord(Record record) {
     return RecordEntity.builder()
         .setId(record.getId())
@@ -102,6 +117,8 @@ public abstract class RecordEntity {
         .build();
   }
 
+  public abstract RecordEntity.Builder toBuilder();
+
   // Boilerplate generated using Android Studio AutoValue plugin:
 
   public static RecordEntity create(
@@ -131,6 +148,8 @@ public abstract class RecordEntity {
     public abstract Builder setFormId(String newFormId);
 
     public abstract Builder setResponses(ResponseMap newResponses);
+
+    public abstract ResponseMap.Builder responsesBuilder();
 
     public abstract RecordEntity build();
   }

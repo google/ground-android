@@ -142,10 +142,14 @@ public class RoomLocalDataStore implements LocalDataStore {
   @Transaction
   @Override
   public Completable mergeRecord(Record record) {
-    // TODO: Apply pending mutations once update feature is implemented.
-    return db.recordDao().insertOrUpdate(RecordEntity.fromRecord(record));
+    RecordEntity recordEntity = RecordEntity.fromRecord(record);
+    return db.recordMutationDao()
+        .findByRecordId(record.getId())
+        .map(mutations -> recordEntity.applyMutations(mutations))
+        .flatMapCompletable(db.recordDao()::insertOrUpdate);
   }
 
+  // TODO: Can this be simplified and inlined?
   private ImmutableList<Mutation> mergeMutations(
       List<FeatureMutationEntity> featureMutationEntities,
       List<RecordMutationEntity> recordMutationEntities) {

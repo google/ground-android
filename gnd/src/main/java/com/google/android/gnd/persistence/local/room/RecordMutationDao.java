@@ -34,4 +34,7 @@ public interface RecordMutationDao {
 
   @Query("SELECT * FROM record_mutation WHERE feature_id = :featureId")
   Single<List<RecordMutationEntity>> findByFeatureId(String featureId);
+
+  @Query("SELECT * FROM record_mutation WHERE record_id = :recordId")
+  Single<List<RecordMutationEntity>> findByRecordId(String recordId);
 }
