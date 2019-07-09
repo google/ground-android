@@ -18,6 +18,7 @@ package com.google.android.gnd.repository;
 
 import android.util.Log;
 import com.google.android.gnd.persistence.local.LocalDataStore;
+import com.google.android.gnd.persistence.local.LocalValueStore;
 import com.google.android.gnd.persistence.remote.RemoteDataEvent;
 import com.google.android.gnd.persistence.remote.RemoteDataStore;
 import com.google.android.gnd.persistence.remote.firestore.DocumentNotFoundException;
@@ -52,10 +53,6 @@ public class DataRepository {
   private static final String TAG = DataRepository.class.getSimpleName();
   private static final long GET_REMOTE_RECORDS_TIMEOUT_SECS = 5;
 
-  // TODO: Implement local data persistence.
-  // For cached data, InMemoryCache is the source of truth that the repository subscribes to.
-  // For non-cached data, the local database will be the source of truth.
-  // Remote data is written to the database, and then optionally to the InMemoryCache.
   private final InMemoryCache cache;
   private final LocalDataStore localDataStore;
   private final RemoteDataStore remoteDataStore;
@@ -63,6 +60,7 @@ public class DataRepository {
   private final FlowableProcessor<Persistable<Project>> activeProject;
   private final OfflineUuidGenerator uuidGenerator;
   private final NetworkManager networkManager;
+  private final LocalValueStore localValueStore;
 
   @Inject
   public DataRepository(
@@ -71,7 +69,8 @@ public class DataRepository {
       DataSyncWorkManager dataSyncWorkManager,
       InMemoryCache cache,
       OfflineUuidGenerator uuidGenerator,
-      NetworkManager networkManager) {
+      NetworkManager networkManager,
+      LocalValueStore localValueStore) {
     this.localDataStore = localDataStore;
     this.remoteDataStore = remoteDataStore;
     this.dataSyncWorkManager = dataSyncWorkManager;
@@ -79,6 +78,7 @@ public class DataRepository {
     this.activeProject = BehaviorProcessor.create();
     this.uuidGenerator = uuidGenerator;
     this.networkManager = networkManager;
+    this.localValueStore = localValueStore;
 
     streamFeaturesToLocalDb(remoteDataStore);
   }
@@ -137,6 +137,7 @@ public class DataRepository {
   private void onProjectLoaded(Project project) {
     cache.setActiveProject(project);
     activeProject.onNext(Persistable.loaded(project));
+    localValueStore.setLastActiveProjectId(project.getId());
   }
 
   public Observable<Persistable<List<Project>>> getProjectSummaries(User user) {
@@ -301,9 +302,23 @@ public class DataRepository {
         .andThen(dataSyncWorkManager.enqueueSyncWorker(feature.getId()));
   }
 
-  /** Clears the currently active project from cache and from local preferences. */
+  /**
+   * Reactivates the last active project, emitting true once loaded, or false if no project was
+   * previously activated.
+   */
+  public Single<Boolean> reactivateLastProject() {
+    return Maybe.fromCallable(() -> localValueStore.getLastActiveProjectId())
+        .flatMap(id -> activateProject(id).toMaybe())
+        .doOnComplete(() -> Log.v(TAG, "No previous project found to reactivate"))
+        .doOnSuccess(project -> Log.v(TAG, "Reactivated project " + project.getId()))
+        .map(__ -> true)
+        .toSingle(false);
+  }
+
+  /** Clears the currently active project from cache and from local localValueStore. */
   public void clearActiveProject() {
     cache.clearActiveProject();
+    localValueStore.clearLastActiveProjectId();
     activeProject.onNext(Persistable.notLoaded());
   }
 }

@@ -212,10 +212,11 @@ public class HomeScreenFragment extends AbstractFragment
   @Override
   public void onStart() {
     super.onStart();
-    // TODO: Persist last selected project in local db.
-    // TODO: Create startup flow and move this logic there.
-    Persistable<Project> activeProject = viewModel.getActiveProject().getValue();
-    if (activeProject == null || !activeProject.isLoaded()) {
+    viewModel.reactivateLastProject().observe(this, this::onReactivateLastProject);
+  }
+
+  private void onReactivateLastProject(boolean success) {
+    if (!success) {
       showProjectSelector();
     }
   }

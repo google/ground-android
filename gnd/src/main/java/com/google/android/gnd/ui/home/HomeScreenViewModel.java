@@ -45,6 +45,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
   private final Navigator navigator;
   /** The state and value of the currently active project (loading, loaded, etc.). */
   private final LiveData<Persistable<Project>> activeProject;
+
   private final PublishSubject<Feature> addFeatureClicks;
 
   // TODO: Move into MapContainersViewModel
@@ -143,5 +144,15 @@ public class HomeScreenViewModel extends AbstractViewModel {
     }
     Feature feature = state.getFeature();
     navigator.addRecord(feature.getProject().getId(), feature.getId(), selectedForm.getId());
+  }
+
+  /**
+   * Reactivates the last active project, emitting true once loaded, or false if no project was
+   * previously activated.
+   */
+  public LiveData<Boolean> reactivateLastProject() {
+    // TODO: Handle errors activating project.
+    return LiveDataReactiveStreams.fromPublisher(
+        dataRepository.reactivateLastProject().toFlowable());
   }
 }
