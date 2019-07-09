@@ -61,7 +61,8 @@ public class HomeScreenViewModel extends AbstractViewModel {
     this.addFeatureDialogRequests = new SingleLiveEvent<>();
     this.openDrawerRequests = new SingleLiveEvent<>();
     this.featureSheetState = new MutableLiveData<>();
-    this.activeProject = LiveDataReactiveStreams.fromPublisher(dataRepository.getActiveProject());
+    this.activeProject =
+        LiveDataReactiveStreams.fromPublisher(dataRepository.getActiveProjectOnceAndStream());
     this.navigator = navigator;
     this.addFeatureClicks = PublishSubject.create();
 
