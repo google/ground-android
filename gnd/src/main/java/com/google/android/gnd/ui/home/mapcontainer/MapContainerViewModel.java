@@ -72,7 +72,7 @@ public class MapContainerViewModel extends AbstractViewModel {
     this.activeProject = LiveDataReactiveStreams.fromPublisher(dataRepository.getActiveProject());
     // TODO: Clear feature markers when project is deactivated.
     // TODO: Since we depend on project stream from repo anyway, this transformation can be moved
-    // into the repo.
+    // into the repo?
     this.features =
         LiveDataReactiveStreams.fromPublisher(
             dataRepository

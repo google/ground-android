@@ -43,6 +43,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
   private static final String TAG = HomeScreenViewModel.class.getSimpleName();
   private final DataRepository dataRepository;
   private final Navigator navigator;
+  /** The state and value of the currently active project (loading, loaded, etc.). */
   private final LiveData<Persistable<Project>> activeProject;
   private final PublishSubject<Feature> addFeatureClicks;
 

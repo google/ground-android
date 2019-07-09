@@ -35,6 +35,7 @@ public class Persistable<T> extends Result<T> {
     NOT_LOADED,
     LOADING,
     LOADED,
+    // TODO: Move SAVING states out and rename this class to Loadable.
     SAVING,
     SAVED,
     NOT_FOUND,

@@ -294,6 +294,7 @@ public class DataRepository {
         .andThen(dataSyncWorkManager.enqueueSyncWorker(feature.getId()));
   }
 
+  /** Clears the currently active project from cache and from local preferences. */
   public void clearActiveProject() {
     cache.clearActiveProject();
     activeProjectSubject.onNext(Persistable.notLoaded());
