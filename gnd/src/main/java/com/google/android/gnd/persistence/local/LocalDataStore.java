@@ -34,6 +34,9 @@ import io.reactivex.Single;
  * mutations queued for sync with remote. Local changes are saved here before being written to the
  * remote data store, and both local and remote updates are always persisted here before being made
  * visible to the user.
+ *
+ * <p>Note that long-lived streams return the full set of entities on each emission rather than
+ * deltas to allow changes to not rely on prior UI state (i.e., emissions are idempotent).
  */
 public interface LocalDataStore {
   /**
@@ -50,11 +53,16 @@ public interface LocalDataStore {
 
   /**
    * Returns a long-lived stream that emits the full set of features for a project on subscribe, and
-   * continues to return the full set each time a feature is added/changed/removed. The full set is
-   * returned rather than deltas for simplicity and to implement a fully reactive UI in which each
-   * update is idempotent.
+   * continues to return the full set each time a feature is added/changed/removed.
    */
   Flowable<ImmutableSet<Feature>> getFeaturesOnceAndStream(Project project);
+
+  /**
+   * Returns a long-lived stream that emits the full set of records for a particular feature and
+   * form on subscribe, and continues to return the full set each time a record is
+   * added/changed/removed.
+   */
+  Flowable<ImmutableList<Record>> getRecordsOnceAndStream(Feature feature, String formId);
 
   /** Returns the feature with the specified UUID from the local data store, if found. */
   Maybe<Feature> getFeature(Project project, String featureId);
@@ -62,17 +70,18 @@ public interface LocalDataStore {
   /** Returns the record with the specified UUID from the local data store, if found. */
   Maybe<Record> getRecord(Feature feature, String recordId);
 
-  /** Returns the records associated with the specified feature, or an empty list if none found. */
-  Single<ImmutableList<Record>> getRecords(Feature feature);
-
   /**
    * Returns all feature and record mutations in the local mutation queue relating to feature with
    * the specified id.
    */
   Single<ImmutableList<Mutation>> getPendingMutations(String featureId);
 
-  /**
-   * Removes the provided feature and record mutations from the local mutation queue.
-   */
+  /** Removes the provided feature and record mutations from the local mutation queue. */
   Completable removePendingMutations(ImmutableList<Mutation> mutations);
+
+  /** Insert or replace feature in the local data store. */
+  Completable mergeFeature(Feature feature);
+
+  /** Applied pending local changes, then inserts or replaces the record in the local data store. */
+  Completable mergeRecord(Record record);
 }

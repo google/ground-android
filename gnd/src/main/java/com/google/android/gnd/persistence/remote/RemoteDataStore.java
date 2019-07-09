@@ -40,7 +40,7 @@ public interface RemoteDataStore {
 
   Flowable<RemoteDataEvent<Feature>> loadFeaturesOnceAndStreamChanges(Project project);
 
-  Single<List<Record>> loadRecordSummaries(Feature feature);
+  Flowable<RemoteDataEvent<Record>> loadRecordSummariesOnceAndStreamChanges(Feature feature);
 
   Single<Record> loadRecordDetails(Feature feature, String recordId);
 

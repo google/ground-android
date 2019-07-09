@@ -16,6 +16,9 @@
 
 package com.google.android.gnd.persistence.shared;
 
+import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList;
+import static java8.util.stream.StreamSupport.stream;
+
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 
@@ -38,6 +41,15 @@ public abstract class RecordMutation extends Mutation {
   @Override
   public String toString() {
     return super.toString() + " deltas=" + getResponseDeltas();
+  }
+  /**
+   * Returns the ids of mutations of type {@link RecordMutation} contained in the specified list.
+   */
+  public static ImmutableList<Long> ids(ImmutableList<? extends Mutation> mutations) {
+    return stream(mutations)
+        .filter(RecordMutation.class::isInstance)
+        .map(Mutation::getId)
+        .collect(toImmutableList());
   }
 
   // Boilerplate generated using Android Studio AutoValue plugin:

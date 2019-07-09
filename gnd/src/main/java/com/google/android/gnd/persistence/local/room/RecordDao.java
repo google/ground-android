@@ -18,35 +18,32 @@ package com.google.android.gnd.persistence.local.room;
 
 import androidx.room.Dao;
 import androidx.room.Insert;
+import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
-import androidx.room.Update;
 import io.reactivex.Completable;
+import io.reactivex.Flowable;
 import io.reactivex.Maybe;
-import io.reactivex.Single;
 import java.util.List;
 
 @Dao
 public interface RecordDao {
 
   /**
-   * Inserts the provided entity into the record table. Record id must already be assigned to a
-   * valid UUID, or the returned Completable will terminate with an error.
+   * Saves the provided entity into the record table, creating a new row or updating existing row as
+   * necessary. Record id must already be assigned to a valid UUID, or the returned Completable will
+   * terminate in error.
    */
-  @Insert
-  Completable insert(RecordEntity record);
-
-  /** Overwrites an existing record with the provided entity. */
-  @Update
-  Completable update(RecordEntity record);
+  @Insert(onConflict = OnConflictStrategy.REPLACE)
+  Completable insertOrUpdate(RecordEntity record);
 
   /** Returns the record with the specified UUID, if found. */
   @Query("SELECT * FROM record WHERE id = :recordId")
   Maybe<RecordEntity> findById(String recordId);
 
   /**
-   * Returns the list records associated with the specified featureId, ignoring deleted records
-   * (i.e., returns on records with state = State.DEFAULT (1)).
+   * Returns the list records associated with the specified feature and form, ignoring deleted
+   * records (i.e., returns only records with state = State.DEFAULT (1)).
    */
-  @Query("SELECT * FROM record WHERE feature_id = :featureId AND state = 1")
-  Single<List<RecordEntity>> findByFeatureId(String featureId);
+  @Query("SELECT * FROM record WHERE feature_id = :featureId AND form_id = :formId AND state = 1")
+  Flowable<List<RecordEntity>> findByFeatureIdOnceAndStream(String featureId, String formId);
 }

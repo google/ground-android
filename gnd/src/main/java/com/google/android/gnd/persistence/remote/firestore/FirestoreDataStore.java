@@ -52,6 +52,8 @@ import javax.inject.Singleton;
 @Singleton
 public class FirestoreDataStore implements RemoteDataStore, OfflineUuidGenerator {
 
+  // TODO(#57): Set to false to disable Firebase-managed offline persistence once local db sync
+  // is implemented for project config and users.
   private static final FirebaseFirestoreSettings FIRESTORE_SETTINGS =
       new FirebaseFirestoreSettings.Builder().setPersistenceEnabled(true).build();
   private static final SetOptions MERGE = SetOptions.merge();
@@ -90,8 +92,12 @@ public class FirestoreDataStore implements RemoteDataStore, OfflineUuidGenerator
   }
 
   @Override
-  public Single<List<Record>> loadRecordSummaries(Feature feature) {
-    return db.projects().project(feature.getProject().getId()).records().getByFeature(feature);
+  public Flowable<RemoteDataEvent<Record>> loadRecordSummariesOnceAndStreamChanges(
+      Feature feature) {
+    return db.projects()
+        .project(feature.getProject().getId())
+        .records()
+        .getRecordsByFeatureOnceAndStreamChanges(feature);
   }
 
   @Override

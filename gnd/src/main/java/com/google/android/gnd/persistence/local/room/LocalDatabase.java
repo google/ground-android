@@ -40,7 +40,6 @@ import androidx.room.TypeConverters;
     exportSchema = false)
 @TypeConverters({
   MutationEntityType.class,
-  Edit.Type.class,
   EntityState.class,
   ResponseDeltasTypeConverter.class,
   ResponseMapTypeConverter.class

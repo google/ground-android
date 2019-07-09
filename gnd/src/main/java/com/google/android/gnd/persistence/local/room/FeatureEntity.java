@@ -76,6 +76,17 @@ public abstract class FeatureEntity {
     return entity.build();
   }
 
+  public static FeatureEntity fromFeature(Feature feature) {
+    FeatureEntity.Builder entity =
+        FeatureEntity.builder()
+            .setId(feature.getId())
+            .setProjectId(feature.getProject().getId())
+            .setFeatureTypeId(feature.getFeatureType().getId())
+            .setLocation(Coordinates.fromPoint(feature.getPoint()))
+            .setState(EntityState.DEFAULT);
+    return entity.build();
+  }
+
   // TODO(#127): Decouple from Project and remove 2nd argument.
   public static Feature toFeature(FeatureEntity featureEntity, Project project) {
     return Feature.newBuilder()

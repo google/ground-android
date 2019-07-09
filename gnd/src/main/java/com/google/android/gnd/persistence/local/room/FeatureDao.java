@@ -18,6 +18,7 @@ package com.google.android.gnd.persistence.local.room;
 
 import androidx.room.Dao;
 import androidx.room.Insert;
+import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
@@ -27,8 +28,8 @@ import java.util.List;
 /** Provides low-level read/write operations of {@link FeatureEntity} to/from the local db. */
 @Dao
 public interface FeatureDao {
-  @Insert
-  Completable insert(FeatureEntity feature);
+  @Insert(onConflict = OnConflictStrategy.REPLACE)
+  Completable insertOrUpdate(FeatureEntity feature);
 
   @Query("SELECT * FROM feature WHERE project_id = :projectId")
   Flowable<List<FeatureEntity>> findByProjectIdStream(String projectId);

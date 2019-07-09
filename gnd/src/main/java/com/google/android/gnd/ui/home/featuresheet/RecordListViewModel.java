@@ -17,84 +17,66 @@
 package com.google.android.gnd.ui.home.featuresheet;
 
 import android.util.Log;
+import android.view.View;
+import androidx.databinding.ObservableInt;
 import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.LiveDataReactiveStreams;
 import com.google.android.gnd.repository.DataRepository;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.vo.Feature;
 import com.google.android.gnd.vo.Form;
 import com.google.android.gnd.vo.Project;
 import com.google.android.gnd.vo.Record;
-import io.reactivex.Single;
-import io.reactivex.android.schedulers.AndroidSchedulers;
+import com.google.common.collect.ImmutableList;
+import io.reactivex.Flowable;
+import io.reactivex.processors.PublishProcessor;
 import io.reactivex.schedulers.Schedulers;
-import io.reactivex.subjects.PublishSubject;
-import java.util.Collections;
-import java.util.List;
 import java8.util.Optional;
 import javax.inject.Inject;
 
-// TODO: Roll up into parent viewmodel. Simplify VMs overall.
-// TODO(#71): Simplify VM project, form, and feature access.
 public class RecordListViewModel extends AbstractViewModel {
 
   private static final String TAG = RecordListViewModel.class.getSimpleName();
   private final DataRepository dataRepository;
-  private MutableLiveData<List<Record>> recordSummaries;
-  private PublishSubject<RecordSummaryRequest> recordSummaryRequests;
+  private PublishProcessor<RecordSummaryRequest> recordSummaryRequests;
+  private LiveData<ImmutableList<Record>> recordSummaries;
+
+  public final ObservableInt loadingSpinnerVisibility = new ObservableInt();
 
   @Inject
   public RecordListViewModel(DataRepository dataRepository) {
     this.dataRepository = dataRepository;
-    recordSummaries = new MutableLiveData<>();
-    recordSummaryRequests = PublishSubject.create();
-
-    disposeOnClear(
-        recordSummaryRequests
-            .switchMapSingle(
-                recordSummaryRequest ->
-                    fetchRecordSummaries(recordSummaryRequest)
-                        .onErrorResumeNext(this::onFetchRecordSummariesError)
-                        .subscribeOn(Schedulers.io()))
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(recordSummaries::setValue));
+    recordSummaryRequests = PublishProcessor.create();
+    recordSummaries =
+        LiveDataReactiveStreams.fromPublisher(
+            recordSummaryRequests
+                .doOnNext(__ -> loadingSpinnerVisibility.set(View.VISIBLE))
+                .switchMap(this::getRecordSummariesOnceAndStream)
+                .doOnNext(__ -> loadingSpinnerVisibility.set(View.GONE)));
   }
 
-  /**
-   * Returns the list of current record summaries.
-   *
-   * @return A list of records.
-   */
-  public LiveData<List<Record>> getRecordSummaries() {
+  public LiveData<ImmutableList<Record>> getRecordSummaries() {
     return recordSummaries;
   }
 
-  /** Clears the current list of record summaries. */
-  public void clearRecords() {
-    recordSummaries.setValue(Collections.emptyList());
-  }
-
-  /**
-   * Loads a list of records associated with a given feature and fetches summaries for them.
-   *
-   * @param feature
-   * @param form
-   */
+  /** Loads a list of records associated with a given feature and fetches summaries for them. */
   public void loadRecordSummaries(Feature feature, Form form) {
     loadRecords(
         feature.getProject(), feature.getFeatureType().getId(), form.getId(), feature.getId());
   }
 
-  private Single<List<Record>> fetchRecordSummaries(RecordSummaryRequest request) {
-    // TODO: Only fetch records with current formId.
-    return dataRepository.getRecordSummaries(
-        request.project.getId(), request.featureId, request.formId);
+  private Flowable<ImmutableList<Record>> getRecordSummariesOnceAndStream(
+      RecordSummaryRequest req) {
+    return dataRepository
+        .getRecordSummariesOnceAndStream(req.project.getId(), req.featureId, req.formId)
+        .onErrorResumeNext(this::onGetRecordSummariesError)
+        .subscribeOn(Schedulers.io());
   }
 
-  private Single<List<Record>> onFetchRecordSummariesError(Throwable t) {
+  private Flowable<ImmutableList<Record>> onGetRecordSummariesError(Throwable t) {
     // TODO: Show an appropriate error message to the user.
     Log.d(TAG, "Failed to fetch record summaries.", t);
-    return Single.just(Collections.emptyList());
+    return Flowable.just(ImmutableList.of());
   }
 
   private void loadRecords(Project project, String featureTypeId, String formId, String featureId) {

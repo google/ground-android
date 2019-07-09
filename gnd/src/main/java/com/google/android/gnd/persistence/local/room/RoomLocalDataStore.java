@@ -97,9 +97,9 @@ public class RoomLocalDataStore implements LocalDataStore {
   }
 
   @Override
-  public Single<ImmutableList<Record>> getRecords(Feature feature) {
+  public Flowable<ImmutableList<Record>> getRecordsOnceAndStream(Feature feature, String formId) {
     return db.recordDao()
-        .findByFeatureId(feature.getId())
+        .findByFeatureIdOnceAndStream(feature.getId(), formId)
         .map(
             list ->
                 stream(list)
@@ -114,23 +114,32 @@ public class RoomLocalDataStore implements LocalDataStore {
         .zipWith(db.recordMutationDao().findByFeatureId(featureId), this::mergeMutations);
   }
 
+  @Transaction
   @Override
   public Completable removePendingMutations(ImmutableList<Mutation> mutations) {
-    ImmutableList<Long> featureMutationIds =
-        stream(mutations)
-            .filter(FeatureMutation.class::isInstance)
-            .map(Mutation::getId)
-            .collect(toImmutableList());
-    ImmutableList<Long> recordMutationIds =
-        stream(mutations)
-            .filter(RecordMutation.class::isInstance)
-            .map(Mutation::getId)
-            .collect(toImmutableList());
     return db.featureMutationDao()
-        .deleteAll(featureMutationIds)
-        .andThen(db.recordMutationDao().deleteAll(recordMutationIds));
+        .deleteAll(FeatureMutation.ids(mutations))
+        .andThen(db.recordMutationDao().deleteAll(RecordMutation.ids(mutations)));
   }
 
+  @Transaction
+  @Override
+  public Completable mergeFeature(Feature feature) {
+    // TODO: Apply pending mutations (update feature currently not implemented).
+    return db.featureDao().insertOrUpdate(FeatureEntity.fromFeature(feature));
+  }
+
+  @Transaction
+  @Override
+  public Completable mergeRecord(Record record) {
+    RecordEntity recordEntity = RecordEntity.fromRecord(record);
+    return db.recordMutationDao()
+        .findByRecordId(record.getId())
+        .map(mutations -> recordEntity.applyMutations(mutations))
+        .flatMapCompletable(db.recordDao()::insertOrUpdate);
+  }
+
+  // TODO: Can this be simplified and inlined?
   private ImmutableList<Mutation> mergeMutations(
       List<FeatureMutationEntity> featureMutationEntities,
       List<RecordMutationEntity> recordMutationEntities) {
@@ -143,7 +152,7 @@ public class RoomLocalDataStore implements LocalDataStore {
   private Completable apply(FeatureMutation mutation) throws LocalDataStoreException {
     switch (mutation.getType()) {
       case CREATE:
-        return db.featureDao().insert(FeatureEntity.fromMutation(mutation));
+        return db.featureDao().insertOrUpdate(FeatureEntity.fromMutation(mutation));
       default:
         throw LocalDataStoreException.unknownMutationType(mutation.getType());
     }
@@ -166,9 +175,8 @@ public class RoomLocalDataStore implements LocalDataStore {
   private Completable apply(RecordMutation mutation) throws LocalDataStoreException {
     switch (mutation.getType()) {
       case CREATE:
-        return db.recordDao().insert(RecordEntity.fromMutation(mutation));
       case UPDATE:
-        return db.recordDao().update(RecordEntity.fromMutation(mutation));
+        return db.recordDao().insertOrUpdate(RecordEntity.fromMutation(mutation));
       default:
         throw LocalDataStoreException.unknownMutationType(mutation.getType());
     }
