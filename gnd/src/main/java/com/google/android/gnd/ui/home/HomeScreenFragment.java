@@ -190,8 +190,8 @@ public class HomeScreenFragment extends AbstractFragment
   private void setUpBottomSheetBehavior() {
     bottomSheetBehavior = BottomSheetBehavior.from(bottomSheetScrollView);
     bottomSheetBehavior.setHideable(true);
-    bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
     bottomSheetBehavior.setBottomSheetCallback(new BottomSheetCallback());
+    bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
   }
 
   @Override
@@ -222,6 +222,7 @@ public class HomeScreenFragment extends AbstractFragment
     // TODO: Create startup flow and move this logic there.
     Resource<Project> activeProject = viewModel.getActiveProject().getValue();
     if (activeProject == null || !activeProject.isLoaded()) {
+      hideBottomSheet();
       showProjectSelector();
     }
   }
