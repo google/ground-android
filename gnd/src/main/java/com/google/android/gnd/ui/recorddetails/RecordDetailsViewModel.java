@@ -16,20 +16,19 @@
 
 package com.google.android.gnd.ui.recorddetails;
 
+import android.view.View;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
-import android.view.View;
-
 import com.google.android.gnd.repository.DataRepository;
-import com.google.android.gnd.repository.Resource;
+import com.google.android.gnd.repository.Persistable;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.vo.Feature;
 import com.google.android.gnd.vo.Form;
 import com.google.android.gnd.vo.Record;
-
 import io.reactivex.Flowable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.processors.BehaviorProcessor;
-
+import io.reactivex.schedulers.Schedulers;
 import javax.inject.Inject;
 
 public class RecordDetailsViewModel extends AbstractViewModel {
@@ -38,7 +37,7 @@ public class RecordDetailsViewModel extends AbstractViewModel {
 
   private final DataRepository dataRepository;
   private final BehaviorProcessor<RecordDetailsFragmentArgs> argsProcessor;
-  public final LiveData<Resource<Record>> records;
+  public final LiveData<Persistable<Record>> records;
   public final LiveData<Integer> progressBarVisibility;
   public final LiveData<String> toolbarTitle;
   public final LiveData<String> toolbarSubtitle;
@@ -50,49 +49,54 @@ public class RecordDetailsViewModel extends AbstractViewModel {
 
     this.argsProcessor = BehaviorProcessor.create();
 
-    Flowable<Resource<Record>> recordStream =
-        argsProcessor.switchMap(
-            args ->
-                this.dataRepository.getRecordDetails(
-                    args.getProjectId(), args.getFeatureId(), args.getRecordId()));
+    Flowable<Persistable<Record>> recordStream =
+        argsProcessor
+            .switchMapSingle(
+                args ->
+                    this.dataRepository
+                        .getRecord(args.getProjectId(), args.getFeatureId(), args.getRecordId())
+                        .map(Persistable::loaded)
+                        .onErrorReturn(Persistable::error)
+                        .subscribeOn(Schedulers.io()))
+            .observeOn(AndroidSchedulers.mainThread());
 
     // TODO: Refactor to expose the fetched record directly.
     this.records = LiveDataReactiveStreams.fromPublisher(recordStream);
 
     this.progressBarVisibility =
         LiveDataReactiveStreams.fromPublisher(
-            recordStream.map(this::toProgressBarVisibility).onErrorReturn(x -> View.GONE));
+            recordStream.map(RecordDetailsViewModel::getProgressBarVisibility));
 
     this.toolbarTitle =
         LiveDataReactiveStreams.fromPublisher(
-            recordStream.map(this::toToolbarTitle).onErrorReturn(x -> ""));
+            recordStream.map(RecordDetailsViewModel::getToolbarTitle));
 
     this.toolbarSubtitle =
         LiveDataReactiveStreams.fromPublisher(
-            recordStream.map(this::toToolbarSubtitle).onErrorReturn(x -> ""));
+            recordStream.map(RecordDetailsViewModel::getToolbarSubtitle));
 
     this.formNameView =
         LiveDataReactiveStreams.fromPublisher(
-            recordStream.map(this::toFormNameView).onErrorReturn(x -> ""));
+            recordStream.map(RecordDetailsViewModel::getFormNameView));
   }
 
   public void loadRecordDetails(RecordDetailsFragmentArgs args) {
     this.argsProcessor.onNext(args);
   }
 
-  private Integer toProgressBarVisibility(Resource<Record> record) {
-    return record.data().isPresent() ? View.VISIBLE : View.GONE;
+  private static Integer getProgressBarVisibility(Persistable<Record> record) {
+    return record.value().isPresent() ? View.VISIBLE : View.GONE;
   }
 
-  private String toToolbarTitle(Resource<Record> record) {
-    return record.data().map(Record::getFeature).map(Feature::getTitle).orElse("");
+  private static String getToolbarTitle(Persistable<Record> record) {
+    return record.value().map(Record::getFeature).map(Feature::getTitle).orElse("");
   }
 
-  private String toToolbarSubtitle(Resource<Record> record) {
-    return record.data().map(Record::getFeature).map(Feature::getSubtitle).orElse("");
+  private static String getToolbarSubtitle(Persistable<Record> record) {
+    return record.value().map(Record::getFeature).map(Feature::getSubtitle).orElse("");
   }
 
-  private String toFormNameView(Resource<Record> record) {
-    return record.data().map(Record::getForm).map(Form::getTitle).orElse("");
+  private static String getFormNameView(Persistable<Record> record) {
+    return record.value().map(Record::getForm).map(Form::getTitle).orElse("");
   }
 }

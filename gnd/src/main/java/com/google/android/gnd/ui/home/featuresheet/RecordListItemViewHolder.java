@@ -94,8 +94,7 @@ class RecordListItemViewHolder extends RecyclerView.ViewHolder {
       switch (elem.getType()) {
         case FIELD:
           Field field = elem.getField();
-          Optional<Response> response =
-              Optional.ofNullable(record.getResponseMap().get(field.getId()));
+          Optional<Response> response = record.getResponses().getResponse(field.getId());
           fieldLabelRow.addView(
               newFieldTextView(field.getLabel(), R.style.RecordListText_FieldLabel));
           fieldValueRow.addView(
@@ -112,8 +111,9 @@ class RecordListItemViewHolder extends RecyclerView.ViewHolder {
     // TODO: i18n.
     userNameView.setText(modifiedBy == null ? "Unknown user" : modifiedBy.getDisplayName());
 
-    Date dateModified = record.getServerTimestamps().getModified();
-    if (dateModified != null) {
+    if (record.getServerTimestamps() != null
+        && record.getServerTimestamps().getModified() != null) {
+      Date dateModified = record.getServerTimestamps().getModified();
       DateFormat dateFormat = android.text.format.DateFormat.getMediumDateFormat(view.getContext());
       lastModifiedDateView.setText(dateFormat.format(dateModified));
       DateFormat timeFormat = android.text.format.DateFormat.getTimeFormat(view.getContext());
