@@ -184,9 +184,9 @@ public class DataRepository {
   }
 
   /**
-   * If network if available, wait for first remote emission and update of local store then
-   * complete, otherwise complete immediately. Also completes with success if record sync fails or
-   * times out.
+   * If network is available, waits for records from remote db, merging them into the local db
+   * before completing. Completes immediately if the network isn't available or if record sync fails
+   * or times out.
    */
   private Completable maybeSyncFirst(Flowable<RemoteDataEvent<Record>> remoteChanges) {
     if (networkManager.isNetworkAvailable()) {
