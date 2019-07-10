@@ -28,6 +28,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
+import androidx.lifecycle.LiveData;
 import butterknife.BindView;
 import butterknife.OnClick;
 import com.google.android.gnd.MainActivity;
@@ -36,7 +37,7 @@ import com.google.android.gnd.databinding.EditRecordFragBinding;
 import com.google.android.gnd.databinding.MultipleChoiceInputFieldBinding;
 import com.google.android.gnd.databinding.TextInputFieldBinding;
 import com.google.android.gnd.inject.ActivityScoped;
-import com.google.android.gnd.repository.Resource;
+import com.google.android.gnd.repository.Persistable;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.BackPressListener;
 import com.google.android.gnd.ui.common.EphemeralPopups;
@@ -112,8 +113,10 @@ public class EditRecordFragment extends AbstractFragment implements BackPressLis
   @Override
   public void onStart() {
     super.onStart();
-    Resource<Record> record = Resource.getValue(viewModel.getRecord());
-    if (record.isLoaded()) {
+    // TODO: Make reactive instead of reading getValue explicitly.
+    LiveData<Persistable<Record>> liveData = viewModel.getRecord();
+    Persistable<Record> record = liveData.getValue();
+    if (record != null && record.isLoaded()) {
       onRecordChange(record);
       return;
     }
@@ -121,13 +124,13 @@ public class EditRecordFragment extends AbstractFragment implements BackPressLis
     viewModel.editRecord(args, args.getRecordId().equals(NEW_RECORD_ID_ARG_PLACEHOLDER));
   }
 
-  private void onRecordChange(Resource<Record> record) {
-    switch (record.operationState().get()) {
+  private void onRecordChange(Persistable<Record> record) {
+    switch (record.state()) {
       case LOADING:
         saveRecordButton.setVisibility(View.GONE);
         break;
       case LOADED:
-        record.ifPresent(this::editRecord);
+        record.value().ifPresent(this::editRecord);
         break;
       case SAVING:
         savingProgressDialog.show();
@@ -139,7 +142,7 @@ public class EditRecordFragment extends AbstractFragment implements BackPressLis
         break;
       case NOT_FOUND:
       case ERROR:
-        record.operationState().error().ifPresent(t -> Log.e(TAG, "Failed to load/save record", t));
+        record.error().ifPresent(t -> Log.e(TAG, "Failed to load/save record", t));
         EphemeralPopups.showError(getContext());
         navigator.navigateUp();
         break;

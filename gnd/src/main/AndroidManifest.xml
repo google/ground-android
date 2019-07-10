@@ -67,6 +67,18 @@
     <uses-library
       android:name="org.apache.http.legacy"
       android:required="false" />
+
+    <!--
+      Disable WorkManagerInitializer so that we can initialize ourselves in GndApplication setting
+      custom GndWorkerFactory to perform Dagger injection.
+      TODO(github.com/google/dagger/issues/1183): Remove this if and when Worker inject is supported
+      natively.
+    -->
+    <provider
+        android:name="androidx.work.impl.WorkManagerInitializer"
+        android:authorities="com.google.android.gnd.workmanager-init"
+        android:enabled="false"
+        android:exported="false" />
   </application>
 
 </manifest>

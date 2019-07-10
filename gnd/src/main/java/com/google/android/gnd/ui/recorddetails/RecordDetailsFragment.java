@@ -34,7 +34,7 @@ import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.RecordDetailsFragBinding;
 import com.google.android.gnd.inject.ActivityScoped;
-import com.google.android.gnd.repository.Resource;
+import com.google.android.gnd.repository.Persistable;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.EphemeralPopups;
 import com.google.android.gnd.ui.common.Navigator;
@@ -114,10 +114,10 @@ public class RecordDetailsFragment extends AbstractFragment {
     }
   }
 
-  private void onUpdate(Resource<Record> record) {
-    switch (record.operationState().get()) {
+  private void onUpdate(Persistable<Record> record) {
+    switch (record.state()) {
       case LOADED:
-        record.ifPresent(this::showRecord);
+        record.value().ifPresent(this::showRecord);
         break;
       case NOT_FOUND:
       case ERROR:
@@ -147,6 +147,7 @@ public class RecordDetailsFragment extends AbstractFragment {
     FieldViewHolder fieldViewHolder = FieldViewHolder.newInstance(getLayoutInflater());
     fieldViewHolder.setLabel(field.getLabel());
     record
+        .getResponses()
         .getResponse(field.getId())
         .map(r -> r.getDetailsText(field))
         .ifPresent(fieldViewHolder::setValue);

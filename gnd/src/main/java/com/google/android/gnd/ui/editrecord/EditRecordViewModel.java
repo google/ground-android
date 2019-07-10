@@ -16,11 +16,6 @@
 
 package com.google.android.gnd.ui.editrecord;
 
-import static com.google.android.gnd.util.Streams.toImmutableList;
-import static com.google.android.gnd.vo.FeatureUpdate.Operation.CREATE;
-import static com.google.android.gnd.vo.FeatureUpdate.Operation.DELETE;
-import static com.google.android.gnd.vo.FeatureUpdate.Operation.UPDATE;
-import static java8.util.Maps.forEach;
 import static java8.util.stream.StreamSupport.stream;
 
 import android.content.res.Resources;
@@ -34,25 +29,28 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import com.google.android.gnd.GndApplication;
 import com.google.android.gnd.R;
+import com.google.android.gnd.persistence.shared.Mutation;
+import com.google.android.gnd.persistence.shared.RecordMutation;
+import com.google.android.gnd.persistence.shared.ResponseDelta;
 import com.google.android.gnd.repository.DataRepository;
-import com.google.android.gnd.repository.Resource;
+import com.google.android.gnd.repository.Persistable;
 import com.google.android.gnd.system.AuthenticationManager;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.common.SingleLiveEvent;
-import com.google.android.gnd.vo.FeatureUpdate.RecordUpdate.ResponseUpdate;
+import com.google.android.gnd.vo.Form.Element;
 import com.google.android.gnd.vo.Form.Element.Type;
 import com.google.android.gnd.vo.Form.Field;
 import com.google.android.gnd.vo.Record;
 import com.google.android.gnd.vo.Record.Response;
 import com.google.android.gnd.vo.Record.TextResponse;
 import com.google.common.collect.ImmutableList;
+import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.Single;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subjects.PublishSubject;
-import java.util.Arrays;
-import java.util.Collections;
 import java8.util.Optional;
-import java8.util.stream.Stream;
 import javax.inject.Inject;
 
 // TODO: Save draft to local db on each change.
@@ -61,7 +59,7 @@ public class EditRecordViewModel extends AbstractViewModel {
 
   private final DataRepository dataRepository;
   private final AuthenticationManager authManager;
-  private final MutableLiveData<Resource<Record>> record;
+  private final MutableLiveData<Persistable<Record>> record;
   private final SingleLiveEvent<Void> showUnsavedChangesDialogEvents;
   private final SingleLiveEvent<Void> showErrorDialogEvents;
   private final Resources resources;
@@ -72,6 +70,7 @@ public class EditRecordViewModel extends AbstractViewModel {
 
   public final ObservableInt loadingSpinnerVisibility = new ObservableInt();
   private AuthenticationManager.User currentUser;
+  private boolean isNew;
 
   @Inject
   EditRecordViewModel(
@@ -87,10 +86,22 @@ public class EditRecordViewModel extends AbstractViewModel {
     this.editRecordRequests = PublishSubject.create();
     this.recordSaveRequests = PublishSubject.create();
 
+    // TODO(#84): Handle errors on inner stream to avoid breaking outer one.
+    // TODO: Simplify this stream and consolidate error handling (remove Resource wrapper?).
     disposeOnClear(
         recordSaveRequests
-            .switchMap(this::saveRecord)
-            .subscribe(record::setValue, this::onSaveRecordError));
+            .switchMap(
+                request ->
+                    saveRecord(request)
+                        .toObservable()
+                        .startWith(Persistable.saving(request.record))
+                        .map(__ -> Persistable.saved(request.record))
+                        .doOnError(this::onSaveRecordError)
+                        // Prevent from breaking upstream.
+                        .onErrorResumeNext(Observable.never())
+                        .subscribeOn(Schedulers.io()))
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(record::setValue));
 
     disposeOnClear(
         editRecordRequests
@@ -98,42 +109,55 @@ public class EditRecordViewModel extends AbstractViewModel {
                 record ->
                     createOrUpdateRecord(record)
                         .doOnError(this::onEditRecordError)
-                        .onErrorResumeNext(Single.never()))  // Prevent from breaking upstream.
+                        .onErrorResumeNext(Single.never())
+                        .subscribeOn(Schedulers.io()))
+            .observeOn(AndroidSchedulers.mainThread())
             .subscribe(this::onRecordSnapshot));
   }
 
-  private Single<Resource<Record>> createOrUpdateRecord(EditRecordRequest request) {
-    return request.isNew ? createRecord(request) : updateRecord(request);
+  private Single<Persistable<Record>> createOrUpdateRecord(EditRecordRequest request) {
+    this.isNew = request.isNew;
+    return isNew ? newRecord(request) : editRecord(request);
   }
 
-  private Single<Resource<Record>> createRecord(EditRecordRequest request) {
-    return this.dataRepository
+  private Single<Persistable<Record>> newRecord(EditRecordRequest request) {
+    return dataRepository
         .createRecord(
             request.args.getProjectId(), request.args.getFeatureId(), request.args.getFormId())
-        .map(Resource::loaded)
+        .map(Persistable::loaded)
         // TODO(#78): Avoid side-effects.
         .doOnSuccess(this::onNewRecordLoaded);
   }
 
-  private Single<Resource<Record>> updateRecord(EditRecordRequest request) {
-    return this.dataRepository
-        .getRecordSnapshot(
+  private Single<Persistable<Record>> editRecord(EditRecordRequest request) {
+    return dataRepository
+        .getRecord(
             request.args.getProjectId(), request.args.getFeatureId(), request.args.getRecordId())
         // TODO(#78): Avoid side-effects.
-        .doOnSuccess(r -> r.data().ifPresent(this::update));
+        .doOnSuccess(this::update)
+        .map(Persistable::loaded);
   }
 
-  private Observable<Resource<Record>> saveRecord(SaveRecordRequest request) {
-    return this.dataRepository.saveChanges(
-        request.record, getChangeList(request.record), request.user);
+  private Completable saveRecord(SaveRecordRequest request) {
+    RecordMutation recordMutation =
+        RecordMutation.builder()
+            .setType(request.mutationType)
+            .setProjectId(request.record.getProject().getId())
+            .setFeatureId(request.record.getFeature().getId())
+            .setRecordId(request.record.getId())
+            .setFormId(request.record.getForm().getId())
+            .setResponseDeltas(getResponseDeltas(request.record))
+            .setUserId(request.user.getId())
+            .build();
+    return dataRepository.applyAndEnqueue(recordMutation);
   }
 
   private void onSaveRecordError(Throwable t) {
-    Log.d(TAG, "Failed to save the record.", t);
+    Log.e(TAG, "Failed to save the record.", t);
   }
 
   private void onEditRecordError(Throwable t) {
-    Log.d(TAG, "Unable to create or update record", t);
+    Log.e(TAG, "Unable to create or update record", t);
   }
 
   public ObservableMap<String, Response> getResponses() {
@@ -168,7 +192,7 @@ public class EditRecordViewModel extends AbstractViewModel {
     }
   }
 
-  LiveData<Resource<Record>> getRecord() {
+  LiveData<Persistable<Record>> getRecord() {
     return record;
   }
 
@@ -182,10 +206,10 @@ public class EditRecordViewModel extends AbstractViewModel {
 
   @NonNull
   private Optional<Record> getCurrentRecord() {
-    return Resource.getData(record);
+    return Persistable.getData(record);
   }
 
-  private void onNewRecordLoaded(Resource<Record> r) {
+  private void onNewRecordLoaded(Persistable<Record> r) {
     responses.clear();
     errors.clear();
   }
@@ -193,19 +217,21 @@ public class EditRecordViewModel extends AbstractViewModel {
   private void updateMap(Record r) {
     Log.v(TAG, "Updating map");
     responses.clear();
-    forEach(
-        r.getResponseMap(),
-        (k, v) ->
-            r.getForm().getField(k).ifPresent(field -> onResponseChanged(field, Optional.of(v))));
+    for (String fieldId : r.getResponses().fieldIds()) {
+      r.getForm()
+          .getField(fieldId)
+          .ifPresent(field -> onResponseChanged(field, r.getResponses().getResponse(fieldId)));
+    }
   }
 
   void editRecord(EditRecordFragmentArgs args, boolean isNew) {
     this.currentUser = authManager.getUser().blockingFirst(AuthenticationManager.User.ANONYMOUS);
+    // TODO(#100): Replace event object with single value (id?).
     editRecordRequests.onNext(new EditRecordRequest(args, isNew));
   }
 
-  private void onRecordSnapshot(Resource<Record> r) {
-    switch (r.operationState().get()) {
+  private void onRecordSnapshot(Persistable<Record> r) {
+    switch (r.state()) {
       case LOADING:
         loadingSpinnerVisibility.set(View.VISIBLE);
         break;
@@ -251,40 +277,27 @@ public class EditRecordViewModel extends AbstractViewModel {
   }
 
   private void saveChanges(Record r) {
-    recordSaveRequests.onNext(new SaveRecordRequest(r, this.currentUser));
+    // TODO(#100): Replace event object with single value (id?).
+    recordSaveRequests.onNext(
+        new SaveRecordRequest(
+            r, this.currentUser, isNew ? Mutation.Type.CREATE : Mutation.Type.UPDATE));
   }
 
-  private Stream<ResponseUpdate> getChanges(Record r) {
-    return stream(r.getForm().getElements())
-        .filter(e -> e.getType() == Type.FIELD)
-        .map(e -> e.getField())
-        .flatMap(f -> getChanges(r, f));
-  }
-
-  private ImmutableList<ResponseUpdate> getChangeList(Record r) {
-    return getChanges(r).collect(toImmutableList());
-  }
-
-  private Stream<ResponseUpdate> getChanges(Record record, Field field) {
-    String fieldId = field.getId();
-    Optional<Response> originalResponse = record.getResponse(fieldId);
-    Optional<Response> currentResponse = getResponse(fieldId).filter(r -> !r.isEmpty());
-    if (currentResponse.equals(originalResponse)) {
-      return stream(Collections.emptyList());
+  private ImmutableList<ResponseDelta> getResponseDeltas(Record record) {
+    ImmutableList.Builder<ResponseDelta> deltas = ImmutableList.builder();
+    for (Element e : record.getForm().getElements()) {
+      if (e.getType() != Type.FIELD) {
+        continue;
+      }
+      String fieldId = e.getField().getId();
+      Optional<Response> originalResponse = record.getResponses().getResponse(fieldId);
+      Optional<Response> currentResponse = getResponse(fieldId).filter(r -> !r.isEmpty());
+      if (!currentResponse.equals(originalResponse)) {
+        deltas.add(
+            ResponseDelta.builder().setFieldId(fieldId).setNewResponse(currentResponse).build());
+      }
     }
-
-    ResponseUpdate.Builder update = ResponseUpdate.newBuilder();
-    update.setElementId(fieldId);
-    if (!currentResponse.isPresent()) {
-      update.setOperation(DELETE);
-    } else if (originalResponse.isPresent()) {
-      update.setOperation(UPDATE);
-      update.setResponse(currentResponse);
-    } else {
-      update.setOperation(CREATE);
-      update.setResponse(currentResponse);
-    }
-    return stream(Arrays.asList(update.build()));
+    return deltas.build();
   }
 
   private void update(Record record) {
@@ -316,7 +329,7 @@ public class EditRecordViewModel extends AbstractViewModel {
   }
 
   private boolean hasUnsavedChanges() {
-    return getCurrentRecord().map(r -> getChanges(r).findAny().isPresent()).orElse(false);
+    return getCurrentRecord().map(record -> !getResponseDeltas(record).isEmpty()).orElse(false);
   }
 
   private boolean hasErrors() {
@@ -336,10 +349,12 @@ public class EditRecordViewModel extends AbstractViewModel {
   public static class SaveRecordRequest {
     public final Record record;
     public final AuthenticationManager.User user;
+    public final Mutation.Type mutationType;
 
-    SaveRecordRequest(Record record, AuthenticationManager.User user) {
+    SaveRecordRequest(Record record, AuthenticationManager.User user, Mutation.Type mutationType) {
       this.record = record;
       this.user = user;
+      this.mutationType = mutationType;
     }
   }
 }
