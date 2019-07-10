@@ -17,8 +17,9 @@
 package com.google.android.gnd;
 
 import android.app.Application;
+import android.content.Context;
+import android.content.SharedPreferences;
 import androidx.work.WorkManager;
-import androidx.work.WorkerFactory;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gnd.inject.ActivityScoped;
 import com.google.android.gnd.persistence.local.LocalDataStore;
@@ -36,6 +37,7 @@ import javax.inject.Singleton;
 
 @Module(includes = {AndroidSupportInjectionModule.class, ViewModelModule.class})
 abstract class GndApplicationModule {
+  private static final String SHARED_PREFERENCES_NAME = "shared_prefs";
 
   /** Causes Dagger Android to generate a sub-component for the MainActivity. */
   @ActivityScoped
@@ -71,5 +73,13 @@ abstract class GndApplicationModule {
   @Singleton
   static WorkManager workManager() {
     return WorkManager.getInstance();
+  }
+
+  @Provides
+  @Singleton
+  static SharedPreferences sharedPreferences(GndApplication application) {
+    return application
+        .getApplicationContext()
+        .getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
   }
 }
