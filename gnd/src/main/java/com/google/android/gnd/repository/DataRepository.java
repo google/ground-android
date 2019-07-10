@@ -211,12 +211,7 @@ public class DataRepository {
       case ENTITY_MODIFIED:
         return event
             .value()
-            .map(
-                record ->
-                    localDataStore
-                        .mergeRecord(record)
-                        .subscribeOn(Schedulers.io())
-                        .doOnError(e -> Log.e(TAG, "ERROR: ", e)))
+            .map(record -> localDataStore.mergeRecord(record).subscribeOn(Schedulers.io()))
             .orElse(Completable.never());
       case ENTITY_REMOVED:
         // TODO: Delete record from local db.
