@@ -195,6 +195,8 @@ public class DataRepository {
           .firstElement()
           .flatMapCompletable(this::mergeRemoteRecordChange)
           .timeout(GET_REMOTE_RECORDS_TIMEOUT_SECS, TimeUnit.SECONDS)
+          // TODO: Propagate this to the user so we can show "network unavailable" message also
+          // when network became unavailable mid-fetch .
           .doOnError(t -> Log.d(TAG, "Record sync timed out"))
           .onErrorComplete();
     } else {
