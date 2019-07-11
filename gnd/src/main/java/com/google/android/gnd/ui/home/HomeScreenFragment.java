@@ -161,11 +161,10 @@ public class HomeScreenFragment extends AbstractFragment
     if (savedInstanceState == null) {
       mapContainerFragment = new MapContainerFragment();
       replaceFragment(R.id.map_container_fragment, mapContainerFragment);
+      setUpBottomSheetBehavior();
     } else {
       mapContainerFragment = restoreChildFragment(savedInstanceState, MapContainerFragment.class);
     }
-
-    setUpBottomSheetBehavior();
   }
 
   private String getVersionName() {
@@ -191,7 +190,7 @@ public class HomeScreenFragment extends AbstractFragment
     bottomSheetBehavior = BottomSheetBehavior.from(bottomSheetScrollView);
     bottomSheetBehavior.setHideable(true);
     bottomSheetBehavior.setBottomSheetCallback(new BottomSheetCallback());
-    bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+    bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
   }
 
   @Override
@@ -222,7 +221,6 @@ public class HomeScreenFragment extends AbstractFragment
     // TODO: Create startup flow and move this logic there.
     Resource<Project> activeProject = viewModel.getActiveProject().getValue();
     if (activeProject == null || !activeProject.isLoaded()) {
-      hideBottomSheet();
       showProjectSelector();
     }
   }

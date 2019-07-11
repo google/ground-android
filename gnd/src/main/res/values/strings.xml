@@ -15,8 +15,6 @@
   -->
 
 <resources>
-  <string name="google_maps_key" templateMergeStrategy="preserve" translatable="false">AIzaSyAHk3dTs0hYeFb09pqq_rIw0I67CbT8ch0</string>
-
 
   <!-- Application name. Do not translate. -->
   <string name="app_name" translatable="false">Ground</string>
