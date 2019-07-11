@@ -1,4 +1,4 @@
 include ':gnd', ':android-gmaps-addons'
 
-project(':android-gmaps-addons').projectDir = new File('third_party/android-gmaps-addons')
+project(':android-gmaps-addons').projectDir = new File('third_party/cocoahero/android-gmaps-addons')
 
