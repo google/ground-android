@@ -22,6 +22,8 @@ import static java8.util.stream.StreamSupport.stream;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.util.Log;
+
+import com.cocoahero.android.gmaps.addons.mapbox.MapBoxOfflineTileProvider;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.UiSettings;
@@ -29,6 +31,7 @@ import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.android.gnd.ui.MapIcon;
 import com.google.android.gnd.ui.map.MapMarker;
 import com.google.android.gnd.ui.map.MapProvider.MapAdapter;
@@ -39,6 +42,8 @@ import com.google.common.collect.ImmutableSet;
 import io.reactivex.Observable;
 import io.reactivex.subjects.BehaviorSubject;
 import io.reactivex.subjects.PublishSubject;
+
+import java.io.File;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -83,6 +88,9 @@ class GoogleMapsMapAdapter implements MapAdapter {
     map.setOnCameraIdleListener(this::onCameraIdle);
     map.setOnCameraMoveStartedListener(this::onCameraMoveStarted);
     map.setOnCameraMoveListener(this::onCameraMove);
+    // TODO: Use an `activeTileSet` from the view model.
+    renderOfflineTileSet(
+        new File(context.getFilesDir().getAbsolutePath() + "/countries-raster.mbtiles"));
     onCameraMove();
   }
 
@@ -130,6 +138,17 @@ class GoogleMapsMapAdapter implements MapAdapter {
   @Override
   public void moveCamera(Point point, float zoomLevel) {
     map.moveCamera(CameraUpdateFactory.newLatLngZoom(point.toLatLng(), zoomLevel));
+  }
+
+  //TODO: Pass this method as a subscription on `activeTileSet` change.
+  @Override
+  public void renderOfflineTileSet(File file) {
+    if (file.exists()) {
+      TileOverlayOptions options = new TileOverlayOptions();
+      MapBoxOfflineTileProvider tileProvider = new MapBoxOfflineTileProvider(file);
+      options.tileProvider(tileProvider);
+      map.addTileOverlay(options);
+    }
   }
 
   private void addMarker(MapMarker mapMarker, boolean hasPendingWrites, boolean isHighlighted) {

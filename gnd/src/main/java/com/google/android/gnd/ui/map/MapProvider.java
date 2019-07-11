@@ -21,6 +21,10 @@ import androidx.fragment.app.Fragment;
 import com.google.android.gnd.vo.Feature;
 import com.google.android.gnd.vo.Point;
 import com.google.common.collect.ImmutableSet;
+
+import java.io.File;
+import java.net.URL;
+
 import io.reactivex.Observable;
 import io.reactivex.Single;
 
@@ -60,5 +64,7 @@ public interface MapProvider {
     void enableCurrentLocationIndicator();
 
     void updateMarkers(ImmutableSet<Feature> features);
+
+    void renderOfflineTileSet(File file);
   }
 }
