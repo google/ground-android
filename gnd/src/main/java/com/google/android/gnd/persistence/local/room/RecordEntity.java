@@ -16,10 +16,13 @@
 
 package com.google.android.gnd.persistence.local.room;
 
+import static androidx.room.ForeignKey.CASCADE;
+
 import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
+import androidx.room.ForeignKey;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
 import com.google.android.gnd.persistence.shared.RecordMutation;
@@ -32,8 +35,14 @@ import com.google.auto.value.AutoValue.CopyAnnotations;
 /** Representation of a {@link com.google.android.gnd.vo.Record} in local db. */
 @AutoValue
 @Entity(
+    foreignKeys =
+        @ForeignKey(
+            entity = FeatureEntity.class,
+            parentColumns = "id",
+            childColumns = "feature_id",
+            onDelete = CASCADE),
     tableName = "record",
-    indices = {@Index("id")})
+    indices = {@Index("id"), @Index("feature_id"), @Index("form_id")})
 public abstract class RecordEntity {
 
   private static final String TAG = RecordEntity.class.getSimpleName();

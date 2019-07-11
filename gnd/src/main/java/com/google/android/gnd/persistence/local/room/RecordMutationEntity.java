@@ -39,13 +39,25 @@ import org.json.JSONObject;
 @AutoValue
 @Entity(
     tableName = "record_mutation",
-    foreignKeys =
-        @ForeignKey(
-            entity = RecordEntity.class,
-            parentColumns = "id",
-            childColumns = "record_id",
-            onDelete = CASCADE),
-    indices = {@Index("record_id")})
+    foreignKeys = {
+      @ForeignKey(
+          entity = FeatureEntity.class,
+          parentColumns = "id",
+          childColumns = "feature_id",
+          onDelete = CASCADE),
+      @ForeignKey(
+          entity = RecordEntity.class,
+          parentColumns = "id",
+          childColumns = "record_id",
+          onDelete = CASCADE)
+    },
+    indices = {
+      @Index("id"),
+      @Index("project_id"),
+      @Index("form_id"),
+      @Index("feature_id"),
+      @Index("record_id")
+    })
 public abstract class RecordMutationEntity {
   @CopyAnnotations
   @PrimaryKey(autoGenerate = true)
