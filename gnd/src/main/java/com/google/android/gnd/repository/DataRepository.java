@@ -194,9 +194,9 @@ public class DataRepository {
   }
 
   /**
-   * If network if available, wait for first remote emission and update of local store then
-   * complete, otherwise complete immediately. Also completes with success if record sync fails or
-   * times out.
+   * If network is available, waits for records from remote db, merging them into the local db
+   * before completing. Completes immediately if the network isn't available or if record sync fails
+   * or times out.
    */
   private Completable maybeSyncFirst(Flowable<RemoteDataEvent<Record>> remoteChanges) {
     if (networkManager.isNetworkAvailable()) {
@@ -205,6 +205,8 @@ public class DataRepository {
           .firstElement()
           .flatMapCompletable(this::mergeRemoteRecordChange)
           .timeout(GET_REMOTE_RECORDS_TIMEOUT_SECS, TimeUnit.SECONDS)
+          // TODO: Propagate this to the user so we can show "network unavailable" message also
+          // when network became unavailable mid-fetch .
           .doOnError(t -> Log.d(TAG, "Record sync timed out"))
           .onErrorComplete();
     } else {
@@ -219,12 +221,7 @@ public class DataRepository {
       case ENTITY_MODIFIED:
         return event
             .value()
-            .map(
-                record ->
-                    localDataStore
-                        .mergeRecord(record)
-                        .subscribeOn(Schedulers.io())
-                        .doOnError(e -> Log.e(TAG, "ERROR: ", e)))
+            .map(record -> localDataStore.mergeRecord(record).subscribeOn(Schedulers.io()))
             .orElse(Completable.never());
       case ENTITY_REMOVED:
         // TODO: Delete record from local db.
