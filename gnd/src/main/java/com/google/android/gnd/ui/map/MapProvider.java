@@ -23,7 +23,6 @@ import com.google.android.gnd.vo.Point;
 import com.google.common.collect.ImmutableSet;
 
 import java.io.File;
-import java.net.URL;
 
 import io.reactivex.Observable;
 import io.reactivex.Single;
