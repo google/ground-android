@@ -1,0 +1,30 @@
+# Built Application Files
+*.apk
+*.ap_
+
+# Dex VM
+*.dex
+
+# Java Class Files
+*.class
+
+# Generated Files
+bin/
+gen/
+
+# Mac OS X
+.DS_Store
+*.tmp
+*.bak
+*.swp
+
+# Eclipse
+tmp/**
+.classpath
+.project
+.settings
+
+# Ant Local Configuration
+local.properties
+
+*.keystore

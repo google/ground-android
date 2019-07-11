@@ -1,0 +1,23 @@
+apply plugin: 'com.android.library'
+
+android {
+    compileSdkVersion 28
+    buildToolsVersion "28.0.3"
+
+    defaultConfig {
+        minSdkVersion 15
+        targetSdkVersion 28
+    }
+    
+    sourceSets {
+        main {
+            manifest.srcFile 'AndroidManifest.xml'
+            java.srcDirs = ['src']
+        }
+    }
+}
+
+dependencies {
+  implementation "com.google.android.gms:play-services-base:10.2.0"
+  implementation "com.google.android.gms:play-services-maps:10.2.0"
+}
