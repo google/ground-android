@@ -125,7 +125,7 @@ public class RoomLocalDataStore implements LocalDataStore {
   @Transaction
   @Override
   public Completable mergeFeature(Feature feature) {
-    // TODO: Apply pending mutations (update feature currently not implemented).
+    // TODO(#109): Once we user can edit feature locally, apply pending mutations before saving.
     return db.featureDao().insertOrUpdate(FeatureEntity.fromFeature(feature));
   }
 
