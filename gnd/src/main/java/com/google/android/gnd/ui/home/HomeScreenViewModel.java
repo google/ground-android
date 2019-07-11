@@ -20,7 +20,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
 import androidx.lifecycle.MutableLiveData;
 import com.google.android.gnd.repository.DataRepository;
-import com.google.android.gnd.repository.Resource;
+import com.google.android.gnd.repository.Persistable;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.SharedViewModel;
@@ -31,6 +31,8 @@ import com.google.android.gnd.vo.Form;
 import com.google.android.gnd.vo.Point;
 import com.google.android.gnd.vo.Project;
 import io.reactivex.Single;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subjects.PublishSubject;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
@@ -41,7 +43,9 @@ public class HomeScreenViewModel extends AbstractViewModel {
   private static final String TAG = HomeScreenViewModel.class.getSimpleName();
   private final DataRepository dataRepository;
   private final Navigator navigator;
-  private final LiveData<Resource<Project>> activeProject;
+  /** The state and value of the currently active project (loading, loaded, etc.). */
+  private final LiveData<Persistable<Project>> activeProject;
+
   private final PublishSubject<Feature> addFeatureClicks;
 
   // TODO: Move into MapContainersViewModel
@@ -58,7 +62,8 @@ public class HomeScreenViewModel extends AbstractViewModel {
     this.addFeatureDialogRequests = new SingleLiveEvent<>();
     this.openDrawerRequests = new SingleLiveEvent<>();
     this.featureSheetState = new MutableLiveData<>();
-    this.activeProject = LiveDataReactiveStreams.fromPublisher(dataRepository.getActiveProject());
+    this.activeProject =
+        LiveDataReactiveStreams.fromPublisher(dataRepository.getActiveProjectOnceAndStream());
     this.navigator = navigator;
     this.addFeatureClicks = PublishSubject.create();
 
@@ -67,9 +72,12 @@ public class HomeScreenViewModel extends AbstractViewModel {
             .switchMapSingle(
                 newFeature ->
                     dataRepository
-                        .addFeature(newFeature)
+                        .saveFeature(newFeature)
+                        .toSingleDefault(newFeature)
                         .doOnError(this::onAddFeatureError)
-                        .onErrorResumeNext(Single.never()))  // Prevent from breaking upstream.
+                        .onErrorResumeNext(Single.never()) // Prevent from breaking upstream.
+                        .subscribeOn(Schedulers.io()))
+            .observeOn(AndroidSchedulers.mainThread())
             .subscribe(this::showFeatureSheet));
   }
 
@@ -86,7 +94,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
     openDrawerRequests.setValue(null);
   }
 
-  public LiveData<Resource<Project>> getActiveProject() {
+  public LiveData<Persistable<Project>> getActiveProject() {
     return activeProject;
   }
 
@@ -136,5 +144,15 @@ public class HomeScreenViewModel extends AbstractViewModel {
     }
     Feature feature = state.getFeature();
     navigator.addRecord(feature.getProject().getId(), feature.getId(), selectedForm.getId());
+  }
+
+  /**
+   * Reactivates the last active project, emitting true once loaded, or false if no project was
+   * previously activated.
+   */
+  public LiveData<Boolean> reactivateLastProject() {
+    // TODO: Handle errors activating project.
+    return LiveDataReactiveStreams.fromPublisher(
+        dataRepository.reactivateLastProject().toFlowable());
   }
 }

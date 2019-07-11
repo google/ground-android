@@ -18,7 +18,7 @@ apply plugin: 'com.android.application'
 
 project.ext {
     autoDisposeVersion = "1.2.0"
-    autoValueVersion = "1.6"
+    autoValueVersion = "1.6.3"
     butterKnifeVersion = "10.1.0"
     constraintLayoutVersion = "1.0.2"
     daggerVersion = "2.21"
@@ -30,6 +30,7 @@ project.ext {
     junitVersion = "4.12"
     lifecycleVersion = "2.0.0-beta01"
     navigationVersion = "1.0.0-alpha05"
+    roomVersion = "2.1.0-rc01"
     rxAndroidVersion = "2.1.1"
     rxBindingVersion = "2.1.1"
     rxFirebaseVersion = "1.5.0"
@@ -38,6 +39,7 @@ project.ext {
     streamSupportVersion = "1.6.3"
     supportLibraryVersion = "1.0.0-beta01"
     tabLayoutHelper = "0.9.0"
+    workVersion = "2.0.1"
 }
 
 def homePath = System.properties['user.home']
@@ -151,12 +153,26 @@ dependencies {
     // Guava
     implementation "com.google.guava:guava:$project.guavaVersion"
 
+    // Room
+    implementation "androidx.room:room-runtime:$roomVersion"
+    annotationProcessor "androidx.room:room-compiler:$roomVersion"
+    implementation "androidx.room:room-rxjava2:$roomVersion"
+    implementation "androidx.room:room-guava:$roomVersion"
+    testImplementation "androidx.room:room-testing:$roomVersion"
+
+    // WorkManager
+    implementation "androidx.work:work-runtime:$workVersion"
+    implementation "androidx.work:work-rxjava2:$workVersion"
+    androidTestImplementation "androidx.work:work-testing:$workVersion"
+
+
     // Testing
     testImplementation "junit:junit:$project.junitVersion"
 
     implementation "com.uber.autodispose:autodispose-android:$project.autoDisposeVersion"
     implementation "com.uber.autodispose:autodispose-android-archcomponents:$project.autoDisposeVersion"
 }
+
 apply plugin: 'androidx.navigation.safeargs'
 
 // This must be last to avoid dependency collisions.

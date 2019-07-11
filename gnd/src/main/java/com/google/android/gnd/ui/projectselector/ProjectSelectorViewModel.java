@@ -19,7 +19,7 @@ import android.util.Log;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import com.google.android.gnd.repository.DataRepository;
-import com.google.android.gnd.repository.Resource;
+import com.google.android.gnd.repository.Persistable;
 import com.google.android.gnd.system.AuthenticationManager;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.vo.Project;
@@ -32,7 +32,7 @@ import javax.inject.Inject;
 public class ProjectSelectorViewModel extends AbstractViewModel {
   private static final String TAG = ProjectSelectorViewModel.class.getSimpleName();
 
-  private final MutableLiveData<Resource<List<Project>>> projectSummaries;
+  private final MutableLiveData<Persistable<List<Project>>> projectSummaries;
   private final PublishSubject<Integer> projectSelections;
   private final MutableLiveData<Project> activeProject;
   private final MutableLiveData<Throwable> activateProjectErrors;
@@ -63,7 +63,7 @@ public class ProjectSelectorViewModel extends AbstractViewModel {
             .subscribe(projectSummaries::setValue, this::onProjectSummariesError));
   }
 
-  public LiveData<Resource<List<Project>>> getProjectSummaries() {
+  public LiveData<Persistable<List<Project>>> getProjectSummaries() {
     return projectSummaries;
   }
 
@@ -76,7 +76,7 @@ public class ProjectSelectorViewModel extends AbstractViewModel {
   }
 
   private Project getProjectSummary(int idx) {
-    return Resource.getData(this.projectSummaries).orElse(Collections.emptyList()).get(idx);
+    return Persistable.getData(this.projectSummaries).orElse(Collections.emptyList()).get(idx);
   }
 
   private void onProjectSummariesError(Throwable t) {
