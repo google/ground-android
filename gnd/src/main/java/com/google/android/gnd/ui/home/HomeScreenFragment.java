@@ -189,8 +189,8 @@ public class HomeScreenFragment extends AbstractFragment
   private void setUpBottomSheetBehavior() {
     bottomSheetBehavior = BottomSheetBehavior.from(bottomSheetScrollView);
     bottomSheetBehavior.setHideable(true);
-    bottomSheetBehavior.setBottomSheetCallback(new BottomSheetCallback());
     bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
+    bottomSheetBehavior.setBottomSheetCallback(new BottomSheetCallback());
   }
 
   @Override
