@@ -24,12 +24,6 @@ import android.app.ProgressDialog;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import com.google.android.material.navigation.NavigationView;
-import com.google.android.material.navigation.NavigationView.OnNavigationItemSelectedListener;
-import androidx.core.view.WindowInsetsCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -39,21 +33,17 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-
-import androidx.fragment.app.FragmentManager;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.view.WindowInsetsCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 import butterknife.BindView;
-import io.reactivex.Flowable;
-import io.reactivex.Observable;
-import io.reactivex.Observer;
-import io.reactivex.processors.BehaviorProcessor;
-import io.reactivex.subjects.PublishSubject;
-
 import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.MainViewModel;
 import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.HomeScreenFragBinding;
 import com.google.android.gnd.inject.ActivityScoped;
-import com.google.android.gnd.repository.Resource;
+import com.google.android.gnd.repository.Persistable;
 import com.google.android.gnd.system.AuthenticationManager;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.BackPressListener;
@@ -66,17 +56,21 @@ import com.google.android.gnd.ui.projectselector.ProjectSelectorDialogFragment;
 import com.google.android.gnd.vo.Feature;
 import com.google.android.gnd.vo.Point;
 import com.google.android.gnd.vo.Project;
-
+import com.google.android.material.navigation.NavigationView;
+import com.google.android.material.navigation.NavigationView.OnNavigationItemSelectedListener;
+import io.reactivex.subjects.PublishSubject;
 import javax.inject.Inject;
 
 /**
- * Fragment containing the map container and feature sheet fragments. This is the default view in
- * the application, and gets swapped out for other fragments (e.g., view record and edit record) at
- * runtime.
+ * Fragment containing the map container and feature sheet fragments and NavigationView side drawer.
+ * This is the default view in the application, and gets swapped out for other fragments (e.g., view
+ * record and edit record) at runtime.
  */
 @ActivityScoped
 public class HomeScreenFragment extends AbstractFragment
     implements BackPressListener, OnNavigationItemSelectedListener {
+  // TODO: It's not obvious which feature are in HomeScreen vs MapContainer; make this more
+  // intuitive.
   private static final float COLLAPSED_MAP_ASPECT_RATIO = 3.0f / 2.0f;
   private static final String TAG = HomeScreenFragment.class.getSimpleName();
 
@@ -217,10 +211,11 @@ public class HomeScreenFragment extends AbstractFragment
   @Override
   public void onStart() {
     super.onStart();
-    // TODO: Persist last selected project in local db.
-    // TODO: Create startup flow and move this logic there.
-    Resource<Project> activeProject = viewModel.getActiveProject().getValue();
-    if (activeProject == null || !activeProject.isLoaded()) {
+    viewModel.reactivateLastProject().observe(this, this::onReactivateLastProject);
+  }
+
+  private void onReactivateLastProject(boolean success) {
+    if (!success) {
       showProjectSelector();
     }
   }
@@ -256,8 +251,8 @@ public class HomeScreenFragment extends AbstractFragment
     bottomSheetBehavior.setPeekHeight((int) peekHeight);
   }
 
-  private void onActiveProjectChange(Resource<Project> project) {
-    switch (project.operationState().get()) {
+  private void onActiveProjectChange(Persistable<Project> project) {
+    switch (project.state()) {
       case NOT_LOADED:
         dismissLoadingDialog();
         break;
@@ -270,14 +265,13 @@ public class HomeScreenFragment extends AbstractFragment
       case NOT_FOUND:
       case ERROR:
         EphemeralPopups.showError(getContext(), R.string.project_load_error);
-        Log.e(
-            TAG, "Project load error", project.operationState().error().orElse(new UnknownError()));
+        Log.e(TAG, "Project load error", project.error().orElse(new UnknownError()));
         break;
     }
   }
 
   private void onShowAddFeatureDialogRequest(Point location) {
-    if (!Resource.getData(viewModel.getActiveProject()).isPresent()) {
+    if (!Persistable.getData(viewModel.getActiveProject()).isPresent()) {
       return;
     }
     // TODO: Pause location updates while dialog is open.

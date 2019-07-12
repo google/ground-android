@@ -16,11 +16,11 @@
 
 package com.google.android.gnd.ui.home.featuresheet;
 
+import android.view.ViewGroup;
+import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-import android.view.ViewGroup;
 import com.google.android.gnd.vo.Record;
 import java.util.Collections;
 import java.util.List;
@@ -54,6 +54,11 @@ class RecordListAdapter extends RecyclerView.Adapter<RecordListItemViewHolder> {
 
   LiveData<Record> getItemClicks() {
     return itemClicks;
+  }
+
+  void clear() {
+    this.recordSummaries = Collections.emptyList();
+    notifyDataSetChanged();
   }
 
   void update(List<Record> recordSummaries) {

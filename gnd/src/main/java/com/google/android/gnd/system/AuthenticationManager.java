@@ -19,8 +19,8 @@ package com.google.android.gnd.system;
 import android.app.Activity;
 import android.app.Application;
 import android.content.Intent;
-import androidx.annotation.NonNull;
 import android.util.Log;
+import androidx.annotation.NonNull;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -29,8 +29,7 @@ import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gnd.R;
 import com.google.android.gnd.inject.ActivityScoped;
-import com.google.android.gnd.rx.AbstractResource;
-import com.google.android.gnd.rx.OperationState;
+import com.google.android.gnd.rx.Result;
 import com.google.android.gnd.system.ActivityStreams.ActivityResult;
 import com.google.android.gnd.system.AuthenticationManager.SignInState.State;
 import com.google.firebase.auth.AuthCredential;
@@ -80,10 +79,6 @@ public class AuthenticationManager {
 
   public void init() {
     signInState.onNext(getStatus());
-  }
-
-  public boolean isSignedIn() {
-    return firebaseAuth.getCurrentUser() != null;
   }
 
   private SignInState getStatus() {
@@ -152,7 +147,10 @@ public class AuthenticationManager {
     activityResultsSubscription.dispose();
   }
 
-  public static class SignInState extends AbstractResource<SignInState.State, User> {
+  public static class SignInState extends Result<User> {
+
+    private final State state;
+
     public enum State {
       SIGNED_OUT,
       SIGNING_IN,
@@ -161,23 +159,26 @@ public class AuthenticationManager {
     }
 
     private SignInState(State state) {
-      super(OperationState.of(state), null);
+      super(null, null);
+      this.state = state;
     }
 
     private SignInState(User user) {
-      super(OperationState.of(State.SIGNED_IN), user);
+      super(user, null);
+      this.state = State.SIGNED_IN;
     }
 
     private SignInState(Throwable error) {
-      super(OperationState.error(State.ERROR, error), null);
+      super(null, error);
+      this.state = State.ERROR;
     }
 
-    public boolean isSignedIn() {
-      return operationState().get() == State.SIGNED_IN;
+    public State state() {
+      return state;
     }
 
     public User getUser() {
-      return data().orElse(User.ANONYMOUS);
+      return value().orElse(User.ANONYMOUS);
     }
   }
 
