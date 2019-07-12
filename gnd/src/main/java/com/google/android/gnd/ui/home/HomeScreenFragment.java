@@ -155,11 +155,10 @@ public class HomeScreenFragment extends AbstractFragment
     if (savedInstanceState == null) {
       mapContainerFragment = new MapContainerFragment();
       replaceFragment(R.id.map_container_fragment, mapContainerFragment);
+      setUpBottomSheetBehavior();
     } else {
       mapContainerFragment = restoreChildFragment(savedInstanceState, MapContainerFragment.class);
     }
-
-    setUpBottomSheetBehavior();
   }
 
   private String getVersionName() {
