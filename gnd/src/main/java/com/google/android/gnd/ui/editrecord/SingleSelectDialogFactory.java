@@ -21,11 +21,11 @@ import android.content.Context;
 import android.content.DialogInterface;
 import androidx.appcompat.app.AlertDialog;
 import com.google.android.gnd.R;
-import com.google.android.gnd.vo.Form.Field;
-import com.google.android.gnd.vo.Form.MultipleChoice;
-import com.google.android.gnd.vo.Form.MultipleChoice.Option;
-import com.google.android.gnd.vo.Record.MultipleChoiceResponse;
-import com.google.android.gnd.vo.Record.Response;
+import com.google.android.gnd.vo.Field;
+import com.google.android.gnd.vo.MultipleChoice;
+import com.google.android.gnd.vo.MultipleChoiceResponse;
+import com.google.android.gnd.vo.Option;
+import com.google.android.gnd.vo.Response;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
 import java8.util.Optional;
@@ -41,7 +41,9 @@ class SingleSelectDialogFactory {
   }
 
   AlertDialog create(
-      Field field, Optional<Response> initialValue, Consumer<Optional<Response>> valueChangeCallback) {
+      Field field,
+      Optional<Response> initialValue,
+      Consumer<Optional<Response>> valueChangeCallback) {
     MultipleChoice multipleChoice = field.getMultipleChoice();
     AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(context);
     List<Option> options = multipleChoice.getOptions();

@@ -39,7 +39,8 @@ import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.EphemeralPopups;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.TwoLineToolbar;
-import com.google.android.gnd.vo.Form;
+import com.google.android.gnd.vo.Element;
+import com.google.android.gnd.vo.Field;
 import com.google.android.gnd.vo.Record;
 import javax.inject.Inject;
 
@@ -130,7 +131,7 @@ public class RecordDetailsFragment extends AbstractFragment {
 
   private void showRecord(Record record) {
     recordDetailsLayout.removeAllViews();
-    for (Form.Element element : record.getForm().getElements()) {
+    for (Element element : record.getForm().getElements()) {
       switch (element.getType()) {
         case FIELD:
           addField(element.getField(), record);
@@ -143,7 +144,7 @@ public class RecordDetailsFragment extends AbstractFragment {
     }
   }
 
-  private void addField(Form.Field field, Record record) {
+  private void addField(Field field, Record record) {
     FieldViewHolder fieldViewHolder = FieldViewHolder.newInstance(getLayoutInflater());
     fieldViewHolder.setLabel(field.getLabel());
     record

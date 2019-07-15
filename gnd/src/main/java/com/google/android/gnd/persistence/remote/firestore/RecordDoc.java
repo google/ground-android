@@ -20,15 +20,15 @@ import static com.google.android.gnd.persistence.remote.firestore.FirestoreDataS
 
 import android.util.Log;
 import androidx.annotation.Nullable;
-import com.google.android.gnd.persistence.shared.RecordMutation;
-import com.google.android.gnd.persistence.shared.ResponseDelta;
 import com.google.android.gnd.vo.Feature;
 import com.google.android.gnd.vo.Form;
+import com.google.android.gnd.vo.MultipleChoiceResponse;
 import com.google.android.gnd.vo.Record;
-import com.google.android.gnd.vo.Record.MultipleChoiceResponse;
-import com.google.android.gnd.vo.Record.Response;
-import com.google.android.gnd.vo.Record.TextResponse;
+import com.google.android.gnd.vo.RecordMutation;
+import com.google.android.gnd.vo.Response;
+import com.google.android.gnd.vo.ResponseDelta;
 import com.google.android.gnd.vo.ResponseMap;
+import com.google.android.gnd.vo.TextResponse;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.firebase.firestore.DocumentSnapshot;

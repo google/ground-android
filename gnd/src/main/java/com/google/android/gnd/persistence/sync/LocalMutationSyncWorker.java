@@ -24,7 +24,7 @@ import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 import com.google.android.gnd.persistence.local.LocalDataStore;
 import com.google.android.gnd.persistence.remote.RemoteDataStore;
-import com.google.android.gnd.persistence.shared.Mutation;
+import com.google.android.gnd.vo.Mutation;
 import com.google.common.collect.ImmutableList;
 import io.reactivex.Completable;
 

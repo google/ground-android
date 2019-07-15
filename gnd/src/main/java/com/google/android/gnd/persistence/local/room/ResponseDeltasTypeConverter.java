@@ -20,7 +20,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.room.TypeConverter;
-import com.google.android.gnd.persistence.shared.ResponseDelta;
+import com.google.android.gnd.vo.ResponseDelta;
 import com.google.common.collect.ImmutableList;
 import java.util.Iterator;
 import org.json.JSONException;

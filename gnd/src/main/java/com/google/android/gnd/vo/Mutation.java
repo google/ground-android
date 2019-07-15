@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.persistence.shared;
+package com.google.android.gnd.vo;
 
 import androidx.annotation.Nullable;
 

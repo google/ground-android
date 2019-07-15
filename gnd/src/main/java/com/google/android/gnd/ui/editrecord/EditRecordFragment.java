@@ -44,11 +44,11 @@ import com.google.android.gnd.ui.common.EphemeralPopups;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.ProgressDialogs;
 import com.google.android.gnd.ui.common.TwoLineToolbar;
-import com.google.android.gnd.vo.Form;
-import com.google.android.gnd.vo.Form.Field;
-import com.google.android.gnd.vo.Form.MultipleChoice.Cardinality;
+import com.google.android.gnd.vo.Element;
+import com.google.android.gnd.vo.Field;
+import com.google.android.gnd.vo.MultipleChoice.Cardinality;
 import com.google.android.gnd.vo.Record;
-import com.google.android.gnd.vo.Record.Response;
+import com.google.android.gnd.vo.Response;
 import java8.util.Optional;
 import javax.inject.Inject;
 
@@ -159,7 +159,7 @@ public class EditRecordFragment extends AbstractFragment implements BackPressLis
 
   private void rebuildForm(Record record) {
     formLayout.removeAllViews();
-    for (Form.Element element : record.getForm().getElements()) {
+    for (Element element : record.getForm().getElements()) {
       switch (element.getType()) {
         case FIELD:
           addField(element.getField());

@@ -22,7 +22,7 @@ import com.google.common.collect.ImmutableMap;
 import java8.util.Optional;
 import javax.annotation.Nullable;
 
-/** Metadata and schema for a single Ground project. */
+/** Configuration, schema, and ACLs for a single project. */
 @AutoValue
 public abstract class Project {
   @Nullable

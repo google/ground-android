@@ -17,14 +17,14 @@
 package com.google.android.gnd.persistence.remote.firestore;
 
 import static com.google.android.gnd.util.Enums.toEnum;
-import static com.google.android.gnd.util.Localization.getLocalizedMessage;
 import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList;
+import static com.google.android.gnd.util.Localization.getLocalizedMessage;
 import static java8.util.stream.StreamSupport.stream;
 
+import com.google.android.gnd.vo.Field;
+import com.google.android.gnd.vo.Field.Type;
 import com.google.android.gnd.vo.Form;
-import com.google.android.gnd.vo.Form.Field;
-import com.google.android.gnd.vo.Form.Field.Type;
-import com.google.android.gnd.vo.Form.MultipleChoice;
+import com.google.android.gnd.vo.MultipleChoice;
 import com.google.firebase.firestore.IgnoreExtraProperties;
 import com.google.firebase.firestore.ServerTimestamp;
 import java.util.Date;
@@ -66,12 +66,14 @@ public class FormDoc {
 
     public boolean required;
 
-    static Form.Element toObject(Element em) {
-      return toField(em).map(Form.Element::ofField).orElse(Form.Element.ofUnknown());
+    static com.google.android.gnd.vo.Element toObject(Element em) {
+      return toField(em)
+          .map(com.google.android.gnd.vo.Element::ofField)
+          .orElse(com.google.android.gnd.vo.Element.ofUnknown());
     }
 
     private static Optional<Field> toField(Element em) {
-      Form.Field.Builder field = Form.Field.newBuilder();
+      Field.Builder field = Field.newBuilder();
       switch (toEnum(Field.Type.class, em.type)) {
         case TEXT:
           field.setType(Type.TEXT);
@@ -102,8 +104,9 @@ public class FormDoc {
       public String code;
       public Map<String, String> labels;
 
-      public static MultipleChoice.Option toOption(Option option) {
-        MultipleChoice.Option.Builder builder = MultipleChoice.Option.newBuilder();
+      public static com.google.android.gnd.vo.Option toOption(Option option) {
+        com.google.android.gnd.vo.Option.Builder builder =
+            com.google.android.gnd.vo.Option.newBuilder();
         if (option.code != null) {
           builder.setCode(option.code);
         }

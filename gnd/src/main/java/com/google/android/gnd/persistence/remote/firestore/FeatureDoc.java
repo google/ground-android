@@ -18,8 +18,8 @@ package com.google.android.gnd.persistence.remote.firestore;
 
 import static com.google.android.gnd.persistence.remote.firestore.FirestoreDataStore.toTimestamps;
 
-import com.google.android.gnd.persistence.shared.FeatureMutation;
 import com.google.android.gnd.vo.Feature;
+import com.google.android.gnd.vo.FeatureMutation;
 import com.google.android.gnd.vo.FeatureType;
 import com.google.android.gnd.vo.Point;
 import com.google.android.gnd.vo.Project;

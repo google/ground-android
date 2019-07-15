@@ -19,7 +19,7 @@ package com.google.android.gnd.persistence.local.room;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.room.TypeConverter;
-import com.google.android.gnd.persistence.shared.Mutation;
+import com.google.android.gnd.vo.Mutation;
 
 /** Defines how Room represents mutation types in the remote sync queue in the local db. */
 public enum MutationEntityType implements IntEnum {

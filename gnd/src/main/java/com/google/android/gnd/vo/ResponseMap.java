@@ -18,8 +18,6 @@ package com.google.android.gnd.vo;
 
 import static java8.lang.Iterables.forEach;
 
-import com.google.android.gnd.persistence.shared.ResponseDelta;
-import com.google.android.gnd.vo.Record.Response;
 import com.google.common.collect.ImmutableList;
 import java.util.HashMap;
 import java.util.Map;

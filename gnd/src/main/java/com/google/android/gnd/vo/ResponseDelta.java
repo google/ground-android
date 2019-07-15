@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.persistence.shared;
+package com.google.android.gnd.vo;
 
-import com.google.android.gnd.vo.Record.Response;
+import com.google.android.gnd.persistence.shared.AutoValue_ResponseDelta;
 import com.google.auto.value.AutoValue;
 import java8.util.Optional;
 

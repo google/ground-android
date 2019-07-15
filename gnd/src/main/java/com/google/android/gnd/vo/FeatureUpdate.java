@@ -16,7 +16,6 @@
 
 package com.google.android.gnd.vo;
 
-import com.google.android.gnd.vo.Record.Response;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import java.util.Date;

@@ -16,12 +16,12 @@
 
 package com.google.android.gnd.persistence.local;
 
-import com.google.android.gnd.persistence.shared.FeatureMutation;
-import com.google.android.gnd.persistence.shared.Mutation;
-import com.google.android.gnd.persistence.shared.RecordMutation;
 import com.google.android.gnd.vo.Feature;
+import com.google.android.gnd.vo.FeatureMutation;
+import com.google.android.gnd.vo.Mutation;
 import com.google.android.gnd.vo.Project;
 import com.google.android.gnd.vo.Record;
+import com.google.android.gnd.vo.RecordMutation;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import io.reactivex.Completable;

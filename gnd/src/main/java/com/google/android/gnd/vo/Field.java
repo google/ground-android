@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google LLC
+ * Copyright 2019 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,46 +16,47 @@
 
 package com.google.android.gnd.vo;
 
-import static java8.util.stream.StreamSupport.stream;
-
 import com.google.auto.value.AutoValue;
-import com.google.common.collect.ImmutableList;
-import java8.util.Optional;
 import javax.annotation.Nullable;
 
-/**
- * Describes the layout, field types, and validation rules of a user-defined form. Does not contain
- * actual form responses (see {@link Response} instead.
- */
+/** A single field on a form for which the user may provide data. */
 @AutoValue
-public abstract class Form {
+public abstract class Field {
+  public enum Type {
+    TEXT,
+    MULTIPLE_CHOICE
+  }
+
   @Nullable
   public abstract String getId();
 
   @Nullable
-  public abstract String getTitle();
+  public abstract Type getType();
 
-  public abstract ImmutableList<Element> getElements();
+  @Nullable
+  public abstract String getLabel();
 
-  public Optional<Field> getField(String id) {
-    return stream(getElements())
-        .map(Element::getField)
-        .filter(f -> f != null && f.getId().equals(id))
-        .findFirst();
-  }
+  public abstract boolean isRequired();
+
+  @Nullable
+  public abstract MultipleChoice getMultipleChoice();
 
   public static Builder newBuilder() {
-    return new AutoValue_Form.Builder().setElements(ImmutableList.of());
+    return new AutoValue_Form_Field.Builder();
   }
 
   @AutoValue.Builder
   public abstract static class Builder {
     public abstract Builder setId(@Nullable String newId);
 
-    public abstract Builder setTitle(@Nullable String newTitle);
+    public abstract Builder setType(@Nullable Type newType);
 
-    public abstract Builder setElements(ImmutableList<Element> newElementsList);
+    public abstract Builder setLabel(@Nullable String newLabel);
 
-    public abstract Form build();
+    public abstract Builder setRequired(boolean newRequired);
+
+    public abstract Builder setMultipleChoice(@Nullable MultipleChoice multipleChoice);
+
+    public abstract Field build();
   }
 }

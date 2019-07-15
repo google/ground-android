@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google LLC
+ * Copyright 2019 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,36 +16,30 @@
 
 package com.google.android.gnd.vo;
 
-import com.google.android.gms.maps.model.LatLng;
 import com.google.auto.value.AutoValue;
+import javax.annotation.Nullable;
 
 /**
- * The location of a single point on the map.
+ * Describes a single valid option to a multiple choice question.
  */
 @AutoValue
-public abstract class Point {
-  public abstract double getLatitude();
+public abstract class Option {
+  @Nullable
+  public abstract String getCode();
 
-  public abstract double getLongitude();
+  @Nullable
+  public abstract String getLabel();
 
   public static Builder newBuilder() {
-    return new AutoValue_Point.Builder();
-  }
-
-  public static Point fromLatLng(LatLng latLng) {
-    return Point.newBuilder().setLatitude(latLng.latitude).setLongitude(latLng.longitude).build();
-  }
-
-  public LatLng toLatLng() {
-    return new LatLng(getLatitude(), getLongitude());
+    return new AutoValue_Form_MultipleChoice_Option.Builder();
   }
 
   @AutoValue.Builder
   public abstract static class Builder {
-    public abstract Builder setLatitude(double newLatitude);
+    public abstract Builder setCode(@Nullable String newCode);
 
-    public abstract Builder setLongitude(double newLongitude);
+    public abstract Builder setLabel(@Nullable String newLabel);
 
-    public abstract Point build();
+    public abstract Option build();
   }
 }
