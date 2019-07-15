@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.vo;
+package com.google.android.gnd.model.observation;
 
 import static java8.util.stream.StreamSupport.stream;
 
+import com.google.android.gnd.model.form.Field;
+import com.google.android.gnd.model.form.Option;
 import java.util.List;
 import java8.util.Optional;
 import java8.util.stream.Collectors;

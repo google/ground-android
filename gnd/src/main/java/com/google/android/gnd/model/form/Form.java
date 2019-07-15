@@ -14,38 +14,39 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.vo;
+package com.google.android.gnd.model.form;
 
+import static java8.util.stream.StreamSupport.stream;
+
+import com.google.android.gnd.model.observation.Response;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import java8.util.Optional;
 import javax.annotation.Nullable;
 
-/** Configuration, schema, and ACLs for a single project. */
+/**
+ * Describes the layout, field types, and validation rules of a user-defined form. Does not contain
+ * actual form responses (see {@link Response} instead.
+ */
 @AutoValue
-public abstract class Project {
+public abstract class Form {
   @Nullable
   public abstract String getId();
 
   @Nullable
   public abstract String getTitle();
 
-  @Nullable
-  public abstract String getDescription();
+  public abstract ImmutableList<Element> getElements();
 
-  protected abstract ImmutableMap<String, FeatureType> getFeatureTypeMap();
-
-  public ImmutableList<FeatureType> getFeatureTypes() {
-    return getFeatureTypeMap().values().asList();
-  }
-
-  public Optional<FeatureType> getFeatureType(String featureTypeId) {
-    return Optional.ofNullable(getFeatureTypeMap().get(featureTypeId));
+  public Optional<Field> getField(String id) {
+    return stream(getElements())
+        .map(Element::getField)
+        .filter(f -> f != null && f.getId().equals(id))
+        .findFirst();
   }
 
   public static Builder newBuilder() {
-    return new AutoValue_Project.Builder();
+    return new AutoValue_Form.Builder().setElements(ImmutableList.of());
   }
 
   @AutoValue.Builder
@@ -54,14 +55,8 @@ public abstract class Project {
 
     public abstract Builder setTitle(@Nullable String newTitle);
 
-    public abstract Builder setDescription(@Nullable String newDescription);
+    public abstract Builder setElements(ImmutableList<Element> newElementsList);
 
-    public abstract ImmutableMap.Builder<String, FeatureType> featureTypeMapBuilder();
-
-    public void putFeatureType(String id, FeatureType featureType) {
-      featureTypeMapBuilder().put(id, featureType);
-    }
-
-    public abstract Project build();
+    public abstract Form build();
   }
 }

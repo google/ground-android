@@ -16,9 +16,9 @@
 
 package com.google.android.gnd.ui.map;
 
+import com.google.android.gnd.model.feature.Feature;
+import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.ui.MapIcon;
-import com.google.android.gnd.vo.Feature;
-import com.google.android.gnd.vo.Point;
 import com.google.auto.value.AutoValue;
 import java8.util.Optional;
 import javax.annotation.Nullable;

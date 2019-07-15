@@ -21,10 +21,10 @@ import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList
 import static com.google.android.gnd.util.Localization.getLocalizedMessage;
 import static java8.util.stream.StreamSupport.stream;
 
-import com.google.android.gnd.vo.Field;
-import com.google.android.gnd.vo.Field.Type;
-import com.google.android.gnd.vo.Form;
-import com.google.android.gnd.vo.MultipleChoice;
+import com.google.android.gnd.model.form.Field;
+import com.google.android.gnd.model.form.Field.Type;
+import com.google.android.gnd.model.form.Form;
+import com.google.android.gnd.model.form.MultipleChoice;
 import com.google.firebase.firestore.IgnoreExtraProperties;
 import com.google.firebase.firestore.ServerTimestamp;
 import java.util.Date;
@@ -66,10 +66,10 @@ public class FormDoc {
 
     public boolean required;
 
-    static com.google.android.gnd.vo.Element toObject(Element em) {
+    static com.google.android.gnd.model.form.Element toObject(Element em) {
       return toField(em)
-          .map(com.google.android.gnd.vo.Element::ofField)
-          .orElse(com.google.android.gnd.vo.Element.ofUnknown());
+          .map(com.google.android.gnd.model.form.Element::ofField)
+          .orElse(com.google.android.gnd.model.form.Element.ofUnknown());
     }
 
     private static Optional<Field> toField(Element em) {
@@ -104,9 +104,9 @@ public class FormDoc {
       public String code;
       public Map<String, String> labels;
 
-      public static com.google.android.gnd.vo.Option toOption(Option option) {
-        com.google.android.gnd.vo.Option.Builder builder =
-            com.google.android.gnd.vo.Option.newBuilder();
+      public static com.google.android.gnd.model.form.Option toOption(Option option) {
+        com.google.android.gnd.model.form.Option.Builder builder =
+            com.google.android.gnd.model.form.Option.newBuilder();
         if (option.code != null) {
           builder.setCode(option.code);
         }

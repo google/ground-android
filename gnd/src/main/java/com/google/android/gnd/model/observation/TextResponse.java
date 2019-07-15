@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.vo;
+package com.google.android.gnd.model.observation;
 
+import com.google.android.gnd.model.form.Field;
 import java8.util.Optional;
 
 /** A user provided response to a text {@link Field}. */

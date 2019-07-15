@@ -22,9 +22,9 @@ import androidx.room.Embedded;
 import androidx.room.Entity;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
-import com.google.android.gnd.vo.Feature;
-import com.google.android.gnd.vo.FeatureMutation;
-import com.google.android.gnd.vo.Project;
+import com.google.android.gnd.model.Project;
+import com.google.android.gnd.model.feature.Feature;
+import com.google.android.gnd.model.feature.FeatureMutation;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.AutoValue.CopyAnnotations;
 

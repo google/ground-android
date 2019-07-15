@@ -19,9 +19,9 @@ package com.google.android.gnd.persistence.local.room;
 import static java8.lang.Iterables.forEach;
 
 import android.util.Log;
-import com.google.android.gnd.vo.MultipleChoiceResponse;
-import com.google.android.gnd.vo.Response;
-import com.google.android.gnd.vo.TextResponse;
+import com.google.android.gnd.model.observation.MultipleChoiceResponse;
+import com.google.android.gnd.model.observation.Response;
+import com.google.android.gnd.model.observation.TextResponse;
 import java.util.ArrayList;
 import java.util.List;
 import java8.util.Optional;

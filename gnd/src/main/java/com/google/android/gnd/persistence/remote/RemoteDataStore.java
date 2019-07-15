@@ -16,11 +16,11 @@
 
 package com.google.android.gnd.persistence.remote;
 
+import com.google.android.gnd.model.Mutation;
+import com.google.android.gnd.model.Project;
+import com.google.android.gnd.model.feature.Feature;
+import com.google.android.gnd.model.observation.Record;
 import com.google.android.gnd.system.AuthenticationManager.User;
-import com.google.android.gnd.vo.Feature;
-import com.google.android.gnd.vo.Mutation;
-import com.google.android.gnd.vo.Project;
-import com.google.android.gnd.vo.Record;
 import com.google.common.collect.ImmutableCollection;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;

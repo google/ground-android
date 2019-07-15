@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.vo;
+package com.google.android.gnd.model.form;
 
 import com.google.auto.value.AutoValue;
 import javax.annotation.Nullable;
@@ -42,7 +42,7 @@ public abstract class Field {
   public abstract MultipleChoice getMultipleChoice();
 
   public static Builder newBuilder() {
-    return new AutoValue_Form_Field.Builder();
+    return new AutoValue_Field.Builder();
   }
 
   @AutoValue.Builder

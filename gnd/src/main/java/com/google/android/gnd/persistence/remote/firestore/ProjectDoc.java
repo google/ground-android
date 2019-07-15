@@ -19,7 +19,7 @@ package com.google.android.gnd.persistence.remote.firestore;
 import static com.google.android.gnd.util.Localization.getLocalizedMessage;
 
 import androidx.annotation.Nullable;
-import com.google.android.gnd.vo.Project;
+import com.google.android.gnd.model.Project;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.IgnoreExtraProperties;
 import com.google.firebase.firestore.ServerTimestamp;

@@ -15,8 +15,8 @@
  */
 package com.google.android.gnd.repository;
 
-import com.google.android.gnd.vo.Feature;
-import com.google.android.gnd.vo.Project;
+import com.google.android.gnd.model.Project;
+import com.google.android.gnd.model.feature.Feature;
 import com.google.common.collect.ImmutableSet;
 import java.util.LinkedHashMap;
 import java.util.Map;

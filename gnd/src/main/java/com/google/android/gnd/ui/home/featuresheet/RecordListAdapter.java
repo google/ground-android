@@ -21,7 +21,7 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.recyclerview.widget.RecyclerView;
-import com.google.android.gnd.vo.Record;
+import com.google.android.gnd.model.observation.Record;
 import java.util.Collections;
 import java.util.List;
 

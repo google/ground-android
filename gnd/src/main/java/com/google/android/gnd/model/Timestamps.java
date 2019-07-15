@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Google LLC
+ * Copyright 2018 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,32 +14,37 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.vo;
+package com.google.android.gnd.model;
 
 import com.google.auto.value.AutoValue;
+import java.util.Date;
 import javax.annotation.Nullable;
 
-/**
- * Describes a single valid option to a multiple choice question.
- */
 @AutoValue
-public abstract class Option {
-  @Nullable
-  public abstract String getCode();
+public abstract class Timestamps {
+
+  public static final Timestamps DEFAULT_INSTANCE = Timestamps.newBuilder().build();
 
   @Nullable
-  public abstract String getLabel();
+  public abstract Date getCreated();
+
+  @Nullable
+  public abstract Date getModified();
 
   public static Builder newBuilder() {
-    return new AutoValue_Form_MultipleChoice_Option.Builder();
+    return new AutoValue_Timestamps.Builder();
+  }
+
+  public static Timestamps getDefaultInstance() {
+    return DEFAULT_INSTANCE;
   }
 
   @AutoValue.Builder
   public abstract static class Builder {
-    public abstract Builder setCode(@Nullable String newCode);
+    public abstract Builder setCreated(@Nullable Date newCreated);
 
-    public abstract Builder setLabel(@Nullable String newLabel);
+    public abstract Builder setModified(@Nullable Date newModified);
 
-    public abstract Option build();
+    public abstract Timestamps build();
   }
 }

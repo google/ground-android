@@ -14,9 +14,13 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.vo;
+package com.google.android.gnd.model.observation;
 
 import androidx.annotation.Nullable;
+import com.google.android.gnd.model.Project;
+import com.google.android.gnd.model.Timestamps;
+import com.google.android.gnd.model.feature.Feature;
+import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.system.AuthenticationManager.User;
 import com.google.auto.value.AutoValue;
 

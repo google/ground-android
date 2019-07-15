@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.vo;
+package com.google.android.gnd.model.form;
 
 import com.google.auto.value.AutoOneOf;
 import javax.annotation.Nullable;
@@ -39,10 +39,10 @@ public abstract class Element {
   public abstract Object getUnknown();
 
   public static Element ofField(Field field) {
-    return AutoOneOf_Form_Element.field(field);
+    return AutoOneOf_Element.field(field);
   }
 
   public static Element ofUnknown() {
-    return AutoOneOf_Form_Element.unknown(new Object());
+    return AutoOneOf_Element.unknown(new Object());
   }
 }

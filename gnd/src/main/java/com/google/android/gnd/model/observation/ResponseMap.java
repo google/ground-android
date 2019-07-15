@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.vo;
+package com.google.android.gnd.model.observation;
 
 import static java8.lang.Iterables.forEach;
 

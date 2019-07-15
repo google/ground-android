@@ -16,7 +16,7 @@
 
 package com.google.android.gnd.persistence.local.room;
 
-import com.google.android.gnd.vo.Mutation;
+import com.google.android.gnd.model.Mutation;
 
 /**
  * Checked exception used internally to ensure we catch and properly handle errors in the Room local

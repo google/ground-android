@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.vo;
+package com.google.android.gnd.model.form;
 
 import static java8.util.stream.StreamSupport.stream;
 
@@ -50,7 +50,7 @@ public abstract class MultipleChoice {
   }
 
   public static Builder newBuilder() {
-    return new AutoValue_Form_MultipleChoice.Builder().setOptions(ImmutableList.of());
+    return new AutoValue_MultipleChoice.Builder().setOptions(ImmutableList.of());
   }
 
   @AutoValue.Builder

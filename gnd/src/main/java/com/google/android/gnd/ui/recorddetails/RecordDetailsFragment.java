@@ -34,14 +34,14 @@ import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.RecordDetailsFragBinding;
 import com.google.android.gnd.inject.ActivityScoped;
+import com.google.android.gnd.model.form.Element;
+import com.google.android.gnd.model.form.Field;
+import com.google.android.gnd.model.observation.Record;
 import com.google.android.gnd.repository.Persistable;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.EphemeralPopups;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.TwoLineToolbar;
-import com.google.android.gnd.vo.Element;
-import com.google.android.gnd.vo.Field;
-import com.google.android.gnd.vo.Record;
 import javax.inject.Inject;
 
 @ActivityScoped
@@ -135,9 +135,6 @@ public class RecordDetailsFragment extends AbstractFragment {
       switch (element.getType()) {
         case FIELD:
           addField(element.getField(), record);
-          break;
-        case SUBFORM:
-          Log.d(TAG, "Subforms not yet supported");
           break;
         default:
       }
