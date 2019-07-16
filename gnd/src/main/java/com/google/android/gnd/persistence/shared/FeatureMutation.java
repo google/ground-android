@@ -29,7 +29,7 @@ import java8.util.Optional;
  * the UI, and are dequeued and sent to the remote data store by the background data sync service.
  */
 @AutoValue
-public abstract class FeatureMutation extends Mutation {
+public abstract class FeatureMutation extends Mutation<FeatureMutation.Builder> {
 
   /** Returns the UUID of the feature type being modified. */
   public abstract String getFeatureTypeId();
@@ -39,6 +39,17 @@ public abstract class FeatureMutation extends Mutation {
    * location.
    */
   public abstract Optional<Point> getNewLocation();
+
+  @Override
+  public abstract Builder toBuilder();
+
+  /** Returns the mutations of type {@link FeatureMutation} contained in the specified list. */
+  public static ImmutableList<FeatureMutation> filter(ImmutableList<Mutation> mutations) {
+    return stream(mutations)
+        .filter(FeatureMutation.class::isInstance)
+        .map(FeatureMutation.class::cast)
+        .collect(toImmutableList());
+  }
 
   /**
    * Returns the ids of mutations of type {@link FeatureMutation} contained in the specified list.
@@ -53,7 +64,7 @@ public abstract class FeatureMutation extends Mutation {
   // Boilerplate generated using Android Studio AutoValue plugin:
 
   public static Builder builder() {
-    return new AutoValue_FeatureMutation.Builder();
+    return new AutoValue_FeatureMutation.Builder().setRetryCount(0);
   }
 
   @AutoValue.Builder
@@ -63,6 +74,7 @@ public abstract class FeatureMutation extends Mutation {
 
     public abstract Builder setNewLocation(Optional<Point> newNewLocation);
 
+    @Override
     public abstract FeatureMutation build();
   }
 }

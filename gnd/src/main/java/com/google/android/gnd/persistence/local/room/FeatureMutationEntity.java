@@ -47,6 +47,7 @@ import java8.util.Optional;
             onDelete = CASCADE),
     indices = {@Index("id"), @Index("feature_id")})
 public abstract class FeatureMutationEntity {
+  // TODO: Refactor common attributes in MutationEntity base case.
 
   @CopyAnnotations
   @PrimaryKey(autoGenerate = true)
@@ -80,6 +81,15 @@ public abstract class FeatureMutationEntity {
   @Embedded
   public abstract Coordinates getNewLocation();
 
+  @CopyAnnotations
+  @ColumnInfo(name = "retry_count")
+  public abstract long getRetryCount();
+
+  @CopyAnnotations
+  @ColumnInfo(name = "last_error")
+  @Nullable
+  public abstract String getLastError();
+
   static FeatureMutationEntity fromMutation(FeatureMutation m) {
     return FeatureMutationEntity.builder()
         .setId(m.getId())
@@ -88,6 +98,8 @@ public abstract class FeatureMutationEntity {
         .setFeatureTypeId(m.getFeatureTypeId())
         .setNewLocation(m.getNewLocation().map(Coordinates::fromPoint).orElse(null))
         .setType(MutationEntityType.fromMutationType(m.getType()))
+        .setRetryCount(m.getRetryCount())
+        .setLastError(m.getLastError())
         .build();
   }
 
@@ -99,6 +111,8 @@ public abstract class FeatureMutationEntity {
         .setFeatureTypeId(getFeatureTypeId())
         .setNewLocation(Optional.ofNullable(getNewLocation().toPoint()))
         .setType(getType().toMutationType())
+        .setRetryCount(getRetryCount())
+        .setLastError(getLastError())
         .build();
   }
 
@@ -110,7 +124,9 @@ public abstract class FeatureMutationEntity {
       String featureId,
       String featureTypeId,
       MutationEntityType type,
-      Coordinates newLocation) {
+      Coordinates newLocation,
+      long retryCount,
+      @Nullable String lastError) {
     return builder()
         .setId(id)
         .setProjectId(projectId)
@@ -118,6 +134,8 @@ public abstract class FeatureMutationEntity {
         .setFeatureTypeId(featureTypeId)
         .setType(type)
         .setNewLocation(newLocation)
+        .setRetryCount(retryCount)
+        .setLastError(lastError)
         .build();
   }
 
@@ -139,6 +157,10 @@ public abstract class FeatureMutationEntity {
     public abstract Builder setType(MutationEntityType newType);
 
     public abstract Builder setNewLocation(Coordinates newNewLocation);
+
+    public abstract Builder setRetryCount(long newRetryCount);
+
+    public abstract Builder setLastError(@Nullable String newLastError);
 
     public abstract FeatureMutationEntity build();
   }

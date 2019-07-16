@@ -17,12 +17,14 @@
 package com.google.android.gnd.persistence.shared;
 
 import androidx.annotation.Nullable;
+import com.google.android.gnd.persistence.shared.Mutation.Builder;
 
 /**
  * Represents a mutation that can be applied to local data and queued for sync with the remote data
  * store.
  */
-public abstract class Mutation {
+public abstract class Mutation<B extends Builder> {
+
   public enum Type {
     /** Indicates a new entity should be created. */
     CREATE,
@@ -58,10 +60,17 @@ public abstract class Mutation {
   @Nullable
   public abstract String getUserId();
 
+  public abstract long getRetryCount();
+
+  @Nullable
+  public abstract String getLastError();
+
   @Override
   public String toString() {
     return getClass().getSimpleName() + " type=" + getType() + " id=" + getId();
   }
+
+  public abstract B toBuilder();
 
   public abstract static class Builder<T extends Builder> {
 
@@ -74,5 +83,11 @@ public abstract class Mutation {
     public abstract T setProjectId(String newProjectId);
 
     public abstract T setUserId(String newUserId);
+
+    public abstract T setRetryCount(long newRetryCount);
+
+    public abstract T setLastError(String lastError);
+
+    public abstract Mutation build();
   }
 }

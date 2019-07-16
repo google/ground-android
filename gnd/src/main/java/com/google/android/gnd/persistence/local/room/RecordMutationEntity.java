@@ -59,6 +59,7 @@ import org.json.JSONObject;
       @Index("record_id")
     })
 public abstract class RecordMutationEntity {
+  // TODO: Refactor common attributes in MutationEntity base case.
   @CopyAnnotations
   @PrimaryKey(autoGenerate = true)
   @ColumnInfo(name = "id")
@@ -90,6 +91,15 @@ public abstract class RecordMutationEntity {
   @ColumnInfo(name = "type")
   public abstract MutationEntityType getType();
 
+  @CopyAnnotations
+  @ColumnInfo(name = "retry_count")
+  public abstract long getRetryCount();
+
+  @CopyAnnotations
+  @ColumnInfo(name = "last_error")
+  @Nullable
+  public abstract String getLastError();
+
   /**
    * For mutations of type {@link MutationEntityType#CREATE} and {@link MutationEntityType#UPDATE},
    * returns a {@link JSONObject} with the new values of modified form responses, with {@code null}
@@ -109,7 +119,9 @@ public abstract class RecordMutationEntity {
       String formId,
       String recordId,
       MutationEntityType type,
-      ImmutableList<ResponseDelta> responseDeltas) {
+      ImmutableList<ResponseDelta> responseDeltas,
+      long retryCount,
+      @Nullable String lastError) {
     return builder()
         .setId(id)
         .setProjectId(projectId)
@@ -118,6 +130,8 @@ public abstract class RecordMutationEntity {
         .setRecordId(recordId)
         .setType(type)
         .setResponseDeltas(responseDeltas)
+        .setRetryCount(retryCount)
+        .setLastError(lastError)
         .build();
   }
 
@@ -130,6 +144,8 @@ public abstract class RecordMutationEntity {
         .setRecordId(m.getRecordId())
         .setType(MutationEntityType.fromMutationType(m.getType()))
         .setResponseDeltas(m.getResponseDeltas())
+        .setRetryCount(m.getRetryCount())
+        .setLastError(m.getLastError())
         .build();
   }
 
@@ -142,6 +158,8 @@ public abstract class RecordMutationEntity {
         .setRecordId(getRecordId())
         .setType(getType().toMutationType())
         .setResponseDeltas(getResponseDeltas())
+        .setRetryCount(getRetryCount())
+        .setLastError(getLastError())
         .build();
   }
 
@@ -167,6 +185,10 @@ public abstract class RecordMutationEntity {
     public abstract Builder setType(MutationEntityType newType);
 
     public abstract Builder setResponseDeltas(ImmutableList<ResponseDelta> newResponseDeltas);
+
+    public abstract Builder setRetryCount(long newRetryCount);
+
+    public abstract Builder setLastError(@Nullable String newLastError);
 
     public abstract RecordMutationEntity build();
   }
