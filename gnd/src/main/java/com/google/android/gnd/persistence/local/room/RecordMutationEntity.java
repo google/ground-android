@@ -51,13 +51,7 @@ import org.json.JSONObject;
           childColumns = "record_id",
           onDelete = CASCADE)
     },
-    indices = {
-      @Index("id"),
-      @Index("project_id"),
-      @Index("form_id"),
-      @Index("feature_id"),
-      @Index("record_id")
-    })
+    indices = {@Index("feature_id"), @Index("record_id")})
 public abstract class RecordMutationEntity {
   @CopyAnnotations
   @PrimaryKey(autoGenerate = true)

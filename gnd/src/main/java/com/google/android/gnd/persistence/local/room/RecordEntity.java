@@ -42,7 +42,7 @@ import com.google.auto.value.AutoValue.CopyAnnotations;
             childColumns = "feature_id",
             onDelete = CASCADE),
     tableName = "record",
-    indices = {@Index("id"), @Index("feature_id"), @Index("form_id")})
+    indices = {@Index({"feature_id", "form_id", "state"})})
 public abstract class RecordEntity {
 
   private static final String TAG = RecordEntity.class.getSimpleName();

@@ -45,7 +45,7 @@ import java8.util.Optional;
             parentColumns = "id",
             childColumns = "feature_id",
             onDelete = CASCADE),
-    indices = {@Index("id"), @Index("feature_id")})
+    indices = {@Index("feature_id")})
 public abstract class FeatureMutationEntity {
 
   @CopyAnnotations
