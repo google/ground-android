@@ -68,7 +68,7 @@ public abstract class Feature {
   public abstract int hashCode();
 
   public static Builder newBuilder() {
-    return new $AutoValue_Feature.Builder();
+    return new AutoValue_Feature.Builder();
   }
 
   @AutoValue.Builder
