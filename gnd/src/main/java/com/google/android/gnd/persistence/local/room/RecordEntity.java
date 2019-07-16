@@ -42,6 +42,8 @@ import com.google.auto.value.AutoValue.CopyAnnotations;
             childColumns = "feature_id",
             onDelete = CASCADE),
     tableName = "record",
+    // Additional index not required for FK constraint since first field in composite index can be
+    // used independently.
     indices = {@Index({"feature_id", "form_id", "state"})})
 public abstract class RecordEntity {
 
