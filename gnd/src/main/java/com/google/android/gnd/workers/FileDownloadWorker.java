@@ -66,7 +66,7 @@ public class FileDownloadWorker extends Worker {
 
     try {
       InputStream is = new URL(url).openStream();
-      FileOutputStream fos = context.openFileOutput(filename, context.MODE_PRIVATE);
+      FileOutputStream fos = context.openFileOutput(filename, Context.MODE_PRIVATE);
       byte[] byteChunk = new byte[BUFFER_SIZE];
       int n;
       while ((n = is.read(byteChunk)) > 0) {
