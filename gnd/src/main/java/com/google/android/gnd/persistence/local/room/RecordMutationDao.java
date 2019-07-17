@@ -19,6 +19,7 @@ package com.google.android.gnd.persistence.local.room;
 import androidx.room.Dao;
 import androidx.room.Insert;
 import androidx.room.Query;
+import androidx.room.Update;
 import io.reactivex.Completable;
 import io.reactivex.Single;
 import java.util.List;
@@ -28,6 +29,9 @@ import java.util.List;
 public interface RecordMutationDao {
   @Insert
   Completable insert(RecordMutationEntity entity);
+
+  @Update
+  Completable updateAll(List<RecordMutationEntity> entities);
 
   @Query("DELETE FROM record_mutation WHERE id IN (:ids)")
   Completable deleteAll(List<Long> ids);

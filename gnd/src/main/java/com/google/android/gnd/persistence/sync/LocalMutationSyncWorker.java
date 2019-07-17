@@ -16,6 +16,9 @@
 
 package com.google.android.gnd.persistence.sync;
 
+import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList;
+import static java8.util.stream.StreamSupport.stream;
+
 import android.content.Context;
 import android.util.Log;
 import androidx.annotation.NonNull;
@@ -61,16 +64,14 @@ public class LocalMutationSyncWorker extends Worker {
   @NonNull
   @Override
   public Result doWork() {
+    Log.d(TAG, "Connected. Syncing changes to feature " + featureId);
+    ImmutableList<Mutation> mutations = localDataStore.getPendingMutations(featureId).blockingGet();
     try {
-      Log.d(TAG, "Connected. Syncing changes to feature " + featureId);
-      localDataStore
-          .getPendingMutations(featureId)
-          .flatMapCompletable(this::processMutations)
-          .blockingAwait();
+      processMutations(mutations).blockingAwait();
       return Result.success();
     } catch (Throwable t) {
-      Log.e(TAG, "Updates for feature " + featureId + " failed", t);
-      // TODO: Update retry count in mutations.
+      Log.d(TAG, "Remote updates for feature " + featureId + " failed", t);
+      localDataStore.updateMutations(incrementRetryCounts(mutations, t)).blockingAwait();
       return Result.retry();
     }
   }
@@ -79,5 +80,18 @@ public class LocalMutationSyncWorker extends Worker {
     return remoteDataStore
         .applyMutations(pendingMutations)
         .andThen(localDataStore.removePendingMutations(pendingMutations));
+  }
+
+  private ImmutableList<Mutation> incrementRetryCounts(
+      ImmutableList<Mutation> mutations, Throwable error) {
+    return stream(mutations).map(m -> incrementRetryCount(m, error)).collect(toImmutableList());
+  }
+
+  private Mutation incrementRetryCount(Mutation mutation, Throwable error) {
+    return mutation
+        .toBuilder()
+        .setRetryCount(mutation.getRetryCount() + 1)
+        .setLastError(error.toString())
+        .build();
   }
 }

@@ -22,6 +22,7 @@ import androidx.work.ExistingWorkPolicy;
 import androidx.work.NetworkType;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkManager;
+import androidx.work.WorkRequest;
 import io.reactivex.Completable;
 import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
@@ -29,8 +30,8 @@ import javax.inject.Provider;
 
 /** Enqueues data sync work to be done in the background. */
 public class DataSyncWorkManager {
-  /** Number of seconds to wait before retrying failed sync tasks. */
-  private static final long SYNC_RETRY_BACKOFF_SECS = 5;
+  /** Number of milliseconds to wait before retrying failed sync tasks. */
+  private static final long SYNC_BACKOFF_MILLIS = WorkRequest.MIN_BACKOFF_MILLIS;
 
   /**
    * WorkManager is injected via {@code Provider} rather than directly to ensure the {@code
@@ -76,7 +77,7 @@ public class DataSyncWorkManager {
   private OneTimeWorkRequest buildWorkerRequest(String featureId) {
     return new OneTimeWorkRequest.Builder(LocalMutationSyncWorker.class)
         .setConstraints(getWorkerConstraints())
-        .setBackoffCriteria(BackoffPolicy.LINEAR, SYNC_RETRY_BACKOFF_SECS, TimeUnit.SECONDS)
+        .setBackoffCriteria(BackoffPolicy.LINEAR, SYNC_BACKOFF_MILLIS, TimeUnit.MILLISECONDS)
         .setInputData(LocalMutationSyncWorker.createInputData(featureId))
         .build();
   }
