@@ -24,6 +24,8 @@ import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
 
+import io.reactivex.Completable;
+
 /** Enqueues file download work to be done in the background. */
 public class FileDownloadWorkManager {
   private final WorkManager workManager;
@@ -35,24 +37,18 @@ public class FileDownloadWorkManager {
   }
 
   /**
-   * Enqueues a worker that downloads files when a network connection is available, returning live
-   * data that contains {@link WorkInfo}. Observe the returned live data to do something with the
-   * worker's result.
+   * Enqueues a worker that downloads files when a network connection is available, returning a
+   * completeable upon enqueueing.
    */
-  public LiveData<WorkInfo> enqueueFileDownloadWorker(String url, String filename) {
-    return getWorkManager()
-        .getWorkInfoByIdLiveData(enqueueFileDownloadWorkerInternal(url, filename).getId());
+  public Completable enqueueFileDownloadWorker(String url, String filename) {
+    return Completable.fromRunnable(() -> enqueueFileDownloadWorkerInternal(url, filename));
   }
 
-  private OneTimeWorkRequest enqueueFileDownloadWorkerInternal(String url, String filename) {
+  private void enqueueFileDownloadWorkerInternal(String url, String filename) {
     OneTimeWorkRequest request = buildWorkerRequest(url, filename);
 
     getWorkManager()
         .enqueueUniqueWork(FileDownloadWorker.class.getName(), ExistingWorkPolicy.APPEND, request);
-
-    // Return the request in order to fetch the {@link WorkInfo} for the request using the request
-    // id.
-    return request;
   }
 
   private WorkManager getWorkManager() {
