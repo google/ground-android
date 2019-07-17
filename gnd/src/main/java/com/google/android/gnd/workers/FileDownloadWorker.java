@@ -76,7 +76,7 @@ public class FileDownloadWorker extends Worker {
       fos.close();
       return Result.success(new Data.Builder().putString(FILENAME, filename).build());
     } catch (IOException e) {
-      Log.d(TAG, e.getMessage());
+      Log.d(TAG, "Failed to download and write file.", e);
     }
     return Result.failure();
   }
