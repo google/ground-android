@@ -41,6 +41,7 @@ import com.google.firebase.firestore.WriteBatch;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Single;
+import io.reactivex.schedulers.Schedulers;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -118,7 +119,11 @@ public class FirestoreDataStore implements RemoteDataStore, OfflineUuidGenerator
 
   @Override
   public Flowable<RemoteDataEvent<Feature>> loadFeaturesOnceAndStreamChanges(Project project) {
-    return db.projects().project(project.getId()).features().observe(project);
+    return db.projects()
+        .project(project.getId())
+        .features()
+        .observe(project)
+        .subscribeOn(Schedulers.io());
   }
 
   // TODO: Move relevant Record fields and updates into "RecordUpdate" object.
