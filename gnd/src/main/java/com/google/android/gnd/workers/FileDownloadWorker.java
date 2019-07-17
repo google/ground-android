@@ -60,6 +60,7 @@ public class FileDownloadWorker extends Worker {
   @NonNull
   @Override
   public Result doWork() {
+    //TODO: Once the file is downloaded, update local storage appropriately.
     String url = getInputData().getString(TARGET_URL);
     // TODO: If the filename is no good, fail.
     String filename = getInputData().getString(FILENAME);
