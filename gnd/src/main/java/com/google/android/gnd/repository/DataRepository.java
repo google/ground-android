@@ -18,6 +18,7 @@ package com.google.android.gnd.repository;
 
 import android.util.Log;
 import com.google.android.gnd.persistence.local.LocalDataStore;
+import com.google.android.gnd.persistence.local.LocalValueStore;
 import com.google.android.gnd.persistence.remote.RemoteDataEvent;
 import com.google.android.gnd.persistence.remote.RemoteDataStore;
 import com.google.android.gnd.persistence.remote.firestore.DocumentNotFoundException;
@@ -33,15 +34,14 @@ import com.google.android.gnd.vo.Project;
 import com.google.android.gnd.vo.Record;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import io.reactivex.BackpressureStrategy;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Observable;
 import io.reactivex.Single;
+import io.reactivex.processors.BehaviorProcessor;
+import io.reactivex.processors.FlowableProcessor;
 import io.reactivex.schedulers.Schedulers;
-import io.reactivex.subjects.BehaviorSubject;
-import io.reactivex.subjects.Subject;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java8.util.Optional;
@@ -53,17 +53,14 @@ public class DataRepository {
   private static final String TAG = DataRepository.class.getSimpleName();
   private static final long GET_REMOTE_RECORDS_TIMEOUT_SECS = 5;
 
-  // TODO: Implement local data persistence.
-  // For cached data, InMemoryCache is the source of truth that the repository subscribes to.
-  // For non-cached data, the local database will be the source of truth.
-  // Remote data is written to the database, and then optionally to the InMemoryCache.
   private final InMemoryCache cache;
   private final LocalDataStore localDataStore;
   private final RemoteDataStore remoteDataStore;
   private final DataSyncWorkManager dataSyncWorkManager;
-  private final Subject<Persistable<Project>> activeProjectSubject;
+  private final FlowableProcessor<Persistable<Project>> activeProject;
   private final OfflineUuidGenerator uuidGenerator;
   private final NetworkManager networkManager;
+  private final LocalValueStore localValueStore;
 
   @Inject
   public DataRepository(
@@ -72,23 +69,31 @@ public class DataRepository {
       DataSyncWorkManager dataSyncWorkManager,
       InMemoryCache cache,
       OfflineUuidGenerator uuidGenerator,
-      NetworkManager networkManager) {
+      NetworkManager networkManager,
+      LocalValueStore localValueStore) {
     this.localDataStore = localDataStore;
     this.remoteDataStore = remoteDataStore;
     this.dataSyncWorkManager = dataSyncWorkManager;
     this.cache = cache;
-    this.activeProjectSubject = BehaviorSubject.create();
+    this.activeProject = BehaviorProcessor.create();
     this.uuidGenerator = uuidGenerator;
     this.networkManager = networkManager;
+    this.localValueStore = localValueStore;
+
+    streamFeaturesToLocalDb(remoteDataStore);
+  }
+
+  /**
+   * Mirrors features in the current project from the remote db into the local db when the network
+   * is available. When invoked, will first attempt to resync all features from the remote db,
+   * subsequently syncing only remote changes.
+   */
+  private void streamFeaturesToLocalDb(RemoteDataStore remoteDataStore) {
     // TODO: Move to Application or background service.
-    activeProjectSubject
-        .map(Persistable::value)
-        .filter(Optional::isPresent)
-        .map(Optional::get)
-        .toFlowable(BackpressureStrategy.BUFFER)
-        .switchMap(
-            p -> remoteDataStore.loadFeaturesOnceAndStreamChanges(p).subscribeOn(Schedulers.io()))
-        .switchMap(event -> updateLocalFeature(event).subscribeOn(Schedulers.io()).toFlowable())
+    activeProject
+        .compose(Persistable::values)
+        .switchMap(p -> remoteDataStore.loadFeaturesOnceAndStreamChanges(p))
+        .switchMap(event -> updateLocalFeature(event).toFlowable())
         .subscribe();
   }
 
@@ -96,7 +101,11 @@ public class DataRepository {
     switch (event.getEventType()) {
       case ENTITY_LOADED:
       case ENTITY_MODIFIED:
-        return event.value().map(localDataStore::mergeFeature).orElse(Completable.complete());
+        return event
+            .value()
+            .map(localDataStore::mergeFeature)
+            .orElse(Completable.complete())
+            .subscribeOn(Schedulers.io());
       case ENTITY_REMOVED:
         // TODO: Delete features:
         // localDataStore.removeFeature(event.getEntityId());
@@ -109,25 +118,26 @@ public class DataRepository {
     }
   }
 
-  public Flowable<Persistable<Project>> getActiveProject() {
-    // TODO: On subscribe and project in cache not loaded, read last active project from local db.
-    return activeProjectSubject
-        .startWith(
-            cache.getActiveProject().map(Persistable::loaded).orElse(Persistable.notLoaded()))
-        .toFlowable(BackpressureStrategy.LATEST);
+  /**
+   * Returns a stream that emits the latest project activation state, and continues to emits changes
+   * to that state until all subscriptions are disposed.
+   */
+  public Flowable<Persistable<Project>> getActiveProjectOnceAndStream() {
+    return activeProject;
   }
 
   public Single<Project> activateProject(String projectId) {
     Log.d(TAG, " Activating project " + projectId);
     return remoteDataStore
         .loadProject(projectId)
-        .doOnSubscribe(__ -> activeProjectSubject.onNext(Persistable.loading()))
+        .doOnSubscribe(__ -> activeProject.onNext(Persistable.loading()))
         .doOnSuccess(this::onProjectLoaded);
   }
 
   private void onProjectLoaded(Project project) {
     cache.setActiveProject(project);
-    activeProjectSubject.onNext(Persistable.loaded(project));
+    activeProject.onNext(Persistable.loaded(project));
+    localValueStore.setLastActiveProjectId(project.getId());
   }
 
   public Observable<Persistable<List<Project>>> getProjectSummaries(User user) {
@@ -260,11 +270,9 @@ public class DataRepository {
 
   private Single<Project> getProject(String projectId) {
     // TODO: Try to load from db if network not available or times out.
-    return cache
-        .getActiveProject()
+    return Maybe.fromCallable(() -> cache.getActiveProject())
         .filter(p -> projectId.equals(p.getId()))
-        .map(Single::just)
-        .orElse(remoteDataStore.loadProject(projectId));
+        .switchIfEmpty(remoteDataStore.loadProject(projectId));
   }
 
   public Completable applyAndEnqueue(RecordMutation mutation) {
@@ -291,8 +299,23 @@ public class DataRepository {
         .andThen(dataSyncWorkManager.enqueueSyncWorker(feature.getId()));
   }
 
+  /**
+   * Reactivates the last active project, emitting true once loaded, or false if no project was
+   * previously activated.
+   */
+  public Single<Boolean> reactivateLastProject() {
+    return Maybe.fromCallable(() -> localValueStore.getLastActiveProjectId())
+        .flatMap(id -> activateProject(id).toMaybe())
+        .doOnComplete(() -> Log.v(TAG, "No previous project found to reactivate"))
+        .doOnSuccess(project -> Log.v(TAG, "Reactivated project " + project.getId()))
+        .map(__ -> true)
+        .toSingle(false);
+  }
+
+  /** Clears the currently active project from cache and from local localValueStore. */
   public void clearActiveProject() {
     cache.clearActiveProject();
-    activeProjectSubject.onNext(Persistable.notLoaded());
+    localValueStore.clearLastActiveProjectId();
+    activeProject.onNext(Persistable.notLoaded());
   }
 }

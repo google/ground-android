@@ -19,8 +19,10 @@ package com.google.android.gnd.repository;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import com.google.android.gnd.rx.Result;
+import io.reactivex.Flowable;
 import java8.util.Optional;
 import javax.annotation.Nullable;
+import org.reactivestreams.Publisher;
 
 /**
  * Wraps the state of an entity that can be loaded or saved asynchronously. Based on Android Guide
@@ -35,6 +37,7 @@ public class Persistable<T> extends Result<T> {
     NOT_LOADED,
     LOADING,
     LOADED,
+    // TODO: Move SAVING states out and rename this class to Loadable.
     SAVING,
     SAVED,
     NOT_FOUND,
@@ -82,5 +85,13 @@ public class Persistable<T> extends Result<T> {
   @NonNull
   public static <T> Optional<T> getData(LiveData<Persistable<T>> liveData) {
     return liveData.getValue() == null ? Optional.empty() : liveData.getValue().value();
+  }
+
+  /**
+   * Modifies the provided stream to emit values instead of {@link Persistable} only when a value is
+   * loaded (i.e., omitting intermediate loading and error states).
+   */
+  public static <V> Publisher<V> values(Flowable<Persistable<V>> persistableStream) {
+    return persistableStream.map(Persistable::value).filter(Optional::isPresent).map(Optional::get);
   }
 }

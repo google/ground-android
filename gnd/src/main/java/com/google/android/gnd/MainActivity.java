@@ -50,6 +50,10 @@ import io.reactivex.plugins.RxJavaPlugins;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+/**
+ * The app's main and only activity. The app consists of multiples Fragments that live under this
+ * activity.
+ */
 @Singleton
 public class MainActivity extends AppCompatActivity implements HasSupportFragmentInjector {
 

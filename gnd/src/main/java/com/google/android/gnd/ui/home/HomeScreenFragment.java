@@ -62,13 +62,15 @@ import io.reactivex.subjects.PublishSubject;
 import javax.inject.Inject;
 
 /**
- * Fragment containing the map container and feature sheet fragments. This is the default view in
- * the application, and gets swapped out for other fragments (e.g., view record and edit record) at
- * runtime.
+ * Fragment containing the map container and feature sheet fragments and NavigationView side drawer.
+ * This is the default view in the application, and gets swapped out for other fragments (e.g., view
+ * record and edit record) at runtime.
  */
 @ActivityScoped
 public class HomeScreenFragment extends AbstractFragment
     implements BackPressListener, OnNavigationItemSelectedListener {
+  // TODO: It's not obvious which feature are in HomeScreen vs MapContainer; make this more
+  // intuitive.
   private static final float COLLAPSED_MAP_ASPECT_RATIO = 3.0f / 2.0f;
   private static final String TAG = HomeScreenFragment.class.getSimpleName();
 
@@ -153,11 +155,10 @@ public class HomeScreenFragment extends AbstractFragment
     if (savedInstanceState == null) {
       mapContainerFragment = new MapContainerFragment();
       replaceFragment(R.id.map_container_fragment, mapContainerFragment);
+      setUpBottomSheetBehavior();
     } else {
       mapContainerFragment = restoreChildFragment(savedInstanceState, MapContainerFragment.class);
     }
-
-    setUpBottomSheetBehavior();
   }
 
   private String getVersionName() {
@@ -210,10 +211,11 @@ public class HomeScreenFragment extends AbstractFragment
   @Override
   public void onStart() {
     super.onStart();
-    // TODO: Persist last selected project in local db.
-    // TODO: Create startup flow and move this logic there.
-    Persistable<Project> activeProject = viewModel.getActiveProject().getValue();
-    if (activeProject == null || !activeProject.isLoaded()) {
+    viewModel.reactivateLastProject().observe(this, this::onReactivateLastProject);
+  }
+
+  private void onReactivateLastProject(boolean success) {
+    if (!success) {
       showProjectSelector();
     }
   }
