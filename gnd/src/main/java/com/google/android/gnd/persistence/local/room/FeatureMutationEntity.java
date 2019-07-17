@@ -26,7 +26,7 @@ import androidx.room.Entity;
 import androidx.room.ForeignKey;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
-import com.google.android.gnd.persistence.shared.FeatureMutation;
+import com.google.android.gnd.model.feature.FeatureMutation;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.AutoValue.CopyAnnotations;
 import java8.util.Optional;

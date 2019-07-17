@@ -20,11 +20,11 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 import androidx.viewpager.widget.ViewPager;
+import com.google.android.gnd.model.feature.Feature;
+import com.google.android.gnd.model.form.Form;
+import com.google.android.gnd.model.layer.FeatureType;
 import com.google.android.gnd.ui.common.SharedViewModel;
 import com.google.android.gnd.ui.home.FeatureSheetState;
-import com.google.android.gnd.vo.Feature;
-import com.google.android.gnd.vo.FeatureType;
-import com.google.android.gnd.vo.Form;
 import java8.util.Optional;
 import javax.inject.Inject;
 

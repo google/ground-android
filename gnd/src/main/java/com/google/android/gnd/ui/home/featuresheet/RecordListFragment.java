@@ -27,12 +27,12 @@ import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
 import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.RecordListFragBinding;
+import com.google.android.gnd.model.feature.Feature;
+import com.google.android.gnd.model.form.Form;
+import com.google.android.gnd.model.observation.Record;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.home.HomeScreenViewModel;
-import com.google.android.gnd.vo.Feature;
-import com.google.android.gnd.vo.Form;
-import com.google.android.gnd.vo.Record;
 import java8.util.Optional;
 import javax.inject.Inject;
 

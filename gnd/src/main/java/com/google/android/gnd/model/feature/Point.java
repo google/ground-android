@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.vo;
+package com.google.android.gnd.model.feature;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.google.auto.value.AutoValue;
 
+/** The location of a single point on the map. */
 @AutoValue
 public abstract class Point {
   public abstract double getLatitude();

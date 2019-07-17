@@ -34,10 +34,10 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import com.google.android.gnd.R;
 import com.google.android.gnd.inject.ActivityScoped;
+import com.google.android.gnd.model.Project;
 import com.google.android.gnd.repository.Persistable;
 import com.google.android.gnd.ui.common.AbstractDialogFragment;
 import com.google.android.gnd.ui.common.EphemeralPopups;
-import com.google.android.gnd.vo.Project;
 import java.util.List;
 
 @ActivityScoped

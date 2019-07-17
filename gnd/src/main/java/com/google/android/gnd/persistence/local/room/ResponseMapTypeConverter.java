@@ -20,7 +20,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.room.TypeConverter;
-import com.google.android.gnd.vo.ResponseMap;
+import com.google.android.gnd.model.observation.ResponseMap;
 import java.util.Iterator;
 import org.json.JSONException;
 import org.json.JSONObject;

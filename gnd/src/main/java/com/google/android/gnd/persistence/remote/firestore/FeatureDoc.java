@@ -18,11 +18,11 @@ package com.google.android.gnd.persistence.remote.firestore;
 
 import static com.google.android.gnd.persistence.remote.firestore.FirestoreDataStore.toTimestamps;
 
-import com.google.android.gnd.persistence.shared.FeatureMutation;
-import com.google.android.gnd.vo.Feature;
-import com.google.android.gnd.vo.FeatureType;
-import com.google.android.gnd.vo.Point;
-import com.google.android.gnd.vo.Project;
+import com.google.android.gnd.model.Project;
+import com.google.android.gnd.model.feature.Feature;
+import com.google.android.gnd.model.feature.FeatureMutation;
+import com.google.android.gnd.model.feature.Point;
+import com.google.android.gnd.model.layer.FeatureType;
 import com.google.common.collect.ImmutableMap;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.GeoPoint;
