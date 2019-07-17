@@ -27,6 +27,8 @@ import androidx.work.WorkManager;
 /** Enqueues file download work to be done in the background. */
 public class FileDownloadWorkManager {
   private final WorkManager workManager;
+  private static final Constraints CONSTRAINTS =
+      new Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build();
 
   public FileDownloadWorkManager() {
     this.workManager = WorkManager.getInstance();
@@ -48,7 +50,8 @@ public class FileDownloadWorkManager {
     getWorkManager()
         .enqueueUniqueWork(FileDownloadWorker.class.getName(), ExistingWorkPolicy.APPEND, request);
 
-    // Return the request in order to fetch the {@link WorkInfo} for the request using the request id.
+    // Return the request in order to fetch the {@link WorkInfo} for the request using the request
+    // id.
     return request;
   }
 
@@ -56,13 +59,9 @@ public class FileDownloadWorkManager {
     return workManager;
   }
 
-  private Constraints getWorkerConstraints() {
-    return new Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build();
-  }
-
   private OneTimeWorkRequest buildWorkerRequest(String url, String filename) {
     return new OneTimeWorkRequest.Builder(FileDownloadWorker.class)
-        .setConstraints(getWorkerConstraints())
+        .setConstraints(CONSTRAINTS)
         .setInputData(FileDownloadWorker.createInputData(url, filename))
         .build();
   }
