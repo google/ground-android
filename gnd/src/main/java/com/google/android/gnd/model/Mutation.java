@@ -17,13 +17,12 @@
 package com.google.android.gnd.model;
 
 import androidx.annotation.Nullable;
-import com.google.android.gnd.persistence.shared.Mutation.Builder;
 
 /**
  * Represents a mutation that can be applied to local data and queued for sync with the remote data
  * store.
  */
-public abstract class Mutation<B extends Builder> {
+public abstract class Mutation<B extends Mutation.Builder> {
 
   public enum Type {
     /** Indicates a new entity should be created. */
