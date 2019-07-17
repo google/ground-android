@@ -14,9 +14,12 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.vo;
+package com.google.android.gnd.model.feature;
 
 import androidx.annotation.NonNull;
+import com.google.android.gnd.model.Project;
+import com.google.android.gnd.model.Timestamps;
+import com.google.android.gnd.model.layer.FeatureType;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.extension.memoized.Memoized;
 import javax.annotation.Nullable;

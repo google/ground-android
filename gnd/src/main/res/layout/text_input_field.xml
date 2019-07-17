@@ -21,7 +21,7 @@
   <data>
     <variable
         name="field"
-        type="com.google.android.gnd.vo.Form.Field"/>
+        type="com.google.android.gnd.model.form.Field"/>
     <variable
         name="viewModel"
         type="com.google.android.gnd.ui.editrecord.EditRecordViewModel"/>

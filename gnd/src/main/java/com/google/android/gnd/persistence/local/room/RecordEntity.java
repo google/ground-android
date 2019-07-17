@@ -25,14 +25,14 @@ import androidx.room.Entity;
 import androidx.room.ForeignKey;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
-import com.google.android.gnd.persistence.shared.RecordMutation;
-import com.google.android.gnd.vo.Feature;
-import com.google.android.gnd.vo.Record;
-import com.google.android.gnd.vo.ResponseMap;
+import com.google.android.gnd.model.feature.Feature;
+import com.google.android.gnd.model.observation.Record;
+import com.google.android.gnd.model.observation.RecordMutation;
+import com.google.android.gnd.model.observation.ResponseMap;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.AutoValue.CopyAnnotations;
 
-/** Representation of a {@link com.google.android.gnd.vo.Record} in local db. */
+/** Representation of a {@link Record} in local db. */
 @AutoValue
 @Entity(
     foreignKeys =

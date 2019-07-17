@@ -14,12 +14,10 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.vo;
+package com.google.android.gnd.model.observation;
 
 import static java8.lang.Iterables.forEach;
 
-import com.google.android.gnd.persistence.shared.ResponseDelta;
-import com.google.android.gnd.vo.Record.Response;
 import com.google.common.collect.ImmutableList;
 import java.util.HashMap;
 import java.util.Map;

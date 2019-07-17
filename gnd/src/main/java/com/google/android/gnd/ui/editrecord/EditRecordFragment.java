@@ -37,6 +37,11 @@ import com.google.android.gnd.databinding.EditRecordFragBinding;
 import com.google.android.gnd.databinding.MultipleChoiceInputFieldBinding;
 import com.google.android.gnd.databinding.TextInputFieldBinding;
 import com.google.android.gnd.inject.ActivityScoped;
+import com.google.android.gnd.model.form.Element;
+import com.google.android.gnd.model.form.Field;
+import com.google.android.gnd.model.form.MultipleChoice.Cardinality;
+import com.google.android.gnd.model.observation.Record;
+import com.google.android.gnd.model.observation.Response;
 import com.google.android.gnd.repository.Persistable;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.BackPressListener;
@@ -44,11 +49,6 @@ import com.google.android.gnd.ui.common.EphemeralPopups;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.ProgressDialogs;
 import com.google.android.gnd.ui.common.TwoLineToolbar;
-import com.google.android.gnd.vo.Form;
-import com.google.android.gnd.vo.Form.Field;
-import com.google.android.gnd.vo.Form.MultipleChoice.Cardinality;
-import com.google.android.gnd.vo.Record;
-import com.google.android.gnd.vo.Record.Response;
 import java8.util.Optional;
 import javax.inject.Inject;
 
@@ -159,7 +159,7 @@ public class EditRecordFragment extends AbstractFragment implements BackPressLis
 
   private void rebuildForm(Record record) {
     formLayout.removeAllViews();
-    for (Form.Element element : record.getForm().getElements()) {
+    for (Element element : record.getForm().getElements()) {
       switch (element.getType()) {
         case FIELD:
           addField(element.getField());

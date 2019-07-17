@@ -14,49 +14,53 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.persistence.shared;
+package com.google.android.gnd.model.observation;
 
 import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList;
 import static java8.util.stream.StreamSupport.stream;
 
-import com.google.android.gnd.vo.Point;
+import com.google.android.gnd.model.Mutation;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
-import java8.util.Optional;
 
 /**
- * Represents a mutation of a feature performed on the local device. Mutations are queued locally by
+ * Represents a mutation of a record performed on the local device. Mutations are queued locally by
  * the UI, and are dequeued and sent to the remote data store by the background data sync service.
  */
 @AutoValue
-public abstract class FeatureMutation extends Mutation<FeatureMutation.Builder> {
+public abstract class RecordMutation extends Mutation<RecordMutation.Builder> {
 
-  /** Returns the UUID of the feature type being modified. */
-  public abstract String getFeatureTypeId();
+  /** Returns the UUID of the record being modified. */
+  public abstract String getRecordId();
 
-  /**
-   * Indicates the new location of the feature. If empty, indicates no change to the feature's
-   * location.
-   */
-  public abstract Optional<Point> getNewLocation();
+  /** Returns the UUID of the form associated with this record. */
+  public abstract String getFormId();
+
+  /** Returns list of changes to responses included in this record mutation. */
+  public abstract ImmutableList<ResponseDelta> getResponseDeltas();
 
   @Override
   public abstract Builder toBuilder();
 
-  /** Returns the mutations of type {@link FeatureMutation} contained in the specified list. */
-  public static ImmutableList<FeatureMutation> filter(ImmutableList<Mutation> mutations) {
+  @Override
+  public String toString() {
+    return super.toString() + " deltas=" + getResponseDeltas();
+  }
+
+  /** Returns the mutations of type {@link RecordMutation} contained in the specified list. */
+  public static ImmutableList<RecordMutation> filter(ImmutableList<Mutation> mutations) {
     return stream(mutations)
-        .filter(FeatureMutation.class::isInstance)
-        .map(FeatureMutation.class::cast)
+        .filter(RecordMutation.class::isInstance)
+        .map(RecordMutation.class::cast)
         .collect(toImmutableList());
   }
 
   /**
-   * Returns the ids of mutations of type {@link FeatureMutation} contained in the specified list.
+   * Returns the ids of mutations of type {@link RecordMutation} contained in the specified list.
    */
   public static ImmutableList<Long> ids(ImmutableList<? extends Mutation> mutations) {
     return stream(mutations)
-        .filter(FeatureMutation.class::isInstance)
+        .filter(RecordMutation.class::isInstance)
         .map(Mutation::getId)
         .collect(toImmutableList());
   }
@@ -64,17 +68,18 @@ public abstract class FeatureMutation extends Mutation<FeatureMutation.Builder> 
   // Boilerplate generated using Android Studio AutoValue plugin:
 
   public static Builder builder() {
-    return new AutoValue_FeatureMutation.Builder().setRetryCount(0);
+    return new AutoValue_RecordMutation.Builder().setRetryCount(0);
   }
 
   @AutoValue.Builder
   public abstract static class Builder extends Mutation.Builder<Builder> {
+    public abstract Builder setRecordId(String newRecordId);
 
-    public abstract Builder setFeatureTypeId(String newFeatureTypeId);
+    public abstract Builder setFormId(String newFormId);
 
-    public abstract Builder setNewLocation(Optional<Point> newNewLocation);
+    public abstract Builder setResponseDeltas(ImmutableList<ResponseDelta> newResponseDeltas);
 
     @Override
-    public abstract FeatureMutation build();
+    public abstract RecordMutation build();
   }
 }

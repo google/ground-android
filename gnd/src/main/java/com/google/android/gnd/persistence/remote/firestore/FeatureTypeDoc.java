@@ -19,7 +19,7 @@ package com.google.android.gnd.persistence.remote.firestore;
 import static com.google.android.gnd.util.Localization.getLocalizedMessage;
 
 import androidx.annotation.Nullable;
-import com.google.android.gnd.vo.FeatureType;
+import com.google.android.gnd.model.layer.FeatureType;
 import com.google.firebase.firestore.IgnoreExtraProperties;
 import java.util.Map;
 import java8.util.Maps;
