@@ -37,6 +37,7 @@ import java.net.URL;
 public class FileDownloadWorker extends Worker {
   private static final String TARGET_URL = "url";
   private static final String FILENAME = "filename";
+  private static final int BUFFER_SIZE = 4096;
   private final Context context;
 
   public FileDownloadWorker(@NonNull Context context, @NonNull WorkerParameters params) {
@@ -66,7 +67,7 @@ public class FileDownloadWorker extends Worker {
     try {
       InputStream is = new URL(url).openStream();
       FileOutputStream fos = context.openFileOutput(filename, context.MODE_PRIVATE);
-      byte[] byteChunk = new byte[4096];
+      byte[] byteChunk = new byte[BUFFER_SIZE];
       int n;
       while ((n = is.read(byteChunk)) > 0) {
         fos.write(byteChunk, 0, n);
