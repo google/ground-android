@@ -27,15 +27,18 @@ import io.reactivex.Flowable;
 import io.reactivex.Single;
 import java.util.List;
 
-/**
- * Defines API for accessing data in a remote data store. The store is treated as if it's remote,
- * though implementations may cache data locally as well.
- */
+/** Defines API for accessing data in a remote data store. */
 public interface RemoteDataStore {
   Single<List<Project>> loadProjectSummaries(User user);
 
   Single<Project> loadProject(String projectId);
 
+  /**
+   * Returns all features in the specified project, then continues to emit any remote updates to the
+   * set of features in the project until all subscribers have been disposed. Implementations must
+   * ensure any network or other potentially long running operations are performed on a background
+   * thread.
+   */
   Flowable<RemoteDataEvent<Feature>> loadFeaturesOnceAndStreamChanges(Project project);
 
   Flowable<RemoteDataEvent<Record>> loadRecordSummariesOnceAndStreamChanges(Feature feature);

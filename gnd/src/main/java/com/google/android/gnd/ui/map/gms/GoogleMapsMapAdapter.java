@@ -145,7 +145,9 @@ class GoogleMapsMapAdapter implements MapAdapter {
   }
 
   private void removeAllMarkers() {
-    map.clear();
+    for (Marker marker : markers.values()) {
+      marker.remove();
+    }
     markers.clear();
   }
 

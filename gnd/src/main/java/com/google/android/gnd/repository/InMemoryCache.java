@@ -21,18 +21,18 @@ import com.google.common.collect.ImmutableSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java8.util.Optional;
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 /** Ephemeral storage of application state. This can be destroyed without notice. */
 public class InMemoryCache {
-  private Optional<Project> activeProject;
+  @Nullable private Project activeProject;
   // TODO: Store map vector objects here instead of Feature objects.
   private final Map<String, Feature> features;
 
   @Inject
   public InMemoryCache() {
     this.features = new LinkedHashMap<>();
-    this.activeProject = Optional.empty();
   }
 
   public synchronized void putFeature(Feature feature) {
@@ -47,17 +47,21 @@ public class InMemoryCache {
     return ImmutableSet.copyOf(features.values());
   }
 
-  public Optional<Project> getActiveProject() {
+  /** Returns the currently active project, or null if no project is active. */
+  @Nullable
+  public Project getActiveProject() {
     return activeProject;
   }
 
+  /** Sets the currently active project. */
   public void setActiveProject(Project project) {
-    activeProject = Optional.of(project);
+    activeProject = project;
     features.clear();
   }
 
+  /** Removes the currently active project from the cache. */
   public void clearActiveProject() {
-    activeProject = Optional.empty();
+    activeProject = null;
     features.clear();
   }
 

@@ -35,7 +35,7 @@ import com.google.auto.value.AutoValue.CopyAnnotations;
 @AutoValue
 @Entity(
     tableName = "feature",
-    indices = {@Index("id"), @Index("project_id"), @Index("feature_type_id")})
+    indices = {@Index("project_id")})
 public abstract class FeatureEntity {
   @CopyAnnotations
   @NonNull

@@ -43,7 +43,9 @@ public class HomeScreenViewModel extends AbstractViewModel {
   private static final String TAG = HomeScreenViewModel.class.getSimpleName();
   private final DataRepository dataRepository;
   private final Navigator navigator;
+  /** The state and value of the currently active project (loading, loaded, etc.). */
   private final LiveData<Persistable<Project>> activeProject;
+
   private final PublishSubject<Feature> addFeatureClicks;
 
   // TODO: Move into MapContainersViewModel
@@ -60,7 +62,8 @@ public class HomeScreenViewModel extends AbstractViewModel {
     this.addFeatureDialogRequests = new SingleLiveEvent<>();
     this.openDrawerRequests = new SingleLiveEvent<>();
     this.featureSheetState = new MutableLiveData<>();
-    this.activeProject = LiveDataReactiveStreams.fromPublisher(dataRepository.getActiveProject());
+    this.activeProject =
+        LiveDataReactiveStreams.fromPublisher(dataRepository.getActiveProjectOnceAndStream());
     this.navigator = navigator;
     this.addFeatureClicks = PublishSubject.create();
 
@@ -141,5 +144,15 @@ public class HomeScreenViewModel extends AbstractViewModel {
     }
     Feature feature = state.getFeature();
     navigator.addRecord(feature.getProject().getId(), feature.getId(), selectedForm.getId());
+  }
+
+  /**
+   * Reactivates the last active project, emitting true once loaded, or false if no project was
+   * previously activated.
+   */
+  public LiveData<Boolean> reactivateLastProject() {
+    // TODO: Handle errors activating project.
+    return LiveDataReactiveStreams.fromPublisher(
+        dataRepository.reactivateLastProject().toFlowable());
   }
 }

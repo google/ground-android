@@ -35,6 +35,9 @@ import io.reactivex.Single;
  * remote data store, and both local and remote updates are always persisted here before being made
  * visible to the user.
  *
+ * <p>Implementations are expected to execute each method in this class as a single atomic
+ * transaction.
+ *
  * <p>Note that long-lived streams return the full set of entities on each emission rather than
  * deltas to allow changes to not rely on prior UI state (i.e., emissions are idempotent).
  */
@@ -76,12 +79,23 @@ public interface LocalDataStore {
    */
   Single<ImmutableList<Mutation>> getPendingMutations(String featureId);
 
+  /** Updates the provided list of mutations. */
+  Completable updateMutations(ImmutableList<Mutation> mutations);
+
   /** Removes the provided feature and record mutations from the local mutation queue. */
   Completable removePendingMutations(ImmutableList<Mutation> mutations);
 
-  /** Insert or replace feature in the local data store. */
+  /**
+   * Merges the provided feature with pending unsynced local mutations, and inserts it into the
+   * local data store. If a feature with the same id already exists, it will be overwritten with the
+   * merged instance.
+   */
   Completable mergeFeature(Feature feature);
 
-  /** Applied pending local changes, then inserts or replaces the record in the local data store. */
+  /**
+   * Merges the provided record with pending unsynced local mutations, and inserts it into the local
+   * data store. If a record with the same id already exists, it will be overwritten with the
+   * merged instance.
+   */
   Completable mergeRecord(Record record);
 }
