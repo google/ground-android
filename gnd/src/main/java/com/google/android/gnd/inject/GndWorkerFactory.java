@@ -25,6 +25,8 @@ import androidx.work.WorkerParameters;
 import com.google.android.gnd.persistence.local.LocalDataStore;
 import com.google.android.gnd.persistence.remote.RemoteDataStore;
 import com.google.android.gnd.persistence.sync.LocalMutationSyncWorker;
+import com.google.android.gnd.workers.FileDownloadWorker;
+
 import javax.inject.Inject;
 
 /** Custom {@code WorkerFactory} to allow Dagger 2 injection into Ground Workers. */
@@ -52,6 +54,8 @@ public class GndWorkerFactory extends WorkerFactory {
     // this class with go away completely.
     if (workerClassName.equals(LocalMutationSyncWorker.class.getName())) {
       return new LocalMutationSyncWorker(appContext, params, localDataStore, remoteDataStore);
+    } else if (workerClassName.equals(FileDownloadWorker.class.getName())) {
+      return new FileDownloadWorker(appContext, params);
     } else {
       throw new IllegalArgumentException("Unknown worker class " + workerClassName);
     }
