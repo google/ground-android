@@ -1,13 +1,12 @@
-package com.google.android.gnd.model.tile;
+package com.google.android.gnd.model.basemap.tile;
 
 import com.google.auto.value.AutoValue;
-
-import java.net.URL;
 
 @AutoValue
 public abstract class Tile {
     public enum State {
         PENDING,
+        IN_PROGRESS,
         DOWNLOADED,
         FAILED
     }
