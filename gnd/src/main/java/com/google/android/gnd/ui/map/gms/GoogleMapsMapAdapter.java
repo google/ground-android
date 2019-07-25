@@ -36,9 +36,22 @@ import com.google.android.gnd.ui.MapIcon;
 import com.google.android.gnd.ui.map.MapMarker;
 import com.google.android.gnd.ui.map.MapProvider.MapAdapter;
 import com.google.common.collect.ImmutableSet;
+import com.google.maps.android.data.geojson.GeoJsonFeature;
+import com.google.maps.android.data.geojson.GeoJsonLayer;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import io.reactivex.Observable;
 import io.reactivex.subjects.BehaviorSubject;
 import io.reactivex.subjects.PublishSubject;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -54,17 +67,21 @@ import javax.annotation.Nullable;
 class GoogleMapsMapAdapter implements MapAdapter {
 
   private static final String TAG = GoogleMapsMapAdapter.class.getSimpleName();
+  private static final String GEO_JSON_FILE = "gnd-geojson.geojson";
   private final GoogleMap map;
   private final Context context;
+
   /**
    * Cache of ids to map markers. We don't mind this being destroyed on lifecycle events since the
    * GoogleMap markers themselves are destroyed as well.
    */
   private java.util.Map<String, Marker> markers = new HashMap<>();
+  private java.util.Set<GeoJsonFeature> selectedJsonFeatures = new HashSet<>();
 
   private final PublishSubject<MapMarker> markerClickSubject = PublishSubject.create();
   private final PublishSubject<Point> dragInteractionSubject = PublishSubject.create();
   private final BehaviorSubject<Point> cameraPositionSubject = BehaviorSubject.create();
+  private final PublishSubject<Set<GeoJsonFeature>> selectedJsonFeaturesSubject = PublishSubject.create();
 
   @Nullable private LatLng cameraTargetBeforeDrag;
 
@@ -112,6 +129,10 @@ class GoogleMapsMapAdapter implements MapAdapter {
     return cameraPositionSubject;
   }
 
+  public Observable<Set<GeoJsonFeature>> selectedJsonFeaturesStream() {
+    return selectedJsonFeaturesSubject;
+  }
+
   @Override
   public void enable() {
     map.getUiSettings().setAllGesturesEnabled(true);
@@ -130,6 +151,46 @@ class GoogleMapsMapAdapter implements MapAdapter {
   @Override
   public void moveCamera(Point point, float zoomLevel) {
     map.moveCamera(CameraUpdateFactory.newLatLngZoom(point.toLatLng(), zoomLevel));
+  }
+
+  public void renderJsonLayer() {
+    File file = new File(context.getFilesDir(), GEO_JSON_FILE);
+    if (file.exists()) {
+      try {
+        InputStream is = new FileInputStream(file);
+        BufferedReader buf = new BufferedReader(new InputStreamReader(is));
+        String line = buf.readLine();
+        StringBuilder sb = new StringBuilder();
+        while (line != null) {
+          sb.append(line).append("\n");
+          line = buf.readLine();
+        }
+        try {
+          JSONObject geoJson = new JSONObject(sb.toString());
+          GeoJsonLayer layer = new GeoJsonLayer(map, geoJson);
+          layer.setOnFeatureClickListener(this::onJsonFeatureClick);
+          layer.addLayerToMap();
+          Log.d(TAG, "JSON successfully loaded.");
+        } catch (JSONException e) {
+          Log.d(TAG, "Unable to read JSON.", e);
+          e.printStackTrace();
+        }
+      } catch (IOException e) {
+        Log.d(TAG, "geojson file not found.", e);
+      }
+    }
+  }
+
+  private void onJsonFeatureClick(com.google.maps.android.data.Feature feature) {
+    GeoJsonFeature geoJsonFeature = (GeoJsonFeature) feature;
+
+    if (selectedJsonFeatures.contains(geoJsonFeature)) {
+      selectedJsonFeatures.remove(geoJsonFeature);
+      selectedJsonFeaturesSubject.onNext(selectedJsonFeatures);
+    } else {
+      selectedJsonFeatures.add(geoJsonFeature);
+      selectedJsonFeaturesSubject.onNext(selectedJsonFeatures);
+    }
   }
 
   private void addMarker(MapMarker mapMarker, boolean hasPendingWrites, boolean isHighlighted) {
