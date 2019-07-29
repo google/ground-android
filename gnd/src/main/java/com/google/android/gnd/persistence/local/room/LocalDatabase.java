@@ -33,16 +33,18 @@ import androidx.room.TypeConverters;
       FeatureEntity.class,
       FeatureMutationEntity.class,
       RecordEntity.class,
-      RecordMutationEntity.class
+      RecordMutationEntity.class,
+      TileEntity.class
     },
     // TODO(#128): Reset version to 1 before releasing.
-    version = 13,
+    version = 14,
     exportSchema = false)
 @TypeConverters({
   MutationEntityType.class,
   EntityState.class,
   ResponseDeltasTypeConverter.class,
-  ResponseMapTypeConverter.class
+  ResponseMapTypeConverter.class,
+  TileEntityState.class
 })
 public abstract class LocalDatabase extends RoomDatabase {
 
@@ -53,4 +55,6 @@ public abstract class LocalDatabase extends RoomDatabase {
   public abstract RecordDao recordDao();
 
   public abstract RecordMutationDao recordMutationDao();
+
+  public abstract TileDao tileDao();
 }
