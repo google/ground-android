@@ -52,6 +52,8 @@ public interface MapProvider {
 
     void moveCamera(Point point, float zoomLevel);
 
+    void renderJsonLayer();
+
     Point getCenter();
 
     float getCurrentZoomLevel();

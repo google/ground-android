@@ -138,6 +138,10 @@ public class MapContainerFragment extends AbstractFragment {
     addFeatureBtn.setOnClickListener(
         __ -> homeScreenViewModel.onAddFeatureBtnClick(map.getCenter()));
     enableLocationLockBtn();
+    homeScreenViewModel
+        .getDownloadTileClicks()
+        .as(autoDisposable(this))
+        .subscribe(__ -> map.renderJsonLayer());
   }
 
   @Override

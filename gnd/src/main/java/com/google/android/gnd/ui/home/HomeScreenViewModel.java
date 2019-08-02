@@ -47,6 +47,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
   private final LiveData<Persistable<Project>> activeProject;
 
   private final PublishSubject<Feature> addFeatureClicks;
+  private final PublishSubject<Object> downloadTileClicks;
 
   // TODO: Move into MapContainersViewModel
   private final SingleLiveEvent<Point> addFeatureDialogRequests;
@@ -66,6 +67,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
         LiveDataReactiveStreams.fromPublisher(dataRepository.getActiveProjectOnceAndStream());
     this.navigator = navigator;
     this.addFeatureClicks = PublishSubject.create();
+    this.downloadTileClicks = PublishSubject.create();
 
     disposeOnClear(
         addFeatureClicks
@@ -92,6 +94,10 @@ public class HomeScreenViewModel extends AbstractViewModel {
 
   public void openNavDrawer() {
     openDrawerRequests.setValue(null);
+  }
+
+  public PublishSubject<Object> getDownloadTileClicks() {
+    return downloadTileClicks;
   }
 
   public LiveData<Persistable<Project>> getActiveProject() {

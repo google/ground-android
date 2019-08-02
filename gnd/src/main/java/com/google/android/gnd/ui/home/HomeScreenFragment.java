@@ -335,11 +335,19 @@ public class HomeScreenFragment extends AbstractFragment
         showProjectSelector();
         closeDrawer();
         break;
+      case R.id.nav_download_tiles:
+        showTileDownloadLayer();
+        closeDrawer();
+        break;
       case R.id.nav_sign_out:
         authenticationManager.signOut();
         break;
     }
     return false;
+  }
+
+  private void showTileDownloadLayer() {
+    this.viewModel.getDownloadTileClicks().onNext(new Object());
   }
 
   private class BottomSheetCallback extends BottomSheetBehavior.BottomSheetCallback {
