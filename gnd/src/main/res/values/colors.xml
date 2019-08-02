@@ -27,4 +27,8 @@
   <color name="colorGrey800">#424242</color>
   <color name="colorForeground">#212121</color>
   <color name="colorAlert">#d2004d</color>
+  <color name="colorTileActiveOverlay">#2200FFFF</color>
+  <color name="colorTileActiveStroke">#99003333</color>
+  <color name="colorTileInactiveOverlay">#00000000</color>
+  <color name="colorTileInactiveStroke">#000000</color>
 </resources>

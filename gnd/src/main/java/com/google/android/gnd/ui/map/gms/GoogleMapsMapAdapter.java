@@ -21,7 +21,11 @@ import static java8.util.stream.StreamSupport.stream;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.Color;
 import android.util.Log;
+
+import androidx.core.content.ContextCompat;
+
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.UiSettings;
@@ -29,6 +33,7 @@ import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gnd.R;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.model.layer.FeatureType;
@@ -38,6 +43,7 @@ import com.google.android.gnd.ui.map.MapProvider.MapAdapter;
 import com.google.common.collect.ImmutableSet;
 import com.google.maps.android.data.geojson.GeoJsonFeature;
 import com.google.maps.android.data.geojson.GeoJsonLayer;
+import com.google.maps.android.data.geojson.GeoJsonPolygonStyle;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -76,12 +82,14 @@ class GoogleMapsMapAdapter implements MapAdapter {
    * GoogleMap markers themselves are destroyed as well.
    */
   private java.util.Map<String, Marker> markers = new HashMap<>();
+
   private java.util.Set<GeoJsonFeature> selectedJsonFeatures = new HashSet<>();
 
   private final PublishSubject<MapMarker> markerClickSubject = PublishSubject.create();
   private final PublishSubject<Point> dragInteractionSubject = PublishSubject.create();
   private final BehaviorSubject<Point> cameraPositionSubject = BehaviorSubject.create();
-  private final PublishSubject<Set<GeoJsonFeature>> selectedJsonFeaturesSubject = PublishSubject.create();
+  private final PublishSubject<Set<GeoJsonFeature>> selectedJsonFeaturesSubject =
+      PublishSubject.create();
 
   @Nullable private LatLng cameraTargetBeforeDrag;
 
@@ -185,9 +193,19 @@ class GoogleMapsMapAdapter implements MapAdapter {
     GeoJsonFeature geoJsonFeature = (GeoJsonFeature) feature;
 
     if (selectedJsonFeatures.contains(geoJsonFeature)) {
+      GeoJsonPolygonStyle style = new GeoJsonPolygonStyle();
+      style.setStrokeWidth(10);
+      style.setStrokeColor(ContextCompat.getColor(context, R.color.colorTileInactiveStroke));
+      style.setFillColor(ContextCompat.getColor(context, R.color.colorTileInactiveOverlay));
+      geoJsonFeature.setPolygonStyle(style);
       selectedJsonFeatures.remove(geoJsonFeature);
       selectedJsonFeaturesSubject.onNext(selectedJsonFeatures);
     } else {
+      GeoJsonPolygonStyle style = new GeoJsonPolygonStyle();
+      style.setStrokeWidth(3);
+      style.setStrokeColor(ContextCompat.getColor(context, R.color.colorTileActiveStroke));
+      style.setFillColor(ContextCompat.getColor(context, R.color.colorTileActiveOverlay));
+      geoJsonFeature.setPolygonStyle(style);
       selectedJsonFeatures.add(geoJsonFeature);
       selectedJsonFeaturesSubject.onNext(selectedJsonFeatures);
     }
