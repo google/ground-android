@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright 2018 Google LLC
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,14 +15,19 @@
   -->
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-  <group android:checkableBehavior="single">
-    <item
-        android:id="@+id/nav_join_project"
-        android:icon="@drawable/ic_menu_project"
-        android:title="@string/select_project_menu_item"/>
-    <item
-        android:id="@+id/nav_sign_out"
-        android:icon="@drawable/ic_sign_out"
-        android:title="@string/sign_out"/>
-  </group>
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_join_project"
+            android:icon="@drawable/ic_menu_project"
+            android:title="@string/select_project_menu_item" />
+        <!--TODO: Add an icon for the download menu option -->
+        <item
+            android:id="@+id/nav_download_tiles"
+            android:icon="@drawable/ic_arrow_drop_down"
+            android:title="@string/download_tiles_menu_item" />
+        <item
+            android:id="@+id/nav_sign_out"
+            android:icon="@drawable/ic_sign_out"
+            android:title="@string/sign_out" />
+    </group>
 </menu>
