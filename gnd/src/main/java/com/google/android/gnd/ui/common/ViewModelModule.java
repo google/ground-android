@@ -19,6 +19,7 @@ package com.google.android.gnd.ui.common;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 import com.google.android.gnd.MainViewModel;
+import com.google.android.gnd.ui.basemapselector.BasemapSelectorViewModel;
 import com.google.android.gnd.ui.editrecord.EditRecordViewModel;
 import com.google.android.gnd.ui.home.HomeScreenViewModel;
 import com.google.android.gnd.ui.home.featuresheet.FeatureSheetViewModel;
@@ -37,6 +38,11 @@ public abstract class ViewModelModule {
   @IntoMap
   @ViewModelKey(MapContainerViewModel.class)
   abstract ViewModel bindMapContainerViewModel(MapContainerViewModel viewModel);
+
+  @Binds
+  @IntoMap
+  @ViewModelKey(BasemapSelectorViewModel.class)
+  abstract ViewModel bindBasemapSelectorViewModel(BasemapSelectorViewModel viewModel);
 
   @Binds
   @IntoMap

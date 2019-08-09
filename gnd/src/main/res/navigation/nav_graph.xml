@@ -67,7 +67,21 @@
         android:defaultValue="NEW_RECORD"
         android:name="recordId"/>
     </action>
+    <action
+        android:id="@+id/showBasemapSelector"
+        app:destination="@id/basemap_selector_fragment"
+        />
   </fragment>
+
+  <fragment
+    android:id="@+id/basemap_selector_fragment"
+    android:label="Offline Maps"
+    android:name="com.google.android.gnd.ui.basemapselector.BasemapSelectorFragment"
+    tools:layout="@layout/basemap_selector_frag">
+    <action
+        android:id="@+id/backToHomeScreen"
+        app:destination="@id/home_screen_fragment"
+      /></fragment>
 
   <fragment
     android:id="@+id/record_details_fragment"

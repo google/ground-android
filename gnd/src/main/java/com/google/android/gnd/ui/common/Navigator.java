@@ -70,6 +70,14 @@ public class Navigator {
   }
 
   /**
+   * Navigates from a {@link com.google.android.gnd.ui.home.HomeScreenFragment} to a {@link
+   * com.google.android.gnd.ui.basemapselector.BasemapSelectorFragment}.
+   */
+  public void showBasemapSelector() {
+    navigate(HomeScreenFragmentDirections.showBasemapSelector());
+  }
+
+  /**
    * Navigates from the {@link com.google.android.gnd.ui.home.HomeScreenFragment} to a {@link
    * com.google.android.gnd.ui.editrecord.EditRecordFragment} initialized with a new empty record
    * using the specified form.
