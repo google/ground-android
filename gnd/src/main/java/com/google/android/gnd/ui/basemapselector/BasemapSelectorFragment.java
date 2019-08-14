@@ -24,8 +24,8 @@ import io.reactivex.Single;
 
 /**
  * Allows the user to select specific areas on a map for offline display. Users can toggle sections of
- * the to add remove imagery. Upon selection, basemap tiles are queued for download. When deselected,
- * they are removed from the device.
+ * the map to add or remove imagery. Upon selection, basemap tiles are queued for download. When 
+ * deselected, they are removed from the device.
  */
 @ActivityScoped
 public class BasemapSelectorFragment extends AbstractFragment {
