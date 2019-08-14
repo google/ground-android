@@ -75,7 +75,7 @@
 
   <fragment
     android:id="@+id/basemap_selector_fragment"
-    android:label="Offline Maps"
+    android:label="@string/offline_maps"
     android:name="com.google.android.gnd.ui.basemapselector.BasemapSelectorFragment"
     tools:layout="@layout/basemap_selector_frag">
     <action
