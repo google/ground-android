@@ -2,7 +2,6 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
-
         <variable
             name="viewModel"
             type="com.google.android.gnd.ui.basemapselector.BasemapSelectorViewModel" />
@@ -20,7 +19,6 @@
             android:gravity="center"
             app:layout_behavior="com.google.android.gnd.ui.home.mapcontainer.MapLayoutBehavior">
 
-            <!-- Featureholder for map implementation -->
             <FrameLayout
                 android:id="@+id/map"
                 android:layout_width="match_parent"
