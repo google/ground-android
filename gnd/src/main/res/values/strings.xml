@@ -139,5 +139,6 @@
   <string name="google_api_install_failed">Google Play Services installation failed</string>
   <string name="sign_in_unsuccessful">Sign in unsuccessful</string>
   <string name="sign_out">Sign out</string>
+  <string name="offline_maps">Offline maps</string>
 
 </resources>

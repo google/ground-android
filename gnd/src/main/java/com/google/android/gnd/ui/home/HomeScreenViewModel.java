@@ -146,6 +146,10 @@ public class HomeScreenViewModel extends AbstractViewModel {
     navigator.addRecord(feature.getProject().getId(), feature.getId(), selectedForm.getId());
   }
 
+  public void showBasemapSelector() {
+    navigator.showBasemapSelector();
+  }
+
   /**
    * Reactivates the last active project, emitting true once loaded, or false if no project was
    * previously activated.

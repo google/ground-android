@@ -19,6 +19,8 @@ package com.google.android.gnd;
 import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.gnd.inject.ActivityScoped;
 import com.google.android.gnd.inject.FragmentScoped;
+import com.google.android.gnd.ui.basemapselector.BasemapSelectorFragment;
+import com.google.android.gnd.ui.basemapselector.BasemapSelectorModule;
 import com.google.android.gnd.ui.editrecord.EditRecordFragment;
 import com.google.android.gnd.ui.editrecord.EditRecordModule;
 import com.google.android.gnd.ui.home.AddFeatureDialogFragment;
@@ -89,4 +91,8 @@ public abstract class MainActivityModule {
   @FragmentScoped
   @ContributesAndroidInjector(modules = EditRecordModule.class)
   abstract EditRecordFragment editRecordFragmentInjector();
+
+  @FragmentScoped
+  @ContributesAndroidInjector(modules = BasemapSelectorModule.class)
+  abstract BasemapSelectorFragment basemapSelectorFragmentInjector();
 }

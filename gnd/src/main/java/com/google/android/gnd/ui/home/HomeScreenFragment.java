@@ -224,6 +224,10 @@ public class HomeScreenFragment extends AbstractFragment
     ProjectSelectorDialogFragment.show(getFragmentManager());
   }
 
+  private void showBasemapSelector() {
+    viewModel.showBasemapSelector();
+  }
+
   private void onApplyWindowInsets(WindowInsetsCompat insets) {
     statusBarScrim.setPadding(0, insets.getSystemWindowInsetTop(), 0, 0);
     toolbarWrapper.setPadding(0, insets.getSystemWindowInsetTop(), 0, 0);
@@ -333,6 +337,10 @@ public class HomeScreenFragment extends AbstractFragment
     switch (item.getItemId()) {
       case R.id.nav_join_project:
         showProjectSelector();
+        closeDrawer();
+        break;
+      case R.id.nav_offline_maps:
+        showBasemapSelector();
         closeDrawer();
         break;
       case R.id.nav_sign_out:
