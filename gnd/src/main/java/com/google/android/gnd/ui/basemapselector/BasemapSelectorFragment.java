@@ -22,6 +22,8 @@ import javax.inject.Inject;
 
 import io.reactivex.Single;
 
+import static com.google.android.gnd.rx.RxAutoDispose.autoDisposable;
+
 /**
  * This fragment represents a basemap selector for the application's offline imagery functionality.
  * The fragment is presented as an immersive experience in which users can select portions of a
@@ -43,6 +45,11 @@ public class BasemapSelectorFragment extends AbstractFragment {
     viewModel = getViewModel(BasemapSelectorViewModel.class);
     mainViewModel = getViewModel(MainViewModel.class);
     Single<MapAdapter> mapAdapter = mapProvider.getMapAdapter();
+    mapAdapter.as(autoDisposable(this)).subscribe(this::onMapReady);
+  }
+
+  private void onMapReady(MapAdapter map) {
+    map.renderJsonLayer();
   }
 
   @Override
