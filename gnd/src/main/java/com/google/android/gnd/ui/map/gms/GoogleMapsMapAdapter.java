@@ -102,11 +102,6 @@ class GoogleMapsMapAdapter implements MapAdapter {
   public void renderJsonLayer() {
     File file = new File(context.getFilesDir(), GEO_JSON_FILE);
 
-    if (!file.exists()) {
-      Log.e(TAG, "GeoJSON file not found.");
-      return;
-    }
-
     try {
         InputStream is = new FileInputStream(file);
         BufferedReader buf = new BufferedReader(new InputStreamReader(is));
@@ -120,10 +115,10 @@ class GoogleMapsMapAdapter implements MapAdapter {
         JSONObject geoJson = new JSONObject(sb.toString());
         GeoJsonLayer layer = new GeoJsonLayer(map, geoJson);
         layer.addLayerToMap();
-        Log.d(TAG, "JSON layer successfully loaded.");
+        Log.d(TAG, "JSON layer successfully loaded");
 
     } catch (IOException | JSONException e) {
-        Log.e(TAG, "Unable to load JSON layer.", e);
+        Log.e(TAG, "Unable to load JSON layer", e);
     }
   }
 
