@@ -25,9 +25,9 @@ import io.reactivex.Single;
 import static com.google.android.gnd.rx.RxAutoDispose.autoDisposable;
 
 /**
- * This fragment represents a basemap selector for the application's offline imagery functionality.
- * The fragment is presented as an immersive experience in which users can select portions of a
- * basemap for offline viewing. Upon selection, basemap tiles are saved to the device.
+ * Allows the user to select specific areas on a map for offline display. Users can toggle sections of
+ * the map to add or remove imagery. Upon selection, basemap tiles are queued for download. When 
+ * deselected, they are removed from the device.
  */
 @ActivityScoped
 public class BasemapSelectorFragment extends AbstractFragment {
