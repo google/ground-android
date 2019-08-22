@@ -22,6 +22,8 @@ import javax.inject.Inject;
 
 import io.reactivex.Single;
 
+import static com.google.android.gnd.rx.RxAutoDispose.autoDisposable;
+
 /**
  * Allows the user to select specific areas on a map for offline display. Users can toggle sections of
  * the map to add or remove imagery. Upon selection, basemap tiles are queued for download. When 
@@ -43,6 +45,11 @@ public class BasemapSelectorFragment extends AbstractFragment {
     viewModel = getViewModel(BasemapSelectorViewModel.class);
     mainViewModel = getViewModel(MainViewModel.class);
     Single<MapAdapter> mapAdapter = mapProvider.getMapAdapter();
+    mapAdapter.as(autoDisposable(this)).subscribe(this::onMapReady);
+  }
+
+  private void onMapReady(MapAdapter map) {
+    map.renderJsonLayer();
   }
 
   @Override

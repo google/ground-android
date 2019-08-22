@@ -36,9 +36,21 @@ import com.google.android.gnd.ui.MapIcon;
 import com.google.android.gnd.ui.map.MapMarker;
 import com.google.android.gnd.ui.map.MapProvider.MapAdapter;
 import com.google.common.collect.ImmutableSet;
+import com.google.maps.android.data.geojson.GeoJsonLayer;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import io.reactivex.Observable;
 import io.reactivex.subjects.BehaviorSubject;
 import io.reactivex.subjects.PublishSubject;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -54,6 +66,7 @@ import javax.annotation.Nullable;
 class GoogleMapsMapAdapter implements MapAdapter {
 
   private static final String TAG = GoogleMapsMapAdapter.class.getSimpleName();
+  private static final String GEO_JSON_FILE = "gnd-geojson.geojson";
   private final GoogleMap map;
   private final Context context;
   /**
@@ -84,6 +97,29 @@ class GoogleMapsMapAdapter implements MapAdapter {
     map.setOnCameraMoveStartedListener(this::onCameraMoveStarted);
     map.setOnCameraMoveListener(this::onCameraMove);
     onCameraMove();
+  }
+
+  public void renderJsonLayer() {
+    File file = new File(context.getFilesDir(), GEO_JSON_FILE);
+
+    try {
+        InputStream is = new FileInputStream(file);
+        BufferedReader buf = new BufferedReader(new InputStreamReader(is));
+        String line = buf.readLine();
+        StringBuilder sb = new StringBuilder();
+        while (line != null) {
+          sb.append(line).append("\n");
+          line = buf.readLine();
+        }
+
+        JSONObject geoJson = new JSONObject(sb.toString());
+        GeoJsonLayer layer = new GeoJsonLayer(map, geoJson);
+        layer.addLayerToMap();
+        Log.d(TAG, "JSON layer successfully loaded");
+
+    } catch (IOException | JSONException e) {
+        Log.e(TAG, "Unable to load JSON layer", e);
+    }
   }
 
   private boolean onMarkerClick(Marker marker) {
