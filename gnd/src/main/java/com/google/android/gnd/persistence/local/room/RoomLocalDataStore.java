@@ -26,6 +26,7 @@ import androidx.room.Transaction;
 import com.google.android.gnd.GndApplication;
 import com.google.android.gnd.model.Mutation;
 import com.google.android.gnd.model.Project;
+import com.google.android.gnd.model.basemap.tile.Tile;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.FeatureMutation;
 import com.google.android.gnd.model.observation.Record;
@@ -105,6 +106,13 @@ public class RoomLocalDataStore implements LocalDataStore {
                 stream(list)
                     .map(record -> RecordEntity.toRecord(feature, record))
                     .collect(toImmutableList()));
+  }
+
+  @Override
+  public Flowable<ImmutableSet<Tile>> getTilesOnceAndStream() {
+    return db.tileDao()
+        .findAll()
+        .map(list -> stream(list).map(TileEntity::toTile).collect(toImmutableSet()));
   }
 
   @Override

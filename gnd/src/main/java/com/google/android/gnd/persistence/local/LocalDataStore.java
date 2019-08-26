@@ -18,6 +18,7 @@ package com.google.android.gnd.persistence.local;
 
 import com.google.android.gnd.model.Mutation;
 import com.google.android.gnd.model.Project;
+import com.google.android.gnd.model.basemap.tile.Tile;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.FeatureMutation;
 import com.google.android.gnd.model.observation.Record;
@@ -74,6 +75,12 @@ public interface LocalDataStore {
   Maybe<Record> getRecord(Feature feature, String recordId);
 
   /**
+   * Returns a long-lived stream that emits the full set of tiles on subscribe and continues to
+   * return the full set each time a tile is added/changed/removed.
+   */
+  Flowable<ImmutableSet<Tile>> getTilesOnceAndStream();
+
+  /**
    * Returns all feature and record mutations in the local mutation queue relating to feature with
    * the specified id.
    */
@@ -94,8 +101,8 @@ public interface LocalDataStore {
 
   /**
    * Merges the provided record with pending unsynced local mutations, and inserts it into the local
-   * data store. If a record with the same id already exists, it will be overwritten with the
-   * merged instance.
+   * data store. If a record with the same id already exists, it will be overwritten with the merged
+   * instance.
    */
   Completable mergeRecord(Record record);
 }
