@@ -16,49 +16,51 @@
 
 package com.google.android.gnd.workers;
 
-import androidx.lifecycle.LiveData;
 import androidx.work.Constraints;
-import androidx.work.ExistingWorkPolicy;
 import androidx.work.NetworkType;
 import androidx.work.OneTimeWorkRequest;
-import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
+
+import javax.inject.Inject;
+import javax.inject.Provider;
 
 import io.reactivex.Completable;
 
 /** Enqueues file download work to be done in the background. */
 public class FileDownloadWorkManager {
-  private final WorkManager workManager;
   private static final Constraints CONSTRAINTS =
-      new Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build();
+          new Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build();
 
-  public FileDownloadWorkManager() {
-    this.workManager = WorkManager.getInstance();
+  private final Provider<WorkManager> workManagerProvider;
+
+  @Inject
+  public FileDownloadWorkManager(Provider<WorkManager> workManagerProvider) {
+    this.workManagerProvider = workManagerProvider;
   }
 
   /**
    * Enqueues a worker that downloads files when a network connection is available, returning a
    * completeable upon enqueueing.
    */
-  public Completable enqueueFileDownloadWorker(String url, String filename) {
-    return Completable.fromRunnable(() -> enqueueFileDownloadWorkerInternal(url, filename));
+  public Completable enqueueFileDownloadWorker(String tileId) {
+    return Completable.fromRunnable(() -> enqueueFileDownloadWorkerInternal(tileId));
   }
 
-  private void enqueueFileDownloadWorkerInternal(String url, String filename) {
-    OneTimeWorkRequest request = buildWorkerRequest(url, filename);
+  private void enqueueFileDownloadWorkerInternal(String tileId) {
+    OneTimeWorkRequest request = buildWorkerRequest(tileId);
 
-    getWorkManager()
-        .enqueueUniqueWork(FileDownloadWorker.class.getName(), ExistingWorkPolicy.APPEND, request);
+    getWorkManager().enqueue(request);
   }
 
   private WorkManager getWorkManager() {
-    return workManager;
+    return workManagerProvider.get().getInstance();
   }
 
-  private OneTimeWorkRequest buildWorkerRequest(String url, String filename) {
+  private OneTimeWorkRequest buildWorkerRequest(String tileId) {
     return new OneTimeWorkRequest.Builder(FileDownloadWorker.class)
-        .setConstraints(CONSTRAINTS)
-        .setInputData(FileDownloadWorker.createInputData(url, filename))
-        .build();
+            .setConstraints(CONSTRAINTS)
+            .setInputData(FileDownloadWorker.createInputData(tileId))
+            .build();
   }
 }
+
