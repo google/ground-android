@@ -15,29 +15,44 @@ import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.BasemapSelectorFragBinding;
 import com.google.android.gnd.inject.ActivityScoped;
 import com.google.android.gnd.ui.common.AbstractFragment;
+import com.google.android.gnd.ui.map.Extent;
 import com.google.android.gnd.ui.map.ExtentSelector;
 import com.google.android.gnd.ui.map.MapProvider;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import javax.inject.Inject;
 
+import butterknife.BindView;
 import io.reactivex.Single;
 
 import static com.google.android.gnd.rx.RxAutoDispose.autoDisposable;
+import static com.google.android.gnd.util.ImmutableSetCollector.toImmutableSet;
+import static java8.util.stream.StreamSupport.stream;
 
 /**
- * Allows the user to select specific areas on a map for offline display. Users can toggle sections of
- * the map to add or remove imagery. Upon selection, basemap tiles are queued for download. When 
+ * Allows the user to select specific areas on a map for offline display. Users can toggle sections
+ * of the map to add or remove imagery. Upon selection, basemap tiles are queued for download. When
  * deselected, they are removed from the device.
  */
 @ActivityScoped
 public class BasemapSelectorFragment extends AbstractFragment {
-
   private static final String TAG = BasemapSelectorFragment.class.getName();
+
   private static final String MAP_FRAGMENT_KEY = MapProvider.class.getName() + "#fragment";
   private BasemapSelectorViewModel viewModel;
   private MainViewModel mainViewModel;
 
   @Inject MapProvider mapProvider;
+
+  @BindView(R.id.remove_button)
+  FloatingActionButton removeButton;
+
+  @BindView(R.id.download_button)
+  FloatingActionButton downloadButton;
+
+  @BindView(R.id.basemap_controls_layout)
+  ViewGroup basemapControls;
+
 
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -50,6 +65,28 @@ public class BasemapSelectorFragment extends AbstractFragment {
 
   private void onMapReady(ExtentSelector map) {
     map.renderExtentSelectionLayer();
+
+    viewModel
+        .getDownloadedTiles()
+        .observe(
+            this,
+            tiles -> {
+              map.updateExtentSelections(
+                  stream(tiles).map(Extent::fromTile).collect(toImmutableSet()));
+            });
+
+    viewModel
+        .getPendingTiles()
+        .observe(
+            this,
+            tiles -> {
+              map.updateExtentSelections(
+                  stream(tiles).map(Extent::fromTile).collect(toImmutableSet()));
+            });
+
+    downloadButton.setOnClickListener(__ -> viewModel.downloadExtents());
+
+    map.getExtentSelections().as(autoDisposable(this)).subscribe(viewModel::updateSelectedExtents);
   }
 
   @Override

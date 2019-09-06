@@ -49,7 +49,7 @@ public class BasemapSelectorMapAdapter implements ExtentSelector {
 
   @Nullable private LatLng cameraTargetBeforeDrag;
   private GeoJsonLayer extentSelectionLayer;
-  private HashMap<String, Extent> availableExtents;
+  private final HashMap<String, Extent> availableExtents = new HashMap<>();
 
   public BasemapSelectorMapAdapter(GoogleMap map, Context context) {
     this.map = map;
@@ -138,7 +138,7 @@ public class BasemapSelectorMapAdapter implements ExtentSelector {
 
   @Override
   public Observable<Extent> getExtentSelections() {
-    return Observable.empty();
+    return extentsSubject;
   }
 
   @Override
