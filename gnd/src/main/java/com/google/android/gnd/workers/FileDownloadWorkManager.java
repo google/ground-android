@@ -29,7 +29,7 @@ import io.reactivex.Completable;
 /** Enqueues file download work to be done in the background. */
 public class FileDownloadWorkManager {
   private static final Constraints CONSTRAINTS =
-          new Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build();
+      new Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build();
 
   private final Provider<WorkManager> workManagerProvider;
 
@@ -58,9 +58,8 @@ public class FileDownloadWorkManager {
 
   private OneTimeWorkRequest buildWorkerRequest(String tileId) {
     return new OneTimeWorkRequest.Builder(FileDownloadWorker.class)
-            .setConstraints(CONSTRAINTS)
-            .setInputData(FileDownloadWorker.createInputData(tileId))
-            .build();
+        .setConstraints(CONSTRAINTS)
+        .setInputData(FileDownloadWorker.createInputData(tileId))
+        .build();
   }
 }
-

@@ -50,14 +50,14 @@ public class FileDownloadWorker extends Worker {
   private static final String TILE_ID = "tile_id";
   private static final int BUFFER_SIZE = 4096;
   private static final String URL_BASE_PATH =
-          "https://storage.googleapis.com/ground-offline-imagery-demo/mbtiles/l8/7/";
+      "https://storage.googleapis.com/ground-offline-imagery-demo/mbtiles/l8/7/";
 
   private final Context context;
   private final LocalDataStore localDataStore;
   private final String tileId;
 
   public FileDownloadWorker(
-          @NonNull Context context, @NonNull WorkerParameters params, LocalDataStore localDataStore) {
+      @NonNull Context context, @NonNull WorkerParameters params, LocalDataStore localDataStore) {
     super(context, params);
     this.context = context;
     this.localDataStore = localDataStore;
@@ -71,6 +71,7 @@ public class FileDownloadWorker extends Worker {
 
   /**
    * Returns a url from which a tile can be downloaded.
+   *
    * @param tile
    * @return tile url
    * @throws MalformedURLException
@@ -80,18 +81,19 @@ public class FileDownloadWorker extends Worker {
   }
 
   /**
-   * Given a tile, downloads a tile source file and saves it to the device's app storage.
-   * Optional HTTP request header properties may be provided.
+   * Given a tile, downloads a tile source file and saves it to the device's app storage. Optional
+   * HTTP request header properties may be provided.
+   *
    * @param tile
    * @param requestProperties optional properties to add to the HTTP request.
    * @return
    */
-  private Result downloadTileFile(Tile tile, Optional<HashMap<String,String>> requestProperties) {
+  private Result downloadTileFile(Tile tile, Optional<HashMap<String, String>> requestProperties) {
     try {
       URL url = tileUrl(tile);
       HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 
-      if(requestProperties.isPresent()) {
+      if (requestProperties.isPresent()) {
         for (Map.Entry<String, String> property : requestProperties.get().entrySet()) {
           connection.setRequestProperty(property.getKey(), property.getValue());
         }
@@ -112,8 +114,8 @@ public class FileDownloadWorker extends Worker {
       fos.close();
 
       localDataStore
-              .insertOrUpdateTile(tile.toBuilder().setState(Tile.State.DOWNLOADED).build())
-              .blockingAwait();
+          .insertOrUpdateTile(tile.toBuilder().setState(Tile.State.DOWNLOADED).build())
+          .blockingAwait();
 
       return Result.success();
 
@@ -121,8 +123,8 @@ public class FileDownloadWorker extends Worker {
       Log.d(TAG, "Failed to download and write file.", e);
 
       localDataStore
-              .insertOrUpdateTile(tile.toBuilder().setState(Tile.State.FAILED).build())
-              .blockingAwait();
+          .insertOrUpdateTile(tile.toBuilder().setState(Tile.State.FAILED).build())
+          .blockingAwait();
 
       return Result.failure();
     }
@@ -130,21 +132,25 @@ public class FileDownloadWorker extends Worker {
 
   /**
    * Update a tile's state in the database and initiate a download of the tile source file.
+   *
    * @param tile
-   * @return {@code Result.success()} if the tile source is download successfully, otherwise {@code Result.failure()}.
+   * @return {@code Result.success()} if the tile source is download successfully, otherwise {@code
+   *     Result.failure()}.
    */
   private Result downloadTile(Tile tile) {
     localDataStore
-            .insertOrUpdateTile(tile.toBuilder().setState(Tile.State.IN_PROGRESS).build())
-            .blockingAwait();
+        .insertOrUpdateTile(tile.toBuilder().setState(Tile.State.IN_PROGRESS).build())
+        .blockingAwait();
 
     return downloadTileFile(tile, Optional.empty());
   }
 
   /**
    * Resumes downloading the source for a tile marked as {@code Tile.State.IN_PROGRESS}.
+   *
    * @param tile
-   * @return {@code Result.success()} if the tile source is download successfully, otherwise {@code Result.failure()}.
+   * @return {@code Result.success()} if the tile source is download successfully, otherwise {@code
+   *     Result.failure()}.
    */
   private Result resumeTileDownload(Tile tile) {
     File existingTileFile = new File(context.getFilesDir(), tile.getPath());
@@ -157,8 +163,9 @@ public class FileDownloadWorker extends Worker {
 
   /**
    * Verifies that a tile marked as {@code Tile.State.DOWNLOADED} in the local database still exists
-   * in the app's storage.
-   * If the tile's source file isn't present, initiates a download of source file.
+   * in the app's storage. If the tile's source file isn't present, initiates a download of source
+   * file.
+   *
    * @param tile
    * @return
    */
@@ -174,8 +181,8 @@ public class FileDownloadWorker extends Worker {
 
   /**
    * Given a tile identifier, downloads a tile source file and saves it to the app's file storage.
-   * If the tile source file already exists on the device, this method returns
-   * {@code Result.success()} and does not re-download the file.
+   * If the tile source file already exists on the device, this method returns {@code
+   * Result.success()} and does not re-download the file.
    */
   @NonNull
   @Override
@@ -186,11 +193,11 @@ public class FileDownloadWorker extends Worker {
     // When there is no tile in the db, the maybe completes and returns null.
     if (tile == null) {
       tile =
-              Tile.newBuilder()
-                      .setId(tileId)
-                      .setState(Tile.State.PENDING)
-                      .setPath(Tile.pathFromId(tileId))
-                      .build();
+          Tile.newBuilder()
+              .setId(tileId)
+              .setState(Tile.State.PENDING)
+              .setPath(Tile.pathFromId(tileId))
+              .build();
     }
 
     switch (tile.getState()) {

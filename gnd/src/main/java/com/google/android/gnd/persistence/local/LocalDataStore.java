@@ -112,8 +112,6 @@ public interface LocalDataStore {
    */
   Completable insertOrUpdateTile(Tile tile);
 
-  /**
-   * Returns the tile with the specified id from the local data store, if found.
-   */
+  /** Returns the tile with the specified id from the local data store, if found. */
   Maybe<Tile> getTile(String tileId);
 }
