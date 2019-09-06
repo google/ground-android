@@ -19,6 +19,7 @@ package com.google.android.gnd.repository;
 import android.util.Log;
 import com.google.android.gnd.model.Mutation;
 import com.google.android.gnd.model.Project;
+import com.google.android.gnd.model.basemap.tile.Tile;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.FeatureMutation;
 import com.google.android.gnd.model.observation.Record;
@@ -310,6 +311,14 @@ public class DataRepository {
         .doOnSuccess(project -> Log.v(TAG, "Reactivated project " + project.getId()))
         .map(__ -> true)
         .toSingle(false);
+  }
+
+  /**
+   * Returns a long-lived steam that continually emits the set of tiles currently stored in the
+   * local data store.
+   */
+  public Flowable<ImmutableSet<Tile>> getTilesOnceAndStream() {
+    return localDataStore.getTilesOnceAndStream();
   }
 
   /** Clears the currently active project from cache and from local localValueStore. */
