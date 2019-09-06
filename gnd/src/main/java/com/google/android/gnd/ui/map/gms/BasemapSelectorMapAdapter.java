@@ -90,8 +90,9 @@ public class BasemapSelectorMapAdapter implements ExtentSelector {
       Iterable<GeoJsonFeature> jsonFeatures = this.extentSelectionLayer.getFeatures();
 
       for (GeoJsonFeature feature : jsonFeatures) {
-        availableExtents.put(feature.getId(),
-            Extent.newBuilder().setId(feature.getId()).setState(Extent.State.UNSELECTED).build());
+        availableExtents.put(
+            feature.getId(),
+            Extent.newBuilder().setId(feature.getId()).setState(Extent.State.NONE).build());
       }
 
       Log.d(TAG, "Extent selection layer successfully loaded");
@@ -118,11 +119,19 @@ public class BasemapSelectorMapAdapter implements ExtentSelector {
     Extent extent = availableExtents.get(geoJsonFeature.getId());
 
     switch (extent.getState()) {
-      case SELECTED:
-        updateExtentSelectionState(extent.toBuilder().setState(Extent.State.UNSELECTED).build());
+      case DOWNLOADED:
+        updateExtentSelectionState(
+            extent.toBuilder().setState(Extent.State.PENDING_REMOVAL).build());
         break;
-      case UNSELECTED:
-        updateExtentSelectionState(extent.toBuilder().setState(Extent.State.SELECTED).build());
+      case PENDING_DOWNLOAD:
+        updateExtentSelectionState(extent.toBuilder().setState(Extent.State.NONE).build());
+        break;
+      case PENDING_REMOVAL:
+        updateExtentSelectionState(extent.toBuilder().setState(Extent.State.DOWNLOADED).build());
+        break;
+      case NONE:
+        updateExtentSelectionState(
+            extent.toBuilder().setState(Extent.State.PENDING_DOWNLOAD).build());
         break;
     }
   }
