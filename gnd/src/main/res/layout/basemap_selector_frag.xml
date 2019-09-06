@@ -2,6 +2,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
+
         <variable
             name="viewModel"
             type="com.google.android.gnd.ui.basemapselector.BasemapSelectorViewModel" />
@@ -24,7 +25,35 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent" />
 
-            <!--TODO: Add controls for returning Home and downloading selected tiles.-->
+            <LinearLayout
+                android:id="@+id/basemap_controls_layout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|right|end"
+                android:layout_marginRight="@dimen/map_btn_margin_right"
+                android:layout_marginBottom="@dimen/map_btn_margin_bottom"
+                android:orientation="vertical">
+
+                <com.google.android.material.floatingactionbutton.FloatingActionButton
+                    android:id="@+id/remove_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_gps_grey600"
+                    app:backgroundTint="@color/colorBackground"
+                    app:fabSize="normal"
+                    app:useCompatPadding="true" />
+
+                <com.google.android.material.floatingactionbutton.FloatingActionButton
+                    android:id="@+id/download_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_plus_black_24dp"
+                    android:tint="@color/colorBackground"
+                    app:backgroundTint="@color/colorGrey500"
+                    app:fabSize="normal"
+                    app:useCompatPadding="true" />
+            </LinearLayout>
+
         </RelativeLayout>
     </FrameLayout>
 </layout>

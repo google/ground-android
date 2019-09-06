@@ -85,4 +85,5 @@
   <dimen name="toolbar_elevation">4dp</dimen>
   <dimen name="feature_sheet_header_padding_bottom">16dp</dimen>
   <dimen name="record_list_item_preview_table_right_margin">18dp</dimen>
+  <dimen name="basemap_selector_bottom_navigation_height">40dp</dimen>
 </resources>
