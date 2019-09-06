@@ -2,6 +2,7 @@ package com.google.android.gnd.ui.map;
 
 import androidx.annotation.Nullable;
 
+import com.google.android.gnd.model.basemap.tile.Tile;
 import com.google.auto.value.AutoValue;
 
 @AutoValue
@@ -22,6 +23,21 @@ public abstract class Extent {
   }
 
   public abstract Builder toBuilder();
+
+  public static Extent fromTile(Tile tile) {
+    switch (tile.getState()) {
+      case IN_PROGRESS:
+        return Extent.newBuilder().setId(tile.getId()).setState(State.PENDING_DOWNLOAD).build();
+      case DOWNLOADED:
+        return Extent.newBuilder().setId(tile.getId()).setState(State.DOWNLOADED).build();
+      case FAILED:
+        return Extent.newBuilder().setId(tile.getId()).setState(State.NONE).build();
+      case PENDING:
+        return Extent.newBuilder().setId(tile.getId()).setState(State.PENDING_DOWNLOAD).build();
+      default:
+        return Extent.newBuilder().setId(tile.getId()).setState(State.NONE).build();
+    }
+  }
 
   @AutoValue.Builder
   public abstract static class Builder {
