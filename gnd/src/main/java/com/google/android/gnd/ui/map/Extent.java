@@ -7,8 +7,10 @@ import com.google.auto.value.AutoValue;
 @AutoValue
 public abstract class Extent {
   public enum State {
-    SELECTED,
-    UNSELECTED
+    DOWNLOADED,
+    PENDING_DOWNLOAD,
+    PENDING_REMOVAL,
+    NONE
   }
 
   public abstract String getId();
