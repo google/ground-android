@@ -114,4 +114,7 @@ public interface LocalDataStore {
 
   /** Returns the tile with the specified id from the local data store, if found. */
   Maybe<Tile> getTile(String tileId);
+
+  /** Deletes the tile with the specified id from the local data store, if found.*/
+  Maybe<Integer> deleteTile(String tileId);
 }

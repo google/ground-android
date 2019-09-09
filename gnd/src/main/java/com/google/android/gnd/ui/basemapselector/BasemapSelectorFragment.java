@@ -19,6 +19,7 @@ import com.google.android.gnd.ui.map.Extent;
 import com.google.android.gnd.ui.map.ExtentSelector;
 import com.google.android.gnd.ui.map.MapProvider;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.common.collect.ImmutableSet;
 
 import javax.inject.Inject;
 
@@ -53,7 +54,6 @@ public class BasemapSelectorFragment extends AbstractFragment {
   @BindView(R.id.basemap_controls_layout)
   ViewGroup basemapControls;
 
-
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -67,24 +67,60 @@ public class BasemapSelectorFragment extends AbstractFragment {
     map.renderExtentSelectionLayer();
 
     viewModel
-        .getDownloadedTiles()
+        .getTiles()
         .observe(
             this,
             tiles -> {
               map.updateExtentSelections(
                   stream(tiles).map(Extent::fromTile).collect(toImmutableSet()));
+            });
+
+    //viewModel
+    //    .getDownloadedTiles()
+    //    .observe(
+    //        this,
+    //        tiles -> {
+    //          map.updateExtentSelections(
+    //              stream(tiles).map(Extent::fromTile).collect(toImmutableSet()));
+    //        });
+
+    //viewModel
+    //    .getPendingTiles()
+    //    .observe(
+    //        this,
+    //        tiles -> {
+    //          map.updateExtentSelections(
+    //              stream(tiles).map(Extent::fromTile).collect(toImmutableSet()));
+    //        });
+
+    viewModel
+        .getDownloadedExtents()
+        .observe(
+            this,
+            extentId -> {
+              map.updateExtentSelections(
+                  ImmutableSet.<Extent>builder()
+                      .add(
+                          Extent.newBuilder()
+                              .setId(extentId)
+                              .setState(Extent.State.DOWNLOADED)
+                              .build())
+                      .build());
             });
 
     viewModel
-        .getPendingTiles()
+        .getRemovedExtents()
         .observe(
             this,
-            tiles -> {
+            extentId -> {
               map.updateExtentSelections(
-                  stream(tiles).map(Extent::fromTile).collect(toImmutableSet()));
+                  ImmutableSet.<Extent>builder()
+                      .add(Extent.newBuilder().setId(extentId).setState(Extent.State.NONE).build())
+                      .build());
             });
 
     downloadButton.setOnClickListener(__ -> viewModel.downloadExtents());
+    removeButton.setOnClickListener(__ -> viewModel.removeExtents());
 
     map.getExtentSelections().as(autoDisposable(this)).subscribe(viewModel::updateSelectedExtents);
   }

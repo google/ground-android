@@ -34,6 +34,8 @@ public abstract class Extent {
         return Extent.newBuilder().setId(tile.getId()).setState(State.NONE).build();
       case PENDING:
         return Extent.newBuilder().setId(tile.getId()).setState(State.PENDING_DOWNLOAD).build();
+      case REMOVED:
+        return Extent.newBuilder().setId(tile.getId()).setState(State.NONE).build();
       default:
         return Extent.newBuilder().setId(tile.getId()).setState(State.NONE).build();
     }

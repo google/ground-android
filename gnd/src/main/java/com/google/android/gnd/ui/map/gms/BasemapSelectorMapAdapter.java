@@ -5,11 +5,13 @@ import android.content.Context;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gnd.R;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.ui.map.Extent;
 import com.google.android.gnd.ui.map.ExtentSelector;
@@ -17,6 +19,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.maps.android.data.Feature;
 import com.google.maps.android.data.geojson.GeoJsonFeature;
 import com.google.maps.android.data.geojson.GeoJsonLayer;
+import com.google.maps.android.data.geojson.GeoJsonPolygonStyle;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -28,6 +31,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.HashMap;
+import java8.util.Optional;
 
 import io.reactivex.Observable;
 import io.reactivex.subjects.BehaviorSubject;
@@ -50,6 +54,7 @@ public class BasemapSelectorMapAdapter implements ExtentSelector {
   @Nullable private LatLng cameraTargetBeforeDrag;
   private GeoJsonLayer extentSelectionLayer;
   private final HashMap<String, Extent> availableExtents = new HashMap<>();
+  private Iterable<GeoJsonFeature> geoJsonFeatures;
 
   public BasemapSelectorMapAdapter(GoogleMap map, Context context) {
     this.map = map;
@@ -87,9 +92,9 @@ public class BasemapSelectorMapAdapter implements ExtentSelector {
       extentSelectionLayer.addLayerToMap();
       extentSelectionLayer.setOnFeatureClickListener(this::onExtentSelection);
 
-      Iterable<GeoJsonFeature> jsonFeatures = this.extentSelectionLayer.getFeatures();
+      this.geoJsonFeatures = this.extentSelectionLayer.getFeatures();
 
-      for (GeoJsonFeature feature : jsonFeatures) {
+      for (GeoJsonFeature feature : this.geoJsonFeatures) {
         availableExtents.put(
             feature.getId(),
             Extent.newBuilder().setId(feature.getId()).setState(Extent.State.NONE).build());
@@ -105,8 +110,62 @@ public class BasemapSelectorMapAdapter implements ExtentSelector {
   @Override
   public void updateExtentSelections(ImmutableSet<Extent> extents) {
     stream(extents.asList())
-        .filter(extent -> availableExtents.containsKey(extent))
-        .forEach(this::updateExtentSelectionState);
+        .filter(extent -> availableExtents.containsKey(extent.getId()))
+        .forEach(
+            extent -> {
+              Log.d(TAG, "Updating extent: " + extent);
+              this.updateExtentSelectionState(extent);
+              this.updateExtentStyle(extent);
+            });
+  }
+
+  private Optional<GeoJsonFeature> getJsonFromExtent(Extent extent) {
+    for (GeoJsonFeature feature : this.geoJsonFeatures) {
+      if (feature.getId().equals(extent.getId())) {
+        return Optional.of(feature);
+      }
+    }
+    return Optional.empty();
+  }
+
+  private void updateExtentStyle(Extent extent) {
+    Optional<GeoJsonFeature> maybeFeature = getJsonFromExtent(extent);
+    GeoJsonPolygonStyle style = new GeoJsonPolygonStyle();
+
+    if (!maybeFeature.isPresent()) {
+      return;
+    }
+
+    GeoJsonFeature geoJsonFeature = maybeFeature.get();
+
+    switch (extent.getState()) {
+      case DOWNLOADED:
+        style.setStrokeWidth(10);
+        style.setStrokeColor(ContextCompat.getColor(context, R.color.colorExtentDownloadedStroke));
+        style.setFillColor(ContextCompat.getColor(context, R.color.colorExtentDownloadedFill));
+        geoJsonFeature.setPolygonStyle(style);
+        break;
+      case PENDING_DOWNLOAD:
+        style.setStrokeWidth(10);
+        style.setStrokeColor(
+            ContextCompat.getColor(context, R.color.colorExtentPendingDownloadStroke));
+        style.setFillColor(ContextCompat.getColor(context, R.color.colorExtentPendingDownloadFill));
+        geoJsonFeature.setPolygonStyle(style);
+        break;
+      case PENDING_REMOVAL:
+        style.setStrokeWidth(10);
+        style.setStrokeColor(
+            ContextCompat.getColor(context, R.color.colorExtentPendingRemovalStroke));
+        style.setFillColor(ContextCompat.getColor(context, R.color.colorExtentPendingRemovalFill));
+        geoJsonFeature.setPolygonStyle(style);
+        break;
+      case NONE:
+        style.setStrokeWidth(10);
+        style.setStrokeColor(ContextCompat.getColor(context, R.color.colorExtentNoneStroke));
+        style.setFillColor(ContextCompat.getColor(context, R.color.colorExtentNoneFill));
+        geoJsonFeature.setPolygonStyle(style);
+        break;
+    }
   }
 
   private void updateExtentSelectionState(Extent extent) {
@@ -118,20 +177,26 @@ public class BasemapSelectorMapAdapter implements ExtentSelector {
     GeoJsonFeature geoJsonFeature = (GeoJsonFeature) feature;
     Extent extent = availableExtents.get(geoJsonFeature.getId());
 
+    Log.d(TAG, "Clicked extent state: " + extent.getState());
+
+    // TODO: Replace all style updates with extent style objects.
     switch (extent.getState()) {
       case DOWNLOADED:
-        updateExtentSelectionState(
-            extent.toBuilder().setState(Extent.State.PENDING_REMOVAL).build());
+        updateExtentSelectionState(extent.toBuilder().setState(Extent.State.PENDING_REMOVAL).build());
+        updateExtentStyle(extent.toBuilder().setState(Extent.State.PENDING_REMOVAL).build());
         break;
       case PENDING_DOWNLOAD:
         updateExtentSelectionState(extent.toBuilder().setState(Extent.State.NONE).build());
+        updateExtentStyle(extent.toBuilder().setState(Extent.State.NONE).build());
         break;
       case PENDING_REMOVAL:
         updateExtentSelectionState(extent.toBuilder().setState(Extent.State.DOWNLOADED).build());
+        updateExtentStyle(extent.toBuilder().setState(Extent.State.DOWNLOADED).build());
         break;
       case NONE:
         updateExtentSelectionState(
             extent.toBuilder().setState(Extent.State.PENDING_DOWNLOAD).build());
+        updateExtentStyle(extent.toBuilder().setState(Extent.State.PENDING_DOWNLOAD).build());
         break;
     }
   }

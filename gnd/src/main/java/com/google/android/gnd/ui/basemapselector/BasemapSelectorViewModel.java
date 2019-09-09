@@ -16,7 +16,9 @@ import java.util.HashSet;
 
 import javax.inject.Inject;
 
+import io.reactivex.BackpressureStrategy;
 import io.reactivex.Flowable;
+import io.reactivex.subjects.PublishSubject;
 
 import static com.google.android.gnd.util.ImmutableSetCollector.toImmutableSet;
 import static java8.util.stream.StreamSupport.stream;
@@ -31,10 +33,16 @@ import static java8.util.stream.StreamSupport.stream;
 public class BasemapSelectorViewModel extends ViewModel {
   private static final String TAG = BasemapSelectorViewModel.class.getName();
 
-  private final Flowable<ImmutableSet<Tile>> tiles;
+  private final Flowable<ImmutableSet<Tile>> tilesStream;
+  private final LiveData<ImmutableSet<Tile>> tiles;
   private final LiveData<ImmutableSet<Tile>> downloadedTiles;
   private final LiveData<ImmutableSet<Tile>> pendingTiles;
   private HashSet<String> selectedExtents = new HashSet<>();
+  private PublishSubject<String> downloadedExtentsSubject = PublishSubject.create();
+  private LiveData<String> downloadedExtents;
+  private PublishSubject<String> removedExtentsSubject = PublishSubject.create();
+  private LiveData<String> removedExtents;
+  private HashSet<String> extentsPendingRemoval = new HashSet<>();
   private final DataRepository dataRepository;
   private final FileDownloadWorkManager downloadWorkManager;
 
@@ -44,11 +52,13 @@ public class BasemapSelectorViewModel extends ViewModel {
     this.dataRepository = dataRepository;
     this.downloadWorkManager = downloadWorkManager;
 
-    this.tiles = dataRepository.getTilesOnceAndStream();
+    this.tilesStream = this.dataRepository.getTilesOnceAndStream();
+
+    this.tiles = LiveDataReactiveStreams.fromPublisher(tilesStream);
 
     this.downloadedTiles =
         LiveDataReactiveStreams.fromPublisher(
-            tiles.map(
+            tilesStream.map(
                 ts ->
                     stream(ts)
                         .filter(tile -> tile.getState() == Tile.State.DOWNLOADED)
@@ -56,11 +66,18 @@ public class BasemapSelectorViewModel extends ViewModel {
 
     this.pendingTiles =
         LiveDataReactiveStreams.fromPublisher(
-            tiles.map(
+            tilesStream.map(
                 ts ->
                     stream(ts)
                         .filter(tile -> tile.getState() == Tile.State.PENDING)
                         .collect(toImmutableSet())));
+
+    this.downloadedExtents =
+        LiveDataReactiveStreams.fromPublisher(
+            downloadedExtentsSubject.toFlowable(BackpressureStrategy.LATEST));
+    this.removedExtents =
+        LiveDataReactiveStreams.fromPublisher(
+            removedExtentsSubject.toFlowable(BackpressureStrategy.LATEST));
   }
 
   public void updateSelectedExtents(Extent extent) {
@@ -68,12 +85,16 @@ public class BasemapSelectorViewModel extends ViewModel {
       case PENDING_DOWNLOAD:
         selectedExtents.add(extent.getId());
         break;
+      case PENDING_REMOVAL:
+        extentsPendingRemoval.add(extent.getId());
+        break;
       case NONE:
         selectedExtents.remove(extent.getId());
         break;
       default:
     }
   }
+
 
   public LiveData<ImmutableSet<Tile>> getDownloadedTiles() {
     return downloadedTiles;
@@ -83,13 +104,39 @@ public class BasemapSelectorViewModel extends ViewModel {
     return pendingTiles;
   }
 
+  public LiveData<String> getDownloadedExtents() {
+    return downloadedExtents;
+  }
+
+  public LiveData<String> getRemovedExtents() {
+    return removedExtents;
+  }
+
+  public LiveData<ImmutableSet<Tile>> getTiles() {
+    return tiles;
+  }
+
   /** Download selected extents. */
   public void downloadExtents() {
     for (String extentId : selectedExtents) {
       Log.d(TAG, "Downloading: " + extentId);
+      downloadedExtentsSubject.onNext(extentId);
       downloadWorkManager
           .enqueueFileDownloadWorker(extentId)
           .subscribe(() -> Log.d(TAG, "Download worker queued"));
+    }
+  }
+
+  /** Remove selected extents. */
+  public void removeExtents() {
+    Log.d(TAG, "Removing extents.");
+    for (String extentId : extentsPendingRemoval) {
+      Log.d(TAG, "Removing extent: " + extentId);
+      removedExtentsSubject.onNext(extentId);
+      downloadWorkManager
+          .enqueueRemovalWorker(extentId)
+          .onErrorComplete()
+          .subscribe(() -> Log.d(TAG, "Removal worker queued"));
     }
   }
 }

@@ -225,4 +225,9 @@ public class RoomLocalDataStore implements LocalDataStore {
   public Maybe<Tile> getTile(String tileId) {
     return db.tileDao().findById(tileId).map(TileEntity::toTile);
   }
+
+  @Override
+  public Maybe<Integer> deleteTile(String tileId) {
+    return db.tileDao().findById(tileId).flatMap(tileEntity -> db.tileDao().deleteTile(tileEntity));
+  }
 }

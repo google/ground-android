@@ -8,7 +8,8 @@ public abstract class Tile {
     PENDING,
     IN_PROGRESS,
     DOWNLOADED,
-    FAILED
+    FAILED,
+    REMOVED
   }
 
   public abstract String getId();

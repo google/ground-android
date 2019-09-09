@@ -1,6 +1,7 @@
 package com.google.android.gnd.persistence.local.room;
 
 import androidx.room.Dao;
+import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
@@ -24,4 +25,7 @@ public interface TileDao {
 
     @Query("SELECT * FROM tile WHERE path = :path")
     Maybe<TileEntity> findByPath(String path);
+
+    @Delete
+    Maybe<Integer> deleteTile(TileEntity tile);
 }

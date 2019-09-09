@@ -47,7 +47,7 @@ public class FileDownloadWorkManager {
   }
 
   private void enqueueFileDownloadWorkerInternal(String tileId) {
-    OneTimeWorkRequest request = buildWorkerRequest(tileId);
+    OneTimeWorkRequest request = buildDownloadWorkerRequest(tileId);
 
     getWorkManager().enqueue(request);
   }
@@ -56,10 +56,27 @@ public class FileDownloadWorkManager {
     return workManagerProvider.get().getInstance();
   }
 
-  private OneTimeWorkRequest buildWorkerRequest(String tileId) {
+  private OneTimeWorkRequest buildDownloadWorkerRequest(String tileId) {
     return new OneTimeWorkRequest.Builder(FileDownloadWorker.class)
         .setConstraints(CONSTRAINTS)
         .setInputData(FileDownloadWorker.createInputData(tileId))
         .build();
+  }
+
+  private OneTimeWorkRequest  buildRemovalWorkRequest(String tileId) {
+    return new OneTimeWorkRequest.Builder(TileRemovalWorker.class)
+        .setConstraints(CONSTRAINTS)
+        .setInputData(TileRemovalWorker.createInputData(tileId))
+        .build();
+  }
+
+  public Completable enqueueRemovalWorker(String tileId) {
+    return Completable.fromRunnable(() -> enqueueTileRemovalWorkerInternal(tileId));
+  }
+
+  private void enqueueTileRemovalWorkerInternal(String tileId) {
+    OneTimeWorkRequest request = buildRemovalWorkRequest(tileId);
+
+    getWorkManager().enqueue(request);
   }
 }

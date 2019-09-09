@@ -27,4 +27,12 @@
   <color name="colorGrey800">#424242</color>
   <color name="colorForeground">#212121</color>
   <color name="colorAlert">#d2004d</color>
+  <color name="colorExtentPendingDownloadStroke">#2342ed</color>
+  <color name="colorExtentPendingDownloadFill">#237fff</color>
+  <color name="colorExtentPendingRemovalStroke">#d2004d</color>
+  <color name="colorExtentPendingRemovalFill">#d2005f</color>
+  <color name="colorExtentDownloadedStroke">#009113</color>
+  <color name="colorExtentDownloadedFill">#00915f</color>
+  <color name="colorExtentNoneStroke">#000000</color>
+  <color name="colorExtentNoneFill">#00000000</color>
 </resources>

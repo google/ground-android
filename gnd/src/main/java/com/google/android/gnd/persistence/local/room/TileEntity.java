@@ -47,6 +47,8 @@ public abstract class TileEntity {
         return Tile.State.DOWNLOADED;
       case FAILED:
         return Tile.State.FAILED;
+      case REMOVED:
+        return Tile.State.REMOVED;
       default:
         throw new IllegalArgumentException("Unknown tile state: " + state);
     }
@@ -71,6 +73,8 @@ public abstract class TileEntity {
         return TileEntityState.FAILED;
       case DOWNLOADED:
         return TileEntityState.DOWNLOADED;
+      case REMOVED:
+        return TileEntityState.REMOVED;
       default:
         return TileEntityState.UNKNOWN;
     }

@@ -26,6 +26,7 @@ import com.google.android.gnd.persistence.local.LocalDataStore;
 import com.google.android.gnd.persistence.remote.RemoteDataStore;
 import com.google.android.gnd.persistence.sync.LocalMutationSyncWorker;
 import com.google.android.gnd.workers.FileDownloadWorker;
+import com.google.android.gnd.workers.TileRemovalWorker;
 
 import javax.inject.Inject;
 
@@ -56,6 +57,8 @@ public class GndWorkerFactory extends WorkerFactory {
       return new LocalMutationSyncWorker(appContext, params, localDataStore, remoteDataStore);
     } else if (workerClassName.equals(FileDownloadWorker.class.getName())) {
       return new FileDownloadWorker(appContext, params, localDataStore);
+    } else if (workerClassName.equals(TileRemovalWorker.class.getName())) {
+      return new TileRemovalWorker(appContext, params, localDataStore);
     } else {
       throw new IllegalArgumentException("Unknown worker class " + workerClassName);
     }

@@ -9,7 +9,8 @@ public enum TileEntityState implements IntEnum {
   PENDING(1),
   IN_PROGRESS(2),
   DOWNLOADED(3),
-  FAILED(4);
+  FAILED(4),
+  REMOVED(5);
 
   private final int intValue;
 

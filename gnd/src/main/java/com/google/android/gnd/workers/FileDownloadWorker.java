@@ -209,6 +209,8 @@ public class FileDownloadWorker extends Worker {
         return downloadTile(tile);
       case IN_PROGRESS:
         return resumeTileDownload(tile);
+      case REMOVED:
+        return downloadTile(tile);
       default:
         return Result.failure();
     }
