@@ -20,6 +20,8 @@ import io.reactivex.BackpressureStrategy;
 import io.reactivex.Flowable;
 import io.reactivex.subjects.PublishSubject;
 
+import static java8.util.stream.StreamSupport.stream;
+
 /**
  * This view model is responsible for managing state for the {@link BasemapSelectorFragment}.
  * Together, they constitute a basemap selector that users can interact with to select portions of a
@@ -32,14 +34,9 @@ public class BasemapSelectorViewModel extends ViewModel {
 
   private final Flowable<ImmutableSet<Tile>> tilesStream;
   private final LiveData<ImmutableSet<Tile>> tiles;
-  private HashSet<String> extentsPendingDownload = new HashSet<>();
-  private PublishSubject<HashSet<String>> extentsPendingDownloadStream = PublishSubject.create();
-  private HashSet<String> extentsPendingRemoval = new HashSet<>();
-  private PublishSubject<HashSet<String>> extentsPendingRemovalStream = PublishSubject.create();
-  private LiveData<String> downloadedExtents;
-  private PublishSubject<String> downloadedExtentsSubject = PublishSubject.create();
-  private PublishSubject<String> removedExtentsSubject = PublishSubject.create();
-  private LiveData<String> removedExtents;
+  private final HashSet<Extent> extents = new HashSet<>();
+  private final PublishSubject<HashSet<Extent>> extentsSubject = PublishSubject.create();
+  private LiveData<HashSet<Extent>> selectedExtents;
   private final DataRepository dataRepository;
   private final FileDownloadWorkManager downloadWorkManager;
 
@@ -53,83 +50,57 @@ public class BasemapSelectorViewModel extends ViewModel {
 
     this.tiles = LiveDataReactiveStreams.fromPublisher(tilesStream);
 
-    this.downloadedExtents =
+    this.selectedExtents =
         LiveDataReactiveStreams.fromPublisher(
-            downloadedExtentsSubject.toFlowable(BackpressureStrategy.LATEST));
-    this.removedExtents =
-        LiveDataReactiveStreams.fromPublisher(
-            removedExtentsSubject.toFlowable(BackpressureStrategy.LATEST));
+            extentsSubject.toFlowable(BackpressureStrategy.LATEST));
   }
 
-  public void updateExtentsPendingDownload(Extent extent) {
+  public void updateExtentSelections(Extent extent) {
     switch (extent.getState()) {
-      case DOWNLOADED:
-        extentsPendingRemoval.remove(extent.getId());
-        extentsPendingDownload.remove(extent.getId());
-        extentsPendingRemovalStream.onNext(extentsPendingRemoval);
-        extentsPendingDownloadStream.onNext(extentsPendingDownload);
-        break;
       case PENDING_DOWNLOAD:
-        extentsPendingDownload.add(extent.getId());
-        extentsPendingDownloadStream.onNext(extentsPendingDownload);
+        this.extents.add(extent);
         break;
       case PENDING_REMOVAL:
-        extentsPendingRemoval.add(extent.getId());
-        extentsPendingRemovalStream.onNext(extentsPendingRemoval);
-        break;
-      case NONE:
-        extentsPendingDownload.remove(extent.getId());
-        extentsPendingRemoval.remove(extent.getId());
-        extentsPendingDownloadStream.onNext(extentsPendingDownload);
-        extentsPendingRemovalStream.onNext(extentsPendingRemoval);
+        this.extents.add(extent);
         break;
       default:
+        // TODO: Remove temporary hack to remove selected extents.
+        // For whatever reason, my equals override on extents is not working for hashset removal.
+        // For now, we just remove the possible states that are in the set.
+        this.extents.remove(extent.toBuilder().setState(Extent.State.PENDING_DOWNLOAD).build());
+        this.extents.remove(extent.toBuilder().setState(Extent.State.PENDING_REMOVAL).build());
+    }
+
+    extentsSubject.onNext(extents);
+  }
+
+  private void applyExtentChange(Extent extent) {
+    switch (extent.getState()) {
+      case PENDING_REMOVAL:
+        downloadWorkManager
+            .enqueueRemovalWorker(extent.getId())
+            .subscribe(() -> Log.d(TAG, "Removal worker queued"));
+        break;
+      case PENDING_DOWNLOAD:
+        downloadWorkManager
+            .enqueueFileDownloadWorker(extent.getId())
+            .subscribe(() -> Log.d(TAG, "Download worker queued"));
+        break;
+      default:
+        // Do nothing.
     }
   }
 
-  public LiveData<HashSet<String>> getExtentsPendingRemoval() {
-    return LiveDataReactiveStreams.fromPublisher(
-        extentsPendingRemovalStream.toFlowable(BackpressureStrategy.LATEST));
+  public void applyExtentChanges() {
+    stream(this.extents).forEach(this::applyExtentChange);
+    extents.clear();
   }
 
-  public LiveData<HashSet<String>> getExtentsPendingDownload() {
-    return LiveDataReactiveStreams.fromPublisher(
-        extentsPendingDownloadStream.toFlowable(BackpressureStrategy.LATEST));
-  }
-
-  public LiveData<String> getDownloadedExtents() {
-    return downloadedExtents;
-  }
-
-  public LiveData<String> getRemovedExtents() {
-    return removedExtents;
+  public LiveData<HashSet<Extent>> getSelectedExtents() {
+    return this.selectedExtents;
   }
 
   public LiveData<ImmutableSet<Tile>> getTiles() {
     return tiles;
-  }
-
-  /** Download selected extents. */
-  public void downloadExtents() {
-    for (String extentId : extentsPendingDownload) {
-      Log.d(TAG, "Downloading: " + extentId);
-      downloadedExtentsSubject.onNext(extentId);
-      downloadWorkManager
-          .enqueueFileDownloadWorker(extentId)
-          .subscribe(() -> Log.d(TAG, "Download worker queued"));
-    }
-  }
-
-  /** Remove selected extents. */
-  public void removeExtents() {
-    Log.d(TAG, "Removing extents.");
-    for (String extentId : extentsPendingRemoval) {
-      Log.d(TAG, "Removing extent: " + extentId);
-      removedExtentsSubject.onNext(extentId);
-      downloadWorkManager
-          .enqueueRemovalWorker(extentId)
-          .onErrorComplete()
-          .subscribe(() -> Log.d(TAG, "Removal worker queued"));
-    }
   }
 }

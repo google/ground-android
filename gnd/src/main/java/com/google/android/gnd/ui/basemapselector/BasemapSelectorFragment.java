@@ -20,7 +20,6 @@ import com.google.android.gnd.ui.map.Extent;
 import com.google.android.gnd.ui.map.ExtentSelector;
 import com.google.android.gnd.ui.map.MapProvider;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.common.collect.ImmutableSet;
 
 import javax.inject.Inject;
 
@@ -46,11 +45,8 @@ public class BasemapSelectorFragment extends AbstractFragment {
 
   @Inject MapProvider mapProvider;
 
-  @BindView(R.id.remove_button)
-  FloatingActionButton removeButton;
-
-  @BindView(R.id.download_button)
-  FloatingActionButton downloadButton;
+  @BindView(R.id.apply_button)
+  FloatingActionButton applyButton;
 
   @BindView(R.id.basemap_controls_layout)
   ViewGroup basemapControls;
@@ -76,53 +72,17 @@ public class BasemapSelectorFragment extends AbstractFragment {
                   stream(tiles).map(Extent::fromTile).collect(toImmutableSet()));
             });
 
-    viewModel
-        .getDownloadedExtents()
-        .observe(
-            this,
-            extentId -> {
-              map.updateExtentSelections(
-                  ImmutableSet.<Extent>builder()
-                      .add(
-                          Extent.newBuilder()
-                              .setId(extentId)
-                              .setState(Extent.State.DOWNLOADED)
-                              .build())
-                      .build());
-            });
-
-    viewModel
-        .getRemovedExtents()
-        .observe(
-            this,
-            extentId -> {
-              map.updateExtentSelections(
-                  ImmutableSet.<Extent>builder()
-                      .add(Extent.newBuilder().setId(extentId).setState(Extent.State.NONE).build())
-                      .build());
-            });
-
-
-    viewModel.getExtentsPendingDownload().observe(this, extents -> {
+    viewModel.getSelectedExtents().observe(this, extents -> {
       if (extents.isEmpty()) {
-        downloadButton.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorGrey600)));
+        applyButton.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorGrey600)));
       } else {
-        downloadButton.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
+        applyButton.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
       }
     });
 
-    viewModel.getExtentsPendingRemoval().observe(this, extents -> {
-      if (extents.isEmpty()) {
-        removeButton.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorGrey600)));
-      } else {
-        removeButton.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAlert)));
-      }
-    });
+    applyButton.setOnClickListener(__ -> viewModel.applyExtentChanges());
 
-    downloadButton.setOnClickListener(__ -> viewModel.downloadExtents());
-    removeButton.setOnClickListener(__ -> viewModel.removeExtents());
-
-    map.getExtentSelections().as(autoDisposable(this)).subscribe(viewModel::updateExtentsPendingDownload);
+    map.getExtentSelections().as(autoDisposable(this)).subscribe(viewModel::updateExtentSelections);
   }
 
   @Override
