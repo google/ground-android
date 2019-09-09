@@ -15,8 +15,8 @@ import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.BasemapSelectorFragBinding;
 import com.google.android.gnd.inject.ActivityScoped;
 import com.google.android.gnd.ui.common.AbstractFragment;
+import com.google.android.gnd.ui.map.ExtentSelector;
 import com.google.android.gnd.ui.map.MapProvider;
-import com.google.android.gnd.ui.map.MapProvider.MapAdapter;
 
 import javax.inject.Inject;
 
@@ -44,12 +44,12 @@ public class BasemapSelectorFragment extends AbstractFragment {
     super.onCreate(savedInstanceState);
     viewModel = getViewModel(BasemapSelectorViewModel.class);
     mainViewModel = getViewModel(MainViewModel.class);
-    Single<MapAdapter> mapAdapter = mapProvider.getMapAdapter();
+    Single<ExtentSelector> mapAdapter = mapProvider.getExtentSelector();
     mapAdapter.as(autoDisposable(this)).subscribe(this::onMapReady);
   }
 
-  private void onMapReady(MapAdapter map) {
-    map.renderJsonLayer();
+  private void onMapReady(ExtentSelector map) {
+    map.renderExtentSelectionLayer();
   }
 
   @Override

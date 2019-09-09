@@ -18,6 +18,8 @@ package com.google.android.gnd.ui.map.gms;
 
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+
+import com.google.android.gnd.ui.map.ExtentSelector;
 import com.google.android.gnd.ui.map.MapProvider;
 import io.reactivex.Single;
 import io.reactivex.subjects.SingleSubject;
@@ -27,6 +29,7 @@ public class GoogleMapsMapProvider implements MapProvider {
 
   @Nullable private GoogleMapsFragment fragment;
   @Nullable private SingleSubject<MapAdapter> map = SingleSubject.create();
+  @Nullable private SingleSubject<ExtentSelector> extentMap = SingleSubject.create();
 
   @Override
   public void restore(Fragment fragment) {
@@ -44,7 +47,8 @@ public class GoogleMapsMapProvider implements MapProvider {
   private void createMapAsync() {
     ((GoogleMapsFragment) getFragment())
         .getMapAsync(
-            googleMap -> map.onSuccess(new GoogleMapsMapAdapter(googleMap, fragment.getContext())));
+            googleMap -> {map.onSuccess(new GoogleMapsMapAdapter(googleMap, fragment.getContext()));
+            extentMap.onSuccess(new BasemapSelectorMapAdapter(googleMap, fragment.getContext()));});
   }
 
   @Override
@@ -58,5 +62,10 @@ public class GoogleMapsMapProvider implements MapProvider {
   @Override
   public Single<MapAdapter> getMapAdapter() {
     return map;
+  }
+
+  @Override
+  public Single<ExtentSelector> getExtentSelector() {
+    return extentMap;
   }
 }
