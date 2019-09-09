@@ -20,9 +20,6 @@ import io.reactivex.BackpressureStrategy;
 import io.reactivex.Flowable;
 import io.reactivex.subjects.PublishSubject;
 
-import static com.google.android.gnd.util.ImmutableSetCollector.toImmutableSet;
-import static java8.util.stream.StreamSupport.stream;
-
 /**
  * This view model is responsible for managing state for the {@link BasemapSelectorFragment}.
  * Together, they constitute a basemap selector that users can interact with to select portions of a
@@ -35,14 +32,14 @@ public class BasemapSelectorViewModel extends ViewModel {
 
   private final Flowable<ImmutableSet<Tile>> tilesStream;
   private final LiveData<ImmutableSet<Tile>> tiles;
-  private final LiveData<ImmutableSet<Tile>> downloadedTiles;
-  private final LiveData<ImmutableSet<Tile>> pendingTiles;
-  private HashSet<String> selectedExtents = new HashSet<>();
-  private PublishSubject<String> downloadedExtentsSubject = PublishSubject.create();
+  private HashSet<String> extentsPendingDownload = new HashSet<>();
+  private PublishSubject<HashSet<String>> extentsPendingDownloadStream = PublishSubject.create();
+  private HashSet<String> extentsPendingRemoval = new HashSet<>();
+  private PublishSubject<HashSet<String>> extentsPendingRemovalStream = PublishSubject.create();
   private LiveData<String> downloadedExtents;
+  private PublishSubject<String> downloadedExtentsSubject = PublishSubject.create();
   private PublishSubject<String> removedExtentsSubject = PublishSubject.create();
   private LiveData<String> removedExtents;
-  private HashSet<String> extentsPendingRemoval = new HashSet<>();
   private final DataRepository dataRepository;
   private final FileDownloadWorkManager downloadWorkManager;
 
@@ -56,22 +53,6 @@ public class BasemapSelectorViewModel extends ViewModel {
 
     this.tiles = LiveDataReactiveStreams.fromPublisher(tilesStream);
 
-    this.downloadedTiles =
-        LiveDataReactiveStreams.fromPublisher(
-            tilesStream.map(
-                ts ->
-                    stream(ts)
-                        .filter(tile -> tile.getState() == Tile.State.DOWNLOADED)
-                        .collect(toImmutableSet())));
-
-    this.pendingTiles =
-        LiveDataReactiveStreams.fromPublisher(
-            tilesStream.map(
-                ts ->
-                    stream(ts)
-                        .filter(tile -> tile.getState() == Tile.State.PENDING)
-                        .collect(toImmutableSet())));
-
     this.downloadedExtents =
         LiveDataReactiveStreams.fromPublisher(
             downloadedExtentsSubject.toFlowable(BackpressureStrategy.LATEST));
@@ -80,28 +61,40 @@ public class BasemapSelectorViewModel extends ViewModel {
             removedExtentsSubject.toFlowable(BackpressureStrategy.LATEST));
   }
 
-  public void updateSelectedExtents(Extent extent) {
+  public void updateExtentsPendingDownload(Extent extent) {
     switch (extent.getState()) {
+      case DOWNLOADED:
+        extentsPendingRemoval.remove(extent.getId());
+        extentsPendingDownload.remove(extent.getId());
+        extentsPendingRemovalStream.onNext(extentsPendingRemoval);
+        extentsPendingDownloadStream.onNext(extentsPendingDownload);
+        break;
       case PENDING_DOWNLOAD:
-        selectedExtents.add(extent.getId());
+        extentsPendingDownload.add(extent.getId());
+        extentsPendingDownloadStream.onNext(extentsPendingDownload);
         break;
       case PENDING_REMOVAL:
         extentsPendingRemoval.add(extent.getId());
+        extentsPendingRemovalStream.onNext(extentsPendingRemoval);
         break;
       case NONE:
-        selectedExtents.remove(extent.getId());
+        extentsPendingDownload.remove(extent.getId());
+        extentsPendingRemoval.remove(extent.getId());
+        extentsPendingDownloadStream.onNext(extentsPendingDownload);
+        extentsPendingRemovalStream.onNext(extentsPendingRemoval);
         break;
       default:
     }
   }
 
-
-  public LiveData<ImmutableSet<Tile>> getDownloadedTiles() {
-    return downloadedTiles;
+  public LiveData<HashSet<String>> getExtentsPendingRemoval() {
+    return LiveDataReactiveStreams.fromPublisher(
+        extentsPendingRemovalStream.toFlowable(BackpressureStrategy.LATEST));
   }
 
-  public LiveData<ImmutableSet<Tile>> getPendingTiles() {
-    return pendingTiles;
+  public LiveData<HashSet<String>> getExtentsPendingDownload() {
+    return LiveDataReactiveStreams.fromPublisher(
+        extentsPendingDownloadStream.toFlowable(BackpressureStrategy.LATEST));
   }
 
   public LiveData<String> getDownloadedExtents() {
@@ -118,7 +111,7 @@ public class BasemapSelectorViewModel extends ViewModel {
 
   /** Download selected extents. */
   public void downloadExtents() {
-    for (String extentId : selectedExtents) {
+    for (String extentId : extentsPendingDownload) {
       Log.d(TAG, "Downloading: " + extentId);
       downloadedExtentsSubject.onNext(extentId);
       downloadWorkManager

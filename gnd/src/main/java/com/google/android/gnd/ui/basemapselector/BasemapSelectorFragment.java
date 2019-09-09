@@ -1,5 +1,6 @@
 package com.google.android.gnd.ui.basemapselector;
 
+import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -75,24 +76,6 @@ public class BasemapSelectorFragment extends AbstractFragment {
                   stream(tiles).map(Extent::fromTile).collect(toImmutableSet()));
             });
 
-    //viewModel
-    //    .getDownloadedTiles()
-    //    .observe(
-    //        this,
-    //        tiles -> {
-    //          map.updateExtentSelections(
-    //              stream(tiles).map(Extent::fromTile).collect(toImmutableSet()));
-    //        });
-
-    //viewModel
-    //    .getPendingTiles()
-    //    .observe(
-    //        this,
-    //        tiles -> {
-    //          map.updateExtentSelections(
-    //              stream(tiles).map(Extent::fromTile).collect(toImmutableSet()));
-    //        });
-
     viewModel
         .getDownloadedExtents()
         .observe(
@@ -119,10 +102,27 @@ public class BasemapSelectorFragment extends AbstractFragment {
                       .build());
             });
 
+
+    viewModel.getExtentsPendingDownload().observe(this, extents -> {
+      if (extents.isEmpty()) {
+        downloadButton.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorGrey600)));
+      } else {
+        downloadButton.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
+      }
+    });
+
+    viewModel.getExtentsPendingRemoval().observe(this, extents -> {
+      if (extents.isEmpty()) {
+        removeButton.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorGrey600)));
+      } else {
+        removeButton.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAlert)));
+      }
+    });
+
     downloadButton.setOnClickListener(__ -> viewModel.downloadExtents());
     removeButton.setOnClickListener(__ -> viewModel.removeExtents());
 
-    map.getExtentSelections().as(autoDisposable(this)).subscribe(viewModel::updateSelectedExtents);
+    map.getExtentSelections().as(autoDisposable(this)).subscribe(viewModel::updateExtentsPendingDownload);
   }
 
   @Override
@@ -152,7 +152,6 @@ public class BasemapSelectorFragment extends AbstractFragment {
 
   private void onApplyWindowInsets(WindowInsetsCompat windowInsets) {
     ViewCompat.onApplyWindowInsets(mapProvider.getFragment().getView(), windowInsets);
-    // TODO: Once we add control UI elements, translate them based on the inset to avoid collision
-    //  with the android navbar.
+    basemapControls.setTranslationY(-windowInsets.getSystemWindowInsetBottom());
   }
 }
