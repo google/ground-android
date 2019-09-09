@@ -22,6 +22,8 @@ import static java8.util.stream.StreamSupport.stream;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.util.Log;
+
+import com.cocoahero.android.gmaps.addons.mapbox.MapBoxOfflineTileProvider;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.UiSettings;
@@ -29,6 +31,9 @@ import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.TileOverlay;
+import com.google.android.gms.maps.model.TileOverlayOptions;
+import com.google.android.gms.maps.model.TileProvider;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.model.layer.FeatureType;
@@ -51,9 +56,11 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 import java8.util.Optional;
@@ -99,27 +106,22 @@ class GoogleMapsMapAdapter implements MapAdapter {
     onCameraMove();
   }
 
-  public void renderJsonLayer() {
-    File file = new File(context.getFilesDir(), GEO_JSON_FILE);
 
-    try {
-        InputStream is = new FileInputStream(file);
-        BufferedReader buf = new BufferedReader(new InputStreamReader(is));
-        String line = buf.readLine();
-        StringBuilder sb = new StringBuilder();
-        while (line != null) {
-          sb.append(line).append("\n");
-          line = buf.readLine();
-        }
+  private void renderTileOverlay(File file) {
+    Log.d(TAG, "Rendering tile: " + file.getPath());
 
-        JSONObject geoJson = new JSONObject(sb.toString());
-        GeoJsonLayer layer = new GeoJsonLayer(map, geoJson);
-        layer.addLayerToMap();
-        Log.d(TAG, "JSON layer successfully loaded");
+    TileProvider provider = new MapBoxOfflineTileProvider(file);
+    TileOverlay overlay = map.addTileOverlay(new TileOverlayOptions().tileProvider(provider));
+  }
 
-    } catch (IOException | JSONException e) {
-        Log.e(TAG, "Unable to load JSON layer", e);
-    }
+  public void renderOfflineTiles() {
+    Log.d(TAG, "Loading offline tiles");
+
+    List<File> files = Arrays.asList(context.getFilesDir().listFiles());
+
+    stream(files)
+            .filter(file -> file.getPath().endsWith(".mbtiles"))
+            .forEach(this::renderTileOverlay);
   }
 
   private boolean onMarkerClick(Marker marker) {

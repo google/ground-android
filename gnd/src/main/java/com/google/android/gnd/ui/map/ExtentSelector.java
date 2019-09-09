@@ -1,9 +1,5 @@
 package com.google.android.gnd.ui.map;
 
-import android.util.Pair;
-
-import androidx.annotation.Nullable;
-
 import com.google.android.gnd.model.feature.Feature;
 import com.google.common.collect.ImmutableSet;
 
@@ -23,6 +19,12 @@ public interface ExtentSelector extends MapProvider.MapAdapter {
   }
 
   default void updateMarkers(ImmutableSet<Feature> features) {
+    // Do nothing.
+  }
+
+  // By default, we assume the selector UI shouldn't render offline tiles, as these might clash with
+  // selections.
+  default void renderOfflineTiles() {
     // Do nothing.
   }
 }

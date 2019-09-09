@@ -62,5 +62,7 @@ public interface MapProvider {
     void enableCurrentLocationIndicator();
 
     void updateMarkers(ImmutableSet<Feature> features);
+
+    void renderOfflineTiles();
   }
 }

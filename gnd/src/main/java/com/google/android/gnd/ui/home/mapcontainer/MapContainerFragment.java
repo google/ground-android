@@ -122,6 +122,9 @@ public class MapContainerFragment extends AbstractFragment {
   }
 
   private void onMapReady(MapAdapter map) {
+    // Render available offline tiles.
+    map.renderOfflineTiles();
+
     Log.d(TAG, "MapAdapter ready. Updating subscriptions");
     // Observe events emitted by the ViewModel.
     mapContainerViewModel.getFeatures().observe(this, map::updateMarkers);
