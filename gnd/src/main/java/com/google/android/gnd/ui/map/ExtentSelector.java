@@ -5,10 +5,13 @@ import com.google.common.collect.ImmutableSet;
 
 import io.reactivex.Observable;
 
+// TODO: After G4G, revisit this design/object hierarchy--an additional interface may not be
+// necessary.
 public interface ExtentSelector extends MapProvider.MapAdapter {
 
   Observable<Extent> getExtentSelections();
 
+  // TODO: Simplify this? Instead of consuming a set of extents, can we update extents individually?
   void updateExtentSelections(ImmutableSet<Extent> extents);
 
   void renderExtentSelectionLayer();

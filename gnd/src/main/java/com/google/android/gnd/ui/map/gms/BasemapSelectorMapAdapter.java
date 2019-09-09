@@ -82,6 +82,8 @@ public class BasemapSelectorMapAdapter implements ExtentSelector {
       BufferedReader buf = new BufferedReader(new InputStreamReader(is));
       String line = buf.readLine();
       StringBuilder sb = new StringBuilder();
+
+      // TODO: Use a higher-level API to read the contents of the JSON file.
       while (line != null) {
         sb.append(line).append("\n");
         line = buf.readLine();
@@ -180,6 +182,7 @@ public class BasemapSelectorMapAdapter implements ExtentSelector {
     Log.d(TAG, "Clicked extent state: " + extent.getState());
 
     // TODO: Replace all style updates with extent style objects.
+    // TODO: Refactor repetitive extent building.
     switch (extent.getState()) {
       case DOWNLOADED:
         updateExtentSelectionState(extent.toBuilder().setState(Extent.State.PENDING_REMOVAL).build());

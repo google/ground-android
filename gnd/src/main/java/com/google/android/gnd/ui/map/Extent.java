@@ -7,6 +7,9 @@ import com.google.auto.value.AutoValue;
 
 @AutoValue
 public abstract class Extent {
+  // TODO: Find a more appropriate name for this enum.
+  // State is confusing in this case since it suggests the class also maintains the state of the
+  // extent's corresponding tile--that's not the case.
   public enum State {
     DOWNLOADED,
     PENDING_DOWNLOAD,
@@ -24,21 +27,25 @@ public abstract class Extent {
 
   public abstract Builder toBuilder();
 
-  public static Extent fromTile(Tile tile) {
-    switch (tile.getState()) {
+  private static State toExtentState(Tile.State state) {
+    switch (state) {
       case IN_PROGRESS:
-        return Extent.newBuilder().setId(tile.getId()).setState(State.PENDING_DOWNLOAD).build();
+        return State.PENDING_DOWNLOAD;
       case DOWNLOADED:
-        return Extent.newBuilder().setId(tile.getId()).setState(State.DOWNLOADED).build();
-      case FAILED:
-        return Extent.newBuilder().setId(tile.getId()).setState(State.NONE).build();
+        return State.DOWNLOADED;
       case PENDING:
-        return Extent.newBuilder().setId(tile.getId()).setState(State.PENDING_DOWNLOAD).build();
+        return State.PENDING_DOWNLOAD;
       case REMOVED:
-        return Extent.newBuilder().setId(tile.getId()).setState(State.NONE).build();
+        return State.NONE;
+      case FAILED:
+        return State.NONE;
       default:
-        return Extent.newBuilder().setId(tile.getId()).setState(State.NONE).build();
+        return State.NONE;
     }
+  }
+
+  public static Extent fromTile(Tile tile) {
+    return Extent.newBuilder().setId(tile.getId()).setState(toExtentState(tile.getState())).build();
   }
 
   @AutoValue.Builder
@@ -50,6 +57,7 @@ public abstract class Extent {
     public abstract Extent build();
   }
 
+  // TODO: Remove this override, it's extraneous.
   @Override
   public boolean equals(@Nullable Object obj) {
     if (obj == this) {
