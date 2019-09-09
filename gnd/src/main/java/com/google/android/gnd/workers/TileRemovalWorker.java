@@ -17,9 +17,6 @@ public class TileRemovalWorker extends Worker {
   private static final String TAG = FileDownloadWorker.class.getSimpleName();
 
   private static final String TILE_ID = "tile_id";
-  private static final int BUFFER_SIZE = 4096;
-  private static final String URL_BASE_PATH =
-      "https://storage.googleapis.com/ground-offline-imagery-demo/mbtiles/l8/7/";
 
   private final Context context;
   private final LocalDataStore localDataStore;
@@ -85,17 +82,7 @@ public class TileRemovalWorker extends Worker {
       case IN_PROGRESS:
         return removeTile(tile);
       default:
-        return Result.failure();
+        return Result.success();
     }
-  }
-
-  private Result deleteDataStoreTile(Tile tile) {
-    Integer deletedRow = localDataStore.deleteTile(tileId).blockingGet();
-
-    if (deletedRow == null) {
-      return Result.failure();
-    }
-
-    return Result.success();
   }
 }
