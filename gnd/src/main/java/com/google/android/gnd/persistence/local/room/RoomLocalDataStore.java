@@ -215,4 +215,14 @@ public class RoomLocalDataStore implements LocalDataStore {
   private Completable enqueue(RecordMutation mutation) {
     return db.recordMutationDao().insert(RecordMutationEntity.fromMutation(mutation));
   }
+
+  @Override
+  public Completable insertOrUpdateTile(Tile tile) {
+    return db.tileDao().insertOrUpdate(TileEntity.fromTile(tile));
+  }
+
+  @Override
+  public Maybe<Tile> getTile(String tileId) {
+    return db.tileDao().findById(tileId).map(TileEntity::toTile);
+  }
 }

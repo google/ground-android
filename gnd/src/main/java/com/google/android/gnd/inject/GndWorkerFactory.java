@@ -55,7 +55,7 @@ public class GndWorkerFactory extends WorkerFactory {
     if (workerClassName.equals(LocalMutationSyncWorker.class.getName())) {
       return new LocalMutationSyncWorker(appContext, params, localDataStore, remoteDataStore);
     } else if (workerClassName.equals(FileDownloadWorker.class.getName())) {
-      return new FileDownloadWorker(appContext, params);
+      return new FileDownloadWorker(appContext, params, localDataStore);
     } else {
       throw new IllegalArgumentException("Unknown worker class " + workerClassName);
     }

@@ -105,4 +105,13 @@ public interface LocalDataStore {
    * instance.
    */
   Completable mergeRecord(Record record);
+
+  /**
+   * Attempts to update a tile in the local data store. If the tile doesn't exist, inserts the tile
+   * into the local data store.
+   */
+  Completable insertOrUpdateTile(Tile tile);
+
+  /** Returns the tile with the specified id from the local data store, if found. */
+  Maybe<Tile> getTile(String tileId);
 }
