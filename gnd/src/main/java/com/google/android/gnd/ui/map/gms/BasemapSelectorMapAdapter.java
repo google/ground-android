@@ -2,6 +2,7 @@ package com.google.android.gnd.ui.map.gms;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.res.Resources;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
@@ -43,7 +44,6 @@ import static java8.util.stream.StreamSupport.stream;
 public class BasemapSelectorMapAdapter implements ExtentSelector {
 
   private static final String TAG = GoogleMapsMapAdapter.class.getSimpleName();
-  private static final String GEO_JSON_FILE = "gnd-geojson.geojson";
   private final GoogleMap map;
   private final Context context;
 
@@ -75,10 +75,10 @@ public class BasemapSelectorMapAdapter implements ExtentSelector {
 
   @Override
   public void renderExtentSelectionLayer() {
-    File file = new File(context.getFilesDir(), GEO_JSON_FILE);
+    int geoJsonResourceId = context.getResources().getIdentifier("gnd_geojson", "raw", context.getPackageName());
 
     try {
-      InputStream is = new FileInputStream(file);
+      InputStream is = context.getResources().openRawResource(geoJsonResourceId);
       BufferedReader buf = new BufferedReader(new InputStreamReader(is));
       String line = buf.readLine();
       StringBuilder sb = new StringBuilder();

@@ -73,7 +73,6 @@ import javax.annotation.Nullable;
 class GoogleMapsMapAdapter implements MapAdapter {
 
   private static final String TAG = GoogleMapsMapAdapter.class.getSimpleName();
-  private static final String GEO_JSON_FILE = "gnd-geojson.geojson";
   private final GoogleMap map;
   private final Context context;
   /**
