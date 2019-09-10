@@ -22,9 +22,9 @@ import androidx.room.Embedded;
 import androidx.room.Entity;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
-import com.google.android.gnd.persistence.shared.FeatureMutation;
-import com.google.android.gnd.vo.Feature;
-import com.google.android.gnd.vo.Project;
+import com.google.android.gnd.model.Project;
+import com.google.android.gnd.model.feature.Feature;
+import com.google.android.gnd.model.feature.FeatureMutation;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.AutoValue.CopyAnnotations;
 
@@ -35,19 +35,13 @@ import com.google.auto.value.AutoValue.CopyAnnotations;
 @AutoValue
 @Entity(
     tableName = "feature",
-    indices = {@Index("id"), @Index("project_id")})
+    indices = {@Index("project_id")})
 public abstract class FeatureEntity {
   @CopyAnnotations
   @NonNull
   @PrimaryKey
   @ColumnInfo(name = "id")
   public abstract String getId();
-
-  // TODO: Rename to DeletionState.
-  @CopyAnnotations
-  @NonNull
-  @ColumnInfo(name = "state")
-  public abstract EntityState getState();
 
   @CopyAnnotations
   @NonNull
@@ -58,6 +52,12 @@ public abstract class FeatureEntity {
   @NonNull
   @ColumnInfo(name = "feature_type_id")
   public abstract String getFeatureTypeId();
+
+  // TODO: Rename to DeletionState.
+  @CopyAnnotations
+  @NonNull
+  @ColumnInfo(name = "state")
+  public abstract EntityState getState();
 
   @CopyAnnotations
   @NonNull

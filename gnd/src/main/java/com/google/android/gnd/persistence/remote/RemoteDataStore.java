@@ -16,14 +16,12 @@
 
 package com.google.android.gnd.persistence.remote;
 
-import com.google.android.gnd.persistence.shared.Mutation;
+import com.google.android.gnd.model.Mutation;
+import com.google.android.gnd.model.Project;
+import com.google.android.gnd.model.feature.Feature;
+import com.google.android.gnd.model.observation.Record;
 import com.google.android.gnd.system.AuthenticationManager.User;
-import com.google.android.gnd.vo.Feature;
-import com.google.android.gnd.vo.FeatureUpdate.RecordUpdate.ResponseUpdate;
-import com.google.android.gnd.vo.Project;
-import com.google.android.gnd.vo.Record;
 import com.google.common.collect.ImmutableCollection;
-import com.google.common.collect.ImmutableList;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Single;
@@ -44,10 +42,6 @@ public interface RemoteDataStore {
   Flowable<RemoteDataEvent<Feature>> loadFeaturesOnceAndStreamChanges(Project project);
 
   Flowable<RemoteDataEvent<Record>> loadRecordSummariesOnceAndStreamChanges(Feature feature);
-
-  Single<Record> loadRecordDetails(Feature feature, String recordId);
-
-  Single<Record> saveChanges(Record record, ImmutableList<ResponseUpdate> updates);
 
   /**
    * Applies the provided mutations to the remote data store in a single batched transaction. If one

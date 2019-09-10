@@ -43,6 +43,9 @@ import com.google.android.gnd.MainViewModel;
 import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.HomeScreenFragBinding;
 import com.google.android.gnd.inject.ActivityScoped;
+import com.google.android.gnd.model.Project;
+import com.google.android.gnd.model.feature.Feature;
+import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.repository.Persistable;
 import com.google.android.gnd.system.AuthenticationManager;
 import com.google.android.gnd.ui.common.AbstractFragment;
@@ -53,9 +56,6 @@ import com.google.android.gnd.ui.common.ProgressDialogs;
 import com.google.android.gnd.ui.common.TwoLineToolbar;
 import com.google.android.gnd.ui.home.mapcontainer.MapContainerFragment;
 import com.google.android.gnd.ui.projectselector.ProjectSelectorDialogFragment;
-import com.google.android.gnd.vo.Feature;
-import com.google.android.gnd.vo.Point;
-import com.google.android.gnd.vo.Project;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.navigation.NavigationView.OnNavigationItemSelectedListener;
 import io.reactivex.subjects.PublishSubject;
@@ -155,11 +155,10 @@ public class HomeScreenFragment extends AbstractFragment
     if (savedInstanceState == null) {
       mapContainerFragment = new MapContainerFragment();
       replaceFragment(R.id.map_container_fragment, mapContainerFragment);
+      setUpBottomSheetBehavior();
     } else {
       mapContainerFragment = restoreChildFragment(savedInstanceState, MapContainerFragment.class);
     }
-
-    setUpBottomSheetBehavior();
   }
 
   private String getVersionName() {
@@ -223,6 +222,10 @@ public class HomeScreenFragment extends AbstractFragment
 
   private void showProjectSelector() {
     ProjectSelectorDialogFragment.show(getFragmentManager());
+  }
+
+  private void showBasemapSelector() {
+    viewModel.showBasemapSelector();
   }
 
   private void onApplyWindowInsets(WindowInsetsCompat insets) {
@@ -334,6 +337,10 @@ public class HomeScreenFragment extends AbstractFragment
     switch (item.getItemId()) {
       case R.id.nav_join_project:
         showProjectSelector();
+        closeDrawer();
+        break;
+      case R.id.nav_offline_maps:
+        showBasemapSelector();
         closeDrawer();
         break;
       case R.id.nav_sign_out:

@@ -16,12 +16,13 @@
 
 package com.google.android.gnd.persistence.local;
 
-import com.google.android.gnd.persistence.shared.FeatureMutation;
-import com.google.android.gnd.persistence.shared.Mutation;
-import com.google.android.gnd.persistence.shared.RecordMutation;
-import com.google.android.gnd.vo.Feature;
-import com.google.android.gnd.vo.Project;
-import com.google.android.gnd.vo.Record;
+import com.google.android.gnd.model.Mutation;
+import com.google.android.gnd.model.Project;
+import com.google.android.gnd.model.basemap.tile.Tile;
+import com.google.android.gnd.model.feature.Feature;
+import com.google.android.gnd.model.feature.FeatureMutation;
+import com.google.android.gnd.model.observation.Record;
+import com.google.android.gnd.model.observation.RecordMutation;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import io.reactivex.Completable;
@@ -34,6 +35,9 @@ import io.reactivex.Single;
  * mutations queued for sync with remote. Local changes are saved here before being written to the
  * remote data store, and both local and remote updates are always persisted here before being made
  * visible to the user.
+ *
+ * <p>Implementations are expected to execute each method in this class as a single atomic
+ * transaction.
  *
  * <p>Note that long-lived streams return the full set of entities on each emission rather than
  * deltas to allow changes to not rely on prior UI state (i.e., emissions are idempotent).
@@ -71,10 +75,19 @@ public interface LocalDataStore {
   Maybe<Record> getRecord(Feature feature, String recordId);
 
   /**
+   * Returns a long-lived stream that emits the full set of tiles on subscribe and continues to
+   * return the full set each time a tile is added/changed/removed.
+   */
+  Flowable<ImmutableSet<Tile>> getTilesOnceAndStream();
+
+  /**
    * Returns all feature and record mutations in the local mutation queue relating to feature with
    * the specified id.
    */
   Single<ImmutableList<Mutation>> getPendingMutations(String featureId);
+
+  /** Updates the provided list of mutations. */
+  Completable updateMutations(ImmutableList<Mutation> mutations);
 
   /** Removes the provided feature and record mutations from the local mutation queue. */
   Completable removePendingMutations(ImmutableList<Mutation> mutations);
@@ -88,8 +101,17 @@ public interface LocalDataStore {
 
   /**
    * Merges the provided record with pending unsynced local mutations, and inserts it into the local
-   * data store. If a record with the same id already exists, it will be overwritten with the
-   * merged instance.
+   * data store. If a record with the same id already exists, it will be overwritten with the merged
+   * instance.
    */
   Completable mergeRecord(Record record);
+
+  /**
+   * Attempts to update a tile in the local data store. If the tile doesn't exist, inserts the tile
+   * into the local data store.
+   */
+  Completable insertOrUpdateTile(Tile tile);
+
+  /** Returns the tile with the specified id from the local data store, if found. */
+  Maybe<Tile> getTile(String tileId);
 }

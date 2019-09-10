@@ -17,21 +17,21 @@
 package com.google.android.gnd.repository;
 
 import android.util.Log;
+import com.google.android.gnd.model.Mutation;
+import com.google.android.gnd.model.Project;
+import com.google.android.gnd.model.feature.Feature;
+import com.google.android.gnd.model.feature.FeatureMutation;
+import com.google.android.gnd.model.observation.Record;
+import com.google.android.gnd.model.observation.RecordMutation;
 import com.google.android.gnd.persistence.local.LocalDataStore;
 import com.google.android.gnd.persistence.local.LocalValueStore;
 import com.google.android.gnd.persistence.remote.RemoteDataEvent;
 import com.google.android.gnd.persistence.remote.RemoteDataStore;
 import com.google.android.gnd.persistence.remote.firestore.DocumentNotFoundException;
-import com.google.android.gnd.persistence.shared.FeatureMutation;
-import com.google.android.gnd.persistence.shared.Mutation;
-import com.google.android.gnd.persistence.shared.RecordMutation;
 import com.google.android.gnd.persistence.sync.DataSyncWorkManager;
 import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator;
 import com.google.android.gnd.system.AuthenticationManager.User;
 import com.google.android.gnd.system.NetworkManager;
-import com.google.android.gnd.vo.Feature;
-import com.google.android.gnd.vo.Project;
-import com.google.android.gnd.vo.Record;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import io.reactivex.Completable;
@@ -194,9 +194,9 @@ public class DataRepository {
   }
 
   /**
-   * If network if available, wait for first remote emission and update of local store then
-   * complete, otherwise complete immediately. Also completes with success if record sync fails or
-   * times out.
+   * If network is available, waits for records from remote db, merging them into the local db
+   * before completing. Completes immediately if the network isn't available or if record sync fails
+   * or times out.
    */
   private Completable maybeSyncFirst(Flowable<RemoteDataEvent<Record>> remoteChanges) {
     if (networkManager.isNetworkAvailable()) {
@@ -205,6 +205,8 @@ public class DataRepository {
           .firstElement()
           .flatMapCompletable(this::mergeRemoteRecordChange)
           .timeout(GET_REMOTE_RECORDS_TIMEOUT_SECS, TimeUnit.SECONDS)
+          // TODO: Propagate this to the user so we can show "network unavailable" message also
+          // when network became unavailable mid-fetch .
           .doOnError(t -> Log.d(TAG, "Record sync timed out"))
           .onErrorComplete();
     } else {
@@ -219,12 +221,7 @@ public class DataRepository {
       case ENTITY_MODIFIED:
         return event
             .value()
-            .map(
-                record ->
-                    localDataStore
-                        .mergeRecord(record)
-                        .subscribeOn(Schedulers.io())
-                        .doOnError(e -> Log.e(TAG, "ERROR: ", e)))
+            .map(record -> localDataStore.mergeRecord(record).subscribeOn(Schedulers.io()))
             .orElse(Completable.never());
       case ENTITY_REMOVED:
         // TODO: Delete record from local db.

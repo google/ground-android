@@ -83,6 +83,7 @@ android {
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation project(':android-gmaps-addons')
     androidTestImplementation('androidx.test.espresso:espresso-core:3.1.0-alpha4', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
@@ -106,6 +107,9 @@ dependencies {
     implementation "com.google.android.gms:play-services-auth:$project.gmsVersion"
     implementation "com.google.android.gms:play-services-maps:$project.gmsVersion"
     implementation "com.google.android.gms:play-services-location:$project.gmsVersion"
+
+    // GeoJSON support.
+    implementation "com.google.maps.android:android-maps-utils:0.5"
 
     // Firebase and related libraries.
     implementation "com.google.firebase:firebase-core:$project.firebaseCoreVersion"

@@ -24,13 +24,14 @@ import static java8.util.stream.StreamSupport.stream;
 import androidx.room.Room;
 import androidx.room.Transaction;
 import com.google.android.gnd.GndApplication;
+import com.google.android.gnd.model.Mutation;
+import com.google.android.gnd.model.Project;
+import com.google.android.gnd.model.basemap.tile.Tile;
+import com.google.android.gnd.model.feature.Feature;
+import com.google.android.gnd.model.feature.FeatureMutation;
+import com.google.android.gnd.model.observation.Record;
+import com.google.android.gnd.model.observation.RecordMutation;
 import com.google.android.gnd.persistence.local.LocalDataStore;
-import com.google.android.gnd.persistence.shared.FeatureMutation;
-import com.google.android.gnd.persistence.shared.Mutation;
-import com.google.android.gnd.persistence.shared.RecordMutation;
-import com.google.android.gnd.vo.Feature;
-import com.google.android.gnd.vo.Project;
-import com.google.android.gnd.vo.Record;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import io.reactivex.Completable;
@@ -108,10 +109,39 @@ public class RoomLocalDataStore implements LocalDataStore {
   }
 
   @Override
+  public Flowable<ImmutableSet<Tile>> getTilesOnceAndStream() {
+    return db.tileDao()
+        .findAll()
+        .map(list -> stream(list).map(TileEntity::toTile).collect(toImmutableSet()));
+  }
+
+  @Override
   public Single<ImmutableList<Mutation>> getPendingMutations(String featureId) {
     return db.featureMutationDao()
         .findByFeatureId(featureId)
         .zipWith(db.recordMutationDao().findByFeatureId(featureId), this::mergeMutations);
+  }
+
+  @Transaction
+  @Override
+  public Completable updateMutations(ImmutableList<Mutation> mutations) {
+    return db.featureMutationDao()
+        .updateAll(toFeatureMutationEntities(mutations))
+        .andThen(db.recordMutationDao().updateAll(toRecordMutationEntities(mutations)));
+  }
+
+  private ImmutableList<RecordMutationEntity> toRecordMutationEntities(
+      ImmutableList<Mutation> mutations) {
+    return stream(RecordMutation.filter(mutations))
+        .map(RecordMutationEntity::fromMutation)
+        .collect(toImmutableList());
+  }
+
+  private ImmutableList<FeatureMutationEntity> toFeatureMutationEntities(
+      ImmutableList<Mutation> mutations) {
+    return stream(FeatureMutation.filter(mutations))
+        .map(FeatureMutationEntity::fromMutation)
+        .collect(toImmutableList());
   }
 
   @Transaction
@@ -184,5 +214,15 @@ public class RoomLocalDataStore implements LocalDataStore {
 
   private Completable enqueue(RecordMutation mutation) {
     return db.recordMutationDao().insert(RecordMutationEntity.fromMutation(mutation));
+  }
+
+  @Override
+  public Completable insertOrUpdateTile(Tile tile) {
+    return db.tileDao().insertOrUpdate(TileEntity.fromTile(tile));
+  }
+
+  @Override
+  public Maybe<Tile> getTile(String tileId) {
+    return db.tileDao().findById(tileId).map(TileEntity::toTile);
   }
 }

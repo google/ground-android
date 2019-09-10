@@ -19,6 +19,10 @@ import android.util.Log;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
 import androidx.lifecycle.MutableLiveData;
+import com.google.android.gnd.model.Project;
+import com.google.android.gnd.model.feature.Feature;
+import com.google.android.gnd.model.feature.Point;
+import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.repository.DataRepository;
 import com.google.android.gnd.repository.Persistable;
 import com.google.android.gnd.ui.common.AbstractViewModel;
@@ -26,10 +30,6 @@ import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.SharedViewModel;
 import com.google.android.gnd.ui.common.SingleLiveEvent;
 import com.google.android.gnd.ui.map.MapMarker;
-import com.google.android.gnd.vo.Feature;
-import com.google.android.gnd.vo.Form;
-import com.google.android.gnd.vo.Point;
-import com.google.android.gnd.vo.Project;
 import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
@@ -144,6 +144,10 @@ public class HomeScreenViewModel extends AbstractViewModel {
     }
     Feature feature = state.getFeature();
     navigator.addRecord(feature.getProject().getId(), feature.getId(), selectedForm.getId());
+  }
+
+  public void showBasemapSelector() {
+    navigator.showBasemapSelector();
   }
 
   /**

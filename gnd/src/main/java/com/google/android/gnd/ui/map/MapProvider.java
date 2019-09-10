@@ -18,8 +18,8 @@ package com.google.android.gnd.ui.map;
 
 import android.annotation.SuppressLint;
 import androidx.fragment.app.Fragment;
-import com.google.android.gnd.vo.Feature;
-import com.google.android.gnd.vo.Point;
+import com.google.android.gnd.model.feature.Feature;
+import com.google.android.gnd.model.feature.Point;
 import com.google.common.collect.ImmutableSet;
 import io.reactivex.Observable;
 import io.reactivex.Single;
@@ -31,6 +31,8 @@ public interface MapProvider {
   Fragment getFragment();
 
   Single<MapAdapter> getMapAdapter();
+
+  Single<ExtentSelector> getExtentSelector();
 
   /**
    * Interface defining map interactions and events. This a separate class from {@link MapProvider}
