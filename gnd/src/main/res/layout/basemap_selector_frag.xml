@@ -34,11 +34,11 @@
                 android:layout_marginBottom="@dimen/map_btn_margin_bottom"
                 android:orientation="vertical">
 
-                <com.google.android.material.floatingactionbutton.FloatingActionButton
+                <Button
                     android:id="@+id/apply_button"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:src="@drawable/ic_edit"
+                    android:text="@string/apply"
                     android:tint="@color/colorBackground"
                     app:backgroundTint="@color/colorAccent"
                     app:fabSize="normal"

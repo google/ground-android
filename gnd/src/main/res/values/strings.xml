@@ -142,5 +142,6 @@
   <string name="offline_maps">Offline maps</string>
   <string name="download_extents_label">Download</string>
   <string name="remove_extents_label">Remove</string>
+  <string name="apply">apply</string>
 
 </resources>

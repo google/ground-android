@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -46,7 +47,7 @@ public class BasemapSelectorFragment extends AbstractFragment {
   @Inject MapProvider mapProvider;
 
   @BindView(R.id.apply_button)
-  FloatingActionButton applyButton;
+  Button applyButton;
 
   @BindView(R.id.basemap_controls_layout)
   ViewGroup basemapControls;
