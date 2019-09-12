@@ -32,19 +32,15 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.model.layer.FeatureType;
+import com.google.android.gnd.model.layer.Style;
 import com.google.android.gnd.ui.MapIcon;
 import com.google.android.gnd.ui.map.MapMarker;
 import com.google.android.gnd.ui.map.MapProvider.MapAdapter;
 import com.google.common.collect.ImmutableSet;
 import com.google.maps.android.data.geojson.GeoJsonLayer;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import io.reactivex.Observable;
 import io.reactivex.subjects.BehaviorSubject;
 import io.reactivex.subjects.PublishSubject;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -58,6 +54,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java8.util.Optional;
 import javax.annotation.Nullable;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 /**
  * Wrapper around {@link GoogleMap}, exposing Google Maps API functionality to Ground as a {@link
@@ -103,22 +101,22 @@ class GoogleMapsMapAdapter implements MapAdapter {
     File file = new File(context.getFilesDir(), GEO_JSON_FILE);
 
     try {
-        InputStream is = new FileInputStream(file);
-        BufferedReader buf = new BufferedReader(new InputStreamReader(is));
-        String line = buf.readLine();
-        StringBuilder sb = new StringBuilder();
-        while (line != null) {
-          sb.append(line).append("\n");
-          line = buf.readLine();
-        }
+      InputStream is = new FileInputStream(file);
+      BufferedReader buf = new BufferedReader(new InputStreamReader(is));
+      String line = buf.readLine();
+      StringBuilder sb = new StringBuilder();
+      while (line != null) {
+        sb.append(line).append("\n");
+        line = buf.readLine();
+      }
 
-        JSONObject geoJson = new JSONObject(sb.toString());
-        GeoJsonLayer layer = new GeoJsonLayer(map, geoJson);
-        layer.addLayerToMap();
-        Log.d(TAG, "JSON layer successfully loaded");
+      JSONObject geoJson = new JSONObject(sb.toString());
+      GeoJsonLayer layer = new GeoJsonLayer(map, geoJson);
+      layer.addLayerToMap();
+      Log.d(TAG, "JSON layer successfully loaded");
 
     } catch (IOException | JSONException e) {
-        Log.e(TAG, "Unable to load JSON layer", e);
+      Log.e(TAG, "Unable to load JSON layer", e);
     }
   }
 
@@ -246,7 +244,10 @@ class GoogleMapsMapAdapter implements MapAdapter {
   private void addMarker(Feature feature) {
     Log.v(TAG, "Adding marker for " + feature.getId());
     FeatureType featureType = feature.getFeatureType();
-    MapIcon icon = new MapIcon(context, featureType.getIconId(), featureType.getIconColor());
+    Style style = featureType.getDefaultStyle();
+    String color = style == null ? null : style.getColor();
+    String overlayId = null; // Not yet implemented.
+    MapIcon icon = new MapIcon(context, overlayId, color);
     // TODO: Reimplement hasPendingWrites.
     addMarker(
         MapMarker.newBuilder()

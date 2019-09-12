@@ -37,10 +37,7 @@ public abstract class FeatureType {
   public abstract String getItemLabel();
 
   @Nullable
-  public abstract String getIconId();
-
-  @Nullable
-  public abstract String getIconColor();
+  public abstract Style getDefaultStyle();
 
   public abstract ImmutableList<Form> getForms();
 
@@ -66,9 +63,7 @@ public abstract class FeatureType {
 
     public abstract Builder setItemLabel(@Nullable String newItemLabel);
 
-    public abstract Builder setIconId(@Nullable String newIconId);
-
-    public abstract Builder setIconColor(@Nullable String newIconColor);
+    public abstract Builder setDefaultStyle(@Nullable Style newDefaultStyle);
 
     public abstract ImmutableList.Builder<Form> formsBuilder();
 
