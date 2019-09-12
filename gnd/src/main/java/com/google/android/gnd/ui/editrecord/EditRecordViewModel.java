@@ -144,6 +144,7 @@ public class EditRecordViewModel extends AbstractViewModel {
             .setType(request.mutationType)
             .setProjectId(request.record.getProject().getId())
             .setFeatureId(request.record.getFeature().getId())
+            .setFeatureTypeId(request.record.getFeature().getFeatureType().getId())
             .setRecordId(request.record.getId())
             .setFormId(request.record.getForm().getId())
             .setResponseDeltas(getResponseDeltas(request.record))
