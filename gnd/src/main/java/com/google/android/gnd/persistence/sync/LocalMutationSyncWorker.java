@@ -30,6 +30,7 @@ import com.google.android.gnd.persistence.local.LocalDataStore;
 import com.google.android.gnd.persistence.remote.RemoteDataStore;
 import com.google.common.collect.ImmutableList;
 import io.reactivex.Completable;
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * A worker that syncs local changes to the remote data store. Each instance handles mutations for a
@@ -77,9 +78,11 @@ public class LocalMutationSyncWorker extends Worker {
   }
 
   private Completable processMutations(ImmutableList<Mutation> pendingMutations) {
+    // TODO(#178): Why is removePendingMutations() getting run on UI thread without subscribeOn()?
     return remoteDataStore
         .applyMutations(pendingMutations)
-        .andThen(localDataStore.removePendingMutations(pendingMutations));
+        .andThen(
+            localDataStore.removePendingMutations(pendingMutations).subscribeOn(Schedulers.io()));
   }
 
   private ImmutableList<Mutation> incrementRetryCounts(
