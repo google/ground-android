@@ -130,6 +130,7 @@ public class DataRepository {
     Log.d(TAG, " Activating project " + projectId);
     return remoteDataStore
         .loadProject(projectId)
+        .doOnError(e -> Log.e(TAG, "Project not found", e))
         .doOnSubscribe(__ -> activeProject.onNext(Persistable.loading()))
         .doOnSuccess(this::onProjectLoaded);
   }
@@ -306,6 +307,7 @@ public class DataRepository {
   public Single<Boolean> reactivateLastProject() {
     return Maybe.fromCallable(() -> localValueStore.getLastActiveProjectId())
         .flatMap(id -> activateProject(id).toMaybe())
+        .onErrorComplete()
         .doOnComplete(() -> Log.v(TAG, "No previous project found to reactivate"))
         .doOnSuccess(project -> Log.v(TAG, "Reactivated project " + project.getId()))
         .map(__ -> true)
