@@ -17,16 +17,15 @@
 package com.google.android.gnd.ui.home.featuresheet;
 
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import com.google.android.material.tabs.TabLayout;
-import androidx.viewpager.widget.ViewPager;
-import androidx.core.view.WindowInsetsCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.view.WindowInsetsCompat;
+import androidx.viewpager.widget.ViewPager;
 import butterknife.BindView;
 import com.google.android.gnd.MainViewModel;
 import com.google.android.gnd.R;
@@ -34,6 +33,7 @@ import com.google.android.gnd.ui.MapIcon;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.home.FeatureSheetState;
 import com.google.android.gnd.ui.home.HomeScreenViewModel;
+import com.google.android.material.tabs.TabLayout;
 import javax.inject.Inject;
 
 public class FeatureSheetFragment extends AbstractFragment {
@@ -98,9 +98,8 @@ public class FeatureSheetFragment extends AbstractFragment {
 
   private void onFeatureSheetStateChange(FeatureSheetState featureSheetState) {
     if (featureSheetState.isVisible()) {
-      featureHeaderIcon.setImageResource(
-          MapIcon.getResourceId(
-              getContext(), featureSheetState.getFeature().getFeatureType().getIconId()));
+      String iconOverlayId = null; // Not yet implemented.
+      featureHeaderIcon.setImageResource(MapIcon.getResourceId(getContext(), iconOverlayId));
       featureSheetTitle.setText(featureSheetState.getFeature().getTitle());
       featureSheetSubtitle.setText(featureSheetState.getFeature().getSubtitle());
       featureSheetSubtitle.setVisibility(

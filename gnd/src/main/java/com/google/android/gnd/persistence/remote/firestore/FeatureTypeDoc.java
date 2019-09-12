@@ -20,6 +20,7 @@ import static com.google.android.gnd.util.Localization.getLocalizedMessage;
 
 import androidx.annotation.Nullable;
 import com.google.android.gnd.model.layer.FeatureType;
+import com.google.android.gnd.model.layer.Style;
 import com.google.firebase.firestore.IgnoreExtraProperties;
 import java.util.Map;
 import java8.util.Maps;
@@ -33,9 +34,7 @@ public class FeatureTypeDoc {
 
   @Nullable public Map<String, String> itemLabel;
 
-  @Nullable public String iconId;
-
-  @Nullable public String iconColor;
+  @Nullable public StyleDoc defaultStyle;
 
   @Nullable public Map<String, FormDoc> forms;
 
@@ -44,12 +43,21 @@ public class FeatureTypeDoc {
     featureType
         .setId(id)
         .setListHeading(getLocalizedMessage(listHeading))
-        .setItemLabel(getLocalizedMessage(itemLabel))
-        .setIconId(iconId)
-        .setIconColor(iconColor);
+        .setItemLabel(getLocalizedMessage(itemLabel));
+    if (defaultStyle != null) {
+      featureType.setDefaultStyle(defaultStyle.toObject());
+    }
     if (forms != null) {
       Maps.forEach(forms, (formId, formDoc) -> featureType.addForm(formDoc.toObject(formId)));
     }
     return featureType.build();
+  }
+
+  public static class StyleDoc {
+    @Nullable public String color;
+
+    public Style toObject() {
+      return Style.builder().setColor(color).build();
+    }
   }
 }
