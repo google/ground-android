@@ -73,6 +73,7 @@ public abstract class RecordMutation extends Mutation<RecordMutation.Builder> {
 
   @AutoValue.Builder
   public abstract static class Builder extends Mutation.Builder<Builder> {
+
     public abstract Builder setRecordId(String newRecordId);
 
     public abstract Builder setFormId(String newFormId);

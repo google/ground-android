@@ -140,7 +140,7 @@ public class RecordDoc {
   public static ImmutableMap<String, Object> toMap(RecordMutation mutation) {
     return ImmutableMap.<String, Object>builder()
         .put(FEATURE_ID, mutation.getFeatureId())
-        // TODO: Add featureTypeId.
+        .put(FEATURE_TYPE_ID, mutation.getFeatureTypeId())
         .put(FORM_ID, mutation.getFormId())
         .put(RESPONSES, toMap(mutation.getResponseDeltas()))
         // TODO: Set user id and timestamps.
