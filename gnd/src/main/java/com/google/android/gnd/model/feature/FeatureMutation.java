@@ -31,9 +31,6 @@ import java8.util.Optional;
 @AutoValue
 public abstract class FeatureMutation extends Mutation<FeatureMutation.Builder> {
 
-  /** Returns the UUID of the feature type being modified. */
-  public abstract String getFeatureTypeId();
-
   /**
    * Indicates the new location of the feature. If empty, indicates no change to the feature's
    * location.
@@ -69,8 +66,6 @@ public abstract class FeatureMutation extends Mutation<FeatureMutation.Builder> 
 
   @AutoValue.Builder
   public abstract static class Builder extends Mutation.Builder<Builder> {
-
-    public abstract Builder setFeatureTypeId(String newFeatureTypeId);
 
     public abstract Builder setNewLocation(Optional<Point> newNewLocation);
 
