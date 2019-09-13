@@ -74,6 +74,11 @@ public abstract class RecordMutationEntity {
 
   @CopyAnnotations
   @NonNull
+  @ColumnInfo(name = "feature_type_id")
+  public abstract String getFeatureTypeId();
+
+  @CopyAnnotations
+  @NonNull
   @ColumnInfo(name = "record_id")
   public abstract String getRecordId();
 
@@ -107,6 +112,7 @@ public abstract class RecordMutationEntity {
       long id,
       String projectId,
       String featureId,
+      String featureTypeId,
       String formId,
       String recordId,
       MutationEntityType type,
@@ -117,6 +123,7 @@ public abstract class RecordMutationEntity {
         .setId(id)
         .setProjectId(projectId)
         .setFeatureId(featureId)
+        .setFeatureTypeId(featureTypeId)
         .setFormId(formId)
         .setRecordId(recordId)
         .setType(type)
@@ -131,6 +138,7 @@ public abstract class RecordMutationEntity {
         .setId(m.getId())
         .setProjectId(m.getProjectId())
         .setFeatureId(m.getFeatureId())
+        .setFeatureTypeId(m.getFeatureTypeId())
         .setFormId(m.getFormId())
         .setRecordId(m.getRecordId())
         .setType(MutationEntityType.fromMutationType(m.getType()))
@@ -145,6 +153,7 @@ public abstract class RecordMutationEntity {
         .setId(getId())
         .setProjectId(getProjectId())
         .setFeatureId(getFeatureId())
+        .setFeatureTypeId(getFeatureTypeId())
         .setFormId(getFormId())
         .setRecordId(getRecordId())
         .setType(getType().toMutationType())
@@ -168,6 +177,8 @@ public abstract class RecordMutationEntity {
     public abstract Builder setProjectId(@Nullable String newProjectId);
 
     public abstract Builder setFeatureId(@Nullable String newFeatureId);
+
+    public abstract Builder setFeatureTypeId(@Nullable String newFeatureTypeId);
 
     public abstract Builder setFormId(@Nullable String newFormId);
 
