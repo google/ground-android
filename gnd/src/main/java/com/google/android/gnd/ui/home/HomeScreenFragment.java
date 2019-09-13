@@ -339,10 +339,11 @@ public class HomeScreenFragment extends AbstractFragment
         showProjectSelector();
         closeDrawer();
         break;
-      case R.id.nav_offline_maps:
-        showBasemapSelector();
-        closeDrawer();
-        break;
+      // TODO: Restore once basemap selector related bugs are resolved
+      //case R.id.nav_offline_maps:
+      //  showBasemapSelector();
+      //  closeDrawer();
+      //  break;
       case R.id.nav_sign_out:
         authenticationManager.signOut();
         break;
