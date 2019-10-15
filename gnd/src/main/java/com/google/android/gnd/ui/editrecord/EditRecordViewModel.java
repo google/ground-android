@@ -16,23 +16,25 @@
 
 package com.google.android.gnd.ui.editrecord;
 
-import static java8.util.stream.StreamSupport.stream;
-
 import android.content.res.Resources;
 import android.util.Log;
 import android.view.View;
+
 import androidx.annotation.NonNull;
 import androidx.databinding.ObservableArrayMap;
+import androidx.databinding.ObservableField;
 import androidx.databinding.ObservableInt;
 import androidx.databinding.ObservableMap;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
+
 import com.google.android.gnd.GndApplication;
 import com.google.android.gnd.R;
 import com.google.android.gnd.model.Mutation;
 import com.google.android.gnd.model.form.Element;
 import com.google.android.gnd.model.form.Element.Type;
 import com.google.android.gnd.model.form.Field;
+import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.model.observation.Record;
 import com.google.android.gnd.model.observation.RecordMutation;
 import com.google.android.gnd.model.observation.Response;
@@ -44,6 +46,9 @@ import com.google.android.gnd.system.AuthenticationManager;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.common.SingleLiveEvent;
 import com.google.common.collect.ImmutableList;
+
+import javax.inject.Inject;
+
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.Single;
@@ -51,7 +56,8 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subjects.PublishSubject;
 import java8.util.Optional;
-import javax.inject.Inject;
+
+import static java8.util.stream.StreamSupport.stream;
 
 // TODO: Save draft to local db on each change.
 public class EditRecordViewModel extends AbstractViewModel {
@@ -68,7 +74,9 @@ public class EditRecordViewModel extends AbstractViewModel {
   private final PublishSubject<EditRecordRequest> editRecordRequests;
   private final PublishSubject<SaveRecordRequest> recordSaveRequests;
 
+  public final ObservableField<String> formNameView = new ObservableField<>();
   public final ObservableInt loadingSpinnerVisibility = new ObservableInt();
+  public final ObservableInt saveButtonVisibility = new ObservableInt(View.GONE);
   private AuthenticationManager.User currentUser;
   private boolean isNew;
 
@@ -113,6 +121,10 @@ public class EditRecordViewModel extends AbstractViewModel {
                         .subscribeOn(Schedulers.io()))
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(this::onRecordSnapshot));
+  }
+
+  private String getFormNameView(Persistable<Record> record) {
+    return record.value().map(Record::getForm).map(Form::getTitle).orElse("");
   }
 
   private Single<Persistable<Record>> createOrUpdateRecord(EditRecordRequest request) {
@@ -234,9 +246,11 @@ public class EditRecordViewModel extends AbstractViewModel {
   private void onRecordSnapshot(Persistable<Record> r) {
     switch (r.state()) {
       case LOADING:
+        saveButtonVisibility.set(View.GONE);
         loadingSpinnerVisibility.set(View.VISIBLE);
         break;
       case LOADED:
+        saveButtonVisibility.set(View.VISIBLE);
         loadingSpinnerVisibility.set(View.GONE);
         break;
       case SAVING:
@@ -248,6 +262,7 @@ public class EditRecordViewModel extends AbstractViewModel {
         break;
     }
     // TODO: Replace with functional stream.
+    formNameView.set(getFormNameView(r));
     record.setValue(r);
   }
 

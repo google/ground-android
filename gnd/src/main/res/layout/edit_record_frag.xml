@@ -61,6 +61,7 @@
             android:layout_height="wrap_content"
             android:paddingBottom="6dp"
             android:background="@color/colorBackground"
+            android:text="@{viewModel.formNameView}"
             android:textAlignment="center"
             android:textAllCaps="true"
             android:textColor="@color/colorForeground"
@@ -106,10 +107,10 @@
       android:layout_height="wrap_content"
       android:layout_marginTop="@dimen/toolbar_button_margin_top"
       android:layout_marginRight="@dimen/toolbar_button_margin_right"
-      android:layout_gravity="top|right|end"
+      android:layout_gravity="top|end"
       android:elevation="2dp"
       android:text="@string/save_record_button_label"
-      android:visibility="gone"
+      android:visibility="@{viewModel.saveButtonVisibility}"
       app:useCompatPadding="true"/>
 
   </androidx.coordinatorlayout.widget.CoordinatorLayout>

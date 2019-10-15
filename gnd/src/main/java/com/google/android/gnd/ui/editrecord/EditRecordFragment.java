@@ -68,14 +68,8 @@ public class EditRecordFragment extends AbstractFragment implements BackPressLis
   @BindView(R.id.edit_record_toolbar)
   TwoLineToolbar toolbar;
 
-  @BindView(R.id.form_name)
-  TextView formNameView;
-
   @BindView(R.id.edit_record_layout)
   LinearLayout formLayout;
-
-  @BindView(R.id.save_record_btn)
-  View saveRecordButton;
 
   @Override
   public void onCreate(@androidx.annotation.Nullable Bundle savedInstanceState) {
@@ -127,7 +121,7 @@ public class EditRecordFragment extends AbstractFragment implements BackPressLis
   private void onRecordChange(Persistable<Record> record) {
     switch (record.state()) {
       case LOADING:
-        saveRecordButton.setVisibility(View.GONE);
+        // do nothing
         break;
       case LOADED:
         record.value().ifPresent(this::editRecord);
@@ -152,9 +146,7 @@ public class EditRecordFragment extends AbstractFragment implements BackPressLis
   private void editRecord(Record record) {
     toolbar.setTitle(record.getFeature().getTitle());
     toolbar.setSubtitle(record.getFeature().getSubtitle());
-    formNameView.setText(record.getForm().getTitle());
     rebuildForm(record);
-    saveRecordButton.setVisibility(View.VISIBLE);
   }
 
   private void rebuildForm(Record record) {
