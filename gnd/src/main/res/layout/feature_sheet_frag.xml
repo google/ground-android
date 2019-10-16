@@ -15,40 +15,50 @@
   ~ limitations under the License.
   -->
 
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-  xmlns:app="http://schemas.android.com/apk/res-auto"
-  android:layout_width="match_parent"
-  android:layout_height="wrap_content">
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
 
-  <LinearLayout
-    android:id="@+id/feature_sheet_card_contents"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_gravity="top"
-    android:orientation="vertical">
+  <data>
+    <variable
+        name="viewModel"
+        type="com.google.android.gnd.ui.home.featuresheet.FeatureSheetViewModel" />
+  </data>
 
-    <include layout="@layout/feature_sheet_header"/>
-
-    <!--
-      @background is required to make @elevation show drop shadow
-      https://stackoverflow.com/questions/31151180/material-tablayout-elevation-not-working/31777078
-      -->
-    <com.google.android.material.tabs.TabLayout
-      android:id="@+id/forms_tab_layout"
+  <FrameLayout xmlns:app="http://schemas.android.com/apk/res-auto"
       android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:layout_gravity="top"
-      android:background="@color/colorBackground"
-      android:elevation="5dp"
-      app:tabSelectedTextColor="@color/colorAccent"
-      app:tabTextColor="@color/colorAccent"/>
+      android:layout_height="wrap_content">
 
-    <com.google.android.gnd.ui.common.UnswipeableViewPager
-      android:id="@+id/record_list_view_pager"
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:background="@color/colorBackground"/>
+    <LinearLayout
+        android:id="@+id/feature_sheet_card_contents"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top"
+        android:orientation="vertical">
 
-  </LinearLayout>
+      <include
+          app:viewModel="@{viewModel}"
+          layout="@layout/feature_sheet_header" />
 
-</FrameLayout>
+      <!--
+        @background is required to make @elevation show drop shadow
+        https://stackoverflow.com/questions/31151180/material-tablayout-elevation-not-working/31777078
+        -->
+      <com.google.android.material.tabs.TabLayout
+          android:id="@+id/forms_tab_layout"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:layout_gravity="top"
+          android:background="@color/colorBackground"
+          android:elevation="5dp"
+          app:tabSelectedTextColor="@color/colorAccent"
+          app:tabTextColor="@color/colorAccent" />
+
+      <com.google.android.gnd.ui.common.UnswipeableViewPager
+          android:id="@+id/record_list_view_pager"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:background="@color/colorBackground" />
+
+    </LinearLayout>
+
+  </FrameLayout>
+</layout>
