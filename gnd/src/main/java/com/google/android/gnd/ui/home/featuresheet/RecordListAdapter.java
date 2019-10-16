@@ -16,12 +16,17 @@
 
 package com.google.android.gnd.ui.home.featuresheet;
 
+import android.view.LayoutInflater;
 import android.view.ViewGroup;
+
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.android.gnd.databinding.RecordListItemBinding;
 import com.google.android.gnd.model.observation.Record;
+
 import java.util.Collections;
 import java.util.List;
 
@@ -31,7 +36,7 @@ class RecordListAdapter extends RecyclerView.Adapter<RecordListItemViewHolder> {
   private List<Record> recordSummaries;
   private MutableLiveData<Record> itemClicks;
 
-  public RecordListAdapter() {
+  RecordListAdapter() {
     recordSummaries = Collections.emptyList();
     itemClicks = new MutableLiveData<>();
   }
@@ -39,12 +44,14 @@ class RecordListAdapter extends RecyclerView.Adapter<RecordListItemViewHolder> {
   @NonNull
   @Override
   public RecordListItemViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-    return RecordListItemViewHolder.newInstance(parent, itemClicks);
+    LayoutInflater inflater = LayoutInflater.from(parent.getContext());
+    RecordListItemBinding itemBinding = RecordListItemBinding.inflate(inflater, parent, false);
+    return new RecordListItemViewHolder(itemBinding, record -> itemClicks.postValue(record));
   }
 
   @Override
   public void onBindViewHolder(@NonNull RecordListItemViewHolder holder, int position) {
-    holder.update(recordSummaries.get(position));
+    holder.bind(recordSummaries.get(position));
   }
 
   @Override

@@ -18,74 +18,48 @@ package com.google.android.gnd.ui.home.featuresheet;
 
 import android.content.Context;
 import android.content.res.Resources;
-import android.text.TextUtils.TruncateAt;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.TableRow;
+import android.text.TextUtils;
 import android.widget.TextView;
+
 import androidx.annotation.NonNull;
-import androidx.lifecycle.MutableLiveData;
 import androidx.recyclerview.widget.RecyclerView;
-import butterknife.BindView;
-import butterknife.ButterKnife;
+
 import com.google.android.gnd.R;
+import com.google.android.gnd.databinding.RecordListItemBinding;
 import com.google.android.gnd.model.form.Element;
 import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.model.observation.Record;
+import com.google.android.gnd.model.observation.RecordWrapper;
 import com.google.android.gnd.model.observation.Response;
-import com.google.android.gnd.system.AuthenticationManager;
-import java.text.DateFormat;
-import java.util.Date;
+
 import java8.util.Optional;
 
 class RecordListItemViewHolder extends RecyclerView.ViewHolder {
+
   private static final int MAX_SUMMARY_COLUMNS = 4;
-  private final View view;
-  private final MutableLiveData<Record> itemClicks;
 
-  @BindView(R.id.user_name)
-  TextView userNameView;
+  private final EventHandler handler;
+  private final RecordListItemBinding binding;
 
-  @BindView(R.id.last_modified_date)
-  TextView lastModifiedDateView;
-
-  @BindView(R.id.last_modified_time)
-  TextView lastModifiedTimeView;
-
-  @BindView(R.id.field_label_row)
-  TableRow fieldLabelRow;
-
-  @BindView(R.id.field_value_row)
-  TableRow fieldValueRow;
-
-  public static RecordListItemViewHolder newInstance(
-      ViewGroup parent, MutableLiveData<Record> itemClicks) {
-    LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-    View view = inflater.inflate(R.layout.record_list_item, parent, false);
-    return new RecordListItemViewHolder(view, itemClicks);
+  RecordListItemViewHolder(@NonNull RecordListItemBinding binding, @NonNull EventHandler handler) {
+    super(binding.getRoot());
+    this.binding = binding;
+    this.handler = handler;
   }
 
-  private RecordListItemViewHolder(View view, MutableLiveData<Record> itemClicks) {
-    super(view);
-    this.view = view;
-    this.itemClicks = itemClicks;
-    ButterKnife.bind(this, view);
+  public void bind(Record record) {
+    binding.setRecordWrapper(new RecordWrapper(record));
+    binding.setHandler(handler);
+    binding.executePendingBindings();
+
+    // add label/value for each field
+    addFieldsFromRecord(record);
   }
 
-  void update(Record record) {
-    updateHeading(record);
-    updatePreview(record);
-  }
-
-  private void updatePreview(Record record) {
-    fieldLabelRow.removeAllViews();
-    fieldValueRow.removeAllViews();
-
-    View recordDetailsButton = view.findViewById(R.id.record_details_btn);
-    view.setOnClickListener(__ -> itemClicks.setValue(record));
-    recordDetailsButton.setOnClickListener(__ -> itemClicks.setValue(record));
+  private void addFieldsFromRecord(Record record) {
+    binding.fieldLabelRow.removeAllViews();
+    binding.fieldValueRow.removeAllViews();
 
     Form form = record.getForm();
     // TODO: Clean this up.
@@ -95,46 +69,31 @@ class RecordListItemViewHolder extends RecyclerView.ViewHolder {
         case FIELD:
           Field field = elem.getField();
           Optional<Response> response = record.getResponses().getResponse(field.getId());
-          fieldLabelRow.addView(
-              newFieldTextView(field.getLabel(), R.style.RecordListText_FieldLabel));
-          fieldValueRow.addView(
-              newFieldTextView(
-                  response.map(r -> r.getSummaryText(field)).orElse(""),
-                  R.style.RecordListText_Field));
+          binding.fieldLabelRow.addView(
+                  newFieldTextView(field.getLabel(), R.style.RecordListText_FieldLabel));
+          binding.fieldValueRow.addView(
+                  newFieldTextView(
+                          response.map(r -> r.getSummaryText(field)).orElse(""),
+                          R.style.RecordListText_Field));
           break;
       }
     }
   }
 
-  private void updateHeading(Record record) {
-    AuthenticationManager.User modifiedBy = record.getModifiedBy();
-    // TODO: i18n.
-    userNameView.setText(modifiedBy == null ? "Unknown user" : modifiedBy.getDisplayName());
-
-    if (record.getServerTimestamps() != null
-        && record.getServerTimestamps().getModified() != null) {
-      Date dateModified = record.getServerTimestamps().getModified();
-      DateFormat dateFormat = android.text.format.DateFormat.getMediumDateFormat(view.getContext());
-      lastModifiedDateView.setText(dateFormat.format(dateModified));
-      DateFormat timeFormat = android.text.format.DateFormat.getTimeFormat(view.getContext());
-      lastModifiedTimeView.setText(timeFormat.format(dateModified));
-    }
-  }
-
   @NonNull
   private TextView newFieldTextView(String text, int textAppearance) {
-    Context context = view.getContext();
+    Context context = binding.getRoot().getContext();
     Resources resources = context.getResources();
     TextView v = new TextView(context);
     v.setTextAppearance(context, textAppearance);
     // NOTE: These attributes don't work when applying text appearance programmatically, so we set
     // them here individually instead.
     v.setPadding(
-        0, 0, resources.getDimensionPixelSize(R.dimen.record_summary_text_padding_right), 0);
+            0, 0, resources.getDimensionPixelSize(R.dimen.record_summary_text_padding_right), 0);
     v.setMaxWidth(resources.getDimensionPixelSize(R.dimen.record_summary_text_max_width));
     v.setMaxLines(1);
     v.setSingleLine();
-    v.setEllipsize(TruncateAt.END);
+    v.setEllipsize(TextUtils.TruncateAt.END);
     v.setText(text);
     return v;
   }
