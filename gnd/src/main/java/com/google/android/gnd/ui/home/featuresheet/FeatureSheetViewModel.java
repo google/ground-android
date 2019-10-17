@@ -34,17 +34,21 @@ import javax.inject.Inject;
 @SharedViewModel
 public class FeatureSheetViewModel extends ViewModel implements ViewPager.OnPageChangeListener {
 
-  public final ObservableField<String> featureTitle = new ObservableField<>("hi");
-  public final ObservableField<String> featureSubtitle = new ObservableField<>("hii");
-  public final ObservableInt featureSubtitleVisibility = new ObservableInt();
+  public final ObservableField<String> featureTitle;
+  public final ObservableField<String> featureSubtitle;
+  public final ObservableInt featureSubtitleVisibility;
 
   private final MutableLiveData<Optional<Feature>> selectedFeature;
   private final MutableLiveData<Optional<Form>> selectedForm;
 
   @Inject
   public FeatureSheetViewModel() {
+    featureTitle = new ObservableField<>();
+    featureSubtitle = new ObservableField<>();
+    featureSubtitleVisibility = new ObservableInt();
     selectedFeature = new MutableLiveData<>();
     selectedForm = new MutableLiveData<>();
+
     selectedFeature.setValue(Optional.empty());
     selectedForm.setValue(Optional.empty());
   }
