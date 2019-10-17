@@ -18,15 +18,12 @@ package com.google.android.gnd.ui.home.featuresheet;
 
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
-
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.google.android.gnd.databinding.RecordListItemBinding;
 import com.google.android.gnd.model.observation.Record;
-
 import java.util.Collections;
 import java.util.List;
 
@@ -36,7 +33,7 @@ class RecordListAdapter extends RecyclerView.Adapter<RecordListItemViewHolder> {
   private List<Record> recordSummaries;
   private MutableLiveData<Record> itemClicks;
 
-  RecordListAdapter() {
+  public RecordListAdapter() {
     recordSummaries = Collections.emptyList();
     itemClicks = new MutableLiveData<>();
   }

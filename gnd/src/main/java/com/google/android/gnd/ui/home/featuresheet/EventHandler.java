@@ -19,5 +19,5 @@ package com.google.android.gnd.ui.home.featuresheet;
 import com.google.android.gnd.model.observation.Record;
 
 public interface EventHandler {
-    void onHandleClick(Record record);
+  void onHandleClick(Record record);
 }

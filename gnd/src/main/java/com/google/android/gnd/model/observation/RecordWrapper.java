@@ -16,14 +16,12 @@
 
 package com.google.android.gnd.model.observation;
 
+import static com.google.android.gnd.system.AuthenticationManager.User.ANONYMOUS;
+
 import androidx.annotation.NonNull;
-
 import com.google.android.gnd.system.AuthenticationManager;
-
 import java.text.SimpleDateFormat;
 import java.util.Locale;
-
-import static com.google.android.gnd.system.AuthenticationManager.User.ANONYMOUS;
 
 public class RecordWrapper {
 
@@ -33,8 +31,7 @@ public class RecordWrapper {
   private final SimpleDateFormat dateFormat;
   private final SimpleDateFormat timeFormat;
 
-  @NonNull
-  public Record record;
+  @NonNull public Record record;
 
   public RecordWrapper(@NonNull Record record) {
     this.record = record;
@@ -49,19 +46,18 @@ public class RecordWrapper {
   }
 
   public AuthenticationManager.User getModifiedBy() {
-    AuthenticationManager.User user = record.getModifiedBy();
-    return user == null ? ANONYMOUS : user;
+    return record.getModifiedBy() == null ? ANONYMOUS : record.getModifiedBy();
   }
 
   public String getLastModifiedDate() {
-    return record.getServerTimestamps() == null ?
-            "" :
-            dateFormat.format(record.getServerTimestamps().getModified());
+    return record.getServerTimestamps() == null
+        ? ""
+        : dateFormat.format(record.getServerTimestamps().getModified());
   }
 
   public String getLastModifiedTime() {
-    return record.getServerTimestamps() == null ?
-            "" :
-            timeFormat.format(record.getServerTimestamps().getModified());
+    return record.getServerTimestamps() == null
+        ? ""
+        : timeFormat.format(record.getServerTimestamps().getModified());
   }
 }
