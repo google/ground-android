@@ -21,12 +21,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.viewpager.widget.ViewPager;
-
+import butterknife.BindView;
 import com.google.android.gnd.MainViewModel;
 import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.FeatureSheetFragBinding;
@@ -35,15 +34,11 @@ import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.home.FeatureSheetState;
 import com.google.android.gnd.ui.home.HomeScreenViewModel;
 import com.google.android.material.tabs.TabLayout;
-
 import javax.inject.Inject;
-
-import butterknife.BindView;
 
 public class FeatureSheetFragment extends AbstractFragment {
 
-  @Inject
-  FormTabPagerAdapter formTypePagerAdapter;
+  @Inject FormTabPagerAdapter formTypePagerAdapter;
 
   @BindView(R.id.feature_header_icon)
   ImageView featureHeaderIcon;
@@ -59,8 +54,7 @@ public class FeatureSheetFragment extends AbstractFragment {
   private MainViewModel mainViewModel;
 
   @Inject
-  public FeatureSheetFragment() {
-  }
+  public FeatureSheetFragment() {}
 
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -71,7 +65,8 @@ public class FeatureSheetFragment extends AbstractFragment {
   }
 
   @Override
-  public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+  public View onCreateView(
+      @NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     FeatureSheetFragBinding binding = FeatureSheetFragBinding.inflate(inflater, container, false);
     binding.setViewModel(viewModel);
     return binding.getRoot();
