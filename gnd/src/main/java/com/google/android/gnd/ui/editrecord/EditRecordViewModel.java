@@ -16,10 +16,11 @@
 
 package com.google.android.gnd.ui.editrecord;
 
+import static java8.util.stream.StreamSupport.stream;
+
 import android.content.res.Resources;
 import android.util.Log;
 import android.view.View;
-
 import androidx.annotation.NonNull;
 import androidx.databinding.ObservableArrayMap;
 import androidx.databinding.ObservableField;
@@ -27,7 +28,6 @@ import androidx.databinding.ObservableInt;
 import androidx.databinding.ObservableMap;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-
 import com.google.android.gnd.GndApplication;
 import com.google.android.gnd.R;
 import com.google.android.gnd.model.Mutation;
@@ -46,9 +46,6 @@ import com.google.android.gnd.system.AuthenticationManager;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.common.SingleLiveEvent;
 import com.google.common.collect.ImmutableList;
-
-import javax.inject.Inject;
-
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.Single;
@@ -56,8 +53,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subjects.PublishSubject;
 import java8.util.Optional;
-
-import static java8.util.stream.StreamSupport.stream;
+import javax.inject.Inject;
 
 // TODO: Save draft to local db on each change.
 public class EditRecordViewModel extends AbstractViewModel {
