@@ -30,24 +30,26 @@ import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.model.observation.Record;
 import com.google.android.gnd.model.observation.RecordWrapper;
 import com.google.android.gnd.model.observation.Response;
+import com.google.android.gnd.ui.common.Consumer;
 import java8.util.Optional;
 
 class RecordListItemViewHolder extends RecyclerView.ViewHolder {
 
   private static final int MAX_SUMMARY_COLUMNS = 4;
 
-  private final EventHandler handler;
+  private final Consumer<Record> consumer;
   private final RecordListItemBinding binding;
 
-  RecordListItemViewHolder(@NonNull RecordListItemBinding binding, @NonNull EventHandler handler) {
+  RecordListItemViewHolder(
+      @NonNull RecordListItemBinding binding, @NonNull Consumer<Record> consumer) {
     super(binding.getRoot());
     this.binding = binding;
-    this.handler = handler;
+    this.consumer = consumer;
   }
 
   public void bind(Record record) {
     binding.setRecordWrapper(new RecordWrapper(record));
-    binding.setHandler(handler);
+    binding.setConsumer(consumer);
     binding.executePendingBindings();
 
     // add label/value for each field

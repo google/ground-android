@@ -14,10 +14,8 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.ui.home.featuresheet;
+package com.google.android.gnd.ui.common;
 
-import com.google.android.gnd.model.observation.Record;
-
-public interface EventHandler {
-  void onHandleClick(Record record);
+public interface Consumer<T> {
+  void onClick(T object);
 }

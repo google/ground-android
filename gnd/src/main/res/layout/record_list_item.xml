@@ -19,8 +19,8 @@
   <data>
 
     <variable
-        name="handler"
-        type="com.google.android.gnd.ui.home.featuresheet.EventHandler" />
+        name="consumer"
+        type="com.google.android.gnd.ui.common.Consumer" />
 
     <variable
         name="recordWrapper"
@@ -33,7 +33,7 @@
       android:background="?android:attr/selectableItemBackground"
       android:clickable="true"
       android:focusable="true"
-      android:onClick="@{() -> handler.onHandleClick(recordWrapper.record)}">
+      android:onClick="@{() -> consumer.onClick(recordWrapper.record)}">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -120,7 +120,7 @@
           android:layout_alignParentEnd="true"
           android:layout_alignParentRight="true"
           android:layout_centerVertical="true"
-          android:onClick="@{() -> handler.onHandleClick(recordWrapper.record)}"
+          android:onClick="@{() -> consumer.onClick(recordWrapper.record)}"
           android:src="@drawable/ic_chevron_right_black_36dp" />
 
     </RelativeLayout>
