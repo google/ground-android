@@ -120,7 +120,8 @@ public class EditRecordFragment extends AbstractFragment implements BackPressLis
   private void onRecordChange(Persistable<Record> record) {
     switch (record.state()) {
       case LOADING:
-        // do nothing
+        // Do nothing.
+        // The logic is handled in EditRecordViewModel and reflected into UI using DataBinding.
         break;
       case LOADED:
         record.value().ifPresent(this::editRecord);
