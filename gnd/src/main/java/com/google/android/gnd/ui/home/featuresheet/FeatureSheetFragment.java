@@ -21,7 +21,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.view.WindowInsetsCompat;
@@ -29,6 +28,7 @@ import androidx.viewpager.widget.ViewPager;
 import butterknife.BindView;
 import com.google.android.gnd.MainViewModel;
 import com.google.android.gnd.R;
+import com.google.android.gnd.databinding.FeatureSheetFragBinding;
 import com.google.android.gnd.ui.MapIcon;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.home.FeatureSheetState;
@@ -37,13 +37,8 @@ import com.google.android.material.tabs.TabLayout;
 import javax.inject.Inject;
 
 public class FeatureSheetFragment extends AbstractFragment {
+
   @Inject FormTabPagerAdapter formTypePagerAdapter;
-
-  @BindView(R.id.feature_sheet_title)
-  TextView featureSheetTitle;
-
-  @BindView(R.id.feature_sheet_subtitle)
-  TextView featureSheetSubtitle;
 
   @BindView(R.id.feature_header_icon)
   ImageView featureHeaderIcon;
@@ -71,8 +66,10 @@ public class FeatureSheetFragment extends AbstractFragment {
 
   @Override
   public View onCreateView(
-      LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-    return inflater.inflate(R.layout.feature_sheet_frag, container, false);
+      @NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    FeatureSheetFragBinding binding = FeatureSheetFragBinding.inflate(inflater, container, false);
+    binding.setViewModel(viewModel);
+    return binding.getRoot();
   }
 
   @Override
@@ -100,10 +97,6 @@ public class FeatureSheetFragment extends AbstractFragment {
     if (featureSheetState.isVisible()) {
       String iconOverlayId = null; // Not yet implemented.
       featureHeaderIcon.setImageResource(MapIcon.getResourceId(getContext(), iconOverlayId));
-      featureSheetTitle.setText(featureSheetState.getFeature().getTitle());
-      featureSheetSubtitle.setText(featureSheetState.getFeature().getSubtitle());
-      featureSheetSubtitle.setVisibility(
-          featureSheetState.getFeature().getSubtitle().isEmpty() ? View.GONE : View.VISIBLE);
 
       // TODO: Auto add record if there's only one form.
       //      Feature feature = featureSheetState.getFeature();
