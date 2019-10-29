@@ -30,8 +30,8 @@ import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.model.observation.Record;
 import com.google.android.gnd.model.observation.RecordWrapper;
 import com.google.android.gnd.model.observation.Response;
-import com.google.android.gnd.ui.common.Consumer;
 import java8.util.Optional;
+import java8.util.function.Consumer;
 
 class RecordListItemViewHolder extends RecyclerView.ViewHolder {
 
