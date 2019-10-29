@@ -52,7 +52,7 @@ class RecordListItemViewHolder extends RecyclerView.ViewHolder {
     binding.setRecordCallback(recordCallback);
     binding.executePendingBindings();
 
-    // add label/value for each field
+    // Add UI elements for each field with data.
     addFieldsFromRecord(record);
   }
 
