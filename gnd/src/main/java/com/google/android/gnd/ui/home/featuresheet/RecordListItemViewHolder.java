@@ -37,19 +37,19 @@ class RecordListItemViewHolder extends RecyclerView.ViewHolder {
 
   private static final int MAX_SUMMARY_COLUMNS = 4;
 
-  private final Consumer<Record> consumer;
+  private final Consumer<Record> recordCallback;
   private final RecordListItemBinding binding;
 
   RecordListItemViewHolder(
-      @NonNull RecordListItemBinding binding, @NonNull Consumer<Record> consumer) {
+      @NonNull RecordListItemBinding binding, @NonNull Consumer<Record> recordCallback) {
     super(binding.getRoot());
     this.binding = binding;
-    this.consumer = consumer;
+    this.recordCallback = recordCallback;
   }
 
   public void bind(Record record) {
     binding.setRecordWrapper(new RecordWrapper(record));
-    binding.setConsumer(consumer);
+    binding.setRecordCallback(recordCallback);
     binding.executePendingBindings();
 
     // add label/value for each field

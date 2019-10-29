@@ -19,7 +19,7 @@
   <data>
 
     <variable
-        name="consumer"
+        name="recordCallback"
         type="java8.util.function.Consumer" />
 
     <variable
@@ -33,7 +33,7 @@
       android:background="?android:attr/selectableItemBackground"
       android:clickable="true"
       android:focusable="true"
-      android:onClick="@{() -> consumer.accept(recordWrapper.record)}">
+      android:onClick="@{() -> recordCallback.accept(recordWrapper.record)}">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -120,7 +120,7 @@
           android:layout_alignParentEnd="true"
           android:layout_alignParentRight="true"
           android:layout_centerVertical="true"
-          android:onClick="@{() -> consumer.accept(recordWrapper.record)}"
+          android:onClick="@{() -> recordCallback.accept(recordWrapper.record)}"
           android:src="@drawable/ic_chevron_right_black_36dp" />
 
     </RelativeLayout>
