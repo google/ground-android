@@ -184,7 +184,7 @@ public class AuthenticationManager {
 
   public static class User {
 
-    public static final User ANONYMOUS = new User("", "", "Unknown user");
+    public static final User ANONYMOUS = new User("", "", "");
 
     private final String uid;
     private final String email;
