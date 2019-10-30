@@ -28,28 +28,22 @@ import com.google.android.gnd.model.form.Element;
 import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.model.observation.Record;
-import com.google.android.gnd.model.observation.RecordWrapper;
 import com.google.android.gnd.model.observation.Response;
 import java8.util.Optional;
-import java8.util.function.Consumer;
 
 class RecordListItemViewHolder extends RecyclerView.ViewHolder {
 
   private static final int MAX_SUMMARY_COLUMNS = 4;
 
-  private final Consumer<Record> recordCallback;
   private final RecordListItemBinding binding;
 
-  RecordListItemViewHolder(
-      @NonNull RecordListItemBinding binding, @NonNull Consumer<Record> recordCallback) {
+  RecordListItemViewHolder(@NonNull RecordListItemBinding binding) {
     super(binding.getRoot());
     this.binding = binding;
-    this.recordCallback = recordCallback;
   }
 
-  public void bind(Record record) {
-    binding.setRecordWrapper(new RecordWrapper(record));
-    binding.setRecordCallback(recordCallback);
+  public void bind(RecordViewModel viewModel, Record record) {
+    binding.setViewModel(viewModel);
     binding.executePendingBindings();
 
     // Add UI elements for each field with data.

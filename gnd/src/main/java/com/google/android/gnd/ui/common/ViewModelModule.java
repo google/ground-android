@@ -24,6 +24,7 @@ import com.google.android.gnd.ui.editrecord.EditRecordViewModel;
 import com.google.android.gnd.ui.home.HomeScreenViewModel;
 import com.google.android.gnd.ui.home.featuresheet.FeatureSheetViewModel;
 import com.google.android.gnd.ui.home.featuresheet.RecordListViewModel;
+import com.google.android.gnd.ui.home.featuresheet.RecordViewModel;
 import com.google.android.gnd.ui.home.mapcontainer.MapContainerViewModel;
 import com.google.android.gnd.ui.projectselector.ProjectSelectorViewModel;
 import com.google.android.gnd.ui.recorddetails.RecordDetailsViewModel;
@@ -68,6 +69,11 @@ public abstract class ViewModelModule {
   @IntoMap
   @ViewModelKey(ProjectSelectorViewModel.class)
   abstract ViewModel bindProjectSelectorViewModel(ProjectSelectorViewModel viewModel);
+
+  @Binds
+  @IntoMap
+  @ViewModelKey(RecordViewModel.class)
+  abstract ViewModel bindRecordViewModel(RecordViewModel viewModel);
 
   @Binds
   @IntoMap

@@ -19,12 +19,8 @@
   <data>
 
     <variable
-        name="recordCallback"
-        type="java8.util.function.Consumer" />
-
-    <variable
-        name="recordWrapper"
-        type="com.google.android.gnd.model.observation.RecordWrapper" />
+      name="viewModel"
+      type="com.google.android.gnd.ui.home.featuresheet.RecordViewModel" />
   </data>
 
   <FrameLayout xmlns:tools="http://schemas.android.com/tools"
@@ -33,7 +29,7 @@
       android:background="?android:attr/selectableItemBackground"
       android:clickable="true"
       android:focusable="true"
-      android:onClick="@{() -> recordCallback.accept(recordWrapper.record)}">
+      android:onClick="@{viewModel::onClick}">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -45,7 +41,7 @@
           android:id="@+id/user_name"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
-          android:text="@{recordWrapper.modifiedBy.displayName}"
+          android:text="@{viewModel.userName}"
           android:textAppearance="@style/RecordListText.CreatorName"
           tools:text="Ground User" />
 
@@ -63,7 +59,7 @@
           android:layout_height="wrap_content"
           android:layout_toEndOf="@id/separator_dot1"
           android:layout_toRightOf="@id/separator_dot1"
-          android:text="@{recordWrapper.lastModifiedDate}"
+          android:text="@{viewModel.modifiedDate}"
           android:textAppearance="@style/RecordListText.Timestamp"
           tools:text="Sept 25, 2018" />
 
@@ -82,7 +78,7 @@
           android:layout_height="wrap_content"
           android:layout_toEndOf="@id/separator_dot2"
           android:layout_toRightOf="@id/separator_dot2"
-          android:text="@{recordWrapper.lastModifiedTime}"
+          android:text="@{viewModel.modifiedTime}"
           android:textAppearance="@style/RecordListText.Timestamp"
           tools:text="4:25 PM" />
 
@@ -120,7 +116,7 @@
           android:layout_alignParentEnd="true"
           android:layout_alignParentRight="true"
           android:layout_centerVertical="true"
-          android:onClick="@{() -> recordCallback.accept(recordWrapper.record)}"
+          android:onClick="@{viewModel::onClick}"
           android:src="@drawable/ic_chevron_right_black_36dp" />
 
     </RelativeLayout>

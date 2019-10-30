@@ -140,5 +140,6 @@
   <string name="sign_in_unsuccessful">Sign in unsuccessful</string>
   <string name="sign_out">Sign out</string>
   <string name="offline_maps">Offline maps</string>
+  <string name="unknown_user">Unknown user</string>
 
 </resources>
