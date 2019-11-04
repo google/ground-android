@@ -53,7 +53,7 @@ public class RecordListFragment extends AbstractFragment {
 
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
-    recordListAdapter = new RecordListAdapter();
+    recordListAdapter = new RecordListAdapter(viewModelFactory);
     super.onCreate(savedInstanceState);
     viewModel = getViewModel(RecordListViewModel.class);
     featureSheetViewModel = getViewModel(FeatureSheetViewModel.class);
