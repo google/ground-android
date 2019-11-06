@@ -2,6 +2,11 @@
 # $ gcloud builds submit . --config=cloudbuild.yaml
 
 steps:
+- name: gcr.io/cloud-builders/gsutil
+    # we use rsync and not cp so that the step does not fail the first time it is run
+  args: ['rsync', 'gs://gradle_cache_$PROJECT_ID/', '.']
 - name: 'gcr.io/$PROJECT_ID/android-builder'
   entrypoint: 'gradle-build'
   args: ['-g', '.gradle', 'assemble']
+- name: gcr.io/cloud-builders/gsutil
+  args: ['cp', 'cache.zip', 'gs://gradle_cache_$PROJECT_ID/cache.zip']
