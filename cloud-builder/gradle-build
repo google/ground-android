@@ -1,9 +1,0 @@
-#!/bin/sh
-# this is a wrapper scripts that sets up the gradle cache and zips it after execution so that it can
-# be easily transferred to cloud storage with gsutil
-unzip -o -q cache.zip # this command might fail the first time if cache.zip does not exist. That's okay
-./gradlew $@
-status=$?
-zip -qr cache.zip .gradle
-echo "Exit status is: $status"
-exit $status
