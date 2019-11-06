@@ -1,0 +1,9 @@
+# To build & upload the docker image to cloud, run the following command,
+# $ cd cloud-builder/
+# $ gcloud builds submit --config=cloudbuild-tar.yaml
+steps:
+- name: gcr.io/cloud-builders/docker
+  args: ['build', '-t', 'gcr.io/$PROJECT_ID/tar', '.']
+
+images: ['gcr.io/$PROJECT_ID/tar']
+tags: ['cloud-builders-community']
