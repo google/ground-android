@@ -65,6 +65,8 @@ android {
         }
         debug {
         }
+        mock {
+        }
     }
     // Keep the following configuration in order to target Java 8.
     compileOptions {
