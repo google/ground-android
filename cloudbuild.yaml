@@ -9,9 +9,9 @@ steps:
 # After extracting the cache to the /build_cache directory, we need to supply
 # that to gradle, and include the volume in steps that require the cache.
 #
-- name: gcr.io/cloud-builders/gsutil
+- name: 'gcr.io/cloud-builders/gsutil'
   id: copy_build_cache
-  # we use rsync and not cp so that the step does not fail the first time it is run
+  # we use rsync and not cp so that this step doesn't fail the first time it's run
   args: ['rsync', 'gs://gradle_cache_$PROJECT_ID/', '/build_cache']
   volumes:
   - name: 'build_cache'
@@ -20,7 +20,7 @@ steps:
 - name: 'gcr.io/$PROJECT_ID/tar'
   id: extract_build_cache
   waitFor: ['copy_build_cache']
-    # This might fail the first time, but that's okay
+  # This might fail the first time, but that's okay
   entrypoint: 'bash'
   args:
   - '-c'
@@ -33,9 +33,9 @@ steps:
 #
 # Build the project
 #
-- name: 'gcr.io/$PROJECT_ID/android-builder'
+- name: 'gcr.io/$PROJECT_ID/android:28'
   id: build
-  args: ['./gradlew', 'assembleDebug']
+  args: ["./gradlew", "assembleDebug"]
   env:
   - 'TERM=dumb'
   - 'JAVA_TOOL_OPTIONS="-Xmx3g"'
@@ -50,10 +50,7 @@ steps:
 #
 # Save the APKs
 #
-# TODO: Add step to save APKs to google cloud bucket
-
-- name: gcr.io/cloud-builders/gsutil
-  args: ['cp', 'cache.zip', 'gs://gradle_cache_$PROJECT_ID/cache.zip']
+# TODO: Add bucker, then uncomment the below code
 
 #
 # Cleanup
