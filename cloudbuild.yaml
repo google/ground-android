@@ -47,8 +47,33 @@ steps:
   - name: 'build_cache'
     path: '/build_cache'
 
-
+#
+# Save the APKs
+#
 # TODO: Add step to save APKs to google cloud bucket
 
 - name: gcr.io/cloud-builders/gsutil
   args: ['cp', 'cache.zip', 'gs://gradle_cache_$PROJECT_ID/cache.zip']
+
+#
+# Cleanup
+#
+
+# Compress the gradle build cache
+- name: 'gcr.io/$PROJECT_ID/tar'
+  id: compress_cache
+  args: ['cpvzf', '/build_cache/cache.tgz', '-C', '/build_cache', '/build_cache/.gradle']
+  waitFor: ['build']
+  volumes:
+  - name: 'build_cache'
+    path: '/build_cache'
+
+# Store the build cache
+- name: gcr.io/cloud-builders/gsutil
+  args: ['cp', '/build_cache/cache.tgz', 'gs://gradle_cache_$PROJECT_ID/cache.tgz']
+  waitFor: ['compress_cache']
+  volumes:
+  - name: 'build_cache'
+    path: '/build_cache'
+
+timeout: 1800s
