@@ -50,7 +50,7 @@ steps:
 #
 # Save the APKs
 #
-# TODO: Add bucker, then uncomment the below code
+# TODO: Add bucket, then uncomment the below code
 
 #
 # Cleanup
