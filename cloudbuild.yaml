@@ -1,9 +1,25 @@
 steps:
+
+#
+# Extract the cache
+#
+# The gradle build cache is stored as a tarball in Google Cloud Storage to
+# make builds faster.
+#
+# After extracting the cache to the /build_cache directory, we need to supply
+# that to gradle, and include the volume in steps that require the cache.
+#
 - name: gcr.io/cloud-builders/gsutil
-    # we use rsync and not cp so that the step does not fail the first time it is run
-  args: ['rsync', 'gs://gradle_cache_$PROJECT_ID/', '.']
+  id: copy_build_cache
+  # we use rsync and not cp so that the step does not fail the first time it is run
+  args: ['rsync', 'gs://gradle_cache_$PROJECT_ID/', '/build_cache']
+  volumes:
+  - name: 'build_cache'
+    path: '/build_cache'
+
 - name: 'gcr.io/$PROJECT_ID/android-builder'
   entrypoint: 'gradle-build'
   args: ['-g', '.gradle', 'assemble']
+
 - name: gcr.io/cloud-builders/gsutil
   args: ['cp', 'cache.zip', 'gs://gradle_cache_$PROJECT_ID/cache.zip']
