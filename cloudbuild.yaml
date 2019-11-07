@@ -12,7 +12,7 @@ steps:
 - name: 'gcr.io/cloud-builders/gsutil'
   id: copy_build_cache
   # we use rsync and not cp so that this step doesn't fail the first time it's run
-  args: ['rsync', 'gs://gradle_cache_$PROJECT_ID/', '/build_cache']
+  args: ['rsync', 'gs://${_CACHE_BUCKET}/', '/build_cache']
   volumes:
   - name: 'build_cache'
     path: '/build_cache'
@@ -50,7 +50,9 @@ steps:
 #
 # Save the APKs
 #
-# TODO: Add bucket, then uncomment the below code
+- name: 'gcr.io/cloud-builders/gsutil'
+  args: ['-q', 'cp', '-r', 'app/build/outputs/apk', 'gs://${_ARTIFACT_BUCKET}/$BRANCH_NAME-$BUILD_ID/']
+  waitFor: ['build']
 
 #
 # Cleanup
@@ -67,7 +69,7 @@ steps:
 
 # Store the build cache
 - name: gcr.io/cloud-builders/gsutil
-  args: ['cp', '/build_cache/cache.tgz', 'gs://gradle_cache_$PROJECT_ID/cache.tgz']
+  args: ['cp', '/build_cache/cache.tgz', 'gs://${_CACHE_BUCKET}/cache.tgz']
   waitFor: ['compress_cache']
   volumes:
   - name: 'build_cache'
