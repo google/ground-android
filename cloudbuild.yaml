@@ -35,7 +35,7 @@ steps:
 #
 - name: 'gcr.io/$PROJECT_ID/android:28'
   id: build
-  args: ["./gradlew", "assembleDebug"]
+  args: ["./gradlew", "assembleMock"]
   env:
   - 'TERM=dumb'
   - '-Pbuild=devCI'
