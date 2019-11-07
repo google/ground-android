@@ -52,7 +52,7 @@ steps:
 # Save the APKs
 #
 - name: 'gcr.io/cloud-builders/gsutil'
-  args: ['-q', 'cp', '-r', 'app/build/outputs/apk', 'gs://${_ARTIFACT_BUCKET}/$BRANCH_NAME-$BUILD_ID/']
+  args: ['-q', 'cp', '-r', 'gnd/build/outputs/apk', 'gs://${_ARTIFACT_BUCKET}/$BRANCH_NAME-$BUILD_ID/']
   waitFor: ['build']
 
 #
