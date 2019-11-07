@@ -66,6 +66,8 @@ android {
         debug {
         }
         mock {
+            applicationIdSuffix ".mock"
+            versionNameSuffix "-mock"
         }
     }
     // Keep the following configuration in order to target Java 8.
