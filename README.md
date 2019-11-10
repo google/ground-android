@@ -151,7 +151,7 @@ $ keytool -list -v -keystore "$HOME/.android/debug.keystore" \
 
 This includes the API key and URL for your new Firebase project.
 
-### Set up google-cloud-sdk
+### Building with Google Cloud Build (optional)
 
 1. Install google-cloud-sdk
 
