@@ -2,7 +2,7 @@
 name: Feature request
 about: Request a new feature
 title: "[Feature] Description"
-labels: 'type: fr, priority: p2'
+labels: 'type: feature request, priority: p2'
 assignees: ''
 
 ---
