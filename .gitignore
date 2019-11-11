@@ -5,8 +5,8 @@ gnd/debug/
 gnd/release/
 **/google_maps_api.xml
 **/google-services.json
+**/secrets.properties
 !gnd/src/mock/google-services.json
-!gnd/src/mock/res/values/google_maps_api.xml
 
 # Taken from Android.gitignore https://github.com/github/gitignore/blob/master/Android.gitignore
 #

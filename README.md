@@ -114,11 +114,9 @@ following the instructions at:
 
   https://developers.google.com/maps/documentation/android-api/signup.
 
-In `gnd/src/debug/res/values` and `gnd/src/release/res/values` create
-`google_maps_api.xml` with the following contents:
-
-```xml 
-<resources><string name="google_maps_key" templateMergeStrategy="preserve" translatable="false">API_KEY</string></resources> 
+Edit or create `gnd/secrets.properties` and set the `GOOGLE_MAPS_API_KEY` property to your API key.
+```
+GOOGLE_MAPS_API_KEY=AIbzvW8e0ub...
 ```
 
 In `gnd/src/debug/res/values` replace `API_KEY` with your Google Maps debug API
