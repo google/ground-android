@@ -6,7 +6,9 @@ gnd/release/
 **/google_maps_api.xml
 **/google-services.json
 **/secrets.properties
-!gnd/src/mock/google-services.json
+
+# Blank config. Needed for cloud builds.
+!gnd/google-services.json
 
 # Taken from Android.gitignore https://github.com/github/gitignore/blob/master/Android.gitignore
 #
