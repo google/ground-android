@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 
-# Set up Docker container with commonly used and Android specific dependencies.
+# Defines base Docker container with commonly used and Android specific dependencies.
 #
 # This doesn't include the Android SDK.
 #
