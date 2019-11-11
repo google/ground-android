@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 
-# Configures build using Docker images. To build and upload to Google Cloud:
+# Configures build of Docker images with Android SDK. To build and upload to Google Cloud:
 #
 # $ gcloud builds submit --config=cloudbuild.yaml --substitutions=_ANDROID_VERSION=28
 #
