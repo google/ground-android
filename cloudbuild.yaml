@@ -13,6 +13,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+
+# Steps for cloud build:
+#
+# -----------------------------------------------------------------------------------------------------------------------------------
+# Copy gradle cache ==> Extract tarball ==> Copy .git dir ==> Build debug apk ==> Save apk ==> Compress gradle files ==> Save tarball
+# -----------------------------------------------------------------------------------------------------------------------------------
+#
+# Based on https://github.com/GoogleCloudPlatform/cloud-builders-community
 steps:
 
   #
@@ -32,7 +40,7 @@ steps:
       - name: 'build_cache'
         path: '/build_cache'
 
-  - name: 'gcr.io/$PROJECT_ID/tar'
+  - name: 'gcr.io/$PROJECT_ID/android:base'
     id: extract_build_cache
     waitFor: ['copy_build_cache']
     # This might fail the first time, but that's okay
@@ -87,10 +95,14 @@ steps:
   #
 
   # Compress the gradle build cache
-  - name: 'gcr.io/$PROJECT_ID/tar'
+  - name: 'gcr.io/$PROJECT_ID/android:base'
     id: compress_cache
-    args: ['cpvzf', '/build_cache/cache.tgz', '-C', '/build_cache', '/build_cache/.gradle']
     waitFor: ['build']
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        tar cpvzf /build_cache/cache.tgz -C /build_cache /build_cache/.gradle
     volumes:
       - name: 'build_cache'
         path: '/build_cache'
