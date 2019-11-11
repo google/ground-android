@@ -64,7 +64,4 @@ RUN yes | sdkmanager \
     "extras;google;google_play_services" \
     "build-tools;28.0.3"
 
-COPY for_branch /bin
-COPY run_build /bin
-
-ENTRYPOINT ["bash", "/bin/run_build"]
+ENTRYPOINT ["bash"]
