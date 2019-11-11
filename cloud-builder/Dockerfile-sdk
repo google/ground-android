@@ -14,6 +14,9 @@
 # limitations under the License.
 #
 
+# Creates a new container from the base container (see: Dockerfile-base) and installs Android SDK.
+# This way we can generate multiple android containers with different versions by reusing the same
+# base docker image.
 
 ARG project_id
 FROM gcr.io/$project_id/android:base

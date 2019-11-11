@@ -15,11 +15,14 @@
 #
 
 
-# To build & upload the docker image to cloud, run the following command,
-# $ cd cloud-builder/
-# $ gcloud builds submit --config=cloudbuild.yaml --substitutions=_ANDROID_VERSION=28
+# To build & upload the docker images to cloud, run the following command,
+#
+# gcloud builds submit --config=cloudbuild.yaml --substitutions=_ANDROID_VERSION=28
+#
+# Based on https://github.com/GoogleCloudPlatform/cloud-builders-community
 steps:
 
+  # Debian docker image with commonly used and android specific dependencies
   - name: 'gcr.io/cloud-builders/docker'
     args:
       - 'build'
@@ -27,6 +30,8 @@ steps:
       - '--file=Dockerfile-base'
       - '.'
 
+  # Above generated docker image + Android SDK
+  # To create multiple android versions, use _ANDROID_VERSION=<android version> as mentioned above
   - name: 'gcr.io/cloud-builders/docker'
     args:
       - 'build'

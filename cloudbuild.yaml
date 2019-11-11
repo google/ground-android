@@ -14,24 +14,18 @@
 # limitations under the License.
 #
 
-# Steps for cloud build:
-#
-# -----------------------------------------------------------------------------------------------------------------------------------
-# Copy gradle cache ==> Extract tarball ==> Copy .git dir ==> Build debug apk ==> Save apk ==> Compress gradle files ==> Save tarball
-# -----------------------------------------------------------------------------------------------------------------------------------
-#
-# Based on https://github.com/GoogleCloudPlatform/cloud-builders-community
 steps:
 
+  # Steps for cloud build:
   #
-  # Extract the cache
+  # -----------------------------------------------------------------------------------------------------------------------------------
+  # Copy gradle cache ==> Extract tarball ==> Copy .git dir ==> Build debug apk ==> Save apk ==> Compress gradle files ==> Save tarball
+  # -----------------------------------------------------------------------------------------------------------------------------------
   #
-  # The gradle build cache is stored as a tarball in Google Cloud Storage to
-  # make builds faster.
-  #
-  # After extracting the cache to the /build_cache directory, we need to supply
-  # that to gradle, and include the volume in steps that require the cache.
-  #
+  # Based on https://github.com/GoogleCloudPlatform/cloud-builders-community
+
+
+  # Copy the cache from last build
   - name: 'gcr.io/cloud-builders/gsutil'
     id: copy_build_cache
     # we use rsync and not cp so that this step doesn't fail the first time it's run
@@ -40,6 +34,7 @@ steps:
       - name: 'build_cache'
         path: '/build_cache'
 
+  # Extract the copied tar file
   - name: 'gcr.io/$PROJECT_ID/android:base'
     id: extract_build_cache
     waitFor: ['copy_build_cache']
@@ -53,6 +48,9 @@ steps:
       - name: 'build_cache'
         path: '/build_cache'
 
+  # Copy .git directory to workspace.
+  # This is needed by gitVersioner plugin for auto-generating version code and version name.
+  #
   # TODO: Remove this step when .git can be explicitly included in the tarball using .gcloudignore
   # https://github.com/GoogleCloudPlatform/cloud-builders/issues/401
   - name: 'gcr.io/cloud-builders/git'
@@ -66,9 +64,7 @@ steps:
         && mv tmp/.git . \
         && rm -rf tmp
 
-  #
-  # Build the project
-  #
+  # Build debug APK
   - name: 'gcr.io/$PROJECT_ID/android:28'
     id: build
     args: ["./gradlew", "assembleDebug"]
@@ -83,16 +79,10 @@ steps:
       - name: 'build_cache'
         path: '/build_cache'
 
-  #
   # Save the APKs
-  #
   - name: 'gcr.io/cloud-builders/gsutil'
     args: ['-q', 'cp', '-r', 'gnd/build/outputs/apk', 'gs://${_ARTIFACT_BUCKET}/$BRANCH_NAME-$BUILD_ID/']
     waitFor: ['build']
-
-  #
-  # Cleanup
-  #
 
   # Compress the gradle build cache
   - name: 'gcr.io/$PROJECT_ID/android:base'
