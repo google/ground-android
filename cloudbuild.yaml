@@ -30,6 +30,19 @@ steps:
   - name: 'build_cache'
     path: '/build_cache'
 
+# TODO: Remove this step when .git can be explicitly included in the tarball using .gcloudignore
+# https://github.com/GoogleCloudPlatform/cloud-builders/issues/401
+- name: 'gcr.io/cloud-builders/git'
+  id: copy_git_directory
+  waitFor: ['extract_build_cache']
+  entrypoint: 'bash'
+  args:
+    - '-c'
+    - |
+      git clone --branch master $_HEAD_REPO_URL tmp \
+      && mv tmp/.git . \
+      && rm -rf tmp
+
 #
 # Build the project
 #
@@ -43,7 +56,7 @@ steps:
   - 'GRADLE_USER_HOME=/build_cache/.gradle'
   - 'GRADLE_OPTS="-Dorg.gradle.daemon=false -Dorg.gradle.parallel=true -Dorg.gradle.workers.max=8 -Dkotlin.incremental=false"'
   - 'BRANCH_NAME=$BRANCH_NAME'
-  waitFor: ['extract_build_cache']
+  waitFor: ['copy_git_directory']
   volumes:
   - name: 'build_cache'
     path: '/build_cache'

@@ -53,8 +53,8 @@ android {
         // Switching targetSdkVersion to 27 or 28 causes the app to hang on map drags; diagnose and
         // fix before increasing this value.
         targetSdkVersion 26
-        versionCode 1
-        versionName '0.0.1'
+        versionCode gitVersioner.versionCode
+        versionName gitVersioner.versionName
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
     }
