@@ -14,16 +14,19 @@
 # limitations under the License.
 #
 
+# Builds Docker image with Ground APK using Cloud Build. Specifically, executes the following steps:
+#
+#  1. Copy Gradle cache
+#  2. Extract tarball
+#  3. Copy .git dir
+#  4. Build debug apk
+#  5. Save apk
+#  6. Compress Gradle files
+#  7. Save tarball
+#
+# Based on https://github.com/GoogleCloudPlatform/cloud-builders-community
+
 steps:
-
-  # Steps for cloud build:
-  #
-  # -----------------------------------------------------------------------------------------------------------------------------------
-  # Copy gradle cache ==> Extract tarball ==> Copy .git dir ==> Build debug apk ==> Save apk ==> Compress gradle files ==> Save tarball
-  # -----------------------------------------------------------------------------------------------------------------------------------
-  #
-  # Based on https://github.com/GoogleCloudPlatform/cloud-builders-community
-
 
   # Copy the cache from last build
   - name: 'gcr.io/cloud-builders/gsutil'
