@@ -2,8 +2,8 @@
 # $ cd cloud-builder/
 # $ gcloud builds submit --config=cloudbuild-tar.yaml
 steps:
-- name: gcr.io/cloud-builders/docker
-  args:
+  - name: gcr.io/cloud-builders/docker
+    args:
       - 'build'
       - '--tag=gcr.io/$PROJECT_ID/tar'
       - '--file=Dockerfile-tar'
