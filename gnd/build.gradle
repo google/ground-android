@@ -42,7 +42,13 @@ project.ext {
     workVersion = "2.0.1"
 }
 
-def homePath = System.properties['user.home']
+// Load secrets.properties
+def secretsFile = file('secrets.properties')
+def secrets = new Properties()
+if (secretsFile.exists()) {
+    secrets.load(new FileInputStream(secretsFile))
+}
+def googleMapsApiKey = secrets.getProperty('GOOGLE_MAPS_API_KEY', '')
 
 android {
     compileSdkVersion 28
@@ -62,10 +68,13 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            resValue("string", "GOOGLE_MAPS_API_KEY", googleMapsApiKey)
         }
         debug {
+            resValue("string", "GOOGLE_MAPS_API_KEY", googleMapsApiKey)
         }
     }
+
     // Keep the following configuration in order to target Java 8.
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
