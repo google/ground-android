@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 
-# Builds Docker image with Ground APK using Cloud Build. Specifically, executes the following steps:
+# Loadsthe Docker image from the container registry and then runs the following steps:
 #
 #  1. Copy Gradle cache
 #  2. Extract tarball
