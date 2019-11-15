@@ -32,8 +32,6 @@ public interface MapProvider {
 
   Single<MapAdapter> getMapAdapter();
 
-  Single<ExtentSelector> getExtentSelector();
-
   /**
    * Interface defining map interactions and events. This a separate class from {@link MapProvider}
    * so that it can be returned asynchronously by {@link MapProvider#getMapAdapter()} if necessary.
