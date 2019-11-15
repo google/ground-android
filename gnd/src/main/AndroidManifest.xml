@@ -16,6 +16,7 @@
   -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:tools="http://schemas.android.com/tools"
   package="com.google.android.gnd">
 
   <!--
@@ -47,7 +48,7 @@
         -->
     <meta-data
       android:name="com.google.android.geo.API_KEY"
-      android:value="@string/google_maps_key"/>
+      android:value="@string/GOOGLE_MAPS_API_KEY"/>
 
     <activity
       android:name=".MainActivity"
@@ -75,6 +76,7 @@
       natively.
     -->
     <provider
+        tools:replace="android:authorities"
         android:name="androidx.work.impl.WorkManagerInitializer"
         android:authorities="com.google.android.gnd.workmanager-init"
         android:enabled="false"
