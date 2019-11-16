@@ -20,9 +20,10 @@
 #  2. Extract tarball
 #  3. Copy .git dir
 #  4. Build debug apk
-#  5. Save apk
-#  6. Compress Gradle files
-#  7. Save tarball
+#  5. Run checkstyle
+#  6. Save apk
+#  7. Compress Gradle files
+#  8. Save tarball
 #
 # Based on https://github.com/GoogleCloudPlatform/cloud-builders-community
 
@@ -82,10 +83,25 @@ steps:
       - name: 'build_cache'
         path: '/build_cache'
 
+  # Run checkstyle checks
+  - name: 'gcr.io/$PROJECT_ID/android:28'
+    id: checkstyle
+    args: ['./gradlew', 'checkstyle']
+    env:
+      - 'TERM=dumb'
+      - 'JAVA_TOOL_OPTIONS="-Xmx3g"'
+      - 'GRADLE_USER_HOME=/build_cache/.gradle'
+      - 'GRADLE_OPTS="-Dorg.gradle.daemon=false -Dorg.gradle.parallel=true -Dorg.gradle.workers.max=8 -Dkotlin.incremental=false"'
+      - 'BRANCH_NAME=$BRANCH_NAME'
+    waitFor: ['build']
+    volumes:
+      - name: 'build_cache'
+        path: '/build_cache'
+
   # Save the APKs
   - name: 'gcr.io/cloud-builders/gsutil'
     args: ['-q', 'cp', '-r', 'gnd/build/outputs/apk', 'gs://${_ARTIFACT_BUCKET}/$BRANCH_NAME-$BUILD_ID/']
-    waitFor: ['build']
+    waitFor: ['checkstyle']
 
   # Compress the gradle build cache
   - name: 'gcr.io/$PROJECT_ID/android:base'
