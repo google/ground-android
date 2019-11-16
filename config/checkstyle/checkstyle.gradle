@@ -1,0 +1,19 @@
+apply plugin: 'checkstyle'
+
+def configDir = "${project.rootDir}/config/checkstyle"
+def reportsDir = "${project.buildDir}/reports"
+
+// For latest version, check: https://checkstyle.sourceforge.io/releasenotes.html
+checkstyle.toolVersion = '8.26'
+
+tasks.register("checkstyle", Checkstyle) {
+    configFile file("$configDir/checkstyle.xml")
+
+    ignoreFailures false // Fail early
+    showViolations true
+
+    source 'src'
+    include '**/*.java'
+    exclude '**/gen/**'
+    classpath = files()
+}
