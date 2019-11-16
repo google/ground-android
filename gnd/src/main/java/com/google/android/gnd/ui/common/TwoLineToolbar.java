@@ -17,11 +17,11 @@
 package com.google.android.gnd.ui.common;
 
 import android.content.Context;
-import androidx.annotation.Nullable;
-import androidx.appcompat.widget.Toolbar;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.TextView;
+import androidx.annotation.Nullable;
+import androidx.appcompat.widget.Toolbar;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import com.google.android.gnd.R;

@@ -17,10 +17,10 @@
 package com.google.android.gnd.ui.signin;
 
 import android.os.Bundle;
-import androidx.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import androidx.annotation.Nullable;
 import com.google.android.gnd.databinding.SignInFragBinding;
 import com.google.android.gnd.inject.ActivityScoped;
 import com.google.android.gnd.ui.common.AbstractFragment;
