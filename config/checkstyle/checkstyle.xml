@@ -140,8 +140,9 @@
       <message key="name.invalidPattern"
         value="Parameter name ''{0}'' must match pattern ''{1}''."/>
     </module>
+    <!-- Customized to ignore __ (for unused parameter) as an error -->
     <module name="LambdaParameterName">
-      <property name="format" value="^[a-z]([a-z0-9][a-zA-Z0-9]*)?$"/>
+      <property name="format" value="^__|[a-z]([a-z0-9][a-zA-Z0-9]*)?$"/>
       <message key="name.invalidPattern"
         value="Lambda parameter name ''{0}'' must match pattern ''{1}''."/>
     </module>
