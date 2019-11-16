@@ -21,7 +21,7 @@
 #  3. Copy .git dir
 #  4. Build debug apk
 #  5. Run checkstyle
-#  6. Save apk
+#  6. Save artifacts
 #  7. Compress Gradle files
 #  8. Save tarball
 #
@@ -92,7 +92,6 @@ steps:
       - 'JAVA_TOOL_OPTIONS="-Xmx3g"'
       - 'GRADLE_USER_HOME=/build_cache/.gradle'
       - 'GRADLE_OPTS="-Dorg.gradle.daemon=false -Dorg.gradle.parallel=true -Dorg.gradle.workers.max=8 -Dkotlin.incremental=false"'
-      - 'BRANCH_NAME=$BRANCH_NAME'
     waitFor: ['build']
     volumes:
       - name: 'build_cache'
@@ -100,7 +99,12 @@ steps:
 
   # Save the APKs
   - name: 'gcr.io/cloud-builders/gsutil'
-    args: ['-q', 'cp', '-r', 'gnd/build/outputs/apk', 'gs://${_ARTIFACT_BUCKET}/$BRANCH_NAME-$BUILD_ID/']
+    args: ['-q', 'cp', '-r', 'gnd/build/outputs/apk/*/*.apk', 'gs://${_ARTIFACT_BUCKET}/$BRANCH_NAME-$BUILD_ID/']
+    waitFor: ['build']
+
+  # Save the checkstyle report
+  - name: 'gcr.io/cloud-builders/gsutil'
+    args: ['-q', 'cp', '-r', 'gnd/build/reports/checkstyle/checkstyle.html', 'gs://${_ARTIFACT_BUCKET}/$BRANCH_NAME-$BUILD_ID/']
     waitFor: ['checkstyle']
 
   # Compress the gradle build cache
