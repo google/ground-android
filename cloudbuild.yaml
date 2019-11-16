@@ -71,7 +71,7 @@ steps:
   # Build debug APK
   - name: 'gcr.io/$PROJECT_ID/android:28'
     id: build
-    args: ["./gradlew", "assembleDebug"]
+    args: ['./gradlew', 'assembleDebug', 'checkstyle']
     env:
       - 'TERM=dumb'
       - 'JAVA_TOOL_OPTIONS="-Xmx3g"'
@@ -83,29 +83,29 @@ steps:
       - name: 'build_cache'
         path: '/build_cache'
 
-  # Run checkstyle checks
-  - name: 'gcr.io/$PROJECT_ID/android:28'
-    id: checkstyle
-    args: ['./gradlew', 'checkstyle']
-    env:
-      - 'TERM=dumb'
-      - 'JAVA_TOOL_OPTIONS="-Xmx3g"'
-      - 'GRADLE_USER_HOME=/build_cache/.gradle'
-      - 'GRADLE_OPTS="-Dorg.gradle.daemon=false -Dorg.gradle.parallel=true -Dorg.gradle.workers.max=8 -Dkotlin.incremental=false"'
-    waitFor: ['build']
-    volumes:
-      - name: 'build_cache'
-        path: '/build_cache'
-
-  # Save the APKs
-  - name: 'gcr.io/cloud-builders/gsutil'
-    args: ['-q', 'cp', '-r', 'gnd/build/outputs/apk/*/*.apk', 'gs://${_ARTIFACT_BUCKET}/$BRANCH_NAME-$BUILD_ID/']
-    waitFor: ['build']
-
-  # Save the checkstyle report
-  - name: 'gcr.io/cloud-builders/gsutil'
-    args: ['-q', 'cp', '-r', 'gnd/build/reports/checkstyle/checkstyle.html', 'gs://${_ARTIFACT_BUCKET}/$BRANCH_NAME-$BUILD_ID/']
-    waitFor: ['checkstyle']
+#  # Run checkstyle checks
+#  - name: 'gcr.io/$PROJECT_ID/android:28'
+#    id: checkstyle
+#    args: ['./gradlew', 'checkstyle']
+#    env:
+#      - 'TERM=dumb'
+#      - 'JAVA_TOOL_OPTIONS="-Xmx3g"'
+#      - 'GRADLE_USER_HOME=/build_cache/.gradle'
+#      - 'GRADLE_OPTS="-Dorg.gradle.daemon=false -Dorg.gradle.parallel=true -Dorg.gradle.workers.max=8 -Dkotlin.incremental=false"'
+#    waitFor: ['build']
+#    volumes:
+#      - name: 'build_cache'
+#        path: '/build_cache'
+#
+#  # Save the APKs
+#  - name: 'gcr.io/cloud-builders/gsutil'
+#    args: ['-q', 'cp', '-r', 'gnd/build/outputs/apk/*/*.apk', 'gs://${_ARTIFACT_BUCKET}/$BRANCH_NAME-$BUILD_ID/apk']
+#    waitFor: ['build']
+#
+#  # Save the checkstyle report
+#  - name: 'gcr.io/cloud-builders/gsutil'
+#    args: ['-q', 'cp', '-r', 'gnd/build/reports/checkstyle/checkstyle.html', 'gs://${_ARTIFACT_BUCKET}/$BRANCH_NAME-$BUILD_ID/reports']
+#    waitFor: ['checkstyle']
 
   # Compress the gradle build cache
   - name: 'gcr.io/$PROJECT_ID/android:base'
@@ -127,5 +127,10 @@ steps:
     volumes:
       - name: 'build_cache'
         path: '/build_cache'
+
+artifacts:
+  objects:
+    location: '${_ARTIFACT_BUCKET}/$BRANCH_NAME-$BUILD_ID'
+    paths: ['gnd/build/outputs/apk/*/*.apk', 'gnd/build/reports']
 
 timeout: 1800s
