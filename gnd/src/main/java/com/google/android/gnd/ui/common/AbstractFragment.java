@@ -44,7 +44,8 @@ public abstract class AbstractFragment extends Fragment implements HasSupportFra
    */
   private Unbinder unbinder;
 
-  @Inject ViewModelFactory viewModelFactory;
+  @Inject
+  protected ViewModelFactory viewModelFactory;
 
   @Inject DispatchingAndroidInjector<Fragment> childFragmentInjector;
 

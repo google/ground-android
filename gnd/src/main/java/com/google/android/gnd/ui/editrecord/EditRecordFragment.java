@@ -25,7 +25,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.lifecycle.LiveData;
@@ -68,14 +67,8 @@ public class EditRecordFragment extends AbstractFragment implements BackPressLis
   @BindView(R.id.edit_record_toolbar)
   TwoLineToolbar toolbar;
 
-  @BindView(R.id.form_name)
-  TextView formNameView;
-
   @BindView(R.id.edit_record_layout)
   LinearLayout formLayout;
-
-  @BindView(R.id.save_record_btn)
-  View saveRecordButton;
 
   @Override
   public void onCreate(@androidx.annotation.Nullable Bundle savedInstanceState) {
@@ -127,7 +120,8 @@ public class EditRecordFragment extends AbstractFragment implements BackPressLis
   private void onRecordChange(Persistable<Record> record) {
     switch (record.state()) {
       case LOADING:
-        saveRecordButton.setVisibility(View.GONE);
+        // Do nothing.
+        // The logic is handled in EditRecordViewModel and reflected into UI using DataBinding.
         break;
       case LOADED:
         record.value().ifPresent(this::editRecord);
@@ -152,9 +146,7 @@ public class EditRecordFragment extends AbstractFragment implements BackPressLis
   private void editRecord(Record record) {
     toolbar.setTitle(record.getFeature().getTitle());
     toolbar.setSubtitle(record.getFeature().getSubtitle());
-    formNameView.setText(record.getForm().getTitle());
     rebuildForm(record);
-    saveRecordButton.setVisibility(View.VISIBLE);
   }
 
   private void rebuildForm(Record record) {

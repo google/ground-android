@@ -16,22 +16,27 @@
 
 package com.google.android.gnd.ui.home.featuresheet;
 
+import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.recyclerview.widget.RecyclerView;
+import com.google.android.gnd.databinding.RecordListItemBinding;
 import com.google.android.gnd.model.observation.Record;
+import com.google.android.gnd.ui.common.ViewModelFactory;
 import java.util.Collections;
 import java.util.List;
 
 // TODO: Consider passing in ViewModel and using DataBinding like todoapp example.
 class RecordListAdapter extends RecyclerView.Adapter<RecordListItemViewHolder> {
 
+  private final ViewModelFactory viewModelFactory;
   private List<Record> recordSummaries;
   private MutableLiveData<Record> itemClicks;
 
-  public RecordListAdapter() {
+  public RecordListAdapter(ViewModelFactory viewModelFactory) {
+    this.viewModelFactory = viewModelFactory;
     recordSummaries = Collections.emptyList();
     itemClicks = new MutableLiveData<>();
   }
@@ -39,12 +44,17 @@ class RecordListAdapter extends RecyclerView.Adapter<RecordListItemViewHolder> {
   @NonNull
   @Override
   public RecordListItemViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-    return RecordListItemViewHolder.newInstance(parent, itemClicks);
+    LayoutInflater inflater = LayoutInflater.from(parent.getContext());
+    RecordListItemBinding itemBinding = RecordListItemBinding.inflate(inflater, parent, false);
+    return new RecordListItemViewHolder(itemBinding);
   }
 
   @Override
   public void onBindViewHolder(@NonNull RecordListItemViewHolder holder, int position) {
-    holder.update(recordSummaries.get(position));
+    RecordViewModel viewModel = viewModelFactory.create(RecordViewModel.class);
+    viewModel.setRecord(recordSummaries.get(position));
+    viewModel.setRecordCallback(record -> itemClicks.postValue(record));
+    holder.bind(viewModel, recordSummaries.get(position));
   }
 
   @Override
