@@ -130,7 +130,7 @@ steps:
 
 artifacts:
   objects:
-    location: '${_ARTIFACT_BUCKET}/$BRANCH_NAME-$BUILD_ID'
+    location: 'gs://${_ARTIFACT_BUCKET}/$BRANCH_NAME-$BUILD_ID'
     paths: ['gnd/build/outputs/apk/*/*.apk', 'gnd/build/reports']
 
 timeout: 1800s
