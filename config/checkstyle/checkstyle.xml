@@ -13,7 +13,7 @@
     Source: https://github.com/checkstyle/checkstyle/blob/master/src/main/resources/google_checks.xml
  -->
 
-<module name = "Checker">
+<module name="Checker">
   <property name="charset" value="UTF-8"/>
 
   <property name="severity" value="error"/>
