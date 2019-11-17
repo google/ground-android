@@ -28,7 +28,7 @@ import com.google.android.gnd.model.observation.Record;
 import com.google.android.gnd.repository.DataRepository;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.common.collect.ImmutableList;
-import io.reactivex.Flowable;
+import io.reactivex.Single;
 import io.reactivex.processors.PublishProcessor;
 import io.reactivex.schedulers.Schedulers;
 import java8.util.Optional;
@@ -51,7 +51,7 @@ public class RecordListViewModel extends AbstractViewModel {
         LiveDataReactiveStreams.fromPublisher(
             recordSummaryRequests
                 .doOnNext(__ -> loadingSpinnerVisibility.set(View.VISIBLE))
-                .switchMap(this::getRecordSummariesOnceAndStream)
+                .switchMapSingle(this::getRecords)
                 .doOnNext(__ -> loadingSpinnerVisibility.set(View.GONE)));
   }
 
@@ -65,18 +65,17 @@ public class RecordListViewModel extends AbstractViewModel {
         feature.getProject(), feature.getFeatureType().getId(), form.getId(), feature.getId());
   }
 
-  private Flowable<ImmutableList<Record>> getRecordSummariesOnceAndStream(
-      RecordSummaryRequest req) {
+  private Single<ImmutableList<Record>> getRecords(RecordSummaryRequest req) {
     return dataRepository
-        .getRecordSummariesOnceAndStream(req.project.getId(), req.featureId, req.formId)
-        .onErrorResumeNext(this::onGetRecordSummariesError)
+        .getRecords(req.project.getId(), req.featureId, req.formId)
+        .onErrorResumeNext(this::onGetRecordsError)
         .subscribeOn(Schedulers.io());
   }
 
-  private Flowable<ImmutableList<Record>> onGetRecordSummariesError(Throwable t) {
+  private Single<ImmutableList<Record>> onGetRecordsError(Throwable t) {
     // TODO: Show an appropriate error message to the user.
     Log.d(TAG, "Failed to fetch record summaries.", t);
-    return Flowable.just(ImmutableList.of());
+    return Single.just(ImmutableList.of());
   }
 
   private void loadRecords(Project project, String featureTypeId, String formId, String featureId) {

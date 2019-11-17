@@ -21,8 +21,8 @@ import androidx.room.Insert;
 import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
 import io.reactivex.Completable;
-import io.reactivex.Flowable;
 import io.reactivex.Maybe;
+import io.reactivex.Single;
 import java.util.List;
 
 @Dao
@@ -45,5 +45,5 @@ public interface RecordDao {
    * records (i.e., returns only records with state = State.DEFAULT (1)).
    */
   @Query("SELECT * FROM record WHERE feature_id = :featureId AND form_id = :formId AND state = 1")
-  Flowable<List<RecordEntity>> findByFeatureIdOnceAndStream(String featureId, String formId);
+  Single<List<RecordEntity>> findByFeatureId(String featureId, String formId);
 }

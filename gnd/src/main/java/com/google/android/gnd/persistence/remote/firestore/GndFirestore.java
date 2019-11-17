@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.persistence.remote.firestore;
 
+import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList;
 import static java8.util.stream.Collectors.toList;
 import static java8.util.stream.StreamSupport.stream;
 
@@ -27,6 +28,7 @@ import com.google.android.gnd.model.observation.Record;
 import com.google.android.gnd.model.observation.RecordMutation;
 import com.google.android.gnd.persistence.remote.RemoteDataEvent;
 import com.google.android.gnd.system.AuthenticationManager.User;
+import com.google.common.collect.ImmutableList;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentReference;
@@ -152,15 +154,14 @@ public class GndFirestore extends AbstractFluentFirestore {
       return new RecordDocumentReference(ref.document(id));
     }
 
-    public Flowable<RemoteDataEvent<Record>> getRecordsByFeatureOnceAndStreamChanges(
-        Feature feature) {
-      return RxFirestore.observeQueryRef(byFeatureId(feature.getId()))
-          .flatMapIterable(
+    public Single<ImmutableList<Record>> recordsByFeatureId(Feature feature) {
+      return RxFirestore.getCollection(byFeatureId(feature.getId()))
+          .map(
               querySnapshot ->
-                  toEvents(
-                      querySnapshot,
-                      docSnapshot ->
-                          RecordDoc.toObject(feature, docSnapshot.getId(), docSnapshot)));
+                  stream(querySnapshot.getDocuments())
+                      .map(recordDoc -> RecordDoc.toObject(feature, recordDoc.getId(), recordDoc))
+                      .collect(toImmutableList()))
+          .toSingle(ImmutableList.of());
     }
 
     private Query byFeatureId(String featureId) {

@@ -22,6 +22,7 @@ import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.observation.Record;
 import com.google.android.gnd.system.AuthenticationManager.User;
 import com.google.common.collect.ImmutableCollection;
+import com.google.common.collect.ImmutableList;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Single;
@@ -41,7 +42,7 @@ public interface RemoteDataStore {
    */
   Flowable<RemoteDataEvent<Feature>> loadFeaturesOnceAndStreamChanges(Project project);
 
-  Flowable<RemoteDataEvent<Record>> loadRecordSummariesOnceAndStreamChanges(Feature feature);
+  Single<ImmutableList<Record>> loadRecords(Feature feature);
 
   /**
    * Applies the provided mutations to the remote data store in a single batched transaction. If one

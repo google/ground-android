@@ -31,6 +31,7 @@ import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator;
 import com.google.android.gnd.rx.RxTask;
 import com.google.android.gnd.system.AuthenticationManager.User;
 import com.google.common.collect.ImmutableCollection;
+import com.google.common.collect.ImmutableList;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreSettings;
 import com.google.firebase.firestore.WriteBatch;
@@ -85,12 +86,11 @@ public class FirestoreDataStore implements RemoteDataStore, OfflineUuidGenerator
   }
 
   @Override
-  public Flowable<RemoteDataEvent<Record>> loadRecordSummariesOnceAndStreamChanges(
-      Feature feature) {
+  public Single<ImmutableList<Record>> loadRecords(Feature feature) {
     return db.projects()
         .project(feature.getProject().getId())
         .records()
-        .getRecordsByFeatureOnceAndStreamChanges(feature);
+        .recordsByFeatureId(feature);
   }
 
   @Override
