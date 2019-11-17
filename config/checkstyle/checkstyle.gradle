@@ -14,10 +14,20 @@
  * limitations under the License.
  */
 
+/**
+ * Checkstyle plugin configuration for code styling checks.
+ *
+ * Runs automatically with every build on GoogleCloudBuild.
+ *
+ * For manual run,
+ * $ ./gradlew checkstyle
+ *
+ * Reports (both html and xml formats) are stored under: gnd/build/reports/checkstyle/
+ */
+
 apply plugin: 'checkstyle'
 
 def configDir = "${project.rootDir}/config/checkstyle"
-def reportsDir = "${project.buildDir}/reports"
 
 // For latest version, check: https://checkstyle.sourceforge.io/releasenotes.html
 checkstyle.toolVersion = '8.26'
