@@ -70,7 +70,7 @@ steps:
   # Build debug APK
   - name: 'gcr.io/$PROJECT_ID/android:28'
     id: build
-    args: ["./gradlew", "assembleDebug"]
+    args: ["./gradlew", "assembleDebug", 'pmd']
     env:
       - 'TERM=dumb'
       - 'JAVA_TOOL_OPTIONS="-Xmx3g"'
