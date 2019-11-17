@@ -40,11 +40,11 @@ import androidx.room.TypeConverters;
     version = 15,
     exportSchema = false)
 @TypeConverters({
-  MutationEntityType.class,
-  EntityState.class,
-  ResponseDeltasTypeConverter.class,
-  ResponseMapTypeConverter.class,
-  TileEntityState.class
+    MutationEntityType.class,
+    EntityState.class,
+    ResponseDeltasTypeConverter.class,
+    ResponseMapTypeConverter.class,
+    TileEntityState.class
 })
 public abstract class LocalDatabase extends RoomDatabase {
 

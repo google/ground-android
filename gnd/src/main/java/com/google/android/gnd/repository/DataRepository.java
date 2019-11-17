@@ -235,6 +235,7 @@ public class DataRepository {
     }
     return Completable.never();
   }
+
   // TODO(#127): Decouple Project from Feature and remove projectId.
   // TODO: Replace with Single and treat missing id as error.
   private Maybe<Feature> getFeature(String projectId, String featureId) {

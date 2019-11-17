@@ -194,7 +194,12 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
     } else {
       setPeekHeight(
           a.getDimensionPixelSize(
-              com.google.android.material.R.styleable.BottomSheetBehavior_Layout_behavior_peekHeight,
+              com.google
+                  .android
+                  .material
+                  .R
+                  .styleable
+                  .BottomSheetBehavior_Layout_behavior_peekHeight,
               PEEK_HEIGHT_AUTO));
     }
     setHideable(
@@ -203,11 +208,21 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
             false));
     setFitToContents(
         a.getBoolean(
-            com.google.android.material.R.styleable.BottomSheetBehavior_Layout_behavior_fitToContents,
+            com.google
+                .android
+                .material
+                .R
+                .styleable
+                .BottomSheetBehavior_Layout_behavior_fitToContents,
             true));
     setSkipCollapsed(
         a.getBoolean(
-            com.google.android.material.R.styleable.BottomSheetBehavior_Layout_behavior_skipCollapsed,
+            com.google
+                .android
+                .material
+                .R
+                .styleable
+                .BottomSheetBehavior_Layout_behavior_skipCollapsed,
             false));
     a.recycle();
     ViewConfiguration configuration = ViewConfiguration.get(context);
@@ -537,7 +552,8 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
    *
    * @param peekHeight The height of the collapsed bottom sheet in pixels, or {@link
    *     #PEEK_HEIGHT_AUTO} to configure the sheet to peek automatically at 16:9 ratio keyline.
-   * @attr ref com.google.android.material.R.styleable#BottomSheetBehavior_Layout_behavior_peekHeight
+   * @attr ref
+   *     com.google.android.material.R.styleable#BottomSheetBehavior_Layout_behavior_peekHeight
    */
   public final void setPeekHeight(int peekHeight) {
     boolean layout = false;
@@ -565,7 +581,8 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
    *
    * @return The height of the collapsed bottom sheet in pixels, or {@link #PEEK_HEIGHT_AUTO} if the
    *     sheet is configured to peek automatically at 16:9 ratio keyline
-   * @attr ref com.google.android.material.R.styleable#BottomSheetBehavior_Layout_behavior_peekHeight
+   * @attr ref
+   *     com.google.android.material.R.styleable#BottomSheetBehavior_Layout_behavior_peekHeight
    */
   public final int getPeekHeight() {
     return peekHeightAuto ? PEEK_HEIGHT_AUTO : peekHeight;
@@ -596,7 +613,8 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
    * is expanded once. Setting this to true has no effect unless the sheet is hideable.
    *
    * @param skipCollapsed True if the bottom sheet should skip the collapsed state.
-   * @attr ref com.google.android.material.R.styleable#BottomSheetBehavior_Layout_behavior_skipCollapsed
+   * @attr ref
+   *     com.google.android.material.R.styleable#BottomSheetBehavior_Layout_behavior_skipCollapsed
    */
   public void setSkipCollapsed(boolean skipCollapsed) {
     this.skipCollapsed = skipCollapsed;
@@ -607,7 +625,8 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
    * is expanded once.
    *
    * @return Whether the bottom sheet should skip the collapsed state.
-   * @attr ref com.google.android.material.R.styleable#BottomSheetBehavior_Layout_behavior_skipCollapsed
+   * @attr ref
+   *     com.google.android.material.R.styleable#BottomSheetBehavior_Layout_behavior_skipCollapsed
    */
   public boolean getSkipCollapsed() {
     return skipCollapsed;

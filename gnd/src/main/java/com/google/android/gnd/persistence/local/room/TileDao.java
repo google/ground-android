@@ -11,15 +11,15 @@ import java.util.List;
 
 @Dao
 public interface TileDao {
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    Completable insertOrUpdate(TileEntity tileEntity);
+  @Insert(onConflict = OnConflictStrategy.REPLACE)
+  Completable insertOrUpdate(TileEntity tileEntity);
 
-    @Query("SELECT * FROM tile")
-    Flowable<List<TileEntity>> findAll();
+  @Query("SELECT * FROM tile")
+  Flowable<List<TileEntity>> findAll();
 
-    @Query("SELECT * FROM tile WHERE id = :id")
-    Maybe<TileEntity> findById(String id);
+  @Query("SELECT * FROM tile WHERE id = :id")
+  Maybe<TileEntity> findById(String id);
 
-    @Query("SELECT * FROM tile WHERE path = :path")
-    Maybe<TileEntity> findByPath(String path);
+  @Query("SELECT * FROM tile WHERE path = :path")
+  Maybe<TileEntity> findByPath(String path);
 }

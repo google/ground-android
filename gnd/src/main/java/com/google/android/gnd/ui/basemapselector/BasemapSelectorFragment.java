@@ -20,8 +20,8 @@ import io.reactivex.Single;
 import javax.inject.Inject;
 
 /**
- * Allows the user to select specific areas on a map for offline display. Users can toggle sections of
- * the map to add or remove imagery. Upon selection, basemap tiles are queued for download. When 
+ * Allows the user to select specific areas on a map for offline display. Users can toggle sections
+ * of the map to add or remove imagery. Upon selection, basemap tiles are queued for download. When
  * deselected, they are removed from the device.
  */
 @ActivityScoped
