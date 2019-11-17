@@ -1,5 +1,4 @@
-<?xml version="1.0"?>
-<!--
+<?xml version="1.0"?><!--
   ~ Copyright 2019 Google LLC
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -26,19 +25,104 @@
   <exclude-pattern>.*/R.java</exclude-pattern>
   <exclude-pattern>.*/gen/.*</exclude-pattern>
 
-  <rule ref="category/java/bestpractices.xml" />
+  <rule ref="category/java/bestpractices.xml">
+    <exclude name="AbstractClassWithoutAbstractMethod" />
+    <exclude name="AvoidReassigningParameters" />
+    <exclude name="ForLoopVariableCount" />
+    <exclude name="GuardLogStatement" />
+    <exclude name="SwitchStmtsShouldHaveDefault" />
+    <exclude name="UseVarargs" />
+    <exclude name="UnusedFormalParameter" />
+    <exclude name="UnusedImports" />
+    <exclude name="UnusedPrivateField" />
+    <exclude name="UnusedPrivateMethod" />
+  </rule>
 
-  <rule ref="category/java/codestyle.xml" />
+  <rule ref="category/java/codestyle.xml">
+    <exclude name="AtLeastOneConstructor" />
+    <exclude name="BooleanGetMethodName" />
+    <exclude name="CallSuperInConstructor" />
+    <exclude name="ClassNamingConventions" />
+    <exclude name="CommentDefaultAccessModifier" />
+    <exclude name="ConfusingTernary" />
+    <exclude name="DefaultPackage" />
+    <exclude name="EmptyMethodInAbstractClassShouldBeAbstract" />
+    <exclude name="FieldDeclarationsShouldBeAtStartOfClass" />
+    <exclude name="FormalParameterNamingConventions" />
+    <exclude name="LinguisticNaming" />
+    <exclude name="LocalVariableCouldBeFinal" />
+    <exclude name="LongVariable" />
+    <exclude name="MethodArgumentCouldBeFinal" />
+    <exclude name="OnlyOneReturn" />
+    <exclude name="PrematureDeclaration" />
+    <exclude name="ShortClassName" />
+    <exclude name="ShortMethodName" />
+    <exclude name="ShortVariable" />
+    <exclude name="UnnecessaryConstructor" />
+    <exclude name="UnnecessaryFullyQualifiedName" />
+    <exclude name="UnnecessaryLocalBeforeReturn" />
+    <exclude name="UseDiamondOperator" />
+    <exclude name="UselessParentheses" />
+  </rule>
 
-  <rule ref="category/java/design.xml" />
+  <rule ref="category/java/design.xml">
+    <exclude name="AbstractClassWithoutAnyMethod" />
+    <exclude name="AvoidCatchingGenericException" />
+    <exclude name="AvoidThrowingNullPointerException" />
+    <exclude name="ClassWithOnlyPrivateConstructorsShouldBeFinal" />
+    <exclude name="CollapsibleIfStatements" />
+    <exclude name="CouplingBetweenObjects" />
+    <exclude name="CyclomaticComplexity" />
+    <exclude name="ExcessiveImports" />
+    <exclude name="ExcessiveParameterList" />
+    <exclude name="GodClass" />
+    <exclude name="ImmutableField" />
+    <exclude name="LawOfDemeter" />
+    <exclude name="NPathComplexity" />
+    <exclude name="SimplifyConditional" />
+    <exclude name="TooManyFields" />
+    <exclude name="TooManyMethods" />
+    <exclude name="UseUtilityClass" />
+    <exclude name="UseObjectForClearerAPI" />
+    <exclude name="UselessOverridingMethod" />
+  </rule>
 
-  <rule ref="category/java/documentation.xml" />
+  <rule ref="category/java/documentation.xml">
+    <exclude name="CommentRequired" />
+    <exclude name="CommentSize" />
+    <exclude name="UncommentedEmptyConstructor" />
+    <exclude name="UncommentedEmptyMethodBody" />
+  </rule>
 
-  <rule ref="category/java/errorprone.xml" />
+  <rule ref="category/java/errorprone.xml">
+    <exclude name="AssignmentInOperand" />
+    <exclude name="AvoidCatchingThrowable" />
+    <exclude name="AvoidFieldNameMatchingMethodName" />
+    <exclude name="AvoidLiteralsInIfCondition" />
+    <exclude name="BeanMembersShouldSerialize" />
+    <exclude name="CloseResource" />
+    <exclude name="CompareObjectsWithEquals" />
+    <exclude name="DataflowAnomalyAnalysis" />
+    <exclude name="EmptyIfStmt" />
+    <exclude name="FinalizeDoesNotCallSuperFinalize" />
+    <exclude name="MissingBreakInSwitch" />
+    <exclude name="MissingSerialVersionUID" />
+    <exclude name="NullAssignment" />
+    <exclude name="OverrideBothEqualsAndHashcode" />
+    <exclude name="UseLocaleWithCaseConversions" />
+  </rule>
 
-  <rule ref="category/java/multithreading.xml" />
+  <rule ref="category/java/multithreading.xml">
+    <exclude name="AvoidSynchronizedAtMethodLevel" />
+    <exclude name="UseConcurrentHashMap" />
+  </rule>
 
-  <rule ref="category/java/performance.xml" />
+  <rule ref="category/java/performance.xml">
+    <exclude name="AppendCharacterWithChar" />
+    <exclude name="AvoidFileStream" />
+    <exclude name="InefficientEmptyStringCheck" />
+    <exclude name="TooFewBranchesForASwitchStatement" />
+  </rule>
 
   <rule ref="category/java/security.xml" />
 
