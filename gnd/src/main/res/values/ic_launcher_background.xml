@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <!--
   ~ Copyright 2019 Google LLC
   ~
@@ -14,7 +15,6 @@
   ~ limitations under the License.
   -->
 
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="ic_launcher_background">#FDFFFF</color>
 </resources>
