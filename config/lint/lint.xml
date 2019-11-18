@@ -14,7 +14,7 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-
-<resources>
-    <color name="ic_launcher_background">#FFFFFF</color>
-</resources>
+<lint>
+  <issue id="InvalidPackage" severity="ignore" />
+  <issue id="MissingTranslation" severity="ignore" />
+</lint>
