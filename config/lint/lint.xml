@@ -17,4 +17,5 @@
 <lint>
   <issue id="InvalidPackage" severity="ignore" />
   <issue id="MissingTranslation" severity="ignore" />
+  <issue id="PxUsage" severity="error" />
 </lint>
