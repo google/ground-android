@@ -21,6 +21,7 @@
   <issue id="MissingTranslation" severity="warning" />
 
   <!-- Severity: Error -->
+  <issue id="ApplySharedPref" severity="error" />
   <issue id="DuplicateIds" severity="error" />
   <issue id="PxUsage" severity="error" />
 </lint>
