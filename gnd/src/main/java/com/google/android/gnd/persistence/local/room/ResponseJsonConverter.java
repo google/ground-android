@@ -35,13 +35,13 @@ class ResponseJsonConverter {
     if (response instanceof TextResponse) {
       return ((TextResponse) response).getText();
     } else if (response instanceof MultipleChoiceResponse) {
-      return toJSONArray((MultipleChoiceResponse) response);
+      return toJsonArray((MultipleChoiceResponse) response);
     } else {
       throw new UnsupportedOperationException("Unimplemented Response " + response.getClass());
     }
   }
 
-  private static Object toJSONArray(MultipleChoiceResponse response) {
+  private static Object toJsonArray(MultipleChoiceResponse response) {
     JSONArray array = new JSONArray();
     forEach(response.getChoices(), array::put);
     return array;

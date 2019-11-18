@@ -21,7 +21,7 @@ import java.util.concurrent.Callable;
 
 /** Helpers for working with RxJava Completable classes. */
 public abstract class RxCompletable {
-  /** Do not instantiate */
+  /** Do not instantiate. */
   private RxCompletable() {}
 
   public static Completable completeIf(Callable<Boolean> conditionFunction) {

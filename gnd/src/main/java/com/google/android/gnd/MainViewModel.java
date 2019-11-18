@@ -16,11 +16,11 @@
 
 package com.google.android.gnd;
 
+import android.view.View;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
-import androidx.core.view.WindowInsetsCompat;
-import android.view.View;
 import com.google.android.gnd.repository.DataRepository;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.SharedViewModel;

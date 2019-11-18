@@ -16,6 +16,7 @@
 
 apply plugin: 'com.android.application'
 apply plugin: 'com.google.firebase.firebase-perf'
+apply from: '../config/checkstyle/checkstyle.gradle'
 apply from: '../config/lint/lint.gradle'
 apply from: '../config/pmd/pmd.gradle'
 

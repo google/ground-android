@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.google.android.gnd.ui.editrecord;
 
 import static java8.util.stream.StreamSupport.stream;

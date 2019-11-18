@@ -17,13 +17,13 @@
 package com.google.android.gnd.ui.map.gms;
 
 import android.os.Bundle;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gnd.inject.ActivityScoped;
 

@@ -163,9 +163,9 @@ public class HomeScreenFragment extends AbstractFragment
 
   private String getVersionName() {
     try {
-      PackageInfo pInfo =
+      PackageInfo packageInfo =
           getContext().getPackageManager().getPackageInfo(getContext().getPackageName(), 0);
-      return pInfo.versionName;
+      return packageInfo.versionName;
     } catch (PackageManager.NameNotFoundException e) {
       return "?";
     }
@@ -339,11 +339,11 @@ public class HomeScreenFragment extends AbstractFragment
         showProjectSelector();
         closeDrawer();
         break;
-      // TODO: Restore once basemap selector related bugs are resolved
-      //case R.id.nav_offline_maps:
-      //  showBasemapSelector();
-      //  closeDrawer();
-      //  break;
+        // TODO: Restore once basemap selector related bugs are resolved
+        // case R.id.nav_offline_maps:
+        //  showBasemapSelector();
+        //  closeDrawer();
+        //  break;
       case R.id.nav_sign_out:
         authenticationManager.signOut();
         break;

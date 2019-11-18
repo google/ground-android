@@ -19,10 +19,9 @@
 #  1. Copy Gradle cache
 #  2. Extract tarball
 #  3. Copy .git dir
-#  4. Build debug apk
-#  5. Save apk
-#  6. Compress Gradle files
-#  7. Save tarball
+#  4. Build debug APK and run checkstyle checks
+#  5. Compress Gradle files
+#  6. Save tarball
 #
 # Based on https://github.com/GoogleCloudPlatform/cloud-builders-community
 
@@ -67,10 +66,10 @@ steps:
         && mv tmp/.git . \
         && rm -rf tmp
 
-  # Build debug APK
+  # Build debug APK and run checkstyle checks
   - name: 'gcr.io/$PROJECT_ID/android:28'
     id: build
-    args: ['./gradlew', 'assembleDebug', 'lintDebug', 'pmd']
+    args: ['./gradlew', 'assembleDebug', 'checkstyle', 'lintDebug', 'pmd']
     env:
       - 'TERM=dumb'
       - 'JAVA_TOOL_OPTIONS="-Xmx3g"'
@@ -81,11 +80,6 @@ steps:
     volumes:
       - name: 'build_cache'
         path: '/build_cache'
-
-  # Save the APKs
-  - name: 'gcr.io/cloud-builders/gsutil'
-    args: ['-q', 'cp', '-r', 'gnd/build/outputs/apk', 'gs://${_ARTIFACT_BUCKET}/$BRANCH_NAME-$BUILD_ID/']
-    waitFor: ['build']
 
   # Compress the gradle build cache
   - name: 'gcr.io/$PROJECT_ID/android:base'
@@ -107,5 +101,11 @@ steps:
     volumes:
       - name: 'build_cache'
         path: '/build_cache'
+
+# Save the APKs and reports
+artifacts:
+  objects:
+    location: 'gs://${_ARTIFACT_BUCKET}/$BRANCH_NAME-$BUILD_ID'
+    paths: ['gnd/build/outputs/apk/*/*.apk', 'gnd/build/reports/*/*.html']
 
 timeout: 1800s
