@@ -17,7 +17,7 @@
 /**
  * Lint tool configuration.
  *
- * Runs automatically with every build on GoogleCloudBuild.
+ * Runs automatically with every build on Google Cloud Build.
  *
  * For manual run,
  * $ ./gradlew lintDebug
