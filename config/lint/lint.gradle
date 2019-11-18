@@ -19,8 +19,8 @@
  *
  * Runs automatically with every build on Google Cloud Build.
  *
- * For manual run,
- * $ ./gradlew lintDebug
+ * To run manually:
+ *   $ ./gradlew lintDebug
  *
  * Reports (both html and xml formats) are stored under: gnd/build/reports/lint/
  */
