@@ -15,6 +15,7 @@
  */
 
 apply plugin: 'com.android.application'
+apply from: '../config/lint/lint.gradle'
 apply from: '../config/pmd/pmd.gradle'
 
 project.ext {
@@ -80,10 +81,6 @@ android {
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
-    }
-    lintOptions {
-        // For com_google_android_gms_fonts_certs_(dev|prod), which causes lint errors.
-        disable 'MissingTranslation'
     }
     dataBinding {
         enabled = true
