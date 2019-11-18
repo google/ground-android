@@ -17,17 +17,17 @@
 package com.google.android.gnd.ui.editrecord;
 
 import android.content.Context;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import com.google.android.material.textfield.TextInputEditText;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.FrameLayout;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.OnFocusChange;
 import com.google.android.gnd.R;
+import com.google.android.material.textfield.TextInputEditText;
 
 public class MultipleChoiceFieldLayout extends FrameLayout {
 

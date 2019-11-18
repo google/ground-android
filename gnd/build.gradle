@@ -15,6 +15,10 @@
  */
 
 apply plugin: 'com.android.application'
+apply plugin: 'com.google.firebase.firebase-perf'
+apply from: '../config/checkstyle/checkstyle.gradle'
+apply from: '../config/lint/lint.gradle'
+apply from: '../config/pmd/pmd.gradle'
 
 project.ext {
     autoDisposeVersion = "1.2.0"
@@ -25,6 +29,7 @@ project.ext {
     // Latest: https://firebase.google.com/support/release-notes/android#latest_sdk_versions
     firebaseCoreVersion = "16.0.3"
     firebaseFirestoreVersion = "17.1.0"
+    firebasePerfVersion = "16.1.0"
     gmsVersion = "15.0.1"
     guavaVersion = "23.0-android"
     junitVersion = "4.12"
@@ -80,10 +85,6 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
-    lintOptions {
-        // For com_google_android_gms_fonts_certs_(dev|prod), which causes lint errors.
-        disable 'MissingTranslation'
-    }
     dataBinding {
         enabled = true
     }
@@ -124,6 +125,7 @@ dependencies {
     implementation "com.google.firebase:firebase-core:$project.firebaseCoreVersion"
     implementation "com.google.firebase:firebase-firestore:$project.firebaseFirestoreVersion"
     implementation "com.google.firebase:firebase-auth:$project.firebaseCoreVersion"
+    implementation "com.google.firebase:firebase-perf:$project.firebasePerfVersion"
     implementation "com.github.FrangSierra:RxFirebase:$project.rxFirebaseVersion"
 
     // Dagger core

@@ -20,11 +20,9 @@ import androidx.work.Constraints;
 import androidx.work.NetworkType;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkManager;
-
+import io.reactivex.Completable;
 import javax.inject.Inject;
 import javax.inject.Provider;
-
-import io.reactivex.Completable;
 
 /** Enqueues file download work to be done in the background. */
 public class FileDownloadWorkManager {
