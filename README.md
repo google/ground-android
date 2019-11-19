@@ -59,6 +59,18 @@ to the base repository using a pull request.
 
 1. Make and test changes locally.
 
+1. Run code health checks locally and fix any errors.
+
+   1. Using Command-line:
+      1. `$ ./gradlew checkstyle lintDebug pmd`
+    
+   1. Using Android Studio
+      1. Expand `gradle` side-tab (top-right corner in Android Studio IDE).
+      1. Click on `Execute gradle task` button (the one with gradle logo)
+      1. Type `checkstyle lintDebug pmd` and press OK
+      
+1. Fix code styling and lint issues 
+
 1. Add your changes to the staging area:
     
     `git add <files>`
