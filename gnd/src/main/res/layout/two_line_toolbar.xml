@@ -27,7 +27,8 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_gravity="center"
-    android:textAppearance="?gndToolbarTitleStyle"/>
+    android:textAppearance="?gndToolbarTitleStyle"
+    android:paddingTop="@dimen/offline_area_toolbar_padding_top"/>
 
   <TextView
     android:id="@+id/toolbar_subtitle_text"

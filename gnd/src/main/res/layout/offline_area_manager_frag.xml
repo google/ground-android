@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<layout xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+<data>
+    <variable
+        name="viewModel"
+        type="com.google.android.gnd.ui.offlinearea.OfflineAreaManagerViewModel"/>
+</data>
+
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <com.google.android.gnd.ui.common.TwoLineToolbar
+        android:id="@+id/offline_maps_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:elevation="@dimen/toolbar_elevation"
+        android:paddingTop="@dimen/offline_area_toolbar_padding_top"
+        android:theme="@style/GreenToolbarTheme"
+        android:background="@color/cardview_dark_background"
+        app:title="@string/offline_maps"/>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/offline_maps_list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
+</LinearLayout>
+</layout>
