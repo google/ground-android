@@ -67,10 +67,10 @@ public class MultipleChoiceResponse implements Response {
 
   @Override
   public boolean equals(Object obj) {
-    if (obj == null || !(obj instanceof MultipleChoiceResponse)) {
-      return false;
+    if (obj instanceof MultipleChoiceResponse) {
+      return choices.equals(((MultipleChoiceResponse) obj).choices);
     }
-    return choices.equals(((MultipleChoiceResponse) obj).choices);
+    return false;
   }
 
   @Override

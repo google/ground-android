@@ -31,8 +31,6 @@ import javax.inject.Inject;
 
 public class RecordDetailsViewModel extends AbstractViewModel {
 
-  private static final String TAG = RecordDetailsViewModel.class.getSimpleName();
-
   private final DataRepository dataRepository;
   private final BehaviorProcessor<RecordDetailsFragmentArgs> argsProcessor;
   public final LiveData<Persistable<Record>> records;

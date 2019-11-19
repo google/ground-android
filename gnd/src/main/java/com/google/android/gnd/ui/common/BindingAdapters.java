@@ -34,8 +34,6 @@ import java8.util.function.Consumer;
 
 public class BindingAdapters {
 
-  private static final String TAG = BindingAdapters.class.getSimpleName();
-
   @BindingAdapter("android:text")
   public static void bindText(TextInputEditText view, Response response) {
     ViewDataBinding binding = findBinding(view);

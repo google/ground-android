@@ -56,16 +56,16 @@ public class FeatureDoc {
 
   public static Feature toObject(Project project, DocumentSnapshot doc) {
     FeatureDoc f = doc.toObject(FeatureDoc.class);
-    Point point =
-        Point.newBuilder()
-            .setLatitude(f.center.getLatitude())
-            .setLongitude(f.center.getLongitude())
-            .build();
     Optional<FeatureType> featureType = project.getFeatureType(f.featureTypeId);
     if (!featureType.isPresent()) {
       throw new DataStoreException(
           "Unknown feature type " + f.featureTypeId + " in lace " + doc.getId());
     }
+    Point point =
+        Point.newBuilder()
+            .setLatitude(f.center.getLatitude())
+            .setLongitude(f.center.getLongitude())
+            .build();
     return Feature.newBuilder()
         .setId(doc.getId())
         .setProject(project)

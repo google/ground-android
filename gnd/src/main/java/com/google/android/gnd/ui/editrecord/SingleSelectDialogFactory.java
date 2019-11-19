@@ -92,7 +92,7 @@ class SingleSelectDialogFactory {
     private Optional<Response> getSelectedValue(Field field, List<Option> options) {
       if (checkedItem >= 0) {
         return Optional.of(
-            new MultipleChoiceResponse(ImmutableList.of((options.get(checkedItem).getCode()))));
+            new MultipleChoiceResponse(ImmutableList.of(options.get(checkedItem).getCode())));
       } else {
         return Optional.empty();
       }

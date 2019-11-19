@@ -98,11 +98,6 @@ public class RecordDetailsFragment extends AbstractFragment {
     setHasOptionsMenu(true);
   }
 
-  @Override
-  public void onStart() {
-    super.onStart();
-  }
-
   private void setToolbarTitle(String title) {
     if (toolbar != null) {
       toolbar.setTitle(title);

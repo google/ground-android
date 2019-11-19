@@ -205,7 +205,7 @@ public class GndFirestore extends AbstractFluentFirestore {
             querySnapshot ->
                 stream(querySnapshot.getDocuments())
                     .map(mappingFunction)
-                    .collect(Collectors.toList()))
+                    .collect(toList()))
         .toSingle(Collections.emptyList());
   }
 

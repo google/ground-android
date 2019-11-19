@@ -41,8 +41,6 @@ public abstract class AbstractDialogFragment extends DaggerAppCompatDialogFragme
 
   @Inject DispatchingAndroidInjector<Fragment> childFragmentInjector;
 
-  public AbstractDialogFragment() {}
-
   /**
    * Uses {@link ViewModelFactory} to obtain an instance of the view model of the specified class.
    */

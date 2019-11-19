@@ -106,7 +106,7 @@ class GoogleMapsMapAdapter implements MapAdapter {
       String line = buf.readLine();
       StringBuilder sb = new StringBuilder();
       while (line != null) {
-        sb.append(line).append("\n");
+        sb.append(line).append('\n');
         line = buf.readLine();
       }
 
@@ -172,7 +172,7 @@ class GoogleMapsMapAdapter implements MapAdapter {
     BitmapDescriptor bitmap =
         isHighlighted
             ? icon.getWhiteBitmap()
-            : (hasPendingWrites ? icon.getGreyBitmap() : icon.getBitmap());
+            : hasPendingWrites ? icon.getGreyBitmap() : icon.getBitmap();
     Marker marker = map.addMarker(new MarkerOptions().position(position).icon(bitmap).alpha(1.0f));
     markers.put(mapMarker.getId(), marker);
     marker.setTag(mapMarker);

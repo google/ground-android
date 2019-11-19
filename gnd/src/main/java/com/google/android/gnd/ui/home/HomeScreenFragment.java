@@ -59,6 +59,7 @@ import com.google.android.gnd.ui.projectselector.ProjectSelectorDialogFragment;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.navigation.NavigationView.OnNavigationItemSelectedListener;
 import io.reactivex.subjects.PublishSubject;
+import java.util.Objects;
 import javax.inject.Inject;
 
 /**
@@ -163,9 +164,10 @@ public class HomeScreenFragment extends AbstractFragment
 
   private String getVersionName() {
     try {
-      PackageInfo packageInfo =
-          getContext().getPackageManager().getPackageInfo(getContext().getPackageName(), 0);
-      return packageInfo.versionName;
+      return Objects.requireNonNull(getContext())
+        .getPackageManager()
+        .getPackageInfo(getContext().getPackageName(), 0)
+        .versionName;
     } catch (PackageManager.NameNotFoundException e) {
       return "?";
     }
@@ -222,10 +224,6 @@ public class HomeScreenFragment extends AbstractFragment
 
   private void showProjectSelector() {
     ProjectSelectorDialogFragment.show(getFragmentManager());
-  }
-
-  private void showBasemapSelector() {
-    viewModel.showBasemapSelector();
   }
 
   private void onApplyWindowInsets(WindowInsetsCompat insets) {
