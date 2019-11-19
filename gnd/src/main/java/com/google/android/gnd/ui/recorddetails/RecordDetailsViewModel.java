@@ -26,7 +26,6 @@ import com.google.android.gnd.repository.DataRepository;
 import com.google.android.gnd.repository.Persistable;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import io.reactivex.Flowable;
-import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.processors.BehaviorProcessor;
 import javax.inject.Inject;
 
@@ -49,14 +48,12 @@ public class RecordDetailsViewModel extends AbstractViewModel {
     this.argsProcessor = BehaviorProcessor.create();
 
     Flowable<Persistable<Record>> recordStream =
-        argsProcessor
-            .switchMapSingle(
-                args ->
-                    this.dataRepository
-                        .getRecord(args.getProjectId(), args.getFeatureId(), args.getRecordId())
-                        .map(Persistable::loaded)
-                        .onErrorReturn(Persistable::error))
-            .observeOn(AndroidSchedulers.mainThread());
+        argsProcessor.switchMapSingle(
+            args ->
+                this.dataRepository
+                    .getRecord(args.getProjectId(), args.getFeatureId(), args.getRecordId())
+                    .map(Persistable::loaded)
+                    .onErrorReturn(Persistable::error));
 
     // TODO: Refactor to expose the fetched record directly.
     this.records = LiveDataReactiveStreams.fromPublisher(recordStream);
