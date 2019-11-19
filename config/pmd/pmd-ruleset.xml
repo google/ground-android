@@ -34,7 +34,6 @@
     <exclude name="UseVarargs" />
     <exclude name="UnusedFormalParameter" />
     <exclude name="UnusedImports" />
-    <exclude name="UnusedPrivateMethod" />
   </rule>
 
   <rule ref="category/java/codestyle.xml">
