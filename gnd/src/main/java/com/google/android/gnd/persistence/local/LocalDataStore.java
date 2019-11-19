@@ -37,7 +37,8 @@ import io.reactivex.Single;
  * visible to the user.
  *
  * <p>Implementations are expected to execute each method in this class as a single atomic
- * transaction.
+ * transaction, and must ensure all subscriptions are run in a background thread (i.e., not the
+ * Android main thread).
  *
  * <p>Note that long-lived streams return the full set of entities on each emission rather than
  * deltas to allow changes to not rely on prior UI state (i.e., emissions are idempotent).

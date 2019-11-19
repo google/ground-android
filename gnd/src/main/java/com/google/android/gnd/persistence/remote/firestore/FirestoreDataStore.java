@@ -82,7 +82,8 @@ public class FirestoreDataStore implements RemoteDataStore, OfflineUuidGenerator
     return db.projects()
         .project(projectId)
         .get()
-        .switchIfEmpty(Single.error(new DocumentNotFoundException()));
+        .switchIfEmpty(Single.error(new DocumentNotFoundException()))
+        .subscribeOn(Schedulers.io());
   }
 
   @Override
@@ -90,12 +91,13 @@ public class FirestoreDataStore implements RemoteDataStore, OfflineUuidGenerator
     return db.projects()
         .project(feature.getProject().getId())
         .records()
-        .recordsByFeatureId(feature);
+        .recordsByFeatureId(feature)
+        .subscribeOn(Schedulers.io());
   }
 
   @Override
   public Single<List<Project>> loadProjectSummaries(User user) {
-    return db.projects().getReadable(user);
+    return db.projects().getReadable(user).subscribeOn(Schedulers.io());
   }
 
   @Override
@@ -109,7 +111,8 @@ public class FirestoreDataStore implements RemoteDataStore, OfflineUuidGenerator
 
   @Override
   public Completable applyMutations(ImmutableCollection<Mutation> mutations) {
-    return RxTask.toCompletable(() -> applyMutationsInternal(mutations));
+    return RxTask.toCompletable(() -> applyMutationsInternal(mutations))
+        .subscribeOn(Schedulers.io());
   }
 
   private Task<?> applyMutationsInternal(ImmutableCollection<Mutation> mutations) {

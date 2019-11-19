@@ -28,7 +28,6 @@ import com.google.android.gnd.ui.common.AbstractViewModel;
 import io.reactivex.Flowable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.processors.BehaviorProcessor;
-import io.reactivex.schedulers.Schedulers;
 import javax.inject.Inject;
 
 public class RecordDetailsViewModel extends AbstractViewModel {
@@ -56,8 +55,7 @@ public class RecordDetailsViewModel extends AbstractViewModel {
                     this.dataRepository
                         .getRecord(args.getProjectId(), args.getFeatureId(), args.getRecordId())
                         .map(Persistable::loaded)
-                        .onErrorReturn(Persistable::error)
-                        .subscribeOn(Schedulers.io()))
+                        .onErrorReturn(Persistable::error))
             .observeOn(AndroidSchedulers.mainThread());
 
     // TODO: Refactor to expose the fetched record directly.

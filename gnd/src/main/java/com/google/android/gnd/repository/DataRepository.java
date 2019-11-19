@@ -41,7 +41,6 @@ import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.processors.BehaviorProcessor;
 import io.reactivex.processors.FlowableProcessor;
-import io.reactivex.schedulers.Schedulers;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java8.util.Optional;
@@ -101,11 +100,7 @@ public class DataRepository {
     switch (event.getEventType()) {
       case ENTITY_LOADED:
       case ENTITY_MODIFIED:
-        return event
-            .value()
-            .map(localDataStore::mergeFeature)
-            .orElse(Completable.complete())
-            .subscribeOn(Schedulers.io());
+        return event.value().map(localDataStore::mergeFeature).orElse(Completable.complete());
       case ENTITY_REMOVED:
         // TODO: Delete features:
         // localDataStore.removeFeature(event.getEntityId());
@@ -179,13 +174,11 @@ public class DataRepository {
     Completable remoteSync =
         remoteDataStore
             .loadRecords(feature)
-            .subscribeOn(Schedulers.io())
             .timeout(GET_REMOTE_RECORDS_TIMEOUT_SECS, TimeUnit.SECONDS)
             .doOnError(t -> Log.d(TAG, "Record sync timed out"))
             .flatMapCompletable(this::mergeRemoteRecords)
             .onErrorComplete();
-    return remoteSync.andThen(
-        localDataStore.getRecords(feature, formId).subscribeOn(Schedulers.io()));
+    return remoteSync.andThen(localDataStore.getRecords(feature, formId));
   }
 
   private Completable mergeRemoteRecords(ImmutableList<Record> records) {
