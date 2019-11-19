@@ -37,7 +37,8 @@ import io.reactivex.Single;
  * visible to the user.
  *
  * <p>Implementations are expected to execute each method in this class as a single atomic
- * transaction.
+ * transaction, and must ensure all subscriptions are run in a background thread (i.e., not the
+ * Android main thread).
  *
  * <p>Note that long-lived streams return the full set of entities on each emission rather than
  * deltas to allow changes to not rely on prior UI state (i.e., emissions are idempotent).
@@ -61,12 +62,8 @@ public interface LocalDataStore {
    */
   Flowable<ImmutableSet<Feature>> getFeaturesOnceAndStream(Project project);
 
-  /**
-   * Returns a long-lived stream that emits the full set of records for a particular feature and
-   * form on subscribe, and continues to return the full set each time a record is
-   * added/changed/removed.
-   */
-  Flowable<ImmutableList<Record>> getRecordsOnceAndStream(Feature feature, String formId);
+  /** Returns the full list of records for the specified feature and form. */
+  Single<ImmutableList<Record>> getRecords(Feature feature, String formId);
 
   /** Returns the feature with the specified UUID from the local data store, if found. */
   Maybe<Feature> getFeature(Project project, String featureId);

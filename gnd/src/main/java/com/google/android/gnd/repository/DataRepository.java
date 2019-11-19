@@ -31,7 +31,6 @@ import com.google.android.gnd.persistence.remote.firestore.DocumentNotFoundExcep
 import com.google.android.gnd.persistence.sync.DataSyncWorkManager;
 import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator;
 import com.google.android.gnd.system.AuthenticationManager.User;
-import com.google.android.gnd.system.NetworkManager;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import io.reactivex.Completable;
@@ -41,7 +40,6 @@ import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.processors.BehaviorProcessor;
 import io.reactivex.processors.FlowableProcessor;
-import io.reactivex.schedulers.Schedulers;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java8.util.Optional;
@@ -59,7 +57,6 @@ public class DataRepository {
   private final DataSyncWorkManager dataSyncWorkManager;
   private final FlowableProcessor<Persistable<Project>> activeProject;
   private final OfflineUuidGenerator uuidGenerator;
-  private final NetworkManager networkManager;
   private final LocalValueStore localValueStore;
 
   @Inject
@@ -69,7 +66,6 @@ public class DataRepository {
       DataSyncWorkManager dataSyncWorkManager,
       InMemoryCache cache,
       OfflineUuidGenerator uuidGenerator,
-      NetworkManager networkManager,
       LocalValueStore localValueStore) {
     this.localDataStore = localDataStore;
     this.remoteDataStore = remoteDataStore;
@@ -77,7 +73,6 @@ public class DataRepository {
     this.cache = cache;
     this.activeProject = BehaviorProcessor.create();
     this.uuidGenerator = uuidGenerator;
-    this.networkManager = networkManager;
     this.localValueStore = localValueStore;
 
     streamFeaturesToLocalDb(remoteDataStore);
@@ -101,11 +96,7 @@ public class DataRepository {
     switch (event.getEventType()) {
       case ENTITY_LOADED:
       case ENTITY_MODIFIED:
-        return event
-            .value()
-            .map(localDataStore::mergeFeature)
-            .orElse(Completable.complete())
-            .subscribeOn(Schedulers.io());
+        return event.value().map(localDataStore::mergeFeature).orElse(Completable.complete());
       case ENTITY_REMOVED:
         // TODO: Delete features:
         // localDataStore.removeFeature(event.getEntityId());
@@ -158,83 +149,37 @@ public class DataRepository {
   }
 
   /**
-   * Retrieves the record summaries for the specified project, feature, and form, streaming
-   * successive changes ad infinitum. If the network is available on subscribe, will attempt to sync
-   * remote record changes to the local data store before returning the first set. If the network is
-   * not available, relevant records will be returned directly from the local db. After the first
-   * set is emitted, will continue to monitor the remote db for changes, writing updates to records
-   * to the local db and emitting a new set on each change.
+   * Retrieves the records or the specified project, feature, and form as follows:
+   *
+   * <ol>
+   *   <li>Attempt to sync remote record changes to the local data store. If network is not
+   *       available or operation times out, this step is skipped.
+   *   <li>Relevant records are returned directly from the local data store.
+   * </ol>
    */
-  public Flowable<ImmutableList<Record>> getRecordSummariesOnceAndStream(
+  public Single<ImmutableList<Record>> getRecords(
       String projectId, String featureId, String formId) {
     // TODO: Only fetch first n fields.
-    // TODO: Also load from db.
     // TODO(#127): Decouple feature from record so that we don't need to fetch record here.
     return getFeature(projectId, featureId)
         .switchIfEmpty(Single.error(new DocumentNotFoundException()))
-        .flatMapPublisher(
-            feature -> {
-              Flowable<RemoteDataEvent<Record>> remoteChanges =
-                  remoteDataStore
-                      .loadRecordSummariesOnceAndStreamChanges(feature)
-                      .subscribeOn(Schedulers.io());
-              Flowable<ImmutableList<Record>> localChanges =
-                  localDataStore
-                      .getRecordsOnceAndStream(feature, formId)
-                      .subscribeOn(Schedulers.io());
-              return maybeSyncFirst(remoteChanges)
-                  .toFlowable()
-                  .map(o -> (ImmutableList<Record>) o)
-                  .concatWith(
-                      // This will rewrite the first update in remoteChanges to the local db
-                      // even if already successful. We allow this in case the first update
-                      // timed out or failed or the network wasn't available.
-                      localChanges.mergeWith(
-                          remoteChanges.flatMapCompletable(this::mergeRemoteRecordChange)));
-            });
+        .flatMap(feature -> getRecords(feature, formId));
   }
 
-  /**
-   * If network is available, waits for records from remote db, merging them into the local db
-   * before completing. Completes immediately if the network isn't available or if record sync fails
-   * or times out.
-   */
-  private Completable maybeSyncFirst(Flowable<RemoteDataEvent<Record>> remoteChanges) {
-    if (networkManager.isNetworkAvailable()) {
-      Log.d(TAG, "Has network; syncing records before showing");
-      return remoteChanges
-          .firstElement()
-          .flatMapCompletable(this::mergeRemoteRecordChange)
-          .timeout(GET_REMOTE_RECORDS_TIMEOUT_SECS, TimeUnit.SECONDS)
-          // TODO: Propagate this to the user so we can show "network unavailable" message also
-          // when network became unavailable mid-fetch .
-          .doOnError(t -> Log.d(TAG, "Record sync timed out"))
-          .onErrorComplete();
-    } else {
-      Log.d(TAG, "No network; skipping remote sync");
-      return Completable.complete();
-    }
+  private Single<ImmutableList<Record>> getRecords(Feature feature, String formId) {
+    Completable remoteSync =
+        remoteDataStore
+            .loadRecords(feature)
+            .timeout(GET_REMOTE_RECORDS_TIMEOUT_SECS, TimeUnit.SECONDS)
+            .doOnError(t -> Log.d(TAG, "Record sync timed out"))
+            .flatMapCompletable(this::mergeRemoteRecords)
+            .onErrorComplete();
+    return remoteSync.andThen(localDataStore.getRecords(feature, formId));
   }
 
-  private Completable mergeRemoteRecordChange(RemoteDataEvent<Record> event) {
-    switch (event.getEventType()) {
-      case ENTITY_LOADED:
-      case ENTITY_MODIFIED:
-        return event
-            .value()
-            .map(record -> localDataStore.mergeRecord(record).subscribeOn(Schedulers.io()))
-            .orElse(Completable.never());
-      case ENTITY_REMOVED:
-        // TODO: Delete record from local db.
-        break;
-      case ERROR:
-        event.error().ifPresent(t -> Log.e(TAG, "Error in remote record update", t));
-        break;
-      default:
-        Log.e(TAG, "Unknown event type: " + event.getEventType());
-        break;
-    }
-    return Completable.never();
+  private Completable mergeRemoteRecords(ImmutableList<Record> records) {
+    return Observable.fromIterable(records)
+        .flatMapCompletable(record -> localDataStore.mergeRecord(record));
   }
 
   // TODO(#127): Decouple Project from Feature and remove projectId.

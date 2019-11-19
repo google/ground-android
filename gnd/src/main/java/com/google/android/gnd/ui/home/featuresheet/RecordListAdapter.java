@@ -32,12 +32,12 @@ import java.util.List;
 class RecordListAdapter extends RecyclerView.Adapter<RecordListItemViewHolder> {
 
   private final ViewModelFactory viewModelFactory;
-  private List<Record> recordSummaries;
+  private List<Record> recordList;
   private MutableLiveData<Record> itemClicks;
 
   public RecordListAdapter(ViewModelFactory viewModelFactory) {
     this.viewModelFactory = viewModelFactory;
-    recordSummaries = Collections.emptyList();
+    recordList = Collections.emptyList();
     itemClicks = new MutableLiveData<>();
   }
 
@@ -52,14 +52,14 @@ class RecordListAdapter extends RecyclerView.Adapter<RecordListItemViewHolder> {
   @Override
   public void onBindViewHolder(@NonNull RecordListItemViewHolder holder, int position) {
     RecordViewModel viewModel = viewModelFactory.create(RecordViewModel.class);
-    viewModel.setRecord(recordSummaries.get(position));
+    viewModel.setRecord(recordList.get(position));
     viewModel.setRecordCallback(record -> itemClicks.postValue(record));
-    holder.bind(viewModel, recordSummaries.get(position));
+    holder.bind(viewModel, recordList.get(position));
   }
 
   @Override
   public int getItemCount() {
-    return recordSummaries.size();
+    return recordList.size();
   }
 
   LiveData<Record> getItemClicks() {
@@ -67,12 +67,12 @@ class RecordListAdapter extends RecyclerView.Adapter<RecordListItemViewHolder> {
   }
 
   void clear() {
-    this.recordSummaries = Collections.emptyList();
+    this.recordList = Collections.emptyList();
     notifyDataSetChanged();
   }
 
-  void update(List<Record> recordSummaries) {
-    this.recordSummaries = recordSummaries;
+  void update(List<Record> recordList) {
+    this.recordList = recordList;
     notifyDataSetChanged();
   }
 }
