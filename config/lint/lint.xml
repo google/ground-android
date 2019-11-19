@@ -15,6 +15,13 @@
   ~ limitations under the License.
   -->
 <lint>
-  <issue id="InvalidPackage" severity="ignore" />
-  <issue id="MissingTranslation" severity="ignore" />
+  <!-- Severity: Warning -->
+  <issue id="DuplicateStrings" severity="warning" />
+  <issue id="InvalidPackage" severity="warning" />
+  <issue id="MissingTranslation" severity="warning" />
+
+  <!-- Severity: Error -->
+  <issue id="ApplySharedPref" severity="error" />
+  <issue id="DuplicateIds" severity="error" />
+  <issue id="PxUsage" severity="error" />
 </lint>
