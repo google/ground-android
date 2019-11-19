@@ -96,7 +96,6 @@
     <exclude name="DataflowAnomalyAnalysis" />
     <exclude name="EmptyIfStmt" />
     <exclude name="FinalizeDoesNotCallSuperFinalize" />
-    <exclude name="MissingBreakInSwitch" />
     <exclude name="MissingSerialVersionUID" />
     <exclude name="NullAssignment" />
     <exclude name="OverrideBothEqualsAndHashcode" />

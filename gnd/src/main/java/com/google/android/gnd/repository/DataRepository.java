@@ -232,6 +232,7 @@ public class DataRepository {
         break;
       default:
         Log.e(TAG, "Unknown event type: " + event.getEventType());
+        break;
     }
     return Completable.never();
   }
