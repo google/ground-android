@@ -56,11 +56,6 @@ public class AddFeatureDialogFragment extends AbstractDialogFragment {
   }
 
   @Override
-  public void onAttach(Context context) {
-    super.onAttach(context);
-  }
-
-  @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     // TODO: Move into new AddFeatureDialogViewModel?

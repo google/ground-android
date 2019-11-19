@@ -88,11 +88,6 @@ public class ProjectSelectorDialogFragment extends AbstractDialogFragment {
     return dialog.create();
   }
 
-  @Override
-  public void onStart() {
-    super.onStart();
-  }
-
   private void update(Persistable<List<Project>> projectSummaries) {
     switch (projectSummaries.state()) {
       case LOADED:

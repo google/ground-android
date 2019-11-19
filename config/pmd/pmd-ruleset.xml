@@ -77,7 +77,6 @@
     <exclude name="TooManyMethods" />
     <exclude name="UseUtilityClass" />
     <exclude name="UseObjectForClearerAPI" />
-    <exclude name="UselessOverridingMethod" />
   </rule>
 
   <rule ref="category/java/documentation.xml">
