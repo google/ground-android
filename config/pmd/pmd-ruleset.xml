@@ -92,7 +92,6 @@
     <exclude name="AvoidLiteralsInIfCondition" />
     <exclude name="BeanMembersShouldSerialize" />
     <exclude name="CloseResource" />
-    <exclude name="CompareObjectsWithEquals" />
     <exclude name="DataflowAnomalyAnalysis" />
     <exclude name="EmptyIfStmt" />
     <exclude name="FinalizeDoesNotCallSuperFinalize" />

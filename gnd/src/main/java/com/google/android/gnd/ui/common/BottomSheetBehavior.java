@@ -406,7 +406,7 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
       return;
     }
     View scrollingChild = nestedScrollingChildRef.get();
-    if (target != scrollingChild) {
+    if (target.equals(scrollingChild)) {
       return;
     }
     int currentTop = child.getTop();
