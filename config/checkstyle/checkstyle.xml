@@ -53,6 +53,16 @@
       value="^package.*|^import.*|a href|href|http://|https://|ftp://" />
   </module>
 
+  <!-- License header -->
+  <module name="RegexpHeader">
+    <property name="headerFile" value="config/checkstyle/java.header" />
+    <property name="fileExtensions" value="java" />
+  </module>
+  <module name="RegexpHeader">
+    <property name="headerFile" value="config/checkstyle/xml.header" />
+    <property name="fileExtensions" value="xml" />
+  </module>
+
   <module name="TreeWalker">
     <module name="OuterTypeFilename" />
     <module name="IllegalTokenText">
