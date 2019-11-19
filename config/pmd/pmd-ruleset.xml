@@ -94,7 +94,6 @@
     <exclude name="MissingSerialVersionUID" />
     <exclude name="NullAssignment" />
     <exclude name="OverrideBothEqualsAndHashcode" />
-    <exclude name="UseLocaleWithCaseConversions" />
   </rule>
 
   <rule ref="category/java/multithreading.xml">
