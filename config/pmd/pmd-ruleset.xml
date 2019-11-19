@@ -57,7 +57,6 @@
     <exclude name="ShortMethodName" />
     <exclude name="ShortVariable" />
     <exclude name="UnnecessaryConstructor" />
-    <exclude name="UnnecessaryFullyQualifiedName" />
     <exclude name="UseDiamondOperator" />
     <exclude name="UselessParentheses" />
   </rule>
