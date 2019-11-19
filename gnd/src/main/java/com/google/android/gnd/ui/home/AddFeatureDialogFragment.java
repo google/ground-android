@@ -79,7 +79,7 @@ public class AddFeatureDialogFragment extends AbstractDialogFragment {
       return fail("Could not get active project");
     }
     Optional<Point> cameraPosition =
-      Optional.ofNullable(mapContainerViewModel.getCameraPosition().getValue());
+        Optional.ofNullable(mapContainerViewModel.getCameraPosition().getValue());
     if (!cameraPosition.isPresent()) {
       addFeatureRequestSubject.onError(new IllegalStateException("No camera position"));
       return fail("Could not get camera position");

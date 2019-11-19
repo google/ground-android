@@ -62,10 +62,10 @@ public class FeatureDoc {
           "Unknown feature type " + f.featureTypeId + " in lace " + doc.getId());
     }
     Point point =
-      Point.newBuilder()
-        .setLatitude(f.center.getLatitude())
-        .setLongitude(f.center.getLongitude())
-        .build();
+        Point.newBuilder()
+            .setLatitude(f.center.getLatitude())
+            .setLongitude(f.center.getLongitude())
+            .build();
     return Feature.newBuilder()
         .setId(doc.getId())
         .setProject(project)
