@@ -143,8 +143,9 @@ public class AuthenticationManager {
   }
 
   @Override
-  protected void finalize() {
+  protected void finalize() throws Throwable {
     activityResultsSubscription.dispose();
+    super.finalize();
   }
 
   public static class SignInState extends Result<User> {

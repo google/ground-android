@@ -91,7 +91,6 @@
     <exclude name="CloseResource" />
     <exclude name="DataflowAnomalyAnalysis" />
     <exclude name="EmptyIfStmt" />
-    <exclude name="FinalizeDoesNotCallSuperFinalize" />
     <exclude name="MissingSerialVersionUID" />
     <exclude name="NullAssignment" />
     <exclude name="OverrideBothEqualsAndHashcode" />
