@@ -106,7 +106,7 @@ class GoogleMapsMapAdapter implements MapAdapter {
       String line = buf.readLine();
       StringBuilder sb = new StringBuilder();
       while (line != null) {
-        sb.append(line).append("\n");
+        sb.append(line).append('\n');
         line = buf.readLine();
       }
 
