@@ -31,6 +31,8 @@ import com.google.android.gnd.ui.home.featuresheet.FeatureSheetModule;
 import com.google.android.gnd.ui.home.featuresheet.RecordListFragment;
 import com.google.android.gnd.ui.home.mapcontainer.MapContainerFragment;
 import com.google.android.gnd.ui.home.mapcontainer.MapContainerModule;
+import com.google.android.gnd.ui.offlinearea.OfflineAreaManagerFragment;
+import com.google.android.gnd.ui.offlinearea.OfflineAreaManagerModule;
 import com.google.android.gnd.ui.projectselector.ProjectSelectorDialogFragment;
 import com.google.android.gnd.ui.recorddetails.RecordDetailsFragment;
 import com.google.android.gnd.ui.recorddetails.RecordDetailsModule;
@@ -95,4 +97,8 @@ public abstract class MainActivityModule {
   @FragmentScoped
   @ContributesAndroidInjector(modules = BasemapSelectorModule.class)
   abstract BasemapSelectorFragment basemapSelectorFragmentInjector();
+
+  @FragmentScoped
+  @ContributesAndroidInjector(modules = OfflineAreaManagerModule.class)
+  abstract OfflineAreaManagerFragment offlineAreaManagerFragmentInjector();
 }

@@ -104,4 +104,8 @@ public class Navigator {
   public void showSignInScreen() {
     navigate(NavGraphDirections.showSignInScreen());
   }
+
+  public void showOfflineAreaManager() {
+    navigate(HomeScreenFragmentDirections.showOfflineAreaManager());
+  }
 }

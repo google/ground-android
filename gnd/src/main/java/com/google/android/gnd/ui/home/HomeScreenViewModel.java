@@ -159,4 +159,8 @@ public class HomeScreenViewModel extends AbstractViewModel {
     return LiveDataReactiveStreams.fromPublisher(
         dataRepository.reactivateLastProject().toFlowable());
   }
+
+  public void showOfflineAreaManager() {
+    navigator.showOfflineAreaManager();
+  }
 }

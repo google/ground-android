@@ -228,6 +228,11 @@ public class HomeScreenFragment extends AbstractFragment
     viewModel.showBasemapSelector();
   }
 
+  private void showOfflineAreaManager() {
+    toolbar.setBackgroundColor(3);
+    viewModel.showOfflineAreaManager();
+  }
+
   private void onApplyWindowInsets(WindowInsetsCompat insets) {
     statusBarScrim.setPadding(0, insets.getSystemWindowInsetTop(), 0, 0);
     toolbarWrapper.setPadding(0, insets.getSystemWindowInsetTop(), 0, 0);
@@ -339,11 +344,10 @@ public class HomeScreenFragment extends AbstractFragment
         showProjectSelector();
         closeDrawer();
         break;
-      // TODO: Restore once basemap selector related bugs are resolved
-      //case R.id.nav_offline_maps:
-      //  showBasemapSelector();
-      //  closeDrawer();
-      //  break;
+      case R.id.nav_offline_maps:
+        showOfflineAreaManager();
+        closeDrawer();
+        break;
       case R.id.nav_sign_out:
         authenticationManager.signOut();
         break;

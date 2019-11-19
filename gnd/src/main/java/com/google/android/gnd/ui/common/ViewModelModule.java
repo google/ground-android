@@ -26,6 +26,7 @@ import com.google.android.gnd.ui.home.featuresheet.FeatureSheetViewModel;
 import com.google.android.gnd.ui.home.featuresheet.RecordListViewModel;
 import com.google.android.gnd.ui.home.featuresheet.RecordViewModel;
 import com.google.android.gnd.ui.home.mapcontainer.MapContainerViewModel;
+import com.google.android.gnd.ui.offlinearea.OfflineAreaManagerViewModel;
 import com.google.android.gnd.ui.projectselector.ProjectSelectorViewModel;
 import com.google.android.gnd.ui.recorddetails.RecordDetailsViewModel;
 import com.google.android.gnd.ui.signin.SignInViewModel;
@@ -44,6 +45,11 @@ public abstract class ViewModelModule {
   @IntoMap
   @ViewModelKey(BasemapSelectorViewModel.class)
   abstract ViewModel bindBasemapSelectorViewModel(BasemapSelectorViewModel viewModel);
+
+  @Binds
+  @IntoMap
+  @ViewModelKey(OfflineAreaManagerViewModel.class)
+  abstract ViewModel bindOfflineAreaManagerViewModel(OfflineAreaManagerViewModel viewModel);
 
   @Binds
   @IntoMap
