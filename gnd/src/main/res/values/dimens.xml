@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright 2018 Google LLC
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,74 +15,74 @@
   -->
 
 <resources>
-  <dimen name="field_label_text_size">14sp</dimen>
-  <dimen name="field_value_text_size">18sp</dimen>
-  <dimen name="field_horizontal_padding">16dp</dimen>
-  <dimen name="field_top_padding">18dp</dimen>
-  <dimen name="field_value_top_padding">4dp</dimen>
-  <dimen name="field_bottom_padding">0dp</dimen>
-  <dimen name="field_horizontal_margin">14dp</dimen>
-  <dimen name="field_vertical_margin">8dp</dimen>
+    <dimen name="field_label_text_size">14sp</dimen>
+    <dimen name="field_value_text_size">18sp</dimen>
+    <dimen name="field_horizontal_padding">16dp</dimen>
+    <dimen name="field_top_padding">18dp</dimen>
+    <dimen name="field_value_top_padding">4dp</dimen>
+    <dimen name="field_bottom_padding">0dp</dimen>
+    <dimen name="field_horizontal_margin">14dp</dimen>
+    <dimen name="field_vertical_margin">8dp</dimen>
 
-  <!-- Space between fields in Record Details View -->
-  <dimen name="details_field_spacing">4dp</dimen>
+    <!-- Space between fields in Record Details View -->
+    <dimen name="details_field_spacing">4dp</dimen>
 
-  <!-- Record menu button -->
-  <dimen name="record_menu_btn_top">6dp</dimen>
-  <dimen name="menu_btn_width">24dp</dimen>
-  <dimen name="menu_btn_height">24dp</dimen>
+    <!-- Record menu button -->
+    <dimen name="record_menu_btn_top">6dp</dimen>
+    <dimen name="menu_btn_width">24dp</dimen>
+    <dimen name="menu_btn_height">24dp</dimen>
 
-  <!-- Sheet titleText -->
-  <dimen name="sheet_title_text_size">20sp</dimen>
-  <dimen name="sheet_title_horizontal_margin">10dp</dimen>
-  <dimen name="sheet_title_top_margin">8dp</dimen>
+    <!-- Sheet titleText -->
+    <dimen name="sheet_title_text_size">20sp</dimen>
+    <dimen name="sheet_title_horizontal_margin">10dp</dimen>
+    <dimen name="sheet_title_top_margin">8dp</dimen>
 
-  <dimen name="header_field_horizontal_margin">12dp</dimen>
+    <dimen name="header_field_horizontal_margin">12dp</dimen>
 
-  <!-- Form selection tabs -->
-  <dimen name="tab_max_width">264dp</dimen>
-  <dimen name="tab_padding_bottom">16dp</dimen>
-  <dimen name="tab_label">14sp</dimen>
-  <dimen name="custom_tab_layout_height">72dp</dimen>
-  <dimen name="input_error">12sp</dimen>
-  <dimen name="record_menu_btn_right">2dp</dimen>
-  <dimen name="map_btn_spacing">8dp</dimen>
-  <dimen name="map_btn_margin_right">8dp</dimen>
-  <dimen name="map_btn_margin_bottom">8dp</dimen>
-  <dimen name="toolbar_button_margin_top">8dp</dimen>
-  <dimen name="toolbar_button_margin_right">12dp</dimen>
-  <dimen name="chip_button_margin_bottom">16dp</dimen>
-  <dimen name="chip_button_margin_right">14dp</dimen>
-  <dimen name="fab_margin">16dp</dimen>
-  <dimen name="sheet_subtitle_text_size">14dp</dimen>
-  <dimen name="record_heading_height">32dp</dimen>
-  <dimen name="record_status_margin_left">6dp</dimen>
-  <dimen name="record_status_text_size">12sp</dimen>
-  <dimen name="data_sheet_header_height">70dp</dimen>
-  <dimen name="field_error_padding_bottom">6dp</dimen>
-  <!-- TODO: Make dimensions relative using Android data binding. -->
-  <dimen name="feature_sheet_margin_top">10dp</dimen>
-  <dimen name="feature_header_icon_width">42dp</dimen>
-  <dimen name="feature_header_icon_height">42dp</dimen>
-  <dimen name="feature_header_icon_background_diameter">58dp</dimen>
-  <!-- (feature_header_icon_background_diameter - feature_header_icon_height) / 2 - feature_sheet_margin_top -->
-  <dimen name="feature_header_icon_top_padding">8dp</dimen>
-  <!-- feature_header_icon_background_diameter - feature_sheet_margin_top - overlap -->
-  <dimen name="feature_sheet_padding_top">42dp</dimen>
-  <dimen name="feature_sheet_corner_radius">6dp</dimen>
-  <dimen name="record_list_item_horizontal_margin">14dp</dimen>
-  <dimen name="record_list_item_horizontal_vertical">10dp</dimen>
-  <dimen name="record_list_field_label_size">12sp</dimen>
-  <dimen name="record_list_text_size">14sp</dimen>
-  <dimen name="record_summary_text_padding_right">8dp</dimen>
-  <dimen name="record_summary_text_max_width">128dp</dimen>
-  <dimen name="chip_button_padding">14dp</dimen>
-  <dimen name="chip_button_corner_radius">24dp</dimen>
-  <dimen name="chip_button_text_size">14sp</dimen>
-  <dimen name="chip_toolbar_button_corner_radius">20dp</dimen>
-  <dimen name="chip_toolbar_button_padding">10dp</dimen>
-  <dimen name="toolbar_elevation">4dp</dimen>
-  <dimen name="feature_sheet_header_padding_bottom">16dp</dimen>
-  <dimen name="record_list_item_preview_table_right_margin">18dp</dimen>
-  <dimen name="offline_area_toolbar_padding_top">16dp</dimen>
+    <!-- Form selection tabs -->
+    <dimen name="tab_max_width">264dp</dimen>
+    <dimen name="tab_padding_bottom">16dp</dimen>
+    <dimen name="tab_label">14sp</dimen>
+    <dimen name="custom_tab_layout_height">72dp</dimen>
+    <dimen name="input_error">12sp</dimen>
+    <dimen name="record_menu_btn_right">2dp</dimen>
+    <dimen name="map_btn_spacing">8dp</dimen>
+    <dimen name="map_btn_margin_right">8dp</dimen>
+    <dimen name="map_btn_margin_bottom">8dp</dimen>
+    <dimen name="toolbar_button_margin_top">8dp</dimen>
+    <dimen name="toolbar_button_margin_right">12dp</dimen>
+    <dimen name="chip_button_margin_bottom">16dp</dimen>
+    <dimen name="chip_button_margin_right">14dp</dimen>
+    <dimen name="fab_margin">16dp</dimen>
+    <dimen name="sheet_subtitle_text_size">14dp</dimen>
+    <dimen name="record_heading_height">32dp</dimen>
+    <dimen name="record_status_margin_left">6dp</dimen>
+    <dimen name="record_status_text_size">12sp</dimen>
+    <dimen name="data_sheet_header_height">70dp</dimen>
+    <dimen name="field_error_padding_bottom">6dp</dimen>
+    <!-- TODO: Make dimensions relative using Android data binding. -->
+    <dimen name="feature_sheet_margin_top">10dp</dimen>
+    <dimen name="feature_header_icon_width">42dp</dimen>
+    <dimen name="feature_header_icon_height">42dp</dimen>
+    <dimen name="feature_header_icon_background_diameter">58dp</dimen>
+    <!-- (feature_header_icon_background_diameter - feature_header_icon_height) / 2 - feature_sheet_margin_top -->
+    <dimen name="feature_header_icon_top_padding">8dp</dimen>
+    <!-- feature_header_icon_background_diameter - feature_sheet_margin_top - overlap -->
+    <dimen name="feature_sheet_padding_top">42dp</dimen>
+    <dimen name="feature_sheet_corner_radius">6dp</dimen>
+    <dimen name="record_list_item_horizontal_margin">14dp</dimen>
+    <dimen name="record_list_item_horizontal_vertical">10dp</dimen>
+    <dimen name="record_list_field_label_size">12sp</dimen>
+    <dimen name="record_list_text_size">14sp</dimen>
+    <dimen name="record_summary_text_padding_right">8dp</dimen>
+    <dimen name="record_summary_text_max_width">128dp</dimen>
+    <dimen name="chip_button_padding">14dp</dimen>
+    <dimen name="chip_button_corner_radius">24dp</dimen>
+    <dimen name="chip_button_text_size">14sp</dimen>
+    <dimen name="chip_toolbar_button_corner_radius">20dp</dimen>
+    <dimen name="chip_toolbar_button_padding">10dp</dimen>
+    <dimen name="toolbar_elevation">4dp</dimen>
+    <dimen name="feature_sheet_header_padding_bottom">16dp</dimen>
+    <dimen name="record_list_item_preview_table_right_margin">18dp</dimen>
+    <dimen name="offline_area_toolbar_padding_top">16dp</dimen>
 </resources>
