@@ -22,9 +22,9 @@ saying you'd like to take it on. If one does not exist, you can also
 [create one here](https://github.com/google/ground-android/issues/new).
 
 Be sure to reference this issue number in your pull request (e.g., 
-"Fix truncated text values #27"), and preferably in your commit message.
+"Fixes #27").
 
-Make sure all checks on github are passing.
+Make sure all checks on GitHub are passing.
 
 All submissions, including submissions by project members, require review. We
 use GitHub pull requests for this purpose. Consult
