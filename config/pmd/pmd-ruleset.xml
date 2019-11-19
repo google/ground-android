@@ -72,7 +72,6 @@
     <exclude name="ImmutableField" />
     <exclude name="LawOfDemeter" />
     <exclude name="NPathComplexity" />
-    <exclude name="SimplifyConditional" />
     <exclude name="TooManyFields" />
     <exclude name="TooManyMethods" />
     <exclude name="UseUtilityClass" />
