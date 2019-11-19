@@ -37,34 +37,34 @@ public class RecordListViewModel extends AbstractViewModel {
 
   private static final String TAG = RecordListViewModel.class.getSimpleName();
   private final DataRepository dataRepository;
-  private PublishProcessor<RecordSummaryRequest> recordSummaryRequests;
-  private LiveData<ImmutableList<Record>> recordSummaries;
+  private PublishProcessor<RecordListRequest> recordListRequests;
+  private LiveData<ImmutableList<Record>> recordList;
 
   public final ObservableInt loadingSpinnerVisibility = new ObservableInt();
 
   @Inject
   public RecordListViewModel(DataRepository dataRepository) {
     this.dataRepository = dataRepository;
-    recordSummaryRequests = PublishProcessor.create();
-    recordSummaries =
+    recordListRequests = PublishProcessor.create();
+    recordList =
         LiveDataReactiveStreams.fromPublisher(
-            recordSummaryRequests
+            recordListRequests
                 .doOnNext(__ -> loadingSpinnerVisibility.set(View.VISIBLE))
                 .switchMapSingle(this::getRecords)
                 .doOnNext(__ -> loadingSpinnerVisibility.set(View.GONE)));
   }
 
-  public LiveData<ImmutableList<Record>> getRecordSummaries() {
-    return recordSummaries;
+  public LiveData<ImmutableList<Record>> getRecords() {
+    return recordList;
   }
 
-  /** Loads a list of records associated with a given feature and fetches summaries for them. */
-  public void loadRecordSummaries(Feature feature, Form form) {
+  /** Loads a list of records associated with a given feature. */
+  public void loadRecordList(Feature feature, Form form) {
     loadRecords(
         feature.getProject(), feature.getFeatureType().getId(), form.getId(), feature.getId());
   }
 
-  private Single<ImmutableList<Record>> getRecords(RecordSummaryRequest req) {
+  private Single<ImmutableList<Record>> getRecords(RecordListRequest req) {
     return dataRepository
         .getRecords(req.project.getId(), req.featureId, req.formId)
         .onErrorResumeNext(this::onGetRecordsError);
@@ -72,7 +72,7 @@ public class RecordListViewModel extends AbstractViewModel {
 
   private Single<ImmutableList<Record>> onGetRecordsError(Throwable t) {
     // TODO: Show an appropriate error message to the user.
-    Log.d(TAG, "Failed to fetch record summaries.", t);
+    Log.d(TAG, "Failed to fetch record list.", t);
     return Single.just(ImmutableList.of());
   }
 
@@ -83,15 +83,15 @@ public class RecordListViewModel extends AbstractViewModel {
       return;
     }
     // TODO: Use project id instead of object.
-    recordSummaryRequests.onNext(new RecordSummaryRequest(project, featureId, formId));
+    recordListRequests.onNext(new RecordListRequest(project, featureId, formId));
   }
 
-  class RecordSummaryRequest {
+  class RecordListRequest {
     public final Project project;
     public final String featureId;
     public final String formId;
 
-    public RecordSummaryRequest(Project project, String featureId, String formId) {
+    public RecordListRequest(Project project, String featureId, String formId) {
       this.project = project;
       this.featureId = featureId;
       this.formId = formId;

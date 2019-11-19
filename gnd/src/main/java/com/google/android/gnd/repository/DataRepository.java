@@ -167,10 +167,10 @@ public class DataRepository {
     // TODO(#127): Decouple feature from record so that we don't need to fetch record here.
     return getFeature(projectId, featureId)
         .switchIfEmpty(Single.error(new DocumentNotFoundException()))
-        .flatMap(feature -> getRecordSummaries(feature, formId));
+        .flatMap(feature -> getRecords(feature, formId));
   }
 
-  private Single<ImmutableList<Record>> getRecordSummaries(Feature feature, String formId) {
+  private Single<ImmutableList<Record>> getRecords(Feature feature, String formId) {
     Completable remoteSync =
         remoteDataStore
             .loadRecords(feature)
