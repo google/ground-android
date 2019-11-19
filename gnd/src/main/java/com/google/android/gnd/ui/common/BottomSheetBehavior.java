@@ -739,7 +739,7 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
     }
     if (view instanceof ViewGroup) {
       ViewGroup group = (ViewGroup) view;
-      for (int i = 0, count = group.getChildCount(); i < count; i++) {
+      for (int i = 0; i < group.getChildCount(); i++) {
         View scrollingChild = findScrollingChild(group.getChildAt(i));
         if (scrollingChild != null) {
           return scrollingChild;

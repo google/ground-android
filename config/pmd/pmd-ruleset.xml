@@ -29,7 +29,6 @@
   <rule ref="category/java/bestpractices.xml">
     <exclude name="AbstractClassWithoutAbstractMethod" />
     <exclude name="AvoidReassigningParameters" />
-    <exclude name="ForLoopVariableCount" />
     <exclude name="GuardLogStatement" />
     <exclude name="SwitchStmtsShouldHaveDefault" />
     <exclude name="UseVarargs" />
