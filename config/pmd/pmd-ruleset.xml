@@ -56,7 +56,6 @@
     <exclude name="ShortClassName" />
     <exclude name="ShortMethodName" />
     <exclude name="ShortVariable" />
-    <exclude name="UnnecessaryConstructor" />
   </rule>
 
   <rule ref="category/java/design.xml">
