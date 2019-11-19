@@ -33,7 +33,7 @@ import java8.util.Optional;
 
 class RecordListItemViewHolder extends RecyclerView.ViewHolder {
 
-  private static final int MAX_SUMMARY_COLUMNS = 4;
+  private static final int MAX_COLUMNS = 4;
 
   private final RecordListItemBinding binding;
 
@@ -56,7 +56,7 @@ class RecordListItemViewHolder extends RecyclerView.ViewHolder {
 
     Form form = record.getForm();
     // TODO: Clean this up.
-    for (int i = 0; i < MAX_SUMMARY_COLUMNS && i < form.getElements().size(); i++) {
+    for (int i = 0; i < MAX_COLUMNS && i < form.getElements().size(); i++) {
       Element elem = form.getElements().get(i);
       switch (elem.getType()) {
         case FIELD:

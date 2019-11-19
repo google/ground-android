@@ -50,7 +50,6 @@ import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subjects.PublishSubject;
 import java8.util.Optional;
 import javax.inject.Inject;
@@ -102,8 +101,7 @@ public class EditRecordViewModel extends AbstractViewModel {
                         .map(__ -> Persistable.saved(request.record))
                         .doOnError(this::onSaveRecordError)
                         // Prevent from breaking upstream.
-                        .onErrorResumeNext(Observable.never())
-                        .subscribeOn(Schedulers.io()))
+                        .onErrorResumeNext(Observable.never()))
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(record::setValue));
 
@@ -113,8 +111,7 @@ public class EditRecordViewModel extends AbstractViewModel {
                 record ->
                     createOrUpdateRecord(record)
                         .doOnError(this::onEditRecordError)
-                        .onErrorResumeNext(Single.never())
-                        .subscribeOn(Schedulers.io()))
+                        .onErrorResumeNext(Single.never()))
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(this::onRecordSnapshot));
   }

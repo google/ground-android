@@ -83,7 +83,7 @@ public class RecordListFragment extends AbstractFragment {
   @Override
   public void onActivityCreated(@Nullable Bundle savedInstanceState) {
     super.onActivityCreated(savedInstanceState);
-    viewModel.getRecordSummaries().observe(this, recordListAdapter::update);
+    viewModel.getRecords().observe(this, recordListAdapter::update);
     featureSheetViewModel.getSelectedForm().observe(this, this::onFormChange);
   }
 
@@ -101,6 +101,6 @@ public class RecordListFragment extends AbstractFragment {
       return;
     }
     homeScreenViewModel.onFormChange(form.get());
-    viewModel.loadRecordSummaries(feature.get(), form.get());
+    viewModel.loadRecordList(feature.get(), form.get());
   }
 }

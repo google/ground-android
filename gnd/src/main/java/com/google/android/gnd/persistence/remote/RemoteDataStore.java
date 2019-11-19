@@ -22,12 +22,16 @@ import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.observation.Record;
 import com.google.android.gnd.system.AuthenticationManager.User;
 import com.google.common.collect.ImmutableCollection;
+import com.google.common.collect.ImmutableList;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Single;
 import java.util.List;
 
-/** Defines API for accessing data in a remote data store. */
+/**
+ * Defines API for accessing data in a remote data store. Implementations must ensure all
+ * subscriptions are run in a background thread (i.e., not the Android main thread).
+ */
 public interface RemoteDataStore {
   Single<List<Project>> loadProjectSummaries(User user);
 
@@ -35,13 +39,15 @@ public interface RemoteDataStore {
 
   /**
    * Returns all features in the specified project, then continues to emit any remote updates to the
-   * set of features in the project until all subscribers have been disposed. Implementations must
-   * ensure any network or other potentially long running operations are performed on a background
-   * thread.
+   * set of features in the project until all subscribers have been disposed.
    */
   Flowable<RemoteDataEvent<Feature>> loadFeaturesOnceAndStreamChanges(Project project);
 
-  Flowable<RemoteDataEvent<Record>> loadRecordSummariesOnceAndStreamChanges(Feature feature);
+  /**
+   * Returns a list of all records associated with the specified feature, or an empty list if none
+   * are found.
+   */
+  Single<ImmutableList<Record>> loadRecords(Feature feature);
 
   /**
    * Applies the provided mutations to the remote data store in a single batched transaction. If one
