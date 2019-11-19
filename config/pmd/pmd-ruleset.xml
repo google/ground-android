@@ -58,7 +58,6 @@
     <exclude name="ShortVariable" />
     <exclude name="UnnecessaryConstructor" />
     <exclude name="UseDiamondOperator" />
-    <exclude name="UselessParentheses" />
   </rule>
 
   <rule ref="category/java/design.xml">

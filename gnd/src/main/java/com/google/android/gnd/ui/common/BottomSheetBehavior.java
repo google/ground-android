@@ -544,7 +544,7 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
       calculateCollapsedOffset();
     }
     // Fix incorrect expanded settings depending on whether or not we are fitting sheet to contents.
-    setStateInternal((this.fitToContents && state == STATE_HALF_EXPANDED) ? STATE_EXPANDED : state);
+    setStateInternal(this.fitToContents && state == STATE_HALF_EXPANDED ? STATE_EXPANDED : state);
   }
 
   /**
@@ -657,7 +657,7 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
       if (state == STATE_COLLAPSED
           || state == STATE_EXPANDED
           || state == STATE_HALF_EXPANDED
-          || (hideable && state == STATE_HIDDEN)) {
+          || hideable && state == STATE_HIDDEN) {
         this.state = state;
       }
       return;
