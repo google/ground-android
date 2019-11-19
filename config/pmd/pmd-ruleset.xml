@@ -40,7 +40,6 @@
 
   <rule ref="category/java/codestyle.xml">
     <exclude name="AtLeastOneConstructor" />
-    <exclude name="BooleanGetMethodName" />
     <exclude name="CallSuperInConstructor" />
     <exclude name="ClassNamingConventions" />
     <exclude name="CommentDefaultAccessModifier" />

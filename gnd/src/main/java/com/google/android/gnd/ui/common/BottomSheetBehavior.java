@@ -628,7 +628,7 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
    * @attr ref
    *     com.google.android.material.R.styleable#BottomSheetBehavior_Layout_behavior_skipCollapsed
    */
-  public boolean getSkipCollapsed() {
+  public boolean isSkipCollapsed() {
     return skipCollapsed;
   }
 
