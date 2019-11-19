@@ -158,6 +158,7 @@ public class EditRecordFragment extends AbstractFragment implements BackPressLis
           break;
         default:
           Log.d(TAG, element.getType() + " elements not yet supported");
+          break;
       }
     }
   }
@@ -172,6 +173,7 @@ public class EditRecordFragment extends AbstractFragment implements BackPressLis
         break;
       default:
         Log.w(TAG, "Unimplemented field type: " + field.getType());
+        break;
     }
   }
 

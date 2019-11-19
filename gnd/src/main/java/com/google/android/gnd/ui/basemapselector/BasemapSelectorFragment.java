@@ -27,7 +27,6 @@ import javax.inject.Inject;
 @ActivityScoped
 public class BasemapSelectorFragment extends AbstractFragment {
 
-  private static final String TAG = BasemapSelectorFragment.class.getName();
   private static final String MAP_FRAGMENT_KEY = MapProvider.class.getName() + "#fragment";
   private BasemapSelectorViewModel viewModel;
   private MainViewModel mainViewModel;

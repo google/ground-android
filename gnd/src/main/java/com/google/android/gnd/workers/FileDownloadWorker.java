@@ -150,7 +150,7 @@ public class FileDownloadWorker extends Worker {
    */
   private Result resumeTileDownload(Tile tile) {
     File existingTileFile = new File(context.getFilesDir(), tile.getPath());
-    HashMap<String, String> requestProperties = new HashMap<String, String>();
+    HashMap<String, String> requestProperties = new HashMap<>();
 
     requestProperties.put("Range", existingTileFile.length() + "-");
 

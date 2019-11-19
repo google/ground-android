@@ -56,11 +56,6 @@ public class AddFeatureDialogFragment extends AbstractDialogFragment {
   }
 
   @Override
-  public void onAttach(Context context) {
-    super.onAttach(context);
-  }
-
-  @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     // TODO: Move into new AddFeatureDialogViewModel?
@@ -79,12 +74,12 @@ public class AddFeatureDialogFragment extends AbstractDialogFragment {
     super.onCreateDialog(savedInstanceState);
     // TODO: Inject and use custom factory.
     Optional<Project> activeProject = Persistable.getData(homeScreenViewModel.getActiveProject());
-    Optional<Point> cameraPosition =
-        Optional.ofNullable(mapContainerViewModel.getCameraPosition().getValue());
     if (!activeProject.isPresent()) {
       addFeatureRequestSubject.onError(new IllegalStateException("No active project"));
       return fail("Could not get active project");
     }
+    Optional<Point> cameraPosition =
+        Optional.ofNullable(mapContainerViewModel.getCameraPosition().getValue());
     if (!cameraPosition.isPresent()) {
       addFeatureRequestSubject.onError(new IllegalStateException("No camera position"));
       return fail("Could not get camera position");
