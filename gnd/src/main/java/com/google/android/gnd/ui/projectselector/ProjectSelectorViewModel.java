@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.google.android.gnd.ui.projectselector;
 
 import android.util.Log;
@@ -69,7 +70,7 @@ public class ProjectSelectorViewModel extends AbstractViewModel {
 
   public LiveData<Throwable> getActivateProjectErrors() {
     return activateProjectErrors;
-  };
+  }
 
   public LiveData<Project> getActiveProject() {
     return activeProject;

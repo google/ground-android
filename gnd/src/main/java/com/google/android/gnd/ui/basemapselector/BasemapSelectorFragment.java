@@ -1,31 +1,27 @@
 package com.google.android.gnd.ui.basemapselector;
 
+import static com.google.android.gnd.rx.RxAutoDispose.autoDisposable;
+
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
-
 import com.google.android.gnd.MainViewModel;
 import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.BasemapSelectorFragBinding;
 import com.google.android.gnd.inject.ActivityScoped;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.map.MapProvider;
-
+import io.reactivex.Single;
 import javax.inject.Inject;
 
-import io.reactivex.Single;
-
-import static com.google.android.gnd.rx.RxAutoDispose.autoDisposable;
-
 /**
- * Allows the user to select specific areas on a map for offline display. Users can toggle sections of
- * the map to add or remove imagery. Upon selection, basemap tiles are queued for download. When 
+ * Allows the user to select specific areas on a map for offline display. Users can toggle sections
+ * of the map to add or remove imagery. Upon selection, basemap tiles are queued for download. When
  * deselected, they are removed from the device.
  */
 @ActivityScoped
