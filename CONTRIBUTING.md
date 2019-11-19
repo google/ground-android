@@ -24,6 +24,8 @@ saying you'd like to take it on. If one does not exist, you can also
 Be sure to reference this issue number in your pull request (e.g., 
 "Fix truncated text values #27"), and preferably in your commit message.
 
+Run `./gradlew checkstyle` and fix any errors.
+
 All submissions, including submissions by project members, require review. We
 use GitHub pull requests for this purpose. Consult
 [GitHub Help](https://help.github.com/articles/about-pull-requests/) for more

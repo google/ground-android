@@ -1,7 +1,6 @@
 package com.google.android.gnd.ui.basemapselector;
 
 import androidx.lifecycle.ViewModel;
-
 import javax.inject.Inject;
 
 /**

@@ -18,15 +18,12 @@ package com.google.android.gnd.workers;
 
 import android.content.Context;
 import android.util.Log;
-
 import androidx.annotation.NonNull;
 import androidx.work.Data;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
-
 import com.google.android.gnd.model.basemap.tile.Tile;
 import com.google.android.gnd.persistence.local.LocalDataStore;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -36,7 +33,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
-
 import java8.util.Optional;
 
 /**

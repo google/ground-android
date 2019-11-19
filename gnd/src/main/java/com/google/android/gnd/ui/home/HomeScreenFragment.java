@@ -25,7 +25,6 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -35,6 +34,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.view.GravityCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import butterknife.BindView;
@@ -163,9 +163,9 @@ public class HomeScreenFragment extends AbstractFragment
 
   private String getVersionName() {
     try {
-      PackageInfo pInfo =
+      PackageInfo packageInfo =
           getContext().getPackageManager().getPackageInfo(getContext().getPackageName(), 0);
-      return pInfo.versionName;
+      return packageInfo.versionName;
     } catch (PackageManager.NameNotFoundException e) {
       return "?";
     }
@@ -196,11 +196,11 @@ public class HomeScreenFragment extends AbstractFragment
   }
 
   private void openDrawer() {
-    drawerLayout.openDrawer(Gravity.START);
+    drawerLayout.openDrawer(GravityCompat.START);
   }
 
   private void closeDrawer() {
-    drawerLayout.closeDrawer(Gravity.START);
+    drawerLayout.closeDrawer(GravityCompat.START);
   }
 
   @Override
@@ -339,11 +339,11 @@ public class HomeScreenFragment extends AbstractFragment
         showProjectSelector();
         closeDrawer();
         break;
-      // TODO: Restore once basemap selector related bugs are resolved
-      //case R.id.nav_offline_maps:
-      //  showBasemapSelector();
-      //  closeDrawer();
-      //  break;
+        // TODO: Restore once basemap selector related bugs are resolved
+        // case R.id.nav_offline_maps:
+        //  showBasemapSelector();
+        //  closeDrawer();
+        //  break;
       case R.id.nav_sign_out:
         authenticationManager.signOut();
         break;
