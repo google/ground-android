@@ -176,7 +176,6 @@ public class DataRepository {
   }
 
   private Single<ImmutableList<Record>> getRecordSummaries(Feature feature, String formId) {
-    // TODO: Push subscribeOn(Schedulers.io()) upstream where appropriate.
     Completable remoteSync =
         remoteDataStore
             .loadRecords(feature)
@@ -191,8 +190,7 @@ public class DataRepository {
 
   private Completable mergeRemoteRecords(ImmutableList<Record> records) {
     return Observable.fromIterable(records)
-        .flatMapCompletable(record -> localDataStore.mergeRecord(record))
-        .subscribeOn(Schedulers.io());
+        .flatMapCompletable(record -> localDataStore.mergeRecord(record));
   }
 
   // TODO(#127): Decouple Project from Feature and remove projectId.

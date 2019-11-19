@@ -30,7 +30,6 @@ import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.common.collect.ImmutableList;
 import io.reactivex.Single;
 import io.reactivex.processors.PublishProcessor;
-import io.reactivex.schedulers.Schedulers;
 import java8.util.Optional;
 import javax.inject.Inject;
 
@@ -68,8 +67,7 @@ public class RecordListViewModel extends AbstractViewModel {
   private Single<ImmutableList<Record>> getRecords(RecordSummaryRequest req) {
     return dataRepository
         .getRecords(req.project.getId(), req.featureId, req.formId)
-        .onErrorResumeNext(this::onGetRecordsError)
-        .subscribeOn(Schedulers.io());
+        .onErrorResumeNext(this::onGetRecordsError);
   }
 
   private Single<ImmutableList<Record>> onGetRecordsError(Throwable t) {
