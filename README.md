@@ -69,8 +69,6 @@ to the base repository using a pull request.
       1. Click on `Execute gradle task` button (the one with gradle logo)
       1. Type `checkstyle lintDebug pmd` and press OK
       
-1. Fix code styling and lint issues 
-
 1. Add your changes to the staging area:
     
     `git add <files>`
