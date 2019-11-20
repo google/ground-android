@@ -149,7 +149,7 @@ public class DataRepository {
   }
 
   /**
-   * Retrieves the records or the specified project, feature, and form as follows:
+   * Retrieves the records or the specified project, feature, and form.
    *
    * <ol>
    *   <li>Attempt to sync remote record changes to the local data store. If network is not
