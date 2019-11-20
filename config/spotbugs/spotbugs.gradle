@@ -26,7 +26,7 @@
  * For manual run,
  * $ ./gradlew spotbugs
  *
- * Report (only html format. Both can't be generated) are stored under: gnd/build/reports/spotbugs/
+ * HTML report is stored under: gnd/build/reports/spotbugs/
  */
 
 import com.github.spotbugs.SpotBugsTask
