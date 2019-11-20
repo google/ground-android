@@ -21,7 +21,7 @@ import android.widget.Toast;
 import com.google.android.gnd.R;
 
 public class EphemeralPopups {
-  /** Do not instantiate */
+  /** Do not instantiate. */
   private EphemeralPopups() {}
 
   public static void showSuccess(Context context, int messageId) {

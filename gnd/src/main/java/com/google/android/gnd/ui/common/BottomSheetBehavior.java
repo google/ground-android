@@ -95,7 +95,11 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
   /** The bottom sheet is half-expanded (used when mFitToContents is false). */
   public static final int STATE_HALF_EXPANDED = 6;
 
-  /** @hide */
+  /**
+   * State of the bottom sheet.
+   *
+   * @hide
+   */
   @RestrictTo(LIBRARY_GROUP)
   @IntDef({
     STATE_EXPANDED,
@@ -517,9 +521,9 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
   }
 
   /**
-   * @return whether the height of the expanded sheet is determined by the height of its contents,
-   *     or if it is expanded in two stages (half the height of the parent container, full height of
-   *     parent container).
+   * Returns whether the height of the expanded sheet is determined by the height of its contents,
+   * or if it is expanded in two stages (half the height of the parent container, full height of
+   * parent container).
    */
   public boolean isFitToContents() {
     return fitToContents;
