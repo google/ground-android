@@ -69,7 +69,7 @@ steps:
   # Build debug APK and run checkstyle checks
   - name: 'gcr.io/$PROJECT_ID/android:28'
     id: build
-    args: ['./gradlew', 'assembleDebug', 'checkstyle', 'lintDebug', 'pmd']
+    args: ['./gradlew', 'assembleDebug', 'checkstyle', 'lintDebug', 'pmd', 'spotbugs']
     env:
       - 'TERM=dumb'
       - 'JAVA_TOOL_OPTIONS="-Xmx3g"'
