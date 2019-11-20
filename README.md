@@ -155,7 +155,7 @@ $ keytool -list -v \
 
     https://console.firebase.google.com/
 
-2. Save config file for Android app to gnd/google-services.json:
+2. Save config file for Android app to gnd/debug/google-services.json:
 
     https://support.google.com/firebase/answer/7015592
 
