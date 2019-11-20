@@ -15,7 +15,7 @@
  */
 
 /**
- * Spotbugs plugin configuration for code styling checks.
+ * Spotbugs plugin configuration.
  *
  * It finds bugs in Java programs. It looks for instances of “bug patterns” — code instances that
  * are likely to be errors.
