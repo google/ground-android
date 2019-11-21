@@ -181,4 +181,4 @@ Used to build with Google Cloud and for running integration tests:
     java.lang.RuntimeException: Unable to get provider com.google.firebase.provider.FirebaseInitProvider: java.lang.IllegalArgumentException: Given String is empty or null
     ```
     
-   Solution: Check if file `gnd/src/debug/google-services.json` exists and is valid.
+   Solution: Ensure `gnd/src/debug/google-services.json` exists and is valid.
