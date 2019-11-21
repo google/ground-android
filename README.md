@@ -155,7 +155,7 @@ $ keytool -list -v \
 
     https://console.firebase.google.com/
 
-2. Save config file for Android app to gnd/debug/google-services.json:
+2. Save config file for Android app to `gnd/src/debug/google-services.json`:
 
     https://support.google.com/firebase/answer/7015592
 
@@ -172,3 +172,13 @@ Used to build with Google Cloud and for running integration tests:
 3. gcloud auth login
   
 4. gcloud config set project [PROJECT_ID]
+
+### Troubleshooting
+
+1. App crashes on start with following stacktrace:
+ 
+    ```
+    java.lang.RuntimeException: Unable to get provider com.google.firebase.provider.FirebaseInitProvider: java.lang.IllegalArgumentException: Given String is empty or null
+    ```
+    
+   Solution: Ensure `gnd/src/debug/google-services.json` exists and is valid, as per instructions in [Set up Firebase](#set-up-firebase).
