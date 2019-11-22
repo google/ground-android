@@ -31,13 +31,13 @@ import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.model.observation.Response;
 import java8.util.Optional;
 
-class RecordListItemViewHolder extends RecyclerView.ViewHolder {
+class ObservationListItemViewHolder extends RecyclerView.ViewHolder {
 
   private static final int MAX_COLUMNS = 4;
 
   private final RecordListItemBinding binding;
 
-  RecordListItemViewHolder(@NonNull RecordListItemBinding binding) {
+  ObservationListItemViewHolder(@NonNull RecordListItemBinding binding) {
     super(binding.getRoot());
     this.binding = binding;
   }

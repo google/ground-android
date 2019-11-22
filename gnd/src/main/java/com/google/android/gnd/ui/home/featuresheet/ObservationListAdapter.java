@@ -29,7 +29,7 @@ import java.util.Collections;
 import java.util.List;
 
 // TODO: Consider passing in ViewModel and using DataBinding like todoapp example.
-class ObservationListAdapter extends RecyclerView.Adapter<RecordListItemViewHolder> {
+class ObservationListAdapter extends RecyclerView.Adapter<ObservationListItemViewHolder> {
 
   private final ViewModelFactory viewModelFactory;
   private List<Observation> observationList;
@@ -43,14 +43,14 @@ class ObservationListAdapter extends RecyclerView.Adapter<RecordListItemViewHold
 
   @NonNull
   @Override
-  public RecordListItemViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+  public ObservationListItemViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
     LayoutInflater inflater = LayoutInflater.from(parent.getContext());
     RecordListItemBinding itemBinding = RecordListItemBinding.inflate(inflater, parent, false);
-    return new RecordListItemViewHolder(itemBinding);
+    return new ObservationListItemViewHolder(itemBinding);
   }
 
   @Override
-  public void onBindViewHolder(@NonNull RecordListItemViewHolder holder, int position) {
+  public void onBindViewHolder(@NonNull ObservationListItemViewHolder holder, int position) {
     RecordViewModel viewModel = viewModelFactory.create(RecordViewModel.class);
     viewModel.setRecord(observationList.get(position));
     viewModel.setRecordCallback(record -> itemClicks.postValue(record));
