@@ -22,7 +22,7 @@ import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.FeatureMutation;
 import com.google.android.gnd.model.feature.Point;
-import com.google.android.gnd.model.layer.FeatureType;
+import com.google.android.gnd.model.layer.Layer;
 import com.google.common.collect.ImmutableMap;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.GeoPoint;
@@ -56,8 +56,8 @@ public class FeatureDoc {
 
   public static Feature toObject(Project project, DocumentSnapshot doc) {
     FeatureDoc f = doc.toObject(FeatureDoc.class);
-    Optional<FeatureType> featureType = project.getFeatureType(f.featureTypeId);
-    if (!featureType.isPresent()) {
+    Optional<Layer> layer = project.getLayer(f.featureTypeId);
+    if (!layer.isPresent()) {
       throw new DataStoreException(
           "Unknown feature type " + f.featureTypeId + " in lace " + doc.getId());
     }
@@ -71,7 +71,7 @@ public class FeatureDoc {
         .setProject(project)
         .setCustomId(f.customId)
         .setCaption(f.caption)
-        .setFeatureType(featureType.get())
+        .setLayer(layer.get())
         .setPoint(point)
         .setServerTimestamps(toTimestamps(f.serverTimeCreated, f.serverTimeModified))
         .setClientTimestamps(toTimestamps(f.clientTimeCreated, f.clientTimeModified))
@@ -88,7 +88,7 @@ public class FeatureDoc {
    */
   public static ImmutableMap<String, Object> toMap(FeatureMutation mutation) {
     ImmutableMap.Builder<String, Object> map = ImmutableMap.builder();
-    map.put(FEATURE_TYPE_ID, mutation.getFeatureTypeId());
+    map.put(FEATURE_TYPE_ID, mutation.getLayerId());
     mutation.getNewLocation().map(FeatureDoc::toGeoPoint).ifPresent(p -> map.put(CENTER, p));
     // TODO: Set user id and timestamps.
     // TODO: Don't echo server timestamp in client. When we implement a proper DAL we can

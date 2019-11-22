@@ -212,7 +212,7 @@ public class DataRepository {
                     .setId(uuidGenerator.generateUuid())
                     .setProject(feature.getProject())
                     .setFeature(feature)
-                    .setForm(feature.getFeatureType().getForm(formId).get())
+                    .setForm(feature.getLayer().getForm(formId).get())
                     .build());
   }
 
@@ -239,7 +239,7 @@ public class DataRepository {
                 .setType(Mutation.Type.CREATE)
                 .setProjectId(feature.getProject().getId())
                 .setFeatureId(feature.getId())
-                .setFeatureTypeId(feature.getFeatureType().getId())
+                .setLayerId(feature.getLayer().getId())
                 .setNewLocation(Optional.of(feature.getPoint()))
                 // TODO(#101): Attach real credentials.
                 .setUserId("")

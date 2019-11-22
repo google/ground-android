@@ -51,7 +51,7 @@ public class ProjectDoc {
         .setTitle(getLocalizedMessage(pd.title))
         .setDescription(getLocalizedMessage(pd.description));
     if (pd.featureTypes != null) {
-      Maps.forEach(pd.featureTypes, (id, ptDoc) -> project.putFeatureType(id, ptDoc.toObject(id)));
+      Maps.forEach(pd.featureTypes, (id, ptDoc) -> project.putLayer(id, ptDoc.toObject(id)));
     }
     return project.build();
   }

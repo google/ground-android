@@ -121,7 +121,7 @@ public abstract class RecordEntity {
     // TODO(#127): Replace reference to Project in Record with projectId and remove here.
     return Record.newBuilder()
         .setId(record.getId())
-        .setForm(feature.getFeatureType().getForm(record.getFormId()).get())
+        .setForm(feature.getLayer().getForm(record.getFormId()).get())
         .setProject(feature.getProject())
         .setFeature(feature)
         .setResponses(record.getResponses())

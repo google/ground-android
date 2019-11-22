@@ -26,7 +26,7 @@ import java8.util.Optional;
 import javax.annotation.Nullable;
 
 @AutoValue
-public abstract class FeatureType {
+public abstract class Layer {
   @Nullable
   public abstract String getId();
 
@@ -52,7 +52,7 @@ public abstract class FeatureType {
   }
 
   public static Builder newBuilder() {
-    return new AutoValue_FeatureType.Builder().setClientTimestamps(Timestamps.getDefaultInstance());
+    return new AutoValue_Layer.Builder().setClientTimestamps(Timestamps.getDefaultInstance());
   }
 
   @AutoValue.Builder
@@ -76,6 +76,6 @@ public abstract class FeatureType {
 
     public abstract Builder setClientTimestamps(@Nullable Timestamps newClientTimestamps);
 
-    public abstract FeatureType build();
+    public abstract Layer build();
   }
 }

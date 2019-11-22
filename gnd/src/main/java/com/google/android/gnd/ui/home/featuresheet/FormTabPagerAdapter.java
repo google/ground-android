@@ -20,7 +20,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentStatePagerAdapter;
 import com.google.android.gnd.model.feature.Feature;
-import com.google.android.gnd.model.layer.FeatureType;
+import com.google.android.gnd.model.layer.Layer;
 import com.google.common.collect.ImmutableList;
 import java8.util.Optional;
 import javax.inject.Inject;
@@ -37,8 +37,8 @@ public class FormTabPagerAdapter extends FragmentStatePagerAdapter {
   @Override
   public int getCount() {
     return feature
-        .map(Feature::getFeatureType)
-        .map(FeatureType::getForms)
+        .map(Feature::getLayer)
+        .map(Layer::getForms)
         .map(ImmutableList::size)
         .orElse(0);
   }
@@ -50,7 +50,7 @@ public class FormTabPagerAdapter extends FragmentStatePagerAdapter {
 
   @Override
   public CharSequence getPageTitle(int position) {
-    return feature.get().getFeatureType().getForms().get(position).getTitle();
+    return feature.get().getLayer().getForms().get(position).getTitle();
   }
 
   void update(Optional<Feature> feature) {

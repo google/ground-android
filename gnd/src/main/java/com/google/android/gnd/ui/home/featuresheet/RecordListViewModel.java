@@ -61,7 +61,7 @@ public class RecordListViewModel extends AbstractViewModel {
   /** Loads a list of records associated with a given feature. */
   public void loadRecordList(Feature feature, Form form) {
     loadRecords(
-        feature.getProject(), feature.getFeatureType().getId(), form.getId(), feature.getId());
+        feature.getProject(), feature.getLayer().getId(), form.getId(), feature.getId());
   }
 
   private Single<ImmutableList<Record>> getRecords(RecordListRequest req) {
@@ -76,8 +76,8 @@ public class RecordListViewModel extends AbstractViewModel {
     return Single.just(ImmutableList.of());
   }
 
-  private void loadRecords(Project project, String featureTypeId, String formId, String featureId) {
-    Optional<Form> form = project.getFeatureType(featureTypeId).flatMap(pt -> pt.getForm(formId));
+  private void loadRecords(Project project, String layerId, String formId, String featureId) {
+    Optional<Form> form = project.getLayer(layerId).flatMap(pt -> pt.getForm(formId));
     if (!form.isPresent()) {
       // TODO: Show error.
       return;

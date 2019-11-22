@@ -72,7 +72,7 @@ public class RecordDoc {
   public static RecordDoc forUpdates(Record record, Map<String, Object> responseUpdates) {
     RecordDoc rd = new RecordDoc();
     rd.featureId = record.getFeature().getId();
-    rd.featureTypeId = record.getFeature().getFeatureType().getId();
+    rd.featureTypeId = record.getFeature().getLayer().getId();
     rd.formId = record.getForm().getId();
     rd.responses = responseUpdates;
     rd.clientTimeModified = new Date();
@@ -86,10 +86,10 @@ public class RecordDoc {
     if (!feature.getId().equals(rd.featureId)) {
       // TODO: Handle error.
     }
-    if (!feature.getFeatureType().getId().equals(rd.featureTypeId)) {
+    if (!feature.getLayer().getId().equals(rd.featureTypeId)) {
       // TODO: Handle error.
     }
-    Optional<Form> form = feature.getFeatureType().getForm(rd.formId);
+    Optional<Form> form = feature.getLayer().getForm(rd.formId);
     if (!form.isPresent()) {
       // TODO: Handle error.
     }
@@ -140,7 +140,7 @@ public class RecordDoc {
   public static ImmutableMap<String, Object> toMap(RecordMutation mutation) {
     return ImmutableMap.<String, Object>builder()
         .put(FEATURE_ID, mutation.getFeatureId())
-        .put(FEATURE_TYPE_ID, mutation.getFeatureTypeId())
+        .put(FEATURE_TYPE_ID, mutation.getLayerId())
         .put(FORM_ID, mutation.getFormId())
         .put(RESPONSES, toMap(mutation.getResponseDeltas()))
         // TODO: Set user id and timestamps.

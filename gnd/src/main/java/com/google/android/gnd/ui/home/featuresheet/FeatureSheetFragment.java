@@ -100,7 +100,7 @@ public class FeatureSheetFragment extends AbstractFragment {
 
       // TODO: Auto add record if there's only one form.
       //      Feature feature = featureSheetState.getFeature();
-      //      ImmutableList<Form> forms = feature.getFeatureType().getForms();
+      //      ImmutableList<Form> forms = feature.getLayer().getForms();
       //      if (featureSheetState.isNewFeature() && forms.size() == 1) {
       //        showAddRecord(feature, forms.get(0));
       //      }
