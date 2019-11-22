@@ -188,7 +188,7 @@ public class ObservationDetailsFragment extends AbstractFragment {
         // This is required to prevent menu from reappearing on back.
         getActivity().closeOptionsMenu();
         ObservationDetailsFragmentArgs args = getObservationDetailFragmentArgs();
-        navigator.editRecord(args.getProjectId(), args.getFeatureId(), args.getRecordId());
+        navigator.editObservation(args.getProjectId(), args.getFeatureId(), args.getRecordId());
         return true;
       case R.id.delete_record_menu_item:
         // TODO: Implement delete observation.

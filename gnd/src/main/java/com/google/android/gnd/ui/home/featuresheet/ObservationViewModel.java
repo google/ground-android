@@ -37,7 +37,7 @@ public class ObservationViewModel extends AbstractViewModel implements OnClickLi
   public final ObservableField<String> modifiedTime;
   private final Application application;
   private Consumer<Observation> recordCallback;
-  private MutableLiveData<Observation> selectedRecord;
+  private MutableLiveData<Observation> selectedObservation;
 
   @Inject
   ObservationViewModel(Application application) {
@@ -45,16 +45,16 @@ public class ObservationViewModel extends AbstractViewModel implements OnClickLi
     userName = new ObservableField<>();
     modifiedDate = new ObservableField<>();
     modifiedTime = new ObservableField<>();
-    selectedRecord = new MutableLiveData<>();
+    selectedObservation = new MutableLiveData<>();
   }
 
   @Override
   public void onClick(View view) {
-    recordCallback.accept(selectedRecord.getValue());
+    recordCallback.accept(selectedObservation.getValue());
   }
 
   public void setRecord(Observation observation) {
-    selectedRecord.postValue(observation);
+    selectedObservation.postValue(observation);
 
     AuthenticationManager.User modifiedBy = observation.getModifiedBy();
     // TODO: i18n.

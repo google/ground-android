@@ -49,7 +49,7 @@ public class ObservationDetailsViewModel extends AbstractViewModel {
         argsProcessor.switchMapSingle(
             args ->
                 this.dataRepository
-                    .getRecord(args.getProjectId(), args.getFeatureId(), args.getRecordId())
+                    .getObservation(args.getProjectId(), args.getFeatureId(), args.getRecordId())
                     .map(Persistable::loaded)
                     .onErrorReturn(Persistable::error));
 

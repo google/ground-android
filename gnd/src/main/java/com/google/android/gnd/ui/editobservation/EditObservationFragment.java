@@ -98,7 +98,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
   @Override
   public void onActivityCreated(@androidx.annotation.Nullable Bundle savedInstanceState) {
     super.onActivityCreated(savedInstanceState);
-    viewModel.getRecord().observe(this, this::onRecordChange);
+    viewModel.getObservation().observe(this, this::onRecordChange);
     viewModel.getShowUnsavedChangesDialogEvents().observe(this, __ -> showUnsavedChangesDialog());
     viewModel.getShowErrorDialogEvents().observe(this, __ -> showFormErrorsDialog());
   }
@@ -107,14 +107,14 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
   public void onStart() {
     super.onStart();
     // TODO: Make reactive instead of reading getValue explicitly.
-    LiveData<Persistable<Observation>> liveData = viewModel.getRecord();
+    LiveData<Persistable<Observation>> liveData = viewModel.getObservation();
     Persistable<Observation> record = liveData.getValue();
     if (record != null && record.isLoaded()) {
       onRecordChange(record);
       return;
     }
     EditObservationFragmentArgs args = EditObservationFragmentArgs.fromBundle(getArguments());
-    viewModel.editRecord(args, args.getRecordId().equals(NEW_RECORD_ID_ARG_PLACEHOLDER));
+    viewModel.editObservation(args, args.getRecordId().equals(NEW_RECORD_ID_ARG_PLACEHOLDER));
   }
 
   private void onRecordChange(Persistable<Observation> record) {

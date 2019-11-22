@@ -142,7 +142,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
       return;
     }
     Feature feature = state.getFeature();
-    navigator.addRecord(feature.getProject().getId(), feature.getId(), selectedForm.getId());
+    navigator.addObservation(feature.getProject().getId(), feature.getId(), selectedForm.getId());
   }
 
   public void showBasemapSelector() {

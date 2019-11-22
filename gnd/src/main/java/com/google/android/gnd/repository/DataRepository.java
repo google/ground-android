@@ -160,7 +160,8 @@ public class DataRepository {
   public Single<ImmutableList<Observation>> getRecords(
       String projectId, String featureId, String formId) {
     // TODO: Only fetch first n fields.
-    // TODO(#127): Decouple feature from observation so that we don't need to fetch observation here.
+    // TODO(#127): Decouple feature from observation so that we don't need to fetch observation
+    // here.
     return getFeature(projectId, featureId)
         .switchIfEmpty(Single.error(new DocumentNotFoundException()))
         .flatMap(feature -> getRecords(feature, formId));
@@ -189,7 +190,8 @@ public class DataRepository {
         .flatMapMaybe(project -> localDataStore.getFeature(project, featureId));
   }
 
-  public Single<Observation> getRecord(String projectId, String featureId, String recordId) {
+  public Single<Observation> getObservation(
+      String projectId, String featureId, String observationId) {
     // TODO: Store and retrieve latest edits from cache and/or db.
     // TODO(#127): Decouple feature from observation so that we don't need to fetch feature here.
     return getFeature(projectId, featureId)
@@ -197,11 +199,11 @@ public class DataRepository {
         .flatMap(
             feature ->
                 localDataStore
-                    .getRecord(feature, recordId)
+                    .getRecord(feature, observationId)
                     .switchIfEmpty(Single.error(new DocumentNotFoundException())));
   }
 
-  public Single<Observation> createRecord(String projectId, String featureId, String formId) {
+  public Single<Observation> createObservation(String projectId, String featureId, String formId) {
     // TODO: Handle invalid formId.
     // TODO(#127): Decouple feature from observation so that we don't need to fetch feature here.
     return getFeature(projectId, featureId)
