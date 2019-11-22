@@ -86,7 +86,7 @@
   <fragment
     android:id="@+id/record_details_fragment"
     android:label="@string/view_record_details"
-    android:name="com.google.android.gnd.ui.recorddetails.RecordDetailsFragment"
+    android:name="com.google.android.gnd.ui.observationdetails.ObservationDetailsFragment"
     tools:layout="@layout/record_details_frag">
     <argument
       type="string"

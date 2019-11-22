@@ -32,8 +32,8 @@ import com.google.android.gnd.ui.home.featuresheet.RecordListFragment;
 import com.google.android.gnd.ui.home.mapcontainer.MapContainerFragment;
 import com.google.android.gnd.ui.home.mapcontainer.MapContainerModule;
 import com.google.android.gnd.ui.projectselector.ProjectSelectorDialogFragment;
-import com.google.android.gnd.ui.recorddetails.RecordDetailsFragment;
-import com.google.android.gnd.ui.recorddetails.RecordDetailsModule;
+import com.google.android.gnd.ui.observationdetails.ObservationDetailsFragment;
+import com.google.android.gnd.ui.observationdetails.ObservationDetailsModule;
 import com.google.android.gnd.ui.signin.SignInFragment;
 import com.google.android.gnd.ui.signin.SignInModule;
 import com.google.android.gnd.ui.startup.StartupFragment;
@@ -85,8 +85,8 @@ public abstract class MainActivityModule {
   abstract RecordListFragment recordListFragmentInjector();
 
   @FragmentScoped
-  @ContributesAndroidInjector(modules = RecordDetailsModule.class)
-  abstract RecordDetailsFragment recordDetailsFragmentInjector();
+  @ContributesAndroidInjector(modules = ObservationDetailsModule.class)
+  abstract ObservationDetailsFragment recordDetailsFragmentInjector();
 
   @FragmentScoped
   @ContributesAndroidInjector(modules = EditRecordModule.class)

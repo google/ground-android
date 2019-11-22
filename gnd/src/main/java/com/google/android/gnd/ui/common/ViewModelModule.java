@@ -27,7 +27,7 @@ import com.google.android.gnd.ui.home.featuresheet.RecordListViewModel;
 import com.google.android.gnd.ui.home.featuresheet.RecordViewModel;
 import com.google.android.gnd.ui.home.mapcontainer.MapContainerViewModel;
 import com.google.android.gnd.ui.projectselector.ProjectSelectorViewModel;
-import com.google.android.gnd.ui.recorddetails.RecordDetailsViewModel;
+import com.google.android.gnd.ui.observationdetails.ObservationDetailsViewModel;
 import com.google.android.gnd.ui.signin.SignInViewModel;
 import dagger.Binds;
 import dagger.Module;
@@ -82,8 +82,8 @@ public abstract class ViewModelModule {
 
   @Binds
   @IntoMap
-  @ViewModelKey(RecordDetailsViewModel.class)
-  abstract ViewModel bindRecordDetailsViewModel(RecordDetailsViewModel viewModel);
+  @ViewModelKey(ObservationDetailsViewModel.class)
+  abstract ViewModel bindRecordDetailsViewModel(ObservationDetailsViewModel viewModel);
 
   @Binds
   @IntoMap

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.ui.recorddetails;
+package com.google.android.gnd.ui.observationdetails;
 
 import android.view.View;
 import androidx.lifecycle.LiveData;
@@ -29,10 +29,10 @@ import io.reactivex.Flowable;
 import io.reactivex.processors.BehaviorProcessor;
 import javax.inject.Inject;
 
-public class RecordDetailsViewModel extends AbstractViewModel {
+public class ObservationDetailsViewModel extends AbstractViewModel {
 
   private final DataRepository dataRepository;
-  private final BehaviorProcessor<RecordDetailsFragmentArgs> argsProcessor;
+  private final BehaviorProcessor<ObservationDetailsFragmentArgs> argsProcessor;
   public final LiveData<Persistable<Observation>> records;
   public final LiveData<Integer> progressBarVisibility;
   public final LiveData<String> toolbarTitle;
@@ -40,7 +40,7 @@ public class RecordDetailsViewModel extends AbstractViewModel {
   public final LiveData<String> formNameView;
 
   @Inject
-  RecordDetailsViewModel(DataRepository dataRepository) {
+  ObservationDetailsViewModel(DataRepository dataRepository) {
     this.dataRepository = dataRepository;
 
     this.argsProcessor = BehaviorProcessor.create();
@@ -58,22 +58,22 @@ public class RecordDetailsViewModel extends AbstractViewModel {
 
     this.progressBarVisibility =
         LiveDataReactiveStreams.fromPublisher(
-            recordStream.map(RecordDetailsViewModel::getProgressBarVisibility));
+            recordStream.map(ObservationDetailsViewModel::getProgressBarVisibility));
 
     this.toolbarTitle =
         LiveDataReactiveStreams.fromPublisher(
-            recordStream.map(RecordDetailsViewModel::getToolbarTitle));
+            recordStream.map(ObservationDetailsViewModel::getToolbarTitle));
 
     this.toolbarSubtitle =
         LiveDataReactiveStreams.fromPublisher(
-            recordStream.map(RecordDetailsViewModel::getToolbarSubtitle));
+            recordStream.map(ObservationDetailsViewModel::getToolbarSubtitle));
 
     this.formNameView =
         LiveDataReactiveStreams.fromPublisher(
-            recordStream.map(RecordDetailsViewModel::getFormNameView));
+            recordStream.map(ObservationDetailsViewModel::getFormNameView));
   }
 
-  public void loadRecordDetails(RecordDetailsFragmentArgs args) {
+  public void loadRecordDetails(ObservationDetailsFragmentArgs args) {
     this.argsProcessor.onNext(args);
   }
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.ui.recorddetails;
+package com.google.android.gnd.ui.observationdetails;
 
 import androidx.fragment.app.Fragment;
 import com.google.android.gnd.inject.FragmentScoped;
@@ -22,9 +22,9 @@ import dagger.Binds;
 import dagger.Module;
 
 @Module
-public abstract class RecordDetailsModule {
+public abstract class ObservationDetailsModule {
 
   @Binds
   @FragmentScoped
-  abstract Fragment fragment(RecordDetailsFragment fragment);
+  abstract Fragment fragment(ObservationDetailsFragment fragment);
 }

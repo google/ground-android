@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.ui.recorddetails;
+package com.google.android.gnd.ui.observationdetails;
 
 import android.os.Bundle;
 import android.util.Log;
@@ -45,8 +45,8 @@ import com.google.android.gnd.ui.common.TwoLineToolbar;
 import javax.inject.Inject;
 
 @ActivityScoped
-public class RecordDetailsFragment extends AbstractFragment {
-  private static final String TAG = RecordDetailsFragment.class.getSimpleName();
+public class ObservationDetailsFragment extends AbstractFragment {
+  private static final String TAG = ObservationDetailsFragment.class.getSimpleName();
 
   @Inject Navigator navigator;
 
@@ -56,13 +56,13 @@ public class RecordDetailsFragment extends AbstractFragment {
   @BindView(R.id.record_details_layout)
   LinearLayout recordDetailsLayout;
 
-  private RecordDetailsViewModel viewModel;
+  private ObservationDetailsViewModel viewModel;
 
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    RecordDetailsFragmentArgs args = getRecordDetailFragmentArgs();
-    viewModel = getViewModel(RecordDetailsViewModel.class);
+    ObservationDetailsFragmentArgs args = getObservationDetailFragmentArgs();
+    viewModel = getViewModel(ObservationDetailsViewModel.class);
     // TODO: Move toolbar setting logic into the ViewModel once we have
     // determined the fate of the toolbar.
     viewModel.toolbarTitle.observe(this, this::setToolbarTitle);
@@ -187,7 +187,7 @@ public class RecordDetailsFragment extends AbstractFragment {
       case R.id.edit_record_menu_item:
         // This is required to prevent menu from reappearing on back.
         getActivity().closeOptionsMenu();
-        RecordDetailsFragmentArgs args = getRecordDetailFragmentArgs();
+        ObservationDetailsFragmentArgs args = getObservationDetailFragmentArgs();
         navigator.editRecord(args.getProjectId(), args.getFeatureId(), args.getRecordId());
         return true;
       case R.id.delete_record_menu_item:
@@ -198,7 +198,7 @@ public class RecordDetailsFragment extends AbstractFragment {
     }
   }
 
-  private RecordDetailsFragmentArgs getRecordDetailFragmentArgs() {
-    return RecordDetailsFragmentArgs.fromBundle(getArguments());
+  private ObservationDetailsFragmentArgs getObservationDetailFragmentArgs() {
+    return ObservationDetailsFragmentArgs.fromBundle(getArguments());
   }
 }
