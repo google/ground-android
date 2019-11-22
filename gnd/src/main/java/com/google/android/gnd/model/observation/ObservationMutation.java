@@ -24,8 +24,9 @@ import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 
 /**
- * Represents a mutation of a observation performed on the local device. Mutations are queued locally by
- * the UI, and are dequeued and sent to the remote data store by the background data sync service.
+ * Represents a mutation of a observation performed on the local device. Mutations are queued
+ * locally by the UI, and are dequeued and sent to the remote data store by the background data sync
+ * service.
  */
 @AutoValue
 public abstract class ObservationMutation extends Mutation<ObservationMutation.Builder> {
@@ -56,7 +57,8 @@ public abstract class ObservationMutation extends Mutation<ObservationMutation.B
   }
 
   /**
-   * Returns the ids of mutations of type {@link ObservationMutation} contained in the specified list.
+   * Returns the ids of mutations of type {@link ObservationMutation} contained in the specified
+   * list.
    */
   public static ImmutableList<Long> ids(ImmutableList<? extends Mutation> mutations) {
     return stream(mutations)

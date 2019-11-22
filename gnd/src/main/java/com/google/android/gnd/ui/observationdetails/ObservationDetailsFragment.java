@@ -75,7 +75,8 @@ public class ObservationDetailsFragment extends AbstractFragment {
   public View onCreateView(
       LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     super.onCreateView(inflater, container, savedInstanceState);
-    ObservationDetailsFragBinding binding = ObservationDetailsFragBinding.inflate(inflater, container, false);
+    ObservationDetailsFragBinding binding =
+        ObservationDetailsFragBinding.inflate(inflater, container, false);
     binding.setViewModel(viewModel);
     binding.setLifecycleOwner(this);
     return binding.getRoot();

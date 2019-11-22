@@ -51,8 +51,8 @@ public interface LocalDataStore {
   Completable applyAndEnqueue(FeatureMutation mutation);
 
   /**
-   * Applies the specified {@link ObservationMutation} to the local data store, appending the mutation to
-   * the local queue for remote sync.
+   * Applies the specified {@link ObservationMutation} to the local data store, appending the
+   * mutation to the local queue for remote sync.
    */
   Completable applyAndEnqueue(ObservationMutation mutation);
 
@@ -78,8 +78,8 @@ public interface LocalDataStore {
   Flowable<ImmutableSet<Tile>> getTilesOnceAndStream();
 
   /**
-   * Returns all feature and observation mutations in the local mutation queue relating to feature with
-   * the specified id.
+   * Returns all feature and observation mutations in the local mutation queue relating to feature
+   * with the specified id.
    */
   Single<ImmutableList<Mutation>> getPendingMutations(String featureId);
 
@@ -97,9 +97,9 @@ public interface LocalDataStore {
   Completable mergeFeature(Feature feature);
 
   /**
-   * Merges the provided observation with pending unsynced local mutations, and inserts it into the local
-   * data store. If a observation with the same id already exists, it will be overwritten with the merged
-   * instance.
+   * Merges the provided observation with pending unsynced local mutations, and inserts it into the
+   * local data store. If a observation with the same id already exists, it will be overwritten with
+   * the merged instance.
    */
   Completable mergeRecord(Observation observation);
 

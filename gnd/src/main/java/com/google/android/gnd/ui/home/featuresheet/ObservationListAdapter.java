@@ -45,7 +45,8 @@ class ObservationListAdapter extends RecyclerView.Adapter<ObservationListItemVie
   @Override
   public ObservationListItemViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
     LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-    ObservationListItemBinding itemBinding = ObservationListItemBinding.inflate(inflater, parent, false);
+    ObservationListItemBinding itemBinding =
+        ObservationListItemBinding.inflate(inflater, parent, false);
     return new ObservationListItemViewHolder(itemBinding);
   }
 
