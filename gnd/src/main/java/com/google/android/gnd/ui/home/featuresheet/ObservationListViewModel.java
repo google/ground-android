@@ -33,9 +33,9 @@ import io.reactivex.processors.PublishProcessor;
 import java8.util.Optional;
 import javax.inject.Inject;
 
-public class RecordListViewModel extends AbstractViewModel {
+public class ObservationListViewModel extends AbstractViewModel {
 
-  private static final String TAG = RecordListViewModel.class.getSimpleName();
+  private static final String TAG = ObservationListViewModel.class.getSimpleName();
   private final DataRepository dataRepository;
   private PublishProcessor<RecordListRequest> recordListRequests;
   private LiveData<ImmutableList<Observation>> recordList;
@@ -43,7 +43,7 @@ public class RecordListViewModel extends AbstractViewModel {
   public final ObservableInt loadingSpinnerVisibility = new ObservableInt();
 
   @Inject
-  public RecordListViewModel(DataRepository dataRepository) {
+  public ObservationListViewModel(DataRepository dataRepository) {
     this.dataRepository = dataRepository;
     recordListRequests = PublishProcessor.create();
     recordList =

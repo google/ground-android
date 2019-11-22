@@ -40,7 +40,7 @@ public class RecordListFragment extends AbstractFragment {
 
   @Inject Navigator navigator;
   private RecordListAdapter recordListAdapter;
-  private RecordListViewModel viewModel;
+  private ObservationListViewModel viewModel;
   private FeatureSheetViewModel featureSheetViewModel;
   private HomeScreenViewModel homeScreenViewModel;
 
@@ -55,7 +55,7 @@ public class RecordListFragment extends AbstractFragment {
   public void onCreate(@Nullable Bundle savedInstanceState) {
     recordListAdapter = new RecordListAdapter(viewModelFactory);
     super.onCreate(savedInstanceState);
-    viewModel = getViewModel(RecordListViewModel.class);
+    viewModel = getViewModel(ObservationListViewModel.class);
     featureSheetViewModel = getViewModel(FeatureSheetViewModel.class);
     homeScreenViewModel = getViewModel(HomeScreenViewModel.class);
 

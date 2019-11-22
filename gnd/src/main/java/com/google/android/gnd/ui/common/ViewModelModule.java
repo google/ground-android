@@ -23,7 +23,7 @@ import com.google.android.gnd.ui.basemapselector.BasemapSelectorViewModel;
 import com.google.android.gnd.ui.editobservation.EditObservationViewModel;
 import com.google.android.gnd.ui.home.HomeScreenViewModel;
 import com.google.android.gnd.ui.home.featuresheet.FeatureSheetViewModel;
-import com.google.android.gnd.ui.home.featuresheet.RecordListViewModel;
+import com.google.android.gnd.ui.home.featuresheet.ObservationListViewModel;
 import com.google.android.gnd.ui.home.featuresheet.RecordViewModel;
 import com.google.android.gnd.ui.home.mapcontainer.MapContainerViewModel;
 import com.google.android.gnd.ui.projectselector.ProjectSelectorViewModel;
@@ -77,8 +77,8 @@ public abstract class ViewModelModule {
 
   @Binds
   @IntoMap
-  @ViewModelKey(RecordListViewModel.class)
-  abstract ViewModel bindRecordListViewModel(RecordListViewModel viewModel);
+  @ViewModelKey(ObservationListViewModel.class)
+  abstract ViewModel bindRecordListViewModel(ObservationListViewModel viewModel);
 
   @Binds
   @IntoMap
