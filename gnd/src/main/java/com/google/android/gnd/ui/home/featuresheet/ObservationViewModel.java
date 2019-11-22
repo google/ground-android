@@ -30,7 +30,7 @@ import java.util.Date;
 import java8.util.function.Consumer;
 import javax.inject.Inject;
 
-public class RecordViewModel extends AbstractViewModel implements OnClickListener {
+public class ObservationViewModel extends AbstractViewModel implements OnClickListener {
 
   public final ObservableField<String> userName;
   public final ObservableField<String> modifiedDate;
@@ -40,7 +40,7 @@ public class RecordViewModel extends AbstractViewModel implements OnClickListene
   private MutableLiveData<Observation> selectedRecord;
 
   @Inject
-  RecordViewModel(Application application) {
+  ObservationViewModel(Application application) {
     this.application = application;
     userName = new ObservableField<>();
     modifiedDate = new ObservableField<>();

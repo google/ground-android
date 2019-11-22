@@ -24,7 +24,7 @@ import com.google.android.gnd.ui.editobservation.EditObservationViewModel;
 import com.google.android.gnd.ui.home.HomeScreenViewModel;
 import com.google.android.gnd.ui.home.featuresheet.FeatureSheetViewModel;
 import com.google.android.gnd.ui.home.featuresheet.ObservationListViewModel;
-import com.google.android.gnd.ui.home.featuresheet.RecordViewModel;
+import com.google.android.gnd.ui.home.featuresheet.ObservationViewModel;
 import com.google.android.gnd.ui.home.mapcontainer.MapContainerViewModel;
 import com.google.android.gnd.ui.projectselector.ProjectSelectorViewModel;
 import com.google.android.gnd.ui.observationdetails.ObservationDetailsViewModel;
@@ -72,8 +72,8 @@ public abstract class ViewModelModule {
 
   @Binds
   @IntoMap
-  @ViewModelKey(RecordViewModel.class)
-  abstract ViewModel bindRecordViewModel(RecordViewModel viewModel);
+  @ViewModelKey(ObservationViewModel.class)
+  abstract ViewModel bindRecordViewModel(ObservationViewModel viewModel);
 
   @Binds
   @IntoMap
