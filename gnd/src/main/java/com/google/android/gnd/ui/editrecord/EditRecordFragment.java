@@ -39,7 +39,7 @@ import com.google.android.gnd.inject.ActivityScoped;
 import com.google.android.gnd.model.form.Element;
 import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.form.MultipleChoice.Cardinality;
-import com.google.android.gnd.model.observation.Record;
+import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.model.observation.Response;
 import com.google.android.gnd.repository.Persistable;
 import com.google.android.gnd.ui.common.AbstractFragment;
@@ -107,8 +107,8 @@ public class EditRecordFragment extends AbstractFragment implements BackPressLis
   public void onStart() {
     super.onStart();
     // TODO: Make reactive instead of reading getValue explicitly.
-    LiveData<Persistable<Record>> liveData = viewModel.getRecord();
-    Persistable<Record> record = liveData.getValue();
+    LiveData<Persistable<Observation>> liveData = viewModel.getRecord();
+    Persistable<Observation> record = liveData.getValue();
     if (record != null && record.isLoaded()) {
       onRecordChange(record);
       return;
@@ -117,7 +117,7 @@ public class EditRecordFragment extends AbstractFragment implements BackPressLis
     viewModel.editRecord(args, args.getRecordId().equals(NEW_RECORD_ID_ARG_PLACEHOLDER));
   }
 
-  private void onRecordChange(Persistable<Record> record) {
+  private void onRecordChange(Persistable<Observation> record) {
     switch (record.state()) {
       case LOADING:
         // Do nothing.
@@ -136,22 +136,22 @@ public class EditRecordFragment extends AbstractFragment implements BackPressLis
         break;
       case NOT_FOUND:
       case ERROR:
-        record.error().ifPresent(t -> Log.e(TAG, "Failed to load/save record", t));
+        record.error().ifPresent(t -> Log.e(TAG, "Failed to load/save observation", t));
         EphemeralPopups.showError(getContext());
         navigator.navigateUp();
         break;
     }
   }
 
-  private void editRecord(Record record) {
-    toolbar.setTitle(record.getFeature().getTitle());
-    toolbar.setSubtitle(record.getFeature().getSubtitle());
-    rebuildForm(record);
+  private void editRecord(Observation observation) {
+    toolbar.setTitle(observation.getFeature().getTitle());
+    toolbar.setSubtitle(observation.getFeature().getSubtitle());
+    rebuildForm(observation);
   }
 
-  private void rebuildForm(Record record) {
+  private void rebuildForm(Observation observation) {
     formLayout.removeAllViews();
-    for (Element element : record.getForm().getElements()) {
+    for (Element element : observation.getForm().getElements()) {
       switch (element.getType()) {
         case FIELD:
           addField(element.getField());

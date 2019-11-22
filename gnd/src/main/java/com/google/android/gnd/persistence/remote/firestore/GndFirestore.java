@@ -24,7 +24,7 @@ import android.util.Log;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.FeatureMutation;
-import com.google.android.gnd.model.observation.Record;
+import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.model.observation.RecordMutation;
 import com.google.android.gnd.persistence.remote.RemoteDataEvent;
 import com.google.android.gnd.system.AuthenticationManager.User;
@@ -45,7 +45,6 @@ import io.reactivex.Single;
 import java.util.Collections;
 import java.util.List;
 import java8.util.function.Function;
-import java8.util.stream.Collectors;
 
 /** Object representation of Ground Firestore database. */
 public class GndFirestore extends AbstractFluentFirestore {
@@ -154,7 +153,7 @@ public class GndFirestore extends AbstractFluentFirestore {
       return new RecordDocumentReference(ref.document(id));
     }
 
-    public Single<ImmutableList<Record>> recordsByFeatureId(Feature feature) {
+    public Single<ImmutableList<Observation>> recordsByFeatureId(Feature feature) {
       return RxFirestore.getCollection(byFeatureId(feature.getId()))
           .map(
               querySnapshot ->
@@ -174,7 +173,7 @@ public class GndFirestore extends AbstractFluentFirestore {
       super(ref);
     }
 
-    public Maybe<Record> get(Feature feature) {
+    public Maybe<Observation> get(Feature feature) {
       return RxFirestore.getDocument(ref).map(doc -> RecordDoc.toObject(feature, doc.getId(), doc));
     }
 

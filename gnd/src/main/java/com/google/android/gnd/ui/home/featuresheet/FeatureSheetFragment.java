@@ -98,7 +98,7 @@ public class FeatureSheetFragment extends AbstractFragment {
       String iconOverlayId = null; // Not yet implemented.
       featureHeaderIcon.setImageResource(MapIcon.getResourceId(getContext(), iconOverlayId));
 
-      // TODO: Auto add record if there's only one form.
+      // TODO: Auto add observation if there's only one form.
       //      Feature feature = featureSheetState.getFeature();
       //      ImmutableList<Form> forms = feature.getLayer().getForms();
       //      if (featureSheetState.isNewFeature() && forms.size() == 1) {

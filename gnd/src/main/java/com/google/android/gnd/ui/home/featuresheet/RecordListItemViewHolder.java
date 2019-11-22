@@ -27,7 +27,7 @@ import com.google.android.gnd.databinding.RecordListItemBinding;
 import com.google.android.gnd.model.form.Element;
 import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.form.Form;
-import com.google.android.gnd.model.observation.Record;
+import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.model.observation.Response;
 import java8.util.Optional;
 
@@ -42,26 +42,26 @@ class RecordListItemViewHolder extends RecyclerView.ViewHolder {
     this.binding = binding;
   }
 
-  public void bind(RecordViewModel viewModel, Record record) {
+  public void bind(RecordViewModel viewModel, Observation observation) {
     binding.setViewModel(viewModel);
     binding.executePendingBindings();
 
     // Add UI elements for each field with data.
-    addFieldsFromRecord(record);
+    addFieldsFromRecord(observation);
   }
 
-  private void addFieldsFromRecord(Record record) {
+  private void addFieldsFromRecord(Observation observation) {
     binding.fieldLabelRow.removeAllViews();
     binding.fieldValueRow.removeAllViews();
 
-    Form form = record.getForm();
+    Form form = observation.getForm();
     // TODO: Clean this up.
     for (int i = 0; i < MAX_COLUMNS && i < form.getElements().size(); i++) {
       Element elem = form.getElements().get(i);
       switch (elem.getType()) {
         case FIELD:
           Field field = elem.getField();
-          Optional<Response> response = record.getResponses().getResponse(field.getId());
+          Optional<Response> response = observation.getResponses().getResponse(field.getId());
           binding.fieldLabelRow.addView(
               newFieldTextView(field.getLabel(), R.style.RecordListText_FieldLabel));
           binding.fieldValueRow.addView(

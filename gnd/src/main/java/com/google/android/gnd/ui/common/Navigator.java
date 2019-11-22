@@ -64,7 +64,7 @@ public class Navigator {
   /**
    * Navigates from a {@link com.google.android.gnd.ui.home.HomeScreenFragment} to a {@link
    * com.google.android.gnd.ui.recorddetails.RecordDetailsFragment} populated with the specified
-   * record.
+   * observation.
    */
   public void showRecordDetails(String projectId, String featureId, String recordId) {
     navigate(HomeScreenFragmentDirections.showRecordDetails(projectId, featureId, recordId));
@@ -80,7 +80,7 @@ public class Navigator {
 
   /**
    * Navigates from the {@link com.google.android.gnd.ui.home.HomeScreenFragment} to a {@link
-   * com.google.android.gnd.ui.editrecord.EditRecordFragment} initialized with a new empty record
+   * com.google.android.gnd.ui.editrecord.EditRecordFragment} initialized with a new empty observation
    * using the specified form.
    */
   public void addRecord(String projectId, String featureId, String formId) {
@@ -90,7 +90,7 @@ public class Navigator {
   /**
    * Navigates from the {@link com.google.android.gnd.ui.recorddetails.RecordDetailsFragment} to a
    * {@link com.google.android.gnd.ui.editrecord.EditRecordFragment} populated with the specified
-   * record.
+   * observation.
    */
   public void editRecord(String projectId, String featureId, String recordId) {
     navigate(RecordDetailsFragmentDirections.editRecord(projectId, featureId, recordId));

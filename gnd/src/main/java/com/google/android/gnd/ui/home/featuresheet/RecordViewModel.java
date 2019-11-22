@@ -22,7 +22,7 @@ import android.view.View.OnClickListener;
 import androidx.databinding.ObservableField;
 import androidx.lifecycle.MutableLiveData;
 import com.google.android.gnd.R;
-import com.google.android.gnd.model.observation.Record;
+import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.system.AuthenticationManager;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import java.text.DateFormat;
@@ -36,8 +36,8 @@ public class RecordViewModel extends AbstractViewModel implements OnClickListene
   public final ObservableField<String> modifiedDate;
   public final ObservableField<String> modifiedTime;
   private final Application application;
-  private Consumer<Record> recordCallback;
-  private MutableLiveData<Record> selectedRecord;
+  private Consumer<Observation> recordCallback;
+  private MutableLiveData<Observation> selectedRecord;
 
   @Inject
   RecordViewModel(Application application) {
@@ -53,19 +53,19 @@ public class RecordViewModel extends AbstractViewModel implements OnClickListene
     recordCallback.accept(selectedRecord.getValue());
   }
 
-  public void setRecord(Record record) {
-    selectedRecord.postValue(record);
+  public void setRecord(Observation observation) {
+    selectedRecord.postValue(observation);
 
-    AuthenticationManager.User modifiedBy = record.getModifiedBy();
+    AuthenticationManager.User modifiedBy = observation.getModifiedBy();
     // TODO: i18n.
     userName.set(
         modifiedBy == null
             ? application.getApplicationContext().getString(R.string.unknown_user)
             : modifiedBy.getDisplayName());
 
-    if (record.getServerTimestamps() != null
-        && record.getServerTimestamps().getModified() != null) {
-      Date dateModified = record.getServerTimestamps().getModified();
+    if (observation.getServerTimestamps() != null
+        && observation.getServerTimestamps().getModified() != null) {
+      Date dateModified = observation.getServerTimestamps().getModified();
       DateFormat dateFormat = android.text.format.DateFormat.getMediumDateFormat(application);
       modifiedDate.set(dateFormat.format(dateModified));
       DateFormat timeFormat = android.text.format.DateFormat.getTimeFormat(application);
@@ -73,7 +73,7 @@ public class RecordViewModel extends AbstractViewModel implements OnClickListene
     }
   }
 
-  void setRecordCallback(Consumer<Record> recordCallback) {
+  void setRecordCallback(Consumer<Observation> recordCallback) {
     this.recordCallback = recordCallback;
   }
 }

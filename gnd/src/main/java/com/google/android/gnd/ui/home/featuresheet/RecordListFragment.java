@@ -29,7 +29,7 @@ import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.RecordListFragBinding;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.form.Form;
-import com.google.android.gnd.model.observation.Record;
+import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.home.HomeScreenViewModel;
@@ -87,9 +87,9 @@ public class RecordListFragment extends AbstractFragment {
     featureSheetViewModel.getSelectedForm().observe(this, this::onFormChange);
   }
 
-  private void onItemClick(Record record) {
+  private void onItemClick(Observation observation) {
     navigator.showRecordDetails(
-        record.getProject().getId(), record.getFeature().getId(), record.getId());
+        observation.getProject().getId(), observation.getFeature().getId(), observation.getId());
   }
 
   private void onFormChange(Optional<Form> form) {

@@ -19,7 +19,7 @@ package com.google.android.gnd.model.observation;
 import com.google.auto.value.AutoValue;
 import java8.util.Optional;
 
-/** Represents a change to an individual form response in a record. */
+/** Represents a change to an individual form response in a observation. */
 @AutoValue
 public abstract class ResponseDelta {
   /** Returns the id of the form field being updated. */

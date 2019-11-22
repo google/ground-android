@@ -35,7 +35,7 @@ import com.google.android.gnd.model.form.Element;
 import com.google.android.gnd.model.form.Element.Type;
 import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.form.Form;
-import com.google.android.gnd.model.observation.Record;
+import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.model.observation.RecordMutation;
 import com.google.android.gnd.model.observation.Response;
 import com.google.android.gnd.model.observation.ResponseDelta;
@@ -60,7 +60,7 @@ public class EditRecordViewModel extends AbstractViewModel {
 
   private final DataRepository dataRepository;
   private final AuthenticationManager authManager;
-  private final MutableLiveData<Persistable<Record>> record;
+  private final MutableLiveData<Persistable<Observation>> record;
   private final SingleLiveEvent<Void> showUnsavedChangesDialogEvents;
   private final SingleLiveEvent<Void> showErrorDialogEvents;
   private final Resources resources;
@@ -97,8 +97,8 @@ public class EditRecordViewModel extends AbstractViewModel {
                 request ->
                     saveRecord(request)
                         .toObservable()
-                        .startWith(Persistable.saving(request.record))
-                        .map(__ -> Persistable.saved(request.record))
+                        .startWith(Persistable.saving(request.observation))
+                        .map(__ -> Persistable.saved(request.observation))
                         .doOnError(this::onSaveRecordError)
                         // Prevent from breaking upstream.
                         .onErrorResumeNext(Observable.never()))
@@ -116,16 +116,16 @@ public class EditRecordViewModel extends AbstractViewModel {
             .subscribe(this::onRecordSnapshot));
   }
 
-  private String getFormNameView(Persistable<Record> record) {
-    return record.value().map(Record::getForm).map(Form::getTitle).orElse("");
+  private String getFormNameView(Persistable<Observation> record) {
+    return record.value().map(Observation::getForm).map(Form::getTitle).orElse("");
   }
 
-  private Single<Persistable<Record>> createOrUpdateRecord(EditRecordRequest request) {
+  private Single<Persistable<Observation>> createOrUpdateRecord(EditRecordRequest request) {
     this.isNew = request.isNew;
     return isNew ? newRecord(request) : editRecord(request);
   }
 
-  private Single<Persistable<Record>> newRecord(EditRecordRequest request) {
+  private Single<Persistable<Observation>> newRecord(EditRecordRequest request) {
     return dataRepository
         .createRecord(
             request.args.getProjectId(), request.args.getFeatureId(), request.args.getFormId())
@@ -134,7 +134,7 @@ public class EditRecordViewModel extends AbstractViewModel {
         .doOnSuccess(this::onNewRecordLoaded);
   }
 
-  private Single<Persistable<Record>> editRecord(EditRecordRequest request) {
+  private Single<Persistable<Observation>> editRecord(EditRecordRequest request) {
     return dataRepository
         .getRecord(
             request.args.getProjectId(), request.args.getFeatureId(), request.args.getRecordId())
@@ -147,23 +147,23 @@ public class EditRecordViewModel extends AbstractViewModel {
     RecordMutation recordMutation =
         RecordMutation.builder()
             .setType(request.mutationType)
-            .setProjectId(request.record.getProject().getId())
-            .setFeatureId(request.record.getFeature().getId())
-            .setLayerId(request.record.getFeature().getLayer().getId())
-            .setRecordId(request.record.getId())
-            .setFormId(request.record.getForm().getId())
-            .setResponseDeltas(getResponseDeltas(request.record))
+            .setProjectId(request.observation.getProject().getId())
+            .setFeatureId(request.observation.getFeature().getId())
+            .setLayerId(request.observation.getFeature().getLayer().getId())
+            .setRecordId(request.observation.getId())
+            .setFormId(request.observation.getForm().getId())
+            .setResponseDeltas(getResponseDeltas(request.observation))
             .setUserId(request.user.getId())
             .build();
     return dataRepository.applyAndEnqueue(recordMutation);
   }
 
   private void onSaveRecordError(Throwable t) {
-    Log.e(TAG, "Failed to save the record.", t);
+    Log.e(TAG, "Failed to save the observation.", t);
   }
 
   private void onEditRecordError(Throwable t) {
-    Log.e(TAG, "Unable to create or update record", t);
+    Log.e(TAG, "Unable to create or update observation", t);
   }
 
   public ObservableMap<String, Response> getResponses() {
@@ -198,7 +198,7 @@ public class EditRecordViewModel extends AbstractViewModel {
     }
   }
 
-  LiveData<Persistable<Record>> getRecord() {
+  LiveData<Persistable<Observation>> getRecord() {
     return record;
   }
 
@@ -211,16 +211,16 @@ public class EditRecordViewModel extends AbstractViewModel {
   }
 
   @NonNull
-  private Optional<Record> getCurrentRecord() {
+  private Optional<Observation> getCurrentRecord() {
     return Persistable.getData(record);
   }
 
-  private void onNewRecordLoaded(Persistable<Record> r) {
+  private void onNewRecordLoaded(Persistable<Observation> r) {
     responses.clear();
     errors.clear();
   }
 
-  private void updateMap(Record r) {
+  private void updateMap(Observation r) {
     Log.v(TAG, "Updating map");
     responses.clear();
     for (String fieldId : r.getResponses().fieldIds()) {
@@ -236,7 +236,7 @@ public class EditRecordViewModel extends AbstractViewModel {
     editRecordRequests.onNext(new EditRecordRequest(args, isNew));
   }
 
-  private void onRecordSnapshot(Persistable<Record> r) {
+  private void onRecordSnapshot(Persistable<Observation> r) {
     switch (r.state()) {
       case LOADING:
         saveButtonVisibility.set(View.GONE);
@@ -285,21 +285,21 @@ public class EditRecordViewModel extends AbstractViewModel {
     getCurrentRecord().ifPresent(this::saveChanges);
   }
 
-  private void saveChanges(Record r) {
+  private void saveChanges(Observation r) {
     // TODO(#100): Replace event object with single value (id?).
     recordSaveRequests.onNext(
         new SaveRecordRequest(
             r, this.currentUser, isNew ? Mutation.Type.CREATE : Mutation.Type.UPDATE));
   }
 
-  private ImmutableList<ResponseDelta> getResponseDeltas(Record record) {
+  private ImmutableList<ResponseDelta> getResponseDeltas(Observation observation) {
     ImmutableList.Builder<ResponseDelta> deltas = ImmutableList.builder();
-    for (Element e : record.getForm().getElements()) {
+    for (Element e : observation.getForm().getElements()) {
       if (e.getType() != Type.FIELD) {
         continue;
       }
       String fieldId = e.getField().getId();
-      Optional<Response> originalResponse = record.getResponses().getResponse(fieldId);
+      Optional<Response> originalResponse = observation.getResponses().getResponse(fieldId);
       Optional<Response> currentResponse = getResponse(fieldId).filter(r -> !r.isEmpty());
       if (!currentResponse.equals(originalResponse)) {
         deltas.add(
@@ -309,12 +309,12 @@ public class EditRecordViewModel extends AbstractViewModel {
     return deltas.build();
   }
 
-  private void update(Record record) {
-    updateMap(record);
-    updateErrors(record);
+  private void update(Observation observation) {
+    updateMap(observation);
+    updateErrors(observation);
   }
 
-  private void updateErrors(Record r) {
+  private void updateErrors(Observation r) {
     errors.clear();
     stream(r.getForm().getElements())
         .filter(e -> e.getType().equals(Type.FIELD))
@@ -356,12 +356,12 @@ public class EditRecordViewModel extends AbstractViewModel {
   }
 
   public static class SaveRecordRequest {
-    public final Record record;
+    public final Observation observation;
     public final AuthenticationManager.User user;
     public final Mutation.Type mutationType;
 
-    SaveRecordRequest(Record record, AuthenticationManager.User user, Mutation.Type mutationType) {
-      this.record = record;
+    SaveRecordRequest(Observation observation, AuthenticationManager.User user, Mutation.Type mutationType) {
+      this.observation = observation;
       this.user = user;
       this.mutationType = mutationType;
     }

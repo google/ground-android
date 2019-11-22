@@ -36,7 +36,7 @@ import com.google.android.gnd.databinding.RecordDetailsFragBinding;
 import com.google.android.gnd.inject.ActivityScoped;
 import com.google.android.gnd.model.form.Element;
 import com.google.android.gnd.model.form.Field;
-import com.google.android.gnd.model.observation.Record;
+import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.repository.Persistable;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.EphemeralPopups;
@@ -110,7 +110,7 @@ public class RecordDetailsFragment extends AbstractFragment {
     }
   }
 
-  private void onUpdate(Persistable<Record> record) {
+  private void onUpdate(Persistable<Observation> record) {
     switch (record.state()) {
       case LOADED:
         record.value().ifPresent(this::showRecord);
@@ -118,28 +118,28 @@ public class RecordDetailsFragment extends AbstractFragment {
       case NOT_FOUND:
       case ERROR:
         // TODO: Replace w/error view?
-        Log.e(TAG, "Failed to load record");
+        Log.e(TAG, "Failed to load observation");
         EphemeralPopups.showError(getContext());
         break;
     }
   }
 
-  private void showRecord(Record record) {
+  private void showRecord(Observation observation) {
     recordDetailsLayout.removeAllViews();
-    for (Element element : record.getForm().getElements()) {
+    for (Element element : observation.getForm().getElements()) {
       switch (element.getType()) {
         case FIELD:
-          addField(element.getField(), record);
+          addField(element.getField(), observation);
           break;
         default:
       }
     }
   }
 
-  private void addField(Field field, Record record) {
+  private void addField(Field field, Observation observation) {
     FieldViewHolder fieldViewHolder = FieldViewHolder.newInstance(getLayoutInflater());
     fieldViewHolder.setLabel(field.getLabel());
-    record
+    observation
         .getResponses()
         .getResponse(field.getId())
         .map(r -> r.getDetailsText(field))
@@ -191,7 +191,7 @@ public class RecordDetailsFragment extends AbstractFragment {
         navigator.editRecord(args.getProjectId(), args.getFeatureId(), args.getRecordId());
         return true;
       case R.id.delete_record_menu_item:
-        // TODO: Implement delete record.
+        // TODO: Implement delete observation.
         return true;
       default:
         return false;

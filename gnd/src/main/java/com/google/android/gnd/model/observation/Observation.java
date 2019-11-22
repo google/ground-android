@@ -26,7 +26,7 @@ import com.google.auto.value.AutoValue;
 
 /** Represents a single instance of data collected about a specific {@link Feature}. */
 @AutoValue
-public abstract class Record {
+public abstract class Observation {
   @Nullable
   public abstract String getId();
 
@@ -54,10 +54,10 @@ public abstract class Record {
   public abstract ResponseMap getResponses();
 
   public static Builder newBuilder() {
-    return new AutoValue_Record.Builder().setResponses(ResponseMap.builder().build());
+    return new AutoValue_Observation.Builder().setResponses(ResponseMap.builder().build());
   }
 
-  public abstract Record.Builder toBuilder();
+  public abstract Observation.Builder toBuilder();
 
   @AutoValue.Builder
   public abstract static class Builder {
@@ -79,6 +79,6 @@ public abstract class Record {
 
     public abstract Builder setResponses(ResponseMap responses);
 
-    public abstract Record build();
+    public abstract Observation build();
   }
 }

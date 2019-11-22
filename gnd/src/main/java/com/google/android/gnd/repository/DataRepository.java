@@ -21,7 +21,7 @@ import com.google.android.gnd.model.Mutation;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.FeatureMutation;
-import com.google.android.gnd.model.observation.Record;
+import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.model.observation.RecordMutation;
 import com.google.android.gnd.persistence.local.LocalDataStore;
 import com.google.android.gnd.persistence.local.LocalValueStore;
@@ -152,33 +152,33 @@ public class DataRepository {
    * Retrieves the records or the specified project, feature, and form.
    *
    * <ol>
-   *   <li>Attempt to sync remote record changes to the local data store. If network is not
+   *   <li>Attempt to sync remote observation changes to the local data store. If network is not
    *       available or operation times out, this step is skipped.
    *   <li>Relevant records are returned directly from the local data store.
    * </ol>
    */
-  public Single<ImmutableList<Record>> getRecords(
+  public Single<ImmutableList<Observation>> getRecords(
       String projectId, String featureId, String formId) {
     // TODO: Only fetch first n fields.
-    // TODO(#127): Decouple feature from record so that we don't need to fetch record here.
+    // TODO(#127): Decouple feature from observation so that we don't need to fetch observation here.
     return getFeature(projectId, featureId)
         .switchIfEmpty(Single.error(new DocumentNotFoundException()))
         .flatMap(feature -> getRecords(feature, formId));
   }
 
-  private Single<ImmutableList<Record>> getRecords(Feature feature, String formId) {
+  private Single<ImmutableList<Observation>> getRecords(Feature feature, String formId) {
     Completable remoteSync =
         remoteDataStore
             .loadRecords(feature)
             .timeout(GET_REMOTE_RECORDS_TIMEOUT_SECS, TimeUnit.SECONDS)
-            .doOnError(t -> Log.d(TAG, "Record sync timed out"))
+            .doOnError(t -> Log.d(TAG, "Observation sync timed out"))
             .flatMapCompletable(this::mergeRemoteRecords)
             .onErrorComplete();
     return remoteSync.andThen(localDataStore.getRecords(feature, formId));
   }
 
-  private Completable mergeRemoteRecords(ImmutableList<Record> records) {
-    return Observable.fromIterable(records)
+  private Completable mergeRemoteRecords(ImmutableList<Observation> observations) {
+    return Observable.fromIterable(observations)
         .flatMapCompletable(record -> localDataStore.mergeRecord(record));
   }
 
@@ -189,9 +189,9 @@ public class DataRepository {
         .flatMapMaybe(project -> localDataStore.getFeature(project, featureId));
   }
 
-  public Single<Record> getRecord(String projectId, String featureId, String recordId) {
+  public Single<Observation> getRecord(String projectId, String featureId, String recordId) {
     // TODO: Store and retrieve latest edits from cache and/or db.
-    // TODO(#127): Decouple feature from record so that we don't need to fetch feature here.
+    // TODO(#127): Decouple feature from observation so that we don't need to fetch feature here.
     return getFeature(projectId, featureId)
         .switchIfEmpty(Single.error(new DocumentNotFoundException()))
         .flatMap(
@@ -201,14 +201,14 @@ public class DataRepository {
                     .switchIfEmpty(Single.error(new DocumentNotFoundException())));
   }
 
-  public Single<Record> createRecord(String projectId, String featureId, String formId) {
+  public Single<Observation> createRecord(String projectId, String featureId, String formId) {
     // TODO: Handle invalid formId.
-    // TODO(#127): Decouple feature from record so that we don't need to fetch feature here.
+    // TODO(#127): Decouple feature from observation so that we don't need to fetch feature here.
     return getFeature(projectId, featureId)
         .switchIfEmpty(Single.error(new DocumentNotFoundException()))
         .map(
             feature ->
-                Record.newBuilder()
+                Observation.newBuilder()
                     .setId(uuidGenerator.generateUuid())
                     .setProject(feature.getProject())
                     .setFeature(feature)

@@ -24,7 +24,7 @@ import androidx.lifecycle.LiveDataReactiveStreams;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.form.Form;
-import com.google.android.gnd.model.observation.Record;
+import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.repository.DataRepository;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.common.collect.ImmutableList;
@@ -38,7 +38,7 @@ public class RecordListViewModel extends AbstractViewModel {
   private static final String TAG = RecordListViewModel.class.getSimpleName();
   private final DataRepository dataRepository;
   private PublishProcessor<RecordListRequest> recordListRequests;
-  private LiveData<ImmutableList<Record>> recordList;
+  private LiveData<ImmutableList<Observation>> recordList;
 
   public final ObservableInt loadingSpinnerVisibility = new ObservableInt();
 
@@ -54,7 +54,7 @@ public class RecordListViewModel extends AbstractViewModel {
                 .doOnNext(__ -> loadingSpinnerVisibility.set(View.GONE)));
   }
 
-  public LiveData<ImmutableList<Record>> getRecords() {
+  public LiveData<ImmutableList<Observation>> getRecords() {
     return recordList;
   }
 
@@ -64,15 +64,15 @@ public class RecordListViewModel extends AbstractViewModel {
         feature.getProject(), feature.getLayer().getId(), form.getId(), feature.getId());
   }
 
-  private Single<ImmutableList<Record>> getRecords(RecordListRequest req) {
+  private Single<ImmutableList<Observation>> getRecords(RecordListRequest req) {
     return dataRepository
         .getRecords(req.project.getId(), req.featureId, req.formId)
         .onErrorResumeNext(this::onGetRecordsError);
   }
 
-  private Single<ImmutableList<Record>> onGetRecordsError(Throwable t) {
+  private Single<ImmutableList<Observation>> onGetRecordsError(Throwable t) {
     // TODO: Show an appropriate error message to the user.
-    Log.d(TAG, "Failed to fetch record list.", t);
+    Log.d(TAG, "Failed to fetch observation list.", t);
     return Single.just(ImmutableList.of());
   }
 

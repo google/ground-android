@@ -23,7 +23,7 @@ import androidx.annotation.Nullable;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.model.observation.MultipleChoiceResponse;
-import com.google.android.gnd.model.observation.Record;
+import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.model.observation.RecordMutation;
 import com.google.android.gnd.model.observation.Response;
 import com.google.android.gnd.model.observation.ResponseDelta;
@@ -69,19 +69,19 @@ public class RecordDoc {
 
   @Nullable public Map<String, Object> responses;
 
-  public static RecordDoc forUpdates(Record record, Map<String, Object> responseUpdates) {
+  public static RecordDoc forUpdates(Observation observation, Map<String, Object> responseUpdates) {
     RecordDoc rd = new RecordDoc();
-    rd.featureId = record.getFeature().getId();
-    rd.featureTypeId = record.getFeature().getLayer().getId();
-    rd.formId = record.getForm().getId();
+    rd.featureId = observation.getFeature().getId();
+    rd.featureTypeId = observation.getFeature().getLayer().getId();
+    rd.formId = observation.getForm().getId();
     rd.responses = responseUpdates;
     rd.clientTimeModified = new Date();
-    rd.createdBy = UserDoc.fromObject(record.getCreatedBy());
-    rd.modifiedBy = UserDoc.fromObject(record.getModifiedBy());
+    rd.createdBy = UserDoc.fromObject(observation.getCreatedBy());
+    rd.modifiedBy = UserDoc.fromObject(observation.getModifiedBy());
     return rd;
   }
 
-  public static Record toObject(Feature feature, String recordId, DocumentSnapshot doc) {
+  public static Observation toObject(Feature feature, String recordId, DocumentSnapshot doc) {
     RecordDoc rd = doc.toObject(RecordDoc.class);
     if (!feature.getId().equals(rd.featureId)) {
       // TODO: Handle error.
@@ -93,7 +93,7 @@ public class RecordDoc {
     if (!form.isPresent()) {
       // TODO: Handle error.
     }
-    return Record.newBuilder()
+    return Observation.newBuilder()
         .setId(recordId)
         .setProject(feature.getProject())
         .setFeature(feature)

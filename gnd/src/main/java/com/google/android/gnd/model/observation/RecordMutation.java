@@ -24,19 +24,19 @@ import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 
 /**
- * Represents a mutation of a record performed on the local device. Mutations are queued locally by
+ * Represents a mutation of a observation performed on the local device. Mutations are queued locally by
  * the UI, and are dequeued and sent to the remote data store by the background data sync service.
  */
 @AutoValue
 public abstract class RecordMutation extends Mutation<RecordMutation.Builder> {
 
-  /** Returns the UUID of the record being modified. */
+  /** Returns the UUID of the observation being modified. */
   public abstract String getRecordId();
 
-  /** Returns the UUID of the form associated with this record. */
+  /** Returns the UUID of the form associated with this observation. */
   public abstract String getFormId();
 
-  /** Returns list of changes to responses included in this record mutation. */
+  /** Returns list of changes to responses included in this observation mutation. */
   public abstract ImmutableList<ResponseDelta> getResponseDeltas();
 
   @Override

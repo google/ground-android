@@ -29,7 +29,7 @@ import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.basemap.tile.Tile;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.FeatureMutation;
-import com.google.android.gnd.model.observation.Record;
+import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.model.observation.RecordMutation;
 import com.google.android.gnd.persistence.local.LocalDataStore;
 import com.google.common.collect.ImmutableList;
@@ -98,7 +98,7 @@ public class RoomLocalDataStore implements LocalDataStore {
   }
 
   @Override
-  public Maybe<Record> getRecord(Feature feature, String recordId) {
+  public Maybe<Observation> getRecord(Feature feature, String recordId) {
     return db.recordDao()
         .findById(recordId)
         .map(record -> RecordEntity.toRecord(feature, record))
@@ -106,7 +106,7 @@ public class RoomLocalDataStore implements LocalDataStore {
   }
 
   @Override
-  public Single<ImmutableList<Record>> getRecords(Feature feature, String formId) {
+  public Single<ImmutableList<Observation>> getRecords(Feature feature, String formId) {
     return db.recordDao()
         .findByFeatureId(feature.getId(), formId)
         .map(
@@ -182,10 +182,10 @@ public class RoomLocalDataStore implements LocalDataStore {
 
   @Transaction
   @Override
-  public Completable mergeRecord(Record record) {
-    RecordEntity recordEntity = RecordEntity.fromRecord(record);
+  public Completable mergeRecord(Observation observation) {
+    RecordEntity recordEntity = RecordEntity.fromRecord(observation);
     return db.recordMutationDao()
-        .findByRecordId(record.getId())
+        .findByRecordId(observation.getId())
         .map(mutations -> recordEntity.applyMutations(mutations))
         .flatMapCompletable(db.recordDao()::insertOrUpdate)
         .subscribeOn(Schedulers.io());

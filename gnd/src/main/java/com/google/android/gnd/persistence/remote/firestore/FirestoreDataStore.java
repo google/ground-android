@@ -23,7 +23,7 @@ import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.Timestamps;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.FeatureMutation;
-import com.google.android.gnd.model.observation.Record;
+import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.model.observation.RecordMutation;
 import com.google.android.gnd.persistence.remote.RemoteDataEvent;
 import com.google.android.gnd.persistence.remote.RemoteDataStore;
@@ -87,7 +87,7 @@ public class FirestoreDataStore implements RemoteDataStore, OfflineUuidGenerator
   }
 
   @Override
-  public Single<ImmutableList<Record>> loadRecords(Feature feature) {
+  public Single<ImmutableList<Observation>> loadRecords(Feature feature) {
     return db.projects()
         .project(feature.getProject().getId())
         .records()
