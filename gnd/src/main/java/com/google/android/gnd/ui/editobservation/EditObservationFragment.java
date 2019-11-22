@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.ui.editrecord;
+package com.google.android.gnd.ui.editobservation;
 
 import static com.google.android.gnd.ui.util.ViewUtil.assignGeneratedId;
 
@@ -52,12 +52,12 @@ import java8.util.Optional;
 import javax.inject.Inject;
 
 @ActivityScoped
-public class EditRecordFragment extends AbstractFragment implements BackPressListener {
-  private static final String TAG = EditRecordFragment.class.getSimpleName();
+public class EditObservationFragment extends AbstractFragment implements BackPressListener {
+  private static final String TAG = EditObservationFragment.class.getSimpleName();
 
   private ProgressDialog savingProgressDialog;
 
-  private EditRecordViewModel viewModel;
+  private EditObservationViewModel viewModel;
   private SingleSelectDialogFactory singleSelectDialogFactory;
   private MultiSelectDialogFactory multiSelectDialogFactory;
   private static final String NEW_RECORD_ID_ARG_PLACEHOLDER = "NEW_RECORD";
@@ -75,7 +75,7 @@ public class EditRecordFragment extends AbstractFragment implements BackPressLis
     super.onCreate(savedInstanceState);
     singleSelectDialogFactory = new SingleSelectDialogFactory(getContext());
     multiSelectDialogFactory = new MultiSelectDialogFactory(getContext());
-    viewModel = getViewModel(EditRecordViewModel.class);
+    viewModel = getViewModel(EditObservationViewModel.class);
   }
 
   @Override
@@ -113,7 +113,7 @@ public class EditRecordFragment extends AbstractFragment implements BackPressLis
       onRecordChange(record);
       return;
     }
-    EditRecordFragmentArgs args = EditRecordFragmentArgs.fromBundle(getArguments());
+    EditObservationFragmentArgs args = EditObservationFragmentArgs.fromBundle(getArguments());
     viewModel.editRecord(args, args.getRecordId().equals(NEW_RECORD_ID_ARG_PLACEHOLDER));
   }
 
@@ -121,7 +121,7 @@ public class EditRecordFragment extends AbstractFragment implements BackPressLis
     switch (record.state()) {
       case LOADING:
         // Do nothing.
-        // The logic is handled in EditRecordViewModel and reflected into UI using DataBinding.
+        // The logic is handled in EditObservationViewModel and reflected into UI using DataBinding.
         break;
       case LOADED:
         record.value().ifPresent(this::editRecord);

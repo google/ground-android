@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.ui.editrecord;
+package com.google.android.gnd.ui.editobservation;
 
 import static java8.util.stream.StreamSupport.stream;
 
@@ -55,8 +55,8 @@ import java8.util.Optional;
 import javax.inject.Inject;
 
 // TODO: Save draft to local db on each change.
-public class EditRecordViewModel extends AbstractViewModel {
-  private static final String TAG = EditRecordViewModel.class.getSimpleName();
+public class EditObservationViewModel extends AbstractViewModel {
+  private static final String TAG = EditObservationViewModel.class.getSimpleName();
 
   private final DataRepository dataRepository;
   private final AuthenticationManager authManager;
@@ -76,7 +76,7 @@ public class EditRecordViewModel extends AbstractViewModel {
   private boolean isNew;
 
   @Inject
-  EditRecordViewModel(
+  EditObservationViewModel(
       GndApplication application,
       DataRepository dataRepository,
       AuthenticationManager authenticationManager) {
@@ -230,7 +230,7 @@ public class EditRecordViewModel extends AbstractViewModel {
     }
   }
 
-  void editRecord(EditRecordFragmentArgs args, boolean isNew) {
+  void editRecord(EditObservationFragmentArgs args, boolean isNew) {
     this.currentUser = authManager.getUser().blockingFirst(AuthenticationManager.User.ANONYMOUS);
     // TODO(#100): Replace event object with single value (id?).
     editRecordRequests.onNext(new EditRecordRequest(args, isNew));
@@ -346,10 +346,10 @@ public class EditRecordViewModel extends AbstractViewModel {
   }
 
   public static class EditRecordRequest {
-    public final EditRecordFragmentArgs args;
+    public final EditObservationFragmentArgs args;
     public final boolean isNew;
 
-    EditRecordRequest(EditRecordFragmentArgs args, boolean isNew) {
+    EditRecordRequest(EditObservationFragmentArgs args, boolean isNew) {
       this.args = args;
       this.isNew = isNew;
     }

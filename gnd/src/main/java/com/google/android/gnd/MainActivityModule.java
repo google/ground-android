@@ -21,8 +21,8 @@ import com.google.android.gnd.inject.ActivityScoped;
 import com.google.android.gnd.inject.FragmentScoped;
 import com.google.android.gnd.ui.basemapselector.BasemapSelectorFragment;
 import com.google.android.gnd.ui.basemapselector.BasemapSelectorModule;
-import com.google.android.gnd.ui.editrecord.EditRecordFragment;
-import com.google.android.gnd.ui.editrecord.EditRecordModule;
+import com.google.android.gnd.ui.editobservation.EditObservationFragment;
+import com.google.android.gnd.ui.editobservation.EditObservationModule;
 import com.google.android.gnd.ui.home.AddFeatureDialogFragment;
 import com.google.android.gnd.ui.home.HomeScreenFragment;
 import com.google.android.gnd.ui.home.HomeScreenModule;
@@ -89,8 +89,8 @@ public abstract class MainActivityModule {
   abstract ObservationDetailsFragment recordDetailsFragmentInjector();
 
   @FragmentScoped
-  @ContributesAndroidInjector(modules = EditRecordModule.class)
-  abstract EditRecordFragment editRecordFragmentInjector();
+  @ContributesAndroidInjector(modules = EditObservationModule.class)
+  abstract EditObservationFragment editRecordFragmentInjector();
 
   @FragmentScoped
   @ContributesAndroidInjector(modules = BasemapSelectorModule.class)

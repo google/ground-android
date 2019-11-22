@@ -19,6 +19,7 @@ package com.google.android.gnd.ui.common;
 import androidx.navigation.NavDirections;
 import com.google.android.gnd.NavGraphDirections;
 import com.google.android.gnd.inject.ActivityScoped;
+import com.google.android.gnd.ui.editobservation.EditObservationFragment;
 import com.google.android.gnd.ui.home.HomeScreenFragmentDirections;
 import com.google.android.gnd.ui.observationdetails.ObservationDetailsFragment;
 import com.google.android.gnd.ui.observationdetails.ObservationDetailsFragmentDirections;
@@ -81,7 +82,7 @@ public class Navigator {
 
   /**
    * Navigates from the {@link com.google.android.gnd.ui.home.HomeScreenFragment} to a {@link
-   * com.google.android.gnd.ui.editrecord.EditRecordFragment} initialized with a new empty observation
+   * EditObservationFragment} initialized with a new empty observation
    * using the specified form.
    */
   public void addRecord(String projectId, String featureId, String formId) {
@@ -90,7 +91,7 @@ public class Navigator {
 
   /**
    * Navigates from the {@link ObservationDetailsFragment} to a
-   * {@link com.google.android.gnd.ui.editrecord.EditRecordFragment} populated with the specified
+   * {@link EditObservationFragment} populated with the specified
    * observation.
    */
   public void editRecord(String projectId, String featureId, String recordId) {

@@ -20,7 +20,7 @@ import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 import com.google.android.gnd.MainViewModel;
 import com.google.android.gnd.ui.basemapselector.BasemapSelectorViewModel;
-import com.google.android.gnd.ui.editrecord.EditRecordViewModel;
+import com.google.android.gnd.ui.editobservation.EditObservationViewModel;
 import com.google.android.gnd.ui.home.HomeScreenViewModel;
 import com.google.android.gnd.ui.home.featuresheet.FeatureSheetViewModel;
 import com.google.android.gnd.ui.home.featuresheet.RecordListViewModel;
@@ -87,8 +87,8 @@ public abstract class ViewModelModule {
 
   @Binds
   @IntoMap
-  @ViewModelKey(EditRecordViewModel.class)
-  abstract ViewModel bindEditRecordViewModel(EditRecordViewModel viewModel);
+  @ViewModelKey(EditObservationViewModel.class)
+  abstract ViewModel bindEditRecordViewModel(EditObservationViewModel viewModel);
 
   @Binds
   abstract ViewModelProvider.Factory bindViewModelFactory(ViewModelFactory factory);

@@ -112,7 +112,7 @@
   <fragment
     android:id="@+id/edit_record_fragment"
     android:label="edit_record_frag"
-    android:name="com.google.android.gnd.ui.editrecord.EditRecordFragment"
+    android:name="com.google.android.gnd.ui.editobservation.EditObservationFragment"
     tools:layout="@layout/edit_record_frag">
     <argument
       type="string"
