@@ -28,7 +28,7 @@ import com.google.android.gnd.ui.home.HomeScreenFragment;
 import com.google.android.gnd.ui.home.HomeScreenModule;
 import com.google.android.gnd.ui.home.featuresheet.FeatureSheetFragment;
 import com.google.android.gnd.ui.home.featuresheet.FeatureSheetModule;
-import com.google.android.gnd.ui.home.featuresheet.RecordListFragment;
+import com.google.android.gnd.ui.home.featuresheet.ObservationListFragment;
 import com.google.android.gnd.ui.home.mapcontainer.MapContainerFragment;
 import com.google.android.gnd.ui.home.mapcontainer.MapContainerModule;
 import com.google.android.gnd.ui.projectselector.ProjectSelectorDialogFragment;
@@ -82,7 +82,7 @@ public abstract class MainActivityModule {
 
   @FragmentScoped
   @ContributesAndroidInjector(modules = FeatureSheetModule.class)
-  abstract RecordListFragment recordListFragmentInjector();
+  abstract ObservationListFragment recordListFragmentInjector();
 
   @FragmentScoped
   @ContributesAndroidInjector(modules = ObservationDetailsModule.class)

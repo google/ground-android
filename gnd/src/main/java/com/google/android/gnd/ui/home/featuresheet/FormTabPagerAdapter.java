@@ -45,7 +45,7 @@ public class FormTabPagerAdapter extends FragmentStatePagerAdapter {
 
   @Override
   public Fragment getItem(int position) {
-    return RecordListFragment.newInstance();
+    return ObservationListFragment.newInstance();
   }
 
   @Override

@@ -36,7 +36,7 @@ import com.google.android.gnd.ui.home.HomeScreenViewModel;
 import java8.util.Optional;
 import javax.inject.Inject;
 
-public class RecordListFragment extends AbstractFragment {
+public class ObservationListFragment extends AbstractFragment {
 
   @Inject Navigator navigator;
   private ObservationListAdapter observationListAdapter;
@@ -47,8 +47,8 @@ public class RecordListFragment extends AbstractFragment {
   @BindView(R.id.record_list_container)
   RecyclerView recyclerView;
 
-  static RecordListFragment newInstance() {
-    return new RecordListFragment();
+  static ObservationListFragment newInstance() {
+    return new ObservationListFragment();
   }
 
   @Override
