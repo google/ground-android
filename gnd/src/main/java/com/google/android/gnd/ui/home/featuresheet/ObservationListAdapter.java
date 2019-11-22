@@ -29,13 +29,13 @@ import java.util.Collections;
 import java.util.List;
 
 // TODO: Consider passing in ViewModel and using DataBinding like todoapp example.
-class RecordListAdapter extends RecyclerView.Adapter<RecordListItemViewHolder> {
+class ObservationListAdapter extends RecyclerView.Adapter<RecordListItemViewHolder> {
 
   private final ViewModelFactory viewModelFactory;
   private List<Observation> observationList;
   private MutableLiveData<Observation> itemClicks;
 
-  public RecordListAdapter(ViewModelFactory viewModelFactory) {
+  public ObservationListAdapter(ViewModelFactory viewModelFactory) {
     this.viewModelFactory = viewModelFactory;
     observationList = Collections.emptyList();
     itemClicks = new MutableLiveData<>();

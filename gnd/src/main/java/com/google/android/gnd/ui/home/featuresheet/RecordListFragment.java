@@ -39,7 +39,7 @@ import javax.inject.Inject;
 public class RecordListFragment extends AbstractFragment {
 
   @Inject Navigator navigator;
-  private RecordListAdapter recordListAdapter;
+  private ObservationListAdapter observationListAdapter;
   private ObservationListViewModel viewModel;
   private FeatureSheetViewModel featureSheetViewModel;
   private HomeScreenViewModel homeScreenViewModel;
@@ -53,13 +53,13 @@ public class RecordListFragment extends AbstractFragment {
 
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
-    recordListAdapter = new RecordListAdapter(viewModelFactory);
+    observationListAdapter = new ObservationListAdapter(viewModelFactory);
     super.onCreate(savedInstanceState);
     viewModel = getViewModel(ObservationListViewModel.class);
     featureSheetViewModel = getViewModel(FeatureSheetViewModel.class);
     homeScreenViewModel = getViewModel(HomeScreenViewModel.class);
 
-    recordListAdapter.getItemClicks().observe(this, this::onItemClick);
+    observationListAdapter.getItemClicks().observe(this, this::onItemClick);
   }
 
   @Nullable
@@ -77,13 +77,13 @@ public class RecordListFragment extends AbstractFragment {
   public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
     recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-    recyclerView.setAdapter(recordListAdapter);
+    recyclerView.setAdapter(observationListAdapter);
   }
 
   @Override
   public void onActivityCreated(@Nullable Bundle savedInstanceState) {
     super.onActivityCreated(savedInstanceState);
-    viewModel.getRecords().observe(this, recordListAdapter::update);
+    viewModel.getRecords().observe(this, observationListAdapter::update);
     featureSheetViewModel.getSelectedForm().observe(this, this::onFormChange);
   }
 
@@ -93,7 +93,7 @@ public class RecordListFragment extends AbstractFragment {
   }
 
   private void onFormChange(Optional<Form> form) {
-    recordListAdapter.clear();
+    observationListAdapter.clear();
     // TODO: Use fragment args, load form and feature if not present.
     Optional<Feature> feature = featureSheetViewModel.getSelectedFeature().getValue();
     if (!form.isPresent() || !feature.isPresent()) {
