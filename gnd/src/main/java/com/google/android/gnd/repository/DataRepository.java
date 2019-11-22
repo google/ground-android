@@ -22,7 +22,7 @@ import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.FeatureMutation;
 import com.google.android.gnd.model.observation.Observation;
-import com.google.android.gnd.model.observation.RecordMutation;
+import com.google.android.gnd.model.observation.ObservationMutation;
 import com.google.android.gnd.persistence.local.LocalDataStore;
 import com.google.android.gnd.persistence.local.LocalValueStore;
 import com.google.android.gnd.persistence.remote.RemoteDataEvent;
@@ -223,7 +223,7 @@ public class DataRepository {
         .switchIfEmpty(remoteDataStore.loadProject(projectId));
   }
 
-  public Completable applyAndEnqueue(RecordMutation mutation) {
+  public Completable applyAndEnqueue(ObservationMutation mutation) {
     // TODO(#101): Store user id and timestamp on save.
     return localDataStore
         .applyAndEnqueue(mutation)

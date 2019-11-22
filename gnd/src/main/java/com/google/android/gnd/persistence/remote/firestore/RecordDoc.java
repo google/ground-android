@@ -24,7 +24,7 @@ import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.model.observation.MultipleChoiceResponse;
 import com.google.android.gnd.model.observation.Observation;
-import com.google.android.gnd.model.observation.RecordMutation;
+import com.google.android.gnd.model.observation.ObservationMutation;
 import com.google.android.gnd.model.observation.Response;
 import com.google.android.gnd.model.observation.ResponseDelta;
 import com.google.android.gnd.model.observation.ResponseMap;
@@ -137,7 +137,7 @@ public class RecordDoc {
     }
   }
 
-  public static ImmutableMap<String, Object> toMap(RecordMutation mutation) {
+  public static ImmutableMap<String, Object> toMap(ObservationMutation mutation) {
     return ImmutableMap.<String, Object>builder()
         .put(FEATURE_ID, mutation.getFeatureId())
         .put(FEATURE_TYPE_ID, mutation.getLayerId())

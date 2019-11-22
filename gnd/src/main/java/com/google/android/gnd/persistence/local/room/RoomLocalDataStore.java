@@ -30,7 +30,7 @@ import com.google.android.gnd.model.basemap.tile.Tile;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.FeatureMutation;
 import com.google.android.gnd.model.observation.Observation;
-import com.google.android.gnd.model.observation.RecordMutation;
+import com.google.android.gnd.model.observation.ObservationMutation;
 import com.google.android.gnd.persistence.local.LocalDataStore;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -147,7 +147,7 @@ public class RoomLocalDataStore implements LocalDataStore {
 
   private ImmutableList<RecordMutationEntity> toRecordMutationEntities(
       ImmutableList<Mutation> mutations) {
-    return stream(RecordMutation.filter(mutations))
+    return stream(ObservationMutation.filter(mutations))
         .map(RecordMutationEntity::fromMutation)
         .collect(toImmutableList());
   }
@@ -166,7 +166,7 @@ public class RoomLocalDataStore implements LocalDataStore {
         .deleteAll(FeatureMutation.ids(mutations))
         .andThen(
             db.recordMutationDao()
-                .deleteAll(RecordMutation.ids(mutations))
+                .deleteAll(ObservationMutation.ids(mutations))
                 .subscribeOn(Schedulers.io()))
         .subscribeOn(Schedulers.io());
   }
@@ -220,7 +220,7 @@ public class RoomLocalDataStore implements LocalDataStore {
 
   @Transaction
   @Override
-  public Completable applyAndEnqueue(RecordMutation mutation) {
+  public Completable applyAndEnqueue(ObservationMutation mutation) {
     try {
       return apply(mutation).andThen(enqueue(mutation));
     } catch (LocalDataStoreException e) {
@@ -228,7 +228,7 @@ public class RoomLocalDataStore implements LocalDataStore {
     }
   }
 
-  private Completable apply(RecordMutation mutation) throws LocalDataStoreException {
+  private Completable apply(ObservationMutation mutation) throws LocalDataStoreException {
     switch (mutation.getType()) {
       case CREATE:
       case UPDATE:
@@ -240,7 +240,7 @@ public class RoomLocalDataStore implements LocalDataStore {
     }
   }
 
-  private Completable enqueue(RecordMutation mutation) {
+  private Completable enqueue(ObservationMutation mutation) {
     return db.recordMutationDao()
         .insert(RecordMutationEntity.fromMutation(mutation))
         .subscribeOn(Schedulers.io());

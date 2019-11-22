@@ -25,7 +25,7 @@ import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.FeatureMutation;
 import com.google.android.gnd.model.observation.Observation;
-import com.google.android.gnd.model.observation.RecordMutation;
+import com.google.android.gnd.model.observation.ObservationMutation;
 import com.google.android.gnd.persistence.remote.RemoteDataEvent;
 import com.google.android.gnd.system.AuthenticationManager.User;
 import com.google.common.collect.ImmutableList;
@@ -178,7 +178,7 @@ public class GndFirestore extends AbstractFluentFirestore {
     }
 
     /** Appends the operation described by the specified mutation to the provided write batch. */
-    public void addMutationToBatch(RecordMutation mutation, WriteBatch batch) {
+    public void addMutationToBatch(ObservationMutation mutation, WriteBatch batch) {
       switch (mutation.getType()) {
         case CREATE:
         case UPDATE:

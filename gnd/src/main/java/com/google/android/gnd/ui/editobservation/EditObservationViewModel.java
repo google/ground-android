@@ -36,7 +36,7 @@ import com.google.android.gnd.model.form.Element.Type;
 import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.model.observation.Observation;
-import com.google.android.gnd.model.observation.RecordMutation;
+import com.google.android.gnd.model.observation.ObservationMutation;
 import com.google.android.gnd.model.observation.Response;
 import com.google.android.gnd.model.observation.ResponseDelta;
 import com.google.android.gnd.model.observation.TextResponse;
@@ -144,8 +144,8 @@ public class EditObservationViewModel extends AbstractViewModel {
   }
 
   private Completable saveRecord(SaveRecordRequest request) {
-    RecordMutation recordMutation =
-        RecordMutation.builder()
+    ObservationMutation observationMutation =
+        ObservationMutation.builder()
             .setType(request.mutationType)
             .setProjectId(request.observation.getProject().getId())
             .setFeatureId(request.observation.getFeature().getId())
@@ -155,7 +155,7 @@ public class EditObservationViewModel extends AbstractViewModel {
             .setResponseDeltas(getResponseDeltas(request.observation))
             .setUserId(request.user.getId())
             .build();
-    return dataRepository.applyAndEnqueue(recordMutation);
+    return dataRepository.applyAndEnqueue(observationMutation);
   }
 
   private void onSaveRecordError(Throwable t) {

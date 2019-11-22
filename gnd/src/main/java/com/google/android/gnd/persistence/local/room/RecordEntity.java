@@ -27,7 +27,7 @@ import androidx.room.Index;
 import androidx.room.PrimaryKey;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.observation.Observation;
-import com.google.android.gnd.model.observation.RecordMutation;
+import com.google.android.gnd.model.observation.ObservationMutation;
 import com.google.android.gnd.model.observation.ResponseMap;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.AutoValue.CopyAnnotations;
@@ -105,7 +105,7 @@ public abstract class RecordEntity {
         .build();
   }
 
-  public static RecordEntity fromMutation(RecordMutation mutation) {
+  public static RecordEntity fromMutation(ObservationMutation mutation) {
     return RecordEntity.builder()
         .setId(mutation.getRecordId())
         .setFormId(mutation.getFormId())

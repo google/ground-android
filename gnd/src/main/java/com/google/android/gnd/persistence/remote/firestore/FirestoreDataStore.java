@@ -24,7 +24,7 @@ import com.google.android.gnd.model.Timestamps;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.FeatureMutation;
 import com.google.android.gnd.model.observation.Observation;
-import com.google.android.gnd.model.observation.RecordMutation;
+import com.google.android.gnd.model.observation.ObservationMutation;
 import com.google.android.gnd.persistence.remote.RemoteDataEvent;
 import com.google.android.gnd.persistence.remote.RemoteDataStore;
 import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator;
@@ -126,8 +126,8 @@ public class FirestoreDataStore implements RemoteDataStore, OfflineUuidGenerator
   private void addMutationToBatch(Mutation mutation, WriteBatch batch) {
     if (mutation instanceof FeatureMutation) {
       addFeatureMutationToBatch((FeatureMutation) mutation, batch);
-    } else if (mutation instanceof RecordMutation) {
-      addRecordMutationToBatch((RecordMutation) mutation, batch);
+    } else if (mutation instanceof ObservationMutation) {
+      addRecordMutationToBatch((ObservationMutation) mutation, batch);
     } else {
       throw new IllegalArgumentException("Unsupported mutation " + mutation.getClass());
     }
@@ -141,7 +141,7 @@ public class FirestoreDataStore implements RemoteDataStore, OfflineUuidGenerator
         .addMutationToBatch(mutation, batch);
   }
 
-  private void addRecordMutationToBatch(RecordMutation mutation, WriteBatch batch) {
+  private void addRecordMutationToBatch(ObservationMutation mutation, WriteBatch batch) {
     db.projects()
         .project(mutation.getProjectId())
         .records()

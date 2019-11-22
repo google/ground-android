@@ -25,14 +25,14 @@ import androidx.room.Entity;
 import androidx.room.ForeignKey;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
-import com.google.android.gnd.model.observation.RecordMutation;
+import com.google.android.gnd.model.observation.ObservationMutation;
 import com.google.android.gnd.model.observation.ResponseDelta;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.AutoValue.CopyAnnotations;
 import com.google.common.collect.ImmutableList;
 import org.json.JSONObject;
 
-/** Representation of a {@link RecordMutation} in local data store. */
+/** Representation of a {@link ObservationMutation} in local data store. */
 @AutoValue
 @Entity(
     tableName = "record_mutation",
@@ -133,7 +133,7 @@ public abstract class RecordMutationEntity {
         .build();
   }
 
-  public static RecordMutationEntity fromMutation(RecordMutation m) {
+  public static RecordMutationEntity fromMutation(ObservationMutation m) {
     return RecordMutationEntity.builder()
         .setId(m.getId())
         .setProjectId(m.getProjectId())
@@ -148,8 +148,8 @@ public abstract class RecordMutationEntity {
         .build();
   }
 
-  public RecordMutation toMutation() {
-    return RecordMutation.builder()
+  public ObservationMutation toMutation() {
+    return ObservationMutation.builder()
         .setId(getId())
         .setProjectId(getProjectId())
         .setFeatureId(getFeatureId())
