@@ -32,7 +32,7 @@ import butterknife.BindView;
 import butterknife.OnClick;
 import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.R;
-import com.google.android.gnd.databinding.EditRecordFragBinding;
+import com.google.android.gnd.databinding.EditObservationFragBinding;
 import com.google.android.gnd.databinding.MultipleChoiceInputFieldBinding;
 import com.google.android.gnd.databinding.TextInputFieldBinding;
 import com.google.android.gnd.inject.ActivityScoped;
@@ -81,7 +81,8 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
   @Override
   public View onCreateView(
       LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-    EditRecordFragBinding binding = EditRecordFragBinding.inflate(inflater, container, false);
+    EditObservationFragBinding binding =
+        EditObservationFragBinding.inflate(inflater, container, false);
     binding.setViewModel(viewModel);
     return binding.getRoot();
   }

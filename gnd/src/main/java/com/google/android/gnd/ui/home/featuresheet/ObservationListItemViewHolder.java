@@ -23,7 +23,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.gnd.R;
-import com.google.android.gnd.databinding.RecordListItemBinding;
+import com.google.android.gnd.databinding.ObservationListItemBinding;
 import com.google.android.gnd.model.form.Element;
 import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.form.Form;
@@ -35,9 +35,9 @@ class ObservationListItemViewHolder extends RecyclerView.ViewHolder {
 
   private static final int MAX_COLUMNS = 4;
 
-  private final RecordListItemBinding binding;
+  private final ObservationListItemBinding binding;
 
-  ObservationListItemViewHolder(@NonNull RecordListItemBinding binding) {
+  ObservationListItemViewHolder(@NonNull ObservationListItemBinding binding) {
     super(binding.getRoot());
     this.binding = binding;
   }

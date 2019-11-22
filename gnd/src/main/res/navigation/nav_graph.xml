@@ -87,7 +87,7 @@
     android:id="@+id/record_details_fragment"
     android:label="@string/view_record_details"
     android:name="com.google.android.gnd.ui.observationdetails.ObservationDetailsFragment"
-    tools:layout="@layout/record_details_frag">
+    tools:layout="@layout/observation_details_frag">
     <argument
       type="string"
       android:name="projectId"/>
@@ -113,7 +113,7 @@
     android:id="@+id/edit_record_fragment"
     android:label="edit_record_frag"
     android:name="com.google.android.gnd.ui.editobservation.EditObservationFragment"
-    tools:layout="@layout/edit_record_frag">
+    tools:layout="@layout/edit_observation_frag">
     <argument
       type="string"
       android:name="projectId"/>

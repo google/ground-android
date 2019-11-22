@@ -32,7 +32,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.R;
-import com.google.android.gnd.databinding.RecordDetailsFragBinding;
+import com.google.android.gnd.databinding.ObservationDetailsFragBinding;
 import com.google.android.gnd.inject.ActivityScoped;
 import com.google.android.gnd.model.form.Element;
 import com.google.android.gnd.model.form.Field;
@@ -75,7 +75,7 @@ public class ObservationDetailsFragment extends AbstractFragment {
   public View onCreateView(
       LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     super.onCreateView(inflater, container, savedInstanceState);
-    RecordDetailsFragBinding binding = RecordDetailsFragBinding.inflate(inflater, container, false);
+    ObservationDetailsFragBinding binding = ObservationDetailsFragBinding.inflate(inflater, container, false);
     binding.setViewModel(viewModel);
     binding.setLifecycleOwner(this);
     return binding.getRoot();
@@ -89,7 +89,7 @@ public class ObservationDetailsFragment extends AbstractFragment {
 
   @Override
   public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-    inflater.inflate(R.menu.record_details_menu, menu);
+    inflater.inflate(R.menu.observation_details_menu, menu);
   }
 
   @Override
@@ -162,7 +162,7 @@ public class ObservationDetailsFragment extends AbstractFragment {
     }
 
     static FieldViewHolder newInstance(LayoutInflater inflater) {
-      ViewGroup root = (ViewGroup) inflater.inflate(R.layout.record_details_field, null);
+      ViewGroup root = (ViewGroup) inflater.inflate(R.layout.observation_details_field, null);
       FieldViewHolder holder = new FieldViewHolder(root);
       ButterKnife.bind(holder, root);
       return holder;

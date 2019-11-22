@@ -26,7 +26,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
 import com.google.android.gnd.R;
-import com.google.android.gnd.databinding.RecordListFragBinding;
+import com.google.android.gnd.databinding.ObservationListFragBinding;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.model.observation.Observation;
@@ -67,7 +67,8 @@ public class ObservationListFragment extends AbstractFragment {
   public View onCreateView(
       LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
     super.onCreateView(inflater, container, savedInstanceState);
-    RecordListFragBinding binding = RecordListFragBinding.inflate(inflater, container, false);
+    ObservationListFragBinding binding =
+        ObservationListFragBinding.inflate(inflater, container, false);
     binding.setViewModel(viewModel);
     binding.setLifecycleOwner(this);
     return binding.getRoot();

@@ -22,7 +22,7 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.recyclerview.widget.RecyclerView;
-import com.google.android.gnd.databinding.RecordListItemBinding;
+import com.google.android.gnd.databinding.ObservationListItemBinding;
 import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.ui.common.ViewModelFactory;
 import java.util.Collections;
@@ -45,7 +45,7 @@ class ObservationListAdapter extends RecyclerView.Adapter<ObservationListItemVie
   @Override
   public ObservationListItemViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
     LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-    RecordListItemBinding itemBinding = RecordListItemBinding.inflate(inflater, parent, false);
+    ObservationListItemBinding itemBinding = ObservationListItemBinding.inflate(inflater, parent, false);
     return new ObservationListItemViewHolder(itemBinding);
   }
 
