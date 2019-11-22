@@ -37,7 +37,7 @@ public class ObservationListViewModel extends AbstractViewModel {
 
   private static final String TAG = ObservationListViewModel.class.getSimpleName();
   private final DataRepository dataRepository;
-  private PublishProcessor<RecordListRequest> recordListRequests;
+  private PublishProcessor<ObservationListRequest> recordListRequests;
   private LiveData<ImmutableList<Observation>> recordList;
 
   public final ObservableInt loadingSpinnerVisibility = new ObservableInt();
@@ -64,7 +64,7 @@ public class ObservationListViewModel extends AbstractViewModel {
         feature.getProject(), feature.getLayer().getId(), form.getId(), feature.getId());
   }
 
-  private Single<ImmutableList<Observation>> getRecords(RecordListRequest req) {
+  private Single<ImmutableList<Observation>> getRecords(ObservationListRequest req) {
     return dataRepository
         .getRecords(req.project.getId(), req.featureId, req.formId)
         .onErrorResumeNext(this::onGetRecordsError);
@@ -83,15 +83,15 @@ public class ObservationListViewModel extends AbstractViewModel {
       return;
     }
     // TODO: Use project id instead of object.
-    recordListRequests.onNext(new RecordListRequest(project, featureId, formId));
+    recordListRequests.onNext(new ObservationListRequest(project, featureId, formId));
   }
 
-  class RecordListRequest {
+  class ObservationListRequest {
     public final Project project;
     public final String featureId;
     public final String formId;
 
-    public RecordListRequest(Project project, String featureId, String formId) {
+    public ObservationListRequest(Project project, String featureId, String formId) {
       this.project = project;
       this.featureId = featureId;
       this.formId = formId;
