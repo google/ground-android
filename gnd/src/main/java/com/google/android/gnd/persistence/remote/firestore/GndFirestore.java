@@ -45,7 +45,6 @@ import io.reactivex.Single;
 import java.util.Collections;
 import java.util.List;
 import java8.util.function.Function;
-import java8.util.stream.Collectors;
 
 /** Object representation of Ground Firestore database. */
 public class GndFirestore extends AbstractFluentFirestore {
