@@ -111,6 +111,7 @@ steps:
         else
           gsutil cp cloud-builder/success.svg gs://${_CACHE_BUCKET}/status.svg
         fi
+        gsutil acl ch -u AllUsers:R gs://${_CACHE_BUCKET}/status.svg
 
   # Compress the gradle build cache
   - name: 'gcr.io/$PROJECT_ID/android:base'
