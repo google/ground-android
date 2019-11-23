@@ -77,7 +77,8 @@ steps:
     args:
       - '-c'
       - |
-        ./gradlew assembleDebug checkCode || echo "fail" > /workspace/build-status.txt
+        ./gradlew assembleDebug && \
+        ./gradlew checkCode || echo "fail" > /workspace/build-status.txt
     env:
       - 'TERM=dumb'
       - 'JAVA_TOOL_OPTIONS="-Xmx3g"'
@@ -89,10 +90,12 @@ steps:
       - name: 'build_cache'
         path: '/build_cache'
 
+  # Save all reports to GCS
   - id: Save artifacts to GCS
     name: 'gcr.io/cloud-builders/gsutil'
-    args: ['cp','-r','gnd/build/reports/*/*.html','gs://${_ARTIFACT_BUCKET}/$BRANCH_NAME-$BUILD_ID/reports/']
+    args: ['cp','-r','gnd/build/reports','gs://${_ARTIFACT_BUCKET}/$BRANCH_NAME-$BUILD_ID/reports']
 
+  # Fail build if errors were found in "build" step
   - id: Bubble build result
     name: 'gcr.io/cloud-builders/gsutil'
     entrypoint: 'bash'
@@ -100,6 +103,8 @@ steps:
       - '-c'
       - |
         if [[ $(< /workspace/build-status.txt) == "fail" ]]; then
+          echo "Build failed."
+          echo "Reports uploaded to https://console.cloud.google.com/storage/browser/${_ARTIFACT_BUCKET}/$BRANCH_NAME-$BUILD_ID/"
           exit 1
         fi
 
