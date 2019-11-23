@@ -105,13 +105,14 @@ steps:
         if [[ $(< /workspace/build-status.txt) == "fail" ]]
         then
           gsutil cp cloud-builder/failure.svg gs://${_CACHE_BUCKET}/status.svg
+          gsutil acl ch -u AllUsers:R gs://${_CACHE_BUCKET}/status.svg
           echo "Build failed."
           echo "Reports uploaded to https://console.cloud.google.com/storage/browser/${_ARTIFACT_BUCKET}/$BRANCH_NAME-$BUILD_ID/"
           exit 1
         else
           gsutil cp cloud-builder/success.svg gs://${_CACHE_BUCKET}/status.svg
+          gsutil acl ch -u AllUsers:R gs://${_CACHE_BUCKET}/status.svg
         fi
-        gsutil acl ch -u AllUsers:R gs://${_CACHE_BUCKET}/status.svg
 
   # Compress the gradle build cache
   - name: 'gcr.io/$PROJECT_ID/android:base'
