@@ -104,12 +104,12 @@ steps:
       - |
         if [[ $(< /workspace/build-status.txt) == "fail" ]]
         then
-          cp cloud-builder/failure.svg gs://${_CACHE_BUCKET}/status.svg
+          gsutil cp cloud-builder/failure.svg gs://${_CACHE_BUCKET}/status.svg
           echo "Build failed."
           echo "Reports uploaded to https://console.cloud.google.com/storage/browser/${_ARTIFACT_BUCKET}/$BRANCH_NAME-$BUILD_ID/"
           exit 1
         else
-          cp cloud-builder/success.svg gs://${_CACHE_BUCKET}/status.svg
+          gsutil cp cloud-builder/success.svg gs://${_CACHE_BUCKET}/status.svg
         fi
 
   # Compress the gradle build cache
