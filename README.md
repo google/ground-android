@@ -1,4 +1,5 @@
 # Ground for Android
+[![cloud build status](https://storage.googleapis.com/gradle_cache_bucket/status.svg)](https://github.com/google/ground-android)
 
 Ground is a free, map-centric data collection platform for occasionally
 connected devices.
