@@ -158,13 +158,15 @@ public class GndFirestore extends AbstractFluentFirestore {
           .map(
               querySnapshot ->
                   stream(querySnapshot.getDocuments())
-                      .map(recordDoc -> RecordDoc.toObject(feature, recordDoc.getId(), recordDoc))
+                      .map(
+                          recordDoc ->
+                              ObservationDoc.toObject(feature, recordDoc.getId(), recordDoc))
                       .collect(toImmutableList()))
           .toSingle(ImmutableList.of());
     }
 
     private Query byFeatureId(String featureId) {
-      return ref().whereEqualTo(FieldPath.of(RecordDoc.FEATURE_ID), featureId);
+      return ref().whereEqualTo(FieldPath.of(ObservationDoc.FEATURE_ID), featureId);
     }
   }
 
@@ -174,7 +176,8 @@ public class GndFirestore extends AbstractFluentFirestore {
     }
 
     public Maybe<Observation> get(Feature feature) {
-      return RxFirestore.getDocument(ref).map(doc -> RecordDoc.toObject(feature, doc.getId(), doc));
+      return RxFirestore.getDocument(ref)
+          .map(doc -> ObservationDoc.toObject(feature, doc.getId(), doc));
     }
 
     /** Appends the operation described by the specified mutation to the provided write batch. */
@@ -182,7 +185,7 @@ public class GndFirestore extends AbstractFluentFirestore {
       switch (mutation.getType()) {
         case CREATE:
         case UPDATE:
-          merge(RecordDoc.toMap(mutation), batch);
+          merge(ObservationDoc.toMap(mutation), batch);
           break;
         case DELETE:
           // TODO: Implement me!
@@ -202,9 +205,7 @@ public class GndFirestore extends AbstractFluentFirestore {
     return result
         .map(
             querySnapshot ->
-                stream(querySnapshot.getDocuments())
-                    .map(mappingFunction)
-                    .collect(toList()))
+                stream(querySnapshot.getDocuments()).map(mappingFunction).collect(toList()))
         .toSingle(Collections.emptyList());
   }
 

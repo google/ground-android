@@ -42,8 +42,8 @@ import java8.util.Optional;
 
 // TODO: Refactor into cleaner persistence layer.
 @IgnoreExtraProperties
-public class RecordDoc {
-  private static final String TAG = RecordDoc.class.getSimpleName();
+public class ObservationDoc {
+  private static final String TAG = ObservationDoc.class.getSimpleName();
   public static final String FEATURE_ID = "featureId";
   public static final String FEATURE_TYPE_ID = "featureTypeId";
   public static final String FORM_ID = "formId";
@@ -69,8 +69,9 @@ public class RecordDoc {
 
   @Nullable public Map<String, Object> responses;
 
-  public static RecordDoc forUpdates(Observation observation, Map<String, Object> responseUpdates) {
-    RecordDoc rd = new RecordDoc();
+  public static ObservationDoc forUpdates(
+      Observation observation, Map<String, Object> responseUpdates) {
+    ObservationDoc rd = new ObservationDoc();
     rd.featureId = observation.getFeature().getId();
     rd.featureTypeId = observation.getFeature().getLayer().getId();
     rd.formId = observation.getForm().getId();
@@ -82,7 +83,7 @@ public class RecordDoc {
   }
 
   public static Observation toObject(Feature feature, String recordId, DocumentSnapshot doc) {
-    RecordDoc rd = doc.toObject(RecordDoc.class);
+    ObservationDoc rd = doc.toObject(ObservationDoc.class);
     if (!feature.getId().equals(rd.featureId)) {
       // TODO: Handle error.
     }
@@ -153,7 +154,7 @@ public class RecordDoc {
     for (ResponseDelta delta : responseDeltas) {
       map.put(
           delta.getFieldId(),
-          delta.getNewResponse().map(RecordDoc::toObject).orElse(FieldValue.delete()));
+          delta.getNewResponse().map(ObservationDoc::toObject).orElse(FieldValue.delete()));
     }
     return map.build();
   }
