@@ -26,7 +26,7 @@ import java.util.Map;
 import java8.util.Maps;
 
 @IgnoreExtraProperties
-public class FeatureTypeDoc {
+public class LayerDoc {
   // TODO: Better name than pathKey? urlSubpath?
   @Nullable public String pathKey;
 

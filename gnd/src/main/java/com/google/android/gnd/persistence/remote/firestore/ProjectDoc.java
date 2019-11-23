@@ -41,7 +41,7 @@ public class ProjectDoc {
 
   @Nullable public Date clientTimeModified;
 
-  @Nullable public Map<String, FeatureTypeDoc> featureTypes;
+  @Nullable public Map<String, LayerDoc> featureTypes;
 
   public static Project toObject(DocumentSnapshot doc) {
     ProjectDoc pd = doc.toObject(ProjectDoc.class);
