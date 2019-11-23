@@ -14,14 +14,18 @@
 # limitations under the License.
 #
 
-# Loadsthe Docker image from the container registry and then runs the following steps:
+# Loads the Docker image from the container registry and then runs the following steps:
 #
 #  1. Copy Gradle cache
 #  2. Extract tarball
 #  3. Copy .git dir
-#  4. Build debug APK and run checkstyle checks
+#  4. Build debug APK and run checkstyle checks (suppress failure if check fails)
+#  5. Save reports to GCS
+#  6. Fail the build if any errors were encountered during step 4
 #  5. Compress Gradle files
 #  6. Save tarball
+#
+#  NOTE: APKs are saved to GCS only if the build passes
 #
 # Based on https://github.com/GoogleCloudPlatform/cloud-builders-community
 
@@ -69,7 +73,11 @@ steps:
   # Build debug APK and run checkstyle checks
   - name: 'gcr.io/$PROJECT_ID/android:28'
     id: build
-    args: ['./gradlew', 'assembleDebug', 'checkCode']
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        ./gradlew assembleDebug checkCode || echo "fail" > /workspace/build-status.txt
     env:
       - 'TERM=dumb'
       - 'JAVA_TOOL_OPTIONS="-Xmx3g"'
@@ -80,6 +88,20 @@ steps:
     volumes:
       - name: 'build_cache'
         path: '/build_cache'
+
+  - id: Save artifacts to GCS
+    name: 'gcr.io/cloud-builders/gsutil'
+    args: ['cp','-r','gnd/build/reports/*/*.html','gs://${_ARTIFACT_BUCKET}/$BRANCH_NAME-$BUILD_ID/reports/']
+
+  - id: Bubble build result
+    name: 'gcr.io/cloud-builders/gsutil'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        if [[ $(< /workspace/build-status.txt) == "fail" ]]; then
+          exit 1
+        fi
 
   # Compress the gradle build cache
   - name: 'gcr.io/$PROJECT_ID/android:base'
