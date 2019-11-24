@@ -13,6 +13,9 @@
     To completely disable a check, just comment it out or delete it from the file.
 
     Authors: Max Vetrenko, Ruslan Diachenko, Roman Ivanov.
+
+    Imported from original source described in METADATA. See git log for full
+    list of changes applied after inital import.
  -->
 
 <module name="Checker">
