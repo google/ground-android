@@ -14,32 +14,36 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.model.layer;
+package com.google.android.gnd.model.observation;
 
-import static java8.util.stream.StreamSupport.stream;
-
+import androidx.annotation.Nullable;
+import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.Timestamps;
+import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.form.Form;
+import com.google.android.gnd.system.AuthenticationManager.User;
 import com.google.auto.value.AutoValue;
-import com.google.common.collect.ImmutableList;
-import java8.util.Optional;
-import javax.annotation.Nullable;
 
+/** Represents a single instance of data collected about a specific {@link Feature}. */
 @AutoValue
-public abstract class FeatureType {
+public abstract class Observation {
   @Nullable
   public abstract String getId();
 
   @Nullable
-  public abstract String getListHeading();
+  public abstract Project getProject();
 
   @Nullable
-  public abstract String getItemLabel();
+  public abstract Feature getFeature();
 
   @Nullable
-  public abstract Style getDefaultStyle();
+  public abstract Form getForm();
 
-  public abstract ImmutableList<Form> getForms();
+  @Nullable
+  public abstract User getCreatedBy();
+
+  @Nullable
+  public abstract User getModifiedBy();
 
   @Nullable
   public abstract Timestamps getServerTimestamps();
@@ -47,35 +51,34 @@ public abstract class FeatureType {
   @Nullable
   public abstract Timestamps getClientTimestamps();
 
-  public Optional<Form> getForm(String formId) {
-    return stream(getForms()).filter(form -> form.getId().equals(formId)).findFirst();
-  }
+  public abstract ResponseMap getResponses();
 
   public static Builder newBuilder() {
-    return new AutoValue_FeatureType.Builder().setClientTimestamps(Timestamps.getDefaultInstance());
+    return new AutoValue_Observation.Builder().setResponses(ResponseMap.builder().build());
   }
+
+  public abstract Observation.Builder toBuilder();
 
   @AutoValue.Builder
   public abstract static class Builder {
     public abstract Builder setId(@Nullable String newId);
 
-    public abstract Builder setListHeading(@Nullable String newListHeading);
+    public abstract Builder setProject(@Nullable Project project);
 
-    public abstract Builder setItemLabel(@Nullable String newItemLabel);
+    public abstract Builder setFeature(@Nullable Feature feature);
 
-    public abstract Builder setDefaultStyle(@Nullable Style newDefaultStyle);
+    public abstract Builder setForm(@Nullable Form form);
 
-    public abstract ImmutableList.Builder<Form> formsBuilder();
+    public abstract Builder setCreatedBy(@Nullable User user);
 
-    public Builder addForm(Form newForm) {
-      formsBuilder().add(newForm);
-      return this;
-    }
+    public abstract Builder setModifiedBy(@Nullable User user);
 
     public abstract Builder setServerTimestamps(@Nullable Timestamps newServerTimestamps);
 
     public abstract Builder setClientTimestamps(@Nullable Timestamps newClientTimestamps);
 
-    public abstract FeatureType build();
+    public abstract Builder setResponses(ResponseMap responses);
+
+    public abstract Observation build();
   }
 }

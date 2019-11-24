@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.ui.recorddetails;
+package com.google.android.gnd.ui.observationdetails;
 
 import android.os.Bundle;
 import android.util.Log;
@@ -32,11 +32,11 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.R;
-import com.google.android.gnd.databinding.RecordDetailsFragBinding;
+import com.google.android.gnd.databinding.ObservationDetailsFragBinding;
 import com.google.android.gnd.inject.ActivityScoped;
 import com.google.android.gnd.model.form.Element;
 import com.google.android.gnd.model.form.Field;
-import com.google.android.gnd.model.observation.Record;
+import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.repository.Persistable;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.EphemeralPopups;
@@ -45,8 +45,8 @@ import com.google.android.gnd.ui.common.TwoLineToolbar;
 import javax.inject.Inject;
 
 @ActivityScoped
-public class RecordDetailsFragment extends AbstractFragment {
-  private static final String TAG = RecordDetailsFragment.class.getSimpleName();
+public class ObservationDetailsFragment extends AbstractFragment {
+  private static final String TAG = ObservationDetailsFragment.class.getSimpleName();
 
   @Inject Navigator navigator;
 
@@ -56,13 +56,13 @@ public class RecordDetailsFragment extends AbstractFragment {
   @BindView(R.id.record_details_layout)
   LinearLayout recordDetailsLayout;
 
-  private RecordDetailsViewModel viewModel;
+  private ObservationDetailsViewModel viewModel;
 
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    RecordDetailsFragmentArgs args = getRecordDetailFragmentArgs();
-    viewModel = getViewModel(RecordDetailsViewModel.class);
+    ObservationDetailsFragmentArgs args = getObservationDetailFragmentArgs();
+    viewModel = getViewModel(ObservationDetailsViewModel.class);
     // TODO: Move toolbar setting logic into the ViewModel once we have
     // determined the fate of the toolbar.
     viewModel.toolbarTitle.observe(this, this::setToolbarTitle);
@@ -75,7 +75,8 @@ public class RecordDetailsFragment extends AbstractFragment {
   public View onCreateView(
       LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     super.onCreateView(inflater, container, savedInstanceState);
-    RecordDetailsFragBinding binding = RecordDetailsFragBinding.inflate(inflater, container, false);
+    ObservationDetailsFragBinding binding =
+        ObservationDetailsFragBinding.inflate(inflater, container, false);
     binding.setViewModel(viewModel);
     binding.setLifecycleOwner(this);
     return binding.getRoot();
@@ -89,7 +90,7 @@ public class RecordDetailsFragment extends AbstractFragment {
 
   @Override
   public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-    inflater.inflate(R.menu.record_details_menu, menu);
+    inflater.inflate(R.menu.observation_details_menu, menu);
   }
 
   @Override
@@ -110,7 +111,7 @@ public class RecordDetailsFragment extends AbstractFragment {
     }
   }
 
-  private void onUpdate(Persistable<Record> record) {
+  private void onUpdate(Persistable<Observation> record) {
     switch (record.state()) {
       case LOADED:
         record.value().ifPresent(this::showRecord);
@@ -118,28 +119,28 @@ public class RecordDetailsFragment extends AbstractFragment {
       case NOT_FOUND:
       case ERROR:
         // TODO: Replace w/error view?
-        Log.e(TAG, "Failed to load record");
+        Log.e(TAG, "Failed to load observation");
         EphemeralPopups.showError(getContext());
         break;
     }
   }
 
-  private void showRecord(Record record) {
+  private void showRecord(Observation observation) {
     recordDetailsLayout.removeAllViews();
-    for (Element element : record.getForm().getElements()) {
+    for (Element element : observation.getForm().getElements()) {
       switch (element.getType()) {
         case FIELD:
-          addField(element.getField(), record);
+          addField(element.getField(), observation);
           break;
         default:
       }
     }
   }
 
-  private void addField(Field field, Record record) {
+  private void addField(Field field, Observation observation) {
     FieldViewHolder fieldViewHolder = FieldViewHolder.newInstance(getLayoutInflater());
     fieldViewHolder.setLabel(field.getLabel());
-    record
+    observation
         .getResponses()
         .getResponse(field.getId())
         .map(r -> r.getDetailsText(field))
@@ -162,7 +163,7 @@ public class RecordDetailsFragment extends AbstractFragment {
     }
 
     static FieldViewHolder newInstance(LayoutInflater inflater) {
-      ViewGroup root = (ViewGroup) inflater.inflate(R.layout.record_details_field, null);
+      ViewGroup root = (ViewGroup) inflater.inflate(R.layout.observation_details_field, null);
       FieldViewHolder holder = new FieldViewHolder(root);
       ButterKnife.bind(holder, root);
       return holder;
@@ -187,18 +188,18 @@ public class RecordDetailsFragment extends AbstractFragment {
       case R.id.edit_record_menu_item:
         // This is required to prevent menu from reappearing on back.
         getActivity().closeOptionsMenu();
-        RecordDetailsFragmentArgs args = getRecordDetailFragmentArgs();
-        navigator.editRecord(args.getProjectId(), args.getFeatureId(), args.getRecordId());
+        ObservationDetailsFragmentArgs args = getObservationDetailFragmentArgs();
+        navigator.editObservation(args.getProjectId(), args.getFeatureId(), args.getRecordId());
         return true;
       case R.id.delete_record_menu_item:
-        // TODO: Implement delete record.
+        // TODO: Implement delete observation.
         return true;
       default:
         return false;
     }
   }
 
-  private RecordDetailsFragmentArgs getRecordDetailFragmentArgs() {
-    return RecordDetailsFragmentArgs.fromBundle(getArguments());
+  private ObservationDetailsFragmentArgs getObservationDetailFragmentArgs() {
+    return ObservationDetailsFragmentArgs.fromBundle(getArguments());
   }
 }

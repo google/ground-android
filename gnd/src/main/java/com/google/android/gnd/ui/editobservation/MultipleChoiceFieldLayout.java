@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.ui.editrecord;
+package com.google.android.gnd.ui.editobservation;
 
 import android.content.Context;
 import android.util.AttributeSet;

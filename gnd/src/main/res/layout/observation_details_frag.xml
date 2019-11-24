@@ -19,7 +19,7 @@
   <data>
     <variable
         name="viewModel"
-        type="com.google.android.gnd.ui.recorddetails.RecordDetailsViewModel"/>
+        type="com.google.android.gnd.ui.observationdetails.ObservationDetailsViewModel"/>
   </data>
 
   <androidx.coordinatorlayout.widget.CoordinatorLayout

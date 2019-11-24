@@ -19,14 +19,14 @@ package com.google.android.gnd.persistence.remote.firestore;
 import static com.google.android.gnd.util.Localization.getLocalizedMessage;
 
 import androidx.annotation.Nullable;
-import com.google.android.gnd.model.layer.FeatureType;
+import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.model.layer.Style;
 import com.google.firebase.firestore.IgnoreExtraProperties;
 import java.util.Map;
 import java8.util.Maps;
 
 @IgnoreExtraProperties
-public class FeatureTypeDoc {
+public class LayerDoc {
   // TODO: Better name than pathKey? urlSubpath?
   @Nullable public String pathKey;
 
@@ -38,19 +38,19 @@ public class FeatureTypeDoc {
 
   @Nullable public Map<String, FormDoc> forms;
 
-  public FeatureType toObject(String id) {
-    FeatureType.Builder featureType = FeatureType.newBuilder();
-    featureType
+  public Layer toObject(String id) {
+    Layer.Builder layer = Layer.newBuilder();
+    layer
         .setId(id)
         .setListHeading(getLocalizedMessage(listHeading))
         .setItemLabel(getLocalizedMessage(itemLabel));
     if (defaultStyle != null) {
-      featureType.setDefaultStyle(defaultStyle.toObject());
+      layer.setDefaultStyle(defaultStyle.toObject());
     }
     if (forms != null) {
-      Maps.forEach(forms, (formId, formDoc) -> featureType.addForm(formDoc.toObject(formId)));
+      Maps.forEach(forms, (formId, formDoc) -> layer.addForm(formDoc.toObject(formId)));
     }
-    return featureType.build();
+    return layer.build();
   }
 
   public static class StyleDoc {

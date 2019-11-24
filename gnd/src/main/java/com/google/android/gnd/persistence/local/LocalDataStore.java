@@ -21,8 +21,8 @@ import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.basemap.tile.Tile;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.FeatureMutation;
-import com.google.android.gnd.model.observation.Record;
-import com.google.android.gnd.model.observation.RecordMutation;
+import com.google.android.gnd.model.observation.Observation;
+import com.google.android.gnd.model.observation.ObservationMutation;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import io.reactivex.Completable;
@@ -51,10 +51,10 @@ public interface LocalDataStore {
   Completable applyAndEnqueue(FeatureMutation mutation);
 
   /**
-   * Applies the specified {@link RecordMutation} to the local data store, appending the mutation to
-   * the local queue for remote sync.
+   * Applies the specified {@link ObservationMutation} to the local data store, appending the
+   * mutation to the local queue for remote sync.
    */
-  Completable applyAndEnqueue(RecordMutation mutation);
+  Completable applyAndEnqueue(ObservationMutation mutation);
 
   /**
    * Returns a long-lived stream that emits the full set of features for a project on subscribe, and
@@ -63,13 +63,13 @@ public interface LocalDataStore {
   Flowable<ImmutableSet<Feature>> getFeaturesOnceAndStream(Project project);
 
   /** Returns the full list of records for the specified feature and form. */
-  Single<ImmutableList<Record>> getRecords(Feature feature, String formId);
+  Single<ImmutableList<Observation>> getRecords(Feature feature, String formId);
 
   /** Returns the feature with the specified UUID from the local data store, if found. */
   Maybe<Feature> getFeature(Project project, String featureId);
 
-  /** Returns the record with the specified UUID from the local data store, if found. */
-  Maybe<Record> getRecord(Feature feature, String recordId);
+  /** Returns the observation with the specified UUID from the local data store, if found. */
+  Maybe<Observation> getRecord(Feature feature, String recordId);
 
   /**
    * Returns a long-lived stream that emits the full set of tiles on subscribe and continues to
@@ -78,15 +78,15 @@ public interface LocalDataStore {
   Flowable<ImmutableSet<Tile>> getTilesOnceAndStream();
 
   /**
-   * Returns all feature and record mutations in the local mutation queue relating to feature with
-   * the specified id.
+   * Returns all feature and observation mutations in the local mutation queue relating to feature
+   * with the specified id.
    */
   Single<ImmutableList<Mutation>> getPendingMutations(String featureId);
 
   /** Updates the provided list of mutations. */
   Completable updateMutations(ImmutableList<Mutation> mutations);
 
-  /** Removes the provided feature and record mutations from the local mutation queue. */
+  /** Removes the provided feature and observation mutations from the local mutation queue. */
   Completable removePendingMutations(ImmutableList<Mutation> mutations);
 
   /**
@@ -97,11 +97,11 @@ public interface LocalDataStore {
   Completable mergeFeature(Feature feature);
 
   /**
-   * Merges the provided record with pending unsynced local mutations, and inserts it into the local
-   * data store. If a record with the same id already exists, it will be overwritten with the merged
-   * instance.
+   * Merges the provided observation with pending unsynced local mutations, and inserts it into the
+   * local data store. If a observation with the same id already exists, it will be overwritten with
+   * the merged instance.
    */
-  Completable mergeRecord(Record record);
+  Completable mergeRecord(Observation observation);
 
   /**
    * Attempts to update a tile in the local data store. If the tile doesn't exist, inserts the tile

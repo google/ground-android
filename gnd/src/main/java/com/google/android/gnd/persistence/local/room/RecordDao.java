@@ -29,14 +29,14 @@ import java.util.List;
 public interface RecordDao {
 
   /**
-   * Saves the provided entity into the record table, creating a new row or updating existing row as
-   * necessary. Record id must already be assigned to a valid UUID, or the returned Completable will
-   * terminate in error.
+   * Saves the provided entity into the observation table, creating a new row or updating existing
+   * row as necessary. Observation id must already be assigned to a valid UUID, or the returned
+   * Completable will terminate in error.
    */
   @Insert(onConflict = OnConflictStrategy.REPLACE)
   Completable insertOrUpdate(RecordEntity record);
 
-  /** Returns the record with the specified UUID, if found. */
+  /** Returns the observation with the specified UUID, if found. */
   @Query("SELECT * FROM record WHERE id = :recordId")
   Maybe<RecordEntity> findById(String recordId);
 

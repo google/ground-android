@@ -28,7 +28,7 @@ import com.google.android.gnd.databinding.MultipleChoiceInputFieldBinding;
 import com.google.android.gnd.databinding.TextInputFieldBinding;
 import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.observation.Response;
-import com.google.android.gnd.ui.editrecord.MultipleChoiceFieldLayout;
+import com.google.android.gnd.ui.editobservation.MultipleChoiceFieldLayout;
 import com.google.android.material.textfield.TextInputEditText;
 import java8.util.function.Consumer;
 

@@ -14,18 +14,17 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.ui.editrecord;
+package com.google.android.gnd.ui.observationdetails;
 
 import androidx.fragment.app.Fragment;
 import com.google.android.gnd.inject.FragmentScoped;
 import dagger.Binds;
 import dagger.Module;
 
-// TODO: Consolidate fragment modules into single module.
 @Module
-public abstract class EditRecordModule {
+public abstract class ObservationDetailsModule {
 
   @Binds
   @FragmentScoped
-  abstract Fragment fragment(EditRecordFragment fragment);
+  abstract Fragment fragment(ObservationDetailsFragment fragment);
 }

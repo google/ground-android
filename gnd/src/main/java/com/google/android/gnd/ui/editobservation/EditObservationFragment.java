@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.ui.editrecord;
+package com.google.android.gnd.ui.editobservation;
 
 import static com.google.android.gnd.ui.util.ViewUtil.assignGeneratedId;
 
@@ -32,14 +32,14 @@ import butterknife.BindView;
 import butterknife.OnClick;
 import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.R;
-import com.google.android.gnd.databinding.EditRecordFragBinding;
+import com.google.android.gnd.databinding.EditObservationFragBinding;
 import com.google.android.gnd.databinding.MultipleChoiceInputFieldBinding;
 import com.google.android.gnd.databinding.TextInputFieldBinding;
 import com.google.android.gnd.inject.ActivityScoped;
 import com.google.android.gnd.model.form.Element;
 import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.form.MultipleChoice.Cardinality;
-import com.google.android.gnd.model.observation.Record;
+import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.model.observation.Response;
 import com.google.android.gnd.repository.Persistable;
 import com.google.android.gnd.ui.common.AbstractFragment;
@@ -52,12 +52,12 @@ import java8.util.Optional;
 import javax.inject.Inject;
 
 @ActivityScoped
-public class EditRecordFragment extends AbstractFragment implements BackPressListener {
-  private static final String TAG = EditRecordFragment.class.getSimpleName();
+public class EditObservationFragment extends AbstractFragment implements BackPressListener {
+  private static final String TAG = EditObservationFragment.class.getSimpleName();
 
   private ProgressDialog savingProgressDialog;
 
-  private EditRecordViewModel viewModel;
+  private EditObservationViewModel viewModel;
   private SingleSelectDialogFactory singleSelectDialogFactory;
   private MultiSelectDialogFactory multiSelectDialogFactory;
   private static final String NEW_RECORD_ID_ARG_PLACEHOLDER = "NEW_RECORD";
@@ -75,13 +75,14 @@ public class EditRecordFragment extends AbstractFragment implements BackPressLis
     super.onCreate(savedInstanceState);
     singleSelectDialogFactory = new SingleSelectDialogFactory(getContext());
     multiSelectDialogFactory = new MultiSelectDialogFactory(getContext());
-    viewModel = getViewModel(EditRecordViewModel.class);
+    viewModel = getViewModel(EditObservationViewModel.class);
   }
 
   @Override
   public View onCreateView(
       LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-    EditRecordFragBinding binding = EditRecordFragBinding.inflate(inflater, container, false);
+    EditObservationFragBinding binding =
+        EditObservationFragBinding.inflate(inflater, container, false);
     binding.setViewModel(viewModel);
     return binding.getRoot();
   }
@@ -98,7 +99,7 @@ public class EditRecordFragment extends AbstractFragment implements BackPressLis
   @Override
   public void onActivityCreated(@androidx.annotation.Nullable Bundle savedInstanceState) {
     super.onActivityCreated(savedInstanceState);
-    viewModel.getRecord().observe(this, this::onRecordChange);
+    viewModel.getObservation().observe(this, this::onRecordChange);
     viewModel.getShowUnsavedChangesDialogEvents().observe(this, __ -> showUnsavedChangesDialog());
     viewModel.getShowErrorDialogEvents().observe(this, __ -> showFormErrorsDialog());
   }
@@ -107,21 +108,21 @@ public class EditRecordFragment extends AbstractFragment implements BackPressLis
   public void onStart() {
     super.onStart();
     // TODO: Make reactive instead of reading getValue explicitly.
-    LiveData<Persistable<Record>> liveData = viewModel.getRecord();
-    Persistable<Record> record = liveData.getValue();
+    LiveData<Persistable<Observation>> liveData = viewModel.getObservation();
+    Persistable<Observation> record = liveData.getValue();
     if (record != null && record.isLoaded()) {
       onRecordChange(record);
       return;
     }
-    EditRecordFragmentArgs args = EditRecordFragmentArgs.fromBundle(getArguments());
-    viewModel.editRecord(args, args.getRecordId().equals(NEW_RECORD_ID_ARG_PLACEHOLDER));
+    EditObservationFragmentArgs args = EditObservationFragmentArgs.fromBundle(getArguments());
+    viewModel.editObservation(args, args.getRecordId().equals(NEW_RECORD_ID_ARG_PLACEHOLDER));
   }
 
-  private void onRecordChange(Persistable<Record> record) {
+  private void onRecordChange(Persistable<Observation> record) {
     switch (record.state()) {
       case LOADING:
         // Do nothing.
-        // The logic is handled in EditRecordViewModel and reflected into UI using DataBinding.
+        // The logic is handled in EditObservationViewModel and reflected into UI using DataBinding.
         break;
       case LOADED:
         record.value().ifPresent(this::editRecord);
@@ -136,22 +137,22 @@ public class EditRecordFragment extends AbstractFragment implements BackPressLis
         break;
       case NOT_FOUND:
       case ERROR:
-        record.error().ifPresent(t -> Log.e(TAG, "Failed to load/save record", t));
+        record.error().ifPresent(t -> Log.e(TAG, "Failed to load/save observation", t));
         EphemeralPopups.showError(getContext());
         navigator.navigateUp();
         break;
     }
   }
 
-  private void editRecord(Record record) {
-    toolbar.setTitle(record.getFeature().getTitle());
-    toolbar.setSubtitle(record.getFeature().getSubtitle());
-    rebuildForm(record);
+  private void editRecord(Observation observation) {
+    toolbar.setTitle(observation.getFeature().getTitle());
+    toolbar.setSubtitle(observation.getFeature().getSubtitle());
+    rebuildForm(observation);
   }
 
-  private void rebuildForm(Record record) {
+  private void rebuildForm(Observation observation) {
     formLayout.removeAllViews();
-    for (Element element : record.getForm().getElements()) {
+    for (Element element : observation.getForm().getElements()) {
       switch (element.getType()) {
         case FIELD:
           addField(element.getField());

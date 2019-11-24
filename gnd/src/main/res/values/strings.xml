@@ -33,9 +33,9 @@
 
   <!-- Shown in toolbar when adding a new feature and form instance. -->
   <string name="add_feature_toolbar_title">Add a feature</string>
-  <!-- Shown in toolbar when editing an existing record (form instance). -->
+  <!-- Shown in toolbar when editing an existing observation (form instance). -->
   <string name="edit_feature_data_toolbar_title">Edit feature data</string>
-  <!-- Shown in toolbar when adding a new record (form instance) to a feature. -->
+  <!-- Shown in toolbar when adding a new observation (form instance) to a feature. -->
   <string name="add_feature_data_toolbar_title">Add feature data</string>
   <!-- Shown in toolbar to save changes to feature data. -->
   <string name="save">Save</string>
@@ -64,22 +64,22 @@
     VIEW FEATURE DATA
   -->
 
-  <!-- Shown in record overflow menu to open popup dialog to edit feature metadata. -->
+  <!-- Shown in observation overflow menu to open popup dialog to edit feature metadata. -->
   <string name="edit_record">Edit observation</string>
-  <!-- Shown in record overflow menu to delete a record. -->
+  <!-- Shown in observation overflow menu to delete a observation. -->
   <string name="delete_record">Delete observation</string>
-  <!-- Confirmation shown when deleting a record (TBD). -->
+  <!-- Confirmation shown when deleting a observation (TBD). -->
   <string name="delete_record_confirmation">
     This will permanently delete the selected observation. This cannot be undone. Are you sure?
   </string>
   <!--
-    Shown above saved records (forms) that have been submitted. %1$s placeholder will already be
-    translated, and it will contain the "time ago" that the record was received by the server
+    Shown above saved observations (forms) that have been submitted. %1$s placeholder will already be
+    translated, and it will contain the "time ago" that the observation was received by the server
     (e.g., "Submitted 2 min ago").
    -->
   <string name="submitted_status">Submitted %1$s</string>
   <!--
-    Shown above saved records (forms) that have been submitted and subsequently modified. %1$s
+    Shown above saved observations (forms) that have been submitted and subsequently modified. %1$s
     placeholder will already be translated, and it will contain the "time ago" that the changes were
     last received by the server (e.g., "Updated 1 min ago").
    -->

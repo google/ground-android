@@ -14,36 +14,32 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.model.observation;
+package com.google.android.gnd.model.layer;
 
-import androidx.annotation.Nullable;
-import com.google.android.gnd.model.Project;
+import static java8.util.stream.StreamSupport.stream;
+
 import com.google.android.gnd.model.Timestamps;
-import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.form.Form;
-import com.google.android.gnd.system.AuthenticationManager.User;
 import com.google.auto.value.AutoValue;
+import com.google.common.collect.ImmutableList;
+import java8.util.Optional;
+import javax.annotation.Nullable;
 
-/** Represents a single instance of data collected about a specific {@link Feature}. */
 @AutoValue
-public abstract class Record {
+public abstract class Layer {
   @Nullable
   public abstract String getId();
 
   @Nullable
-  public abstract Project getProject();
+  public abstract String getListHeading();
 
   @Nullable
-  public abstract Feature getFeature();
+  public abstract String getItemLabel();
 
   @Nullable
-  public abstract Form getForm();
+  public abstract Style getDefaultStyle();
 
-  @Nullable
-  public abstract User getCreatedBy();
-
-  @Nullable
-  public abstract User getModifiedBy();
+  public abstract ImmutableList<Form> getForms();
 
   @Nullable
   public abstract Timestamps getServerTimestamps();
@@ -51,34 +47,35 @@ public abstract class Record {
   @Nullable
   public abstract Timestamps getClientTimestamps();
 
-  public abstract ResponseMap getResponses();
-
-  public static Builder newBuilder() {
-    return new AutoValue_Record.Builder().setResponses(ResponseMap.builder().build());
+  public Optional<Form> getForm(String formId) {
+    return stream(getForms()).filter(form -> form.getId().equals(formId)).findFirst();
   }
 
-  public abstract Record.Builder toBuilder();
+  public static Builder newBuilder() {
+    return new AutoValue_Layer.Builder().setClientTimestamps(Timestamps.getDefaultInstance());
+  }
 
   @AutoValue.Builder
   public abstract static class Builder {
     public abstract Builder setId(@Nullable String newId);
 
-    public abstract Builder setProject(@Nullable Project project);
+    public abstract Builder setListHeading(@Nullable String newListHeading);
 
-    public abstract Builder setFeature(@Nullable Feature feature);
+    public abstract Builder setItemLabel(@Nullable String newItemLabel);
 
-    public abstract Builder setForm(@Nullable Form form);
+    public abstract Builder setDefaultStyle(@Nullable Style newDefaultStyle);
 
-    public abstract Builder setCreatedBy(@Nullable User user);
+    public abstract ImmutableList.Builder<Form> formsBuilder();
 
-    public abstract Builder setModifiedBy(@Nullable User user);
+    public Builder addForm(Form newForm) {
+      formsBuilder().add(newForm);
+      return this;
+    }
 
     public abstract Builder setServerTimestamps(@Nullable Timestamps newServerTimestamps);
 
     public abstract Builder setClientTimestamps(@Nullable Timestamps newClientTimestamps);
 
-    public abstract Builder setResponses(ResponseMap responses);
-
-    public abstract Record build();
+    public abstract Layer build();
   }
 }
