@@ -17,23 +17,23 @@
 /**
  * Checkstyle plugin configuration for code styling checks.
  *
- * Runs automatically with every build on GoogleCloudBuild.
+ * Runs automatically with every build on Google Cloud Build.
  *
- * For manual run,
- * $ ./gradlew checkstyle
+ *   For manual run,
+ *   $ ./gradlew checkstyle
  *
- * Reports (both html and xml formats) are stored under: gnd/build/reports/checkstyle/
+ * Reports are written to:
+ *
+ *   gnd/build/reports/checkstyle/
  */
 
 apply plugin: 'checkstyle'
-
-def configDir = "${project.rootDir}/config/checkstyle"
 
 // For latest version, check: https://checkstyle.sourceforge.io/releasenotes.html
 checkstyle.toolVersion = '8.26'
 
 tasks.register("checkstyle", Checkstyle) {
-    configFile file("$configDir/checkstyle.xml")
+    configFile file("../../third_party/checkstyle/google_checks.xml")
 
     ignoreFailures false // Fail early
     showViolations true
