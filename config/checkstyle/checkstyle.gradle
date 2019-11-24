@@ -33,7 +33,7 @@ apply plugin: 'checkstyle'
 checkstyle.toolVersion = '8.26'
 
 tasks.register("checkstyle", Checkstyle) {
-    configFile file("../../third_party/checkstyle/google_checks.xml")
+    configFile file("../third_party/checkstyle/google_checks.xml")
 
     ignoreFailures false // Fail early
     showViolations true
