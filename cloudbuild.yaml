@@ -69,7 +69,12 @@ steps:
   # Build debug APK and run checkstyle checks
   - name: 'gcr.io/$PROJECT_ID/android:28'
     id: build
-    args: ['./gradlew', 'assembleDebug', 'checkCode']
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        ./gradlew assembleDebug -PdisablePreDex && \
+        ./gradlew checkCode
     env:
       - 'TERM=dumb'
       - 'JAVA_TOOL_OPTIONS="-Xmx3g"'
