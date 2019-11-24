@@ -70,7 +70,7 @@ public abstract class FeatureEntity {
         FeatureEntity.builder()
             .setId(mutation.getFeatureId())
             .setProjectId(mutation.getProjectId())
-            .setFeatureTypeId(mutation.getFeatureTypeId())
+            .setFeatureTypeId(mutation.getLayerId())
             .setState(EntityState.DEFAULT);
     mutation.getNewLocation().map(Coordinates::fromPoint).ifPresent(entity::setLocation);
     return entity.build();
@@ -81,7 +81,7 @@ public abstract class FeatureEntity {
         FeatureEntity.builder()
             .setId(feature.getId())
             .setProjectId(feature.getProject().getId())
-            .setFeatureTypeId(feature.getFeatureType().getId())
+            .setFeatureTypeId(feature.getLayer().getId())
             .setLocation(Coordinates.fromPoint(feature.getPoint()))
             .setState(EntityState.DEFAULT);
     return entity.build();
@@ -92,7 +92,7 @@ public abstract class FeatureEntity {
     return Feature.newBuilder()
         .setId(featureEntity.getId())
         .setProject(project)
-        .setFeatureType(project.getFeatureType(featureEntity.getFeatureTypeId()).get())
+        .setLayer(project.getLayer(featureEntity.getFeatureTypeId()).get())
         .setPoint(featureEntity.getLocation().toPoint())
         .build();
   }

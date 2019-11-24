@@ -18,7 +18,7 @@
   <data>
     <variable
         name="viewModel"
-        type="com.google.android.gnd.ui.home.featuresheet.RecordListViewModel"/>
+        type="com.google.android.gnd.ui.home.featuresheet.ObservationListViewModel"/>
   </data>
 
   <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"

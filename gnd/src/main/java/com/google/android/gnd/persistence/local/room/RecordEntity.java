@@ -26,13 +26,13 @@ import androidx.room.ForeignKey;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
 import com.google.android.gnd.model.feature.Feature;
-import com.google.android.gnd.model.observation.Record;
-import com.google.android.gnd.model.observation.RecordMutation;
+import com.google.android.gnd.model.observation.Observation;
+import com.google.android.gnd.model.observation.ObservationMutation;
 import com.google.android.gnd.model.observation.ResponseMap;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.AutoValue.CopyAnnotations;
 
-/** Representation of a {@link Record} in local db. */
+/** Representation of a {@link Observation} in local db. */
 @AutoValue
 @Entity(
     foreignKeys =
@@ -55,13 +55,13 @@ public abstract class RecordEntity {
   @NonNull
   public abstract String getId();
 
-  /** Returns the id of the feature to which this record applies. */
+  /** Returns the id of the feature to which this observation applies. */
   @CopyAnnotations
   @ColumnInfo(name = "feature_id")
   @NonNull
   public abstract String getFeatureId();
 
-  /** Returns the id of the form to which this record's responses apply. */
+  /** Returns the id of the form to which this observation's responses apply. */
   @CopyAnnotations
   @ColumnInfo(name = "form_id")
   @NonNull
@@ -86,26 +86,26 @@ public abstract class RecordEntity {
    * mutations applied.
    */
   public RecordEntity applyMutations(Iterable<RecordMutationEntity> mutations) {
-    Log.v(TAG, "Merging record " + this + " with mutations " + mutations);
+    Log.v(TAG, "Merging observation " + this + " with mutations " + mutations);
     RecordEntity.Builder builder = toBuilder();
     for (RecordMutationEntity mutation : mutations) {
       builder.responsesBuilder().applyDeltas(mutation.getResponseDeltas());
     }
-    Log.v(TAG, "Merged record " + builder.build());
+    Log.v(TAG, "Merged observation " + builder.build());
     return builder.build();
   }
 
-  public static RecordEntity fromRecord(Record record) {
+  public static RecordEntity fromRecord(Observation observation) {
     return RecordEntity.builder()
-        .setId(record.getId())
-        .setFormId(record.getForm().getId())
-        .setFeatureId(record.getFeature().getId())
+        .setId(observation.getId())
+        .setFormId(observation.getForm().getId())
+        .setFeatureId(observation.getFeature().getId())
         .setState(EntityState.DEFAULT)
-        .setResponses(record.getResponses())
+        .setResponses(observation.getResponses())
         .build();
   }
 
-  public static RecordEntity fromMutation(RecordMutation mutation) {
+  public static RecordEntity fromMutation(ObservationMutation mutation) {
     return RecordEntity.builder()
         .setId(mutation.getRecordId())
         .setFormId(mutation.getFormId())
@@ -115,13 +115,13 @@ public abstract class RecordEntity {
         .build();
   }
 
-  // TODO(#127): Replace reference to Feature in Record with featureId and remove feature arg.
-  public static Record toRecord(Feature feature, RecordEntity record) {
-    // TODO(#127): Replace reference to Form in Record with formId and remove here.
-    // TODO(#127): Replace reference to Project in Record with projectId and remove here.
-    return Record.newBuilder()
+  // TODO(#127): Replace reference to Feature in Observation with featureId and remove feature arg.
+  public static Observation toRecord(Feature feature, RecordEntity record) {
+    // TODO(#127): Replace reference to Form in Observation with formId and remove here.
+    // TODO(#127): Replace reference to Project in Observation with projectId and remove here.
+    return Observation.newBuilder()
         .setId(record.getId())
-        .setForm(feature.getFeatureType().getForm(record.getFormId()).get())
+        .setForm(feature.getLayer().getForm(record.getFormId()).get())
         .setProject(feature.getProject())
         .setFeature(feature)
         .setResponses(record.getResponses())

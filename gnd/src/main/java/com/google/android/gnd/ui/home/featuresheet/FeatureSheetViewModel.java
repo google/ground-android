@@ -25,7 +25,7 @@ import androidx.lifecycle.ViewModel;
 import androidx.viewpager.widget.ViewPager;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.form.Form;
-import com.google.android.gnd.model.layer.FeatureType;
+import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.ui.common.SharedViewModel;
 import com.google.android.gnd.ui.home.FeatureSheetState;
 import java8.util.Optional;
@@ -66,8 +66,8 @@ public class FeatureSheetViewModel extends ViewModel implements ViewPager.OnPage
     selectedForm.setValue(
         selectedFeature
             .getValue()
-            .map(Feature::getFeatureType)
-            .map(FeatureType::getForms)
+            .map(Feature::getLayer)
+            .map(Layer::getForms)
             .filter(f -> f.size() > position)
             .map(f -> f.get(position)));
   }

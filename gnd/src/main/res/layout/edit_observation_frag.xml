@@ -18,7 +18,7 @@
   <data>
     <variable
       name="viewModel"
-      type="com.google.android.gnd.ui.editrecord.EditRecordViewModel"/>
+      type="com.google.android.gnd.ui.editobservation.EditObservationViewModel"/>
   </data>
 
   <androidx.coordinatorlayout.widget.CoordinatorLayout

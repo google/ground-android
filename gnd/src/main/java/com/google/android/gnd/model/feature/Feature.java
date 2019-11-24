@@ -19,7 +19,7 @@ package com.google.android.gnd.model.feature;
 import androidx.annotation.NonNull;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.Timestamps;
-import com.google.android.gnd.model.layer.FeatureType;
+import com.google.android.gnd.model.layer.Layer;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.extension.memoized.Memoized;
 import javax.annotation.Nullable;
@@ -32,7 +32,7 @@ public abstract class Feature {
 
   public abstract Project getProject();
 
-  public abstract FeatureType getFeatureType();
+  public abstract Layer getLayer();
 
   // TODO: Rename to getExternalId() or similar.
   @Nullable
@@ -52,7 +52,7 @@ public abstract class Feature {
 
   public String getTitle() {
     return getCaption() == null || getCaption().isEmpty()
-        ? getFeatureType().getItemLabel()
+        ? getLayer().getItemLabel()
         : getCaption();
   }
 
@@ -77,7 +77,7 @@ public abstract class Feature {
 
     public abstract Builder setProject(Project project);
 
-    public abstract Builder setFeatureType(FeatureType newFeatureType);
+    public abstract Builder setLayer(Layer newLayer);
 
     public abstract Builder setCustomId(String newCustomId);
 

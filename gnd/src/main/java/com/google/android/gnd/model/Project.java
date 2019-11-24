@@ -16,7 +16,7 @@
 
 package com.google.android.gnd.model;
 
-import com.google.android.gnd.model.layer.FeatureType;
+import com.google.android.gnd.model.layer.Layer;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -35,14 +35,14 @@ public abstract class Project {
   @Nullable
   public abstract String getDescription();
 
-  protected abstract ImmutableMap<String, FeatureType> getFeatureTypeMap();
+  protected abstract ImmutableMap<String, Layer> getLayerMap();
 
-  public ImmutableList<FeatureType> getFeatureTypes() {
-    return getFeatureTypeMap().values().asList();
+  public ImmutableList<Layer> getLayers() {
+    return getLayerMap().values().asList();
   }
 
-  public Optional<FeatureType> getFeatureType(String featureTypeId) {
-    return Optional.ofNullable(getFeatureTypeMap().get(featureTypeId));
+  public Optional<Layer> getLayer(String layerId) {
+    return Optional.ofNullable(getLayerMap().get(layerId));
   }
 
   public static Builder newBuilder() {
@@ -57,10 +57,10 @@ public abstract class Project {
 
     public abstract Builder setDescription(@Nullable String newDescription);
 
-    public abstract ImmutableMap.Builder<String, FeatureType> featureTypeMapBuilder();
+    public abstract ImmutableMap.Builder<String, Layer> layerMapBuilder();
 
-    public void putFeatureType(String id, FeatureType featureType) {
-      featureTypeMapBuilder().put(id, featureType);
+    public void putLayer(String id, Layer layer) {
+      layerMapBuilder().put(id, layer);
     }
 
     public abstract Project build();

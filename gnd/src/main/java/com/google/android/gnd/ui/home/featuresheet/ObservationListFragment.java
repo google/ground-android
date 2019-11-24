@@ -26,40 +26,40 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
 import com.google.android.gnd.R;
-import com.google.android.gnd.databinding.RecordListFragBinding;
+import com.google.android.gnd.databinding.ObservationListFragBinding;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.form.Form;
-import com.google.android.gnd.model.observation.Record;
+import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.home.HomeScreenViewModel;
 import java8.util.Optional;
 import javax.inject.Inject;
 
-public class RecordListFragment extends AbstractFragment {
+public class ObservationListFragment extends AbstractFragment {
 
   @Inject Navigator navigator;
-  private RecordListAdapter recordListAdapter;
-  private RecordListViewModel viewModel;
+  private ObservationListAdapter observationListAdapter;
+  private ObservationListViewModel viewModel;
   private FeatureSheetViewModel featureSheetViewModel;
   private HomeScreenViewModel homeScreenViewModel;
 
   @BindView(R.id.record_list_container)
   RecyclerView recyclerView;
 
-  static RecordListFragment newInstance() {
-    return new RecordListFragment();
+  static ObservationListFragment newInstance() {
+    return new ObservationListFragment();
   }
 
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
-    recordListAdapter = new RecordListAdapter(viewModelFactory);
+    observationListAdapter = new ObservationListAdapter(viewModelFactory);
     super.onCreate(savedInstanceState);
-    viewModel = getViewModel(RecordListViewModel.class);
+    viewModel = getViewModel(ObservationListViewModel.class);
     featureSheetViewModel = getViewModel(FeatureSheetViewModel.class);
     homeScreenViewModel = getViewModel(HomeScreenViewModel.class);
 
-    recordListAdapter.getItemClicks().observe(this, this::onItemClick);
+    observationListAdapter.getItemClicks().observe(this, this::onItemClick);
   }
 
   @Nullable
@@ -67,7 +67,8 @@ public class RecordListFragment extends AbstractFragment {
   public View onCreateView(
       LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
     super.onCreateView(inflater, container, savedInstanceState);
-    RecordListFragBinding binding = RecordListFragBinding.inflate(inflater, container, false);
+    ObservationListFragBinding binding =
+        ObservationListFragBinding.inflate(inflater, container, false);
     binding.setViewModel(viewModel);
     binding.setLifecycleOwner(this);
     return binding.getRoot();
@@ -77,23 +78,23 @@ public class RecordListFragment extends AbstractFragment {
   public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
     recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-    recyclerView.setAdapter(recordListAdapter);
+    recyclerView.setAdapter(observationListAdapter);
   }
 
   @Override
   public void onActivityCreated(@Nullable Bundle savedInstanceState) {
     super.onActivityCreated(savedInstanceState);
-    viewModel.getRecords().observe(this, recordListAdapter::update);
+    viewModel.getRecords().observe(this, observationListAdapter::update);
     featureSheetViewModel.getSelectedForm().observe(this, this::onFormChange);
   }
 
-  private void onItemClick(Record record) {
+  private void onItemClick(Observation observation) {
     navigator.showRecordDetails(
-        record.getProject().getId(), record.getFeature().getId(), record.getId());
+        observation.getProject().getId(), observation.getFeature().getId(), observation.getId());
   }
 
   private void onFormChange(Optional<Form> form) {
-    recordListAdapter.clear();
+    observationListAdapter.clear();
     // TODO: Use fragment args, load form and feature if not present.
     Optional<Feature> feature = featureSheetViewModel.getSelectedFeature().getValue();
     if (!form.isPresent() || !feature.isPresent()) {
