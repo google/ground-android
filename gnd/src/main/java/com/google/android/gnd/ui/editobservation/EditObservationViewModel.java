@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.ui.editrecord;
+package com.google.android.gnd.ui.editobservation;
 
 import static java8.util.stream.StreamSupport.stream;
 
@@ -35,8 +35,8 @@ import com.google.android.gnd.model.form.Element;
 import com.google.android.gnd.model.form.Element.Type;
 import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.form.Form;
-import com.google.android.gnd.model.observation.Record;
-import com.google.android.gnd.model.observation.RecordMutation;
+import com.google.android.gnd.model.observation.Observation;
+import com.google.android.gnd.model.observation.ObservationMutation;
 import com.google.android.gnd.model.observation.Response;
 import com.google.android.gnd.model.observation.ResponseDelta;
 import com.google.android.gnd.model.observation.TextResponse;
@@ -55,19 +55,19 @@ import java8.util.Optional;
 import javax.inject.Inject;
 
 // TODO: Save draft to local db on each change.
-public class EditRecordViewModel extends AbstractViewModel {
-  private static final String TAG = EditRecordViewModel.class.getSimpleName();
+public class EditObservationViewModel extends AbstractViewModel {
+  private static final String TAG = EditObservationViewModel.class.getSimpleName();
 
   private final DataRepository dataRepository;
   private final AuthenticationManager authManager;
-  private final MutableLiveData<Persistable<Record>> record;
+  private final MutableLiveData<Persistable<Observation>> observation;
   private final SingleLiveEvent<Void> showUnsavedChangesDialogEvents;
   private final SingleLiveEvent<Void> showErrorDialogEvents;
   private final Resources resources;
   private final ObservableMap<String, Response> responses = new ObservableArrayMap<>();
   private final ObservableMap<String, String> errors = new ObservableArrayMap<>();
-  private final PublishSubject<EditRecordRequest> editRecordRequests;
-  private final PublishSubject<SaveRecordRequest> recordSaveRequests;
+  private final PublishSubject<EditObservationRequest> editObservationRequests;
+  private final PublishSubject<SaveObservationRequest> observationSaveRequests;
 
   public final ObservableField<String> formNameView = new ObservableField<>();
   public final ObservableInt loadingSpinnerVisibility = new ObservableInt();
@@ -76,94 +76,95 @@ public class EditRecordViewModel extends AbstractViewModel {
   private boolean isNew;
 
   @Inject
-  EditRecordViewModel(
+  EditObservationViewModel(
       GndApplication application,
       DataRepository dataRepository,
       AuthenticationManager authenticationManager) {
     this.resources = application.getResources();
     this.dataRepository = dataRepository;
-    this.record = new MutableLiveData<>();
+    this.observation = new MutableLiveData<>();
     this.showUnsavedChangesDialogEvents = new SingleLiveEvent<>();
     this.showErrorDialogEvents = new SingleLiveEvent<>();
     this.authManager = authenticationManager;
-    this.editRecordRequests = PublishSubject.create();
-    this.recordSaveRequests = PublishSubject.create();
+    this.editObservationRequests = PublishSubject.create();
+    this.observationSaveRequests = PublishSubject.create();
 
     // TODO(#84): Handle errors on inner stream to avoid breaking outer one.
     // TODO: Simplify this stream and consolidate error handling (remove Resource wrapper?).
     disposeOnClear(
-        recordSaveRequests
+        observationSaveRequests
             .switchMap(
                 request ->
-                    saveRecord(request)
+                    saveObservation(request)
                         .toObservable()
-                        .startWith(Persistable.saving(request.record))
-                        .map(__ -> Persistable.saved(request.record))
-                        .doOnError(this::onSaveRecordError)
+                        .startWith(Persistable.saving(request.observation))
+                        .map(__ -> Persistable.saved(request.observation))
+                        .doOnError(this::onSaveObservationError)
                         // Prevent from breaking upstream.
                         .onErrorResumeNext(Observable.never()))
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(record::setValue));
+            .subscribe(observation::setValue));
 
     disposeOnClear(
-        editRecordRequests
+        editObservationRequests
             .switchMapSingle(
-                record ->
-                    createOrUpdateRecord(record)
-                        .doOnError(this::onEditRecordError)
+                observation ->
+                    createOrUpdateObservation(observation)
+                        .doOnError(this::onEditObservationError)
                         .onErrorResumeNext(Single.never()))
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(this::onRecordSnapshot));
+            .subscribe(this::onObservationSnapshot));
   }
 
-  private String getFormNameView(Persistable<Record> record) {
-    return record.value().map(Record::getForm).map(Form::getTitle).orElse("");
+  private String getFormNameView(Persistable<Observation> observation) {
+    return observation.value().map(Observation::getForm).map(Form::getTitle).orElse("");
   }
 
-  private Single<Persistable<Record>> createOrUpdateRecord(EditRecordRequest request) {
+  private Single<Persistable<Observation>> createOrUpdateObservation(
+      EditObservationRequest request) {
     this.isNew = request.isNew;
-    return isNew ? newRecord(request) : editRecord(request);
+    return isNew ? newObservation(request) : editObservation(request);
   }
 
-  private Single<Persistable<Record>> newRecord(EditRecordRequest request) {
+  private Single<Persistable<Observation>> newObservation(EditObservationRequest request) {
     return dataRepository
-        .createRecord(
+        .createObservation(
             request.args.getProjectId(), request.args.getFeatureId(), request.args.getFormId())
         .map(Persistable::loaded)
         // TODO(#78): Avoid side-effects.
-        .doOnSuccess(this::onNewRecordLoaded);
+        .doOnSuccess(this::onNewObservationLoaded);
   }
 
-  private Single<Persistable<Record>> editRecord(EditRecordRequest request) {
+  private Single<Persistable<Observation>> editObservation(EditObservationRequest request) {
     return dataRepository
-        .getRecord(
+        .getObservation(
             request.args.getProjectId(), request.args.getFeatureId(), request.args.getRecordId())
         // TODO(#78): Avoid side-effects.
         .doOnSuccess(this::update)
         .map(Persistable::loaded);
   }
 
-  private Completable saveRecord(SaveRecordRequest request) {
-    RecordMutation recordMutation =
-        RecordMutation.builder()
+  private Completable saveObservation(SaveObservationRequest request) {
+    ObservationMutation observationMutation =
+        ObservationMutation.builder()
             .setType(request.mutationType)
-            .setProjectId(request.record.getProject().getId())
-            .setFeatureId(request.record.getFeature().getId())
-            .setFeatureTypeId(request.record.getFeature().getFeatureType().getId())
-            .setRecordId(request.record.getId())
-            .setFormId(request.record.getForm().getId())
-            .setResponseDeltas(getResponseDeltas(request.record))
+            .setProjectId(request.observation.getProject().getId())
+            .setFeatureId(request.observation.getFeature().getId())
+            .setLayerId(request.observation.getFeature().getLayer().getId())
+            .setRecordId(request.observation.getId())
+            .setFormId(request.observation.getForm().getId())
+            .setResponseDeltas(getResponseDeltas(request.observation))
             .setUserId(request.user.getId())
             .build();
-    return dataRepository.applyAndEnqueue(recordMutation);
+    return dataRepository.applyAndEnqueue(observationMutation);
   }
 
-  private void onSaveRecordError(Throwable t) {
-    Log.e(TAG, "Failed to save the record.", t);
+  private void onSaveObservationError(Throwable t) {
+    Log.e(TAG, "Failed to save the observation.", t);
   }
 
-  private void onEditRecordError(Throwable t) {
-    Log.e(TAG, "Unable to create or update record", t);
+  private void onEditObservationError(Throwable t) {
+    Log.e(TAG, "Unable to create or update observation", t);
   }
 
   public ObservableMap<String, Response> getResponses() {
@@ -198,8 +199,8 @@ public class EditRecordViewModel extends AbstractViewModel {
     }
   }
 
-  LiveData<Persistable<Record>> getRecord() {
-    return record;
+  LiveData<Persistable<Observation>> getObservation() {
+    return observation;
   }
 
   LiveData<Void> getShowUnsavedChangesDialogEvents() {
@@ -211,16 +212,16 @@ public class EditRecordViewModel extends AbstractViewModel {
   }
 
   @NonNull
-  private Optional<Record> getCurrentRecord() {
-    return Persistable.getData(record);
+  private Optional<Observation> getCurrentObservation() {
+    return Persistable.getData(observation);
   }
 
-  private void onNewRecordLoaded(Persistable<Record> r) {
+  private void onNewObservationLoaded(Persistable<Observation> r) {
     responses.clear();
     errors.clear();
   }
 
-  private void updateMap(Record r) {
+  private void updateMap(Observation r) {
     Log.v(TAG, "Updating map");
     responses.clear();
     for (String fieldId : r.getResponses().fieldIds()) {
@@ -230,13 +231,13 @@ public class EditRecordViewModel extends AbstractViewModel {
     }
   }
 
-  void editRecord(EditRecordFragmentArgs args, boolean isNew) {
+  void editObservation(EditObservationFragmentArgs args, boolean isNew) {
     this.currentUser = authManager.getUser().blockingFirst(AuthenticationManager.User.ANONYMOUS);
     // TODO(#100): Replace event object with single value (id?).
-    editRecordRequests.onNext(new EditRecordRequest(args, isNew));
+    editObservationRequests.onNext(new EditObservationRequest(args, isNew));
   }
 
-  private void onRecordSnapshot(Persistable<Record> r) {
+  private void onObservationSnapshot(Persistable<Observation> r) {
     switch (r.state()) {
       case LOADING:
         saveButtonVisibility.set(View.GONE);
@@ -256,11 +257,11 @@ public class EditRecordViewModel extends AbstractViewModel {
     }
     // TODO: Replace with functional stream.
     formNameView.set(getFormNameView(r));
-    record.setValue(r);
+    observation.setValue(r);
   }
 
   boolean onSaveClick() {
-    getCurrentRecord().ifPresent(this::updateErrors);
+    getCurrentObservation().ifPresent(this::updateErrors);
     if (hasErrors()) {
       showErrorDialogEvents.setValue(null);
       return true;
@@ -282,24 +283,24 @@ public class EditRecordViewModel extends AbstractViewModel {
   }
 
   private void saveChanges() {
-    getCurrentRecord().ifPresent(this::saveChanges);
+    getCurrentObservation().ifPresent(this::saveChanges);
   }
 
-  private void saveChanges(Record r) {
+  private void saveChanges(Observation r) {
     // TODO(#100): Replace event object with single value (id?).
-    recordSaveRequests.onNext(
-        new SaveRecordRequest(
+    observationSaveRequests.onNext(
+        new SaveObservationRequest(
             r, this.currentUser, isNew ? Mutation.Type.CREATE : Mutation.Type.UPDATE));
   }
 
-  private ImmutableList<ResponseDelta> getResponseDeltas(Record record) {
+  private ImmutableList<ResponseDelta> getResponseDeltas(Observation observation) {
     ImmutableList.Builder<ResponseDelta> deltas = ImmutableList.builder();
-    for (Element e : record.getForm().getElements()) {
+    for (Element e : observation.getForm().getElements()) {
       if (e.getType() != Type.FIELD) {
         continue;
       }
       String fieldId = e.getField().getId();
-      Optional<Response> originalResponse = record.getResponses().getResponse(fieldId);
+      Optional<Response> originalResponse = observation.getResponses().getResponse(fieldId);
       Optional<Response> currentResponse = getResponse(fieldId).filter(r -> !r.isEmpty());
       if (!currentResponse.equals(originalResponse)) {
         deltas.add(
@@ -309,12 +310,12 @@ public class EditRecordViewModel extends AbstractViewModel {
     return deltas.build();
   }
 
-  private void update(Record record) {
-    updateMap(record);
-    updateErrors(record);
+  private void update(Observation observation) {
+    updateMap(observation);
+    updateErrors(observation);
   }
 
-  private void updateErrors(Record r) {
+  private void updateErrors(Observation r) {
     errors.clear();
     stream(r.getForm().getElements())
         .filter(e -> e.getType().equals(Type.FIELD))
@@ -338,30 +339,33 @@ public class EditRecordViewModel extends AbstractViewModel {
   }
 
   private boolean hasUnsavedChanges() {
-    return getCurrentRecord().map(record -> !getResponseDeltas(record).isEmpty()).orElse(false);
+    return getCurrentObservation()
+        .map(observation -> !getResponseDeltas(observation).isEmpty())
+        .orElse(false);
   }
 
   private boolean hasErrors() {
     return !errors.isEmpty();
   }
 
-  public static class EditRecordRequest {
-    public final EditRecordFragmentArgs args;
+  public static class EditObservationRequest {
+    public final EditObservationFragmentArgs args;
     public final boolean isNew;
 
-    EditRecordRequest(EditRecordFragmentArgs args, boolean isNew) {
+    EditObservationRequest(EditObservationFragmentArgs args, boolean isNew) {
       this.args = args;
       this.isNew = isNew;
     }
   }
 
-  public static class SaveRecordRequest {
-    public final Record record;
+  public static class SaveObservationRequest {
+    public final Observation observation;
     public final AuthenticationManager.User user;
     public final Mutation.Type mutationType;
 
-    SaveRecordRequest(Record record, AuthenticationManager.User user, Mutation.Type mutationType) {
-      this.record = record;
+    SaveObservationRequest(
+        Observation observation, AuthenticationManager.User user, Mutation.Type mutationType) {
+      this.observation = observation;
       this.user = user;
       this.mutationType = mutationType;
     }

@@ -20,7 +20,7 @@
 
     <variable
       name="viewModel"
-      type="com.google.android.gnd.ui.home.featuresheet.RecordViewModel" />
+      type="com.google.android.gnd.ui.home.featuresheet.ObservationViewModel" />
   </data>
 
   <FrameLayout xmlns:tools="http://schemas.android.com/tools"

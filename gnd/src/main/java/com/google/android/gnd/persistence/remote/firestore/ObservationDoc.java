@@ -23,8 +23,8 @@ import androidx.annotation.Nullable;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.model.observation.MultipleChoiceResponse;
-import com.google.android.gnd.model.observation.Record;
-import com.google.android.gnd.model.observation.RecordMutation;
+import com.google.android.gnd.model.observation.Observation;
+import com.google.android.gnd.model.observation.ObservationMutation;
 import com.google.android.gnd.model.observation.Response;
 import com.google.android.gnd.model.observation.ResponseDelta;
 import com.google.android.gnd.model.observation.ResponseMap;
@@ -42,8 +42,8 @@ import java8.util.Optional;
 
 // TODO: Refactor into cleaner persistence layer.
 @IgnoreExtraProperties
-public class RecordDoc {
-  private static final String TAG = RecordDoc.class.getSimpleName();
+public class ObservationDoc {
+  private static final String TAG = ObservationDoc.class.getSimpleName();
   public static final String FEATURE_ID = "featureId";
   public static final String FEATURE_TYPE_ID = "featureTypeId";
   public static final String FORM_ID = "formId";
@@ -69,31 +69,32 @@ public class RecordDoc {
 
   @Nullable public Map<String, Object> responses;
 
-  public static RecordDoc forUpdates(Record record, Map<String, Object> responseUpdates) {
-    RecordDoc rd = new RecordDoc();
-    rd.featureId = record.getFeature().getId();
-    rd.featureTypeId = record.getFeature().getFeatureType().getId();
-    rd.formId = record.getForm().getId();
+  public static ObservationDoc forUpdates(
+      Observation observation, Map<String, Object> responseUpdates) {
+    ObservationDoc rd = new ObservationDoc();
+    rd.featureId = observation.getFeature().getId();
+    rd.featureTypeId = observation.getFeature().getLayer().getId();
+    rd.formId = observation.getForm().getId();
     rd.responses = responseUpdates;
     rd.clientTimeModified = new Date();
-    rd.createdBy = UserDoc.fromObject(record.getCreatedBy());
-    rd.modifiedBy = UserDoc.fromObject(record.getModifiedBy());
+    rd.createdBy = UserDoc.fromObject(observation.getCreatedBy());
+    rd.modifiedBy = UserDoc.fromObject(observation.getModifiedBy());
     return rd;
   }
 
-  public static Record toObject(Feature feature, String recordId, DocumentSnapshot doc) {
-    RecordDoc rd = doc.toObject(RecordDoc.class);
+  public static Observation toObject(Feature feature, String recordId, DocumentSnapshot doc) {
+    ObservationDoc rd = doc.toObject(ObservationDoc.class);
     if (!feature.getId().equals(rd.featureId)) {
       // TODO: Handle error.
     }
-    if (!feature.getFeatureType().getId().equals(rd.featureTypeId)) {
+    if (!feature.getLayer().getId().equals(rd.featureTypeId)) {
       // TODO: Handle error.
     }
-    Optional<Form> form = feature.getFeatureType().getForm(rd.formId);
+    Optional<Form> form = feature.getLayer().getForm(rd.formId);
     if (!form.isPresent()) {
       // TODO: Handle error.
     }
-    return Record.newBuilder()
+    return Observation.newBuilder()
         .setId(recordId)
         .setProject(feature.getProject())
         .setFeature(feature)
@@ -137,10 +138,10 @@ public class RecordDoc {
     }
   }
 
-  public static ImmutableMap<String, Object> toMap(RecordMutation mutation) {
+  public static ImmutableMap<String, Object> toMap(ObservationMutation mutation) {
     return ImmutableMap.<String, Object>builder()
         .put(FEATURE_ID, mutation.getFeatureId())
-        .put(FEATURE_TYPE_ID, mutation.getFeatureTypeId())
+        .put(FEATURE_TYPE_ID, mutation.getLayerId())
         .put(FORM_ID, mutation.getFormId())
         .put(RESPONSES, toMap(mutation.getResponseDeltas()))
         // TODO: Set user id and timestamps.
@@ -153,7 +154,7 @@ public class RecordDoc {
     for (ResponseDelta delta : responseDeltas) {
       map.put(
           delta.getFieldId(),
-          delta.getNewResponse().map(RecordDoc::toObject).orElse(FieldValue.delete()));
+          delta.getNewResponse().map(ObservationDoc::toObject).orElse(FieldValue.delete()));
     }
     return map.build();
   }

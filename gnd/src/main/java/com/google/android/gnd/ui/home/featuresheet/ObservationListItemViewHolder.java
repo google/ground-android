@@ -23,45 +23,45 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.gnd.R;
-import com.google.android.gnd.databinding.RecordListItemBinding;
+import com.google.android.gnd.databinding.ObservationListItemBinding;
 import com.google.android.gnd.model.form.Element;
 import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.form.Form;
-import com.google.android.gnd.model.observation.Record;
+import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.model.observation.Response;
 import java8.util.Optional;
 
-class RecordListItemViewHolder extends RecyclerView.ViewHolder {
+class ObservationListItemViewHolder extends RecyclerView.ViewHolder {
 
   private static final int MAX_COLUMNS = 4;
 
-  private final RecordListItemBinding binding;
+  private final ObservationListItemBinding binding;
 
-  RecordListItemViewHolder(@NonNull RecordListItemBinding binding) {
+  ObservationListItemViewHolder(@NonNull ObservationListItemBinding binding) {
     super(binding.getRoot());
     this.binding = binding;
   }
 
-  public void bind(RecordViewModel viewModel, Record record) {
+  public void bind(ObservationViewModel viewModel, Observation observation) {
     binding.setViewModel(viewModel);
     binding.executePendingBindings();
 
     // Add UI elements for each field with data.
-    addFieldsFromRecord(record);
+    addFieldsFromRecord(observation);
   }
 
-  private void addFieldsFromRecord(Record record) {
+  private void addFieldsFromRecord(Observation observation) {
     binding.fieldLabelRow.removeAllViews();
     binding.fieldValueRow.removeAllViews();
 
-    Form form = record.getForm();
+    Form form = observation.getForm();
     // TODO: Clean this up.
     for (int i = 0; i < MAX_COLUMNS && i < form.getElements().size(); i++) {
       Element elem = form.getElements().get(i);
       switch (elem.getType()) {
         case FIELD:
           Field field = elem.getField();
-          Optional<Response> response = record.getResponses().getResponse(field.getId());
+          Optional<Response> response = observation.getResponses().getResponse(field.getId());
           binding.fieldLabelRow.addView(
               newFieldTextView(field.getLabel(), R.style.RecordListText_FieldLabel));
           binding.fieldValueRow.addView(

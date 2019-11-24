@@ -24,19 +24,20 @@ import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 
 /**
- * Represents a mutation of a record performed on the local device. Mutations are queued locally by
- * the UI, and are dequeued and sent to the remote data store by the background data sync service.
+ * Represents a mutation of a observation performed on the local device. Mutations are queued
+ * locally by the UI, and are dequeued and sent to the remote data store by the background data sync
+ * service.
  */
 @AutoValue
-public abstract class RecordMutation extends Mutation<RecordMutation.Builder> {
+public abstract class ObservationMutation extends Mutation<ObservationMutation.Builder> {
 
-  /** Returns the UUID of the record being modified. */
+  /** Returns the UUID of the observation being modified. */
   public abstract String getRecordId();
 
-  /** Returns the UUID of the form associated with this record. */
+  /** Returns the UUID of the form associated with this observation. */
   public abstract String getFormId();
 
-  /** Returns list of changes to responses included in this record mutation. */
+  /** Returns list of changes to responses included in this observation mutation. */
   public abstract ImmutableList<ResponseDelta> getResponseDeltas();
 
   @Override
@@ -47,20 +48,21 @@ public abstract class RecordMutation extends Mutation<RecordMutation.Builder> {
     return super.toString() + " deltas=" + getResponseDeltas();
   }
 
-  /** Returns the mutations of type {@link RecordMutation} contained in the specified list. */
-  public static ImmutableList<RecordMutation> filter(ImmutableList<Mutation> mutations) {
+  /** Returns the mutations of type {@link ObservationMutation} contained in the specified list. */
+  public static ImmutableList<ObservationMutation> filter(ImmutableList<Mutation> mutations) {
     return stream(mutations)
-        .filter(RecordMutation.class::isInstance)
-        .map(RecordMutation.class::cast)
+        .filter(ObservationMutation.class::isInstance)
+        .map(ObservationMutation.class::cast)
         .collect(toImmutableList());
   }
 
   /**
-   * Returns the ids of mutations of type {@link RecordMutation} contained in the specified list.
+   * Returns the ids of mutations of type {@link ObservationMutation} contained in the specified
+   * list.
    */
   public static ImmutableList<Long> ids(ImmutableList<? extends Mutation> mutations) {
     return stream(mutations)
-        .filter(RecordMutation.class::isInstance)
+        .filter(ObservationMutation.class::isInstance)
         .map(Mutation::getId)
         .collect(toImmutableList());
   }
@@ -68,7 +70,7 @@ public abstract class RecordMutation extends Mutation<RecordMutation.Builder> {
   // Boilerplate generated using Android Studio AutoValue plugin:
 
   public static Builder builder() {
-    return new AutoValue_RecordMutation.Builder().setRetryCount(0);
+    return new AutoValue_ObservationMutation.Builder().setRetryCount(0);
   }
 
   @AutoValue.Builder
@@ -81,6 +83,6 @@ public abstract class RecordMutation extends Mutation<RecordMutation.Builder> {
     public abstract Builder setResponseDeltas(ImmutableList<ResponseDelta> newResponseDeltas);
 
     @Override
-    public abstract RecordMutation build();
+    public abstract ObservationMutation build();
   }
 }

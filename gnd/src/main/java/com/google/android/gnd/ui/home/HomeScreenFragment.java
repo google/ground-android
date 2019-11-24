@@ -21,7 +21,6 @@ import static com.google.android.gnd.ui.util.ViewUtil.getScreenHeight;
 import static com.google.android.gnd.ui.util.ViewUtil.getScreenWidth;
 
 import android.app.ProgressDialog;
-import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
@@ -65,7 +64,7 @@ import javax.inject.Inject;
 /**
  * Fragment containing the map container and feature sheet fragments and NavigationView side drawer.
  * This is the default view in the application, and gets swapped out for other fragments (e.g., view
- * record and edit record) at runtime.
+ * observation and edit observation) at runtime.
  */
 @ActivityScoped
 public class HomeScreenFragment extends AbstractFragment

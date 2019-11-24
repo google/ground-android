@@ -55,7 +55,7 @@ public abstract class Mutation<B extends Mutation.Builder> {
   public abstract String getFeatureId();
 
   /** Returns the UUID of the feature type being modified. */
-  public abstract String getFeatureTypeId();
+  public abstract String getLayerId();
 
   /** Returns the globally unique id of the user requesting the change. */
   // TODO(#101): Make NonNull.
@@ -80,7 +80,7 @@ public abstract class Mutation<B extends Mutation.Builder> {
 
     public abstract T setFeatureId(String newFeatureId);
 
-    public abstract T setFeatureTypeId(String newFeatureTypeId);
+    public abstract T setLayerId(String newLayerId);
 
     public abstract T setType(Type newType);
 

@@ -22,57 +22,58 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.recyclerview.widget.RecyclerView;
-import com.google.android.gnd.databinding.RecordListItemBinding;
-import com.google.android.gnd.model.observation.Record;
+import com.google.android.gnd.databinding.ObservationListItemBinding;
+import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.ui.common.ViewModelFactory;
 import java.util.Collections;
 import java.util.List;
 
 // TODO: Consider passing in ViewModel and using DataBinding like todoapp example.
-class RecordListAdapter extends RecyclerView.Adapter<RecordListItemViewHolder> {
+class ObservationListAdapter extends RecyclerView.Adapter<ObservationListItemViewHolder> {
 
   private final ViewModelFactory viewModelFactory;
-  private List<Record> recordList;
-  private MutableLiveData<Record> itemClicks;
+  private List<Observation> observationList;
+  private MutableLiveData<Observation> itemClicks;
 
-  public RecordListAdapter(ViewModelFactory viewModelFactory) {
+  public ObservationListAdapter(ViewModelFactory viewModelFactory) {
     this.viewModelFactory = viewModelFactory;
-    recordList = Collections.emptyList();
+    observationList = Collections.emptyList();
     itemClicks = new MutableLiveData<>();
   }
 
   @NonNull
   @Override
-  public RecordListItemViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+  public ObservationListItemViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
     LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-    RecordListItemBinding itemBinding = RecordListItemBinding.inflate(inflater, parent, false);
-    return new RecordListItemViewHolder(itemBinding);
+    ObservationListItemBinding itemBinding =
+        ObservationListItemBinding.inflate(inflater, parent, false);
+    return new ObservationListItemViewHolder(itemBinding);
   }
 
   @Override
-  public void onBindViewHolder(@NonNull RecordListItemViewHolder holder, int position) {
-    RecordViewModel viewModel = viewModelFactory.create(RecordViewModel.class);
-    viewModel.setRecord(recordList.get(position));
+  public void onBindViewHolder(@NonNull ObservationListItemViewHolder holder, int position) {
+    ObservationViewModel viewModel = viewModelFactory.create(ObservationViewModel.class);
+    viewModel.setRecord(observationList.get(position));
     viewModel.setRecordCallback(record -> itemClicks.postValue(record));
-    holder.bind(viewModel, recordList.get(position));
+    holder.bind(viewModel, observationList.get(position));
   }
 
   @Override
   public int getItemCount() {
-    return recordList.size();
+    return observationList.size();
   }
 
-  LiveData<Record> getItemClicks() {
+  LiveData<Observation> getItemClicks() {
     return itemClicks;
   }
 
   void clear() {
-    this.recordList = Collections.emptyList();
+    this.observationList = Collections.emptyList();
     notifyDataSetChanged();
   }
 
-  void update(List<Record> recordList) {
-    this.recordList = recordList;
+  void update(List<Observation> observationList) {
+    this.observationList = observationList;
     notifyDataSetChanged();
   }
 }

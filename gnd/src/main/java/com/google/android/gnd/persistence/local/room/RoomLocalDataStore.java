@@ -29,8 +29,8 @@ import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.basemap.tile.Tile;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.FeatureMutation;
-import com.google.android.gnd.model.observation.Record;
-import com.google.android.gnd.model.observation.RecordMutation;
+import com.google.android.gnd.model.observation.Observation;
+import com.google.android.gnd.model.observation.ObservationMutation;
 import com.google.android.gnd.persistence.local.LocalDataStore;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -98,7 +98,7 @@ public class RoomLocalDataStore implements LocalDataStore {
   }
 
   @Override
-  public Maybe<Record> getRecord(Feature feature, String recordId) {
+  public Maybe<Observation> getRecord(Feature feature, String recordId) {
     return db.recordDao()
         .findById(recordId)
         .map(record -> RecordEntity.toRecord(feature, record))
@@ -106,7 +106,7 @@ public class RoomLocalDataStore implements LocalDataStore {
   }
 
   @Override
-  public Single<ImmutableList<Record>> getRecords(Feature feature, String formId) {
+  public Single<ImmutableList<Observation>> getRecords(Feature feature, String formId) {
     return db.recordDao()
         .findByFeatureId(feature.getId(), formId)
         .map(
@@ -147,7 +147,7 @@ public class RoomLocalDataStore implements LocalDataStore {
 
   private ImmutableList<RecordMutationEntity> toRecordMutationEntities(
       ImmutableList<Mutation> mutations) {
-    return stream(RecordMutation.filter(mutations))
+    return stream(ObservationMutation.filter(mutations))
         .map(RecordMutationEntity::fromMutation)
         .collect(toImmutableList());
   }
@@ -166,7 +166,7 @@ public class RoomLocalDataStore implements LocalDataStore {
         .deleteAll(FeatureMutation.ids(mutations))
         .andThen(
             db.recordMutationDao()
-                .deleteAll(RecordMutation.ids(mutations))
+                .deleteAll(ObservationMutation.ids(mutations))
                 .subscribeOn(Schedulers.io()))
         .subscribeOn(Schedulers.io());
   }
@@ -182,10 +182,10 @@ public class RoomLocalDataStore implements LocalDataStore {
 
   @Transaction
   @Override
-  public Completable mergeRecord(Record record) {
-    RecordEntity recordEntity = RecordEntity.fromRecord(record);
+  public Completable mergeRecord(Observation observation) {
+    RecordEntity recordEntity = RecordEntity.fromRecord(observation);
     return db.recordMutationDao()
-        .findByRecordId(record.getId())
+        .findByRecordId(observation.getId())
         .map(mutations -> recordEntity.applyMutations(mutations))
         .flatMapCompletable(db.recordDao()::insertOrUpdate)
         .subscribeOn(Schedulers.io());
@@ -220,7 +220,7 @@ public class RoomLocalDataStore implements LocalDataStore {
 
   @Transaction
   @Override
-  public Completable applyAndEnqueue(RecordMutation mutation) {
+  public Completable applyAndEnqueue(ObservationMutation mutation) {
     try {
       return apply(mutation).andThen(enqueue(mutation));
     } catch (LocalDataStoreException e) {
@@ -228,7 +228,7 @@ public class RoomLocalDataStore implements LocalDataStore {
     }
   }
 
-  private Completable apply(RecordMutation mutation) throws LocalDataStoreException {
+  private Completable apply(ObservationMutation mutation) throws LocalDataStoreException {
     switch (mutation.getType()) {
       case CREATE:
       case UPDATE:
@@ -240,7 +240,7 @@ public class RoomLocalDataStore implements LocalDataStore {
     }
   }
 
-  private Completable enqueue(RecordMutation mutation) {
+  private Completable enqueue(ObservationMutation mutation) {
     return db.recordMutationDao()
         .insert(RecordMutationEntity.fromMutation(mutation))
         .subscribeOn(Schedulers.io());
