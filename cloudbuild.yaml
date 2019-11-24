@@ -103,7 +103,7 @@ steps:
       - '-c'
       - |
         # Update build status if running on master branch
-        if [[ -z "${_PUSH_TO_MASTER}" ]]; then
+        if [[ "${_PUSH_TO_MASTER}" ]]; then
           if [[ $(< /workspace/build-status.txt) == "fail" ]]; then
             gsutil cp cloud-builder/failure.svg gs://${_CACHE_BUCKET}/status.svg
           else
