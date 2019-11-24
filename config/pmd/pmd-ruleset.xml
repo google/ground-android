@@ -33,7 +33,6 @@
     <exclude name="SwitchStmtsShouldHaveDefault" />
     <exclude name="UseVarargs" />
     <exclude name="UnusedFormalParameter" />
-    <exclude name="UnusedImports" />
   </rule>
 
   <rule ref="category/java/codestyle.xml">
