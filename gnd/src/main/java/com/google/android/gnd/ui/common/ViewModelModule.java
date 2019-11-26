@@ -20,15 +20,15 @@ import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 import com.google.android.gnd.MainViewModel;
 import com.google.android.gnd.ui.basemapselector.BasemapSelectorViewModel;
-import com.google.android.gnd.ui.editrecord.EditRecordViewModel;
+import com.google.android.gnd.ui.editobservation.EditObservationViewModel;
 import com.google.android.gnd.ui.home.HomeScreenViewModel;
 import com.google.android.gnd.ui.home.featuresheet.FeatureSheetViewModel;
-import com.google.android.gnd.ui.home.featuresheet.RecordListViewModel;
-import com.google.android.gnd.ui.home.featuresheet.RecordViewModel;
+import com.google.android.gnd.ui.home.featuresheet.ObservationListViewModel;
+import com.google.android.gnd.ui.home.featuresheet.ObservationViewModel;
 import com.google.android.gnd.ui.home.mapcontainer.MapContainerViewModel;
 import com.google.android.gnd.ui.offlinearea.OfflineAreaManagerViewModel;
+import com.google.android.gnd.ui.observationdetails.ObservationDetailsViewModel;
 import com.google.android.gnd.ui.projectselector.ProjectSelectorViewModel;
-import com.google.android.gnd.ui.recorddetails.RecordDetailsViewModel;
 import com.google.android.gnd.ui.signin.SignInViewModel;
 import dagger.Binds;
 import dagger.Module;
@@ -78,23 +78,23 @@ public abstract class ViewModelModule {
 
   @Binds
   @IntoMap
-  @ViewModelKey(RecordViewModel.class)
-  abstract ViewModel bindRecordViewModel(RecordViewModel viewModel);
+  @ViewModelKey(ObservationViewModel.class)
+  abstract ViewModel bindRecordViewModel(ObservationViewModel viewModel);
 
   @Binds
   @IntoMap
-  @ViewModelKey(RecordListViewModel.class)
-  abstract ViewModel bindRecordListViewModel(RecordListViewModel viewModel);
+  @ViewModelKey(ObservationListViewModel.class)
+  abstract ViewModel bindRecordListViewModel(ObservationListViewModel viewModel);
 
   @Binds
   @IntoMap
-  @ViewModelKey(RecordDetailsViewModel.class)
-  abstract ViewModel bindRecordDetailsViewModel(RecordDetailsViewModel viewModel);
+  @ViewModelKey(ObservationDetailsViewModel.class)
+  abstract ViewModel bindRecordDetailsViewModel(ObservationDetailsViewModel viewModel);
 
   @Binds
   @IntoMap
-  @ViewModelKey(EditRecordViewModel.class)
-  abstract ViewModel bindEditRecordViewModel(EditRecordViewModel viewModel);
+  @ViewModelKey(EditObservationViewModel.class)
+  abstract ViewModel bindEditRecordViewModel(EditObservationViewModel viewModel);
 
   @Binds
   abstract ViewModelProvider.Factory bindViewModelFactory(ViewModelFactory factory);

@@ -33,7 +33,6 @@ import com.google.android.gnd.ui.common.SingleLiveEvent;
 import com.google.android.gnd.ui.map.MapMarker;
 import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subjects.PublishSubject;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
@@ -76,8 +75,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
                         .saveFeature(newFeature)
                         .toSingleDefault(newFeature)
                         .doOnError(this::onAddFeatureError)
-                        .onErrorResumeNext(Single.never()) // Prevent from breaking upstream.
-                        .subscribeOn(Schedulers.io()))
+                        .onErrorResumeNext(Single.never())) // Prevent from breaking upstream.
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(this::showFeatureSheet));
   }
@@ -144,7 +142,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
       return;
     }
     Feature feature = state.getFeature();
-    navigator.addRecord(feature.getProject().getId(), feature.getId(), selectedForm.getId());
+    navigator.addObservation(feature.getProject().getId(), feature.getId(), selectedForm.getId());
   }
 
   public void showBasemapSelector() {

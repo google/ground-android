@@ -31,7 +31,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.Point;
-import com.google.android.gnd.model.layer.FeatureType;
+import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.model.layer.Style;
 import com.google.android.gnd.ui.MapIcon;
 import com.google.android.gnd.ui.map.MapMarker;
@@ -106,7 +106,7 @@ class GoogleMapsMapAdapter implements MapAdapter {
       String line = buf.readLine();
       StringBuilder sb = new StringBuilder();
       while (line != null) {
-        sb.append(line).append("\n");
+        sb.append(line).append('\n');
         line = buf.readLine();
       }
 
@@ -172,7 +172,7 @@ class GoogleMapsMapAdapter implements MapAdapter {
     BitmapDescriptor bitmap =
         isHighlighted
             ? icon.getWhiteBitmap()
-            : (hasPendingWrites ? icon.getGreyBitmap() : icon.getBitmap());
+            : hasPendingWrites ? icon.getGreyBitmap() : icon.getBitmap();
     Marker marker = map.addMarker(new MarkerOptions().position(position).icon(bitmap).alpha(1.0f));
     markers.put(mapMarker.getId(), marker);
     marker.setTag(mapMarker);
@@ -243,8 +243,8 @@ class GoogleMapsMapAdapter implements MapAdapter {
 
   private void addMarker(Feature feature) {
     Log.v(TAG, "Adding marker for " + feature.getId());
-    FeatureType featureType = feature.getFeatureType();
-    Style style = featureType.getDefaultStyle();
+    Layer layer = feature.getLayer();
+    Style style = layer.getDefaultStyle();
     String color = style == null ? null : style.getColor();
     String overlayId = null; // Not yet implemented.
     MapIcon icon = new MapIcon(context, overlayId, color);

@@ -24,10 +24,10 @@
     <dimen name="field_horizontal_margin">14dp</dimen>
     <dimen name="field_vertical_margin">8dp</dimen>
 
-    <!-- Space between fields in Record Details View -->
+    <!-- Space between fields in Observation Details View -->
     <dimen name="details_field_spacing">4dp</dimen>
 
-    <!-- Record menu button -->
+    <!-- Observation menu button -->
     <dimen name="record_menu_btn_top">6dp</dimen>
     <dimen name="menu_btn_width">24dp</dimen>
     <dimen name="menu_btn_height">24dp</dimen>

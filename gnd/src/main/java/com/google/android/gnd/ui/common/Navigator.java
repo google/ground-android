@@ -19,8 +19,10 @@ package com.google.android.gnd.ui.common;
 import androidx.navigation.NavDirections;
 import com.google.android.gnd.NavGraphDirections;
 import com.google.android.gnd.inject.ActivityScoped;
+import com.google.android.gnd.ui.editobservation.EditObservationFragment;
 import com.google.android.gnd.ui.home.HomeScreenFragmentDirections;
-import com.google.android.gnd.ui.recorddetails.RecordDetailsFragmentDirections;
+import com.google.android.gnd.ui.observationdetails.ObservationDetailsFragment;
+import com.google.android.gnd.ui.observationdetails.ObservationDetailsFragmentDirections;
 import io.reactivex.Observable;
 import io.reactivex.subjects.PublishSubject;
 import io.reactivex.subjects.Subject;
@@ -63,11 +65,11 @@ public class Navigator {
 
   /**
    * Navigates from a {@link com.google.android.gnd.ui.home.HomeScreenFragment} to a {@link
-   * com.google.android.gnd.ui.recorddetails.RecordDetailsFragment} populated with the specified
-   * record.
+   * ObservationDetailsFragment} populated with the specified
+   * observation.
    */
-  public void showRecordDetails(String projectId, String featureId, String recordId) {
-    navigate(HomeScreenFragmentDirections.showRecordDetails(projectId, featureId, recordId));
+  public void showRecordDetails(String projectId, String featureId, String observationId) {
+    navigate(HomeScreenFragmentDirections.showRecordDetails(projectId, featureId, observationId));
   }
 
   /**
@@ -80,20 +82,20 @@ public class Navigator {
 
   /**
    * Navigates from the {@link com.google.android.gnd.ui.home.HomeScreenFragment} to a {@link
-   * com.google.android.gnd.ui.editrecord.EditRecordFragment} initialized with a new empty record
+   * EditObservationFragment} initialized with a new empty observation
    * using the specified form.
    */
-  public void addRecord(String projectId, String featureId, String formId) {
+  public void addObservation(String projectId, String featureId, String formId) {
     navigate(HomeScreenFragmentDirections.addRecord(projectId, featureId, formId));
   }
 
   /**
-   * Navigates from the {@link com.google.android.gnd.ui.recorddetails.RecordDetailsFragment} to a
-   * {@link com.google.android.gnd.ui.editrecord.EditRecordFragment} populated with the specified
-   * record.
+   * Navigates from the {@link ObservationDetailsFragment} to a
+   * {@link EditObservationFragment} populated with the specified
+   * observation.
    */
-  public void editRecord(String projectId, String featureId, String recordId) {
-    navigate(RecordDetailsFragmentDirections.editRecord(projectId, featureId, recordId));
+  public void editObservation(String projectId, String featureId, String observationId) {
+    navigate(ObservationDetailsFragmentDirections.editRecord(projectId, featureId, observationId));
   }
 
   /** Navigates to the home screen. */

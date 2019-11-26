@@ -49,10 +49,10 @@ public class TextResponse implements Response {
 
   @Override
   public boolean equals(Object obj) {
-    if (obj == null || !(obj instanceof TextResponse)) {
-      return false;
+    if (obj instanceof TextResponse) {
+      return text.equals(((TextResponse) obj).text);
     }
-    return text.equals(((TextResponse) obj).text);
+    return false;
   }
 
   @Override

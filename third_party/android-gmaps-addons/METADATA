@@ -1,0 +1,15 @@
+name: "Android Google Maps API add-ons"
+description:
+    "Used for implementation of Google Maps API TileProvider for rendering
+    " raster imagery stored in MBTiles format."
+
+third_party {
+  url {
+    type: GIT
+    value: "https://github.com/cocoahero/android-gmaps-addons"
+  }
+  version: "b7cd8977311acfe8fc6e9b53998adf81614f59d3"
+  last_upgrade_date { year: 2019 month: 11 day: 24 }
+  license_type: NOTICE
+  local_modifications: "See git log"
+}

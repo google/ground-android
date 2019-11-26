@@ -95,7 +95,11 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
   /** The bottom sheet is half-expanded (used when mFitToContents is false). */
   public static final int STATE_HALF_EXPANDED = 6;
 
-  /** @hide */
+  /**
+   * State of the bottom sheet.
+   *
+   * @hide
+   */
   @RestrictTo(LIBRARY_GROUP)
   @IntDef({
     STATE_EXPANDED,
@@ -323,7 +327,7 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
       case MotionEvent.ACTION_DOWN:
         int initialX = (int) event.getX();
         initialY = (int) event.getY();
-        View scroll = nestedScrollingChildRef != null ? nestedScrollingChildRef.get() : null;
+        View scroll = nestedScrollingChildRef == null ? null : nestedScrollingChildRef.get();
         if (scroll != null && parent.isPointInChildBounds(scroll, initialX, initialY)) {
           activePointerId = event.getPointerId(event.getActionIndex());
           touchingScrollingChild = true;
@@ -340,7 +344,7 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
     // We have to handle cases that the ViewDragHelper does not capture the bottom sheet because
     // it is not the top most view of its parent. This is not necessary when the touch event is
     // happening over the scrolling content as nested scrolling logic handles that case.
-    View scroll = nestedScrollingChildRef != null ? nestedScrollingChildRef.get() : null;
+    View scroll = nestedScrollingChildRef == null ? null : nestedScrollingChildRef.get();
     return action == MotionEvent.ACTION_MOVE
         && scroll != null
         && !ignoreEvents
@@ -406,7 +410,7 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
       return;
     }
     View scrollingChild = nestedScrollingChildRef.get();
-    if (target != scrollingChild) {
+    if (!target.equals(scrollingChild)) {
       return;
     }
     int currentTop = child.getTop();
@@ -517,9 +521,9 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
   }
 
   /**
-   * @return whether the height of the expanded sheet is determined by the height of its contents,
-   *     or if it is expanded in two stages (half the height of the parent container, full height of
-   *     parent container).
+   * Returns whether the height of the expanded sheet is determined by the height of its contents,
+   * or if it is expanded in two stages (half the height of the parent container, full height of
+   * parent container).
    */
   public boolean isFitToContents() {
     return fitToContents;
@@ -544,7 +548,7 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
       calculateCollapsedOffset();
     }
     // Fix incorrect expanded settings depending on whether or not we are fitting sheet to contents.
-    setStateInternal((this.fitToContents && state == STATE_HALF_EXPANDED) ? STATE_EXPANDED : state);
+    setStateInternal(this.fitToContents && state == STATE_HALF_EXPANDED ? STATE_EXPANDED : state);
   }
 
   /**
@@ -628,7 +632,7 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
    * @attr ref
    *     com.google.android.material.R.styleable#BottomSheetBehavior_Layout_behavior_skipCollapsed
    */
-  public boolean getSkipCollapsed() {
+  public boolean isSkipCollapsed() {
     return skipCollapsed;
   }
 
@@ -657,7 +661,7 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
       if (state == STATE_COLLAPSED
           || state == STATE_EXPANDED
           || state == STATE_HALF_EXPANDED
-          || (hideable && state == STATE_HIDDEN)) {
+          || hideable && state == STATE_HIDDEN) {
         this.state = state;
       }
       return;
@@ -739,7 +743,7 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
     }
     if (view instanceof ViewGroup) {
       ViewGroup group = (ViewGroup) view;
-      for (int i = 0, count = group.getChildCount(); i < count; i++) {
+      for (int i = 0; i < group.getChildCount(); i++) {
         View scrollingChild = findScrollingChild(group.getChildAt(i));
         if (scrollingChild != null) {
           return scrollingChild;

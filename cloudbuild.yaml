@@ -14,14 +14,18 @@
 # limitations under the License.
 #
 
-# Loadsthe Docker image from the container registry and then runs the following steps:
+# Loads the Docker image from the container registry and then runs the following steps:
 #
 #  1. Copy Gradle cache
 #  2. Extract tarball
 #  3. Copy .git dir
-#  4. Build debug APK and run checkstyle checks
-#  5. Compress Gradle files
-#  6. Save tarball
+#  4. Build debug APK and run checkstyle checks (suppress failure if check fails)
+#  5. Save reports to GCS
+#  6. Update badge status and fail the build if any errors were encountered during step 4
+#  7. Compress Gradle files
+#  8. Save tarball
+#
+#  NOTE: APKs are saved to GCS only if the build passes
 #
 # Based on https://github.com/GoogleCloudPlatform/cloud-builders-community
 
@@ -69,7 +73,12 @@ steps:
   # Build debug APK and run checkstyle checks
   - name: 'gcr.io/$PROJECT_ID/android:28'
     id: build
-    args: ['./gradlew', 'assembleDebug', 'checkstyle', 'lintDebug', 'pmd']
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        ./gradlew assembleDebug && \
+        ./gradlew checkCode || echo "fail" > /workspace/build-status.txt
     env:
       - 'TERM=dumb'
       - 'JAVA_TOOL_OPTIONS="-Xmx3g"'
@@ -80,6 +89,41 @@ steps:
     volumes:
       - name: 'build_cache'
         path: '/build_cache'
+
+  # Save all reports to GCS
+  - id: Save artifacts to GCS
+    name: 'gcr.io/cloud-builders/gsutil'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+      - cp -r gnd/build/reports gs://${_ARTIFACT_BUCKET}/$BRANCH_NAME-$BUILD_ID/reports || echo "Reports not generated"
+
+  # Update status badge and fail build if errors were found in "build" step
+  - id: Bubble build result
+    name: 'gcr.io/cloud-builders/gsutil'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        # Update build status if running on master branch
+        if [[ "${_PUSH_TO_MASTER}" ]]; then
+          if [[ $(< /workspace/build-status.txt) == "fail" ]]; then
+            gsutil cp cloud-builder/failure.svg gs://${_CACHE_BUCKET}/status.svg
+          else
+            gsutil cp cloud-builder/success.svg gs://${_CACHE_BUCKET}/status.svg
+          fi
+
+          # Make file public readable
+          gsutil acl ch -u AllUsers:R gs://${_CACHE_BUCKET}/status.svg
+        fi
+
+        # Delayed build fail
+        if [[ $(< /workspace/build-status.txt) == "fail" ]]; then
+          echo "Build failed."
+          echo "Reports uploaded to https://console.cloud.google.com/storage/browser/${_ARTIFACT_BUCKET}/$BRANCH_NAME-$BUILD_ID/"
+          exit 1
+        fi
 
   # Compress the gradle build cache
   - name: 'gcr.io/$PROJECT_ID/android:base'
@@ -106,6 +150,6 @@ steps:
 artifacts:
   objects:
     location: 'gs://${_ARTIFACT_BUCKET}/$BRANCH_NAME-$BUILD_ID'
-    paths: ['gnd/build/outputs/apk/*/*.apk', 'gnd/build/reports/*/*.html']
+    paths: ['gnd/build/outputs/apk/*/*.apk']
 
 timeout: 1800s

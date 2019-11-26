@@ -21,8 +21,8 @@ import com.google.android.gnd.model.Mutation;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.FeatureMutation;
-import com.google.android.gnd.model.observation.Record;
-import com.google.android.gnd.model.observation.RecordMutation;
+import com.google.android.gnd.model.observation.Observation;
+import com.google.android.gnd.model.observation.ObservationMutation;
 import com.google.android.gnd.persistence.local.LocalDataStore;
 import com.google.android.gnd.persistence.local.LocalValueStore;
 import com.google.android.gnd.persistence.remote.RemoteDataEvent;
@@ -31,7 +31,6 @@ import com.google.android.gnd.persistence.remote.firestore.DocumentNotFoundExcep
 import com.google.android.gnd.persistence.sync.DataSyncWorkManager;
 import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator;
 import com.google.android.gnd.system.AuthenticationManager.User;
-import com.google.android.gnd.system.NetworkManager;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import io.reactivex.Completable;
@@ -41,7 +40,6 @@ import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.processors.BehaviorProcessor;
 import io.reactivex.processors.FlowableProcessor;
-import io.reactivex.schedulers.Schedulers;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java8.util.Optional;
@@ -59,7 +57,6 @@ public class DataRepository {
   private final DataSyncWorkManager dataSyncWorkManager;
   private final FlowableProcessor<Persistable<Project>> activeProject;
   private final OfflineUuidGenerator uuidGenerator;
-  private final NetworkManager networkManager;
   private final LocalValueStore localValueStore;
 
   @Inject
@@ -69,7 +66,6 @@ public class DataRepository {
       DataSyncWorkManager dataSyncWorkManager,
       InMemoryCache cache,
       OfflineUuidGenerator uuidGenerator,
-      NetworkManager networkManager,
       LocalValueStore localValueStore) {
     this.localDataStore = localDataStore;
     this.remoteDataStore = remoteDataStore;
@@ -77,7 +73,6 @@ public class DataRepository {
     this.cache = cache;
     this.activeProject = BehaviorProcessor.create();
     this.uuidGenerator = uuidGenerator;
-    this.networkManager = networkManager;
     this.localValueStore = localValueStore;
 
     streamFeaturesToLocalDb(remoteDataStore);
@@ -101,11 +96,7 @@ public class DataRepository {
     switch (event.getEventType()) {
       case ENTITY_LOADED:
       case ENTITY_MODIFIED:
-        return event
-            .value()
-            .map(localDataStore::mergeFeature)
-            .orElse(Completable.complete())
-            .subscribeOn(Schedulers.io());
+        return event.value().map(localDataStore::mergeFeature).orElse(Completable.complete());
       case ENTITY_REMOVED:
         // TODO: Delete features:
         // localDataStore.removeFeature(event.getEntityId());
@@ -158,82 +149,38 @@ public class DataRepository {
   }
 
   /**
-   * Retrieves the record summaries for the specified project, feature, and form, streaming
-   * successive changes ad infinitum. If the network is available on subscribe, will attempt to sync
-   * remote record changes to the local data store before returning the first set. If the network is
-   * not available, relevant records will be returned directly from the local db. After the first
-   * set is emitted, will continue to monitor the remote db for changes, writing updates to records
-   * to the local db and emitting a new set on each change.
+   * Retrieves the records or the specified project, feature, and form.
+   *
+   * <ol>
+   *   <li>Attempt to sync remote observation changes to the local data store. If network is not
+   *       available or operation times out, this step is skipped.
+   *   <li>Relevant records are returned directly from the local data store.
+   * </ol>
    */
-  public Flowable<ImmutableList<Record>> getRecordSummariesOnceAndStream(
+  public Single<ImmutableList<Observation>> getRecords(
       String projectId, String featureId, String formId) {
     // TODO: Only fetch first n fields.
-    // TODO: Also load from db.
-    // TODO(#127): Decouple feature from record so that we don't need to fetch record here.
+    // TODO(#127): Decouple feature from observation so that we don't need to fetch observation
+    // here.
     return getFeature(projectId, featureId)
         .switchIfEmpty(Single.error(new DocumentNotFoundException()))
-        .flatMapPublisher(
-            feature -> {
-              Flowable<RemoteDataEvent<Record>> remoteChanges =
-                  remoteDataStore
-                      .loadRecordSummariesOnceAndStreamChanges(feature)
-                      .subscribeOn(Schedulers.io());
-              Flowable<ImmutableList<Record>> localChanges =
-                  localDataStore
-                      .getRecordsOnceAndStream(feature, formId)
-                      .subscribeOn(Schedulers.io());
-              return maybeSyncFirst(remoteChanges)
-                  .toFlowable()
-                  .map(o -> (ImmutableList<Record>) o)
-                  .concatWith(
-                      // This will rewrite the first update in remoteChanges to the local db
-                      // even if already successful. We allow this in case the first update
-                      // timed out or failed or the network wasn't available.
-                      localChanges.mergeWith(
-                          remoteChanges.flatMapCompletable(this::mergeRemoteRecordChange)));
-            });
+        .flatMap(feature -> getRecords(feature, formId));
   }
 
-  /**
-   * If network is available, waits for records from remote db, merging them into the local db
-   * before completing. Completes immediately if the network isn't available or if record sync fails
-   * or times out.
-   */
-  private Completable maybeSyncFirst(Flowable<RemoteDataEvent<Record>> remoteChanges) {
-    if (networkManager.isNetworkAvailable()) {
-      Log.d(TAG, "Has network; syncing records before showing");
-      return remoteChanges
-          .firstElement()
-          .flatMapCompletable(this::mergeRemoteRecordChange)
-          .timeout(GET_REMOTE_RECORDS_TIMEOUT_SECS, TimeUnit.SECONDS)
-          // TODO: Propagate this to the user so we can show "network unavailable" message also
-          // when network became unavailable mid-fetch .
-          .doOnError(t -> Log.d(TAG, "Record sync timed out"))
-          .onErrorComplete();
-    } else {
-      Log.d(TAG, "No network; skipping remote sync");
-      return Completable.complete();
-    }
+  private Single<ImmutableList<Observation>> getRecords(Feature feature, String formId) {
+    Completable remoteSync =
+        remoteDataStore
+            .loadRecords(feature)
+            .timeout(GET_REMOTE_RECORDS_TIMEOUT_SECS, TimeUnit.SECONDS)
+            .doOnError(t -> Log.d(TAG, "Observation sync timed out"))
+            .flatMapCompletable(this::mergeRemoteRecords)
+            .onErrorComplete();
+    return remoteSync.andThen(localDataStore.getRecords(feature, formId));
   }
 
-  private Completable mergeRemoteRecordChange(RemoteDataEvent<Record> event) {
-    switch (event.getEventType()) {
-      case ENTITY_LOADED:
-      case ENTITY_MODIFIED:
-        return event
-            .value()
-            .map(record -> localDataStore.mergeRecord(record).subscribeOn(Schedulers.io()))
-            .orElse(Completable.never());
-      case ENTITY_REMOVED:
-        // TODO: Delete record from local db.
-        break;
-      case ERROR:
-        event.error().ifPresent(t -> Log.e(TAG, "Error in remote record update", t));
-        break;
-      default:
-        Log.e(TAG, "Unknown event type: " + event.getEventType());
-    }
-    return Completable.never();
+  private Completable mergeRemoteRecords(ImmutableList<Observation> observations) {
+    return Observable.fromIterable(observations)
+        .flatMapCompletable(record -> localDataStore.mergeRecord(record));
   }
 
   // TODO(#127): Decouple Project from Feature and remove projectId.
@@ -243,30 +190,31 @@ public class DataRepository {
         .flatMapMaybe(project -> localDataStore.getFeature(project, featureId));
   }
 
-  public Single<Record> getRecord(String projectId, String featureId, String recordId) {
+  public Single<Observation> getObservation(
+      String projectId, String featureId, String observationId) {
     // TODO: Store and retrieve latest edits from cache and/or db.
-    // TODO(#127): Decouple feature from record so that we don't need to fetch feature here.
+    // TODO(#127): Decouple feature from observation so that we don't need to fetch feature here.
     return getFeature(projectId, featureId)
         .switchIfEmpty(Single.error(new DocumentNotFoundException()))
         .flatMap(
             feature ->
                 localDataStore
-                    .getRecord(feature, recordId)
+                    .getRecord(feature, observationId)
                     .switchIfEmpty(Single.error(new DocumentNotFoundException())));
   }
 
-  public Single<Record> createRecord(String projectId, String featureId, String formId) {
+  public Single<Observation> createObservation(String projectId, String featureId, String formId) {
     // TODO: Handle invalid formId.
-    // TODO(#127): Decouple feature from record so that we don't need to fetch feature here.
+    // TODO(#127): Decouple feature from observation so that we don't need to fetch feature here.
     return getFeature(projectId, featureId)
         .switchIfEmpty(Single.error(new DocumentNotFoundException()))
         .map(
             feature ->
-                Record.newBuilder()
+                Observation.newBuilder()
                     .setId(uuidGenerator.generateUuid())
                     .setProject(feature.getProject())
                     .setFeature(feature)
-                    .setForm(feature.getFeatureType().getForm(formId).get())
+                    .setForm(feature.getLayer().getForm(formId).get())
                     .build());
   }
 
@@ -277,7 +225,7 @@ public class DataRepository {
         .switchIfEmpty(remoteDataStore.loadProject(projectId));
   }
 
-  public Completable applyAndEnqueue(RecordMutation mutation) {
+  public Completable applyAndEnqueue(ObservationMutation mutation) {
     // TODO(#101): Store user id and timestamp on save.
     return localDataStore
         .applyAndEnqueue(mutation)
@@ -293,7 +241,7 @@ public class DataRepository {
                 .setType(Mutation.Type.CREATE)
                 .setProjectId(feature.getProject().getId())
                 .setFeatureId(feature.getId())
-                .setFeatureTypeId(feature.getFeatureType().getId())
+                .setLayerId(feature.getLayer().getId())
                 .setNewLocation(Optional.of(feature.getPoint()))
                 // TODO(#101): Attach real credentials.
                 .setUserId("")

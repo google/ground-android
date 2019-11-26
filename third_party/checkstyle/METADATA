@@ -1,0 +1,19 @@
+name: "Checkstyle Google Java Style Config File"
+description:
+    "Configuration for Checkstyle plugin that implements Google Java Style "
+    "conventions defined at https://google.github.io/styleguide/javaguide.html."
+
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://checkstyle.org"
+  }
+  url {
+    type: GIT
+    value: "https://github.com/checkstyle/checkstyle"
+  }
+  version: "bf1cd4769ced169c2727a11fb5a2dd5685c79b98"
+  last_upgrade_date { year: 2019 month: 11 day: 24 }
+  license_type: RESTRICTED
+  local_modifications: "See git log"
+}

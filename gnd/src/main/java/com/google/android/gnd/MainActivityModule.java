@@ -21,21 +21,21 @@ import com.google.android.gnd.inject.ActivityScoped;
 import com.google.android.gnd.inject.FragmentScoped;
 import com.google.android.gnd.ui.basemapselector.BasemapSelectorFragment;
 import com.google.android.gnd.ui.basemapselector.BasemapSelectorModule;
-import com.google.android.gnd.ui.editrecord.EditRecordFragment;
-import com.google.android.gnd.ui.editrecord.EditRecordModule;
+import com.google.android.gnd.ui.editobservation.EditObservationFragment;
+import com.google.android.gnd.ui.editobservation.EditObservationModule;
 import com.google.android.gnd.ui.home.AddFeatureDialogFragment;
 import com.google.android.gnd.ui.home.HomeScreenFragment;
 import com.google.android.gnd.ui.home.HomeScreenModule;
 import com.google.android.gnd.ui.home.featuresheet.FeatureSheetFragment;
 import com.google.android.gnd.ui.home.featuresheet.FeatureSheetModule;
-import com.google.android.gnd.ui.home.featuresheet.RecordListFragment;
+import com.google.android.gnd.ui.home.featuresheet.ObservationListFragment;
 import com.google.android.gnd.ui.home.mapcontainer.MapContainerFragment;
 import com.google.android.gnd.ui.home.mapcontainer.MapContainerModule;
 import com.google.android.gnd.ui.offlinearea.OfflineAreaManagerFragment;
 import com.google.android.gnd.ui.offlinearea.OfflineAreaManagerModule;
+import com.google.android.gnd.ui.observationdetails.ObservationDetailsFragment;
+import com.google.android.gnd.ui.observationdetails.ObservationDetailsModule;
 import com.google.android.gnd.ui.projectselector.ProjectSelectorDialogFragment;
-import com.google.android.gnd.ui.recorddetails.RecordDetailsFragment;
-import com.google.android.gnd.ui.recorddetails.RecordDetailsModule;
 import com.google.android.gnd.ui.signin.SignInFragment;
 import com.google.android.gnd.ui.signin.SignInModule;
 import com.google.android.gnd.ui.startup.StartupFragment;
@@ -84,15 +84,15 @@ public abstract class MainActivityModule {
 
   @FragmentScoped
   @ContributesAndroidInjector(modules = FeatureSheetModule.class)
-  abstract RecordListFragment recordListFragmentInjector();
+  abstract ObservationListFragment recordListFragmentInjector();
 
   @FragmentScoped
-  @ContributesAndroidInjector(modules = RecordDetailsModule.class)
-  abstract RecordDetailsFragment recordDetailsFragmentInjector();
+  @ContributesAndroidInjector(modules = ObservationDetailsModule.class)
+  abstract ObservationDetailsFragment recordDetailsFragmentInjector();
 
   @FragmentScoped
-  @ContributesAndroidInjector(modules = EditRecordModule.class)
-  abstract EditRecordFragment editRecordFragmentInjector();
+  @ContributesAndroidInjector(modules = EditObservationModule.class)
+  abstract EditObservationFragment editRecordFragmentInjector();
 
   @FragmentScoped
   @ContributesAndroidInjector(modules = BasemapSelectorModule.class)

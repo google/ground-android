@@ -29,23 +29,17 @@
   <rule ref="category/java/bestpractices.xml">
     <exclude name="AbstractClassWithoutAbstractMethod" />
     <exclude name="AvoidReassigningParameters" />
-    <exclude name="ForLoopVariableCount" />
     <exclude name="GuardLogStatement" />
     <exclude name="SwitchStmtsShouldHaveDefault" />
     <exclude name="UseVarargs" />
     <exclude name="UnusedFormalParameter" />
-    <exclude name="UnusedImports" />
-    <exclude name="UnusedPrivateField" />
-    <exclude name="UnusedPrivateMethod" />
   </rule>
 
   <rule ref="category/java/codestyle.xml">
     <exclude name="AtLeastOneConstructor" />
-    <exclude name="BooleanGetMethodName" />
     <exclude name="CallSuperInConstructor" />
     <exclude name="ClassNamingConventions" />
     <exclude name="CommentDefaultAccessModifier" />
-    <exclude name="ConfusingTernary" />
     <exclude name="DefaultPackage" />
     <exclude name="EmptyMethodInAbstractClassShouldBeAbstract" />
     <exclude name="FieldDeclarationsShouldBeAtStartOfClass" />
@@ -55,15 +49,9 @@
     <exclude name="LongVariable" />
     <exclude name="MethodArgumentCouldBeFinal" />
     <exclude name="OnlyOneReturn" />
-    <exclude name="PrematureDeclaration" />
     <exclude name="ShortClassName" />
     <exclude name="ShortMethodName" />
     <exclude name="ShortVariable" />
-    <exclude name="UnnecessaryConstructor" />
-    <exclude name="UnnecessaryFullyQualifiedName" />
-    <exclude name="UnnecessaryLocalBeforeReturn" />
-    <exclude name="UseDiamondOperator" />
-    <exclude name="UselessParentheses" />
   </rule>
 
   <rule ref="category/java/design.xml">
@@ -80,12 +68,10 @@
     <exclude name="ImmutableField" />
     <exclude name="LawOfDemeter" />
     <exclude name="NPathComplexity" />
-    <exclude name="SimplifyConditional" />
     <exclude name="TooManyFields" />
     <exclude name="TooManyMethods" />
     <exclude name="UseUtilityClass" />
     <exclude name="UseObjectForClearerAPI" />
-    <exclude name="UselessOverridingMethod" />
   </rule>
 
   <rule ref="category/java/documentation.xml">
@@ -102,15 +88,11 @@
     <exclude name="AvoidLiteralsInIfCondition" />
     <exclude name="BeanMembersShouldSerialize" />
     <exclude name="CloseResource" />
-    <exclude name="CompareObjectsWithEquals" />
     <exclude name="DataflowAnomalyAnalysis" />
     <exclude name="EmptyIfStmt" />
-    <exclude name="FinalizeDoesNotCallSuperFinalize" />
-    <exclude name="MissingBreakInSwitch" />
     <exclude name="MissingSerialVersionUID" />
     <exclude name="NullAssignment" />
     <exclude name="OverrideBothEqualsAndHashcode" />
-    <exclude name="UseLocaleWithCaseConversions" />
   </rule>
 
   <rule ref="category/java/multithreading.xml">
@@ -119,7 +101,6 @@
   </rule>
 
   <rule ref="category/java/performance.xml">
-    <exclude name="AppendCharacterWithChar" />
     <exclude name="AvoidFileStream" />
     <exclude name="InefficientEmptyStringCheck" />
     <exclude name="TooFewBranchesForASwitchStatement" />

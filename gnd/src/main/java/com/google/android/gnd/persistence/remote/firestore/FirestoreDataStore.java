@@ -23,14 +23,15 @@ import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.Timestamps;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.FeatureMutation;
-import com.google.android.gnd.model.observation.Record;
-import com.google.android.gnd.model.observation.RecordMutation;
+import com.google.android.gnd.model.observation.Observation;
+import com.google.android.gnd.model.observation.ObservationMutation;
 import com.google.android.gnd.persistence.remote.RemoteDataEvent;
 import com.google.android.gnd.persistence.remote.RemoteDataStore;
 import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator;
 import com.google.android.gnd.rx.RxTask;
 import com.google.android.gnd.system.AuthenticationManager.User;
 import com.google.common.collect.ImmutableCollection;
+import com.google.common.collect.ImmutableList;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreSettings;
 import com.google.firebase.firestore.WriteBatch;
@@ -81,21 +82,22 @@ public class FirestoreDataStore implements RemoteDataStore, OfflineUuidGenerator
     return db.projects()
         .project(projectId)
         .get()
-        .switchIfEmpty(Single.error(new DocumentNotFoundException()));
+        .switchIfEmpty(Single.error(new DocumentNotFoundException()))
+        .subscribeOn(Schedulers.io());
   }
 
   @Override
-  public Flowable<RemoteDataEvent<Record>> loadRecordSummariesOnceAndStreamChanges(
-      Feature feature) {
+  public Single<ImmutableList<Observation>> loadRecords(Feature feature) {
     return db.projects()
         .project(feature.getProject().getId())
         .records()
-        .getRecordsByFeatureOnceAndStreamChanges(feature);
+        .recordsByFeatureId(feature)
+        .subscribeOn(Schedulers.io());
   }
 
   @Override
   public Single<List<Project>> loadProjectSummaries(User user) {
-    return db.projects().getReadable(user);
+    return db.projects().getReadable(user).subscribeOn(Schedulers.io());
   }
 
   @Override
@@ -109,7 +111,8 @@ public class FirestoreDataStore implements RemoteDataStore, OfflineUuidGenerator
 
   @Override
   public Completable applyMutations(ImmutableCollection<Mutation> mutations) {
-    return RxTask.toCompletable(() -> applyMutationsInternal(mutations));
+    return RxTask.toCompletable(() -> applyMutationsInternal(mutations))
+        .subscribeOn(Schedulers.io());
   }
 
   private Task<?> applyMutationsInternal(ImmutableCollection<Mutation> mutations) {
@@ -123,8 +126,8 @@ public class FirestoreDataStore implements RemoteDataStore, OfflineUuidGenerator
   private void addMutationToBatch(Mutation mutation, WriteBatch batch) {
     if (mutation instanceof FeatureMutation) {
       addFeatureMutationToBatch((FeatureMutation) mutation, batch);
-    } else if (mutation instanceof RecordMutation) {
-      addRecordMutationToBatch((RecordMutation) mutation, batch);
+    } else if (mutation instanceof ObservationMutation) {
+      addRecordMutationToBatch((ObservationMutation) mutation, batch);
     } else {
       throw new IllegalArgumentException("Unsupported mutation " + mutation.getClass());
     }
@@ -138,7 +141,7 @@ public class FirestoreDataStore implements RemoteDataStore, OfflineUuidGenerator
         .addMutationToBatch(mutation, batch);
   }
 
-  private void addRecordMutationToBatch(RecordMutation mutation, WriteBatch batch) {
+  private void addRecordMutationToBatch(ObservationMutation mutation, WriteBatch batch) {
     db.projects()
         .project(mutation.getProjectId())
         .records()

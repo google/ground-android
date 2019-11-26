@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.persistence.remote.firestore;
 
+import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList;
 import static java8.util.stream.Collectors.toList;
 import static java8.util.stream.StreamSupport.stream;
 
@@ -23,10 +24,11 @@ import android.util.Log;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.FeatureMutation;
-import com.google.android.gnd.model.observation.Record;
-import com.google.android.gnd.model.observation.RecordMutation;
+import com.google.android.gnd.model.observation.Observation;
+import com.google.android.gnd.model.observation.ObservationMutation;
 import com.google.android.gnd.persistence.remote.RemoteDataEvent;
 import com.google.android.gnd.system.AuthenticationManager.User;
+import com.google.common.collect.ImmutableList;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentReference;
@@ -43,7 +45,6 @@ import io.reactivex.Single;
 import java.util.Collections;
 import java.util.List;
 import java8.util.function.Function;
-import java8.util.stream.Collectors;
 
 /** Object representation of Ground Firestore database. */
 public class GndFirestore extends AbstractFluentFirestore {
@@ -152,19 +153,20 @@ public class GndFirestore extends AbstractFluentFirestore {
       return new RecordDocumentReference(ref.document(id));
     }
 
-    public Flowable<RemoteDataEvent<Record>> getRecordsByFeatureOnceAndStreamChanges(
-        Feature feature) {
-      return RxFirestore.observeQueryRef(byFeatureId(feature.getId()))
-          .flatMapIterable(
+    public Single<ImmutableList<Observation>> recordsByFeatureId(Feature feature) {
+      return RxFirestore.getCollection(byFeatureId(feature.getId()))
+          .map(
               querySnapshot ->
-                  toEvents(
-                      querySnapshot,
-                      docSnapshot ->
-                          RecordDoc.toObject(feature, docSnapshot.getId(), docSnapshot)));
+                  stream(querySnapshot.getDocuments())
+                      .map(
+                          recordDoc ->
+                              ObservationDoc.toObject(feature, recordDoc.getId(), recordDoc))
+                      .collect(toImmutableList()))
+          .toSingle(ImmutableList.of());
     }
 
     private Query byFeatureId(String featureId) {
-      return ref().whereEqualTo(FieldPath.of(RecordDoc.FEATURE_ID), featureId);
+      return ref().whereEqualTo(FieldPath.of(ObservationDoc.FEATURE_ID), featureId);
     }
   }
 
@@ -173,16 +175,17 @@ public class GndFirestore extends AbstractFluentFirestore {
       super(ref);
     }
 
-    public Maybe<Record> get(Feature feature) {
-      return RxFirestore.getDocument(ref).map(doc -> RecordDoc.toObject(feature, doc.getId(), doc));
+    public Maybe<Observation> get(Feature feature) {
+      return RxFirestore.getDocument(ref)
+          .map(doc -> ObservationDoc.toObject(feature, doc.getId(), doc));
     }
 
     /** Appends the operation described by the specified mutation to the provided write batch. */
-    public void addMutationToBatch(RecordMutation mutation, WriteBatch batch) {
+    public void addMutationToBatch(ObservationMutation mutation, WriteBatch batch) {
       switch (mutation.getType()) {
         case CREATE:
         case UPDATE:
-          merge(RecordDoc.toMap(mutation), batch);
+          merge(ObservationDoc.toMap(mutation), batch);
           break;
         case DELETE:
           // TODO: Implement me!
@@ -202,9 +205,7 @@ public class GndFirestore extends AbstractFluentFirestore {
     return result
         .map(
             querySnapshot ->
-                stream(querySnapshot.getDocuments())
-                    .map(mappingFunction)
-                    .collect(Collectors.toList()))
+                stream(querySnapshot.getDocuments()).map(mappingFunction).collect(toList()))
         .toSingle(Collections.emptyList());
   }
 

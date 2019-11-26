@@ -1,4 +1,5 @@
 # Ground for Android
+[![cloud build status](https://storage.googleapis.com/gradle_cache_bucket/status.svg)](https://github.com/google/ground-android)
 
 Ground is a free, map-centric data collection platform for occasionally
 connected devices.
@@ -59,6 +60,16 @@ to the base repository using a pull request.
 
 1. Make and test changes locally.
 
+1. Run code health checks locally and fix any errors.
+
+   1. Using Command-line:
+      1. `$ ./gradlew checkCode`
+    
+   1. Using Android Studio
+      1. Expand `gradle` side-tab (top-right corner in Android Studio IDE).
+      1. Click on `Execute gradle task` button (the one with gradle logo)
+      1. Type `checkCode` and press OK
+      
 1. Add your changes to the staging area:
     
     `git add <files>`
@@ -145,7 +156,7 @@ $ keytool -list -v \
 
     https://console.firebase.google.com/
 
-2. Save config file for Android app to gnd/google-services.json:
+2. Save config file for Android app to `gnd/src/debug/google-services.json`:
 
     https://support.google.com/firebase/answer/7015592
 
@@ -162,3 +173,13 @@ Used to build with Google Cloud and for running integration tests:
 3. gcloud auth login
   
 4. gcloud config set project [PROJECT_ID]
+
+### Troubleshooting
+
+1. App crashes on start with following stacktrace:
+ 
+    ```
+    java.lang.RuntimeException: Unable to get provider com.google.firebase.provider.FirebaseInitProvider: java.lang.IllegalArgumentException: Given String is empty or null
+    ```
+    
+   Solution: Ensure `gnd/src/debug/google-services.json` exists and is valid, as per instructions in [Set up Firebase](#set-up-firebase).

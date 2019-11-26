@@ -20,7 +20,6 @@ import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList
 import static java8.util.stream.StreamSupport.stream;
 
 import android.app.Dialog;
-import android.content.Context;
 import android.os.Bundle;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
@@ -30,7 +29,7 @@ import com.google.android.gnd.inject.ActivityScoped;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.Point;
-import com.google.android.gnd.model.layer.FeatureType;
+import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator;
 import com.google.android.gnd.repository.Persistable;
 import com.google.android.gnd.ui.common.AbstractDialogFragment;
@@ -56,11 +55,6 @@ public class AddFeatureDialogFragment extends AbstractDialogFragment {
   }
 
   @Override
-  public void onAttach(Context context) {
-    super.onAttach(context);
-  }
-
-  @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     // TODO: Move into new AddFeatureDialogViewModel?
@@ -79,12 +73,12 @@ public class AddFeatureDialogFragment extends AbstractDialogFragment {
     super.onCreateDialog(savedInstanceState);
     // TODO: Inject and use custom factory.
     Optional<Project> activeProject = Persistable.getData(homeScreenViewModel.getActiveProject());
-    Optional<Point> cameraPosition =
-        Optional.ofNullable(mapContainerViewModel.getCameraPosition().getValue());
     if (!activeProject.isPresent()) {
       addFeatureRequestSubject.onError(new IllegalStateException("No active project"));
       return fail("Could not get active project");
     }
+    Optional<Point> cameraPosition =
+        Optional.ofNullable(mapContainerViewModel.getCameraPosition().getValue());
     if (!cameraPosition.isPresent()) {
       addFeatureRequestSubject.onError(new IllegalStateException("No camera position"));
       return fail("Could not get camera position");
@@ -97,25 +91,25 @@ public class AddFeatureDialogFragment extends AbstractDialogFragment {
     builder.setTitle(R.string.add_feature_select_type_dialog_title);
     builder.setNegativeButton(R.string.add_feature_cancel, (dialog, id) -> onCancel());
     // TODO: Add icons.
-    ImmutableList<FeatureType> featureTypes =
-        stream(project.getFeatureTypes())
+    ImmutableList<Layer> layers =
+        stream(project.getLayers())
             .sorted((pt1, pt2) -> pt1.getItemLabel().compareTo(pt2.getItemLabel()))
             .collect(toImmutableList());
-    String[] items = stream(featureTypes).map(t -> t.getItemLabel()).toArray(String[]::new);
+    String[] items = stream(layers).map(t -> t.getItemLabel()).toArray(String[]::new);
     builder.setItems(
         items,
-        (dialog, idx) -> onSelectFeatureType(project, featureTypes.get(idx), cameraPosition));
+        (dialog, idx) -> onSelectLayer(project, layers.get(idx), cameraPosition));
     return builder.create();
   }
 
-  private void onSelectFeatureType(Project project, FeatureType featureType, Point cameraPosition) {
+  private void onSelectLayer(Project project, Layer layer, Point cameraPosition) {
     // TODO(#9): Move creating a new Feature into the ViewModel or DataRepository. Doing it here
     // for now to avoid conflicting with soon-to-be-merged commits for Issue #24.
     addFeatureRequestSubject.onSuccess(
         Feature.newBuilder()
             .setId(uuidGenerator.generateUuid())
             .setProject(project)
-            .setFeatureType(featureType)
+            .setLayer(layer)
             .setPoint(cameraPosition)
             .build());
   }
