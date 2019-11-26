@@ -18,6 +18,7 @@ package com.google.android.gnd.ui.common;
 
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
+
 import com.google.android.gnd.MainViewModel;
 import com.google.android.gnd.ui.basemapselector.BasemapSelectorViewModel;
 import com.google.android.gnd.ui.editobservation.EditObservationViewModel;
@@ -26,10 +27,11 @@ import com.google.android.gnd.ui.home.featuresheet.FeatureSheetViewModel;
 import com.google.android.gnd.ui.home.featuresheet.ObservationListViewModel;
 import com.google.android.gnd.ui.home.featuresheet.ObservationViewModel;
 import com.google.android.gnd.ui.home.mapcontainer.MapContainerViewModel;
-import com.google.android.gnd.ui.offlinearea.OfflineAreaManagerViewModel;
 import com.google.android.gnd.ui.observationdetails.ObservationDetailsViewModel;
+import com.google.android.gnd.ui.offlinearea.OfflineAreaManagerViewModel;
 import com.google.android.gnd.ui.projectselector.ProjectSelectorViewModel;
 import com.google.android.gnd.ui.signin.SignInViewModel;
+
 import dagger.Binds;
 import dagger.Module;
 import dagger.multibindings.IntoMap;

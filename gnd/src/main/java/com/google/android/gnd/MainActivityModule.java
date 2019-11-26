@@ -17,6 +17,7 @@
 package com.google.android.gnd;
 
 import androidx.appcompat.app.AppCompatActivity;
+
 import com.google.android.gnd.inject.ActivityScoped;
 import com.google.android.gnd.inject.FragmentScoped;
 import com.google.android.gnd.ui.basemapselector.BasemapSelectorFragment;
@@ -31,15 +32,16 @@ import com.google.android.gnd.ui.home.featuresheet.FeatureSheetModule;
 import com.google.android.gnd.ui.home.featuresheet.ObservationListFragment;
 import com.google.android.gnd.ui.home.mapcontainer.MapContainerFragment;
 import com.google.android.gnd.ui.home.mapcontainer.MapContainerModule;
-import com.google.android.gnd.ui.offlinearea.OfflineAreaManagerFragment;
-import com.google.android.gnd.ui.offlinearea.OfflineAreaManagerModule;
 import com.google.android.gnd.ui.observationdetails.ObservationDetailsFragment;
 import com.google.android.gnd.ui.observationdetails.ObservationDetailsModule;
+import com.google.android.gnd.ui.offlinearea.OfflineAreaManagerFragment;
+import com.google.android.gnd.ui.offlinearea.OfflineAreaManagerModule;
 import com.google.android.gnd.ui.projectselector.ProjectSelectorDialogFragment;
 import com.google.android.gnd.ui.signin.SignInFragment;
 import com.google.android.gnd.ui.signin.SignInModule;
 import com.google.android.gnd.ui.startup.StartupFragment;
 import com.google.android.gnd.ui.startup.StartupModule;
+
 import dagger.Binds;
 import dagger.Module;
 import dagger.android.ContributesAndroidInjector;

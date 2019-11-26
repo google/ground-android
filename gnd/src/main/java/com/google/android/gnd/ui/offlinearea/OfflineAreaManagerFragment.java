@@ -17,28 +17,27 @@
 package com.google.android.gnd.ui.offlinearea;
 
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-
 import com.google.android.gnd.MainActivity;
+import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.OfflineAreaManagerFragBinding;
 import com.google.android.gnd.inject.ActivityScoped;
-import com.google.android.gnd.R;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.TwoLineToolbar;
 
 import butterknife.BindView;
 
 /**
- * Fragment containing a list of downloaded areas on the device. An area is a set of offline imagery.
- * Users can manage their areas within this fragment. They can delete areas they no longer need
- * or initiate a flow to select and download a new area to the device.
+ * Fragment containing a list of downloaded areas on the device. An area is a set of offline
+ * imagery. Users can manage their areas within this fragment. They can delete areas they no longer
+ * need or initiate a flow to select and download a new area to the device.
  */
 @ActivityScoped
 public class OfflineAreaManagerFragment extends AbstractFragment {
