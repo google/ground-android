@@ -1,3 +1,19 @@
+/*
+ * Copyright 2019 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.google.android.gnd.ui.offlinearea;
 
 import android.os.Bundle;
@@ -19,6 +35,11 @@ import com.google.android.gnd.ui.common.TwoLineToolbar;
 
 import butterknife.BindView;
 
+/**
+ * Fragment containing a list of downloaded areas on the device. An area is a set of offline imagery.
+ * Users can manage their areas within this fragment. They can delete areas they no longer need
+ * or initiate a flow to select and download a new area to the device.
+ */
 @ActivityScoped
 public class OfflineAreaManagerFragment extends AbstractFragment {
 
@@ -55,7 +76,7 @@ public class OfflineAreaManagerFragment extends AbstractFragment {
   @Override
   public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
-    toolbar.setTitle("Offline Maps");
+    toolbar.setTitle(R.string.offline_maps);
     ((MainActivity) getActivity()).setActionBar(toolbar);
   }
 
