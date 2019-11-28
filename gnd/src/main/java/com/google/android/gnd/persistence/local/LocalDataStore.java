@@ -44,6 +44,17 @@ import io.reactivex.Single;
  * deltas to allow changes to not rely on prior UI state (i.e., emissions are idempotent).
  */
 public interface LocalDataStore {
+
+  Completable addProject(Project project);
+
+  Maybe<Project> getProjects();
+
+  Maybe<Project> getProject(String projectId);
+
+  Completable updateProject(Project project);
+
+  Completable removeProject(Project project);
+
   /**
    * Applies the specified {@link FeatureMutation} to the local data store, appending the mutation
    * to the local queue for remote sync.

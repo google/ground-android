@@ -65,6 +65,31 @@ public class RoomLocalDataStore implements LocalDataStore {
             .build();
   }
 
+  @Override
+  public Completable addProject(Project project) {
+    return null;
+  }
+
+  @Override
+  public Maybe<Project> getProjects() {
+    return null;
+  }
+
+  @Override
+  public Maybe<Project> getProject(String projectId) {
+    return null;
+  }
+
+  @Override
+  public Completable updateProject(Project project) {
+    return null;
+  }
+
+  @Override
+  public Completable removeProject(Project project) {
+    return null;
+  }
+
   @Transaction
   @Override
   public Completable applyAndEnqueue(FeatureMutation mutation) {
