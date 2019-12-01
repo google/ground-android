@@ -50,6 +50,8 @@ public interface LocalDataStore {
 
   Single<List<Project>> getProjects();
 
+  Maybe<Project> getLastActiveProject();
+
   Maybe<Project> getProject(String projectId);
 
   Completable updateProject(Project project);

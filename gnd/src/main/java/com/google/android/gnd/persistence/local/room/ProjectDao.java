@@ -20,6 +20,6 @@ public interface ProjectDao {
   @Query("SELECT * FROM project")
   Maybe<List<ProjectEntity>> findAll();
 
-  @Query("SELECT * FROM project WHERE is_active = 1")
-  Flowable<List<ProjectEntity>> getActiveProjects();
+  @Query("SELECT * FROM project WHERE is_active = 1 LIMIT 1")
+  Maybe<ProjectEntity> getLastActiveProject();
 }

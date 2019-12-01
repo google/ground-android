@@ -257,13 +257,21 @@ public class DataRepository {
         .andThen(dataSyncWorkManager.enqueueSyncWorker(feature.getId()));
   }
 
+  private Maybe<Project> loadLastActiveProject() {
+    if (isOfflineModeEnabled()) {
+      return localDataStore.getLastActiveProject();
+    } else {
+      return Maybe.fromCallable(localValueStore::getLastActiveProjectId)
+          .flatMap(id -> activateProject(id).toMaybe());
+    }
+  }
+
   /**
    * Reactivates the last active project, emitting true once loaded, or false if no project was
    * previously activated.
    */
   public Single<Boolean> reactivateLastProject() {
-    return Maybe.fromCallable(localValueStore::getLastActiveProjectId)
-        .flatMap(id -> activateProject(id).toMaybe())
+    return loadLastActiveProject()
         .onErrorComplete()
         .doOnComplete(() -> Log.v(TAG, "No previous project found to reactivate"))
         .doOnSuccess(project -> Log.v(TAG, "Reactivated project " + project.getId()))
