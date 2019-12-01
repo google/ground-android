@@ -277,7 +277,7 @@ public class DataRepository {
    * previously activated.
    */
   public Single<Boolean> reactivateLastProject() {
-    return Maybe.fromCallable(() -> localValueStore.getLastActiveProjectId())
+    return Maybe.fromCallable(localValueStore::getLastActiveProjectId)
         .flatMap(id -> activateProject(id).toMaybe())
         .onErrorComplete()
         .doOnComplete(() -> Log.v(TAG, "No previous project found to reactivate"))
@@ -291,5 +291,13 @@ public class DataRepository {
     cache.clearActiveProject();
     localValueStore.clearLastActiveProjectId();
     activeProject.onNext(Persistable.notLoaded());
+  }
+
+  public boolean isOfflineModeEnabled() {
+    return localValueStore.isOfflineModeEnabled();
+  }
+
+  public void setOfflineModeEnabled(boolean enabled) {
+    localValueStore.setOfflineMode(enabled);
   }
 }

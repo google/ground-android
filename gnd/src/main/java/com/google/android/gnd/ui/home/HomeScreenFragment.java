@@ -33,6 +33,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.SwitchCompat;
 import androidx.core.view.GravityCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -150,6 +151,8 @@ public class HomeScreenFragment extends AbstractFragment
     drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
 
     navView.setNavigationItemSelectedListener(this);
+    setupOfflineMode();
+
     getView().getViewTreeObserver().addOnGlobalLayoutListener(this::onToolbarLayout);
 
     if (savedInstanceState == null) {
@@ -161,12 +164,20 @@ public class HomeScreenFragment extends AbstractFragment
     }
   }
 
+  private void setupOfflineMode() {
+    MenuItem menuItem = navView.getMenu().findItem(R.id.nav_offline_mode);
+    SwitchCompat switchCompat = menuItem.getActionView().findViewById(R.id.switcher);
+    switchCompat.setChecked(viewModel.isOfflineModeEnabled());
+    switchCompat.setOnCheckedChangeListener(
+        (__, isChecked) -> viewModel.setOfflineModeEnabled(isChecked));
+  }
+
   private String getVersionName() {
     try {
       return Objects.requireNonNull(getContext())
-        .getPackageManager()
-        .getPackageInfo(getContext().getPackageName(), 0)
-        .versionName;
+          .getPackageManager()
+          .getPackageInfo(getContext().getPackageName(), 0)
+          .versionName;
     } catch (PackageManager.NameNotFoundException e) {
       return "?";
     }
