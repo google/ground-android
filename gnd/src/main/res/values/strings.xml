@@ -141,6 +141,7 @@
   <string name="sign_out">Sign out</string>
   <string name="offline_maps">Offline maps</string>
   <string name="unknown_user">Unknown user</string>
+  <string name="offline_mode">Offline mode</string>
   <string name="add_observation_toolbar_title">Add observation</string>
   <string name="edit_observation_toolbar_title">Edit observation</string>
 
