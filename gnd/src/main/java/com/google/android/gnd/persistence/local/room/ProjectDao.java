@@ -19,4 +19,7 @@ public interface ProjectDao {
 
   @Query("SELECT * FROM project")
   Flowable<List<ProjectEntity>> findAll();
+
+  @Query("SELECT * FROM project WHERE is_active = 1")
+  Flowable<List<ProjectEntity>> getActiveProjects();
 }

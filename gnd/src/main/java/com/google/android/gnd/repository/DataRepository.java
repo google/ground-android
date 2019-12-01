@@ -131,6 +131,7 @@ public class DataRepository {
     cache.setActiveProject(project);
     activeProject.onNext(Persistable.loaded(project));
     localValueStore.setLastActiveProjectId(project.getId());
+    localDataStore.activateProject(project).subscribeOn(Schedulers.io()).subscribe();
   }
 
   public Observable<Persistable<ImmutableSet<Project>>> loadCachedProjects() {
