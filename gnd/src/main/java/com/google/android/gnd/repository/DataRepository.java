@@ -134,31 +134,17 @@ public class DataRepository {
     localDataStore.activateProject(project).subscribeOn(Schedulers.io()).subscribe();
   }
 
-  public Observable<Persistable<ImmutableSet<Project>>> loadCachedProjects() {
-    return localDataStore
-        .getProjects()
-        .map(Persistable::loaded)
-        .onErrorReturn(Persistable::error)
-        .toObservable()
-        .startWith(Persistable.loading());
+  private Single<List<Project>> loadProjects(User user) {
+    if (isOfflineModeEnabled()) {
+      return localDataStore.getProjects();
+    } else {
+      return remoteDataStore.loadProjectSummaries(user);
+    }
   }
 
   public Observable<Persistable<List<Project>>> getProjectSummaries(User user) {
     // TODO: Get from load db if network connection not available or remote times out.
-    return remoteDataStore
-        .loadProjectSummaries(user)
-        .doOnEvent(
-            (projects, throwable) ->
-                Observable.fromIterable(projects)
-                    .subscribeOn(Schedulers.io())
-                    .doOnNext(
-                        project ->
-                            localDataStore
-                                .addProject(project)
-                                .doOnError(error -> Log.e(DataRepository.TAG, error.getMessage()))
-                                .doOnComplete(() -> Log.d(DataRepository.TAG, "Inserted"))
-                                .blockingAwait())
-                    .subscribe())
+    return loadProjects(user)
         .map(Persistable::loaded)
         .onErrorReturn(Persistable::error)
         .toObservable()

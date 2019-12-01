@@ -29,6 +29,7 @@ import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
+import java.util.List;
 
 /**
  * Provides access to local persistent data store, the canonical store for latest state and
@@ -47,7 +48,7 @@ public interface LocalDataStore {
 
   Completable addProject(Project project);
 
-  Flowable<ImmutableSet<Project>> getProjects();
+  Single<List<Project>> getProjects();
 
   Maybe<Project> getProject(String projectId);
 
