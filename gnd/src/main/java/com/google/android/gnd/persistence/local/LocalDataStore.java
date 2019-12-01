@@ -46,15 +46,9 @@ import java.util.List;
  */
 public interface LocalDataStore {
 
-  Completable addProject(Project project);
-
   Single<List<Project>> getProjects();
 
   Maybe<Project> getLastActiveProject();
-
-  Maybe<Project> getProject(String projectId);
-
-  Completable updateProject(Project project);
 
   Completable removeProject(Project project);
 

@@ -67,13 +67,6 @@ public class RoomLocalDataStore implements LocalDataStore {
   }
 
   @Override
-  public Completable addProject(Project project) {
-    return db.projectDao()
-        .insertOrUpdate(ProjectEntity.fromProject(project))
-        .subscribeOn(Schedulers.io());
-  }
-
-  @Override
   public Single<List<Project>> getProjects() {
     return db.projectDao()
         .findAll()
@@ -93,16 +86,6 @@ public class RoomLocalDataStore implements LocalDataStore {
         .getLastActiveProject()
         .map(ProjectEntity::toProject)
         .subscribeOn(Schedulers.io());
-  }
-
-  @Override
-  public Maybe<Project> getProject(String projectId) {
-    return null;
-  }
-
-  @Override
-  public Completable updateProject(Project project) {
-    return null;
   }
 
   @Override

@@ -33,9 +33,6 @@ public interface ProjectDao {
   @Delete
   Completable deleteProject(ProjectEntity projectEntity);
 
-  @Query("SELECT * FROM project WHERE id = :id")
-  Maybe<ProjectEntity> findById(String id);
-
   @Query("SELECT * FROM project")
   Maybe<List<ProjectEntity>> findAll();
 
