@@ -40,6 +40,7 @@ import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.processors.BehaviorProcessor;
 import io.reactivex.processors.FlowableProcessor;
+import io.reactivex.schedulers.Schedulers;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java8.util.Optional;
@@ -132,10 +133,31 @@ public class DataRepository {
     localValueStore.setLastActiveProjectId(project.getId());
   }
 
+  public Observable<Persistable<ImmutableSet<Project>>> loadCachedProjects() {
+    return localDataStore
+        .getProjects()
+        .map(Persistable::loaded)
+        .onErrorReturn(Persistable::error)
+        .toObservable()
+        .startWith(Persistable.loading());
+  }
+
   public Observable<Persistable<List<Project>>> getProjectSummaries(User user) {
     // TODO: Get from load db if network connection not available or remote times out.
     return remoteDataStore
         .loadProjectSummaries(user)
+        .doOnEvent(
+            (projects, throwable) ->
+                Observable.fromIterable(projects)
+                    .subscribeOn(Schedulers.io())
+                    .doOnNext(
+                        project ->
+                            localDataStore
+                                .addProject(project)
+                                .doOnError(error -> Log.e(DataRepository.TAG, error.getMessage()))
+                                .doOnComplete(() -> Log.d(DataRepository.TAG, "Inserted"))
+                                .blockingAwait())
+                    .subscribe())
         .map(Persistable::loaded)
         .onErrorReturn(Persistable::error)
         .toObservable()

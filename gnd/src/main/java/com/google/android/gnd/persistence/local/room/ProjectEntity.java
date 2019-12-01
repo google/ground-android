@@ -5,6 +5,7 @@ import androidx.annotation.Nullable;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
+import com.google.android.gnd.model.Project;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.AutoValue.CopyAnnotations;
 
@@ -28,8 +29,31 @@ public abstract class ProjectEntity {
   @ColumnInfo(name = "description")
   public abstract String getDescription();
 
-  public static ProjectEntity create(String id, String title, String description) {
-    return builder().setId(id).setTitle(title).setDescription(description).build();
+  @CopyAnnotations
+  @NonNull
+  @ColumnInfo(name = "state")
+  public abstract EntityState getState();
+
+  public static ProjectEntity fromProject(Project project) {
+    return ProjectEntity.builder()
+        .setId(project.getId())
+        .setTitle(project.getTitle())
+        .setDescription(project.getDescription())
+        .setState(EntityState.DEFAULT)
+        .build();
+  }
+
+  public static Project toProject(ProjectEntity entity) {
+    return Project.newBuilder()
+        .setId(entity.getId())
+        .setTitle(entity.getTitle())
+        .setDescription(entity.getDescription())
+        .build();
+  }
+
+  public static ProjectEntity create(
+      String id, String title, String description, EntityState state) {
+    return builder().setId(id).setTitle(title).setDescription(description).setState(state).build();
   }
 
   public static Builder builder() {
@@ -44,6 +68,8 @@ public abstract class ProjectEntity {
     public abstract Builder setTitle(String title);
 
     public abstract Builder setDescription(String description);
+
+    public abstract Builder setState(EntityState newState);
 
     public abstract ProjectEntity build();
   }
