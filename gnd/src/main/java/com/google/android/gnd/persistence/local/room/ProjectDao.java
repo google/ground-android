@@ -1,11 +1,11 @@
 package com.google.android.gnd.persistence.local.room;
 
 import androidx.room.Dao;
+import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
 import io.reactivex.Completable;
-import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import java.util.List;
 
@@ -13,6 +13,9 @@ import java.util.List;
 public interface ProjectDao {
   @Insert(onConflict = OnConflictStrategy.REPLACE)
   Completable insertOrUpdate(ProjectEntity project);
+
+  @Delete
+  Completable deleteProject(ProjectEntity projectEntity);
 
   @Query("SELECT * FROM project WHERE id = :id")
   Maybe<ProjectEntity> findById(String id);

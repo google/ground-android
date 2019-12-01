@@ -107,7 +107,9 @@ public class RoomLocalDataStore implements LocalDataStore {
 
   @Override
   public Completable removeProject(Project project) {
-    return null;
+    return db.projectDao()
+        .deleteProject(ProjectEntity.fromProject(project))
+        .subscribeOn(Schedulers.io());
   }
 
   @Transaction
