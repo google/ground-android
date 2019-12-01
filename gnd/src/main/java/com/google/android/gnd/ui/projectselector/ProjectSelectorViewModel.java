@@ -61,7 +61,7 @@ public class ProjectSelectorViewModel extends AbstractViewModel {
     disposeOnClear(
         dataRepository
             .getProjectSummaries(user)
-            .subscribe(projectSummaries::setValue, this::onProjectSummariesError));
+            .subscribe(projectSummaries::postValue, this::onProjectSummariesError));
   }
 
   public LiveData<Persistable<List<Project>>> getProjectSummaries() {
