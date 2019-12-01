@@ -81,6 +81,11 @@ public class RoomLocalDataStore implements LocalDataStore {
   }
 
   @Override
+  public Completable activateProject(Project project) {
+    return db.projectDao().insertOrUpdate(ProjectEntity.fromProject(project, true));
+  }
+
+  @Override
   public Maybe<Project> getProject(String projectId) {
     return null;
   }
@@ -284,10 +289,5 @@ public class RoomLocalDataStore implements LocalDataStore {
   @Override
   public Maybe<Tile> getTile(String tileId) {
     return db.tileDao().findById(tileId).map(TileEntity::toTile).subscribeOn(Schedulers.io());
-  }
-
-  @Override
-  public Completable activateProject(Project project) {
-    return db.projectDao().insertOrUpdate(ProjectEntity.fromProject(project, true));
   }
 }
