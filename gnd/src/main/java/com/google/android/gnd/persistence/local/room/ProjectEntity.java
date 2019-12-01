@@ -30,16 +30,15 @@ public abstract class ProjectEntity {
   public abstract String getDescription();
 
   @CopyAnnotations
-  @NonNull
-  @ColumnInfo(name = "state")
-  public abstract EntityState getState();
+  @ColumnInfo(name = "is_active")
+  public abstract boolean isActive();
 
   public static ProjectEntity fromProject(Project project) {
     return ProjectEntity.builder()
         .setId(project.getId())
         .setTitle(project.getTitle())
         .setDescription(project.getDescription())
-        .setState(EntityState.DEFAULT)
+        .setActive(false)
         .build();
   }
 
@@ -52,8 +51,13 @@ public abstract class ProjectEntity {
   }
 
   public static ProjectEntity create(
-      String id, String title, String description, EntityState state) {
-    return builder().setId(id).setTitle(title).setDescription(description).setState(state).build();
+      String id, String title, String description, boolean active) {
+    return builder()
+        .setId(id)
+        .setTitle(title)
+        .setDescription(description)
+        .setActive(active)
+        .build();
   }
 
   public static Builder builder() {
@@ -69,7 +73,7 @@ public abstract class ProjectEntity {
 
     public abstract Builder setDescription(String description);
 
-    public abstract Builder setState(EntityState newState);
+    public abstract Builder setActive(boolean active);
 
     public abstract ProjectEntity build();
   }
