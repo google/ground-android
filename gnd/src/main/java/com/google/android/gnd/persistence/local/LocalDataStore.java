@@ -47,7 +47,7 @@ public interface LocalDataStore {
 
   Completable addProject(Project project);
 
-  Maybe<Project> getProjects();
+  Flowable<ImmutableSet<Project>> getProjects();
 
   Maybe<Project> getProject(String projectId);
 

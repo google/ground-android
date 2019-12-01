@@ -67,12 +67,17 @@ public class RoomLocalDataStore implements LocalDataStore {
 
   @Override
   public Completable addProject(Project project) {
-    return null;
+    return db.projectDao()
+        .insertOrUpdate(ProjectEntity.fromProject(project))
+        .subscribeOn(Schedulers.io());
   }
 
   @Override
-  public Maybe<Project> getProjects() {
-    return null;
+  public Flowable<ImmutableSet<Project>> getProjects() {
+    return db.projectDao()
+        .findAll()
+        .map(list -> stream(list).map(ProjectEntity::toProject).collect(toImmutableSet()))
+        .subscribeOn(Schedulers.io());
   }
 
   @Override
