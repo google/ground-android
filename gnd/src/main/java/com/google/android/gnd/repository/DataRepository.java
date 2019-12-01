@@ -88,7 +88,7 @@ public class DataRepository {
     // TODO: Move to Application or background service.
     activeProject
         .compose(Persistable::values)
-        .switchMap(p -> remoteDataStore.loadFeaturesOnceAndStreamChanges(p))
+        .switchMap(remoteDataStore::loadFeaturesOnceAndStreamChanges)
         .switchMap(event -> updateLocalFeature(event).toFlowable())
         .subscribe();
   }
@@ -131,6 +131,7 @@ public class DataRepository {
     cache.setActiveProject(project);
     activeProject.onNext(Persistable.loaded(project));
     localValueStore.setLastActiveProjectId(project.getId());
+    localDataStore.activateProject(project).subscribeOn(Schedulers.io()).subscribe();
   }
 
   public Observable<Persistable<ImmutableSet<Project>>> loadCachedProjects() {

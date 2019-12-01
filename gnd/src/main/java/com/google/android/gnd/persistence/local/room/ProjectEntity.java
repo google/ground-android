@@ -34,11 +34,15 @@ public abstract class ProjectEntity {
   public abstract boolean isActive();
 
   public static ProjectEntity fromProject(Project project) {
+    return fromProject(project, false);
+  }
+
+  public static ProjectEntity fromProject(Project project, boolean active) {
     return ProjectEntity.builder()
         .setId(project.getId())
         .setTitle(project.getTitle())
         .setDescription(project.getDescription())
-        .setActive(false)
+        .setActive(active)
         .build();
   }
 
@@ -50,8 +54,7 @@ public abstract class ProjectEntity {
         .build();
   }
 
-  public static ProjectEntity create(
-      String id, String title, String description, boolean active) {
+  public static ProjectEntity create(String id, String title, String description, boolean active) {
     return builder()
         .setId(id)
         .setTitle(title)
