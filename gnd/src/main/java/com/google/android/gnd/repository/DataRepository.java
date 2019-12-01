@@ -291,4 +291,12 @@ public class DataRepository {
     localValueStore.clearLastActiveProjectId();
     activeProject.onNext(Persistable.notLoaded());
   }
+
+  public boolean isOfflineModeEnabled() {
+    return localValueStore.isOfflineModeEnabled();
+  }
+
+  public void setOfflineModeEnabled(boolean enabled) {
+    localValueStore.setOfflineMode(enabled);
+  }
 }

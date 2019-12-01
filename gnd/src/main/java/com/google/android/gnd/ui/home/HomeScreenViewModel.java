@@ -158,4 +158,12 @@ public class HomeScreenViewModel extends AbstractViewModel {
     return LiveDataReactiveStreams.fromPublisher(
         dataRepository.reactivateLastProject().toFlowable());
   }
+
+  public boolean isOfflineModeEnabled() {
+    return dataRepository.isOfflineModeEnabled();
+  }
+
+  public void setOfflineModeEnabled(boolean enabled) {
+    dataRepository.setOfflineModeEnabled(enabled);
+  }
 }
