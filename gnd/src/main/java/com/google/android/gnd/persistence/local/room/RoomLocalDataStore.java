@@ -88,6 +88,14 @@ public class RoomLocalDataStore implements LocalDataStore {
   }
 
   @Override
+  public Maybe<Project> getLastActiveProject() {
+    return db.projectDao()
+        .getLastActiveProject()
+        .map(ProjectEntity::toProject)
+        .subscribeOn(Schedulers.io());
+  }
+
+  @Override
   public Maybe<Project> getProject(String projectId) {
     return null;
   }
