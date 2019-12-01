@@ -285,6 +285,10 @@ public class DataRepository {
     cache.clearActiveProject();
     localValueStore.clearLastActiveProjectId();
     activeProject.onNext(Persistable.notLoaded());
+    localDataStore
+        .getLastActiveProject()
+        .doOnSuccess(project -> localDataStore.removeProject(project).subscribe())
+        .subscribe();
   }
 
   public boolean isOfflineModeEnabled() {
