@@ -46,10 +46,13 @@ import java.util.List;
  */
 public interface LocalDataStore {
 
+  /** Load projects stored in local database. */
   Single<List<Project>> getProjects();
 
+  /** Load last active project, if any. */
   Maybe<Project> getLastActiveProject();
 
+  /** Delete stored project from database. */
   Completable removeProject(Project project);
 
   /** Marks the selected project as active in the local data store. */
