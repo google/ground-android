@@ -55,6 +55,9 @@ public interface LocalDataStore {
 
   Completable removeProject(Project project);
 
+  /** Marks the selected project as active in the local data store. */
+  Completable activateProject(Project project);
+
   /**
    * Applies the specified {@link FeatureMutation} to the local data store, appending the mutation
    * to the local queue for remote sync.
@@ -122,7 +125,4 @@ public interface LocalDataStore {
 
   /** Returns the tile with the specified id from the local data store, if found. */
   Maybe<Tile> getTile(String tileId);
-
-  /** Marks the selected project as active in the local data store. */
-  Completable activateProject(Project project);
 }
