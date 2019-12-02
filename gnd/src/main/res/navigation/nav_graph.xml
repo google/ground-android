@@ -25,33 +25,33 @@
     android:id="@+id/showHomeScreen"
     app:destination="@id/home_screen_fragment"
     app:popUpTo="@id/sign_in_fragment"
-    app:popUpToInclusive="true"/>
+    app:popUpToInclusive="true" />
   <action
     android:id="@+id/showSignInScreen"
     app:destination="@id/sign_in_fragment"
     app:popUpTo="@id/navGraph"
-    app:popUpToInclusive="true"/>
+    app:popUpToInclusive="true" />
   <fragment
     android:id="@+id/startup_fragment"
-    android:label="startup_frag"
     android:name="com.google.android.gnd.ui.startup.StartupFragment"
+    android:label="startup_frag"
     tools:layout="@layout/startup_frag">
     <action
       android:id="@+id/proceedToSignInScreen"
       app:destination="@id/sign_in_fragment"
       app:popUpTo="@id/navGraph"
-      app:popUpToInclusive="true"/>
+      app:popUpToInclusive="true" />
     <action
       android:id="@+id/proceedDirectlyToHomeScreen"
       app:destination="@id/home_screen_fragment"
       app:popUpTo="@id/navGraph"
-      app:popUpToInclusive="true"/>
+      app:popUpToInclusive="true" />
   </fragment>
 
   <fragment
     android:id="@+id/home_screen_fragment"
-    android:label="@string/map_view"
     android:name="com.google.android.gnd.ui.home.HomeScreenFragment"
+    android:label="@string/map_view"
     tools:layout="@layout/home_screen_frag">
     <action
       android:id="@+id/showRecordDetails"
@@ -59,44 +59,43 @@
       app:enterAnim="@anim/nav_default_enter_anim"
       app:exitAnim="@anim/nav_default_exit_anim"
       app:popEnterAnim="@anim/nav_default_pop_enter_anim"
-      app:popExitAnim="@anim/nav_default_pop_exit_anim"/>
+      app:popExitAnim="@anim/nav_default_pop_exit_anim" />
     <action
       android:id="@+id/addRecord"
       app:destination="@id/edit_record_fragment">
       <argument
-        android:defaultValue="NEW_RECORD"
-        android:name="recordId"/>
+        android:name="recordId"
+        android:defaultValue="NEW_RECORD" />
     </action>
     <action
-        android:id="@+id/showBasemapSelector"
-        app:destination="@id/basemap_selector_fragment"
-        />
+      android:id="@+id/showBasemapSelector"
+      app:destination="@id/basemap_selector_fragment" />
   </fragment>
 
   <fragment
     android:id="@+id/basemap_selector_fragment"
-    android:label="@string/offline_maps"
     android:name="com.google.android.gnd.ui.basemapselector.BasemapSelectorFragment"
+    android:label="@string/offline_maps"
     tools:layout="@layout/basemap_selector_frag">
     <action
-        android:id="@+id/backToHomeScreen"
-        app:destination="@id/home_screen_fragment"
-      /></fragment>
+      android:id="@+id/backToHomeScreen"
+      app:destination="@id/home_screen_fragment" />
+  </fragment>
 
   <fragment
     android:id="@+id/record_details_fragment"
-    android:label="@string/view_record_details"
     android:name="com.google.android.gnd.ui.observationdetails.ObservationDetailsFragment"
+    android:label="@string/view_record_details"
     tools:layout="@layout/observation_details_frag">
     <argument
-      type="string"
-      android:name="projectId"/>
+      android:name="projectId"
+      type="string" />
     <argument
-      type="string"
-      android:name="featureId"/>
+      android:name="featureId"
+      type="string" />
     <argument
-      type="string"
-      android:name="recordId"/>
+      android:name="recordId"
+      type="string" />
     <action
       android:id="@+id/editRecord"
       app:destination="@id/edit_record_fragment"
@@ -105,37 +104,37 @@
       app:popEnterAnim="@anim/nav_default_pop_enter_anim"
       app:popExitAnim="@anim/nav_default_pop_exit_anim">
       <argument
-        android:defaultValue="N/A"
-        android:name="formId"/>
+        android:name="formId"
+        android:defaultValue="N/A" />
     </action>
   </fragment>
   <fragment
     android:id="@+id/edit_record_fragment"
-    android:label="edit_record_frag"
     android:name="com.google.android.gnd.ui.editobservation.EditObservationFragment"
+    android:label="edit_record_frag"
     tools:layout="@layout/edit_observation_frag">
     <argument
-      type="string"
-      android:name="projectId"/>
+      android:name="projectId"
+      type="string" />
     <argument
-      type="string"
-      android:name="featureId"/>
+      android:name="featureId"
+      type="string" />
     <argument
-      type="string"
-      android:name="recordId"/>
+      android:name="recordId"
+      type="string" />
     <argument
-      type="string"
-      android:name="formId"/>
+      android:name="formId"
+      type="string" />
   </fragment>
   <fragment
     android:id="@+id/sign_in_fragment"
-    android:label="sign_in_frag"
     android:name="com.google.android.gnd.ui.signin.SignInFragment"
+    android:label="sign_in_frag"
     tools:layout="@layout/sign_in_frag">
     <action
       android:id="@+id/proceedToHomeScreen"
       app:destination="@id/home_screen_fragment"
       app:popUpTo="@id/navGraph"
-      app:popUpToInclusive="true"/>
+      app:popUpToInclusive="true" />
   </fragment>
 </navigation>
