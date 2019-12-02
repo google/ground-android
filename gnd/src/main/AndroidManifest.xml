@@ -36,7 +36,7 @@
     android:name=".GndApplication"
     android:roundIcon="@mipmap/ic_launcher_round"
     android:supportsRtl="true"
-    android:theme="@style/AppTheme">
+    android:theme="@style/AppTheme.Launcher">
 
     <!--
          The API key for Google Maps-based APIs is defined as a string resource.
