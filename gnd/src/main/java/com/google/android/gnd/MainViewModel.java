@@ -49,12 +49,12 @@ public class MainViewModel extends ViewModel {
     return insets;
   }
 
-  public void onSignedOut() {
+  public void onSignedOut(int currentNavDestinationId) {
     dataRepository.clearActiveProject();
-    navigator.showSignInScreen();
+    navigator.showSignInScreen(currentNavDestinationId);
   }
 
-  public void onSignedIn() {
-    navigator.showHomeScreen();
+  public void onSignedIn(int currentNavDestinationId) {
+    navigator.showHomeScreen(currentNavDestinationId);
   }
 }

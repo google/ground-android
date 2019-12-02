@@ -21,16 +21,6 @@
   xmlns:tools="http://schemas.android.com/tools"
   android:id="@+id/navGraph"
   app:startDestination="@id/startup_fragment">
-  <action
-    android:id="@+id/showHomeScreen"
-    app:destination="@id/home_screen_fragment"
-    app:popUpTo="@id/sign_in_fragment"
-    app:popUpToInclusive="true" />
-  <action
-    android:id="@+id/showSignInScreen"
-    app:destination="@id/sign_in_fragment"
-    app:popUpTo="@id/navGraph"
-    app:popUpToInclusive="true" />
   <fragment
     android:id="@+id/startup_fragment"
     android:name="com.google.android.gnd.ui.startup.StartupFragment"
@@ -70,6 +60,11 @@
     <action
       android:id="@+id/showBasemapSelector"
       app:destination="@id/basemap_selector_fragment" />
+    <action
+      android:id="@+id/fromHomeScreenToSignInScreen"
+      app:destination="@id/sign_in_fragment"
+      app:popUpTo="@id/navGraph"
+      app:popUpToInclusive="true" />
   </fragment>
 
   <fragment
