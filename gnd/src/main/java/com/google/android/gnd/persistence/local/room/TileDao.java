@@ -17,19 +17,13 @@
 package com.google.android.gnd.persistence.local.room;
 
 import androidx.room.Dao;
-import androidx.room.Insert;
-import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
-import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import java.util.List;
 
 @Dao
-public interface TileDao {
-  @Insert(onConflict = OnConflictStrategy.REPLACE)
-  Completable insertOrUpdate(TileEntity tileEntity);
-
+public interface TileDao extends EntityDao<TileEntity> {
   @Query("SELECT * FROM tile")
   Flowable<List<TileEntity>> findAll();
 
