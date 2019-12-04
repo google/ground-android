@@ -186,7 +186,7 @@ public class RoomLocalDataStore implements LocalDataStore {
     RecordEntity recordEntity = RecordEntity.fromRecord(observation);
     return db.recordMutationDao()
         .findByRecordId(observation.getId())
-        .map(mutations -> recordEntity.applyMutations(mutations))
+        .map(recordEntity::applyMutations)
         .flatMapCompletable(db.recordDao()::insertOrUpdate)
         .subscribeOn(Schedulers.io());
   }
