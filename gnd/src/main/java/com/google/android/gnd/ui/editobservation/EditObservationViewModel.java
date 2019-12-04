@@ -85,7 +85,7 @@ public class EditObservationViewModel extends AbstractViewModel {
   private final ObservableMap<String, Response> responses = new ObservableArrayMap<>();
 
   /** Form validation errors, updated when existing for loaded and when responses change. */
-  private final ObservableMap<String, String> errors = new ObservableArrayMap<>();
+  private final ObservableMap<String, String> validationErrors = new ObservableArrayMap<>();
 
   /** Visibility of process widget shown while loading. */
   private final MutableLiveData<Integer> loadingSpinnerVisibility = new MutableLiveData<>();
@@ -166,8 +166,8 @@ public class EditObservationViewModel extends AbstractViewModel {
     return Optional.ofNullable(responses.get(fieldId));
   }
 
-  public ObservableMap<String, String> getErrors() {
-    return errors;
+  public ObservableMap<String, String> getValidationErrors() {
+    return validationErrors;
   }
 
   public void onTextChanged(Field field, String text) {
@@ -213,7 +213,7 @@ public class EditObservationViewModel extends AbstractViewModel {
     this.originalObservation = observation;
     refreshResponseMap(observation);
     if (isNew) {
-      errors.clear();
+      validationErrors.clear();
     } else {
       refreshValidationErrors();
     }
@@ -246,7 +246,7 @@ public class EditObservationViewModel extends AbstractViewModel {
       return Single.just(Event.of(SaveResult.NO_CHANGES_TO_SAVE));
     }
     refreshValidationErrors();
-    if (hasErrors()) {
+    if (hasValidationErrors()) {
       return Single.just(Event.of(SaveResult.HAS_VALIDATION_ERRORS));
     }
     if (!hasUnsavedChanges()) {
@@ -319,7 +319,7 @@ public class EditObservationViewModel extends AbstractViewModel {
   }
 
   private void refreshValidationErrors() {
-    errors.clear();
+    validationErrors.clear();
     stream(originalObservation.getForm().getElements())
         .filter(e -> e.getType().equals(Type.FIELD))
         .map(e -> e.getField())
@@ -334,10 +334,10 @@ public class EditObservationViewModel extends AbstractViewModel {
     String key = field.getId();
     if (field.isRequired() && !response.filter(r -> !r.isEmpty()).isPresent()) {
       Log.d(TAG, "Missing: " + key);
-      errors.put(field.getId(), resources.getString(R.string.required_field));
+      validationErrors.put(field.getId(), resources.getString(R.string.required_field));
     } else {
       Log.d(TAG, "Valid: " + key);
-      errors.remove(field.getId());
+      validationErrors.remove(field.getId());
     }
   }
 
@@ -345,7 +345,7 @@ public class EditObservationViewModel extends AbstractViewModel {
     return !getResponseDeltas().isEmpty();
   }
 
-  private boolean hasErrors() {
-    return !errors.isEmpty();
+  private boolean hasValidationErrors() {
+    return !validationErrors.isEmpty();
   }
 }

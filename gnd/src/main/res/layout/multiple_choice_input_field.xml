@@ -62,7 +62,7 @@
           android:focusableInTouchMode="true"
           android:text="@{viewModel.responses[field.id]}"
           android:textColor="@color/field_value"
-          app:errorText="@{viewModel.errors[field.id]}"
+          app:errorText="@{viewModel.validationErrors[field.id]}"
           tools:text="One, two, three, four, five"/>
 
     </com.google.android.material.textfield.TextInputLayout>

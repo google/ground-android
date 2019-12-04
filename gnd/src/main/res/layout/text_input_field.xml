@@ -53,7 +53,7 @@
           android:layout_height="wrap_content"
           android:maxLines="1"
           android:text="@{viewModel.responses[field.id]}"
-          app:errorText="@{viewModel.errors[field.id]}"
+          app:errorText="@{viewModel.validationErrors[field.id]}"
           app:onTextChanged="@{s -> viewModel.onTextChanged(field, (String) s)}"
           app:onFocusChange="@{(v, hasFocus) -> viewModel.onFocusChange(field, hasFocus)}"
           tools:text="Text value"/>
