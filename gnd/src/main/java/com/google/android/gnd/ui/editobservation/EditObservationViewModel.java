@@ -16,21 +16,19 @@
 
 package com.google.android.gnd.ui.editobservation;
 
+import static androidx.lifecycle.LiveDataReactiveStreams.fromPublisher;
 import static java8.util.stream.StreamSupport.stream;
 
 import android.content.res.Resources;
 import android.util.Log;
 import android.view.View;
-import androidx.annotation.NonNull;
 import androidx.databinding.ObservableArrayMap;
-import androidx.databinding.ObservableField;
-import androidx.databinding.ObservableInt;
 import androidx.databinding.ObservableMap;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
+import com.akaita.java.rxjava2debug.RxJava2Debug;
 import com.google.android.gnd.GndApplication;
 import com.google.android.gnd.R;
-import com.google.android.gnd.model.Mutation;
 import com.google.android.gnd.model.form.Element;
 import com.google.android.gnd.model.form.Element.Type;
 import com.google.android.gnd.model.form.Field;
@@ -39,40 +37,81 @@ import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.model.observation.ObservationMutation;
 import com.google.android.gnd.model.observation.Response;
 import com.google.android.gnd.model.observation.ResponseDelta;
+import com.google.android.gnd.model.observation.ResponseMap;
 import com.google.android.gnd.model.observation.TextResponse;
 import com.google.android.gnd.repository.DataRepository;
-import com.google.android.gnd.repository.Persistable;
+import com.google.android.gnd.rx.Event;
+import com.google.android.gnd.rx.Nil;
 import com.google.android.gnd.system.AuthenticationManager;
 import com.google.android.gnd.ui.common.AbstractViewModel;
-import com.google.android.gnd.ui.common.SingleLiveEvent;
 import com.google.common.collect.ImmutableList;
-import io.reactivex.Completable;
-import io.reactivex.Observable;
 import io.reactivex.Single;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.subjects.PublishSubject;
+import io.reactivex.processors.BehaviorProcessor;
+import io.reactivex.processors.PublishProcessor;
 import java8.util.Optional;
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 // TODO: Save draft to local db on each change.
 public class EditObservationViewModel extends AbstractViewModel {
   private static final String TAG = EditObservationViewModel.class.getSimpleName();
+  // TODO: Move out of id and into fragment args.
+  private static final String ADD_OBSERVATION_ID_PLACEHOLDER = "NEW_RECORD";
+
+  // Injected inputs.
 
   private final DataRepository dataRepository;
   private final AuthenticationManager authManager;
-  private final MutableLiveData<Persistable<Observation>> observation;
-  private final SingleLiveEvent<Void> showUnsavedChangesDialogEvents;
-  private final SingleLiveEvent<Void> showErrorDialogEvents;
   private final Resources resources;
-  private final ObservableMap<String, Response> responses = new ObservableArrayMap<>();
-  private final ObservableMap<String, String> errors = new ObservableArrayMap<>();
-  private final PublishSubject<EditObservationRequest> editObservationRequests;
-  private final PublishSubject<SaveObservationRequest> observationSaveRequests;
 
-  public final ObservableField<String> formNameView = new ObservableField<>();
-  public final ObservableInt loadingSpinnerVisibility = new ObservableInt();
-  public final ObservableInt saveButtonVisibility = new ObservableInt(View.GONE);
-  private AuthenticationManager.User currentUser;
+  // Input events.
+
+  /** Arguments passed in from view on initialize(). */
+  private final BehaviorProcessor<EditObservationFragmentArgs> viewArgs =
+      BehaviorProcessor.create();
+
+  /** "Save" button clicks. */
+  private final PublishProcessor<Nil> saveClicks = PublishProcessor.create();
+
+  // View state streams.
+
+  /** Form definition, loaded when view is initialized. */
+  private final LiveData<Form> form;
+
+  /** Toolbar title, based on whether user is adding new or editing existing observation. */
+  private final MutableLiveData<String> toolbarTitle = new MutableLiveData<>();
+
+  /** Original form responses, loaded when view is initialized. */
+  private final ObservableMap<String, Response> responses = new ObservableArrayMap<>();
+
+  /** Form validation errors, updated when existing for loaded and when responses change. */
+  private final ObservableMap<String, String> errors = new ObservableArrayMap<>();
+
+  /** Visibility of process widget shown while loading. */
+  private final MutableLiveData<Integer> loadingSpinnerVisibility = new MutableLiveData<>();
+
+  /** Visibility of "Save" button hidden while loading. */
+  private final MutableLiveData<Integer> saveButtonVisibility = new MutableLiveData<>();
+
+  /** Visibility of saving progress dialog, show saving. */
+  private final MutableLiveData<Integer> savingProgressVisibility = new MutableLiveData<>();
+
+  /** Outcome of user clicking "Save". */
+  private final LiveData<Event<SaveResult>> saveResults;
+
+  /** Possible outcomes of user clicking "Save". */
+  enum SaveResult {
+    HAS_VALIDATION_ERRORS,
+    NO_CHANGES_TO_SAVE,
+    SAVED
+  }
+
+  // Internal state.
+
+  /** Observation state loaded when view is initialized. */
+  @Nullable private Observation originalObservation;
+
+  /** True if the observation is being added, false if editing an existing one. */
   private boolean isNew;
 
   @Inject
@@ -82,89 +121,41 @@ public class EditObservationViewModel extends AbstractViewModel {
       AuthenticationManager authenticationManager) {
     this.resources = application.getResources();
     this.dataRepository = dataRepository;
-    this.observation = new MutableLiveData<>();
-    this.showUnsavedChangesDialogEvents = new SingleLiveEvent<>();
-    this.showErrorDialogEvents = new SingleLiveEvent<>();
     this.authManager = authenticationManager;
-    this.editObservationRequests = PublishSubject.create();
-    this.observationSaveRequests = PublishSubject.create();
+    this.form = fromPublisher(viewArgs.switchMapSingle(this::onInitialize));
+    this.saveResults = fromPublisher(saveClicks.switchMapSingle(__ -> onSave()));
 
-    // TODO(#84): Handle errors on inner stream to avoid breaking outer one.
-    // TODO: Simplify this stream and consolidate error handling (remove Resource wrapper?).
-    disposeOnClear(
-        observationSaveRequests
-            .switchMap(
-                request ->
-                    saveObservation(request)
-                        .toObservable()
-                        .startWith(Persistable.saving(request.observation))
-                        .map(__ -> Persistable.saved(request.observation))
-                        .doOnError(this::onSaveObservationError)
-                        // Prevent from breaking upstream.
-                        .onErrorResumeNext(Observable.never()))
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(observation::setValue));
-
-    disposeOnClear(
-        editObservationRequests
-            .switchMapSingle(
-                observation ->
-                    createOrUpdateObservation(observation)
-                        .doOnError(this::onEditObservationError)
-                        .onErrorResumeNext(Single.never()))
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(this::onObservationSnapshot));
+    loadingSpinnerVisibility.setValue(View.GONE);
+    saveButtonVisibility.setValue(View.GONE);
+    savingProgressVisibility.setValue(View.GONE);
   }
 
-  private String getFormNameView(Persistable<Observation> observation) {
-    return observation.value().map(Observation::getForm).map(Form::getTitle).orElse("");
+  public LiveData<Form> getForm() {
+    return form;
   }
 
-  private Single<Persistable<Observation>> createOrUpdateObservation(
-      EditObservationRequest request) {
-    this.isNew = request.isNew;
-    return isNew ? newObservation(request) : editObservation(request);
+  public LiveData<Integer> getLoadingSpinnerVisibility() {
+    return loadingSpinnerVisibility;
   }
 
-  private Single<Persistable<Observation>> newObservation(EditObservationRequest request) {
-    return dataRepository
-        .createObservation(
-            request.args.getProjectId(), request.args.getFeatureId(), request.args.getFormId())
-        .map(Persistable::loaded)
-        // TODO(#78): Avoid side-effects.
-        .doOnSuccess(this::onNewObservationLoaded);
+  public LiveData<Integer> getSaveButtonVisibility() {
+    return saveButtonVisibility;
   }
 
-  private Single<Persistable<Observation>> editObservation(EditObservationRequest request) {
-    return dataRepository
-        .getObservation(
-            request.args.getProjectId(), request.args.getFeatureId(), request.args.getRecordId())
-        // TODO(#78): Avoid side-effects.
-        .doOnSuccess(this::update)
-        .map(Persistable::loaded);
+  public LiveData<Integer> getSavingProgressVisibility() {
+    return savingProgressVisibility;
   }
 
-  private Completable saveObservation(SaveObservationRequest request) {
-    ObservationMutation observationMutation =
-        ObservationMutation.builder()
-            .setType(request.mutationType)
-            .setProjectId(request.observation.getProject().getId())
-            .setFeatureId(request.observation.getFeature().getId())
-            .setLayerId(request.observation.getFeature().getLayer().getId())
-            .setRecordId(request.observation.getId())
-            .setFormId(request.observation.getForm().getId())
-            .setResponseDeltas(getResponseDeltas(request.observation))
-            .setUserId(request.user.getId())
-            .build();
-    return dataRepository.applyAndEnqueue(observationMutation);
+  public LiveData<String> getToolbarTitle() {
+    return toolbarTitle;
   }
 
-  private void onSaveObservationError(Throwable t) {
-    Log.e(TAG, "Failed to save the observation.", t);
+  public LiveData<Event<SaveResult>> getSaveResults() {
+    return saveResults;
   }
 
-  private void onEditObservationError(Throwable t) {
-    Log.e(TAG, "Unable to create or update observation", t);
+  public void initialize(EditObservationFragmentArgs args) {
+    viewArgs.onNext(args);
   }
 
   public ObservableMap<String, Response> getResponses() {
@@ -199,125 +190,137 @@ public class EditObservationViewModel extends AbstractViewModel {
     }
   }
 
-  LiveData<Persistable<Observation>> getObservation() {
-    return observation;
+  public void onSaveClick() {
+    saveClicks.onNext(Nil.NIL);
   }
 
-  LiveData<Void> getShowUnsavedChangesDialogEvents() {
-    return showUnsavedChangesDialogEvents;
-  }
-
-  public LiveData<Void> getShowErrorDialogEvents() {
-    return showErrorDialogEvents;
-  }
-
-  @NonNull
-  private Optional<Observation> getCurrentObservation() {
-    return Persistable.getData(observation);
-  }
-
-  private void onNewObservationLoaded(Persistable<Observation> r) {
-    responses.clear();
-    errors.clear();
-  }
-
-  private void updateMap(Observation r) {
-    Log.v(TAG, "Updating map");
-    responses.clear();
-    for (String fieldId : r.getResponses().fieldIds()) {
-      r.getForm()
-          .getField(fieldId)
-          .ifPresent(field -> onResponseChanged(field, r.getResponses().getResponse(fieldId)));
-    }
-  }
-
-  void editObservation(EditObservationFragmentArgs args, boolean isNew) {
-    this.currentUser = authManager.getUser().blockingFirst(AuthenticationManager.User.ANONYMOUS);
-    // TODO(#100): Replace event object with single value (id?).
-    editObservationRequests.onNext(new EditObservationRequest(args, isNew));
-  }
-
-  private void onObservationSnapshot(Persistable<Observation> r) {
-    switch (r.state()) {
-      case LOADING:
-        saveButtonVisibility.set(View.GONE);
-        loadingSpinnerVisibility.set(View.VISIBLE);
-        break;
-      case LOADED:
-        saveButtonVisibility.set(View.VISIBLE);
-        loadingSpinnerVisibility.set(View.GONE);
-        break;
-      case SAVING:
-        break;
-      case SAVED:
-        break;
-      case NOT_FOUND:
-      case ERROR:
-        break;
-    }
-    // TODO: Replace with functional stream.
-    formNameView.set(getFormNameView(r));
-    observation.setValue(r);
-  }
-
-  boolean onSaveClick() {
-    getCurrentObservation().ifPresent(this::updateErrors);
-    if (hasErrors()) {
-      showErrorDialogEvents.setValue(null);
-      return true;
-    }
-    if (hasUnsavedChanges()) {
-      saveChanges();
-      return true;
-    }
-    return false;
-  }
-
-  boolean onBack() {
-    if (hasUnsavedChanges()) {
-      showUnsavedChangesDialogEvents.setValue(null);
-      return true;
+  private Single<Form> onInitialize(EditObservationFragmentArgs viewArgs) {
+    saveButtonVisibility.setValue(View.GONE);
+    loadingSpinnerVisibility.setValue(View.VISIBLE);
+    isNew = isAddObservationRequest(viewArgs);
+    Single<Observation> obs;
+    if (isNew) {
+      toolbarTitle.setValue(resources.getString(R.string.add_observation_toolbar_title));
+      obs = createObservation(viewArgs);
     } else {
-      return false;
+      toolbarTitle.setValue(resources.getString(R.string.edit_observation_toolbar_title));
+      obs = loadObservation(viewArgs);
+    }
+    return obs.doOnSuccess(this::onObservationLoaded).map(Observation::getForm);
+  }
+
+  private void onObservationLoaded(Observation observation) {
+    this.originalObservation = observation;
+    refreshResponseMap(observation);
+    if (isNew) {
+      errors.clear();
+    } else {
+      refreshValidationErrors();
+    }
+    saveButtonVisibility.postValue(View.VISIBLE);
+    loadingSpinnerVisibility.postValue(View.GONE);
+  }
+
+  private static boolean isAddObservationRequest(EditObservationFragmentArgs args) {
+    return args.getRecordId().equals(ADD_OBSERVATION_ID_PLACEHOLDER);
+  }
+
+  private Single<Observation> createObservation(EditObservationFragmentArgs args) {
+    return dataRepository
+      .createObservation(args.getProjectId(), args.getFeatureId(), args.getFormId())
+      .doOnError(
+        t -> onError("Error creating new observation", RxJava2Debug.getEnhancedStackTrace(t)))
+      .onErrorResumeNext(Single.never());
+  }
+
+  private Single<Observation> loadObservation(EditObservationFragmentArgs args) {
+    return dataRepository
+      .getObservation(args.getProjectId(), args.getFeatureId(), args.getRecordId())
+      .doOnError(t -> onError("Error loading observation", RxJava2Debug.getEnhancedStackTrace(t)))
+      .onErrorResumeNext(Single.never());
+  }
+
+  private Single<Event<SaveResult>> onSave() {
+    if (originalObservation == null) {
+      Log.e(TAG, "Save attempted before observation loaded");
+      return Single.just(Event.of(SaveResult.NO_CHANGES_TO_SAVE));
+    }
+    refreshValidationErrors();
+    if (hasErrors()) {
+      return Single.just(Event.of(SaveResult.HAS_VALIDATION_ERRORS));
+    }
+    if (!hasUnsavedChanges()) {
+      return Single.just(Event.of(SaveResult.NO_CHANGES_TO_SAVE));
+    }
+    return save();
+  }
+
+  private void onError(String message, Throwable t) {
+    // TODO: Refactor and stream to UI.
+    Log.e(TAG, message, t);
+  }
+
+  private Single<Event<SaveResult>> save() {
+    savingProgressVisibility.setValue(View.VISIBLE);
+    AuthenticationManager.User currentUser =
+        authManager.getUser().blockingFirst(AuthenticationManager.User.ANONYMOUS);
+    ObservationMutation observationMutation =
+      ObservationMutation.builder()
+                         .setType(isNew ? ObservationMutation.Type.CREATE : ObservationMutation.Type.UPDATE)
+                         .setProjectId(originalObservation.getProject().getId())
+                         .setFeatureId(originalObservation.getFeature().getId())
+                         .setLayerId(originalObservation.getFeature().getLayer().getId())
+                         .setRecordId(originalObservation.getId())
+                         .setFormId(originalObservation.getForm().getId())
+                         .setResponseDeltas(getResponseDeltas())
+                         .setUserId(currentUser.getId())
+                         .build();
+    return dataRepository
+      .applyAndEnqueue(observationMutation)
+      .doOnComplete(() -> savingProgressVisibility.postValue(View.GONE))
+      .toSingleDefault(Event.of(SaveResult.SAVED));
+  }
+
+  private void refreshResponseMap(Observation obs) {
+    Log.v(TAG, "Rebuilding response map");
+    responses.clear();
+    ResponseMap responses = obs.getResponses();
+    for (String fieldId : responses.fieldIds()) {
+      obs.getForm()
+          .getField(fieldId)
+          .ifPresent(field -> onResponseChanged(field, responses.getResponse(fieldId)));
     }
   }
 
-  private void saveChanges() {
-    getCurrentObservation().ifPresent(this::saveChanges);
-  }
-
-  private void saveChanges(Observation r) {
-    // TODO(#100): Replace event object with single value (id?).
-    observationSaveRequests.onNext(
-        new SaveObservationRequest(
-            r, this.currentUser, isNew ? Mutation.Type.CREATE : Mutation.Type.UPDATE));
-  }
-
-  private ImmutableList<ResponseDelta> getResponseDeltas(Observation observation) {
+  private ImmutableList<ResponseDelta> getResponseDeltas() {
+    if (originalObservation == null) {
+      Log.e(TAG, "Response diff attempted before observation loaded");
+      return ImmutableList.of();
+    }
     ImmutableList.Builder<ResponseDelta> deltas = ImmutableList.builder();
-    for (Element e : observation.getForm().getElements()) {
+    ResponseMap originalResponses = originalObservation.getResponses();
+    Log.v(TAG, "Responses:\n Before: " + originalResponses + " \nAfter:  " + responses);
+    for (Element e : originalObservation.getForm().getElements()) {
       if (e.getType() != Type.FIELD) {
         continue;
       }
       String fieldId = e.getField().getId();
-      Optional<Response> originalResponse = observation.getResponses().getResponse(fieldId);
+      Optional<Response> originalResponse = originalResponses.getResponse(fieldId);
       Optional<Response> currentResponse = getResponse(fieldId).filter(r -> !r.isEmpty());
-      if (!currentResponse.equals(originalResponse)) {
-        deltas.add(
-            ResponseDelta.builder().setFieldId(fieldId).setNewResponse(currentResponse).build());
+      if (currentResponse.equals(originalResponse)) {
+        continue;
       }
+      deltas.add(
+          ResponseDelta.builder().setFieldId(fieldId).setNewResponse(currentResponse).build());
     }
-    return deltas.build();
+    ImmutableList<ResponseDelta> result = deltas.build();
+    Log.v(TAG, "Deltas: " + result);
+    return result;
   }
 
-  private void update(Observation observation) {
-    updateMap(observation);
-    updateErrors(observation);
-  }
-
-  private void updateErrors(Observation r) {
+  private void refreshValidationErrors() {
     errors.clear();
-    stream(r.getForm().getElements())
+    stream(originalObservation.getForm().getElements())
         .filter(e -> e.getType().equals(Type.FIELD))
         .map(e -> e.getField())
         .forEach(this::updateError);
@@ -338,36 +341,11 @@ public class EditObservationViewModel extends AbstractViewModel {
     }
   }
 
-  private boolean hasUnsavedChanges() {
-    return getCurrentObservation()
-        .map(observation -> !getResponseDeltas(observation).isEmpty())
-        .orElse(false);
+  public boolean hasUnsavedChanges() {
+    return !getResponseDeltas().isEmpty();
   }
 
   private boolean hasErrors() {
     return !errors.isEmpty();
-  }
-
-  public static class EditObservationRequest {
-    public final EditObservationFragmentArgs args;
-    public final boolean isNew;
-
-    EditObservationRequest(EditObservationFragmentArgs args, boolean isNew) {
-      this.args = args;
-      this.isNew = isNew;
-    }
-  }
-
-  public static class SaveObservationRequest {
-    public final Observation observation;
-    public final AuthenticationManager.User user;
-    public final Mutation.Type mutationType;
-
-    SaveObservationRequest(
-        Observation observation, AuthenticationManager.User user, Mutation.Type mutationType) {
-      this.observation = observation;
-      this.user = user;
-      this.mutationType = mutationType;
-    }
   }
 }
