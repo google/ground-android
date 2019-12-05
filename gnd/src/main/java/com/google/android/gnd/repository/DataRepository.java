@@ -286,7 +286,7 @@ public class DataRepository {
     activeProject.onNext(Persistable.notLoaded());
     localDataStore
         .getLastActiveProject()
-        .doOnSuccess(project -> localDataStore.removeProject(project).subscribe())
+        .flatMapCompletable(localDataStore::removeProject)
         .subscribe();
   }
 
