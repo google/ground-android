@@ -35,9 +35,6 @@ public interface BaseDao<E> {
 
   /**
    * Try to update the specified entity, and if it doesn't yet exist, create it.
-   *
-   * @param entity
-   * @return Completes when the insert or update operation is complete.
    */
   default Completable insertOrUpdate(E entity) {
     return update(entity).filter(n -> n == 0).flatMapCompletable(__ -> insert(entity));
