@@ -18,17 +18,13 @@ package com.google.android.gnd.persistence.local.room;
 
 import androidx.room.Dao;
 import androidx.room.Delete;
-import androidx.room.Insert;
-import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
 import java.util.List;
 
 @Dao
-public interface ProjectDao {
-  @Insert(onConflict = OnConflictStrategy.REPLACE)
-  Completable insertOrUpdate(ProjectEntity project);
+public interface ProjectDao extends BaseDao<ProjectEntity> {
 
   @Delete
   Completable deleteProject(ProjectEntity projectEntity);
