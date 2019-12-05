@@ -134,7 +134,7 @@ public class DataRepository {
   }
 
   private Single<List<Project>> loadProjects(User user) {
-    if (isOfflineModeEnabled()) {
+    if (isOffline()) {
       return localDataStore.getProjects();
     } else {
       return remoteDataStore.loadProjectSummaries(user);
@@ -259,7 +259,7 @@ public class DataRepository {
 
   private Maybe<Project> loadLastActiveProject() {
     String projectId = localValueStore.getLastActiveProjectId();
-    if (isOfflineModeEnabled()) {
+    if (isOffline()) {
       return localDataStore.getProjectById(projectId);
     } else {
       return Maybe.fromCallable(() -> projectId).flatMap(id -> activateProject(id).toMaybe());
@@ -290,11 +290,8 @@ public class DataRepository {
     activeProject.onNext(Persistable.notLoaded());
   }
 
-  public boolean isOfflineModeEnabled() {
-    return localValueStore.isOfflineModeEnabled();
-  }
-
-  public void setOfflineModeEnabled(boolean enabled) {
-    localValueStore.setOfflineMode(enabled);
+  private boolean isOffline() {
+    // TODO
+    return false;
   }
 }
