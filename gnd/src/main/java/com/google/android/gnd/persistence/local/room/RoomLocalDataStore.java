@@ -80,9 +80,9 @@ public class RoomLocalDataStore implements LocalDataStore {
   }
 
   @Override
-  public Maybe<Project> getLastActiveProject() {
+  public Maybe<Project> getProjectById(String id) {
     return db.projectDao()
-        .getLastActiveProject()
+        .getProjectById(id)
         .map(ProjectEntity::toProject)
         .subscribeOn(Schedulers.io());
   }

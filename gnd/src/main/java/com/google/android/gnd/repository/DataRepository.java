@@ -259,10 +259,11 @@ public class DataRepository {
   }
 
   private Maybe<Project> loadLastActiveProject() {
+    String projectId = localValueStore.getLastActiveProjectId();
     if (isOfflineModeEnabled()) {
-      return localDataStore.getLastActiveProject();
+      return localDataStore.getProjectById(projectId);
     } else {
-      return Maybe.fromCallable(localValueStore::getLastActiveProjectId)
+      return Maybe.fromCallable(() -> projectId)
           .flatMap(id -> activateProject(id).toMaybe());
     }
   }
@@ -282,13 +283,13 @@ public class DataRepository {
 
   /** Clears the currently active project from cache and from local localValueStore. */
   public void clearActiveProject() {
+    localDataStore
+        .getProjectById(localValueStore.getLastActiveProjectId())
+        .flatMapCompletable(localDataStore::removeProject)
+        .subscribe();
     cache.clearActiveProject();
     localValueStore.clearLastActiveProjectId();
     activeProject.onNext(Persistable.notLoaded());
-    localDataStore
-        .getLastActiveProject()
-        .flatMapCompletable(localDataStore::removeProject)
-        .subscribe();
   }
 
   public boolean isOfflineModeEnabled() {
