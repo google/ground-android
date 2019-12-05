@@ -26,7 +26,7 @@ import io.reactivex.Single;
  *
  * @param <E> the type of entity that is persisted by sub-interfaces.
  */
-public interface EntityDao<E> {
+public interface BaseDao<E> {
   @Insert
   Completable insert(E entity);
 

@@ -23,7 +23,7 @@ import io.reactivex.Maybe;
 import java.util.List;
 
 @Dao
-public interface TileDao extends EntityDao<TileEntity> {
+public interface TileDao extends BaseDao<TileEntity> {
   @Query("SELECT * FROM tile")
   Flowable<List<TileEntity>> findAll();
 

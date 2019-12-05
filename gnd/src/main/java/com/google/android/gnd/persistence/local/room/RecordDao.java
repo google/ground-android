@@ -23,7 +23,7 @@ import io.reactivex.Single;
 import java.util.List;
 
 @Dao
-public interface RecordDao extends EntityDao<RecordEntity> {
+public interface RecordDao extends BaseDao<RecordEntity> {
   /** Returns the observation with the specified UUID, if found. */
   @Query("SELECT * FROM record WHERE id = :recordId")
   Maybe<RecordEntity> findById(String recordId);
