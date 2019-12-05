@@ -55,8 +55,8 @@ public interface LocalDataStore {
   /** Delete stored project from database. */
   Completable removeProject(Project project);
 
-  /** Marks the selected project as active in the local data store. */
-  Completable activateProject(Project project);
+  /** Add project to the database. */
+  Completable insertOrUpdateProject(Project project);
 
   /**
    * Applies the specified {@link FeatureMutation} to the local data store, appending the mutation
