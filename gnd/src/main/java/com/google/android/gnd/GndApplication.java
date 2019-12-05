@@ -46,6 +46,11 @@ public class GndApplication extends MultiDexApplication implements HasActivityIn
     if (BuildConfig.DEBUG) {
       Log.d(TAG, "DEBUG build config active; enabling debug tooling");
       setStrictMode();
+
+      /*
+       * Debug bridge for android applications. Enables network and database debugging for the app
+       * accessible under chrome://inspect in Chrome desktop browser.
+       */
       Stetho.initializeWithDefaults(this);
     }
 
