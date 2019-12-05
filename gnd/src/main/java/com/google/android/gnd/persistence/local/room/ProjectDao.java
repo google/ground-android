@@ -33,6 +33,6 @@ public interface ProjectDao extends BaseDao<ProjectEntity> {
   @Query("SELECT * FROM project")
   Single<List<ProjectEntity>> findAll();
 
-  @Query("SELECT * FROM project WHERE is_active = 1 LIMIT 1")
-  Maybe<ProjectEntity> getLastActiveProject();
+  @Query("SELECT * FROM project WHERE id = :id")
+  Maybe<ProjectEntity> getProjectById(String id);
 }

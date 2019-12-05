@@ -45,10 +45,6 @@ public abstract class ProjectEntity {
   @ColumnInfo(name = "description")
   public abstract String getDescription();
 
-  @CopyAnnotations
-  @ColumnInfo(name = "is_active")
-  public abstract boolean isActive();
-
   public static ProjectEntity fromProject(Project project) {
     return fromProject(project, false);
   }
@@ -58,7 +54,6 @@ public abstract class ProjectEntity {
         .setId(project.getId())
         .setTitle(project.getTitle())
         .setDescription(project.getDescription())
-        .setActive(active)
         .build();
   }
 
@@ -70,12 +65,11 @@ public abstract class ProjectEntity {
         .build();
   }
 
-  public static ProjectEntity create(String id, String title, String description, boolean active) {
+  public static ProjectEntity create(String id, String title, String description) {
     return builder()
         .setId(id)
         .setTitle(title)
         .setDescription(description)
-        .setActive(active)
         .build();
   }
 
@@ -91,8 +85,6 @@ public abstract class ProjectEntity {
     public abstract Builder setTitle(String title);
 
     public abstract Builder setDescription(String description);
-
-    public abstract Builder setActive(boolean active);
 
     public abstract ProjectEntity build();
   }

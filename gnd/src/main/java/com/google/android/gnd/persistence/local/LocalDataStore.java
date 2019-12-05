@@ -50,7 +50,7 @@ public interface LocalDataStore {
   Single<List<Project>> getProjects();
 
   /** Load last active project, if any. */
-  Maybe<Project> getLastActiveProject();
+  Maybe<Project> getProjectById(String id);
 
   /** Delete stored project from database. */
   Completable removeProject(Project project);
