@@ -40,7 +40,6 @@ import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.processors.BehaviorProcessor;
 import io.reactivex.processors.FlowableProcessor;
-import io.reactivex.schedulers.Schedulers;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java8.util.Optional;
@@ -124,6 +123,7 @@ public class DataRepository {
         .loadProject(projectId)
         .doOnError(e -> Log.e(TAG, "Project not found", e))
         .doOnSubscribe(__ -> activeProject.onNext(Persistable.loading()))
+        .flatMap(project -> localDataStore.insertOrUpdateProject(project).toSingleDefault(project))
         .doOnSuccess(this::onProjectLoaded);
   }
 
@@ -131,7 +131,6 @@ public class DataRepository {
     cache.setActiveProject(project);
     activeProject.onNext(Persistable.loaded(project));
     localValueStore.setLastActiveProjectId(project.getId());
-    localDataStore.activateProject(project).subscribeOn(Schedulers.io()).subscribe();
   }
 
   private Single<List<Project>> loadProjects(User user) {
@@ -262,8 +261,7 @@ public class DataRepository {
     if (isOfflineModeEnabled()) {
       return localDataStore.getProjectById(projectId);
     } else {
-      return Maybe.fromCallable(() -> projectId)
-          .flatMap(id -> activateProject(id).toMaybe());
+      return Maybe.fromCallable(() -> projectId).flatMap(id -> activateProject(id).toMaybe());
     }
   }
 
