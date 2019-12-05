@@ -25,8 +25,8 @@ import javax.annotation.Nullable;
 import org.reactivestreams.Publisher;
 
 /**
- * Wraps the state of an entity that can be loaded or saved asynchronously. Based on Android Guide
- * to App Architecture: https://developer.android.com/jetpack/docs/guide#addendum
+ * Wraps the state of an entity that can be loaded asynchronously. Based on {@code Resource} in
+ * Android Guide to App Architecture: https://developer.android.com/jetpack/docs/guide#addendum
  *
  * @param <T> the type of data payload the resource contains.
  */
@@ -37,9 +37,6 @@ public class Persistable<T> extends Result<T> {
     NOT_LOADED,
     LOADING,
     LOADED,
-    // TODO: Move SAVING states out and rename this class to Loadable.
-    SAVING,
-    SAVED,
     NOT_FOUND,
     ERROR
   }
@@ -59,14 +56,6 @@ public class Persistable<T> extends Result<T> {
 
   public static <T> Persistable<T> loaded(T data) {
     return new Persistable<>(PersistenceState.LOADED, data, null);
-  }
-
-  public static <T> Persistable<T> saving(T data) {
-    return new Persistable<>(PersistenceState.SAVING, data, null);
-  }
-
-  public static <T> Persistable<T> saved(T data) {
-    return new Persistable<>(PersistenceState.SAVED, data, null);
   }
 
   public static <T> Persistable<T> error(Throwable t) {
