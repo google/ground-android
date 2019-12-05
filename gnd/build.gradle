@@ -100,7 +100,12 @@ dependencies {
     })
     implementation 'androidx.multidex:multidex:2.0.0'
 
-    // Stetho
+    /**
+     * Stetho: http://facebook.github.io/stetho/
+     *
+     * Debug bridge for android applications. Enables network and database debugging for the app
+     * under chrome://inspect in Chrome desktop browser.
+     */
     implementation 'com.facebook.stetho:stetho:1.5.1'
 
     // Android legacy support Libraries.
