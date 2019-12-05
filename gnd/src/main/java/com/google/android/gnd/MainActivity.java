@@ -77,6 +77,8 @@ public class MainActivity extends AppCompatActivity implements HasSupportFragmen
     // Prevent RxJava from force-quitting on unhandled errors.
     RxJavaPlugins.setErrorHandler(t -> RxDebug.logEnhancedStackTrace(t));
 
+    // Make sure this is before calling super.onCreate()
+    setTheme(R.style.AppTheme);
     super.onCreate(savedInstanceState);
 
     AndroidInjection.inject(this);
