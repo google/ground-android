@@ -16,22 +16,30 @@
 
 package com.google.android.gnd.persistence.local.room;
 
-import androidx.room.Dao;
-import androidx.room.Query;
-import io.reactivex.Maybe;
+import androidx.room.Insert;
+import androidx.room.Update;
+import io.reactivex.Completable;
 import io.reactivex.Single;
-import java.util.List;
 
-@Dao
-public interface RecordDao extends BaseDao<RecordEntity> {
-  /** Returns the observation with the specified UUID, if found. */
-  @Query("SELECT * FROM record WHERE id = :recordId")
-  Maybe<RecordEntity> findById(String recordId);
+/**
+ * Base interface for DAOs that implement operations on a specific entity type.
+ *
+ * @param <E> the type of entity that is persisted by sub-interfaces.
+ */
+public interface BaseDao<E> {
+  @Insert
+  Completable insert(E entity);
+
+  @Update
+  Single<Integer> update(E entity);
 
   /**
-   * Returns the list records associated with the specified feature and form, ignoring deleted
-   * records (i.e., returns only records with state = State.DEFAULT (1)).
+   * Try to update the specified entity, and if it doesn't yet exist, create it.
+   *
+   * @param entity
+   * @return Completes when the insert or update operation is complete.
    */
-  @Query("SELECT * FROM record WHERE feature_id = :featureId AND form_id = :formId AND state = 1")
-  Single<List<RecordEntity>> findByFeatureId(String featureId, String formId);
+  default Completable insertOrUpdate(E entity) {
+    return update(entity).filter(n -> n == 0).flatMapCompletable(__ -> insert(entity));
+  }
 }
