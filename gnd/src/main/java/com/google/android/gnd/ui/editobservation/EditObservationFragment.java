@@ -85,9 +85,6 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
       @NonNull View view, @androidx.annotation.Nullable Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
     ((MainActivity) getActivity()).setActionBar(toolbar, R.drawable.ic_close_black_24dp);
-    // Initial state.
-    toolbar.setTitle("");
-    toolbar.setSubtitle("");
     toolbar.setNavigationOnClickListener(__ -> onCloseButtonClick());
     // Observe state changes.
     viewModel.getForm().observe(this, this::rebuildForm);
