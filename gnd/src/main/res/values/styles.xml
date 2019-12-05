@@ -19,6 +19,10 @@
   <style name="AppTheme" parent="AppTheme.Base">
   </style>
 
+  <style name="AppTheme.Launcher">
+    <item name="android:windowBackground">@drawable/launch_screen</item>
+  </style>
+
   <style name="MenuTheme" parent="TextAppearance.AppCompat.Widget.ActionBar.Menu">
 
   </style>
