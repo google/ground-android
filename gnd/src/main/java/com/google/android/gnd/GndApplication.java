@@ -48,7 +48,7 @@ public class GndApplication extends MultiDexApplication implements HasActivityIn
       setStrictMode();
 
       /*
-       * Debug bridge for android applications. Enables network and database debugging for the app
+       * Debug bridge for Android applications. Enables network and database debugging for the app
        * accessible under chrome://inspect in Chrome desktop browser.
        */
       Stetho.initializeWithDefaults(this);
