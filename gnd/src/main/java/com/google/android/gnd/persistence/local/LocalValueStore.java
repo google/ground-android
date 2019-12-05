@@ -30,7 +30,6 @@ import javax.inject.Singleton;
 @Singleton
 public class LocalValueStore {
   private static final String ACTIVE_PROJECT_ID_KEY = "activeProjectId";
-  private static final String OFFLINE_MODE_ENABLED = "offlineModeEnabled";
 
   private final SharedPreferences preferences;
 
@@ -47,19 +46,17 @@ public class LocalValueStore {
 
   /** Set the id of the last project successfully activated by the user. */
   public void setLastActiveProjectId(@NonNull String id) {
-    preferences.edit().putString(ACTIVE_PROJECT_ID_KEY, id).apply();
+    preferences
+      .edit()
+      .putString(ACTIVE_PROJECT_ID_KEY, id)
+      .apply();
   }
 
   /** Removes the last active project id in the local value store. */
   public void clearLastActiveProjectId() {
-    preferences.edit().remove(ACTIVE_PROJECT_ID_KEY).apply();
-  }
-
-  public boolean isOfflineModeEnabled() {
-    return preferences.getBoolean(OFFLINE_MODE_ENABLED, false);
-  }
-
-  public void setOfflineMode(boolean enabled) {
-    preferences.edit().putBoolean(OFFLINE_MODE_ENABLED, enabled).apply();
+    preferences
+      .edit()
+      .remove(ACTIVE_PROJECT_ID_KEY)
+      .apply();
   }
 }
