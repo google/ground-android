@@ -21,6 +21,7 @@ import androidx.room.Delete;
 import androidx.room.Query;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
+import io.reactivex.Single;
 import java.util.List;
 
 @Dao
@@ -30,7 +31,7 @@ public interface ProjectDao extends BaseDao<ProjectEntity> {
   Completable deleteProject(ProjectEntity projectEntity);
 
   @Query("SELECT * FROM project")
-  Maybe<List<ProjectEntity>> findAll();
+  Single<List<ProjectEntity>> findAll();
 
   @Query("SELECT * FROM project WHERE is_active = 1 LIMIT 1")
   Maybe<ProjectEntity> getLastActiveProject();

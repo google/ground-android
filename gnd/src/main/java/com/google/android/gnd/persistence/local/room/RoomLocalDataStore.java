@@ -71,7 +71,6 @@ public class RoomLocalDataStore implements LocalDataStore {
     return db.projectDao()
         .findAll()
         .map(list -> stream(list).map(ProjectEntity::toProject).collect(toList()))
-        .toSingle()
         .subscribeOn(Schedulers.io());
   }
 
