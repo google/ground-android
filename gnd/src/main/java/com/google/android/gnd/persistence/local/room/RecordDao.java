@@ -17,25 +17,13 @@
 package com.google.android.gnd.persistence.local.room;
 
 import androidx.room.Dao;
-import androidx.room.Insert;
-import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
-import io.reactivex.Completable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
 import java.util.List;
 
 @Dao
-public interface RecordDao {
-
-  /**
-   * Saves the provided entity into the observation table, creating a new row or updating existing
-   * row as necessary. Observation id must already be assigned to a valid UUID, or the returned
-   * Completable will terminate in error.
-   */
-  @Insert(onConflict = OnConflictStrategy.REPLACE)
-  Completable insertOrUpdate(RecordEntity record);
-
+public interface RecordDao extends BaseDao<RecordEntity> {
   /** Returns the observation with the specified UUID, if found. */
   @Query("SELECT * FROM record WHERE id = :recordId")
   Maybe<RecordEntity> findById(String recordId);
