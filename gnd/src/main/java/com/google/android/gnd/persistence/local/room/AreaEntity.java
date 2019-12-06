@@ -31,10 +31,26 @@ import static com.google.android.gnd.persistence.local.room.LatLngBoundsConverte
 @AutoValue
 @Entity(tableName = "area")
 public abstract class AreaEntity {
+  @AutoValue.CopyAnnotations
+  @NonNull
+  @PrimaryKey
+  @ColumnInfo(name = "id")
+  public abstract String getId();
+
+  @AutoValue.CopyAnnotations
+  @NonNull
+  @ColumnInfo(name = "state")
+  public abstract AreaEntityState getState();
+
+  @AutoValue.CopyAnnotations
+  @NonNull
+  @ColumnInfo(name = "bounds")
+  public abstract LatLngBounds getBounds();
+
   public static Area toArea(AreaEntity areaEntity) {
     Area.Builder area =
         Area.newBuilder()
-            .setBounds(boundsFromString(areaEntity.getId()))
+            .setBounds(areaEntity.getBounds())
             .setState(toAreaState(areaEntity.getState()))
             .setId(areaEntity.getId());
     return area.build();
@@ -55,15 +71,12 @@ public abstract class AreaEntity {
     }
   }
 
-  // The Bounds conversion methods bellow double as type converters so that we can query areas
-  // by bounds.
-
   public static AreaEntity fromArea(Area area) {
     AreaEntity.Builder entity =
         AreaEntity.builder()
             .setId(area.getId())
             .setState(toEntityState(area.getState()))
-            .setBounds(boundsToString(area.getBounds()));
+            .setBounds(area.getBounds());
     return entity.build();
   }
 
@@ -83,36 +96,25 @@ public abstract class AreaEntity {
   }
 
   public static AreaEntity create(String id, AreaEntityState state, LatLngBounds bounds) {
-    return builder().setId(id).setState(state).setBounds(boundsToString(bounds)).build();
+    return builder()
+      .setId(id)
+      .setState(state)
+      .setBounds(bounds)
+      .build();
   }
 
   public static Builder builder() {
     return new AutoValue_AreaEntity.Builder();
   }
 
-  @AutoValue.CopyAnnotations
-  @NonNull
-  @PrimaryKey
-  @ColumnInfo(name = "id")
-  public abstract String getId();
-
-  @AutoValue.CopyAnnotations
-  @NonNull
-  @ColumnInfo(name = "state")
-  public abstract AreaEntityState getState();
-
-  @AutoValue.CopyAnnotations
-  @NonNull
-  @ColumnInfo(name = "bounds")
-  public abstract String getBounds();
-
   @AutoValue.Builder
   public abstract static class Builder {
+
     public abstract Builder setId(String newId);
 
     public abstract Builder setState(AreaEntityState newState);
 
-    public abstract Builder setBounds(String bounds);
+    public abstract Builder setBounds(LatLngBounds newBounds);
 
     public abstract AreaEntity build();
   }
