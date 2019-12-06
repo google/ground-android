@@ -25,7 +25,7 @@ import io.reactivex.Single;
 import java.util.List;
 
 @Dao
-public interface ProjectDao extends EntityDao<ProjectEntity> {
+public interface ProjectDao extends BaseDao<ProjectEntity> {
 
   @Delete
   Completable deleteProject(ProjectEntity projectEntity);
