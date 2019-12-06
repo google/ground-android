@@ -19,46 +19,39 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.auto.value.AutoValue;
 
 /**
- * An area is a contiguous set of tiles that form a geodesic rectangle.
- * They are uniquely identifiable by their NE and SW bounds (or NW and SE).
+ * An area is a contiguous set of tiles that form a geodesic rectangle. They are uniquely
+ * identifiable by their NE and SW bounds (or NW and SE).
  */
 @AutoValue
 public abstract class Area {
-    public enum State {
-        PENDING,
-        IN_PROGRESS,
-        DOWNLOADED,
-        FAILED
-    }
+  public static Builder newBuilder() {
+    return new AutoValue_Area.Builder();
+  }
 
-    public abstract String getId();
+  public abstract String getId();
 
-    public abstract State getState();
+  public abstract State getState();
 
-    public abstract LatLngBounds getBounds();
+  public abstract LatLngBounds getBounds();
 
-    public static Builder newBuilder() {
-        return new AutoValue_Area.Builder();
-    }
+  public abstract Builder toBuilder();
 
-    public abstract Builder toBuilder();
+  public enum State {
+    PENDING,
+    IN_PROGRESS,
+    DOWNLOADED,
+    FAILED
+  }
 
-    @AutoValue.Builder
-    public abstract static class Builder {
+  @AutoValue.Builder
+  public abstract static class Builder {
 
-        abstract LatLngBounds getBounds();
+    public abstract Builder setBounds(LatLngBounds bounds);
 
-        public abstract Builder setBounds(LatLngBounds bounds);
+    public abstract Builder setState(State state);
 
-        public abstract Builder setState(State state);
+    public abstract Builder setId(String id);
 
-        abstract Builder setId(String id);
-
-        abstract Area autoBuild();
-
-        public Area build() {
-            setId(getBounds().toString());
-            return autoBuild();
-        }
-    }
+    public abstract Area build();
+  }
 }
