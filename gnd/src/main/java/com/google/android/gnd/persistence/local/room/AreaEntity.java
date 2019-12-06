@@ -20,14 +20,14 @@ import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
-import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gnd.model.basemap.Area;
 import com.google.auto.value.AutoValue;
 
-/**
- * Represents a {@link Area} in the local data store.
- */
+import static com.google.android.gnd.persistence.local.room.LatLngBoundsConverter.boundsFromString;
+import static com.google.android.gnd.persistence.local.room.LatLngBoundsConverter.boundsToString;
+
+/** Represents a {@link Area} in the local data store. */
 @AutoValue
 @Entity(tableName = "area")
 public abstract class AreaEntity {
@@ -35,7 +35,8 @@ public abstract class AreaEntity {
     Area.Builder area =
         Area.newBuilder()
             .setBounds(boundsFromString(areaEntity.getId()))
-            .setState(toAreaState(areaEntity.getState()));
+            .setState(toAreaState(areaEntity.getState()))
+            .setId(areaEntity.getId());
     return area.build();
   }
 
@@ -54,16 +55,15 @@ public abstract class AreaEntity {
     }
   }
 
-  private static LatLngBounds boundsFromString(String id) {
-    String[] coords = id.split(",");
-    LatLng NE = new LatLng(Double.parseDouble(coords[0]), Double.parseDouble(coords[1]));
-    LatLng SW = new LatLng(Double.parseDouble(coords[2]), Double.parseDouble(coords[3]));
-    return new LatLngBounds(NE, SW);
-  }
+  // The Bounds conversion methods bellow double as type converters so that we can query areas
+  // by bounds.
 
   public static AreaEntity fromArea(Area area) {
     AreaEntity.Builder entity =
-        AreaEntity.builder().setId(area.getId()).setState(toEntityState(area.getState()));
+        AreaEntity.builder()
+            .setId(area.getId())
+            .setState(toEntityState(area.getState()))
+            .setBounds(boundsToString(area.getBounds()));
     return entity.build();
   }
 
@@ -82,8 +82,8 @@ public abstract class AreaEntity {
     }
   }
 
-  public static AreaEntity create(String id, AreaEntityState state) {
-    return builder().setId(id).setState(state).build();
+  public static AreaEntity create(String id, AreaEntityState state, LatLngBounds bounds) {
+    return builder().setId(id).setState(state).setBounds(boundsToString(bounds)).build();
   }
 
   public static Builder builder() {
@@ -101,11 +101,18 @@ public abstract class AreaEntity {
   @ColumnInfo(name = "state")
   public abstract AreaEntityState getState();
 
+  @AutoValue.CopyAnnotations
+  @NonNull
+  @ColumnInfo(name = "bounds")
+  public abstract String getBounds();
+
   @AutoValue.Builder
   public abstract static class Builder {
     public abstract Builder setId(String newId);
 
     public abstract Builder setState(AreaEntityState newState);
+
+    public abstract Builder setBounds(String bounds);
 
     public abstract AreaEntity build();
   }

@@ -20,6 +20,8 @@ import androidx.room.Insert;
 import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
 
+import com.google.android.gms.maps.model.LatLngBounds;
+
 import java.util.List;
 
 import io.reactivex.Completable;
@@ -39,4 +41,7 @@ public interface AreaDao {
 
   @Query("SELECT * FROM area WHERE id = :id")
   Maybe<AreaEntity> findById(String id);
+
+  @Query("SELECT * FROM area WHERE bounds = :bounds")
+  Maybe<AreaEntity> findByBounds(LatLngBounds bounds);
 }

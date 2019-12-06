@@ -47,6 +47,7 @@ import androidx.room.TypeConverters;
   ResponseMapTypeConverter.class,
   TileEntityState.class,
   AreaEntityState.class,
+  LatLngBoundsConverter.class
 })
 public abstract class LocalDatabase extends RoomDatabase {
 
