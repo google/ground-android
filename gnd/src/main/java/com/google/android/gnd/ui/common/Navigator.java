@@ -107,7 +107,7 @@ public class Navigator {
         navigate(SignInFragmentDirections.proceedToHomeScreen());
         break;
       default:
-        throw new NavigationException(currentNavDestinationId + " id not found");
+        throw new IllegalArgumentException(currentNavDestinationId + " id not found");
     }
   }
 
@@ -121,7 +121,7 @@ public class Navigator {
         navigate(HomeScreenFragmentDirections.fromHomeScreenToSignInScreen());
         break;
       default:
-        throw new NavigationException(currentNavDestinationId + " id not found");
+        throw new IllegalArgumentException(currentNavDestinationId + " id not found");
     }
   }
 }
