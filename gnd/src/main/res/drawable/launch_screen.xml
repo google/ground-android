@@ -21,6 +21,12 @@
 
   <item>
     <bitmap
+      android:gravity="fill"
+      android:src="@drawable/splash_background" />
+  </item>
+
+  <item>
+    <bitmap
       android:gravity="center"
       android:src="@drawable/ground_logo" />
   </item>
