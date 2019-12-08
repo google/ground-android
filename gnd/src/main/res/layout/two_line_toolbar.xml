@@ -28,13 +28,14 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_gravity="center"
-    android:textAppearance="?gndToolbarTitleStyle"/>
+    android:textAppearance="?gndToolbarTitleStyle" />
 
   <TextView
     android:id="@+id/toolbar_subtitle_text"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_gravity="center"
-    android:textAppearance="?gndToolbarSubtitleStyle"/>
+    android:textAppearance="?gndToolbarSubtitleStyle"
+    android:visibility="gone"/>
 
 </LinearLayout>
