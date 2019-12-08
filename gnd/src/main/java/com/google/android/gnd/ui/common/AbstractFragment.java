@@ -156,11 +156,7 @@ public abstract class AbstractFragment extends Fragment implements HasSupportFra
     getChildFragmentManager().beginTransaction().replace(containerViewId, fragment).commit();
   }
 
-  protected <T> void saveChildFragment(Bundle outState, Fragment fragment) {
-    saveChildFragment(outState, fragment, fragment.getClass().getName());
-  }
-
-  protected <T> void saveChildFragment(Bundle outState, Fragment fragment, String key) {
+  protected void saveChildFragment(Bundle outState, Fragment fragment, String key) {
     getChildFragmentManager().putFragment(outState, key, fragment);
   }
 
