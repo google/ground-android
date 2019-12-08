@@ -19,6 +19,8 @@ package com.google.android.gnd.ui.common;
 import android.app.ProgressDialog;
 import android.content.Context;
 
+// TODO: Replace with custom View; ProgressDialog was deprecated in API 26.
+// https://developer.android.com/reference/android/app/ProgressDialog
 public abstract class ProgressDialogs {
   /** Do not instantiate. */
   private ProgressDialogs() {}
