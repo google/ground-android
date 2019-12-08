@@ -98,9 +98,6 @@ public class HomeScreenFragment extends AbstractFragment
   @BindView(R.id.bottom_sheet_scroll_view)
   View bottomSheetScrollView;
 
-  @BindView(R.id.add_record_btn)
-  View addRecordBtn;
-
   @BindView(R.id.bottom_sheet_bottom_inset_scrim)
   View bottomSheetBottomInsetScrim;
 
@@ -123,6 +120,9 @@ public class HomeScreenFragment extends AbstractFragment
     viewModel.getActiveProject().observe(this, this::onActiveProjectChange);
     viewModel.getShowAddFeatureDialogRequests().observe(this, this::onShowAddFeatureDialogRequest);
     viewModel.getFeatureSheetState().observe(this, this::onFeatureSheetStateChange);
+    viewModel.getAddObservationButtonVisibility().observe(this, v -> {
+      Log.e("!!!", "Viz: " + v);
+    });
     viewModel.getOpenDrawerRequests().observe(this, __ -> openDrawer());
 
     showFeatureDialogRequests = PublishSubject.create();
@@ -297,12 +297,10 @@ public class HomeScreenFragment extends AbstractFragment
 
   private void showBottomSheet() {
     bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
-    addRecordBtn.setVisibility(View.VISIBLE);
   }
 
   private void hideBottomSheet() {
     bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
-    addRecordBtn.setVisibility(View.GONE);
   }
 
   private void showProjectLoadingDialog() {
