@@ -137,6 +137,7 @@ public class HomeScreenFragment extends AbstractFragment
   @Override
   public View onCreateView(
       LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    super.onCreateView(inflater, container, savedInstanceState);
     HomeScreenFragBinding binding = HomeScreenFragBinding.inflate(inflater, container, false);
     binding.featureSheetChrome.setViewModel(viewModel);
     return binding.getRoot();
@@ -164,9 +165,9 @@ public class HomeScreenFragment extends AbstractFragment
   private String getVersionName() {
     try {
       return Objects.requireNonNull(getContext())
-        .getPackageManager()
-        .getPackageInfo(getContext().getPackageName(), 0)
-        .versionName;
+          .getPackageManager()
+          .getPackageInfo(getContext().getPackageName(), 0)
+          .versionName;
     } catch (PackageManager.NameNotFoundException e) {
       return "?";
     }
