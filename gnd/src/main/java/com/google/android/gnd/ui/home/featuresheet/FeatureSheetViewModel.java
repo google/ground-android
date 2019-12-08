@@ -46,11 +46,8 @@ public class FeatureSheetViewModel extends ViewModel implements ViewPager.OnPage
     featureTitle = new ObservableField<>();
     featureSubtitle = new ObservableField<>();
     featureSubtitleVisibility = new ObservableInt();
-    selectedFeature = new MutableLiveData<>();
-    selectedForm = new MutableLiveData<>();
-
-    selectedFeature.setValue(Optional.empty());
-    selectedForm.setValue(Optional.empty());
+    selectedFeature = new MutableLiveData<>(Optional.empty());
+    selectedForm = new MutableLiveData<>(Optional.empty());
   }
 
   public LiveData<Optional<Feature>> getSelectedFeature() {
