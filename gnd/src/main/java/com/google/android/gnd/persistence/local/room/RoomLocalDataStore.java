@@ -22,6 +22,7 @@ import static java8.lang.Iterables.forEach;
 import static java8.util.stream.Collectors.toList;
 import static java8.util.stream.StreamSupport.stream;
 
+import android.util.Log;
 import androidx.room.Room;
 import androidx.room.Transaction;
 import com.google.android.gnd.GndApplication;
@@ -53,6 +54,7 @@ import javax.inject.Singleton;
 @Singleton
 public class RoomLocalDataStore implements LocalDataStore {
   private static final String DB_NAME = "gnd.db";
+  private static final String TAG = RoomLocalDataStore.class.getSimpleName();
 
   private final LocalDatabase db;
 
@@ -259,12 +261,28 @@ public class RoomLocalDataStore implements LocalDataStore {
     }
   }
 
+  /**
+   * Applies mutation to observation in database or creates a new one.
+   *
+   * @return A Completable that emits an error if mutation type is "UPDATE" but entity does not
+   *     exist, or if type is "CREATE" and entity already exists.
+   */
   private Completable apply(ObservationMutation mutation) throws LocalDataStoreException {
     switch (mutation.getType()) {
       case CREATE:
+        return db.recordDao()
+            .insert(RecordEntity.fromMutation(mutation))
+            .doOnSubscribe(__ -> Log.v(TAG, "Inserting observation: " + mutation))
+            .subscribeOn(Schedulers.io());
       case UPDATE:
         return db.recordDao()
-            .insertOrUpdate(RecordEntity.fromMutation(mutation))
+            .findById(mutation.getRecordId())
+            .doOnSubscribe(__ -> Log.v(TAG, "Applying mutation: " + mutation))
+            // Emit NoSuchElementException if not found.
+            .toSingle()
+            .map(obs -> obs.applyMutation(mutation))
+            .flatMapCompletable(
+                obs -> db.recordDao().insertOrUpdate(obs).subscribeOn(Schedulers.io()))
             .subscribeOn(Schedulers.io());
       default:
         throw LocalDataStoreException.unknownMutationType(mutation.getType());
@@ -274,6 +292,7 @@ public class RoomLocalDataStore implements LocalDataStore {
   private Completable enqueue(ObservationMutation mutation) {
     return db.recordMutationDao()
         .insert(RecordMutationEntity.fromMutation(mutation))
+        .doOnSubscribe(__ -> Log.v(TAG, "Enqueuing mutation: " + mutation))
         .subscribeOn(Schedulers.io());
   }
 

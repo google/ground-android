@@ -31,6 +31,7 @@ import com.google.android.gnd.model.observation.ObservationMutation;
 import com.google.android.gnd.model.observation.ResponseMap;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.AutoValue.CopyAnnotations;
+import com.google.common.collect.ImmutableList;
 
 /** Representation of a {@link Observation} in local db. */
 @AutoValue
@@ -80,6 +81,16 @@ public abstract class RecordEntity {
   @ColumnInfo(name = "responses")
   @NonNull
   public abstract ResponseMap getResponses();
+
+  /**
+   * Returns a new instance whose state is the same as the current one, but with the specified
+   * mutation applied.
+   */
+  public RecordEntity applyMutation(ObservationMutation mutation) {
+    // TODO: Implement conversion between layers in a consistent way, e.g.in separate
+    // converter classes.
+    return applyMutations(ImmutableList.of(RecordMutationEntity.fromMutation(mutation)));
+  }
 
   /**
    * Returns a new instance whose state is the same as the current one, but with the specified
