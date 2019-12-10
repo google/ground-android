@@ -1,11 +1,19 @@
 # Ground for Android
 [![cloud build status](https://storage.googleapis.com/gradle_cache_bucket/status.svg)](https://github.com/google/ground-android)
 
-Ground is a free, map-centric data collection platform for occasionally
-connected devices.
+Ground is an open-source, map-first data collection and analysis platform built
+to seamlessly connect the offline world with cloud-based storage and
+computation. The platform consists of a web app for data management and an
+Android app for offline data collection. Our goal is to provide a "just right"
+data collection solution that meets the needs of community organizers,
+conservationists, humanitarian workers, and researchers addressing some of
+today's most pressing issues.
 
-This is not an officially supported Google product; it is currently being
-developed by volunteers on a best-effort basis.
+**Note:** Ground is not an officially supported Google product, and is developed
+on a best-effort basis.
+
+You can learn more about Ground on the [project
+website](https://google.github.io/ground-platform).
 
 ## Contributing
 
