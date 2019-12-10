@@ -14,22 +14,12 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.persistence.local.room;
+package com.google.android.gnd.rx;
 
-import androidx.room.Dao;
-import androidx.room.Query;
-import io.reactivex.Flowable;
-import io.reactivex.Maybe;
-import java.util.List;
-
-@Dao
-public interface TileDao extends BaseDao<TileEntity> {
-  @Query("SELECT * FROM tile")
-  Flowable<List<TileEntity>> findAll();
-
-  @Query("SELECT * FROM tile WHERE id = :id")
-  Maybe<TileEntity> findById(String id);
-
-  @Query("SELECT * FROM tile WHERE path = :path")
-  Maybe<TileEntity> findByPath(String path);
+/**
+ * Singleton value used for use as value in Rx streams where presence of value indicates some
+ * event, but there's no meaningful value to emit (e.g., button clicks).
+ */
+public enum Nil {
+  NIL
 }

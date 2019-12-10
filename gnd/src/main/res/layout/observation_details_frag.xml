@@ -64,7 +64,7 @@
             android:layout_height="?attr/actionBarSize"
             android:layout_gravity="top"
             android:theme="@style/WhiteToolbarTheme"/>
-  
+
           <TextView
             android:id="@+id/form_name"
             android:textStyle="bold"
@@ -78,7 +78,7 @@
             android:textSize="12sp"
             android:text="@{viewModel.formNameView}"
             />
-  
+
         </LinearLayout>
   
       </androidx.cardview.widget.CardView>

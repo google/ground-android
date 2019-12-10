@@ -14,22 +14,21 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.persistence.local.room;
+package com.google.android.gnd.persistence.remote.firestore;
 
-import androidx.room.Dao;
-import androidx.room.Query;
-import io.reactivex.Flowable;
-import io.reactivex.Maybe;
-import java.util.List;
+import static com.google.android.gnd.persistence.remote.firestore.FirestoreDataStore.ID_COLLECTION;
 
-@Dao
-public interface TileDao extends BaseDao<TileEntity> {
-  @Query("SELECT * FROM tile")
-  Flowable<List<TileEntity>> findAll();
+import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator;
+import com.google.firebase.firestore.FirebaseFirestore;
+import javax.inject.Inject;
 
-  @Query("SELECT * FROM tile WHERE id = :id")
-  Maybe<TileEntity> findById(String id);
+public class FirestoreUuidGenerator implements OfflineUuidGenerator {
 
-  @Query("SELECT * FROM tile WHERE path = :path")
-  Maybe<TileEntity> findByPath(String path);
+  @Inject
+  FirestoreUuidGenerator() {}
+
+  @Override
+  public String generateUuid() {
+    return FirebaseFirestore.getInstance().collection(ID_COLLECTION).document().getId();
+  }
 }
