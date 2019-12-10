@@ -31,6 +31,7 @@ import com.google.android.gnd.persistence.remote.firestore.DocumentNotFoundExcep
 import com.google.android.gnd.persistence.sync.DataSyncWorkManager;
 import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator;
 import com.google.android.gnd.system.AuthenticationManager.User;
+import com.google.android.gnd.system.NetworkManager;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import io.reactivex.Completable;
@@ -58,6 +59,7 @@ public class DataRepository {
   private final FlowableProcessor<Persistable<Project>> activeProject;
   private final OfflineUuidGenerator uuidGenerator;
   private final LocalValueStore localValueStore;
+  private final NetworkManager networkManager;
 
   @Inject
   public DataRepository(
@@ -66,11 +68,13 @@ public class DataRepository {
       DataSyncWorkManager dataSyncWorkManager,
       InMemoryCache cache,
       OfflineUuidGenerator uuidGenerator,
-      LocalValueStore localValueStore) {
+      LocalValueStore localValueStore,
+      NetworkManager networkManager) {
     this.localDataStore = localDataStore;
     this.remoteDataStore = remoteDataStore;
     this.dataSyncWorkManager = dataSyncWorkManager;
     this.cache = cache;
+    this.networkManager = networkManager;
     this.activeProject = BehaviorProcessor.create();
     this.uuidGenerator = uuidGenerator;
     this.localValueStore = localValueStore;
@@ -290,7 +294,6 @@ public class DataRepository {
   }
 
   private boolean isOffline() {
-    // TODO
-    return false;
+    return !networkManager.isNetworkAvailable();
   }
 }
