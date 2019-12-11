@@ -54,7 +54,7 @@ public class InMemoryCacheTest {
   }
 
   @Test
-  public void testSaveFeatures() {
+  public void testPutFeature() {
     assertEquals(0, inMemoryCache.getFeatures().size());
 
     // save feature
@@ -65,7 +65,7 @@ public class InMemoryCacheTest {
   }
 
   @Test
-  public void testDeleteFeatures() {
+  public void testRemoveFeature() {
     inMemoryCache.putFeature(feature);
 
     assertEquals(1, inMemoryCache.getFeatures().size());
@@ -77,7 +77,7 @@ public class InMemoryCacheTest {
   }
 
   @Test
-  public void testSaveActiveProject() {
+  public void testSetActiveProject() {
     inMemoryCache.putFeature(feature);
 
     assertNull(inMemoryCache.getActiveProject());
@@ -91,7 +91,7 @@ public class InMemoryCacheTest {
   }
 
   @Test
-  public void testRemoveActiveProject() {
+  public void testClearActiveProject() {
     inMemoryCache.setActiveProject(project);
     inMemoryCache.putFeature(feature);
 
