@@ -53,7 +53,7 @@ public class ProjectSelectorViewModel extends AbstractViewModel {
                         .activateProject(getProjectSummary(idx).getId())
                         .doOnError(this::onActiveProjectError)
                         .onErrorResumeNext(Single.never()))
-            .subscribe(activeProject::setValue));
+            .subscribe(activeProject::postValue));
 
     AuthenticationManager.User user =
         authManager.getUser().blockingFirst(AuthenticationManager.User.ANONYMOUS);

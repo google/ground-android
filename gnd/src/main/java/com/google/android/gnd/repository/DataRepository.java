@@ -31,9 +31,9 @@ import com.google.android.gnd.persistence.remote.firestore.DocumentNotFoundExcep
 import com.google.android.gnd.persistence.sync.DataSyncWorkManager;
 import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator;
 import com.google.android.gnd.system.AuthenticationManager.User;
-import com.google.android.gnd.system.NetworkManager;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
@@ -59,7 +59,6 @@ public class DataRepository {
   private final FlowableProcessor<Persistable<Project>> activeProject;
   private final OfflineUuidGenerator uuidGenerator;
   private final LocalValueStore localValueStore;
-  private final NetworkManager networkManager;
 
   @Inject
   public DataRepository(
@@ -68,13 +67,11 @@ public class DataRepository {
       DataSyncWorkManager dataSyncWorkManager,
       InMemoryCache cache,
       OfflineUuidGenerator uuidGenerator,
-      LocalValueStore localValueStore,
-      NetworkManager networkManager) {
+      LocalValueStore localValueStore) {
     this.localDataStore = localDataStore;
     this.remoteDataStore = remoteDataStore;
     this.dataSyncWorkManager = dataSyncWorkManager;
     this.cache = cache;
-    this.networkManager = networkManager;
     this.activeProject = BehaviorProcessor.create();
     this.uuidGenerator = uuidGenerator;
     this.localValueStore = localValueStore;
@@ -125,9 +122,18 @@ public class DataRepository {
     Log.d(TAG, " Activating project " + projectId);
     return remoteDataStore
         .loadProject(projectId)
-        .doOnError(e -> Log.e(TAG, "Project not found", e))
-        .doOnSubscribe(__ -> activeProject.onNext(Persistable.loading()))
         .flatMap(project -> localDataStore.insertOrUpdateProject(project).toSingleDefault(project))
+        .onErrorResumeNext(
+            throwable -> {
+              if (throwable instanceof FirebaseFirestoreException) {
+                return localDataStore
+                    .getProjectById(localValueStore.getLastActiveProjectId())
+                    .toSingle();
+              }
+              return Single.error(throwable);
+            })
+        .doOnError(throwable -> Log.e(TAG, "Project not found"))
+        .doOnSubscribe(__ -> activeProject.onNext(Persistable.loading()))
         .doOnSuccess(this::onProjectLoaded);
   }
 
@@ -137,17 +143,17 @@ public class DataRepository {
     localValueStore.setLastActiveProjectId(project.getId());
   }
 
-  private Single<List<Project>> loadProjects(User user) {
-    if (isOffline()) {
-      return localDataStore.getProjects();
-    } else {
-      return remoteDataStore.loadProjectSummaries(user);
-    }
-  }
-
   public Observable<Persistable<List<Project>>> getProjectSummaries(User user) {
     // TODO: Get from load db if network connection not available or remote times out.
-    return loadProjects(user)
+    return remoteDataStore
+        .loadProjectSummaries(user)
+        .onErrorResumeNext(
+            throwable -> {
+              if (throwable instanceof FirebaseFirestoreException) {
+                return localDataStore.getProjects();
+              }
+              return Single.error(throwable);
+            })
         .map(Persistable::loaded)
         .onErrorReturn(Persistable::error)
         .toObservable()
@@ -260,21 +266,13 @@ public class DataRepository {
         .andThen(dataSyncWorkManager.enqueueSyncWorker(feature.getId()));
   }
 
-  private Maybe<Project> loadLastActiveProject() {
-    String projectId = localValueStore.getLastActiveProjectId();
-    if (isOffline()) {
-      return localDataStore.getProjectById(projectId);
-    } else {
-      return Maybe.fromCallable(() -> projectId).flatMap(id -> activateProject(id).toMaybe());
-    }
-  }
-
   /**
    * Reactivates the last active project, emitting true once loaded, or false if no project was
    * previously activated.
    */
   public Single<Boolean> reactivateLastProject() {
-    return loadLastActiveProject()
+    return Maybe.fromCallable(localValueStore::getLastActiveProjectId)
+        .flatMap(id -> activateProject(id).toMaybe())
         .onErrorComplete()
         .doOnComplete(() -> Log.v(TAG, "No previous project found to reactivate"))
         .doOnSuccess(project -> Log.v(TAG, "Reactivated project " + project.getId()))
@@ -291,9 +289,5 @@ public class DataRepository {
     cache.clearActiveProject();
     localValueStore.clearLastActiveProjectId();
     activeProject.onNext(Persistable.notLoaded());
-  }
-
-  private boolean isOffline() {
-    return !networkManager.isNetworkAvailable();
   }
 }
