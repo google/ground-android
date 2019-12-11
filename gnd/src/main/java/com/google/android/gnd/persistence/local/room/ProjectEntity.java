@@ -46,10 +46,6 @@ public abstract class ProjectEntity {
   public abstract String getDescription();
 
   public static ProjectEntity fromProject(Project project) {
-    return fromProject(project, false);
-  }
-
-  public static ProjectEntity fromProject(Project project, boolean active) {
     return ProjectEntity.builder()
         .setId(project.getId())
         .setTitle(project.getTitle())
@@ -66,11 +62,7 @@ public abstract class ProjectEntity {
   }
 
   public static ProjectEntity create(String id, String title, String description) {
-    return builder()
-        .setId(id)
-        .setTitle(title)
-        .setDescription(description)
-        .build();
+    return builder().setId(id).setTitle(title).setDescription(description).build();
   }
 
   public static Builder builder() {

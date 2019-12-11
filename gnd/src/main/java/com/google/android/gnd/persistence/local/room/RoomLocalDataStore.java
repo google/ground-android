@@ -77,7 +77,7 @@ public class RoomLocalDataStore implements LocalDataStore {
   @Override
   public Completable insertOrUpdateProject(Project project) {
     return db.projectDao()
-        .insertOrUpdate(ProjectEntity.fromProject(project, true))
+        .insertOrUpdate(ProjectEntity.fromProject(project))
         .subscribeOn(Schedulers.io());
   }
 
