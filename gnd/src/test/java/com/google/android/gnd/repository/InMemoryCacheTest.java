@@ -56,10 +56,7 @@ public class InMemoryCacheTest {
   @Test
   public void testPutFeature() {
     assertEquals(0, inMemoryCache.getFeatures().size());
-
-    // save feature
     inMemoryCache.putFeature(feature);
-
     assertEquals(1, inMemoryCache.getFeatures().size());
     assertEquals(feature, inMemoryCache.getFeatures().asList().get(0));
   }
@@ -67,41 +64,39 @@ public class InMemoryCacheTest {
   @Test
   public void testRemoveFeature() {
     inMemoryCache.putFeature(feature);
-
     assertEquals(1, inMemoryCache.getFeatures().size());
-
-    // remove feature
     inMemoryCache.removeFeature(feature.getId());
-
     assertEquals(0, inMemoryCache.getFeatures().size());
   }
 
   @Test
   public void testSetActiveProject() {
-    inMemoryCache.putFeature(feature);
-
     assertNull(inMemoryCache.getActiveProject());
-    assertEquals(1, inMemoryCache.getFeatures().size());
-
-    // save project
     inMemoryCache.setActiveProject(project);
-
     assertEquals(project, inMemoryCache.getActiveProject());
+  }
+
+  @Test
+  public void testClearFeaturesOnSetActiveProject() {
+    inMemoryCache.putFeature(feature);
+    assertEquals(1, inMemoryCache.getFeatures().size());
+    inMemoryCache.setActiveProject(project);
     assertEquals(0, inMemoryCache.getFeatures().size());
   }
 
   @Test
   public void testClearActiveProject() {
     inMemoryCache.setActiveProject(project);
-    inMemoryCache.putFeature(feature);
-
     assertNotNull(inMemoryCache.getActiveProject());
-    assertEquals(1, inMemoryCache.getFeatures().size());
-
-    // remove saved project
     inMemoryCache.clearActiveProject();
-
     assertNull(inMemoryCache.getActiveProject());
+  }
+
+  @Test
+  public void testClearFeaturesOnClearActiveProject() {
+    inMemoryCache.putFeature(feature);
+    assertEquals(1, inMemoryCache.getFeatures().size());
+    inMemoryCache.clearActiveProject();
     assertEquals(0, inMemoryCache.getFeatures().size());
   }
 }
