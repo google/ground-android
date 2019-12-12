@@ -54,7 +54,7 @@ public class InMemoryCacheTest {
   }
 
   @Test
-  public void testPutFeature() {
+  public void putFeature() {
     assertEquals(0, inMemoryCache.getFeatures().size());
     inMemoryCache.putFeature(feature);
     assertEquals(1, inMemoryCache.getFeatures().size());
@@ -62,7 +62,7 @@ public class InMemoryCacheTest {
   }
 
   @Test
-  public void testRemoveFeature() {
+  public void removeFeature() {
     inMemoryCache.putFeature(feature);
     assertEquals(1, inMemoryCache.getFeatures().size());
     inMemoryCache.removeFeature(feature.getId());
@@ -70,14 +70,14 @@ public class InMemoryCacheTest {
   }
 
   @Test
-  public void testSetActiveProject() {
+  public void setActiveProject() {
     assertNull(inMemoryCache.getActiveProject());
     inMemoryCache.setActiveProject(project);
     assertEquals(project, inMemoryCache.getActiveProject());
   }
 
   @Test
-  public void testClearFeaturesOnSetActiveProject() {
+  public void clearFeaturesOnSetActiveProject() {
     inMemoryCache.putFeature(feature);
     assertEquals(1, inMemoryCache.getFeatures().size());
     inMemoryCache.setActiveProject(project);
@@ -85,7 +85,7 @@ public class InMemoryCacheTest {
   }
 
   @Test
-  public void testClearActiveProject() {
+  public void clearActiveProject() {
     inMemoryCache.setActiveProject(project);
     assertNotNull(inMemoryCache.getActiveProject());
     inMemoryCache.clearActiveProject();
@@ -93,7 +93,7 @@ public class InMemoryCacheTest {
   }
 
   @Test
-  public void testClearFeaturesOnClearActiveProject() {
+  public void clearFeaturesOnClearActiveProject() {
     inMemoryCache.putFeature(feature);
     assertEquals(1, inMemoryCache.getFeatures().size());
     inMemoryCache.clearActiveProject();
