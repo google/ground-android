@@ -30,6 +30,7 @@ import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.basemap.tile.Tile;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.FeatureMutation;
+import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.model.observation.ObservationMutation;
 import com.google.android.gnd.persistence.local.LocalDataStore;
@@ -38,6 +39,7 @@ import com.google.common.collect.ImmutableSet;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
+import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.schedulers.Schedulers;
 import java.util.List;
@@ -67,6 +69,13 @@ public class RoomLocalDataStore implements LocalDataStore {
   }
 
   @Override
+  public Completable insertOrUpdateLayer(String projectId, Layer layer) {
+    return db.layerDao()
+        .insertOrUpdate(LayerEntity.fromLayer(projectId, layer))
+        .subscribeOn(Schedulers.io());
+  }
+
+  @Override
   public Single<List<Project>> getProjects() {
     return db.projectDao()
         .findAll()
@@ -78,6 +87,9 @@ public class RoomLocalDataStore implements LocalDataStore {
   public Completable insertOrUpdateProject(Project project) {
     return db.projectDao()
         .insertOrUpdate(ProjectEntity.fromProject(project))
+        .andThen(
+            Observable.fromIterable(project.getLayers())
+                .flatMapCompletable(layer -> insertOrUpdateLayer(project.getId(), layer)))
         .subscribeOn(Schedulers.io());
   }
 

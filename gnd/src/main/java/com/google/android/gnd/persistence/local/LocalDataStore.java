@@ -21,6 +21,7 @@ import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.basemap.tile.Tile;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.FeatureMutation;
+import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.model.observation.ObservationMutation;
 import com.google.common.collect.ImmutableList;
@@ -45,6 +46,9 @@ import java.util.List;
  * deltas to allow changes to not rely on prior UI state (i.e., emissions are idempotent).
  */
 public interface LocalDataStore {
+
+  /** Add layer for a project. */
+  Completable insertOrUpdateLayer(String projectId, Layer layer);
 
   /** Load projects stored in local database. */
   Single<List<Project>> getProjects();
