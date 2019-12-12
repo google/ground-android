@@ -30,6 +30,7 @@ import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.basemap.tile.Tile;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.FeatureMutation;
+import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.model.observation.ObservationMutation;
@@ -69,6 +70,13 @@ public class RoomLocalDataStore implements LocalDataStore {
   }
 
   @Override
+  public Completable insertOrUpdateForm(String layerId, Form form) {
+    return db.formDao()
+        .insertOrUpdate(FormEntity.fromForm(layerId, form))
+        .subscribeOn(Schedulers.io());
+  }
+
+  @Override
   public Completable insertOrUpdateLayer(String projectId, Layer layer) {
     return db.layerDao()
         .insertOrUpdate(LayerEntity.fromLayer(projectId, layer))
@@ -89,7 +97,13 @@ public class RoomLocalDataStore implements LocalDataStore {
         .insertOrUpdate(ProjectEntity.fromProject(project))
         .andThen(
             Observable.fromIterable(project.getLayers())
-                .flatMapCompletable(layer -> insertOrUpdateLayer(project.getId(), layer)))
+                .flatMapCompletable(
+                    layer ->
+                        insertOrUpdateLayer(project.getId(), layer)
+                            .andThen(
+                                Observable.fromIterable(layer.getForms())
+                                    .flatMapCompletable(
+                                        form -> insertOrUpdateForm(layer.getId(), form)))))
         .subscribeOn(Schedulers.io());
   }
 
