@@ -17,7 +17,6 @@
 package com.google.android.gnd.repository;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 import com.google.android.gnd.model.Project;
@@ -30,27 +29,25 @@ import org.junit.Test;
 public class InMemoryCacheTest {
 
   private InMemoryCache inMemoryCache;
-  private Project project;
-  private Feature feature;
+
+  private static final Project FAKE_PROJECT =
+      Project.newBuilder()
+          .setId("foo project id")
+          .setTitle("foo title")
+          .setDescription("foo description")
+          .build();;
+
+  private Feature FAKE_FEATURE =
+      Feature.newBuilder()
+          .setId("foo feature id")
+          .setProject(Project.newBuilder().build())
+          .setLayer(Layer.newBuilder().build())
+          .setPoint(Point.newBuilder().setLatitude(0.0).setLongitude(0.0).build())
+          .build();
 
   @Before
   public void setUp() {
     inMemoryCache = new InMemoryCache();
-
-    project =
-        Project.newBuilder()
-            .setId("foo project id")
-            .setTitle("foo title")
-            .setDescription("foo description")
-            .build();
-
-    feature =
-        Feature.newBuilder()
-            .setId("foo feature id")
-            .setProject(Project.newBuilder().build())
-            .setLayer(Layer.newBuilder().build())
-            .setPoint(Point.newBuilder().setLatitude(0.0).setLongitude(0.0).build())
-            .build();
   }
 
   @Test
@@ -60,16 +57,16 @@ public class InMemoryCacheTest {
 
   @Test
   public void putFeature() {
-    inMemoryCache.putFeature(feature);
+    inMemoryCache.putFeature(FAKE_FEATURE);
     assertEquals(1, inMemoryCache.getFeatures().size());
-    assertEquals(feature, inMemoryCache.getFeatures().asList().get(0));
+    assertEquals(FAKE_FEATURE, inMemoryCache.getFeatures().asList().get(0));
   }
 
   @Test
   public void removeFeature() {
-    inMemoryCache.putFeature(feature);
+    inMemoryCache.putFeature(FAKE_FEATURE);
     assertEquals(1, inMemoryCache.getFeatures().size());
-    inMemoryCache.removeFeature(feature.getId());
+    inMemoryCache.removeFeature(FAKE_FEATURE.getId());
     assertEquals(0, inMemoryCache.getFeatures().size());
   }
 
@@ -80,27 +77,27 @@ public class InMemoryCacheTest {
 
   @Test
   public void setActiveProject() {
-    inMemoryCache.setActiveProject(project);
-    assertEquals(project, inMemoryCache.getActiveProject());
+    inMemoryCache.setActiveProject(FAKE_PROJECT);
+    assertEquals(FAKE_PROJECT, inMemoryCache.getActiveProject());
   }
 
   @Test
   public void setActiveProject_ClearsFeatures() {
-    inMemoryCache.putFeature(feature);
-    inMemoryCache.setActiveProject(project);
+    inMemoryCache.putFeature(FAKE_FEATURE);
+    inMemoryCache.setActiveProject(FAKE_PROJECT);
     assertEquals(0, inMemoryCache.getFeatures().size());
   }
 
   @Test
   public void clearActiveProject() {
-    inMemoryCache.setActiveProject(project);
+    inMemoryCache.setActiveProject(FAKE_PROJECT);
     inMemoryCache.clearActiveProject();
     assertNull(inMemoryCache.getActiveProject());
   }
 
   @Test
   public void clearActiveProject_ClearsFeatures() {
-    inMemoryCache.putFeature(feature);
+    inMemoryCache.putFeature(FAKE_FEATURE);
     inMemoryCache.clearActiveProject();
     assertEquals(0, inMemoryCache.getFeatures().size());
   }
