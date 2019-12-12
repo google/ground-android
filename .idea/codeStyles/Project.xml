@@ -8,7 +8,7 @@
       </value>
     </option>
     <AndroidXmlCodeStyleSettings>
-      <option name="ARRANGEMENT_SETTINGS_MIGRATED_TO_191" value="true" />      
+      <option name="ARRANGEMENT_SETTINGS_MIGRATED_TO_191" value="true" />
       <option name="LAYOUT_SETTINGS">
         <value>
           <option name="INSERT_BLANK_LINE_BEFORE_TAG" value="false" />
@@ -200,6 +200,7 @@
       </indentOptions>
     </codeStyleSettings>
     <codeStyleSettings language="PROTO">
+      <option name="RIGHT_MARGIN" value="80" />
       <indentOptions>
         <option name="INDENT_SIZE" value="2" />
         <option name="CONTINUATION_INDENT_SIZE" value="2" />
@@ -359,3 +360,4 @@
     </codeStyleSettings>
   </code_scheme>
 </component>
+
