@@ -88,7 +88,6 @@ public class InMemoryCacheTest {
     inMemoryCache.setActiveProject(FAKE_PROJECT);
 
     assertThat(inMemoryCache.getFeatures()).isEmpty();
-    ;
   }
 
   @Test
