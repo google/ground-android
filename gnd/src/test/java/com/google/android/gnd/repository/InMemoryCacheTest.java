@@ -16,8 +16,7 @@
 
 package com.google.android.gnd.repository;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static com.google.common.truth.Truth.assertThat;
 
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.feature.Feature;
@@ -52,53 +51,59 @@ public class InMemoryCacheTest {
 
   @Test
   public void getFeatures_EmptyIfNoneAdded() {
-    assertEquals(0, inMemoryCache.getFeatures().size());
+    assertThat(inMemoryCache.getFeatures()).isEmpty();
   }
 
   @Test
   public void putFeature() {
     inMemoryCache.putFeature(FAKE_FEATURE);
-    assertEquals(1, inMemoryCache.getFeatures().size());
-    assertEquals(FAKE_FEATURE, inMemoryCache.getFeatures().asList().get(0));
+
+    assertThat(inMemoryCache.getFeatures()).containsExactly(FAKE_FEATURE);
   }
 
   @Test
   public void removeFeature() {
     inMemoryCache.putFeature(FAKE_FEATURE);
-    assertEquals(1, inMemoryCache.getFeatures().size());
     inMemoryCache.removeFeature(FAKE_FEATURE.getId());
-    assertEquals(0, inMemoryCache.getFeatures().size());
+
+    assertThat(inMemoryCache.getFeatures()).isEmpty();
+    ;
   }
 
   @Test
   public void getActiveProject_NullIfUnset() {
-    assertNull(inMemoryCache.getActiveProject());
+    assertThat(inMemoryCache.getActiveProject()).isNull();
   }
 
   @Test
   public void setActiveProject() {
     inMemoryCache.setActiveProject(FAKE_PROJECT);
-    assertEquals(FAKE_PROJECT, inMemoryCache.getActiveProject());
+
+    assertThat(inMemoryCache.getActiveProject()).isEqualTo(FAKE_PROJECT);
   }
 
   @Test
   public void setActiveProject_ClearsFeatures() {
     inMemoryCache.putFeature(FAKE_FEATURE);
     inMemoryCache.setActiveProject(FAKE_PROJECT);
-    assertEquals(0, inMemoryCache.getFeatures().size());
+
+    assertThat(inMemoryCache.getFeatures()).isEmpty();
+    ;
   }
 
   @Test
   public void clearActiveProject() {
     inMemoryCache.setActiveProject(FAKE_PROJECT);
     inMemoryCache.clearActiveProject();
-    assertNull(inMemoryCache.getActiveProject());
+
+    assertThat(inMemoryCache.getActiveProject()).isNull();
   }
 
   @Test
   public void clearActiveProject_ClearsFeatures() {
     inMemoryCache.putFeature(FAKE_FEATURE);
     inMemoryCache.clearActiveProject();
-    assertEquals(0, inMemoryCache.getFeatures().size());
+
+    assertThat(inMemoryCache.getFeatures()).isEmpty();
   }
 }
