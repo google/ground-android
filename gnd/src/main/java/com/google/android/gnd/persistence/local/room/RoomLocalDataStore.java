@@ -95,16 +95,21 @@ public class RoomLocalDataStore implements LocalDataStore {
   public Completable insertOrUpdateProject(Project project) {
     return db.projectDao()
         .insertOrUpdate(ProjectEntity.fromProject(project))
-        .andThen(
-            Observable.fromIterable(project.getLayers())
-                .flatMapCompletable(
-                    layer ->
-                        insertOrUpdateLayer(project.getId(), layer)
-                            .andThen(
-                                Observable.fromIterable(layer.getForms())
-                                    .flatMapCompletable(
-                                        form -> insertOrUpdateForm(layer.getId(), form)))))
+        .andThen(insertOrUpdateLayers(project.getId(), project.getLayers()))
         .subscribeOn(Schedulers.io());
+  }
+
+  private Completable insertOrUpdateLayers(String projectId, List<Layer> layers) {
+    return Observable.fromIterable(layers)
+        .flatMapCompletable(
+            layer ->
+                insertOrUpdateLayer(projectId, layer)
+                    .andThen(insertOrUpdateForms(layer.getId(), layer.getForms())));
+  }
+
+  private Completable insertOrUpdateForms(String layerId, List<Form> forms) {
+    return Observable.fromIterable(forms)
+        .flatMapCompletable(form -> insertOrUpdateForm(layerId, form));
   }
 
   @Override
