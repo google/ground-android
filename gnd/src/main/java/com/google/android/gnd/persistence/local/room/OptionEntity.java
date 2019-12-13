@@ -62,6 +62,13 @@ public abstract class OptionEntity {
         .build();
   }
 
+  public static Option toOption(OptionEntity optionEntity) {
+    return Option.newBuilder()
+        .setCode(optionEntity.getCode())
+        .setLabel(optionEntity.getLabel())
+        .build();
+  }
+
   public static OptionEntity create(String code, String label, String fieldId) {
     return builder().setCode(code).setLabel(label).setFieldId(fieldId).build();
   }

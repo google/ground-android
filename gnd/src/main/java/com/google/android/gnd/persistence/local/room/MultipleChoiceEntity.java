@@ -23,8 +23,11 @@ import androidx.room.ForeignKey;
 import androidx.room.PrimaryKey;
 import com.google.android.gnd.model.form.MultipleChoice;
 import com.google.android.gnd.model.form.MultipleChoice.Cardinality;
+import com.google.android.gnd.model.form.Option;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.AutoValue.CopyAnnotations;
+import com.google.common.collect.ImmutableList;
+import java.util.List;
 
 @AutoValue
 @Entity(
@@ -56,6 +59,19 @@ public abstract class MultipleChoiceEntity {
         .setFieldId(fieldId)
         .setCardinality(multipleChoice.getCardinality())
         .build();
+  }
+
+  public static MultipleChoice toMultipleChoice(
+      MultipleChoiceEntity multipleChoiceEntity, List<OptionEntity> optionEntities) {
+    MultipleChoice.Builder multipleChoiceBuilder =
+        MultipleChoice.newBuilder().setCardinality(multipleChoiceEntity.getCardinality());
+
+    ImmutableList.Builder<Option> listBuilder = ImmutableList.builder();
+    for (OptionEntity optionEntity : optionEntities) {
+      listBuilder.add(OptionEntity.toOption(optionEntity));
+    }
+
+    return multipleChoiceBuilder.setOptions(listBuilder.build()).build();
   }
 
   public static MultipleChoiceEntity create(Cardinality cardinality, String fieldId) {

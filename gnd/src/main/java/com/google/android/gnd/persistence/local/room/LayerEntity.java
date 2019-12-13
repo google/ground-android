@@ -74,6 +74,22 @@ public abstract class LayerEntity {
         .build();
   }
 
+  public static Layer toLayer(LayerData layerData) {
+    LayerEntity layerEntity = layerData.layerEntity;
+    Layer.Builder layerBuilder =
+        Layer.newBuilder()
+            .setId(layerEntity.getId())
+            .setDefaultStyle(layerEntity.getDefaultStyle())
+            .setItemLabel(layerEntity.getItemLabel())
+            .setListHeading(layerEntity.getListHeading());
+
+    for (FormData formData : layerData.forms) {
+      layerBuilder.addForm(FormEntity.toForm(formData));
+    }
+
+    return layerBuilder.build();
+  }
+
   public static LayerEntity create(
       String id, String listHeading, String itemLabel, Style defaultStyle, String projectId) {
     return builder()

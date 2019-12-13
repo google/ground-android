@@ -131,7 +131,7 @@ public class RoomLocalDataStore implements LocalDataStore {
   @Override
   public Single<List<Project>> getProjects() {
     return db.projectDao()
-        .findAll()
+        .loadProjectData()
         .map(list -> stream(list).map(ProjectEntity::toProject).collect(toList()))
         .subscribeOn(Schedulers.io());
   }
@@ -168,7 +168,7 @@ public class RoomLocalDataStore implements LocalDataStore {
   @Override
   public Maybe<Project> getProjectById(String id) {
     return db.projectDao()
-        .getProjectById(id)
+        .getProjectDataById(id)
         .map(ProjectEntity::toProject)
         .subscribeOn(Schedulers.io());
   }

@@ -20,10 +20,12 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
+import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 import com.google.android.gnd.model.Project;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.AutoValue.CopyAnnotations;
+import java.util.List;
 
 @AutoValue
 @Entity(tableName = "project")
@@ -45,6 +47,8 @@ public abstract class ProjectEntity {
   @ColumnInfo(name = "description")
   public abstract String getDescription();
 
+  @Ignore public List<LayerEntity> layerEntities;
+
   public static ProjectEntity fromProject(Project project) {
     return ProjectEntity.builder()
         .setId(project.getId())
@@ -53,12 +57,20 @@ public abstract class ProjectEntity {
         .build();
   }
 
-  public static Project toProject(ProjectEntity entity) {
-    return Project.newBuilder()
-        .setId(entity.getId())
-        .setTitle(entity.getTitle())
-        .setDescription(entity.getDescription())
-        .build();
+  public static Project toProject(ProjectData projectData) {
+    ProjectEntity projectEntity = projectData.projectEntity;
+    Project.Builder projectBuilder =
+        Project.newBuilder()
+            .setId(projectEntity.getId())
+            .setTitle(projectEntity.getTitle())
+            .setDescription(projectEntity.getDescription());
+
+    for (LayerData layerData : projectData.layers) {
+      LayerEntity layerEntity = layerData.layerEntity;
+      projectBuilder.putLayer(layerEntity.getId(), LayerEntity.toLayer(layerData));
+    }
+
+    return projectBuilder.build();
   }
 
   public static ProjectEntity create(String id, String title, String description) {

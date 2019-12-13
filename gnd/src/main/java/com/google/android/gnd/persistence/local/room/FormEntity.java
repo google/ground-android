@@ -22,9 +22,11 @@ import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.ForeignKey;
 import androidx.room.PrimaryKey;
+import com.google.android.gnd.model.form.Element;
 import com.google.android.gnd.model.form.Form;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.AutoValue.CopyAnnotations;
+import com.google.common.collect.ImmutableList;
 
 @AutoValue
 @Entity(
@@ -59,6 +61,23 @@ public abstract class FormEntity {
         .setLayerId(layerId)
         .setTitle(form.getTitle())
         .build();
+  }
+
+  public static Form toForm(FormData formData) {
+    FormEntity formEntity = formData.formEntity;
+    Form.Builder formBuilder =
+        Form.newBuilder().setId(formEntity.getId()).setTitle(formEntity.getTitle());
+
+    ImmutableList.Builder<Element> listBuilder = ImmutableList.builder();
+    for (FieldData fieldData : formData.fields) {
+      for (ElementEntity elementEntity : formData.elementEntities) {
+        if (fieldData.fieldEntity.getId().equals(elementEntity.getFieldId())) {
+          listBuilder.add(ElementEntity.toElement(elementEntity, fieldData));
+        }
+      }
+    }
+
+    return formBuilder.setElements(listBuilder.build()).build();
   }
 
   public static FormEntity create(String id, String title, String layerId) {

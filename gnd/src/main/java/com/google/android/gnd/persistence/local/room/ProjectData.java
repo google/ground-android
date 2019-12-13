@@ -1,0 +1,62 @@
+/*
+ * Copyright 2019 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.google.android.gnd.persistence.local.room;
+
+import androidx.room.Embedded;
+import androidx.room.Relation;
+import java.util.List;
+
+/**
+ * Represents relationship between different entities.
+ *
+ * <p>Querying any of the below data class automatically loads the field annotated as @Relation.
+ */
+public class ProjectData {
+
+  @Embedded public ProjectEntity projectEntity;
+
+  @Relation(parentColumn = "id", entityColumn = "project_id", entity = LayerEntity.class)
+  public List<LayerData> layers;
+}
+
+class LayerData {
+  @Embedded public LayerEntity layerEntity;
+
+  @Relation(parentColumn = "id", entityColumn = "layer_id", entity = FormEntity.class)
+  public List<FormData> forms;
+}
+
+class FormData {
+
+  @Embedded public FormEntity formEntity;
+
+  @Relation(parentColumn = "id", entityColumn = "form_id", entity = ElementEntity.class)
+  public List<ElementEntity> elementEntities;
+
+  @Relation(parentColumn = "id", entityColumn = "form_id", entity = FieldEntity.class)
+  public List<FieldData> fields;
+}
+
+class FieldData {
+  @Embedded public FieldEntity fieldEntity;
+
+  @Relation(parentColumn = "id", entityColumn = "field_id", entity = MultipleChoiceEntity.class)
+  public List<MultipleChoiceEntity> multipleChoiceEntities;
+
+  @Relation(parentColumn = "id", entityColumn = "field_id", entity = OptionEntity.class)
+  public List<OptionEntity> optionEntities;
+}

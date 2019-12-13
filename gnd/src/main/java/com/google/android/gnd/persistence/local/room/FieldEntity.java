@@ -26,6 +26,7 @@ import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.form.Field.Type;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.AutoValue.CopyAnnotations;
+import java.util.List;
 
 @AutoValue
 @Entity(
@@ -70,6 +71,28 @@ public abstract class FieldEntity {
         .setRequired(field.isRequired())
         .setType(field.getType())
         .setFormId(formId)
+        .build();
+  }
+
+  public static Field toField(FieldData fieldData) {
+    FieldEntity fieldEntity = fieldData.fieldEntity;
+    Field.Builder fieldBuilder =
+        Field.newBuilder()
+            .setId(fieldEntity.getId())
+            .setLabel(fieldEntity.getLabel())
+            .setRequired(fieldEntity.isRequired())
+            .setType(fieldEntity.getType());
+
+    List<MultipleChoiceEntity> multipleChoiceEntities = fieldData.multipleChoiceEntities;
+
+    if (multipleChoiceEntities.size() != 1) {
+      throw new IllegalArgumentException("More than 1 multiple choice found for field");
+    }
+
+    return fieldBuilder
+        .setMultipleChoice(
+            MultipleChoiceEntity.toMultipleChoice(
+                multipleChoiceEntities.get(0), fieldData.optionEntities))
         .build();
   }
 

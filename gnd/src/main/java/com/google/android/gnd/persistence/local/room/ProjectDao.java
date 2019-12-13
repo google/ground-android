@@ -31,8 +31,8 @@ public interface ProjectDao extends BaseDao<ProjectEntity> {
   Completable deleteProject(ProjectEntity projectEntity);
 
   @Query("SELECT * FROM project")
-  Single<List<ProjectEntity>> findAll();
+  Single<List<ProjectData>> loadProjectData();
 
   @Query("SELECT * FROM project WHERE id = :id")
-  Maybe<ProjectEntity> getProjectById(String id);
+  Maybe<ProjectData> getProjectDataById(String id);
 }

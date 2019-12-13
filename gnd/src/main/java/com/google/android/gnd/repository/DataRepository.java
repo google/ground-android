@@ -132,7 +132,7 @@ public class DataRepository {
               }
               return Single.error(throwable);
             })
-        .doOnError(throwable -> Log.e(TAG, "Project not found"))
+        .doOnError(throwable -> Log.e(TAG, "Project not found " + projectId))
         .doOnSubscribe(__ -> activeProject.onNext(Persistable.loading()))
         .doOnSuccess(this::onProjectLoaded);
   }
