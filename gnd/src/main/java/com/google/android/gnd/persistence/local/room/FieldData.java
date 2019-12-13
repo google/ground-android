@@ -21,14 +21,16 @@ import androidx.room.Relation;
 import java.util.List;
 
 /**
- * Represents relationship between ProjectEntity and LayerEntity.
+ * Represents relationship among FieldEntity, MultipleChoiceEntity and OptionEntity.
  *
  * <p>Querying any of the below data class automatically loads the field annotated as @Relation.
  */
-public class ProjectData {
+public class FieldData {
+  @Embedded public FieldEntity fieldEntity;
 
-  @Embedded public ProjectEntity projectEntity;
+  @Relation(parentColumn = "id", entityColumn = "field_id", entity = MultipleChoiceEntity.class)
+  public List<MultipleChoiceEntity> multipleChoiceEntities;
 
-  @Relation(parentColumn = "id", entityColumn = "project_id", entity = LayerEntity.class)
-  public List<LayerData> layers;
+  @Relation(parentColumn = "id", entityColumn = "field_id", entity = OptionEntity.class)
+  public List<OptionEntity> optionEntities;
 }
