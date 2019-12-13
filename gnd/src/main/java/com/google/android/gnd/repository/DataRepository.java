@@ -187,8 +187,7 @@ public class DataRepository {
   }
 
   private Completable mergeRemoteRecords(ImmutableList<Observation> observations) {
-    return Observable.fromIterable(observations)
-        .flatMapCompletable(record -> localDataStore.mergeRecord(record));
+    return Observable.fromIterable(observations).flatMapCompletable(localDataStore::mergeRecord);
   }
 
   // TODO(#127): Decouple Project from Feature and remove projectId.
@@ -228,7 +227,7 @@ public class DataRepository {
 
   private Single<Project> getProject(String projectId) {
     // TODO: Try to load from db if network not available or times out.
-    return Maybe.fromCallable(() -> cache.getActiveProject())
+    return Maybe.fromCallable(cache::getActiveProject)
         .filter(p -> projectId.equals(p.getId()))
         .switchIfEmpty(remoteDataStore.loadProject(projectId));
   }
