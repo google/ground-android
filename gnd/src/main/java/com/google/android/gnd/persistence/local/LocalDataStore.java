@@ -22,6 +22,7 @@ import com.google.android.gnd.model.basemap.tile.Tile;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.FeatureMutation;
 import com.google.android.gnd.model.form.Element;
+import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.model.observation.Observation;
@@ -49,7 +50,10 @@ import java.util.List;
  */
 public interface LocalDataStore {
 
-  /** Add form for a project layer. */
+  /** Add a field for a form element. */
+  Completable insertOrUpdateField(Field field);
+
+  /** Add element for a form. */
   Completable insertOrUpdateElement(String formId, Element element);
 
   /** Add form for a project layer. */

@@ -33,6 +33,7 @@ import androidx.room.TypeConverters;
       ElementEntity.class,
       FeatureEntity.class,
       FeatureMutationEntity.class,
+      FieldEntity.class,
       FormEntity.class,
       LayerEntity.class,
       ProjectEntity.class,
@@ -41,10 +42,11 @@ import androidx.room.TypeConverters;
       TileEntity.class
     },
     // TODO(#128): Reset version to 1 before releasing.
-    version = 19,
+    version = 21,
     exportSchema = false)
 @TypeConverters({
     ElementTypeConverter.class,
+    FieldTypeConverter.class,
     MutationEntityType.class,
     EntityState.class,
     ResponseDeltasTypeConverter.class,
@@ -59,6 +61,8 @@ public abstract class LocalDatabase extends RoomDatabase {
   public abstract FeatureDao featureDao();
 
   public abstract FeatureMutationDao featureMutationDao();
+
+  public abstract FieldDao fieldDao();
 
   public abstract FormDao formDao();
 

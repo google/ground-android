@@ -31,6 +31,7 @@ import com.google.android.gnd.model.basemap.tile.Tile;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.FeatureMutation;
 import com.google.android.gnd.model.form.Element;
+import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.model.observation.Observation;
@@ -71,9 +72,15 @@ public class RoomLocalDataStore implements LocalDataStore {
   }
 
   @Override
+  public Completable insertOrUpdateField(Field field) {
+    return db.fieldDao().insertOrUpdate(FieldEntity.fromField(field)).subscribeOn(Schedulers.io());
+  }
+
+  @Override
   public Completable insertOrUpdateElement(String formId, Element element) {
     return db.elementDao()
         .insertOrUpdate(ElementEntity.fromElement(formId, element))
+        .andThen(insertOrUpdateField(element.getField()))
         .subscribeOn(Schedulers.io());
   }
 
