@@ -20,6 +20,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
+import androidx.room.ForeignKey;
 import androidx.room.PrimaryKey;
 import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.form.Field.Type;
@@ -27,7 +28,14 @@ import com.google.auto.value.AutoValue;
 import com.google.auto.value.AutoValue.CopyAnnotations;
 
 @AutoValue
-@Entity(tableName = "field")
+@Entity(
+    tableName = "field",
+    foreignKeys =
+        @ForeignKey(
+            entity = FormEntity.class,
+            parentColumns = "id",
+            childColumns = "form_id",
+            onDelete = ForeignKey.CASCADE))
 public abstract class FieldEntity {
 
   @CopyAnnotations
@@ -50,17 +58,30 @@ public abstract class FieldEntity {
   @ColumnInfo(name = "is_required")
   public abstract boolean isRequired();
 
-  public static FieldEntity fromField(Field field) {
+  @CopyAnnotations
+  @Nullable
+  @ColumnInfo(name = "form_id")
+  public abstract String getFormId();
+
+  public static FieldEntity fromField(String formId, Field field) {
     return FieldEntity.builder()
         .setId(field.getId())
         .setLabel(field.getLabel())
         .setRequired(field.isRequired())
         .setType(field.getType())
+        .setFormId(formId)
         .build();
   }
 
-  public static FieldEntity create(String id, Type type, String label, boolean required) {
-    return builder().setId(id).setType(type).setLabel(label).setRequired(required).build();
+  public static FieldEntity create(
+      String id, Type type, String label, boolean required, String formId) {
+    return builder()
+        .setId(id)
+        .setType(type)
+        .setLabel(label)
+        .setRequired(required)
+        .setFormId(formId)
+        .build();
   }
 
   public static Builder builder() {
@@ -77,6 +98,8 @@ public abstract class FieldEntity {
     public abstract Builder setLabel(String label);
 
     public abstract Builder setRequired(boolean required);
+
+    public abstract Builder setFormId(String formId);
 
     public abstract FieldEntity build();
   }

@@ -95,9 +95,9 @@ public class RoomLocalDataStore implements LocalDataStore {
   }
 
   @Override
-  public Completable insertOrUpdateField(Field field) {
+  public Completable insertOrUpdateField(String formId, Field field) {
     return db.fieldDao()
-        .insertOrUpdate(FieldEntity.fromField(field))
+        .insertOrUpdate(FieldEntity.fromField(formId, field))
         .andThen(
             Observable.fromCallable(() -> field)
                 .filter(__ -> field.getMultipleChoice() != null)
@@ -110,7 +110,7 @@ public class RoomLocalDataStore implements LocalDataStore {
   public Completable insertOrUpdateElement(String formId, Element element) {
     return db.elementDao()
         .insertOrUpdate(ElementEntity.fromElement(formId, element))
-        .andThen(insertOrUpdateField(element.getField()))
+        .andThen(insertOrUpdateField(formId, element.getField()))
         .subscribeOn(Schedulers.io());
   }
 

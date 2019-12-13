@@ -59,7 +59,7 @@ public interface LocalDataStore {
   Completable insertOrUpdateMultipleChoice(String fieldId, MultipleChoice multipleChoice);
 
   /** Add a field for a form element. */
-  Completable insertOrUpdateField(Field field);
+  Completable insertOrUpdateField(String formId, Field field);
 
   /** Add element for a form. */
   Completable insertOrUpdateElement(String formId, Element element);
