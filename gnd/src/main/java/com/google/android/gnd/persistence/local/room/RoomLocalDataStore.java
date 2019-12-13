@@ -33,6 +33,7 @@ import com.google.android.gnd.model.feature.FeatureMutation;
 import com.google.android.gnd.model.form.Element;
 import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.form.Form;
+import com.google.android.gnd.model.form.MultipleChoice;
 import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.model.observation.ObservationMutation;
@@ -72,8 +73,22 @@ public class RoomLocalDataStore implements LocalDataStore {
   }
 
   @Override
+  public Completable insertOrUpdateMultipleChoice(String fieldId, MultipleChoice multipleChoice) {
+    return db.multipleChoiceDao()
+        .insertOrUpdate(MultipleChoiceEntity.fromMultipleChoice(fieldId, multipleChoice))
+        .subscribeOn(Schedulers.io());
+  }
+
+  @Override
   public Completable insertOrUpdateField(Field field) {
-    return db.fieldDao().insertOrUpdate(FieldEntity.fromField(field)).subscribeOn(Schedulers.io());
+    return db.fieldDao()
+        .insertOrUpdate(FieldEntity.fromField(field))
+        .andThen(
+            Observable.fromCallable(() -> field)
+                .filter(__ -> field.getMultipleChoice() != null)
+                .flatMapCompletable(
+                    __ -> insertOrUpdateMultipleChoice(field.getId(), field.getMultipleChoice())))
+        .subscribeOn(Schedulers.io());
   }
 
   @Override

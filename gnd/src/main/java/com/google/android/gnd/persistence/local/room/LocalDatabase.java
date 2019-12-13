@@ -36,15 +36,17 @@ import androidx.room.TypeConverters;
       FieldEntity.class,
       FormEntity.class,
       LayerEntity.class,
+      MultipleChoiceEntity.class,
       ProjectEntity.class,
       RecordEntity.class,
       RecordMutationEntity.class,
       TileEntity.class
     },
     // TODO(#128): Reset version to 1 before releasing.
-    version = 21,
+    version = 23,
     exportSchema = false)
 @TypeConverters({
+    CardinalityTypeConverter.class,
     ElementTypeConverter.class,
     FieldTypeConverter.class,
     MutationEntityType.class,
@@ -67,6 +69,8 @@ public abstract class LocalDatabase extends RoomDatabase {
   public abstract FormDao formDao();
 
   public abstract LayerDao layerDao();
+
+  public abstract MultipleChoiceDao multipleChoiceDao();
 
   public abstract ProjectDao projectDao();
 
