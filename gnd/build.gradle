@@ -45,6 +45,7 @@ project.ext {
     streamSupportVersion = "1.6.3"
     supportLibraryVersion = "1.0.0-beta01"
     tabLayoutHelper = "0.9.0"
+    truthVersion = "1.0"
     workVersion = "2.0.1"
 }
 
@@ -180,9 +181,9 @@ dependencies {
     implementation "androidx.work:work-rxjava2:$workVersion"
     androidTestImplementation "androidx.work:work-testing:$workVersion"
 
-
     // Testing
     testImplementation "junit:junit:$project.junitVersion"
+    testImplementation "com.google.truth:truth:$project.truthVersion"
 
     implementation "com.uber.autodispose:autodispose-android:$project.autoDisposeVersion"
     implementation "com.uber.autodispose:autodispose-android-archcomponents:$project.autoDisposeVersion"
