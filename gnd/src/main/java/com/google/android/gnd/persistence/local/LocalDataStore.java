@@ -25,6 +25,7 @@ import com.google.android.gnd.model.form.Element;
 import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.model.form.MultipleChoice;
+import com.google.android.gnd.model.form.Option;
 import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.model.observation.ObservationMutation;
@@ -50,6 +51,9 @@ import java.util.List;
  * deltas to allow changes to not rely on prior UI state (i.e., emissions are idempotent).
  */
 public interface LocalDataStore {
+
+  /** Add an option for a multiple choice field. */
+  Completable insertOrUpdateOption(String fieldId, Option option);
 
   /** Add a field for a form element. */
   Completable insertOrUpdateMultipleChoice(String fieldId, MultipleChoice multipleChoice);
