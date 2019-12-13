@@ -19,6 +19,7 @@ package com.google.android.gnd.persistence.local.room;
 import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
+import androidx.room.ForeignKey;
 import androidx.room.PrimaryKey;
 import com.google.android.gnd.model.form.MultipleChoice;
 import com.google.android.gnd.model.form.MultipleChoice.Cardinality;
@@ -26,7 +27,14 @@ import com.google.auto.value.AutoValue;
 import com.google.auto.value.AutoValue.CopyAnnotations;
 
 @AutoValue
-@Entity(tableName = "multiple_choice")
+@Entity(
+    tableName = "multiple_choice",
+    foreignKeys =
+        @ForeignKey(
+            entity = FieldEntity.class,
+            parentColumns = "id",
+            childColumns = "field_id",
+            onDelete = ForeignKey.CASCADE))
 public abstract class MultipleChoiceEntity {
 
   @PrimaryKey(autoGenerate = true)

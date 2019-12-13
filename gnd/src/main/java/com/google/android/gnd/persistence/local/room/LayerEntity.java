@@ -20,6 +20,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
+import androidx.room.ForeignKey;
 import androidx.room.PrimaryKey;
 import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.model.layer.Style;
@@ -27,7 +28,14 @@ import com.google.auto.value.AutoValue;
 import com.google.auto.value.AutoValue.CopyAnnotations;
 
 @AutoValue
-@Entity(tableName = "layer")
+@Entity(
+    tableName = "layer",
+    foreignKeys =
+        @ForeignKey(
+            entity = ProjectEntity.class,
+            parentColumns = "id",
+            childColumns = "project_id",
+            onDelete = ForeignKey.CASCADE))
 public abstract class LayerEntity {
 
   @CopyAnnotations

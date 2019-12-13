@@ -20,6 +20,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
+import androidx.room.ForeignKey;
 import androidx.room.PrimaryKey;
 import com.google.android.gnd.model.form.Element;
 import com.google.android.gnd.model.form.Element.Type;
@@ -27,7 +28,14 @@ import com.google.auto.value.AutoValue;
 import com.google.auto.value.AutoValue.CopyAnnotations;
 
 @AutoValue
-@Entity(tableName = "element")
+@Entity(
+    tableName = "element",
+    foreignKeys =
+        @ForeignKey(
+            entity = FormEntity.class,
+            parentColumns = "id",
+            childColumns = "form_id",
+            onDelete = ForeignKey.CASCADE))
 public abstract class ElementEntity {
 
   @PrimaryKey(autoGenerate = true)
