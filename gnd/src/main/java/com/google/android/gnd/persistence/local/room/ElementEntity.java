@@ -25,7 +25,6 @@ import androidx.room.Index;
 import androidx.room.PrimaryKey;
 import com.google.android.gnd.model.form.Element;
 import com.google.android.gnd.model.form.Element.Type;
-import com.google.android.gnd.model.form.Field;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.AutoValue.CopyAnnotations;
 
@@ -60,21 +59,17 @@ public abstract class ElementEntity {
   public abstract String getFieldId();
 
   public static ElementEntity fromElement(String formId, Element element) {
-    String fieldId = element.getField() != null ? element.getField().getId() : null;
     return ElementEntity.builder()
         .setFormId(formId)
         .setType(element.getType())
-        .setFieldId(fieldId)
+        .setFieldId(element.getField() == null ? null : element.getField().getId())
         .build();
   }
 
   public static Element toElement(ElementEntity elementEntity, FieldData fieldData) {
-    if (elementEntity.getType() == Type.FIELD) {
-      Field field = FieldEntity.toField(fieldData);
-      return Element.ofField(field);
-    } else {
-      return Element.ofUnknown();
-    }
+    return elementEntity.getType() == Type.FIELD
+        ? Element.ofField(FieldEntity.toField(fieldData))
+        : Element.ofUnknown();
   }
 
   public static ElementEntity create(String formId, Type type, String fieldId) {

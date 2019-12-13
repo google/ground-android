@@ -92,7 +92,7 @@ public abstract class FieldEntity {
     //      throw new IllegalArgumentException("More than 1 multiple choice found for field");
     //    }
 
-    if (multipleChoiceEntities.size() > 0) {
+    if (!multipleChoiceEntities.isEmpty()) {
       fieldBuilder.setMultipleChoice(
           MultipleChoiceEntity.toMultipleChoice(
               multipleChoiceEntities.get(0), fieldData.optionEntities));
