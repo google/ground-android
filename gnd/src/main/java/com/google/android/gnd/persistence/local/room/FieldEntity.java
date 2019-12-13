@@ -21,6 +21,7 @@ import androidx.annotation.Nullable;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.ForeignKey;
+import androidx.room.Index;
 import androidx.room.PrimaryKey;
 import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.form.Field.Type;
@@ -36,7 +37,8 @@ import java.util.List;
             entity = FormEntity.class,
             parentColumns = "id",
             childColumns = "form_id",
-            onDelete = ForeignKey.CASCADE))
+            onDelete = ForeignKey.CASCADE),
+    indices = {@Index("form_id")})
 public abstract class FieldEntity {
 
   @CopyAnnotations

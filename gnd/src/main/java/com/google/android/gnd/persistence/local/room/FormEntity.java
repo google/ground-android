@@ -21,6 +21,7 @@ import androidx.annotation.Nullable;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.ForeignKey;
+import androidx.room.Index;
 import androidx.room.PrimaryKey;
 import com.google.android.gnd.model.form.Element;
 import com.google.android.gnd.model.form.Form;
@@ -36,7 +37,8 @@ import com.google.common.collect.ImmutableList;
             entity = LayerEntity.class,
             parentColumns = "id",
             childColumns = "layer_id",
-            onDelete = ForeignKey.CASCADE))
+            onDelete = ForeignKey.CASCADE),
+    indices = {@Index("layer_id")})
 public abstract class FormEntity {
 
   @CopyAnnotations

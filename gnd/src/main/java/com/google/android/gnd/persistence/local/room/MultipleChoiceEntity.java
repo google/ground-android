@@ -20,6 +20,7 @@ import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.ForeignKey;
+import androidx.room.Index;
 import androidx.room.PrimaryKey;
 import com.google.android.gnd.model.form.MultipleChoice;
 import com.google.android.gnd.model.form.MultipleChoice.Cardinality;
@@ -37,7 +38,8 @@ import java.util.List;
             entity = FieldEntity.class,
             parentColumns = "id",
             childColumns = "field_id",
-            onDelete = ForeignKey.CASCADE))
+            onDelete = ForeignKey.CASCADE),
+    indices = {@Index("field_id")})
 public abstract class MultipleChoiceEntity {
 
   @PrimaryKey(autoGenerate = true)
