@@ -85,15 +85,18 @@ public abstract class FieldEntity {
 
     List<MultipleChoiceEntity> multipleChoiceEntities = fieldData.multipleChoiceEntities;
 
-    if (multipleChoiceEntities.size() != 1) {
-      throw new IllegalArgumentException("More than 1 multiple choice found for field");
+    // TODO: Re-enable this check.
+    //    if (multipleChoiceEntities.size() != 1) {
+    //      throw new IllegalArgumentException("More than 1 multiple choice found for field");
+    //    }
+
+    if (multipleChoiceEntities.size() > 0) {
+      fieldBuilder.setMultipleChoice(
+          MultipleChoiceEntity.toMultipleChoice(
+              multipleChoiceEntities.get(0), fieldData.optionEntities));
     }
 
-    return fieldBuilder
-        .setMultipleChoice(
-            MultipleChoiceEntity.toMultipleChoice(
-                multipleChoiceEntities.get(0), fieldData.optionEntities))
-        .build();
+    return fieldBuilder.build();
   }
 
   public static FieldEntity create(

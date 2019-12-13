@@ -99,7 +99,7 @@ public class RoomLocalDataStore implements LocalDataStore {
     return db.fieldDao()
         .insertOrUpdate(FieldEntity.fromField(formId, field))
         .andThen(
-            Observable.fromCallable(() -> field)
+            Observable.just(field)
                 .filter(__ -> field.getMultipleChoice() != null)
                 .flatMapCompletable(
                     __ -> insertOrUpdateMultipleChoice(field.getId(), field.getMultipleChoice())))
