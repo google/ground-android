@@ -20,12 +20,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
-import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 import com.google.android.gnd.model.Project;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.AutoValue.CopyAnnotations;
-import java.util.List;
 
 @AutoValue
 @Entity(tableName = "project")
@@ -46,8 +44,6 @@ public abstract class ProjectEntity {
   @Nullable
   @ColumnInfo(name = "description")
   public abstract String getDescription();
-
-  @Ignore public List<LayerEntity> layerEntities;
 
   public static ProjectEntity fromProject(Project project) {
     return ProjectEntity.builder()

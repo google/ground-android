@@ -52,24 +52,6 @@ import java.util.List;
  */
 public interface LocalDataStore {
 
-  /** Add an option for a multiple choice field. */
-  Completable insertOrUpdateOption(String fieldId, Option option);
-
-  /** Add a field for a form element. */
-  Completable insertOrUpdateMultipleChoice(String fieldId, MultipleChoice multipleChoice);
-
-  /** Add a field for a form element. */
-  Completable insertOrUpdateField(String formId, Field field);
-
-  /** Add element for a form. */
-  Completable insertOrUpdateElement(String formId, Element element);
-
-  /** Add form for a project layer. */
-  Completable insertOrUpdateForm(String layerId, Form form);
-
-  /** Add layer for a project. */
-  Completable insertOrUpdateLayer(String projectId, Layer layer);
-
   /** Load projects stored in local database. */
   Single<List<Project>> getProjects();
 

@@ -73,18 +73,9 @@ public class RoomLocalDataStore implements LocalDataStore {
             .build();
   }
 
-  @Override
-  public Completable insertOrUpdateOption(String fieldId, Option option) {
+  private Completable insertOrUpdateOption(String fieldId, Option option) {
     return db.optionDao()
         .insertOrUpdate(OptionEntity.fromOption(fieldId, option))
-        .subscribeOn(Schedulers.io());
-  }
-
-  @Override
-  public Completable insertOrUpdateMultipleChoice(String fieldId, MultipleChoice multipleChoice) {
-    return db.multipleChoiceDao()
-        .insertOrUpdate(MultipleChoiceEntity.fromMultipleChoice(fieldId, multipleChoice))
-        .andThen(insertOrUpdateOptions(fieldId, multipleChoice.getOptions()))
         .subscribeOn(Schedulers.io());
   }
 
@@ -94,8 +85,14 @@ public class RoomLocalDataStore implements LocalDataStore {
         .subscribeOn(Schedulers.io());
   }
 
-  @Override
-  public Completable insertOrUpdateField(String formId, Field field) {
+  private Completable insertOrUpdateMultipleChoice(String fieldId, MultipleChoice multipleChoice) {
+    return db.multipleChoiceDao()
+        .insertOrUpdate(MultipleChoiceEntity.fromMultipleChoice(fieldId, multipleChoice))
+        .andThen(insertOrUpdateOptions(fieldId, multipleChoice.getOptions()))
+        .subscribeOn(Schedulers.io());
+  }
+
+  private Completable insertOrUpdateField(String formId, Field field) {
     return db.fieldDao()
         .insertOrUpdate(FieldEntity.fromField(formId, field))
         .andThen(
@@ -106,34 +103,40 @@ public class RoomLocalDataStore implements LocalDataStore {
         .subscribeOn(Schedulers.io());
   }
 
-  @Override
-  public Completable insertOrUpdateElement(String formId, Element element) {
+  private Completable insertOrUpdateElement(String formId, Element element) {
     return db.elementDao()
         .insertOrUpdate(ElementEntity.fromElement(formId, element))
         .andThen(insertOrUpdateField(formId, element.getField()))
         .subscribeOn(Schedulers.io());
   }
 
-  @Override
-  public Completable insertOrUpdateForm(String layerId, Form form) {
+  private Completable insertOrUpdateElements(String formId, ImmutableList<Element> elements) {
+    return Observable.fromIterable(elements)
+        .flatMapCompletable(element -> insertOrUpdateElement(formId, element));
+  }
+
+  private Completable insertOrUpdateForm(String layerId, Form form) {
     return db.formDao()
         .insertOrUpdate(FormEntity.fromForm(layerId, form))
+        .andThen(insertOrUpdateElements(form.getId(), form.getElements()))
         .subscribeOn(Schedulers.io());
   }
 
-  @Override
-  public Completable insertOrUpdateLayer(String projectId, Layer layer) {
+  private Completable insertOrUpdateForms(String layerId, List<Form> forms) {
+    return Observable.fromIterable(forms)
+        .flatMapCompletable(form -> insertOrUpdateForm(layerId, form));
+  }
+
+  private Completable insertOrUpdateLayer(String projectId, Layer layer) {
     return db.layerDao()
         .insertOrUpdate(LayerEntity.fromLayer(projectId, layer))
+        .andThen(insertOrUpdateForms(layer.getId(), layer.getForms()))
         .subscribeOn(Schedulers.io());
   }
 
-  @Override
-  public Single<List<Project>> getProjects() {
-    return db.projectDao()
-        .loadProjectData()
-        .map(list -> stream(list).map(ProjectEntity::toProject).collect(toList()))
-        .subscribeOn(Schedulers.io());
+  private Completable insertOrUpdateLayers(String projectId, List<Layer> layers) {
+    return Observable.fromIterable(layers)
+        .flatMapCompletable(layer -> insertOrUpdateLayer(projectId, layer));
   }
 
   @Override
@@ -144,25 +147,12 @@ public class RoomLocalDataStore implements LocalDataStore {
         .subscribeOn(Schedulers.io());
   }
 
-  private Completable insertOrUpdateLayers(String projectId, List<Layer> layers) {
-    return Observable.fromIterable(layers)
-        .flatMapCompletable(
-            layer ->
-                insertOrUpdateLayer(projectId, layer)
-                    .andThen(insertOrUpdateForms(layer.getId(), layer.getForms())));
-  }
-
-  private Completable insertOrUpdateForms(String layerId, List<Form> forms) {
-    return Observable.fromIterable(forms)
-        .flatMapCompletable(
-            form ->
-                insertOrUpdateForm(layerId, form)
-                    .andThen(insertOrUpdateElements(form.getId(), form.getElements())));
-  }
-
-  private Completable insertOrUpdateElements(String formId, ImmutableList<Element> elements) {
-    return Observable.fromIterable(elements)
-        .flatMapCompletable(element -> insertOrUpdateElement(formId, element));
+  @Override
+  public Single<List<Project>> getProjects() {
+    return db.projectDao()
+        .loadProjectData()
+        .map(list -> stream(list).map(ProjectEntity::toProject).collect(toList()))
+        .subscribeOn(Schedulers.io());
   }
 
   @Override

@@ -44,7 +44,7 @@ import androidx.room.TypeConverters;
       TileEntity.class
     },
     // TODO(#128): Reset version to 1 before releasing.
-    version = 27,
+    version = 28,
     exportSchema = false)
 @TypeConverters({
     CardinalityTypeConverter.class,
