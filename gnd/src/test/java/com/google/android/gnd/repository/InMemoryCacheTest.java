@@ -34,9 +34,9 @@ public class InMemoryCacheTest {
           .setId("foo project id")
           .setTitle("foo title")
           .setDescription("foo description")
-          .build();;
+          .build();
 
-  private Feature FAKE_FEATURE =
+  private static final Feature FAKE_FEATURE =
       Feature.newBuilder()
           .setId("foo feature id")
           .setProject(Project.newBuilder().build())
@@ -67,7 +67,6 @@ public class InMemoryCacheTest {
     inMemoryCache.removeFeature(FAKE_FEATURE.getId());
 
     assertThat(inMemoryCache.getFeatures()).isEmpty();
-    ;
   }
 
   @Test
