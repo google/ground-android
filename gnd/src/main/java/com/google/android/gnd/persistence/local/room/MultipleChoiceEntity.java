@@ -23,7 +23,6 @@ import androidx.room.ForeignKey;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
 import com.google.android.gnd.model.form.MultipleChoice;
-import com.google.android.gnd.model.form.MultipleChoice.Cardinality;
 import com.google.android.gnd.model.form.Option;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.AutoValue.CopyAnnotations;
@@ -47,8 +46,8 @@ public abstract class MultipleChoiceEntity {
 
   @CopyAnnotations
   @NonNull
-  @ColumnInfo(name = "cardinality")
-  public abstract Cardinality getCardinality();
+  @ColumnInfo(name = "type")
+  public abstract MultipleChoiceEntityType getType();
 
   @CopyAnnotations
   @NonNull
@@ -59,14 +58,15 @@ public abstract class MultipleChoiceEntity {
       String fieldId, MultipleChoice multipleChoice) {
     return MultipleChoiceEntity.builder()
         .setFieldId(fieldId)
-        .setCardinality(multipleChoice.getCardinality())
+        .setType(MultipleChoiceEntityType.fromCardinality(multipleChoice.getCardinality()))
         .build();
   }
 
   public static MultipleChoice toMultipleChoice(
       MultipleChoiceEntity multipleChoiceEntity, List<OptionEntity> optionEntities) {
     MultipleChoice.Builder multipleChoiceBuilder =
-        MultipleChoice.newBuilder().setCardinality(multipleChoiceEntity.getCardinality());
+        MultipleChoice.newBuilder()
+            .setCardinality(multipleChoiceEntity.getType().toCardinality());
 
     ImmutableList.Builder<Option> listBuilder = ImmutableList.builder();
     for (OptionEntity optionEntity : optionEntities) {
@@ -76,8 +76,8 @@ public abstract class MultipleChoiceEntity {
     return multipleChoiceBuilder.setOptions(listBuilder.build()).build();
   }
 
-  public static MultipleChoiceEntity create(Cardinality cardinality, String fieldId) {
-    return builder().setCardinality(cardinality).setFieldId(fieldId).build();
+  public static MultipleChoiceEntity create(MultipleChoiceEntityType type, String fieldId) {
+    return builder().setType(type).setFieldId(fieldId).build();
   }
 
   public static Builder builder() {
@@ -87,7 +87,7 @@ public abstract class MultipleChoiceEntity {
   @AutoValue.Builder
   public abstract static class Builder {
 
-    public abstract Builder setCardinality(Cardinality cardinality);
+    public abstract Builder setType(MultipleChoiceEntityType type);
 
     public abstract Builder setFieldId(String fieldId);
 

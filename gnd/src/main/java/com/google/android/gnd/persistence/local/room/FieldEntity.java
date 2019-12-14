@@ -24,7 +24,6 @@ import androidx.room.ForeignKey;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
 import com.google.android.gnd.model.form.Field;
-import com.google.android.gnd.model.form.Field.Type;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.AutoValue.CopyAnnotations;
 import java.util.List;
@@ -50,7 +49,7 @@ public abstract class FieldEntity {
   @CopyAnnotations
   @NonNull
   @ColumnInfo(name = "type")
-  public abstract Type getType();
+  public abstract FieldEntityType getType();
 
   @CopyAnnotations
   @Nullable
@@ -71,7 +70,7 @@ public abstract class FieldEntity {
         .setId(field.getId())
         .setLabel(field.getLabel())
         .setRequired(field.isRequired())
-        .setType(field.getType())
+        .setType(FieldEntityType.fromFieldType(field.getType()))
         .setFormId(formId)
         .build();
   }
@@ -83,7 +82,7 @@ public abstract class FieldEntity {
             .setId(fieldEntity.getId())
             .setLabel(fieldEntity.getLabel())
             .setRequired(fieldEntity.isRequired())
-            .setType(fieldEntity.getType());
+            .setType(fieldEntity.getType().toFieldType());
 
     List<MultipleChoiceEntity> multipleChoiceEntities = fieldData.multipleChoiceEntities;
 
@@ -102,7 +101,7 @@ public abstract class FieldEntity {
   }
 
   public static FieldEntity create(
-      String id, Type type, String label, boolean required, String formId) {
+      String id, FieldEntityType type, String label, boolean required, String formId) {
     return builder()
         .setId(id)
         .setType(type)
@@ -121,7 +120,7 @@ public abstract class FieldEntity {
 
     public abstract Builder setId(String id);
 
-    public abstract Builder setType(Type type);
+    public abstract Builder setType(FieldEntityType type);
 
     public abstract Builder setLabel(String label);
 

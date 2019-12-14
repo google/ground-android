@@ -51,7 +51,7 @@ public abstract class ElementEntity {
   @CopyAnnotations
   @NonNull
   @ColumnInfo(name = "type")
-  public abstract Type getType();
+  public abstract ElementEntityType getType();
 
   @CopyAnnotations
   @Nullable
@@ -61,18 +61,18 @@ public abstract class ElementEntity {
   public static ElementEntity fromElement(String formId, Element element) {
     return ElementEntity.builder()
         .setFormId(formId)
-        .setType(element.getType())
+        .setType(ElementEntityType.fromElementType(element.getType()))
         .setFieldId(element.getField() == null ? null : element.getField().getId())
         .build();
   }
 
   public static Element toElement(ElementEntity elementEntity, FieldData fieldData) {
-    return elementEntity.getType() == Type.FIELD
+    return elementEntity.getType().toElementType() == Type.FIELD
         ? Element.ofField(FieldEntity.toField(fieldData))
         : Element.ofUnknown();
   }
 
-  public static ElementEntity create(String formId, Type type, String fieldId) {
+  public static ElementEntity create(String formId, ElementEntityType type, String fieldId) {
     return builder().setFormId(formId).setType(type).setFieldId(fieldId).build();
   }
 
@@ -85,7 +85,7 @@ public abstract class ElementEntity {
 
     public abstract Builder setFormId(String formId);
 
-    public abstract Builder setType(Type type);
+    public abstract Builder setType(ElementEntityType type);
 
     public abstract Builder setFieldId(String fieldId);
 

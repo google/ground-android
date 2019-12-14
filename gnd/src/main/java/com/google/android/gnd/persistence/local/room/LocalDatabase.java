@@ -44,12 +44,12 @@ import androidx.room.TypeConverters;
       TileEntity.class
     },
     // TODO(#128): Reset version to 1 before releasing.
-    version = 28,
+    version = 30,
     exportSchema = false)
 @TypeConverters({
-    CardinalityTypeConverter.class,
-    ElementTypeConverter.class,
-    FieldTypeConverter.class,
+    ElementEntityType.class,
+    FieldEntityType.class,
+    MultipleChoiceEntityType.class,
     MutationEntityType.class,
     EntityState.class,
     ResponseDeltasTypeConverter.class,
