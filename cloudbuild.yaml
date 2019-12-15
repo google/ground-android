@@ -74,16 +74,12 @@ steps:
     args:
       - '-c'
       - |
-        ./gradlew checkCode || echo "fail" > build-status.txt
+        ./gradlew checkCode > build-status.txt
 
   # Save all reports to GCS
   - name: 'gcr.io/cloud-builders/gsutil'
     id: 'Save reports to GCS'
-    entrypoint: 'bash'
-    args:
-      - '-c'
-      - |
-      - cp -r gnd/build/reports gs://${_ARTIFACT_BUCKET}/$BRANCH_NAME-$BUILD_ID/reports || echo "Reports not generated"
+    args: ['cp', '-r', 'gnd/build/reports', 'gs://${_ARTIFACT_BUCKET}/$BRANCH_NAME-$BUILD_ID/reports']
 
   # Update status badge and fail build if errors were found in "build" step
   - name: 'gcr.io/cloud-builders/gsutil'
@@ -92,9 +88,12 @@ steps:
     args:
       - '-c'
       - |
+        # Display artifact bucket link
+        echo "Reports uploaded to https://console.cloud.google.com/storage/browser/${_ARTIFACT_BUCKET}/$BRANCH_NAME-$BUILD_ID/"
+
         # Update build status if running on master branch
         if [[ "${_PUSH_TO_MASTER}" ]]; then
-          if [[ $(< build-status.txt) == "fail" ]]; then
+          if [[ ! -f build-status.txt ]]; then
             gsutil cp cloud-builder/failure.svg gs://${_CACHE_BUCKET}/status.svg
           else
             gsutil cp cloud-builder/success.svg gs://${_CACHE_BUCKET}/status.svg
@@ -105,9 +104,8 @@ steps:
         fi
 
         # Delayed build fail
-        if [[ $(< build-status.txt) == "fail" ]]; then
-          echo "Build failed."
-          echo "Reports uploaded to https://console.cloud.google.com/storage/browser/${_ARTIFACT_BUCKET}/$BRANCH_NAME-$BUILD_ID/"
+        if [[ ! -f build-status.txt ]]; then
+          cat build-status.txt
           exit 1
         fi
 
@@ -129,7 +127,7 @@ options:
     - 'GRADLE_USER_HOME=/workspace/.gradle'
   logging: GCS_ONLY
 
-# Save the APKs and reports
+# Save the APKs
 artifacts:
   objects:
     location: 'gs://${_ARTIFACT_BUCKET}/$BRANCH_NAME-$BUILD_ID'
