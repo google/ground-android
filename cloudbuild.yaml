@@ -34,14 +34,13 @@ steps:
 
   # Copy the cache from last build
   - name: 'gcr.io/cloud-builders/gsutil'
-    id: &copy_gradle_cache 'Copying gradle build cache tar from GCS'
+    id: 'Copying gradle build cache tar from GCS'
     # we use rsync and not cp so that this step doesn't fail the first time it's run
     args: ['rsync', 'gs://${_CACHE_BUCKET}/', './']
 
   # Extract the copied tar file
   - name: 'gcr.io/$PROJECT_ID/android:base'
-    id: &extract_gradle_cache 'Extracting tar'
-    waitFor: [*copy_gradle_cache]
+    id: 'Extracting tar'
     # This might fail the first time, but that's okay
     entrypoint: 'bash'
     args:
@@ -55,8 +54,8 @@ steps:
   # TODO: Remove this step when .git can be explicitly included in the tarball using .gcloudignore
   # https://github.com/GoogleCloudPlatform/cloud-builders/issues/401
   - name: 'gcr.io/cloud-builders/git'
-    id: &copy_git_dir 'Copy .git directory for versioning'
-    waitFor: [*extract_gradle_cache]
+    id: 'Copy .git directory for versioning'
+    waitFor: ['-']
     entrypoint: 'bash'
     args:
       - '-c'
@@ -67,14 +66,12 @@ steps:
 
   # Build debug APK
   - name: 'gcr.io/$PROJECT_ID/android:28'
-    id: &build_apk 'Build debug apk'
+    id: 'Build debug apk'
     args: ['./gradlew', 'assembleDebug', '-PdisablePreDex']
-    waitFor: [*copy_git_dir]
 
   # Run code quality checks
   - name: 'gcr.io/$PROJECT_ID/android:28'
-    id: &code_check 'Run code checks'
-    waitFor: [*build_apk]
+    id: 'Run code checks'
     args:
       - '-c'
       - |
@@ -82,8 +79,7 @@ steps:
 
   # Save all reports to GCS
   - name: 'gcr.io/cloud-builders/gsutil'
-    id: &save_reports 'Save reports to GCS'
-    waitFor: [*code_check]
+    id: 'Save reports to GCS'
     entrypoint: 'bash'
     args:
       - '-c'
@@ -92,8 +88,7 @@ steps:
 
   # Update status badge and fail build if errors were found in "build" step
   - name: 'gcr.io/cloud-builders/gsutil'
-    id: &deferred_build_result 'Update build status'
-    waitFor: [*save_reports]
+    id: 'Update build status'
     entrypoint: 'bash'
     args:
       - '-c'
@@ -119,19 +114,13 @@ steps:
 
   # Compress the gradle build cache
   - name: 'gcr.io/$PROJECT_ID/android:base'
-    id: &compress_gradle_cache 'Compress gradle build cache'
-    waitFor: [*deferred_build_result]
-    entrypoint: 'bash'
-    args:
-      - '-c'
-      - |
-        tar zcf cache.tgz .gradle
+    id: 'Compress gradle build cache'
+    args: ['tar', 'zcf', 'cache.tgz', '.gradle']
 
   # Store the build cache
   - name: gcr.io/cloud-builders/gsutil
     id: 'Save gradle cache to GCS'
     args: ['cp', 'cache.tgz', 'gs://${_CACHE_BUCKET}/cache.tgz']
-    waitFor: [*compress_gradle_cache]
 
 options:
   logging: GCS_ONLY
