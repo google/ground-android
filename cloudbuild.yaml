@@ -22,7 +22,7 @@
 #  4. Build debug APK
 #  5. Run code quality checks (suppress failure if check fails)
 #  6. Save reports to GCS
-#  7. Update badge status and fail the build if any errors were encountered during step 4
+#  7. Update badge status and fail the build if any errors were encountered during step 5
 #  8. Compress Gradle files
 #  9. Save tarball
 #
@@ -42,7 +42,6 @@ steps:
   - name: 'gcr.io/$PROJECT_ID/android:base'
     id: 'Extracting tar'
     # This might fail the first time, but that's okay
-    entrypoint: 'bash'
     args:
       - '-c'
       - |
@@ -115,7 +114,10 @@ steps:
   # Compress the gradle build cache
   - name: 'gcr.io/$PROJECT_ID/android:base'
     id: 'Compress gradle build cache'
-    args: ['tar', 'zcf', 'cache.tgz', '.gradle']
+    args:
+      - '-c'
+      - |
+        tar zcf cache.tgz .gradle
 
   # Store the build cache
   - name: gcr.io/cloud-builders/gsutil
@@ -124,7 +126,7 @@ steps:
 
 options:
   env:
-    - 'GRADLE_USER_HOME=.gradle'
+    - 'GRADLE_USER_HOME=/workspace/.gradle'
   logging: GCS_ONLY
 
 # Save the APKs and reports
