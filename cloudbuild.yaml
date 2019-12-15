@@ -123,6 +123,8 @@ steps:
     args: ['cp', 'cache.tgz', 'gs://${_CACHE_BUCKET}/cache.tgz']
 
 options:
+  env:
+    - 'GRADLE_USER_HOME=.gradle'
   logging: GCS_ONLY
 
 # Save the APKs and reports
