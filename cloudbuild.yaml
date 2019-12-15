@@ -47,7 +47,7 @@ steps:
     args:
       - '-c'
       - |
-        tar zxvf cache.tgz || echo "No cache found"
+        tar zxf cache.tgz || echo "No cache found"
 
   # Copy .git directory to workspace.
   # This is needed by gitVersioner plugin for auto-generating version code and version name.
@@ -125,7 +125,7 @@ steps:
     args:
       - '-c'
       - |
-        tar zcvf cache.tgz .gradle
+        tar zcf cache.tgz .gradle
 
   # Store the build cache
   - name: gcr.io/cloud-builders/gsutil
