@@ -149,6 +149,9 @@ steps:
       - name: 'build_cache'
         path: '/build_cache'
 
+options:
+  logging: GCS_ONLY
+
 # Save the APKs and reports
 artifacts:
   objects:
