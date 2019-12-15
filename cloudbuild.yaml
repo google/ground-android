@@ -80,11 +80,7 @@ steps:
         ./gradlew assembleDebug && \
         ./gradlew checkCode || echo "fail" > /workspace/build-status.txt
     env:
-      - 'TERM=dumb'
-      - 'JAVA_TOOL_OPTIONS="-Xmx3g"'
       - 'GRADLE_USER_HOME=/build_cache/.gradle'
-      - 'GRADLE_OPTS="-Dorg.gradle.daemon=false -Dorg.gradle.parallel=true -Dorg.gradle.workers.max=8 -Dkotlin.incremental=false"'
-      - 'BRANCH_NAME=$BRANCH_NAME'
     waitFor: ['copy_git_directory']
     volumes:
       - name: 'build_cache'
