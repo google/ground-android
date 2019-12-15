@@ -114,4 +114,9 @@
 
   <rule ref="category/java/security.xml" />
 
+  <rule ref="category/java/codestyle.xml/MethodNamingConventions">
+    <properties>
+      <property name="junit4TestPattern" value="[a-z][a-zA-Z0-9_]*" />
+    </properties>
+  </rule>
 </ruleset>
