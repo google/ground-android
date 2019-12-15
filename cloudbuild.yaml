@@ -70,21 +70,25 @@ steps:
         && mv tmp/.git . \
         && rm -rf tmp
 
-  # Build debug APK and run checkstyle checks
+  # Build debug APK
   - name: 'gcr.io/$PROJECT_ID/android:28'
     id: build
-    entrypoint: 'bash'
-    args:
-      - '-c'
-      - |
-        ./gradlew assembleDebug && \
-        ./gradlew checkCode || echo "fail" > /workspace/build-status.txt
+    args: ['./gradlew', 'assembleDebug']
     env:
       - 'GRADLE_USER_HOME=/build_cache/.gradle'
     waitFor: ['copy_git_directory']
     volumes:
       - name: 'build_cache'
         path: '/build_cache'
+
+  # Run code quality checks
+  - name: 'gcr.io/$PROJECT_ID/android:28'
+    id: check
+    args:
+      - '-c'
+      - |
+        ./gradlew checkCode || echo "fail" > /workspace/build-status.txt
+    waitFor: ['build']
 
   # Save all reports to GCS
   - id: Save artifacts to GCS
