@@ -36,10 +36,7 @@ steps:
   - name: 'gcr.io/cloud-builders/gsutil'
     id: &copy_gradle_cache 'Copying gradle build cache tar from GCS'
     # we use rsync and not cp so that this step doesn't fail the first time it's run
-    args: ['rsync', 'gs://${_CACHE_BUCKET}/', '/build_cache']
-    volumes:
-      - name: 'build_cache'
-        path: '/build_cache'
+    args: ['rsync', 'gs://${_CACHE_BUCKET}/', './']
 
   # Extract the copied tar file
   - name: 'gcr.io/$PROJECT_ID/android:base'
@@ -50,10 +47,7 @@ steps:
     args:
       - '-c'
       - |
-        tar xpzf /build_cache/cache.tgz -C /build_cache || echo "No cache found."
-    volumes:
-      - name: 'build_cache'
-        path: '/build_cache'
+        tar zxvf cache.tgz || echo "No cache found"
 
   # Copy .git directory to workspace.
   # This is needed by gitVersioner plugin for auto-generating version code and version name.
@@ -75,11 +69,7 @@ steps:
   - name: 'gcr.io/$PROJECT_ID/android:28'
     id: &build_apk 'Build debug apk'
     args: ['./gradlew', 'assembleDebug']
-    env: ['GRADLE_USER_HOME=/build_cache/.gradle']
     waitFor: [*copy_git_dir]
-    volumes:
-      - name: 'build_cache'
-        path: '/build_cache'
 
   # Run code quality checks
   - name: 'gcr.io/$PROJECT_ID/android:28'
@@ -88,7 +78,7 @@ steps:
     args:
       - '-c'
       - |
-        ./gradlew checkCode || echo "fail" > /workspace/build-status.txt
+        ./gradlew checkCode || echo "fail" > build-status.txt
 
   # Save all reports to GCS
   - name: 'gcr.io/cloud-builders/gsutil'
@@ -110,7 +100,7 @@ steps:
       - |
         # Update build status if running on master branch
         if [[ "${_PUSH_TO_MASTER}" ]]; then
-          if [[ $(< /workspace/build-status.txt) == "fail" ]]; then
+          if [[ $(< build-status.txt) == "fail" ]]; then
             gsutil cp cloud-builder/failure.svg gs://${_CACHE_BUCKET}/status.svg
           else
             gsutil cp cloud-builder/success.svg gs://${_CACHE_BUCKET}/status.svg
@@ -121,7 +111,7 @@ steps:
         fi
 
         # Delayed build fail
-        if [[ $(< /workspace/build-status.txt) == "fail" ]]; then
+        if [[ $(< build-status.txt) == "fail" ]]; then
           echo "Build failed."
           echo "Reports uploaded to https://console.cloud.google.com/storage/browser/${_ARTIFACT_BUCKET}/$BRANCH_NAME-$BUILD_ID/"
           exit 1
@@ -135,19 +125,13 @@ steps:
     args:
       - '-c'
       - |
-        tar cpvzf /build_cache/cache.tgz -C /build_cache /build_cache/.gradle
-    volumes:
-      - name: 'build_cache'
-        path: '/build_cache'
+        tar zcvf cache.tgz .gradle
 
   # Store the build cache
   - name: gcr.io/cloud-builders/gsutil
     id: 'Save gradle cache to GCS'
-    args: ['cp', '/build_cache/cache.tgz', 'gs://${_CACHE_BUCKET}/cache.tgz']
+    args: ['cp', 'cache.tgz', 'gs://${_CACHE_BUCKET}/cache.tgz']
     waitFor: [*compress_gradle_cache]
-    volumes:
-      - name: 'build_cache'
-        path: '/build_cache'
 
 options:
   logging: GCS_ONLY
