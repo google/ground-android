@@ -21,10 +21,11 @@
 #  3. Copy .git dir
 #  4. Build debug APK
 #  5. Run code quality checks (suppress failure if check fails)
-#  6. Save reports to GCS
-#  7. Update badge status and fail the build if any errors were encountered during step 5
-#  8. Compress Gradle files
-#  9. Save tarball
+#  6. Run unit tests (suppress failure if tests fail)
+#  7. Save reports to GCS
+#  8. Update badge status and fail the build if any failures were suppressed in previous steps
+#  9. Compress Gradle files
+#  10. Save tarball
 #
 #  NOTE: APKs are saved to GCS only if the build passes
 #
@@ -74,7 +75,17 @@ steps:
     args:
       - '-c'
       - |
-        ./gradlew checkCode > build-status.txt
+        ./gradlew checkCode &> check-logs.txt || echo "fail" > build-status.txt
+        cat check-logs.txt
+
+  # Run unit tests
+  - name: 'gcr.io/$PROJECT_ID/android:28'
+    id: 'Run unit tests'
+    args:
+      - '-c'
+      - |
+        ./gradlew testDebugUnitTest &> unit-test-logs.txt || echo "fail" > build-status.txt
+        cat unit-test-logs.txt
 
   # Save all reports to GCS
   - name: 'gcr.io/cloud-builders/gsutil'
@@ -93,7 +104,7 @@ steps:
 
         # Update build status if running on master branch
         if [[ "${_PUSH_TO_MASTER}" ]]; then
-          if [[ ! -f build-status.txt ]]; then
+          if [[ $(< build-status.txt) == "fail" ]]; then
             gsutil cp cloud-builder/failure.svg gs://${_CACHE_BUCKET}/status.svg
           else
             gsutil cp cloud-builder/success.svg gs://${_CACHE_BUCKET}/status.svg
@@ -104,8 +115,9 @@ steps:
         fi
 
         # Delayed build fail
-        if [[ ! -f build-status.txt ]]; then
-          cat build-status.txt
+        if [[ $(< build-status.txt) == "fail" ]]; then
+          cat check-logs.txt
+          cat unit-test-logs.txt
           exit 1
         fi
 
