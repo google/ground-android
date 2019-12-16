@@ -1,5 +1,5 @@
 # Ground for Android
-[![cloud build status](https://storage.googleapis.com/gradle_cache_bucket/status.svg)](https://github.com/google/ground-android)
+[![cloud build status](https://storage.googleapis.com/gradle_cache_bucket/status.svg)](https://console.cloud.google.com/cloud-build/dashboard?project=ground-android-gcb)
 
 Ground is an open-source, map-first data collection and analysis platform built
 to seamlessly connect the offline world with cloud-based storage and
