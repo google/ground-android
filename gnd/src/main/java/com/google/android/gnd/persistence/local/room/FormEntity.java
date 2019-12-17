@@ -65,14 +65,14 @@ public abstract class FormEntity {
         .build();
   }
 
-  public static Form toForm(FormData formData) {
-    FormEntity formEntity = formData.formEntity;
+  public static Form toForm(FormEntityAndRelations formEntityAndRelations) {
+    FormEntity formEntity = formEntityAndRelations.formEntity;
     Form.Builder formBuilder =
         Form.newBuilder().setId(formEntity.getId()).setTitle(formEntity.getTitle());
 
     ImmutableList.Builder<Element> listBuilder = ImmutableList.builder();
-    for (FieldData fieldData : formData.fields) {
-      listBuilder.add(FieldEntity.toElement(fieldData));
+    for (FieldEntityAndRelations fieldEntityAndRelations : formEntityAndRelations.fieldEntityAndRelations) {
+      listBuilder.add(FieldEntity.toElement(fieldEntityAndRelations));
     }
 
     return formBuilder.setElements(listBuilder.build()).build();

@@ -21,13 +21,14 @@ import androidx.room.Relation;
 import java.util.List;
 
 /**
- * Represents relationship between LayerEntity and FormEntity.
+ * Represents relationship between ProjectEntity and LayerEntity.
  *
  * <p>Querying any of the below data class automatically loads the field annotated as @Relation.
  */
-public class LayerData {
-  @Embedded public LayerEntity layerEntity;
+public class ProjectEntityAndRelations {
 
-  @Relation(parentColumn = "id", entityColumn = "layer_id", entity = FormEntity.class)
-  public List<FormData> forms;
+  @Embedded public ProjectEntity projectEntity;
+
+  @Relation(parentColumn = "id", entityColumn = "project_id", entity = LayerEntity.class)
+  public List<LayerEntityAndRelations> layerEntityAndRelations;
 }

@@ -53,17 +53,17 @@ public abstract class ProjectEntity {
         .build();
   }
 
-  public static Project toProject(ProjectData projectData) {
-    ProjectEntity projectEntity = projectData.projectEntity;
+  public static Project toProject(ProjectEntityAndRelations projectEntityAndRelations) {
+    ProjectEntity projectEntity = projectEntityAndRelations.projectEntity;
     Project.Builder projectBuilder =
         Project.newBuilder()
             .setId(projectEntity.getId())
             .setTitle(projectEntity.getTitle())
             .setDescription(projectEntity.getDescription());
 
-    for (LayerData layerData : projectData.layers) {
-      LayerEntity layerEntity = layerData.layerEntity;
-      projectBuilder.putLayer(layerEntity.getId(), LayerEntity.toLayer(layerData));
+    for (LayerEntityAndRelations layerEntityAndRelations : projectEntityAndRelations.layerEntityAndRelations) {
+      LayerEntity layerEntity = layerEntityAndRelations.layerEntity;
+      projectBuilder.putLayer(layerEntity.getId(), LayerEntity.toLayer(layerEntityAndRelations));
     }
 
     return projectBuilder.build();

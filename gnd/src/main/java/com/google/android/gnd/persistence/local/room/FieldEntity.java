@@ -83,14 +83,14 @@ public abstract class FieldEntity {
         .build();
   }
 
-  public static Element toElement(FieldData fieldData) {
-    return fieldData.fieldEntity.getElementType().toElementType() == Type.FIELD
-        ? Element.ofField(FieldEntity.toField(fieldData))
+  public static Element toElement(FieldEntityAndRelations fieldEntityAndRelations) {
+    return fieldEntityAndRelations.fieldEntity.getElementType().toElementType() == Type.FIELD
+        ? Element.ofField(FieldEntity.toField(fieldEntityAndRelations))
         : Element.ofUnknown();
   }
 
-  public static Field toField(FieldData fieldData) {
-    FieldEntity fieldEntity = fieldData.fieldEntity;
+  public static Field toField(FieldEntityAndRelations fieldEntityAndRelations) {
+    FieldEntity fieldEntity = fieldEntityAndRelations.fieldEntity;
     Field.Builder fieldBuilder =
         Field.newBuilder()
             .setId(fieldEntity.getId())
@@ -98,7 +98,8 @@ public abstract class FieldEntity {
             .setRequired(fieldEntity.isRequired())
             .setType(fieldEntity.getFieldType().toFieldType());
 
-    List<MultipleChoiceEntity> multipleChoiceEntities = fieldData.multipleChoiceEntities;
+    List<MultipleChoiceEntity> multipleChoiceEntities =
+        fieldEntityAndRelations.multipleChoiceEntities;
 
     // TODO: Re-enable this check.
     //    if (multipleChoiceEntities.size() != 1) {
@@ -108,7 +109,7 @@ public abstract class FieldEntity {
     if (!multipleChoiceEntities.isEmpty()) {
       fieldBuilder.setMultipleChoice(
           MultipleChoiceEntity.toMultipleChoice(
-              multipleChoiceEntities.get(0), fieldData.optionEntities));
+              multipleChoiceEntities.get(0), fieldEntityAndRelations.optionEntities));
     }
 
     return fieldBuilder.build();

@@ -33,9 +33,9 @@ public interface ProjectDao extends BaseDao<ProjectEntity> {
 
   @Transaction
   @Query("SELECT * FROM project")
-  Single<List<ProjectData>> loadProjectData();
+  Single<List<ProjectEntityAndRelations>> getAllProjects();
 
   @Transaction
   @Query("SELECT * FROM project WHERE id = :id")
-  Maybe<ProjectData> getProjectDataById(String id);
+  Maybe<ProjectEntityAndRelations> getProjectById(String id);
 }
