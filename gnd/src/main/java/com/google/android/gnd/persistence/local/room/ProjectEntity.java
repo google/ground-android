@@ -61,7 +61,8 @@ public abstract class ProjectEntity {
             .setTitle(projectEntity.getTitle())
             .setDescription(projectEntity.getDescription());
 
-    for (LayerEntityAndRelations layerEntityAndRelations : projectEntityAndRelations.layerEntityAndRelations) {
+    for (LayerEntityAndRelations layerEntityAndRelations :
+        projectEntityAndRelations.layerEntityAndRelations) {
       LayerEntity layerEntity = layerEntityAndRelations.layerEntity;
       projectBuilder.putLayer(layerEntity.getId(), LayerEntity.toLayer(layerEntityAndRelations));
     }

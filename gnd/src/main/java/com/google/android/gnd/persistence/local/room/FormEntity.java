@@ -71,7 +71,8 @@ public abstract class FormEntity {
         Form.newBuilder().setId(formEntity.getId()).setTitle(formEntity.getTitle());
 
     ImmutableList.Builder<Element> listBuilder = ImmutableList.builder();
-    for (FieldEntityAndRelations fieldEntityAndRelations : formEntityAndRelations.fieldEntityAndRelations) {
+    for (FieldEntityAndRelations fieldEntityAndRelations :
+        formEntityAndRelations.fieldEntityAndRelations) {
       listBuilder.add(FieldEntity.toElement(fieldEntityAndRelations));
     }
 
