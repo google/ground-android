@@ -23,6 +23,8 @@ import androidx.room.Entity;
 import androidx.room.ForeignKey;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
+import com.google.android.gnd.model.form.Element;
+import com.google.android.gnd.model.form.Element.Type;
 import com.google.android.gnd.model.form.Field;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.AutoValue.CopyAnnotations;
@@ -48,8 +50,13 @@ public abstract class FieldEntity {
 
   @CopyAnnotations
   @NonNull
-  @ColumnInfo(name = "type")
-  public abstract FieldEntityType getType();
+  @ColumnInfo(name = "element_type")
+  public abstract ElementEntityType getElementType();
+
+  @CopyAnnotations
+  @NonNull
+  @ColumnInfo(name = "field_type")
+  public abstract FieldEntityType getFieldType();
 
   @CopyAnnotations
   @Nullable
@@ -65,14 +72,21 @@ public abstract class FieldEntity {
   @ColumnInfo(name = "form_id")
   public abstract String getFormId();
 
-  public static FieldEntity fromField(String formId, Field field) {
+  public static FieldEntity fromField(String formId, Type elementType, Field field) {
     return FieldEntity.builder()
         .setId(field.getId())
         .setLabel(field.getLabel())
         .setRequired(field.isRequired())
-        .setType(FieldEntityType.fromFieldType(field.getType()))
+        .setElementType(ElementEntityType.fromElementType(elementType))
+        .setFieldType(FieldEntityType.fromFieldType(field.getType()))
         .setFormId(formId)
         .build();
+  }
+
+  public static Element toElement(FieldData fieldData) {
+    return fieldData.fieldEntity.getElementType().toElementType() == Type.FIELD
+        ? Element.ofField(FieldEntity.toField(fieldData))
+        : Element.ofUnknown();
   }
 
   public static Field toField(FieldData fieldData) {
@@ -82,7 +96,7 @@ public abstract class FieldEntity {
             .setId(fieldEntity.getId())
             .setLabel(fieldEntity.getLabel())
             .setRequired(fieldEntity.isRequired())
-            .setType(fieldEntity.getType().toFieldType());
+            .setType(fieldEntity.getFieldType().toFieldType());
 
     List<MultipleChoiceEntity> multipleChoiceEntities = fieldData.multipleChoiceEntities;
 
@@ -101,10 +115,16 @@ public abstract class FieldEntity {
   }
 
   public static FieldEntity create(
-      String id, FieldEntityType type, String label, boolean required, String formId) {
+      String id,
+      ElementEntityType elementType,
+      FieldEntityType fieldType,
+      String label,
+      boolean required,
+      String formId) {
     return builder()
         .setId(id)
-        .setType(type)
+        .setElementType(elementType)
+        .setFieldType(fieldType)
         .setLabel(label)
         .setRequired(required)
         .setFormId(formId)
@@ -120,7 +140,9 @@ public abstract class FieldEntity {
 
     public abstract Builder setId(String id);
 
-    public abstract Builder setType(FieldEntityType type);
+    public abstract Builder setElementType(ElementEntityType elementType);
+
+    public abstract Builder setFieldType(FieldEntityType fieldType);
 
     public abstract Builder setLabel(String label);
 

@@ -21,16 +21,13 @@ import androidx.room.Relation;
 import java.util.List;
 
 /**
- * Represents relationship among FormEntity, ElementEntity and FieldEntity.
+ * Represents relationship among FormEntity and FieldEntity.
  *
  * <p>Querying any of the below data class automatically loads the field annotated as @Relation.
  */
 public class FormData {
 
   @Embedded public FormEntity formEntity;
-
-  @Relation(parentColumn = "id", entityColumn = "form_id", entity = ElementEntity.class)
-  public List<ElementEntity> elementEntities;
 
   @Relation(parentColumn = "id", entityColumn = "form_id", entity = FieldEntity.class)
   public List<FieldData> fields;

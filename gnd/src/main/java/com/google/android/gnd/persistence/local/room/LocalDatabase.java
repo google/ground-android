@@ -30,7 +30,6 @@ import androidx.room.TypeConverters;
 // TODO: Make injectable via Dagger.
 @Database(
     entities = {
-      ElementEntity.class,
       FeatureEntity.class,
       FeatureMutationEntity.class,
       FieldEntity.class,
@@ -44,7 +43,7 @@ import androidx.room.TypeConverters;
       TileEntity.class
     },
     // TODO(#128): Reset version to 1 before releasing.
-    version = 30,
+    version = 31,
     exportSchema = false)
 @TypeConverters({
     ElementEntityType.class,
@@ -58,8 +57,6 @@ import androidx.room.TypeConverters;
     TileEntityState.class
 })
 public abstract class LocalDatabase extends RoomDatabase {
-
-  public abstract ElementDao elementDao();
 
   public abstract FeatureDao featureDao();
 

@@ -92,9 +92,9 @@ public class RoomLocalDataStore implements LocalDataStore {
         .subscribeOn(Schedulers.io());
   }
 
-  private Completable insertOrUpdateField(String formId, Field field) {
+  private Completable insertOrUpdateField(String formId, Element.Type elementType, Field field) {
     return db.fieldDao()
-        .insertOrUpdate(FieldEntity.fromField(formId, field))
+        .insertOrUpdate(FieldEntity.fromField(formId, elementType, field))
         .andThen(
             Observable.just(field)
                 .filter(__ -> field.getMultipleChoice() != null)
@@ -103,16 +103,10 @@ public class RoomLocalDataStore implements LocalDataStore {
         .subscribeOn(Schedulers.io());
   }
 
-  private Completable insertOrUpdateElement(String formId, Element element) {
-    return db.elementDao()
-        .insertOrUpdate(ElementEntity.fromElement(formId, element))
-        .andThen(insertOrUpdateField(formId, element.getField()))
-        .subscribeOn(Schedulers.io());
-  }
-
   private Completable insertOrUpdateElements(String formId, ImmutableList<Element> elements) {
     return Observable.fromIterable(elements)
-        .flatMapCompletable(element -> insertOrUpdateElement(formId, element));
+        .flatMapCompletable(
+            element -> insertOrUpdateField(formId, element.getType(), element.getField()));
   }
 
   private Completable insertOrUpdateForm(String layerId, Form form) {

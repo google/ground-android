@@ -72,11 +72,7 @@ public abstract class FormEntity {
 
     ImmutableList.Builder<Element> listBuilder = ImmutableList.builder();
     for (FieldData fieldData : formData.fields) {
-      for (ElementEntity elementEntity : formData.elementEntities) {
-        if (fieldData.fieldEntity.getId().equals(elementEntity.getFieldId())) {
-          listBuilder.add(ElementEntity.toElement(elementEntity, fieldData));
-        }
-      }
+      listBuilder.add(FieldEntity.toElement(fieldData));
     }
 
     return formBuilder.setElements(listBuilder.build()).build();
