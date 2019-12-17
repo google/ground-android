@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.persistence.local.room;
 
+import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.room.ColumnInfo;
@@ -41,6 +42,8 @@ import java.util.List;
             onDelete = ForeignKey.CASCADE),
     indices = {@Index("form_id")})
 public abstract class FieldEntity {
+
+  private static final String TAG = FieldEntity.class.getName();
 
   @CopyAnnotations
   @NonNull
@@ -101,12 +104,11 @@ public abstract class FieldEntity {
     List<MultipleChoiceEntity> multipleChoiceEntities =
         fieldEntityAndRelations.multipleChoiceEntities;
 
-    // TODO: Re-enable this check.
-    //    if (multipleChoiceEntities.size() != 1) {
-    //      throw new IllegalArgumentException("More than 1 multiple choice found for field");
-    //    }
-
     if (!multipleChoiceEntities.isEmpty()) {
+      if (multipleChoiceEntities.size() > 1) {
+        Log.e(TAG, "More than 1 multiple choice found for field");
+      }
+
       fieldBuilder.setMultipleChoice(
           MultipleChoiceEntity.toMultipleChoice(
               multipleChoiceEntities.get(0), fieldEntityAndRelations.optionEntities));
