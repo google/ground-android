@@ -98,9 +98,6 @@ public class HomeScreenFragment extends AbstractFragment
   @BindView(R.id.bottom_sheet_scroll_view)
   View bottomSheetScrollView;
 
-  @BindView(R.id.add_record_btn)
-  View addRecordBtn;
-
   @BindView(R.id.bottom_sheet_bottom_inset_scrim)
   View bottomSheetBottomInsetScrim;
 
@@ -137,6 +134,7 @@ public class HomeScreenFragment extends AbstractFragment
   @Override
   public View onCreateView(
       LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    super.onCreateView(inflater, container, savedInstanceState);
     HomeScreenFragBinding binding = HomeScreenFragBinding.inflate(inflater, container, false);
     binding.featureSheetChrome.setViewModel(viewModel);
     return binding.getRoot();
@@ -164,9 +162,9 @@ public class HomeScreenFragment extends AbstractFragment
   private String getVersionName() {
     try {
       return Objects.requireNonNull(getContext())
-        .getPackageManager()
-        .getPackageInfo(getContext().getPackageName(), 0)
-        .versionName;
+          .getPackageManager()
+          .getPackageInfo(getContext().getPackageName(), 0)
+          .versionName;
     } catch (PackageManager.NameNotFoundException e) {
       return "?";
     }
@@ -296,12 +294,10 @@ public class HomeScreenFragment extends AbstractFragment
 
   private void showBottomSheet() {
     bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
-    addRecordBtn.setVisibility(View.VISIBLE);
   }
 
   private void hideBottomSheet() {
     bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
-    addRecordBtn.setVisibility(View.GONE);
   }
 
   private void showProjectLoadingDialog() {

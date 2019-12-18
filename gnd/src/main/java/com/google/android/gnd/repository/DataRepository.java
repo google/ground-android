@@ -134,6 +134,7 @@ public class DataRepository {
             })
         .doOnError(throwable -> Log.e(TAG, "Project not found " + projectId))
         .doOnSubscribe(__ -> activeProject.onNext(Persistable.loading()))
+        .flatMap(project -> localDataStore.insertOrUpdateProject(project).toSingleDefault(project))
         .doOnSuccess(this::onProjectLoaded);
   }
 

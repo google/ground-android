@@ -43,7 +43,7 @@ import androidx.room.TypeConverters;
       TileEntity.class
     },
     // TODO(#128): Reset version to 1 before releasing.
-    version = 31,
+    version = 32,
     exportSchema = false)
 @TypeConverters({
     ElementEntityType.class,
