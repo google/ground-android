@@ -37,7 +37,7 @@ project.ext {
     junitVersion = "4.12"
     lifecycleVersion = "2.1.0"
     navigationVersion = "1.0.0"
-    roomVersion = "2.1.0-rc01"
+    roomVersion = "2.2.2"
     rxAndroidVersion = "2.1.1"
     rxBindingVersion = "2.1.1"
     rxFirebaseVersion = "1.5.0"
