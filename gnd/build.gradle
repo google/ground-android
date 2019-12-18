@@ -108,7 +108,7 @@ dependencies {
     implementation 'com.facebook.stetho:stetho:1.5.1'
 
     // Android legacy support Libraries.
-    implementation "androidx.legacy:legacy-support-v4:$project.supportLibraryVersion"
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'androidx.appcompat:appcompat:1.1.0'
 
     // UI widgets.
