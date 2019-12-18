@@ -108,7 +108,7 @@ dependencies {
 
     // Android legacy support Libraries.
     implementation "androidx.legacy:legacy-support-v4:$project.supportLibraryVersion"
-    implementation "androidx.appcompat:appcompat:$project.supportLibraryVersion"
+    implementation 'androidx.appcompat:appcompat:1.1.0'
 
     // UI widgets.
     implementation "androidx.cardview:cardview:$project.supportLibraryVersion"
