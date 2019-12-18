@@ -25,7 +25,7 @@ buildscript {
         maven { url "https://github.com/ben-manes/gradle-versions-plugin/raw/mvnrepo" }
     }
     dependencies {
-        classpath "android.arch.navigation:navigation-safe-args-gradle-plugin:1.0.0-alpha06"
+        classpath "android.arch.navigation:navigation-safe-args-gradle-plugin:1.0.0"
         classpath 'com.android.tools.build:gradle:3.5.2'
         classpath "com.google.gms:google-services:4.2.0"
         classpath "com.pascalwelsch.gitversioner:gitversioner:0.3.1"
