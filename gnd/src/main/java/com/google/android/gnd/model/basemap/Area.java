@@ -19,8 +19,7 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.auto.value.AutoValue;
 
 /**
- * An area is a contiguous set of tiles that form a geodesic rectangle. They are uniquely
- * identifiable by their NE and SW bounds (or NW and SE).
+ * An area is a contiguous set of tiles that form a geodesic rectangle.
  */
 @AutoValue
 public abstract class Area {
