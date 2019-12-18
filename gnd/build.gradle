@@ -47,7 +47,7 @@ project.ext {
     supportLibraryVersion = "1.0.0-beta01"
     tabLayoutHelper = "0.9.0"
     truthVersion = "1.0"
-    workVersion = "2.0.1"
+    workVersion = "2.2.0"
 }
 
 // Load secrets.properties
