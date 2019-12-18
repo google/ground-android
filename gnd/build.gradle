@@ -32,7 +32,7 @@ project.ext {
     firebaseAuthVersion = "19.2.0"
     firebaseFirestoreVersion = "21.3.1"
     firebasePerfVersion = "19.0.3"
-    gmsVersion = "15.0.1"
+    gmsVersion = "17.0.0"
     guavaVersion = "23.0-android"
     junitVersion = "4.12"
     lifecycleVersion = "2.1.0"
