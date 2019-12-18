@@ -28,9 +28,10 @@ project.ext {
     constraintLayoutVersion = "1.0.2"
     daggerVersion = "2.21"
     // Latest: https://firebase.google.com/support/release-notes/android#latest_sdk_versions
-    firebaseCoreVersion = "16.0.3"
-    firebaseFirestoreVersion = "17.1.0"
-    firebasePerfVersion = "16.1.0"
+    firebaseCoreVersion = "17.2.1"
+    firebaseAuthVersion = "19.2.0"
+    firebaseFirestoreVersion = "21.3.1"
+    firebasePerfVersion = "19.0.3"
     gmsVersion = "15.0.1"
     guavaVersion = "23.0-android"
     junitVersion = "4.12"
@@ -62,7 +63,7 @@ android {
     defaultConfig {
         // https://developer.android.com/about/dashboards/index.html for reference.
         applicationId "com.google.android.gnd"
-        minSdkVersion 15
+        minSdkVersion 16
         // Switching targetSdkVersion to 27 or 28 causes the app to hang on map drags; diagnose and
         // fix before increasing this value.
         targetSdkVersion 26
@@ -131,7 +132,7 @@ dependencies {
     // Firebase and related libraries.
     implementation "com.google.firebase:firebase-core:$project.firebaseCoreVersion"
     implementation "com.google.firebase:firebase-firestore:$project.firebaseFirestoreVersion"
-    implementation "com.google.firebase:firebase-auth:$project.firebaseCoreVersion"
+    implementation "com.google.firebase:firebase-auth:$project.firebaseAuthVersion"
     implementation "com.google.firebase:firebase-perf:$project.firebasePerfVersion"
     implementation "com.github.FrangSierra:RxFirebase:$project.rxFirebaseVersion"
 
