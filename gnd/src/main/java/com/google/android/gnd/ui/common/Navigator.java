@@ -17,12 +17,14 @@
 package com.google.android.gnd.ui.common;
 
 import androidx.navigation.NavDirections;
-import com.google.android.gnd.NavGraphDirections;
+import com.google.android.gnd.R;
 import com.google.android.gnd.inject.ActivityScoped;
 import com.google.android.gnd.ui.editobservation.EditObservationFragment;
 import com.google.android.gnd.ui.home.HomeScreenFragmentDirections;
 import com.google.android.gnd.ui.observationdetails.ObservationDetailsFragment;
 import com.google.android.gnd.ui.observationdetails.ObservationDetailsFragmentDirections;
+import com.google.android.gnd.ui.signin.SignInFragmentDirections;
+import com.google.android.gnd.ui.startup.StartupFragmentDirections;
 import io.reactivex.Observable;
 import io.reactivex.subjects.PublishSubject;
 import io.reactivex.subjects.Subject;
@@ -65,8 +67,7 @@ public class Navigator {
 
   /**
    * Navigates from a {@link com.google.android.gnd.ui.home.HomeScreenFragment} to a {@link
-   * ObservationDetailsFragment} populated with the specified
-   * observation.
+   * ObservationDetailsFragment} populated with the specified observation.
    */
   public void showRecordDetails(String projectId, String featureId, String observationId) {
     navigate(HomeScreenFragmentDirections.showRecordDetails(projectId, featureId, observationId));
@@ -82,29 +83,45 @@ public class Navigator {
 
   /**
    * Navigates from the {@link com.google.android.gnd.ui.home.HomeScreenFragment} to a {@link
-   * EditObservationFragment} initialized with a new empty observation
-   * using the specified form.
+   * EditObservationFragment} initialized with a new empty observation using the specified form.
    */
   public void addObservation(String projectId, String featureId, String formId) {
     navigate(HomeScreenFragmentDirections.addRecord(projectId, featureId, formId));
   }
 
   /**
-   * Navigates from the {@link ObservationDetailsFragment} to a
-   * {@link EditObservationFragment} populated with the specified
-   * observation.
+   * Navigates from the {@link ObservationDetailsFragment} to a {@link EditObservationFragment}
+   * populated with the specified observation.
    */
   public void editObservation(String projectId, String featureId, String observationId) {
     navigate(ObservationDetailsFragmentDirections.editRecord(projectId, featureId, observationId));
   }
 
   /** Navigates to the home screen. */
-  public void showHomeScreen() {
-    navigate(NavGraphDirections.showHomeScreen());
+  public void showHomeScreen(int currentNavDestinationId) {
+    switch (currentNavDestinationId) {
+      case R.id.startup_fragment:
+        navigate(StartupFragmentDirections.proceedDirectlyToHomeScreen());
+        break;
+      case R.id.sign_in_fragment:
+        navigate(SignInFragmentDirections.proceedToHomeScreen());
+        break;
+      default:
+        throw new IllegalArgumentException(currentNavDestinationId + " id not found");
+    }
   }
 
   /** Navigates to the sign in screen. */
-  public void showSignInScreen() {
-    navigate(NavGraphDirections.showSignInScreen());
+  public void showSignInScreen(int currentNavDestinationId) {
+    switch (currentNavDestinationId) {
+      case R.id.startup_fragment:
+        navigate(StartupFragmentDirections.proceedToSignInScreen());
+        break;
+      case R.id.home_screen_fragment:
+        navigate(HomeScreenFragmentDirections.fromHomeScreenToSignInScreen());
+        break;
+      default:
+        throw new IllegalArgumentException(currentNavDestinationId + " id not found");
+    }
   }
 }

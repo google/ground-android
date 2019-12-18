@@ -16,20 +16,27 @@
 
 package com.google.android.gnd.persistence.local.room;
 
-import androidx.room.Dao;
-import androidx.room.Query;
-import io.reactivex.Flowable;
-import io.reactivex.Maybe;
-import java.util.List;
+import androidx.room.Insert;
+import androidx.room.Update;
+import io.reactivex.Completable;
+import io.reactivex.Single;
 
-@Dao
-public interface TileDao extends BaseDao<TileEntity> {
-  @Query("SELECT * FROM tile")
-  Flowable<List<TileEntity>> findAll();
+/**
+ * Base interface for DAOs that implement operations on a specific entity type.
+ *
+ * @param <E> the type of entity that is persisted by sub-interfaces.
+ */
+public interface BaseDao<E> {
+  @Insert
+  Completable insert(E entity);
 
-  @Query("SELECT * FROM tile WHERE id = :id")
-  Maybe<TileEntity> findById(String id);
+  @Update
+  Single<Integer> update(E entity);
 
-  @Query("SELECT * FROM tile WHERE path = :path")
-  Maybe<TileEntity> findByPath(String path);
+  /**
+   * Try to update the specified entity, and if it doesn't yet exist, create it.
+   */
+  default Completable insertOrUpdate(E entity) {
+    return update(entity).filter(n -> n == 0).flatMapCompletable(__ -> insert(entity));
+  }
 }
