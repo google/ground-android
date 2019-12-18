@@ -99,7 +99,7 @@ dependencies {
     androidTestImplementation('androidx.test.espresso:espresso-core:3.1.0-alpha4', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
-    implementation 'androidx.multidex:multidex:2.0.0'
+    implementation 'androidx.multidex:multidex:2.0.1'
 
     // Stetho - A debug bridge for Android applications
     // Enables network and database debugging for the app under chrome://inspect in Chrome desktop browser.
