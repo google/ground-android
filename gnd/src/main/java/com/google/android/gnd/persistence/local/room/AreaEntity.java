@@ -19,6 +19,7 @@ import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gnd.model.basemap.Area;
 import com.google.auto.value.AutoValue;
@@ -28,10 +29,14 @@ import com.google.auto.value.AutoValue;
 @Entity(tableName = "area")
 public abstract class AreaEntity {
   public static Area toArea(AreaEntity areaEntity) {
+    LatLng northEast = new LatLng(areaEntity.getNorth(), areaEntity.getEast());
+    LatLng southWest = new LatLng(areaEntity.getSouth(), areaEntity.getWest());
+    LatLngBounds bounds = new LatLngBounds(northEast, southWest);
+
     Area.Builder area =
         Area.newBuilder()
             .setId(areaEntity.getId())
-            .setBounds(areaEntity.getBounds())
+            .setBounds(bounds)
             .setState(toAreaState(areaEntity.getState()));
     return area.build();
   }
@@ -56,7 +61,10 @@ public abstract class AreaEntity {
         AreaEntity.builder()
             .setId(area.getId())
             .setState(toEntityState(area.getState()))
-            .setBounds(area.getBounds());
+            .setNorth(area.getBounds().northeast.latitude)
+            .setEast(area.getBounds().northeast.longitude)
+            .setSouth(area.getBounds().southwest.latitude)
+            .setWest(area.getBounds().southwest.longitude);
     return entity.build();
   }
 
@@ -75,8 +83,15 @@ public abstract class AreaEntity {
     }
   }
 
-  public static AreaEntity create(String id, AreaEntityState state, LatLngBounds bounds) {
-    return builder().setId(id).setState(state).setBounds(bounds).build();
+  public static AreaEntity create(String id, AreaEntityState state, Double north, Double east, Double south, Double west) {
+    return builder()
+        .setId(id)
+        .setState(state)
+        .setNorth(north)
+        .setEast(east)
+        .setSouth(south)
+        .setWest(west)
+        .build();
   }
 
   public static Builder builder() {
@@ -96,8 +111,23 @@ public abstract class AreaEntity {
 
   @AutoValue.CopyAnnotations
   @NonNull
-  @ColumnInfo(name = "bounds")
-  public abstract LatLngBounds getBounds();
+  @ColumnInfo(name = "north")
+  public abstract Double getNorth();
+
+  @AutoValue.CopyAnnotations
+  @NonNull
+  @ColumnInfo(name = "south")
+  public abstract Double getSouth();
+
+  @AutoValue.CopyAnnotations
+  @NonNull
+  @ColumnInfo(name = "east")
+  public abstract Double getEast();
+
+  @AutoValue.CopyAnnotations
+  @NonNull
+  @ColumnInfo(name = "west")
+  public abstract Double getWest();
 
   @AutoValue.Builder
   public abstract static class Builder {
@@ -106,7 +136,13 @@ public abstract class AreaEntity {
 
     public abstract Builder setState(AreaEntityState newState);
 
-    public abstract Builder setBounds(LatLngBounds newBounds);
+    public abstract Builder setNorth(Double coordinate);
+
+    public abstract Builder setSouth(Double coordinate);
+
+    public abstract Builder setEast(Double coordinate);
+
+    public abstract Builder setWest(Double coordinate);
 
     public abstract AreaEntity build();
   }

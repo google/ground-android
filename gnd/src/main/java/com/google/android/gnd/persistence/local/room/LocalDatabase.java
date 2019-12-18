@@ -38,7 +38,7 @@ import androidx.room.TypeConverters;
       AreaEntity.class,
     },
     // TODO(#128): Reset version to 1 before releasing.
-    version = 16,
+    version = 17,
     exportSchema = false)
 @TypeConverters({
   MutationEntityType.class,
@@ -46,8 +46,7 @@ import androidx.room.TypeConverters;
   ResponseDeltasTypeConverter.class,
   ResponseMapTypeConverter.class,
   TileEntityState.class,
-  AreaEntityState.class,
-  LatLngBoundsConverter.class
+  AreaEntityState.class
 })
 public abstract class LocalDatabase extends RoomDatabase {
 

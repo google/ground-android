@@ -19,18 +19,12 @@ import androidx.room.Dao;
 import androidx.room.Insert;
 import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
-
-import com.google.android.gms.maps.model.LatLngBounds;
-
-import java.util.List;
-
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
+import java.util.List;
 
-/**
- * Provides read/write operations for writing {@link AreaEntity} to the local db.
- */
+/** Provides read/write operations for writing {@link AreaEntity} to the local db. */
 @Dao
 public interface AreaDao {
   @Insert(onConflict = OnConflictStrategy.ABORT)
@@ -41,7 +35,4 @@ public interface AreaDao {
 
   @Query("SELECT * FROM area WHERE id = :id")
   Maybe<AreaEntity> findById(String id);
-
-  @Query("SELECT * FROM area WHERE bounds = :bounds")
-  Maybe<AreaEntity> findByBounds(LatLngBounds bounds);
 }
