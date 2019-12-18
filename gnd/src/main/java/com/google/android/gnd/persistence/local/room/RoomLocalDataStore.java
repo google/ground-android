@@ -31,6 +31,12 @@ import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.basemap.tile.Tile;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.FeatureMutation;
+import com.google.android.gnd.model.form.Element;
+import com.google.android.gnd.model.form.Field;
+import com.google.android.gnd.model.form.Form;
+import com.google.android.gnd.model.form.MultipleChoice;
+import com.google.android.gnd.model.form.Option;
+import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.model.observation.ObservationMutation;
 import com.google.android.gnd.persistence.local.LocalDataStore;
@@ -39,6 +45,7 @@ import com.google.common.collect.ImmutableSet;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
+import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.schedulers.Schedulers;
 import java.util.List;
@@ -68,18 +75,79 @@ public class RoomLocalDataStore implements LocalDataStore {
             .build();
   }
 
-  @Override
-  public Single<List<Project>> getProjects() {
-    return db.projectDao()
-        .findAll()
-        .map(list -> stream(list).map(ProjectEntity::toProject).collect(toList()))
+  private Completable insertOrUpdateOption(String fieldId, Option option) {
+    return db.optionDao()
+        .insertOrUpdate(OptionEntity.fromOption(fieldId, option))
         .subscribeOn(Schedulers.io());
+  }
+
+  private Completable insertOrUpdateOptions(String fieldId, ImmutableList<Option> options) {
+    return Observable.fromIterable(options)
+        .flatMapCompletable(option -> insertOrUpdateOption(fieldId, option))
+        .subscribeOn(Schedulers.io());
+  }
+
+  private Completable insertOrUpdateMultipleChoice(String fieldId, MultipleChoice multipleChoice) {
+    return db.multipleChoiceDao()
+        .insertOrUpdate(MultipleChoiceEntity.fromMultipleChoice(fieldId, multipleChoice))
+        .andThen(insertOrUpdateOptions(fieldId, multipleChoice.getOptions()))
+        .subscribeOn(Schedulers.io());
+  }
+
+  private Completable insertOrUpdateField(String formId, Element.Type elementType, Field field) {
+    return db.fieldDao()
+        .insertOrUpdate(FieldEntity.fromField(formId, elementType, field))
+        .andThen(
+            Observable.just(field)
+                .filter(__ -> field.getMultipleChoice() != null)
+                .flatMapCompletable(
+                    __ -> insertOrUpdateMultipleChoice(field.getId(), field.getMultipleChoice())))
+        .subscribeOn(Schedulers.io());
+  }
+
+  private Completable insertOrUpdateElements(String formId, ImmutableList<Element> elements) {
+    return Observable.fromIterable(elements)
+        .flatMapCompletable(
+            element -> insertOrUpdateField(formId, element.getType(), element.getField()));
+  }
+
+  private Completable insertOrUpdateForm(String layerId, Form form) {
+    return db.formDao()
+        .insertOrUpdate(FormEntity.fromForm(layerId, form))
+        .andThen(insertOrUpdateElements(form.getId(), form.getElements()))
+        .subscribeOn(Schedulers.io());
+  }
+
+  private Completable insertOrUpdateForms(String layerId, List<Form> forms) {
+    return Observable.fromIterable(forms)
+        .flatMapCompletable(form -> insertOrUpdateForm(layerId, form));
+  }
+
+  private Completable insertOrUpdateLayer(String projectId, Layer layer) {
+    return db.layerDao()
+        .insertOrUpdate(LayerEntity.fromLayer(projectId, layer))
+        .andThen(insertOrUpdateForms(layer.getId(), layer.getForms()))
+        .subscribeOn(Schedulers.io());
+  }
+
+  private Completable insertOrUpdateLayers(String projectId, List<Layer> layers) {
+    return Observable.fromIterable(layers)
+        .flatMapCompletable(layer -> insertOrUpdateLayer(projectId, layer));
   }
 
   @Override
   public Completable insertOrUpdateProject(Project project) {
     return db.projectDao()
-        .insertOrUpdate(ProjectEntity.fromProject(project, true))
+        .insertOrUpdate(ProjectEntity.fromProject(project))
+        .andThen(insertOrUpdateLayers(project.getId(), project.getLayers()))
+        .subscribeOn(Schedulers.io());
+  }
+
+  @Override
+  public Single<List<Project>> getProjects() {
+    return db.projectDao()
+        .getAllProjects()
+        .map(list -> stream(list).map(ProjectEntity::toProject).collect(toList()))
         .subscribeOn(Schedulers.io());
   }
 

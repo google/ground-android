@@ -16,26 +16,18 @@
 
 package com.google.android.gnd.persistence.local.room;
 
-import androidx.room.Dao;
-import androidx.room.Delete;
-import androidx.room.Query;
-import androidx.room.Transaction;
-import io.reactivex.Completable;
-import io.reactivex.Maybe;
-import io.reactivex.Single;
+import androidx.room.Embedded;
+import androidx.room.Relation;
 import java.util.List;
 
-@Dao
-public interface ProjectDao extends BaseDao<ProjectEntity> {
+/**
+ * Represents relationship between LayerEntity and FormEntity.
+ *
+ * <p>Querying any of the below data class automatically loads the field annotated as @Relation.
+ */
+public class LayerEntityAndRelations {
+  @Embedded public LayerEntity layerEntity;
 
-  @Delete
-  Completable deleteProject(ProjectEntity projectEntity);
-
-  @Transaction
-  @Query("SELECT * FROM project")
-  Single<List<ProjectEntityAndRelations>> getAllProjects();
-
-  @Transaction
-  @Query("SELECT * FROM project WHERE id = :id")
-  Maybe<ProjectEntityAndRelations> getProjectById(String id);
+  @Relation(parentColumn = "id", entityColumn = "layer_id", entity = FormEntity.class)
+  public List<FormEntityAndRelations> formEntityAndRelations;
 }

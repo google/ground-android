@@ -16,26 +16,21 @@
 
 package com.google.android.gnd.persistence.local.room;
 
-import androidx.room.Dao;
-import androidx.room.Delete;
-import androidx.room.Query;
-import androidx.room.Transaction;
-import io.reactivex.Completable;
-import io.reactivex.Maybe;
-import io.reactivex.Single;
+import androidx.room.Embedded;
+import androidx.room.Relation;
 import java.util.List;
 
-@Dao
-public interface ProjectDao extends BaseDao<ProjectEntity> {
+/**
+ * Represents relationship among FieldEntity, MultipleChoiceEntity and OptionEntity.
+ *
+ * <p>Querying any of the below data class automatically loads the field annotated as @Relation.
+ */
+public class FieldEntityAndRelations {
+  @Embedded public FieldEntity fieldEntity;
 
-  @Delete
-  Completable deleteProject(ProjectEntity projectEntity);
+  @Relation(parentColumn = "id", entityColumn = "field_id", entity = MultipleChoiceEntity.class)
+  public List<MultipleChoiceEntity> multipleChoiceEntities;
 
-  @Transaction
-  @Query("SELECT * FROM project")
-  Single<List<ProjectEntityAndRelations>> getAllProjects();
-
-  @Transaction
-  @Query("SELECT * FROM project WHERE id = :id")
-  Maybe<ProjectEntityAndRelations> getProjectById(String id);
+  @Relation(parentColumn = "id", entityColumn = "field_id", entity = OptionEntity.class)
+  public List<OptionEntity> optionEntities;
 }

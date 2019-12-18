@@ -46,10 +46,6 @@ public abstract class ProjectEntity {
   public abstract String getDescription();
 
   public static ProjectEntity fromProject(Project project) {
-    return fromProject(project, false);
-  }
-
-  public static ProjectEntity fromProject(Project project, boolean active) {
     return ProjectEntity.builder()
         .setId(project.getId())
         .setTitle(project.getTitle())
@@ -57,20 +53,25 @@ public abstract class ProjectEntity {
         .build();
   }
 
-  public static Project toProject(ProjectEntity entity) {
-    return Project.newBuilder()
-        .setId(entity.getId())
-        .setTitle(entity.getTitle())
-        .setDescription(entity.getDescription())
-        .build();
+  public static Project toProject(ProjectEntityAndRelations projectEntityAndRelations) {
+    ProjectEntity projectEntity = projectEntityAndRelations.projectEntity;
+    Project.Builder projectBuilder =
+        Project.newBuilder()
+            .setId(projectEntity.getId())
+            .setTitle(projectEntity.getTitle())
+            .setDescription(projectEntity.getDescription());
+
+    for (LayerEntityAndRelations layerEntityAndRelations :
+        projectEntityAndRelations.layerEntityAndRelations) {
+      LayerEntity layerEntity = layerEntityAndRelations.layerEntity;
+      projectBuilder.putLayer(layerEntity.getId(), LayerEntity.toLayer(layerEntityAndRelations));
+    }
+
+    return projectBuilder.build();
   }
 
   public static ProjectEntity create(String id, String title, String description) {
-    return builder()
-        .setId(id)
-        .setTitle(title)
-        .setDescription(description)
-        .build();
+    return builder().setId(id).setTitle(title).setDescription(description).build();
   }
 
   public static Builder builder() {

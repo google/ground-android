@@ -17,25 +17,6 @@
 package com.google.android.gnd.persistence.local.room;
 
 import androidx.room.Dao;
-import androidx.room.Delete;
-import androidx.room.Query;
-import androidx.room.Transaction;
-import io.reactivex.Completable;
-import io.reactivex.Maybe;
-import io.reactivex.Single;
-import java.util.List;
 
 @Dao
-public interface ProjectDao extends BaseDao<ProjectEntity> {
-
-  @Delete
-  Completable deleteProject(ProjectEntity projectEntity);
-
-  @Transaction
-  @Query("SELECT * FROM project")
-  Single<List<ProjectEntityAndRelations>> getAllProjects();
-
-  @Transaction
-  @Query("SELECT * FROM project WHERE id = :id")
-  Maybe<ProjectEntityAndRelations> getProjectById(String id);
-}
+public interface MultipleChoiceDao extends BaseDao<MultipleChoiceEntity> {}

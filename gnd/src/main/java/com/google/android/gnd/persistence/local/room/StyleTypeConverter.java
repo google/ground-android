@@ -16,26 +16,22 @@
 
 package com.google.android.gnd.persistence.local.room;
 
-import androidx.room.Dao;
-import androidx.room.Delete;
-import androidx.room.Query;
-import androidx.room.Transaction;
-import io.reactivex.Completable;
-import io.reactivex.Maybe;
-import io.reactivex.Single;
-import java.util.List;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.room.TypeConverter;
+import com.google.android.gnd.model.layer.Style;
 
-@Dao
-public interface ProjectDao extends BaseDao<ProjectEntity> {
+public class StyleTypeConverter {
 
-  @Delete
-  Completable deleteProject(ProjectEntity projectEntity);
+  @TypeConverter
+  @Nullable
+  public static String toString(@NonNull Style style) {
+    return style.getColor();
+  }
 
-  @Transaction
-  @Query("SELECT * FROM project")
-  Single<List<ProjectEntityAndRelations>> getAllProjects();
-
-  @Transaction
-  @Query("SELECT * FROM project WHERE id = :id")
-  Maybe<ProjectEntityAndRelations> getProjectById(String id);
+  @TypeConverter
+  @NonNull
+  public static Style fromString(@Nullable String color) {
+    return Style.builder().setColor(color).build();
+  }
 }

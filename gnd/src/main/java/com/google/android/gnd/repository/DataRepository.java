@@ -33,6 +33,7 @@ import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator;
 import com.google.android.gnd.system.AuthenticationManager.User;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
@@ -121,7 +122,17 @@ public class DataRepository {
     Log.d(TAG, " Activating project " + projectId);
     return remoteDataStore
         .loadProject(projectId)
-        .doOnError(e -> Log.e(TAG, "Project not found", e))
+        .flatMap(project -> localDataStore.insertOrUpdateProject(project).toSingleDefault(project))
+        .onErrorResumeNext(
+            throwable -> {
+              if (throwable instanceof FirebaseFirestoreException) {
+                return localDataStore
+                    .getProjectById(localValueStore.getLastActiveProjectId())
+                    .toSingle();
+              }
+              return Single.error(throwable);
+            })
+        .doOnError(throwable -> Log.e(TAG, "Project not found " + projectId))
         .doOnSubscribe(__ -> activeProject.onNext(Persistable.loading()))
         .flatMap(project -> localDataStore.insertOrUpdateProject(project).toSingleDefault(project))
         .doOnSuccess(this::onProjectLoaded);
@@ -143,7 +154,15 @@ public class DataRepository {
 
   public Observable<Persistable<List<Project>>> getProjectSummaries(User user) {
     // TODO: Get from load db if network connection not available or remote times out.
-    return loadProjects(user)
+    return remoteDataStore
+        .loadProjectSummaries(user)
+        .onErrorResumeNext(
+            throwable -> {
+              if (throwable instanceof FirebaseFirestoreException) {
+                return localDataStore.getProjects();
+              }
+              return Single.error(throwable);
+            })
         .map(Persistable::loaded)
         .onErrorReturn(Persistable::error)
         .toObservable()

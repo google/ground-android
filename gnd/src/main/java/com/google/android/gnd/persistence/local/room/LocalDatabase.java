@@ -32,19 +32,28 @@ import androidx.room.TypeConverters;
     entities = {
       FeatureEntity.class,
       FeatureMutationEntity.class,
+      FieldEntity.class,
+      FormEntity.class,
+      LayerEntity.class,
+      MultipleChoiceEntity.class,
+      OptionEntity.class,
       ProjectEntity.class,
       RecordEntity.class,
       RecordMutationEntity.class,
       TileEntity.class
     },
     // TODO(#128): Reset version to 1 before releasing.
-    version = 16,
+    version = 32,
     exportSchema = false)
 @TypeConverters({
+    ElementEntityType.class,
+    FieldEntityType.class,
+    MultipleChoiceEntityType.class,
     MutationEntityType.class,
     EntityState.class,
     ResponseDeltasTypeConverter.class,
     ResponseMapTypeConverter.class,
+    StyleTypeConverter.class,
     TileEntityState.class
 })
 public abstract class LocalDatabase extends RoomDatabase {
@@ -52,6 +61,16 @@ public abstract class LocalDatabase extends RoomDatabase {
   public abstract FeatureDao featureDao();
 
   public abstract FeatureMutationDao featureMutationDao();
+
+  public abstract FieldDao fieldDao();
+
+  public abstract FormDao formDao();
+
+  public abstract LayerDao layerDao();
+
+  public abstract MultipleChoiceDao multipleChoiceDao();
+
+  public abstract OptionDao optionDao();
 
   public abstract ProjectDao projectDao();
 
