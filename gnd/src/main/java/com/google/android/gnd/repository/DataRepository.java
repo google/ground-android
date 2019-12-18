@@ -144,14 +144,6 @@ public class DataRepository {
     localValueStore.setLastActiveProjectId(project.getId());
   }
 
-  private Single<List<Project>> loadProjects(User user) {
-    if (isOffline()) {
-      return localDataStore.getProjects();
-    } else {
-      return remoteDataStore.loadProjectSummaries(user);
-    }
-  }
-
   public Observable<Persistable<List<Project>>> getProjectSummaries(User user) {
     // TODO: Get from load db if network connection not available or remote times out.
     return remoteDataStore
@@ -274,6 +266,7 @@ public class DataRepository {
                 .build())
         .andThen(dataSyncWorkManager.enqueueSyncWorker(feature.getId()));
   }
+
   /**
    * Reactivates the last active project, emitting true once loaded, or false if no project was
    * previously activated.
