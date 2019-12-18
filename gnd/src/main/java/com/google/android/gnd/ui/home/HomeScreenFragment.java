@@ -120,9 +120,6 @@ public class HomeScreenFragment extends AbstractFragment
     viewModel.getActiveProject().observe(this, this::onActiveProjectChange);
     viewModel.getShowAddFeatureDialogRequests().observe(this, this::onShowAddFeatureDialogRequest);
     viewModel.getFeatureSheetState().observe(this, this::onFeatureSheetStateChange);
-    viewModel.getAddObservationButtonVisibility().observe(this, v -> {
-      Log.e("!!!", "Viz: " + v);
-    });
     viewModel.getOpenDrawerRequests().observe(this, __ -> openDrawer());
 
     showFeatureDialogRequests = PublishSubject.create();
