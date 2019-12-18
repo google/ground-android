@@ -101,6 +101,11 @@ dependencies {
     })
     implementation 'androidx.multidex:multidex:2.0.0'
 
+    // Stetho - A debug bridge for Android applications
+    // Enables network and database debugging for the app under chrome://inspect in Chrome desktop browser.
+    // http://facebook.github.io/stetho/
+    implementation 'com.facebook.stetho:stetho:1.5.1'
+
     // Android legacy support Libraries.
     implementation "androidx.legacy:legacy-support-v4:$project.supportLibraryVersion"
     implementation "androidx.appcompat:appcompat:$project.supportLibraryVersion"
@@ -120,7 +125,7 @@ dependencies {
     implementation "com.google.android.gms:play-services-maps:$project.gmsVersion"
     implementation "com.google.android.gms:play-services-location:$project.gmsVersion"
 
-    // GeoJSON support.
+    // GeoJSON support
     implementation "com.google.maps.android:android-maps-utils:0.5"
 
     // Firebase and related libraries.
