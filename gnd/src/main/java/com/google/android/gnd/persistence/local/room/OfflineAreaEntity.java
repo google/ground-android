@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.google.android.gnd.persistence.local.room;
 
 import androidx.annotation.NonNull;
@@ -110,7 +111,12 @@ public abstract class OfflineAreaEntity {
   }
 
   public static OfflineAreaEntity create(
-      String id, OfflineAreaEntityState state, double north, double east, double south, double west) {
+      String id,
+      OfflineAreaEntityState state,
+      double north,
+      double east,
+      double south,
+      double west) {
     return builder()
         .setId(id)
         .setState(state)
