@@ -46,6 +46,7 @@ import androidx.room.TypeConverters;
     // TODO(#128): Reset version to 1 before releasing.
     version = 32,
     exportSchema = false)
+// CHECKSTYLE IGNORE indentation FOR NEXT 12 LINES
 @TypeConverters({
   ElementEntityType.class,
   FieldEntityType.class,
