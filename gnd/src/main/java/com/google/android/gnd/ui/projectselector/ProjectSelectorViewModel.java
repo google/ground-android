@@ -24,8 +24,6 @@ import com.google.android.gnd.repository.DataRepository;
 import com.google.android.gnd.repository.Loadable;
 import com.google.android.gnd.system.AuthenticationManager;
 import com.google.android.gnd.ui.common.AbstractViewModel;
-import io.reactivex.Single;
-import io.reactivex.subjects.PublishSubject;
 import java.util.Collections;
 import java.util.List;
 import javax.inject.Inject;
@@ -33,31 +31,20 @@ import javax.inject.Inject;
 public class ProjectSelectorViewModel extends AbstractViewModel {
   private static final String TAG = ProjectSelectorViewModel.class.getSimpleName();
 
+  private final DataRepository dataRepository;
   private final MutableLiveData<Loadable<List<Project>>> projectSummaries;
-  private final PublishSubject<Integer> projectSelections;
-  private final MutableLiveData<Project> activeProject;
-  private final MutableLiveData<Throwable> activateProjectErrors;
 
   @Inject
   ProjectSelectorViewModel(DataRepository dataRepository, AuthenticationManager authManager) {
+    this.dataRepository = dataRepository;
     this.projectSummaries = new MutableLiveData<>();
-    this.activeProject = new MutableLiveData<>();
-    this.activateProjectErrors = new MutableLiveData<>();
-    this.projectSelections = PublishSubject.create();
 
-    disposeOnClear(
-        projectSelections
-            .switchMapSingle(
-                idx ->
-                    dataRepository
-                        .activateProject(getProjectSummary(idx).getId())
-                        .doOnError(this::onActiveProjectError)
-                        .onErrorResumeNext(Single.never()))
-            .subscribe(activeProject::postValue));
+    // TODO: Handle activeProject and load error state into HomeScreenViewModel.
 
     AuthenticationManager.User user =
         authManager.getUser().blockingFirst(AuthenticationManager.User.ANONYMOUS);
 
+    // TODO: Transform project summary stream into LiveData instead of subscribing.
     disposeOnClear(
         dataRepository
             .getProjectSummaries(user)
@@ -68,14 +55,6 @@ public class ProjectSelectorViewModel extends AbstractViewModel {
     return projectSummaries;
   }
 
-  public LiveData<Throwable> getActivateProjectErrors() {
-    return activateProjectErrors;
-  }
-
-  public LiveData<Project> getActiveProject() {
-    return activeProject;
-  }
-
   private Project getProjectSummary(int idx) {
     return Loadable.getData(this.projectSummaries).orElse(Collections.emptyList()).get(idx);
   }
@@ -84,12 +63,7 @@ public class ProjectSelectorViewModel extends AbstractViewModel {
     Log.d(TAG, "Failed to retrieve project summaries.", t);
   }
 
-  private void onActiveProjectError(Throwable t) {
-    Log.d(TAG, "Could not activate project.", t);
-    this.activateProjectErrors.setValue(t);
-  }
-
   void activateProject(int idx) {
-    projectSelections.onNext(idx);
+    dataRepository.activateProject(getProjectSummary(idx).getId());
   }
 }

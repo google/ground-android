@@ -210,13 +210,9 @@ public class HomeScreenFragment extends AbstractFragment
   @Override
   public void onStart() {
     super.onStart();
-    viewModel.reactivateLastProject().observe(this, this::onReactivateLastProject);
-  }
 
-  private void onReactivateLastProject(boolean success) {
-    if (!success) {
-      showProjectSelector();
-    }
+    // TODO: Call through data repo to check if lastprojectid is set, and if not:
+    //    showProjectSelector();
   }
 
   private void showProjectSelector() {
@@ -271,6 +267,7 @@ public class HomeScreenFragment extends AbstractFragment
 
   private void onShowAddFeatureDialogRequest(Point location) {
     if (!Loadable.getData(viewModel.getActiveProject()).isPresent()) {
+      Log.e(TAG, "Attempting to add feature while no project loaded");
       return;
     }
     // TODO: Pause location updates while dialog is open.

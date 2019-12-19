@@ -62,8 +62,8 @@ public class ProjectSelectorDialogFragment extends AbstractDialogFragment {
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     this.viewModel = getViewModel(ProjectSelectorViewModel.class);
-    viewModel.getActivateProjectErrors().observe(this, this::onActivateProjectFailure);
-    viewModel.getActiveProject().observe(this, this::dismiss);
+    // TODO: Do we need this?
+//    viewModel.getActiveProject().observe(this, this::dismiss);
   }
 
   private void dismiss(Project project) {
@@ -121,6 +121,7 @@ public class ProjectSelectorDialogFragment extends AbstractDialogFragment {
     viewModel.activateProject(idx);
   }
 
+  // TODO: Move into HomeScreenFragment
   private void onActivateProjectFailure(Throwable throwable) {
     Log.e(TAG, "Project load exception", throwable);
     dismiss();
