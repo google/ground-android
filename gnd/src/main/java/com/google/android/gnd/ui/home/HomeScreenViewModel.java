@@ -145,6 +145,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
     navigator.addObservation(feature.getProject().getId(), feature.getId(), selectedForm.getId());
   }
 
+  //TODO: Move to OfflineAreaViewModel
   public void showBasemapSelector() {
     navigator.showBasemapSelector();
   }
