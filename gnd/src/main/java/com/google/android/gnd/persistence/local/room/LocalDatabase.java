@@ -46,7 +46,7 @@ import androidx.room.TypeConverters;
     // TODO(#128): Reset version to 1 before releasing.
     version = 32,
     exportSchema = false)
-// CHECKSTYLE IGNORE indentation FOR NEXT 12 LINES
+//CHECKSTYLE:OFF
 @TypeConverters({
   ElementEntityType.class,
   FieldEntityType.class,
@@ -59,6 +59,7 @@ import androidx.room.TypeConverters;
   StyleTypeConverter.class,
   TileEntityState.class
 })
+//CHECKSTYLE:ON
 public abstract class LocalDatabase extends RoomDatabase {
 
   public abstract FeatureDao featureDao();
