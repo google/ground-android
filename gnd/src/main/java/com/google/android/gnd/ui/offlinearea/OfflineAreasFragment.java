@@ -78,9 +78,4 @@ public class OfflineAreasFragment extends AbstractFragment {
     toolbar.setTitle(R.string.offline_maps);
     ((MainActivity) getActivity()).setActionBar(toolbar);
   }
-
-  @Override
-  public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-    super.onActivityCreated(savedInstanceState);
-  }
 }
