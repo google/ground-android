@@ -18,14 +18,9 @@ package com.google.android.gnd.model.basemap;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.auto.value.AutoValue;
 
-/**
- * An area is a contiguous set of tiles that form a geodesic rectangle.
- */
+/** An area is a contiguous set of tiles that form a geodesic rectangle. */
 @AutoValue
-public abstract class Area {
-  public static Builder newBuilder() {
-    return new AutoValue_Area.Builder();
-  }
+public abstract class OfflineArea {
 
   public abstract String getId();
 
@@ -42,6 +37,10 @@ public abstract class Area {
     FAILED
   }
 
+  public static Builder newBuilder() {
+    return new AutoValue_OfflineArea.Builder();
+  }
+
   @AutoValue.Builder
   public abstract static class Builder {
 
@@ -51,6 +50,6 @@ public abstract class Area {
 
     public abstract Builder setId(String id);
 
-    public abstract Area build();
+    public abstract OfflineArea build();
   }
 }

@@ -16,23 +16,17 @@
 package com.google.android.gnd.persistence.local.room;
 
 import androidx.room.Dao;
-import androidx.room.Insert;
-import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
-import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import java.util.List;
 
-/** Provides read/write operations for writing {@link AreaEntity} to the local db. */
+/** Provides read/write operations for writing {@link OfflineAreaEntity} to the local db. */
 @Dao
-public interface AreaDao {
-  @Insert(onConflict = OnConflictStrategy.ABORT)
-  Completable insertOrUpdate(AreaEntity areaEntity);
+public interface OfflineAreaDao extends BaseDao<OfflineAreaEntity> {
+  @Query("SELECT * FROM offline_area")
+  Flowable<List<OfflineAreaEntity>> findAll();
 
-  @Query("SELECT * FROM area")
-  Flowable<List<AreaEntity>> findAll();
-
-  @Query("SELECT * FROM area WHERE id = :id")
-  Maybe<AreaEntity> findById(String id);
+  @Query("SELECT * FROM offline_area WHERE id = :id")
+  Maybe<OfflineAreaEntity> findById(String id);
 }

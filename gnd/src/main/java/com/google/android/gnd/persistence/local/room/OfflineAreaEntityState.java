@@ -18,11 +18,12 @@ package com.google.android.gnd.persistence.local.room;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.room.TypeConverter;
+import com.google.android.gnd.model.basemap.OfflineArea;
 
 /**
- * A database representation of Area download states. Mirrors the states specified by the model {@link com.google.android.gnd.model.basemap.Area}
+ * A database representation of OfflineArea download states. Mirrors the states specified by the model {@link OfflineArea}
  */
-public enum AreaEntityState implements IntEnum {
+public enum OfflineAreaEntityState implements IntEnum {
     UNKNOWN(0),
     PENDING(1),
     IN_PROGRESS(2),
@@ -31,7 +32,7 @@ public enum AreaEntityState implements IntEnum {
 
     private final int intValue;
 
-    AreaEntityState(int intValue) {
+    OfflineAreaEntityState(int intValue) {
         this.intValue = intValue;
     }
 
@@ -40,13 +41,13 @@ public enum AreaEntityState implements IntEnum {
     }
 
     @TypeConverter
-    public static int toInt(@Nullable AreaEntityState value) {
+    public static int toInt(@Nullable OfflineAreaEntityState value) {
         return IntEnum.toInt(value, UNKNOWN);
     }
 
     @NonNull
     @TypeConverter
-    public static AreaEntityState fromInt(int intValue) {
+    public static OfflineAreaEntityState fromInt(int intValue) {
         return IntEnum.fromInt(values(), intValue, UNKNOWN);
     }
 }
