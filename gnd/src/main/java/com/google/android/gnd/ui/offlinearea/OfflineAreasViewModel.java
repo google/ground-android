@@ -23,9 +23,9 @@ import javax.inject.Inject;
 /**
  * View model for the offline area manager fragment. Handles the current list of downloaded areas.
  */
-public class OfflineAreaManagerViewModel extends AbstractViewModel {
+public class OfflineAreasViewModel extends AbstractViewModel {
 
   // TODO: Implement the ViewModel
   @Inject
-  OfflineAreaManagerViewModel() {}
+  OfflineAreasViewModel() {}
 }

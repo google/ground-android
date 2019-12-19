@@ -23,7 +23,7 @@
 
         <variable
             name="viewModel"
-            type="com.google.android.gnd.ui.offlinearea.OfflineAreaManagerViewModel" />
+            type="com.google.android.gnd.ui.offlinearea.OfflineAreasViewModel" />
     </data>
 
     <LinearLayout

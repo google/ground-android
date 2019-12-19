@@ -34,8 +34,8 @@ import com.google.android.gnd.ui.home.mapcontainer.MapContainerFragment;
 import com.google.android.gnd.ui.home.mapcontainer.MapContainerModule;
 import com.google.android.gnd.ui.observationdetails.ObservationDetailsFragment;
 import com.google.android.gnd.ui.observationdetails.ObservationDetailsModule;
-import com.google.android.gnd.ui.offlinearea.OfflineAreaManagerFragment;
-import com.google.android.gnd.ui.offlinearea.OfflineAreaManagerModule;
+import com.google.android.gnd.ui.offlinearea.OfflineAreasFragment;
+import com.google.android.gnd.ui.offlinearea.OfflineAreasModule;
 import com.google.android.gnd.ui.projectselector.ProjectSelectorDialogFragment;
 import com.google.android.gnd.ui.signin.SignInFragment;
 import com.google.android.gnd.ui.signin.SignInModule;
@@ -101,6 +101,6 @@ public abstract class MainActivityModule {
   abstract BasemapSelectorFragment basemapSelectorFragmentInjector();
 
   @FragmentScoped
-  @ContributesAndroidInjector(modules = OfflineAreaManagerModule.class)
-  abstract OfflineAreaManagerFragment offlineAreaManagerFragmentInjector();
+  @ContributesAndroidInjector(modules = OfflineAreasModule.class)
+  abstract OfflineAreasFragment offlineAreaManagerFragmentInjector();
 }

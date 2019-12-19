@@ -77,9 +77,9 @@
 
     <fragment
         android:id="@+id/offline_area_manager_fragment"
-        android:name="com.google.android.gnd.ui.offlinearea.OfflineAreaManagerFragment"
+        android:name="com.google.android.gnd.ui.offlinearea.OfflineAreasFragment"
         android:label="@string/offline_maps"
-        tools:layout="@layout/offline_area_manager_frag">
+        tools:layout="@layout/offline_areas_frag">
         <action
             android:id="@+id/backToHomeScreen"
             app:destination="@id/home_screen_fragment" />
