@@ -17,6 +17,7 @@
 package com.google.android.gnd.ui.home;
 
 import android.util.Log;
+import android.view.View;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
 import androidx.lifecycle.MutableLiveData;
@@ -54,6 +55,8 @@ public class HomeScreenViewModel extends AbstractViewModel {
   // TODO: Move into FeatureSheetViewModel.
   private final SingleLiveEvent<Void> openDrawerRequests;
   private final MutableLiveData<FeatureSheetState> featureSheetState;
+  private final MutableLiveData<Integer> addObservationButtonVisibility =
+      new MutableLiveData<>(View.VISIBLE);
   @Nullable private Form selectedForm;
 
   @Inject
@@ -78,6 +81,10 @@ public class HomeScreenViewModel extends AbstractViewModel {
                         .onErrorResumeNext(Single.never())) // Prevent from breaking upstream.
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(this::showFeatureSheet));
+  }
+
+  public MutableLiveData<Integer> getAddObservationButtonVisibility() {
+    return addObservationButtonVisibility;
   }
 
   private void onAddFeatureError(Throwable throwable) {
@@ -111,6 +118,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
   }
 
   private void showFeatureSheet(Feature feature) {
+    addObservationButtonVisibility.setValue(View.VISIBLE);
     featureSheetState.setValue(FeatureSheetState.visible(feature));
   }
 
@@ -125,6 +133,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
 
   public void onBottomSheetHidden() {
     featureSheetState.setValue(FeatureSheetState.hidden());
+    addObservationButtonVisibility.setValue(View.GONE);
   }
 
   public void onFormChange(Form form) {

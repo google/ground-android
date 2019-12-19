@@ -49,7 +49,7 @@ public class FirestoreDataStore implements RemoteDataStore {
   // TODO(#57): Set to false to disable Firebase-managed offline persistence once local db sync
   // is implemented for project config and users.
   private static final FirebaseFirestoreSettings FIRESTORE_SETTINGS =
-      new FirebaseFirestoreSettings.Builder().setPersistenceEnabled(true).build();
+      new FirebaseFirestoreSettings.Builder().setPersistenceEnabled(false).build();
   static final String ID_COLLECTION = "/ids";
   private final GndFirestore db;
 

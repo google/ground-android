@@ -29,6 +29,7 @@ import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
+import java.util.List;
 
 /**
  * Provides access to local persistent data store, the canonical store for latest state and
@@ -44,6 +45,19 @@ import io.reactivex.Single;
  * deltas to allow changes to not rely on prior UI state (i.e., emissions are idempotent).
  */
 public interface LocalDataStore {
+
+  /** Load projects stored in local database. */
+  Single<List<Project>> getProjects();
+
+  /** Load last active project, if any. */
+  Maybe<Project> getProjectById(String id);
+
+  /** Delete stored project from database. */
+  Completable removeProject(Project project);
+
+  /** Add project to the database. */
+  Completable insertOrUpdateProject(Project project);
+
   /**
    * Applies the specified {@link FeatureMutation} to the local data store, appending the mutation
    * to the local queue for remote sync.
