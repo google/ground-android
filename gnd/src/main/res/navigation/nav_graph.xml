@@ -71,12 +71,12 @@
             android:id="@+id/showBasemapSelector"
             app:destination="@id/basemap_selector_fragment" />
         <action
-            android:id="@+id/showOfflineAreaManager"
-            app:destination="@id/offline_area_manager_fragment" />
+            android:id="@+id/showOfflineAreas"
+            app:destination="@id/offline_areas_fragment" />
     </fragment>
 
     <fragment
-        android:id="@+id/offline_area_manager_fragment"
+        android:id="@+id/offline_areas_fragment"
         android:name="com.google.android.gnd.ui.offlinearea.OfflineAreasFragment"
         android:label="@string/offline_maps"
         tools:layout="@layout/offline_areas_frag">

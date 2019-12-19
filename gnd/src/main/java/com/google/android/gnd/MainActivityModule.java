@@ -102,5 +102,5 @@ public abstract class MainActivityModule {
 
   @FragmentScoped
   @ContributesAndroidInjector(modules = OfflineAreasModule.class)
-  abstract OfflineAreasFragment offlineAreaManagerFragmentInjector();
+  abstract OfflineAreasFragment offlineAreasFragmentInjector();
 }

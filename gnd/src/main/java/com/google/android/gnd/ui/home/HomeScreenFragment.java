@@ -229,9 +229,9 @@ public class HomeScreenFragment extends AbstractFragment
     viewModel.showBasemapSelector();
   }
 
-  private void showOfflineAreaManager() {
+  private void showOfflineAreas() {
     toolbar.setBackgroundColor(3);
-    viewModel.showOfflineAreaManager();
+    viewModel.showOfflineAreas();
   }
 
   private void onApplyWindowInsets(WindowInsetsCompat insets) {
@@ -346,7 +346,7 @@ public class HomeScreenFragment extends AbstractFragment
         closeDrawer();
         break;
       case R.id.nav_offline_maps:
-        showOfflineAreaManager();
+        showOfflineAreas();
         closeDrawer();
         break;
       case R.id.nav_sign_out:

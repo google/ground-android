@@ -159,7 +159,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
         dataRepository.reactivateLastProject().toFlowable());
   }
 
-  public void showOfflineAreaManager() {
-    navigator.showOfflineAreaManager();
+  public void showOfflineAreas() {
+    navigator.showOfflineAreas();
   }
 }

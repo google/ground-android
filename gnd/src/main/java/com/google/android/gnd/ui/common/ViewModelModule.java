@@ -51,7 +51,7 @@ public abstract class ViewModelModule {
   @Binds
   @IntoMap
   @ViewModelKey(OfflineAreasViewModel.class)
-  abstract ViewModel bindOfflineAreaManagerViewModel(OfflineAreasViewModel viewModel);
+  abstract ViewModel bindOfflineAreasViewModel(OfflineAreasViewModel viewModel);
 
   @Binds
   @IntoMap
