@@ -36,7 +36,7 @@ import com.google.android.gnd.MainViewModel;
 import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.MapContainerFragBinding;
 import com.google.android.gnd.model.Project;
-import com.google.android.gnd.repository.Persistable;
+import com.google.android.gnd.repository.Loadable;
 import com.google.android.gnd.rx.BooleanResult;
 import com.google.android.gnd.system.PermissionsManager.PermissionDeniedException;
 import com.google.android.gnd.system.SettingsManager.SettingsChangeRequestCanceled;
@@ -158,7 +158,7 @@ public class MapContainerFragment extends AbstractFragment {
     }
   }
 
-  private void onProjectChange(Persistable<Project> project) {
+  private void onProjectChange(Loadable<Project> project) {
     if (project.isLoaded()) {
       enableAddFeatureBtn();
     } else {

@@ -26,7 +26,7 @@ import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.repository.DataRepository;
-import com.google.android.gnd.repository.Persistable;
+import com.google.android.gnd.repository.Loadable;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.SharedViewModel;
@@ -45,7 +45,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
   private final DataRepository dataRepository;
   private final Navigator navigator;
   /** The state and value of the currently active project (loading, loaded, etc.). */
-  private final LiveData<Persistable<Project>> activeProject;
+  private final LiveData<Loadable<Project>> activeProject;
 
   private final PublishSubject<Feature> addFeatureClicks;
 
@@ -100,7 +100,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
     openDrawerRequests.setValue(null);
   }
 
-  public LiveData<Persistable<Project>> getActiveProject() {
+  public LiveData<Loadable<Project>> getActiveProject() {
     return activeProject;
   }
 

@@ -30,10 +30,10 @@ import org.reactivestreams.Publisher;
  *
  * @param <T> the type of data payload the resource contains.
  */
-public class Persistable<T> extends Result<T> {
-  private final PersistenceState state;
+public class Loadable<T> extends Result<T> {
+  private final LoadState state;
 
-  public enum PersistenceState {
+  public enum LoadState {
     NOT_LOADED,
     LOADING,
     LOADED,
@@ -41,46 +41,46 @@ public class Persistable<T> extends Result<T> {
     ERROR
   }
 
-  private Persistable(PersistenceState state, @Nullable T data, Throwable error) {
+  private Loadable(LoadState state, @Nullable T data, Throwable error) {
     super(data, error);
     this.state = state;
   }
 
-  public static <T> Persistable<T> notLoaded() {
-    return new Persistable<>(PersistenceState.NOT_LOADED, null, null);
+  public static <T> Loadable<T> notLoaded() {
+    return new Loadable<>(LoadState.NOT_LOADED, null, null);
   }
 
-  public static <T> Persistable<T> loading() {
-    return new Persistable<>(PersistenceState.LOADING, null, null);
+  public static <T> Loadable<T> loading() {
+    return new Loadable<>(LoadState.LOADING, null, null);
   }
 
-  public static <T> Persistable<T> loaded(T data) {
-    return new Persistable<>(PersistenceState.LOADED, data, null);
+  public static <T> Loadable<T> loaded(T data) {
+    return new Loadable<>(LoadState.LOADED, data, null);
   }
 
-  public static <T> Persistable<T> error(Throwable t) {
-    return new Persistable<>(PersistenceState.ERROR, null, t);
+  public static <T> Loadable<T> error(Throwable t) {
+    return new Loadable<>(LoadState.ERROR, null, t);
   }
 
-  public PersistenceState state() {
+  public LoadState getState() {
     return state;
   }
 
   public boolean isLoaded() {
-    return state == PersistenceState.LOADED;
+    return state == LoadState.LOADED;
   }
 
   // TODO: Move this into new extended LiveData class (LiveResource?).
   @NonNull
-  public static <T> Optional<T> getData(LiveData<Persistable<T>> liveData) {
+  public static <T> Optional<T> getData(LiveData<Loadable<T>> liveData) {
     return liveData.getValue() == null ? Optional.empty() : liveData.getValue().value();
   }
 
   /**
-   * Modifies the provided stream to emit values instead of {@link Persistable} only when a value is
+   * Modifies the provided stream to emit values instead of {@link Loadable} only when a value is
    * loaded (i.e., omitting intermediate loading and error states).
    */
-  public static <V> Publisher<V> values(Flowable<Persistable<V>> persistableStream) {
-    return persistableStream.map(Persistable::value).filter(Optional::isPresent).map(Optional::get);
+  public static <V> Publisher<V> values(Flowable<Loadable<V>> persistableStream) {
+    return persistableStream.map(Loadable::value).filter(Optional::isPresent).map(Optional::get);
   }
 }

@@ -56,7 +56,7 @@ public class DataRepository {
   private final LocalDataStore localDataStore;
   private final RemoteDataStore remoteDataStore;
   private final DataSyncWorkManager dataSyncWorkManager;
-  private final FlowableProcessor<Persistable<Project>> activeProject;
+  private final FlowableProcessor<Loadable<Project>> activeProject;
   private final OfflineUuidGenerator uuidGenerator;
   private final LocalValueStore localValueStore;
 
@@ -87,7 +87,7 @@ public class DataRepository {
   private void streamFeaturesToLocalDb(RemoteDataStore remoteDataStore) {
     // TODO: Move to Application or background service.
     activeProject
-        .compose(Persistable::values)
+        .compose(Loadable::values)
         .switchMap(remoteDataStore::loadFeaturesOnceAndStreamChanges)
         .switchMap(event -> updateLocalFeature(event).toFlowable())
         .subscribe();
@@ -114,7 +114,7 @@ public class DataRepository {
    * Returns a stream that emits the latest project activation state, and continues to emits changes
    * to that state until all subscriptions are disposed.
    */
-  public Flowable<Persistable<Project>> getActiveProjectOnceAndStream() {
+  public Flowable<Loadable<Project>> getActiveProjectOnceAndStream() {
     return activeProject;
   }
 
@@ -133,18 +133,18 @@ public class DataRepository {
               return Single.error(throwable);
             })
         .doOnError(throwable -> Log.e(TAG, "Project not found " + projectId))
-        .doOnSubscribe(__ -> activeProject.onNext(Persistable.loading()))
+        .doOnSubscribe(__ -> activeProject.onNext(Loadable.loading()))
         .flatMap(project -> localDataStore.insertOrUpdateProject(project).toSingleDefault(project))
         .doOnSuccess(this::onProjectLoaded);
   }
 
   private void onProjectLoaded(Project project) {
     cache.setActiveProject(project);
-    activeProject.onNext(Persistable.loaded(project));
+    activeProject.onNext(Loadable.loaded(project));
     localValueStore.setLastActiveProjectId(project.getId());
   }
 
-  public Observable<Persistable<List<Project>>> getProjectSummaries(User user) {
+  public Observable<Loadable<List<Project>>> getProjectSummaries(User user) {
     // TODO: Get from load db if network connection not available or remote times out.
     return remoteDataStore
         .loadProjectSummaries(user)
@@ -155,10 +155,10 @@ public class DataRepository {
               }
               return Single.error(throwable);
             })
-        .map(Persistable::loaded)
-        .onErrorReturn(Persistable::error)
+        .map(Loadable::loaded)
+        .onErrorReturn(Loadable::error)
         .toObservable()
-        .startWith(Persistable.loading());
+        .startWith(Loadable.loading());
   }
 
   // TODO: Only return feature fields needed to render features on map.
@@ -289,6 +289,6 @@ public class DataRepository {
         .subscribe();
     cache.clearActiveProject();
     localValueStore.clearLastActiveProjectId();
-    activeProject.onNext(Persistable.notLoaded());
+    activeProject.onNext(Loadable.notLoaded());
   }
 }

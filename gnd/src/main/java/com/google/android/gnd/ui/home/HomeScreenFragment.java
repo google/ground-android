@@ -45,7 +45,7 @@ import com.google.android.gnd.inject.ActivityScoped;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.Point;
-import com.google.android.gnd.repository.Persistable;
+import com.google.android.gnd.repository.Loadable;
 import com.google.android.gnd.system.AuthenticationManager;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.BackPressListener;
@@ -250,8 +250,8 @@ public class HomeScreenFragment extends AbstractFragment
     bottomSheetBehavior.setPeekHeight((int) peekHeight);
   }
 
-  private void onActiveProjectChange(Persistable<Project> project) {
-    switch (project.state()) {
+  private void onActiveProjectChange(Loadable<Project> project) {
+    switch (project.getState()) {
       case NOT_LOADED:
         dismissLoadingDialog();
         break;
@@ -270,7 +270,7 @@ public class HomeScreenFragment extends AbstractFragment
   }
 
   private void onShowAddFeatureDialogRequest(Point location) {
-    if (!Persistable.getData(viewModel.getActiveProject()).isPresent()) {
+    if (!Loadable.getData(viewModel.getActiveProject()).isPresent()) {
       return;
     }
     // TODO: Pause location updates while dialog is open.

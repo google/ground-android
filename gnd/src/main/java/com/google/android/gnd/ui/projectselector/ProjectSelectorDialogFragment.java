@@ -35,7 +35,7 @@ import butterknife.ButterKnife;
 import com.google.android.gnd.R;
 import com.google.android.gnd.inject.ActivityScoped;
 import com.google.android.gnd.model.Project;
-import com.google.android.gnd.repository.Persistable;
+import com.google.android.gnd.repository.Loadable;
 import com.google.android.gnd.ui.common.AbstractDialogFragment;
 import com.google.android.gnd.ui.common.EphemeralPopups;
 import java.util.List;
@@ -88,8 +88,8 @@ public class ProjectSelectorDialogFragment extends AbstractDialogFragment {
     return dialog.create();
   }
 
-  private void update(Persistable<List<Project>> projectSummaries) {
-    switch (projectSummaries.state()) {
+  private void update(Loadable<List<Project>> projectSummaries) {
+    switch (projectSummaries.getState()) {
       case LOADING:
         Log.i(TAG, "Loading projects");
         break;
