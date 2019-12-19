@@ -23,6 +23,7 @@ import androidx.multidex.MultiDexApplication;
 import androidx.work.Configuration;
 import androidx.work.WorkManager;
 import com.akaita.java.rxjava2debug.RxJava2Debug;
+import com.facebook.stetho.Stetho;
 import com.google.android.gnd.inject.GndWorkerFactory;
 import com.google.android.gnd.repository.DataRepository;
 import dagger.android.AndroidInjector;
@@ -45,6 +46,12 @@ public class GndApplication extends MultiDexApplication implements HasActivityIn
     if (BuildConfig.DEBUG) {
       Log.d(TAG, "DEBUG build config active; enabling debug tooling");
       setStrictMode();
+
+      /*
+       * Debug bridge for Android applications. Enables network and database debugging for the app
+       * accessible under chrome://inspect in Chrome desktop browser.
+       */
+      Stetho.initializeWithDefaults(this);
     }
 
     super.onCreate();
