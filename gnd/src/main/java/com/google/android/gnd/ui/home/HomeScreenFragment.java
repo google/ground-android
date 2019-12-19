@@ -224,9 +224,9 @@ public class HomeScreenFragment extends AbstractFragment
   }
 
   //TODO: Move to OfflineAreasFragment
-  private void showBasemapSelector() {
-    viewModel.showBasemapSelector();
-  }
+  //private void showBasemapSelector() {
+  //  viewModel.showBasemapSelector();
+  //}
 
   private void showOfflineAreas() {
     toolbar.setBackgroundColor(3);
