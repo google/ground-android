@@ -19,8 +19,10 @@ package com.google.android.gnd.persistence.local.room;
 import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList;
 import static com.google.android.gnd.util.ImmutableSetCollector.toImmutableSet;
 import static java8.lang.Iterables.forEach;
+import static java8.util.stream.Collectors.toList;
 import static java8.util.stream.StreamSupport.stream;
 
+import android.util.Log;
 import androidx.room.Room;
 import androidx.room.Transaction;
 import com.google.android.gnd.GndApplication;
@@ -29,6 +31,12 @@ import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.basemap.tile.Tile;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.FeatureMutation;
+import com.google.android.gnd.model.form.Element;
+import com.google.android.gnd.model.form.Field;
+import com.google.android.gnd.model.form.Form;
+import com.google.android.gnd.model.form.MultipleChoice;
+import com.google.android.gnd.model.form.Option;
+import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.model.observation.ObservationMutation;
 import com.google.android.gnd.persistence.local.LocalDataStore;
@@ -37,6 +45,7 @@ import com.google.common.collect.ImmutableSet;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
+import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.schedulers.Schedulers;
 import java.util.List;
@@ -52,6 +61,7 @@ import javax.inject.Singleton;
 @Singleton
 public class RoomLocalDataStore implements LocalDataStore {
   private static final String DB_NAME = "gnd.db";
+  private static final String TAG = RoomLocalDataStore.class.getSimpleName();
 
   private final LocalDatabase db;
 
@@ -63,6 +73,97 @@ public class RoomLocalDataStore implements LocalDataStore {
             // TODO(#128): Disable before official release.
             .fallbackToDestructiveMigration()
             .build();
+  }
+
+  private Completable insertOrUpdateOption(String fieldId, Option option) {
+    return db.optionDao()
+        .insertOrUpdate(OptionEntity.fromOption(fieldId, option))
+        .subscribeOn(Schedulers.io());
+  }
+
+  private Completable insertOrUpdateOptions(String fieldId, ImmutableList<Option> options) {
+    return Observable.fromIterable(options)
+        .flatMapCompletable(option -> insertOrUpdateOption(fieldId, option))
+        .subscribeOn(Schedulers.io());
+  }
+
+  private Completable insertOrUpdateMultipleChoice(String fieldId, MultipleChoice multipleChoice) {
+    return db.multipleChoiceDao()
+        .insertOrUpdate(MultipleChoiceEntity.fromMultipleChoice(fieldId, multipleChoice))
+        .andThen(insertOrUpdateOptions(fieldId, multipleChoice.getOptions()))
+        .subscribeOn(Schedulers.io());
+  }
+
+  private Completable insertOrUpdateField(String formId, Element.Type elementType, Field field) {
+    return db.fieldDao()
+        .insertOrUpdate(FieldEntity.fromField(formId, elementType, field))
+        .andThen(
+            Observable.just(field)
+                .filter(__ -> field.getMultipleChoice() != null)
+                .flatMapCompletable(
+                    __ -> insertOrUpdateMultipleChoice(field.getId(), field.getMultipleChoice())))
+        .subscribeOn(Schedulers.io());
+  }
+
+  private Completable insertOrUpdateElements(String formId, ImmutableList<Element> elements) {
+    return Observable.fromIterable(elements)
+        .flatMapCompletable(
+            element -> insertOrUpdateField(formId, element.getType(), element.getField()));
+  }
+
+  private Completable insertOrUpdateForm(String layerId, Form form) {
+    return db.formDao()
+        .insertOrUpdate(FormEntity.fromForm(layerId, form))
+        .andThen(insertOrUpdateElements(form.getId(), form.getElements()))
+        .subscribeOn(Schedulers.io());
+  }
+
+  private Completable insertOrUpdateForms(String layerId, List<Form> forms) {
+    return Observable.fromIterable(forms)
+        .flatMapCompletable(form -> insertOrUpdateForm(layerId, form));
+  }
+
+  private Completable insertOrUpdateLayer(String projectId, Layer layer) {
+    return db.layerDao()
+        .insertOrUpdate(LayerEntity.fromLayer(projectId, layer))
+        .andThen(insertOrUpdateForms(layer.getId(), layer.getForms()))
+        .subscribeOn(Schedulers.io());
+  }
+
+  private Completable insertOrUpdateLayers(String projectId, List<Layer> layers) {
+    return Observable.fromIterable(layers)
+        .flatMapCompletable(layer -> insertOrUpdateLayer(projectId, layer));
+  }
+
+  @Override
+  public Completable insertOrUpdateProject(Project project) {
+    return db.projectDao()
+        .insertOrUpdate(ProjectEntity.fromProject(project))
+        .andThen(insertOrUpdateLayers(project.getId(), project.getLayers()))
+        .subscribeOn(Schedulers.io());
+  }
+
+  @Override
+  public Single<List<Project>> getProjects() {
+    return db.projectDao()
+        .getAllProjects()
+        .map(list -> stream(list).map(ProjectEntity::toProject).collect(toList()))
+        .subscribeOn(Schedulers.io());
+  }
+
+  @Override
+  public Maybe<Project> getProjectById(String id) {
+    return db.projectDao()
+        .getProjectById(id)
+        .map(ProjectEntity::toProject)
+        .subscribeOn(Schedulers.io());
+  }
+
+  @Override
+  public Completable removeProject(Project project) {
+    return db.projectDao()
+        .deleteProject(ProjectEntity.fromProject(project))
+        .subscribeOn(Schedulers.io());
   }
 
   @Transaction
@@ -186,7 +287,7 @@ public class RoomLocalDataStore implements LocalDataStore {
     RecordEntity recordEntity = RecordEntity.fromRecord(observation);
     return db.recordMutationDao()
         .findByRecordId(observation.getId())
-        .map(mutations -> recordEntity.applyMutations(mutations))
+        .map(recordEntity::applyMutations)
         .flatMapCompletable(db.recordDao()::insertOrUpdate)
         .subscribeOn(Schedulers.io());
   }
@@ -228,12 +329,28 @@ public class RoomLocalDataStore implements LocalDataStore {
     }
   }
 
+  /**
+   * Applies mutation to observation in database or creates a new one.
+   *
+   * @return A Completable that emits an error if mutation type is "UPDATE" but entity does not
+   *     exist, or if type is "CREATE" and entity already exists.
+   */
   private Completable apply(ObservationMutation mutation) throws LocalDataStoreException {
     switch (mutation.getType()) {
       case CREATE:
+        return db.recordDao()
+            .insert(RecordEntity.fromMutation(mutation))
+            .doOnSubscribe(__ -> Log.v(TAG, "Inserting observation: " + mutation))
+            .subscribeOn(Schedulers.io());
       case UPDATE:
         return db.recordDao()
-            .insertOrUpdate(RecordEntity.fromMutation(mutation))
+            .findById(mutation.getRecordId())
+            .doOnSubscribe(__ -> Log.v(TAG, "Applying mutation: " + mutation))
+            // Emit NoSuchElementException if not found.
+            .toSingle()
+            .map(obs -> obs.applyMutation(mutation))
+            .flatMapCompletable(
+                obs -> db.recordDao().insertOrUpdate(obs).subscribeOn(Schedulers.io()))
             .subscribeOn(Schedulers.io());
       default:
         throw LocalDataStoreException.unknownMutationType(mutation.getType());
@@ -243,6 +360,7 @@ public class RoomLocalDataStore implements LocalDataStore {
   private Completable enqueue(ObservationMutation mutation) {
     return db.recordMutationDao()
         .insert(RecordMutationEntity.fromMutation(mutation))
+        .doOnSubscribe(__ -> Log.v(TAG, "Enqueuing mutation: " + mutation))
         .subscribeOn(Schedulers.io());
   }
 

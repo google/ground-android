@@ -24,19 +24,20 @@ apply from: '../config/spotbugs/spotbugs.gradle'
 project.ext {
     autoDisposeVersion = "1.2.0"
     autoValueVersion = "1.6.3"
-    butterKnifeVersion = "10.1.0"
+    butterKnifeVersion = "10.2.0"
     constraintLayoutVersion = "1.0.2"
     daggerVersion = "2.21"
     // Latest: https://firebase.google.com/support/release-notes/android#latest_sdk_versions
-    firebaseCoreVersion = "16.0.3"
-    firebaseFirestoreVersion = "17.1.0"
-    firebasePerfVersion = "16.1.0"
-    gmsVersion = "15.0.1"
+    firebaseCoreVersion = "17.2.1"
+    firebaseAuthVersion = "19.2.0"
+    firebaseFirestoreVersion = "21.3.1"
+    firebasePerfVersion = "19.0.3"
+    gmsVersion = "17.0.0"
     guavaVersion = "23.0-android"
     junitVersion = "4.12"
-    lifecycleVersion = "2.0.0-beta01"
-    navigationVersion = "1.0.0-alpha05"
-    roomVersion = "2.1.0-rc01"
+    lifecycleVersion = "2.1.0"
+    navigationVersion = "1.0.0"
+    roomVersion = "2.2.2"
     rxAndroidVersion = "2.1.1"
     rxBindingVersion = "2.1.1"
     rxFirebaseVersion = "1.5.0"
@@ -45,7 +46,8 @@ project.ext {
     streamSupportVersion = "1.6.3"
     supportLibraryVersion = "1.0.0-beta01"
     tabLayoutHelper = "0.9.0"
-    workVersion = "2.0.1"
+    truthVersion = "1.0"
+    workVersion = "2.2.0"
 }
 
 // Load secrets.properties
@@ -61,7 +63,7 @@ android {
     defaultConfig {
         // https://developer.android.com/about/dashboards/index.html for reference.
         applicationId "com.google.android.gnd"
-        minSdkVersion 15
+        minSdkVersion 16
         // Switching targetSdkVersion to 27 or 28 causes the app to hang on map drags; diagnose and
         // fix before increasing this value.
         targetSdkVersion 26
@@ -98,11 +100,16 @@ dependencies {
     androidTestImplementation('androidx.test.espresso:espresso-core:3.1.0-alpha4', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
-    implementation 'androidx.multidex:multidex:2.0.0'
+    implementation 'androidx.multidex:multidex:2.0.1'
+
+    // Stetho - A debug bridge for Android applications
+    // Enables network and database debugging for the app under chrome://inspect in Chrome desktop browser.
+    // http://facebook.github.io/stetho/
+    implementation 'com.facebook.stetho:stetho:1.5.1'
 
     // Android legacy support Libraries.
-    implementation "androidx.legacy:legacy-support-v4:$project.supportLibraryVersion"
-    implementation "androidx.appcompat:appcompat:$project.supportLibraryVersion"
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+    implementation 'androidx.appcompat:appcompat:1.1.0'
 
     // UI widgets.
     implementation "androidx.cardview:cardview:$project.supportLibraryVersion"
@@ -119,13 +126,13 @@ dependencies {
     implementation "com.google.android.gms:play-services-maps:$project.gmsVersion"
     implementation "com.google.android.gms:play-services-location:$project.gmsVersion"
 
-    // GeoJSON support.
+    // GeoJSON support
     implementation "com.google.maps.android:android-maps-utils:0.5"
 
     // Firebase and related libraries.
     implementation "com.google.firebase:firebase-core:$project.firebaseCoreVersion"
     implementation "com.google.firebase:firebase-firestore:$project.firebaseFirestoreVersion"
-    implementation "com.google.firebase:firebase-auth:$project.firebaseCoreVersion"
+    implementation "com.google.firebase:firebase-auth:$project.firebaseAuthVersion"
     implementation "com.google.firebase:firebase-perf:$project.firebasePerfVersion"
     implementation "com.github.FrangSierra:RxFirebase:$project.rxFirebaseVersion"
 
@@ -180,9 +187,9 @@ dependencies {
     implementation "androidx.work:work-rxjava2:$workVersion"
     androidTestImplementation "androidx.work:work-testing:$workVersion"
 
-
     // Testing
     testImplementation "junit:junit:$project.junitVersion"
+    testImplementation "com.google.truth:truth:$project.truthVersion"
 
     implementation "com.uber.autodispose:autodispose-android:$project.autoDisposeVersion"
     implementation "com.uber.autodispose:autodispose-android-archcomponents:$project.autoDisposeVersion"

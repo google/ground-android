@@ -41,7 +41,10 @@ public class ResponseDeltasTypeConverter {
       try {
         json.put(
             delta.getFieldId(),
-            delta.getNewResponse().map(ResponseJsonConverter::toJsonObject).orElse(null));
+            delta
+                .getNewResponse()
+                .map(ResponseJsonConverter::toJsonObject)
+                .orElse(JSONObject.NULL));
       } catch (JSONException e) {
         Log.e(TAG, "Error building JSON", e);
       }

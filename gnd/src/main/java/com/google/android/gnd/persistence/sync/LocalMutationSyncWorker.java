@@ -67,6 +67,7 @@ public class LocalMutationSyncWorker extends Worker {
     Log.d(TAG, "Connected. Syncing changes to feature " + featureId);
     ImmutableList<Mutation> mutations = localDataStore.getPendingMutations(featureId).blockingGet();
     try {
+      Log.v(TAG, "Mutations: " + mutations);
       processMutations(mutations).blockingAwait();
       return Result.success();
     } catch (Throwable t) {

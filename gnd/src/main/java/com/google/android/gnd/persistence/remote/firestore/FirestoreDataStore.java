@@ -27,7 +27,6 @@ import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.model.observation.ObservationMutation;
 import com.google.android.gnd.persistence.remote.RemoteDataEvent;
 import com.google.android.gnd.persistence.remote.RemoteDataStore;
-import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator;
 import com.google.android.gnd.rx.RxTask;
 import com.google.android.gnd.system.AuthenticationManager.User;
 import com.google.common.collect.ImmutableCollection;
@@ -44,26 +43,24 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-// TODO(#92): Break implementation of OfflineUuidGenerator into a separate class.
 @Singleton
-public class FirestoreDataStore implements RemoteDataStore, OfflineUuidGenerator {
+public class FirestoreDataStore implements RemoteDataStore {
 
   // TODO(#57): Set to false to disable Firebase-managed offline persistence once local db sync
   // is implemented for project config and users.
   private static final FirebaseFirestoreSettings FIRESTORE_SETTINGS =
-      new FirebaseFirestoreSettings.Builder().setPersistenceEnabled(true).build();
-  private static final String ID_COLLECTION = "/ids";
+      new FirebaseFirestoreSettings.Builder().setPersistenceEnabled(false).build();
+  static final String ID_COLLECTION = "/ids";
   private final GndFirestore db;
-  private final FirebaseFirestore firestore;
 
   @Inject
   FirestoreDataStore() {
     // TODO: Run on I/O thread, return asynchronously.
     // TODO: Bind the Firestore instance in a module and inject it here.
-    this.firestore = FirebaseFirestore.getInstance();
+    FirebaseFirestore firestore = FirebaseFirestore.getInstance();
     firestore.setFirestoreSettings(FIRESTORE_SETTINGS);
     FirebaseFirestore.setLoggingEnabled(true);
-    this.db = new GndFirestore(firestore);
+    db = new GndFirestore(firestore);
   }
 
   static Timestamps toTimestamps(@Nullable Date created, @Nullable Date modified) {
@@ -147,10 +144,5 @@ public class FirestoreDataStore implements RemoteDataStore, OfflineUuidGenerator
         .records()
         .record(mutation.getRecordId())
         .addMutationToBatch(mutation, batch);
-  }
-
-  @Override
-  public String generateUuid() {
-    return firestore.collection(ID_COLLECTION).document().getId();
   }
 }

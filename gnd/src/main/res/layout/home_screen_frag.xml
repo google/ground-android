@@ -14,9 +14,9 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<layout
-  xmlns:android="http://schemas.android.com/apk/res/android"
-  xmlns:app="http://schemas.android.com/apk/res-auto">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  xmlns:tools="http://schemas.android.com/tools">
 
   <FrameLayout
     android:layout_width="match_parent"
@@ -38,7 +38,7 @@
           android:id="@+id/map_container_fragment"
           android:layout_width="match_parent"
           android:layout_height="match_parent"
-          app:layout_behavior="com.google.android.gnd.ui.home.mapcontainer.MapContainerLayoutBehavior"/>
+          app:layout_behavior="com.google.android.gnd.ui.home.mapcontainer.MapContainerLayoutBehavior" />
 
         <!-- TODO: Move feature sheet and chrome into separate layout files. -->
         <FrameLayout
@@ -48,7 +48,7 @@
           android:alpha="0"
           android:background="@color/colorPrimary"
           android:clickable="false"
-          android:focusable="false"/>
+          android:focusable="false" />
 
         <FrameLayout
           android:id="@+id/bottom_sheet_scroll_view"
@@ -58,15 +58,15 @@
 
           <fragment
             android:id="@+id/feature_sheet_fragment"
+            android:name="com.google.android.gnd.ui.home.featuresheet.FeatureSheetFragment"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:name="com.google.android.gnd.ui.home.featuresheet.FeatureSheetFragment"/>
+            android:layout_height="match_parent" />
 
         </FrameLayout>
 
         <include
           android:id="@+id/feature_sheet_chrome"
-          layout="@layout/feature_sheet_chrome"/>
+          layout="@layout/feature_sheet_chrome" />
 
       </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
@@ -82,11 +82,11 @@
 
         <TextView
           android:id="@+id/version_text"
-          android:paddingBottom="48dp"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
           android:layout_gravity="bottom"
-          android:text="Build number"/>
+          android:padding="8dp"
+          tools:text="Build number" />
 
       </com.google.android.material.navigation.NavigationView>
 
@@ -103,7 +103,7 @@
       android:layout_height="wrap_content"
       android:layout_gravity="top"
       android:alpha="0.4"
-      android:background="@android:color/black"/>
+      android:background="@android:color/black" />
 
   </FrameLayout>
 </layout>

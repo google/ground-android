@@ -28,6 +28,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.ViewCompat;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
+import androidx.navigation.NavDestination;
 import androidx.navigation.NavDirections;
 import androidx.navigation.fragment.NavHostFragment;
 import butterknife.ButterKnife;
@@ -119,14 +120,14 @@ public class MainActivity extends AppCompatActivity implements HasSupportFragmen
     switch (signInState.state()) {
       case SIGNED_OUT:
         // TODO: Check auth status whenever fragments resumes.
-        viewModel.onSignedOut();
+        viewModel.onSignedOut(getCurrentNavDestinationId());
         break;
       case SIGNING_IN:
         // TODO: Show/hide spinner.
         break;
       case SIGNED_IN:
         // TODO: Store/update user profile and image locally.
-        viewModel.onSignedIn();
+        viewModel.onSignedIn(getCurrentNavDestinationId());
         break;
       case ERROR:
         onSignInError(signInState);
@@ -137,7 +138,7 @@ public class MainActivity extends AppCompatActivity implements HasSupportFragmen
   private void onSignInError(SignInState signInState) {
     Log.d(TAG, "Authentication error", signInState.error().orElse(null));
     EphemeralPopups.showError(this, R.string.sign_in_unsuccessful);
-    viewModel.onSignedOut();
+    viewModel.onSignedOut(getCurrentNavDestinationId());
   }
 
   @Override
@@ -233,6 +234,14 @@ public class MainActivity extends AppCompatActivity implements HasSupportFragmen
 
   private NavController getNavController() {
     return navHostFragment.getNavController();
+  }
+
+  private int getCurrentNavDestinationId() {
+    NavDestination destination = getNavController().getCurrentDestination();
+    if (destination != null) {
+      return destination.getId();
+    }
+    return -1;
   }
 
   private void onToolbarUpClicked() {

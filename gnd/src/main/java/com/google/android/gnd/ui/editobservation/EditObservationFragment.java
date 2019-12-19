@@ -18,7 +18,7 @@ package com.google.android.gnd.ui.editobservation;
 
 import static com.google.android.gnd.ui.util.ViewUtil.assignGeneratedId;
 
-import android.app.ProgressDialog;
+import android.app.AlertDialog;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -26,10 +26,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
-import androidx.lifecycle.LiveData;
 import butterknife.BindView;
-import butterknife.OnClick;
 import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.EditObservationFragBinding;
@@ -38,15 +35,13 @@ import com.google.android.gnd.databinding.TextInputFieldBinding;
 import com.google.android.gnd.inject.ActivityScoped;
 import com.google.android.gnd.model.form.Element;
 import com.google.android.gnd.model.form.Field;
+import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.model.form.MultipleChoice.Cardinality;
-import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.model.observation.Response;
-import com.google.android.gnd.repository.Persistable;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.BackPressListener;
 import com.google.android.gnd.ui.common.EphemeralPopups;
 import com.google.android.gnd.ui.common.Navigator;
-import com.google.android.gnd.ui.common.ProgressDialogs;
 import com.google.android.gnd.ui.common.TwoLineToolbar;
 import java8.util.Optional;
 import javax.inject.Inject;
@@ -55,12 +50,9 @@ import javax.inject.Inject;
 public class EditObservationFragment extends AbstractFragment implements BackPressListener {
   private static final String TAG = EditObservationFragment.class.getSimpleName();
 
-  private ProgressDialog savingProgressDialog;
-
   private EditObservationViewModel viewModel;
   private SingleSelectDialogFactory singleSelectDialogFactory;
   private MultiSelectDialogFactory multiSelectDialogFactory;
-  private static final String NEW_RECORD_ID_ARG_PLACEHOLDER = "NEW_RECORD";
 
   @Inject Navigator navigator;
 
@@ -83,6 +75,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
       LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     EditObservationFragBinding binding =
         EditObservationFragBinding.inflate(inflater, container, false);
+    binding.setLifecycleOwner(this);
     binding.setViewModel(viewModel);
     return binding.getRoot();
   }
@@ -93,66 +86,36 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
     super.onViewCreated(view, savedInstanceState);
     ((MainActivity) getActivity()).setActionBar(toolbar, R.drawable.ic_close_black_24dp);
     toolbar.setNavigationOnClickListener(__ -> onCloseButtonClick());
-    savingProgressDialog = ProgressDialogs.modalSpinner(getContext(), R.string.saving);
+    // Observe state changes.
+    viewModel.getForm().observe(this, this::rebuildForm);
+    viewModel.getToolbarTitle().observe(this, toolbar::setTitle);
+    viewModel.getSaveResults().observe(this, e -> e.ifUnhandled(this::handleSaveResult));
+    // Initialize view model.
+    viewModel.initialize(EditObservationFragmentArgs.fromBundle(getArguments()));
   }
 
-  @Override
-  public void onActivityCreated(@androidx.annotation.Nullable Bundle savedInstanceState) {
-    super.onActivityCreated(savedInstanceState);
-    viewModel.getObservation().observe(this, this::onRecordChange);
-    viewModel.getShowUnsavedChangesDialogEvents().observe(this, __ -> showUnsavedChangesDialog());
-    viewModel.getShowErrorDialogEvents().observe(this, __ -> showFormErrorsDialog());
-  }
-
-  @Override
-  public void onStart() {
-    super.onStart();
-    // TODO: Make reactive instead of reading getValue explicitly.
-    LiveData<Persistable<Observation>> liveData = viewModel.getObservation();
-    Persistable<Observation> record = liveData.getValue();
-    if (record != null && record.isLoaded()) {
-      onRecordChange(record);
-      return;
-    }
-    EditObservationFragmentArgs args = EditObservationFragmentArgs.fromBundle(getArguments());
-    viewModel.editObservation(args, args.getRecordId().equals(NEW_RECORD_ID_ARG_PLACEHOLDER));
-  }
-
-  private void onRecordChange(Persistable<Observation> record) {
-    switch (record.state()) {
-      case LOADING:
-        // Do nothing.
-        // The logic is handled in EditObservationViewModel and reflected into UI using DataBinding.
+  private void handleSaveResult(EditObservationViewModel.SaveResult saveResult) {
+    switch (saveResult) {
+      case HAS_VALIDATION_ERRORS:
+        showValidationErrorsAlert();
         break;
-      case LOADED:
-        record.value().ifPresent(this::editRecord);
-        break;
-      case SAVING:
-        savingProgressDialog.show();
+      case NO_CHANGES_TO_SAVE:
+        EphemeralPopups.showFyi(getContext(), R.string.no_changes_to_save);
+        navigator.navigateUp();
         break;
       case SAVED:
-        savingProgressDialog.hide();
         EphemeralPopups.showSuccess(getContext(), R.string.saved);
         navigator.navigateUp();
         break;
-      case NOT_FOUND:
-      case ERROR:
-        record.error().ifPresent(t -> Log.e(TAG, "Failed to load/save observation", t));
-        EphemeralPopups.showError(getContext());
-        navigator.navigateUp();
+      default:
+        Log.e(TAG, "Unknown save result type: " + saveResult);
         break;
     }
   }
 
-  private void editRecord(Observation observation) {
-    toolbar.setTitle(observation.getFeature().getTitle());
-    toolbar.setSubtitle(observation.getFeature().getSubtitle());
-    rebuildForm(observation);
-  }
-
-  private void rebuildForm(Observation observation) {
+  private void rebuildForm(Form form) {
     formLayout.removeAllViews();
-    for (Element element : observation.getForm().getElements()) {
+    for (Element element : form.getElements()) {
       switch (element.getType()) {
         case FIELD:
           addField(element.getField());
@@ -219,21 +182,19 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
     }
   }
 
-  @OnClick(R.id.save_record_btn)
-  void onSaveClick() {
-    if (!viewModel.onSaveClick()) {
-      EphemeralPopups.showFyi(getContext(), R.string.no_changes_to_save);
-      navigator.navigateUp();
-    }
-  }
-
   @Override
   public boolean onBack() {
-    return viewModel.onBack();
+    if (viewModel.hasUnsavedChanges()) {
+      showUnsavedChangesDialog();
+      return true;
+    }
+    return false;
   }
 
   private void onCloseButtonClick() {
-    if (!viewModel.onBack()) {
+    if (viewModel.hasUnsavedChanges()) {
+      showUnsavedChangesDialog();
+    } else {
       navigator.navigateUp();
     }
   }
@@ -247,7 +208,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
         .show();
   }
 
-  private void showFormErrorsDialog() {
+  private void showValidationErrorsAlert() {
     new AlertDialog.Builder(getContext())
         .setMessage(R.string.invalid_data_warning)
         .setPositiveButton(R.string.invalid_data_confirm, (a, b) -> {})

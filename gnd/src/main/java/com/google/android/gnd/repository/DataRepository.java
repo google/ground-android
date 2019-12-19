@@ -33,6 +33,7 @@ import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator;
 import com.google.android.gnd.system.AuthenticationManager.User;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
@@ -87,7 +88,7 @@ public class DataRepository {
     // TODO: Move to Application or background service.
     activeProject
         .compose(Persistable::values)
-        .switchMap(p -> remoteDataStore.loadFeaturesOnceAndStreamChanges(p))
+        .switchMap(remoteDataStore::loadFeaturesOnceAndStreamChanges)
         .switchMap(event -> updateLocalFeature(event).toFlowable())
         .subscribe();
   }
@@ -121,8 +122,19 @@ public class DataRepository {
     Log.d(TAG, " Activating project " + projectId);
     return remoteDataStore
         .loadProject(projectId)
-        .doOnError(e -> Log.e(TAG, "Project not found", e))
+        .flatMap(project -> localDataStore.insertOrUpdateProject(project).toSingleDefault(project))
+        .onErrorResumeNext(
+            throwable -> {
+              if (throwable instanceof FirebaseFirestoreException) {
+                return localDataStore
+                    .getProjectById(localValueStore.getLastActiveProjectId())
+                    .toSingle();
+              }
+              return Single.error(throwable);
+            })
+        .doOnError(throwable -> Log.e(TAG, "Project not found " + projectId))
         .doOnSubscribe(__ -> activeProject.onNext(Persistable.loading()))
+        .flatMap(project -> localDataStore.insertOrUpdateProject(project).toSingleDefault(project))
         .doOnSuccess(this::onProjectLoaded);
   }
 
@@ -136,6 +148,13 @@ public class DataRepository {
     // TODO: Get from load db if network connection not available or remote times out.
     return remoteDataStore
         .loadProjectSummaries(user)
+        .onErrorResumeNext(
+            throwable -> {
+              if (throwable instanceof FirebaseFirestoreException) {
+                return localDataStore.getProjects();
+              }
+              return Single.error(throwable);
+            })
         .map(Persistable::loaded)
         .onErrorReturn(Persistable::error)
         .toObservable()
@@ -179,8 +198,7 @@ public class DataRepository {
   }
 
   private Completable mergeRemoteRecords(ImmutableList<Observation> observations) {
-    return Observable.fromIterable(observations)
-        .flatMapCompletable(record -> localDataStore.mergeRecord(record));
+    return Observable.fromIterable(observations).flatMapCompletable(localDataStore::mergeRecord);
   }
 
   // TODO(#127): Decouple Project from Feature and remove projectId.
@@ -220,7 +238,7 @@ public class DataRepository {
 
   private Single<Project> getProject(String projectId) {
     // TODO: Try to load from db if network not available or times out.
-    return Maybe.fromCallable(() -> cache.getActiveProject())
+    return Maybe.fromCallable(cache::getActiveProject)
         .filter(p -> projectId.equals(p.getId()))
         .switchIfEmpty(remoteDataStore.loadProject(projectId));
   }
@@ -254,7 +272,7 @@ public class DataRepository {
    * previously activated.
    */
   public Single<Boolean> reactivateLastProject() {
-    return Maybe.fromCallable(() -> localValueStore.getLastActiveProjectId())
+    return Maybe.fromCallable(localValueStore::getLastActiveProjectId)
         .flatMap(id -> activateProject(id).toMaybe())
         .onErrorComplete()
         .doOnComplete(() -> Log.v(TAG, "No previous project found to reactivate"))
@@ -265,6 +283,10 @@ public class DataRepository {
 
   /** Clears the currently active project from cache and from local localValueStore. */
   public void clearActiveProject() {
+    localDataStore
+        .getProjectById(localValueStore.getLastActiveProjectId())
+        .flatMapCompletable(localDataStore::removeProject)
+        .subscribe();
     cache.clearActiveProject();
     localValueStore.clearLastActiveProjectId();
     activeProject.onNext(Persistable.notLoaded());
