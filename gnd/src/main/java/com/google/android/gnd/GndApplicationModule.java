@@ -19,10 +19,12 @@ package com.google.android.gnd;
 import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
+import androidx.room.Room;
 import androidx.work.WorkManager;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gnd.inject.ActivityScoped;
 import com.google.android.gnd.persistence.local.LocalDataStore;
+import com.google.android.gnd.persistence.local.room.LocalDatabase;
 import com.google.android.gnd.persistence.local.room.RoomLocalDataStore;
 import com.google.android.gnd.persistence.remote.RemoteDataStore;
 import com.google.android.gnd.persistence.remote.firestore.FirestoreDataStore;
@@ -64,6 +66,9 @@ abstract class GndApplicationModule {
   @Singleton
   abstract Application application(GndApplication app);
 
+  @Binds
+  abstract Context context(GndApplication application);
+
   @Provides
   @Singleton
   static GoogleApiAvailability googleApiAvailability() {
@@ -82,5 +87,14 @@ abstract class GndApplicationModule {
     return application
         .getApplicationContext()
         .getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
+  }
+
+  @Provides
+  @Singleton
+  static LocalDatabase localDatabase(Context context) {
+    return Room.databaseBuilder(context, LocalDatabase.class, Config.DB_NAME)
+        // TODO(#128): Disable before official release.
+        .fallbackToDestructiveMigration()
+        .build();
   }
 }

@@ -23,7 +23,6 @@ import static java8.util.stream.Collectors.toList;
 import static java8.util.stream.StreamSupport.stream;
 
 import android.util.Log;
-import androidx.room.Room;
 import androidx.room.Transaction;
 import com.google.android.gnd.GndApplication;
 import com.google.android.gnd.model.Mutation;
@@ -60,20 +59,12 @@ import javax.inject.Singleton;
  */
 @Singleton
 public class RoomLocalDataStore implements LocalDataStore {
-  private static final String DB_NAME = "gnd.db";
   private static final String TAG = RoomLocalDataStore.class.getSimpleName();
 
-  private final LocalDatabase db;
+  @Inject LocalDatabase db;
 
   @Inject
-  public RoomLocalDataStore(GndApplication app) {
-    // TODO: Create db in module and inject DAOs directly.
-    this.db =
-        Room.databaseBuilder(app.getApplicationContext(), LocalDatabase.class, DB_NAME)
-            // TODO(#128): Disable before official release.
-            .fallbackToDestructiveMigration()
-            .build();
-  }
+  public RoomLocalDataStore(GndApplication app) {}
 
   private Completable insertOrUpdateOption(String fieldId, Option option) {
     return db.optionDao()
