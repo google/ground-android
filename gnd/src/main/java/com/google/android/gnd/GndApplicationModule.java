@@ -24,8 +24,20 @@ import androidx.work.WorkManager;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gnd.inject.ActivityScoped;
 import com.google.android.gnd.persistence.local.LocalDataStore;
+import com.google.android.gnd.persistence.local.room.FeatureDao;
+import com.google.android.gnd.persistence.local.room.FeatureMutationDao;
+import com.google.android.gnd.persistence.local.room.FieldDao;
+import com.google.android.gnd.persistence.local.room.FormDao;
+import com.google.android.gnd.persistence.local.room.LayerDao;
 import com.google.android.gnd.persistence.local.room.LocalDatabase;
+import com.google.android.gnd.persistence.local.room.MultipleChoiceDao;
+import com.google.android.gnd.persistence.local.room.OfflineAreaDao;
+import com.google.android.gnd.persistence.local.room.OptionDao;
+import com.google.android.gnd.persistence.local.room.ProjectDao;
+import com.google.android.gnd.persistence.local.room.RecordDao;
+import com.google.android.gnd.persistence.local.room.RecordMutationDao;
 import com.google.android.gnd.persistence.local.room.RoomLocalDataStore;
+import com.google.android.gnd.persistence.local.room.TileDao;
 import com.google.android.gnd.persistence.remote.RemoteDataStore;
 import com.google.android.gnd.persistence.remote.firestore.FirestoreDataStore;
 import com.google.android.gnd.persistence.remote.firestore.FirestoreUuidGenerator;
@@ -96,5 +108,65 @@ abstract class GndApplicationModule {
         // TODO(#128): Disable before official release.
         .fallbackToDestructiveMigration()
         .build();
+  }
+
+  @Provides
+  static FeatureDao featureDao(LocalDatabase localDatabase) {
+    return localDatabase.featureDao();
+  }
+
+  @Provides
+  static FeatureMutationDao featureMutationDao(LocalDatabase localDatabase) {
+    return localDatabase.featureMutationDao();
+  }
+
+  @Provides
+  static FieldDao fieldDao(LocalDatabase localDatabase) {
+    return localDatabase.fieldDao();
+  }
+
+  @Provides
+  static FormDao formDao(LocalDatabase localDatabase) {
+    return localDatabase.formDao();
+  }
+
+  @Provides
+  static LayerDao layerDao(LocalDatabase localDatabase) {
+    return localDatabase.layerDao();
+  }
+
+  @Provides
+  static MultipleChoiceDao multipleChoiceDao(LocalDatabase localDatabase) {
+    return localDatabase.multipleChoiceDao();
+  }
+
+  @Provides
+  static OptionDao optionDao(LocalDatabase localDatabase) {
+    return localDatabase.optionDao();
+  }
+
+  @Provides
+  static ProjectDao projectDao(LocalDatabase localDatabase) {
+    return localDatabase.projectDao();
+  }
+
+  @Provides
+  static RecordDao recordDao(LocalDatabase localDatabase) {
+    return localDatabase.recordDao();
+  }
+
+  @Provides
+  static RecordMutationDao recordMutationDao(LocalDatabase localDatabase) {
+    return localDatabase.recordMutationDao();
+  }
+
+  @Provides
+  static TileDao tileDao(LocalDatabase localDatabase) {
+    return localDatabase.tileDao();
+  }
+
+  @Provides
+  static OfflineAreaDao offlineAreaDao(LocalDatabase localDatabase) {
+    return localDatabase.offlineAreaDao();
   }
 }
