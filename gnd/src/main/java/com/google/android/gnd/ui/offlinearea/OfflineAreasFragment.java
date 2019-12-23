@@ -32,8 +32,8 @@ import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.TwoLineToolbar;
 
 /**
- * Fragment containing a list of downloaded areas on the device. An area is a set of offline
- * raster tiles. Users can manage their areas within this fragment. They can delete areas they no longer
+ * Fragment containing a list of downloaded areas on the device. An area is a set of offline raster
+ * tiles. Users can manage their areas within this fragment. They can delete areas they no longer
  * need or access the UI used to select and download a new area to the device.
  */
 @ActivityScoped
