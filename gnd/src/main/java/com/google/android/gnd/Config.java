@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google LLC
+ * Copyright 2019 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,15 +16,10 @@
 
 package com.google.android.gnd;
 
-import com.google.android.gnd.ui.map.MapProviderModule;
-import dagger.Component;
-import dagger.android.AndroidInjector;
-import javax.inject.Singleton;
+/** Project configurations. */
+public final class Config {
 
-@Singleton
-@Component(modules = {GndApplicationModule.class, MapProviderModule.class})
-interface GndApplicationComponent extends AndroidInjector<GndApplication> {
-
-  @Component.Factory
-  interface Factory extends AndroidInjector.Factory<GndApplication> {}
+  // TODO(#128): Reset version to 1 before releasing.
+  public static final int DB_VERSION = 32;
+  public static final String DB_NAME = "gnd.db";
 }
