@@ -23,7 +23,7 @@
         android:title="@string/select_project_menu_item"/>
     <item
         android:id="@+id/nav_offline_areas"
-        android:icon="@drawable/ic_marker_frog"
+        android:icon="@drawable/ic_cloud_offline"
         android:title="@string/offline_areas"/>
     <item
         android:id="@+id/nav_sign_out"
