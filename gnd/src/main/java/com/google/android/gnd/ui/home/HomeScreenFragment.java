@@ -210,13 +210,12 @@ public class HomeScreenFragment extends AbstractFragment
   @Override
   public void onStart() {
     super.onStart();
-    viewModel.reactivateLastProject().observe(this, this::onReactivateLastProject);
-  }
 
-  private void onReactivateLastProject(boolean success) {
-    if (!success) {
+    if (viewModel.shouldShowProjectSelectorOnStart()) {
       showProjectSelector();
     }
+
+    viewModel.init();
   }
 
   private void showProjectSelector() {
@@ -253,24 +252,22 @@ public class HomeScreenFragment extends AbstractFragment
   private void onActiveProjectChange(Loadable<Project> project) {
     switch (project.getState()) {
       case NOT_LOADED:
+      case LOADED:
         dismissLoadingDialog();
         break;
       case LOADING:
         showProjectLoadingDialog();
         break;
-      case LOADED:
-        dismissLoadingDialog();
-        break;
       case NOT_FOUND:
       case ERROR:
-        EphemeralPopups.showError(getContext(), R.string.project_load_error);
-        Log.e(TAG, "Project load error", project.error().orElse(new UnknownError()));
+        project.error().ifPresent(this::onActivateProjectFailure);
         break;
     }
   }
 
   private void onShowAddFeatureDialogRequest(Point location) {
     if (!Loadable.getData(viewModel.getActiveProject()).isPresent()) {
+      Log.e(TAG, "Attempting to add feature while no project loaded");
       return;
     }
     // TODO: Pause location updates while dialog is open.
@@ -342,6 +339,12 @@ public class HomeScreenFragment extends AbstractFragment
         break;
     }
     return false;
+  }
+
+  // TODO: Move into HomeScreenFragment
+  private void onActivateProjectFailure(Throwable throwable) {
+    Log.e(TAG, "Error activating project", throwable);
+    EphemeralPopups.showError(getContext(), R.string.project_load_error);
   }
 
   private class BottomSheetCallback extends BottomSheetBehavior.BottomSheetCallback {

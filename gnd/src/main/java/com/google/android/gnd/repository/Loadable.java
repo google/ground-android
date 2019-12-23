@@ -83,4 +83,20 @@ public class Loadable<T> extends Result<T> {
   public static <V> Publisher<V> values(Flowable<Loadable<V>> persistableStream) {
     return persistableStream.map(Loadable::value).filter(Optional::isPresent).map(Optional::get);
   }
+
+  /**
+   * Returns a {@link Flowable} that first emits the LOADING, then maps values emitted from the
+   * source stream wrapped in a LOADED Loadable.. Errors in the provided stream are handled and
+   * wrapped in an Loadable with ERROR state. The returned stream itself should never fail with an
+   * error.
+   *
+   * @param source the stream responsible for loading values.
+   * @param <T> the type of entity being loaded
+   */
+  public static <T> Flowable<Loadable<T>> loadingOnceAndResult(Flowable<T> source) {
+    return source
+        .map(Loadable::loaded)
+        .onErrorReturn(Loadable::error)
+        .startWith(Loadable.loading());
+  }
 }

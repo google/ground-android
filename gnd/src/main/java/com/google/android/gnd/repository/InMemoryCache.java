@@ -16,18 +16,15 @@
 
 package com.google.android.gnd.repository;
 
-import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.common.collect.ImmutableSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java8.util.Optional;
-import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 /** Ephemeral storage of application state. This can be destroyed without notice. */
 public class InMemoryCache {
-  @Nullable private Project activeProject;
   // TODO: Store map vector objects here instead of Feature objects.
   private final Map<String, Feature> features;
 
@@ -48,21 +45,8 @@ public class InMemoryCache {
     return ImmutableSet.copyOf(features.values());
   }
 
-  /** Returns the currently active project, or null if no project is active. */
-  @Nullable
-  public Project getActiveProject() {
-    return activeProject;
-  }
-
-  /** Sets the currently active project. */
-  public void setActiveProject(Project project) {
-    activeProject = project;
-    features.clear();
-  }
-
-  /** Removes the currently active project from the cache. */
-  public void clearActiveProject() {
-    activeProject = null;
+  /** Clears the cache. */
+  public void clear() {
     features.clear();
   }
 

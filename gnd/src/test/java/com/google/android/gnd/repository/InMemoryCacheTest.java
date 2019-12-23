@@ -29,13 +29,6 @@ public class InMemoryCacheTest {
 
   private InMemoryCache inMemoryCache;
 
-  private static final Project FAKE_PROJECT =
-      Project.newBuilder()
-          .setId("foo project id")
-          .setTitle("foo title")
-          .setDescription("foo description")
-          .build();
-
   private static final Feature FAKE_FEATURE =
       Feature.newBuilder()
           .setId("foo feature id")
@@ -70,37 +63,9 @@ public class InMemoryCacheTest {
   }
 
   @Test
-  public void getActiveProject_NullIfUnset() {
-    assertThat(inMemoryCache.getActiveProject()).isNull();
-  }
-
-  @Test
-  public void setActiveProject() {
-    inMemoryCache.setActiveProject(FAKE_PROJECT);
-
-    assertThat(inMemoryCache.getActiveProject()).isEqualTo(FAKE_PROJECT);
-  }
-
-  @Test
-  public void setActiveProject_ClearsFeatures() {
+  public void clear_ClearsFeatures() {
     inMemoryCache.putFeature(FAKE_FEATURE);
-    inMemoryCache.setActiveProject(FAKE_PROJECT);
-
-    assertThat(inMemoryCache.getFeatures()).isEmpty();
-  }
-
-  @Test
-  public void clearActiveProject() {
-    inMemoryCache.setActiveProject(FAKE_PROJECT);
-    inMemoryCache.clearActiveProject();
-
-    assertThat(inMemoryCache.getActiveProject()).isNull();
-  }
-
-  @Test
-  public void clearActiveProject_ClearsFeatures() {
-    inMemoryCache.putFeature(FAKE_FEATURE);
-    inMemoryCache.clearActiveProject();
+    inMemoryCache.clear();
 
     assertThat(inMemoryCache.getFeatures()).isEmpty();
   }

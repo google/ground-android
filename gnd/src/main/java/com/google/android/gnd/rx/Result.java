@@ -16,6 +16,9 @@
 
 package com.google.android.gnd.rx;
 
+import io.reactivex.BackpressureStrategy;
+import io.reactivex.Flowable;
+import io.reactivex.FlowableTransformer;
 import java8.util.Optional;
 import javax.annotation.Nullable;
 
@@ -53,5 +56,36 @@ public class Result<T> {
   @Override
   public String toString() {
     return error().map(t -> "Error: " + t).orElse("Value: " + value);
+  }
+
+  /**
+   * Returns a {@link Flowable} that maps values emitted from the source stream as Result instances.
+   * Errors in the provided stream are handled and wrapped in a Result with ERROR state. The
+   * returned stream itself should never fail with an error.
+   *
+   * @param source the stream to be modified.
+   * @param <T> the type of value being emitted.
+   */
+  public static <T> Flowable<Result<T>> wrap(Flowable<T> source) {
+    return source.map(Result::of).onErrorReturn(Result::error);
+  }
+
+  public static <T> Flowable<T> unwrap(Flowable<Result<T>> source) {
+    return source.flatMap(Result::onNextOrError);
+  }
+
+  private static <T> Flowable<T> onNextOrError(Result<T> result) {
+    return Flowable.create(
+        em -> {
+          result.value().ifPresent(value -> em.onNext(value));
+          result.error().ifPresent(error -> em.onError(error));
+        },
+        BackpressureStrategy.LATEST);
+  }
+
+  public static <T> FlowableTransformer<Result<T>, Result<T>> onErrorResumeNext(
+      Flowable<Result<T>> onError) {
+    return source ->
+        source.flatMap(result -> result.error().map(r -> onError).orElse(Flowable.just(result)));
   }
 }
