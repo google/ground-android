@@ -39,10 +39,10 @@ import com.google.android.gnd.ui.common.TwoLineToolbar;
 @ActivityScoped
 public class OfflineAreasFragment extends AbstractFragment {
 
-  @BindView(R.id.offline_maps_toolbar)
+  @BindView(R.id.offline_areas_toolbar)
   TwoLineToolbar toolbar;
 
-  @BindView(R.id.offline_maps_list)
+  @BindView(R.id.offline_areas_list)
   RecyclerView areaList;
 
   private OfflineAreasViewModel viewModel;
@@ -67,7 +67,7 @@ public class OfflineAreasFragment extends AbstractFragment {
   @Override
   public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
-    toolbar.setTitle(R.string.offline_maps);
+    toolbar.setTitle(R.string.offline_areas);
     ((MainActivity) getActivity()).setActionBar(toolbar);
   }
 }

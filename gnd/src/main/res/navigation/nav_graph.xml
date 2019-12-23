@@ -73,7 +73,7 @@
   <fragment
     android:id="@+id/offline_areas_fragment"
     android:name="com.google.android.gnd.ui.offlinearea.OfflineAreasFragment"
-    android:label="@string/offline_maps"
+    android:label="@string/offline_areas"
     tools:layout="@layout/offline_areas_frag">
     <action
       android:id="@+id/backToHomeScreen"
@@ -82,7 +82,7 @@
   <fragment
     android:id="@+id/basemap_selector_fragment"
     android:name="com.google.android.gnd.ui.basemapselector.BasemapSelectorFragment"
-    android:label="@string/offline_maps"
+    android:label="@string/offline_areas"
     tools:layout="@layout/basemap_selector_frag">
     <action
       android:id="@+id/backToHomeScreen"

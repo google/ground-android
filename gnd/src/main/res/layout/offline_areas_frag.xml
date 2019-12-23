@@ -32,17 +32,17 @@
         android:orientation="vertical">
 
         <com.google.android.gnd.ui.common.TwoLineToolbar
-            android:id="@+id/offline_maps_toolbar"
+            android:id="@+id/offline_areas_toolbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@color/cardview_dark_background"
             android:elevation="@dimen/toolbar_elevation"
             android:paddingTop="@dimen/offline_area_toolbar_padding_top"
             android:theme="@style/GreenToolbarTheme"
-            app:title="@string/offline_maps" />
+            app:title="@string/offline_areas" />
 
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/offline_maps_list"
+            android:id="@+id/offline_areas_list"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 

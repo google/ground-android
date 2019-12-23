@@ -342,7 +342,7 @@ public class HomeScreenFragment extends AbstractFragment
         showProjectSelector();
         closeDrawer();
         break;
-      case R.id.nav_offline_maps:
+      case R.id.nav_offline_areas:
         showOfflineAreas();
         closeDrawer();
         break;
