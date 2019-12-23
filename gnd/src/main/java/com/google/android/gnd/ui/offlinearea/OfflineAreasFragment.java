@@ -47,10 +47,6 @@ public class OfflineAreasFragment extends AbstractFragment {
 
   private OfflineAreasViewModel viewModel;
 
-  public static OfflineAreasFragment newInstance() {
-    return new OfflineAreasFragment();
-  }
-
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
