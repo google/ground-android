@@ -19,6 +19,7 @@ package com.google.android.gnd.persistence.local.room;
 import androidx.room.Database;
 import androidx.room.RoomDatabase;
 import androidx.room.TypeConverters;
+import com.google.android.gnd.Config;
 
 /**
  * Main entry point to local database API, exposing data access objects (DAOs) for interacting with
@@ -43,10 +44,9 @@ import androidx.room.TypeConverters;
       TileEntity.class,
       OfflineAreaEntity.class,
     },
-    // TODO(#128): Reset version to 1 before releasing.
-    version = 32,
+    version = Config.DB_VERSION,
     exportSchema = false)
-//CHECKSTYLE:OFF
+// CHECKSTYLE:OFF
 @TypeConverters({
   ElementEntityType.class,
   FieldEntityType.class,
@@ -59,7 +59,7 @@ import androidx.room.TypeConverters;
   StyleTypeConverter.class,
   TileEntityState.class
 })
-//CHECKSTYLE:ON
+// CHECKSTYLE:ON
 public abstract class LocalDatabase extends RoomDatabase {
 
   public abstract FeatureDao featureDao();
