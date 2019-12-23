@@ -40,22 +40,26 @@ import androidx.room.TypeConverters;
       ProjectEntity.class,
       RecordEntity.class,
       RecordMutationEntity.class,
-      TileEntity.class
+      TileEntity.class,
+      OfflineAreaEntity.class,
     },
     // TODO(#128): Reset version to 1 before releasing.
     version = 32,
     exportSchema = false)
+//CHECKSTYLE:OFF
 @TypeConverters({
-    ElementEntityType.class,
-    FieldEntityType.class,
-    MultipleChoiceEntityType.class,
-    MutationEntityType.class,
-    EntityState.class,
-    ResponseDeltasTypeConverter.class,
-    ResponseMapTypeConverter.class,
-    StyleTypeConverter.class,
-    TileEntityState.class
+  ElementEntityType.class,
+  FieldEntityType.class,
+  MultipleChoiceEntityType.class,
+  MutationEntityType.class,
+  EntityState.class,
+  OfflineAreaEntityState.class,
+  ResponseDeltasTypeConverter.class,
+  ResponseMapTypeConverter.class,
+  StyleTypeConverter.class,
+  TileEntityState.class
 })
+//CHECKSTYLE:ON
 public abstract class LocalDatabase extends RoomDatabase {
 
   public abstract FeatureDao featureDao();
@@ -79,4 +83,6 @@ public abstract class LocalDatabase extends RoomDatabase {
   public abstract RecordMutationDao recordMutationDao();
 
   public abstract TileDao tileDao();
+
+  public abstract OfflineAreaDao offlineAreaDao();
 }
