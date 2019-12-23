@@ -31,23 +31,17 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModel;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
-import dagger.android.AndroidInjector;
-import dagger.android.DispatchingAndroidInjector;
-import dagger.android.support.AndroidSupportInjection;
-import dagger.android.support.HasSupportFragmentInjector;
+import dagger.android.support.DaggerFragment;
 import javax.inject.Inject;
 
-public abstract class AbstractFragment extends Fragment implements HasSupportFragmentInjector {
+public abstract class AbstractFragment extends DaggerFragment {
   /**
    * Keeps track of fields bound to views so that they can be set to null when the view is
    * destroyed, freeing up memory.
    */
   private Unbinder unbinder;
 
-  @Inject
-  protected ViewModelFactory viewModelFactory;
-
-  @Inject DispatchingAndroidInjector<Fragment> childFragmentInjector;
+  @Inject protected ViewModelFactory viewModelFactory;
 
   protected <T extends ViewModel> T getViewModel(Class<T> modelClass) {
     return viewModelFactory.get(this, modelClass);
@@ -56,7 +50,6 @@ public abstract class AbstractFragment extends Fragment implements HasSupportFra
   @Override
   public void onAttach(Context context) {
     logLifecycleEvent(this);
-    AndroidSupportInjection.inject(this);
     super.onAttach(context);
   }
 
@@ -145,11 +138,6 @@ public abstract class AbstractFragment extends Fragment implements HasSupportFra
   public void onDetach() {
     logLifecycleEvent(this);
     super.onDetach();
-  }
-
-  @Override
-  public AndroidInjector<Fragment> supportFragmentInjector() {
-    return childFragmentInjector;
   }
 
   protected final void replaceFragment(@IdRes int containerViewId, Fragment fragment) {

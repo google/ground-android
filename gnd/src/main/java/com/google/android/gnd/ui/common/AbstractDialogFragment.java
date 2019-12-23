@@ -29,17 +29,12 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModel;
-import dagger.android.AndroidInjector;
-import dagger.android.DispatchingAndroidInjector;
-import dagger.android.support.AndroidSupportInjection;
 import dagger.android.support.DaggerAppCompatDialogFragment;
 import javax.inject.Inject;
 
 public abstract class AbstractDialogFragment extends DaggerAppCompatDialogFragment {
 
   @Inject ViewModelFactory viewModelFactory;
-
-  @Inject DispatchingAndroidInjector<Fragment> childFragmentInjector;
 
   /**
    * Uses {@link ViewModelFactory} to obtain an instance of the view model of the specified class.
@@ -51,7 +46,6 @@ public abstract class AbstractDialogFragment extends DaggerAppCompatDialogFragme
   @Override
   public void onAttach(Context context) {
     logLifecycleEvent(this);
-    AndroidSupportInjection.inject(this);
     super.onAttach(context);
   }
 
@@ -152,10 +146,5 @@ public abstract class AbstractDialogFragment extends DaggerAppCompatDialogFragme
   protected Dialog fail(String message) {
     EphemeralPopups.showError(getContext(), message);
     return new AlertDialog.Builder(getContext()).create();
-  }
-
-  @Override
-  public AndroidInjector<Fragment> supportFragmentInjector() {
-    return childFragmentInjector;
   }
 }

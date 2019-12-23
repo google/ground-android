@@ -24,7 +24,6 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.ViewCompat;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
@@ -43,10 +42,7 @@ import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.TwoLineToolbar;
 import com.google.android.gnd.ui.common.ViewModelFactory;
 import com.google.android.gnd.ui.util.DrawableUtil;
-import dagger.android.AndroidInjection;
-import dagger.android.AndroidInjector;
-import dagger.android.DispatchingAndroidInjector;
-import dagger.android.support.HasSupportFragmentInjector;
+import dagger.android.support.DaggerAppCompatActivity;
 import io.reactivex.plugins.RxJavaPlugins;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -56,7 +52,7 @@ import javax.inject.Singleton;
  * activity.
  */
 @Singleton
-public class MainActivity extends AppCompatActivity implements HasSupportFragmentInjector {
+public class MainActivity extends DaggerAppCompatActivity {
 
   private static final String TAG = MainActivity.class.getSimpleName();
 
@@ -64,7 +60,6 @@ public class MainActivity extends AppCompatActivity implements HasSupportFragmen
   @Inject ViewModelFactory viewModelFactory;
   @Inject SettingsManager settingsManager;
   @Inject AuthenticationManager authenticationManager;
-  @Inject DispatchingAndroidInjector<Fragment> fragmentInjector;
   @Inject Navigator navigator;
   private NavHostFragment navHostFragment;
   private MainViewModel viewModel;
@@ -81,8 +76,6 @@ public class MainActivity extends AppCompatActivity implements HasSupportFragmen
     // Make sure this is before calling super.onCreate()
     setTheme(R.style.AppTheme);
     super.onCreate(savedInstanceState);
-
-    AndroidInjection.inject(this);
 
     setContentView(R.layout.main_act);
 
@@ -192,11 +185,6 @@ public class MainActivity extends AppCompatActivity implements HasSupportFragmen
     Log.d(TAG, "Activity result received");
     super.onActivityResult(requestCode, resultCode, intent);
     activityStreams.onActivityResult(requestCode, resultCode, intent);
-  }
-
-  @Override
-  public final AndroidInjector<Fragment> supportFragmentInjector() {
-    return fragmentInjector;
   }
 
   public void setActionBar(TwoLineToolbar toolbar, int upIconId) {
