@@ -16,10 +16,12 @@
 
 package com.google.android.gnd.persistence.local.room;
 
+import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.Update;
 import io.reactivex.Completable;
 import io.reactivex.Single;
+import java.util.List;
 
 /**
  * Base interface for DAOs that implement operations on a specific entity type.
@@ -27,15 +29,20 @@ import io.reactivex.Single;
  * @param <E> the type of entity that is persisted by sub-interfaces.
  */
 public interface BaseDao<E> {
+
   @Insert
   Completable insert(E entity);
 
   @Update
   Single<Integer> update(E entity);
 
-  /**
-   * Try to update the specified entity, and if it doesn't yet exist, create it.
-   */
+  @Update
+  Completable updateAll(List<E> entities);
+
+  @Delete
+  Completable delete(E entity);
+
+  /** Try to update the specified entity, and if it doesn't yet exist, create it. */
   default Completable insertOrUpdate(E entity) {
     return update(entity).filter(n -> n == 0).flatMapCompletable(__ -> insert(entity));
   }
