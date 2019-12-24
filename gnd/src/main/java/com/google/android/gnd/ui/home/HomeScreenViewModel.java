@@ -154,6 +154,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
     navigator.addObservation(feature.getProject().getId(), feature.getId(), selectedForm.getId());
   }
 
+  // TODO: Move to OfflineAreaViewModel
   public void showBasemapSelector() {
     navigator.showBasemapSelector();
   }
@@ -166,5 +167,9 @@ public class HomeScreenViewModel extends AbstractViewModel {
     // TODO: Handle errors activating project.
     return LiveDataReactiveStreams.fromPublisher(
         dataRepository.reactivateLastProject().toFlowable());
+  }
+
+  public void showOfflineAreas() {
+    navigator.showOfflineAreas();
   }
 }
