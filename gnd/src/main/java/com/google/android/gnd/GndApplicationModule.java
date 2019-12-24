@@ -43,6 +43,8 @@ import com.google.android.gnd.persistence.remote.firestore.FirestoreDataStore;
 import com.google.android.gnd.persistence.remote.firestore.FirestoreUuidGenerator;
 import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator;
 import com.google.android.gnd.ui.common.ViewModelModule;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreSettings;
 import dagger.Binds;
 import dagger.Module;
 import dagger.Provides;
@@ -99,6 +101,22 @@ abstract class GndApplicationModule {
     return application
         .getApplicationContext()
         .getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
+  }
+
+  @Provides
+  static FirebaseFirestoreSettings firebaseFirestoreSettings() {
+    return new FirebaseFirestoreSettings.Builder()
+        .setPersistenceEnabled(Config.FIRESTORE_PERSISTANCE_ENABLED)
+        .build();
+  }
+
+  @Provides
+  @Singleton
+  static FirebaseFirestore firebaseFirestore(FirebaseFirestoreSettings settings) {
+    FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+    firestore.setFirestoreSettings(settings);
+    FirebaseFirestore.setLoggingEnabled(Config.FIRESTORE_LOGGING_ENABLED);
+    return firestore;
   }
 
   @Provides

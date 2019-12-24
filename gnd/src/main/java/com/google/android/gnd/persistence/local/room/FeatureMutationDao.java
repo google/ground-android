@@ -17,9 +17,7 @@
 package com.google.android.gnd.persistence.local.room;
 
 import androidx.room.Dao;
-import androidx.room.Insert;
 import androidx.room.Query;
-import androidx.room.Update;
 import io.reactivex.Completable;
 import io.reactivex.Single;
 import java.util.List;
@@ -28,12 +26,7 @@ import java.util.List;
  * Provides low-level read/write operations of {@link FeatureMutationEntity} to/from the local db.
  */
 @Dao
-public interface FeatureMutationDao {
-  @Insert
-  Completable insert(FeatureMutationEntity entity);
-
-  @Update
-  Completable updateAll(List<FeatureMutationEntity> entities);
+public interface FeatureMutationDao extends BaseDao<FeatureMutationEntity> {
 
   @Query("DELETE FROM feature_mutation WHERE id IN (:ids)")
   Completable deleteAll(List<Long> ids);
