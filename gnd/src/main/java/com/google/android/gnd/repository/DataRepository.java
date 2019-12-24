@@ -99,8 +99,6 @@ public class DataRepository {
     }
     String id = projectId.get();
 
-    // Note that this assumes localDataStore.getProjectById() is lazy (i.e., only executed on
-    // subscribe).
     return syncProjectWithRemote(id)
         .doOnSubscribe(__ -> Log.i(TAG, "Activating project " + id))
         .toFlowable()
@@ -108,10 +106,12 @@ public class DataRepository {
         .compose(Result.onErrorResumeNext(loadProjectFromLocal(id)))
         .doOnNext(__ -> localValueStore.setLastActiveProjectId(id))
         .compose(Result::unwrap)
-        .compose(Loadable::loadingOnceAndResult);
+        .compose(Loadable::loadingOnceAndResults);
   }
 
   private Flowable<Result<Project>> loadProjectFromLocal(String id) {
+    // getProjectById() is lazy, so the project will only be loaded from the local data store as
+    // needed (i.e., on subscribe when fetch from remote data store fails).
     return localDataStore
         .getProjectById(id)
         .doOnSubscribe(__ -> Log.i(TAG, "Falling back to local db"))
@@ -184,7 +184,7 @@ public class DataRepository {
         .compose(Result::wrap)
         .compose(Result.onErrorResumeNext(loadProjectSummariesFromLocal()))
         .compose(Result::unwrap)
-        .compose(Loadable::loadingOnceAndResult);
+        .compose(Loadable::loadingOnceAndResults);
   }
 
   private Flowable<Result<List<Project>>> loadProjectSummariesFromLocal() {

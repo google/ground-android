@@ -341,7 +341,6 @@ public class HomeScreenFragment extends AbstractFragment
     return false;
   }
 
-  // TODO: Move into HomeScreenFragment
   private void onActivateProjectFailure(Throwable throwable) {
     Log.e(TAG, "Error activating project", throwable);
     EphemeralPopups.showError(getContext(), R.string.project_load_error);
