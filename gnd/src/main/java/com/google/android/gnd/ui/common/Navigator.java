@@ -124,4 +124,8 @@ public class Navigator {
         throw new IllegalArgumentException(currentNavDestinationId + " id not found");
     }
   }
+
+  public void showOfflineAreas() {
+    navigate(HomeScreenFragmentDirections.showOfflineAreas());
+  }
 }
