@@ -28,7 +28,6 @@ import com.google.android.gnd.Config;
  * <p>A separate data model is used to represent data stored locally to prevent leaking db-level
  * design details into main API * and to allow us to guarantee backwards compatibility.
  */
-// TODO: Make injectable via Dagger.
 @Database(
     entities = {
       FeatureEntity.class,
