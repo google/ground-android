@@ -25,6 +25,6 @@ import javax.inject.Singleton;
 @Component(modules = {GndApplicationModule.class, MapProviderModule.class})
 interface GndApplicationComponent extends AndroidInjector<GndApplication> {
 
-  @Component.Builder
-  abstract class Builder extends AndroidInjector.Builder<GndApplication> {}
+  @Component.Factory
+  interface Factory extends AndroidInjector.Factory<GndApplication> {}
 }

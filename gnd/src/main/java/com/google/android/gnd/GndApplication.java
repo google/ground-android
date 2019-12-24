@@ -16,10 +16,10 @@
 
 package com.google.android.gnd;
 
-import android.app.Activity;
+import android.content.Context;
 import android.os.StrictMode;
 import android.util.Log;
-import androidx.multidex.MultiDexApplication;
+import androidx.multidex.MultiDex;
 import androidx.work.Configuration;
 import androidx.work.WorkManager;
 import com.akaita.java.rxjava2debug.RxJava2Debug;
@@ -27,19 +27,23 @@ import com.facebook.stetho.Stetho;
 import com.google.android.gnd.inject.GndWorkerFactory;
 import com.google.android.gnd.repository.DataRepository;
 import dagger.android.AndroidInjector;
-import dagger.android.DispatchingAndroidInjector;
-import dagger.android.HasActivityInjector;
+import dagger.android.support.DaggerApplication;
 import javax.inject.Inject;
 
 // TODO: When implementing background data sync service, we'll need to inject a Service here; we
 // should then extend DaggerApplication instead. If MultiDex is still needed, we can install it
 // without extending MultiDexApplication.
-public class GndApplication extends MultiDexApplication implements HasActivityInjector {
+public class GndApplication extends DaggerApplication {
   private static final String TAG = GndApplication.class.getSimpleName();
 
   @Inject DataRepository dataRepository;
-  @Inject DispatchingAndroidInjector<Activity> activityInjector;
   @Inject GndWorkerFactory workerFactory;
+
+  @Override
+  protected void attachBaseContext(Context base) {
+    super.attachBaseContext(base);
+    MultiDex.install(this);
+  }
 
   @Override
   public void onCreate() {
@@ -56,9 +60,6 @@ public class GndApplication extends MultiDexApplication implements HasActivityIn
 
     super.onCreate();
 
-    // Root of dependency injection.
-    DaggerGndApplicationComponent.builder().create(this).inject(this);
-
     // Enable RxJava assembly stack collection for more useful stack traces.
     RxJava2Debug.enableRxJava2AssemblyTracking(new String[] {getClass().getPackage().getName()});
 
@@ -69,8 +70,9 @@ public class GndApplication extends MultiDexApplication implements HasActivityIn
   }
 
   @Override
-  public AndroidInjector<Activity> activityInjector() {
-    return activityInjector;
+  protected AndroidInjector<? extends DaggerApplication> applicationInjector() {
+    // Root of dependency injection.
+    return DaggerGndApplicationComponent.factory().create(this);
   }
 
   private void setStrictMode() {

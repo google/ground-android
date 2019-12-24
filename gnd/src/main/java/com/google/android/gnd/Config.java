@@ -14,23 +14,17 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.persistence.local.room;
+package com.google.android.gnd;
 
-import androidx.room.Dao;
-import androidx.room.Query;
-import androidx.room.Transaction;
-import io.reactivex.Maybe;
-import io.reactivex.Single;
-import java.util.List;
+/** Project configurations. */
+public final class Config {
 
-@Dao
-public interface ProjectDao extends BaseDao<ProjectEntity> {
+  // Local db settings
+  // TODO(#128): Reset version to 1 before releasing.
+  public static final int DB_VERSION = 32;
+  public static final String DB_NAME = "gnd.db";
 
-  @Transaction
-  @Query("SELECT * FROM project")
-  Single<List<ProjectEntityAndRelations>> getAllProjects();
-
-  @Transaction
-  @Query("SELECT * FROM project WHERE id = :id")
-  Maybe<ProjectEntityAndRelations> getProjectById(String id);
+  // Firebase firestore settings
+  public static final boolean FIRESTORE_PERSISTANCE_ENABLED = false;
+  public static final boolean FIRESTORE_LOGGING_ENABLED = true;
 }

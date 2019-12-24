@@ -26,7 +26,7 @@ project.ext {
     autoValueVersion = "1.6.3"
     butterKnifeVersion = "10.2.0"
     constraintLayoutVersion = "1.0.2"
-    daggerVersion = "2.21"
+    daggerVersion = "2.25.3"
     // Latest: https://firebase.google.com/support/release-notes/android#latest_sdk_versions
     firebaseCoreVersion = "17.2.1"
     firebaseAuthVersion = "19.2.0"
