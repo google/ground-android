@@ -58,17 +58,24 @@ public class Result<T> {
   }
 
   /**
-   * Returns a {@link Single} that maps the result emitted from the source stream in a Result.
-   * Errors in the provided stream are handled and wrapped in a Result with ERROR state. The
-   * returned stream itself should never fail with an error.
+   * Returns a {@link Single} that emits a Result representing either the value emitted by the
+   * source on success, or the error which caused the operation to fail. The returned stream itself
+   * should never fail with an error.
    *
    * @param source the stream to be modified.
-   * @param <T> the type of value being emitted.
+   * @param <T> the type of value emitted on success.
    */
   public static <T> Single<Result<T>> wrap(Single<T> source) {
     return source.map(Result::of).onErrorReturn(Result::error);
   }
 
+  /**
+   * Returns a {@link Single} that emits a success value, or fails with an error depending on the
+   * contents of the Result emitted by the source stream.
+   *
+   * @param source the stream to be modified.
+   * @param <T> the type of value emitted on success.
+   */
   public static <T> Single<T> unwrap(Single<Result<T>> source) {
     return source.flatMap(Result::onSuccessOrError);
   }
@@ -81,6 +88,13 @@ public class Result<T> {
         });
   }
 
+  /**
+   * Returns a composable transformer that replaces the source {@link Single} with the specified
+   * one when the source fails with and error.
+   *
+   * @param onError the Single to fall back to on error.
+   * @param <T> the type of value emitted on success.
+   */
   public static <T> SingleTransformer<Result<T>, Result<T>> onErrorResumeNext(
       Single<Result<T>> onError) {
     return source ->
