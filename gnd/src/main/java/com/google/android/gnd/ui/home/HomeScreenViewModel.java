@@ -166,6 +166,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
   // TODO: Move to OfflineAreaViewModel
   public void showBasemapSelector() {
     navigator.showBasemapSelector();
+  }
 
   public void showOfflineAreas() {
     navigator.showOfflineAreas();
