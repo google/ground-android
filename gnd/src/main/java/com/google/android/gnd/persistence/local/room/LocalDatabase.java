@@ -44,7 +44,7 @@ import androidx.room.TypeConverters;
       OfflineAreaEntity.class,
     },
     // TODO(#128): Reset version to 1 before releasing.
-    version = 32,
+    version = 33,
     exportSchema = false)
 //CHECKSTYLE:OFF
 @TypeConverters({
