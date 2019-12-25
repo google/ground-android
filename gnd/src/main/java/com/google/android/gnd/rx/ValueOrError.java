@@ -22,16 +22,16 @@ import java8.util.Optional;
 import javax.annotation.Nullable;
 
 /**
- * Represents the result of an operation that either succeeds with a value, or fails with an
+ * Represents the outcome of an operation that either succeeds with a value, or fails with an
  * exception.
  *
- * @param <T> the type of value held by the {@link Result}.
+ * @param <T> the type of value held by instances of this {@code ValueOrError}.
  */
-public class Result<T> {
+public class ValueOrError<T> {
   @Nullable private T value;
   @Nullable private Throwable error;
 
-  protected Result(@Nullable T value, @Nullable Throwable error) {
+  protected ValueOrError(@Nullable T value, @Nullable Throwable error) {
     this.value = value;
     this.error = error;
   }
@@ -44,12 +44,12 @@ public class Result<T> {
     return Optional.ofNullable(error);
   }
 
-  public static <T> Result<T> of(T value) {
-    return new Result(value, null);
+  public static <T> ValueOrError<T> of(T value) {
+    return new ValueOrError(value, null);
   }
 
-  public static <T> Result<T> error(Throwable t) {
-    return new Result(null, t);
+  public static <T> ValueOrError<T> error(Throwable t) {
+    return new ValueOrError(null, t);
   }
 
   @Override
@@ -58,46 +58,45 @@ public class Result<T> {
   }
 
   /**
-   * Returns a {@link Single} that emits a Result representing either the value emitted by the
-   * source on success, or the error which caused the operation to fail. The returned stream itself
-   * should never fail with an error.
+   * Returns a {@link Single} that emits a {@code ValueOrError} representing either the value
+   * emitted by the source on success, or the error which caused the operation to fail. The returned
+   * stream itself should never fail with an error.
    *
    * @param source the stream to be modified.
    * @param <T> the type of value emitted on success.
    */
-  public static <T> Single<Result<T>> wrap(Single<T> source) {
-    return source.map(Result::of).onErrorReturn(Result::error);
+  public static <T> Single<ValueOrError<T>> wrap(Single<T> source) {
+    return source.map(ValueOrError::of).onErrorReturn(ValueOrError::error);
   }
 
   /**
    * Returns a {@link Single} that emits a success value, or fails with an error depending on the
-   * contents of the Result emitted by the source stream.
+   * contents of the {@code ValueOrError} emitted by the source stream.
    *
    * @param source the stream to be modified.
    * @param <T> the type of value emitted on success.
    */
-  public static <T> Single<T> unwrap(Single<Result<T>> source) {
-    return source.flatMap(Result::onSuccessOrError);
+  public static <T> Single<T> unwrap(Single<ValueOrError<T>> source) {
+    return source.flatMap(ValueOrError::onSuccessOrError);
   }
 
-  private static <T> Single<T> onSuccessOrError(Result<T> result) {
+  private static <T> Single<T> onSuccessOrError(ValueOrError<T> voe) {
     return Single.create(
         em -> {
-          result.value().ifPresent(value -> em.onSuccess(value));
-          result.error().ifPresent(error -> em.onError(error));
+          voe.value().ifPresent(value -> em.onSuccess(value));
+          voe.error().ifPresent(error -> em.onError(error));
         });
   }
 
   /**
-   * Returns a composable transformer that replaces the source {@link Single} with the specified
-   * one when the source fails with and error.
+   * Returns a composable transformer that replaces the source {@link Single} with the specified one
+   * when the source fails with and error.
    *
    * @param onError the Single to fall back to on error.
    * @param <T> the type of value emitted on success.
    */
-  public static <T> SingleTransformer<Result<T>, Result<T>> onErrorResumeNext(
-      Single<Result<T>> onError) {
-    return source ->
-        source.flatMap(result -> result.error().map(r -> onError).orElse(Single.just(result)));
+  public static <T> SingleTransformer<ValueOrError<T>, ValueOrError<T>> onErrorResumeNext(
+      Single<ValueOrError<T>> onError) {
+    return source -> source.flatMap(voe -> voe.error().map(r -> onError).orElse(Single.just(voe)));
   }
 }

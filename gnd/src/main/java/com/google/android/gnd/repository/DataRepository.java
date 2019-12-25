@@ -31,7 +31,7 @@ import com.google.android.gnd.persistence.remote.RemoteDataStore;
 import com.google.android.gnd.persistence.remote.firestore.DocumentNotFoundException;
 import com.google.android.gnd.persistence.sync.DataSyncWorkManager;
 import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator;
-import com.google.android.gnd.rx.Result;
+import com.google.android.gnd.rx.ValueOrError;
 import com.google.android.gnd.system.AuthenticationManager.User;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -101,18 +101,18 @@ public class DataRepository {
 
     return syncProjectWithRemote(id)
         .doOnSubscribe(__ -> Log.i(TAG, "Activating project " + id))
-        .compose(Result::wrap)
+        .compose(ValueOrError::wrap)
         .compose(
-            Result.onErrorResumeNext(
+            ValueOrError.onErrorResumeNext(
                 localDataStore
                     .getProjectById(id)
                     .doOnSubscribe(__ -> Log.i(TAG, "Falling back to local db"))
                     .toSingle()
-                    .compose(Result::wrap)))
+                    .compose(ValueOrError::wrap)))
         .doOnSuccess(__ -> localValueStore.setLastActiveProjectId(id))
-        .compose(Result::unwrap)
+        .compose(ValueOrError::unwrap)
         .toFlowable()
-        .compose(Loadable::loadingOnceAndResults);
+        .compose(Loadable::loadingOnceAndWrap);
   }
 
   private Single<Project> syncProjectWithRemote(String id) {
@@ -176,11 +176,13 @@ public class DataRepository {
   public Flowable<Loadable<List<Project>>> getProjectSummaries(User user) {
     return remoteDataStore
         .loadProjectSummaries(user)
-        .compose(Result::wrap)
-        .compose(Result.onErrorResumeNext(localDataStore.getProjects().compose(Result::wrap)))
-        .compose(Result::unwrap)
+        .compose(ValueOrError::wrap)
+        .compose(
+            ValueOrError.onErrorResumeNext(
+                localDataStore.getProjects().compose(ValueOrError::wrap)))
+        .compose(ValueOrError::unwrap)
         .toFlowable()
-        .compose(Loadable::loadingOnceAndResults);
+        .compose(Loadable::loadingOnceAndWrap);
   }
 
   // TODO: Only return feature fields needed to render features on map.

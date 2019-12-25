@@ -19,7 +19,7 @@ package com.google.android.gnd.rx;
 import javax.annotation.Nullable;
 
 /** The result of an operation that can return either true, false, or fail with an exception. */
-public class BooleanResult extends Result<Boolean> {
+public class BooleanResult extends ValueOrError<Boolean> {
   private BooleanResult(@Nullable Boolean value, @Nullable Throwable error) {
     super(value, error);
   }

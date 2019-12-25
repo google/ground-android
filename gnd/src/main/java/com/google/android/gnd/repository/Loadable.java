@@ -18,7 +18,7 @@ package com.google.android.gnd.repository;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
-import com.google.android.gnd.rx.Result;
+import com.google.android.gnd.rx.ValueOrError;
 import io.reactivex.Flowable;
 import java8.util.Optional;
 import javax.annotation.Nullable;
@@ -30,7 +30,7 @@ import org.reactivestreams.Publisher;
  *
  * @param <T> the type of data payload the resource contains.
  */
-public class Loadable<T> extends Result<T> {
+public class Loadable<T> extends ValueOrError<T> {
   private final LoadState state;
 
   public enum LoadState {
@@ -86,14 +86,14 @@ public class Loadable<T> extends Result<T> {
 
   /**
    * Returns a {@link Flowable} that first emits the LOADING, then maps values emitted from the
-   * source stream wrapped in a LOADED Loadable.. Errors in the provided stream are handled and
-   * wrapped in a Loadable with state ERROR. The returned stream itself should never fail with an
-   * error.
+   * source stream to {@code Loadable}s with a LOADED {@code Loadable}. Errors in the provided
+   * stream are handled and wrapped in a {@code Loadable} with state ERROR. The returned stream
+   * itself should never fail with an error.
    *
    * @param source the stream responsible for loading values.
    * @param <T> the type of entity being loaded
    */
-  public static <T> Flowable<Loadable<T>> loadingOnceAndResults(Flowable<T> source) {
+  public static <T> Flowable<Loadable<T>> loadingOnceAndWrap(Flowable<T> source) {
     return source
         .map(Loadable::loaded)
         .onErrorReturn(Loadable::error)

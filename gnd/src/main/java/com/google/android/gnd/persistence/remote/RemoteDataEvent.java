@@ -16,7 +16,7 @@
 
 package com.google.android.gnd.persistence.remote;
 
-import com.google.android.gnd.rx.Result;
+import com.google.android.gnd.rx.ValueOrError;
 import javax.annotation.Nullable;
 
 /**
@@ -25,7 +25,7 @@ import javax.annotation.Nullable;
  *
  * @param <T> the type of entity being loaded, modified, or removed.
  */
-public class RemoteDataEvent<T> extends Result<T> {
+public class RemoteDataEvent<T> extends ValueOrError<T> {
   public enum EventType {
     ENTITY_LOADED,
     ENTITY_MODIFIED,
