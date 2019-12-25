@@ -101,22 +101,18 @@ public class DataRepository {
 
     return syncProjectWithRemote(id)
         .doOnSubscribe(__ -> Log.i(TAG, "Activating project " + id))
-        .toFlowable()
         .compose(Result::wrap)
-        .compose(Result.onErrorResumeNext(loadProjectFromLocal(id)))
-        .doOnNext(__ -> localValueStore.setLastActiveProjectId(id))
+        .compose(
+            Result.onErrorResumeNext(
+                localDataStore
+                    .getProjectById(id)
+                    .doOnSubscribe(__ -> Log.i(TAG, "Falling back to local db"))
+                    .toSingle()
+                    .compose(Result::wrap)))
+        .doOnSuccess(__ -> localValueStore.setLastActiveProjectId(id))
         .compose(Result::unwrap)
-        .compose(Loadable::loadingOnceAndResults);
-  }
-
-  private Flowable<Result<Project>> loadProjectFromLocal(String id) {
-    // getProjectById() is lazy, so the project will only be loaded from the local data store as
-    // needed (i.e., on subscribe when fetch from remote data store fails).
-    return localDataStore
-        .getProjectById(id)
-        .doOnSubscribe(__ -> Log.i(TAG, "Falling back to local db"))
         .toFlowable()
-        .compose(Result::wrap);
+        .compose(Loadable::loadingOnceAndResults);
   }
 
   private Single<Project> syncProjectWithRemote(String id) {
@@ -180,15 +176,11 @@ public class DataRepository {
   public Flowable<Loadable<List<Project>>> getProjectSummaries(User user) {
     return remoteDataStore
         .loadProjectSummaries(user)
-        .toFlowable()
         .compose(Result::wrap)
-        .compose(Result.onErrorResumeNext(loadProjectSummariesFromLocal()))
+        .compose(Result.onErrorResumeNext(localDataStore.getProjects().compose(Result::wrap)))
         .compose(Result::unwrap)
+        .toFlowable()
         .compose(Loadable::loadingOnceAndResults);
-  }
-
-  private Flowable<Result<List<Project>>> loadProjectSummariesFromLocal() {
-    return localDataStore.getProjects().toFlowable().compose(Result::wrap);
   }
 
   // TODO: Only return feature fields needed to render features on map.
