@@ -19,12 +19,10 @@ package com.google.android.gnd.repository;
 import android.util.Log;
 import androidx.annotation.NonNull;
 import com.google.android.gnd.model.Project;
-import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.persistence.local.LocalDataStore;
 import com.google.android.gnd.persistence.local.LocalValueStore;
 import com.google.android.gnd.persistence.remote.RemoteDataStore;
 import com.google.android.gnd.system.AuthenticationManager.User;
-import com.google.common.collect.ImmutableSet;
 import io.reactivex.Flowable;
 import io.reactivex.Single;
 import io.reactivex.processors.BehaviorProcessor;
@@ -131,12 +129,6 @@ public class ProjectRepository {
     return remoteDataStore
         .loadProjectSummaries(user)
         .timeout(LOAD_REMOTE_PROJECT_SUMMARIES_TIMEOUT_SECS, TimeUnit.SECONDS);
-  }
-
-  // TODO: Only return feature fields needed to render features on map.
-  // TODO(#127): Decouple from Project and accept id instead.
-  public Flowable<ImmutableSet<Feature>> getFeaturesOnceAndStream(Project project) {
-    return localDataStore.getFeaturesOnceAndStream(project);
   }
 
   /** Clears the currently active project from cache and from local localValueStore. */
