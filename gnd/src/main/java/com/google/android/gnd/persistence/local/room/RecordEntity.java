@@ -118,7 +118,7 @@ public abstract class RecordEntity {
 
   public static RecordEntity fromMutation(ObservationMutation mutation) {
     return RecordEntity.builder()
-        .setId(mutation.getRecordId())
+        .setId(mutation.getObservationId())
         .setFormId(mutation.getFormId())
         .setFeatureId(mutation.getFeatureId())
         .setState(EntityState.DEFAULT)

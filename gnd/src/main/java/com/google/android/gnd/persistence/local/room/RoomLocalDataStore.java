@@ -158,9 +158,7 @@ public class RoomLocalDataStore implements LocalDataStore {
 
   @Override
   public Completable removeProject(Project project) {
-    return projectDao
-        .delete(ProjectEntity.fromProject(project))
-        .subscribeOn(Schedulers.io());
+    return projectDao.delete(ProjectEntity.fromProject(project)).subscribeOn(Schedulers.io());
   }
 
   @Transaction
@@ -341,7 +339,7 @@ public class RoomLocalDataStore implements LocalDataStore {
             .subscribeOn(Schedulers.io());
       case UPDATE:
         return recordDao
-            .findById(mutation.getRecordId())
+            .findById(mutation.getObservationId())
             .doOnSubscribe(__ -> Log.v(TAG, "Applying mutation: " + mutation))
             // Emit NoSuchElementException if not found.
             .toSingle()

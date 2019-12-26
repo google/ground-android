@@ -268,7 +268,7 @@ public class EditObservationViewModel extends AbstractViewModel {
             .setProjectId(originalObservation.getProject().getId())
             .setFeatureId(originalObservation.getFeature().getId())
             .setLayerId(originalObservation.getFeature().getLayer().getId())
-            .setRecordId(originalObservation.getId())
+            .setObservationId(originalObservation.getId())
             .setFormId(originalObservation.getForm().getId())
             .setResponseDeltas(getResponseDeltas())
             .setUserId(currentUser.getId())

@@ -130,7 +130,7 @@ public class FirestoreDataStore implements RemoteDataStore {
     db.projects()
         .project(mutation.getProjectId())
         .records()
-        .record(mutation.getRecordId())
+        .record(mutation.getObservationId())
         .addMutationToBatch(mutation, batch);
   }
 }
