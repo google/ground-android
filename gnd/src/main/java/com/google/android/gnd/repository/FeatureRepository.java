@@ -98,6 +98,7 @@ public class FeatureRepository {
 
   // TODO(#127): Decouple Project from Feature and remove projectId.
   // TODO: Replace with Single and treat missing feature as error.
+  // TODO: Don't require projectId to be the active project.
   public Maybe<Feature> getFeature(String projectId, String featureId) {
     return projectRepository
         .getActiveProjectOnceAndStream()
