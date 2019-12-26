@@ -148,7 +148,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
     this.selectedForm = form;
   }
 
-  public void addRecord() {
+  public void addObservation() {
     FeatureSheetState state = featureSheetState.getValue();
     if (state == null) {
       Log.e(TAG, "Missing featureSheetState");
