@@ -63,11 +63,11 @@ class ObservationListItemViewHolder extends RecyclerView.ViewHolder {
           Field field = elem.getField();
           Optional<Response> response = observation.getResponses().getResponse(field.getId());
           binding.fieldLabelRow.addView(
-              newFieldTextView(field.getLabel(), R.style.RecordListText_FieldLabel));
+              newFieldTextView(field.getLabel(), R.style.ObservationListText_FieldLabel));
           binding.fieldValueRow.addView(
               newFieldTextView(
                   response.map(r -> r.getSummaryText(field)).orElse(""),
-                  R.style.RecordListText_Field));
+                  R.style.ObservationListText_Field));
           break;
       }
     }

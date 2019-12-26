@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright 2018 Google LLC
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,29 +14,28 @@
   ~ limitations under the License.
   -->
 
-<LinearLayout
-  xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
   android:layout_width="wrap_content"
   android:layout_height="wrap_content"
   android:orientation="vertical">
 
   <TextView
     android:id="@+id/field_label"
-    style="@style/RecordDetails.Field.Label"
+    style="@style/ObservationDetails.Field.Label"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:paddingTop="@dimen/field_top_padding"
     android:ellipsize="end"
-    android:paddingHorizontal="@dimen/field_horizontal_padding"/>
+    android:paddingHorizontal="@dimen/field_horizontal_padding" />
 
   <TextView
     android:id="@+id/field_value"
-    style="@style/RecordDetails.Field.Value"
+    style="@style/ObservationDetails.Field.Value"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:paddingTop="@dimen/field_value_top_padding"
     android:paddingBottom="@dimen/field_bottom_padding"
     android:ellipsize="end"
-    android:paddingHorizontal="@dimen/field_horizontal_padding"/>
+    android:paddingHorizontal="@dimen/field_horizontal_padding" />
 
 </LinearLayout>

@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright 2018 Google LLC
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,7 +19,7 @@
   <data>
     <variable
       name="viewModel"
-      type="com.google.android.gnd.ui.home.HomeScreenViewModel"/>
+      type="com.google.android.gnd.ui.home.HomeScreenViewModel" />
   </data>
 
   <RelativeLayout
@@ -42,7 +41,7 @@
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:elevation="@dimen/toolbar_elevation"
-        android:theme="@style/GreenToolbarTheme"/>
+        android:theme="@style/GreenToolbarTheme" />
 
     </FrameLayout>
 
@@ -57,11 +56,11 @@
       android:layout_alignParentEnd="true"
       android:layout_alignParentRight="true"
       android:elevation="6dp"
-      android:onClick="@{() -> viewModel.addRecord()}"
+      android:onClick="@{() -> viewModel.addObservation()}"
       android:text="@string/add_observation_button_label"
       android:visibility="@{viewModel.addObservationButtonVisibility}"
       app:chipIcon="@drawable/ic_add_light"
-      app:useCompatPadding="true"/>
+      app:useCompatPadding="true" />
 
     <!-- Prevents feature sheet UI from bleeding through to navigation buttons when expanded. -->
     <FrameLayout
@@ -70,6 +69,6 @@
       android:layout_height="wrap_content"
       android:layout_alignParentBottom="true"
       android:alpha="0"
-      android:background="@color/colorBackground"/>
+      android:background="@color/colorBackground" />
   </RelativeLayout>
 </layout>
