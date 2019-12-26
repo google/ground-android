@@ -35,6 +35,11 @@ import java8.util.Optional;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+/**
+ * Coordinates persistence and retrieval of {@link Project} instances from remote, local, and in
+ * memory data stores. For more details on this pattern and overall architecture, see
+ * https://developer.android.com/jetpack/docs/guide.
+ */
 @Singleton
 public class ProjectRepository {
   private static final String TAG = ProjectRepository.class.getSimpleName();

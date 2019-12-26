@@ -33,6 +33,11 @@ import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+/**
+ * Coordinates persistence and retrieval of {@link Observation} instances from remote, local, and in
+ * memory data stores. For more details on this pattern and overall architecture, see
+ * https://developer.android.com/jetpack/docs/guide.
+ */
 @Singleton
 public class ObservationRepository {
   private static final String TAG = ObservationRepository.class.getSimpleName();
