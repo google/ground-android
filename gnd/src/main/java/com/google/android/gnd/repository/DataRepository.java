@@ -52,6 +52,7 @@ public class DataRepository {
   private static final String TAG = DataRepository.class.getSimpleName();
   private static final long LOAD_REMOTE_RECORDS_TIMEOUT_SECS = 5;
   private static final long LOAD_REMOTE_PROJECT_TIMEOUT_SECS = 5;
+  private static final long LOAD_REMOTE_PROJECT_SUMMARIES_TIMEOUT_SECS = 10;
 
   private final InMemoryCache cache;
   private final LocalDataStore localDataStore;
@@ -99,12 +100,7 @@ public class DataRepository {
     String id = projectId.get();
 
     return syncProjectWithRemote(id)
-        .doOnSubscribe(__ -> Log.i(TAG, "Activating project " + id))
-        .onErrorResumeNext(
-            localDataStore
-                .getProjectById(id)
-                .doOnSubscribe(__ -> Log.i(TAG, "Falling back to local db"))
-                .toSingle())
+        .onErrorResumeNext(error -> getProjectFromLocal(id, error))
         .doOnSuccess(__ -> localValueStore.setLastActiveProjectId(id))
         .toFlowable()
         .compose(Loadable::loadingOnceAndWrap);
@@ -114,7 +110,15 @@ public class DataRepository {
     return remoteDataStore
         .loadProject(id)
         .timeout(LOAD_REMOTE_PROJECT_TIMEOUT_SECS, TimeUnit.SECONDS)
+        .doOnSubscribe(__ -> Log.d(TAG, "Activating project " + id))
         .doOnSuccess(localDataStore::insertOrUpdateProject);
+  }
+
+  private Single<Project> getProjectFromLocal(String id, Throwable error) {
+    return localDataStore
+        .getProjectById(id)
+        .toSingle()
+        .doOnSubscribe(__ -> Log.d(TAG, "Failed to load project from remote", error));
   }
 
   @NonNull
@@ -169,11 +173,23 @@ public class DataRepository {
   }
 
   public Flowable<Loadable<List<Project>>> getProjectSummaries(User user) {
-    return remoteDataStore
-        .loadProjectSummaries(user)
-        .onErrorResumeNext(localDataStore.getProjects())
+    return loadProjectSummariesFromRemote(user)
+        .onErrorResumeNext(error -> loadProjectSummariesFromLocal(error))
         .toFlowable()
         .compose(Loadable::loadingOnceAndWrap);
+  }
+
+  private Single<List<Project>> loadProjectSummariesFromRemote(User user) {
+    return remoteDataStore
+        .loadProjectSummaries(user)
+        .timeout(LOAD_REMOTE_PROJECT_SUMMARIES_TIMEOUT_SECS, TimeUnit.SECONDS)
+        .doOnSubscribe(__ -> Log.d(TAG, "Loading project list from remote"));
+  }
+
+  private Single<List<Project>> loadProjectSummariesFromLocal(Throwable error) {
+    return localDataStore
+        .getProjects()
+        .doOnSubscribe(__ -> Log.d(TAG, "Failed to load project list from remote", error));
   }
 
   // TODO: Only return feature fields needed to render features on map.
