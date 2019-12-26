@@ -55,10 +55,10 @@ public class ProjectRepository {
 
   @Inject
   public ProjectRepository(
-    LocalDataStore localDataStore,
-    RemoteDataStore remoteDataStore,
-    InMemoryCache cache,
-    LocalValueStore localValueStore) {
+      LocalDataStore localDataStore,
+      RemoteDataStore remoteDataStore,
+      InMemoryCache cache,
+      LocalValueStore localValueStore) {
     this.localDataStore = localDataStore;
     this.remoteDataStore = remoteDataStore;
     this.cache = cache;
@@ -69,12 +69,12 @@ public class ProjectRepository {
 
     // Load project when requested id changes, caching the last loaded project.
     this.activeProjectStream =
-      activateProjectRequests
-        .distinctUntilChanged()
-        .doOnNext(id -> Log.v(TAG, "Requested project id changed: " + id))
-        .switchMap(this::onActivateProjectRequest)
-        .replay(1)
-        .refCount();
+        activateProjectRequests
+            .distinctUntilChanged()
+            .doOnNext(id -> Log.v(TAG, "Requested project id changed: " + id))
+            .switchMap(this::onActivateProjectRequest)
+            .replay(1)
+            .refCount();
   }
 
   private Flowable<Loadable<Project>> onActivateProjectRequest(Optional<String> projectId) {
@@ -85,25 +85,25 @@ public class ProjectRepository {
     String id = projectId.get();
 
     return syncProjectWithRemote(id)
-      .onErrorResumeNext(error -> getProjectFromLocal(id, error))
-      .doOnSuccess(__ -> localValueStore.setLastActiveProjectId(id))
-      .toFlowable()
-      .compose(Loadable::loadingOnceAndWrap);
+        .onErrorResumeNext(error -> getProjectFromLocal(id, error))
+        .doOnSuccess(__ -> localValueStore.setLastActiveProjectId(id))
+        .toFlowable()
+        .compose(Loadable::loadingOnceAndWrap);
   }
 
   private Single<Project> syncProjectWithRemote(String id) {
     return remoteDataStore
-      .loadProject(id)
-      .timeout(LOAD_REMOTE_PROJECT_TIMEOUT_SECS, TimeUnit.SECONDS)
-      .doOnSubscribe(__ -> Log.d(TAG, "Activating project " + id))
-      .doOnSuccess(localDataStore::insertOrUpdateProject);
+        .loadProject(id)
+        .timeout(LOAD_REMOTE_PROJECT_TIMEOUT_SECS, TimeUnit.SECONDS)
+        .doOnSubscribe(__ -> Log.d(TAG, "Activating project " + id))
+        .doOnSuccess(localDataStore::insertOrUpdateProject);
   }
 
   private Single<Project> getProjectFromLocal(String id, Throwable error) {
     return localDataStore
-      .getProjectById(id)
-      .toSingle()
-      .doOnSubscribe(__ -> Log.d(TAG, "Failed to load project from remote", error));
+        .getProjectById(id)
+        .toSingle()
+        .doOnSubscribe(__ -> Log.d(TAG, "Failed to load project from remote", error));
   }
 
   @NonNull
@@ -126,22 +126,22 @@ public class ProjectRepository {
 
   public Flowable<Loadable<List<Project>>> getProjectSummaries(User user) {
     return loadProjectSummariesFromRemote(user)
-      .onErrorResumeNext(error -> loadProjectSummariesFromLocal(error))
-      .toFlowable()
-      .compose(Loadable::loadingOnceAndWrap);
+        .onErrorResumeNext(error -> loadProjectSummariesFromLocal(error))
+        .toFlowable()
+        .compose(Loadable::loadingOnceAndWrap);
   }
 
   private Single<List<Project>> loadProjectSummariesFromRemote(User user) {
     return remoteDataStore
-      .loadProjectSummaries(user)
-      .timeout(LOAD_REMOTE_PROJECT_SUMMARIES_TIMEOUT_SECS, TimeUnit.SECONDS)
-      .doOnSubscribe(__ -> Log.d(TAG, "Loading project list from remote"));
+        .loadProjectSummaries(user)
+        .timeout(LOAD_REMOTE_PROJECT_SUMMARIES_TIMEOUT_SECS, TimeUnit.SECONDS)
+        .doOnSubscribe(__ -> Log.d(TAG, "Loading project list from remote"));
   }
 
   private Single<List<Project>> loadProjectSummariesFromLocal(Throwable error) {
     return localDataStore
-      .getProjects()
-      .doOnSubscribe(__ -> Log.d(TAG, "Failed to load project list from remote", error));
+        .getProjects()
+        .doOnSubscribe(__ -> Log.d(TAG, "Failed to load project list from remote", error));
   }
 
   // TODO: Only return feature fields needed to render features on map.
