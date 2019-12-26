@@ -103,7 +103,7 @@ public class AddFeatureDialogFragment extends AbstractDialogFragment {
   }
 
   private void onSelectLayer(Project project, Layer layer, Point cameraPosition) {
-    // TODO(#9): Move creating a new Feature into the ViewModel or DataRepository. Doing it here
+    // TODO(#9): Move creating a new Feature into the ViewModel or ProjectRepository. Doing it here
     // for now to avoid conflicting with soon-to-be-merged commits for Issue #24.
     addFeatureRequestSubject.onSuccess(
         Feature.newBuilder()

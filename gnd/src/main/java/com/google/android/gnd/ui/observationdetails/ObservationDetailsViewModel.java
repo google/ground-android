@@ -22,8 +22,8 @@ import androidx.lifecycle.LiveDataReactiveStreams;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.model.observation.Observation;
-import com.google.android.gnd.repository.DataRepository;
 import com.google.android.gnd.repository.Loadable;
+import com.google.android.gnd.repository.ObservationRepository;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import io.reactivex.Flowable;
 import io.reactivex.processors.BehaviorProcessor;
@@ -31,7 +31,7 @@ import javax.inject.Inject;
 
 public class ObservationDetailsViewModel extends AbstractViewModel {
 
-  private final DataRepository dataRepository;
+  private final ObservationRepository observationRepository;
   private final BehaviorProcessor<ObservationDetailsFragmentArgs> argsProcessor;
   public final LiveData<Loadable<Observation>> records;
   public final LiveData<Integer> progressBarVisibility;
@@ -40,15 +40,15 @@ public class ObservationDetailsViewModel extends AbstractViewModel {
   public final LiveData<String> formNameView;
 
   @Inject
-  ObservationDetailsViewModel(DataRepository dataRepository) {
-    this.dataRepository = dataRepository;
+  ObservationDetailsViewModel(ObservationRepository observationRepository) {
+    this.observationRepository = observationRepository;
 
     this.argsProcessor = BehaviorProcessor.create();
 
     Flowable<Loadable<Observation>> recordStream =
         argsProcessor.switchMapSingle(
             args ->
-                this.dataRepository
+                observationRepository
                     .getObservation(args.getProjectId(), args.getFeatureId(), args.getRecordId())
                     .map(Loadable::loaded)
                     .onErrorReturn(Loadable::error));

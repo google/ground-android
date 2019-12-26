@@ -21,7 +21,7 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
-import com.google.android.gnd.repository.DataRepository;
+import com.google.android.gnd.repository.ProjectRepository;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.SharedViewModel;
 import javax.inject.Inject;
@@ -29,14 +29,14 @@ import javax.inject.Inject;
 @SharedViewModel
 public class MainViewModel extends ViewModel {
 
-  private final DataRepository dataRepository;
+  private final ProjectRepository projectRepository;
   private final Navigator navigator;
   private MutableLiveData<WindowInsetsCompat> windowInsetsLiveData;
 
   @Inject
-  public MainViewModel(DataRepository dataRepository, Navigator navigator) {
+  public MainViewModel(ProjectRepository projectRepository, Navigator navigator) {
     windowInsetsLiveData = new MutableLiveData<>();
-    this.dataRepository = dataRepository;
+    this.projectRepository = projectRepository;
     this.navigator = navigator;
   }
 
@@ -50,7 +50,7 @@ public class MainViewModel extends ViewModel {
   }
 
   public void onSignedOut(int currentNavDestinationId) {
-    dataRepository.clearActiveProject();
+    projectRepository.clearActiveProject();
     navigator.showSignInScreen(currentNavDestinationId);
   }
 
