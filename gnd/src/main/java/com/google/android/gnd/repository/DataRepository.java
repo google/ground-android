@@ -93,7 +93,7 @@ public class DataRepository {
   }
 
   private Flowable<Loadable<Project>> onActivateProjectRequest(Optional<String> projectId) {
-    // Empty id indicates intent to deactivate the current project. Used. on sign out.
+    // Empty id indicates intent to deactivate the current project. Used on sign out.
     if (projectId.isEmpty()) {
       return Flowable.just(Loadable.notLoaded());
     }
