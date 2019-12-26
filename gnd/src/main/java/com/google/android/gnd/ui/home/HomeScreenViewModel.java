@@ -44,7 +44,6 @@ public class HomeScreenViewModel extends AbstractViewModel {
 
   private static final String TAG = HomeScreenViewModel.class.getSimpleName();
   private final ProjectRepository projectRepository;
-  private final FeatureRepository featureRepository;
   private final Navigator navigator;
   /** The state and value of the currently active project (loading, loaded, etc.). */
   private final LiveData<Loadable<Project>> activeProject;
@@ -67,7 +66,6 @@ public class HomeScreenViewModel extends AbstractViewModel {
       FeatureRepository featureRepository,
       Navigator navigator) {
     this.projectRepository = projectRepository;
-    this.featureRepository = featureRepository;
     this.addFeatureDialogRequests = new SingleLiveEvent<>();
     this.openDrawerRequests = new SingleLiveEvent<>();
     this.featureSheetState = new MutableLiveData<>();

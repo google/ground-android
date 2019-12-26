@@ -31,7 +31,6 @@ import javax.inject.Inject;
 
 public class ObservationDetailsViewModel extends AbstractViewModel {
 
-  private final ObservationRepository observationRepository;
   private final BehaviorProcessor<ObservationDetailsFragmentArgs> argsProcessor;
   public final LiveData<Loadable<Observation>> records;
   public final LiveData<Integer> progressBarVisibility;
@@ -41,8 +40,6 @@ public class ObservationDetailsViewModel extends AbstractViewModel {
 
   @Inject
   ObservationDetailsViewModel(ObservationRepository observationRepository) {
-    this.observationRepository = observationRepository;
-
     this.argsProcessor = BehaviorProcessor.create();
 
     Flowable<Loadable<Observation>> recordStream =
