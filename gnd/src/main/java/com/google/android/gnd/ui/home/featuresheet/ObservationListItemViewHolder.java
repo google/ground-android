@@ -82,8 +82,8 @@ class ObservationListItemViewHolder extends RecyclerView.ViewHolder {
     // NOTE: These attributes don't work when applying text appearance programmatically, so we set
     // them here individually instead.
     v.setPadding(
-        0, 0, resources.getDimensionPixelSize(R.dimen.record_summary_text_padding_right), 0);
-    v.setMaxWidth(resources.getDimensionPixelSize(R.dimen.record_summary_text_max_width));
+        0, 0, resources.getDimensionPixelSize(R.dimen.observation_summary_text_padding_right), 0);
+    v.setMaxWidth(resources.getDimensionPixelSize(R.dimen.observation_summary_text_max_width));
     v.setMaxLines(1);
     v.setSingleLine();
     v.setEllipsize(TextUtils.TruncateAt.END);

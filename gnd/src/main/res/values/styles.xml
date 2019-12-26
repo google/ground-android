@@ -96,7 +96,7 @@
   <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light"/>
 
   <style name="RecordListText">
-    <item name="android:textSize">@dimen/record_list_text_size</item>
+    <item name="android:textSize">@dimen/observation_list_text_size</item>
   </style>
 
   <style name="RecordListText.CreatorName">
@@ -115,7 +115,7 @@
 
   <style name="RecordListText.FieldLabel">
     <item name="android:textColor">@color/colorGrey600</item>
-    <item name="android:textSize">@dimen/record_list_field_label_size</item>
+    <item name="android:textSize">@dimen/observation_list_field_label_size</item>
   </style>
 
   <!--

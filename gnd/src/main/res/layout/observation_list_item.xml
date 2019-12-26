@@ -34,8 +34,8 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="@dimen/record_list_item_horizontal_margin"
-        android:layout_marginVertical="@dimen/record_list_item_horizontal_vertical">
+        android:layout_marginHorizontal="@dimen/observation_list_item_horizontal_margin"
+        android:layout_marginVertical="@dimen/observation_list_item_horizontal_vertical">
 
       <TextView
           android:id="@+id/user_name"
@@ -86,8 +86,8 @@
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
           android:layout_below="@id/user_name"
-          android:layout_marginEnd="@dimen/record_list_item_preview_table_right_margin"
-          android:layout_marginRight="@dimen/record_list_item_preview_table_right_margin"
+          android:layout_marginEnd="@dimen/observation_list_item_preview_table_right_margin"
+          android:layout_marginRight="@dimen/observation_list_item_preview_table_right_margin"
           android:paddingStart="14dp"
           android:paddingLeft="14dp"
           android:paddingEnd="14dp"
@@ -126,7 +126,7 @@
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:layout_gravity="bottom"
-        android:layout_marginHorizontal="@dimen/record_list_item_horizontal_margin"
+        android:layout_marginHorizontal="@dimen/observation_list_item_horizontal_margin"
         android:background="@color/colorGrey300" />
 
   </FrameLayout>
