@@ -44,18 +44,18 @@
     android:label="@string/map_view"
     tools:layout="@layout/home_screen_frag">
     <action
-      android:id="@+id/showRecordDetails"
+      android:id="@+id/showObservationDetails"
       app:destination="@id/observation_details_fragment"
       app:enterAnim="@anim/nav_default_enter_anim"
       app:exitAnim="@anim/nav_default_exit_anim"
       app:popEnterAnim="@anim/nav_default_pop_enter_anim"
       app:popExitAnim="@anim/nav_default_pop_exit_anim" />
     <action
-      android:id="@+id/addRecord"
+      android:id="@+id/addObservation"
       app:destination="@id/edit_observation_fragment">
       <argument
-        android:name="recordId"
-        android:defaultValue="NEW_RECORD" />
+        android:name="observationId"
+        android:defaultValue="NEW" />
     </action>
     <action
       android:id="@+id/showBasemapSelector"
@@ -100,10 +100,10 @@
       android:name="featureId"
       type="string" />
     <argument
-      android:name="recordId"
+      android:name="observationId"
       type="string" />
     <action
-      android:id="@+id/editRecord"
+      android:id="@+id/editObservation"
       app:destination="@id/edit_observation_fragment"
       app:enterAnim="@anim/nav_default_enter_anim"
       app:exitAnim="@anim/nav_default_exit_anim"
@@ -117,7 +117,7 @@
   <fragment
     android:id="@+id/edit_observation_fragment"
     android:name="com.google.android.gnd.ui.editobservation.EditObservationFragment"
-    android:label="edit_record_frag"
+    android:label="edit_observation_frag"
     tools:layout="@layout/edit_observation_frag">
     <argument
       android:name="projectId"
@@ -126,7 +126,7 @@
       android:name="featureId"
       type="string" />
     <argument
-      android:name="recordId"
+      android:name="observationId"
       type="string" />
     <argument
       android:name="formId"

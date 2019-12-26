@@ -70,7 +70,8 @@ public class Navigator {
    * ObservationDetailsFragment} populated with the specified observation.
    */
   public void showRecordDetails(String projectId, String featureId, String observationId) {
-    navigate(HomeScreenFragmentDirections.showRecordDetails(projectId, featureId, observationId));
+    navigate(
+        HomeScreenFragmentDirections.showObservationDetails(projectId, featureId, observationId));
   }
 
   /**
@@ -86,7 +87,7 @@ public class Navigator {
    * EditObservationFragment} initialized with a new empty observation using the specified form.
    */
   public void addObservation(String projectId, String featureId, String formId) {
-    navigate(HomeScreenFragmentDirections.addRecord(projectId, featureId, formId));
+    navigate(HomeScreenFragmentDirections.addObservation(projectId, featureId, formId));
   }
 
   /**
@@ -94,7 +95,8 @@ public class Navigator {
    * populated with the specified observation.
    */
   public void editObservation(String projectId, String featureId, String observationId) {
-    navigate(ObservationDetailsFragmentDirections.editRecord(projectId, featureId, observationId));
+    navigate(
+        ObservationDetailsFragmentDirections.editObservation(projectId, featureId, observationId));
   }
 
   /** Navigates to the home screen. */

@@ -46,7 +46,8 @@ public class ObservationDetailsViewModel extends AbstractViewModel {
         argsProcessor.switchMapSingle(
             args ->
                 observationRepository
-                    .getObservation(args.getProjectId(), args.getFeatureId(), args.getRecordId())
+                    .getObservation(
+                        args.getProjectId(), args.getFeatureId(), args.getObservationId())
                     .map(Loadable::loaded)
                     .onErrorReturn(Loadable::error));
 
