@@ -65,7 +65,7 @@ public class ObservationListViewModel extends AbstractViewModel {
 
   private Single<ImmutableList<Observation>> getRecords(ObservationListRequest req) {
     return observationRepository
-        .getRecords(req.project.getId(), req.featureId, req.formId)
+        .getObservations(req.project.getId(), req.featureId, req.formId)
         .onErrorResumeNext(this::onGetRecordsError);
   }
 
