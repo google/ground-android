@@ -196,15 +196,15 @@ public class RoomLocalDataStore implements LocalDataStore {
   }
 
   @Override
-  public Maybe<Observation> getRecord(Feature feature, String recordId) {
+  public Maybe<Observation> getObservation(Feature feature, String observationId) {
     return recordDao
-        .findById(recordId)
+        .findById(observationId)
         .map(record -> RecordEntity.toRecord(feature, record))
         .subscribeOn(Schedulers.io());
   }
 
   @Override
-  public Single<ImmutableList<Observation>> getRecords(Feature feature, String formId) {
+  public Single<ImmutableList<Observation>> getObservations(Feature feature, String formId) {
     return recordDao
         .findByFeatureId(feature.getId(), formId)
         .map(
@@ -280,7 +280,7 @@ public class RoomLocalDataStore implements LocalDataStore {
 
   @Transaction
   @Override
-  public Completable mergeRecord(Observation observation) {
+  public Completable mergeObservation(Observation observation) {
     RecordEntity recordEntity = RecordEntity.fromRecord(observation);
     return recordMutationDao
         .findByRecordId(observation.getId())

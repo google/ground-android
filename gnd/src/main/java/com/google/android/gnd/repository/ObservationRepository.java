@@ -92,11 +92,11 @@ public class ObservationRepository {
             .doOnError(t -> Log.d(TAG, "Observation sync timed out"))
             .flatMapCompletable(this::mergeRemoteObservations)
             .onErrorComplete();
-    return remoteSync.andThen(localDataStore.getRecords(feature, formId));
+    return remoteSync.andThen(localDataStore.getObservations(feature, formId));
   }
 
   private Completable mergeRemoteObservations(ImmutableList<Observation> observations) {
-    return Observable.fromIterable(observations).flatMapCompletable(localDataStore::mergeRecord);
+    return Observable.fromIterable(observations).flatMapCompletable(localDataStore::mergeObservation);
   }
 
   public Single<Observation> getObservation(
@@ -109,7 +109,7 @@ public class ObservationRepository {
         .flatMap(
             feature ->
                 localDataStore
-                    .getRecord(feature, observationId)
+                    .getObservation(feature, observationId)
                     .switchIfEmpty(Single.error(new DocumentNotFoundException())));
   }
 
