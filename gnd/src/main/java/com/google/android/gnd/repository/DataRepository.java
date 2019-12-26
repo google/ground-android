@@ -17,6 +17,7 @@
 package com.google.android.gnd.repository;
 
 import android.util.Log;
+import androidx.annotation.NonNull;
 import com.google.android.gnd.model.Mutation;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.feature.Feature;
@@ -33,7 +34,6 @@ import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator;
 import com.google.android.gnd.system.AuthenticationManager.User;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import com.google.firebase.firestore.FirebaseFirestoreException;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
@@ -50,13 +50,16 @@ import javax.inject.Singleton;
 @Singleton
 public class DataRepository {
   private static final String TAG = DataRepository.class.getSimpleName();
-  private static final long GET_REMOTE_RECORDS_TIMEOUT_SECS = 5;
+  private static final long LOAD_REMOTE_RECORDS_TIMEOUT_SECS = 5;
+  private static final long LOAD_REMOTE_PROJECT_TIMEOUT_SECS = 5;
+  private static final long LOAD_REMOTE_PROJECT_SUMMARIES_TIMEOUT_SECS = 10;
 
   private final InMemoryCache cache;
   private final LocalDataStore localDataStore;
   private final RemoteDataStore remoteDataStore;
   private final DataSyncWorkManager dataSyncWorkManager;
-  private final FlowableProcessor<Persistable<Project>> activeProject;
+  private final Flowable<Loadable<Project>> activeProjectStream;
+  private final FlowableProcessor<Optional<String>> activateProjectRequests;
   private final OfflineUuidGenerator uuidGenerator;
   private final LocalValueStore localValueStore;
 
@@ -72,11 +75,55 @@ public class DataRepository {
     this.remoteDataStore = remoteDataStore;
     this.dataSyncWorkManager = dataSyncWorkManager;
     this.cache = cache;
-    this.activeProject = BehaviorProcessor.create();
     this.uuidGenerator = uuidGenerator;
     this.localValueStore = localValueStore;
 
+    // BehaviorProcessor re-emits last requested project id to late subscribers.
+    this.activateProjectRequests = BehaviorProcessor.create();
+
+    // Load project when requested id changes, caching the last loaded project.
+    this.activeProjectStream =
+        activateProjectRequests
+            .distinctUntilChanged()
+            .doOnNext(id -> Log.v(TAG, "Requested project id changed: " + id))
+            .switchMap(this::onActivateProjectRequest)
+            .replay(1)
+            .refCount();
     streamFeaturesToLocalDb(remoteDataStore);
+  }
+
+  private Flowable<Loadable<Project>> onActivateProjectRequest(Optional<String> projectId) {
+    // Empty id indicates intent to deactivate the current project. Used on sign out.
+    if (projectId.isEmpty()) {
+      return Flowable.just(Loadable.notLoaded());
+    }
+    String id = projectId.get();
+
+    return syncProjectWithRemote(id)
+        .onErrorResumeNext(error -> getProjectFromLocal(id, error))
+        .doOnSuccess(__ -> localValueStore.setLastActiveProjectId(id))
+        .toFlowable()
+        .compose(Loadable::loadingOnceAndWrap);
+  }
+
+  private Single<Project> syncProjectWithRemote(String id) {
+    return remoteDataStore
+        .loadProject(id)
+        .timeout(LOAD_REMOTE_PROJECT_TIMEOUT_SECS, TimeUnit.SECONDS)
+        .doOnSubscribe(__ -> Log.d(TAG, "Activating project " + id))
+        .doOnSuccess(localDataStore::insertOrUpdateProject);
+  }
+
+  private Single<Project> getProjectFromLocal(String id, Throwable error) {
+    return localDataStore
+        .getProjectById(id)
+        .toSingle()
+        .doOnSubscribe(__ -> Log.d(TAG, "Failed to load project from remote", error));
+  }
+
+  @NonNull
+  public Optional<String> getLastActiveProjectId() {
+    return Optional.ofNullable(localValueStore.getLastActiveProjectId());
   }
 
   /**
@@ -86,8 +133,10 @@ public class DataRepository {
    */
   private void streamFeaturesToLocalDb(RemoteDataStore remoteDataStore) {
     // TODO: Move to Application or background service.
-    activeProject
-        .compose(Persistable::values)
+    // TODO: Is this even working? If the returned Disposable is garbage collected this will be
+    // interrupted.
+    activeProjectStream
+        .compose(Loadable::values)
         .switchMap(remoteDataStore::loadFeaturesOnceAndStreamChanges)
         .switchMap(event -> updateLocalFeature(event).toFlowable())
         .subscribe();
@@ -114,51 +163,33 @@ public class DataRepository {
    * Returns a stream that emits the latest project activation state, and continues to emits changes
    * to that state until all subscriptions are disposed.
    */
-  public Flowable<Persistable<Project>> getActiveProjectOnceAndStream() {
-    return activeProject;
+  public Flowable<Loadable<Project>> getActiveProjectOnceAndStream() {
+    return activeProjectStream;
   }
 
-  public Single<Project> activateProject(String projectId) {
-    Log.d(TAG, " Activating project " + projectId);
-    return remoteDataStore
-        .loadProject(projectId)
-        .flatMap(project -> localDataStore.insertOrUpdateProject(project).toSingleDefault(project))
-        .onErrorResumeNext(
-            throwable -> {
-              if (throwable instanceof FirebaseFirestoreException) {
-                return localDataStore
-                    .getProjectById(localValueStore.getLastActiveProjectId())
-                    .toSingle();
-              }
-              return Single.error(throwable);
-            })
-        .doOnError(throwable -> Log.e(TAG, "Project not found " + projectId))
-        .doOnSubscribe(__ -> activeProject.onNext(Persistable.loading()))
-        .flatMap(project -> localDataStore.insertOrUpdateProject(project).toSingleDefault(project))
-        .doOnSuccess(this::onProjectLoaded);
+  public void activateProject(String projectId) {
+    Log.v(TAG, "activateProject() called with " + projectId);
+    activateProjectRequests.onNext(Optional.of(projectId));
   }
 
-  private void onProjectLoaded(Project project) {
-    cache.setActiveProject(project);
-    activeProject.onNext(Persistable.loaded(project));
-    localValueStore.setLastActiveProjectId(project.getId());
+  public Flowable<Loadable<List<Project>>> getProjectSummaries(User user) {
+    return loadProjectSummariesFromRemote(user)
+        .onErrorResumeNext(error -> loadProjectSummariesFromLocal(error))
+        .toFlowable()
+        .compose(Loadable::loadingOnceAndWrap);
   }
 
-  public Observable<Persistable<List<Project>>> getProjectSummaries(User user) {
-    // TODO: Get from load db if network connection not available or remote times out.
+  private Single<List<Project>> loadProjectSummariesFromRemote(User user) {
     return remoteDataStore
         .loadProjectSummaries(user)
-        .onErrorResumeNext(
-            throwable -> {
-              if (throwable instanceof FirebaseFirestoreException) {
-                return localDataStore.getProjects();
-              }
-              return Single.error(throwable);
-            })
-        .map(Persistable::loaded)
-        .onErrorReturn(Persistable::error)
-        .toObservable()
-        .startWith(Persistable.loading());
+        .timeout(LOAD_REMOTE_PROJECT_SUMMARIES_TIMEOUT_SECS, TimeUnit.SECONDS)
+        .doOnSubscribe(__ -> Log.d(TAG, "Loading project list from remote"));
+  }
+
+  private Single<List<Project>> loadProjectSummariesFromLocal(Throwable error) {
+    return localDataStore
+        .getProjects()
+        .doOnSubscribe(__ -> Log.d(TAG, "Failed to load project list from remote", error));
   }
 
   // TODO: Only return feature fields needed to render features on map.
@@ -190,7 +221,7 @@ public class DataRepository {
     Completable remoteSync =
         remoteDataStore
             .loadRecords(feature)
-            .timeout(GET_REMOTE_RECORDS_TIMEOUT_SECS, TimeUnit.SECONDS)
+            .timeout(LOAD_REMOTE_RECORDS_TIMEOUT_SECS, TimeUnit.SECONDS)
             .doOnError(t -> Log.d(TAG, "Observation sync timed out"))
             .flatMapCompletable(this::mergeRemoteRecords)
             .onErrorComplete();
@@ -202,10 +233,13 @@ public class DataRepository {
   }
 
   // TODO(#127): Decouple Project from Feature and remove projectId.
-  // TODO: Replace with Single and treat missing id as error.
+  // TODO: Replace with Single and treat missing feature as error.
   private Maybe<Feature> getFeature(String projectId, String featureId) {
-    return getProject(projectId)
-        .flatMapMaybe(project -> localDataStore.getFeature(project, featureId));
+    return activeProjectStream
+        .compose(Loadable::values)
+        .firstElement()
+        .filter(project -> project.getId().equals(projectId))
+        .flatMap(project -> localDataStore.getFeature(project, featureId));
   }
 
   public Single<Observation> getObservation(
@@ -236,13 +270,6 @@ public class DataRepository {
                     .build());
   }
 
-  private Single<Project> getProject(String projectId) {
-    // TODO: Try to load from db if network not available or times out.
-    return Maybe.fromCallable(cache::getActiveProject)
-        .filter(p -> projectId.equals(p.getId()))
-        .switchIfEmpty(remoteDataStore.loadProject(projectId));
-  }
-
   public Completable applyAndEnqueue(ObservationMutation mutation) {
     // TODO(#101): Store user id and timestamp on save.
     return localDataStore
@@ -267,28 +294,10 @@ public class DataRepository {
         .andThen(dataSyncWorkManager.enqueueSyncWorker(feature.getId()));
   }
 
-  /**
-   * Reactivates the last active project, emitting true once loaded, or false if no project was
-   * previously activated.
-   */
-  public Single<Boolean> reactivateLastProject() {
-    return Maybe.fromCallable(localValueStore::getLastActiveProjectId)
-        .flatMap(id -> activateProject(id).toMaybe())
-        .onErrorComplete()
-        .doOnComplete(() -> Log.v(TAG, "No previous project found to reactivate"))
-        .doOnSuccess(project -> Log.v(TAG, "Reactivated project " + project.getId()))
-        .map(__ -> true)
-        .toSingle(false);
-  }
-
   /** Clears the currently active project from cache and from local localValueStore. */
   public void clearActiveProject() {
-    localDataStore
-        .getProjectById(localValueStore.getLastActiveProjectId())
-        .flatMapCompletable(localDataStore::removeProject)
-        .subscribe();
-    cache.clearActiveProject();
+    cache.clear();
     localValueStore.clearLastActiveProjectId();
-    activeProject.onNext(Persistable.notLoaded());
+    activateProjectRequests.onNext(Optional.empty());
   }
 }

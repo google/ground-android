@@ -20,16 +20,16 @@ import java8.util.Optional;
 import javax.annotation.Nullable;
 
 /**
- * Represents the result of an operation that either succeeds with a value, or fails with an
+ * Represents the outcome of an operation that either succeeds with a value, or fails with an
  * exception.
  *
- * @param <T> the type of value held by the {@link Result}.
+ * @param <T> the type of value held by instances of this {@code ValueOrError}.
  */
-public class Result<T> {
+public class ValueOrError<T> {
   @Nullable private T value;
   @Nullable private Throwable error;
 
-  protected Result(@Nullable T value, @Nullable Throwable error) {
+  protected ValueOrError(@Nullable T value, @Nullable Throwable error) {
     this.value = value;
     this.error = error;
   }
@@ -42,12 +42,12 @@ public class Result<T> {
     return Optional.ofNullable(error);
   }
 
-  public static <T> Result<T> of(T value) {
-    return new Result(value, null);
+  public static <T> ValueOrError<T> of(T value) {
+    return new ValueOrError(value, null);
   }
 
-  public static <T> Result<T> error(Throwable t) {
-    return new Result(null, t);
+  public static <T> ValueOrError<T> error(Throwable t) {
+    return new ValueOrError(null, t);
   }
 
   @Override

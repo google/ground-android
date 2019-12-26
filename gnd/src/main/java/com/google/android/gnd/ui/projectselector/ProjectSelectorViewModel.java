@@ -16,80 +16,47 @@
 
 package com.google.android.gnd.ui.projectselector;
 
-import android.util.Log;
 import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.LiveDataReactiveStreams;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.repository.DataRepository;
-import com.google.android.gnd.repository.Persistable;
+import com.google.android.gnd.repository.Loadable;
 import com.google.android.gnd.system.AuthenticationManager;
 import com.google.android.gnd.ui.common.AbstractViewModel;
-import io.reactivex.Single;
-import io.reactivex.subjects.PublishSubject;
 import java.util.Collections;
 import java.util.List;
 import javax.inject.Inject;
 
+/** Represents view state and behaviors of the project selector dialog. */
 public class ProjectSelectorViewModel extends AbstractViewModel {
-  private static final String TAG = ProjectSelectorViewModel.class.getSimpleName();
-
-  private final MutableLiveData<Persistable<List<Project>>> projectSummaries;
-  private final PublishSubject<Integer> projectSelections;
-  private final MutableLiveData<Project> activeProject;
-  private final MutableLiveData<Throwable> activateProjectErrors;
+  private final DataRepository dataRepository;
+  private final LiveData<Loadable<List<Project>>> projectSummaries;
 
   @Inject
   ProjectSelectorViewModel(DataRepository dataRepository, AuthenticationManager authManager) {
-    this.projectSummaries = new MutableLiveData<>();
-    this.activeProject = new MutableLiveData<>();
-    this.activateProjectErrors = new MutableLiveData<>();
-    this.projectSelections = PublishSubject.create();
-
-    disposeOnClear(
-        projectSelections
-            .switchMapSingle(
-                idx ->
-                    dataRepository
-                        .activateProject(getProjectSummary(idx).getId())
-                        .doOnError(this::onActiveProjectError)
-                        .onErrorResumeNext(Single.never()))
-            .subscribe(activeProject::postValue));
+    this.dataRepository = dataRepository;
 
     AuthenticationManager.User user =
         authManager.getUser().blockingFirst(AuthenticationManager.User.ANONYMOUS);
 
-    disposeOnClear(
-        dataRepository
-            .getProjectSummaries(user)
-            .subscribe(projectSummaries::postValue, this::onProjectSummariesError));
+    this.projectSummaries =
+        LiveDataReactiveStreams.fromPublisher(dataRepository.getProjectSummaries(user));
   }
 
-  public LiveData<Persistable<List<Project>>> getProjectSummaries() {
+  public LiveData<Loadable<List<Project>>> getProjectSummaries() {
     return projectSummaries;
   }
 
-  public LiveData<Throwable> getActivateProjectErrors() {
-    return activateProjectErrors;
-  }
-
-  public LiveData<Project> getActiveProject() {
-    return activeProject;
-  }
-
   private Project getProjectSummary(int idx) {
-    return Persistable.getData(this.projectSummaries).orElse(Collections.emptyList()).get(idx);
+    return Loadable.getData(this.projectSummaries).orElse(Collections.emptyList()).get(idx);
   }
 
-  private void onProjectSummariesError(Throwable t) {
-    Log.d(TAG, "Failed to retrieve project summaries.", t);
-  }
-
-  private void onActiveProjectError(Throwable t) {
-    Log.d(TAG, "Could not activate project.", t);
-    this.activateProjectErrors.setValue(t);
-  }
-
+  /**
+   * Triggers the specified project to be loaded and activated.
+   *
+   * @param idx the index in the project summary list.
+   */
   void activateProject(int idx) {
-    projectSelections.onNext(idx);
+    dataRepository.activateProject(getProjectSummary(idx).getId());
   }
 }

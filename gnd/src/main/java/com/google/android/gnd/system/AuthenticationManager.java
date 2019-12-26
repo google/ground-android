@@ -29,7 +29,7 @@ import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gnd.R;
 import com.google.android.gnd.inject.ActivityScoped;
-import com.google.android.gnd.rx.Result;
+import com.google.android.gnd.rx.ValueOrError;
 import com.google.android.gnd.system.ActivityStreams.ActivityResult;
 import com.google.android.gnd.system.AuthenticationManager.SignInState.State;
 import com.google.firebase.auth.AuthCredential;
@@ -148,7 +148,7 @@ public class AuthenticationManager {
     super.finalize();
   }
 
-  public static class SignInState extends Result<User> {
+  public static class SignInState extends ValueOrError<User> {
 
     private final State state;
 

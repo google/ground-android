@@ -26,7 +26,7 @@ import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.repository.DataRepository;
-import com.google.android.gnd.repository.Persistable;
+import com.google.android.gnd.repository.Loadable;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.SharedViewModel;
@@ -45,7 +45,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
   private final DataRepository dataRepository;
   private final Navigator navigator;
   /** The state and value of the currently active project (loading, loaded, etc.). */
-  private final LiveData<Persistable<Project>> activeProject;
+  private final LiveData<Loadable<Project>> activeProject;
 
   private final PublishSubject<Feature> addFeatureClicks;
 
@@ -83,6 +83,10 @@ public class HomeScreenViewModel extends AbstractViewModel {
             .subscribe(this::showFeatureSheet));
   }
 
+  public boolean shouldShowProjectSelectorOnStart() {
+    return dataRepository.getLastActiveProjectId().isEmpty();
+  }
+
   public MutableLiveData<Integer> getAddObservationButtonVisibility() {
     return addObservationButtonVisibility;
   }
@@ -100,7 +104,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
     openDrawerRequests.setValue(null);
   }
 
-  public LiveData<Persistable<Project>> getActiveProject() {
+  public LiveData<Loadable<Project>> getActiveProject() {
     return activeProject;
   }
 
@@ -154,19 +158,14 @@ public class HomeScreenViewModel extends AbstractViewModel {
     navigator.addObservation(feature.getProject().getId(), feature.getId(), selectedForm.getId());
   }
 
+  public void init() {
+    // Last active project will be loaded once view subscribes to activeProject.
+    dataRepository.getLastActiveProjectId().ifPresent(dataRepository::activateProject);
+  }
+
   // TODO: Move to OfflineAreaViewModel
   public void showBasemapSelector() {
     navigator.showBasemapSelector();
-  }
-
-  /**
-   * Reactivates the last active project, emitting true once loaded, or false if no project was
-   * previously activated.
-   */
-  public LiveData<Boolean> reactivateLastProject() {
-    // TODO: Handle errors activating project.
-    return LiveDataReactiveStreams.fromPublisher(
-        dataRepository.reactivateLastProject().toFlowable());
   }
 
   public void showOfflineAreas() {

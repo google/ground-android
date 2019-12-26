@@ -35,11 +35,12 @@ import butterknife.ButterKnife;
 import com.google.android.gnd.R;
 import com.google.android.gnd.inject.ActivityScoped;
 import com.google.android.gnd.model.Project;
-import com.google.android.gnd.repository.Persistable;
+import com.google.android.gnd.repository.Loadable;
 import com.google.android.gnd.ui.common.AbstractDialogFragment;
 import com.google.android.gnd.ui.common.EphemeralPopups;
 import java.util.List;
 
+/** User interface implementation of project selector dialog. */
 @ActivityScoped
 public class ProjectSelectorDialogFragment extends AbstractDialogFragment {
 
@@ -62,12 +63,6 @@ public class ProjectSelectorDialogFragment extends AbstractDialogFragment {
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     this.viewModel = getViewModel(ProjectSelectorViewModel.class);
-    viewModel.getActivateProjectErrors().observe(this, this::onActivateProjectFailure);
-    viewModel.getActiveProject().observe(this, this::dismiss);
-  }
-
-  private void dismiss(Project project) {
-    dismiss();
   }
 
   @Override
@@ -81,15 +76,15 @@ public class ProjectSelectorDialogFragment extends AbstractDialogFragment {
     listAdapter =
         new ArrayAdapter(getContext(), R.layout.project_selector_list_item, R.id.project_name);
     listView.setAdapter(listAdapter);
-    viewModel.getProjectSummaries().observe(this, this::update);
+    viewModel.getProjectSummaries().observe(this, this::updateProjectList);
     listView.setOnItemClickListener(this::onItemSelected);
     dialog.setView(dialogView);
     dialog.setCancelable(false);
     return dialog.create();
   }
 
-  private void update(Persistable<List<Project>> projectSummaries) {
-    switch (projectSummaries.state()) {
+  private void updateProjectList(Loadable<List<Project>> projectSummaries) {
+    switch (projectSummaries.getState()) {
       case LOADING:
         Log.i(TAG, "Loading projects");
         break;
@@ -98,12 +93,15 @@ public class ProjectSelectorDialogFragment extends AbstractDialogFragment {
         break;
       case NOT_FOUND:
       case ERROR:
-        Log.e(
-            TAG, "Project list not available", projectSummaries.error().orElse(new UnknownError()));
-        EphemeralPopups.showError(getContext(), R.string.project_list_load_error);
-        dismiss();
+        onProjectListLoadError(projectSummaries.error().orElse(new UnknownError()));
         break;
     }
+  }
+
+  private void onProjectListLoadError(Throwable t) {
+    Log.e(TAG, "Project list not available", t);
+    EphemeralPopups.showError(getContext(), R.string.project_list_load_error);
+    dismiss();
   }
 
   private void showProjectList(List<Project> list) {
@@ -115,15 +113,6 @@ public class ProjectSelectorDialogFragment extends AbstractDialogFragment {
 
   private void onItemSelected(AdapterView<?> parent, View view, int idx, long id) {
     getDialog().hide();
-    // TODO: Get item from listAdapter.getItem and pass to activateProject.
-    // TODO: Use simple action + reactive listener instead of subscribing to result.
-    // TODO: ViewModel should maintain loading state, not subscription.
     viewModel.activateProject(idx);
-  }
-
-  private void onActivateProjectFailure(Throwable throwable) {
-    Log.e(TAG, "Project load exception", throwable);
-    dismiss();
-    EphemeralPopups.showError(getContext(), R.string.project_load_error);
   }
 }

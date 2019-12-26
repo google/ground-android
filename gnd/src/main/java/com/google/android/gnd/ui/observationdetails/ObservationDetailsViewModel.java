@@ -23,7 +23,7 @@ import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.repository.DataRepository;
-import com.google.android.gnd.repository.Persistable;
+import com.google.android.gnd.repository.Loadable;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import io.reactivex.Flowable;
 import io.reactivex.processors.BehaviorProcessor;
@@ -33,7 +33,7 @@ public class ObservationDetailsViewModel extends AbstractViewModel {
 
   private final DataRepository dataRepository;
   private final BehaviorProcessor<ObservationDetailsFragmentArgs> argsProcessor;
-  public final LiveData<Persistable<Observation>> records;
+  public final LiveData<Loadable<Observation>> records;
   public final LiveData<Integer> progressBarVisibility;
   public final LiveData<String> toolbarTitle;
   public final LiveData<String> toolbarSubtitle;
@@ -45,13 +45,13 @@ public class ObservationDetailsViewModel extends AbstractViewModel {
 
     this.argsProcessor = BehaviorProcessor.create();
 
-    Flowable<Persistable<Observation>> recordStream =
+    Flowable<Loadable<Observation>> recordStream =
         argsProcessor.switchMapSingle(
             args ->
                 this.dataRepository
                     .getObservation(args.getProjectId(), args.getFeatureId(), args.getRecordId())
-                    .map(Persistable::loaded)
-                    .onErrorReturn(Persistable::error));
+                    .map(Loadable::loaded)
+                    .onErrorReturn(Loadable::error));
 
     // TODO: Refactor to expose the fetched observation directly.
     this.records = LiveDataReactiveStreams.fromPublisher(recordStream);
@@ -77,19 +77,19 @@ public class ObservationDetailsViewModel extends AbstractViewModel {
     this.argsProcessor.onNext(args);
   }
 
-  private static Integer getProgressBarVisibility(Persistable<Observation> record) {
+  private static Integer getProgressBarVisibility(Loadable<Observation> record) {
     return record.value().isPresent() ? View.VISIBLE : View.GONE;
   }
 
-  private static String getToolbarTitle(Persistable<Observation> record) {
+  private static String getToolbarTitle(Loadable<Observation> record) {
     return record.value().map(Observation::getFeature).map(Feature::getTitle).orElse("");
   }
 
-  private static String getToolbarSubtitle(Persistable<Observation> record) {
+  private static String getToolbarSubtitle(Loadable<Observation> record) {
     return record.value().map(Observation::getFeature).map(Feature::getSubtitle).orElse("");
   }
 
-  private static String getFormNameView(Persistable<Observation> record) {
+  private static String getFormNameView(Loadable<Observation> record) {
     return record.value().map(Observation::getForm).map(Form::getTitle).orElse("");
   }
 }

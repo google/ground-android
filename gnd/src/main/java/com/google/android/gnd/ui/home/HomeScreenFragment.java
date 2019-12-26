@@ -45,7 +45,7 @@ import com.google.android.gnd.inject.ActivityScoped;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.Point;
-import com.google.android.gnd.repository.Persistable;
+import com.google.android.gnd.repository.Loadable;
 import com.google.android.gnd.system.AuthenticationManager;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.BackPressListener;
@@ -210,13 +210,12 @@ public class HomeScreenFragment extends AbstractFragment
   @Override
   public void onStart() {
     super.onStart();
-    viewModel.reactivateLastProject().observe(this, this::onReactivateLastProject);
-  }
 
-  private void onReactivateLastProject(boolean success) {
-    if (!success) {
+    if (viewModel.shouldShowProjectSelectorOnStart()) {
       showProjectSelector();
     }
+
+    viewModel.init();
   }
 
   private void showProjectSelector() {
@@ -260,27 +259,25 @@ public class HomeScreenFragment extends AbstractFragment
     bottomSheetBehavior.setPeekHeight((int) peekHeight);
   }
 
-  private void onActiveProjectChange(Persistable<Project> project) {
-    switch (project.state()) {
+  private void onActiveProjectChange(Loadable<Project> project) {
+    switch (project.getState()) {
       case NOT_LOADED:
+      case LOADED:
         dismissLoadingDialog();
         break;
       case LOADING:
         showProjectLoadingDialog();
         break;
-      case LOADED:
-        dismissLoadingDialog();
-        break;
       case NOT_FOUND:
       case ERROR:
-        EphemeralPopups.showError(getContext(), R.string.project_load_error);
-        Log.e(TAG, "Project load error", project.error().orElse(new UnknownError()));
+        project.error().ifPresent(this::onActivateProjectFailure);
         break;
     }
   }
 
   private void onShowAddFeatureDialogRequest(Point location) {
-    if (!Persistable.getData(viewModel.getActiveProject()).isPresent()) {
+    if (!Loadable.getData(viewModel.getActiveProject()).isPresent()) {
+      Log.e(TAG, "Attempting to add feature while no project loaded");
       return;
     }
     // TODO: Pause location updates while dialog is open.
@@ -351,6 +348,11 @@ public class HomeScreenFragment extends AbstractFragment
         break;
     }
     return false;
+  }
+
+  private void onActivateProjectFailure(Throwable throwable) {
+    Log.e(TAG, "Error activating project", throwable);
+    EphemeralPopups.showError(getContext(), R.string.project_load_error);
   }
 
   private class BottomSheetCallback extends BottomSheetBehavior.BottomSheetCallback {
