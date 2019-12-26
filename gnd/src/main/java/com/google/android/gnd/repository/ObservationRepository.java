@@ -87,7 +87,7 @@ public class ObservationRepository {
   private Single<ImmutableList<Observation>> getObservations(Feature feature, String formId) {
     Completable remoteSync =
         remoteDataStore
-            .loadRecords(feature)
+            .loadObservations(feature)
             .timeout(LOAD_REMOTE_OBSERVATIONS_TIMEOUT_SECS, TimeUnit.SECONDS)
             .doOnError(t -> Log.d(TAG, "Observation sync timed out"))
             .flatMapCompletable(this::mergeRemoteObservations)

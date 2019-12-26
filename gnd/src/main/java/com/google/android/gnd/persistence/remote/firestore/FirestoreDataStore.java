@@ -72,7 +72,7 @@ public class FirestoreDataStore implements RemoteDataStore {
   }
 
   @Override
-  public Single<ImmutableList<Observation>> loadRecords(Feature feature) {
+  public Single<ImmutableList<Observation>> loadObservations(Feature feature) {
     return db.projects()
         .project(feature.getProject().getId())
         .records()
