@@ -99,4 +99,13 @@ public class Loadable<T> extends ValueOrError<T> {
         .onErrorReturn(Loadable::error)
         .startWith(Loadable.loading());
   }
+
+  @Override
+  public String toString() {
+    if (state == LoadState.LOADED || state == LoadState.ERROR) {
+      return super.toString();
+    } else {
+      return state.toString();
+    }
+  }
 }
