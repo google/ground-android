@@ -148,10 +148,6 @@ Edit or create `gnd/secrets.properties` and set the `GOOGLE_MAPS_API_KEY` proper
   GOOGLE_MAPS_API_KEY=AIbzvW8e0ub...
 ```
 
-In `gnd/src/debug/res/values` replace `API_KEY` with your Google Maps debug API
-key. In `gnd/src/release/res/values` replace `API_KEY` with your Google Maps
-release API key.
-
 Verify the SHA-1 certificate fingerprint described in the API key generation
 instructions is  registered with package name `com.google.android.gnd`. To
 check, visit
