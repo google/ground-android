@@ -102,7 +102,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
   }
 
   public void openNavDrawer() {
-    openDrawerRequests.setValue(null);
+    openDrawerRequests.setValue(Event.nil());
   }
 
   public LiveData<Loadable<Project>> getActiveProject() {

@@ -55,4 +55,9 @@ public class Event<T> {
   public static <T> Event<T> of(T value) {
     return new Event<>(value);
   }
+
+  /** Returns a new unhandled zero-arg event (e.g., something was clicked). */
+  public static Event<Nil> nil() {
+    return Event.of(Nil.NIL);
+  }
 }
