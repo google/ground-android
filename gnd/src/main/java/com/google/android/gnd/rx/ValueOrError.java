@@ -17,7 +17,6 @@
 package com.google.android.gnd.rx;
 
 import io.reactivex.Single;
-import io.reactivex.SingleTransformer;
 import java8.util.Optional;
 import javax.annotation.Nullable;
 
@@ -86,17 +85,5 @@ public class ValueOrError<T> {
           voe.value().ifPresent(value -> em.onSuccess(value));
           voe.error().ifPresent(error -> em.onError(error));
         });
-  }
-
-  /**
-   * Returns a composable transformer that replaces the source {@link Single} with the specified one
-   * when the source fails with and error.
-   *
-   * @param onError the Single to fall back to on error.
-   * @param <T> the type of value emitted on success.
-   */
-  public static <T> SingleTransformer<ValueOrError<T>, ValueOrError<T>> onErrorResumeNext(
-      Single<ValueOrError<T>> onError) {
-    return source -> source.flatMap(voe -> voe.error().map(r -> onError).orElse(Single.just(voe)));
   }
 }

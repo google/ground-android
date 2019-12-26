@@ -31,7 +31,6 @@ import com.google.android.gnd.persistence.remote.RemoteDataStore;
 import com.google.android.gnd.persistence.remote.firestore.DocumentNotFoundException;
 import com.google.android.gnd.persistence.sync.DataSyncWorkManager;
 import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator;
-import com.google.android.gnd.rx.ValueOrError;
 import com.google.android.gnd.system.AuthenticationManager.User;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -101,16 +100,12 @@ public class DataRepository {
 
     return syncProjectWithRemote(id)
         .doOnSubscribe(__ -> Log.i(TAG, "Activating project " + id))
-        .compose(ValueOrError::wrap)
-        .compose(
-            ValueOrError.onErrorResumeNext(
-                localDataStore
-                    .getProjectById(id)
-                    .doOnSubscribe(__ -> Log.i(TAG, "Falling back to local db"))
-                    .toSingle()
-                    .compose(ValueOrError::wrap)))
+        .onErrorResumeNext(
+            localDataStore
+                .getProjectById(id)
+                .doOnSubscribe(__ -> Log.i(TAG, "Falling back to local db"))
+                .toSingle())
         .doOnSuccess(__ -> localValueStore.setLastActiveProjectId(id))
-        .compose(ValueOrError::unwrap)
         .toFlowable()
         .compose(Loadable::loadingOnceAndWrap);
   }
@@ -176,11 +171,7 @@ public class DataRepository {
   public Flowable<Loadable<List<Project>>> getProjectSummaries(User user) {
     return remoteDataStore
         .loadProjectSummaries(user)
-        .compose(ValueOrError::wrap)
-        .compose(
-            ValueOrError.onErrorResumeNext(
-                localDataStore.getProjects().compose(ValueOrError::wrap)))
-        .compose(ValueOrError::unwrap)
+        .onErrorResumeNext(localDataStore.getProjects())
         .toFlowable()
         .compose(Loadable::loadingOnceAndWrap);
   }
