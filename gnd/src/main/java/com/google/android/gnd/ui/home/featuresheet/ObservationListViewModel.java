@@ -37,52 +37,53 @@ public class ObservationListViewModel extends AbstractViewModel {
 
   private static final String TAG = ObservationListViewModel.class.getSimpleName();
   private final ObservationRepository observationRepository;
-  private PublishProcessor<ObservationListRequest> recordListRequests;
-  private LiveData<ImmutableList<Observation>> recordList;
+  private PublishProcessor<ObservationListRequest> observationListRequests;
+  private LiveData<ImmutableList<Observation>> observationList;
 
   public final ObservableInt loadingSpinnerVisibility = new ObservableInt();
 
   @Inject
   public ObservationListViewModel(ObservationRepository observationRepository) {
     this.observationRepository = observationRepository;
-    recordListRequests = PublishProcessor.create();
-    recordList =
+    observationListRequests = PublishProcessor.create();
+    observationList =
         LiveDataReactiveStreams.fromPublisher(
-            recordListRequests
+            observationListRequests
                 .doOnNext(__ -> loadingSpinnerVisibility.set(View.VISIBLE))
-                .switchMapSingle(this::getRecords)
+                .switchMapSingle(this::getObservations)
                 .doOnNext(__ -> loadingSpinnerVisibility.set(View.GONE)));
   }
 
-  public LiveData<ImmutableList<Observation>> getRecords() {
-    return recordList;
+  public LiveData<ImmutableList<Observation>> getObservations() {
+    return observationList;
   }
 
-  /** Loads a list of records associated with a given feature. */
-  public void loadRecordList(Feature feature, Form form) {
-    loadRecords(feature.getProject(), feature.getLayer().getId(), form.getId(), feature.getId());
+  /** Loads a list of observations associated with a given feature. */
+  public void loadObservationList(Feature feature, Form form) {
+    loadObservations(
+        feature.getProject(), feature.getLayer().getId(), form.getId(), feature.getId());
   }
 
-  private Single<ImmutableList<Observation>> getRecords(ObservationListRequest req) {
+  private Single<ImmutableList<Observation>> getObservations(ObservationListRequest req) {
     return observationRepository
         .getObservations(req.project.getId(), req.featureId, req.formId)
-        .onErrorResumeNext(this::onGetRecordsError);
+        .onErrorResumeNext(this::onGetObservationsError);
   }
 
-  private Single<ImmutableList<Observation>> onGetRecordsError(Throwable t) {
+  private Single<ImmutableList<Observation>> onGetObservationsError(Throwable t) {
     // TODO: Show an appropriate error message to the user.
     Log.d(TAG, "Failed to fetch observation list.", t);
     return Single.just(ImmutableList.of());
   }
 
-  private void loadRecords(Project project, String layerId, String formId, String featureId) {
+  private void loadObservations(Project project, String layerId, String formId, String featureId) {
     Optional<Form> form = project.getLayer(layerId).flatMap(pt -> pt.getForm(formId));
     if (!form.isPresent()) {
       // TODO: Show error.
       return;
     }
     // TODO: Use project id instead of object.
-    recordListRequests.onNext(new ObservationListRequest(project, featureId, formId));
+    observationListRequests.onNext(new ObservationListRequest(project, featureId, formId));
   }
 
   class ObservationListRequest {

@@ -84,12 +84,12 @@ public class ObservationListFragment extends AbstractFragment {
   @Override
   public void onActivityCreated(@Nullable Bundle savedInstanceState) {
     super.onActivityCreated(savedInstanceState);
-    viewModel.getRecords().observe(this, observationListAdapter::update);
+    viewModel.getObservations().observe(this, observationListAdapter::update);
     featureSheetViewModel.getSelectedForm().observe(this, this::onFormChange);
   }
 
   private void onItemClick(Observation observation) {
-    navigator.showRecordDetails(
+    navigator.showObservationDetails(
         observation.getProject().getId(), observation.getFeature().getId(), observation.getId());
   }
 
@@ -102,6 +102,6 @@ public class ObservationListFragment extends AbstractFragment {
       return;
     }
     homeScreenViewModel.onFormChange(form.get());
-    viewModel.loadRecordList(feature.get(), form.get());
+    viewModel.loadObservationList(feature.get(), form.get());
   }
 }

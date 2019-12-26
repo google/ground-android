@@ -47,7 +47,7 @@ public class FeatureSheetFragment extends AbstractFragment {
   TabLayout formsTabLayout;
 
   @BindView(R.id.observation_list_view_pager)
-  ViewPager recordListViewPager;
+  ViewPager observationListViewPager;
 
   private FeatureSheetViewModel viewModel;
   private HomeScreenViewModel homeScreenViewModel;
@@ -76,12 +76,13 @@ public class FeatureSheetFragment extends AbstractFragment {
   public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
 
-    recordListViewPager.setAdapter(formTypePagerAdapter);
-    recordListViewPager.addOnPageChangeListener(viewModel);
-    formsTabLayout.setupWithViewPager(recordListViewPager);
+    observationListViewPager.setAdapter(formTypePagerAdapter);
+    observationListViewPager.addOnPageChangeListener(viewModel);
+    formsTabLayout.setupWithViewPager(observationListViewPager);
     // TODO: See if this is still needed; not compatible with latest v4 support libs.
     // Stretch tabs if they all fit on screen, otherwise scroll.
-    // TabLayoutHelper tabLayoutHelper = new TabLayoutHelper(formsTabLayout, recordListViewPager);
+    // TabLayoutHelper tabLayoutHelper = new TabLayoutHelper(formsTabLayout,
+    // observationListViewPager);
     // tabLayoutHelper.setAutoAdjustTabModeEnabled(true);
   }
 
@@ -102,7 +103,7 @@ public class FeatureSheetFragment extends AbstractFragment {
       //      Feature feature = featureSheetState.getFeature();
       //      ImmutableList<Form> forms = feature.getLayer().getForms();
       //      if (featureSheetState.isNewFeature() && forms.size() == 1) {
-      //        showAddRecord(feature, forms.get(0));
+      //        showAddObservation(feature, forms.get(0));
       //      }
     }
 
@@ -110,6 +111,6 @@ public class FeatureSheetFragment extends AbstractFragment {
   }
 
   private void onApplyWindowInsets(WindowInsetsCompat insets) {
-    recordListViewPager.setPadding(0, 0, 0, insets.getSystemWindowInsetBottom());
+    observationListViewPager.setPadding(0, 0, 0, insets.getSystemWindowInsetBottom());
   }
 }

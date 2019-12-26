@@ -47,10 +47,10 @@ class ObservationListItemViewHolder extends RecyclerView.ViewHolder {
     binding.executePendingBindings();
 
     // Add UI elements for each field with data.
-    addFieldsFromRecord(observation);
+    addFieldsFromObservation(observation);
   }
 
-  private void addFieldsFromRecord(Observation observation) {
+  private void addFieldsFromObservation(Observation observation) {
     binding.fieldLabelRow.removeAllViews();
     binding.fieldValueRow.removeAllViews();
 

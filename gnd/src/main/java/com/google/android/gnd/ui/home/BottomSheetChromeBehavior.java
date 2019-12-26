@@ -42,13 +42,14 @@ public class BottomSheetChromeBehavior extends OnBottomSheetSlideBehavior<ViewGr
     View mapScrim = parent.findViewById(R.id.map_scrim);
     View hamburgerButton = parent.findViewById(R.id.hamburger_btn);
     View bottomSheetScrim = layout.findViewById(R.id.bottom_sheet_bottom_inset_scrim);
-    View addRecordButton = layout.findViewById(R.id.add_observation_btn);
+    View addObservationButton = layout.findViewById(R.id.add_observation_btn);
     ViewGroup toolbarWrapper = layout.findViewById(R.id.toolbar_wrapper);
     ViewGroup toolbarTitles = toolbarWrapper.findViewById(R.id.toolbar_titles_layout);
     metrics.showWithSheet(mapScrim, 0.75f, 1.0f);
     metrics.showWithSheet(bottomSheetScrim, HIDE_SCRIM_THRESHOLD, SHOW_SCRIM_THRESHOLD);
     metrics.hideWithSheet(hamburgerButton, HIDE_ADD_BUTTON_THRESHOLD, SHOW_ADD_BUTTON_THRESHOLD);
-    metrics.showWithSheet(addRecordButton, HIDE_ADD_BUTTON_THRESHOLD, SHOW_ADD_BUTTON_THRESHOLD);
+    metrics.showWithSheet(
+        addObservationButton, HIDE_ADD_BUTTON_THRESHOLD, SHOW_ADD_BUTTON_THRESHOLD);
     toolbarWrapper.setBackgroundColor(layout.getResources().getColor(R.color.colorPrimary));
     toolbarWrapper.setTranslationY(
         scale(metrics.getVisibleRatio(), 0.3f, 0.5f, -toolbarWrapper.getHeight(), 0));

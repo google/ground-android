@@ -54,7 +54,7 @@ public class ObservationDetailsFragment extends AbstractFragment {
   TwoLineToolbar toolbar;
 
   @BindView(R.id.observation_details_layout)
-  LinearLayout recordDetailsLayout;
+  LinearLayout observationDetailsLayout;
 
   private ObservationDetailsViewModel viewModel;
 
@@ -67,8 +67,8 @@ public class ObservationDetailsFragment extends AbstractFragment {
     // determined the fate of the toolbar.
     viewModel.toolbarTitle.observe(this, this::setToolbarTitle);
     viewModel.toolbarSubtitle.observe(this, this::setToolbarSubtitle);
-    viewModel.records.observe(this, this::onUpdate);
-    viewModel.loadRecordDetails(args);
+    viewModel.observations.observe(this, this::onUpdate);
+    viewModel.loadObservationDetails(args);
   }
 
   @Override
@@ -111,10 +111,10 @@ public class ObservationDetailsFragment extends AbstractFragment {
     }
   }
 
-  private void onUpdate(Loadable<Observation> record) {
-    switch (record.getState()) {
+  private void onUpdate(Loadable<Observation> observation) {
+    switch (observation.getState()) {
       case LOADED:
-        record.value().ifPresent(this::showRecord);
+        observation.value().ifPresent(this::showObservation);
         break;
       case NOT_FOUND:
       case ERROR:
@@ -125,8 +125,8 @@ public class ObservationDetailsFragment extends AbstractFragment {
     }
   }
 
-  private void showRecord(Observation observation) {
-    recordDetailsLayout.removeAllViews();
+  private void showObservation(Observation observation) {
+    observationDetailsLayout.removeAllViews();
     for (Element element : observation.getForm().getElements()) {
       switch (element.getType()) {
         case FIELD:
@@ -145,7 +145,7 @@ public class ObservationDetailsFragment extends AbstractFragment {
         .getResponse(field.getId())
         .map(r -> r.getDetailsText(field))
         .ifPresent(fieldViewHolder::setValue);
-    recordDetailsLayout.addView(fieldViewHolder.getRoot());
+    observationDetailsLayout.addView(fieldViewHolder.getRoot());
   }
 
   // TODO: Extract into outer class.
@@ -190,7 +190,7 @@ public class ObservationDetailsFragment extends AbstractFragment {
         getActivity().closeOptionsMenu();
         ObservationDetailsFragmentArgs args = getObservationDetailFragmentArgs();
         navigator.editObservation(
-            args.getProjectId(), args.getFeatureId(), args.getObservationId()  );
+            args.getProjectId(), args.getFeatureId(), args.getObservationId());
         return true;
       case R.id.delete_observation_menu_item:
         // TODO: Implement delete observation.

@@ -69,7 +69,7 @@ public class Navigator {
    * Navigates from a {@link com.google.android.gnd.ui.home.HomeScreenFragment} to a {@link
    * ObservationDetailsFragment} populated with the specified observation.
    */
-  public void showRecordDetails(String projectId, String featureId, String observationId) {
+  public void showObservationDetails(String projectId, String featureId, String observationId) {
     navigate(
         HomeScreenFragmentDirections.showObservationDetails(projectId, featureId, observationId));
   }
