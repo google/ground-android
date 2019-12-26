@@ -91,7 +91,7 @@
   <fragment
     android:id="@+id/observation_details_fragment"
     android:name="com.google.android.gnd.ui.observationdetails.ObservationDetailsFragment"
-    android:label="@string/view_record_details"
+    android:label="@string/view_observation_details"
     tools:layout="@layout/observation_details_frag">
     <argument
       android:name="projectId"

@@ -58,7 +58,7 @@
       android:layout_alignParentRight="true"
       android:elevation="6dp"
       android:onClick="@{() -> viewModel.addRecord()}"
-      android:text="@string/add_record_button_label"
+      android:text="@string/add_observation_button_label"
       android:visibility="@{viewModel.addObservationButtonVisibility}"
       app:chipIcon="@drawable/ic_add_light"
       app:useCompatPadding="true"/>

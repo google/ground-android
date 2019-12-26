@@ -97,7 +97,7 @@
       android:layout_marginRight="@dimen/toolbar_button_margin_right"
       android:layout_gravity="top|end"
       android:elevation="2dp"
-      android:text="@string/save_record_button_label"
+      android:text="@string/save_observation_button_label"
       android:visibility="@{viewModel.saveButtonVisibility}"
       android:onClick="@{() -> viewModel.onSaveClick()}"
       app:useCompatPadding="true"/>
