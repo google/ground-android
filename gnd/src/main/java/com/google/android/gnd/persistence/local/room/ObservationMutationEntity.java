@@ -43,13 +43,13 @@ import org.json.JSONObject;
           childColumns = "feature_id",
           onDelete = CASCADE),
       @ForeignKey(
-          entity = RecordEntity.class,
+          entity = ObservationEntity.class,
           parentColumns = "id",
           childColumns = "record_id",
           onDelete = CASCADE)
     },
-    indices = {@Index("feature_id"), @Index("record_id")})
-public abstract class RecordMutationEntity {
+    indices = {@Index("feature_id"), @Index("observation_id")})
+public abstract class ObservationMutationEntity {
   // TODO: Refactor common attributes in MutationEntity base case.
   @CopyAnnotations
   @PrimaryKey(autoGenerate = true)
@@ -108,7 +108,7 @@ public abstract class RecordMutationEntity {
   @ColumnInfo(name = "response_deltas")
   public abstract ImmutableList<ResponseDelta> getResponseDeltas();
 
-  public static RecordMutationEntity create(
+  public static ObservationMutationEntity create(
       long id,
       String projectId,
       String featureId,
@@ -133,8 +133,8 @@ public abstract class RecordMutationEntity {
         .build();
   }
 
-  public static RecordMutationEntity fromMutation(ObservationMutation m) {
-    return RecordMutationEntity.builder()
+  public static ObservationMutationEntity fromMutation(ObservationMutation m) {
+    return ObservationMutationEntity.builder()
         .setId(m.getId())
         .setProjectId(m.getProjectId())
         .setFeatureId(m.getFeatureId())
@@ -192,6 +192,6 @@ public abstract class RecordMutationEntity {
 
     public abstract Builder setLastError(@Nullable String newLastError);
 
-    public abstract RecordMutationEntity build();
+    public abstract ObservationMutationEntity build();
   }
 }

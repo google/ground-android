@@ -42,13 +42,13 @@ import com.google.common.collect.ImmutableList;
             parentColumns = "id",
             childColumns = "feature_id",
             onDelete = CASCADE),
-    tableName = "record",
+    tableName = "observation",
     // Additional index not required for FK constraint since first field in composite index can be
     // used independently.
     indices = {@Index({"feature_id", "form_id", "state"})})
-public abstract class RecordEntity {
+public abstract class ObservationEntity {
 
-  private static final String TAG = RecordEntity.class.getSimpleName();
+  private static final String TAG = ObservationEntity.class.getSimpleName();
 
   @CopyAnnotations
   @PrimaryKey
@@ -86,28 +86,28 @@ public abstract class RecordEntity {
    * Returns a new instance whose state is the same as the current one, but with the specified
    * mutation applied.
    */
-  public RecordEntity applyMutation(ObservationMutation mutation) {
+  public ObservationEntity applyMutation(ObservationMutation mutation) {
     // TODO: Implement conversion between layers in a consistent way, e.g.in separate
     // converter classes.
-    return applyMutations(ImmutableList.of(RecordMutationEntity.fromMutation(mutation)));
+    return applyMutations(ImmutableList.of(ObservationMutationEntity.fromMutation(mutation)));
   }
 
   /**
    * Returns a new instance whose state is the same as the current one, but with the specified
    * mutations applied.
    */
-  public RecordEntity applyMutations(Iterable<RecordMutationEntity> mutations) {
+  public ObservationEntity applyMutations(Iterable<ObservationMutationEntity> mutations) {
     Log.v(TAG, "Merging observation " + this + " with mutations " + mutations);
-    RecordEntity.Builder builder = toBuilder();
-    for (RecordMutationEntity mutation : mutations) {
+    ObservationEntity.Builder builder = toBuilder();
+    for (ObservationMutationEntity mutation : mutations) {
       builder.responsesBuilder().applyDeltas(mutation.getResponseDeltas());
     }
     Log.v(TAG, "Merged observation " + builder.build());
     return builder.build();
   }
 
-  public static RecordEntity fromRecord(Observation observation) {
-    return RecordEntity.builder()
+  public static ObservationEntity fromObservation(Observation observation) {
+    return ObservationEntity.builder()
         .setId(observation.getId())
         .setFormId(observation.getForm().getId())
         .setFeatureId(observation.getFeature().getId())
@@ -116,8 +116,8 @@ public abstract class RecordEntity {
         .build();
   }
 
-  public static RecordEntity fromMutation(ObservationMutation mutation) {
-    return RecordEntity.builder()
+  public static ObservationEntity fromMutation(ObservationMutation mutation) {
+    return ObservationEntity.builder()
         .setId(mutation.getObservationId())
         .setFormId(mutation.getFormId())
         .setFeatureId(mutation.getFeatureId())
@@ -127,23 +127,23 @@ public abstract class RecordEntity {
   }
 
   // TODO(#127): Replace reference to Feature in Observation with featureId and remove feature arg.
-  public static Observation toRecord(Feature feature, RecordEntity record) {
+  public static Observation toObservation(Feature feature, ObservationEntity observation) {
     // TODO(#127): Replace reference to Form in Observation with formId and remove here.
     // TODO(#127): Replace reference to Project in Observation with projectId and remove here.
     return Observation.newBuilder()
-        .setId(record.getId())
-        .setForm(feature.getLayer().getForm(record.getFormId()).get())
+        .setId(observation.getId())
+        .setForm(feature.getLayer().getForm(observation.getFormId()).get())
         .setProject(feature.getProject())
         .setFeature(feature)
-        .setResponses(record.getResponses())
+        .setResponses(observation.getResponses())
         .build();
   }
 
-  public abstract RecordEntity.Builder toBuilder();
+  public abstract ObservationEntity.Builder toBuilder();
 
   // Boilerplate generated using Android Studio AutoValue plugin:
 
-  public static RecordEntity create(
+  public static ObservationEntity create(
       String id, EntityState state, String featureId, String formId, ResponseMap responses) {
     return builder()
         .setId(id)
@@ -155,7 +155,7 @@ public abstract class RecordEntity {
   }
 
   public static Builder builder() {
-    return new AutoValue_RecordEntity.Builder();
+    return new AutoValue_ObservationEntity.Builder();
   }
 
   @AutoValue.Builder
@@ -173,6 +173,6 @@ public abstract class RecordEntity {
 
     public abstract ResponseMap.Builder responsesBuilder();
 
-    public abstract RecordEntity build();
+    public abstract ObservationEntity build();
   }
 }

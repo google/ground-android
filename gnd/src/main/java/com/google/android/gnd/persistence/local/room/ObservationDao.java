@@ -18,20 +18,21 @@ package com.google.android.gnd.persistence.local.room;
 
 import androidx.room.Dao;
 import androidx.room.Query;
-import io.reactivex.Completable;
+import io.reactivex.Maybe;
 import io.reactivex.Single;
 import java.util.List;
 
-/** Data access object for database operations related to {@link RecordMutationEntity}. */
 @Dao
-public interface RecordMutationDao extends BaseDao<RecordMutationEntity> {
+public interface ObservationDao extends BaseDao<ObservationEntity> {
+  /** Returns the observation with the specified UUID, if found. */
+  @Query("SELECT * FROM observation WHERE id = :observationId")
+  Maybe<ObservationEntity> findById(String observationId);
 
-  @Query("DELETE FROM record_mutation WHERE id IN (:ids)")
-  Completable deleteAll(List<Long> ids);
-
-  @Query("SELECT * FROM record_mutation WHERE feature_id = :featureId")
-  Single<List<RecordMutationEntity>> findByFeatureId(String featureId);
-
-  @Query("SELECT * FROM record_mutation WHERE record_id = :recordId")
-  Single<List<RecordMutationEntity>> findByRecordId(String recordId);
+  /**
+   * Returns the list records associated with the specified feature and form, ignoring deleted
+   * records (i.e., returns only records with state = State.DEFAULT (1)).
+   */
+  @Query(
+      "SELECT * FROM observation WHERE feature_id = :featureId AND form_id = :formId AND state = 1")
+  Single<List<ObservationEntity>> findByFeatureId(String featureId, String formId);
 }
