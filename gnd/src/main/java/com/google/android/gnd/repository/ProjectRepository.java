@@ -85,7 +85,9 @@ public class ProjectRepository {
     String id = projectId.get();
 
     return syncProjectWithRemote(id)
-        .onErrorResumeNext(error -> getProjectFromLocal(id, error))
+        .doOnSubscribe(__ -> Log.d(TAG, "Activating project " + id))
+        .doOnError(err -> Log.d(TAG, "Failed to load project from remote", err))
+        .onErrorResumeNext(__ -> localDataStore.getProjectById(id).toSingle())
         .doOnSuccess(__ -> localValueStore.setLastActiveProjectId(id))
         .toFlowable()
         .compose(Loadable::loadingOnceAndWrap);
@@ -95,15 +97,7 @@ public class ProjectRepository {
     return remoteDataStore
         .loadProject(id)
         .timeout(LOAD_REMOTE_PROJECT_TIMEOUT_SECS, TimeUnit.SECONDS)
-        .doOnSubscribe(__ -> Log.d(TAG, "Activating project " + id))
         .doOnSuccess(localDataStore::insertOrUpdateProject);
-  }
-
-  private Single<Project> getProjectFromLocal(String id, Throwable error) {
-    return localDataStore
-        .getProjectById(id)
-        .toSingle()
-        .doOnSubscribe(__ -> Log.d(TAG, "Failed to load project from remote", error));
   }
 
   @NonNull
@@ -126,7 +120,9 @@ public class ProjectRepository {
 
   public Flowable<Loadable<List<Project>>> getProjectSummaries(User user) {
     return loadProjectSummariesFromRemote(user)
-        .onErrorResumeNext(error -> loadProjectSummariesFromLocal(error))
+        .doOnSubscribe(__ -> Log.d(TAG, "Loading project list from remote"))
+        .doOnError(err -> Log.d(TAG, "Failed to load project list from remote", err))
+        .onErrorResumeNext(__ -> localDataStore.getProjects())
         .toFlowable()
         .compose(Loadable::loadingOnceAndWrap);
   }
@@ -134,14 +130,7 @@ public class ProjectRepository {
   private Single<List<Project>> loadProjectSummariesFromRemote(User user) {
     return remoteDataStore
         .loadProjectSummaries(user)
-        .timeout(LOAD_REMOTE_PROJECT_SUMMARIES_TIMEOUT_SECS, TimeUnit.SECONDS)
-        .doOnSubscribe(__ -> Log.d(TAG, "Loading project list from remote"));
-  }
-
-  private Single<List<Project>> loadProjectSummariesFromLocal(Throwable error) {
-    return localDataStore
-        .getProjects()
-        .doOnSubscribe(__ -> Log.d(TAG, "Failed to load project list from remote", error));
+        .timeout(LOAD_REMOTE_PROJECT_SUMMARIES_TIMEOUT_SECS, TimeUnit.SECONDS);
   }
 
   // TODO: Only return feature fields needed to render features on map.
