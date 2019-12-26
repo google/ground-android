@@ -45,8 +45,11 @@ import io.reactivex.Single;
 import java.util.Collections;
 import java.util.List;
 import java8.util.function.Function;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 
 /** Object representation of Ground Firestore database. */
+@Singleton
 public class GndFirestore extends AbstractFluentFirestore {
   private static final String TAG = GndFirestore.class.getSimpleName();
 
@@ -54,6 +57,7 @@ public class GndFirestore extends AbstractFluentFirestore {
   private static final String FEATURES = "features";
   private static final String RECORDS = "records";
 
+  @Inject
   GndFirestore(FirebaseFirestore db) {
     super(db);
   }

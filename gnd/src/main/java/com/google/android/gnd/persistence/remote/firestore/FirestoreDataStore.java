@@ -31,8 +31,6 @@ import com.google.android.gnd.rx.RxTask;
 import com.google.android.gnd.system.AuthenticationManager.User;
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreSettings;
 import com.google.firebase.firestore.WriteBatch;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
@@ -46,22 +44,12 @@ import javax.inject.Singleton;
 @Singleton
 public class FirestoreDataStore implements RemoteDataStore {
 
-  // TODO(#57): Set to false to disable Firebase-managed offline persistence once local db sync
-  // is implemented for project config and users.
-  private static final FirebaseFirestoreSettings FIRESTORE_SETTINGS =
-      new FirebaseFirestoreSettings.Builder().setPersistenceEnabled(false).build();
   static final String ID_COLLECTION = "/ids";
-  private final GndFirestore db;
+
+  @Inject GndFirestore db;
 
   @Inject
-  FirestoreDataStore() {
-    // TODO: Run on I/O thread, return asynchronously.
-    // TODO: Bind the Firestore instance in a module and inject it here.
-    FirebaseFirestore firestore = FirebaseFirestore.getInstance();
-    firestore.setFirestoreSettings(FIRESTORE_SETTINGS);
-    FirebaseFirestore.setLoggingEnabled(true);
-    db = new GndFirestore(firestore);
-  }
+  FirestoreDataStore() {}
 
   static Timestamps toTimestamps(@Nullable Date created, @Nullable Date modified) {
     Timestamps.Builder timestamps = Timestamps.newBuilder();

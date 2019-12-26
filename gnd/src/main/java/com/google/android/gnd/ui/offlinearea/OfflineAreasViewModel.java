@@ -14,23 +14,18 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.persistence.local.room;
+package com.google.android.gnd.ui.offlinearea;
 
-import androidx.room.Dao;
-import androidx.room.Query;
-import androidx.room.Transaction;
-import io.reactivex.Maybe;
-import io.reactivex.Single;
-import java.util.List;
+import com.google.android.gnd.ui.common.AbstractViewModel;
 
-@Dao
-public interface ProjectDao extends BaseDao<ProjectEntity> {
+import javax.inject.Inject;
 
-  @Transaction
-  @Query("SELECT * FROM project")
-  Single<List<ProjectEntityAndRelations>> getAllProjects();
+/**
+ * View model for the offline area manager fragment. Handles the current list of downloaded areas.
+ */
+public class OfflineAreasViewModel extends AbstractViewModel {
 
-  @Transaction
-  @Query("SELECT * FROM project WHERE id = :id")
-  Maybe<ProjectEntityAndRelations> getProjectById(String id);
+  // TODO: Implement the ViewModel
+  @Inject
+  OfflineAreasViewModel() {}
 }

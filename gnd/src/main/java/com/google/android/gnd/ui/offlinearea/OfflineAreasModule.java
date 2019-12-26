@@ -14,23 +14,19 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.persistence.local.room;
+package com.google.android.gnd.ui.offlinearea;
 
-import androidx.room.Dao;
-import androidx.room.Query;
-import androidx.room.Transaction;
-import io.reactivex.Maybe;
-import io.reactivex.Single;
-import java.util.List;
+import androidx.fragment.app.Fragment;
 
-@Dao
-public interface ProjectDao extends BaseDao<ProjectEntity> {
+import com.google.android.gnd.inject.FragmentScoped;
 
-  @Transaction
-  @Query("SELECT * FROM project")
-  Single<List<ProjectEntityAndRelations>> getAllProjects();
+import dagger.Binds;
+import dagger.Module;
 
-  @Transaction
-  @Query("SELECT * FROM project WHERE id = :id")
-  Maybe<ProjectEntityAndRelations> getProjectById(String id);
+@Module
+public abstract class OfflineAreasModule {
+
+  @Binds
+  @FragmentScoped
+  abstract Fragment fragment(OfflineAreasFragment fragment);
 }

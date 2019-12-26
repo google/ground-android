@@ -19,6 +19,4 @@ package com.google.android.gnd.persistence.local.room;
 import androidx.room.Dao;
 
 @Dao
-public interface FieldDao extends BaseDao<FieldEntity> {
-
-}
+public interface FieldDao extends BaseDao<FieldEntity> {}
