@@ -47,7 +47,7 @@
     </FrameLayout>
 
     <com.google.android.material.chip.Chip
-      android:id="@+id/add_record_btn"
+      android:id="@+id/add_observation_btn"
       style="@style/ChipButton"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"

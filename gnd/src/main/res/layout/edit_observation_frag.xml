@@ -38,7 +38,7 @@
 
       <!-- CardView is used to create the drop shadow effect -->
       <androidx.cardview.widget.CardView
-        android:id="@+id/edit_record_header"
+        android:id="@+id/edit_observation_header"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:cardCornerRadius="0dp"
@@ -50,7 +50,7 @@
           android:orientation="vertical">
 
           <com.google.android.gnd.ui.common.TwoLineToolbar
-            android:id="@+id/edit_record_toolbar"
+            android:id="@+id/edit_observation_toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:layout_gravity="top"
@@ -63,12 +63,12 @@
       <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/edit_record_header"
+        android:layout_below="@id/edit_observation_header"
         android:paddingTop="10dp"
         android:background="@color/colorBackground">
 
         <LinearLayout
-          android:id="@+id/edit_record_layout"
+          android:id="@+id/edit_observation_layout"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
           android:focusableInTouchMode="true"
@@ -89,7 +89,7 @@
 
     <!-- TODO: Move into toolbar, maybe use showAsAction in menu xml w/custom style. -->
     <com.google.android.material.chip.Chip
-      android:id="@+id/save_record_btn"
+      android:id="@+id/save_observation_btn"
       style="@style/ChipButton.Toolbar"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"

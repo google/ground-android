@@ -109,7 +109,7 @@
       </TableLayout>
 
       <ImageButton
-          android:id="@+id/record_details_btn"
+          android:id="@+id/observation_details_btn"
           style="@style/ImageButton"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
@@ -122,7 +122,7 @@
     </RelativeLayout>
 
     <View
-        android:id="@+id/record_item_divider"
+        android:id="@+id/observation_item_divider"
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:layout_gravity="bottom"

@@ -46,7 +46,7 @@ public class FeatureSheetFragment extends AbstractFragment {
   @BindView(R.id.forms_tab_layout)
   TabLayout formsTabLayout;
 
-  @BindView(R.id.record_list_view_pager)
+  @BindView(R.id.observation_list_view_pager)
   ViewPager recordListViewPager;
 
   private FeatureSheetViewModel viewModel;

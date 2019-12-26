@@ -44,7 +44,7 @@ public class ObservationListFragment extends AbstractFragment {
   private FeatureSheetViewModel featureSheetViewModel;
   private HomeScreenViewModel homeScreenViewModel;
 
-  @BindView(R.id.record_list_container)
+  @BindView(R.id.observation_list_container)
   RecyclerView recyclerView;
 
   static ObservationListFragment newInstance() {

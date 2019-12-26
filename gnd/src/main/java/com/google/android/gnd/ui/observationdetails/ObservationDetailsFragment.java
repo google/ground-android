@@ -50,10 +50,10 @@ public class ObservationDetailsFragment extends AbstractFragment {
 
   @Inject Navigator navigator;
 
-  @BindView(R.id.record_details_toolbar)
+  @BindView(R.id.observation_details_toolbar)
   TwoLineToolbar toolbar;
 
-  @BindView(R.id.record_details_layout)
+  @BindView(R.id.observation_details_layout)
   LinearLayout recordDetailsLayout;
 
   private ObservationDetailsViewModel viewModel;
@@ -185,13 +185,13 @@ public class ObservationDetailsFragment extends AbstractFragment {
   @Override
   public boolean onOptionsItemSelected(MenuItem item) {
     switch (item.getItemId()) {
-      case R.id.edit_record_menu_item:
+      case R.id.edit_observation_menu_item:
         // This is required to prevent menu from reappearing on back.
         getActivity().closeOptionsMenu();
         ObservationDetailsFragmentArgs args = getObservationDetailFragmentArgs();
         navigator.editObservation(args.getProjectId(), args.getFeatureId(), args.getRecordId());
         return true;
-      case R.id.delete_record_menu_item:
+      case R.id.delete_observation_menu_item:
         // TODO: Implement delete observation.
         return true;
       default:

@@ -45,14 +45,14 @@
     tools:layout="@layout/home_screen_frag">
     <action
       android:id="@+id/showRecordDetails"
-      app:destination="@id/record_details_fragment"
+      app:destination="@id/observation_details_fragment"
       app:enterAnim="@anim/nav_default_enter_anim"
       app:exitAnim="@anim/nav_default_exit_anim"
       app:popEnterAnim="@anim/nav_default_pop_enter_anim"
       app:popExitAnim="@anim/nav_default_pop_exit_anim" />
     <action
       android:id="@+id/addRecord"
-      app:destination="@id/edit_record_fragment">
+      app:destination="@id/edit_observation_fragment">
       <argument
         android:name="recordId"
         android:defaultValue="NEW_RECORD" />
@@ -89,7 +89,7 @@
       app:destination="@id/home_screen_fragment" />
   </fragment>
   <fragment
-    android:id="@+id/record_details_fragment"
+    android:id="@+id/observation_details_fragment"
     android:name="com.google.android.gnd.ui.observationdetails.ObservationDetailsFragment"
     android:label="@string/view_record_details"
     tools:layout="@layout/observation_details_frag">
@@ -104,7 +104,7 @@
       type="string" />
     <action
       android:id="@+id/editRecord"
-      app:destination="@id/edit_record_fragment"
+      app:destination="@id/edit_observation_fragment"
       app:enterAnim="@anim/nav_default_enter_anim"
       app:exitAnim="@anim/nav_default_exit_anim"
       app:popEnterAnim="@anim/nav_default_pop_enter_anim"
@@ -115,7 +115,7 @@
     </action>
   </fragment>
   <fragment
-    android:id="@+id/edit_record_fragment"
+    android:id="@+id/edit_observation_fragment"
     android:name="com.google.android.gnd.ui.editobservation.EditObservationFragment"
     android:label="edit_record_frag"
     tools:layout="@layout/edit_observation_frag">
