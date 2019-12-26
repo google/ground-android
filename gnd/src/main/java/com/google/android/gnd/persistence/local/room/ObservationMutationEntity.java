@@ -35,7 +35,7 @@ import org.json.JSONObject;
 /** Representation of a {@link ObservationMutation} in local data store. */
 @AutoValue
 @Entity(
-    tableName = "record_mutation",
+    tableName = "observation_mutation",
     foreignKeys = {
       @ForeignKey(
           entity = FeatureEntity.class,
@@ -45,7 +45,7 @@ import org.json.JSONObject;
       @ForeignKey(
           entity = ObservationEntity.class,
           parentColumns = "id",
-          childColumns = "record_id",
+          childColumns = "observation_id",
           onDelete = CASCADE)
     },
     indices = {@Index("feature_id"), @Index("observation_id")})
@@ -79,8 +79,8 @@ public abstract class ObservationMutationEntity {
 
   @CopyAnnotations
   @NonNull
-  @ColumnInfo(name = "record_id")
-  public abstract String getRecordId();
+  @ColumnInfo(name = "observation_id")
+  public abstract String getObservationId();
 
   @CopyAnnotations
   @NonNull
@@ -114,7 +114,7 @@ public abstract class ObservationMutationEntity {
       String featureId,
       String featureTypeId,
       String formId,
-      String recordId,
+      String observationId,
       MutationEntityType type,
       ImmutableList<ResponseDelta> responseDeltas,
       long retryCount,
@@ -125,7 +125,7 @@ public abstract class ObservationMutationEntity {
         .setFeatureId(featureId)
         .setFeatureTypeId(featureTypeId)
         .setFormId(formId)
-        .setRecordId(recordId)
+        .setObservationId(observationId)
         .setType(type)
         .setResponseDeltas(responseDeltas)
         .setRetryCount(retryCount)
@@ -140,7 +140,7 @@ public abstract class ObservationMutationEntity {
         .setFeatureId(m.getFeatureId())
         .setFeatureTypeId(m.getLayerId())
         .setFormId(m.getFormId())
-        .setRecordId(m.getObservationId())
+        .setObservationId(m.getObservationId())
         .setType(MutationEntityType.fromMutationType(m.getType()))
         .setResponseDeltas(m.getResponseDeltas())
         .setRetryCount(m.getRetryCount())
@@ -155,7 +155,7 @@ public abstract class ObservationMutationEntity {
         .setFeatureId(getFeatureId())
         .setLayerId(getFeatureTypeId())
         .setFormId(getFormId())
-        .setObservationId(getRecordId())
+        .setObservationId(getObservationId())
         .setType(getType().toMutationType())
         .setResponseDeltas(getResponseDeltas())
         .setRetryCount(getRetryCount())
@@ -166,7 +166,7 @@ public abstract class ObservationMutationEntity {
   // Boilerplate generated using Android Studio AutoValue plugin:
 
   public static Builder builder() {
-    return new AutoValue_RecordMutationEntity.Builder();
+    return new AutoValue_ObservationMutationEntity.Builder();
   }
 
   @AutoValue.Builder
@@ -182,7 +182,7 @@ public abstract class ObservationMutationEntity {
 
     public abstract Builder setFormId(@Nullable String newFormId);
 
-    public abstract Builder setRecordId(String newRecordId);
+    public abstract Builder setObservationId(String newObservationId);
 
     public abstract Builder setType(MutationEntityType newType);
 

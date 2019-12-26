@@ -29,8 +29,8 @@ public interface ObservationDao extends BaseDao<ObservationEntity> {
   Maybe<ObservationEntity> findById(String observationId);
 
   /**
-   * Returns the list records associated with the specified feature and form, ignoring deleted
-   * records (i.e., returns only records with state = State.DEFAULT (1)).
+   * Returns the list observations associated with the specified feature and form, ignoring deleted
+   * observations (i.e., returns only observations with state = State.DEFAULT (1)).
    */
   @Query(
       "SELECT * FROM observation WHERE feature_id = :featureId AND form_id = :formId AND state = 1")

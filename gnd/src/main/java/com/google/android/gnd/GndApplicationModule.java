@@ -169,12 +169,12 @@ abstract class GndApplicationModule {
   }
 
   @Provides
-  static ObservationDao recordDao(LocalDatabase localDatabase) {
+  static ObservationDao observationDao(LocalDatabase localDatabase) {
     return localDatabase.observationDao();
   }
 
   @Provides
-  static ObservationMutationDao recordMutationDao(LocalDatabase localDatabase) {
+  static ObservationMutationDao observationMutationDao(LocalDatabase localDatabase) {
     return localDatabase.observatioonMutationDao();
   }
 
