@@ -118,9 +118,11 @@ public class HomeScreenFragment extends AbstractFragment
 
     viewModel = getViewModel(HomeScreenViewModel.class);
     viewModel.getActiveProject().observe(this, this::onActiveProjectChange);
-    viewModel.getShowAddFeatureDialogRequests().observe(this, this::onShowAddFeatureDialogRequest);
+    viewModel
+        .getShowAddFeatureDialogRequests()
+        .observe(this, e -> e.ifUnhandled(this::onShowAddFeatureDialogRequest));
     viewModel.getFeatureSheetState().observe(this, this::onFeatureSheetStateChange);
-    viewModel.getOpenDrawerRequests().observe(this, __ -> openDrawer());
+    viewModel.getOpenDrawerRequests().observe(this, e -> e.ifUnhandled(__ -> openDrawer()));
 
     showFeatureDialogRequests = PublishSubject.create();
 
@@ -222,10 +224,10 @@ public class HomeScreenFragment extends AbstractFragment
     ProjectSelectorDialogFragment.show(getFragmentManager());
   }
 
-  //TODO: Move to OfflineAreasFragment
-  //private void showBasemapSelector() {
+  // TODO: Move to OfflineAreasFragment
+  // private void showBasemapSelector() {
   //  viewModel.showBasemapSelector();
-  //}
+  // }
 
   private void showOfflineAreas() {
     toolbar.setBackgroundColor(3);
