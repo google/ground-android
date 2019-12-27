@@ -175,7 +175,7 @@ abstract class GndApplicationModule {
 
   @Provides
   static ObservationMutationDao observationMutationDao(LocalDatabase localDatabase) {
-    return localDatabase.observatioonMutationDao();
+    return localDatabase.observationMutationDao();
   }
 
   @Provides

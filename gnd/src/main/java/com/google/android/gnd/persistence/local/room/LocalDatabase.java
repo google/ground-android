@@ -79,7 +79,7 @@ public abstract class LocalDatabase extends RoomDatabase {
 
   public abstract ObservationDao observationDao();
 
-  public abstract ObservationMutationDao observatioonMutationDao();
+  public abstract ObservationMutationDao observationMutationDao();
 
   public abstract TileDao tileDao();
 
