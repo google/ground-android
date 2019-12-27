@@ -19,8 +19,8 @@ package com.google.android.gnd.ui.projectselector;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
 import com.google.android.gnd.model.Project;
-import com.google.android.gnd.repository.DataRepository;
 import com.google.android.gnd.repository.Loadable;
+import com.google.android.gnd.repository.ProjectRepository;
 import com.google.android.gnd.system.AuthenticationManager;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import java.util.Collections;
@@ -29,18 +29,18 @@ import javax.inject.Inject;
 
 /** Represents view state and behaviors of the project selector dialog. */
 public class ProjectSelectorViewModel extends AbstractViewModel {
-  private final DataRepository dataRepository;
+  private final ProjectRepository projectRepository;
   private final LiveData<Loadable<List<Project>>> projectSummaries;
 
   @Inject
-  ProjectSelectorViewModel(DataRepository dataRepository, AuthenticationManager authManager) {
-    this.dataRepository = dataRepository;
+  ProjectSelectorViewModel(ProjectRepository projectRepository, AuthenticationManager authManager) {
+    this.projectRepository = projectRepository;
 
     AuthenticationManager.User user =
         authManager.getUser().blockingFirst(AuthenticationManager.User.ANONYMOUS);
 
     this.projectSummaries =
-        LiveDataReactiveStreams.fromPublisher(dataRepository.getProjectSummaries(user));
+        LiveDataReactiveStreams.fromPublisher(projectRepository.getProjectSummaries(user));
   }
 
   public LiveData<Loadable<List<Project>>> getProjectSummaries() {
@@ -57,6 +57,6 @@ public class ProjectSelectorViewModel extends AbstractViewModel {
    * @param idx the index in the project summary list.
    */
   void activateProject(int idx) {
-    dataRepository.activateProject(getProjectSummary(idx).getId());
+    projectRepository.activateProject(getProjectSummary(idx).getId());
   }
 }
