@@ -122,7 +122,7 @@ public class HomeScreenFragment extends AbstractFragment
         .getShowAddFeatureDialogRequests()
         .observe(this, e -> e.ifUnhandled(this::onShowAddFeatureDialogRequest));
     viewModel.getFeatureSheetState().observe(this, this::onFeatureSheetStateChange);
-    viewModel.getOpenDrawerRequests().observe(this, e -> e.ifUnhandled(__ -> openDrawer()));
+    viewModel.getOpenDrawerRequests().observe(this, e -> e.ifUnhandled(this::openDrawer));
 
     showFeatureDialogRequests = PublishSubject.create();
 

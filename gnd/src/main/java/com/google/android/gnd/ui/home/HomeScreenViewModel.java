@@ -27,8 +27,8 @@ import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.repository.DataRepository;
 import com.google.android.gnd.repository.Loadable;
+import com.google.android.gnd.rx.Action;
 import com.google.android.gnd.rx.Event;
-import com.google.android.gnd.rx.Nil;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.SharedViewModel;
@@ -54,7 +54,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
   private final MutableLiveData<Event<Point>> addFeatureDialogRequests;
 
   // TODO: Move into FeatureSheetViewModel.
-  private final MutableLiveData<Event<Nil>> openDrawerRequests;
+  private final MutableLiveData<Action> openDrawerRequests;
   private final MutableLiveData<FeatureSheetState> featureSheetState;
   private final MutableLiveData<Integer> addObservationButtonVisibility =
       new MutableLiveData<>(View.VISIBLE);
@@ -97,12 +97,12 @@ public class HomeScreenViewModel extends AbstractViewModel {
     Log.e(TAG, "Couldn't add feature.", throwable);
   }
 
-  public LiveData<Event<Nil>> getOpenDrawerRequests() {
+  public LiveData<Action> getOpenDrawerRequests() {
     return openDrawerRequests;
   }
 
   public void openNavDrawer() {
-    openDrawerRequests.setValue(Event.nil());
+    openDrawerRequests.setValue(Action.create());
   }
 
   public LiveData<Loadable<Project>> getActiveProject() {
