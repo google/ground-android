@@ -48,7 +48,7 @@ public class Event<T> extends Action {
    * @param data
    * @param <T>
    */
-  public static <T> Event<T> of(T data) {
+  public static <T> Event<T> create(T data) {
     return new Event<>(data);
   }
 }

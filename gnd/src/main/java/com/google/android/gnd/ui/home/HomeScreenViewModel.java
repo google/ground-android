@@ -129,7 +129,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
 
   public void onAddFeatureBtnClick(Point location) {
     // TODO: Pause location updates while dialog is open.
-    addFeatureDialogRequests.setValue(Event.of(location));
+    addFeatureDialogRequests.setValue(Event.create(location));
   }
 
   public void addFeature(Feature feature) {
