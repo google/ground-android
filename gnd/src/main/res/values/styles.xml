@@ -63,6 +63,22 @@
     <item name="android:textSize">12sp</item>
   </style>
 
+  <style name="PrimaryToolbarTheme" parent="ThemeOverlay.AppCompat.ActionBar">
+    <item name="android:background">@color/colorPrimary</item>
+    <item name="gndToolbarTitleStyle">@style/PrimaryToolbarTitle</item>
+    <item name="gndToolbarSubtitleStyle">@style/PrimaryToolbarSubtitle</item>
+    <item name="colorControlNormal">@color/colorBackground</item>
+  </style>
+
+  <style name="PrimaryToolbarTitle" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">
+    <item name="android:textColor">@color/colorBackground</item>
+  </style>
+
+  <style name="PrimaryToolbarSubtitle" parent="TextAppearance.Widget.AppCompat.Toolbar.Subtitle">
+    <item name="android:textColor">@color/colorBackground</item>
+    <item name="android:textSize">12sp</item>
+  </style>
+
   <style name="FormSelectorTabStyle" parent="Widget.Design.TabLayout">
     <item name="tabIndicatorColor">?attr/colorAccent</item>
     <item name="tabIndicatorHeight">2dp</item>
