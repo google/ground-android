@@ -42,6 +42,7 @@ public class SignInFragment extends AbstractFragment implements BackPressListene
       LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     SignInFragBinding binding = SignInFragBinding.inflate(inflater, container, false);
     binding.setViewModel(viewModel);
+    binding.setLifecycleOwner(this);
     return binding.getRoot();
   }
 
