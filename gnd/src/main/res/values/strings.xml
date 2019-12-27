@@ -143,5 +143,6 @@
   <string name="unknown_user">Unknown user</string>
   <string name="add_observation_toolbar_title">Add observation</string>
   <string name="edit_observation_toolbar_title">Edit observation</string>
+  <string name="offline_area_selector_prompt">Select an area for download</string>
 
 </resources>

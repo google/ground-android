@@ -229,7 +229,6 @@ public class HomeScreenFragment extends AbstractFragment
   //}
 
   private void showOfflineAreas() {
-    toolbar.setBackgroundColor(3);
     viewModel.showOfflineAreas();
   }
 
