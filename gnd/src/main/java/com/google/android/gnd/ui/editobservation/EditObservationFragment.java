@@ -53,6 +53,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
   private EditObservationViewModel viewModel;
   private SingleSelectDialogFactory singleSelectDialogFactory;
   private MultiSelectDialogFactory multiSelectDialogFactory;
+  public String unused;
 
   @Inject Navigator navigator;
 
