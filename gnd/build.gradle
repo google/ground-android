@@ -195,6 +195,9 @@ dependencies {
     implementation "com.uber.autodispose:autodispose-android-archcomponents:$project.autoDisposeVersion"
 }
 
+// Install git hooks on build.
+apply from: rootProject.file('gradle/git-hooks/install.gradle')
+
 apply plugin: 'androidx.navigation.safeargs'
 
 // This must be last to avoid dependency collisions.
