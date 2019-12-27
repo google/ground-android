@@ -32,7 +32,6 @@ import com.google.android.gnd.databinding.BasemapSelectorFragBinding;
 import com.google.android.gnd.inject.ActivityScoped;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.map.MapProvider;
-import io.reactivex.Single;
 import javax.inject.Inject;
 
 /**
@@ -54,8 +53,7 @@ public class BasemapSelectorFragment extends AbstractFragment {
     super.onCreate(savedInstanceState);
     viewModel = getViewModel(BasemapSelectorViewModel.class);
     mainViewModel = getViewModel(MainViewModel.class);
-    Single<MapProvider.MapAdapter> mapAdapter = mapProvider.getMapAdapter();
-    mapAdapter.as(autoDisposable(this)).subscribe(this::onMapReady);
+    mapProvider.getMapAdapter().as(autoDisposable(this)).subscribe(this::onMapReady);
   }
 
   private void onMapReady(MapProvider.MapAdapter map) {
