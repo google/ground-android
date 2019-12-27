@@ -96,7 +96,8 @@ public class ObservationRepository {
   }
 
   private Completable mergeRemoteObservations(ImmutableList<Observation> observations) {
-    return Observable.fromIterable(observations).flatMapCompletable(localDataStore::mergeObservation);
+    return Observable.fromIterable(observations)
+        .flatMapCompletable(localDataStore::mergeObservation);
   }
 
   public Single<Observation> getObservation(
