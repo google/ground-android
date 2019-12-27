@@ -25,7 +25,6 @@ import androidx.work.WorkManager;
 import com.akaita.java.rxjava2debug.RxJava2Debug;
 import com.facebook.stetho.Stetho;
 import com.google.android.gnd.inject.GndWorkerFactory;
-import com.google.android.gnd.repository.DataRepository;
 import dagger.android.AndroidInjector;
 import dagger.android.support.DaggerApplication;
 import javax.inject.Inject;
@@ -36,7 +35,6 @@ import javax.inject.Inject;
 public class GndApplication extends DaggerApplication {
   private static final String TAG = GndApplication.class.getSimpleName();
 
-  @Inject DataRepository dataRepository;
   @Inject GndWorkerFactory workerFactory;
 
   @Override

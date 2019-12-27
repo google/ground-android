@@ -53,7 +53,7 @@ public class AuthenticationManager {
   private final ActivityStreams activityStreams;
   private final Disposable activityResultsSubscription;
 
-  // TODO: Update Fragments to access via DataRepository rather than directly.
+  // TODO: Update Fragments to access via ProjectRepository rather than directly.
   @Inject
   public AuthenticationManager(Application application, ActivityStreams activityStreams) {
     this.signInState = BehaviorSubject.create();

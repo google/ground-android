@@ -69,6 +69,7 @@ public class FeatureSheetFragment extends AbstractFragment {
       @NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     FeatureSheetFragBinding binding = FeatureSheetFragBinding.inflate(inflater, container, false);
     binding.setViewModel(viewModel);
+    binding.setLifecycleOwner(this);
     return binding.getRoot();
   }
 
