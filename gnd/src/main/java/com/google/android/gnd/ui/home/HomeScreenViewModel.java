@@ -56,7 +56,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
   private final SingleLiveEvent<Void> openDrawerRequests;
   private final MutableLiveData<FeatureSheetState> featureSheetState;
   private final MutableLiveData<Integer> addObservationButtonVisibility =
-      new MutableLiveData<>(View.VISIBLE);
+      new MutableLiveData<>(View.GONE);
   @Nullable private Form selectedForm;
 
   @Inject
