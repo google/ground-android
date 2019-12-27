@@ -1,3 +1,4 @@
 #!/bin/sh
 
-./gradlew checkCode
+# Compile required to update .class files checked by spotbugs plugin.
+./gradlew compileDebugJavaWithJavac checkCode
