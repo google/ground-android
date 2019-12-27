@@ -69,6 +69,7 @@ public class BasemapSelectorFragment extends AbstractFragment {
     BasemapSelectorFragBinding binding =
         BasemapSelectorFragBinding.inflate(inflater, container, false);
     binding.setViewModel(viewModel);
+    binding.setLifecycleOwner(this);
     return binding.getRoot();
   }
 

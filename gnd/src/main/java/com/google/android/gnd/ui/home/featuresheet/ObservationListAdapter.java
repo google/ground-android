@@ -47,6 +47,8 @@ class ObservationListAdapter extends RecyclerView.Adapter<ObservationListItemVie
     LayoutInflater inflater = LayoutInflater.from(parent.getContext());
     ObservationListItemBinding itemBinding =
         ObservationListItemBinding.inflate(inflater, parent, false);
+    // Note: Before using Android Data Binding for this component, holder must implement
+    // LifecycleOwner and be passed to itemBinding.setLifecycleOwner().
     return new ObservationListItemViewHolder(itemBinding);
   }
 

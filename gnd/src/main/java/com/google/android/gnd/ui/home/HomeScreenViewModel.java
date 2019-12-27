@@ -57,7 +57,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
   private final SingleLiveEvent<Void> openDrawerRequests;
   private final MutableLiveData<FeatureSheetState> featureSheetState;
   private final MutableLiveData<Integer> addObservationButtonVisibility =
-      new MutableLiveData<>(View.VISIBLE);
+      new MutableLiveData<>(View.GONE);
   @Nullable private Form selectedForm;
 
   @Inject
@@ -159,7 +159,16 @@ public class HomeScreenViewModel extends AbstractViewModel {
       return;
     }
     Feature feature = state.getFeature();
-    navigator.addObservation(feature.getProject().getId(), feature.getId(), selectedForm.getId());
+    if (feature == null) {
+      Log.e(TAG, "Missing feature");
+      return;
+    }
+    Project project = feature.getProject();
+    if (project == null) {
+      Log.e(TAG, "Missing project");
+      return;
+    }
+    navigator.addObservation(project.getId(), feature.getId(), selectedForm.getId());
   }
 
   public void init() {

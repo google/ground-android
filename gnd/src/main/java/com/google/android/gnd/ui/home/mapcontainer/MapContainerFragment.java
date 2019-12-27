@@ -108,6 +108,7 @@ public class MapContainerFragment extends AbstractFragment {
     MapContainerFragBinding binding = MapContainerFragBinding.inflate(inflater, container, false);
     binding.setViewModel(mapContainerViewModel);
     binding.setHomeScreenViewModel(homeScreenViewModel);
+    binding.setLifecycleOwner(this);
     return binding.getRoot();
   }
 
