@@ -43,11 +43,11 @@
 
   <!-- License header -->
   <module name="RegexpHeader">
-    <property name="headerFile" value="config/checkstyle/java.header" />
+    <property name="headerFile" value="${config_loc}/java.header" />
     <property name="fileExtensions" value="java" />
   </module>
   <module name="RegexpHeader">
-    <property name="headerFile" value="config/checkstyle/xml.header" />
+    <property name="headerFile" value="${config_loc}/xml.header" />
     <property name="fileExtensions" value="xml" />
   </module>
 
