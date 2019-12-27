@@ -85,7 +85,7 @@ public class ObservationDetailsFragment extends AbstractFragment {
   @Override
   public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
-    ((MainActivity) getActivity()).setActionBar(toolbar);
+    ((MainActivity) getActivity()).setActionBar(toolbar, false);
   }
 
   @Override

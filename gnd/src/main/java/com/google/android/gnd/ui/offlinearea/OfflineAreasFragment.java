@@ -20,6 +20,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toolbar;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
@@ -61,13 +62,12 @@ public class OfflineAreasFragment extends AbstractFragment {
     OfflineAreasFragBinding binding = OfflineAreasFragBinding.inflate(inflater, container, false);
     binding.setViewModel(viewModel);
     binding.setLifecycleOwner(this);
+    ((MainActivity) getActivity()).setActionBar(binding.offlineAreasToolbar, true);
     return binding.getRoot();
   }
 
   @Override
   public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
-    toolbar.setTitle(R.string.offline_areas);
-    ((MainActivity) getActivity()).setActionBar(toolbar);
   }
 }

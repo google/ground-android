@@ -191,7 +191,7 @@ public class HomeScreenFragment extends AbstractFragment
     super.onActivityCreated(savedInstanceState);
     setHasOptionsMenu(true);
 
-    ((MainActivity) getActivity()).setActionBar(toolbar);
+    ((MainActivity) getActivity()).setActionBar(toolbar, false);
   }
 
   private void openDrawer() {
