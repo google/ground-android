@@ -196,12 +196,12 @@ public class MainActivity extends DaggerAppCompatActivity {
     getSupportActionBar().setHomeAsUpIndicator(icon);
   }
 
-  public void setActionBar(TwoLineToolbar toolbar, boolean displayTitle) {
+  public void setActionBar(TwoLineToolbar toolbar, boolean showTitle) {
     setSupportActionBar(toolbar);
 
     // Workaround to get rid of application title from toolbar. Simply setting "" here or in layout
     // XML doesn't work.
-    getSupportActionBar().setDisplayShowTitleEnabled(displayTitle);
+    getSupportActionBar().setDisplayShowTitleEnabled(showTitle);
     getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     getSupportActionBar().setDisplayShowHomeEnabled(true);
 
