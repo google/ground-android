@@ -23,8 +23,9 @@ import androidx.lifecycle.MutableLiveData;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.Point;
-import com.google.android.gnd.repository.DataRepository;
+import com.google.android.gnd.repository.FeatureRepository;
 import com.google.android.gnd.repository.Loadable;
+import com.google.android.gnd.repository.ProjectRepository;
 import com.google.android.gnd.rx.BooleanResult;
 import com.google.android.gnd.system.LocationManager;
 import com.google.android.gnd.ui.common.AbstractViewModel;
@@ -50,13 +51,16 @@ public class MapContainerViewModel extends AbstractViewModel {
   private final LiveData<CameraUpdate> cameraUpdateRequests;
   private final MutableLiveData<Point> cameraPosition;
   private final LocationManager locationManager;
-  private final DataRepository dataRepository;
+  private final FeatureRepository featureRepository;
   private final Subject<Boolean> locationLockChangeRequests;
   private final Subject<CameraUpdate> cameraUpdateSubject;
 
   @Inject
-  MapContainerViewModel(DataRepository dataRepository, LocationManager locationManager) {
-    this.dataRepository = dataRepository;
+  MapContainerViewModel(
+      ProjectRepository projectRepository,
+      FeatureRepository featureRepository,
+      LocationManager locationManager) {
+    this.featureRepository = featureRepository;
     this.locationManager = locationManager;
     this.locationLockChangeRequests = PublishSubject.create();
     this.cameraUpdateSubject = PublishSubject.create();
@@ -70,13 +74,13 @@ public class MapContainerViewModel extends AbstractViewModel {
             createCameraUpdateFlowable(locationLockStateFlowable));
     this.cameraPosition = new MutableLiveData<>();
     this.activeProject =
-        LiveDataReactiveStreams.fromPublisher(dataRepository.getActiveProjectOnceAndStream());
+        LiveDataReactiveStreams.fromPublisher(projectRepository.getActiveProjectOnceAndStream());
     // TODO: Clear feature markers when project is deactivated.
     // TODO: Since we depend on project stream from repo anyway, this transformation can be moved
     // into the repo?
     this.features =
         LiveDataReactiveStreams.fromPublisher(
-            dataRepository
+            projectRepository
                 .getActiveProjectOnceAndStream()
                 .map(Loadable::value)
                 .switchMap(this::getFeaturesStream));
@@ -119,7 +123,7 @@ public class MapContainerViewModel extends AbstractViewModel {
     // Emit empty set in separate stream to force unsubscribe from Feature updates and update
     // subscribers.
     return activeProject
-        .map(dataRepository::getFeaturesOnceAndStream)
+        .map(featureRepository::getFeaturesOnceAndStream)
         .orElse(Flowable.just(ImmutableSet.of()));
   }
 

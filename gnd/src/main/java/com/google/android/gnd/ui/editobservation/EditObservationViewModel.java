@@ -39,7 +39,7 @@ import com.google.android.gnd.model.observation.Response;
 import com.google.android.gnd.model.observation.ResponseDelta;
 import com.google.android.gnd.model.observation.ResponseMap;
 import com.google.android.gnd.model.observation.TextResponse;
-import com.google.android.gnd.repository.DataRepository;
+import com.google.android.gnd.repository.ObservationRepository;
 import com.google.android.gnd.rx.Event;
 import com.google.android.gnd.rx.Nil;
 import com.google.android.gnd.system.AuthenticationManager;
@@ -60,7 +60,7 @@ public class EditObservationViewModel extends AbstractViewModel {
 
   // Injected inputs.
 
-  private final DataRepository dataRepository;
+  private final ObservationRepository observationRepository;
   private final AuthenticationManager authManager;
   private final Resources resources;
 
@@ -119,10 +119,10 @@ public class EditObservationViewModel extends AbstractViewModel {
   @Inject
   EditObservationViewModel(
       GndApplication application,
-      DataRepository dataRepository,
+      ObservationRepository observationRepository,
       AuthenticationManager authenticationManager) {
     this.resources = application.getResources();
-    this.dataRepository = dataRepository;
+    this.observationRepository = observationRepository;
     this.authManager = authenticationManager;
     this.form = fromPublisher(viewArgs.switchMapSingle(this::onInitialize));
     this.saveResults = fromPublisher(saveClicks.switchMapSingle(__ -> onSave()));
@@ -224,7 +224,7 @@ public class EditObservationViewModel extends AbstractViewModel {
   }
 
   private Single<Observation> createObservation(EditObservationFragmentArgs args) {
-    return dataRepository
+    return observationRepository
         .createObservation(args.getProjectId(), args.getFeatureId(), args.getFormId())
         .doOnError(
             t -> onError("Error creating new observation", RxJava2Debug.getEnhancedStackTrace(t)))
@@ -232,7 +232,7 @@ public class EditObservationViewModel extends AbstractViewModel {
   }
 
   private Single<Observation> loadObservation(EditObservationFragmentArgs args) {
-    return dataRepository
+    return observationRepository
         .getObservation(args.getProjectId(), args.getFeatureId(), args.getRecordId())
         .doOnError(t -> onError("Error loading observation", RxJava2Debug.getEnhancedStackTrace(t)))
         .onErrorResumeNext(Single.never());
@@ -273,7 +273,7 @@ public class EditObservationViewModel extends AbstractViewModel {
             .setResponseDeltas(getResponseDeltas())
             .setUserId(currentUser.getId())
             .build();
-    return dataRepository
+    return observationRepository
         .applyAndEnqueue(observationMutation)
         .doOnComplete(() -> savingProgressVisibility.postValue(View.GONE))
         .toSingleDefault(Event.create(SaveResult.SAVED));

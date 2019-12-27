@@ -25,7 +25,7 @@ import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.model.observation.Observation;
-import com.google.android.gnd.repository.DataRepository;
+import com.google.android.gnd.repository.ObservationRepository;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.common.collect.ImmutableList;
 import io.reactivex.Single;
@@ -36,15 +36,15 @@ import javax.inject.Inject;
 public class ObservationListViewModel extends AbstractViewModel {
 
   private static final String TAG = ObservationListViewModel.class.getSimpleName();
-  private final DataRepository dataRepository;
+  private final ObservationRepository observationRepository;
   private PublishProcessor<ObservationListRequest> recordListRequests;
   private LiveData<ImmutableList<Observation>> recordList;
 
   public final ObservableInt loadingSpinnerVisibility = new ObservableInt();
 
   @Inject
-  public ObservationListViewModel(DataRepository dataRepository) {
-    this.dataRepository = dataRepository;
+  public ObservationListViewModel(ObservationRepository observationRepository) {
+    this.observationRepository = observationRepository;
     recordListRequests = PublishProcessor.create();
     recordList =
         LiveDataReactiveStreams.fromPublisher(
@@ -60,12 +60,11 @@ public class ObservationListViewModel extends AbstractViewModel {
 
   /** Loads a list of records associated with a given feature. */
   public void loadRecordList(Feature feature, Form form) {
-    loadRecords(
-        feature.getProject(), feature.getLayer().getId(), form.getId(), feature.getId());
+    loadRecords(feature.getProject(), feature.getLayer().getId(), form.getId(), feature.getId());
   }
 
   private Single<ImmutableList<Observation>> getRecords(ObservationListRequest req) {
-    return dataRepository
+    return observationRepository
         .getRecords(req.project.getId(), req.featureId, req.formId)
         .onErrorResumeNext(this::onGetRecordsError);
   }

@@ -188,7 +188,7 @@ public class MainActivity extends DaggerAppCompatActivity {
   }
 
   public void setActionBar(TwoLineToolbar toolbar, int upIconId) {
-    setActionBar(toolbar);
+    setActionBar(toolbar, false);
     // We override the color here programmatically since calling setHomeAsUpIndicator uses the color
     // of the set icon, not the applied theme. This allows us to change the primary color
     // programmatically without needing to remember to update the icon.
@@ -196,12 +196,12 @@ public class MainActivity extends DaggerAppCompatActivity {
     getSupportActionBar().setHomeAsUpIndicator(icon);
   }
 
-  public void setActionBar(TwoLineToolbar toolbar) {
+  public void setActionBar(TwoLineToolbar toolbar, boolean showTitle) {
     setSupportActionBar(toolbar);
 
     // Workaround to get rid of application title from toolbar. Simply setting "" here or in layout
     // XML doesn't work.
-    getSupportActionBar().setDisplayShowTitleEnabled(false);
+    getSupportActionBar().setDisplayShowTitleEnabled(showTitle);
     getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     getSupportActionBar().setDisplayShowHomeEnabled(true);
 

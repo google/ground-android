@@ -25,8 +25,9 @@ import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.model.form.Form;
-import com.google.android.gnd.repository.DataRepository;
+import com.google.android.gnd.repository.FeatureRepository;
 import com.google.android.gnd.repository.Loadable;
+import com.google.android.gnd.repository.ProjectRepository;
 import com.google.android.gnd.rx.Action;
 import com.google.android.gnd.rx.Event;
 import com.google.android.gnd.ui.common.AbstractViewModel;
@@ -43,7 +44,7 @@ import javax.inject.Inject;
 public class HomeScreenViewModel extends AbstractViewModel {
 
   private static final String TAG = HomeScreenViewModel.class.getSimpleName();
-  private final DataRepository dataRepository;
+  private final ProjectRepository projectRepository;
   private final Navigator navigator;
   /** The state and value of the currently active project (loading, loaded, etc.). */
   private final LiveData<Loadable<Project>> activeProject;
@@ -57,17 +58,20 @@ public class HomeScreenViewModel extends AbstractViewModel {
   private final MutableLiveData<Action> openDrawerRequests;
   private final MutableLiveData<FeatureSheetState> featureSheetState;
   private final MutableLiveData<Integer> addObservationButtonVisibility =
-      new MutableLiveData<>(View.VISIBLE);
+      new MutableLiveData<>(View.GONE);
   @Nullable private Form selectedForm;
 
   @Inject
-  HomeScreenViewModel(DataRepository dataRepository, Navigator navigator) {
-    this.dataRepository = dataRepository;
+  HomeScreenViewModel(
+      ProjectRepository projectRepository,
+      FeatureRepository featureRepository,
+      Navigator navigator) {
+    this.projectRepository = projectRepository;
     this.addFeatureDialogRequests = new MutableLiveData<>();
     this.openDrawerRequests = new MutableLiveData<>();
     this.featureSheetState = new MutableLiveData<>();
     this.activeProject =
-        LiveDataReactiveStreams.fromPublisher(dataRepository.getActiveProjectOnceAndStream());
+        LiveDataReactiveStreams.fromPublisher(projectRepository.getActiveProjectOnceAndStream());
     this.navigator = navigator;
     this.addFeatureClicks = PublishSubject.create();
 
@@ -75,7 +79,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
         addFeatureClicks
             .switchMapSingle(
                 newFeature ->
-                    dataRepository
+                    featureRepository
                         .saveFeature(newFeature)
                         .toSingleDefault(newFeature)
                         .doOnError(this::onAddFeatureError)
@@ -85,7 +89,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
   }
 
   public boolean shouldShowProjectSelectorOnStart() {
-    return dataRepository.getLastActiveProjectId().isEmpty();
+    return projectRepository.getLastActiveProjectId().isEmpty();
   }
 
   public MutableLiveData<Integer> getAddObservationButtonVisibility() {
@@ -156,12 +160,21 @@ public class HomeScreenViewModel extends AbstractViewModel {
       return;
     }
     Feature feature = state.getFeature();
-    navigator.addObservation(feature.getProject().getId(), feature.getId(), selectedForm.getId());
+    if (feature == null) {
+      Log.e(TAG, "Missing feature");
+      return;
+    }
+    Project project = feature.getProject();
+    if (project == null) {
+      Log.e(TAG, "Missing project");
+      return;
+    }
+    navigator.addObservation(project.getId(), feature.getId(), selectedForm.getId());
   }
 
   public void init() {
     // Last active project will be loaded once view subscribes to activeProject.
-    dataRepository.getLastActiveProjectId().ifPresent(dataRepository::activateProject);
+    projectRepository.getLastActiveProjectId().ifPresent(projectRepository::activateProject);
   }
 
   // TODO: Move to OfflineAreaViewModel
