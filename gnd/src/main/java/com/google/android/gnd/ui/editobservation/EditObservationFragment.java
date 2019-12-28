@@ -56,10 +56,10 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
 
   @Inject Navigator navigator;
 
-  @BindView(R.id.edit_record_toolbar)
+  @BindView(R.id.edit_observation_toolbar)
   TwoLineToolbar toolbar;
 
-  @BindView(R.id.edit_record_layout)
+  @BindView(R.id.edit_observation_layout)
   LinearLayout formLayout;
 
   @Override

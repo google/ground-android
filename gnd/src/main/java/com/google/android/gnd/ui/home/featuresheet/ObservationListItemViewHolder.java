@@ -47,10 +47,10 @@ class ObservationListItemViewHolder extends RecyclerView.ViewHolder {
     binding.executePendingBindings();
 
     // Add UI elements for each field with data.
-    addFieldsFromRecord(observation);
+    addFieldsFromObservation(observation);
   }
 
-  private void addFieldsFromRecord(Observation observation) {
+  private void addFieldsFromObservation(Observation observation) {
     binding.fieldLabelRow.removeAllViews();
     binding.fieldValueRow.removeAllViews();
 
@@ -63,11 +63,11 @@ class ObservationListItemViewHolder extends RecyclerView.ViewHolder {
           Field field = elem.getField();
           Optional<Response> response = observation.getResponses().getResponse(field.getId());
           binding.fieldLabelRow.addView(
-              newFieldTextView(field.getLabel(), R.style.RecordListText_FieldLabel));
+              newFieldTextView(field.getLabel(), R.style.ObservationListText_FieldLabel));
           binding.fieldValueRow.addView(
               newFieldTextView(
                   response.map(r -> r.getSummaryText(field)).orElse(""),
-                  R.style.RecordListText_Field));
+                  R.style.ObservationListText_Field));
           break;
       }
     }
@@ -82,8 +82,8 @@ class ObservationListItemViewHolder extends RecyclerView.ViewHolder {
     // NOTE: These attributes don't work when applying text appearance programmatically, so we set
     // them here individually instead.
     v.setPadding(
-        0, 0, resources.getDimensionPixelSize(R.dimen.record_summary_text_padding_right), 0);
-    v.setMaxWidth(resources.getDimensionPixelSize(R.dimen.record_summary_text_max_width));
+        0, 0, resources.getDimensionPixelSize(R.dimen.observation_summary_text_padding_right), 0);
+    v.setMaxWidth(resources.getDimensionPixelSize(R.dimen.observation_summary_text_max_width));
     v.setMaxLines(1);
     v.setSingleLine();
     v.setEllipsize(TextUtils.TruncateAt.END);

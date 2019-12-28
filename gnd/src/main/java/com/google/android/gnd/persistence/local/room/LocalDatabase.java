@@ -38,8 +38,8 @@ import com.google.android.gnd.Config;
       MultipleChoiceEntity.class,
       OptionEntity.class,
       ProjectEntity.class,
-      RecordEntity.class,
-      RecordMutationEntity.class,
+      ObservationEntity.class,
+      ObservationMutationEntity.class,
       TileEntity.class,
       OfflineAreaEntity.class,
     },
@@ -77,9 +77,9 @@ public abstract class LocalDatabase extends RoomDatabase {
 
   public abstract ProjectDao projectDao();
 
-  public abstract RecordDao recordDao();
+  public abstract ObservationDao observationDao();
 
-  public abstract RecordMutationDao recordMutationDao();
+  public abstract ObservationMutationDao observationMutationDao();
 
   public abstract TileDao tileDao();
 
