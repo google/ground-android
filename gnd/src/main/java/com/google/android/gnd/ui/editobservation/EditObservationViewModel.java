@@ -56,7 +56,7 @@ import javax.inject.Inject;
 public class EditObservationViewModel extends AbstractViewModel {
   private static final String TAG = EditObservationViewModel.class.getSimpleName();
   // TODO: Move out of id and into fragment args.
-  private static final String ADD_OBSERVATION_ID_PLACEHOLDER = "NEW_RECORD";
+  private static final String ADD_OBSERVATION_ID_PLACEHOLDER = "NEW";
 
   // Injected inputs.
 
@@ -220,7 +220,7 @@ public class EditObservationViewModel extends AbstractViewModel {
   }
 
   private static boolean isAddObservationRequest(EditObservationFragmentArgs args) {
-    return args.getRecordId().equals(ADD_OBSERVATION_ID_PLACEHOLDER);
+    return args.getObservationId().equals(ADD_OBSERVATION_ID_PLACEHOLDER);
   }
 
   private Single<Observation> createObservation(EditObservationFragmentArgs args) {
@@ -233,7 +233,7 @@ public class EditObservationViewModel extends AbstractViewModel {
 
   private Single<Observation> loadObservation(EditObservationFragmentArgs args) {
     return observationRepository
-        .getObservation(args.getProjectId(), args.getFeatureId(), args.getRecordId())
+        .getObservation(args.getProjectId(), args.getFeatureId(), args.getObservationId())
         .doOnError(t -> onError("Error loading observation", RxJava2Debug.getEnhancedStackTrace(t)))
         .onErrorResumeNext(Single.never());
   }
@@ -268,7 +268,7 @@ public class EditObservationViewModel extends AbstractViewModel {
             .setProjectId(originalObservation.getProject().getId())
             .setFeatureId(originalObservation.getFeature().getId())
             .setLayerId(originalObservation.getFeature().getLayer().getId())
-            .setRecordId(originalObservation.getId())
+            .setObservationId(originalObservation.getId())
             .setFormId(originalObservation.getForm().getId())
             .setResponseDeltas(getResponseDeltas())
             .setUserId(currentUser.getId())

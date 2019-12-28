@@ -65,11 +65,11 @@
   -->
 
   <!-- Shown in observation overflow menu to open popup dialog to edit feature metadata. -->
-  <string name="edit_record">Edit observation</string>
+  <string name="edit_observation">Edit observation</string>
   <!-- Shown in observation overflow menu to delete a observation. -->
-  <string name="delete_record">Delete observation</string>
+  <string name="delete_observation">Delete observation</string>
   <!-- Confirmation shown when deleting a observation (TBD). -->
-  <string name="delete_record_confirmation">
+  <string name="delete_observation_confirmation">
     This will permanently delete the selected observation. This cannot be undone. Are you sure?
   </string>
   <!--
@@ -125,14 +125,14 @@
   <string name="invalid_data_confirm">OK</string>
 
   <string name="join_project_dialog_title">Join project</string>
-  <string name="add_record_button_label">Observation</string>
-  <string name="view_record_details">View observation details</string>
+  <string name="add_observation_button_label">Observation</string>
+  <string name="view_observation_details">View observation details</string>
   <string name="map_view">Map view</string>
   <string name="project_load_error">Project could not be loaded</string>
   <string name="project_list_load_error">Project list not available</string>
   <string name="unexpected_error">An unexpected error has occurred</string>
-  <string name="edit_record_button_label">Edit</string>
-  <string name="save_record_button_label">Save</string>
+  <string name="edit_observation_button_label">Edit</string>
+  <string name="save_observation_button_label">Save</string>
   <string name="saving">Saving&#8230;</string>
   <string name="no_changes_to_save">No changes to save</string>
   <string name="select_project_menu_item">Select project</string>

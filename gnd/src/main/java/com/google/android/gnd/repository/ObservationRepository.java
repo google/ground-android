@@ -41,7 +41,7 @@ import javax.inject.Singleton;
 @Singleton
 public class ObservationRepository {
   private static final String TAG = ObservationRepository.class.getSimpleName();
-  private static final long LOAD_REMOTE_RECORDS_TIMEOUT_SECS = 5;
+  private static final long LOAD_REMOTE_OBSERVATIONS_TIMEOUT_SECS = 5;
 
   private final LocalDataStore localDataStore;
   private final RemoteDataStore remoteDataStore;
@@ -65,15 +65,15 @@ public class ObservationRepository {
   }
 
   /**
-   * Retrieves the records or the specified project, feature, and form.
+   * Retrieves the observations or the specified project, feature, and form.
    *
    * <ol>
    *   <li>Attempt to sync remote observation changes to the local data store. If network is not
    *       available or operation times out, this step is skipped.
-   *   <li>Relevant records are returned directly from the local data store.
+   *   <li>Relevant observations are returned directly from the local data store.
    * </ol>
    */
-  public Single<ImmutableList<Observation>> getRecords(
+  public Single<ImmutableList<Observation>> getObservations(
       String projectId, String featureId, String formId) {
     // TODO: Only fetch first n fields.
     // TODO(#127): Decouple feature from observation so that we don't need to fetch observation
@@ -81,22 +81,23 @@ public class ObservationRepository {
     return featureRepository
         .getFeature(projectId, featureId)
         .switchIfEmpty(Single.error(new DocumentNotFoundException()))
-        .flatMap(feature -> getRecords(feature, formId));
+        .flatMap(feature -> getObservations(feature, formId));
   }
 
-  private Single<ImmutableList<Observation>> getRecords(Feature feature, String formId) {
+  private Single<ImmutableList<Observation>> getObservations(Feature feature, String formId) {
     Completable remoteSync =
         remoteDataStore
-            .loadRecords(feature)
-            .timeout(LOAD_REMOTE_RECORDS_TIMEOUT_SECS, TimeUnit.SECONDS)
+            .loadObservations(feature)
+            .timeout(LOAD_REMOTE_OBSERVATIONS_TIMEOUT_SECS, TimeUnit.SECONDS)
             .doOnError(t -> Log.d(TAG, "Observation sync timed out"))
-            .flatMapCompletable(this::mergeRemoteRecords)
+            .flatMapCompletable(this::mergeRemoteObservations)
             .onErrorComplete();
-    return remoteSync.andThen(localDataStore.getRecords(feature, formId));
+    return remoteSync.andThen(localDataStore.getObservations(feature, formId));
   }
 
-  private Completable mergeRemoteRecords(ImmutableList<Observation> observations) {
-    return Observable.fromIterable(observations).flatMapCompletable(localDataStore::mergeRecord);
+  private Completable mergeRemoteObservations(ImmutableList<Observation> observations) {
+    return Observable.fromIterable(observations)
+        .flatMapCompletable(localDataStore::mergeObservation);
   }
 
   public Single<Observation> getObservation(
@@ -109,7 +110,7 @@ public class ObservationRepository {
         .flatMap(
             feature ->
                 localDataStore
-                    .getRecord(feature, observationId)
+                    .getObservation(feature, observationId)
                     .switchIfEmpty(Single.error(new DocumentNotFoundException())));
   }
 

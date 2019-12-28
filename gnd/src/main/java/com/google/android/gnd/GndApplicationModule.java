@@ -31,11 +31,11 @@ import com.google.android.gnd.persistence.local.room.FormDao;
 import com.google.android.gnd.persistence.local.room.LayerDao;
 import com.google.android.gnd.persistence.local.room.LocalDatabase;
 import com.google.android.gnd.persistence.local.room.MultipleChoiceDao;
+import com.google.android.gnd.persistence.local.room.ObservationDao;
+import com.google.android.gnd.persistence.local.room.ObservationMutationDao;
 import com.google.android.gnd.persistence.local.room.OfflineAreaDao;
 import com.google.android.gnd.persistence.local.room.OptionDao;
 import com.google.android.gnd.persistence.local.room.ProjectDao;
-import com.google.android.gnd.persistence.local.room.RecordDao;
-import com.google.android.gnd.persistence.local.room.RecordMutationDao;
 import com.google.android.gnd.persistence.local.room.RoomLocalDataStore;
 import com.google.android.gnd.persistence.local.room.TileDao;
 import com.google.android.gnd.persistence.remote.RemoteDataStore;
@@ -169,13 +169,13 @@ abstract class GndApplicationModule {
   }
 
   @Provides
-  static RecordDao recordDao(LocalDatabase localDatabase) {
-    return localDatabase.recordDao();
+  static ObservationDao observationDao(LocalDatabase localDatabase) {
+    return localDatabase.observationDao();
   }
 
   @Provides
-  static RecordMutationDao recordMutationDao(LocalDatabase localDatabase) {
-    return localDatabase.recordMutationDao();
+  static ObservationMutationDao observationMutationDao(LocalDatabase localDatabase) {
+    return localDatabase.observationMutationDao();
   }
 
   @Provides
