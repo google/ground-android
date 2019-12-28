@@ -20,6 +20,7 @@ import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
+import com.google.android.gnd.system.AuthenticationManager.User;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.AutoValue.CopyAnnotations;
 
@@ -42,6 +43,14 @@ public abstract class UserEntity {
   @NonNull
   @ColumnInfo(name = "display_name")
   public abstract String getDisplayName();
+
+  public static UserEntity fromUser(User user) {
+    return UserEntity.builder()
+        .setId(user.getId())
+        .setEmail(user.getEmail())
+        .setDisplayName(user.getDisplayName())
+        .build();
+  }
 
   public static UserEntity create(String id, String email, String displayName) {
     return builder().setId(id).setEmail(email).setDisplayName(displayName).build();

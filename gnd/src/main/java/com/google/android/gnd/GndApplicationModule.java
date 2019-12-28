@@ -38,6 +38,7 @@ import com.google.android.gnd.persistence.local.room.RecordDao;
 import com.google.android.gnd.persistence.local.room.RecordMutationDao;
 import com.google.android.gnd.persistence.local.room.RoomLocalDataStore;
 import com.google.android.gnd.persistence.local.room.TileDao;
+import com.google.android.gnd.persistence.local.room.UserDao;
 import com.google.android.gnd.persistence.remote.RemoteDataStore;
 import com.google.android.gnd.persistence.remote.firestore.FirestoreDataStore;
 import com.google.android.gnd.persistence.remote.firestore.FirestoreUuidGenerator;
@@ -186,5 +187,10 @@ abstract class GndApplicationModule {
   @Provides
   static OfflineAreaDao offlineAreaDao(LocalDatabase localDatabase) {
     return localDatabase.offlineAreaDao();
+  }
+
+  @Provides
+  static UserDao userDao(LocalDatabase localDatabase) {
+    return localDatabase.userDao();
   }
 }
