@@ -42,6 +42,7 @@ import com.google.android.gnd.Config;
       ObservationMutationEntity.class,
       TileEntity.class,
       OfflineAreaEntity.class,
+      UserEntity.class
     },
     version = Config.DB_VERSION,
     exportSchema = false)
@@ -79,9 +80,11 @@ public abstract class LocalDatabase extends RoomDatabase {
 
   public abstract ObservationDao observationDao();
 
-  public abstract ObservationMutationDao observatioonMutationDao();
+  public abstract ObservationMutationDao observationMutationDao();
 
   public abstract TileDao tileDao();
 
   public abstract OfflineAreaDao offlineAreaDao();
+
+  public abstract UserDao userDao();
 }

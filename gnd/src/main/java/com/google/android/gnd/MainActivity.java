@@ -31,6 +31,7 @@ import androidx.navigation.NavDestination;
 import androidx.navigation.NavDirections;
 import androidx.navigation.fragment.NavHostFragment;
 import butterknife.ButterKnife;
+import com.google.android.gnd.repository.UserRepository;
 import com.google.android.gnd.rx.RxDebug;
 import com.google.android.gnd.system.ActivityStreams;
 import com.google.android.gnd.system.AuthenticationManager;
@@ -61,6 +62,7 @@ public class MainActivity extends DaggerAppCompatActivity {
   @Inject SettingsManager settingsManager;
   @Inject AuthenticationManager authenticationManager;
   @Inject Navigator navigator;
+  @Inject UserRepository userRepository;
   private NavHostFragment navHostFragment;
   private MainViewModel viewModel;
   private DrawableUtil drawableUtil;
@@ -120,7 +122,10 @@ public class MainActivity extends DaggerAppCompatActivity {
         break;
       case SIGNED_IN:
         // TODO: Store/update user profile and image locally.
-        viewModel.onSignedIn(getCurrentNavDestinationId());
+        userRepository
+            .saveUser(signInState.getUser())
+            .as(autoDisposable(this))
+            .subscribe(() -> viewModel.onSignedIn(getCurrentNavDestinationId()));
         break;
       case ERROR:
         onSignInError(signInState);
@@ -188,7 +193,7 @@ public class MainActivity extends DaggerAppCompatActivity {
   }
 
   public void setActionBar(TwoLineToolbar toolbar, int upIconId) {
-    setActionBar(toolbar);
+    setActionBar(toolbar, false);
     // We override the color here programmatically since calling setHomeAsUpIndicator uses the color
     // of the set icon, not the applied theme. This allows us to change the primary color
     // programmatically without needing to remember to update the icon.
@@ -196,12 +201,12 @@ public class MainActivity extends DaggerAppCompatActivity {
     getSupportActionBar().setHomeAsUpIndicator(icon);
   }
 
-  public void setActionBar(TwoLineToolbar toolbar) {
+  public void setActionBar(TwoLineToolbar toolbar, boolean showTitle) {
     setSupportActionBar(toolbar);
 
     // Workaround to get rid of application title from toolbar. Simply setting "" here or in layout
     // XML doesn't work.
-    getSupportActionBar().setDisplayShowTitleEnabled(false);
+    getSupportActionBar().setDisplayShowTitleEnabled(showTitle);
     getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     getSupportActionBar().setDisplayShowHomeEnabled(true);
 

@@ -137,6 +137,7 @@ public class HomeScreenFragment extends AbstractFragment
     super.onCreateView(inflater, container, savedInstanceState);
     HomeScreenFragBinding binding = HomeScreenFragBinding.inflate(inflater, container, false);
     binding.featureSheetChrome.setViewModel(viewModel);
+    binding.setLifecycleOwner(this);
     return binding.getRoot();
   }
 
@@ -191,7 +192,7 @@ public class HomeScreenFragment extends AbstractFragment
     super.onActivityCreated(savedInstanceState);
     setHasOptionsMenu(true);
 
-    ((MainActivity) getActivity()).setActionBar(toolbar);
+    ((MainActivity) getActivity()).setActionBar(toolbar, false);
   }
 
   private void openDrawer() {

@@ -38,6 +38,7 @@ import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.model.observation.ObservationMutation;
 import com.google.android.gnd.persistence.local.LocalDataStore;
+import com.google.android.gnd.system.AuthenticationManager.User;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import io.reactivex.Completable;
@@ -71,6 +72,7 @@ public class RoomLocalDataStore implements LocalDataStore {
   @Inject ObservationDao observationDao;
   @Inject ObservationMutationDao observationMutationDao;
   @Inject TileDao tileDao;
+  @Inject UserDao userDao;
 
   @Inject
   public RoomLocalDataStore() {}
@@ -141,6 +143,11 @@ public class RoomLocalDataStore implements LocalDataStore {
         .insertOrUpdate(ProjectEntity.fromProject(project))
         .andThen(insertOrUpdateLayers(project.getId(), project.getLayers()))
         .subscribeOn(Schedulers.io());
+  }
+
+  @Override
+  public Completable insertOrUpdateUser(User user) {
+    return userDao.insertOrUpdate(UserEntity.fromUser(user)).subscribeOn(Schedulers.io());
   }
 
   @Override
