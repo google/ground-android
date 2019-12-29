@@ -18,7 +18,6 @@ package com.google.android.gnd.ui.common;
 
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
-
 import com.google.android.gnd.MainViewModel;
 import com.google.android.gnd.ui.basemapselector.BasemapSelectorViewModel;
 import com.google.android.gnd.ui.editobservation.EditObservationViewModel;
@@ -31,7 +30,6 @@ import com.google.android.gnd.ui.observationdetails.ObservationDetailsViewModel;
 import com.google.android.gnd.ui.offlinearea.OfflineAreasViewModel;
 import com.google.android.gnd.ui.projectselector.ProjectSelectorViewModel;
 import com.google.android.gnd.ui.signin.SignInViewModel;
-
 import dagger.Binds;
 import dagger.Module;
 import dagger.multibindings.IntoMap;
@@ -81,22 +79,22 @@ public abstract class ViewModelModule {
   @Binds
   @IntoMap
   @ViewModelKey(ObservationViewModel.class)
-  abstract ViewModel bindRecordViewModel(ObservationViewModel viewModel);
+  abstract ViewModel bindObservationViewModel(ObservationViewModel viewModel);
 
   @Binds
   @IntoMap
   @ViewModelKey(ObservationListViewModel.class)
-  abstract ViewModel bindRecordListViewModel(ObservationListViewModel viewModel);
+  abstract ViewModel bindObservationListViewModel(ObservationListViewModel viewModel);
 
   @Binds
   @IntoMap
   @ViewModelKey(ObservationDetailsViewModel.class)
-  abstract ViewModel bindRecordDetailsViewModel(ObservationDetailsViewModel viewModel);
+  abstract ViewModel bindObservationDetailsViewModel(ObservationDetailsViewModel viewModel);
 
   @Binds
   @IntoMap
   @ViewModelKey(EditObservationViewModel.class)
-  abstract ViewModel bindEditRecordViewModel(EditObservationViewModel viewModel);
+  abstract ViewModel bindEditObservationViewModel(EditObservationViewModel viewModel);
 
   @Binds
   abstract ViewModelProvider.Factory bindViewModelFactory(ViewModelFactory factory);

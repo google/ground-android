@@ -16,8 +16,7 @@
 
 <resources>
 
-  <style name="AppTheme" parent="AppTheme.Base">
-  </style>
+  <style name="AppTheme" parent="AppTheme.Base"></style>
 
   <style name="AppTheme.Launcher">
     <item name="android:windowBackground">@drawable/launch_screen</item>
@@ -91,58 +90,58 @@
     <item name="android:textSize">@dimen/field_label_text_size</item>
   </style>
 
-  <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar"/>
+  <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 
-  <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light"/>
+  <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
-  <style name="RecordListText">
-    <item name="android:textSize">@dimen/record_list_text_size</item>
+  <style name="ObservationListText">
+    <item name="android:textSize">@dimen/observation_list_text_size</item>
   </style>
 
-  <style name="RecordListText.CreatorName">
+  <style name="ObservationListText.CreatorName">
     <item name="android:textColor">?android:textColorPrimary</item>
     <item name="android:textStyle">bold</item>
   </style>
 
-  <style name="RecordListText.Separator">
+  <style name="ObservationListText.Separator">
     <item name="android:textColor">?android:textColorPrimary</item>
   </style>
 
-  <style name="RecordListText.Timestamp">
+  <style name="ObservationListText.Timestamp">
     <item name="android:textColor">?android:textColorPrimary</item>
     <item name="android:textStyle">bold</item>
   </style>
 
-  <style name="RecordListText.FieldLabel">
+  <style name="ObservationListText.FieldLabel">
     <item name="android:textColor">@color/colorGrey600</item>
-    <item name="android:textSize">@dimen/record_list_field_label_size</item>
+    <item name="android:textSize">@dimen/observation_list_field_label_size</item>
   </style>
 
   <!--
     NOTE: Most attributes do not work when style is set programmatically, so individual layout
-    attributes are set in RecordListAdapter instead.
+    attributes are set in ObservationListAdapter instead.
     -->
-  <style name="RecordListText.Field">
+  <style name="ObservationListText.Field">
     <item name="android:textColor">@color/colorGrey800</item>
   </style>
 
-  <style name="RecordDetails.Field.Label" parent="AppTheme.Base">
+  <style name="ObservationDetails.Field.Label" parent="AppTheme.Base">
     <item name="android:paddingLeft">@dimen/field_horizontal_padding</item>
     <item name="android:paddingRight">@dimen/field_horizontal_padding</item>
     <item name="android:textColor">@color/colorGrey600</item>
     <item name="android:textSize">@dimen/field_label_text_size</item>
   </style>
 
-  <style name="RecordDetails.Field.Value" parent="AppTheme.Base">
+  <style name="ObservationDetails.Field.Value" parent="AppTheme.Base">
     <item name="android:textColor">@color/colorForeground</item>
     <item name="android:textSize">@dimen/field_value_text_size</item>
   </style>
 
-  <style name="EditRecord.Field.Text" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense">
+  <style name="EditObservation.Field.Text" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense">
     <!-- TODO -->
   </style>
 
-  <style name="EditRecord.Field.MultipleChoice" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense">
+  <style name="EditObservation.Field.MultipleChoice" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense">
     <!-- TODO -->
   </style>
 

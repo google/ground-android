@@ -22,16 +22,16 @@ import io.reactivex.Completable;
 import io.reactivex.Single;
 import java.util.List;
 
-/** Data access object for database operations related to {@link RecordMutationEntity}. */
+/** Data access object for database operations related to {@link ObservationMutationEntity}. */
 @Dao
-public interface RecordMutationDao extends BaseDao<RecordMutationEntity> {
+public interface ObservationMutationDao extends BaseDao<ObservationMutationEntity> {
 
-  @Query("DELETE FROM record_mutation WHERE id IN (:ids)")
+  @Query("DELETE FROM observation_mutation WHERE id IN (:ids)")
   Completable deleteAll(List<Long> ids);
 
-  @Query("SELECT * FROM record_mutation WHERE feature_id = :featureId")
-  Single<List<RecordMutationEntity>> findByFeatureId(String featureId);
+  @Query("SELECT * FROM observation_mutation WHERE observation_id = :featureId")
+  Single<List<ObservationMutationEntity>> findByFeatureId(String featureId);
 
-  @Query("SELECT * FROM record_mutation WHERE record_id = :recordId")
-  Single<List<RecordMutationEntity>> findByRecordId(String recordId);
+  @Query("SELECT * FROM observation_mutation WHERE observation_id = :observationId")
+  Single<List<ObservationMutationEntity>> findByObservationId(String observationId);
 }
