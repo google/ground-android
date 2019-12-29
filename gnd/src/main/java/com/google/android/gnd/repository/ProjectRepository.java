@@ -23,12 +23,10 @@ import com.google.android.gnd.persistence.local.LocalDataStore;
 import com.google.android.gnd.persistence.local.LocalValueStore;
 import com.google.android.gnd.persistence.remote.RemoteDataStore;
 import com.google.android.gnd.system.AuthenticationManager.User;
-import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Single;
 import io.reactivex.processors.BehaviorProcessor;
 import io.reactivex.processors.FlowableProcessor;
-import io.reactivex.schedulers.Schedulers;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java8.util.Optional;
@@ -138,9 +136,5 @@ public class ProjectRepository {
     cache.clear();
     localValueStore.clearLastActiveProjectId();
     activateProjectRequests.onNext(Optional.empty());
-  }
-
-  public Completable saveUser(User user) {
-    return localDataStore.insertOrUpdateUser(user).observeOn(Schedulers.io());
   }
 }
