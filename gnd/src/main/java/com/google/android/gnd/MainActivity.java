@@ -31,6 +31,7 @@ import androidx.navigation.NavDestination;
 import androidx.navigation.NavDirections;
 import androidx.navigation.fragment.NavHostFragment;
 import butterknife.ButterKnife;
+import com.google.android.gnd.repository.UserRepository;
 import com.google.android.gnd.rx.RxDebug;
 import com.google.android.gnd.system.ActivityStreams;
 import com.google.android.gnd.system.AuthenticationManager;
@@ -61,6 +62,7 @@ public class MainActivity extends DaggerAppCompatActivity {
   @Inject SettingsManager settingsManager;
   @Inject AuthenticationManager authenticationManager;
   @Inject Navigator navigator;
+  @Inject UserRepository userRepository;
   private NavHostFragment navHostFragment;
   private MainViewModel viewModel;
   private DrawableUtil drawableUtil;
@@ -120,7 +122,10 @@ public class MainActivity extends DaggerAppCompatActivity {
         break;
       case SIGNED_IN:
         // TODO: Store/update user profile and image locally.
-        viewModel.onSignedIn(getCurrentNavDestinationId());
+        userRepository
+            .saveUser(signInState.getUser())
+            .as(autoDisposable(this))
+            .subscribe(() -> viewModel.onSignedIn(getCurrentNavDestinationId()));
         break;
       case ERROR:
         onSignInError(signInState);

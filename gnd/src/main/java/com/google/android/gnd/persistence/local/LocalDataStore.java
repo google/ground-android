@@ -23,6 +23,7 @@ import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.FeatureMutation;
 import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.model.observation.ObservationMutation;
+import com.google.android.gnd.system.AuthenticationManager.User;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import io.reactivex.Completable;
@@ -57,6 +58,9 @@ public interface LocalDataStore {
 
   /** Add project to the database. */
   Completable insertOrUpdateProject(Project project);
+
+  /** Add user to the database. */
+  Completable insertOrUpdateUser(User user);
 
   /**
    * Applies the specified {@link FeatureMutation} to the local data store, appending the mutation
