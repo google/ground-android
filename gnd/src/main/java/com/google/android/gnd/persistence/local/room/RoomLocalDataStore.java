@@ -18,7 +18,6 @@ package com.google.android.gnd.persistence.local.room;
 
 import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList;
 import static com.google.android.gnd.util.ImmutableSetCollector.toImmutableSet;
-import static java8.lang.Iterables.forEach;
 import static java8.util.stream.Collectors.toList;
 import static java8.util.stream.StreamSupport.stream;
 
@@ -232,7 +231,17 @@ public class RoomLocalDataStore implements LocalDataStore {
   public Single<ImmutableList<Mutation>> getPendingMutations(String featureId) {
     return featureMutationDao
         .findByFeatureId(featureId)
-        .zipWith(observationMutationDao.findByFeatureId(featureId), this::mergeMutations)
+        .flattenAsObservable(fms -> fms)
+        .map(FeatureMutationEntity::toMutation)
+        .cast(Mutation.class)
+        .mergeWith(
+            observationMutationDao
+                .findByFeatureId(featureId)
+                .flattenAsObservable(oms -> oms)
+                .map(ObservationMutationEntity::toMutation)
+                .cast(Mutation.class))
+        .toList()
+        .map(ImmutableList::copyOf)
         .subscribeOn(Schedulers.io());
   }
 
@@ -292,15 +301,6 @@ public class RoomLocalDataStore implements LocalDataStore {
         .map(observationEntity::applyMutations)
         .flatMapCompletable(observationDao::insertOrUpdate)
         .subscribeOn(Schedulers.io());
-  }
-
-  // TODO: Can this be simplified and inlined?
-  private ImmutableList<Mutation> mergeMutations(
-      List<FeatureMutationEntity> featureMutations, List<ObservationMutationEntity> obsMutations) {
-    ImmutableList.Builder<Mutation> mutations = ImmutableList.builder();
-    forEach(featureMutations, fm -> mutations.add(fm.toMutation()));
-    forEach(obsMutations, rm -> mutations.add(rm.toMutation()));
-    return mutations.build();
   }
 
   private Completable apply(FeatureMutation mutation) throws LocalDataStoreException {
