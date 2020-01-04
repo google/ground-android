@@ -96,6 +96,15 @@ public abstract class ObservationMutationEntity {
   @Nullable
   public abstract String getLastError();
 
+  @CopyAnnotations
+  @ColumnInfo(name = "user_id")
+  @Nullable
+  public abstract String getUserId();
+
+  @CopyAnnotations
+  @ColumnInfo(name = "time_millis")
+  public abstract long getTimeMillis();
+
   /**
    * For mutations of type {@link MutationEntityType#CREATE} and {@link MutationEntityType#UPDATE},
    * returns a {@link JSONObject} with the new values of modified form responses, with {@code null}
@@ -118,7 +127,9 @@ public abstract class ObservationMutationEntity {
       MutationEntityType type,
       ImmutableList<ResponseDelta> responseDeltas,
       long retryCount,
-      @Nullable String lastError) {
+      @Nullable String lastError,
+      @Nullable String userId,
+      long timeMillis) {
     return builder()
         .setId(id)
         .setProjectId(projectId)
@@ -130,6 +141,8 @@ public abstract class ObservationMutationEntity {
         .setResponseDeltas(responseDeltas)
         .setRetryCount(retryCount)
         .setLastError(lastError)
+        .setUserId(userId)
+        .setTimeMillis(timeMillis)
         .build();
   }
 
@@ -145,6 +158,8 @@ public abstract class ObservationMutationEntity {
         .setResponseDeltas(m.getResponseDeltas())
         .setRetryCount(m.getRetryCount())
         .setLastError(m.getLastError())
+        .setUserId(m.getUserId())
+        .setTimeMillis(m.getTimeMillis())
         .build();
   }
 
@@ -160,6 +175,8 @@ public abstract class ObservationMutationEntity {
         .setResponseDeltas(getResponseDeltas())
         .setRetryCount(getRetryCount())
         .setLastError(getLastError())
+        .setUserId(getUserId())
+        .setTimeMillis(getTimeMillis())
         .build();
   }
 
@@ -191,6 +208,10 @@ public abstract class ObservationMutationEntity {
     public abstract Builder setRetryCount(long newRetryCount);
 
     public abstract Builder setLastError(@Nullable String newLastError);
+
+    public abstract Builder setUserId(@Nullable String newUserId);
+
+    public abstract Builder setTimeMillis(long newTimeMillis);
 
     public abstract ObservationMutationEntity build();
   }

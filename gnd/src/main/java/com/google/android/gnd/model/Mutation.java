@@ -57,10 +57,12 @@ public abstract class Mutation<B extends Mutation.Builder> {
   /** Returns the UUID of the feature type being modified. */
   public abstract String getLayerId();
 
-  /** Returns the globally unique id of the user requesting the change. */
-  // TODO(#101): Make NonNull.
+  /** Returns the id of the user requesting the change. */
   @Nullable
   public abstract String getUserId();
+
+  /** Returns the time the mutation was requested, in milliseconds from January 1, 1970 UTC. */
+  public abstract long getTimeMillis();
 
   public abstract long getRetryCount();
 
@@ -86,7 +88,9 @@ public abstract class Mutation<B extends Mutation.Builder> {
 
     public abstract T setProjectId(String newProjectId);
 
-    public abstract T setUserId(String newUserId);
+    public abstract T setUserId(@Nullable String newUserId);
+
+    public abstract T setTimeMillis(long newTimeMillis);
 
     public abstract T setRetryCount(long newRetryCount);
 

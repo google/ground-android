@@ -262,6 +262,7 @@ public class EditObservationViewModel extends AbstractViewModel {
     savingProgressVisibility.setValue(View.VISIBLE);
     AuthenticationManager.User currentUser =
         authManager.getUser().blockingFirst(AuthenticationManager.User.ANONYMOUS);
+    long now = System.currentTimeMillis();
     ObservationMutation observationMutation =
         ObservationMutation.builder()
             .setType(isNew ? ObservationMutation.Type.CREATE : ObservationMutation.Type.UPDATE)
@@ -271,6 +272,7 @@ public class EditObservationViewModel extends AbstractViewModel {
             .setObservationId(originalObservation.getId())
             .setFormId(originalObservation.getForm().getId())
             .setResponseDeltas(getResponseDeltas())
+            .setTimeMillis(now)
             .setUserId(currentUser.getId())
             .build();
     return observationRepository
