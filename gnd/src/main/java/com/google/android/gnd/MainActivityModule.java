@@ -86,15 +86,15 @@ public abstract class MainActivityModule {
 
   @FragmentScoped
   @ContributesAndroidInjector(modules = FeatureSheetModule.class)
-  abstract ObservationListFragment recordListFragmentInjector();
+  abstract ObservationListFragment observationListFragmentInjector();
 
   @FragmentScoped
   @ContributesAndroidInjector(modules = ObservationDetailsModule.class)
-  abstract ObservationDetailsFragment recordDetailsFragmentInjector();
+  abstract ObservationDetailsFragment observationDetailsFragmentInjector();
 
   @FragmentScoped
   @ContributesAndroidInjector(modules = EditObservationModule.class)
-  abstract EditObservationFragment editRecordFragmentInjector();
+  abstract EditObservationFragment editObservationFragmentInjector();
 
   @FragmentScoped
   @ContributesAndroidInjector(modules = BasemapSelectorModule.class)

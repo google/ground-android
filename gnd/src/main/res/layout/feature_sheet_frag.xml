@@ -53,7 +53,7 @@
           app:tabTextColor="@color/colorAccent" />
 
       <com.google.android.gnd.ui.common.UnswipeableViewPager
-          android:id="@+id/record_list_view_pager"
+          android:id="@+id/observation_list_view_pager"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
           android:background="@color/colorBackground" />
