@@ -29,6 +29,7 @@ import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gnd.R;
 import com.google.android.gnd.inject.ActivityScoped;
+import com.google.android.gnd.model.User;
 import com.google.android.gnd.rx.ValueOrError;
 import com.google.android.gnd.system.ActivityStreams.ActivityResult;
 import com.google.android.gnd.system.AuthenticationManager.SignInState.State;
@@ -86,7 +87,8 @@ public class AuthenticationManager {
     if (firebaseUser == null) {
       return new SignInState(State.SIGNED_OUT);
     } else {
-      return new SignInState(new User(firebaseUser.getUid(), firebaseUser.getEmail(), firebaseUser.getDisplayName()));
+      return new SignInState(
+          new User(firebaseUser.getUid(), firebaseUser.getEmail(), firebaseUser.getDisplayName()));
     }
   }
 
@@ -134,8 +136,12 @@ public class AuthenticationManager {
   private void onFirebaseAuthSuccess(AuthResult authResult) {
     // TODO: Store/update user profile in Firestore.
     // TODO: Store/update user profile and image locally.
-    signInState.onNext(new SignInState(new User(authResult.getUser().getUid(), authResult.getUser().getEmail(), authResult.getUser()
-      .getDisplayName())));
+    signInState.onNext(
+        new SignInState(
+            new User(
+                authResult.getUser().getUid(),
+                authResult.getUser().getEmail(),
+                authResult.getUser().getDisplayName())));
   }
 
   @NonNull
@@ -181,33 +187,6 @@ public class AuthenticationManager {
 
     public User getUser() {
       return value().orElse(User.ANONYMOUS);
-    }
-  }
-
-  public static class User {
-
-    public static final User ANONYMOUS = new User("", "", "");
-
-    private final String uid;
-    private final String email;
-    private final String displayName;
-
-    public User(String uid, String email, String displayName) {
-      this.uid = uid;
-      this.email = email;
-      this.displayName = displayName;
-    }
-
-    public String getId() {
-      return uid;
-    }
-
-    public String getEmail() {
-      return email;
-    }
-
-    public String getDisplayName() {
-      return displayName;
     }
   }
 }

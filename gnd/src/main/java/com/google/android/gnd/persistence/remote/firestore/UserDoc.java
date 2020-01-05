@@ -17,7 +17,7 @@
 package com.google.android.gnd.persistence.remote.firestore;
 
 import androidx.annotation.Nullable;
-import com.google.android.gnd.system.AuthenticationManager.User;
+import com.google.android.gnd.model.User;
 
 public class UserDoc {
   @Nullable public String id;

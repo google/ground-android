@@ -22,8 +22,8 @@ import android.view.View.OnClickListener;
 import androidx.databinding.ObservableField;
 import androidx.lifecycle.MutableLiveData;
 import com.google.android.gnd.R;
+import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.observation.Observation;
-import com.google.android.gnd.system.AuthenticationManager;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import java.text.DateFormat;
 import java.util.Date;
@@ -56,7 +56,7 @@ public class ObservationViewModel extends AbstractViewModel implements OnClickLi
   public void setObservation(Observation observation) {
     selectedObservation.postValue(observation);
 
-    AuthenticationManager.User modifiedBy = observation.getModifiedBy();
+    User modifiedBy = observation.getModifiedBy();
     // TODO: i18n.
     userName.set(
         modifiedBy == null

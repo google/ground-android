@@ -29,6 +29,7 @@ import androidx.lifecycle.MutableLiveData;
 import com.akaita.java.rxjava2debug.RxJava2Debug;
 import com.google.android.gnd.GndApplication;
 import com.google.android.gnd.R;
+import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.form.Element;
 import com.google.android.gnd.model.form.Element.Type;
 import com.google.android.gnd.model.form.Field;
@@ -260,8 +261,7 @@ public class EditObservationViewModel extends AbstractViewModel {
 
   private Single<Event<SaveResult>> save() {
     savingProgressVisibility.setValue(View.VISIBLE);
-    AuthenticationManager.User currentUser =
-        authManager.getUser().blockingFirst(AuthenticationManager.User.ANONYMOUS);
+    User currentUser = authManager.getUser().blockingFirst(User.ANONYMOUS);
     long now = System.currentTimeMillis();
     ObservationMutation observationMutation =
         ObservationMutation.builder()

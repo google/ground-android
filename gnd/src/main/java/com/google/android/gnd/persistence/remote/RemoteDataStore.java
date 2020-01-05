@@ -18,9 +18,9 @@ package com.google.android.gnd.persistence.remote;
 
 import com.google.android.gnd.model.Mutation;
 import com.google.android.gnd.model.Project;
+import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.observation.Observation;
-import com.google.android.gnd.system.AuthenticationManager.User;
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
 import io.reactivex.Completable;

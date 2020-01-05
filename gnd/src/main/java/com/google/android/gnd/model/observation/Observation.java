@@ -19,9 +19,9 @@ package com.google.android.gnd.model.observation;
 import androidx.annotation.Nullable;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.Timestamps;
+import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.form.Form;
-import com.google.android.gnd.system.AuthenticationManager.User;
 import com.google.auto.value.AutoValue;
 
 /** Represents a single instance of data collected about a specific {@link Feature}. */
