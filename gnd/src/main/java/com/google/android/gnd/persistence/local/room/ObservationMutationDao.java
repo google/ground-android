@@ -29,7 +29,7 @@ public interface ObservationMutationDao extends BaseDao<ObservationMutationEntit
   @Query("DELETE FROM observation_mutation WHERE id IN (:ids)")
   Completable deleteAll(List<Long> ids);
 
-  @Query("SELECT * FROM observation_mutation WHERE observation_id = :featureId")
+  @Query("SELECT * FROM observation_mutation WHERE feature_id = :featureId")
   Single<List<ObservationMutationEntity>> findByFeatureId(String featureId);
 
   @Query("SELECT * FROM observation_mutation WHERE observation_id = :observationId")
