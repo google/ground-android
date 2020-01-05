@@ -86,7 +86,7 @@ public class AuthenticationManager {
     if (firebaseUser == null) {
       return new SignInState(State.SIGNED_OUT);
     } else {
-      return new SignInState(new User(firebaseUser));
+      return new SignInState(new User(firebaseUser.getUid(), firebaseUser.getEmail(), firebaseUser.getDisplayName()));
     }
   }
 
@@ -134,7 +134,8 @@ public class AuthenticationManager {
   private void onFirebaseAuthSuccess(AuthResult authResult) {
     // TODO: Store/update user profile in Firestore.
     // TODO: Store/update user profile and image locally.
-    signInState.onNext(new SignInState(new User(authResult.getUser())));
+    signInState.onNext(new SignInState(new User(authResult.getUser().getUid(), authResult.getUser().getEmail(), authResult.getUser()
+      .getDisplayName())));
   }
 
   @NonNull
@@ -195,10 +196,6 @@ public class AuthenticationManager {
       this.uid = uid;
       this.email = email;
       this.displayName = displayName;
-    }
-
-    private User(FirebaseUser firebaseUser) {
-      this(firebaseUser.getUid(), firebaseUser.getEmail(), firebaseUser.getDisplayName());
     }
 
     public String getId() {
