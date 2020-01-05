@@ -38,6 +38,8 @@ public class UserDoc {
 
   @Nullable
   public static User toObject(UserDoc ud) {
-    return ud == null ? null : new User(ud.id, ud.email, ud.displayName);
+    return ud == null
+        ? null
+        : User.builder().setId(ud.id).setEmail(ud.email).setDisplayName(ud.displayName).build();
   }
 }
