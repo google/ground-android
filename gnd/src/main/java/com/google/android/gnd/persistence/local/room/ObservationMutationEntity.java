@@ -102,8 +102,8 @@ public abstract class ObservationMutationEntity {
   public abstract String getUserId();
 
   @CopyAnnotations
-  @ColumnInfo(name = "time_millis")
-  public abstract long getTimeMillis();
+  @ColumnInfo(name = "client_timestamp")
+  public abstract long getClientTimestamp();
 
   /**
    * For mutations of type {@link MutationEntityType#CREATE} and {@link MutationEntityType#UPDATE},
@@ -129,7 +129,7 @@ public abstract class ObservationMutationEntity {
       long retryCount,
       @Nullable String lastError,
       @Nullable String userId,
-      long timeMillis) {
+      long clientTimestamp) {
     return builder()
         .setId(id)
         .setProjectId(projectId)
@@ -142,7 +142,7 @@ public abstract class ObservationMutationEntity {
         .setRetryCount(retryCount)
         .setLastError(lastError)
         .setUserId(userId)
-        .setTimeMillis(timeMillis)
+        .setClientTimestamp(clientTimestamp)
         .build();
   }
 
@@ -159,7 +159,7 @@ public abstract class ObservationMutationEntity {
         .setRetryCount(m.getRetryCount())
         .setLastError(m.getLastError())
         .setUserId(m.getUserId())
-        .setTimeMillis(m.getTimeMillis())
+        .setClientTimestamp(m.getClientTimestamp())
         .build();
   }
 
@@ -176,7 +176,7 @@ public abstract class ObservationMutationEntity {
         .setRetryCount(getRetryCount())
         .setLastError(getLastError())
         .setUserId(getUserId())
-        .setTimeMillis(getTimeMillis())
+        .setClientTimestamp(getClientTimestamp())
         .build();
   }
 
@@ -211,7 +211,7 @@ public abstract class ObservationMutationEntity {
 
     public abstract Builder setUserId(@Nullable String newUserId);
 
-    public abstract Builder setTimeMillis(long newTimeMillis);
+    public abstract Builder setClientTimestamp(long newClientTimestamp);
 
     public abstract ObservationMutationEntity build();
   }

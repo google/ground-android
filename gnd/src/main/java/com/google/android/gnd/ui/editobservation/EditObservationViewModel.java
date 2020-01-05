@@ -272,7 +272,7 @@ public class EditObservationViewModel extends AbstractViewModel {
             .setObservationId(originalObservation.getId())
             .setFormId(originalObservation.getForm().getId())
             .setResponseDeltas(getResponseDeltas())
-            .setTimeMillis(now)
+            .setClientTimestamp(now)
             .setUserId(currentUser.getId())
             .build();
     return observationRepository

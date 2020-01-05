@@ -61,8 +61,8 @@ public abstract class Mutation<B extends Mutation.Builder> {
   @Nullable
   public abstract String getUserId();
 
-  /** Returns the time the mutation was requested, in milliseconds from January 1, 1970 UTC. */
-  public abstract long getTimeMillis();
+  /** Returns the time the mutation was requested on the client in ms since epoch. */
+  public abstract long getClientTimestamp();
 
   public abstract long getRetryCount();
 
@@ -90,7 +90,7 @@ public abstract class Mutation<B extends Mutation.Builder> {
 
     public abstract T setUserId(@Nullable String newUserId);
 
-    public abstract T setTimeMillis(long newTimeMillis);
+    public abstract T setClientTimestamp(long newClientTimestamp);
 
     public abstract T setRetryCount(long newRetryCount);
 
