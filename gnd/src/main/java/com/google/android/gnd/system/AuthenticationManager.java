@@ -157,6 +157,14 @@ public class AuthenticationManager {
         .build();
   }
 
+  /**
+   * Returns the current user, blocking until a user logs in. Only call from code where user is
+   * guaranteed to be authenticated.
+   */
+  public User getCurrentUser() {
+    return getUser().blockingFirst(User.ANONYMOUS);
+  }
+
   public static class SignInState extends ValueOrError<User> {
 
     private final State state;

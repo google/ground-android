@@ -28,6 +28,7 @@ import com.google.common.collect.ImmutableSet;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
+import java.util.Date;
 import java8.util.Optional;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -121,6 +122,7 @@ public class FeatureRepository {
                 .setNewLocation(Optional.of(feature.getPoint()))
                 // TODO(#101): Attach real credentials.
                 .setUserId("")
+                .setClientTimestamp(new Date())
                 .build())
         .andThen(dataSyncWorkManager.enqueueSyncWorker(feature.getId()));
   }

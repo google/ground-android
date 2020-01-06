@@ -26,12 +26,14 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.FragmentManager;
 import com.google.android.gnd.R;
 import com.google.android.gnd.inject.ActivityScoped;
+import com.google.android.gnd.model.AuditInfo;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator;
 import com.google.android.gnd.repository.Loadable;
+import com.google.android.gnd.system.AuthenticationManager;
 import com.google.android.gnd.ui.common.AbstractDialogFragment;
 import com.google.android.gnd.ui.home.mapcontainer.MapContainerViewModel;
 import com.google.common.collect.ImmutableList;
@@ -44,14 +46,17 @@ import javax.inject.Inject;
 public class AddFeatureDialogFragment extends AbstractDialogFragment {
   private static final String TAG = AddFeatureDialogFragment.class.getSimpleName();
   private final OfflineUuidGenerator uuidGenerator;
+  private final AuthenticationManager authManager;
 
   private MaybeSubject<Feature> addFeatureRequestSubject;
   private HomeScreenViewModel homeScreenViewModel;
   private MapContainerViewModel mapContainerViewModel;
 
   @Inject
-  public AddFeatureDialogFragment(OfflineUuidGenerator uuidGenerator) {
+  public AddFeatureDialogFragment(
+      OfflineUuidGenerator uuidGenerator, AuthenticationManager authManager) {
     this.uuidGenerator = uuidGenerator;
+    this.authManager = authManager;
   }
 
   @Override
@@ -97,12 +102,12 @@ public class AddFeatureDialogFragment extends AbstractDialogFragment {
             .collect(toImmutableList());
     String[] items = stream(layers).map(t -> t.getItemLabel()).toArray(String[]::new);
     builder.setItems(
-        items,
-        (dialog, idx) -> onSelectLayer(project, layers.get(idx), cameraPosition));
+        items, (dialog, idx) -> onSelectLayer(project, layers.get(idx), cameraPosition));
     return builder.create();
   }
 
   private void onSelectLayer(Project project, Layer layer, Point cameraPosition) {
+    AuditInfo auditInfo = AuditInfo.now(authManager.getCurrentUser());
     // TODO(#9): Move creating a new Feature into the ViewModel or ProjectRepository. Doing it here
     // for now to avoid conflicting with soon-to-be-merged commits for Issue #24.
     addFeatureRequestSubject.onSuccess(
@@ -111,6 +116,8 @@ public class AddFeatureDialogFragment extends AbstractDialogFragment {
             .setProject(project)
             .setLayer(layer)
             .setPoint(cameraPosition)
+            .setCreated(auditInfo)
+            .setLastModified(auditInfo)
             .build());
   }
 

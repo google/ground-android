@@ -16,8 +16,7 @@
 
 package com.google.android.gnd.persistence.remote.firestore;
 
-import static com.google.android.gnd.persistence.remote.firestore.FirestoreDataStore.toTimestamps;
-
+import androidx.annotation.Nullable;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.FeatureMutation;
@@ -27,8 +26,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.IgnoreExtraProperties;
-import com.google.firebase.firestore.ServerTimestamp;
-import java.util.Date;
 import java8.util.Optional;
 
 @IgnoreExtraProperties
@@ -46,13 +43,9 @@ public class FeatureDoc {
   // TODO: Replace with consistent name throughout.
   public GeoPoint center;
 
-  public @ServerTimestamp Date serverTimeCreated;
+  @Nullable public AuditInfoDoc created;
 
-  public @ServerTimestamp Date serverTimeModified;
-
-  public Date clientTimeCreated;
-
-  public Date clientTimeModified;
+  @Nullable public AuditInfoDoc modified;
 
   public static Feature toObject(Project project, DocumentSnapshot doc) {
     FeatureDoc f = doc.toObject(FeatureDoc.class);
@@ -73,8 +66,8 @@ public class FeatureDoc {
         .setCaption(f.caption)
         .setLayer(layer.get())
         .setPoint(point)
-        .setServerTimestamps(toTimestamps(f.serverTimeCreated, f.serverTimeModified))
-        .setClientTimestamps(toTimestamps(f.clientTimeCreated, f.clientTimeModified))
+        .setCreated(AuditInfoDoc.toObject(f.created))
+        .setLastModified(AuditInfoDoc.toObject(f.modified))
         .build();
   }
 

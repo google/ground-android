@@ -29,7 +29,6 @@ import androidx.lifecycle.MutableLiveData;
 import com.akaita.java.rxjava2debug.RxJava2Debug;
 import com.google.android.gnd.GndApplication;
 import com.google.android.gnd.R;
-import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.form.Element;
 import com.google.android.gnd.model.form.Element.Type;
 import com.google.android.gnd.model.form.Field;
@@ -49,6 +48,7 @@ import com.google.common.collect.ImmutableList;
 import io.reactivex.Single;
 import io.reactivex.processors.BehaviorProcessor;
 import io.reactivex.processors.PublishProcessor;
+import java.util.Date;
 import java8.util.Optional;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
@@ -226,7 +226,11 @@ public class EditObservationViewModel extends AbstractViewModel {
 
   private Single<Observation> createObservation(EditObservationFragmentArgs args) {
     return observationRepository
-        .createObservation(args.getProjectId(), args.getFeatureId(), args.getFormId())
+        .createObservation(
+            args.getProjectId(),
+            args.getFeatureId(),
+            args.getFormId(),
+            authManager.getCurrentUser())
         .doOnError(
             t -> onError("Error creating new observation", RxJava2Debug.getEnhancedStackTrace(t)))
         .onErrorResumeNext(Single.never());
@@ -261,8 +265,6 @@ public class EditObservationViewModel extends AbstractViewModel {
 
   private Single<Event<SaveResult>> save() {
     savingProgressVisibility.setValue(View.VISIBLE);
-    User currentUser = authManager.getUser().blockingFirst(User.ANONYMOUS);
-    long now = System.currentTimeMillis();
     ObservationMutation observationMutation =
         ObservationMutation.builder()
             .setType(isNew ? ObservationMutation.Type.CREATE : ObservationMutation.Type.UPDATE)
@@ -272,8 +274,8 @@ public class EditObservationViewModel extends AbstractViewModel {
             .setObservationId(originalObservation.getId())
             .setFormId(originalObservation.getForm().getId())
             .setResponseDeltas(getResponseDeltas())
-            .setClientTimestamp(now)
-            .setUserId(currentUser.getId())
+            .setClientTimestamp(new Date())
+            .setUserId(authManager.getCurrentUser().getId())
             .build();
     return observationRepository
         .applyAndEnqueue(observationMutation)

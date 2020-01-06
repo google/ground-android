@@ -17,8 +17,8 @@
 package com.google.android.gnd.model.feature;
 
 import androidx.annotation.NonNull;
+import com.google.android.gnd.model.AuditInfo;
 import com.google.android.gnd.model.Project;
-import com.google.android.gnd.model.Timestamps;
 import com.google.android.gnd.model.layer.Layer;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.extension.memoized.Memoized;
@@ -34,21 +34,21 @@ public abstract class Feature {
 
   public abstract Layer getLayer();
 
-  // TODO: Rename to getExternalId() or similar.
   @Nullable
   public abstract String getCustomId();
 
-  // TODO: Rename to getLabel().
   @Nullable
   public abstract String getCaption();
 
   public abstract Point getPoint();
 
-  @Nullable
-  public abstract Timestamps getServerTimestamps();
+  /** Returns the user and time audit info pertaining to the creation of this observation. */
+  public abstract AuditInfo getCreated();
 
-  @Nullable
-  public abstract Timestamps getClientTimestamps();
+  /**
+   * Returns the user and time audit info pertaining to the last modification of this observation.
+   */
+  public abstract AuditInfo getLastModified();
 
   public String getTitle() {
     return getCaption() == null || getCaption().isEmpty()
@@ -67,12 +67,14 @@ public abstract class Feature {
   @Override
   public abstract int hashCode();
 
+  // TODO: Use builder() or newBuilder() consistently.
   public static Builder newBuilder() {
     return new AutoValue_Feature.Builder();
   }
 
   @AutoValue.Builder
   public abstract static class Builder {
+    // TODO: Use newFoo or foo consistently.
     public abstract Builder setId(String newId);
 
     public abstract Builder setProject(Project project);
@@ -85,9 +87,9 @@ public abstract class Feature {
 
     public abstract Builder setPoint(Point newPoint);
 
-    public abstract Builder setServerTimestamps(Timestamps newServerTimestamps);
+    public abstract Builder setCreated(AuditInfo newCreated);
 
-    public abstract Builder setClientTimestamps(Timestamps newClientTimestamps);
+    public abstract Builder setLastModified(AuditInfo newLastModified);
 
     public abstract Feature build();
   }

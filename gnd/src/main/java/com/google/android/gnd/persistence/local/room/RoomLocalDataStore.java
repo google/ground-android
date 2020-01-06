@@ -23,6 +23,7 @@ import static java8.util.stream.StreamSupport.stream;
 
 import android.util.Log;
 import androidx.room.Transaction;
+import com.google.android.gnd.model.AuditInfo;
 import com.google.android.gnd.model.Mutation;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.User;
@@ -298,20 +299,67 @@ public class RoomLocalDataStore implements LocalDataStore {
     ObservationEntity observationEntity = ObservationEntity.fromObservation(observation);
     return observationMutationDao
         .findByObservationId(observation.getId())
-        .map(observationEntity::applyMutations)
-        .flatMapCompletable(observationDao::insertOrUpdate)
+        .flatMapCompletable(mutations -> mergeObservation(observationEntity, mutations));
+  }
+
+  private Completable mergeObservation(
+      ObservationEntity observation, List<ObservationMutationEntity> mutations) {
+    if (mutations.isEmpty()) {
+      return Completable.complete();
+    }
+    ObservationMutationEntity lastMutation = mutations.get(mutations.size() - 1);
+    return loadUser(lastMutation.getUserId())
+        .map(
+            user -> applyMutations(observation, mutations, user, lastMutation.getClientTimestamp()))
+        .flatMapCompletable(obs -> observationDao.insertOrUpdate(obs).subscribeOn(Schedulers.io()));
+  }
+
+  private ObservationEntity applyMutations(
+      ObservationEntity observation,
+      List<ObservationMutationEntity> mutations,
+      User user,
+      long clientTimestamp) {
+    Log.v(TAG, "Merging observation " + this + " with mutations " + mutations);
+    ObservationEntity.Builder builder = observation.toBuilder();
+    // Merge changes to responses.
+    for (ObservationMutationEntity mutation : mutations) {
+      builder.applyMutation(mutation);
+    }
+    // Update modified user and time.
+    AuditInfoEntity lastModified =
+        AuditInfoEntity.builder()
+            .setUser(UserDetails.fromUser(user))
+            .setClientTimeMillis(clientTimestamp)
+            .build();
+    builder.setLastModified(lastModified);
+    Log.v(TAG, "Merged observation " + builder.build());
+    return builder.build();
+  }
+
+  private Single<User> loadUser(String id) {
+    return userDao
+        .findById(id)
+        .doOnComplete(() -> Log.e(TAG, "User missing local db: " + id))
+        // Fail with NoSuchElementException if not found.
+        .toSingle()
+        .map(UserEntity::toUser)
         .subscribeOn(Schedulers.io());
   }
 
   private Completable apply(FeatureMutation mutation) throws LocalDataStoreException {
     switch (mutation.getType()) {
       case CREATE:
-        return featureDao
-            .insertOrUpdate(FeatureEntity.fromMutation(mutation))
-            .subscribeOn(Schedulers.io());
+        return loadUser(mutation.getUserId())
+            .flatMapCompletable(user -> createFeature(mutation, user));
       default:
         throw LocalDataStoreException.unknownMutationType(mutation.getType());
     }
+  }
+
+  private Completable createFeature(FeatureMutation mutation, User user) {
+    return featureDao
+        .insertOrUpdate(FeatureEntity.fromMutation(mutation, AuditInfo.now(user)))
+        .subscribeOn(Schedulers.io());
   }
 
   private Completable enqueue(FeatureMutation mutation) {
@@ -339,23 +387,39 @@ public class RoomLocalDataStore implements LocalDataStore {
   private Completable apply(ObservationMutation mutation) throws LocalDataStoreException {
     switch (mutation.getType()) {
       case CREATE:
-        return observationDao
-            .insert(ObservationEntity.fromMutation(mutation))
-            .doOnSubscribe(__ -> Log.v(TAG, "Inserting observation: " + mutation))
-            .subscribeOn(Schedulers.io());
+        return loadUser(mutation.getUserId())
+            .flatMapCompletable(user -> createObservation(mutation, user));
       case UPDATE:
-        return observationDao
-            .findById(mutation.getObservationId())
-            .doOnSubscribe(__ -> Log.v(TAG, "Applying mutation: " + mutation))
-            // Emit NoSuchElementException if not found.
-            .toSingle()
-            .map(obs -> obs.applyMutation(mutation))
-            .flatMapCompletable(
-                obs -> observationDao.insertOrUpdate(obs).subscribeOn(Schedulers.io()))
-            .subscribeOn(Schedulers.io());
+        return loadUser(mutation.getUserId())
+            .flatMapCompletable(user -> updateObservation(mutation, user));
       default:
         throw LocalDataStoreException.unknownMutationType(mutation.getType());
     }
+  }
+
+  private Completable createObservation(ObservationMutation mutation, User user) {
+    return observationDao
+        .insert(ObservationEntity.fromMutation(mutation, AuditInfo.now(user)))
+        .doOnSubscribe(__ -> Log.v(TAG, "Inserting observation: " + mutation))
+        .subscribeOn(Schedulers.io());
+  }
+
+  private Completable updateObservation(ObservationMutation mutation, User user) {
+    ObservationMutationEntity mutationEntity = ObservationMutationEntity.fromMutation(mutation);
+    return observationDao
+        .findById(mutation.getObservationId())
+        .doOnSubscribe(__ -> Log.v(TAG, "Applying mutation: " + mutation))
+        // Emit NoSuchElementException if not found.
+        .toSingle()
+        .map(
+            obs ->
+                applyMutations(
+                    obs,
+                    ImmutableList.of(mutationEntity),
+                    user,
+                    mutationEntity.getClientTimestamp()))
+        .flatMapCompletable(obs -> observationDao.insertOrUpdate(obs).subscribeOn(Schedulers.io()))
+        .subscribeOn(Schedulers.io());
   }
 
   private Completable enqueue(ObservationMutation mutation) {

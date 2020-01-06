@@ -30,6 +30,7 @@ import com.google.android.gnd.model.observation.ResponseDelta;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.AutoValue.CopyAnnotations;
 import com.google.common.collect.ImmutableList;
+import java.util.Date;
 import org.json.JSONObject;
 
 /** Representation of a {@link ObservationMutation} in local data store. */
@@ -159,7 +160,7 @@ public abstract class ObservationMutationEntity {
         .setRetryCount(m.getRetryCount())
         .setLastError(m.getLastError())
         .setUserId(m.getUserId())
-        .setClientTimestamp(m.getClientTimestamp())
+        .setClientTimestamp(m.getClientTimestamp().getTime())
         .build();
   }
 
@@ -176,7 +177,7 @@ public abstract class ObservationMutationEntity {
         .setRetryCount(getRetryCount())
         .setLastError(getLastError())
         .setUserId(getUserId())
-        .setClientTimestamp(getClientTimestamp())
+        .setClientTimestamp(new Date(getClientTimestamp()))
         .build();
   }
 

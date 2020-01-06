@@ -17,15 +17,15 @@
 package com.google.android.gnd.ui.home.featuresheet;
 
 import android.app.Application;
+import android.text.format.DateFormat;
 import android.view.View;
 import android.view.View.OnClickListener;
 import androidx.databinding.ObservableField;
 import androidx.lifecycle.MutableLiveData;
-import com.google.android.gnd.R;
+import com.google.android.gnd.model.AuditInfo;
 import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.ui.common.AbstractViewModel;
-import java.text.DateFormat;
 import java.util.Date;
 import java8.util.function.Consumer;
 import javax.inject.Inject;
@@ -56,21 +56,12 @@ public class ObservationViewModel extends AbstractViewModel implements OnClickLi
   public void setObservation(Observation observation) {
     selectedObservation.postValue(observation);
 
-    User modifiedBy = observation.getModifiedBy();
-    // TODO: i18n.
-    userName.set(
-        modifiedBy == null
-            ? application.getApplicationContext().getString(R.string.unknown_user)
-            : modifiedBy.getDisplayName());
-
-    if (observation.getServerTimestamps() != null
-        && observation.getServerTimestamps().getModified() != null) {
-      Date dateModified = observation.getServerTimestamps().getModified();
-      DateFormat dateFormat = android.text.format.DateFormat.getMediumDateFormat(application);
-      modifiedDate.set(dateFormat.format(dateModified));
-      DateFormat timeFormat = android.text.format.DateFormat.getTimeFormat(application);
-      modifiedTime.set(timeFormat.format(dateModified));
-    }
+    AuditInfo created = observation.getCreated();
+    User createdBy = created.getUser();
+    Date creationTime = created.getClientTimeMillis();
+    userName.set(createdBy.getDisplayName());
+    modifiedDate.set(DateFormat.getMediumDateFormat(application).format(creationTime));
+    modifiedTime.set(DateFormat.getTimeFormat(application).format(creationTime));
   }
 
   void setObservationCallback(Consumer<Observation> observationCallback) {

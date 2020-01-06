@@ -16,8 +16,6 @@
 
 package com.google.android.gnd.persistence.remote.firestore;
 
-import static com.google.android.gnd.persistence.remote.firestore.FirestoreDataStore.toTimestamps;
-
 import android.util.Log;
 import androidx.annotation.Nullable;
 import com.google.android.gnd.model.feature.Feature;
@@ -34,8 +32,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.IgnoreExtraProperties;
-import com.google.firebase.firestore.ServerTimestamp;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java8.util.Optional;
@@ -55,32 +51,11 @@ public class ObservationDoc {
 
   @Nullable public String formId;
 
-  @Nullable public UserDoc createdBy;
+  @Nullable public AuditInfoDoc created;
 
-  @Nullable public UserDoc modifiedBy;
-
-  public @Nullable @ServerTimestamp Date serverTimeCreated;
-
-  public @Nullable @ServerTimestamp Date serverTimeModified;
-
-  @Nullable public Date clientTimeCreated;
-
-  @Nullable public Date clientTimeModified;
+  @Nullable public AuditInfoDoc modified;
 
   @Nullable public Map<String, Object> responses;
-
-  public static ObservationDoc forUpdates(
-      Observation observation, Map<String, Object> responseUpdates) {
-    ObservationDoc rd = new ObservationDoc();
-    rd.featureId = observation.getFeature().getId();
-    rd.featureTypeId = observation.getFeature().getLayer().getId();
-    rd.formId = observation.getForm().getId();
-    rd.responses = responseUpdates;
-    rd.clientTimeModified = new Date();
-    rd.createdBy = UserDoc.fromObject(observation.getCreatedBy());
-    rd.modifiedBy = UserDoc.fromObject(observation.getModifiedBy());
-    return rd;
-  }
 
   public static Observation toObject(Feature feature, String recordId, DocumentSnapshot doc) {
     ObservationDoc rd = doc.toObject(ObservationDoc.class);
@@ -100,10 +75,8 @@ public class ObservationDoc {
         .setFeature(feature)
         .setForm(form.get())
         .setResponses(toResponseMap(rd.responses))
-        .setCreatedBy(UserDoc.toObject(rd.createdBy))
-        .setModifiedBy(UserDoc.toObject(rd.modifiedBy))
-        .setServerTimestamps(toTimestamps(rd.serverTimeCreated, rd.serverTimeModified))
-        .setClientTimestamps(toTimestamps(rd.clientTimeCreated, rd.clientTimeModified))
+        .setCreated(AuditInfoDoc.toObject(rd.created))
+        .setLastModified(AuditInfoDoc.toObject(rd.modified))
         .build();
   }
 

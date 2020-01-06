@@ -19,7 +19,6 @@ package com.google.android.gnd.ui.projectselector;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
 import com.google.android.gnd.model.Project;
-import com.google.android.gnd.model.User;
 import com.google.android.gnd.repository.Loadable;
 import com.google.android.gnd.repository.ProjectRepository;
 import com.google.android.gnd.system.AuthenticationManager;
@@ -37,10 +36,9 @@ public class ProjectSelectorViewModel extends AbstractViewModel {
   ProjectSelectorViewModel(ProjectRepository projectRepository, AuthenticationManager authManager) {
     this.projectRepository = projectRepository;
 
-    User user = authManager.getUser().blockingFirst(User.ANONYMOUS);
-
     this.projectSummaries =
-        LiveDataReactiveStreams.fromPublisher(projectRepository.getProjectSummaries(user));
+        LiveDataReactiveStreams.fromPublisher(
+            projectRepository.getProjectSummaries(authManager.getCurrentUser()));
   }
 
   public LiveData<Loadable<List<Project>>> getProjectSummaries() {

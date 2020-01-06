@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.persistence.remote.firestore;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.google.android.gnd.model.User;
 
@@ -24,11 +25,12 @@ public class UserDoc {
   @Nullable public String email;
   @Nullable public String displayName;
 
-  @Nullable
-  public static UserDoc fromObject(@Nullable User user) {
-    if (user == null) {
-      return null;
-    }
+  /** Fallback value when reading invalid or legacy schemas. */
+  public static final User UNKNOWN_USER =
+      User.builder().setId("").setEmail("").setDisplayName("Unknown user").build();
+
+  @NonNull
+  public static UserDoc fromObject(@NonNull User user) {
     UserDoc ud = new UserDoc();
     ud.id = user.getId();
     ud.email = user.getEmail();
@@ -36,10 +38,11 @@ public class UserDoc {
     return ud;
   }
 
-  @Nullable
-  public static User toObject(UserDoc ud) {
-    return ud == null
-        ? null
-        : User.builder().setId(ud.id).setEmail(ud.email).setDisplayName(ud.displayName).build();
+  @NonNull
+  public static User toObject(@Nullable UserDoc ud) {
+    if (ud == null || ud.id == null || ud.email == null || ud.displayName == null) {
+      return UNKNOWN_USER;
+    }
+    return User.builder().setId(ud.id).setEmail(ud.email).setDisplayName(ud.displayName).build();
   }
 }
