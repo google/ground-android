@@ -64,8 +64,7 @@ public class FeatureRepository {
   public Completable syncFeatures(Project project) {
     return remoteDataStore
         .loadFeaturesOnceAndStreamChanges(project)
-        .switchMap(event -> updateLocalFeature(event).toFlowable())
-        .ignoreElements();
+        .switchMapCompletable(event -> updateLocalFeature(event));
   }
 
   // TODO: Remove "feature" qualifier from this and other repository method names.
