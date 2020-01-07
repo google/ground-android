@@ -107,7 +107,7 @@ abstract class GndApplicationModule {
   @Provides
   static FirebaseFirestoreSettings firebaseFirestoreSettings() {
     return new FirebaseFirestoreSettings.Builder()
-        .setPersistenceEnabled(Config.FIRESTORE_PERSISTANCE_ENABLED)
+        .setPersistenceEnabled(Config.FIRESTORE_PERSISTENCE_ENABLED)
         .build();
   }
 
