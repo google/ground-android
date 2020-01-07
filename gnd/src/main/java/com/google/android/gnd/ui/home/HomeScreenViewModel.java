@@ -28,10 +28,11 @@ import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.repository.FeatureRepository;
 import com.google.android.gnd.repository.Loadable;
 import com.google.android.gnd.repository.ProjectRepository;
+import com.google.android.gnd.rx.Action;
+import com.google.android.gnd.rx.Event;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.SharedViewModel;
-import com.google.android.gnd.ui.common.SingleLiveEvent;
 import com.google.android.gnd.ui.map.MapMarker;
 import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -51,10 +52,10 @@ public class HomeScreenViewModel extends AbstractViewModel {
   private final PublishSubject<Feature> addFeatureClicks;
 
   // TODO: Move into MapContainersViewModel
-  private final SingleLiveEvent<Point> addFeatureDialogRequests;
+  private final MutableLiveData<Event<Point>> addFeatureDialogRequests;
 
   // TODO: Move into FeatureSheetViewModel.
-  private final SingleLiveEvent<Void> openDrawerRequests;
+  private final MutableLiveData<Action> openDrawerRequests;
   private final MutableLiveData<FeatureSheetState> featureSheetState;
   private final MutableLiveData<Integer> addObservationButtonVisibility =
       new MutableLiveData<>(View.GONE);
@@ -66,8 +67,8 @@ public class HomeScreenViewModel extends AbstractViewModel {
       FeatureRepository featureRepository,
       Navigator navigator) {
     this.projectRepository = projectRepository;
-    this.addFeatureDialogRequests = new SingleLiveEvent<>();
-    this.openDrawerRequests = new SingleLiveEvent<>();
+    this.addFeatureDialogRequests = new MutableLiveData<>();
+    this.openDrawerRequests = new MutableLiveData<>();
     this.featureSheetState = new MutableLiveData<>();
     this.activeProject =
         LiveDataReactiveStreams.fromPublisher(projectRepository.getActiveProjectOnceAndStream());
@@ -100,19 +101,19 @@ public class HomeScreenViewModel extends AbstractViewModel {
     Log.e(TAG, "Couldn't add feature.", throwable);
   }
 
-  public LiveData<Void> getOpenDrawerRequests() {
+  public LiveData<Action> getOpenDrawerRequests() {
     return openDrawerRequests;
   }
 
   public void openNavDrawer() {
-    openDrawerRequests.setValue(null);
+    openDrawerRequests.setValue(Action.create());
   }
 
   public LiveData<Loadable<Project>> getActiveProject() {
     return activeProject;
   }
 
-  public LiveData<Point> getShowAddFeatureDialogRequests() {
+  public LiveData<Event<Point>> getShowAddFeatureDialogRequests() {
     return addFeatureDialogRequests;
   }
 
@@ -132,7 +133,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
 
   public void onAddFeatureBtnClick(Point location) {
     // TODO: Pause location updates while dialog is open.
-    addFeatureDialogRequests.setValue(location);
+    addFeatureDialogRequests.setValue(Event.create(location));
   }
 
   public void addFeature(Feature feature) {
