@@ -137,7 +137,6 @@ public class ObservationRepository {
   }
 
   public Completable applyAndEnqueue(ObservationMutation mutation) {
-    // TODO(#101): Store user id and timestamp on save.
     return localDataStore
         .applyAndEnqueue(mutation)
         .andThen(dataSyncWorkManager.enqueueSyncWorker(mutation.getFeatureId()));
