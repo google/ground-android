@@ -122,6 +122,9 @@ public class Navigator {
       case R.id.home_screen_fragment:
         navigate(HomeScreenFragmentDirections.fromHomeScreenToSignInScreen());
         break;
+      case R.id.sign_in_fragment:
+        // Sign in screen already active.
+        break;
       default:
         throw new IllegalArgumentException(currentNavDestinationId + " id not found");
     }
