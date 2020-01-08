@@ -309,16 +309,14 @@ public class RoomLocalDataStore implements LocalDataStore {
     }
     ObservationMutationEntity lastMutation = mutations.get(mutations.size() - 1);
     return loadUser(lastMutation.getUserId())
-        .map(
-            user -> applyMutations(observation, mutations, user, lastMutation.getClientTimestamp()))
+        .map(user -> applyMutations(observation, mutations, user))
         .flatMapCompletable(obs -> observationDao.insertOrUpdate(obs).subscribeOn(Schedulers.io()));
   }
 
   private ObservationEntity applyMutations(
-      ObservationEntity observation,
-      List<ObservationMutationEntity> mutations,
-      User user,
-      long clientTimestamp) {
+      ObservationEntity observation, List<ObservationMutationEntity> mutations, User user) {
+    ObservationMutationEntity lastMutation = mutations.get(mutations.size() - 1);
+    long clientTimestamp = lastMutation.getClientTimestamp();
     Log.v(TAG, "Merging observation " + this + " with mutations " + mutations);
     ObservationEntity.Builder builder = observation.toBuilder();
     // Merge changes to responses.
@@ -412,13 +410,7 @@ public class RoomLocalDataStore implements LocalDataStore {
         .doOnSubscribe(__ -> Log.v(TAG, "Applying mutation: " + mutation))
         // Emit NoSuchElementException if not found.
         .toSingle()
-        .map(
-            obs ->
-                applyMutations(
-                    obs,
-                    ImmutableList.of(mutationEntity),
-                    user,
-                    mutationEntity.getClientTimestamp()))
+        .map(obs -> applyMutations(obs, ImmutableList.of(mutationEntity), user))
         .flatMapCompletable(obs -> observationDao.insertOrUpdate(obs).subscribeOn(Schedulers.io()))
         .subscribeOn(Schedulers.io());
   }
