@@ -48,8 +48,6 @@ import com.google.auto.value.AutoValue.CopyAnnotations;
     indices = {@Index({"feature_id", "form_id", "state"})})
 public abstract class ObservationEntity {
 
-  private static final String TAG = ObservationEntity.class.getSimpleName();
-
   @CopyAnnotations
   @PrimaryKey
   @ColumnInfo(name = "id")

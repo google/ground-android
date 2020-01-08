@@ -29,7 +29,6 @@ import com.google.android.gnd.model.Mutation;
 import com.google.android.gnd.model.User;
 import com.google.android.gnd.persistence.local.LocalDataStore;
 import com.google.android.gnd.persistence.remote.RemoteDataStore;
-import com.google.android.gnd.util.ImmutableListCollector;
 import com.google.common.collect.ImmutableList;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
@@ -113,8 +112,7 @@ public class LocalMutationSyncWorker extends Worker {
   private Map<String, ImmutableList<Mutation>> groupByUserId(
       ImmutableList<Mutation> pendingMutations) {
     return stream(pendingMutations)
-        .collect(
-            Collectors.groupingBy(Mutation::getUserId, ImmutableListCollector.toImmutableList()));
+        .collect(Collectors.groupingBy(Mutation::getUserId, toImmutableList()));
   }
 
   private ImmutableList<Mutation> incrementRetryCounts(
