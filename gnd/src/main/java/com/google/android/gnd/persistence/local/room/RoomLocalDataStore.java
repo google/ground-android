@@ -18,7 +18,6 @@ package com.google.android.gnd.persistence.local.room;
 
 import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList;
 import static com.google.android.gnd.util.ImmutableSetCollector.toImmutableSet;
-import static java8.lang.Iterables.forEach;
 import static java8.util.stream.Collectors.toList;
 import static java8.util.stream.StreamSupport.stream;
 
@@ -38,6 +37,7 @@ import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.model.observation.ObservationMutation;
 import com.google.android.gnd.persistence.local.LocalDataStore;
+import com.google.android.gnd.system.AuthenticationManager.User;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import io.reactivex.Completable;
@@ -68,9 +68,10 @@ public class RoomLocalDataStore implements LocalDataStore {
   @Inject ProjectDao projectDao;
   @Inject FeatureDao featureDao;
   @Inject FeatureMutationDao featureMutationDao;
-  @Inject RecordDao recordDao;
-  @Inject RecordMutationDao recordMutationDao;
+  @Inject ObservationDao observationDao;
+  @Inject ObservationMutationDao observationMutationDao;
   @Inject TileDao tileDao;
+  @Inject UserDao userDao;
 
   @Inject
   public RoomLocalDataStore() {}
@@ -144,6 +145,11 @@ public class RoomLocalDataStore implements LocalDataStore {
   }
 
   @Override
+  public Completable insertOrUpdateUser(User user) {
+    return userDao.insertOrUpdate(UserEntity.fromUser(user)).subscribeOn(Schedulers.io());
+  }
+
+  @Override
   public Single<List<Project>> getProjects() {
     return projectDao
         .getAllProjects()
@@ -158,9 +164,7 @@ public class RoomLocalDataStore implements LocalDataStore {
 
   @Override
   public Completable removeProject(Project project) {
-    return projectDao
-        .delete(ProjectEntity.fromProject(project))
-        .subscribeOn(Schedulers.io());
+    return projectDao.delete(ProjectEntity.fromProject(project)).subscribeOn(Schedulers.io());
   }
 
   @Transaction
@@ -196,21 +200,21 @@ public class RoomLocalDataStore implements LocalDataStore {
   }
 
   @Override
-  public Maybe<Observation> getRecord(Feature feature, String recordId) {
-    return recordDao
-        .findById(recordId)
-        .map(record -> RecordEntity.toRecord(feature, record))
+  public Maybe<Observation> getObservation(Feature feature, String observationId) {
+    return observationDao
+        .findById(observationId)
+        .map(obs -> ObservationEntity.toObservation(feature, obs))
         .subscribeOn(Schedulers.io());
   }
 
   @Override
-  public Single<ImmutableList<Observation>> getRecords(Feature feature, String formId) {
-    return recordDao
+  public Single<ImmutableList<Observation>> getObservations(Feature feature, String formId) {
+    return observationDao
         .findByFeatureId(feature.getId(), formId)
         .map(
             list ->
                 stream(list)
-                    .map(record -> RecordEntity.toRecord(feature, record))
+                    .map(obs -> ObservationEntity.toObservation(feature, obs))
                     .collect(toImmutableList()))
         .subscribeOn(Schedulers.io());
   }
@@ -227,7 +231,17 @@ public class RoomLocalDataStore implements LocalDataStore {
   public Single<ImmutableList<Mutation>> getPendingMutations(String featureId) {
     return featureMutationDao
         .findByFeatureId(featureId)
-        .zipWith(recordMutationDao.findByFeatureId(featureId), this::mergeMutations)
+        .flattenAsObservable(fms -> fms)
+        .map(FeatureMutationEntity::toMutation)
+        .cast(Mutation.class)
+        .mergeWith(
+            observationMutationDao
+                .findByFeatureId(featureId)
+                .flattenAsObservable(oms -> oms)
+                .map(ObservationMutationEntity::toMutation)
+                .cast(Mutation.class))
+        .toList()
+        .map(ImmutableList::copyOf)
         .subscribeOn(Schedulers.io());
   }
 
@@ -237,16 +251,16 @@ public class RoomLocalDataStore implements LocalDataStore {
     return featureMutationDao
         .updateAll(toFeatureMutationEntities(mutations))
         .andThen(
-            recordMutationDao
-                .updateAll(toRecordMutationEntities(mutations))
+            observationMutationDao
+                .updateAll(toObservationMutationEntities(mutations))
                 .subscribeOn(Schedulers.io()))
         .subscribeOn(Schedulers.io());
   }
 
-  private ImmutableList<RecordMutationEntity> toRecordMutationEntities(
+  private ImmutableList<ObservationMutationEntity> toObservationMutationEntities(
       ImmutableList<Mutation> mutations) {
     return stream(ObservationMutation.filter(mutations))
-        .map(RecordMutationEntity::fromMutation)
+        .map(ObservationMutationEntity::fromMutation)
         .collect(toImmutableList());
   }
 
@@ -263,7 +277,7 @@ public class RoomLocalDataStore implements LocalDataStore {
     return featureMutationDao
         .deleteAll(FeatureMutation.ids(mutations))
         .andThen(
-            recordMutationDao
+            observationMutationDao
                 .deleteAll(ObservationMutation.ids(mutations))
                 .subscribeOn(Schedulers.io()))
         .subscribeOn(Schedulers.io());
@@ -280,23 +294,13 @@ public class RoomLocalDataStore implements LocalDataStore {
 
   @Transaction
   @Override
-  public Completable mergeRecord(Observation observation) {
-    RecordEntity recordEntity = RecordEntity.fromRecord(observation);
-    return recordMutationDao
-        .findByRecordId(observation.getId())
-        .map(recordEntity::applyMutations)
-        .flatMapCompletable(recordDao::insertOrUpdate)
+  public Completable mergeObservation(Observation observation) {
+    ObservationEntity observationEntity = ObservationEntity.fromObservation(observation);
+    return observationMutationDao
+        .findByObservationId(observation.getId())
+        .map(observationEntity::applyMutations)
+        .flatMapCompletable(observationDao::insertOrUpdate)
         .subscribeOn(Schedulers.io());
-  }
-
-  // TODO: Can this be simplified and inlined?
-  private ImmutableList<Mutation> mergeMutations(
-      List<FeatureMutationEntity> featureMutationEntities,
-      List<RecordMutationEntity> recordMutationEntities) {
-    ImmutableList.Builder<Mutation> mutations = ImmutableList.builder();
-    forEach(featureMutationEntities, fm -> mutations.add(fm.toMutation()));
-    forEach(recordMutationEntities, rm -> mutations.add(rm.toMutation()));
-    return mutations.build();
   }
 
   private Completable apply(FeatureMutation mutation) throws LocalDataStoreException {
@@ -335,18 +339,19 @@ public class RoomLocalDataStore implements LocalDataStore {
   private Completable apply(ObservationMutation mutation) throws LocalDataStoreException {
     switch (mutation.getType()) {
       case CREATE:
-        return recordDao
-            .insert(RecordEntity.fromMutation(mutation))
+        return observationDao
+            .insert(ObservationEntity.fromMutation(mutation))
             .doOnSubscribe(__ -> Log.v(TAG, "Inserting observation: " + mutation))
             .subscribeOn(Schedulers.io());
       case UPDATE:
-        return recordDao
-            .findById(mutation.getRecordId())
+        return observationDao
+            .findById(mutation.getObservationId())
             .doOnSubscribe(__ -> Log.v(TAG, "Applying mutation: " + mutation))
             // Emit NoSuchElementException if not found.
             .toSingle()
             .map(obs -> obs.applyMutation(mutation))
-            .flatMapCompletable(obs -> recordDao.insertOrUpdate(obs).subscribeOn(Schedulers.io()))
+            .flatMapCompletable(
+                obs -> observationDao.insertOrUpdate(obs).subscribeOn(Schedulers.io()))
             .subscribeOn(Schedulers.io());
       default:
         throw LocalDataStoreException.unknownMutationType(mutation.getType());
@@ -354,8 +359,8 @@ public class RoomLocalDataStore implements LocalDataStore {
   }
 
   private Completable enqueue(ObservationMutation mutation) {
-    return recordMutationDao
-        .insert(RecordMutationEntity.fromMutation(mutation))
+    return observationMutationDao
+        .insert(ObservationMutationEntity.fromMutation(mutation))
         .doOnSubscribe(__ -> Log.v(TAG, "Enqueuing mutation: " + mutation))
         .subscribeOn(Schedulers.io());
   }

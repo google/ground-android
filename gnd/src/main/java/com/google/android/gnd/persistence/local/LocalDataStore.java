@@ -23,6 +23,7 @@ import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.FeatureMutation;
 import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.model.observation.ObservationMutation;
+import com.google.android.gnd.system.AuthenticationManager.User;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import io.reactivex.Completable;
@@ -58,6 +59,9 @@ public interface LocalDataStore {
   /** Add project to the database. */
   Completable insertOrUpdateProject(Project project);
 
+  /** Add user to the database. */
+  Completable insertOrUpdateUser(User user);
+
   /**
    * Applies the specified {@link FeatureMutation} to the local data store, appending the mutation
    * to the local queue for remote sync.
@@ -76,14 +80,14 @@ public interface LocalDataStore {
    */
   Flowable<ImmutableSet<Feature>> getFeaturesOnceAndStream(Project project);
 
-  /** Returns the full list of records for the specified feature and form. */
-  Single<ImmutableList<Observation>> getRecords(Feature feature, String formId);
+  /** Returns the full list of observations for the specified feature and form. */
+  Single<ImmutableList<Observation>> getObservations(Feature feature, String formId);
 
   /** Returns the feature with the specified UUID from the local data store, if found. */
   Maybe<Feature> getFeature(Project project, String featureId);
 
   /** Returns the observation with the specified UUID from the local data store, if found. */
-  Maybe<Observation> getRecord(Feature feature, String recordId);
+  Maybe<Observation> getObservation(Feature feature, String observationId);
 
   /**
    * Returns a long-lived stream that emits the full set of tiles on subscribe and continues to
@@ -115,7 +119,7 @@ public interface LocalDataStore {
    * local data store. If a observation with the same id already exists, it will be overwritten with
    * the merged instance.
    */
-  Completable mergeRecord(Observation observation);
+  Completable mergeObservation(Observation observation);
 
   /**
    * Attempts to update a tile in the local data store. If the tile doesn't exist, inserts the tile

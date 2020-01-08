@@ -35,7 +35,7 @@ import org.json.JSONObject;
 /** Representation of a {@link ObservationMutation} in local data store. */
 @AutoValue
 @Entity(
-    tableName = "record_mutation",
+    tableName = "observation_mutation",
     foreignKeys = {
       @ForeignKey(
           entity = FeatureEntity.class,
@@ -43,13 +43,13 @@ import org.json.JSONObject;
           childColumns = "feature_id",
           onDelete = CASCADE),
       @ForeignKey(
-          entity = RecordEntity.class,
+          entity = ObservationEntity.class,
           parentColumns = "id",
-          childColumns = "record_id",
+          childColumns = "observation_id",
           onDelete = CASCADE)
     },
-    indices = {@Index("feature_id"), @Index("record_id")})
-public abstract class RecordMutationEntity {
+    indices = {@Index("feature_id"), @Index("observation_id")})
+public abstract class ObservationMutationEntity {
   // TODO: Refactor common attributes in MutationEntity base case.
   @CopyAnnotations
   @PrimaryKey(autoGenerate = true)
@@ -79,8 +79,8 @@ public abstract class RecordMutationEntity {
 
   @CopyAnnotations
   @NonNull
-  @ColumnInfo(name = "record_id")
-  public abstract String getRecordId();
+  @ColumnInfo(name = "observation_id")
+  public abstract String getObservationId();
 
   @CopyAnnotations
   @NonNull
@@ -108,13 +108,13 @@ public abstract class RecordMutationEntity {
   @ColumnInfo(name = "response_deltas")
   public abstract ImmutableList<ResponseDelta> getResponseDeltas();
 
-  public static RecordMutationEntity create(
+  public static ObservationMutationEntity create(
       long id,
       String projectId,
       String featureId,
       String featureTypeId,
       String formId,
-      String recordId,
+      String observationId,
       MutationEntityType type,
       ImmutableList<ResponseDelta> responseDeltas,
       long retryCount,
@@ -125,7 +125,7 @@ public abstract class RecordMutationEntity {
         .setFeatureId(featureId)
         .setFeatureTypeId(featureTypeId)
         .setFormId(formId)
-        .setRecordId(recordId)
+        .setObservationId(observationId)
         .setType(type)
         .setResponseDeltas(responseDeltas)
         .setRetryCount(retryCount)
@@ -133,14 +133,14 @@ public abstract class RecordMutationEntity {
         .build();
   }
 
-  public static RecordMutationEntity fromMutation(ObservationMutation m) {
-    return RecordMutationEntity.builder()
+  public static ObservationMutationEntity fromMutation(ObservationMutation m) {
+    return ObservationMutationEntity.builder()
         .setId(m.getId())
         .setProjectId(m.getProjectId())
         .setFeatureId(m.getFeatureId())
         .setFeatureTypeId(m.getLayerId())
         .setFormId(m.getFormId())
-        .setRecordId(m.getRecordId())
+        .setObservationId(m.getObservationId())
         .setType(MutationEntityType.fromMutationType(m.getType()))
         .setResponseDeltas(m.getResponseDeltas())
         .setRetryCount(m.getRetryCount())
@@ -155,7 +155,7 @@ public abstract class RecordMutationEntity {
         .setFeatureId(getFeatureId())
         .setLayerId(getFeatureTypeId())
         .setFormId(getFormId())
-        .setRecordId(getRecordId())
+        .setObservationId(getObservationId())
         .setType(getType().toMutationType())
         .setResponseDeltas(getResponseDeltas())
         .setRetryCount(getRetryCount())
@@ -166,7 +166,7 @@ public abstract class RecordMutationEntity {
   // Boilerplate generated using Android Studio AutoValue plugin:
 
   public static Builder builder() {
-    return new AutoValue_RecordMutationEntity.Builder();
+    return new AutoValue_ObservationMutationEntity.Builder();
   }
 
   @AutoValue.Builder
@@ -182,7 +182,7 @@ public abstract class RecordMutationEntity {
 
     public abstract Builder setFormId(@Nullable String newFormId);
 
-    public abstract Builder setRecordId(String newRecordId);
+    public abstract Builder setObservationId(String newObservationId);
 
     public abstract Builder setType(MutationEntityType newType);
 
@@ -192,6 +192,6 @@ public abstract class RecordMutationEntity {
 
     public abstract Builder setLastError(@Nullable String newLastError);
 
-    public abstract RecordMutationEntity build();
+    public abstract ObservationMutationEntity build();
   }
 }

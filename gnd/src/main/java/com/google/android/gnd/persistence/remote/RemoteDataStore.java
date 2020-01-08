@@ -44,10 +44,10 @@ public interface RemoteDataStore {
   Flowable<RemoteDataEvent<Feature>> loadFeaturesOnceAndStreamChanges(Project project);
 
   /**
-   * Returns a list of all records associated with the specified feature, or an empty list if none
-   * are found.
+   * Returns a list of all observations associated with the specified feature, or an empty list if
+   * none are found.
    */
-  Single<ImmutableList<Observation>> loadRecords(Feature feature);
+  Single<ImmutableList<Observation>> loadObservations(Feature feature);
 
   /**
    * Applies the provided mutations to the remote data store in a single batched transaction. If one

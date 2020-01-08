@@ -56,7 +56,7 @@ import javax.inject.Inject;
 public class EditObservationViewModel extends AbstractViewModel {
   private static final String TAG = EditObservationViewModel.class.getSimpleName();
   // TODO: Move out of id and into fragment args.
-  private static final String ADD_OBSERVATION_ID_PLACEHOLDER = "NEW_RECORD";
+  private static final String ADD_OBSERVATION_ID_PLACEHOLDER = "NEW";
 
   // Injected inputs.
 
@@ -220,7 +220,7 @@ public class EditObservationViewModel extends AbstractViewModel {
   }
 
   private static boolean isAddObservationRequest(EditObservationFragmentArgs args) {
-    return args.getRecordId().equals(ADD_OBSERVATION_ID_PLACEHOLDER);
+    return args.getObservationId().equals(ADD_OBSERVATION_ID_PLACEHOLDER);
   }
 
   private Single<Observation> createObservation(EditObservationFragmentArgs args) {
@@ -233,7 +233,7 @@ public class EditObservationViewModel extends AbstractViewModel {
 
   private Single<Observation> loadObservation(EditObservationFragmentArgs args) {
     return observationRepository
-        .getObservation(args.getProjectId(), args.getFeatureId(), args.getRecordId())
+        .getObservation(args.getProjectId(), args.getFeatureId(), args.getObservationId())
         .doOnError(t -> onError("Error loading observation", RxJava2Debug.getEnhancedStackTrace(t)))
         .onErrorResumeNext(Single.never());
   }
@@ -241,14 +241,14 @@ public class EditObservationViewModel extends AbstractViewModel {
   private Single<Event<SaveResult>> onSave() {
     if (originalObservation == null) {
       Log.e(TAG, "Save attempted before observation loaded");
-      return Single.just(Event.of(SaveResult.NO_CHANGES_TO_SAVE));
+      return Single.just(Event.create(SaveResult.NO_CHANGES_TO_SAVE));
     }
     refreshValidationErrors();
     if (hasValidationErrors()) {
-      return Single.just(Event.of(SaveResult.HAS_VALIDATION_ERRORS));
+      return Single.just(Event.create(SaveResult.HAS_VALIDATION_ERRORS));
     }
     if (!hasUnsavedChanges()) {
-      return Single.just(Event.of(SaveResult.NO_CHANGES_TO_SAVE));
+      return Single.just(Event.create(SaveResult.NO_CHANGES_TO_SAVE));
     }
     return save();
   }
@@ -268,7 +268,7 @@ public class EditObservationViewModel extends AbstractViewModel {
             .setProjectId(originalObservation.getProject().getId())
             .setFeatureId(originalObservation.getFeature().getId())
             .setLayerId(originalObservation.getFeature().getLayer().getId())
-            .setRecordId(originalObservation.getId())
+            .setObservationId(originalObservation.getId())
             .setFormId(originalObservation.getForm().getId())
             .setResponseDeltas(getResponseDeltas())
             .setUserId(currentUser.getId())
@@ -276,7 +276,7 @@ public class EditObservationViewModel extends AbstractViewModel {
     return observationRepository
         .applyAndEnqueue(observationMutation)
         .doOnComplete(() -> savingProgressVisibility.postValue(View.GONE))
-        .toSingleDefault(Event.of(SaveResult.SAVED));
+        .toSingleDefault(Event.create(SaveResult.SAVED));
   }
 
   private void refreshResponseMap(Observation obs) {
