@@ -19,6 +19,8 @@ package com.google.android.gnd.persistence.remote.firestore;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.google.android.gnd.model.AuditInfo;
+import com.google.android.gnd.model.Mutation;
+import com.google.android.gnd.model.User;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.ServerTimestamp;
 import java.util.Date;
@@ -66,5 +68,12 @@ public class AuditInfoDoc {
         .setClientTimeMillis(doc.clientTimeMillis.toDate())
         .setServerTimeMillis(Optional.ofNullable(doc.serverTimeMillis).map(Timestamp::toDate))
         .build();
+  }
+
+  public static AuditInfoDoc fromMutationAndUser(Mutation mutation, User user) {
+    AuditInfoDoc auditInfo = new AuditInfoDoc();
+    auditInfo.user = UserDoc.fromObject(user);
+    auditInfo.clientTimeMillis = new Timestamp(mutation.getClientTimestamp());
+    return auditInfo;
   }
 }

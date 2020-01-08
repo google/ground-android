@@ -24,7 +24,6 @@ import com.google.android.gnd.model.feature.FeatureMutation;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.model.layer.Layer;
 import com.google.common.collect.ImmutableMap;
-import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.IgnoreExtraProperties;
@@ -36,6 +35,7 @@ public class FeatureDoc {
   private static final String FEATURE_TYPE_ID = "featureTypeId";
   private static final String CENTER = "center";
   private static final String CREATED = "created";
+  private static final String LAST_MODIFIED = "lastModified";
 
   public String featureTypeId;
 
@@ -86,12 +86,11 @@ public class FeatureDoc {
     ImmutableMap.Builder<String, Object> map = ImmutableMap.builder();
     map.put(FEATURE_TYPE_ID, mutation.getLayerId());
     mutation.getNewLocation().map(FeatureDoc::toGeoPoint).ifPresent(p -> map.put(CENTER, p));
-    AuditInfoDoc auditInfo = new AuditInfoDoc();
-    auditInfo.user = UserDoc.fromObject(user);
+    AuditInfoDoc auditInfo = AuditInfoDoc.fromMutationAndUser(mutation, user);
     switch (mutation.getType()) {
       case CREATE:
-        auditInfo.clientTimeMillis = new Timestamp(mutation.getClientTimestamp());
         map.put(CREATED, auditInfo);
+        map.put(LAST_MODIFIED, auditInfo);
         break;
       case UPDATE:
       case DELETE:
