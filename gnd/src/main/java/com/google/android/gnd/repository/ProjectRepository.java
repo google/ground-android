@@ -110,8 +110,8 @@ public class ProjectRepository {
   }
 
   /**
-   * /** Returns a stream that emits the latest project activation state, and continues to emits
-   * changes to that state until all subscriptions are disposed.
+   * Returns a stream that emits the latest project activation state, and continues to emits changes
+   * to that state until all subscriptions are disposed.
    */
   public Flowable<Loadable<Project>> getActiveProjectOnceAndStream() {
     return activeProjectStream;
