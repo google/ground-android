@@ -42,11 +42,11 @@ public abstract class Feature {
 
   public abstract Point getPoint();
 
-  /** Returns the user and time audit info pertaining to the creation of this observation. */
+  /** Returns the user and time audit info pertaining to the creation of this feature. */
   public abstract AuditInfo getCreated();
 
   /**
-   * Returns the user and time audit info pertaining to the last modification of this observation.
+   * Returns the user and time audit info pertaining to the last modification of this feature.
    */
   public abstract AuditInfo getLastModified();
 
