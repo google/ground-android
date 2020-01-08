@@ -40,7 +40,8 @@ public abstract class AuditInfoEntity {
 
   /** Returns the time at which the user action was initiated, according to the user's device. */
   @CopyAnnotations
-  public abstract long getClientTimeMillis();
+  @NonNull
+  public abstract Long getClientTimeMillis();
 
   /**
    * Returns the time at which the server received the requested change according to the server's
@@ -88,7 +89,7 @@ public abstract class AuditInfoEntity {
 
     public abstract Builder setUser(UserDetails newUser);
 
-    public abstract Builder setClientTimeMillis(@NonNull long newClientTimeMillis);
+    public abstract Builder setClientTimeMillis(@NonNull Long newClientTimeMillis);
 
     public abstract Builder setServerTimeMillis(@Nullable Long newServerTimeMillis);
 
