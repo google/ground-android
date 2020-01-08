@@ -20,24 +20,51 @@ import android.view.View;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.ViewModel;
+import com.google.android.gnd.model.Project;
+import com.google.android.gnd.repository.FeatureRepository;
+import com.google.android.gnd.repository.Loadable;
 import com.google.android.gnd.repository.ProjectRepository;
+import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.SharedViewModel;
+import io.reactivex.Completable;
 import javax.inject.Inject;
 
+/** Top-level view model representing state of the {@link MainActivity} shared by all fragments. */
 @SharedViewModel
-public class MainViewModel extends ViewModel {
+public class MainViewModel extends AbstractViewModel {
 
   private final ProjectRepository projectRepository;
+  private final FeatureRepository featureRepository;
   private final Navigator navigator;
   private MutableLiveData<WindowInsetsCompat> windowInsetsLiveData;
 
   @Inject
-  public MainViewModel(ProjectRepository projectRepository, Navigator navigator) {
+  public MainViewModel(
+      ProjectRepository projectRepository,
+      FeatureRepository featureRepository,
+      Navigator navigator) {
     windowInsetsLiveData = new MutableLiveData<>();
     this.projectRepository = projectRepository;
+    this.featureRepository = featureRepository;
     this.navigator = navigator;
+
+    // TODO: Move to background service.
+    disposeOnClear(
+        projectRepository
+            .getActiveProjectOnceAndStream()
+            .switchMapCompletable(this::syncFeatures)
+            .subscribe());
+  }
+
+  /**
+   * Keeps local features in sync with remote when a project is active, does nothing when no project
+   * is active. The stream never completes; syncing stops when subscriptions are disposed of.
+   *
+   * @param projectLoadable the load state of the currently active project.
+   */
+  private Completable syncFeatures(Loadable<Project> projectLoadable) {
+    return projectLoadable.value().map(featureRepository::syncFeatures).orElse(Completable.never());
   }
 
   public LiveData<WindowInsetsCompat> getWindowInsets() {
