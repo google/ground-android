@@ -16,11 +16,9 @@
 
 package com.google.android.gnd.persistence.remote.firestore;
 
-import androidx.annotation.Nullable;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gnd.model.Mutation;
 import com.google.android.gnd.model.Project;
-import com.google.android.gnd.model.Timestamps;
 import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.FeatureMutation;
@@ -28,6 +26,7 @@ import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.model.observation.ObservationMutation;
 import com.google.android.gnd.persistence.remote.RemoteDataEvent;
 import com.google.android.gnd.persistence.remote.RemoteDataStore;
+import com.google.android.gnd.rx.RxDebug;
 import com.google.android.gnd.rx.RxTask;
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
@@ -36,13 +35,13 @@ import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Single;
 import io.reactivex.schedulers.Schedulers;
-import java.util.Date;
 import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
 @Singleton
 public class FirestoreDataStore implements RemoteDataStore {
+  private static final String TAG = FirestoreDataStore.class.getSimpleName();
 
   static final String ID_COLLECTION = "/ids";
 
@@ -57,6 +56,7 @@ public class FirestoreDataStore implements RemoteDataStore {
         .project(projectId)
         .get()
         .switchIfEmpty(Single.error(new DocumentNotFoundException()))
+        .as(RxDebug.traceSingle(TAG, "loadProject()"))
         .subscribeOn(Schedulers.io());
   }
 

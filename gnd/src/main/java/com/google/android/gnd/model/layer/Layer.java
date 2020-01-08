@@ -18,7 +18,6 @@ package com.google.android.gnd.model.layer;
 
 import static java8.util.stream.StreamSupport.stream;
 
-import com.google.android.gnd.model.Timestamps;
 import com.google.android.gnd.model.form.Form;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
@@ -41,18 +40,12 @@ public abstract class Layer {
 
   public abstract ImmutableList<Form> getForms();
 
-  @Nullable
-  public abstract Timestamps getServerTimestamps();
-
-  @Nullable
-  public abstract Timestamps getClientTimestamps();
-
   public Optional<Form> getForm(String formId) {
     return stream(getForms()).filter(form -> form.getId().equals(formId)).findFirst();
   }
 
   public static Builder newBuilder() {
-    return new AutoValue_Layer.Builder().setClientTimestamps(Timestamps.getDefaultInstance());
+    return new AutoValue_Layer.Builder();
   }
 
   @AutoValue.Builder
@@ -71,10 +64,6 @@ public abstract class Layer {
       formsBuilder().add(newForm);
       return this;
     }
-
-    public abstract Builder setServerTimestamps(@Nullable Timestamps newServerTimestamps);
-
-    public abstract Builder setClientTimestamps(@Nullable Timestamps newClientTimestamps);
 
     public abstract Layer build();
   }
