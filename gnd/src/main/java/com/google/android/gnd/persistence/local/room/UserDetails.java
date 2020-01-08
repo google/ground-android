@@ -22,7 +22,7 @@ import com.google.android.gnd.model.User;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.AutoValue.CopyAnnotations;
 
-/** Component representing cached user details in the local db entities. */
+/** Component representing cached user details in local db entities. */
 @AutoValue
 public abstract class UserDetails {
 
