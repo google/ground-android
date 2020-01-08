@@ -26,10 +26,16 @@ import androidx.work.Data;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 import com.google.android.gnd.model.Mutation;
+import com.google.android.gnd.model.User;
 import com.google.android.gnd.persistence.local.LocalDataStore;
 import com.google.android.gnd.persistence.remote.RemoteDataStore;
+import com.google.android.gnd.util.ImmutableListCollector;
 import com.google.common.collect.ImmutableList;
 import io.reactivex.Completable;
+import io.reactivex.Observable;
+import java.util.Map;
+import java.util.Set;
+import java8.util.stream.Collectors;
 
 /**
  * A worker that syncs local changes to the remote data store. Each instance handles mutations for a
@@ -77,10 +83,38 @@ public class LocalMutationSyncWorker extends Worker {
     }
   }
 
+  /**
+   * Groups mutations by user id, loads each user, applies mutations, and removes processed
+   * mutations.
+   */
   private Completable processMutations(ImmutableList<Mutation> pendingMutations) {
+    Map<String, ImmutableList<Mutation>> mutationsByUserId = groupByUserId(pendingMutations);
+    Set<String> userIds = mutationsByUserId.keySet();
+    return Observable.fromIterable(userIds)
+        .flatMapCompletable(userId -> processMutations(mutationsByUserId.get(userId), userId));
+  }
+
+  /** Loads each user with specified id, applies mutations, and removes processed mutations. */
+  private Completable processMutations(ImmutableList<Mutation> mutations, String userId) {
+    return localDataStore
+        .loadUser(userId)
+        .flatMapCompletable(user -> processMutations(mutations, user))
+        .doOnError(__ -> Log.d(TAG, "User account removed before mutation processed"))
+        .onErrorComplete();
+  }
+
+  /** Applies mutations to remote data store. Once successful, removes them from the local db. */
+  private Completable processMutations(ImmutableList<Mutation> mutations, User user) {
     return remoteDataStore
-        .applyMutations(pendingMutations)
-        .andThen(localDataStore.removePendingMutations(pendingMutations));
+        .applyMutations(mutations, user)
+        .andThen(localDataStore.removePendingMutations(mutations));
+  }
+
+  private Map<String, ImmutableList<Mutation>> groupByUserId(
+      ImmutableList<Mutation> pendingMutations) {
+    return stream(pendingMutations)
+        .collect(
+            Collectors.groupingBy(Mutation::getUserId, ImmutableListCollector.toImmutableList()));
   }
 
   private ImmutableList<Mutation> incrementRetryCounts(

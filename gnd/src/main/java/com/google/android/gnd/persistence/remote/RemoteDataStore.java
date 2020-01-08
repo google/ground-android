@@ -53,5 +53,5 @@ public interface RemoteDataStore {
    * Applies the provided mutations to the remote data store in a single batched transaction. If one
    * update fails, none of the mutations will be applied.
    */
-  Completable applyMutations(ImmutableCollection<Mutation> mutations);
+  Completable applyMutations(ImmutableCollection<Mutation> mutations, User user);
 }

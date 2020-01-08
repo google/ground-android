@@ -18,11 +18,13 @@ package com.google.android.gnd.persistence.remote.firestore;
 
 import androidx.annotation.Nullable;
 import com.google.android.gnd.model.Project;
+import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.FeatureMutation;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.model.layer.Layer;
 import com.google.common.collect.ImmutableMap;
+import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.IgnoreExtraProperties;
@@ -33,6 +35,7 @@ public class FeatureDoc {
   // TODO: Implement type safe field definition enums.
   private static final String FEATURE_TYPE_ID = "featureTypeId";
   private static final String CENTER = "center";
+  private static final String CREATED = "created";
 
   public String featureTypeId;
 
@@ -79,14 +82,23 @@ public class FeatureDoc {
    * Returns a map containing key-value pairs usable by Firestore constructed from the provided
    * mutation.
    */
-  public static ImmutableMap<String, Object> toMap(FeatureMutation mutation) {
+  public static ImmutableMap<String, Object> toMap(FeatureMutation mutation, User user) {
     ImmutableMap.Builder<String, Object> map = ImmutableMap.builder();
     map.put(FEATURE_TYPE_ID, mutation.getLayerId());
     mutation.getNewLocation().map(FeatureDoc::toGeoPoint).ifPresent(p -> map.put(CENTER, p));
-    // TODO: Set user id and timestamps.
-    // TODO: Don't echo server timestamp in client. When we implement a proper DAL we can
-    // use FieldValue.serverTimestamp() to signal when to update the value, or not set it,
-    // depending on whether the operation is a CREATE or UPDATE.
+    AuditInfoDoc auditInfo = new AuditInfoDoc();
+    auditInfo.user = UserDoc.fromObject(user);
+    switch (mutation.getType()) {
+      case CREATE:
+        auditInfo.clientTimeMillis = new Timestamp(mutation.getClientTimestamp());
+        map.put(CREATED, auditInfo);
+        break;
+      case UPDATE:
+      case DELETE:
+      case UNKNOWN:
+        // TODO.
+        throw new UnsupportedOperationException();
+    }
     return map.build();
   }
 }
