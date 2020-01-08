@@ -14,17 +14,9 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd;
+package com.google.android.gnd.persistence.local.room;
 
-/** Project configurations. */
-public final class Config {
+import androidx.room.Dao;
 
-  // Local db settings
-  // TODO(#128): Reset version to 1 before releasing.
-  public static final int DB_VERSION = 33;
-  public static final String DB_NAME = "gnd.db";
-
-  // Firebase firestore settings
-  public static final boolean FIRESTORE_PERSISTANCE_ENABLED = false;
-  public static final boolean FIRESTORE_LOGGING_ENABLED = true;
-}
+@Dao
+public interface UserDao extends BaseDao<UserEntity> {}

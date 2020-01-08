@@ -32,7 +32,7 @@ import javax.inject.Inject;
 public class ObservationDetailsViewModel extends AbstractViewModel {
 
   private final BehaviorProcessor<ObservationDetailsFragmentArgs> argsProcessor;
-  public final LiveData<Loadable<Observation>> records;
+  public final LiveData<Loadable<Observation>> observations;
   public final LiveData<Integer> progressBarVisibility;
   public final LiveData<String> toolbarTitle;
   public final LiveData<String> toolbarSubtitle;
@@ -42,51 +42,52 @@ public class ObservationDetailsViewModel extends AbstractViewModel {
   ObservationDetailsViewModel(ObservationRepository observationRepository) {
     this.argsProcessor = BehaviorProcessor.create();
 
-    Flowable<Loadable<Observation>> recordStream =
+    Flowable<Loadable<Observation>> observationStream =
         argsProcessor.switchMapSingle(
             args ->
                 observationRepository
-                    .getObservation(args.getProjectId(), args.getFeatureId(), args.getRecordId())
+                    .getObservation(
+                        args.getProjectId(), args.getFeatureId(), args.getObservationId())
                     .map(Loadable::loaded)
                     .onErrorReturn(Loadable::error));
 
     // TODO: Refactor to expose the fetched observation directly.
-    this.records = LiveDataReactiveStreams.fromPublisher(recordStream);
+    this.observations = LiveDataReactiveStreams.fromPublisher(observationStream);
 
     this.progressBarVisibility =
         LiveDataReactiveStreams.fromPublisher(
-            recordStream.map(ObservationDetailsViewModel::getProgressBarVisibility));
+            observationStream.map(ObservationDetailsViewModel::getProgressBarVisibility));
 
     this.toolbarTitle =
         LiveDataReactiveStreams.fromPublisher(
-            recordStream.map(ObservationDetailsViewModel::getToolbarTitle));
+            observationStream.map(ObservationDetailsViewModel::getToolbarTitle));
 
     this.toolbarSubtitle =
         LiveDataReactiveStreams.fromPublisher(
-            recordStream.map(ObservationDetailsViewModel::getToolbarSubtitle));
+            observationStream.map(ObservationDetailsViewModel::getToolbarSubtitle));
 
     this.formNameView =
         LiveDataReactiveStreams.fromPublisher(
-            recordStream.map(ObservationDetailsViewModel::getFormNameView));
+            observationStream.map(ObservationDetailsViewModel::getFormNameView));
   }
 
-  public void loadRecordDetails(ObservationDetailsFragmentArgs args) {
+  public void loadObservationDetails(ObservationDetailsFragmentArgs args) {
     this.argsProcessor.onNext(args);
   }
 
-  private static Integer getProgressBarVisibility(Loadable<Observation> record) {
-    return record.value().isPresent() ? View.VISIBLE : View.GONE;
+  private static Integer getProgressBarVisibility(Loadable<Observation> observation) {
+    return observation.value().isPresent() ? View.VISIBLE : View.GONE;
   }
 
-  private static String getToolbarTitle(Loadable<Observation> record) {
-    return record.value().map(Observation::getFeature).map(Feature::getTitle).orElse("");
+  private static String getToolbarTitle(Loadable<Observation> observation) {
+    return observation.value().map(Observation::getFeature).map(Feature::getTitle).orElse("");
   }
 
-  private static String getToolbarSubtitle(Loadable<Observation> record) {
-    return record.value().map(Observation::getFeature).map(Feature::getSubtitle).orElse("");
+  private static String getToolbarSubtitle(Loadable<Observation> observation) {
+    return observation.value().map(Observation::getFeature).map(Feature::getSubtitle).orElse("");
   }
 
-  private static String getFormNameView(Loadable<Observation> record) {
-    return record.value().map(Observation::getForm).map(Form::getTitle).orElse("");
+  private static String getFormNameView(Loadable<Observation> observation) {
+    return observation.value().map(Observation::getForm).map(Form::getTitle).orElse("");
   }
 }

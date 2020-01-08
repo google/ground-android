@@ -23,15 +23,16 @@ import io.reactivex.Single;
 import java.util.List;
 
 @Dao
-public interface RecordDao extends BaseDao<RecordEntity> {
+public interface ObservationDao extends BaseDao<ObservationEntity> {
   /** Returns the observation with the specified UUID, if found. */
-  @Query("SELECT * FROM record WHERE id = :recordId")
-  Maybe<RecordEntity> findById(String recordId);
+  @Query("SELECT * FROM observation WHERE id = :observationId")
+  Maybe<ObservationEntity> findById(String observationId);
 
   /**
-   * Returns the list records associated with the specified feature and form, ignoring deleted
-   * records (i.e., returns only records with state = State.DEFAULT (1)).
+   * Returns the list observations associated with the specified feature and form, ignoring deleted
+   * observations (i.e., returns only observations with state = State.DEFAULT (1)).
    */
-  @Query("SELECT * FROM record WHERE feature_id = :featureId AND form_id = :formId AND state = 1")
-  Single<List<RecordEntity>> findByFeatureId(String featureId, String formId);
+  @Query(
+      "SELECT * FROM observation WHERE feature_id = :featureId AND form_id = :formId AND state = 1")
+  Single<List<ObservationEntity>> findByFeatureId(String featureId, String formId);
 }
