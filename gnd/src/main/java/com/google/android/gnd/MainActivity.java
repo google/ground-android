@@ -121,9 +121,8 @@ public class MainActivity extends DaggerAppCompatActivity {
         // TODO: Show/hide spinner.
         break;
       case SIGNED_IN:
-        // TODO: Store/update user profile and image locally.
         userRepository
-            .saveUser(signInState.getUser())
+            .saveUser(signInState.getUser().get())
             .as(autoDisposable(this))
             .subscribe(() -> viewModel.onSignedIn(getCurrentNavDestinationId()));
         break;

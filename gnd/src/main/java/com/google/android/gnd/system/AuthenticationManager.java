@@ -42,6 +42,7 @@ import io.reactivex.Observable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.subjects.BehaviorSubject;
 import io.reactivex.subjects.Subject;
+import java8.util.Optional;
 import javax.inject.Inject;
 
 @ActivityScoped
@@ -74,7 +75,7 @@ public class AuthenticationManager {
     return signInState;
   }
 
-  public Observable<User> getUser() {
+  public Observable<Optional<User>> getUser() {
     return getSignInState().map(SignInState::getUser);
   }
 
@@ -162,7 +163,7 @@ public class AuthenticationManager {
    * guaranteed to be authenticated.
    */
   public User getCurrentUser() {
-    return getUser().blockingFirst(User.ANONYMOUS);
+    return getUser().filter(Optional::isPresent).map(Optional::get).blockingFirst();
   }
 
   public static class SignInState extends ValueOrError<User> {
@@ -195,8 +196,8 @@ public class AuthenticationManager {
       return state;
     }
 
-    public User getUser() {
-      return value().orElse(User.ANONYMOUS);
+    public Optional<User> getUser() {
+      return value();
     }
   }
 }
