@@ -6,10 +6,6 @@ import com.google.auto.value.AutoValue;
 @AutoValue
 public abstract class User {
 
-  // TODO: Replace this workaround with Optional<User> or UNKNOWN.
-  public static final User ANONYMOUS =
-      User.builder().setId("").setEmail("").setDisplayName("").build();
-
   public abstract String getId();
 
   public abstract String getEmail();
