@@ -51,17 +51,6 @@ public class FirestoreDataStore implements RemoteDataStore {
   @Inject
   FirestoreDataStore() {}
 
-  static Timestamps toTimestamps(@Nullable Date created, @Nullable Date modified) {
-    Timestamps.Builder timestamps = Timestamps.newBuilder();
-    if (created != null) {
-      timestamps.setCreated(created);
-    }
-    if (modified != null) {
-      timestamps.setModified(modified);
-    }
-    return timestamps.build();
-  }
-
   @Override
   public Single<Project> loadProject(String projectId) {
     return db.projects()
