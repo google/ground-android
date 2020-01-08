@@ -356,6 +356,7 @@ public class HomeScreenFragment extends AbstractFragment
     Log.e(TAG, "Error activating project", throwable);
     dismissLoadingDialog();
     EphemeralPopups.showError(getContext(), R.string.project_load_error);
+    showProjectSelector();
   }
 
   private class BottomSheetCallback extends BottomSheetBehavior.BottomSheetCallback {
