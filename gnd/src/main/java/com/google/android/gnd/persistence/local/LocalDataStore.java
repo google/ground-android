@@ -69,6 +69,12 @@ public interface LocalDataStore {
   Completable applyAndEnqueue(FeatureMutation mutation);
 
   /**
+   * Loads the user with the specified id from the local data store. The returned Single fails with
+   * {@link java.util.NoSuchElementException} if not found.
+   */
+  Single<User> loadUser(String id);
+
+  /**
    * Applies the specified {@link ObservationMutation} to the local data store, appending the
    * mutation to the local queue for remote sync.
    */

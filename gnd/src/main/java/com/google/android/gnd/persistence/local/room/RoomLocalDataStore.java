@@ -336,7 +336,8 @@ public class RoomLocalDataStore implements LocalDataStore {
     return builder.build();
   }
 
-  private Single<User> loadUser(String id) {
+  @Override
+  public Single<User> loadUser(String id) {
     return userDao
         .findById(id)
         .doOnComplete(() -> Log.e(TAG, "User missing local db: " + id))
