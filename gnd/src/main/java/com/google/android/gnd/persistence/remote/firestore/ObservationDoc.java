@@ -18,6 +18,7 @@ package com.google.android.gnd.persistence.remote.firestore;
 
 import android.util.Log;
 import androidx.annotation.Nullable;
+import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.model.observation.MultipleChoiceResponse;
@@ -44,6 +45,8 @@ public class ObservationDoc {
   public static final String FEATURE_TYPE_ID = "featureTypeId";
   public static final String FORM_ID = "formId";
   public static final String RESPONSES = "responses";
+  public static final String CREATED = "created";
+  public static final String LAST_MODIFIED = "lastModified";
 
   @Nullable public String featureId;
 
@@ -111,15 +114,27 @@ public class ObservationDoc {
     }
   }
 
-  public static ImmutableMap<String, Object> toMap(ObservationMutation mutation) {
-    return ImmutableMap.<String, Object>builder()
-        .put(FEATURE_ID, mutation.getFeatureId())
+  public static ImmutableMap<String, Object> toMap(ObservationMutation mutation, User user) {
+    ImmutableMap.Builder<String, Object> map = ImmutableMap.builder();
+    AuditInfoDoc auditInfo = AuditInfoDoc.fromMutationAndUser(mutation, user);
+    switch (mutation.getType()) {
+      case CREATE:
+        map.put(CREATED, auditInfo);
+        map.put(LAST_MODIFIED, auditInfo);
+        break;
+      case UPDATE:
+        map.put(LAST_MODIFIED, auditInfo);
+        break;
+      case DELETE:
+        // TODO.
+      case UNKNOWN:
+        throw new UnsupportedOperationException();
+    }
+    map.put(FEATURE_ID, mutation.getFeatureId())
         .put(FEATURE_TYPE_ID, mutation.getLayerId())
         .put(FORM_ID, mutation.getFormId())
-        .put(RESPONSES, toMap(mutation.getResponseDeltas()))
-        // TODO: Set user id and timestamps.
-        // TODO: Don't echo server timestamp in client. When we implement a proper DAL we can
-        .build();
+        .put(RESPONSES, toMap(mutation.getResponseDeltas()));
+    return map.build();
   }
 
   private static Map<String, Object> toMap(ImmutableList<ResponseDelta> responseDeltas) {

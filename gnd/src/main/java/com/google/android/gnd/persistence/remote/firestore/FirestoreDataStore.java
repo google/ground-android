@@ -112,7 +112,7 @@ public class FirestoreDataStore implements RemoteDataStore {
     if (mutation instanceof FeatureMutation) {
       addFeatureMutationToBatch((FeatureMutation) mutation, user, batch);
     } else if (mutation instanceof ObservationMutation) {
-      addRecordMutationToBatch((ObservationMutation) mutation, batch);
+      addRecordMutationToBatch((ObservationMutation) mutation, user, batch);
     } else {
       throw new IllegalArgumentException("Unsupported mutation " + mutation.getClass());
     }
@@ -126,11 +126,11 @@ public class FirestoreDataStore implements RemoteDataStore {
         .addMutationToBatch(mutation, user, batch);
   }
 
-  private void addRecordMutationToBatch(ObservationMutation mutation, WriteBatch batch) {
+  private void addRecordMutationToBatch(ObservationMutation mutation, User user, WriteBatch batch) {
     db.projects()
         .project(mutation.getProjectId())
         .records()
         .record(mutation.getObservationId())
-        .addMutationToBatch(mutation, batch);
+        .addMutationToBatch(mutation, user, batch);
   }
 }

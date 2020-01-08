@@ -185,11 +185,11 @@ public class GndFirestore extends AbstractFluentFirestore {
     }
 
     /** Appends the operation described by the specified mutation to the provided write batch. */
-    public void addMutationToBatch(ObservationMutation mutation, WriteBatch batch) {
+    public void addMutationToBatch(ObservationMutation mutation, User user, WriteBatch batch) {
       switch (mutation.getType()) {
         case CREATE:
         case UPDATE:
-          merge(ObservationDoc.toMap(mutation), batch);
+          merge(ObservationDoc.toMap(mutation, user), batch);
           break;
         case DELETE:
           // TODO: Implement me!
