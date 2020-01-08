@@ -84,8 +84,14 @@ public class ProjectRepository {
 
     return syncProjectWithRemote(id)
         .doOnSubscribe(__ -> Log.d(TAG, "Activating project " + id))
-        .doOnError(err -> Log.d(TAG, "Failed to load project from remote", err))
-        .onErrorResumeNext(__ -> localDataStore.getProjectById(id).toSingle())
+        .doOnError(err -> Log.d(TAG, "Error loading project from remote", err))
+        .onErrorResumeNext(
+            __ ->
+                localDataStore
+                    .getProjectById(id)
+                    .doOnComplete(() -> Log.d(TAG, "Project not found in local db"))
+                    .toSingle()
+                    .doOnError(err -> Log.d(TAG, "Error loading project from local db", err)))
         .doOnSuccess(__ -> localValueStore.setLastActiveProjectId(id))
         .toFlowable()
         .compose(Loadable::loadingOnceAndWrap);
