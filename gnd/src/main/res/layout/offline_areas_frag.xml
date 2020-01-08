@@ -1,4 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?><!--
+<?xml version="1.0" encoding="utf-8"?>
+<!--
   ~ Copyright 2019 Google LLC
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -64,7 +65,7 @@
         android:clickable="true"
         android:contentDescription="@string/offline_area_selector_prompt"
         android:focusable="true"
-        android:src="@drawable/ic_area_download"
+        android:src="@drawable/ic_add_light"
         android:tint="@color/colorBackground"
         app:useCompatPadding="true" />
     </FrameLayout>
