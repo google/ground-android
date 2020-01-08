@@ -36,7 +36,7 @@ public class AuditInfoDoc {
   @Nullable public UserDoc user;
 
   /**
-   * The time at which the user action was initiated, in according to the user's device. See {@link
+   * The time at which the user action was initiated, according to the user's device. See {@link
    * System#currentTimeMillis} for details. This should never be missing, but we handle null values
    * * anyway since the Firestore is schema-less.
    */

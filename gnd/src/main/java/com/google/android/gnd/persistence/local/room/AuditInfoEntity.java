@@ -38,7 +38,7 @@ public abstract class AuditInfoEntity {
   @NonNull
   public abstract UserDetails getUser();
 
-  /** Returns the time at which the user action was initiated, in according to the user's device. */
+  /** Returns the time at which the user action was initiated, according to the user's device. */
   @CopyAnnotations
   public abstract long getClientTimeMillis();
 

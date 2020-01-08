@@ -32,7 +32,7 @@ public abstract class AuditInfo {
   @NonNull
   public abstract User getUser();
 
-  /** Returns the time at which the user action was initiated, in according to the user's device. */
+  /** Returns the time at which the user action was initiated, according to the user's device. */
   @NonNull
   public abstract Date getClientTimeMillis();
 
