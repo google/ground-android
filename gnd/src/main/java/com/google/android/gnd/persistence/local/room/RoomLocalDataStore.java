@@ -338,7 +338,7 @@ public class RoomLocalDataStore implements LocalDataStore {
   public Single<User> loadUser(String id) {
     return userDao
         .findById(id)
-        .doOnComplete(() -> Log.e(TAG, "User missing local db: " + id))
+        .doOnError(e -> Log.e(TAG, "Error loading user from local db: " + id, e))
         // Fail with NoSuchElementException if not found.
         .toSingle()
         .map(UserEntity::toUser)
