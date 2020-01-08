@@ -246,14 +246,14 @@ public class EditObservationViewModel extends AbstractViewModel {
   private Single<Event<SaveResult>> onSave() {
     if (originalObservation == null) {
       Log.e(TAG, "Save attempted before observation loaded");
-      return Single.just(Event.of(SaveResult.NO_CHANGES_TO_SAVE));
+      return Single.just(Event.create(SaveResult.NO_CHANGES_TO_SAVE));
     }
     refreshValidationErrors();
     if (hasValidationErrors()) {
-      return Single.just(Event.of(SaveResult.HAS_VALIDATION_ERRORS));
+      return Single.just(Event.create(SaveResult.HAS_VALIDATION_ERRORS));
     }
     if (!hasUnsavedChanges()) {
-      return Single.just(Event.of(SaveResult.NO_CHANGES_TO_SAVE));
+      return Single.just(Event.create(SaveResult.NO_CHANGES_TO_SAVE));
     }
     return save();
   }
@@ -280,7 +280,7 @@ public class EditObservationViewModel extends AbstractViewModel {
     return observationRepository
         .applyAndEnqueue(observationMutation)
         .doOnComplete(() -> savingProgressVisibility.postValue(View.GONE))
-        .toSingleDefault(Event.of(SaveResult.SAVED));
+        .toSingleDefault(Event.create(SaveResult.SAVED));
   }
 
   private void refreshResponseMap(Observation obs) {

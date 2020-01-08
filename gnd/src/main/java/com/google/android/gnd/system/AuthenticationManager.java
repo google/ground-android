@@ -120,7 +120,7 @@ public class AuthenticationManager {
           GoogleSignIn.getSignedInAccountFromIntent(activityResult.getData());
       onGoogleSignIn(googleSignInTask.getResult(ApiException.class));
     } catch (ApiException e) {
-      Log.w(TAG, "Sign in failed, GoogleSignInStatusCodes:  " + e.getStatusCode());
+      Log.w(TAG, "Sign in failed: " + e);
       signInState.onNext(new SignInState(e));
     }
   }

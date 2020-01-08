@@ -231,10 +231,10 @@ public class MainActivity extends DaggerAppCompatActivity {
 
   private int getCurrentNavDestinationId() {
     NavDestination destination = getNavController().getCurrentDestination();
-    if (destination != null) {
-      return destination.getId();
+    if (destination == null) {
+      return -1;
     }
-    return -1;
+    return destination.getId();
   }
 
   private void onToolbarUpClicked() {
