@@ -41,7 +41,6 @@ project.ext {
     rxAndroidVersion = "2.1.1"
     rxBindingVersion = "2.1.1"
     rxFirebaseVersion = "1.5.0"
-    rxJava2DebugVersion = "1.4.0"
     rxJavaVersion = "2.2.8"
     streamSupportVersion = "1.6.3"
     supportLibraryVersion = "1.0.0-beta01"
@@ -152,7 +151,6 @@ dependencies {
     // ReactiveX
     implementation "io.reactivex.rxjava2:rxjava:$project.rxJavaVersion"
     implementation "io.reactivex.rxjava2:rxandroid:$project.rxAndroidVersion"
-    implementation "com.akaita.java:rxjava2-debug:$project.rxJava2DebugVersion"
     implementation "com.jakewharton.rxbinding2:rxbinding:$project.rxBindingVersion"
     implementation "com.jakewharton.rxbinding2:rxbinding-support-v4:$project.rxBindingVersion"
     implementation "com.jakewharton.rxbinding2:rxbinding-appcompat-v7:$project.rxBindingVersion"
