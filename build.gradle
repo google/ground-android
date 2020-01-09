@@ -23,6 +23,9 @@ buildscript {
         mavenLocal()
         maven { url "https://maven.google.com"  }
         maven { url "https://github.com/ben-manes/gradle-versions-plugin/raw/mvnrepo" }
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
     }
     dependencies {
         classpath "android.arch.navigation:navigation-safe-args-gradle-plugin:1.0.0"
@@ -42,7 +45,7 @@ buildscript {
 // ./gradlew dependencyUpdates -Drevision=release
 plugins {
     id "com.github.ben-manes.versions" version "0.20.0"
-    id 'com.github.spotbugs' version '1.6.4'
+    id "com.github.spotbugs" version "3.0.0"
 }
 
 allprojects {
