@@ -56,7 +56,6 @@ public class FirestoreDataStore implements RemoteDataStore {
         .project(projectId)
         .get()
         .switchIfEmpty(Single.error(new DocumentNotFoundException()))
-        .as(RxDebug.traceSingle(TAG, "loadProject()"))
         .subscribeOn(Schedulers.io());
   }
 
