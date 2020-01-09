@@ -59,8 +59,13 @@ allprojects {
     }
 }
 
+// Main check code target used by CI.
 task checkCode(type: GradleBuild) {
     tasks = ['checkstyle', 'lintDebug', 'pmd', 'spotbugs']
+}
+
+task doLast {
+    checkCode
 }
 
 task clean(type: Delete) {

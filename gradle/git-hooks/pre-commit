@@ -1,4 +1,0 @@
-#!/bin/sh
-
-# Build required to update .class files checked by spotbugs plugin.
-./gradlew build checkCode

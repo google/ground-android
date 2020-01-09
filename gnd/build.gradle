@@ -195,11 +195,17 @@ dependencies {
     implementation "com.uber.autodispose:autodispose-android-archcomponents:$project.autoDisposeVersion"
 }
 
-// Install git hooks on build.
-apply from: rootProject.file('gradle/git-hooks/install.gradle')
-
 apply plugin: 'androidx.navigation.safeargs'
 
 // This must be last to avoid dependency collisions.
 // https://developers.google.com/android/guides/google-services-plugin#introduction
 apply plugin: 'com.google.gms.google-services'
+
+// Target used on normal builds from command-line and Android Studio.
+task checkCode {
+    dependsOn 'checkstyle', 'lintDebug', 'pmd', 'spotbugs'
+}
+
+afterEvaluate {
+    assembleDebug.dependsOn checkCode
+}
