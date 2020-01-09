@@ -89,7 +89,6 @@ public class ProjectRepository {
             __ ->
                 localDataStore
                     .getProjectById(id)
-                    .doOnComplete(() -> Log.d(TAG, "Project not found in local db"))
                     .toSingle()
                     .doOnError(err -> Log.d(TAG, "Error loading project from local db", err)))
         .doOnSuccess(__ -> localValueStore.setLastActiveProjectId(id))
