@@ -84,8 +84,13 @@ public class ProjectRepository {
 
     return syncProjectWithRemote(id)
         .doOnSubscribe(__ -> Log.d(TAG, "Activating project " + id))
-        .doOnError(err -> Log.d(TAG, "Failed to load project from remote", err))
-        .onErrorResumeNext(__ -> localDataStore.getProjectById(id).toSingle())
+        .doOnError(err -> Log.d(TAG, "Error loading project from remote", err))
+        .onErrorResumeNext(
+            __ ->
+                localDataStore
+                    .getProjectById(id)
+                    .toSingle()
+                    .doOnError(err -> Log.d(TAG, "Error loading project from local db", err)))
         .doOnSuccess(__ -> localValueStore.setLastActiveProjectId(id))
         .toFlowable()
         .compose(Loadable::loadingOnceAndWrap);
@@ -95,7 +100,7 @@ public class ProjectRepository {
     return remoteDataStore
         .loadProject(id)
         .timeout(LOAD_REMOTE_PROJECT_TIMEOUT_SECS, TimeUnit.SECONDS)
-        .doOnSuccess(localDataStore::insertOrUpdateProject);
+        .flatMap(p -> localDataStore.insertOrUpdateProject(p).toSingleDefault(p));
   }
 
   @NonNull
@@ -104,8 +109,8 @@ public class ProjectRepository {
   }
 
   /**
-   * /** Returns a stream that emits the latest project activation state, and continues to emits
-   * changes to that state until all subscriptions are disposed.
+   * Returns a stream that emits the latest project activation state, and continues to emits changes
+   * to that state until all subscriptions are disposed.
    */
   public Flowable<Loadable<Project>> getActiveProjectOnceAndStream() {
     return activeProjectStream;

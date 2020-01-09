@@ -26,7 +26,6 @@ import androidx.databinding.ObservableArrayMap;
 import androidx.databinding.ObservableMap;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-import com.akaita.java.rxjava2debug.RxJava2Debug;
 import com.google.android.gnd.GndApplication;
 import com.google.android.gnd.R;
 import com.google.android.gnd.model.form.Element;
@@ -231,16 +230,13 @@ public class EditObservationViewModel extends AbstractViewModel {
             args.getFeatureId(),
             args.getFormId(),
             authManager.getCurrentUser())
-        .doOnError(
-            t -> onError("Error creating new observation", RxJava2Debug.getEnhancedStackTrace(t)))
-        .onErrorResumeNext(Single.never());
+        .onErrorResumeNext(this::onError);
   }
 
   private Single<Observation> loadObservation(EditObservationFragmentArgs args) {
     return observationRepository
         .getObservation(args.getProjectId(), args.getFeatureId(), args.getObservationId())
-        .doOnError(t -> onError("Error loading observation", RxJava2Debug.getEnhancedStackTrace(t)))
-        .onErrorResumeNext(Single.never());
+        .onErrorResumeNext(this::onError);
   }
 
   private Single<Event<SaveResult>> onSave() {
@@ -258,9 +254,10 @@ public class EditObservationViewModel extends AbstractViewModel {
     return save();
   }
 
-  private void onError(String message, Throwable t) {
+  private <T> Single<T> onError(Throwable throwable) {
     // TODO: Refactor and stream to UI.
-    Log.e(TAG, message, t);
+    Log.e(TAG, "Error", throwable);
+    return Single.never();
   }
 
   private Single<Event<SaveResult>> save() {

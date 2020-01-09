@@ -349,13 +349,13 @@ public class RoomLocalDataStore implements LocalDataStore {
     switch (mutation.getType()) {
       case CREATE:
         return loadUser(mutation.getUserId())
-            .flatMapCompletable(user -> createFeature(mutation, user));
+            .flatMapCompletable(user -> insertOrUpdateFeature(mutation, user));
       default:
         throw LocalDataStoreException.unknownMutationType(mutation.getType());
     }
   }
 
-  private Completable createFeature(FeatureMutation mutation, User user) {
+  private Completable insertOrUpdateFeature(FeatureMutation mutation, User user) {
     return featureDao
         .insertOrUpdate(FeatureEntity.fromMutation(mutation, AuditInfo.now(user)))
         .subscribeOn(Schedulers.io());

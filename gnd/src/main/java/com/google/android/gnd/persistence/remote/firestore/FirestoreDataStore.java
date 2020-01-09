@@ -16,11 +16,9 @@
 
 package com.google.android.gnd.persistence.remote.firestore;
 
-import androidx.annotation.Nullable;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gnd.model.Mutation;
 import com.google.android.gnd.model.Project;
-import com.google.android.gnd.model.Timestamps;
 import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.FeatureMutation;
@@ -36,7 +34,6 @@ import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Single;
 import io.reactivex.schedulers.Schedulers;
-import java.util.Date;
 import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -50,17 +47,6 @@ public class FirestoreDataStore implements RemoteDataStore {
 
   @Inject
   FirestoreDataStore() {}
-
-  static Timestamps toTimestamps(@Nullable Date created, @Nullable Date modified) {
-    Timestamps.Builder timestamps = Timestamps.newBuilder();
-    if (created != null) {
-      timestamps.setCreated(created);
-    }
-    if (modified != null) {
-      timestamps.setModified(modified);
-    }
-    return timestamps.build();
-  }
 
   @Override
   public Single<Project> loadProject(String projectId) {
