@@ -25,8 +25,10 @@ import androidx.work.WorkManager;
 import com.akaita.java.rxjava2debug.RxJava2Debug;
 import com.facebook.stetho.Stetho;
 import com.google.android.gnd.inject.GndWorkerFactory;
+import com.google.android.gnd.rx.RxDebug;
 import dagger.android.AndroidInjector;
 import dagger.android.support.DaggerApplication;
+import io.reactivex.plugins.RxJavaPlugins;
 import javax.inject.Inject;
 
 // TODO: When implementing background data sync service, we'll need to inject a Service here; we
@@ -60,6 +62,9 @@ public class GndApplication extends DaggerApplication {
 
     // Enable RxJava assembly stack collection for more useful stack traces.
     RxJava2Debug.enableRxJava2AssemblyTracking(new String[] {getClass().getPackage().getName()});
+
+    // Prevent RxJava from force-quitting on unhandled errors.
+    RxJavaPlugins.setErrorHandler(t -> RxDebug.logEnhancedStackTrace(t));
 
     // Set custom worker factory that allow Workers to use Dagger injection.
     // TODO(github.com/google/dagger/issues/1183): Remove once Workers support injection.

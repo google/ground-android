@@ -35,6 +35,10 @@ import java.util.List;
 public interface RemoteDataStore {
   Single<List<Project>> loadProjectSummaries(User user);
 
+  /**
+   * Loads the project with the specified id from the remote data store. The return Single fails
+   * with if the project is not found, or if the remote data store is not available.
+   */
   Single<Project> loadProject(String projectId);
 
   /**

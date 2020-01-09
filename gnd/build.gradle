@@ -115,11 +115,11 @@ dependencies {
     implementation "androidx.cardview:cardview:$project.supportLibraryVersion"
     implementation "com.google.android.material:material:$project.supportLibraryVersion"
     implementation "com.android.support.constraint:constraint-layout:" +
-            "$project.constraintLayoutVersion"
+        "$project.constraintLayoutVersion"
 
     // Support for Java streams.
     implementation "net.sourceforge.streamsupport:streamsupport-cfuture:" +
-            "$project.streamSupportVersion"
+        "$project.streamSupportVersion"
 
     // For dynamic tab bar style.
     implementation "com.google.android.gms:play-services-auth:$project.gmsVersion"
