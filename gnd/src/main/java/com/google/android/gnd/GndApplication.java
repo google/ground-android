@@ -22,7 +22,6 @@ import android.util.Log;
 import androidx.multidex.MultiDex;
 import androidx.work.Configuration;
 import androidx.work.WorkManager;
-import com.akaita.java.rxjava2debug.RxJava2Debug;
 import com.facebook.stetho.Stetho;
 import com.google.android.gnd.inject.GndWorkerFactory;
 import dagger.android.AndroidInjector;
@@ -57,9 +56,6 @@ public class GndApplication extends DaggerApplication {
     }
 
     super.onCreate();
-
-    // Enable RxJava assembly stack collection for more useful stack traces.
-    RxJava2Debug.enableRxJava2AssemblyTracking(new String[] {getClass().getPackage().getName()});
 
     // Set custom worker factory that allow Workers to use Dagger injection.
     // TODO(github.com/google/dagger/issues/1183): Remove once Workers support injection.
