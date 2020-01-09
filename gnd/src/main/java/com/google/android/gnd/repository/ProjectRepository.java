@@ -101,7 +101,7 @@ public class ProjectRepository {
     return remoteDataStore
         .loadProject(id)
         .timeout(LOAD_REMOTE_PROJECT_TIMEOUT_SECS, TimeUnit.SECONDS)
-        .doOnSuccess(localDataStore::insertOrUpdateProject);
+        .flatMap(p -> localDataStore.insertOrUpdateProject(p).toSingleDefault(p));
   }
 
   @NonNull
