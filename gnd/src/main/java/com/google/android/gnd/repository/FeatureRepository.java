@@ -18,6 +18,7 @@ package com.google.android.gnd.repository;
 
 import com.google.android.gnd.model.Mutation;
 import com.google.android.gnd.model.Project;
+import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.FeatureMutation;
 import com.google.android.gnd.persistence.local.LocalDataStore;
@@ -28,6 +29,7 @@ import com.google.common.collect.ImmutableSet;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
+import java.util.Date;
 import java8.util.Optional;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -40,6 +42,7 @@ import javax.inject.Singleton;
 @Singleton
 public class FeatureRepository {
   private final LocalDataStore localDataStore;
+  private final RemoteDataStore remoteDataStore;
   private final ProjectRepository projectRepository;
   private final DataSyncWorkManager dataSyncWorkManager;
 
@@ -50,29 +53,23 @@ public class FeatureRepository {
       ProjectRepository projectRepository,
       DataSyncWorkManager dataSyncWorkManager) {
     this.localDataStore = localDataStore;
+    this.remoteDataStore = remoteDataStore;
     this.projectRepository = projectRepository;
     this.dataSyncWorkManager = dataSyncWorkManager;
-
-    streamFeaturesToLocalDb(remoteDataStore);
   }
 
   /**
-   * Mirrors features in the current project from the remote db into the local db when the network
+   * Mirrors features in the specified project from the remote db into the local db when the network
    * is available. When invoked, will first attempt to resync all features from the remote db,
    * subsequently syncing only remote changes.
    */
-  private void streamFeaturesToLocalDb(RemoteDataStore remoteDataStore) {
-    // TODO: Move to Application or background service.
-    // TODO: Is this even working? If the returned Disposable is garbage collected this will be
-    // interrupted.
-    projectRepository
-        .getActiveProjectOnceAndStream()
-        .compose(Loadable::values)
-        .switchMap(remoteDataStore::loadFeaturesOnceAndStreamChanges)
-        .switchMap(event -> updateLocalFeature(event).toFlowable())
-        .subscribe();
+  public Completable syncFeatures(Project project) {
+    return remoteDataStore
+        .loadFeaturesOnceAndStreamChanges(project)
+        .switchMapCompletable(event -> updateLocalFeature(event));
   }
 
+  // TODO: Remove "feature" qualifier from this and other repository method names.
   private Completable updateLocalFeature(RemoteDataEvent<Feature> event) {
     switch (event.getEventType()) {
       case ENTITY_LOADED:
@@ -108,8 +105,7 @@ public class FeatureRepository {
         .flatMap(project -> localDataStore.getFeature(project, featureId));
   }
 
-  public Completable saveFeature(Feature feature) {
-    // TODO(#79): Assign owner and timestamps when creating new feature.
+  public Completable saveFeature(Feature feature, User user) {
     // TODO(#80): Update UI to provide FeatureMutations instead of Features here.
     return localDataStore
         .applyAndEnqueue(
@@ -119,8 +115,8 @@ public class FeatureRepository {
                 .setFeatureId(feature.getId())
                 .setLayerId(feature.getLayer().getId())
                 .setNewLocation(Optional.of(feature.getPoint()))
-                // TODO(#101): Attach real credentials.
-                .setUserId("")
+                .setUserId(user.getId())
+                .setClientTimestamp(new Date())
                 .build())
         .andThen(dataSyncWorkManager.enqueueSyncWorker(feature.getId()));
   }

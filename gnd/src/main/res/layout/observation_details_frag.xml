@@ -37,7 +37,7 @@
       android:orientation="vertical">
 
       <ProgressBar
-        android:id="@+id/record_details_progress_bar"
+        android:id="@+id/observation_details_progress_bar"
         style="?android:attr/progressBarStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -47,7 +47,7 @@
 
       <!-- CardView is used to create the drop shadow effect -->
       <androidx.cardview.widget.CardView
-        android:id="@+id/record_details_header"
+        android:id="@+id/observation_details_header"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:cardCornerRadius="0dp"
@@ -59,7 +59,7 @@
           android:orientation="vertical">
   
           <com.google.android.gnd.ui.common.TwoLineToolbar
-            android:id="@+id/record_details_toolbar"
+            android:id="@+id/observation_details_toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:layout_gravity="top"
@@ -86,11 +86,11 @@
       <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/record_details_header"
+        android:layout_below="@id/observation_details_header"
         android:background="@color/colorBackground">
   
         <LinearLayout
-          android:id="@+id/record_details_layout"
+          android:id="@+id/observation_details_layout"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
           android:orientation="vertical"/>

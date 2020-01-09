@@ -16,10 +16,9 @@
 
 package com.google.android.gnd.persistence.remote.firestore;
 
-import static com.google.android.gnd.persistence.remote.firestore.FirestoreDataStore.toTimestamps;
-
 import android.util.Log;
 import androidx.annotation.Nullable;
+import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.model.observation.MultipleChoiceResponse;
@@ -34,8 +33,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.IgnoreExtraProperties;
-import com.google.firebase.firestore.ServerTimestamp;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java8.util.Optional;
@@ -48,6 +45,8 @@ public class ObservationDoc {
   public static final String FEATURE_TYPE_ID = "featureTypeId";
   public static final String FORM_ID = "formId";
   public static final String RESPONSES = "responses";
+  public static final String CREATED = "created";
+  public static final String LAST_MODIFIED = "lastModified";
 
   @Nullable public String featureId;
 
@@ -55,32 +54,11 @@ public class ObservationDoc {
 
   @Nullable public String formId;
 
-  @Nullable public UserDoc createdBy;
+  @Nullable public AuditInfoDoc created;
 
-  @Nullable public UserDoc modifiedBy;
-
-  public @Nullable @ServerTimestamp Date serverTimeCreated;
-
-  public @Nullable @ServerTimestamp Date serverTimeModified;
-
-  @Nullable public Date clientTimeCreated;
-
-  @Nullable public Date clientTimeModified;
+  @Nullable public AuditInfoDoc modified;
 
   @Nullable public Map<String, Object> responses;
-
-  public static ObservationDoc forUpdates(
-      Observation observation, Map<String, Object> responseUpdates) {
-    ObservationDoc rd = new ObservationDoc();
-    rd.featureId = observation.getFeature().getId();
-    rd.featureTypeId = observation.getFeature().getLayer().getId();
-    rd.formId = observation.getForm().getId();
-    rd.responses = responseUpdates;
-    rd.clientTimeModified = new Date();
-    rd.createdBy = UserDoc.fromObject(observation.getCreatedBy());
-    rd.modifiedBy = UserDoc.fromObject(observation.getModifiedBy());
-    return rd;
-  }
 
   public static Observation toObject(Feature feature, String recordId, DocumentSnapshot doc) {
     ObservationDoc rd = doc.toObject(ObservationDoc.class);
@@ -100,10 +78,8 @@ public class ObservationDoc {
         .setFeature(feature)
         .setForm(form.get())
         .setResponses(toResponseMap(rd.responses))
-        .setCreatedBy(UserDoc.toObject(rd.createdBy))
-        .setModifiedBy(UserDoc.toObject(rd.modifiedBy))
-        .setServerTimestamps(toTimestamps(rd.serverTimeCreated, rd.serverTimeModified))
-        .setClientTimestamps(toTimestamps(rd.clientTimeCreated, rd.clientTimeModified))
+        .setCreated(AuditInfoDoc.toObject(rd.created))
+        .setLastModified(AuditInfoDoc.toObject(rd.modified))
         .build();
   }
 
@@ -138,15 +114,27 @@ public class ObservationDoc {
     }
   }
 
-  public static ImmutableMap<String, Object> toMap(ObservationMutation mutation) {
-    return ImmutableMap.<String, Object>builder()
-        .put(FEATURE_ID, mutation.getFeatureId())
+  public static ImmutableMap<String, Object> toMap(ObservationMutation mutation, User user) {
+    ImmutableMap.Builder<String, Object> map = ImmutableMap.builder();
+    AuditInfoDoc auditInfo = AuditInfoDoc.fromMutationAndUser(mutation, user);
+    switch (mutation.getType()) {
+      case CREATE:
+        map.put(CREATED, auditInfo);
+        map.put(LAST_MODIFIED, auditInfo);
+        break;
+      case UPDATE:
+        map.put(LAST_MODIFIED, auditInfo);
+        break;
+      case DELETE:
+        // TODO.
+      case UNKNOWN:
+        throw new UnsupportedOperationException();
+    }
+    map.put(FEATURE_ID, mutation.getFeatureId())
         .put(FEATURE_TYPE_ID, mutation.getLayerId())
         .put(FORM_ID, mutation.getFormId())
-        .put(RESPONSES, toMap(mutation.getResponseDeltas()))
-        // TODO: Set user id and timestamps.
-        // TODO: Don't echo server timestamp in client. When we implement a proper DAL we can
-        .build();
+        .put(RESPONSES, toMap(mutation.getResponseDeltas()));
+    return map.build();
   }
 
   private static Map<String, Object> toMap(ImmutableList<ResponseDelta> responseDeltas) {

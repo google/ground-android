@@ -48,6 +48,7 @@ import com.google.common.collect.ImmutableList;
 import io.reactivex.Single;
 import io.reactivex.processors.BehaviorProcessor;
 import io.reactivex.processors.PublishProcessor;
+import java.util.Date;
 import java8.util.Optional;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
@@ -56,7 +57,7 @@ import javax.inject.Inject;
 public class EditObservationViewModel extends AbstractViewModel {
   private static final String TAG = EditObservationViewModel.class.getSimpleName();
   // TODO: Move out of id and into fragment args.
-  private static final String ADD_OBSERVATION_ID_PLACEHOLDER = "NEW_RECORD";
+  private static final String ADD_OBSERVATION_ID_PLACEHOLDER = "NEW";
 
   // Injected inputs.
 
@@ -220,12 +221,16 @@ public class EditObservationViewModel extends AbstractViewModel {
   }
 
   private static boolean isAddObservationRequest(EditObservationFragmentArgs args) {
-    return args.getRecordId().equals(ADD_OBSERVATION_ID_PLACEHOLDER);
+    return args.getObservationId().equals(ADD_OBSERVATION_ID_PLACEHOLDER);
   }
 
   private Single<Observation> createObservation(EditObservationFragmentArgs args) {
     return observationRepository
-        .createObservation(args.getProjectId(), args.getFeatureId(), args.getFormId())
+        .createObservation(
+            args.getProjectId(),
+            args.getFeatureId(),
+            args.getFormId(),
+            authManager.getCurrentUser())
         .doOnError(
             t -> onError("Error creating new observation", RxJava2Debug.getEnhancedStackTrace(t)))
         .onErrorResumeNext(Single.never());
@@ -233,7 +238,7 @@ public class EditObservationViewModel extends AbstractViewModel {
 
   private Single<Observation> loadObservation(EditObservationFragmentArgs args) {
     return observationRepository
-        .getObservation(args.getProjectId(), args.getFeatureId(), args.getRecordId())
+        .getObservation(args.getProjectId(), args.getFeatureId(), args.getObservationId())
         .doOnError(t -> onError("Error loading observation", RxJava2Debug.getEnhancedStackTrace(t)))
         .onErrorResumeNext(Single.never());
   }
@@ -241,14 +246,14 @@ public class EditObservationViewModel extends AbstractViewModel {
   private Single<Event<SaveResult>> onSave() {
     if (originalObservation == null) {
       Log.e(TAG, "Save attempted before observation loaded");
-      return Single.just(Event.of(SaveResult.NO_CHANGES_TO_SAVE));
+      return Single.just(Event.create(SaveResult.NO_CHANGES_TO_SAVE));
     }
     refreshValidationErrors();
     if (hasValidationErrors()) {
-      return Single.just(Event.of(SaveResult.HAS_VALIDATION_ERRORS));
+      return Single.just(Event.create(SaveResult.HAS_VALIDATION_ERRORS));
     }
     if (!hasUnsavedChanges()) {
-      return Single.just(Event.of(SaveResult.NO_CHANGES_TO_SAVE));
+      return Single.just(Event.create(SaveResult.NO_CHANGES_TO_SAVE));
     }
     return save();
   }
@@ -260,23 +265,22 @@ public class EditObservationViewModel extends AbstractViewModel {
 
   private Single<Event<SaveResult>> save() {
     savingProgressVisibility.setValue(View.VISIBLE);
-    AuthenticationManager.User currentUser =
-        authManager.getUser().blockingFirst(AuthenticationManager.User.ANONYMOUS);
     ObservationMutation observationMutation =
         ObservationMutation.builder()
             .setType(isNew ? ObservationMutation.Type.CREATE : ObservationMutation.Type.UPDATE)
             .setProjectId(originalObservation.getProject().getId())
             .setFeatureId(originalObservation.getFeature().getId())
             .setLayerId(originalObservation.getFeature().getLayer().getId())
-            .setRecordId(originalObservation.getId())
+            .setObservationId(originalObservation.getId())
             .setFormId(originalObservation.getForm().getId())
             .setResponseDeltas(getResponseDeltas())
-            .setUserId(currentUser.getId())
+            .setClientTimestamp(new Date())
+            .setUserId(authManager.getCurrentUser().getId())
             .build();
     return observationRepository
         .applyAndEnqueue(observationMutation)
         .doOnComplete(() -> savingProgressVisibility.postValue(View.GONE))
-        .toSingleDefault(Event.of(SaveResult.SAVED));
+        .toSingleDefault(Event.create(SaveResult.SAVED));
   }
 
   private void refreshResponseMap(Observation obs) {

@@ -24,110 +24,110 @@
   </data>
 
   <FrameLayout xmlns:tools="http://schemas.android.com/tools"
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:background="?android:attr/selectableItemBackground"
-      android:clickable="true"
-      android:focusable="true"
-      android:onClick="@{viewModel::onClick}">
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="?android:attr/selectableItemBackground"
+    android:clickable="true"
+    android:focusable="true"
+    android:onClick="@{viewModel::onClick}">
 
     <RelativeLayout
-        android:layout_width="match_parent"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_marginHorizontal="@dimen/observation_list_item_horizontal_margin"
+      android:layout_marginVertical="@dimen/observation_list_item_horizontal_vertical">
+
+      <TextView
+        android:id="@+id/user_name"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="@dimen/record_list_item_horizontal_margin"
-        android:layout_marginVertical="@dimen/record_list_item_horizontal_vertical">
+        android:text="@{viewModel.userName}"
+        android:textAppearance="@style/ObservationListText.CreatorName"
+        tools:text="Ground User" />
 
       <TextView
-          android:id="@+id/user_name"
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:text="@{viewModel.userName}"
-          android:textAppearance="@style/RecordListText.CreatorName"
-          tools:text="Ground User" />
+        android:id="@+id/separator_dot1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toEndOf="@id/user_name"
+        android:layout_toRightOf="@id/user_name"
+        android:text=" · " />
 
       <TextView
-          android:id="@+id/separator_dot1"
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:layout_toEndOf="@id/user_name"
-          android:layout_toRightOf="@id/user_name"
-          android:text=" · " />
+        android:id="@+id/last_modified_date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toEndOf="@id/separator_dot1"
+        android:layout_toRightOf="@id/separator_dot1"
+        android:text="@{viewModel.modifiedDate}"
+        android:textAppearance="@style/ObservationListText.Timestamp"
+        tools:text="Sept 25, 2018" />
 
       <TextView
-          android:id="@+id/last_modified_date"
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:layout_toEndOf="@id/separator_dot1"
-          android:layout_toRightOf="@id/separator_dot1"
-          android:text="@{viewModel.modifiedDate}"
-          android:textAppearance="@style/RecordListText.Timestamp"
-          tools:text="Sept 25, 2018" />
+        android:id="@+id/separator_dot2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toEndOf="@id/last_modified_date"
+        android:layout_toRightOf="@id/last_modified_date"
+        android:text=" · "
+        android:textAppearance="@style/ObservationListText.Separator" />
 
       <TextView
-          android:id="@+id/separator_dot2"
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:layout_toEndOf="@id/last_modified_date"
-          android:layout_toRightOf="@id/last_modified_date"
-          android:text=" · "
-          android:textAppearance="@style/RecordListText.Separator" />
-
-      <TextView
-          android:id="@+id/last_modified_time"
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:layout_toEndOf="@id/separator_dot2"
-          android:layout_toRightOf="@id/separator_dot2"
-          android:text="@{viewModel.modifiedTime}"
-          android:textAppearance="@style/RecordListText.Timestamp"
-          tools:text="4:25 PM" />
+        android:id="@+id/last_modified_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toEndOf="@id/separator_dot2"
+        android:layout_toRightOf="@id/separator_dot2"
+        android:text="@{viewModel.modifiedTime}"
+        android:textAppearance="@style/ObservationListText.Timestamp"
+        tools:text="4:25 PM" />
 
       <TableLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/user_name"
+        android:layout_marginEnd="@dimen/observation_list_item_preview_table_right_margin"
+        android:layout_marginRight="@dimen/observation_list_item_preview_table_right_margin"
+        android:paddingStart="14dp"
+        android:paddingLeft="14dp"
+        android:paddingEnd="14dp"
+        android:paddingRight="14dp"
+        android:shrinkColumns="*"
+        android:stretchColumns="*">
+
+        <TableRow
+          android:id="@+id/field_label_row"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
-          android:layout_below="@id/user_name"
-          android:layout_marginEnd="@dimen/record_list_item_preview_table_right_margin"
-          android:layout_marginRight="@dimen/record_list_item_preview_table_right_margin"
-          android:paddingStart="14dp"
-          android:paddingLeft="14dp"
-          android:paddingEnd="14dp"
-          android:paddingRight="14dp"
-          android:shrinkColumns="*"
-          android:stretchColumns="*">
+          android:paddingTop="4dp" />
 
         <TableRow
-            android:id="@+id/field_label_row"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingTop="4dp" />
-
-        <TableRow
-            android:id="@+id/field_value_row"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingTop="4dp" />
+          android:id="@+id/field_value_row"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:paddingTop="4dp" />
       </TableLayout>
 
       <ImageButton
-          android:id="@+id/record_details_btn"
-          style="@style/ImageButton"
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:layout_alignParentEnd="true"
-          android:layout_alignParentRight="true"
-          android:layout_centerVertical="true"
-          android:onClick="@{viewModel::onClick}"
-          android:src="@drawable/ic_chevron_right_black_36dp" />
+        android:id="@+id/observation_details_btn"
+        style="@style/ImageButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:onClick="@{viewModel::onClick}"
+        android:src="@drawable/ic_chevron_right_black_36dp" />
 
     </RelativeLayout>
 
     <View
-        android:id="@+id/record_item_divider"
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_gravity="bottom"
-        android:layout_marginHorizontal="@dimen/record_list_item_horizontal_margin"
-        android:background="@color/colorGrey300" />
+      android:id="@+id/observation_item_divider"
+      android:layout_width="match_parent"
+      android:layout_height="1dp"
+      android:layout_gravity="bottom"
+      android:layout_marginHorizontal="@dimen/observation_list_item_horizontal_margin"
+      android:background="@color/colorGrey300" />
 
   </FrameLayout>
 </layout>

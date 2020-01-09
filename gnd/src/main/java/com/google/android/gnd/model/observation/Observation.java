@@ -17,11 +17,10 @@
 package com.google.android.gnd.model.observation;
 
 import androidx.annotation.Nullable;
+import com.google.android.gnd.model.AuditInfo;
 import com.google.android.gnd.model.Project;
-import com.google.android.gnd.model.Timestamps;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.form.Form;
-import com.google.android.gnd.system.AuthenticationManager.User;
 import com.google.auto.value.AutoValue;
 
 /** Represents a single instance of data collected about a specific {@link Feature}. */
@@ -39,17 +38,13 @@ public abstract class Observation {
   @Nullable
   public abstract Form getForm();
 
-  @Nullable
-  public abstract User getCreatedBy();
+  /** Returns the user and time audit info pertaining to the creation of this observation. */
+  public abstract AuditInfo getCreated();
 
-  @Nullable
-  public abstract User getModifiedBy();
-
-  @Nullable
-  public abstract Timestamps getServerTimestamps();
-
-  @Nullable
-  public abstract Timestamps getClientTimestamps();
+  /**
+   * Returns the user and time audit info pertaining to the last modification of this observation.
+   */
+  public abstract AuditInfo getLastModified();
 
   public abstract ResponseMap getResponses();
 
@@ -69,13 +64,9 @@ public abstract class Observation {
 
     public abstract Builder setForm(@Nullable Form form);
 
-    public abstract Builder setCreatedBy(@Nullable User user);
+    public abstract Builder setCreated(AuditInfo newCreated);
 
-    public abstract Builder setModifiedBy(@Nullable User user);
-
-    public abstract Builder setServerTimestamps(@Nullable Timestamps newServerTimestamps);
-
-    public abstract Builder setClientTimestamps(@Nullable Timestamps newClientTimestamps);
+    public abstract Builder setLastModified(AuditInfo newLastModified);
 
     public abstract Builder setResponses(ResponseMap responses);
 

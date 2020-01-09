@@ -18,20 +18,20 @@ package com.google.android.gnd.persistence.local.room;
 
 import static androidx.room.ForeignKey.CASCADE;
 
-import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
+import androidx.room.Embedded;
 import androidx.room.Entity;
 import androidx.room.ForeignKey;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
+import com.google.android.gnd.model.AuditInfo;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.model.observation.ObservationMutation;
 import com.google.android.gnd.model.observation.ResponseMap;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.AutoValue.CopyAnnotations;
-import com.google.common.collect.ImmutableList;
 
 /** Representation of a {@link Observation} in local db. */
 @AutoValue
@@ -42,13 +42,11 @@ import com.google.common.collect.ImmutableList;
             parentColumns = "id",
             childColumns = "feature_id",
             onDelete = CASCADE),
-    tableName = "record",
+    tableName = "observation",
     // Additional index not required for FK constraint since first field in composite index can be
     // used independently.
     indices = {@Index({"feature_id", "form_id", "state"})})
-public abstract class RecordEntity {
-
-  private static final String TAG = RecordEntity.class.getSimpleName();
+public abstract class ObservationEntity {
 
   @CopyAnnotations
   @PrimaryKey
@@ -82,80 +80,81 @@ public abstract class RecordEntity {
   @NonNull
   public abstract ResponseMap getResponses();
 
-  /**
-   * Returns a new instance whose state is the same as the current one, but with the specified
-   * mutation applied.
-   */
-  public RecordEntity applyMutation(ObservationMutation mutation) {
-    // TODO: Implement conversion between layers in a consistent way, e.g.in separate
-    // converter classes.
-    return applyMutations(ImmutableList.of(RecordMutationEntity.fromMutation(mutation)));
-  }
+  @CopyAnnotations
+  @NonNull
+  @Embedded(prefix = "created_")
+  public abstract AuditInfoEntity getCreated();
 
-  /**
-   * Returns a new instance whose state is the same as the current one, but with the specified
-   * mutations applied.
-   */
-  public RecordEntity applyMutations(Iterable<RecordMutationEntity> mutations) {
-    Log.v(TAG, "Merging observation " + this + " with mutations " + mutations);
-    RecordEntity.Builder builder = toBuilder();
-    for (RecordMutationEntity mutation : mutations) {
-      builder.responsesBuilder().applyDeltas(mutation.getResponseDeltas());
-    }
-    Log.v(TAG, "Merged observation " + builder.build());
-    return builder.build();
-  }
+  @CopyAnnotations
+  @NonNull
+  @Embedded(prefix = "modified_")
+  public abstract AuditInfoEntity getLastModified();
 
-  public static RecordEntity fromRecord(Observation observation) {
-    return RecordEntity.builder()
+  public static ObservationEntity fromObservation(Observation observation) {
+    return ObservationEntity.builder()
         .setId(observation.getId())
         .setFormId(observation.getForm().getId())
         .setFeatureId(observation.getFeature().getId())
         .setState(EntityState.DEFAULT)
         .setResponses(observation.getResponses())
+        .setCreated(AuditInfoEntity.fromObject(observation.getCreated()))
+        .setLastModified(AuditInfoEntity.fromObject(observation.getLastModified()))
         .build();
   }
 
-  public static RecordEntity fromMutation(ObservationMutation mutation) {
-    return RecordEntity.builder()
-        .setId(mutation.getRecordId())
+  public static ObservationEntity fromMutation(ObservationMutation mutation, AuditInfo created) {
+    AuditInfoEntity authInfo = AuditInfoEntity.fromObject(created);
+    return ObservationEntity.builder()
+        .setId(mutation.getObservationId())
         .setFormId(mutation.getFormId())
         .setFeatureId(mutation.getFeatureId())
         .setState(EntityState.DEFAULT)
         .setResponses(ResponseMap.builder().applyDeltas(mutation.getResponseDeltas()).build())
+        .setCreated(authInfo)
+        .setLastModified(authInfo)
         .build();
   }
 
   // TODO(#127): Replace reference to Feature in Observation with featureId and remove feature arg.
-  public static Observation toRecord(Feature feature, RecordEntity record) {
+  public static Observation toObservation(Feature feature, ObservationEntity observation) {
     // TODO(#127): Replace reference to Form in Observation with formId and remove here.
     // TODO(#127): Replace reference to Project in Observation with projectId and remove here.
     return Observation.newBuilder()
-        .setId(record.getId())
-        .setForm(feature.getLayer().getForm(record.getFormId()).get())
+        .setId(observation.getId())
+        .setForm(feature.getLayer().getForm(observation.getFormId()).get())
         .setProject(feature.getProject())
         .setFeature(feature)
-        .setResponses(record.getResponses())
+        .setResponses(observation.getResponses())
+        .setCreated(AuditInfoEntity.toObject(observation.getCreated()))
+        .setLastModified(AuditInfoEntity.toObject(observation.getLastModified()))
         .build();
   }
 
-  public abstract RecordEntity.Builder toBuilder();
+  public abstract ObservationEntity.Builder toBuilder();
 
   // Boilerplate generated using Android Studio AutoValue plugin:
 
-  public static RecordEntity create(
-      String id, EntityState state, String featureId, String formId, ResponseMap responses) {
+  public static ObservationEntity create(
+      String id,
+      String featureId,
+      String formId,
+      EntityState state,
+      ResponseMap responses,
+      AuditInfoEntity created,
+      AuditInfoEntity lastModified) {
     return builder()
         .setId(id)
-        .setState(state)
         .setFeatureId(featureId)
-        .setResponses(responses)
         .setFormId(formId)
+        .setState(state)
+        .setResponses(responses)
+        .setCreated(created)
+        .setLastModified(lastModified)
         .build();
   }
 
   public static Builder builder() {
-    return new AutoValue_RecordEntity.Builder();
+    return new AutoValue_ObservationEntity.Builder();
   }
 
   @AutoValue.Builder
@@ -163,16 +162,26 @@ public abstract class RecordEntity {
 
     public abstract Builder setId(String newId);
 
-    public abstract Builder setState(EntityState newState);
-
     public abstract Builder setFeatureId(String newFeatureId);
 
     public abstract Builder setFormId(String newFormId);
+
+    public abstract Builder setState(EntityState newState);
 
     public abstract Builder setResponses(ResponseMap newResponses);
 
     public abstract ResponseMap.Builder responsesBuilder();
 
-    public abstract RecordEntity build();
+    public abstract Builder setCreated(AuditInfoEntity newCreated);
+
+    public abstract Builder setLastModified(AuditInfoEntity newLastModified);
+
+    /** Applies the specified mutation to this builder. */
+    public Builder applyMutation(ObservationMutationEntity mutation) {
+      responsesBuilder().applyDeltas(mutation.getResponseDeltas());
+      return this;
+    }
+
+    public abstract ObservationEntity build();
   }
 }

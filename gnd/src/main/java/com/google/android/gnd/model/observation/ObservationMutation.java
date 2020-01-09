@@ -32,7 +32,7 @@ import com.google.common.collect.ImmutableList;
 public abstract class ObservationMutation extends Mutation<ObservationMutation.Builder> {
 
   /** Returns the UUID of the observation being modified. */
-  public abstract String getRecordId();
+  public abstract String getObservationId();
 
   /** Returns the UUID of the form associated with this observation. */
   public abstract String getFormId();
@@ -76,7 +76,7 @@ public abstract class ObservationMutation extends Mutation<ObservationMutation.B
   @AutoValue.Builder
   public abstract static class Builder extends Mutation.Builder<Builder> {
 
-    public abstract Builder setRecordId(String newRecordId);
+    public abstract Builder setObservationId(String newObservationId);
 
     public abstract Builder setFormId(String newFormId);
 

@@ -19,19 +19,18 @@ package com.google.android.gnd.rx;
 import java8.util.function.Consumer;
 
 /**
- * Wrapper for events passed through streams that should be handled at most once. This is used
- * to prevent events that trigger dialogs or other notifications from retriggering when views are
+ * Wrapper for events passed through streams that should be handled at most once. This is used to
+ * prevent events that trigger dialogs or other notifications from retriggering when views are
  * restored on configuration change.
  *
  * @param <T> The event data.
  */
-public class Event<T> {
-  private final T value;
-  private boolean handled;
+public class Event<T> extends Action {
+  private final T data;
 
-  private Event(T value) {
-    this.value = value;
-    this.handled = false;
+  private Event(T data) {
+    super();
+    this.data = data;
   }
 
   /**
@@ -40,19 +39,16 @@ public class Event<T> {
    * @param consumer
    */
   public synchronized void ifUnhandled(Consumer<T> consumer) {
-    if (!handled) {
-      this.handled = true;
-      consumer.accept(value);
-    }
+    ifUnhandled(() -> consumer.accept(data));
   }
 
   /**
-   * Returns a new event wrapping the specified value.
+   * Returns a new event with the specified event data.
    *
-   * @param value
+   * @param data
    * @param <T>
    */
-  public static <T> Event<T> of(T value) {
-    return new Event<>(value);
+  public static <T> Event<T> create(T data) {
+    return new Event<>(data);
   }
 }

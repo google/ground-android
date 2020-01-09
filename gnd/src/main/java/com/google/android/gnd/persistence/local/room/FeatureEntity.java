@@ -22,6 +22,7 @@ import androidx.room.Embedded;
 import androidx.room.Entity;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
+import com.google.android.gnd.model.AuditInfo;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.FeatureMutation;
@@ -64,14 +65,27 @@ public abstract class FeatureEntity {
   @Embedded
   public abstract Coordinates getLocation();
 
+  @CopyAnnotations
   @NonNull
-  static FeatureEntity fromMutation(FeatureMutation mutation) {
+  @Embedded(prefix = "created_")
+  public abstract AuditInfoEntity getCreated();
+
+  @CopyAnnotations
+  @NonNull
+  @Embedded(prefix = "modified_")
+  public abstract AuditInfoEntity getLastModified();
+
+  @NonNull
+  static FeatureEntity fromMutation(FeatureMutation mutation, AuditInfo created) {
+    AuditInfoEntity authInfo = AuditInfoEntity.fromObject(created);
     FeatureEntity.Builder entity =
         FeatureEntity.builder()
             .setId(mutation.getFeatureId())
             .setProjectId(mutation.getProjectId())
             .setFeatureTypeId(mutation.getLayerId())
-            .setState(EntityState.DEFAULT);
+            .setState(EntityState.DEFAULT)
+            .setCreated(authInfo)
+            .setLastModified(authInfo);
     mutation.getNewLocation().map(Coordinates::fromPoint).ifPresent(entity::setLocation);
     return entity.build();
   }
@@ -83,7 +97,9 @@ public abstract class FeatureEntity {
             .setProjectId(feature.getProject().getId())
             .setFeatureTypeId(feature.getLayer().getId())
             .setLocation(Coordinates.fromPoint(feature.getPoint()))
-            .setState(EntityState.DEFAULT);
+            .setState(EntityState.DEFAULT)
+            .setCreated(AuditInfoEntity.fromObject(feature.getCreated()))
+            .setLastModified(AuditInfoEntity.fromObject(feature.getLastModified()));
     return entity.build();
   }
 
@@ -94,19 +110,29 @@ public abstract class FeatureEntity {
         .setProject(project)
         .setLayer(project.getLayer(featureEntity.getFeatureTypeId()).get())
         .setPoint(featureEntity.getLocation().toPoint())
+        .setCreated(AuditInfoEntity.toObject(featureEntity.getCreated()))
+        .setLastModified(AuditInfoEntity.toObject(featureEntity.getLastModified()))
         .build();
   }
 
   // Boilerplate generated using Android Studio AutoValue plugin:
 
   public static FeatureEntity create(
-      String id, EntityState state, String projectId, String featureTypeId, Coordinates location) {
+      String id,
+      String projectId,
+      String featureTypeId,
+      EntityState state,
+      Coordinates location,
+      AuditInfoEntity created,
+      AuditInfoEntity lastModified) {
     return builder()
         .setId(id)
-        .setState(state)
         .setProjectId(projectId)
         .setFeatureTypeId(featureTypeId)
+        .setState(state)
         .setLocation(location)
+        .setCreated(created)
+        .setLastModified(lastModified)
         .build();
   }
 
@@ -119,13 +145,17 @@ public abstract class FeatureEntity {
 
     public abstract Builder setId(String newId);
 
-    public abstract Builder setState(EntityState newState);
-
     public abstract Builder setProjectId(String newProjectId);
 
     public abstract Builder setFeatureTypeId(String newFeatureTypeId);
 
+    public abstract Builder setState(EntityState newState);
+
     public abstract Builder setLocation(Coordinates newLocation);
+
+    public abstract Builder setCreated(AuditInfoEntity newCreated);
+
+    public abstract Builder setLastModified(AuditInfoEntity newLastModified);
 
     public abstract FeatureEntity build();
   }

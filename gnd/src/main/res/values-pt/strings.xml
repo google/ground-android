@@ -63,11 +63,11 @@
   -->
 
   <!-- Shown in observation overflow menu to open popup dialog to edit feature metadata. -->
-  <string name="edit_record">Editar registro</string>
+  <string name="edit_observation">Editar registro</string>
   <!-- Shown in observation overflow menu to delete a observation. -->
-  <string name="delete_record">Apagar registro</string>
+  <string name="delete_observation">Apagar registro</string>
   <!-- Confirmation shown when deleting a observation (TBD). -->
-  <string name="delete_record_confirmation">
+  <string name="delete_observation_confirmation">
     Tem certeza que deseja apagar permanentemente os dados? Isso não pode ser desfeito.
   </string>
   <!--
@@ -123,14 +123,14 @@ Tem certeza que deseja apagar o local e todos os dados associados? Isso não pod
   <string name="invalid_data_confirm">OK</string>
 
   <string name="join_project_dialog_title">Junte-se ao projeto</string>
-  <string name="add_record_button_label">Adicionar registro</string>
-  <string name="view_record_details">Ver detalhes do registro</string>
+  <string name="add_observation_button_label">Adicionar registro</string>
+  <string name="view_observation_details">Ver detalhes do registro</string>
   <string name="map_view">Visão do mapa</string>
   <string name="project_load_error">O projeto não pôde ser carregado</string>
   <string name="project_list_load_error">Lista de projetos não disponível</string>
   <string name="unexpected_error">Ocorreu um erro inesperado</string>
-  <string name="edit_record_button_label">Editar</string>
-  <string name="save_record_button_label">Salve</string>
+  <string name="edit_observation_button_label">Editar</string>
+  <string name="save_observation_button_label">Salve</string>
   <string name="saving">Salvando&#8230;</string>
   <string name="no_changes_to_save">Não há alterações para salvar</string>
   <string name="select_project_menu_item">Selecionar projetos</string>
