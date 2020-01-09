@@ -16,35 +16,58 @@
   -->
 
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools">
+  xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <data>
+  <data>
 
-        <variable
-            name="viewModel"
-            type="com.google.android.gnd.ui.offlinearea.OfflineAreasViewModel" />
-    </data>
+    <variable
+      name="viewModel"
+      type="com.google.android.gnd.ui.offlinearea.OfflineAreasViewModel" />
+  </data>
 
-    <LinearLayout
+  <LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <com.google.android.gnd.ui.common.TwoLineToolbar
+      android:id="@+id/offline_areas_toolbar"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:elevation="@dimen/toolbar_elevation"
+      android:paddingTop="@dimen/offline_area_toolbar_padding_top"
+      android:theme="@style/PrimaryToolbarTheme"
+      app:title="@string/offline_areas"
+      app:titleTextColor="@color/colorBackground" />
+
+    <FrameLayout
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      android:layout_gravity="center">
+      <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/offline_areas_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:layout_gravity="center" />
 
-        <com.google.android.gnd.ui.common.TwoLineToolbar
-            android:id="@+id/offline_areas_toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/cardview_dark_background"
-            android:elevation="@dimen/toolbar_elevation"
-            android:paddingTop="@dimen/offline_area_toolbar_padding_top"
-            android:theme="@style/GreenToolbarTheme"
-            app:title="@string/offline_areas" />
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/offline_areas_list"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
-
-    </LinearLayout>
+      <!-- TODO: We shouldn't need the bottom margin setting here. There's likely a better way to
+           constrain the position of this button. If we do wind up needing margins, add them as
+           dimen resources.-->
+      <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/floatingActionButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_marginEnd="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginBottom="42dp"
+        android:backgroundTint="@color/colorPrimary"
+        android:clickable="true"
+        android:contentDescription="@string/offline_area_selector_prompt"
+        android:focusable="true"
+        android:src="@drawable/ic_add_light"
+        android:tint="@color/colorBackground"
+        app:useCompatPadding="true" />
+    </FrameLayout>
+  </LinearLayout>
 </layout>

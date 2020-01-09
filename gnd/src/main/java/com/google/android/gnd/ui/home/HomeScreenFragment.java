@@ -231,7 +231,6 @@ public class HomeScreenFragment extends AbstractFragment
   // }
 
   private void showOfflineAreas() {
-    toolbar.setBackgroundColor(3);
     viewModel.showOfflineAreas();
   }
 
@@ -355,6 +354,7 @@ public class HomeScreenFragment extends AbstractFragment
 
   private void onActivateProjectFailure(Throwable throwable) {
     Log.e(TAG, "Error activating project", throwable);
+    dismissLoadingDialog();
     EphemeralPopups.showError(getContext(), R.string.project_load_error);
     showProjectSelector();
   }
