@@ -18,6 +18,7 @@ package com.google.android.gnd.repository;
 
 import com.google.android.gnd.model.Mutation;
 import com.google.android.gnd.model.Project;
+import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.FeatureMutation;
 import com.google.android.gnd.persistence.local.LocalDataStore;
@@ -28,6 +29,7 @@ import com.google.common.collect.ImmutableSet;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
+import java.util.Date;
 import java8.util.Optional;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -103,8 +105,7 @@ public class FeatureRepository {
         .flatMap(project -> localDataStore.getFeature(project, featureId));
   }
 
-  public Completable saveFeature(Feature feature) {
-    // TODO(#79): Assign owner and timestamps when creating new feature.
+  public Completable saveFeature(Feature feature, User user) {
     // TODO(#80): Update UI to provide FeatureMutations instead of Features here.
     return localDataStore
         .applyAndEnqueue(
@@ -114,8 +115,8 @@ public class FeatureRepository {
                 .setFeatureId(feature.getId())
                 .setLayerId(feature.getLayer().getId())
                 .setNewLocation(Optional.of(feature.getPoint()))
-                // TODO(#101): Attach real credentials.
-                .setUserId("")
+                .setUserId(user.getId())
+                .setClientTimestamp(new Date())
                 .build())
         .andThen(dataSyncWorkManager.enqueueSyncWorker(feature.getId()));
   }

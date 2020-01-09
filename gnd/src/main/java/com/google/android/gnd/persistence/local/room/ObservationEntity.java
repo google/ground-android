@@ -18,20 +18,20 @@ package com.google.android.gnd.persistence.local.room;
 
 import static androidx.room.ForeignKey.CASCADE;
 
-import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
+import androidx.room.Embedded;
 import androidx.room.Entity;
 import androidx.room.ForeignKey;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
+import com.google.android.gnd.model.AuditInfo;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.model.observation.ObservationMutation;
 import com.google.android.gnd.model.observation.ResponseMap;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.AutoValue.CopyAnnotations;
-import com.google.common.collect.ImmutableList;
 
 /** Representation of a {@link Observation} in local db. */
 @AutoValue
@@ -47,8 +47,6 @@ import com.google.common.collect.ImmutableList;
     // used independently.
     indices = {@Index({"feature_id", "form_id", "state"})})
 public abstract class ObservationEntity {
-
-  private static final String TAG = ObservationEntity.class.getSimpleName();
 
   @CopyAnnotations
   @PrimaryKey
@@ -82,29 +80,15 @@ public abstract class ObservationEntity {
   @NonNull
   public abstract ResponseMap getResponses();
 
-  /**
-   * Returns a new instance whose state is the same as the current one, but with the specified
-   * mutation applied.
-   */
-  public ObservationEntity applyMutation(ObservationMutation mutation) {
-    // TODO: Implement conversion between layers in a consistent way, e.g.in separate
-    // converter classes.
-    return applyMutations(ImmutableList.of(ObservationMutationEntity.fromMutation(mutation)));
-  }
+  @CopyAnnotations
+  @NonNull
+  @Embedded(prefix = "created_")
+  public abstract AuditInfoEntity getCreated();
 
-  /**
-   * Returns a new instance whose state is the same as the current one, but with the specified
-   * mutations applied.
-   */
-  public ObservationEntity applyMutations(Iterable<ObservationMutationEntity> mutations) {
-    Log.v(TAG, "Merging observation " + this + " with mutations " + mutations);
-    ObservationEntity.Builder builder = toBuilder();
-    for (ObservationMutationEntity mutation : mutations) {
-      builder.responsesBuilder().applyDeltas(mutation.getResponseDeltas());
-    }
-    Log.v(TAG, "Merged observation " + builder.build());
-    return builder.build();
-  }
+  @CopyAnnotations
+  @NonNull
+  @Embedded(prefix = "modified_")
+  public abstract AuditInfoEntity getLastModified();
 
   public static ObservationEntity fromObservation(Observation observation) {
     return ObservationEntity.builder()
@@ -113,16 +97,21 @@ public abstract class ObservationEntity {
         .setFeatureId(observation.getFeature().getId())
         .setState(EntityState.DEFAULT)
         .setResponses(observation.getResponses())
+        .setCreated(AuditInfoEntity.fromObject(observation.getCreated()))
+        .setLastModified(AuditInfoEntity.fromObject(observation.getLastModified()))
         .build();
   }
 
-  public static ObservationEntity fromMutation(ObservationMutation mutation) {
+  public static ObservationEntity fromMutation(ObservationMutation mutation, AuditInfo created) {
+    AuditInfoEntity authInfo = AuditInfoEntity.fromObject(created);
     return ObservationEntity.builder()
         .setId(mutation.getObservationId())
         .setFormId(mutation.getFormId())
         .setFeatureId(mutation.getFeatureId())
         .setState(EntityState.DEFAULT)
         .setResponses(ResponseMap.builder().applyDeltas(mutation.getResponseDeltas()).build())
+        .setCreated(authInfo)
+        .setLastModified(authInfo)
         .build();
   }
 
@@ -136,6 +125,8 @@ public abstract class ObservationEntity {
         .setProject(feature.getProject())
         .setFeature(feature)
         .setResponses(observation.getResponses())
+        .setCreated(AuditInfoEntity.toObject(observation.getCreated()))
+        .setLastModified(AuditInfoEntity.toObject(observation.getLastModified()))
         .build();
   }
 
@@ -144,13 +135,21 @@ public abstract class ObservationEntity {
   // Boilerplate generated using Android Studio AutoValue plugin:
 
   public static ObservationEntity create(
-      String id, EntityState state, String featureId, String formId, ResponseMap responses) {
+      String id,
+      String featureId,
+      String formId,
+      EntityState state,
+      ResponseMap responses,
+      AuditInfoEntity created,
+      AuditInfoEntity lastModified) {
     return builder()
         .setId(id)
-        .setState(state)
         .setFeatureId(featureId)
-        .setResponses(responses)
         .setFormId(formId)
+        .setState(state)
+        .setResponses(responses)
+        .setCreated(created)
+        .setLastModified(lastModified)
         .build();
   }
 
@@ -163,15 +162,25 @@ public abstract class ObservationEntity {
 
     public abstract Builder setId(String newId);
 
-    public abstract Builder setState(EntityState newState);
-
     public abstract Builder setFeatureId(String newFeatureId);
 
     public abstract Builder setFormId(String newFormId);
 
+    public abstract Builder setState(EntityState newState);
+
     public abstract Builder setResponses(ResponseMap newResponses);
 
     public abstract ResponseMap.Builder responsesBuilder();
+
+    public abstract Builder setCreated(AuditInfoEntity newCreated);
+
+    public abstract Builder setLastModified(AuditInfoEntity newLastModified);
+
+    /** Applies the specified mutation to this builder. */
+    public Builder applyMutation(ObservationMutationEntity mutation) {
+      responsesBuilder().applyDeltas(mutation.getResponseDeltas());
+      return this;
+    }
 
     public abstract ObservationEntity build();
   }

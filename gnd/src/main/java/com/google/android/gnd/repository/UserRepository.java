@@ -16,8 +16,8 @@
 
 package com.google.android.gnd.repository;
 
+import com.google.android.gnd.model.User;
 import com.google.android.gnd.persistence.local.LocalDataStore;
-import com.google.android.gnd.system.AuthenticationManager.User;
 import io.reactivex.Completable;
 import io.reactivex.schedulers.Schedulers;
 import javax.inject.Inject;

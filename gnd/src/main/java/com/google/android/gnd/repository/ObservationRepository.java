@@ -17,6 +17,8 @@
 package com.google.android.gnd.repository;
 
 import android.util.Log;
+import com.google.android.gnd.model.AuditInfo;
+import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.model.observation.ObservationMutation;
@@ -114,9 +116,11 @@ public class ObservationRepository {
                     .switchIfEmpty(Single.error(new DocumentNotFoundException())));
   }
 
-  public Single<Observation> createObservation(String projectId, String featureId, String formId) {
+  public Single<Observation> createObservation(
+      String projectId, String featureId, String formId, User user) {
     // TODO: Handle invalid formId.
     // TODO(#127): Decouple feature from observation so that we don't need to fetch feature here.
+    AuditInfo auditInfo = AuditInfo.now(user);
     return featureRepository
         .getFeature(projectId, featureId)
         .switchIfEmpty(Single.error(new DocumentNotFoundException()))
@@ -127,11 +131,12 @@ public class ObservationRepository {
                     .setProject(feature.getProject())
                     .setFeature(feature)
                     .setForm(feature.getLayer().getForm(formId).get())
+                    .setCreated(auditInfo)
+                    .setLastModified(auditInfo)
                     .build());
   }
 
   public Completable applyAndEnqueue(ObservationMutation mutation) {
-    // TODO(#101): Store user id and timestamp on save.
     return localDataStore
         .applyAndEnqueue(mutation)
         .andThen(dataSyncWorkManager.enqueueSyncWorker(mutation.getFeatureId()));

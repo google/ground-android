@@ -18,7 +18,9 @@ package com.google.android.gnd.repository;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import com.google.android.gnd.model.AuditInfo;
 import com.google.android.gnd.model.Project;
+import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.model.layer.Layer;
@@ -29,12 +31,17 @@ public class InMemoryCacheTest {
 
   private InMemoryCache inMemoryCache;
 
+  private static final User FAKE_USER =
+      User.builder().setId("id").setDisplayName("name").setEmail("email").build();
+
   private static final Feature FAKE_FEATURE =
       Feature.newBuilder()
           .setId("foo feature id")
           .setProject(Project.newBuilder().build())
           .setLayer(Layer.newBuilder().build())
           .setPoint(Point.newBuilder().setLatitude(0.0).setLongitude(0.0).build())
+          .setCreated(AuditInfo.now(FAKE_USER))
+          .setLastModified(AuditInfo.now(FAKE_USER))
           .build();
 
   @Before

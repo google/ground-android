@@ -24,12 +24,12 @@ import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.ForeignKey;
 import androidx.room.Index;
-import androidx.room.PrimaryKey;
 import com.google.android.gnd.model.observation.ObservationMutation;
 import com.google.android.gnd.model.observation.ResponseDelta;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.AutoValue.CopyAnnotations;
 import com.google.common.collect.ImmutableList;
+import java.util.Date;
 import org.json.JSONObject;
 
 /** Representation of a {@link ObservationMutation} in local data store. */
@@ -49,19 +49,7 @@ import org.json.JSONObject;
           onDelete = CASCADE)
     },
     indices = {@Index("feature_id"), @Index("observation_id")})
-public abstract class ObservationMutationEntity {
-  // TODO: Refactor common attributes in MutationEntity base case.
-  @CopyAnnotations
-  @PrimaryKey(autoGenerate = true)
-  @ColumnInfo(name = "id")
-  @Nullable
-  public abstract Long getId();
-
-  @CopyAnnotations
-  @NonNull
-  @ColumnInfo(name = "project_id")
-  public abstract String getProjectId();
-
+public abstract class ObservationMutationEntity extends MutationEntity {
   @CopyAnnotations
   @NonNull
   @ColumnInfo(name = "form_id")
@@ -81,20 +69,6 @@ public abstract class ObservationMutationEntity {
   @NonNull
   @ColumnInfo(name = "observation_id")
   public abstract String getObservationId();
-
-  @CopyAnnotations
-  @NonNull
-  @ColumnInfo(name = "type")
-  public abstract MutationEntityType getType();
-
-  @CopyAnnotations
-  @ColumnInfo(name = "retry_count")
-  public abstract long getRetryCount();
-
-  @CopyAnnotations
-  @ColumnInfo(name = "last_error")
-  @Nullable
-  public abstract String getLastError();
 
   /**
    * For mutations of type {@link MutationEntityType#CREATE} and {@link MutationEntityType#UPDATE},
@@ -118,7 +92,9 @@ public abstract class ObservationMutationEntity {
       MutationEntityType type,
       ImmutableList<ResponseDelta> responseDeltas,
       long retryCount,
-      @Nullable String lastError) {
+      @Nullable String lastError,
+      @Nullable String userId,
+      long clientTimestamp) {
     return builder()
         .setId(id)
         .setProjectId(projectId)
@@ -130,6 +106,8 @@ public abstract class ObservationMutationEntity {
         .setResponseDeltas(responseDeltas)
         .setRetryCount(retryCount)
         .setLastError(lastError)
+        .setUserId(userId)
+        .setClientTimestamp(clientTimestamp)
         .build();
   }
 
@@ -145,6 +123,8 @@ public abstract class ObservationMutationEntity {
         .setResponseDeltas(m.getResponseDeltas())
         .setRetryCount(m.getRetryCount())
         .setLastError(m.getLastError())
+        .setUserId(m.getUserId())
+        .setClientTimestamp(m.getClientTimestamp().getTime())
         .build();
   }
 
@@ -160,6 +140,8 @@ public abstract class ObservationMutationEntity {
         .setResponseDeltas(getResponseDeltas())
         .setRetryCount(getRetryCount())
         .setLastError(getLastError())
+        .setUserId(getUserId())
+        .setClientTimestamp(new Date(getClientTimestamp()))
         .build();
   }
 
@@ -170,11 +152,7 @@ public abstract class ObservationMutationEntity {
   }
 
   @AutoValue.Builder
-  public abstract static class Builder {
-
-    public abstract Builder setId(@Nullable Long newId);
-
-    public abstract Builder setProjectId(@Nullable String newProjectId);
+  public abstract static class Builder extends MutationEntity.Builder<Builder> {
 
     public abstract Builder setFeatureId(@Nullable String newFeatureId);
 
@@ -184,13 +162,7 @@ public abstract class ObservationMutationEntity {
 
     public abstract Builder setObservationId(String newObservationId);
 
-    public abstract Builder setType(MutationEntityType newType);
-
     public abstract Builder setResponseDeltas(ImmutableList<ResponseDelta> newResponseDeltas);
-
-    public abstract Builder setRetryCount(long newRetryCount);
-
-    public abstract Builder setLastError(@Nullable String newLastError);
 
     public abstract ObservationMutationEntity build();
   }

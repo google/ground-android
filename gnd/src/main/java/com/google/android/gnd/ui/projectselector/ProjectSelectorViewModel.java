@@ -36,11 +36,9 @@ public class ProjectSelectorViewModel extends AbstractViewModel {
   ProjectSelectorViewModel(ProjectRepository projectRepository, AuthenticationManager authManager) {
     this.projectRepository = projectRepository;
 
-    AuthenticationManager.User user =
-        authManager.getUser().blockingFirst(AuthenticationManager.User.ANONYMOUS);
-
     this.projectSummaries =
-        LiveDataReactiveStreams.fromPublisher(projectRepository.getProjectSummaries(user));
+        LiveDataReactiveStreams.fromPublisher(
+            projectRepository.getProjectSummaries(authManager.getCurrentUser()));
   }
 
   public LiveData<Loadable<List<Project>>> getProjectSummaries() {

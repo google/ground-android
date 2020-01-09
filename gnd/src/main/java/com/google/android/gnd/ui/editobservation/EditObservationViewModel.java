@@ -48,6 +48,7 @@ import com.google.common.collect.ImmutableList;
 import io.reactivex.Single;
 import io.reactivex.processors.BehaviorProcessor;
 import io.reactivex.processors.PublishProcessor;
+import java.util.Date;
 import java8.util.Optional;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
@@ -225,7 +226,11 @@ public class EditObservationViewModel extends AbstractViewModel {
 
   private Single<Observation> createObservation(EditObservationFragmentArgs args) {
     return observationRepository
-        .createObservation(args.getProjectId(), args.getFeatureId(), args.getFormId())
+        .createObservation(
+            args.getProjectId(),
+            args.getFeatureId(),
+            args.getFormId(),
+            authManager.getCurrentUser())
         .doOnError(
             t -> onError("Error creating new observation", RxJava2Debug.getEnhancedStackTrace(t)))
         .onErrorResumeNext(Single.never());
@@ -260,8 +265,6 @@ public class EditObservationViewModel extends AbstractViewModel {
 
   private Single<Event<SaveResult>> save() {
     savingProgressVisibility.setValue(View.VISIBLE);
-    AuthenticationManager.User currentUser =
-        authManager.getUser().blockingFirst(AuthenticationManager.User.ANONYMOUS);
     ObservationMutation observationMutation =
         ObservationMutation.builder()
             .setType(isNew ? ObservationMutation.Type.CREATE : ObservationMutation.Type.UPDATE)
@@ -271,7 +274,8 @@ public class EditObservationViewModel extends AbstractViewModel {
             .setObservationId(originalObservation.getId())
             .setFormId(originalObservation.getForm().getId())
             .setResponseDeltas(getResponseDeltas())
-            .setUserId(currentUser.getId())
+            .setClientTimestamp(new Date())
+            .setUserId(authManager.getCurrentUser().getId())
             .build();
     return observationRepository
         .applyAndEnqueue(observationMutation)

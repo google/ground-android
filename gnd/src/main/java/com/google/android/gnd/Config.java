@@ -16,15 +16,15 @@
 
 package com.google.android.gnd;
 
-/** Project configurations. */
+/** Application configuration. */
 public final class Config {
 
-  // Local db settings
+  // Local db settings.
   // TODO(#128): Reset version to 1 before releasing.
-  public static final int DB_VERSION = 33;
+  public static final int DB_VERSION = 39;
   public static final String DB_NAME = "gnd.db";
 
-  // Firebase firestore settings
-  public static final boolean FIRESTORE_PERSISTANCE_ENABLED = false;
+  // Firebase Cloud Firestore settings.
+  public static final boolean FIRESTORE_PERSISTENCE_ENABLED = false;
   public static final boolean FIRESTORE_LOGGING_ENABLED = true;
 }

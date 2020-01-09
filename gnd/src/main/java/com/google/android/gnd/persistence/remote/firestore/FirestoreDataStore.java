@@ -21,6 +21,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.gnd.model.Mutation;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.Timestamps;
+import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.FeatureMutation;
 import com.google.android.gnd.model.observation.Observation;
@@ -28,7 +29,6 @@ import com.google.android.gnd.model.observation.ObservationMutation;
 import com.google.android.gnd.persistence.remote.RemoteDataEvent;
 import com.google.android.gnd.persistence.remote.RemoteDataStore;
 import com.google.android.gnd.rx.RxTask;
-import com.google.android.gnd.system.AuthenticationManager.User;
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
 import com.google.firebase.firestore.WriteBatch;
@@ -95,42 +95,42 @@ public class FirestoreDataStore implements RemoteDataStore {
   }
 
   @Override
-  public Completable applyMutations(ImmutableCollection<Mutation> mutations) {
-    return RxTask.toCompletable(() -> applyMutationsInternal(mutations))
+  public Completable applyMutations(ImmutableCollection<Mutation> mutations, User user) {
+    return RxTask.toCompletable(() -> applyMutationsInternal(mutations, user))
         .subscribeOn(Schedulers.io());
   }
 
-  private Task<?> applyMutationsInternal(ImmutableCollection<Mutation> mutations) {
+  private Task<?> applyMutationsInternal(ImmutableCollection<Mutation> mutations, User user) {
     WriteBatch batch = db.batch();
     for (Mutation mutation : mutations) {
-      addMutationToBatch(mutation, batch);
+      addMutationToBatch(mutation, user, batch);
     }
     return batch.commit();
   }
 
-  private void addMutationToBatch(Mutation mutation, WriteBatch batch) {
+  private void addMutationToBatch(Mutation mutation, User user, WriteBatch batch) {
     if (mutation instanceof FeatureMutation) {
-      addFeatureMutationToBatch((FeatureMutation) mutation, batch);
+      addFeatureMutationToBatch((FeatureMutation) mutation, user, batch);
     } else if (mutation instanceof ObservationMutation) {
-      addRecordMutationToBatch((ObservationMutation) mutation, batch);
+      addRecordMutationToBatch((ObservationMutation) mutation, user, batch);
     } else {
       throw new IllegalArgumentException("Unsupported mutation " + mutation.getClass());
     }
   }
 
-  private void addFeatureMutationToBatch(FeatureMutation mutation, WriteBatch batch) {
+  private void addFeatureMutationToBatch(FeatureMutation mutation, User user, WriteBatch batch) {
     db.projects()
         .project(mutation.getProjectId())
         .features()
         .feature(mutation.getFeatureId())
-        .addMutationToBatch(mutation, batch);
+        .addMutationToBatch(mutation, user, batch);
   }
 
-  private void addRecordMutationToBatch(ObservationMutation mutation, WriteBatch batch) {
+  private void addRecordMutationToBatch(ObservationMutation mutation, User user, WriteBatch batch) {
     db.projects()
         .project(mutation.getProjectId())
         .records()
         .record(mutation.getObservationId())
-        .addMutationToBatch(mutation, batch);
+        .addMutationToBatch(mutation, user, batch);
   }
 }

@@ -31,8 +31,7 @@ import javax.inject.Inject;
 /** Custom {@code WorkerFactory} to allow Dagger 2 injection into Ground Workers. */
 public class GndWorkerFactory extends WorkerFactory {
   // TODO(github.com/google/dagger/issues/1183): Remove this factory once direct injection
-  // supported on Workers. If this doesn't happen, replace with more robust solution, e.g.
-  // https://github.com/nlgtuankiet/dagger-workmanager./
+  // supported on Workers.
   private final LocalDataStore localDataStore;
   private final RemoteDataStore remoteDataStore;
 
@@ -50,7 +49,7 @@ public class GndWorkerFactory extends WorkerFactory {
       @NonNull WorkerParameters params) {
     // There are more generic and robust ways of doing this, but individual constructors are
     // hard-coded for simplicity. If and when github.com/google/dagger/issues/1183 is implemented
-    // this class with go away completely.
+    // this class can be removed in favor of DI.
     if (workerClassName.equals(LocalMutationSyncWorker.class.getName())) {
       return new LocalMutationSyncWorker(appContext, params, localDataStore, remoteDataStore);
     } else if (workerClassName.equals(FileDownloadWorker.class.getName())) {

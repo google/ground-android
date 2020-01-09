@@ -29,6 +29,7 @@ import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gnd.R;
 import com.google.android.gnd.inject.ActivityScoped;
+import com.google.android.gnd.model.User;
 import com.google.android.gnd.rx.ValueOrError;
 import com.google.android.gnd.system.ActivityStreams.ActivityResult;
 import com.google.android.gnd.system.AuthenticationManager.SignInState.State;
@@ -41,6 +42,7 @@ import io.reactivex.Observable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.subjects.BehaviorSubject;
 import io.reactivex.subjects.Subject;
+import java8.util.Optional;
 import javax.inject.Inject;
 
 @ActivityScoped
@@ -73,7 +75,7 @@ public class AuthenticationManager {
     return signInState;
   }
 
-  public Observable<User> getUser() {
+  public Observable<Optional<User>> getUser() {
     return getSignInState().map(SignInState::getUser);
   }
 
@@ -86,7 +88,7 @@ public class AuthenticationManager {
     if (firebaseUser == null) {
       return new SignInState(State.SIGNED_OUT);
     } else {
-      return new SignInState(new User(firebaseUser));
+      return new SignInState(toUser(firebaseUser));
     }
   }
 
@@ -134,7 +136,7 @@ public class AuthenticationManager {
   private void onFirebaseAuthSuccess(AuthResult authResult) {
     // TODO: Store/update user profile in Firestore.
     // TODO: Store/update user profile and image locally.
-    signInState.onNext(new SignInState(new User(authResult.getUser())));
+    signInState.onNext(new SignInState(toUser(authResult.getUser())));
   }
 
   @NonNull
@@ -146,6 +148,22 @@ public class AuthenticationManager {
   protected void finalize() throws Throwable {
     activityResultsSubscription.dispose();
     super.finalize();
+  }
+
+  private static User toUser(FirebaseUser firebaseUser) {
+    return User.builder()
+        .setId(firebaseUser.getUid())
+        .setEmail(firebaseUser.getEmail())
+        .setDisplayName(firebaseUser.getDisplayName())
+        .build();
+  }
+
+  /**
+   * Returns the current user, blocking until a user logs in. Only call from code where user is
+   * guaranteed to be authenticated.
+   */
+  public User getCurrentUser() {
+    return getUser().filter(Optional::isPresent).map(Optional::get).blockingFirst();
   }
 
   public static class SignInState extends ValueOrError<User> {
@@ -178,39 +196,8 @@ public class AuthenticationManager {
       return state;
     }
 
-    public User getUser() {
-      return value().orElse(User.ANONYMOUS);
-    }
-  }
-
-  public static class User {
-
-    public static final User ANONYMOUS = new User("", "", "");
-
-    private final String uid;
-    private final String email;
-    private final String displayName;
-
-    public User(String uid, String email, String displayName) {
-      this.uid = uid;
-      this.email = email;
-      this.displayName = displayName;
-    }
-
-    private User(FirebaseUser firebaseUser) {
-      this(firebaseUser.getUid(), firebaseUser.getEmail(), firebaseUser.getDisplayName());
-    }
-
-    public String getId() {
-      return uid;
-    }
-
-    public String getEmail() {
-      return email;
-    }
-
-    public String getDisplayName() {
-      return displayName;
+    public Optional<User> getUser() {
+      return value();
     }
   }
 }

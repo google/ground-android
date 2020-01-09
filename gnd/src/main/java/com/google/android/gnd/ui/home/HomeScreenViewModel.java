@@ -30,6 +30,7 @@ import com.google.android.gnd.repository.Loadable;
 import com.google.android.gnd.repository.ProjectRepository;
 import com.google.android.gnd.rx.Action;
 import com.google.android.gnd.rx.Event;
+import com.google.android.gnd.system.AuthenticationManager;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.SharedViewModel;
@@ -65,6 +66,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
   HomeScreenViewModel(
       ProjectRepository projectRepository,
       FeatureRepository featureRepository,
+      AuthenticationManager authManager,
       Navigator navigator) {
     this.projectRepository = projectRepository;
     this.addFeatureDialogRequests = new MutableLiveData<>();
@@ -80,7 +82,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
             .switchMapSingle(
                 newFeature ->
                     featureRepository
-                        .saveFeature(newFeature)
+                        .saveFeature(newFeature, authManager.getCurrentUser())
                         .toSingleDefault(newFeature)
                         .doOnError(this::onAddFeatureError)
                         .onErrorResumeNext(Single.never())) // Prevent from breaking upstream.

@@ -22,12 +22,12 @@ import static java8.util.stream.StreamSupport.stream;
 
 import android.util.Log;
 import com.google.android.gnd.model.Project;
+import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.FeatureMutation;
 import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.model.observation.ObservationMutation;
 import com.google.android.gnd.persistence.remote.RemoteDataEvent;
-import com.google.android.gnd.system.AuthenticationManager.User;
 import com.google.common.collect.ImmutableList;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentChange;
@@ -129,11 +129,11 @@ public class GndFirestore extends AbstractFluentFirestore {
     }
 
     /** Appends the operation described by the specified mutation to the provided write batch. */
-    public void addMutationToBatch(FeatureMutation mutation, WriteBatch batch) {
+    public void addMutationToBatch(FeatureMutation mutation, User user, WriteBatch batch) {
       switch (mutation.getType()) {
         case CREATE:
         case UPDATE:
-          merge(FeatureDoc.toMap(mutation), batch);
+          merge(FeatureDoc.toMap(mutation, user), batch);
           break;
         case DELETE:
           // TODO: Implement me!
@@ -185,11 +185,11 @@ public class GndFirestore extends AbstractFluentFirestore {
     }
 
     /** Appends the operation described by the specified mutation to the provided write batch. */
-    public void addMutationToBatch(ObservationMutation mutation, WriteBatch batch) {
+    public void addMutationToBatch(ObservationMutation mutation, User user, WriteBatch batch) {
       switch (mutation.getType()) {
         case CREATE:
         case UPDATE:
-          merge(ObservationDoc.toMap(mutation), batch);
+          merge(ObservationDoc.toMap(mutation, user), batch);
           break;
         case DELETE:
           // TODO: Implement me!

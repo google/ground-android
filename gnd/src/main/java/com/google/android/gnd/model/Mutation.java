@@ -16,7 +16,9 @@
 
 package com.google.android.gnd.model;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import java.util.Date;
 
 /**
  * Represents a mutation that can be applied to local data and queued for sync with the remote data
@@ -57,10 +59,13 @@ public abstract class Mutation<B extends Mutation.Builder> {
   /** Returns the UUID of the feature type being modified. */
   public abstract String getLayerId();
 
-  /** Returns the globally unique id of the user requesting the change. */
-  // TODO(#101): Make NonNull.
+  /** Returns the id of the user requesting the change. */
   @Nullable
   public abstract String getUserId();
+
+  /** Returns the time the mutation was requested on the client. */
+  @NonNull
+  public abstract Date getClientTimestamp();
 
   public abstract long getRetryCount();
 
@@ -86,7 +91,9 @@ public abstract class Mutation<B extends Mutation.Builder> {
 
     public abstract T setProjectId(String newProjectId);
 
-    public abstract T setUserId(String newUserId);
+    public abstract T setUserId(@Nullable String newUserId);
+
+    public abstract T setClientTimestamp(@NonNull Date newClientTimestamp);
 
     public abstract T setRetryCount(long newRetryCount);
 

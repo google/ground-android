@@ -25,10 +25,10 @@ import androidx.room.Embedded;
 import androidx.room.Entity;
 import androidx.room.ForeignKey;
 import androidx.room.Index;
-import androidx.room.PrimaryKey;
 import com.google.android.gnd.model.feature.FeatureMutation;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.AutoValue.CopyAnnotations;
+import java.util.Date;
 import java8.util.Optional;
 
 /**
@@ -46,19 +46,7 @@ import java8.util.Optional;
             childColumns = "feature_id",
             onDelete = CASCADE),
     indices = {@Index("feature_id")})
-public abstract class FeatureMutationEntity {
-  // TODO: Refactor common attributes in MutationEntity base case.
-
-  @CopyAnnotations
-  @PrimaryKey(autoGenerate = true)
-  @ColumnInfo(name = "id")
-  @Nullable
-  public abstract Long getId();
-
-  @CopyAnnotations
-  @NonNull
-  @ColumnInfo(name = "project_id")
-  public abstract String getProjectId();
+public abstract class FeatureMutationEntity extends MutationEntity {
 
   @CopyAnnotations
   @NonNull
@@ -70,25 +58,11 @@ public abstract class FeatureMutationEntity {
   @ColumnInfo(name = "feature_type_id")
   public abstract String getFeatureTypeId();
 
-  @CopyAnnotations
-  @NonNull
-  @ColumnInfo(name = "type")
-  public abstract MutationEntityType getType();
-
   /** Non-null if the feature's location was updated, null if unchanged. */
   @CopyAnnotations
   @Nullable
   @Embedded
   public abstract Coordinates getNewLocation();
-
-  @CopyAnnotations
-  @ColumnInfo(name = "retry_count")
-  public abstract long getRetryCount();
-
-  @CopyAnnotations
-  @ColumnInfo(name = "last_error")
-  @Nullable
-  public abstract String getLastError();
 
   static FeatureMutationEntity fromMutation(FeatureMutation m) {
     return FeatureMutationEntity.builder()
@@ -100,6 +74,8 @@ public abstract class FeatureMutationEntity {
         .setType(MutationEntityType.fromMutationType(m.getType()))
         .setRetryCount(m.getRetryCount())
         .setLastError(m.getLastError())
+        .setUserId(m.getUserId())
+        .setClientTimestamp(m.getClientTimestamp().getTime())
         .build();
   }
 
@@ -113,6 +89,8 @@ public abstract class FeatureMutationEntity {
         .setType(getType().toMutationType())
         .setRetryCount(getRetryCount())
         .setLastError(getLastError())
+        .setUserId(getUserId())
+        .setClientTimestamp(new Date(getClientTimestamp()))
         .build();
   }
 
@@ -126,7 +104,9 @@ public abstract class FeatureMutationEntity {
       MutationEntityType type,
       Coordinates newLocation,
       long retryCount,
-      @Nullable String lastError) {
+      @Nullable String lastError,
+      String userId,
+      long clientTimestamp) {
     return builder()
         .setId(id)
         .setProjectId(projectId)
@@ -136,6 +116,8 @@ public abstract class FeatureMutationEntity {
         .setNewLocation(newLocation)
         .setRetryCount(retryCount)
         .setLastError(lastError)
+        .setUserId(userId)
+        .setClientTimestamp(clientTimestamp)
         .build();
   }
 
@@ -144,23 +126,13 @@ public abstract class FeatureMutationEntity {
   }
 
   @AutoValue.Builder
-  public abstract static class Builder {
-
-    public abstract Builder setId(@Nullable Long newId);
-
-    public abstract Builder setProjectId(String newProjectId);
+  public abstract static class Builder extends MutationEntity.Builder<Builder> {
 
     public abstract Builder setFeatureId(String newFeatureId);
 
     public abstract Builder setFeatureTypeId(String newFeatureTypeId);
 
-    public abstract Builder setType(MutationEntityType newType);
-
     public abstract Builder setNewLocation(Coordinates newNewLocation);
-
-    public abstract Builder setRetryCount(long newRetryCount);
-
-    public abstract Builder setLastError(@Nullable String newLastError);
 
     public abstract FeatureMutationEntity build();
   }
