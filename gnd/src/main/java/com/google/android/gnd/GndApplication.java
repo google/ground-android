@@ -63,6 +63,9 @@ public class GndApplication extends DaggerApplication {
     // Enable RxJava assembly stack collection for more useful stack traces.
     RxJava2Debug.enableRxJava2AssemblyTracking(new String[] {getClass().getPackage().getName()});
 
+    // Prevent RxJava from force-quitting on unhandled errors.
+    RxJavaPlugins.setErrorHandler(t -> RxDebug.logEnhancedStackTrace(t));
+
     // Set custom worker factory that allow Workers to use Dagger injection.
     // TODO(github.com/google/dagger/issues/1183): Remove once Workers support injection.
     WorkManager.initialize(

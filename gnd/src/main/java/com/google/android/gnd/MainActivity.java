@@ -32,7 +32,6 @@ import androidx.navigation.NavDirections;
 import androidx.navigation.fragment.NavHostFragment;
 import butterknife.ButterKnife;
 import com.google.android.gnd.repository.UserRepository;
-import com.google.android.gnd.rx.RxDebug;
 import com.google.android.gnd.system.ActivityStreams;
 import com.google.android.gnd.system.AuthenticationManager;
 import com.google.android.gnd.system.AuthenticationManager.SignInState;
@@ -44,7 +43,6 @@ import com.google.android.gnd.ui.common.TwoLineToolbar;
 import com.google.android.gnd.ui.common.ViewModelFactory;
 import com.google.android.gnd.ui.util.DrawableUtil;
 import dagger.android.support.DaggerAppCompatActivity;
-import io.reactivex.plugins.RxJavaPlugins;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -71,9 +69,6 @@ public class MainActivity extends DaggerAppCompatActivity {
   protected void onCreate(Bundle savedInstanceState) {
     logLifecycleEvent(this);
     drawableUtil = new DrawableUtil(getResources());
-
-    // Prevent RxJava from force-quitting on unhandled errors.
-    RxJavaPlugins.setErrorHandler(t -> RxDebug.logEnhancedStackTrace(t));
 
     // Make sure this is before calling super.onCreate()
     setTheme(R.style.AppTheme);
