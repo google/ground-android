@@ -26,7 +26,6 @@ import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.model.observation.ObservationMutation;
 import com.google.android.gnd.persistence.remote.RemoteDataEvent;
 import com.google.android.gnd.persistence.remote.RemoteDataStore;
-import com.google.android.gnd.rx.RxDebug;
 import com.google.android.gnd.rx.RxTask;
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
@@ -41,7 +40,6 @@ import javax.inject.Singleton;
 
 @Singleton
 public class FirestoreDataStore implements RemoteDataStore {
-  private static final String TAG = FirestoreDataStore.class.getSimpleName();
 
   static final String ID_COLLECTION = "/ids";
 
