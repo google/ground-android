@@ -67,7 +67,8 @@
         android:focusable="true"
         android:src="@drawable/ic_add_light"
         android:tint="@color/colorBackground"
-        app:useCompatPadding="true" />
+        app:useCompatPadding="true"
+        android:onClick="@{() -> viewModel.showOfflineAreaSelector()}"/>
     </FrameLayout>
   </LinearLayout>
 </layout>

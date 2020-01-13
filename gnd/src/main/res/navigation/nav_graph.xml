@@ -58,9 +58,6 @@
         android:defaultValue="NEW" />
     </action>
     <action
-      android:id="@+id/showBasemapSelector"
-      app:destination="@id/basemap_selector_fragment" />
-    <action
       android:id="@+id/fromHomeScreenToSignInScreen"
       app:destination="@id/sign_in_fragment"
       app:popUpTo="@id/navGraph"
@@ -76,17 +73,20 @@
     android:label="@string/offline_areas"
     tools:layout="@layout/offline_areas_frag">
     <action
+      android:id="@+id/showOfflineAreaSelector"
+      app:destination="@id/offline_area_selector_fragment" />
+    <action
       android:id="@+id/backToHomeScreen"
       app:destination="@id/home_screen_fragment" />
   </fragment>
   <fragment
-    android:id="@+id/basemap_selector_fragment"
-    android:name="com.google.android.gnd.ui.basemapselector.BasemapSelectorFragment"
-    android:label="@string/offline_areas"
-    tools:layout="@layout/basemap_selector_frag">
+    android:id="@+id/offline_area_selector_fragment"
+    android:name="com.google.android.gnd.ui.offlinearea.selector.OfflineAreaSelectorFragment"
+    android:label="@string/offline_area_selector"
+    tools:layout="@layout/offline_area_selector_frag">
     <action
-      android:id="@+id/backToHomeScreen"
-      app:destination="@id/home_screen_fragment" />
+      android:id="@+id/backToOfflineAreas"
+      app:destination="@id/offline_areas_fragment" />
   </fragment>
   <fragment
     android:id="@+id/observation_details_fragment"
