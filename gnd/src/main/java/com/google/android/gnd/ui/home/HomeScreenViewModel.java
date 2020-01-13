@@ -179,11 +179,6 @@ public class HomeScreenViewModel extends AbstractViewModel {
     projectRepository.getLastActiveProjectId().ifPresent(projectRepository::activateProject);
   }
 
-  // TODO: Move to OfflineAreaViewModel
-  public void showBasemapSelector() {
-    navigator.showBasemapSelector();
-  }
-
   public void showOfflineAreas() {
     navigator.showOfflineAreas();
   }
