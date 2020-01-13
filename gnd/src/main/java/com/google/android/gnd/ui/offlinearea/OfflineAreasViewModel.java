@@ -17,7 +17,6 @@
 package com.google.android.gnd.ui.offlinearea;
 
 import com.google.android.gnd.ui.common.AbstractViewModel;
-
 import com.google.android.gnd.ui.common.Navigator;
 import javax.inject.Inject;
 
@@ -28,10 +27,9 @@ public class OfflineAreasViewModel extends AbstractViewModel {
 
   private final Navigator navigator;
   // TODO: Implement the ViewModel
+
   @Inject
-  OfflineAreasViewModel(
-    Navigator navigator
-  ) {
+  OfflineAreasViewModel(Navigator navigator) {
     this.navigator = navigator;
   }
 

@@ -1,22 +1,38 @@
+/*
+ * Copyright 2020 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.google.android.gnd.ui.offlinearea.selector;
 
 import static com.google.android.gnd.rx.RxAutoDispose.autoDisposable;
 
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import butterknife.BindView;
 import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.MainViewModel;
 import com.google.android.gnd.R;
+import com.google.android.gnd.databinding.OfflineAreaSelectorFragBinding;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.TwoLineToolbar;
-import com.google.android.gnd.databinding.OfflineAreaSelectorFragBinding;
 import com.google.android.gnd.ui.map.MapProvider;
 import com.google.android.gnd.ui.map.MapProvider.MapAdapter;
 import com.google.android.material.chip.Chip;
@@ -27,8 +43,7 @@ public class OfflineAreaSelectorFragment extends AbstractFragment {
 
   private static final String MAP_FRAGMENT = MapProvider.class.getName() + "#fragment";
 
-  @Inject
-  MapProvider mapProvider;
+  @Inject MapProvider mapProvider;
 
   @BindView(R.id.offline_area_selector_toolbar)
   TwoLineToolbar toolbar;
@@ -56,9 +71,10 @@ public class OfflineAreaSelectorFragment extends AbstractFragment {
 
   @Override
   public View onCreateView(
-    LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+      LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     super.onCreateView(inflater, container, savedInstanceState);
-    OfflineAreaSelectorFragBinding binding = OfflineAreaSelectorFragBinding.inflate(inflater, container, false);
+    OfflineAreaSelectorFragBinding binding =
+        OfflineAreaSelectorFragBinding.inflate(inflater, container, false);
     binding.setViewModel(viewModel);
     binding.setLifecycleOwner(this);
     ((MainActivity) getActivity()).setActionBar(binding.offlineAreaSelectorToolbar, true);
