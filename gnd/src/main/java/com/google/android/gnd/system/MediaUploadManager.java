@@ -17,11 +17,13 @@
 package com.google.android.gnd.system;
 
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.util.Log;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -63,15 +65,27 @@ public class MediaUploadManager {
     return DATE_FORMAT.format(new Date());
   }
 
-  public void uploadMedia(Bitmap bitmap, String fileName) {
+  public void uploadMediaFromFile(File file, String fileName) {
+    runTask(createUploadTask(fileName, file), fileName);
+  }
+
+  public void uploadMediaFromBitmap(Bitmap bitmap, String fileName) {
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
     bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
     byte[] data = baos.toByteArray();
 
-    uploadTask(createReference(fileName).putBytes(data), fileName);
+    runTask(createUploadTask(fileName, data), fileName);
   }
 
-  private void uploadTask(UploadTask uploadTask, String fileName) {
+  private UploadTask createUploadTask(String fileName, byte[] bytes) {
+    return createReference(fileName).putBytes(bytes);
+  }
+
+  private UploadTask createUploadTask(String fileName, File file) {
+    return createReference(fileName).putFile(Uri.fromFile(file));
+  }
+
+  private void runTask(UploadTask uploadTask, String fileName) {
     uploadTask
         .addOnCanceledListener(
             () -> {
