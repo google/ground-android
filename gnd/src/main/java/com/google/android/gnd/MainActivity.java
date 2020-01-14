@@ -20,8 +20,6 @@ import static com.google.android.gnd.rx.RxAutoDispose.autoDisposable;
 import static com.google.android.gnd.util.Debug.logLifecycleEvent;
 
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
@@ -37,7 +35,6 @@ import com.google.android.gnd.repository.UserRepository;
 import com.google.android.gnd.system.ActivityStreams;
 import com.google.android.gnd.system.AuthenticationManager;
 import com.google.android.gnd.system.AuthenticationManager.SignInState;
-import com.google.android.gnd.system.MediaUploadManager;
 import com.google.android.gnd.system.SettingsManager;
 import com.google.android.gnd.ui.common.BackPressListener;
 import com.google.android.gnd.ui.common.EphemeralPopups;
@@ -64,7 +61,6 @@ public class MainActivity extends DaggerAppCompatActivity {
   @Inject AuthenticationManager authenticationManager;
   @Inject Navigator navigator;
   @Inject UserRepository userRepository;
-  @Inject MediaUploadManager mediaUploadManager;
   private NavHostFragment navHostFragment;
   private MainViewModel viewModel;
   private DrawableUtil drawableUtil;
@@ -103,9 +99,6 @@ public class MainActivity extends DaggerAppCompatActivity {
 
     navigator.getNavigateRequests().as(autoDisposable(this)).subscribe(this::onNavigate);
     navigator.getNavigateUpRequests().as(autoDisposable(this)).subscribe(__ -> navigateUp());
-
-    Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.ground_logo);
-    mediaUploadManager.uploadMediaFromBitmap(bitmap, "demo_file");
   }
 
   private void onNavigate(NavDirections navDirections) {

@@ -31,6 +31,8 @@ import java.util.Objects;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+// TODO: Add column to Observation table for storing uploaded media urls
+// TODO: Synced to remote db as well
 @Singleton
 public class MediaUploadManager {
 
@@ -87,6 +89,7 @@ public class MediaUploadManager {
   }
 
   private void uploadMediaToFirebaseStorage(UploadTask uploadTask, String fileName) {
+    // TODO: Create UploadState enum and use RxJava to broadcast upload state globally.
     uploadTask
         .addOnCanceledListener(
             () -> {
@@ -124,6 +127,7 @@ public class MediaUploadManager {
             })
         .addOnCompleteListener(
             task -> {
+              // TODO save to local database
               if (task.isSuccessful()) {
                 Uri downloadUri = task.getResult();
                 Log.d(TAG, String.format("Uploaded to : %s", downloadUri));
