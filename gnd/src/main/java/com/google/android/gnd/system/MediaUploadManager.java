@@ -27,6 +27,7 @@ import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Objects;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -66,8 +67,11 @@ public class MediaUploadManager {
   }
 
   public void uploadMediaFromFile(File file, String fileName) {
-    UploadTask task = createReference(fileName).putFile(Uri.fromFile(file));
-    runTask(task, fileName);
+    StorageReference reference = createReference(fileName);
+    UploadTask task = reference.putFile(Uri.fromFile(file));
+
+    uploadMediaToFirebaseStorage(task, fileName);
+    fetchDownloadUrl(reference, task);
   }
 
   public void uploadMediaFromBitmap(Bitmap bitmap, String fileName) {
@@ -75,11 +79,14 @@ public class MediaUploadManager {
     bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
     byte[] data = baos.toByteArray();
 
-    UploadTask task = createReference(fileName).putBytes(data);
-    runTask(task, fileName);
+    StorageReference reference = createReference(fileName);
+    UploadTask task = reference.putBytes(data);
+
+    uploadMediaToFirebaseStorage(task, fileName);
+    fetchDownloadUrl(reference, task);
   }
 
-  private void runTask(UploadTask uploadTask, String fileName) {
+  private void uploadMediaToFirebaseStorage(UploadTask uploadTask, String fileName) {
     uploadTask
         .addOnCanceledListener(
             () -> {
@@ -102,6 +109,25 @@ public class MediaUploadManager {
               double percentCompleted =
                   100.0 * taskSnapshot.getBytesTransferred() / taskSnapshot.getTotalByteCount();
               Log.d(TAG, String.format("Uploading in progress: %s %f", fileName, percentCompleted));
+            });
+  }
+
+  private void fetchDownloadUrl(StorageReference reference, UploadTask uploadTask) {
+    uploadTask
+        .continueWithTask(
+            task -> {
+              if (!task.isSuccessful()) {
+                throw Objects.requireNonNull(task.getException());
+              }
+              // Continue with the task to get the download URL
+              return reference.getDownloadUrl();
+            })
+        .addOnCompleteListener(
+            task -> {
+              if (task.isSuccessful()) {
+                Uri downloadUri = task.getResult();
+                Log.d(TAG, String.format("Uploaded to : %s", downloadUri));
+              }
             });
   }
 }
