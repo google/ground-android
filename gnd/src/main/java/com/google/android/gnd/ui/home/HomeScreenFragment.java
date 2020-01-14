@@ -225,11 +225,6 @@ public class HomeScreenFragment extends AbstractFragment
     ProjectSelectorDialogFragment.show(getFragmentManager());
   }
 
-  // TODO: Move to OfflineAreasFragment
-  // private void showBasemapSelector() {
-  //  viewModel.showBasemapSelector();
-  // }
-
   private void showOfflineAreas() {
     viewModel.showOfflineAreas();
   }

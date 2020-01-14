@@ -19,7 +19,6 @@ package com.google.android.gnd.ui.common;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 import com.google.android.gnd.MainViewModel;
-import com.google.android.gnd.ui.basemapselector.BasemapSelectorViewModel;
 import com.google.android.gnd.ui.editobservation.EditObservationViewModel;
 import com.google.android.gnd.ui.home.HomeScreenViewModel;
 import com.google.android.gnd.ui.home.featuresheet.FeatureSheetViewModel;
@@ -28,6 +27,7 @@ import com.google.android.gnd.ui.home.featuresheet.ObservationViewModel;
 import com.google.android.gnd.ui.home.mapcontainer.MapContainerViewModel;
 import com.google.android.gnd.ui.observationdetails.ObservationDetailsViewModel;
 import com.google.android.gnd.ui.offlinearea.OfflineAreasViewModel;
+import com.google.android.gnd.ui.offlinearea.selector.OfflineAreaSelectorViewModel;
 import com.google.android.gnd.ui.projectselector.ProjectSelectorViewModel;
 import com.google.android.gnd.ui.signin.SignInViewModel;
 import dagger.Binds;
@@ -43,8 +43,8 @@ public abstract class ViewModelModule {
 
   @Binds
   @IntoMap
-  @ViewModelKey(BasemapSelectorViewModel.class)
-  abstract ViewModel bindBasemapSelectorViewModel(BasemapSelectorViewModel viewModel);
+  @ViewModelKey(OfflineAreaSelectorViewModel.class)
+  abstract ViewModel bindOfflineAreaSelectorViewModel(OfflineAreaSelectorViewModel viewModel);
 
   @Binds
   @IntoMap

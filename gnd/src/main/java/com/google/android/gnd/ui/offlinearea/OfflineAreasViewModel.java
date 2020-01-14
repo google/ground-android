@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Google LLC
+ * Copyright 2020 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 package com.google.android.gnd.ui.offlinearea;
 
 import com.google.android.gnd.ui.common.AbstractViewModel;
-
+import com.google.android.gnd.ui.common.Navigator;
 import javax.inject.Inject;
 
 /**
@@ -25,7 +25,15 @@ import javax.inject.Inject;
  */
 public class OfflineAreasViewModel extends AbstractViewModel {
 
+  private final Navigator navigator;
   // TODO: Implement the ViewModel
+
   @Inject
-  OfflineAreasViewModel() {}
+  OfflineAreasViewModel(Navigator navigator) {
+    this.navigator = navigator;
+  }
+
+  public void showOfflineAreaSelector() {
+    navigator.showOfflineAreaSelector();
+  }
 }

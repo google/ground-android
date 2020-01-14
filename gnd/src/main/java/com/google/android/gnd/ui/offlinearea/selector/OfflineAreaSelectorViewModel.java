@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Google LLC
+ * Copyright 2020 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,17 +14,13 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.ui.basemapselector;
+package com.google.android.gnd.ui.offlinearea.selector;
 
-import androidx.fragment.app.Fragment;
-import com.google.android.gnd.inject.FragmentScoped;
-import dagger.Binds;
-import dagger.Module;
+import com.google.android.gnd.ui.common.AbstractViewModel;
+import javax.inject.Inject;
 
-@Module
-public abstract class BasemapSelectorModule {
-
-  @Binds
-  @FragmentScoped
-  abstract Fragment fragment(BasemapSelectorFragment fragment);
+public class OfflineAreaSelectorViewModel extends AbstractViewModel {
+  // TODO: Implement the ViewModel
+  @Inject
+  OfflineAreaSelectorViewModel() {}
 }

@@ -23,6 +23,7 @@ import com.google.android.gnd.ui.editobservation.EditObservationFragment;
 import com.google.android.gnd.ui.home.HomeScreenFragmentDirections;
 import com.google.android.gnd.ui.observationdetails.ObservationDetailsFragment;
 import com.google.android.gnd.ui.observationdetails.ObservationDetailsFragmentDirections;
+import com.google.android.gnd.ui.offlinearea.OfflineAreasFragmentDirections;
 import com.google.android.gnd.ui.signin.SignInFragmentDirections;
 import com.google.android.gnd.ui.startup.StartupFragmentDirections;
 import io.reactivex.Observable;
@@ -76,10 +77,10 @@ public class Navigator {
 
   /**
    * Navigates from a {@link com.google.android.gnd.ui.home.HomeScreenFragment} to a {@link
-   * com.google.android.gnd.ui.basemapselector.BasemapSelectorFragment}.
+   * com.google.android.gnd.ui.offlinearea.selector.OfflineAreaSelectorFragment}.
    */
-  public void showBasemapSelector() {
-    navigate(HomeScreenFragmentDirections.showBasemapSelector());
+  public void showOfflineAreaSelector() {
+    navigate(OfflineAreasFragmentDirections.showOfflineAreaSelector());
   }
 
   /**

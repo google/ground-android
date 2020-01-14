@@ -20,8 +20,6 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gnd.inject.ActivityScoped;
 import com.google.android.gnd.inject.FragmentScoped;
-import com.google.android.gnd.ui.basemapselector.BasemapSelectorFragment;
-import com.google.android.gnd.ui.basemapselector.BasemapSelectorModule;
 import com.google.android.gnd.ui.editobservation.EditObservationFragment;
 import com.google.android.gnd.ui.editobservation.EditObservationModule;
 import com.google.android.gnd.ui.home.AddFeatureDialogFragment;
@@ -36,6 +34,8 @@ import com.google.android.gnd.ui.observationdetails.ObservationDetailsFragment;
 import com.google.android.gnd.ui.observationdetails.ObservationDetailsModule;
 import com.google.android.gnd.ui.offlinearea.OfflineAreasFragment;
 import com.google.android.gnd.ui.offlinearea.OfflineAreasModule;
+import com.google.android.gnd.ui.offlinearea.selector.OfflineAreaSelectorFragment;
+import com.google.android.gnd.ui.offlinearea.selector.OfflineAreaSelectorModule;
 import com.google.android.gnd.ui.projectselector.ProjectSelectorDialogFragment;
 import com.google.android.gnd.ui.signin.SignInFragment;
 import com.google.android.gnd.ui.signin.SignInModule;
@@ -97,8 +97,8 @@ public abstract class MainActivityModule {
   abstract EditObservationFragment editObservationFragmentInjector();
 
   @FragmentScoped
-  @ContributesAndroidInjector(modules = BasemapSelectorModule.class)
-  abstract BasemapSelectorFragment basemapSelectorFragmentInjector();
+  @ContributesAndroidInjector(modules = OfflineAreaSelectorModule.class)
+  abstract OfflineAreaSelectorFragment offlineAreaSelectorFragmentInjector();
 
   @FragmentScoped
   @ContributesAndroidInjector(modules = OfflineAreasModule.class)
