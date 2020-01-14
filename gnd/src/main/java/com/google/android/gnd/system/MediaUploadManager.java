@@ -66,7 +66,8 @@ public class MediaUploadManager {
   }
 
   public void uploadMediaFromFile(File file, String fileName) {
-    runTask(createUploadTask(fileName, file), fileName);
+    UploadTask task = createReference(fileName).putFile(Uri.fromFile(file));
+    runTask(task, fileName);
   }
 
   public void uploadMediaFromBitmap(Bitmap bitmap, String fileName) {
@@ -74,15 +75,8 @@ public class MediaUploadManager {
     bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
     byte[] data = baos.toByteArray();
 
-    runTask(createUploadTask(fileName, data), fileName);
-  }
-
-  private UploadTask createUploadTask(String fileName, byte[] bytes) {
-    return createReference(fileName).putBytes(bytes);
-  }
-
-  private UploadTask createUploadTask(String fileName, File file) {
-    return createReference(fileName).putFile(Uri.fromFile(file));
+    UploadTask task = createReference(fileName).putBytes(data);
+    runTask(task, fileName);
   }
 
   private void runTask(UploadTask uploadTask, String fileName) {
