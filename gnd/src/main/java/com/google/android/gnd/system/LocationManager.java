@@ -44,7 +44,7 @@ public class LocationManager {
   private static final long FASTEST_INTERVAL = 250;
   private static final LocationRequest FINE_LOCATION_UPDATES_REQUEST =
       new LocationRequest()
-          .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
+          .setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY)
           .setInterval(UPDATE_INTERVAL)
           .setFastestInterval(FASTEST_INTERVAL);
 
