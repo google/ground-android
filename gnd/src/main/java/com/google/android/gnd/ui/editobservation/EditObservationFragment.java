@@ -168,7 +168,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
 
   public void addPhotoField(Field field) {
     PhotoInputFieldBinding binding =
-      PhotoInputFieldBinding.inflate(getLayoutInflater(), formLayout, false);
+        PhotoInputFieldBinding.inflate(getLayoutInflater(), formLayout, false);
     binding.setViewModel(viewModel);
     binding.setLifecycleOwner(this);
     binding.setField(field);
