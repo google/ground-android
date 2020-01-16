@@ -121,7 +121,7 @@ dependencies {
     implementation "net.sourceforge.streamsupport:streamsupport-cfuture:" +
         "$project.streamSupportVersion"
 
-    // For dynamic tab bar style.
+    // Google Play Services.
     implementation "com.google.android.gms:play-services-auth:$project.gmsVersion"
     implementation "com.google.android.gms:play-services-maps:$project.gmsVersion"
     implementation "com.google.android.gms:play-services-location:$project.gmsVersion"
