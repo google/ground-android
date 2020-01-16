@@ -149,8 +149,8 @@ Edit or create `gnd/secrets.properties` and set the `GOOGLE_MAPS_API_KEY` proper
 ```
 
 Verify the SHA-1 certificate fingerprint described in the API key generation
-instructions is  registered with package name `com.google.android.gnd`. To
-check, visit
+instructions is  registered with package name `com.google.android.ground`. To
+check, visit:
 
   https://console.cloud.google.com/apis/credentials
 

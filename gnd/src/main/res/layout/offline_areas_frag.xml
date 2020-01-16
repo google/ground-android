@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright 2019 Google LLC
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,7 +21,7 @@
 
     <variable
       name="viewModel"
-      type="com.google.android.gnd.ui.offlinearea.OfflineAreasViewModel" />
+      type="com.google.android.ground.ui.offlinearea.OfflineAreasViewModel" />
   </data>
 
   <LinearLayout
@@ -30,7 +29,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <com.google.android.gnd.ui.common.TwoLineToolbar
+    <com.google.android.ground.ui.common.TwoLineToolbar
       android:id="@+id/offline_areas_toolbar"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
@@ -68,7 +67,7 @@
         android:src="@drawable/ic_add_light"
         android:tint="@color/colorBackground"
         app:useCompatPadding="true"
-        android:onClick="@{() -> viewModel.showOfflineAreaSelector()}"/>
+        android:onClick="@{() -> viewModel.showOfflineAreaSelector()}" />
     </FrameLayout>
   </LinearLayout>
 </layout>

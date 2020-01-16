@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright 2018 Google LLC
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,17 +14,16 @@
   ~ limitations under the License.
   -->
 
-<layout
-  xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:app="http://schemas.android.com/apk/res-auto">
 
   <data>
     <variable
       name="viewModel"
-      type="com.google.android.gnd.ui.home.mapcontainer.MapContainerViewModel"/>
+      type="com.google.android.ground.ui.home.mapcontainer.MapContainerViewModel" />
     <variable
       name="homeScreenViewModel"
-      type="com.google.android.gnd.ui.home.HomeScreenViewModel"/>
+      type="com.google.android.ground.ui.home.HomeScreenViewModel" />
   </data>
 
   <FrameLayout
@@ -39,13 +37,13 @@
       android:layout_height="match_parent"
       android:layout_gravity="center"
       android:gravity="center"
-      app:layout_behavior="com.google.android.gnd.ui.home.mapcontainer.MapLayoutBehavior">
+      app:layout_behavior="com.google.android.ground.ui.home.mapcontainer.MapLayoutBehavior">
 
       <!-- Featureholder for map implementation -->
       <FrameLayout
         android:id="@+id/map"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent" />
 
       <!-- TODO: Add highlighted icon overlay when showing feature sheet -->
       <ImageView
@@ -55,7 +53,7 @@
         android:layout_centerInParent="true"
         android:adjustViewBounds="false"
         android:cropToPadding="false"
-        android:src="@drawable/ic_crosshairs"/>
+        android:src="@drawable/ic_crosshairs" />
     </RelativeLayout>
 
     <LinearLayout
@@ -75,7 +73,7 @@
         android:src="@drawable/ic_gps_grey600"
         app:backgroundTint="@color/colorBackground"
         app:fabSize="normal"
-        app:useCompatPadding="true"/>
+        app:useCompatPadding="true" />
 
       <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/add_feature_btn"
@@ -85,7 +83,7 @@
         android:tint="@color/colorBackground"
         app:backgroundTint="@color/colorGrey500"
         app:fabSize="normal"
-        app:useCompatPadding="true"/>
+        app:useCompatPadding="true" />
     </LinearLayout>
 
     <ImageButton
@@ -98,7 +96,7 @@
       android:clickable="true"
       android:onClick="@{() -> homeScreenViewModel.openNavDrawer()}"
       android:src="@drawable/ic_menu_black_24dp"
-      android:tint="@color/colorBackground"/>
+      android:tint="@color/colorBackground" />
 
   </FrameLayout>
 </layout>

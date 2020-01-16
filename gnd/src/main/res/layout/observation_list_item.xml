@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright 2018 Google LLC
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,7 +19,7 @@
 
     <variable
       name="viewModel"
-      type="com.google.android.gnd.ui.home.featuresheet.ObservationViewModel" />
+      type="com.google.android.ground.ui.home.featuresheet.ObservationViewModel" />
   </data>
 
   <FrameLayout xmlns:tools="http://schemas.android.com/tools"

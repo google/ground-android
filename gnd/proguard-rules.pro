@@ -26,7 +26,7 @@
 
 # Firebase uses reflection to read/write custom DAOs, so we need to explicitly tell ProGuard not
 # to remove them since there will be no compile-time references.
--keepclassmembers class com.google.android.gnd.persistence.remote.firestore.** {
+-keepclassmembers class com.google.android.ground.persistence.remote.firestore.** {
    *;
 }
 

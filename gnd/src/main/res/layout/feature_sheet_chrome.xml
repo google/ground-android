@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright 2018 Google LLC
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,14 +19,14 @@
   <data>
     <variable
       name="viewModel"
-      type="com.google.android.gnd.ui.home.HomeScreenViewModel" />
+      type="com.google.android.ground.ui.home.HomeScreenViewModel" />
   </data>
 
   <RelativeLayout
     android:id="@+id/bottom_sheet_chrome"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    app:layout_behavior="com.google.android.gnd.ui.home.BottomSheetChromeBehavior">
+    app:layout_behavior="com.google.android.ground.ui.home.BottomSheetChromeBehavior">
 
     <FrameLayout
       android:id="@+id/toolbar_wrapper"
@@ -37,7 +36,7 @@
       android:background="@color/colorPrimary"
       android:translationY="-1000dp">
 
-      <com.google.android.gnd.ui.common.TwoLineToolbar
+      <com.google.android.ground.ui.common.TwoLineToolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
