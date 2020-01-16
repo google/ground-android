@@ -138,6 +138,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
         break;
       case PHOTO:
         addPhotoField(field);
+        break;
       default:
         Log.w(TAG, "Unimplemented field type: " + field.getType());
         break;
