@@ -131,11 +131,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
   private void addField(Field field) {
     switch (field.getType()) {
       case TEXT:
-        // TODO: uncomment after testing
-        // addTextField(field);
-
-        // TODO: remove after testing
-        addPhotoField(field);
+        addTextField(field);
         break;
       case MULTIPLE_CHOICE:
         addMultipleChoiceField(field);
