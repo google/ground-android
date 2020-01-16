@@ -21,8 +21,8 @@ public final class Config {
 
   // Local db settings.
   // TODO(#128): Reset version to 1 before releasing.
-  public static final int DB_VERSION = 39;
-  public static final String DB_NAME = "gnd.db";
+  public static final int DB_VERSION = 1;
+  public static final String DB_NAME = "ground.db";
 
   // Firebase Cloud Firestore settings.
   public static final boolean FIRESTORE_PERSISTENCE_ENABLED = false;
