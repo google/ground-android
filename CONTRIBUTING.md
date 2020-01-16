@@ -143,7 +143,7 @@ following the instructions at:
 
   https://developers.google.com/maps/documentation/android-api/signup.
 
-Edit or create `gnd/secrets.properties` and set the `GOOGLE_MAPS_API_KEY` property to your API key.
+Edit or create `ground/secrets.properties` and set the `GOOGLE_MAPS_API_KEY` property to your API key.
 ```
   GOOGLE_MAPS_API_KEY=AIbzvW8e0ub...
 ```
@@ -169,7 +169,7 @@ $ keytool -list -v \
 
     https://console.firebase.google.com/
 
-2. Save config file for Android app to `gnd/src/debug/google-services.json`:
+2. Save config file for Android app to `ground/src/debug/google-services.json`:
 
     https://support.google.com/firebase/answer/7015592
 
@@ -195,4 +195,4 @@ Used to build with Google Cloud and for running integration tests:
     java.lang.RuntimeException: Unable to get provider com.google.firebase.provider.FirebaseInitProvider: java.lang.IllegalArgumentException: Given String is empty or null
     ```
     
-   Solution: Ensure `gnd/src/debug/google-services.json` exists and is valid, as per instructions in [Set up Firebase](#set-up-firebase).
+   Solution: Ensure `ground/src/debug/google-services.json` exists and is valid, as per instructions in [Set up Firebase](#set-up-firebase).
