@@ -147,5 +147,6 @@
   <string name="offline_area_selector_prompt">Select an area for offline use</string>
   <string name="offline_area_selector_cancel">Cancel</string>
   <string name="offline_area_selector_download">Download</string>
+  <string name="add_photo">Add photo</string>
 
 </resources>
