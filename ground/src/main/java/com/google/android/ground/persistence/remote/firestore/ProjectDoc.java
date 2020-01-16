@@ -29,6 +29,8 @@ import java8.util.Maps;
 
 @IgnoreExtraProperties
 public class ProjectDoc {
+  public static final String ACL = "acl";
+
   @Nullable public Map<String, String> title;
 
   @Nullable public Map<String, String> description;
