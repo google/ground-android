@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright 2018 Google LLC
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,7 +19,7 @@
   <data>
     <variable
       name="viewModel"
-      type="com.google.android.gnd.ui.editobservation.EditObservationViewModel"/>
+      type="com.google.android.ground.ui.editobservation.EditObservationViewModel" />
   </data>
 
   <!-- Use CoordinatorLayout to avoid rendering over top system bar. -->
@@ -49,12 +48,12 @@
           android:layout_height="wrap_content"
           android:orientation="vertical">
 
-          <com.google.android.gnd.ui.common.TwoLineToolbar
+          <com.google.android.ground.ui.common.TwoLineToolbar
             android:id="@+id/edit_observation_toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:layout_gravity="top"
-            android:theme="@style/WhiteToolbarTheme"/>
+            android:theme="@style/WhiteToolbarTheme" />
 
         </LinearLayout>
 
@@ -72,7 +71,7 @@
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
           android:focusableInTouchMode="true"
-          android:orientation="vertical"/>
+          android:orientation="vertical" />
 
       </ScrollView>
 
@@ -83,7 +82,7 @@
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
         android:padding="48dp"
-        android:visibility="@{viewModel.loadingSpinnerVisibility}"/>
+        android:visibility="@{viewModel.loadingSpinnerVisibility}" />
 
     </RelativeLayout>
 
@@ -100,7 +99,7 @@
       android:text="@string/save_observation_button_label"
       android:visibility="@{viewModel.saveButtonVisibility}"
       android:onClick="@{() -> viewModel.onSaveClick()}"
-      app:useCompatPadding="true"/>
+      app:useCompatPadding="true" />
 
     <!-- TODO: Refactor and use in place of deprecated ProgressDialog. -->
     <androidx.cardview.widget.CardView

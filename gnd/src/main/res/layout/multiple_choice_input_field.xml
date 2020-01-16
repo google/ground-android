@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright 2018 Google LLC
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,16 +20,16 @@
   <data>
     <variable
       name="fragment"
-      type="com.google.android.gnd.ui.editobservation.EditObservationFragment" />
+      type="com.google.android.ground.ui.editobservation.EditObservationFragment" />
     <variable
       name="field"
-      type="com.google.android.gnd.model.form.Field" />
+      type="com.google.android.ground.model.form.Field" />
     <variable
       name="viewModel"
-      type="com.google.android.gnd.ui.editobservation.EditObservationViewModel" />
+      type="com.google.android.ground.ui.editobservation.EditObservationViewModel" />
   </data>
 
-  <com.google.android.gnd.ui.editobservation.MultipleChoiceFieldLayout
+  <com.google.android.ground.ui.editobservation.MultipleChoiceFieldLayout
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginTop="@dimen/field_vertical_margin"
@@ -85,5 +84,5 @@
       android:alpha="0"
       android:clickable="true" />
 
-  </com.google.android.gnd.ui.editobservation.MultipleChoiceFieldLayout>
+  </com.google.android.ground.ui.editobservation.MultipleChoiceFieldLayout>
 </layout>

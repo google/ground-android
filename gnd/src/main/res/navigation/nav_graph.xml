@@ -23,7 +23,7 @@
   app:startDestination="@id/startup_fragment">
   <fragment
     android:id="@+id/startup_fragment"
-    android:name="com.google.android.gnd.ui.startup.StartupFragment"
+    android:name="com.google.android.ground.ui.startup.StartupFragment"
     android:label="startup_frag"
     tools:layout="@layout/startup_frag">
     <action
@@ -40,7 +40,7 @@
 
   <fragment
     android:id="@+id/home_screen_fragment"
-    android:name="com.google.android.gnd.ui.home.HomeScreenFragment"
+    android:name="com.google.android.ground.ui.home.HomeScreenFragment"
     android:label="@string/map_view"
     tools:layout="@layout/home_screen_frag">
     <action
@@ -69,7 +69,7 @@
 
   <fragment
     android:id="@+id/offline_areas_fragment"
-    android:name="com.google.android.gnd.ui.offlinearea.OfflineAreasFragment"
+    android:name="com.google.android.ground.ui.offlinearea.OfflineAreasFragment"
     android:label="@string/offline_areas"
     tools:layout="@layout/offline_areas_frag">
     <action
@@ -81,7 +81,7 @@
   </fragment>
   <fragment
     android:id="@+id/offline_area_selector_fragment"
-    android:name="com.google.android.gnd.ui.offlinearea.selector.OfflineAreaSelectorFragment"
+    android:name="com.google.android.ground.ui.offlinearea.selector.OfflineAreaSelectorFragment"
     android:label="@string/offline_area_selector"
     tools:layout="@layout/offline_area_selector_frag">
     <action
@@ -90,7 +90,7 @@
   </fragment>
   <fragment
     android:id="@+id/observation_details_fragment"
-    android:name="com.google.android.gnd.ui.observationdetails.ObservationDetailsFragment"
+    android:name="com.google.android.ground.ui.observationdetails.ObservationDetailsFragment"
     android:label="@string/view_observation_details"
     tools:layout="@layout/observation_details_frag">
     <argument
@@ -116,7 +116,7 @@
   </fragment>
   <fragment
     android:id="@+id/edit_observation_fragment"
-    android:name="com.google.android.gnd.ui.editobservation.EditObservationFragment"
+    android:name="com.google.android.ground.ui.editobservation.EditObservationFragment"
     android:label="edit_observation_frag"
     tools:layout="@layout/edit_observation_frag">
     <argument
@@ -134,7 +134,7 @@
   </fragment>
   <fragment
     android:id="@+id/sign_in_fragment"
-    android:name="com.google.android.gnd.ui.signin.SignInFragment"
+    android:name="com.google.android.ground.ui.signin.SignInFragment"
     android:label="sign_in_frag"
     tools:layout="@layout/sign_in_frag">
     <action

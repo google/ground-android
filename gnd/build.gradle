@@ -62,7 +62,7 @@ android {
     compileSdkVersion 28
     defaultConfig {
         // https://developer.android.com/about/dashboards/index.html for reference.
-        applicationId "com.google.android.gnd"
+        applicationId "com.google.android.ground"
         minSdkVersion 16
         // Switching targetSdkVersion to 27 or 28 causes the app to hang on map drags; diagnose and
         // fix before increasing this value.
