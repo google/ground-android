@@ -1,8 +1,8 @@
 .*
 !.gitignore
 !gradle/
-gnd/debug/
-gnd/release/
+**/debug/
+**/release/
 **/google_maps_api.xml
 **/google-services.json
 **/secrets.properties
