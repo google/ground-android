@@ -67,8 +67,6 @@ public class GndFirestore extends AbstractFluentFirestore {
   }
 
   public static class ProjectsCollectionReference extends FluentCollectionReference {
-    private static final String ACL_FIELD = "acl";
-    private static final String READ_ACCESS = "r";
 
     protected ProjectsCollectionReference(CollectionReference ref) {
       super(ref);
@@ -78,10 +76,13 @@ public class GndFirestore extends AbstractFluentFirestore {
       return new ProjectDocumentReference(ref.document(id));
     }
 
+    /**
+     * Returns projects visible to the specified viewer (i.e., for which the user has *any* role.
+     */
     public Single<List<Project>> getReadable(User user) {
       return toSingleList(
           RxFirestore.getCollection(
-              ref.whereArrayContains(FieldPath.of(ACL_FIELD, user.getEmail()), READ_ACCESS)),
+              ref.whereGreaterThan(FieldPath.of(ProjectDoc.ACL, user.getId()), "")),
           ProjectDoc::toObject);
     }
   }
