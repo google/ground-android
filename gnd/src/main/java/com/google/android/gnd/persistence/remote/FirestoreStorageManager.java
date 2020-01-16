@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.system;
+package com.google.android.gnd.persistence.remote;
 
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -33,16 +33,17 @@ import javax.inject.Singleton;
 
 // TODO: Add column to Observation table for storing uploaded media urls
 // TODO: Synced to remote db as well
+// TODO: Extract a generic interface so that we have an internal API to switch providers
 @Singleton
-public class MediaUploadManager {
+public class FirestoreStorageManager {
 
-  private static final String TAG = MediaUploadManager.class.getName();
+  private static final String TAG = FirestoreStorageManager.class.getName();
   private static final String MEDIA_ROOT_DIR = "uploaded_media";
   private final SimpleDateFormat dateFormat =
       new SimpleDateFormat("yyyyMMddHHmmss", Locale.getDefault());
 
   @Inject
-  MediaUploadManager() {}
+  FirestoreStorageManager() {}
 
   /** Returns a reference to the default Storage bucket. */
   private FirebaseStorage getStorage() {
@@ -68,9 +69,7 @@ public class MediaUploadManager {
     return dateFormat.format(new Date());
   }
 
-  /**
-   * Upload file to Firebase Storage.
-   */
+  /** Upload file to Firebase Storage. */
   public void uploadMediaFromFile(File file, String fileName) {
     StorageReference reference = createReference(fileName);
     UploadTask task = reference.putFile(Uri.fromFile(file));
