@@ -43,7 +43,7 @@ public class ProjectDoc {
 
   @Nullable public Date clientTimeModified;
 
-  @Nullable public Map<String, LayerDoc> featureTypes;
+  @Nullable public Map<String, LayerDoc> layers;
 
   public static Project toObject(DocumentSnapshot doc) {
     ProjectDoc pd = doc.toObject(ProjectDoc.class);
@@ -52,8 +52,8 @@ public class ProjectDoc {
         .setId(doc.getId())
         .setTitle(getLocalizedMessage(pd.title))
         .setDescription(getLocalizedMessage(pd.description));
-    if (pd.featureTypes != null) {
-      Maps.forEach(pd.featureTypes, (id, ptDoc) -> project.putLayer(id, ptDoc.toObject(id)));
+    if (pd.layers != null) {
+      Maps.forEach(pd.layers, (id, ld) -> project.putLayer(id, ld.toObject(id)));
     }
     return project.build();
   }

@@ -42,7 +42,7 @@ import java8.util.Optional;
 public class ObservationDoc {
   private static final String TAG = ObservationDoc.class.getSimpleName();
   public static final String FEATURE_ID = "featureId";
-  public static final String FEATURE_TYPE_ID = "featureTypeId";
+  public static final String LAYER_ID = "layerId";
   public static final String FORM_ID = "formId";
   public static final String RESPONSES = "responses";
   public static final String CREATED = "created";
@@ -50,7 +50,7 @@ public class ObservationDoc {
 
   @Nullable public String featureId;
 
-  @Nullable public String featureTypeId;
+  @Nullable public String layerId;
 
   @Nullable public String formId;
 
@@ -65,7 +65,7 @@ public class ObservationDoc {
     if (!feature.getId().equals(rd.featureId)) {
       // TODO: Handle error.
     }
-    if (!feature.getLayer().getId().equals(rd.featureTypeId)) {
+    if (!feature.getLayer().getId().equals(rd.layerId)) {
       // TODO: Handle error.
     }
     Optional<Form> form = feature.getLayer().getForm(rd.formId);
@@ -131,7 +131,7 @@ public class ObservationDoc {
         throw new UnsupportedOperationException();
     }
     map.put(FEATURE_ID, mutation.getFeatureId())
-        .put(FEATURE_TYPE_ID, mutation.getLayerId())
+        .put(LAYER_ID, mutation.getLayerId())
         .put(FORM_ID, mutation.getFormId())
         .put(RESPONSES, toMap(mutation.getResponseDeltas()));
     return map.build();

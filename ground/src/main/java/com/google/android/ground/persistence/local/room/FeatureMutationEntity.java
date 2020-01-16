@@ -55,8 +55,8 @@ public abstract class FeatureMutationEntity extends MutationEntity {
 
   @CopyAnnotations
   @NonNull
-  @ColumnInfo(name = "feature_type_id")
-  public abstract String getFeatureTypeId();
+  @ColumnInfo(name = "layer_id")
+  public abstract String getLayerId();
 
   /** Non-null if the feature's location was updated, null if unchanged. */
   @CopyAnnotations
@@ -69,7 +69,7 @@ public abstract class FeatureMutationEntity extends MutationEntity {
         .setId(m.getId())
         .setProjectId(m.getProjectId())
         .setFeatureId(m.getFeatureId())
-        .setFeatureTypeId(m.getLayerId())
+        .setLayerId(m.getLayerId())
         .setNewLocation(m.getNewLocation().map(Coordinates::fromPoint).orElse(null))
         .setType(MutationEntityType.fromMutationType(m.getType()))
         .setRetryCount(m.getRetryCount())
@@ -84,7 +84,7 @@ public abstract class FeatureMutationEntity extends MutationEntity {
         .setId(getId())
         .setProjectId(getProjectId())
         .setFeatureId(getFeatureId())
-        .setLayerId(getFeatureTypeId())
+        .setLayerId(getLayerId())
         .setNewLocation(Optional.ofNullable(getNewLocation().toPoint()))
         .setType(getType().toMutationType())
         .setRetryCount(getRetryCount())
@@ -100,7 +100,7 @@ public abstract class FeatureMutationEntity extends MutationEntity {
       @Nullable Long id,
       String projectId,
       String featureId,
-      String featureTypeId,
+      String layerId,
       MutationEntityType type,
       Coordinates newLocation,
       long retryCount,
@@ -111,7 +111,7 @@ public abstract class FeatureMutationEntity extends MutationEntity {
         .setId(id)
         .setProjectId(projectId)
         .setFeatureId(featureId)
-        .setFeatureTypeId(featureTypeId)
+        .setLayerId(layerId)
         .setType(type)
         .setNewLocation(newLocation)
         .setRetryCount(retryCount)
@@ -130,7 +130,7 @@ public abstract class FeatureMutationEntity extends MutationEntity {
 
     public abstract Builder setFeatureId(String newFeatureId);
 
-    public abstract Builder setFeatureTypeId(String newFeatureTypeId);
+    public abstract Builder setLayerId(String newLayerId);
 
     public abstract Builder setNewLocation(Coordinates newNewLocation);
 
