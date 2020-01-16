@@ -27,12 +27,8 @@ import java8.util.Maps;
 
 @IgnoreExtraProperties
 public class LayerDoc {
-  // TODO: Better name than pathKey? urlSubpath?
-  @Nullable public String pathKey;
 
-  @Nullable public Map<String, String> listHeading;
-
-  @Nullable public Map<String, String> itemLabel;
+  @Nullable public Map<String, String> name;
 
   @Nullable public StyleDoc defaultStyle;
 
@@ -40,10 +36,7 @@ public class LayerDoc {
 
   public Layer toObject(String id) {
     Layer.Builder layer = Layer.newBuilder();
-    layer
-        .setId(id)
-        .setListHeading(getLocalizedMessage(listHeading))
-        .setItemLabel(getLocalizedMessage(itemLabel));
+    layer.setId(id).setName(getLocalizedMessage(name));
     if (defaultStyle != null) {
       layer.setDefaultStyle(defaultStyle.toObject());
     }
