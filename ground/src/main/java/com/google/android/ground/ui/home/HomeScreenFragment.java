@@ -37,6 +37,7 @@ import androidx.core.view.GravityCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import butterknife.BindView;
+import com.akaita.java.rxjava2debug.RxJava2Debug;
 import com.google.android.ground.MainActivity;
 import com.google.android.ground.MainViewModel;
 import com.google.android.ground.R;
@@ -348,7 +349,7 @@ public class HomeScreenFragment extends AbstractFragment
   }
 
   private void onActivateProjectFailure(Throwable throwable) {
-    Log.e(TAG, "Error activating project", throwable);
+    Log.d(TAG, "Error activating project", RxJava2Debug.getEnhancedStackTrace(throwable));
     dismissLoadingDialog();
     EphemeralPopups.showError(getContext(), R.string.project_load_error);
     showProjectSelector();
