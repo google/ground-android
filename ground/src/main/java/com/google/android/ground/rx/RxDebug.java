@@ -34,10 +34,6 @@ public abstract class RxDebug {
   /** Container for static helper methods. Do not instantiate. */
   private RxDebug() {}
 
-  public static void logEnhancedStackTrace(Throwable t) {
-    Log.e(TAG, "Unhandled Rx error", RxJava2Debug.getEnhancedStackTrace(t));
-  }
-
   public static <T> MaybeConverter<T, Maybe<T>> traceMaybe(String tag, String streamName) {
     Tracer t = new Tracer(tag, streamName);
     return m ->
