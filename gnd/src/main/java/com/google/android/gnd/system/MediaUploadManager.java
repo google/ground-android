@@ -38,7 +38,7 @@ public class MediaUploadManager {
 
   private static final String TAG = MediaUploadManager.class.getName();
   private static final String MEDIA_ROOT_DIR = "uploaded_media";
-  private final SimpleDateFormat DATE_FORMAT =
+  private final SimpleDateFormat dateFormat =
       new SimpleDateFormat("yyyyMMddHHmmss", Locale.getDefault());
 
   @Inject
@@ -65,9 +65,12 @@ public class MediaUploadManager {
 
   /** Converts current timestamp to a string to be used a suffix for uploading media. */
   private String getFilenameSuffix() {
-    return DATE_FORMAT.format(new Date());
+    return dateFormat.format(new Date());
   }
 
+  /**
+   * Upload file to Firebase Storage.
+   */
   public void uploadMediaFromFile(File file, String fileName) {
     StorageReference reference = createReference(fileName);
     UploadTask task = reference.putFile(Uri.fromFile(file));
@@ -76,6 +79,7 @@ public class MediaUploadManager {
     fetchDownloadUrl(reference, task);
   }
 
+  /** Upload bitmap to Firebase Storage. */
   public void uploadMediaFromBitmap(Bitmap bitmap, String fileName) {
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
     bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
