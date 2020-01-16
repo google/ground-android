@@ -32,12 +32,12 @@ import java8.util.Optional;
 @IgnoreExtraProperties
 public class FeatureDoc {
   // TODO: Implement type safe field definition enums.
-  private static final String FEATURE_TYPE_ID = "featureTypeId";
+  private static final String LAYER_ID = "layerId";
   private static final String CENTER = "center";
   private static final String CREATED = "created";
   private static final String LAST_MODIFIED = "lastModified";
 
-  public String featureTypeId;
+  public String layerId;
 
   public String customId;
 
@@ -52,10 +52,9 @@ public class FeatureDoc {
 
   public static Feature toObject(Project project, DocumentSnapshot doc) {
     FeatureDoc f = doc.toObject(FeatureDoc.class);
-    Optional<Layer> layer = project.getLayer(f.featureTypeId);
+    Optional<Layer> layer = project.getLayer(f.layerId);
     if (!layer.isPresent()) {
-      throw new DataStoreException(
-          "Unknown feature type " + f.featureTypeId + " in lace " + doc.getId());
+      throw new DataStoreException("Unknown layer " + f.layerId + " in lace " + doc.getId());
     }
     Point point =
         Point.newBuilder()
@@ -84,7 +83,7 @@ public class FeatureDoc {
    */
   public static ImmutableMap<String, Object> toMap(FeatureMutation mutation, User user) {
     ImmutableMap.Builder<String, Object> map = ImmutableMap.builder();
-    map.put(FEATURE_TYPE_ID, mutation.getLayerId());
+    map.put(LAYER_ID, mutation.getLayerId());
     mutation.getNewLocation().map(FeatureDoc::toGeoPoint).ifPresent(p -> map.put(CENTER, p));
     AuditInfoDoc auditInfo = AuditInfoDoc.fromMutationAndUser(mutation, user);
     switch (mutation.getType()) {

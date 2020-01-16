@@ -51,8 +51,8 @@ public abstract class FeatureEntity {
 
   @CopyAnnotations
   @NonNull
-  @ColumnInfo(name = "feature_type_id")
-  public abstract String getFeatureTypeId();
+  @ColumnInfo(name = "layer_id")
+  public abstract String getLayerId();
 
   // TODO: Rename to DeletionState.
   @CopyAnnotations
@@ -82,7 +82,7 @@ public abstract class FeatureEntity {
         FeatureEntity.builder()
             .setId(mutation.getFeatureId())
             .setProjectId(mutation.getProjectId())
-            .setFeatureTypeId(mutation.getLayerId())
+            .setLayerId(mutation.getLayerId())
             .setState(EntityState.DEFAULT)
             .setCreated(authInfo)
             .setLastModified(authInfo);
@@ -95,7 +95,7 @@ public abstract class FeatureEntity {
         FeatureEntity.builder()
             .setId(feature.getId())
             .setProjectId(feature.getProject().getId())
-            .setFeatureTypeId(feature.getLayer().getId())
+            .setLayerId(feature.getLayer().getId())
             .setLocation(Coordinates.fromPoint(feature.getPoint()))
             .setState(EntityState.DEFAULT)
             .setCreated(AuditInfoEntity.fromObject(feature.getCreated()))
@@ -108,7 +108,7 @@ public abstract class FeatureEntity {
     return Feature.newBuilder()
         .setId(featureEntity.getId())
         .setProject(project)
-        .setLayer(project.getLayer(featureEntity.getFeatureTypeId()).get())
+        .setLayer(project.getLayer(featureEntity.getLayerId()).get())
         .setPoint(featureEntity.getLocation().toPoint())
         .setCreated(AuditInfoEntity.toObject(featureEntity.getCreated()))
         .setLastModified(AuditInfoEntity.toObject(featureEntity.getLastModified()))
@@ -120,7 +120,7 @@ public abstract class FeatureEntity {
   public static FeatureEntity create(
       String id,
       String projectId,
-      String featureTypeId,
+      String layerId,
       EntityState state,
       Coordinates location,
       AuditInfoEntity created,
@@ -128,7 +128,7 @@ public abstract class FeatureEntity {
     return builder()
         .setId(id)
         .setProjectId(projectId)
-        .setFeatureTypeId(featureTypeId)
+        .setLayerId(layerId)
         .setState(state)
         .setLocation(location)
         .setCreated(created)
@@ -147,7 +147,7 @@ public abstract class FeatureEntity {
 
     public abstract Builder setProjectId(String newProjectId);
 
-    public abstract Builder setFeatureTypeId(String newFeatureTypeId);
+    public abstract Builder setLayerId(String newLayerId);
 
     public abstract Builder setState(EntityState newState);
 
