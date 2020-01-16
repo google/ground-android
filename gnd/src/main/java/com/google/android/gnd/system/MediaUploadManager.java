@@ -94,6 +94,7 @@ public class MediaUploadManager {
 
   private void uploadMediaToFirebaseStorage(UploadTask uploadTask, String fileName) {
     // TODO: Create UploadState enum and use RxJava to broadcast upload state globally.
+    // use our util RxTask to convert the task to a Single.
     uploadTask
         .addOnCanceledListener(
             () -> {
