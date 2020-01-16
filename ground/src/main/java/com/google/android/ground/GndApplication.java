@@ -25,7 +25,6 @@ import androidx.work.WorkManager;
 import com.akaita.java.rxjava2debug.RxJava2Debug;
 import com.facebook.stetho.Stetho;
 import com.google.android.ground.inject.GndWorkerFactory;
-import com.google.android.ground.rx.RxDebug;
 import dagger.android.AndroidInjector;
 import dagger.android.support.DaggerApplication;
 import io.reactivex.plugins.RxJavaPlugins;
@@ -65,7 +64,8 @@ public class GndApplication extends DaggerApplication {
     RxJava2Debug.enableRxJava2AssemblyTracking(new String[] {getClass().getPackage().getName()});
 
     // Prevent RxJava from force-quitting on unhandled errors.
-    RxJavaPlugins.setErrorHandler(t -> RxDebug.logEnhancedStackTrace(t));
+    RxJavaPlugins.setErrorHandler(
+        t -> Log.e(TAG, "Unhandled Rx error", RxJava2Debug.getEnhancedStackTrace(t)));
 
     // Set custom worker factory that allow Workers to use Dagger injection.
     // TODO(github.com/google/dagger/issues/1183): Remove once Workers support injection.
