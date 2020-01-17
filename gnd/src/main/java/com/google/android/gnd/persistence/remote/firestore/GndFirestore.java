@@ -79,10 +79,13 @@ public class GndFirestore extends AbstractFluentFirestore {
     }
 
     public Single<List<Project>> getReadable(User user) {
-      return toSingleList(
-          RxFirestore.getCollection(
-              ref.whereArrayContains(FieldPath.of(ACL_FIELD, user.getEmail()), READ_ACCESS)),
-          ProjectDoc::toObject);
+      return requireActiveNetwork()
+          .andThen(
+              toSingleList(
+                  RxFirestore.getCollection(
+                      ref.whereArrayContains(
+                          FieldPath.of(ACL_FIELD, user.getEmail()), READ_ACCESS)),
+                  ProjectDoc::toObject));
     }
   }
 
@@ -207,6 +210,7 @@ public class GndFirestore extends AbstractFluentFirestore {
   private static <T> Single<List<T>> toSingleList(
       Maybe<QuerySnapshot> result, Function<DocumentSnapshot, T> mappingFunction) {
     return result
+        .doOnComplete(() -> Log.e("!!!!", "NO VALUE!"))
         .map(
             querySnapshot ->
                 stream(querySnapshot.getDocuments()).map(mappingFunction).collect(toList()))

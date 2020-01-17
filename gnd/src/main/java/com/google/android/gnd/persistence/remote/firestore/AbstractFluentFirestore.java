@@ -16,12 +16,17 @@
 
 package com.google.android.gnd.persistence.remote.firestore;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import com.google.common.collect.ImmutableMap;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.firestore.WriteBatch;
+import io.reactivex.Completable;
+import java.net.ConnectException;
 
 /** Base class for representing Firestore databases as object hierarchies. */
 public abstract class AbstractFluentFirestore {
@@ -29,6 +34,25 @@ public abstract class AbstractFluentFirestore {
 
   protected AbstractFluentFirestore(FirebaseFirestore db) {
     this.db = db;
+  }
+
+  /**
+   * Returns a Completable that completes immediately on subscribe if network is available, or fails
+   * in error if not.
+   */
+  static Completable requireActiveNetwork(FirebaseFirestore db) {
+    return Completable.create(
+        em -> {
+          Context context = db.getApp().getApplicationContext();
+          ConnectivityManager cm =
+              (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+          NetworkInfo networkInfo = cm.getActiveNetworkInfo();
+          if (networkInfo != null && networkInfo.isConnected()) {
+            em.onComplete();
+          } else {
+            em.onError(new ConnectException("Network unavailable"));
+          }
+        });
   }
 
   // TOOD: Wrap in fluent version of WriteBatch.
@@ -41,6 +65,14 @@ public abstract class AbstractFluentFirestore {
 
     protected FluentCollectionReference(CollectionReference ref) {
       this.ref = ref;
+    }
+
+    /**
+     * Returns a Completable that completes immediately on subscribe if network is available, or
+     * fails in error if not.
+     */
+    protected Completable requireActiveNetwork() {
+      return AbstractFluentFirestore.requireActiveNetwork(ref.getFirestore());
     }
 
     public CollectionReference ref() {
