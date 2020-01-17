@@ -135,6 +135,7 @@ dependencies {
     implementation "com.google.firebase:firebase-auth:$project.firebaseAuthVersion"
     implementation "com.google.firebase:firebase-perf:$project.firebasePerfVersion"
     implementation "com.github.FrangSierra:RxFirebase:$project.rxFirebaseVersion"
+    implementation 'com.google.firebase:firebase-storage:19.1.0'
 
     // Dagger core
     annotationProcessor "com.google.dagger:dagger-compiler:$project.daggerVersion"
