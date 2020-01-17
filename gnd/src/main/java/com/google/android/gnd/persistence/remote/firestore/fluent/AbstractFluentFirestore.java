@@ -58,7 +58,7 @@ public abstract class AbstractFluentFirestore {
    * Returns a Completable that completes immediately on subscribe if network is available, or fails
    * in error if not.
    */
-  private static Completable requireActiveNetwork(FirebaseFirestore db) {
+  static Completable requireActiveNetwork(FirebaseFirestore db) {
     return RxCompletable.completeOrError(() -> isNetworkAvailable(db), ConnectException.class);
   }
 
@@ -80,64 +80,4 @@ public abstract class AbstractFluentFirestore {
     return db.batch();
   }
 
-  protected abstract static class FluentCollectionReference {
-    protected final CollectionReference ref;
-
-    protected FluentCollectionReference(CollectionReference ref) {
-      this.ref = ref;
-    }
-
-    /**
-     * Returns a Completable that completes immediately on subscribe if network is available, or
-     * fails in error if not.
-     */
-    protected Completable requireActiveNetwork() {
-      return AbstractFluentFirestore.requireActiveNetwork(ref.getFirestore());
-    }
-
-    /**
-     * Runs the specified query, returning a Single containing a List of values created by applying
-     * the mappingFunction to all results. Fails immediately with an error if an active network is
-     * not available.
-     */
-    protected <T> Single<List<T>> runQuery(
-        Query query, Function<DocumentSnapshot, T> mappingFunction) {
-      return requireActiveNetwork()
-          .andThen(toSingleList(RxFirestore.getCollection(query), mappingFunction));
-    }
-
-    public CollectionReference ref() {
-      return ref;
-    }
-
-    @Override
-    public String toString() {
-      return ref.getPath();
-    }
-  }
-
-  protected static class FluentDocumentReference {
-    protected final DocumentReference ref;
-
-    protected FluentDocumentReference(DocumentReference ref) {
-      this.ref = ref;
-    }
-
-    /**
-     * Adds a request to the specified batch to merge the provided key-value pairs into the remote
-     * database. If the document does not yet exist, one is created on commit.
-     */
-    public void merge(ImmutableMap<String, Object> values, WriteBatch batch) {
-      batch.set(ref, values, SetOptions.merge());
-    }
-
-    public DocumentReference ref() {
-      return ref;
-    }
-
-    @Override
-    public String toString() {
-      return ref.getPath();
-    }
-  }
 }
