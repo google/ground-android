@@ -20,9 +20,8 @@ import static java8.util.stream.Collectors.toList;
 import static java8.util.stream.StreamSupport.stream;
 
 import android.content.Context;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import com.google.android.gnd.rx.RxCompletable;
+import com.google.android.gnd.system.NetworkManager;
 import com.google.common.collect.ImmutableMap;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
@@ -51,12 +50,8 @@ public abstract class AbstractFluentFirestore {
 
   /** Returns true iff the an active network connection is available. */
   private static boolean isNetworkAvailable(FirebaseFirestore db) {
-    // TODO: Refactor into NetworkManager and inject.
     Context context = db.getApp().getApplicationContext();
-    ConnectivityManager cm =
-        (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-    NetworkInfo networkInfo = cm.getActiveNetworkInfo();
-    return networkInfo != null && networkInfo.isConnected();
+    return NetworkManager.isNetworkAvailable(context);
   }
 
   /**
