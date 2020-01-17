@@ -201,3 +201,11 @@ apply plugin: 'androidx.navigation.safeargs'
 // This must be last to avoid dependency collisions.
 // https://developers.google.com/android/guides/google-services-plugin#introduction
 apply plugin: 'com.google.gms.google-services'
+
+task checkCode(type: GradleBuild) {
+    dependsOn 'checkstyle', 'lintDebug', 'pmd', 'spotbugs'
+}
+
+afterEvaluate {
+    assembleDebug.dependsOn checkCode
+}
