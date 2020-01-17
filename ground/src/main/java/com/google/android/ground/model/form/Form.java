@@ -33,9 +33,6 @@ public abstract class Form {
   @Nullable
   public abstract String getId();
 
-  @Nullable
-  public abstract String getTitle();
-
   public abstract ImmutableList<Element> getElements();
 
   public Optional<Field> getField(String id) {
@@ -52,8 +49,6 @@ public abstract class Form {
   @AutoValue.Builder
   public abstract static class Builder {
     public abstract Builder setId(@Nullable String newId);
-
-    public abstract Builder setTitle(@Nullable String newTitle);
 
     public abstract Builder setElements(ImmutableList<Element> newElementsList);
 
