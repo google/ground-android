@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright 2018 Google LLC
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -52,32 +51,12 @@
         app:cardCornerRadius="0dp"
         app:cardElevation="@dimen/toolbar_elevation">
 
-        <LinearLayout
+        <com.google.android.ground.ui.common.TwoLineToolbar
+          android:id="@+id/observation_details_toolbar"
           android:layout_width="match_parent"
-          android:layout_height="wrap_content"
-          android:orientation="vertical">
-
-          <com.google.android.ground.ui.common.TwoLineToolbar
-            android:id="@+id/observation_details_toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:layout_gravity="top"
-            android:theme="@style/WhiteToolbarTheme" />
-
-          <TextView
-            android:id="@+id/form_name"
-            android:textStyle="bold"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingBottom="6dp"
-            android:background="@color/colorBackground"
-            android:textAlignment="center"
-            android:textAllCaps="true"
-            android:textColor="@color/colorForeground"
-            android:textSize="12sp"
-            android:text="@{viewModel.formNameView}" />
-
-        </LinearLayout>
+          android:layout_height="?attr/actionBarSize"
+          android:layout_gravity="top"
+          android:theme="@style/WhiteToolbarTheme" />
 
       </androidx.cardview.widget.CardView>
 

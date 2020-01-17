@@ -17,7 +17,6 @@
 package com.google.android.ground.persistence.local.room;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.ForeignKey;
@@ -48,27 +47,17 @@ public abstract class FormEntity {
   public abstract String getId();
 
   @CopyAnnotations
-  @Nullable
-  @ColumnInfo(name = "title")
-  public abstract String getTitle();
-
-  @CopyAnnotations
   @NonNull
   @ColumnInfo(name = "layer_id")
   public abstract String getLayerId();
 
   public static FormEntity fromForm(String layerId, Form form) {
-    return FormEntity.builder()
-        .setId(form.getId())
-        .setLayerId(layerId)
-        .setTitle(form.getTitle())
-        .build();
+    return FormEntity.builder().setId(form.getId()).setLayerId(layerId).build();
   }
 
   public static Form toForm(FormEntityAndRelations formEntityAndRelations) {
     FormEntity formEntity = formEntityAndRelations.formEntity;
-    Form.Builder formBuilder =
-        Form.newBuilder().setId(formEntity.getId()).setTitle(formEntity.getTitle());
+    Form.Builder formBuilder = Form.newBuilder().setId(formEntity.getId());
 
     ImmutableList.Builder<Element> listBuilder = ImmutableList.builder();
     for (FieldEntityAndRelations fieldEntityAndRelations :
@@ -79,8 +68,8 @@ public abstract class FormEntity {
     return formBuilder.setElements(listBuilder.build()).build();
   }
 
-  public static FormEntity create(String id, String title, String layerId) {
-    return builder().setId(id).setTitle(title).setLayerId(layerId).build();
+  public static FormEntity create(String id, String layerId) {
+    return builder().setId(id).setLayerId(layerId).build();
   }
 
   public static Builder builder() {
@@ -91,8 +80,6 @@ public abstract class FormEntity {
   public abstract static class Builder {
 
     public abstract Builder setId(String id);
-
-    public abstract Builder setTitle(String title);
 
     public abstract Builder setLayerId(String layerId);
 
