@@ -78,8 +78,9 @@ public class GndFirestore extends AbstractFluentFirestore {
     }
 
     public Single<List<Project>> getReadable(User user) {
-      Query query = ref.whereArrayContains(FieldPath.of(ACL_FIELD, user.getEmail()), READ_ACCESS);
-      return requireActiveNetwork().andThen(runQuery(query, ProjectDoc::toObject));
+      return runQuery(
+          ref.whereArrayContains(FieldPath.of(ACL_FIELD, user.getEmail()), READ_ACCESS),
+          ProjectDoc::toObject);
     }
   }
 

@@ -100,9 +100,15 @@ public abstract class AbstractFluentFirestore {
       return AbstractFluentFirestore.requireActiveNetwork(ref.getFirestore());
     }
 
+    /**
+     * Runs the specified query, returning a Single containing a List of values created by applying
+     * the mappingFunction to all results. Fails immediately with an error if an active network is
+     * not available.
+     */
     protected <T> Single<List<T>> runQuery(
         Query query, Function<DocumentSnapshot, T> mappingFunction) {
-      return toSingleList(RxFirestore.getCollection(query), mappingFunction);
+      return requireActiveNetwork()
+          .andThen(toSingleList(RxFirestore.getCollection(query), mappingFunction));
     }
 
     public CollectionReference ref() {
