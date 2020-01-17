@@ -31,6 +31,7 @@ import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.EditObservationFragBinding;
 import com.google.android.gnd.databinding.MultipleChoiceInputFieldBinding;
+import com.google.android.gnd.databinding.PhotoInputFieldBinding;
 import com.google.android.gnd.databinding.TextInputFieldBinding;
 import com.google.android.gnd.inject.ActivityScoped;
 import com.google.android.gnd.model.form.Element;
@@ -136,7 +137,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
         addMultipleChoiceField(field);
         break;
       case PHOTO:
-        // TODO
+        addPhotoField(field);
         break;
       default:
         Log.w(TAG, "Unimplemented field type: " + field.getType());
@@ -163,6 +164,17 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
     binding.setField(field);
     formLayout.addView(binding.getRoot());
     assignGeneratedId(binding.getRoot().findViewById(R.id.multiple_choice_input_edit_text));
+  }
+
+  public void addPhotoField(Field field) {
+    PhotoInputFieldBinding binding =
+        PhotoInputFieldBinding.inflate(getLayoutInflater(), formLayout, false);
+    binding.setViewModel(viewModel);
+    binding.setLifecycleOwner(this);
+    binding.setField(field);
+    formLayout.addView(binding.getRoot());
+    assignGeneratedId(binding.getRoot().findViewById(R.id.image_thumbnail_preview));
+    assignGeneratedId(binding.getRoot().findViewById(R.id.btn_select_photo));
   }
 
   public void onShowDialog(Field field) {

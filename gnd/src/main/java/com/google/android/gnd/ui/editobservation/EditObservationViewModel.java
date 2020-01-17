@@ -168,6 +168,11 @@ public class EditObservationViewModel extends AbstractViewModel {
     return validationErrors;
   }
 
+  public void onSelectPhoto(Field field) {
+    Log.v(TAG, "onSelectPhoto: " + field.getId());
+    // TODO
+  }
+
   public void onTextChanged(Field field, String text) {
     Log.v(TAG, "onTextChanged: " + field.getId());
 
