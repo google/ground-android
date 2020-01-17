@@ -8,7 +8,7 @@
 **/secrets.properties
 
 # Blank config. Needed for Cloud builds.
-!gnd/google-services.json
+!ground/google-services.json
 
 # Taken from Android.gitignore https://github.com/github/gitignore/blob/master/Android.gitignore
 #
