@@ -22,6 +22,8 @@ import javax.annotation.Nullable;
 /** Describes a single valid option to a multiple choice question. */
 @AutoValue
 public abstract class Option {
+  public abstract int getIndex();
+
   @Nullable
   public abstract String getCode();
 
@@ -34,6 +36,8 @@ public abstract class Option {
 
   @AutoValue.Builder
   public abstract static class Builder {
+    public abstract Builder setIndex(int index);
+
     public abstract Builder setCode(@Nullable String newCode);
 
     public abstract Builder setLabel(@Nullable String newLabel);

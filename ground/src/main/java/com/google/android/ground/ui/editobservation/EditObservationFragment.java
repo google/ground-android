@@ -17,6 +17,8 @@
 package com.google.android.ground.ui.editobservation;
 
 import static com.google.android.ground.ui.util.ViewUtil.assignGeneratedId;
+import static com.google.android.ground.util.ImmutableListCollector.toImmutableList;
+import static java8.util.stream.StreamSupport.stream;
 
 import android.app.AlertDialog;
 import android.os.Bundle;
@@ -115,16 +117,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
 
   private void rebuildForm(Form form) {
     formLayout.removeAllViews();
-    for (Element element : form.getElements()) {
-      switch (element.getType()) {
-        case FIELD:
-          addField(element.getField());
-          break;
-        default:
-          Log.d(TAG, element.getType() + " elements not yet supported");
-          break;
-      }
-    }
+    stream(form.getFieldsSorted()).forEach(this::addField);
   }
 
   private void addField(Field field) {

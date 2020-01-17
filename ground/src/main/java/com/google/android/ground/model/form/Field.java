@@ -31,6 +31,8 @@ public abstract class Field {
   @Nullable
   public abstract String getId();
 
+  public abstract int getIndex();
+
   @Nullable
   public abstract Type getType();
 
@@ -49,6 +51,8 @@ public abstract class Field {
   @AutoValue.Builder
   public abstract static class Builder {
     public abstract Builder setId(@Nullable String newId);
+
+    public abstract Builder setIndex(int index);
 
     public abstract Builder setType(@Nullable Type newType);
 

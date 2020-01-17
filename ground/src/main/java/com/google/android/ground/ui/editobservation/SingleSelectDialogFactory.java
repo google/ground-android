@@ -47,7 +47,7 @@ class SingleSelectDialogFactory {
       Consumer<Optional<Response>> valueChangeCallback) {
     MultipleChoice multipleChoice = field.getMultipleChoice();
     AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(context);
-    List<Option> options = multipleChoice.getOptions();
+    List<Option> options = multipleChoice.getOptionsSorted();
     DialogState state = new DialogState(multipleChoice, initialValue);
     dialogBuilder.setSingleChoiceItems(
         getLabels(multipleChoice), state.checkedItem, state::onSelect);
@@ -62,7 +62,7 @@ class SingleSelectDialogFactory {
   }
 
   private String[] getLabels(MultipleChoice multipleChoice) {
-    return stream(multipleChoice.getOptions()).map(Option::getLabel).toArray(String[]::new);
+    return stream(multipleChoice.getOptionsSorted()).map(Option::getLabel).toArray(String[]::new);
   }
 
   private static class DialogState {
@@ -71,12 +71,13 @@ class SingleSelectDialogFactory {
 
     public DialogState(MultipleChoice multipleChoice, Optional<Response> initialValue) {
       // TODO: Check type.
-      checkedItem =
-          initialValue
-              .map(MultipleChoiceResponse.class::cast)
-              .flatMap(MultipleChoiceResponse::getFirstCode)
-              .flatMap(multipleChoice::getIndex)
-              .orElse(-1);
+      checkedItem = 0;
+      // TODO
+//          initialValue
+//              .map(MultipleChoiceResponse.class::cast)
+//              .flatMap(MultipleChoiceResponse::getFirstCode)
+//              .flatMap(multipleChoice::getIndex)
+//              .orElse(-1);
     }
 
     private void onSelect(DialogInterface dialog, int which) {

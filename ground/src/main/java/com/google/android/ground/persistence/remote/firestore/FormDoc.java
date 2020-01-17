@@ -26,17 +26,27 @@ import com.google.android.ground.model.form.Field.Type;
 import com.google.android.ground.model.form.Form;
 import com.google.android.ground.model.form.MultipleChoice;
 import com.google.firebase.firestore.IgnoreExtraProperties;
+import com.google.firebase.firestore.ServerTimestamp;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java8.util.Optional;
 
 @IgnoreExtraProperties
 public class FormDoc {
+  public Map<String, String> titles = new HashMap<>();
+
   public List<Element> elements;
+
+  public @ServerTimestamp Date serverTimeCreated;
+
+  public @ServerTimestamp Date serverTimeModified;
 
   public Form toObject(String formId) {
     return Form.newBuilder()
         .setId(formId)
+        .setTitle(getLocalizedMessage(titles))
         .setElements(stream(elements).map(Element::toObject).collect(toImmutableList()))
         .build();
   }
@@ -49,7 +59,8 @@ public class FormDoc {
 
     public String cardinality;
 
-    public Map<String, String> label;
+    // TODO: labels or label?
+    public Map<String, String> labels;
 
     public List<Option> options;
 
@@ -71,15 +82,12 @@ public class FormDoc {
           field.setType(Type.MULTIPLE_CHOICE);
           field.setMultipleChoice(toMultipleChoice(em));
           break;
-        case PHOTO:
-          field.setType(Type.PHOTO);
-          break;
         default:
           return Optional.empty();
       }
       field.setRequired(em.required);
       field.setId(em.id);
-      field.setLabel(getLocalizedMessage(em.label));
+      field.setLabel(getLocalizedMessage(em.labels));
       return Optional.of(field.build());
     }
 

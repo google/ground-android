@@ -28,8 +28,6 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import com.google.android.ground.GndApplication;
 import com.google.android.ground.R;
-import com.google.android.ground.model.form.Element;
-import com.google.android.ground.model.form.Element.Type;
 import com.google.android.ground.model.form.Field;
 import com.google.android.ground.model.form.Form;
 import com.google.android.ground.model.observation.Observation;
@@ -304,11 +302,8 @@ public class EditObservationViewModel extends AbstractViewModel {
     ImmutableList.Builder<ResponseDelta> deltas = ImmutableList.builder();
     ResponseMap originalResponses = originalObservation.getResponses();
     Log.v(TAG, "Responses:\n Before: " + originalResponses + " \nAfter:  " + responses);
-    for (Element e : originalObservation.getForm().getElements()) {
-      if (e.getType() != Type.FIELD) {
-        continue;
-      }
-      String fieldId = e.getField().getId();
+    for (Field field : originalObservation.getForm().getFieldsSorted()) {
+      String fieldId = field.getId();
       Optional<Response> originalResponse = originalResponses.getResponse(fieldId);
       Optional<Response> currentResponse = getResponse(fieldId).filter(r -> !r.isEmpty());
       if (currentResponse.equals(originalResponse)) {
@@ -324,10 +319,7 @@ public class EditObservationViewModel extends AbstractViewModel {
 
   private void refreshValidationErrors() {
     validationErrors.clear();
-    stream(originalObservation.getForm().getElements())
-        .filter(e -> e.getType().equals(Type.FIELD))
-        .map(e -> e.getField())
-        .forEach(this::updateError);
+    stream(originalObservation.getForm().getFieldsSorted()).forEach(this::updateError);
   }
 
   private void updateError(Field field) {

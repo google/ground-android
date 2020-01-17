@@ -16,10 +16,13 @@
 
 package com.google.android.ground.model.form;
 
+import static com.google.android.ground.util.ImmutableListCollector.toImmutableList;
 import static java8.util.stream.StreamSupport.stream;
 
+import androidx.annotation.NonNull;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import java8.util.Optional;
 import javax.annotation.Nullable;
 
@@ -31,33 +34,39 @@ public abstract class MultipleChoice {
     SELECT_MULTIPLE
   }
 
-  public abstract ImmutableList<Option> getOptions();
+  @NonNull
+  public abstract ImmutableMap<String, Option> getOptions();
 
-  public Optional<Option> getOption(String code) {
-    return stream(getOptions()).filter(o -> o.getCode().equals(code)).findFirst();
+  @NonNull
+  /** Returns the list of options sorted by index. */
+  public ImmutableList<Option> getOptionsSorted() {
+    return stream(getOptions().values().asList())
+        .sorted((f1, f2) -> f1.getIndex() - f2.getIndex())
+        .collect(toImmutableList());
+  }
+
+  @NonNull
+  public Optional<Option> getOption(String id) {
+    return Optional.ofNullable(getOptions().get(id));
   }
 
   @Nullable
   public abstract Cardinality getCardinality();
 
-  public Optional<Integer> getIndex(String code) {
-    for (int i = 0; i < getOptions().size(); i++) {
-      if (getOptions().get(i).getCode().equals(code)) {
-        return Optional.of(i);
-      }
-    }
-    return Optional.empty();
-  }
-
   public static Builder newBuilder() {
-    return new AutoValue_MultipleChoice.Builder().setOptions(ImmutableList.of());
+    return new AutoValue_MultipleChoice.Builder().setOptions(ImmutableMap.of());
   }
 
   @AutoValue.Builder
   public abstract static class Builder {
-    public abstract Builder setOptions(ImmutableList<Option> newOptions);
+    public abstract Builder setOptions(ImmutableMap<String, Option> newOptions);
 
-    public abstract ImmutableList.Builder<Option> optionsBuilder();
+    public abstract ImmutableMap.Builder<String, Option> optionsBuilder();
+
+    public Builder putOption(String id, Option option) {
+      optionsBuilder().put(id, option);
+      return this;
+    }
 
     public abstract Builder setCardinality(@Nullable Cardinality newCardinality);
 

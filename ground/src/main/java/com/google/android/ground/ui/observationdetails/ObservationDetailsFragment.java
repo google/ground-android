@@ -16,6 +16,8 @@
 
 package com.google.android.ground.ui.observationdetails;
 
+import static java8.util.stream.StreamSupport.stream;
+
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -34,7 +36,6 @@ import com.google.android.ground.MainActivity;
 import com.google.android.ground.R;
 import com.google.android.ground.databinding.ObservationDetailsFragBinding;
 import com.google.android.ground.inject.ActivityScoped;
-import com.google.android.ground.model.form.Element;
 import com.google.android.ground.model.form.Field;
 import com.google.android.ground.model.observation.Observation;
 import com.google.android.ground.repository.Loadable;
@@ -127,14 +128,7 @@ public class ObservationDetailsFragment extends AbstractFragment {
 
   private void showObservation(Observation observation) {
     observationDetailsLayout.removeAllViews();
-    for (Element element : observation.getForm().getElements()) {
-      switch (element.getType()) {
-        case FIELD:
-          addField(element.getField(), observation);
-          break;
-        default:
-      }
-    }
+    stream(observation.getForm().getFieldsSorted()).forEach(field -> addField(field, observation));
   }
 
   private void addField(Field field, Observation observation) {
