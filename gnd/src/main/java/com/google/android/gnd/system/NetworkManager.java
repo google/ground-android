@@ -34,10 +34,14 @@ public class NetworkManager {
   }
 
   /** Returns true iff the device has internet connectivity, false otherwise. */
+  public static boolean isNetworkAvailable(Context context) {
+    ConnectivityManager cm =
+        (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+    NetworkInfo networkInfo = cm.getActiveNetworkInfo();
+    return networkInfo != null && networkInfo.isConnected();
+  }
+
   public boolean isNetworkAvailable() {
-    ConnectivityManager connectivityManager =
-        (ConnectivityManager) application.getSystemService(Context.CONNECTIVITY_SERVICE);
-    NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
-    return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+    return isNetworkAvailable(application);
   }
 }
