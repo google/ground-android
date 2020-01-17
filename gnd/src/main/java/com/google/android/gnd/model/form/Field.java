@@ -24,7 +24,8 @@ import javax.annotation.Nullable;
 public abstract class Field {
   public enum Type {
     TEXT,
-    MULTIPLE_CHOICE
+    MULTIPLE_CHOICE,
+    PHOTO
   }
 
   @Nullable

@@ -135,6 +135,9 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
       case MULTIPLE_CHOICE:
         addMultipleChoiceField(field);
         break;
+      case PHOTO:
+        // TODO
+        break;
       default:
         Log.w(TAG, "Unimplemented field type: " + field.getType());
         break;
