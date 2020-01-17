@@ -82,6 +82,9 @@ public class FormDoc {
           field.setType(Type.MULTIPLE_CHOICE);
           field.setMultipleChoice(toMultipleChoice(em));
           break;
+        case PHOTO:
+          field.setType(Type.PHOTO);
+          break;
         default:
           return Optional.empty();
       }
