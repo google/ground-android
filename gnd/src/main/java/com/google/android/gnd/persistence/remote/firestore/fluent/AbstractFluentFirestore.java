@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.persistence.remote.firestore;
+package com.google.android.gnd.persistence.remote.firestore.fluent;
 
 import static java8.util.stream.Collectors.toList;
 import static java8.util.stream.StreamSupport.stream;
