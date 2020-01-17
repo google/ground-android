@@ -53,8 +53,7 @@ public class FormDoc {
 
     public String cardinality;
 
-    // TODO: labels or label?
-    public Map<String, String> labels;
+    public Map<String, String> label;
 
     public List<Option> options;
 
@@ -84,7 +83,7 @@ public class FormDoc {
       }
       field.setRequired(em.required);
       field.setId(em.id);
-      field.setLabel(getLocalizedMessage(em.labels));
+      field.setLabel(getLocalizedMessage(em.label));
       return Optional.of(field.build());
     }
 
