@@ -79,13 +79,8 @@ public class GndFirestore extends AbstractFluentFirestore {
     }
 
     public Single<List<Project>> getReadable(User user) {
-      return requireActiveNetwork()
-          .andThen(
-              toSingleList(
-                  RxFirestore.getCollection(
-                      ref.whereArrayContains(
-                          FieldPath.of(ACL_FIELD, user.getEmail()), READ_ACCESS)),
-                  ProjectDoc::toObject));
+      Query query = ref.whereArrayContains(FieldPath.of(ACL_FIELD, user.getEmail()), READ_ACCESS);
+      return requireActiveNetwork().andThen(runQuery(query, ProjectDoc::toObject));
     }
   }
 
@@ -201,20 +196,6 @@ public class GndFirestore extends AbstractFluentFirestore {
           throw new IllegalArgumentException("Unknown mutation type " + mutation.getType());
       }
     }
-  }
-
-  /**
-   * Applies the provided mapping function to each document in the specified query snapshot, if
-   * present. If no results are present, completes with an empty list.
-   */
-  private static <T> Single<List<T>> toSingleList(
-      Maybe<QuerySnapshot> result, Function<DocumentSnapshot, T> mappingFunction) {
-    return result
-        .doOnComplete(() -> Log.e("!!!!", "NO VALUE!"))
-        .map(
-            querySnapshot ->
-                stream(querySnapshot.getDocuments()).map(mappingFunction).collect(toList()))
-        .toSingle(Collections.emptyList());
   }
 
   private static <T> Iterable<RemoteDataEvent<T>> toEvents(

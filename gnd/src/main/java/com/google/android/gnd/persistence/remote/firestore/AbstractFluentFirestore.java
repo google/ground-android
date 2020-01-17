@@ -16,17 +16,29 @@
 
 package com.google.android.gnd.persistence.remote.firestore;
 
+import static java8.util.stream.Collectors.toList;
+import static java8.util.stream.StreamSupport.stream;
+
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import com.google.common.collect.ImmutableMap;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.firestore.WriteBatch;
+import durdinapps.rxfirebase2.RxFirestore;
 import io.reactivex.Completable;
+import io.reactivex.Maybe;
+import io.reactivex.Single;
 import java.net.ConnectException;
+import java.util.Collections;
+import java.util.List;
+import java8.util.function.Function;
 
 /** Base class for representing Firestore databases as object hierarchies. */
 public abstract class AbstractFluentFirestore {
@@ -55,6 +67,19 @@ public abstract class AbstractFluentFirestore {
         });
   }
 
+  /**
+   * Applies the provided mapping function to each document in the specified query snapshot, if
+   * present. If no results are present, completes with an empty list.
+   */
+  static <T> Single<List<T>> toSingleList(
+      Maybe<QuerySnapshot> result, Function<DocumentSnapshot, T> mappingFunction) {
+    return result
+        .map(
+            querySnapshot ->
+                stream(querySnapshot.getDocuments()).map(mappingFunction).collect(toList()))
+        .toSingle(Collections.emptyList());
+  }
+
   // TOOD: Wrap in fluent version of WriteBatch.
   public WriteBatch batch() {
     return db.batch();
@@ -73,6 +98,11 @@ public abstract class AbstractFluentFirestore {
      */
     protected Completable requireActiveNetwork() {
       return AbstractFluentFirestore.requireActiveNetwork(ref.getFirestore());
+    }
+
+    protected <T> Single<List<T>> runQuery(
+        Query query, Function<DocumentSnapshot, T> mappingFunction) {
+      return toSingleList(RxFirestore.getCollection(query), mappingFunction);
     }
 
     public CollectionReference ref() {
