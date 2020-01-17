@@ -42,7 +42,6 @@ import durdinapps.rxfirebase2.RxFirestore;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
-import java.util.Collections;
 import java.util.List;
 import java8.util.function.Function;
 import javax.inject.Inject;
