@@ -49,9 +49,7 @@ public abstract class FluentCollectionReference {
   protected <T> Single<List<T>> runQuery(
       Query query, Function<DocumentSnapshot, T> mappingFunction) {
     return requireActiveNetwork()
-        .andThen(
-            AbstractFluentFirestore.toSingleList(
-                RxFirestore.getCollection(query), mappingFunction));
+        .andThen(FluentFirestore.toSingleList(RxFirestore.getCollection(query), mappingFunction));
   }
 
   public CollectionReference ref() {

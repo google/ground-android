@@ -28,9 +28,9 @@ import com.google.android.gnd.model.feature.FeatureMutation;
 import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.model.observation.ObservationMutation;
 import com.google.android.gnd.persistence.remote.RemoteDataEvent;
-import com.google.android.gnd.persistence.remote.firestore.fluent.AbstractFluentFirestore;
 import com.google.android.gnd.persistence.remote.firestore.fluent.FluentCollectionReference;
 import com.google.android.gnd.persistence.remote.firestore.fluent.FluentDocumentReference;
+import com.google.android.gnd.persistence.remote.firestore.fluent.FluentFirestore;
 import com.google.common.collect.ImmutableList;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentChange;
@@ -52,7 +52,7 @@ import javax.inject.Singleton;
 
 /** Object representation of Ground Firestore database. */
 @Singleton
-public class GndFirestore extends AbstractFluentFirestore {
+public class GndFirestore extends FluentFirestore {
   private static final String TAG = GndFirestore.class.getSimpleName();
 
   private static final String PROJECTS = "projects";
