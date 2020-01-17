@@ -20,11 +20,13 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.room.TypeConverter;
 import com.google.android.gnd.model.form.Field;
+import com.google.android.gnd.model.form.Field.Type;
 
 public enum FieldEntityType implements IntEnum {
   UNKNOWN(0),
   TEXT(1),
-  MULTIPLE_CHOICE(2);
+  MULTIPLE_CHOICE(2),
+  PHOTO(3);
 
   private final int intValue;
 
@@ -43,6 +45,8 @@ public enum FieldEntityType implements IntEnum {
         return TEXT;
       case MULTIPLE_CHOICE:
         return MULTIPLE_CHOICE;
+      case PHOTO:
+        return PHOTO;
       default:
         return UNKNOWN;
     }
@@ -54,6 +58,8 @@ public enum FieldEntityType implements IntEnum {
         return Field.Type.TEXT;
       case MULTIPLE_CHOICE:
         return Field.Type.MULTIPLE_CHOICE;
+      case PHOTO:
+        return Type.PHOTO;
       default:
         throw new IllegalArgumentException("Unknown field type");
     }
