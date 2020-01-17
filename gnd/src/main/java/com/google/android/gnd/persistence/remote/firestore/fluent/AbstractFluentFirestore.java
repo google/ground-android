@@ -19,23 +19,12 @@ package com.google.android.gnd.persistence.remote.firestore.fluent;
 import static java8.util.stream.Collectors.toList;
 import static java8.util.stream.StreamSupport.stream;
 
-import android.content.Context;
-import com.google.android.gnd.rx.RxCompletable;
-import com.google.android.gnd.system.NetworkManager;
-import com.google.common.collect.ImmutableMap;
-import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.firestore.WriteBatch;
-import durdinapps.rxfirebase2.RxFirestore;
-import io.reactivex.Completable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
-import java.net.ConnectException;
 import java.util.Collections;
 import java.util.List;
 import java8.util.function.Function;
@@ -46,20 +35,6 @@ public abstract class AbstractFluentFirestore {
 
   protected AbstractFluentFirestore(FirebaseFirestore db) {
     this.db = db;
-  }
-
-  /** Returns true iff the an active network connection is available. */
-  private static boolean isNetworkAvailable(FirebaseFirestore db) {
-    Context context = db.getApp().getApplicationContext();
-    return NetworkManager.isNetworkAvailable(context);
-  }
-
-  /**
-   * Returns a Completable that completes immediately on subscribe if network is available, or fails
-   * in error if not.
-   */
-  static Completable requireActiveNetwork(FirebaseFirestore db) {
-    return RxCompletable.completeOrError(() -> isNetworkAvailable(db), ConnectException.class);
   }
 
   /**
@@ -79,5 +54,4 @@ public abstract class AbstractFluentFirestore {
   public WriteBatch batch() {
     return db.batch();
   }
-
 }

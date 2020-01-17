@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.persistence.remote.firestore.fluent;
 
+import com.google.android.gnd.system.NetworkManager;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.Query;
@@ -33,23 +34,24 @@ public abstract class FluentCollectionReference {
   }
 
   /**
-   * Returns a Completable that completes immediately on subscribe if network is available, or
-   * fails in error if not.
+   * Returns a Completable that completes immediately on subscribe if network is available, or fails
+   * in error if not.
    */
-  protected Completable requireActiveNetwork() {
-    return AbstractFluentFirestore.requireActiveNetwork(ref.getFirestore());
+  private Completable requireActiveNetwork() {
+    return NetworkManager.requireActiveNetwork(ref.getFirestore().getApp().getApplicationContext());
   }
 
   /**
    * Runs the specified query, returning a Single containing a List of values created by applying
-   * the mappingFunction to all results. Fails immediately with an error if an active network is
-   * not available.
+   * the mappingFunction to all results. Fails immediately with an error if an active network is not
+   * available.
    */
   protected <T> Single<List<T>> runQuery(
       Query query, Function<DocumentSnapshot, T> mappingFunction) {
     return requireActiveNetwork()
         .andThen(
-          AbstractFluentFirestore.toSingleList(RxFirestore.getCollection(query), mappingFunction));
+            AbstractFluentFirestore.toSingleList(
+                RxFirestore.getCollection(query), mappingFunction));
   }
 
   public CollectionReference ref() {
