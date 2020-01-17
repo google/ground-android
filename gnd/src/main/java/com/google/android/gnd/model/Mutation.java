@@ -59,6 +59,8 @@ public abstract class Mutation<B extends Mutation.Builder> {
   /** Returns the UUID of the feature type being modified. */
   public abstract String getLayerId();
 
+  // TODO: Deserialize User with Mutations and bind here?
+
   /** Returns the id of the user requesting the change. */
   @Nullable
   public abstract String getUserId();
