@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright 2018 Google LLC
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,19 +17,18 @@
 <layout>
   <data>
     <variable
-        name="viewModel"
-        type="com.google.android.gnd.ui.observationdetails.ObservationDetailsViewModel"/>
+      name="viewModel"
+      type="com.google.android.gnd.ui.observationdetails.ObservationDetailsViewModel" />
   </data>
 
-  <androidx.coordinatorlayout.widget.CoordinatorLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+  <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
     android:navigationBarColor="@color/colorGrey500"
     app:statusBarBackground="@color/colorGrey500">
-  
+
     <RelativeLayout
       android:layout_width="match_parent"
       android:layout_height="match_parent"
@@ -43,7 +41,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:padding="48dp"
-        android:visibility="@{safeUnbox(viewModel.progressBarVisibility)}"/>
+        android:visibility="@{safeUnbox(viewModel.progressBarVisibility)}" />
 
       <!-- CardView is used to create the drop shadow effect -->
       <androidx.cardview.widget.CardView
@@ -52,52 +50,31 @@
         android:layout_height="wrap_content"
         app:cardCornerRadius="0dp"
         app:cardElevation="@dimen/toolbar_elevation">
-  
-        <LinearLayout
+
+        <com.google.android.gnd.ui.common.TwoLineToolbar
+          android:id="@+id/observation_details_toolbar"
           android:layout_width="match_parent"
-          android:layout_height="wrap_content"
-          android:orientation="vertical">
-  
-          <com.google.android.gnd.ui.common.TwoLineToolbar
-            android:id="@+id/observation_details_toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:layout_gravity="top"
-            android:theme="@style/WhiteToolbarTheme"/>
+          android:layout_height="?attr/actionBarSize"
+          android:layout_gravity="top"
+          android:theme="@style/WhiteToolbarTheme" />
 
-          <TextView
-            android:id="@+id/form_name"
-            android:textStyle="bold"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingBottom="6dp"
-            android:background="@color/colorBackground"
-            android:textAlignment="center"
-            android:textAllCaps="true"
-            android:textColor="@color/colorForeground"
-            android:textSize="12sp"
-            android:text="@{viewModel.formNameView}"
-            />
-
-        </LinearLayout>
-  
       </androidx.cardview.widget.CardView>
-  
+
       <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@id/observation_details_header"
         android:background="@color/colorBackground">
-  
+
         <LinearLayout
           android:id="@+id/observation_details_layout"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
-          android:orientation="vertical"/>
-  
+          android:orientation="vertical" />
+
       </ScrollView>
-  
+
     </RelativeLayout>
-  
+
   </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </layout>
