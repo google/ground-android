@@ -22,6 +22,7 @@ import static java8.util.stream.StreamSupport.stream;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import com.google.android.gnd.rx.RxCompletable;
 import com.google.common.collect.ImmutableMap;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
@@ -48,23 +49,22 @@ public abstract class AbstractFluentFirestore {
     this.db = db;
   }
 
+  /** Returns true iff the an active network connection is available. */
+  private static boolean isNetworkAvailable(FirebaseFirestore db) {
+    // TODO: Refactor into NetworkManager and inject.
+    Context context = db.getApp().getApplicationContext();
+    ConnectivityManager cm =
+        (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+    NetworkInfo networkInfo = cm.getActiveNetworkInfo();
+    return networkInfo != null && networkInfo.isConnected();
+  }
+
   /**
    * Returns a Completable that completes immediately on subscribe if network is available, or fails
    * in error if not.
    */
-  static Completable requireActiveNetwork(FirebaseFirestore db) {
-    return Completable.create(
-        em -> {
-          Context context = db.getApp().getApplicationContext();
-          ConnectivityManager cm =
-              (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-          NetworkInfo networkInfo = cm.getActiveNetworkInfo();
-          if (networkInfo != null && networkInfo.isConnected()) {
-            em.onComplete();
-          } else {
-            em.onError(new ConnectException("Network unavailable"));
-          }
-        });
+  private static Completable requireActiveNetwork(FirebaseFirestore db) {
+    return RxCompletable.completeOrError(() -> isNetworkAvailable(db), ConnectException.class);
   }
 
   /**

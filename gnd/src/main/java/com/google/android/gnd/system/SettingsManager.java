@@ -92,7 +92,7 @@ public class SettingsManager {
   private Completable getNextResult(int requestCode) {
     return activityStreams
         .getNextActivityResult(requestCode)
-        .flatMapCompletable(r -> completeOrError(r.isOk(), SettingsChangeRequestCanceled.class))
+        .flatMapCompletable(r -> completeOrError(r::isOk, SettingsChangeRequestCanceled.class))
         .doOnComplete(() -> Log.d(TAG, "Settings change request successful"))
         .doOnError(t -> Log.d(TAG, "Settings change request failed", t));
   }

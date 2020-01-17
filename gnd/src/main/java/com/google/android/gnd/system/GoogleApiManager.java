@@ -80,6 +80,6 @@ public class GoogleApiManager {
     // TODO: Throw appropriate Exception.
     return activityStreams
         .getNextActivityResult(INSTALL_API_REQUEST_CODE)
-        .flatMapCompletable(r -> completeOrError(r.isOk(), Exception.class));
+        .flatMapCompletable(r -> completeOrError(r::isOk, Exception.class));
   }
 }
