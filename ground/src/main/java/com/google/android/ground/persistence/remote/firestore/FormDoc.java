@@ -26,8 +26,6 @@ import com.google.android.ground.model.form.Field.Type;
 import com.google.android.ground.model.form.Form;
 import com.google.android.ground.model.form.MultipleChoice;
 import com.google.firebase.firestore.IgnoreExtraProperties;
-import com.google.firebase.firestore.ServerTimestamp;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,10 +36,6 @@ public class FormDoc {
   public Map<String, String> titles = new HashMap<>();
 
   public List<Element> elements;
-
-  public @ServerTimestamp Date serverTimeCreated;
-
-  public @ServerTimestamp Date serverTimeModified;
 
   public Form toObject(String formId) {
     return Form.newBuilder()
