@@ -38,18 +38,24 @@ public class StorageManager {
     this.activityStreams = activityStreams;
   }
 
-  public void requestFilePicker() {
-    activityStreams
-        .getNextActivityResult(PICKFILE_REQUEST_CODE)
-        .doOnNext(
-            r -> {
-              Log.d(TAG, r.getRequestCode() + " : " + r.getData());
-            })
-        .subscribe();
-
+  public void imagePicker() {
     permissionsManager
         .obtainPermission(permission.READ_EXTERNAL_STORAGE)
         .andThen(RxCompletable.completeIf(this::sendIntent))
+        .andThen(
+            activityStreams
+                .getNextActivityResult(PICKFILE_REQUEST_CODE)
+                .doOnNext(
+                    activityResult -> {
+                      if (activityResult.isOk()) {
+                        Intent intent = activityResult.getData();
+                        if (intent != null) {
+                          Log.d(TAG, activityResult.getData().getData() + " = uri");
+                        }
+                      } else if (activityResult.isCanceled()) {
+                        Log.d(TAG, "file picker canceled");
+                      }
+                    }))
         .subscribe();
   }
 
