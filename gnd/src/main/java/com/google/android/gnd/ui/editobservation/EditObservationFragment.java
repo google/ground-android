@@ -140,9 +140,9 @@ public class EditObservationFragment extends AbstractFragment
         addTextField(field);
         break;
       case MULTIPLE_CHOICE:
-        //        addMultipleChoiceField(field);
-        //        break;
-        //      case PHOTO:
+        addMultipleChoiceField(field);
+        break;
+      case PHOTO:
         addPhotoField(field);
         break;
       default:
