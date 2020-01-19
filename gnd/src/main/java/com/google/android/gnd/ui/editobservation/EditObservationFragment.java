@@ -39,6 +39,8 @@ import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.model.form.MultipleChoice.Cardinality;
 import com.google.android.gnd.model.observation.Response;
+import com.google.android.gnd.system.CameraManager;
+import com.google.android.gnd.system.StorageManager;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.BackPressListener;
 import com.google.android.gnd.ui.common.EphemeralPopups;
@@ -58,6 +60,8 @@ public class EditObservationFragment extends AbstractFragment
   private MultiSelectDialogFactory multiSelectDialogFactory;
 
   @Inject Navigator navigator;
+  @Inject StorageManager storageManager;
+  @Inject CameraManager cameraManager;
 
   @BindView(R.id.edit_observation_toolbar)
   TwoLineToolbar toolbar;
@@ -240,8 +244,12 @@ public class EditObservationFragment extends AbstractFragment
   }
 
   @Override
-  public void onSelectPhoto() {}
+  public void onSelectPhoto() {
+    storageManager.imagePicker();
+  }
 
   @Override
-  public void onCapturePhoto() {}
+  public void onCapturePhoto() {
+    cameraManager.clickPhoto();
+  }
 }
