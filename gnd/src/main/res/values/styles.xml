@@ -191,4 +191,12 @@
     <item name="android:textSize">@dimen/chip_button_text_size</item>
     <item name="android:textStyle">bold</item>
   </style>
+
+  <style name="AddPhotoActionItem">
+    <item name="android:textSize">@dimen/add_photo_bottom_sheet_text_size</item>
+    <item name="android:drawablePadding">@dimen/add_photo_bottom_sheet_drawable_padding</item>
+    <item name="android:layout_width">match_parent</item>
+    <item name="android:layout_height">wrap_content</item>
+    <item name="android:padding">@dimen/add_photo_bottom_sheet_padding</item>
+  </style>
 </resources>
