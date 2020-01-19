@@ -168,11 +168,6 @@ public class EditObservationViewModel extends AbstractViewModel {
     return validationErrors;
   }
 
-  public void onSelectPhoto(Field field) {
-    Log.v(TAG, "onSelectPhoto: " + field.getId());
-    // TODO
-  }
-
   public void onTextChanged(Field field, String text) {
     Log.v(TAG, "onTextChanged: " + field.getId());
 
@@ -326,7 +321,7 @@ public class EditObservationViewModel extends AbstractViewModel {
     validationErrors.clear();
     stream(originalObservation.getForm().getElements())
         .filter(e -> e.getType().equals(Type.FIELD))
-        .map(e -> e.getField())
+        .map(Element::getField)
         .forEach(this::updateError);
   }
 

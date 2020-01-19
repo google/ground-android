@@ -44,11 +44,13 @@ import com.google.android.gnd.ui.common.BackPressListener;
 import com.google.android.gnd.ui.common.EphemeralPopups;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.TwoLineToolbar;
+import com.google.android.gnd.ui.editobservation.ActionBottomDialogFragment.AddPhotoListener;
 import java8.util.Optional;
 import javax.inject.Inject;
 
 @ActivityScoped
-public class EditObservationFragment extends AbstractFragment implements BackPressListener {
+public class EditObservationFragment extends AbstractFragment
+    implements BackPressListener, AddPhotoListener {
   private static final String TAG = EditObservationFragment.class.getSimpleName();
 
   private EditObservationViewModel viewModel;
@@ -73,7 +75,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
 
   @Override
   public View onCreateView(
-      LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+      @NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     EditObservationFragBinding binding =
         EditObservationFragBinding.inflate(inflater, container, false);
     binding.setLifecycleOwner(this);
@@ -134,9 +136,9 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
         addTextField(field);
         break;
       case MULTIPLE_CHOICE:
-        addMultipleChoiceField(field);
-        break;
-      case PHOTO:
+        //        addMultipleChoiceField(field);
+        //        break;
+        //      case PHOTO:
         addPhotoField(field);
         break;
       default:
@@ -169,9 +171,9 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
   public void addPhotoField(Field field) {
     PhotoInputFieldBinding binding =
         PhotoInputFieldBinding.inflate(getLayoutInflater(), formLayout, false);
-    binding.setViewModel(viewModel);
     binding.setLifecycleOwner(this);
     binding.setField(field);
+    binding.setFragment(this);
     formLayout.addView(binding.getRoot());
     assignGeneratedId(binding.getRoot().findViewById(R.id.image_thumbnail_preview));
     assignGeneratedId(binding.getRoot().findViewById(R.id.btn_select_photo));
@@ -195,6 +197,12 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
         Log.e(TAG, "Unknown cardinality: " + cardinality);
         return;
     }
+  }
+
+  public void onShowPhotoSelectorDialog(Field field) {
+    ActionBottomDialogFragment bottomDialogFragment = ActionBottomDialogFragment.newInstance();
+    bottomDialogFragment.setTargetFragment(this, 0);
+    bottomDialogFragment.show(getFragmentManager(), ActionBottomDialogFragment.TAG);
   }
 
   @Override
@@ -230,4 +238,10 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
         .create()
         .show();
   }
+
+  @Override
+  public void onSelectPhoto() {}
+
+  @Override
+  public void onCapturePhoto() {}
 }
