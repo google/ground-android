@@ -20,7 +20,7 @@ import android.Manifest.permission;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.util.Log;
-import com.google.android.gnd.rx.RxCompletable;
+import io.reactivex.Completable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -43,7 +43,7 @@ public class CameraManager {
     permissionsManager
         .obtainPermission(permission.WRITE_EXTERNAL_STORAGE)
         .andThen(permissionsManager.obtainPermission(permission.CAMERA))
-        .andThen(RxCompletable.completeIf(this::sendIntent))
+        .andThen(sendCaptureImageIntent())
         .andThen(
             activityStreams
                 .getNextActivityResult(CAPTURE_PHOTO_REQUEST_CODE)
@@ -62,13 +62,15 @@ public class CameraManager {
         .subscribe();
   }
 
-  private boolean sendIntent() {
-    Log.d(TAG, "Sending capture photo intent");
-    activityStreams.withActivity(
-        activity -> {
-          Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
-          activity.startActivityForResult(cameraIntent, CAPTURE_PHOTO_REQUEST_CODE);
-        });
-    return true;
+  private Completable sendCaptureImageIntent() {
+    return Completable.fromAction(
+        () ->
+            activityStreams.withActivity(
+                activity -> {
+                  Intent cameraIntent =
+                      new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+                  activity.startActivityForResult(cameraIntent, CAPTURE_PHOTO_REQUEST_CODE);
+                  Log.d(TAG, "capture photo intent sent");
+                }));
   }
 }
