@@ -71,7 +71,7 @@ public class PermissionsManager {
         .flatMapCompletable(
             r ->
                 RxCompletable.completeOrError(
-                    r.isGranted(permission), PermissionDeniedException.class));
+                    () -> r.isGranted(permission), PermissionDeniedException.class));
   }
 
   public static class PermissionDeniedException extends Exception {}

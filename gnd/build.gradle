@@ -121,7 +121,7 @@ dependencies {
     implementation "net.sourceforge.streamsupport:streamsupport-cfuture:" +
         "$project.streamSupportVersion"
 
-    // For dynamic tab bar style.
+    // Google Play Services.
     implementation "com.google.android.gms:play-services-auth:$project.gmsVersion"
     implementation "com.google.android.gms:play-services-maps:$project.gmsVersion"
     implementation "com.google.android.gms:play-services-location:$project.gmsVersion"
@@ -135,6 +135,7 @@ dependencies {
     implementation "com.google.firebase:firebase-auth:$project.firebaseAuthVersion"
     implementation "com.google.firebase:firebase-perf:$project.firebasePerfVersion"
     implementation "com.github.FrangSierra:RxFirebase:$project.rxFirebaseVersion"
+    implementation 'com.google.firebase:firebase-storage:19.1.0'
 
     // Dagger core
     annotationProcessor "com.google.dagger:dagger-compiler:$project.daggerVersion"
@@ -200,3 +201,11 @@ apply plugin: 'androidx.navigation.safeargs'
 // This must be last to avoid dependency collisions.
 // https://developers.google.com/android/guides/google-services-plugin#introduction
 apply plugin: 'com.google.gms.google-services'
+
+task checkCode(type: GradleBuild) {
+    dependsOn 'checkstyle', 'lintDebug', 'pmd', 'spotbugs'
+}
+
+afterEvaluate {
+    assembleDebug.dependsOn checkCode
+}

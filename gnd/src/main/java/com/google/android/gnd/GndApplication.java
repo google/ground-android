@@ -49,13 +49,14 @@ public class GndApplication extends DaggerApplication {
   public void onCreate() {
     if (BuildConfig.DEBUG) {
       Log.d(TAG, "DEBUG build config active; enabling debug tooling");
-      setStrictMode();
 
-      /*
-       * Debug bridge for Android applications. Enables network and database debugging for the app
-       * accessible under chrome://inspect in Chrome desktop browser.
-       */
+      // Debug bridge for Android applications. Enables network and database debugging for the app
+      // accessible under chrome://inspect in Chrome desktop browser. Must be done before calling
+      // setStrictMode().
       Stetho.initializeWithDefaults(this);
+
+      // Log failures when trying to do work in the UI thread.
+      setStrictMode();
     }
 
     super.onCreate();

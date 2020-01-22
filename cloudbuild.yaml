@@ -67,7 +67,8 @@ steps:
   # Build debug APK
   - name: 'gcr.io/$PROJECT_ID/android:28'
     id: 'Build debug apk'
-    args: ['./gradlew', 'assembleDebug', '-PdisablePreDex']
+    # Explicitly excluding checkCode since it gets auto-triggered
+    args: ['./gradlew', 'assembleDebug', '-PdisablePreDex', '--exclude-task', 'checkCode']
 
   # Run code quality checks
   - name: 'gcr.io/$PROJECT_ID/android:28'
