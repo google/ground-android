@@ -25,7 +25,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import com.google.android.gnd.databinding.BottomSheetBinding;
+import com.google.android.gnd.databinding.EditObservationBottomSheetBinding;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
 public class ActionBottomDialogFragment extends BottomSheetDialogFragment {
@@ -43,7 +43,8 @@ public class ActionBottomDialogFragment extends BottomSheetDialogFragment {
       @NonNull LayoutInflater inflater,
       @Nullable ViewGroup container,
       @Nullable Bundle savedInstanceState) {
-    BottomSheetBinding binding = BottomSheetBinding.inflate(inflater, container, false);
+    EditObservationBottomSheetBinding binding =
+        EditObservationBottomSheetBinding.inflate(inflater, container, false);
     binding.setFragment(this);
     return binding.getRoot();
   }
