@@ -19,7 +19,7 @@ package com.google.android.gnd.system;
 import android.Manifest.permission;
 import android.content.Intent;
 import android.util.Log;
-import com.google.android.gnd.rx.RxCompletable;
+import io.reactivex.Completable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -41,7 +41,7 @@ public class StorageManager {
   public void imagePicker() {
     permissionsManager
         .obtainPermission(permission.READ_EXTERNAL_STORAGE)
-        .andThen(RxCompletable.completeIf(this::sendIntent))
+        .andThen(sendImagePickerIntent())
         .andThen(
             activityStreams
                 .getNextActivityResult(PICKFILE_REQUEST_CODE)
@@ -59,14 +59,15 @@ public class StorageManager {
         .subscribe();
   }
 
-  private boolean sendIntent() {
-    Log.d(TAG, "Sending file picker intent");
-    activityStreams.withActivity(
-        activity -> {
-          Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-          intent.setType("image/*");
-          activity.startActivityForResult(intent, PICKFILE_REQUEST_CODE);
-        });
-    return true;
+  private Completable sendImagePickerIntent() {
+    return Completable.fromAction(
+        () ->
+            activityStreams.withActivity(
+                activity -> {
+                  Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+                  intent.setType("image/*");
+                  activity.startActivityForResult(intent, PICKFILE_REQUEST_CODE);
+                  Log.d(TAG, "file picker intent sent");
+                }));
   }
 }
