@@ -28,13 +28,13 @@ import androidx.fragment.app.Fragment;
 import com.google.android.gnd.databinding.EditObservationBottomSheetBinding;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
-public class ActionBottomDialogFragment extends BottomSheetDialogFragment {
+public class PhotoDialogFragment extends BottomSheetDialogFragment {
 
   public static final String TAG = "ActionBottomDialog";
   private AddPhotoListener listener;
 
-  public static ActionBottomDialogFragment newInstance() {
-    return new ActionBottomDialogFragment();
+  public static PhotoDialogFragment newInstance() {
+    return new PhotoDialogFragment();
   }
 
   @Nullable

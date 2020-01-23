@@ -20,7 +20,7 @@
   <data>
     <variable
       name="fragment"
-      type="com.google.android.gnd.ui.editobservation.ActionBottomDialogFragment" />
+      type="com.google.android.gnd.ui.editobservation.PhotoDialogFragment" />
   </data>
 
   <LinearLayout

@@ -46,7 +46,7 @@ import com.google.android.gnd.ui.common.BackPressListener;
 import com.google.android.gnd.ui.common.EphemeralPopups;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.TwoLineToolbar;
-import com.google.android.gnd.ui.editobservation.ActionBottomDialogFragment.AddPhotoListener;
+import com.google.android.gnd.ui.editobservation.PhotoDialogFragment.AddPhotoListener;
 import java8.util.Optional;
 import javax.inject.Inject;
 
@@ -204,9 +204,9 @@ public class EditObservationFragment extends AbstractFragment
   }
 
   public void onShowPhotoSelectorDialog(Field field) {
-    ActionBottomDialogFragment bottomDialogFragment = ActionBottomDialogFragment.newInstance();
+    PhotoDialogFragment bottomDialogFragment = PhotoDialogFragment.newInstance();
     bottomDialogFragment.setTargetFragment(this, 0);
-    bottomDialogFragment.show(getFragmentManager(), ActionBottomDialogFragment.TAG);
+    bottomDialogFragment.show(getFragmentManager(), PhotoDialogFragment.TAG);
   }
 
   @Override
