@@ -21,7 +21,6 @@ import static java8.util.stream.StreamSupport.stream;
 
 import android.content.res.Resources;
 import android.graphics.Bitmap;
-import android.net.Uri;
 import android.util.Log;
 import android.view.View;
 import androidx.databinding.ObservableArrayMap;
@@ -76,8 +75,7 @@ public class EditObservationViewModel extends AbstractViewModel {
   private final BehaviorProcessor<EditObservationFragmentArgs> viewArgs =
       BehaviorProcessor.create();
 
-  private final BehaviorProcessor<Optional<Uri>> selectedPhoto = BehaviorProcessor.create();
-  private final BehaviorProcessor<Optional<Bitmap>> capturedPhoto = BehaviorProcessor.create();
+  private final BehaviorProcessor<Optional<Bitmap>> addedPhoto = BehaviorProcessor.create();
 
   /** "Save" button clicks. */
   private final PublishProcessor<Nil> saveClicks = PublishProcessor.create();
@@ -87,11 +85,8 @@ public class EditObservationViewModel extends AbstractViewModel {
   /** Form definition, loaded when view is initialized. */
   private final LiveData<Form> form;
 
-  /** Selected image. */
-  private final LiveData<Optional<Uri>> selectPhotos;
-
-  /** Captured image. */
-  private final LiveData<Optional<Bitmap>> capturePhotos;
+  /** Added image field. */
+  private final LiveData<Optional<Bitmap>> photo;
 
   /** Toolbar title, based on whether user is adding new or editing existing observation. */
   private final MutableLiveData<String> toolbarTitle = new MutableLiveData<>();
@@ -145,8 +140,7 @@ public class EditObservationViewModel extends AbstractViewModel {
     this.cameraManager = cameraManager;
     this.form = fromPublisher(viewArgs.switchMapSingle(this::onInitialize));
     this.saveResults = fromPublisher(saveClicks.switchMapSingle(__ -> onSave()));
-    this.selectPhotos = fromPublisher(selectedPhoto);
-    this.capturePhotos = fromPublisher(capturedPhoto);
+    this.photo = fromPublisher(addedPhoto);
   }
 
   public LiveData<Form> getForm() {
@@ -173,12 +167,8 @@ public class EditObservationViewModel extends AbstractViewModel {
     return saveResults;
   }
 
-  public LiveData<Optional<Uri>> getSelectedPhoto() {
-    return selectPhotos;
-  }
-
-  public LiveData<Optional<Bitmap>> getCapturePhoto() {
-    return capturePhotos;
+  public LiveData<Optional<Bitmap>> getAddedPhoto() {
+    return photo;
   }
 
   public void initialize(EditObservationFragmentArgs args) {
@@ -225,7 +215,7 @@ public class EditObservationViewModel extends AbstractViewModel {
     disposeOnClear(
         storageManager
             .launchImagePicker()
-            .andThen(storageManager.imagePickerResult().doOnNext(selectedPhoto::onNext))
+            .andThen(storageManager.imagePickerResult().doOnNext(addedPhoto::onNext))
             .subscribe());
   }
 
@@ -237,7 +227,7 @@ public class EditObservationViewModel extends AbstractViewModel {
     disposeOnClear(
         cameraManager
             .launchImageCapture()
-            .andThen(cameraManager.captureImageResult().doOnNext(capturedPhoto::onNext))
+            .andThen(cameraManager.captureImageResult().doOnNext(addedPhoto::onNext))
             .subscribe());
   }
 

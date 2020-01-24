@@ -20,7 +20,6 @@ import static com.google.android.gnd.ui.util.ViewUtil.assignGeneratedId;
 
 import android.app.AlertDialog;
 import android.graphics.Bitmap;
-import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -95,17 +94,12 @@ public class EditObservationFragment extends AbstractFragment
     viewModel.getForm().observe(this, this::rebuildForm);
     viewModel.getToolbarTitle().observe(this, toolbar::setTitle);
     viewModel.getSaveResults().observe(this, e -> e.ifUnhandled(this::handleSaveResult));
-    viewModel.getSelectedPhoto().observe(this, this::onPhotoSelected);
-    viewModel.getCapturePhoto().observe(this, this::onPhotoCaptured);
+    viewModel.getAddedPhoto().observe(this, this::onPhotoAdded);
     // Initialize view model.
     viewModel.initialize(EditObservationFragmentArgs.fromBundle(getArguments()));
   }
 
-  private void onPhotoSelected(Optional<Uri> uriOptional) {
-    Log.d(TAG, uriOptional.toString());
-  }
-
-  private void onPhotoCaptured(Optional<Bitmap> bitmapOptional) {
+  private void onPhotoAdded(Optional<Bitmap> bitmapOptional) {
     Log.d(TAG, bitmapOptional.toString());
   }
 

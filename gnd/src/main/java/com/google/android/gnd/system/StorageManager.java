@@ -17,8 +17,10 @@
 package com.google.android.gnd.system;
 
 import android.Manifest.permission;
+import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
+import android.graphics.Bitmap;
+import android.provider.MediaStore.Images.Media;
 import android.util.Log;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
@@ -32,11 +34,14 @@ public class StorageManager {
   public static final String TAG = StorageManager.class.getName();
 
   private static final int PICKFILE_REQUEST_CODE = StorageManager.class.hashCode() & 0xffff;
+  private final Context context;
   private final PermissionsManager permissionsManager;
   private final ActivityStreams activityStreams;
 
   @Inject
-  public StorageManager(PermissionsManager permissionsManager, ActivityStreams activityStreams) {
+  public StorageManager(
+      Context context, PermissionsManager permissionsManager, ActivityStreams activityStreams) {
+    this.context = context;
     this.permissionsManager = permissionsManager;
     this.activityStreams = activityStreams;
   }
@@ -47,7 +52,7 @@ public class StorageManager {
         .andThen(sendImagePickerIntent());
   }
 
-  public Observable<Optional<Uri>> imagePickerResult() {
+  public Observable<Optional<Bitmap>> imagePickerResult() {
     return activityStreams
         .getNextActivityResult(PICKFILE_REQUEST_CODE)
         .map(
@@ -55,7 +60,8 @@ public class StorageManager {
               if (activityResult.isOk()) {
                 Intent intent = activityResult.getData();
                 if (intent != null) {
-                  return Optional.ofNullable(intent.getData());
+                  Bitmap bitmap = Media.getBitmap(context.getContentResolver(), intent.getData());
+                  return Optional.ofNullable(bitmap);
                 }
               }
               return Optional.empty();
