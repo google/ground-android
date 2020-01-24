@@ -95,10 +95,6 @@ public class ActivityStreams {
       return resultCode == Activity.RESULT_OK;
     }
 
-    public boolean isCanceled() {
-      return resultCode == Activity.RESULT_CANCELED;
-    }
-
     @Nullable
     public Intent getData() {
       return data;

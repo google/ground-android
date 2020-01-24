@@ -67,13 +67,11 @@ public class PhotoDialogFragment extends BottomSheetDialogFragment {
   }
 
   public void onSelectPhoto() {
-    Log.d(TAG, "onSelectPhoto");
     listener.onSelectPhoto();
     dismiss();
   }
 
   public void onCapturePhoto() {
-    Log.d(TAG, "onCapturePhoto");
     listener.onCapturePhoto();
     dismiss();
   }
