@@ -18,8 +18,11 @@ package com.google.android.gnd.system;
 
 import android.Manifest.permission;
 import android.content.Intent;
+import android.net.Uri;
 import android.util.Log;
 import io.reactivex.Completable;
+import io.reactivex.Observable;
+import java8.util.Optional;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -38,25 +41,25 @@ public class StorageManager {
     this.activityStreams = activityStreams;
   }
 
-  public void imagePicker() {
-    permissionsManager
+  public Completable launchImagePicker() {
+    return permissionsManager
         .obtainPermission(permission.READ_EXTERNAL_STORAGE)
-        .andThen(sendImagePickerIntent())
-        .andThen(
-            activityStreams
-                .getNextActivityResult(PICKFILE_REQUEST_CODE)
-                .doOnNext(
-                    activityResult -> {
-                      if (activityResult.isOk()) {
-                        Intent intent = activityResult.getData();
-                        if (intent != null) {
-                          Log.d(TAG, activityResult.getData().getData() + " = uri");
-                        }
-                      } else if (activityResult.isCanceled()) {
-                        Log.d(TAG, "file picker canceled");
-                      }
-                    }))
-        .subscribe();
+        .andThen(sendImagePickerIntent());
+  }
+
+  public Observable<Optional<Uri>> imagePickerResult() {
+    return activityStreams
+        .getNextActivityResult(PICKFILE_REQUEST_CODE)
+        .map(
+            activityResult -> {
+              if (activityResult.isOk()) {
+                Intent intent = activityResult.getData();
+                if (intent != null) {
+                  return Optional.ofNullable(intent.getData());
+                }
+              }
+              return Optional.empty();
+            });
   }
 
   private Completable sendImagePickerIntent() {

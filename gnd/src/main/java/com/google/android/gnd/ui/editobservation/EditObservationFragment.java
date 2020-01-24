@@ -19,6 +19,8 @@ package com.google.android.gnd.ui.editobservation;
 import static com.google.android.gnd.ui.util.ViewUtil.assignGeneratedId;
 
 import android.app.AlertDialog;
+import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -39,8 +41,6 @@ import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.model.form.MultipleChoice.Cardinality;
 import com.google.android.gnd.model.observation.Response;
-import com.google.android.gnd.system.CameraManager;
-import com.google.android.gnd.system.StorageManager;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.BackPressListener;
 import com.google.android.gnd.ui.common.EphemeralPopups;
@@ -60,8 +60,6 @@ public class EditObservationFragment extends AbstractFragment
   private MultiSelectDialogFactory multiSelectDialogFactory;
 
   @Inject Navigator navigator;
-  @Inject StorageManager storageManager;
-  @Inject CameraManager cameraManager;
 
   @BindView(R.id.edit_observation_toolbar)
   TwoLineToolbar toolbar;
@@ -97,8 +95,18 @@ public class EditObservationFragment extends AbstractFragment
     viewModel.getForm().observe(this, this::rebuildForm);
     viewModel.getToolbarTitle().observe(this, toolbar::setTitle);
     viewModel.getSaveResults().observe(this, e -> e.ifUnhandled(this::handleSaveResult));
+    viewModel.getSelectedPhoto().observe(this, this::onPhotoSelected);
+    viewModel.getCapturePhoto().observe(this, this::onPhotoCaptured);
     // Initialize view model.
     viewModel.initialize(EditObservationFragmentArgs.fromBundle(getArguments()));
+  }
+
+  private void onPhotoSelected(Optional<Uri> uriOptional) {
+    Log.d(TAG, uriOptional.toString());
+  }
+
+  private void onPhotoCaptured(Optional<Bitmap> bitmapOptional) {
+    Log.d(TAG, bitmapOptional.toString());
   }
 
   private void handleSaveResult(EditObservationViewModel.SaveResult saveResult) {
@@ -199,7 +207,7 @@ public class EditObservationFragment extends AbstractFragment
         break;
       default:
         Log.e(TAG, "Unknown cardinality: " + cardinality);
-        return;
+        break;
     }
   }
 
@@ -245,11 +253,11 @@ public class EditObservationFragment extends AbstractFragment
 
   @Override
   public void onSelectPhoto() {
-    storageManager.imagePicker();
+    viewModel.initPhotoSelector();
   }
 
   @Override
   public void onCapturePhoto() {
-    cameraManager.clickPhoto();
+    viewModel.initPhotoCapture();
   }
 }

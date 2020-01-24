@@ -20,6 +20,8 @@ import static androidx.lifecycle.LiveDataReactiveStreams.fromPublisher;
 import static java8.util.stream.StreamSupport.stream;
 
 import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.net.Uri;
 import android.util.Log;
 import android.view.View;
 import androidx.databinding.ObservableArrayMap;
@@ -42,6 +44,8 @@ import com.google.android.gnd.repository.ObservationRepository;
 import com.google.android.gnd.rx.Event;
 import com.google.android.gnd.rx.Nil;
 import com.google.android.gnd.system.AuthenticationManager;
+import com.google.android.gnd.system.CameraManager;
+import com.google.android.gnd.system.StorageManager;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.common.collect.ImmutableList;
 import io.reactivex.Single;
@@ -63,12 +67,17 @@ public class EditObservationViewModel extends AbstractViewModel {
   private final ObservationRepository observationRepository;
   private final AuthenticationManager authManager;
   private final Resources resources;
+  private final StorageManager storageManager;
+  private final CameraManager cameraManager;
 
   // Input events.
 
   /** Arguments passed in from view on initialize(). */
   private final BehaviorProcessor<EditObservationFragmentArgs> viewArgs =
       BehaviorProcessor.create();
+
+  private final BehaviorProcessor<Optional<Uri>> selectedPhoto = BehaviorProcessor.create();
+  private final BehaviorProcessor<Optional<Bitmap>> capturedPhoto = BehaviorProcessor.create();
 
   /** "Save" button clicks. */
   private final PublishProcessor<Nil> saveClicks = PublishProcessor.create();
@@ -77,6 +86,12 @@ public class EditObservationViewModel extends AbstractViewModel {
 
   /** Form definition, loaded when view is initialized. */
   private final LiveData<Form> form;
+
+  /** Selected image. */
+  private final LiveData<Optional<Uri>> selectPhotos;
+
+  /** Captured image. */
+  private final LiveData<Optional<Bitmap>> capturePhotos;
 
   /** Toolbar title, based on whether user is adding new or editing existing observation. */
   private final MutableLiveData<String> toolbarTitle = new MutableLiveData<>();
@@ -120,12 +135,18 @@ public class EditObservationViewModel extends AbstractViewModel {
   EditObservationViewModel(
       GndApplication application,
       ObservationRepository observationRepository,
-      AuthenticationManager authenticationManager) {
+      AuthenticationManager authenticationManager,
+      StorageManager storageManager,
+      CameraManager cameraManager) {
     this.resources = application.getResources();
     this.observationRepository = observationRepository;
     this.authManager = authenticationManager;
+    this.storageManager = storageManager;
+    this.cameraManager = cameraManager;
     this.form = fromPublisher(viewArgs.switchMapSingle(this::onInitialize));
     this.saveResults = fromPublisher(saveClicks.switchMapSingle(__ -> onSave()));
+    this.selectPhotos = fromPublisher(selectedPhoto);
+    this.capturePhotos = fromPublisher(capturedPhoto);
   }
 
   public LiveData<Form> getForm() {
@@ -150,6 +171,14 @@ public class EditObservationViewModel extends AbstractViewModel {
 
   public LiveData<Event<SaveResult>> getSaveResults() {
     return saveResults;
+  }
+
+  public LiveData<Optional<Uri>> getSelectedPhoto() {
+    return selectPhotos;
+  }
+
+  public LiveData<Optional<Bitmap>> getCapturePhoto() {
+    return capturePhotos;
   }
 
   public void initialize(EditObservationFragmentArgs args) {
@@ -186,6 +215,30 @@ public class EditObservationViewModel extends AbstractViewModel {
     if (!hasFocus) {
       updateError(field);
     }
+  }
+
+  void initPhotoSelector() {
+    /*
+     * Didn't subscribe this with Fragment's lifecycle because we need to retain the disposable
+     * after the fragment is destroyed (for activity result)
+     */
+    disposeOnClear(
+        storageManager
+            .launchImagePicker()
+            .andThen(storageManager.imagePickerResult().doOnNext(selectedPhoto::onNext))
+            .subscribe());
+  }
+
+  void initPhotoCapture() {
+    /*
+     * Didn't subscribe this with Fragment's lifecycle because we need to retain the disposable
+     * after the fragment is destroyed (for activity result)
+     */
+    disposeOnClear(
+        cameraManager
+            .launchImageCapture()
+            .andThen(cameraManager.captureImageResult().doOnNext(capturedPhoto::onNext))
+            .subscribe());
   }
 
   public void onSaveClick() {

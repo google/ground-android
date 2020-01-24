@@ -19,8 +19,11 @@ package com.google.android.gnd.system;
 import android.Manifest.permission;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.provider.MediaStore;
 import android.util.Log;
 import io.reactivex.Completable;
+import io.reactivex.Observable;
+import java8.util.Optional;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -39,27 +42,27 @@ public class CameraManager {
     this.activityStreams = activityStreams;
   }
 
-  public void clickPhoto() {
-    permissionsManager
+  public Completable launchImageCapture() {
+    return permissionsManager
         .obtainPermission(permission.WRITE_EXTERNAL_STORAGE)
         .andThen(permissionsManager.obtainPermission(permission.CAMERA))
-        .andThen(sendCaptureImageIntent())
-        .andThen(
-            activityStreams
-                .getNextActivityResult(CAPTURE_PHOTO_REQUEST_CODE)
-                .doOnNext(
-                    activityResult -> {
-                      if (activityResult.isOk()) {
-                        Intent intent = activityResult.getData();
-                        if (intent != null) {
-                          Bitmap photo = (Bitmap) intent.getExtras().get("data");
-                          Log.d(TAG, photo.toString());
-                        }
-                      } else if (activityResult.isCanceled()) {
-                        Log.d(TAG, "capture photo canceled");
-                      }
-                    }))
-        .subscribe();
+        .andThen(sendCaptureImageIntent());
+  }
+
+  public Observable<Optional<Bitmap>> captureImageResult() {
+    return activityStreams
+        .getNextActivityResult(CAPTURE_PHOTO_REQUEST_CODE)
+        .map(
+            activityResult -> {
+              if (activityResult.isOk()) {
+                Intent intent = activityResult.getData();
+                if (intent != null && intent.getExtras() != null) {
+                  Bitmap photo = (Bitmap) intent.getExtras().get("data");
+                  return Optional.ofNullable(photo);
+                }
+              }
+              return Optional.empty();
+            });
   }
 
   private Completable sendCaptureImageIntent() {
@@ -67,8 +70,7 @@ public class CameraManager {
         () ->
             activityStreams.withActivity(
                 activity -> {
-                  Intent cameraIntent =
-                      new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+                  Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                   activity.startActivityForResult(cameraIntent, CAPTURE_PHOTO_REQUEST_CODE);
                   Log.d(TAG, "capture photo intent sent");
                 }));
