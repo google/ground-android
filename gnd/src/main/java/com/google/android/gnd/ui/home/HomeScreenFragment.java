@@ -109,7 +109,6 @@ public class HomeScreenFragment extends AbstractFragment
   private MapContainerFragment mapContainerFragment;
   private BottomSheetBehavior<View> bottomSheetBehavior;
   private PublishSubject<Object> showFeatureDialogRequests;
-  private ProjectSelectorDialogFragment projectSelectorDialogFragment;
 
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -138,9 +137,6 @@ public class HomeScreenFragment extends AbstractFragment
   public View onCreateView(
       LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     super.onCreateView(inflater, container, savedInstanceState);
-
-    projectSelectorDialogFragment = new ProjectSelectorDialogFragment();
-
     HomeScreenFragBinding binding = HomeScreenFragBinding.inflate(inflater, container, false);
     binding.featureSheetChrome.setViewModel(viewModel);
     binding.setLifecycleOwner(this);
@@ -225,22 +221,8 @@ public class HomeScreenFragment extends AbstractFragment
     viewModel.init();
   }
 
-  @Override
-  public void onStop() {
-    super.onStop();
-
-    dismissProjectSelector();
-  }
-
   private void showProjectSelector() {
-    if (!projectSelectorDialogFragment.isVisible()) {
-      projectSelectorDialogFragment.show(
-          getFragmentManager(), ProjectSelectorDialogFragment.class.getSimpleName());
-    }
-  }
-
-  private void dismissProjectSelector() {
-    projectSelectorDialogFragment.dismiss();
+    ProjectSelectorDialogFragment.show(getFragmentManager());
   }
 
   private void showOfflineAreas() {
