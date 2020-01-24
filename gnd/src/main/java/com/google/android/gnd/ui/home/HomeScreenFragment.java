@@ -229,7 +229,9 @@ public class HomeScreenFragment extends AbstractFragment
   public void onStop() {
     super.onStop();
 
-    dismissProjectSelector();
+    if (projectSelectorDialogFragment.isVisible()) {
+      dismissProjectSelector();
+    }
   }
 
   private void showProjectSelector() {
