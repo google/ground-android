@@ -31,10 +31,25 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 public class PhotoDialogFragment extends BottomSheetDialogFragment {
 
   public static final String TAG = "ActionBottomDialog";
+  public static final String FIELD_ID = "field_id";
   private AddPhotoListener listener;
 
-  public static PhotoDialogFragment newInstance() {
-    return new PhotoDialogFragment();
+  @Nullable private String fieldId;
+
+  public static PhotoDialogFragment newInstance(String fieldId) {
+    Bundle bundle = new Bundle();
+    bundle.putString(FIELD_ID, fieldId);
+    PhotoDialogFragment fragment = new PhotoDialogFragment();
+    fragment.setArguments(bundle);
+    return fragment;
+  }
+
+  @Override
+  public void onCreate(@Nullable Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    if (getArguments() != null) {
+      fieldId = getArguments().getString(FIELD_ID);
+    }
   }
 
   @Nullable
@@ -67,18 +82,18 @@ public class PhotoDialogFragment extends BottomSheetDialogFragment {
   }
 
   public void onSelectPhoto() {
-    listener.onSelectPhoto();
+    listener.onSelectPhoto(fieldId);
     dismiss();
   }
 
   public void onCapturePhoto() {
-    listener.onCapturePhoto();
+    listener.onCapturePhoto(fieldId);
     dismiss();
   }
 
   public interface AddPhotoListener {
-    void onSelectPhoto();
+    void onSelectPhoto(String fieldId);
 
-    void onCapturePhoto();
+    void onCapturePhoto(String fieldId);
   }
 }

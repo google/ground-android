@@ -31,9 +31,7 @@ import butterknife.BindView;
 import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.EditObservationFragBinding;
-import com.google.android.gnd.databinding.MultipleChoiceInputFieldBinding;
 import com.google.android.gnd.databinding.PhotoInputFieldBinding;
-import com.google.android.gnd.databinding.TextInputFieldBinding;
 import com.google.android.gnd.inject.ActivityScoped;
 import com.google.android.gnd.model.form.Element;
 import com.google.android.gnd.model.form.Field;
@@ -46,6 +44,7 @@ import com.google.android.gnd.ui.common.EphemeralPopups;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.TwoLineToolbar;
 import com.google.android.gnd.ui.editobservation.PhotoDialogFragment.AddPhotoListener;
+import java.util.Map;
 import java8.util.Optional;
 import javax.inject.Inject;
 
@@ -99,8 +98,8 @@ public class EditObservationFragment extends AbstractFragment
     viewModel.initialize(EditObservationFragmentArgs.fromBundle(getArguments()));
   }
 
-  private void onPhotoAdded(Optional<Bitmap> bitmapOptional) {
-    Log.d(TAG, bitmapOptional.toString());
+  private void onPhotoAdded(Map<String, Optional<Bitmap>> stringOptionalMap) {
+    Log.d(TAG, stringOptionalMap.toString());
   }
 
   private void handleSaveResult(EditObservationViewModel.SaveResult saveResult) {
@@ -139,12 +138,12 @@ public class EditObservationFragment extends AbstractFragment
   private void addField(Field field) {
     switch (field.getType()) {
       case TEXT:
-        addTextField(field);
-        break;
-      case MULTIPLE_CHOICE:
-        addMultipleChoiceField(field);
-        break;
-      case PHOTO:
+        //        addTextField(field);
+        //        break;
+        //      case MULTIPLE_CHOICE:
+        //        addMultipleChoiceField(field);
+        //        break;
+        //      case PHOTO:
         addPhotoField(field);
         break;
       default:
@@ -153,26 +152,26 @@ public class EditObservationFragment extends AbstractFragment
     }
   }
 
-  private void addTextField(Field field) {
-    TextInputFieldBinding binding =
-        TextInputFieldBinding.inflate(getLayoutInflater(), formLayout, false);
-    binding.setViewModel(viewModel);
-    binding.setLifecycleOwner(this);
-    binding.setField(field);
-    formLayout.addView(binding.getRoot());
-    assignGeneratedId(binding.getRoot().findViewById(R.id.text_input_edit_text));
-  }
-
-  public void addMultipleChoiceField(Field field) {
-    MultipleChoiceInputFieldBinding binding =
-        MultipleChoiceInputFieldBinding.inflate(getLayoutInflater(), formLayout, false);
-    binding.setFragment(this);
-    binding.setViewModel(viewModel);
-    binding.setLifecycleOwner(this);
-    binding.setField(field);
-    formLayout.addView(binding.getRoot());
-    assignGeneratedId(binding.getRoot().findViewById(R.id.multiple_choice_input_edit_text));
-  }
+  //  private void addTextField(Field field) {
+  //    TextInputFieldBinding binding =
+  //        TextInputFieldBinding.inflate(getLayoutInflater(), formLayout, false);
+  //    binding.setViewModel(viewModel);
+  //    binding.setLifecycleOwner(this);
+  //    binding.setField(field);
+  //    formLayout.addView(binding.getRoot());
+  //    assignGeneratedId(binding.getRoot().findViewById(R.id.text_input_edit_text));
+  //  }
+  //
+  //  public void addMultipleChoiceField(Field field) {
+  //    MultipleChoiceInputFieldBinding binding =
+  //        MultipleChoiceInputFieldBinding.inflate(getLayoutInflater(), formLayout, false);
+  //    binding.setFragment(this);
+  //    binding.setViewModel(viewModel);
+  //    binding.setLifecycleOwner(this);
+  //    binding.setField(field);
+  //    formLayout.addView(binding.getRoot());
+  //    assignGeneratedId(binding.getRoot().findViewById(R.id.multiple_choice_input_edit_text));
+  //  }
 
   public void addPhotoField(Field field) {
     PhotoInputFieldBinding binding =
@@ -206,7 +205,7 @@ public class EditObservationFragment extends AbstractFragment
   }
 
   public void onShowPhotoSelectorDialog(Field field) {
-    PhotoDialogFragment bottomDialogFragment = PhotoDialogFragment.newInstance();
+    PhotoDialogFragment bottomDialogFragment = PhotoDialogFragment.newInstance(field.getId());
     bottomDialogFragment.setTargetFragment(this, 0);
     bottomDialogFragment.show(getFragmentManager(), PhotoDialogFragment.TAG);
   }
@@ -246,12 +245,12 @@ public class EditObservationFragment extends AbstractFragment
   }
 
   @Override
-  public void onSelectPhoto() {
-    viewModel.initPhotoSelector();
+  public void onSelectPhoto(String fieldId) {
+    viewModel.initPhotoSelector(fieldId);
   }
 
   @Override
-  public void onCapturePhoto() {
-    viewModel.initPhotoCapture();
+  public void onCapturePhoto(String fieldId) {
+    viewModel.initPhotoCapture(fieldId);
   }
 }

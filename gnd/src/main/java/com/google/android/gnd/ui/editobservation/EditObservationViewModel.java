@@ -51,6 +51,8 @@ import io.reactivex.Single;
 import io.reactivex.processors.BehaviorProcessor;
 import io.reactivex.processors.PublishProcessor;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java8.util.Optional;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
@@ -75,7 +77,8 @@ public class EditObservationViewModel extends AbstractViewModel {
   private final BehaviorProcessor<EditObservationFragmentArgs> viewArgs =
       BehaviorProcessor.create();
 
-  private final BehaviorProcessor<Optional<Bitmap>> addedPhoto = BehaviorProcessor.create();
+  private final BehaviorProcessor<Map<String, Optional<Bitmap>>> addedPhoto =
+      BehaviorProcessor.create();
 
   /** "Save" button clicks. */
   private final PublishProcessor<Nil> saveClicks = PublishProcessor.create();
@@ -86,7 +89,7 @@ public class EditObservationViewModel extends AbstractViewModel {
   private final LiveData<Form> form;
 
   /** Added image field. */
-  private final LiveData<Optional<Bitmap>> photo;
+  private final LiveData<Map<String, Optional<Bitmap>>> photo;
 
   /** Toolbar title, based on whether user is adding new or editing existing observation. */
   private final MutableLiveData<String> toolbarTitle = new MutableLiveData<>();
@@ -167,7 +170,7 @@ public class EditObservationViewModel extends AbstractViewModel {
     return saveResults;
   }
 
-  public LiveData<Optional<Bitmap>> getAddedPhoto() {
+  public LiveData<Map<String, Optional<Bitmap>>> getAddedPhoto() {
     return photo;
   }
 
@@ -207,7 +210,7 @@ public class EditObservationViewModel extends AbstractViewModel {
     }
   }
 
-  void initPhotoSelector() {
+  void initPhotoSelector(String fieldId) {
     /*
      * Didn't subscribe this with Fragment's lifecycle because we need to retain the disposable
      * after the fragment is destroyed (for activity result)
@@ -215,11 +218,20 @@ public class EditObservationViewModel extends AbstractViewModel {
     disposeOnClear(
         storageManager
             .launchImagePicker()
-            .andThen(storageManager.imagePickerResult().doOnNext(addedPhoto::onNext))
+            .andThen(
+                storageManager
+                    .imagePickerResult()
+                    .map(
+                        bitmap -> {
+                          Map<String, Optional<Bitmap>> map = new HashMap<>();
+                          map.put(fieldId, bitmap);
+                          return map;
+                        })
+                    .doOnNext(addedPhoto::onNext))
             .subscribe());
   }
 
-  void initPhotoCapture() {
+  void initPhotoCapture(String fieldId) {
     /*
      * Didn't subscribe this with Fragment's lifecycle because we need to retain the disposable
      * after the fragment is destroyed (for activity result)
@@ -227,7 +239,16 @@ public class EditObservationViewModel extends AbstractViewModel {
     disposeOnClear(
         cameraManager
             .launchImageCapture()
-            .andThen(cameraManager.captureImageResult().doOnNext(addedPhoto::onNext))
+            .andThen(
+                cameraManager
+                    .captureImageResult()
+                    .map(
+                        bitmap -> {
+                          Map<String, Optional<Bitmap>> map = new HashMap<>();
+                          map.put(fieldId, bitmap);
+                          return map;
+                        })
+                    .doOnNext(addedPhoto::onNext))
             .subscribe());
   }
 
