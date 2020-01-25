@@ -100,6 +100,10 @@ public class EditObservationFragment extends AbstractFragment
 
   private void onPhotoAdded(Map<String, Optional<Bitmap>> stringOptionalMap) {
     Log.d(TAG, stringOptionalMap.toString());
+
+    // TODO: Upload photo to Firestore Storage
+    // TODO: Fetch download url and update response in viewModel
+    // viewModel.onResponseChanged();
   }
 
   private void handleSaveResult(EditObservationViewModel.SaveResult saveResult) {
