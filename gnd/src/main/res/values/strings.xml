@@ -16,9 +16,6 @@
 
 <resources>
 
-  <!-- Application name. Do not translate. -->
-  <string name="app_name" translatable="false">Ground</string>
-
   <!-- Message shown while project is loading. -->
   <string name="project_loading_please_wait">Project loading, please wait &#8230;</string>
 
