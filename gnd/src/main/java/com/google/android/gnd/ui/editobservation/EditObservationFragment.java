@@ -19,6 +19,8 @@ package com.google.android.gnd.ui.editobservation;
 import static com.google.android.gnd.ui.util.ViewUtil.assignGeneratedId;
 
 import android.app.AlertDialog;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -202,8 +204,13 @@ public class EditObservationFragment extends AbstractFragment
               public void onMapChanged(ObservableMap<String, Response> sender, String key) {
                 if (key != null && key.equals(field.getId())) {
                   String imageFilePath = sender.get(key).getDetailsText(field);
-                  Toast.makeText(getContext(), "Added : " + imageFilePath, Toast.LENGTH_SHORT)
-                      .show();
+                  File imageFile = new File(imageFilePath);
+                  if (imageFile.exists()) {
+                    Bitmap bitmap = BitmapFactory.decodeFile(imageFile.getPath());
+                    // TODO: Bitmap doesn't get loaded
+                    binding.imageThumbnailPreview.setImageBitmap(bitmap);
+                    Toast.makeText(getContext(), "Photo added", Toast.LENGTH_SHORT).show();
+                  }
                 }
               }
             });
