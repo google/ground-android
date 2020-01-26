@@ -19,14 +19,16 @@ package com.google.android.gnd.ui.editobservation;
 import static com.google.android.gnd.ui.util.ViewUtil.assignGeneratedId;
 
 import android.app.AlertDialog;
-import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 import androidx.annotation.NonNull;
+import androidx.databinding.ObservableMap;
+import androidx.databinding.ObservableMap.OnMapChangedCallback;
 import butterknife.BindView;
 import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.R;
@@ -38,12 +40,14 @@ import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.model.form.MultipleChoice.Cardinality;
 import com.google.android.gnd.model.observation.Response;
+import com.google.android.gnd.model.observation.TextResponse;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.BackPressListener;
 import com.google.android.gnd.ui.common.EphemeralPopups;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.TwoLineToolbar;
 import com.google.android.gnd.ui.editobservation.PhotoDialogFragment.AddPhotoListener;
+import java.io.File;
 import java.util.Map;
 import java8.util.Optional;
 import javax.inject.Inject;
@@ -98,12 +102,15 @@ public class EditObservationFragment extends AbstractFragment
     viewModel.initialize(EditObservationFragmentArgs.fromBundle(getArguments()));
   }
 
-  private void onPhotoAdded(Map<String, Optional<Bitmap>> stringOptionalMap) {
-    Log.d(TAG, stringOptionalMap.toString());
+  private void onPhotoAdded(Map<Field, File> fieldFileMap) {
+    Log.d(TAG, fieldFileMap.toString());
 
     // TODO: Upload photo to Firestore Storage
     // TODO: Fetch download url and update response in viewModel
-    // viewModel.onResponseChanged();
+    for (Field field : fieldFileMap.keySet()) {
+      File file = fieldFileMap.get(field);
+      viewModel.onResponseChanged(field, TextResponse.fromString(file.getPath()));
+    }
   }
 
   private void handleSaveResult(EditObservationViewModel.SaveResult saveResult) {
@@ -186,6 +193,20 @@ public class EditObservationFragment extends AbstractFragment
     formLayout.addView(binding.getRoot());
     assignGeneratedId(binding.getRoot().findViewById(R.id.image_thumbnail_preview));
     assignGeneratedId(binding.getRoot().findViewById(R.id.btn_select_photo));
+
+    viewModel
+        .getResponses()
+        .addOnMapChangedCallback(
+            new OnMapChangedCallback<ObservableMap<String, Response>, String, Response>() {
+              @Override
+              public void onMapChanged(ObservableMap<String, Response> sender, String key) {
+                if (key != null && key.equals(field.getId())) {
+                  String imageFilePath = sender.get(key).getDetailsText(field);
+                  Toast.makeText(getContext(), "Added : " + imageFilePath, Toast.LENGTH_SHORT)
+                      .show();
+                }
+              }
+            });
   }
 
   public void onShowDialog(Field field) {

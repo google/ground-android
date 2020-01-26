@@ -20,7 +20,6 @@ import static androidx.lifecycle.LiveDataReactiveStreams.fromPublisher;
 import static java8.util.stream.StreamSupport.stream;
 
 import android.content.res.Resources;
-import android.graphics.Bitmap;
 import android.util.Log;
 import android.view.View;
 import androidx.databinding.ObservableArrayMap;
@@ -46,10 +45,12 @@ import com.google.android.gnd.system.AuthenticationManager;
 import com.google.android.gnd.system.CameraManager;
 import com.google.android.gnd.system.StorageManager;
 import com.google.android.gnd.ui.common.AbstractViewModel;
+import com.google.android.gnd.ui.util.FileUtil;
 import com.google.common.collect.ImmutableList;
 import io.reactivex.Single;
 import io.reactivex.processors.BehaviorProcessor;
 import io.reactivex.processors.PublishProcessor;
+import java.io.File;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -70,6 +71,7 @@ public class EditObservationViewModel extends AbstractViewModel {
   private final Resources resources;
   private final StorageManager storageManager;
   private final CameraManager cameraManager;
+  private final FileUtil fileUtil;
 
   // Input events.
 
@@ -77,8 +79,7 @@ public class EditObservationViewModel extends AbstractViewModel {
   private final BehaviorProcessor<EditObservationFragmentArgs> viewArgs =
       BehaviorProcessor.create();
 
-  private final BehaviorProcessor<Map<String, Optional<Bitmap>>> addedPhoto =
-      BehaviorProcessor.create();
+  private final BehaviorProcessor<Map<Field, File>> addedPhoto = BehaviorProcessor.create();
 
   /** "Save" button clicks. */
   private final PublishProcessor<Nil> saveClicks = PublishProcessor.create();
@@ -89,7 +90,7 @@ public class EditObservationViewModel extends AbstractViewModel {
   private final LiveData<Form> form;
 
   /** Added image field. */
-  private final LiveData<Map<String, Optional<Bitmap>>> photo;
+  private final LiveData<Map<Field, File>> photo;
 
   /** Toolbar title, based on whether user is adding new or editing existing observation. */
   private final MutableLiveData<String> toolbarTitle = new MutableLiveData<>();
@@ -141,6 +142,7 @@ public class EditObservationViewModel extends AbstractViewModel {
     this.authManager = authenticationManager;
     this.storageManager = storageManager;
     this.cameraManager = cameraManager;
+    this.fileUtil = new FileUtil(application);
     this.form = fromPublisher(viewArgs.switchMapSingle(this::onInitialize));
     this.saveResults = fromPublisher(saveClicks.switchMapSingle(__ -> onSave()));
     this.photo = fromPublisher(addedPhoto);
@@ -170,7 +172,7 @@ public class EditObservationViewModel extends AbstractViewModel {
     return saveResults;
   }
 
-  public LiveData<Map<String, Optional<Bitmap>>> getAddedPhoto() {
+  public LiveData<Map<Field, File>> getAddedPhoto() {
     return photo;
   }
 
@@ -221,10 +223,12 @@ public class EditObservationViewModel extends AbstractViewModel {
             .andThen(
                 storageManager
                     .imagePickerResult()
+                    .filter(Optional::isPresent)
+                    .map(bitmap -> fileUtil.fromBitmap(bitmap.get(), fieldId + ".jpg"))
                     .map(
-                        bitmap -> {
-                          Map<String, Optional<Bitmap>> map = new HashMap<>();
-                          map.put(fieldId, bitmap);
+                        file -> {
+                          Map<Field, File> map = new HashMap<>();
+                          map.put(form.getValue().getField(fieldId).get(), file);
                           return map;
                         })
                     .doOnNext(addedPhoto::onNext))
@@ -242,10 +246,12 @@ public class EditObservationViewModel extends AbstractViewModel {
             .andThen(
                 cameraManager
                     .captureImageResult()
+                    .filter(Optional::isPresent)
+                    .map(bitmap -> fileUtil.fromBitmap(bitmap.get(), fieldId + ".jpg"))
                     .map(
-                        bitmap -> {
-                          Map<String, Optional<Bitmap>> map = new HashMap<>();
-                          map.put(fieldId, bitmap);
+                        file -> {
+                          Map<Field, File> map = new HashMap<>();
+                          map.put(form.getValue().getField(fieldId).get(), file);
                           return map;
                         })
                     .doOnNext(addedPhoto::onNext))
