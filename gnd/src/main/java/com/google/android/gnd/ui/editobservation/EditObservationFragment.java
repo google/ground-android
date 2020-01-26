@@ -35,7 +35,9 @@ import butterknife.BindView;
 import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.EditObservationFragBinding;
+import com.google.android.gnd.databinding.MultipleChoiceInputFieldBinding;
 import com.google.android.gnd.databinding.PhotoInputFieldBinding;
+import com.google.android.gnd.databinding.TextInputFieldBinding;
 import com.google.android.gnd.inject.ActivityScoped;
 import com.google.android.gnd.model.form.Element;
 import com.google.android.gnd.model.form.Field;
@@ -151,12 +153,12 @@ public class EditObservationFragment extends AbstractFragment
   private void addField(Field field) {
     switch (field.getType()) {
       case TEXT:
-        //        addTextField(field);
-        //        break;
-        //      case MULTIPLE_CHOICE:
-        //        addMultipleChoiceField(field);
-        //        break;
-        //      case PHOTO:
+        addTextField(field);
+        break;
+      case MULTIPLE_CHOICE:
+        addMultipleChoiceField(field);
+        break;
+      case PHOTO:
         addPhotoField(field);
         break;
       default:
@@ -165,26 +167,26 @@ public class EditObservationFragment extends AbstractFragment
     }
   }
 
-  //  private void addTextField(Field field) {
-  //    TextInputFieldBinding binding =
-  //        TextInputFieldBinding.inflate(getLayoutInflater(), formLayout, false);
-  //    binding.setViewModel(viewModel);
-  //    binding.setLifecycleOwner(this);
-  //    binding.setField(field);
-  //    formLayout.addView(binding.getRoot());
-  //    assignGeneratedId(binding.getRoot().findViewById(R.id.text_input_edit_text));
-  //  }
-  //
-  //  public void addMultipleChoiceField(Field field) {
-  //    MultipleChoiceInputFieldBinding binding =
-  //        MultipleChoiceInputFieldBinding.inflate(getLayoutInflater(), formLayout, false);
-  //    binding.setFragment(this);
-  //    binding.setViewModel(viewModel);
-  //    binding.setLifecycleOwner(this);
-  //    binding.setField(field);
-  //    formLayout.addView(binding.getRoot());
-  //    assignGeneratedId(binding.getRoot().findViewById(R.id.multiple_choice_input_edit_text));
-  //  }
+  private void addTextField(Field field) {
+    TextInputFieldBinding binding =
+        TextInputFieldBinding.inflate(getLayoutInflater(), formLayout, false);
+    binding.setViewModel(viewModel);
+    binding.setLifecycleOwner(this);
+    binding.setField(field);
+    formLayout.addView(binding.getRoot());
+    assignGeneratedId(binding.getRoot().findViewById(R.id.text_input_edit_text));
+  }
+
+  public void addMultipleChoiceField(Field field) {
+    MultipleChoiceInputFieldBinding binding =
+        MultipleChoiceInputFieldBinding.inflate(getLayoutInflater(), formLayout, false);
+    binding.setFragment(this);
+    binding.setViewModel(viewModel);
+    binding.setLifecycleOwner(this);
+    binding.setField(field);
+    formLayout.addView(binding.getRoot());
+    assignGeneratedId(binding.getRoot().findViewById(R.id.multiple_choice_input_edit_text));
+  }
 
   public void addPhotoField(Field field) {
     PhotoInputFieldBinding binding =
