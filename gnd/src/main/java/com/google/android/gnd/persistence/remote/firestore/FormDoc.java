@@ -26,27 +26,18 @@ import com.google.android.gnd.model.form.Field.Type;
 import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.model.form.MultipleChoice;
 import com.google.firebase.firestore.IgnoreExtraProperties;
-import com.google.firebase.firestore.ServerTimestamp;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java8.util.Optional;
 
 @IgnoreExtraProperties
 public class FormDoc {
-  public Map<String, String> titles = new HashMap<>();
 
   public List<Element> elements;
-
-  public @ServerTimestamp Date serverTimeCreated;
-
-  public @ServerTimestamp Date serverTimeModified;
 
   public Form toObject(String formId) {
     return Form.newBuilder()
         .setId(formId)
-        .setTitle(getLocalizedMessage(titles))
         .setElements(stream(elements).map(Element::toObject).collect(toImmutableList()))
         .build();
   }
