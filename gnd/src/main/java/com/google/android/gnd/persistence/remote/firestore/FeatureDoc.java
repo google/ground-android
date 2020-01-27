@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.persistence.remote.firestore;
 
+import android.util.Log;
 import androidx.annotation.Nullable;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.User;
@@ -36,6 +37,7 @@ public class FeatureDoc {
   private static final String CENTER = "center";
   private static final String CREATED = "created";
   private static final String LAST_MODIFIED = "lastModified";
+  private static final String TAG = FeatureDoc.class.getName();
 
   public String featureTypeId;
 
@@ -97,6 +99,9 @@ public class FeatureDoc {
       case UNKNOWN:
         // TODO.
         throw new UnsupportedOperationException();
+      default:
+        Log.e(TAG, "Unhandled state: " + mutation.getType());
+        break;
     }
     return map.build();
   }

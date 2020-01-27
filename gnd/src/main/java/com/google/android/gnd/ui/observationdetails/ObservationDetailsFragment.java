@@ -122,6 +122,9 @@ public class ObservationDetailsFragment extends AbstractFragment {
         Log.e(TAG, "Failed to load observation");
         EphemeralPopups.showError(getContext());
         break;
+      default:
+        Log.e(TAG, "Unhandled state: " + observation.getState());
+        break;
     }
   }
 

@@ -129,6 +129,9 @@ public class ObservationDoc {
         // TODO.
       case UNKNOWN:
         throw new UnsupportedOperationException();
+      default:
+        Log.e(TAG, "Unhandled mutation type: " + mutation.getType());
+        break;
     }
     map.put(FEATURE_ID, mutation.getFeatureId())
         .put(FEATURE_TYPE_ID, mutation.getLayerId())
