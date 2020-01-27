@@ -22,6 +22,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.provider.MediaStore.Images.Media;
 import android.util.Log;
+import com.google.android.gnd.system.ActivityStreams.ActivityResult;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 import java8.util.Optional;
@@ -55,14 +56,13 @@ public class StorageManager {
   public Observable<Optional<Bitmap>> imagePickerResult() {
     return activityStreams
         .getNextActivityResult(PICKFILE_REQUEST_CODE)
+        .filter(ActivityResult::isOk)
         .map(
             activityResult -> {
-              if (activityResult.isOk()) {
-                Intent intent = activityResult.getData();
-                if (intent != null) {
-                  Bitmap bitmap = Media.getBitmap(context.getContentResolver(), intent.getData());
-                  return Optional.ofNullable(bitmap);
-                }
+              Intent intent = activityResult.getData();
+              if (intent != null) {
+                Bitmap bitmap = Media.getBitmap(context.getContentResolver(), intent.getData());
+                return Optional.ofNullable(bitmap);
               }
               return Optional.empty();
             });

@@ -21,6 +21,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.provider.MediaStore;
 import android.util.Log;
+import com.google.android.gnd.system.ActivityStreams.ActivityResult;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 import java8.util.Optional;
@@ -52,14 +53,13 @@ public class CameraManager {
   public Observable<Optional<Bitmap>> captureImageResult() {
     return activityStreams
         .getNextActivityResult(CAPTURE_PHOTO_REQUEST_CODE)
+        .filter(ActivityResult::isOk)
         .map(
             activityResult -> {
-              if (activityResult.isOk()) {
-                Intent intent = activityResult.getData();
-                if (intent != null && intent.getExtras() != null) {
-                  Bitmap photo = (Bitmap) intent.getExtras().get("data");
-                  return Optional.ofNullable(photo);
-                }
+              Intent intent = activityResult.getData();
+              if (intent != null && intent.getExtras() != null) {
+                Bitmap photo = (Bitmap) intent.getExtras().get("data");
+                return Optional.ofNullable(photo);
               }
               return Optional.empty();
             });
