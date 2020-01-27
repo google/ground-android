@@ -224,7 +224,7 @@ public class EditObservationViewModel extends AbstractViewModel {
                 storageManager
                     .imagePickerResult()
                     .filter(Optional::isPresent)
-                    .map(bitmap -> fileUtil.fromBitmap(bitmap.get(), fieldId + ".jpg"))
+                    .map(bitmap -> fileUtil.saveBitmap(bitmap.get(), fieldId + ".jpg"))
                     .map(
                         file -> {
                           Map<Field, File> map = new HashMap<>();
@@ -247,7 +247,7 @@ public class EditObservationViewModel extends AbstractViewModel {
                 cameraManager
                     .captureImageResult()
                     .filter(Optional::isPresent)
-                    .map(bitmap -> fileUtil.fromBitmap(bitmap.get(), fieldId + ".jpg"))
+                    .map(bitmap -> fileUtil.saveBitmap(bitmap.get(), fieldId + ".jpg"))
                     .map(
                         file -> {
                           Map<Field, File> map = new HashMap<>();

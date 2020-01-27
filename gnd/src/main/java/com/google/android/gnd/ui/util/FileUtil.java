@@ -36,7 +36,7 @@ public class FileUtil {
    * Creates a new file from bitmap and saves under internal app directory
    * /data/data/com.google.android.gnd/files/
    */
-  public File fromBitmap(Bitmap bitmap, String filename) {
+  public File saveBitmap(Bitmap bitmap, String filename) {
     File file = new File(context.getFilesDir(), filename);
     try (FileOutputStream fos = context.openFileOutput(filename, Context.MODE_PRIVATE)) {
       bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
