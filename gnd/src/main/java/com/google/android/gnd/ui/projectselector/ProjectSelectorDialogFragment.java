@@ -90,6 +90,9 @@ public class ProjectSelectorDialogFragment extends AbstractDialogFragment {
       case ERROR:
         onProjectListLoadError(projectSummaries.error().orElse(new UnknownError()));
         break;
+      default:
+        Log.e(TAG, "Unhandled state: " + projectSummaries.getState());
+        break;
     }
   }
 

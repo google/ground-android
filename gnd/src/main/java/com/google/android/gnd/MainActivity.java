@@ -124,6 +124,9 @@ public class MainActivity extends DaggerAppCompatActivity {
       case ERROR:
         onSignInError(signInState);
         break;
+      default:
+        Log.e(TAG, "Unhandled state: " + signInState.state());
+        break;
     }
   }
 

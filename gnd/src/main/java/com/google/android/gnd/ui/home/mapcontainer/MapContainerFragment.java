@@ -104,7 +104,7 @@ public class MapContainerFragment extends AbstractFragment {
 
   @Override
   public View onCreateView(
-      LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+      @NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     MapContainerFragBinding binding = MapContainerFragBinding.inflate(inflater, container, false);
     binding.setViewModel(mapContainerViewModel);
     binding.setHomeScreenViewModel(homeScreenViewModel);
@@ -155,6 +155,9 @@ public class MapContainerFragment extends AbstractFragment {
         break;
       case HIDDEN:
         map.enable();
+        break;
+      default:
+        Log.e(TAG, "Unhandled visibility: " + state.getVisibility());
         break;
     }
   }
