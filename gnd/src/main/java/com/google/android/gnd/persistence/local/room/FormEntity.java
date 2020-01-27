@@ -58,17 +58,12 @@ public abstract class FormEntity {
   public abstract String getLayerId();
 
   public static FormEntity fromForm(String layerId, Form form) {
-    return FormEntity.builder()
-        .setId(form.getId())
-        .setLayerId(layerId)
-        .setTitle(form.getTitle())
-        .build();
+    return FormEntity.builder().setId(form.getId()).setLayerId(layerId).build();
   }
 
   public static Form toForm(FormEntityAndRelations formEntityAndRelations) {
     FormEntity formEntity = formEntityAndRelations.formEntity;
-    Form.Builder formBuilder =
-        Form.newBuilder().setId(formEntity.getId()).setTitle(formEntity.getTitle());
+    Form.Builder formBuilder = Form.newBuilder().setId(formEntity.getId());
 
     ImmutableList.Builder<Element> listBuilder = ImmutableList.builder();
     for (FieldEntityAndRelations fieldEntityAndRelations :
