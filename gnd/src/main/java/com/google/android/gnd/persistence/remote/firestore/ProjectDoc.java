@@ -22,8 +22,6 @@ import androidx.annotation.Nullable;
 import com.google.android.gnd.model.Project;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.IgnoreExtraProperties;
-import com.google.firebase.firestore.ServerTimestamp;
-import java.util.Date;
 import java.util.Map;
 import java8.util.Maps;
 
@@ -33,13 +31,7 @@ public class ProjectDoc {
 
   @Nullable public Map<String, String> description;
 
-  @Nullable public @ServerTimestamp Date serverTimeCreated;
-
-  @Nullable public @ServerTimestamp Date serverTimeModified;
-
-  @Nullable public Date clientTimeCreated;
-
-  @Nullable public Date clientTimeModified;
+  // TODO: Add AuditInfoDoc for created and lastModified.
 
   @Nullable public Map<String, LayerDoc> featureTypes;
 

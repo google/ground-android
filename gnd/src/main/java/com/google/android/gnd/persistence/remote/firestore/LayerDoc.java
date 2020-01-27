@@ -27,8 +27,6 @@ import java8.util.Maps;
 
 @IgnoreExtraProperties
 public class LayerDoc {
-  // TODO: Better name than pathKey? urlSubpath?
-  @Nullable public String pathKey;
 
   @Nullable public Map<String, String> listHeading;
 
