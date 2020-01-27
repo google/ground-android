@@ -19,6 +19,7 @@ package com.google.android.gnd.ui.home.featuresheet;
 import android.content.Context;
 import android.content.res.Resources;
 import android.text.TextUtils;
+import android.util.Log;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -34,6 +35,7 @@ import java8.util.Optional;
 class ObservationListItemViewHolder extends RecyclerView.ViewHolder {
 
   private static final int MAX_COLUMNS = 4;
+  private static final String TAG = ObservationListItemViewHolder.class.getName();
 
   private final ObservationListItemBinding binding;
 
@@ -68,6 +70,9 @@ class ObservationListItemViewHolder extends RecyclerView.ViewHolder {
               newFieldTextView(
                   response.map(r -> r.getSummaryText(field)).orElse(""),
                   R.style.ObservationListText_Field));
+          break;
+        default:
+          Log.e(TAG, "Unhandled element type: " + elem.getType());
           break;
       }
     }
