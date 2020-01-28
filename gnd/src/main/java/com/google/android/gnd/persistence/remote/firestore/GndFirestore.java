@@ -65,7 +65,7 @@ public class GndFirestore extends FluentFirestore {
   }
 
   public ProjectsCollectionReference projects() {
-    return new ProjectsCollectionReference(db.collection(PROJECTS));
+    return new ProjectsCollectionReference(db().collection(PROJECTS));
   }
 
   public static class ProjectsCollectionReference extends FluentCollectionReference {

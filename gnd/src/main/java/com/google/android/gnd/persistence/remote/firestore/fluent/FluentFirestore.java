@@ -31,10 +31,14 @@ import java8.util.function.Function;
 
 /** Base class for representing Firestore databases as object hierarchies. */
 public abstract class FluentFirestore {
-  protected final FirebaseFirestore db;
+  private final FirebaseFirestore db;
 
   protected FluentFirestore(FirebaseFirestore db) {
     this.db = db;
+  }
+
+  protected FirebaseFirestore db() {
+    return db;
   }
 
   /**
