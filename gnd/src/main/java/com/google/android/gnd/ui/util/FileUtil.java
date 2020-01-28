@@ -37,13 +37,13 @@ public class FileUtil {
   /**
    * Creates a new file from bitmap and saves under internal app directory
    * /data/data/com.google.android.gnd/files.
+   *
+   * @throws IOException If path is not accessible or error occurs while saving file
    */
-  public File saveBitmap(Bitmap bitmap, String filename) {
+  public File saveBitmap(Bitmap bitmap, String filename) throws IOException {
     File file = new File(context.getFilesDir(), filename);
     try (FileOutputStream fos = context.openFileOutput(filename, Context.MODE_PRIVATE)) {
       bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
-    } catch (IOException e) {
-      Log.e(TAG, e.getMessage(), e);
     }
 
     Log.d(TAG, "Photo saved : " + file.getPath());
