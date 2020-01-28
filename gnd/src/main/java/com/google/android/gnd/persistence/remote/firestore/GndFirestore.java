@@ -171,7 +171,7 @@ public class GndFirestore extends FluentFirestore {
     }
 
     private Query byFeatureId(String featureId) {
-      return ref().whereEqualTo(FieldPath.of(ObservationDoc.FEATURE_ID), featureId);
+      return reference().whereEqualTo(FieldPath.of(ObservationDoc.FEATURE_ID), featureId);
     }
   }
 

@@ -52,7 +52,7 @@ public abstract class FluentCollectionReference {
         .andThen(FluentFirestore.toSingleList(RxFirestore.getCollection(query), mappingFunction));
   }
 
-  public CollectionReference ref() {
+  public CollectionReference reference() {
     return ref;
   }
 
