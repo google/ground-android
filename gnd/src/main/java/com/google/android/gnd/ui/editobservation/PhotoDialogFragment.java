@@ -30,8 +30,8 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
 public class PhotoDialogFragment extends BottomSheetDialogFragment {
 
-  public static final String TAG = "ActionBottomDialog";
-  public static final String FIELD_ID = "field_id";
+  public static final String TAG = PhotoDialogFragment.class.getSimpleName();
+  private static final String FIELD_ID = "field_id";
   private AddPhotoListener listener;
 
   @Nullable private String fieldId;
