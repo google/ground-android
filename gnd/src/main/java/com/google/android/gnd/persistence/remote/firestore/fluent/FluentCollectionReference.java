@@ -27,10 +27,10 @@ import java.util.List;
 import java8.util.function.Function;
 
 public abstract class FluentCollectionReference {
-  protected final CollectionReference ref;
+  protected final CollectionReference reference;
 
-  protected FluentCollectionReference(CollectionReference ref) {
-    this.ref = ref;
+  protected FluentCollectionReference(CollectionReference reference) {
+    this.reference = reference;
   }
 
   /**
@@ -38,7 +38,8 @@ public abstract class FluentCollectionReference {
    * in error if not.
    */
   private Completable requireActiveNetwork() {
-    return NetworkManager.requireActiveNetwork(ref.getFirestore().getApp().getApplicationContext());
+    return NetworkManager.requireActiveNetwork(
+        reference.getFirestore().getApp().getApplicationContext());
   }
 
   /**
@@ -53,11 +54,11 @@ public abstract class FluentCollectionReference {
   }
 
   public CollectionReference reference() {
-    return ref;
+    return reference;
   }
 
   @Override
   public String toString() {
-    return ref.getPath();
+    return reference.getPath();
   }
 }

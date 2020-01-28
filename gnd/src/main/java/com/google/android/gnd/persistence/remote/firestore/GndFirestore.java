@@ -77,12 +77,12 @@ public class GndFirestore extends FluentFirestore {
     }
 
     public ProjectDocumentReference project(String id) {
-      return new ProjectDocumentReference(ref.document(id));
+      return new ProjectDocumentReference(reference.document(id));
     }
 
     public Single<List<Project>> getReadable(User user) {
       return runQuery(
-          ref.whereArrayContains(FieldPath.of(ACL_FIELD, user.getEmail()), READ_ACCESS),
+          reference.whereArrayContains(FieldPath.of(ACL_FIELD, user.getEmail()), READ_ACCESS),
           ProjectDoc::toObject);
     }
   }
@@ -111,11 +111,11 @@ public class GndFirestore extends FluentFirestore {
     }
 
     public FeatureDocumentReference feature(String id) {
-      return new FeatureDocumentReference(ref.document(id));
+      return new FeatureDocumentReference(reference.document(id));
     }
 
     public Flowable<RemoteDataEvent<Feature>> observe(Project project) {
-      return RxFirestore.observeQueryRef(ref)
+      return RxFirestore.observeQueryRef(reference)
           .flatMapIterable(
               featureQuerySnapshot ->
                   toEvents(
@@ -155,7 +155,7 @@ public class GndFirestore extends FluentFirestore {
     }
 
     public RecordDocumentReference record(String id) {
-      return new RecordDocumentReference(ref.document(id));
+      return new RecordDocumentReference(reference.document(id));
     }
 
     public Single<ImmutableList<Observation>> recordsByFeatureId(Feature feature) {
