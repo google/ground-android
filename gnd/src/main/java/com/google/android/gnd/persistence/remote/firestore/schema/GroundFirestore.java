@@ -19,7 +19,6 @@ package com.google.android.gnd.persistence.remote.firestore.schema;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.feature.Feature;
-import com.google.android.gnd.model.feature.FeatureMutation;
 import com.google.android.gnd.persistence.remote.RemoteDataEvent;
 import com.google.android.gnd.persistence.remote.firestore.FeatureDoc;
 import com.google.android.gnd.persistence.remote.firestore.ProjectDoc;
@@ -31,7 +30,6 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FieldPath;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.WriteBatch;
 import durdinapps.rxfirebase2.RxFirestore;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
@@ -109,27 +107,6 @@ public class GroundFirestore extends FluentFirestore {
                   QuerySnapshotConverter.toEvents(
                       featureQuerySnapshot,
                       featureDocSnapshot -> FeatureDoc.toObject(project, featureDocSnapshot)));
-    }
-  }
-
-  public static class FeatureDocumentReference extends FluentDocumentReference {
-    protected FeatureDocumentReference(DocumentReference ref) {
-      super(ref);
-    }
-
-    /** Appends the operation described by the specified mutation to the provided write batch. */
-    public void addMutationToBatch(FeatureMutation mutation, User user, WriteBatch batch) {
-      switch (mutation.getType()) {
-        case CREATE:
-        case UPDATE:
-          merge(FeatureDoc.toMap(mutation, user), batch);
-          break;
-        case DELETE:
-          // TODO: Implement me!
-          break;
-        default:
-          throw new IllegalArgumentException("Unknown mutation type " + mutation.getType());
-      }
     }
   }
 }
