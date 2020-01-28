@@ -18,20 +18,15 @@ package com.google.android.gnd.persistence.remote.firestore.schema;
 
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.User;
-import com.google.android.gnd.model.feature.Feature;
-import com.google.android.gnd.persistence.remote.RemoteDataEvent;
-import com.google.android.gnd.persistence.remote.firestore.FeatureDoc;
 import com.google.android.gnd.persistence.remote.firestore.ProjectDoc;
 import com.google.android.gnd.persistence.remote.firestore.base.FluentCollectionReference;
 import com.google.android.gnd.persistence.remote.firestore.base.FluentDocumentReference;
 import com.google.android.gnd.persistence.remote.firestore.base.FluentFirestore;
-import com.google.android.gnd.persistence.remote.firestore.converters.QuerySnapshotConverter;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FieldPath;
 import com.google.firebase.firestore.FirebaseFirestore;
 import durdinapps.rxfirebase2.RxFirestore;
-import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
 import java.util.List;
@@ -88,25 +83,6 @@ public class GroundFirestore extends FluentFirestore {
 
     public Maybe<Project> get() {
       return RxFirestore.getDocument(reference()).map(ProjectDoc::toObject);
-    }
-  }
-
-  public static class FeaturesCollectionReference extends FluentCollectionReference {
-    protected FeaturesCollectionReference(CollectionReference ref) {
-      super(ref);
-    }
-
-    public FeatureDocumentReference feature(String id) {
-      return new FeatureDocumentReference(reference().document(id));
-    }
-
-    public Flowable<RemoteDataEvent<Feature>> observe(Project project) {
-      return RxFirestore.observeQueryRef(reference())
-          .flatMapIterable(
-              featureQuerySnapshot ->
-                  QuerySnapshotConverter.toEvents(
-                      featureQuerySnapshot,
-                      featureDocSnapshot -> FeatureDoc.toObject(project, featureDocSnapshot)));
     }
   }
 }
