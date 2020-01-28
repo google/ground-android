@@ -1,6 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright 2019 Google LLC
+  ~ Copyright 2020 Google LLC
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -14,15 +13,10 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<lint>
-  <!-- Severity: Warning -->
-  <issue id="DuplicateStrings" severity="warning" />
-  <issue id="InvalidPackage" severity="warning" />
-  <issue id="MissingTranslation" severity="warning" />
 
-  <!-- Severity: Error -->
-  <issue id="ApplySharedPref" severity="error" />
-  <issue id="DuplicateIds" severity="error" />
-  <issue id="HardcodedText" severity="error" />
-  <issue id="PxUsage" severity="error" />
-</lint>
+<resources>
+
+  <string name="app_name" translatable="false">Ground</string>
+  <string name="text_separator" translatable="false">·</string>
+
+</resources>

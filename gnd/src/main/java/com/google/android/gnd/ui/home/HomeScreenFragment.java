@@ -289,6 +289,9 @@ public class HomeScreenFragment extends AbstractFragment
       case ERROR:
         project.error().ifPresent(this::onActivateProjectFailure);
         break;
+      default:
+        Log.e(TAG, "Unhandled case: " + project.getState());
+        break;
     }
   }
 
@@ -312,6 +315,9 @@ public class HomeScreenFragment extends AbstractFragment
         break;
       case HIDDEN:
         hideBottomSheet();
+        break;
+      default:
+        Log.e(TAG, "Unhandled visibility: " + state.getVisibility());
         break;
     }
   }
@@ -362,6 +368,9 @@ public class HomeScreenFragment extends AbstractFragment
         break;
       case R.id.nav_sign_out:
         authenticationManager.signOut();
+        break;
+      default:
+        Log.e(TAG, "Unhandled id: " + item.getItemId());
         break;
     }
     return false;
