@@ -106,13 +106,13 @@ public class EditObservationFragment extends AbstractFragment
     viewModel.initialize(EditObservationFragmentArgs.fromBundle(getArguments()));
   }
 
-  private void onPhotoAdded(Map<Field, File> fieldFileMap) {
-    Log.d(TAG, fieldFileMap.toString());
+  private void onPhotoAdded(Map<Field, File> fileFieldMap) {
+    Log.d(TAG, fileFieldMap.toString());
 
     // TODO: Upload photo to Firestore Storage
     // TODO: Fetch download url and update response in viewModel
-    for (Field field : fieldFileMap.keySet()) {
-      File file = fieldFileMap.get(field);
+    for (Field field : fileFieldMap.keySet()) {
+      File file = fileFieldMap.get(field);
       viewModel.onResponseChanged(field, TextResponse.fromString(file.getPath()));
     }
   }
