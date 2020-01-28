@@ -22,10 +22,10 @@ import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.firestore.WriteBatch;
 
 public class FluentDocumentReference {
-  protected final DocumentReference ref;
+  protected final DocumentReference reference;
 
-  protected FluentDocumentReference(DocumentReference ref) {
-    this.ref = ref;
+  protected FluentDocumentReference(DocumentReference reference) {
+    this.reference = reference;
   }
 
   /**
@@ -33,15 +33,15 @@ public class FluentDocumentReference {
    * database. If the document does not yet exist, one is created on commit.
    */
   public void merge(ImmutableMap<String, Object> values, WriteBatch batch) {
-    batch.set(ref, values, SetOptions.merge());
+    batch.set(reference, values, SetOptions.merge());
   }
 
   public DocumentReference reference() {
-    return ref;
+    return reference;
   }
 
   @Override
   public String toString() {
-    return ref.getPath();
+    return reference.getPath();
   }
 }

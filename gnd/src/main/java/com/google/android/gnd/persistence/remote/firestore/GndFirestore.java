@@ -93,15 +93,15 @@ public class GndFirestore extends FluentFirestore {
     }
 
     public FeaturesCollectionReference features() {
-      return new FeaturesCollectionReference(ref.collection(FEATURES));
+      return new FeaturesCollectionReference(reference.collection(FEATURES));
     }
 
     public RecordsCollectionReference records() {
-      return new RecordsCollectionReference(ref.collection(RECORDS));
+      return new RecordsCollectionReference(reference.collection(RECORDS));
     }
 
     public Maybe<Project> get() {
-      return RxFirestore.getDocument(ref).map(ProjectDoc::toObject);
+      return RxFirestore.getDocument(reference).map(ProjectDoc::toObject);
     }
   }
 
@@ -145,7 +145,7 @@ public class GndFirestore extends FluentFirestore {
     }
 
     public RecordsCollectionReference records() {
-      return new RecordsCollectionReference(ref.collection(RECORDS));
+      return new RecordsCollectionReference(reference.collection(RECORDS));
     }
   }
 
@@ -181,7 +181,7 @@ public class GndFirestore extends FluentFirestore {
     }
 
     public Maybe<Observation> get(Feature feature) {
-      return RxFirestore.getDocument(ref)
+      return RxFirestore.getDocument(reference)
           .map(doc -> ObservationDoc.toObject(feature, doc.getId(), doc));
     }
 
