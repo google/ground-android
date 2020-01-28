@@ -16,16 +16,8 @@
 
 package com.google.android.gnd.persistence.remote.firestore.schema;
 
-import com.google.android.gnd.model.Project;
-import com.google.android.gnd.model.User;
-import com.google.android.gnd.persistence.remote.firestore.ProjectDoc;
-import com.google.android.gnd.persistence.remote.firestore.base.FluentCollectionReference;
 import com.google.android.gnd.persistence.remote.firestore.base.FluentFirestore;
-import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.FieldPath;
 import com.google.firebase.firestore.FirebaseFirestore;
-import io.reactivex.Single;
-import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -41,24 +33,5 @@ public class GroundFirestore extends FluentFirestore {
 
   public ProjectsCollectionReference projects() {
     return new ProjectsCollectionReference(db().collection(PROJECTS));
-  }
-
-  public static class ProjectsCollectionReference extends FluentCollectionReference {
-    private static final String ACL_FIELD = "acl";
-    private static final String READ_ACCESS = "r";
-
-    protected ProjectsCollectionReference(CollectionReference ref) {
-      super(ref);
-    }
-
-    public ProjectDocumentReference project(String id) {
-      return new ProjectDocumentReference(reference().document(id));
-    }
-
-    public Single<List<Project>> getReadable(User user) {
-      return runQuery(
-          reference().whereArrayContains(FieldPath.of(ACL_FIELD, user.getEmail()), READ_ACCESS),
-          ProjectDoc::toObject);
-    }
   }
 }
