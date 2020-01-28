@@ -17,10 +17,8 @@
 package com.google.android.gnd.persistence.remote.firestore.schema;
 
 import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList;
-import static java8.util.stream.Collectors.toList;
 import static java8.util.stream.StreamSupport.stream;
 
-import android.util.Log;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.feature.Feature;
@@ -28,37 +26,31 @@ import com.google.android.gnd.model.feature.FeatureMutation;
 import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.model.observation.ObservationMutation;
 import com.google.android.gnd.persistence.remote.RemoteDataEvent;
-import com.google.android.gnd.persistence.remote.firestore.DataStoreException;
 import com.google.android.gnd.persistence.remote.firestore.FeatureDoc;
 import com.google.android.gnd.persistence.remote.firestore.ObservationDoc;
 import com.google.android.gnd.persistence.remote.firestore.ProjectDoc;
 import com.google.android.gnd.persistence.remote.firestore.base.FluentCollectionReference;
 import com.google.android.gnd.persistence.remote.firestore.base.FluentDocumentReference;
 import com.google.android.gnd.persistence.remote.firestore.base.FluentFirestore;
+import com.google.android.gnd.persistence.remote.firestore.converters.QuerySnapshotConverter;
 import com.google.common.collect.ImmutableList;
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldPath;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
-import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.WriteBatch;
 import durdinapps.rxfirebase2.RxFirestore;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
 import java.util.List;
-import java8.util.function.Function;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
 /** Object representation of Ground Firestore database. */
 @Singleton
 public class GroundFirestore extends FluentFirestore {
-  private static final String TAG = GroundFirestore.class.getSimpleName();
-
   private static final String PROJECTS = "projects";
   private static final String FEATURES = "features";
   private static final String RECORDS = "records";
@@ -122,7 +114,7 @@ public class GroundFirestore extends FluentFirestore {
       return RxFirestore.observeQueryRef(reference())
           .flatMapIterable(
               featureQuerySnapshot ->
-                  toEvents(
+                  QuerySnapshotConverter.toEvents(
                       featureQuerySnapshot,
                       featureDocSnapshot -> FeatureDoc.toObject(project, featureDocSnapshot)));
     }
@@ -198,31 +190,6 @@ public class GroundFirestore extends FluentFirestore {
         default:
           throw new IllegalArgumentException("Unknown mutation type " + mutation.getType());
       }
-    }
-  }
-
-  private static <T> Iterable<RemoteDataEvent<T>> toEvents(
-      QuerySnapshot snapshot, Function<DocumentSnapshot, T> converter) {
-    return stream(snapshot.getDocumentChanges())
-        .map(dc -> toEvent(dc, converter))
-        .filter(RemoteDataEvent::isValid)
-        .collect(toList());
-  }
-
-  private static <T> RemoteDataEvent<T> toEvent(
-      DocumentChange dc, Function<DocumentSnapshot, T> converter) {
-    Log.v(TAG, dc.getDocument().getReference().getPath() + " " + dc.getType());
-    String id = dc.getDocument().getId();
-    switch (dc.getType()) {
-      case ADDED:
-        return RemoteDataEvent.loaded(id, converter.apply(dc.getDocument()));
-      case MODIFIED:
-        return RemoteDataEvent.modified(id, converter.apply(dc.getDocument()));
-      case REMOVED:
-        return RemoteDataEvent.removed(id);
-      default:
-        return RemoteDataEvent.error(
-            new DataStoreException("Unknown DocumentChange type: " + dc.getType()));
     }
   }
 }
