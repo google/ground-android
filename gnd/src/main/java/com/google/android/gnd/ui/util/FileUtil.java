@@ -22,12 +22,14 @@ import android.util.Log;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import javax.inject.Inject;
 
 public class FileUtil {
 
   private static final String TAG = FileUtil.class.getName();
   private final Context context;
 
+  @Inject
   public FileUtil(Context context) {
     this.context = context;
   }

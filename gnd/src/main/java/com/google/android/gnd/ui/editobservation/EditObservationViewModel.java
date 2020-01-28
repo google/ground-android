@@ -139,13 +139,14 @@ public class EditObservationViewModel extends AbstractViewModel {
       ObservationRepository observationRepository,
       AuthenticationManager authenticationManager,
       StorageManager storageManager,
-      CameraManager cameraManager) {
+      CameraManager cameraManager,
+      FileUtil fileUtil) {
     this.resources = application.getResources();
     this.observationRepository = observationRepository;
     this.authManager = authenticationManager;
     this.storageManager = storageManager;
     this.cameraManager = cameraManager;
-    this.fileUtil = new FileUtil(application);
+    this.fileUtil = fileUtil;
     this.form = fromPublisher(viewArgs.switchMapSingle(this::onInitialize));
     this.saveResults = fromPublisher(saveClicks.switchMapSingle(__ -> onSave()));
     this.photo = fromPublisher(addedPhoto);
