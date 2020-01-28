@@ -16,28 +16,21 @@
 
 package com.google.android.gnd.persistence.remote.firestore.schema;
 
-import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList;
-import static java8.util.stream.StreamSupport.stream;
-
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.FeatureMutation;
-import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.persistence.remote.RemoteDataEvent;
 import com.google.android.gnd.persistence.remote.firestore.FeatureDoc;
-import com.google.android.gnd.persistence.remote.firestore.ObservationDoc;
 import com.google.android.gnd.persistence.remote.firestore.ProjectDoc;
 import com.google.android.gnd.persistence.remote.firestore.base.FluentCollectionReference;
 import com.google.android.gnd.persistence.remote.firestore.base.FluentDocumentReference;
 import com.google.android.gnd.persistence.remote.firestore.base.FluentFirestore;
 import com.google.android.gnd.persistence.remote.firestore.converters.QuerySnapshotConverter;
-import com.google.common.collect.ImmutableList;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FieldPath;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.WriteBatch;
 import durdinapps.rxfirebase2.RxFirestore;
 import io.reactivex.Flowable;
@@ -137,32 +130,6 @@ public class GroundFirestore extends FluentFirestore {
         default:
           throw new IllegalArgumentException("Unknown mutation type " + mutation.getType());
       }
-    }
-  }
-
-  public static class RecordsCollectionReference extends FluentCollectionReference {
-    protected RecordsCollectionReference(CollectionReference ref) {
-      super(ref);
-    }
-
-    public RecordDocumentReference record(String id) {
-      return new RecordDocumentReference(reference().document(id));
-    }
-
-    public Single<ImmutableList<Observation>> recordsByFeatureId(Feature feature) {
-      return RxFirestore.getCollection(byFeatureId(feature.getId()))
-          .map(
-              querySnapshot ->
-                  stream(querySnapshot.getDocuments())
-                      .map(
-                          recordDoc ->
-                              ObservationDoc.toObject(feature, recordDoc.getId(), recordDoc))
-                      .collect(toImmutableList()))
-          .toSingle(ImmutableList.of());
-    }
-
-    private Query byFeatureId(String featureId) {
-      return reference().whereEqualTo(FieldPath.of(ObservationDoc.FEATURE_ID), featureId);
     }
   }
 }
