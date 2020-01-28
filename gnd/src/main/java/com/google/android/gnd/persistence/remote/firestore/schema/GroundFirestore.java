@@ -24,7 +24,6 @@ import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.FeatureMutation;
 import com.google.android.gnd.model.observation.Observation;
-import com.google.android.gnd.model.observation.ObservationMutation;
 import com.google.android.gnd.persistence.remote.RemoteDataEvent;
 import com.google.android.gnd.persistence.remote.firestore.FeatureDoc;
 import com.google.android.gnd.persistence.remote.firestore.ObservationDoc;
@@ -164,32 +163,6 @@ public class GroundFirestore extends FluentFirestore {
 
     private Query byFeatureId(String featureId) {
       return reference().whereEqualTo(FieldPath.of(ObservationDoc.FEATURE_ID), featureId);
-    }
-  }
-
-  public static class RecordDocumentReference extends FluentDocumentReference {
-    protected RecordDocumentReference(DocumentReference ref) {
-      super(ref);
-    }
-
-    public Maybe<Observation> get(Feature feature) {
-      return RxFirestore.getDocument(reference())
-          .map(doc -> ObservationDoc.toObject(feature, doc.getId(), doc));
-    }
-
-    /** Appends the operation described by the specified mutation to the provided write batch. */
-    public void addMutationToBatch(ObservationMutation mutation, User user, WriteBatch batch) {
-      switch (mutation.getType()) {
-        case CREATE:
-        case UPDATE:
-          merge(ObservationDoc.toMap(mutation, user), batch);
-          break;
-        case DELETE:
-          // TODO: Implement me!
-          break;
-        default:
-          throw new IllegalArgumentException("Unknown mutation type " + mutation.getType());
-      }
     }
   }
 }
