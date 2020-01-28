@@ -147,10 +147,6 @@ public class GroundFirestore extends FluentFirestore {
           throw new IllegalArgumentException("Unknown mutation type " + mutation.getType());
       }
     }
-
-    public RecordsCollectionReference records() {
-      return new RecordsCollectionReference(reference().collection(RECORDS));
-    }
   }
 
   public static class RecordsCollectionReference extends FluentCollectionReference {
