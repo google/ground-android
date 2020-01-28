@@ -20,6 +20,7 @@ import static androidx.lifecycle.LiveDataReactiveStreams.fromPublisher;
 import static java8.util.stream.StreamSupport.stream;
 
 import android.content.res.Resources;
+import android.graphics.Bitmap;
 import android.util.Log;
 import android.view.View;
 import androidx.databinding.ObservableArrayMap;
@@ -47,6 +48,8 @@ import com.google.android.gnd.system.StorageManager;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.util.FileUtil;
 import com.google.common.collect.ImmutableList;
+import io.reactivex.Completable;
+import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.processors.BehaviorProcessor;
 import io.reactivex.processors.PublishProcessor;
@@ -218,20 +221,14 @@ public class EditObservationViewModel extends AbstractViewModel {
      * after the fragment is destroyed (for activity result)
      */
     disposeOnClear(
-        storageManager
-            .launchImagePicker()
-            .andThen(
-                storageManager
-                    .imagePickerResult()
-                    .map(bitmap -> fileUtil.saveBitmap(bitmap, fieldId + ".jpg"))
-                    .map(
-                        file -> {
-                          Map<Field, File> map = new HashMap<>();
-                          map.put(form.getValue().getField(fieldId).get(), file);
-                          return map;
-                        })
-                    .doOnNext(addedPhoto::onNext))
-            .subscribe());
+        storageManager.launchImagePicker().andThen(handleImagePickerResult(fieldId)).subscribe());
+  }
+
+  private Completable handleImagePickerResult(String fieldId) {
+    return storageManager
+        .imagePickerResult()
+        .compose(bitmap -> saveBitmapAndBroadcast(bitmap, fieldId))
+        .ignoreElements();
   }
 
   void initPhotoCapture(String fieldId) {
@@ -240,21 +237,27 @@ public class EditObservationViewModel extends AbstractViewModel {
      * after the fragment is destroyed (for activity result)
      */
     disposeOnClear(
-        cameraManager
-            .launchImageCapture()
-            .andThen(
-                cameraManager
-                    .captureImageResult()
-                    .filter(Optional::isPresent)
-                    .map(bitmap -> fileUtil.saveBitmap(bitmap.get(), fieldId + ".jpg"))
-                    .map(
-                        file -> {
-                          Map<Field, File> map = new HashMap<>();
-                          map.put(form.getValue().getField(fieldId).get(), file);
-                          return map;
-                        })
-                    .doOnNext(addedPhoto::onNext))
-            .subscribe());
+        cameraManager.launchImageCapture().andThen(handleImageCaptureResult(fieldId)).subscribe());
+  }
+
+  private Completable handleImageCaptureResult(String fieldId) {
+    return cameraManager
+        .captureImageResult()
+        .compose(bitmap -> saveBitmapAndBroadcast(bitmap, fieldId))
+        .ignoreElements();
+  }
+
+  private Observable<Map<Field, File>> saveBitmapAndBroadcast(
+      Observable<Bitmap> source, String fieldId) {
+    return source
+        .map(bitmap -> fileUtil.saveBitmap(bitmap, fieldId + ".jpg"))
+        .map(
+            file -> {
+              Map<Field, File> map = new HashMap<>();
+              map.put(form.getValue().getField(fieldId).get(), file);
+              return map;
+            })
+        .doOnNext(addedPhoto::onNext);
   }
 
   public void onSaveClick() {
