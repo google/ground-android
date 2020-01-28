@@ -36,7 +36,7 @@ public class FluentDocumentReference {
     batch.set(ref, values, SetOptions.merge());
   }
 
-  public DocumentReference ref() {
+  public DocumentReference reference() {
     return ref;
   }
 
