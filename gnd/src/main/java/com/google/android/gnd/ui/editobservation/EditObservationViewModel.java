@@ -55,8 +55,6 @@ import io.reactivex.processors.BehaviorProcessor;
 import io.reactivex.processors.PublishProcessor;
 import java.io.File;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 import java8.util.Optional;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
@@ -82,8 +80,6 @@ public class EditObservationViewModel extends AbstractViewModel {
   private final BehaviorProcessor<EditObservationFragmentArgs> viewArgs =
       BehaviorProcessor.create();
 
-  private final BehaviorProcessor<Map<Field, File>> addedPhoto = BehaviorProcessor.create();
-
   /** "Save" button clicks. */
   private final PublishProcessor<Nil> saveClicks = PublishProcessor.create();
 
@@ -91,9 +87,6 @@ public class EditObservationViewModel extends AbstractViewModel {
 
   /** Form definition, loaded when view is initialized. */
   private final LiveData<Form> form;
-
-  /** Added image field. */
-  private final LiveData<Map<Field, File>> photo;
 
   /** Toolbar title, based on whether user is adding new or editing existing observation. */
   private final MutableLiveData<String> toolbarTitle = new MutableLiveData<>();
@@ -149,7 +142,6 @@ public class EditObservationViewModel extends AbstractViewModel {
     this.fileUtil = fileUtil;
     this.form = fromPublisher(viewArgs.switchMapSingle(this::onInitialize));
     this.saveResults = fromPublisher(saveClicks.switchMapSingle(__ -> onSave()));
-    this.photo = fromPublisher(addedPhoto);
   }
 
   public LiveData<Form> getForm() {
@@ -174,10 +166,6 @@ public class EditObservationViewModel extends AbstractViewModel {
 
   public LiveData<Event<SaveResult>> getSaveResults() {
     return saveResults;
-  }
-
-  public LiveData<Map<Field, File>> getAddedPhoto() {
-    return photo;
   }
 
   public void initialize(EditObservationFragmentArgs args) {
@@ -228,7 +216,7 @@ public class EditObservationViewModel extends AbstractViewModel {
   private Completable handleImagePickerResult(String fieldId) {
     return storageManager
         .imagePickerResult()
-        .compose(bitmap -> saveBitmapAndBroadcast(bitmap, fieldId))
+        .compose(bitmap -> saveBitmapAndUpdateResponse(bitmap, fieldId))
         .ignoreElements();
   }
 
@@ -244,21 +232,14 @@ public class EditObservationViewModel extends AbstractViewModel {
   private Completable handleImageCaptureResult(String fieldId) {
     return cameraManager
         .captureImageResult()
-        .compose(bitmap -> saveBitmapAndBroadcast(bitmap, fieldId))
+        .compose(bitmap -> saveBitmapAndUpdateResponse(bitmap, fieldId))
         .ignoreElements();
   }
 
-  private Observable<Map<Field, File>> saveBitmapAndBroadcast(
-      Observable<Bitmap> source, String fieldId) {
+  private Observable<File> saveBitmapAndUpdateResponse(Observable<Bitmap> source, String fieldId) {
     return source
         .map(bitmap -> fileUtil.saveBitmap(bitmap, fieldId + ".jpg"))
-        .map(
-            file -> {
-              Map<Field, File> map = new HashMap<>();
-              map.put(form.getValue().getField(fieldId).get(), file);
-              return map;
-            })
-        .doOnNext(addedPhoto::onNext);
+        .doOnNext(file -> onTextChanged(form.getValue().getField(fieldId).get(), file.getPath()));
   }
 
   public void onSaveClick() {

@@ -44,7 +44,6 @@ import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.model.form.MultipleChoice.Cardinality;
 import com.google.android.gnd.model.observation.Response;
-import com.google.android.gnd.model.observation.TextResponse;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.BackPressListener;
 import com.google.android.gnd.ui.common.EphemeralPopups;
@@ -52,7 +51,6 @@ import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.TwoLineToolbar;
 import com.google.android.gnd.ui.editobservation.PhotoDialogFragment.AddPhotoListener;
 import java.io.File;
-import java.util.Map;
 import java8.util.Optional;
 import javax.inject.Inject;
 
@@ -101,20 +99,8 @@ public class EditObservationFragment extends AbstractFragment
     viewModel.getForm().observe(this, this::rebuildForm);
     viewModel.getToolbarTitle().observe(this, toolbar::setTitle);
     viewModel.getSaveResults().observe(this, e -> e.ifUnhandled(this::handleSaveResult));
-    viewModel.getAddedPhoto().observe(this, this::onPhotoAdded);
     // Initialize view model.
     viewModel.initialize(EditObservationFragmentArgs.fromBundle(getArguments()));
-  }
-
-  private void onPhotoAdded(Map<Field, File> fileFieldMap) {
-    Log.d(TAG, fileFieldMap.toString());
-
-    // TODO: Upload photo to Firestore Storage
-    // TODO: Fetch download url and update response in viewModel
-    for (Field field : fileFieldMap.keySet()) {
-      File file = fileFieldMap.get(field);
-      viewModel.onResponseChanged(field, TextResponse.fromString(file.getPath()));
-    }
   }
 
   private void handleSaveResult(EditObservationViewModel.SaveResult saveResult) {
