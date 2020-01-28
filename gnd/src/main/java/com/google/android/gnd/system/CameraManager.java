@@ -28,6 +28,7 @@ import java8.util.Optional;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+/** Manages permissions needed for using camera and related flows to/from Activity. */
 @Singleton
 public class CameraManager {
 

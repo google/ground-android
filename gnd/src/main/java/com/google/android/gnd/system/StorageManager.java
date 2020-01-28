@@ -29,6 +29,7 @@ import java8.util.Optional;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+/** Manages permissions needed for accessing storage and related flows to/from Activity. */
 @Singleton
 public class StorageManager {
 
