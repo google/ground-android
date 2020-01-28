@@ -27,7 +27,7 @@ import java.util.List;
 import java8.util.function.Function;
 
 public abstract class FluentCollectionReference {
-  protected final CollectionReference reference;
+  private final CollectionReference reference;
 
   protected FluentCollectionReference(CollectionReference reference) {
     this.reference = reference;
@@ -53,7 +53,7 @@ public abstract class FluentCollectionReference {
         .andThen(FluentFirestore.toSingleList(RxFirestore.getCollection(query), mappingFunction));
   }
 
-  public CollectionReference reference() {
+  protected CollectionReference reference() {
     return reference;
   }
 

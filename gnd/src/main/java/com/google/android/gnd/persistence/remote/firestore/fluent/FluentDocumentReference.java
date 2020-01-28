@@ -22,7 +22,7 @@ import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.firestore.WriteBatch;
 
 public class FluentDocumentReference {
-  protected final DocumentReference reference;
+  private final DocumentReference reference;
 
   protected FluentDocumentReference(DocumentReference reference) {
     this.reference = reference;
@@ -36,7 +36,7 @@ public class FluentDocumentReference {
     batch.set(reference, values, SetOptions.merge());
   }
 
-  public DocumentReference reference() {
+  protected DocumentReference reference() {
     return reference;
   }
 
