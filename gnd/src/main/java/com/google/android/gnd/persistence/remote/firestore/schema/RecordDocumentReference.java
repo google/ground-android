@@ -28,7 +28,7 @@ import durdinapps.rxfirebase2.RxFirestore;
 import io.reactivex.Maybe;
 
 public class RecordDocumentReference extends FluentDocumentReference {
-  protected RecordDocumentReference(DocumentReference ref) {
+  RecordDocumentReference(DocumentReference ref) {
     super(ref);
   }
 

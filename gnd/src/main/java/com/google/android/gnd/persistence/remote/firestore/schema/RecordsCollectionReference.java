@@ -31,7 +31,7 @@ import durdinapps.rxfirebase2.RxFirestore;
 import io.reactivex.Single;
 
 public class RecordsCollectionReference extends FluentCollectionReference {
-  protected RecordsCollectionReference(CollectionReference ref) {
+  RecordsCollectionReference(CollectionReference ref) {
     super(ref);
   }
 

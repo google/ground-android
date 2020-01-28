@@ -24,7 +24,7 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.WriteBatch;
 
 public class FeatureDocumentReference extends FluentDocumentReference {
-  protected FeatureDocumentReference(DocumentReference ref) {
+  FeatureDocumentReference(DocumentReference ref) {
     super(ref);
   }
 

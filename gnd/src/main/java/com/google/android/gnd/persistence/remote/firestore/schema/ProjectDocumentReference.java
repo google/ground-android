@@ -27,7 +27,7 @@ public class ProjectDocumentReference extends FluentDocumentReference {
   private static final String FEATURES = "features";
   private static final String RECORDS = "records";
 
-  protected ProjectDocumentReference(DocumentReference ref) {
+  ProjectDocumentReference(DocumentReference ref) {
     super(ref);
   }
 

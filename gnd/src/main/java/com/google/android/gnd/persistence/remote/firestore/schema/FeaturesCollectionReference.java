@@ -27,7 +27,7 @@ import durdinapps.rxfirebase2.RxFirestore;
 import io.reactivex.Flowable;
 
 public class FeaturesCollectionReference extends FluentCollectionReference {
-  protected FeaturesCollectionReference(CollectionReference ref) {
+  FeaturesCollectionReference(CollectionReference ref) {
     super(ref);
   }
 

@@ -29,7 +29,7 @@ public class ProjectsCollectionReference extends FluentCollectionReference {
   private static final String ACL_FIELD = "acl";
   private static final String READ_ACCESS = "r";
 
-  protected ProjectsCollectionReference(CollectionReference ref) {
+  ProjectsCollectionReference(CollectionReference ref) {
     super(ref);
   }
 
