@@ -26,14 +26,13 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import com.google.android.gnd.databinding.EditObservationBottomSheetBinding;
-import com.google.android.gnd.model.form.Field;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
 /**
  * Generates a bottom sheet with options for adding a photo to the observation.
  *
- * <p>Since one observation can have multiple photo fields, hence it is must to map the {@link
- * Field#getId() along with each request.}
+ * <p>Since one observation can have multiple photo fields, hence it is must to map the fieldId
+ * along with each request.}
  */
 public class PhotoDialogFragment extends BottomSheetDialogFragment {
 
