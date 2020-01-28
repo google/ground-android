@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.persistence.remote.firestore.fluent;
+package com.google.android.gnd.persistence.remote.firestore.base;
 
 import com.google.android.gnd.system.NetworkManager;
 import com.google.firebase.firestore.CollectionReference;
