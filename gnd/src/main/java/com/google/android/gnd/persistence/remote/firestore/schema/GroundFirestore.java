@@ -20,14 +20,10 @@ import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.User;
 import com.google.android.gnd.persistence.remote.firestore.ProjectDoc;
 import com.google.android.gnd.persistence.remote.firestore.base.FluentCollectionReference;
-import com.google.android.gnd.persistence.remote.firestore.base.FluentDocumentReference;
 import com.google.android.gnd.persistence.remote.firestore.base.FluentFirestore;
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FieldPath;
 import com.google.firebase.firestore.FirebaseFirestore;
-import durdinapps.rxfirebase2.RxFirestore;
-import io.reactivex.Maybe;
 import io.reactivex.Single;
 import java.util.List;
 import javax.inject.Inject;
@@ -37,8 +33,6 @@ import javax.inject.Singleton;
 @Singleton
 public class GroundFirestore extends FluentFirestore {
   private static final String PROJECTS = "projects";
-  private static final String FEATURES = "features";
-  private static final String RECORDS = "records";
 
   @Inject
   GroundFirestore(FirebaseFirestore db) {
@@ -65,24 +59,6 @@ public class GroundFirestore extends FluentFirestore {
       return runQuery(
           reference().whereArrayContains(FieldPath.of(ACL_FIELD, user.getEmail()), READ_ACCESS),
           ProjectDoc::toObject);
-    }
-  }
-
-  public static class ProjectDocumentReference extends FluentDocumentReference {
-    protected ProjectDocumentReference(DocumentReference ref) {
-      super(ref);
-    }
-
-    public FeaturesCollectionReference features() {
-      return new FeaturesCollectionReference(reference().collection(FEATURES));
-    }
-
-    public RecordsCollectionReference records() {
-      return new RecordsCollectionReference(reference().collection(RECORDS));
-    }
-
-    public Maybe<Project> get() {
-      return RxFirestore.getDocument(reference()).map(ProjectDoc::toObject);
     }
   }
 }
