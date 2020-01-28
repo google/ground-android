@@ -35,7 +35,7 @@ public class StorageManager {
 
   public static final String TAG = StorageManager.class.getName();
 
-  private static final int PICKFILE_REQUEST_CODE = StorageManager.class.hashCode() & 0xffff;
+  private static final int PICK_IMAGE_REQUEST_CODE = StorageManager.class.hashCode() & 0xffff;
   private final Context context;
   private final PermissionsManager permissionsManager;
   private final ActivityStreams activityStreams;
@@ -56,7 +56,7 @@ public class StorageManager {
 
   public Observable<Optional<Bitmap>> imagePickerResult() {
     return activityStreams
-        .getNextActivityResult(PICKFILE_REQUEST_CODE)
+        .getNextActivityResult(PICK_IMAGE_REQUEST_CODE)
         .filter(ActivityResult::isOk)
         .map(
             activityResult -> {
@@ -76,7 +76,7 @@ public class StorageManager {
                 activity -> {
                   Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
                   intent.setType("image/*");
-                  activity.startActivityForResult(intent, PICKFILE_REQUEST_CODE);
+                  activity.startActivityForResult(intent, PICK_IMAGE_REQUEST_CODE);
                   Log.d(TAG, "file picker intent sent");
                 }));
   }
