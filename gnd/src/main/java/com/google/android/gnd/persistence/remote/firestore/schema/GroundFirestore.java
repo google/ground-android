@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.persistence.remote.firestore;
+package com.google.android.gnd.persistence.remote.firestore.schema;
 
 import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList;
 import static java8.util.stream.Collectors.toList;
@@ -28,6 +28,10 @@ import com.google.android.gnd.model.feature.FeatureMutation;
 import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.model.observation.ObservationMutation;
 import com.google.android.gnd.persistence.remote.RemoteDataEvent;
+import com.google.android.gnd.persistence.remote.firestore.DataStoreException;
+import com.google.android.gnd.persistence.remote.firestore.FeatureDoc;
+import com.google.android.gnd.persistence.remote.firestore.ObservationDoc;
+import com.google.android.gnd.persistence.remote.firestore.ProjectDoc;
 import com.google.android.gnd.persistence.remote.firestore.base.FluentCollectionReference;
 import com.google.android.gnd.persistence.remote.firestore.base.FluentDocumentReference;
 import com.google.android.gnd.persistence.remote.firestore.base.FluentFirestore;
