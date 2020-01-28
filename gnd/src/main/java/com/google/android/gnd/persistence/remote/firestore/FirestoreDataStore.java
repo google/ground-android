@@ -43,7 +43,7 @@ public class FirestoreDataStore implements RemoteDataStore {
 
   static final String ID_COLLECTION = "/ids";
 
-  @Inject GndFirestore db;
+  @Inject GroundFirestore db;
 
   @Inject
   FirestoreDataStore() {}

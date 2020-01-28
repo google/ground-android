@@ -52,15 +52,15 @@ import javax.inject.Singleton;
 
 /** Object representation of Ground Firestore database. */
 @Singleton
-public class GndFirestore extends FluentFirestore {
-  private static final String TAG = GndFirestore.class.getSimpleName();
+public class GroundFirestore extends FluentFirestore {
+  private static final String TAG = GroundFirestore.class.getSimpleName();
 
   private static final String PROJECTS = "projects";
   private static final String FEATURES = "features";
   private static final String RECORDS = "records";
 
   @Inject
-  GndFirestore(FirebaseFirestore db) {
+  GroundFirestore(FirebaseFirestore db) {
     super(db);
   }
 
