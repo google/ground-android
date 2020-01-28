@@ -56,14 +56,10 @@ public class CameraManager {
         .getNextActivityResult(CAPTURE_PHOTO_REQUEST_CODE)
         .filter(ActivityResult::isOk)
         .map(
-            activityResult -> {
-              Intent intent = activityResult.getData();
-              if (intent != null && intent.getExtras() != null) {
-                Bitmap photo = (Bitmap) intent.getExtras().get("data");
-                return Optional.ofNullable(photo);
-              }
-              return Optional.empty();
-            });
+            activityResult ->
+                Optional.ofNullable(activityResult.getData())
+                    .map(Intent::getExtras)
+                    .map(extras -> (Bitmap) extras.get("data")));
   }
 
   private Completable sendCaptureImageIntent() {
