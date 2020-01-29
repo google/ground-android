@@ -45,7 +45,7 @@ import com.google.android.gnd.inject.ActivityScoped;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.Point;
-import com.google.android.gnd.repository.Loadable;
+import com.google.android.gnd.rx.Loadable;
 import com.google.android.gnd.system.AuthenticationManager;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.BackPressListener;

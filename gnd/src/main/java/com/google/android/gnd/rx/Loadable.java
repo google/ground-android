@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google LLC
+ * Copyright 2020 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.repository;
+package com.google.android.gnd.rx;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
-import com.google.android.gnd.rx.ValueOrError;
 import io.reactivex.Flowable;
 import java8.util.Optional;
 import javax.annotation.Nullable;

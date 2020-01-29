@@ -32,7 +32,7 @@ import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator;
-import com.google.android.gnd.repository.Loadable;
+import com.google.android.gnd.rx.Loadable;
 import com.google.android.gnd.system.AuthenticationManager;
 import com.google.android.gnd.ui.common.AbstractDialogFragment;
 import com.google.android.gnd.ui.home.mapcontainer.MapContainerViewModel;

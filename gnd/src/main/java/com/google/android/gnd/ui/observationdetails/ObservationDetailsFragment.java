@@ -37,7 +37,7 @@ import com.google.android.gnd.inject.ActivityScoped;
 import com.google.android.gnd.model.form.Element;
 import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.observation.Observation;
-import com.google.android.gnd.repository.Loadable;
+import com.google.android.gnd.rx.Loadable;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.EphemeralPopups;
 import com.google.android.gnd.ui.common.Navigator;
