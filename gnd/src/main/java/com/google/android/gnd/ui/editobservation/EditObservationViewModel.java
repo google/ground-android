@@ -210,12 +210,12 @@ public class EditObservationViewModel extends AbstractViewModel {
      * after the fragment is destroyed (for activity result)
      */
     disposeOnClear(
-        storageManager.launchImagePicker().andThen(handleImagePickerResult(fieldId)).subscribe());
+        storageManager.launchPhotoPicker().andThen(handlePhotoPickerResult(fieldId)).subscribe());
   }
 
-  private Completable handleImagePickerResult(String fieldId) {
+  private Completable handlePhotoPickerResult(String fieldId) {
     return storageManager
-        .imagePickerResult()
+        .photoPickerResult()
         .compose(bitmap -> saveBitmapAndUpdateResponse(bitmap, fieldId))
         .ignoreElements();
   }
@@ -226,12 +226,12 @@ public class EditObservationViewModel extends AbstractViewModel {
      * after the fragment is destroyed (for activity result)
      */
     disposeOnClear(
-        cameraManager.launchImageCapture().andThen(handleImageCaptureResult(fieldId)).subscribe());
+        cameraManager.launchPhotoCapture().andThen(handlePhotoCaptureResult(fieldId)).subscribe());
   }
 
-  private Completable handleImageCaptureResult(String fieldId) {
+  private Completable handlePhotoCaptureResult(String fieldId) {
     return cameraManager
-        .captureImageResult()
+        .capturePhotoResult()
         .compose(bitmap -> saveBitmapAndUpdateResponse(bitmap, fieldId))
         .ignoreElements();
   }

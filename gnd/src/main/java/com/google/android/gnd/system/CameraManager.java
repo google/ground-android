@@ -44,14 +44,14 @@ public class CameraManager {
     this.activityStreams = activityStreams;
   }
 
-  public Completable launchImageCapture() {
+  public Completable launchPhotoCapture() {
     return permissionsManager
         .obtainPermission(permission.WRITE_EXTERNAL_STORAGE)
         .andThen(permissionsManager.obtainPermission(permission.CAMERA))
-        .andThen(sendCaptureImageIntent());
+        .andThen(sendCapturePhotoIntent());
   }
 
-  public Observable<Bitmap> captureImageResult() {
+  public Observable<Bitmap> capturePhotoResult() {
     return activityStreams
         .getNextActivityResult(CAPTURE_PHOTO_REQUEST_CODE)
         .filter(ActivityResult::isOk)
@@ -64,7 +64,7 @@ public class CameraManager {
         .map(Optional::get);
   }
 
-  private Completable sendCaptureImageIntent() {
+  private Completable sendCapturePhotoIntent() {
     return Completable.fromAction(
         () ->
             activityStreams.withActivity(

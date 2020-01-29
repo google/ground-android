@@ -35,7 +35,7 @@ public class StorageManager {
 
   public static final String TAG = StorageManager.class.getName();
 
-  private static final int PICK_IMAGE_REQUEST_CODE = StorageManager.class.hashCode() & 0xffff;
+  private static final int PICK_PHOTO_REQUEST_CODE = StorageManager.class.hashCode() & 0xffff;
   private final Context context;
   private final PermissionsManager permissionsManager;
   private final ActivityStreams activityStreams;
@@ -48,29 +48,29 @@ public class StorageManager {
     this.activityStreams = activityStreams;
   }
 
-  public Completable launchImagePicker() {
+  public Completable launchPhotoPicker() {
     return permissionsManager
         .obtainPermission(permission.READ_EXTERNAL_STORAGE)
-        .andThen(sendImagePickerIntent());
+        .andThen(sendPhotoPickerIntent());
   }
 
-  public Observable<Bitmap> imagePickerResult() {
+  public Observable<Bitmap> photoPickerResult() {
     return activityStreams
-        .getNextActivityResult(PICK_IMAGE_REQUEST_CODE)
+        .getNextActivityResult(PICK_PHOTO_REQUEST_CODE)
         .filter(ActivityResult::isOk)
         .map(activityResult -> Optional.ofNullable(activityResult.getData()).map(Intent::getData))
         .filter(Optional::isPresent)
         .map(data -> Media.getBitmap(context.getContentResolver(), data.get()));
   }
 
-  private Completable sendImagePickerIntent() {
+  private Completable sendPhotoPickerIntent() {
     return Completable.fromAction(
         () ->
             activityStreams.withActivity(
                 activity -> {
                   Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
                   intent.setType("image/*");
-                  activity.startActivityForResult(intent, PICK_IMAGE_REQUEST_CODE);
+                  activity.startActivityForResult(intent, PICK_PHOTO_REQUEST_CODE);
                   Log.d(TAG, "file picker intent sent");
                 }));
   }
