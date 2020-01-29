@@ -99,7 +99,7 @@ public class LocationManager {
         .andThen(
             locationClient.requestLocationUpdates(
                 FINE_LOCATION_UPDATES_REQUEST, locationUpdateCallback))
-        .toSingle(() -> BooleanOrError.ofTrue())
+        .toSingle(() -> BooleanOrError.trueValue())
         .onErrorReturn(t -> BooleanOrError.error(t));
   }
 
@@ -109,9 +109,9 @@ public class LocationManager {
     // multiple times.
     return locationClient
         .removeLocationUpdates(locationUpdateCallback)
-        .toSingle(() -> BooleanOrError.ofFalse())
+        .toSingle(() -> BooleanOrError.falseValue())
         .doOnError(t -> Log.v(TAG, "disableLocationUpdates:", t))
-        .onErrorReturn(__ -> BooleanOrError.ofFalse());
+        .onErrorReturn(__ -> BooleanOrError.falseValue());
   }
 
   @SuppressLint("MissingPermission")

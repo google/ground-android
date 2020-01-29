@@ -24,11 +24,11 @@ public class BooleanOrError extends ValueOrError<Boolean> {
     super(value, error);
   }
 
-  public static BooleanOrError ofTrue() {
+  public static BooleanOrError trueValue() {
     return new BooleanOrError(true, null);
   }
 
-  public static BooleanOrError ofFalse() {
+  public static BooleanOrError falseValue() {
     return new BooleanOrError(false, null);
   }
 

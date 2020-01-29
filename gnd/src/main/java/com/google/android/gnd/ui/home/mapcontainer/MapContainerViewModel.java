@@ -68,7 +68,7 @@ public class MapContainerViewModel extends AbstractViewModel {
     Flowable<BooleanOrError> locationLockStateFlowable = createLocationLockStateFlowable().share();
     this.locationLockState =
         LiveDataReactiveStreams.fromPublisher(
-            locationLockStateFlowable.startWith(BooleanOrError.ofFalse()));
+            locationLockStateFlowable.startWith(BooleanOrError.falseValue()));
     this.cameraUpdateRequests =
         LiveDataReactiveStreams.fromPublisher(
             createCameraUpdateFlowable(locationLockStateFlowable));
