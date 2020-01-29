@@ -24,6 +24,7 @@ import com.google.android.gms.location.SettingsClient;
 import com.google.android.gnd.rx.RxTask;
 import io.reactivex.Single;
 
+/** Thin wrapper around {@link SettingsClient} exposing key features as reactive streams. */
 public class RxSettingsClient {
 
   private final SettingsClient settingsClient;

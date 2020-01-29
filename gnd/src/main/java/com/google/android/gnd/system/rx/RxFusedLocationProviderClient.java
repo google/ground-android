@@ -27,6 +27,9 @@ import com.google.android.gnd.rx.RxTask;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
 
+/**
+ * Thin wrapper around {@link FusedLocationProviderClient} exposing key features as reactive streams.
+ */
 public class RxFusedLocationProviderClient {
   private final FusedLocationProviderClient fusedLocationProviderClient;
 
