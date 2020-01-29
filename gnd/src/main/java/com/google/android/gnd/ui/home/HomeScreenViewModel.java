@@ -30,13 +30,13 @@ import com.google.android.gnd.repository.ProjectRepository;
 import com.google.android.gnd.rx.Action;
 import com.google.android.gnd.rx.Event;
 import com.google.android.gnd.rx.Loadable;
+import com.google.android.gnd.rx.Schedulers;
 import com.google.android.gnd.system.AuthenticationManager;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.SharedViewModel;
 import com.google.android.gnd.ui.map.MapMarker;
 import io.reactivex.Single;
-import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.subjects.PublishSubject;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
@@ -67,7 +67,8 @@ public class HomeScreenViewModel extends AbstractViewModel {
       ProjectRepository projectRepository,
       FeatureRepository featureRepository,
       AuthenticationManager authManager,
-      Navigator navigator) {
+      Navigator navigator,
+      Schedulers schedulers) {
     this.projectRepository = projectRepository;
     this.addFeatureDialogRequests = new MutableLiveData<>();
     this.openDrawerRequests = new MutableLiveData<>();
@@ -86,7 +87,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
                         .toSingleDefault(newFeature)
                         .doOnError(this::onAddFeatureError)
                         .onErrorResumeNext(Single.never())) // Prevent from breaking upstream.
-            .observeOn(AndroidSchedulers.mainThread())
+            .observeOn(schedulers.ui())
             .subscribe(this::showFeatureSheet));
   }
 
