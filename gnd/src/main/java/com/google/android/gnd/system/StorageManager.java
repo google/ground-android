@@ -54,13 +54,12 @@ public class StorageManager {
         .andThen(sendPhotoPickerIntent());
   }
 
-  public Observable<Bitmap> photoPickerResult() {
+  public Observable<Optional<Bitmap>> photoPickerResult() {
     return activityStreams
         .getNextActivityResult(PICK_PHOTO_REQUEST_CODE)
         .filter(ActivityResult::isOk)
         .map(activityResult -> Optional.ofNullable(activityResult.getData()).map(Intent::getData))
-        .filter(Optional::isPresent)
-        .map(data -> Media.getBitmap(context.getContentResolver(), data.get()));
+        .map(data -> Optional.of(Media.getBitmap(context.getContentResolver(), data.get())));
   }
 
   private Completable sendPhotoPickerIntent() {

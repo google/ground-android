@@ -236,9 +236,11 @@ public class EditObservationViewModel extends AbstractViewModel {
         .ignoreElements();
   }
 
-  private Observable<File> saveBitmapAndUpdateResponse(Observable<Bitmap> source, String fieldId) {
+  private Observable<File> saveBitmapAndUpdateResponse(
+      Observable<Optional<Bitmap>> source, String fieldId) {
     return source
-        .map(bitmap -> fileUtil.saveBitmap(bitmap, fieldId + ".jpg"))
+        .filter(Optional::isPresent)
+        .map(bitmap -> fileUtil.saveBitmap(bitmap.get(), fieldId + ".jpg"))
         .doOnNext(file -> onTextChanged(form.getValue().getField(fieldId).get(), file.getPath()));
   }
 

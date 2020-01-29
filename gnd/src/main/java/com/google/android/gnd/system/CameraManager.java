@@ -51,7 +51,7 @@ public class CameraManager {
         .andThen(sendCapturePhotoIntent());
   }
 
-  public Observable<Bitmap> capturePhotoResult() {
+  public Observable<Optional<Bitmap>> capturePhotoResult() {
     return activityStreams
         .getNextActivityResult(CAPTURE_PHOTO_REQUEST_CODE)
         .filter(ActivityResult::isOk)
@@ -59,9 +59,7 @@ public class CameraManager {
             activityResult ->
                 Optional.ofNullable(activityResult.getData())
                     .map(Intent::getExtras)
-                    .map(extras -> (Bitmap) extras.get("data")))
-        .filter(Optional::isPresent)
-        .map(Optional::get);
+                    .map(extras -> (Bitmap) extras.get("data")));
   }
 
   private Completable sendCapturePhotoIntent() {
