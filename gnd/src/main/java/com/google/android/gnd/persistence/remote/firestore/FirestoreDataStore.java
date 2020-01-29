@@ -26,6 +26,7 @@ import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.model.observation.ObservationMutation;
 import com.google.android.gnd.persistence.remote.RemoteDataEvent;
 import com.google.android.gnd.persistence.remote.RemoteDataStore;
+import com.google.android.gnd.persistence.remote.firestore.schema.GroundFirestore;
 import com.google.android.gnd.rx.RxTask;
 import com.google.android.gnd.rx.Schedulers;
 import com.google.common.collect.ImmutableCollection;
@@ -43,7 +44,7 @@ public class FirestoreDataStore implements RemoteDataStore {
 
   static final String ID_COLLECTION = "/ids";
 
-  @Inject GndFirestore db;
+  @Inject GroundFirestore db;
   @Inject Schedulers schedulers;
 
   @Inject
