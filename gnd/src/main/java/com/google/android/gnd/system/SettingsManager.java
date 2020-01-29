@@ -18,14 +18,12 @@ package com.google.android.gnd.system;
 
 import static com.google.android.gnd.rx.RxCompletable.completeOrError;
 
-import android.app.Application;
-import android.content.Context;
 import android.content.IntentSender.SendIntentException;
 import android.util.Log;
 import com.google.android.gms.common.api.ResolvableApiException;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationSettingsRequest;
-import com.google.android.gnd.rx.RxLocationServices;
+import com.google.android.gnd.system.rx.RxSettingsClient;
 import io.reactivex.Completable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -42,13 +40,13 @@ public class SettingsManager {
   private static final int LOCATION_SETTINGS_REQUEST_CODE =
       SettingsManager.class.hashCode() & 0xffff;
 
-  private final Context context;
   private final ActivityStreams activityStreams;
+  private final RxSettingsClient settingsClient;
 
   @Inject
-  public SettingsManager(Application app, ActivityStreams activityStreams) {
-    this.context = app.getApplicationContext();
+  public SettingsManager(ActivityStreams activityStreams, RxSettingsClient settingsClient) {
     this.activityStreams = activityStreams;
+    this.settingsClient = settingsClient;
   }
 
   /**
@@ -59,7 +57,7 @@ public class SettingsManager {
     Log.d(TAG, "Checking location settings");
     LocationSettingsRequest settingsRequest =
         new LocationSettingsRequest.Builder().addLocationRequest(locationRequest).build();
-    return RxLocationServices.getSettingsClient(context)
+    return settingsClient
         .checkLocationSettings(settingsRequest)
         .toCompletable()
         .onErrorResumeNext(t -> onCheckSettingsFailure(LOCATION_SETTINGS_REQUEST_CODE, t));

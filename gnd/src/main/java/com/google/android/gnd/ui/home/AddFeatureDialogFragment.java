@@ -32,7 +32,7 @@ import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator;
-import com.google.android.gnd.repository.Loadable;
+import com.google.android.gnd.rx.Loadable;
 import com.google.android.gnd.system.AuthenticationManager;
 import com.google.android.gnd.ui.common.AbstractDialogFragment;
 import com.google.android.gnd.ui.home.mapcontainer.MapContainerViewModel;
@@ -77,7 +77,7 @@ public class AddFeatureDialogFragment extends AbstractDialogFragment {
   public Dialog onCreateDialog(Bundle savedInstanceState) {
     super.onCreateDialog(savedInstanceState);
     // TODO: Inject and use custom factory.
-    Optional<Project> activeProject = Loadable.getData(homeScreenViewModel.getActiveProject());
+    Optional<Project> activeProject = Loadable.getValue(homeScreenViewModel.getActiveProject());
     if (!activeProject.isPresent()) {
       addFeatureRequestSubject.onError(new IllegalStateException("No active project"));
       return fail("Could not get active project");

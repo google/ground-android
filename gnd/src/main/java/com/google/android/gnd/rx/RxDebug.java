@@ -38,7 +38,11 @@ public abstract class RxDebug {
     Log.e(TAG, "Unhandled Rx error", RxJava2Debug.getEnhancedStackTrace(t));
   }
 
-  public static <T> MaybeConverter<T, Maybe<T>> traceMaybe(String tag, String streamName) {
+  /**
+   * Returns a converter for use with {@link Maybe#as} that logs all events that occur on the source
+   * stream.
+   */
+  public static <T> MaybeConverter<T, Maybe<T>> tracedMaybe(String tag, String streamName) {
     Tracer t = new Tracer(tag, streamName);
     return m ->
         m.doOnSubscribe(t::onSubscribe)
@@ -47,7 +51,12 @@ public abstract class RxDebug {
             .doOnError(t::onError);
   }
 
-  public static <T> FlowableConverter<T, Flowable<T>> traceFlowable(String tag, String streamName) {
+  /**
+   * Returns a converter for use with {@link Flowable#as} that logs all events that occur on the
+   * source stream.
+   */
+  public static <T> FlowableConverter<T, Flowable<T>> tracedFlowable(
+      String tag, String streamName) {
     Tracer t = new Tracer(tag, streamName);
     return f ->
         f.doOnSubscribe(t::onSubscribe)
@@ -56,8 +65,11 @@ public abstract class RxDebug {
             .doOnError(t::onError);
   }
 
-  public static CompletableConverter<Completable> traceCompletable(
-      String tag, String streamName) {
+  /**
+   * Returns a converter for use with {@link Completable#as} that logs all events that occur on the
+   * source stream.
+   */
+  public static CompletableConverter<Completable> tracedCompletable(String tag, String streamName) {
     Tracer t = new Tracer(tag, streamName);
     return c -> c.doOnSubscribe(t::onSubscribe).doOnComplete(t::onComplete).doOnError(t::onError);
   }
@@ -79,23 +91,23 @@ public abstract class RxDebug {
       trace(tag, streamName, "subscribe");
     }
 
-    public void onSubscribe(Subscription subscription) {
+    private void onSubscribe(Subscription subscription) {
       trace(tag, streamName, "subscribe");
     }
 
-    public void onSuccess(Object value) {
+    private void onSuccess(Object value) {
       trace(tag, streamName, "success: " + value);
     }
 
-    public void onNext(Object value) {
+    private void onNext(Object value) {
       trace(tag, streamName, "next: " + value);
     }
 
-    public void onComplete() {
+    private void onComplete() {
       trace(tag, streamName, "complete");
     }
 
-    public void onError(Throwable t) {
+    private void onError(Throwable t) {
       trace(tag, streamName, "error:  " + t);
     }
   }
