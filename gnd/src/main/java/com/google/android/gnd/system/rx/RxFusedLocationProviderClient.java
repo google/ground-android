@@ -26,14 +26,17 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gnd.rx.RxTask;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
+import javax.inject.Inject;
 
 /**
- * Thin wrapper around {@link FusedLocationProviderClient} exposing key features as reactive streams.
+ * Thin wrapper around {@link FusedLocationProviderClient} exposing key features as reactive
+ * streams.
  */
 public class RxFusedLocationProviderClient {
   private final FusedLocationProviderClient fusedLocationProviderClient;
 
-  RxFusedLocationProviderClient(Context context) {
+  @Inject
+  public RxFusedLocationProviderClient(Context context) {
     this.fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(context);
   }
 

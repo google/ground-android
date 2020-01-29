@@ -28,7 +28,6 @@ import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.rx.BooleanOrError;
 import com.google.android.gnd.system.rx.RxFusedLocationProviderClient;
 import com.google.android.gnd.system.rx.RxLocationCallback;
-import com.google.android.gnd.system.rx.RxLocationServices;
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
@@ -56,11 +55,13 @@ public class LocationManager {
 
   @Inject
   public LocationManager(
-      Application app, PermissionsManager permissionsManager, SettingsManager settingsManager) {
+      Application app,
+      PermissionsManager permissionsManager,
+      SettingsManager settingsManager,
+      RxFusedLocationProviderClient locationClient) {
     this.permissionsManager = permissionsManager;
     this.settingsManager = settingsManager;
-    this.locationClient =
-        RxLocationServices.getFusedLocationProviderClient(app.getApplicationContext());
+    this.locationClient = locationClient;
     this.locationUpdates = BehaviorSubject.create();
     this.locationUpdateCallback = RxLocationCallback.create(locationUpdates);
   }
