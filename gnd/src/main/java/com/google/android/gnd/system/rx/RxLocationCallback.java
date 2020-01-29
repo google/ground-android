@@ -22,7 +22,7 @@ import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationResult;
 import io.reactivex.Observer;
 
-/** Thin wrapper around {@link LocationCallback} exposing key features as reactive streams. */
+/** Implementation of {@link LocationCallback} linked to a Reactive {@link Observer}. */
 public class RxLocationCallback extends LocationCallback {
   private final Observer<Location> locationObserver;
 
