@@ -25,7 +25,7 @@ import android.util.Log;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gnd.inject.ActivityScoped;
 import com.google.android.gnd.model.feature.Point;
-import com.google.android.gnd.rx.BooleanResult;
+import com.google.android.gnd.rx.BooleanOrError;
 import com.google.android.gnd.rx.RxLocationServices;
 import com.google.android.gnd.rx.RxLocationServices.RxFusedLocationProviderClient;
 import com.google.android.gnd.rx.RxLocationServices.RxFusedLocationProviderClient.RxLocationCallback;
@@ -90,7 +90,7 @@ public class LocationManager {
    * Asynchronously try to enable location permissions and settings, and if successful, turns on
    * location updates exposed by {@link #getLocationUpdates()}.
    */
-  public synchronized Single<BooleanResult> enableLocationUpdates() {
+  public synchronized Single<BooleanOrError> enableLocationUpdates() {
     Log.d(TAG, "Attempting to enable location updates");
     return permissionsManager
         .obtainPermission(ACCESS_FINE_LOCATION)
@@ -98,19 +98,19 @@ public class LocationManager {
         .andThen(
             locationClient.requestLocationUpdates(
                 FINE_LOCATION_UPDATES_REQUEST, locationUpdateCallback))
-        .toSingle(() -> BooleanResult.ofTrue())
-        .onErrorReturn(t -> BooleanResult.error(t));
+        .toSingle(() -> BooleanOrError.ofTrue())
+        .onErrorReturn(t -> BooleanOrError.error(t));
   }
 
   // TODO: Request/remove updates on resume/pause.
-  public synchronized Single<BooleanResult> disableLocationUpdates() {
+  public synchronized Single<BooleanOrError> disableLocationUpdates() {
     // Ignore errors when removing location updates, usually caused by disabling the same callback
     // multiple times.
     return locationClient
         .removeLocationUpdates(locationUpdateCallback)
-        .toSingle(() -> BooleanResult.ofFalse())
+        .toSingle(() -> BooleanOrError.ofFalse())
         .doOnError(t -> Log.v(TAG, "disableLocationUpdates:", t))
-        .onErrorReturn(__ -> BooleanResult.ofFalse());
+        .onErrorReturn(__ -> BooleanOrError.ofFalse());
   }
 
   @SuppressLint("MissingPermission")
