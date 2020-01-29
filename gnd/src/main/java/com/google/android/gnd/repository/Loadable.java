@@ -70,7 +70,6 @@ public class Loadable<T> extends ValueOrError<T> {
     return state == LoadState.LOADED;
   }
 
-  // TODO: Move this into new extended LiveData class (LiveResource?).
   @NonNull
   public static <T> Optional<T> getValue(LiveData<Loadable<T>> liveData) {
     return liveData.getValue() == null ? Optional.empty() : liveData.getValue().value();
