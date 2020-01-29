@@ -20,10 +20,6 @@ import android.content.Context;
 
 /** Thin wrapper around LocationServices exposing key features as reactive streams. */
 public class RxLocationServices {
-  public static RxSettingsClient getSettingsClient(Context context) {
-    return new RxSettingsClient(context);
-  }
-
   public static RxFusedLocationProviderClient getFusedLocationProviderClient(Context context) {
     return new RxFusedLocationProviderClient(context);
   }

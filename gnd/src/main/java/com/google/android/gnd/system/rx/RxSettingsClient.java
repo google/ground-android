@@ -23,13 +23,15 @@ import com.google.android.gms.location.LocationSettingsResponse;
 import com.google.android.gms.location.SettingsClient;
 import com.google.android.gnd.rx.RxTask;
 import io.reactivex.Single;
+import javax.inject.Inject;
 
 /** Thin wrapper around {@link SettingsClient} exposing key features as reactive streams. */
 public class RxSettingsClient {
 
   private final SettingsClient settingsClient;
 
-  RxSettingsClient(Context context) {
+  @Inject
+  public RxSettingsClient(Context context) {
     this.settingsClient = LocationServices.getSettingsClient(context);
   }
 
