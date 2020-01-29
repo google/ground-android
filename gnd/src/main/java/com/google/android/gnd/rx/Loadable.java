@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google LLC
+ * Copyright 2020 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.repository;
+package com.google.android.gnd.rx;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
-import com.google.android.gnd.rx.ValueOrError;
 import io.reactivex.Flowable;
 import java8.util.Optional;
 import javax.annotation.Nullable;
@@ -70,9 +69,8 @@ public class Loadable<T> extends ValueOrError<T> {
     return state == LoadState.LOADED;
   }
 
-  // TODO: Move this into new extended LiveData class (LiveResource?).
   @NonNull
-  public static <T> Optional<T> getData(LiveData<Loadable<T>> liveData) {
+  public static <T> Optional<T> getValue(LiveData<Loadable<T>> liveData) {
     return liveData.getValue() == null ? Optional.empty() : liveData.getValue().value();
   }
 
@@ -80,8 +78,8 @@ public class Loadable<T> extends ValueOrError<T> {
    * Modifies the provided stream to emit values instead of {@link Loadable} only when a value is
    * loaded (i.e., omitting intermediate loading and error states).
    */
-  public static <V> Publisher<V> values(Flowable<Loadable<V>> persistableStream) {
-    return persistableStream.map(Loadable::value).filter(Optional::isPresent).map(Optional::get);
+  public static <V> Publisher<V> values(Flowable<Loadable<V>> stream) {
+    return stream.map(Loadable::value).filter(Optional::isPresent).map(Optional::get);
   }
 
   /**

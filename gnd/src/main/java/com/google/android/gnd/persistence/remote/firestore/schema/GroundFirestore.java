@@ -14,28 +14,24 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.rx;
+package com.google.android.gnd.persistence.remote.firestore.schema;
 
-import io.reactivex.Scheduler;
-import io.reactivex.android.schedulers.AndroidSchedulers;
+import com.google.android.gnd.persistence.remote.firestore.base.FluentFirestore;
+import com.google.firebase.firestore.FirebaseFirestore;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-/**
- * Injectable provider of thread schedulers used by applications. These are injected instead of
- * being used statically to allow mocking in unit tests.
- */
+/** Object representation of Ground Firestore database. */
 @Singleton
-public class Schedulers {
+public class GroundFirestore extends FluentFirestore {
+  private static final String PROJECTS = "projects";
 
   @Inject
-  public Schedulers() {}
-
-  public Scheduler io() {
-    return io.reactivex.schedulers.Schedulers.io();
+  GroundFirestore(FirebaseFirestore db) {
+    super(db);
   }
 
-  public Scheduler ui() {
-    return AndroidSchedulers.mainThread();
+  public ProjectsCollectionReference projects() {
+    return new ProjectsCollectionReference(db().collection(PROJECTS));
   }
 }
