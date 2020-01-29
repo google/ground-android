@@ -19,8 +19,13 @@ package com.google.android.gnd.rx;
 import io.reactivex.Scheduler;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
-// TODO: Inject and use.
+/**
+ * Injectable provider of thread schedulers used by applications. These are injected instead of
+ * being used statically to allow mocking in unit tests.
+ */
+@Singleton
 public class Schedulers {
 
   @Inject
