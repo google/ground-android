@@ -19,8 +19,8 @@ package com.google.android.gnd.ui.projectselector;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
 import com.google.android.gnd.model.Project;
-import com.google.android.gnd.repository.Loadable;
 import com.google.android.gnd.repository.ProjectRepository;
+import com.google.android.gnd.rx.Loadable;
 import com.google.android.gnd.system.AuthenticationManager;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import java.util.Collections;
@@ -46,7 +46,7 @@ public class ProjectSelectorViewModel extends AbstractViewModel {
   }
 
   private Project getProjectSummary(int idx) {
-    return Loadable.getData(this.projectSummaries).orElse(Collections.emptyList()).get(idx);
+    return Loadable.getValue(this.projectSummaries).orElse(Collections.emptyList()).get(idx);
   }
 
   /**
