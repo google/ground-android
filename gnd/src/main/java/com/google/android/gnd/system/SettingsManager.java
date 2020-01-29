@@ -25,7 +25,7 @@ import android.util.Log;
 import com.google.android.gms.common.api.ResolvableApiException;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationSettingsRequest;
-import com.google.android.gnd.rx.RxLocationServices;
+import com.google.android.gnd.system.rx.RxLocationServices;
 import io.reactivex.Completable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
