@@ -273,7 +273,7 @@ public class HomeScreenFragment extends AbstractFragment
   }
 
   private void onShowAddFeatureDialogRequest(Point location) {
-    if (!Loadable.getData(viewModel.getActiveProject()).isPresent()) {
+    if (!Loadable.getValue(viewModel.getActiveProject()).isPresent()) {
       Log.e(TAG, "Attempting to add feature while no project loaded");
       return;
     }

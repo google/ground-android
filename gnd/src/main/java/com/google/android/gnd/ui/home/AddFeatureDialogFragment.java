@@ -77,7 +77,7 @@ public class AddFeatureDialogFragment extends AbstractDialogFragment {
   public Dialog onCreateDialog(Bundle savedInstanceState) {
     super.onCreateDialog(savedInstanceState);
     // TODO: Inject and use custom factory.
-    Optional<Project> activeProject = Loadable.getData(homeScreenViewModel.getActiveProject());
+    Optional<Project> activeProject = Loadable.getValue(homeScreenViewModel.getActiveProject());
     if (!activeProject.isPresent()) {
       addFeatureRequestSubject.onError(new IllegalStateException("No active project"));
       return fail("Could not get active project");

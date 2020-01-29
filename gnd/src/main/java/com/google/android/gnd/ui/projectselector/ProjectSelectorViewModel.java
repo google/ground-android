@@ -46,7 +46,7 @@ public class ProjectSelectorViewModel extends AbstractViewModel {
   }
 
   private Project getProjectSummary(int idx) {
-    return Loadable.getData(this.projectSummaries).orElse(Collections.emptyList()).get(idx);
+    return Loadable.getValue(this.projectSummaries).orElse(Collections.emptyList()).get(idx);
   }
 
   /**
