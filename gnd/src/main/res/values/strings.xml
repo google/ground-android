@@ -1,3 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+
 <!--
   ~ Copyright 2018 Google LLC
   ~
@@ -15,9 +17,6 @@
   -->
 
 <resources>
-
-  <!-- Application name. Do not translate. -->
-  <string name="app_name" translatable="false">Ground</string>
 
   <!-- Message shown while project is loading. -->
   <string name="project_loading_please_wait">Project loading, please wait &#8230;</string>

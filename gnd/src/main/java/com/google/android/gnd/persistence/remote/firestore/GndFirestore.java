@@ -28,6 +28,9 @@ import com.google.android.gnd.model.feature.FeatureMutation;
 import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.model.observation.ObservationMutation;
 import com.google.android.gnd.persistence.remote.RemoteDataEvent;
+import com.google.android.gnd.persistence.remote.firestore.base.FluentCollectionReference;
+import com.google.android.gnd.persistence.remote.firestore.base.FluentDocumentReference;
+import com.google.android.gnd.persistence.remote.firestore.base.FluentFirestore;
 import com.google.common.collect.ImmutableList;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentChange;
@@ -49,7 +52,7 @@ import javax.inject.Singleton;
 
 /** Object representation of Ground Firestore database. */
 @Singleton
-public class GndFirestore extends AbstractFluentFirestore {
+public class GndFirestore extends FluentFirestore {
   private static final String TAG = GndFirestore.class.getSimpleName();
 
   private static final String PROJECTS = "projects";
@@ -62,7 +65,7 @@ public class GndFirestore extends AbstractFluentFirestore {
   }
 
   public ProjectsCollectionReference projects() {
-    return new ProjectsCollectionReference(db.collection(PROJECTS));
+    return new ProjectsCollectionReference(db().collection(PROJECTS));
   }
 
   public static class ProjectsCollectionReference extends FluentCollectionReference {
@@ -74,12 +77,12 @@ public class GndFirestore extends AbstractFluentFirestore {
     }
 
     public ProjectDocumentReference project(String id) {
-      return new ProjectDocumentReference(ref.document(id));
+      return new ProjectDocumentReference(reference().document(id));
     }
 
     public Single<List<Project>> getReadable(User user) {
       return runQuery(
-          ref.whereArrayContains(FieldPath.of(ACL_FIELD, user.getEmail()), READ_ACCESS),
+          reference().whereArrayContains(FieldPath.of(ACL_FIELD, user.getEmail()), READ_ACCESS),
           ProjectDoc::toObject);
     }
   }
@@ -90,15 +93,15 @@ public class GndFirestore extends AbstractFluentFirestore {
     }
 
     public FeaturesCollectionReference features() {
-      return new FeaturesCollectionReference(ref.collection(FEATURES));
+      return new FeaturesCollectionReference(reference().collection(FEATURES));
     }
 
     public RecordsCollectionReference records() {
-      return new RecordsCollectionReference(ref.collection(RECORDS));
+      return new RecordsCollectionReference(reference().collection(RECORDS));
     }
 
     public Maybe<Project> get() {
-      return RxFirestore.getDocument(ref).map(ProjectDoc::toObject);
+      return RxFirestore.getDocument(reference()).map(ProjectDoc::toObject);
     }
   }
 
@@ -108,11 +111,11 @@ public class GndFirestore extends AbstractFluentFirestore {
     }
 
     public FeatureDocumentReference feature(String id) {
-      return new FeatureDocumentReference(ref.document(id));
+      return new FeatureDocumentReference(reference().document(id));
     }
 
     public Flowable<RemoteDataEvent<Feature>> observe(Project project) {
-      return RxFirestore.observeQueryRef(ref)
+      return RxFirestore.observeQueryRef(reference())
           .flatMapIterable(
               featureQuerySnapshot ->
                   toEvents(
@@ -142,7 +145,7 @@ public class GndFirestore extends AbstractFluentFirestore {
     }
 
     public RecordsCollectionReference records() {
-      return new RecordsCollectionReference(ref.collection(RECORDS));
+      return new RecordsCollectionReference(reference().collection(RECORDS));
     }
   }
 
@@ -152,7 +155,7 @@ public class GndFirestore extends AbstractFluentFirestore {
     }
 
     public RecordDocumentReference record(String id) {
-      return new RecordDocumentReference(ref.document(id));
+      return new RecordDocumentReference(reference().document(id));
     }
 
     public Single<ImmutableList<Observation>> recordsByFeatureId(Feature feature) {
@@ -168,7 +171,7 @@ public class GndFirestore extends AbstractFluentFirestore {
     }
 
     private Query byFeatureId(String featureId) {
-      return ref().whereEqualTo(FieldPath.of(ObservationDoc.FEATURE_ID), featureId);
+      return reference().whereEqualTo(FieldPath.of(ObservationDoc.FEATURE_ID), featureId);
     }
   }
 
@@ -178,7 +181,7 @@ public class GndFirestore extends AbstractFluentFirestore {
     }
 
     public Maybe<Observation> get(Feature feature) {
-      return RxFirestore.getDocument(ref)
+      return RxFirestore.getDocument(reference())
           .map(doc -> ObservationDoc.toObject(feature, doc.getId(), doc));
     }
 
