@@ -80,8 +80,8 @@ public class Loadable<T> extends ValueOrError<T> {
    * Modifies the provided stream to emit values instead of {@link Loadable} only when a value is
    * loaded (i.e., omitting intermediate loading and error states).
    */
-  public static <V> Publisher<V> values(Flowable<Loadable<V>> persistableStream) {
-    return persistableStream.map(Loadable::value).filter(Optional::isPresent).map(Optional::get);
+  public static <V> Publisher<V> values(Flowable<Loadable<V>> stream) {
+    return stream.map(Loadable::value).filter(Optional::isPresent).map(Optional::get);
   }
 
   /**
