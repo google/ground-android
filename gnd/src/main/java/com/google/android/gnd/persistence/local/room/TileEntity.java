@@ -40,15 +40,36 @@ public abstract class TileEntity {
 
   @CopyAnnotations
   @NonNull
+  @ColumnInfo(name = "url")
+  public abstract String getUrl();
+
+  @CopyAnnotations
+  @NonNull
   @ColumnInfo(name = "state")
   public abstract TileEntityState getState();
+
+  @CopyAnnotations
+  @ColumnInfo(name = "x")
+  public abstract int getX();
+
+  @CopyAnnotations
+  @ColumnInfo(name = "y")
+  public abstract int getY();
+
+  @CopyAnnotations
+  @ColumnInfo(name = "z")
+  public abstract int getZ();
 
   public static Tile toTile(TileEntity tileEntity) {
     Tile.Builder tile =
         Tile.newBuilder()
             .setId(tileEntity.getId())
             .setPath(tileEntity.getPath())
-            .setState(toTileState(tileEntity.getState()));
+            .setState(toTileState(tileEntity.getState()))
+            .setX(tileEntity.getX())
+            .setY(tileEntity.getY())
+            .setZ(tileEntity.getZ())
+            .setUrl(tileEntity.getUrl());
     return tile.build();
   }
 
@@ -72,7 +93,11 @@ public abstract class TileEntity {
         TileEntity.builder()
             .setId(tile.getId())
             .setPath(tile.getPath())
-            .setState(toEntityState(tile.getState()));
+            .setState(toEntityState(tile.getState()))
+            .setUrl(tile.getUrl())
+            .setX(tile.getX())
+            .setY(tile.getY())
+            .setZ(tile.getZ());
     return entity.build();
   }
 
@@ -91,8 +116,17 @@ public abstract class TileEntity {
     }
   }
 
-  public static TileEntity create(String id, String path, TileEntityState state) {
-    return builder().setId(id).setState(state).setPath(path).build();
+  public static TileEntity create(
+      String id, String path, TileEntityState state, String url, int x, int y, int z) {
+    return builder()
+        .setId(id)
+        .setState(state)
+        .setPath(path)
+        .setUrl(url)
+        .setX(x)
+        .setY(y)
+        .setZ(z)
+        .build();
   }
 
   public static Builder builder() {
@@ -101,6 +135,14 @@ public abstract class TileEntity {
 
   @AutoValue.Builder
   public abstract static class Builder {
+    public abstract Builder setUrl(String url);
+
+    public abstract Builder setX(int x);
+
+    public abstract Builder setY(int y);
+
+    public abstract Builder setZ(int z);
+
     public abstract Builder setId(String newId);
 
     public abstract Builder setPath(String newPath);
@@ -110,4 +152,3 @@ public abstract class TileEntity {
     public abstract TileEntity build();
   }
 }
-

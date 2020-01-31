@@ -20,12 +20,21 @@ import com.google.auto.value.AutoValue;
 
 @AutoValue
 public abstract class Tile {
+
   public enum State {
     PENDING,
     IN_PROGRESS,
     DOWNLOADED,
     FAILED
   }
+
+  public abstract String getUrl();
+
+  public abstract int getX();
+
+  public abstract int getY();
+
+  public abstract int getZ();
 
   public abstract String getId();
 
@@ -37,14 +46,16 @@ public abstract class Tile {
     return new AutoValue_Tile.Builder();
   }
 
-  public static String pathFromId(String tileId) {
+  public static String pathFromCoords(int x, int y, int z) {
     // Tile ids are stored as x-y-z. Paths must be z-x-y.mbtiles.
     // TODO: Convert tile ids to paths in a less restrictive and less hacky manner.
     // TODO: Move this method to a more appropriate home? We need to perform (and possibly will no
     // matter where the tiles are stored) translation between the tile ID and the file path of the
     // corresponding tile source in remote storage/wherever we pull the source tile from.
-    String[] fields = tileId.replaceAll("[()]", "").split(", ");
-    String filename = fields[2] + "-" + fields[0] + "-" + fields[1];
+    String xstr = String.valueOf(x);
+    String ystr = String.valueOf(y);
+    String zstr = String.valueOf(z);
+    String filename = zstr + "-" + xstr + "-" + ystr;
 
     return filename + ".mbtiles";
   }
@@ -55,7 +66,15 @@ public abstract class Tile {
   public abstract static class Builder {
     public abstract Builder setId(String id);
 
+    public abstract Builder setUrl(String url);
+
     public abstract Builder setPath(String path);
+
+    public abstract Builder setX(int x);
+
+    public abstract Builder setY(int y);
+
+    public abstract Builder setZ(int z);
 
     public abstract Builder setState(State state);
 
