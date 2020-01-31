@@ -20,6 +20,7 @@ import android.Manifest.permission;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.provider.MediaStore.Images.Media;
 import android.util.Log;
 import com.google.android.gnd.system.ActivityStreams.ActivityResult;
@@ -48,20 +49,17 @@ public class StorageManager {
     this.activityStreams = activityStreams;
   }
 
+  /**
+   * Requests for selecting a photo from the storage, if necessary permissions are granted.
+   * Otherwise, requests for the permissions and then sends out the request.
+   */
   public Completable launchPhotoPicker() {
     return permissionsManager
         .obtainPermission(permission.READ_EXTERNAL_STORAGE)
         .andThen(sendPhotoPickerIntent());
   }
 
-  public Observable<Optional<Bitmap>> photoPickerResult() {
-    return activityStreams
-        .getNextActivityResult(PICK_PHOTO_REQUEST_CODE)
-        .filter(ActivityResult::isOk)
-        .map(activityResult -> Optional.ofNullable(activityResult.getData()).map(Intent::getData))
-        .map(data -> Optional.of(Media.getBitmap(context.getContentResolver(), data.get())));
-  }
-
+  /** Enqueue an intent for selecting a photo from the storage. */
   private Completable sendPhotoPickerIntent() {
     return Completable.fromAction(
         () ->
@@ -72,5 +70,25 @@ public class StorageManager {
                   activity.startActivityForResult(intent, PICK_PHOTO_REQUEST_CODE);
                   Log.d(TAG, "file picker intent sent");
                 }));
+  }
+
+  /** Observe for the result of request code {@link StorageManager#PICK_PHOTO_REQUEST_CODE}. */
+  public Observable<Optional<Bitmap>> photoPickerResult() {
+    return activityStreams
+        .getNextActivityResult(PICK_PHOTO_REQUEST_CODE)
+        .map(this::onPickPhotoResult)
+        .map(data -> Optional.of(Media.getBitmap(context.getContentResolver(), data.get())));
+  }
+
+  /** Fetch Uri from the result, if present. */
+  private Optional<Uri> onPickPhotoResult(ActivityResult result) {
+    Uri uri = null;
+    if (result.isOk()) {
+      Intent data = result.getData();
+      if (data != null) {
+        uri = data.getData();
+      }
+    }
+    return Optional.ofNullable(uri);
   }
 }

@@ -19,6 +19,7 @@ package com.google.android.gnd.system;
 import android.Manifest.permission;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
 import com.google.android.gnd.system.ActivityStreams.ActivityResult;
@@ -44,6 +45,10 @@ public class CameraManager {
     this.activityStreams = activityStreams;
   }
 
+  /**
+   * Requests for capturing a photo from camera, if necessary permissions are granted. Otherwise,
+   * requests for the permissions and then sends out the request.
+   */
   public Completable launchPhotoCapture() {
     return permissionsManager
         .obtainPermission(permission.WRITE_EXTERNAL_STORAGE)
@@ -51,17 +56,7 @@ public class CameraManager {
         .andThen(sendCapturePhotoIntent());
   }
 
-  public Observable<Optional<Bitmap>> capturePhotoResult() {
-    return activityStreams
-        .getNextActivityResult(CAPTURE_PHOTO_REQUEST_CODE)
-        .filter(ActivityResult::isOk)
-        .map(
-            activityResult ->
-                Optional.ofNullable(activityResult.getData())
-                    .map(Intent::getExtras)
-                    .map(extras -> (Bitmap) extras.get("data")));
-  }
-
+  /** Enqueue an intent for capturing a photo from camera. */
   private Completable sendCapturePhotoIntent() {
     return Completable.fromAction(
         () ->
@@ -71,5 +66,27 @@ public class CameraManager {
                   activity.startActivityForResult(cameraIntent, CAPTURE_PHOTO_REQUEST_CODE);
                   Log.d(TAG, "capture photo intent sent");
                 }));
+  }
+
+  /** Observe for the result of request code {@link CameraManager#CAPTURE_PHOTO_REQUEST_CODE}. */
+  public Observable<Optional<Bitmap>> capturePhotoResult() {
+    return activityStreams
+        .getNextActivityResult(CAPTURE_PHOTO_REQUEST_CODE)
+        .map(this::onCapturePhotoResult);
+  }
+
+  /** Fetch bitmap from the result, if present. */
+  private Optional<Bitmap> onCapturePhotoResult(ActivityResult result) {
+    Bitmap bitmap = null;
+    if (result.isOk()) {
+      Intent data = result.getData();
+      if (data != null) {
+        Bundle extras = data.getExtras();
+        if (extras != null) {
+          bitmap = (Bitmap) extras.get("data");
+        }
+      }
+    }
+    return Optional.ofNullable(bitmap);
   }
 }
