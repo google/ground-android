@@ -37,7 +37,7 @@ import com.google.android.gnd.inject.ActivityScoped;
 import com.google.android.gnd.model.form.Element;
 import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.observation.Observation;
-import com.google.android.gnd.repository.Loadable;
+import com.google.android.gnd.rx.Loadable;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.EphemeralPopups;
 import com.google.android.gnd.ui.common.Navigator;
@@ -121,6 +121,9 @@ public class ObservationDetailsFragment extends AbstractFragment {
         // TODO: Replace w/error view?
         Log.e(TAG, "Failed to load observation");
         EphemeralPopups.showError(getContext());
+        break;
+      default:
+        Log.e(TAG, "Unhandled state: " + observation.getState());
         break;
     }
   }

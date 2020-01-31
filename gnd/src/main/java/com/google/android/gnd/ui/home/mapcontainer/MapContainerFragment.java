@@ -36,8 +36,8 @@ import com.google.android.gnd.MainViewModel;
 import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.MapContainerFragBinding;
 import com.google.android.gnd.model.Project;
-import com.google.android.gnd.repository.Loadable;
-import com.google.android.gnd.rx.BooleanResult;
+import com.google.android.gnd.rx.BooleanOrError;
+import com.google.android.gnd.rx.Loadable;
 import com.google.android.gnd.system.PermissionsManager.PermissionDeniedException;
 import com.google.android.gnd.system.SettingsManager.SettingsChangeRequestCanceled;
 import com.google.android.gnd.ui.common.AbstractFragment;
@@ -104,7 +104,7 @@ public class MapContainerFragment extends AbstractFragment {
 
   @Override
   public View onCreateView(
-      LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+      @NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     MapContainerFragBinding binding = MapContainerFragBinding.inflate(inflater, container, false);
     binding.setViewModel(mapContainerViewModel);
     binding.setHomeScreenViewModel(homeScreenViewModel);
@@ -156,6 +156,9 @@ public class MapContainerFragment extends AbstractFragment {
       case HIDDEN:
         map.enable();
         break;
+      default:
+        Log.e(TAG, "Unhandled visibility: " + state.getVisibility());
+        break;
     }
   }
 
@@ -183,7 +186,7 @@ public class MapContainerFragment extends AbstractFragment {
         ColorStateList.valueOf(getResources().getColor(R.color.colorGrey500)));
   }
 
-  private void onLocationLockStateChange(BooleanResult result, MapAdapter map) {
+  private void onLocationLockStateChange(BooleanOrError result, MapAdapter map) {
     result.error().ifPresent(this::onLocationLockError);
     if (result.isTrue()) {
       Log.d(TAG, "Location lock enabled");

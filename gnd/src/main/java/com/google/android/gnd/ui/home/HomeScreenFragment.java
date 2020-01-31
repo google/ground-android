@@ -45,7 +45,7 @@ import com.google.android.gnd.inject.ActivityScoped;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.Point;
-import com.google.android.gnd.repository.Loadable;
+import com.google.android.gnd.rx.Loadable;
 import com.google.android.gnd.system.AuthenticationManager;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.BackPressListener;
@@ -109,6 +109,7 @@ public class HomeScreenFragment extends AbstractFragment
   private MapContainerFragment mapContainerFragment;
   private BottomSheetBehavior<View> bottomSheetBehavior;
   private PublishSubject<Object> showFeatureDialogRequests;
+  private ProjectSelectorDialogFragment projectSelectorDialogFragment;
 
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -137,6 +138,9 @@ public class HomeScreenFragment extends AbstractFragment
   public View onCreateView(
       LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     super.onCreateView(inflater, container, savedInstanceState);
+
+    projectSelectorDialogFragment = new ProjectSelectorDialogFragment();
+
     HomeScreenFragBinding binding = HomeScreenFragBinding.inflate(inflater, container, false);
     binding.featureSheetChrome.setViewModel(viewModel);
     binding.setLifecycleOwner(this);
@@ -221,8 +225,24 @@ public class HomeScreenFragment extends AbstractFragment
     viewModel.init();
   }
 
+  @Override
+  public void onStop() {
+    super.onStop();
+
+    if (projectSelectorDialogFragment.isVisible()) {
+      dismissProjectSelector();
+    }
+  }
+
   private void showProjectSelector() {
-    ProjectSelectorDialogFragment.show(getFragmentManager());
+    if (!projectSelectorDialogFragment.isVisible()) {
+      projectSelectorDialogFragment.show(
+          getFragmentManager(), ProjectSelectorDialogFragment.class.getSimpleName());
+    }
+  }
+
+  private void dismissProjectSelector() {
+    projectSelectorDialogFragment.dismiss();
   }
 
   private void showOfflineAreas() {
@@ -269,11 +289,14 @@ public class HomeScreenFragment extends AbstractFragment
       case ERROR:
         project.error().ifPresent(this::onActivateProjectFailure);
         break;
+      default:
+        Log.e(TAG, "Unhandled case: " + project.getState());
+        break;
     }
   }
 
   private void onShowAddFeatureDialogRequest(Point location) {
-    if (!Loadable.getData(viewModel.getActiveProject()).isPresent()) {
+    if (!Loadable.getValue(viewModel.getActiveProject()).isPresent()) {
       Log.e(TAG, "Attempting to add feature while no project loaded");
       return;
     }
@@ -292,6 +315,9 @@ public class HomeScreenFragment extends AbstractFragment
         break;
       case HIDDEN:
         hideBottomSheet();
+        break;
+      default:
+        Log.e(TAG, "Unhandled visibility: " + state.getVisibility());
         break;
     }
   }
@@ -342,6 +368,9 @@ public class HomeScreenFragment extends AbstractFragment
         break;
       case R.id.nav_sign_out:
         authenticationManager.signOut();
+        break;
+      default:
+        Log.e(TAG, "Unhandled id: " + item.getItemId());
         break;
     }
     return false;

@@ -20,10 +20,9 @@ import android.view.View;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
 import com.google.android.gnd.model.feature.Feature;
-import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.model.observation.Observation;
-import com.google.android.gnd.repository.Loadable;
 import com.google.android.gnd.repository.ObservationRepository;
+import com.google.android.gnd.rx.Loadable;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import io.reactivex.Flowable;
 import io.reactivex.processors.BehaviorProcessor;
@@ -36,7 +35,6 @@ public class ObservationDetailsViewModel extends AbstractViewModel {
   public final LiveData<Integer> progressBarVisibility;
   public final LiveData<String> toolbarTitle;
   public final LiveData<String> toolbarSubtitle;
-  public final LiveData<String> formNameView;
 
   @Inject
   ObservationDetailsViewModel(ObservationRepository observationRepository) {
@@ -65,10 +63,6 @@ public class ObservationDetailsViewModel extends AbstractViewModel {
     this.toolbarSubtitle =
         LiveDataReactiveStreams.fromPublisher(
             observationStream.map(ObservationDetailsViewModel::getToolbarSubtitle));
-
-    this.formNameView =
-        LiveDataReactiveStreams.fromPublisher(
-            observationStream.map(ObservationDetailsViewModel::getFormNameView));
   }
 
   public void loadObservationDetails(ObservationDetailsFragmentArgs args) {
@@ -85,9 +79,5 @@ public class ObservationDetailsViewModel extends AbstractViewModel {
 
   private static String getToolbarSubtitle(Loadable<Observation> observation) {
     return observation.value().map(Observation::getFeature).map(Feature::getSubtitle).orElse("");
-  }
-
-  private static String getFormNameView(Loadable<Observation> observation) {
-    return observation.value().map(Observation::getForm).map(Form::getTitle).orElse("");
   }
 }

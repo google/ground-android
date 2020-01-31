@@ -20,6 +20,9 @@ import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import com.google.android.gnd.GndApplication;
+import com.google.android.gnd.rx.RxCompletable;
+import io.reactivex.Completable;
+import java.net.ConnectException;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -34,11 +37,19 @@ public class NetworkManager {
   }
 
   /** Returns true iff the device has internet connectivity, false otherwise. */
-  public static boolean isNetworkAvailable(Context context) {
+  private static boolean isNetworkAvailable(Context context) {
     ConnectivityManager cm =
         (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
     NetworkInfo networkInfo = cm.getActiveNetworkInfo();
     return networkInfo != null && networkInfo.isConnected();
+  }
+
+  /**
+   * Returns a Completable that completes immediately on subscribe if network is available, or fails
+   * in error if not.
+   */
+  public static Completable requireActiveNetwork(Context context) {
+    return RxCompletable.completeOrError(() -> isNetworkAvailable(context), ConnectException.class);
   }
 
   public boolean isNetworkAvailable() {

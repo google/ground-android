@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <!--
   ~ Copyright 2018 Google LLC
   ~
@@ -51,7 +52,7 @@
         android:layout_height="wrap_content"
         android:layout_toEndOf="@id/user_name"
         android:layout_toRightOf="@id/user_name"
-        android:text=" · " />
+        android:text="@string/text_separator" />
 
       <TextView
         android:id="@+id/last_modified_date"
@@ -69,7 +70,7 @@
         android:layout_height="wrap_content"
         android:layout_toEndOf="@id/last_modified_date"
         android:layout_toRightOf="@id/last_modified_date"
-        android:text=" · "
+        android:text="@string/text_separator"
         android:textAppearance="@style/ObservationListText.Separator" />
 
       <TextView

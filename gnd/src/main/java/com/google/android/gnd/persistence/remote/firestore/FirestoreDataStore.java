@@ -26,14 +26,15 @@ import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.model.observation.ObservationMutation;
 import com.google.android.gnd.persistence.remote.RemoteDataEvent;
 import com.google.android.gnd.persistence.remote.RemoteDataStore;
+import com.google.android.gnd.persistence.remote.firestore.schema.GroundFirestore;
 import com.google.android.gnd.rx.RxTask;
+import com.google.android.gnd.rx.Schedulers;
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
 import com.google.firebase.firestore.WriteBatch;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Single;
-import io.reactivex.schedulers.Schedulers;
 import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -43,7 +44,8 @@ public class FirestoreDataStore implements RemoteDataStore {
 
   static final String ID_COLLECTION = "/ids";
 
-  @Inject GndFirestore db;
+  @Inject GroundFirestore db;
+  @Inject Schedulers schedulers;
 
   @Inject
   FirestoreDataStore() {}
@@ -54,7 +56,7 @@ public class FirestoreDataStore implements RemoteDataStore {
         .project(projectId)
         .get()
         .switchIfEmpty(Single.error(new DocumentNotFoundException()))
-        .subscribeOn(Schedulers.io());
+        .subscribeOn(schedulers.io());
   }
 
   @Override
@@ -63,12 +65,12 @@ public class FirestoreDataStore implements RemoteDataStore {
         .project(feature.getProject().getId())
         .records()
         .recordsByFeatureId(feature)
-        .subscribeOn(Schedulers.io());
+        .subscribeOn(schedulers.io());
   }
 
   @Override
   public Single<List<Project>> loadProjectSummaries(User user) {
-    return db.projects().getReadable(user).subscribeOn(Schedulers.io());
+    return db.projects().getReadable(user).subscribeOn(schedulers.io());
   }
 
   @Override
@@ -77,13 +79,13 @@ public class FirestoreDataStore implements RemoteDataStore {
         .project(project.getId())
         .features()
         .observe(project)
-        .subscribeOn(Schedulers.io());
+        .subscribeOn(schedulers.io());
   }
 
   @Override
   public Completable applyMutations(ImmutableCollection<Mutation> mutations, User user) {
     return RxTask.toCompletable(() -> applyMutationsInternal(mutations, user))
-        .subscribeOn(Schedulers.io());
+        .subscribeOn(schedulers.io());
   }
 
   private Task<?> applyMutationsInternal(ImmutableCollection<Mutation> mutations, User user) {

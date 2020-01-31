@@ -29,13 +29,12 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
-import androidx.fragment.app.FragmentManager;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import com.google.android.gnd.R;
 import com.google.android.gnd.inject.ActivityScoped;
 import com.google.android.gnd.model.Project;
-import com.google.android.gnd.repository.Loadable;
+import com.google.android.gnd.rx.Loadable;
 import com.google.android.gnd.ui.common.AbstractDialogFragment;
 import com.google.android.gnd.ui.common.EphemeralPopups;
 import java.util.List;
@@ -54,10 +53,6 @@ public class ProjectSelectorDialogFragment extends AbstractDialogFragment {
 
   private ProjectSelectorViewModel viewModel;
   private ArrayAdapter listAdapter;
-
-  public static void show(FragmentManager fragmentManager) {
-    new ProjectSelectorDialogFragment().show(fragmentManager, TAG);
-  }
 
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -95,6 +90,9 @@ public class ProjectSelectorDialogFragment extends AbstractDialogFragment {
       case ERROR:
         onProjectListLoadError(projectSummaries.error().orElse(new UnknownError()));
         break;
+      default:
+        Log.e(TAG, "Unhandled state: " + projectSummaries.getState());
+        break;
     }
   }
 
@@ -112,7 +110,7 @@ public class ProjectSelectorDialogFragment extends AbstractDialogFragment {
   }
 
   private void onItemSelected(AdapterView<?> parent, View view, int idx, long id) {
-    getDialog().hide();
+    dismiss();
     viewModel.activateProject(idx);
   }
 }

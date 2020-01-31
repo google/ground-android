@@ -101,8 +101,7 @@
     <module name="OneStatementPerLine" />
     <module name="MultipleVariableDeclarations" />
     <module name="ArrayTypeStyle" />
-    <!-- TODO: Fix this -->
-    <!--    <module name="MissingSwitchDefault" />-->
+    <module name="MissingSwitchDefault" />
     <module name="FallThrough" />
     <module name="UpperEll" />
     <module name="ModifierOrder" />

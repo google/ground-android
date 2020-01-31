@@ -25,6 +25,7 @@ import com.google.common.collect.ImmutableList;
 import java8.util.Optional;
 import javax.inject.Inject;
 
+// TODO: Delete me.
 public class FormTabPagerAdapter extends FragmentStatePagerAdapter {
   private Optional<Feature> feature;
 
@@ -36,11 +37,7 @@ public class FormTabPagerAdapter extends FragmentStatePagerAdapter {
 
   @Override
   public int getCount() {
-    return feature
-        .map(Feature::getLayer)
-        .map(Layer::getForms)
-        .map(ImmutableList::size)
-        .orElse(0);
+    return feature.map(Feature::getLayer).map(Layer::getForms).map(ImmutableList::size).orElse(0);
   }
 
   @Override
@@ -50,7 +47,8 @@ public class FormTabPagerAdapter extends FragmentStatePagerAdapter {
 
   @Override
   public CharSequence getPageTitle(int position) {
-    return feature.get().getLayer().getForms().get(position).getTitle();
+
+    return "";
   }
 
   void update(Optional<Feature> feature) {

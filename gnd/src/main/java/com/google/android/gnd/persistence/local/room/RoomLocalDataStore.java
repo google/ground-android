@@ -39,6 +39,7 @@ import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.model.observation.ObservationMutation;
 import com.google.android.gnd.persistence.local.LocalDataStore;
+import com.google.android.gnd.rx.Schedulers;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import io.reactivex.Completable;
@@ -46,7 +47,6 @@ import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Observable;
 import io.reactivex.Single;
-import io.reactivex.schedulers.Schedulers;
 import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -73,6 +73,7 @@ public class RoomLocalDataStore implements LocalDataStore {
   @Inject ObservationMutationDao observationMutationDao;
   @Inject TileDao tileDao;
   @Inject UserDao userDao;
+  @Inject Schedulers schedulers;
 
   @Inject
   public RoomLocalDataStore() {}
@@ -80,20 +81,20 @@ public class RoomLocalDataStore implements LocalDataStore {
   private Completable insertOrUpdateOption(String fieldId, Option option) {
     return optionDao
         .insertOrUpdate(OptionEntity.fromOption(fieldId, option))
-        .subscribeOn(Schedulers.io());
+        .subscribeOn(schedulers.io());
   }
 
   private Completable insertOrUpdateOptions(String fieldId, ImmutableList<Option> options) {
     return Observable.fromIterable(options)
         .flatMapCompletable(option -> insertOrUpdateOption(fieldId, option))
-        .subscribeOn(Schedulers.io());
+        .subscribeOn(schedulers.io());
   }
 
   private Completable insertOrUpdateMultipleChoice(String fieldId, MultipleChoice multipleChoice) {
     return multipleChoiceDao
         .insertOrUpdate(MultipleChoiceEntity.fromMultipleChoice(fieldId, multipleChoice))
         .andThen(insertOrUpdateOptions(fieldId, multipleChoice.getOptions()))
-        .subscribeOn(Schedulers.io());
+        .subscribeOn(schedulers.io());
   }
 
   private Completable insertOrUpdateField(String formId, Element.Type elementType, Field field) {
@@ -104,7 +105,7 @@ public class RoomLocalDataStore implements LocalDataStore {
                 .filter(__ -> field.getMultipleChoice() != null)
                 .flatMapCompletable(
                     __ -> insertOrUpdateMultipleChoice(field.getId(), field.getMultipleChoice())))
-        .subscribeOn(Schedulers.io());
+        .subscribeOn(schedulers.io());
   }
 
   private Completable insertOrUpdateElements(String formId, ImmutableList<Element> elements) {
@@ -117,7 +118,7 @@ public class RoomLocalDataStore implements LocalDataStore {
     return formDao
         .insertOrUpdate(FormEntity.fromForm(layerId, form))
         .andThen(insertOrUpdateElements(form.getId(), form.getElements()))
-        .subscribeOn(Schedulers.io());
+        .subscribeOn(schedulers.io());
   }
 
   private Completable insertOrUpdateForms(String layerId, List<Form> forms) {
@@ -129,7 +130,7 @@ public class RoomLocalDataStore implements LocalDataStore {
     return layerDao
         .insertOrUpdate(LayerEntity.fromLayer(projectId, layer))
         .andThen(insertOrUpdateForms(layer.getId(), layer.getForms()))
-        .subscribeOn(Schedulers.io());
+        .subscribeOn(schedulers.io());
   }
 
   private Completable insertOrUpdateLayers(String projectId, List<Layer> layers) {
@@ -142,12 +143,12 @@ public class RoomLocalDataStore implements LocalDataStore {
     return projectDao
         .insertOrUpdate(ProjectEntity.fromProject(project))
         .andThen(insertOrUpdateLayers(project.getId(), project.getLayers()))
-        .subscribeOn(Schedulers.io());
+        .subscribeOn(schedulers.io());
   }
 
   @Override
   public Completable insertOrUpdateUser(User user) {
-    return userDao.insertOrUpdate(UserEntity.fromUser(user)).subscribeOn(Schedulers.io());
+    return userDao.insertOrUpdate(UserEntity.fromUser(user)).subscribeOn(schedulers.io());
   }
 
   @Override
@@ -155,17 +156,17 @@ public class RoomLocalDataStore implements LocalDataStore {
     return projectDao
         .getAllProjects()
         .map(list -> stream(list).map(ProjectEntity::toProject).collect(toList()))
-        .subscribeOn(Schedulers.io());
+        .subscribeOn(schedulers.io());
   }
 
   @Override
   public Maybe<Project> getProjectById(String id) {
-    return projectDao.getProjectById(id).map(ProjectEntity::toProject).subscribeOn(Schedulers.io());
+    return projectDao.getProjectById(id).map(ProjectEntity::toProject).subscribeOn(schedulers.io());
   }
 
   @Override
   public Completable removeProject(Project project) {
-    return projectDao.delete(ProjectEntity.fromProject(project)).subscribeOn(Schedulers.io());
+    return projectDao.delete(ProjectEntity.fromProject(project)).subscribeOn(schedulers.io());
   }
 
   @Transaction
@@ -188,7 +189,7 @@ public class RoomLocalDataStore implements LocalDataStore {
                 stream(list)
                     .map(f -> FeatureEntity.toFeature(f, project))
                     .collect(toImmutableSet()))
-        .subscribeOn(Schedulers.io());
+        .subscribeOn(schedulers.io());
   }
 
   // TODO(#127): Decouple from Project and remove project from args.
@@ -197,7 +198,7 @@ public class RoomLocalDataStore implements LocalDataStore {
     return featureDao
         .findById(featureId)
         .map(f -> FeatureEntity.toFeature(f, project))
-        .subscribeOn(Schedulers.io());
+        .subscribeOn(schedulers.io());
   }
 
   @Override
@@ -205,7 +206,7 @@ public class RoomLocalDataStore implements LocalDataStore {
     return observationDao
         .findById(observationId)
         .map(obs -> ObservationEntity.toObservation(feature, obs))
-        .subscribeOn(Schedulers.io());
+        .subscribeOn(schedulers.io());
   }
 
   @Override
@@ -217,7 +218,7 @@ public class RoomLocalDataStore implements LocalDataStore {
                 stream(list)
                     .map(obs -> ObservationEntity.toObservation(feature, obs))
                     .collect(toImmutableList()))
-        .subscribeOn(Schedulers.io());
+        .subscribeOn(schedulers.io());
   }
 
   @Override
@@ -225,7 +226,7 @@ public class RoomLocalDataStore implements LocalDataStore {
     return tileDao
         .findAll()
         .map(list -> stream(list).map(TileEntity::toTile).collect(toImmutableSet()))
-        .subscribeOn(Schedulers.io());
+        .subscribeOn(schedulers.io());
   }
 
   @Override
@@ -243,7 +244,7 @@ public class RoomLocalDataStore implements LocalDataStore {
                 .cast(Mutation.class))
         .toList()
         .map(ImmutableList::copyOf)
-        .subscribeOn(Schedulers.io());
+        .subscribeOn(schedulers.io());
   }
 
   @Transaction
@@ -254,8 +255,8 @@ public class RoomLocalDataStore implements LocalDataStore {
         .andThen(
             observationMutationDao
                 .updateAll(toObservationMutationEntities(mutations))
-                .subscribeOn(Schedulers.io()))
-        .subscribeOn(Schedulers.io());
+                .subscribeOn(schedulers.io()))
+        .subscribeOn(schedulers.io());
   }
 
   private ImmutableList<ObservationMutationEntity> toObservationMutationEntities(
@@ -280,8 +281,8 @@ public class RoomLocalDataStore implements LocalDataStore {
         .andThen(
             observationMutationDao
                 .deleteAll(ObservationMutation.ids(mutations))
-                .subscribeOn(Schedulers.io()))
-        .subscribeOn(Schedulers.io());
+                .subscribeOn(schedulers.io()))
+        .subscribeOn(schedulers.io());
   }
 
   @Transaction
@@ -290,7 +291,7 @@ public class RoomLocalDataStore implements LocalDataStore {
     // TODO(#109): Once we user can edit feature locally, apply pending mutations before saving.
     return featureDao
         .insertOrUpdate(FeatureEntity.fromFeature(feature))
-        .subscribeOn(Schedulers.io());
+        .subscribeOn(schedulers.io());
   }
 
   @Transaction
@@ -310,7 +311,7 @@ public class RoomLocalDataStore implements LocalDataStore {
     ObservationMutationEntity lastMutation = mutations.get(mutations.size() - 1);
     return loadUser(lastMutation.getUserId())
         .map(user -> applyMutations(observation, mutations, user))
-        .flatMapCompletable(obs -> observationDao.insertOrUpdate(obs).subscribeOn(Schedulers.io()));
+        .flatMapCompletable(obs -> observationDao.insertOrUpdate(obs).subscribeOn(schedulers.io()));
   }
 
   private ObservationEntity applyMutations(
@@ -342,7 +343,7 @@ public class RoomLocalDataStore implements LocalDataStore {
         // Fail with NoSuchElementException if not found.
         .toSingle()
         .map(UserEntity::toUser)
-        .subscribeOn(Schedulers.io());
+        .subscribeOn(schedulers.io());
   }
 
   private Completable apply(FeatureMutation mutation) throws LocalDataStoreException {
@@ -358,13 +359,13 @@ public class RoomLocalDataStore implements LocalDataStore {
   private Completable insertOrUpdateFeature(FeatureMutation mutation, User user) {
     return featureDao
         .insertOrUpdate(FeatureEntity.fromMutation(mutation, AuditInfo.now(user)))
-        .subscribeOn(Schedulers.io());
+        .subscribeOn(schedulers.io());
   }
 
   private Completable enqueue(FeatureMutation mutation) {
     return featureMutationDao
         .insert(FeatureMutationEntity.fromMutation(mutation))
-        .subscribeOn(Schedulers.io());
+        .subscribeOn(schedulers.io());
   }
 
   @Transaction
@@ -400,7 +401,7 @@ public class RoomLocalDataStore implements LocalDataStore {
     return observationDao
         .insert(ObservationEntity.fromMutation(mutation, AuditInfo.now(user)))
         .doOnSubscribe(__ -> Log.v(TAG, "Inserting observation: " + mutation))
-        .subscribeOn(Schedulers.io());
+        .subscribeOn(schedulers.io());
   }
 
   private Completable updateObservation(ObservationMutation mutation, User user) {
@@ -411,24 +412,24 @@ public class RoomLocalDataStore implements LocalDataStore {
         // Emit NoSuchElementException if not found.
         .toSingle()
         .map(obs -> applyMutations(obs, ImmutableList.of(mutationEntity), user))
-        .flatMapCompletable(obs -> observationDao.insertOrUpdate(obs).subscribeOn(Schedulers.io()))
-        .subscribeOn(Schedulers.io());
+        .flatMapCompletable(obs -> observationDao.insertOrUpdate(obs).subscribeOn(schedulers.io()))
+        .subscribeOn(schedulers.io());
   }
 
   private Completable enqueue(ObservationMutation mutation) {
     return observationMutationDao
         .insert(ObservationMutationEntity.fromMutation(mutation))
         .doOnSubscribe(__ -> Log.v(TAG, "Enqueuing mutation: " + mutation))
-        .subscribeOn(Schedulers.io());
+        .subscribeOn(schedulers.io());
   }
 
   @Override
   public Completable insertOrUpdateTile(Tile tile) {
-    return tileDao.insertOrUpdate(TileEntity.fromTile(tile)).subscribeOn(Schedulers.io());
+    return tileDao.insertOrUpdate(TileEntity.fromTile(tile)).subscribeOn(schedulers.io());
   }
 
   @Override
   public Maybe<Tile> getTile(String tileId) {
-    return tileDao.findById(tileId).map(TileEntity::toTile).subscribeOn(Schedulers.io());
+    return tileDao.findById(tileId).map(TileEntity::toTile).subscribeOn(schedulers.io());
   }
 }
