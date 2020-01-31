@@ -25,7 +25,6 @@ import android.util.Log;
 import com.google.android.gnd.system.ActivityStreams.ActivityResult;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
-import java8.util.Optional;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -69,24 +68,28 @@ public class CameraManager {
   }
 
   /** Observe for the result of request code {@link CameraManager#CAPTURE_PHOTO_REQUEST_CODE}. */
-  public Observable<Optional<Bitmap>> capturePhotoResult() {
+  public Observable<Bitmap> capturePhotoResult() {
     return activityStreams
         .getNextActivityResult(CAPTURE_PHOTO_REQUEST_CODE)
-        .map(this::onCapturePhotoResult);
+        .flatMap(this::onCapturePhotoResult);
   }
 
   /** Fetch bitmap from the result, if present. */
-  private Optional<Bitmap> onCapturePhotoResult(ActivityResult result) {
-    Bitmap bitmap = null;
-    if (result.isOk()) {
-      Intent data = result.getData();
-      if (data != null) {
-        Bundle extras = data.getExtras();
-        if (extras != null) {
-          bitmap = (Bitmap) extras.get("data");
-        }
-      }
-    }
-    return Optional.ofNullable(bitmap);
+  private Observable<Bitmap> onCapturePhotoResult(ActivityResult result) {
+    return Observable.create(
+        em -> {
+          if (!result.isOk()) {
+            return;
+          }
+          Intent data = result.getData();
+          if (data == null) {
+            return;
+          }
+          Bundle extras = data.getExtras();
+          if (extras == null) {
+            return;
+          }
+          em.onNext((Bitmap) extras.get("data"));
+        });
   }
 }

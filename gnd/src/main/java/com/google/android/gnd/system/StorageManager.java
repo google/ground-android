@@ -26,7 +26,6 @@ import android.util.Log;
 import com.google.android.gnd.system.ActivityStreams.ActivityResult;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
-import java8.util.Optional;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -73,22 +72,25 @@ public class StorageManager {
   }
 
   /** Observe for the result of request code {@link StorageManager#PICK_PHOTO_REQUEST_CODE}. */
-  public Observable<Optional<Bitmap>> photoPickerResult() {
+  public Observable<Bitmap> photoPickerResult() {
     return activityStreams
         .getNextActivityResult(PICK_PHOTO_REQUEST_CODE)
-        .map(this::onPickPhotoResult)
-        .map(data -> Optional.of(Media.getBitmap(context.getContentResolver(), data.get())));
+        .flatMap(this::onPickPhotoResult)
+        .map(uri -> Media.getBitmap(context.getContentResolver(), uri));
   }
 
   /** Fetch Uri from the result, if present. */
-  private Optional<Uri> onPickPhotoResult(ActivityResult result) {
-    Uri uri = null;
-    if (result.isOk()) {
-      Intent data = result.getData();
-      if (data != null) {
-        uri = data.getData();
-      }
-    }
-    return Optional.ofNullable(uri);
+  private Observable<Uri> onPickPhotoResult(ActivityResult result) {
+    return Observable.create(
+        em -> {
+          if (!result.isOk()) {
+            return;
+          }
+          Intent data = result.getData();
+          if (data == null) {
+            return;
+          }
+          em.onNext(data.getData());
+        });
   }
 }
