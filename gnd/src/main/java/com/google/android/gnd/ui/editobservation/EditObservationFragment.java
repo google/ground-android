@@ -20,12 +20,12 @@ import static com.google.android.gnd.ui.util.ViewUtil.assignGeneratedId;
 
 import android.app.AlertDialog;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
@@ -50,7 +50,7 @@ import com.google.android.gnd.ui.common.EphemeralPopups;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.TwoLineToolbar;
 import com.google.android.gnd.ui.editobservation.PhotoDialogFragment.AddPhotoListener;
-import java.io.File;
+import com.google.android.gnd.ui.util.FileUtil;
 import java8.util.Optional;
 import javax.inject.Inject;
 
@@ -190,18 +190,21 @@ public class EditObservationFragment extends AbstractFragment
             new OnMapChangedCallback<ObservableMap<String, Response>, String, Response>() {
               @Override
               public void onMapChanged(ObservableMap<String, Response> sender, String key) {
-                if (key != null && key.equals(field.getId())) {
-                  String imageFilePath = sender.get(key).getDetailsText(field);
-                  File imageFile = new File(imageFilePath);
-                  if (imageFile.exists()) {
-                    Bitmap bitmap = BitmapFactory.decodeFile(imageFile.getPath());
-                    // TODO: Bitmap doesn't get loaded
-                    binding.imageThumbnailPreview.setImageBitmap(bitmap);
-                    Toast.makeText(getContext(), "Photo added", Toast.LENGTH_SHORT).show();
-                  }
+                if (key == null || !key.equals(field.getId())) {
+                  return;
                 }
+                updateBitmap(binding.imageThumbnailPreview, sender.get(key).getDetailsText(field));
               }
             });
+  }
+
+  private void updateBitmap(ImageView imageView, String path) {
+    Bitmap bitmap = FileUtil.createBitmapFromPath(path);
+    if (bitmap != null) {
+      // TODO: Bitmap doesn't get loaded
+      imageView.setImageBitmap(bitmap);
+      Toast.makeText(getContext(), "Photo added", Toast.LENGTH_SHORT).show();
+    }
   }
 
   public void onShowDialog(Field field) {
