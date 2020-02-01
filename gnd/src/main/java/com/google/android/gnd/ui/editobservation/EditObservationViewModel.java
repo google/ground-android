@@ -204,7 +204,7 @@ public class EditObservationViewModel extends AbstractViewModel {
     }
   }
 
-  void initPhotoSelector(String fieldId) {
+  void showPhotoSelector(String fieldId) {
     /*
      * Didn't subscribe this with Fragment's lifecycle because we need to retain the disposable
      * after the fragment is destroyed (for activity result)
@@ -221,7 +221,7 @@ public class EditObservationViewModel extends AbstractViewModel {
         .ignoreElements();
   }
 
-  void initPhotoCapture(String fieldId) {
+  void showPhotoCapture(String fieldId) {
     /*
      * Didn't subscribe this with Fragment's lifecycle because we need to retain the disposable
      * after the fragment is destroyed (for activity result)

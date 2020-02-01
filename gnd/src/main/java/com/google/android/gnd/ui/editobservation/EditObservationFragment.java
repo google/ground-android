@@ -269,11 +269,11 @@ public class EditObservationFragment extends AbstractFragment
 
   @Override
   public void onSelectPhoto(String fieldId) {
-    viewModel.initPhotoSelector(fieldId);
+    viewModel.showPhotoSelector(fieldId);
   }
 
   @Override
   public void onCapturePhoto(String fieldId) {
-    viewModel.initPhotoCapture(fieldId);
+    viewModel.showPhotoCapture(fieldId);
   }
 }
