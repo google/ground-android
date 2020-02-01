@@ -33,7 +33,6 @@ import com.google.android.gnd.ui.MapIcon;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.home.FeatureSheetState;
 import com.google.android.gnd.ui.home.HomeScreenViewModel;
-import com.google.android.material.tabs.TabLayout;
 import javax.inject.Inject;
 
 public class FeatureSheetFragment extends AbstractFragment {
@@ -42,9 +41,6 @@ public class FeatureSheetFragment extends AbstractFragment {
 
   @BindView(R.id.feature_header_icon)
   ImageView featureHeaderIcon;
-
-  @BindView(R.id.forms_tab_layout)
-  TabLayout formsTabLayout;
 
   @BindView(R.id.observation_list_view_pager)
   ViewPager observationListViewPager;
@@ -79,12 +75,6 @@ public class FeatureSheetFragment extends AbstractFragment {
 
     observationListViewPager.setAdapter(formTypePagerAdapter);
     observationListViewPager.addOnPageChangeListener(viewModel);
-    formsTabLayout.setupWithViewPager(observationListViewPager);
-    // TODO: See if this is still needed; not compatible with latest v4 support libs.
-    // Stretch tabs if they all fit on screen, otherwise scroll.
-    // TabLayoutHelper tabLayoutHelper = new TabLayoutHelper(formsTabLayout,
-    // observationListViewPager);
-    // tabLayoutHelper.setAutoAdjustTabModeEnabled(true);
   }
 
   @Override

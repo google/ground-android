@@ -39,20 +39,6 @@
           app:viewModel="@{viewModel}"
           layout="@layout/feature_sheet_header" />
 
-      <!--
-        @background is required to make @elevation show drop shadow
-        https://stackoverflow.com/questions/31151180/material-tablayout-elevation-not-working/31777078
-        -->
-      <com.google.android.material.tabs.TabLayout
-          android:id="@+id/forms_tab_layout"
-          android:layout_width="match_parent"
-          android:layout_height="wrap_content"
-          android:layout_gravity="top"
-          android:background="@color/colorBackground"
-          android:elevation="5dp"
-          app:tabSelectedTextColor="@color/colorAccent"
-          app:tabTextColor="@color/colorAccent" />
-
       <com.google.android.gnd.ui.common.UnswipeableViewPager
           android:id="@+id/observation_list_view_pager"
           android:layout_width="match_parent"
