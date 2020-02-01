@@ -209,6 +209,7 @@ public class EditObservationViewModel extends AbstractViewModel {
      * Didn't subscribe this with Fragment's lifecycle because we need to retain the disposable
      * after the fragment is destroyed (for activity result)
      */
+    // TODO: launch intent through fragment and handle activity result callbacks async
     disposeOnClear(
         storageManager.launchPhotoPicker().andThen(handlePhotoPickerResult(fieldId)).subscribe());
   }
@@ -225,6 +226,7 @@ public class EditObservationViewModel extends AbstractViewModel {
      * Didn't subscribe this with Fragment's lifecycle because we need to retain the disposable
      * after the fragment is destroyed (for activity result)
      */
+    // TODO: launch intent through fragment and handle activity result callbacks async
     disposeOnClear(
         cameraManager.launchPhotoCapture().andThen(handlePhotoCaptureResult(fieldId)).subscribe());
   }
