@@ -75,6 +75,7 @@ public class CameraManager {
   }
 
   /** Fetch bitmap from the result, if present. */
+  // TODO: Investigate if returning a Maybe is better or not?
   private Observable<Bitmap> onCapturePhotoResult(ActivityResult result) {
     return Observable.create(
         em -> {

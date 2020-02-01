@@ -80,6 +80,7 @@ public class StorageManager {
   }
 
   /** Fetch Uri from the result, if present. */
+  // TODO: Investigate if returning a Maybe is better or not?
   private Observable<Uri> onPickPhotoResult(ActivityResult result) {
     return Observable.create(
         em -> {
