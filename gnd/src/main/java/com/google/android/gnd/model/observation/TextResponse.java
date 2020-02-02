@@ -22,10 +22,16 @@ import java8.util.Optional;
 /** A user provided response to a text {@link Field}. */
 public class TextResponse implements Response {
 
+  private String fieldId;
   private String text;
 
-  public TextResponse(String text) {
+  private TextResponse(String fieldId, String text) {
+    this.fieldId = fieldId;
     this.text = text;
+  }
+
+  public String getFieldId() {
+    return fieldId;
   }
 
   public String getText() {
@@ -66,6 +72,6 @@ public class TextResponse implements Response {
   }
 
   public static Optional<Response> fromString(String text) {
-    return text.isEmpty() ? Optional.empty() : Optional.of(new TextResponse(text));
+    return text.isEmpty() ? Optional.empty() : Optional.of(new TextResponse("", text));
   }
 }
