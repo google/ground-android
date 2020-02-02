@@ -87,4 +87,5 @@
     <dimen name="feature_sheet_header_padding_bottom">16dp</dimen>
     <dimen name="observation_list_item_preview_table_right_margin">18dp</dimen>
     <dimen name="offline_area_toolbar_padding_top">16dp</dimen>
+  <dimen name="feature_sheet_header_height">120dp</dimen>
 </resources>

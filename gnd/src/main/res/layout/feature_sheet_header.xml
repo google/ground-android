@@ -32,13 +32,13 @@
     android:layout_height="wrap_content">
 
     <androidx.cardview.widget.CardView
-        android:id="@+id/feature_sheet_card_view"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/feature_sheet_margin_top"
-        app:cardBackgroundColor="@color/colorBackground"
-        app:cardCornerRadius="@dimen/feature_sheet_corner_radius"
-        app:cardElevation="3dp">
+      android:id="@+id/feature_sheet_card_view"
+      android:layout_width="match_parent"
+      android:layout_height="@dimen/feature_sheet_header_height"
+      android:layout_marginTop="@dimen/feature_sheet_margin_top"
+      app:cardBackgroundColor="@color/colorBackground"
+      app:cardCornerRadius="@dimen/feature_sheet_corner_radius"
+      app:cardElevation="3dp">
 
       <LinearLayout
         android:id="@+id/feature_sheet_card_contents"
