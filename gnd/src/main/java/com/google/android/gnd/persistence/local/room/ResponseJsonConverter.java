@@ -47,9 +47,9 @@ class ResponseJsonConverter {
     return array;
   }
 
-  public static Optional<Response> toResponse(Object obj) {
+  public static Optional<Response> toResponse(String fieldId, Object obj) {
     if (obj instanceof String) {
-      return TextResponse.fromString((String) obj);
+      return TextResponse.fromString(fieldId, (String) obj);
     } else if (obj instanceof JSONArray) {
       return MultipleChoiceResponse.fromList(toList((JSONArray) obj));
     } else {

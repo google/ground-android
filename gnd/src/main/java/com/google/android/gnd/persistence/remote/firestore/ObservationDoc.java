@@ -88,7 +88,7 @@ public class ObservationDoc {
     for (String fieldId : docResponses.keySet()) {
       Object obj = docResponses.get(fieldId);
       if (obj instanceof String) {
-        TextResponse.fromString(((String) obj).trim())
+        TextResponse.fromString(fieldId, ((String) obj).trim())
             .ifPresent(r -> responses.putResponse(fieldId, r));
         // TODO(#23): Implement number fields, e.g.:
         // } else if (obj instanceof Float) {

@@ -176,7 +176,7 @@ public class EditObservationViewModel extends AbstractViewModel {
   public void onTextChanged(Field field, String text) {
     Log.v(TAG, "onTextChanged: " + field.getId());
 
-    onResponseChanged(field, TextResponse.fromString(text));
+    onResponseChanged(field, TextResponse.fromString(field.getId(), text));
   }
 
   public void onResponseChanged(Field field, Optional<Response> newResponse) {

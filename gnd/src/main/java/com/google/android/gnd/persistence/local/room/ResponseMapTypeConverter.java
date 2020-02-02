@@ -64,7 +64,7 @@ public class ResponseMapTypeConverter {
       Iterator<String> keys = jsonObject.keys();
       while (keys.hasNext()) {
         String fieldId = keys.next();
-        ResponseJsonConverter.toResponse(jsonObject.get(fieldId))
+        ResponseJsonConverter.toResponse(fieldId, jsonObject.get(fieldId))
             .ifPresent(response -> map.putResponse(fieldId, response));
       }
     } catch (JSONException e) {

@@ -67,7 +67,7 @@ public class ResponseDeltasTypeConverter {
         deltas.add(
             ResponseDelta.builder()
                 .setFieldId(fieldId)
-                .setNewResponse(ResponseJsonConverter.toResponse(jsonObject.get(fieldId)))
+                .setNewResponse(ResponseJsonConverter.toResponse(fieldId, jsonObject.get(fieldId)))
                 .build());
       }
     } catch (JSONException e) {
