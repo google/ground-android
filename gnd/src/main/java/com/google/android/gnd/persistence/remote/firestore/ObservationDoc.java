@@ -94,7 +94,7 @@ public class ObservationDoc {
         // } else if (obj instanceof Float) {
         //   responses.put(key, new NumericResponse((Float) obj));
       } else if (obj instanceof List) {
-        MultipleChoiceResponse.fromList((List<String>) obj)
+        MultipleChoiceResponse.fromList(fieldId, (List<String>) obj)
             .ifPresent(r -> responses.putResponse(fieldId, r));
       } else {
         Log.d(TAG, "Unsupported obj in db: " + obj.getClass().getName());

@@ -55,7 +55,7 @@ class MultiSelectDialogFactory {
     dialogBuilder.setTitle(field.getLabel());
     dialogBuilder.setPositiveButton(
         R.string.apply_multiple_choice_changes,
-        (dialog, which) -> responseChangeCallback.accept(state.getSelectedValues(options)));
+        (dialog, which) -> responseChangeCallback.accept(state.getSelectedValues(field, options)));
     dialogBuilder.setNegativeButton(
         R.string.discard_multiple_choice_changes, (dialog, which) -> {});
     return dialogBuilder.create();
@@ -82,14 +82,14 @@ class MultiSelectDialogFactory {
                               ((MultipleChoiceResponse) r).isSelected(options.get(i))));
     }
 
-    private Optional<Response> getSelectedValues(List<Option> options) {
+    private Optional<Response> getSelectedValues(Field field, List<Option> options) {
       ImmutableList.Builder<String> choices = new ImmutableList.Builder<>();
       for (int i = 0; i < options.size(); i++) {
         if (checkedItems[i]) {
           choices.add(options.get(i).getCode());
         }
       }
-      return MultipleChoiceResponse.fromList(choices.build());
+      return MultipleChoiceResponse.fromList(field.getId(), choices.build());
     }
   }
 }

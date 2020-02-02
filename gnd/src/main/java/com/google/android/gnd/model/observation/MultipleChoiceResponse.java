@@ -89,11 +89,11 @@ public class MultipleChoiceResponse implements Response {
     return stream(choices).sorted().collect(Collectors.joining(","));
   }
 
-  public static Optional<Response> fromList(List<String> codes) {
+  public static Optional<Response> fromList(String fieldId, List<String> codes) {
     if (codes.isEmpty()) {
       return Optional.empty();
     } else {
-      return Optional.of(new MultipleChoiceResponse("", codes));
+      return Optional.of(new MultipleChoiceResponse(fieldId, codes));
     }
   }
 }

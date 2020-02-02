@@ -51,7 +51,7 @@ class ResponseJsonConverter {
     if (obj instanceof String) {
       return TextResponse.fromString(fieldId, (String) obj);
     } else if (obj instanceof JSONArray) {
-      return MultipleChoiceResponse.fromList(toList((JSONArray) obj));
+      return MultipleChoiceResponse.fromList(fieldId, toList((JSONArray) obj));
     } else {
       Log.e(TAG, "Error parsing JSON in db of " + obj.getClass() + ": " + obj);
       return Optional.empty();
