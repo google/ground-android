@@ -27,10 +27,16 @@ import java8.util.stream.Collectors;
 /** User responses to a select-one (radio) or select-multiple (checkbox) field. */
 public class MultipleChoiceResponse implements Response {
 
+  private final String fieldId;
   private List<String> choices;
 
-  public MultipleChoiceResponse(List<String> choices) {
+  private MultipleChoiceResponse(String fieldId, List<String> choices) {
+    this.fieldId = fieldId;
     this.choices = choices;
+  }
+
+  public String getFieldId() {
+    return fieldId;
   }
 
   public List<String> getChoices() {
@@ -87,7 +93,7 @@ public class MultipleChoiceResponse implements Response {
     if (codes.isEmpty()) {
       return Optional.empty();
     } else {
-      return Optional.of(new MultipleChoiceResponse(codes));
+      return Optional.of(new MultipleChoiceResponse("", codes));
     }
   }
 }
