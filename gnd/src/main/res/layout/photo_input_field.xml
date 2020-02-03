@@ -23,8 +23,8 @@
       name="field"
       type="com.google.android.gnd.model.form.Field" />
     <variable
-      name="viewModel"
-      type="com.google.android.gnd.ui.editobservation.EditObservationViewModel" />
+      name="fragment"
+      type="com.google.android.gnd.ui.editobservation.EditObservationFragment" />
   </data>
 
   <LinearLayout
@@ -51,7 +51,7 @@
       android:layout_height="match_parent"
       android:layout_marginLeft="8dp"
       android:layout_marginRight="8dp"
-      android:onClick="@{()-> viewModel.onSelectPhoto(field)}"
+      android:onClick="@{()-> fragment.onShowPhotoSelectorDialog(field)}"
       android:text="@string/add_photo" />
 
   </LinearLayout>
