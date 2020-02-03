@@ -39,6 +39,7 @@ import com.google.android.gnd.model.observation.Response;
 import com.google.android.gnd.model.observation.ResponseDelta;
 import com.google.android.gnd.model.observation.ResponseMap;
 import com.google.android.gnd.model.observation.TextResponse;
+import com.google.android.gnd.persistence.remote.FirestoreStorageManager;
 import com.google.android.gnd.repository.ObservationRepository;
 import com.google.android.gnd.rx.Event;
 import com.google.android.gnd.rx.Nil;
@@ -72,6 +73,7 @@ public class EditObservationViewModel extends AbstractViewModel {
   private final Resources resources;
   private final StorageManager storageManager;
   private final CameraManager cameraManager;
+  private final FirestoreStorageManager firestoreStorageManager;
   private final FileUtil fileUtil;
 
   // Input events.
@@ -133,12 +135,14 @@ public class EditObservationViewModel extends AbstractViewModel {
       AuthenticationManager authenticationManager,
       StorageManager storageManager,
       CameraManager cameraManager,
+      FirestoreStorageManager firestoreStorageManager,
       FileUtil fileUtil) {
     this.resources = application.getResources();
     this.observationRepository = observationRepository;
     this.authManager = authenticationManager;
     this.storageManager = storageManager;
     this.cameraManager = cameraManager;
+    this.firestoreStorageManager = firestoreStorageManager;
     this.fileUtil = fileUtil;
     this.form = fromPublisher(viewArgs.switchMapSingle(this::onInitialize));
     this.saveResults = fromPublisher(saveClicks.switchMapSingle(__ -> onSave()));
@@ -241,6 +245,11 @@ public class EditObservationViewModel extends AbstractViewModel {
   private Observable<File> saveBitmapAndUpdateResponse(Observable<Bitmap> source, String fieldId) {
     return source
         .map(bitmap -> fileUtil.saveBitmap(bitmap, fieldId + ".jpg"))
+        .doOnNext(
+            file -> {
+              // upload to firestore
+              firestoreStorageManager.uploadMediaFromFile(file, file.getName());
+            })
         .doOnNext(file -> onTextChanged(form.getValue().getField(fieldId).get(), file.getPath()));
   }
 
