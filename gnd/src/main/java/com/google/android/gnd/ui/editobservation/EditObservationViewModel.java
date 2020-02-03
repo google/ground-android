@@ -245,12 +245,14 @@ public class EditObservationViewModel extends AbstractViewModel {
   private Observable<File> saveBitmapAndUpdateResponse(Observable<Bitmap> source, String fieldId) {
     return source
         .map(bitmap -> fileUtil.saveBitmap(bitmap, fieldId + ".jpg"))
-        .doOnNext(
-            file -> {
-              // upload to firestore
-              firestoreStorageManager.uploadMediaFromFile(file, file.getName());
-            })
-        .doOnNext(file -> onTextChanged(form.getValue().getField(fieldId).get(), file.getPath()));
+        .doOnNext(file -> {
+          // upload to firestore
+          firestoreStorageManager.uploadMediaFromFile(file, file.getName());
+        })
+        .doOnNext(file -> {
+          // update observable response map
+          onTextChanged(form.getValue().getField(fieldId).get(), file.getPath());
+        });
   }
 
   public void onSaveClick() {

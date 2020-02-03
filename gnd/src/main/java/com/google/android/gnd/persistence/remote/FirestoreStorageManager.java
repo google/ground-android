@@ -61,7 +61,7 @@ public class FirestoreStorageManager {
    * @param fileName Name of the uploaded media
    */
   private StorageReference createReference(String fileName) {
-    return getRootMediaDir().child(fileName + '-' + getFilenameSuffix());
+    return getRootMediaDir().child(fileName);
   }
 
   /** Converts current timestamp to a string to be used a suffix for uploading media. */
