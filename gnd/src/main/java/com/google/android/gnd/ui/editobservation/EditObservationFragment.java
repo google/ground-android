@@ -19,13 +19,18 @@ package com.google.android.gnd.ui.editobservation;
 import static com.google.android.gnd.ui.util.ViewUtil.assignGeneratedId;
 
 import android.app.AlertDialog;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 import androidx.annotation.NonNull;
+import androidx.databinding.ObservableMap;
+import androidx.databinding.ObservableMap.OnMapChangedCallback;
 import butterknife.BindView;
 import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.R;
@@ -44,11 +49,14 @@ import com.google.android.gnd.ui.common.BackPressListener;
 import com.google.android.gnd.ui.common.EphemeralPopups;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.TwoLineToolbar;
+import com.google.android.gnd.ui.editobservation.PhotoDialogFragment.AddPhotoListener;
+import com.google.android.gnd.ui.util.FileUtil;
 import java8.util.Optional;
 import javax.inject.Inject;
 
 @ActivityScoped
-public class EditObservationFragment extends AbstractFragment implements BackPressListener {
+public class EditObservationFragment extends AbstractFragment
+    implements BackPressListener, AddPhotoListener {
   private static final String TAG = EditObservationFragment.class.getSimpleName();
 
   private EditObservationViewModel viewModel;
@@ -73,7 +81,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
 
   @Override
   public View onCreateView(
-      LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+      @NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     EditObservationFragBinding binding =
         EditObservationFragBinding.inflate(inflater, container, false);
     binding.setLifecycleOwner(this);
@@ -169,12 +177,34 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
   public void addPhotoField(Field field) {
     PhotoInputFieldBinding binding =
         PhotoInputFieldBinding.inflate(getLayoutInflater(), formLayout, false);
-    binding.setViewModel(viewModel);
     binding.setLifecycleOwner(this);
     binding.setField(field);
+    binding.setFragment(this);
     formLayout.addView(binding.getRoot());
     assignGeneratedId(binding.getRoot().findViewById(R.id.image_thumbnail_preview));
     assignGeneratedId(binding.getRoot().findViewById(R.id.btn_select_photo));
+
+    viewModel
+        .getResponses()
+        .addOnMapChangedCallback(
+            new OnMapChangedCallback<ObservableMap<String, Response>, String, Response>() {
+              @Override
+              public void onMapChanged(ObservableMap<String, Response> sender, String key) {
+                if (key == null || !key.equals(field.getId())) {
+                  return;
+                }
+                updateBitmap(binding.imageThumbnailPreview, sender.get(key).getDetailsText(field));
+              }
+            });
+  }
+
+  private void updateBitmap(ImageView imageView, String path) {
+    Bitmap bitmap = FileUtil.createBitmapFromPath(path);
+    if (bitmap != null) {
+      // TODO: Bitmap doesn't get loaded
+      imageView.setImageBitmap(bitmap);
+      Toast.makeText(getContext(), "Photo added", Toast.LENGTH_SHORT).show();
+    }
   }
 
   public void onShowDialog(Field field) {
@@ -193,8 +223,14 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
         break;
       default:
         Log.e(TAG, "Unknown cardinality: " + cardinality);
-        return;
+        break;
     }
+  }
+
+  public void onShowPhotoSelectorDialog(Field field) {
+    PhotoDialogFragment bottomDialogFragment = PhotoDialogFragment.newInstance(field.getId());
+    bottomDialogFragment.setTargetFragment(this, 0);
+    bottomDialogFragment.show(getFragmentManager(), PhotoDialogFragment.TAG);
   }
 
   @Override
@@ -229,5 +265,15 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
         .setPositiveButton(R.string.invalid_data_confirm, (a, b) -> {})
         .create()
         .show();
+  }
+
+  @Override
+  public void onSelectPhoto(String fieldId) {
+    viewModel.showPhotoSelector(fieldId);
+  }
+
+  @Override
+  public void onCapturePhoto(String fieldId) {
+    viewModel.showPhotoCapture(fieldId);
   }
 }
