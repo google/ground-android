@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.util;
 
+import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList;
 import static java8.util.J8Arrays.stream;
 
 import android.util.Log;
@@ -102,32 +103,104 @@ public class GeoJsonParser {
      * <p>Interior rings, which describe holes in the polygon, are ignored.
      */
     private static Optional<GeoJsonTile> fromJsonObject(JSONObject jsonObject) {
+      Optional<JSONObject> tileGeometry = jsonTileGeometry(jsonObject);
+
+      if (tileGeometry.isEmpty()) {
+        return Optional.empty();
+      }
+
       try {
-        JSONObject geometry = jsonObject.getJSONObject("geometry");
-        JSONArray sw = geometry.getJSONArray("coordinates").getJSONArray(0);
-        JSONArray ne = geometry.getJSONArray("coordinates").getJSONArray(2);
-        String id = jsonObject.getString("id");
-        String url = jsonObject.getJSONObject("properties").getString("title");
+        LatLng[] coords = jsonTileCoordinates(tileGeometry.get());
+        String id = jsonTileId(jsonObject);
+        String url = jsonTileUrl(jsonObject);
+
+        Cartesian cartesian = Cartesian.fromString(id);
+
+        return Optional.of(new GeoJsonTile(coords, cartesian, url));
+      } catch (JSONException e) {
+        Log.e(TAG, "failed to parse tile JSON", e);
+      }
+      return Optional.empty();
+    }
+
+    /**
+     * Attempts to retrieve a URL from {@param jsonObject}. Since this field is required for tiles,
+     * we throw an exception if we fail to parse a URL.
+     *
+     * @throws JSONException
+     */
+    private static String jsonTileUrl(JSONObject jsonObject) throws JSONException {
+      try {
+        return jsonObject.getJSONObject("properties").getString("title");
+      } catch (JSONException e) {
+        Log.e(TAG, "couldn't parse json tile url", e);
+        throw e;
+      }
+    }
+
+    /**
+     * Attempts to retrieve coordinates from {@param jsonGeometry}. Since these fields are required
+     * for tiles, we throw an exception if we fail to parse coordinates.
+     *
+     * @throws JSONException
+     */
+    private static LatLng[] jsonTileCoordinates(JSONObject jsonGeometry) throws JSONException {
+      try {
+        JSONArray sw = jsonGeometry.getJSONArray("coordinates").getJSONArray(0);
+        JSONArray ne = jsonGeometry.getJSONArray("coordinates").getJSONArray(2);
 
         double south = sw.getDouble(0);
         double west = sw.getDouble(1);
         double north = ne.getDouble(0);
         double east = ne.getDouble(1);
 
-        LatLng[] coords = {
+        return new LatLng[] {
           new LatLng(south, west),
           new LatLng(south, east),
           new LatLng(north, west),
           new LatLng(north, east)
         };
 
-        Cartesian cartesian = Cartesian.fromString(id);
-
-        return Optional.of(new GeoJsonTile(coords, cartesian, url));
       } catch (JSONException e) {
-        Log.e(TAG, "failed to parse geoJSONPolygon", e);
+        Log.e(TAG, "couldn't parse json tile coordinates", e);
+        throw e;
       }
-      return Optional.empty();
+    }
+
+    /**
+     * Attempts to retrieve an id from {@param jsonObject} which holds cartesian coordinates for a
+     * tile. Since this field is required, we throw an exception if we fail to parse an id.
+     *
+     * @throws JSONException
+     */
+    private static String jsonTileId(JSONObject jsonObject) throws JSONException {
+      try {
+        return jsonObject.getString("id");
+      } catch (JSONException e) {
+        Log.e(TAG, "couldn't parse tile json id", e);
+        throw e;
+      }
+    }
+
+    /** Returns true if {@param geoJsonGeometry} describes a polygon. */
+    private static boolean isPolygon(JSONObject geoJsonGeometry) {
+      String type = geoJsonGeometry.optString("type");
+      return "Polygon".equals(type);
+    }
+
+    /**
+     * Attempts to parse a geometry as a tile specification. Tiles are polygon geometries that
+     * contain a number of other properties. Since plenty of geometries don't specify tiles, we do
+     * not throw any exceptions on failure.
+     */
+    private static Optional<JSONObject> jsonTileGeometry(JSONObject jsonObject) {
+      JSONObject g = jsonObject.optJSONObject("geometry");
+
+      if (g == null) {
+        return Optional.empty();
+      }
+
+      return isPolygon(g) ? Optional.of(g) : Optional.empty();
     }
 
     /**
@@ -178,14 +251,12 @@ public class GeoJsonParser {
       JSONObject geoJson = new JSONObject(sb.toString());
       JSONArray features = geoJson.getJSONArray("features");
 
-      stream(toArray(features))
-          .filter(GeoJsonParser::hasGeometry)
-          .filter(GeoJsonParser::isPolygon)
+      return stream(toArray(features))
           .map(GeoJsonTile::fromJsonObject)
           .filter(Optional::isPresent)
           .map(Optional::get)
           .filter(tile -> tile.intersects(bounds))
-          .map(this::jsonToTile);
+          .map(this::jsonToTile).collect(toImmutableList());
 
     } catch (IOException | JSONException e) {
       Log.e(TAG, "Unable to load JSON layer", e);
@@ -208,17 +279,5 @@ public class GeoJsonParser {
         .setZ(z)
         .setPath(Tile.pathFromCoords(x, y, z))
         .build();
-  }
-
-  /** Returns true if {@param geoJsonGeometry} describes a polygon. */
-  private static boolean isPolygon(JSONObject geoJsonGeometry) {
-    String type = geoJsonGeometry.optString("type");
-    return "Polygon".equals(type);
-  }
-
-  /** Returns true if {@param geoJsonObject} is a geometry object. */
-  private static boolean hasGeometry(JSONObject geoJsonObject) {
-    JSONObject g = geoJsonObject.optJSONObject("geometry");
-    return g != null;
   }
 }
