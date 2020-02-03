@@ -147,5 +147,7 @@
   <string name="offline_area_selector_cancel">Cancel</string>
   <string name="offline_area_selector_download">Download</string>
   <string name="add_photo">Add photo</string>
+  <string name="action_camera">Camera</string>
+  <string name="action_storage">Storage</string>
 
 </resources>

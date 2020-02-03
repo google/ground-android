@@ -20,6 +20,7 @@ import static androidx.lifecycle.LiveDataReactiveStreams.fromPublisher;
 import static java8.util.stream.StreamSupport.stream;
 
 import android.content.res.Resources;
+import android.graphics.Bitmap;
 import android.util.Log;
 import android.view.View;
 import androidx.databinding.ObservableArrayMap;
@@ -42,11 +43,17 @@ import com.google.android.gnd.repository.ObservationRepository;
 import com.google.android.gnd.rx.Event;
 import com.google.android.gnd.rx.Nil;
 import com.google.android.gnd.system.AuthenticationManager;
+import com.google.android.gnd.system.CameraManager;
+import com.google.android.gnd.system.StorageManager;
 import com.google.android.gnd.ui.common.AbstractViewModel;
+import com.google.android.gnd.ui.util.FileUtil;
 import com.google.common.collect.ImmutableList;
+import io.reactivex.Completable;
+import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.processors.BehaviorProcessor;
 import io.reactivex.processors.PublishProcessor;
+import java.io.File;
 import java.util.Date;
 import java8.util.Optional;
 import javax.annotation.Nullable;
@@ -63,6 +70,9 @@ public class EditObservationViewModel extends AbstractViewModel {
   private final ObservationRepository observationRepository;
   private final AuthenticationManager authManager;
   private final Resources resources;
+  private final StorageManager storageManager;
+  private final CameraManager cameraManager;
+  private final FileUtil fileUtil;
 
   // Input events.
 
@@ -120,10 +130,16 @@ public class EditObservationViewModel extends AbstractViewModel {
   EditObservationViewModel(
       GndApplication application,
       ObservationRepository observationRepository,
-      AuthenticationManager authenticationManager) {
+      AuthenticationManager authenticationManager,
+      StorageManager storageManager,
+      CameraManager cameraManager,
+      FileUtil fileUtil) {
     this.resources = application.getResources();
     this.observationRepository = observationRepository;
     this.authManager = authenticationManager;
+    this.storageManager = storageManager;
+    this.cameraManager = cameraManager;
+    this.fileUtil = fileUtil;
     this.form = fromPublisher(viewArgs.switchMapSingle(this::onInitialize));
     this.saveResults = fromPublisher(saveClicks.switchMapSingle(__ -> onSave()));
   }
@@ -168,11 +184,6 @@ public class EditObservationViewModel extends AbstractViewModel {
     return validationErrors;
   }
 
-  public void onSelectPhoto(Field field) {
-    Log.v(TAG, "onSelectPhoto: " + field.getId());
-    // TODO
-  }
-
   public void onTextChanged(Field field, String text) {
     Log.v(TAG, "onTextChanged: " + field.getId());
 
@@ -191,6 +202,46 @@ public class EditObservationViewModel extends AbstractViewModel {
     if (!hasFocus) {
       updateError(field);
     }
+  }
+
+  void showPhotoSelector(String fieldId) {
+    /*
+     * Didn't subscribe this with Fragment's lifecycle because we need to retain the disposable
+     * after the fragment is destroyed (for activity result)
+     */
+    // TODO: launch intent through fragment and handle activity result callbacks async
+    disposeOnClear(
+        storageManager.launchPhotoPicker().andThen(handlePhotoPickerResult(fieldId)).subscribe());
+  }
+
+  private Completable handlePhotoPickerResult(String fieldId) {
+    return storageManager
+        .photoPickerResult()
+        .compose(bitmap -> saveBitmapAndUpdateResponse(bitmap, fieldId))
+        .ignoreElements();
+  }
+
+  void showPhotoCapture(String fieldId) {
+    /*
+     * Didn't subscribe this with Fragment's lifecycle because we need to retain the disposable
+     * after the fragment is destroyed (for activity result)
+     */
+    // TODO: launch intent through fragment and handle activity result callbacks async
+    disposeOnClear(
+        cameraManager.launchPhotoCapture().andThen(handlePhotoCaptureResult(fieldId)).subscribe());
+  }
+
+  private Completable handlePhotoCaptureResult(String fieldId) {
+    return cameraManager
+        .capturePhotoResult()
+        .compose(bitmap -> saveBitmapAndUpdateResponse(bitmap, fieldId))
+        .ignoreElements();
+  }
+
+  private Observable<File> saveBitmapAndUpdateResponse(Observable<Bitmap> source, String fieldId) {
+    return source
+        .map(bitmap -> fileUtil.saveBitmap(bitmap, fieldId + ".jpg"))
+        .doOnNext(file -> onTextChanged(form.getValue().getField(fieldId).get(), file.getPath()));
   }
 
   public void onSaveClick() {
@@ -326,7 +377,7 @@ public class EditObservationViewModel extends AbstractViewModel {
     validationErrors.clear();
     stream(originalObservation.getForm().getElements())
         .filter(e -> e.getType().equals(Type.FIELD))
-        .map(e -> e.getField())
+        .map(Element::getField)
         .forEach(this::updateError);
   }
 
