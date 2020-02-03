@@ -152,7 +152,7 @@ public class FileDownloadWorker extends Worker {
   public Result doWork() {
     Tile tile = localDataStore.getTile(tileId).blockingGet();
 
-    // When there is no tile in the db, the maybe completes and returns null.
+    // When there is no tile in the db, the Maybe completes and returns null.
     // We expect tiles to be added to the DB prior to downloading.
     // If that isn't the case, we fail.
     if (tile == null) {
