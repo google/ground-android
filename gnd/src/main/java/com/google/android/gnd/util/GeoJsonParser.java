@@ -277,7 +277,7 @@ public class GeoJsonParser {
         .setX(x)
         .setY(y)
         .setZ(z)
-        .setPath(Tile.pathFromCoords(x, y, z))
+        .setPath(Tile.filenameFromCoords(x, y, z))
         .build();
   }
 }
