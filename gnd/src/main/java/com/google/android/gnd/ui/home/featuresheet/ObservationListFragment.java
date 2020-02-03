@@ -47,10 +47,6 @@ public class ObservationListFragment extends AbstractFragment {
   @BindView(R.id.observation_list_container)
   RecyclerView recyclerView;
 
-  static ObservationListFragment newInstance() {
-    return new ObservationListFragment();
-  }
-
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
     observationListAdapter = new ObservationListAdapter(viewModelFactory);

@@ -39,11 +39,12 @@
           app:viewModel="@{viewModel}"
           layout="@layout/feature_sheet_header" />
 
-      <com.google.android.gnd.ui.common.UnswipeableViewPager
-          android:id="@+id/observation_list_view_pager"
-          android:layout_width="match_parent"
-          android:layout_height="wrap_content"
-          android:background="@color/colorBackground" />
+      <fragment
+        android:id="@+id/observation_list_frag"
+        android:name="com.google.android.gnd.ui.home.featuresheet.ObservationListFragment"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorBackground"/>
 
     </LinearLayout>
 
