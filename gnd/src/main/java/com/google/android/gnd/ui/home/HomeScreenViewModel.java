@@ -36,9 +36,9 @@ import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.SharedViewModel;
 import com.google.android.gnd.ui.map.MapMarker;
+import com.google.common.collect.ImmutableList;
 import io.reactivex.Single;
 import io.reactivex.subjects.PublishSubject;
-import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 @SharedViewModel
@@ -60,7 +60,6 @@ public class HomeScreenViewModel extends AbstractViewModel {
   private final MutableLiveData<FeatureSheetState> featureSheetState;
   private final MutableLiveData<Integer> addObservationButtonVisibility =
       new MutableLiveData<>(View.GONE);
-  @Nullable private Form selectedForm;
 
   @Inject
   HomeScreenViewModel(
@@ -148,18 +147,10 @@ public class HomeScreenViewModel extends AbstractViewModel {
     addObservationButtonVisibility.setValue(View.GONE);
   }
 
-  public void onFormChange(Form form) {
-    this.selectedForm = form;
-  }
-
   public void addObservation() {
     FeatureSheetState state = featureSheetState.getValue();
     if (state == null) {
       Log.e(TAG, "Missing featureSheetState");
-      return;
-    }
-    if (selectedForm == null) {
-      Log.e(TAG, "Missing form");
       return;
     }
     Feature feature = state.getFeature();
@@ -167,12 +158,17 @@ public class HomeScreenViewModel extends AbstractViewModel {
       Log.e(TAG, "Missing feature");
       return;
     }
+    ImmutableList<Form> forms = feature.getLayer().getForms();
+    if (forms.isEmpty()) {
+      Log.e(TAG, "No forms in layer");
+      return;
+    }
     Project project = feature.getProject();
     if (project == null) {
       Log.e(TAG, "Missing project");
       return;
     }
-    navigator.addObservation(project.getId(), feature.getId(), selectedForm.getId());
+    navigator.addObservation(project.getId(), feature.getId(), forms.get(0).getId());
   }
 
   public void init() {

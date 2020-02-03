@@ -59,14 +59,22 @@ public class ObservationListViewModel extends AbstractViewModel {
   }
 
   /** Loads a list of observations associated with a given feature. */
-  public void loadObservationList(Feature feature, Form form) {
+  public void loadObservationList(Feature feature) {
+    ImmutableList<Form> forms = feature.getLayer().getForms();
     loadObservations(
-        feature.getProject(), feature.getLayer().getId(), form.getId(), feature.getId());
+        feature.getProject(),
+        forms.isEmpty() ? Optional.empty() : Optional.of(forms.get(0).getId()),
+        feature.getId());
   }
 
   private Single<ImmutableList<Observation>> getObservations(ObservationListRequest req) {
+    if (req.formId.isEmpty()) {
+      // Do nothing. No form defined for this layer.
+      // TODO: Show text or icon indicating no layers defined.
+      return Single.just(ImmutableList.of());
+    }
     return observationRepository
-        .getObservations(req.project.getId(), req.featureId, req.formId)
+        .getObservations(req.project.getId(), req.featureId, req.formId.get())
         .onErrorResumeNext(this::onGetObservationsError);
   }
 
@@ -76,22 +84,16 @@ public class ObservationListViewModel extends AbstractViewModel {
     return Single.just(ImmutableList.of());
   }
 
-  private void loadObservations(Project project, String layerId, String formId, String featureId) {
-    Optional<Form> form = project.getLayer(layerId).flatMap(pt -> pt.getForm(formId));
-    if (!form.isPresent()) {
-      // TODO: Show error.
-      return;
-    }
-    // TODO: Use project id instead of object.
+  private void loadObservations(Project project, Optional<String> formId, String featureId) {
     observationListRequests.onNext(new ObservationListRequest(project, featureId, formId));
   }
 
   class ObservationListRequest {
-    public final Project project;
-    public final String featureId;
-    public final String formId;
+    final Project project;
+    final String featureId;
+    final Optional<String> formId;
 
-    public ObservationListRequest(Project project, String featureId, String formId) {
+    public ObservationListRequest(Project project, String featureId, Optional<String> formId) {
       this.project = project;
       this.featureId = featureId;
       this.formId = formId;
