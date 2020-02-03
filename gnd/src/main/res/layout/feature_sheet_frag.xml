@@ -29,6 +29,10 @@
       android:layout_height="match_parent"
       android:clickable="true">
 
+    <!--
+      Observation list background scrim. Used to fill space behind list
+      when list doesn't extend to bottom of screen.
+    -->
     <FrameLayout
       android:layout_width="match_parent"
       android:layout_height="match_parent"
