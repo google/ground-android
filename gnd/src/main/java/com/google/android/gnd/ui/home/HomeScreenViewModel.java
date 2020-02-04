@@ -160,6 +160,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
     }
     ImmutableList<Form> forms = feature.getLayer().getForms();
     if (forms.isEmpty()) {
+      //.TODO: Hide Add Observation button if no forms defined.
       Log.e(TAG, "No forms in layer");
       return;
     }
