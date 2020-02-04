@@ -63,8 +63,8 @@ public class ObservationListViewModel extends AbstractViewModel {
     ImmutableList<Form> forms = feature.getLayer().getForms();
     loadObservations(
         feature.getProject(),
-        forms.isEmpty() ? Optional.empty() : Optional.of(forms.get(0).getId()),
-        feature.getId());
+        feature.getId(),
+        forms.isEmpty() ? Optional.empty() : Optional.of(forms.get(0).getId()));
   }
 
   private Single<ImmutableList<Observation>> getObservations(ObservationListRequest req) {
@@ -84,7 +84,7 @@ public class ObservationListViewModel extends AbstractViewModel {
     return Single.just(ImmutableList.of());
   }
 
-  private void loadObservations(Project project, Optional<String> formId, String featureId) {
+  private void loadObservations(Project project, String featureId, Optional<String> formId) {
     observationListRequests.onNext(new ObservationListRequest(project, featureId, formId));
   }
 
