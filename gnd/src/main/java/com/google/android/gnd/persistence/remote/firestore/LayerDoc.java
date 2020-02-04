@@ -18,15 +18,17 @@ package com.google.android.gnd.persistence.remote.firestore;
 
 import static com.google.android.gnd.util.Localization.getLocalizedMessage;
 
+import android.util.Log;
 import androidx.annotation.Nullable;
 import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.model.layer.Style;
 import com.google.firebase.firestore.IgnoreExtraProperties;
 import java.util.Map;
-import java8.util.Maps;
+import java.util.Map.Entry;
 
 @IgnoreExtraProperties
 public class LayerDoc {
+  private static final String TAG = LayerDoc.class.getSimpleName();
 
   @Nullable public Map<String, String> listHeading;
 
@@ -45,8 +47,13 @@ public class LayerDoc {
     if (defaultStyle != null) {
       layer.setDefaultStyle(defaultStyle.toObject());
     }
-    if (forms != null) {
-      Maps.forEach(forms, (formId, formDoc) -> layer.addForm(formDoc.toObject(formId)));
+    if (forms != null && !forms.isEmpty()) {
+      if (forms.size() > 1) {
+        Log.d(
+            TAG, "Multiple forms defined in layer " + id + ". Using first form, ignoring others.");
+      }
+      Entry<String, FormDoc> formEntry = forms.entrySet().iterator().next();
+      layer.setForm(formEntry.getValue().toObject(formEntry.getKey()));
     }
     return layer.build();
   }

@@ -60,11 +60,8 @@ public class ObservationListViewModel extends AbstractViewModel {
 
   /** Loads a list of observations associated with a given feature. */
   public void loadObservationList(Feature feature) {
-    ImmutableList<Form> forms = feature.getLayer().getForms();
-    loadObservations(
-        feature.getProject(),
-        feature.getId(),
-        forms.isEmpty() ? Optional.empty() : Optional.of(forms.get(0).getId()));
+    Optional<Form> form = feature.getLayer().getForm();
+    loadObservations(feature.getProject(), feature.getId(), form.map(Form::getId));
   }
 
   private Single<ImmutableList<Observation>> getObservations(ObservationListRequest req) {

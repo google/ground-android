@@ -47,6 +47,8 @@ import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Observable;
 import io.reactivex.Single;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -129,7 +131,9 @@ public class RoomLocalDataStore implements LocalDataStore {
   private Completable insertOrUpdateLayer(String projectId, Layer layer) {
     return layerDao
         .insertOrUpdate(LayerEntity.fromLayer(projectId, layer))
-        .andThen(insertOrUpdateForms(layer.getId(), layer.getForms()))
+        .andThen(
+            insertOrUpdateForms(
+                layer.getId(), layer.getForm().map(Arrays::asList).orElseGet(ArrayList::new)))
         .subscribeOn(schedulers.io());
   }
 

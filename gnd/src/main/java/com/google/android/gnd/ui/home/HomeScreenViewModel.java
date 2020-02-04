@@ -36,9 +36,9 @@ import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.SharedViewModel;
 import com.google.android.gnd.ui.map.MapMarker;
-import com.google.common.collect.ImmutableList;
 import io.reactivex.Single;
 import io.reactivex.subjects.PublishSubject;
+import java8.util.Optional;
 import javax.inject.Inject;
 
 @SharedViewModel
@@ -158,9 +158,9 @@ public class HomeScreenViewModel extends AbstractViewModel {
       Log.e(TAG, "Missing feature");
       return;
     }
-    ImmutableList<Form> forms = feature.getLayer().getForms();
-    if (forms.isEmpty()) {
-      //.TODO: Hide Add Observation button if no forms defined.
+    Optional<Form> form = feature.getLayer().getForm();
+    if (form.isEmpty()) {
+      // .TODO: Hide Add Observation button if no forms defined.
       Log.e(TAG, "No forms in layer");
       return;
     }
@@ -169,7 +169,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
       Log.e(TAG, "Missing project");
       return;
     }
-    navigator.addObservation(project.getId(), feature.getId(), forms.get(0).getId());
+    navigator.addObservation(project.getId(), feature.getId(), form.get().getId());
   }
 
   public void init() {
