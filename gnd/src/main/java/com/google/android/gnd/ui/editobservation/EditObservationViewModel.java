@@ -54,7 +54,6 @@ import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.processors.BehaviorProcessor;
 import io.reactivex.processors.PublishProcessor;
-import java.io.File;
 import java.util.Date;
 import java8.util.Optional;
 import javax.annotation.Nullable;
@@ -242,17 +241,21 @@ public class EditObservationViewModel extends AbstractViewModel {
         .ignoreElements();
   }
 
-  private Observable<File> saveBitmapAndUpdateResponse(Observable<Bitmap> source, String fieldId) {
+  private Observable<String> saveBitmapAndUpdateResponse(
+      Observable<Bitmap> source, String fieldId) {
     return source
         .map(bitmap -> fileUtil.saveBitmap(bitmap, fieldId + ".jpg"))
-        .doOnNext(file -> {
-          // upload to firestore
-          firestoreStorageManager.uploadMediaFromFile(file, file.getName());
-        })
-        .doOnNext(file -> {
-          // update observable response map
-          onTextChanged(form.getValue().getField(fieldId).get(), file.getPath());
-        });
+        .map(
+            file -> {
+              // If offline, Firebase will automatically upload the image when the network
+              // connectivity is  re-established.
+              return firestoreStorageManager.uploadMediaFromFile(file, file.getName());
+            })
+        .doOnNext(
+            url -> {
+              // update observable response map
+              onTextChanged(form.getValue().getField(fieldId).get(), url);
+            });
   }
 
   public void onSaveClick() {
