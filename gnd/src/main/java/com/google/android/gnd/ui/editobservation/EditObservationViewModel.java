@@ -56,6 +56,7 @@ import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.processors.BehaviorProcessor;
 import io.reactivex.processors.PublishProcessor;
+import java.io.File;
 import java.util.Date;
 import java8.util.Optional;
 import javax.annotation.Nullable;
@@ -113,6 +114,8 @@ public class EditObservationViewModel extends AbstractViewModel {
 
   /** Outcome of user clicking "Save". */
   private final LiveData<Event<SaveResult>> saveResults;
+
+  private EditObservationFragmentArgs args;
 
   public Maybe<Uri> getFirestoreDownloadUrl(String path) {
     return firestoreStorageManager.getDownloadUrl(path);
@@ -178,6 +181,7 @@ public class EditObservationViewModel extends AbstractViewModel {
   }
 
   public void initialize(EditObservationFragmentArgs args) {
+    this.args = args;
     viewArgs.onNext(args);
   }
 
@@ -255,13 +259,23 @@ public class EditObservationViewModel extends AbstractViewModel {
             file -> {
               // If offline, Firebase will automatically upload the image when the network
               // connectivity is  re-established.
-              return firestoreStorageManager.uploadMediaFromFile(file, file.getName());
+              String remotePath = getRemoteImageDir() + file.getName();
+              return firestoreStorageManager.uploadMediaFromFile(file, remotePath);
             })
         .doOnNext(
             url -> {
               // update observable response map
               onTextChanged(form.getValue().getField(fieldId).get(), url);
             });
+  }
+
+  private String getRemoteImageDir() {
+    return args.getProjectId()
+        + File.separator
+        + args.getFormId()
+        + File.separator
+        + args.getFeatureId()
+        + File.separator;
   }
 
   public void onSaveClick() {
