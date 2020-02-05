@@ -21,6 +21,7 @@ import static java8.util.stream.StreamSupport.stream;
 
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.util.Log;
 import android.view.View;
 import androidx.databinding.ObservableArrayMap;
@@ -50,6 +51,7 @@ import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.util.FileUtil;
 import com.google.common.collect.ImmutableList;
 import io.reactivex.Completable;
+import io.reactivex.Maybe;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.processors.BehaviorProcessor;
@@ -111,6 +113,10 @@ public class EditObservationViewModel extends AbstractViewModel {
 
   /** Outcome of user clicking "Save". */
   private final LiveData<Event<SaveResult>> saveResults;
+
+  public Maybe<Uri> getFirestoreDownloadUrl(String path) {
+    return firestoreStorageManager.getDownloadUrl(path);
+  }
 
   /** Possible outcomes of user clicking "Save". */
   enum SaveResult {

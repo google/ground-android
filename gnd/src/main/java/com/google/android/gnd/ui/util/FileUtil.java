@@ -22,6 +22,7 @@ import android.graphics.BitmapFactory;
 import android.util.Log;
 import androidx.annotation.Nullable;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import javax.inject.Inject;
@@ -49,6 +50,14 @@ public class FileUtil {
     }
 
     Log.d(TAG, "Photo saved : " + file.getPath());
+    return file;
+  }
+
+  public File getFileFromFilename(String filename) throws FileNotFoundException {
+    File file = new File(context.getFilesDir(), filename);
+    if (!file.exists()) {
+      throw new FileNotFoundException("File not found: " + filename);
+    }
     return file;
   }
 

@@ -23,6 +23,7 @@ import com.google.android.gnd.Config;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import io.reactivex.Maybe;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.util.Objects;
@@ -42,13 +43,13 @@ public class FirestoreStorageManager {
   FirestoreStorageManager() {}
 
   /** Returns a reference to the default Storage bucket. */
-  private FirebaseStorage getStorage() {
-    return FirebaseStorage.getInstance();
+  private StorageReference getBaseReference() {
+    return FirebaseStorage.getInstance().getReference();
   }
 
   /** Returns a reference to the root media dir. */
   private StorageReference getRootMediaDir() {
-    return getStorage().getReference().child(MEDIA_ROOT_DIR);
+    return getBaseReference().child(MEDIA_ROOT_DIR);
   }
 
   /**
@@ -60,6 +61,16 @@ public class FirestoreStorageManager {
     return getRootMediaDir().child(fileName);
   }
 
+  public Maybe<Uri> getDownloadUrl(String path) {
+    return Maybe.create(
+        emitter ->
+            getBaseReference()
+                .child(path)
+                .getDownloadUrl()
+                .addOnSuccessListener(emitter::onSuccess)
+                .addOnFailureListener(emitter::onError));
+  }
+
   /** Upload file to Firebase Storage. */
   public String uploadMediaFromFile(File file, String fileName) {
     StorageReference reference = createReference(fileName);
@@ -67,10 +78,10 @@ public class FirestoreStorageManager {
 
     uploadMediaToFirebaseStorage(task, fileName);
     fetchDownloadUrl(reference, task);
-    return finalDownloadLocation(reference.getPath());
+    return reference.getPath();
   }
 
-  private String finalDownloadLocation(String path) {
+  public String finalDownloadLocation(String path) {
     return "https://firebasestorage.googleapis.com/v0/b/"
         + Config.FIRESTORE_CLOUD_STORAGE_BUCKET
         + "/o/"

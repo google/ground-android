@@ -176,6 +176,9 @@ dependencies {
     // Guava
     implementation "com.google.guava:guava:$project.guavaVersion"
 
+    // Picasso
+    implementation 'com.squareup.picasso:picasso:2.71828'
+
     // Room
     implementation "androidx.room:room-runtime:$roomVersion"
     annotationProcessor "androidx.room:room-compiler:$roomVersion"
