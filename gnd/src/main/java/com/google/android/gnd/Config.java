@@ -27,6 +27,4 @@ public final class Config {
   // Firebase Cloud Firestore settings.
   public static final boolean FIRESTORE_PERSISTENCE_ENABLED = false;
   public static final boolean FIRESTORE_LOGGING_ENABLED = true;
-  public static final String FIREBASE_PROJECT_ID = "gnddemo1";
-  public static final String FIRESTORE_CLOUD_STORAGE_BUCKET = "gnddemo1.appspot.com";
 }

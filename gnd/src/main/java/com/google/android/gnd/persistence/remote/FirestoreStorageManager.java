@@ -16,15 +16,12 @@
 
 package com.google.android.gnd.persistence.remote;
 
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.util.Log;
-import com.google.android.gnd.Config;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import io.reactivex.Maybe;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.util.Objects;
 import javax.inject.Inject;
@@ -79,26 +76,6 @@ public class FirestoreStorageManager {
     uploadMediaToFirebaseStorage(task, fileName);
     fetchDownloadUrl(reference, task);
     return reference.getPath();
-  }
-
-  public String finalDownloadLocation(String path) {
-    return "https://firebasestorage.googleapis.com/v0/b/"
-        + Config.FIRESTORE_CLOUD_STORAGE_BUCKET
-        + "/o/"
-        + path.substring(1).replaceAll("/", "%2F");
-  }
-
-  /** Upload bitmap to Firebase Storage. */
-  public void uploadMediaFromBitmap(Bitmap bitmap, String fileName) {
-    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-    byte[] data = baos.toByteArray();
-
-    StorageReference reference = createReference(fileName);
-    UploadTask task = reference.putBytes(data);
-
-    uploadMediaToFirebaseStorage(task, fileName);
-    fetchDownloadUrl(reference, task);
   }
 
   private void uploadMediaToFirebaseStorage(UploadTask uploadTask, String fileName) {
