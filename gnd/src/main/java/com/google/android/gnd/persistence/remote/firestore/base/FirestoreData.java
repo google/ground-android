@@ -39,12 +39,12 @@ public class FirestoreData {
   }
 
   @NonNull
-  public <T> Optional<T> get(Field<T> field) {
+  public <T> Optional<T> get(FirestoreField<T> field) {
     return Optional.ofNullable(get(field, false));
   }
 
   @NonNull
-  public <T> T getRequired(Field<T> field) {
+  public <T> T getRequired(FirestoreField<T> field) {
     return get(field, true);
   }
 
@@ -54,7 +54,7 @@ public class FirestoreData {
   }
 
   @Nullable
-  private <T> T get(Field<T> field, boolean required) {
+  private <T> T get(FirestoreField<T> field, boolean required) {
     Object value = map.get(field.key());
     if (value == null) {
       if (required) {
@@ -95,7 +95,7 @@ public class FirestoreData {
   public static final class Builder {
     private final Map<String, Object> map = new HashMap<>();
 
-    public <T> Builder set(Field<T> field, T value) {
+    public <T> Builder set(FirestoreField<T> field, T value) {
       if (value instanceof FirestoreData) {
         map.put(field.key(), ((FirestoreData) value).toMap());
       } else {
@@ -104,12 +104,12 @@ public class FirestoreData {
       return this;
     }
 
-    public <T> Builder delete(Field<T> field) {
+    public <T> Builder delete(FirestoreField<T> field) {
       map.put(field.key(), FieldValue.delete());
       return this;
     }
 
-    public Builder updateTimestampOnServer(Field<Timestamp> field) {
+    public Builder updateTimestampOnServer(FirestoreField<Timestamp> field) {
       map.put(field.key(), FieldValue.serverTimestamp());
       return this;
     }

@@ -16,13 +16,13 @@
 
 package com.google.android.gnd.persistence.remote.firestore.schema;
 
-import static com.google.android.gnd.persistence.remote.firestore.base.Field.string;
+import static com.google.android.gnd.persistence.remote.firestore.base.FirestoreField.string;
 
-import com.google.android.gnd.persistence.remote.firestore.base.Field;
+import com.google.android.gnd.persistence.remote.firestore.base.FirestoreField;
 
 /** Defines field names and types used in user objects nested inside Firestore documents. */
 public class UserMapFields {
-  public static final Field<String> ID = string("id");
-  public static final Field<String> EMAIL = string("email");
-  public static final Field<String> DISPLAY_NAME = string("displayName");
+  public static final FirestoreField<String> ID = string("id");
+  public static final FirestoreField<String> EMAIL = string("email");
+  public static final FirestoreField<String> DISPLAY_NAME = string("displayName");
 }
