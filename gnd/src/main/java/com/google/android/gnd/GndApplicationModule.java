@@ -46,6 +46,8 @@ import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator;
 import com.google.android.gnd.ui.common.ViewModelModule;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreSettings;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import dagger.Binds;
 import dagger.Module;
 import dagger.Provides;
@@ -118,6 +120,13 @@ abstract class GndApplicationModule {
     firestore.setFirestoreSettings(settings);
     FirebaseFirestore.setLoggingEnabled(Config.FIRESTORE_LOGGING_ENABLED);
     return firestore;
+  }
+
+  /** Returns a reference to the default Storage bucket. */
+  @Provides
+  @Singleton
+  static StorageReference baseFirestoreReference() {
+    return FirebaseStorage.getInstance().getReference();
   }
 
   @Provides

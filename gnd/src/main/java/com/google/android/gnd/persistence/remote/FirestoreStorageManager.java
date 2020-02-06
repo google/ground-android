@@ -18,7 +18,6 @@ package com.google.android.gnd.persistence.remote;
 
 import android.net.Uri;
 import android.util.Log;
-import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import io.reactivex.Maybe;
@@ -35,18 +34,16 @@ public class FirestoreStorageManager {
 
   private static final String TAG = FirestoreStorageManager.class.getName();
   private static final String MEDIA_ROOT_DIR = "uploaded_media";
+  private final StorageReference storageReference;
 
   @Inject
-  FirestoreStorageManager() {}
-
-  /** Returns a reference to the default Storage bucket. */
-  private StorageReference getBaseReference() {
-    return FirebaseStorage.getInstance().getReference();
+  FirestoreStorageManager(StorageReference storageReference) {
+    this.storageReference = storageReference;
   }
 
   /** Returns a reference to the root media dir. */
   private StorageReference getRootMediaDir() {
-    return getBaseReference().child(MEDIA_ROOT_DIR);
+    return storageReference.child(MEDIA_ROOT_DIR);
   }
 
   /**
@@ -61,7 +58,7 @@ public class FirestoreStorageManager {
   public Maybe<Uri> getDownloadUrl(String path) {
     return Maybe.create(
         emitter ->
-            getBaseReference()
+            storageReference
                 .child(path)
                 .getDownloadUrl()
                 .addOnSuccessListener(emitter::onSuccess)
