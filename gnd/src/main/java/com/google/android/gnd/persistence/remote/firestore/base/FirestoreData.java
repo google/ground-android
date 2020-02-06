@@ -27,9 +27,8 @@ import java.util.Map;
 import java8.util.Optional;
 
 /**
- * Wrapper for raw data maps consumed and returned by the Cloud Firestore API. This includes data
- * returned from remote Firestore, as well as updates intended to overwrite or to be merged with
- * remote data.
+ * Wrapper for raw data being read and written by the Cloud Firestore API, including both data
+ * returned from remote Firestore as a document, as well as for nested objects inside a document.
  */
 public class FirestoreData {
 
