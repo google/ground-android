@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.model.observation;
 
+import androidx.annotation.NonNull;
 import com.google.android.gnd.model.form.Field;
 import java8.util.Optional;
 
@@ -60,6 +61,7 @@ public class TextResponse implements Response {
     return text.hashCode();
   }
 
+  @NonNull
   @Override
   public String toString() {
     return text;
