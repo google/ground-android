@@ -176,7 +176,7 @@ dependencies {
     // Guava
     implementation "com.google.guava:guava:$project.guavaVersion"
 
-    // Picasso
+    // Picasso: Image downloading and caching library
     implementation 'com.squareup.picasso:picasso:2.71828'
 
     // Room
