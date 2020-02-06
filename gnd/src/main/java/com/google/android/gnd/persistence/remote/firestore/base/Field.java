@@ -25,7 +25,7 @@ import com.google.firebase.firestore.GeoPoint;
  *
  * @param <T> The data type stored in this field. Must be either one of the supported Firestore <a
  *     href="https://firebase.google.com/docs/firestore/manage-data/data-types">data types</a>, or
- *     {@link Data} to represented a nested object (map).
+ *     {@link FirestoreData} to represented a nested object (map).
  */
 public final class Field<T> {
 
@@ -69,7 +69,7 @@ public final class Field<T> {
     return new Field<>(name, Timestamp.class);
   }
 
-  public static Field<Data> nestedObject(String name) {
-    return new Field<>(name, Data.class);
+  public static Field<FirestoreData> nestedObject(String name) {
+    return new Field<>(name, FirestoreData.class);
   }
 }

@@ -21,7 +21,7 @@ import androidx.annotation.Nullable;
 import com.google.android.gnd.model.AuditInfo;
 import com.google.android.gnd.model.Mutation;
 import com.google.android.gnd.model.User;
-import com.google.android.gnd.persistence.remote.firestore.base.Data;
+import com.google.android.gnd.persistence.remote.firestore.base.FirestoreData;
 import com.google.android.gnd.persistence.remote.firestore.converters.UserMapConverter;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.ServerTimestamp;
@@ -67,7 +67,7 @@ public class AuditInfoDoc {
           .build();
     }
     return AuditInfo.builder()
-        .setUser(UserMapConverter.toUser(Data.fromMap(doc.user)))
+        .setUser(UserMapConverter.toUser(FirestoreData.fromMap(doc.user)))
         .setClientTimeMillis(doc.clientTimeMillis.toDate())
         .setServerTimeMillis(Optional.ofNullable(doc.serverTimeMillis).map(Timestamp::toDate))
         .build();

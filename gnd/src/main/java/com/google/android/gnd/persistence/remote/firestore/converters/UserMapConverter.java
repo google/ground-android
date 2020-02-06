@@ -23,7 +23,7 @@ import static com.google.android.gnd.persistence.remote.firestore.schema.UserMap
 import androidx.annotation.NonNull;
 import com.google.android.gnd.model.User;
 import com.google.android.gnd.persistence.remote.firestore.DataStoreException;
-import com.google.android.gnd.persistence.remote.firestore.base.Data;
+import com.google.android.gnd.persistence.remote.firestore.base.FirestoreData;
 
 /** Converts between user details nested inside Firestore documents and equivalent model objects. */
 public class UserMapConverter {
@@ -33,8 +33,8 @@ public class UserMapConverter {
       User.builder().setId("").setEmail("").setDisplayName("Unknown user").build();
 
   @NonNull
-  public static Data fromUser(@NonNull User user) {
-    return Data.builder()
+  public static FirestoreData fromUser(@NonNull User user) {
+    return FirestoreData.builder()
         .set(ID, user.getId())
         .set(EMAIL, user.getEmail())
         .set(DISPLAY_NAME, user.getDisplayName())
@@ -42,7 +42,7 @@ public class UserMapConverter {
   }
 
   @NonNull
-  public static User toUser(@NonNull Data data) {
+  public static User toUser(@NonNull FirestoreData data) {
     try {
       return User.builder()
           .setId(data.getRequired(ID))

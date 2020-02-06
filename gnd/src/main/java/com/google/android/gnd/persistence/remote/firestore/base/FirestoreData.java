@@ -31,11 +31,11 @@ import java8.util.Optional;
  * returned from remote Firestore, as well as updates intended to overwrite or to be merged with
  * remote data.
  */
-public class Data {
+public class FirestoreData {
 
   private final Map<String, Object> map;
 
-  private Data(Map<String, Object> map) {
+  private FirestoreData(Map<String, Object> map) {
     this.map = map;
   }
 
@@ -64,7 +64,7 @@ public class Data {
         return null;
       }
     }
-    boolean isNestedObject = Data.class.isAssignableFrom(field.type());
+    boolean isNestedObject = FirestoreData.class.isAssignableFrom(field.type());
     Class expectedType = isNestedObject ? Map.class : field.type();
     if (!expectedType.isAssignableFrom(value.getClass())) {
       if (required) {
@@ -89,16 +89,16 @@ public class Data {
   }
 
   @NonNull
-  public static Data fromMap(Map<String, Object> map) {
-    return new Data(new HashMap<>(map));
+  public static FirestoreData fromMap(Map<String, Object> map) {
+    return new FirestoreData(new HashMap<>(map));
   }
 
   public static final class Builder {
     private final Map<String, Object> map = new HashMap<>();
 
     public <T> Builder set(Field<T> field, T value) {
-      if (value instanceof Data) {
-        map.put(field.key(), ((Data) value).toMap());
+      if (value instanceof FirestoreData) {
+        map.put(field.key(), ((FirestoreData) value).toMap());
       } else {
         map.put(field.key(), value);
       }
@@ -115,8 +115,8 @@ public class Data {
       return this;
     }
 
-    public Data build() {
-      return new Data(map);
+    public FirestoreData build() {
+      return new FirestoreData(map);
     }
   }
 }
