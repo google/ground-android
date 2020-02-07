@@ -22,7 +22,6 @@ import com.google.android.gnd.persistence.remote.firestore.DataStoreException;
 import com.google.common.collect.ImmutableMap;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.FieldValue;
-import java.util.HashMap;
 import java.util.Map;
 import java8.util.Optional;
 
@@ -30,11 +29,11 @@ import java8.util.Optional;
  * Wrapper for raw data being read and written by the Cloud Firestore API, including both data
  * returned from remote Firestore as a document, as well as for nested objects inside a document.
  */
-public class FirestoreData {
+public abstract class FirestoreData {
 
-  private final Map<String, Object> map;
+  private final ImmutableMap<String, Object> map;
 
-  private FirestoreData(Map<String, Object> map) {
+  protected FirestoreData(ImmutableMap<String, Object> map) {
     this.map = map;
   }
 
@@ -44,7 +43,7 @@ public class FirestoreData {
   }
 
   @NonNull
-  public <T> T getRequired(FirestoreField<T> field) {
+  protected <T> T getRequired(FirestoreField<T> field) {
     return get(field, true);
   }
 
@@ -54,8 +53,11 @@ public class FirestoreData {
   }
 
   @Nullable
-  private <T> T get(FirestoreField<T> field, boolean required) {
+  protected <T> T get(FirestoreField<T> field, boolean required) {
     Object value = map.get(field.key());
+    if (value == FieldValue.delete()) {
+      value = null;
+    }
     if (value == null) {
       if (required) {
         throw new DataStoreException("Missing field " + field);
@@ -82,40 +84,30 @@ public class FirestoreData {
     return (T) value;
   }
 
-  @NonNull
-  public static Builder builder() {
-    return new Builder();
-  }
+  public abstract static class Builder<B extends Builder> {
+    private final ImmutableMap.Builder<String, Object> map = ImmutableMap.builder();
 
-  @NonNull
-  public static FirestoreData fromMap(Map<String, Object> map) {
-    return new FirestoreData(new HashMap<>(map));
-  }
-
-  public static final class Builder {
-    private final Map<String, Object> map = new HashMap<>();
-
-    public <T> Builder set(FirestoreField<T> field, T value) {
+    protected <T> B set(FirestoreField<T> field, T value) {
       if (value instanceof FirestoreData) {
         map.put(field.key(), ((FirestoreData) value).toMap());
       } else {
         map.put(field.key(), value);
       }
-      return this;
+      return (B) this;
     }
 
-    public <T> Builder delete(FirestoreField<T> field) {
+    protected <T> B delete(FirestoreField<T> field) {
       map.put(field.key(), FieldValue.delete());
-      return this;
+      return (B) this;
     }
 
-    public Builder updateTimestampOnServer(FirestoreField<Timestamp> field) {
+    protected B updateServerTimestamp(FirestoreField<Timestamp> field) {
       map.put(field.key(), FieldValue.serverTimestamp());
-      return this;
+      return (B) this;
     }
 
-    public FirestoreData build() {
-      return new FirestoreData(map);
+    protected ImmutableMap<String, Object> toMap() {
+      return map.build();
     }
   }
 }

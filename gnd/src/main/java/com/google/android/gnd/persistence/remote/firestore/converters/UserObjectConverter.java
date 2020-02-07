@@ -16,40 +16,36 @@
 
 package com.google.android.gnd.persistence.remote.firestore.converters;
 
-import static com.google.android.gnd.persistence.remote.firestore.schema.UserMapFields.DISPLAY_NAME;
-import static com.google.android.gnd.persistence.remote.firestore.schema.UserMapFields.EMAIL;
-import static com.google.android.gnd.persistence.remote.firestore.schema.UserMapFields.ID;
-
 import androidx.annotation.NonNull;
 import com.google.android.gnd.model.User;
-import com.google.android.gnd.persistence.remote.firestore.DataStoreException;
-import com.google.android.gnd.persistence.remote.firestore.base.FirestoreData;
+import com.google.android.gnd.persistence.remote.firestore.schema.UserObject;
+import java.util.NoSuchElementException;
 
 /** Converts between user details nested inside Firestore documents and equivalent model objects. */
-public class UserMapConverter {
+public class UserObjectConverter {
 
   /** Fallback value when reading invalid or legacy schemas. */
   public static final User UNKNOWN_USER =
       User.builder().setId("").setEmail("").setDisplayName("Unknown user").build();
 
   @NonNull
-  public static FirestoreData fromUser(@NonNull User user) {
-    return FirestoreData.builder()
-        .set(ID, user.getId())
-        .set(EMAIL, user.getEmail())
-        .set(DISPLAY_NAME, user.getDisplayName())
+  public static UserObject fromUser(@NonNull User user) {
+    return UserObject.builder()
+        .setId(user.getId())
+        .setEmail(user.getEmail())
+        .setDisplayName(user.getDisplayName())
         .build();
   }
 
   @NonNull
-  public static User toUser(@NonNull FirestoreData data) {
+  public static User toUser(@NonNull UserObject data) {
     try {
       return User.builder()
-          .setId(data.getRequired(ID))
-          .setEmail(data.getRequired(EMAIL))
-          .setDisplayName(data.getRequired(DISPLAY_NAME))
+          .setId(data.getId().get())
+          .setEmail(data.getEmail().get())
+          .setDisplayName(data.getDisplayName().get())
           .build();
-    } catch (DataStoreException e) {
+    } catch (NoSuchElementException e) {
       return UNKNOWN_USER;
     }
   }
