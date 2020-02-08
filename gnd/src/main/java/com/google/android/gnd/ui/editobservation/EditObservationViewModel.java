@@ -277,14 +277,14 @@ public class EditObservationViewModel extends AbstractViewModel {
    * path.
    */
   File getLocalFileFromDestinationPath(String destinationPath) throws FileNotFoundException {
-    String[] splits = destinationPath.split(File.separator);
+    String[] splits = destinationPath.split("/");
     return fileUtil.getFile(splits[splits.length - 1]);
   }
 
   /**
    * Generates destination path for saving the image to Firestore Storage.
    *
-   * <p>/uploaded_media/<project_id>/<form_id>/<feature_id>/filename.jpg
+   * <p>/uploaded_media/{project_id}/{form_id}/{feature_id}/{filename.jpg}
    */
   private String getRemoteImagePath(String filename) {
     return new StringJoiner(File.separator)
