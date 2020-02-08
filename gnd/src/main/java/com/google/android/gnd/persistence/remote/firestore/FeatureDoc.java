@@ -24,6 +24,8 @@ import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.FeatureMutation;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.model.layer.Layer;
+import com.google.android.gnd.persistence.remote.firestore.converters.AuditInfoObjectConverter;
+import com.google.android.gnd.persistence.remote.firestore.schema.AuditInfoObject;
 import com.google.common.collect.ImmutableMap;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.GeoPoint;
@@ -48,9 +50,9 @@ public class FeatureDoc {
   // TODO: Replace with consistent name throughout.
   public GeoPoint center;
 
-  @Nullable public AuditInfoDoc created;
+  @Nullable public AuditInfoObject created;
 
-  @Nullable public AuditInfoDoc modified;
+  @Nullable public AuditInfoObject modified;
 
   public static Feature toObject(Project project, DocumentSnapshot doc) {
     FeatureDoc f = doc.toObject(FeatureDoc.class);
@@ -71,8 +73,8 @@ public class FeatureDoc {
         .setCaption(f.caption)
         .setLayer(layer.get())
         .setPoint(point)
-        .setCreated(AuditInfoDoc.toObject(f.created))
-        .setLastModified(AuditInfoDoc.toObject(f.modified))
+        .setCreated(AuditInfoObjectConverter.toAuditInfo(f.created))
+        .setLastModified(AuditInfoObjectConverter.toAuditInfo(f.modified))
         .build();
   }
 
@@ -88,7 +90,7 @@ public class FeatureDoc {
     ImmutableMap.Builder<String, Object> map = ImmutableMap.builder();
     map.put(FEATURE_TYPE_ID, mutation.getLayerId());
     mutation.getNewLocation().map(FeatureDoc::toGeoPoint).ifPresent(p -> map.put(CENTER, p));
-    AuditInfoDoc auditInfo = AuditInfoDoc.fromMutationAndUser(mutation, user);
+    AuditInfoObject auditInfo = AuditInfoObjectConverter.fromMutationAndUser(mutation, user);
     switch (mutation.getType()) {
       case CREATE:
         map.put(CREATED, auditInfo);

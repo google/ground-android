@@ -20,6 +20,7 @@ import androidx.annotation.NonNull;
 import com.google.android.gnd.model.User;
 import com.google.android.gnd.persistence.remote.firestore.schema.UserObject;
 import java.util.NoSuchElementException;
+import java8.util.Optional;
 
 /** Converts between user details nested inside Firestore documents and equivalent model objects. */
 public class UserObjectConverter {
@@ -35,6 +36,11 @@ public class UserObjectConverter {
         .setEmail(user.getEmail())
         .setDisplayName(user.getDisplayName())
         .build();
+  }
+
+  @NonNull
+  public static User toUser(@NonNull Optional<UserObject> data) {
+    return data.map(UserObjectConverter::toUser).orElse(UNKNOWN_USER);
   }
 
   @NonNull

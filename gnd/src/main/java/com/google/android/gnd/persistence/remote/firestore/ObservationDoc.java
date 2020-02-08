@@ -28,6 +28,8 @@ import com.google.android.gnd.model.observation.Response;
 import com.google.android.gnd.model.observation.ResponseDelta;
 import com.google.android.gnd.model.observation.ResponseMap;
 import com.google.android.gnd.model.observation.TextResponse;
+import com.google.android.gnd.persistence.remote.firestore.converters.AuditInfoObjectConverter;
+import com.google.android.gnd.persistence.remote.firestore.schema.AuditInfoObject;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -54,9 +56,9 @@ public class ObservationDoc {
 
   @Nullable public String formId;
 
-  @Nullable public AuditInfoDoc created;
+  @Nullable public AuditInfoObject created;
 
-  @Nullable public AuditInfoDoc modified;
+  @Nullable public AuditInfoObject modified;
 
   @Nullable public Map<String, Object> responses;
 
@@ -78,8 +80,8 @@ public class ObservationDoc {
         .setFeature(feature)
         .setForm(form.get())
         .setResponses(toResponseMap(rd.responses))
-        .setCreated(AuditInfoDoc.toObject(rd.created))
-        .setLastModified(AuditInfoDoc.toObject(rd.modified))
+        .setCreated(AuditInfoObjectConverter.toAuditInfo(rd.created))
+        .setLastModified(AuditInfoObjectConverter.toAuditInfo(rd.modified))
         .build();
   }
 
@@ -116,7 +118,7 @@ public class ObservationDoc {
 
   public static ImmutableMap<String, Object> toMap(ObservationMutation mutation, User user) {
     ImmutableMap.Builder<String, Object> map = ImmutableMap.builder();
-    AuditInfoDoc auditInfo = AuditInfoDoc.fromMutationAndUser(mutation, user);
+    AuditInfoObject auditInfo = AuditInfoObjectConverter.fromMutationAndUser(mutation, user);
     switch (mutation.getType()) {
       case CREATE:
         map.put(CREATED, auditInfo);
