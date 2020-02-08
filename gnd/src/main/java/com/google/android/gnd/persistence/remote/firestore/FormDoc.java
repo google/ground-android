@@ -25,6 +25,8 @@ import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.form.Field.Type;
 import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.model.form.MultipleChoice;
+import com.google.android.gnd.persistence.remote.firestore.converters.OptionObjectConverter;
+import com.google.android.gnd.persistence.remote.firestore.schema.OptionObject;
 import com.google.firebase.firestore.IgnoreExtraProperties;
 import java.util.List;
 import java.util.Map;
@@ -53,7 +55,7 @@ public class FormDoc {
     // TODO: labels or label?
     public Map<String, String> labels;
 
-    public List<Option> options;
+    public List<OptionObject> options;
 
     public boolean required;
 
@@ -89,26 +91,10 @@ public class FormDoc {
       MultipleChoice.Builder mc = MultipleChoice.newBuilder();
       mc.setCardinality(toEnum(MultipleChoice.Cardinality.class, em.cardinality));
       if (em.options != null) {
-        mc.setOptions(stream(em.options).map(Option::toOption).collect(toImmutableList()));
+        mc.setOptions(
+            stream(em.options).map(OptionObjectConverter::toOption).collect(toImmutableList()));
       }
       return mc.build();
-    }
-
-    public static class Option {
-      public String code;
-      public Map<String, String> labels;
-
-      public static com.google.android.gnd.model.form.Option toOption(Option option) {
-        com.google.android.gnd.model.form.Option.Builder builder =
-            com.google.android.gnd.model.form.Option.newBuilder();
-        if (option.code != null) {
-          builder.setCode(option.code);
-        }
-        if (option.labels != null) {
-          builder.setLabel(getLocalizedMessage(option.labels));
-        }
-        return builder.build();
-      }
     }
   }
 }
