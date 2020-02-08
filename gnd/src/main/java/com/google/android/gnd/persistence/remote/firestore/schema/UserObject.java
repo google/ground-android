@@ -16,6 +16,8 @@
 
 package com.google.android.gnd.persistence.remote.firestore.schema;
 
+import static com.google.android.gnd.persistence.remote.firestore.base.FirestoreField.string;
+
 import com.google.android.gnd.persistence.remote.firestore.base.FirestoreData;
 import com.google.android.gnd.persistence.remote.firestore.base.FirestoreField;
 import com.google.common.collect.ImmutableMap;
@@ -24,9 +26,9 @@ import java8.util.Optional;
 
 /** Represents user info stored as a nested object inside Firestore documents. */
 public final class UserObject extends FirestoreData {
-  private static final FirestoreField<String> ID = FirestoreField.string("id");
-  private static final FirestoreField<String> EMAIL = FirestoreField.string("email");
-  private static final FirestoreField<String> DISPLAY_NAME = FirestoreField.string("displayName");
+  private static final FirestoreField<String> ID = string("id");
+  private static final FirestoreField<String> EMAIL = string("email");
+  private static final FirestoreField<String> DISPLAY_NAME = string("displayName");
 
   private UserObject(ImmutableMap<String, Object> map) {
     super(map);
