@@ -73,4 +73,8 @@ public final class FirestoreField<T> {
       String name, Class<T> type) {
     return new FirestoreField<>(name, type);
   }
+
+  public static FirestoreField<Boolean> bool(String name) {
+    return new FirestoreField<>(name, Boolean.class);
+  }
 }
