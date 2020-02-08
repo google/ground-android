@@ -27,17 +27,17 @@ import java.util.Map;
 import java8.util.Optional;
 
 /** User details and timestamp for creation or modification of a model object. */
-public final class AuditInfoObject extends FirestoreData {
-  private static final FirestoreField<UserObject> USER = nestedObject("user", UserObject.class);
+public final class AuditInfoMap extends FirestoreData {
+  private static final FirestoreField<UserMap> USER = nestedObject("user", UserMap.class);
   private static final FirestoreField<Timestamp> CLIENT_TIME_MILLIS = timestamp("clientTimeMillis");
   private static final FirestoreField<Timestamp> SERVER_TIME_MILLIS = timestamp("serverTimeMillis");
 
-  public AuditInfoObject(Map<String, Object> map) {
+  public AuditInfoMap(Map<String, Object> map) {
     super(map);
   }
 
   public static Builder builder() {
-    return new AuditInfoObject.Builder();
+    return new AuditInfoMap.Builder();
   }
 
   /**
@@ -45,7 +45,7 @@ public final class AuditInfoObject extends FirestoreData {
    * values anyway since the Firestore is schema-less.
    */
   @NonNull
-  public Optional<UserObject> getUser() {
+  public Optional<UserMap> getUser() {
     return get(USER);
   }
 
@@ -73,7 +73,7 @@ public final class AuditInfoObject extends FirestoreData {
       super();
     }
 
-    public Builder setUser(UserObject user) {
+    public Builder setUser(UserMap user) {
       return set(USER, user);
     }
 
@@ -85,8 +85,8 @@ public final class AuditInfoObject extends FirestoreData {
       return updateServerTimestamp(SERVER_TIME_MILLIS);
     }
 
-    public AuditInfoObject build() {
-      return new AuditInfoObject(map());
+    public AuditInfoMap build() {
+      return new AuditInfoMap(map());
     }
   }
 }

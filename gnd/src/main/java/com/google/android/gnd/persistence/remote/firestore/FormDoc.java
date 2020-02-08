@@ -25,8 +25,8 @@ import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.form.Field.Type;
 import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.model.form.MultipleChoice;
-import com.google.android.gnd.persistence.remote.firestore.converters.OptionObjectConverter;
-import com.google.android.gnd.persistence.remote.firestore.schema.OptionObject;
+import com.google.android.gnd.persistence.remote.firestore.converters.OptionMapConverter;
+import com.google.android.gnd.persistence.remote.firestore.schema.OptionMap;
 import com.google.firebase.firestore.IgnoreExtraProperties;
 import java.util.List;
 import java.util.Map;
@@ -55,7 +55,7 @@ public class FormDoc {
     // TODO: labels or label?
     public Map<String, String> labels;
 
-    public List<OptionObject> options;
+    public List<OptionMap> options;
 
     public boolean required;
 
@@ -92,7 +92,7 @@ public class FormDoc {
       mc.setCardinality(toEnum(MultipleChoice.Cardinality.class, em.cardinality));
       if (em.options != null) {
         mc.setOptions(
-            stream(em.options).map(OptionObjectConverter::toOption).collect(toImmutableList()));
+            stream(em.options).map(OptionMapConverter::toOption).collect(toImmutableList()));
       }
       return mc.build();
     }

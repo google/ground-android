@@ -24,11 +24,11 @@ import com.google.android.gnd.persistence.remote.firestore.base.FirestoreField;
 import java.util.Map;
 import java8.util.Optional;
 
-public class OptionObject extends FirestoreData {
+public class OptionMap extends FirestoreData {
   private static final FirestoreField<String> CODE = string("code");
   private static final FirestoreField<StringMap> LABELS = nestedObject("labels", StringMap.class);
 
-  public OptionObject(Map<String, Object> map) {
+  public OptionMap(Map<String, Object> map) {
     super(map);
   }
 

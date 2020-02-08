@@ -17,11 +17,11 @@
 package com.google.android.gnd.persistence.remote.firestore.converters;
 
 import com.google.android.gnd.model.form.Option;
-import com.google.android.gnd.persistence.remote.firestore.schema.OptionObject;
+import com.google.android.gnd.persistence.remote.firestore.schema.OptionMap;
 
-public final class OptionObjectConverter {
+public final class OptionMapConverter {
 
-  public static Option toOption(OptionObject option) {
+  public static Option toOption(OptionMap option) {
     Option.Builder builder = Option.newBuilder();
     option.getCode().ifPresent(builder::setCode);
     builder.setLabel(option.getLabels().getDefault());

@@ -24,16 +24,16 @@ import java.util.Map;
 import java8.util.Optional;
 
 /** Represents user info stored as a nested object inside Firestore documents. */
-public final class UserObject extends FirestoreData {
+public final class UserMap extends FirestoreData {
   private static final FirestoreField<String> ID = string("id");
   private static final FirestoreField<String> EMAIL = string("email");
   private static final FirestoreField<String> DISPLAY_NAME = string("displayName");
 
-  public UserObject(Map<String, Object> map) {
+  public UserMap(Map<String, Object> map) {
     super(map);
   }
 
-  public static UserObject.Builder builder() {
+  public static UserMap.Builder builder() {
     return new Builder();
   }
 
@@ -66,8 +66,8 @@ public final class UserObject extends FirestoreData {
       return set(DISPLAY_NAME, displayName);
     }
 
-    public UserObject build() {
-      return new UserObject(map());
+    public UserMap build() {
+      return new UserMap(map());
     }
   }
 }
