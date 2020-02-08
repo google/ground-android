@@ -57,8 +57,10 @@ import io.reactivex.Single;
 import io.reactivex.processors.BehaviorProcessor;
 import io.reactivex.processors.PublishProcessor;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.Date;
 import java8.util.Optional;
+import java8.util.StringJoiner;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
@@ -259,8 +261,9 @@ public class EditObservationViewModel extends AbstractViewModel {
             file -> {
               // If offline, Firebase will automatically upload the image when the network
               // connectivity is  re-established.
-              String remotePath = getRemoteImageDir() + file.getName();
-              return firestoreStorageManager.uploadMediaFromFile(file, remotePath);
+              // TODO: Implement offline photo sync using Android Workers and local db
+              String destinationPath = getRemoteImagePath(file.getName());
+              return firestoreStorageManager.uploadMediaFromFile(file, destinationPath);
             })
         .doOnNext(
             url -> {
@@ -269,13 +272,27 @@ public class EditObservationViewModel extends AbstractViewModel {
             });
   }
 
-  private String getRemoteImageDir() {
-    return args.getProjectId()
-        + File.separator
-        + args.getFormId()
-        + File.separator
-        + args.getFeatureId()
-        + File.separator;
+  /**
+   * Returns the path of the file saved in the sdcard used for uploading to the provided destination
+   * path.
+   */
+  File getLocalFileFromDestinationPath(String destinationPath) throws FileNotFoundException {
+    String[] splits = destinationPath.split(File.separator);
+    return fileUtil.getFile(splits[splits.length - 1]);
+  }
+
+  /**
+   * Generates destination path for saving the image to Firestore Storage.
+   *
+   * <p>/uploaded_media/<project_id>/<form_id>/<feature_id>/filename.jpg
+   */
+  private String getRemoteImagePath(String filename) {
+    return new StringJoiner(File.separator)
+        .add(args.getProjectId())
+        .add(args.getFormId())
+        .add(args.getFeatureId())
+        .add(filename)
+        .toString();
   }
 
   public void onSaveClick() {

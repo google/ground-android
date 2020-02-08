@@ -66,11 +66,11 @@ public class FirestoreStorageManager {
   }
 
   /** Upload file to Firebase Storage. */
-  public String uploadMediaFromFile(File file, String fileName) {
-    StorageReference reference = createReference(fileName);
+  public String uploadMediaFromFile(File file, String destinationPath) {
+    StorageReference reference = createReference(destinationPath);
     UploadTask task = reference.putFile(Uri.fromFile(file));
 
-    uploadMediaToFirebaseStorage(task, fileName);
+    uploadMediaToFirebaseStorage(task, destinationPath);
     fetchDownloadUrl(reference, task);
     return reference.getPath();
   }

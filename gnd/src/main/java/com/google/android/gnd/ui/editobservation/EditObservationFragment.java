@@ -52,6 +52,7 @@ import com.google.android.gnd.ui.editobservation.PhotoDialogFragment.AddPhotoLis
 import com.google.android.gnd.ui.util.FileUtil;
 import com.squareup.picasso.Picasso;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import java.io.File;
 import java8.util.Optional;
 import javax.inject.Inject;
 
@@ -200,23 +201,30 @@ public class EditObservationFragment extends AbstractFragment
             });
   }
 
-  private void updateBitmap(ImageView imageView, String path) {
-    // TODO: Image doesn't load into the imageview
+  /**
+   * Load thumbnail preview from the provided destination path.
+   *
+   * <p>If the image is not uploaded yet, then parse the filename from path and load the file from
+   * local storage.
+   *
+   * @param imageView Placeholder for photo field
+   * @param destinationPath Destination path of the uploaded image
+   */
+  private void updateBitmap(ImageView imageView, String destinationPath) {
+    // TODO: (BUG) Image doesn't load into the imageview
     viewModel
-        .getFirestoreDownloadUrl(path)
+        .getFirestoreDownloadUrl(destinationPath)
         .observeOn(AndroidSchedulers.mainThread())
         .doOnSuccess(
             uri -> {
-              // Load the file from firestore storage
+              // Load the file from Firestore Storage
               Picasso.get().load(uri).into(imageView);
             })
         .doOnError(
             throwable -> {
               // Load file locally
-              String[] splits = path.split("/");
-              Picasso.get()
-                  .load(fileUtil.getFileFromFilename(splits[splits.length - 1]))
-                  .into(imageView);
+              File file = viewModel.getLocalFileFromDestinationPath(destinationPath);
+              Picasso.get().load(file).into(imageView);
             })
         .as(autoDisposable(this))
         .subscribe();

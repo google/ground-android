@@ -51,7 +51,7 @@ public class FileUtil {
     return file;
   }
 
-  public File getFileFromFilename(String filename) throws FileNotFoundException {
+  public File getFile(String filename) throws FileNotFoundException {
     File file = new File(context.getFilesDir(), filename);
     if (!file.exists()) {
       throw new FileNotFoundException("File not found: " + filename);
