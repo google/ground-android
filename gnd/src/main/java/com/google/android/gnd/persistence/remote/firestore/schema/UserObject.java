@@ -20,7 +20,6 @@ import static com.google.android.gnd.persistence.remote.firestore.base.Firestore
 
 import com.google.android.gnd.persistence.remote.firestore.base.FirestoreData;
 import com.google.android.gnd.persistence.remote.firestore.base.FirestoreField;
-import com.google.common.collect.ImmutableMap;
 import java.util.Map;
 import java8.util.Optional;
 
@@ -30,12 +29,8 @@ public final class UserObject extends FirestoreData {
   private static final FirestoreField<String> EMAIL = string("email");
   private static final FirestoreField<String> DISPLAY_NAME = string("displayName");
 
-  private UserObject(ImmutableMap<String, Object> map) {
+  public UserObject(Map<String, Object> map) {
     super(map);
-  }
-
-  public static UserObject fromMap(Map<String, Object> map) {
-    return new UserObject(ImmutableMap.copyOf(map));
   }
 
   public static UserObject.Builder builder() {
@@ -72,7 +67,7 @@ public final class UserObject extends FirestoreData {
     }
 
     public UserObject build() {
-      return new UserObject(toMap());
+      return new UserObject(map());
     }
   }
 }

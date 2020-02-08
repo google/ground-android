@@ -69,7 +69,8 @@ public final class FirestoreField<T> {
     return new FirestoreField<>(name, Timestamp.class);
   }
 
-  public static FirestoreField<FirestoreData> nestedObject(String name) {
-    return new FirestoreField<>(name, FirestoreData.class);
+  public static <T extends FirestoreData> FirestoreField<T> nestedObject(
+      String name, Class<T> type) {
+    return new FirestoreField<>(name, type);
   }
 }

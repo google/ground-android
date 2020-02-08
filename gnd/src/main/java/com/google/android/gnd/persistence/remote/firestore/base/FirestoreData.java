@@ -22,6 +22,7 @@ import com.google.android.gnd.persistence.remote.firestore.DataStoreException;
 import com.google.common.collect.ImmutableMap;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.FieldValue;
+import java.util.HashMap;
 import java.util.Map;
 import java8.util.Optional;
 
@@ -33,8 +34,12 @@ public abstract class FirestoreData {
 
   private final ImmutableMap<String, Object> map;
 
-  protected FirestoreData(ImmutableMap<String, Object> map) {
-    this.map = map;
+  /**
+   * All subclasses must provide a public constructor with the same signature as this one to allow
+   * automatic instantiation of nested objects using reflection.
+   */
+  protected FirestoreData(Map<String, Object> map) {
+    this.map = ImmutableMap.copyOf(map);
   }
 
   @NonNull
@@ -85,7 +90,7 @@ public abstract class FirestoreData {
   }
 
   public abstract static class Builder<B extends Builder> {
-    private final ImmutableMap.Builder<String, Object> map = ImmutableMap.builder();
+    private final Map<String, Object> map = new HashMap<>();
 
     protected <T> B set(FirestoreField<T> field, T value) {
       if (value instanceof FirestoreData) {
@@ -106,8 +111,8 @@ public abstract class FirestoreData {
       return (B) this;
     }
 
-    protected ImmutableMap<String, Object> toMap() {
-      return map.build();
+    protected Map<String, Object> map() {
+      return map;
     }
   }
 }
