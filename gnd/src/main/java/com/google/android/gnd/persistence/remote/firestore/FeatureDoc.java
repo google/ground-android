@@ -57,7 +57,7 @@ public class FeatureDoc {
     Optional<Layer> layer = project.getLayer(f.featureTypeId);
     if (!layer.isPresent()) {
       throw new DataStoreException(
-          "Unknown feature type " + f.featureTypeId + " in lace " + doc.getId());
+          "Unknown featureTypeId " + f.featureTypeId + " in feature " + doc.getId());
     }
     Point point =
         Point.newBuilder()
