@@ -25,8 +25,8 @@ public class StyleTypeConverter {
 
   @TypeConverter
   @Nullable
-  public static String toString(@NonNull Style style) {
-    return style.getColor();
+  public static String toString(@Nullable Style style) {
+    return style == null ? null : style.getColor();
   }
 
   @TypeConverter
