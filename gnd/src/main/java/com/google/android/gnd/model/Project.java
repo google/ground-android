@@ -59,8 +59,9 @@ public abstract class Project {
 
     public abstract ImmutableMap.Builder<String, Layer> layerMapBuilder();
 
-    public void putLayer(String id, Layer layer) {
+    public Builder putLayer(String id, Layer layer) {
       layerMapBuilder().put(id, layer);
+      return this;
     }
 
     public abstract Project build();
