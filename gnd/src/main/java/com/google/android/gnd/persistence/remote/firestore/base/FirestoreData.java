@@ -55,7 +55,7 @@ public abstract class FirestoreData {
   @Nullable
   protected <T> T get(FirestoreField<T> field, boolean required) {
     Object value = map.get(field.key());
-    if (value == FieldValue.delete()) {
+    if (value instanceof FieldValue) {
       value = null;
     }
     if (value == null) {
