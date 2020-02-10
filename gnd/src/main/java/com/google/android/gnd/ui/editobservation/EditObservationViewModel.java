@@ -257,7 +257,7 @@ public class EditObservationViewModel extends AbstractViewModel {
       toolbarTitle.setValue(resources.getString(R.string.add_observation_toolbar_title));
       obs = createObservation(viewArgs);
     } else {
-      toolbarTitle.setValue(resources.getString(R.string.edit_observation_toolbar_title));
+      toolbarTitle.setValue(resources.getString(R.string.edit_observation));
       obs = loadObservation(viewArgs);
     }
     return obs.doOnSuccess(this::onObservationLoaded).map(Observation::getForm);
