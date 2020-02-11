@@ -128,7 +128,7 @@
           android:layout_height="wrap_content"
           android:singleLine="true"
           android:gravity="center_vertical"
-          android:textSize="16dp"
+          android:textSize="16sp"
           android:text="@string/saving" />
       </LinearLayout>
     </androidx.cardview.widget.CardView>
