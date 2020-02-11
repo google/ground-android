@@ -21,6 +21,7 @@ import static java8.util.stream.StreamSupport.stream;
 
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.util.Log;
 import android.view.View;
 import androidx.databinding.ObservableArrayMap;
@@ -39,6 +40,7 @@ import com.google.android.gnd.model.observation.Response;
 import com.google.android.gnd.model.observation.ResponseDelta;
 import com.google.android.gnd.model.observation.ResponseMap;
 import com.google.android.gnd.model.observation.TextResponse;
+import com.google.android.gnd.persistence.remote.FirestoreStorageManager;
 import com.google.android.gnd.repository.ObservationRepository;
 import com.google.android.gnd.rx.Event;
 import com.google.android.gnd.rx.Nil;
@@ -49,13 +51,16 @@ import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.util.FileUtil;
 import com.google.common.collect.ImmutableList;
 import io.reactivex.Completable;
+import io.reactivex.Maybe;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.processors.BehaviorProcessor;
 import io.reactivex.processors.PublishProcessor;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.Date;
 import java8.util.Optional;
+import java8.util.StringJoiner;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
@@ -72,6 +77,7 @@ public class EditObservationViewModel extends AbstractViewModel {
   private final Resources resources;
   private final StorageManager storageManager;
   private final CameraManager cameraManager;
+  private final FirestoreStorageManager firestoreStorageManager;
   private final FileUtil fileUtil;
 
   // Input events.
@@ -111,6 +117,12 @@ public class EditObservationViewModel extends AbstractViewModel {
   /** Outcome of user clicking "Save". */
   private final LiveData<Event<SaveResult>> saveResults;
 
+  private EditObservationFragmentArgs args;
+
+  public Maybe<Uri> getFirestoreDownloadUrl(String path) {
+    return firestoreStorageManager.getDownloadUrl(path);
+  }
+
   /** Possible outcomes of user clicking "Save". */
   enum SaveResult {
     HAS_VALIDATION_ERRORS,
@@ -133,12 +145,14 @@ public class EditObservationViewModel extends AbstractViewModel {
       AuthenticationManager authenticationManager,
       StorageManager storageManager,
       CameraManager cameraManager,
+      FirestoreStorageManager firestoreStorageManager,
       FileUtil fileUtil) {
     this.resources = application.getResources();
     this.observationRepository = observationRepository;
     this.authManager = authenticationManager;
     this.storageManager = storageManager;
     this.cameraManager = cameraManager;
+    this.firestoreStorageManager = firestoreStorageManager;
     this.fileUtil = fileUtil;
     this.form = fromPublisher(viewArgs.switchMapSingle(this::onInitialize));
     this.saveResults = fromPublisher(saveClicks.switchMapSingle(__ -> onSave()));
@@ -169,6 +183,7 @@ public class EditObservationViewModel extends AbstractViewModel {
   }
 
   public void initialize(EditObservationFragmentArgs args) {
+    this.args = args;
     viewArgs.onNext(args);
   }
 
@@ -238,10 +253,46 @@ public class EditObservationViewModel extends AbstractViewModel {
         .ignoreElements();
   }
 
-  private Observable<File> saveBitmapAndUpdateResponse(Observable<Bitmap> source, String fieldId) {
+  private Observable<String> saveBitmapAndUpdateResponse(
+      Observable<Bitmap> source, String fieldId) {
     return source
         .map(bitmap -> fileUtil.saveBitmap(bitmap, fieldId + ".jpg"))
-        .doOnNext(file -> onTextChanged(form.getValue().getField(fieldId).get(), file.getPath()));
+        .map(
+            file -> {
+              // If offline, Firebase will automatically upload the image when the network
+              // connectivity is  re-established.
+              // TODO: Implement offline photo sync using Android Workers and local db
+              String destinationPath = getRemoteImagePath(file.getName());
+              return firestoreStorageManager.uploadMediaFromFile(file, destinationPath);
+            })
+        .doOnNext(
+            url -> {
+              // update observable response map
+              onTextChanged(form.getValue().getField(fieldId).get(), url);
+            });
+  }
+
+  /**
+   * Returns the path of the file saved in the sdcard used for uploading to the provided destination
+   * path.
+   */
+  File getLocalFileFromDestinationPath(String destinationPath) throws FileNotFoundException {
+    String[] splits = destinationPath.split("/");
+    return fileUtil.getFile(splits[splits.length - 1]);
+  }
+
+  /**
+   * Generates destination path for saving the image to Firestore Storage.
+   *
+   * <p>/uploaded_media/{project_id}/{form_id}/{feature_id}/{filename.jpg}
+   */
+  private String getRemoteImagePath(String filename) {
+    return new StringJoiner(File.separator)
+        .add(args.getProjectId())
+        .add(args.getFormId())
+        .add(args.getFeatureId())
+        .add(filename)
+        .toString();
   }
 
   public void onSaveClick() {
