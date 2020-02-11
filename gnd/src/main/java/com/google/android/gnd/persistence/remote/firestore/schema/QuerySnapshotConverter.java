@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.persistence.remote.firestore.converters;
+package com.google.android.gnd.persistence.remote.firestore.schema;
 
 import static java8.util.stream.Collectors.toList;
 import static java8.util.stream.StreamSupport.stream;
@@ -31,7 +31,7 @@ import java8.util.function.Function;
  * Converts Firestore {@link com.google.firebase.firestore.QuerySnapshot} to application-specific
  * objects.
  */
-public class QuerySnapshotConverter {
+class QuerySnapshotConverter {
 
   private static final String TAG = QuerySnapshotConverter.class.getSimpleName();
 

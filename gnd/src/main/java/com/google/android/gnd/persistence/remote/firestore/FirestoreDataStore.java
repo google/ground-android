@@ -78,7 +78,7 @@ public class FirestoreDataStore implements RemoteDataStore {
     return db.projects()
         .project(project.getId())
         .features()
-        .observe(project)
+        .loadOnceAndStreamChanges(project)
         .subscribeOn(schedulers.io());
   }
 

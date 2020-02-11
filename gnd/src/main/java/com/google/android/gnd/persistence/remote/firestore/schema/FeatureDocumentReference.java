@@ -18,7 +18,6 @@ package com.google.android.gnd.persistence.remote.firestore.schema;
 
 import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.feature.FeatureMutation;
-import com.google.android.gnd.persistence.remote.firestore.FeatureDoc;
 import com.google.android.gnd.persistence.remote.firestore.base.FluentDocumentReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.WriteBatch;
@@ -33,7 +32,7 @@ public class FeatureDocumentReference extends FluentDocumentReference {
     switch (mutation.getType()) {
       case CREATE:
       case UPDATE:
-        merge(FeatureDoc.toMap(mutation, user), batch);
+        merge(FeatureMutationConverter.toMap(mutation, user), batch);
         break;
       case DELETE:
         // TODO: Implement me!
