@@ -46,16 +46,14 @@ public abstract class Tile {
     return new AutoValue_Tile.Builder();
   }
 
-  public static String filenameFromCoords(int x, int y, int z) {
+  public static String pathFromId(String tileId) {
     // Tile ids are stored as x-y-z. Paths must be z-x-y.mbtiles.
     // TODO: Convert tile ids to paths in a less restrictive and less hacky manner.
     // TODO: Move this method to a more appropriate home? We need to perform (and possibly will no
     // matter where the tiles are stored) translation between the tile ID and the file path of the
     // corresponding tile source in remote storage/wherever we pull the source tile from.
-    String xstr = String.valueOf(x);
-    String ystr = String.valueOf(y);
-    String zstr = String.valueOf(z);
-    String filename = zstr + "-" + xstr + "-" + ystr;
+    String[] fields = tileId.replaceAll("[()]", "").split(", ");
+    String filename = fields[2] + "-" + fields[0] + "-" + fields[1];
 
     return filename + ".mbtiles";
   }

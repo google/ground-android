@@ -1,0 +1,86 @@
+/*
+ * Copyright 2020 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.google.android.gnd.persistence.geojson;
+
+import static java8.util.J8Arrays.stream;
+
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
+import java8.util.Optional;
+import org.json.JSONObject;
+
+/**
+ * A GeoJSONTile is any polygon that describes a single exterior ring comprised of four ordered
+ * coordinates: South/West, South/East, North/West, North/East, has a cartesian representation, and
+ * has an associated URL.
+ */
+public class GeoJsonTile {
+
+  private static final String ID_KEY = "id";
+  private static final String PROPERTIES_KEY = "properties";
+  private static final String URL_KEY = "title";
+
+  private final GeoJsonExtent extent;
+  private final Optional<String> id;
+  private final Optional<String> url;
+
+  /**
+   * Constructs a GeoJSONTile based on the contents of {@param jsonObject}.
+   *
+   * <p>A valid tile has the following information:
+   *
+   * <p>- a geometry describing a polygon. - an id specifying cartesian coordinates. - a URL
+   * specifying a source for the tile imagery.
+   *
+   * <p>GeoJSON Polygons are described using coordinate arrays that form a linear ring. The first
+   * and last value in a linear ring are equivalent. We assume coordinates are ordered, S/W, S/E,
+   * N/E, N/W, (S/W again, closing the ring).
+   *
+   * <p>Interior rings, which describe holes in the polygon, are ignored.
+   */
+  GeoJsonTile(JSONObject jsonObject) {
+    this.extent = new GeoJsonExtent(new GeoJsonGeometry(jsonObject));
+    this.id = Optional.of(jsonObject.optString(ID_KEY));
+    this.url =
+        Optional.ofNullable(jsonObject.optJSONObject(PROPERTIES_KEY))
+            .map(j -> j.optString(URL_KEY));
+  }
+
+  public Optional<LatLngBounds> getBounds() {
+    return this.extent.getBounds();
+  }
+
+  public Optional<LatLng[]> getCoordinates() {
+    return this.extent.getCoordinates();
+  }
+
+  public Optional<String> getId() {
+    return this.id;
+  }
+
+  public Optional<String> getUrl() {
+    return this.url;
+  }
+
+  public boolean boundsIntersect(LatLngBounds bounds) {
+    if (this.getCoordinates().isEmpty()) {
+      return false;
+    }
+
+    return stream(this.getCoordinates().get()).anyMatch(bounds::contains);
+  }
+}
