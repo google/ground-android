@@ -19,6 +19,8 @@ package com.google.android.gnd.persistence.remote.firestore.base;
 import androidx.annotation.NonNull;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.GeoPoint;
+import java.util.List;
+import javax.annotation.Nullable;
 
 /**
  * Defines the name of a field in a Firestore document or nested object and its expected type.
@@ -29,12 +31,20 @@ import com.google.firebase.firestore.GeoPoint;
  */
 public final class FirestoreField<T> {
 
-  private final String key;
-  private final Class<T> type;
+  @NonNull private final String key;
+  @NonNull private final Class<T> type;
+  @Nullable private final Class<?> elementType;
 
   private FirestoreField(String key, Class<T> type) {
     this.type = type;
     this.key = key;
+    this.elementType = null;
+  }
+
+  public FirestoreField(String key, Class<T> collectionType, Class<?> elementType) {
+    this.type = collectionType;
+    this.key = key;
+    this.elementType = elementType;
   }
 
   @NonNull
@@ -45,6 +55,11 @@ public final class FirestoreField<T> {
   @NonNull
   public Class<T> type() {
     return type;
+  }
+
+  @Nullable
+  public Class<?> elementType() {
+    return elementType;
   }
 
   @NonNull
@@ -76,5 +91,9 @@ public final class FirestoreField<T> {
 
   public static FirestoreField<Boolean> bool(String name) {
     return new FirestoreField<>(name, Boolean.class);
+  }
+
+  public static <T> FirestoreField<List<T>> array(String name, Class<T> elementType) {
+    return new FirestoreField(name, List.class, elementType);
   }
 }

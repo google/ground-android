@@ -42,16 +42,23 @@ public abstract class FirestoreData {
     this.map = ImmutableMap.copyOf(map);
   }
 
+  /** Returns the value of the specified field, or empty() if missing. */
   @NonNull
   public <T> Optional<T> get(FirestoreField<T> field) {
     return Optional.ofNullable(get(field, false));
   }
 
+  /**
+   * Returns the value of the specified field.
+   *
+   * @throws DataStoreException if the value is missing.
+   */
   @NonNull
   protected <T> T getRequired(FirestoreField<T> field) {
     return get(field, true);
   }
 
+  /** Returns a new immutable map containing the Firestore data wrapped in this object. */
   @NonNull
   public ImmutableMap<String, Object> toMap() {
     return ImmutableMap.copyOf(map);
@@ -71,6 +78,7 @@ public abstract class FirestoreData {
       }
     }
     boolean isNestedObject = FirestoreData.class.isAssignableFrom(field.type());
+    //    boolean isArray = List.class == field.type();
     Class expectedType = isNestedObject ? Map.class : field.type();
     if (!expectedType.isAssignableFrom(value.getClass())) {
       if (required) {
@@ -94,6 +102,7 @@ public abstract class FirestoreData {
 
     protected <T> B set(FirestoreField<T> field, T value) {
       if (value instanceof FirestoreData) {
+        // TODO: Use FirestoreData.Builder here instead?
         map.put(field.key(), ((FirestoreData) value).toMap());
       } else {
         map.put(field.key(), value);
