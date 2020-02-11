@@ -1,4 +1,5 @@
 <?xml version="1.0"?>
+
 <!--
   ~ Copyright 2019 Google LLC
   ~
@@ -68,6 +69,7 @@
     <exclude name="CollapsibleIfStatements" />
     <exclude name="CouplingBetweenObjects" />
     <exclude name="CyclomaticComplexity" />
+    <exclude name="DataClass" />
     <exclude name="ExcessiveImports" />
     <exclude name="ExcessiveParameterList" />
     <exclude name="GodClass" />
