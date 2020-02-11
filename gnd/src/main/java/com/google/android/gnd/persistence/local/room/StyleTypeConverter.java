@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.persistence.local.room;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.room.TypeConverter;
 import com.google.android.gnd.model.layer.Style;
