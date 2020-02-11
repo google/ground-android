@@ -16,17 +16,12 @@
 
 package com.google.android.gnd.persistence.remote;
 
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.util.Log;
-import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
-import java.io.ByteArrayOutputStream;
+import io.reactivex.Maybe;
 import java.io.File;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
 import java.util.Objects;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -39,20 +34,16 @@ public class FirestoreStorageManager {
 
   private static final String TAG = FirestoreStorageManager.class.getName();
   private static final String MEDIA_ROOT_DIR = "uploaded_media";
-  private final SimpleDateFormat dateFormat =
-      new SimpleDateFormat("yyyyMMddHHmmss", Locale.getDefault());
+  private final StorageReference storageReference;
 
   @Inject
-  FirestoreStorageManager() {}
-
-  /** Returns a reference to the default Storage bucket. */
-  private FirebaseStorage getStorage() {
-    return FirebaseStorage.getInstance();
+  FirestoreStorageManager(StorageReference storageReference) {
+    this.storageReference = storageReference;
   }
 
   /** Returns a reference to the root media dir. */
   private StorageReference getRootMediaDir() {
-    return getStorage().getReference().child(MEDIA_ROOT_DIR);
+    return storageReference.child(MEDIA_ROOT_DIR);
   }
 
   /**
@@ -61,34 +52,27 @@ public class FirestoreStorageManager {
    * @param fileName Name of the uploaded media
    */
   private StorageReference createReference(String fileName) {
-    return getRootMediaDir().child(fileName + '-' + getFilenameSuffix());
+    return getRootMediaDir().child(fileName);
   }
 
-  /** Converts current timestamp to a string to be used a suffix for uploading media. */
-  private String getFilenameSuffix() {
-    return dateFormat.format(new Date());
+  public Maybe<Uri> getDownloadUrl(String path) {
+    return Maybe.create(
+        emitter ->
+            storageReference
+                .child(path)
+                .getDownloadUrl()
+                .addOnSuccessListener(emitter::onSuccess)
+                .addOnFailureListener(emitter::onError));
   }
 
   /** Upload file to Firebase Storage. */
-  public void uploadMediaFromFile(File file, String fileName) {
-    StorageReference reference = createReference(fileName);
+  public String uploadMediaFromFile(File file, String destinationPath) {
+    StorageReference reference = createReference(destinationPath);
     UploadTask task = reference.putFile(Uri.fromFile(file));
 
-    uploadMediaToFirebaseStorage(task, fileName);
+    uploadMediaToFirebaseStorage(task, destinationPath);
     fetchDownloadUrl(reference, task);
-  }
-
-  /** Upload bitmap to Firebase Storage. */
-  public void uploadMediaFromBitmap(Bitmap bitmap, String fileName) {
-    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-    byte[] data = baos.toByteArray();
-
-    StorageReference reference = createReference(fileName);
-    UploadTask task = reference.putBytes(data);
-
-    uploadMediaToFirebaseStorage(task, fileName);
-    fetchDownloadUrl(reference, task);
+    return reference.getPath();
   }
 
   private void uploadMediaToFirebaseStorage(UploadTask uploadTask, String fileName) {
