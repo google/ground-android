@@ -125,7 +125,7 @@ abstract class GndApplicationModule {
   /** Returns a reference to the default Storage bucket. */
   @Provides
   @Singleton
-  static StorageReference baseFirestoreReference() {
+  static StorageReference firebaseStorageReference() {
     return FirebaseStorage.getInstance().getReference();
   }
 
