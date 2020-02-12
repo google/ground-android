@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.repository;
 
+import android.util.Log;
 import com.google.android.gnd.model.Mutation;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.User;
@@ -42,6 +43,9 @@ import javax.inject.Singleton;
  */
 @Singleton
 public class FeatureRepository {
+
+  private static final String TAG = FeatureRepository.class.getSimpleName();
+
   private final LocalDataStore localDataStore;
   private final RemoteDataStore remoteDataStore;
   private final ProjectRepository projectRepository;
@@ -62,7 +66,8 @@ public class FeatureRepository {
   /**
    * Mirrors features in the specified project from the remote db into the local db when the network
    * is available. When invoked, will first attempt to resync all features from the remote db,
-   * subsequently syncing only remote changes.
+   * subsequently syncing only remote changes. The returned stream never completes, and
+   * subscriptions will only terminate on disposal.
    */
   public Completable syncFeatures(Project project) {
     return remoteDataStore
@@ -81,7 +86,8 @@ public class FeatureRepository {
         // localDataStore.removeFeature(event.getEntityId());
         return Completable.complete();
       case ERROR:
-        return Completable.error(event.error().get());
+        event.error().ifPresent(e -> Log.d(TAG, "Invalid features in remote db ignored", e));
+        return Completable.complete();
       default:
         return Completable.error(
             new UnsupportedOperationException("Event type: " + event.getEventType()));

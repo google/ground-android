@@ -21,6 +21,7 @@ import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.persistence.remote.RemoteDataEvent;
 import com.google.android.gnd.persistence.remote.firestore.base.FluentCollectionReference;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.QuerySnapshot;
 import durdinapps.rxfirebase2.RxFirestore;
 import io.reactivex.Flowable;
 
@@ -36,9 +37,12 @@ public class FeaturesCollectionReference extends FluentCollectionReference {
   /** Retrieves all features in the project, then streams changes to the remote db incrementally. */
   public Flowable<RemoteDataEvent<Feature>> loadOnceAndStreamChanges(Project project) {
     return RxFirestore.observeQueryRef(reference())
-        .flatMapIterable(
-            featureQuerySnapshot ->
-                QuerySnapshotConverter.toEvents(
-                    featureQuerySnapshot, doc -> FeatureConverter.toFeature(project, doc)));
+        .flatMapIterable(snapshot -> toRemoteDataEvents(project, snapshot));
+  }
+
+  private static Iterable<RemoteDataEvent<Feature>> toRemoteDataEvents(
+      Project project, QuerySnapshot snapshot) {
+    return QuerySnapshotConverter.toEvents(
+        snapshot, doc -> FeatureConverter.toFeature(project, doc));
   }
 }

@@ -40,25 +40,29 @@ class QuerySnapshotConverter {
       QuerySnapshot snapshot, Function<DocumentSnapshot, T> converter) {
     return stream(snapshot.getDocumentChanges())
         .map(dc -> toEvent(dc, converter))
-        .filter(RemoteDataEvent::isValid)
         .collect(toList());
   }
 
   private static <T> RemoteDataEvent<T> toEvent(
       DocumentChange dc, Function<DocumentSnapshot, T> converter) {
-    Log.v(
-        QuerySnapshotConverter.TAG, dc.getDocument().getReference().getPath() + " " + dc.getType());
-    String id = dc.getDocument().getId();
-    switch (dc.getType()) {
-      case ADDED:
-        return RemoteDataEvent.loaded(id, converter.apply(dc.getDocument()));
-      case MODIFIED:
-        return RemoteDataEvent.modified(id, converter.apply(dc.getDocument()));
-      case REMOVED:
-        return RemoteDataEvent.removed(id);
-      default:
-        return RemoteDataEvent.error(
-            new DataStoreException("Unknown DocumentChange type: " + dc.getType()));
+    try {
+      Log.v(
+          QuerySnapshotConverter.TAG,
+          dc.getDocument().getReference().getPath() + " " + dc.getType());
+      String id = dc.getDocument().getId();
+      switch (dc.getType()) {
+        case ADDED:
+          return RemoteDataEvent.loaded(id, converter.apply(dc.getDocument()));
+        case MODIFIED:
+          return RemoteDataEvent.modified(id, converter.apply(dc.getDocument()));
+        case REMOVED:
+          return RemoteDataEvent.removed(id);
+        default:
+          return RemoteDataEvent.error(
+              new DataStoreException("Unknown DocumentChange type: " + dc.getType()));
+      }
+    } catch (DataStoreException e) {
+      return RemoteDataEvent.error(e);
     }
   }
 }
