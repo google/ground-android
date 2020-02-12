@@ -39,6 +39,6 @@ public class FeaturesCollectionReference extends FluentCollectionReference {
         .flatMapIterable(
             featureQuerySnapshot ->
                 QuerySnapshotConverter.toEvents(
-                    featureQuerySnapshot, doc -> FeatureDocumentConverter.toFeature(project, doc)));
+                    featureQuerySnapshot, doc -> FeatureConverter.toFeature(project, doc)));
   }
 }

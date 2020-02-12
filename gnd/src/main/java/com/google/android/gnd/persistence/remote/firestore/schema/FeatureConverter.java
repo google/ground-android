@@ -30,7 +30,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.GeoPoint;
 
 /** Converts between Firestore documents and {@link Feature} instances. */
-class FeatureDocumentConverter {
+class FeatureConverter {
   // TODO: Make @NonNull the default and add build-time nullness checking.
   static Feature toFeature(@NonNull Project project, @NonNull DocumentSnapshot doc)
       throws DataStoreException {
