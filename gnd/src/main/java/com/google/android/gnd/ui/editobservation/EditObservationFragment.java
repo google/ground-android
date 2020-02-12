@@ -16,10 +16,10 @@
 
 package com.google.android.gnd.ui.editobservation;
 
+import static com.google.android.gnd.rx.RxAutoDispose.autoDisposable;
 import static com.google.android.gnd.ui.util.ViewUtil.assignGeneratedId;
 
 import android.app.AlertDialog;
-import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -27,7 +27,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.databinding.ObservableMap;
 import androidx.databinding.ObservableMap.OnMapChangedCallback;
@@ -51,6 +50,9 @@ import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.TwoLineToolbar;
 import com.google.android.gnd.ui.editobservation.PhotoDialogFragment.AddPhotoListener;
 import com.google.android.gnd.ui.util.FileUtil;
+import com.squareup.picasso.Picasso;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import java.io.File;
 import java8.util.Optional;
 import javax.inject.Inject;
 
@@ -64,6 +66,7 @@ public class EditObservationFragment extends AbstractFragment
   private MultiSelectDialogFactory multiSelectDialogFactory;
 
   @Inject Navigator navigator;
+  @Inject FileUtil fileUtil;
 
   @BindView(R.id.edit_observation_toolbar)
   TwoLineToolbar toolbar;
@@ -198,13 +201,33 @@ public class EditObservationFragment extends AbstractFragment
             });
   }
 
-  private void updateBitmap(ImageView imageView, String path) {
-    Bitmap bitmap = FileUtil.createBitmapFromPath(path);
-    if (bitmap != null) {
-      // TODO: Bitmap doesn't get loaded
-      imageView.setImageBitmap(bitmap);
-      Toast.makeText(getContext(), "Photo added", Toast.LENGTH_SHORT).show();
-    }
+  /**
+   * Load thumbnail preview from the provided destination path.
+   *
+   * <p>If the image is not uploaded yet, then parse the filename from path and load the file from
+   * local storage.
+   *
+   * @param imageView Placeholder for photo field
+   * @param destinationPath Destination path of the uploaded image
+   */
+  private void updateBitmap(ImageView imageView, String destinationPath) {
+    // TODO: (BUG) Image doesn't load into the imageview
+    viewModel
+        .getFirestoreDownloadUrl(destinationPath)
+        .observeOn(AndroidSchedulers.mainThread())
+        .doOnSuccess(
+            uri -> {
+              // Load the file from Firestore Storage
+              Picasso.get().load(uri).into(imageView);
+            })
+        .doOnError(
+            throwable -> {
+              // Load file locally
+              File file = viewModel.getLocalFileFromDestinationPath(destinationPath);
+              Picasso.get().load(file).into(imageView);
+            })
+        .as(autoDisposable(this))
+        .subscribe();
   }
 
   public void onShowDialog(Field field) {
