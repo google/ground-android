@@ -26,7 +26,6 @@ import javax.annotation.Nullable;
 
 @AutoValue
 public abstract class Feature {
-  // TODO: Replace Optionals with Nullables in VOs for consistency .
   @NonNull
   public abstract String getId();
 
@@ -45,9 +44,7 @@ public abstract class Feature {
   /** Returns the user and time audit info pertaining to the creation of this feature. */
   public abstract AuditInfo getCreated();
 
-  /**
-   * Returns the user and time audit info pertaining to the last modification of this feature.
-   */
+  /** Returns the user and time audit info pertaining to the last modification of this feature. */
   public abstract AuditInfo getLastModified();
 
   public String getTitle() {
@@ -75,21 +72,21 @@ public abstract class Feature {
   @AutoValue.Builder
   public abstract static class Builder {
     // TODO: Use newFoo or foo consistently.
-    public abstract Builder setId(String newId);
+    public abstract Builder setId(@NonNull String newId);
 
-    public abstract Builder setProject(Project project);
+    public abstract Builder setProject(@NonNull Project project);
 
-    public abstract Builder setLayer(Layer newLayer);
+    public abstract Builder setLayer(@NonNull Layer newLayer);
 
-    public abstract Builder setCustomId(String newCustomId);
+    public abstract Builder setCustomId(@Nullable String newCustomId);
 
-    public abstract Builder setCaption(String newCaption);
+    public abstract Builder setCaption(@Nullable String newCaption);
 
-    public abstract Builder setPoint(Point newPoint);
+    public abstract Builder setPoint(@NonNull Point newPoint);
 
-    public abstract Builder setCreated(AuditInfo newCreated);
+    public abstract Builder setCreated(@NonNull AuditInfo newCreated);
 
-    public abstract Builder setLastModified(AuditInfo newLastModified);
+    public abstract Builder setLastModified(@NonNull AuditInfo newLastModified);
 
     public abstract Feature build();
   }

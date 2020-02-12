@@ -16,6 +16,10 @@
 
 package com.google.android.gnd.persistence.remote.firestore.schema;
 
+import static com.google.android.gnd.persistence.remote.firestore.DataStoreException.checkNotEmpty;
+import static com.google.android.gnd.persistence.remote.firestore.DataStoreException.checkNotNull;
+
+import androidx.annotation.NonNull;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.Point;
@@ -23,29 +27,30 @@ import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.persistence.remote.firestore.AuditInfoDoc;
 import com.google.android.gnd.persistence.remote.firestore.DataStoreException;
 import com.google.firebase.firestore.DocumentSnapshot;
-import java8.util.Optional;
+import com.google.firebase.firestore.GeoPoint;
 
 /** Converts between Firestore documents and {@link Feature} instances. */
 class FeatureDocumentConverter {
-  static Feature toFeature(Project project, DocumentSnapshot doc) {
+  // TODO: Make @NonNull the default and add build-time nullness checking.
+  static Feature toFeature(@NonNull Project project, @NonNull DocumentSnapshot doc)
+      throws DataStoreException {
     FeatureDocument f = doc.toObject(FeatureDocument.class);
-    Optional<Layer> layer = project.getLayer(f.getFeatureTypeId());
-    if (!layer.isPresent()) {
-      throw new DataStoreException(
-          "Unknown featureTypeId " + f.getFeatureTypeId() + " in feature " + doc.getId());
-    }
-    Point point =
+    String featureTypeId = checkNotNull(f.getFeatureTypeId(), "featureTypeId");
+    Layer layer = checkNotEmpty(project.getLayer(featureTypeId), "layer " + f.getFeatureTypeId());
+    // TODO: Rename "point" and "center" to "location" throughout for clarity.
+    GeoPoint geoPoint = checkNotNull(f.getCenter(), "center");
+    Point location =
         Point.newBuilder()
-            .setLatitude(f.getCenter().getLatitude())
-            .setLongitude(f.getCenter().getLongitude())
+            .setLatitude(geoPoint.getLatitude())
+            .setLongitude(geoPoint.getLongitude())
             .build();
     return Feature.newBuilder()
         .setId(doc.getId())
         .setProject(project)
         .setCustomId(f.getCustomId())
         .setCaption(f.getCaption())
-        .setLayer(layer.get())
-        .setPoint(point)
+        .setLayer(layer)
+        .setPoint(location)
         .setCreated(AuditInfoDoc.toObject(f.getCreated()))
         .setLastModified(AuditInfoDoc.toObject(f.getModified()))
         .build();

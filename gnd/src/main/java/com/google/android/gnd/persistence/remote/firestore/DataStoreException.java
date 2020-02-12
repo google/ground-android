@@ -16,8 +16,26 @@
 
 package com.google.android.gnd.persistence.remote.firestore;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import java8.util.Optional;
+
 public class DataStoreException extends RuntimeException {
   public DataStoreException(String message) {
     super(message);
+  }
+
+  @NonNull
+  public static <T> T checkNotNull(@Nullable T o, String field) throws DataStoreException {
+    if (o == null) {
+      throw new DataStoreException("Missing " + field);
+    }
+    return o;
+  }
+
+  @NonNull
+  public static <T> T checkNotEmpty(@NonNull Optional<T> opt, @NonNull String field)
+      throws DataStoreException {
+    return opt.orElseThrow(() -> new DataStoreException("Missing " + field));
   }
 }
