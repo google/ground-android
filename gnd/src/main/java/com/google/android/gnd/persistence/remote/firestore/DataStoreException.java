@@ -26,16 +26,16 @@ public class DataStoreException extends RuntimeException {
   }
 
   @NonNull
-  public static <T> T checkNotNull(@Nullable T o, String field) throws DataStoreException {
-    if (o == null) {
+  public static <T> T checkNotNull(@Nullable T reference, String field) throws DataStoreException {
+    if (reference == null) {
       throw new DataStoreException("Missing " + field);
     }
-    return o;
+    return reference;
   }
 
   @NonNull
-  public static <T> T checkNotEmpty(@NonNull Optional<T> opt, @NonNull String field)
+  public static <T> T checkNotEmpty(@NonNull Optional<T> optional, @NonNull String field)
       throws DataStoreException {
-    return opt.orElseThrow(() -> new DataStoreException("Missing " + field));
+    return optional.orElseThrow(() -> new DataStoreException("Missing " + field));
   }
 }
