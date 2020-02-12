@@ -32,7 +32,7 @@ class FeatureDocumentConverter {
     Optional<Layer> layer = project.getLayer(f.getFeatureTypeId());
     if (!layer.isPresent()) {
       throw new DataStoreException(
-          "Unknown feature type " + f.getFeatureTypeId() + " in place " + doc.getId());
+          "Unknown featureTypeId " + f.getFeatureTypeId() + " in feature " + doc.getId());
     }
     Point point =
         Point.newBuilder()
