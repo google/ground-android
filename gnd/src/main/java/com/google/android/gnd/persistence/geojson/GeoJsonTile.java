@@ -35,9 +35,7 @@ public class GeoJsonTile {
   private static final String PROPERTIES_KEY = "properties";
   private static final String URL_KEY = "title";
 
-  private final GeoJsonExtent extent;
-  private final Optional<String> id;
-  private final Optional<String> url;
+  private final JSONObject json;
 
   /**
    * Constructs a GeoJSONTile based on the contents of {@param jsonObject}.
@@ -54,23 +52,19 @@ public class GeoJsonTile {
    * <p>Interior rings, which describe holes in the polygon, are ignored.
    */
   GeoJsonTile(JSONObject jsonObject) {
-    this.extent = new GeoJsonExtent(new GeoJsonGeometry(jsonObject));
-    this.id = Optional.of(jsonObject.optString(ID_KEY));
-    this.url =
-        Optional.ofNullable(jsonObject.optJSONObject(PROPERTIES_KEY))
-            .map(j -> j.optString(URL_KEY));
+    this.json = jsonObject;
   }
 
   private ImmutableList<LatLng> getVertices() {
-    return this.extent.getVertices();
+    return new GeoJsonExtent(new GeoJsonGeometry(json)).getVertices();
   }
 
   public Optional<String> getId() {
-    return this.id;
+    return Optional.of(json.optString(ID_KEY));
   }
 
   public Optional<String> getUrl() {
-    return this.url;
+    return Optional.ofNullable(json.optJSONObject(PROPERTIES_KEY)).map(j -> j.optString(URL_KEY));
   }
 
   boolean boundsIntersect(LatLngBounds bounds) {
