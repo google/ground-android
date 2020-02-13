@@ -20,31 +20,27 @@ import java8.util.Optional;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-public class GeoJsonGeometry {
+class GeoJsonGeometry {
 
   private static final String GEOMETRY_KEY = "geometry";
   private static final String GEOMETRY_TYPE_KEY = "type";
   private static final String VERTICES_JSON_KEY = "coordinates";
 
-  private final Optional<JSONObject> json;
-  private final Optional<String> type;
-  private final Optional<JSONArray> vertices;
+  private final JSONObject json;
 
   GeoJsonGeometry(JSONObject jsonObject) {
-    this.json = Optional.ofNullable(jsonObject.optJSONObject(GEOMETRY_KEY));
-    this.type = json.map(j -> j.optString(GEOMETRY_TYPE_KEY));
-    this.vertices = json.flatMap(j -> Optional.ofNullable(j.optJSONArray(VERTICES_JSON_KEY)));
+    this.json = jsonObject;
   }
 
   public Optional<JSONObject> getJson() {
-    return this.json;
+    return Optional.ofNullable(json.optJSONObject(GEOMETRY_KEY));
   }
 
   public Optional<String> getType() {
-    return this.type;
+    return getJson().map(j -> j.optString(GEOMETRY_TYPE_KEY));
   }
 
-  public Optional<JSONArray> getVertices() {
-    return this.vertices;
+  Optional<JSONArray> getVertices() {
+    return getJson().flatMap(j -> Optional.ofNullable(j.optJSONArray(VERTICES_JSON_KEY)));
   }
 }
