@@ -17,32 +17,33 @@
 package com.google.android.gnd.persistence.geojson;
 
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.LatLngBounds;
-import java8.util.Optional;
+import com.google.common.collect.ImmutableList;
 import javax.annotation.Nullable;
 import org.json.JSONArray;
 
-public class GeoJsonExtent {
+class GeoJsonExtent {
 
   private final GeoJsonGeometry geometry;
-  private final Optional<LatLng[]> coordinates;
 
   @Nullable
   GeoJsonExtent(GeoJsonGeometry geometry) {
     this.geometry = geometry;
-    this.coordinates = getPolygonCoordinates();
   }
 
-  Optional<LatLngBounds> getBounds() {
-    return this.coordinates.map(cs -> new LatLngBounds(cs[0], cs[2]));
+  ImmutableList<LatLng> getVertices() {
+    return getPolygonVertices();
   }
 
-  private Optional<LatLng[]> getPolygonCoordinates() {
-    JSONArray sw = this.geometry.getCoordinates().map(j -> j.optJSONArray(0)).get();
-    JSONArray ne = this.geometry.getCoordinates().map(j -> j.optJSONArray(2)).get();
+  private ImmutableList<LatLng> getPolygonVertices() {
+    if (geometry.getVertices().isEmpty()) {
+      return ImmutableList.of();
+    }
+
+    JSONArray sw = geometry.getVertices().map(j -> j.optJSONArray(0)).orElse(null);
+    JSONArray ne = geometry.getVertices().map(j -> j.optJSONArray(2)).orElse(null);
 
     if (sw == null || ne == null) {
-      return Optional.empty();
+      return ImmutableList.of();
     }
 
     double south = sw.optDouble(0, 0.0);
@@ -50,16 +51,10 @@ public class GeoJsonExtent {
     double north = ne.optDouble(0, 0.0);
     double east = ne.optDouble(1, 0.0);
 
-    return Optional.of(
-        new LatLng[] {
-          new LatLng(south, west),
-          new LatLng(south, east),
-          new LatLng(north, east),
-          new LatLng(north, west)
-        });
-  }
-
-  public Optional<LatLng[]> getCoordinates() {
-    return this.coordinates;
+    return ImmutableList.of(
+        new LatLng(south, west),
+        new LatLng(north, east),
+        new LatLng(south, east),
+        new LatLng(north, west));
   }
 }

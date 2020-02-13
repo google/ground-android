@@ -16,10 +16,11 @@
 
 package com.google.android.gnd.persistence.geojson;
 
-import static java8.util.J8Arrays.stream;
+import static java8.util.stream.StreamSupport.stream;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.common.collect.ImmutableList;
 import java8.util.Optional;
 import org.json.JSONObject;
 
@@ -60,12 +61,8 @@ public class GeoJsonTile {
             .map(j -> j.optString(URL_KEY));
   }
 
-  public Optional<LatLngBounds> getBounds() {
-    return this.extent.getBounds();
-  }
-
-  public Optional<LatLng[]> getCoordinates() {
-    return this.extent.getCoordinates();
+  private ImmutableList<LatLng> getVertices() {
+    return this.extent.getVertices();
   }
 
   public Optional<String> getId() {
@@ -76,11 +73,7 @@ public class GeoJsonTile {
     return this.url;
   }
 
-  public boolean boundsIntersect(LatLngBounds bounds) {
-    if (this.getCoordinates().isEmpty()) {
-      return false;
-    }
-
-    return stream(this.getCoordinates().get()).anyMatch(bounds::contains);
+  boolean boundsIntersect(LatLngBounds bounds) {
+    return stream(this.getVertices()).anyMatch(bounds::contains);
   }
 }

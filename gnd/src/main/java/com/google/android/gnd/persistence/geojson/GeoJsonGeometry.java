@@ -24,16 +24,16 @@ public class GeoJsonGeometry {
 
   private static final String GEOMETRY_KEY = "geometry";
   private static final String GEOMETRY_TYPE_KEY = "type";
-  private static final String COORDINATES_JSON_KEY = "coordinates";
+  private static final String VERTICES_JSON_KEY = "coordinates";
 
   private final Optional<JSONObject> json;
   private final Optional<String> type;
-  private final Optional<JSONArray> coordinates;
+  private final Optional<JSONArray> vertices;
 
   GeoJsonGeometry(JSONObject jsonObject) {
     this.json = Optional.ofNullable(jsonObject.optJSONObject(GEOMETRY_KEY));
     this.type = json.map(j -> j.optString(GEOMETRY_TYPE_KEY));
-    this.coordinates = json.flatMap(j -> Optional.ofNullable(j.optJSONArray(COORDINATES_JSON_KEY)));
+    this.vertices = json.flatMap(j -> Optional.ofNullable(j.optJSONArray(VERTICES_JSON_KEY)));
   }
 
   public Optional<JSONObject> getJson() {
@@ -44,7 +44,7 @@ public class GeoJsonGeometry {
     return this.type;
   }
 
-  public Optional<JSONArray> getCoordinates() {
-    return this.coordinates;
+  public Optional<JSONArray> getVertices() {
+    return this.vertices;
   }
 }
