@@ -46,6 +46,47 @@ public class GeoJsonParser {
     this.uuidGenerator = uuidGenerator;
   }
 
+  private String readJsonFile(File file) {
+    try {
+      InputStream is = new FileInputStream(file);
+      BufferedReader buf = new BufferedReader(new InputStreamReader(is));
+      StringBuilder sb = new StringBuilder();
+
+      int res = buf.read();
+      while (res != -1) {
+        sb.append(res);
+        res = buf.read();
+      }
+      return sb.toString();
+    } catch (IOException e) {
+      Log.e(TAG, "Unable to load JSON", e);
+    }
+    return "";
+  }
+
+  /**
+   * Returns the immutable list of tiles specified in {@param geojson} that intersect {@param
+   * bounds}.
+   */
+  public ImmutableList<Tile> intersectingTiles(LatLngBounds bounds, File file) {
+    String fileContents = readJsonFile(file);
+    try {
+      JSONObject geoJson = new JSONObject(fileContents);
+      JSONArray features = geoJson.getJSONArray("features");
+
+      return stream(toArray(features))
+          .map(GeoJsonTile::new)
+          .filter(tile -> tile.boundsIntersect(bounds))
+          .map(this::jsonToTile)
+          .collect(toImmutableList());
+
+    } catch (JSONException e) {
+      Log.e(TAG, "Unable to parse JSON", e);
+    }
+
+    return ImmutableList.of();
+  }
+
   /**
    * Converts a JSONArray to an array of JSONObjects. Provided for compatibility with java8 streams.
    * JSONArray itself only inherits from Object, and is not convertible to a stream.
@@ -65,43 +106,13 @@ public class GeoJsonParser {
     return result;
   }
 
-  /**
-   * Returns the immutable list of tiles specified in {@param geojson} that intersect {@param
-   * bounds}.
-   */
-  public ImmutableList<Tile> intersectingTiles(LatLngBounds bounds, File geojson) {
-    try {
-      InputStream is = new FileInputStream(geojson);
-      BufferedReader buf = new BufferedReader(new InputStreamReader(is));
-      String line = buf.readLine();
-      StringBuilder sb = new StringBuilder();
-      while (line != null) {
-        sb.append(line).append('\n');
-        line = buf.readLine();
-      }
-
-      JSONObject geoJson = new JSONObject(sb.toString());
-      JSONArray features = geoJson.getJSONArray("features");
-
-      return stream(toArray(features))
-          .map(GeoJsonTile::new)
-          .filter(tile -> tile.boundsIntersect(bounds))
-          .map(this::jsonToTile)
-          .collect(toImmutableList());
-
-    } catch (IOException | JSONException e) {
-      Log.e(TAG, "Unable to load JSON layer", e);
-    }
-    return ImmutableList.of();
-  }
-
   /** Returns the {@link Tile} specified by {@param json}. */
   private Tile jsonToTile(GeoJsonTile json) {
     return Tile.newBuilder()
         .setId(uuidGenerator.generateUuid())
-        .setUrl(json.getUrl().get())
+        .setUrl(json.getUrl().orElse(""))
         .setState(State.PENDING)
-        .setPath(Tile.pathFromId(json.getId().get()))
+        .setPath(Tile.pathFromId(json.getId().orElse("")))
         .build();
   }
 }
