@@ -21,7 +21,6 @@ import static java8.util.stream.StreamSupport.stream;
 
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.observation.Observation;
-import com.google.android.gnd.persistence.remote.firestore.ObservationDoc;
 import com.google.android.gnd.persistence.remote.firestore.base.FluentCollectionReference;
 import com.google.common.collect.ImmutableList;
 import com.google.firebase.firestore.CollectionReference;
@@ -30,6 +29,7 @@ import com.google.firebase.firestore.Query;
 import durdinapps.rxfirebase2.RxFirestore;
 import io.reactivex.Single;
 
+// TODO: Rename to ObservationsCollectionReference once database is migrated.
 public class RecordsCollectionReference extends FluentCollectionReference {
   RecordsCollectionReference(CollectionReference ref) {
     super(ref);
@@ -44,13 +44,13 @@ public class RecordsCollectionReference extends FluentCollectionReference {
         .map(
             querySnapshot ->
                 stream(querySnapshot.getDocuments())
-                    .map(
-                        recordDoc -> ObservationDoc.toObject(feature, recordDoc.getId(), recordDoc))
+                    .map(snapshot -> ObservationConverter.toObservation(feature, snapshot))
                     .collect(toImmutableList()))
         .toSingle(ImmutableList.of());
   }
 
   private Query byFeatureId(String featureId) {
-    return reference().whereEqualTo(FieldPath.of(ObservationDoc.FEATURE_ID), featureId);
+    return reference()
+        .whereEqualTo(FieldPath.of(ObservationMutationConverter.FEATURE_ID), featureId);
   }
 }
