@@ -16,6 +16,7 @@
 
 apply plugin: 'com.android.application'
 apply plugin: 'com.google.firebase.firebase-perf'
+apply plugin: 'io.fabric'
 apply from: '../config/checkstyle/checkstyle.gradle'
 apply from: '../config/lint/lint.gradle'
 apply from: '../config/pmd/pmd.gradle'
@@ -130,12 +131,16 @@ dependencies {
     implementation "com.google.maps.android:android-maps-utils:0.5"
 
     // Firebase and related libraries.
+    implementation "com.google.firebase:firebase-analytics:$project.firebaseCoreVersion"
     implementation "com.google.firebase:firebase-core:$project.firebaseCoreVersion"
     implementation "com.google.firebase:firebase-firestore:$project.firebaseFirestoreVersion"
     implementation "com.google.firebase:firebase-auth:$project.firebaseAuthVersion"
     implementation "com.google.firebase:firebase-perf:$project.firebasePerfVersion"
     implementation "com.github.FrangSierra:RxFirebase:$project.rxFirebaseVersion"
     implementation 'com.google.firebase:firebase-storage:19.1.0'
+
+    // Crashlytics
+    implementation 'com.crashlytics.sdk.android:crashlytics:2.10.1'
 
     // Dagger core
     annotationProcessor "com.google.dagger:dagger-compiler:$project.daggerVersion"
