@@ -17,42 +17,50 @@
 package com.google.android.gnd.ui.observationdetails;
 
 import android.view.LayoutInflater;
-import android.view.ViewGroup;
-import android.widget.TextView;
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import com.google.android.gnd.R;
+import android.view.View;
+import androidx.fragment.app.Fragment;
+import com.google.android.gnd.databinding.ObservationDetailsFieldBinding;
+import com.google.android.gnd.model.form.Field;
+import com.google.android.gnd.model.observation.Response;
+import java8.util.Optional;
 
 class FieldViewHolder {
 
-  private ViewGroup root;
+  //  private ViewGroup root;
 
-  @BindView(R.id.field_label)
-  TextView labelView;
+  //  @BindView(R.id.field_label)
+  //  TextView labelView;
 
-  @BindView(R.id.field_value)
-  TextView valueView;
+  //  @BindView(R.id.field_value)
+  //  TextView valueView;
 
-  private FieldViewHolder(ViewGroup root) {
-    this.root = root;
+  //  private FieldViewHolder(ViewGroup root) {
+  //    this.root = root;
+  //  }
+
+  static View newInstance(Fragment fragment, Field field, Optional<Response> response) {
+    //    ViewGroup root = (ViewGroup) inflater.inflate(R.layout.observation_details_field, null);
+    LayoutInflater inflater = fragment.getLayoutInflater();
+    ObservationDetailsFieldBinding binding = ObservationDetailsFieldBinding.inflate(inflater);
+    binding.setField(field);
+    if (response.isPresent()) {
+      binding.setResponse(response.get());
+    }
+    binding.setLifecycleOwner(fragment);
+    //    FieldViewHolder holder = new FieldViewHolder(root);
+    //    ButterKnife.bind(holder, root);
+    return binding.getRoot();
   }
 
-  static FieldViewHolder newInstance(LayoutInflater inflater) {
-    ViewGroup root = (ViewGroup) inflater.inflate(R.layout.observation_details_field, null);
-    FieldViewHolder holder = new FieldViewHolder(root);
-    ButterKnife.bind(holder, root);
-    return holder;
-  }
+  //  void setLabel(String label) {
+  //    labelView.setText(label);
+  //  }
 
-  void setLabel(String label) {
-    labelView.setText(label);
-  }
+  //  void setValue(String value) {
+  //    valueView.setText(value);
+  //  }
 
-  void setValue(String value) {
-    valueView.setText(value);
-  }
-
-  public ViewGroup getRoot() {
-    return root;
-  }
+  //  public ViewGroup getRoot() {
+  //    return root;
+  //  }
 }

@@ -15,29 +15,46 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
+<layout>
+  <data>
+    <variable
+      name="field"
+      type="com.google.android.gnd.model.form.Field" />
+    <variable
+      name="response"
+      type="com.google.android.gnd.model.observation.Response" />
+  </data>
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-  android:layout_width="wrap_content"
-  android:layout_height="wrap_content"
-  android:orientation="vertical">
-
-  <TextView
-    android:id="@+id/field_label"
-    style="@style/ObservationDetails.Field.Label"
+  <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:paddingTop="@dimen/field_top_padding"
-    android:ellipsize="end"
-    android:paddingHorizontal="@dimen/field_horizontal_padding" />
+    android:orientation="vertical">
 
-  <TextView
-    android:id="@+id/field_value"
-    style="@style/ObservationDetails.Field.Value"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:paddingTop="@dimen/field_value_top_padding"
-    android:paddingBottom="@dimen/field_bottom_padding"
-    android:ellipsize="end"
-    android:paddingHorizontal="@dimen/field_horizontal_padding" />
+    <TextView
+      android:id="@+id/field_label"
+      style="@style/ObservationDetails.Field.Label"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:ellipsize="end"
+      android:paddingHorizontal="@dimen/field_horizontal_padding"
+      android:paddingTop="@dimen/field_top_padding"
+      android:text="@{field.label}" />
 
-</LinearLayout>
+    <TextView
+      android:id="@+id/field_value"
+      style="@style/ObservationDetails.Field.Value"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:ellipsize="end"
+      android:paddingHorizontal="@dimen/field_horizontal_padding"
+      android:paddingTop="@dimen/field_value_top_padding"
+      android:paddingBottom="@dimen/field_bottom_padding"
+      android:text="@{response.getDetailsText(field)}" />
+
+    <ImageView
+      android:id="@+id/image_preview"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content" />
+
+  </LinearLayout>
+</layout>

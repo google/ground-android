@@ -35,11 +35,13 @@ import com.google.android.gnd.inject.ActivityScoped;
 import com.google.android.gnd.model.form.Element;
 import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.observation.Observation;
+import com.google.android.gnd.model.observation.Response;
 import com.google.android.gnd.rx.Loadable;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.EphemeralPopups;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.TwoLineToolbar;
+import java8.util.Optional;
 import javax.inject.Inject;
 
 @ActivityScoped
@@ -139,14 +141,14 @@ public class ObservationDetailsFragment extends AbstractFragment {
   }
 
   private void addField(Field field, Observation observation) {
-    FieldViewHolder fieldViewHolder = FieldViewHolder.newInstance(getLayoutInflater());
-    fieldViewHolder.setLabel(field.getLabel());
-    observation
-        .getResponses()
-        .getResponse(field.getId())
-        .map(r -> r.getDetailsText(field))
-        .ifPresent(fieldViewHolder::setValue);
-    observationDetailsLayout.addView(fieldViewHolder.getRoot());
+    Optional<Response> response = observation.getResponses().getResponse(field.getId());
+    View fieldViewHolder = FieldViewHolder.newInstance(this, field, response);
+    //    observation
+    //        .getResponses()
+    //        .getResponse(field.getId())
+    //        .map(r -> r.getDetailsText(field))
+    //        .ifPresent(fieldViewHolder::setValue);
+    observationDetailsLayout.addView(fieldViewHolder);
   }
 
   @Override
