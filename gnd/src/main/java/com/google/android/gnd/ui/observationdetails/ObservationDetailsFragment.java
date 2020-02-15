@@ -25,11 +25,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import butterknife.BindView;
-import butterknife.ButterKnife;
 import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.ObservationDetailsFragBinding;
@@ -149,40 +147,6 @@ public class ObservationDetailsFragment extends AbstractFragment {
         .map(r -> r.getDetailsText(field))
         .ifPresent(fieldViewHolder::setValue);
     observationDetailsLayout.addView(fieldViewHolder.getRoot());
-  }
-
-  // TODO: Extract into outer class.
-  static class FieldViewHolder {
-    private ViewGroup root;
-
-    @BindView(R.id.field_label)
-    TextView labelView;
-
-    @BindView(R.id.field_value)
-    TextView valueView;
-
-    FieldViewHolder(ViewGroup root) {
-      this.root = root;
-    }
-
-    static FieldViewHolder newInstance(LayoutInflater inflater) {
-      ViewGroup root = (ViewGroup) inflater.inflate(R.layout.observation_details_field, null);
-      FieldViewHolder holder = new FieldViewHolder(root);
-      ButterKnife.bind(holder, root);
-      return holder;
-    }
-
-    void setLabel(String label) {
-      labelView.setText(label);
-    }
-
-    void setValue(String value) {
-      valueView.setText(value);
-    }
-
-    public ViewGroup getRoot() {
-      return root;
-    }
   }
 
   @Override
