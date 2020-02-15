@@ -138,6 +138,9 @@ public class EditObservationViewModel extends AbstractViewModel {
   /** True if the observation is being added, false if editing an existing one. */
   private boolean isNew;
 
+  /** True if the photo field is immediately updated. */
+  private boolean isPhotoFieldUpdated;
+
   @Inject
   EditObservationViewModel(
       GndApplication application,
@@ -267,6 +270,7 @@ public class EditObservationViewModel extends AbstractViewModel {
             })
         .doOnNext(
             url -> {
+              isPhotoFieldUpdated = true;
               // update observable response map
               onTextChanged(form.getValue().getField(fieldId).get(), url);
             });
@@ -316,7 +320,15 @@ public class EditObservationViewModel extends AbstractViewModel {
 
   private void onObservationLoaded(Observation observation) {
     this.originalObservation = observation;
-    refreshResponseMap(observation);
+
+    // Photo field is updated by launching an external intent. This causes the form to reload.
+    // When that happens, we don't want to lose the unsaved changes.
+    if (isPhotoFieldUpdated) {
+      isPhotoFieldUpdated = false;
+    } else {
+      refreshResponseMap(observation);
+    }
+
     if (isNew) {
       validationErrors.clear();
     } else {
