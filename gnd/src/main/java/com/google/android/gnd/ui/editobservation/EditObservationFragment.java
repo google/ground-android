@@ -43,6 +43,7 @@ import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.model.form.MultipleChoice.Cardinality;
 import com.google.android.gnd.model.observation.Response;
+import com.google.android.gnd.persistence.remote.FirestoreStorageManager;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.BackPressListener;
 import com.google.android.gnd.ui.common.EphemeralPopups;
@@ -67,6 +68,7 @@ public class EditObservationFragment extends AbstractFragment
 
   @Inject Navigator navigator;
   @Inject FileUtil fileUtil;
+  @Inject FirestoreStorageManager firestoreStorageManager;
 
   @BindView(R.id.edit_observation_toolbar)
   TwoLineToolbar toolbar;
@@ -212,8 +214,8 @@ public class EditObservationFragment extends AbstractFragment
    */
   private void updateBitmap(ImageView imageView, String destinationPath) {
     // TODO: (BUG) Image doesn't load into the imageview
-    viewModel
-        .getFirestoreDownloadUrl(destinationPath)
+    firestoreStorageManager
+        .getDownloadUrl(destinationPath)
         .observeOn(AndroidSchedulers.mainThread())
         .doOnSuccess(
             uri -> {

@@ -15,20 +15,20 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<layout>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:tools="http://schemas.android.com/tools">
   <data>
     <variable
       name="field"
       type="com.google.android.gnd.model.form.Field" />
-    <variable
-      name="response"
-      type="com.google.android.gnd.model.observation.Response" />
   </data>
 
-  <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  <LinearLayout
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:paddingLeft="@dimen/field_horizontal_padding"
+    android:paddingRight="@dimen/field_horizontal_padding">
 
     <TextView
       android:id="@+id/field_label"
@@ -36,9 +36,9 @@
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:ellipsize="end"
-      android:paddingHorizontal="@dimen/field_horizontal_padding"
       android:paddingTop="@dimen/field_top_padding"
-      android:text="@{field.label}" />
+      android:text="@{field.label}"
+      tools:text="field label" />
 
     <TextView
       android:id="@+id/field_value"
@@ -46,15 +46,19 @@
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:ellipsize="end"
-      android:paddingHorizontal="@dimen/field_horizontal_padding"
       android:paddingTop="@dimen/field_value_top_padding"
       android:paddingBottom="@dimen/field_bottom_padding"
-      android:text="@{response.getDetailsText(field)}" />
+      tools:text="field value" />
 
     <ImageView
       android:id="@+id/image_preview"
       android:layout_width="wrap_content"
-      android:layout_height="wrap_content" />
-
+      android:layout_height="wrap_content"
+      android:adjustViewBounds="true"
+      android:paddingTop="@dimen/field_top_padding"
+      android:paddingBottom="@dimen/field_bottom_padding"
+      android:src="@drawable/ic_photo_grey_600_24dp"
+      android:visibility="gone"
+      tools:src="@drawable/ground_logo" />
   </LinearLayout>
 </layout>
