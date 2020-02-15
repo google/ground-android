@@ -15,8 +15,7 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<layout xmlns:android="http://schemas.android.com/apk/res/android"
-  xmlns:tools="http://schemas.android.com/tools">
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
   <data>
     <variable
       name="field"
@@ -37,8 +36,7 @@
       android:layout_height="wrap_content"
       android:ellipsize="end"
       android:paddingTop="@dimen/field_top_padding"
-      android:text="@{field.label}"
-      tools:text="field label" />
+      android:text="@{field.label}" />
 
     <TextView
       android:id="@+id/field_value"
@@ -47,8 +45,7 @@
       android:layout_height="wrap_content"
       android:ellipsize="end"
       android:paddingTop="@dimen/field_value_top_padding"
-      android:paddingBottom="@dimen/field_bottom_padding"
-      tools:text="field value" />
+      android:paddingBottom="@dimen/field_bottom_padding" />
 
     <ImageView
       android:id="@+id/image_preview"
@@ -58,7 +55,6 @@
       android:paddingTop="@dimen/field_top_padding"
       android:paddingBottom="@dimen/field_bottom_padding"
       android:src="@drawable/ic_photo_grey_600_24dp"
-      android:visibility="gone"
-      tools:src="@drawable/ground_logo" />
+      android:visibility="gone" />
   </LinearLayout>
 </layout>

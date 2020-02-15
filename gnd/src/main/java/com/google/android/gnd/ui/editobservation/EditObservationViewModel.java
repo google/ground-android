@@ -55,7 +55,6 @@ import io.reactivex.Single;
 import io.reactivex.processors.BehaviorProcessor;
 import io.reactivex.processors.PublishProcessor;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.util.Date;
 import java8.util.Optional;
 import java8.util.StringJoiner;
@@ -268,15 +267,6 @@ public class EditObservationViewModel extends AbstractViewModel {
               // update observable response map
               onTextChanged(form.getValue().getField(fieldId).get(), url);
             });
-  }
-
-  /**
-   * Returns the path of the file saved in the sdcard used for uploading to the provided destination
-   * path.
-   */
-  File getLocalFileFromDestinationPath(String destinationPath) throws FileNotFoundException {
-    String[] splits = destinationPath.split("/");
-    return fileUtil.getFile(splits[splits.length - 1]);
   }
 
   /**

@@ -16,8 +16,6 @@
 
 package com.google.android.gnd.ui.observationdetails;
 
-import static com.google.android.gnd.rx.RxAutoDispose.autoDisposable;
-
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -39,19 +37,12 @@ import com.google.android.gnd.model.form.Element;
 import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.form.Field.Type;
 import com.google.android.gnd.model.observation.Observation;
-import com.google.android.gnd.model.observation.Response;
-import com.google.android.gnd.persistence.remote.FirestoreStorageManager;
 import com.google.android.gnd.rx.Loadable;
+import com.google.android.gnd.system.StorageManager;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.EphemeralPopups;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.TwoLineToolbar;
-import com.google.android.gnd.ui.util.FileUtil;
-import com.squareup.picasso.Picasso;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java8.util.Optional;
 import javax.inject.Inject;
 
 @ActivityScoped
@@ -59,8 +50,7 @@ public class ObservationDetailsFragment extends AbstractFragment {
   private static final String TAG = ObservationDetailsFragment.class.getSimpleName();
 
   @Inject Navigator navigator;
-  @Inject FirestoreStorageManager firestoreStorageManager;
-  @Inject FileUtil fileUtil;
+  @Inject StorageManager storageManager;
 
   @BindView(R.id.observation_details_toolbar)
   TwoLineToolbar toolbar;
@@ -152,46 +142,28 @@ public class ObservationDetailsFragment extends AbstractFragment {
     }
   }
 
-  private File getLocalFileFromDestinationPath(String destinationPath)
-      throws FileNotFoundException {
-    String[] splits = destinationPath.split("/");
-    return fileUtil.getFile(splits[splits.length - 1]);
-  }
-
   private void addField(Field field, Observation observation) {
-    Optional<Response> response = observation.getResponses().getResponse(field.getId());
     ObservationDetailsFieldBinding binding =
         ObservationDetailsFieldBinding.inflate(getLayoutInflater());
     binding.setField(field);
     binding.setLifecycleOwner(this);
-    if (response.isPresent()) {
-      String value = response.get().getDetailsText(field);
-      binding.fieldValue.setText(value);
-
-      //      binding.setResponse(response.get());
-      if (field.getType().equals(Type.PHOTO)) {
-        binding.fieldValue.setVisibility(View.GONE);
-        binding.imagePreview.setVisibility(View.VISIBLE);
-
-        firestoreStorageManager
-            .getDownloadUrl(value)
-            .observeOn(AndroidSchedulers.mainThread())
-            .doOnSuccess(
-                uri -> {
-                  // Load the file from Firestore Storage
-                  Picasso.get().load(uri).into(binding.imagePreview);
-                })
-            .doOnError(
-                throwable -> {
-                  // Load file locally
-                  File file = getLocalFileFromDestinationPath(value);
-                  Picasso.get().load(file).into(binding.imagePreview);
-                })
-            .as(autoDisposable(this))
-            .subscribe();
-      }
-    }
     observationDetailsLayout.addView(binding.getRoot());
+
+    observation
+        .getResponses()
+        .getResponse(field.getId())
+        .map(r -> r.getDetailsText(field))
+        .ifPresent(
+            value -> {
+              if (field.getType().equals(Type.PHOTO)) {
+                binding.fieldValue.setVisibility(View.GONE);
+                binding.imagePreview.setVisibility(View.VISIBLE);
+
+                storageManager.loadPhotoFromDestinationPath(binding.imagePreview, value);
+              } else {
+                binding.fieldValue.setText(value);
+              }
+            });
   }
 
   @Override
