@@ -24,10 +24,7 @@ import com.google.android.gnd.persistence.remote.firestore.AuditInfoDoc;
 import com.google.common.collect.ImmutableMap;
 import com.google.firebase.firestore.GeoPoint;
 
-/**
- * Converts between Firestore maps for use when merging updates, and {@link FeatureMutation}
- * instances.
- */
+/** Converts between Firestore maps used to merge updates and {@link FeatureMutation} instances. */
 class FeatureMutationConverter {
   private static final String TAG = FeatureMutationConverter.class.getSimpleName();
 
