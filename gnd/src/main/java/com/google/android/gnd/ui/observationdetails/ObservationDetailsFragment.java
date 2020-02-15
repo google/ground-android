@@ -143,11 +143,6 @@ public class ObservationDetailsFragment extends AbstractFragment {
   private void addField(Field field, Observation observation) {
     Optional<Response> response = observation.getResponses().getResponse(field.getId());
     View fieldViewHolder = FieldViewHolder.newInstance(this, field, response);
-    //    observation
-    //        .getResponses()
-    //        .getResponse(field.getId())
-    //        .map(r -> r.getDetailsText(field))
-    //        .ifPresent(fieldViewHolder::setValue);
     observationDetailsLayout.addView(fieldViewHolder);
   }
 

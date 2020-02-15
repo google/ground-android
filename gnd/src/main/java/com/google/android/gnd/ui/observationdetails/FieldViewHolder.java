@@ -25,21 +25,7 @@ import com.google.android.gnd.model.observation.Response;
 import java8.util.Optional;
 
 class FieldViewHolder {
-
-  //  private ViewGroup root;
-
-  //  @BindView(R.id.field_label)
-  //  TextView labelView;
-
-  //  @BindView(R.id.field_value)
-  //  TextView valueView;
-
-  //  private FieldViewHolder(ViewGroup root) {
-  //    this.root = root;
-  //  }
-
   static View newInstance(Fragment fragment, Field field, Optional<Response> response) {
-    //    ViewGroup root = (ViewGroup) inflater.inflate(R.layout.observation_details_field, null);
     LayoutInflater inflater = fragment.getLayoutInflater();
     ObservationDetailsFieldBinding binding = ObservationDetailsFieldBinding.inflate(inflater);
     binding.setField(field);
@@ -47,20 +33,6 @@ class FieldViewHolder {
       binding.setResponse(response.get());
     }
     binding.setLifecycleOwner(fragment);
-    //    FieldViewHolder holder = new FieldViewHolder(root);
-    //    ButterKnife.bind(holder, root);
     return binding.getRoot();
   }
-
-  //  void setLabel(String label) {
-  //    labelView.setText(label);
-  //  }
-
-  //  void setValue(String value) {
-  //    valueView.setText(value);
-  //  }
-
-  //  public ViewGroup getRoot() {
-  //    return root;
-  //  }
 }
