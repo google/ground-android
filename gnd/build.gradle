@@ -214,6 +214,7 @@ task checkCode(type: GradleBuild) {
     dependsOn 'checkstyle', 'lintDebug', 'pmd', 'spotbugs'
 }
 
+// Run code quality checks before installing apk to device
 afterEvaluate {
-    assembleDebug.dependsOn checkCode
+    installDebug.dependsOn checkCode
 }
