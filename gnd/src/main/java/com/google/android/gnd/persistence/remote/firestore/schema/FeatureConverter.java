@@ -24,7 +24,6 @@ import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.model.layer.Layer;
-import com.google.android.gnd.persistence.remote.firestore.AuditInfoDoc;
 import com.google.android.gnd.persistence.remote.firestore.DataStoreException;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.GeoPoint;
@@ -51,8 +50,8 @@ class FeatureConverter {
         .setCaption(f.getCaption())
         .setLayer(layer)
         .setPoint(location)
-        .setCreated(AuditInfoDoc.toObject(f.getCreated()))
-        .setLastModified(AuditInfoDoc.toObject(f.getModified()))
+        .setCreated(AuditInfoNestedObject.toObject(f.getCreated()))
+        .setLastModified(AuditInfoNestedObject.toObject(f.getModified()))
         .build();
   }
 }

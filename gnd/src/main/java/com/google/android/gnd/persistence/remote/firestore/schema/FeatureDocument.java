@@ -17,7 +17,6 @@
 package com.google.android.gnd.persistence.remote.firestore.schema;
 
 import androidx.annotation.Nullable;
-import com.google.android.gnd.persistence.remote.firestore.AuditInfoDoc;
 import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.IgnoreExtraProperties;
 
@@ -29,16 +28,16 @@ class FeatureDocument {
   @Nullable private String caption;
   // TODO: Replace with consistent name throughout.
   @Nullable private GeoPoint center;
-  @Nullable private AuditInfoDoc created;
-  @Nullable private AuditInfoDoc modified;
+  @Nullable private AuditInfoNestedObject created;
+  @Nullable private AuditInfoNestedObject modified;
 
   FeatureDocument(
       @Nullable String featureTypeId,
       @Nullable String customId,
       @Nullable String caption,
       @Nullable GeoPoint center,
-      @Nullable AuditInfoDoc created,
-      @Nullable AuditInfoDoc modified) {
+      @Nullable AuditInfoNestedObject created,
+      @Nullable AuditInfoNestedObject modified) {
     this.featureTypeId = featureTypeId;
     this.customId = customId;
     this.caption = caption;
@@ -68,12 +67,12 @@ class FeatureDocument {
   }
 
   @Nullable
-  AuditInfoDoc getCreated() {
+  AuditInfoNestedObject getCreated() {
     return created;
   }
 
   @Nullable
-  AuditInfoDoc getModified() {
+  AuditInfoNestedObject getModified() {
     return modified;
   }
 }

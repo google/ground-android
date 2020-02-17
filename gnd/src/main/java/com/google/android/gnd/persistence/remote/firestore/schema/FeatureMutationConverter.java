@@ -20,7 +20,6 @@ import android.util.Log;
 import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.feature.FeatureMutation;
 import com.google.android.gnd.model.feature.Point;
-import com.google.android.gnd.persistence.remote.firestore.AuditInfoDoc;
 import com.google.common.collect.ImmutableMap;
 import com.google.firebase.firestore.GeoPoint;
 
@@ -44,7 +43,7 @@ class FeatureMutationConverter {
         .getNewLocation()
         .map(FeatureMutationConverter::toGeoPoint)
         .ifPresent(p -> map.put(CENTER, p));
-    AuditInfoDoc auditInfo = AuditInfoDoc.fromMutationAndUser(mutation, user);
+    AuditInfoNestedObject auditInfo = AuditInfoNestedObject.fromMutationAndUser(mutation, user);
     switch (mutation.getType()) {
       case CREATE:
         map.put(CREATED, auditInfo);

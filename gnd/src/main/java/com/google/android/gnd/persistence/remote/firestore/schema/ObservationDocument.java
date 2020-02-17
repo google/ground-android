@@ -17,7 +17,6 @@
 package com.google.android.gnd.persistence.remote.firestore.schema;
 
 import androidx.annotation.Nullable;
-import com.google.android.gnd.persistence.remote.firestore.AuditInfoDoc;
 import com.google.firebase.firestore.IgnoreExtraProperties;
 import java.util.Map;
 
@@ -27,16 +26,16 @@ class ObservationDocument {
   @Nullable private String featureId;
   @Nullable private String featureTypeId;
   @Nullable private String formId;
-  @Nullable private AuditInfoDoc created;
-  @Nullable private AuditInfoDoc modified;
+  @Nullable private AuditInfoNestedObject created;
+  @Nullable private AuditInfoNestedObject modified;
   @Nullable private Map<String, Object> responses;
 
   ObservationDocument(
       @Nullable String featureId,
       @Nullable String featureTypeId,
       @Nullable String formId,
-      @Nullable AuditInfoDoc created,
-      @Nullable AuditInfoDoc modified,
+      @Nullable AuditInfoNestedObject created,
+      @Nullable AuditInfoNestedObject modified,
       @Nullable Map<String, Object> responses) {
     this.featureId = featureId;
     this.featureTypeId = featureTypeId;
@@ -62,12 +61,12 @@ class ObservationDocument {
   }
 
   @Nullable
-  AuditInfoDoc getCreated() {
+  AuditInfoNestedObject getCreated() {
     return created;
   }
 
   @Nullable
-  AuditInfoDoc getModified() {
+  AuditInfoNestedObject getModified() {
     return modified;
   }
 

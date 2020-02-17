@@ -23,7 +23,6 @@ import com.google.android.gnd.model.observation.ObservationMutation;
 import com.google.android.gnd.model.observation.Response;
 import com.google.android.gnd.model.observation.ResponseDelta;
 import com.google.android.gnd.model.observation.TextResponse;
-import com.google.android.gnd.persistence.remote.firestore.AuditInfoDoc;
 import com.google.android.gnd.persistence.remote.firestore.DataStoreException;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -45,7 +44,7 @@ public class ObservationMutationConverter {
   static ImmutableMap<String, Object> toMap(ObservationMutation mutation, User user)
       throws DataStoreException {
     ImmutableMap.Builder<String, Object> map = ImmutableMap.builder();
-    AuditInfoDoc auditInfo = AuditInfoDoc.fromMutationAndUser(mutation, user);
+    AuditInfoNestedObject auditInfo = AuditInfoNestedObject.fromMutationAndUser(mutation, user);
     switch (mutation.getType()) {
       case CREATE:
         map.put(CREATED, auditInfo);

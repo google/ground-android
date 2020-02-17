@@ -26,7 +26,6 @@ import com.google.android.gnd.model.observation.MultipleChoiceResponse;
 import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.model.observation.ResponseMap;
 import com.google.android.gnd.model.observation.TextResponse;
-import com.google.android.gnd.persistence.remote.firestore.AuditInfoDoc;
 import com.google.android.gnd.persistence.remote.firestore.DataStoreException;
 import com.google.firebase.firestore.DocumentSnapshot;
 import java.util.List;
@@ -57,8 +56,8 @@ class ObservationConverter {
         .setFeature(feature)
         .setForm(form)
         .setResponses(toResponseMap(doc.getResponses()))
-        .setCreated(AuditInfoDoc.toObject(doc.getCreated()))
-        .setLastModified(AuditInfoDoc.toObject(doc.getModified()))
+        .setCreated(AuditInfoNestedObject.toObject(doc.getCreated()))
+        .setLastModified(AuditInfoNestedObject.toObject(doc.getModified()))
         .build();
   }
 

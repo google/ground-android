@@ -14,20 +14,21 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.persistence.remote.firestore;
+package com.google.android.gnd.persistence.remote.firestore.schema;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.google.android.gnd.model.AuditInfo;
 import com.google.android.gnd.model.Mutation;
 import com.google.android.gnd.model.User;
+import com.google.android.gnd.persistence.remote.firestore.UserDoc;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.ServerTimestamp;
 import java.util.Date;
 import java8.util.Optional;
 
 /** User details and timestamp for creation or modification of a model object. */
-public class AuditInfoDoc {
+public class AuditInfoNestedObject {
 
   /**
    * The user initiating the related action. This should never be missing, but we handle null values
@@ -56,7 +57,7 @@ public class AuditInfoDoc {
    * the input is null to support legacy or corrupt dbs.
    */
   @NonNull
-  public static AuditInfo toObject(@Nullable AuditInfoDoc doc) {
+  public static AuditInfo toObject(@Nullable AuditInfoNestedObject doc) {
     if (doc == null || doc.clientTimeMillis == null) {
       return AuditInfo.builder()
           .setUser(UserDoc.UNKNOWN_USER)
@@ -70,8 +71,8 @@ public class AuditInfoDoc {
         .build();
   }
 
-  public static AuditInfoDoc fromMutationAndUser(Mutation mutation, User user) {
-    AuditInfoDoc auditInfo = new AuditInfoDoc();
+  public static AuditInfoNestedObject fromMutationAndUser(Mutation mutation, User user) {
+    AuditInfoNestedObject auditInfo = new AuditInfoNestedObject();
     auditInfo.user = UserDoc.fromObject(user);
     auditInfo.clientTimeMillis = new Timestamp(mutation.getClientTimestamp());
     return auditInfo;
