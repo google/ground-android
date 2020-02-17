@@ -41,7 +41,7 @@ public class ObservationMutationConverter {
   private static final String LAST_MODIFIED = "lastModified";
   private static final String TAG = ObservationMutationConverter.class.getSimpleName();
 
-  public static ImmutableMap<String, Object> toMap(ObservationMutation mutation, User user) {
+  static ImmutableMap<String, Object> toMap(ObservationMutation mutation, User user) {
     ImmutableMap.Builder<String, Object> map = ImmutableMap.builder();
     AuditInfoDoc auditInfo = AuditInfoDoc.fromMutationAndUser(mutation, user);
     switch (mutation.getType()) {

@@ -23,7 +23,7 @@ import java.util.Map;
 
 /** Observation entity stored in Firestore. */
 @IgnoreExtraProperties
-public class ObservationDocument {
+class ObservationDocument {
   @Nullable private String featureId;
   @Nullable private String featureTypeId;
   @Nullable private String formId;
