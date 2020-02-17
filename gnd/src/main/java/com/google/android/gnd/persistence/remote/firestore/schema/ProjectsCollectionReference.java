@@ -18,7 +18,6 @@ package com.google.android.gnd.persistence.remote.firestore.schema;
 
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.User;
-import com.google.android.gnd.persistence.remote.firestore.ProjectDocument;
 import com.google.android.gnd.persistence.remote.firestore.base.FluentCollectionReference;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FieldPath;
@@ -40,6 +39,6 @@ public class ProjectsCollectionReference extends FluentCollectionReference {
   public Single<List<Project>> getReadable(User user) {
     return runQuery(
         reference().whereArrayContains(FieldPath.of(ACL_FIELD, user.getEmail()), READ_ACCESS),
-        ProjectDocument::toObject);
+        ProjectConverter::toProject);
   }
 }

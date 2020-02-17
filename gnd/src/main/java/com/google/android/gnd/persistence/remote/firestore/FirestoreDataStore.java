@@ -59,7 +59,7 @@ public class FirestoreDataStore implements RemoteDataStore {
     return db.projects()
         .project(projectId)
         .get()
-        .switchIfEmpty(Single.error(new DocumentNotFoundException()))
+        .switchIfEmpty(Single.error(() -> new NotFoundException("Project " + projectId)))
         .subscribeOn(schedulers.io());
   }
 

@@ -16,4 +16,10 @@
 
 package com.google.android.gnd.persistence.remote.firestore;
 
-public class DocumentNotFoundException extends Exception {}
+/** Exception thrown when a remote entity is not found. */
+public class NotFoundException extends DataStoreException {
+
+  public NotFoundException(String message) {
+    super(message);
+  }
+}

@@ -25,12 +25,14 @@ import com.google.android.gnd.model.feature.FeatureMutation;
 import com.google.android.gnd.persistence.local.LocalDataStore;
 import com.google.android.gnd.persistence.remote.RemoteDataEvent;
 import com.google.android.gnd.persistence.remote.RemoteDataStore;
+import com.google.android.gnd.persistence.remote.firestore.NotFoundException;
 import com.google.android.gnd.persistence.sync.DataSyncWorkManager;
 import com.google.android.gnd.rx.Loadable;
 import com.google.common.collect.ImmutableSet;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
+import io.reactivex.Single;
 import java.util.Date;
 import java8.util.Optional;
 import javax.inject.Inject;
@@ -109,7 +111,8 @@ public class FeatureRepository {
         .compose(Loadable::values)
         .firstElement()
         .filter(project -> project.getId().equals(projectId))
-        .flatMap(project -> localDataStore.getFeature(project, featureId));
+        .switchIfEmpty(Single.error(() -> new NotFoundException("Project " + projectId)))
+        .flatMapMaybe(project -> localDataStore.getFeature(project, featureId));
   }
 
   public Completable saveFeature(Feature feature, User user) {
