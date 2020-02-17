@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.persistence.remote.firestore;
 
+import android.util.Log;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gnd.model.Mutation;
 import com.google.android.gnd.model.Project;
@@ -42,6 +43,8 @@ import javax.inject.Singleton;
 
 @Singleton
 public class FirestoreDataStore implements RemoteDataStore {
+
+  private static final String TAG = FirestoreDataStore.class.getSimpleName();
 
   static final String ID_COLLECTION = "/ids";
 
@@ -92,22 +95,28 @@ public class FirestoreDataStore implements RemoteDataStore {
   private Task<?> applyMutationsInternal(ImmutableCollection<Mutation> mutations, User user) {
     WriteBatch batch = db.batch();
     for (Mutation mutation : mutations) {
-      addMutationToBatch(mutation, user, batch);
+      try {
+        addMutationToBatch(mutation, user, batch);
+      } catch (DataStoreException e) {
+        Log.w(TAG, "Skipping invalid mutation", e);
+      }
     }
     return batch.commit();
   }
 
-  private void addMutationToBatch(Mutation mutation, User user, WriteBatch batch) {
+  private void addMutationToBatch(Mutation mutation, User user, WriteBatch batch)
+      throws DataStoreException {
     if (mutation instanceof FeatureMutation) {
       addFeatureMutationToBatch((FeatureMutation) mutation, user, batch);
     } else if (mutation instanceof ObservationMutation) {
       addRecordMutationToBatch((ObservationMutation) mutation, user, batch);
     } else {
-      throw new IllegalArgumentException("Unsupported mutation " + mutation.getClass());
+      throw new DataStoreException("Unsupported mutation " + mutation.getClass());
     }
   }
 
-  private void addFeatureMutationToBatch(FeatureMutation mutation, User user, WriteBatch batch) {
+  private void addFeatureMutationToBatch(FeatureMutation mutation, User user, WriteBatch batch)
+      throws DataStoreException {
     db.projects()
         .project(mutation.getProjectId())
         .features()
@@ -115,7 +124,8 @@ public class FirestoreDataStore implements RemoteDataStore {
         .addMutationToBatch(mutation, user, batch);
   }
 
-  private void addRecordMutationToBatch(ObservationMutation mutation, User user, WriteBatch batch) {
+  private void addRecordMutationToBatch(ObservationMutation mutation, User user, WriteBatch batch)
+      throws DataStoreException {
     db.projects()
         .project(mutation.getProjectId())
         .records()

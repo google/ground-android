@@ -24,6 +24,7 @@ import com.google.android.gnd.model.observation.Response;
 import com.google.android.gnd.model.observation.ResponseDelta;
 import com.google.android.gnd.model.observation.TextResponse;
 import com.google.android.gnd.persistence.remote.firestore.AuditInfoDoc;
+import com.google.android.gnd.persistence.remote.firestore.DataStoreException;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.firebase.firestore.FieldValue;
@@ -41,7 +42,8 @@ public class ObservationMutationConverter {
   private static final String LAST_MODIFIED = "lastModified";
   private static final String TAG = ObservationMutationConverter.class.getSimpleName();
 
-  static ImmutableMap<String, Object> toMap(ObservationMutation mutation, User user) {
+  static ImmutableMap<String, Object> toMap(ObservationMutation mutation, User user)
+      throws DataStoreException {
     ImmutableMap.Builder<String, Object> map = ImmutableMap.builder();
     AuditInfoDoc auditInfo = AuditInfoDoc.fromMutationAndUser(mutation, user);
     switch (mutation.getType()) {
@@ -55,10 +57,8 @@ public class ObservationMutationConverter {
       case DELETE:
         // TODO.
       case UNKNOWN:
-        throw new UnsupportedOperationException();
       default:
-        Log.e(TAG, "Unhandled mutation type: " + mutation.getType());
-        break;
+        throw new DataStoreException("Unsupported mutation type: " + mutation.getType());
     }
     map.put(FEATURE_ID, mutation.getFeatureId())
         .put(FEATURE_TYPE_ID, mutation.getLayerId())
