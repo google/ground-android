@@ -43,7 +43,7 @@ class FeatureMutationConverter {
         .getNewLocation()
         .map(FeatureMutationConverter::toGeoPoint)
         .ifPresent(p -> map.put(CENTER, p));
-    AuditInfoNestedObject auditInfo = AuditInfoNestedObject.fromMutationAndUser(mutation, user);
+    AuditInfoNestedObject auditInfo = AuditInfoConverter.fromMutationAndUser(mutation, user);
     switch (mutation.getType()) {
       case CREATE:
         map.put(CREATED, auditInfo);

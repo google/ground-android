@@ -44,7 +44,7 @@ public class ObservationMutationConverter {
   static ImmutableMap<String, Object> toMap(ObservationMutation mutation, User user)
       throws DataStoreException {
     ImmutableMap.Builder<String, Object> map = ImmutableMap.builder();
-    AuditInfoNestedObject auditInfo = AuditInfoNestedObject.fromMutationAndUser(mutation, user);
+    AuditInfoNestedObject auditInfo = AuditInfoConverter.fromMutationAndUser(mutation, user);
     switch (mutation.getType()) {
       case CREATE:
         map.put(CREATED, auditInfo);

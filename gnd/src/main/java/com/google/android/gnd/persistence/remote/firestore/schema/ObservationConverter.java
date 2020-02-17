@@ -56,8 +56,8 @@ class ObservationConverter {
         .setFeature(feature)
         .setForm(form)
         .setResponses(toResponseMap(doc.getResponses()))
-        .setCreated(AuditInfoNestedObject.toObject(doc.getCreated()))
-        .setLastModified(AuditInfoNestedObject.toObject(doc.getModified()))
+        .setCreated(AuditInfoConverter.toAuditInfo(doc.getCreated()))
+        .setLastModified(AuditInfoConverter.toAuditInfo(doc.getModified()))
         .build();
   }
 

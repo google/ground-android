@@ -50,8 +50,8 @@ class FeatureConverter {
         .setCaption(f.getCaption())
         .setLayer(layer)
         .setPoint(location)
-        .setCreated(AuditInfoNestedObject.toObject(f.getCreated()))
-        .setLastModified(AuditInfoNestedObject.toObject(f.getModified()))
+        .setCreated(AuditInfoConverter.toAuditInfo(f.getCreated()))
+        .setLastModified(AuditInfoConverter.toAuditInfo(f.getModified()))
         .build();
   }
 }
