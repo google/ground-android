@@ -17,18 +17,17 @@
 package com.google.android.gnd.persistence.remote.firestore.schema;
 
 import androidx.annotation.Nullable;
-import com.google.android.gnd.persistence.remote.firestore.UserDoc;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.ServerTimestamp;
 
 /** User details and timestamp for creation or modification of a model object. */
 class AuditInfoNestedObject {
-  @Nullable private UserDoc user;
+  @Nullable private UserNestedObject user;
   @Nullable private Timestamp clientTimeMillis;
   @Nullable @ServerTimestamp private Timestamp serverTimeMillis;
 
   AuditInfoNestedObject(
-      @Nullable UserDoc user,
+      @Nullable UserNestedObject user,
       @Nullable Timestamp clientTimeMillis,
       @Nullable Timestamp serverTimeMillis) {
     this.user = user;
@@ -41,7 +40,7 @@ class AuditInfoNestedObject {
    * anyway since the Firestore is schema-less.
    */
   @Nullable
-  UserDoc getUser() {
+  UserNestedObject getUser() {
     return user;
   }
 

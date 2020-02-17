@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google LLC
+ * Copyright 2020 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.persistence.remote.firestore;
+package com.google.android.gnd.persistence.remote.firestore.schema;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.google.android.gnd.model.User;
 
-public class UserDoc {
+public class UserNestedObject {
   @Nullable public String id;
   @Nullable public String email;
   @Nullable public String displayName;
@@ -30,8 +30,8 @@ public class UserDoc {
       User.builder().setId("").setEmail("").setDisplayName("Unknown user").build();
 
   @NonNull
-  public static UserDoc fromObject(@NonNull User user) {
-    UserDoc ud = new UserDoc();
+  public static UserNestedObject fromObject(@NonNull User user) {
+    UserNestedObject ud = new UserNestedObject();
     ud.id = user.getId();
     ud.email = user.getEmail();
     ud.displayName = user.getDisplayName();
@@ -39,7 +39,7 @@ public class UserDoc {
   }
 
   @NonNull
-  public static User toObject(@Nullable UserDoc ud) {
+  public static User toObject(@Nullable UserNestedObject ud) {
     if (ud == null || ud.id == null || ud.email == null || ud.displayName == null) {
       return UNKNOWN_USER;
     }

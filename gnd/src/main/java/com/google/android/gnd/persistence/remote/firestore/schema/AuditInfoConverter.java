@@ -21,7 +21,6 @@ import androidx.annotation.Nullable;
 import com.google.android.gnd.model.AuditInfo;
 import com.google.android.gnd.model.Mutation;
 import com.google.android.gnd.model.User;
-import com.google.android.gnd.persistence.remote.firestore.UserDoc;
 import com.google.firebase.Timestamp;
 import java.util.Date;
 import java8.util.Optional;
@@ -38,12 +37,12 @@ public class AuditInfoConverter {
   static AuditInfo toAuditInfo(@Nullable AuditInfoNestedObject doc) {
     if (doc == null || doc.getClientTimeMillis() == null) {
       return AuditInfo.builder()
-          .setUser(UserDoc.UNKNOWN_USER)
+          .setUser(UserNestedObject.UNKNOWN_USER)
           .setClientTimeMillis(new Date(0))
           .build();
     }
     return AuditInfo.builder()
-        .setUser(UserDoc.toObject(doc.getUser()))
+        .setUser(UserNestedObject.toObject(doc.getUser()))
         .setClientTimeMillis(doc.getClientTimeMillis().toDate())
         .setServerTimeMillis(Optional.ofNullable(doc.getServerTimeMillis()).map(Timestamp::toDate))
         .build();
@@ -52,6 +51,6 @@ public class AuditInfoConverter {
   @NonNull
   static AuditInfoNestedObject fromMutationAndUser(Mutation mutation, User user) {
     return new AuditInfoNestedObject(
-        UserDoc.fromObject(user), new Timestamp(mutation.getClientTimestamp()), null);
+        UserNestedObject.fromObject(user), new Timestamp(mutation.getClientTimestamp()), null);
   }
 }
