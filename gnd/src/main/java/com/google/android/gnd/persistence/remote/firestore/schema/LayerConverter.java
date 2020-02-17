@@ -18,25 +18,26 @@ package com.google.android.gnd.persistence.remote.firestore.schema;
 
 import static com.google.android.gnd.util.Localization.getLocalizedMessage;
 
-import com.google.android.gnd.model.Project;
-import com.google.android.gnd.persistence.remote.firestore.DataStoreException;
-import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.android.gnd.model.layer.Layer;
 import java8.util.Maps;
 
-/** Converts between Firestore documents and {@link Project} instances. */
-class ProjectConverter {
+/** Converts between Firestore documents and {@link Layer} instances. */
+class LayerConverter {
 
-  static Project toProject(DocumentSnapshot doc) throws DataStoreException {
-    ProjectDocument pd = doc.toObject(ProjectDocument.class);
-    Project.Builder project = Project.newBuilder();
-    project
-        .setId(doc.getId())
-        .setTitle(getLocalizedMessage(pd.getTitle()))
-        .setDescription(getLocalizedMessage(pd.getDescription()));
-    if (pd.getFeatureTypes() != null) {
-      Maps.forEach(
-          pd.getFeatureTypes(), (id, obj) -> project.putLayer(id, LayerConverter.toLayer(id, obj)));
+  static Layer toLayer(String id, LayerNestedObject obj) {
+    Layer.Builder layer = Layer.newBuilder();
+    layer
+        .setId(id)
+        .setListHeading(getLocalizedMessage(obj.getListHeading()))
+        .setItemLabel(getLocalizedMessage(obj.getItemLabel()));
+    if (obj.getDefaultStyle() != null) {
+      layer.setDefaultStyle(StyleConverter.toStyle(obj.getDefaultStyle()));
     }
-    return project.build();
+    if (obj.getForms() != null) {
+      Maps.forEach(
+          obj.getForms(),
+          (formId, formDoc) -> layer.addForm(FormConverter.toForm(formId, formDoc)));
+    }
+    return layer.build();
   }
 }

@@ -17,7 +17,6 @@
 package com.google.android.gnd.persistence.remote.firestore.schema;
 
 import androidx.annotation.Nullable;
-import com.google.android.gnd.persistence.remote.firestore.LayerDoc;
 import com.google.firebase.firestore.IgnoreExtraProperties;
 import java.util.Map;
 
@@ -32,29 +31,29 @@ class ProjectDocument {
 
   // TODO: Rename to "layers" once db is migrated.
 
-  @Nullable private Map<String, LayerDoc> featureTypes;
+  @Nullable private Map<String, LayerNestedObject> featureTypes;
 
   ProjectDocument(
       @Nullable Map<String, String> title,
       @Nullable Map<String, String> description,
-      @Nullable Map<String, LayerDoc> featureTypes) {
+      @Nullable Map<String, LayerNestedObject> featureTypes) {
     this.title = title;
     this.description = description;
     this.featureTypes = featureTypes;
   }
 
   @Nullable
-  public Map<String, String> getTitle() {
+  Map<String, String> getTitle() {
     return title;
   }
 
   @Nullable
-  public Map<String, String> getDescription() {
+  Map<String, String> getDescription() {
     return description;
   }
 
   @Nullable
-  public Map<String, LayerDoc> getFeatureTypes() {
+  Map<String, LayerNestedObject> getFeatureTypes() {
     return featureTypes;
   }
 }
