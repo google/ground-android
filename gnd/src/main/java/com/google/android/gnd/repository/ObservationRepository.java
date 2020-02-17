@@ -101,7 +101,7 @@ public class ObservationRepository {
   private Completable mergeRemoteObservations(
       ImmutableList<ValueOrError<Observation>> observations) {
     return Observable.fromIterable(observations)
-        .doOnNext(voe -> voe.error().ifPresent(err -> Log.w(TAG, err)))
+        .doOnNext(voe -> voe.error().ifPresent(err -> Log.w(TAG, "Skipping bad observation", err)))
         .compose(ValueOrError::ignoreErrors)
         .flatMapCompletable(localDataStore::mergeObservation);
   }
