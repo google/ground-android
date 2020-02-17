@@ -29,6 +29,7 @@ import com.google.android.gnd.persistence.remote.RemoteDataStore;
 import com.google.android.gnd.persistence.remote.firestore.schema.GroundFirestore;
 import com.google.android.gnd.rx.RxTask;
 import com.google.android.gnd.rx.Schedulers;
+import com.google.android.gnd.rx.ValueOrError;
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
 import com.google.firebase.firestore.WriteBatch;
@@ -60,7 +61,7 @@ public class FirestoreDataStore implements RemoteDataStore {
   }
 
   @Override
-  public Single<ImmutableList<Observation>> loadObservations(Feature feature) {
+  public Single<ImmutableList<ValueOrError<Observation>>> loadObservations(Feature feature) {
     return db.projects()
         .project(feature.getProject().getId())
         .records()

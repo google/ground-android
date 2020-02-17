@@ -27,6 +27,7 @@ import com.google.android.gnd.persistence.remote.RemoteDataStore;
 import com.google.android.gnd.persistence.remote.firestore.DocumentNotFoundException;
 import com.google.android.gnd.persistence.sync.DataSyncWorkManager;
 import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator;
+import com.google.android.gnd.rx.ValueOrError;
 import com.google.common.collect.ImmutableList;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
@@ -97,8 +98,11 @@ public class ObservationRepository {
     return remoteSync.andThen(localDataStore.getObservations(feature, formId));
   }
 
-  private Completable mergeRemoteObservations(ImmutableList<Observation> observations) {
+  private Completable mergeRemoteObservations(
+      ImmutableList<ValueOrError<Observation>> observations) {
     return Observable.fromIterable(observations)
+        .doOnNext(voe -> voe.error().ifPresent(err -> Log.w(TAG, err)))
+        .compose(ValueOrError::ignoreErrors)
         .flatMapCompletable(localDataStore::mergeObservation);
   }
 
