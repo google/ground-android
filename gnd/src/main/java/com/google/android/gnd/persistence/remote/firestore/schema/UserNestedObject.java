@@ -16,33 +16,38 @@
 
 package com.google.android.gnd.persistence.remote.firestore.schema;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.google.android.gnd.model.User;
 
-public class UserNestedObject {
-  @Nullable public String id;
-  @Nullable public String email;
-  @Nullable public String displayName;
-
+/** User details nested for nested inside entities for audit purposes. */
+class UserNestedObject {
   /** Fallback value when reading invalid or legacy schemas. */
-  public static final User UNKNOWN_USER =
+  static final User UNKNOWN_USER =
       User.builder().setId("").setEmail("").setDisplayName("Unknown user").build();
 
-  @NonNull
-  public static UserNestedObject fromObject(@NonNull User user) {
-    UserNestedObject ud = new UserNestedObject();
-    ud.id = user.getId();
-    ud.email = user.getEmail();
-    ud.displayName = user.getDisplayName();
-    return ud;
+  @Nullable private String id;
+  @Nullable private String email;
+  @Nullable private String displayName;
+
+  public UserNestedObject(
+      @Nullable String id, @Nullable String email, @Nullable String displayName) {
+    this.id = id;
+    this.email = email;
+    this.displayName = displayName;
   }
 
-  @NonNull
-  public static User toObject(@Nullable UserNestedObject ud) {
-    if (ud == null || ud.id == null || ud.email == null || ud.displayName == null) {
-      return UNKNOWN_USER;
-    }
-    return User.builder().setId(ud.id).setEmail(ud.email).setDisplayName(ud.displayName).build();
+  @Nullable
+  public String getId() {
+    return id;
+  }
+
+  @Nullable
+  public String getEmail() {
+    return email;
+  }
+
+  @Nullable
+  public String getDisplayName() {
+    return displayName;
   }
 }

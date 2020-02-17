@@ -42,7 +42,7 @@ public class AuditInfoConverter {
           .build();
     }
     return AuditInfo.builder()
-        .setUser(UserNestedObject.toObject(doc.getUser()))
+        .setUser(UserConverter.toUser(doc.getUser()))
         .setClientTimeMillis(doc.getClientTimeMillis().toDate())
         .setServerTimeMillis(Optional.ofNullable(doc.getServerTimeMillis()).map(Timestamp::toDate))
         .build();
@@ -51,6 +51,6 @@ public class AuditInfoConverter {
   @NonNull
   static AuditInfoNestedObject fromMutationAndUser(Mutation mutation, User user) {
     return new AuditInfoNestedObject(
-        UserNestedObject.fromObject(user), new Timestamp(mutation.getClientTimestamp()), null);
+        UserConverter.toNestedObject(user), new Timestamp(mutation.getClientTimestamp()), null);
   }
 }
