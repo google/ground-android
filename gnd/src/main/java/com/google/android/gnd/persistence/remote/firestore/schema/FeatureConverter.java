@@ -16,15 +16,15 @@
 
 package com.google.android.gnd.persistence.remote.firestore.schema;
 
-import static com.google.android.gnd.persistence.remote.firestore.DataStoreException.checkNotEmpty;
-import static com.google.android.gnd.persistence.remote.firestore.DataStoreException.checkNotNull;
+import static com.google.android.gnd.persistence.remote.DataStoreException.checkNotEmpty;
+import static com.google.android.gnd.persistence.remote.DataStoreException.checkNotNull;
 
 import androidx.annotation.NonNull;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.model.layer.Layer;
-import com.google.android.gnd.persistence.remote.firestore.DataStoreException;
+import com.google.android.gnd.persistence.remote.DataStoreException;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.GeoPoint;
 

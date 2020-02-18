@@ -16,8 +16,8 @@
 
 package com.google.android.gnd.persistence.remote.firestore.schema;
 
-import static com.google.android.gnd.persistence.remote.firestore.DataStoreException.checkNotEmpty;
-import static com.google.android.gnd.persistence.remote.firestore.DataStoreException.checkNotNull;
+import static com.google.android.gnd.persistence.remote.DataStoreException.checkNotEmpty;
+import static com.google.android.gnd.persistence.remote.DataStoreException.checkNotNull;
 
 import android.util.Log;
 import com.google.android.gnd.model.feature.Feature;
@@ -26,7 +26,7 @@ import com.google.android.gnd.model.observation.MultipleChoiceResponse;
 import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.model.observation.ResponseMap;
 import com.google.android.gnd.model.observation.TextResponse;
-import com.google.android.gnd.persistence.remote.firestore.DataStoreException;
+import com.google.android.gnd.persistence.remote.DataStoreException;
 import com.google.firebase.firestore.DocumentSnapshot;
 import java.util.List;
 import java.util.Map;

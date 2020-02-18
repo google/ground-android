@@ -20,8 +20,8 @@ import static java8.util.stream.Collectors.toList;
 import static java8.util.stream.StreamSupport.stream;
 
 import android.util.Log;
+import com.google.android.gnd.persistence.remote.DataStoreException;
 import com.google.android.gnd.persistence.remote.RemoteDataEvent;
-import com.google.android.gnd.persistence.remote.firestore.DataStoreException;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
