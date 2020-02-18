@@ -60,7 +60,8 @@ public class GeoJsonTile {
   }
 
   public Optional<String> getId() {
-    return Optional.of(json.optString(ID_KEY));
+    String s = json.optString(ID_KEY);
+    return s.isEmpty() ? Optional.empty() : Optional.of(s);
   }
 
   public Optional<String> getUrl() {
