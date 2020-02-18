@@ -29,7 +29,6 @@ import butterknife.BindView;
 import com.google.android.gnd.MainViewModel;
 import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.FeatureSheetFragBinding;
-import com.google.android.gnd.ui.MapIcon;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.home.FeatureSheetState;
 import com.google.android.gnd.ui.home.HomeScreenViewModel;
@@ -98,7 +97,8 @@ public class FeatureSheetFragment extends AbstractFragment {
   private void onFeatureSheetStateChange(FeatureSheetState featureSheetState) {
     if (featureSheetState.isVisible()) {
       String iconOverlayId = null; // Not yet implemented.
-      featureHeaderIcon.setImageResource(MapIcon.getResourceId(getContext(), iconOverlayId));
+      //      featureHeaderIcon.setImageResource(MapIcon.getResourceId(getContext(),
+      // iconOverlayId));
 
       // TODO: Auto add observation if there's only one form.
       //      Feature feature = featureSheetState.getFeature();

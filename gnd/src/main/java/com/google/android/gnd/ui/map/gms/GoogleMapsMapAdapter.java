@@ -169,10 +169,8 @@ class GoogleMapsMapAdapter implements MapAdapter {
   private void addMarker(MapMarker mapMarker, boolean hasPendingWrites, boolean isHighlighted) {
     LatLng position = mapMarker.getPosition().toLatLng();
     MapIcon icon = mapMarker.getIcon();
-    BitmapDescriptor bitmap =
-        isHighlighted
-            ? icon.getWhiteBitmap()
-            : hasPendingWrites ? icon.getGreyBitmap() : icon.getBitmap();
+    // TODO: Change size and color based on hasPendingWrites and isHighlighted.
+    BitmapDescriptor bitmap = icon.getBitmap();
     Marker marker = map.addMarker(new MarkerOptions().position(position).icon(bitmap).alpha(1.0f));
     markers.put(mapMarker.getId(), marker);
     marker.setTag(mapMarker);
@@ -246,8 +244,7 @@ class GoogleMapsMapAdapter implements MapAdapter {
     Layer layer = feature.getLayer();
     Style style = layer.getDefaultStyle();
     String color = style == null ? null : style.getColor();
-    String overlayId = null; // Not yet implemented.
-    MapIcon icon = new MapIcon(context, overlayId, color);
+    MapIcon icon = new MapIcon(context, color);
     // TODO: Reimplement hasPendingWrites.
     addMarker(
         MapMarker.newBuilder()

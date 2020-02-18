@@ -17,80 +17,54 @@
 package com.google.android.gnd.ui;
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.drawable.BitmapDrawable;
-import android.util.Log;
-import androidx.annotation.DrawableRes;
-import androidx.annotation.NonNull;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import androidx.annotation.Nullable;
-import androidx.core.content.ContextCompat;
+import androidx.appcompat.content.res.AppCompatResources;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gnd.R;
-import com.google.android.gnd.ui.util.ViewUtil;
 
 // TODO: Move to common, rename Marker.
 public class MapIcon {
-  private static final String TAG = MapIcon.class.getSimpleName();
   private final Context context;
-  private BitmapDrawable drawable;
-  private int color;
+  private final int color;
 
-  public MapIcon(Context context, @Nullable String iconId, @Nullable String color) {
+  public MapIcon(Context context, @Nullable String colorHexCode) {
     this.context = context;
-    this.color = getIconColor(context, color);
-    int resourceId = getResourceId(context, iconId);
-    this.drawable = (BitmapDrawable) ContextCompat.getDrawable(context, resourceId);
+    this.color = getIconColor(context, colorHexCode);
   }
 
-  private static int getIconColor(Context context, String color) {
+  public BitmapDescriptor getBitmap() {
+    Drawable outline = AppCompatResources.getDrawable(context, R.drawable.ic_marker_outline);
+    Drawable fill = AppCompatResources.getDrawable(context, R.drawable.ic_marker_fill);
+    Drawable overlay = AppCompatResources.getDrawable(context, R.drawable.ic_marker_overlay);
+    // TODO: Define scale in resources.
+    // TODO: Adjust size based on zoom level and selection state.
+    float scale = 1.8f;
+    int width = (int) (outline.getIntrinsicWidth() * scale);
+    int height = (int) (outline.getIntrinsicHeight() * scale);
+    Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+    Canvas canvas = new Canvas(bitmap);
+    outline.setBounds(0, 0, width, height);
+    outline.draw(canvas);
+    fill.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
+    fill.setBounds(0, 0, width, height);
+    fill.draw(canvas);
+    overlay.setBounds(0, 0, width, height);
+    overlay.draw(canvas);
+    // TODO: Cache rendered bitmaps.
+    return BitmapDescriptorFactory.fromBitmap(bitmap);
+  }
+
+  private static int getIconColor(Context context, String colorHexCode) {
     try {
-      return Color.parseColor(color);
-    } catch (Exception e) {
+      return Color.parseColor(colorHexCode);
+    } catch (IllegalArgumentException e) {
       return context.getResources().getColor(R.color.colorMapAccent);
     }
-  }
-
-  @NonNull
-  public static @DrawableRes int getResourceId(Context context, @Nullable String iconId) {
-    if (iconId == null) {
-      return R.drawable.ic_default_map_marker;
-    }
-    try {
-      String resourceName = "ic_marker_" + iconId.replace("-", "_");
-      int resourceId =
-          context.getResources().getIdentifier(resourceName, "drawable", context.getPackageName());
-      if (resourceId > 0) {
-        return resourceId;
-      }
-    } catch (Resources.NotFoundException e) {
-      Log.w(TAG, e);
-    }
-    return R.drawable.ic_default_map_marker;
-  }
-
-  // TODO: Cache tinted bitmaps.
-  public BitmapDescriptor getBitmap() {
-    Bitmap tintedBitmap = ViewUtil.tintBitmap(drawable.getBitmap(), color);
-    // TODO: Figure out consistent way to scale images.
-    return BitmapDescriptorFactory.fromBitmap(tintedBitmap);
-  }
-
-  // TODO: Cache tinted bitmaps.
-  public BitmapDescriptor getGreyBitmap() {
-    Bitmap tintedBitmap =
-        ViewUtil.tintBitmap(
-            drawable.getBitmap(), context.getResources().getColor(R.color.colorGrey300));
-    return BitmapDescriptorFactory.fromBitmap(tintedBitmap);
-  }
-
-  // TODO: Cache tinted bitmaps.
-  public BitmapDescriptor getWhiteBitmap() {
-    Bitmap tintedBitmap =
-        ViewUtil.tintBitmap(
-            drawable.getBitmap(), context.getResources().getColor(R.color.colorBackground));
-    return BitmapDescriptorFactory.fromBitmap(tintedBitmap);
   }
 }
