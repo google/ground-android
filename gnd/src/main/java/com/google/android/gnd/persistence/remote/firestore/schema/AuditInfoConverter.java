@@ -29,10 +29,6 @@ import java8.util.Optional;
 /** Converts between Firestore nested objects and {@link AuditInfo} instances. */
 class AuditInfoConverter {
 
-  /**
-   * Converts a POJO representing user and timestamp data in Firebase into an equivalent model
-   * object.
-   */
   @NonNull
   static AuditInfo toAuditInfo(@NonNull AuditInfoNestedObject doc) throws DataStoreException {
     checkNotNull(doc.getClientTimeMillis(), "clientTimeMillis");
