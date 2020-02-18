@@ -216,3 +216,7 @@ apply plugin: 'com.google.gms.google-services'
 task checkCode(type: GradleBuild) {
     dependsOn 'checkstyle', 'lintDebug', 'pmd', 'spotbugs'
 }
+
+afterEvaluate {
+    assembleDebug.dependsOn checkCode
+}
