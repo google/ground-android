@@ -17,7 +17,7 @@
 package com.google.android.gnd.persistence.geojson;
 
 import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList;
-import static java8.util.J8Arrays.stream;
+import static java8.util.stream.StreamSupport.stream;
 
 import android.util.Log;
 import com.google.android.gms.maps.model.LatLngBounds;
@@ -31,6 +31,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 import javax.inject.Inject;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -47,21 +49,16 @@ public class GeoJsonParser {
   }
 
   private String readJsonFile(File file) throws IOException {
-    try {
-      InputStream is = new FileInputStream(file);
-      BufferedReader buf = new BufferedReader(new InputStreamReader(is));
-      StringBuilder sb = new StringBuilder();
+    InputStream is = new FileInputStream(file);
+    BufferedReader buf = new BufferedReader(new InputStreamReader(is));
+    StringBuilder sb = new StringBuilder();
 
-      int res = buf.read();
-      while (res != -1) {
-        sb.append(res);
-        res = buf.read();
-      }
-      return sb.toString();
-    } catch (IOException e) {
-      Log.e(TAG, "Unable to load JSON", e);
-      throw e;
+    int res = buf.read();
+    while (res != -1) {
+      sb.append(res);
+      res = buf.read();
     }
+    return sb.toString();
   }
 
   /**
@@ -74,7 +71,7 @@ public class GeoJsonParser {
       JSONObject geoJson = new JSONObject(fileContents);
       JSONArray features = geoJson.getJSONArray("features");
 
-      return stream(toArray(features))
+      return stream(toArrayList(features))
           .map(GeoJsonTile::new)
           .filter(tile -> tile.boundsIntersect(bounds))
           .map(this::jsonToTile)
@@ -91,14 +88,14 @@ public class GeoJsonParser {
    * Converts a JSONArray to an array of JSONObjects. Provided for compatibility with java8 streams.
    * JSONArray itself only inherits from Object, and is not convertible to a stream.
    */
-  private static JSONObject[] toArray(JSONArray arr) {
-    JSONObject[] result = new JSONObject[arr.length()];
+  private static ArrayList<JSONObject> toArrayList(JSONArray arr) {
+    ArrayList<JSONObject> result = new ArrayList<>();
 
     for (int i = 0; i < arr.length(); i++) {
       try {
-        result[i] = arr.getJSONObject(i);
+        result.add(arr.getJSONObject(i));
       } catch (JSONException e) {
-        Log.e(TAG, "couldn't parse json", e);
+        Log.e(TAG, "Ignoring error in JSON array", e);
       }
     }
 
