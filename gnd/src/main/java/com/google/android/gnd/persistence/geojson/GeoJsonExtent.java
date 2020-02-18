@@ -31,10 +31,6 @@ class GeoJsonExtent {
   }
 
   ImmutableList<LatLng> getVertices() {
-    return getPolygonVertices();
-  }
-
-  private ImmutableList<LatLng> getPolygonVertices() {
     if (geometry.getVertices().isEmpty()) {
       return ImmutableList.of();
     }
