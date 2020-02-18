@@ -30,12 +30,6 @@ public abstract class Tile {
 
   public abstract String getUrl();
 
-  public abstract int getX();
-
-  public abstract int getY();
-
-  public abstract int getZ();
-
   public abstract String getId();
 
   public abstract String getPath();
@@ -67,12 +61,6 @@ public abstract class Tile {
     public abstract Builder setUrl(String url);
 
     public abstract Builder setPath(String path);
-
-    public abstract Builder setX(int x);
-
-    public abstract Builder setY(int y);
-
-    public abstract Builder setZ(int z);
 
     public abstract Builder setState(State state);
 
