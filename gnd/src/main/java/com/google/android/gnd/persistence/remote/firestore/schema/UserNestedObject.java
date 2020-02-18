@@ -29,25 +29,24 @@ class UserNestedObject {
   @Nullable private String email;
   @Nullable private String displayName;
 
-  public UserNestedObject(
-      @Nullable String id, @Nullable String email, @Nullable String displayName) {
+  UserNestedObject(@Nullable String id, @Nullable String email, @Nullable String displayName) {
     this.id = id;
     this.email = email;
     this.displayName = displayName;
   }
 
   @Nullable
-  public String getId() {
+  String getId() {
     return id;
   }
 
   @Nullable
-  public String getEmail() {
+  String getEmail() {
     return email;
   }
 
   @Nullable
-  public String getDisplayName() {
+  String getDisplayName() {
     return displayName;
   }
 }

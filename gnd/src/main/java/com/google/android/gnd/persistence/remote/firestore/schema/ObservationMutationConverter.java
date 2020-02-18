@@ -32,7 +32,7 @@ import java.util.Map;
 /**
  * Converts between Firestore maps used to merge updates and {@link ObservationMutation} instances.
  */
-public class ObservationMutationConverter {
+class ObservationMutationConverter {
   static final String FEATURE_ID = "featureId";
   private static final String FEATURE_TYPE_ID = "featureTypeId";
   private static final String FORM_ID = "formId";

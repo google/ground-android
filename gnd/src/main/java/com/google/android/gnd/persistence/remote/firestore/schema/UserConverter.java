@@ -24,12 +24,12 @@ import com.google.android.gnd.model.User;
 class UserConverter {
 
   @NonNull
-  public static UserNestedObject toNestedObject(@NonNull User user) {
+  static UserNestedObject toNestedObject(@NonNull User user) {
     return new UserNestedObject(user.getId(), user.getEmail(), user.getDisplayName());
   }
 
   @NonNull
-  public static User toUser(@Nullable UserNestedObject ud) {
+  static User toUser(@Nullable UserNestedObject ud) {
     if (ud == null || ud.getId() == null || ud.getEmail() == null || ud.getDisplayName() == null) {
       return UserNestedObject.UNKNOWN_USER;
     }

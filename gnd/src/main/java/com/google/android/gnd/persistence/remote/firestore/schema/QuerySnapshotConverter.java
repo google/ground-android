@@ -36,7 +36,7 @@ class QuerySnapshotConverter {
   private static final String TAG = QuerySnapshotConverter.class.getSimpleName();
 
   /** Applies a converter function to document change events in the specified query snapshot. */
-  public static <T> Iterable<RemoteDataEvent<T>> toEvents(
+  static <T> Iterable<RemoteDataEvent<T>> toEvents(
       QuerySnapshot snapshot, Function<DocumentSnapshot, T> converter) {
     return stream(snapshot.getDocumentChanges())
         .map(dc -> toEvent(dc, converter))

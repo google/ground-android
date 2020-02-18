@@ -26,7 +26,7 @@ import java.util.Date;
 import java8.util.Optional;
 
 /** Converts between Firestore nested objects and {@link AuditInfo} instances. */
-public class AuditInfoConverter {
+class AuditInfoConverter {
 
   /**
    * Converts a POJO representing user and timestamp data in Firebase into an equivalent model
