@@ -96,10 +96,7 @@ public class FeatureSheetFragment extends AbstractFragment {
 
   private void onFeatureSheetStateChange(FeatureSheetState featureSheetState) {
     if (featureSheetState.isVisible()) {
-      String iconOverlayId = null; // Not yet implemented.
-      //      featureHeaderIcon.setImageResource(MapIcon.getResourceId(getContext(),
-      // iconOverlayId));
-
+      // TODO(#373): Update icon based on layer default style.
       // TODO: Auto add observation if there's only one form.
       //      Feature feature = featureSheetState.getFeature();
       //      ImmutableList<Form> forms = feature.getLayer().getForms();
