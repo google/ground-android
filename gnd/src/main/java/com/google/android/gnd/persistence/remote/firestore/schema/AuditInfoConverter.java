@@ -16,13 +16,14 @@
 
 package com.google.android.gnd.persistence.remote.firestore.schema;
 
+import static com.google.android.gnd.persistence.remote.DataStoreException.checkNotNull;
+
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import com.google.android.gnd.model.AuditInfo;
 import com.google.android.gnd.model.Mutation;
 import com.google.android.gnd.model.User;
+import com.google.android.gnd.persistence.remote.DataStoreException;
 import com.google.firebase.Timestamp;
-import java.util.Date;
 import java8.util.Optional;
 
 /** Converts between Firestore nested objects and {@link AuditInfo} instances. */
@@ -30,17 +31,11 @@ class AuditInfoConverter {
 
   /**
    * Converts a POJO representing user and timestamp data in Firebase into an equivalent model
-   * object. This should never be empty in Firebase, but this method returns a default value when
-   * the input is null to support legacy or corrupt dbs.
+   * object.
    */
   @NonNull
-  static AuditInfo toAuditInfo(@Nullable AuditInfoNestedObject doc) {
-    if (doc == null || doc.getClientTimeMillis() == null) {
-      return AuditInfo.builder()
-          .setUser(UserNestedObject.UNKNOWN_USER)
-          .setClientTimeMillis(new Date(0))
-          .build();
-    }
+  static AuditInfo toAuditInfo(@NonNull AuditInfoNestedObject doc) throws DataStoreException {
+    checkNotNull(doc.getClientTimeMillis(), "clientTimeMillis");
     return AuditInfo.builder()
         .setUser(UserConverter.toUser(doc.getUser()))
         .setClientTimeMillis(doc.getClientTimeMillis().toDate())

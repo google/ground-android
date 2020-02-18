@@ -30,6 +30,7 @@ import com.google.android.gnd.persistence.remote.DataStoreException;
 import com.google.firebase.firestore.DocumentSnapshot;
 import java.util.List;
 import java.util.Map;
+import java8.util.Optional;
 import javax.annotation.Nullable;
 
 /** Converts between Firestore documents and {@link Observation} instances. */
@@ -50,14 +51,16 @@ class ObservationConverter {
       Log.w(TAG, "Observation layerId doesn't match specified feature's layerId");
     }
     Form form = checkNotEmpty(feature.getLayer().getForm(formId), "form");
+    AuditInfoNestedObject created = checkNotNull(doc.getCreated(), "created");
+    AuditInfoNestedObject modified = Optional.ofNullable(doc.getModified()).orElse(created);
     return Observation.newBuilder()
         .setId(snapshot.getId())
         .setProject(feature.getProject())
         .setFeature(feature)
         .setForm(form)
         .setResponses(toResponseMap(doc.getResponses()))
-        .setCreated(AuditInfoConverter.toAuditInfo(doc.getCreated()))
-        .setLastModified(AuditInfoConverter.toAuditInfo(doc.getModified()))
+        .setCreated(AuditInfoConverter.toAuditInfo(created))
+        .setLastModified(AuditInfoConverter.toAuditInfo(modified))
         .build();
   }
 

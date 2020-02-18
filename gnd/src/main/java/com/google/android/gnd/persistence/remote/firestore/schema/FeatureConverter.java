@@ -27,6 +27,7 @@ import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.persistence.remote.DataStoreException;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.GeoPoint;
+import java8.util.Optional;
 
 /** Converts between Firestore documents and {@link Feature} instances. */
 class FeatureConverter {
@@ -43,6 +44,8 @@ class FeatureConverter {
             .setLatitude(geoPoint.getLatitude())
             .setLongitude(geoPoint.getLongitude())
             .build();
+    AuditInfoNestedObject created = checkNotNull(f.getCreated(), "created");
+    AuditInfoNestedObject modified = Optional.ofNullable(f.getModified()).orElse(created);
     return Feature.newBuilder()
         .setId(doc.getId())
         .setProject(project)
@@ -50,8 +53,8 @@ class FeatureConverter {
         .setCaption(f.getCaption())
         .setLayer(layer)
         .setPoint(location)
-        .setCreated(AuditInfoConverter.toAuditInfo(f.getCreated()))
-        .setLastModified(AuditInfoConverter.toAuditInfo(f.getModified()))
+        .setCreated(AuditInfoConverter.toAuditInfo(created))
+        .setLastModified(AuditInfoConverter.toAuditInfo(modified))
         .build();
   }
 }
