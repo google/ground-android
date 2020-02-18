@@ -46,7 +46,7 @@ public class GeoJsonParser {
     this.uuidGenerator = uuidGenerator;
   }
 
-  private String readJsonFile(File file) {
+  private String readJsonFile(File file) throws IOException {
     try {
       InputStream is = new FileInputStream(file);
       BufferedReader buf = new BufferedReader(new InputStreamReader(is));
@@ -60,8 +60,8 @@ public class GeoJsonParser {
       return sb.toString();
     } catch (IOException e) {
       Log.e(TAG, "Unable to load JSON", e);
+      throw e;
     }
-    return "";
   }
 
   /**
@@ -69,8 +69,8 @@ public class GeoJsonParser {
    * bounds}.
    */
   public ImmutableList<Tile> intersectingTiles(LatLngBounds bounds, File file) {
-    String fileContents = readJsonFile(file);
     try {
+      String fileContents = readJsonFile(file);
       JSONObject geoJson = new JSONObject(fileContents);
       JSONArray features = geoJson.getJSONArray("features");
 
@@ -80,7 +80,7 @@ public class GeoJsonParser {
           .map(this::jsonToTile)
           .collect(toImmutableList());
 
-    } catch (JSONException e) {
+    } catch (JSONException | IOException e) {
       Log.e(TAG, "Unable to parse JSON", e);
     }
 
@@ -96,8 +96,7 @@ public class GeoJsonParser {
 
     for (int i = 0; i < arr.length(); i++) {
       try {
-        JSONObject o = arr.getJSONObject(i);
-        result[i] = o;
+        result[i] = arr.getJSONObject(i);
       } catch (JSONException e) {
         Log.e(TAG, "couldn't parse json", e);
       }
@@ -108,6 +107,8 @@ public class GeoJsonParser {
 
   /** Returns the {@link Tile} specified by {@param json}. */
   private Tile jsonToTile(GeoJsonTile json) {
+    // TODO: Instead of returning tiles with invalid state (empty URL/ID values)
+    // Throw an exception here and handle it downstream.
     return Tile.newBuilder()
         .setId(uuidGenerator.generateUuid())
         .setUrl(json.getUrl().orElse(""))
