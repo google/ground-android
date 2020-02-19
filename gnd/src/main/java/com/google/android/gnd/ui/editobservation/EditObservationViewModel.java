@@ -131,7 +131,7 @@ public class EditObservationViewModel extends AbstractViewModel {
   /** True if the observation is being added, false if editing an existing one. */
   private boolean isNew;
 
-  /** True if the photo field is immediately updated. */
+  /** True if the photo field has been updated. */
   private boolean isPhotoFieldUpdated;
 
   @Inject
