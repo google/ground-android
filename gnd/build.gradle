@@ -72,6 +72,8 @@ android {
         versionName gitVersioner.versionName
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
+        // For rendering vector map markers.
+        vectorDrawables.useSupportLibrary = true
     }
     buildTypes {
         release {
