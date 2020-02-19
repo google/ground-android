@@ -19,10 +19,12 @@ package com.google.android.gnd;
 import android.content.Context;
 import android.os.StrictMode;
 import android.util.Log;
+import androidx.annotation.NonNull;
 import androidx.multidex.MultiDex;
 import androidx.work.Configuration;
 import androidx.work.WorkManager;
 import com.akaita.java.rxjava2debug.RxJava2Debug;
+import com.crashlytics.android.Crashlytics;
 import com.facebook.stetho.Stetho;
 import com.google.android.gnd.inject.GndWorkerFactory;
 import com.google.android.gnd.rx.RxDebug;
@@ -30,6 +32,7 @@ import dagger.android.AndroidInjector;
 import dagger.android.support.DaggerApplication;
 import io.reactivex.plugins.RxJavaPlugins;
 import javax.inject.Inject;
+import timber.log.Timber;
 
 // TODO: When implementing background data sync service, we'll need to inject a Service here; we
 // should then extend DaggerApplication instead. If MultiDex is still needed, we can install it
@@ -71,6 +74,12 @@ public class GndApplication extends DaggerApplication {
     // TODO(github.com/google/dagger/issues/1183): Remove once Workers support injection.
     WorkManager.initialize(
         this, new Configuration.Builder().setWorkerFactory(workerFactory).build());
+
+    if (BuildConfig.DEBUG) {
+      Timber.plant(new Timber.DebugTree());
+    } else {
+      Timber.plant(new CrashReportingTree());
+    }
   }
 
   @Override
@@ -85,5 +94,20 @@ public class GndApplication extends DaggerApplication {
 
     StrictMode.setVmPolicy(
         new StrictMode.VmPolicy.Builder().detectLeakedSqlLiteObjects().penaltyLog().build());
+  }
+
+  private static class CrashReportingTree extends Timber.Tree {
+    @Override
+    protected void log(int priority, String tag, @NonNull String message, Throwable throwable) {
+      if (priority == Log.VERBOSE || priority == Log.DEBUG || priority == Log.INFO) {
+        return;
+      }
+
+      Crashlytics.log(priority, tag, message);
+
+      if (throwable != null && priority == Log.ERROR) {
+        Crashlytics.logException(throwable);
+      }
+    }
   }
 }
