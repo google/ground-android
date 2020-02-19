@@ -31,8 +31,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.List;
 import javax.inject.Inject;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -88,8 +88,8 @@ public class GeoJsonParser {
    * Converts a JSONArray to an array of JSONObjects. Provided for compatibility with java8 streams.
    * JSONArray itself only inherits from Object, and is not convertible to a stream.
    */
-  private static ArrayList<JSONObject> toArrayList(JSONArray arr) {
-    ArrayList<JSONObject> result = new ArrayList<>();
+  private static List<JSONObject> toArrayList(JSONArray arr) {
+    List<JSONObject> result = new ArrayList<>();
 
     for (int i = 0; i < arr.length(); i++) {
       try {
