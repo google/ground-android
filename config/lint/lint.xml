@@ -16,13 +16,13 @@
   -->
 <lint>
   <!-- Severity: Warning -->
-  <issue id="DuplicateStrings" severity="warning" />
   <issue id="InvalidPackage" severity="warning" />
   <issue id="MissingTranslation" severity="warning" />
 
   <!-- Severity: Error -->
   <issue id="ApplySharedPref" severity="error" />
   <issue id="DuplicateIds" severity="error" />
+  <issue id="DuplicateStrings" severity="error" />
   <issue id="HardcodedText" severity="error" />
   <issue id="PxUsage" severity="error" />
   <issue id="SpUsage" severity="error" />
