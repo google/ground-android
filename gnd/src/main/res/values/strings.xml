@@ -27,8 +27,6 @@
 
   <!-- Title shown above list of feature types when (+) is clicked on map. -->
   <string name="add_feature_select_type_dialog_title">What would you like to add?</string>
-  <!-- Text shown to dismiss "Add a feature" dialog -->
-  <string name="add_feature_cancel">Cancel</string>
 
   <!-- Shown in toolbar when adding a new feature and form instance. -->
   <string name="add_feature_toolbar_title">Add a feature</string>
@@ -36,11 +34,8 @@
   <string name="edit_feature_data_toolbar_title">Edit feature data</string>
   <!-- Shown in toolbar when adding a new observation (form instance) to a feature. -->
   <string name="add_feature_data_toolbar_title">Add feature data</string>
-  <!-- Shown in toolbar to save changes to feature data. -->
-  <string name="save">Save</string>
   <!-- Shown when leaving edit mode without saving changes. -->
   <string name="unsaved_changes">Save changes before closing?</string>
-  <string name="save_unsaved_changes">Save</string>
   <string name="continue_editing">Continue editing</string>
   <string name="close_without_saving">Close without saving</string>
   <!-- Shown on save when connection was not available. -->
@@ -54,8 +49,6 @@
 
   <!-- Text in multiple-choice popup dialogs that when clicked, applied new selection to form -->
   <string name="apply_multiple_choice_changes">Apply</string>
-  <!-- Text in multiple-choice popup dialogs that when clicked, discards any changes made. -->
-  <string name="discard_multiple_choice_changes">Cancel</string>
   <!-- Shown below fields that are required but left empty (TBD). -->
   <string name="required_field">This field is required</string>
 
@@ -115,8 +108,6 @@
   <string name="location_updates_unknown_error">Failed to enable location updates</string>
   <!-- Shown when user has refused to enable location services in settings.-->
   <string name="location_disabled_in_settings">Please enable location in system settings</string>
-  <!-- Shown when an unknown error occurs while obtaining location updates.-->
-  <string name="location_updates_request_failed">Failed to enable location updates</string>
 
   <!-- Shown when saving a form that contains missing or invalid data -->
   <string name="invalid_data_warning">The form contains incomplete or invalid data. Please check
@@ -141,13 +132,12 @@
   <string name="offline_areas">Offline areas</string>
   <string name="unknown_user">Unknown user</string>
   <string name="add_observation_toolbar_title">Add observation</string>
-  <string name="edit_observation_toolbar_title">Edit observation</string>
   <string name="offline_area_selector">Select an area</string>
   <string name="offline_area_selector_prompt">Select an area for offline use</string>
-  <string name="offline_area_selector_cancel">Cancel</string>
   <string name="offline_area_selector_download">Download</string>
   <string name="add_photo">Add photo</string>
   <string name="action_camera">Camera</string>
   <string name="action_storage">Storage</string>
+  <string name="cancel">Cancel</string>
 
 </resources>
