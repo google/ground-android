@@ -34,7 +34,7 @@ class FeatureConverter {
   // TODO: Make @NonNull the default and add build-time nullness checking.
   static Feature toFeature(@NonNull Project project, @NonNull DocumentSnapshot doc)
       throws DataStoreException {
-    FeatureDocument f = doc.toObject(FeatureDocument.class);
+    FeatureDocument f = checkNotNull(doc.toObject(FeatureDocument.class), "feature data");
     String featureTypeId = checkNotNull(f.getFeatureTypeId(), "featureTypeId");
     Layer layer = checkNotEmpty(project.getLayer(featureTypeId), "layer " + f.getFeatureTypeId());
     // TODO: Rename "point" and "center" to "location" throughout for clarity.
