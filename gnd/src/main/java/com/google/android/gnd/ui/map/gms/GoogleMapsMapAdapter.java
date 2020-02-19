@@ -21,6 +21,7 @@ import static java8.util.stream.StreamSupport.stream;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.Color;
 import android.util.Log;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -29,11 +30,12 @@ import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gnd.R;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.model.layer.Style;
-import com.google.android.gnd.ui.MapIcon;
+import com.google.android.gnd.ui.MarkerIconFactory;
 import com.google.android.gnd.ui.map.MapMarker;
 import com.google.android.gnd.ui.map.MapProvider.MapAdapter;
 import com.google.common.collect.ImmutableSet;
@@ -67,6 +69,8 @@ class GoogleMapsMapAdapter implements MapAdapter {
   private static final String GEO_JSON_FILE = "gnd-geojson.geojson";
   private final GoogleMap map;
   private final Context context;
+  private final MarkerIconFactory markerIconFactory;
+
   /**
    * Cache of ids to map markers. We don't mind this being destroyed on lifecycle events since the
    * GoogleMap markers themselves are destroyed as well.
@@ -79,9 +83,10 @@ class GoogleMapsMapAdapter implements MapAdapter {
 
   @Nullable private LatLng cameraTargetBeforeDrag;
 
-  public GoogleMapsMapAdapter(GoogleMap map, Context context) {
+  public GoogleMapsMapAdapter(GoogleMap map, Context context, MarkerIconFactory markerIconFactory) {
     this.map = map;
     this.context = context;
+    this.markerIconFactory = markerIconFactory;
     map.setMapType(GoogleMap.MAP_TYPE_HYBRID);
     UiSettings uiSettings = map.getUiSettings();
     uiSettings.setRotateGesturesEnabled(false);
@@ -168,10 +173,9 @@ class GoogleMapsMapAdapter implements MapAdapter {
 
   private void addMarker(MapMarker mapMarker, boolean hasPendingWrites, boolean isHighlighted) {
     LatLng position = mapMarker.getPosition().toLatLng();
-    MapIcon icon = mapMarker.getIcon();
     // TODO: Change size and color based on hasPendingWrites and isHighlighted.
-    BitmapDescriptor bitmap = icon.getBitmap();
-    Marker marker = map.addMarker(new MarkerOptions().position(position).icon(bitmap).alpha(1.0f));
+    Marker marker =
+        map.addMarker(new MarkerOptions().position(position).icon(mapMarker.getIcon()).alpha(1.0f));
     markers.put(mapMarker.getId(), marker);
     marker.setTag(mapMarker);
   }
@@ -244,7 +248,7 @@ class GoogleMapsMapAdapter implements MapAdapter {
     Layer layer = feature.getLayer();
     Style style = layer.getDefaultStyle();
     String color = style == null ? null : style.getColor();
-    MapIcon icon = new MapIcon(context, color);
+    BitmapDescriptor icon = markerIconFactory.getMarkerIcon(parseColor(color));
     // TODO: Reimplement hasPendingWrites.
     addMarker(
         MapMarker.newBuilder()
@@ -255,6 +259,15 @@ class GoogleMapsMapAdapter implements MapAdapter {
             .build(),
         false,
         false);
+  }
+
+  private int parseColor(@Nullable String colorHexCode) {
+    try {
+      return Color.parseColor(String.valueOf(colorHexCode));
+    } catch (IllegalArgumentException e) {
+      Log.w(TAG, "Invalid color code in layer style: " + colorHexCode);
+      return context.getResources().getColor(R.color.colorMapAccent);
+    }
   }
 
   private void onCameraIdle() {

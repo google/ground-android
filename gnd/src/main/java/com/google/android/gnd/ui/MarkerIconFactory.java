@@ -19,26 +19,25 @@ package com.google.android.gnd.ui;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
-import androidx.annotation.Nullable;
 import androidx.appcompat.content.res.AppCompatResources;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gnd.R;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 
-// TODO: Move to common, rename Marker.
-public class MapIcon {
+@Singleton
+public class MarkerIconFactory {
   private final Context context;
-  private final int color;
 
-  public MapIcon(Context context, @Nullable String colorHexCode) {
+  @Inject
+  public MarkerIconFactory(Context context) {
     this.context = context;
-    this.color = getIconColor(context, colorHexCode);
   }
 
-  public BitmapDescriptor getBitmap() {
+  public BitmapDescriptor getMarkerIcon(int color) {
     Drawable outline = AppCompatResources.getDrawable(context, R.drawable.ic_marker_outline);
     Drawable fill = AppCompatResources.getDrawable(context, R.drawable.ic_marker_fill);
     Drawable overlay = AppCompatResources.getDrawable(context, R.drawable.ic_marker_overlay);
@@ -58,13 +57,5 @@ public class MapIcon {
     overlay.draw(canvas);
     // TODO: Cache rendered bitmaps.
     return BitmapDescriptorFactory.fromBitmap(bitmap);
-  }
-
-  private static int getIconColor(Context context, String colorHexCode) {
-    try {
-      return Color.parseColor(colorHexCode);
-    } catch (IllegalArgumentException e) {
-      return context.getResources().getColor(R.color.colorMapAccent);
-    }
   }
 }
