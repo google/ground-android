@@ -22,12 +22,16 @@ import androidx.annotation.Nullable;
 class StyleNestedObject {
   @Nullable private String color;
 
+  @SuppressWarnings("unused")
+  public StyleNestedObject() {}
+
+  @SuppressWarnings("unused")
   StyleNestedObject(@Nullable String color) {
     this.color = color;
   }
 
   @Nullable
-  String getColor() {
+  public String getColor() {
     return color;
   }
 }

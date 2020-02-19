@@ -25,12 +25,16 @@ import java.util.List;
 class FormNestedObject {
   @Nullable private List<ElementNestedObject> elements;
 
+  @SuppressWarnings("unused")
+  public FormNestedObject() {}
+
+  @SuppressWarnings("unused")
   FormNestedObject(@Nullable List<ElementNestedObject> elements) {
     this.elements = elements;
   }
 
   @Nullable
-  List<ElementNestedObject> getElements() {
+  public List<ElementNestedObject> getElements() {
     return elements;
   }
 }

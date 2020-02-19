@@ -31,6 +31,10 @@ class FeatureDocument {
   @Nullable private AuditInfoNestedObject created;
   @Nullable private AuditInfoNestedObject modified;
 
+  @SuppressWarnings("unused")
+  public FeatureDocument() {}
+
+  @SuppressWarnings("unused")
   FeatureDocument(
       @Nullable String featureTypeId,
       @Nullable String customId,
@@ -47,32 +51,32 @@ class FeatureDocument {
   }
 
   @Nullable
-  String getFeatureTypeId() {
+  public String getFeatureTypeId() {
     return featureTypeId;
   }
 
   @Nullable
-  String getCustomId() {
+  public String getCustomId() {
     return customId;
   }
 
   @Nullable
-  String getCaption() {
+  public String getCaption() {
     return caption;
   }
 
   @Nullable
-  GeoPoint getCenter() {
+  public GeoPoint getCenter() {
     return center;
   }
 
   @Nullable
-  AuditInfoNestedObject getCreated() {
+  public AuditInfoNestedObject getCreated() {
     return created;
   }
 
   @Nullable
-  AuditInfoNestedObject getModified() {
+  public AuditInfoNestedObject getModified() {
     return modified;
   }
 }

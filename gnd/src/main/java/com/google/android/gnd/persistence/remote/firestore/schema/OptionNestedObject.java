@@ -24,18 +24,22 @@ class OptionNestedObject {
   @Nullable private String code;
   @Nullable private Map<String, String> labels;
 
+  @SuppressWarnings("unused")
+  public OptionNestedObject() {}
+
+  @SuppressWarnings("unused")
   OptionNestedObject(@Nullable String code, @Nullable Map<String, String> labels) {
     this.code = code;
     this.labels = labels;
   }
 
   @Nullable
-  String getCode() {
+  public String getCode() {
     return code;
   }
 
   @Nullable
-  Map<String, String> getLabels() {
+  public Map<String, String> getLabels() {
     return labels;
   }
 }

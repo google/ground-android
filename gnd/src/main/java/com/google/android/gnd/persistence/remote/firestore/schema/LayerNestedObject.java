@@ -28,6 +28,10 @@ class LayerNestedObject {
   @Nullable private StyleNestedObject defaultStyle;
   @Nullable private Map<String, FormNestedObject> forms;
 
+  @SuppressWarnings("unused")
+  public LayerNestedObject() {}
+
+  @SuppressWarnings("unused")
   LayerNestedObject(
       @Nullable Map<String, String> listHeading,
       @Nullable Map<String, String> itemLabel,
@@ -40,22 +44,22 @@ class LayerNestedObject {
   }
 
   @Nullable
-  Map<String, String> getListHeading() {
+  public Map<String, String> getListHeading() {
     return listHeading;
   }
 
   @Nullable
-  Map<String, String> getItemLabel() {
+  public Map<String, String> getItemLabel() {
     return itemLabel;
   }
 
   @Nullable
-  StyleNestedObject getDefaultStyle() {
+  public StyleNestedObject getDefaultStyle() {
     return defaultStyle;
   }
 
   @Nullable
-  Map<String, FormNestedObject> getForms() {
+  public Map<String, FormNestedObject> getForms() {
     return forms;
   }
 }

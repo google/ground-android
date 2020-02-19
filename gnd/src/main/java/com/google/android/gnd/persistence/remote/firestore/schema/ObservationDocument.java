@@ -30,6 +30,10 @@ class ObservationDocument {
   @Nullable private AuditInfoNestedObject modified;
   @Nullable private Map<String, Object> responses;
 
+  @SuppressWarnings("unused")
+  public ObservationDocument() {}
+
+  @SuppressWarnings("unused")
   ObservationDocument(
       @Nullable String featureId,
       @Nullable String featureTypeId,
@@ -46,32 +50,32 @@ class ObservationDocument {
   }
 
   @Nullable
-  String getFeatureId() {
+  public String getFeatureId() {
     return featureId;
   }
 
   @Nullable
-  String getFeatureTypeId() {
+  public String getFeatureTypeId() {
     return featureTypeId;
   }
 
   @Nullable
-  String getFormId() {
+  public String getFormId() {
     return formId;
   }
 
   @Nullable
-  AuditInfoNestedObject getCreated() {
+  public AuditInfoNestedObject getCreated() {
     return created;
   }
 
   @Nullable
-  AuditInfoNestedObject getModified() {
+  public AuditInfoNestedObject getModified() {
     return modified;
   }
 
   @Nullable
-  Map<String, Object> getResponses() {
+  public Map<String, Object> getResponses() {
     return responses;
   }
 }

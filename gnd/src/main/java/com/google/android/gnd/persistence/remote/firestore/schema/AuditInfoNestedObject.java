@@ -26,6 +26,9 @@ class AuditInfoNestedObject {
   @Nullable private Timestamp clientTimeMillis;
   @Nullable @ServerTimestamp private Timestamp serverTimeMillis;
 
+  @SuppressWarnings("unused")
+  public AuditInfoNestedObject() {}
+
   AuditInfoNestedObject(
       @Nullable UserNestedObject user,
       @Nullable Timestamp clientTimeMillis,
@@ -40,7 +43,7 @@ class AuditInfoNestedObject {
    * anyway since the Firestore is schema-less.
    */
   @Nullable
-  UserNestedObject getUser() {
+  public UserNestedObject getUser() {
     return user;
   }
 
@@ -50,7 +53,7 @@ class AuditInfoNestedObject {
    * anyway since the Firestore is schema-less.
    */
   @Nullable
-  Timestamp getClientTimeMillis() {
+  public Timestamp getClientTimeMillis() {
     return clientTimeMillis;
   }
 
@@ -61,7 +64,7 @@ class AuditInfoNestedObject {
    * client.
    */
   @Nullable
-  Timestamp getServerTimeMillis() {
+  public Timestamp getServerTimeMillis() {
     return serverTimeMillis;
   }
 }

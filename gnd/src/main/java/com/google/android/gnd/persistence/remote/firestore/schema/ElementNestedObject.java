@@ -32,6 +32,10 @@ class ElementNestedObject {
   @Nullable private List<OptionNestedObject> options;
   @Nullable private Boolean required;
 
+  @SuppressWarnings("unused")
+  public ElementNestedObject() {}
+
+  @SuppressWarnings("unused")
   ElementNestedObject(
       @Nullable String id,
       @Nullable String type,
@@ -48,32 +52,32 @@ class ElementNestedObject {
   }
 
   @Nullable
-  String getId() {
+  public String getId() {
     return id;
   }
 
   @Nullable
-  String getType() {
+  public String getType() {
     return type;
   }
 
   @Nullable
-  String getCardinality() {
+  public String getCardinality() {
     return cardinality;
   }
 
   @Nullable
-  Map<String, String> getLabels() {
+  public Map<String, String> getLabels() {
     return labels;
   }
 
   @Nullable
-  List<OptionNestedObject> getOptions() {
+  public List<OptionNestedObject> getOptions() {
     return options;
   }
 
   @Nullable
-  Boolean getRequired() {
+  public Boolean getRequired() {
     return required;
   }
 }

@@ -33,6 +33,10 @@ class ProjectDocument {
 
   @Nullable private Map<String, LayerNestedObject> featureTypes;
 
+  @SuppressWarnings("unused")
+  public ProjectDocument() {}
+
+  @SuppressWarnings("unused")
   ProjectDocument(
       @Nullable Map<String, String> title,
       @Nullable Map<String, String> description,
@@ -43,17 +47,17 @@ class ProjectDocument {
   }
 
   @Nullable
-  Map<String, String> getTitle() {
+  public Map<String, String> getTitle() {
     return title;
   }
 
   @Nullable
-  Map<String, String> getDescription() {
+  public Map<String, String> getDescription() {
     return description;
   }
 
   @Nullable
-  Map<String, LayerNestedObject> getFeatureTypes() {
+  public Map<String, LayerNestedObject> getFeatureTypes() {
     return featureTypes;
   }
 }

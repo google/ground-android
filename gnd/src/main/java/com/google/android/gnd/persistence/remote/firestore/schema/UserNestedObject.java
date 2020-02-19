@@ -19,7 +19,7 @@ package com.google.android.gnd.persistence.remote.firestore.schema;
 import androidx.annotation.Nullable;
 import com.google.android.gnd.model.User;
 
-/** User details nested for nested inside entities for audit purposes. */
+/** User details nested for nesting inside entities for audit purposes. */
 class UserNestedObject {
   /** Fallback value when reading invalid or legacy schemas. */
   static final User UNKNOWN_USER =
@@ -29,6 +29,9 @@ class UserNestedObject {
   @Nullable private String email;
   @Nullable private String displayName;
 
+  @SuppressWarnings("unused")
+  public UserNestedObject() {}
+
   UserNestedObject(@Nullable String id, @Nullable String email, @Nullable String displayName) {
     this.id = id;
     this.email = email;
@@ -36,17 +39,17 @@ class UserNestedObject {
   }
 
   @Nullable
-  String getId() {
+  public String getId() {
     return id;
   }
 
   @Nullable
-  String getEmail() {
+  public String getEmail() {
     return email;
   }
 
   @Nullable
-  String getDisplayName() {
+  public String getDisplayName() {
     return displayName;
   }
 }
