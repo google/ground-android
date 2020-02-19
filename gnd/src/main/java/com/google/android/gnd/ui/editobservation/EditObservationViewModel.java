@@ -50,11 +50,11 @@ import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.util.FileUtil;
 import com.google.common.collect.ImmutableList;
 import io.reactivex.Completable;
-import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.processors.BehaviorProcessor;
 import io.reactivex.processors.PublishProcessor;
 import java.io.File;
+import java.io.IOException;
 import java.util.Date;
 import java8.util.Optional;
 import java8.util.StringJoiner;
@@ -228,8 +228,7 @@ public class EditObservationViewModel extends AbstractViewModel {
   private Completable handlePhotoPickerResult(String fieldId) {
     return storageManager
         .photoPickerResult()
-        .compose(bitmap -> saveBitmapAndUpdateResponse(bitmap, fieldId))
-        .ignoreElements();
+        .flatMapCompletable(bitmap -> saveBitmapAndUpdateResponse(bitmap, fieldId));
   }
 
   void showPhotoCapture(String fieldId) {
@@ -245,28 +244,25 @@ public class EditObservationViewModel extends AbstractViewModel {
   private Completable handlePhotoCaptureResult(String fieldId) {
     return cameraManager
         .capturePhotoResult()
-        .compose(bitmap -> saveBitmapAndUpdateResponse(bitmap, fieldId))
-        .ignoreElements();
+        .flatMapCompletable(bitmap -> saveBitmapAndUpdateResponse(bitmap, fieldId));
   }
 
-  private Observable<String> saveBitmapAndUpdateResponse(
-      Observable<Bitmap> source, String fieldId) {
-    return source
-        .map(bitmap -> fileUtil.saveBitmap(bitmap, fieldId + ".jpg"))
-        .map(
-            file -> {
-              // If offline, Firebase will automatically upload the image when the network
-              // connectivity is  re-established.
-              // TODO: Implement offline photo sync using Android Workers and local db
-              String destinationPath = getRemoteImagePath(file.getName());
-              return firestoreStorageManager.uploadMediaFromFile(file, destinationPath);
-            })
-        .doOnNext(
-            url -> {
-              isPhotoFieldUpdated = true;
-              // update observable response map
-              onTextChanged(form.getValue().getField(fieldId).get(), url);
-            });
+  private Completable saveBitmapAndUpdateResponse(Bitmap bitmap, String fieldId)
+      throws IOException {
+    File file = fileUtil.saveBitmap(bitmap, fieldId + ".jpg");
+    String destinationPath = getRemoteImagePath(file.getName());
+
+    // If offline, Firebase will automatically upload the image when the network
+    // connectivity is  re-established.
+    // TODO: Implement offline photo sync using Android Workers and local db
+    String url = firestoreStorageManager.uploadMediaFromFile(file, destinationPath);
+
+    // TODO: Handle response after reloading view-model and remove this field
+    isPhotoFieldUpdated = true;
+
+    // update observable response map
+    onTextChanged(form.getValue().getField(fieldId).get(), url);
+    return Completable.complete();
   }
 
   /**
