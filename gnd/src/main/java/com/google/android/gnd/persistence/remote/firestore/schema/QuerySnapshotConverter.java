@@ -46,9 +46,7 @@ class QuerySnapshotConverter {
   private static <T> RemoteDataEvent<T> toEvent(
       DocumentChange dc, Function<DocumentSnapshot, T> converter) {
     try {
-      Log.v(
-          QuerySnapshotConverter.TAG,
-          dc.getDocument().getReference().getPath() + " " + dc.getType());
+      Log.v(TAG, dc.getDocument().getReference().getPath() + " " + dc.getType());
       String id = dc.getDocument().getId();
       switch (dc.getType()) {
         case ADDED:
