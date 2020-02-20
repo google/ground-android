@@ -23,10 +23,11 @@ import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.model.observation.ObservationMutation;
 import com.google.android.gnd.persistence.local.LocalDataStore;
+import com.google.android.gnd.persistence.remote.NotFoundException;
 import com.google.android.gnd.persistence.remote.RemoteDataStore;
-import com.google.android.gnd.persistence.remote.firestore.DocumentNotFoundException;
 import com.google.android.gnd.persistence.sync.DataSyncWorkManager;
 import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator;
+import com.google.android.gnd.rx.ValueOrError;
 import com.google.common.collect.ImmutableList;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
@@ -82,7 +83,7 @@ public class ObservationRepository {
     // here.
     return featureRepository
         .getFeature(projectId, featureId)
-        .switchIfEmpty(Single.error(new DocumentNotFoundException()))
+        .switchIfEmpty(Single.error(() -> new NotFoundException("Feature " + featureId)))
         .flatMap(feature -> getObservations(feature, formId));
   }
 
@@ -97,8 +98,11 @@ public class ObservationRepository {
     return remoteSync.andThen(localDataStore.getObservations(feature, formId));
   }
 
-  private Completable mergeRemoteObservations(ImmutableList<Observation> observations) {
+  private Completable mergeRemoteObservations(
+      ImmutableList<ValueOrError<Observation>> observations) {
     return Observable.fromIterable(observations)
+        .doOnNext(voe -> voe.error().ifPresent(err -> Log.w(TAG, "Skipping bad observation", err)))
+        .compose(ValueOrError::ignoreErrors)
         .flatMapCompletable(localDataStore::mergeObservation);
   }
 
@@ -108,12 +112,13 @@ public class ObservationRepository {
     // TODO(#127): Decouple feature from observation so that we don't need to fetch feature here.
     return featureRepository
         .getFeature(projectId, featureId)
-        .switchIfEmpty(Single.error(new DocumentNotFoundException()))
+        .switchIfEmpty(Single.error(() -> new NotFoundException("Feature " + featureId)))
         .flatMap(
             feature ->
                 localDataStore
                     .getObservation(feature, observationId)
-                    .switchIfEmpty(Single.error(new DocumentNotFoundException())));
+                    .switchIfEmpty(
+                        Single.error(() -> new NotFoundException("Observation " + observationId))));
   }
 
   public Single<Observation> createObservation(
@@ -123,7 +128,7 @@ public class ObservationRepository {
     AuditInfo auditInfo = AuditInfo.now(user);
     return featureRepository
         .getFeature(projectId, featureId)
-        .switchIfEmpty(Single.error(new DocumentNotFoundException()))
+        .switchIfEmpty(Single.error(() -> new NotFoundException("Feature " + featureId)))
         .map(
             feature ->
                 Observation.newBuilder()

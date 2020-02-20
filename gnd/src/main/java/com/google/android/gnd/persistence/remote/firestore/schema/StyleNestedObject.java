@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google LLC
+ * Copyright 2020 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,10 +14,24 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.persistence.remote.firestore;
+package com.google.android.gnd.persistence.remote.firestore.schema;
 
-public class DataStoreException extends RuntimeException {
-  public DataStoreException(String message) {
-    super(message);
+import androidx.annotation.Nullable;
+
+/** Firestore representation of map feature styles. */
+class StyleNestedObject {
+  @Nullable private String color;
+
+  @SuppressWarnings("unused")
+  public StyleNestedObject() {}
+
+  @SuppressWarnings("unused")
+  StyleNestedObject(@Nullable String color) {
+    this.color = color;
+  }
+
+  @Nullable
+  public String getColor() {
+    return color;
   }
 }
