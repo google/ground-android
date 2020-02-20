@@ -20,7 +20,6 @@ import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.model.observation.ObservationMutation;
-import com.google.android.gnd.persistence.remote.firestore.ObservationDoc;
 import com.google.android.gnd.persistence.remote.firestore.base.FluentDocumentReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.WriteBatch;
@@ -34,7 +33,7 @@ public class RecordDocumentReference extends FluentDocumentReference {
 
   public Maybe<Observation> get(Feature feature) {
     return RxFirestore.getDocument(reference())
-        .map(doc -> ObservationDoc.toObject(feature, doc.getId(), doc));
+        .map(doc -> ObservationConverter.toObservation(feature, doc));
   }
 
   /** Appends the operation described by the specified mutation to the provided write batch. */
@@ -42,7 +41,7 @@ public class RecordDocumentReference extends FluentDocumentReference {
     switch (mutation.getType()) {
       case CREATE:
       case UPDATE:
-        merge(ObservationDoc.toMap(mutation, user), batch);
+        merge(ObservationMutationConverter.toMap(mutation, user), batch);
         break;
       case DELETE:
         // TODO: Implement me!
