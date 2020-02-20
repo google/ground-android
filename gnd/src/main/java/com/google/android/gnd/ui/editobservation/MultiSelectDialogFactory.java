@@ -56,8 +56,7 @@ class MultiSelectDialogFactory {
     dialogBuilder.setPositiveButton(
         R.string.apply_multiple_choice_changes,
         (dialog, which) -> responseChangeCallback.accept(state.getSelectedValues(options)));
-    dialogBuilder.setNegativeButton(
-        R.string.discard_multiple_choice_changes, (dialog, which) -> {});
+    dialogBuilder.setNegativeButton(R.string.cancel, (dialog, which) -> {});
     return dialogBuilder.create();
   }
 

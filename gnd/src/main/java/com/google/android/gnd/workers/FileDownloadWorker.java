@@ -29,7 +29,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
@@ -45,8 +44,6 @@ public class FileDownloadWorker extends Worker {
 
   private static final String TILE_ID = "tile_id";
   private static final int BUFFER_SIZE = 4096;
-  private static final String URL_BASE_PATH =
-      "https://storage.googleapis.com/ground-offline-imagery-demo/mbtiles/l8/7/";
 
   private final Context context;
   private final LocalDataStore localDataStore;
@@ -66,27 +63,12 @@ public class FileDownloadWorker extends Worker {
   }
 
   /**
-   * Returns a url from which a tile can be downloaded.
-   *
-   * @param tile
-   * @return tile url
-   * @throws MalformedURLException
-   */
-  private URL tileUrl(Tile tile) throws MalformedURLException {
-    return new URL(URL_BASE_PATH + tile.getPath());
-  }
-
-  /**
-   * Given a tile, downloads a tile source file and saves it to the device's app storage. Optional
-   * HTTP request header properties may be provided.
-   *
-   * @param tile
-   * @param requestProperties optional properties to add to the HTTP request.
-   * @return
+   * Given a tile, downloads the given {@param tile}'s source file and saves it to the device's app
+   * storage. Optional HTTP request header {@param requestProperties} may be provided.
    */
   private Result downloadTileFile(Tile tile, Optional<HashMap<String, String>> requestProperties) {
     try {
-      URL url = tileUrl(tile);
+      URL url = new URL(tile.getUrl());
       HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 
       if (requestProperties.isPresent()) {
@@ -126,13 +108,7 @@ public class FileDownloadWorker extends Worker {
     }
   }
 
-  /**
-   * Update a tile's state in the database and initiate a download of the tile source file.
-   *
-   * @param tile
-   * @return {@code Result.success()} if the tile source is download successfully, otherwise {@code
-   *     Result.failure()}.
-   */
+  /** Update a tile's state in the database and initiate a download of the tile source file. */
   private Result downloadTile(Tile tile) {
     localDataStore
         .insertOrUpdateTile(tile.toBuilder().setState(Tile.State.IN_PROGRESS).build())
@@ -141,13 +117,7 @@ public class FileDownloadWorker extends Worker {
     return downloadTileFile(tile, Optional.empty());
   }
 
-  /**
-   * Resumes downloading the source for a tile marked as {@code Tile.State.IN_PROGRESS}.
-   *
-   * @param tile
-   * @return {@code Result.success()} if the tile source is download successfully, otherwise {@code
-   *     Result.failure()}.
-   */
+  /** Resumes downloading the source for {@param tile} marked as {@code Tile.State.IN_PROGRESS}. */
   private Result resumeTileDownload(Tile tile) {
     File existingTileFile = new File(context.getFilesDir(), tile.getPath());
     HashMap<String, String> requestProperties = new HashMap<>();
@@ -158,12 +128,9 @@ public class FileDownloadWorker extends Worker {
   }
 
   /**
-   * Verifies that a tile marked as {@code Tile.State.DOWNLOADED} in the local database still exists
-   * in the app's storage. If the tile's source file isn't present, initiates a download of source
-   * file.
-   *
-   * @param tile
-   * @return
+   * Verifies that {@param tile} marked as {@code Tile.State.DOWNLOADED} in the local database still
+   * exists in the app's storage. If the tile's source file isn't present, initiates a download of
+   * source file.
    */
   private Result checkDownload(Tile tile) {
     File file = new File(context.getFilesDir(), tile.getPath());
@@ -183,24 +150,21 @@ public class FileDownloadWorker extends Worker {
   @NonNull
   @Override
   public Result doWork() {
-    Log.d(TAG, "Downloading tile: " + Tile.pathFromId(tileId));
     Tile tile = localDataStore.getTile(tileId).blockingGet();
 
-    // When there is no tile in the db, the maybe completes and returns null.
+    // When there is no tile in the db, the Maybe completes and returns null.
+    // We expect tiles to be added to the DB prior to downloading.
+    // If that isn't the case, we fail.
     if (tile == null) {
-      tile =
-          Tile.newBuilder()
-              .setId(tileId)
-              .setState(Tile.State.PENDING)
-              .setPath(Tile.pathFromId(tileId))
-              .build();
+      return Result.failure();
     }
+
+    Log.d(TAG, "Downloading tile: " + tile.getPath());
 
     switch (tile.getState()) {
       case DOWNLOADED:
         return checkDownload(tile);
       case PENDING:
-        return downloadTile(tile);
       case FAILED:
         return downloadTile(tile);
       case IN_PROGRESS:

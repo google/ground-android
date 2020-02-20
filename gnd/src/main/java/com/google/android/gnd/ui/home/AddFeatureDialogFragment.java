@@ -94,7 +94,7 @@ public class AddFeatureDialogFragment extends AbstractDialogFragment {
   private Dialog createDialog(Project project, Point cameraPosition) {
     AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
     builder.setTitle(R.string.add_feature_select_type_dialog_title);
-    builder.setNegativeButton(R.string.add_feature_cancel, (dialog, id) -> onCancel());
+    builder.setNegativeButton(R.string.cancel, (dialog, id) -> onCancel());
     // TODO: Add icons.
     ImmutableList<Layer> layers =
         stream(project.getLayers())
