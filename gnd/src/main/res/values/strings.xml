@@ -125,7 +125,7 @@
   <string name="save_observation_button_label">Save</string>
   <string name="saving">Saving&#8230;</string>
   <string name="no_changes_to_save">No changes to save</string>
-  <string name="select_project_menu_item">Select project</string>
+  <string name="select_project_menu_item">Projects</string>
   <string name="google_api_install_failed">Google Play Services installation failed</string>
   <string name="sign_in_unsuccessful">Sign in unsuccessful</string>
   <string name="sign_out">Sign out</string>

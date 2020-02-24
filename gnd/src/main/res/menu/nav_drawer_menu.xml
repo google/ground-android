@@ -20,7 +20,6 @@
   <group android:checkableBehavior="single">
     <item
       android:id="@+id/nav_join_project"
-      android:icon="@drawable/ic_menu_project"
       android:title="@string/select_project_menu_item">
       <menu>
         <group
