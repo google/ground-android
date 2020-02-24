@@ -54,7 +54,7 @@ public class ProjectSelectorViewModel extends AbstractViewModel {
    *
    * @param idx the index in the project summary list.
    */
-  void activateProject(int idx) {
+  public void activateProject(int idx) {
     projectRepository.activateProject(getProjectSummary(idx).getId());
   }
 }

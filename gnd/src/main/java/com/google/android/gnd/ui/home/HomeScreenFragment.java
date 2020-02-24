@@ -64,6 +64,7 @@ import io.reactivex.subjects.PublishSubject;
 import java.util.List;
 import java.util.Objects;
 import javax.inject.Inject;
+import timber.log.Timber;
 
 /**
  * Fragment containing the map container and feature sheet fragments and NavigationView side drawer.
@@ -115,6 +116,7 @@ public class HomeScreenFragment extends AbstractFragment
   private PublishSubject<Object> showFeatureDialogRequests;
   private ProjectSelectorDialogFragment projectSelectorDialogFragment;
   private ProjectSelectorViewModel projectSelectorViewModel;
+  private List<Project> projects;
 
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -191,11 +193,18 @@ public class HomeScreenFragment extends AbstractFragment
     }
   }
 
+  private MenuItem getProjectsNavItem() {
+    return navView.getMenu().getItem(0);
+  }
+
   private void addProjectToNavDrawer(List<Project> projects) {
-    MenuItem item = navView.getMenu().getItem(0);
-    SubMenu subMenu = item.getSubMenu();
-    for (Project project : projects) {
-      subMenu.add(R.id.group_join_project, Menu.NONE, Menu.NONE, project.getTitle());
+    this.projects = projects;
+
+    for (int index = 0; index < projects.size(); index++) {
+      getProjectsNavItem()
+          .getSubMenu()
+          .add(R.id.group_join_project, Menu.NONE, index, projects.get(index).getTitle())
+          .setIcon(R.drawable.ic_menu_project);
     }
   }
 
@@ -312,8 +321,14 @@ public class HomeScreenFragment extends AbstractFragment
   private void onActiveProjectChange(Loadable<Project> project) {
     switch (project.getState()) {
       case NOT_LOADED:
+        dismissLoadingDialog();
+        break;
       case LOADED:
         dismissLoadingDialog();
+        if (projects != null) {
+          int index = getSelectedProjectIndex(project.value().get());
+          updateSelectedProjectUI(index);
+        }
         break;
       case LOADING:
         showProjectLoadingDialog();
@@ -326,6 +341,24 @@ public class HomeScreenFragment extends AbstractFragment
         Log.e(TAG, "Unhandled case: " + project.getState());
         break;
     }
+  }
+
+  private void updateSelectedProjectUI(int selectedIndex) {
+    SubMenu subMenu = getProjectsNavItem().getSubMenu();
+    for (int i = 0; i < projects.size(); i++) {
+      MenuItem menuItem = subMenu.getItem(i);
+      menuItem.setChecked(i == selectedIndex);
+    }
+  }
+
+  private int getSelectedProjectIndex(Project activeProject) {
+    for (Project project : projects) {
+      if (project.getId().equals(activeProject.getId())) {
+        return projects.indexOf(project);
+      }
+    }
+    Timber.e("Selected project not found.");
+    return -1;
   }
 
   private void onShowAddFeatureDialogRequest(Point location) {
@@ -390,21 +423,26 @@ public class HomeScreenFragment extends AbstractFragment
 
   @Override
   public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-    switch (item.getItemId()) {
-      case R.id.nav_join_project:
-        showProjectSelector();
-        closeDrawer();
-        break;
-      case R.id.nav_offline_areas:
-        showOfflineAreas();
-        closeDrawer();
-        break;
-      case R.id.nav_sign_out:
-        authenticationManager.signOut();
-        break;
-      default:
-        Log.e(TAG, "Unhandled id: " + item.getItemId());
-        break;
+    if (item.getGroupId() == R.id.group_join_project) {
+      projectSelectorViewModel.activateProject(item.getOrder());
+      closeDrawer();
+    } else {
+      switch (item.getItemId()) {
+        case R.id.nav_join_project:
+          showProjectSelector();
+          closeDrawer();
+          break;
+        case R.id.nav_offline_areas:
+          showOfflineAreas();
+          closeDrawer();
+          break;
+        case R.id.nav_sign_out:
+          authenticationManager.signOut();
+          break;
+        default:
+          Log.e(TAG, "Unhandled id: " + item.getItemId());
+          break;
+      }
     }
     return false;
   }
