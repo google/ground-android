@@ -15,29 +15,47 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto">
+  <data>
+    <variable
+      name="field"
+      type="com.google.android.gnd.model.form.Field" />
+  </data>
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-  android:layout_width="wrap_content"
-  android:layout_height="wrap_content"
-  android:orientation="vertical">
-
-  <TextView
-    android:id="@+id/field_label"
-    style="@style/ObservationDetails.Field.Label"
+  <LinearLayout
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:paddingTop="@dimen/field_top_padding"
-    android:ellipsize="end"
-    android:paddingHorizontal="@dimen/field_horizontal_padding" />
+    android:orientation="vertical"
+    android:paddingLeft="@dimen/field_horizontal_padding"
+    android:paddingRight="@dimen/field_horizontal_padding">
 
-  <TextView
-    android:id="@+id/field_value"
-    style="@style/ObservationDetails.Field.Value"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:paddingTop="@dimen/field_value_top_padding"
-    android:paddingBottom="@dimen/field_bottom_padding"
-    android:ellipsize="end"
-    android:paddingHorizontal="@dimen/field_horizontal_padding" />
+    <TextView
+      android:id="@+id/field_label"
+      style="@style/ObservationDetails.Field.Label"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:ellipsize="end"
+      android:paddingTop="@dimen/field_top_padding"
+      android:text="@{field.label}" />
 
-</LinearLayout>
+    <TextView
+      android:id="@+id/field_value"
+      style="@style/ObservationDetails.Field.Value"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:ellipsize="end"
+      android:paddingTop="@dimen/field_value_top_padding"
+      android:paddingBottom="@dimen/field_bottom_padding" />
+
+    <ImageView
+      android:id="@+id/image_preview"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:adjustViewBounds="true"
+      android:paddingTop="@dimen/field_top_padding"
+      android:paddingBottom="@dimen/field_bottom_padding"
+      android:visibility="gone"
+      app:srcCompat="@drawable/ic_photo_grey_600_24dp" />
+  </LinearLayout>
+</layout>

@@ -144,8 +144,6 @@
   </style>
 
   <style name="ObservationDetails.Field.Label" parent="AppTheme.Base">
-    <item name="android:paddingLeft">@dimen/field_horizontal_padding</item>
-    <item name="android:paddingRight">@dimen/field_horizontal_padding</item>
     <item name="android:textColor">@color/colorGrey600</item>
     <item name="android:textSize">@dimen/field_label_text_size</item>
   </style>
