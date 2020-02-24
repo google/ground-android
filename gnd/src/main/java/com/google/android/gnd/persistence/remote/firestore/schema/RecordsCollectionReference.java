@@ -21,16 +21,20 @@ import static java8.util.stream.StreamSupport.stream;
 
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.observation.Observation;
-import com.google.android.gnd.persistence.remote.firestore.ObservationDoc;
 import com.google.android.gnd.persistence.remote.firestore.base.FluentCollectionReference;
+import com.google.android.gnd.rx.ValueOrError;
 import com.google.common.collect.ImmutableList;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FieldPath;
 import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QuerySnapshot;
 import durdinapps.rxfirebase2.RxFirestore;
 import io.reactivex.Single;
+import org.jetbrains.annotations.NotNull;
 
+// TODO: Rename to ObservationsCollectionReference once database is migrated.
 public class RecordsCollectionReference extends FluentCollectionReference {
+
   RecordsCollectionReference(CollectionReference ref) {
     super(ref);
   }
@@ -39,18 +43,22 @@ public class RecordsCollectionReference extends FluentCollectionReference {
     return new RecordDocumentReference(reference().document(id));
   }
 
-  public Single<ImmutableList<Observation>> recordsByFeatureId(Feature feature) {
+  public Single<ImmutableList<ValueOrError<Observation>>> recordsByFeatureId(Feature feature) {
     return RxFirestore.getCollection(byFeatureId(feature.getId()))
-        .map(
-            querySnapshot ->
-                stream(querySnapshot.getDocuments())
-                    .map(
-                        recordDoc -> ObservationDoc.toObject(feature, recordDoc.getId(), recordDoc))
-                    .collect(toImmutableList()))
+        .map(querySnapshot -> convert(querySnapshot, feature))
         .toSingle(ImmutableList.of());
   }
 
+  @NotNull
+  private ImmutableList<ValueOrError<Observation>> convert(
+      QuerySnapshot querySnapshot, Feature feature) {
+    return stream(querySnapshot.getDocuments())
+        .map(doc -> ValueOrError.create(() -> ObservationConverter.toObservation(feature, doc)))
+        .collect(toImmutableList());
+  }
+
   private Query byFeatureId(String featureId) {
-    return reference().whereEqualTo(FieldPath.of(ObservationDoc.FEATURE_ID), featureId);
+    return reference()
+        .whereEqualTo(FieldPath.of(ObservationMutationConverter.FEATURE_ID), featureId);
   }
 }

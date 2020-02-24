@@ -16,12 +16,13 @@
   ~ limitations under the License.
   -->
 
-<layout xmlns:android="http://schemas.android.com/apk/res/android">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto">
 
   <data>
     <variable
-        name="viewModel"
-        type="com.google.android.gnd.ui.home.featuresheet.FeatureSheetViewModel" />
+      name="viewModel"
+      type="com.google.android.gnd.ui.home.featuresheet.FeatureSheetViewModel" />
   </data>
 
   <FrameLayout xmlns:app="http://schemas.android.com/apk/res-auto"

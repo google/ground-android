@@ -56,8 +56,7 @@ class SingleSelectDialogFactory {
     dialogBuilder.setPositiveButton(
         R.string.apply_multiple_choice_changes,
         (dialog, which) -> valueChangeCallback.accept(state.getSelectedValue(field, options)));
-    dialogBuilder.setNegativeButton(
-        R.string.discard_multiple_choice_changes, (dialog, which) -> {});
+    dialogBuilder.setNegativeButton(R.string.cancel, (dialog, which) -> {});
     return dialogBuilder.create();
   }
 

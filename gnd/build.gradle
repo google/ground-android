@@ -16,6 +16,7 @@
 
 apply plugin: 'com.android.application'
 apply plugin: 'com.google.firebase.firebase-perf'
+apply plugin: 'io.fabric'
 apply from: '../config/checkstyle/checkstyle.gradle'
 apply from: '../config/lint/lint.gradle'
 apply from: '../config/pmd/pmd.gradle'
@@ -130,12 +131,16 @@ dependencies {
     implementation "com.google.maps.android:android-maps-utils:0.5"
 
     // Firebase and related libraries.
+    implementation "com.google.firebase:firebase-analytics:$project.firebaseCoreVersion"
     implementation "com.google.firebase:firebase-core:$project.firebaseCoreVersion"
     implementation "com.google.firebase:firebase-firestore:$project.firebaseFirestoreVersion"
     implementation "com.google.firebase:firebase-auth:$project.firebaseAuthVersion"
     implementation "com.google.firebase:firebase-perf:$project.firebasePerfVersion"
     implementation "com.github.FrangSierra:RxFirebase:$project.rxFirebaseVersion"
     implementation 'com.google.firebase:firebase-storage:19.1.0'
+
+    // Crashlytics
+    implementation 'com.crashlytics.sdk.android:crashlytics:2.10.1'
 
     // Dagger core
     annotationProcessor "com.google.dagger:dagger-compiler:$project.daggerVersion"
@@ -176,6 +181,12 @@ dependencies {
     // Guava
     implementation "com.google.guava:guava:$project.guavaVersion"
 
+    // Picasso: Image downloading and caching library
+    implementation 'com.squareup.picasso:picasso:2.71828'
+
+    // Logging
+    implementation 'com.jakewharton.timber:timber:4.7.1'
+
     // Room
     implementation "androidx.room:room-runtime:$roomVersion"
     annotationProcessor "androidx.room:room-compiler:$roomVersion"
@@ -204,8 +215,4 @@ apply plugin: 'com.google.gms.google-services'
 
 task checkCode(type: GradleBuild) {
     dependsOn 'checkstyle', 'lintDebug', 'pmd', 'spotbugs'
-}
-
-afterEvaluate {
-    assembleDebug.dependsOn checkCode
 }
