@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Google LLC
+ * Copyright 2020 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,17 +14,14 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd;
+package com.google.android.gnd.persistence.remote.firestore.schema;
 
-/** Application configuration. */
-public final class Config {
+import com.google.android.gnd.model.layer.Style;
 
-  // Local db settings.
-  // TODO(#128): Reset version to 1 before releasing.
-  public static final int DB_VERSION = 42;
-  public static final String DB_NAME = "gnd.db";
+/** Converts between Firestore documents and {@link Style} instances. */
+class StyleConverter {
 
-  // Firebase Cloud Firestore settings.
-  public static final boolean FIRESTORE_PERSISTENCE_ENABLED = false;
-  public static final boolean FIRESTORE_LOGGING_ENABLED = true;
+  static Style toStyle(StyleNestedObject style) {
+    return Style.builder().setColor(style.getColor()).build();
+  }
 }

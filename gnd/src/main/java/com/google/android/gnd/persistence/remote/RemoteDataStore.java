@@ -21,6 +21,7 @@ import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.observation.Observation;
+import com.google.android.gnd.rx.ValueOrError;
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
 import io.reactivex.Completable;
@@ -51,7 +52,7 @@ public interface RemoteDataStore {
    * Returns a list of all observations associated with the specified feature, or an empty list if
    * none are found.
    */
-  Single<ImmutableList<Observation>> loadObservations(Feature feature);
+  Single<ImmutableList<ValueOrError<Observation>>> loadObservations(Feature feature);
 
   /**
    * Applies the provided mutations to the remote data store in a single batched transaction. If one
