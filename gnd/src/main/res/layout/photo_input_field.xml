@@ -16,7 +16,8 @@
   ~ limitations under the License.
   -->
 
-<layout xmlns:android="http://schemas.android.com/apk/res/android">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto">
 
   <data>
     <variable
@@ -43,7 +44,7 @@
       android:layout_width="48dp"
       android:layout_height="48dp"
       android:padding="4dp"
-      android:src="@drawable/ic_add_a_photo" />
+      app:srcCompat="@drawable/ic_add_a_photo" />
 
     <Button
       android:id="@+id/btn_select_photo"
