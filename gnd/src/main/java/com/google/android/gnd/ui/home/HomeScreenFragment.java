@@ -28,6 +28,7 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.SubMenu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -56,9 +57,11 @@ import com.google.android.gnd.ui.common.ProgressDialogs;
 import com.google.android.gnd.ui.common.TwoLineToolbar;
 import com.google.android.gnd.ui.home.mapcontainer.MapContainerFragment;
 import com.google.android.gnd.ui.projectselector.ProjectSelectorDialogFragment;
+import com.google.android.gnd.ui.projectselector.ProjectSelectorViewModel;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.navigation.NavigationView.OnNavigationItemSelectedListener;
 import io.reactivex.subjects.PublishSubject;
+import java.util.List;
 import java.util.Objects;
 import javax.inject.Inject;
 
@@ -111,6 +114,7 @@ public class HomeScreenFragment extends AbstractFragment
   private BottomSheetBehavior<View> bottomSheetBehavior;
   private PublishSubject<Object> showFeatureDialogRequests;
   private ProjectSelectorDialogFragment projectSelectorDialogFragment;
+  private ProjectSelectorViewModel projectSelectorViewModel;
 
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -132,6 +136,8 @@ public class HomeScreenFragment extends AbstractFragment
         .switchMapMaybe(__ -> addFeatureDialogFragment.show(getChildFragmentManager()))
         .as(autoDisposable(this))
         .subscribe(viewModel::addFeature);
+
+    projectSelectorViewModel = getViewModel(ProjectSelectorViewModel.class);
   }
 
   @Nullable
@@ -164,6 +170,32 @@ public class HomeScreenFragment extends AbstractFragment
       setUpBottomSheetBehavior();
     } else {
       mapContainerFragment = restoreChildFragment(savedInstanceState, MapContainerFragment.class);
+    }
+
+    projectSelectorViewModel.getProjectSummaries().observe(this, this::updateNavDrawer);
+  }
+
+  private void updateNavDrawer(Loadable<List<Project>> projectSummaries) {
+    switch (projectSummaries.getState()) {
+      case LOADING:
+      case NOT_FOUND:
+      case ERROR:
+        // TODO: Update UI
+        break;
+      case LOADED:
+        projectSummaries.value().ifPresent(this::addProjectToNavDrawer);
+        break;
+      default:
+        Log.e(TAG, "Unhandled state: " + projectSummaries.getState());
+        break;
+    }
+  }
+
+  private void addProjectToNavDrawer(List<Project> projects) {
+    MenuItem item = navView.getMenu().getItem(0);
+    SubMenu subMenu = item.getSubMenu();
+    for (Project project : projects) {
+      subMenu.add(R.id.group_join_project, Menu.NONE, Menu.NONE, project.getTitle());
     }
   }
 

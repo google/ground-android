@@ -81,12 +81,14 @@
         app:headerLayout="@layout/nav_drawer_header"
         app:menu="@menu/nav_drawer_menu">
 
+        <!-- TODO: re-enable visibility -->
         <TextView
           android:id="@+id/version_text"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
           android:layout_gravity="bottom"
           android:padding="8dp"
+          android:visibility="gone"
           tools:text="Build number" />
 
       </com.google.android.material.navigation.NavigationView>
