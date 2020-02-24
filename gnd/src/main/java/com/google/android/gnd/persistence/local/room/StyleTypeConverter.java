@@ -30,8 +30,8 @@ public class StyleTypeConverter {
   }
 
   @TypeConverter
-  @NonNull
+  @Nullable
   public static Style fromString(@Nullable String color) {
-    return Style.builder().setColor(color).build();
+    return color == null ? null : Style.builder().setColor(color).build();
   }
 }
