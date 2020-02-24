@@ -14,33 +14,48 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.persistence.remote.firestore;
+package com.google.android.gnd.persistence.remote.firestore.schema;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import com.google.android.gnd.model.AuditInfo;
-import com.google.android.gnd.model.Mutation;
-import com.google.android.gnd.model.User;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.ServerTimestamp;
-import java.util.Date;
-import java8.util.Optional;
 
 /** User details and timestamp for creation or modification of a model object. */
-public class AuditInfoDoc {
+class AuditInfoNestedObject {
+  @Nullable private UserNestedObject user;
+  @Nullable private Timestamp clientTimeMillis;
+  @Nullable @ServerTimestamp private Timestamp serverTimeMillis;
+
+  @SuppressWarnings("unused")
+  public AuditInfoNestedObject() {}
+
+  AuditInfoNestedObject(
+      @Nullable UserNestedObject user,
+      @Nullable Timestamp clientTimeMillis,
+      @Nullable Timestamp serverTimeMillis) {
+    this.user = user;
+    this.clientTimeMillis = clientTimeMillis;
+    this.serverTimeMillis = serverTimeMillis;
+  }
 
   /**
    * The user initiating the related action. This should never be missing, but we handle null values
    * anyway since the Firestore is schema-less.
    */
-  @Nullable public UserDoc user;
+  @Nullable
+  public UserNestedObject getUser() {
+    return user;
+  }
 
   /**
    * The time at which the user action was initiated, according to the user's device. See {@link
    * System#currentTimeMillis} for details. This should never be missing, but we handle null values
    * anyway since the Firestore is schema-less.
    */
-  @Nullable public Timestamp clientTimeMillis;
+  @Nullable
+  public Timestamp getClientTimeMillis() {
+    return clientTimeMillis;
+  }
 
   /**
    * The time at which the server received the requested change according to the server's internal
@@ -48,32 +63,8 @@ public class AuditInfoDoc {
    * for details. This will be null until the server updates the write time and syncs it back to the
    * client.
    */
-  @Nullable @ServerTimestamp public Timestamp serverTimeMillis;
-
-  /**
-   * Converts a POJO representing user and timestamp data in Firebase into an equivalent model
-   * object. This should never be empty in Firebase, but this method returns a default value when
-   * the input is null to support legacy or corrupt dbs.
-   */
-  @NonNull
-  public static AuditInfo toObject(@Nullable AuditInfoDoc doc) {
-    if (doc == null || doc.clientTimeMillis == null) {
-      return AuditInfo.builder()
-          .setUser(UserDoc.UNKNOWN_USER)
-          .setClientTimeMillis(new Date(0))
-          .build();
-    }
-    return AuditInfo.builder()
-        .setUser(UserDoc.toObject(doc.user))
-        .setClientTimeMillis(doc.clientTimeMillis.toDate())
-        .setServerTimeMillis(Optional.ofNullable(doc.serverTimeMillis).map(Timestamp::toDate))
-        .build();
-  }
-
-  public static AuditInfoDoc fromMutationAndUser(Mutation mutation, User user) {
-    AuditInfoDoc auditInfo = new AuditInfoDoc();
-    auditInfo.user = UserDoc.fromObject(user);
-    auditInfo.clientTimeMillis = new Timestamp(mutation.getClientTimestamp());
-    return auditInfo;
+  @Nullable
+  public Timestamp getServerTimeMillis() {
+    return serverTimeMillis;
   }
 }

@@ -23,9 +23,16 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.provider.MediaStore.Images.Media;
 import android.util.Log;
+import android.widget.ImageView;
+import com.google.android.gnd.R;
+import com.google.android.gnd.persistence.remote.FirestoreStorageManager;
 import com.google.android.gnd.system.ActivityStreams.ActivityResult;
+import com.google.android.gnd.ui.util.FileUtil;
+import com.squareup.picasso.Picasso;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
+import java.io.File;
+import java.io.FileNotFoundException;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -39,13 +46,21 @@ public class StorageManager {
   private final Context context;
   private final PermissionsManager permissionsManager;
   private final ActivityStreams activityStreams;
+  private final FirestoreStorageManager firestoreStorageManager;
+  private final FileUtil fileUtil;
 
   @Inject
   public StorageManager(
-      Context context, PermissionsManager permissionsManager, ActivityStreams activityStreams) {
+      Context context,
+      PermissionsManager permissionsManager,
+      ActivityStreams activityStreams,
+      FirestoreStorageManager firestoreStorageManager,
+      FileUtil fileUtil) {
     this.context = context;
     this.permissionsManager = permissionsManager;
     this.activityStreams = activityStreams;
+    this.firestoreStorageManager = firestoreStorageManager;
+    this.fileUtil = fileUtil;
   }
 
   /**
@@ -93,5 +108,47 @@ public class StorageManager {
           }
           em.onNext(data.getData());
         });
+  }
+
+  /**
+   * Returns the path of the file saved in the sdcard used for uploading to the provided destination
+   * path.
+   */
+  private File getLocalFileFromDestinationPath(String destinationPath)
+      throws FileNotFoundException {
+    String[] splits = destinationPath.split("/");
+    return fileUtil.getFile(splits[splits.length - 1]);
+  }
+
+  /**
+   * Load photo from the provided destination path.
+   *
+   * <p>If the image is not uploaded yet, then parse the filename from path and load the file from
+   * local storage.
+   *
+   * @param imageView Placeholder for photo field
+   * @param destinationPath Destination path of the uploaded photo
+   */
+  public void loadPhotoFromDestinationPath(ImageView imageView, String destinationPath) {
+    firestoreStorageManager
+        .getDownloadUrl(destinationPath)
+        .doOnSuccess(
+            uri -> {
+              // Load the file from Firestore Storage
+              Picasso.get()
+                  .load(uri)
+                  .placeholder(R.drawable.ic_photo_grey_600_24dp)
+                  .into(imageView);
+            })
+        .doOnError(
+            throwable -> {
+              // Load file locally
+              File file = getLocalFileFromDestinationPath(destinationPath);
+              Picasso.get()
+                  .load(file)
+                  .placeholder(R.drawable.ic_photo_grey_600_24dp)
+                  .into(imageView);
+            })
+        .subscribe();
   }
 }

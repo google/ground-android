@@ -32,7 +32,7 @@ public class FluentDocumentReference {
    * Adds a request to the specified batch to merge the provided key-value pairs into the remote
    * database. If the document does not yet exist, one is created on commit.
    */
-  public void merge(ImmutableMap<String, Object> values, WriteBatch batch) {
+  protected void merge(ImmutableMap<String, Object> values, WriteBatch batch) {
     batch.set(reference, values, SetOptions.merge());
   }
 

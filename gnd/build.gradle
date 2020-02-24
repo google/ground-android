@@ -72,6 +72,8 @@ android {
         versionName gitVersioner.versionName
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
+        // For rendering vector map markers.
+        vectorDrawables.useSupportLibrary = true
     }
     buildTypes {
         release {
@@ -215,9 +217,4 @@ apply plugin: 'com.google.gms.google-services'
 
 task checkCode(type: GradleBuild) {
     dependsOn 'checkstyle', 'lintDebug', 'pmd', 'spotbugs'
-}
-
-// Run code quality checks before installing apk to device
-afterEvaluate {
-    installDebug.dependsOn checkCode
 }

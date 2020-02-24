@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google LLC
+ * Copyright 2020 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,6 +14,13 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.persistence.remote.firestore;
+package com.google.android.gnd.persistence.remote.firestore.schema;
 
-public class DocumentNotFoundException extends Exception {}
+import com.google.android.gnd.model.form.Element;
+
+/** Converts between Firestore nested objects and {@link Element} instances. */
+class ElementConverter {
+  static Element toElement(ElementNestedObject em) {
+    return FieldConverter.toField(em).map(Element::ofField).orElse(Element.ofUnknown());
+  }
+}
