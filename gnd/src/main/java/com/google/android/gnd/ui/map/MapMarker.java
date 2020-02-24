@@ -16,9 +16,9 @@
 
 package com.google.android.gnd.ui.map;
 
+import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.Point;
-import com.google.android.gnd.ui.MapIcon;
 import com.google.auto.value.AutoValue;
 import java8.util.Optional;
 import javax.annotation.Nullable;
@@ -30,7 +30,7 @@ public abstract class MapMarker {
 
   public abstract Point getPosition();
 
-  public abstract MapIcon getIcon();
+  public abstract BitmapDescriptor getIcon();
 
   @Nullable
   public abstract Object getObject();
@@ -51,7 +51,7 @@ public abstract class MapMarker {
 
     public abstract Builder setPosition(Point newPosition);
 
-    public abstract Builder setIcon(MapIcon newIcon);
+    public abstract Builder setIcon(BitmapDescriptor icon);
 
     public abstract Builder setObject(Object newObject);
 
