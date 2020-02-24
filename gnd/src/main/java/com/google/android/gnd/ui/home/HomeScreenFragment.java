@@ -174,7 +174,7 @@ public class HomeScreenFragment extends AbstractFragment
       mapContainerFragment = restoreChildFragment(savedInstanceState, MapContainerFragment.class);
     }
 
-    projectSelectorViewModel.getProjectSummaries().observe(this, this::updateNavDrawer);
+    projectSelectorViewModel.getSavedProjects().observe(this, this::updateNavDrawer);
   }
 
   private void updateNavDrawer(Loadable<List<Project>> projectSummaries) {
@@ -199,6 +199,9 @@ public class HomeScreenFragment extends AbstractFragment
 
   private void addProjectToNavDrawer(List<Project> projects) {
     this.projects = projects;
+
+    // clear last saved projects list
+    getProjectsNavItem().getSubMenu().removeGroup(R.id.group_join_project);
 
     for (int index = 0; index < projects.size(); index++) {
       getProjectsNavItem()
@@ -424,7 +427,7 @@ public class HomeScreenFragment extends AbstractFragment
   @Override
   public boolean onNavigationItemSelected(@NonNull MenuItem item) {
     if (item.getGroupId() == R.id.group_join_project) {
-      projectSelectorViewModel.activateProject(item.getOrder());
+      projectSelectorViewModel.activateLocalProject(item.getOrder());
       closeDrawer();
     } else {
       switch (item.getItemId()) {

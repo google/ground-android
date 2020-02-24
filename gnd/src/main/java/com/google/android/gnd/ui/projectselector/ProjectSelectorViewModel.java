@@ -31,6 +31,7 @@ import javax.inject.Inject;
 public class ProjectSelectorViewModel extends AbstractViewModel {
   private final ProjectRepository projectRepository;
   private final LiveData<Loadable<List<Project>>> projectSummaries;
+  private final LiveData<Loadable<List<Project>>> savedProjects;
 
   @Inject
   ProjectSelectorViewModel(ProjectRepository projectRepository, AuthenticationManager authManager) {
@@ -39,14 +40,24 @@ public class ProjectSelectorViewModel extends AbstractViewModel {
     this.projectSummaries =
         LiveDataReactiveStreams.fromPublisher(
             projectRepository.getProjectSummaries(authManager.getCurrentUser()));
+    this.savedProjects =
+        LiveDataReactiveStreams.fromPublisher(projectRepository.getSavedProjects());
   }
 
   public LiveData<Loadable<List<Project>>> getProjectSummaries() {
     return projectSummaries;
   }
 
+  public LiveData<Loadable<List<Project>>> getSavedProjects() {
+    return savedProjects;
+  }
+
   private Project getProjectSummary(int idx) {
     return Loadable.getValue(this.projectSummaries).orElse(Collections.emptyList()).get(idx);
+  }
+
+  private Project getLocalProjectSummary(int idx) {
+    return Loadable.getValue(this.savedProjects).orElse(Collections.emptyList()).get(idx);
   }
 
   /**
@@ -56,5 +67,9 @@ public class ProjectSelectorViewModel extends AbstractViewModel {
    */
   public void activateProject(int idx) {
     projectRepository.activateProject(getProjectSummary(idx).getId());
+  }
+
+  public void activateLocalProject(int idx) {
+    projectRepository.activateProject(getLocalProjectSummary(idx).getId());
   }
 }
