@@ -16,12 +16,14 @@
 
 package com.google.android.gnd.repository;
 
+import android.util.Log;
 import com.google.android.gnd.model.Mutation;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.FeatureMutation;
 import com.google.android.gnd.persistence.local.LocalDataStore;
+import com.google.android.gnd.persistence.remote.NotFoundException;
 import com.google.android.gnd.persistence.remote.RemoteDataEvent;
 import com.google.android.gnd.persistence.remote.RemoteDataStore;
 import com.google.android.gnd.persistence.sync.DataSyncWorkManager;
@@ -30,6 +32,7 @@ import com.google.common.collect.ImmutableSet;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
+import io.reactivex.Single;
 import java.util.Date;
 import java8.util.Optional;
 import javax.inject.Inject;
@@ -42,6 +45,9 @@ import javax.inject.Singleton;
  */
 @Singleton
 public class FeatureRepository {
+
+  private static final String TAG = FeatureRepository.class.getSimpleName();
+
   private final LocalDataStore localDataStore;
   private final RemoteDataStore remoteDataStore;
   private final ProjectRepository projectRepository;
@@ -62,7 +68,8 @@ public class FeatureRepository {
   /**
    * Mirrors features in the specified project from the remote db into the local db when the network
    * is available. When invoked, will first attempt to resync all features from the remote db,
-   * subsequently syncing only remote changes.
+   * subsequently syncing only remote changes. The returned stream never completes, and
+   * subscriptions will only terminate on disposal.
    */
   public Completable syncFeatures(Project project) {
     return remoteDataStore
@@ -81,7 +88,8 @@ public class FeatureRepository {
         // localDataStore.removeFeature(event.getEntityId());
         return Completable.complete();
       case ERROR:
-        return Completable.error(event.error().get());
+        event.error().ifPresent(e -> Log.d(TAG, "Invalid features in remote db ignored", e));
+        return Completable.complete();
       default:
         return Completable.error(
             new UnsupportedOperationException("Event type: " + event.getEventType()));
@@ -103,7 +111,8 @@ public class FeatureRepository {
         .compose(Loadable::values)
         .firstElement()
         .filter(project -> project.getId().equals(projectId))
-        .flatMap(project -> localDataStore.getFeature(project, featureId));
+        .switchIfEmpty(Single.error(() -> new NotFoundException("Project " + projectId)))
+        .flatMapMaybe(project -> localDataStore.getFeature(project, featureId));
   }
 
   public Completable saveFeature(Feature feature, User user) {

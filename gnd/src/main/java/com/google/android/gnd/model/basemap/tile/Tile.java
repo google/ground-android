@@ -20,12 +20,15 @@ import com.google.auto.value.AutoValue;
 
 @AutoValue
 public abstract class Tile {
+
   public enum State {
     PENDING,
     IN_PROGRESS,
     DOWNLOADED,
     FAILED
   }
+
+  public abstract String getUrl();
 
   public abstract String getId();
 
@@ -54,6 +57,8 @@ public abstract class Tile {
   @AutoValue.Builder
   public abstract static class Builder {
     public abstract Builder setId(String id);
+
+    public abstract Builder setUrl(String url);
 
     public abstract Builder setPath(String path);
 

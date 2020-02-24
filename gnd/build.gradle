@@ -218,8 +218,3 @@ apply plugin: 'com.google.gms.google-services'
 task checkCode(type: GradleBuild) {
     dependsOn 'checkstyle', 'lintDebug', 'pmd', 'spotbugs'
 }
-
-// Run code quality checks before installing apk to device
-afterEvaluate {
-    installDebug.dependsOn checkCode
-}

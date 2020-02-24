@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google LLC
+ * Copyright 2020 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,36 +14,28 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.persistence.remote.firestore;
+package com.google.android.gnd.persistence.remote.firestore.schema;
 
 import static com.google.android.gnd.util.Localization.getLocalizedMessage;
 
-import androidx.annotation.Nullable;
 import com.google.android.gnd.model.Project;
+import com.google.android.gnd.persistence.remote.DataStoreException;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.IgnoreExtraProperties;
-import java.util.Map;
 import java8.util.Maps;
 
-@IgnoreExtraProperties
-public class ProjectDoc {
-  @Nullable public Map<String, String> title;
+/** Converts between Firestore documents and {@link Project} instances. */
+class ProjectConverter {
 
-  @Nullable public Map<String, String> description;
-
-  // TODO: Add AuditInfoDoc for created and lastModified.
-
-  @Nullable public Map<String, LayerDoc> featureTypes;
-
-  public static Project toObject(DocumentSnapshot doc) {
-    ProjectDoc pd = doc.toObject(ProjectDoc.class);
+  static Project toProject(DocumentSnapshot doc) throws DataStoreException {
+    ProjectDocument pd = doc.toObject(ProjectDocument.class);
     Project.Builder project = Project.newBuilder();
     project
         .setId(doc.getId())
-        .setTitle(getLocalizedMessage(pd.title))
-        .setDescription(getLocalizedMessage(pd.description));
-    if (pd.featureTypes != null) {
-      Maps.forEach(pd.featureTypes, (id, ptDoc) -> project.putLayer(id, ptDoc.toObject(id)));
+        .setTitle(getLocalizedMessage(pd.getTitle()))
+        .setDescription(getLocalizedMessage(pd.getDescription()));
+    if (pd.getFeatureTypes() != null) {
+      Maps.forEach(
+          pd.getFeatureTypes(), (id, obj) -> project.putLayer(id, LayerConverter.toLayer(id, obj)));
     }
     return project.build();
   }

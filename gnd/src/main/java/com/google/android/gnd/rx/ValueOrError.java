@@ -16,7 +16,9 @@
 
 package com.google.android.gnd.rx;
 
+import io.reactivex.Observable;
 import java8.util.Optional;
+import java8.util.function.Supplier;
 import javax.annotation.Nullable;
 
 /**
@@ -42,16 +44,32 @@ public class ValueOrError<T> {
     return Optional.ofNullable(error);
   }
 
-  public static <T> ValueOrError<T> of(T value) {
-    return new ValueOrError(value, null);
-  }
-
-  public static <T> ValueOrError<T> error(Throwable t) {
-    return new ValueOrError(null, t);
-  }
-
   @Override
   public String toString() {
     return error().map(t -> "Error: " + t).orElse("Value: " + value);
+  }
+
+  /** Returns the value returned by the specified supplier, or an error if the supplier fails. */
+  public static <T> ValueOrError<T> create(Supplier<T> supplier) {
+    try {
+      return ValueOrError.newValue(supplier.get());
+    } catch (Throwable e) {
+      return ValueOrError.newError(e);
+    }
+  }
+
+  /** Returns a new instance with the specified value. */
+  public static <T> ValueOrError<T> newValue(T value) {
+    return new ValueOrError(value, null);
+  }
+
+  /** Returns a new instance with the specified error. */
+  public static <T> ValueOrError<T> newError(Throwable t) {
+    return new ValueOrError(null, t);
+  }
+
+  /** Modifies the specified stream to ignore errors, returning wrapped values. */
+  public static <T> Observable<T> ignoreErrors(Observable<ValueOrError<T>> observable) {
+    return observable.filter(voe -> voe.value().isPresent()).map(voe -> voe.value().get());
   }
 }

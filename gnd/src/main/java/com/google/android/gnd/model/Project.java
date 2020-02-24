@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.model;
 
+import androidx.annotation.NonNull;
 import com.google.android.gnd.model.layer.Layer;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
@@ -35,6 +36,7 @@ public abstract class Project {
   @Nullable
   public abstract String getDescription();
 
+  @NonNull
   protected abstract ImmutableMap<String, Layer> getLayerMap();
 
   public ImmutableList<Layer> getLayers() {

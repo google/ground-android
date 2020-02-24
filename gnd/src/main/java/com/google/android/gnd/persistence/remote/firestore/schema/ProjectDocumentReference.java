@@ -17,7 +17,6 @@
 package com.google.android.gnd.persistence.remote.firestore.schema;
 
 import com.google.android.gnd.model.Project;
-import com.google.android.gnd.persistence.remote.firestore.ProjectDoc;
 import com.google.android.gnd.persistence.remote.firestore.base.FluentDocumentReference;
 import com.google.firebase.firestore.DocumentReference;
 import durdinapps.rxfirebase2.RxFirestore;
@@ -40,6 +39,6 @@ public class ProjectDocumentReference extends FluentDocumentReference {
   }
 
   public Maybe<Project> get() {
-    return RxFirestore.getDocument(reference()).map(ProjectDoc::toObject);
+    return RxFirestore.getDocument(reference()).map(ProjectConverter::toProject);
   }
 }
