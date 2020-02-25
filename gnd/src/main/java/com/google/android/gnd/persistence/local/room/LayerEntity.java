@@ -87,7 +87,7 @@ public abstract class LayerEntity {
 
     for (FormEntityAndRelations formEntityAndRelations :
         layerEntityAndRelations.formEntityAndRelations) {
-      layerBuilder.addForm(FormEntity.toForm(formEntityAndRelations));
+      layerBuilder.setForm(FormEntity.toForm(formEntityAndRelations));
     }
 
     return layerBuilder.build();
