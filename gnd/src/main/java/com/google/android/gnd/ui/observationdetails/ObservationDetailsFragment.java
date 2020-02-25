@@ -25,19 +25,20 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import butterknife.BindView;
-import butterknife.ButterKnife;
 import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.R;
+import com.google.android.gnd.databinding.ObservationDetailsFieldBinding;
 import com.google.android.gnd.databinding.ObservationDetailsFragBinding;
 import com.google.android.gnd.inject.ActivityScoped;
 import com.google.android.gnd.model.form.Element;
 import com.google.android.gnd.model.form.Field;
+import com.google.android.gnd.model.form.Field.Type;
 import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.rx.Loadable;
+import com.google.android.gnd.system.StorageManager;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.EphemeralPopups;
 import com.google.android.gnd.ui.common.Navigator;
@@ -49,6 +50,7 @@ public class ObservationDetailsFragment extends AbstractFragment {
   private static final String TAG = ObservationDetailsFragment.class.getSimpleName();
 
   @Inject Navigator navigator;
+  @Inject StorageManager storageManager;
 
   @BindView(R.id.observation_details_toolbar)
   TwoLineToolbar toolbar;
@@ -141,48 +143,27 @@ public class ObservationDetailsFragment extends AbstractFragment {
   }
 
   private void addField(Field field, Observation observation) {
-    FieldViewHolder fieldViewHolder = FieldViewHolder.newInstance(getLayoutInflater());
-    fieldViewHolder.setLabel(field.getLabel());
+    ObservationDetailsFieldBinding binding =
+        ObservationDetailsFieldBinding.inflate(getLayoutInflater());
+    binding.setField(field);
+    binding.setLifecycleOwner(this);
+    observationDetailsLayout.addView(binding.getRoot());
+
     observation
         .getResponses()
         .getResponse(field.getId())
         .map(r -> r.getDetailsText(field))
-        .ifPresent(fieldViewHolder::setValue);
-    observationDetailsLayout.addView(fieldViewHolder.getRoot());
-  }
+        .ifPresent(
+            value -> {
+              if (field.getType().equals(Type.PHOTO)) {
+                binding.fieldValue.setVisibility(View.GONE);
+                binding.imagePreview.setVisibility(View.VISIBLE);
 
-  // TODO: Extract into outer class.
-  static class FieldViewHolder {
-    private ViewGroup root;
-
-    @BindView(R.id.field_label)
-    TextView labelView;
-
-    @BindView(R.id.field_value)
-    TextView valueView;
-
-    FieldViewHolder(ViewGroup root) {
-      this.root = root;
-    }
-
-    static FieldViewHolder newInstance(LayoutInflater inflater) {
-      ViewGroup root = (ViewGroup) inflater.inflate(R.layout.observation_details_field, null);
-      FieldViewHolder holder = new FieldViewHolder(root);
-      ButterKnife.bind(holder, root);
-      return holder;
-    }
-
-    void setLabel(String label) {
-      labelView.setText(label);
-    }
-
-    void setValue(String value) {
-      valueView.setText(value);
-    }
-
-    public ViewGroup getRoot() {
-      return root;
-    }
+                storageManager.loadPhotoFromDestinationPath(binding.imagePreview, value);
+              } else {
+                binding.fieldValue.setText(value);
+              }
+            });
   }
 
   @Override
