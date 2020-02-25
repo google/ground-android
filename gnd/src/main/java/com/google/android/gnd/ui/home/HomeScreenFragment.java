@@ -194,7 +194,8 @@ public class HomeScreenFragment extends AbstractFragment
   }
 
   private MenuItem getProjectsNavItem() {
-    return navView.getMenu().getItem(0);
+    // Below index is the order of the projects item in nav_drawer_menu.xml
+    return navView.getMenu().getItem(1);
   }
 
   private void addProjectToNavDrawer(List<Project> projects) {

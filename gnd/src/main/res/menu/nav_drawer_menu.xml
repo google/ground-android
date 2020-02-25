@@ -17,10 +17,12 @@
   -->
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
+  <item
+    android:id="@+id/nav_join_project"
+    android:icon="@drawable/ic_add_light"
+    android:title="@string/join_project" />
   <group android:checkableBehavior="single">
-    <item
-      android:id="@+id/nav_join_project"
-      android:title="@string/select_project_menu_item">
+    <item android:title="@string/select_project_menu_item">
       <menu>
         <group
           android:id="@+id/group_join_project"
