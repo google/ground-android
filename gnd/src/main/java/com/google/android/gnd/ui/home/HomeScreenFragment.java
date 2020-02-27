@@ -174,7 +174,7 @@ public class HomeScreenFragment extends AbstractFragment
       mapContainerFragment = restoreChildFragment(savedInstanceState, MapContainerFragment.class);
     }
 
-    projectSelectorViewModel.getSavedProjects().observe(this, this::updateNavDrawer);
+    projectSelectorViewModel.getOfflineProjects().observe(this, this::updateNavDrawer);
   }
 
   private void updateNavDrawer(Loadable<List<Project>> projectSummaries) {
