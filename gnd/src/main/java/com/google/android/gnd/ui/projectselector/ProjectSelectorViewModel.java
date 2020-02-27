@@ -56,7 +56,7 @@ public class ProjectSelectorViewModel extends AbstractViewModel {
     return Loadable.getValue(this.projectSummaries).orElse(Collections.emptyList()).get(idx);
   }
 
-  private Project getLocalProjectSummary(int idx) {
+  private Project getOfflineProjectSummary(int idx) {
     return Loadable.getValue(this.offlineProjects).orElse(Collections.emptyList()).get(idx);
   }
 
@@ -69,7 +69,7 @@ public class ProjectSelectorViewModel extends AbstractViewModel {
     projectRepository.activateProject(getProjectSummary(idx).getId());
   }
 
-  public void activateLocalProject(int idx) {
-    projectRepository.activateProject(getLocalProjectSummary(idx).getId());
+  public void activateOfflineProject(int idx) {
+    projectRepository.activateProject(getOfflineProjectSummary(idx).getId());
   }
 }

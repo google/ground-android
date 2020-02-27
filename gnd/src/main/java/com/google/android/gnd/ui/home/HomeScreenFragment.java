@@ -428,7 +428,7 @@ public class HomeScreenFragment extends AbstractFragment
   @Override
   public boolean onNavigationItemSelected(@NonNull MenuItem item) {
     if (item.getGroupId() == R.id.group_join_project) {
-      projectSelectorViewModel.activateLocalProject(item.getOrder());
+      projectSelectorViewModel.activateOfflineProject(item.getOrder());
       closeDrawer();
     } else {
       switch (item.getItemId()) {
