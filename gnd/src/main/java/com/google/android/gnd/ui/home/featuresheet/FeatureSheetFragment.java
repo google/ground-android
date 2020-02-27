@@ -24,7 +24,6 @@ import android.widget.ImageView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.view.WindowInsetsCompat;
-import androidx.viewpager.widget.ViewPager;
 import butterknife.BindView;
 import com.google.android.gnd.MainViewModel;
 import com.google.android.gnd.R;
@@ -32,21 +31,15 @@ import com.google.android.gnd.databinding.FeatureSheetFragBinding;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.home.FeatureSheetState;
 import com.google.android.gnd.ui.home.HomeScreenViewModel;
-import com.google.android.material.tabs.TabLayout;
 import javax.inject.Inject;
 
 public class FeatureSheetFragment extends AbstractFragment {
 
-  @Inject FormTabPagerAdapter formTypePagerAdapter;
-
   @BindView(R.id.feature_header_icon)
   ImageView featureHeaderIcon;
 
-  @BindView(R.id.forms_tab_layout)
-  TabLayout formsTabLayout;
-
-  @BindView(R.id.observation_list_view_pager)
-  ViewPager observationListViewPager;
+  @BindView(R.id.observation_list_container)
+  View observationListContainer;
 
   private FeatureSheetViewModel viewModel;
   private HomeScreenViewModel homeScreenViewModel;
@@ -73,25 +66,10 @@ public class FeatureSheetFragment extends AbstractFragment {
   }
 
   @Override
-  public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-    super.onViewCreated(view, savedInstanceState);
-
-    observationListViewPager.setAdapter(formTypePagerAdapter);
-    observationListViewPager.addOnPageChangeListener(viewModel);
-    formsTabLayout.setupWithViewPager(observationListViewPager);
-    // TODO: See if this is still needed; not compatible with latest v4 support libs.
-    // Stretch tabs if they all fit on screen, otherwise scroll.
-    // TabLayoutHelper tabLayoutHelper = new TabLayoutHelper(formsTabLayout,
-    // observationListViewPager);
-    // tabLayoutHelper.setAutoAdjustTabModeEnabled(true);
-  }
-
-  @Override
   public void onActivityCreated(@Nullable Bundle savedInstanceState) {
     super.onActivityCreated(savedInstanceState);
     mainViewModel.getWindowInsets().observe(this, this::onApplyWindowInsets);
     homeScreenViewModel.getFeatureSheetState().observe(this, this::onFeatureSheetStateChange);
-    viewModel.getSelectedFeature().observe(this, formTypePagerAdapter::update);
   }
 
   private void onFeatureSheetStateChange(FeatureSheetState featureSheetState) {
@@ -109,6 +87,6 @@ public class FeatureSheetFragment extends AbstractFragment {
   }
 
   private void onApplyWindowInsets(WindowInsetsCompat insets) {
-    observationListViewPager.setPadding(0, 0, 0, insets.getSystemWindowInsetBottom());
+    observationListContainer.setPadding(0, 0, 0, insets.getSystemWindowInsetBottom());
   }
 }

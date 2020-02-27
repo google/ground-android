@@ -22,24 +22,20 @@ import androidx.databinding.ObservableInt;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
-import androidx.viewpager.widget.ViewPager;
 import com.google.android.gnd.model.feature.Feature;
-import com.google.android.gnd.model.form.Form;
-import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.ui.common.SharedViewModel;
 import com.google.android.gnd.ui.home.FeatureSheetState;
 import java8.util.Optional;
 import javax.inject.Inject;
 
 @SharedViewModel
-public class FeatureSheetViewModel extends ViewModel implements ViewPager.OnPageChangeListener {
+public class FeatureSheetViewModel extends ViewModel {
 
   public final ObservableField<String> featureTitle;
   public final ObservableField<String> featureSubtitle;
   public final ObservableInt featureSubtitleVisibility;
 
   private final MutableLiveData<Optional<Feature>> selectedFeature;
-  private final MutableLiveData<Optional<Form>> selectedForm;
 
   @Inject
   public FeatureSheetViewModel() {
@@ -47,46 +43,23 @@ public class FeatureSheetViewModel extends ViewModel implements ViewPager.OnPage
     featureSubtitle = new ObservableField<>();
     featureSubtitleVisibility = new ObservableInt();
     selectedFeature = new MutableLiveData<>(Optional.empty());
-    selectedForm = new MutableLiveData<>(Optional.empty());
   }
 
   public LiveData<Optional<Feature>> getSelectedFeature() {
     return selectedFeature;
   }
 
-  public LiveData<Optional<Form>> getSelectedForm() {
-    return selectedForm;
-  }
-
-  @Override
-  public void onPageSelected(int position) {
-    selectedForm.setValue(
-        selectedFeature
-            .getValue()
-            .map(Feature::getLayer)
-            .map(Layer::getForms)
-            .filter(f -> f.size() > position)
-            .map(f -> f.get(position)));
-  }
-
   public void onFeatureSheetStateChange(FeatureSheetState state) {
-    if (state.isVisible()) {
-      featureTitle.set(state.getFeature().getTitle());
-      featureSubtitle.set(state.getFeature().getSubtitle());
-      featureSubtitleVisibility.set(
-          state.getFeature().getSubtitle().isEmpty() ? View.GONE : View.VISIBLE);
-
-      selectedFeature.setValue(Optional.of(state.getFeature()));
-      onPageSelected(0);
-    } else {
+    if (!state.isVisible()) {
       selectedFeature.setValue(Optional.empty());
-      selectedForm.setValue(Optional.empty());
+      return;
     }
+
+    featureTitle.set(state.getFeature().getTitle());
+    featureSubtitle.set(state.getFeature().getSubtitle());
+    featureSubtitleVisibility.set(
+        state.getFeature().getSubtitle().isEmpty() ? View.GONE : View.VISIBLE);
+
+    selectedFeature.setValue(Optional.of(state.getFeature()));
   }
-
-  @Override
-  public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {}
-
-  @Override
-  public void onPageScrollStateChanged(int state) {}
 }

@@ -32,7 +32,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center|top"
-        android:paddingTop="150dp"
+        android:paddingTop="32dp"
         android:visibility="@{viewModel.loadingSpinnerVisibility}"/>
 
     <androidx.recyclerview.widget.RecyclerView

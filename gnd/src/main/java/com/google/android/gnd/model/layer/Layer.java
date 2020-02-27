@@ -16,11 +16,8 @@
 
 package com.google.android.gnd.model.layer;
 
-import static java8.util.stream.StreamSupport.stream;
-
 import com.google.android.gnd.model.form.Form;
 import com.google.auto.value.AutoValue;
-import com.google.common.collect.ImmutableList;
 import java8.util.Optional;
 import javax.annotation.Nullable;
 
@@ -38,14 +35,14 @@ public abstract class Layer {
   @Nullable
   public abstract Style getDefaultStyle();
 
-  public abstract ImmutableList<Form> getForms();
+  public abstract Optional<Form> getForm();
 
   public Optional<Form> getForm(String formId) {
-    return stream(getForms()).filter(form -> form.getId().equals(formId)).findFirst();
+    return getForm().filter(form -> form.getId().equals(formId));
   }
 
   public static Builder newBuilder() {
-    return new AutoValue_Layer.Builder();
+    return new AutoValue_Layer.Builder().setForm(Optional.empty());
   }
 
   @AutoValue.Builder
@@ -58,11 +55,10 @@ public abstract class Layer {
 
     public abstract Builder setDefaultStyle(@Nullable Style newDefaultStyle);
 
-    public abstract ImmutableList.Builder<Form> formsBuilder();
+    public abstract Builder setForm(Optional<Form> form);
 
-    public Builder addForm(Form newForm) {
-      formsBuilder().add(newForm);
-      return this;
+    public Builder setForm(Form form) {
+      return setForm(Optional.of(form));
     }
 
     public abstract Layer build();

@@ -28,11 +28,9 @@ import butterknife.BindView;
 import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.ObservationListFragBinding;
 import com.google.android.gnd.model.feature.Feature;
-import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.Navigator;
-import com.google.android.gnd.ui.home.HomeScreenViewModel;
 import java8.util.Optional;
 import javax.inject.Inject;
 
@@ -42,14 +40,9 @@ public class ObservationListFragment extends AbstractFragment {
   private ObservationListAdapter observationListAdapter;
   private ObservationListViewModel viewModel;
   private FeatureSheetViewModel featureSheetViewModel;
-  private HomeScreenViewModel homeScreenViewModel;
 
   @BindView(R.id.observation_list_container)
   RecyclerView recyclerView;
-
-  static ObservationListFragment newInstance() {
-    return new ObservationListFragment();
-  }
 
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -57,7 +50,6 @@ public class ObservationListFragment extends AbstractFragment {
     super.onCreate(savedInstanceState);
     viewModel = getViewModel(ObservationListViewModel.class);
     featureSheetViewModel = getViewModel(FeatureSheetViewModel.class);
-    homeScreenViewModel = getViewModel(HomeScreenViewModel.class);
 
     observationListAdapter.getItemClicks().observe(this, this::onItemClick);
   }
@@ -79,29 +71,22 @@ public class ObservationListFragment extends AbstractFragment {
     super.onViewCreated(view, savedInstanceState);
     recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
     recyclerView.setAdapter(observationListAdapter);
+    featureSheetViewModel.getSelectedFeature().observe(this, this::onFeatureSelected);
+  }
+
+  private void onFeatureSelected(Optional<Feature> feature) {
+    observationListAdapter.clear();
+    feature.ifPresent(viewModel::loadObservationList);
   }
 
   @Override
   public void onActivityCreated(@Nullable Bundle savedInstanceState) {
     super.onActivityCreated(savedInstanceState);
     viewModel.getObservations().observe(this, observationListAdapter::update);
-    featureSheetViewModel.getSelectedForm().observe(this, this::onFormChange);
   }
 
   private void onItemClick(Observation observation) {
     navigator.showObservationDetails(
         observation.getProject().getId(), observation.getFeature().getId(), observation.getId());
-  }
-
-  private void onFormChange(Optional<Form> form) {
-    observationListAdapter.clear();
-    // TODO: Use fragment args, load form and feature if not present.
-    Optional<Feature> feature = featureSheetViewModel.getSelectedFeature().getValue();
-    if (!form.isPresent() || !feature.isPresent()) {
-      // TODO: Report error.
-      return;
-    }
-    homeScreenViewModel.onFormChange(form.get());
-    viewModel.loadObservationList(feature.get(), form.get());
   }
 }

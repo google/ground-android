@@ -18,11 +18,13 @@ package com.google.android.gnd.persistence.remote.firestore.schema;
 
 import static com.google.android.gnd.util.Localization.getLocalizedMessage;
 
+import android.util.Log;
 import com.google.android.gnd.model.layer.Layer;
-import java8.util.Maps;
 
 /** Converts between Firestore documents and {@link Layer} instances. */
 class LayerConverter {
+
+  private static final String TAG = LayerConverter.class.getSimpleName();
 
   static Layer toLayer(String id, LayerNestedObject obj) {
     Layer.Builder layer = Layer.newBuilder();
@@ -33,10 +35,12 @@ class LayerConverter {
     if (obj.getDefaultStyle() != null) {
       layer.setDefaultStyle(StyleConverter.toStyle(obj.getDefaultStyle()));
     }
-    if (obj.getForms() != null) {
-      Maps.forEach(
-          obj.getForms(),
-          (formId, formDoc) -> layer.addForm(FormConverter.toForm(formId, formDoc)));
+    if (obj.getForms() != null && !obj.getForms().isEmpty()) {
+      if (obj.getForms().size() > 1) {
+        Log.w(TAG, "Multiple forms not supported");
+      }
+      String formId = obj.getForms().keySet().iterator().next();
+      layer.setForm(FormConverter.toForm(formId, obj.getForms().get(formId)));
     }
     return layer.build();
   }

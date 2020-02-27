@@ -63,7 +63,7 @@
     <dimen name="data_sheet_header_height">70dp</dimen>
     <dimen name="field_error_padding_bottom">6dp</dimen>
     <!-- TODO: Make dimensions relative using Android data binding. -->
-    <dimen name="feature_sheet_margin_top">10dp</dimen>
+    <dimen name="feature_sheet_margin_top">16dp</dimen>
     <dimen name="feature_header_icon_width">42dp</dimen>
     <dimen name="feature_header_icon_height">42dp</dimen>
     <dimen name="feature_header_icon_background_diameter">58dp</dimen>
@@ -87,6 +87,7 @@
     <dimen name="feature_sheet_header_padding_bottom">16dp</dimen>
     <dimen name="observation_list_item_preview_table_right_margin">18dp</dimen>
     <dimen name="offline_area_toolbar_padding_top">16dp</dimen>
+    <dimen name="feature_sheet_header_height">120dp</dimen>
 
     <!-- Photo bottom dialog -->
     <dimen name="add_photo_bottom_sheet_margin">16dp</dimen>
