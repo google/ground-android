@@ -114,7 +114,6 @@
   your responses and try again.</string>
   <string name="invalid_data_confirm">OK</string>
 
-  <string name="join_project_dialog_title">Join project</string>
   <string name="add_observation_button_label">Observation</string>
   <string name="view_observation_details">View observation details</string>
   <string name="map_view">Map view</string>

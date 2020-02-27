@@ -113,7 +113,7 @@ Tem certeza que deseja apagar o local e todos os dados associados? Isso não pod
   your responses and try again.</string>
   <string name="invalid_data_confirm">OK</string>
 
-  <string name="join_project_dialog_title">Junte-se ao projeto</string>
+  <string name="join_project">Junte-se ao projeto</string>
   <string name="add_observation_button_label">Adicionar registro</string>
   <string name="view_observation_details">Ver detalhes do registro</string>
   <string name="map_view">Visão do mapa</string>
