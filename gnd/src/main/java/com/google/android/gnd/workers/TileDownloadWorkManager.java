@@ -25,14 +25,14 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 
 /** Enqueues file download work to be done in the background. */
-public class FileDownloadWorkManager {
+public class TileDownloadWorkManager {
   private static final Constraints CONSTRAINTS =
       new Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build();
 
   private final Provider<WorkManager> workManagerProvider;
 
   @Inject
-  public FileDownloadWorkManager(Provider<WorkManager> workManagerProvider) {
+  public TileDownloadWorkManager(Provider<WorkManager> workManagerProvider) {
     this.workManagerProvider = workManagerProvider;
   }
 
@@ -55,9 +55,9 @@ public class FileDownloadWorkManager {
   }
 
   private OneTimeWorkRequest buildWorkerRequest(String tileId) {
-    return new OneTimeWorkRequest.Builder(FileDownloadWorker.class)
+    return new OneTimeWorkRequest.Builder(TileDownloadWorker.class)
         .setConstraints(CONSTRAINTS)
-        .setInputData(FileDownloadWorker.createInputData(tileId))
+        .setInputData(TileDownloadWorker.createInputData(tileId))
         .build();
   }
 }
