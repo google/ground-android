@@ -40,11 +40,11 @@ public class TileDownloadWorkManager {
    * Enqueues a worker that downloads files when a network connection is available, returning a
    * completeable upon enqueueing.
    */
-  public Completable enqueueFileDownloadWorker(String tileId) {
-    return Completable.fromRunnable(() -> enqueueFileDownloadWorkerInternal(tileId));
+  public Completable enqueueTileDownloadWorker(String tileId) {
+    return Completable.fromRunnable(() -> enqueueTileDownloadWorkerInternal(tileId));
   }
 
-  private void enqueueFileDownloadWorkerInternal(String tileId) {
+  private void enqueueTileDownloadWorkerInternal(String tileId) {
     OneTimeWorkRequest request = buildWorkerRequest(tileId);
 
     getWorkManager().enqueue(request);
