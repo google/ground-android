@@ -163,16 +163,16 @@ class GoogleMapsMapAdapter implements MapAdapter {
 
   @Override
   public void moveCamera(Point point) {
-    map.moveCamera(CameraUpdateFactory.newLatLng(point.toLatLng()));
+    map.moveCamera(CameraUpdateFactory.newLatLng(toLatLng(point)));
   }
 
   @Override
   public void moveCamera(Point point, float zoomLevel) {
-    map.moveCamera(CameraUpdateFactory.newLatLngZoom(point.toLatLng(), zoomLevel));
+    map.moveCamera(CameraUpdateFactory.newLatLngZoom(toLatLng(point), zoomLevel));
   }
 
   private void addMarker(MapMarker mapMarker, boolean hasPendingWrites, boolean isHighlighted) {
-    LatLng position = mapMarker.getPosition().toLatLng();
+    LatLng position = toLatLng(mapMarker.getPosition());
     // TODO: Change size and color based on hasPendingWrites and isHighlighted.
     Marker marker =
         map.addMarker(new MarkerOptions().position(position).icon(mapMarker.getIcon()).alpha(1.0f));
@@ -189,7 +189,7 @@ class GoogleMapsMapAdapter implements MapAdapter {
 
   @Override
   public Point getCenter() {
-    return Point.fromLatLng(map.getCameraPosition().target);
+    return fromLatLng(map.getCameraPosition().target);
   }
 
   @Override
@@ -229,6 +229,14 @@ class GoogleMapsMapAdapter implements MapAdapter {
               });
     }
     stream(newFeatures).forEach(this::addMarker);
+  }
+
+  private static Point fromLatLng(LatLng latLng) {
+    return Point.newBuilder().setLatitude(latLng.latitude).setLongitude(latLng.longitude).build();
+  }
+
+  private static LatLng toLatLng(Point point) {
+    return new LatLng(point.getLatitude(), point.getLongitude());
   }
 
   private Optional<MapMarker> getMapMarker(Marker marker) {
@@ -284,7 +292,7 @@ class GoogleMapsMapAdapter implements MapAdapter {
 
   private void onCameraMove() {
     LatLng cameraTarget = map.getCameraPosition().target;
-    Point target = Point.fromLatLng(cameraTarget);
+    Point target = fromLatLng(cameraTarget);
     cameraPositionSubject.onNext(target);
     if (cameraTargetBeforeDrag != null && !cameraTarget.equals(cameraTargetBeforeDrag)) {
       dragInteractionSubject.onNext(target);
