@@ -206,7 +206,7 @@ class GoogleMapsMapAdapter implements MapAdapter {
   }
 
   @Override
-  public void updateMarkers(ImmutableSet<Feature> features) {
+  public void setFeatures(ImmutableSet<Feature> features) {
     if (features.isEmpty()) {
       removeAllMarkers();
       return;

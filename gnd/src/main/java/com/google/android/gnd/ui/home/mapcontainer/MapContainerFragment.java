@@ -125,7 +125,7 @@ public class MapContainerFragment extends AbstractFragment {
   private void onMapReady(MapAdapter map) {
     Log.d(TAG, "MapAdapter ready. Updating subscriptions");
     // Observe events emitted by the ViewModel.
-    mapContainerViewModel.getFeatures().observe(this, map::updateMarkers);
+    mapContainerViewModel.getFeatures().observe(this, map::setFeatures);
     mapContainerViewModel
         .getLocationLockState()
         .observe(this, state -> onLocationLockStateChange(state, map));
