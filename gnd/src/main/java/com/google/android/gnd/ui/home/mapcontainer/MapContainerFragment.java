@@ -43,8 +43,8 @@ import com.google.android.gnd.system.SettingsManager.SettingsChangeRequestCancel
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.home.FeatureSheetState;
 import com.google.android.gnd.ui.home.HomeScreenViewModel;
+import com.google.android.gnd.ui.map.MapAdapter;
 import com.google.android.gnd.ui.map.MapProvider;
-import com.google.android.gnd.ui.map.MapProvider.MapAdapter;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import io.reactivex.Single;
 import javax.inject.Inject;

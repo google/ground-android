@@ -19,6 +19,7 @@ package com.google.android.gnd.ui.map.gms;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import com.google.android.gnd.ui.MarkerIconFactory;
+import com.google.android.gnd.ui.map.MapAdapter;
 import com.google.android.gnd.ui.map.MapProvider;
 import io.reactivex.Single;
 import io.reactivex.subjects.SingleSubject;

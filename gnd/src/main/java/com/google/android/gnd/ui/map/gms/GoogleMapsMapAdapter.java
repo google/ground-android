@@ -36,8 +36,8 @@ import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.model.layer.Style;
 import com.google.android.gnd.ui.MarkerIconFactory;
+import com.google.android.gnd.ui.map.MapAdapter;
 import com.google.android.gnd.ui.map.MapMarker;
-import com.google.android.gnd.ui.map.MapProvider.MapAdapter;
 import com.google.common.collect.ImmutableSet;
 import com.google.maps.android.data.geojson.GeoJsonLayer;
 import io.reactivex.Observable;
@@ -71,9 +71,7 @@ class GoogleMapsMapAdapter implements MapAdapter {
   private final Context context;
   private final MarkerIconFactory markerIconFactory;
 
-  /**
-   * Map of ids to map markers. Used to update and remove markers.
-   */
+  /** Map of ids to map markers. Used to update and remove markers. */
   private java.util.Map<String, Marker> markers = new HashMap<>();
 
   private final PublishSubject<MapMarker> markerClickSubject = PublishSubject.create();
