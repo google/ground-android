@@ -54,7 +54,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.Set;
-import java8.util.Optional;
 import javax.annotation.Nullable;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -203,29 +202,26 @@ class GoogleMapsMapAdapter implements MapAdapter {
   }
 
   @Override
-  public void setFeatures(ImmutableSet<Feature> features) {
-    if (features.isEmpty()) {
+  public void setFeatures(ImmutableSet<Feature> updatedFeatures) {
+    if (updatedFeatures.isEmpty()) {
       removeAllMarkers();
       return;
     }
-    Set<Feature> newFeatures = new HashSet<>(features);
+    Set<Feature> featuresToAdd = new HashSet<>(updatedFeatures);
     Iterator<Entry<String, Marker>> it = markers.entrySet().iterator();
     while (it.hasNext()) {
       Entry<String, Marker> entry = it.next();
       Marker marker = entry.getValue();
-      getMapPin(marker)
-          .flatMap(MapPin::getFeature)
-          .ifPresent(
-              feature -> {
-                if (features.contains(feature)) {
-                  newFeatures.remove(feature);
-                } else {
-                  removeMarker(marker);
-                  it.remove();
-                }
-              });
+      MapPin pin = getMapPin(marker);
+      Feature feature = pin.getFeature();
+      if (updatedFeatures.contains(feature)) {
+        featuresToAdd.remove(feature);
+      } else {
+        removeMarker(marker);
+        it.remove();
+      }
     }
-    stream(newFeatures).forEach(this::addMarker);
+    stream(featuresToAdd).forEach(this::addMarker);
   }
 
   private static Point fromLatLng(LatLng latLng) {
@@ -236,9 +232,8 @@ class GoogleMapsMapAdapter implements MapAdapter {
     return new LatLng(point.getLatitude(), point.getLongitude());
   }
 
-  private Optional<MapPin> getMapPin(Marker marker) {
-    Object tag = marker.getTag();
-    return tag != null && tag instanceof MapPin ? Optional.of((MapPin) tag) : Optional.empty();
+  private MapPin getMapPin(Marker marker) {
+    return (MapPin) marker.getTag();
   }
 
   private void removeMarker(Marker marker) {
@@ -258,7 +253,7 @@ class GoogleMapsMapAdapter implements MapAdapter {
             .setId(feature.getId())
             .setPosition(feature.getPoint())
             .setIcon(icon)
-            .setObject(feature)
+            .setFeature(feature)
             .build(),
         false,
         false);

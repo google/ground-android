@@ -125,7 +125,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
 
   // TODO: Remove extra indirection here?
   public void onMarkerClick(MapPin marker) {
-    marker.getFeature().ifPresent(this::showFeatureSheet);
+    showFeatureSheet(marker.getFeature());
   }
 
   private void showFeatureSheet(Feature feature) {
