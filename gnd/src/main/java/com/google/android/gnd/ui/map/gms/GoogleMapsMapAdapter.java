@@ -49,10 +49,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Map.Entry;
 import java.util.Set;
 import javax.annotation.Nullable;
 import org.json.JSONException;
@@ -70,8 +68,11 @@ class GoogleMapsMapAdapter implements MapAdapter {
   private final Context context;
   private final MarkerIconFactory markerIconFactory;
 
-  /** Map of ids to map markers. Used to update and remove markers. */
-  private java.util.Map<String, Marker> markers = new HashMap<>();
+  /**
+   * References to Google Maps SDK Markers present on the map. Used to sync and update markers with
+   * current view and data state.
+   */
+  private Set<Marker> markers = new HashSet<>();
 
   private final PublishSubject<MapPin> markerClickSubject = PublishSubject.create();
   private final PublishSubject<Point> dragInteractionSubject = PublishSubject.create();
@@ -172,14 +173,12 @@ class GoogleMapsMapAdapter implements MapAdapter {
     // TODO: Change size and color based on hasPendingWrites and isHighlighted.
     Marker marker =
         map.addMarker(new MarkerOptions().position(position).icon(mapPin.getIcon()).alpha(1.0f));
-    markers.put(mapPin.getId(), marker);
     marker.setTag(mapPin);
+    markers.add(marker);
   }
 
   private void removeAllMarkers() {
-    for (Marker marker : markers.values()) {
-      marker.remove();
-    }
+    stream(markers).forEach(Marker::remove);
     markers.clear();
   }
 
@@ -208,12 +207,11 @@ class GoogleMapsMapAdapter implements MapAdapter {
       return;
     }
     Set<Feature> featuresToAdd = new HashSet<>(updatedFeatures);
-    Iterator<Entry<String, Marker>> it = markers.entrySet().iterator();
+    Iterator<Marker> it = markers.iterator();
     while (it.hasNext()) {
-      Entry<String, Marker> entry = it.next();
-      Marker marker = entry.getValue();
+      Marker marker = it.next();
       MapPin pin = getMapPin(marker);
-      Feature feature = pin.getFeature();
+      Feature feature  = pin.getFeature();
       if (updatedFeatures.contains(feature)) {
         featuresToAdd.remove(feature);
       } else {
