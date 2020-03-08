@@ -28,6 +28,9 @@ import io.reactivex.Observable;
  */
 public interface MapAdapter {
 
+  /**
+   * Returns a stream that emits a markers clicked by the user.
+   */
   Observable<MapMarker> getMarkerClicks();
 
   /**
