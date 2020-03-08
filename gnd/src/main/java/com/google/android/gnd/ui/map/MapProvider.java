@@ -46,7 +46,7 @@ public interface MapProvider {
     Observable<Point> getDragInteractions();
 
     /** Returns a stream that emits the viewport center on each camera movement. */
-    Observable<Point> getCameraPosition();
+    Observable<Point> getCameraMoves();
 
     /** Enables map gestures like pan and zoom. */
     void enable();

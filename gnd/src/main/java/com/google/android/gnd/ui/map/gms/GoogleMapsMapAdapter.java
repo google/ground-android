@@ -79,7 +79,7 @@ class GoogleMapsMapAdapter implements MapAdapter {
 
   private final PublishSubject<MapMarker> markerClickSubject = PublishSubject.create();
   private final PublishSubject<Point> dragInteractionSubject = PublishSubject.create();
-  private final BehaviorSubject<Point> cameraPositionSubject = BehaviorSubject.create();
+  private final BehaviorSubject<Point> cameraMoves = BehaviorSubject.create();
 
   @Nullable private LatLng cameraTargetBeforeDrag;
 
@@ -147,8 +147,8 @@ class GoogleMapsMapAdapter implements MapAdapter {
   }
 
   @Override
-  public Observable<Point> getCameraPosition() {
-    return cameraPositionSubject;
+  public Observable<Point> getCameraMoves() {
+    return cameraMoves;
   }
 
   @Override
@@ -293,7 +293,7 @@ class GoogleMapsMapAdapter implements MapAdapter {
   private void onCameraMove() {
     LatLng cameraTarget = map.getCameraPosition().target;
     Point target = fromLatLng(cameraTarget);
-    cameraPositionSubject.onNext(target);
+    cameraMoves.onNext(target);
     if (cameraTargetBeforeDrag != null && !cameraTarget.equals(cameraTargetBeforeDrag)) {
       dragInteractionSubject.onNext(target);
     }

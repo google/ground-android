@@ -97,7 +97,7 @@ public class MapContainerFragment extends AbstractFragment {
         .subscribe(mapContainerViewModel::onMapDrag);
     mapAdapter
         .toObservable()
-        .flatMap(MapAdapter::getCameraPosition)
+        .flatMap(MapAdapter::getCameraMoves)
         .as(disposeOnDestroy(this))
         .subscribe(mapContainerViewModel::onCameraMove);
   }
