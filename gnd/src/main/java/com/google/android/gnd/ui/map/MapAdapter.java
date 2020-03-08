@@ -28,10 +28,8 @@ import io.reactivex.Observable;
  */
 public interface MapAdapter {
 
-  /**
-   * Returns a stream that emits a markers clicked by the user.
-   */
-  Observable<MapMarker> getMarkerClicks();
+  /** Returns a stream that emits map pin sclicked by the user. */
+  Observable<MapPin> getMapPinClicks();
 
   /**
    * Returns a stream that emits the new viewport center each time the map is dragged by the user.

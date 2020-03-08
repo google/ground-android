@@ -24,7 +24,7 @@ import java8.util.Optional;
 import javax.annotation.Nullable;
 
 @AutoValue
-public abstract class MapMarker {
+public abstract class MapPin {
 
   public abstract String getId();
 
@@ -42,7 +42,7 @@ public abstract class MapMarker {
   }
 
   public static Builder newBuilder() {
-    return new AutoValue_MapMarker.Builder();
+    return new AutoValue_MapPin.Builder();
   }
 
   @AutoValue.Builder
@@ -55,6 +55,6 @@ public abstract class MapMarker {
 
     public abstract Builder setObject(Object newObject);
 
-    public abstract MapMarker build();
+    public abstract MapPin build();
   }
 }

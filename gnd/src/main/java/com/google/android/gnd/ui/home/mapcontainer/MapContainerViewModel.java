@@ -30,7 +30,7 @@ import com.google.android.gnd.rx.Loadable;
 import com.google.android.gnd.system.LocationManager;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.common.SharedViewModel;
-import com.google.android.gnd.ui.map.MapMarker;
+import com.google.android.gnd.ui.map.MapPin;
 import com.google.common.collect.ImmutableSet;
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Flowable;
@@ -162,7 +162,7 @@ public class MapContainerViewModel extends AbstractViewModel {
     }
   }
 
-  public void onMarkerClick(MapMarker mapMarker) {
+  public void onMarkerClick(MapPin mapMarker) {
     panAndZoomCamera(mapMarker.getPosition());
   }
 

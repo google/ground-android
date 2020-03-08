@@ -82,12 +82,12 @@ public class MapContainerFragment extends AbstractFragment {
     mapAdapter.as(autoDisposable(this)).subscribe(this::onMapReady);
     mapAdapter
         .toObservable()
-        .flatMap(MapAdapter::getMarkerClicks)
+        .flatMap(MapAdapter::getMapPinClicks)
         .as(disposeOnDestroy(this))
         .subscribe(mapContainerViewModel::onMarkerClick);
     mapAdapter
         .toObservable()
-        .flatMap(MapAdapter::getMarkerClicks)
+        .flatMap(MapAdapter::getMapPinClicks)
         .as(disposeOnDestroy(this))
         .subscribe(homeScreenViewModel::onMarkerClick);
     mapAdapter

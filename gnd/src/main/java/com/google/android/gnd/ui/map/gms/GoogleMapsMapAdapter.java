@@ -37,7 +37,7 @@ import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.model.layer.Style;
 import com.google.android.gnd.ui.MarkerIconFactory;
 import com.google.android.gnd.ui.map.MapAdapter;
-import com.google.android.gnd.ui.map.MapMarker;
+import com.google.android.gnd.ui.map.MapPin;
 import com.google.common.collect.ImmutableSet;
 import com.google.maps.android.data.geojson.GeoJsonLayer;
 import io.reactivex.Observable;
@@ -74,7 +74,7 @@ class GoogleMapsMapAdapter implements MapAdapter {
   /** Map of ids to map markers. Used to update and remove markers. */
   private java.util.Map<String, Marker> markers = new HashMap<>();
 
-  private final PublishSubject<MapMarker> markerClickSubject = PublishSubject.create();
+  private final PublishSubject<MapPin> markerClickSubject = PublishSubject.create();
   private final PublishSubject<Point> dragInteractionSubject = PublishSubject.create();
   private final BehaviorSubject<Point> cameraMoves = BehaviorSubject.create();
 
@@ -124,7 +124,7 @@ class GoogleMapsMapAdapter implements MapAdapter {
 
   private boolean onMarkerClick(Marker marker) {
     if (map.getUiSettings().isZoomGesturesEnabled()) {
-      markerClickSubject.onNext((MapMarker) marker.getTag());
+      markerClickSubject.onNext((MapPin) marker.getTag());
       // Allow map to pan to marker.
       return false;
     } else {
@@ -134,7 +134,7 @@ class GoogleMapsMapAdapter implements MapAdapter {
   }
 
   @Override
-  public Observable<MapMarker> getMarkerClicks() {
+  public Observable<MapPin> getMapPinClicks() {
     return markerClickSubject;
   }
 
@@ -168,13 +168,13 @@ class GoogleMapsMapAdapter implements MapAdapter {
     map.moveCamera(CameraUpdateFactory.newLatLngZoom(toLatLng(point), zoomLevel));
   }
 
-  private void addMarker(MapMarker mapMarker, boolean hasPendingWrites, boolean isHighlighted) {
-    LatLng position = toLatLng(mapMarker.getPosition());
+  private void addMapPin(MapPin mapPin, boolean hasPendingWrites, boolean isHighlighted) {
+    LatLng position = toLatLng(mapPin.getPosition());
     // TODO: Change size and color based on hasPendingWrites and isHighlighted.
     Marker marker =
-        map.addMarker(new MarkerOptions().position(position).icon(mapMarker.getIcon()).alpha(1.0f));
-    markers.put(mapMarker.getId(), marker);
-    marker.setTag(mapMarker);
+        map.addMarker(new MarkerOptions().position(position).icon(mapPin.getIcon()).alpha(1.0f));
+    markers.put(mapPin.getId(), marker);
+    marker.setTag(mapPin);
   }
 
   private void removeAllMarkers() {
@@ -213,8 +213,8 @@ class GoogleMapsMapAdapter implements MapAdapter {
     while (it.hasNext()) {
       Entry<String, Marker> entry = it.next();
       Marker marker = entry.getValue();
-      getMapMarker(marker)
-          .flatMap(MapMarker::getFeature)
+      getMapPin(marker)
+          .flatMap(MapPin::getFeature)
           .ifPresent(
               feature -> {
                 if (features.contains(feature)) {
@@ -236,11 +236,9 @@ class GoogleMapsMapAdapter implements MapAdapter {
     return new LatLng(point.getLatitude(), point.getLongitude());
   }
 
-  private Optional<MapMarker> getMapMarker(Marker marker) {
+  private Optional<MapPin> getMapPin(Marker marker) {
     Object tag = marker.getTag();
-    return tag != null && tag instanceof MapMarker
-        ? Optional.of((MapMarker) tag)
-        : Optional.empty();
+    return tag != null && tag instanceof MapPin ? Optional.of((MapPin) tag) : Optional.empty();
   }
 
   private void removeMarker(Marker marker) {
@@ -255,8 +253,8 @@ class GoogleMapsMapAdapter implements MapAdapter {
     String color = style == null ? null : style.getColor();
     BitmapDescriptor icon = markerIconFactory.getMarkerIcon(parseColor(color));
     // TODO: Reimplement hasPendingWrites.
-    addMarker(
-        MapMarker.newBuilder()
+    addMapPin(
+        MapPin.newBuilder()
             .setId(feature.getId())
             .setPosition(feature.getPoint())
             .setIcon(icon)
