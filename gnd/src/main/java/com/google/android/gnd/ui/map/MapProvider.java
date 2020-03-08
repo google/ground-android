@@ -67,7 +67,7 @@ public interface MapProvider {
     void moveCamera(Point point, float zoomLevel);
 
     /** Returns the current center of the viewport. */
-    Point getCenter();
+    Point getCameraTarget();
 
     /** Returns the current map zoom level. */
     float getCurrentZoomLevel();

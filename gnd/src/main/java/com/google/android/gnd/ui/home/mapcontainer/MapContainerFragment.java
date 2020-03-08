@@ -137,7 +137,7 @@ public class MapContainerFragment extends AbstractFragment {
         .getFeatureSheetState()
         .observe(this, state -> onFeatureSheetStateChange(state, map));
     addFeatureBtn.setOnClickListener(
-        __ -> homeScreenViewModel.onAddFeatureBtnClick(map.getCenter()));
+        __ -> homeScreenViewModel.onAddFeatureBtnClick(map.getCameraTarget()));
     enableLocationLockBtn();
   }
 

@@ -188,7 +188,7 @@ class GoogleMapsMapAdapter implements MapAdapter {
   }
 
   @Override
-  public Point getCenter() {
+  public Point getCameraTarget() {
     return fromLatLng(map.getCameraPosition().target);
   }
 
