@@ -40,25 +40,43 @@ public interface MapProvider {
 
     Observable<MapMarker> getMarkerClicks();
 
+    /**
+     * Returns a stream that emits the new viewport center each time the map is dragged by the user.
+     */
     Observable<Point> getDragInteractions();
 
+    /** Returns a stream that emits the viewport center on each camera movement. */
     Observable<Point> getCameraPosition();
 
+    /** Enables map gestures like pan and zoom. */
     void enable();
 
+    /** Disables all map gestures like pan and zoom. */
     void disable();
 
+    /**
+     * Repositions the viewport centered around the specified point without changing the current
+     * zoom level.
+     */
     void moveCamera(Point point);
 
+    /**
+     * Repositions the viewport centered around the specified point while also updating the current
+     * zoom level.
+     */
     void moveCamera(Point point, float zoomLevel);
 
+    /** Returns the current center of the viewport. */
     Point getCenter();
 
+    /** Returns the current map zoom level. */
     float getCurrentZoomLevel();
 
+    /** Displays user location indicator on the map. */
     @SuppressLint("MissingPermission")
     void enableCurrentLocationIndicator();
 
-    void updateMarkers(ImmutableSet<Feature> features);
+    /** Update the vector features visible on the map. */
+    void setFeatures(ImmutableSet<Feature> features);
   }
 }
