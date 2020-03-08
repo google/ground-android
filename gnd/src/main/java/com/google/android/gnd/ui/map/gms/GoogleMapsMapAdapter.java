@@ -210,8 +210,8 @@ class GoogleMapsMapAdapter implements MapAdapter {
     Iterator<Marker> it = markers.iterator();
     while (it.hasNext()) {
       Marker marker = it.next();
-      MapPin pin = getMapPin(marker);
-      Feature feature  = pin.getFeature();
+      MapPin pin = (MapPin) marker.getTag();
+      Feature feature = pin.getFeature();
       if (updatedFeatures.contains(feature)) {
         featuresToAdd.remove(feature);
       } else {
@@ -228,10 +228,6 @@ class GoogleMapsMapAdapter implements MapAdapter {
 
   private static LatLng toLatLng(Point point) {
     return new LatLng(point.getLatitude(), point.getLongitude());
-  }
-
-  private MapPin getMapPin(Marker marker) {
-    return (MapPin) marker.getTag();
   }
 
   private void removeMarker(Marker marker) {
