@@ -60,7 +60,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
- * Wrapper around {@link GoogleMap}, exposing Google Maps API functionality to Ground as a {@link
+ * Wrapper around {@link GoogleMap}, exposing Google Maps SDK functionality to Ground as a {@link
  * MapAdapter}.
  */
 class GoogleMapsMapAdapter implements MapAdapter {
@@ -72,8 +72,7 @@ class GoogleMapsMapAdapter implements MapAdapter {
   private final MarkerIconFactory markerIconFactory;
 
   /**
-   * Cache of ids to map markers. We don't mind this being destroyed on lifecycle events since the
-   * GoogleMap markers themselves are destroyed as well.
+   * Map of ids to map markers. Used to update and remove markers.
    */
   private java.util.Map<String, Marker> markers = new HashMap<>();
 
