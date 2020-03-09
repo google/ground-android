@@ -16,6 +16,9 @@
 
 package com.google.android.gnd.ui.home.mapcontainer;
 
+import static com.google.android.gnd.util.ImmutableSetCollector.toImmutableSet;
+import static java8.util.stream.StreamSupport.stream;
+
 import android.util.Log;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
@@ -46,7 +49,7 @@ public class MapContainerViewModel extends AbstractViewModel {
   private static final String TAG = MapContainerViewModel.class.getSimpleName();
   private static final float DEFAULT_ZOOM_LEVEL = 20.0f;
   private final LiveData<Loadable<Project>> activeProject;
-  private final LiveData<ImmutableSet<Feature>> features;
+  private final LiveData<ImmutableSet<MapPin>> mapPins;
   private final LiveData<BooleanOrError> locationLockState;
   private final LiveData<CameraUpdate> cameraUpdateRequests;
   private final MutableLiveData<Point> cameraPosition;
@@ -78,12 +81,13 @@ public class MapContainerViewModel extends AbstractViewModel {
     // TODO: Clear feature markers when project is deactivated.
     // TODO: Since we depend on project stream from repo anyway, this transformation can be moved
     // into the repo?
-    this.features =
+    this.mapPins =
         LiveDataReactiveStreams.fromPublisher(
             projectRepository
                 .getActiveProjectOnceAndStream()
                 .map(Loadable::value)
-                .switchMap(this::getFeaturesStream));
+                .switchMap(this::getFeaturesStream)
+                .map(MapContainerViewModel::toMapPins));
   }
 
   private Flowable<CameraUpdate> createCameraUpdateFlowable(
@@ -127,12 +131,25 @@ public class MapContainerViewModel extends AbstractViewModel {
         .orElse(Flowable.just(ImmutableSet.of()));
   }
 
+  private static ImmutableSet<MapPin> toMapPins(ImmutableSet<Feature> features) {
+    return stream(features).map(MapContainerViewModel::toMapPin).collect(toImmutableSet());
+  }
+
+  private static MapPin toMapPin(Feature feature) {
+    return MapPin.newBuilder()
+        .setId(feature.getId())
+        .setPosition(feature.getPoint())
+        .setStyle(feature.getLayer().getDefaultStyle())
+        .setFeature(feature)
+        .build();
+  }
+
   public LiveData<Loadable<Project>> getActiveProject() {
     return activeProject;
   }
 
-  public LiveData<ImmutableSet<Feature>> getFeatures() {
-    return features;
+  public LiveData<ImmutableSet<MapPin>> getMapPins() {
+    return mapPins;
   }
 
   LiveData<CameraUpdate> getCameraUpdateRequests() {
