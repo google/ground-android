@@ -168,9 +168,8 @@ class GoogleMapsMapAdapter implements MapAdapter {
     map.moveCamera(CameraUpdateFactory.newLatLngZoom(toLatLng(point), zoomLevel));
   }
 
-  private void addMapPin(MapPin mapPin, boolean hasPendingWrites, boolean isHighlighted) {
+  private void addMapPin(MapPin mapPin) {
     LatLng position = toLatLng(mapPin.getPosition());
-    // TODO: Change size and color based on hasPendingWrites and isHighlighted.
     Marker marker =
         map.addMarker(new MarkerOptions().position(position).icon(mapPin.getIcon()).alpha(1.0f));
     marker.setTag(mapPin);
@@ -241,16 +240,13 @@ class GoogleMapsMapAdapter implements MapAdapter {
     Style style = layer.getDefaultStyle();
     String color = style == null ? null : style.getColor();
     BitmapDescriptor icon = markerIconFactory.getMarkerIcon(parseColor(color));
-    // TODO: Reimplement hasPendingWrites.
     addMapPin(
         MapPin.newBuilder()
             .setId(feature.getId())
             .setPosition(feature.getPoint())
             .setIcon(icon)
             .setFeature(feature)
-            .build(),
-        false,
-        false);
+            .build());
   }
 
   private int parseColor(@Nullable String colorHexCode) {
