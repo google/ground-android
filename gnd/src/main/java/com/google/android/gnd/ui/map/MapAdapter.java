@@ -28,7 +28,7 @@ import io.reactivex.Observable;
  */
 public interface MapAdapter {
 
-  /** Returns a stream that emits map pin sclicked by the user. */
+  /** Returns a stream that emits map pins clicked by the user. */
   Observable<MapPin> getMapPinClicks();
 
   /**
@@ -67,6 +67,6 @@ public interface MapAdapter {
   @SuppressLint("MissingPermission")
   void enableCurrentLocationIndicator();
 
-  /** Update the vector features visible on the map. */
-  void setFeatures(ImmutableSet<Feature> features);
+  /** Update map pins shown on map. */
+  void setMapPins(ImmutableSet<MapPin> pins);
 }
