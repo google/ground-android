@@ -20,6 +20,7 @@ import androidx.annotation.NonNull;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.Point;
+import com.google.android.gnd.model.layer.Style;
 import com.google.auto.value.AutoValue;
 
 @AutoValue
@@ -29,7 +30,7 @@ public abstract class MapPin {
 
   public abstract Point getPosition();
 
-  public abstract BitmapDescriptor getIcon();
+  public abstract Style getStyle();
 
   // TODO: Stop embedding entire Feature in pins to free up memory. Instead, copy only details
   // relevant to rendering pins and uuid to reference the related Feature.
@@ -46,7 +47,7 @@ public abstract class MapPin {
 
     public abstract Builder setPosition(Point newPosition);
 
-    public abstract Builder setIcon(BitmapDescriptor icon);
+    public abstract Builder setStyle(Style style);
 
     public abstract Builder setFeature(Feature newFeature);
 

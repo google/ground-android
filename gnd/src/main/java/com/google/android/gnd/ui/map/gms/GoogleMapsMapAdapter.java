@@ -31,10 +31,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gnd.R;
-import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.Point;
-import com.google.android.gnd.model.layer.Layer;
-import com.google.android.gnd.model.layer.Style;
 import com.google.android.gnd.ui.MarkerIconFactory;
 import com.google.android.gnd.ui.map.MapAdapter;
 import com.google.android.gnd.ui.map.MapPin;
@@ -170,8 +167,9 @@ class GoogleMapsMapAdapter implements MapAdapter {
 
   private void addMapPin(MapPin mapPin) {
     LatLng position = toLatLng(mapPin.getPosition());
-    Marker marker =
-        map.addMarker(new MarkerOptions().position(position).icon(mapPin.getIcon()).alpha(1.0f));
+    String color = mapPin.getStyle().getColor();
+    BitmapDescriptor icon = markerIconFactory.getMarkerIcon(parseColor(color));
+    Marker marker = map.addMarker(new MarkerOptions().position(position).icon(icon).alpha(1.0f));
     marker.setTag(mapPin);
     markers.add(marker);
   }
@@ -200,25 +198,26 @@ class GoogleMapsMapAdapter implements MapAdapter {
   }
 
   @Override
-  public void setFeatures(ImmutableSet<Feature> updatedFeatures) {
-    if (updatedFeatures.isEmpty()) {
+  public void setMapPins(ImmutableSet<MapPin> updatedPins) {
+    if (updatedPins.isEmpty()) {
       removeAllMarkers();
       return;
     }
-    Set<Feature> featuresToAdd = new HashSet<>(updatedFeatures);
+    Set<MapPin> pinsToAdd = new HashSet<>(updatedPins);
     Iterator<Marker> it = markers.iterator();
     while (it.hasNext()) {
       Marker marker = it.next();
       MapPin pin = (MapPin) marker.getTag();
-      Feature feature = pin.getFeature();
-      if (updatedFeatures.contains(feature)) {
-        featuresToAdd.remove(feature);
+      if (updatedPins.contains(pin)) {
+        // If pin already exists on map, don't add it.
+        pinsToAdd.remove(pin);
       } else {
+        // Remove existing pins not in list of updatedPins.
         removeMarker(marker);
         it.remove();
       }
     }
-    stream(featuresToAdd).forEach(this::addMarker);
+    stream(pinsToAdd).forEach(this::addMapPin);
   }
 
   private static Point fromLatLng(LatLng latLng) {
@@ -234,22 +233,7 @@ class GoogleMapsMapAdapter implements MapAdapter {
     marker.remove();
   }
 
-  private void addMarker(Feature feature) {
-    Log.v(TAG, "Adding marker for " + feature.getId());
-    Layer layer = feature.getLayer();
-    Style style = layer.getDefaultStyle();
-    String color = style == null ? null : style.getColor();
-    BitmapDescriptor icon = markerIconFactory.getMarkerIcon(parseColor(color));
-    addMapPin(
-        MapPin.newBuilder()
-            .setId(feature.getId())
-            .setPosition(feature.getPoint())
-            .setIcon(icon)
-            .setFeature(feature)
-            .build());
-  }
-
-  private int parseColor(@Nullable String colorHexCode) {
+  private int parseColor(@javax.annotation.Nullable String colorHexCode) {
     try {
       return Color.parseColor(String.valueOf(colorHexCode));
     } catch (IllegalArgumentException e) {
