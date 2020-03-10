@@ -17,7 +17,6 @@
 package com.google.android.gnd.ui.map;
 
 import androidx.annotation.NonNull;
-import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.model.layer.Style;

@@ -17,7 +17,6 @@
 package com.google.android.gnd.ui.map;
 
 import android.annotation.SuppressLint;
-import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.Point;
 import com.google.common.collect.ImmutableSet;
 import io.reactivex.Observable;

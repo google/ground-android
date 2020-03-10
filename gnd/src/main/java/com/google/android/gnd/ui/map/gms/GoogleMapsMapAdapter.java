@@ -233,7 +233,7 @@ class GoogleMapsMapAdapter implements MapAdapter {
     marker.remove();
   }
 
-  private int parseColor(@javax.annotation.Nullable String colorHexCode) {
+  private int parseColor(@Nullable String colorHexCode) {
     try {
       return Color.parseColor(String.valueOf(colorHexCode));
     } catch (IllegalArgumentException e) {
