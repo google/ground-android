@@ -17,18 +17,31 @@
   -->
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-  <group android:checkableBehavior="single">
+  <item
+    android:id="@+id/nav_join_project"
+    android:icon="@drawable/ic_add_light"
+    android:title="@string/join_project" />
+  <group
+    android:id="@+id/group_projects"
+    android:checkableBehavior="single">
+    <item android:title="@string/select_project_menu_item">
+      <menu>
+        <group
+          android:id="@+id/group_join_project"
+          android:checkableBehavior="single" />
+      </menu>
+    </item>
+  </group>
+  <group
+    android:id="@+id/group_other"
+    android:checkableBehavior="none">
     <item
-        android:id="@+id/nav_join_project"
-        android:icon="@drawable/ic_menu_project"
-        android:title="@string/select_project_menu_item"/>
+      android:id="@+id/nav_offline_areas"
+      android:icon="@drawable/ic_cloud_offline"
+      android:title="@string/offline_areas" />
     <item
-        android:id="@+id/nav_offline_areas"
-        android:icon="@drawable/ic_cloud_offline"
-        android:title="@string/offline_areas"/>
-    <item
-        android:id="@+id/nav_sign_out"
-        android:icon="@drawable/ic_sign_out"
-        android:title="@string/sign_out"/>
+      android:id="@+id/nav_sign_out"
+      android:icon="@drawable/ic_sign_out"
+      android:title="@string/sign_out" />
   </group>
 </menu>
