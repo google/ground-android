@@ -131,8 +131,8 @@ public class ProjectRepository {
         .compose(Loadable::loadingOnceAndWrap);
   }
 
-  public Flowable<Loadable<List<Project>>> getOfflineProjectsOnceAndStream() {
-    return localDataStore.getProjects().toFlowable().compose(Loadable::loadingOnceAndWrap);
+  public Single<List<Project>> getOfflineProjects() {
+    return localDataStore.getProjects();
   }
 
   private Single<List<Project>> loadProjectSummariesFromRemote(User user) {

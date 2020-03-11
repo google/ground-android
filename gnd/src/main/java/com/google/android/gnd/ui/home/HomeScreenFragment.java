@@ -48,6 +48,7 @@ import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.rx.Loadable;
+import com.google.android.gnd.rx.Schedulers;
 import com.google.android.gnd.system.AuthenticationManager;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.BackPressListener;
@@ -81,6 +82,7 @@ public class HomeScreenFragment extends AbstractFragment
 
   @Inject AddFeatureDialogFragment addFeatureDialogFragment;
   @Inject AuthenticationManager authenticationManager;
+  @Inject Schedulers schedulers;
 
   @BindView(R.id.toolbar_wrapper)
   ViewGroup toolbarWrapper;
@@ -173,24 +175,16 @@ public class HomeScreenFragment extends AbstractFragment
     } else {
       mapContainerFragment = restoreChildFragment(savedInstanceState, MapContainerFragment.class);
     }
-
-    projectSelectorViewModel.getOfflineProjects().observe(this, this::updateNavDrawer);
   }
 
-  private void updateNavDrawer(Loadable<List<Project>> projectSummaries) {
-    switch (projectSummaries.getState()) {
-      case LOADING:
-      case NOT_FOUND:
-      case ERROR:
-        // TODO: Update UI
-        break;
-      case LOADED:
-        projectSummaries.value().ifPresent(this::addProjectToNavDrawer);
-        break;
-      default:
-        Log.e(TAG, "Unhandled state: " + projectSummaries.getState());
-        break;
-    }
+  /** Fetches offline saved projects and adds them to navigation drawer */
+  private void updateNavDrawer() {
+    projectSelectorViewModel
+        .getOfflineProjects()
+        .subscribeOn(schedulers.io())
+        .observeOn(schedulers.ui())
+        .as(autoDisposable(this))
+        .subscribe(this::addProjectToNavDrawer);
   }
 
   private MenuItem getProjectsNavItem() {
@@ -209,6 +203,13 @@ public class HomeScreenFragment extends AbstractFragment
           .getSubMenu()
           .add(R.id.group_join_project, Menu.NONE, index, projects.get(index).getTitle())
           .setIcon(R.drawable.ic_menu_project);
+    }
+
+    // Highlight active project
+    Loadable<Project> activeProject = viewModel.getActiveProject().getValue();
+    if (activeProject != null) {
+      int index = getSelectedProjectIndex(activeProject.value().get());
+      updateSelectedProjectUI(index);
     }
   }
 
@@ -329,10 +330,7 @@ public class HomeScreenFragment extends AbstractFragment
         break;
       case LOADED:
         dismissLoadingDialog();
-        if (projects != null) {
-          int index = getSelectedProjectIndex(project.value().get());
-          updateSelectedProjectUI(index);
-        }
+        updateNavDrawer();
         break;
       case LOADING:
         showProjectLoadingDialog();
@@ -342,7 +340,7 @@ public class HomeScreenFragment extends AbstractFragment
         project.error().ifPresent(this::onActivateProjectFailure);
         break;
       default:
-        Log.e(TAG, "Unhandled case: " + project.getState());
+        Timber.e("Unhandled case: " + project.getState());
         break;
     }
   }
@@ -428,7 +426,8 @@ public class HomeScreenFragment extends AbstractFragment
   @Override
   public boolean onNavigationItemSelected(@NonNull MenuItem item) {
     if (item.getGroupId() == R.id.group_join_project) {
-      projectSelectorViewModel.activateOfflineProject(item.getOrder());
+      Project selectedProject = projects.get(item.getOrder());
+      projectSelectorViewModel.activateOfflineProject(selectedProject.getId());
       closeDrawer();
     } else {
       switch (item.getItemId()) {
