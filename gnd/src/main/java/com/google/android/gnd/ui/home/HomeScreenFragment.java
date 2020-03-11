@@ -177,7 +177,7 @@ public class HomeScreenFragment extends AbstractFragment
     }
   }
 
-  /** Fetches offline saved projects and adds them to navigation drawer */
+  /** Fetches offline saved projects and adds them to navigation drawer. */
   private void updateNavDrawer() {
     projectSelectorViewModel
         .getOfflineProjects()
