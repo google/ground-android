@@ -206,11 +206,8 @@ public class HomeScreenFragment extends AbstractFragment
     }
 
     // Highlight active project
-    Loadable<Project> activeProject = viewModel.getActiveProject().getValue();
-    if (activeProject != null) {
-      int index = getSelectedProjectIndex(activeProject.value().get());
-      updateSelectedProjectUI(index);
-    }
+    Loadable.getValue(viewModel.getActiveProject())
+        .ifPresent(project -> updateSelectedProjectUI(getSelectedProjectIndex(project)));
   }
 
   private String getVersionName() {
