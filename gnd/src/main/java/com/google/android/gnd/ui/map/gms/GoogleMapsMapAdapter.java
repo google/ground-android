@@ -28,6 +28,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gnd.R;
@@ -289,5 +290,10 @@ class GoogleMapsMapAdapter implements MapAdapter {
     if (cameraTargetBeforeDrag != null && !cameraTarget.equals(cameraTargetBeforeDrag)) {
       dragInteractionSubject.onNext(target);
     }
+  }
+
+  @Override
+  public LatLngBounds getViewport() {
+    return map.getProjection().getVisibleRegion().latLngBounds;
   }
 }

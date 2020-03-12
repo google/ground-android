@@ -39,8 +39,8 @@ import java8.util.Optional;
  * provided in a {@link Data} object. This worker should only run when the device has a network
  * connection.
  */
-public class FileDownloadWorker extends Worker {
-  private static final String TAG = FileDownloadWorker.class.getSimpleName();
+public class TileDownloadWorker extends Worker {
+  private static final String TAG = TileDownloadWorker.class.getSimpleName();
 
   private static final String TILE_ID = "tile_id";
   private static final int BUFFER_SIZE = 4096;
@@ -49,7 +49,7 @@ public class FileDownloadWorker extends Worker {
   private final LocalDataStore localDataStore;
   private final String tileId;
 
-  public FileDownloadWorker(
+  public TileDownloadWorker(
       @NonNull Context context, @NonNull WorkerParameters params, LocalDataStore localDataStore) {
     super(context, params);
     this.context = context;
@@ -57,7 +57,7 @@ public class FileDownloadWorker extends Worker {
     this.tileId = params.getInputData().getString(TILE_ID);
   }
 
-  /** Creates input data for the FileDownloadWorker. */
+  /** Creates input data for the TileDownloadWorker. */
   public static Data createInputData(String tilePrimaryKey) {
     return new Data.Builder().putString(TILE_ID, tilePrimaryKey).build();
   }
