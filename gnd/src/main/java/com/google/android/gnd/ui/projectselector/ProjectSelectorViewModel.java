@@ -23,6 +23,7 @@ import com.google.android.gnd.repository.ProjectRepository;
 import com.google.android.gnd.rx.Loadable;
 import com.google.android.gnd.system.AuthenticationManager;
 import com.google.android.gnd.ui.common.AbstractViewModel;
+import io.reactivex.Single;
 import java.util.Collections;
 import java.util.List;
 import javax.inject.Inject;
@@ -45,6 +46,10 @@ public class ProjectSelectorViewModel extends AbstractViewModel {
     return projectSummaries;
   }
 
+  public Single<List<Project>> getOfflineProjects() {
+    return projectRepository.getOfflineProjects();
+  }
+
   private Project getProjectSummary(int idx) {
     return Loadable.getValue(this.projectSummaries).orElse(Collections.emptyList()).get(idx);
   }
@@ -54,7 +59,11 @@ public class ProjectSelectorViewModel extends AbstractViewModel {
    *
    * @param idx the index in the project summary list.
    */
-  void activateProject(int idx) {
+  public void activateProject(int idx) {
     projectRepository.activateProject(getProjectSummary(idx).getId());
+  }
+
+  public void activateOfflineProject(String projectId) {
+    projectRepository.activateProject(projectId);
   }
 }
