@@ -17,6 +17,7 @@
   -->
 
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
   xmlns:bind="http://schemas.android.com/tools">
 
   <data>
@@ -45,19 +46,31 @@
     android:layout_marginBottom="@dimen/field_vertical_margin"
     android:orientation="vertical">
 
-    <ImageView
-      android:id="@+id/image_thumbnail_preview"
+    <com.google.android.material.card.MaterialCardView
+      android:id="@+id/material_card"
       android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:adjustViewBounds="true"
-      bind:response="@{viewModel.responses[field.id]}"
-      bind:src="@drawable/ic_photo_grey_600_24dp"
-      bind:storageManager="@{storageManager}" />
+      android:layout_height="200dp"
+      app:layout_constraintBottom_toBottomOf="@id/btn_select_photo"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toTopOf="parent">
+      <ImageView
+        android:id="@+id/image_thumbnail_preview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:adjustViewBounds="true"
+        android:contentDescription="@string/photo_preview"
+        android:scaleType="fitCenter"
+        bind:response="@{viewModel.responses[field.id]}"
+        bind:src="@drawable/ic_photo_grey_600_24dp"
+        bind:storageManager="@{storageManager}" />
+    </com.google.android.material.card.MaterialCardView>
 
     <Button
       android:id="@+id/btn_select_photo"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
+      android:layout_marginTop="@dimen/field_vertical_margin"
       android:background="@android:color/transparent"
       android:onClick="@{()-> fragment.onShowPhotoSelectorDialog(field)}"
       android:text="@string/add_photo"

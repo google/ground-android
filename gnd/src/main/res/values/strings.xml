@@ -139,5 +139,6 @@
   <string name="action_storage">Storage</string>
   <string name="cancel">Cancel</string>
   <string name="join_project">Join project</string>
+  <string name="photo_preview">Photo preview</string>
 
 </resources>

@@ -19,6 +19,7 @@ package com.google.android.gnd.ui.common;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import androidx.annotation.Nullable;
 import androidx.databinding.BindingAdapter;
@@ -129,14 +130,24 @@ public class BindingAdapters {
   public static void bindPhoto(ImageView view, StorageManager storageManager, Response response) {
     ViewDataBinding binding = findBinding(view);
     Field field = getField(binding);
+
+    boolean isReady = true;
     if (field == null) {
       // Binding update before attached to field.
-      return;
+      isReady = false;
     }
     if (response == null || response.getDetailsText(field).isEmpty()) {
       // destination path not available
-      return;
+      isReady = false;
     }
+
+    if (!isReady) {
+      ((ViewGroup) view.getParent()).setVisibility(View.GONE);
+      return;
+    } else {
+      ((ViewGroup) view.getParent()).setVisibility(View.VISIBLE);
+    }
+
     storageManager.loadPhotoFromDestinationPath(view, response.getDetailsText(field));
   }
 }
