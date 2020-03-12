@@ -25,8 +25,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import androidx.annotation.NonNull;
-import androidx.databinding.ObservableMap;
-import androidx.databinding.ObservableMap.OnMapChangedCallback;
 import butterknife.BindView;
 import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.R;
@@ -177,24 +175,10 @@ public class EditObservationFragment extends AbstractFragment
     binding.setLifecycleOwner(this);
     binding.setField(field);
     binding.setFragment(this);
+    binding.setViewModel(viewModel);
+    // TODO: Think of a better way to inject dependencies into BindingAdapters
+    binding.setStorageManager(storageManager);
     formLayout.addView(binding.getRoot());
-    assignGeneratedId(binding.getRoot().findViewById(R.id.image_thumbnail_preview));
-    assignGeneratedId(binding.getRoot().findViewById(R.id.btn_select_photo));
-
-    viewModel
-        .getResponses()
-        .addOnMapChangedCallback(
-            new OnMapChangedCallback<ObservableMap<String, Response>, String, Response>() {
-              @Override
-              public void onMapChanged(ObservableMap<String, Response> sender, String key) {
-                if (key == null || !key.equals(field.getId())) {
-                  return;
-                }
-                String path = sender.get(key).getDetailsText(field);
-                // TODO: (BUG) Image doesn't load into the imageview
-                storageManager.loadPhotoFromDestinationPath(binding.imageThumbnailPreview, path);
-              }
-            });
   }
 
   public void onShowDialog(Field field) {

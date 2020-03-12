@@ -17,7 +17,7 @@
   -->
 
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-  xmlns:app="http://schemas.android.com/apk/res-auto">
+  xmlns:bind="http://schemas.android.com/tools">
 
   <data>
     <variable
@@ -26,6 +26,12 @@
     <variable
       name="fragment"
       type="com.google.android.gnd.ui.editobservation.EditObservationFragment" />
+    <variable
+      name="viewModel"
+      type="com.google.android.gnd.ui.editobservation.EditObservationViewModel" />
+    <variable
+      name="storageManager"
+      type="com.google.android.gnd.system.StorageManager" />
   </data>
 
   <LinearLayout
@@ -44,7 +50,8 @@
       android:layout_width="48dp"
       android:layout_height="48dp"
       android:padding="4dp"
-      app:srcCompat="@drawable/ic_add_a_photo" />
+      bind:response="@{viewModel.responses[field.id]}"
+      bind:storageManager="@{storageManager}" />
 
     <Button
       android:id="@+id/btn_select_photo"

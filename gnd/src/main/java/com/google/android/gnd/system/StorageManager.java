@@ -22,7 +22,6 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.provider.MediaStore.Images.Media;
-import android.util.Log;
 import android.widget.ImageView;
 import com.google.android.gnd.R;
 import com.google.android.gnd.persistence.remote.FirestoreStorageManager;
@@ -35,12 +34,11 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import timber.log.Timber;
 
 /** Manages permissions needed for accessing storage and related flows to/from Activity. */
 @Singleton
 public class StorageManager {
-
-  public static final String TAG = StorageManager.class.getName();
 
   private static final int PICK_PHOTO_REQUEST_CODE = StorageManager.class.hashCode() & 0xffff;
   private final Context context;
@@ -82,7 +80,7 @@ public class StorageManager {
                   Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
                   intent.setType("image/*");
                   activity.startActivityForResult(intent, PICK_PHOTO_REQUEST_CODE);
-                  Log.d(TAG, "file picker intent sent");
+                  Timber.d("file picker intent sent");
                 }));
   }
 

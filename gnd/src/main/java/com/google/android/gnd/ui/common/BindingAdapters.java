@@ -19,19 +19,23 @@ package com.google.android.gnd.ui.common;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
+import android.widget.ImageView;
 import androidx.annotation.Nullable;
 import androidx.databinding.BindingAdapter;
 import androidx.databinding.DataBindingUtil;
 import androidx.databinding.ViewDataBinding;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gnd.databinding.MultipleChoiceInputFieldBinding;
+import com.google.android.gnd.databinding.PhotoInputFieldBinding;
 import com.google.android.gnd.databinding.TextInputFieldBinding;
 import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.observation.Response;
+import com.google.android.gnd.system.StorageManager;
 import com.google.android.gnd.ui.editobservation.MultipleChoiceFieldLayout;
 import com.google.android.material.textfield.TextInputEditText;
 import java8.util.function.Consumer;
 
+// Should this be made injectable?
 public class BindingAdapters {
 
   @BindingAdapter("android:text")
@@ -65,6 +69,8 @@ public class BindingAdapters {
       return ((TextInputFieldBinding) binding).getField();
     } else if (binding instanceof MultipleChoiceInputFieldBinding) {
       return ((MultipleChoiceInputFieldBinding) binding).getField();
+    } else if (binding instanceof PhotoInputFieldBinding) {
+      return ((PhotoInputFieldBinding) binding).getField();
     } else {
       throw new IllegalArgumentException("Unknown binding type: " + binding.getClass());
     }
@@ -117,5 +123,20 @@ public class BindingAdapters {
   @BindingAdapter("onShowDialog")
   public static void setOnShowDialogListener(MultipleChoiceFieldLayout view, Runnable listener) {
     view.setOnShowDialogListener(listener);
+  }
+
+  @BindingAdapter({"bind:storageManager", "bind:response"})
+  public static void bindPhoto(ImageView view, StorageManager storageManager, Response response) {
+    ViewDataBinding binding = findBinding(view);
+    Field field = getField(binding);
+    if (field == null) {
+      // Binding update before attached to field.
+      return;
+    }
+    if (response == null || response.getDetailsText(field).isEmpty()) {
+      // destination path not available
+      return;
+    }
+    storageManager.loadPhotoFromDestinationPath(view, response.getDetailsText(field));
   }
 }
