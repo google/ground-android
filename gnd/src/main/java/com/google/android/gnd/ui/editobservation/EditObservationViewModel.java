@@ -202,7 +202,7 @@ public class EditObservationViewModel extends AbstractViewModel {
   }
 
   public void onResponseChanged(Field field, Optional<Response> newResponse) {
-    Timber.v("onResponseChanged: " + field.getId() + " = '" + Response.toString(newResponse) + "'");
+    Timber.v("onResponseChanged: %s = '%s'", field.getId(), Response.toString(newResponse));
     newResponse.ifPresentOrElse(
         r -> responses.put(field.getId(), r), () -> responses.remove(field.getId()));
     updateError(field, newResponse);
@@ -396,7 +396,7 @@ public class EditObservationViewModel extends AbstractViewModel {
     }
     ImmutableList.Builder<ResponseDelta> deltas = ImmutableList.builder();
     ResponseMap originalResponses = originalObservation.getResponses();
-    Timber.v("Responses:\n Before: " + originalResponses + " \nAfter:  " + responses);
+    Timber.v("Responses:\n Before: %s \nAfter:  %s", originalResponses, responses);
     for (Element e : originalObservation.getForm().getElements()) {
       if (e.getType() != Type.FIELD) {
         continue;
