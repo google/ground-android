@@ -23,7 +23,11 @@ import androidx.work.Data;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 import com.google.android.gnd.model.basemap.tile.Tile;
+import com.google.android.gnd.model.basemap.tile.Tile.State;
 import com.google.android.gnd.persistence.local.LocalDataStore;
+import com.google.common.collect.ImmutableList;
+import io.reactivex.Completable;
+import io.reactivex.Observable;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -32,7 +36,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
-import java8.util.Optional;
 
 /**
  * A worker that downloads files to the device in the background. The target URL and file name are
@@ -42,89 +45,73 @@ import java8.util.Optional;
 public class TileDownloadWorker extends Worker {
   private static final String TAG = TileDownloadWorker.class.getSimpleName();
 
-  private static final String TILE_ID = "tile_id";
   private static final int BUFFER_SIZE = 4096;
 
   private final Context context;
   private final LocalDataStore localDataStore;
-  private final String tileId;
 
   public TileDownloadWorker(
       @NonNull Context context, @NonNull WorkerParameters params, LocalDataStore localDataStore) {
     super(context, params);
     this.context = context;
     this.localDataStore = localDataStore;
-    this.tileId = params.getInputData().getString(TILE_ID);
-  }
-
-  /** Creates input data for the TileDownloadWorker. */
-  public static Data createInputData(String tilePrimaryKey) {
-    return new Data.Builder().putString(TILE_ID, tilePrimaryKey).build();
   }
 
   /**
    * Given a tile, downloads the given {@param tile}'s source file and saves it to the device's app
    * storage. Optional HTTP request header {@param requestProperties} may be provided.
    */
-  private Result downloadTileFile(Tile tile, Optional<HashMap<String, String>> requestProperties) {
-    try {
-      URL url = new URL(tile.getUrl());
-      HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+  private void downloadTileFile(Tile tile, Map<String, String> requestProperties)
+      throws IOException {
+    URL url = new URL(tile.getUrl());
+    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 
-      if (requestProperties.isPresent()) {
-        for (Map.Entry<String, String> property : requestProperties.get().entrySet()) {
-          connection.setRequestProperty(property.getKey(), property.getValue());
-        }
+    if (!requestProperties.isEmpty()) {
+      for (Map.Entry<String, String> property : requestProperties.entrySet()) {
+        connection.setRequestProperty(property.getKey(), property.getValue());
       }
-
-      connection.connect();
-
-      InputStream is = connection.getInputStream();
-      FileOutputStream fos = context.openFileOutput(tile.getPath(), Context.MODE_PRIVATE);
-      byte[] byteChunk = new byte[BUFFER_SIZE];
-      int n;
-
-      while ((n = is.read(byteChunk)) > 0) {
-        fos.write(byteChunk, 0, n);
-      }
-
-      is.close();
-      fos.close();
-
-      localDataStore
-          .insertOrUpdateTile(tile.toBuilder().setState(Tile.State.DOWNLOADED).build())
-          .blockingAwait();
-
-      return Result.success();
-
-    } catch (IOException e) {
-      Log.d(TAG, "Failed to download and write file.", e);
-
-      localDataStore
-          .insertOrUpdateTile(tile.toBuilder().setState(Tile.State.FAILED).build())
-          .blockingAwait();
-
-      return Result.failure();
     }
+
+    connection.connect();
+
+    InputStream is = connection.getInputStream();
+    FileOutputStream fos = context.openFileOutput(tile.getPath(), Context.MODE_PRIVATE);
+    byte[] byteChunk = new byte[BUFFER_SIZE];
+    int n;
+
+    while ((n = is.read(byteChunk)) > 0) {
+      fos.write(byteChunk, 0, n);
+    }
+
+    is.close();
+    fos.close();
   }
 
   /** Update a tile's state in the database and initiate a download of the tile source file. */
-  private Result downloadTile(Tile tile) {
-    localDataStore
-        .insertOrUpdateTile(tile.toBuilder().setState(Tile.State.IN_PROGRESS).build())
-        .blockingAwait();
-
-    return downloadTileFile(tile, Optional.empty());
-  }
-
-  /** Resumes downloading the source for {@param tile} marked as {@code Tile.State.IN_PROGRESS}. */
-  private Result resumeTileDownload(Tile tile) {
-    File existingTileFile = new File(context.getFilesDir(), tile.getPath());
+  private Completable downloadTile(Tile tile) {
     HashMap<String, String> requestProperties = new HashMap<>();
 
-    requestProperties.put("Range", existingTileFile.length() + "-");
+    if (tile.getState() == State.IN_PROGRESS) {
+      File existingTileFile = new File(context.getFilesDir(), tile.getPath());
+      requestProperties.put("Range", existingTileFile.length() + "-");
+    }
 
-    return downloadTileFile(tile, Optional.of(requestProperties));
+    return localDataStore
+        .insertOrUpdateTile(tile.toBuilder().setState(Tile.State.IN_PROGRESS).build())
+        .andThen(
+            Completable.fromCallable(
+                () -> {
+                  downloadTileFile(tile, requestProperties);
+                  return null;
+                }))
+        .onErrorResumeNext(
+            e -> {
+              Log.d(TAG, "Failed to download tile: " + tile, e);
+              return localDataStore.insertOrUpdateTile(
+                  tile.toBuilder().setState(State.FAILED).build());
+            })
+        .andThen(
+            localDataStore.insertOrUpdateTile(tile.toBuilder().setState(State.DOWNLOADED).build()));
   }
 
   /**
@@ -132,14 +119,30 @@ public class TileDownloadWorker extends Worker {
    * exists in the app's storage. If the tile's source file isn't present, initiates a download of
    * source file.
    */
-  private Result checkDownload(Tile tile) {
+  private Completable checkDownload(Tile tile) {
     File file = new File(context.getFilesDir(), tile.getPath());
 
     if (file.exists()) {
-      return Result.success();
+      return Completable.complete();
     }
 
     return downloadTile(tile);
+  }
+
+  private Completable processTiles(ImmutableList<Tile> pendingTiles) {
+    return Observable.fromIterable(pendingTiles)
+        .flatMapCompletable(
+            t -> {
+              switch (t.getState()) {
+                case DOWNLOADED:
+                  return checkDownload(t);
+                case PENDING:
+                case IN_PROGRESS:
+                case FAILED:
+                default:
+                  return downloadTile(t);
+              }
+            });
   }
 
   /**
@@ -150,27 +153,23 @@ public class TileDownloadWorker extends Worker {
   @NonNull
   @Override
   public Result doWork() {
-    Tile tile = localDataStore.getTile(tileId).blockingGet();
+    ImmutableList<Tile> pendingTiles = localDataStore.getPendingTiles().blockingGet();
 
-    // When there is no tile in the db, the Maybe completes and returns null.
+    // When there are no tiles in the db, the blockingGet returns null.
     // We expect tiles to be added to the DB prior to downloading.
     // If that isn't the case, we fail.
-    if (tile == null) {
+    if (pendingTiles == null) {
       return Result.failure();
     }
 
-    Log.d(TAG, "Downloading tile: " + tile.getPath());
+    Log.d(TAG, "Downloading tiles: " + pendingTiles);
 
-    switch (tile.getState()) {
-      case DOWNLOADED:
-        return checkDownload(tile);
-      case PENDING:
-      case FAILED:
-        return downloadTile(tile);
-      case IN_PROGRESS:
-        return resumeTileDownload(tile);
-      default:
-        return Result.failure();
+    try {
+      processTiles(pendingTiles).blockingAwait();
+      return Result.success();
+    } catch (Throwable t) {
+      Log.d(TAG, "Downloads for tiles failed: " + pendingTiles, t);
+      return Result.failure();
     }
   }
 }
