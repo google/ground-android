@@ -209,7 +209,7 @@ dependencies {
     implementation "com.uber.autodispose:autodispose-android:$project.autoDisposeVersion"
     implementation "com.uber.autodispose:autodispose-android-archcomponents:$project.autoDisposeVersion"
 
-    // Apache commons IO
+    // Apache Commons IO
     // https://mvnrepository.com/artifact/commons-io/commons-io
     implementation "commons-io:commons-io:$project.apacheCommonsVersion"
 }
