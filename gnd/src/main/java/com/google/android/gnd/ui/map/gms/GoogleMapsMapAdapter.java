@@ -294,6 +294,6 @@ class GoogleMapsMapAdapter implements MapAdapter {
 
   @Override
   public LatLngBounds getViewport() {
-   return map.getProjection().getVisibleRegion().latLngBounds;
+    return map.getProjection().getVisibleRegion().latLngBounds;
   }
 }
