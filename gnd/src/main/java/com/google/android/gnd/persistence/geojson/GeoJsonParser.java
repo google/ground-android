@@ -41,6 +41,7 @@ public class GeoJsonParser {
   private static final String TAG = GeoJsonParser.class.getSimpleName();
   private final OfflineUuidGenerator uuidGenerator;
   private static final String FEATURES_KEY = "features";
+  private static final String JSON_SOURCE_CHARSET = "UTF-8";
 
   @Inject
   GeoJsonParser(OfflineUuidGenerator uuidGenerator) {
@@ -53,7 +54,7 @@ public class GeoJsonParser {
    */
   public ImmutableList<Tile> intersectingTiles(LatLngBounds bounds, File file) {
     try {
-      String fileContents = FileUtils.readFileToString(file, Charset.forName("UTF-8"));
+      String fileContents = FileUtils.readFileToString(file, Charset.forName(JSON_SOURCE_CHARSET));
       // TODO: Separate parsing and intersection checks, make asyc (single, completable).
       JSONObject geoJson = new JSONObject(fileContents);
       // TODO: Make features constant.
