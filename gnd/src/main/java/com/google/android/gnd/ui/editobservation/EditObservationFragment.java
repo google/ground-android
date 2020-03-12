@@ -20,7 +20,6 @@ import static com.google.android.gnd.ui.util.ViewUtil.assignGeneratedId;
 
 import android.app.AlertDialog;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -50,15 +49,11 @@ import com.google.android.gnd.ui.common.TwoLineToolbar;
 import com.google.android.gnd.ui.editobservation.PhotoDialogFragment.AddPhotoListener;
 import java8.util.Optional;
 import javax.inject.Inject;
+import timber.log.Timber;
 
 @ActivityScoped
 public class EditObservationFragment extends AbstractFragment
     implements BackPressListener, AddPhotoListener {
-  private static final String TAG = EditObservationFragment.class.getSimpleName();
-
-  private EditObservationViewModel viewModel;
-  private SingleSelectDialogFactory singleSelectDialogFactory;
-  private MultiSelectDialogFactory multiSelectDialogFactory;
 
   @Inject Navigator navigator;
   @Inject StorageManager storageManager;
@@ -68,6 +63,10 @@ public class EditObservationFragment extends AbstractFragment
 
   @BindView(R.id.edit_observation_layout)
   LinearLayout formLayout;
+
+  private EditObservationViewModel viewModel;
+  private SingleSelectDialogFactory singleSelectDialogFactory;
+  private MultiSelectDialogFactory multiSelectDialogFactory;
 
   @Override
   public void onCreate(@androidx.annotation.Nullable Bundle savedInstanceState) {
@@ -115,7 +114,7 @@ public class EditObservationFragment extends AbstractFragment
         navigator.navigateUp();
         break;
       default:
-        Log.e(TAG, "Unknown save result type: " + saveResult);
+        Timber.e("Unknown save result type: %s", saveResult);
         break;
     }
   }
@@ -128,7 +127,7 @@ public class EditObservationFragment extends AbstractFragment
           addField(element.getField());
           break;
         default:
-          Log.d(TAG, element.getType() + " elements not yet supported");
+          Timber.d("%s elements not yet supported", element.getType());
           break;
       }
     }
@@ -146,7 +145,7 @@ public class EditObservationFragment extends AbstractFragment
         addPhotoField(field);
         break;
       default:
-        Log.w(TAG, "Unimplemented field type: " + field.getType());
+        Timber.w("Unimplemented field type: %s", field.getType());
         break;
     }
   }
@@ -213,7 +212,7 @@ public class EditObservationFragment extends AbstractFragment
             .show();
         break;
       default:
-        Log.e(TAG, "Unknown cardinality: " + cardinality);
+        Timber.e("Unknown cardinality: %s", cardinality);
         break;
     }
   }

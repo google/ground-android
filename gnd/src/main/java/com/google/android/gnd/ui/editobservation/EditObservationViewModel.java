@@ -21,7 +21,6 @@ import static java8.util.stream.StreamSupport.stream;
 
 import android.content.res.Resources;
 import android.graphics.Bitmap;
-import android.util.Log;
 import android.view.View;
 import androidx.databinding.ObservableArrayMap;
 import androidx.databinding.ObservableMap;
@@ -60,10 +59,11 @@ import java8.util.Optional;
 import java8.util.StringJoiner;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
+import timber.log.Timber;
 
 // TODO: Save draft to local db on each change.
 public class EditObservationViewModel extends AbstractViewModel {
-  private static final String TAG = EditObservationViewModel.class.getSimpleName();
+
   // TODO: Move out of id and into fragment args.
   private static final String ADD_OBSERVATION_ID_PLACEHOLDER = "NEW";
 
@@ -196,14 +196,13 @@ public class EditObservationViewModel extends AbstractViewModel {
   }
 
   public void onTextChanged(Field field, String text) {
-    Log.v(TAG, "onTextChanged: " + field.getId());
+    Timber.v("onTextChanged: %s", field.getId());
 
     onResponseChanged(field, TextResponse.fromString(text));
   }
 
   public void onResponseChanged(Field field, Optional<Response> newResponse) {
-    Log.v(
-        TAG, "onResponseChanged: " + field.getId() + " = '" + Response.toString(newResponse) + "'");
+    Timber.v("onResponseChanged: " + field.getId() + " = '" + Response.toString(newResponse) + "'");
     newResponse.ifPresentOrElse(
         r -> responses.put(field.getId(), r), () -> responses.remove(field.getId()));
     updateError(field, newResponse);
@@ -340,7 +339,7 @@ public class EditObservationViewModel extends AbstractViewModel {
 
   private Single<Event<SaveResult>> onSave() {
     if (originalObservation == null) {
-      Log.e(TAG, "Save attempted before observation loaded");
+      Timber.e("Save attempted before observation loaded");
       return Single.just(Event.create(SaveResult.NO_CHANGES_TO_SAVE));
     }
     refreshValidationErrors();
@@ -355,7 +354,7 @@ public class EditObservationViewModel extends AbstractViewModel {
 
   private <T> Single<T> onError(Throwable throwable) {
     // TODO: Refactor and stream to UI.
-    Log.e(TAG, "Error", throwable);
+    Timber.e(throwable, "Error");
     return Single.never();
   }
 
@@ -380,7 +379,7 @@ public class EditObservationViewModel extends AbstractViewModel {
   }
 
   private void refreshResponseMap(Observation obs) {
-    Log.v(TAG, "Rebuilding response map");
+    Timber.v("Rebuilding response map");
     responses.clear();
     ResponseMap responses = obs.getResponses();
     for (String fieldId : responses.fieldIds()) {
@@ -392,12 +391,12 @@ public class EditObservationViewModel extends AbstractViewModel {
 
   private ImmutableList<ResponseDelta> getResponseDeltas() {
     if (originalObservation == null) {
-      Log.e(TAG, "Response diff attempted before observation loaded");
+      Timber.e("Response diff attempted before observation loaded");
       return ImmutableList.of();
     }
     ImmutableList.Builder<ResponseDelta> deltas = ImmutableList.builder();
     ResponseMap originalResponses = originalObservation.getResponses();
-    Log.v(TAG, "Responses:\n Before: " + originalResponses + " \nAfter:  " + responses);
+    Timber.v("Responses:\n Before: " + originalResponses + " \nAfter:  " + responses);
     for (Element e : originalObservation.getForm().getElements()) {
       if (e.getType() != Type.FIELD) {
         continue;
@@ -412,7 +411,7 @@ public class EditObservationViewModel extends AbstractViewModel {
           ResponseDelta.builder().setFieldId(fieldId).setNewResponse(currentResponse).build());
     }
     ImmutableList<ResponseDelta> result = deltas.build();
-    Log.v(TAG, "Deltas: " + result);
+    Timber.v("Deltas: %s", result);
     return result;
   }
 
@@ -431,10 +430,10 @@ public class EditObservationViewModel extends AbstractViewModel {
   private void updateError(Field field, Optional<Response> response) {
     String key = field.getId();
     if (field.isRequired() && !response.filter(r -> !r.isEmpty()).isPresent()) {
-      Log.d(TAG, "Missing: " + key);
+      Timber.d("Missing: %s", key);
       validationErrors.put(field.getId(), resources.getString(R.string.required_field));
     } else {
-      Log.d(TAG, "Valid: " + key);
+      Timber.d("Valid: %s", key);
       validationErrors.remove(field.getId());
     }
   }
