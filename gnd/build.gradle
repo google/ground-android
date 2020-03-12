@@ -23,6 +23,7 @@ apply from: '../config/pmd/pmd.gradle'
 apply from: '../config/spotbugs/spotbugs.gradle'
 
 project.ext {
+    apacheCommonsVersion = "2.6"
     autoDisposeVersion = "1.2.0"
     autoValueVersion = "1.6.3"
     butterKnifeVersion = "10.2.0"
@@ -207,6 +208,10 @@ dependencies {
 
     implementation "com.uber.autodispose:autodispose-android:$project.autoDisposeVersion"
     implementation "com.uber.autodispose:autodispose-android-archcomponents:$project.autoDisposeVersion"
+
+    // Apache Commons IO
+    // https://mvnrepository.com/artifact/commons-io/commons-io
+    implementation "commons-io:commons-io:$project.apacheCommonsVersion"
 }
 
 apply plugin: 'androidx.navigation.safeargs'

@@ -35,8 +35,14 @@ class GeoJsonExtent {
       return ImmutableList.of();
     }
 
-    JSONArray sw = geometry.getVertices().map(j -> j.optJSONArray(0)).orElse(null);
-    JSONArray ne = geometry.getVertices().map(j -> j.optJSONArray(2)).orElse(null);
+    JSONArray g = geometry.getVertices().map(j -> j.optJSONArray(0)).orElse(null);
+
+    if (g == null) {
+      return ImmutableList.of();
+    }
+
+    JSONArray sw = g.optJSONArray(0);
+    JSONArray ne = g.optJSONArray(2);
 
     if (sw == null || ne == null) {
       return ImmutableList.of();
