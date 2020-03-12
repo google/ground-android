@@ -25,15 +25,13 @@ import com.google.android.gnd.model.basemap.tile.Tile;
 import com.google.android.gnd.model.basemap.tile.Tile.State;
 import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator;
 import com.google.common.collect.ImmutableList;
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import javax.inject.Inject;
+import org.apache.commons.io.FileUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -42,23 +40,11 @@ public class GeoJsonParser {
 
   private static final String TAG = GeoJsonParser.class.getSimpleName();
   private final OfflineUuidGenerator uuidGenerator;
+  private static final String FEATURES_KEY = "features";
 
   @Inject
   GeoJsonParser(OfflineUuidGenerator uuidGenerator) {
     this.uuidGenerator = uuidGenerator;
-  }
-
-  private String readJsonFile(File file) throws IOException {
-    InputStream is = new FileInputStream(file);
-    BufferedReader buf = new BufferedReader(new InputStreamReader(is));
-    StringBuilder sb = new StringBuilder();
-
-    int res = buf.read();
-    while (res != -1) {
-      sb.append(res);
-      res = buf.read();
-    }
-    return sb.toString();
   }
 
   /**
@@ -67,9 +53,11 @@ public class GeoJsonParser {
    */
   public ImmutableList<Tile> intersectingTiles(LatLngBounds bounds, File file) {
     try {
-      String fileContents = readJsonFile(file);
+      String fileContents = FileUtils.readFileToString(file, Charset.forName("UTF-8"));
+      // TODO: Separate parsing and intersection checks, make asyc (single, completable).
       JSONObject geoJson = new JSONObject(fileContents);
-      JSONArray features = geoJson.getJSONArray("features");
+      // TODO: Make features constant.
+      JSONArray features = geoJson.getJSONArray(FEATURES_KEY);
 
       return stream(toArrayList(features))
           .map(GeoJsonTile::new)
