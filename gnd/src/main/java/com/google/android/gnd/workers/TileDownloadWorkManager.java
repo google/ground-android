@@ -25,14 +25,14 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 
 /** Enqueues file download work to be done in the background. */
-public class FileDownloadWorkManager {
+public class TileDownloadWorkManager {
   private static final Constraints CONSTRAINTS =
       new Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build();
 
   private final Provider<WorkManager> workManagerProvider;
 
   @Inject
-  public FileDownloadWorkManager(Provider<WorkManager> workManagerProvider) {
+  public TileDownloadWorkManager(Provider<WorkManager> workManagerProvider) {
     this.workManagerProvider = workManagerProvider;
   }
 
@@ -40,11 +40,11 @@ public class FileDownloadWorkManager {
    * Enqueues a worker that downloads files when a network connection is available, returning a
    * completeable upon enqueueing.
    */
-  public Completable enqueueFileDownloadWorker(String tileId) {
-    return Completable.fromRunnable(() -> enqueueFileDownloadWorkerInternal(tileId));
+  public Completable enqueueTileDownloadWorker(String tileId) {
+    return Completable.fromRunnable(() -> enqueueTileDownloadWorkerInternal(tileId));
   }
 
-  private void enqueueFileDownloadWorkerInternal(String tileId) {
+  private void enqueueTileDownloadWorkerInternal(String tileId) {
     OneTimeWorkRequest request = buildWorkerRequest(tileId);
 
     getWorkManager().enqueue(request);
@@ -55,9 +55,9 @@ public class FileDownloadWorkManager {
   }
 
   private OneTimeWorkRequest buildWorkerRequest(String tileId) {
-    return new OneTimeWorkRequest.Builder(FileDownloadWorker.class)
+    return new OneTimeWorkRequest.Builder(TileDownloadWorker.class)
         .setConstraints(CONSTRAINTS)
-        .setInputData(FileDownloadWorker.createInputData(tileId))
+        .setInputData(TileDownloadWorker.createInputData(tileId))
         .build();
   }
 }

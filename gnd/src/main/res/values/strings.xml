@@ -114,7 +114,6 @@
   your responses and try again.</string>
   <string name="invalid_data_confirm">OK</string>
 
-  <string name="join_project_dialog_title">Join project</string>
   <string name="add_observation_button_label">Observation</string>
   <string name="view_observation_details">View observation details</string>
   <string name="map_view">Map view</string>
@@ -125,7 +124,7 @@
   <string name="save_observation_button_label">Save</string>
   <string name="saving">Saving&#8230;</string>
   <string name="no_changes_to_save">No changes to save</string>
-  <string name="select_project_menu_item">Select project</string>
+  <string name="select_project_menu_item">My Projects</string>
   <string name="google_api_install_failed">Google Play Services installation failed</string>
   <string name="sign_in_unsuccessful">Sign in unsuccessful</string>
   <string name="sign_out">Sign out</string>
@@ -139,5 +138,6 @@
   <string name="action_camera">Camera</string>
   <string name="action_storage">Storage</string>
   <string name="cancel">Cancel</string>
+  <string name="join_project">Join project</string>
 
 </resources>

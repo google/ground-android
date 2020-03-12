@@ -64,7 +64,7 @@ public class ProjectSelectorDialogFragment extends AbstractDialogFragment {
   public Dialog onCreateDialog(Bundle savedInstanceState) {
     super.onCreateDialog(savedInstanceState);
     AlertDialog.Builder dialog = new AlertDialog.Builder(getContext());
-    dialog.setTitle(R.string.join_project_dialog_title);
+    dialog.setTitle(R.string.join_project);
     LayoutInflater inflater = getActivity().getLayoutInflater();
     ViewGroup dialogView = (ViewGroup) inflater.inflate(R.layout.project_selector_dialog, null);
     ButterKnife.bind(this, dialogView);

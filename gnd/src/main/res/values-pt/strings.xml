@@ -113,7 +113,7 @@ Tem certeza que deseja apagar o local e todos os dados associados? Isso não pod
   your responses and try again.</string>
   <string name="invalid_data_confirm">OK</string>
 
-  <string name="join_project_dialog_title">Junte-se ao projeto</string>
+  <string name="join_project">Junte-se ao projeto</string>
   <string name="add_observation_button_label">Adicionar registro</string>
   <string name="view_observation_details">Ver detalhes do registro</string>
   <string name="map_view">Visão do mapa</string>
@@ -124,7 +124,7 @@ Tem certeza que deseja apagar o local e todos os dados associados? Isso não pod
   <string name="save_observation_button_label">Salve</string>
   <string name="saving">Salvando&#8230;</string>
   <string name="no_changes_to_save">Não há alterações para salvar</string>
-  <string name="select_project_menu_item">Selecionar projetos</string>
+  <string name="select_project_menu_item">Projetos</string>
   <string name="google_api_install_failed">Google Play Services instalação falhada</string>
   <string name="sign_in_unsuccessful">Entrar sem sucesso</string>
   <string name="sign_out">Sair</string>
