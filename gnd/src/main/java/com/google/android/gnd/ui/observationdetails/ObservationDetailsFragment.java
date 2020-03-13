@@ -159,7 +159,7 @@ public class ObservationDetailsFragment extends AbstractFragment {
                 binding.fieldValue.setVisibility(View.GONE);
                 binding.imagePreview.setVisibility(View.VISIBLE);
 
-                storageManager.loadPhotoFromDestinationPath(binding.imagePreview, value);
+                // storageManager.loadPhotoFromDestinationPath(binding.imagePreview, value);
               } else {
                 binding.fieldValue.setText(value);
               }

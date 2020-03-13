@@ -16,24 +16,25 @@
 
 package com.google.android.gnd.ui.common;
 
+import android.net.Uri;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ImageView;
 import androidx.annotation.Nullable;
 import androidx.databinding.BindingAdapter;
 import androidx.databinding.DataBindingUtil;
 import androidx.databinding.ViewDataBinding;
 import com.google.android.gms.common.SignInButton;
+import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.MultipleChoiceInputFieldBinding;
 import com.google.android.gnd.databinding.PhotoInputFieldBinding;
 import com.google.android.gnd.databinding.TextInputFieldBinding;
 import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.observation.Response;
-import com.google.android.gnd.system.StorageManager;
 import com.google.android.gnd.ui.editobservation.MultipleChoiceFieldLayout;
 import com.google.android.material.textfield.TextInputEditText;
+import com.squareup.picasso.Picasso;
 import java8.util.function.Consumer;
 
 // Should this be made injectable?
@@ -126,28 +127,12 @@ public class BindingAdapters {
     view.setOnShowDialogListener(listener);
   }
 
-  @BindingAdapter({"bind:storageManager", "bind:response"})
-  public static void bindPhoto(ImageView view, StorageManager storageManager, Response response) {
-    ViewDataBinding binding = findBinding(view);
-    Field field = getField(binding);
-
-    boolean isReady = true;
-    if (field == null) {
-      // Binding update before attached to field.
-      isReady = false;
-    }
-    if (response == null || response.getDetailsText(field).isEmpty()) {
-      // destination path not available
-      isReady = false;
-    }
-
-    if (!isReady) {
-      ((ViewGroup) view.getParent()).setVisibility(View.GONE);
+  @BindingAdapter("bind:uri")
+  public static void bindUri(ImageView view, Uri uri) {
+    if (uri == null) {
       return;
-    } else {
-      ((ViewGroup) view.getParent()).setVisibility(View.VISIBLE);
     }
 
-    storageManager.loadPhotoFromDestinationPath(view, response.getDetailsText(field));
+    Picasso.get().load(uri).placeholder(R.drawable.ic_photo_grey_600_24dp).into(view);
   }
 }

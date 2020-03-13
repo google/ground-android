@@ -22,12 +22,10 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.provider.MediaStore.Images.Media;
-import android.widget.ImageView;
-import com.google.android.gnd.R;
 import com.google.android.gnd.persistence.remote.FirestoreStorageManager;
 import com.google.android.gnd.system.ActivityStreams.ActivityResult;
+import com.google.android.gnd.ui.common.photoview.PhotoView.Callback;
 import com.google.android.gnd.ui.util.FileUtil;
-import com.squareup.picasso.Picasso;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 import java.io.File;
@@ -118,35 +116,24 @@ public class StorageManager {
     return fileUtil.getFile(splits[splits.length - 1]);
   }
 
+  private Uri getFileUriFromDestinationPath(String destinationPath) throws FileNotFoundException {
+    File file = getLocalFileFromDestinationPath(destinationPath);
+    return Uri.fromFile(file);
+  }
+
   /**
    * Load photo from the provided destination path.
    *
    * <p>If the image is not uploaded yet, then parse the filename from path and load the file from
    * local storage.
    *
-   * @param imageView Placeholder for photo field
    * @param destinationPath Destination path of the uploaded photo
    */
-  public void loadPhotoFromDestinationPath(ImageView imageView, String destinationPath) {
+  public void loadPhotoFromDestinationPath(String destinationPath, Callback callback) {
     firestoreStorageManager
         .getDownloadUrl(destinationPath)
-        .doOnSuccess(
-            uri -> {
-              // Load the file from Firestore Storage
-              Picasso.get()
-                  .load(uri)
-                  .placeholder(R.drawable.ic_photo_grey_600_24dp)
-                  .into(imageView);
-            })
-        .doOnError(
-            throwable -> {
-              // Load file locally
-              File file = getLocalFileFromDestinationPath(destinationPath);
-              Picasso.get()
-                  .load(file)
-                  .placeholder(R.drawable.ic_photo_grey_600_24dp)
-                  .into(imageView);
-            })
+        .doOnSuccess(callback::run)
+        .doOnError(throwable -> callback.run(getFileUriFromDestinationPath(destinationPath)))
         .subscribe();
   }
 }

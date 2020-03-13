@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:bind="http://schemas.android.com/tools">
+
+  <data>
+    <variable
+      name="viewModel"
+      type="com.google.android.gnd.ui.common.photoview.PhotoViewViewModel" />
+  </data>
+
+  <com.google.android.material.card.MaterialCardView
+    android:id="@+id/material_card"
+    android:layout_width="match_parent"
+    android:layout_height="200dp"
+    android:visibility="@{viewModel.isDestinationPathAvailable}">
+    <ImageView
+      android:id="@+id/image_thumbnail_preview"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      android:adjustViewBounds="true"
+      android:contentDescription="@string/photo_preview"
+      android:scaleType="fitCenter"
+      bind:uri="@{viewModel.destinationPath}" />
+  </com.google.android.material.card.MaterialCardView>
+
+</layout>

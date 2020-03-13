@@ -19,6 +19,7 @@ package com.google.android.gnd.ui.common;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 import com.google.android.gnd.MainViewModel;
+import com.google.android.gnd.ui.common.photoview.PhotoViewViewModel;
 import com.google.android.gnd.ui.editobservation.EditObservationViewModel;
 import com.google.android.gnd.ui.home.HomeScreenViewModel;
 import com.google.android.gnd.ui.home.featuresheet.FeatureSheetViewModel;
@@ -95,6 +96,11 @@ public abstract class ViewModelModule {
   @IntoMap
   @ViewModelKey(EditObservationViewModel.class)
   abstract ViewModel bindEditObservationViewModel(EditObservationViewModel viewModel);
+
+  @Binds
+  @IntoMap
+  @ViewModelKey(PhotoViewViewModel.class)
+  abstract ViewModel bindPhotoViewViewModel(PhotoViewViewModel viewModel);
 
   @Binds
   abstract ViewModelProvider.Factory bindViewModelFactory(ViewModelFactory factory);
