@@ -37,7 +37,10 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.squareup.picasso.Picasso;
 import java8.util.function.Consumer;
 
-// Should this be made injectable?
+/**
+ * Container for adapter methods defining custom data binding behavior. This class cannot be
+ * made injectable, since binding adapters must be static.
+ */
 public class BindingAdapters {
 
   @BindingAdapter("android:text")
