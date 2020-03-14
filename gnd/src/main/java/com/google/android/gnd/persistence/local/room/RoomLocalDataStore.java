@@ -39,7 +39,6 @@ import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.model.observation.ObservationMutation;
 import com.google.android.gnd.persistence.local.LocalDataStore;
-import com.google.android.gnd.rx.RxDebug;
 import com.google.android.gnd.rx.Schedulers;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
