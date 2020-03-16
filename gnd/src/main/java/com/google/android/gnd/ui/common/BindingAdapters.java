@@ -38,8 +38,8 @@ import com.squareup.picasso.Picasso;
 import java8.util.function.Consumer;
 
 /**
- * Container for adapter methods defining custom data binding behavior. This class cannot be
- * made injectable, since binding adapters must be static.
+ * Container for adapter methods defining custom data binding behavior. This class cannot be made
+ * injectable, since binding adapters must be static.
  */
 public class BindingAdapters {
 
@@ -130,7 +130,7 @@ public class BindingAdapters {
     view.setOnShowDialogListener(listener);
   }
 
-  @BindingAdapter("bind:uri")
+  @BindingAdapter("imageUri")
   public static void bindUri(ImageView view, Uri uri) {
     if (uri == null) {
       return;

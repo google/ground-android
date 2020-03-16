@@ -4,15 +4,15 @@ import android.content.Context;
 import android.net.Uri;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
+import android.widget.FrameLayout;
 import androidx.fragment.app.Fragment;
 import com.google.android.gnd.databinding.PhotoViewBinding;
 import com.google.android.gnd.model.observation.Response;
 import com.google.android.gnd.system.StorageManager;
-import com.google.android.material.card.MaterialCardView;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
-public class PhotoView extends MaterialCardView {
+public class PhotoView extends FrameLayout {
 
   private final PhotoViewBinding binding;
 
@@ -30,10 +30,7 @@ public class PhotoView extends MaterialCardView {
 
   public PhotoView(Context context, AttributeSet attrs, int defStyleAttr) {
     super(context, attrs, defStyleAttr);
-
-    LayoutInflater inflater =
-        (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-    binding = PhotoViewBinding.inflate(inflater);
+    binding = PhotoViewBinding.inflate(LayoutInflater.from(context), this, true);
   }
 
   public void setResponse(@Nullable Response response) {

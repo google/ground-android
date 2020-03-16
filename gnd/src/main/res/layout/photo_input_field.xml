@@ -47,7 +47,7 @@
 
     <com.google.android.gnd.ui.common.photoview.PhotoView
       android:layout_width="match_parent"
-      android:layout_height="200dp"
+      android:layout_height="wrap_content"
       app:response="@{viewModel.responses[field.id]}"
       app:fragment="@{fragment}"
       app:viewModel="@{photoViewViewModel}" />
