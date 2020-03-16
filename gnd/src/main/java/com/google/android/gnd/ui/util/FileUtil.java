@@ -27,7 +27,6 @@ import timber.log.Timber;
 
 public class FileUtil {
 
-  private static final String TAG = FileUtil.class.getName();
   private final Context context;
 
   @Inject
