@@ -28,7 +28,7 @@
       type="com.google.android.gnd.ui.editobservation.EditObservationFragment" />
     <variable
       name="photoFieldViewModel"
-      type="com.google.android.gnd.ui.common.photoview.PhotoFieldViewModel" />
+      type="com.google.android.gnd.ui.editobservation.PhotoFieldViewModel" />
   </data>
 
   <LinearLayout

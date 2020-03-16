@@ -1,4 +1,4 @@
-package com.google.android.gnd.ui.common.photoview;
+package com.google.android.gnd.ui.editobservation;
 
 import android.net.Uri;
 import android.view.View;
