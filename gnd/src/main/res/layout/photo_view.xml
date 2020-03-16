@@ -13,7 +13,7 @@
     android:id="@+id/material_card"
     android:layout_width="match_parent"
     android:layout_height="200dp"
-    android:visibility="@{viewModel.isDestinationPathAvailable}"
+    android:visibility="@{viewModel.photoPreviewVisibility}"
     app:cardElevation="@dimen/cardview_elevation">
     <ImageView
       android:id="@+id/image_thumbnail_preview"

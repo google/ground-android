@@ -2,7 +2,6 @@ package com.google.android.gnd.ui.common.photoview;
 
 import android.net.Uri;
 import android.view.View;
-import androidx.databinding.ObservableInt;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import com.google.android.gnd.model.form.Field;
@@ -15,7 +14,7 @@ public class PhotoFieldViewModel extends AbstractViewModel {
 
   private final StorageManager storageManager;
   private final MutableLiveData<Uri> destinationPath = new MutableLiveData<Uri>();
-  private final ObservableInt isDestinationPathAvailable = new ObservableInt(View.GONE);
+  private final MutableLiveData<Integer> photoPreviewVisibility = new MutableLiveData<>(View.GONE);
 
   private Field field;
 
@@ -28,8 +27,8 @@ public class PhotoFieldViewModel extends AbstractViewModel {
     return destinationPath;
   }
 
-  public ObservableInt isDestinationPathAvailable() {
-    return isDestinationPathAvailable;
+  public MutableLiveData<Integer> photoPreviewVisibility() {
+    return photoPreviewVisibility;
   }
 
   public void setField(Field field) {
@@ -38,9 +37,9 @@ public class PhotoFieldViewModel extends AbstractViewModel {
 
   public void setResponse(Response response) {
     if (field == null || response == null || response.getDetailsText(field).isEmpty()) {
-      isDestinationPathAvailable.set(View.GONE);
+      photoPreviewVisibility.postValue(View.GONE);
     } else {
-      isDestinationPathAvailable.set(View.VISIBLE);
+      photoPreviewVisibility.postValue(View.VISIBLE);
       String path = response.getDetailsText(field);
       disposeOnClear(
           storageManager.loadUriFromDestinationPath(path).subscribe(destinationPath::postValue));
