@@ -28,7 +28,6 @@ import androidx.databinding.ViewDataBinding;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.MultipleChoiceInputFieldBinding;
-import com.google.android.gnd.databinding.PhotoInputFieldBinding;
 import com.google.android.gnd.databinding.TextInputFieldBinding;
 import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.observation.Response;
@@ -74,8 +73,6 @@ public class BindingAdapters {
       return ((TextInputFieldBinding) binding).getField();
     } else if (binding instanceof MultipleChoiceInputFieldBinding) {
       return ((MultipleChoiceInputFieldBinding) binding).getField();
-    } else if (binding instanceof PhotoInputFieldBinding) {
-      return ((PhotoInputFieldBinding) binding).getField();
     } else {
       throw new IllegalArgumentException("Unknown binding type: " + binding.getClass());
     }
