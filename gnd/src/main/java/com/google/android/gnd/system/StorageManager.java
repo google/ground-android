@@ -70,6 +70,7 @@ public class StorageManager {
         .andThen(sendPhotoPickerIntent());
   }
 
+  // TODO: Move UI-specific code to UI layer (Fragment or any related helper)
   /** Enqueue an intent for selecting a photo from the storage. */
   private Completable sendPhotoPickerIntent() {
     return Completable.fromAction(
