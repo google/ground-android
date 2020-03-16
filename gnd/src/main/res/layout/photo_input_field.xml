@@ -27,9 +27,6 @@
       name="fragment"
       type="com.google.android.gnd.ui.editobservation.EditObservationFragment" />
     <variable
-      name="viewModel"
-      type="com.google.android.gnd.ui.editobservation.EditObservationViewModel" />
-    <variable
       name="photoFieldViewModel"
       type="com.google.android.gnd.ui.common.photoview.PhotoFieldViewModel" />
   </data>
@@ -45,12 +42,21 @@
     android:layout_marginBottom="@dimen/field_vertical_margin"
     android:orientation="vertical">
 
-    <com.google.android.gnd.ui.common.photoview.PhotoView
+    <com.google.android.material.card.MaterialCardView
+      android:id="@+id/material_card"
       android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      app:response="@{viewModel.responses[field.id]}"
-      app:fragment="@{fragment}"
-      app:viewModel="@{photoFieldViewModel}" />
+      android:layout_height="200dp"
+      android:visibility="@{photoFieldViewModel.photoPreviewVisibility}"
+      app:cardElevation="@dimen/cardview_elevation">
+      <ImageView
+        android:id="@+id/image_thumbnail_preview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:adjustViewBounds="true"
+        android:contentDescription="@string/photo_preview"
+        android:scaleType="fitCenter"
+        app:imageUri="@{photoFieldViewModel.destinationPath}" />
+    </com.google.android.material.card.MaterialCardView>
 
     <Button
       android:id="@+id/btn_select_photo"

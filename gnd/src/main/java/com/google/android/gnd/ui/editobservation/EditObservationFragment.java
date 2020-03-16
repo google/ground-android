@@ -159,7 +159,7 @@ public class EditObservationFragment extends AbstractFragment
     assignGeneratedId(binding.getRoot().findViewById(R.id.text_input_edit_text));
   }
 
-  public void addMultipleChoiceField(Field field) {
+  private void addMultipleChoiceField(Field field) {
     MultipleChoiceInputFieldBinding binding =
         MultipleChoiceInputFieldBinding.inflate(getLayoutInflater(), formLayout, false);
     binding.setFragment(this);
@@ -170,16 +170,17 @@ public class EditObservationFragment extends AbstractFragment
     assignGeneratedId(binding.getRoot().findViewById(R.id.multiple_choice_input_edit_text));
   }
 
-  public void addPhotoField(Field field) {
+  private void addPhotoField(Field field) {
     PhotoInputFieldBinding binding =
         PhotoInputFieldBinding.inflate(getLayoutInflater(), formLayout, false);
     binding.setLifecycleOwner(this);
-    PhotoFieldViewModel photoFieldViewModel = viewModelFactory.create(PhotoFieldViewModel.class);
-    photoFieldViewModel.setField(field);
-    binding.setPhotoFieldViewModel(photoFieldViewModel);
     binding.setField(field);
     binding.setFragment(this);
-    binding.setViewModel(viewModel);
+
+    PhotoFieldViewModel photoFieldViewModel = viewModelFactory.create(PhotoFieldViewModel.class);
+    photoFieldViewModel.init(field, viewModel.getResponses());
+    binding.setPhotoFieldViewModel(photoFieldViewModel);
+
     formLayout.addView(binding.getRoot());
   }
 
