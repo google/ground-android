@@ -30,8 +30,8 @@
       name="viewModel"
       type="com.google.android.gnd.ui.editobservation.EditObservationViewModel" />
     <variable
-      name="photoViewViewModel"
-      type="com.google.android.gnd.ui.common.photoview.PhotoViewViewModel" />
+      name="photoFieldViewModel"
+      type="com.google.android.gnd.ui.common.photoview.PhotoFieldViewModel" />
   </data>
 
   <LinearLayout
@@ -50,7 +50,7 @@
       android:layout_height="wrap_content"
       app:response="@{viewModel.responses[field.id]}"
       app:fragment="@{fragment}"
-      app:viewModel="@{photoViewViewModel}" />
+      app:viewModel="@{photoFieldViewModel}" />
 
     <Button
       android:id="@+id/btn_select_photo"

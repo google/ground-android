@@ -11,7 +11,7 @@ import com.google.android.gnd.system.StorageManager;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import javax.inject.Inject;
 
-public class PhotoViewViewModel extends AbstractViewModel {
+public class PhotoFieldViewModel extends AbstractViewModel {
 
   private final StorageManager storageManager;
   private final MutableLiveData<Uri> destinationPath = new MutableLiveData<Uri>();
@@ -20,7 +20,7 @@ public class PhotoViewViewModel extends AbstractViewModel {
   private Field field;
 
   @Inject
-  PhotoViewViewModel(StorageManager storageManager) {
+  PhotoFieldViewModel(StorageManager storageManager) {
     this.storageManager = storageManager;
   }
 

@@ -40,7 +40,7 @@ public class PhotoView extends FrameLayout {
     binding.setLifecycleOwner(fragment);
   }
 
-  public void setViewModel(PhotoViewViewModel viewModel) {
+  public void setViewModel(PhotoFieldViewModel viewModel) {
     if (viewModel == null) {
       return;
     }

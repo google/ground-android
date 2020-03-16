@@ -44,7 +44,7 @@ import com.google.android.gnd.ui.common.BackPressListener;
 import com.google.android.gnd.ui.common.EphemeralPopups;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.TwoLineToolbar;
-import com.google.android.gnd.ui.common.photoview.PhotoViewViewModel;
+import com.google.android.gnd.ui.common.photoview.PhotoFieldViewModel;
 import com.google.android.gnd.ui.editobservation.PhotoDialogFragment.AddPhotoListener;
 import java8.util.Optional;
 import javax.inject.Inject;
@@ -174,9 +174,9 @@ public class EditObservationFragment extends AbstractFragment
     PhotoInputFieldBinding binding =
         PhotoInputFieldBinding.inflate(getLayoutInflater(), formLayout, false);
     binding.setLifecycleOwner(this);
-    PhotoViewViewModel photoViewViewModel = viewModelFactory.create(PhotoViewViewModel.class);
-    photoViewViewModel.setField(field);
-    binding.setPhotoViewViewModel(photoViewViewModel);
+    PhotoFieldViewModel photoFieldViewModel = viewModelFactory.create(PhotoFieldViewModel.class);
+    photoFieldViewModel.setField(field);
+    binding.setPhotoFieldViewModel(photoFieldViewModel);
     binding.setField(field);
     binding.setFragment(this);
     binding.setViewModel(viewModel);
