@@ -23,11 +23,12 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.provider.MediaStore.Images.Media;
 import com.google.android.gnd.persistence.remote.FirestoreStorageManager;
+import com.google.android.gnd.rx.RxTask;
 import com.google.android.gnd.system.ActivityStreams.ActivityResult;
-import com.google.android.gnd.ui.common.photoview.PhotoView.Callback;
 import com.google.android.gnd.ui.util.FileUtil;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
+import io.reactivex.Single;
 import java.io.File;
 import java.io.FileNotFoundException;
 import javax.inject.Inject;
@@ -122,18 +123,15 @@ public class StorageManager {
   }
 
   /**
-   * Load photo from the provided destination path.
+   * Load Uri from the provided destination path.
    *
-   * <p>If the image is not uploaded yet, then parse the filename from path and load the file from
-   * local storage.
+   * <p>If the image is not uploaded yet, then parse the filename from path and load the Uri of file
+   * from local storage.
    *
    * @param destinationPath Destination path of the uploaded photo
    */
-  public void loadPhotoFromDestinationPath(String destinationPath, Callback callback) {
-    firestoreStorageManager
-        .getDownloadUrl(destinationPath)
-        .doOnSuccess(callback::run)
-        .doOnError(throwable -> callback.run(getFileUriFromDestinationPath(destinationPath)))
-        .subscribe();
+  public Single<Uri> loadUriFromDestinationPath(String destinationPath) {
+    return RxTask.toSingle(() -> firestoreStorageManager.getDownloadUrl(destinationPath))
+        .onErrorReturn(throwable -> getFileUriFromDestinationPath(destinationPath));
   }
 }

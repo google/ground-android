@@ -16,6 +16,8 @@
 
 package com.google.android.gnd.ui.observationdetails;
 
+import static com.google.android.gnd.rx.RxAutoDispose.autoDisposable;
+
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -37,6 +39,7 @@ import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.form.Field.Type;
 import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.rx.Loadable;
+import com.google.android.gnd.rx.Schedulers;
 import com.google.android.gnd.system.StorageManager;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.EphemeralPopups;
@@ -51,6 +54,7 @@ public class ObservationDetailsFragment extends AbstractFragment {
 
   @Inject Navigator navigator;
   @Inject StorageManager storageManager;
+  @Inject Schedulers schedulers;
 
   @BindView(R.id.observation_details_toolbar)
   TwoLineToolbar toolbar;
@@ -158,13 +162,19 @@ public class ObservationDetailsFragment extends AbstractFragment {
               if (field.getType().equals(Type.PHOTO)) {
                 binding.fieldValue.setVisibility(View.GONE);
                 binding.imagePreview.setVisibility(View.VISIBLE);
-                storageManager.loadPhotoFromDestinationPath(
-                    value,
-                    uri ->
-                        Picasso.get()
-                            .load(uri)
-                            .placeholder(R.drawable.ic_photo_grey_600_24dp)
-                            .into(binding.imagePreview));
+
+                storageManager
+                    .loadUriFromDestinationPath(value)
+                    .subscribeOn(schedulers.io())
+                    .observeOn(schedulers.ui())
+                    .as(autoDisposable(this))
+                    .subscribe(
+                        uri ->
+                            Picasso.get()
+                                .load(uri)
+                                .placeholder(R.drawable.ic_photo_grey_600_24dp)
+                                .into(binding.imagePreview));
+
               } else {
                 binding.fieldValue.setText(value);
               }

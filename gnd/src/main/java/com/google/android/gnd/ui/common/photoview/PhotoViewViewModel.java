@@ -42,7 +42,8 @@ public class PhotoViewViewModel extends AbstractViewModel {
     } else {
       isDestinationPathAvailable.set(View.VISIBLE);
       String path = response.getDetailsText(field);
-      storageManager.loadPhotoFromDestinationPath(path, destinationPath::setValue);
+      disposeOnClear(
+          storageManager.loadUriFromDestinationPath(path).subscribe(destinationPath::postValue));
     }
   }
 }

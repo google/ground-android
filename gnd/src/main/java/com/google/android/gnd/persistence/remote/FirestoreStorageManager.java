@@ -17,14 +17,14 @@
 package com.google.android.gnd.persistence.remote;
 
 import android.net.Uri;
-import android.util.Log;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
-import io.reactivex.Maybe;
 import java.io.File;
 import java.util.Objects;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import timber.log.Timber;
 
 // TODO: Add column to Observation table for storing uploaded media urls
 // TODO: Synced to remote db as well
@@ -32,7 +32,6 @@ import javax.inject.Singleton;
 @Singleton
 public class FirestoreStorageManager {
 
-  private static final String TAG = FirestoreStorageManager.class.getName();
   private static final String MEDIA_ROOT_DIR = "uploaded_media";
   private final StorageReference storageReference;
 
@@ -55,14 +54,8 @@ public class FirestoreStorageManager {
     return getRootMediaDir().child(fileName);
   }
 
-  public Maybe<Uri> getDownloadUrl(String path) {
-    return Maybe.create(
-        emitter ->
-            storageReference
-                .child(path)
-                .getDownloadUrl()
-                .addOnSuccessListener(emitter::onSuccess)
-                .addOnFailureListener(emitter::onError));
+  public Task<Uri> getDownloadUrl(String path) {
+    return storageReference.child(path).getDownloadUrl();
   }
 
   /** Upload file to Firebase Storage. */
@@ -81,25 +74,25 @@ public class FirestoreStorageManager {
     uploadTask
         .addOnCanceledListener(
             () -> {
-              Log.d(TAG, String.format("Uploading canceled: %s", fileName));
+              Timber.d("Uploading canceled: %s", fileName);
             })
         .addOnCompleteListener(
             task -> {
-              Log.d(TAG, String.format("Uploading completed: %s", fileName));
+              Timber.d("Uploading completed: %s", fileName);
             })
         .addOnFailureListener(
             e -> {
-              Log.d(TAG, String.format("Uploading failed: %s", fileName), e);
+              Timber.e(e, "Uploading failed: %s", fileName);
             })
         .addOnSuccessListener(
             taskSnapshot -> {
-              Log.d(TAG, String.format("Uploading succeeded: %s", fileName));
+              Timber.d("Uploading succeeded: %s", fileName);
             })
         .addOnProgressListener(
             taskSnapshot -> {
               double percentCompleted =
                   100.0 * taskSnapshot.getBytesTransferred() / taskSnapshot.getTotalByteCount();
-              Log.d(TAG, String.format("Uploading in progress: %s %f", fileName, percentCompleted));
+              Timber.d("Uploading in progress: %s %f", fileName, percentCompleted);
             });
   }
 
@@ -118,7 +111,7 @@ public class FirestoreStorageManager {
               // TODO save to local database
               if (task.isSuccessful()) {
                 Uri downloadUri = task.getResult();
-                Log.d(TAG, String.format("Uploaded to : %s", downloadUri));
+                Timber.d("Uploaded to : %s", downloadUri);
               }
             });
   }

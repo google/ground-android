@@ -1,7 +1,6 @@
 package com.google.android.gnd.ui.common.photoview;
 
 import android.content.Context;
-import android.net.Uri;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.widget.FrameLayout;
@@ -47,9 +46,5 @@ public class PhotoView extends FrameLayout {
     }
     viewModel.setResponse(response);
     binding.setViewModel(viewModel);
-  }
-
-  public interface Callback {
-    void run(Uri uri);
   }
 }
