@@ -174,7 +174,7 @@ public class EditObservationFragment extends AbstractFragment
     PhotoInputFieldBinding binding =
         PhotoInputFieldBinding.inflate(getLayoutInflater(), formLayout, false);
     binding.setLifecycleOwner(this);
-    PhotoViewViewModel photoViewViewModel = getViewModel(PhotoViewViewModel.class);
+    PhotoViewViewModel photoViewViewModel = viewModelFactory.create(PhotoViewViewModel.class);
     photoViewViewModel.setField(field);
     binding.setPhotoViewViewModel(photoViewViewModel);
     binding.setField(field);
