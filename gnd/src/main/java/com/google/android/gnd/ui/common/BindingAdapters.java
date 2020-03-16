@@ -132,10 +132,6 @@ public class BindingAdapters {
 
   @BindingAdapter("imageUri")
   public static void bindUri(ImageView view, Uri uri) {
-    if (uri == null) {
-      return;
-    }
-
     Picasso.get().load(uri).placeholder(R.drawable.ic_photo_grey_600_24dp).into(view);
   }
 }
