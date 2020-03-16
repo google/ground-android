@@ -49,7 +49,7 @@ public class PhotoFieldViewModel extends AbstractViewModel {
 
   public void init(Field field, ObservableMap<String, Response> responses) {
     // Load last saved value
-    update(responses.get(field.getId()), field);
+    updateUI(responses.get(field.getId()), field);
 
     // Observe response updates
     responses.addOnMapChangedCallback(
@@ -57,13 +57,13 @@ public class PhotoFieldViewModel extends AbstractViewModel {
           @Override
           public void onMapChanged(ObservableMap<String, Response> sender, String key) {
             if (key.equals(field.getId())) {
-              update(sender.get(key), field);
+              updateUI(sender.get(key), field);
             }
           }
         });
   }
 
-  private void update(Response response, Field field) {
+  private void updateUI(Response response, Field field) {
     if (response == null) {
       photoPreviewVisibility.setValue(View.GONE);
     } else {
