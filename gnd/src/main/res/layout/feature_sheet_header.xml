@@ -56,7 +56,8 @@
           android:text="@{viewModel.featureTitle}"
           android:textAlignment="center"
           android:textAppearance="@style/TextAppearance.AppCompat.Title"
-          tools:text="Feature Sheet Title" />
+          tools:text="Feature Sheet Title"
+          android:gravity="center_horizontal" />
 
         <TextView
           android:id="@+id/feature_sheet_subtitle"
@@ -67,7 +68,8 @@
           android:textColor="@color/colorGrey600"
           android:textSize="12sp"
           android:visibility="@{viewModel.featureSubtitleVisibility}"
-          tools:text="Feature Subtitle" />
+          tools:text="Feature Subtitle"
+          android:gravity="center_horizontal" />
       </LinearLayout>
     </androidx.cardview.widget.CardView>
 
