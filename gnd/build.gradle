@@ -29,7 +29,7 @@ project.ext {
     daggerVersion = "2.25.3"
     firebaseCoreVersion = "17.2.3"
     gmsVersion = "17.0.0"
-    lifecycleVersion = "2.2.0"
+    lifecycleVersion = "2.1.0"
     navigationVersion = "1.0.0"
     roomVersion = "2.2.4"
     rxAndroidVersion = "2.1.1"
@@ -150,7 +150,7 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-runtime:$project.lifecycleVersion"
     implementation "androidx.lifecycle:lifecycle-extensions:$project.lifecycleVersion"
     implementation "androidx.lifecycle:lifecycle-reactivestreams:$project.lifecycleVersion"
-    annotationProcessor "androidx.lifecycle:lifecycle-compiler:2.2.0"
+    annotationProcessor "androidx.lifecycle:lifecycle-compiler:$project.lifecycleVersion"
 
     // Android Navigation
     implementation "android.arch.navigation:navigation-fragment:$project.navigationVersion"
