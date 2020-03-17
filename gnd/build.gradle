@@ -23,33 +23,17 @@ apply from: '../config/pmd/pmd.gradle'
 apply from: '../config/spotbugs/spotbugs.gradle'
 
 project.ext {
-    apacheCommonsVersion = "2.6"
     autoDisposeVersion = "1.2.0"
     autoValueVersion = "1.6.3"
     butterKnifeVersion = "10.2.0"
-    constraintLayoutVersion = "1.0.2"
     daggerVersion = "2.25.3"
-    // Latest: https://firebase.google.com/support/release-notes/android#latest_sdk_versions
-    firebaseCoreVersion = "17.2.1"
-    firebaseAuthVersion = "19.2.0"
-    firebaseFirestoreVersion = "21.3.1"
-    firebasePerfVersion = "19.0.3"
+    firebaseCoreVersion = "17.2.3"
     gmsVersion = "17.0.0"
-    guavaVersion = "23.0-android"
-    junitVersion = "4.12"
-    lifecycleVersion = "2.1.0"
+    lifecycleVersion = "2.2.0"
     navigationVersion = "1.0.0"
-    roomVersion = "2.2.2"
+    roomVersion = "2.2.4"
     rxAndroidVersion = "2.1.1"
-    rxBindingVersion = "2.1.1"
-    rxFirebaseVersion = "1.5.0"
-    rxJava2DebugVersion = "1.4.0"
-    rxJavaVersion = "2.2.8"
-    streamSupportVersion = "1.6.3"
-    supportLibraryVersion = "1.0.0-beta01"
-    tabLayoutHelper = "0.9.0"
-    truthVersion = "1.0"
-    workVersion = "2.2.0"
+    workVersion = "2.3.3"
 }
 
 // Load secrets.properties
@@ -101,9 +85,7 @@ android {
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation project(':android-gmaps-addons')
-    androidTestImplementation('androidx.test.espresso:espresso-core:3.1.0-alpha4', {
-        exclude group: 'com.android.support', module: 'support-annotations'
-    })
+
     implementation 'androidx.multidex:multidex:2.0.1'
 
     // Stetho - A debug bridge for Android applications
@@ -116,14 +98,12 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.1.0'
 
     // UI widgets.
-    implementation "androidx.cardview:cardview:$project.supportLibraryVersion"
-    implementation "com.google.android.material:material:$project.supportLibraryVersion"
-    implementation "com.android.support.constraint:constraint-layout:" +
-        "$project.constraintLayoutVersion"
+    implementation 'androidx.cardview:cardview:1.0.0'
+    implementation 'com.google.android.material:material:1.1.0'
+    implementation 'com.android.support.constraint:constraint-layout:1.1.3'
 
     // Support for Java streams.
-    implementation "net.sourceforge.streamsupport:streamsupport-cfuture:" +
-        "$project.streamSupportVersion"
+    implementation 'net.sourceforge.streamsupport:streamsupport-cfuture:1.6.3'
 
     // Google Play Services.
     implementation "com.google.android.gms:play-services-auth:$project.gmsVersion"
@@ -136,20 +116,18 @@ dependencies {
     // Firebase and related libraries.
     implementation "com.google.firebase:firebase-analytics:$project.firebaseCoreVersion"
     implementation "com.google.firebase:firebase-core:$project.firebaseCoreVersion"
-    implementation "com.google.firebase:firebase-firestore:$project.firebaseFirestoreVersion"
-    implementation "com.google.firebase:firebase-auth:$project.firebaseAuthVersion"
-    implementation "com.google.firebase:firebase-perf:$project.firebasePerfVersion"
-    implementation "com.github.FrangSierra:RxFirebase:$project.rxFirebaseVersion"
-    implementation 'com.google.firebase:firebase-storage:19.1.0'
+    implementation 'com.google.firebase:firebase-firestore:21.4.1'
+    implementation 'com.google.firebase:firebase-auth:19.2.0'
+    implementation 'com.google.firebase:firebase-perf:19.0.5'
+    implementation 'com.github.FrangSierra:RxFirebase:1.5.0'
+    implementation 'com.google.firebase:firebase-storage:19.1.1'
 
     // Crashlytics
     implementation 'com.crashlytics.sdk.android:crashlytics:2.10.1'
 
-    // Dagger core
+    // Dagger
     annotationProcessor "com.google.dagger:dagger-compiler:$project.daggerVersion"
     implementation "com.google.dagger:dagger:$project.daggerVersion"
-
-    // Dagger Android
     implementation "com.google.dagger:dagger-android:$project.daggerVersion"
     annotationProcessor "com.google.dagger:dagger-android-processor:$project.daggerVersion"
     implementation "com.google.dagger:dagger-android-support:$project.daggerVersion"
@@ -159,19 +137,19 @@ dependencies {
     annotationProcessor "com.jakewharton:butterknife-compiler:$project.butterKnifeVersion"
 
     // ReactiveX
-    implementation "io.reactivex.rxjava2:rxjava:$project.rxJavaVersion"
+    implementation 'io.reactivex.rxjava2:rxjava:2.2.9'
     implementation "io.reactivex.rxjava2:rxandroid:$project.rxAndroidVersion"
-    implementation "com.akaita.java:rxjava2-debug:$project.rxJava2DebugVersion"
-    implementation "com.jakewharton.rxbinding2:rxbinding:$project.rxBindingVersion"
-    implementation "com.jakewharton.rxbinding2:rxbinding-support-v4:$project.rxBindingVersion"
-    implementation "com.jakewharton.rxbinding2:rxbinding-appcompat-v7:$project.rxBindingVersion"
-    implementation "com.jakewharton.rxbinding2:rxbinding-design:$project.rxBindingVersion"
+    implementation "com.jakewharton.rxbinding2:rxbinding:$project.rxAndroidVersion"
+    implementation "com.jakewharton.rxbinding2:rxbinding-support-v4:$project.rxAndroidVersion"
+    implementation "com.jakewharton.rxbinding2:rxbinding-appcompat-v7:$project.rxAndroidVersion"
+    implementation "com.jakewharton.rxbinding2:rxbinding-design:$project.rxAndroidVersion"
+    implementation 'com.akaita.java:rxjava2-debug:1.4.0'
 
     // Android Arch Lifecycle
     implementation "androidx.lifecycle:lifecycle-runtime:$project.lifecycleVersion"
     implementation "androidx.lifecycle:lifecycle-extensions:$project.lifecycleVersion"
     implementation "androidx.lifecycle:lifecycle-reactivestreams:$project.lifecycleVersion"
-    annotationProcessor "androidx.lifecycle:lifecycle-compiler:$project.lifecycleVersion"
+    annotationProcessor "androidx.lifecycle:lifecycle-compiler:2.2.0"
 
     // Android Navigation
     implementation "android.arch.navigation:navigation-fragment:$project.navigationVersion"
@@ -182,7 +160,7 @@ dependencies {
     annotationProcessor "com.google.auto.value:auto-value:$project.autoValueVersion"
 
     // Guava
-    implementation "com.google.guava:guava:$project.guavaVersion"
+    implementation 'com.google.guava:guava:27.0.1-android'
 
     // Picasso: Image downloading and caching library
     implementation 'com.squareup.picasso:picasso:2.71828'
@@ -202,16 +180,20 @@ dependencies {
     implementation "androidx.work:work-rxjava2:$workVersion"
     androidTestImplementation "androidx.work:work-testing:$workVersion"
 
-    // Testing
-    testImplementation "junit:junit:$project.junitVersion"
-    testImplementation "com.google.truth:truth:$project.truthVersion"
-
     implementation "com.uber.autodispose:autodispose-android:$project.autoDisposeVersion"
     implementation "com.uber.autodispose:autodispose-android-archcomponents:$project.autoDisposeVersion"
 
     // Apache Commons IO
     // https://mvnrepository.com/artifact/commons-io/commons-io
-    implementation "commons-io:commons-io:$project.apacheCommonsVersion"
+    implementation 'commons-io:commons-io:2.6'
+
+    // Testing
+    testImplementation 'junit:junit:4.12'
+    testImplementation 'com.google.truth:truth:1.0'
+
+    androidTestImplementation('androidx.test.espresso:espresso-core:3.1.0-alpha4', {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    })
 }
 
 apply plugin: 'androidx.navigation.safeargs'
