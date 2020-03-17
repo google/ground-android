@@ -100,7 +100,7 @@ public abstract class ViewModelModule {
   @Binds
   @IntoMap
   @ViewModelKey(PhotoFieldViewModel.class)
-  abstract ViewModel bindPhotoViewViewModel(PhotoFieldViewModel viewModel);
+  abstract ViewModel bindPhotoFieldViewModel(PhotoFieldViewModel viewModel);
 
   @Binds
   abstract ViewModelProvider.Factory bindViewModelFactory(ViewModelFactory factory);
