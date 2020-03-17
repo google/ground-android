@@ -42,10 +42,8 @@ buildscript {
     }
 }
 
-// Lets us check which deps are out of date with:
-// ./gradlew dependencyUpdates -Drevision=release
 plugins {
-    id "com.github.ben-manes.versions" version "0.20.0"
+    id "com.github.ben-manes.versions" version "0.28.0"
     id 'com.github.spotbugs' version '1.6.4'
 }
 
@@ -72,4 +70,13 @@ task clean(type: Delete) {
 apply plugin: "com.pascalwelsch.gitversioner"
 gitVersioner {
     baseBranch "master"
+}
+
+// To check which dependencies are out of date:
+// ./gradlew dependencyUpdates
+tasks.dependencyUpdates {
+    checkConstraints = true
+    gradleReleaseChannel = "current"
+    outputFormatter = "json,plain"
+    outputDir = "gnd/build/reports/dependencyUpdates"
 }
