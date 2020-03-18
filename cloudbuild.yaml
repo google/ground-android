@@ -122,7 +122,7 @@ steps:
             gsutil cp cloud-builder/success.svg gs://${_CACHE_BUCKET}/status.svg
           fi
 
-          # Make files public readable
+          # Make files publicly readable
           gsutil acl ch -u AllUsers:R gs://${_CACHE_BUCKET}/status.svg
           gsutil acl ch -u AllUsers:R gs://${_CACHE_BUCKET}/dependency.svg
           gsutil acl ch -u AllUsers:R gs://${_CACHE_BUCKET}/dependency.txt
