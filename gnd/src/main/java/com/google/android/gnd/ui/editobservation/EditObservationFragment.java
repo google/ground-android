@@ -20,14 +20,11 @@ import static com.google.android.gnd.ui.util.ViewUtil.assignGeneratedId;
 
 import android.app.AlertDialog;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import androidx.annotation.NonNull;
-import androidx.databinding.ObservableMap;
-import androidx.databinding.ObservableMap.OnMapChangedCallback;
 import butterknife.BindView;
 import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.R;
@@ -50,15 +47,11 @@ import com.google.android.gnd.ui.common.TwoLineToolbar;
 import com.google.android.gnd.ui.editobservation.PhotoDialogFragment.AddPhotoListener;
 import java8.util.Optional;
 import javax.inject.Inject;
+import timber.log.Timber;
 
 @ActivityScoped
 public class EditObservationFragment extends AbstractFragment
     implements BackPressListener, AddPhotoListener {
-  private static final String TAG = EditObservationFragment.class.getSimpleName();
-
-  private EditObservationViewModel viewModel;
-  private SingleSelectDialogFactory singleSelectDialogFactory;
-  private MultiSelectDialogFactory multiSelectDialogFactory;
 
   @Inject Navigator navigator;
   @Inject StorageManager storageManager;
@@ -68,6 +61,10 @@ public class EditObservationFragment extends AbstractFragment
 
   @BindView(R.id.edit_observation_layout)
   LinearLayout formLayout;
+
+  private EditObservationViewModel viewModel;
+  private SingleSelectDialogFactory singleSelectDialogFactory;
+  private MultiSelectDialogFactory multiSelectDialogFactory;
 
   @Override
   public void onCreate(@androidx.annotation.Nullable Bundle savedInstanceState) {
@@ -115,7 +112,7 @@ public class EditObservationFragment extends AbstractFragment
         navigator.navigateUp();
         break;
       default:
-        Log.e(TAG, "Unknown save result type: " + saveResult);
+        Timber.e("Unknown save result type: %s", saveResult);
         break;
     }
   }
@@ -128,7 +125,7 @@ public class EditObservationFragment extends AbstractFragment
           addField(element.getField());
           break;
         default:
-          Log.d(TAG, element.getType() + " elements not yet supported");
+          Timber.d("%s elements not yet supported", element.getType());
           break;
       }
     }
@@ -146,7 +143,7 @@ public class EditObservationFragment extends AbstractFragment
         addPhotoField(field);
         break;
       default:
-        Log.w(TAG, "Unimplemented field type: " + field.getType());
+        Timber.w("Unimplemented field type: %s", field.getType());
         break;
     }
   }
@@ -161,7 +158,7 @@ public class EditObservationFragment extends AbstractFragment
     assignGeneratedId(binding.getRoot().findViewById(R.id.text_input_edit_text));
   }
 
-  public void addMultipleChoiceField(Field field) {
+  private void addMultipleChoiceField(Field field) {
     MultipleChoiceInputFieldBinding binding =
         MultipleChoiceInputFieldBinding.inflate(getLayoutInflater(), formLayout, false);
     binding.setFragment(this);
@@ -172,30 +169,18 @@ public class EditObservationFragment extends AbstractFragment
     assignGeneratedId(binding.getRoot().findViewById(R.id.multiple_choice_input_edit_text));
   }
 
-  public void addPhotoField(Field field) {
+  private void addPhotoField(Field field) {
     PhotoInputFieldBinding binding =
         PhotoInputFieldBinding.inflate(getLayoutInflater(), formLayout, false);
     binding.setLifecycleOwner(this);
     binding.setField(field);
     binding.setFragment(this);
-    formLayout.addView(binding.getRoot());
-    assignGeneratedId(binding.getRoot().findViewById(R.id.image_thumbnail_preview));
-    assignGeneratedId(binding.getRoot().findViewById(R.id.btn_select_photo));
 
-    viewModel
-        .getResponses()
-        .addOnMapChangedCallback(
-            new OnMapChangedCallback<ObservableMap<String, Response>, String, Response>() {
-              @Override
-              public void onMapChanged(ObservableMap<String, Response> sender, String key) {
-                if (key == null || !key.equals(field.getId())) {
-                  return;
-                }
-                String path = sender.get(key).getDetailsText(field);
-                // TODO: (BUG) Image doesn't load into the imageview
-                storageManager.loadPhotoFromDestinationPath(binding.imageThumbnailPreview, path);
-              }
-            });
+    PhotoFieldViewModel photoFieldViewModel = viewModelFactory.create(PhotoFieldViewModel.class);
+    photoFieldViewModel.init(field, viewModel.getResponses());
+    binding.setPhotoFieldViewModel(photoFieldViewModel);
+
+    formLayout.addView(binding.getRoot());
   }
 
   public void onShowDialog(Field field) {
@@ -213,7 +198,7 @@ public class EditObservationFragment extends AbstractFragment
             .show();
         break;
       default:
-        Log.e(TAG, "Unknown cardinality: " + cardinality);
+        Timber.e("Unknown cardinality: %s", cardinality);
         break;
     }
   }

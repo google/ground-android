@@ -16,8 +16,9 @@
 
 package com.google.android.gnd.ui.observationdetails;
 
+import static com.google.android.gnd.rx.RxAutoDispose.autoDisposable;
+
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -38,19 +39,22 @@ import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.form.Field.Type;
 import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.rx.Loadable;
+import com.google.android.gnd.rx.Schedulers;
 import com.google.android.gnd.system.StorageManager;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.EphemeralPopups;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.TwoLineToolbar;
+import com.squareup.picasso.Picasso;
 import javax.inject.Inject;
+import timber.log.Timber;
 
 @ActivityScoped
 public class ObservationDetailsFragment extends AbstractFragment {
-  private static final String TAG = ObservationDetailsFragment.class.getSimpleName();
 
   @Inject Navigator navigator;
   @Inject StorageManager storageManager;
+  @Inject Schedulers schedulers;
 
   @BindView(R.id.observation_details_toolbar)
   TwoLineToolbar toolbar;
@@ -121,11 +125,11 @@ public class ObservationDetailsFragment extends AbstractFragment {
       case NOT_FOUND:
       case ERROR:
         // TODO: Replace w/error view?
-        Log.e(TAG, "Failed to load observation");
+        Timber.e("Failed to load observation");
         EphemeralPopups.showError(getContext());
         break;
       default:
-        Log.e(TAG, "Unhandled state: " + observation.getState());
+        Timber.e("Unhandled state: %s", observation.getState());
         break;
     }
   }
@@ -159,7 +163,22 @@ public class ObservationDetailsFragment extends AbstractFragment {
                 binding.fieldValue.setVisibility(View.GONE);
                 binding.imagePreview.setVisibility(View.VISIBLE);
 
-                storageManager.loadPhotoFromDestinationPath(binding.imagePreview, value);
+                // TODO: Subscriptions should only be made inside lifecycle methods so they can be
+                // properly disposed of in their equivalent end lifecycle methods. To do this
+                // safely, we can create a PublishSubject in the view model that gets exposed to
+                // the fragment as a LiveData.
+                storageManager
+                    .getDownloadUrl(value)
+                    .subscribeOn(schedulers.io())
+                    .observeOn(schedulers.ui())
+                    .as(autoDisposable(this))
+                    .subscribe(
+                        uri ->
+                            Picasso.get()
+                                .load(uri)
+                                .placeholder(R.drawable.ic_photo_grey_600_24dp)
+                                .into(binding.imagePreview));
+
               } else {
                 binding.fieldValue.setText(value);
               }

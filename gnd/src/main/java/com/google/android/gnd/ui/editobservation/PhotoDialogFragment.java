@@ -18,7 +18,6 @@ package com.google.android.gnd.ui.editobservation;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,6 +26,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import com.google.android.gnd.databinding.EditObservationBottomSheetBinding;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
+import timber.log.Timber;
 
 /**
  * Generates a bottom sheet with options for adding a photo to the observation.
@@ -77,7 +77,7 @@ public class PhotoDialogFragment extends BottomSheetDialogFragment {
     if (fragment instanceof AddPhotoListener) {
       listener = (AddPhotoListener) fragment;
     } else {
-      Log.e(TAG, "AddPhotoListener not implemented");
+      Timber.e("AddPhotoListener not implemented");
     }
   }
 
