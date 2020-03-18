@@ -143,7 +143,7 @@ public class TileDownloadWorker extends Worker {
    * exists in the app's storage. If the tile's source file isn't present, initiates a download of
    * source file.
    */
-  private Completable checkDownload(Tile tile) {
+  private Completable downloadIfNotFound(Tile tile) {
     File file = new File(context.getFilesDir(), tile.getPath());
 
     if (file.exists()) {
@@ -159,7 +159,7 @@ public class TileDownloadWorker extends Worker {
             t -> {
               switch (t.getState()) {
                 case DOWNLOADED:
-                  return checkDownload(t);
+                  return downloadIfNotFound(t);
                 case PENDING:
                 case IN_PROGRESS:
                 case FAILED:
