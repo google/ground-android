@@ -27,7 +27,7 @@ buildscript {
     }
     dependencies {
         classpath "android.arch.navigation:navigation-safe-args-gradle-plugin:1.0.0"
-        classpath 'com.android.tools.build:gradle:3.5.3'
+        classpath 'com.android.tools.build:gradle:3.6.1'
         classpath "com.google.gms:google-services:4.3.3"
         classpath "com.pascalwelsch.gitversioner:gitversioner:0.3.1"
 
@@ -42,10 +42,8 @@ buildscript {
     }
 }
 
-// Lets us check which deps are out of date with:
-// ./gradlew dependencyUpdates -Drevision=release
 plugins {
-    id "com.github.ben-manes.versions" version "0.20.0"
+    id "com.github.ben-manes.versions" version "0.28.0"
     id 'com.github.spotbugs' version '1.6.4'
 }
 
@@ -61,7 +59,7 @@ allprojects {
 }
 
 task checkCode(type: GradleBuild) {
-    tasks = ['checkstyle', 'lintDebug', 'pmd', 'spotbugs']
+    tasks = ['checkstyle', 'lintDebug', 'pmd', 'spotbugs', 'dependencyUpdates']
 }
 
 task clean(type: Delete) {
@@ -72,4 +70,14 @@ task clean(type: Delete) {
 apply plugin: "com.pascalwelsch.gitversioner"
 gitVersioner {
     baseBranch "master"
+}
+
+// TODO: Create total code health svg badge using report json and add to github
+// To check which dependencies are out of date:
+// ./gradlew dependencyUpdates
+tasks.dependencyUpdates {
+    checkConstraints = true
+    gradleReleaseChannel = "current"
+    outputFormatter = "json,plain"
+    outputDir = "gnd/build/reports/dependencyUpdates"
 }
