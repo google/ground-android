@@ -39,8 +39,6 @@ import com.google.android.gnd.model.form.Field.Type;
 import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.model.observation.Response;
 import com.google.android.gnd.rx.Loadable;
-import com.google.android.gnd.rx.Schedulers;
-import com.google.android.gnd.system.StorageManager;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.EphemeralPopups;
 import com.google.android.gnd.ui.common.Navigator;
@@ -53,8 +51,6 @@ import timber.log.Timber;
 public class ObservationDetailsFragment extends AbstractFragment {
 
   @Inject Navigator navigator;
-  @Inject StorageManager storageManager;
-  @Inject Schedulers schedulers;
 
   @BindView(R.id.observation_details_toolbar)
   TwoLineToolbar toolbar;
