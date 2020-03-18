@@ -78,10 +78,10 @@ public class PhotoFieldViewModel extends AbstractViewModel {
   }
 
   private void updateField(Response response, Field field) {
-    if (response != null) {
-      destinationPath.onNext(response.getDetailsText(field));
-    } else {
+    if (response == null) {
       destinationPath.onNext(EMPTY_PATH);
+    } else {
+      destinationPath.onNext(response.getDetailsText(field));
     }
   }
 }
