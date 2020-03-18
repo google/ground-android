@@ -156,7 +156,7 @@ public class ObservationDetailsFragment extends AbstractFragment {
         .ifPresent(
             response -> {
               if (field.getType() == Type.PHOTO) {
-                addPhotoField(((ViewGroup) binding.getRoot()), field, response);
+                addPhotoField((ViewGroup) binding.getRoot(), field, response);
               } else {
                 binding.fieldValue.setText(response.getDetailsText(field));
               }
