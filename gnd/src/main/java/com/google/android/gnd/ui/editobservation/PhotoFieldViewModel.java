@@ -21,33 +21,47 @@ import android.view.View;
 import androidx.databinding.ObservableMap;
 import androidx.databinding.ObservableMap.OnMapChangedCallback;
 import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.LiveDataReactiveStreams;
 import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.observation.Response;
 import com.google.android.gnd.system.StorageManager;
 import com.google.android.gnd.ui.common.AbstractViewModel;
+import io.reactivex.Single;
+import io.reactivex.processors.BehaviorProcessor;
 import javax.inject.Inject;
 
 public class PhotoFieldViewModel extends AbstractViewModel {
 
+  private static final String EMPTY_PATH = "";
   private final StorageManager storageManager;
-  private final MutableLiveData<Uri> destinationPath = new MutableLiveData<>();
-  private final MutableLiveData<Integer> photoPreviewVisibility = new MutableLiveData<>(View.GONE);
+  private final BehaviorProcessor<String> destinationPath = BehaviorProcessor.create();
+  private final LiveData<Uri> uri;
+  private final LiveData<Integer> visibility;
 
   @Inject
   PhotoFieldViewModel(StorageManager storageManager) {
     this.storageManager = storageManager;
+    this.visibility =
+        LiveDataReactiveStreams.fromPublisher(
+            destinationPath.map(path -> path.isEmpty() ? View.GONE : View.VISIBLE));
+    this.uri =
+        LiveDataReactiveStreams.fromPublisher(
+            destinationPath.switchMapSingle(this::getDownloadUrl));
   }
 
-  public LiveData<Uri> getDestinationPath() {
-    return destinationPath;
+  private Single<Uri> getDownloadUrl(String path) {
+    return path.isEmpty() ? Single.just(Uri.EMPTY) : storageManager.getDownloadUrl(path);
   }
 
-  public MutableLiveData<Integer> photoPreviewVisibility() {
-    return photoPreviewVisibility;
+  public LiveData<Uri> getUri() {
+    return uri;
   }
 
-  public void init(Field field, ObservableMap<String, Response> responses) {
+  public LiveData<Integer> getVisibility() {
+    return visibility;
+  }
+
+  void init(Field field, ObservableMap<String, Response> responses) {
     // Load last saved value
     updateField(responses.get(field.getId()), field);
 
@@ -64,17 +78,10 @@ public class PhotoFieldViewModel extends AbstractViewModel {
   }
 
   private void updateField(Response response, Field field) {
-    if (response == null) {
-      photoPreviewVisibility.setValue(View.GONE);
+    if (response != null) {
+      destinationPath.onNext(response.getDetailsText(field));
     } else {
-      String value = response.getDetailsText(field);
-      if (value.isEmpty()) {
-        photoPreviewVisibility.setValue(View.GONE);
-      } else {
-        photoPreviewVisibility.setValue(View.VISIBLE);
-        disposeOnClear(
-            storageManager.loadUriFromDestinationPath(value).subscribe(destinationPath::setValue));
-      }
+      destinationPath.onNext(EMPTY_PATH);
     }
   }
 }

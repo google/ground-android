@@ -124,12 +124,12 @@ public class StorageManager {
   }
 
   /**
-   * Fetch uri for the image from Firestore Storage. If the remote image is not available then
+   * Fetch url for the image from Firestore Storage. If the remote image is not available then
    * search for the file locally and return its uri.
    *
    * @param destinationPath Final destination path of the uploaded photo relative to Firestore
    */
-  public Single<Uri> loadUriFromDestinationPath(String destinationPath) {
+  public Single<Uri> getDownloadUrl(String destinationPath) {
     return RxTask.toSingle(() -> firestoreStorageManager.getDownloadUrl(destinationPath))
         .onErrorReturn(throwable -> getFileUriFromDestinationPath(destinationPath));
   }

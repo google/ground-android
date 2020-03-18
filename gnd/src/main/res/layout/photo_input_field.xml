@@ -46,7 +46,7 @@
       android:id="@+id/material_card"
       android:layout_width="match_parent"
       android:layout_height="200dp"
-      android:visibility="@{photoFieldViewModel.photoPreviewVisibility}"
+      android:visibility="@{photoFieldViewModel.visibility}"
       app:cardElevation="@dimen/cardview_elevation">
       <ImageView
         android:id="@+id/image_thumbnail_preview"
@@ -55,7 +55,7 @@
         android:adjustViewBounds="true"
         android:contentDescription="@string/photo_preview"
         android:scaleType="fitCenter"
-        app:imageUri="@{photoFieldViewModel.destinationPath}" />
+        app:imageUri="@{photoFieldViewModel.uri}" />
     </com.google.android.material.card.MaterialCardView>
 
     <Button

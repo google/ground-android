@@ -164,7 +164,7 @@ public class ObservationDetailsFragment extends AbstractFragment {
                 binding.imagePreview.setVisibility(View.VISIBLE);
 
                 storageManager
-                    .loadUriFromDestinationPath(value)
+                    .getDownloadUrl(value)
                     .subscribeOn(schedulers.io())
                     .observeOn(schedulers.ui())
                     .as(autoDisposable(this))
