@@ -179,8 +179,8 @@ public class MapContainerViewModel extends AbstractViewModel {
     }
   }
 
-  public void onMarkerClick(MapPin mapMarker) {
-    panAndZoomCamera(mapMarker.getPosition());
+  public void onMarkerClick(MapPin pin) {
+    panAndZoomCamera(pin.getPosition());
   }
 
   public void panAndZoomCamera(Point position) {
