@@ -36,6 +36,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
+import timber.log.Timber;
 
 /**
  * A worker that downloads files to the device in the background. The target URL and file name are
@@ -50,6 +51,13 @@ public class TileDownloadWorker extends Worker {
   private final Context context;
   private final LocalDataStore localDataStore;
 
+  class TileDownloadException extends RuntimeException {
+
+    TileDownloadException(String msg, Throwable e) {
+      super(msg, e);
+    }
+  }
+
   public TileDownloadWorker(
       @NonNull Context context, @NonNull WorkerParameters params, LocalDataStore localDataStore) {
     super(context, params);
@@ -62,29 +70,32 @@ public class TileDownloadWorker extends Worker {
    * storage. Optional HTTP request header {@param requestProperties} may be provided.
    */
   private void downloadTileFile(Tile tile, Map<String, String> requestProperties)
-      throws IOException {
-    URL url = new URL(tile.getUrl());
-    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+    throws TileDownloadException {
+    try {
+      URL url = new URL(tile.getUrl());
+      HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 
-    if (!requestProperties.isEmpty()) {
-      for (Map.Entry<String, String> property : requestProperties.entrySet()) {
-        connection.setRequestProperty(property.getKey(), property.getValue());
+      if (!requestProperties.isEmpty()) {
+        for (Map.Entry<String, String> property : requestProperties.entrySet()) {
+          connection.setRequestProperty(property.getKey(), property.getValue());
+        }
       }
+
+      connection.connect();
+
+      try (InputStream is = connection.getInputStream();
+        FileOutputStream fos = context.openFileOutput(tile.getPath(), Context.MODE_PRIVATE)) {
+
+        byte[] byteChunk = new byte[BUFFER_SIZE];
+        int n;
+
+        while ((n = is.read(byteChunk)) > 0) {
+          fos.write(byteChunk, 0, n);
+        }
+      }
+    } catch (IOException e) {
+      throw new TileDownloadException("Failed to download tile", e);
     }
-
-    connection.connect();
-
-    InputStream is = connection.getInputStream();
-    FileOutputStream fos = context.openFileOutput(tile.getPath(), Context.MODE_PRIVATE);
-    byte[] byteChunk = new byte[BUFFER_SIZE];
-    int n;
-
-    while ((n = is.read(byteChunk)) > 0) {
-      fos.write(byteChunk, 0, n);
-    }
-
-    is.close();
-    fos.close();
   }
 
   /** Update a tile's state in the database and initiate a download of the tile source file. */
@@ -99,14 +110,13 @@ public class TileDownloadWorker extends Worker {
     return localDataStore
         .insertOrUpdateTile(tile.toBuilder().setState(Tile.State.IN_PROGRESS).build())
         .andThen(
-            Completable.fromCallable(
+          Completable.fromRunnable(
                 () -> {
                   downloadTileFile(tile, requestProperties);
-                  return null;
                 }))
         .onErrorResumeNext(
             e -> {
-              Log.d(TAG, "Failed to download tile: " + tile, e);
+              Timber.d(e, "Failed to download tile: %s", tile);
               return localDataStore.insertOrUpdateTile(
                   tile.toBuilder().setState(State.FAILED).build());
             })
