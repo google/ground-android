@@ -165,10 +165,10 @@ public class TileDownloadWorker extends Worker {
     ImmutableList<Tile> pendingTiles = localDataStore.getPendingTiles().blockingGet();
 
     // When there are no tiles in the db, the blockingGet returns null.
-    // We expect tiles to be added to the DB prior to downloading.
-    // If that isn't the case, we fail.
+    // If that isn't the case, another worker may have already taken care of the work.
+    // In this case, we return a result immediately to stop the worker.
     if (pendingTiles == null) {
-      return Result.failure();
+      return Result.success();
     }
 
     Timber.d("Downloading tiles: %s", pendingTiles);
