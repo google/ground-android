@@ -27,7 +27,7 @@
       name="fragment"
       type="com.google.android.gnd.ui.editobservation.EditObservationFragment" />
     <variable
-      name="photoFieldViewModel"
+      name="viewModel"
       type="com.google.android.gnd.ui.editobservation.PhotoFieldViewModel" />
   </data>
 
@@ -44,7 +44,7 @@
 
     <include
       layout="@layout/photo_field"
-      app:viewModel="@{photoFieldViewModel}" />
+      app:viewModel="@{viewModel}" />
 
     <Button
       android:id="@+id/btn_select_photo"
