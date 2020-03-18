@@ -22,7 +22,6 @@ import static java8.util.stream.StreamSupport.stream;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Color;
-import android.util.Log;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.UiSettings;
@@ -44,6 +43,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 import javax.annotation.Nullable;
+import timber.log.Timber;
 
 /**
  * Wrapper around {@link GoogleMap}, exposing Google Maps SDK functionality to Ground as a {@link
@@ -197,7 +197,7 @@ class GoogleMapsMapAdapter implements MapAdapter {
   }
 
   private void removeMarker(Marker marker) {
-    Log.v(TAG, "Removing marker " + marker.getId());
+    Timber.tag(TAG).v("Removing marker %s", marker.getId());
     marker.remove();
   }
 
@@ -205,7 +205,7 @@ class GoogleMapsMapAdapter implements MapAdapter {
     try {
       return Color.parseColor(String.valueOf(colorHexCode));
     } catch (IllegalArgumentException e) {
-      Log.w(TAG, "Invalid color code in layer style: " + colorHexCode);
+      Timber.tag(TAG).w("Invalid color code in layer style: %s", colorHexCode);
       return context.getResources().getColor(R.color.colorMapAccent);
     }
   }
