@@ -23,12 +23,14 @@ import androidx.databinding.ObservableMap.OnMapChangedCallback;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
 import com.google.android.gnd.model.form.Field;
+import com.google.android.gnd.model.form.Field.Type;
 import com.google.android.gnd.model.observation.Response;
 import com.google.android.gnd.system.StorageManager;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import io.reactivex.Single;
 import io.reactivex.processors.BehaviorProcessor;
 import javax.inject.Inject;
+import timber.log.Timber;
 
 public class PhotoFieldViewModel extends AbstractViewModel {
 
@@ -62,6 +64,11 @@ public class PhotoFieldViewModel extends AbstractViewModel {
   }
 
   void init(Field field, ObservableMap<String, Response> responses) {
+    if (field.getType() != Type.PHOTO) {
+      Timber.e("Not a photo type field: %s", field.getType());
+      return;
+    }
+
     // Load last saved value
     updateField(responses.get(field.getId()), field);
 
@@ -77,7 +84,12 @@ public class PhotoFieldViewModel extends AbstractViewModel {
         });
   }
 
-  private void updateField(Response response, Field field) {
+  public void updateField(Response response, Field field) {
+    if (field.getType() != Type.PHOTO) {
+      Timber.e("Not a photo type field: %s", field.getType());
+      return;
+    }
+
     if (response == null) {
       destinationPath.onNext(EMPTY_PATH);
     } else {

@@ -178,7 +178,7 @@ public class EditObservationFragment extends AbstractFragment
 
     PhotoFieldViewModel photoFieldViewModel = viewModelFactory.create(PhotoFieldViewModel.class);
     photoFieldViewModel.init(field, viewModel.getResponses());
-    binding.setPhotoFieldViewModel(photoFieldViewModel);
+    binding.setViewModel(photoFieldViewModel);
 
     formLayout.addView(binding.getRoot());
   }
