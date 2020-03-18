@@ -17,7 +17,6 @@
 package com.google.android.gnd.workers;
 
 import android.content.Context;
-import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.work.Data;
 import androidx.work.Worker;
@@ -100,7 +99,7 @@ public class TileDownloadWorker extends Worker {
 
   /** Update a tile's state in the database and initiate a download of the tile source file. */
   private Completable downloadTile(Tile tile) {
-    HashMap<String, String> requestProperties = new HashMap<>();
+    Map<String, String> requestProperties = new HashMap<>();
 
     if (tile.getState() == State.IN_PROGRESS) {
       File existingTileFile = new File(context.getFilesDir(), tile.getPath());
@@ -172,13 +171,13 @@ public class TileDownloadWorker extends Worker {
       return Result.failure();
     }
 
-    Log.d(TAG, "Downloading tiles: " + pendingTiles);
+    Timber.d("Downloading tiles: %s", pendingTiles);
 
     try {
       processTiles(pendingTiles).blockingAwait();
       return Result.success();
     } catch (Throwable t) {
-      Log.d(TAG, "Downloads for tiles failed: " + pendingTiles, t);
+      Timber.d(t, "Downloads for tiles failed: %s", pendingTiles);
       return Result.failure();
     }
   }
