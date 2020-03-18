@@ -43,8 +43,6 @@ import timber.log.Timber;
  * connection.
  */
 public class TileDownloadWorker extends Worker {
-  private static final String TAG = TileDownloadWorker.class.getSimpleName();
-
   private static final int BUFFER_SIZE = 4096;
 
   private final Context context;
@@ -69,7 +67,10 @@ public class TileDownloadWorker extends Worker {
    * storage. Optional HTTP request header {@param requestProperties} may be provided.
    */
   private void downloadTileFile(Tile tile, Map<String, String> requestProperties)
-    throws TileDownloadException {
+      throws TileDownloadException {
+
+    int mode = Context.MODE_PRIVATE;
+
     try {
       URL url = new URL(tile.getUrl());
       HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -78,12 +79,13 @@ public class TileDownloadWorker extends Worker {
         for (Map.Entry<String, String> property : requestProperties.entrySet()) {
           connection.setRequestProperty(property.getKey(), property.getValue());
         }
+        mode = Context.MODE_APPEND;
       }
 
       connection.connect();
 
       try (InputStream is = connection.getInputStream();
-        FileOutputStream fos = context.openFileOutput(tile.getPath(), Context.MODE_PRIVATE)) {
+          FileOutputStream fos = context.openFileOutput(tile.getPath(), mode)) {
 
         byte[] byteChunk = new byte[BUFFER_SIZE];
         int n;
@@ -101,15 +103,28 @@ public class TileDownloadWorker extends Worker {
   private Completable downloadTile(Tile tile) {
     Map<String, String> requestProperties = new HashMap<>();
 
+    // To resume a download for an in progress tile, we use the HTTP Range request property.
+    // The range property takes a range of bytes, the server returns the content of the resource
+    // that corresponds to the given byte range.
+    //
+    // To resume a download, we get the current length, in bytes, of the file on disk.
+    // appending '-' to the byte value tells the server to return the range of bytes from the given
+    // byte value to the end of the file, e.g. '500-' returns contents starting at byte 500 to EOF.
+    //
+    // Note that length returns 0 when the file does not exist, so this correctly handles an edge
+    // case whereby the local DB has a tile state of IN_PROGRESS but none of the file has been
+    // downloaded yet (since then we'll fetch the range '0-', the entire file).
+    //
+    // For more info see: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Range
     if (tile.getState() == State.IN_PROGRESS) {
       File existingTileFile = new File(context.getFilesDir(), tile.getPath());
-      requestProperties.put("Range", existingTileFile.length() + "-");
+      requestProperties.put("Range", "bytes=" + existingTileFile.length() + "-");
     }
 
     return localDataStore
         .insertOrUpdateTile(tile.toBuilder().setState(Tile.State.IN_PROGRESS).build())
         .andThen(
-          Completable.fromRunnable(
+            Completable.fromRunnable(
                 () -> {
                   downloadTileFile(tile, requestProperties);
                 }))
