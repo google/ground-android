@@ -163,6 +163,10 @@ public class ObservationDetailsFragment extends AbstractFragment {
                 binding.fieldValue.setVisibility(View.GONE);
                 binding.imagePreview.setVisibility(View.VISIBLE);
 
+                // TODO: Subscriptions should only be made inside lifecycle methods so they can be
+                // properly disposed of in their equivalent end lifecycle methods. To do this
+                // safely, we can create a PublishSubject in the view model that gets exposed to
+                // the fragment as a LiveData.
                 storageManager
                     .getDownloadUrl(value)
                     .subscribeOn(schedulers.io())
