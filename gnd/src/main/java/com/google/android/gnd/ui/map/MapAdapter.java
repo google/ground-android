@@ -17,6 +17,7 @@
 package com.google.android.gnd.ui.map;
 
 import android.annotation.SuppressLint;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gnd.model.feature.Point;
 import com.google.common.collect.ImmutableSet;
 import io.reactivex.Observable;
@@ -68,4 +69,7 @@ public interface MapAdapter {
 
   /** Update map pins shown on map. */
   void setMapPins(ImmutableSet<MapPin> pins);
+
+  /** Returns the bounds of the currently visibly viewport */
+  LatLngBounds getViewport();
 }
