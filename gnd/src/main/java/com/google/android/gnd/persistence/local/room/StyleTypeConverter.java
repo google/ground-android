@@ -16,7 +16,6 @@
 
 package com.google.android.gnd.persistence.local.room;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.room.TypeConverter;
 import com.google.android.gnd.model.layer.Style;
@@ -25,8 +24,8 @@ public class StyleTypeConverter {
 
   @TypeConverter
   @Nullable
-  public static String toString(@NonNull Style style) {
-    return style.getColor();
+  public static String toString(@Nullable Style style) {
+    return style == null ? null : style.getColor();
   }
 
   @TypeConverter
