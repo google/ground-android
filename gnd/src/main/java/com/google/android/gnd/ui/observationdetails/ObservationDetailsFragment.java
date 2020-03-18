@@ -16,8 +16,6 @@
 
 package com.google.android.gnd.ui.observationdetails;
 
-import static com.google.android.gnd.rx.RxAutoDispose.autoDisposable;
-
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -33,11 +31,13 @@ import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.ObservationDetailsFieldBinding;
 import com.google.android.gnd.databinding.ObservationDetailsFragBinding;
+import com.google.android.gnd.databinding.PhotoViewBinding;
 import com.google.android.gnd.inject.ActivityScoped;
 import com.google.android.gnd.model.form.Element;
 import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.form.Field.Type;
 import com.google.android.gnd.model.observation.Observation;
+import com.google.android.gnd.model.observation.Response;
 import com.google.android.gnd.rx.Loadable;
 import com.google.android.gnd.rx.Schedulers;
 import com.google.android.gnd.system.StorageManager;
@@ -45,7 +45,7 @@ import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.EphemeralPopups;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.TwoLineToolbar;
-import com.squareup.picasso.Picasso;
+import com.google.android.gnd.ui.editobservation.PhotoFieldViewModel;
 import javax.inject.Inject;
 import timber.log.Timber;
 
@@ -153,33 +153,23 @@ public class ObservationDetailsFragment extends AbstractFragment {
     observation
         .getResponses()
         .getResponse(field.getId())
-        .map(r -> r.getDetailsText(field))
         .ifPresent(
-            value -> {
-              if (field.getType().equals(Type.PHOTO)) {
-                binding.fieldValue.setVisibility(View.GONE);
-                binding.imagePreview.setVisibility(View.VISIBLE);
-
-                // TODO: Subscriptions should only be made inside lifecycle methods so they can be
-                // properly disposed of in their equivalent end lifecycle methods. To do this
-                // safely, we can create a PublishSubject in the view model that gets exposed to
-                // the fragment as a LiveData.
-                storageManager
-                    .getDownloadUrl(value)
-                    .subscribeOn(schedulers.io())
-                    .observeOn(schedulers.ui())
-                    .as(autoDisposable(this))
-                    .subscribe(
-                        uri ->
-                            Picasso.get()
-                                .load(uri)
-                                .placeholder(R.drawable.ic_photo_grey_600_24dp)
-                                .into(binding.imagePreview));
-
+            response -> {
+              if (field.getType() == Type.PHOTO) {
+                addPhotoField(((ViewGroup) binding.getRoot()), field, response);
               } else {
-                binding.fieldValue.setText(value);
+                binding.fieldValue.setText(response.getDetailsText(field));
               }
             });
+  }
+
+  private void addPhotoField(ViewGroup container, Field field, Response response) {
+    PhotoViewBinding photoFieldBinding = PhotoViewBinding.inflate(getLayoutInflater());
+    PhotoFieldViewModel photoFieldViewModel = viewModelFactory.create(PhotoFieldViewModel.class);
+    photoFieldBinding.setLifecycleOwner(this);
+    photoFieldBinding.setViewModel(photoFieldViewModel);
+    photoFieldViewModel.updateField(response, field);
+    container.addView(photoFieldBinding.getRoot());
   }
 
   @Override
