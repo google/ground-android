@@ -107,7 +107,7 @@ steps:
         if [[ "${_PUSH_TO_MASTER}" ]]; then
 
           # Gradle Dependencies Status
-          if [[ -f "gnd/build/reports/dependencyUpdates/report.json" ]]; then
+          if [[ -f gnd/build/reports/dependencyUpdates/report.json ]]; then
             python cloud-builder/generate_dependency_health_svg.py gnd/build/reports/dependencyUpdates/report.json dependency.svg
 
             # Copy artifacts for Github badge
