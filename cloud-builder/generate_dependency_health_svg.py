@@ -10,27 +10,33 @@ Usage:
 import json
 from sys import argv
 
-TEMPLATES_DIR = 'cloud-builder/templates/'
-SVG_TEMPLATE_BAD = TEMPLATES_DIR + 'dependency_health_bad.svg'
-SVG_TEMPLATE_AVG = TEMPLATES_DIR + 'dependency_health_average.svg'
-SVG_TEMPLATE_GOOD = TEMPLATES_DIR + 'dependency_health_good.svg'
+SVG_TEMPLATE = 'cloud-builder/dependency.svg'
+COLOR_RED = '#E05D44'
+COLOR_ORANGE = '#FFA100'
+COLOR_GREEN = '#43CC11'
 
 
-def get_template(health):
-    """Returns a SVG template based on overall healthy dependency percentage."""
+def get_status_color(health):
     if health >= 67:
-        return SVG_TEMPLATE_GOOD
+        return COLOR_GREEN
     elif 33 < health < 67:
-        return SVG_TEMPLATE_AVG
+        return COLOR_ORANGE
     else:
-        return SVG_TEMPLATE_BAD
+        return COLOR_RED
 
 
-def create_svg(svg_template, output_path, health):
-    """Create a new svg from template and replace placeholder _%_ with health."""
-    with open(svg_template, 'r') as template:
+def create_svg(output_path, health):
+    """Create a new svg from template by replacing placeholders."""
+    with open(SVG_TEMPLATE, 'r') as template:
         with open(output_path, 'w') as dest:
-            data = template.read().replace('_%_', '{}%'.format(health))
+            data = template.read()
+
+            status_text = '{}%'.format(health)
+            data = data.replace('_%_', status_text)
+
+            color = get_status_color(health)
+            data = data.replace('_color_', color)
+
             dest.write(data)
 
 
@@ -74,12 +80,7 @@ def main():
     if len(argv) != 3:
         raise Exception('Need exactly 2 arguments: <json_report> <output_path>')
 
-    input = argv[1]
-    output = argv[2]
-
-    health = calculate_dependency_health(input)
-    template = get_template(health)
-    create_svg(template, output, health)
+    create_svg(argv[2], calculate_dependency_health(argv[1]))
 
 
 if __name__ == "__main__":
