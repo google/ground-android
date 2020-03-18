@@ -79,7 +79,7 @@ public class ObservationDetailsFragment extends AbstractFragment {
 
   @Override
   public View onCreateView(
-      LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+      @NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     super.onCreateView(inflater, container, savedInstanceState);
     ObservationDetailsFragBinding binding =
         ObservationDetailsFragBinding.inflate(inflater, container, false);
@@ -95,7 +95,7 @@ public class ObservationDetailsFragment extends AbstractFragment {
   }
 
   @Override
-  public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+  public void onCreateOptionsMenu(@NonNull Menu menu, MenuInflater inflater) {
     inflater.inflate(R.menu.observation_details_menu, menu);
   }
 
