@@ -18,14 +18,18 @@ package com.google.android.gnd.persistence.local.room;
 
 import androidx.room.Dao;
 import androidx.room.Query;
-import io.reactivex.Flowable;
 import io.reactivex.Maybe;
+import io.reactivex.Single;
 import java.util.List;
 
 @Dao
 public interface TileDao extends BaseDao<TileEntity> {
+
   @Query("SELECT * FROM tile")
-  Flowable<List<TileEntity>> findAll();
+  Single<List<TileEntity>> findAll();
+
+  @Query("SELECT * FROM tile WHERE state = :state")
+  Single<List<TileEntity>> findByState(int state);
 
   @Query("SELECT * FROM tile WHERE id = :id")
   Maybe<TileEntity> findById(String id);

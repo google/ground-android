@@ -135,4 +135,7 @@ public interface LocalDataStore {
 
   /** Returns the tile with the specified id from the local data store, if found. */
   Maybe<Tile> getTile(String tileId);
+
+  /** Returns all pending tiles from the local data store. */
+  Single<ImmutableList<Tile>> getPendingTiles();
 }
