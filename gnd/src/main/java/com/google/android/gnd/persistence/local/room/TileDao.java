@@ -24,8 +24,12 @@ import java.util.List;
 
 @Dao
 public interface TileDao extends BaseDao<TileEntity> {
+
   @Query("SELECT * FROM tile")
   Single<List<TileEntity>> findAll();
+
+  @Query("SELECT * FROM tile WHERE state = :state")
+  Single<List<TileEntity>> findByState(int state);
 
   @Query("SELECT * FROM tile WHERE id = :id")
   Maybe<TileEntity> findById(String id);

@@ -28,7 +28,6 @@ import com.google.android.gnd.model.Mutation;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.basemap.tile.Tile;
-import com.google.android.gnd.model.basemap.tile.Tile.State;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.FeatureMutation;
 import com.google.android.gnd.model.form.Element;
@@ -444,13 +443,8 @@ public class RoomLocalDataStore implements LocalDataStore {
     // TODO: Only retrieve tiles for a given area.
     // This currently retrieves all pending tiles in the DB.
     return tileDao
-        .findAll()
-        .map(
-            ts ->
-                stream(ts)
-                    .map(TileEntity::toTile)
-                    .filter(t -> t.getState() == State.PENDING)
-                    .collect(toImmutableList()))
+      .findByState(TileEntityState.PENDING.intValue())
+      .map(ts -> stream(ts).map(TileEntity::toTile).collect(toImmutableList()))
         .subscribeOn(schedulers.io());
   }
 }
