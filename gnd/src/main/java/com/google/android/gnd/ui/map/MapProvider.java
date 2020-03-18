@@ -17,6 +17,7 @@
 package com.google.android.gnd.ui.map;
 
 import androidx.fragment.app.Fragment;
+import io.reactivex.Single;
 
 /** Common interface for various map provider libraries. */
 public interface MapProvider {
