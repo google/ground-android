@@ -72,7 +72,6 @@ gitVersioner {
     baseBranch "master"
 }
 
-// TODO: Create total code health svg badge using report json and add to github
 // To check which dependencies are out of date:
 // ./gradlew dependencyUpdates
 tasks.dependencyUpdates {
