@@ -113,23 +113,25 @@ steps:
             # Copy artifacts for Github badge
             gsutil cp dependency.svg gs://${_CACHE_BUCKET}/dependency.svg
             gsutil cp gnd/build/reports/dependencyUpdates/report.txt gs://${_CACHE_BUCKET}/dependency.txt
+
+            # Makes files publicly readable
+            gsutil acl ch -u AllUsers:R gs://${_CACHE_BUCKET}/dependency.svg
+            gsutil acl ch -u AllUsers:R gs://${_CACHE_BUCKET}/dependency.txt
           fi
 
           # Build Status
-          if [[ $(< build-status.txt) == "fail" ]]; then
+          if [ -f build-status.txt ] && [ $(< build-status.txt) == "fail" ]; then
             gsutil cp cloud-builder/failure.svg gs://${_CACHE_BUCKET}/status.svg
           else
             gsutil cp cloud-builder/success.svg gs://${_CACHE_BUCKET}/status.svg
           fi
 
-          # Make files publicly readable
+          # Make file publicly readable
           gsutil acl ch -u AllUsers:R gs://${_CACHE_BUCKET}/status.svg
-          gsutil acl ch -u AllUsers:R gs://${_CACHE_BUCKET}/dependency.svg
-          gsutil acl ch -u AllUsers:R gs://${_CACHE_BUCKET}/dependency.txt
         fi
 
         # Delayed build fail
-        if [[ $(< build-status.txt) == "fail" ]]; then
+        if [ -f build-status.txt ] && [ $(< build-status.txt) == "fail" ]; then
           cat check-logs.txt
           cat unit-test-logs.txt
           exit 1
