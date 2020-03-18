@@ -103,24 +103,29 @@ steps:
         # Display artifact bucket link
         echo "Reports uploaded to https://console.cloud.google.com/storage/browser/${_ARTIFACT_BUCKET}/$BRANCH_NAME-$BUILD_ID/"
 
-        if [[ -f "gnd/build/reports/dependencyUpdates/report.json" ]]; then
-          python cloud-builder/generate_dependency_health_svg.py gnd/build/reports/dependencyUpdates/report.json dependency.svg
-          gsutil cp gnd/build/reports/dependencyUpdates/report.txt gs://${_CACHE_BUCKET}/dependency.txt
-          gsutil cp dependency.svg gs://${_CACHE_BUCKET}/dependency.svg
-          gsutil acl ch -u AllUsers:R gs://${_CACHE_BUCKET}/dependency.svg
-          gsutil acl ch -u AllUsers:R gs://${_CACHE_BUCKET}/dependency.txt
-        fi
-
         # Update build status if running on master branch
         if [[ "${_PUSH_TO_MASTER}" ]]; then
+
+          # Gradle Dependencies Status
+          if [[ -f "gnd/build/reports/dependencyUpdates/report.json" ]]; then
+            python cloud-builder/generate_dependency_health_svg.py gnd/build/reports/dependencyUpdates/report.json dependency.svg
+
+            # Copy artifacts for Github badge
+            gsutil cp dependency.svg gs://${_CACHE_BUCKET}/dependency.svg
+            gsutil cp gnd/build/reports/dependencyUpdates/report.txt gs://${_CACHE_BUCKET}/dependency.txt
+          fi
+
+          # Build Status
           if [[ $(< build-status.txt) == "fail" ]]; then
             gsutil cp cloud-builder/failure.svg gs://${_CACHE_BUCKET}/status.svg
           else
             gsutil cp cloud-builder/success.svg gs://${_CACHE_BUCKET}/status.svg
           fi
 
-          # Make file public readable
+          # Make files public readable
           gsutil acl ch -u AllUsers:R gs://${_CACHE_BUCKET}/status.svg
+          gsutil acl ch -u AllUsers:R gs://${_CACHE_BUCKET}/dependency.svg
+          gsutil acl ch -u AllUsers:R gs://${_CACHE_BUCKET}/dependency.txt
         fi
 
         # Delayed build fail
