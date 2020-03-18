@@ -42,21 +42,9 @@
     android:layout_marginBottom="@dimen/field_vertical_margin"
     android:orientation="vertical">
 
-    <com.google.android.material.card.MaterialCardView
-      android:id="@+id/material_card"
-      android:layout_width="match_parent"
-      android:layout_height="200dp"
-      android:visibility="@{photoFieldViewModel.visibility}"
-      app:cardElevation="@dimen/cardview_elevation">
-      <ImageView
-        android:id="@+id/image_thumbnail_preview"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:adjustViewBounds="true"
-        android:contentDescription="@string/photo_preview"
-        android:scaleType="fitCenter"
-        app:imageUri="@{photoFieldViewModel.uri}" />
-    </com.google.android.material.card.MaterialCardView>
+    <include
+      layout="@layout/photo_view"
+      app:viewModel="@{photoFieldViewModel}" />
 
     <Button
       android:id="@+id/btn_select_photo"
