@@ -16,13 +16,7 @@
 
 package com.google.android.gnd.ui.map;
 
-import android.annotation.SuppressLint;
 import androidx.fragment.app.Fragment;
-import com.google.android.gms.maps.model.LatLngBounds;
-import com.google.android.gnd.model.feature.Feature;
-import com.google.android.gnd.model.feature.Point;
-import com.google.common.collect.ImmutableSet;
-import io.reactivex.Observable;
 import io.reactivex.Single;
 
 /** Common interface for various map provider libraries. */
@@ -32,36 +26,4 @@ public interface MapProvider {
   Fragment getFragment();
 
   Single<MapAdapter> getMapAdapter();
-
-  /**
-   * Interface defining map interactions and events. This a separate class from {@link MapProvider}
-   * so that it can be returned asynchronously by {@link MapProvider#getMapAdapter()} if necessary.
-   */
-  interface MapAdapter {
-
-    Observable<MapMarker> getMarkerClicks();
-
-    Observable<Point> getDragInteractions();
-
-    Observable<Point> getCameraPosition();
-
-    void enable();
-
-    void disable();
-
-    void moveCamera(Point point);
-
-    void moveCamera(Point point, float zoomLevel);
-
-    Point getCenter();
-
-    float getCurrentZoomLevel();
-
-    @SuppressLint("MissingPermission")
-    void enableCurrentLocationIndicator();
-
-    void updateMarkers(ImmutableSet<Feature> features);
-
-    LatLngBounds getViewport();
-  }
 }

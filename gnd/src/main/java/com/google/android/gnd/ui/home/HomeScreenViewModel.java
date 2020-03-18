@@ -35,7 +35,7 @@ import com.google.android.gnd.system.AuthenticationManager;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.SharedViewModel;
-import com.google.android.gnd.ui.map.MapMarker;
+import com.google.android.gnd.ui.map.MapPin;
 import io.reactivex.Single;
 import io.reactivex.subjects.PublishSubject;
 import java8.util.Optional;
@@ -124,8 +124,8 @@ public class HomeScreenViewModel extends AbstractViewModel {
   }
 
   // TODO: Remove extra indirection here?
-  public void onMarkerClick(MapMarker marker) {
-    marker.getFeature().ifPresent(this::showFeatureSheet);
+  public void onMarkerClick(MapPin marker) {
+    showFeatureSheet(marker.getFeature());
   }
 
   private void showFeatureSheet(Feature feature) {

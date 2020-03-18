@@ -32,13 +32,10 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gnd.R;
-import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.Point;
-import com.google.android.gnd.model.layer.Layer;
-import com.google.android.gnd.model.layer.Style;
 import com.google.android.gnd.ui.MarkerIconFactory;
-import com.google.android.gnd.ui.map.MapMarker;
-import com.google.android.gnd.ui.map.MapProvider.MapAdapter;
+import com.google.android.gnd.ui.map.MapAdapter;
+import com.google.android.gnd.ui.map.MapPin;
 import com.google.common.collect.ImmutableSet;
 import com.google.maps.android.data.geojson.GeoJsonLayer;
 import io.reactivex.Observable;
@@ -50,18 +47,15 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Map.Entry;
 import java.util.Set;
-import java8.util.Optional;
 import javax.annotation.Nullable;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
- * Wrapper around {@link GoogleMap}, exposing Google Maps API functionality to Ground as a {@link
+ * Wrapper around {@link GoogleMap}, exposing Google Maps SDK functionality to Ground as a {@link
  * MapAdapter}.
  */
 class GoogleMapsMapAdapter implements MapAdapter {
@@ -73,14 +67,14 @@ class GoogleMapsMapAdapter implements MapAdapter {
   private final MarkerIconFactory markerIconFactory;
 
   /**
-   * Cache of ids to map markers. We don't mind this being destroyed on lifecycle events since the
-   * GoogleMap markers themselves are destroyed as well.
+   * References to Google Maps SDK Markers present on the map. Used to sync and update markers with
+   * current view and data state.
    */
-  private java.util.Map<String, Marker> markers = new HashMap<>();
+  private Set<Marker> markers = new HashSet<>();
 
-  private final PublishSubject<MapMarker> markerClickSubject = PublishSubject.create();
+  private final PublishSubject<MapPin> markerClickSubject = PublishSubject.create();
   private final PublishSubject<Point> dragInteractionSubject = PublishSubject.create();
-  private final BehaviorSubject<Point> cameraPositionSubject = BehaviorSubject.create();
+  private final BehaviorSubject<Point> cameraMoves = BehaviorSubject.create();
 
   @Nullable private LatLng cameraTargetBeforeDrag;
 
@@ -128,7 +122,7 @@ class GoogleMapsMapAdapter implements MapAdapter {
 
   private boolean onMarkerClick(Marker marker) {
     if (map.getUiSettings().isZoomGesturesEnabled()) {
-      markerClickSubject.onNext((MapMarker) marker.getTag());
+      markerClickSubject.onNext((MapPin) marker.getTag());
       // Allow map to pan to marker.
       return false;
     } else {
@@ -138,7 +132,7 @@ class GoogleMapsMapAdapter implements MapAdapter {
   }
 
   @Override
-  public Observable<MapMarker> getMarkerClicks() {
+  public Observable<MapPin> getMapPinClicks() {
     return markerClickSubject;
   }
 
@@ -148,8 +142,8 @@ class GoogleMapsMapAdapter implements MapAdapter {
   }
 
   @Override
-  public Observable<Point> getCameraPosition() {
-    return cameraPositionSubject;
+  public Observable<Point> getCameraMoves() {
+    return cameraMoves;
   }
 
   @Override
@@ -164,33 +158,31 @@ class GoogleMapsMapAdapter implements MapAdapter {
 
   @Override
   public void moveCamera(Point point) {
-    map.moveCamera(CameraUpdateFactory.newLatLng(point.toLatLng()));
+    map.moveCamera(CameraUpdateFactory.newLatLng(toLatLng(point)));
   }
 
   @Override
   public void moveCamera(Point point, float zoomLevel) {
-    map.moveCamera(CameraUpdateFactory.newLatLngZoom(point.toLatLng(), zoomLevel));
+    map.moveCamera(CameraUpdateFactory.newLatLngZoom(toLatLng(point), zoomLevel));
   }
 
-  private void addMarker(MapMarker mapMarker, boolean hasPendingWrites, boolean isHighlighted) {
-    LatLng position = mapMarker.getPosition().toLatLng();
-    // TODO: Change size and color based on hasPendingWrites and isHighlighted.
-    Marker marker =
-        map.addMarker(new MarkerOptions().position(position).icon(mapMarker.getIcon()).alpha(1.0f));
-    markers.put(mapMarker.getId(), marker);
-    marker.setTag(mapMarker);
+  private void addMapPin(MapPin mapPin) {
+    LatLng position = toLatLng(mapPin.getPosition());
+    String color = mapPin.getStyle().getColor();
+    BitmapDescriptor icon = markerIconFactory.getMarkerIcon(parseColor(color));
+    Marker marker = map.addMarker(new MarkerOptions().position(position).icon(icon).alpha(1.0f));
+    marker.setTag(mapPin);
+    markers.add(marker);
   }
 
   private void removeAllMarkers() {
-    for (Marker marker : markers.values()) {
-      marker.remove();
-    }
+    stream(markers).forEach(Marker::remove);
     markers.clear();
   }
 
   @Override
-  public Point getCenter() {
-    return Point.fromLatLng(map.getCameraPosition().target);
+  public Point getCameraTarget() {
+    return fromLatLng(map.getCameraPosition().target);
   }
 
   @Override
@@ -207,59 +199,39 @@ class GoogleMapsMapAdapter implements MapAdapter {
   }
 
   @Override
-  public void updateMarkers(ImmutableSet<Feature> features) {
-    if (features.isEmpty()) {
+  public void setMapPins(ImmutableSet<MapPin> updatedPins) {
+    if (updatedPins.isEmpty()) {
       removeAllMarkers();
       return;
     }
-    Set<Feature> newFeatures = new HashSet<>(features);
-    Iterator<Entry<String, Marker>> it = markers.entrySet().iterator();
+    Set<MapPin> pinsToAdd = new HashSet<>(updatedPins);
+    Iterator<Marker> it = markers.iterator();
     while (it.hasNext()) {
-      Entry<String, Marker> entry = it.next();
-      Marker marker = entry.getValue();
-      getMapMarker(marker)
-          .flatMap(MapMarker::getFeature)
-          .ifPresent(
-              feature -> {
-                if (features.contains(feature)) {
-                  newFeatures.remove(feature);
-                } else {
-                  removeMarker(marker);
-                  it.remove();
-                }
-              });
+      Marker marker = it.next();
+      MapPin pin = (MapPin) marker.getTag();
+      if (updatedPins.contains(pin)) {
+        // If pin already exists on map, don't add it.
+        pinsToAdd.remove(pin);
+      } else {
+        // Remove existing pins not in list of updatedPins.
+        removeMarker(marker);
+        it.remove();
+      }
     }
-    stream(newFeatures).forEach(this::addMarker);
+    stream(pinsToAdd).forEach(this::addMapPin);
   }
 
-  private Optional<MapMarker> getMapMarker(Marker marker) {
-    Object tag = marker.getTag();
-    return tag != null && tag instanceof MapMarker
-        ? Optional.of((MapMarker) tag)
-        : Optional.empty();
+  private static Point fromLatLng(LatLng latLng) {
+    return Point.newBuilder().setLatitude(latLng.latitude).setLongitude(latLng.longitude).build();
+  }
+
+  private static LatLng toLatLng(Point point) {
+    return new LatLng(point.getLatitude(), point.getLongitude());
   }
 
   private void removeMarker(Marker marker) {
     Log.v(TAG, "Removing marker " + marker.getId());
     marker.remove();
-  }
-
-  private void addMarker(Feature feature) {
-    Log.v(TAG, "Adding marker for " + feature.getId());
-    Layer layer = feature.getLayer();
-    Style style = layer.getDefaultStyle();
-    String color = style == null ? null : style.getColor();
-    BitmapDescriptor icon = markerIconFactory.getMarkerIcon(parseColor(color));
-    // TODO: Reimplement hasPendingWrites.
-    addMarker(
-        MapMarker.newBuilder()
-            .setId(feature.getId())
-            .setPosition(feature.getPoint())
-            .setIcon(icon)
-            .setObject(feature)
-            .build(),
-        false,
-        false);
   }
 
   private int parseColor(@Nullable String colorHexCode) {
@@ -285,8 +257,8 @@ class GoogleMapsMapAdapter implements MapAdapter {
 
   private void onCameraMove() {
     LatLng cameraTarget = map.getCameraPosition().target;
-    Point target = Point.fromLatLng(cameraTarget);
-    cameraPositionSubject.onNext(target);
+    Point target = fromLatLng(cameraTarget);
+    cameraMoves.onNext(target);
     if (cameraTargetBeforeDrag != null && !cameraTarget.equals(cameraTargetBeforeDrag)) {
       dragInteractionSubject.onNext(target);
     }

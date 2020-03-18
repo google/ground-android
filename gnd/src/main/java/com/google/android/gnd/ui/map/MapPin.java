@@ -16,33 +16,28 @@
 
 package com.google.android.gnd.ui.map;
 
-import com.google.android.gms.maps.model.BitmapDescriptor;
+import androidx.annotation.NonNull;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.Point;
+import com.google.android.gnd.model.layer.Style;
 import com.google.auto.value.AutoValue;
-import java8.util.Optional;
-import javax.annotation.Nullable;
 
 @AutoValue
-public abstract class MapMarker {
+public abstract class MapPin {
 
   public abstract String getId();
 
   public abstract Point getPosition();
 
-  public abstract BitmapDescriptor getIcon();
+  public abstract Style getStyle();
 
-  @Nullable
-  public abstract Object getObject();
-
-  public Optional<Feature> getFeature() {
-    return getObject() != null && getObject() instanceof Feature
-        ? Optional.of((Feature) getObject())
-        : Optional.empty();
-  }
+  // TODO: Stop embedding entire Feature in pins to free up memory. Instead, copy only details
+  // relevant to rendering pins and uuid to reference the related Feature.
+  @NonNull
+  public abstract Feature getFeature();
 
   public static Builder newBuilder() {
-    return new AutoValue_MapMarker.Builder();
+    return new AutoValue_MapPin.Builder();
   }
 
   @AutoValue.Builder
@@ -51,10 +46,10 @@ public abstract class MapMarker {
 
     public abstract Builder setPosition(Point newPosition);
 
-    public abstract Builder setIcon(BitmapDescriptor icon);
+    public abstract Builder setStyle(Style style);
 
-    public abstract Builder setObject(Object newObject);
+    public abstract Builder setFeature(Feature newFeature);
 
-    public abstract MapMarker build();
+    public abstract MapPin build();
   }
 }
