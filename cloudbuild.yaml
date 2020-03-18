@@ -76,7 +76,7 @@ steps:
     args:
       - '-c'
       - |
-        ./gradlew checkCode &> check-logs.txt || echo "fail" > build-status.txt
+        ./gradlew checkCode 2> check-logs.txt || echo "fail" > build-status.txt
         cat check-logs.txt
 
   # Run unit tests
@@ -85,7 +85,7 @@ steps:
     args:
       - '-c'
       - |
-        ./gradlew testDebugUnitTest &> unit-test-logs.txt || echo "fail" > build-status.txt
+        ./gradlew testDebugUnitTest 2> unit-test-logs.txt || echo "fail" > build-status.txt
         cat unit-test-logs.txt
 
   # Save all reports to GCS
