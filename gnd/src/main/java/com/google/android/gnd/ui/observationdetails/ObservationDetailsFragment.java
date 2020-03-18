@@ -31,7 +31,7 @@ import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.ObservationDetailsFieldBinding;
 import com.google.android.gnd.databinding.ObservationDetailsFragBinding;
-import com.google.android.gnd.databinding.PhotoViewBinding;
+import com.google.android.gnd.databinding.PhotoFieldBinding;
 import com.google.android.gnd.inject.ActivityScoped;
 import com.google.android.gnd.model.form.Element;
 import com.google.android.gnd.model.form.Field;
@@ -164,7 +164,7 @@ public class ObservationDetailsFragment extends AbstractFragment {
   }
 
   private void addPhotoField(ViewGroup container, Field field, Response response) {
-    PhotoViewBinding photoFieldBinding = PhotoViewBinding.inflate(getLayoutInflater());
+    PhotoFieldBinding photoFieldBinding = PhotoFieldBinding.inflate(getLayoutInflater());
     PhotoFieldViewModel photoFieldViewModel = viewModelFactory.create(PhotoFieldViewModel.class);
     photoFieldBinding.setLifecycleOwner(this);
     photoFieldBinding.setViewModel(photoFieldViewModel);

@@ -43,7 +43,7 @@
     android:orientation="vertical">
 
     <include
-      layout="@layout/photo_view"
+      layout="@layout/photo_field"
       app:viewModel="@{photoFieldViewModel}" />
 
     <Button
