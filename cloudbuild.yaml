@@ -103,6 +103,10 @@ steps:
         # Display artifact bucket link
         echo "Reports uploaded to https://console.cloud.google.com/storage/browser/${_ARTIFACT_BUCKET}/$BRANCH_NAME-$BUILD_ID/"
 
+        python cloud-builder/generate_dependency_health_svg.py gnd/build/reports/dependencyUpdates/report.json dependency.svg
+        gsutil cp dependency.svg gs://${_CACHE_BUCKET}/dependency.svg
+        gsutil acl ch -u AllUsers:R gs://${_CACHE_BUCKET}/dependency.svg
+
         # Update build status if running on master branch
         if [[ "${_PUSH_TO_MASTER}" ]]; then
           if [[ $(< build-status.txt) == "fail" ]]; then

@@ -4,13 +4,13 @@ Task dependencyUpdates generates a json report. This script parses that file and
 generates a SVG showing percentage of up-to-date dependencies.
 
 Usage:
-> python generate_dependency_health_svg.py <path_to_json_report> <output_svg_path>
+> python cloud-builder/generate_dependency_health_svg.py <path_to_json_report> <output_svg_path>
 """
 
 import json
 from sys import argv
 
-TEMPLATES_DIR = 'templates/'
+TEMPLATES_DIR = 'cloud-builder/templates/'
 SVG_TEMPLATE_BAD = TEMPLATES_DIR + 'dependency_health_bad.svg'
 SVG_TEMPLATE_AVG = TEMPLATES_DIR + 'dependency_health_average.svg'
 SVG_TEMPLATE_GOOD = TEMPLATES_DIR + 'dependency_health_good.svg'
