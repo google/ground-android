@@ -25,18 +25,25 @@ import json
 from sys import argv
 
 SVG_TEMPLATE = 'cloud-builder/dependency.svg'
-COLOR_RED = '#E05D44'
-COLOR_ORANGE = '#FFA100'
-COLOR_GREEN = '#43CC11'
+
+COLOR_BAD = '#e81717'
+COLOR_POOR = '#e89417'
+COLOR_FAIR = '#d8e817'
+COLOR_GOOD = '#8ae817'
+COLOR_EXCELLENT = '#1F8F16'
 
 
 def get_status_color(health):
-    if health >= 67:
-        return COLOR_GREEN
-    elif 33 < health < 67:
-        return COLOR_ORANGE
+    if health > 80:
+        return COLOR_EXCELLENT
+    elif 60 < health <= 80:
+        return COLOR_GOOD
+    elif 40 < health <= 60:
+        return COLOR_FAIR
+    elif 20 < health <= 40:
+        return COLOR_POOR
     else:
-        return COLOR_RED
+        return COLOR_BAD
 
 
 def create_svg(output_path, health):
