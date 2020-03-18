@@ -441,8 +441,8 @@ public class RoomLocalDataStore implements LocalDataStore {
   @Override
   public Single<ImmutableList<Tile>> getPendingTiles() {
     return tileDao
-      .findByState(TileEntityState.PENDING.intValue())
-      .map(ts -> stream(ts).map(TileEntity::toTile).collect(toImmutableList()))
+        .findByState(TileEntityState.PENDING.intValue())
+        .map(ts -> stream(ts).map(TileEntity::toTile).collect(toImmutableList()))
         .subscribeOn(schedulers.io());
   }
 }
