@@ -440,8 +440,6 @@ public class RoomLocalDataStore implements LocalDataStore {
 
   @Override
   public Single<ImmutableList<Tile>> getPendingTiles() {
-    // TODO: Only retrieve tiles for a given area.
-    // This currently retrieves all pending tiles in the DB.
     return tileDao
       .findByState(TileEntityState.PENDING.intValue())
       .map(ts -> stream(ts).map(TileEntity::toTile).collect(toImmutableList()))
