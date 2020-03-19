@@ -21,7 +21,6 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import java.io.File;
-import java.util.Objects;
 import java8.util.StringJoiner;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -62,13 +61,10 @@ public class FirestoreStorageManager {
   }
 
   /** Upload file to Firebase Storage. */
-  public String uploadMediaFromFile(File file, String destinationPath) {
+  public void uploadMediaFromFile(File file, String destinationPath) {
     StorageReference reference = storageReference.child(destinationPath);
     UploadTask task = reference.putFile(Uri.fromFile(file));
-
     uploadMediaToFirebaseStorage(task, destinationPath);
-    fetchDownloadUrl(reference, task);
-    return reference.getPath();
   }
 
   private void uploadMediaToFirebaseStorage(UploadTask uploadTask, String fileName) {
@@ -96,26 +92,6 @@ public class FirestoreStorageManager {
               double percentCompleted =
                   100.0 * taskSnapshot.getBytesTransferred() / taskSnapshot.getTotalByteCount();
               Timber.d("Uploading in progress: %s %f", fileName, percentCompleted);
-            });
-  }
-
-  private void fetchDownloadUrl(StorageReference reference, UploadTask uploadTask) {
-    uploadTask
-        .continueWithTask(
-            task -> {
-              if (!task.isSuccessful()) {
-                throw Objects.requireNonNull(task.getException());
-              }
-              // Continue with the task to get the download URL
-              return reference.getDownloadUrl();
-            })
-        .addOnCompleteListener(
-            task -> {
-              // TODO save to local database
-              if (task.isSuccessful()) {
-                Uri downloadUri = task.getResult();
-                Timber.d("Uploaded to : %s", downloadUri);
-              }
             });
   }
 }
