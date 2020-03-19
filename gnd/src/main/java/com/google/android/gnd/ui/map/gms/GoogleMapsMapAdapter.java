@@ -51,7 +51,6 @@ import timber.log.Timber;
  */
 class GoogleMapsMapAdapter implements MapAdapter {
 
-  private static final String TAG = GoogleMapsMapAdapter.class.getSimpleName();
   private final GoogleMap map;
   private final Context context;
   private final MarkerIconFactory markerIconFactory;
@@ -197,7 +196,7 @@ class GoogleMapsMapAdapter implements MapAdapter {
   }
 
   private void removeMarker(Marker marker) {
-    Timber.tag(TAG).v("Removing marker %s", marker.getId());
+    Timber.v("Removing marker %s", marker.getId());
     marker.remove();
   }
 
@@ -205,7 +204,7 @@ class GoogleMapsMapAdapter implements MapAdapter {
     try {
       return Color.parseColor(String.valueOf(colorHexCode));
     } catch (IllegalArgumentException e) {
-      Timber.tag(TAG).w("Invalid color code in layer style: %s", colorHexCode);
+      Timber.w("Invalid color code in layer style: %s", colorHexCode);
       return context.getResources().getColor(R.color.colorMapAccent);
     }
   }
