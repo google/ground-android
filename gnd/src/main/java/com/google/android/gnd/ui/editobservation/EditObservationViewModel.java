@@ -39,6 +39,7 @@ import com.google.android.gnd.model.observation.ResponseDelta;
 import com.google.android.gnd.model.observation.ResponseMap;
 import com.google.android.gnd.model.observation.TextResponse;
 import com.google.android.gnd.persistence.remote.FirestoreStorageManager;
+import com.google.android.gnd.persistence.sync.PhotoSyncWorkManager;
 import com.google.android.gnd.repository.ObservationRepository;
 import com.google.android.gnd.rx.Event;
 import com.google.android.gnd.rx.Nil;
@@ -73,8 +74,8 @@ public class EditObservationViewModel extends AbstractViewModel {
   private final Resources resources;
   private final StorageManager storageManager;
   private final CameraManager cameraManager;
-  private final FirestoreStorageManager firestoreStorageManager;
   private final FileUtil fileUtil;
+  private final PhotoSyncWorkManager photoSyncWorkManager;
 
   // Input events.
 
@@ -140,15 +141,15 @@ public class EditObservationViewModel extends AbstractViewModel {
       AuthenticationManager authenticationManager,
       StorageManager storageManager,
       CameraManager cameraManager,
-      FirestoreStorageManager firestoreStorageManager,
-      FileUtil fileUtil) {
+      FileUtil fileUtil,
+      PhotoSyncWorkManager photoSyncWorkManager) {
     this.resources = application.getResources();
     this.observationRepository = observationRepository;
     this.authManager = authenticationManager;
     this.storageManager = storageManager;
     this.cameraManager = cameraManager;
-    this.firestoreStorageManager = firestoreStorageManager;
     this.fileUtil = fileUtil;
+    this.photoSyncWorkManager = photoSyncWorkManager;
     this.form = fromPublisher(viewArgs.switchMapSingle(this::onInitialize));
     this.saveResults = fromPublisher(saveClicks.switchMapSingle(__ -> onSave()));
   }
@@ -252,12 +253,8 @@ public class EditObservationViewModel extends AbstractViewModel {
       FirestoreStorageManager.getRemoteImagePath(
         args.getProjectId(), args.getFormId(), args.getFeatureId(), file.getName());
 
-    // TODO: enqueue task for photo upload
-
-    // If offline, Firebase will automatically upload the image when the network
-    // connectivity is  re-established.
-    // TODO: Implement offline photo sync using Android Workers and local db
-    //    String url = firestoreStorageManager.uploadMediaFromFile(file, destinationPath);
+    // enqueue background upload for selected photo
+    photoSyncWorkManager.enqueueSyncWorker(file.getPath(), destinationPath);
 
     // TODO: Handle response after reloading view-model and remove this field
     isPhotoFieldUpdated = true;
