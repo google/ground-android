@@ -253,15 +253,14 @@ public class EditObservationViewModel extends AbstractViewModel {
       FirestoreStorageManager.getRemoteImagePath(
         args.getProjectId(), args.getFormId(), args.getFeatureId(), file.getName());
 
-    // enqueue background upload for selected photo
-    photoSyncWorkManager.enqueueSyncWorker(file.getPath(), destinationPath);
-
     // TODO: Handle response after reloading view-model and remove this field
     isPhotoFieldUpdated = true;
 
     // update observable response map
     onTextChanged(form.getValue().getField(fieldId).get(), destinationPath);
-    return Completable.complete();
+
+    // enqueue background upload for selected photo
+    return photoSyncWorkManager.enqueueSyncWorker(file.getPath(), destinationPath);
   }
 
   public void onSaveClick() {
