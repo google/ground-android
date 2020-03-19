@@ -23,8 +23,10 @@ import androidx.work.ListenableWorker;
 import androidx.work.WorkerFactory;
 import androidx.work.WorkerParameters;
 import com.google.android.gnd.persistence.local.LocalDataStore;
+import com.google.android.gnd.persistence.remote.FirestoreStorageManager;
 import com.google.android.gnd.persistence.remote.RemoteDataStore;
 import com.google.android.gnd.persistence.sync.LocalMutationSyncWorker;
+import com.google.android.gnd.persistence.sync.PhotoSyncWorker;
 import com.google.android.gnd.workers.TileDownloadWorker;
 import javax.inject.Inject;
 
@@ -34,11 +36,16 @@ public class GndWorkerFactory extends WorkerFactory {
   // supported on Workers.
   private final LocalDataStore localDataStore;
   private final RemoteDataStore remoteDataStore;
+  private final FirestoreStorageManager storageManager;
 
   @Inject
-  public GndWorkerFactory(LocalDataStore localDataStore, RemoteDataStore remoteDataStore) {
+  public GndWorkerFactory(
+      LocalDataStore localDataStore,
+      RemoteDataStore remoteDataStore,
+      FirestoreStorageManager storageManager) {
     this.localDataStore = localDataStore;
     this.remoteDataStore = remoteDataStore;
+    this.storageManager = storageManager;
   }
 
   @Nullable
@@ -54,6 +61,8 @@ public class GndWorkerFactory extends WorkerFactory {
       return new LocalMutationSyncWorker(appContext, params, localDataStore, remoteDataStore);
     } else if (workerClassName.equals(TileDownloadWorker.class.getName())) {
       return new TileDownloadWorker(appContext, params, localDataStore);
+    } else if (workerClassName.equals(PhotoSyncWorker.class.getName())) {
+      return new PhotoSyncWorker(appContext, params, storageManager);
     } else {
       throw new IllegalArgumentException("Unknown worker class " + workerClassName);
     }
