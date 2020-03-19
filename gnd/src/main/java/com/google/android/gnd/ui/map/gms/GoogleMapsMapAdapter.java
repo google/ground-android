@@ -22,7 +22,6 @@ import static java8.util.stream.StreamSupport.stream;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Color;
-import android.util.Log;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.UiSettings;
@@ -37,22 +36,14 @@ import com.google.android.gnd.ui.MarkerIconFactory;
 import com.google.android.gnd.ui.map.MapAdapter;
 import com.google.android.gnd.ui.map.MapPin;
 import com.google.common.collect.ImmutableSet;
-import com.google.maps.android.data.geojson.GeoJsonLayer;
 import io.reactivex.Observable;
 import io.reactivex.subjects.BehaviorSubject;
 import io.reactivex.subjects.PublishSubject;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 import javax.annotation.Nullable;
-import org.json.JSONException;
-import org.json.JSONObject;
+import timber.log.Timber;
 
 /**
  * Wrapper around {@link GoogleMap}, exposing Google Maps SDK functionality to Ground as a {@link
@@ -60,8 +51,6 @@ import org.json.JSONObject;
  */
 class GoogleMapsMapAdapter implements MapAdapter {
 
-  private static final String TAG = GoogleMapsMapAdapter.class.getSimpleName();
-  private static final String GEO_JSON_FILE = "gnd-geojson.geojson";
   private final GoogleMap map;
   private final Context context;
   private final MarkerIconFactory markerIconFactory;
@@ -95,29 +84,6 @@ class GoogleMapsMapAdapter implements MapAdapter {
     map.setOnCameraMoveStartedListener(this::onCameraMoveStarted);
     map.setOnCameraMoveListener(this::onCameraMove);
     onCameraMove();
-  }
-
-  public void renderJsonLayer() {
-    File file = new File(context.getFilesDir(), GEO_JSON_FILE);
-
-    try {
-      InputStream is = new FileInputStream(file);
-      BufferedReader buf = new BufferedReader(new InputStreamReader(is));
-      String line = buf.readLine();
-      StringBuilder sb = new StringBuilder();
-      while (line != null) {
-        sb.append(line).append('\n');
-        line = buf.readLine();
-      }
-
-      JSONObject geoJson = new JSONObject(sb.toString());
-      GeoJsonLayer layer = new GeoJsonLayer(map, geoJson);
-      layer.addLayerToMap();
-      Log.d(TAG, "JSON layer successfully loaded");
-
-    } catch (IOException | JSONException e) {
-      Log.e(TAG, "Unable to load JSON layer", e);
-    }
   }
 
   private boolean onMarkerClick(Marker marker) {
@@ -230,7 +196,7 @@ class GoogleMapsMapAdapter implements MapAdapter {
   }
 
   private void removeMarker(Marker marker) {
-    Log.v(TAG, "Removing marker " + marker.getId());
+    Timber.v("Removing marker %s", marker.getId());
     marker.remove();
   }
 
@@ -238,7 +204,7 @@ class GoogleMapsMapAdapter implements MapAdapter {
     try {
       return Color.parseColor(String.valueOf(colorHexCode));
     } catch (IllegalArgumentException e) {
-      Log.w(TAG, "Invalid color code in layer style: " + colorHexCode);
+      Timber.w("Invalid color code in layer style: %s", colorHexCode);
       return context.getResources().getColor(R.color.colorMapAccent);
     }
   }
