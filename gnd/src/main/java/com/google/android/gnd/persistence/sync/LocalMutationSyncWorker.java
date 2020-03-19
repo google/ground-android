@@ -20,7 +20,6 @@ import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList
 import static java8.util.stream.StreamSupport.stream;
 
 import android.content.Context;
-import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.work.Data;
 import androidx.work.Worker;
@@ -35,6 +34,7 @@ import io.reactivex.Observable;
 import java.util.Map;
 import java.util.Set;
 import java8.util.stream.Collectors;
+import timber.log.Timber;
 
 /**
  * A worker that syncs local changes to the remote data store. Each instance handles mutations for a
@@ -43,8 +43,7 @@ import java8.util.stream.Collectors;
  */
 public class LocalMutationSyncWorker extends Worker {
 
-  private static final String TAG = LocalMutationSyncWorker.class.getSimpleName();
-  public static final String FEATURE_ID_PARAM_KEY = "featureId";
+  private static final String FEATURE_ID_PARAM_KEY = "featureId";
 
   private final LocalDataStore localDataStore;
   private final RemoteDataStore remoteDataStore;
@@ -69,14 +68,14 @@ public class LocalMutationSyncWorker extends Worker {
   @NonNull
   @Override
   public Result doWork() {
-    Log.d(TAG, "Connected. Syncing changes to feature " + featureId);
+    Timber.d("Connected. Syncing changes to feature %s", featureId);
     ImmutableList<Mutation> mutations = localDataStore.getPendingMutations(featureId).blockingGet();
     try {
-      Log.v(TAG, "Mutations: " + mutations);
+      Timber.v("Mutations: %s", mutations);
       processMutations(mutations).blockingAwait();
       return Result.success();
     } catch (Throwable t) {
-      Log.d(TAG, "Remote updates for feature " + featureId + " failed", t);
+      Timber.d(t, "Remote updates for feature %s failed", featureId);
       localDataStore.updateMutations(incrementRetryCounts(mutations, t)).blockingAwait();
       return Result.retry();
     }
@@ -98,7 +97,7 @@ public class LocalMutationSyncWorker extends Worker {
     return localDataStore
         .loadUser(userId)
         .flatMapCompletable(user -> processMutations(mutations, user))
-        .doOnError(__ -> Log.d(TAG, "User account removed before mutation processed"))
+        .doOnError(__ -> Timber.d("User account removed before mutation processed"))
         .onErrorComplete();
   }
 
