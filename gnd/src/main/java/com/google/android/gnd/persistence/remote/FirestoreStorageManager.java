@@ -22,6 +22,7 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import java.io.File;
 import java.util.Objects;
+import java8.util.StringJoiner;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import timber.log.Timber;
@@ -40,18 +41,20 @@ public class FirestoreStorageManager {
     this.storageReference = storageReference;
   }
 
-  /** Returns a reference to the root media dir. */
-  private StorageReference getRootMediaDir() {
-    return storageReference.child(MEDIA_ROOT_DIR);
-  }
-
   /**
-   * Returns a reference to a object under the root media dir.
+   * Generates destination path for saving the image to Firestore Storage.
    *
-   * @param fileName Name of the uploaded media
+   * <p>/uploaded_media/{project_id}/{form_id}/{feature_id}/{filename.jpg}
    */
-  private StorageReference createReference(String fileName) {
-    return getRootMediaDir().child(fileName);
+  public static String getRemoteImagePath(
+      String projectId, String formId, String featureId, String filename) {
+    return new StringJoiner(File.separator)
+        .add(MEDIA_ROOT_DIR)
+        .add(projectId)
+        .add(formId)
+        .add(featureId)
+        .add(filename)
+        .toString();
   }
 
   public Task<Uri> getDownloadUrl(String path) {
@@ -60,7 +63,7 @@ public class FirestoreStorageManager {
 
   /** Upload file to Firebase Storage. */
   public String uploadMediaFromFile(File file, String destinationPath) {
-    StorageReference reference = createReference(destinationPath);
+    StorageReference reference = storageReference.child(destinationPath);
     UploadTask task = reference.putFile(Uri.fromFile(file));
 
     uploadMediaToFirebaseStorage(task, destinationPath);

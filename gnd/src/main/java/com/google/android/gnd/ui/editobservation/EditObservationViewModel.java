@@ -56,7 +56,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Date;
 import java8.util.Optional;
-import java8.util.StringJoiner;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 import timber.log.Timber;
@@ -249,33 +248,23 @@ public class EditObservationViewModel extends AbstractViewModel {
   private Completable saveBitmapAndUpdateResponse(Bitmap bitmap, String fieldId)
       throws IOException {
     File file = fileUtil.saveBitmap(bitmap, fieldId + ".jpg");
-    String destinationPath = getRemoteImagePath(file.getName());
+    String destinationPath =
+      FirestoreStorageManager.getRemoteImagePath(
+        args.getProjectId(), args.getFormId(), args.getFeatureId(), file.getName());
+
+    // TODO: enqueue task for photo upload
 
     // If offline, Firebase will automatically upload the image when the network
     // connectivity is  re-established.
     // TODO: Implement offline photo sync using Android Workers and local db
-    String url = firestoreStorageManager.uploadMediaFromFile(file, destinationPath);
+    //    String url = firestoreStorageManager.uploadMediaFromFile(file, destinationPath);
 
     // TODO: Handle response after reloading view-model and remove this field
     isPhotoFieldUpdated = true;
 
     // update observable response map
-    onTextChanged(form.getValue().getField(fieldId).get(), url);
+    onTextChanged(form.getValue().getField(fieldId).get(), destinationPath);
     return Completable.complete();
-  }
-
-  /**
-   * Generates destination path for saving the image to Firestore Storage.
-   *
-   * <p>/uploaded_media/{project_id}/{form_id}/{feature_id}/{filename.jpg}
-   */
-  private String getRemoteImagePath(String filename) {
-    return new StringJoiner(File.separator)
-        .add(args.getProjectId())
-        .add(args.getFormId())
-        .add(args.getFeatureId())
-        .add(filename)
-        .toString();
   }
 
   public void onSaveClick() {
