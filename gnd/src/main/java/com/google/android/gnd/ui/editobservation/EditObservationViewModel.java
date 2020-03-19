@@ -250,8 +250,8 @@ public class EditObservationViewModel extends AbstractViewModel {
       throws IOException {
     File file = fileUtil.saveBitmap(bitmap, fieldId + ".jpg");
     String destinationPath =
-      FirestoreStorageManager.getRemoteImagePath(
-        args.getProjectId(), args.getFormId(), args.getFeatureId(), file.getName());
+        FirestoreStorageManager.getRemoteImagePath(
+            args.getProjectId(), args.getFormId(), args.getFeatureId(), file.getName());
 
     // TODO: Handle response after reloading view-model and remove this field
     isPhotoFieldUpdated = true;
