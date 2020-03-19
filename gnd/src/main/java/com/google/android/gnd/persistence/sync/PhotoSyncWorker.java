@@ -25,14 +25,19 @@ import com.google.android.gnd.persistence.remote.FirestoreStorageManager;
 import java.io.File;
 import timber.log.Timber;
 
+/**
+ * A worker that uploads photos from observations to the FirestoreStorage in the background. The
+ * source file and remote destination path are provided in a {@link Data} object. This worker should
+ * only run when the device has a network connection.
+ */
 public class PhotoSyncWorker extends Worker {
 
   private static final String SOURCE_FILE_PATH_PARAM_KEY = "sourceFilePath";
   private static final String DESTINATION_PATH_PARAM_KEY = "destinationPath";
 
   private final FirestoreStorageManager storageManager;
-  private final String sourceFilePath;
-  private final String destinationPath;
+  private final String localSourcePath;
+  private final String remoteDestinationPath;
 
   public PhotoSyncWorker(
       @NonNull Context context,
@@ -40,8 +45,8 @@ public class PhotoSyncWorker extends Worker {
       FirestoreStorageManager storageManager) {
     super(context, workerParams);
     this.storageManager = storageManager;
-    this.sourceFilePath = workerParams.getInputData().getString(SOURCE_FILE_PATH_PARAM_KEY);
-    this.destinationPath = workerParams.getInputData().getString(DESTINATION_PATH_PARAM_KEY);
+    this.localSourcePath = workerParams.getInputData().getString(SOURCE_FILE_PATH_PARAM_KEY);
+    this.remoteDestinationPath = workerParams.getInputData().getString(DESTINATION_PATH_PARAM_KEY);
   }
 
   public static Data createInputData(String sourceFilePath, String destinationPath) {
@@ -54,14 +59,14 @@ public class PhotoSyncWorker extends Worker {
   @NonNull
   @Override
   public Result doWork() {
-    Timber.d("Attempting photo sync: %s, %s", sourceFilePath, destinationPath);
-    File file = new File(sourceFilePath);
+    Timber.d("Attempting photo sync: %s, %s", localSourcePath, remoteDestinationPath);
+    File file = new File(localSourcePath);
     if (file.exists()) {
-      Timber.d("Starting photo upload: %s, %s", sourceFilePath, destinationPath);
-      storageManager.uploadMediaFromFile(new File(sourceFilePath), destinationPath);
+      Timber.d("Starting photo upload: %s, %s", localSourcePath, remoteDestinationPath);
+      storageManager.uploadMediaFromFile(new File(localSourcePath), remoteDestinationPath);
       return Result.success();
     } else {
-      Timber.e("Photo not found %s, %s", sourceFilePath, destinationPath);
+      Timber.e("Photo not found %s, %s", localSourcePath, remoteDestinationPath);
       return Result.failure();
     }
   }
