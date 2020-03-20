@@ -71,7 +71,9 @@ public class ObservationListFragment extends AbstractFragment {
     super.onViewCreated(view, savedInstanceState);
     recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
     recyclerView.setAdapter(observationListAdapter);
-    featureSheetViewModel.getSelectedFeature().observe(this, this::onFeatureSelected);
+    featureSheetViewModel
+        .getSelectedFeature()
+        .observe(getViewLifecycleOwner(), this::onFeatureSelected);
   }
 
   private void onFeatureSelected(Optional<Feature> feature) {
@@ -82,7 +84,7 @@ public class ObservationListFragment extends AbstractFragment {
   @Override
   public void onActivityCreated(@Nullable Bundle savedInstanceState) {
     super.onActivityCreated(savedInstanceState);
-    viewModel.getObservations().observe(this, observationListAdapter::update);
+    viewModel.getObservations().observe(getViewLifecycleOwner(), observationListAdapter::update);
   }
 
   private void onItemClick(Observation observation) {
