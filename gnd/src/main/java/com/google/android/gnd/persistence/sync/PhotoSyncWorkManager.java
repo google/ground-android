@@ -32,7 +32,7 @@ public class PhotoSyncWorkManager {
 
   /**
    * WorkManager is injected via {@code Provider} rather than directly to ensure the {@code
-   * Application} has a change to initialize it before {@code WorkManager.getInstance()} is called.
+   * Application} has a chance to initialize it before {@code WorkManager.getInstance()} is called.
    */
   private final Provider<WorkManager> workManagerProvider;
 
