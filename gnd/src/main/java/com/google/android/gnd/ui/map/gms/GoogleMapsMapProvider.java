@@ -25,6 +25,7 @@ import com.google.android.gnd.ui.map.MapProvider;
 import io.reactivex.Single;
 import io.reactivex.subjects.SingleSubject;
 import java.util.HashMap;
+import java.util.Map;
 
 /** Ground map adapter implementation for Google Maps API. */
 public class GoogleMapsMapProvider implements MapProvider {
@@ -73,29 +74,28 @@ public class GoogleMapsMapProvider implements MapProvider {
 
   @Override
   public int getMapType() {
-    if (map != null) {
-      return map.getValue().getMapType();
+    if (map == null) {
+      throw new IllegalStateException("MapAdapter is null");
     }
-    throw new IllegalStateException("MapAdapter is null");
+    return map.getValue().getMapType();
   }
 
   @Override
   public void setMapType(int mapType) {
-    if (map != null) {
-      map.getValue().setMapType(mapType);
-    } else {
+    if (map == null) {
       throw new IllegalStateException("MapAdapter is null");
     }
+    map.getValue().setMapType(mapType);
   }
 
   @Override
-  public HashMap<Integer, String> getMapTypes() {
-    HashMap<Integer, String> hashMap = new HashMap<>();
-    hashMap.put(GoogleMap.MAP_TYPE_NONE, "None");
-    hashMap.put(GoogleMap.MAP_TYPE_NORMAL, "Normal");
-    hashMap.put(GoogleMap.MAP_TYPE_SATELLITE, "Satellite");
-    hashMap.put(GoogleMap.MAP_TYPE_TERRAIN, "Terrain");
-    hashMap.put(GoogleMap.MAP_TYPE_HYBRID, "Hybrid");
-    return hashMap;
+  public Map<Integer, String> getMapTypes() {
+    Map<Integer, String> map = new HashMap<>();
+    map.put(GoogleMap.MAP_TYPE_NONE, "None");
+    map.put(GoogleMap.MAP_TYPE_NORMAL, "Normal");
+    map.put(GoogleMap.MAP_TYPE_SATELLITE, "Satellite");
+    map.put(GoogleMap.MAP_TYPE_TERRAIN, "Terrain");
+    map.put(GoogleMap.MAP_TYPE_HYBRID, "Hybrid");
+    return map;
   }
 }
