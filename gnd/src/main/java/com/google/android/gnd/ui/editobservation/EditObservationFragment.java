@@ -91,9 +91,11 @@ public class EditObservationFragment extends AbstractFragment
     ((MainActivity) getActivity()).setActionBar(toolbar, R.drawable.ic_close_black_24dp);
     toolbar.setNavigationOnClickListener(__ -> onCloseButtonClick());
     // Observe state changes.
-    viewModel.getForm().observe(this, this::rebuildForm);
-    viewModel.getToolbarTitle().observe(this, toolbar::setTitle);
-    viewModel.getSaveResults().observe(this, e -> e.ifUnhandled(this::handleSaveResult));
+    viewModel.getForm().observe(getViewLifecycleOwner(), this::rebuildForm);
+    viewModel.getToolbarTitle().observe(getViewLifecycleOwner(), toolbar::setTitle);
+    viewModel
+        .getSaveResults()
+        .observe(getViewLifecycleOwner(), e -> e.ifUnhandled(this::handleSaveResult));
     // Initialize view model.
     viewModel.initialize(EditObservationFragmentArgs.fromBundle(getArguments()));
   }

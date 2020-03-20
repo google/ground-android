@@ -23,17 +23,17 @@ apply from: '../config/pmd/pmd.gradle'
 apply from: '../config/spotbugs/spotbugs.gradle'
 
 project.ext {
-    autoDisposeVersion = "1.2.0"
+    autoDisposeVersion = "1.4.0"
     autoValueVersion = "1.6.3"
-    butterKnifeVersion = "10.2.0"
-    daggerVersion = "2.25.3"
+    butterKnifeVersion = "10.2.1"
+    daggerVersion = "2.27"
     firebaseCoreVersion = "17.2.3"
     gmsVersion = "17.0.0"
-    lifecycleVersion = "2.1.0"
+    lifecycleVersion = "2.2.0"
     navigationVersion = "1.0.0"
-    roomVersion = "2.2.4"
-    rxAndroidVersion = "2.1.1"
-    workVersion = "2.3.3"
+    roomVersion = "2.2.5"
+    rxBindingVersion = "2.2.0"
+    workVersion = "2.3.4"
 }
 
 // Load secrets.properties
@@ -99,12 +99,11 @@ dependencies {
 
     // UI widgets.
     implementation 'androidx.cardview:cardview:1.0.0'
-    // TODO: Updating material dependency requires some non-trivial changes to styling of overall app
-    implementation 'com.google.android.material:material:1.0.0-beta01'
+    implementation 'com.google.android.material:material:1.0.0'
     implementation 'com.android.support.constraint:constraint-layout:1.1.3'
 
     // Support for Java streams.
-    implementation 'net.sourceforge.streamsupport:streamsupport-cfuture:1.6.3'
+    implementation 'net.sourceforge.streamsupport:streamsupport-cfuture:1.7.1'
 
     // Google Play Services.
     implementation "com.google.android.gms:play-services-auth:$project.gmsVersion"
@@ -112,15 +111,15 @@ dependencies {
     implementation "com.google.android.gms:play-services-location:$project.gmsVersion"
 
     // GeoJSON support
-    implementation "com.google.maps.android:android-maps-utils:0.5"
+    implementation "com.google.maps.android:android-maps-utils:1.0.1"
 
     // Firebase and related libraries.
     implementation "com.google.firebase:firebase-analytics:$project.firebaseCoreVersion"
     implementation "com.google.firebase:firebase-core:$project.firebaseCoreVersion"
     implementation 'com.google.firebase:firebase-firestore:21.4.1'
-    implementation 'com.google.firebase:firebase-auth:19.2.0'
+    implementation 'com.google.firebase:firebase-auth:19.3.0'
     implementation 'com.google.firebase:firebase-perf:19.0.5'
-    implementation 'com.github.FrangSierra:RxFirebase:1.5.0'
+    implementation 'com.github.FrangSierra:RxFirebase:1.5.7'
     implementation 'com.google.firebase:firebase-storage:19.1.1'
 
     // Crashlytics
@@ -138,12 +137,12 @@ dependencies {
     annotationProcessor "com.jakewharton:butterknife-compiler:$project.butterKnifeVersion"
 
     // ReactiveX
-    implementation 'io.reactivex.rxjava2:rxjava:2.2.9'
-    implementation "io.reactivex.rxjava2:rxandroid:$project.rxAndroidVersion"
-    implementation "com.jakewharton.rxbinding2:rxbinding:$project.rxAndroidVersion"
-    implementation "com.jakewharton.rxbinding2:rxbinding-support-v4:$project.rxAndroidVersion"
-    implementation "com.jakewharton.rxbinding2:rxbinding-appcompat-v7:$project.rxAndroidVersion"
-    implementation "com.jakewharton.rxbinding2:rxbinding-design:$project.rxAndroidVersion"
+    implementation 'io.reactivex.rxjava2:rxjava:2.2.19'
+    implementation "io.reactivex.rxjava2:rxandroid:2.1.1"
+    implementation "com.jakewharton.rxbinding2:rxbinding:$project.rxBindingVersion"
+    implementation "com.jakewharton.rxbinding2:rxbinding-support-v4:$project.rxBindingVersion"
+    implementation "com.jakewharton.rxbinding2:rxbinding-appcompat-v7:$project.rxBindingVersion"
+    implementation "com.jakewharton.rxbinding2:rxbinding-design:$project.rxBindingVersion"
     implementation 'com.akaita.java:rxjava2-debug:1.4.0'
 
     // Android Arch Lifecycle
@@ -189,8 +188,8 @@ dependencies {
     implementation 'commons-io:commons-io:2.6'
 
     // Testing
-    testImplementation 'junit:junit:4.12'
-    testImplementation 'com.google.truth:truth:1.0'
+    testImplementation 'junit:junit:4.13'
+    testImplementation 'com.google.truth:truth:1.0.1'
 
     androidTestImplementation('androidx.test.espresso:espresso-core:3.1.0-alpha4', {
         exclude group: 'com.android.support', module: 'support-annotations'
