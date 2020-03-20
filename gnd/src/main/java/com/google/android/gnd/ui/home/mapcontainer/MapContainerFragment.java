@@ -28,9 +28,12 @@ import android.widget.ImageButton;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import butterknife.BindView;
+import butterknife.OnClick;
+import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gnd.MainViewModel;
 import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.MapContainerFragBinding;
@@ -54,6 +57,10 @@ public class MapContainerFragment extends AbstractFragment {
 
   private static final String MAP_FRAGMENT_KEY = MapProvider.class.getName() + "#fragment";
 
+  private static final CharSequence[] MAP_TYPE_ITEMS = {
+    "None", "Normal", "Satellite", "Terrain", "Hybrid"
+  };
+
   @Inject MapProvider mapProvider;
 
   @BindView(R.id.hamburger_btn)
@@ -71,6 +78,47 @@ public class MapContainerFragment extends AbstractFragment {
   private MapContainerViewModel mapContainerViewModel;
   private HomeScreenViewModel homeScreenViewModel;
   private MainViewModel mainViewModel;
+
+  @OnClick(R.id.map_type_btn)
+  void onClick(ImageButton view) {
+    showMapTypeSelectorDialog();
+  }
+
+  private void showMapTypeSelectorDialog() {
+    final String dialogTitle = "Select Map Type";
+    AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+    builder.setTitle(dialogTitle);
+    int checkItem = mapProvider.getMapType();
+    builder.setSingleChoiceItems(
+        MAP_TYPE_ITEMS,
+        checkItem,
+        (dialog, item) -> {
+          switch (item) {
+            case 0:
+              mapProvider.setMapType(GoogleMap.MAP_TYPE_NONE);
+              break;
+            case 1:
+              mapProvider.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+              break;
+            case 2:
+              mapProvider.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
+              break;
+            case 3:
+              mapProvider.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
+              break;
+            case 4:
+              mapProvider.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+              break;
+            default:
+              Timber.e("Unknown type: %d", item);
+          }
+          dialog.dismiss();
+        });
+
+    AlertDialog alertDialog = builder.create();
+    alertDialog.setCanceledOnTouchOutside(true);
+    alertDialog.show();
+  }
 
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
