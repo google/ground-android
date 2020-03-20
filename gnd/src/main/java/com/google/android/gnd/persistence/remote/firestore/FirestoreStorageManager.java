@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.persistence.remote;
+package com.google.android.gnd.persistence.remote.firestore;
 
 import android.net.Uri;
 import com.google.android.gms.tasks.Task;
+import com.google.android.gnd.persistence.remote.RemoteStorageManager;
 import com.google.firebase.storage.StorageReference;
 import io.reactivex.Completable;
 import java.io.File;
@@ -28,17 +29,16 @@ import timber.log.Timber;
 
 // TODO: Add column to Observation table for storing uploaded media urls
 // TODO: Synced to remote db as well
-// TODO: Extract a generic interface so that we have an internal API to switch providers
 @Singleton
-public class FirestoreStorageManager {
+public class FirestoreStorageManager implements RemoteStorageManager {
 
+  // Top-level directory
   private static final String MEDIA_ROOT_DIR = "uploaded_media";
-  private final StorageReference storageReference;
+
+  @Inject StorageReference storageReference;
 
   @Inject
-  FirestoreStorageManager(StorageReference storageReference) {
-    this.storageReference = storageReference;
-  }
+  FirestoreStorageManager() {}
 
   /**
    * Generates destination path for saving the image to Firestore Storage.
@@ -56,6 +56,7 @@ public class FirestoreStorageManager {
         .toString();
   }
 
+  @Override
   public Task<Uri> getDownloadUrl(String path) {
     return storageReference.child(path).getDownloadUrl();
   }
@@ -65,6 +66,7 @@ public class FirestoreStorageManager {
   }
 
   /** Upload file to Firebase Storage. */
+  @Override
   public Completable uploadMediaFromFile(File file, String destinationPath) {
     return Completable.create(
         emitter ->

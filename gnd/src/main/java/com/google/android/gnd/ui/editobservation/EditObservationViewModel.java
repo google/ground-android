@@ -38,7 +38,7 @@ import com.google.android.gnd.model.observation.Response;
 import com.google.android.gnd.model.observation.ResponseDelta;
 import com.google.android.gnd.model.observation.ResponseMap;
 import com.google.android.gnd.model.observation.TextResponse;
-import com.google.android.gnd.persistence.remote.FirestoreStorageManager;
+import com.google.android.gnd.persistence.remote.firestore.FirestoreStorageManager;
 import com.google.android.gnd.persistence.sync.PhotoSyncWorkManager;
 import com.google.android.gnd.repository.ObservationRepository;
 import com.google.android.gnd.rx.Event;

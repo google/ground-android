@@ -22,7 +22,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.provider.MediaStore.Images.Media;
-import com.google.android.gnd.persistence.remote.FirestoreStorageManager;
+import com.google.android.gnd.persistence.remote.RemoteStorageManager;
 import com.google.android.gnd.rx.RxTask;
 import com.google.android.gnd.system.ActivityStreams.ActivityResult;
 import com.google.android.gnd.ui.util.FileUtil;
@@ -43,7 +43,7 @@ public class StorageManager {
   private final Context context;
   private final PermissionsManager permissionsManager;
   private final ActivityStreams activityStreams;
-  private final FirestoreStorageManager firestoreStorageManager;
+  private final RemoteStorageManager remoteStorageManager;
   private final FileUtil fileUtil;
 
   @Inject
@@ -51,12 +51,12 @@ public class StorageManager {
       Context context,
       PermissionsManager permissionsManager,
       ActivityStreams activityStreams,
-      FirestoreStorageManager firestoreStorageManager,
+      RemoteStorageManager remoteStorageManager,
       FileUtil fileUtil) {
     this.context = context;
     this.permissionsManager = permissionsManager;
     this.activityStreams = activityStreams;
-    this.firestoreStorageManager = firestoreStorageManager;
+    this.remoteStorageManager = remoteStorageManager;
     this.fileUtil = fileUtil;
   }
 
@@ -130,7 +130,7 @@ public class StorageManager {
    * @param destinationPath Final destination path of the uploaded photo relative to Firestore
    */
   public Single<Uri> getDownloadUrl(String destinationPath) {
-    return RxTask.toSingle(() -> firestoreStorageManager.getDownloadUrl(destinationPath))
+    return RxTask.toSingle(() -> remoteStorageManager.getDownloadUrl(destinationPath))
         .onErrorReturn(throwable -> getFileUriFromDestinationPath(destinationPath));
   }
 }

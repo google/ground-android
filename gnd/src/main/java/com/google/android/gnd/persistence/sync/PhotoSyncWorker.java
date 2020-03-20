@@ -21,7 +21,7 @@ import androidx.annotation.NonNull;
 import androidx.work.Data;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
-import com.google.android.gnd.persistence.remote.FirestoreStorageManager;
+import com.google.android.gnd.persistence.remote.RemoteStorageManager;
 import java.io.File;
 import timber.log.Timber;
 
@@ -35,16 +35,16 @@ public class PhotoSyncWorker extends Worker {
   private static final String SOURCE_FILE_PATH_PARAM_KEY = "sourceFilePath";
   private static final String DESTINATION_PATH_PARAM_KEY = "destinationPath";
 
-  private final FirestoreStorageManager storageManager;
+  private final RemoteStorageManager remoteStorageManager;
   private final String localSourcePath;
   private final String remoteDestinationPath;
 
   public PhotoSyncWorker(
       @NonNull Context context,
       @NonNull WorkerParameters workerParams,
-      FirestoreStorageManager storageManager) {
+      RemoteStorageManager remoteStorageManager) {
     super(context, workerParams);
-    this.storageManager = storageManager;
+    this.remoteStorageManager = remoteStorageManager;
     this.localSourcePath = workerParams.getInputData().getString(SOURCE_FILE_PATH_PARAM_KEY);
     this.remoteDestinationPath = workerParams.getInputData().getString(DESTINATION_PATH_PARAM_KEY);
   }
@@ -64,7 +64,7 @@ public class PhotoSyncWorker extends Worker {
     if (file.exists()) {
       Timber.d("Starting photo upload: %s, %s", localSourcePath, remoteDestinationPath);
       try {
-        storageManager
+        remoteStorageManager
             .uploadMediaFromFile(new File(localSourcePath), remoteDestinationPath)
             .blockingAwait();
         return Result.success();
