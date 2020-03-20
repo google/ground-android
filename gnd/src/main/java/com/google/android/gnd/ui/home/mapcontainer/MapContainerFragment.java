@@ -144,7 +144,7 @@ public class MapContainerFragment extends AbstractFragment {
   @Override
   public void onActivityCreated(@Nullable Bundle savedInstanceState) {
     super.onActivityCreated(savedInstanceState);
-    mainViewModel.getWindowInsets().observe(this, this::onApplyWindowInsets);
+    mainViewModel.getWindowInsets().observe(getViewLifecycleOwner(), this::onApplyWindowInsets);
   }
 
   private void onFeatureSheetStateChange(FeatureSheetState state, MapAdapter map) {

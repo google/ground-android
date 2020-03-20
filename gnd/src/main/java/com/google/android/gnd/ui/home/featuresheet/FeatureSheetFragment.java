@@ -68,8 +68,10 @@ public class FeatureSheetFragment extends AbstractFragment {
   @Override
   public void onActivityCreated(@Nullable Bundle savedInstanceState) {
     super.onActivityCreated(savedInstanceState);
-    mainViewModel.getWindowInsets().observe(this, this::onApplyWindowInsets);
-    homeScreenViewModel.getFeatureSheetState().observe(this, this::onFeatureSheetStateChange);
+    mainViewModel.getWindowInsets().observe(getViewLifecycleOwner(), this::onApplyWindowInsets);
+    homeScreenViewModel
+        .getFeatureSheetState()
+        .observe(getViewLifecycleOwner(), this::onFeatureSheetStateChange);
   }
 
   private void onFeatureSheetStateChange(FeatureSheetState featureSheetState) {
