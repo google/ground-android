@@ -56,13 +56,13 @@ public class FirestoreStorageManager implements RemoteStorageManager {
         .toString();
   }
 
-  @Override
-  public Task<Uri> getDownloadUrl(String path) {
-    return storageReference.child(path).getDownloadUrl();
-  }
-
   private StorageReference createReference(String path) {
     return storageReference.child(path);
+  }
+
+  @Override
+  public Task<Uri> getDownloadUrl(String path) {
+    return createReference(path).getDownloadUrl();
   }
 
   /** Upload file to Firebase Storage. */
