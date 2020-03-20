@@ -17,8 +17,8 @@
 package com.google.android.gnd.ui.map;
 
 import androidx.fragment.app.Fragment;
+import com.google.common.collect.ImmutableMap;
 import io.reactivex.Single;
-import java.util.Map;
 
 /** Common interface for various map provider libraries. */
 public interface MapProvider {
@@ -32,5 +32,5 @@ public interface MapProvider {
 
   void setMapType(int mapType);
 
-  Map<Integer, String> getMapTypes();
+  ImmutableMap<Integer, String> getMapTypes();
 }

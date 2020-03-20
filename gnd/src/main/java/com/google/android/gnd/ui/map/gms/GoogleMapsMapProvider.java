@@ -22,6 +22,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gnd.ui.MarkerIconFactory;
 import com.google.android.gnd.ui.map.MapAdapter;
 import com.google.android.gnd.ui.map.MapProvider;
+import com.google.common.collect.ImmutableMap;
 import io.reactivex.Single;
 import io.reactivex.subjects.SingleSubject;
 import java.util.HashMap;
@@ -89,13 +90,14 @@ public class GoogleMapsMapProvider implements MapProvider {
   }
 
   @Override
-  public Map<Integer, String> getMapTypes() {
+  public ImmutableMap<Integer, String> getMapTypes() {
+    // TODO: i18n
     Map<Integer, String> map = new HashMap<>();
     map.put(GoogleMap.MAP_TYPE_NONE, "None");
     map.put(GoogleMap.MAP_TYPE_NORMAL, "Normal");
     map.put(GoogleMap.MAP_TYPE_SATELLITE, "Satellite");
     map.put(GoogleMap.MAP_TYPE_TERRAIN, "Terrain");
     map.put(GoogleMap.MAP_TYPE_HYBRID, "Hybrid");
-    return map;
+    return ImmutableMap.copyOf(map);
   }
 }
