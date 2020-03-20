@@ -48,7 +48,6 @@ import com.google.android.gnd.ui.map.MapAdapter;
 import com.google.android.gnd.ui.map.MapProvider;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import io.reactivex.Single;
-import java.util.HashMap;
 import javax.inject.Inject;
 import timber.log.Timber;
 
@@ -81,22 +80,18 @@ public class MapContainerFragment extends AbstractFragment {
   }
 
   private void showMapTypeSelectorDialog() {
-    HashMap<Integer, String> mapTypes = mapProvider.getMapTypes();
-
-    AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-    builder.setTitle(R.string.select_map_type);
-    int checkItem = mapProvider.getMapType();
-    builder.setSingleChoiceItems(
-        mapTypes.values().toArray(new String[0]),
-        checkItem,
-        (dialog, item) -> {
-          mapProvider.setMapType(item);
-          dialog.dismiss();
-        });
-
-    AlertDialog alertDialog = builder.create();
-    alertDialog.setCancelable(true);
-    alertDialog.show();
+    new AlertDialog.Builder(getContext())
+        .setTitle(R.string.select_map_type)
+        .setSingleChoiceItems(
+            mapProvider.getMapTypes().values().toArray(new String[0]),
+            mapProvider.getMapType(),
+            (dialog, which) -> {
+              mapProvider.setMapType(which);
+              dialog.dismiss();
+            })
+        .setCancelable(true)
+        .create()
+        .show();
   }
 
   @Override

@@ -73,12 +73,19 @@ public class GoogleMapsMapProvider implements MapProvider {
 
   @Override
   public int getMapType() {
-    return map.getValue().getMapType();
+    if (map != null) {
+      return map.getValue().getMapType();
+    }
+    throw new IllegalStateException("MapAdapter is null");
   }
 
   @Override
   public void setMapType(int mapType) {
-    map.getValue().setMapType(mapType);
+    if (map != null) {
+      map.getValue().setMapType(mapType);
+    } else {
+      throw new IllegalStateException("MapAdapter is null");
+    }
   }
 
   @Override
