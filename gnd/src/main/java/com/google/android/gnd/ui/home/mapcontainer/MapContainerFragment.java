@@ -21,7 +21,6 @@ import static com.google.android.gnd.rx.RxAutoDispose.disposeOnDestroy;
 
 import android.content.res.ColorStateList;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -48,10 +47,11 @@ import com.google.android.gnd.ui.map.MapProvider;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import io.reactivex.Single;
 import javax.inject.Inject;
+import timber.log.Timber;
 
 /** Main app view, displaying the map and related controls (center cross-hairs, add button, etc). */
 public class MapContainerFragment extends AbstractFragment {
-  private static final String TAG = MapContainerFragment.class.getSimpleName();
+
   private static final String MAP_FRAGMENT_KEY = MapProvider.class.getName() + "#fragment";
 
   @Inject MapProvider mapProvider;
@@ -123,7 +123,7 @@ public class MapContainerFragment extends AbstractFragment {
   }
 
   private void onMapReady(MapAdapter map) {
-    Log.d(TAG, "MapAdapter ready. Updating subscriptions");
+    Timber.d("MapAdapter ready. Updating subscriptions");
     // Observe events emitted by the ViewModel.
     mapContainerViewModel.getMapPins().observe(this, map::setMapPins);
     mapContainerViewModel
@@ -157,7 +157,7 @@ public class MapContainerFragment extends AbstractFragment {
         map.enable();
         break;
       default:
-        Log.e(TAG, "Unhandled visibility: " + state.getVisibility());
+        Timber.e("Unhandled visibility: %s", state.getVisibility());
         break;
     }
   }
@@ -189,11 +189,11 @@ public class MapContainerFragment extends AbstractFragment {
   private void onLocationLockStateChange(BooleanOrError result, MapAdapter map) {
     result.error().ifPresent(this::onLocationLockError);
     if (result.isTrue()) {
-      Log.d(TAG, "Location lock enabled");
+      Timber.d("Location lock enabled");
       map.enableCurrentLocationIndicator();
       locationLockBtn.setImageResource(R.drawable.ic_gps_blue);
     } else {
-      Log.d(TAG, "Location lock disabled");
+      Timber.d("Location lock disabled");
       locationLockBtn.setImageResource(R.drawable.ic_gps_grey600);
     }
   }
@@ -213,7 +213,7 @@ public class MapContainerFragment extends AbstractFragment {
   }
 
   private void onCameraUpdate(MapContainerViewModel.CameraUpdate update, MapAdapter map) {
-    Log.v(TAG, "Update camera: " + update);
+    Timber.v("Update camera: %s", update);
     if (update.getMinZoomLevel().isPresent()) {
       map.moveCamera(
           update.getCenter(), Math.max(update.getMinZoomLevel().get(), map.getCurrentZoomLevel()));
