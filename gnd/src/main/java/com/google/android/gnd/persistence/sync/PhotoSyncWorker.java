@@ -63,8 +63,15 @@ public class PhotoSyncWorker extends Worker {
     File file = new File(localSourcePath);
     if (file.exists()) {
       Timber.d("Starting photo upload: %s, %s", localSourcePath, remoteDestinationPath);
-      storageManager.uploadMediaFromFile(new File(localSourcePath), remoteDestinationPath);
-      return Result.success();
+      try {
+        storageManager
+            .uploadMediaFromFile(new File(localSourcePath), remoteDestinationPath)
+            .blockingAwait();
+        return Result.success();
+      } catch (Exception e) {
+        Timber.e(e, "Photo sync failed: %s %s", localSourcePath, remoteDestinationPath);
+        return Result.retry();
+      }
     } else {
       Timber.e("Photo not found %s, %s", localSourcePath, remoteDestinationPath);
       return Result.failure();

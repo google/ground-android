@@ -19,7 +19,7 @@ package com.google.android.gnd.persistence.remote;
 import android.net.Uri;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.UploadTask;
+import io.reactivex.Completable;
 import java.io.File;
 import java8.util.StringJoiner;
 import javax.inject.Inject;
@@ -60,38 +60,30 @@ public class FirestoreStorageManager {
     return storageReference.child(path).getDownloadUrl();
   }
 
-  /** Upload file to Firebase Storage. */
-  public void uploadMediaFromFile(File file, String destinationPath) {
-    StorageReference reference = storageReference.child(destinationPath);
-    UploadTask task = reference.putFile(Uri.fromFile(file));
-    uploadMediaToFirebaseStorage(task, destinationPath);
+  private StorageReference createReference(String path) {
+    return storageReference.child(path);
   }
 
-  private void uploadMediaToFirebaseStorage(UploadTask uploadTask, String fileName) {
-    // TODO: Create UploadState enum and use RxJava to broadcast upload state globally.
-    // use our util RxTask to convert the task to a Single.
-    uploadTask
-        .addOnCanceledListener(
-            () -> {
-              Timber.d("Uploading canceled: %s", fileName);
-            })
-        .addOnCompleteListener(
-            task -> {
-              Timber.d("Uploading completed: %s", fileName);
-            })
-        .addOnFailureListener(
-            e -> {
-              Timber.e(e, "Uploading failed: %s", fileName);
-            })
-        .addOnSuccessListener(
-            taskSnapshot -> {
-              Timber.d("Uploading succeeded: %s", fileName);
-            })
-        .addOnProgressListener(
-            taskSnapshot -> {
-              double percentCompleted =
-                  100.0 * taskSnapshot.getBytesTransferred() / taskSnapshot.getTotalByteCount();
-              Timber.d("Uploading in progress: %s %f", fileName, percentCompleted);
-            });
+  /** Upload file to Firebase Storage. */
+  public Completable uploadMediaFromFile(File file, String destinationPath) {
+    return Completable.create(
+        emitter ->
+            createReference(destinationPath)
+                .putFile(Uri.fromFile(file))
+                .addOnCompleteListener(uploadTask -> emitter.onComplete())
+                .addOnFailureListener(emitter::onError)
+                .addOnSuccessListener(
+                    taskSnapshot -> {
+                      // TODO: taskSnapshot contains metadata that can be displayed after uploading
+                    })
+                .addOnProgressListener(
+                    taskSnapshot -> {
+                      // TODO: Display upload status in app or notification
+                      double percentCompleted =
+                          100.0
+                              * taskSnapshot.getBytesTransferred()
+                              / taskSnapshot.getTotalByteCount();
+                      Timber.d("Uploading in progress: %s %f", destinationPath, percentCompleted);
+                    }));
   }
 }
