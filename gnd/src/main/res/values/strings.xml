@@ -140,5 +140,6 @@
   <string name="cancel">Cancel</string>
   <string name="join_project">Join project</string>
   <string name="photo_preview">Photo preview</string>
+  <string name="select_map_type">Select Map Type</string>
 
 </resources>

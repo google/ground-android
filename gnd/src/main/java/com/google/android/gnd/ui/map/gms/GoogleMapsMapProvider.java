@@ -18,11 +18,13 @@ package com.google.android.gnd.ui.map.gms;
 
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gnd.ui.MarkerIconFactory;
 import com.google.android.gnd.ui.map.MapAdapter;
 import com.google.android.gnd.ui.map.MapProvider;
 import io.reactivex.Single;
 import io.reactivex.subjects.SingleSubject;
+import java.util.HashMap;
 
 /** Ground map adapter implementation for Google Maps API. */
 public class GoogleMapsMapProvider implements MapProvider {
@@ -77,5 +79,16 @@ public class GoogleMapsMapProvider implements MapProvider {
   @Override
   public void setMapType(int mapType) {
     map.getValue().setMapType(mapType);
+  }
+
+  @Override
+  public HashMap<Integer, String> getMapTypes() {
+    HashMap<Integer, String> hashMap = new HashMap<>();
+    hashMap.put(GoogleMap.MAP_TYPE_NONE, "None");
+    hashMap.put(GoogleMap.MAP_TYPE_NORMAL, "Normal");
+    hashMap.put(GoogleMap.MAP_TYPE_SATELLITE, "Satellite");
+    hashMap.put(GoogleMap.MAP_TYPE_TERRAIN, "Terrain");
+    hashMap.put(GoogleMap.MAP_TYPE_HYBRID, "Hybrid");
+    return hashMap;
   }
 }

@@ -18,6 +18,7 @@ package com.google.android.gnd.ui.map;
 
 import androidx.fragment.app.Fragment;
 import io.reactivex.Single;
+import java.util.HashMap;
 
 /** Common interface for various map provider libraries. */
 public interface MapProvider {
@@ -30,4 +31,6 @@ public interface MapProvider {
   int getMapType();
 
   void setMapType(int mapType);
+
+  HashMap<Integer, String> getMapTypes();
 }

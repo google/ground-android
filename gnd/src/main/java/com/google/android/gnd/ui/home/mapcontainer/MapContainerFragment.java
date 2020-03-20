@@ -33,7 +33,6 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import butterknife.BindView;
 import butterknife.OnClick;
-import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gnd.MainViewModel;
 import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.MapContainerFragBinding;
@@ -49,6 +48,7 @@ import com.google.android.gnd.ui.map.MapAdapter;
 import com.google.android.gnd.ui.map.MapProvider;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import io.reactivex.Single;
+import java.util.HashMap;
 import javax.inject.Inject;
 import timber.log.Timber;
 
@@ -56,10 +56,6 @@ import timber.log.Timber;
 public class MapContainerFragment extends AbstractFragment {
 
   private static final String MAP_FRAGMENT_KEY = MapProvider.class.getName() + "#fragment";
-
-  private static final CharSequence[] MAP_TYPE_ITEMS = {
-    "None", "Normal", "Satellite", "Terrain", "Hybrid"
-  };
 
   @Inject MapProvider mapProvider;
 
@@ -85,38 +81,21 @@ public class MapContainerFragment extends AbstractFragment {
   }
 
   private void showMapTypeSelectorDialog() {
-    final String dialogTitle = "Select Map Type";
+    HashMap<Integer, String> mapTypes = mapProvider.getMapTypes();
+
     AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-    builder.setTitle(dialogTitle);
+    builder.setTitle(R.string.select_map_type);
     int checkItem = mapProvider.getMapType();
     builder.setSingleChoiceItems(
-        MAP_TYPE_ITEMS,
+        mapTypes.values().toArray(new String[0]),
         checkItem,
         (dialog, item) -> {
-          switch (item) {
-            case 0:
-              mapProvider.setMapType(GoogleMap.MAP_TYPE_NONE);
-              break;
-            case 1:
-              mapProvider.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-              break;
-            case 2:
-              mapProvider.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
-              break;
-            case 3:
-              mapProvider.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
-              break;
-            case 4:
-              mapProvider.setMapType(GoogleMap.MAP_TYPE_HYBRID);
-              break;
-            default:
-              Timber.e("Unknown type: %d", item);
-          }
+          mapProvider.setMapType(item);
           dialog.dismiss();
         });
 
     AlertDialog alertDialog = builder.create();
-    alertDialog.setCanceledOnTouchOutside(true);
+    alertDialog.setCancelable(true);
     alertDialog.show();
   }
 
