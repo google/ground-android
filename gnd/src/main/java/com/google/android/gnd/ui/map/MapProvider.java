@@ -26,4 +26,8 @@ public interface MapProvider {
   Fragment getFragment();
 
   Single<MapAdapter> getMapAdapter();
+
+  int getMapType();
+
+  void setMapType(int mapType);
 }

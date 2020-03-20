@@ -68,4 +68,14 @@ public class GoogleMapsMapProvider implements MapProvider {
   public Single<MapAdapter> getMapAdapter() {
     return map;
   }
+
+  @Override
+  public int getMapType() {
+    return map.getValue().getMapType();
+  }
+
+  @Override
+  public void setMapType(int mapType) {
+    map.getValue().setMapType(mapType);
+  }
 }

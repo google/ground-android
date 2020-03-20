@@ -194,6 +194,16 @@ class GoogleMapsMapAdapter implements MapAdapter {
     stream(pinsToAdd).forEach(this::addMapPin);
   }
 
+  @Override
+  public int getMapType() {
+    return map.getMapType();
+  }
+
+  @Override
+  public void setMapType(int mapType) {
+    map.setMapType(mapType);
+  }
+
   private void removeMarker(Marker marker) {
     Timber.v("Removing marker %s", marker.getId());
     marker.remove();
