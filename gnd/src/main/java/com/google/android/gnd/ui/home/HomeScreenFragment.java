@@ -23,7 +23,6 @@ import static com.google.android.gnd.ui.util.ViewUtil.getScreenWidth;
 import android.app.ProgressDialog;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -45,7 +44,6 @@ import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.HomeScreenFragBinding;
 import com.google.android.gnd.inject.ActivityScoped;
 import com.google.android.gnd.model.Project;
-import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.rx.Loadable;
 import com.google.android.gnd.rx.Schedulers;
@@ -337,7 +335,7 @@ public class HomeScreenFragment extends AbstractFragment
         project.error().ifPresent(this::onActivateProjectFailure);
         break;
       default:
-        Timber.e("Unhandled case: " + project.getState());
+        Timber.e("Unhandled case: %s", project.getState());
         break;
     }
   }
@@ -362,7 +360,7 @@ public class HomeScreenFragment extends AbstractFragment
 
   private void onShowAddFeatureDialogRequest(Point location) {
     if (!Loadable.getValue(viewModel.getActiveProject()).isPresent()) {
-      Log.e(TAG, "Attempting to add feature while no project loaded");
+      Timber.e("Attempting to add feature while no project loaded");
       return;
     }
     // TODO: Pause location updates while dialog is open.
@@ -373,16 +371,13 @@ public class HomeScreenFragment extends AbstractFragment
   private void onFeatureSheetStateChange(FeatureSheetState state) {
     switch (state.getVisibility()) {
       case VISIBLE:
-        Feature feature = state.getFeature();
-        toolbar.setTitle(feature.getTitle());
-        toolbar.setSubtitle(feature.getSubtitle());
         showBottomSheet();
         break;
       case HIDDEN:
         hideBottomSheet();
         break;
       default:
-        Log.e(TAG, "Unhandled visibility: " + state.getVisibility());
+        Timber.e("Unhandled visibility: %s", state.getVisibility());
         break;
     }
   }
@@ -440,7 +435,7 @@ public class HomeScreenFragment extends AbstractFragment
           authenticationManager.signOut();
           break;
         default:
-          Log.e(TAG, "Unhandled id: " + item.getItemId());
+          Timber.e("Unhandled id: %s", item.getItemId());
           break;
       }
     }
@@ -448,7 +443,7 @@ public class HomeScreenFragment extends AbstractFragment
   }
 
   private void onActivateProjectFailure(Throwable throwable) {
-    Log.e(TAG, "Error activating project", RxJava2Debug.getEnhancedStackTrace(throwable));
+    Timber.e(RxJava2Debug.getEnhancedStackTrace(throwable), "Error activating project");
     dismissLoadingDialog();
     EphemeralPopups.showError(getContext(), R.string.project_load_error);
     showProjectSelector();
