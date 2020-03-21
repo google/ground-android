@@ -65,10 +65,6 @@ public class ObservationDetailsFragment extends AbstractFragment {
     super.onCreate(savedInstanceState);
     ObservationDetailsFragmentArgs args = getObservationDetailFragmentArgs();
     viewModel = getViewModel(ObservationDetailsViewModel.class);
-    // TODO: Move toolbar setting logic into the ViewModel once we have
-    // determined the fate of the toolbar.
-    viewModel.toolbarTitle.observe(this, this::setToolbarTitle);
-    viewModel.toolbarSubtitle.observe(this, this::setToolbarSubtitle);
     viewModel.observations.observe(this, this::onUpdate);
     viewModel.loadObservationDetails(args);
   }
@@ -99,18 +95,6 @@ public class ObservationDetailsFragment extends AbstractFragment {
   public void onActivityCreated(@Nullable Bundle savedInstanceState) {
     super.onActivityCreated(savedInstanceState);
     setHasOptionsMenu(true);
-  }
-
-  private void setToolbarTitle(String title) {
-    if (toolbar != null) {
-      toolbar.setTitle(title);
-    }
-  }
-
-  private void setToolbarSubtitle(String subtitle) {
-    if (toolbar != null) {
-      toolbar.setSubtitle(subtitle);
-    }
   }
 
   private void onUpdate(Loadable<Observation> observation) {
