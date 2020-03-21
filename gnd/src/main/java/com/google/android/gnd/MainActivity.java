@@ -22,7 +22,6 @@ import static com.google.android.gnd.util.Debug.logLifecycleEvent;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.core.view.ViewCompat;
 import androidx.fragment.app.Fragment;
@@ -45,6 +44,7 @@ import com.google.android.gnd.ui.util.DrawableUtil;
 import dagger.android.support.DaggerAppCompatActivity;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import timber.log.Timber;
 
 /**
  * The app's main and only activity. The app consists of multiples Fragments that live under this
@@ -52,8 +52,6 @@ import javax.inject.Singleton;
  */
 @Singleton
 public class MainActivity extends DaggerAppCompatActivity {
-
-  private static final String TAG = MainActivity.class.getSimpleName();
 
   @Inject ActivityStreams activityStreams;
   @Inject ViewModelFactory viewModelFactory;
@@ -106,7 +104,7 @@ public class MainActivity extends DaggerAppCompatActivity {
   }
 
   private void onSignInStateChange(SignInState signInState) {
-    Log.d(TAG, "Auth status change: " + signInState.state());
+    Timber.d("Auth status change: %s", signInState.state());
     switch (signInState.state()) {
       case SIGNED_OUT:
         // TODO: Check auth status whenever fragments resumes.
@@ -125,13 +123,13 @@ public class MainActivity extends DaggerAppCompatActivity {
         onSignInError(signInState);
         break;
       default:
-        Log.e(TAG, "Unhandled state: " + signInState.state());
+        Timber.e("Unhandled state: %s", signInState.state());
         break;
     }
   }
 
   private void onSignInError(SignInState signInState) {
-    Log.d(TAG, "Authentication error", signInState.error().orElse(null));
+    Timber.d(signInState.error().orElse(null), "Authentication error");
     EphemeralPopups.showError(this, R.string.sign_in_unsuccessful);
     viewModel.onSignedOut(getCurrentNavDestinationId());
   }
@@ -173,7 +171,7 @@ public class MainActivity extends DaggerAppCompatActivity {
   @Override
   public void onRequestPermissionsResult(
       int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-    Log.d(TAG, "Permission result received");
+    Timber.d("Permission result received");
     super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     activityStreams.onRequestPermissionsResult(requestCode, permissions, grantResults);
   }
@@ -184,7 +182,7 @@ public class MainActivity extends DaggerAppCompatActivity {
    */
   @Override
   protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
-    Log.d(TAG, "Activity result received");
+    Timber.d("Activity result received");
     super.onActivityResult(requestCode, resultCode, intent);
     activityStreams.onActivityResult(requestCode, resultCode, intent);
   }
