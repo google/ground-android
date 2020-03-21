@@ -76,7 +76,6 @@ public class HomeScreenFragment extends AbstractFragment
   // TODO: It's not obvious which feature are in HomeScreen vs MapContainer; make this more
   // intuitive.
   private static final float COLLAPSED_MAP_ASPECT_RATIO = 3.0f / 2.0f;
-  private static final String TAG = HomeScreenFragment.class.getSimpleName();
 
   @Inject AddFeatureDialogFragment addFeatureDialogFragment;
   @Inject AuthenticationManager authenticationManager;
