@@ -61,16 +61,16 @@ public class FirestoreStorageManager implements RemoteStorageManager {
   }
 
   @Override
-  public Task<Uri> getDownloadUrl(String path) {
-    return createReference(path).getDownloadUrl();
+  public Task<Uri> getDownloadUrl(String remoteDestinationPath) {
+    return createReference(remoteDestinationPath).getDownloadUrl();
   }
 
   /** Upload file to Firebase Storage. */
   @Override
-  public Completable uploadMediaFromFile(File file, String destinationPath) {
+  public Completable uploadMediaFromFile(File file, String remoteDestinationPath) {
     return Completable.create(
         emitter ->
-            createReference(destinationPath)
+            createReference(remoteDestinationPath)
                 .putFile(Uri.fromFile(file))
                 .addOnCompleteListener(uploadTask -> emitter.onComplete())
                 .addOnFailureListener(emitter::onError)
@@ -81,11 +81,11 @@ public class FirestoreStorageManager implements RemoteStorageManager {
                 .addOnProgressListener(
                     taskSnapshot -> {
                       // TODO: Display upload status in app or notification
-                      double percentCompleted =
+                      double completed =
                           100.0
                               * taskSnapshot.getBytesTransferred()
                               / taskSnapshot.getTotalByteCount();
-                      Timber.d("Uploading in progress: %s %f", destinationPath, percentCompleted);
+                      Timber.d("Uploading in progress: %s %f", remoteDestinationPath, completed);
                     }));
   }
 }

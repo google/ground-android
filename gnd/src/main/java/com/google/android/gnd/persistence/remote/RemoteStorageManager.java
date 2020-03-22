@@ -28,8 +28,8 @@ import java.io.File;
 public interface RemoteStorageManager {
 
   /** Fetches url of a remote file path. */
-  Task<Uri> getDownloadUrl(String path);
+  Task<Uri> getDownloadUrl(String remoteDestinationPath);
 
   /** Uploads file to a remote path. */
-  Completable uploadMediaFromFile(File file, String destinationPath);
+  Completable uploadMediaFromFile(File file, String remoteDestinationPath);
 }
