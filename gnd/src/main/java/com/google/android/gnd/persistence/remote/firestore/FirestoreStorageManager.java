@@ -45,7 +45,7 @@ public class FirestoreStorageManager implements RemoteStorageManager {
    *
    * <p>/uploaded_media/{project_id}/{form_id}/{feature_id}/{filename.jpg}
    */
-  public static String getRemoteImagePath(
+  public static String getRemoteDestinationPath(
       String projectId, String formId, String featureId, String filename) {
     return new StringJoiner(File.separator)
         .add(MEDIA_ROOT_DIR)

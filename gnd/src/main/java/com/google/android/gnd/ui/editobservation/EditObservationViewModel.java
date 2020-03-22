@@ -17,7 +17,7 @@
 package com.google.android.gnd.ui.editobservation;
 
 import static androidx.lifecycle.LiveDataReactiveStreams.fromPublisher;
-import static com.google.android.gnd.persistence.remote.firestore.FirestoreStorageManager.getRemoteImagePath;
+import static com.google.android.gnd.persistence.remote.firestore.FirestoreStorageManager.getRemoteDestinationPath;
 import static java8.util.stream.StreamSupport.stream;
 
 import android.content.res.Resources;
@@ -241,7 +241,7 @@ public class EditObservationViewModel extends AbstractViewModel {
       throws IOException {
     String localFileName = fieldId + ".jpg";
     String destinationPath =
-        getRemoteImagePath(
+        getRemoteDestinationPath(
             args.getProjectId(), args.getFormId(), args.getFeatureId(), localFileName);
 
     // TODO: Handle response after reloading view-model and remove this field
