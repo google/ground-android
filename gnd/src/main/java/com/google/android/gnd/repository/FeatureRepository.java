@@ -16,7 +16,6 @@
 
 package com.google.android.gnd.repository;
 
-import android.util.Log;
 import com.google.android.gnd.model.Mutation;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.User;
@@ -37,6 +36,7 @@ import java.util.Date;
 import java8.util.Optional;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import timber.log.Timber;
 
 /**
  * Coordinates persistence and retrieval of {@link Feature} instances from remote, local, and in
@@ -45,8 +45,6 @@ import javax.inject.Singleton;
  */
 @Singleton
 public class FeatureRepository {
-
-  private static final String TAG = FeatureRepository.class.getSimpleName();
 
   private final LocalDataStore localDataStore;
   private final RemoteDataStore remoteDataStore;
@@ -74,7 +72,7 @@ public class FeatureRepository {
   public Completable syncFeatures(Project project) {
     return remoteDataStore
         .loadFeaturesOnceAndStreamChanges(project)
-        .switchMapCompletable(event -> updateLocalFeature(event));
+        .switchMapCompletable(this::updateLocalFeature);
   }
 
   // TODO: Remove "feature" qualifier from this and other repository method names.
@@ -88,7 +86,7 @@ public class FeatureRepository {
         // localDataStore.removeFeature(event.getEntityId());
         return Completable.complete();
       case ERROR:
-        event.error().ifPresent(e -> Log.d(TAG, "Invalid features in remote db ignored", e));
+        event.error().ifPresent(e -> Timber.d(e, "Invalid features in remote db ignored"));
         return Completable.complete();
       default:
         return Completable.error(

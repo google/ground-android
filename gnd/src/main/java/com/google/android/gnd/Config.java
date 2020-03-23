@@ -27,4 +27,7 @@ public final class Config {
   // Firebase Cloud Firestore settings.
   public static final boolean FIRESTORE_PERSISTENCE_ENABLED = false;
   public static final boolean FIRESTORE_LOGGING_ENABLED = true;
+
+  // Photos
+  public static final String PHOTO_EXT = ".jpg";
 }
