@@ -16,7 +16,6 @@
 
 package com.google.android.gnd.ui.home.mapcontainer;
 
-import static androidx.lifecycle.LiveDataReactiveStreams.fromPublisher;
 import static com.google.android.gnd.util.ImmutableSetCollector.toImmutableSet;
 import static java8.util.stream.StreamSupport.stream;
 
@@ -62,7 +61,7 @@ public class MapContainerViewModel extends AbstractViewModel {
   private final FeatureRepository featureRepository;
   private final Subject<Boolean> locationLockChangeRequests;
   private final Subject<CameraUpdate> cameraUpdateSubject;
-  private final PublishProcessor<Nil> mapLayerTypeClicks = PublishProcessor.create();
+  private final PublishProcessor<Nil> mapLayerTypeClicks;
 
   @Inject
   MapContainerViewModel(
@@ -73,6 +72,7 @@ public class MapContainerViewModel extends AbstractViewModel {
     this.locationManager = locationManager;
     this.locationLockChangeRequests = PublishSubject.create();
     this.cameraUpdateSubject = PublishSubject.create();
+    this.mapLayerTypeClicks = PublishProcessor.create();
 
     Flowable<BooleanOrError> locationLockStateFlowable = createLocationLockStateFlowable().share();
     this.locationLockState =
@@ -95,7 +95,8 @@ public class MapContainerViewModel extends AbstractViewModel {
                 .switchMap(this::getFeaturesStream)
                 .map(MapContainerViewModel::toMapPins));
     this.mapLayerUpdateRequests =
-        fromPublisher(mapLayerTypeClicks.switchMapSingle(__ -> Single.just(Event.create(Nil.NIL))));
+        LiveDataReactiveStreams.fromPublisher(
+            mapLayerTypeClicks.switchMapSingle(__ -> Single.just(Event.create(Nil.NIL))));
   }
 
   private Flowable<CameraUpdate> createCameraUpdateFlowable(
