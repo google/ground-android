@@ -16,10 +16,10 @@
 
 package com.google.android.gnd.ui.home.mapcontainer;
 
+import static androidx.lifecycle.LiveDataReactiveStreams.fromPublisher;
 import static com.google.android.gnd.util.ImmutableSetCollector.toImmutableSet;
 import static java8.util.stream.StreamSupport.stream;
 
-import android.util.Log;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
 import androidx.lifecycle.MutableLiveData;
@@ -29,7 +29,9 @@ import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.repository.FeatureRepository;
 import com.google.android.gnd.repository.ProjectRepository;
 import com.google.android.gnd.rx.BooleanOrError;
+import com.google.android.gnd.rx.Event;
 import com.google.android.gnd.rx.Loadable;
+import com.google.android.gnd.rx.Nil;
 import com.google.android.gnd.system.LocationManager;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.common.SharedViewModel;
@@ -37,26 +39,30 @@ import com.google.android.gnd.ui.map.MapPin;
 import com.google.common.collect.ImmutableSet;
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Flowable;
+import io.reactivex.Single;
+import io.reactivex.processors.PublishProcessor;
 import io.reactivex.subjects.PublishSubject;
 import io.reactivex.subjects.Subject;
 import java.util.concurrent.TimeUnit;
 import java8.util.Optional;
 import javax.inject.Inject;
+import timber.log.Timber;
 
 @SharedViewModel
 public class MapContainerViewModel extends AbstractViewModel {
 
-  private static final String TAG = MapContainerViewModel.class.getSimpleName();
   private static final float DEFAULT_ZOOM_LEVEL = 20.0f;
   private final LiveData<Loadable<Project>> activeProject;
   private final LiveData<ImmutableSet<MapPin>> mapPins;
   private final LiveData<BooleanOrError> locationLockState;
   private final LiveData<CameraUpdate> cameraUpdateRequests;
   private final MutableLiveData<Point> cameraPosition;
+  private final LiveData<Event<Nil>> mapLayerUpdateRequests;
   private final LocationManager locationManager;
   private final FeatureRepository featureRepository;
   private final Subject<Boolean> locationLockChangeRequests;
   private final Subject<CameraUpdate> cameraUpdateSubject;
+  private final PublishProcessor<Nil> mapLayerTypeClicks = PublishProcessor.create();
 
   @Inject
   MapContainerViewModel(
@@ -88,6 +94,8 @@ public class MapContainerViewModel extends AbstractViewModel {
                 .map(Loadable::value)
                 .switchMap(this::getFeaturesStream)
                 .map(MapContainerViewModel::toMapPins));
+    this.mapLayerUpdateRequests =
+        fromPublisher(mapLayerTypeClicks.switchMapSingle(__ -> Single.just(Event.create(Nil.NIL))));
   }
 
   private Flowable<CameraUpdate> createCameraUpdateFlowable(
@@ -129,6 +137,10 @@ public class MapContainerViewModel extends AbstractViewModel {
     return activeProject
         .map(featureRepository::getFeaturesOnceAndStream)
         .orElse(Flowable.just(ImmutableSet.of()));
+  }
+
+  public void onMapTypeButtonClicked() {
+    mapLayerTypeClicks.onNext(Nil.NIL);
   }
 
   private static ImmutableSet<MapPin> toMapPins(ImmutableSet<Feature> features) {
@@ -174,7 +186,7 @@ public class MapContainerViewModel extends AbstractViewModel {
 
   public void onMapDrag(Point newCameraPosition) {
     if (isLocationLockEnabled()) {
-      Log.d(TAG, "User dragged map. Disabling location lock");
+      Timber.d("User dragged map. Disabling location lock");
       locationLockChangeRequests.onNext(false);
     }
   }
@@ -189,6 +201,10 @@ public class MapContainerViewModel extends AbstractViewModel {
 
   public void onLocationLockClick() {
     locationLockChangeRequests.onNext(!isLocationLockEnabled());
+  }
+
+  public LiveData<Event<Nil>> getMapLayerUpdateRequests() {
+    return mapLayerUpdateRequests;
   }
 
   static class CameraUpdate {

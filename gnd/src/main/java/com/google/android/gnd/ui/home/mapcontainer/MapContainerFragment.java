@@ -32,7 +32,6 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import butterknife.BindView;
-import butterknife.OnClick;
 import com.google.android.gnd.MainViewModel;
 import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.MapContainerFragBinding;
@@ -73,11 +72,6 @@ public class MapContainerFragment extends AbstractFragment {
   private MapContainerViewModel mapContainerViewModel;
   private HomeScreenViewModel homeScreenViewModel;
   private MainViewModel mainViewModel;
-
-  @OnClick(R.id.map_type_btn)
-  void onClick(ImageButton view) {
-    showMapTypeSelectorDialog();
-  }
 
   private void showMapTypeSelectorDialog() {
     new AlertDialog.Builder(getContext())
@@ -142,6 +136,10 @@ public class MapContainerFragment extends AbstractFragment {
     } else {
       mapProvider.restore(restoreChildFragment(savedInstanceState, MAP_FRAGMENT_KEY));
     }
+
+    mapContainerViewModel
+      .getMapLayerUpdateRequests()
+      .observe(getViewLifecycleOwner(), __ -> showMapTypeSelectorDialog());
   }
 
   private void onMapReady(MapAdapter map) {
