@@ -27,6 +27,7 @@ import androidx.databinding.ObservableArrayMap;
 import androidx.databinding.ObservableMap;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
+import com.google.android.gnd.Config;
 import com.google.android.gnd.GndApplication;
 import com.google.android.gnd.R;
 import com.google.android.gnd.model.form.Element;
@@ -239,7 +240,7 @@ public class EditObservationViewModel extends AbstractViewModel {
 
   private Completable saveBitmapAndUpdateResponse(Bitmap bitmap, String fieldId)
       throws IOException {
-    String localFileName = fieldId + ".jpg";
+    String localFileName = fieldId + Config.PHOTO_EXT;
     String destinationPath =
         getRemoteDestinationPath(
             args.getProjectId(), args.getFormId(), args.getFeatureId(), localFileName);
