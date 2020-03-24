@@ -40,7 +40,9 @@ import com.google.android.gnd.persistence.local.room.RoomLocalDataStore;
 import com.google.android.gnd.persistence.local.room.TileDao;
 import com.google.android.gnd.persistence.local.room.UserDao;
 import com.google.android.gnd.persistence.remote.RemoteDataStore;
+import com.google.android.gnd.persistence.remote.RemoteStorageManager;
 import com.google.android.gnd.persistence.remote.firestore.FirestoreDataStore;
+import com.google.android.gnd.persistence.remote.firestore.FirestoreStorageManager;
 import com.google.android.gnd.persistence.remote.firestore.FirestoreUuidGenerator;
 import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator;
 import com.google.android.gnd.ui.common.ViewModelModule;
@@ -121,6 +123,11 @@ abstract class GndApplicationModule {
     FirebaseFirestore.setLoggingEnabled(Config.FIRESTORE_LOGGING_ENABLED);
     return firestore;
   }
+
+  /** Provides the Firestore implementation of remote storage manager. */
+  @Binds
+  @Singleton
+  abstract RemoteStorageManager remoteStorageManager(FirestoreStorageManager fsm);
 
   /** Returns a reference to the default Storage bucket. */
   @Provides
