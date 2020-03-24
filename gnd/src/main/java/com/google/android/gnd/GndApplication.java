@@ -38,7 +38,6 @@ import timber.log.Timber;
 // should then extend DaggerApplication instead. If MultiDex is still needed, we can install it
 // without extending MultiDexApplication.
 public class GndApplication extends DaggerApplication {
-  private static final String TAG = GndApplication.class.getSimpleName();
 
   @Inject GndWorkerFactory workerFactory;
 
@@ -51,7 +50,7 @@ public class GndApplication extends DaggerApplication {
   @Override
   public void onCreate() {
     if (BuildConfig.DEBUG) {
-      Log.d(TAG, "DEBUG build config active; enabling debug tooling");
+      Timber.d("DEBUG build config active; enabling debug tooling");
 
       // Debug bridge for Android applications. Enables network and database debugging for the app
       // accessible under chrome://inspect in Chrome desktop browser. Must be done before calling
@@ -68,7 +67,7 @@ public class GndApplication extends DaggerApplication {
     RxJava2Debug.enableRxJava2AssemblyTracking(new String[] {getClass().getPackage().getName()});
 
     // Prevent RxJava from force-quitting on unhandled errors.
-    RxJavaPlugins.setErrorHandler(t -> RxDebug.logEnhancedStackTrace(t));
+    RxJavaPlugins.setErrorHandler(RxDebug::logEnhancedStackTrace);
 
     // Set custom worker factory that allow Workers to use Dagger injection.
     // TODO(github.com/google/dagger/issues/1183): Remove once Workers support injection.

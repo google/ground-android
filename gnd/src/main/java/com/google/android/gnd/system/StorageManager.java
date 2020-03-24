@@ -22,7 +22,8 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.provider.MediaStore.Images.Media;
-import com.google.android.gnd.persistence.remote.FirestoreStorageManager;
+import com.google.android.gnd.persistence.remote.RemoteStorageManager;
+import com.google.android.gnd.persistence.sync.PhotoSyncWorkManager;
 import com.google.android.gnd.rx.RxTask;
 import com.google.android.gnd.system.ActivityStreams.ActivityResult;
 import com.google.android.gnd.ui.util.FileUtil;
@@ -31,6 +32,7 @@ import io.reactivex.Observable;
 import io.reactivex.Single;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import timber.log.Timber;
@@ -43,7 +45,8 @@ public class StorageManager {
   private final Context context;
   private final PermissionsManager permissionsManager;
   private final ActivityStreams activityStreams;
-  private final FirestoreStorageManager firestoreStorageManager;
+  private final RemoteStorageManager remoteStorageManager;
+  private final PhotoSyncWorkManager photoSyncWorkManager;
   private final FileUtil fileUtil;
 
   @Inject
@@ -51,12 +54,14 @@ public class StorageManager {
       Context context,
       PermissionsManager permissionsManager,
       ActivityStreams activityStreams,
-      FirestoreStorageManager firestoreStorageManager,
+      RemoteStorageManager remoteStorageManager,
+      PhotoSyncWorkManager photoSyncWorkManager,
       FileUtil fileUtil) {
     this.context = context;
     this.permissionsManager = permissionsManager;
     this.activityStreams = activityStreams;
-    this.firestoreStorageManager = firestoreStorageManager;
+    this.remoteStorageManager = remoteStorageManager;
+    this.photoSyncWorkManager = photoSyncWorkManager;
     this.fileUtil = fileUtil;
   }
 
@@ -130,7 +135,16 @@ public class StorageManager {
    * @param destinationPath Final destination path of the uploaded photo relative to Firestore
    */
   public Single<Uri> getDownloadUrl(String destinationPath) {
-    return RxTask.toSingle(() -> firestoreStorageManager.getDownloadUrl(destinationPath))
+    return RxTask.toSingle(() -> remoteStorageManager.getDownloadUrl(destinationPath))
         .onErrorReturn(throwable -> getFileUriFromDestinationPath(destinationPath));
+  }
+
+  /** Save a copy of bitmap locally and enqueue worker for uploading to remote storage. */
+  public Completable savePhoto(Bitmap bitmap, String filename, String remotePath)
+      throws IOException {
+    // Make a local copy of the image
+    File file = fileUtil.saveBitmap(bitmap, filename);
+    // Schedule for remote upload
+    return photoSyncWorkManager.enqueueSyncWorker(file.getPath(), remotePath);
   }
 }
