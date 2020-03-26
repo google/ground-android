@@ -35,15 +35,16 @@ import timber.log.Timber;
 public class NotificationManager {
 
   private static final String CHANNEL_ID = "channel_id";
+  private static final String CHANNEL_NAME = "sync channel";
   private static final int PHOTO_SYNC_ID = 1;
 
   private Context context;
-  private NotificationManagerCompat notificationManager;
+  private NotificationManagerCompat manager;
 
   @Inject
   NotificationManager(Context context) {
     this.context = context;
-    this.notificationManager = NotificationManagerCompat.from(context);
+    this.manager = NotificationManagerCompat.from(context);
 
     if (VERSION.SDK_INT >= VERSION_CODES.O) {
       createNotificationChannels(context);
@@ -54,7 +55,7 @@ public class NotificationManager {
   private void createNotificationChannels(Context context) {
     NotificationChannel channel =
         new NotificationChannel(
-            CHANNEL_ID, "ground channel", android.app.NotificationManager.IMPORTANCE_LOW);
+            CHANNEL_ID, CHANNEL_NAME, android.app.NotificationManager.IMPORTANCE_LOW);
     android.app.NotificationManager manager =
         context.getSystemService(android.app.NotificationManager.class);
     manager.createNotificationChannel(channel);
@@ -100,6 +101,6 @@ public class NotificationManager {
         break;
     }
 
-    notificationManager.notify(PHOTO_SYNC_ID, notification.build());
+    manager.notify(PHOTO_SYNC_ID, notification.build());
   }
 }
