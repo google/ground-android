@@ -73,8 +73,7 @@ public class PhotoSyncWorker extends Worker {
       try {
         remoteStorageManager
             .uploadMediaFromFile(new File(localSourcePath), remoteDestinationPath)
-            .blockingForEach(
-                uploadProgressEvent -> uploadProgressEvent.ifUnhandled(this::sendNotification));
+            .blockingForEach(this::sendNotification);
         return Result.success();
       } catch (Exception e) {
         Timber.e(e, "Photo sync failed: %s %s", localSourcePath, remoteDestinationPath);

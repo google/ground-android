@@ -18,7 +18,6 @@ package com.google.android.gnd.persistence.remote;
 
 import android.net.Uri;
 import com.google.android.gms.tasks.Task;
-import com.google.android.gnd.rx.Event;
 import io.reactivex.Flowable;
 import java.io.File;
 
@@ -32,5 +31,5 @@ public interface RemoteStorageManager {
   Task<Uri> getDownloadUrl(String remoteDestinationPath);
 
   /** Uploads file to a remote path. */
-  Flowable<Event<UploadProgress>> uploadMediaFromFile(File file, String remoteDestinationPath);
+  Flowable<UploadProgress> uploadMediaFromFile(File file, String remoteDestinationPath);
 }

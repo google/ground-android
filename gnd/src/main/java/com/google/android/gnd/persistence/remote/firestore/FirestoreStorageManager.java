@@ -20,7 +20,6 @@ import android.net.Uri;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gnd.persistence.remote.RemoteStorageManager;
 import com.google.android.gnd.persistence.remote.UploadProgress;
-import com.google.android.gnd.rx.Event;
 import com.google.firebase.storage.StorageReference;
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Flowable;
@@ -68,29 +67,25 @@ public class FirestoreStorageManager implements RemoteStorageManager {
   }
 
   @Override
-  public Flowable<Event<UploadProgress>> uploadMediaFromFile(
-      File file, String remoteDestinationPath) {
+  public Flowable<UploadProgress> uploadMediaFromFile(File file, String remoteDestinationPath) {
     return Flowable.create(
         emitter ->
             createReference(remoteDestinationPath)
                 .putFile(Uri.fromFile(file))
                 .addOnCompleteListener(uploadTask -> emitter.onComplete())
-                .addOnPausedListener(
-                    taskSnapshot -> emitter.onNext(Event.create(UploadProgress.paused())))
+                .addOnPausedListener(taskSnapshot -> emitter.onNext(UploadProgress.paused()))
                 .addOnFailureListener(
                     throwable -> {
-                      emitter.onNext(Event.create(UploadProgress.failed()));
+                      emitter.onNext(UploadProgress.failed());
                       emitter.onError(throwable);
                     })
-                .addOnSuccessListener(
-                    taskSnapshot -> emitter.onNext(Event.create(UploadProgress.completed())))
+                .addOnSuccessListener(taskSnapshot -> emitter.onNext(UploadProgress.completed()))
                 .addOnProgressListener(
                     taskSnapshot ->
                         emitter.onNext(
-                            Event.create(
-                                UploadProgress.inProgress(
-                                    (int) taskSnapshot.getTotalByteCount(),
-                                    (int) taskSnapshot.getBytesTransferred())))),
+                            UploadProgress.inProgress(
+                                (int) taskSnapshot.getTotalByteCount(),
+                                (int) taskSnapshot.getBytesTransferred()))),
         BackpressureStrategy.LATEST);
   }
 }
