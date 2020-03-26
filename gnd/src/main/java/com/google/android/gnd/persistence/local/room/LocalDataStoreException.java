@@ -24,7 +24,7 @@ import com.google.android.gnd.model.Mutation;
  */
 class LocalDataStoreException extends Exception {
 
-  public LocalDataStoreException(String message) {
+  private LocalDataStoreException(String message) {
     super(message);
   }
 
@@ -32,7 +32,7 @@ class LocalDataStoreException extends Exception {
    * Returns a new {@code LocalDataStoreException} whose message indicates the mutation type is
    * unknown.
    */
-  public static LocalDataStoreException unknownMutationType(Mutation.Type type) {
+  static LocalDataStoreException unknownMutationType(Mutation.Type type) {
     return new LocalDataStoreException("Unknown Mutation.Type." + type);
   }
 
@@ -40,7 +40,7 @@ class LocalDataStoreException extends Exception {
    * Returns a new {@code LocalDataStoreException} whose message indicates the mutation type is
    * unknown.
    */
-  public static LocalDataStoreException unknownMutationClass(Class clz) {
+  static LocalDataStoreException unknownMutationClass(Class clz) {
     return new LocalDataStoreException("Unknown mutation " + clz);
   }
 }
