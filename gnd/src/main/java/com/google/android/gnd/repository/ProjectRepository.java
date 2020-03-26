@@ -64,9 +64,11 @@ public class ProjectRepository {
     this.localValueStore = localValueStore;
 
     // BehaviorProcessor re-emits last requested project id to late subscribers.
+    // TODO (DT) - Why is this necessary? Under what conditions would there be late subscribers?
     this.activateProjectRequests = BehaviorProcessor.create();
 
     // Load project when requested id changes, caching the last loaded project.
+    // TODO (DT) - There's a lot going on here, a more detailed comment would be useful
     this.activeProjectStream =
         activateProjectRequests
             .distinctUntilChanged()
@@ -86,7 +88,7 @@ public class ProjectRepository {
     return syncProjectWithRemote(id)
         .doOnSubscribe(__ -> Log.d(TAG, "Activating project " + id))
         .doOnError(err -> Log.d(TAG, "Error loading project from remote", err))
-        .onErrorResumeNext(
+        .onErrorResumeNext( // If remote loading fails, attempt to load project locally
             __ ->
                 localDataStore
                     .getProjectById(id)
@@ -97,6 +99,12 @@ public class ProjectRepository {
         .compose(Loadable::loadingOnceAndWrap);
   }
 
+  /**
+   * Loads the project with the given id from the remote data store and saves it to the local data
+   * store
+   * @param id - id of project to load
+   * @return A Single representing the project (@see http://reactivex.io/documentation/single.html)
+   */
   private Single<Project> syncProjectWithRemote(String id) {
     return remoteDataStore
         .loadProject(id)

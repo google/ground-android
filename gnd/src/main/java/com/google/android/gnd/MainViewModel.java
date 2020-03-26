@@ -50,6 +50,8 @@ public class MainViewModel extends AbstractViewModel {
     this.navigator = navigator;
 
     // TODO: Move to background service.
+    // Add the project repository subscription to the collection of subscriptions which will be
+    // disposed when the view model is cleared
     disposeOnClear(
         projectRepository
             .getActiveProjectOnceAndStream()
