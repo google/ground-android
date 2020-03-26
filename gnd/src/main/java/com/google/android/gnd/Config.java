@@ -30,4 +30,7 @@ public final class Config {
 
   // Photos
   public static final String PHOTO_EXT = ".jpg";
+
+  // Local geojson source settings.
+  public static final String GEO_JSON_SOURCE = "gnd-geojson.json";
 }
