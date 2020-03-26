@@ -21,7 +21,10 @@ import androidx.annotation.NonNull;
 import androidx.work.Data;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
+import com.google.android.gnd.R;
 import com.google.android.gnd.persistence.remote.RemoteStorageManager;
+import com.google.android.gnd.persistence.remote.UploadProgress;
+import com.google.android.gnd.system.NotificationManager;
 import java.io.File;
 import timber.log.Timber;
 
@@ -38,15 +41,18 @@ public class PhotoSyncWorker extends Worker {
   private final RemoteStorageManager remoteStorageManager;
   private final String localSourcePath;
   private final String remoteDestinationPath;
+  private final NotificationManager notificationManager;
 
   public PhotoSyncWorker(
       @NonNull Context context,
       @NonNull WorkerParameters workerParams,
-      RemoteStorageManager remoteStorageManager) {
+      RemoteStorageManager remoteStorageManager,
+      NotificationManager notificationManager) {
     super(context, workerParams);
     this.remoteStorageManager = remoteStorageManager;
     this.localSourcePath = workerParams.getInputData().getString(SOURCE_FILE_PATH_PARAM_KEY);
     this.remoteDestinationPath = workerParams.getInputData().getString(DESTINATION_PATH_PARAM_KEY);
+    this.notificationManager = notificationManager;
   }
 
   public static Data createInputData(String sourceFilePath, String destinationPath) {
@@ -66,7 +72,8 @@ public class PhotoSyncWorker extends Worker {
       try {
         remoteStorageManager
             .uploadMediaFromFile(new File(localSourcePath), remoteDestinationPath)
-            .blockingAwait();
+            .blockingForEach(
+                uploadProgressEvent -> uploadProgressEvent.ifUnhandled(this::sendNotification));
         return Result.success();
       } catch (Exception e) {
         Timber.e(e, "Photo sync failed: %s %s", localSourcePath, remoteDestinationPath);
@@ -76,5 +83,13 @@ public class PhotoSyncWorker extends Worker {
       Timber.e("Photo not found %s, %s", localSourcePath, remoteDestinationPath);
       return Result.failure();
     }
+  }
+
+  private void sendNotification(UploadProgress uploadProgress) {
+    notificationManager.createSyncNotification(
+        uploadProgress.getState(),
+        R.string.uploading_photos,
+        uploadProgress.getTotal(),
+        uploadProgress.getProgress());
   }
 }

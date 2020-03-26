@@ -145,5 +145,6 @@
   <string name="completed">Completed</string>
   <string name="in_progress">In progress</string>
   <string name="uploading_photos">Uploading photos</string>
+  <string name="starting">Starting</string>
 
 </resources>

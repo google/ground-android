@@ -10,7 +10,7 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationCompat.Builder;
 import androidx.core.app.NotificationManagerCompat;
 import com.google.android.gnd.R;
-import com.google.android.gnd.persistence.remote.firestore.FirestoreStorageManager.UploadState;
+import com.google.android.gnd.persistence.remote.UploadProgress.UploadState;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import timber.log.Timber;
@@ -60,21 +60,24 @@ public class NotificationManager {
             .setProgress(total, progress, false);
 
     switch (state) {
-      case FAILED:
-        notification.setContentText(getString(R.string.failed));
+      case STARTING:
+        notification.setContentText(getString(R.string.starting));
+        break;
+      case IN_PROGRESS:
+        notification
+            .setContentText(getString(R.string.in_progress))
+            // only alert once and don't allow cancelling it
+            .setOnlyAlertOnce(true)
+            .setOngoing(true);
         break;
       case PAUSED:
         notification.setContentText(getString(R.string.paused));
         break;
+      case FAILED:
+        notification.setContentText(getString(R.string.failed));
+        break;
       case COMPLETED:
         notification.setContentText(getString(R.string.completed));
-        break;
-      case IN_PROGRESS:
-        // only alert once and don't allow cancelling it
-        notification
-            .setContentText(getString(R.string.in_progress))
-            .setOnlyAlertOnce(true)
-            .setOngoing(true);
         break;
       default:
         Timber.e("Unknown sync state: %s", state.name());
