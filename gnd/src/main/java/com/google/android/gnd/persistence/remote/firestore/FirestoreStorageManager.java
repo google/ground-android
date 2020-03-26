@@ -91,6 +91,6 @@ public class FirestoreStorageManager implements RemoteStorageManager {
                                 UploadProgress.inProgress(
                                     (int) taskSnapshot.getTotalByteCount(),
                                     (int) taskSnapshot.getBytesTransferred())))),
-        BackpressureStrategy.BUFFER);
+        BackpressureStrategy.LATEST);
   }
 }
