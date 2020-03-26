@@ -90,7 +90,7 @@ public class PhotoSyncWorker extends Worker {
     notificationManager.createSyncNotification(
         uploadProgress.getState(),
         R.string.uploading_photos,
-        uploadProgress.getTotal(),
-        uploadProgress.getProgress());
+        uploadProgress.getByteCount(),
+        uploadProgress.getByteTransferred());
   }
 }
