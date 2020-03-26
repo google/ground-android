@@ -4,19 +4,21 @@ import android.app.NotificationChannel;
 import android.content.Context;
 import android.os.Build.VERSION;
 import android.os.Build.VERSION_CODES;
-import android.os.SystemClock;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.StringRes;
 import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationCompat.Builder;
 import androidx.core.app.NotificationManagerCompat;
 import com.google.android.gnd.R;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import timber.log.Timber;
 
 @Singleton
 public class NotificationManager {
 
-  private static final String CHANNEL_1_ID = "channel1";
-  private static final String CHANNEL_2_ID = "channel2";
+  private static final String CHANNEL_ID = "channel_id";
+  private static final int PHOTO_SYNC_ID = 1;
 
   private Context context;
   private NotificationManagerCompat notificationManager;
@@ -33,52 +35,62 @@ public class NotificationManager {
 
   @RequiresApi(api = VERSION_CODES.O)
   private void createNotificationChannels(Context context) {
-    NotificationChannel channel1 =
+    NotificationChannel channel =
         new NotificationChannel(
-            CHANNEL_1_ID, "Channel 1", android.app.NotificationManager.IMPORTANCE_HIGH);
-    channel1.setDescription("This is Channel 1");
-
-    NotificationChannel channel2 =
-        new NotificationChannel(
-            CHANNEL_2_ID, "Channel 2", android.app.NotificationManager.IMPORTANCE_LOW);
-    channel2.setDescription("This is Channel 2");
-
+            CHANNEL_ID, "ground channel", android.app.NotificationManager.IMPORTANCE_LOW);
     android.app.NotificationManager manager =
         context.getSystemService(android.app.NotificationManager.class);
-    manager.createNotificationChannel(channel1);
-    manager.createNotificationChannel(channel2);
+    manager.createNotificationChannel(channel);
   }
 
-  public void sendOnChannel() {
-    final int progressMax = 100;
+  private CharSequence getString(@StringRes int resId) {
+    return context.getResources().getString(resId);
+  }
 
+  public void createSyncNotification(SyncState state, @StringRes int titleResId) {
+    createSyncNotification(state, titleResId, 0, 0);
+  }
+
+  public void createSyncNotification(
+      SyncState state, @StringRes int titleResId, int total, int progress) {
     NotificationCompat.Builder notification =
-        new NotificationCompat.Builder(context, CHANNEL_2_ID)
+        new Builder(context, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_sync)
-            .setContentTitle("Downloading")
-            .setContentText("Download in progress")
-            .setOngoing(true)
+            .setContentTitle(getString(titleResId))
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setOnlyAlertOnce(false)
+            .setOngoing(false)
+            .setProgress(total, progress, false);
+
+    switch (state) {
+      case FAILED:
+        notification.setContentText(getString(R.string.failed));
+        break;
+      case PAUSED:
+        notification.setContentText(getString(R.string.paused));
+        break;
+      case COMPLETED:
+        notification.setContentText(getString(R.string.completed));
+        break;
+      case IN_PROGRESS:
+        // only alert once and don't allow cancelling it
+        notification
+            .setContentText(getString(R.string.in_progress))
             .setOnlyAlertOnce(true)
-            .setPriority(NotificationCompat.PRIORITY_LOW)
-            .setCategory(NotificationCompat.CATEGORY_PROGRESS)
-            .setProgress(progressMax, 0, false);
+            .setOngoing(true);
+        break;
+      default:
+        Timber.e("Unknown sync state: %s", state.name());
+        break;
+    }
 
-    notificationManager.notify(2, notification.build());
+    notificationManager.notify(PHOTO_SYNC_ID, notification.build());
+  }
 
-    new Thread(
-            () -> {
-              SystemClock.sleep(2000);
-              for (int i = 0; i < progressMax; i += 10) {
-                notification.setProgress(progressMax, i, false);
-                notificationManager.notify(2, notification.build());
-                SystemClock.sleep(1000);
-              }
-              notification
-                  .setContentText("Download finished")
-                  .setProgress(0, 0, false)
-                  .setOngoing(false);
-              notificationManager.notify(2, notification.build());
-            })
-        .start();
+  public enum SyncState {
+    FAILED,
+    PAUSED,
+    COMPLETED,
+    IN_PROGRESS
   }
 }
