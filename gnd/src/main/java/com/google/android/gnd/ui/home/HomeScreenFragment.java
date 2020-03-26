@@ -50,6 +50,7 @@ import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.rx.Loadable;
 import com.google.android.gnd.rx.Schedulers;
 import com.google.android.gnd.system.AuthenticationManager;
+import com.google.android.gnd.system.NotificationManager;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.BackPressListener;
 import com.google.android.gnd.ui.common.BottomSheetBehavior;
@@ -83,6 +84,8 @@ public class HomeScreenFragment extends AbstractFragment
   @Inject AddFeatureDialogFragment addFeatureDialogFragment;
   @Inject AuthenticationManager authenticationManager;
   @Inject Schedulers schedulers;
+  @Inject
+  NotificationManager notificationManager;
 
   @BindView(R.id.toolbar_wrapper)
   ViewGroup toolbarWrapper;
@@ -246,6 +249,7 @@ public class HomeScreenFragment extends AbstractFragment
   }
 
   private void openDrawer() {
+    notificationManager.sendOnChannel();
     drawerLayout.openDrawer(GravityCompat.START);
   }
 
