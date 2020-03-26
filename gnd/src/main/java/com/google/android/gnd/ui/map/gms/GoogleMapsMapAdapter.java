@@ -22,6 +22,7 @@ import static java8.util.stream.StreamSupport.stream;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Color;
+import com.cocoahero.android.gmaps.addons.mapbox.MapBoxOfflineTileProvider;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.UiSettings;
@@ -30,6 +31,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.android.gnd.R;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.ui.MarkerIconFactory;
@@ -233,5 +235,12 @@ class GoogleMapsMapAdapter implements MapAdapter {
   @Override
   public LatLngBounds getViewport() {
     return map.getProjection().getVisibleRegion().latLngBounds;
+  }
+
+  @Override
+  public void renderTileOverlay() {
+    MapBoxOfflineTileProvider tileProvider = new MapBoxOfflineTileProvider(context.getFilesDir());
+    map.addTileOverlay(new TileOverlayOptions().tileProvider(tileProvider));
+    tileProvider.close();
   }
 }
