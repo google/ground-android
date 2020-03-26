@@ -21,7 +21,6 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.gnd.R;
 import com.google.android.gnd.persistence.remote.RemoteStorageManager;
 import com.google.android.gnd.system.NotificationManager;
-import com.google.android.gnd.system.NotificationManager.SyncState;
 import com.google.firebase.storage.StorageReference;
 import io.reactivex.Completable;
 import java.io.File;
@@ -75,26 +74,64 @@ public class FirestoreStorageManager implements RemoteStorageManager {
             createReference(remoteDestinationPath)
                 .putFile(Uri.fromFile(file))
                 .addOnCompleteListener(uploadTask -> emitter.onComplete())
-                .addOnPausedListener(taskSnapshot -> updateState(SyncState.PAUSED))
+                .addOnPausedListener(
+                    taskSnapshot -> updateState(new UploadProgress(UploadState.PAUSED)))
                 .addOnFailureListener(
                     throwable -> {
                       emitter.onError(throwable);
-                      updateState(SyncState.FAILED);
+                      updateState(new UploadProgress(UploadState.FAILED));
                     })
-                .addOnSuccessListener(taskSnapshot -> updateState(SyncState.COMPLETED))
+                .addOnSuccessListener(
+                    taskSnapshot -> updateState(new UploadProgress(UploadState.COMPLETED)))
                 .addOnProgressListener(
                     taskSnapshot ->
                         updateState(
-                            SyncState.IN_PROGRESS,
-                            (int) taskSnapshot.getTotalByteCount(),
-                            (int) taskSnapshot.getBytesTransferred())));
+                            new UploadProgress(
+                                UploadState.IN_PROGRESS,
+                                (int) taskSnapshot.getTotalByteCount(),
+                                (int) taskSnapshot.getBytesTransferred()))));
   }
 
-  private void updateState(SyncState state) {
-    notificationManager.createSyncNotification(state, R.string.uploading_photos);
+  private void updateState(UploadProgress uploadProgress) {
+    notificationManager.createSyncNotification(
+        uploadProgress.getState(),
+        R.string.uploading_photos,
+        uploadProgress.getTotal(),
+        uploadProgress.getProgress());
   }
 
-  private void updateState(SyncState state, int total, int progress) {
-    notificationManager.createSyncNotification(state, R.string.uploading_photos, total, progress);
+  public enum UploadState {
+    FAILED,
+    PAUSED,
+    COMPLETED,
+    IN_PROGRESS
+  }
+
+  public static class UploadProgress {
+    private final UploadState state;
+    private final int total;
+    private final int progress;
+
+    UploadProgress(UploadState state) {
+      this(state, 0, 0);
+    }
+
+    UploadProgress(UploadState state, int total, int progress) {
+      this.state = state;
+      this.total = total;
+      this.progress = progress;
+    }
+
+    public int getProgress() {
+      return progress;
+    }
+
+    public int getTotal() {
+      return total;
+    }
+
+    public UploadState getState() {
+      return state;
+    }
   }
 }

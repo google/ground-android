@@ -10,6 +10,7 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationCompat.Builder;
 import androidx.core.app.NotificationManagerCompat;
 import com.google.android.gnd.R;
+import com.google.android.gnd.persistence.remote.firestore.FirestoreStorageManager.UploadState;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import timber.log.Timber;
@@ -47,12 +48,8 @@ public class NotificationManager {
     return context.getResources().getString(resId);
   }
 
-  public void createSyncNotification(SyncState state, @StringRes int titleResId) {
-    createSyncNotification(state, titleResId, 0, 0);
-  }
-
   public void createSyncNotification(
-      SyncState state, @StringRes int titleResId, int total, int progress) {
+      UploadState state, @StringRes int titleResId, int total, int progress) {
     NotificationCompat.Builder notification =
         new Builder(context, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_sync)
@@ -85,12 +82,5 @@ public class NotificationManager {
     }
 
     notificationManager.notify(PHOTO_SYNC_ID, notification.build());
-  }
-
-  public enum SyncState {
-    FAILED,
-    PAUSED,
-    COMPLETED,
-    IN_PROGRESS
   }
 }
