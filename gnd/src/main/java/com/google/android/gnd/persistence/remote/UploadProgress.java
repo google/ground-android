@@ -25,24 +25,24 @@ public class UploadProgress {
 
   private final UploadState state;
   private final int byteCount;
-  private final int byteTransferred;
+  private final int bytesTransferred;
 
   private UploadProgress(UploadState state) {
     this(state, 0, 0);
   }
 
-  private UploadProgress(UploadState state, int byteCount, int byteTransferred) {
+  private UploadProgress(UploadState state, int byteCount, int bytesTransferred) {
     this.state = state;
     this.byteCount = byteCount;
-    this.byteTransferred = byteTransferred;
+    this.bytesTransferred = bytesTransferred;
   }
 
   public static UploadProgress starting() {
     return STARTING;
   }
 
-  public static UploadProgress inProgress(int byteCount, int byteTransferred) {
-    return new UploadProgress(UploadState.IN_PROGRESS, byteCount, byteTransferred);
+  public static UploadProgress inProgress(int byteCount, int bytesTransferred) {
+    return new UploadProgress(UploadState.IN_PROGRESS, byteCount, bytesTransferred);
   }
 
   public static UploadProgress paused() {
@@ -57,8 +57,8 @@ public class UploadProgress {
     return COMPLETED;
   }
 
-  public int getByteTransferred() {
-    return byteTransferred;
+  public int getBytesTransferred() {
+    return bytesTransferred;
   }
 
   public int getByteCount() {

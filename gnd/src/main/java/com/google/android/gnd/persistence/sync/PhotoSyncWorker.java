@@ -91,6 +91,6 @@ public class PhotoSyncWorker extends Worker {
         uploadProgress.getState(),
         R.string.uploading_photos,
         uploadProgress.getByteCount(),
-        uploadProgress.getByteTransferred());
+        uploadProgress.getBytesTransferred());
   }
 }
