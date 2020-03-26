@@ -21,7 +21,6 @@ import static com.google.android.gnd.util.ImmutableSetCollector.toImmutableSet;
 import static java8.util.stream.Collectors.toList;
 import static java8.util.stream.StreamSupport.stream;
 
-import android.util.Log;
 import androidx.room.Transaction;
 import com.google.android.gnd.model.AuditInfo;
 import com.google.android.gnd.model.Mutation;
@@ -39,6 +38,33 @@ import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.model.observation.ObservationMutation;
 import com.google.android.gnd.persistence.local.LocalDataStore;
+import com.google.android.gnd.persistence.local.room.dao.FeatureDao;
+import com.google.android.gnd.persistence.local.room.dao.FeatureMutationDao;
+import com.google.android.gnd.persistence.local.room.dao.FieldDao;
+import com.google.android.gnd.persistence.local.room.dao.FormDao;
+import com.google.android.gnd.persistence.local.room.dao.LayerDao;
+import com.google.android.gnd.persistence.local.room.dao.MultipleChoiceDao;
+import com.google.android.gnd.persistence.local.room.dao.ObservationDao;
+import com.google.android.gnd.persistence.local.room.dao.ObservationMutationDao;
+import com.google.android.gnd.persistence.local.room.dao.OptionDao;
+import com.google.android.gnd.persistence.local.room.dao.ProjectDao;
+import com.google.android.gnd.persistence.local.room.dao.TileDao;
+import com.google.android.gnd.persistence.local.room.dao.UserDao;
+import com.google.android.gnd.persistence.local.room.entity.AuditInfoEntity;
+import com.google.android.gnd.persistence.local.room.entity.FeatureEntity;
+import com.google.android.gnd.persistence.local.room.entity.FeatureMutationEntity;
+import com.google.android.gnd.persistence.local.room.entity.FieldEntity;
+import com.google.android.gnd.persistence.local.room.entity.FormEntity;
+import com.google.android.gnd.persistence.local.room.entity.LayerEntity;
+import com.google.android.gnd.persistence.local.room.entity.MultipleChoiceEntity;
+import com.google.android.gnd.persistence.local.room.entity.ObservationEntity;
+import com.google.android.gnd.persistence.local.room.entity.ObservationMutationEntity;
+import com.google.android.gnd.persistence.local.room.entity.OptionEntity;
+import com.google.android.gnd.persistence.local.room.entity.ProjectEntity;
+import com.google.android.gnd.persistence.local.room.entity.TileEntity;
+import com.google.android.gnd.persistence.local.room.entity.UserEntity;
+import com.google.android.gnd.persistence.local.room.models.TileEntityState;
+import com.google.android.gnd.persistence.local.room.models.UserDetails;
 import com.google.android.gnd.rx.Schedulers;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -52,6 +78,7 @@ import java.util.Arrays;
 import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import timber.log.Timber;
 
 /**
  * Implementation of local data store using Room ORM. Room abstracts persistence between a local db
@@ -61,7 +88,6 @@ import javax.inject.Singleton;
  */
 @Singleton
 public class RoomLocalDataStore implements LocalDataStore {
-  private static final String TAG = RoomLocalDataStore.class.getSimpleName();
 
   @Inject OptionDao optionDao;
   @Inject MultipleChoiceDao multipleChoiceDao;
@@ -78,7 +104,7 @@ public class RoomLocalDataStore implements LocalDataStore {
   @Inject Schedulers schedulers;
 
   @Inject
-  public RoomLocalDataStore() {}
+  RoomLocalDataStore() {}
 
   private Completable insertOrUpdateOption(String fieldId, Option option) {
     return optionDao
@@ -323,7 +349,7 @@ public class RoomLocalDataStore implements LocalDataStore {
       ObservationEntity observation, List<ObservationMutationEntity> mutations, User user) {
     ObservationMutationEntity lastMutation = mutations.get(mutations.size() - 1);
     long clientTimestamp = lastMutation.getClientTimestamp();
-    Log.v(TAG, "Merging observation " + this + " with mutations " + mutations);
+    Timber.v("Merging observation " + this + " with mutations " + mutations);
     ObservationEntity.Builder builder = observation.toBuilder();
     // Merge changes to responses.
     for (ObservationMutationEntity mutation : mutations) {
@@ -336,7 +362,7 @@ public class RoomLocalDataStore implements LocalDataStore {
             .setClientTimeMillis(clientTimestamp)
             .build();
     builder.setLastModified(lastModified);
-    Log.v(TAG, "Merged observation " + builder.build());
+    Timber.v("Merged observation %s", builder.build());
     return builder.build();
   }
 
@@ -344,7 +370,7 @@ public class RoomLocalDataStore implements LocalDataStore {
   public Single<User> loadUser(String id) {
     return userDao
         .findById(id)
-        .doOnError(e -> Log.e(TAG, "Error loading user from local db: " + id, e))
+        .doOnError(e -> Timber.e(e, "Error loading user from local db: %s", id))
         // Fail with NoSuchElementException if not found.
         .toSingle()
         .map(UserEntity::toUser)
@@ -405,7 +431,7 @@ public class RoomLocalDataStore implements LocalDataStore {
   private Completable createObservation(ObservationMutation mutation, User user) {
     return observationDao
         .insert(ObservationEntity.fromMutation(mutation, AuditInfo.now(user)))
-        .doOnSubscribe(__ -> Log.v(TAG, "Inserting observation: " + mutation))
+        .doOnSubscribe(__ -> Timber.v("Inserting observation: %s", mutation))
         .subscribeOn(schedulers.io());
   }
 
@@ -413,7 +439,7 @@ public class RoomLocalDataStore implements LocalDataStore {
     ObservationMutationEntity mutationEntity = ObservationMutationEntity.fromMutation(mutation);
     return observationDao
         .findById(mutation.getObservationId())
-        .doOnSubscribe(__ -> Log.v(TAG, "Applying mutation: " + mutation))
+        .doOnSubscribe(__ -> Timber.v("Applying mutation: %s", mutation))
         // Emit NoSuchElementException if not found.
         .toSingle()
         .map(obs -> applyMutations(obs, ImmutableList.of(mutationEntity), user))
@@ -424,7 +450,7 @@ public class RoomLocalDataStore implements LocalDataStore {
   private Completable enqueue(ObservationMutation mutation) {
     return observationMutationDao
         .insert(ObservationMutationEntity.fromMutation(mutation))
-        .doOnSubscribe(__ -> Log.v(TAG, "Enqueuing mutation: " + mutation))
+        .doOnSubscribe(__ -> Timber.v("Enqueuing mutation: %s", mutation))
         .subscribeOn(schedulers.io());
   }
 
