@@ -18,11 +18,13 @@ package com.google.android.gnd.persistence.remote.firestore;
 
 import android.net.Uri;
 import com.google.android.gms.tasks.Task;
-import com.google.android.gnd.R;
 import com.google.android.gnd.persistence.remote.RemoteStorageManager;
-import com.google.android.gnd.system.NotificationManager;
+import com.google.android.gnd.persistence.remote.UploadProgress;
+import com.google.android.gnd.persistence.remote.UploadProgress.UploadState;
+import com.google.android.gnd.rx.Event;
 import com.google.firebase.storage.StorageReference;
-import io.reactivex.Completable;
+import io.reactivex.BackpressureStrategy;
+import io.reactivex.Flowable;
 import java.io.File;
 import java8.util.StringJoiner;
 import javax.inject.Inject;
@@ -36,7 +38,6 @@ public class FirestoreStorageManager implements RemoteStorageManager {
   // Top-level directory
   private static final String MEDIA_ROOT_DIR = "uploaded_media";
 
-  @Inject NotificationManager notificationManager;
   @Inject StorageReference storageReference;
 
   @Inject
@@ -68,70 +69,34 @@ public class FirestoreStorageManager implements RemoteStorageManager {
   }
 
   @Override
-  public Completable uploadMediaFromFile(File file, String remoteDestinationPath) {
-    return Completable.create(
+  public Flowable<Event<UploadProgress>> uploadMediaFromFile(
+      File file, String remoteDestinationPath) {
+    return Flowable.create(
         emitter ->
             createReference(remoteDestinationPath)
                 .putFile(Uri.fromFile(file))
                 .addOnCompleteListener(uploadTask -> emitter.onComplete())
                 .addOnPausedListener(
-                    taskSnapshot -> updateState(new UploadProgress(UploadState.PAUSED)))
+                    taskSnapshot -> {
+                      emitter.onNext(Event.create(new UploadProgress(UploadState.PAUSED)));
+                    })
                 .addOnFailureListener(
                     throwable -> {
+                      emitter.onNext(Event.create(new UploadProgress(UploadState.FAILED)));
                       emitter.onError(throwable);
-                      updateState(new UploadProgress(UploadState.FAILED));
                     })
                 .addOnSuccessListener(
-                    taskSnapshot -> updateState(new UploadProgress(UploadState.COMPLETED)))
+                    taskSnapshot -> {
+                      emitter.onNext(Event.create(new UploadProgress(UploadState.COMPLETED)));
+                    })
                 .addOnProgressListener(
                     taskSnapshot ->
-                        updateState(
-                            new UploadProgress(
-                                UploadState.IN_PROGRESS,
-                                (int) taskSnapshot.getTotalByteCount(),
-                                (int) taskSnapshot.getBytesTransferred()))));
-  }
-
-  private void updateState(UploadProgress uploadProgress) {
-    notificationManager.createSyncNotification(
-        uploadProgress.getState(),
-        R.string.uploading_photos,
-        uploadProgress.getTotal(),
-        uploadProgress.getProgress());
-  }
-
-  public enum UploadState {
-    FAILED,
-    PAUSED,
-    COMPLETED,
-    IN_PROGRESS
-  }
-
-  public static class UploadProgress {
-    private final UploadState state;
-    private final int total;
-    private final int progress;
-
-    UploadProgress(UploadState state) {
-      this(state, 0, 0);
-    }
-
-    UploadProgress(UploadState state, int total, int progress) {
-      this.state = state;
-      this.total = total;
-      this.progress = progress;
-    }
-
-    public int getProgress() {
-      return progress;
-    }
-
-    public int getTotal() {
-      return total;
-    }
-
-    public UploadState getState() {
-      return state;
-    }
+                        emitter.onNext(
+                            Event.create(
+                                new UploadProgress(
+                                    UploadState.IN_PROGRESS,
+                                    (int) taskSnapshot.getTotalByteCount(),
+                                    (int) taskSnapshot.getBytesTransferred())))),
+        BackpressureStrategy.BUFFER);
   }
 }
