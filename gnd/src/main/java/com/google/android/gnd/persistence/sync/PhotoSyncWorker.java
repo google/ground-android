@@ -69,6 +69,7 @@ public class PhotoSyncWorker extends Worker {
     File file = new File(localSourcePath);
     if (file.exists()) {
       Timber.d("Starting photo upload: %s, %s", localSourcePath, remoteDestinationPath);
+      sendNotification(UploadProgress.starting());
       try {
         remoteStorageManager
             .uploadMediaFromFile(new File(localSourcePath), remoteDestinationPath)
@@ -81,6 +82,7 @@ public class PhotoSyncWorker extends Worker {
       }
     } else {
       Timber.e("Photo not found %s, %s", localSourcePath, remoteDestinationPath);
+      sendNotification(UploadProgress.failed());
       return Result.failure();
     }
   }

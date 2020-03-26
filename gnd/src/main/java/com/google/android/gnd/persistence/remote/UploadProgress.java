@@ -18,18 +18,43 @@ package com.google.android.gnd.persistence.remote;
 
 public class UploadProgress {
 
+  private static final UploadProgress STARTING = new UploadProgress(UploadState.STARTING);
+  private static final UploadProgress PAUSED = new UploadProgress(UploadState.PAUSED);
+  private static final UploadProgress FAILED = new UploadProgress(UploadState.FAILED);
+  private static final UploadProgress COMPLETED = new UploadProgress(UploadState.COMPLETED);
+
   private final UploadState state;
   private final int total;
   private final int progress;
 
-  public UploadProgress(UploadState state) {
+  private UploadProgress(UploadState state) {
     this(state, 0, 0);
   }
 
-  public UploadProgress(UploadState state, int total, int progress) {
+  private UploadProgress(UploadState state, int total, int progress) {
     this.state = state;
     this.total = total;
     this.progress = progress;
+  }
+
+  public static UploadProgress starting() {
+    return STARTING;
+  }
+
+  public static UploadProgress inProgress(int total, int progress) {
+    return new UploadProgress(UploadState.IN_PROGRESS, total, progress);
+  }
+
+  public static UploadProgress paused() {
+    return PAUSED;
+  }
+
+  public static UploadProgress failed() {
+    return FAILED;
+  }
+
+  public static UploadProgress completed() {
+    return COMPLETED;
   }
 
   public int getProgress() {

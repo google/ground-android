@@ -20,7 +20,6 @@ import android.net.Uri;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gnd.persistence.remote.RemoteStorageManager;
 import com.google.android.gnd.persistence.remote.UploadProgress;
-import com.google.android.gnd.persistence.remote.UploadProgress.UploadState;
 import com.google.android.gnd.rx.Event;
 import com.google.firebase.storage.StorageReference;
 import io.reactivex.BackpressureStrategy;
@@ -77,24 +76,19 @@ public class FirestoreStorageManager implements RemoteStorageManager {
                 .putFile(Uri.fromFile(file))
                 .addOnCompleteListener(uploadTask -> emitter.onComplete())
                 .addOnPausedListener(
-                    taskSnapshot -> {
-                      emitter.onNext(Event.create(new UploadProgress(UploadState.PAUSED)));
-                    })
+                    taskSnapshot -> emitter.onNext(Event.create(UploadProgress.paused())))
                 .addOnFailureListener(
                     throwable -> {
-                      emitter.onNext(Event.create(new UploadProgress(UploadState.FAILED)));
+                      emitter.onNext(Event.create(UploadProgress.failed()));
                       emitter.onError(throwable);
                     })
                 .addOnSuccessListener(
-                    taskSnapshot -> {
-                      emitter.onNext(Event.create(new UploadProgress(UploadState.COMPLETED)));
-                    })
+                    taskSnapshot -> emitter.onNext(Event.create(UploadProgress.completed())))
                 .addOnProgressListener(
                     taskSnapshot ->
                         emitter.onNext(
                             Event.create(
-                                new UploadProgress(
-                                    UploadState.IN_PROGRESS,
+                                UploadProgress.inProgress(
                                     (int) taskSnapshot.getTotalByteCount(),
                                     (int) taskSnapshot.getBytesTransferred())))),
         BackpressureStrategy.BUFFER);
