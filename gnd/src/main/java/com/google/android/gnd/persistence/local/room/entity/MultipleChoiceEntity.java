@@ -64,7 +64,7 @@ public abstract class MultipleChoiceEntity {
   }
 
   static MultipleChoice toMultipleChoice(
-    MultipleChoiceEntity multipleChoiceEntity, List<OptionEntity> optionEntities) {
+      MultipleChoiceEntity multipleChoiceEntity, List<OptionEntity> optionEntities) {
     MultipleChoice.Builder multipleChoiceBuilder =
         MultipleChoice.newBuilder().setCardinality(multipleChoiceEntity.getType().toCardinality());
 
