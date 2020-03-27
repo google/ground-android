@@ -47,10 +47,10 @@ public class TwoLineToolbar extends Toolbar {
 
   public void setSubtitle(@Nullable String subtitle) {
     subtitleText.setText(subtitle);
-    if (subtitle == null) {
+    if (subtitle == null || subtitle.isEmpty()) {
       subtitleText.setVisibility(View.GONE);
     } else {
-      subtitleText.setVisibility(subtitle.isEmpty() ? View.GONE : View.VISIBLE);
+      subtitleText.setVisibility(View.VISIBLE);
     }
   }
 }
