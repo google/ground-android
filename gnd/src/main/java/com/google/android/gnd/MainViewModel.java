@@ -28,6 +28,7 @@ import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.SharedViewModel;
 import io.reactivex.Completable;
+import io.reactivex.disposables.Disposable;
 import javax.inject.Inject;
 
 /** Top-level view model representing state of the {@link MainActivity} shared by all fragments. */
@@ -50,13 +51,13 @@ public class MainViewModel extends AbstractViewModel {
     this.navigator = navigator;
 
     // TODO: Move to background service.
-    // Add the project repository subscription to the collection of subscriptions which will be
-    // disposed when the view model is cleared
-    disposeOnClear(
-        projectRepository
-            .getActiveProjectOnceAndStream()
-            .switchMapCompletable(this::syncFeatures)
-            .subscribe());
+    // Subscribe to the project repository
+    Disposable projectSubscription = projectRepository.getActiveProjectOnceAndStream()
+      .switchMapCompletable(this::syncFeatures)
+      .subscribe();
+
+    // Ensure that the subscription is disposed of when the model is cleared
+    disposeOnClear(projectSubscription);
   }
 
   /**

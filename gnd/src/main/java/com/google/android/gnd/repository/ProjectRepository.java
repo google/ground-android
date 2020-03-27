@@ -103,7 +103,7 @@ public class ProjectRepository {
    * Loads the project with the given id from the remote data store and saves it to the local data
    * store
    * @param id - id of project to load
-   * @return A Single representing the project (@see http://reactivex.io/documentation/single.html)
+   * @return A Single representing the project
    */
   private Single<Project> syncProjectWithRemote(String id) {
     return remoteDataStore
