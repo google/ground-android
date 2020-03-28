@@ -74,12 +74,7 @@ public class FirestoreStorageManager implements RemoteStorageManager {
                 .putFile(Uri.fromFile(file))
                 .addOnCompleteListener(uploadTask -> emitter.onComplete())
                 .addOnPausedListener(taskSnapshot -> emitter.onNext(UploadProgress.paused()))
-                .addOnFailureListener(
-                    throwable -> {
-                      emitter.onNext(UploadProgress.failed());
-                      emitter.onError(throwable);
-                    })
-                .addOnSuccessListener(taskSnapshot -> emitter.onNext(UploadProgress.completed()))
+                .addOnFailureListener(emitter::onError)
                 .addOnProgressListener(
                     taskSnapshot ->
                         emitter.onNext(

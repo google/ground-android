@@ -24,10 +24,12 @@ import androidx.annotation.NonNull;
 import androidx.work.Data;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
+import com.google.android.gnd.R;
 import com.google.android.gnd.model.Mutation;
 import com.google.android.gnd.model.User;
 import com.google.android.gnd.persistence.local.LocalDataStore;
 import com.google.android.gnd.persistence.remote.RemoteDataStore;
+import com.google.android.gnd.persistence.remote.UploadProgress;
 import com.google.android.gnd.system.NotificationManager;
 import com.google.common.collect.ImmutableList;
 import io.reactivex.Completable;
@@ -76,10 +78,14 @@ public class LocalMutationSyncWorker extends Worker {
     ImmutableList<Mutation> mutations = localDataStore.getPendingMutations(featureId).blockingGet();
     try {
       Timber.v("Mutations: %s", mutations);
-      processMutations(mutations).blockingAwait();
+      processMutations(mutations)
+          .doOnSubscribe(__ -> sendNotification(UploadProgress.starting()))
+          .doOnError(__ -> sendNotification(UploadProgress.failed()))
+          .doOnComplete(() -> sendNotification(UploadProgress.completed()))
+          .blockingAwait();
       return Result.success();
     } catch (Throwable t) {
-      Timber.d(t, "Remote updates for feature %s failed", featureId);
+      Timber.e(t, "Remote updates for feature %s failed", featureId);
       localDataStore.updateMutations(incrementRetryCounts(mutations, t)).blockingAwait();
       return Result.retry();
     }
@@ -129,5 +135,13 @@ public class LocalMutationSyncWorker extends Worker {
         .setRetryCount(mutation.getRetryCount() + 1)
         .setLastError(error.toString())
         .build();
+  }
+
+  private void sendNotification(UploadProgress uploadProgress) {
+    notificationManager.createSyncNotification(
+        uploadProgress.getState(),
+        R.string.uploading_data,
+        uploadProgress.getByteCount(),
+        uploadProgress.getBytesTransferred());
   }
 }

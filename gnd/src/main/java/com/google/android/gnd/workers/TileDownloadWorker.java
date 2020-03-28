@@ -21,9 +21,11 @@ import androidx.annotation.NonNull;
 import androidx.work.Data;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
+import com.google.android.gnd.R;
 import com.google.android.gnd.model.basemap.tile.Tile;
 import com.google.android.gnd.model.basemap.tile.Tile.State;
 import com.google.android.gnd.persistence.local.LocalDataStore;
+import com.google.android.gnd.persistence.remote.UploadProgress;
 import com.google.android.gnd.system.NotificationManager;
 import com.google.common.collect.ImmutableList;
 import io.reactivex.Completable;
@@ -154,6 +156,13 @@ public class TileDownloadWorker extends Worker {
 
   private Completable processTiles(ImmutableList<Tile> pendingTiles) {
     return Observable.fromIterable(pendingTiles)
+        .doOnSubscribe(__ -> sendNotification(UploadProgress.starting()))
+        .doOnError(__ -> sendNotification(UploadProgress.failed()))
+        .doOnComplete(() -> sendNotification(UploadProgress.completed()))
+        .doOnNext(
+            tile ->
+                sendNotification(
+                    UploadProgress.inProgress(pendingTiles.size(), pendingTiles.indexOf(tile) + 1)))
         .flatMapCompletable(
             t -> {
               switch (t.getState()) {
@@ -194,6 +203,14 @@ public class TileDownloadWorker extends Worker {
       Timber.d(t, "Downloads for tiles failed: %s", pendingTiles);
       return Result.failure();
     }
+  }
+
+  private void sendNotification(UploadProgress uploadProgress) {
+    notificationManager.createSyncNotification(
+        uploadProgress.getState(),
+        R.string.downloading_tiles,
+        uploadProgress.getByteCount(),
+        uploadProgress.getBytesTransferred());
   }
 
   static class TileDownloadException extends RuntimeException {
