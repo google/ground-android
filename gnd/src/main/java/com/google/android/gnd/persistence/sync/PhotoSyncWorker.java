@@ -55,7 +55,7 @@ public class PhotoSyncWorker extends Worker {
     this.notificationManager = notificationManager;
   }
 
-  public static Data createInputData(String sourceFilePath, String destinationPath) {
+  static Data createInputData(String sourceFilePath, String destinationPath) {
     return new Data.Builder()
         .putString(SOURCE_FILE_PATH_PARAM_KEY, sourceFilePath)
         .putString(DESTINATION_PATH_PARAM_KEY, destinationPath)

@@ -24,6 +24,7 @@ import androidx.work.WorkerParameters;
 import com.google.android.gnd.model.basemap.tile.Tile;
 import com.google.android.gnd.model.basemap.tile.Tile.State;
 import com.google.android.gnd.persistence.local.LocalDataStore;
+import com.google.android.gnd.system.NotificationManager;
 import com.google.common.collect.ImmutableList;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
@@ -47,19 +48,17 @@ public class TileDownloadWorker extends Worker {
 
   private final Context context;
   private final LocalDataStore localDataStore;
-
-  class TileDownloadException extends RuntimeException {
-
-    TileDownloadException(String msg, Throwable e) {
-      super(msg, e);
-    }
-  }
+  private final NotificationManager notificationManager;
 
   public TileDownloadWorker(
-      @NonNull Context context, @NonNull WorkerParameters params, LocalDataStore localDataStore) {
+      @NonNull Context context,
+      @NonNull WorkerParameters params,
+      LocalDataStore localDataStore,
+      NotificationManager notificationManager) {
     super(context, params);
     this.context = context;
     this.localDataStore = localDataStore;
+    this.notificationManager = notificationManager;
   }
 
   /**
@@ -194,6 +193,12 @@ public class TileDownloadWorker extends Worker {
     } catch (Throwable t) {
       Timber.d(t, "Downloads for tiles failed: %s", pendingTiles);
       return Result.failure();
+    }
+  }
+
+  static class TileDownloadException extends RuntimeException {
+    TileDownloadException(String msg, Throwable e) {
+      super(msg, e);
     }
   }
 }

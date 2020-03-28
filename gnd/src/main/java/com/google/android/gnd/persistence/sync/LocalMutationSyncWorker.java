@@ -28,6 +28,7 @@ import com.google.android.gnd.model.Mutation;
 import com.google.android.gnd.model.User;
 import com.google.android.gnd.persistence.local.LocalDataStore;
 import com.google.android.gnd.persistence.remote.RemoteDataStore;
+import com.google.android.gnd.system.NotificationManager;
 import com.google.common.collect.ImmutableList;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
@@ -48,16 +49,19 @@ public class LocalMutationSyncWorker extends Worker {
   private final LocalDataStore localDataStore;
   private final RemoteDataStore remoteDataStore;
   private final String featureId;
+  private final NotificationManager notificationManager;
 
   public LocalMutationSyncWorker(
       @NonNull Context context,
       @NonNull WorkerParameters params,
       LocalDataStore localDataStore,
-      RemoteDataStore remoteDataStore) {
+      RemoteDataStore remoteDataStore,
+      NotificationManager notificationManager) {
     super(context, params);
     this.localDataStore = localDataStore;
     this.remoteDataStore = remoteDataStore;
     this.featureId = params.getInputData().getString(FEATURE_ID_PARAM_KEY);
+    this.notificationManager = notificationManager;
   }
 
   /** Returns a new work {@link Data} object containing the specified feature id. */
