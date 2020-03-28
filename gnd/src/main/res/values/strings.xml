@@ -149,4 +149,5 @@
   <string name="starting">Starting</string>
   <string name="downloading_tiles">Downloading tiles</string>
   <string name="uploading_data">Uploading data</string>
+  <string name="app_running">App is running</string>
 </resources>
