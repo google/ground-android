@@ -92,7 +92,6 @@ public class EditObservationFragment extends AbstractFragment
     toolbar.setNavigationOnClickListener(__ -> onCloseButtonClick());
     // Observe state changes.
     viewModel.getForm().observe(getViewLifecycleOwner(), this::rebuildForm);
-    viewModel.getToolbarTitle().observe(getViewLifecycleOwner(), toolbar::setTitle);
     viewModel
         .getSaveResults()
         .observe(getViewLifecycleOwner(), e -> e.ifUnhandled(this::handleSaveResult));

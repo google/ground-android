@@ -41,12 +41,16 @@ public class TwoLineToolbar extends Toolbar {
     ButterKnife.bind(this);
   }
 
-  public void setTitle(String title) {
+  public void setTitle(@Nullable String title) {
     titleText.setText(title);
   }
 
-  public void setSubtitle(String subtitle) {
+  public void setSubtitle(@Nullable String subtitle) {
     subtitleText.setText(subtitle);
-    subtitleText.setVisibility(subtitle.isEmpty() ? View.GONE : View.VISIBLE);
+    if (subtitle == null || subtitle.isEmpty()) {
+      subtitleText.setVisibility(View.GONE);
+    } else {
+      subtitleText.setVisibility(View.VISIBLE);
+    }
   }
 }

@@ -33,8 +33,7 @@ public class ObservationDetailsViewModel extends AbstractViewModel {
   private final BehaviorProcessor<ObservationDetailsFragmentArgs> argsProcessor;
   public final LiveData<Loadable<Observation>> observations;
   public final LiveData<Integer> progressBarVisibility;
-  public final LiveData<String> toolbarTitle;
-  public final LiveData<String> toolbarSubtitle;
+  public final LiveData<Feature> feature;
 
   @Inject
   ObservationDetailsViewModel(ObservationRepository observationRepository) {
@@ -56,13 +55,9 @@ public class ObservationDetailsViewModel extends AbstractViewModel {
         LiveDataReactiveStreams.fromPublisher(
             observationStream.map(ObservationDetailsViewModel::getProgressBarVisibility));
 
-    this.toolbarTitle =
+    this.feature =
         LiveDataReactiveStreams.fromPublisher(
-            observationStream.map(ObservationDetailsViewModel::getToolbarTitle));
-
-    this.toolbarSubtitle =
-        LiveDataReactiveStreams.fromPublisher(
-            observationStream.map(ObservationDetailsViewModel::getToolbarSubtitle));
+            observationStream.map(ObservationDetailsViewModel::getFeature));
   }
 
   public void loadObservationDetails(ObservationDetailsFragmentArgs args) {
@@ -73,11 +68,7 @@ public class ObservationDetailsViewModel extends AbstractViewModel {
     return observation.value().isPresent() ? View.VISIBLE : View.GONE;
   }
 
-  private static String getToolbarTitle(Loadable<Observation> observation) {
-    return observation.value().map(Observation::getFeature).map(Feature::getTitle).orElse("");
-  }
-
-  private static String getToolbarSubtitle(Loadable<Observation> observation) {
-    return observation.value().map(Observation::getFeature).map(Feature::getSubtitle).orElse("");
+  private static Feature getFeature(Loadable<Observation> observation) {
+    return observation.value().map(Observation::getFeature).get();
   }
 }

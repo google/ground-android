@@ -16,8 +16,7 @@
   ~ limitations under the License.
   -->
 
-<LinearLayout
-  xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
   android:id="@+id/toolbar_titles_layout"
   android:layout_width="wrap_content"
   android:layout_height="wrap_content"
@@ -28,9 +27,7 @@
     android:id="@+id/toolbar_title_text"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_gravity="center"
-    android:textAppearance="?gndToolbarTitleStyle"
-    android:paddingTop="@dimen/offline_area_toolbar_padding_top"/>
+    android:textAppearance="?gndToolbarTitleStyle" />
 
   <TextView
     android:id="@+id/toolbar_subtitle_text"
@@ -38,6 +35,6 @@
     android:layout_height="wrap_content"
     android:layout_gravity="center"
     android:textAppearance="?gndToolbarSubtitleStyle"
-    android:visibility="gone"/>
+    android:visibility="gone" />
 
 </LinearLayout>
