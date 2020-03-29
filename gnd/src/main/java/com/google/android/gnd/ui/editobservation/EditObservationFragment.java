@@ -25,6 +25,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import butterknife.BindView;
 import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.R;
@@ -39,7 +40,6 @@ import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.model.form.MultipleChoice.Cardinality;
 import com.google.android.gnd.model.observation.Response;
-import com.google.android.gnd.system.StorageManager;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.BackPressListener;
 import com.google.android.gnd.ui.common.EphemeralPopups;
@@ -54,7 +54,6 @@ import timber.log.Timber;
 public class EditObservationFragment extends AbstractFragment implements BackPressListener {
 
   @Inject Navigator navigator;
-  @Inject StorageManager storageManager;
 
   @BindView(R.id.edit_observation_toolbar)
   TwoLineToolbar toolbar;
@@ -65,6 +64,9 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
   private EditObservationViewModel viewModel;
   private SingleSelectDialogFactory singleSelectDialogFactory;
   private MultiSelectDialogFactory multiSelectDialogFactory;
+
+  @Nullable private EditObservationBottomSheetBinding addPhotoBottomSheetBinding;
+  @Nullable private BottomSheetDialog bottomSheetDialog;
 
   @Override
   public void onCreate(@androidx.annotation.Nullable Bundle savedInstanceState) {
@@ -205,16 +207,29 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
   }
 
   public void onShowPhotoSelectorDialog(Field field) {
-    EditObservationBottomSheetBinding binding =
-        EditObservationBottomSheetBinding.inflate(getLayoutInflater());
-    binding.setField(field);
-    binding.setViewModel(viewModel);
+    if (addPhotoBottomSheetBinding == null) {
+      addPhotoBottomSheetBinding = EditObservationBottomSheetBinding.inflate(getLayoutInflater());
+      addPhotoBottomSheetBinding.setViewModel(viewModel);
+    }
+    addPhotoBottomSheetBinding.setField(field);
 
-    BottomSheetDialog dialog = new BottomSheetDialog(getContext());
-    dialog.setContentView(binding.getRoot());
-    dialog.show();
+    if (bottomSheetDialog == null) {
+      bottomSheetDialog = new BottomSheetDialog(getContext());
+      bottomSheetDialog.setContentView(addPhotoBottomSheetBinding.getRoot());
+    }
 
-    // todo: dismiss on complete
+    if (!bottomSheetDialog.isShowing()) {
+      bottomSheetDialog.show();
+    }
+  }
+
+  @Override
+  public void onPause() {
+    if (bottomSheetDialog != null && bottomSheetDialog.isShowing()) {
+      bottomSheetDialog.dismiss();
+    }
+
+    super.onPause();
   }
 
   @Override
