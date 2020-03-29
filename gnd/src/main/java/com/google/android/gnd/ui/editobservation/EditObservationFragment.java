@@ -28,6 +28,7 @@ import androidx.annotation.NonNull;
 import butterknife.BindView;
 import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.R;
+import com.google.android.gnd.databinding.EditObservationBottomSheetBinding;
 import com.google.android.gnd.databinding.EditObservationFragBinding;
 import com.google.android.gnd.databinding.MultipleChoiceInputFieldBinding;
 import com.google.android.gnd.databinding.PhotoInputFieldBinding;
@@ -44,6 +45,7 @@ import com.google.android.gnd.ui.common.BackPressListener;
 import com.google.android.gnd.ui.common.EphemeralPopups;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.TwoLineToolbar;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 import java8.util.Optional;
 import javax.inject.Inject;
 import timber.log.Timber;
@@ -203,10 +205,16 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
   }
 
   public void onShowPhotoSelectorDialog(Field field) {
-    PhotoDialogFragment bottomDialogFragment = new PhotoDialogFragment();
-    bottomDialogFragment.init(viewModel, field);
-    bottomDialogFragment.setTargetFragment(this, 0);
-    bottomDialogFragment.show(getFragmentManager(), PhotoDialogFragment.TAG);
+    EditObservationBottomSheetBinding binding =
+        EditObservationBottomSheetBinding.inflate(getLayoutInflater());
+    binding.setField(field);
+    binding.setViewModel(viewModel);
+
+    BottomSheetDialog dialog = new BottomSheetDialog(getContext());
+    dialog.setContentView(binding.getRoot());
+    dialog.show();
+
+    // todo: dismiss on complete
   }
 
   @Override
