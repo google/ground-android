@@ -25,6 +25,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import com.google.android.gnd.databinding.EditObservationBottomSheetBinding;
+import com.google.android.gnd.model.form.Field;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import timber.log.Timber;
 
@@ -41,6 +42,8 @@ public class PhotoDialogFragment extends BottomSheetDialogFragment {
   private AddPhotoListener listener;
 
   @Nullable private String fieldId;
+
+  private EditObservationBottomSheetBinding binding;
 
   public static PhotoDialogFragment newInstance(String fieldId) {
     Bundle bundle = new Bundle();
@@ -64,9 +67,7 @@ public class PhotoDialogFragment extends BottomSheetDialogFragment {
       @NonNull LayoutInflater inflater,
       @Nullable ViewGroup container,
       @Nullable Bundle savedInstanceState) {
-    EditObservationBottomSheetBinding binding =
-        EditObservationBottomSheetBinding.inflate(inflater, container, false);
-    binding.setFragment(this);
+    binding = EditObservationBottomSheetBinding.inflate(inflater, container, false);
     return binding.getRoot();
   }
 
@@ -95,6 +96,11 @@ public class PhotoDialogFragment extends BottomSheetDialogFragment {
   public void onCapturePhoto() {
     listener.onCapturePhoto(fieldId);
     dismiss();
+  }
+
+  public void init(EditObservationViewModel viewModel, Field field) {
+    binding.setField(field);
+    binding.setViewModel(viewModel);
   }
 
   public interface AddPhotoListener {

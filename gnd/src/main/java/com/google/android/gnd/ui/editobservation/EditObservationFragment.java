@@ -207,6 +207,7 @@ public class EditObservationFragment extends AbstractFragment
   public void onShowPhotoSelectorDialog(Field field) {
     PhotoDialogFragment bottomDialogFragment = PhotoDialogFragment.newInstance(field.getId());
     bottomDialogFragment.setTargetFragment(this, 0);
+    bottomDialogFragment.init(viewModel, field);
     bottomDialogFragment.show(getFragmentManager(), PhotoDialogFragment.TAG);
   }
 
