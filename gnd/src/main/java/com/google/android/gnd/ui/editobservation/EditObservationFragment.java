@@ -44,14 +44,12 @@ import com.google.android.gnd.ui.common.BackPressListener;
 import com.google.android.gnd.ui.common.EphemeralPopups;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.TwoLineToolbar;
-import com.google.android.gnd.ui.editobservation.PhotoDialogFragment.AddPhotoListener;
 import java8.util.Optional;
 import javax.inject.Inject;
 import timber.log.Timber;
 
 @ActivityScoped
-public class EditObservationFragment extends AbstractFragment
-    implements BackPressListener, AddPhotoListener {
+public class EditObservationFragment extends AbstractFragment implements BackPressListener {
 
   @Inject Navigator navigator;
   @Inject StorageManager storageManager;
@@ -205,9 +203,9 @@ public class EditObservationFragment extends AbstractFragment
   }
 
   public void onShowPhotoSelectorDialog(Field field) {
-    PhotoDialogFragment bottomDialogFragment = PhotoDialogFragment.newInstance(field.getId());
-    bottomDialogFragment.setTargetFragment(this, 0);
+    PhotoDialogFragment bottomDialogFragment = new PhotoDialogFragment();
     bottomDialogFragment.init(viewModel, field);
+    bottomDialogFragment.setTargetFragment(this, 0);
     bottomDialogFragment.show(getFragmentManager(), PhotoDialogFragment.TAG);
   }
 
@@ -243,15 +241,5 @@ public class EditObservationFragment extends AbstractFragment
         .setPositiveButton(R.string.invalid_data_confirm, (a, b) -> {})
         .create()
         .show();
-  }
-
-  @Override
-  public void onSelectPhoto(String fieldId) {
-    viewModel.showPhotoSelector(fieldId);
-  }
-
-  @Override
-  public void onCapturePhoto(String fieldId) {
-    viewModel.showPhotoCapture(fieldId);
   }
 }

@@ -16,18 +16,15 @@
 
 package com.google.android.gnd.ui.editobservation;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
 import com.google.android.gnd.databinding.EditObservationBottomSheetBinding;
 import com.google.android.gnd.model.form.Field;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
-import timber.log.Timber;
 
 /**
  * Generates a bottom sheet with options for adding a photo to the observation.
@@ -38,28 +35,7 @@ import timber.log.Timber;
 public class PhotoDialogFragment extends BottomSheetDialogFragment {
 
   public static final String TAG = PhotoDialogFragment.class.getSimpleName();
-  private static final String FIELD_ID_BUNDLE_ARG = "field_id";
-  private AddPhotoListener listener;
-
-  @Nullable private String fieldId;
-
   private EditObservationBottomSheetBinding binding;
-
-  public static PhotoDialogFragment newInstance(String fieldId) {
-    Bundle bundle = new Bundle();
-    bundle.putString(FIELD_ID_BUNDLE_ARG, fieldId);
-    PhotoDialogFragment fragment = new PhotoDialogFragment();
-    fragment.setArguments(bundle);
-    return fragment;
-  }
-
-  @Override
-  public void onCreate(@Nullable Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
-    if (getArguments() != null) {
-      fieldId = getArguments().getString(FIELD_ID_BUNDLE_ARG);
-    }
-  }
 
   @Nullable
   @Override
@@ -71,41 +47,8 @@ public class PhotoDialogFragment extends BottomSheetDialogFragment {
     return binding.getRoot();
   }
 
-  @Override
-  public void onAttach(@NonNull Context context) {
-    super.onAttach(context);
-    Fragment fragment = getTargetFragment();
-    if (fragment instanceof AddPhotoListener) {
-      listener = (AddPhotoListener) fragment;
-    } else {
-      Timber.e("AddPhotoListener not implemented");
-    }
-  }
-
-  @Override
-  public void onDetach() {
-    super.onDetach();
-    listener = null;
-  }
-
-  public void onSelectPhoto() {
-    listener.onSelectPhoto(fieldId);
-    dismiss();
-  }
-
-  public void onCapturePhoto() {
-    listener.onCapturePhoto(fieldId);
-    dismiss();
-  }
-
-  public void init(EditObservationViewModel viewModel, Field field) {
+  void init(EditObservationViewModel viewModel, Field field) {
     binding.setField(field);
     binding.setViewModel(viewModel);
-  }
-
-  public interface AddPhotoListener {
-    void onSelectPhoto(String fieldId);
-
-    void onCapturePhoto(String fieldId);
   }
 }
