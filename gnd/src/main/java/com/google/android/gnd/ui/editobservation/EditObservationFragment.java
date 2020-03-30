@@ -69,7 +69,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
   @Nullable private BottomSheetDialog bottomSheetDialog;
 
   @Override
-  public void onCreate(@androidx.annotation.Nullable Bundle savedInstanceState) {
+  public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     singleSelectDialogFactory = new SingleSelectDialogFactory(getContext());
     multiSelectDialogFactory = new MultiSelectDialogFactory(getContext());
@@ -87,8 +87,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
   }
 
   @Override
-  public void onViewCreated(
-      @NonNull View view, @androidx.annotation.Nullable Bundle savedInstanceState) {
+  public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
     ((MainActivity) getActivity()).setActionBar(toolbar, R.drawable.ic_close_black_24dp);
     toolbar.setNavigationOnClickListener(__ -> onCloseButtonClick());
