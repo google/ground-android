@@ -141,5 +141,10 @@
   <string name="join_project">Join project</string>
   <string name="photo_preview">Photo preview</string>
   <string name="select_map_type">Select map type</string>
-
+  <string name="failed">Failed</string>
+  <string name="paused">Paused</string>
+  <string name="completed">Completed</string>
+  <string name="in_progress">In progress</string>
+  <string name="uploading_photos">Uploading photos</string>
+  <string name="starting">Starting</string>
 </resources>
