@@ -138,7 +138,7 @@ public class MapContainerFragment extends AbstractFragment {
     }
 
     mapContainerViewModel
-      .getMapLayerUpdateRequests()
+      .getShowMapTypeSelectorRequests()
       .observe(getViewLifecycleOwner(), __ -> showMapTypeSelectorDialog());
   }
 

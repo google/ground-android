@@ -38,8 +38,6 @@ import com.google.android.gnd.ui.map.MapPin;
 import com.google.common.collect.ImmutableSet;
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Flowable;
-import io.reactivex.Single;
-import io.reactivex.processors.PublishProcessor;
 import io.reactivex.subjects.PublishSubject;
 import io.reactivex.subjects.Subject;
 import java.util.concurrent.TimeUnit;
@@ -56,12 +54,11 @@ public class MapContainerViewModel extends AbstractViewModel {
   private final LiveData<BooleanOrError> locationLockState;
   private final LiveData<CameraUpdate> cameraUpdateRequests;
   private final MutableLiveData<Point> cameraPosition;
-  private final LiveData<Event<Nil>> mapLayerUpdateRequests;
   private final LocationManager locationManager;
   private final FeatureRepository featureRepository;
   private final Subject<Boolean> locationLockChangeRequests;
   private final Subject<CameraUpdate> cameraUpdateSubject;
-  private final PublishProcessor<Nil> mapLayerTypeClicks;
+  private final MutableLiveData<Event<Nil>> showMapTypeSelectorRequests = new MutableLiveData<>();
 
   @Inject
   MapContainerViewModel(
@@ -72,7 +69,6 @@ public class MapContainerViewModel extends AbstractViewModel {
     this.locationManager = locationManager;
     this.locationLockChangeRequests = PublishSubject.create();
     this.cameraUpdateSubject = PublishSubject.create();
-    this.mapLayerTypeClicks = PublishProcessor.create();
 
     Flowable<BooleanOrError> locationLockStateFlowable = createLocationLockStateFlowable().share();
     this.locationLockState =
@@ -94,9 +90,6 @@ public class MapContainerViewModel extends AbstractViewModel {
                 .map(Loadable::value)
                 .switchMap(this::getFeaturesStream)
                 .map(MapContainerViewModel::toMapPins));
-    this.mapLayerUpdateRequests =
-        LiveDataReactiveStreams.fromPublisher(
-            mapLayerTypeClicks.switchMapSingle(__ -> Single.just(Event.create(Nil.NIL))));
   }
 
   private Flowable<CameraUpdate> createCameraUpdateFlowable(
@@ -141,7 +134,7 @@ public class MapContainerViewModel extends AbstractViewModel {
   }
 
   public void onMapTypeButtonClicked() {
-    mapLayerTypeClicks.onNext(Nil.NIL);
+    showMapTypeSelectorRequests.setValue(Event.create(Nil.NIL));
   }
 
   private static ImmutableSet<MapPin> toMapPins(ImmutableSet<Feature> features) {
@@ -204,8 +197,8 @@ public class MapContainerViewModel extends AbstractViewModel {
     locationLockChangeRequests.onNext(!isLocationLockEnabled());
   }
 
-  public LiveData<Event<Nil>> getMapLayerUpdateRequests() {
-    return mapLayerUpdateRequests;
+  LiveData<Event<Nil>> getShowMapTypeSelectorRequests() {
+    return showMapTypeSelectorRequests;
   }
 
   static class CameraUpdate {
