@@ -17,13 +17,27 @@
 package com.google.android.gnd.ui.map;
 
 import androidx.fragment.app.Fragment;
+import com.google.common.collect.ImmutableMap;
 import io.reactivex.Single;
 
-/** Common interface for various map provider libraries. */
+/**
+ * Common interface for various map provider libraries.
+ *
+ * <p>Map Type refers to the basemap shown below map features and offline satellite imagery. It's
+ * called "map styles" in Mapbox and "basemaps" in Leaflet.
+ */
 public interface MapProvider {
   void restore(Fragment fragment);
 
   Fragment getFragment();
 
   Single<MapAdapter> getMapAdapter();
+
+  int getMapType();
+
+  // TODO: Use ENUM instead of int with a superset of basemap types.
+  //  https://github.com/google/ground-android/pull/406#discussion_r398726351
+  void setMapType(int mapType);
+
+  ImmutableMap<Integer, String> getMapTypes();
 }
