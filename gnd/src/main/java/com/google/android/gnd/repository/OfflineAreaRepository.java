@@ -59,22 +59,25 @@ public class OfflineAreaRepository {
   }
 
   private Completable enqueueTileDownloads(OfflineArea area) {
-    try {
-      File jsonSource = fileUtil.getFile(Config.GEO_JSON);
-      ImmutableList<Tile> tiles = geoJsonParser.intersectingTiles(area.getBounds(), jsonSource);
+    File jsonSource;
 
-      return localDataStore
-          .insertOrUpdateOfflineArea(area.toBuilder().setState(State.IN_PROGRESS).build())
-          .andThen(
-              Completable.merge(
-                  stream(tiles.asList())
-                      .map(localDataStore::insertOrUpdateTile)
-                      .collect(toImmutableList())))
-          .doOnError(__ -> Timber.e("failed to add/update a tile in the database"))
-          .andThen(tileDownloadWorkManager.enqueueTileDownloadWorker());
+    try {
+      jsonSource = fileUtil.getFile(Config.GEO_JSON);
     } catch (FileNotFoundException e) {
       return Completable.error(e);
     }
+
+    ImmutableList<Tile> tiles = geoJsonParser.intersectingTiles(area.getBounds(), jsonSource);
+
+    return localDataStore
+        .insertOrUpdateOfflineArea(area.toBuilder().setState(State.IN_PROGRESS).build())
+        .andThen(
+            Completable.merge(
+                stream(tiles.asList())
+                    .map(localDataStore::insertOrUpdateTile)
+                    .collect(toImmutableList())))
+        .doOnError(__ -> Timber.e("failed to add/update a tile in the database"))
+        .andThen(tileDownloadWorkManager.enqueueTileDownloadWorker());
   }
 
   public Completable addAreaAndEnqueue(LatLngBounds bounds) {
