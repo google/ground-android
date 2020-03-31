@@ -61,7 +61,6 @@ public class OfflineAreaRepository {
   private Completable enqueueTileDownloads(OfflineArea area) {
     try {
       File jsonSource = fileUtil.getFile(Config.GEO_JSON);
-
       ImmutableList<Tile> tiles = geoJsonParser.intersectingTiles(area.getBounds(), jsonSource);
 
       return localDataStore
@@ -71,7 +70,7 @@ public class OfflineAreaRepository {
                   stream(tiles.asList())
                       .map(localDataStore::insertOrUpdateTile)
                       .collect(toImmutableList())))
-          .doOnError(__ -> Timber.d("failed to add/update a tile in the database"))
+          .doOnError(__ -> Timber.e("failed to add/update a tile in the database"))
           .andThen(tileDownloadWorkManager.enqueueTileDownloadWorker());
     } catch (FileNotFoundException e) {
       return Completable.error(e);
