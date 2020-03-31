@@ -4,6 +4,7 @@ import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.app.Service;
 import android.content.Intent;
 import android.os.Build;
 import android.os.IBinder;
@@ -11,9 +12,8 @@ import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.R;
-import dagger.android.DaggerService;
 
-public class ForegroundService extends DaggerService {
+public class ForegroundService extends Service {
   public static final String CHANNEL_ID = "ForegroundServiceChannel";
 
   @Override
@@ -23,14 +23,12 @@ public class ForegroundService extends DaggerService {
 
   @Override
   public int onStartCommand(Intent intent, int flags, int startId) {
-    String input = intent.getStringExtra("inputExtra");
     createNotificationChannel();
     Intent notificationIntent = new Intent(this, MainActivity.class);
     PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
     Notification notification =
         new NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentTitle("Foreground Service")
-            .setContentText(input)
+            .setContentTitle(getString(R.string.app_running))
             .setSmallIcon(R.drawable.ground_logo)
             .setContentIntent(pendingIntent)
             .build();

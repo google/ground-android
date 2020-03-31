@@ -24,6 +24,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.core.view.ViewCompat;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
@@ -36,6 +37,7 @@ import com.google.android.gnd.system.ActivityStreams;
 import com.google.android.gnd.system.AuthenticationManager;
 import com.google.android.gnd.system.AuthenticationManager.SignInState;
 import com.google.android.gnd.system.SettingsManager;
+import com.google.android.gnd.system.service.ForegroundService;
 import com.google.android.gnd.ui.common.BackPressListener;
 import com.google.android.gnd.ui.common.EphemeralPopups;
 import com.google.android.gnd.ui.common.Navigator;
@@ -139,6 +141,7 @@ public class MainActivity extends DaggerAppCompatActivity {
   @Override
   protected void onStart() {
     logLifecycleEvent(this);
+    startService();
     super.onStart();
   }
 
@@ -164,6 +167,11 @@ public class MainActivity extends DaggerAppCompatActivity {
   protected void onDestroy() {
     logLifecycleEvent(this);
     super.onDestroy();
+  }
+
+  public void startService() {
+    Intent serviceIntent = new Intent(this, ForegroundService.class);
+    ContextCompat.startForegroundService(this, serviceIntent);
   }
 
   /**
