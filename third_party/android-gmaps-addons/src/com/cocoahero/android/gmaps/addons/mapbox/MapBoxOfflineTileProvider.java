@@ -48,9 +48,9 @@ public class MapBoxOfflineTileProvider implements TileProvider, Closeable {
     public Tile getTile(int x, int y, int z) {
         Tile tile = NO_TILE;
         String pathToFile = this.basepath + "/" + z + "-" + x + "-" + y + ".mbtiles";
-        File f = new File(pathToFile);
+        File file = new File(pathToFile);
 
-        if (!f.exists()) {
+        if (!file.exists()) {
           return tile;
         }
 
