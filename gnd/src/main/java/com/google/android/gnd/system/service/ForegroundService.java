@@ -17,16 +17,20 @@ public class ForegroundService extends DaggerService {
   @Inject NotificationManager notificationManager;
 
   @Override
+  public void onCreate() {
+    super.onCreate();
+    // Set custom worker factory that allow Workers to use Dagger injection.
+    // TODO(github.com/google/dagger/issues/1183): Remove once Workers support injection.
+    WorkManager.initialize(
+        this, new Configuration.Builder().setWorkerFactory(workerFactory).build());
+  }
+
+  @Override
   public int onStartCommand(Intent intent, int flags, int startId) {
     Timber.d("onStartCommand: ");
     startForeground(
         NotificationManager.ALWAYS_ON_NOTIFICATION_ID,
         notificationManager.createForegroundServiceNotification());
-
-    // Set custom worker factory that allow Workers to use Dagger injection.
-    // TODO(github.com/google/dagger/issues/1183): Remove once Workers support injection.
-    WorkManager.initialize(
-        this, new Configuration.Builder().setWorkerFactory(workerFactory).build());
 
     // stopSelf();
     return START_NOT_STICKY;
