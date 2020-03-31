@@ -51,7 +51,6 @@ import timber.log.Timber;
 
 /** Main app view, displaying the map and related controls (center cross-hairs, add button, etc). */
 public class MapContainerFragment extends AbstractFragment {
-  private static final String TAG = MapContainerFragment.class.getSimpleName();
   private static final String MAP_FRAGMENT_KEY = MapProvider.class.getName() + "#fragment";
 
   @Inject MapProvider mapProvider;
@@ -214,7 +213,7 @@ public class MapContainerFragment extends AbstractFragment {
   }
 
   private void onCameraUpdate(MapContainerViewModel.CameraUpdate update, MapAdapter map) {
-    Timber.tag(TAG).v("Update camera: %s", update);
+    Timber.v("Update camera: %s", update);
     if (update.getMinZoomLevel().isPresent()) {
       map.moveCamera(
           update.getCenter(), Math.max(update.getMinZoomLevel().get(), map.getCurrentZoomLevel()));
