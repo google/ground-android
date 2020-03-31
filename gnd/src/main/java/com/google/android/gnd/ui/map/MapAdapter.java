@@ -70,6 +70,12 @@ public interface MapAdapter {
   /** Update map pins shown on map. */
   void setMapPins(ImmutableSet<MapPin> pins);
 
+  /** Get current map type. */
+  int getMapType();
+
+  /** Update map type. */
+  void setMapType(int mapType);
+
   /** Returns the bounds of the currently visibly viewport. */
   LatLngBounds getViewport();
 

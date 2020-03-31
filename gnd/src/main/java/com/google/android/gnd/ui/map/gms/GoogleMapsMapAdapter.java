@@ -56,16 +56,15 @@ class GoogleMapsMapAdapter implements MapAdapter {
   private final GoogleMap map;
   private final Context context;
   private final MarkerIconFactory markerIconFactory;
+  private final PublishSubject<MapPin> markerClickSubject = PublishSubject.create();
+  private final PublishSubject<Point> dragInteractionSubject = PublishSubject.create();
+  private final BehaviorSubject<Point> cameraMoves = BehaviorSubject.create();
 
   /**
    * References to Google Maps SDK Markers present on the map. Used to sync and update markers with
    * current view and data state.
    */
   private Set<Marker> markers = new HashSet<>();
-
-  private final PublishSubject<MapPin> markerClickSubject = PublishSubject.create();
-  private final PublishSubject<Point> dragInteractionSubject = PublishSubject.create();
-  private final BehaviorSubject<Point> cameraMoves = BehaviorSubject.create();
 
   @Nullable private LatLng cameraTargetBeforeDrag;
 
@@ -86,6 +85,14 @@ class GoogleMapsMapAdapter implements MapAdapter {
     map.setOnCameraMoveStartedListener(this::onCameraMoveStarted);
     map.setOnCameraMoveListener(this::onCameraMove);
     onCameraMove();
+  }
+
+  private static Point fromLatLng(LatLng latLng) {
+    return Point.newBuilder().setLatitude(latLng.latitude).setLongitude(latLng.longitude).build();
+  }
+
+  private static LatLng toLatLng(Point point) {
+    return new LatLng(point.getLatitude(), point.getLongitude());
   }
 
   private boolean onMarkerClick(Marker marker) {
@@ -189,12 +196,14 @@ class GoogleMapsMapAdapter implements MapAdapter {
     stream(pinsToAdd).forEach(this::addMapPin);
   }
 
-  private static Point fromLatLng(LatLng latLng) {
-    return Point.newBuilder().setLatitude(latLng.latitude).setLongitude(latLng.longitude).build();
+  @Override
+  public int getMapType() {
+    return map.getMapType();
   }
 
-  private static LatLng toLatLng(Point point) {
-    return new LatLng(point.getLatitude(), point.getLongitude());
+  @Override
+  public void setMapType(int mapType) {
+    map.setMapType(mapType);
   }
 
   private void removeMarker(Marker marker) {

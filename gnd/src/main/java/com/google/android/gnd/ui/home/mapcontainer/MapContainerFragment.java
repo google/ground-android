@@ -28,6 +28,7 @@ import android.widget.ImageButton;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import butterknife.BindView;
@@ -70,6 +71,21 @@ public class MapContainerFragment extends AbstractFragment {
   private MapContainerViewModel mapContainerViewModel;
   private HomeScreenViewModel homeScreenViewModel;
   private MainViewModel mainViewModel;
+
+  private void showMapTypeSelectorDialog() {
+    new AlertDialog.Builder(getContext())
+        .setTitle(R.string.select_map_type)
+        .setSingleChoiceItems(
+            mapProvider.getMapTypes().values().toArray(new String[0]),
+            mapProvider.getMapType(),
+            (dialog, which) -> {
+              mapProvider.setMapType(which);
+              dialog.dismiss();
+            })
+        .setCancelable(true)
+        .create()
+        .show();
+  }
 
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -119,6 +135,10 @@ public class MapContainerFragment extends AbstractFragment {
     } else {
       mapProvider.restore(restoreChildFragment(savedInstanceState, MAP_FRAGMENT_KEY));
     }
+
+    mapContainerViewModel
+      .getShowMapTypeSelectorRequests()
+      .observe(getViewLifecycleOwner(), __ -> showMapTypeSelectorDialog());
   }
 
   private void onMapReady(MapAdapter map) {

@@ -18,11 +18,15 @@ package com.google.android.gnd.ui.map.gms;
 
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gnd.ui.MarkerIconFactory;
 import com.google.android.gnd.ui.map.MapAdapter;
 import com.google.android.gnd.ui.map.MapProvider;
+import com.google.common.collect.ImmutableMap;
 import io.reactivex.Single;
 import io.reactivex.subjects.SingleSubject;
+import java.util.HashMap;
+import java.util.Map;
 
 /** Ground map adapter implementation for Google Maps API. */
 public class GoogleMapsMapProvider implements MapProvider {
@@ -67,5 +71,33 @@ public class GoogleMapsMapProvider implements MapProvider {
   @Override
   public Single<MapAdapter> getMapAdapter() {
     return map;
+  }
+
+  @Override
+  public int getMapType() {
+    if (map == null) {
+      throw new IllegalStateException("MapAdapter is null");
+    }
+    return map.getValue().getMapType();
+  }
+
+  @Override
+  public void setMapType(int mapType) {
+    if (map == null) {
+      throw new IllegalStateException("MapAdapter is null");
+    }
+    map.getValue().setMapType(mapType);
+  }
+
+  @Override
+  public ImmutableMap<Integer, String> getMapTypes() {
+    // TODO: i18n
+    Map<Integer, String> map = new HashMap<>();
+    map.put(GoogleMap.MAP_TYPE_NONE, "None");
+    map.put(GoogleMap.MAP_TYPE_NORMAL, "Normal");
+    map.put(GoogleMap.MAP_TYPE_SATELLITE, "Satellite");
+    map.put(GoogleMap.MAP_TYPE_TERRAIN, "Terrain");
+    map.put(GoogleMap.MAP_TYPE_HYBRID, "Hybrid");
+    return ImmutableMap.copyOf(map);
   }
 }
