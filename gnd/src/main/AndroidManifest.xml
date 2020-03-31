@@ -32,6 +32,7 @@
   <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
   <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
   <uses-permission android:name="android.permission.CAMERA"/>
+  <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
 
   <application
     android:allowBackup="true"
@@ -84,6 +85,10 @@
         android:authorities="com.google.android.gnd.workmanager-init"
         android:enabled="false"
         android:exported="false" />
+    <service
+      android:name=".system.service.ForegroundService"
+      android:enabled="true"
+      android:exported="true" />
   </application>
 
 </manifest>
