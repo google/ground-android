@@ -28,10 +28,12 @@ import com.google.android.gnd.model.basemap.tile.Tile;
 import com.google.android.gnd.persistence.geojson.GeoJsonParser;
 import com.google.android.gnd.persistence.local.LocalDataStore;
 import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator;
+import com.google.android.gnd.ui.util.FileUtil;
 import com.google.android.gnd.workers.TileDownloadWorkManager;
 import com.google.common.collect.ImmutableList;
 import io.reactivex.Completable;
 import java.io.File;
+import java.io.FileNotFoundException;
 import javax.inject.Inject;
 import timber.log.Timber;
 
@@ -39,9 +41,8 @@ public class OfflineAreaRepository {
   private final TileDownloadWorkManager tileDownloadWorkManager;
   private final LocalDataStore localDataStore;
   private final GeoJsonParser geoJsonParser;
-  private final Context context;
+  private final FileUtil fileUtil;
 
-  private static final String TAG = OfflineAreaRepository.class.getSimpleName();
   private final OfflineUuidGenerator uuidGenerator;
 
   @Inject
@@ -49,43 +50,46 @@ public class OfflineAreaRepository {
       TileDownloadWorkManager tileDownloadWorkManager,
       LocalDataStore localDataStore,
       GeoJsonParser geoJsonParser,
-      Context context,
-      OfflineUuidGenerator uuidGenerator) {
+      OfflineUuidGenerator uuidGenerator,
+      FileUtil fileUtil) {
     this.tileDownloadWorkManager = tileDownloadWorkManager;
     this.localDataStore = localDataStore;
     this.geoJsonParser = geoJsonParser;
-    this.context = context;
     this.uuidGenerator = uuidGenerator;
+    this.fileUtil = fileUtil;
   }
 
   private Completable enqueueTileDownloads(OfflineArea area) {
+    try {
+      File jsonSource = fileUtil.getFile(Config.GEO_JSON_SOURCE);
 
-    File jsonSource = new File(context.getFilesDir(), Config.GEO_JSON_SOURCE);
+      ImmutableList<Tile> tiles = geoJsonParser.intersectingTiles(area.getBounds(), jsonSource);
 
-    ImmutableList<Tile> tiles = geoJsonParser.intersectingTiles(area.getBounds(), jsonSource);
-
-    return localDataStore
-        .insertOrUpdateOfflineArea(area.toBuilder().setState(State.IN_PROGRESS).build())
-        .andThen(
-            Completable.merge(
-                stream(tiles.asList())
-                    .map(localDataStore::insertOrUpdateTile)
-                    .collect(toImmutableList())))
-        .doOnError(__ -> Timber.d("failed to add/update a tile in the database"))
-        .andThen(tileDownloadWorkManager.enqueueTileDownloadWorker());
+      return localDataStore
+          .insertOrUpdateOfflineArea(area.toBuilder().setState(State.IN_PROGRESS).build())
+          .andThen(
+              Completable.merge(
+                  stream(tiles.asList())
+                      .map(localDataStore::insertOrUpdateTile)
+                      .collect(toImmutableList())))
+          .doOnError(__ -> Timber.d("failed to add/update a tile in the database"))
+          .andThen(tileDownloadWorkManager.enqueueTileDownloadWorker());
+    } catch (FileNotFoundException e) {
+      return Completable.error(e);
+    }
   }
 
-  public Completable addAreaAndEnqueue(LatLngBounds viewport) {
+  public Completable addAreaAndEnqueue(LatLngBounds bounds) {
     OfflineArea offlineArea =
         OfflineArea.newBuilder()
-            .setBounds(viewport)
+            .setBounds(bounds)
             .setId(uuidGenerator.generateUuid())
             .setState(State.PENDING)
             .build();
 
     return localDataStore
         .insertOrUpdateOfflineArea(offlineArea)
-        .doOnError(__ -> Timber.d("failed to add/update offline area in the database"))
+        .doOnError(__ -> Timber.e("failed to add/update offline area in the database"))
         .andThen(enqueueTileDownloads(offlineArea));
   }
 }
