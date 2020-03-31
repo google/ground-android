@@ -239,8 +239,9 @@ class GoogleMapsMapAdapter implements MapAdapter {
 
   @Override
   public void renderTileOverlay() {
-    MapBoxOfflineTileProvider tileProvider = new MapBoxOfflineTileProvider(context.getFilesDir());
-    map.addTileOverlay(new TileOverlayOptions().tileProvider(tileProvider));
-    tileProvider.close();
+    try (MapBoxOfflineTileProvider tileProvider =
+        new MapBoxOfflineTileProvider(context.getFilesDir())) {
+      map.addTileOverlay(new TileOverlayOptions().tileProvider(tileProvider));
+    }
   }
 }
