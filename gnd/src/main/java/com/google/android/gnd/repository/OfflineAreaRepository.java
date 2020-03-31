@@ -19,7 +19,6 @@ package com.google.android.gnd.repository;
 import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList;
 import static java8.util.stream.StreamSupport.stream;
 
-import android.content.Context;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gnd.Config;
 import com.google.android.gnd.model.basemap.OfflineArea;
