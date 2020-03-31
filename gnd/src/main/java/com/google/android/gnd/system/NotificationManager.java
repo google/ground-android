@@ -18,9 +18,7 @@ package com.google.android.gnd.system;
 
 import android.app.Notification;
 import android.app.NotificationChannel;
-import android.app.PendingIntent;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Build.VERSION;
 import android.os.Build.VERSION_CODES;
 import androidx.annotation.RequiresApi;
@@ -28,7 +26,6 @@ import androidx.annotation.StringRes;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationCompat.Builder;
 import androidx.core.app.NotificationManagerCompat;
-import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.R;
 import com.google.android.gnd.persistence.remote.UploadProgress.UploadState;
 import javax.inject.Inject;
@@ -68,15 +65,11 @@ public class NotificationManager {
   }
 
   public Notification createForegroundServiceNotification() {
-    Intent notificationIntent = new Intent(context, MainActivity.class);
-    PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, notificationIntent, 0);
-
     NotificationCompat.Builder notification =
         new Builder(context, CHANNEL_ID)
             // TODO: Use a better icon
             .setSmallIcon(R.drawable.ground_logo)
             .setContentText(context.getString(R.string.app_running))
-            .setContentIntent(pendingIntent)
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .setOnlyAlertOnce(true)
             .setOngoing(true);
