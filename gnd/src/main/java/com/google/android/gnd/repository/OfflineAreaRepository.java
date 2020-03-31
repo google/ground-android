@@ -60,7 +60,7 @@ public class OfflineAreaRepository {
 
   private Completable enqueueTileDownloads(OfflineArea area) {
     try {
-      File jsonSource = fileUtil.getFile(Config.GEO_JSON_SOURCE);
+      File jsonSource = fileUtil.getFile(Config.GEO_JSON);
 
       ImmutableList<Tile> tiles = geoJsonParser.intersectingTiles(area.getBounds(), jsonSource);
 

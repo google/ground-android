@@ -31,6 +31,7 @@ public final class Config {
   // Photos
   public static final String PHOTO_EXT = ".jpg";
 
-  // Local geojson source settings.
-  public static final String GEO_JSON_SOURCE = "gnd-geojson.json";
+  // Designates the location of a geo json file that specifies downloadable tiles for offline
+  // viewing. May point to a file on the device or a valid URL.
+  public static final String GEO_JSON = "gnd-geojson.json";
 }
