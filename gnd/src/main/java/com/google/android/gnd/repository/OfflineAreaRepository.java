@@ -33,7 +33,6 @@ import com.google.android.gnd.workers.TileDownloadWorkManager;
 import com.google.common.collect.ImmutableList;
 import io.reactivex.Completable;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import javax.inject.Inject;
 import timber.log.Timber;
