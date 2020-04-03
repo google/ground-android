@@ -33,5 +33,6 @@ public final class Config {
 
   // Designates the location of a geo json file that specifies downloadable tiles for offline
   // viewing. May point to a file on the device or a valid URL.
-  public static final String GEO_JSON = "gnd-geojson.json";
+  // TODO: Fetch from cloud storage
+  public static final String GEO_JSON = "gnd_geojson.json";
 }

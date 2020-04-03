@@ -21,6 +21,7 @@ import static java8.util.stream.StreamSupport.stream;
 
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gnd.Config;
+import com.google.android.gnd.R;
 import com.google.android.gnd.model.basemap.OfflineArea;
 import com.google.android.gnd.model.basemap.OfflineArea.State;
 import com.google.android.gnd.model.basemap.tile.Tile;
@@ -33,6 +34,7 @@ import com.google.common.collect.ImmutableList;
 import io.reactivex.Completable;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import javax.inject.Inject;
 import timber.log.Timber;
 
@@ -62,8 +64,8 @@ public class OfflineAreaRepository {
     File jsonSource;
 
     try {
-      jsonSource = fileUtil.getFile(Config.GEO_JSON);
-    } catch (FileNotFoundException e) {
+      jsonSource = fileUtil.getFileFromRawResource(R.raw.gnd_geojson, Config.GEO_JSON);
+    } catch (IOException e) {
       return Completable.error(e);
     }
 
