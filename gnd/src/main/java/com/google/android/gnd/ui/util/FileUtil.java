@@ -60,7 +60,7 @@ public class FileUtil {
   }
 
   public File getFileFromRawResource(int resourceId, String filename) throws IOException {
-    File file = new File(filename);
+    File file = new File(context.getFilesDir() + "/" + filename);
     FileUtils.copyInputStreamToFile(context.getResources().openRawResource(resourceId), file);
     return file;
   }
