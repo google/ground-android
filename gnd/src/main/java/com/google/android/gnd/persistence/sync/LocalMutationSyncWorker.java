@@ -50,7 +50,6 @@ public class LocalMutationSyncWorker extends BaseWorker {
   private final LocalDataStore localDataStore;
   private final RemoteDataStore remoteDataStore;
   private final String featureId;
-  private final NotificationManager notificationManager;
 
   public LocalMutationSyncWorker(
       @NonNull Context context,
@@ -62,7 +61,6 @@ public class LocalMutationSyncWorker extends BaseWorker {
     this.localDataStore = localDataStore;
     this.remoteDataStore = remoteDataStore;
     this.featureId = params.getInputData().getString(FEATURE_ID_PARAM_KEY);
-    this.notificationManager = notificationManager;
   }
 
   /** Returns a new work {@link Data} object containing the specified feature id. */
