@@ -24,6 +24,8 @@ import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 import com.google.android.gnd.persistence.remote.TransferProgress;
 import com.google.android.gnd.system.NotificationManager;
+import io.reactivex.Completable;
+import io.reactivex.Flowable;
 
 public abstract class BaseWorker extends Worker {
 
@@ -39,6 +41,20 @@ public abstract class BaseWorker extends Worker {
 
   /** Content text displayed in the notification. */
   public abstract @StringRes int getNotificationTitle();
+
+  <T> Flowable<T> notifyTransferState(Flowable<T> upstream) {
+    return upstream
+        .doOnSubscribe(__ -> sendNotification(TransferProgress.starting()))
+        .doOnError(__ -> sendNotification(TransferProgress.failed()))
+        .doOnComplete(() -> sendNotification(TransferProgress.completed()));
+  }
+
+  protected Completable notifyTransferState(Completable completable) {
+    return completable
+        .doOnSubscribe(__ -> sendNotification(TransferProgress.starting()))
+        .doOnError(__ -> sendNotification(TransferProgress.failed()))
+        .doOnComplete(() -> sendNotification(TransferProgress.completed()));
+  }
 
   protected void sendNotification(TransferProgress transferProgress) {
     notificationManager.createSyncNotification(

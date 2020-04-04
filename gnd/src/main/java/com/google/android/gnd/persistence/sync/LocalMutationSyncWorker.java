@@ -28,7 +28,6 @@ import com.google.android.gnd.model.Mutation;
 import com.google.android.gnd.model.User;
 import com.google.android.gnd.persistence.local.LocalDataStore;
 import com.google.android.gnd.persistence.remote.RemoteDataStore;
-import com.google.android.gnd.persistence.remote.TransferProgress;
 import com.google.android.gnd.system.NotificationManager;
 import com.google.common.collect.ImmutableList;
 import io.reactivex.Completable;
@@ -75,11 +74,7 @@ public class LocalMutationSyncWorker extends BaseWorker {
     ImmutableList<Mutation> mutations = localDataStore.getPendingMutations(featureId).blockingGet();
     try {
       Timber.v("Mutations: %s", mutations);
-      processMutations(mutations)
-          .doOnSubscribe(__ -> sendNotification(TransferProgress.starting()))
-          .doOnError(__ -> sendNotification(TransferProgress.failed()))
-          .doOnComplete(() -> sendNotification(TransferProgress.completed()))
-          .blockingAwait();
+      processMutations(mutations).compose(this::notifyTransferState).blockingAwait();
       return Result.success();
     } catch (Throwable t) {
       Timber.e(t, "Remote updates for feature %s failed", featureId);

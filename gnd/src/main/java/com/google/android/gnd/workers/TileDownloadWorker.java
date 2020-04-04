@@ -154,9 +154,6 @@ public class TileDownloadWorker extends BaseWorker {
 
   private Completable processTiles(ImmutableList<Tile> pendingTiles) {
     return Observable.fromIterable(pendingTiles)
-        .doOnSubscribe(__ -> sendNotification(TransferProgress.starting()))
-        .doOnError(__ -> sendNotification(TransferProgress.failed()))
-        .doOnComplete(() -> sendNotification(TransferProgress.completed()))
         .doOnNext(
             tile ->
                 sendNotification(
@@ -173,7 +170,8 @@ public class TileDownloadWorker extends BaseWorker {
                 default:
                   return downloadTile(t);
               }
-            });
+            })
+        .compose(this::notifyTransferState);
   }
 
   /**

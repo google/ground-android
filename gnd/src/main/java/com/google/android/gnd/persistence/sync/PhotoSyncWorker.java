@@ -22,7 +22,6 @@ import androidx.work.Data;
 import androidx.work.WorkerParameters;
 import com.google.android.gnd.R;
 import com.google.android.gnd.persistence.remote.RemoteStorageManager;
-import com.google.android.gnd.persistence.remote.TransferProgress;
 import com.google.android.gnd.system.NotificationManager;
 import java.io.File;
 import timber.log.Timber;
@@ -69,9 +68,7 @@ public class PhotoSyncWorker extends BaseWorker {
       try {
         remoteStorageManager
             .uploadMediaFromFile(new File(localSourcePath), remoteDestinationPath)
-            .doOnSubscribe(__ -> sendNotification(TransferProgress.starting()))
-            .doOnError(__ -> sendNotification(TransferProgress.failed()))
-            .doOnComplete(() -> sendNotification(TransferProgress.completed()))
+            .compose(this::notifyTransferState)
             .blockingForEach(this::sendNotification);
         return Result.success();
       } catch (Exception e) {
