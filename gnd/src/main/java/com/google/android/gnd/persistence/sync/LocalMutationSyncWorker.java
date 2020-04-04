@@ -136,11 +136,8 @@ public class LocalMutationSyncWorker extends BaseWorker {
         .build();
   }
 
-  private void sendNotification(TransferProgress transferProgress) {
-    notificationManager.createSyncNotification(
-        transferProgress.getState(),
-        R.string.uploading_data,
-        transferProgress.getByteCount(),
-        transferProgress.getBytesTransferred());
+  @Override
+  public int getNotificationTitle() {
+    return R.string.uploading_data;
   }
 }

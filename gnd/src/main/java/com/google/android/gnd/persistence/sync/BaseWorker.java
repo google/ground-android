@@ -19,13 +19,15 @@ package com.google.android.gnd.persistence.sync;
 
 import android.content.Context;
 import androidx.annotation.NonNull;
+import androidx.annotation.StringRes;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
+import com.google.android.gnd.persistence.remote.TransferProgress;
 import com.google.android.gnd.system.NotificationManager;
 
 public abstract class BaseWorker extends Worker {
 
-  protected final NotificationManager notificationManager;
+  private final NotificationManager notificationManager;
 
   public BaseWorker(
       @NonNull Context context,
@@ -33,5 +35,16 @@ public abstract class BaseWorker extends Worker {
       NotificationManager notificationManager) {
     super(context, workerParams);
     this.notificationManager = notificationManager;
+  }
+
+  /** Content text displayed in the notification. */
+  public abstract @StringRes int getNotificationTitle();
+
+  protected void sendNotification(TransferProgress transferProgress) {
+    notificationManager.createSyncNotification(
+        transferProgress.getState(),
+        getNotificationTitle(),
+        transferProgress.getByteCount(),
+        transferProgress.getBytesTransferred());
   }
 }

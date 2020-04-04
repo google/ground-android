@@ -84,11 +84,8 @@ public class PhotoSyncWorker extends BaseWorker {
     }
   }
 
-  private void sendNotification(TransferProgress transferProgress) {
-    notificationManager.createSyncNotification(
-        transferProgress.getState(),
-        R.string.uploading_photos,
-        transferProgress.getByteCount(),
-        transferProgress.getBytesTransferred());
+  @Override
+  public int getNotificationTitle() {
+    return R.string.uploading_photos;
   }
 }

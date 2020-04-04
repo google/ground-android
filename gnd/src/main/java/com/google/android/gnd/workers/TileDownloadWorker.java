@@ -204,12 +204,9 @@ public class TileDownloadWorker extends BaseWorker {
     }
   }
 
-  private void sendNotification(TransferProgress transferProgress) {
-    notificationManager.createSyncNotification(
-        transferProgress.getState(),
-        R.string.downloading_tiles,
-        transferProgress.getByteCount(),
-        transferProgress.getBytesTransferred());
+  @Override
+  public int getNotificationTitle() {
+    return R.string.downloading_tiles;
   }
 
   static class TileDownloadException extends RuntimeException {
