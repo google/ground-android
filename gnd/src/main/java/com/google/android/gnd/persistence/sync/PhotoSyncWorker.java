@@ -22,7 +22,7 @@ import androidx.work.Data;
 import androidx.work.WorkerParameters;
 import com.google.android.gnd.R;
 import com.google.android.gnd.persistence.remote.RemoteStorageManager;
-import com.google.android.gnd.persistence.remote.UploadProgress;
+import com.google.android.gnd.persistence.remote.TransferProgress;
 import com.google.android.gnd.system.NotificationManager;
 import java.io.File;
 import timber.log.Timber;
@@ -69,9 +69,9 @@ public class PhotoSyncWorker extends BaseWorker {
       try {
         remoteStorageManager
             .uploadMediaFromFile(new File(localSourcePath), remoteDestinationPath)
-            .doOnSubscribe(__ -> sendNotification(UploadProgress.starting()))
-            .doOnError(__ -> sendNotification(UploadProgress.failed()))
-            .doOnComplete(() -> sendNotification(UploadProgress.completed()))
+            .doOnSubscribe(__ -> sendNotification(TransferProgress.starting()))
+            .doOnError(__ -> sendNotification(TransferProgress.failed()))
+            .doOnComplete(() -> sendNotification(TransferProgress.completed()))
             .blockingForEach(this::sendNotification);
         return Result.success();
       } catch (Exception e) {
@@ -84,11 +84,11 @@ public class PhotoSyncWorker extends BaseWorker {
     }
   }
 
-  private void sendNotification(UploadProgress uploadProgress) {
+  private void sendNotification(TransferProgress transferProgress) {
     notificationManager.createSyncNotification(
-        uploadProgress.getState(),
+        transferProgress.getState(),
         R.string.uploading_photos,
-        uploadProgress.getByteCount(),
-        uploadProgress.getBytesTransferred());
+        transferProgress.getByteCount(),
+        transferProgress.getBytesTransferred());
   }
 }

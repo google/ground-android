@@ -27,7 +27,7 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationCompat.Builder;
 import androidx.core.app.NotificationManagerCompat;
 import com.google.android.gnd.R;
-import com.google.android.gnd.persistence.remote.UploadProgress.UploadState;
+import com.google.android.gnd.persistence.remote.TransferProgress.UploadState;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import timber.log.Timber;

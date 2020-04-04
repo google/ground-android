@@ -24,7 +24,7 @@ import com.google.android.gnd.R;
 import com.google.android.gnd.model.basemap.tile.Tile;
 import com.google.android.gnd.model.basemap.tile.Tile.State;
 import com.google.android.gnd.persistence.local.LocalDataStore;
-import com.google.android.gnd.persistence.remote.UploadProgress;
+import com.google.android.gnd.persistence.remote.TransferProgress;
 import com.google.android.gnd.persistence.sync.BaseWorker;
 import com.google.android.gnd.system.NotificationManager;
 import com.google.common.collect.ImmutableList;
@@ -154,13 +154,14 @@ public class TileDownloadWorker extends BaseWorker {
 
   private Completable processTiles(ImmutableList<Tile> pendingTiles) {
     return Observable.fromIterable(pendingTiles)
-        .doOnSubscribe(__ -> sendNotification(UploadProgress.starting()))
-        .doOnError(__ -> sendNotification(UploadProgress.failed()))
-        .doOnComplete(() -> sendNotification(UploadProgress.completed()))
+        .doOnSubscribe(__ -> sendNotification(TransferProgress.starting()))
+        .doOnError(__ -> sendNotification(TransferProgress.failed()))
+        .doOnComplete(() -> sendNotification(TransferProgress.completed()))
         .doOnNext(
             tile ->
                 sendNotification(
-                    UploadProgress.inProgress(pendingTiles.size(), pendingTiles.indexOf(tile) + 1)))
+                    TransferProgress.inProgress(
+                        pendingTiles.size(), pendingTiles.indexOf(tile) + 1)))
         .flatMapCompletable(
             t -> {
               switch (t.getState()) {
@@ -203,12 +204,12 @@ public class TileDownloadWorker extends BaseWorker {
     }
   }
 
-  private void sendNotification(UploadProgress uploadProgress) {
+  private void sendNotification(TransferProgress transferProgress) {
     notificationManager.createSyncNotification(
-        uploadProgress.getState(),
+        transferProgress.getState(),
         R.string.downloading_tiles,
-        uploadProgress.getByteCount(),
-        uploadProgress.getBytesTransferred());
+        transferProgress.getByteCount(),
+        transferProgress.getBytesTransferred());
   }
 
   static class TileDownloadException extends RuntimeException {

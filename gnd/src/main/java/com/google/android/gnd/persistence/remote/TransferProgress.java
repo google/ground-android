@@ -16,44 +16,44 @@
 
 package com.google.android.gnd.persistence.remote;
 
-public class UploadProgress {
+public class TransferProgress {
 
-  private static final UploadProgress STARTING = new UploadProgress(UploadState.STARTING);
-  private static final UploadProgress PAUSED = new UploadProgress(UploadState.PAUSED);
-  private static final UploadProgress FAILED = new UploadProgress(UploadState.FAILED);
-  private static final UploadProgress COMPLETED = new UploadProgress(UploadState.COMPLETED);
+  private static final TransferProgress STARTING = new TransferProgress(UploadState.STARTING);
+  private static final TransferProgress PAUSED = new TransferProgress(UploadState.PAUSED);
+  private static final TransferProgress FAILED = new TransferProgress(UploadState.FAILED);
+  private static final TransferProgress COMPLETED = new TransferProgress(UploadState.COMPLETED);
 
   private final UploadState state;
   private final int byteCount;
   private final int bytesTransferred;
 
-  private UploadProgress(UploadState state) {
+  private TransferProgress(UploadState state) {
     this(state, 0, 0);
   }
 
-  private UploadProgress(UploadState state, int byteCount, int bytesTransferred) {
+  private TransferProgress(UploadState state, int byteCount, int bytesTransferred) {
     this.state = state;
     this.byteCount = byteCount;
     this.bytesTransferred = bytesTransferred;
   }
 
-  public static UploadProgress starting() {
+  public static TransferProgress starting() {
     return STARTING;
   }
 
-  public static UploadProgress inProgress(int byteCount, int bytesTransferred) {
-    return new UploadProgress(UploadState.IN_PROGRESS, byteCount, bytesTransferred);
+  public static TransferProgress inProgress(int byteCount, int bytesTransferred) {
+    return new TransferProgress(UploadState.IN_PROGRESS, byteCount, bytesTransferred);
   }
 
-  public static UploadProgress paused() {
+  public static TransferProgress paused() {
     return PAUSED;
   }
 
-  public static UploadProgress failed() {
+  public static TransferProgress failed() {
     return FAILED;
   }
 
-  public static UploadProgress completed() {
+  public static TransferProgress completed() {
     return COMPLETED;
   }
 
