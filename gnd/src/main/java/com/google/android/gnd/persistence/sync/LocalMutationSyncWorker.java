@@ -22,7 +22,6 @@ import static java8.util.stream.StreamSupport.stream;
 import android.content.Context;
 import androidx.annotation.NonNull;
 import androidx.work.Data;
-import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 import com.google.android.gnd.R;
 import com.google.android.gnd.model.Mutation;
@@ -44,7 +43,7 @@ import timber.log.Timber;
  * specific map feature, whose id is provided in the {@link Data} object built by {@link
  * #createInputData} and provided to the worker request while being enqueued.
  */
-public class LocalMutationSyncWorker extends Worker {
+public class LocalMutationSyncWorker extends BaseWorker {
 
   private static final String FEATURE_ID_PARAM_KEY = "featureId";
 
@@ -59,7 +58,7 @@ public class LocalMutationSyncWorker extends Worker {
       LocalDataStore localDataStore,
       RemoteDataStore remoteDataStore,
       NotificationManager notificationManager) {
-    super(context, params);
+    super(context, params, notificationManager);
     this.localDataStore = localDataStore;
     this.remoteDataStore = remoteDataStore;
     this.featureId = params.getInputData().getString(FEATURE_ID_PARAM_KEY);

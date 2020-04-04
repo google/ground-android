@@ -19,13 +19,13 @@ package com.google.android.gnd.workers;
 import android.content.Context;
 import androidx.annotation.NonNull;
 import androidx.work.Data;
-import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 import com.google.android.gnd.R;
 import com.google.android.gnd.model.basemap.tile.Tile;
 import com.google.android.gnd.model.basemap.tile.Tile.State;
 import com.google.android.gnd.persistence.local.LocalDataStore;
 import com.google.android.gnd.persistence.remote.UploadProgress;
+import com.google.android.gnd.persistence.sync.BaseWorker;
 import com.google.android.gnd.system.NotificationManager;
 import com.google.common.collect.ImmutableList;
 import io.reactivex.Completable;
@@ -45,22 +45,20 @@ import timber.log.Timber;
  * provided in a {@link Data} object. This worker should only run when the device has a network
  * connection.
  */
-public class TileDownloadWorker extends Worker {
+public class TileDownloadWorker extends BaseWorker {
   private static final int BUFFER_SIZE = 4096;
 
   private final Context context;
   private final LocalDataStore localDataStore;
-  private final NotificationManager notificationManager;
 
   public TileDownloadWorker(
       @NonNull Context context,
       @NonNull WorkerParameters params,
       LocalDataStore localDataStore,
       NotificationManager notificationManager) {
-    super(context, params);
+    super(context, params, notificationManager);
     this.context = context;
     this.localDataStore = localDataStore;
-    this.notificationManager = notificationManager;
   }
 
   /**
