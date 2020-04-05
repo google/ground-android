@@ -33,6 +33,8 @@ public class UserDaoTest {
   @Inject LocalDatabase database;
 
   private UserDao userDao;
+  private User testUser =
+      User.builder().setId("foo id").setDisplayName("foo name").setEmail("foo@gmail.com").build();
 
   @Before
   public void setUp() {
@@ -45,24 +47,27 @@ public class UserDaoTest {
     database.close();
   }
 
-  private User createTestUser(String id, String displayName, String email) {
-    return User.builder().setId(id).setDisplayName(displayName).setEmail(email).build();
+  @Test
+  public void testEmptyDb() {
+    userDao.findById(testUser.getId()).test().assertNoValues();
   }
 
   @Test
   public void testInsertUser() {
-    User user = createTestUser("id_1", "foo name", "foo@gmail.com");
-    userDao.insert(UserEntity.fromUser(user)).test().assertNoErrors();
-    userDao.findById(user.getId()).test().assertNoErrors().assertValue(UserEntity.fromUser(user));
+    userDao.insert(UserEntity.fromUser(testUser)).test().assertNoErrors();
+    userDao
+        .findById(testUser.getId())
+        .test()
+        .assertNoErrors()
+        .assertValue(UserEntity.fromUser(testUser));
   }
 
   @Test
   public void insertingAlreadyPresentUser_shouldRaiseError() {
-    User user = createTestUser("id_1", "foo name", "foo@gmail.com");
-    userDao.insert(UserEntity.fromUser(user)).test().assertNoErrors();
+    userDao.insert(UserEntity.fromUser(testUser)).test().assertNoErrors();
 
     userDao
-        .insert(UserEntity.fromUser(user))
+        .insert(UserEntity.fromUser(testUser))
         .test()
         .assertError(
             throwable -> throwable.getMessage().startsWith("UNIQUE constraint failed: user.id"));
@@ -70,29 +75,30 @@ public class UserDaoTest {
 
   @Test
   public void testUpdateUser_ifAlreadyPresent() {
-    User user = createTestUser("id_1", "foo name", "foo@gmail.com");
-    userDao.insert(UserEntity.fromUser(user)).test().assertNoErrors();
-    userDao.insertOrUpdate(UserEntity.fromUser(user)).test().assertNoErrors();
+    userDao.insert(UserEntity.fromUser(testUser)).test().assertNoErrors();
+    userDao.insertOrUpdate(UserEntity.fromUser(testUser)).test().assertNoErrors();
   }
 
   @Test
   public void testDeleteUser() {
-    User user = createTestUser("id_2", "foo name 2", "foo2@gmail.com");
-    userDao.insert(UserEntity.fromUser(user)).blockingAwait();
-    userDao.findById("id_1").test().assertNoValues();
-    userDao.findById(user.getId()).test().assertValue(UserEntity.fromUser(user));
+    userDao.insert(UserEntity.fromUser(testUser)).blockingAwait();
+    userDao.findById(testUser.getId()).test().assertValue(UserEntity.fromUser(testUser));
 
-    userDao.delete(UserEntity.fromUser(user)).blockingAwait();
-    userDao.findById("id_2").test().assertNoValues();
+    userDao.delete(UserEntity.fromUser(testUser)).blockingAwait();
+    userDao.findById(testUser.getId()).test().assertNoValues();
   }
 
   @Test
   public void testUpdateUser() {
-    User user = createTestUser("id", "foo name", "foo@gmail.com");
-    userDao.insert(UserEntity.fromUser(user)).blockingAwait();
+    userDao.insert(UserEntity.fromUser(testUser)).blockingAwait();
 
-    user = createTestUser("id", "new foo name", "newfoo@gmail.com");
-    userDao.update(UserEntity.fromUser(user)).test().assertValue(1);
-    userDao.findById("id").test().assertValue(UserEntity.fromUser(user));
+    User updatedUser =
+        User.builder()
+            .setId(testUser.getId())
+            .setDisplayName("new foo name")
+            .setEmail("newfoo@gmail.com")
+            .build();
+    userDao.update(UserEntity.fromUser(updatedUser)).test().assertValue(1);
+    userDao.findById(testUser.getId()).test().assertValue(UserEntity.fromUser(updatedUser));
   }
 }
