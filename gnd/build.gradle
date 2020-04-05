@@ -131,6 +131,8 @@ dependencies {
     implementation "com.google.dagger:dagger-android:$project.daggerVersion"
     annotationProcessor "com.google.dagger:dagger-android-processor:$project.daggerVersion"
     implementation "com.google.dagger:dagger-android-support:$project.daggerVersion"
+    testAnnotationProcessor "com.google.dagger:dagger-compiler:$project.daggerVersion"
+    androidTestAnnotationProcessor "com.google.dagger:dagger-compiler:$project.daggerVersion"
 
     // ButterKnife
     implementation "com.jakewharton:butterknife:$project.butterKnifeVersion"
