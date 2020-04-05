@@ -16,12 +16,13 @@
 
 package com.google.android.gnd.inject;
 
+import com.google.android.gnd.persistence.local.LocalDataStoreModule;
 import com.google.android.gnd.persistence.local.room.dao.UserDaoTest;
 import dagger.Component;
 import javax.inject.Singleton;
 
 @Singleton
-@Component(modules = {TestApplicationModule.class})
+@Component(modules = {TestApplicationModule.class, LocalDataStoreModule.class})
 public interface TestComponent {
 
   void inject(UserDaoTest userDaoTest);

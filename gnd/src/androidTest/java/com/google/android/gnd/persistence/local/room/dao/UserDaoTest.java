@@ -19,10 +19,8 @@ package com.google.android.gnd.persistence.local.room.dao;
 import androidx.test.runner.AndroidJUnit4;
 import com.google.android.gnd.inject.DaggerTestComponent;
 import com.google.android.gnd.model.User;
-import com.google.android.gnd.persistence.local.room.LocalDatabase;
 import com.google.android.gnd.persistence.local.room.entity.UserEntity;
 import javax.inject.Inject;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -30,21 +28,14 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public class UserDaoTest {
 
-  @Inject LocalDatabase database;
+  @Inject UserDao userDao;
 
-  private UserDao userDao;
   private User testUser =
       User.builder().setId("foo id").setDisplayName("foo name").setEmail("foo@gmail.com").build();
 
   @Before
   public void setUp() {
     DaggerTestComponent.create().inject(this);
-    userDao = database.userDao();
-  }
-
-  @After
-  public void tearDown() {
-    database.close();
   }
 
   @Test
