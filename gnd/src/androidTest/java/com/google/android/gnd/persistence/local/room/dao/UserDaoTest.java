@@ -55,8 +55,7 @@ public class UserDaoTest {
 
   @Test
   public void testInsertUser_alreadyPresent_raisesError() {
-    userDao.insert(UserEntity.fromUser(testUser)).test().assertNoErrors();
-
+    userDao.insert(UserEntity.fromUser(testUser)).blockingAwait();
     userDao
         .insert(UserEntity.fromUser(testUser))
         .test()
@@ -73,8 +72,6 @@ public class UserDaoTest {
   @Test
   public void testDeleteUser() {
     userDao.insert(UserEntity.fromUser(testUser)).blockingAwait();
-    userDao.findById(testUser.getId()).test().assertValue(UserEntity.fromUser(testUser));
-
     userDao.delete(UserEntity.fromUser(testUser)).blockingAwait();
     userDao.findById(testUser.getId()).test().assertNoValues();
   }
@@ -82,7 +79,6 @@ public class UserDaoTest {
   @Test
   public void testUpdateUser() {
     userDao.insert(UserEntity.fromUser(testUser)).blockingAwait();
-
     User updatedUser =
         User.builder()
             .setId(testUser.getId())
