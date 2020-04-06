@@ -54,7 +54,7 @@ public class UserDaoTest {
   }
 
   @Test
-  public void insertingAlreadyPresentUser_shouldRaiseError() {
+  public void testInsertUser_alreadyPresent_raisesError() {
     userDao.insert(UserEntity.fromUser(testUser)).test().assertNoErrors();
 
     userDao
@@ -65,7 +65,7 @@ public class UserDaoTest {
   }
 
   @Test
-  public void testUpdateUser_ifAlreadyPresent() {
+  public void testInsertOrUpdateUser() {
     userDao.insert(UserEntity.fromUser(testUser)).test().assertNoErrors();
     userDao.insertOrUpdate(UserEntity.fromUser(testUser)).test().assertNoErrors();
   }
