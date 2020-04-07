@@ -82,7 +82,7 @@ public class PhotoSyncWorker extends BaseWorker {
   }
 
   @Override
-  public int getNotificationTitle() {
-    return R.string.uploading_photos;
+  public String getNotificationTitle() {
+    return getApplicationContext().getString(R.string.uploading_photos);
   }
 }

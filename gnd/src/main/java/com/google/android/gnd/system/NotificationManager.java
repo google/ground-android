@@ -21,7 +21,6 @@ import android.content.Context;
 import android.os.Build.VERSION;
 import android.os.Build.VERSION_CODES;
 import androidx.annotation.RequiresApi;
-import androidx.annotation.StringRes;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationCompat.Builder;
 import androidx.core.app.NotificationManagerCompat;
@@ -61,12 +60,11 @@ public class NotificationManager {
     manager.createNotificationChannel(channel);
   }
 
-  public void createSyncNotification(
-      UploadState state, @StringRes int titleResId, int total, int progress) {
+  public void createSyncNotification(UploadState state, String title, int total, int progress) {
     NotificationCompat.Builder notification =
         new Builder(context, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_sync)
-            .setContentTitle(context.getString(titleResId))
+            .setContentTitle(title)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setOnlyAlertOnce(false)
             .setOngoing(false)
