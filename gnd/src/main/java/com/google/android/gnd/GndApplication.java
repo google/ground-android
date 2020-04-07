@@ -21,19 +21,25 @@ import android.os.StrictMode;
 import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.multidex.MultiDex;
+import androidx.work.Configuration;
+import androidx.work.WorkManager;
 import com.akaita.java.rxjava2debug.RxJava2Debug;
 import com.crashlytics.android.Crashlytics;
 import com.facebook.stetho.Stetho;
+import com.google.android.gnd.inject.GndWorkerFactory;
 import com.google.android.gnd.rx.RxDebug;
 import dagger.android.AndroidInjector;
 import dagger.android.support.DaggerApplication;
 import io.reactivex.plugins.RxJavaPlugins;
+import javax.inject.Inject;
 import timber.log.Timber;
 
 // TODO: When implementing background data sync service, we'll need to inject a Service here; we
 // should then extend DaggerApplication instead. If MultiDex is still needed, we can install it
 // without extending MultiDexApplication.
 public class GndApplication extends DaggerApplication {
+
+  @Inject GndWorkerFactory workerFactory;
 
   @Override
   protected void attachBaseContext(Context base) {
@@ -62,6 +68,11 @@ public class GndApplication extends DaggerApplication {
 
     // Prevent RxJava from force-quitting on unhandled errors.
     RxJavaPlugins.setErrorHandler(RxDebug::logEnhancedStackTrace);
+
+    // Set custom worker factory that allow Workers to use Dagger injection.
+    // TODO(github.com/google/dagger/issues/1183): Remove once Workers support injection.
+    WorkManager.initialize(
+        this, new Configuration.Builder().setWorkerFactory(workerFactory).build());
 
     if (BuildConfig.DEBUG) {
       Timber.plant(new Timber.DebugTree());
