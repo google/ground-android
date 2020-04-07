@@ -15,15 +15,15 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<layout>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
   <data>
     <variable
         name="viewModel"
         type="com.google.android.gnd.ui.home.featuresheet.ObservationListViewModel"/>
   </data>
 
-  <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-      android:layout_width="match_parent"
+  <FrameLayout
+    android:layout_width="match_parent"
       android:layout_height="match_parent">
 
     <ProgressBar
@@ -36,8 +36,9 @@
         android:visibility="@{viewModel.loadingSpinnerVisibility}"/>
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/observation_list_container"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+      android:id="@+id/observation_list_container"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      android:clipToPadding="false" />
   </FrameLayout>
 </layout>
