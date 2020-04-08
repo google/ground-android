@@ -180,8 +180,8 @@ public class HomeScreenFragment extends AbstractFragment
    * Set the height of the bottom sheet so it completely fills the screen when expanded.
    */
   private void setBottomSheetHeight() {
-    CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams)
-      bottomSheetScrollView.getLayoutParams();
+    CoordinatorLayout.LayoutParams params =
+        (CoordinatorLayout.LayoutParams) bottomSheetScrollView.getLayoutParams();
 
     int screenHeight = getScreenHeight(getActivity());
     int statusBarHeight = statusBarScrim.getHeight();
