@@ -21,12 +21,11 @@ import android.content.Context;
 import android.os.Build.VERSION;
 import android.os.Build.VERSION_CODES;
 import androidx.annotation.RequiresApi;
-import androidx.annotation.StringRes;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationCompat.Builder;
 import androidx.core.app.NotificationManagerCompat;
 import com.google.android.gnd.R;
-import com.google.android.gnd.persistence.remote.UploadProgress.UploadState;
+import com.google.android.gnd.persistence.remote.TransferProgress.UploadState;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import timber.log.Timber;
@@ -34,9 +33,9 @@ import timber.log.Timber;
 @Singleton
 public class NotificationManager {
 
+  private static final int SYNC_NOTIFICATION_ID = 1;
   private static final String CHANNEL_ID = "channel_id";
   private static final String CHANNEL_NAME = "sync channel";
-  private static final int PHOTO_SYNC_ID = 1;
 
   private Context context;
   private NotificationManagerCompat manager;
@@ -61,16 +60,11 @@ public class NotificationManager {
     manager.createNotificationChannel(channel);
   }
 
-  private CharSequence getString(@StringRes int resId) {
-    return context.getResources().getString(resId);
-  }
-
-  public void createSyncNotification(
-      UploadState state, @StringRes int titleResId, int total, int progress) {
+  public void createSyncNotification(UploadState state, String title, int total, int progress) {
     NotificationCompat.Builder notification =
         new Builder(context, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_sync)
-            .setContentTitle(getString(titleResId))
+            .setContentTitle(title)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setOnlyAlertOnce(false)
             .setOngoing(false)
@@ -78,29 +72,34 @@ public class NotificationManager {
 
     switch (state) {
       case STARTING:
-        notification.setContentText(getString(R.string.starting));
+        notification.setContentText(context.getString(R.string.starting));
         break;
       case IN_PROGRESS:
         notification
-            .setContentText(getString(R.string.in_progress))
+            .setContentText(context.getString(R.string.in_progress))
             // only alert once and don't allow cancelling it
             .setOnlyAlertOnce(true)
             .setOngoing(true);
         break;
       case PAUSED:
-        notification.setContentText(getString(R.string.paused));
+        notification.setContentText(context.getString(R.string.paused));
         break;
       case FAILED:
-        notification.setContentText(getString(R.string.failed));
+        notification.setContentText(context.getString(R.string.failed));
         break;
       case COMPLETED:
-        notification.setContentText(getString(R.string.completed));
+        notification.setContentText(context.getString(R.string.completed));
         break;
       default:
         Timber.e("Unknown sync state: %s", state.name());
         break;
     }
 
-    manager.notify(PHOTO_SYNC_ID, notification.build());
+    manager.notify(SYNC_NOTIFICATION_ID, notification.build());
+
+    // remove if completed
+    if (state == UploadState.COMPLETED) {
+      manager.cancel(SYNC_NOTIFICATION_ID);
+    }
   }
 }

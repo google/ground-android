@@ -22,12 +22,13 @@ import static java8.util.stream.StreamSupport.stream;
 import android.content.Context;
 import androidx.annotation.NonNull;
 import androidx.work.Data;
-import androidx.work.Worker;
 import androidx.work.WorkerParameters;
+import com.google.android.gnd.R;
 import com.google.android.gnd.model.Mutation;
 import com.google.android.gnd.model.User;
 import com.google.android.gnd.persistence.local.LocalDataStore;
 import com.google.android.gnd.persistence.remote.RemoteDataStore;
+import com.google.android.gnd.system.NotificationManager;
 import com.google.common.collect.ImmutableList;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
@@ -41,7 +42,7 @@ import timber.log.Timber;
  * specific map feature, whose id is provided in the {@link Data} object built by {@link
  * #createInputData} and provided to the worker request while being enqueued.
  */
-public class LocalMutationSyncWorker extends Worker {
+public class LocalMutationSyncWorker extends BaseWorker {
 
   private static final String FEATURE_ID_PARAM_KEY = "featureId";
 
@@ -53,8 +54,9 @@ public class LocalMutationSyncWorker extends Worker {
       @NonNull Context context,
       @NonNull WorkerParameters params,
       LocalDataStore localDataStore,
-      RemoteDataStore remoteDataStore) {
-    super(context, params);
+      RemoteDataStore remoteDataStore,
+      NotificationManager notificationManager) {
+    super(context, params, notificationManager);
     this.localDataStore = localDataStore;
     this.remoteDataStore = remoteDataStore;
     this.featureId = params.getInputData().getString(FEATURE_ID_PARAM_KEY);
@@ -72,10 +74,10 @@ public class LocalMutationSyncWorker extends Worker {
     ImmutableList<Mutation> mutations = localDataStore.getPendingMutations(featureId).blockingGet();
     try {
       Timber.v("Mutations: %s", mutations);
-      processMutations(mutations).blockingAwait();
+      processMutations(mutations).compose(this::notifyTransferState).blockingAwait();
       return Result.success();
     } catch (Throwable t) {
-      Timber.d(t, "Remote updates for feature %s failed", featureId);
+      Timber.e(t, "Remote updates for feature %s failed", featureId);
       localDataStore.updateMutations(incrementRetryCounts(mutations, t)).blockingAwait();
       return Result.retry();
     }
@@ -125,5 +127,10 @@ public class LocalMutationSyncWorker extends Worker {
         .setRetryCount(mutation.getRetryCount() + 1)
         .setLastError(error.toString())
         .build();
+  }
+
+  @Override
+  public String getNotificationTitle() {
+    return getApplicationContext().getString(R.string.uploading_data);
   }
 }

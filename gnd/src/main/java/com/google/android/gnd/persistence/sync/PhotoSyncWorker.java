@@ -19,11 +19,9 @@ package com.google.android.gnd.persistence.sync;
 import android.content.Context;
 import androidx.annotation.NonNull;
 import androidx.work.Data;
-import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 import com.google.android.gnd.R;
 import com.google.android.gnd.persistence.remote.RemoteStorageManager;
-import com.google.android.gnd.persistence.remote.UploadProgress;
 import com.google.android.gnd.system.NotificationManager;
 import java.io.File;
 import timber.log.Timber;
@@ -33,7 +31,7 @@ import timber.log.Timber;
  * source file and remote destination path are provided in a {@link Data} object. This worker should
  * only run when the device has a network connection.
  */
-public class PhotoSyncWorker extends Worker {
+public class PhotoSyncWorker extends BaseWorker {
 
   private static final String SOURCE_FILE_PATH_PARAM_KEY = "sourceFilePath";
   private static final String DESTINATION_PATH_PARAM_KEY = "destinationPath";
@@ -41,21 +39,19 @@ public class PhotoSyncWorker extends Worker {
   private final RemoteStorageManager remoteStorageManager;
   private final String localSourcePath;
   private final String remoteDestinationPath;
-  private final NotificationManager notificationManager;
 
   public PhotoSyncWorker(
       @NonNull Context context,
       @NonNull WorkerParameters workerParams,
       RemoteStorageManager remoteStorageManager,
       NotificationManager notificationManager) {
-    super(context, workerParams);
+    super(context, workerParams, notificationManager);
     this.remoteStorageManager = remoteStorageManager;
     this.localSourcePath = workerParams.getInputData().getString(SOURCE_FILE_PATH_PARAM_KEY);
     this.remoteDestinationPath = workerParams.getInputData().getString(DESTINATION_PATH_PARAM_KEY);
-    this.notificationManager = notificationManager;
   }
 
-  public static Data createInputData(String sourceFilePath, String destinationPath) {
+  static Data createInputData(String sourceFilePath, String destinationPath) {
     return new Data.Builder()
         .putString(SOURCE_FILE_PATH_PARAM_KEY, sourceFilePath)
         .putString(DESTINATION_PATH_PARAM_KEY, destinationPath)
@@ -69,10 +65,10 @@ public class PhotoSyncWorker extends Worker {
     File file = new File(localSourcePath);
     if (file.exists()) {
       Timber.d("Starting photo upload: %s, %s", localSourcePath, remoteDestinationPath);
-      sendNotification(UploadProgress.starting());
       try {
         remoteStorageManager
             .uploadMediaFromFile(new File(localSourcePath), remoteDestinationPath)
+            .compose(this::notifyTransferState)
             .blockingForEach(this::sendNotification);
         return Result.success();
       } catch (Exception e) {
@@ -81,16 +77,12 @@ public class PhotoSyncWorker extends Worker {
       }
     } else {
       Timber.e("Photo not found %s, %s", localSourcePath, remoteDestinationPath);
-      sendNotification(UploadProgress.failed());
       return Result.failure();
     }
   }
 
-  private void sendNotification(UploadProgress uploadProgress) {
-    notificationManager.createSyncNotification(
-        uploadProgress.getState(),
-        R.string.uploading_photos,
-        uploadProgress.getByteCount(),
-        uploadProgress.getBytesTransferred());
+  @Override
+  public String getNotificationTitle() {
+    return getApplicationContext().getString(R.string.uploading_photos);
   }
 }
