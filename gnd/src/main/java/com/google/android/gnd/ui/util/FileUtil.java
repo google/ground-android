@@ -61,7 +61,11 @@ public class FileUtil {
 
   public File getFileFromRawResource(int resourceId, String filename) throws IOException {
     File file = new File(context.getFilesDir() + "/" + filename);
-    FileUtils.copyInputStreamToFile(context.getResources().openRawResource(resourceId), file);
+
+    if (!file.exists()) {
+      FileUtils.copyInputStreamToFile(context.getResources().openRawResource(resourceId), file);
+    }
+
     return file;
   }
 }
