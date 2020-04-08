@@ -16,11 +16,27 @@
 
 package com.google.android.gnd.ui.offlinearea.selector;
 
+import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gnd.repository.OfflineAreaRepository;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import javax.inject.Inject;
+import timber.log.Timber;
 
 public class OfflineAreaSelectorViewModel extends AbstractViewModel {
-  // TODO: Implement the ViewModel
+
+  private final OfflineAreaRepository offlineAreaRepository;
+
   @Inject
-  OfflineAreaSelectorViewModel() {}
+  OfflineAreaSelectorViewModel(OfflineAreaRepository offlineAreaRepository) {
+    this.offlineAreaRepository = offlineAreaRepository;
+  }
+
+  // TODO: Use an abstraction over LatLngBounds
+  public void onDownloadClick(LatLngBounds viewport) {
+    Timber.d("viewport:%s", viewport);
+    offlineAreaRepository.addAreaAndEnqueue(viewport)
+      .doOnError(err -> Timber.e("Failed to add area and queue downloads: %s", err.getMessage()))
+      .onErrorComplete()
+      .blockingAwait();
+  }
 }
