@@ -18,7 +18,6 @@ package com.google.android.gnd.persistence.sync;
 
 import android.content.Context;
 import androidx.annotation.NonNull;
-import androidx.annotation.StringRes;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 import com.google.android.gnd.persistence.remote.TransferProgress;
@@ -39,7 +38,7 @@ public abstract class BaseWorker extends Worker {
   }
 
   /** Content text displayed in the notification. */
-  public abstract @StringRes int getNotificationTitle();
+  public abstract String getNotificationTitle();
 
   <T> Flowable<T> notifyTransferState(Flowable<T> upstream) {
     return upstream

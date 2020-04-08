@@ -130,7 +130,7 @@ public class LocalMutationSyncWorker extends BaseWorker {
   }
 
   @Override
-  public int getNotificationTitle() {
-    return R.string.uploading_data;
+  public String getNotificationTitle() {
+    return getApplicationContext().getString(R.string.uploading_data);
   }
 }

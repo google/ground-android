@@ -16,13 +16,11 @@
 
 package com.google.android.gnd.system;
 
-import android.app.Notification;
 import android.app.NotificationChannel;
 import android.content.Context;
 import android.os.Build.VERSION;
 import android.os.Build.VERSION_CODES;
 import androidx.annotation.RequiresApi;
-import androidx.annotation.StringRes;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationCompat.Builder;
 import androidx.core.app.NotificationManagerCompat;
@@ -35,9 +33,7 @@ import timber.log.Timber;
 @Singleton
 public class NotificationManager {
 
-  public static final int SYNC_NOTIFICATION_ID = 1;
-  public static final int ALWAYS_ON_NOTIFICATION_ID = 2;
-
+  private static final int SYNC_NOTIFICATION_ID = 1;
   private static final String CHANNEL_ID = "channel_id";
   private static final String CHANNEL_NAME = "sync channel";
 
@@ -64,25 +60,11 @@ public class NotificationManager {
     manager.createNotificationChannel(channel);
   }
 
-  public Notification createForegroundServiceNotification() {
-    NotificationCompat.Builder notification =
-        new Builder(context, CHANNEL_ID)
-            // TODO: Use a better icon
-            .setSmallIcon(R.drawable.ground_logo)
-            .setContentText(context.getString(R.string.app_running))
-            .setPriority(NotificationCompat.PRIORITY_LOW)
-            .setOnlyAlertOnce(true)
-            .setOngoing(true);
-
-    return notification.build();
-  }
-
-  public void createSyncNotification(
-      UploadState state, @StringRes int titleResId, int total, int progress) {
+  public void createSyncNotification(UploadState state, String title, int total, int progress) {
     NotificationCompat.Builder notification =
         new Builder(context, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_sync)
-            .setContentTitle(context.getString(titleResId))
+            .setContentTitle(title)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setOnlyAlertOnce(false)
             .setOngoing(false)

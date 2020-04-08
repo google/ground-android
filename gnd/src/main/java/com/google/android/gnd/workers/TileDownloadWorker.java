@@ -203,8 +203,8 @@ public class TileDownloadWorker extends BaseWorker {
   }
 
   @Override
-  public int getNotificationTitle() {
-    return R.string.downloading_tiles;
+  public String getNotificationTitle() {
+    return getApplicationContext().getString(R.string.downloading_tiles);
   }
 
   static class TileDownloadException extends RuntimeException {
