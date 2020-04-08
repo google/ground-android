@@ -52,7 +52,6 @@ import timber.log.Timber;
 
 /** Main app view, displaying the map and related controls (center cross-hairs, add button, etc). */
 public class MapContainerFragment extends AbstractFragment {
-
   private static final String MAP_FRAGMENT_KEY = MapProvider.class.getName() + "#fragment";
 
   @Inject MapProvider mapProvider;
@@ -159,6 +158,7 @@ public class MapContainerFragment extends AbstractFragment {
     addFeatureBtn.setOnClickListener(
         __ -> homeScreenViewModel.onAddFeatureBtnClick(map.getCameraTarget()));
     enableLocationLockBtn();
+    map.renderTileOverlay();
   }
 
   @Override
