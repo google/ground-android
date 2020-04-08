@@ -26,6 +26,7 @@ import com.google.android.gnd.model.AuditInfo;
 import com.google.android.gnd.model.Mutation;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.User;
+import com.google.android.gnd.model.basemap.OfflineArea;
 import com.google.android.gnd.model.basemap.tile.Tile;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.FeatureMutation;
@@ -46,6 +47,7 @@ import com.google.android.gnd.persistence.local.room.dao.LayerDao;
 import com.google.android.gnd.persistence.local.room.dao.MultipleChoiceDao;
 import com.google.android.gnd.persistence.local.room.dao.ObservationDao;
 import com.google.android.gnd.persistence.local.room.dao.ObservationMutationDao;
+import com.google.android.gnd.persistence.local.room.dao.OfflineAreaDao;
 import com.google.android.gnd.persistence.local.room.dao.OptionDao;
 import com.google.android.gnd.persistence.local.room.dao.ProjectDao;
 import com.google.android.gnd.persistence.local.room.dao.TileDao;
@@ -59,6 +61,7 @@ import com.google.android.gnd.persistence.local.room.entity.LayerEntity;
 import com.google.android.gnd.persistence.local.room.entity.MultipleChoiceEntity;
 import com.google.android.gnd.persistence.local.room.entity.ObservationEntity;
 import com.google.android.gnd.persistence.local.room.entity.ObservationMutationEntity;
+import com.google.android.gnd.persistence.local.room.entity.OfflineAreaEntity;
 import com.google.android.gnd.persistence.local.room.entity.OptionEntity;
 import com.google.android.gnd.persistence.local.room.entity.ProjectEntity;
 import com.google.android.gnd.persistence.local.room.entity.TileEntity;
@@ -101,6 +104,7 @@ public class RoomLocalDataStore implements LocalDataStore {
   @Inject ObservationMutationDao observationMutationDao;
   @Inject TileDao tileDao;
   @Inject UserDao userDao;
+  @Inject OfflineAreaDao offlineAreaDao;
   @Inject Schedulers schedulers;
 
   @Inject
@@ -469,6 +473,13 @@ public class RoomLocalDataStore implements LocalDataStore {
     return tileDao
         .findByState(TileEntityState.PENDING.intValue())
         .map(ts -> stream(ts).map(TileEntity::toTile).collect(toImmutableList()))
+        .subscribeOn(schedulers.io());
+  }
+
+  @Override
+  public Completable insertOrUpdateOfflineArea(OfflineArea area) {
+    return offlineAreaDao
+        .insertOrUpdate(OfflineAreaEntity.fromArea(area))
         .subscribeOn(schedulers.io());
   }
 }
