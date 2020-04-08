@@ -78,4 +78,7 @@ public interface MapAdapter {
 
   /** Returns the bounds of the currently visibly viewport. */
   LatLngBounds getViewport();
+
+  /** Renders a tile overlay on the map. */
+  void renderTileOverlay();
 }

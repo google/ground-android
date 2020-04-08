@@ -28,8 +28,7 @@
     <FrameLayout
       android:layout_width="match_parent"
       android:layout_height="match_parent"
-      android:id="@+id/offline_area_selector_layout"
-      android:fitsSystemWindows="true">
+      android:id="@+id/offline_area_selector_layout">
       <com.google.android.gnd.ui.common.TwoLineToolbar
         android:id="@+id/offline_area_selector_toolbar"
         android:layout_width="match_parent"
