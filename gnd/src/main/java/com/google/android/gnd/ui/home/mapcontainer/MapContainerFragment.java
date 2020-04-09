@@ -137,8 +137,8 @@ public class MapContainerFragment extends AbstractFragment {
     }
 
     mapContainerViewModel
-      .getShowMapTypeSelectorRequests()
-      .observe(getViewLifecycleOwner(), __ -> showMapTypeSelectorDialog());
+        .getShowMapTypeSelectorRequests()
+        .observe(getViewLifecycleOwner(), __ -> showMapTypeSelectorDialog());
   }
 
   private void onMapReady(MapAdapter map) {
@@ -245,7 +245,7 @@ public class MapContainerFragment extends AbstractFragment {
   private void onApplyWindowInsets(WindowInsetsCompat windowInsets) {
     ViewCompat.onApplyWindowInsets(mapProvider.getFragment().getView(), windowInsets);
     hamburgerBtn.setTranslationY(windowInsets.getSystemWindowInsetTop());
-    mapBtnLayout.setTranslationY(-windowInsets.getSystemWindowInsetBottom());
+    mapBtnLayout.setTranslationY(windowInsets.getSystemWindowInsetTop());
   }
 
   @Override
