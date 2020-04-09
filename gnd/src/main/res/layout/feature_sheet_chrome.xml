@@ -35,15 +35,16 @@
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:layout_alignParentTop="true"
-      android:background="@color/colorPrimary"
-      android:translationY="-1000dp">
+      android:background="@color/colorPrimary">
 
       <com.google.android.gnd.ui.common.TwoLineToolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:elevation="@dimen/toolbar_elevation"
-        android:theme="@style/GreenToolbarTheme" />
+        android:theme="@style/GreenToolbarTheme"
+        app:subtitle="@{viewModel.featureSheetState.feature.subtitle}"
+        app:title="@{viewModel.featureSheetState.feature.title}" />
 
     </FrameLayout>
 
@@ -71,6 +72,6 @@
       android:layout_height="wrap_content"
       android:layout_alignParentBottom="true"
       android:alpha="0"
-      android:background="@color/colorBackground" />
+      android:background="@color/colorGrey300" />
   </RelativeLayout>
 </layout>

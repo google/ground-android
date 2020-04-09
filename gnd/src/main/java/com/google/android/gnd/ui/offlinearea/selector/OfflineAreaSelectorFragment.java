@@ -27,14 +27,15 @@ import androidx.annotation.Nullable;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import butterknife.BindView;
+import butterknife.OnClick;
 import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.MainViewModel;
 import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.OfflineAreaSelectorFragBinding;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.TwoLineToolbar;
+import com.google.android.gnd.ui.map.MapAdapter;
 import com.google.android.gnd.ui.map.MapProvider;
-import com.google.android.gnd.ui.map.MapProvider.MapAdapter;
 import com.google.android.material.chip.Chip;
 import io.reactivex.Single;
 import javax.inject.Inject;
@@ -48,10 +49,13 @@ public class OfflineAreaSelectorFragment extends AbstractFragment {
   @BindView(R.id.offline_area_selector_toolbar)
   TwoLineToolbar toolbar;
 
+  // TODO: Use data binding
   @BindView(R.id.download_button)
   Chip downloadButton;
 
   private OfflineAreaSelectorViewModel viewModel;
+  @Nullable
+  private MapAdapter map;
 
   public static OfflineAreaSelectorFragment newInstance() {
     return new OfflineAreaSelectorFragment();
@@ -98,6 +102,15 @@ public class OfflineAreaSelectorFragment extends AbstractFragment {
   }
 
   private void onMapReady(MapAdapter map) {
-    // TODO: Use the map.
+    this.map = map;
+  }
+
+  @OnClick(R.id.download_button)
+  public void onDownloadClick() {
+    if (map == null) {
+      return;
+    }
+
+    viewModel.onDownloadClick(map.getViewport());
   }
 }

@@ -68,7 +68,7 @@ steps:
   - name: 'gcr.io/$PROJECT_ID/android:28'
     id: 'Build debug apk'
     # Explicitly excluding checkCode since it gets auto-triggered
-    args: ['./gradlew', 'assembleDebug', '-PdisablePreDex', '--exclude-task', 'checkCode']
+    args: ['./gradlew', 'assembleDebug', '-PdisablePreDex']
 
   # Run code quality checks
   - name: 'gcr.io/$PROJECT_ID/android:28'
@@ -76,7 +76,7 @@ steps:
     args:
       - '-c'
       - |
-        ./gradlew checkCode &> check-logs.txt || echo "fail" > build-status.txt
+        ./gradlew checkCode 2> check-logs.txt || echo "fail" > build-status.txt
         cat check-logs.txt
 
   # Run unit tests
@@ -85,7 +85,7 @@ steps:
     args:
       - '-c'
       - |
-        ./gradlew testDebugUnitTest &> unit-test-logs.txt || echo "fail" > build-status.txt
+        ./gradlew testDebugUnitTest 2> unit-test-logs.txt || echo "fail" > build-status.txt
         cat unit-test-logs.txt
 
   # Save all reports to GCS
@@ -105,18 +105,33 @@ steps:
 
         # Update build status if running on master branch
         if [[ "${_PUSH_TO_MASTER}" ]]; then
-          if [[ $(< build-status.txt) == "fail" ]]; then
+
+          # Gradle Dependencies Status
+          if [[ -f gnd/build/reports/dependencyUpdates/report.json ]]; then
+            python cloud-builder/generate_dependency_health_svg.py gnd/build/reports/dependencyUpdates/report.json dependency.svg
+
+            # Copy artifacts for Github badge
+            gsutil cp dependency.svg gs://${_CACHE_BUCKET}/dependency.svg
+            gsutil cp gnd/build/reports/dependencyUpdates/report.txt gs://${_CACHE_BUCKET}/dependency.txt
+
+            # Makes files publicly readable
+            gsutil acl ch -u AllUsers:R gs://${_CACHE_BUCKET}/dependency.svg
+            gsutil acl ch -u AllUsers:R gs://${_CACHE_BUCKET}/dependency.txt
+          fi
+
+          # Build Status
+          if [ -f build-status.txt ] && [ $(< build-status.txt) == "fail" ]; then
             gsutil cp cloud-builder/failure.svg gs://${_CACHE_BUCKET}/status.svg
           else
             gsutil cp cloud-builder/success.svg gs://${_CACHE_BUCKET}/status.svg
           fi
 
-          # Make file public readable
+          # Make file publicly readable
           gsutil acl ch -u AllUsers:R gs://${_CACHE_BUCKET}/status.svg
         fi
 
         # Delayed build fail
-        if [[ $(< build-status.txt) == "fail" ]]; then
+        if [ -f build-status.txt ] && [ $(< build-status.txt) == "fail" ]; then
           cat check-logs.txt
           cat unit-test-logs.txt
           exit 1

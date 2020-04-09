@@ -17,16 +17,17 @@
 package com.google.android.gnd.ui.editobservation;
 
 import static androidx.lifecycle.LiveDataReactiveStreams.fromPublisher;
+import static com.google.android.gnd.persistence.remote.firestore.FirestoreStorageManager.getRemoteDestinationPath;
 import static java8.util.stream.StreamSupport.stream;
 
 import android.content.res.Resources;
 import android.graphics.Bitmap;
-import android.util.Log;
 import android.view.View;
 import androidx.databinding.ObservableArrayMap;
 import androidx.databinding.ObservableMap;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
+import com.google.android.gnd.Config;
 import com.google.android.gnd.GndApplication;
 import com.google.android.gnd.R;
 import com.google.android.gnd.model.form.Element;
@@ -39,7 +40,6 @@ import com.google.android.gnd.model.observation.Response;
 import com.google.android.gnd.model.observation.ResponseDelta;
 import com.google.android.gnd.model.observation.ResponseMap;
 import com.google.android.gnd.model.observation.TextResponse;
-import com.google.android.gnd.persistence.remote.FirestoreStorageManager;
 import com.google.android.gnd.repository.ObservationRepository;
 import com.google.android.gnd.rx.Event;
 import com.google.android.gnd.rx.Nil;
@@ -47,23 +47,21 @@ import com.google.android.gnd.system.AuthenticationManager;
 import com.google.android.gnd.system.CameraManager;
 import com.google.android.gnd.system.StorageManager;
 import com.google.android.gnd.ui.common.AbstractViewModel;
-import com.google.android.gnd.ui.util.FileUtil;
 import com.google.common.collect.ImmutableList;
 import io.reactivex.Completable;
 import io.reactivex.Single;
 import io.reactivex.processors.BehaviorProcessor;
 import io.reactivex.processors.PublishProcessor;
-import java.io.File;
 import java.io.IOException;
 import java.util.Date;
 import java8.util.Optional;
-import java8.util.StringJoiner;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
+import timber.log.Timber;
 
 // TODO: Save draft to local db on each change.
 public class EditObservationViewModel extends AbstractViewModel {
-  private static final String TAG = EditObservationViewModel.class.getSimpleName();
+
   // TODO: Move out of id and into fragment args.
   private static final String ADD_OBSERVATION_ID_PLACEHOLDER = "NEW";
 
@@ -74,8 +72,6 @@ public class EditObservationViewModel extends AbstractViewModel {
   private final Resources resources;
   private final StorageManager storageManager;
   private final CameraManager cameraManager;
-  private final FirestoreStorageManager firestoreStorageManager;
-  private final FileUtil fileUtil;
 
   // Input events.
 
@@ -140,16 +136,12 @@ public class EditObservationViewModel extends AbstractViewModel {
       ObservationRepository observationRepository,
       AuthenticationManager authenticationManager,
       StorageManager storageManager,
-      CameraManager cameraManager,
-      FirestoreStorageManager firestoreStorageManager,
-      FileUtil fileUtil) {
+      CameraManager cameraManager) {
     this.resources = application.getResources();
     this.observationRepository = observationRepository;
     this.authManager = authenticationManager;
     this.storageManager = storageManager;
     this.cameraManager = cameraManager;
-    this.firestoreStorageManager = firestoreStorageManager;
-    this.fileUtil = fileUtil;
     this.form = fromPublisher(viewArgs.switchMapSingle(this::onInitialize));
     this.saveResults = fromPublisher(saveClicks.switchMapSingle(__ -> onSave()));
   }
@@ -196,14 +188,13 @@ public class EditObservationViewModel extends AbstractViewModel {
   }
 
   public void onTextChanged(Field field, String text) {
-    Log.v(TAG, "onTextChanged: " + field.getId());
+    Timber.v("onTextChanged: %s", field.getId());
 
     onResponseChanged(field, TextResponse.fromString(text));
   }
 
   public void onResponseChanged(Field field, Optional<Response> newResponse) {
-    Log.v(
-        TAG, "onResponseChanged: " + field.getId() + " = '" + Response.toString(newResponse) + "'");
+    Timber.v("onResponseChanged: %s = '%s'", field.getId(), Response.toString(newResponse));
     newResponse.ifPresentOrElse(
         r -> responses.put(field.getId(), r), () -> responses.remove(field.getId()));
     updateError(field, newResponse);
@@ -249,34 +240,18 @@ public class EditObservationViewModel extends AbstractViewModel {
 
   private Completable saveBitmapAndUpdateResponse(Bitmap bitmap, String fieldId)
       throws IOException {
-    File file = fileUtil.saveBitmap(bitmap, fieldId + ".jpg");
-    String destinationPath = getRemoteImagePath(file.getName());
-
-    // If offline, Firebase will automatically upload the image when the network
-    // connectivity is  re-established.
-    // TODO: Implement offline photo sync using Android Workers and local db
-    String url = firestoreStorageManager.uploadMediaFromFile(file, destinationPath);
+    String localFileName = fieldId + Config.PHOTO_EXT;
+    String destinationPath =
+        getRemoteDestinationPath(
+            args.getProjectId(), args.getFormId(), args.getFeatureId(), localFileName);
 
     // TODO: Handle response after reloading view-model and remove this field
     isPhotoFieldUpdated = true;
 
     // update observable response map
-    onTextChanged(form.getValue().getField(fieldId).get(), url);
-    return Completable.complete();
-  }
+    onTextChanged(form.getValue().getField(fieldId).get(), destinationPath);
 
-  /**
-   * Generates destination path for saving the image to Firestore Storage.
-   *
-   * <p>/uploaded_media/{project_id}/{form_id}/{feature_id}/{filename.jpg}
-   */
-  private String getRemoteImagePath(String filename) {
-    return new StringJoiner(File.separator)
-        .add(args.getProjectId())
-        .add(args.getFormId())
-        .add(args.getFeatureId())
-        .add(filename)
-        .toString();
+    return storageManager.savePhoto(bitmap, localFileName, destinationPath);
   }
 
   public void onSaveClick() {
@@ -340,7 +315,7 @@ public class EditObservationViewModel extends AbstractViewModel {
 
   private Single<Event<SaveResult>> onSave() {
     if (originalObservation == null) {
-      Log.e(TAG, "Save attempted before observation loaded");
+      Timber.e("Save attempted before observation loaded");
       return Single.just(Event.create(SaveResult.NO_CHANGES_TO_SAVE));
     }
     refreshValidationErrors();
@@ -355,7 +330,7 @@ public class EditObservationViewModel extends AbstractViewModel {
 
   private <T> Single<T> onError(Throwable throwable) {
     // TODO: Refactor and stream to UI.
-    Log.e(TAG, "Error", throwable);
+    Timber.e(throwable, "Error");
     return Single.never();
   }
 
@@ -380,7 +355,7 @@ public class EditObservationViewModel extends AbstractViewModel {
   }
 
   private void refreshResponseMap(Observation obs) {
-    Log.v(TAG, "Rebuilding response map");
+    Timber.v("Rebuilding response map");
     responses.clear();
     ResponseMap responses = obs.getResponses();
     for (String fieldId : responses.fieldIds()) {
@@ -392,12 +367,12 @@ public class EditObservationViewModel extends AbstractViewModel {
 
   private ImmutableList<ResponseDelta> getResponseDeltas() {
     if (originalObservation == null) {
-      Log.e(TAG, "Response diff attempted before observation loaded");
+      Timber.e("Response diff attempted before observation loaded");
       return ImmutableList.of();
     }
     ImmutableList.Builder<ResponseDelta> deltas = ImmutableList.builder();
     ResponseMap originalResponses = originalObservation.getResponses();
-    Log.v(TAG, "Responses:\n Before: " + originalResponses + " \nAfter:  " + responses);
+    Timber.v("Responses:\n Before: %s \nAfter:  %s", originalResponses, responses);
     for (Element e : originalObservation.getForm().getElements()) {
       if (e.getType() != Type.FIELD) {
         continue;
@@ -412,7 +387,7 @@ public class EditObservationViewModel extends AbstractViewModel {
           ResponseDelta.builder().setFieldId(fieldId).setNewResponse(currentResponse).build());
     }
     ImmutableList<ResponseDelta> result = deltas.build();
-    Log.v(TAG, "Deltas: " + result);
+    Timber.v("Deltas: %s", result);
     return result;
   }
 
@@ -431,10 +406,10 @@ public class EditObservationViewModel extends AbstractViewModel {
   private void updateError(Field field, Optional<Response> response) {
     String key = field.getId();
     if (field.isRequired() && !response.filter(r -> !r.isEmpty()).isPresent()) {
-      Log.d(TAG, "Missing: " + key);
+      Timber.d("Missing: %s", key);
       validationErrors.put(field.getId(), resources.getString(R.string.required_field));
     } else {
-      Log.d(TAG, "Valid: " + key);
+      Timber.d("Valid: %s", key);
       validationErrors.remove(field.getId());
     }
   }

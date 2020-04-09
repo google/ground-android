@@ -20,31 +20,31 @@ import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList
 import static java8.util.stream.StreamSupport.stream;
 
 import android.content.Context;
-import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.work.Data;
-import androidx.work.Worker;
 import androidx.work.WorkerParameters;
+import com.google.android.gnd.R;
 import com.google.android.gnd.model.Mutation;
 import com.google.android.gnd.model.User;
 import com.google.android.gnd.persistence.local.LocalDataStore;
 import com.google.android.gnd.persistence.remote.RemoteDataStore;
+import com.google.android.gnd.system.NotificationManager;
 import com.google.common.collect.ImmutableList;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 import java.util.Map;
 import java.util.Set;
 import java8.util.stream.Collectors;
+import timber.log.Timber;
 
 /**
  * A worker that syncs local changes to the remote data store. Each instance handles mutations for a
  * specific map feature, whose id is provided in the {@link Data} object built by {@link
  * #createInputData} and provided to the worker request while being enqueued.
  */
-public class LocalMutationSyncWorker extends Worker {
+public class LocalMutationSyncWorker extends BaseWorker {
 
-  private static final String TAG = LocalMutationSyncWorker.class.getSimpleName();
-  public static final String FEATURE_ID_PARAM_KEY = "featureId";
+  private static final String FEATURE_ID_PARAM_KEY = "featureId";
 
   private final LocalDataStore localDataStore;
   private final RemoteDataStore remoteDataStore;
@@ -54,8 +54,9 @@ public class LocalMutationSyncWorker extends Worker {
       @NonNull Context context,
       @NonNull WorkerParameters params,
       LocalDataStore localDataStore,
-      RemoteDataStore remoteDataStore) {
-    super(context, params);
+      RemoteDataStore remoteDataStore,
+      NotificationManager notificationManager) {
+    super(context, params, notificationManager);
     this.localDataStore = localDataStore;
     this.remoteDataStore = remoteDataStore;
     this.featureId = params.getInputData().getString(FEATURE_ID_PARAM_KEY);
@@ -69,14 +70,14 @@ public class LocalMutationSyncWorker extends Worker {
   @NonNull
   @Override
   public Result doWork() {
-    Log.d(TAG, "Connected. Syncing changes to feature " + featureId);
+    Timber.d("Connected. Syncing changes to feature %s", featureId);
     ImmutableList<Mutation> mutations = localDataStore.getPendingMutations(featureId).blockingGet();
     try {
-      Log.v(TAG, "Mutations: " + mutations);
-      processMutations(mutations).blockingAwait();
+      Timber.v("Mutations: %s", mutations);
+      processMutations(mutations).compose(this::notifyTransferState).blockingAwait();
       return Result.success();
     } catch (Throwable t) {
-      Log.d(TAG, "Remote updates for feature " + featureId + " failed", t);
+      Timber.e(t, "Remote updates for feature %s failed", featureId);
       localDataStore.updateMutations(incrementRetryCounts(mutations, t)).blockingAwait();
       return Result.retry();
     }
@@ -98,7 +99,7 @@ public class LocalMutationSyncWorker extends Worker {
     return localDataStore
         .loadUser(userId)
         .flatMapCompletable(user -> processMutations(mutations, user))
-        .doOnError(__ -> Log.d(TAG, "User account removed before mutation processed"))
+        .doOnError(__ -> Timber.d("User account removed before mutation processed"))
         .onErrorComplete();
   }
 
@@ -126,5 +127,10 @@ public class LocalMutationSyncWorker extends Worker {
         .setRetryCount(mutation.getRetryCount() + 1)
         .setLastError(error.toString())
         .build();
+  }
+
+  @Override
+  public String getNotificationTitle() {
+    return getApplicationContext().getString(R.string.uploading_data);
   }
 }

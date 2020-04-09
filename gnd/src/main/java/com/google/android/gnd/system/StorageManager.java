@@ -22,31 +22,31 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.provider.MediaStore.Images.Media;
-import android.util.Log;
-import android.widget.ImageView;
-import com.google.android.gnd.R;
-import com.google.android.gnd.persistence.remote.FirestoreStorageManager;
+import com.google.android.gnd.persistence.remote.RemoteStorageManager;
+import com.google.android.gnd.persistence.sync.PhotoSyncWorkManager;
+import com.google.android.gnd.rx.RxTask;
 import com.google.android.gnd.system.ActivityStreams.ActivityResult;
 import com.google.android.gnd.ui.util.FileUtil;
-import com.squareup.picasso.Picasso;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
+import io.reactivex.Single;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import timber.log.Timber;
 
 /** Manages permissions needed for accessing storage and related flows to/from Activity. */
 @Singleton
 public class StorageManager {
 
-  public static final String TAG = StorageManager.class.getName();
-
   private static final int PICK_PHOTO_REQUEST_CODE = StorageManager.class.hashCode() & 0xffff;
   private final Context context;
   private final PermissionsManager permissionsManager;
   private final ActivityStreams activityStreams;
-  private final FirestoreStorageManager firestoreStorageManager;
+  private final RemoteStorageManager remoteStorageManager;
+  private final PhotoSyncWorkManager photoSyncWorkManager;
   private final FileUtil fileUtil;
 
   @Inject
@@ -54,12 +54,14 @@ public class StorageManager {
       Context context,
       PermissionsManager permissionsManager,
       ActivityStreams activityStreams,
-      FirestoreStorageManager firestoreStorageManager,
+      RemoteStorageManager remoteStorageManager,
+      PhotoSyncWorkManager photoSyncWorkManager,
       FileUtil fileUtil) {
     this.context = context;
     this.permissionsManager = permissionsManager;
     this.activityStreams = activityStreams;
-    this.firestoreStorageManager = firestoreStorageManager;
+    this.remoteStorageManager = remoteStorageManager;
+    this.photoSyncWorkManager = photoSyncWorkManager;
     this.fileUtil = fileUtil;
   }
 
@@ -73,6 +75,7 @@ public class StorageManager {
         .andThen(sendPhotoPickerIntent());
   }
 
+  // TODO: Move UI-specific code to UI layer (Fragment or any related helper)
   /** Enqueue an intent for selecting a photo from the storage. */
   private Completable sendPhotoPickerIntent() {
     return Completable.fromAction(
@@ -82,7 +85,7 @@ public class StorageManager {
                   Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
                   intent.setType("image/*");
                   activity.startActivityForResult(intent, PICK_PHOTO_REQUEST_CODE);
-                  Log.d(TAG, "file picker intent sent");
+                  Timber.d("file picker intent sent");
                 }));
   }
 
@@ -120,35 +123,28 @@ public class StorageManager {
     return fileUtil.getFile(splits[splits.length - 1]);
   }
 
+  private Uri getFileUriFromDestinationPath(String destinationPath) throws FileNotFoundException {
+    File file = getLocalFileFromDestinationPath(destinationPath);
+    return Uri.fromFile(file);
+  }
+
   /**
-   * Load photo from the provided destination path.
+   * Fetch url for the image from Firestore Storage. If the remote image is not available then
+   * search for the file locally and return its uri.
    *
-   * <p>If the image is not uploaded yet, then parse the filename from path and load the file from
-   * local storage.
-   *
-   * @param imageView Placeholder for photo field
-   * @param destinationPath Destination path of the uploaded photo
+   * @param destinationPath Final destination path of the uploaded photo relative to Firestore
    */
-  public void loadPhotoFromDestinationPath(ImageView imageView, String destinationPath) {
-    firestoreStorageManager
-        .getDownloadUrl(destinationPath)
-        .doOnSuccess(
-            uri -> {
-              // Load the file from Firestore Storage
-              Picasso.get()
-                  .load(uri)
-                  .placeholder(R.drawable.ic_photo_grey_600_24dp)
-                  .into(imageView);
-            })
-        .doOnError(
-            throwable -> {
-              // Load file locally
-              File file = getLocalFileFromDestinationPath(destinationPath);
-              Picasso.get()
-                  .load(file)
-                  .placeholder(R.drawable.ic_photo_grey_600_24dp)
-                  .into(imageView);
-            })
-        .subscribe();
+  public Single<Uri> getDownloadUrl(String destinationPath) {
+    return RxTask.toSingle(() -> remoteStorageManager.getDownloadUrl(destinationPath))
+        .onErrorReturn(throwable -> getFileUriFromDestinationPath(destinationPath));
+  }
+
+  /** Save a copy of bitmap locally and enqueue worker for uploading to remote storage. */
+  public Completable savePhoto(Bitmap bitmap, String filename, String remotePath)
+      throws IOException {
+    // Make a local copy of the image
+    File file = fileUtil.saveBitmap(bitmap, filename);
+    // Schedule for remote upload
+    return photoSyncWorkManager.enqueueSyncWorker(file.getPath(), remotePath);
   }
 }

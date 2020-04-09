@@ -18,16 +18,16 @@ package com.google.android.gnd.ui.util;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.util.Log;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import javax.inject.Inject;
+import org.apache.commons.io.FileUtils;
+import timber.log.Timber;
 
 public class FileUtil {
 
-  private static final String TAG = FileUtil.class.getName();
   private final Context context;
 
   @Inject
@@ -47,7 +47,7 @@ public class FileUtil {
       bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
     }
 
-    Log.d(TAG, "Photo saved : " + file.getPath());
+    Timber.d("Photo saved : %s", file.getPath());
     return file;
   }
 
@@ -56,6 +56,16 @@ public class FileUtil {
     if (!file.exists()) {
       throw new FileNotFoundException("File not found: " + filename);
     }
+    return file;
+  }
+
+  public File getFileFromRawResource(int resourceId, String filename) throws IOException {
+    File file = new File(context.getFilesDir() + "/" + filename);
+
+    if (!file.exists()) {
+      FileUtils.copyInputStreamToFile(context.getResources().openRawResource(resourceId), file);
+    }
+
     return file;
   }
 }

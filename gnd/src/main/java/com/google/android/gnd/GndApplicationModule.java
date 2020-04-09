@@ -24,23 +24,25 @@ import androidx.work.WorkManager;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gnd.inject.ActivityScoped;
 import com.google.android.gnd.persistence.local.LocalDataStore;
-import com.google.android.gnd.persistence.local.room.FeatureDao;
-import com.google.android.gnd.persistence.local.room.FeatureMutationDao;
-import com.google.android.gnd.persistence.local.room.FieldDao;
-import com.google.android.gnd.persistence.local.room.FormDao;
-import com.google.android.gnd.persistence.local.room.LayerDao;
 import com.google.android.gnd.persistence.local.room.LocalDatabase;
-import com.google.android.gnd.persistence.local.room.MultipleChoiceDao;
-import com.google.android.gnd.persistence.local.room.ObservationDao;
-import com.google.android.gnd.persistence.local.room.ObservationMutationDao;
-import com.google.android.gnd.persistence.local.room.OfflineAreaDao;
-import com.google.android.gnd.persistence.local.room.OptionDao;
-import com.google.android.gnd.persistence.local.room.ProjectDao;
 import com.google.android.gnd.persistence.local.room.RoomLocalDataStore;
-import com.google.android.gnd.persistence.local.room.TileDao;
-import com.google.android.gnd.persistence.local.room.UserDao;
+import com.google.android.gnd.persistence.local.room.dao.FeatureDao;
+import com.google.android.gnd.persistence.local.room.dao.FeatureMutationDao;
+import com.google.android.gnd.persistence.local.room.dao.FieldDao;
+import com.google.android.gnd.persistence.local.room.dao.FormDao;
+import com.google.android.gnd.persistence.local.room.dao.LayerDao;
+import com.google.android.gnd.persistence.local.room.dao.MultipleChoiceDao;
+import com.google.android.gnd.persistence.local.room.dao.ObservationDao;
+import com.google.android.gnd.persistence.local.room.dao.ObservationMutationDao;
+import com.google.android.gnd.persistence.local.room.dao.OfflineAreaDao;
+import com.google.android.gnd.persistence.local.room.dao.OptionDao;
+import com.google.android.gnd.persistence.local.room.dao.ProjectDao;
+import com.google.android.gnd.persistence.local.room.dao.TileDao;
+import com.google.android.gnd.persistence.local.room.dao.UserDao;
 import com.google.android.gnd.persistence.remote.RemoteDataStore;
+import com.google.android.gnd.persistence.remote.RemoteStorageManager;
 import com.google.android.gnd.persistence.remote.firestore.FirestoreDataStore;
+import com.google.android.gnd.persistence.remote.firestore.FirestoreStorageManager;
 import com.google.android.gnd.persistence.remote.firestore.FirestoreUuidGenerator;
 import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator;
 import com.google.android.gnd.ui.common.ViewModelModule;
@@ -121,6 +123,11 @@ abstract class GndApplicationModule {
     FirebaseFirestore.setLoggingEnabled(Config.FIRESTORE_LOGGING_ENABLED);
     return firestore;
   }
+
+  /** Provides the Firestore implementation of remote storage manager. */
+  @Binds
+  @Singleton
+  abstract RemoteStorageManager remoteStorageManager(FirestoreStorageManager fsm);
 
   /** Returns a reference to the default Storage bucket. */
   @Provides

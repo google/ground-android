@@ -16,22 +16,30 @@
 
 package com.google.android.gnd.ui.common;
 
+import android.net.Uri;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
+import android.widget.ImageView;
 import androidx.annotation.Nullable;
 import androidx.databinding.BindingAdapter;
 import androidx.databinding.DataBindingUtil;
 import androidx.databinding.ViewDataBinding;
 import com.google.android.gms.common.SignInButton;
+import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.MultipleChoiceInputFieldBinding;
 import com.google.android.gnd.databinding.TextInputFieldBinding;
 import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.observation.Response;
 import com.google.android.gnd.ui.editobservation.MultipleChoiceFieldLayout;
 import com.google.android.material.textfield.TextInputEditText;
+import com.squareup.picasso.Picasso;
 import java8.util.function.Consumer;
 
+/**
+ * Container for adapter methods defining custom data binding behavior. This class cannot be made
+ * injectable, since binding adapters must be static.
+ */
 public class BindingAdapters {
 
   @BindingAdapter("android:text")
@@ -117,5 +125,10 @@ public class BindingAdapters {
   @BindingAdapter("onShowDialog")
   public static void setOnShowDialogListener(MultipleChoiceFieldLayout view, Runnable listener) {
     view.setOnShowDialogListener(listener);
+  }
+
+  @BindingAdapter("imageUri")
+  public static void bindUri(ImageView view, Uri uri) {
+    Picasso.get().load(uri).placeholder(R.drawable.ic_photo_grey_600_24dp).into(view);
   }
 }

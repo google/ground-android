@@ -23,7 +23,6 @@ import static com.google.android.gnd.ui.util.ViewUtil.getScreenWidth;
 import android.app.ProgressDialog;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -31,9 +30,11 @@ import android.view.MenuItem;
 import android.view.SubMenu;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.view.GravityCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -45,7 +46,6 @@ import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.HomeScreenFragBinding;
 import com.google.android.gnd.inject.ActivityScoped;
 import com.google.android.gnd.model.Project;
-import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.rx.Loadable;
 import com.google.android.gnd.rx.Schedulers;
@@ -74,11 +74,10 @@ import timber.log.Timber;
  */
 @ActivityScoped
 public class HomeScreenFragment extends AbstractFragment
-    implements BackPressListener, OnNavigationItemSelectedListener {
+    implements BackPressListener, OnNavigationItemSelectedListener, OnGlobalLayoutListener {
   // TODO: It's not obvious which feature are in HomeScreen vs MapContainer; make this more
   // intuitive.
   private static final float COLLAPSED_MAP_ASPECT_RATIO = 3.0f / 2.0f;
-  private static final String TAG = HomeScreenFragment.class.getSimpleName();
 
   @Inject AddFeatureDialogFragment addFeatureDialogFragment;
   @Inject AuthenticationManager authenticationManager;
@@ -166,7 +165,7 @@ public class HomeScreenFragment extends AbstractFragment
     drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
 
     navView.setNavigationItemSelectedListener(this);
-    getView().getViewTreeObserver().addOnGlobalLayoutListener(this::onToolbarLayout);
+    getView().getViewTreeObserver().addOnGlobalLayoutListener(this);
 
     if (savedInstanceState == null) {
       mapContainerFragment = new MapContainerFragment();
@@ -175,6 +174,22 @@ public class HomeScreenFragment extends AbstractFragment
     } else {
       mapContainerFragment = restoreChildFragment(savedInstanceState, MapContainerFragment.class);
     }
+  }
+
+  /**
+   * Set the height of the bottom sheet so it completely fills the screen when expanded.
+   */
+  private void setBottomSheetHeight() {
+    CoordinatorLayout.LayoutParams params =
+        (CoordinatorLayout.LayoutParams) bottomSheetScrollView.getLayoutParams();
+
+    int screenHeight = getScreenHeight(getActivity());
+    int statusBarHeight = statusBarScrim.getHeight();
+    int toolbarHeight = toolbar.getHeight();
+    int headerHeight = bottomSheetHeader.getHeight();
+
+    params.height = headerHeight + (screenHeight - (toolbarHeight + statusBarHeight));
+    bottomSheetScrollView.setLayoutParams(params);
   }
 
   /** Fetches offline saved projects and adds them to navigation drawer. */
@@ -221,13 +236,20 @@ public class HomeScreenFragment extends AbstractFragment
     }
   }
 
-  private void onToolbarLayout() {
+  @Override
+  public void onGlobalLayout() {
     if (toolbarWrapper == null || bottomSheetBehavior == null || bottomSheetHeader == null) {
       return;
     }
     bottomSheetBehavior.setFitToContents(false);
+
+    // When the bottom sheet is expanded, the bottom edge of the header needs to be aligned with
+    // the bottom edge of the toolbar (the header slides up under it).
     bottomSheetBehavior.setExpandedOffset(
         toolbarWrapper.getHeight() - bottomSheetHeader.getHeight());
+
+    setBottomSheetHeight();
+    getView().getViewTreeObserver().removeOnGlobalLayoutListener(this);
   }
 
   private void setUpBottomSheetBehavior() {
@@ -337,7 +359,7 @@ public class HomeScreenFragment extends AbstractFragment
         project.error().ifPresent(this::onActivateProjectFailure);
         break;
       default:
-        Timber.e("Unhandled case: " + project.getState());
+        Timber.e("Unhandled case: %s", project.getState());
         break;
     }
   }
@@ -362,7 +384,7 @@ public class HomeScreenFragment extends AbstractFragment
 
   private void onShowAddFeatureDialogRequest(Point location) {
     if (!Loadable.getValue(viewModel.getActiveProject()).isPresent()) {
-      Log.e(TAG, "Attempting to add feature while no project loaded");
+      Timber.e("Attempting to add feature while no project loaded");
       return;
     }
     // TODO: Pause location updates while dialog is open.
@@ -373,16 +395,13 @@ public class HomeScreenFragment extends AbstractFragment
   private void onFeatureSheetStateChange(FeatureSheetState state) {
     switch (state.getVisibility()) {
       case VISIBLE:
-        Feature feature = state.getFeature();
-        toolbar.setTitle(feature.getTitle());
-        toolbar.setSubtitle(feature.getSubtitle());
         showBottomSheet();
         break;
       case HIDDEN:
         hideBottomSheet();
         break;
       default:
-        Log.e(TAG, "Unhandled visibility: " + state.getVisibility());
+        Timber.e("Unhandled visibility: %s", state.getVisibility());
         break;
     }
   }
@@ -440,7 +459,7 @@ public class HomeScreenFragment extends AbstractFragment
           authenticationManager.signOut();
           break;
         default:
-          Log.e(TAG, "Unhandled id: " + item.getItemId());
+          Timber.e("Unhandled id: %s", item.getItemId());
           break;
       }
     }
@@ -448,7 +467,7 @@ public class HomeScreenFragment extends AbstractFragment
   }
 
   private void onActivateProjectFailure(Throwable throwable) {
-    Log.e(TAG, "Error activating project", RxJava2Debug.getEnhancedStackTrace(throwable));
+    Timber.e(RxJava2Debug.getEnhancedStackTrace(throwable), "Error activating project");
     dismissLoadingDialog();
     EphemeralPopups.showError(getContext(), R.string.project_load_error);
     showProjectSelector();

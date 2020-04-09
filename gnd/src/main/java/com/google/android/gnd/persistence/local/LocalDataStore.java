@@ -19,6 +19,7 @@ package com.google.android.gnd.persistence.local;
 import com.google.android.gnd.model.Mutation;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.User;
+import com.google.android.gnd.model.basemap.OfflineArea;
 import com.google.android.gnd.model.basemap.tile.Tile;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.FeatureMutation;
@@ -135,4 +136,13 @@ public interface LocalDataStore {
 
   /** Returns the tile with the specified id from the local data store, if found. */
   Maybe<Tile> getTile(String tileId);
+
+  /** Returns all pending tiles from the local data store. */
+  Single<ImmutableList<Tile>> getPendingTiles();
+
+  /**
+   * Attempts to update an offline area in the local data store. If the area doesn't exist, inserts
+   * the area into the local data store.
+   */
+  Completable insertOrUpdateOfflineArea(OfflineArea area);
 }

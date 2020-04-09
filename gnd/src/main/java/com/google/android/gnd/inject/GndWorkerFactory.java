@@ -24,7 +24,10 @@ import androidx.work.WorkerFactory;
 import androidx.work.WorkerParameters;
 import com.google.android.gnd.persistence.local.LocalDataStore;
 import com.google.android.gnd.persistence.remote.RemoteDataStore;
+import com.google.android.gnd.persistence.remote.RemoteStorageManager;
 import com.google.android.gnd.persistence.sync.LocalMutationSyncWorker;
+import com.google.android.gnd.persistence.sync.PhotoSyncWorker;
+import com.google.android.gnd.system.NotificationManager;
 import com.google.android.gnd.workers.TileDownloadWorker;
 import javax.inject.Inject;
 
@@ -34,11 +37,19 @@ public class GndWorkerFactory extends WorkerFactory {
   // supported on Workers.
   private final LocalDataStore localDataStore;
   private final RemoteDataStore remoteDataStore;
+  private final RemoteStorageManager remoteStorageManager;
+  private final NotificationManager notificationManager;
 
   @Inject
-  public GndWorkerFactory(LocalDataStore localDataStore, RemoteDataStore remoteDataStore) {
+  public GndWorkerFactory(
+      LocalDataStore localDataStore,
+      RemoteDataStore remoteDataStore,
+      RemoteStorageManager remoteStorageManager,
+      NotificationManager notificationManager) {
     this.localDataStore = localDataStore;
     this.remoteDataStore = remoteDataStore;
+    this.remoteStorageManager = remoteStorageManager;
+    this.notificationManager = notificationManager;
   }
 
   @Nullable
@@ -51,9 +62,12 @@ public class GndWorkerFactory extends WorkerFactory {
     // hard-coded for simplicity. If and when github.com/google/dagger/issues/1183 is implemented
     // this class can be removed in favor of DI.
     if (workerClassName.equals(LocalMutationSyncWorker.class.getName())) {
-      return new LocalMutationSyncWorker(appContext, params, localDataStore, remoteDataStore);
+      return new LocalMutationSyncWorker(
+          appContext, params, localDataStore, remoteDataStore, notificationManager);
     } else if (workerClassName.equals(TileDownloadWorker.class.getName())) {
-      return new TileDownloadWorker(appContext, params, localDataStore);
+      return new TileDownloadWorker(appContext, params, localDataStore, notificationManager);
+    } else if (workerClassName.equals(PhotoSyncWorker.class.getName())) {
+      return new PhotoSyncWorker(appContext, params, remoteStorageManager, notificationManager);
     } else {
       throw new IllegalArgumentException("Unknown worker class " + workerClassName);
     }
