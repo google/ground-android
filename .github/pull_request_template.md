@@ -13,6 +13,7 @@
 Title: "\[Observation list\] Sorted observations by date"
 
 -[x] Refactor ObservationViewModel allow modification of sort order.
+
 -[x] Sort results when returned from ObservationRepository.
 
 \[Screenshot\]
