@@ -245,7 +245,11 @@ public class MapContainerFragment extends AbstractFragment {
   private void onApplyWindowInsets(WindowInsetsCompat windowInsets) {
     ViewCompat.onApplyWindowInsets(mapProvider.getFragment().getView(), windowInsets);
     hamburgerBtn.setTranslationY(windowInsets.getSystemWindowInsetTop());
-    mapBtnLayout.setTranslationY(windowInsets.getSystemWindowInsetTop());
+    mapBtnLayout.setPadding(
+        mapBtnLayout.getPaddingLeft(),
+        windowInsets.getSystemWindowInsetTop(),
+        mapBtnLayout.getPaddingRight(),
+        windowInsets.getSystemWindowInsetBottom());
   }
 
   @Override

@@ -64,8 +64,7 @@
       android:layout_height="match_parent"
       android:layout_gravity="end"
       android:layout_marginEnd="@dimen/map_btn_margin_right"
-      android:layout_marginRight="@dimen/map_btn_margin_right"
-      android:layout_marginBottom="@dimen/map_btn_margin_bottom">
+      android:layout_marginRight="@dimen/map_btn_margin_right">
 
       <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/map_type_btn"
