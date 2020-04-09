@@ -6,17 +6,15 @@
 1. Add steps to verify behavior where appropriate.
 1. Paste a screenshot or GIF (optional) illustrating the proposed change.
 1. @mentions of the person or team responsible for reviewing proposed changes.
-1. Delete these instructions.
+1. Delete these instructions and below example.
 
 **Example:**
 
-Title: "\[Observation list\] Sorted observations by date"
-
-- [x] Refactor ObservationViewModel allow modification of sort order.
-- [x] Sort results when returned from ObservationRepository.
-
-\[Screenshot\]
-
-Fixes #000.
-
-@gino-m PTAL?
+> Title: "\[Observation list\] Sorted observations by date"
+> - [x] Refactor ObservationViewModel allow modification of sort order.
+> - [x] Sort results when returned from ObservationRepository.
+> \[Screenshot\]
+>
+> Fixes #000.
+>
+> @gino-m PTAL?
