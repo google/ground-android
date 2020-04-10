@@ -30,6 +30,8 @@ import com.google.android.gnd.persistence.remote.firestore.FirestoreDataStore;
 import com.google.android.gnd.persistence.remote.firestore.FirestoreStorageManager;
 import com.google.android.gnd.persistence.remote.firestore.FirestoreUuidGenerator;
 import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator;
+import com.google.android.gnd.rx.RxSchedulers;
+import com.google.android.gnd.rx.Schedulers;
 import com.google.android.gnd.ui.common.ViewModelModule;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreSettings;
@@ -55,6 +57,10 @@ abstract class GndApplicationModule {
   @Binds
   @Singleton
   abstract RemoteDataStore remoteDataStore(FirestoreDataStore ds);
+
+  @Binds
+  @Singleton
+  abstract Schedulers schedulers(RxSchedulers rxSchedulers);
 
   /** Provides the Firestore implementation of offline unique id generation. */
   @Binds

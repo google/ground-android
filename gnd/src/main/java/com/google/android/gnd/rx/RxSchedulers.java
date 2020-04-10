@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google LLC
+ * Copyright 2020 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,10 +17,21 @@
 package com.google.android.gnd.rx;
 
 import io.reactivex.Scheduler;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import javax.inject.Inject;
 
-public interface Schedulers {
+public class RxSchedulers implements Schedulers {
 
-  Scheduler io();
+  @Inject
+  RxSchedulers() {}
 
-  Scheduler ui();
+  @Override
+  public Scheduler io() {
+    return io.reactivex.schedulers.Schedulers.io();
+  }
+
+  @Override
+  public Scheduler ui() {
+    return AndroidSchedulers.mainThread();
+  }
 }
