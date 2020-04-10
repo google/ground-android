@@ -20,6 +20,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gnd.TestApplication;
 import com.google.android.gnd.inject.DaggerTestComponent;
+import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.basemap.OfflineArea;
 import com.google.android.gnd.model.basemap.tile.Tile;
 import com.google.android.gnd.model.basemap.tile.Tile.State;
@@ -48,6 +49,18 @@ public class LocalDataStoreTest {
   @After
   public void tearDown() {
     database.close();
+  }
+
+  @Test
+  public void testInsertOrUpdateUser() {
+    User user =
+        User.builder()
+            .setId("some id")
+            .setDisplayName("test user")
+            .setEmail("test@gmail.com")
+            .build();
+    localDataStore.insertOrUpdateUser(user).test().assertNoErrors();
+    localDataStore.getUser("some id").test().assertValue(user);
   }
 
   @Test
