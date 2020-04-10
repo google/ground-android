@@ -186,6 +186,17 @@ public class RoomLocalDataStore implements LocalDataStore {
   }
 
   @Override
+  public Single<User> getUser(String id) {
+    return userDao
+        .findById(id)
+        .doOnError(e -> Timber.e(e, "Error loading user from local db: %s", id))
+        // Fail with NoSuchElementException if not found.
+        .toSingle()
+        .map(UserEntity::toUser)
+        .subscribeOn(schedulers.io());
+  }
+
+  @Override
   public Single<List<Project>> getProjects() {
     return projectDao
         .getAllProjects()
@@ -344,7 +355,7 @@ public class RoomLocalDataStore implements LocalDataStore {
       return Completable.complete();
     }
     ObservationMutationEntity lastMutation = mutations.get(mutations.size() - 1);
-    return loadUser(lastMutation.getUserId())
+    return getUser(lastMutation.getUserId())
         .map(user -> applyMutations(observation, mutations, user))
         .flatMapCompletable(obs -> observationDao.insertOrUpdate(obs).subscribeOn(schedulers.io()));
   }
@@ -370,21 +381,10 @@ public class RoomLocalDataStore implements LocalDataStore {
     return builder.build();
   }
 
-  @Override
-  public Single<User> loadUser(String id) {
-    return userDao
-        .findById(id)
-        .doOnError(e -> Timber.e(e, "Error loading user from local db: %s", id))
-        // Fail with NoSuchElementException if not found.
-        .toSingle()
-        .map(UserEntity::toUser)
-        .subscribeOn(schedulers.io());
-  }
-
   private Completable apply(FeatureMutation mutation) throws LocalDataStoreException {
     switch (mutation.getType()) {
       case CREATE:
-        return loadUser(mutation.getUserId())
+        return getUser(mutation.getUserId())
             .flatMapCompletable(user -> insertOrUpdateFeature(mutation, user));
       default:
         throw LocalDataStoreException.unknownMutationType(mutation.getType());
@@ -422,10 +422,10 @@ public class RoomLocalDataStore implements LocalDataStore {
   private Completable apply(ObservationMutation mutation) throws LocalDataStoreException {
     switch (mutation.getType()) {
       case CREATE:
-        return loadUser(mutation.getUserId())
+        return getUser(mutation.getUserId())
             .flatMapCompletable(user -> createObservation(mutation, user));
       case UPDATE:
-        return loadUser(mutation.getUserId())
+        return getUser(mutation.getUserId())
             .flatMapCompletable(user -> updateObservation(mutation, user));
       default:
         throw LocalDataStoreException.unknownMutationType(mutation.getType());
