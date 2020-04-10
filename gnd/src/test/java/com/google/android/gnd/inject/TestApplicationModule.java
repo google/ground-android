@@ -19,9 +19,13 @@ package com.google.android.gnd.inject;
 import android.content.Context;
 import androidx.room.Room;
 import androidx.test.core.app.ApplicationProvider;
+import com.google.android.gnd.TestScheduler;
 import com.google.android.gnd.persistence.local.room.LocalDatabase;
+import com.google.android.gnd.rx.Schedulers;
+import dagger.Binds;
 import dagger.Module;
 import dagger.Provides;
+import javax.inject.Singleton;
 
 @Module
 abstract class TestApplicationModule {
@@ -37,4 +41,8 @@ abstract class TestApplicationModule {
         .allowMainThreadQueries()
         .build();
   }
+
+  @Binds
+  @Singleton
+  abstract Schedulers schedulers(TestScheduler testScheduler);
 }
