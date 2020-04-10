@@ -19,15 +19,15 @@ package com.google.android.gnd.persistence.local.room.dao;
 import androidx.room.Dao;
 import androidx.room.Query;
 import com.google.android.gnd.persistence.local.room.entity.OfflineAreaEntity;
-import io.reactivex.Flowable;
 import io.reactivex.Maybe;
+import io.reactivex.Single;
 import java.util.List;
 
 /** Provides read/write operations for writing {@link OfflineAreaEntity} to the local db. */
 @Dao
 public interface OfflineAreaDao extends BaseDao<OfflineAreaEntity> {
   @Query("SELECT * FROM offline_area")
-  Flowable<List<OfflineAreaEntity>> findAll();
+  Single<List<OfflineAreaEntity>> findAll();
 
   @Query("SELECT * FROM offline_area WHERE id = :id")
   Maybe<OfflineAreaEntity> findById(String id);

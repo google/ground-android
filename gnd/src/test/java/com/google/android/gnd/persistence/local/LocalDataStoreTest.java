@@ -16,8 +16,11 @@
 
 package com.google.android.gnd.persistence.local;
 
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gnd.TestApplication;
 import com.google.android.gnd.inject.DaggerTestComponent;
+import com.google.android.gnd.model.basemap.OfflineArea;
 import com.google.android.gnd.model.basemap.tile.Tile;
 import com.google.android.gnd.model.basemap.tile.Tile.State;
 import com.google.android.gnd.persistence.local.room.LocalDatabase;
@@ -95,5 +98,30 @@ public class LocalDataStoreTest {
         .getPendingTiles()
         .test()
         .assertValue(ImmutableList.<Tile>builder().add(tile1, tile3).build());
+  }
+
+  @Test
+  public void testInsertOrUpdateOfflineAreas() {
+    LatLngBounds bounds1 = LatLngBounds.builder().include(new LatLng(0.0, 0.0)).build();
+    OfflineArea area1 =
+        OfflineArea.newBuilder()
+            .setId("id_1")
+            .setBounds(bounds1)
+            .setState(OfflineArea.State.PENDING)
+            .build();
+    LatLngBounds bounds2 = LatLngBounds.builder().include(new LatLng(10.0, 30.0)).build();
+    OfflineArea area2 =
+        OfflineArea.newBuilder()
+            .setId("id_2")
+            .setBounds(bounds2)
+            .setState(OfflineArea.State.PENDING)
+            .build();
+
+    localDataStore.insertOrUpdateOfflineArea(area1).test().assertNoErrors();
+    localDataStore.insertOrUpdateOfflineArea(area2).test().assertNoErrors();
+    localDataStore
+        .getOfflineAreas()
+        .test()
+        .assertValue(ImmutableList.<OfflineArea>builder().add(area1, area2).build());
   }
 }
