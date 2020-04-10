@@ -18,6 +18,7 @@ package com.google.android.gnd.inject;
 
 import com.google.android.gnd.dao.UserDaoTest;
 import com.google.android.gnd.persistence.local.LocalDataStoreModule;
+import com.google.android.gnd.persistence.local.LocalDataStoreTest;
 import dagger.Component;
 import javax.inject.Singleton;
 
@@ -26,4 +27,6 @@ import javax.inject.Singleton;
 public interface TestComponent {
 
   void inject(UserDaoTest userDaoTest);
+
+  void inject(LocalDataStoreTest localDataStoreTest);
 }
