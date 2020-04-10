@@ -24,10 +24,8 @@ import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.basemap.OfflineArea;
 import com.google.android.gnd.model.basemap.tile.Tile;
 import com.google.android.gnd.model.basemap.tile.Tile.State;
-import com.google.android.gnd.persistence.local.room.LocalDatabase;
 import com.google.common.collect.ImmutableList;
 import javax.inject.Inject;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -39,16 +37,10 @@ import org.robolectric.annotation.Config;
 public class LocalDataStoreTest {
 
   @Inject LocalDataStore localDataStore;
-  @Inject LocalDatabase database;
 
   @Before
   public void setUp() {
     DaggerTestComponent.create().inject(this);
-  }
-
-  @After
-  public void tearDown() {
-    database.close();
   }
 
   @Test
