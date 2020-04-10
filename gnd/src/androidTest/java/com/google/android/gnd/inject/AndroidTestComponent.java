@@ -16,23 +16,10 @@
 
 package com.google.android.gnd.inject;
 
-import android.content.Context;
-import androidx.room.Room;
-import androidx.test.InstrumentationRegistry;
-import com.google.android.gnd.persistence.local.room.LocalDatabase;
-import dagger.Module;
-import dagger.Provides;
+import com.google.android.gnd.persistence.local.LocalDataStoreModule;
+import dagger.Component;
+import javax.inject.Singleton;
 
-@Module
-abstract class TestApplicationModule {
-
-  @Provides
-  static Context contextProvider() {
-    return InstrumentationRegistry.getContext();
-  }
-
-  @Provides
-  static LocalDatabase localDatabaseProvider(Context context) {
-    return Room.inMemoryDatabaseBuilder(context, LocalDatabase.class).build();
-  }
-}
+@Singleton
+@Component(modules = {AndroidTestApplicationModule.class, LocalDataStoreModule.class})
+public interface AndroidTestComponent {}
