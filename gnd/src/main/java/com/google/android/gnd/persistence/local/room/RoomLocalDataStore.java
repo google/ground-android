@@ -18,7 +18,6 @@ package com.google.android.gnd.persistence.local.room;
 
 import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList;
 import static com.google.android.gnd.util.ImmutableSetCollector.toImmutableSet;
-import static java8.util.stream.Collectors.toList;
 import static java8.util.stream.StreamSupport.stream;
 
 import androidx.room.Transaction;
@@ -197,10 +196,10 @@ public class RoomLocalDataStore implements LocalDataStore {
   }
 
   @Override
-  public Single<List<Project>> getProjects() {
+  public Single<ImmutableList<Project>> getProjects() {
     return projectDao
         .getAllProjects()
-        .map(list -> stream(list).map(ProjectEntity::toProject).collect(toList()))
+        .map(list -> stream(list).map(ProjectEntity::toProject).collect(toImmutableList()))
         .subscribeOn(schedulers.io());
   }
 
