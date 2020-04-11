@@ -52,6 +52,7 @@ public abstract class RxDebug {
             .doOnComplete(t::onComplete)
             .doOnError(t::onError);
   }
+
   /**
    * Returns a converter for use with {@link Single#as} that logs all events that occur on the
    * source stream.
