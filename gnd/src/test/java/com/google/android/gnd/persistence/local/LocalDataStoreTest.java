@@ -25,6 +25,12 @@ import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.basemap.OfflineArea;
 import com.google.android.gnd.model.basemap.tile.Tile;
 import com.google.android.gnd.model.basemap.tile.Tile.State;
+import com.google.android.gnd.model.form.Element;
+import com.google.android.gnd.model.form.Field;
+import com.google.android.gnd.model.form.Field.Type;
+import com.google.android.gnd.model.form.Form;
+import com.google.android.gnd.model.layer.Layer;
+import com.google.android.gnd.model.layer.Style;
 import com.google.common.collect.ImmutableList;
 import javax.inject.Inject;
 import org.junit.Before;
@@ -46,13 +52,39 @@ public class LocalDataStoreTest {
 
   @Test
   public void testInsertProject() {
-    Project project =
-        Project.newBuilder()
-            .setId("foo id")
-            .setTitle("project 1")
-            .setDescription("foo description")
+    Field field =
+        Field.newBuilder()
+            .setId("field id")
+            .setLabel("field label")
+            .setRequired(false)
+            .setType(Type.TEXT)
             .build();
-    localDataStore.insertOrUpdateProject(project).test().assertNoErrors();
+
+    Element element = Element.ofField(field);
+
+    Form form =
+        Form.newBuilder()
+            .setId("form id")
+            .setElements(ImmutableList.<Element>builder().add(element).build())
+            .build();
+
+    Layer layer =
+        Layer.newBuilder()
+            .setId("layer id")
+            .setItemLabel("item label")
+            .setListHeading("heading title")
+            .setDefaultStyle(Style.builder().setColor("000").build())
+            .setForm(form)
+            .build();
+
+    Project.Builder builder =
+        Project.newBuilder()
+            .setId("project id")
+            .setTitle("project 1")
+            .setDescription("foo description");
+    builder.putLayer("layer id", layer);
+
+    localDataStore.insertOrUpdateProject(builder.build()).test().assertNoErrors();
   }
 
   @Test

@@ -73,7 +73,7 @@ public abstract class LayerEntity {
         .setId(layer.getId())
         .setProjectId(projectId)
         .setItemLabel(layer.getItemLabel())
-        .setListHeading(layer.getItemLabel())
+        .setListHeading(layer.getListHeading())
         .setDefaultStyle(layer.getDefaultStyle())
         .build();
   }
