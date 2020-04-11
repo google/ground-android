@@ -50,7 +50,7 @@ public class FeatureSheetViewModel extends ViewModel {
    * Returns a LiveData that immediately emits the selected feature (or empty) on if none selected
    * to each new observer.
    */
-  public LiveData<Optional<Feature>> getSelectedFeature() {
+  public LiveData<Optional<Feature>> getSelectedFeatureOnceAndStream() {
     return LiveDataReactiveStreams.fromPublisher(selectedFeature);
   }
 
