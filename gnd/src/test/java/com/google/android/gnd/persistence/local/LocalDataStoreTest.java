@@ -20,6 +20,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gnd.TestApplication;
 import com.google.android.gnd.inject.DaggerTestComponent;
+import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.basemap.OfflineArea;
 import com.google.android.gnd.model.basemap.tile.Tile;
@@ -41,6 +42,39 @@ public class LocalDataStoreTest {
   @Before
   public void setUp() {
     DaggerTestComponent.create().inject(this);
+  }
+
+  @Test
+  public void testInsertProject() {
+    Project project =
+        Project.newBuilder()
+            .setId("foo id")
+            .setTitle("project 1")
+            .setDescription("foo description")
+            .build();
+    localDataStore.insertOrUpdateProject(project).test().assertNoErrors();
+  }
+
+  @Test
+  public void testGetProject() {
+    Project project1 =
+        Project.newBuilder()
+            .setId("foo id")
+            .setTitle("project 1")
+            .setDescription("foo description")
+            .build();
+    Project project2 =
+        Project.newBuilder()
+            .setId("foo id 2")
+            .setTitle("project 2")
+            .setDescription("foo description 2")
+            .build();
+    localDataStore.insertOrUpdateProject(project1).blockingAwait();
+    localDataStore.insertOrUpdateProject(project2).blockingAwait();
+    localDataStore
+        .getProjects()
+        .test()
+        .assertValue(ImmutableList.<Project>builder().add(project1, project2).build());
   }
 
   @Test
