@@ -31,5 +31,5 @@ public interface RemoteStorageManager {
   Task<Uri> getDownloadUrl(String remoteDestinationPath);
 
   /** Uploads file to a remote path. */
-  Flowable<UploadProgress> uploadMediaFromFile(File file, String remoteDestinationPath);
+  Flowable<TransferProgress> uploadMediaFromFile(File file, String remoteDestinationPath);
 }

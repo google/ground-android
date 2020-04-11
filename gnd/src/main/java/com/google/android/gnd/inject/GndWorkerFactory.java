@@ -62,9 +62,10 @@ public class GndWorkerFactory extends WorkerFactory {
     // hard-coded for simplicity. If and when github.com/google/dagger/issues/1183 is implemented
     // this class can be removed in favor of DI.
     if (workerClassName.equals(LocalMutationSyncWorker.class.getName())) {
-      return new LocalMutationSyncWorker(appContext, params, localDataStore, remoteDataStore);
+      return new LocalMutationSyncWorker(
+          appContext, params, localDataStore, remoteDataStore, notificationManager);
     } else if (workerClassName.equals(TileDownloadWorker.class.getName())) {
-      return new TileDownloadWorker(appContext, params, localDataStore);
+      return new TileDownloadWorker(appContext, params, localDataStore, notificationManager);
     } else if (workerClassName.equals(PhotoSyncWorker.class.getName())) {
       return new PhotoSyncWorker(appContext, params, remoteStorageManager, notificationManager);
     } else {

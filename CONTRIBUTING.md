@@ -175,6 +175,9 @@ $ keytool -list -v \
 
 This includes the API key and URL for your new Firebase project.
 
+**Note:** Do not overwrite `gnd/google-services.json`, this is used with Google Cloud build and should be left as-is.
+
+
 ### Set up Google Cloud Build (optional)
 
 Used to build with Google Cloud and for running integration tests:
@@ -195,4 +198,4 @@ Used to build with Google Cloud and for running integration tests:
     java.lang.RuntimeException: Unable to get provider com.google.firebase.provider.FirebaseInitProvider: java.lang.IllegalArgumentException: Given String is empty or null
     ```
     
-   Solution: Ensure `gnd/src/debug/google-services.json` exists and is valid, as per instructions in [Set up Firebase](#set-up-firebase).
+   Solution: Ensure `gnd/src/debug/google-services.json` exists and is valid, as per instructions in [Set up Firebase](#set-up-firebase). You may need to perform a clean build in Android Studio by going to Build -> Clean Project. 

@@ -19,11 +19,14 @@ package com.google.android.gnd.workers;
 import android.content.Context;
 import androidx.annotation.NonNull;
 import androidx.work.Data;
-import androidx.work.Worker;
 import androidx.work.WorkerParameters;
+import com.google.android.gnd.R;
 import com.google.android.gnd.model.basemap.tile.Tile;
 import com.google.android.gnd.model.basemap.tile.Tile.State;
 import com.google.android.gnd.persistence.local.LocalDataStore;
+import com.google.android.gnd.persistence.remote.TransferProgress;
+import com.google.android.gnd.persistence.sync.BaseWorker;
+import com.google.android.gnd.system.NotificationManager;
 import com.google.common.collect.ImmutableList;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
@@ -42,22 +45,18 @@ import timber.log.Timber;
  * provided in a {@link Data} object. This worker should only run when the device has a network
  * connection.
  */
-public class TileDownloadWorker extends Worker {
+public class TileDownloadWorker extends BaseWorker {
   private static final int BUFFER_SIZE = 4096;
 
   private final Context context;
   private final LocalDataStore localDataStore;
 
-  class TileDownloadException extends RuntimeException {
-
-    TileDownloadException(String msg, Throwable e) {
-      super(msg, e);
-    }
-  }
-
   public TileDownloadWorker(
-      @NonNull Context context, @NonNull WorkerParameters params, LocalDataStore localDataStore) {
-    super(context, params);
+      @NonNull Context context,
+      @NonNull WorkerParameters params,
+      LocalDataStore localDataStore,
+      NotificationManager notificationManager) {
+    super(context, params, notificationManager);
     this.context = context;
     this.localDataStore = localDataStore;
   }
@@ -155,6 +154,11 @@ public class TileDownloadWorker extends Worker {
 
   private Completable processTiles(ImmutableList<Tile> pendingTiles) {
     return Observable.fromIterable(pendingTiles)
+        .doOnNext(
+            tile ->
+                sendNotification(
+                    TransferProgress.inProgress(
+                        pendingTiles.size(), pendingTiles.indexOf(tile) + 1)))
         .flatMapCompletable(
             t -> {
               switch (t.getState()) {
@@ -166,7 +170,8 @@ public class TileDownloadWorker extends Worker {
                 default:
                   return downloadTile(t);
               }
-            });
+            })
+        .compose(this::notifyTransferState);
   }
 
   /**
@@ -194,6 +199,17 @@ public class TileDownloadWorker extends Worker {
     } catch (Throwable t) {
       Timber.d(t, "Downloads for tiles failed: %s", pendingTiles);
       return Result.failure();
+    }
+  }
+
+  @Override
+  public String getNotificationTitle() {
+    return getApplicationContext().getString(R.string.downloading_tiles);
+  }
+
+  static class TileDownloadException extends RuntimeException {
+    TileDownloadException(String msg, Throwable e) {
+      super(msg, e);
     }
   }
 }

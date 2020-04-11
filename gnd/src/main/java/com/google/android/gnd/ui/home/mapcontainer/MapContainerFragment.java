@@ -52,7 +52,6 @@ import timber.log.Timber;
 
 /** Main app view, displaying the map and related controls (center cross-hairs, add button, etc). */
 public class MapContainerFragment extends AbstractFragment {
-
   private static final String MAP_FRAGMENT_KEY = MapProvider.class.getName() + "#fragment";
 
   @Inject MapProvider mapProvider;
@@ -138,8 +137,8 @@ public class MapContainerFragment extends AbstractFragment {
     }
 
     mapContainerViewModel
-      .getShowMapTypeSelectorRequests()
-      .observe(getViewLifecycleOwner(), __ -> showMapTypeSelectorDialog());
+        .getShowMapTypeSelectorRequests()
+        .observe(getViewLifecycleOwner(), __ -> showMapTypeSelectorDialog());
   }
 
   private void onMapReady(MapAdapter map) {
@@ -159,6 +158,7 @@ public class MapContainerFragment extends AbstractFragment {
     addFeatureBtn.setOnClickListener(
         __ -> homeScreenViewModel.onAddFeatureBtnClick(map.getCameraTarget()));
     enableLocationLockBtn();
+    map.renderTileOverlay();
   }
 
   @Override
@@ -245,7 +245,8 @@ public class MapContainerFragment extends AbstractFragment {
   private void onApplyWindowInsets(WindowInsetsCompat windowInsets) {
     ViewCompat.onApplyWindowInsets(mapProvider.getFragment().getView(), windowInsets);
     hamburgerBtn.setTranslationY(windowInsets.getSystemWindowInsetTop());
-    mapBtnLayout.setTranslationY(-windowInsets.getSystemWindowInsetBottom());
+    mapBtnLayout.setPadding(
+        0, windowInsets.getSystemWindowInsetTop(), 0, windowInsets.getSystemWindowInsetBottom());
   }
 
   @Override

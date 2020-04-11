@@ -19,7 +19,7 @@ package com.google.android.gnd.persistence.remote.firestore;
 import android.net.Uri;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gnd.persistence.remote.RemoteStorageManager;
-import com.google.android.gnd.persistence.remote.UploadProgress;
+import com.google.android.gnd.persistence.remote.TransferProgress;
 import com.google.firebase.storage.StorageReference;
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Flowable;
@@ -67,23 +67,18 @@ public class FirestoreStorageManager implements RemoteStorageManager {
   }
 
   @Override
-  public Flowable<UploadProgress> uploadMediaFromFile(File file, String remoteDestinationPath) {
+  public Flowable<TransferProgress> uploadMediaFromFile(File file, String remoteDestinationPath) {
     return Flowable.create(
         emitter ->
             createReference(remoteDestinationPath)
                 .putFile(Uri.fromFile(file))
                 .addOnCompleteListener(uploadTask -> emitter.onComplete())
-                .addOnPausedListener(taskSnapshot -> emitter.onNext(UploadProgress.paused()))
-                .addOnFailureListener(
-                    throwable -> {
-                      emitter.onNext(UploadProgress.failed());
-                      emitter.onError(throwable);
-                    })
-                .addOnSuccessListener(taskSnapshot -> emitter.onNext(UploadProgress.completed()))
+                .addOnPausedListener(taskSnapshot -> emitter.onNext(TransferProgress.paused()))
+                .addOnFailureListener(emitter::onError)
                 .addOnProgressListener(
                     taskSnapshot ->
                         emitter.onNext(
-                            UploadProgress.inProgress(
+                            TransferProgress.inProgress(
                                 (int) taskSnapshot.getTotalByteCount(),
                                 (int) taskSnapshot.getBytesTransferred()))),
         BackpressureStrategy.LATEST);
