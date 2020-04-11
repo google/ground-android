@@ -84,25 +84,25 @@ public class LocalDataStoreTest {
             .setDescription("foo description");
     builder.putLayer("layer id", layer);
 
-    localDataStore.insertOrUpdateProject(builder.build()).test().assertNoErrors();
+    localDataStore.insertOrUpdateProject(builder.build()).test().assertComplete();
   }
 
   @Test
   public void testGetProject() {
     Project project1 =
         Project.newBuilder()
-            .setId("foo id")
+            .setId("id 1")
             .setTitle("project 1")
             .setDescription("foo description")
             .build();
     Project project2 =
         Project.newBuilder()
-            .setId("foo id 2")
+            .setId("id 2")
             .setTitle("project 2")
             .setDescription("foo description 2")
             .build();
-    localDataStore.insertOrUpdateProject(project1).blockingAwait();
-    localDataStore.insertOrUpdateProject(project2).blockingAwait();
+    localDataStore.insertOrUpdateProject(project1).test().assertComplete();
+    localDataStore.insertOrUpdateProject(project2).test().assertComplete();
     localDataStore
         .getProjects()
         .test()
@@ -117,7 +117,7 @@ public class LocalDataStoreTest {
             .setTitle("project 2")
             .setDescription("foo description 2")
             .build();
-    localDataStore.insertOrUpdateProject(project).blockingAwait();
+    localDataStore.insertOrUpdateProject(project).test().assertComplete();
     localDataStore.getProjectById("foo id 2").test().assertValue(project);
   }
 
@@ -135,8 +135,8 @@ public class LocalDataStoreTest {
             .setTitle("project 2")
             .setDescription("foo description 2")
             .build();
-    localDataStore.insertOrUpdateProject(project1).blockingAwait();
-    localDataStore.insertOrUpdateProject(project2).blockingAwait();
+    localDataStore.insertOrUpdateProject(project1).test().assertComplete();
+    localDataStore.insertOrUpdateProject(project2).test().assertComplete();
     localDataStore.deleteProject(project1).test().assertComplete();
     localDataStore
         .getProjects()
@@ -152,7 +152,7 @@ public class LocalDataStoreTest {
             .setDisplayName("test user")
             .setEmail("test@gmail.com")
             .build();
-    localDataStore.insertOrUpdateUser(user).test().assertNoErrors();
+    localDataStore.insertOrUpdateUser(user).test().assertComplete();
     localDataStore.getUser("some id").test().assertValue(user);
   }
 
@@ -160,17 +160,17 @@ public class LocalDataStoreTest {
   public void testGetTile() {
     Tile tile =
         Tile.newBuilder()
-            .setId("id_1")
+            .setId("tile id_1")
             .setPath("/foo/path1")
             .setState(State.PENDING)
             .setUrl("foo_url")
             .build();
-    localDataStore.insertOrUpdateTile(tile).test().assertNoErrors();
-    localDataStore.getTile("id_1").test().assertValueCount(1).assertValue(tile);
+    localDataStore.insertOrUpdateTile(tile).test().assertComplete();
+    localDataStore.getTile("tile id_1").test().assertValueCount(1).assertValue(tile);
 
     tile = tile.toBuilder().setPath("/foo/path2").build();
-    localDataStore.insertOrUpdateTile(tile).test().assertNoErrors();
-    localDataStore.getTile("id_1").test().assertValueCount(1).assertValue(tile);
+    localDataStore.insertOrUpdateTile(tile).test().assertComplete();
+    localDataStore.getTile("tile id_1").test().assertValueCount(1).assertValue(tile);
   }
 
   @Test
@@ -196,9 +196,9 @@ public class LocalDataStoreTest {
             .setPath("some_path")
             .setUrl("some_url")
             .build();
-    localDataStore.insertOrUpdateTile(tile1).blockingAwait();
-    localDataStore.insertOrUpdateTile(tile2).blockingAwait();
-    localDataStore.insertOrUpdateTile(tile3).blockingAwait();
+    localDataStore.insertOrUpdateTile(tile1).test().assertComplete();
+    localDataStore.insertOrUpdateTile(tile2).test().assertComplete();
+    localDataStore.insertOrUpdateTile(tile3).test().assertComplete();
 
     localDataStore
         .getPendingTiles()
@@ -223,8 +223,8 @@ public class LocalDataStoreTest {
             .setState(OfflineArea.State.PENDING)
             .build();
 
-    localDataStore.insertOrUpdateOfflineArea(area1).test().assertNoErrors();
-    localDataStore.insertOrUpdateOfflineArea(area2).test().assertNoErrors();
+    localDataStore.insertOrUpdateOfflineArea(area1).test().assertComplete();
+    localDataStore.insertOrUpdateOfflineArea(area2).test().assertComplete();
     localDataStore
         .getOfflineAreas()
         .test()
