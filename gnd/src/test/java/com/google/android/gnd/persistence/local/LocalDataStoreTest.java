@@ -52,7 +52,7 @@ public class LocalDataStoreTest {
   }
 
   @Test
-  @Ignore(value = "inserting into tables with foreign key is causing exception")
+  @Ignore("Inserting into table 'layer' (which contains foreign key) is causing an error")
   public void testInsertProject() {
     Field field =
         Field.newBuilder()
