@@ -20,11 +20,12 @@ import android.view.View;
 import androidx.databinding.ObservableField;
 import androidx.databinding.ObservableInt;
 import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.LiveDataReactiveStreams;
 import androidx.lifecycle.ViewModel;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.ui.common.SharedViewModel;
 import com.google.android.gnd.ui.home.FeatureSheetState;
+import io.reactivex.processors.BehaviorProcessor;
 import java8.util.Optional;
 import javax.inject.Inject;
 
@@ -35,23 +36,27 @@ public class FeatureSheetViewModel extends ViewModel {
   public final ObservableField<String> featureSubtitle;
   public final ObservableInt featureSubtitleVisibility;
 
-  private final MutableLiveData<Optional<Feature>> selectedFeature;
+  private final BehaviorProcessor<Optional<Feature>> selectedFeature;
 
   @Inject
   public FeatureSheetViewModel() {
     featureTitle = new ObservableField<>();
     featureSubtitle = new ObservableField<>();
     featureSubtitleVisibility = new ObservableInt();
-    selectedFeature = new MutableLiveData<>(Optional.empty());
+    selectedFeature = BehaviorProcessor.createDefault(Optional.empty());
   }
 
+  /**
+   * Returns a LiveData that immediately emits the selected feature (or empty) on if none selected
+   * to each new observer.
+   */
   public LiveData<Optional<Feature>> getSelectedFeature() {
-    return selectedFeature;
+    return LiveDataReactiveStreams.fromPublisher(selectedFeature);
   }
 
   public void onFeatureSheetStateChange(FeatureSheetState state) {
     if (!state.isVisible()) {
-      selectedFeature.setValue(Optional.empty());
+      selectedFeature.onNext(Optional.empty());
       return;
     }
 
@@ -60,6 +65,6 @@ public class FeatureSheetViewModel extends ViewModel {
     featureSubtitleVisibility.set(
         state.getFeature().getSubtitle().isEmpty() ? View.GONE : View.VISIBLE);
 
-    selectedFeature.setValue(Optional.of(state.getFeature()));
+    selectedFeature.onNext(Optional.of(state.getFeature()));
   }
 }
