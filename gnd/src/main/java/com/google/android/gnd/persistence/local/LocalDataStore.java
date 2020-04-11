@@ -54,7 +54,7 @@ public interface LocalDataStore {
   Maybe<Project> getProjectById(String id);
 
   /** Delete stored project from database. */
-  Completable removeProject(Project project);
+  Completable deleteProject(Project project);
 
   /** Add project to the database. */
   Completable insertOrUpdateProject(Project project);

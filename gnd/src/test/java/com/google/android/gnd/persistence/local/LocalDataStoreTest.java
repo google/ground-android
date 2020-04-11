@@ -78,6 +78,41 @@ public class LocalDataStoreTest {
   }
 
   @Test
+  public void testGetProjectById() {
+    Project project =
+        Project.newBuilder()
+            .setId("foo id 2")
+            .setTitle("project 2")
+            .setDescription("foo description 2")
+            .build();
+    localDataStore.insertOrUpdateProject(project).blockingAwait();
+    localDataStore.getProjectById("foo id 2").test().assertValue(project);
+  }
+
+  @Test
+  public void testDeleteProject() {
+    Project project1 =
+        Project.newBuilder()
+            .setId("foo id")
+            .setTitle("project 1")
+            .setDescription("foo description")
+            .build();
+    Project project2 =
+        Project.newBuilder()
+            .setId("foo id 2")
+            .setTitle("project 2")
+            .setDescription("foo description 2")
+            .build();
+    localDataStore.insertOrUpdateProject(project1).blockingAwait();
+    localDataStore.insertOrUpdateProject(project2).blockingAwait();
+    localDataStore.deleteProject(project1).test().assertComplete();
+    localDataStore
+        .getProjects()
+        .test()
+        .assertValue(ImmutableList.<Project>builder().add(project2).build());
+  }
+
+  @Test
   public void testInsertOrUpdateUser() {
     User user =
         User.builder()
