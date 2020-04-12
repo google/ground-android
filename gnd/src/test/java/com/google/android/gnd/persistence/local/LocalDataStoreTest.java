@@ -20,11 +20,14 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gnd.TestApplication;
 import com.google.android.gnd.inject.DaggerTestComponent;
+import com.google.android.gnd.model.Mutation;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.basemap.OfflineArea;
 import com.google.android.gnd.model.basemap.tile.Tile;
 import com.google.android.gnd.model.basemap.tile.Tile.State;
+import com.google.android.gnd.model.feature.FeatureMutation;
+import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.model.form.Element;
 import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.form.Field.Type;
@@ -36,6 +39,8 @@ import com.google.android.gnd.model.form.Option;
 import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.model.layer.Style;
 import com.google.common.collect.ImmutableList;
+import java.util.Date;
+import java8.util.Optional;
 import javax.inject.Inject;
 import org.junit.Before;
 import org.junit.Test;
@@ -54,8 +59,7 @@ public class LocalDataStoreTest {
     DaggerTestComponent.create().inject(this);
   }
 
-  @Test
-  public void testInsertProject() {
+  private Project createTestProject() {
     Builder multipleChoiceBuilder =
         MultipleChoice.newBuilder().setCardinality(Cardinality.SELECT_ONE);
     multipleChoiceBuilder
@@ -95,8 +99,14 @@ public class LocalDataStoreTest {
             .setTitle("project 1")
             .setDescription("foo description");
     builder.putLayer("layer id", layer);
+    return builder.build();
+  }
 
-    localDataStore.insertOrUpdateProject(builder.build()).test().assertComplete();
+  @Test
+  public void testInsertProject() {
+    Project project = createTestProject();
+    localDataStore.insertOrUpdateProject(project).test().assertComplete();
+    localDataStore.getProjectById(project.getId()).test().assertValue(project);
   }
 
   @Test
@@ -166,6 +176,30 @@ public class LocalDataStoreTest {
             .build();
     localDataStore.insertOrUpdateUser(user).test().assertComplete();
     localDataStore.getUser("some id").test().assertValue(user);
+  }
+
+  @Test
+  public void testApplyAndEnqueue_featureMutation() {
+    User user = User.builder().setId("u1").setEmail("u1@gmail.com").setDisplayName("foo").build();
+    localDataStore.insertOrUpdateUser(user).test().assertComplete();
+
+    Project project = createTestProject();
+    localDataStore.insertOrUpdateProject(project).test().assertComplete();
+
+    FeatureMutation mutation =
+        FeatureMutation.builder()
+            .setType(Mutation.Type.CREATE)
+            .setUserId(user.getId())
+            .setProjectId(project.getId())
+            .setFeatureId("f1")
+            .setLayerId("l1")
+            .setNewLocation(
+                Optional.ofNullable(
+                    Point.newBuilder().setLatitude(110.0).setLongitude(-23.1).build()))
+            .setClientTimestamp(new Date())
+            .build();
+
+    localDataStore.applyAndEnqueue(mutation).test().assertComplete();
   }
 
   @Test
