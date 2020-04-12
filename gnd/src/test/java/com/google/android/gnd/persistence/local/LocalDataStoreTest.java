@@ -34,7 +34,6 @@ import com.google.android.gnd.model.layer.Style;
 import com.google.common.collect.ImmutableList;
 import javax.inject.Inject;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
@@ -52,7 +51,6 @@ public class LocalDataStoreTest {
   }
 
   @Test
-  @Ignore("Inserting into table 'layer' (which contains foreign key) is causing an error")
   public void testInsertProject() {
     Field field =
         Field.newBuilder()
@@ -86,7 +84,6 @@ public class LocalDataStoreTest {
             .setDescription("foo description");
     builder.putLayer("layer id", layer);
 
-    // TODO: Fix this test and include again
     localDataStore.insertOrUpdateProject(builder.build()).test().assertComplete();
   }
 

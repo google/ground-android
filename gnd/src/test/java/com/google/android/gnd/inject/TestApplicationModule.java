@@ -36,6 +36,7 @@ abstract class TestApplicationModule {
   }
 
   @Provides
+  @Singleton
   static LocalDatabase localDatabaseProvider(Context context) {
     return Room.inMemoryDatabaseBuilder(context, LocalDatabase.class)
         .allowMainThreadQueries()
