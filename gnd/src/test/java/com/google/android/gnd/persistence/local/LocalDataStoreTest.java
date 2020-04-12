@@ -29,6 +29,10 @@ import com.google.android.gnd.model.form.Element;
 import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.form.Field.Type;
 import com.google.android.gnd.model.form.Form;
+import com.google.android.gnd.model.form.MultipleChoice;
+import com.google.android.gnd.model.form.MultipleChoice.Builder;
+import com.google.android.gnd.model.form.MultipleChoice.Cardinality;
+import com.google.android.gnd.model.form.Option;
 import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.model.layer.Style;
 import com.google.common.collect.ImmutableList;
@@ -52,12 +56,20 @@ public class LocalDataStoreTest {
 
   @Test
   public void testInsertProject() {
+    Builder multipleChoiceBuilder =
+        MultipleChoice.newBuilder().setCardinality(Cardinality.SELECT_ONE);
+    multipleChoiceBuilder
+        .optionsBuilder()
+        .add(Option.newBuilder().setCode("a").setLabel("Name").build())
+        .add(Option.newBuilder().setCode("b").setLabel("Age").build());
+
     Field field =
         Field.newBuilder()
             .setId("field id")
             .setLabel("field label")
             .setRequired(false)
-            .setType(Type.TEXT)
+            .setType(Type.MULTIPLE_CHOICE)
+            .setMultipleChoice(multipleChoiceBuilder.build())
             .build();
 
     Element element = Element.ofField(field);
