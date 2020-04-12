@@ -41,6 +41,7 @@ import com.google.android.gnd.model.form.Option;
 import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.model.layer.Style;
 import com.google.common.collect.ImmutableList;
+import java.util.AbstractCollection;
 import java.util.Date;
 import java8.util.Optional;
 import javax.inject.Inject;
@@ -102,6 +103,19 @@ public class LocalDataStoreTest {
             .setDescription("foo description");
     builder.putLayer("layer id", layer);
     return builder.build();
+  }
+
+  private FeatureMutation createFeatureMutation(String userId, String projectId, String featureId) {
+    return FeatureMutation.builder()
+        .setType(Mutation.Type.CREATE)
+        .setUserId(userId)
+        .setProjectId(projectId)
+        .setFeatureId(featureId)
+        .setLayerId("l1")
+        .setNewLocation(
+            Optional.ofNullable(Point.newBuilder().setLatitude(110.0).setLongitude(-23.1).build()))
+        .setClientTimestamp(new Date())
+        .build();
   }
 
   @Test
@@ -188,19 +202,7 @@ public class LocalDataStoreTest {
     Project project = createTestProject();
     localDataStore.insertOrUpdateProject(project).test().assertComplete();
 
-    FeatureMutation mutation =
-        FeatureMutation.builder()
-            .setType(Mutation.Type.CREATE)
-            .setUserId(user.getId())
-            .setProjectId(project.getId())
-            .setFeatureId("f1")
-            .setLayerId("l1")
-            .setNewLocation(
-                Optional.ofNullable(
-                    Point.newBuilder().setLatitude(110.0).setLongitude(-23.1).build()))
-            .setClientTimestamp(new Date())
-            .build();
-
+    FeatureMutation mutation = createFeatureMutation(user.getId(), project.getId(), "f1");
     localDataStore.applyAndEnqueue(mutation).test().assertComplete();
 
     ImmutableList<Mutation> savedMutations =
@@ -215,6 +217,29 @@ public class LocalDataStoreTest {
     assertEquals(mutation.getLayerId(), savedMutation.getLayerId());
     assertEquals(mutation.getClientTimestamp(), savedMutation.getClientTimestamp());
     assertEquals(0, savedMutation.getRetryCount());
+  }
+
+  @Test
+  public void testRemovePendingMutation() {
+    User user = User.builder().setId("u1").setEmail("u1@gmail.com").setDisplayName("foo").build();
+    localDataStore.insertOrUpdateUser(user).test().assertComplete();
+
+    Project project = createTestProject();
+    localDataStore.insertOrUpdateProject(project).test().assertComplete();
+
+    FeatureMutation mutation = createFeatureMutation(user.getId(), project.getId(), "f1");
+    localDataStore.applyAndEnqueue(mutation).test().assertComplete();
+
+    localDataStore
+        .removePendingMutations(
+            localDataStore.getPendingMutations(mutation.getFeatureId()).blockingGet())
+        .test()
+        .assertComplete();
+
+    localDataStore
+        .getPendingMutations(mutation.getFeatureId())
+        .test()
+        .assertValue(AbstractCollection::isEmpty);
   }
 
   @Test
