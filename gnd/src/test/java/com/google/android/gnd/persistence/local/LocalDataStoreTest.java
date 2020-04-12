@@ -62,6 +62,14 @@ public class LocalDataStoreTest {
     DaggerTestComponent.create().inject(this);
   }
 
+  private User createTestUser() {
+    return User.builder()
+        .setId("test_user_id")
+        .setEmail("test@gmail.com")
+        .setDisplayName("test user")
+        .build();
+  }
+
   private Project createTestProject() {
     Builder multipleChoiceBuilder =
         MultipleChoice.newBuilder().setCardinality(Cardinality.SELECT_ONE);
@@ -184,19 +192,14 @@ public class LocalDataStoreTest {
 
   @Test
   public void testInsertOrUpdateUser() {
-    User user =
-        User.builder()
-            .setId("some id")
-            .setDisplayName("test user")
-            .setEmail("test@gmail.com")
-            .build();
+    User user = createTestUser();
     localDataStore.insertOrUpdateUser(user).test().assertComplete();
-    localDataStore.getUser("some id").test().assertValue(user);
+    localDataStore.getUser(user.getId()).test().assertValue(user);
   }
 
   @Test
   public void testApplyAndEnqueue_featureMutation() {
-    User user = User.builder().setId("u1").setEmail("u1@gmail.com").setDisplayName("foo").build();
+    User user = createTestUser();
     localDataStore.insertOrUpdateUser(user).test().assertComplete();
 
     Project project = createTestProject();
@@ -221,7 +224,7 @@ public class LocalDataStoreTest {
 
   @Test
   public void testRemovePendingMutation() {
-    User user = User.builder().setId("u1").setEmail("u1@gmail.com").setDisplayName("foo").build();
+    User user = createTestUser();
     localDataStore.insertOrUpdateUser(user).test().assertComplete();
 
     Project project = createTestProject();
@@ -240,6 +243,11 @@ public class LocalDataStoreTest {
         .getPendingMutations(mutation.getFeatureId())
         .test()
         .assertValue(AbstractCollection::isEmpty);
+  }
+
+  @Test
+  public void testMergeFeature() {
+
   }
 
   @Test
