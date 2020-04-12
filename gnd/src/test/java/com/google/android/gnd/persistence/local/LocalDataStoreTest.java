@@ -363,6 +363,54 @@ public class LocalDataStoreTest {
   }
 
   @Test
+  public void testApplyAndEnqueue_observationMutation_alreadyExists() {
+    User user = createTestUser();
+    localDataStore.insertOrUpdateUser(user).test().assertComplete();
+
+    Project project = createTestProject();
+    localDataStore.insertOrUpdateProject(project).test().assertComplete();
+
+    FeatureMutation featureMutation = createFeatureMutation(user.getId(), project.getId());
+    localDataStore.applyAndEnqueue(featureMutation).test().assertComplete();
+
+    ObservationMutation mutation =
+        createObservationMutation(
+            project.getId(),
+            featureMutation.getFeatureId(),
+            project.getLayers().get(0).getId(),
+            project.getLayers().get(0).getForm().get().getId(),
+            user.getId());
+    localDataStore.applyAndEnqueue(mutation).test().assertComplete();
+
+    ImmutableList<ResponseDelta> deltas =
+        ImmutableList.<ResponseDelta>builder()
+            .add(
+                ResponseDelta.builder()
+                    .setFieldId("really new field")
+                    .setNewResponse(TextResponse.fromString("value for the really new field"))
+                    .build())
+            .build();
+    mutation = mutation.toBuilder().setResponseDeltas(deltas).setType(Mutation.Type.UPDATE).build();
+    localDataStore.applyAndEnqueue(mutation).test().assertComplete();
+
+    ImmutableList<Mutation> savedMutations =
+        localDataStore.getPendingMutations(mutation.getFeatureId()).blockingGet();
+    Assert.assertEquals(3, savedMutations.size());
+
+    // ignoring the first item, which is a FeatureMutation. Already tested separately.
+    ObservationMutation savedMutation = ((ObservationMutation) savedMutations.get(2));
+    Assert.assertEquals(deltas, savedMutation.getResponseDeltas());
+    Assert.assertEquals(mutation.getType(), savedMutation.getType());
+    Assert.assertEquals(mutation.getUserId(), savedMutation.getUserId());
+    Assert.assertEquals(mutation.getProjectId(), savedMutation.getProjectId());
+    Assert.assertEquals(mutation.getFeatureId(), savedMutation.getFeatureId());
+    Assert.assertEquals(mutation.getLayerId(), savedMutation.getLayerId());
+    Assert.assertEquals(mutation.getClientTimestamp(), savedMutation.getClientTimestamp());
+    Assert.assertEquals(0, savedMutation.getRetryCount());
+    Assert.assertNull(savedMutation.getLastError());
+  }
+
+  @Test
   public void testGetTile() {
     Tile tile =
         Tile.newBuilder()
