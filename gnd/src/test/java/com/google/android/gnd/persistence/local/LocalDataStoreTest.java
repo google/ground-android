@@ -39,6 +39,9 @@ import com.google.android.gnd.model.form.MultipleChoice.Cardinality;
 import com.google.android.gnd.model.form.Option;
 import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.model.layer.Style;
+import com.google.android.gnd.model.observation.ObservationMutation;
+import com.google.android.gnd.model.observation.ResponseDelta;
+import com.google.android.gnd.model.observation.TextResponse;
 import com.google.android.gnd.persistence.local.room.dao.FeatureDao;
 import com.google.common.collect.ImmutableList;
 import java.util.AbstractCollection;
@@ -128,6 +131,28 @@ public class LocalDataStoreTest {
         .build();
   }
 
+  private ObservationMutation createObservationMutation(
+      String projectId, String featureId, String layerId, String formId, String userId) {
+    return ObservationMutation.builder()
+        .setType(Mutation.Type.CREATE)
+        .setProjectId(projectId)
+        .setFeatureId(featureId)
+        .setLayerId(layerId)
+        .setObservationId("observation id")
+        .setFormId(formId)
+        .setResponseDeltas(
+            ImmutableList.<ResponseDelta>builder()
+                .add(
+                    ResponseDelta.builder()
+                        .setFieldId("field id")
+                        .setNewResponse(TextResponse.fromString("response for field id"))
+                        .build())
+                .build())
+        .setClientTimestamp(new Date())
+        .setUserId(userId)
+        .build();
+  }
+
   @Test
   public void testInsertProject() {
     Project project = createTestProject();
@@ -214,7 +239,8 @@ public class LocalDataStoreTest {
         localDataStore.getPendingMutations(mutation.getFeatureId()).blockingGet();
     Assert.assertEquals(1, savedMutations.size());
 
-    Mutation savedMutation = savedMutations.get(0);
+    FeatureMutation savedMutation = ((FeatureMutation) savedMutations.get(0));
+    Assert.assertEquals(mutation.getNewLocation(), savedMutation.getNewLocation());
     Assert.assertEquals(mutation.getType(), savedMutation.getType());
     Assert.assertEquals(mutation.getUserId(), savedMutation.getUserId());
     Assert.assertEquals(mutation.getProjectId(), savedMutation.getProjectId());
@@ -222,6 +248,7 @@ public class LocalDataStoreTest {
     Assert.assertEquals(mutation.getLayerId(), savedMutation.getLayerId());
     Assert.assertEquals(mutation.getClientTimestamp(), savedMutation.getClientTimestamp());
     Assert.assertEquals(0, savedMutation.getRetryCount());
+    Assert.assertNull(savedMutation.getLastError());
   }
 
   @Test
@@ -296,6 +323,43 @@ public class LocalDataStoreTest {
     Assert.assertEquals(point, newFeature.getPoint());
     Assert.assertEquals(user, newFeature.getCreated().getUser());
     Assert.assertEquals(user, newFeature.getLastModified().getUser());
+  }
+
+  @Test
+  public void testApplyAndEnqueue_observationMutation() {
+    User user = createTestUser();
+    localDataStore.insertOrUpdateUser(user).test().assertComplete();
+
+    Project project = createTestProject();
+    localDataStore.insertOrUpdateProject(project).test().assertComplete();
+
+    FeatureMutation featureMutation = createFeatureMutation(user.getId(), project.getId());
+    localDataStore.applyAndEnqueue(featureMutation).test().assertComplete();
+
+    ObservationMutation mutation =
+        createObservationMutation(
+            project.getId(),
+            featureMutation.getFeatureId(),
+            project.getLayers().get(0).getId(),
+            project.getLayers().get(0).getForm().get().getId(),
+            user.getId());
+    localDataStore.applyAndEnqueue(mutation).test().assertComplete();
+
+    ImmutableList<Mutation> savedMutations =
+        localDataStore.getPendingMutations(mutation.getFeatureId()).blockingGet();
+    Assert.assertEquals(2, savedMutations.size());
+
+    // ignoring the first item, which is a FeatureMutation. Already tested separately.
+    ObservationMutation savedMutation = ((ObservationMutation) savedMutations.get(1));
+    Assert.assertEquals(mutation.getResponseDeltas(), savedMutation.getResponseDeltas());
+    Assert.assertEquals(mutation.getType(), savedMutation.getType());
+    Assert.assertEquals(mutation.getUserId(), savedMutation.getUserId());
+    Assert.assertEquals(mutation.getProjectId(), savedMutation.getProjectId());
+    Assert.assertEquals(mutation.getFeatureId(), savedMutation.getFeatureId());
+    Assert.assertEquals(mutation.getLayerId(), savedMutation.getLayerId());
+    Assert.assertEquals(mutation.getClientTimestamp(), savedMutation.getClientTimestamp());
+    Assert.assertEquals(0, savedMutation.getRetryCount());
+    Assert.assertNull(savedMutation.getLastError());
   }
 
   @Test
