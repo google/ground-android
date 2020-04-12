@@ -16,8 +16,6 @@
 
 package com.google.android.gnd.persistence.local;
 
-import static junit.framework.TestCase.assertEquals;
-
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gnd.TestApplication;
@@ -28,6 +26,7 @@ import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.basemap.OfflineArea;
 import com.google.android.gnd.model.basemap.tile.Tile;
 import com.google.android.gnd.model.basemap.tile.Tile.State;
+import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.FeatureMutation;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.model.form.Element;
@@ -40,11 +39,13 @@ import com.google.android.gnd.model.form.MultipleChoice.Cardinality;
 import com.google.android.gnd.model.form.Option;
 import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.model.layer.Style;
+import com.google.android.gnd.persistence.local.room.dao.FeatureDao;
 import com.google.common.collect.ImmutableList;
 import java.util.AbstractCollection;
 import java.util.Date;
 import java8.util.Optional;
 import javax.inject.Inject;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -56,6 +57,7 @@ import org.robolectric.annotation.Config;
 public class LocalDataStoreTest {
 
   @Inject LocalDataStore localDataStore;
+  @Inject FeatureDao featureDao;
 
   @Before
   public void setUp() {
@@ -113,13 +115,13 @@ public class LocalDataStoreTest {
     return builder.build();
   }
 
-  private FeatureMutation createFeatureMutation(String userId, String projectId, String featureId) {
+  private FeatureMutation createFeatureMutation(String userId, String projectId) {
     return FeatureMutation.builder()
         .setType(Mutation.Type.CREATE)
         .setUserId(userId)
         .setProjectId(projectId)
-        .setFeatureId(featureId)
-        .setLayerId("l1")
+        .setFeatureId("feature id")
+        .setLayerId("layer id")
         .setNewLocation(
             Optional.ofNullable(Point.newBuilder().setLatitude(110.0).setLongitude(-23.1).build()))
         .setClientTimestamp(new Date())
@@ -205,21 +207,21 @@ public class LocalDataStoreTest {
     Project project = createTestProject();
     localDataStore.insertOrUpdateProject(project).test().assertComplete();
 
-    FeatureMutation mutation = createFeatureMutation(user.getId(), project.getId(), "f1");
+    FeatureMutation mutation = createFeatureMutation(user.getId(), project.getId());
     localDataStore.applyAndEnqueue(mutation).test().assertComplete();
 
     ImmutableList<Mutation> savedMutations =
         localDataStore.getPendingMutations(mutation.getFeatureId()).blockingGet();
-    assertEquals(1, savedMutations.size());
+    Assert.assertEquals(1, savedMutations.size());
 
     Mutation savedMutation = savedMutations.get(0);
-    assertEquals(mutation.getType(), savedMutation.getType());
-    assertEquals(mutation.getUserId(), savedMutation.getUserId());
-    assertEquals(mutation.getProjectId(), savedMutation.getProjectId());
-    assertEquals(mutation.getFeatureId(), savedMutation.getFeatureId());
-    assertEquals(mutation.getLayerId(), savedMutation.getLayerId());
-    assertEquals(mutation.getClientTimestamp(), savedMutation.getClientTimestamp());
-    assertEquals(0, savedMutation.getRetryCount());
+    Assert.assertEquals(mutation.getType(), savedMutation.getType());
+    Assert.assertEquals(mutation.getUserId(), savedMutation.getUserId());
+    Assert.assertEquals(mutation.getProjectId(), savedMutation.getProjectId());
+    Assert.assertEquals(mutation.getFeatureId(), savedMutation.getFeatureId());
+    Assert.assertEquals(mutation.getLayerId(), savedMutation.getLayerId());
+    Assert.assertEquals(mutation.getClientTimestamp(), savedMutation.getClientTimestamp());
+    Assert.assertEquals(0, savedMutation.getRetryCount());
   }
 
   @Test
@@ -230,7 +232,7 @@ public class LocalDataStoreTest {
     Project project = createTestProject();
     localDataStore.insertOrUpdateProject(project).test().assertComplete();
 
-    FeatureMutation mutation = createFeatureMutation(user.getId(), project.getId(), "f1");
+    FeatureMutation mutation = createFeatureMutation(user.getId(), project.getId());
     localDataStore.applyAndEnqueue(mutation).test().assertComplete();
 
     localDataStore
@@ -246,8 +248,26 @@ public class LocalDataStoreTest {
   }
 
   @Test
-  public void testMergeFeature() {
+  public void testGetFeature() {
+    User user = createTestUser();
+    localDataStore.insertOrUpdateUser(user).test().assertComplete();
 
+    Project project = createTestProject();
+    localDataStore.insertOrUpdateProject(project).test().assertComplete();
+
+    FeatureMutation mutation = createFeatureMutation(user.getId(), project.getId());
+    localDataStore.applyAndEnqueue(mutation).test().assertComplete();
+
+    Feature feature = localDataStore.getFeature(project, mutation.getFeatureId()).blockingGet();
+    Assert.assertEquals(mutation.getFeatureId(), feature.getId());
+    Assert.assertEquals(project, feature.getProject());
+    Assert.assertEquals(project.getLayers().get(0).getItemLabel(), feature.getTitle());
+    Assert.assertEquals(project.getLayer("layer id").get(), feature.getLayer());
+    Assert.assertNull(feature.getCustomId());
+    Assert.assertNull(feature.getCaption());
+    Assert.assertEquals(mutation.getNewLocation().get(), feature.getPoint());
+    Assert.assertEquals(user, feature.getCreated().getUser());
+    Assert.assertEquals(user, feature.getLastModified().getUser());
   }
 
   @Test
