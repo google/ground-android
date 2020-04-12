@@ -16,6 +16,8 @@
 
 package com.google.android.gnd.persistence.local;
 
+import static junit.framework.TestCase.assertEquals;
+
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gnd.TestApplication;
@@ -200,6 +202,19 @@ public class LocalDataStoreTest {
             .build();
 
     localDataStore.applyAndEnqueue(mutation).test().assertComplete();
+
+    ImmutableList<Mutation> savedMutations =
+        localDataStore.getPendingMutations(mutation.getFeatureId()).blockingGet();
+    assertEquals(1, savedMutations.size());
+
+    Mutation savedMutation = savedMutations.get(0);
+    assertEquals(mutation.getType(), savedMutation.getType());
+    assertEquals(mutation.getUserId(), savedMutation.getUserId());
+    assertEquals(mutation.getProjectId(), savedMutation.getProjectId());
+    assertEquals(mutation.getFeatureId(), savedMutation.getFeatureId());
+    assertEquals(mutation.getLayerId(), savedMutation.getLayerId());
+    assertEquals(mutation.getClientTimestamp(), savedMutation.getClientTimestamp());
+    assertEquals(0, savedMutation.getRetryCount());
   }
 
   @Test
