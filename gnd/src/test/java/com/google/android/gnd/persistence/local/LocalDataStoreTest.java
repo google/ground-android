@@ -408,6 +408,14 @@ public class LocalDataStoreTest {
     MatcherAssert.assertThat(
         ResponseMap.builder().applyDeltas(deltas).build(),
         samePropertyValuesAs(observation.getResponses()));
+
+    // also test that getObservations returns the same observation as well
+    ImmutableList<Observation> observations =
+        localDataStore
+            .getObservations(feature, project.getLayers().get(0).getForm().get().getId())
+            .blockingGet();
+    Assert.assertEquals(1, observations.size());
+    Assert.assertEquals(observation.getId(), observations.get(0).getId());
   }
 
   @Test
