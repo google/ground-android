@@ -16,6 +16,8 @@
 
 package com.google.android.gnd.persistence.local;
 
+import static org.hamcrest.Matchers.samePropertyValuesAs;
+
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gnd.TestApplication;
@@ -39,8 +41,10 @@ import com.google.android.gnd.model.form.MultipleChoice.Cardinality;
 import com.google.android.gnd.model.form.Option;
 import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.model.layer.Style;
+import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.model.observation.ObservationMutation;
 import com.google.android.gnd.model.observation.ResponseDelta;
+import com.google.android.gnd.model.observation.ResponseMap;
 import com.google.android.gnd.model.observation.TextResponse;
 import com.google.android.gnd.persistence.local.room.dao.FeatureDao;
 import com.google.common.collect.ImmutableList;
@@ -48,6 +52,7 @@ import java.util.AbstractCollection;
 import java.util.Date;
 import java8.util.Optional;
 import javax.inject.Inject;
+import org.hamcrest.MatcherAssert;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -239,6 +244,7 @@ public class LocalDataStoreTest {
         localDataStore.getPendingMutations(mutation.getFeatureId()).blockingGet();
     Assert.assertEquals(1, savedMutations.size());
 
+    // assert that mutation is saved to local database
     FeatureMutation savedMutation = ((FeatureMutation) savedMutations.get(0));
     Assert.assertEquals(mutation.getNewLocation(), savedMutation.getNewLocation());
     Assert.assertEquals(mutation.getType(), savedMutation.getType());
@@ -249,6 +255,18 @@ public class LocalDataStoreTest {
     Assert.assertEquals(mutation.getClientTimestamp(), savedMutation.getClientTimestamp());
     Assert.assertEquals(0, savedMutation.getRetryCount());
     Assert.assertNull(savedMutation.getLastError());
+
+    // assert feature is saved to local database
+    Feature feature = localDataStore.getFeature(project, mutation.getFeatureId()).blockingGet();
+    Assert.assertEquals(mutation.getFeatureId(), feature.getId());
+    Assert.assertEquals(project, feature.getProject());
+    Assert.assertEquals(project.getLayers().get(0).getItemLabel(), feature.getTitle());
+    Assert.assertEquals(project.getLayer("layer id").get(), feature.getLayer());
+    Assert.assertNull(feature.getCustomId());
+    Assert.assertNull(feature.getCaption());
+    Assert.assertEquals(mutation.getNewLocation().get(), feature.getPoint());
+    Assert.assertEquals(user, feature.getCreated().getUser());
+    Assert.assertEquals(user, feature.getLastModified().getUser());
   }
 
   @Test
@@ -272,29 +290,6 @@ public class LocalDataStoreTest {
         .getPendingMutations(mutation.getFeatureId())
         .test()
         .assertValue(AbstractCollection::isEmpty);
-  }
-
-  @Test
-  public void testGetFeature() {
-    User user = createTestUser();
-    localDataStore.insertOrUpdateUser(user).test().assertComplete();
-
-    Project project = createTestProject();
-    localDataStore.insertOrUpdateProject(project).test().assertComplete();
-
-    FeatureMutation mutation = createFeatureMutation(user.getId(), project.getId());
-    localDataStore.applyAndEnqueue(mutation).test().assertComplete();
-
-    Feature feature = localDataStore.getFeature(project, mutation.getFeatureId()).blockingGet();
-    Assert.assertEquals(mutation.getFeatureId(), feature.getId());
-    Assert.assertEquals(project, feature.getProject());
-    Assert.assertEquals(project.getLayers().get(0).getItemLabel(), feature.getTitle());
-    Assert.assertEquals(project.getLayer("layer id").get(), feature.getLayer());
-    Assert.assertNull(feature.getCustomId());
-    Assert.assertNull(feature.getCaption());
-    Assert.assertEquals(mutation.getNewLocation().get(), feature.getPoint());
-    Assert.assertEquals(user, feature.getCreated().getUser());
-    Assert.assertEquals(user, feature.getLastModified().getUser());
   }
 
   @Test
@@ -360,28 +355,22 @@ public class LocalDataStoreTest {
     Assert.assertEquals(mutation.getClientTimestamp(), savedMutation.getClientTimestamp());
     Assert.assertEquals(0, savedMutation.getRetryCount());
     Assert.assertNull(savedMutation.getLastError());
-  }
 
-  @Test
-  public void testApplyAndEnqueue_observationMutation_alreadyExists() {
-    User user = createTestUser();
-    localDataStore.insertOrUpdateUser(user).test().assertComplete();
+    // check if the observation was saved properly to local database
+    Feature feature = localDataStore.getFeature(project, mutation.getFeatureId()).blockingGet();
+    Observation observation =
+        localDataStore.getObservation(feature, mutation.getObservationId()).blockingGet();
+    Assert.assertEquals(mutation.getObservationId(), observation.getId());
+    Assert.assertEquals(user, observation.getCreated().getUser());
+    Assert.assertEquals(feature, observation.getFeature());
+    Assert.assertEquals(project.getLayers().get(0).getForm().get(), observation.getForm());
+    Assert.assertEquals(project, observation.getProject());
+    Assert.assertEquals(user, observation.getLastModified().getUser());
+    MatcherAssert.assertThat(
+        ResponseMap.builder().applyDeltas(mutation.getResponseDeltas()).build(),
+        samePropertyValuesAs(observation.getResponses()));
 
-    Project project = createTestProject();
-    localDataStore.insertOrUpdateProject(project).test().assertComplete();
-
-    FeatureMutation featureMutation = createFeatureMutation(user.getId(), project.getId());
-    localDataStore.applyAndEnqueue(featureMutation).test().assertComplete();
-
-    ObservationMutation mutation =
-        createObservationMutation(
-            project.getId(),
-            featureMutation.getFeatureId(),
-            project.getLayers().get(0).getId(),
-            project.getLayers().get(0).getForm().get().getId(),
-            user.getId());
-    localDataStore.applyAndEnqueue(mutation).test().assertComplete();
-
+    // now update the inserted observation with new responses
     ImmutableList<ResponseDelta> deltas =
         ImmutableList.<ResponseDelta>builder()
             .add(
@@ -393,12 +382,11 @@ public class LocalDataStoreTest {
     mutation = mutation.toBuilder().setResponseDeltas(deltas).setType(Mutation.Type.UPDATE).build();
     localDataStore.applyAndEnqueue(mutation).test().assertComplete();
 
-    ImmutableList<Mutation> savedMutations =
-        localDataStore.getPendingMutations(mutation.getFeatureId()).blockingGet();
+    savedMutations = localDataStore.getPendingMutations(mutation.getFeatureId()).blockingGet();
     Assert.assertEquals(3, savedMutations.size());
 
     // ignoring the first item, which is a FeatureMutation. Already tested separately.
-    ObservationMutation savedMutation = ((ObservationMutation) savedMutations.get(2));
+    savedMutation = ((ObservationMutation) savedMutations.get(2));
     Assert.assertEquals(deltas, savedMutation.getResponseDeltas());
     Assert.assertEquals(mutation.getType(), savedMutation.getType());
     Assert.assertEquals(mutation.getUserId(), savedMutation.getUserId());
@@ -408,6 +396,18 @@ public class LocalDataStoreTest {
     Assert.assertEquals(mutation.getClientTimestamp(), savedMutation.getClientTimestamp());
     Assert.assertEquals(0, savedMutation.getRetryCount());
     Assert.assertNull(savedMutation.getLastError());
+
+    // check if the observation was updated in the local database
+    observation = localDataStore.getObservation(feature, mutation.getObservationId()).blockingGet();
+    Assert.assertEquals(mutation.getObservationId(), observation.getId());
+    Assert.assertEquals(user, observation.getCreated().getUser());
+    Assert.assertEquals(feature, observation.getFeature());
+    Assert.assertEquals(project.getLayers().get(0).getForm().get(), observation.getForm());
+    Assert.assertEquals(project, observation.getProject());
+    Assert.assertEquals(user, observation.getLastModified().getUser());
+    MatcherAssert.assertThat(
+        ResponseMap.builder().applyDeltas(deltas).build(),
+        samePropertyValuesAs(observation.getResponses()));
   }
 
   @Test
