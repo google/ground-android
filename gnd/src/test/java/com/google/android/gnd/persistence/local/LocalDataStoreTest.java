@@ -271,6 +271,34 @@ public class LocalDataStoreTest {
   }
 
   @Test
+  public void testMergeFeature() {
+    User user = createTestUser();
+    localDataStore.insertOrUpdateUser(user).test().assertComplete();
+
+    Project project = createTestProject();
+    localDataStore.insertOrUpdateProject(project).test().assertComplete();
+
+    FeatureMutation mutation = createFeatureMutation(user.getId(), project.getId());
+    localDataStore.applyAndEnqueue(mutation).test().assertComplete();
+
+    Feature feature = localDataStore.getFeature(project, mutation.getFeatureId()).blockingGet();
+    Point point = Point.newBuilder().setLongitude(11.0).setLatitude(33.0).build();
+    feature = feature.toBuilder().setPoint(point).build();
+    localDataStore.mergeFeature(feature).test().assertComplete();
+
+    Feature newFeature = localDataStore.getFeature(project, mutation.getFeatureId()).blockingGet();
+    Assert.assertEquals(mutation.getFeatureId(), newFeature.getId());
+    Assert.assertEquals(project, newFeature.getProject());
+    Assert.assertEquals(project.getLayers().get(0).getItemLabel(), newFeature.getTitle());
+    Assert.assertEquals(project.getLayer("layer id").get(), newFeature.getLayer());
+    Assert.assertNull(newFeature.getCustomId());
+    Assert.assertNull(newFeature.getCaption());
+    Assert.assertEquals(point, newFeature.getPoint());
+    Assert.assertEquals(user, newFeature.getCreated().getUser());
+    Assert.assertEquals(user, newFeature.getLastModified().getUser());
+  }
+
+  @Test
   public void testGetTile() {
     Tile tile =
         Tile.newBuilder()
