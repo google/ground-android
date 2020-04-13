@@ -20,21 +20,25 @@ import static com.google.android.gnd.util.Localization.getLocalizedMessage;
 
 import android.util.Log;
 import com.google.android.gnd.model.layer.Layer;
+import com.google.android.gnd.model.layer.Style;
 
 /** Converts between Firestore documents and {@link Layer} instances. */
 class LayerConverter {
-
   private static final String TAG = LayerConverter.class.getSimpleName();
+
+  /** Black marker used when default remote data is corrupt or missing. */
+  private static Style DEFAULT_DEFAULT_STYLE = Style.builder().setColor("#000000").build();
 
   static Layer toLayer(String id, LayerNestedObject obj) {
     Layer.Builder layer = Layer.newBuilder();
     layer
         .setId(id)
         .setListHeading(getLocalizedMessage(obj.getListHeading()))
-        .setItemLabel(getLocalizedMessage(obj.getItemLabel()));
-    if (obj.getDefaultStyle() != null) {
-      layer.setDefaultStyle(StyleConverter.toStyle(obj.getDefaultStyle()));
-    }
+        .setItemLabel(getLocalizedMessage(obj.getItemLabel()))
+        .setDefaultStyle(
+            obj.getDefaultStyle() == null
+                ? DEFAULT_DEFAULT_STYLE
+                : StyleConverter.toStyle(obj.getDefaultStyle()));
     if (obj.getForms() != null && !obj.getForms().isEmpty()) {
       if (obj.getForms().size() > 1) {
         Log.w(TAG, "Multiple forms not supported");
