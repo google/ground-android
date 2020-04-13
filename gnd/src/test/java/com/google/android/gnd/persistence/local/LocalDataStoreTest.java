@@ -145,6 +145,7 @@ public class LocalDataStoreTest {
   private ObservationMutation createObservationMutation(
       String projectId, String featureId, String layerId, String formId, String userId) {
     return ObservationMutation.builder()
+        //        .setId(12345L)
         .setType(Mutation.Type.CREATE)
         .setProjectId(projectId)
         .setFeatureId(featureId)
@@ -451,6 +452,51 @@ public class LocalDataStoreTest {
         localDataStore.getObservations(feature, layer.getForm().get().getId()).blockingGet();
     Assert.assertEquals(1, observations.size());
     Assert.assertEquals(observation.getId(), observations.get(0).getId());
+  }
+
+  @Test
+  public void testUpdateObservation() {
+    User user = createUser();
+    localDataStore.insertOrUpdateUser(user).test().assertComplete();
+
+    Project project = createProject();
+    localDataStore.insertOrUpdateProject(project).test().assertComplete();
+
+    Layer layer = project.getLayers().get(0);
+    FeatureMutation featureMutation =
+        createFeatureMutation(user.getId(), project.getId(), layer.getId());
+    localDataStore.applyAndEnqueue(featureMutation).test().assertComplete();
+
+    ObservationMutation mutation =
+        createObservationMutation(
+            project.getId(),
+            featureMutation.getFeatureId(),
+            layer.getId(),
+            layer.getForm().get().getId(),
+            user.getId());
+    localDataStore.applyAndEnqueue(mutation).test().assertComplete();
+
+    Feature feature = localDataStore.getFeature(project, mutation.getFeatureId()).blockingGet();
+
+    ResponseMap responseMap =
+        ResponseMap.builder()
+            .putResponse("foo field", TextResponse.fromString("foo value").get())
+            .build();
+
+    Observation observation =
+        localDataStore.getObservation(feature, mutation.getObservationId()).blockingGet();
+    observation = observation.toBuilder().setResponses(responseMap).build();
+
+    localDataStore.mergeObservation(observation).test().assertComplete();
+
+    ResponseMap result =
+        localDataStore
+            .getObservation(feature, observation.getId())
+            .test()
+            .values()
+            .get(0)
+            .getResponses();
+    Assert.assertEquals("foo value", result.getResponse("foo field").get().toString());
   }
 
   @Test
