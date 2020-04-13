@@ -276,6 +276,31 @@ public class LocalDataStoreTest {
   }
 
   @Test
+  public void testGetFeaturesOnceAndStream() {
+    User user = createTestUser();
+    localDataStore.insertOrUpdateUser(user).test().assertComplete();
+
+    Project project = createTestProject();
+    localDataStore.insertOrUpdateProject(project).test().assertComplete();
+
+    TestSubscriber<ImmutableSet<Feature>> subscriber =
+        localDataStore.getFeaturesOnceAndStream(project).test();
+
+    subscriber.assertValueCount(1);
+    subscriber.assertValueAt(0, AbstractCollection::isEmpty);
+
+    Layer layer = project.getLayers().get(0);
+    FeatureMutation mutation = createFeatureMutation(user.getId(), project.getId(), layer.getId());
+    localDataStore.applyAndEnqueue(mutation).test().assertComplete();
+
+    Feature feature = localDataStore.getFeature(project, mutation.getFeatureId()).blockingGet();
+
+    subscriber.assertValueCount(2);
+    subscriber.assertValueAt(0, AbstractCollection::isEmpty);
+    subscriber.assertValueAt(1, ImmutableSet.<Feature>builder().add(feature).build());
+  }
+
+  @Test
   public void testRemovePendingMutation() {
     User user = createTestUser();
     localDataStore.insertOrUpdateUser(user).test().assertComplete();
