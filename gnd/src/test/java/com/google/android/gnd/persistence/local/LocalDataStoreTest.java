@@ -130,7 +130,7 @@ public class LocalDataStoreTest {
 
   private FeatureMutation createFeatureMutation(String userId, String projectId, String layerId) {
     return FeatureMutation.builder()
-        .setId(12345L)
+        .setId(1L)
         .setType(Mutation.Type.CREATE)
         .setUserId(userId)
         .setProjectId(projectId)
