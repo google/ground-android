@@ -20,6 +20,10 @@ import com.google.android.gnd.rx.Schedulers;
 import io.reactivex.Scheduler;
 import javax.inject.Inject;
 
+/**
+ * Runs all tasks synchronously by executing the tasks on the current thread without any queueing
+ * and blocking the call until finished.
+ */
 public class TestScheduler implements Schedulers {
 
   @Inject
