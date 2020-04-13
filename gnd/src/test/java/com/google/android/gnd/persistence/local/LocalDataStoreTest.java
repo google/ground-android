@@ -274,6 +274,40 @@ public class LocalDataStoreTest {
   }
 
   @Test
+  public void testUpdateMutations() {
+    User user = createUser();
+    localDataStore.insertOrUpdateUser(user).test().assertComplete();
+
+    Project project = createProject();
+    localDataStore.insertOrUpdateProject(project).test().assertComplete();
+
+    Layer layer = project.getLayers().get(0);
+    FeatureMutation mutation = createFeatureMutation(user.getId(), project.getId(), layer.getId());
+    localDataStore.applyAndEnqueue(mutation).test().assertComplete();
+
+    Mutation insertedMutation =
+        localDataStore.getPendingMutations(mutation.getFeatureId()).blockingGet().get(0);
+    Point newPoint = Point.newBuilder().setLatitude(51.0).setLongitude(44.0).build();
+    Mutation updatedMutation =
+        ((FeatureMutation) insertedMutation)
+            .toBuilder()
+            .setNewLocation(Optional.ofNullable(newPoint))
+            .build();
+
+    localDataStore
+        .updateMutations(ImmutableList.<Mutation>builder().add(updatedMutation).build())
+        .test()
+        .assertComplete();
+
+    ImmutableList<Mutation> savedMutations =
+        localDataStore.getPendingMutations(updatedMutation.getFeatureId()).blockingGet();
+    Assert.assertEquals(1, savedMutations.size());
+
+    FeatureMutation savedMutation = (FeatureMutation) savedMutations.get(0);
+    Assert.assertEquals(newPoint, savedMutation.getNewLocation().get());
+  }
+
+  @Test
   public void testRemovePendingMutation() {
     User user = createUser();
     localDataStore.insertOrUpdateUser(user).test().assertComplete();
