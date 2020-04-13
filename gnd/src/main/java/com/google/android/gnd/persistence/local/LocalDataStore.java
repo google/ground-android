@@ -145,6 +145,6 @@ public interface LocalDataStore {
    */
   Completable insertOrUpdateOfflineArea(OfflineArea area);
 
-  /** Returns all saved offline areas from the local data store. */
+  /** Returns all queued, failed, and completed offline areas from the local data store. */
   Single<ImmutableList<OfflineArea>> getOfflineAreas();
 }
