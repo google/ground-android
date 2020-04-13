@@ -130,6 +130,7 @@ public class LocalDataStoreTest {
 
   private FeatureMutation createFeatureMutation(String userId, String projectId, String layerId) {
     return FeatureMutation.builder()
+        .setId(12345L)
         .setType(Mutation.Type.CREATE)
         .setUserId(userId)
         .setProjectId(projectId)
@@ -285,14 +286,9 @@ public class LocalDataStoreTest {
     FeatureMutation mutation = createFeatureMutation(user.getId(), project.getId(), layer.getId());
     localDataStore.applyAndEnqueue(mutation).test().assertComplete();
 
-    Mutation insertedMutation =
-        localDataStore.getPendingMutations(mutation.getFeatureId()).blockingGet().get(0);
     Point newPoint = Point.newBuilder().setLatitude(51.0).setLongitude(44.0).build();
     Mutation updatedMutation =
-        ((FeatureMutation) insertedMutation)
-            .toBuilder()
-            .setNewLocation(Optional.ofNullable(newPoint))
-            .build();
+        mutation.toBuilder().setNewLocation(Optional.ofNullable(newPoint)).build();
 
     localDataStore
         .updateMutations(ImmutableList.<Mutation>builder().add(updatedMutation).build())
@@ -320,8 +316,7 @@ public class LocalDataStoreTest {
     localDataStore.applyAndEnqueue(mutation).test().assertComplete();
 
     localDataStore
-        .removePendingMutations(
-            localDataStore.getPendingMutations(mutation.getFeatureId()).blockingGet())
+        .removePendingMutations(ImmutableList.<Mutation>builder().add(mutation).build())
         .test()
         .assertComplete();
 
