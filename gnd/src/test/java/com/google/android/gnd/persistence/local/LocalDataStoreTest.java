@@ -77,7 +77,7 @@ public class LocalDataStoreTest {
     DaggerTestComponent.create().inject(this);
   }
 
-  private User createTestUser() {
+  private User createUser() {
     return User.builder()
         .setId("test_user_id")
         .setEmail("test@gmail.com")
@@ -85,7 +85,7 @@ public class LocalDataStoreTest {
         .build();
   }
 
-  private Project createTestProject() {
+  private Project createProject() {
     Builder multipleChoiceBuilder =
         MultipleChoice.newBuilder().setCardinality(Cardinality.SELECT_ONE);
     multipleChoiceBuilder
@@ -164,14 +164,7 @@ public class LocalDataStoreTest {
   }
 
   @Test
-  public void testInsertProject() {
-    Project project = createTestProject();
-    localDataStore.insertOrUpdateProject(project).test().assertComplete();
-    localDataStore.getProjectById(project.getId()).test().assertValue(project);
-  }
-
-  @Test
-  public void testGetProject() {
+  public void testGetProjects() {
     Project project1 =
         Project.newBuilder()
             .setId("id 1")
@@ -194,52 +187,32 @@ public class LocalDataStoreTest {
 
   @Test
   public void testGetProjectById() {
-    Project project =
-        Project.newBuilder()
-            .setId("foo id 2")
-            .setTitle("project 2")
-            .setDescription("foo description 2")
-            .build();
+    Project project = createProject();
     localDataStore.insertOrUpdateProject(project).test().assertComplete();
-    localDataStore.getProjectById("foo id 2").test().assertValue(project);
+    localDataStore.getProjectById(project.getId()).test().assertValue(project);
   }
 
   @Test
   public void testDeleteProject() {
-    Project project1 =
-        Project.newBuilder()
-            .setId("foo id")
-            .setTitle("project 1")
-            .setDescription("foo description")
-            .build();
-    Project project2 =
-        Project.newBuilder()
-            .setId("foo id 2")
-            .setTitle("project 2")
-            .setDescription("foo description 2")
-            .build();
-    localDataStore.insertOrUpdateProject(project1).test().assertComplete();
-    localDataStore.insertOrUpdateProject(project2).test().assertComplete();
-    localDataStore.deleteProject(project1).test().assertComplete();
-    localDataStore
-        .getProjects()
-        .test()
-        .assertValue(ImmutableList.<Project>builder().add(project2).build());
+    Project project = createProject();
+    localDataStore.insertOrUpdateProject(project).test().assertComplete();
+    localDataStore.deleteProject(project).test().assertComplete();
+    localDataStore.getProjects().test().assertValue(AbstractCollection::isEmpty);
   }
 
   @Test
-  public void testInsertOrUpdateUser() {
-    User user = createTestUser();
+  public void testGetUser() {
+    User user = createUser();
     localDataStore.insertOrUpdateUser(user).test().assertComplete();
     localDataStore.getUser(user.getId()).test().assertValue(user);
   }
 
   @Test
   public void testApplyAndEnqueue_featureMutation() {
-    User user = createTestUser();
+    User user = createUser();
     localDataStore.insertOrUpdateUser(user).test().assertComplete();
 
-    Project project = createTestProject();
+    Project project = createProject();
     localDataStore.insertOrUpdateProject(project).test().assertComplete();
 
     Layer layer = project.getLayers().get(0);
@@ -277,10 +250,10 @@ public class LocalDataStoreTest {
 
   @Test
   public void testGetFeaturesOnceAndStream() {
-    User user = createTestUser();
+    User user = createUser();
     localDataStore.insertOrUpdateUser(user).test().assertComplete();
 
-    Project project = createTestProject();
+    Project project = createProject();
     localDataStore.insertOrUpdateProject(project).test().assertComplete();
 
     TestSubscriber<ImmutableSet<Feature>> subscriber =
@@ -302,10 +275,10 @@ public class LocalDataStoreTest {
 
   @Test
   public void testRemovePendingMutation() {
-    User user = createTestUser();
+    User user = createUser();
     localDataStore.insertOrUpdateUser(user).test().assertComplete();
 
-    Project project = createTestProject();
+    Project project = createProject();
     localDataStore.insertOrUpdateProject(project).test().assertComplete();
 
     Layer layer = project.getLayers().get(0);
@@ -326,10 +299,10 @@ public class LocalDataStoreTest {
 
   @Test
   public void testMergeFeature() {
-    User user = createTestUser();
+    User user = createUser();
     localDataStore.insertOrUpdateUser(user).test().assertComplete();
 
-    Project project = createTestProject();
+    Project project = createProject();
     localDataStore.insertOrUpdateProject(project).test().assertComplete();
 
     Layer layer = project.getLayers().get(0);
@@ -355,10 +328,10 @@ public class LocalDataStoreTest {
 
   @Test
   public void testApplyAndEnqueue_observationMutation() {
-    User user = createTestUser();
+    User user = createUser();
     localDataStore.insertOrUpdateUser(user).test().assertComplete();
 
-    Project project = createTestProject();
+    Project project = createProject();
     localDataStore.insertOrUpdateProject(project).test().assertComplete();
 
     Layer layer = project.getLayers().get(0);
@@ -472,6 +445,7 @@ public class LocalDataStoreTest {
   public void testGetTilesOnceAndStream() {
     TestSubscriber<ImmutableSet<Tile>> subscriber = localDataStore.getTilesOnceAndStream().test();
 
+    subscriber.assertValueCount(1);
     subscriber.assertValueAt(0, AbstractCollection::isEmpty);
 
     Tile tile1 =
@@ -481,8 +455,6 @@ public class LocalDataStoreTest {
             .setState(State.PENDING)
             .setUrl("foo_url")
             .build();
-    localDataStore.insertOrUpdateTile(tile1).test().assertComplete();
-
     Tile tile2 =
         Tile.newBuilder()
             .setId("tile_id_2")
@@ -490,6 +462,7 @@ public class LocalDataStoreTest {
             .setState(State.PENDING)
             .setUrl("foo_url")
             .build();
+    localDataStore.insertOrUpdateTile(tile1).test().assertComplete();
     localDataStore.insertOrUpdateTile(tile2).test().assertComplete();
 
     subscriber.assertValueCount(3);
