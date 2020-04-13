@@ -202,6 +202,7 @@ dependencies {
     testImplementation 'com.google.truth:truth:1.0.1'
     testImplementation 'androidx.test:core:1.2.0'
     testImplementation 'org.robolectric:robolectric:4.3.1'
+    testImplementation 'android.arch.core:core-testing:1.1.1'
 
     androidTestImplementation('androidx.test.espresso:espresso-core:3.1.0-alpha4', {
         exclude group: 'com.android.support', module: 'support-annotations'

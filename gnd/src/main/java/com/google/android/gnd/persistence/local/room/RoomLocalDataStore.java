@@ -270,7 +270,6 @@ public class RoomLocalDataStore implements LocalDataStore {
     return tileDao
         .findAll()
         .map(list -> stream(list).map(TileEntity::toTile).collect(toImmutableSet()))
-        .toFlowable()
         .subscribeOn(schedulers.io());
   }
 

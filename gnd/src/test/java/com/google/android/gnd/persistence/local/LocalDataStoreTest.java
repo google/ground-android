@@ -18,6 +18,7 @@ package com.google.android.gnd.persistence.local;
 
 import static org.hamcrest.Matchers.samePropertyValuesAs;
 
+import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gnd.TestApplication;
@@ -46,8 +47,9 @@ import com.google.android.gnd.model.observation.ObservationMutation;
 import com.google.android.gnd.model.observation.ResponseDelta;
 import com.google.android.gnd.model.observation.ResponseMap;
 import com.google.android.gnd.model.observation.TextResponse;
-import com.google.android.gnd.persistence.local.room.dao.FeatureDao;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
+import io.reactivex.subscribers.TestSubscriber;
 import java.util.AbstractCollection;
 import java.util.Date;
 import java8.util.Optional;
@@ -55,6 +57,7 @@ import javax.inject.Inject;
 import org.hamcrest.MatcherAssert;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
@@ -64,8 +67,10 @@ import org.robolectric.annotation.Config;
 @Config(application = TestApplication.class)
 public class LocalDataStoreTest {
 
+  // This rule makes sure that Room executes all the database operations instantly.
+  @Rule public InstantTaskExecutorRule instantTaskExecutorRule = new InstantTaskExecutorRule();
+
   @Inject LocalDataStore localDataStore;
-  @Inject FeatureDao featureDao;
 
   @Before
   public void setUp() {
@@ -433,6 +438,36 @@ public class LocalDataStoreTest {
     tile = tile.toBuilder().setPath("/foo/path2").build();
     localDataStore.insertOrUpdateTile(tile).test().assertComplete();
     localDataStore.getTile("tile id_1").test().assertValueCount(1).assertValue(tile);
+  }
+
+  @Test
+  public void testGetTilesOnceAndStream() {
+    TestSubscriber<ImmutableSet<Tile>> subscriber = localDataStore.getTilesOnceAndStream().test();
+
+    subscriber.assertValueAt(0, AbstractCollection::isEmpty);
+
+    Tile tile1 =
+        Tile.newBuilder()
+            .setId("tile_id_1")
+            .setPath("/foo/path1")
+            .setState(State.PENDING)
+            .setUrl("foo_url")
+            .build();
+    localDataStore.insertOrUpdateTile(tile1).test().assertComplete();
+
+    Tile tile2 =
+        Tile.newBuilder()
+            .setId("tile_id_2")
+            .setPath("/foo/path2")
+            .setState(State.PENDING)
+            .setUrl("foo_url")
+            .build();
+    localDataStore.insertOrUpdateTile(tile2).test().assertComplete();
+
+    subscriber.assertValueCount(3);
+    subscriber.assertValueAt(0, AbstractCollection::isEmpty);
+    subscriber.assertValueAt(1, ImmutableSet.<Tile>builder().add(tile1).build());
+    subscriber.assertValueAt(2, ImmutableSet.<Tile>builder().add(tile1, tile2).build());
   }
 
   @Test
