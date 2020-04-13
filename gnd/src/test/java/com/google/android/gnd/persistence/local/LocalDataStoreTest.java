@@ -124,17 +124,17 @@ public class LocalDataStoreTest {
             .setId("project id")
             .setTitle("project 1")
             .setDescription("foo description");
-    builder.putLayer("layer id", layer);
+    builder.putLayer(layer.getId(), layer);
     return builder.build();
   }
 
-  private FeatureMutation createFeatureMutation(String userId, String projectId) {
+  private FeatureMutation createFeatureMutation(String userId, String projectId, String layerId) {
     return FeatureMutation.builder()
         .setType(Mutation.Type.CREATE)
         .setUserId(userId)
         .setProjectId(projectId)
         .setFeatureId("feature id")
-        .setLayerId("layer id")
+        .setLayerId(layerId)
         .setNewLocation(
             Optional.ofNullable(Point.newBuilder().setLatitude(110.0).setLongitude(-23.1).build()))
         .setClientTimestamp(new Date())
@@ -242,7 +242,8 @@ public class LocalDataStoreTest {
     Project project = createTestProject();
     localDataStore.insertOrUpdateProject(project).test().assertComplete();
 
-    FeatureMutation mutation = createFeatureMutation(user.getId(), project.getId());
+    Layer layer = project.getLayers().get(0);
+    FeatureMutation mutation = createFeatureMutation(user.getId(), project.getId(), layer.getId());
     localDataStore.applyAndEnqueue(mutation).test().assertComplete();
 
     ImmutableList<Mutation> savedMutations =
@@ -250,7 +251,7 @@ public class LocalDataStoreTest {
     Assert.assertEquals(1, savedMutations.size());
 
     // assert that mutation is saved to local database
-    FeatureMutation savedMutation = ((FeatureMutation) savedMutations.get(0));
+    FeatureMutation savedMutation = (FeatureMutation) savedMutations.get(0);
     Assert.assertEquals(mutation.getNewLocation(), savedMutation.getNewLocation());
     Assert.assertEquals(mutation.getType(), savedMutation.getType());
     Assert.assertEquals(mutation.getUserId(), savedMutation.getUserId());
@@ -265,8 +266,8 @@ public class LocalDataStoreTest {
     Feature feature = localDataStore.getFeature(project, mutation.getFeatureId()).blockingGet();
     Assert.assertEquals(mutation.getFeatureId(), feature.getId());
     Assert.assertEquals(project, feature.getProject());
-    Assert.assertEquals(project.getLayers().get(0).getItemLabel(), feature.getTitle());
-    Assert.assertEquals(project.getLayer("layer id").get(), feature.getLayer());
+    Assert.assertEquals(layer.getItemLabel(), feature.getTitle());
+    Assert.assertEquals(layer, feature.getLayer());
     Assert.assertNull(feature.getCustomId());
     Assert.assertNull(feature.getCaption());
     Assert.assertEquals(mutation.getNewLocation().get(), feature.getPoint());
@@ -282,7 +283,8 @@ public class LocalDataStoreTest {
     Project project = createTestProject();
     localDataStore.insertOrUpdateProject(project).test().assertComplete();
 
-    FeatureMutation mutation = createFeatureMutation(user.getId(), project.getId());
+    Layer layer = project.getLayers().get(0);
+    FeatureMutation mutation = createFeatureMutation(user.getId(), project.getId(), layer.getId());
     localDataStore.applyAndEnqueue(mutation).test().assertComplete();
 
     localDataStore
@@ -305,7 +307,8 @@ public class LocalDataStoreTest {
     Project project = createTestProject();
     localDataStore.insertOrUpdateProject(project).test().assertComplete();
 
-    FeatureMutation mutation = createFeatureMutation(user.getId(), project.getId());
+    Layer layer = project.getLayers().get(0);
+    FeatureMutation mutation = createFeatureMutation(user.getId(), project.getId(), layer.getId());
     localDataStore.applyAndEnqueue(mutation).test().assertComplete();
 
     Feature feature = localDataStore.getFeature(project, mutation.getFeatureId()).blockingGet();
@@ -316,8 +319,8 @@ public class LocalDataStoreTest {
     Feature newFeature = localDataStore.getFeature(project, mutation.getFeatureId()).blockingGet();
     Assert.assertEquals(mutation.getFeatureId(), newFeature.getId());
     Assert.assertEquals(project, newFeature.getProject());
-    Assert.assertEquals(project.getLayers().get(0).getItemLabel(), newFeature.getTitle());
-    Assert.assertEquals(project.getLayer("layer id").get(), newFeature.getLayer());
+    Assert.assertEquals(layer.getItemLabel(), newFeature.getTitle());
+    Assert.assertEquals(layer, newFeature.getLayer());
     Assert.assertNull(newFeature.getCustomId());
     Assert.assertNull(newFeature.getCaption());
     Assert.assertEquals(point, newFeature.getPoint());
@@ -333,15 +336,17 @@ public class LocalDataStoreTest {
     Project project = createTestProject();
     localDataStore.insertOrUpdateProject(project).test().assertComplete();
 
-    FeatureMutation featureMutation = createFeatureMutation(user.getId(), project.getId());
+    Layer layer = project.getLayers().get(0);
+    FeatureMutation featureMutation =
+        createFeatureMutation(user.getId(), project.getId(), layer.getId());
     localDataStore.applyAndEnqueue(featureMutation).test().assertComplete();
 
     ObservationMutation mutation =
         createObservationMutation(
             project.getId(),
             featureMutation.getFeatureId(),
-            project.getLayers().get(0).getId(),
-            project.getLayers().get(0).getForm().get().getId(),
+            layer.getId(),
+            layer.getForm().get().getId(),
             user.getId());
     localDataStore.applyAndEnqueue(mutation).test().assertComplete();
 
@@ -350,13 +355,13 @@ public class LocalDataStoreTest {
     Assert.assertEquals(2, savedMutations.size());
 
     // ignoring the first item, which is a FeatureMutation. Already tested separately.
-    ObservationMutation savedMutation = ((ObservationMutation) savedMutations.get(1));
+    ObservationMutation savedMutation = (ObservationMutation) savedMutations.get(1);
     Assert.assertEquals(mutation.getResponseDeltas(), savedMutation.getResponseDeltas());
     Assert.assertEquals(mutation.getType(), savedMutation.getType());
     Assert.assertEquals(mutation.getUserId(), savedMutation.getUserId());
     Assert.assertEquals(mutation.getProjectId(), savedMutation.getProjectId());
     Assert.assertEquals(mutation.getFeatureId(), savedMutation.getFeatureId());
-    Assert.assertEquals(mutation.getLayerId(), savedMutation.getLayerId());
+    Assert.assertEquals(layer.getId(), savedMutation.getLayerId());
     Assert.assertEquals(mutation.getClientTimestamp(), savedMutation.getClientTimestamp());
     Assert.assertEquals(0, savedMutation.getRetryCount());
     Assert.assertNull(savedMutation.getLastError());
@@ -368,7 +373,7 @@ public class LocalDataStoreTest {
     Assert.assertEquals(mutation.getObservationId(), observation.getId());
     Assert.assertEquals(user, observation.getCreated().getUser());
     Assert.assertEquals(feature, observation.getFeature());
-    Assert.assertEquals(project.getLayers().get(0).getForm().get(), observation.getForm());
+    Assert.assertEquals(layer.getForm().get(), observation.getForm());
     Assert.assertEquals(project, observation.getProject());
     Assert.assertEquals(user, observation.getLastModified().getUser());
     MatcherAssert.assertThat(
@@ -391,7 +396,7 @@ public class LocalDataStoreTest {
     Assert.assertEquals(3, savedMutations.size());
 
     // ignoring the first item, which is a FeatureMutation. Already tested separately.
-    savedMutation = ((ObservationMutation) savedMutations.get(2));
+    savedMutation = (ObservationMutation) savedMutations.get(2);
     Assert.assertEquals(deltas, savedMutation.getResponseDeltas());
     Assert.assertEquals(mutation.getType(), savedMutation.getType());
     Assert.assertEquals(mutation.getUserId(), savedMutation.getUserId());
@@ -407,7 +412,7 @@ public class LocalDataStoreTest {
     Assert.assertEquals(mutation.getObservationId(), observation.getId());
     Assert.assertEquals(user, observation.getCreated().getUser());
     Assert.assertEquals(feature, observation.getFeature());
-    Assert.assertEquals(project.getLayers().get(0).getForm().get(), observation.getForm());
+    Assert.assertEquals(layer.getForm().get(), observation.getForm());
     Assert.assertEquals(project, observation.getProject());
     Assert.assertEquals(user, observation.getLastModified().getUser());
     MatcherAssert.assertThat(
@@ -416,9 +421,7 @@ public class LocalDataStoreTest {
 
     // also test that getObservations returns the same observation as well
     ImmutableList<Observation> observations =
-        localDataStore
-            .getObservations(feature, project.getLayers().get(0).getForm().get().getId())
-            .blockingGet();
+        localDataStore.getObservations(feature, layer.getForm().get().getId()).blockingGet();
     Assert.assertEquals(1, observations.size());
     Assert.assertEquals(observation.getId(), observations.get(0).getId());
   }
