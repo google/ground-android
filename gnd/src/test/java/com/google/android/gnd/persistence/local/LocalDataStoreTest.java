@@ -72,12 +72,7 @@ public class LocalDataStoreTest {
 
   @Inject LocalDataStore localDataStore;
 
-  @Before
-  public void setUp() {
-    DaggerTestComponent.create().inject(this);
-  }
-
-  private User createUser() {
+  private static User createTestUser() {
     return User.builder()
         .setId("test_user_id")
         .setEmail("test@gmail.com")
@@ -85,7 +80,7 @@ public class LocalDataStoreTest {
         .build();
   }
 
-  private Project createProject() {
+  private static Project createTestProject() {
     Builder multipleChoiceBuilder =
         MultipleChoice.newBuilder().setCardinality(Cardinality.SELECT_ONE);
     multipleChoiceBuilder
@@ -128,7 +123,8 @@ public class LocalDataStoreTest {
     return builder.build();
   }
 
-  private FeatureMutation createFeatureMutation(String userId, String projectId, String layerId) {
+  private static FeatureMutation createTestFeatureMutation(
+      String userId, String projectId, String layerId) {
     return FeatureMutation.builder()
         .setId(1L)
         .setType(Mutation.Type.CREATE)
@@ -142,10 +138,9 @@ public class LocalDataStoreTest {
         .build();
   }
 
-  private ObservationMutation createObservationMutation(
+  private static ObservationMutation createTestObservationMutation(
       String projectId, String featureId, String layerId, String formId, String userId) {
     return ObservationMutation.builder()
-        //        .setId(12345L)
         .setType(Mutation.Type.CREATE)
         .setProjectId(projectId)
         .setFeatureId(featureId)
@@ -163,6 +158,11 @@ public class LocalDataStoreTest {
         .setClientTimestamp(new Date())
         .setUserId(userId)
         .build();
+  }
+
+  @Before
+  public void setUp() {
+    DaggerTestComponent.create().inject(this);
   }
 
   @Test
@@ -189,14 +189,14 @@ public class LocalDataStoreTest {
 
   @Test
   public void testGetProjectById() {
-    Project project = createProject();
+    Project project = createTestProject();
     localDataStore.insertOrUpdateProject(project).test().assertComplete();
     localDataStore.getProjectById(project.getId()).test().assertValue(project);
   }
 
   @Test
   public void testDeleteProject() {
-    Project project = createProject();
+    Project project = createTestProject();
     localDataStore.insertOrUpdateProject(project).test().assertComplete();
     localDataStore.deleteProject(project).test().assertComplete();
     localDataStore.getProjects().test().assertValue(AbstractCollection::isEmpty);
@@ -204,21 +204,22 @@ public class LocalDataStoreTest {
 
   @Test
   public void testGetUser() {
-    User user = createUser();
+    User user = createTestUser();
     localDataStore.insertOrUpdateUser(user).test().assertComplete();
     localDataStore.getUser(user.getId()).test().assertValue(user);
   }
 
   @Test
   public void testApplyAndEnqueue_featureMutation() {
-    User user = createUser();
+    User user = createTestUser();
     localDataStore.insertOrUpdateUser(user).test().assertComplete();
 
-    Project project = createProject();
+    Project project = createTestProject();
     localDataStore.insertOrUpdateProject(project).test().assertComplete();
 
     Layer layer = project.getLayers().get(0);
-    FeatureMutation mutation = createFeatureMutation(user.getId(), project.getId(), layer.getId());
+    FeatureMutation mutation =
+        createTestFeatureMutation(user.getId(), project.getId(), layer.getId());
     localDataStore.applyAndEnqueue(mutation).test().assertComplete();
 
     ImmutableList<Mutation> savedMutations =
@@ -252,10 +253,10 @@ public class LocalDataStoreTest {
 
   @Test
   public void testGetFeaturesOnceAndStream() {
-    User user = createUser();
+    User user = createTestUser();
     localDataStore.insertOrUpdateUser(user).test().assertComplete();
 
-    Project project = createProject();
+    Project project = createTestProject();
     localDataStore.insertOrUpdateProject(project).test().assertComplete();
 
     TestSubscriber<ImmutableSet<Feature>> subscriber =
@@ -265,7 +266,8 @@ public class LocalDataStoreTest {
     subscriber.assertValueAt(0, AbstractCollection::isEmpty);
 
     Layer layer = project.getLayers().get(0);
-    FeatureMutation mutation = createFeatureMutation(user.getId(), project.getId(), layer.getId());
+    FeatureMutation mutation =
+        createTestFeatureMutation(user.getId(), project.getId(), layer.getId());
     localDataStore.applyAndEnqueue(mutation).test().assertComplete();
 
     Feature feature = localDataStore.getFeature(project, mutation.getFeatureId()).blockingGet();
@@ -277,14 +279,15 @@ public class LocalDataStoreTest {
 
   @Test
   public void testUpdateMutations() {
-    User user = createUser();
+    User user = createTestUser();
     localDataStore.insertOrUpdateUser(user).test().assertComplete();
 
-    Project project = createProject();
+    Project project = createTestProject();
     localDataStore.insertOrUpdateProject(project).test().assertComplete();
 
     Layer layer = project.getLayers().get(0);
-    FeatureMutation mutation = createFeatureMutation(user.getId(), project.getId(), layer.getId());
+    FeatureMutation mutation =
+        createTestFeatureMutation(user.getId(), project.getId(), layer.getId());
     localDataStore.applyAndEnqueue(mutation).test().assertComplete();
 
     Point newPoint = Point.newBuilder().setLatitude(51.0).setLongitude(44.0).build();
@@ -306,14 +309,15 @@ public class LocalDataStoreTest {
 
   @Test
   public void testRemovePendingMutation() {
-    User user = createUser();
+    User user = createTestUser();
     localDataStore.insertOrUpdateUser(user).test().assertComplete();
 
-    Project project = createProject();
+    Project project = createTestProject();
     localDataStore.insertOrUpdateProject(project).test().assertComplete();
 
     Layer layer = project.getLayers().get(0);
-    FeatureMutation mutation = createFeatureMutation(user.getId(), project.getId(), layer.getId());
+    FeatureMutation mutation =
+        createTestFeatureMutation(user.getId(), project.getId(), layer.getId());
     localDataStore.applyAndEnqueue(mutation).test().assertComplete();
 
     localDataStore
@@ -329,14 +333,15 @@ public class LocalDataStoreTest {
 
   @Test
   public void testMergeFeature() {
-    User user = createUser();
+    User user = createTestUser();
     localDataStore.insertOrUpdateUser(user).test().assertComplete();
 
-    Project project = createProject();
+    Project project = createTestProject();
     localDataStore.insertOrUpdateProject(project).test().assertComplete();
 
     Layer layer = project.getLayers().get(0);
-    FeatureMutation mutation = createFeatureMutation(user.getId(), project.getId(), layer.getId());
+    FeatureMutation mutation =
+        createTestFeatureMutation(user.getId(), project.getId(), layer.getId());
     localDataStore.applyAndEnqueue(mutation).test().assertComplete();
 
     Feature feature = localDataStore.getFeature(project, mutation.getFeatureId()).blockingGet();
@@ -358,19 +363,19 @@ public class LocalDataStoreTest {
 
   @Test
   public void testApplyAndEnqueue_observationMutation() {
-    User user = createUser();
+    User user = createTestUser();
     localDataStore.insertOrUpdateUser(user).test().assertComplete();
 
-    Project project = createProject();
+    Project project = createTestProject();
     localDataStore.insertOrUpdateProject(project).test().assertComplete();
 
     Layer layer = project.getLayers().get(0);
     FeatureMutation featureMutation =
-        createFeatureMutation(user.getId(), project.getId(), layer.getId());
+        createTestFeatureMutation(user.getId(), project.getId(), layer.getId());
     localDataStore.applyAndEnqueue(featureMutation).test().assertComplete();
 
     ObservationMutation mutation =
-        createObservationMutation(
+        createTestObservationMutation(
             project.getId(),
             featureMutation.getFeatureId(),
             layer.getId(),
@@ -456,19 +461,19 @@ public class LocalDataStoreTest {
 
   @Test
   public void testUpdateObservation() {
-    User user = createUser();
+    User user = createTestUser();
     localDataStore.insertOrUpdateUser(user).test().assertComplete();
 
-    Project project = createProject();
+    Project project = createTestProject();
     localDataStore.insertOrUpdateProject(project).test().assertComplete();
 
     Layer layer = project.getLayers().get(0);
     FeatureMutation featureMutation =
-        createFeatureMutation(user.getId(), project.getId(), layer.getId());
+        createTestFeatureMutation(user.getId(), project.getId(), layer.getId());
     localDataStore.applyAndEnqueue(featureMutation).test().assertComplete();
 
     ObservationMutation mutation =
-        createObservationMutation(
+        createTestObservationMutation(
             project.getId(),
             featureMutation.getFeatureId(),
             layer.getId(),
