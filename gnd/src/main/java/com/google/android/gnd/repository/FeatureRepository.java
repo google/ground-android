@@ -26,12 +26,12 @@ import com.google.android.gnd.persistence.remote.NotFoundException;
 import com.google.android.gnd.persistence.remote.RemoteDataEvent;
 import com.google.android.gnd.persistence.remote.RemoteDataStore;
 import com.google.android.gnd.persistence.sync.DataSyncWorkManager;
-import com.google.android.gnd.rx.Loadable;
+import com.google.android.gnd.rx.ValueOrError;
 import com.google.common.collect.ImmutableSet;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
-import io.reactivex.Single;
+import io.reactivex.Observable;
 import java.util.Date;
 import java8.util.Optional;
 import javax.inject.Inject;
@@ -106,11 +106,13 @@ public class FeatureRepository {
   public Maybe<Feature> getFeature(String projectId, String featureId) {
     return projectRepository
         .getActiveProjectOnceAndStream()
-        .compose(Loadable::values)
-        .firstElement()
+        .map(ValueOrError::value)
+        .filter(Optional::isPresent)
+        .map(Optional::get)
         .filter(project -> project.getId().equals(projectId))
-        .switchIfEmpty(Single.error(() -> new NotFoundException("Project " + projectId)))
-        .flatMapMaybe(project -> localDataStore.getFeature(project, featureId));
+        .switchIfEmpty(Observable.error(() -> new NotFoundException("Project " + projectId)))
+        .flatMapMaybe(project -> localDataStore.getFeature(project, featureId))
+        .firstElement();
   }
 
   public Completable saveFeature(Feature feature, User user) {

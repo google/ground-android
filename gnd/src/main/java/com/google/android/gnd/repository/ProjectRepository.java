@@ -27,7 +27,7 @@ import com.google.android.gnd.rx.Loadable;
 import io.reactivex.Flowable;
 import io.reactivex.Single;
 import io.reactivex.processors.BehaviorProcessor;
-import io.reactivex.processors.FlowableProcessor;
+import io.reactivex.subjects.BehaviorSubject;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java8.util.Optional;
@@ -48,8 +48,9 @@ public class ProjectRepository {
   private final InMemoryCache cache;
   private final LocalDataStore localDataStore;
   private final RemoteDataStore remoteDataStore;
-  private final Flowable<Loadable<Project>> activeProjectStream;
-  private final FlowableProcessor<Optional<String>> activateProjectRequests;
+  private final BehaviorSubject<Loadable<Project>> activeProjectStream = BehaviorSubject.create();
+  private final BehaviorProcessor<Optional<String>> activateProjectRequests =
+      BehaviorProcessor.create();
   private final LocalValueStore localValueStore;
 
   @Inject
@@ -63,17 +64,14 @@ public class ProjectRepository {
     this.cache = cache;
     this.localValueStore = localValueStore;
 
-    // BehaviorProcessor re-emits last requested project id to late subscribers.
-    this.activateProjectRequests = BehaviorProcessor.create();
-
     // Load project when requested id changes, caching the last loaded project.
-    this.activeProjectStream =
-        activateProjectRequests
-            .distinctUntilChanged()
-            .doOnNext(id -> Log.v(TAG, "Requested project id changed: " + id))
-            .switchMap(this::onActivateProjectRequest)
-            .replay(1)
-            .refCount();
+    activateProjectRequests
+        .distinctUntilChanged()
+        .doOnNext(id -> Log.v(TAG, "Requested project id changed: " + id))
+        .switchMap(this::onActivateProjectRequest)
+        .replay(1)
+        .refCount()
+        .subscribe(projectLoadable -> activeProjectStream.onNext(projectLoadable));
   }
 
   private Flowable<Loadable<Project>> onActivateProjectRequest(Optional<String> projectId) {
@@ -113,7 +111,7 @@ public class ProjectRepository {
    * Returns a stream that emits the latest project activation state, and continues to emits changes
    * to that state until all subscriptions are disposed.
    */
-  public Flowable<Loadable<Project>> getActiveProjectOnceAndStream() {
+  public BehaviorSubject<Loadable<Project>> getActiveProjectOnceAndStream() {
     return activeProjectStream;
   }
 

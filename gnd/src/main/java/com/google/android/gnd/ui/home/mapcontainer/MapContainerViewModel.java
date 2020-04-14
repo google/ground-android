@@ -79,7 +79,10 @@ public class MapContainerViewModel extends AbstractViewModel {
             createCameraUpdateFlowable(locationLockStateFlowable));
     this.cameraPosition = new MutableLiveData<>();
     this.activeProject =
-        LiveDataReactiveStreams.fromPublisher(projectRepository.getActiveProjectOnceAndStream());
+        LiveDataReactiveStreams.fromPublisher(
+            projectRepository
+                .getActiveProjectOnceAndStream()
+                .toFlowable(BackpressureStrategy.LATEST));
     // TODO: Clear feature markers when project is deactivated.
     // TODO: Since we depend on project stream from repo anyway, this transformation can be moved
     // into the repo?
@@ -88,6 +91,7 @@ public class MapContainerViewModel extends AbstractViewModel {
             projectRepository
                 .getActiveProjectOnceAndStream()
                 .map(Loadable::value)
+                .toFlowable(BackpressureStrategy.LATEST)
                 .switchMap(this::getFeaturesStream)
                 .map(MapContainerViewModel::toMapPins));
   }

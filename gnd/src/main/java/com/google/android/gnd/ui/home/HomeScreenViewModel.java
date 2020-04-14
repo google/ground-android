@@ -36,6 +36,7 @@ import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.SharedViewModel;
 import com.google.android.gnd.ui.map.MapPin;
+import io.reactivex.BackpressureStrategy;
 import io.reactivex.Single;
 import io.reactivex.subjects.PublishSubject;
 import java8.util.Optional;
@@ -73,7 +74,10 @@ public class HomeScreenViewModel extends AbstractViewModel {
     this.openDrawerRequests = new MutableLiveData<>();
     this.featureSheetState = new MutableLiveData<>();
     this.activeProject =
-        LiveDataReactiveStreams.fromPublisher(projectRepository.getActiveProjectOnceAndStream());
+        LiveDataReactiveStreams.fromPublisher(
+            projectRepository
+                .getActiveProjectOnceAndStream()
+                .toFlowable(BackpressureStrategy.LATEST));
     this.navigator = navigator;
     this.addFeatureClicks = PublishSubject.create();
 
