@@ -32,7 +32,6 @@ public abstract class Layer {
   @Nullable
   public abstract String getItemLabel();
 
-  @Nullable
   public abstract Style getDefaultStyle();
 
   public abstract Optional<Form> getForm();
@@ -53,7 +52,7 @@ public abstract class Layer {
 
     public abstract Builder setItemLabel(@Nullable String newItemLabel);
 
-    public abstract Builder setDefaultStyle(@Nullable Style newDefaultStyle);
+    public abstract Builder setDefaultStyle(Style newDefaultStyle);
 
     public abstract Builder setForm(Optional<Form> form);
 
