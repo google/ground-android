@@ -59,7 +59,6 @@ public abstract class LayerEntity {
   public abstract String getItemLabel();
 
   @CopyAnnotations
-  @Nullable
   @ColumnInfo(name = "default_style")
   public abstract Style getDefaultStyle();
 
