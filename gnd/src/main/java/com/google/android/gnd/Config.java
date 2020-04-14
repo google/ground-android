@@ -21,7 +21,7 @@ public final class Config {
 
   // Local db settings.
   // TODO(#128): Reset version to 1 before releasing.
-  public static final int DB_VERSION = 42;
+  public static final int DB_VERSION = 43;
   public static final String DB_NAME = "gnd.db";
 
   // Firebase Cloud Firestore settings.
@@ -30,4 +30,9 @@ public final class Config {
 
   // Photos
   public static final String PHOTO_EXT = ".jpg";
+
+  // Designates the location of a geo json file that specifies downloadable tiles for offline
+  // viewing. May point to a file on the device or a valid URL.
+  // TODO: Fetch from cloud storage
+  public static final String GEO_JSON = "gnd_geojson.json";
 }

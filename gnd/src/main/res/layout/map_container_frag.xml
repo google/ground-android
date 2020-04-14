@@ -16,17 +16,16 @@
   ~ limitations under the License.
   -->
 
-<layout
-  xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:app="http://schemas.android.com/apk/res-auto">
 
   <data>
     <variable
       name="viewModel"
-      type="com.google.android.gnd.ui.home.mapcontainer.MapContainerViewModel"/>
+      type="com.google.android.gnd.ui.home.mapcontainer.MapContainerViewModel" />
     <variable
       name="homeScreenViewModel"
-      type="com.google.android.gnd.ui.home.HomeScreenViewModel"/>
+      type="com.google.android.gnd.ui.home.HomeScreenViewModel" />
   </data>
 
   <FrameLayout
@@ -46,7 +45,7 @@
       <FrameLayout
         android:id="@+id/map"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent" />
 
       <!-- TODO: Add highlighted icon overlay when showing feature sheet -->
       <ImageView
@@ -56,17 +55,27 @@
         android:layout_centerInParent="true"
         android:adjustViewBounds="false"
         android:cropToPadding="false"
-        android:src="@drawable/ic_crosshairs"/>
+        android:src="@drawable/ic_crosshairs" />
     </RelativeLayout>
 
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
       android:id="@+id/map_btn_layout"
       android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:layout_marginBottom="@dimen/map_btn_margin_bottom"
-      android:layout_marginRight="@dimen/map_btn_margin_right"
-      android:layout_gravity="bottom|right|end"
-      android:orientation="vertical">
+      android:layout_height="match_parent"
+      android:layout_gravity="end">
+
+      <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/map_type_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="@{() -> viewModel.onMapTypeButtonClicked()}"
+        android:tint="@color/colorGrey500"
+        app:backgroundTint="@color/colorBackground"
+        app:fabSize="mini"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/map_layers"
+        app:useCompatPadding="true" />
 
       <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/location_lock_btn"
@@ -76,7 +85,10 @@
         android:src="@drawable/ic_gps_grey600"
         app:backgroundTint="@color/colorBackground"
         app:fabSize="normal"
-        app:useCompatPadding="true"/>
+        app:layout_constraintBottom_toTopOf="@+id/add_feature_btn"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:useCompatPadding="true" />
 
       <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/add_feature_btn"
@@ -86,20 +98,24 @@
         android:tint="@color/colorBackground"
         app:backgroundTint="@color/colorGrey500"
         app:fabSize="normal"
-        app:useCompatPadding="true"/>
-    </LinearLayout>
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:useCompatPadding="true" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <ImageButton
       android:id="@+id/hamburger_btn"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:layout_gravity="top|start|left"
-      android:padding="16dp"
+      android:layout_gravity="top|start"
       android:background="?android:attr/selectableItemBackground"
       android:clickable="true"
+      android:focusable="true"
       android:onClick="@{() -> homeScreenViewModel.openNavDrawer()}"
+      android:padding="16dp"
       android:src="@drawable/ic_menu_black_24dp"
-      android:tint="@color/colorBackground"/>
+      android:tint="@color/colorBackground" />
 
   </FrameLayout>
 </layout>

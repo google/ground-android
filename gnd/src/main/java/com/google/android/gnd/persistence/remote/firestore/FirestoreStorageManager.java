@@ -19,13 +19,14 @@ package com.google.android.gnd.persistence.remote.firestore;
 import android.net.Uri;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gnd.persistence.remote.RemoteStorageManager;
+import com.google.android.gnd.persistence.remote.TransferProgress;
 import com.google.firebase.storage.StorageReference;
-import io.reactivex.Completable;
+import io.reactivex.BackpressureStrategy;
+import io.reactivex.Flowable;
 import java.io.File;
 import java8.util.StringJoiner;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import timber.log.Timber;
 
 // TODO: Add column to Observation table for storing uploaded media urls
 // TODO: Synced to remote db as well
@@ -65,27 +66,21 @@ public class FirestoreStorageManager implements RemoteStorageManager {
     return createReference(remoteDestinationPath).getDownloadUrl();
   }
 
-  /** Upload file to Firebase Storage. */
   @Override
-  public Completable uploadMediaFromFile(File file, String remoteDestinationPath) {
-    return Completable.create(
+  public Flowable<TransferProgress> uploadMediaFromFile(File file, String remoteDestinationPath) {
+    return Flowable.create(
         emitter ->
             createReference(remoteDestinationPath)
                 .putFile(Uri.fromFile(file))
                 .addOnCompleteListener(uploadTask -> emitter.onComplete())
+                .addOnPausedListener(taskSnapshot -> emitter.onNext(TransferProgress.paused()))
                 .addOnFailureListener(emitter::onError)
-                .addOnSuccessListener(
-                    taskSnapshot -> {
-                      // TODO: taskSnapshot contains metadata that can be displayed after uploading
-                    })
                 .addOnProgressListener(
-                    taskSnapshot -> {
-                      // TODO: Display upload status in app or notification
-                      double completed =
-                          100.0
-                              * taskSnapshot.getBytesTransferred()
-                              / taskSnapshot.getTotalByteCount();
-                      Timber.d("Uploading in progress: %s %f", remoteDestinationPath, completed);
-                    }));
+                    taskSnapshot ->
+                        emitter.onNext(
+                            TransferProgress.inProgress(
+                                (int) taskSnapshot.getTotalByteCount(),
+                                (int) taskSnapshot.getBytesTransferred()))),
+        BackpressureStrategy.LATEST);
   }
 }
