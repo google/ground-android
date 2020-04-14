@@ -55,7 +55,7 @@ public class InMemoryCacheTest {
   }
 
   @Test
-  public void getFeatures_EmptyIfNoneAdded() {
+  public void getFeatures_emptyIfNoneAdded() {
     assertThat(inMemoryCache.getFeatures()).isEmpty();
   }
 
@@ -75,7 +75,7 @@ public class InMemoryCacheTest {
   }
 
   @Test
-  public void clear_ClearsFeatures() {
+  public void clear_clearsFeatures() {
     inMemoryCache.putFeature(FAKE_FEATURE);
     inMemoryCache.clear();
 
