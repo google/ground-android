@@ -24,6 +24,7 @@ import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.model.layer.Layer;
+import com.google.android.gnd.model.layer.Style;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -34,11 +35,15 @@ public class InMemoryCacheTest {
   private static final User FAKE_USER =
       User.builder().setId("id").setDisplayName("name").setEmail("email").build();
 
+  private static final Style FAKE_STYLE = Style.builder().setColor("#000000").build();
+
+  private static final Layer FAKE_LAYER = Layer.newBuilder().setDefaultStyle(FAKE_STYLE).build();
+
   private static final Feature FAKE_FEATURE =
       Feature.newBuilder()
           .setId("foo feature id")
           .setProject(Project.newBuilder().build())
-          .setLayer(Layer.newBuilder().build())
+          .setLayer(FAKE_LAYER)
           .setPoint(Point.newBuilder().setLatitude(0.0).setLongitude(0.0).build())
           .setCreated(AuditInfo.now(FAKE_USER))
           .setLastModified(AuditInfo.now(FAKE_USER))
