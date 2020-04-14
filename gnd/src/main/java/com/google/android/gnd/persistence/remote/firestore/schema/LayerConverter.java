@@ -27,7 +27,7 @@ class LayerConverter {
   private static final String TAG = LayerConverter.class.getSimpleName();
 
   /** Black marker used when default remote data is corrupt or missing. */
-  private static Style DEFAULT_DEFAULT_STYLE = Style.builder().setColor("#000000").build();
+  private static final Style DEFAULT_DEFAULT_STYLE = Style.builder().setColor("#000000").build();
 
   static Layer toLayer(String id, LayerNestedObject obj) {
     Layer.Builder layer = Layer.newBuilder();
