@@ -180,21 +180,9 @@ public class LocalDataStoreTest {
 
   @Test
   public void testGetProjects() {
-    Project project1 =
-        Project.newBuilder()
-            .setId("id 1")
-            .setTitle("project 1")
-            .setDescription("foo description")
-            .build();
-    Project project2 =
-        Project.newBuilder()
-            .setId("id 2")
-            .setTitle("project 2")
-            .setDescription("foo description 2")
-            .build();
-    localDataStore.insertOrUpdateProject(project1).subscribe();
-    localDataStore.insertOrUpdateProject(project2).subscribe();
-    localDataStore.getProjects().test().assertValue(ImmutableList.of(project1, project2));
+    Project project = FAKE_PROJECT;
+    localDataStore.insertOrUpdateProject(project).subscribe();
+    localDataStore.getProjects().test().assertValue(ImmutableList.of(project));
   }
 
   @Test
