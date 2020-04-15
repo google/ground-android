@@ -355,15 +355,7 @@ public class LocalDataStoreTest {
         localDataStore.getFeature(FAKE_PROJECT, mutation.getFeatureId()).blockingGet();
     Observation observation =
         localDataStore.getObservation(feature, mutation.getObservationId()).blockingGet();
-    Assert.assertEquals(mutation.getObservationId(), observation.getId());
-    Assert.assertEquals(FAKE_USER, observation.getCreated().getUser());
-    Assert.assertEquals(feature, observation.getFeature());
-    Assert.assertEquals(FAKE_FORM, observation.getForm());
-    Assert.assertEquals(FAKE_PROJECT, observation.getProject());
-    Assert.assertEquals(FAKE_USER, observation.getLastModified().getUser());
-    MatcherAssert.assertThat(
-        ResponseMap.builder().applyDeltas(mutation.getResponseDeltas()).build(),
-        samePropertyValuesAs(observation.getResponses()));
+    assertObservation(mutation, observation);
 
     // now update the inserted observation with new responses
     ImmutableList<ResponseDelta> deltas =
