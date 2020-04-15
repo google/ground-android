@@ -170,22 +170,22 @@ public class LocalDataStoreTest {
             .setTitle("project 2")
             .setDescription("foo description 2")
             .build();
-    localDataStore.insertOrUpdateProject(project1).test().assertComplete();
-    localDataStore.insertOrUpdateProject(project2).test().assertComplete();
+    localDataStore.insertOrUpdateProject(project1).subscribe();
+    localDataStore.insertOrUpdateProject(project2).subscribe();
     localDataStore.getProjects().test().assertValue(ImmutableList.of(project1, project2));
   }
 
   @Test
   public void testGetProjectById() {
     Project project = FAKE_PROJECT;
-    localDataStore.insertOrUpdateProject(project).test().assertComplete();
+    localDataStore.insertOrUpdateProject(project).subscribe();
     localDataStore.getProjectById(project.getId()).test().assertValue(project);
   }
 
   @Test
   public void testDeleteProject() {
     Project project = FAKE_PROJECT;
-    localDataStore.insertOrUpdateProject(project).test().assertComplete();
+    localDataStore.insertOrUpdateProject(project).subscribe();
     localDataStore.deleteProject(project).test().assertComplete();
     localDataStore.getProjects().test().assertValue(AbstractCollection::isEmpty);
   }
@@ -193,17 +193,17 @@ public class LocalDataStoreTest {
   @Test
   public void testGetUser() {
     User user = FAKE_USER;
-    localDataStore.insertOrUpdateUser(user).test().assertComplete();
+    localDataStore.insertOrUpdateUser(user).subscribe();
     localDataStore.getUser(user.getId()).test().assertValue(user);
   }
 
   @Test
   public void testApplyAndEnqueue_featureMutation() {
     User user = FAKE_USER;
-    localDataStore.insertOrUpdateUser(user).test().assertComplete();
+    localDataStore.insertOrUpdateUser(user).subscribe();
 
     Project project = FAKE_PROJECT;
-    localDataStore.insertOrUpdateProject(project).test().assertComplete();
+    localDataStore.insertOrUpdateProject(project).subscribe();
 
     Layer layer = project.getLayers().get(0);
     FeatureMutation mutation = FAKE_FEATURE_MUTATION;
@@ -230,10 +230,10 @@ public class LocalDataStoreTest {
 
   @Test
   public void testGetFeaturesOnceAndStream() {
-    localDataStore.insertOrUpdateUser(FAKE_USER).test().assertComplete();
+    localDataStore.insertOrUpdateUser(FAKE_USER).subscribe();
 
     Project project = FAKE_PROJECT;
-    localDataStore.insertOrUpdateProject(project).test().assertComplete();
+    localDataStore.insertOrUpdateProject(project).subscribe();
 
     TestSubscriber<ImmutableSet<Feature>> subscriber =
         localDataStore.getFeaturesOnceAndStream(project).test();
@@ -242,7 +242,7 @@ public class LocalDataStoreTest {
     subscriber.assertValueAt(0, AbstractCollection::isEmpty);
 
     FeatureMutation mutation = FAKE_FEATURE_MUTATION;
-    localDataStore.applyAndEnqueue(mutation).test().assertComplete();
+    localDataStore.applyAndEnqueue(mutation).subscribe();
 
     Feature feature = localDataStore.getFeature(project, mutation.getFeatureId()).blockingGet();
 
@@ -253,11 +253,11 @@ public class LocalDataStoreTest {
 
   @Test
   public void testUpdateMutations() {
-    localDataStore.insertOrUpdateUser(FAKE_USER).test().assertComplete();
-    localDataStore.insertOrUpdateProject(FAKE_PROJECT).test().assertComplete();
+    localDataStore.insertOrUpdateUser(FAKE_USER).subscribe();
+    localDataStore.insertOrUpdateProject(FAKE_PROJECT).subscribe();
 
     FeatureMutation mutation = FAKE_FEATURE_MUTATION;
-    localDataStore.applyAndEnqueue(mutation).test().assertComplete();
+    localDataStore.applyAndEnqueue(mutation).subscribe();
 
     Point newPoint = Point.newBuilder().setLatitude(51.0).setLongitude(44.0).build();
     Mutation updatedMutation =
@@ -275,11 +275,11 @@ public class LocalDataStoreTest {
 
   @Test
   public void testRemovePendingMutation() {
-    localDataStore.insertOrUpdateUser(FAKE_USER).test().assertComplete();
-    localDataStore.insertOrUpdateProject(FAKE_PROJECT).test().assertComplete();
+    localDataStore.insertOrUpdateUser(FAKE_USER).subscribe();
+    localDataStore.insertOrUpdateProject(FAKE_PROJECT).subscribe();
 
     FeatureMutation mutation = FAKE_FEATURE_MUTATION;
-    localDataStore.applyAndEnqueue(mutation).test().assertComplete();
+    localDataStore.applyAndEnqueue(mutation).subscribe();
 
     localDataStore.removePendingMutations(ImmutableList.of(mutation)).test().assertComplete();
 
@@ -291,13 +291,13 @@ public class LocalDataStoreTest {
 
   @Test
   public void testMergeFeature() {
-    localDataStore.insertOrUpdateUser(FAKE_USER).test().assertComplete();
+    localDataStore.insertOrUpdateUser(FAKE_USER).subscribe();
 
     Project project = FAKE_PROJECT;
-    localDataStore.insertOrUpdateProject(project).test().assertComplete();
+    localDataStore.insertOrUpdateProject(project).subscribe();
 
     FeatureMutation mutation = FAKE_FEATURE_MUTATION;
-    localDataStore.applyAndEnqueue(mutation).test().assertComplete();
+    localDataStore.applyAndEnqueue(mutation).subscribe();
 
     Feature feature = localDataStore.getFeature(project, mutation.getFeatureId()).blockingGet();
     Point point = Point.newBuilder().setLongitude(11.0).setLatitude(33.0).build();
@@ -318,9 +318,9 @@ public class LocalDataStoreTest {
 
   @Test
   public void testApplyAndEnqueue_observationMutation() {
-    localDataStore.insertOrUpdateUser(FAKE_USER).test().assertComplete();
-    localDataStore.insertOrUpdateProject(FAKE_PROJECT).test().assertComplete();
-    localDataStore.applyAndEnqueue(FAKE_FEATURE_MUTATION).test().assertComplete();
+    localDataStore.insertOrUpdateUser(FAKE_USER).subscribe();
+    localDataStore.insertOrUpdateProject(FAKE_PROJECT).subscribe();
+    localDataStore.applyAndEnqueue(FAKE_FEATURE_MUTATION).subscribe();
 
     ObservationMutation mutation = FAKE_OBSERVATION_MUTATION;
     localDataStore.applyAndEnqueue(mutation).test().assertComplete();
@@ -401,13 +401,13 @@ public class LocalDataStoreTest {
   }
 
   @Test
-  public void testUpdateObservation() {
-    localDataStore.insertOrUpdateUser(FAKE_USER).test().assertComplete();
-    localDataStore.insertOrUpdateProject(FAKE_PROJECT).test().assertComplete();
-    localDataStore.applyAndEnqueue(FAKE_FEATURE_MUTATION).test().assertComplete();
+  public void testMergeObservation() {
+    localDataStore.insertOrUpdateUser(FAKE_USER).subscribe();
+    localDataStore.insertOrUpdateProject(FAKE_PROJECT).subscribe();
+    localDataStore.applyAndEnqueue(FAKE_FEATURE_MUTATION).subscribe();
 
     ObservationMutation mutation = FAKE_OBSERVATION_MUTATION;
-    localDataStore.applyAndEnqueue(mutation).test().assertComplete();
+    localDataStore.applyAndEnqueue(mutation).subscribe();
 
     Feature feature =
         localDataStore.getFeature(FAKE_PROJECT, mutation.getFeatureId()).blockingGet();
@@ -442,11 +442,7 @@ public class LocalDataStoreTest {
             .setState(State.PENDING)
             .setUrl("foo_url")
             .build();
-    localDataStore.insertOrUpdateTile(tile).test().assertComplete();
-    localDataStore.getTile("tile id_1").test().assertValueCount(1).assertValue(tile);
-
-    tile = tile.toBuilder().setPath("/foo/path2").build();
-    localDataStore.insertOrUpdateTile(tile).test().assertComplete();
+    localDataStore.insertOrUpdateTile(tile).subscribe();
     localDataStore.getTile("tile id_1").test().assertValueCount(1).assertValue(tile);
   }
 
@@ -471,8 +467,8 @@ public class LocalDataStoreTest {
             .setState(State.PENDING)
             .setUrl("foo_url")
             .build();
-    localDataStore.insertOrUpdateTile(tile1).test().assertComplete();
-    localDataStore.insertOrUpdateTile(tile2).test().assertComplete();
+    localDataStore.insertOrUpdateTile(tile1).subscribe();
+    localDataStore.insertOrUpdateTile(tile2).subscribe();
 
     subscriber.assertValueCount(3);
     subscriber.assertValueAt(0, AbstractCollection::isEmpty);
@@ -503,14 +499,14 @@ public class LocalDataStoreTest {
             .setPath("some_path")
             .setUrl("some_url")
             .build();
-    localDataStore.insertOrUpdateTile(tile1).test().assertComplete();
-    localDataStore.insertOrUpdateTile(tile2).test().assertComplete();
-    localDataStore.insertOrUpdateTile(tile3).test().assertComplete();
+    localDataStore.insertOrUpdateTile(tile1).subscribe();
+    localDataStore.insertOrUpdateTile(tile2).subscribe();
+    localDataStore.insertOrUpdateTile(tile3).subscribe();
     localDataStore.getPendingTiles().test().assertValue(ImmutableList.of(tile1, tile3));
   }
 
   @Test
-  public void testInsertOrUpdateOfflineAreas() {
+  public void testGetOfflineAreas() {
     LatLngBounds bounds1 = LatLngBounds.builder().include(new LatLng(0.0, 0.0)).build();
     OfflineArea area1 =
         OfflineArea.newBuilder()
@@ -526,8 +522,8 @@ public class LocalDataStoreTest {
             .setState(OfflineArea.State.PENDING)
             .build();
 
-    localDataStore.insertOrUpdateOfflineArea(area1).test().assertComplete();
-    localDataStore.insertOrUpdateOfflineArea(area2).test().assertComplete();
+    localDataStore.insertOrUpdateOfflineArea(area1).subscribe();
+    localDataStore.insertOrUpdateOfflineArea(area2).subscribe();
     localDataStore.getOfflineAreas().test().assertValue(ImmutableList.of(area1, area2));
   }
 }
