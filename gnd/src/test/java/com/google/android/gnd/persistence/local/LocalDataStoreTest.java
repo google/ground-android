@@ -147,6 +147,37 @@ public class LocalDataStoreTest {
           .setClientTimestamp(new Date())
           .build();
 
+  private static final Tile FAKE_TILE_PENDING =
+      Tile.newBuilder()
+          .setId("id_1")
+          .setState(State.PENDING)
+          .setPath("some_path 1")
+          .setUrl("some_url 1")
+          .build();
+
+  private static final Tile FAKE_TILE_DOWNLOADED =
+      Tile.newBuilder()
+          .setId("id_2")
+          .setState(State.DOWNLOADED)
+          .setPath("some_path 2")
+          .setUrl("some_url 2")
+          .build();
+
+  private static final Tile FAKE_TILE_FAILED =
+      Tile.newBuilder()
+          .setId("id_3")
+          .setState(State.FAILED)
+          .setPath("some_path 3")
+          .setUrl("some_url 3")
+          .build();
+
+  private static final OfflineArea FAKE_OFFLINE_AREA =
+      OfflineArea.newBuilder()
+          .setId("id_1")
+          .setBounds(LatLngBounds.builder().include(new LatLng(0.0, 0.0)).build())
+          .setState(OfflineArea.State.PENDING)
+          .build();
+
   // This rule makes sure that Room executes all the database operations instantly.
   @Rule public InstantTaskExecutorRule instantTaskExecutorRule = new InstantTaskExecutorRule();
 
@@ -407,15 +438,9 @@ public class LocalDataStoreTest {
 
   @Test
   public void testGetTile() {
-    Tile tile =
-        Tile.newBuilder()
-            .setId("tile id_1")
-            .setPath("/foo/path1")
-            .setState(State.PENDING)
-            .setUrl("foo_url")
-            .build();
+    Tile tile = FAKE_TILE_PENDING;
     localDataStore.insertOrUpdateTile(tile).subscribe();
-    localDataStore.getTile("tile id_1").test().assertValueCount(1).assertValue(tile);
+    localDataStore.getTile(tile.getId()).test().assertValueCount(1).assertValue(tile);
   }
 
   @Test
@@ -425,20 +450,8 @@ public class LocalDataStoreTest {
     subscriber.assertValueCount(1);
     subscriber.assertValueAt(0, AbstractCollection::isEmpty);
 
-    Tile tile1 =
-        Tile.newBuilder()
-            .setId("tile_id_1")
-            .setPath("/foo/path1")
-            .setState(State.PENDING)
-            .setUrl("foo_url")
-            .build();
-    Tile tile2 =
-        Tile.newBuilder()
-            .setId("tile_id_2")
-            .setPath("/foo/path2")
-            .setState(State.PENDING)
-            .setUrl("foo_url")
-            .build();
+    Tile tile1 = FAKE_TILE_DOWNLOADED;
+    Tile tile2 = FAKE_TILE_PENDING;
     localDataStore.insertOrUpdateTile(tile1).subscribe();
     localDataStore.insertOrUpdateTile(tile2).subscribe();
 
@@ -450,51 +463,15 @@ public class LocalDataStoreTest {
 
   @Test
   public void testGetPendingTile() {
-    Tile tile1 =
-        Tile.newBuilder()
-            .setId("id_1")
-            .setState(State.PENDING)
-            .setPath("some_path")
-            .setUrl("some_url")
-            .build();
-    Tile tile2 =
-        Tile.newBuilder()
-            .setId("id_2")
-            .setState(State.DOWNLOADED)
-            .setPath("some_path")
-            .setUrl("some_url")
-            .build();
-    Tile tile3 =
-        Tile.newBuilder()
-            .setId("id_3")
-            .setState(State.PENDING)
-            .setPath("some_path")
-            .setUrl("some_url")
-            .build();
-    localDataStore.insertOrUpdateTile(tile1).subscribe();
-    localDataStore.insertOrUpdateTile(tile2).subscribe();
-    localDataStore.insertOrUpdateTile(tile3).subscribe();
-    localDataStore.getPendingTiles().test().assertValue(ImmutableList.of(tile1, tile3));
+    localDataStore.insertOrUpdateTile(FAKE_TILE_DOWNLOADED).subscribe();
+    localDataStore.insertOrUpdateTile(FAKE_TILE_FAILED).subscribe();
+    localDataStore.insertOrUpdateTile(FAKE_TILE_PENDING).subscribe();
+    localDataStore.getPendingTiles().test().assertValue(ImmutableList.of(FAKE_TILE_PENDING));
   }
 
   @Test
   public void testGetOfflineAreas() {
-    LatLngBounds bounds1 = LatLngBounds.builder().include(new LatLng(0.0, 0.0)).build();
-    OfflineArea area1 =
-        OfflineArea.newBuilder()
-            .setId("id_1")
-            .setBounds(bounds1)
-            .setState(OfflineArea.State.PENDING)
-            .build();
-    LatLngBounds bounds2 = LatLngBounds.builder().include(new LatLng(10.0, 30.0)).build();
-    OfflineArea area2 =
-        OfflineArea.newBuilder()
-            .setId("id_2")
-            .setBounds(bounds2)
-            .setState(OfflineArea.State.PENDING)
-            .build();
-    localDataStore.insertOrUpdateOfflineArea(area1).subscribe();
-    localDataStore.insertOrUpdateOfflineArea(area2).subscribe();
-    localDataStore.getOfflineAreas().test().assertValue(ImmutableList.of(area1, area2));
+    localDataStore.insertOrUpdateOfflineArea(FAKE_OFFLINE_AREA).subscribe();
+    localDataStore.getOfflineAreas().test().assertValue(ImmutableList.of(FAKE_OFFLINE_AREA));
   }
 }
