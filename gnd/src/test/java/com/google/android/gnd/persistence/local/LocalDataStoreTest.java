@@ -222,21 +222,11 @@ public class LocalDataStoreTest {
         createTestFeatureMutation(user.getId(), project.getId(), layer.getId());
     localDataStore.applyAndEnqueue(mutation).test().assertComplete();
 
-    ImmutableList<Mutation> savedMutations =
-        localDataStore.getPendingMutations(mutation.getFeatureId()).blockingGet();
-    Assert.assertEquals(1, savedMutations.size());
-
     // assert that mutation is saved to local database
-    FeatureMutation savedMutation = (FeatureMutation) savedMutations.get(0);
-    Assert.assertEquals(mutation.getNewLocation(), savedMutation.getNewLocation());
-    Assert.assertEquals(mutation.getType(), savedMutation.getType());
-    Assert.assertEquals(mutation.getUserId(), savedMutation.getUserId());
-    Assert.assertEquals(mutation.getProjectId(), savedMutation.getProjectId());
-    Assert.assertEquals(mutation.getFeatureId(), savedMutation.getFeatureId());
-    Assert.assertEquals(mutation.getLayerId(), savedMutation.getLayerId());
-    Assert.assertEquals(mutation.getClientTimestamp(), savedMutation.getClientTimestamp());
-    Assert.assertEquals(0, savedMutation.getRetryCount());
-    Assert.assertNull(savedMutation.getLastError());
+    localDataStore
+        .getPendingMutations(mutation.getFeatureId())
+        .test()
+        .assertValue(ImmutableList.of(mutation));
 
     // assert feature is saved to local database
     Feature feature = localDataStore.getFeature(project, mutation.getFeatureId()).blockingGet();
