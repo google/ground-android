@@ -161,6 +161,18 @@ public class LocalDataStoreTest {
     Assert.assertEquals(expected, actual);
   }
 
+  private static void assertObservation(ObservationMutation mutation, Observation observation) {
+    Assert.assertEquals(mutation.getObservationId(), observation.getId());
+    Assert.assertEquals(mutation.getFeatureId(), observation.getFeature().getId());
+    Assert.assertEquals(FAKE_USER, observation.getCreated().getUser());
+    Assert.assertEquals(FAKE_FORM, observation.getForm());
+    Assert.assertEquals(FAKE_PROJECT, observation.getProject());
+    Assert.assertEquals(FAKE_USER, observation.getLastModified().getUser());
+    MatcherAssert.assertThat(
+        ResponseMap.builder().applyDeltas(mutation.getResponseDeltas()).build(),
+        samePropertyValuesAs(observation.getResponses()));
+  }
+
   @Before
   public void setUp() {
     DaggerTestComponent.create().inject(this);
@@ -371,21 +383,13 @@ public class LocalDataStoreTest {
 
     // check if the observation was updated in the local database
     observation = localDataStore.getObservation(feature, mutation.getObservationId()).blockingGet();
-    Assert.assertEquals(mutation.getObservationId(), observation.getId());
-    Assert.assertEquals(FAKE_USER, observation.getCreated().getUser());
-    Assert.assertEquals(feature, observation.getFeature());
-    Assert.assertEquals(FAKE_FORM, observation.getForm());
-    Assert.assertEquals(FAKE_PROJECT, observation.getProject());
-    Assert.assertEquals(FAKE_USER, observation.getLastModified().getUser());
-    MatcherAssert.assertThat(
-        ResponseMap.builder().applyDeltas(deltas).build(),
-        samePropertyValuesAs(observation.getResponses()));
+    assertObservation(mutation, observation);
 
     // also test that getObservations returns the same observation as well
     ImmutableList<Observation> observations =
         localDataStore.getObservations(feature, FAKE_FORM.getId()).blockingGet();
     Assert.assertEquals(1, observations.size());
-    Assert.assertEquals(observation.getId(), observations.get(0).getId());
+    assertObservation(mutation, observations.get(0));
   }
 
   @Test
