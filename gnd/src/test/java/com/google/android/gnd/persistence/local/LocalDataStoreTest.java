@@ -99,11 +99,7 @@ public class LocalDataStoreTest {
 
     Element element = Element.ofField(field);
 
-    Form form =
-        Form.newBuilder()
-            .setId("form id")
-            .setElements(ImmutableList.<Element>builder().add(element).build())
-            .build();
+    Form form = Form.newBuilder().setId("form id").setElements(ImmutableList.of(element)).build();
 
     Layer layer =
         Layer.newBuilder()
@@ -148,13 +144,11 @@ public class LocalDataStoreTest {
         .setObservationId("observation id")
         .setFormId(formId)
         .setResponseDeltas(
-            ImmutableList.<ResponseDelta>builder()
-                .add(
-                    ResponseDelta.builder()
-                        .setFieldId("field id")
-                        .setNewResponse(TextResponse.fromString("response for field id"))
-                        .build())
-                .build())
+            ImmutableList.of(
+                ResponseDelta.builder()
+                    .setFieldId("field id")
+                    .setNewResponse(TextResponse.fromString("response for field id"))
+                    .build()))
         .setClientTimestamp(new Date())
         .setUserId(userId)
         .build();
@@ -181,10 +175,7 @@ public class LocalDataStoreTest {
             .build();
     localDataStore.insertOrUpdateProject(project1).test().assertComplete();
     localDataStore.insertOrUpdateProject(project2).test().assertComplete();
-    localDataStore
-        .getProjects()
-        .test()
-        .assertValue(ImmutableList.<Project>builder().add(project1, project2).build());
+    localDataStore.getProjects().test().assertValue(ImmutableList.of(project1, project2));
   }
 
   @Test
@@ -284,10 +275,7 @@ public class LocalDataStoreTest {
     Mutation updatedMutation =
         mutation.toBuilder().setNewLocation(Optional.ofNullable(newPoint)).build();
 
-    localDataStore
-        .updateMutations(ImmutableList.<Mutation>builder().add(updatedMutation).build())
-        .test()
-        .assertComplete();
+    localDataStore.updateMutations(ImmutableList.of(updatedMutation)).test().assertComplete();
 
     ImmutableList<Mutation> savedMutations =
         localDataStore.getPendingMutations(updatedMutation.getFeatureId()).blockingGet();
@@ -310,10 +298,7 @@ public class LocalDataStoreTest {
         createTestFeatureMutation(user.getId(), project.getId(), layer.getId());
     localDataStore.applyAndEnqueue(mutation).test().assertComplete();
 
-    localDataStore
-        .removePendingMutations(ImmutableList.<Mutation>builder().add(mutation).build())
-        .test()
-        .assertComplete();
+    localDataStore.removePendingMutations(ImmutableList.of(mutation)).test().assertComplete();
 
     localDataStore
         .getPendingMutations(mutation.getFeatureId())
@@ -405,13 +390,11 @@ public class LocalDataStoreTest {
 
     // now update the inserted observation with new responses
     ImmutableList<ResponseDelta> deltas =
-        ImmutableList.<ResponseDelta>builder()
-            .add(
-                ResponseDelta.builder()
-                    .setFieldId("really new field")
-                    .setNewResponse(TextResponse.fromString("value for the really new field"))
-                    .build())
-            .build();
+        ImmutableList.of(
+            ResponseDelta.builder()
+                .setFieldId("really new field")
+                .setNewResponse(TextResponse.fromString("value for the really new field"))
+                .build());
     mutation = mutation.toBuilder().setResponseDeltas(deltas).setType(Mutation.Type.UPDATE).build();
     localDataStore.applyAndEnqueue(mutation).test().assertComplete();
 
@@ -567,11 +550,7 @@ public class LocalDataStoreTest {
     localDataStore.insertOrUpdateTile(tile1).test().assertComplete();
     localDataStore.insertOrUpdateTile(tile2).test().assertComplete();
     localDataStore.insertOrUpdateTile(tile3).test().assertComplete();
-
-    localDataStore
-        .getPendingTiles()
-        .test()
-        .assertValue(ImmutableList.<Tile>builder().add(tile1, tile3).build());
+    localDataStore.getPendingTiles().test().assertValue(ImmutableList.of(tile1, tile3));
   }
 
   @Test
@@ -593,9 +572,6 @@ public class LocalDataStoreTest {
 
     localDataStore.insertOrUpdateOfflineArea(area1).test().assertComplete();
     localDataStore.insertOrUpdateOfflineArea(area2).test().assertComplete();
-    localDataStore
-        .getOfflineAreas()
-        .test()
-        .assertValue(ImmutableList.<OfflineArea>builder().add(area1, area2).build());
+    localDataStore.getOfflineAreas().test().assertValue(ImmutableList.of(area1, area2));
   }
 }
