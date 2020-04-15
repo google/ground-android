@@ -153,15 +153,11 @@ public class LocalDataStoreTest {
 
   private static void assertObservationMutation(
       ObservationMutation expected, ObservationMutation actual) {
-    Assert.assertEquals(expected.getResponseDeltas(), actual.getResponseDeltas());
-    Assert.assertEquals(expected.getType(), actual.getType());
-    Assert.assertEquals(expected.getUserId(), actual.getUserId());
-    Assert.assertEquals(expected.getProjectId(), actual.getProjectId());
-    Assert.assertEquals(expected.getFeatureId(), actual.getFeatureId());
-    Assert.assertEquals(expected.getLayerId(), actual.getLayerId());
-    Assert.assertEquals(expected.getClientTimestamp(), actual.getClientTimestamp());
-    Assert.assertEquals(0, actual.getRetryCount());
-    Assert.assertNull(actual.getLastError());
+    // TODO: Id is auto-assigned to ObservationMutation.
+    //  If we try to give it while inserting, then it causes problems. Improve this behavior.
+    //  So, copy the id from actual to expected and then compare the objects.
+    expected = expected.toBuilder().setId(actual.getId()).build();
+    Assert.assertEquals(expected, actual);
   }
 
   @Before
