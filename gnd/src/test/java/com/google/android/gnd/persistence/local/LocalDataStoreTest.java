@@ -151,6 +151,19 @@ public class LocalDataStoreTest {
 
   @Inject LocalDataStore localDataStore;
 
+  private static void assertObservationMutation(
+      ObservationMutation expected, ObservationMutation actual) {
+    Assert.assertEquals(expected.getResponseDeltas(), actual.getResponseDeltas());
+    Assert.assertEquals(expected.getType(), actual.getType());
+    Assert.assertEquals(expected.getUserId(), actual.getUserId());
+    Assert.assertEquals(expected.getProjectId(), actual.getProjectId());
+    Assert.assertEquals(expected.getFeatureId(), actual.getFeatureId());
+    Assert.assertEquals(expected.getLayerId(), actual.getLayerId());
+    Assert.assertEquals(expected.getClientTimestamp(), actual.getClientTimestamp());
+    Assert.assertEquals(0, actual.getRetryCount());
+    Assert.assertNull(actual.getLastError());
+  }
+
   @Before
   public void setUp() {
     DaggerTestComponent.create().inject(this);
@@ -328,18 +341,8 @@ public class LocalDataStoreTest {
     ImmutableList<Mutation> savedMutations =
         localDataStore.getPendingMutations(mutation.getFeatureId()).blockingGet();
     Assert.assertEquals(2, savedMutations.size());
-
     // ignoring the first item, which is a FeatureMutation. Already tested separately.
-    ObservationMutation savedMutation = (ObservationMutation) savedMutations.get(1);
-    Assert.assertEquals(mutation.getResponseDeltas(), savedMutation.getResponseDeltas());
-    Assert.assertEquals(mutation.getType(), savedMutation.getType());
-    Assert.assertEquals(mutation.getUserId(), savedMutation.getUserId());
-    Assert.assertEquals(mutation.getProjectId(), savedMutation.getProjectId());
-    Assert.assertEquals(mutation.getFeatureId(), savedMutation.getFeatureId());
-    Assert.assertEquals(FAKE_LAYER.getId(), savedMutation.getLayerId());
-    Assert.assertEquals(mutation.getClientTimestamp(), savedMutation.getClientTimestamp());
-    Assert.assertEquals(0, savedMutation.getRetryCount());
-    Assert.assertNull(savedMutation.getLastError());
+    assertObservationMutation(mutation, (ObservationMutation) savedMutations.get(1));
 
     // check if the observation was saved properly to local database
     Feature feature =
@@ -370,16 +373,7 @@ public class LocalDataStoreTest {
     Assert.assertEquals(3, savedMutations.size());
 
     // ignoring the first item, which is a FeatureMutation. Already tested separately.
-    savedMutation = (ObservationMutation) savedMutations.get(2);
-    Assert.assertEquals(deltas, savedMutation.getResponseDeltas());
-    Assert.assertEquals(mutation.getType(), savedMutation.getType());
-    Assert.assertEquals(mutation.getUserId(), savedMutation.getUserId());
-    Assert.assertEquals(mutation.getProjectId(), savedMutation.getProjectId());
-    Assert.assertEquals(mutation.getFeatureId(), savedMutation.getFeatureId());
-    Assert.assertEquals(mutation.getLayerId(), savedMutation.getLayerId());
-    Assert.assertEquals(mutation.getClientTimestamp(), savedMutation.getClientTimestamp());
-    Assert.assertEquals(0, savedMutation.getRetryCount());
-    Assert.assertNull(savedMutation.getLastError());
+    assertObservationMutation(mutation, (ObservationMutation) savedMutations.get(2));
 
     // check if the observation was updated in the local database
     observation = localDataStore.getObservation(feature, mutation.getObservationId()).blockingGet();
