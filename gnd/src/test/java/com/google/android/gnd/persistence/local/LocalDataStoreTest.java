@@ -114,6 +114,9 @@ public class LocalDataStoreTest {
           .putLayer(FAKE_LAYER.getId(), FAKE_LAYER)
           .build();
 
+  private static final Point FAKE_POINT =
+      Point.newBuilder().setLatitude(110.0).setLongitude(-23.1).build();
+
   private static final FeatureMutation FAKE_FEATURE_MUTATION =
       FeatureMutation.builder()
           .setId(1L)
@@ -122,9 +125,7 @@ public class LocalDataStoreTest {
           .setUserId(FAKE_USER.getId())
           .setProjectId(FAKE_PROJECT.getId())
           .setLayerId(FAKE_LAYER.getId())
-          .setNewLocation(
-              Optional.ofNullable(
-                  Point.newBuilder().setLatitude(110.0).setLongitude(-23.1).build()))
+          .setNewLocation(Optional.ofNullable(FAKE_POINT))
           .setClientTimestamp(new Date())
           .build();
 
@@ -208,13 +209,9 @@ public class LocalDataStoreTest {
 
   @Test
   public void testApplyAndEnqueue_featureMutation() {
-    User user = FAKE_USER;
-    localDataStore.insertOrUpdateUser(user).subscribe();
+    localDataStore.insertOrUpdateUser(FAKE_USER).subscribe();
+    localDataStore.insertOrUpdateProject(FAKE_PROJECT).subscribe();
 
-    Project project = FAKE_PROJECT;
-    localDataStore.insertOrUpdateProject(project).subscribe();
-
-    Layer layer = project.getLayers().get(0);
     FeatureMutation mutation = FAKE_FEATURE_MUTATION;
     localDataStore.applyAndEnqueue(mutation).test().assertComplete();
 
@@ -225,16 +222,17 @@ public class LocalDataStoreTest {
         .assertValue(ImmutableList.of(mutation));
 
     // assert feature is saved to local database
-    Feature feature = localDataStore.getFeature(project, mutation.getFeatureId()).blockingGet();
+    Feature feature =
+        localDataStore.getFeature(FAKE_PROJECT, mutation.getFeatureId()).blockingGet();
     Assert.assertEquals(mutation.getFeatureId(), feature.getId());
-    Assert.assertEquals(project, feature.getProject());
-    Assert.assertEquals(layer.getItemLabel(), feature.getTitle());
-    Assert.assertEquals(layer, feature.getLayer());
+    Assert.assertEquals(FAKE_PROJECT, feature.getProject());
+    Assert.assertEquals(FAKE_LAYER.getItemLabel(), feature.getTitle());
+    Assert.assertEquals(FAKE_LAYER, feature.getLayer());
     Assert.assertNull(feature.getCustomId());
     Assert.assertNull(feature.getCaption());
-    Assert.assertEquals(mutation.getNewLocation().get(), feature.getPoint());
-    Assert.assertEquals(user, feature.getCreated().getUser());
-    Assert.assertEquals(user, feature.getLastModified().getUser());
+    Assert.assertEquals(FAKE_POINT, feature.getPoint());
+    Assert.assertEquals(FAKE_USER, feature.getCreated().getUser());
+    Assert.assertEquals(FAKE_USER, feature.getLastModified().getUser());
   }
 
   @Test
