@@ -261,7 +261,7 @@ public class LocalDataStoreTest {
 
     subscriber.assertValueCount(2);
     subscriber.assertValueAt(0, AbstractCollection::isEmpty);
-    subscriber.assertValueAt(1, ImmutableSet.<Feature>builder().add(feature).build());
+    subscriber.assertValueAt(1, ImmutableSet.of(feature));
   }
 
   @Test
@@ -466,8 +466,8 @@ public class LocalDataStoreTest {
 
     subscriber.assertValueCount(3);
     subscriber.assertValueAt(0, AbstractCollection::isEmpty);
-    subscriber.assertValueAt(1, ImmutableSet.<Tile>builder().add(tile1).build());
-    subscriber.assertValueAt(2, ImmutableSet.<Tile>builder().add(tile1, tile2).build());
+    subscriber.assertValueAt(1, ImmutableSet.of(tile1));
+    subscriber.assertValueAt(2, ImmutableSet.of(tile1, tile2));
   }
 
   @Test
@@ -515,7 +515,6 @@ public class LocalDataStoreTest {
             .setBounds(bounds2)
             .setState(OfflineArea.State.PENDING)
             .build();
-
     localDataStore.insertOrUpdateOfflineArea(area1).subscribe();
     localDataStore.insertOrUpdateOfflineArea(area2).subscribe();
     localDataStore.getOfflineAreas().test().assertValue(ImmutableList.of(area1, area2));
