@@ -46,8 +46,7 @@ import timber.log.Timber;
 @ActivityScoped
 public class OfflineAreasFragment extends AbstractFragment {
 
-  private OfflineAreaListAdapter offlineAreaListAdapter;
-  private ImmutableList<OfflineArea> offlineAreas;
+  private ImmutableList<OfflineArea> offlineAreas = ImmutableList.of();
   @Inject Schedulers schedulers;
 
   @BindView(R.id.offline_areas_list)
@@ -69,20 +68,13 @@ public class OfflineAreasFragment extends AbstractFragment {
   private void updateOfflineAreas(ImmutableList<OfflineArea> offlineAreas) {
     Timber.d("Got offline areas: %s", offlineAreas);
     this.offlineAreas = offlineAreas;
-
-    // Invoking this function prior to setting the recycler is necessary to prevent a null reference
-    // in the recycler.
-    // So, we have to avoid notifying the adapter on the first call, since it won't be set yet.
-    if (this.offlineAreaListAdapter != null) {
-      this.offlineAreaListAdapter.notifyDataSetChanged();
-    }
   }
 
   @Override
   public View onCreateView(
       @NotNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     super.onCreateView(inflater, container, savedInstanceState);
-    com.google.android.gnd.databinding.OfflineAreasFragBinding binding =
+    OfflineAreasFragBinding binding =
         OfflineAreasFragBinding.inflate(inflater, container, false);
 
     binding.setViewModel(viewModel);
@@ -91,7 +83,7 @@ public class OfflineAreasFragment extends AbstractFragment {
     ((MainActivity) getActivity()).setActionBar(binding.offlineAreasToolbar, true);
 
     RecyclerView recyclerView = binding.offlineAreasList;
-    this.offlineAreaListAdapter = new OfflineAreaListAdapter(offlineAreas);
+    OfflineAreaListAdapter offlineAreaListAdapter = new OfflineAreaListAdapter(offlineAreas);
     recyclerView.setHasFixedSize(true);
     recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
     recyclerView.setAdapter(offlineAreaListAdapter);
