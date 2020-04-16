@@ -268,7 +268,7 @@ public class RoomLocalDataStore implements LocalDataStore {
   @Override
   public Flowable<ImmutableSet<Tile>> getTilesOnceAndStream() {
     return tileDao
-        .findAll()
+        .getTilesOnceAndStream()
         .map(list -> stream(list).map(TileEntity::toTile).collect(toImmutableSet()))
         .subscribeOn(schedulers.io());
   }
