@@ -32,6 +32,7 @@ import com.google.android.gnd.ui.util.FileUtil;
 import com.google.android.gnd.workers.TileDownloadWorkManager;
 import com.google.common.collect.ImmutableList;
 import io.reactivex.Completable;
+import io.reactivex.Single;
 import java.io.File;
 import java.io.IOException;
 import javax.inject.Inject;
@@ -93,5 +94,9 @@ public class OfflineAreaRepository {
         .insertOrUpdateOfflineArea(offlineArea)
         .doOnError(__ -> Timber.e("failed to add/update offline area in the database"))
         .andThen(enqueueTileDownloads(offlineArea));
+  }
+
+  public Single<ImmutableList<OfflineArea>> getOfflineAreas() {
+    return localDataStore.getOfflineAreas();
   }
 }

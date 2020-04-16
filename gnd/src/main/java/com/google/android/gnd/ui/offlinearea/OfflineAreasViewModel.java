@@ -16,8 +16,12 @@
 
 package com.google.android.gnd.ui.offlinearea;
 
+import com.google.android.gnd.model.basemap.OfflineArea;
+import com.google.android.gnd.repository.OfflineAreaRepository;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.common.Navigator;
+import com.google.common.collect.ImmutableList;
+import io.reactivex.Single;
 import javax.inject.Inject;
 
 /**
@@ -26,14 +30,19 @@ import javax.inject.Inject;
 public class OfflineAreasViewModel extends AbstractViewModel {
 
   private final Navigator navigator;
-  // TODO: Implement the ViewModel
+  private final OfflineAreaRepository offlineAreaRepository;
 
   @Inject
-  OfflineAreasViewModel(Navigator navigator) {
+  OfflineAreasViewModel(Navigator navigator, OfflineAreaRepository offlineAreaRepository) {
     this.navigator = navigator;
+    this.offlineAreaRepository = offlineAreaRepository;
   }
 
   public void showOfflineAreaSelector() {
     navigator.showOfflineAreaSelector();
+  }
+
+  Single<ImmutableList<OfflineArea>> getOfflineAreas() {
+    return offlineAreaRepository.getOfflineAreas();
   }
 }

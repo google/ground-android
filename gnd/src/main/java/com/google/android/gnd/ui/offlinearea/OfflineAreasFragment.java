@@ -16,19 +16,27 @@
 
 package com.google.android.gnd.ui.offlinearea;
 
+import static com.google.android.gnd.rx.RxAutoDispose.autoDisposable;
+
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import androidx.annotation.Nullable;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
 import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.OfflineAreasFragBinding;
 import com.google.android.gnd.inject.ActivityScoped;
+import com.google.android.gnd.model.basemap.OfflineArea;
+import com.google.android.gnd.rx.Schedulers;
 import com.google.android.gnd.ui.common.AbstractFragment;
-import com.google.android.gnd.ui.common.TwoLineToolbar;
+import com.google.common.collect.ImmutableList;
+import javax.inject.Inject;
+import org.jetbrains.annotations.NotNull;
+import timber.log.Timber;
 
 /**
  * Fragment containing a list of downloaded areas on the device. An area is a set of offline raster
@@ -38,8 +46,9 @@ import com.google.android.gnd.ui.common.TwoLineToolbar;
 @ActivityScoped
 public class OfflineAreasFragment extends AbstractFragment {
 
-  @BindView(R.id.offline_areas_toolbar)
-  TwoLineToolbar toolbar;
+  private OfflineAreaListAdapter offlineAreaListAdapter;
+  private ImmutableList<OfflineArea> offlineAreas;
+  @Inject Schedulers schedulers;
 
   @BindView(R.id.offline_areas_list)
   RecyclerView areaList;
@@ -50,17 +59,43 @@ public class OfflineAreasFragment extends AbstractFragment {
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     viewModel = getViewModel(OfflineAreasViewModel.class);
-    // TODO: use the viewmodel
+    viewModel
+        .getOfflineAreas()
+        .observeOn(schedulers.io())
+        .as(autoDisposable(this))
+        .subscribe(this::updateOfflineAreas, Timber::e);
+  }
+
+  private void updateOfflineAreas(ImmutableList<OfflineArea> offlineAreas) {
+    Timber.d("Got offline areas: %s", offlineAreas);
+    this.offlineAreas = offlineAreas;
+
+    // Invoking this function prior to setting the recycler is necessary to prevent a null reference
+    // in the recycler.
+    // So, we have to avoid notifying the adapter on the first call, since it won't be set yet.
+    if (this.offlineAreaListAdapter != null) {
+      this.offlineAreaListAdapter.notifyDataSetChanged();
+    }
   }
 
   @Override
   public View onCreateView(
-      LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+      @NotNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     super.onCreateView(inflater, container, savedInstanceState);
-    OfflineAreasFragBinding binding = OfflineAreasFragBinding.inflate(inflater, container, false);
+    com.google.android.gnd.databinding.OfflineAreasFragBinding binding =
+        OfflineAreasFragBinding.inflate(inflater, container, false);
+
     binding.setViewModel(viewModel);
     binding.setLifecycleOwner(this);
+
     ((MainActivity) getActivity()).setActionBar(binding.offlineAreasToolbar, true);
+
+    RecyclerView recyclerView = binding.offlineAreasList;
+    this.offlineAreaListAdapter = new OfflineAreaListAdapter(offlineAreas);
+    recyclerView.setHasFixedSize(true);
+    recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+    recyclerView.setAdapter(offlineAreaListAdapter);
+
     return binding.getRoot();
   }
 }
