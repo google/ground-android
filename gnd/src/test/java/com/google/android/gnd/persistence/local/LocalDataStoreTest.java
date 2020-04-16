@@ -66,14 +66,10 @@ import org.robolectric.annotation.Config;
 @Config(application = TestApplication.class)
 public class LocalDataStoreTest {
 
-  private static final User FAKE_USER =
-      User.builder()
-          .setId("test_user_id")
-          .setEmail("test@gmail.com")
-          .setDisplayName("test user")
-          .build();
+  private static final User TEST_USER =
+      User.builder().setId("user id").setEmail("user@gmail.com").setDisplayName("user 1").build();
 
-  private static final MultipleChoice FAKE_MULTIPLE_CHOICE =
+  private static final MultipleChoice TEST_MULTIPLE_CHOICE =
       MultipleChoice.newBuilder()
           .setCardinality(Cardinality.SELECT_ONE)
           .setOptions(
@@ -82,62 +78,62 @@ public class LocalDataStoreTest {
                   Option.newBuilder().setCode("b").setLabel("Age").build()))
           .build();
 
-  private static final Field FAKE_FIELD =
+  private static final Field TEST_FIELD =
       Field.newBuilder()
           .setId("field id")
           .setLabel("field label")
           .setRequired(false)
           .setType(Type.MULTIPLE_CHOICE)
-          .setMultipleChoice(FAKE_MULTIPLE_CHOICE)
+          .setMultipleChoice(TEST_MULTIPLE_CHOICE)
           .build();
 
-  private static final Form FAKE_FORM =
+  private static final Form TEST_FORM =
       Form.newBuilder()
           .setId("form id")
-          .setElements(ImmutableList.of(Element.ofField(FAKE_FIELD)))
+          .setElements(ImmutableList.of(Element.ofField(TEST_FIELD)))
           .build();
 
-  private static final Layer FAKE_LAYER =
+  private static final Layer TEST_LAYER =
       Layer.newBuilder()
           .setId("layer id")
           .setItemLabel("item label")
           .setListHeading("heading title")
           .setDefaultStyle(Style.builder().setColor("000").build())
-          .setForm(FAKE_FORM)
+          .setForm(TEST_FORM)
           .build();
 
-  private static final Project FAKE_PROJECT =
+  private static final Project TEST_PROJECT =
       Project.newBuilder()
           .setId("project id")
           .setTitle("project 1")
           .setDescription("foo description")
-          .putLayer(FAKE_LAYER.getId(), FAKE_LAYER)
+          .putLayer("layer id", TEST_LAYER)
           .build();
 
-  private static final Point FAKE_POINT =
+  private static final Point TEST_POINT =
       Point.newBuilder().setLatitude(110.0).setLongitude(-23.1).build();
 
-  private static final FeatureMutation FAKE_FEATURE_MUTATION =
+  private static final FeatureMutation TEST_FEATURE_MUTATION =
       FeatureMutation.builder()
           .setId(1L)
           .setFeatureId("feature id")
           .setType(Mutation.Type.CREATE)
-          .setUserId(FAKE_USER.getId())
-          .setProjectId(FAKE_PROJECT.getId())
-          .setLayerId(FAKE_LAYER.getId())
-          .setNewLocation(Optional.ofNullable(FAKE_POINT))
+          .setUserId("user id")
+          .setProjectId("project id")
+          .setLayerId("layer id")
+          .setNewLocation(Optional.ofNullable(TEST_POINT))
           .setClientTimestamp(new Date())
           .build();
 
-  private static final ObservationMutation FAKE_OBSERVATION_MUTATION =
+  private static final ObservationMutation TEST_OBSERVATION_MUTATION =
       ObservationMutation.builder()
           .setObservationId("observation id")
           .setType(Mutation.Type.CREATE)
-          .setProjectId(FAKE_PROJECT.getId())
-          .setFeatureId(FAKE_FEATURE_MUTATION.getFeatureId())
-          .setLayerId(FAKE_LAYER.getId())
-          .setFormId(FAKE_FORM.getId())
-          .setUserId(FAKE_USER.getId())
+          .setProjectId("project id")
+          .setFeatureId("feature id")
+          .setLayerId("layer id")
+          .setFormId("form id")
+          .setUserId("user id")
           .setResponseDeltas(
               ImmutableList.of(
                   ResponseDelta.builder()
@@ -147,7 +143,7 @@ public class LocalDataStoreTest {
           .setClientTimestamp(new Date())
           .build();
 
-  private static final Tile FAKE_TILE_PENDING =
+  private static final Tile TEST_TILE_PENDING =
       Tile.newBuilder()
           .setId("id_1")
           .setState(State.PENDING)
@@ -155,7 +151,7 @@ public class LocalDataStoreTest {
           .setUrl("some_url 1")
           .build();
 
-  private static final Tile FAKE_TILE_DOWNLOADED =
+  private static final Tile TEST_TILE_DOWNLOADED =
       Tile.newBuilder()
           .setId("id_2")
           .setState(State.DOWNLOADED)
@@ -163,7 +159,7 @@ public class LocalDataStoreTest {
           .setUrl("some_url 2")
           .build();
 
-  private static final Tile FAKE_TILE_FAILED =
+  private static final Tile TEST_TILE_FAILED =
       Tile.newBuilder()
           .setId("id_3")
           .setState(State.FAILED)
@@ -171,7 +167,7 @@ public class LocalDataStoreTest {
           .setUrl("some_url 3")
           .build();
 
-  private static final OfflineArea FAKE_OFFLINE_AREA =
+  private static final OfflineArea TEST_OFFLINE_AREA =
       OfflineArea.newBuilder()
           .setId("id_1")
           .setBounds(LatLngBounds.builder().include(new LatLng(0.0, 0.0)).build())
@@ -195,10 +191,10 @@ public class LocalDataStoreTest {
   private static void assertObservation(ObservationMutation mutation, Observation observation) {
     Assert.assertEquals(mutation.getObservationId(), observation.getId());
     Assert.assertEquals(mutation.getFeatureId(), observation.getFeature().getId());
-    Assert.assertEquals(FAKE_USER, observation.getCreated().getUser());
-    Assert.assertEquals(FAKE_FORM, observation.getForm());
-    Assert.assertEquals(FAKE_PROJECT, observation.getProject());
-    Assert.assertEquals(FAKE_USER, observation.getLastModified().getUser());
+    Assert.assertEquals(TEST_USER, observation.getCreated().getUser());
+    Assert.assertEquals(TEST_FORM, observation.getForm());
+    Assert.assertEquals(TEST_PROJECT, observation.getProject());
+    Assert.assertEquals(TEST_USER, observation.getLastModified().getUser());
     MatcherAssert.assertThat(
         ResponseMap.builder().applyDeltas(mutation.getResponseDeltas()).build(),
         samePropertyValuesAs(observation.getResponses()));
@@ -211,21 +207,21 @@ public class LocalDataStoreTest {
 
   @Test
   public void testGetProjects() {
-    Project project = FAKE_PROJECT;
+    Project project = TEST_PROJECT;
     localDataStore.insertOrUpdateProject(project).subscribe();
     localDataStore.getProjects().test().assertValue(ImmutableList.of(project));
   }
 
   @Test
   public void testGetProjectById() {
-    Project project = FAKE_PROJECT;
+    Project project = TEST_PROJECT;
     localDataStore.insertOrUpdateProject(project).subscribe();
     localDataStore.getProjectById(project.getId()).test().assertValue(project);
   }
 
   @Test
   public void testDeleteProject() {
-    Project project = FAKE_PROJECT;
+    Project project = TEST_PROJECT;
     localDataStore.insertOrUpdateProject(project).subscribe();
     localDataStore.deleteProject(project).test().assertComplete();
     localDataStore.getProjects().test().assertValue(AbstractCollection::isEmpty);
@@ -233,17 +229,17 @@ public class LocalDataStoreTest {
 
   @Test
   public void testGetUser() {
-    User user = FAKE_USER;
+    User user = TEST_USER;
     localDataStore.insertOrUpdateUser(user).subscribe();
     localDataStore.getUser(user.getId()).test().assertValue(user);
   }
 
   @Test
   public void testApplyAndEnqueue_featureMutation() {
-    localDataStore.insertOrUpdateUser(FAKE_USER).subscribe();
-    localDataStore.insertOrUpdateProject(FAKE_PROJECT).subscribe();
+    localDataStore.insertOrUpdateUser(TEST_USER).subscribe();
+    localDataStore.insertOrUpdateProject(TEST_PROJECT).subscribe();
 
-    FeatureMutation mutation = FAKE_FEATURE_MUTATION;
+    FeatureMutation mutation = TEST_FEATURE_MUTATION;
     localDataStore.applyAndEnqueue(mutation).test().assertComplete();
 
     // assert that mutation is saved to local database
@@ -254,23 +250,23 @@ public class LocalDataStoreTest {
 
     // assert feature is saved to local database
     Feature feature =
-        localDataStore.getFeature(FAKE_PROJECT, mutation.getFeatureId()).blockingGet();
+        localDataStore.getFeature(TEST_PROJECT, mutation.getFeatureId()).blockingGet();
     Assert.assertEquals(mutation.getFeatureId(), feature.getId());
-    Assert.assertEquals(FAKE_PROJECT, feature.getProject());
-    Assert.assertEquals(FAKE_LAYER.getItemLabel(), feature.getTitle());
-    Assert.assertEquals(FAKE_LAYER, feature.getLayer());
+    Assert.assertEquals(TEST_PROJECT, feature.getProject());
+    Assert.assertEquals(TEST_LAYER.getItemLabel(), feature.getTitle());
+    Assert.assertEquals(TEST_LAYER, feature.getLayer());
     Assert.assertNull(feature.getCustomId());
     Assert.assertNull(feature.getCaption());
-    Assert.assertEquals(FAKE_POINT, feature.getPoint());
-    Assert.assertEquals(FAKE_USER, feature.getCreated().getUser());
-    Assert.assertEquals(FAKE_USER, feature.getLastModified().getUser());
+    Assert.assertEquals(TEST_POINT, feature.getPoint());
+    Assert.assertEquals(TEST_USER, feature.getCreated().getUser());
+    Assert.assertEquals(TEST_USER, feature.getLastModified().getUser());
   }
 
   @Test
   public void testGetFeaturesOnceAndStream() {
-    localDataStore.insertOrUpdateUser(FAKE_USER).subscribe();
+    localDataStore.insertOrUpdateUser(TEST_USER).subscribe();
 
-    Project project = FAKE_PROJECT;
+    Project project = TEST_PROJECT;
     localDataStore.insertOrUpdateProject(project).subscribe();
 
     TestSubscriber<ImmutableSet<Feature>> subscriber =
@@ -279,7 +275,7 @@ public class LocalDataStoreTest {
     subscriber.assertValueCount(1);
     subscriber.assertValueAt(0, AbstractCollection::isEmpty);
 
-    FeatureMutation mutation = FAKE_FEATURE_MUTATION;
+    FeatureMutation mutation = TEST_FEATURE_MUTATION;
     localDataStore.applyAndEnqueue(mutation).subscribe();
 
     Feature feature = localDataStore.getFeature(project, mutation.getFeatureId()).blockingGet();
@@ -291,10 +287,10 @@ public class LocalDataStoreTest {
 
   @Test
   public void testUpdateMutations() {
-    localDataStore.insertOrUpdateUser(FAKE_USER).subscribe();
-    localDataStore.insertOrUpdateProject(FAKE_PROJECT).subscribe();
+    localDataStore.insertOrUpdateUser(TEST_USER).subscribe();
+    localDataStore.insertOrUpdateProject(TEST_PROJECT).subscribe();
 
-    FeatureMutation mutation = FAKE_FEATURE_MUTATION;
+    FeatureMutation mutation = TEST_FEATURE_MUTATION;
     localDataStore.applyAndEnqueue(mutation).subscribe();
 
     Point newPoint = Point.newBuilder().setLatitude(51.0).setLongitude(44.0).build();
@@ -313,10 +309,10 @@ public class LocalDataStoreTest {
 
   @Test
   public void testRemovePendingMutation() {
-    localDataStore.insertOrUpdateUser(FAKE_USER).subscribe();
-    localDataStore.insertOrUpdateProject(FAKE_PROJECT).subscribe();
+    localDataStore.insertOrUpdateUser(TEST_USER).subscribe();
+    localDataStore.insertOrUpdateProject(TEST_PROJECT).subscribe();
 
-    FeatureMutation mutation = FAKE_FEATURE_MUTATION;
+    FeatureMutation mutation = TEST_FEATURE_MUTATION;
     localDataStore.applyAndEnqueue(mutation).subscribe();
 
     localDataStore.removePendingMutations(ImmutableList.of(mutation)).test().assertComplete();
@@ -329,12 +325,12 @@ public class LocalDataStoreTest {
 
   @Test
   public void testMergeFeature() {
-    localDataStore.insertOrUpdateUser(FAKE_USER).subscribe();
+    localDataStore.insertOrUpdateUser(TEST_USER).subscribe();
 
-    Project project = FAKE_PROJECT;
+    Project project = TEST_PROJECT;
     localDataStore.insertOrUpdateProject(project).subscribe();
 
-    FeatureMutation mutation = FAKE_FEATURE_MUTATION;
+    FeatureMutation mutation = TEST_FEATURE_MUTATION;
     localDataStore.applyAndEnqueue(mutation).subscribe();
 
     Feature feature = localDataStore.getFeature(project, mutation.getFeatureId()).blockingGet();
@@ -345,22 +341,22 @@ public class LocalDataStoreTest {
     Feature newFeature = localDataStore.getFeature(project, mutation.getFeatureId()).blockingGet();
     Assert.assertEquals(mutation.getFeatureId(), newFeature.getId());
     Assert.assertEquals(project, newFeature.getProject());
-    Assert.assertEquals(FAKE_LAYER.getItemLabel(), newFeature.getTitle());
-    Assert.assertEquals(FAKE_LAYER, newFeature.getLayer());
+    Assert.assertEquals(TEST_LAYER.getItemLabel(), newFeature.getTitle());
+    Assert.assertEquals(TEST_LAYER, newFeature.getLayer());
     Assert.assertNull(newFeature.getCustomId());
     Assert.assertNull(newFeature.getCaption());
     Assert.assertEquals(point, newFeature.getPoint());
-    Assert.assertEquals(FAKE_USER, newFeature.getCreated().getUser());
-    Assert.assertEquals(FAKE_USER, newFeature.getLastModified().getUser());
+    Assert.assertEquals(TEST_USER, newFeature.getCreated().getUser());
+    Assert.assertEquals(TEST_USER, newFeature.getLastModified().getUser());
   }
 
   @Test
   public void testApplyAndEnqueue_observationMutation() {
-    localDataStore.insertOrUpdateUser(FAKE_USER).subscribe();
-    localDataStore.insertOrUpdateProject(FAKE_PROJECT).subscribe();
-    localDataStore.applyAndEnqueue(FAKE_FEATURE_MUTATION).subscribe();
+    localDataStore.insertOrUpdateUser(TEST_USER).subscribe();
+    localDataStore.insertOrUpdateProject(TEST_PROJECT).subscribe();
+    localDataStore.applyAndEnqueue(TEST_FEATURE_MUTATION).subscribe();
 
-    ObservationMutation mutation = FAKE_OBSERVATION_MUTATION;
+    ObservationMutation mutation = TEST_OBSERVATION_MUTATION;
     localDataStore.applyAndEnqueue(mutation).test().assertComplete();
 
     ImmutableList<Mutation> savedMutations =
@@ -371,7 +367,7 @@ public class LocalDataStoreTest {
 
     // check if the observation was saved properly to local database
     Feature feature =
-        localDataStore.getFeature(FAKE_PROJECT, mutation.getFeatureId()).blockingGet();
+        localDataStore.getFeature(TEST_PROJECT, mutation.getFeatureId()).blockingGet();
     Observation observation =
         localDataStore.getObservation(feature, mutation.getObservationId()).blockingGet();
     assertObservation(mutation, observation);
@@ -398,22 +394,22 @@ public class LocalDataStoreTest {
 
     // also test that getObservations returns the same observation as well
     ImmutableList<Observation> observations =
-        localDataStore.getObservations(feature, FAKE_FORM.getId()).blockingGet();
+        localDataStore.getObservations(feature, TEST_FORM.getId()).blockingGet();
     Assert.assertEquals(1, observations.size());
     assertObservation(mutation, observations.get(0));
   }
 
   @Test
   public void testMergeObservation() {
-    localDataStore.insertOrUpdateUser(FAKE_USER).subscribe();
-    localDataStore.insertOrUpdateProject(FAKE_PROJECT).subscribe();
-    localDataStore.applyAndEnqueue(FAKE_FEATURE_MUTATION).subscribe();
+    localDataStore.insertOrUpdateUser(TEST_USER).subscribe();
+    localDataStore.insertOrUpdateProject(TEST_PROJECT).subscribe();
+    localDataStore.applyAndEnqueue(TEST_FEATURE_MUTATION).subscribe();
 
-    ObservationMutation mutation = FAKE_OBSERVATION_MUTATION;
+    ObservationMutation mutation = TEST_OBSERVATION_MUTATION;
     localDataStore.applyAndEnqueue(mutation).subscribe();
 
     Feature feature =
-        localDataStore.getFeature(FAKE_PROJECT, mutation.getFeatureId()).blockingGet();
+        localDataStore.getFeature(TEST_PROJECT, mutation.getFeatureId()).blockingGet();
 
     ResponseMap responseMap =
         ResponseMap.builder()
@@ -438,9 +434,8 @@ public class LocalDataStoreTest {
 
   @Test
   public void testGetTile() {
-    Tile tile = FAKE_TILE_PENDING;
-    localDataStore.insertOrUpdateTile(tile).subscribe();
-    localDataStore.getTile(tile.getId()).test().assertValueCount(1).assertValue(tile);
+    localDataStore.insertOrUpdateTile(TEST_TILE_PENDING).subscribe();
+    localDataStore.getTile("id_1").test().assertValueCount(1).assertValue(TEST_TILE_PENDING);
   }
 
   @Test
@@ -450,28 +445,26 @@ public class LocalDataStoreTest {
     subscriber.assertValueCount(1);
     subscriber.assertValueAt(0, AbstractCollection::isEmpty);
 
-    Tile tile1 = FAKE_TILE_DOWNLOADED;
-    Tile tile2 = FAKE_TILE_PENDING;
-    localDataStore.insertOrUpdateTile(tile1).subscribe();
-    localDataStore.insertOrUpdateTile(tile2).subscribe();
+    localDataStore.insertOrUpdateTile(TEST_TILE_DOWNLOADED).subscribe();
+    localDataStore.insertOrUpdateTile(TEST_TILE_PENDING).subscribe();
 
     subscriber.assertValueCount(3);
     subscriber.assertValueAt(0, AbstractCollection::isEmpty);
-    subscriber.assertValueAt(1, ImmutableSet.of(tile1));
-    subscriber.assertValueAt(2, ImmutableSet.of(tile1, tile2));
+    subscriber.assertValueAt(1, ImmutableSet.of(TEST_TILE_DOWNLOADED));
+    subscriber.assertValueAt(2, ImmutableSet.of(TEST_TILE_DOWNLOADED, TEST_TILE_PENDING));
   }
 
   @Test
   public void testGetPendingTile() {
-    localDataStore.insertOrUpdateTile(FAKE_TILE_DOWNLOADED).subscribe();
-    localDataStore.insertOrUpdateTile(FAKE_TILE_FAILED).subscribe();
-    localDataStore.insertOrUpdateTile(FAKE_TILE_PENDING).subscribe();
-    localDataStore.getPendingTiles().test().assertValue(ImmutableList.of(FAKE_TILE_PENDING));
+    localDataStore.insertOrUpdateTile(TEST_TILE_DOWNLOADED).subscribe();
+    localDataStore.insertOrUpdateTile(TEST_TILE_FAILED).subscribe();
+    localDataStore.insertOrUpdateTile(TEST_TILE_PENDING).subscribe();
+    localDataStore.getPendingTiles().test().assertValue(ImmutableList.of(TEST_TILE_PENDING));
   }
 
   @Test
   public void testGetOfflineAreas() {
-    localDataStore.insertOrUpdateOfflineArea(FAKE_OFFLINE_AREA).subscribe();
-    localDataStore.getOfflineAreas().test().assertValue(ImmutableList.of(FAKE_OFFLINE_AREA));
+    localDataStore.insertOrUpdateOfflineArea(TEST_OFFLINE_AREA).subscribe();
+    localDataStore.getOfflineAreas().test().assertValue(ImmutableList.of(TEST_OFFLINE_AREA));
   }
 }
