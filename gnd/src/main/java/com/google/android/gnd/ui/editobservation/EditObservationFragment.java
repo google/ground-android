@@ -25,9 +25,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import butterknife.BindView;
 import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.R;
+import com.google.android.gnd.databinding.EditObservationBottomSheetBinding;
 import com.google.android.gnd.databinding.EditObservationFragBinding;
 import com.google.android.gnd.databinding.MultipleChoiceInputFieldBinding;
 import com.google.android.gnd.databinding.PhotoInputFieldBinding;
@@ -38,23 +40,20 @@ import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.model.form.MultipleChoice.Cardinality;
 import com.google.android.gnd.model.observation.Response;
-import com.google.android.gnd.system.StorageManager;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.BackPressListener;
 import com.google.android.gnd.ui.common.EphemeralPopups;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.TwoLineToolbar;
-import com.google.android.gnd.ui.editobservation.PhotoDialogFragment.AddPhotoListener;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 import java8.util.Optional;
 import javax.inject.Inject;
 import timber.log.Timber;
 
 @ActivityScoped
-public class EditObservationFragment extends AbstractFragment
-    implements BackPressListener, AddPhotoListener {
+public class EditObservationFragment extends AbstractFragment implements BackPressListener {
 
   @Inject Navigator navigator;
-  @Inject StorageManager storageManager;
 
   @BindView(R.id.edit_observation_toolbar)
   TwoLineToolbar toolbar;
@@ -66,8 +65,11 @@ public class EditObservationFragment extends AbstractFragment
   private SingleSelectDialogFactory singleSelectDialogFactory;
   private MultiSelectDialogFactory multiSelectDialogFactory;
 
+  @Nullable private EditObservationBottomSheetBinding addPhotoBottomSheetBinding;
+  @Nullable private BottomSheetDialog bottomSheetDialog;
+
   @Override
-  public void onCreate(@androidx.annotation.Nullable Bundle savedInstanceState) {
+  public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     singleSelectDialogFactory = new SingleSelectDialogFactory(getContext());
     multiSelectDialogFactory = new MultiSelectDialogFactory(getContext());
@@ -85,8 +87,7 @@ public class EditObservationFragment extends AbstractFragment
   }
 
   @Override
-  public void onViewCreated(
-      @NonNull View view, @androidx.annotation.Nullable Bundle savedInstanceState) {
+  public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
     ((MainActivity) getActivity()).setActionBar(toolbar, R.drawable.ic_close_black_24dp);
     toolbar.setNavigationOnClickListener(__ -> onCloseButtonClick());
@@ -205,9 +206,29 @@ public class EditObservationFragment extends AbstractFragment
   }
 
   public void onShowPhotoSelectorDialog(Field field) {
-    PhotoDialogFragment bottomDialogFragment = PhotoDialogFragment.newInstance(field.getId());
-    bottomDialogFragment.setTargetFragment(this, 0);
-    bottomDialogFragment.show(getFragmentManager(), PhotoDialogFragment.TAG);
+    if (addPhotoBottomSheetBinding == null) {
+      addPhotoBottomSheetBinding = EditObservationBottomSheetBinding.inflate(getLayoutInflater());
+      addPhotoBottomSheetBinding.setViewModel(viewModel);
+    }
+    addPhotoBottomSheetBinding.setField(field);
+
+    if (bottomSheetDialog == null) {
+      bottomSheetDialog = new BottomSheetDialog(getContext());
+      bottomSheetDialog.setContentView(addPhotoBottomSheetBinding.getRoot());
+    }
+
+    if (!bottomSheetDialog.isShowing()) {
+      bottomSheetDialog.show();
+    }
+  }
+
+  @Override
+  public void onPause() {
+    if (bottomSheetDialog != null && bottomSheetDialog.isShowing()) {
+      bottomSheetDialog.dismiss();
+    }
+
+    super.onPause();
   }
 
   @Override
@@ -242,15 +263,5 @@ public class EditObservationFragment extends AbstractFragment
         .setPositiveButton(R.string.invalid_data_confirm, (a, b) -> {})
         .create()
         .show();
-  }
-
-  @Override
-  public void onSelectPhoto(String fieldId) {
-    viewModel.showPhotoSelector(fieldId);
-  }
-
-  @Override
-  public void onCapturePhoto(String fieldId) {
-    viewModel.showPhotoCapture(fieldId);
   }
 }

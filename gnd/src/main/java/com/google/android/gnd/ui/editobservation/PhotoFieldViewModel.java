@@ -77,7 +77,7 @@ public class PhotoFieldViewModel extends AbstractViewModel {
         new OnMapChangedCallback<ObservableMap<String, Response>, String, Response>() {
           @Override
           public void onMapChanged(ObservableMap<String, Response> sender, String key) {
-            if (key.equals(field.getId())) {
+            if (key != null && key.equals(field.getId())) {
               updateField(sender.get(key), field);
             }
           }
