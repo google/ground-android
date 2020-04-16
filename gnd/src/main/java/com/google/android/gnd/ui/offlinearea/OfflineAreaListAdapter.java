@@ -53,7 +53,7 @@ class OfflineAreaListAdapter extends RecyclerView.Adapter<OfflineAreaListAdapter
 
   @Override
   public void onBindViewHolder(ViewHolder viewHolder, int position) {
-    viewHolder.binding.offlineAreaName.setText(offlineAreas.iterator().next().getId());
+    viewHolder.binding.offlineAreaName.setText(offlineAreas.get(position).getId());
   }
 
   @Override
