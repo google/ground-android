@@ -37,7 +37,7 @@ public class OfflineAreasViewModel extends AbstractViewModel {
   OfflineAreasViewModel(Navigator navigator, OfflineAreaRepository offlineAreaRepository) {
     this.navigator = navigator;
     this.offlineAreas =
-        LiveDataReactiveStreams.fromPublisher(offlineAreaRepository.getOfflineAreas());
+        LiveDataReactiveStreams.fromPublisher(offlineAreaRepository.getOfflineAreasOnceAndStream());
   }
 
   public void showOfflineAreaSelector() {

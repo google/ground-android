@@ -96,7 +96,7 @@ public class OfflineAreaRepository {
         .andThen(enqueueTileDownloads(offlineArea));
   }
 
-  public Flowable<ImmutableList<OfflineArea>> getOfflineAreas() {
-    return localDataStore.getOfflineAreas();
+  public Flowable<ImmutableList<OfflineArea>> getOfflineAreasOnceAndStream() {
+    return localDataStore.getOfflineAreasOnceAndStream();
   }
 }
