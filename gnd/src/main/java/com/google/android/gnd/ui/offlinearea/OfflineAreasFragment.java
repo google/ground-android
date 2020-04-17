@@ -20,6 +20,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -29,8 +30,6 @@ import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.OfflineAreasFragBinding;
 import com.google.android.gnd.inject.ActivityScoped;
 import com.google.android.gnd.ui.common.AbstractFragment;
-import org.jetbrains.annotations.NotNull;
-
 /**
  * Fragment containing a list of downloaded areas on the device. An area is a set of offline raster
  * tiles. Users can manage their areas within this fragment. They can delete areas they no longer
@@ -38,8 +37,6 @@ import org.jetbrains.annotations.NotNull;
  */
 @ActivityScoped
 public class OfflineAreasFragment extends AbstractFragment {
-
-  private OfflineAreaListAdapter offlineAreaListAdapter;
 
   // TODO: Remove. Right now removing this results in runtime crashes. Not precisely sure why.
   // It stems from AbstractFragment and its use of ButterKnife.
@@ -52,13 +49,11 @@ public class OfflineAreasFragment extends AbstractFragment {
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     viewModel = getViewModel(OfflineAreasViewModel.class);
-    this.offlineAreaListAdapter = new OfflineAreaListAdapter();
-    viewModel.getOfflineAreas().observe(this, offlineAreaListAdapter::update);
   }
 
   @Override
   public View onCreateView(
-      @NotNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+      @NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     super.onCreateView(inflater, container, savedInstanceState);
     OfflineAreasFragBinding binding = OfflineAreasFragBinding.inflate(inflater, container, false);
 
@@ -67,10 +62,13 @@ public class OfflineAreasFragment extends AbstractFragment {
 
     ((MainActivity) getActivity()).setActionBar(binding.offlineAreasToolbar, true);
 
+    OfflineAreaListAdapter offlineAreaListAdapter = new OfflineAreaListAdapter();
     RecyclerView recyclerView = binding.offlineAreasList;
     recyclerView.setHasFixedSize(true);
     recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
     recyclerView.setAdapter(offlineAreaListAdapter);
+
+    viewModel.getOfflineAreas().observe(getViewLifecycleOwner(), offlineAreaListAdapter::update);
 
     return binding.getRoot();
   }
