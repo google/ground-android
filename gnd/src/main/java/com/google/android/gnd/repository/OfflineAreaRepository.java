@@ -32,7 +32,7 @@ import com.google.android.gnd.ui.util.FileUtil;
 import com.google.android.gnd.workers.TileDownloadWorkManager;
 import com.google.common.collect.ImmutableList;
 import io.reactivex.Completable;
-import io.reactivex.Single;
+import io.reactivex.Flowable;
 import java.io.File;
 import java.io.IOException;
 import javax.inject.Inject;
@@ -96,7 +96,7 @@ public class OfflineAreaRepository {
         .andThen(enqueueTileDownloads(offlineArea));
   }
 
-  public Single<ImmutableList<OfflineArea>> getOfflineAreas() {
+  public Flowable<ImmutableList<OfflineArea>> getOfflineAreas() {
     return localDataStore.getOfflineAreas();
   }
 }

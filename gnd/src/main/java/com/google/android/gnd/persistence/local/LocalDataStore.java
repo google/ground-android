@@ -146,5 +146,5 @@ public interface LocalDataStore {
    */
   Completable insertOrUpdateOfflineArea(OfflineArea area);
 
-  Single<ImmutableList<OfflineArea>> getOfflineAreas();
+  Flowable<ImmutableList<OfflineArea>> getOfflineAreas();
 }

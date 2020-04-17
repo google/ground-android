@@ -484,7 +484,7 @@ public class RoomLocalDataStore implements LocalDataStore {
   }
 
   @Override
-  public Single<ImmutableList<OfflineArea>> getOfflineAreas() {
+  public Flowable<ImmutableList<OfflineArea>> getOfflineAreas() {
     return offlineAreaDao
         .findAll()
         .map(areas -> stream(areas).map(OfflineAreaEntity::toArea).collect(toImmutableList()))
