@@ -36,8 +36,8 @@ class OfflineAreaListAdapter extends RecyclerView.Adapter<OfflineAreaListAdapter
     }
   }
 
-  OfflineAreaListAdapter(ImmutableList<OfflineArea> areas) {
-    offlineAreas = areas;
+  OfflineAreaListAdapter() {
+    offlineAreas = ImmutableList.of();
   }
 
   @NotNull
@@ -59,5 +59,10 @@ class OfflineAreaListAdapter extends RecyclerView.Adapter<OfflineAreaListAdapter
   @Override
   public int getItemCount() {
     return offlineAreas.size();
+  }
+
+  void update(ImmutableList<OfflineArea> offlineAreas) {
+    this.offlineAreas = offlineAreas;
+    notifyDataSetChanged();
   }
 }
