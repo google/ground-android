@@ -218,6 +218,11 @@ public class LocalDataStoreTest {
   }
 
   @Test
+  public void testInsertProject() {
+    localDataStore.insertOrUpdateProject(TEST_PROJECT).test().assertComplete();
+  }
+
+  @Test
   public void testGetProjects() {
     localDataStore.insertOrUpdateProject(TEST_PROJECT).blockingAwait();
     localDataStore.getProjects().test().assertValue(ImmutableList.of(TEST_PROJECT));
@@ -234,6 +239,11 @@ public class LocalDataStoreTest {
     localDataStore.insertOrUpdateProject(TEST_PROJECT).blockingAwait();
     localDataStore.deleteProject(TEST_PROJECT).test().assertComplete();
     localDataStore.getProjects().test().assertValue(AbstractCollection::isEmpty);
+  }
+
+  @Test
+  public void testInsertUser() {
+    localDataStore.insertOrUpdateUser(TEST_USER).test().assertComplete();
   }
 
   @Test
@@ -422,6 +432,11 @@ public class LocalDataStoreTest {
   }
 
   @Test
+  public void testInsertTile() {
+    localDataStore.insertOrUpdateTile(TEST_PENDING_TILE).test().assertComplete();
+  }
+
+  @Test
   public void testGetTile() {
     localDataStore.insertOrUpdateTile(TEST_PENDING_TILE).blockingAwait();
     localDataStore.getTile("id_1").test().assertValueCount(1).assertValue(TEST_PENDING_TILE);
@@ -449,6 +464,11 @@ public class LocalDataStoreTest {
     localDataStore.insertOrUpdateTile(TEST_FAILED_TILE).blockingAwait();
     localDataStore.insertOrUpdateTile(TEST_PENDING_TILE).blockingAwait();
     localDataStore.getPendingTiles().test().assertValue(ImmutableList.of(TEST_PENDING_TILE));
+  }
+
+  @Test
+  public void testInsertOfflineArea() {
+    localDataStore.insertOrUpdateOfflineArea(TEST_OFFLINE_AREA).test().assertComplete();
   }
 
   @Test
