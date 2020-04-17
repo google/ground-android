@@ -179,7 +179,7 @@ public class LocalDataStoreTest {
 
   @Inject LocalDataStore localDataStore;
 
-  private static void assertObservationMutation(
+  private static void assertEqualsIgnoreId(
       ObservationMutation expected, ObservationMutation actual) {
     // TODO: Id is auto-assigned to ObservationMutation.
     //  If we try to give it while inserting, then it causes problems. Improve this behavior.
@@ -363,7 +363,7 @@ public class LocalDataStoreTest {
         localDataStore.getPendingMutations(mutation.getFeatureId()).blockingGet();
     Assert.assertEquals(2, savedMutations.size());
     // ignoring the first item, which is a FeatureMutation. Already tested separately.
-    assertObservationMutation(mutation, (ObservationMutation) savedMutations.get(1));
+    assertEqualsIgnoreId(mutation, (ObservationMutation) savedMutations.get(1));
 
     // check if the observation was saved properly to local database
     Feature feature =
@@ -386,7 +386,7 @@ public class LocalDataStoreTest {
     Assert.assertEquals(3, savedMutations.size());
 
     // ignoring the first item, which is a FeatureMutation. Already tested separately.
-    assertObservationMutation(mutation, (ObservationMutation) savedMutations.get(2));
+    assertEqualsIgnoreId(mutation, (ObservationMutation) savedMutations.get(2));
 
     // check if the observation was updated in the local database
     observation = localDataStore.getObservation(feature, mutation.getObservationId()).blockingGet();
