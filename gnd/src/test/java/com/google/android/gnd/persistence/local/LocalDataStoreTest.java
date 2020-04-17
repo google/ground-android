@@ -200,6 +200,18 @@ public class LocalDataStoreTest {
         samePropertyValuesAs(observation.getResponses()));
   }
 
+  private static void assertFeature(String featureId, Point point, Feature feature) {
+    assertThat(featureId).isEqualTo(feature.getId());
+    assertThat(TEST_PROJECT).isEqualTo(feature.getProject());
+    assertThat(TEST_LAYER.getItemLabel()).isEqualTo(feature.getTitle());
+    assertThat(TEST_LAYER).isEqualTo(feature.getLayer());
+    assertThat(feature.getCustomId()).isNull();
+    assertThat(feature.getCaption()).isNull();
+    assertThat(point).isEqualTo(feature.getPoint());
+    assertThat(TEST_USER).isEqualTo(feature.getCreated().getUser());
+    assertThat(TEST_USER).isEqualTo(feature.getLastModified().getUser());
+  }
+
   @Before
   public void setUp() {
     DaggerTestComponent.create().inject(this);
@@ -251,15 +263,7 @@ public class LocalDataStoreTest {
     // assert feature is saved to local database
     Feature feature =
         localDataStore.getFeature(TEST_PROJECT, mutation.getFeatureId()).blockingGet();
-    assertThat(mutation.getFeatureId()).isEqualTo(feature.getId());
-    assertThat(TEST_PROJECT).isEqualTo(feature.getProject());
-    assertThat(TEST_LAYER.getItemLabel()).isEqualTo(feature.getTitle());
-    assertThat(TEST_LAYER).isEqualTo(feature.getLayer());
-    assertThat(feature.getCustomId()).isNull();
-    assertThat(feature.getCaption()).isNull();
-    assertThat(TEST_POINT).isEqualTo(feature.getPoint());
-    assertThat(TEST_USER).isEqualTo(feature.getCreated().getUser());
-    assertThat(TEST_USER).isEqualTo(feature.getLastModified().getUser());
+    assertFeature(mutation.getFeatureId(), TEST_POINT, feature);
   }
 
   @Test
@@ -339,15 +343,7 @@ public class LocalDataStoreTest {
     localDataStore.mergeFeature(feature).test().assertComplete();
 
     Feature newFeature = localDataStore.getFeature(project, mutation.getFeatureId()).blockingGet();
-    assertThat(mutation.getFeatureId()).isEqualTo(newFeature.getId());
-    assertThat(project).isEqualTo(newFeature.getProject());
-    assertThat(TEST_LAYER.getItemLabel()).isEqualTo(newFeature.getTitle());
-    assertThat(TEST_LAYER).isEqualTo(newFeature.getLayer());
-    assertThat(newFeature.getCustomId()).isNull();
-    assertThat(newFeature.getCaption()).isNull();
-    assertThat(point).isEqualTo(newFeature.getPoint());
-    assertThat(TEST_USER).isEqualTo(newFeature.getCreated().getUser());
-    assertThat(TEST_USER).isEqualTo(newFeature.getLastModified().getUser());
+    assertFeature(mutation.getFeatureId(), point, newFeature);
   }
 
   @Test
