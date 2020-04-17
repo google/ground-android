@@ -143,7 +143,7 @@ public class LocalDataStoreTest {
           .setClientTimestamp(new Date())
           .build();
 
-  private static final Tile TEST_TILE_PENDING =
+  private static final Tile TEST_PENDING_TILE =
       Tile.newBuilder()
           .setId("id_1")
           .setState(State.PENDING)
@@ -151,7 +151,7 @@ public class LocalDataStoreTest {
           .setUrl("some_url 1")
           .build();
 
-  private static final Tile TEST_TILE_DOWNLOADED =
+  private static final Tile TEST_DOWNLOADED_TILE =
       Tile.newBuilder()
           .setId("id_2")
           .setState(State.DOWNLOADED)
@@ -159,7 +159,7 @@ public class LocalDataStoreTest {
           .setUrl("some_url 2")
           .build();
 
-  private static final Tile TEST_TILE_FAILED =
+  private static final Tile TEST_FAILED_TILE =
       Tile.newBuilder()
           .setId("id_3")
           .setState(State.FAILED)
@@ -434,8 +434,8 @@ public class LocalDataStoreTest {
 
   @Test
   public void testGetTile() {
-    localDataStore.insertOrUpdateTile(TEST_TILE_PENDING).subscribe();
-    localDataStore.getTile("id_1").test().assertValueCount(1).assertValue(TEST_TILE_PENDING);
+    localDataStore.insertOrUpdateTile(TEST_PENDING_TILE).subscribe();
+    localDataStore.getTile("id_1").test().assertValueCount(1).assertValue(TEST_PENDING_TILE);
   }
 
   @Test
@@ -445,21 +445,21 @@ public class LocalDataStoreTest {
     subscriber.assertValueCount(1);
     subscriber.assertValueAt(0, AbstractCollection::isEmpty);
 
-    localDataStore.insertOrUpdateTile(TEST_TILE_DOWNLOADED).subscribe();
-    localDataStore.insertOrUpdateTile(TEST_TILE_PENDING).subscribe();
+    localDataStore.insertOrUpdateTile(TEST_DOWNLOADED_TILE).subscribe();
+    localDataStore.insertOrUpdateTile(TEST_PENDING_TILE).subscribe();
 
     subscriber.assertValueCount(3);
     subscriber.assertValueAt(0, AbstractCollection::isEmpty);
-    subscriber.assertValueAt(1, ImmutableSet.of(TEST_TILE_DOWNLOADED));
-    subscriber.assertValueAt(2, ImmutableSet.of(TEST_TILE_DOWNLOADED, TEST_TILE_PENDING));
+    subscriber.assertValueAt(1, ImmutableSet.of(TEST_DOWNLOADED_TILE));
+    subscriber.assertValueAt(2, ImmutableSet.of(TEST_DOWNLOADED_TILE, TEST_PENDING_TILE));
   }
 
   @Test
   public void testGetPendingTile() {
-    localDataStore.insertOrUpdateTile(TEST_TILE_DOWNLOADED).subscribe();
-    localDataStore.insertOrUpdateTile(TEST_TILE_FAILED).subscribe();
-    localDataStore.insertOrUpdateTile(TEST_TILE_PENDING).subscribe();
-    localDataStore.getPendingTiles().test().assertValue(ImmutableList.of(TEST_TILE_PENDING));
+    localDataStore.insertOrUpdateTile(TEST_DOWNLOADED_TILE).subscribe();
+    localDataStore.insertOrUpdateTile(TEST_FAILED_TILE).subscribe();
+    localDataStore.insertOrUpdateTile(TEST_PENDING_TILE).subscribe();
+    localDataStore.getPendingTiles().test().assertValue(ImmutableList.of(TEST_PENDING_TILE));
   }
 
   @Test
