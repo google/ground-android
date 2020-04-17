@@ -219,33 +219,33 @@ public class LocalDataStoreTest {
 
   @Test
   public void testGetProjects() {
-    localDataStore.insertOrUpdateProject(TEST_PROJECT).subscribe();
+    localDataStore.insertOrUpdateProject(TEST_PROJECT).blockingAwait();
     localDataStore.getProjects().test().assertValue(ImmutableList.of(TEST_PROJECT));
   }
 
   @Test
   public void testGetProjectById() {
-    localDataStore.insertOrUpdateProject(TEST_PROJECT).subscribe();
+    localDataStore.insertOrUpdateProject(TEST_PROJECT).blockingAwait();
     localDataStore.getProjectById("project id").test().assertValue(TEST_PROJECT);
   }
 
   @Test
   public void testDeleteProject() {
-    localDataStore.insertOrUpdateProject(TEST_PROJECT).subscribe();
+    localDataStore.insertOrUpdateProject(TEST_PROJECT).blockingAwait();
     localDataStore.deleteProject(TEST_PROJECT).test().assertComplete();
     localDataStore.getProjects().test().assertValue(AbstractCollection::isEmpty);
   }
 
   @Test
   public void testGetUser() {
-    localDataStore.insertOrUpdateUser(TEST_USER).subscribe();
+    localDataStore.insertOrUpdateUser(TEST_USER).blockingAwait();
     localDataStore.getUser("user id").test().assertValue(TEST_USER);
   }
 
   @Test
   public void testApplyAndEnqueue_featureMutation() {
-    localDataStore.insertOrUpdateUser(TEST_USER).subscribe();
-    localDataStore.insertOrUpdateProject(TEST_PROJECT).subscribe();
+    localDataStore.insertOrUpdateUser(TEST_USER).blockingAwait();
+    localDataStore.insertOrUpdateProject(TEST_PROJECT).blockingAwait();
 
     localDataStore.applyAndEnqueue(TEST_FEATURE_MUTATION).test().assertComplete();
 
@@ -262,9 +262,8 @@ public class LocalDataStoreTest {
 
   @Test
   public void testGetFeaturesOnceAndStream() {
-    localDataStore.insertOrUpdateUser(TEST_USER).subscribe();
-
-    localDataStore.insertOrUpdateProject(TEST_PROJECT).subscribe();
+    localDataStore.insertOrUpdateUser(TEST_USER).blockingAwait();
+    localDataStore.insertOrUpdateProject(TEST_PROJECT).blockingAwait();
 
     TestSubscriber<ImmutableSet<Feature>> subscriber =
         localDataStore.getFeaturesOnceAndStream(TEST_PROJECT).test();
@@ -273,7 +272,7 @@ public class LocalDataStoreTest {
     subscriber.assertValueAt(0, AbstractCollection::isEmpty);
 
     FeatureMutation mutation = TEST_FEATURE_MUTATION;
-    localDataStore.applyAndEnqueue(mutation).subscribe();
+    localDataStore.applyAndEnqueue(mutation).blockingAwait();
 
     Feature feature =
         localDataStore.getFeature(TEST_PROJECT, mutation.getFeatureId()).blockingGet();
@@ -285,11 +284,11 @@ public class LocalDataStoreTest {
 
   @Test
   public void testUpdateMutations() {
-    localDataStore.insertOrUpdateUser(TEST_USER).subscribe();
-    localDataStore.insertOrUpdateProject(TEST_PROJECT).subscribe();
+    localDataStore.insertOrUpdateUser(TEST_USER).blockingAwait();
+    localDataStore.insertOrUpdateProject(TEST_PROJECT).blockingAwait();
 
     FeatureMutation mutation = TEST_FEATURE_MUTATION;
-    localDataStore.applyAndEnqueue(mutation).subscribe();
+    localDataStore.applyAndEnqueue(mutation).blockingAwait();
 
     Point newPoint = Point.newBuilder().setLatitude(51.0).setLongitude(44.0).build();
     Mutation updatedMutation =
@@ -307,9 +306,9 @@ public class LocalDataStoreTest {
 
   @Test
   public void testRemovePendingMutation() {
-    localDataStore.insertOrUpdateUser(TEST_USER).subscribe();
-    localDataStore.insertOrUpdateProject(TEST_PROJECT).subscribe();
-    localDataStore.applyAndEnqueue(TEST_FEATURE_MUTATION).subscribe();
+    localDataStore.insertOrUpdateUser(TEST_USER).blockingAwait();
+    localDataStore.insertOrUpdateProject(TEST_PROJECT).blockingAwait();
+    localDataStore.applyAndEnqueue(TEST_FEATURE_MUTATION).blockingAwait();
 
     localDataStore
         .removePendingMutations(ImmutableList.of(TEST_FEATURE_MUTATION))
@@ -324,9 +323,9 @@ public class LocalDataStoreTest {
 
   @Test
   public void testMergeFeature() {
-    localDataStore.insertOrUpdateUser(TEST_USER).subscribe();
-    localDataStore.insertOrUpdateProject(TEST_PROJECT).subscribe();
-    localDataStore.applyAndEnqueue(TEST_FEATURE_MUTATION).subscribe();
+    localDataStore.insertOrUpdateUser(TEST_USER).blockingAwait();
+    localDataStore.insertOrUpdateProject(TEST_PROJECT).blockingAwait();
+    localDataStore.applyAndEnqueue(TEST_FEATURE_MUTATION).blockingAwait();
 
     Feature feature = localDataStore.getFeature(TEST_PROJECT, "feature id").blockingGet();
     Point point = Point.newBuilder().setLongitude(11.0).setLatitude(33.0).build();
@@ -339,9 +338,9 @@ public class LocalDataStoreTest {
 
   @Test
   public void testApplyAndEnqueue_observationMutation() {
-    localDataStore.insertOrUpdateUser(TEST_USER).subscribe();
-    localDataStore.insertOrUpdateProject(TEST_PROJECT).subscribe();
-    localDataStore.applyAndEnqueue(TEST_FEATURE_MUTATION).subscribe();
+    localDataStore.insertOrUpdateUser(TEST_USER).blockingAwait();
+    localDataStore.insertOrUpdateProject(TEST_PROJECT).blockingAwait();
+    localDataStore.applyAndEnqueue(TEST_FEATURE_MUTATION).blockingAwait();
 
     localDataStore.applyAndEnqueue(TEST_OBSERVATION_MUTATION).test().assertComplete();
 
@@ -391,10 +390,10 @@ public class LocalDataStoreTest {
 
   @Test
   public void testMergeObservation() {
-    localDataStore.insertOrUpdateUser(TEST_USER).subscribe();
-    localDataStore.insertOrUpdateProject(TEST_PROJECT).subscribe();
-    localDataStore.applyAndEnqueue(TEST_FEATURE_MUTATION).subscribe();
-    localDataStore.applyAndEnqueue(TEST_OBSERVATION_MUTATION).subscribe();
+    localDataStore.insertOrUpdateUser(TEST_USER).blockingAwait();
+    localDataStore.insertOrUpdateProject(TEST_PROJECT).blockingAwait();
+    localDataStore.applyAndEnqueue(TEST_FEATURE_MUTATION).blockingAwait();
+    localDataStore.applyAndEnqueue(TEST_OBSERVATION_MUTATION).blockingAwait();
     Feature feature = localDataStore.getFeature(TEST_PROJECT, "feature id").blockingGet();
 
     ResponseMap responseMap =
@@ -424,7 +423,7 @@ public class LocalDataStoreTest {
 
   @Test
   public void testGetTile() {
-    localDataStore.insertOrUpdateTile(TEST_PENDING_TILE).subscribe();
+    localDataStore.insertOrUpdateTile(TEST_PENDING_TILE).blockingAwait();
     localDataStore.getTile("id_1").test().assertValueCount(1).assertValue(TEST_PENDING_TILE);
   }
 
@@ -435,8 +434,8 @@ public class LocalDataStoreTest {
     subscriber.assertValueCount(1);
     subscriber.assertValueAt(0, AbstractCollection::isEmpty);
 
-    localDataStore.insertOrUpdateTile(TEST_DOWNLOADED_TILE).subscribe();
-    localDataStore.insertOrUpdateTile(TEST_PENDING_TILE).subscribe();
+    localDataStore.insertOrUpdateTile(TEST_DOWNLOADED_TILE).blockingAwait();
+    localDataStore.insertOrUpdateTile(TEST_PENDING_TILE).blockingAwait();
 
     subscriber.assertValueCount(3);
     subscriber.assertValueAt(0, AbstractCollection::isEmpty);
@@ -446,15 +445,15 @@ public class LocalDataStoreTest {
 
   @Test
   public void testGetPendingTile() {
-    localDataStore.insertOrUpdateTile(TEST_DOWNLOADED_TILE).subscribe();
-    localDataStore.insertOrUpdateTile(TEST_FAILED_TILE).subscribe();
-    localDataStore.insertOrUpdateTile(TEST_PENDING_TILE).subscribe();
+    localDataStore.insertOrUpdateTile(TEST_DOWNLOADED_TILE).blockingAwait();
+    localDataStore.insertOrUpdateTile(TEST_FAILED_TILE).blockingAwait();
+    localDataStore.insertOrUpdateTile(TEST_PENDING_TILE).blockingAwait();
     localDataStore.getPendingTiles().test().assertValue(ImmutableList.of(TEST_PENDING_TILE));
   }
 
   @Test
   public void testGetOfflineAreas() {
-    localDataStore.insertOrUpdateOfflineArea(TEST_OFFLINE_AREA).subscribe();
+    localDataStore.insertOrUpdateOfflineArea(TEST_OFFLINE_AREA).blockingAwait();
     localDataStore.getOfflineAreas().test().assertValue(ImmutableList.of(TEST_OFFLINE_AREA));
   }
 }
