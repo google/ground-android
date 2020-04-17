@@ -305,7 +305,7 @@ public class LocalDataStoreTest {
 
     ImmutableList<Mutation> savedMutations =
         localDataStore.getPendingMutations(updatedMutation.getFeatureId()).blockingGet();
-    assertThat(1).isEqualTo(savedMutations.size());
+    assertThat(savedMutations).hasSize(1);
 
     FeatureMutation savedMutation = (FeatureMutation) savedMutations.get(0);
     assertThat(newPoint).isEqualTo(savedMutation.getNewLocation().get());
@@ -357,7 +357,7 @@ public class LocalDataStoreTest {
 
     ImmutableList<Mutation> savedMutations =
         localDataStore.getPendingMutations(mutation.getFeatureId()).blockingGet();
-    assertThat(2).isEqualTo(savedMutations.size());
+    assertThat(savedMutations).hasSize(2);
     // ignoring the first item, which is a FeatureMutation. Already tested separately.
     assertEqualsIgnoreId(mutation, (ObservationMutation) savedMutations.get(1));
 
@@ -379,7 +379,7 @@ public class LocalDataStoreTest {
     localDataStore.applyAndEnqueue(mutation).test().assertComplete();
 
     savedMutations = localDataStore.getPendingMutations(mutation.getFeatureId()).blockingGet();
-    assertThat(3).isEqualTo(savedMutations.size());
+    assertThat(savedMutations).hasSize(3);
 
     // ignoring the first item, which is a FeatureMutation. Already tested separately.
     assertEqualsIgnoreId(mutation, (ObservationMutation) savedMutations.get(2));
@@ -391,7 +391,7 @@ public class LocalDataStoreTest {
     // also test that getObservations returns the same observation as well
     ImmutableList<Observation> observations =
         localDataStore.getObservations(feature, TEST_FORM.getId()).blockingGet();
-    assertThat(1).isEqualTo(observations.size());
+    assertThat(observations).hasSize(1);
     assertObservation(mutation, observations.get(0));
   }
 
