@@ -219,31 +219,27 @@ public class LocalDataStoreTest {
 
   @Test
   public void testGetProjects() {
-    Project project = TEST_PROJECT;
-    localDataStore.insertOrUpdateProject(project).subscribe();
-    localDataStore.getProjects().test().assertValue(ImmutableList.of(project));
+    localDataStore.insertOrUpdateProject(TEST_PROJECT).subscribe();
+    localDataStore.getProjects().test().assertValue(ImmutableList.of(TEST_PROJECT));
   }
 
   @Test
   public void testGetProjectById() {
-    Project project = TEST_PROJECT;
-    localDataStore.insertOrUpdateProject(project).subscribe();
-    localDataStore.getProjectById(project.getId()).test().assertValue(project);
+    localDataStore.insertOrUpdateProject(TEST_PROJECT).subscribe();
+    localDataStore.getProjectById("project id").test().assertValue(TEST_PROJECT);
   }
 
   @Test
   public void testDeleteProject() {
-    Project project = TEST_PROJECT;
-    localDataStore.insertOrUpdateProject(project).subscribe();
-    localDataStore.deleteProject(project).test().assertComplete();
+    localDataStore.insertOrUpdateProject(TEST_PROJECT).subscribe();
+    localDataStore.deleteProject(TEST_PROJECT).test().assertComplete();
     localDataStore.getProjects().test().assertValue(AbstractCollection::isEmpty);
   }
 
   @Test
   public void testGetUser() {
-    User user = TEST_USER;
-    localDataStore.insertOrUpdateUser(user).subscribe();
-    localDataStore.getUser(user.getId()).test().assertValue(user);
+    localDataStore.insertOrUpdateUser(TEST_USER).subscribe();
+    localDataStore.getUser("user id").test().assertValue(TEST_USER);
   }
 
   @Test
@@ -251,30 +247,27 @@ public class LocalDataStoreTest {
     localDataStore.insertOrUpdateUser(TEST_USER).subscribe();
     localDataStore.insertOrUpdateProject(TEST_PROJECT).subscribe();
 
-    FeatureMutation mutation = TEST_FEATURE_MUTATION;
-    localDataStore.applyAndEnqueue(mutation).test().assertComplete();
+    localDataStore.applyAndEnqueue(TEST_FEATURE_MUTATION).test().assertComplete();
 
     // assert that mutation is saved to local database
     localDataStore
-        .getPendingMutations(mutation.getFeatureId())
+        .getPendingMutations("feature id")
         .test()
-        .assertValue(ImmutableList.of(mutation));
+        .assertValue(ImmutableList.of(TEST_FEATURE_MUTATION));
 
     // assert feature is saved to local database
-    Feature feature =
-        localDataStore.getFeature(TEST_PROJECT, mutation.getFeatureId()).blockingGet();
-    assertFeature(mutation.getFeatureId(), TEST_POINT, feature);
+    Feature feature = localDataStore.getFeature(TEST_PROJECT, "feature id").blockingGet();
+    assertFeature("feature id", TEST_POINT, feature);
   }
 
   @Test
   public void testGetFeaturesOnceAndStream() {
     localDataStore.insertOrUpdateUser(TEST_USER).subscribe();
 
-    Project project = TEST_PROJECT;
-    localDataStore.insertOrUpdateProject(project).subscribe();
+    localDataStore.insertOrUpdateProject(TEST_PROJECT).subscribe();
 
     TestSubscriber<ImmutableSet<Feature>> subscriber =
-        localDataStore.getFeaturesOnceAndStream(project).test();
+        localDataStore.getFeaturesOnceAndStream(TEST_PROJECT).test();
 
     subscriber.assertValueCount(1);
     subscriber.assertValueAt(0, AbstractCollection::isEmpty);
@@ -282,7 +275,8 @@ public class LocalDataStoreTest {
     FeatureMutation mutation = TEST_FEATURE_MUTATION;
     localDataStore.applyAndEnqueue(mutation).subscribe();
 
-    Feature feature = localDataStore.getFeature(project, mutation.getFeatureId()).blockingGet();
+    Feature feature =
+        localDataStore.getFeature(TEST_PROJECT, mutation.getFeatureId()).blockingGet();
 
     subscriber.assertValueCount(2);
     subscriber.assertValueAt(0, AbstractCollection::isEmpty);
@@ -315,14 +309,15 @@ public class LocalDataStoreTest {
   public void testRemovePendingMutation() {
     localDataStore.insertOrUpdateUser(TEST_USER).subscribe();
     localDataStore.insertOrUpdateProject(TEST_PROJECT).subscribe();
-
-    FeatureMutation mutation = TEST_FEATURE_MUTATION;
-    localDataStore.applyAndEnqueue(mutation).subscribe();
-
-    localDataStore.removePendingMutations(ImmutableList.of(mutation)).test().assertComplete();
+    localDataStore.applyAndEnqueue(TEST_FEATURE_MUTATION).subscribe();
 
     localDataStore
-        .getPendingMutations(mutation.getFeatureId())
+        .removePendingMutations(ImmutableList.of(TEST_FEATURE_MUTATION))
+        .test()
+        .assertComplete();
+
+    localDataStore
+        .getPendingMutations("feature id")
         .test()
         .assertValue(AbstractCollection::isEmpty);
   }
@@ -330,20 +325,16 @@ public class LocalDataStoreTest {
   @Test
   public void testMergeFeature() {
     localDataStore.insertOrUpdateUser(TEST_USER).subscribe();
+    localDataStore.insertOrUpdateProject(TEST_PROJECT).subscribe();
+    localDataStore.applyAndEnqueue(TEST_FEATURE_MUTATION).subscribe();
 
-    Project project = TEST_PROJECT;
-    localDataStore.insertOrUpdateProject(project).subscribe();
-
-    FeatureMutation mutation = TEST_FEATURE_MUTATION;
-    localDataStore.applyAndEnqueue(mutation).subscribe();
-
-    Feature feature = localDataStore.getFeature(project, mutation.getFeatureId()).blockingGet();
+    Feature feature = localDataStore.getFeature(TEST_PROJECT, "feature id").blockingGet();
     Point point = Point.newBuilder().setLongitude(11.0).setLatitude(33.0).build();
     feature = feature.toBuilder().setPoint(point).build();
     localDataStore.mergeFeature(feature).test().assertComplete();
 
-    Feature newFeature = localDataStore.getFeature(project, mutation.getFeatureId()).blockingGet();
-    assertFeature(mutation.getFeatureId(), point, newFeature);
+    Feature newFeature = localDataStore.getFeature(TEST_PROJECT, "feature id").blockingGet();
+    assertFeature("feature id", point, newFeature);
   }
 
   @Test
@@ -352,21 +343,18 @@ public class LocalDataStoreTest {
     localDataStore.insertOrUpdateProject(TEST_PROJECT).subscribe();
     localDataStore.applyAndEnqueue(TEST_FEATURE_MUTATION).subscribe();
 
-    ObservationMutation mutation = TEST_OBSERVATION_MUTATION;
-    localDataStore.applyAndEnqueue(mutation).test().assertComplete();
+    localDataStore.applyAndEnqueue(TEST_OBSERVATION_MUTATION).test().assertComplete();
 
     ImmutableList<Mutation> savedMutations =
-        localDataStore.getPendingMutations(mutation.getFeatureId()).blockingGet();
+        localDataStore.getPendingMutations("feature id").blockingGet();
     assertThat(savedMutations).hasSize(2);
     // ignoring the first item, which is a FeatureMutation. Already tested separately.
-    assertEqualsIgnoreId(mutation, (ObservationMutation) savedMutations.get(1));
+    assertEqualsIgnoreId(TEST_OBSERVATION_MUTATION, (ObservationMutation) savedMutations.get(1));
 
-    // check if the observation was saved properly to local database
-    Feature feature =
-        localDataStore.getFeature(TEST_PROJECT, mutation.getFeatureId()).blockingGet();
+    Feature feature = localDataStore.getFeature(TEST_PROJECT, "feature id").blockingGet();
     Observation observation =
-        localDataStore.getObservation(feature, mutation.getObservationId()).blockingGet();
-    assertObservation(mutation, observation);
+        localDataStore.getObservation(feature, "observation id").blockingGet();
+    assertObservation(TEST_OBSERVATION_MUTATION, observation);
 
     // now update the inserted observation with new responses
     ImmutableList<ResponseDelta> deltas =
@@ -375,22 +363,28 @@ public class LocalDataStoreTest {
                 .setFieldId("really new field")
                 .setNewResponse(TextResponse.fromString("value for the really new field"))
                 .build());
-    mutation = mutation.toBuilder().setResponseDeltas(deltas).setType(Mutation.Type.UPDATE).build();
+
+    ObservationMutation mutation =
+        TEST_OBSERVATION_MUTATION
+            .toBuilder()
+            .setResponseDeltas(deltas)
+            .setType(Mutation.Type.UPDATE)
+            .build();
     localDataStore.applyAndEnqueue(mutation).test().assertComplete();
 
-    savedMutations = localDataStore.getPendingMutations(mutation.getFeatureId()).blockingGet();
+    savedMutations = localDataStore.getPendingMutations("feature id").blockingGet();
     assertThat(savedMutations).hasSize(3);
 
     // ignoring the first item, which is a FeatureMutation. Already tested separately.
     assertEqualsIgnoreId(mutation, (ObservationMutation) savedMutations.get(2));
 
     // check if the observation was updated in the local database
-    observation = localDataStore.getObservation(feature, mutation.getObservationId()).blockingGet();
+    observation = localDataStore.getObservation(feature, "observation id").blockingGet();
     assertObservation(mutation, observation);
 
     // also test that getObservations returns the same observation as well
     ImmutableList<Observation> observations =
-        localDataStore.getObservations(feature, TEST_FORM.getId()).blockingGet();
+        localDataStore.getObservations(feature, "form id").blockingGet();
     assertThat(observations).hasSize(1);
     assertObservation(mutation, observations.get(0));
   }
@@ -400,12 +394,8 @@ public class LocalDataStoreTest {
     localDataStore.insertOrUpdateUser(TEST_USER).subscribe();
     localDataStore.insertOrUpdateProject(TEST_PROJECT).subscribe();
     localDataStore.applyAndEnqueue(TEST_FEATURE_MUTATION).subscribe();
-
-    ObservationMutation mutation = TEST_OBSERVATION_MUTATION;
-    localDataStore.applyAndEnqueue(mutation).subscribe();
-
-    Feature feature =
-        localDataStore.getFeature(TEST_PROJECT, mutation.getFeatureId()).blockingGet();
+    localDataStore.applyAndEnqueue(TEST_OBSERVATION_MUTATION).subscribe();
+    Feature feature = localDataStore.getFeature(TEST_PROJECT, "feature id").blockingGet();
 
     ResponseMap responseMap =
         ResponseMap.builder()
@@ -413,19 +403,23 @@ public class LocalDataStoreTest {
             .build();
 
     Observation observation =
-        localDataStore.getObservation(feature, mutation.getObservationId()).blockingGet();
-    observation = observation.toBuilder().setResponses(responseMap).build();
+        localDataStore
+            .getObservation(feature, "observation id")
+            .blockingGet()
+            .toBuilder()
+            .setResponses(responseMap)
+            .build();
 
     localDataStore.mergeObservation(observation).test().assertComplete();
 
-    ResponseMap result =
+    ResponseMap responses =
         localDataStore
             .getObservation(feature, observation.getId())
             .test()
             .values()
             .get(0)
             .getResponses();
-    assertThat("foo value").isEqualTo(result.getResponse("foo field").get().toString());
+    assertThat("foo value").isEqualTo(responses.getResponse("foo field").get().toString());
   }
 
   @Test
