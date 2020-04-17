@@ -358,7 +358,7 @@ public class LocalDataStoreTest {
         localDataStore.getPendingMutations("feature id").blockingGet();
     assertThat(savedMutations).hasSize(2);
     // ignoring the first item, which is a FeatureMutation. Already tested separately.
-    assertThat(savedMutations.get(1)).isInstanceOf(ObservationMutation.class)
+    assertThat(savedMutations.get(1)).isInstanceOf(ObservationMutation.class);
     assertEqualsIgnoreId(TEST_OBSERVATION_MUTATION, (ObservationMutation) savedMutations.get(1));
 
     Feature feature = localDataStore.getFeature(TEST_PROJECT, "feature id").blockingGet();
