@@ -18,11 +18,11 @@ package com.google.android.gnd.ui.offlinearea;
 
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.gnd.databinding.OfflineAreasListItemBinding;
 import com.google.android.gnd.model.basemap.OfflineArea;
 import com.google.common.collect.ImmutableList;
-import org.jetbrains.annotations.NotNull;
 
 class OfflineAreaListAdapter extends RecyclerView.Adapter<OfflineAreaListAdapter.ViewHolder> {
   private ImmutableList<OfflineArea> offlineAreas;
@@ -30,9 +30,9 @@ class OfflineAreaListAdapter extends RecyclerView.Adapter<OfflineAreaListAdapter
   public static class ViewHolder extends RecyclerView.ViewHolder {
     public OfflineAreasListItemBinding binding;
 
-    ViewHolder(OfflineAreasListItemBinding b) {
-      super(b.getRoot());
-      binding = b;
+    ViewHolder(OfflineAreasListItemBinding binding) {
+      super(binding.getRoot());
+      this.binding = binding;
     }
   }
 
@@ -40,15 +40,15 @@ class OfflineAreaListAdapter extends RecyclerView.Adapter<OfflineAreaListAdapter
     offlineAreas = ImmutableList.of();
   }
 
-  @NotNull
+  @NonNull
   @Override
   public OfflineAreaListAdapter.ViewHolder onCreateViewHolder(
-      @NotNull ViewGroup parent, int viewType) {
-    OfflineAreasListItemBinding o =
+      @NonNull ViewGroup parent, int viewType) {
+    OfflineAreasListItemBinding offlineAreasListItemBinding =
         OfflineAreasListItemBinding.inflate(
             LayoutInflater.from(parent.getContext()), parent, false);
 
-    return new ViewHolder(o);
+    return new ViewHolder(offlineAreasListItemBinding);
   }
 
   @Override
