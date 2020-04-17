@@ -28,7 +28,7 @@ import java.util.List;
 public interface TileDao extends BaseDao<TileEntity> {
 
   @Query("SELECT * FROM tile")
-  Flowable<List<TileEntity>> getTilesOnceAndStream();
+  Flowable<List<TileEntity>> findAllOnceAndStream();
 
   @Query("SELECT * FROM tile WHERE state = :state")
   Single<List<TileEntity>> findByState(int state);
