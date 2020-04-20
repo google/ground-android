@@ -30,6 +30,7 @@ import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.OfflineAreasFragBinding;
 import com.google.android.gnd.inject.ActivityScoped;
 import com.google.android.gnd.ui.common.AbstractFragment;
+
 /**
  * Fragment containing a list of downloaded areas on the device. An area is a set of offline raster
  * tiles. Users can manage their areas within this fragment. They can delete areas they no longer
