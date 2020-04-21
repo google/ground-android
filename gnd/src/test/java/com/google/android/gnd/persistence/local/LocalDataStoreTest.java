@@ -113,6 +113,9 @@ public class LocalDataStoreTest {
   private static final Point TEST_POINT =
       Point.newBuilder().setLatitude(110.0).setLongitude(-23.1).build();
 
+  private static final Point TEST_POINT_2 =
+      Point.newBuilder().setLatitude(51.0).setLongitude(44.0).build();
+
   private static final FeatureMutation TEST_FEATURE_MUTATION =
       FeatureMutation.builder()
           .setId(1L)
@@ -292,9 +295,8 @@ public class LocalDataStoreTest {
     FeatureMutation mutation = TEST_FEATURE_MUTATION;
     localDataStore.applyAndEnqueue(mutation).blockingAwait();
 
-    Point newPoint = Point.newBuilder().setLatitude(51.0).setLongitude(44.0).build();
     Mutation updatedMutation =
-        mutation.toBuilder().setNewLocation(Optional.ofNullable(newPoint)).build();
+        mutation.toBuilder().setNewLocation(Optional.ofNullable(TEST_POINT_2)).build();
 
     localDataStore.updateMutations(ImmutableList.of(updatedMutation)).test().assertComplete();
 
@@ -303,7 +305,7 @@ public class LocalDataStoreTest {
     assertThat(savedMutations).hasSize(1);
 
     FeatureMutation savedMutation = (FeatureMutation) savedMutations.get(0);
-    assertThat(newPoint).isEqualTo(savedMutation.getNewLocation().get());
+    assertThat(TEST_POINT_2).isEqualTo(savedMutation.getNewLocation().get());
   }
 
   @Test
