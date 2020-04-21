@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google LLC
+ * Copyright 2020 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,17 +16,26 @@
 
 package com.google.android.gnd;
 
-import com.google.android.gnd.persistence.local.LocalDataStoreModule;
-import com.google.android.gnd.ui.map.MapProviderModule;
-import dagger.Component;
-import dagger.android.AndroidInjector;
-import javax.inject.Singleton;
+import com.google.android.gnd.rx.Schedulers;
+import io.reactivex.Scheduler;
+import javax.inject.Inject;
 
-@Singleton
-@Component(
-    modules = {GndApplicationModule.class, MapProviderModule.class, LocalDataStoreModule.class})
-interface GndApplicationComponent extends AndroidInjector<GndApplication> {
+/**
+ * Runs all tasks synchronously by executing the tasks on the current thread without any queueing
+ * and blocking the call until finished.
+ */
+public class TestScheduler implements Schedulers {
 
-  @Component.Factory
-  interface Factory extends AndroidInjector.Factory<GndApplication> {}
+  @Inject
+  TestScheduler() {}
+
+  @Override
+  public Scheduler io() {
+    return io.reactivex.schedulers.Schedulers.trampoline();
+  }
+
+  @Override
+  public Scheduler ui() {
+    return io.reactivex.schedulers.Schedulers.trampoline();
+  }
 }

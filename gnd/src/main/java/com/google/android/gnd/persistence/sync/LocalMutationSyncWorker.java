@@ -97,7 +97,7 @@ public class LocalMutationSyncWorker extends BaseWorker {
   /** Loads each user with specified id, applies mutations, and removes processed mutations. */
   private Completable processMutations(ImmutableList<Mutation> mutations, String userId) {
     return localDataStore
-        .loadUser(userId)
+        .getUser(userId)
         .flatMapCompletable(user -> processMutations(mutations, user))
         .doOnError(__ -> Timber.d("User account removed before mutation processed"))
         .onErrorComplete();

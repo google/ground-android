@@ -23,6 +23,7 @@ import com.google.android.gnd.repository.ProjectRepository;
 import com.google.android.gnd.rx.Loadable;
 import com.google.android.gnd.system.AuthenticationManager;
 import com.google.android.gnd.ui.common.AbstractViewModel;
+import com.google.common.collect.ImmutableList;
 import io.reactivex.Single;
 import java.util.Collections;
 import java.util.List;
@@ -46,7 +47,7 @@ public class ProjectSelectorViewModel extends AbstractViewModel {
     return projectSummaries;
   }
 
-  public Single<List<Project>> getOfflineProjects() {
+  public Single<ImmutableList<Project>> getOfflineProjects() {
     return projectRepository.getOfflineProjects();
   }
 
