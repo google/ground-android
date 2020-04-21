@@ -217,13 +217,8 @@ public class LocalDataStoreTest {
   }
 
   @Test
-  public void testInsertProject() {
+  public void testInsertAndGetProjects() {
     localDataStore.insertOrUpdateProject(TEST_PROJECT).test().assertComplete();
-  }
-
-  @Test
-  public void testGetProjects() {
-    localDataStore.insertOrUpdateProject(TEST_PROJECT).blockingAwait();
     localDataStore.getProjects().test().assertValue(ImmutableList.of(TEST_PROJECT));
   }
 
@@ -241,13 +236,8 @@ public class LocalDataStoreTest {
   }
 
   @Test
-  public void testInsertUser() {
+  public void testInsertAndGetUser() {
     localDataStore.insertOrUpdateUser(TEST_USER).test().assertComplete();
-  }
-
-  @Test
-  public void testGetUser() {
-    localDataStore.insertOrUpdateUser(TEST_USER).blockingAwait();
     localDataStore.getUser("user id").test().assertValue(TEST_USER);
   }
 
