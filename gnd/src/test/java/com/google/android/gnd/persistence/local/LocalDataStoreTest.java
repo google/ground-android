@@ -117,16 +117,7 @@ public class LocalDataStoreTest {
       Point.newBuilder().setLatitude(51.0).setLongitude(44.0).build();
 
   private static final FeatureMutation TEST_FEATURE_MUTATION =
-      FeatureMutation.builder()
-          .setId(1L)
-          .setFeatureId("feature id")
-          .setType(Mutation.Type.CREATE)
-          .setUserId("user id")
-          .setProjectId("project id")
-          .setLayerId("layer id")
-          .setNewLocation(Optional.ofNullable(TEST_POINT))
-          .setClientTimestamp(new Date())
-          .build();
+      createTestFeatureMutation(TEST_POINT);
 
   private static final ObservationMutation TEST_OBSERVATION_MUTATION =
       ObservationMutation.builder()
@@ -182,6 +173,19 @@ public class LocalDataStoreTest {
   @Rule public InstantTaskExecutorRule instantTaskExecutorRule = new InstantTaskExecutorRule();
 
   @Inject LocalDataStore localDataStore;
+
+  private static FeatureMutation createTestFeatureMutation(Point point) {
+    return FeatureMutation.builder()
+        .setId(1L)
+        .setFeatureId("feature id")
+        .setType(Mutation.Type.CREATE)
+        .setUserId("user id")
+        .setProjectId("project id")
+        .setLayerId("layer id")
+        .setNewLocation(Optional.ofNullable(point))
+        .setClientTimestamp(new Date())
+        .build();
+  }
 
   private static void assertObservation(ObservationMutation mutation, Observation observation) {
     assertThat(mutation.getObservationId()).isEqualTo(observation.getId());
@@ -291,21 +295,14 @@ public class LocalDataStoreTest {
   public void testUpdateMutations() {
     localDataStore.insertOrUpdateUser(TEST_USER).blockingAwait();
     localDataStore.insertOrUpdateProject(TEST_PROJECT).blockingAwait();
+    localDataStore.applyAndEnqueue(TEST_FEATURE_MUTATION).blockingAwait();
 
-    FeatureMutation mutation = TEST_FEATURE_MUTATION;
-    localDataStore.applyAndEnqueue(mutation).blockingAwait();
-
-    Mutation updatedMutation =
-        mutation.toBuilder().setNewLocation(Optional.ofNullable(TEST_POINT_2)).build();
-
-    localDataStore.updateMutations(ImmutableList.of(updatedMutation)).test().assertComplete();
-
-    ImmutableList<Mutation> savedMutations =
-        localDataStore.getPendingMutations(updatedMutation.getFeatureId()).blockingGet();
-    assertThat(savedMutations).hasSize(1);
-
-    FeatureMutation savedMutation = (FeatureMutation) savedMutations.get(0);
-    assertThat(TEST_POINT_2).isEqualTo(savedMutation.getNewLocation().get());
+    FeatureMutation mutation = createTestFeatureMutation(TEST_POINT);
+    localDataStore.updateMutations(ImmutableList.of(mutation)).test().assertComplete();
+    localDataStore
+        .getPendingMutations(TEST_FEATURE_MUTATION.getFeatureId())
+        .test()
+        .assertValue(ImmutableList.of(mutation));
   }
 
   @Test
