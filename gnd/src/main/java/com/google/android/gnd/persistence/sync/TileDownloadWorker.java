@@ -55,7 +55,7 @@ public class TileDownloadWorker extends BaseWorker {
       @NonNull WorkerParameters params,
       LocalDataStore localDataStore,
       NotificationManager notificationManager) {
-    super(context, params, notificationManager);
+    super(context, params, notificationManager, TileDownloadWorker.class.hashCode());
     this.context = context;
     this.localDataStore = localDataStore;
   }
