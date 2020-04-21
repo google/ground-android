@@ -127,6 +127,7 @@ public class LocalDataStoreTest {
 
   private static final ObservationMutation TEST_OBSERVATION_MUTATION =
       ObservationMutation.builder()
+          .setId(1L)
           .setObservationId("observation id")
           .setType(Mutation.Type.CREATE)
           .setProjectId("project id")
@@ -178,15 +179,6 @@ public class LocalDataStoreTest {
   @Rule public InstantTaskExecutorRule instantTaskExecutorRule = new InstantTaskExecutorRule();
 
   @Inject LocalDataStore localDataStore;
-
-  private static void assertEqualsIgnoreId(
-      ObservationMutation expected, ObservationMutation actual) {
-    // TODO: Id is auto-assigned to ObservationMutation.
-    //  If we try to give it while inserting, then it causes problems. Improve this behavior.
-    //  So, copy the id from actual to expected and then compare the objects.
-    expected = expected.toBuilder().setId(actual.getId()).build();
-    assertThat(expected).isEqualTo(actual);
-  }
 
   private static void assertObservation(ObservationMutation mutation, Observation observation) {
     assertThat(mutation.getObservationId()).isEqualTo(observation.getId());
@@ -354,12 +346,10 @@ public class LocalDataStoreTest {
 
     localDataStore.applyAndEnqueue(TEST_OBSERVATION_MUTATION).test().assertComplete();
 
-    ImmutableList<Mutation> savedMutations =
-        localDataStore.getPendingMutations("feature id").blockingGet();
-    assertThat(savedMutations).hasSize(2);
-    // ignoring the first item, which is a FeatureMutation. Already tested separately.
-    assertThat(savedMutations.get(1)).isInstanceOf(ObservationMutation.class);
-    assertEqualsIgnoreId(TEST_OBSERVATION_MUTATION, (ObservationMutation) savedMutations.get(1));
+    localDataStore
+        .getPendingMutations("feature id")
+        .test()
+        .assertValue(ImmutableList.of(TEST_FEATURE_MUTATION, TEST_OBSERVATION_MUTATION));
 
     Feature feature = localDataStore.getFeature(TEST_PROJECT, "feature id").blockingGet();
     Observation observation =
@@ -377,16 +367,16 @@ public class LocalDataStoreTest {
     ObservationMutation mutation =
         TEST_OBSERVATION_MUTATION
             .toBuilder()
+            .setId(2L)
             .setResponseDeltas(deltas)
             .setType(Mutation.Type.UPDATE)
             .build();
     localDataStore.applyAndEnqueue(mutation).test().assertComplete();
 
-    savedMutations = localDataStore.getPendingMutations("feature id").blockingGet();
-    assertThat(savedMutations).hasSize(3);
-
-    // ignoring the first item, which is a FeatureMutation. Already tested separately.
-    assertEqualsIgnoreId(mutation, (ObservationMutation) savedMutations.get(2));
+    localDataStore
+        .getPendingMutations("feature id")
+        .test()
+        .assertValue(ImmutableList.of(TEST_FEATURE_MUTATION, TEST_OBSERVATION_MUTATION, mutation));
 
     // check if the observation was updated in the local database
     observation = localDataStore.getObservation(feature, "observation id").blockingGet();
