@@ -277,8 +277,7 @@ public class LocalDataStoreTest {
     TestSubscriber<ImmutableSet<Feature>> subscriber =
         localDataStore.getFeaturesOnceAndStream(TEST_PROJECT).test();
 
-    subscriber.assertValueCount(1);
-    subscriber.assertValueAt(0, AbstractCollection::isEmpty);
+    subscriber.assertValue(ImmutableSet.of());
 
     FeatureMutation mutation = TEST_FEATURE_MUTATION;
     localDataStore.applyAndEnqueue(mutation).blockingAwait();
@@ -286,9 +285,7 @@ public class LocalDataStoreTest {
     Feature feature =
         localDataStore.getFeature(TEST_PROJECT, mutation.getFeatureId()).blockingGet();
 
-    subscriber.assertValueCount(2);
-    subscriber.assertValueAt(0, AbstractCollection::isEmpty);
-    subscriber.assertValueAt(1, ImmutableSet.of(feature));
+    subscriber.assertValueSet(ImmutableSet.of(ImmutableSet.of(), ImmutableSet.of(feature)));
   }
 
   @Test
@@ -436,16 +433,16 @@ public class LocalDataStoreTest {
   public void testGetTilesOnceAndStream() {
     TestSubscriber<ImmutableSet<Tile>> subscriber = localDataStore.getTilesOnceAndStream().test();
 
-    subscriber.assertValueCount(1);
-    subscriber.assertValueAt(0, AbstractCollection::isEmpty);
+    subscriber.assertValue(ImmutableSet.of());
 
     localDataStore.insertOrUpdateTile(TEST_DOWNLOADED_TILE).blockingAwait();
     localDataStore.insertOrUpdateTile(TEST_PENDING_TILE).blockingAwait();
 
-    subscriber.assertValueCount(3);
-    subscriber.assertValueAt(0, AbstractCollection::isEmpty);
-    subscriber.assertValueAt(1, ImmutableSet.of(TEST_DOWNLOADED_TILE));
-    subscriber.assertValueAt(2, ImmutableSet.of(TEST_DOWNLOADED_TILE, TEST_PENDING_TILE));
+    subscriber.assertValueSet(
+        ImmutableSet.of(
+            ImmutableSet.of(),
+            ImmutableSet.of(TEST_DOWNLOADED_TILE),
+            ImmutableSet.of(TEST_DOWNLOADED_TILE, TEST_PENDING_TILE)));
   }
 
   @Test
