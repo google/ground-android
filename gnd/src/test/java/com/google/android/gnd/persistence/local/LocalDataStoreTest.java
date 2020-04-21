@@ -279,11 +279,9 @@ public class LocalDataStoreTest {
 
     subscriber.assertValue(ImmutableSet.of());
 
-    FeatureMutation mutation = TEST_FEATURE_MUTATION;
-    localDataStore.applyAndEnqueue(mutation).blockingAwait();
+    localDataStore.applyAndEnqueue(TEST_FEATURE_MUTATION).blockingAwait();
 
-    Feature feature =
-        localDataStore.getFeature(TEST_PROJECT, mutation.getFeatureId()).blockingGet();
+    Feature feature = localDataStore.getFeature(TEST_PROJECT, "feature id").blockingGet();
 
     subscriber.assertValueSet(ImmutableSet.of(ImmutableSet.of(), ImmutableSet.of(feature)));
   }
