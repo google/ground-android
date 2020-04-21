@@ -187,28 +187,16 @@ public class LocalDataStoreTest {
         .build();
   }
 
-  private static void assertObservation(ObservationMutation mutation, Observation observation) {
+  private static void assertEquivalent(ObservationMutation mutation, Observation observation) {
     assertThat(mutation.getObservationId()).isEqualTo(observation.getId());
     assertThat(mutation.getFeatureId()).isEqualTo(observation.getFeature().getId());
-    assertThat(TEST_USER).isEqualTo(observation.getCreated().getUser());
-    assertThat(TEST_FORM).isEqualTo(observation.getForm());
-    assertThat(TEST_PROJECT).isEqualTo(observation.getProject());
-    assertThat(TEST_USER).isEqualTo(observation.getLastModified().getUser());
+    assertThat(mutation.getFormId()).isEqualTo(observation.getForm().getId());
+    assertThat(mutation.getProjectId()).isEqualTo(observation.getProject().getId());
+    assertThat(mutation.getUserId()).isEqualTo(observation.getLastModified().getUser().getId());
+    assertThat(mutation.getUserId()).isEqualTo(observation.getCreated().getUser().getId());
     MatcherAssert.assertThat(
         ResponseMap.builder().applyDeltas(mutation.getResponseDeltas()).build(),
         samePropertyValuesAs(observation.getResponses()));
-  }
-
-  private static void assertFeature(String featureId, Point point, Feature feature) {
-    assertThat(featureId).isEqualTo(feature.getId());
-    assertThat(TEST_PROJECT).isEqualTo(feature.getProject());
-    assertThat(TEST_LAYER.getItemLabel()).isEqualTo(feature.getTitle());
-    assertThat(TEST_LAYER).isEqualTo(feature.getLayer());
-    assertThat(feature.getCustomId()).isNull();
-    assertThat(feature.getCaption()).isNull();
-    assertThat(point).isEqualTo(feature.getPoint());
-    assertThat(TEST_USER).isEqualTo(feature.getCreated().getUser());
-    assertThat(TEST_USER).isEqualTo(feature.getLastModified().getUser());
   }
 
   @Before
@@ -254,9 +242,10 @@ public class LocalDataStoreTest {
         .test()
         .assertValue(ImmutableList.of(TEST_FEATURE_MUTATION));
 
-    // assert feature is saved to local database
-    Feature feature = localDataStore.getFeature(TEST_PROJECT, "feature id").blockingGet();
-    assertFeature("feature id", TEST_POINT, feature);
+    localDataStore
+        .getFeature(TEST_PROJECT, "feature id")
+        .test()
+        .assertValue(feature -> feature.getPoint().equals(TEST_POINT));
   }
 
   @Test
@@ -282,7 +271,7 @@ public class LocalDataStoreTest {
     localDataStore.insertOrUpdateProject(TEST_PROJECT).blockingAwait();
     localDataStore.applyAndEnqueue(TEST_FEATURE_MUTATION).blockingAwait();
 
-    FeatureMutation mutation = createTestFeatureMutation(TEST_POINT);
+    FeatureMutation mutation = createTestFeatureMutation(TEST_POINT_2);
     localDataStore.updateMutations(ImmutableList.of(mutation)).test().assertComplete();
     localDataStore
         .getPendingMutations(TEST_FEATURE_MUTATION.getFeatureId())
@@ -314,12 +303,13 @@ public class LocalDataStoreTest {
     localDataStore.applyAndEnqueue(TEST_FEATURE_MUTATION).blockingAwait();
 
     Feature feature = localDataStore.getFeature(TEST_PROJECT, "feature id").blockingGet();
-    Point point = Point.newBuilder().setLongitude(11.0).setLatitude(33.0).build();
-    feature = feature.toBuilder().setPoint(point).build();
+    feature = feature.toBuilder().setPoint(TEST_POINT_2).build();
     localDataStore.mergeFeature(feature).test().assertComplete();
 
-    Feature newFeature = localDataStore.getFeature(TEST_PROJECT, "feature id").blockingGet();
-    assertFeature("feature id", point, newFeature);
+    localDataStore
+        .getFeature(TEST_PROJECT, "feature id")
+        .test()
+        .assertValue(newFeature -> newFeature.getPoint().equals(TEST_POINT_2));
   }
 
   @Test
@@ -338,7 +328,7 @@ public class LocalDataStoreTest {
     Feature feature = localDataStore.getFeature(TEST_PROJECT, "feature id").blockingGet();
     Observation observation =
         localDataStore.getObservation(feature, "observation id").blockingGet();
-    assertObservation(TEST_OBSERVATION_MUTATION, observation);
+    assertEquivalent(TEST_OBSERVATION_MUTATION, observation);
 
     // now update the inserted observation with new responses
     ImmutableList<ResponseDelta> deltas =
@@ -364,13 +354,13 @@ public class LocalDataStoreTest {
 
     // check if the observation was updated in the local database
     observation = localDataStore.getObservation(feature, "observation id").blockingGet();
-    assertObservation(mutation, observation);
+    assertEquivalent(mutation, observation);
 
     // also test that getObservations returns the same observation as well
     ImmutableList<Observation> observations =
         localDataStore.getObservations(feature, "form id").blockingGet();
     assertThat(observations).hasSize(1);
-    assertObservation(mutation, observations.get(0));
+    assertEquivalent(mutation, observations.get(0));
   }
 
   @Test
