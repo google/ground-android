@@ -146,5 +146,5 @@ public interface LocalDataStore {
   Completable insertOrUpdateOfflineArea(OfflineArea area);
 
   /** Returns all queued, failed, and completed offline areas from the local data store. */
-  Single<ImmutableList<OfflineArea>> getOfflineAreas();
+  Flowable<ImmutableList<OfflineArea>> getOfflineAreasOnceAndStream();
 }

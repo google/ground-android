@@ -79,6 +79,9 @@ android {
     dataBinding {
         enabled = true
     }
+    viewBinding {
+        enabled = true
+    }
     sourceSets {
         test.manifest.srcFile "src/test/AndroidManifest.xml"
     }
