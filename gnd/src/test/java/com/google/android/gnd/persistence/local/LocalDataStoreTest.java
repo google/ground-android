@@ -475,6 +475,9 @@ public class LocalDataStoreTest {
   @Test
   public void testGetOfflineAreas() {
     localDataStore.insertOrUpdateOfflineArea(TEST_OFFLINE_AREA).blockingAwait();
-    localDataStore.getOfflineAreas().test().assertValue(ImmutableList.of(TEST_OFFLINE_AREA));
+    localDataStore
+        .getOfflineAreasOnceAndStream()
+        .test()
+        .assertValue(ImmutableList.of(TEST_OFFLINE_AREA));
   }
 }
