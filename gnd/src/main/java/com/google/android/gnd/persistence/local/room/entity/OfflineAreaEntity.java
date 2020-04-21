@@ -60,7 +60,7 @@ public abstract class OfflineAreaEntity {
   public static OfflineArea toArea(OfflineAreaEntity offlineAreaEntity) {
     LatLng northEast = new LatLng(offlineAreaEntity.getNorth(), offlineAreaEntity.getEast());
     LatLng southWest = new LatLng(offlineAreaEntity.getSouth(), offlineAreaEntity.getWest());
-    LatLngBounds bounds = new LatLngBounds(northEast, southWest);
+    LatLngBounds bounds = new LatLngBounds(southWest, northEast);
 
     return OfflineArea.newBuilder()
         .setId(offlineAreaEntity.getId())
