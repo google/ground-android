@@ -23,28 +23,15 @@ import androidx.room.Room;
 import androidx.work.WorkManager;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gnd.inject.ActivityScoped;
-import com.google.android.gnd.persistence.local.LocalDataStore;
 import com.google.android.gnd.persistence.local.room.LocalDatabase;
-import com.google.android.gnd.persistence.local.room.RoomLocalDataStore;
-import com.google.android.gnd.persistence.local.room.dao.FeatureDao;
-import com.google.android.gnd.persistence.local.room.dao.FeatureMutationDao;
-import com.google.android.gnd.persistence.local.room.dao.FieldDao;
-import com.google.android.gnd.persistence.local.room.dao.FormDao;
-import com.google.android.gnd.persistence.local.room.dao.LayerDao;
-import com.google.android.gnd.persistence.local.room.dao.MultipleChoiceDao;
-import com.google.android.gnd.persistence.local.room.dao.ObservationDao;
-import com.google.android.gnd.persistence.local.room.dao.ObservationMutationDao;
-import com.google.android.gnd.persistence.local.room.dao.OfflineAreaDao;
-import com.google.android.gnd.persistence.local.room.dao.OptionDao;
-import com.google.android.gnd.persistence.local.room.dao.ProjectDao;
-import com.google.android.gnd.persistence.local.room.dao.TileDao;
-import com.google.android.gnd.persistence.local.room.dao.UserDao;
 import com.google.android.gnd.persistence.remote.RemoteDataStore;
 import com.google.android.gnd.persistence.remote.RemoteStorageManager;
 import com.google.android.gnd.persistence.remote.firestore.FirestoreDataStore;
 import com.google.android.gnd.persistence.remote.firestore.FirestoreStorageManager;
 import com.google.android.gnd.persistence.remote.firestore.FirestoreUuidGenerator;
 import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator;
+import com.google.android.gnd.rx.RxSchedulers;
+import com.google.android.gnd.rx.Schedulers;
 import com.google.android.gnd.ui.common.ViewModelModule;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreSettings;
@@ -66,15 +53,14 @@ abstract class GndApplicationModule {
   @ContributesAndroidInjector(modules = MainActivityModule.class)
   abstract MainActivity mainActivityInjector();
 
-  /** Provides the Room implementation of local data store. */
-  @Binds
-  @Singleton
-  abstract LocalDataStore localDataStore(RoomLocalDataStore ds);
-
   /** Provides the Firestore implementation of remote data store. */
   @Binds
   @Singleton
   abstract RemoteDataStore remoteDataStore(FirestoreDataStore ds);
+
+  @Binds
+  @Singleton
+  abstract Schedulers schedulers(RxSchedulers rxSchedulers);
 
   /** Provides the Firestore implementation of offline unique id generation. */
   @Binds
@@ -140,73 +126,8 @@ abstract class GndApplicationModule {
   @Singleton
   static LocalDatabase localDatabase(Context context) {
     return Room.databaseBuilder(context, LocalDatabase.class, Config.DB_NAME)
-        // TODO(#128): Disable before official release.
-        .fallbackToDestructiveMigration()
-        .build();
-  }
-
-  @Provides
-  static FeatureDao featureDao(LocalDatabase localDatabase) {
-    return localDatabase.featureDao();
-  }
-
-  @Provides
-  static FeatureMutationDao featureMutationDao(LocalDatabase localDatabase) {
-    return localDatabase.featureMutationDao();
-  }
-
-  @Provides
-  static FieldDao fieldDao(LocalDatabase localDatabase) {
-    return localDatabase.fieldDao();
-  }
-
-  @Provides
-  static FormDao formDao(LocalDatabase localDatabase) {
-    return localDatabase.formDao();
-  }
-
-  @Provides
-  static LayerDao layerDao(LocalDatabase localDatabase) {
-    return localDatabase.layerDao();
-  }
-
-  @Provides
-  static MultipleChoiceDao multipleChoiceDao(LocalDatabase localDatabase) {
-    return localDatabase.multipleChoiceDao();
-  }
-
-  @Provides
-  static OptionDao optionDao(LocalDatabase localDatabase) {
-    return localDatabase.optionDao();
-  }
-
-  @Provides
-  static ProjectDao projectDao(LocalDatabase localDatabase) {
-    return localDatabase.projectDao();
-  }
-
-  @Provides
-  static ObservationDao observationDao(LocalDatabase localDatabase) {
-    return localDatabase.observationDao();
-  }
-
-  @Provides
-  static ObservationMutationDao observationMutationDao(LocalDatabase localDatabase) {
-    return localDatabase.observationMutationDao();
-  }
-
-  @Provides
-  static TileDao tileDao(LocalDatabase localDatabase) {
-    return localDatabase.tileDao();
-  }
-
-  @Provides
-  static OfflineAreaDao offlineAreaDao(LocalDatabase localDatabase) {
-    return localDatabase.offlineAreaDao();
-  }
-
-  @Provides
-  static UserDao userDao(LocalDatabase localDatabase) {
-    return localDatabase.userDao();
+      // TODO(#128): Disable before official release.
+      .fallbackToDestructiveMigration()
+      .build();
   }
 }
