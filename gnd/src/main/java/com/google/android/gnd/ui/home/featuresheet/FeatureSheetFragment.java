@@ -35,8 +35,8 @@ import javax.inject.Inject;
 
 public class FeatureSheetFragment extends AbstractFragment {
 
-  @BindView(R.id.feature_header_icon)
-  ImageView featureHeaderIcon;
+//  @BindView(R.id.feature_header_icon)
+//  ImageView featureHeaderIcon;
 
   @BindView(R.id.observation_list_container)
   View observationListContainer;

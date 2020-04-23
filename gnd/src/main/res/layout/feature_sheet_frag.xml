@@ -17,7 +17,7 @@
   -->
 
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-  xmlns:app="http://schemas.android.com/apk/res-auto">
+  xmlns:tools="http://schemas.android.com/tools">
 
   <data>
     <variable
@@ -28,37 +28,15 @@
   <FrameLayout
       android:layout_width="match_parent"
       android:layout_height="match_parent"
-      android:clickable="true">
-
-    <!--
-      Observation list background scrim. Used to fill space behind list
-      when list doesn't extend to bottom of screen.
-    -->
-    <FrameLayout
-      android:layout_width="match_parent"
-      android:layout_height="match_parent"
-      android:layout_marginTop="@dimen/feature_sheet_margin_top"
-      android:layout_gravity="top"
-      android:background="@color/colorBackground"/>
-
-    <LinearLayout
-        android:id="@+id/feature_sheet_card_contents"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="top"
-        android:orientation="vertical">
-
-      <include
-          app:viewModel="@{viewModel}"
-          layout="@layout/feature_sheet_header" />
+      android:clickable="true"
+      android:background="@color/colorBackground">
 
       <fragment
         android:id="@+id/observation_list_frag"
         android:name="com.google.android.gnd.ui.home.featuresheet.ObservationListFragment"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-
-    </LinearLayout>
+        android:layout_height="wrap_content"
+        tools:layout="@layout/observation_list_frag"/>
 
   </FrameLayout>
 </layout>

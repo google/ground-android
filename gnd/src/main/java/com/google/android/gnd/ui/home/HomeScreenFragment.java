@@ -23,6 +23,7 @@ import static com.google.android.gnd.ui.util.ViewUtil.getScreenWidth;
 import android.app.ProgressDialog;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -34,7 +35,6 @@ import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.view.GravityCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -56,6 +56,7 @@ import com.google.android.gnd.ui.common.BottomSheetBehavior;
 import com.google.android.gnd.ui.common.EphemeralPopups;
 import com.google.android.gnd.ui.common.ProgressDialogs;
 import com.google.android.gnd.ui.common.TwoLineToolbar;
+import com.google.android.gnd.ui.home.featuresheet.FeatureSheetViewModel;
 import com.google.android.gnd.ui.home.mapcontainer.MapContainerFragment;
 import com.google.android.gnd.ui.projectselector.ProjectSelectorDialogFragment;
 import com.google.android.gnd.ui.projectselector.ProjectSelectorViewModel;
@@ -77,7 +78,7 @@ public class HomeScreenFragment extends AbstractFragment
     implements BackPressListener, OnNavigationItemSelectedListener, OnGlobalLayoutListener {
   // TODO: It's not obvious which feature are in HomeScreen vs MapContainer; make this more
   // intuitive.
-  private static final float COLLAPSED_MAP_ASPECT_RATIO = 3.0f / 2.0f;
+  private static final float COLLAPSED_MAP_ASPECT_RATIO = 4.0f / 3.0f;
 
   @Inject AddFeatureDialogFragment addFeatureDialogFragment;
   @Inject AuthenticationManager authenticationManager;
@@ -98,9 +99,6 @@ public class HomeScreenFragment extends AbstractFragment
   @BindView(R.id.nav_view)
   NavigationView navView;
 
-  @BindView(R.id.bottom_sheet_header)
-  ViewGroup bottomSheetHeader;
-
   @BindView(R.id.bottom_sheet_scroll_view)
   View bottomSheetScrollView;
 
@@ -112,12 +110,14 @@ public class HomeScreenFragment extends AbstractFragment
 
   private ProgressDialog progressDialog;
   private HomeScreenViewModel viewModel;
+  private FeatureSheetViewModel featureSheetViewModel;
   private MapContainerFragment mapContainerFragment;
   private BottomSheetBehavior<View> bottomSheetBehavior;
   private PublishSubject<Object> showFeatureDialogRequests;
   private ProjectSelectorDialogFragment projectSelectorDialogFragment;
   private ProjectSelectorViewModel projectSelectorViewModel;
   private List<Project> projects;
+  @Nullable private WindowInsetsCompat insets;
 
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -132,6 +132,8 @@ public class HomeScreenFragment extends AbstractFragment
         .observe(this, e -> e.ifUnhandled(this::onShowAddFeatureDialogRequest));
     viewModel.getFeatureSheetState().observe(this, this::onFeatureSheetStateChange);
     viewModel.getOpenDrawerRequests().observe(this, e -> e.ifUnhandled(this::openDrawer));
+
+    featureSheetViewModel = getViewModel(FeatureSheetViewModel.class);
 
     showFeatureDialogRequests = PublishSubject.create();
 
@@ -153,6 +155,15 @@ public class HomeScreenFragment extends AbstractFragment
 
     HomeScreenFragBinding binding = HomeScreenFragBinding.inflate(inflater, container, false);
     binding.featureSheetChrome.setViewModel(viewModel);
+    binding
+        .featureSheetHeader
+        .getRoot()
+        .setOnTouchListener(
+            (v, event) -> {
+              Log.e("!!!", "Touch: " + event);
+              return binding.bottomSheetScrollView.dispatchTouchEvent(event);
+            });
+    binding.setFeatureSheetViewModel(featureSheetViewModel);
     binding.setLifecycleOwner(this);
     return binding.getRoot();
   }
@@ -174,22 +185,6 @@ public class HomeScreenFragment extends AbstractFragment
     } else {
       mapContainerFragment = restoreChildFragment(savedInstanceState, MapContainerFragment.class);
     }
-  }
-
-  /**
-   * Set the height of the bottom sheet so it completely fills the screen when expanded.
-   */
-  private void setBottomSheetHeight() {
-    CoordinatorLayout.LayoutParams params =
-        (CoordinatorLayout.LayoutParams) bottomSheetScrollView.getLayoutParams();
-
-    int screenHeight = getScreenHeight(getActivity());
-    int statusBarHeight = statusBarScrim.getHeight();
-    int toolbarHeight = toolbar.getHeight();
-    int headerHeight = bottomSheetHeader.getHeight();
-
-    params.height = headerHeight + (screenHeight - (toolbarHeight + statusBarHeight));
-    bottomSheetScrollView.setLayoutParams(params);
   }
 
   /** Fetches offline saved projects and adds them to navigation drawer. */
@@ -238,17 +233,17 @@ public class HomeScreenFragment extends AbstractFragment
 
   @Override
   public void onGlobalLayout() {
-    if (toolbarWrapper == null || bottomSheetBehavior == null || bottomSheetHeader == null) {
+    if (toolbarWrapper == null || bottomSheetBehavior == null || insets == null) {
       return;
     }
     bottomSheetBehavior.setFitToContents(false);
 
     // When the bottom sheet is expanded, the bottom edge of the header needs to be aligned with
     // the bottom edge of the toolbar (the header slides up under it).
-    bottomSheetBehavior.setExpandedOffset(
-        toolbarWrapper.getHeight() - bottomSheetHeader.getHeight());
+    bottomSheetBehavior.setExpandedOffset(toolbarWrapper.getHeight());
 
-    setBottomSheetHeight();
+    bottomSheetBehavior.setPeekHeight(getBottomSheetPeekHeight(insets));
+
     getView().getViewTreeObserver().removeOnGlobalLayoutListener(this);
   }
 
@@ -316,11 +311,11 @@ public class HomeScreenFragment extends AbstractFragment
   }
 
   private void onApplyWindowInsets(WindowInsetsCompat insets) {
+    this.insets = insets;
     statusBarScrim.setPadding(0, insets.getSystemWindowInsetTop(), 0, 0);
     toolbarWrapper.setPadding(0, insets.getSystemWindowInsetTop(), 0, 0);
     bottomSheetBottomInsetScrim.setMinimumHeight(insets.getSystemWindowInsetBottom());
     updateNavViewInsets(insets);
-    updateBottomSheetPeekHeight(insets);
   }
 
   private void updateNavViewInsets(WindowInsetsCompat insets) {
@@ -328,18 +323,13 @@ public class HomeScreenFragment extends AbstractFragment
     headerView.setPadding(0, insets.getSystemWindowInsetTop(), 0, 0);
   }
 
-  private void updateBottomSheetPeekHeight(WindowInsetsCompat insets) {
-    double width =
-        getScreenWidth(getActivity())
-            + insets.getSystemWindowInsetLeft()
-            + insets.getSystemWindowInsetRight();
-    double height =
-        getScreenHeight(getActivity())
-            + insets.getSystemWindowInsetTop()
-            + insets.getSystemWindowInsetBottom();
-    double mapHeight = width / COLLAPSED_MAP_ASPECT_RATIO;
-    double peekHeight = height - mapHeight;
-    bottomSheetBehavior.setPeekHeight((int) peekHeight);
+  private int getBottomSheetPeekHeight(WindowInsetsCompat insets) {
+    double screenWidth = getScreenWidth(getActivity());
+    double screenHeight = getScreenHeight(getActivity());
+    double collapseMapHeight = screenWidth / COLLAPSED_MAP_ASPECT_RATIO;
+    int insetTop = insets.getSystemWindowInsetTop();
+    int headerHeight = getView().findViewById(R.id.feature_sheet_header).getHeight();
+    return (int) (screenHeight - insetTop - collapseMapHeight - headerHeight);
   }
 
   private void onActiveProjectChange(Loadable<Project> project) {
@@ -473,6 +463,7 @@ public class HomeScreenFragment extends AbstractFragment
     showProjectSelector();
   }
 
+  // TODO: Rename BottomSheet* to FeatureBottomSheet for consistency.
   private class BottomSheetCallback extends BottomSheetBehavior.BottomSheetCallback {
     @Override
     public void onStateChanged(@NonNull View bottomSheet, int newState) {

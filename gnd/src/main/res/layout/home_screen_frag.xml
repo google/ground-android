@@ -19,6 +19,12 @@
   xmlns:app="http://schemas.android.com/apk/res-auto"
   xmlns:tools="http://schemas.android.com/tools">
 
+  <data>
+    <variable
+      name="featureSheetViewModel"
+      type="com.google.android.gnd.ui.home.featuresheet.FeatureSheetViewModel" />
+  </data>
+
   <FrameLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -41,7 +47,13 @@
           android:layout_height="match_parent"
           app:layout_behavior="com.google.android.gnd.ui.home.mapcontainer.MapContainerLayoutBehavior" />
 
-        <!-- TODO: Move feature sheet and chrome into separate layout files. -->
+        <!-- TODO: Move feature sheet and chrome into their own layout file. -->
+
+        <include
+          android:id="@+id/feature_sheet_header"
+          layout="@layout/feature_sheet_header"
+          app:viewModel="@{featureSheetViewModel}" />
+
         <FrameLayout
           android:id="@+id/map_scrim"
           android:layout_width="match_parent"
