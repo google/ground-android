@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google LLC
+ * Copyright 2020 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,17 +16,10 @@
 
 package com.google.android.gnd;
 
-import com.google.android.gnd.persistence.local.LocalDataStoreModule;
-import com.google.android.gnd.ui.map.MapProviderModule;
-import dagger.Component;
-import dagger.android.AndroidInjector;
-import javax.inject.Singleton;
+import android.app.Application;
 
-@Singleton
-@Component(
-    modules = {GndApplicationModule.class, MapProviderModule.class, LocalDataStoreModule.class})
-interface GndApplicationComponent extends AndroidInjector<GndApplication> {
-
-  @Component.Factory
-  interface Factory extends AndroidInjector.Factory<GndApplication> {}
-}
+/**
+ * We don't want to initialize the GndApplicationComponent for Robolectric tests. Instead, tests
+ * might want to use their own modules with testing-purpose or mocked dependencies.
+ */
+public class TestApplication extends Application {}

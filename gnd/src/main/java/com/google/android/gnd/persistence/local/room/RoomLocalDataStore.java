@@ -18,7 +18,6 @@ package com.google.android.gnd.persistence.local.room;
 
 import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList;
 import static com.google.android.gnd.util.ImmutableSetCollector.toImmutableSet;
-import static java8.util.stream.Collectors.toList;
 import static java8.util.stream.StreamSupport.stream;
 
 import androidx.room.Transaction;
@@ -186,10 +185,21 @@ public class RoomLocalDataStore implements LocalDataStore {
   }
 
   @Override
-  public Single<List<Project>> getProjects() {
+  public Single<User> getUser(String id) {
+    return userDao
+        .findById(id)
+        .doOnError(e -> Timber.e(e, "Error loading user from local db: %s", id))
+        // Fail with NoSuchElementException if not found.
+        .toSingle()
+        .map(UserEntity::toUser)
+        .subscribeOn(schedulers.io());
+  }
+
+  @Override
+  public Single<ImmutableList<Project>> getProjects() {
     return projectDao
         .getAllProjects()
-        .map(list -> stream(list).map(ProjectEntity::toProject).collect(toList()))
+        .map(list -> stream(list).map(ProjectEntity::toProject).collect(toImmutableList()))
         .subscribeOn(schedulers.io());
   }
 
@@ -199,7 +209,7 @@ public class RoomLocalDataStore implements LocalDataStore {
   }
 
   @Override
-  public Completable removeProject(Project project) {
+  public Completable deleteProject(Project project) {
     return projectDao.delete(ProjectEntity.fromProject(project)).subscribeOn(schedulers.io());
   }
 
@@ -258,9 +268,8 @@ public class RoomLocalDataStore implements LocalDataStore {
   @Override
   public Flowable<ImmutableSet<Tile>> getTilesOnceAndStream() {
     return tileDao
-        .findAll()
+        .findAllOnceAndStream()
         .map(list -> stream(list).map(TileEntity::toTile).collect(toImmutableSet()))
-        .toFlowable()
         .subscribeOn(schedulers.io());
   }
 
@@ -344,7 +353,7 @@ public class RoomLocalDataStore implements LocalDataStore {
       return Completable.complete();
     }
     ObservationMutationEntity lastMutation = mutations.get(mutations.size() - 1);
-    return loadUser(lastMutation.getUserId())
+    return getUser(lastMutation.getUserId())
         .map(user -> applyMutations(observation, mutations, user))
         .flatMapCompletable(obs -> observationDao.insertOrUpdate(obs).subscribeOn(schedulers.io()));
   }
@@ -370,21 +379,10 @@ public class RoomLocalDataStore implements LocalDataStore {
     return builder.build();
   }
 
-  @Override
-  public Single<User> loadUser(String id) {
-    return userDao
-        .findById(id)
-        .doOnError(e -> Timber.e(e, "Error loading user from local db: %s", id))
-        // Fail with NoSuchElementException if not found.
-        .toSingle()
-        .map(UserEntity::toUser)
-        .subscribeOn(schedulers.io());
-  }
-
   private Completable apply(FeatureMutation mutation) throws LocalDataStoreException {
     switch (mutation.getType()) {
       case CREATE:
-        return loadUser(mutation.getUserId())
+        return getUser(mutation.getUserId())
             .flatMapCompletable(user -> insertOrUpdateFeature(mutation, user));
       default:
         throw LocalDataStoreException.unknownMutationType(mutation.getType());
@@ -422,10 +420,10 @@ public class RoomLocalDataStore implements LocalDataStore {
   private Completable apply(ObservationMutation mutation) throws LocalDataStoreException {
     switch (mutation.getType()) {
       case CREATE:
-        return loadUser(mutation.getUserId())
+        return getUser(mutation.getUserId())
             .flatMapCompletable(user -> createObservation(mutation, user));
       case UPDATE:
-        return loadUser(mutation.getUserId())
+        return getUser(mutation.getUserId())
             .flatMapCompletable(user -> updateObservation(mutation, user));
       default:
         throw LocalDataStoreException.unknownMutationType(mutation.getType());
@@ -480,6 +478,14 @@ public class RoomLocalDataStore implements LocalDataStore {
   public Completable insertOrUpdateOfflineArea(OfflineArea area) {
     return offlineAreaDao
         .insertOrUpdate(OfflineAreaEntity.fromArea(area))
+        .subscribeOn(schedulers.io());
+  }
+
+  @Override
+  public Flowable<ImmutableList<OfflineArea>> getOfflineAreasOnceAndStream() {
+    return offlineAreaDao
+        .findAllOnceAndStream()
+        .map(areas -> stream(areas).map(OfflineAreaEntity::toArea).collect(toImmutableList()))
         .subscribeOn(schedulers.io());
   }
 }

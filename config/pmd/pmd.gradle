@@ -42,7 +42,6 @@ tasks.register("pmd", Pmd) {
 
     source 'src'
     include '**/*.java'
-    exclude '**/gen/**'
 
     reports {
         xml {

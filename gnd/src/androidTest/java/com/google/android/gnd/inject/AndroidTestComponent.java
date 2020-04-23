@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google LLC
+ * Copyright 2020 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,19 +14,12 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd;
+package com.google.android.gnd.inject;
 
 import com.google.android.gnd.persistence.local.LocalDataStoreModule;
-import com.google.android.gnd.ui.map.MapProviderModule;
 import dagger.Component;
-import dagger.android.AndroidInjector;
 import javax.inject.Singleton;
 
 @Singleton
-@Component(
-    modules = {GndApplicationModule.class, MapProviderModule.class, LocalDataStoreModule.class})
-interface GndApplicationComponent extends AndroidInjector<GndApplication> {
-
-  @Component.Factory
-  interface Factory extends AndroidInjector.Factory<GndApplication> {}
-}
+@Component(modules = {AndroidTestApplicationModule.class, LocalDataStoreModule.class})
+public interface AndroidTestComponent {}

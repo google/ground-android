@@ -26,6 +26,8 @@
 
   <exclude-pattern>.*/R.java</exclude-pattern>
   <exclude-pattern>.*/gen/.*</exclude-pattern>
+  <exclude-pattern>.*/test/.*</exclude-pattern>
+  <exclude-pattern>.*/androidTest/.*</exclude-pattern>
 
   <rule ref="category/java/bestpractices.xml">
     <exclude name="AbstractClassWithoutAbstractMethod" />
