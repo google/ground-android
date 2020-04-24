@@ -41,6 +41,7 @@ import com.google.android.gnd.ui.common.EphemeralPopups;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.TwoLineToolbar;
 import com.google.android.gnd.ui.editobservation.field.FieldFactory;
+import com.google.android.gnd.ui.editobservation.field.FieldView;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import java8.util.Optional;
 import javax.inject.Inject;
@@ -95,8 +96,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
         .observe(getViewLifecycleOwner(), e -> e.ifUnhandled(this::handleSaveResult));
     // Initialize view model.
     viewModel.initialize(EditObservationFragmentArgs.fromBundle(getArguments()));
-    fieldFactory =
-        new FieldFactory(getLayoutInflater(), formLayout, viewModel, this, viewModelFactory);
+    fieldFactory = new FieldFactory(getContext(), viewModel, this, viewModelFactory);
   }
 
   private void handleSaveResult(EditObservationViewModel.SaveResult saveResult) {
@@ -123,7 +123,10 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
     for (Element element : form.getElements()) {
       switch (element.getType()) {
         case FIELD:
-          fieldFactory.addField(element.getField());
+          FieldView fieldView = fieldFactory.addField(element.getField());
+          if (fieldView != null) {
+            formLayout.addView(fieldView);
+          }
           break;
         default:
           Timber.d("%s elements not yet supported", element.getType());
