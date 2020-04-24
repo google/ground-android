@@ -27,7 +27,6 @@ import androidx.annotation.Nullable;
 import butterknife.BindView;
 import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.R;
-import com.google.android.gnd.databinding.EditObservationBottomSheetBinding;
 import com.google.android.gnd.databinding.EditObservationFragBinding;
 import com.google.android.gnd.inject.ActivityScoped;
 import com.google.android.gnd.model.form.Element;
@@ -40,7 +39,8 @@ import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.TwoLineToolbar;
 import com.google.android.gnd.ui.editobservation.field.FieldFactory;
 import com.google.android.gnd.ui.editobservation.field.FieldView;
-import com.google.android.material.bottomsheet.BottomSheetDialog;
+import java.util.ArrayList;
+import java.util.List;
 import javax.inject.Inject;
 import timber.log.Timber;
 
@@ -57,9 +57,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
 
   private EditObservationViewModel viewModel;
   private FieldFactory fieldFactory;
-
-  @Nullable private EditObservationBottomSheetBinding addPhotoBottomSheetBinding;
-  @Nullable private BottomSheetDialog bottomSheetDialog;
+  private List<FieldView> fieldViews = new ArrayList<>();
 
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -113,11 +111,17 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
 
   private void rebuildForm(Form form) {
     formLayout.removeAllViews();
+    fieldViews.clear();
+
     for (Element element : form.getElements()) {
       switch (element.getType()) {
         case FIELD:
-          FieldView fieldView = fieldFactory.addField(element.getField());
-          if (fieldView != null) {
+          Field field = element.getField();
+          if (field == null) {
+            throw new IllegalStateException("Field is null : " + element.getType());
+          } else {
+            FieldView fieldView = fieldFactory.createFieldView(field);
+            fieldViews.add(fieldView);
             formLayout.addView(fieldView);
           }
           break;
@@ -128,29 +132,11 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
     }
   }
 
-  public void onShowPhotoSelectorDialog(Field field) {
-    if (addPhotoBottomSheetBinding == null) {
-      addPhotoBottomSheetBinding = EditObservationBottomSheetBinding.inflate(getLayoutInflater());
-      addPhotoBottomSheetBinding.setViewModel(viewModel);
-    }
-    addPhotoBottomSheetBinding.setField(field);
-
-    if (bottomSheetDialog == null) {
-      bottomSheetDialog = new BottomSheetDialog(getContext());
-      bottomSheetDialog.setContentView(addPhotoBottomSheetBinding.getRoot());
-    }
-
-    if (!bottomSheetDialog.isShowing()) {
-      bottomSheetDialog.show();
-    }
-  }
-
   @Override
   public void onPause() {
-    if (bottomSheetDialog != null && bottomSheetDialog.isShowing()) {
-      bottomSheetDialog.dismiss();
+    for (FieldView fieldView : fieldViews) {
+      fieldView.onPause();
     }
-
     super.onPause();
   }
 

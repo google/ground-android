@@ -21,14 +21,11 @@
 
   <data>
     <variable
-      name="field"
-      type="com.google.android.gnd.model.form.Field" />
-    <variable
-      name="fragment"
-      type="com.google.android.gnd.ui.editobservation.EditObservationFragment" />
-    <variable
       name="viewModel"
       type="com.google.android.gnd.ui.editobservation.PhotoFieldViewModel" />
+    <variable
+      name="fieldView"
+      type="com.google.android.gnd.ui.editobservation.field.PhotoFieldView" />
   </data>
 
   <LinearLayout
@@ -52,7 +49,7 @@
       android:layout_height="wrap_content"
       android:layout_marginTop="@dimen/field_vertical_margin"
       android:background="@android:color/transparent"
-      android:onClick="@{()-> fragment.onShowPhotoSelectorDialog(field)}"
+      android:onClick="@{()-> fieldView.onShowDialog()}"
       android:text="@string/add_photo"
       android:textColor="@color/colorAccent" />
   </LinearLayout>

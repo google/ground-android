@@ -1,10 +1,9 @@
 package com.google.android.gnd.ui.editobservation.field;
 
-import androidx.annotation.Nullable;
+import androidx.annotation.NonNull;
 import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.ui.common.ViewModelFactory;
 import com.google.android.gnd.ui.editobservation.EditObservationFragment;
-import timber.log.Timber;
 
 public class FieldFactory {
 
@@ -17,23 +16,21 @@ public class FieldFactory {
     this.viewModelFactory = viewModelFactory;
   }
 
-  @Nullable
-  public FieldView addField(Field field) {
+  @NonNull
+  public FieldView createFieldView(Field field) {
     FieldView fieldView = null;
     switch (field.getType()) {
       case TEXT:
         fieldView = new TextFieldView(viewModelFactory, editObservationFragment, field);
         break;
       case MULTIPLE_CHOICE:
-        fieldView =
-            new MultipleChoiceFieldView(viewModelFactory, editObservationFragment, field);
+        fieldView = new MultipleChoiceFieldView(viewModelFactory, editObservationFragment, field);
         break;
       case PHOTO:
         fieldView = new PhotoFieldView(viewModelFactory, editObservationFragment, field);
         break;
       default:
-        Timber.w("Unimplemented field type: %s", field.getType());
-        break;
+        throw new IllegalStateException("Unimplemented field type: " + field.getType());
     }
     return fieldView;
   }

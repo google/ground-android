@@ -9,6 +9,7 @@ import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.ViewModelFactory;
 import com.google.android.gnd.ui.editobservation.EditObservationViewModel;
 import com.google.android.gnd.ui.util.ViewUtil;
+import javax.annotation.OverridingMethodsMustInvokeSuper;
 
 public abstract class FieldView extends FrameLayout {
 
@@ -44,4 +45,7 @@ public abstract class FieldView extends FrameLayout {
   protected <T extends ViewModel> T createViewModel(Class<T> modelClass) {
     return viewModelFactory.create(modelClass);
   }
+
+  @OverridingMethodsMustInvokeSuper
+  public void onPause() {}
 }
