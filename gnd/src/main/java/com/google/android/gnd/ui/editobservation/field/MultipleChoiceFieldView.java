@@ -26,7 +26,7 @@ public class MultipleChoiceFieldView extends FieldView {
     binding.setField(field);
   }
 
-  public void onShowDialog(Field field) {
+  public void onShowDialog() {
     Cardinality cardinality = field.getMultipleChoice().getCardinality();
     Optional<Response> currentResponse = getEditObservationViewModel().getResponse(field.getId());
     switch (cardinality) {

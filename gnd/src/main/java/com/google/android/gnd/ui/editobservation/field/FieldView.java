@@ -12,8 +12,8 @@ import com.google.android.gnd.ui.util.ViewUtil;
 
 public abstract class FieldView extends FrameLayout {
 
+  protected final Field field;
   private final ViewModelFactory viewModelFactory;
-  private final Field field;
   private final AbstractFragment fragment;
 
   public FieldView(ViewModelFactory viewModelFactory, Field field, AbstractFragment fragment) {
