@@ -33,15 +33,15 @@ import java8.util.function.Consumer;
 import java8.util.stream.IntStreams;
 
 // TODO: Replace with modal bottom sheet.
-class MultiSelectDialogFactory {
+public class MultiSelectDialogFactory {
 
   private Context context;
 
-  MultiSelectDialogFactory(Context context) {
+  public MultiSelectDialogFactory(Context context) {
     this.context = context;
   }
 
-  AlertDialog create(
+  public AlertDialog create(
       Field field,
       Optional<Response> initialResponse,
       Consumer<Optional<Response>> responseChangeCallback) {

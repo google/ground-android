@@ -21,14 +21,14 @@
   xmlns:tools="http://schemas.android.com/tools">
   <data>
     <variable
-      name="fragment"
-      type="com.google.android.gnd.ui.editobservation.EditObservationFragment" />
-    <variable
       name="field"
       type="com.google.android.gnd.model.form.Field" />
     <variable
       name="viewModel"
       type="com.google.android.gnd.ui.editobservation.EditObservationViewModel" />
+    <variable
+      name="fieldView"
+      type="com.google.android.gnd.ui.editobservation.field.MultipleChoiceFieldView" />
   </data>
 
   <com.google.android.gnd.ui.editobservation.MultipleChoiceFieldLayout
@@ -40,7 +40,7 @@
     android:layout_marginEnd="@dimen/field_horizontal_margin"
     android:layout_marginLeft="@dimen/field_horizontal_margin"
     android:layout_marginRight="@dimen/field_horizontal_margin"
-    app:onShowDialog="@{() -> fragment.onShowDialog(field)}">
+    app:onShowDialog="@{() -> fieldView.onShowDialog(field)}">
 
     <com.google.android.material.textfield.TextInputLayout
       android:id="@+id/multiple_choice_input_layout"

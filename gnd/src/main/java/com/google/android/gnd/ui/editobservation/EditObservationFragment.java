@@ -33,8 +33,6 @@ import com.google.android.gnd.inject.ActivityScoped;
 import com.google.android.gnd.model.form.Element;
 import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.form.Form;
-import com.google.android.gnd.model.form.MultipleChoice.Cardinality;
-import com.google.android.gnd.model.observation.Response;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.BackPressListener;
 import com.google.android.gnd.ui.common.EphemeralPopups;
@@ -43,7 +41,6 @@ import com.google.android.gnd.ui.common.TwoLineToolbar;
 import com.google.android.gnd.ui.editobservation.field.FieldFactory;
 import com.google.android.gnd.ui.editobservation.field.FieldView;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
-import java8.util.Optional;
 import javax.inject.Inject;
 import timber.log.Timber;
 
@@ -59,8 +56,6 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
   LinearLayout formLayout;
 
   private EditObservationViewModel viewModel;
-  private SingleSelectDialogFactory singleSelectDialogFactory;
-  private MultiSelectDialogFactory multiSelectDialogFactory;
   private FieldFactory fieldFactory;
 
   @Nullable private EditObservationBottomSheetBinding addPhotoBottomSheetBinding;
@@ -69,8 +64,6 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    singleSelectDialogFactory = new SingleSelectDialogFactory(getContext());
-    multiSelectDialogFactory = new MultiSelectDialogFactory(getContext());
     viewModel = getViewModel(EditObservationViewModel.class);
   }
 
@@ -132,26 +125,6 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
           Timber.d("%s elements not yet supported", element.getType());
           break;
       }
-    }
-  }
-
-  public void onShowDialog(Field field) {
-    Cardinality cardinality = field.getMultipleChoice().getCardinality();
-    Optional<Response> currentResponse = viewModel.getResponse(field.getId());
-    switch (cardinality) {
-      case SELECT_MULTIPLE:
-        multiSelectDialogFactory
-            .create(field, currentResponse, r -> viewModel.onResponseChanged(field, r))
-            .show();
-        break;
-      case SELECT_ONE:
-        singleSelectDialogFactory
-            .create(field, currentResponse, r -> viewModel.onResponseChanged(field, r))
-            .show();
-        break;
-      default:
-        Timber.e("Unknown cardinality: %s", cardinality);
-        break;
     }
   }
 
