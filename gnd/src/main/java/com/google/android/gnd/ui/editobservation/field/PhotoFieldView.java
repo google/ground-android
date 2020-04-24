@@ -18,7 +18,7 @@ public class PhotoFieldView extends FieldView {
       EditObservationViewModel viewModel,
       Field field,
       LifecycleOwner lifecycleOwner) {
-    super(context);
+    super(context, viewModelFactory, field);
     PhotoInputFieldBinding binding =
         PhotoInputFieldBinding.inflate(getLayoutInflater(), this, false);
     binding.setFragment(editObservationFragment);

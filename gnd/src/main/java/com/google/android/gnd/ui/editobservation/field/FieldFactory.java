@@ -36,12 +36,18 @@ public class FieldFactory {
     FieldView fieldView = null;
     switch (field.getType()) {
       case TEXT:
-        fieldView = new TextFieldView(context, viewModel, field, getLifecycleOwner());
+        fieldView =
+            new TextFieldView(context, viewModelFactory, viewModel, field, getLifecycleOwner());
         break;
       case MULTIPLE_CHOICE:
         fieldView =
             new MultipleChoiceFieldView(
-                context, editObservationFragment, viewModel, field, getLifecycleOwner());
+                context,
+                viewModelFactory,
+                editObservationFragment,
+                viewModel,
+                field,
+                getLifecycleOwner());
         break;
       case PHOTO:
         fieldView =
