@@ -16,8 +16,6 @@
 
 package com.google.android.gnd.ui.editobservation;
 
-import static com.google.android.gnd.ui.util.ViewUtil.assignGeneratedId;
-
 import android.app.AlertDialog;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -31,9 +29,6 @@ import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.EditObservationBottomSheetBinding;
 import com.google.android.gnd.databinding.EditObservationFragBinding;
-import com.google.android.gnd.databinding.MultipleChoiceInputFieldBinding;
-import com.google.android.gnd.databinding.PhotoInputFieldBinding;
-import com.google.android.gnd.databinding.TextInputFieldBinding;
 import com.google.android.gnd.inject.ActivityScoped;
 import com.google.android.gnd.model.form.Element;
 import com.google.android.gnd.model.form.Field;
@@ -45,6 +40,7 @@ import com.google.android.gnd.ui.common.BackPressListener;
 import com.google.android.gnd.ui.common.EphemeralPopups;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.TwoLineToolbar;
+import com.google.android.gnd.ui.editobservation.field.FieldFactory;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import java8.util.Optional;
 import javax.inject.Inject;
@@ -64,6 +60,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
   private EditObservationViewModel viewModel;
   private SingleSelectDialogFactory singleSelectDialogFactory;
   private MultiSelectDialogFactory multiSelectDialogFactory;
+  private FieldFactory fieldFactory;
 
   @Nullable private EditObservationBottomSheetBinding addPhotoBottomSheetBinding;
   @Nullable private BottomSheetDialog bottomSheetDialog;
@@ -98,6 +95,8 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
         .observe(getViewLifecycleOwner(), e -> e.ifUnhandled(this::handleSaveResult));
     // Initialize view model.
     viewModel.initialize(EditObservationFragmentArgs.fromBundle(getArguments()));
+    fieldFactory =
+        new FieldFactory(getLayoutInflater(), formLayout, viewModel, this, viewModelFactory);
   }
 
   private void handleSaveResult(EditObservationViewModel.SaveResult saveResult) {
@@ -124,65 +123,13 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
     for (Element element : form.getElements()) {
       switch (element.getType()) {
         case FIELD:
-          addField(element.getField());
+          fieldFactory.addField(element.getField());
           break;
         default:
           Timber.d("%s elements not yet supported", element.getType());
           break;
       }
     }
-  }
-
-  private void addField(Field field) {
-    switch (field.getType()) {
-      case TEXT:
-        addTextField(field);
-        break;
-      case MULTIPLE_CHOICE:
-        addMultipleChoiceField(field);
-        break;
-      case PHOTO:
-        addPhotoField(field);
-        break;
-      default:
-        Timber.w("Unimplemented field type: %s", field.getType());
-        break;
-    }
-  }
-
-  private void addTextField(Field field) {
-    TextInputFieldBinding binding =
-        TextInputFieldBinding.inflate(getLayoutInflater(), formLayout, false);
-    binding.setViewModel(viewModel);
-    binding.setLifecycleOwner(this);
-    binding.setField(field);
-    formLayout.addView(binding.getRoot());
-    assignGeneratedId(binding.getRoot().findViewById(R.id.text_input_edit_text));
-  }
-
-  private void addMultipleChoiceField(Field field) {
-    MultipleChoiceInputFieldBinding binding =
-        MultipleChoiceInputFieldBinding.inflate(getLayoutInflater(), formLayout, false);
-    binding.setFragment(this);
-    binding.setViewModel(viewModel);
-    binding.setLifecycleOwner(this);
-    binding.setField(field);
-    formLayout.addView(binding.getRoot());
-    assignGeneratedId(binding.getRoot().findViewById(R.id.multiple_choice_input_edit_text));
-  }
-
-  private void addPhotoField(Field field) {
-    PhotoInputFieldBinding binding =
-        PhotoInputFieldBinding.inflate(getLayoutInflater(), formLayout, false);
-    binding.setLifecycleOwner(this);
-    binding.setField(field);
-    binding.setFragment(this);
-
-    PhotoFieldViewModel photoFieldViewModel = viewModelFactory.create(PhotoFieldViewModel.class);
-    photoFieldViewModel.init(field, viewModel.getResponses());
-    binding.setViewModel(photoFieldViewModel);
-
-    formLayout.addView(binding.getRoot());
   }
 
   public void onShowDialog(Field field) {
