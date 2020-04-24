@@ -96,7 +96,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
         .observe(getViewLifecycleOwner(), e -> e.ifUnhandled(this::handleSaveResult));
     // Initialize view model.
     viewModel.initialize(EditObservationFragmentArgs.fromBundle(getArguments()));
-    fieldFactory = new FieldFactory(getContext(), viewModel, this, viewModelFactory);
+    fieldFactory = new FieldFactory(this, viewModelFactory);
   }
 
   private void handleSaveResult(EditObservationViewModel.SaveResult saveResult) {

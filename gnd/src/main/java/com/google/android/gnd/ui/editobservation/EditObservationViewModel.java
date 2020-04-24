@@ -47,6 +47,7 @@ import com.google.android.gnd.system.AuthenticationManager;
 import com.google.android.gnd.system.CameraManager;
 import com.google.android.gnd.system.StorageManager;
 import com.google.android.gnd.ui.common.AbstractViewModel;
+import com.google.android.gnd.ui.common.SharedViewModel;
 import com.google.common.collect.ImmutableList;
 import io.reactivex.Completable;
 import io.reactivex.Single;
@@ -60,6 +61,7 @@ import javax.inject.Inject;
 import timber.log.Timber;
 
 // TODO: Save draft to local db on each change.
+@SharedViewModel
 public class EditObservationViewModel extends AbstractViewModel {
 
   // TODO: Move out of id and into fragment args.
