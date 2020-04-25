@@ -79,6 +79,17 @@ android {
     dataBinding {
         enabled = true
     }
+    viewBinding {
+        enabled = true
+    }
+    sourceSets {
+        test.manifest.srcFile "src/test/AndroidManifest.xml"
+    }
+    testOptions {
+        unitTests {
+            includeAndroidResources = true
+        }
+    }
 }
 
 
@@ -126,11 +137,13 @@ dependencies {
     implementation 'com.crashlytics.sdk.android:crashlytics:2.10.1'
 
     // Dagger
-    annotationProcessor "com.google.dagger:dagger-compiler:$project.daggerVersion"
     implementation "com.google.dagger:dagger:$project.daggerVersion"
     implementation "com.google.dagger:dagger-android:$project.daggerVersion"
-    annotationProcessor "com.google.dagger:dagger-android-processor:$project.daggerVersion"
     implementation "com.google.dagger:dagger-android-support:$project.daggerVersion"
+    annotationProcessor "com.google.dagger:dagger-android-processor:$project.daggerVersion"
+    annotationProcessor "com.google.dagger:dagger-compiler:$project.daggerVersion"
+    testAnnotationProcessor "com.google.dagger:dagger-compiler:$project.daggerVersion"
+    androidTestAnnotationProcessor "com.google.dagger:dagger-compiler:$project.daggerVersion"
 
     // ButterKnife
     implementation "com.jakewharton:butterknife:$project.butterKnifeVersion"
@@ -190,6 +203,9 @@ dependencies {
     // Testing
     testImplementation 'junit:junit:4.13'
     testImplementation 'com.google.truth:truth:1.0.1'
+    testImplementation 'androidx.test:core:1.2.0'
+    testImplementation 'org.robolectric:robolectric:4.3.1'
+    testImplementation 'android.arch.core:core-testing:1.1.1'
 
     androidTestImplementation('androidx.test.espresso:espresso-core:3.1.0-alpha4', {
         exclude group: 'com.android.support', module: 'support-annotations'
