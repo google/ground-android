@@ -20,7 +20,7 @@ import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 import com.google.android.gnd.MainViewModel;
 import com.google.android.gnd.ui.editobservation.EditObservationViewModel;
-import com.google.android.gnd.ui.editobservation.PhotoFieldViewModel;
+import com.google.android.gnd.ui.editobservation.field.PhotoFieldViewModel;
 import com.google.android.gnd.ui.home.HomeScreenViewModel;
 import com.google.android.gnd.ui.home.featuresheet.FeatureSheetViewModel;
 import com.google.android.gnd.ui.home.featuresheet.ObservationListViewModel;

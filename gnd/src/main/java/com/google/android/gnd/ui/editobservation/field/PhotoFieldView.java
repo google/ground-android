@@ -6,7 +6,6 @@ import com.google.android.gnd.databinding.PhotoInputFieldBinding;
 import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.ViewModelFactory;
-import com.google.android.gnd.ui.editobservation.PhotoFieldViewModel;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 
 public class PhotoFieldView extends FieldView {

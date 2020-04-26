@@ -22,7 +22,7 @@
   <data>
     <variable
       name="viewModel"
-      type="com.google.android.gnd.ui.editobservation.PhotoFieldViewModel" />
+      type="com.google.android.gnd.ui.editobservation.field.PhotoFieldViewModel" />
     <variable
       name="fieldView"
       type="com.google.android.gnd.ui.editobservation.field.PhotoFieldView" />
