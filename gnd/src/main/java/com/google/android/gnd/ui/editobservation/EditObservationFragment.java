@@ -30,7 +30,6 @@ import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.EditObservationFragBinding;
 import com.google.android.gnd.inject.ActivityScoped;
 import com.google.android.gnd.model.form.Element;
-import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.BackPressListener;
@@ -116,14 +115,9 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
     for (Element element : form.getElements()) {
       switch (element.getType()) {
         case FIELD:
-          Field field = element.getField();
-          if (field == null) {
-            throw new IllegalStateException("Field is null : " + element.getType());
-          } else {
-            FieldView fieldView = fieldFactory.createFieldView(field);
-            fieldViews.add(fieldView);
-            formLayout.addView(fieldView);
-          }
+          FieldView fieldView = fieldFactory.createFieldView(element.getField());
+          fieldViews.add(fieldView);
+          formLayout.addView(fieldView);
           break;
         default:
           Timber.d("%s elements not yet supported", element.getType());
