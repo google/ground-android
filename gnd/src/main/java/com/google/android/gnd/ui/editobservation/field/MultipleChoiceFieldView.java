@@ -5,8 +5,8 @@ import com.google.android.gnd.databinding.MultipleChoiceInputFieldBinding;
 import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.form.MultipleChoice.Cardinality;
 import com.google.android.gnd.model.observation.Response;
+import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.ViewModelFactory;
-import com.google.android.gnd.ui.editobservation.EditObservationFragment;
 import com.google.android.gnd.ui.editobservation.MultiSelectDialogFactory;
 import com.google.android.gnd.ui.editobservation.SingleSelectDialogFactory;
 import java8.util.Optional;
@@ -16,10 +16,12 @@ public class MultipleChoiceFieldView extends FieldView {
   private AlertDialog dialog;
 
   public MultipleChoiceFieldView(
-      ViewModelFactory viewModelFactory,
-      EditObservationFragment editObservationFragment,
-      Field field) {
-    super(viewModelFactory, field, editObservationFragment);
+      ViewModelFactory viewModelFactory, Field field, AbstractFragment fragment) {
+    super(viewModelFactory, field, fragment);
+  }
+
+  @Override
+  public void onCreateView() {
     MultipleChoiceInputFieldBinding binding =
         MultipleChoiceInputFieldBinding.inflate(getLayoutInflater(), this, true);
     binding.setFieldView(this);

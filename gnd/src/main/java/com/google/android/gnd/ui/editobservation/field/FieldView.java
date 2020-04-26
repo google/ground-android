@@ -9,7 +9,6 @@ import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.ViewModelFactory;
 import com.google.android.gnd.ui.editobservation.EditObservationViewModel;
 import com.google.android.gnd.ui.util.ViewUtil;
-import javax.annotation.OverridingMethodsMustInvokeSuper;
 
 public abstract class FieldView extends FrameLayout {
 
@@ -23,6 +22,7 @@ public abstract class FieldView extends FrameLayout {
     this.field = field;
     this.fragment = fragment;
 
+    onCreateView();
     ViewUtil.assignGeneratedId(this);
   }
 
@@ -46,6 +46,9 @@ public abstract class FieldView extends FrameLayout {
     return viewModelFactory.create(modelClass);
   }
 
-  @OverridingMethodsMustInvokeSuper
+  /** Initialize layout. */
+  public abstract void onCreateView();
+
+  /** Free system resources (if needed). */
   public void onPause() {}
 }

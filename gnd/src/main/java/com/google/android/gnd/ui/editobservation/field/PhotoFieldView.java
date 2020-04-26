@@ -4,8 +4,8 @@ import androidx.annotation.Nullable;
 import com.google.android.gnd.databinding.AddPhotoBottomSheetDialogBinding;
 import com.google.android.gnd.databinding.PhotoInputFieldBinding;
 import com.google.android.gnd.model.form.Field;
+import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.ViewModelFactory;
-import com.google.android.gnd.ui.editobservation.EditObservationFragment;
 import com.google.android.gnd.ui.editobservation.PhotoFieldViewModel;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 
@@ -13,11 +13,12 @@ public class PhotoFieldView extends FieldView {
 
   @Nullable private BottomSheetDialog bottomSheetDialog;
 
-  public PhotoFieldView(
-      ViewModelFactory viewModelFactory,
-      EditObservationFragment editObservationFragment,
-      Field field) {
-    super(viewModelFactory, field, editObservationFragment);
+  public PhotoFieldView(ViewModelFactory viewModelFactory, Field field, AbstractFragment fragment) {
+    super(viewModelFactory, field, fragment);
+  }
+
+  @Override
+  public void onCreateView() {
     PhotoInputFieldBinding binding =
         PhotoInputFieldBinding.inflate(getLayoutInflater(), this, true);
     binding.setFieldView(this);
