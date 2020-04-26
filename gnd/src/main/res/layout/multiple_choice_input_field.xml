@@ -31,7 +31,7 @@
       type="com.google.android.gnd.ui.editobservation.field.MultipleChoiceFieldView" />
   </data>
 
-  <com.google.android.gnd.ui.editobservation.MultipleChoiceFieldLayout
+  <com.google.android.gnd.ui.editobservation.field.MultipleChoiceFieldLayout
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginTop="@dimen/field_vertical_margin"
@@ -86,5 +86,5 @@
       android:alpha="0"
       android:clickable="true" />
 
-  </com.google.android.gnd.ui.editobservation.MultipleChoiceFieldLayout>
+  </com.google.android.gnd.ui.editobservation.field.MultipleChoiceFieldLayout>
 </layout>
