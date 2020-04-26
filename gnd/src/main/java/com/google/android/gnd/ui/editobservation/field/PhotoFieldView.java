@@ -13,8 +13,8 @@ public class PhotoFieldView extends FieldView {
 
   @Nullable private BottomSheetDialog bottomSheetDialog;
 
-  public PhotoFieldView(ViewModelFactory viewModelFactory, Field field, AbstractFragment fragment) {
-    super(viewModelFactory, field, fragment);
+  public PhotoFieldView(ViewModelFactory viewModelFactory, AbstractFragment fragment, Field field) {
+    super(viewModelFactory, fragment, field);
   }
 
   @Override

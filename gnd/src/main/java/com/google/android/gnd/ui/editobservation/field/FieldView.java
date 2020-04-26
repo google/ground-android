@@ -16,7 +16,7 @@ public abstract class FieldView extends FrameLayout {
   private final ViewModelFactory viewModelFactory;
   private final AbstractFragment fragment;
 
-  public FieldView(ViewModelFactory viewModelFactory, Field field, AbstractFragment fragment) {
+  public FieldView(ViewModelFactory viewModelFactory, AbstractFragment fragment, Field field) {
     super(fragment.getContext());
     this.viewModelFactory = viewModelFactory;
     this.field = field;

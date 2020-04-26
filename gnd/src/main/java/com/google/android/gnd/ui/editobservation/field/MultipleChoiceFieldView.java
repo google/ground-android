@@ -16,8 +16,8 @@ public class MultipleChoiceFieldView extends FieldView {
   private AlertDialog dialog;
 
   public MultipleChoiceFieldView(
-      ViewModelFactory viewModelFactory, Field field, AbstractFragment fragment) {
-    super(viewModelFactory, field, fragment);
+      ViewModelFactory viewModelFactory, AbstractFragment fragment, Field field) {
+    super(viewModelFactory, fragment, field);
   }
 
   @Override

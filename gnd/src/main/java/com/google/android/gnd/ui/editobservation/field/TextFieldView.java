@@ -7,8 +7,8 @@ import com.google.android.gnd.ui.common.ViewModelFactory;
 
 public class TextFieldView extends FieldView {
 
-  public TextFieldView(ViewModelFactory viewModelFactory, Field field, AbstractFragment fragment) {
-    super(viewModelFactory, field, fragment);
+  public TextFieldView(ViewModelFactory viewModelFactory, AbstractFragment fragment, Field field) {
+    super(viewModelFactory, fragment, field);
   }
 
   @Override

@@ -2,32 +2,31 @@ package com.google.android.gnd.ui.editobservation.field;
 
 import androidx.annotation.NonNull;
 import com.google.android.gnd.model.form.Field;
+import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.ViewModelFactory;
-import com.google.android.gnd.ui.editobservation.EditObservationFragment;
 
 public class FieldFactory {
 
-  private final EditObservationFragment editObservationFragment;
+  private final AbstractFragment fragment;
   private final ViewModelFactory viewModelFactory;
 
-  public FieldFactory(
-      EditObservationFragment editObservationFragment, ViewModelFactory viewModelFactory) {
-    this.editObservationFragment = editObservationFragment;
+  public FieldFactory(AbstractFragment fragment, ViewModelFactory viewModelFactory) {
+    this.fragment = fragment;
     this.viewModelFactory = viewModelFactory;
   }
 
   @NonNull
   public FieldView createFieldView(Field field) {
-    FieldView fieldView = null;
+    FieldView fieldView;
     switch (field.getType()) {
       case TEXT:
-        fieldView = new TextFieldView(viewModelFactory, editObservationFragment, field);
+        fieldView = new TextFieldView(viewModelFactory, fragment, field);
         break;
       case MULTIPLE_CHOICE:
-        fieldView = new MultipleChoiceFieldView(viewModelFactory, editObservationFragment, field);
+        fieldView = new MultipleChoiceFieldView(viewModelFactory, fragment, field);
         break;
       case PHOTO:
-        fieldView = new PhotoFieldView(viewModelFactory, editObservationFragment, field);
+        fieldView = new PhotoFieldView(viewModelFactory, fragment, field);
         break;
       default:
         throw new IllegalStateException("Unimplemented field type: " + field.getType());
