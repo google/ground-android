@@ -20,7 +20,6 @@ import static com.google.android.gnd.ui.home.OnBottomSheetSlideBehavior.SheetSli
 
 import android.content.Context;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
@@ -40,10 +39,6 @@ public class BottomSheetChromeBehavior extends OnBottomSheetSlideBehavior<ViewGr
   @Override
   protected void onSheetScrolled(
       CoordinatorLayout parent, ViewGroup layout, SheetSlideMetrics metrics) {
-    // Slide feature sheet header up and down together with bottom sheet.
-    View header = parent.findViewById(R.id.feature_sheet_header);
-    header.setY(metrics.getTop() -  header.getHeight());
-
     View mapScrim = parent.findViewById(R.id.map_scrim);
     View hamburgerButton = parent.findViewById(R.id.hamburger_btn);
     View bottomSheetScrim = layout.findViewById(R.id.bottom_sheet_bottom_inset_scrim);

@@ -23,7 +23,6 @@ import static com.google.android.gnd.ui.util.ViewUtil.getScreenWidth;
 import android.app.ProgressDialog;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -155,14 +154,6 @@ public class HomeScreenFragment extends AbstractFragment
 
     HomeScreenFragBinding binding = HomeScreenFragBinding.inflate(inflater, container, false);
     binding.featureSheetChrome.setViewModel(viewModel);
-    binding
-        .featureSheetHeader
-        .getRoot()
-        .setOnTouchListener(
-            (v, event) -> {
-              Log.e("!!!", "Touch: " + event);
-              return binding.bottomSheetScrollView.dispatchTouchEvent(event);
-            });
     binding.setFeatureSheetViewModel(featureSheetViewModel);
     binding.setLifecycleOwner(this);
     return binding.getRoot();

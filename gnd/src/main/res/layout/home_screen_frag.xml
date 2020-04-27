@@ -47,12 +47,12 @@
           android:layout_height="match_parent"
           app:layout_behavior="com.google.android.gnd.ui.home.mapcontainer.MapContainerLayoutBehavior" />
 
-        <!-- TODO: Move feature sheet and chrome into their own layout file. -->
-
         <include
           android:id="@+id/feature_sheet_header"
           layout="@layout/feature_sheet_header"
           app:viewModel="@{featureSheetViewModel}" />
+
+        <!-- TODO: Move feature sheet and chrome into their own layout file. -->
 
         <FrameLayout
           android:id="@+id/map_scrim"
