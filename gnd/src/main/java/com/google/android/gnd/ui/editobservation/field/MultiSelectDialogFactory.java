@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.ui.editobservation;
+package com.google.android.gnd.ui.editobservation.field;
 
 import static java8.util.stream.StreamSupport.stream;
 
@@ -37,7 +37,7 @@ public class MultiSelectDialogFactory {
 
   private Context context;
 
-  public MultiSelectDialogFactory(Context context) {
+  MultiSelectDialogFactory(Context context) {
     this.context = context;
   }
 
@@ -68,7 +68,7 @@ public class MultiSelectDialogFactory {
 
     private boolean[] checkedItems;
 
-    public DialogState(MultipleChoice multipleChoice, Optional<Response> initialResponse) {
+    DialogState(MultipleChoice multipleChoice, Optional<Response> initialResponse) {
       ImmutableList<Option> options = multipleChoice.getOptions();
       checkedItems = new boolean[options.size()];
       // TODO: Check cast.

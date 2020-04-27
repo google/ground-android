@@ -7,8 +7,6 @@ import com.google.android.gnd.model.form.MultipleChoice.Cardinality;
 import com.google.android.gnd.model.observation.Response;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.ViewModelFactory;
-import com.google.android.gnd.ui.editobservation.MultiSelectDialogFactory;
-import com.google.android.gnd.ui.editobservation.SingleSelectDialogFactory;
 import java8.util.Optional;
 
 public class MultipleChoiceFieldView extends FieldView {

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.ui.editobservation;
+package com.google.android.gnd.ui.editobservation.field;
 
 import static java8.util.stream.StreamSupport.stream;
 
@@ -37,7 +37,7 @@ public class SingleSelectDialogFactory {
 
   private Context context;
 
-  public SingleSelectDialogFactory(Context context) {
+  SingleSelectDialogFactory(Context context) {
     this.context = context;
   }
 
@@ -68,7 +68,7 @@ public class SingleSelectDialogFactory {
 
     private int checkedItem;
 
-    public DialogState(MultipleChoice multipleChoice, Optional<Response> initialValue) {
+    DialogState(MultipleChoice multipleChoice, Optional<Response> initialValue) {
       // TODO: Check type.
       checkedItem =
           initialValue
