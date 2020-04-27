@@ -26,87 +26,58 @@
       type="com.google.android.gnd.ui.home.featuresheet.FeatureSheetViewModel" />
   </data>
 
-  <FrameLayout
+  <androidx.cardview.widget.CardView
     android:id="@+id/bottom_sheet_header"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="@dimen/feature_sheet_header_height"
+    android:layout_marginTop="@dimen/feature_sheet_margin_top"
+    app:cardBackgroundColor="@color/colorBackground"
+    app:cardCornerRadius="@dimen/feature_sheet_corner_radius"
+    android:clipChildren="false"
     app:layout_behavior="com.google.android.gnd.ui.home.featuresheet.FloatingHeaderBehavior">
-
-    <androidx.cardview.widget.CardView
-      android:id="@+id/feature_sheet_card_view"
-      android:layout_width="match_parent"
-      android:layout_height="@dimen/feature_sheet_header_height"
-      android:layout_marginTop="@dimen/feature_sheet_margin_top"
-      app:cardBackgroundColor="@color/colorBackground"
-      app:cardCornerRadius="@dimen/feature_sheet_corner_radius"
-      app:cardElevation="3dp">
-
-      <LinearLayout
-        android:id="@+id/feature_sheet_card_contents"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="top"
-        android:orientation="vertical"
-        android:paddingTop="@dimen/feature_sheet_padding_top"
-        android:paddingBottom="@dimen/feature_sheet_header_padding_bottom">
-
-        <TextView
-          android:id="@+id/feature_sheet_title"
-          android:layout_width="match_parent"
-          android:layout_height="wrap_content"
-          android:text="@{viewModel.featureTitle}"
-          android:textAlignment="center"
-          android:textAppearance="@style/TextAppearance.AppCompat.Title"
-          tools:text="Feature Sheet Title"
-          android:gravity="center_horizontal" />
-
-        <TextView
-          android:id="@+id/feature_sheet_subtitle"
-          android:layout_width="match_parent"
-          android:layout_height="wrap_content"
-          android:text="@{viewModel.featureSubtitle}"
-          android:textAlignment="center"
-          android:textColor="@color/colorGrey600"
-          android:textSize="12sp"
-          android:visibility="@{viewModel.featureSubtitleVisibility}"
-          tools:text="Feature Subtitle"
-          android:gravity="center_horizontal" />
-      </LinearLayout>
-    </androidx.cardview.widget.CardView>
-
-    <FrameLayout
-      android:layout_width="match_parent"
-      android:layout_height="1dp"
-      android:layout_gravity="bottom"
-      android:background="@color/colorGrey300"
-      android:elevation="4dp" />
-
-    <!-- HACK: Scrim to obscure bottom rounded corners -->
-    <FrameLayout
-      android:layout_width="match_parent"
-      android:layout_height="@dimen/feature_sheet_corner_radius"
-      android:layout_gravity="bottom"
-      android:background="@color/colorBackground"
-      android:elevation="3dp" />
-
-    <!-- TODO: Add drop shadow to top of circle and card -->
-    <ImageView
-      android:id="@+id/feature_header_icon_background"
-      android:layout_width="@dimen/feature_header_icon_background_diameter"
-      android:layout_height="@dimen/feature_header_icon_background_diameter"
-      android:layout_gravity="top|center_horizontal"
-      android:elevation="4dp"
-      android:src="@drawable/feature_header_icon_background_drawable" />
 
     <ImageView
       android:id="@+id/feature_header_icon"
-      android:layout_width="@dimen/feature_header_icon_width"
-      android:layout_height="@dimen/feature_header_icon_height"
+      android:layout_width="@dimen/feature_header_icon_background_diameter"
+      android:layout_height="@dimen/feature_header_icon_background_diameter"
       android:layout_gravity="top|center_horizontal"
-      android:elevation="5dp"
-      android:paddingTop="@dimen/feature_header_icon_top_padding"
       android:tint="@color/colorForeground"
+      android:translationY="@dimen/feature_header_icon_offset"
+      android:background="@drawable/bg_feature_header_icon"
+      android:scaleType="center"
       app:srcCompat="@drawable/ic_default_map_marker" />
 
-  </FrameLayout>
+    <LinearLayout
+      android:id="@+id/feature_sheet_card_contents"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_gravity="top"
+      android:orientation="vertical"
+      android:paddingTop="@dimen/feature_sheet_padding_top"
+      android:paddingBottom="@dimen/feature_sheet_header_padding_bottom">
+
+      <TextView
+        android:id="@+id/feature_sheet_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@{viewModel.featureTitle}"
+        android:textAlignment="center"
+        android:textAppearance="@style/TextAppearance.AppCompat.Title"
+        tools:text="Feature Sheet Title"
+        android:gravity="center_horizontal" />
+
+      <TextView
+        android:id="@+id/feature_sheet_subtitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@{viewModel.featureSubtitle}"
+        android:textAlignment="center"
+        android:textColor="@color/colorGrey600"
+        android:textSize="12sp"
+        android:visibility="@{viewModel.featureSubtitleVisibility}"
+        tools:text="Feature Subtitle"
+        android:gravity="center_horizontal" />
+    </LinearLayout>
+  </androidx.cardview.widget.CardView>
+
 </layout>

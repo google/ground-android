@@ -17,11 +17,15 @@
 package com.google.android.gnd.ui.home.featuresheet;
 
 import android.content.Context;
+import android.os.Build.VERSION;
+import android.os.Build.VERSION_CODES;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
+import androidx.cardview.widget.CardView;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import com.google.android.gnd.R;
 import com.google.android.gnd.ui.common.BottomSheetBehavior;
 
 /**
@@ -45,6 +49,14 @@ public class FloatingHeaderBehavior extends CoordinatorLayout.Behavior {
         header.setOnTouchListener((v, ev) -> view.dispatchTouchEvent(ev));
       }
     }
+
+    // Setting here since setting background in layout xml has no effect.
+    header.setBackgroundResource(R.drawable.bg_header_card);
+
+    // Required to allow icon to float above header.
+    if (VERSION.SDK_INT >= VERSION_CODES.LOLLIPOP) {
+      ((CardView) header).setClipToOutline(false);
+    }
     return false;
   }
 
@@ -62,16 +74,16 @@ public class FloatingHeaderBehavior extends CoordinatorLayout.Behavior {
 
     float sheetY = bottomSheet.getY();
     float sheetHeight = Math.max(parent.getHeight() - bottomSheet.getY(), 0);
+    int headerHeight = header.getHeight();
 
     // Scroll the header together with the bottom sheet. This must be done programmatically
     // because CoordinatorLayout anchors cause bottom sheet height to expand, preventing header
     // from disappearing behind toolbar.
-    header.setTranslationY(sheetY - header.getHeight());
+    header.setTranslationY(sheetY - headerHeight);
 
     // Fade out header and bottom sheet starting when bottom sheet is the same height as the
     // header to when it is completely hidden. This prevents the header from sticking out above
     // the bottom of the screen when the bottom sheet is in hidden state.
-    float headerHeight = header.getHeight();
     float alpha = Math.min(sheetHeight / headerHeight, 1.0f);
     header.setAlpha(alpha);
     bottomSheet.setAlpha(alpha);

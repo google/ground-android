@@ -20,4 +20,9 @@
   android:shape="oval">
 
   <solid android:color="@color/colorBackground"/>
+
+  <size
+    android:width="@dimen/feature_header_icon_background_diameter"
+    android:height="@dimen/feature_header_icon_background_diameter"/>
+
 </shape>
