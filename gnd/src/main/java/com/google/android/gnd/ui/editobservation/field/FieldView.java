@@ -15,15 +15,26 @@ public abstract class FieldView extends FrameLayout {
   protected final Field field;
   private final ViewModelFactory viewModelFactory;
   private final AbstractFragment fragment;
+  private final boolean editMode;
 
   public FieldView(ViewModelFactory viewModelFactory, AbstractFragment fragment, Field field) {
+    this(viewModelFactory, fragment, field, true);
+  }
+
+  public FieldView(
+      ViewModelFactory viewModelFactory, AbstractFragment fragment, Field field, boolean editMode) {
     super(fragment.getContext());
     this.viewModelFactory = viewModelFactory;
     this.field = field;
     this.fragment = fragment;
+    this.editMode = editMode;
 
     onCreateView();
     ViewUtil.assignGeneratedId(this);
+  }
+
+  public boolean isEditMode() {
+    return editMode;
   }
 
   protected LayoutInflater getLayoutInflater() {

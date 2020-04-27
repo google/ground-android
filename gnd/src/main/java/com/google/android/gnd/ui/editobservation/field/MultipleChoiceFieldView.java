@@ -20,12 +20,14 @@ public class MultipleChoiceFieldView extends FieldView {
 
   @Override
   public void onCreateView() {
-    MultipleChoiceInputFieldBinding binding =
-        MultipleChoiceInputFieldBinding.inflate(getLayoutInflater(), this, true);
-    binding.setFieldView(this);
-    binding.setViewModel(getEditObservationViewModel());
-    binding.setLifecycleOwner(getLifecycleOwner());
-    binding.setField(field);
+    if (isEditMode()) {
+      MultipleChoiceInputFieldBinding binding =
+          MultipleChoiceInputFieldBinding.inflate(getLayoutInflater(), this, true);
+      binding.setFieldView(this);
+      binding.setViewModel(getEditObservationViewModel());
+      binding.setLifecycleOwner(getLifecycleOwner());
+      binding.setField(field);
+    }
   }
 
   public void onShowDialog() {

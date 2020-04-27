@@ -13,9 +13,12 @@ public class TextFieldView extends FieldView {
 
   @Override
   public void onCreateView() {
-    TextInputFieldBinding binding = TextInputFieldBinding.inflate(getLayoutInflater(), this, true);
-    binding.setViewModel(getEditObservationViewModel());
-    binding.setField(field);
-    binding.setLifecycleOwner(getLifecycleOwner());
+    if (isEditMode()) {
+      TextInputFieldBinding binding =
+          TextInputFieldBinding.inflate(getLayoutInflater(), this, true);
+      binding.setViewModel(getEditObservationViewModel());
+      binding.setField(field);
+      binding.setLifecycleOwner(getLifecycleOwner());
+    }
   }
 }

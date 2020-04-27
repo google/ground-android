@@ -18,14 +18,16 @@ public class PhotoFieldView extends FieldView {
 
   @Override
   public void onCreateView() {
-    PhotoInputFieldBinding binding =
-        PhotoInputFieldBinding.inflate(getLayoutInflater(), this, true);
-    binding.setFieldView(this);
-    binding.setLifecycleOwner(getLifecycleOwner());
+    if (isEditMode()) {
+      PhotoInputFieldBinding binding =
+          PhotoInputFieldBinding.inflate(getLayoutInflater(), this, true);
+      binding.setFieldView(this);
+      binding.setLifecycleOwner(getLifecycleOwner());
 
-    PhotoFieldViewModel photoFieldViewModel = createViewModel(PhotoFieldViewModel.class);
-    photoFieldViewModel.init(field, getEditObservationViewModel().getResponses());
-    binding.setViewModel(photoFieldViewModel);
+      PhotoFieldViewModel photoFieldViewModel = createViewModel(PhotoFieldViewModel.class);
+      photoFieldViewModel.init(field, getEditObservationViewModel().getResponses());
+      binding.setViewModel(photoFieldViewModel);
+    }
   }
 
   public void onShowDialog() {
