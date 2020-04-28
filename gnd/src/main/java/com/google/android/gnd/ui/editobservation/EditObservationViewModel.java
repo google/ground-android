@@ -17,26 +17,21 @@
 package com.google.android.gnd.ui.editobservation;
 
 import static androidx.lifecycle.LiveDataReactiveStreams.fromPublisher;
-import static java8.util.stream.StreamSupport.stream;
 
 import android.content.res.Resources;
 import android.view.View;
-import androidx.databinding.ObservableArrayMap;
-import androidx.databinding.ObservableMap;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import com.google.android.gnd.GndApplication;
 import com.google.android.gnd.R;
 import com.google.android.gnd.model.form.Element;
 import com.google.android.gnd.model.form.Element.Type;
-import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.model.observation.ObservationMutation;
 import com.google.android.gnd.model.observation.Response;
 import com.google.android.gnd.model.observation.ResponseDelta;
 import com.google.android.gnd.model.observation.ResponseMap;
-import com.google.android.gnd.model.observation.TextResponse;
 import com.google.android.gnd.repository.ObservationRepository;
 import com.google.android.gnd.rx.Event;
 import com.google.android.gnd.rx.Nil;
@@ -85,12 +80,6 @@ public class EditObservationViewModel extends AbstractViewModel {
   /** Toolbar title, based on whether user is adding new or editing existing observation. */
   private final MutableLiveData<String> toolbarTitle = new MutableLiveData<>();
 
-  /** Original form responses, loaded when view is initialized. */
-  private final ObservableMap<String, Response> responses = new ObservableArrayMap<>();
-
-  /** Form validation errors, updated when existing for loaded and when responses change. */
-  private final ObservableMap<String, String> validationErrors = new ObservableArrayMap<>();
-
   /** Visibility of process widget shown while loading. */
   private final MutableLiveData<Integer> loadingSpinnerVisibility =
       new MutableLiveData<>(View.GONE);
@@ -105,7 +94,6 @@ public class EditObservationViewModel extends AbstractViewModel {
   /** Outcome of user clicking "Save". */
   private final LiveData<Event<SaveResult>> saveResults;
 
-  private EditObservationFragmentArgs args;
   private FieldViewModel fieldViewModel;
 
   // Internal state.
@@ -115,9 +103,6 @@ public class EditObservationViewModel extends AbstractViewModel {
 
   /** True if the observation is being added, false if editing an existing one. */
   private boolean isNew;
-
-  /** True if the photo field has been updated. */
-  private boolean isPhotoFieldUpdated;
 
   @Inject
   EditObservationViewModel(
@@ -133,14 +118,6 @@ public class EditObservationViewModel extends AbstractViewModel {
 
   private static boolean isAddObservationRequest(EditObservationFragmentArgs args) {
     return args.getObservationId().equals(ADD_OBSERVATION_ID_PLACEHOLDER);
-  }
-
-  void setFieldViewModel(FieldViewModel fieldViewModel) {
-    this.fieldViewModel = fieldViewModel;
-    fieldViewModel.setProjectId(args.getProjectId());
-    fieldViewModel.setFormId(args.getFormId());
-    fieldViewModel.setFeatureId(args.getFeatureId());
-    fieldViewModel.setObservationId(args.getObservationId());
   }
 
   public LiveData<Form> getForm() {
@@ -163,44 +140,22 @@ public class EditObservationViewModel extends AbstractViewModel {
     return toolbarTitle;
   }
 
-  public LiveData<Event<SaveResult>> getSaveResults() {
+  LiveData<Event<SaveResult>> getSaveResults() {
     return saveResults;
   }
 
-  public void initialize(EditObservationFragmentArgs args) {
-    this.args = args;
+  void initialize(FieldViewModel fieldViewModel, EditObservationFragmentArgs args) {
+    this.fieldViewModel = fieldViewModel;
+    fieldViewModel.setProjectId(args.getProjectId());
+    fieldViewModel.setFormId(args.getFormId());
+    fieldViewModel.setFeatureId(args.getFeatureId());
+    fieldViewModel.setObservationId(args.getObservationId());
+
     viewArgs.onNext(args);
   }
 
-  public ObservableMap<String, Response> getResponses() {
-    return responses;
-  }
-
-  public Optional<Response> getResponse(String fieldId) {
-    return Optional.ofNullable(responses.get(fieldId));
-  }
-
-  public ObservableMap<String, String> getValidationErrors() {
-    return validationErrors;
-  }
-
-  public void onTextChanged(Field field, String text) {
-    Timber.v("onTextChanged: %s", field.getId());
-
-    onResponseChanged(field, TextResponse.fromString(text));
-  }
-
-  public void onResponseChanged(Field field, Optional<Response> newResponse) {
-    Timber.v("onResponseChanged: %s = '%s'", field.getId(), Response.toString(newResponse));
-    newResponse.ifPresentOrElse(
-        r -> responses.put(field.getId(), r), () -> responses.remove(field.getId()));
-    updateError(field, newResponse);
-  }
-
-  public void onFocusChange(Field field, boolean hasFocus) {
-    if (!hasFocus) {
-      updateError(field);
-    }
+  private Optional<Response> getResponse(String fieldId) {
+    return Optional.ofNullable(fieldViewModel.getResponses().get(fieldId));
   }
 
   public void onSaveClick() {
@@ -224,20 +179,9 @@ public class EditObservationViewModel extends AbstractViewModel {
 
   private void onObservationLoaded(Observation observation) {
     this.originalObservation = observation;
-
-    // Photo field is updated by launching an external intent. This causes the form to reload.
-    // When that happens, we don't want to lose the unsaved changes.
-    if (isPhotoFieldUpdated) {
-      isPhotoFieldUpdated = false;
-    } else {
-      refreshResponseMap(observation);
-    }
-
-    if (isNew) {
-      validationErrors.clear();
-    } else {
-      refreshValidationErrors();
-    }
+    fieldViewModel.setForm(observation.getForm());
+    fieldViewModel.setResponses(observation.getForm(), observation.getResponses());
+    fieldViewModel.refreshValidationErrors();
     saveButtonVisibility.postValue(View.VISIBLE);
     loadingSpinnerVisibility.postValue(View.GONE);
   }
@@ -263,8 +207,8 @@ public class EditObservationViewModel extends AbstractViewModel {
       Timber.e("Save attempted before observation loaded");
       return Single.just(Event.create(SaveResult.NO_CHANGES_TO_SAVE));
     }
-    refreshValidationErrors();
-    if (fieldViewModel.hasValidationErrors() || hasValidationErrors()) {
+    fieldViewModel.refreshValidationErrors();
+    if (fieldViewModel.hasValidationErrors()) {
       return Single.just(Event.create(SaveResult.HAS_VALIDATION_ERRORS));
     }
     if (!hasUnsavedChanges()) {
@@ -299,17 +243,6 @@ public class EditObservationViewModel extends AbstractViewModel {
         .toSingleDefault(Event.create(SaveResult.SAVED));
   }
 
-  private void refreshResponseMap(Observation obs) {
-    Timber.v("Rebuilding response map");
-    responses.clear();
-    ResponseMap responses = obs.getResponses();
-    for (String fieldId : responses.fieldIds()) {
-      obs.getForm()
-          .getField(fieldId)
-          .ifPresent(field -> onResponseChanged(field, responses.getResponse(fieldId)));
-    }
-  }
-
   private ImmutableList<ResponseDelta> getResponseDeltas() {
     if (originalObservation == null) {
       Timber.e("Response diff attempted before observation loaded");
@@ -317,8 +250,6 @@ public class EditObservationViewModel extends AbstractViewModel {
     }
     Builder<ResponseDelta> deltas = ImmutableList.builder();
     ResponseMap originalResponses = originalObservation.getResponses();
-    responses.putAll(fieldViewModel.getResponses());
-    Timber.v("Responses:\n Before: %s \nAfter:  %s", originalResponses, responses);
     for (Element e : originalObservation.getForm().getElements()) {
       if (e.getType() != Type.FIELD) {
         continue;
@@ -337,35 +268,8 @@ public class EditObservationViewModel extends AbstractViewModel {
     return result;
   }
 
-  private void refreshValidationErrors() {
-    validationErrors.clear();
-    stream(originalObservation.getForm().getElements())
-        .filter(e -> e.getType().equals(Type.FIELD))
-        .map(Element::getField)
-        .forEach(this::updateError);
-  }
-
-  private void updateError(Field field) {
-    updateError(field, getResponse(field.getId()));
-  }
-
-  private void updateError(Field field, Optional<Response> response) {
-    String key = field.getId();
-    if (field.isRequired() && !response.filter(r -> !r.isEmpty()).isPresent()) {
-      Timber.d("Missing: %s", key);
-      validationErrors.put(field.getId(), resources.getString(R.string.required_field));
-    } else {
-      Timber.d("Valid: %s", key);
-      validationErrors.remove(field.getId());
-    }
-  }
-
-  public boolean hasUnsavedChanges() {
+  boolean hasUnsavedChanges() {
     return !getResponseDeltas().isEmpty();
-  }
-
-  private boolean hasValidationErrors() {
-    return !validationErrors.isEmpty();
   }
 
   /** Possible outcomes of user clicking "Save". */

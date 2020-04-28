@@ -88,8 +88,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
         .getSaveResults()
         .observe(getViewLifecycleOwner(), e -> e.ifUnhandled(this::handleSaveResult));
     // Initialize view model.
-    viewModel.initialize(EditObservationFragmentArgs.fromBundle(getArguments()));
-    viewModel.setFieldViewModel(fieldViewModel);
+    viewModel.initialize(fieldViewModel, EditObservationFragmentArgs.fromBundle(getArguments()));
     fieldFactory = new FieldFactory(this, viewModelFactory);
   }
 
@@ -113,7 +112,6 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
   }
 
   private void rebuildForm(Form form) {
-    fieldViewModel.setForm(form);
     formLayout.removeAllViews();
     fieldViews.clear();
 

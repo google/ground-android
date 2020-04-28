@@ -1,6 +1,7 @@
 package com.google.android.gnd.ui.editobservation.field;
 
 import static com.google.android.gnd.persistence.remote.firestore.FirestoreStorageManager.getRemoteDestinationPath;
+import static java8.util.stream.StreamSupport.stream;
 
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -9,6 +10,8 @@ import androidx.databinding.ObservableMap;
 import com.google.android.gnd.Config;
 import com.google.android.gnd.GndApplication;
 import com.google.android.gnd.R;
+import com.google.android.gnd.model.form.Element;
+import com.google.android.gnd.model.form.Element.Type;
 import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.model.observation.Response;
@@ -37,6 +40,7 @@ public class FieldViewModel extends AbstractViewModel {
   private String featureId;
   private String observationId;
   private Form form;
+  private boolean isPhotoFieldUpdated;
 
   @Inject
   FieldViewModel(
@@ -50,7 +54,7 @@ public class FieldViewModel extends AbstractViewModel {
     onResponseChanged(field, TextResponse.fromString(text));
   }
 
-  public void onResponseChanged(Field field, Optional<Response> newResponse) {
+  void onResponseChanged(Field field, Optional<Response> newResponse) {
     newResponse.ifPresentOrElse(
         r -> responses.put(field.getId(), r), () -> responses.remove(field.getId()));
     updateError(field, newResponse);
@@ -60,14 +64,19 @@ public class FieldViewModel extends AbstractViewModel {
     return responses;
   }
 
-  public void setResponses(ResponseMap responseMap) {
-    responses.clear();
-    for (String fieldId : responseMap.fieldIds()) {
-      responseMap.getResponse(fieldId).ifPresent(response -> responses.put(fieldId, response));
+  public void setResponses(Form form, ResponseMap responseMap) {
+    if (isPhotoFieldUpdated) {
+      isPhotoFieldUpdated = false;
+    } else {
+      responses.clear();
+      for (String fieldId : responseMap.fieldIds()) {
+        form.getField(fieldId)
+            .ifPresent(field -> onResponseChanged(field, responseMap.getResponse(fieldId)));
+      }
     }
   }
 
-  public Optional<Response> getResponse(String fieldId) {
+  Optional<Response> getResponse(String fieldId) {
     return Optional.ofNullable(responses.get(fieldId));
   }
 
@@ -77,8 +86,12 @@ public class FieldViewModel extends AbstractViewModel {
     }
   }
 
-  private void refreshValidationErrors() {
+  public void refreshValidationErrors() {
     validationErrors.clear();
+    stream(form.getElements())
+        .filter(e -> e.getType().equals(Type.FIELD))
+        .map(Element::getField)
+        .forEach(this::updateError);
   }
 
   private void updateError(Field field) {
@@ -142,7 +155,7 @@ public class FieldViewModel extends AbstractViewModel {
     String destinationPath = getRemoteDestinationPath(projectId, formId, featureId, localFileName);
 
     // TODO: Handle response after reloading view-model and remove this field
-    //    isPhotoFieldUpdated = true;
+    isPhotoFieldUpdated = true;
 
     // update observable response map
     onTextChanged(form.getField(fieldId).get(), destinationPath);
