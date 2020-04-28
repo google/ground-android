@@ -1,4 +1,4 @@
-package com.google.android.gnd.ui.editobservation.field;
+package com.google.android.gnd.ui.field;
 
 import com.google.android.gnd.databinding.TextInputFieldBinding;
 import com.google.android.gnd.model.form.Field;

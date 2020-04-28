@@ -1,4 +1,4 @@
-package com.google.android.gnd.ui.editobservation.field;
+package com.google.android.gnd.ui.field;
 
 import android.view.LayoutInflater;
 import android.widget.FrameLayout;

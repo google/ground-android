@@ -38,7 +38,7 @@ import com.google.android.gnd.rx.Nil;
 import com.google.android.gnd.system.AuthenticationManager;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.common.SharedViewModel;
-import com.google.android.gnd.ui.editobservation.field.FieldViewModel;
+import com.google.android.gnd.ui.field.FieldViewModel;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
 import io.reactivex.Single;

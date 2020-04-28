@@ -1,4 +1,4 @@
-package com.google.android.gnd.ui.editobservation.field;
+package com.google.android.gnd.ui.field;
 
 import androidx.appcompat.app.AlertDialog;
 import com.google.android.gnd.databinding.MultipleChoiceInputFieldBinding;

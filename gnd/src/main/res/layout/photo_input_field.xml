@@ -22,10 +22,10 @@
   <data>
     <variable
       name="viewModel"
-      type="com.google.android.gnd.ui.editobservation.field.PhotoFieldViewModel" />
+      type="com.google.android.gnd.ui.field.PhotoFieldViewModel" />
     <variable
       name="fieldView"
-      type="com.google.android.gnd.ui.editobservation.field.PhotoFieldView" />
+      type="com.google.android.gnd.ui.field.PhotoFieldView" />
   </data>
 
   <LinearLayout

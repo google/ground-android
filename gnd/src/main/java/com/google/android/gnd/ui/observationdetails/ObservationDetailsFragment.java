@@ -43,7 +43,7 @@ import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.EphemeralPopups;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.TwoLineToolbar;
-import com.google.android.gnd.ui.editobservation.field.PhotoFieldViewModel;
+import com.google.android.gnd.ui.field.PhotoFieldViewModel;
 import javax.inject.Inject;
 import timber.log.Timber;
 

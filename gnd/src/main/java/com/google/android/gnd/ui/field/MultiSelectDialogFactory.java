@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.ui.editobservation.field;
+package com.google.android.gnd.ui.field;
 
 import static java8.util.stream.StreamSupport.stream;
 

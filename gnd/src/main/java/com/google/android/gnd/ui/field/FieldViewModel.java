@@ -1,4 +1,4 @@
-package com.google.android.gnd.ui.editobservation.field;
+package com.google.android.gnd.ui.field;
 
 import static com.google.android.gnd.persistence.remote.firestore.FirestoreStorageManager.getRemoteDestinationPath;
 import static java8.util.stream.StreamSupport.stream;

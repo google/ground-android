@@ -25,13 +25,13 @@
       type="com.google.android.gnd.model.form.Field" />
     <variable
       name="viewModel"
-      type="com.google.android.gnd.ui.editobservation.field.FieldViewModel" />
+      type="com.google.android.gnd.ui.field.FieldViewModel" />
     <variable
       name="fieldView"
-      type="com.google.android.gnd.ui.editobservation.field.MultipleChoiceFieldView" />
+      type="com.google.android.gnd.ui.field.MultipleChoiceFieldView" />
   </data>
 
-  <com.google.android.gnd.ui.editobservation.field.MultipleChoiceFieldLayout
+  <com.google.android.gnd.ui.field.MultipleChoiceFieldLayout
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginStart="@dimen/field_horizontal_margin"
@@ -88,5 +88,5 @@
       android:clickable="true"
       android:focusable="true" />
 
-  </com.google.android.gnd.ui.editobservation.field.MultipleChoiceFieldLayout>
+  </com.google.android.gnd.ui.field.MultipleChoiceFieldLayout>
 </layout>
