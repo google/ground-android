@@ -63,7 +63,7 @@ public class PhotoFieldViewModel extends AbstractViewModel {
     return visibility;
   }
 
-  public void init(Field field, ObservableMap<String, Response> responses) {
+  void init(Field field, ObservableMap<String, Response> responses) {
     if (field.getType() != Type.PHOTO) {
       Timber.e("Not a photo type field: %s", field.getType());
       return;

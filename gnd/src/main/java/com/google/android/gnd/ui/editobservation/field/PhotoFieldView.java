@@ -25,7 +25,7 @@ public class PhotoFieldView extends FieldView {
       binding.setLifecycleOwner(getLifecycleOwner());
 
       PhotoFieldViewModel photoFieldViewModel = createViewModel(PhotoFieldViewModel.class);
-      photoFieldViewModel.init(field, getEditObservationViewModel().getResponses());
+      photoFieldViewModel.init(field, getViewModel().getResponses());
       binding.setViewModel(photoFieldViewModel);
     }
   }
