@@ -16,7 +16,7 @@ public class TextFieldView extends FieldView {
     if (isEditMode()) {
       TextInputFieldBinding binding =
           TextInputFieldBinding.inflate(getLayoutInflater(), this, true);
-      binding.setViewModel(getEditObservationViewModel());
+      binding.setViewModel(getViewModel());
       binding.setField(field);
       binding.setLifecycleOwner(getLifecycleOwner());
     }
