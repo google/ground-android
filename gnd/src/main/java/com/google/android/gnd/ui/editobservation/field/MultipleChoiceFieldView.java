@@ -24,7 +24,7 @@ public class MultipleChoiceFieldView extends FieldView {
       MultipleChoiceInputFieldBinding binding =
           MultipleChoiceInputFieldBinding.inflate(getLayoutInflater(), this, true);
       binding.setFieldView(this);
-      binding.setViewModel(getEditObservationViewModel());
+      binding.setViewModel(getViewModel());
       binding.setLifecycleOwner(getLifecycleOwner());
       binding.setField(field);
     }
@@ -32,23 +32,17 @@ public class MultipleChoiceFieldView extends FieldView {
 
   public void onShowDialog() {
     Cardinality cardinality = field.getMultipleChoice().getCardinality();
-    Optional<Response> currentResponse = getEditObservationViewModel().getResponse(field.getId());
+    Optional<Response> currentResponse = getViewModel().getResponse(field.getId());
     switch (cardinality) {
       case SELECT_MULTIPLE:
         dialog =
             new MultiSelectDialogFactory(getContext())
-                .create(
-                    field,
-                    currentResponse,
-                    r -> getEditObservationViewModel().onResponseChanged(field, r));
+                .create(field, currentResponse, r -> getViewModel().onResponseChanged(field, r));
         break;
       case SELECT_ONE:
         dialog =
             new SingleSelectDialogFactory(getContext())
-                .create(
-                    field,
-                    currentResponse,
-                    r -> getEditObservationViewModel().onResponseChanged(field, r));
+                .create(field, currentResponse, r -> getViewModel().onResponseChanged(field, r));
         break;
       default:
         throw new IllegalStateException("Unknown cardinality: " + cardinality);
