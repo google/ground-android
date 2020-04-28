@@ -7,7 +7,6 @@ import androidx.lifecycle.ViewModel;
 import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.ViewModelFactory;
-import com.google.android.gnd.ui.editobservation.EditObservationViewModel;
 import com.google.android.gnd.ui.util.ViewUtil;
 
 public abstract class FieldView extends FrameLayout {
@@ -48,10 +47,6 @@ public abstract class FieldView extends FrameLayout {
 
   protected LifecycleOwner getLifecycleOwner() {
     return fragment.getViewLifecycleOwner();
-  }
-
-  protected EditObservationViewModel getEditObservationViewModel() {
-    return getViewModel(EditObservationViewModel.class);
   }
 
   protected <T extends ViewModel> T getViewModel(Class<T> modelClass) {

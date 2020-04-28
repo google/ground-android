@@ -24,7 +24,7 @@
       type="com.google.android.gnd.model.form.Field" />
     <variable
       name="viewModel"
-      type="com.google.android.gnd.ui.editobservation.EditObservationViewModel" />
+      type="com.google.android.gnd.ui.editobservation.field.FieldViewModel" />
   </data>
 
   <LinearLayout

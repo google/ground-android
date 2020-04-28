@@ -33,7 +33,7 @@ public class PhotoFieldView extends FieldView {
   public void onShowDialog() {
     AddPhotoBottomSheetDialogBinding binding =
         AddPhotoBottomSheetDialogBinding.inflate(getLayoutInflater());
-    binding.setViewModel(getEditObservationViewModel());
+    binding.setViewModel(getViewModel());
     binding.setField(field);
 
     if (bottomSheetDialog == null) {

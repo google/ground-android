@@ -113,6 +113,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
   }
 
   private void rebuildForm(Form form) {
+    fieldViewModel.setForm(form);
     formLayout.removeAllViews();
     fieldViews.clear();
 
