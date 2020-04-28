@@ -54,7 +54,6 @@ public class FieldViewModel extends AbstractViewModel {
   private String projectId;
   private String formId;
   private String featureId;
-  private String observationId;
   private Form form;
   private boolean isPhotoFieldUpdated;
 
@@ -192,7 +191,7 @@ public class FieldViewModel extends AbstractViewModel {
   }
 
   public void setObservationId(String observationId) {
-    this.observationId = observationId;
+    // no-op
   }
 
   public void setForm(Form form) {
