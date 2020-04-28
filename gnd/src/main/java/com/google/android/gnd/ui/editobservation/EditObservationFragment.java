@@ -38,6 +38,7 @@ import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.TwoLineToolbar;
 import com.google.android.gnd.ui.editobservation.field.FieldFactory;
 import com.google.android.gnd.ui.editobservation.field.FieldView;
+import com.google.android.gnd.ui.editobservation.field.FieldViewModel;
 import java.util.ArrayList;
 import java.util.List;
 import javax.inject.Inject;
@@ -55,6 +56,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
   LinearLayout formLayout;
 
   private EditObservationViewModel viewModel;
+  private FieldViewModel fieldViewModel;
   private FieldFactory fieldFactory;
   private List<FieldView> fieldViews = new ArrayList<>();
 
@@ -62,6 +64,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     viewModel = getViewModel(EditObservationViewModel.class);
+    fieldViewModel = getViewModel(FieldViewModel.class);
   }
 
   @Override
@@ -86,6 +89,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
         .observe(getViewLifecycleOwner(), e -> e.ifUnhandled(this::handleSaveResult));
     // Initialize view model.
     viewModel.initialize(EditObservationFragmentArgs.fromBundle(getArguments()));
+    viewModel.setFieldViewModel(fieldViewModel);
     fieldFactory = new FieldFactory(this, viewModelFactory);
   }
 

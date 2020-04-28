@@ -48,7 +48,9 @@ import com.google.android.gnd.system.CameraManager;
 import com.google.android.gnd.system.StorageManager;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.common.SharedViewModel;
+import com.google.android.gnd.ui.editobservation.field.FieldViewModel;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableList.Builder;
 import io.reactivex.Completable;
 import io.reactivex.Single;
 import io.reactivex.processors.BehaviorProcessor;
@@ -113,6 +115,11 @@ public class EditObservationViewModel extends AbstractViewModel {
   private final LiveData<Event<SaveResult>> saveResults;
 
   private EditObservationFragmentArgs args;
+  private FieldViewModel fieldViewModel;
+
+  public void setFieldViewModel(FieldViewModel fieldViewModel) {
+    this.fieldViewModel = fieldViewModel;
+  }
 
   /** Possible outcomes of user clicking "Save". */
   enum SaveResult {
@@ -321,7 +328,7 @@ public class EditObservationViewModel extends AbstractViewModel {
       return Single.just(Event.create(SaveResult.NO_CHANGES_TO_SAVE));
     }
     refreshValidationErrors();
-    if (hasValidationErrors()) {
+    if (fieldViewModel.hasValidationErrors() ||  hasValidationErrors()) {
       return Single.just(Event.create(SaveResult.HAS_VALIDATION_ERRORS));
     }
     if (!hasUnsavedChanges()) {
@@ -372,8 +379,9 @@ public class EditObservationViewModel extends AbstractViewModel {
       Timber.e("Response diff attempted before observation loaded");
       return ImmutableList.of();
     }
-    ImmutableList.Builder<ResponseDelta> deltas = ImmutableList.builder();
+    Builder<ResponseDelta> deltas = ImmutableList.builder();
     ResponseMap originalResponses = originalObservation.getResponses();
+    responses.putAll(fieldViewModel.getResponses());
     Timber.v("Responses:\n Before: %s \nAfter:  %s", originalResponses, responses);
     for (Element e : originalObservation.getForm().getElements()) {
       if (e.getType() != Type.FIELD) {
