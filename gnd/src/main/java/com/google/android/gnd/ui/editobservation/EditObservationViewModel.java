@@ -108,21 +108,6 @@ public class EditObservationViewModel extends AbstractViewModel {
   private EditObservationFragmentArgs args;
   private FieldViewModel fieldViewModel;
 
-  public void setFieldViewModel(FieldViewModel fieldViewModel) {
-    this.fieldViewModel = fieldViewModel;
-    fieldViewModel.setProjectId(args.getProjectId());
-    fieldViewModel.setFormId(args.getFormId());
-    fieldViewModel.setFeatureId(args.getFeatureId());
-    fieldViewModel.setObservationId(args.getObservationId());
-  }
-
-  /** Possible outcomes of user clicking "Save". */
-  enum SaveResult {
-    HAS_VALIDATION_ERRORS,
-    NO_CHANGES_TO_SAVE,
-    SAVED
-  }
-
   // Internal state.
 
   /** Observation state loaded when view is initialized. */
@@ -144,6 +129,18 @@ public class EditObservationViewModel extends AbstractViewModel {
     this.authManager = authenticationManager;
     this.form = fromPublisher(viewArgs.switchMapSingle(this::onInitialize));
     this.saveResults = fromPublisher(saveClicks.switchMapSingle(__ -> onSave()));
+  }
+
+  private static boolean isAddObservationRequest(EditObservationFragmentArgs args) {
+    return args.getObservationId().equals(ADD_OBSERVATION_ID_PLACEHOLDER);
+  }
+
+  void setFieldViewModel(FieldViewModel fieldViewModel) {
+    this.fieldViewModel = fieldViewModel;
+    fieldViewModel.setProjectId(args.getProjectId());
+    fieldViewModel.setFormId(args.getFormId());
+    fieldViewModel.setFeatureId(args.getFeatureId());
+    fieldViewModel.setObservationId(args.getObservationId());
   }
 
   public LiveData<Form> getForm() {
@@ -243,10 +240,6 @@ public class EditObservationViewModel extends AbstractViewModel {
     }
     saveButtonVisibility.postValue(View.VISIBLE);
     loadingSpinnerVisibility.postValue(View.GONE);
-  }
-
-  private static boolean isAddObservationRequest(EditObservationFragmentArgs args) {
-    return args.getObservationId().equals(ADD_OBSERVATION_ID_PLACEHOLDER);
   }
 
   private Single<Observation> createObservation(EditObservationFragmentArgs args) {
@@ -373,5 +366,12 @@ public class EditObservationViewModel extends AbstractViewModel {
 
   private boolean hasValidationErrors() {
     return !validationErrors.isEmpty();
+  }
+
+  /** Possible outcomes of user clicking "Save". */
+  enum SaveResult {
+    HAS_VALIDATION_ERRORS,
+    NO_CHANGES_TO_SAVE,
+    SAVED
   }
 }
