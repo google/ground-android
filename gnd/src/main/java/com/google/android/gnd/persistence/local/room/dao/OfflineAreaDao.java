@@ -27,7 +27,7 @@ import java.util.List;
 @Dao
 public interface OfflineAreaDao extends BaseDao<OfflineAreaEntity> {
   @Query("SELECT * FROM offline_area")
-  Flowable<List<OfflineAreaEntity>> findAll();
+  Flowable<List<OfflineAreaEntity>> findAllOnceAndStream();
 
   @Query("SELECT * FROM offline_area WHERE id = :id")
   Maybe<OfflineAreaEntity> findById(String id);
