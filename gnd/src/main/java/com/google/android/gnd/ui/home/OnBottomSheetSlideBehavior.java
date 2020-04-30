@@ -20,6 +20,8 @@ import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.view.View;
+import android.view.ViewGroup;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import com.google.android.gnd.R;
@@ -35,8 +37,11 @@ public abstract class OnBottomSheetSlideBehavior<V extends View>
       CoordinatorLayout parent, V child, SheetSlideMetrics metrics);
 
   @Override
-  public boolean layoutDependsOn(CoordinatorLayout parent, V child, View dependency) {
-    return dependency.getId() == R.id.bottom_sheet_scroll_view;
+  public boolean layoutDependsOn(
+      @NonNull CoordinatorLayout parent, @NonNull View header, @NonNull View dependency) {
+    ViewGroup.LayoutParams params = dependency.getLayoutParams();
+    return params instanceof CoordinatorLayout.LayoutParams
+        && ((CoordinatorLayout.LayoutParams) params).getBehavior() instanceof BottomSheetBehavior;
   }
 
   @Override
