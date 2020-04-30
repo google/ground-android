@@ -34,7 +34,7 @@ public abstract class OnBottomSheetSlideBehavior<V extends View>
   }
 
   protected abstract void onSheetScrolled(
-      CoordinatorLayout parent, V child, SheetSlideMetrics metrics);
+      CoordinatorLayout parent, V child, BottomSheetMetrics metrics);
 
   @Override
   public boolean layoutDependsOn(
@@ -45,18 +45,18 @@ public abstract class OnBottomSheetSlideBehavior<V extends View>
   }
 
   @Override
-  public boolean onDependentViewChanged(CoordinatorLayout parent, V child, View dependency) {
-    onSheetScrolled(parent, child, new SheetSlideMetrics(parent, dependency));
+  public boolean onDependentViewChanged(CoordinatorLayout parent, V child, View bottomSheet) {
+    onSheetScrolled(parent, child, new BottomSheetMetrics(parent, bottomSheet));
     return false;
   }
 
-  public static class SheetSlideMetrics {
+  public static class BottomSheetMetrics {
     private final CoordinatorLayout parent;
-    private final View view;
+    private final View bottomSheet;
 
-    public SheetSlideMetrics(CoordinatorLayout parent, View view) {
+    public BottomSheetMetrics(CoordinatorLayout parent, View bottomSheet) {
       this.parent = parent;
-      this.view = view;
+      this.bottomSheet = bottomSheet;
     }
 
     public static float scale(
@@ -84,7 +84,7 @@ public abstract class OnBottomSheetSlideBehavior<V extends View>
     }
 
     public float getVisibleRatio() {
-      return 1 - ((float) view.getTop()) / ((float) parent.getHeight());
+      return 1 - ((float) bottomSheet.getTop()) / ((float) parent.getHeight());
     }
 
     public void showWithSheet(Drawable view, float hideThreshold, float showThreshold) {
@@ -112,19 +112,19 @@ public abstract class OnBottomSheetSlideBehavior<V extends View>
     }
 
     public int getVisibleHeight() {
-      return Math.max(parent.getHeight() - view.getTop(), 0);
+      return Math.max(parent.getHeight() - bottomSheet.getTop(), 0);
     }
 
     public int getTop() {
-      return view.getTop();
+      return bottomSheet.getTop();
     }
 
     public int getTabLayoutTop() {
-      return view.getTop() + view.getPaddingTop();
+      return bottomSheet.getTop() + bottomSheet.getPaddingTop();
     }
 
     public int getPeekHeight() {
-      return BottomSheetBehavior.from(view).getPeekHeight();
+      return BottomSheetBehavior.from(bottomSheet).getPeekHeight();
     }
   }
 }
