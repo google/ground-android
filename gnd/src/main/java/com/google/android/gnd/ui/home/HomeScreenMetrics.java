@@ -28,9 +28,9 @@ public class HomeScreenMetrics {
   private final CoordinatorLayout parent;
   private final View bottomSheet;
 
-  HomeScreenMetrics(CoordinatorLayout parent, View bottomSheet) {
+  HomeScreenMetrics(CoordinatorLayout parent) {
     this.parent = parent;
-    this.bottomSheet = bottomSheet;
+    this.bottomSheet = parent.findViewById(R.id.feature_bottom_sheet);
   }
 
   public static float scale(float value, float before1, float before2, float after1, float after2) {
