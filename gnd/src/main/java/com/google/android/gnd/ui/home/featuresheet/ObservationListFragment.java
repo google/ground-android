@@ -72,7 +72,7 @@ public class ObservationListFragment extends AbstractFragment {
     recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
     recyclerView.setAdapter(observationListAdapter);
     featureSheetViewModel
-        .getSelectedFeature()
+        .getSelectedFeatureOnceAndStream()
         .observe(getViewLifecycleOwner(), this::onFeatureSelected);
   }
 
