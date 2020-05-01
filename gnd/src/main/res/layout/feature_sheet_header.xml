@@ -29,7 +29,7 @@
   <androidx.cardview.widget.CardView
     android:id="@+id/bottom_sheet_header"
     android:layout_width="match_parent"
-    android:layout_height="@dimen/feature_sheet_header_height"
+    android:layout_height="wrap_content"
     android:layout_marginTop="@dimen/feature_sheet_margin_top"
     app:cardBackgroundColor="@color/colorBackground"
     app:cardCornerRadius="@dimen/feature_sheet_corner_radius"
@@ -50,7 +50,7 @@
     <LinearLayout
       android:id="@+id/feature_sheet_card_contents"
       android:layout_width="match_parent"
-      android:layout_height="wrap_content"
+      android:layout_height="@dimen/feature_sheet_header_height"
       android:layout_gravity="top"
       android:orientation="vertical"
       android:paddingTop="@dimen/feature_sheet_padding_top"
