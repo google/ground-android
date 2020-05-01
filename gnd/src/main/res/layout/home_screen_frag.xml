@@ -64,7 +64,7 @@
           android:focusable="false" />
 
         <FrameLayout
-          android:id="@+id/bottom_sheet_scroll_view"
+          android:id="@+id/feature_bottom_sheet"
           android:layout_width="match_parent"
           android:layout_height="match_parent"
           app:layout_behavior="com.google.android.gnd.ui.common.BottomSheetBehavior">

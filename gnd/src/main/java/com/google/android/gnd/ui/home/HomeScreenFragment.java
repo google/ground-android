@@ -98,7 +98,7 @@ public class HomeScreenFragment extends AbstractFragment
   @BindView(R.id.nav_view)
   NavigationView navView;
 
-  @BindView(R.id.bottom_sheet_scroll_view)
+  @BindView(R.id.feature_bottom_sheet)
   View bottomSheetScrollView;
 
   @BindView(R.id.bottom_sheet_bottom_inset_scrim)

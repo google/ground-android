@@ -33,7 +33,7 @@ public abstract class OnBottomSheetSlideBehavior<V extends View>
 
   @Override
   public boolean layoutDependsOn(CoordinatorLayout parent, V child, View dependency) {
-    return dependency.getId() == R.id.bottom_sheet_scroll_view;
+    return dependency.getId() == R.id.feature_bottom_sheet;
   }
 
   @Override
