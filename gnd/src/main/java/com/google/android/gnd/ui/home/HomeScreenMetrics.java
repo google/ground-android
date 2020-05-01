@@ -84,7 +84,7 @@ public class HomeScreenMetrics {
     return parent.findViewById(R.id.toolbar).getHeight();
   }
 
-  public int getVisibleHeight() {
+  public int getFeatureBottomSheetVisibleHeight() {
     return Math.max(parent.getHeight() - bottomSheet.getTop(), 0);
   }
 

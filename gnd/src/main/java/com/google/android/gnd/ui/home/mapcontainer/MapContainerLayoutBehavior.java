@@ -49,7 +49,8 @@ public class MapContainerLayoutBehavior extends OnBottomSheetChangeBehavior<Fram
       return;
     }
     float visibleToolbarHeight = 0;
-    float bottomOffset = Math.min(metrics.getPeekHeight(), metrics.getVisibleHeight());
+    float bottomOffset =
+        Math.min(metrics.getPeekHeight(), metrics.getFeatureBottomSheetVisibleHeight());
     float offset = Math.max(bottomOffset - visibleToolbarHeight, 0f);
     float translationY = -offset / 2.0f;
     map.setTranslationY(translationY);
