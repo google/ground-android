@@ -25,7 +25,7 @@ import android.view.ViewGroup;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import com.google.android.gnd.R;
 
-public class BottomSheetChromeBehavior extends OnBottomSheetSlideBehavior<ViewGroup> {
+public class BottomSheetChromeBehavior extends OnBottomSheetChangeBehavior<ViewGroup> {
   // TODO: Refactor transitions into "TransitionEffect" classes.
   private static final float HIDE_SCRIM_THRESHOLD = 0.0f;
   private static final float SHOW_SCRIM_THRESHOLD = 0.1f;
@@ -37,7 +37,7 @@ public class BottomSheetChromeBehavior extends OnBottomSheetSlideBehavior<ViewGr
   }
 
   @Override
-  protected void onSheetScrolled(
+  protected void onBottomSheetChanged(
       CoordinatorLayout parent, ViewGroup layout, HomeScreenMetrics metrics) {
     View mapScrim = parent.findViewById(R.id.map_scrim);
     View hamburgerButton = parent.findViewById(R.id.hamburger_btn);

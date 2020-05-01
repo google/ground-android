@@ -23,9 +23,9 @@ import android.widget.FrameLayout;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import com.google.android.gnd.R;
 import com.google.android.gnd.ui.home.HomeScreenMetrics;
-import com.google.android.gnd.ui.home.OnBottomSheetSlideBehavior;
+import com.google.android.gnd.ui.home.OnBottomSheetChangeBehavior;
 
-public class MapContainerLayoutBehavior extends OnBottomSheetSlideBehavior<FrameLayout> {
+public class MapContainerLayoutBehavior extends OnBottomSheetChangeBehavior<FrameLayout> {
   private static final float SHOW_CROSSHAIRS_THRESHOLD = 0.5f;
   private static final float HIDE_CROSSHAIRS_THRESHOLD = 0.1f;
   private static final float SHOW_BUTTONS_THRESHOLD = 0.1f;
@@ -36,7 +36,7 @@ public class MapContainerLayoutBehavior extends OnBottomSheetSlideBehavior<Frame
   }
 
   @Override
-  protected void onSheetScrolled(
+  protected void onBottomSheetChanged(
       CoordinatorLayout parent, FrameLayout mapContainerLayout, HomeScreenMetrics metrics) {
     if (metrics.getPeekHeight() <= 0) {
       return;

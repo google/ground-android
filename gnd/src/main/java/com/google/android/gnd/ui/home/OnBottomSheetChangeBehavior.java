@@ -22,13 +22,13 @@ import android.view.View;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import com.google.android.gnd.R;
 
-public abstract class OnBottomSheetSlideBehavior<V extends View>
+public abstract class OnBottomSheetChangeBehavior<V extends View>
     extends CoordinatorLayout.Behavior<V> {
-  public OnBottomSheetSlideBehavior(Context context, AttributeSet attrs) {
+  public OnBottomSheetChangeBehavior(Context context, AttributeSet attrs) {
     super(context, attrs);
   }
 
-  protected abstract void onSheetScrolled(
+  protected abstract void onBottomSheetChanged(
       CoordinatorLayout parent, V child, HomeScreenMetrics metrics);
 
   @Override
@@ -38,7 +38,7 @@ public abstract class OnBottomSheetSlideBehavior<V extends View>
 
   @Override
   public boolean onDependentViewChanged(CoordinatorLayout parent, V child, View bottomSheet) {
-    onSheetScrolled(parent, child, new HomeScreenMetrics(parent));
+    onBottomSheetChanged(parent, child, new HomeScreenMetrics(parent));
     return false;
   }
 }
