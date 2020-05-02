@@ -33,10 +33,15 @@ public class HomeScreenMetrics {
     this.addObservationButton = parent.findViewById(R.id.add_observation_btn);
   }
 
+  /** Returns the number of pixels of the bottom sheet visible above the bottom of the screen. */
   public float getBottomSheetVisibleHeight() {
     return Math.max(parent.getHeight() - bottomSheet.getTop(), 0);
   }
 
+  /**
+   * Returns the number of pixels between the top of the "Add Observation" button and the bottom of
+   * the screen.
+   */
   private float getAddObservationButtonDistanceFromBottom() {
     return Math.max(parent.getHeight() - addObservationButton.getTop(), 0);
   }
@@ -52,10 +57,10 @@ public class HomeScreenMetrics {
         getBottomSheetVisibleHeight() / getAddObservationButtonDistanceFromBottom(), 1.0f);
   }
 
-  public int getTop() {
-    return bottomSheet.getTop();
-  }
-
+  /**
+   * Returns the "peek height" of the bottom sheet, the height of the sheet when it is initially
+   * displayed and to which it snaps in "collapsed" state (between full expanded and fully hidden).
+   */
   public int getBottomSheetPeekHeight() {
     return BottomSheetBehavior.from(bottomSheet).getPeekHeight();
   }
