@@ -24,7 +24,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.MarginLayoutParams;
 import androidx.annotation.NonNull;
-import androidx.cardview.widget.CardView;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import com.google.android.gnd.R;
 import com.google.android.gnd.ui.common.BottomSheetBehavior;
@@ -56,7 +55,7 @@ public class FloatingHeaderBehavior extends CoordinatorLayout.Behavior {
 
     // Required to allow icon to float above header.
     if (VERSION.SDK_INT >= VERSION_CODES.LOLLIPOP) {
-      ((CardView) header).setClipToOutline(false);
+      header.setClipToOutline(false);
     }
     return false;
   }
