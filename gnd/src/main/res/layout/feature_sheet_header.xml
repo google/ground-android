@@ -34,7 +34,7 @@
     app:cardBackgroundColor="@color/colorBackground"
     app:cardCornerRadius="@dimen/feature_sheet_corner_radius"
     android:clipChildren="false"
-    app:layout_behavior="com.google.android.gnd.ui.home.featuresheet.FloatingHeaderBehavior">
+    app:layout_behavior="com.google.android.gnd.ui.home.featuresheet.FeatureSheetHeaderBehavior">
 
     <ImageView
       android:id="@+id/feature_header_icon"

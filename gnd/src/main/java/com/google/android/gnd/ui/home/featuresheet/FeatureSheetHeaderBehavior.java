@@ -29,11 +29,11 @@ import com.google.android.gnd.R;
 import com.google.android.gnd.ui.common.BottomSheetBehavior;
 
 /**
- * Custom behavior to manage position and alpha of floating header, and to link movements of
- * BottomSheetBehavior with header.
+ * Custom behavior to manage position and alpha of floating header and to dispatch touch events
+ * on the header to the BottomSheetBehavior to effectively make header scrollable.
  */
-public class FloatingHeaderBehavior extends CoordinatorLayout.Behavior {
-  public FloatingHeaderBehavior(Context context, AttributeSet attrs) {
+public class FeatureSheetHeaderBehavior extends CoordinatorLayout.Behavior {
+  public FeatureSheetHeaderBehavior(Context context, AttributeSet attrs) {
     super(context, attrs);
   }
 
