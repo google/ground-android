@@ -25,6 +25,7 @@
       type="com.google.android.gnd.ui.home.featuresheet.FeatureSheetViewModel" />
   </data>
 
+  <!-- TODO: Remove redundant fragment, combine with observation list -->
   <FrameLayout
       android:layout_width="match_parent"
       android:layout_height="match_parent"
