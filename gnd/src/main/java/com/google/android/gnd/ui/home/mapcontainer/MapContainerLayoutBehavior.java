@@ -25,12 +25,11 @@ import com.google.android.gnd.R;
 import com.google.android.gnd.ui.home.HomeScreenMetrics;
 import com.google.android.gnd.ui.home.OnBottomSheetChangeBehavior;
 
+/**
+ * Defines transitions for the map, map controls, and cross hairs when the feature sheet is
+ * scrolled.
+ */
 public class MapContainerLayoutBehavior extends OnBottomSheetChangeBehavior<FrameLayout> {
-  private static final float SHOW_CROSSHAIRS_THRESHOLD = 0.5f;
-  private static final float HIDE_CROSSHAIRS_THRESHOLD = 0.1f;
-  private static final float SHOW_BUTTONS_THRESHOLD = 0.1f;
-  private static final float HIDE_BUTTONS_THRESOLD = 0.3f;
-
   public MapContainerLayoutBehavior(Context context, AttributeSet attrs) {
     super(context, attrs);
   }
@@ -39,23 +38,27 @@ public class MapContainerLayoutBehavior extends OnBottomSheetChangeBehavior<Fram
   protected void onBottomSheetChanged(
       CoordinatorLayout parent, FrameLayout mapContainerLayout, HomeScreenMetrics metrics) {
     if (metrics.getBottomSheetPeekHeight() <= 0) {
+      // Behavior not yet initialized.
       return;
     }
     View map = mapContainerLayout.findViewById(R.id.map);
-    View crosshairs = mapContainerLayout.findViewById(R.id.map_crosshairs);
+    View crossHairs = mapContainerLayout.findViewById(R.id.map_crosshairs);
     View mapButtonLayout = mapContainerLayout.findViewById(R.id.map_btn_layout);
-    if (map == null || crosshairs == null || mapButtonLayout == null) {
+    if (map == null || crossHairs == null || mapButtonLayout == null) {
       // View already destroyed.
       return;
     }
-    float visibleToolbarHeight = 0;
-    float bottomOffset =
+
+    // Fade out cross hairs and map buttons as bottom sheet appears.
+    float alpha = 1.0f - metrics.getBottomSheetVisibilityRatio();
+    crossHairs.setAlpha(alpha);
+    mapButtonLayout.setAlpha(alpha);
+
+    // Slide map and cross hairs up as sheet is scrolled below peek height.
+    float offset =
         Math.min(metrics.getBottomSheetPeekHeight(), metrics.getBottomSheetVisibleHeight());
-    float offset = Math.max(bottomOffset - visibleToolbarHeight, 0f);
     float translationY = -offset / 2.0f;
     map.setTranslationY(translationY);
-    crosshairs.setTranslationY(translationY);
-    metrics.hideWithSheet(crosshairs, SHOW_CROSSHAIRS_THRESHOLD, HIDE_CROSSHAIRS_THRESHOLD);
-    metrics.hideWithSheet(mapButtonLayout, SHOW_BUTTONS_THRESHOLD, HIDE_BUTTONS_THRESOLD);
+    crossHairs.setTranslationY(translationY);
   }
 }
