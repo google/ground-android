@@ -22,6 +22,7 @@ import android.os.Build.VERSION_CODES;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewGroup.MarginLayoutParams;
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
@@ -74,7 +75,8 @@ public class FloatingHeaderBehavior extends CoordinatorLayout.Behavior {
 
     float sheetY = bottomSheet.getY();
     float sheetHeight = Math.max(parent.getHeight() - bottomSheet.getY(), 0);
-    int headerHeight = header.getHeight();
+    MarginLayoutParams lp = (MarginLayoutParams) header.getLayoutParams();
+    int headerHeight = header.getHeight() + lp.topMargin + lp.bottomMargin;
 
     // Scroll the header together with the bottom sheet. This must be done programmatically
     // because CoordinatorLayout anchors cause bottom sheet height to expand, preventing header
