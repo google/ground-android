@@ -27,10 +27,12 @@ import com.google.android.gnd.ui.common.BottomSheetBehavior;
 public class HomeScreenMetrics {
   private final CoordinatorLayout parent;
   private final View bottomSheet;
+  private final View addObservationButton;
 
   HomeScreenMetrics(CoordinatorLayout parent) {
     this.parent = parent;
     this.bottomSheet = parent.findViewById(R.id.feature_bottom_sheet);
+    this.addObservationButton = parent.findViewById(R.id.add_observation_btn);
   }
 
   public static float scale(float value, float before1, float before2, float after1, float after2) {
@@ -84,8 +86,23 @@ public class HomeScreenMetrics {
     return parent.findViewById(R.id.toolbar).getHeight();
   }
 
-  public int getFeatureBottomSheetVisibleHeight() {
+  public float getFeatureBottomSheetVisibleHeight() {
     return Math.max(parent.getHeight() - bottomSheet.getTop(), 0);
+  }
+
+  private float getAddObservationButtonDistanceFromBottom() {
+    return Math.max(parent.getHeight() - addObservationButton.getTop(), 0);
+  }
+
+  /**
+   * Returns a ratio indicating feature bottom sheet scroll progress from hidden to visible state.
+   * Specifically, it returns 0 when the bottom sheet part of the feature sheet is fully hidden, 1
+   * when its top just passed to top of the "Add Observation" button, and a linearly interpolated
+   * ratio for all values in between.
+   */
+  public float getFeatureBottomSheetVisibilityRatio() {
+    return Math.min(
+        getFeatureBottomSheetVisibleHeight() / getAddObservationButtonDistanceFromBottom(), 1.0f);
   }
 
   public int getTop() {

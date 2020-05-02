@@ -154,6 +154,7 @@ public class HomeScreenFragment extends AbstractFragment
 
     HomeScreenFragBinding binding = HomeScreenFragBinding.inflate(inflater, container, false);
     binding.featureSheetChrome.setViewModel(viewModel);
+    binding.setViewModel(viewModel);
     binding.setFeatureSheetViewModel(featureSheetViewModel);
     binding.setLifecycleOwner(this);
     return binding.getRoot();

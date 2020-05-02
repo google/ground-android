@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google LLC
+ * Copyright 2020 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,20 +21,20 @@ import android.util.AttributeSet;
 import android.view.ViewGroup;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 
-/** Defines transitions for the bottom sheet chrom shown when the feature sheet is displayed. */
-public class BottomSheetChromeBehavior extends OnBottomSheetChangeBehavior<ViewGroup> {
+/** Defines transitions for the toolbar shown when the feature sheet is displayed. */
+public class FeatureSheetToolbarBehavior extends OnBottomSheetChangeBehavior<ViewGroup> {
 
-  public BottomSheetChromeBehavior(Context context, AttributeSet attrs) {
+  public FeatureSheetToolbarBehavior(Context context, AttributeSet attrs) {
     super(context, attrs);
   }
 
   @Override
   protected void onBottomSheetChanged(
-      CoordinatorLayout parent, ViewGroup layout, HomeScreenMetrics metrics) {
-    // Fade in the bottom scrim and "Add Observation" button, with both being fully visible as soon
-    // as the top of the bottom sheet passes the top of the "Add Observation" button.
-
-    // Chrome is fully opaque as top of bottom sheet passes Add Observation button.
-    layout.setAlpha(metrics.getFeatureBottomSheetVisibilityRatio());
+      CoordinatorLayout parent, ViewGroup toolbarWrapper, HomeScreenMetrics metrics) {
+    // Slide toolbar down and fade in, with the toolbar being fully visible as soon the top of the
+    // bottom sheet passes the top of the "Add Observation" button.
+    float visibilityRatio = metrics.getFeatureBottomSheetVisibilityRatio();
+    toolbarWrapper.setAlpha(visibilityRatio);
+    toolbarWrapper.setTranslationY(toolbarWrapper.getHeight() * (visibilityRatio - 1.0f));
   }
 }

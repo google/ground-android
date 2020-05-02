@@ -30,24 +30,6 @@
     android:layout_height="match_parent"
     app:layout_behavior="com.google.android.gnd.ui.home.BottomSheetChromeBehavior">
 
-    <FrameLayout
-      android:id="@+id/toolbar_wrapper"
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:layout_alignParentTop="true"
-      android:background="@color/colorPrimary">
-
-      <com.google.android.gnd.ui.common.TwoLineToolbar
-        android:id="@+id/toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:elevation="@dimen/toolbar_elevation"
-        android:theme="@style/GreenToolbarTheme"
-        app:subtitle="@{viewModel.featureSheetState.feature.subtitle}"
-        app:title="@{viewModel.featureSheetState.feature.title}" />
-
-    </FrameLayout>
-
     <com.google.android.material.chip.Chip
       android:id="@+id/add_observation_btn"
       style="@style/ChipButton"
