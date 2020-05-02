@@ -35,6 +35,6 @@ public class BottomSheetChromeBehavior extends OnBottomSheetChangeBehavior<ViewG
     // as the top of the bottom sheet passes the top of the "Add Observation" button.
 
     // Chrome is fully opaque as top of bottom sheet passes Add Observation button.
-    layout.setAlpha(metrics.getFeatureBottomSheetVisibilityRatio());
+    layout.setAlpha(metrics.getBottomSheetVisibilityRatio());
   }
 }

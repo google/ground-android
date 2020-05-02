@@ -33,7 +33,7 @@ public class FeatureSheetToolbarBehavior extends OnBottomSheetChangeBehavior<Vie
       CoordinatorLayout parent, ViewGroup toolbarWrapper, HomeScreenMetrics metrics) {
     // Slide toolbar down and fade in, with the toolbar being fully visible as soon the top of the
     // bottom sheet passes the top of the "Add Observation" button.
-    float visibilityRatio = metrics.getFeatureBottomSheetVisibilityRatio();
+    float visibilityRatio = metrics.getBottomSheetVisibilityRatio();
     toolbarWrapper.setAlpha(visibilityRatio);
     toolbarWrapper.setTranslationY(toolbarWrapper.getHeight() * (visibilityRatio - 1.0f));
   }

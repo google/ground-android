@@ -86,7 +86,7 @@ public class HomeScreenMetrics {
     return parent.findViewById(R.id.toolbar).getHeight();
   }
 
-  public float getFeatureBottomSheetVisibleHeight() {
+  public float getBottomSheetVisibleHeight() {
     return Math.max(parent.getHeight() - bottomSheet.getTop(), 0);
   }
 
@@ -95,14 +95,14 @@ public class HomeScreenMetrics {
   }
 
   /**
-   * Returns a ratio indicating feature bottom sheet scroll progress from hidden to visible state.
+   * Returns a ratio indicating bottom sheet scroll progress from hidden to visible state.
    * Specifically, it returns 0 when the bottom sheet part of the feature sheet is fully hidden, 1
    * when its top just passed to top of the "Add Observation" button, and a linearly interpolated
    * ratio for all values in between.
    */
-  public float getFeatureBottomSheetVisibilityRatio() {
+  public float getBottomSheetVisibilityRatio() {
     return Math.min(
-        getFeatureBottomSheetVisibleHeight() / getAddObservationButtonDistanceFromBottom(), 1.0f);
+        getBottomSheetVisibleHeight() / getAddObservationButtonDistanceFromBottom(), 1.0f);
   }
 
   public int getTop() {
@@ -113,7 +113,7 @@ public class HomeScreenMetrics {
     return bottomSheet.getTop() + bottomSheet.getPaddingTop();
   }
 
-  public int getPeekHeight() {
+  public int getBottomSheetPeekHeight() {
     return BottomSheetBehavior.from(bottomSheet).getPeekHeight();
   }
 }

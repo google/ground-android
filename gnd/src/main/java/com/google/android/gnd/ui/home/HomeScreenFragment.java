@@ -455,7 +455,6 @@ public class HomeScreenFragment extends AbstractFragment
     showProjectSelector();
   }
 
-  // TODO: Rename BottomSheet* to FeatureBottomSheet for consistency.
   private class BottomSheetCallback extends BottomSheetBehavior.BottomSheetCallback {
     @Override
     public void onStateChanged(@NonNull View bottomSheet, int newState) {

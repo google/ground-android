@@ -38,7 +38,7 @@ public class MapContainerLayoutBehavior extends OnBottomSheetChangeBehavior<Fram
   @Override
   protected void onBottomSheetChanged(
       CoordinatorLayout parent, FrameLayout mapContainerLayout, HomeScreenMetrics metrics) {
-    if (metrics.getPeekHeight() <= 0) {
+    if (metrics.getBottomSheetPeekHeight() <= 0) {
       return;
     }
     View map = mapContainerLayout.findViewById(R.id.map);
@@ -50,7 +50,7 @@ public class MapContainerLayoutBehavior extends OnBottomSheetChangeBehavior<Fram
     }
     float visibleToolbarHeight = 0;
     float bottomOffset =
-        Math.min(metrics.getPeekHeight(), metrics.getFeatureBottomSheetVisibleHeight());
+        Math.min(metrics.getBottomSheetPeekHeight(), metrics.getBottomSheetVisibleHeight());
     float offset = Math.max(bottomOffset - visibleToolbarHeight, 0f);
     float translationY = -offset / 2.0f;
     map.setTranslationY(translationY);
