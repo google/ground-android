@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.workers;
+package com.google.android.gnd.persistence.sync;
 
 import android.content.Context;
 import androidx.annotation.NonNull;
@@ -25,7 +25,6 @@ import com.google.android.gnd.model.basemap.tile.Tile;
 import com.google.android.gnd.model.basemap.tile.Tile.State;
 import com.google.android.gnd.persistence.local.LocalDataStore;
 import com.google.android.gnd.persistence.remote.TransferProgress;
-import com.google.android.gnd.persistence.sync.BaseWorker;
 import com.google.android.gnd.system.NotificationManager;
 import com.google.common.collect.ImmutableList;
 import io.reactivex.Completable;
@@ -56,7 +55,7 @@ public class TileDownloadWorker extends BaseWorker {
       @NonNull WorkerParameters params,
       LocalDataStore localDataStore,
       NotificationManager notificationManager) {
-    super(context, params, notificationManager);
+    super(context, params, notificationManager, TileDownloadWorker.class.hashCode());
     this.context = context;
     this.localDataStore = localDataStore;
   }

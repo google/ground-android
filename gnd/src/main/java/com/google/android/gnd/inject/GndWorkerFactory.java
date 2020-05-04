@@ -27,8 +27,8 @@ import com.google.android.gnd.persistence.remote.RemoteDataStore;
 import com.google.android.gnd.persistence.remote.RemoteStorageManager;
 import com.google.android.gnd.persistence.sync.LocalMutationSyncWorker;
 import com.google.android.gnd.persistence.sync.PhotoSyncWorker;
+import com.google.android.gnd.persistence.sync.TileDownloadWorker;
 import com.google.android.gnd.system.NotificationManager;
-import com.google.android.gnd.workers.TileDownloadWorker;
 import javax.inject.Inject;
 
 /** Custom {@code WorkerFactory} to allow Dagger 2 injection into Ground Workers. */
