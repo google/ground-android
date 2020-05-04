@@ -32,6 +32,7 @@ import com.google.android.gnd.persistence.remote.firestore.FirestoreUuidGenerato
 import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator;
 import com.google.android.gnd.rx.RxSchedulers;
 import com.google.android.gnd.rx.Schedulers;
+import com.google.android.gnd.system.AuthenticationModule;
 import com.google.android.gnd.ui.common.ViewModelModule;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreSettings;
@@ -50,7 +51,7 @@ abstract class GndApplicationModule {
 
   /** Causes Dagger Android to generate a sub-component for the MainActivity. */
   @ActivityScoped
-  @ContributesAndroidInjector(modules = MainActivityModule.class)
+  @ContributesAndroidInjector(modules = {MainActivityModule.class, AuthenticationModule.class})
   abstract MainActivity mainActivityInjector();
 
   /** Causes Dagger Android to generate a sub-component for the SettingsActivity. */
