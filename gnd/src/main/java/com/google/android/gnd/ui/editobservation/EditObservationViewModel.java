@@ -40,7 +40,6 @@ import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.common.SharedViewModel;
 import com.google.android.gnd.ui.field.FieldViewModel;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableList.Builder;
 import io.reactivex.Single;
 import io.reactivex.processors.BehaviorProcessor;
 import io.reactivex.processors.PublishProcessor;
@@ -248,7 +247,7 @@ public class EditObservationViewModel extends AbstractViewModel {
       Timber.e("Response diff attempted before observation loaded");
       return ImmutableList.of();
     }
-    Builder<ResponseDelta> deltas = ImmutableList.builder();
+    ImmutableList.Builder<ResponseDelta> deltas = ImmutableList.builder();
     ResponseMap originalResponses = originalObservation.getResponses();
     for (Element e : originalObservation.getForm().getElements()) {
       if (e.getType() != Type.FIELD) {
