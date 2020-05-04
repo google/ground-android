@@ -33,20 +33,15 @@ public class FieldFactory {
 
   @NonNull
   public FieldView createFieldView(Field field) {
-    FieldView fieldView;
     switch (field.getType()) {
       case TEXT:
-        fieldView = new TextFieldView(viewModelFactory, fragment, field);
-        break;
+        return new TextFieldView(viewModelFactory, fragment, field);
       case MULTIPLE_CHOICE:
-        fieldView = new MultipleChoiceFieldView(viewModelFactory, fragment, field);
-        break;
+        return new MultipleChoiceFieldView(viewModelFactory, fragment, field);
       case PHOTO:
-        fieldView = new PhotoFieldView(viewModelFactory, fragment, field);
-        break;
+        return new PhotoFieldView(viewModelFactory, fragment, field);
       default:
         throw new IllegalStateException("Unimplemented field type: " + field.getType());
     }
-    return fieldView;
   }
 }
