@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.workers;
+package com.google.android.gnd.persistence.sync;
 
 import androidx.work.Constraints;
 import androidx.work.NetworkType;

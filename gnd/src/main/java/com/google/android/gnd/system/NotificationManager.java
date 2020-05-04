@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.system;
 
+import android.app.Notification;
 import android.app.NotificationChannel;
 import android.content.Context;
 import android.os.Build.VERSION;
@@ -23,7 +24,6 @@ import android.os.Build.VERSION_CODES;
 import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationCompat.Builder;
-import androidx.core.app.NotificationManagerCompat;
 import com.google.android.gnd.R;
 import com.google.android.gnd.persistence.remote.TransferProgress.UploadState;
 import javax.inject.Inject;
@@ -33,18 +33,13 @@ import timber.log.Timber;
 @Singleton
 public class NotificationManager {
 
-  private static final int SYNC_NOTIFICATION_ID = 1;
   private static final String CHANNEL_ID = "channel_id";
   private static final String CHANNEL_NAME = "sync channel";
-
-  private Context context;
-  private NotificationManagerCompat manager;
+  private final Context context;
 
   @Inject
   NotificationManager(Context context) {
     this.context = context;
-    this.manager = NotificationManagerCompat.from(context);
-
     if (VERSION.SDK_INT >= VERSION_CODES.O) {
       createNotificationChannels(context);
     }
@@ -60,7 +55,8 @@ public class NotificationManager {
     manager.createNotificationChannel(channel);
   }
 
-  public void createSyncNotification(UploadState state, String title, int total, int progress) {
+  public Notification createSyncNotification(
+      UploadState state, String title, int total, int progress) {
     NotificationCompat.Builder notification =
         new Builder(context, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_sync)
@@ -94,12 +90,6 @@ public class NotificationManager {
         Timber.e("Unknown sync state: %s", state.name());
         break;
     }
-
-    manager.notify(SYNC_NOTIFICATION_ID, notification.build());
-
-    // remove if completed
-    if (state == UploadState.COMPLETED) {
-      manager.cancel(SYNC_NOTIFICATION_ID);
-    }
+    return notification.build();
   }
 }

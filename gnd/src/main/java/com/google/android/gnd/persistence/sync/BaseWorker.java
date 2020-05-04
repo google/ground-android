@@ -16,8 +16,10 @@
 
 package com.google.android.gnd.persistence.sync;
 
+import android.app.Notification;
 import android.content.Context;
 import androidx.annotation.NonNull;
+import androidx.work.ForegroundInfo;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 import com.google.android.gnd.persistence.remote.TransferProgress;
@@ -28,13 +30,16 @@ import io.reactivex.Flowable;
 public abstract class BaseWorker extends Worker {
 
   private final NotificationManager notificationManager;
+  private final int notificationId;
 
-  public BaseWorker(
+  BaseWorker(
       @NonNull Context context,
       @NonNull WorkerParameters workerParams,
-      NotificationManager notificationManager) {
+      NotificationManager notificationManager,
+      int notificationId) {
     super(context, workerParams);
     this.notificationManager = notificationManager;
+    this.notificationId = notificationId;
   }
 
   /** Content text displayed in the notification. */
@@ -47,18 +52,26 @@ public abstract class BaseWorker extends Worker {
         .doOnComplete(() -> sendNotification(TransferProgress.completed()));
   }
 
-  protected Completable notifyTransferState(Completable completable) {
+  Completable notifyTransferState(Completable completable) {
     return completable
         .doOnSubscribe(__ -> sendNotification(TransferProgress.starting()))
         .doOnError(__ -> sendNotification(TransferProgress.failed()))
         .doOnComplete(() -> sendNotification(TransferProgress.completed()));
   }
 
-  protected void sendNotification(TransferProgress transferProgress) {
-    notificationManager.createSyncNotification(
+  private Notification createNotification(TransferProgress transferProgress) {
+    return notificationManager.createSyncNotification(
         transferProgress.getState(),
         getNotificationTitle(),
         transferProgress.getByteCount(),
         transferProgress.getBytesTransferred());
+  }
+
+  /**
+   * Specifies that this is a long-running request and should be kept alive by the OS. Also, runs a
+   * foreground service under the hood to execute the request showing a notification.
+   */
+  void sendNotification(TransferProgress progress) {
+    setForegroundAsync(new ForegroundInfo(notificationId, createNotification(progress)));
   }
 }
