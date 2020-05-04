@@ -16,14 +16,15 @@
 
 package com.google.android.gnd.ui.field;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import com.google.android.gnd.databinding.MultipleChoiceInputFieldBinding;
 import com.google.android.gnd.model.form.Field;
-import com.google.android.gnd.model.form.MultipleChoice.Cardinality;
 import com.google.android.gnd.model.observation.Response;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.ViewModelFactory;
 import java8.util.Optional;
+import java8.util.function.Consumer;
 
 public class MultipleChoiceFieldView extends FieldView {
 
@@ -47,24 +48,23 @@ public class MultipleChoiceFieldView extends FieldView {
   }
 
   public void onShowDialog() {
-    Cardinality cardinality = field.getMultipleChoice().getCardinality();
-    Optional<Response> currentResponse = getViewModel().getResponse(field.getId());
-    switch (cardinality) {
-      case SELECT_MULTIPLE:
-        dialog =
-            new MultiSelectDialogFactory(getContext())
-                .create(field, currentResponse, r -> getViewModel().onResponseChanged(field, r));
-        break;
-      case SELECT_ONE:
-        dialog =
-            new SingleSelectDialogFactory(getContext())
-                .create(field, currentResponse, r -> getViewModel().onResponseChanged(field, r));
-        break;
-      default:
-        throw new IllegalStateException("Unknown cardinality: " + cardinality);
-    }
+    dialog = getDialog(response -> getViewModel().onResponseChanged(field, response));
     if (dialog != null) {
       dialog.show();
+    }
+  }
+
+  @Nullable
+  private AlertDialog getDialog(Consumer<Optional<Response>> consumer) {
+    Optional<Response> currentResponse = getViewModel().getResponse(field.getId());
+    switch (field.getMultipleChoice().getCardinality()) {
+      case SELECT_ONE:
+        return new SingleSelectDialogFactory(getContext()).create(field, currentResponse, consumer);
+      case SELECT_MULTIPLE:
+        return new MultiSelectDialogFactory(getContext()).create(field, currentResponse, consumer);
+      default:
+        throw new IllegalStateException(
+            "Unknown cardinality: " + field.getMultipleChoice().getCardinality());
     }
   }
 
