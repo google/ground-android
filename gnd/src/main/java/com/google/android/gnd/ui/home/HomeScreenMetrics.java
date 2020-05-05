@@ -48,9 +48,9 @@ public class HomeScreenMetrics {
 
   /**
    * Returns a ratio indicating bottom sheet scroll progress from hidden to visible state.
-   * Specifically, it returns 0 when the bottom sheet part of the feature sheet is fully hidden, 1
-   * when its top just passed to top of the "Add Observation" button, and a linearly interpolated
-   * ratio for all values in between.
+   * Specifically, it returns 0 when the bottom sheet is fully hidden, 1 when its top just passes
+   * the top of the "Add Observation" button, and a linearly interpolated ratio for all values in
+   * between.
    */
   public float getBottomSheetVisibilityRatio() {
     return Math.min(
