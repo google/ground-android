@@ -22,6 +22,10 @@ import android.view.View;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import com.google.android.gnd.R;
 
+/**
+ * Base class for children of the the {@link HomeScreenFragment} {@link CoordinatorLayout} that
+ * respond to bottom sheet changes (e.g., scroll, expand, collapse).
+ */
 public abstract class OnBottomSheetChangeBehavior<V extends View>
     extends CoordinatorLayout.Behavior<V> {
   public OnBottomSheetChangeBehavior(Context context, AttributeSet attrs) {
