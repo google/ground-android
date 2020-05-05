@@ -56,7 +56,7 @@ public class LocalMutationSyncWorker extends BaseWorker {
       LocalDataStore localDataStore,
       RemoteDataStore remoteDataStore,
       NotificationManager notificationManager) {
-    super(context, params, notificationManager);
+    super(context, params, notificationManager, LocalMutationSyncWorker.class.hashCode());
     this.localDataStore = localDataStore;
     this.remoteDataStore = remoteDataStore;
     this.featureId = params.getInputData().getString(FEATURE_ID_PARAM_KEY);

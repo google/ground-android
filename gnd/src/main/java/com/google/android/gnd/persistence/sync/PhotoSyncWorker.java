@@ -45,7 +45,7 @@ public class PhotoSyncWorker extends BaseWorker {
       @NonNull WorkerParameters workerParams,
       RemoteStorageManager remoteStorageManager,
       NotificationManager notificationManager) {
-    super(context, workerParams, notificationManager);
+    super(context, workerParams, notificationManager, PhotoSyncWorker.class.hashCode());
     this.remoteStorageManager = remoteStorageManager;
     this.localSourcePath = workerParams.getInputData().getString(SOURCE_FILE_PATH_PARAM_KEY);
     this.remoteDestinationPath = workerParams.getInputData().getString(DESTINATION_PATH_PARAM_KEY);
