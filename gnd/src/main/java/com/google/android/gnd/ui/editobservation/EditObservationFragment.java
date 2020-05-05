@@ -73,6 +73,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
     EditObservationFragBinding binding =
         EditObservationFragBinding.inflate(inflater, container, false);
     binding.setLifecycleOwner(this);
+    binding.setFragment(this);
     binding.setViewModel(viewModel);
     return binding.getRoot();
   }
@@ -90,6 +91,10 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
     // Initialize view model.
     viewModel.initialize(fieldViewModel, EditObservationFragmentArgs.fromBundle(getArguments()));
     fieldFactory = new FieldFactory(this, viewModelFactory);
+  }
+
+  public void onSaveClick() {
+    viewModel.onSaveClick();
   }
 
   private void handleSaveResult(EditObservationViewModel.SaveResult saveResult) {
