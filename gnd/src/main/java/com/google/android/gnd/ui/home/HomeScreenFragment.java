@@ -118,7 +118,6 @@ public class HomeScreenFragment extends AbstractFragment
   private ProjectSelectorDialogFragment projectSelectorDialogFragment;
   private ProjectSelectorViewModel projectSelectorViewModel;
   private List<Project> projects;
-  @Nullable private WindowInsetsCompat insets;
   @Nullable private CardView bottomSheetHeader;
 
   @Override
@@ -229,7 +228,7 @@ public class HomeScreenFragment extends AbstractFragment
 
   @Override
   public void onGlobalLayout() {
-    if (toolbarWrapper == null || bottomSheetBehavior == null || insets == null) {
+    if (toolbarWrapper == null || bottomSheetBehavior == null) {
       return;
     }
     bottomSheetBehavior.setFitToContents(false);
@@ -308,7 +307,6 @@ public class HomeScreenFragment extends AbstractFragment
   }
 
   private void onApplyWindowInsets(WindowInsetsCompat insets) {
-    this.insets = insets;
     statusBarScrim.setPadding(0, insets.getSystemWindowInsetTop(), 0, 0);
     toolbarWrapper.setPadding(0, insets.getSystemWindowInsetTop(), 0, 0);
     bottomSheetBottomInsetScrim.setMinimumHeight(insets.getSystemWindowInsetBottom());
