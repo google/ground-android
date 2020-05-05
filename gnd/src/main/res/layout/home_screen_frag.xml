@@ -50,27 +50,42 @@
           android:layout_height="match_parent"
           app:layout_behavior="com.google.android.gnd.ui.home.mapcontainer.MapContainerLayoutBehavior" />
 
-        <include
-          android:id="@+id/feature_sheet_header"
-          layout="@layout/feature_sheet_header"
-          app:viewModel="@{featureSheetViewModel}" />
-
         <!-- TODO: Move feature sheet and chrome into their own layout file. -->
 
-        <FrameLayout
-          android:id="@+id/map_scrim"
-          android:layout_width="match_parent"
-          android:layout_height="match_parent"
-          android:alpha="0"
-          android:background="@color/colorPrimary"
-          android:clickable="false"
-          android:focusable="false" />
 
         <FrameLayout
+          android:id="@+id/toolbar_wrapper"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:layout_alignParentTop="true"
+          android:background="@color/colorBackground"
+          android:elevation="@dimen/feature_sheet_toolbar_elevation"
+          app:layout_behavior="com.google.android.gnd.ui.home.FeatureSheetToolbarBehavior">
+
+          <!-- TODO: Replace with default Toolbar -->
+          <com.google.android.gnd.ui.common.TwoLineToolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:elevation="@dimen/feature_sheet_toolbar_elevation"
+            android:theme="@style/WhiteToolbarTheme"  />
+
+        </FrameLayout>
+
+        <LinearLayout
           android:id="@+id/feature_bottom_sheet"
           android:layout_width="match_parent"
           android:layout_height="match_parent"
+          android:layout_marginTop="@dimen/feature_sheet_margin_top"
+          android:elevation="@dimen/feature_sheet_header_elevation"
+          android:orientation="vertical"
           app:layout_behavior="com.google.android.gnd.ui.common.BottomSheetBehavior">
+
+          <!-- TODO: Consistent naming of feature sheet fragments and view ids. -->
+          <include
+            android:id="@+id/feature_sheet_header"
+            layout="@layout/feature_sheet_header"
+            app:viewModel="@{featureSheetViewModel}" />
 
           <fragment
             android:id="@+id/feature_sheet_fragment"
@@ -79,26 +94,7 @@
             android:layout_height="match_parent"
             tools:layout="@layout/feature_sheet_frag" />
 
-        </FrameLayout>
-
-        <FrameLayout
-          android:id="@+id/toolbar_wrapper"
-          android:layout_width="match_parent"
-          android:layout_height="wrap_content"
-          android:layout_alignParentTop="true"
-          android:background="@color/colorPrimary"
-          android:elevation="@dimen/toolbar_elevation"
-          app:layout_behavior="com.google.android.gnd.ui.home.FeatureSheetToolbarBehavior">
-
-          <com.google.android.gnd.ui.common.TwoLineToolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:theme="@style/GreenToolbarTheme"
-            app:subtitle="@{viewModel.featureSheetState.feature.subtitle}"
-            app:title="@{viewModel.featureSheetState.feature.title}" />
-
-        </FrameLayout>
+        </LinearLayout>
 
         <!-- feature_sheet_chrome contains the fixed widgets that don't scroll -
           in this case the Add Observation button the shim to obscure

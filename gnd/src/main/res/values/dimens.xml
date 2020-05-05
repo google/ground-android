@@ -87,6 +87,9 @@
     <dimen name="observation_list_item_preview_table_right_margin">18dp</dimen>
     <dimen name="offline_area_toolbar_padding_top">16dp</dimen>
     <dimen name="feature_sheet_header_height">120dp</dimen>
+    <dimen name="feature_sheet_toolbar_elevation">2dp</dimen>
+    <dimen name="feature_sheet_header_elevation">8dp</dimen>
+    <dimen name="feature_sheet_body_elevation">2dp</dimen>
 
     <!-- Photo bottom dialog -->
     <dimen name="add_photo_bottom_sheet_margin">16dp</dimen>

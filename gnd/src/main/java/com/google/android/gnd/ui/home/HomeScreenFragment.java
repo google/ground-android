@@ -34,6 +34,7 @@ import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.cardview.widget.CardView;
 import androidx.core.view.GravityCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -98,6 +99,7 @@ public class HomeScreenFragment extends AbstractFragment
   @BindView(R.id.nav_view)
   NavigationView navView;
 
+  // TODO: Rename variable.
   @BindView(R.id.feature_bottom_sheet)
   View bottomSheetScrollView;
 
@@ -117,6 +119,7 @@ public class HomeScreenFragment extends AbstractFragment
   private ProjectSelectorViewModel projectSelectorViewModel;
   private List<Project> projects;
   @Nullable private WindowInsetsCompat insets;
+  @Nullable private CardView bottomSheetHeader;
 
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -153,6 +156,7 @@ public class HomeScreenFragment extends AbstractFragment
     projectSelectorDialogFragment = new ProjectSelectorDialogFragment();
 
     HomeScreenFragBinding binding = HomeScreenFragBinding.inflate(inflater, container, false);
+    this.bottomSheetHeader = binding.featureSheetHeader.bottomSheetHeader;
     binding.featureSheetChrome.setViewModel(viewModel);
     binding.setViewModel(viewModel);
     binding.setFeatureSheetViewModel(featureSheetViewModel);
@@ -230,11 +234,12 @@ public class HomeScreenFragment extends AbstractFragment
     }
     bottomSheetBehavior.setFitToContents(false);
 
-    // When the bottom sheet is expanded, the bottom edge of the header needs to be aligned with
-    // the bottom edge of the toolbar (the header slides up under it).
-    bottomSheetBehavior.setExpandedOffset(toolbarWrapper.getHeight());
+    // Set expanded height so that when the bottom sheet is expanded, the top edge of the header
+    // appears directly under the bottom edge of the toolbar.
+    int featureSheetMarginTop = (int) getResources().getDimension(R.dimen.feature_sheet_margin_top);
+    bottomSheetBehavior.setExpandedOffset(toolbarWrapper.getHeight() - featureSheetMarginTop);
 
-    bottomSheetBehavior.setPeekHeight(getBottomSheetPeekHeight(insets));
+    bottomSheetBehavior.setPeekHeight(getBottomSheetPeekHeight());
 
     getView().getViewTreeObserver().removeOnGlobalLayoutListener(this);
   }
@@ -315,13 +320,11 @@ public class HomeScreenFragment extends AbstractFragment
     headerView.setPadding(0, insets.getSystemWindowInsetTop(), 0, 0);
   }
 
-  private int getBottomSheetPeekHeight(WindowInsetsCompat insets) {
+  private int getBottomSheetPeekHeight() {
     double screenWidth = getScreenWidth(getActivity());
     double screenHeight = getScreenHeight(getActivity());
     double collapseMapHeight = screenWidth / COLLAPSED_MAP_ASPECT_RATIO;
-    int insetTop = insets.getSystemWindowInsetTop();
-    int headerHeight = getView().findViewById(R.id.feature_sheet_header).getHeight();
-    return (int) (screenHeight - insetTop - collapseMapHeight - headerHeight);
+    return (int) (screenHeight - collapseMapHeight);
   }
 
   private void onActiveProjectChange(Loadable<Project> project) {
@@ -455,7 +458,10 @@ public class HomeScreenFragment extends AbstractFragment
     showProjectSelector();
   }
 
+  // TODO: Move out of HomeScreenFragment.
   private class BottomSheetCallback extends BottomSheetBehavior.BottomSheetCallback {
+    private boolean roundedCorners = false;
+
     @Override
     public void onStateChanged(@NonNull View bottomSheet, int newState) {
       if (newState == BottomSheetBehavior.STATE_HIDDEN) {
@@ -465,7 +471,24 @@ public class HomeScreenFragment extends AbstractFragment
 
     @Override
     public void onSlide(@NonNull View bottomSheet, float slideOffset) {
-      // no-op.
+      if (bottomSheetHeader == null) {
+        return;
+      }
+
+      if (slideOffset == 1.0) {
+        if (roundedCorners) {
+          // Remove corners when sheet is fully expanded.
+          bottomSheetHeader.setBackgroundResource(R.color.colorBackground);
+          roundedCorners = false;
+        }
+      } else {
+        // Restore rounded corners when not full expanded.
+        // Note that setting drawable background in layout xml has no effect.
+        if (!roundedCorners) {
+          bottomSheetHeader.setBackgroundResource(R.drawable.bg_header_card);
+          roundedCorners = true;
+        }
+      }
     }
   }
 }
