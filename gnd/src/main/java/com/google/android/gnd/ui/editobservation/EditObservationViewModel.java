@@ -41,7 +41,7 @@ import io.reactivex.Single;
 import io.reactivex.processors.BehaviorProcessor;
 import io.reactivex.processors.PublishProcessor;
 import java.util.Date;
-import java.util.HashMap;
+import java.util.Map;
 import java8.util.Optional;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
@@ -67,7 +67,7 @@ public class EditObservationViewModel extends AbstractViewModel {
       BehaviorProcessor.create();
 
   /** "Save" button clicks. */
-  private final PublishProcessor<HashMap<Field, Optional<Response>>> saveClicks =
+  private final PublishProcessor<Map<Field, Optional<Response>>> saveClicks =
       PublishProcessor.create();
 
   // View state streams.
@@ -151,7 +151,7 @@ public class EditObservationViewModel extends AbstractViewModel {
     return originalObservation.getResponses();
   }
 
-  void onSaveResponses(HashMap<Field, Optional<Response>> fieldResponseMap) {
+  void onSaveResponses(Map<Field, Optional<Response>> fieldResponseMap) {
     saveClicks.onNext(fieldResponseMap);
   }
 
@@ -192,7 +192,7 @@ public class EditObservationViewModel extends AbstractViewModel {
         .onErrorResumeNext(this::onError);
   }
 
-  private Single<Event<SaveResult>> onSave(HashMap<Field, Optional<Response>> fieldResponseMap) {
+  private Single<Event<SaveResult>> onSave(Map<Field, Optional<Response>> fieldResponseMap) {
     ImmutableList<ResponseDelta> responseDeltas = getResponseDeltas(fieldResponseMap);
 
     // check for empty response delta
@@ -237,7 +237,7 @@ public class EditObservationViewModel extends AbstractViewModel {
   }
 
   private ImmutableList<ResponseDelta> getResponseDeltas(
-      HashMap<Field, Optional<Response>> fieldNewResponsesMap) {
+      Map<Field, Optional<Response>> fieldNewResponsesMap) {
     ImmutableList.Builder<ResponseDelta> deltas = ImmutableList.builder();
     for (Field field : fieldNewResponsesMap.keySet()) {
       Optional<Response> currentResponse = fieldNewResponsesMap.get(field);
@@ -261,7 +261,7 @@ public class EditObservationViewModel extends AbstractViewModel {
     return response != null && !response.get().isEmpty();
   }
 
-  boolean hasUnsavedChanges(HashMap<Field, Optional<Response>> fieldResponseMap) {
+  boolean hasUnsavedChanges(Map<Field, Optional<Response>> fieldResponseMap) {
     return !getResponseDeltas(fieldResponseMap).isEmpty();
   }
 

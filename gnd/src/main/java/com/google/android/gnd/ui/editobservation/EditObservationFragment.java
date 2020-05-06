@@ -45,6 +45,7 @@ import com.google.android.gnd.ui.field.FieldViewModel;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java8.util.Optional;
 import javax.inject.Inject;
 import timber.log.Timber;
@@ -102,7 +103,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
     fieldViewModel.initialize(args.getProjectId(), args.getFormId(), args.getFeatureId());
   }
 
-  private HashMap<Field, Optional<Response>> getResponses() {
+  private Map<Field, Optional<Response>> getResponses() {
     HashMap<Field, Optional<Response>> map = new HashMap<>();
     for (FieldView fieldView : fieldViews) {
       map.put(fieldView.getField(), fieldView.getResponse());
