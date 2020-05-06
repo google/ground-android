@@ -176,9 +176,7 @@ public class HomeScreenFragment extends AbstractFragment
     }
   }
 
-  /**
-   * Set the height of the bottom sheet so it completely fills the screen when expanded.
-   */
+  /** Set the height of the bottom sheet so it completely fills the screen when expanded. */
   private void setBottomSheetHeight() {
     CoordinatorLayout.LayoutParams params =
         (CoordinatorLayout.LayoutParams) bottomSheetScrollView.getLayoutParams();
@@ -245,8 +243,8 @@ public class HomeScreenFragment extends AbstractFragment
 
     // When the bottom sheet is expanded, the bottom edge of the header needs to be aligned with
     // the bottom edge of the toolbar (the header slides up under it).
-    bottomSheetBehavior.setExpandedOffset(
-        toolbarWrapper.getHeight() - bottomSheetHeader.getHeight());
+    int featureSheetMarginTop = (int) getResources().getDimension(R.dimen.feature_sheet_margin_top);
+    bottomSheetBehavior.setExpandedOffset(toolbarWrapper.getHeight() - featureSheetMarginTop);
 
     setBottomSheetHeight();
     getView().getViewTreeObserver().removeOnGlobalLayoutListener(this);
