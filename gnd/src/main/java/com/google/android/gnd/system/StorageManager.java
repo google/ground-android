@@ -144,6 +144,11 @@ public class StorageManager {
       throws IOException {
     // Make a local copy of the image
     File file = fileUtil.saveBitmap(bitmap, filename);
+
+    // TODO: Upload photos while synchronizing data mutations.
+    //  The current behavior causes the photo to be uploaded even before the form is saved.
+    //  This leads to redundancy if the user decides not to save the form afterwards.
+
     // Schedule for remote upload
     return photoSyncWorkManager.enqueueSyncWorker(file.getPath(), remotePath);
   }
