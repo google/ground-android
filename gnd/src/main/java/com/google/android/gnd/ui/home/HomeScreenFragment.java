@@ -34,7 +34,6 @@ import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.view.GravityCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -176,20 +175,6 @@ public class HomeScreenFragment extends AbstractFragment
     }
   }
 
-  /** Set the height of the bottom sheet so it completely fills the screen when expanded. */
-  private void setBottomSheetHeight() {
-    CoordinatorLayout.LayoutParams params =
-        (CoordinatorLayout.LayoutParams) bottomSheetScrollView.getLayoutParams();
-
-    int screenHeight = getScreenHeight(getActivity());
-    int statusBarHeight = statusBarScrim.getHeight();
-    int toolbarHeight = toolbar.getHeight();
-    int headerHeight = bottomSheetHeader.getHeight();
-
-    params.height = headerHeight + (screenHeight - (toolbarHeight + statusBarHeight));
-    bottomSheetScrollView.setLayoutParams(params);
-  }
-
   /** Fetches offline saved projects and adds them to navigation drawer. */
   private void updateNavDrawer() {
     projectSelectorViewModel
@@ -246,7 +231,6 @@ public class HomeScreenFragment extends AbstractFragment
     int featureSheetMarginTop = (int) getResources().getDimension(R.dimen.feature_sheet_margin_top);
     bottomSheetBehavior.setExpandedOffset(toolbarWrapper.getHeight() - featureSheetMarginTop);
 
-    setBottomSheetHeight();
     getView().getViewTreeObserver().removeOnGlobalLayoutListener(this);
   }
 
