@@ -35,7 +35,7 @@
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:layout_alignParentTop="true"
-      android:background="@color/colorPrimary">
+      android:background="@android:color/transparent">
 
       <com.google.android.gnd.ui.common.TwoLineToolbar
         android:id="@+id/toolbar"

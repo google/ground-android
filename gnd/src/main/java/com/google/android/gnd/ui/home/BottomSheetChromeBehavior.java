@@ -49,9 +49,7 @@ public class BottomSheetChromeBehavior extends OnBottomSheetSlideBehavior<ViewGr
     metrics.hideWithSheet(hamburgerButton, HIDE_ADD_BUTTON_THRESHOLD, SHOW_ADD_BUTTON_THRESHOLD);
     metrics.showWithSheet(
         addObservationButton, HIDE_ADD_BUTTON_THRESHOLD, SHOW_ADD_BUTTON_THRESHOLD);
-    toolbarWrapper.setBackgroundColor(layout.getResources().getColor(R.color.colorPrimary));
     toolbarWrapper.setTranslationY(
         scale(metrics.getVisibleRatio(), 0.3f, 0.5f, -toolbarWrapper.getHeight(), 0));
-    metrics.showWithSheet(toolbarWrapper.getBackground(), 0.9f, 1);
   }
 }
