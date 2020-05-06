@@ -64,6 +64,12 @@ public class FieldViewModel extends AbstractViewModel {
     this.cameraManager = cameraManager;
   }
 
+  public void initialize(String projectId, String formId, String featureId) {
+    this.projectId = projectId;
+    this.formId = formId;
+    this.featureId = featureId;
+  }
+
   public void onTextChanged(Field field, String text) {
     onResponseChanged(field, TextResponse.fromString(text));
   }
@@ -78,12 +84,8 @@ public class FieldViewModel extends AbstractViewModel {
     return responses;
   }
 
-  public void initialize(
-      ResponseMap responseMap, Form form, String projectId, String formId, String featureId) {
+  public void loadSavedResponses(Form form, ResponseMap responseMap) {
     this.form = form;
-    this.projectId = projectId;
-    this.formId = formId;
-    this.featureId = featureId;
 
     if (isPhotoFieldUpdated) {
       // TODO: Move 'isPhotoFieldUpdated' flag to activity/fragment

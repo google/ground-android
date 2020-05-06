@@ -30,6 +30,7 @@ import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.EditObservationFragBinding;
 import com.google.android.gnd.inject.ActivityScoped;
 import com.google.android.gnd.model.form.Element;
+import com.google.android.gnd.model.form.Element.Type;
 import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.model.observation.Response;
@@ -69,6 +70,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
     super.onCreate(savedInstanceState);
     viewModel = getViewModel(EditObservationViewModel.class);
     fieldViewModel = getViewModel(FieldViewModel.class);
+    fieldFactory = new FieldFactory(this, viewModelFactory);
   }
 
   @Override
@@ -87,14 +89,17 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
     super.onViewCreated(view, savedInstanceState);
     ((MainActivity) getActivity()).setActionBar(toolbar, R.drawable.ic_close_black_24dp);
     toolbar.setNavigationOnClickListener(__ -> onCloseButtonClick());
+
     // Observe state changes.
     viewModel.getForm().observe(getViewLifecycleOwner(), this::rebuildForm);
     viewModel
         .getSaveResults()
         .observe(getViewLifecycleOwner(), e -> e.ifUnhandled(this::handleSaveResult));
+
     // Initialize view model.
-    viewModel.initialize(EditObservationFragmentArgs.fromBundle(getArguments()));
-    fieldFactory = new FieldFactory(this, viewModelFactory);
+    EditObservationFragmentArgs args = EditObservationFragmentArgs.fromBundle(getArguments());
+    viewModel.initialize(args);
+    fieldViewModel.initialize(args.getProjectId(), args.getFormId(), args.getFeatureId());
   }
 
   private HashMap<Field, Optional<Response>> getResponses() {
@@ -129,29 +134,20 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
   }
 
   private void rebuildForm(Form form) {
-    EditObservationFragmentArgs args = EditObservationFragmentArgs.fromBundle(getArguments());
-    fieldViewModel.initialize(
-        viewModel.getOriginalResponses(),
-        form,
-        args.getProjectId(),
-        args.getFormId(),
-        args.getFeatureId());
-
     formLayout.removeAllViews();
     fieldViews.clear();
 
     for (Element element : form.getElements()) {
-      switch (element.getType()) {
-        case FIELD:
-          FieldView fieldView = fieldFactory.createFieldView(element.getField());
-          fieldViews.add(fieldView);
-          formLayout.addView(fieldView);
-          break;
-        default:
-          Timber.d("%s elements not yet supported", element.getType());
-          break;
+      if (element.getType() == Type.FIELD && element.getField() != null) {
+        FieldView fieldView = fieldFactory.createFieldView(element.getField());
+        fieldViews.add(fieldView);
+        formLayout.addView(fieldView);
+      } else {
+        Timber.e("%s elements not yet supported", element.getType());
       }
     }
+
+    fieldViewModel.loadSavedResponses(form, viewModel.getOriginalResponses());
   }
 
   @Override
