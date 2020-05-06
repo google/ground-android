@@ -42,9 +42,7 @@
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:elevation="@dimen/toolbar_elevation"
-        android:theme="@style/GreenToolbarTheme"
-        app:subtitle="@{viewModel.featureSheetState.feature.subtitle}"
-        app:title="@{viewModel.featureSheetState.feature.title}" />
+        android:theme="@style/GreenToolbarTheme" />
 
     </FrameLayout>
 
