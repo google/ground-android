@@ -30,7 +30,9 @@ import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.EditObservationFragBinding;
 import com.google.android.gnd.inject.ActivityScoped;
 import com.google.android.gnd.model.form.Element;
+import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.form.Form;
+import com.google.android.gnd.model.observation.Response;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.BackPressListener;
 import com.google.android.gnd.ui.common.EphemeralPopups;
@@ -40,7 +42,9 @@ import com.google.android.gnd.ui.field.FieldFactory;
 import com.google.android.gnd.ui.field.FieldView;
 import com.google.android.gnd.ui.field.FieldViewModel;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java8.util.Optional;
 import javax.inject.Inject;
 import timber.log.Timber;
 
@@ -89,12 +93,20 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
         .getSaveResults()
         .observe(getViewLifecycleOwner(), e -> e.ifUnhandled(this::handleSaveResult));
     // Initialize view model.
-    viewModel.initialize(fieldViewModel, EditObservationFragmentArgs.fromBundle(getArguments()));
+    viewModel.initialize(EditObservationFragmentArgs.fromBundle(getArguments()));
     fieldFactory = new FieldFactory(this, viewModelFactory);
   }
 
+  private HashMap<Field, Optional<Response>> getResponses() {
+    HashMap<Field, Optional<Response>> map = new HashMap<>();
+    for (FieldView fieldView : fieldViews) {
+      map.put(fieldView.getField(), fieldView.getResponse());
+    }
+    return map;
+  }
+
   public void onSaveClick() {
-    viewModel.onSaveClick();
+    viewModel.onSaveResponses(getResponses());
   }
 
   private void handleSaveResult(EditObservationViewModel.SaveResult saveResult) {
@@ -117,6 +129,14 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
   }
 
   private void rebuildForm(Form form) {
+    EditObservationFragmentArgs args = EditObservationFragmentArgs.fromBundle(getArguments());
+    fieldViewModel.initialize(
+        viewModel.getOriginalResponses(),
+        form,
+        args.getProjectId(),
+        args.getFormId(),
+        args.getFeatureId());
+
     formLayout.removeAllViews();
     fieldViews.clear();
 
@@ -144,7 +164,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
 
   @Override
   public boolean onBack() {
-    if (viewModel.hasUnsavedChanges()) {
+    if (viewModel.hasUnsavedChanges(getResponses())) {
       showUnsavedChangesDialog();
       return true;
     }
@@ -152,7 +172,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
   }
 
   private void onCloseButtonClick() {
-    if (viewModel.hasUnsavedChanges()) {
+    if (viewModel.hasUnsavedChanges(getResponses())) {
       showUnsavedChangesDialog();
     } else {
       navigator.navigateUp();

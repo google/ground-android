@@ -17,17 +17,15 @@
 package com.google.android.gnd.ui.field;
 
 import static com.google.android.gnd.persistence.remote.firestore.FirestoreStorageManager.getRemoteDestinationPath;
-import static java8.util.stream.StreamSupport.stream;
 
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import androidx.annotation.Nullable;
 import androidx.databinding.ObservableArrayMap;
 import androidx.databinding.ObservableMap;
 import com.google.android.gnd.Config;
 import com.google.android.gnd.GndApplication;
 import com.google.android.gnd.R;
-import com.google.android.gnd.model.form.Element;
-import com.google.android.gnd.model.form.Element.Type;
 import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.model.observation.Response;
@@ -51,11 +49,12 @@ public class FieldViewModel extends AbstractViewModel {
   private final CameraManager cameraManager;
   private final ObservableMap<String, Response> responses = new ObservableArrayMap<>();
   private final ObservableMap<String, String> validationErrors = new ObservableArrayMap<>();
-  private String projectId;
-  private String formId;
-  private String featureId;
-  private Form form;
   private boolean isPhotoFieldUpdated;
+
+  @Nullable private String projectId;
+  @Nullable private String formId;
+  @Nullable private String featureId;
+  @Nullable private Form form;
 
   @Inject
   FieldViewModel(
@@ -79,11 +78,25 @@ public class FieldViewModel extends AbstractViewModel {
     return responses;
   }
 
-  public void setResponses(Form form, ResponseMap responseMap) {
+  public void initialize(
+      ResponseMap responseMap, Form form, String projectId, String formId, String featureId) {
+    this.form = form;
+    this.projectId = projectId;
+    this.formId = formId;
+    this.featureId = featureId;
+
     if (isPhotoFieldUpdated) {
+      // TODO: Move 'isPhotoFieldUpdated' flag to activity/fragment
+      // isPhotoFieldUpdated is set to true before launching photo capture/select intent.
+      // This prevents overwriting unsaved fields when the activity is resumed.
+      // But this state should be stored in the Activity/Fragment and not in ViewModel.
       isPhotoFieldUpdated = false;
     } else {
+      // clear in-memory responses and errors from last loaded form
       responses.clear();
+      validationErrors.clear();
+
+      // load saved responses
       for (String fieldId : responseMap.fieldIds()) {
         form.getField(fieldId)
             .ifPresent(field -> onResponseChanged(field, responseMap.getResponse(fieldId)));
@@ -101,14 +114,6 @@ public class FieldViewModel extends AbstractViewModel {
     }
   }
 
-  public void refreshValidationErrors() {
-    validationErrors.clear();
-    stream(form.getElements())
-        .filter(e -> e.getType().equals(Type.FIELD))
-        .map(Element::getField)
-        .forEach(this::updateError);
-  }
-
   private void updateError(Field field) {
     updateError(field, getResponse(field.getId()));
   }
@@ -122,10 +127,6 @@ public class FieldViewModel extends AbstractViewModel {
       Timber.d("Valid: %s", key);
       validationErrors.remove(field.getId());
     }
-  }
-
-  public boolean hasValidationErrors() {
-    return !validationErrors.isEmpty();
   }
 
   public ObservableMap<String, String> getValidationErrors() {
@@ -176,25 +177,5 @@ public class FieldViewModel extends AbstractViewModel {
     onTextChanged(form.getField(fieldId).get(), destinationPath);
 
     return storageManager.savePhoto(bitmap, localFileName, destinationPath);
-  }
-
-  public void setProjectId(String projectId) {
-    this.projectId = projectId;
-  }
-
-  public void setFormId(String formId) {
-    this.formId = formId;
-  }
-
-  public void setFeatureId(String featureId) {
-    this.featureId = featureId;
-  }
-
-  public void setObservationId(String observationId) {
-    // no-op
-  }
-
-  public void setForm(Form form) {
-    this.form = form;
   }
 }

@@ -21,9 +21,11 @@ import android.widget.FrameLayout;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.ViewModel;
 import com.google.android.gnd.model.form.Field;
+import com.google.android.gnd.model.observation.Response;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.ViewModelFactory;
 import com.google.android.gnd.ui.util.ViewUtil;
+import java8.util.Optional;
 
 public abstract class FieldView extends FrameLayout {
 
@@ -78,4 +80,12 @@ public abstract class FieldView extends FrameLayout {
 
   /** Free system resources (if needed). */
   public void onPause() {}
+
+  public Optional<Response> getResponse() {
+    return getViewModel().getResponse(field.getId());
+  }
+
+  public Field getField() {
+    return field;
+  }
 }

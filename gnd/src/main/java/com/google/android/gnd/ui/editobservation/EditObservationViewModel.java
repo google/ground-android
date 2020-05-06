@@ -24,8 +24,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import com.google.android.gnd.GndApplication;
 import com.google.android.gnd.R;
-import com.google.android.gnd.model.form.Element;
-import com.google.android.gnd.model.form.Element.Type;
+import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.model.observation.ObservationMutation;
@@ -34,16 +33,15 @@ import com.google.android.gnd.model.observation.ResponseDelta;
 import com.google.android.gnd.model.observation.ResponseMap;
 import com.google.android.gnd.repository.ObservationRepository;
 import com.google.android.gnd.rx.Event;
-import com.google.android.gnd.rx.Nil;
 import com.google.android.gnd.system.AuthenticationManager;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.common.SharedViewModel;
-import com.google.android.gnd.ui.field.FieldViewModel;
 import com.google.common.collect.ImmutableList;
 import io.reactivex.Single;
 import io.reactivex.processors.BehaviorProcessor;
 import io.reactivex.processors.PublishProcessor;
 import java.util.Date;
+import java.util.HashMap;
 import java8.util.Optional;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
@@ -69,7 +67,8 @@ public class EditObservationViewModel extends AbstractViewModel {
       BehaviorProcessor.create();
 
   /** "Save" button clicks. */
-  private final PublishProcessor<Nil> saveClicks = PublishProcessor.create();
+  private final PublishProcessor<HashMap<Field, Optional<Response>>> saveClicks =
+      PublishProcessor.create();
 
   // View state streams.
 
@@ -93,8 +92,6 @@ public class EditObservationViewModel extends AbstractViewModel {
   /** Outcome of user clicking "Save". */
   private final LiveData<Event<SaveResult>> saveResults;
 
-  private FieldViewModel fieldViewModel;
-
   // Internal state.
 
   /** Observation state loaded when view is initialized. */
@@ -112,7 +109,7 @@ public class EditObservationViewModel extends AbstractViewModel {
     this.observationRepository = observationRepository;
     this.authManager = authenticationManager;
     this.form = fromPublisher(viewArgs.switchMapSingle(this::onInitialize));
-    this.saveResults = fromPublisher(saveClicks.switchMapSingle(__ -> onSave()));
+    this.saveResults = fromPublisher(saveClicks.switchMapSingle(this::onSave));
   }
 
   private static boolean isAddObservationRequest(EditObservationFragmentArgs args) {
@@ -143,22 +140,19 @@ public class EditObservationViewModel extends AbstractViewModel {
     return saveResults;
   }
 
-  void initialize(FieldViewModel fieldViewModel, EditObservationFragmentArgs args) {
-    this.fieldViewModel = fieldViewModel;
-    fieldViewModel.setProjectId(args.getProjectId());
-    fieldViewModel.setFormId(args.getFormId());
-    fieldViewModel.setFeatureId(args.getFeatureId());
-    fieldViewModel.setObservationId(args.getObservationId());
-
+  void initialize(EditObservationFragmentArgs args) {
     viewArgs.onNext(args);
   }
 
-  private Optional<Response> getResponse(String fieldId) {
-    return Optional.ofNullable(fieldViewModel.getResponses().get(fieldId));
+  ResponseMap getOriginalResponses() {
+    if (originalObservation == null) {
+      throw new IllegalStateException("Attempted to get responses before observation is loaded");
+    }
+    return originalObservation.getResponses();
   }
 
-  public void onSaveClick() {
-    saveClicks.onNext(Nil.NIL);
+  void onSaveResponses(HashMap<Field, Optional<Response>> fieldResponseMap) {
+    saveClicks.onNext(fieldResponseMap);
   }
 
   private Single<Form> onInitialize(EditObservationFragmentArgs viewArgs) {
@@ -178,9 +172,6 @@ public class EditObservationViewModel extends AbstractViewModel {
 
   private void onObservationLoaded(Observation observation) {
     this.originalObservation = observation;
-    fieldViewModel.setForm(observation.getForm());
-    fieldViewModel.setResponses(observation.getForm(), observation.getResponses());
-    fieldViewModel.refreshValidationErrors();
     saveButtonVisibility.postValue(View.VISIBLE);
     loadingSpinnerVisibility.postValue(View.GONE);
   }
@@ -201,19 +192,22 @@ public class EditObservationViewModel extends AbstractViewModel {
         .onErrorResumeNext(this::onError);
   }
 
-  private Single<Event<SaveResult>> onSave() {
-    if (originalObservation == null) {
-      Timber.e("Save attempted before observation loaded");
+  private Single<Event<SaveResult>> onSave(HashMap<Field, Optional<Response>> fieldResponseMap) {
+    ImmutableList<ResponseDelta> responseDeltas = getResponseDeltas(fieldResponseMap);
+
+    // check for empty response delta
+    if (responseDeltas.isEmpty()) {
       return Single.just(Event.create(SaveResult.NO_CHANGES_TO_SAVE));
     }
-    fieldViewModel.refreshValidationErrors();
-    if (fieldViewModel.hasValidationErrors()) {
-      return Single.just(Event.create(SaveResult.HAS_VALIDATION_ERRORS));
+
+    // check for invalid responses
+    for (Field field : fieldResponseMap.keySet()) {
+      if (!isValid(field, fieldResponseMap.get(field))) {
+        return Single.just(Event.create(SaveResult.HAS_VALIDATION_ERRORS));
+      }
     }
-    if (!hasUnsavedChanges()) {
-      return Single.just(Event.create(SaveResult.NO_CHANGES_TO_SAVE));
-    }
-    return save();
+    Timber.d("Deltas: %s", responseDeltas);
+    return saveResponseDelta(responseDeltas);
   }
 
   private <T> Single<T> onError(Throwable throwable) {
@@ -222,7 +216,7 @@ public class EditObservationViewModel extends AbstractViewModel {
     return Single.never();
   }
 
-  private Single<Event<SaveResult>> save() {
+  private Single<Event<SaveResult>> saveResponseDelta(ImmutableList<ResponseDelta> responseDeltas) {
     savingProgressVisibility.setValue(View.VISIBLE);
     ObservationMutation observationMutation =
         ObservationMutation.builder()
@@ -232,7 +226,7 @@ public class EditObservationViewModel extends AbstractViewModel {
             .setLayerId(originalObservation.getFeature().getLayer().getId())
             .setObservationId(originalObservation.getId())
             .setFormId(originalObservation.getForm().getId())
-            .setResponseDeltas(getResponseDeltas())
+            .setResponseDeltas(responseDeltas)
             .setClientTimestamp(new Date())
             .setUserId(authManager.getCurrentUser().getId())
             .build();
@@ -242,33 +236,33 @@ public class EditObservationViewModel extends AbstractViewModel {
         .toSingleDefault(Event.create(SaveResult.SAVED));
   }
 
-  private ImmutableList<ResponseDelta> getResponseDeltas() {
-    if (originalObservation == null) {
-      Timber.e("Response diff attempted before observation loaded");
-      return ImmutableList.of();
-    }
+  private ImmutableList<ResponseDelta> getResponseDeltas(
+      HashMap<Field, Optional<Response>> fieldNewResponsesMap) {
     ImmutableList.Builder<ResponseDelta> deltas = ImmutableList.builder();
-    ResponseMap originalResponses = originalObservation.getResponses();
-    for (Element e : originalObservation.getForm().getElements()) {
-      if (e.getType() != Type.FIELD) {
-        continue;
+    for (Field field : fieldNewResponsesMap.keySet()) {
+      Optional<Response> currentResponse = fieldNewResponsesMap.get(field);
+      Optional<Response> originalResponse = getOriginalResponses().getResponse(field.getId());
+      if (!currentResponse.equals(originalResponse)) {
+        deltas.add(
+            ResponseDelta.builder()
+                .setFieldId(field.getId())
+                .setNewResponse(currentResponse)
+                .build());
       }
-      String fieldId = e.getField().getId();
-      Optional<Response> originalResponse = originalResponses.getResponse(fieldId);
-      Optional<Response> currentResponse = getResponse(fieldId).filter(r -> !r.isEmpty());
-      if (currentResponse.equals(originalResponse)) {
-        continue;
-      }
-      deltas.add(
-          ResponseDelta.builder().setFieldId(fieldId).setNewResponse(currentResponse).build());
     }
-    ImmutableList<ResponseDelta> result = deltas.build();
-    Timber.v("Deltas: %s", result);
-    return result;
+    return deltas.build();
   }
 
-  boolean hasUnsavedChanges() {
-    return !getResponseDeltas().isEmpty();
+  /** If field is required then response shouldn't be empty. */
+  private boolean isValid(Field field, Optional<Response> response) {
+    if (!field.isRequired()) {
+      return true;
+    }
+    return response != null && !response.get().isEmpty();
+  }
+
+  boolean hasUnsavedChanges(HashMap<Field, Optional<Response>> fieldResponseMap) {
+    return !getResponseDeltas(fieldResponseMap).isEmpty();
   }
 
   /** Possible outcomes of user clicking "Save". */
