@@ -49,10 +49,12 @@ import javax.inject.Singleton;
 public abstract class GndApplicationModule {
   private static final String SHARED_PREFERENCES_NAME = "shared_prefs";
 
-  /** Causes Dagger Android to generate a sub-component for the MainActivity. */
-  @ActivityScoped
+ /* @ActivityScoped
   @ContributesAndroidInjector(modules = {MainActivityModule.class, AuthenticationModule.class})
   abstract MainActivity mainActivityInjector();
+ */
+
+
 
   /** Causes Dagger Android to generate a sub-component for the SettingsActivity. */
   @ActivityScoped

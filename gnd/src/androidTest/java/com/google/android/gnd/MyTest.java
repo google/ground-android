@@ -13,6 +13,7 @@ import org.junit.runners.JUnit4;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
+import static androidx.test.espresso.matcher.ViewMatchers.isCompletelyDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static org.junit.Assert.*;
@@ -43,6 +44,12 @@ public class MyTest {
 
     ActivityScenario.launch(MainActivity.class);
     onView(withId(R.id.sign_in_button)).perform(click());
-    onView(withId(R.id.add_observation_btn)).check(matches(isDisplayed()));
+
+    // We probably need to mock/fake more than the user login, almost certainly avoid any connection with firebase
+    
+
+
+    // The project selection view should be displayed
+    onView(withId(R.id.project_list_view)).check(matches(isDisplayed()));
   }
 }

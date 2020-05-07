@@ -48,7 +48,7 @@ public class ProjectSelectorDialogFragment extends AbstractDialogFragment {
   @BindView(R.id.list_loading_progress_bar)
   View listLoadingProgressBar;
 
-  @BindView(R.id.list_view)
+  @BindView(R.id.project_list_view)
   ListView listView;
 
   private ProjectSelectorViewModel viewModel;

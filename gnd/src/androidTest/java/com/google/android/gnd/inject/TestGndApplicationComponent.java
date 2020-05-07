@@ -2,6 +2,7 @@ package com.google.android.gnd.inject;
 
 import com.google.android.gnd.GndApplication;
 import com.google.android.gnd.GndApplicationModule;
+import com.google.android.gnd.TestMainActivityInjectorModule;
 import com.google.android.gnd.persistence.local.LocalDataStoreModule;
 import com.google.android.gnd.ui.map.MapProviderModule;
 import dagger.Component;
@@ -13,8 +14,9 @@ import javax.inject.Singleton;
   modules = {
     GndApplicationModule.class,
     MapProviderModule.class,
-    LocalDataStoreModule.class
-  })
+    LocalDataStoreModule.class,
+    TestMainActivityInjectorModule.class
+    })
 public interface TestGndApplicationComponent extends AndroidInjector<GndApplication> {
 
   /**
@@ -23,7 +25,4 @@ public interface TestGndApplicationComponent extends AndroidInjector<GndApplicat
    */
   @Component.Factory
   interface Factory extends AndroidInjector.Factory<GndApplication> {}
-
-
-
 }
