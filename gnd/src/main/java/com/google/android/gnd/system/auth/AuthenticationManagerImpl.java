@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.system;
+package com.google.android.gnd.system.auth;
 
 import android.app.Activity;
 import android.app.Application;
@@ -29,8 +29,9 @@ import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gnd.R;
 import com.google.android.gnd.model.User;
+import com.google.android.gnd.system.ActivityStreams;
 import com.google.android.gnd.system.ActivityStreams.ActivityResult;
-import com.google.android.gnd.system.SignInState.State;
+import com.google.android.gnd.system.auth.SignInState.State;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;

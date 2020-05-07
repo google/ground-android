@@ -42,7 +42,7 @@ import com.google.android.gnd.model.observation.TextResponse;
 import com.google.android.gnd.repository.ObservationRepository;
 import com.google.android.gnd.rx.Event;
 import com.google.android.gnd.rx.Nil;
-import com.google.android.gnd.system.AuthenticationManager;
+import com.google.android.gnd.system.auth.AuthenticationManager;
 import com.google.android.gnd.system.CameraManager;
 import com.google.android.gnd.system.StorageManager;
 import com.google.android.gnd.ui.common.AbstractViewModel;

@@ -32,7 +32,7 @@ import com.google.android.gnd.persistence.remote.firestore.FirestoreUuidGenerato
 import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator;
 import com.google.android.gnd.rx.RxSchedulers;
 import com.google.android.gnd.rx.Schedulers;
-import com.google.android.gnd.system.AuthenticationModule;
+import com.google.android.gnd.system.auth.AuthenticationModule;
 import com.google.android.gnd.ui.common.ViewModelModule;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreSettings;

@@ -31,7 +31,7 @@ import com.google.android.gnd.rx.Action;
 import com.google.android.gnd.rx.Event;
 import com.google.android.gnd.rx.Loadable;
 import com.google.android.gnd.rx.Schedulers;
-import com.google.android.gnd.system.AuthenticationManager;
+import com.google.android.gnd.system.auth.AuthenticationManager;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.SharedViewModel;

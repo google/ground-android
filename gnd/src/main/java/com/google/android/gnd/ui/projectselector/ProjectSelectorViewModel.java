@@ -21,7 +21,7 @@ import androidx.lifecycle.LiveDataReactiveStreams;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.repository.ProjectRepository;
 import com.google.android.gnd.rx.Loadable;
-import com.google.android.gnd.system.AuthenticationManager;
+import com.google.android.gnd.system.auth.AuthenticationManager;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.common.collect.ImmutableList;
 import io.reactivex.Single;

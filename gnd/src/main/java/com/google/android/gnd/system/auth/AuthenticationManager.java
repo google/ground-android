@@ -1,6 +1,7 @@
-package com.google.android.gnd.system;
+package com.google.android.gnd.system.auth;
 
 import com.google.android.gnd.model.User;
+import com.google.android.gnd.system.auth.SignInState;
 import io.reactivex.Observable;
 
 public interface AuthenticationManager {

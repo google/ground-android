@@ -16,7 +16,7 @@
 
 package com.google.android.gnd.ui.signin;
 
-import com.google.android.gnd.system.AuthenticationManager;
+import com.google.android.gnd.system.auth.AuthenticationManager;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import javax.inject.Inject;
 
