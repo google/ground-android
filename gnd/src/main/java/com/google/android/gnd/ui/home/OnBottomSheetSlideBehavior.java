@@ -29,7 +29,7 @@ public abstract class OnBottomSheetSlideBehavior<V extends View>
   }
 
   protected abstract void onSheetScrolled(
-      CoordinatorLayout parent, V child, SheetSlideMetrics metrics);
+      CoordinatorLayout parent, V child, HomeScreenMetrics metrics);
 
   @Override
   public boolean layoutDependsOn(CoordinatorLayout parent, V child, View dependency) {
@@ -38,7 +38,7 @@ public abstract class OnBottomSheetSlideBehavior<V extends View>
 
   @Override
   public boolean onDependentViewChanged(CoordinatorLayout parent, V child, View dependency) {
-    onSheetScrolled(parent, child, new SheetSlideMetrics(parent, dependency));
+    onSheetScrolled(parent, child, new HomeScreenMetrics(parent, dependency));
     return false;
   }
 }

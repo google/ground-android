@@ -23,11 +23,11 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import com.google.android.gnd.R;
 import com.google.android.gnd.ui.common.BottomSheetBehavior;
 
-public class SheetSlideMetrics {
+public class HomeScreenMetrics {
   private final CoordinatorLayout parent;
   private final View view;
 
-  public SheetSlideMetrics(CoordinatorLayout parent, View view) {
+  public HomeScreenMetrics(CoordinatorLayout parent, View view) {
     this.parent = parent;
     this.view = view;
   }
