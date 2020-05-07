@@ -100,7 +100,7 @@ public class HomeScreenFragment extends AbstractFragment
   @BindView(R.id.bottom_sheet_header)
   ViewGroup bottomSheetHeader;
 
-  @BindView(R.id.bottom_sheet_scroll_view)
+  @BindView(R.id.feature_sheet_layout)
   View bottomSheetScrollView;
 
   @BindView(R.id.bottom_sheet_bottom_inset_scrim)
