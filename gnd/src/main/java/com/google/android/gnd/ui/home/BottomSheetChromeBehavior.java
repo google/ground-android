@@ -16,7 +16,7 @@
 
 package com.google.android.gnd.ui.home;
 
-import static com.google.android.gnd.ui.home.OnBottomSheetSlideBehavior.SheetSlideMetrics.scale;
+import static com.google.android.gnd.ui.home.SheetSlideMetrics.scale;
 
 import android.content.Context;
 import android.util.AttributeSet;

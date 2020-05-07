@@ -23,6 +23,7 @@ import android.widget.FrameLayout;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import com.google.android.gnd.R;
 import com.google.android.gnd.ui.home.OnBottomSheetSlideBehavior;
+import com.google.android.gnd.ui.home.SheetSlideMetrics;
 
 public class MapContainerLayoutBehavior extends OnBottomSheetSlideBehavior<FrameLayout> {
   private static final float SHOW_CROSSHAIRS_THRESHOLD = 0.5f;
