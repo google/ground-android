@@ -22,10 +22,10 @@ import android.view.View;
 import android.widget.FrameLayout;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import com.google.android.gnd.R;
+import com.google.android.gnd.ui.home.BottomSheetDependentBehavior;
 import com.google.android.gnd.ui.home.BottomSheetMetrics;
-import com.google.android.gnd.ui.home.OnBottomSheetSlideBehavior;
 
-public class MapContainerLayoutBehavior extends OnBottomSheetSlideBehavior<FrameLayout> {
+public class MapContainerLayoutBehavior extends BottomSheetDependentBehavior<FrameLayout> {
   private static final float SHOW_CROSSHAIRS_THRESHOLD = 0.5f;
   private static final float HIDE_CROSSHAIRS_THRESHOLD = 0.1f;
   private static final float SHOW_BUTTONS_THRESHOLD = 0.1f;

@@ -22,9 +22,9 @@ import android.view.View;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import com.google.android.gnd.R;
 
-public abstract class OnBottomSheetSlideBehavior<V extends View>
+public abstract class BottomSheetDependentBehavior<V extends View>
     extends CoordinatorLayout.Behavior<V> {
-  public OnBottomSheetSlideBehavior(Context context, AttributeSet attrs) {
+  public BottomSheetDependentBehavior(Context context, AttributeSet attrs) {
     super(context, attrs);
   }
 

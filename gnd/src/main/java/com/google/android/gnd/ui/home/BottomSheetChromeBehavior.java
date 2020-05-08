@@ -25,7 +25,7 @@ import android.view.ViewGroup;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import com.google.android.gnd.R;
 
-public class BottomSheetChromeBehavior extends OnBottomSheetSlideBehavior<ViewGroup> {
+public class BottomSheetChromeBehavior extends BottomSheetDependentBehavior<ViewGroup> {
   // TODO: Refactor transitions into "TransitionEffect" classes.
   private static final float HIDE_SCRIM_THRESHOLD = 0.0f;
   private static final float SHOW_SCRIM_THRESHOLD = 0.1f;
