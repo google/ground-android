@@ -36,7 +36,7 @@ public class MapContainerLayoutBehavior extends OnBottomSheetSlideBehavior<Frame
   }
 
   @Override
-  protected void onSheetScrolled(
+  protected void onBottomSheetChanged(
       CoordinatorLayout parent, FrameLayout mapContainerLayout, BottomSheetMetrics metrics) {
     if (metrics.getPeekHeight() <= 0) {
       return;

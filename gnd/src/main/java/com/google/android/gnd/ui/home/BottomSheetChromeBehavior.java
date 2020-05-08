@@ -37,7 +37,7 @@ public class BottomSheetChromeBehavior extends OnBottomSheetSlideBehavior<ViewGr
   }
 
   @Override
-  protected void onSheetScrolled(
+  protected void onBottomSheetChanged(
       CoordinatorLayout parent, ViewGroup layout, BottomSheetMetrics metrics) {
     View mapScrim = parent.findViewById(R.id.map_scrim);
     View hamburgerButton = parent.findViewById(R.id.hamburger_btn);

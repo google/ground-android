@@ -28,7 +28,7 @@ public abstract class OnBottomSheetSlideBehavior<V extends View>
     super(context, attrs);
   }
 
-  protected abstract void onSheetScrolled(
+  protected abstract void onBottomSheetChanged(
       CoordinatorLayout parent, V child, BottomSheetMetrics metrics);
 
   @Override
@@ -38,7 +38,7 @@ public abstract class OnBottomSheetSlideBehavior<V extends View>
 
   @Override
   public boolean onDependentViewChanged(CoordinatorLayout parent, V child, View bottomSheet) {
-    onSheetScrolled(parent, child, new BottomSheetMetrics(parent, bottomSheet));
+    onBottomSheetChanged(parent, child, new BottomSheetMetrics(parent, bottomSheet));
     return false;
   }
 }
