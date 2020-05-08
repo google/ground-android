@@ -40,7 +40,7 @@ public abstract class BottomSheetDependentBehavior<V extends View>
 
   @Override
   public boolean layoutDependsOn(CoordinatorLayout parent, V child, View dependency) {
-    return dependency.getId() == R.id.feature_sheet_layout;
+    return dependency.getId() == R.id.bottom_sheet_layout;
   }
 
   @Override

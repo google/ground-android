@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.ui.home.featuresheet;
+package com.google.android.gnd.ui.home.featuredetails;
 
 import android.view.View;
 import androidx.databinding.ObservableField;
@@ -24,13 +24,13 @@ import androidx.lifecycle.LiveDataReactiveStreams;
 import androidx.lifecycle.ViewModel;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.ui.common.SharedViewModel;
-import com.google.android.gnd.ui.home.FeatureSheetState;
+import com.google.android.gnd.ui.home.BottomSheetState;
 import io.reactivex.processors.BehaviorProcessor;
 import java8.util.Optional;
 import javax.inject.Inject;
 
 @SharedViewModel
-public class FeatureSheetViewModel extends ViewModel {
+public class FeatureDetailsViewModel extends ViewModel {
 
   public final ObservableField<String> featureTitle;
   public final ObservableField<String> featureSubtitle;
@@ -39,7 +39,7 @@ public class FeatureSheetViewModel extends ViewModel {
   private final BehaviorProcessor<Optional<Feature>> selectedFeature;
 
   @Inject
-  public FeatureSheetViewModel() {
+  public FeatureDetailsViewModel() {
     featureTitle = new ObservableField<>();
     featureSubtitle = new ObservableField<>();
     featureSubtitleVisibility = new ObservableInt();
@@ -54,7 +54,7 @@ public class FeatureSheetViewModel extends ViewModel {
     return LiveDataReactiveStreams.fromPublisher(selectedFeature);
   }
 
-  public void onFeatureSheetStateChange(FeatureSheetState state) {
+  public void onBottomSheetStateChange(BottomSheetState state) {
     if (!state.isVisible()) {
       selectedFeature.onNext(Optional.empty());
       return;

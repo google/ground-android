@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.ui.home.featuresheet;
+package com.google.android.gnd.ui.home.featuredetails;
 
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -23,17 +23,17 @@ import dagger.Module;
 import dagger.Provides;
 
 @Module
-public class FeatureSheetModule {
+public class FeatureDetailsModule {
 
   @Provides
   @FragmentScoped
-  public Fragment fragment(FeatureSheetFragment fragment) {
+  public Fragment fragment(FeatureDetailsFragment fragment) {
     return fragment;
   }
 
   @Provides
   @FragmentScoped
-  public FragmentManager fragmentManager(FeatureSheetFragment fragment) {
+  public FragmentManager fragmentManager(FeatureDetailsFragment fragment) {
     return fragment.getChildFragmentManager();
   }
 }

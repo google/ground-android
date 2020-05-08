@@ -55,9 +55,9 @@ public class HomeScreenViewModel extends AbstractViewModel {
   // TODO: Move into MapContainersViewModel
   private final MutableLiveData<Event<Point>> addFeatureDialogRequests;
 
-  // TODO: Move into FeatureSheetViewModel.
+  // TODO: Move into FeatureDetailsViewModel.
   private final MutableLiveData<Action> openDrawerRequests;
-  private final MutableLiveData<FeatureSheetState> featureSheetState;
+  private final MutableLiveData<BottomSheetState> bottomSheetState;
   private final MutableLiveData<Integer> addObservationButtonVisibility =
       new MutableLiveData<>(View.GONE);
 
@@ -71,7 +71,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
     this.projectRepository = projectRepository;
     this.addFeatureDialogRequests = new MutableLiveData<>();
     this.openDrawerRequests = new MutableLiveData<>();
-    this.featureSheetState = new MutableLiveData<>();
+    this.bottomSheetState = new MutableLiveData<>();
     this.activeProject =
         LiveDataReactiveStreams.fromPublisher(projectRepository.getActiveProjectOnceAndStream());
     this.navigator = navigator;
@@ -87,7 +87,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
                         .doOnError(this::onAddFeatureError)
                         .onErrorResumeNext(Single.never())) // Prevent from breaking upstream.
             .observeOn(schedulers.ui())
-            .subscribe(this::showFeatureSheet));
+            .subscribe(this::showBottomSheet));
   }
 
   public boolean shouldShowProjectSelectorOnStart() {
@@ -119,18 +119,18 @@ public class HomeScreenViewModel extends AbstractViewModel {
     return addFeatureDialogRequests;
   }
 
-  public LiveData<FeatureSheetState> getFeatureSheetState() {
-    return featureSheetState;
+  public LiveData<BottomSheetState> getBottomSheetState() {
+    return bottomSheetState;
   }
 
   // TODO: Remove extra indirection here?
   public void onMarkerClick(MapPin marker) {
-    showFeatureSheet(marker.getFeature());
+    showBottomSheet(marker.getFeature());
   }
 
-  private void showFeatureSheet(Feature feature) {
+  private void showBottomSheet(Feature feature) {
     addObservationButtonVisibility.setValue(View.VISIBLE);
-    featureSheetState.setValue(FeatureSheetState.visible(feature));
+    bottomSheetState.setValue(BottomSheetState.visible(feature));
   }
 
   public void onAddFeatureBtnClick(Point location) {
@@ -143,14 +143,14 @@ public class HomeScreenViewModel extends AbstractViewModel {
   }
 
   public void onBottomSheetHidden() {
-    featureSheetState.setValue(FeatureSheetState.hidden());
+    bottomSheetState.setValue(BottomSheetState.hidden());
     addObservationButtonVisibility.setValue(View.GONE);
   }
 
   public void addObservation() {
-    FeatureSheetState state = featureSheetState.getValue();
+    BottomSheetState state = bottomSheetState.getValue();
     if (state == null) {
-      Log.e(TAG, "Missing featureSheetState");
+      Log.e(TAG, "Missing bottomSheetState");
       return;
     }
     Feature feature = state.getFeature();

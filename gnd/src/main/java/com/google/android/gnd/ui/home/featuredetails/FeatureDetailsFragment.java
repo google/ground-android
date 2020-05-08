@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.ui.home.featuresheet;
+package com.google.android.gnd.ui.home.featuredetails;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -27,13 +27,13 @@ import androidx.core.view.WindowInsetsCompat;
 import butterknife.BindView;
 import com.google.android.gnd.MainViewModel;
 import com.google.android.gnd.R;
-import com.google.android.gnd.databinding.FeatureSheetFragBinding;
+import com.google.android.gnd.databinding.FeatureDetailsFragBinding;
 import com.google.android.gnd.ui.common.AbstractFragment;
-import com.google.android.gnd.ui.home.FeatureSheetState;
+import com.google.android.gnd.ui.home.BottomSheetState;
 import com.google.android.gnd.ui.home.HomeScreenViewModel;
 import javax.inject.Inject;
 
-public class FeatureSheetFragment extends AbstractFragment {
+public class FeatureDetailsFragment extends AbstractFragment {
 
   @BindView(R.id.feature_header_icon)
   ImageView featureHeaderIcon;
@@ -41,17 +41,17 @@ public class FeatureSheetFragment extends AbstractFragment {
   @BindView(R.id.observation_list_container)
   View observationListContainer;
 
-  private FeatureSheetViewModel viewModel;
+  private FeatureDetailsViewModel viewModel;
   private HomeScreenViewModel homeScreenViewModel;
   private MainViewModel mainViewModel;
 
   @Inject
-  public FeatureSheetFragment() {}
+  public FeatureDetailsFragment() {}
 
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    viewModel = getViewModel(FeatureSheetViewModel.class);
+    viewModel = getViewModel(FeatureDetailsViewModel.class);
     mainViewModel = getViewModel(MainViewModel.class);
     homeScreenViewModel = getViewModel(HomeScreenViewModel.class);
   }
@@ -59,7 +59,8 @@ public class FeatureSheetFragment extends AbstractFragment {
   @Override
   public View onCreateView(
       @NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-    FeatureSheetFragBinding binding = FeatureSheetFragBinding.inflate(inflater, container, false);
+    FeatureDetailsFragBinding binding =
+        FeatureDetailsFragBinding.inflate(inflater, container, false);
     binding.setViewModel(viewModel);
     binding.setLifecycleOwner(this);
     return binding.getRoot();
@@ -70,22 +71,22 @@ public class FeatureSheetFragment extends AbstractFragment {
     super.onActivityCreated(savedInstanceState);
     mainViewModel.getWindowInsets().observe(getViewLifecycleOwner(), this::onApplyWindowInsets);
     homeScreenViewModel
-        .getFeatureSheetState()
-        .observe(getViewLifecycleOwner(), this::onFeatureSheetStateChange);
+        .getBottomSheetState()
+        .observe(getViewLifecycleOwner(), this::onBottomSheetStateChange);
   }
 
-  private void onFeatureSheetStateChange(FeatureSheetState featureSheetState) {
-    if (featureSheetState.isVisible()) {
+  private void onBottomSheetStateChange(BottomSheetState state) {
+    if (state.isVisible()) {
       // TODO(#373): Update icon based on layer default style.
       // TODO: Auto add observation if there's only one form.
-      //      Feature feature = featureSheetState.getFeature();
+      //      Feature feature = state.getFeature();
       //      ImmutableList<Form> forms = feature.getLayer().getForms();
-      //      if (featureSheetState.isNewFeature() && forms.size() == 1) {
+      //      if (state.isNewFeature() && forms.size() == 1) {
       //        showAddObservation(feature, forms.get(0));
       //      }
     }
 
-    viewModel.onFeatureSheetStateChange(featureSheetState);
+    viewModel.onBottomSheetStateChange(state);
   }
 
   private void onApplyWindowInsets(WindowInsetsCompat insets) {

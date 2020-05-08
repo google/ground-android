@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.ui.home.featuresheet;
+package com.google.android.gnd.ui.home.featuredetails;
 
 import android.app.Application;
 import android.text.format.DateFormat;

@@ -25,9 +25,9 @@ import com.google.android.gnd.ui.editobservation.EditObservationModule;
 import com.google.android.gnd.ui.home.AddFeatureDialogFragment;
 import com.google.android.gnd.ui.home.HomeScreenFragment;
 import com.google.android.gnd.ui.home.HomeScreenModule;
-import com.google.android.gnd.ui.home.featuresheet.FeatureSheetFragment;
-import com.google.android.gnd.ui.home.featuresheet.FeatureSheetModule;
-import com.google.android.gnd.ui.home.featuresheet.ObservationListFragment;
+import com.google.android.gnd.ui.home.featuredetails.FeatureDetailsFragment;
+import com.google.android.gnd.ui.home.featuredetails.FeatureDetailsModule;
+import com.google.android.gnd.ui.home.featuredetails.ObservationListFragment;
 import com.google.android.gnd.ui.home.mapcontainer.MapContainerFragment;
 import com.google.android.gnd.ui.home.mapcontainer.MapContainerModule;
 import com.google.android.gnd.ui.observationdetails.ObservationDetailsFragment;
@@ -81,11 +81,11 @@ public abstract class MainActivityModule {
   abstract AddFeatureDialogFragment addFeatureDialogFragmentInjector();
 
   @FragmentScoped
-  @ContributesAndroidInjector(modules = FeatureSheetModule.class)
-  abstract FeatureSheetFragment featureSheetFragmentInjector();
+  @ContributesAndroidInjector(modules = FeatureDetailsModule.class)
+  abstract FeatureDetailsFragment featureDetailsFragmentInjector();
 
   @FragmentScoped
-  @ContributesAndroidInjector(modules = FeatureSheetModule.class)
+  @ContributesAndroidInjector(modules = FeatureDetailsModule.class)
   abstract ObservationListFragment observationListFragmentInjector();
 
   @FragmentScoped

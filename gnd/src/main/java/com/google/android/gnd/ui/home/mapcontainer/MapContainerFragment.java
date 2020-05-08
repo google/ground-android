@@ -41,7 +41,7 @@ import com.google.android.gnd.rx.Loadable;
 import com.google.android.gnd.system.PermissionsManager.PermissionDeniedException;
 import com.google.android.gnd.system.SettingsManager.SettingsChangeRequestCanceled;
 import com.google.android.gnd.ui.common.AbstractFragment;
-import com.google.android.gnd.ui.home.FeatureSheetState;
+import com.google.android.gnd.ui.home.BottomSheetState;
 import com.google.android.gnd.ui.home.HomeScreenViewModel;
 import com.google.android.gnd.ui.map.MapAdapter;
 import com.google.android.gnd.ui.map.MapProvider;
@@ -153,8 +153,8 @@ public class MapContainerFragment extends AbstractFragment {
         .observe(this, update -> onCameraUpdate(update, map));
     mapContainerViewModel.getActiveProject().observe(this, this::onProjectChange);
     homeScreenViewModel
-        .getFeatureSheetState()
-        .observe(this, state -> onFeatureSheetStateChange(state, map));
+        .getBottomSheetState()
+        .observe(this, state -> onBottomSheetStateChange(state, map));
     addFeatureBtn.setOnClickListener(
         __ -> homeScreenViewModel.onAddFeatureBtnClick(map.getCameraTarget()));
     enableLocationLockBtn();
@@ -167,7 +167,7 @@ public class MapContainerFragment extends AbstractFragment {
     mainViewModel.getWindowInsets().observe(getViewLifecycleOwner(), this::onApplyWindowInsets);
   }
 
-  private void onFeatureSheetStateChange(FeatureSheetState state, MapAdapter map) {
+  private void onBottomSheetStateChange(BottomSheetState state, MapAdapter map) {
     switch (state.getVisibility()) {
       case VISIBLE:
         map.disable();
