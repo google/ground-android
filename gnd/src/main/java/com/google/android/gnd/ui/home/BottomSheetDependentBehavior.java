@@ -22,12 +22,19 @@ import android.view.View;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import com.google.android.gnd.R;
 
+/**
+ * Base class for layout behaviors defining transitions dependent on bottom sheet changes (e.g.,
+ * scroll, expand, collapse).
+ */
 public abstract class BottomSheetDependentBehavior<V extends View>
     extends CoordinatorLayout.Behavior<V> {
   public BottomSheetDependentBehavior(Context context, AttributeSet attrs) {
     super(context, attrs);
   }
 
+  /**
+   * Overridden to define the behavior of layouts in relation to changes in the bottom sheet.
+   */
   protected abstract void onBottomSheetChanged(
       CoordinatorLayout parent, V child, BottomSheetMetrics metrics);
 
