@@ -84,22 +84,14 @@
       android:background="@color/colorBackground"
       android:elevation="3dp" />
 
-    <!-- TODO: Add drop shadow to top of circle and card -->
     <ImageView
-      android:id="@+id/feature_header_icon_background"
-      android:layout_width="@dimen/feature_header_icon_background_diameter"
-      android:layout_height="@dimen/feature_header_icon_background_diameter"
+      android:layout_width="@dimen/feature_details_icon_bg_diameter"
+      android:layout_height="@dimen/feature_details_icon_bg_diameter"
       android:layout_gravity="top|center_horizontal"
-      android:elevation="4dp"
-      android:src="@drawable/feature_header_icon_background_drawable" />
-
-    <ImageView
-      android:id="@+id/feature_header_icon"
-      android:layout_width="@dimen/feature_header_icon_width"
-      android:layout_height="@dimen/feature_header_icon_height"
-      android:layout_gravity="top|center_horizontal"
-      android:elevation="5dp"
-      android:paddingTop="@dimen/feature_header_icon_top_padding"
+      android:background="@drawable/bg_feature_details_icon"
+      android:elevation="@dimen/feature_details_icon_elevation"
+      android:outlineProvider="none"
+      android:scaleType="center"
       android:tint="@color/colorForeground"
       app:srcCompat="@drawable/ic_default_map_marker" />
 

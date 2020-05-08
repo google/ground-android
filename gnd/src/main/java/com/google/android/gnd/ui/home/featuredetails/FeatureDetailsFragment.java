@@ -20,7 +20,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.view.WindowInsetsCompat;
@@ -34,9 +33,6 @@ import com.google.android.gnd.ui.home.HomeScreenViewModel;
 import javax.inject.Inject;
 
 public class FeatureDetailsFragment extends AbstractFragment {
-
-  @BindView(R.id.feature_header_icon)
-  ImageView featureHeaderIcon;
 
   @BindView(R.id.observation_list_container)
   View observationListContainer;

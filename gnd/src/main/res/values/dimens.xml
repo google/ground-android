@@ -64,12 +64,8 @@
     <dimen name="field_error_padding_bottom">6dp</dimen>
     <!-- TODO: Make dimensions relative using Android data binding. -->
     <dimen name="bottom_sheet_margin_top">16dp</dimen>
-    <dimen name="feature_header_icon_width">42dp</dimen>
-    <dimen name="feature_header_icon_height">42dp</dimen>
-    <dimen name="feature_header_icon_background_diameter">58dp</dimen>
-    <!-- (feature_header_icon_background_diameter - feature_header_icon_height) / 2 - feature_sheet_margin_top -->
-    <dimen name="feature_header_icon_top_padding">8dp</dimen>
-    <!-- feature_header_icon_background_diameter - feature_sheet_margin_top - overlap -->
+    <dimen name="feature_details_icon_bg_diameter">58dp</dimen>
+    <dimen name="feature_details_icon_elevation">5dp</dimen>
     <dimen name="feature_details_header_padding_top">42dp</dimen>
     <dimen name="feature_details_header_corner_radius">6dp</dimen>
     <dimen name="observation_list_item_horizontal_margin">14dp</dimen>
