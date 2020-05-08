@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google LLC
+ * Copyright 2020 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.ui.home;
+package com.google.android.gnd.ui.home.featuresheet;
 
 import android.content.Context;
 import android.util.AttributeSet;
@@ -22,6 +22,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import com.google.android.gnd.R;
+import com.google.android.gnd.ui.home.BottomSheetDependentBehavior;
+import com.google.android.gnd.ui.home.BottomSheetMetrics;
 
 public class BottomSheetChromeBehavior extends BottomSheetDependentBehavior<ViewGroup> {
   public BottomSheetChromeBehavior(Context context, AttributeSet attrs) {
