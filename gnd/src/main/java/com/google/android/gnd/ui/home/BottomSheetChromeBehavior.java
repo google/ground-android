@@ -16,7 +16,7 @@
 
 package com.google.android.gnd.ui.home;
 
-import static com.google.android.gnd.ui.home.HomeScreenMetrics.scale;
+import static com.google.android.gnd.ui.home.BottomSheetMetrics.scale;
 
 import android.content.Context;
 import android.util.AttributeSet;
@@ -38,7 +38,7 @@ public class BottomSheetChromeBehavior extends OnBottomSheetSlideBehavior<ViewGr
 
   @Override
   protected void onSheetScrolled(
-      CoordinatorLayout parent, ViewGroup layout, HomeScreenMetrics metrics) {
+      CoordinatorLayout parent, ViewGroup layout, BottomSheetMetrics metrics) {
     View mapScrim = parent.findViewById(R.id.map_scrim);
     View hamburgerButton = parent.findViewById(R.id.hamburger_btn);
     View bottomSheetScrim = layout.findViewById(R.id.bottom_sheet_bottom_inset_scrim);
