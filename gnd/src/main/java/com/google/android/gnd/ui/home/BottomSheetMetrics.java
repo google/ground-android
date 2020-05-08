@@ -38,8 +38,8 @@ public class BottomSheetMetrics {
   }
 
   /** Returns the number of pixels of the bottom sheet visible above the bottom of the screen. */
-  public int getVisibleHeight() {
-    return Math.max(parent.getHeight() - bottomSheet.getTop() - header.getHeight(), 0);
+  private int getVisibleHeight() {
+    return Math.max(parent.getHeight() - bottomSheet.getTop(), 0);
   }
 
   /**
@@ -51,7 +51,8 @@ public class BottomSheetMetrics {
   public float getRevealRatio() {
     float buttonDistanceFromBottom =
         Math.max(parent.getHeight() - addObservationButton.getTop(), 0);
-    return Math.min(getVisibleHeight() / buttonDistanceFromBottom, 1.0f);
+    float sheetBodyVisibleHeight = getVisibleHeight() - header.getHeight();
+    return Math.min(sheetBodyVisibleHeight / buttonDistanceFromBottom, 1.0f);
   }
 
   /**
@@ -60,6 +61,14 @@ public class BottomSheetMetrics {
    */
   public int getPeekHeight() {
     return bottomSheetBehavior.getPeekHeight();
+  }
+
+  /**
+   * Returns the number of pixels the sheet has been expanded above peek height, or 0 if it is
+   * currently positioned below peek height.
+   */
+  public int getExpansionHeight() {
+    return Math.max(getVisibleHeight() - bottomSheetBehavior.getPeekHeight(), 0);
   }
 
   /**

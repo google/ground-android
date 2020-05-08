@@ -44,10 +44,7 @@ public class MapContainerLayoutBehavior extends BottomSheetDependentBehavior<Fra
       // View already destroyed.
       return;
     }
-    float visibleToolbarHeight = 0;
-    float bottomOffset = Math.min(metrics.getPeekHeight(), metrics.getVisibleHeight());
-    float offset = Math.max(bottomOffset - visibleToolbarHeight, 0f);
-    float translationY = -offset / 2.0f;
+    int translationY = -metrics.getExpansionHeight() / 2;
     map.setTranslationY(translationY);
     crosshairs.setTranslationY(translationY);
     float hideRatio = 1.0f - metrics.getRevealRatio();
