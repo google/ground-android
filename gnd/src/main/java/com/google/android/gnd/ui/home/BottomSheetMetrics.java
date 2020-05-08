@@ -26,7 +26,6 @@ public class BottomSheetMetrics {
   private final CoordinatorLayout parent;
   private final View bottomSheet;
   private final View addObservationButton;
-  private final View toolbarWrapper;
   private final BottomSheetBehavior<View> bottomSheetBehavior;
   private final View header;
 
@@ -34,7 +33,6 @@ public class BottomSheetMetrics {
     this.parent = parent;
     this.bottomSheet = bottomSheet;
     this.addObservationButton = parent.findViewById(R.id.add_observation_btn);
-    this.toolbarWrapper = parent.findViewById(R.id.toolbar_wrapper);
     this.bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet);
     this.header = parent.findViewById(R.id.bottom_sheet_header);
   }
