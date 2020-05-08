@@ -16,86 +16,67 @@
 
 package com.google.android.gnd.ui.home;
 
-import android.graphics.drawable.Drawable;
 import android.view.View;
-import androidx.annotation.Nullable;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import com.google.android.gnd.R;
 import com.google.android.gnd.ui.common.BottomSheetBehavior;
 
+/** Abstracts access to dimensions and positions of elements relative to the bottom sheet UI. */
 public class BottomSheetMetrics {
   private final CoordinatorLayout parent;
-  private final View view;
+  private final View bottomSheet;
+  private final View addObservationButton;
+  private final View toolbarWrapper;
+  private final BottomSheetBehavior<View> bottomSheetBehavior;
+  private final View header;
 
-  public BottomSheetMetrics(CoordinatorLayout parent, View view) {
+  BottomSheetMetrics(CoordinatorLayout parent, View bottomSheet) {
     this.parent = parent;
-    this.view = view;
+    this.bottomSheet = bottomSheet;
+    this.addObservationButton = parent.findViewById(R.id.add_observation_btn);
+    this.toolbarWrapper = parent.findViewById(R.id.toolbar_wrapper);
+    this.bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet);
+    this.header = parent.findViewById(R.id.bottom_sheet_header);
   }
 
-  public static float scale(float value, float before1, float before2, float after1, float after2) {
-    if (before1 > before2) {
-      return scale(value, before2, before1, after1, after2);
-    }
-    float minBefore = before1;
-    float maxBefore = before2;
-    float rangeBefore = maxBefore - minBefore;
-    float minAfter = Math.min(after1, after2);
-    float maxAfter = Math.max(after1, after2);
-    float rangeAfter = maxAfter - minAfter;
-    float ratio = (value - minBefore) / rangeBefore;
-    if (ratio > 1) {
-      ratio = 1;
-    }
-    if (ratio < 0) {
-      ratio = 0;
-    }
-    if (after1 > after2) {
-      ratio = 1 - ratio;
-    }
-    return ratio * rangeAfter + minAfter;
-  }
-
-  public float getVisibleRatio() {
-    return 1 - ((float) view.getTop()) / ((float) parent.getHeight());
-  }
-
-  public void showWithSheet(Drawable view, float hideThreshold, float showThreshold) {
-    view.setAlpha((int) scale(getVisibleRatio(), hideThreshold, showThreshold, 0.0f, 255.0f));
-  }
-
-  public void hideWithSheet(Drawable view, float showThreshold, float hideThreshold) {
-    view.setAlpha((int) scale(getVisibleRatio(), showThreshold, hideThreshold, 255.0f, 0.0f));
-  }
-
-  public void showWithSheet(@Nullable View view, float hideThreshold, float showThreshold) {
-    if (view != null) {
-      view.setAlpha(scale(getVisibleRatio(), hideThreshold, showThreshold, 0.0f, 1.0f));
-    }
-  }
-
-  public void hideWithSheet(@Nullable View view, float showThreshold, float hideThreshold) {
-    if (view != null) {
-      view.setAlpha(scale(getVisibleRatio(), showThreshold, hideThreshold, 1.0f, 0.0f));
-    }
-  }
-
-  public int getToolbarHeight() {
-    return parent.findViewById(R.id.toolbar).getHeight();
-  }
-
+  /** Returns the number of pixels of the bottom sheet visible above the bottom of the screen. */
   public int getVisibleHeight() {
-    return Math.max(parent.getHeight() - view.getTop(), 0);
+    return Math.max(parent.getHeight() - bottomSheet.getTop() - header.getHeight(), 0);
   }
 
-  public int getTop() {
-    return view.getTop();
+  /**
+   * Returns a ratio indicating bottom sheet scroll progress from hidden to visible state.
+   * Specifically, it returns 0 when the bottom sheet is fully hidden, 1 when the top of the
+   * observation list just passes the top of the "Add Observation" button, and a linearly
+   * interpolated ratio for all values in between.
+   */
+  public float getRevealRatio() {
+    float buttonDistanceFromBottom =
+        Math.max(parent.getHeight() - addObservationButton.getTop(), 0);
+    return Math.min(getVisibleHeight() / buttonDistanceFromBottom, 1.0f);
   }
 
-  public int getTabLayoutTop() {
-    return view.getTop() + view.getPaddingTop();
-  }
-
+  /**
+   * Returns the "peek height" of the bottom sheet, the height of the sheet when it is initially
+   * displayed and to which it snaps in "collapsed" state between full expanded and fully hidden.
+   */
   public int getPeekHeight() {
-    return BottomSheetBehavior.from(view).getPeekHeight();
+    return bottomSheetBehavior.getPeekHeight();
+  }
+
+  /**
+   * Returns bottom sheet slide progress as the linearly interpolated value between 0 (the bottom
+   * sheet is scrolled to peek height) and 1 (the bottom sheet is fully expanded).
+   */
+  public float getExpansionRatio() {
+    // Bottom sheet top position relative to its fully expanded state (0=full expanded).
+    float relativeTop = bottomSheet.getTop() - bottomSheetBehavior.getExpandedOffset();
+    // The relative top position when the bottom sheet is in "collapsed" position (i.e., open to
+    // the bottom sheet peek height).
+    float relativePeekTop =
+        parent.getHeight()
+            - bottomSheetBehavior.getPeekHeight()
+            - bottomSheetBehavior.getExpandedOffset();
+    return Math.max(1.0f - (relativeTop / relativePeekTop), 0f);
   }
 }

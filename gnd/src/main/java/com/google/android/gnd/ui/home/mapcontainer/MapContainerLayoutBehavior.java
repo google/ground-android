@@ -26,10 +26,6 @@ import com.google.android.gnd.ui.home.BottomSheetDependentBehavior;
 import com.google.android.gnd.ui.home.BottomSheetMetrics;
 
 public class MapContainerLayoutBehavior extends BottomSheetDependentBehavior<FrameLayout> {
-  private static final float SHOW_CROSSHAIRS_THRESHOLD = 0.5f;
-  private static final float HIDE_CROSSHAIRS_THRESHOLD = 0.1f;
-  private static final float SHOW_BUTTONS_THRESHOLD = 0.1f;
-  private static final float HIDE_BUTTONS_THRESOLD = 0.3f;
 
   public MapContainerLayoutBehavior(Context context, AttributeSet attrs) {
     super(context, attrs);
@@ -54,7 +50,8 @@ public class MapContainerLayoutBehavior extends BottomSheetDependentBehavior<Fra
     float translationY = -offset / 2.0f;
     map.setTranslationY(translationY);
     crosshairs.setTranslationY(translationY);
-    metrics.hideWithSheet(crosshairs, SHOW_CROSSHAIRS_THRESHOLD, HIDE_CROSSHAIRS_THRESHOLD);
-    metrics.hideWithSheet(mapButtonLayout, SHOW_BUTTONS_THRESHOLD, HIDE_BUTTONS_THRESOLD);
+    float hideRatio = 1.0f - metrics.getRevealRatio();
+    crosshairs.setAlpha(hideRatio);
+    mapButtonLayout.setAlpha(hideRatio);
   }
 }

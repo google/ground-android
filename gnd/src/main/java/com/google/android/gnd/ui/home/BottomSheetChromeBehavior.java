@@ -16,8 +16,6 @@
 
 package com.google.android.gnd.ui.home;
 
-import static com.google.android.gnd.ui.home.BottomSheetMetrics.scale;
-
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.View;
@@ -26,12 +24,6 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import com.google.android.gnd.R;
 
 public class BottomSheetChromeBehavior extends BottomSheetDependentBehavior<ViewGroup> {
-  // TODO: Refactor transitions into "TransitionEffect" classes.
-  private static final float HIDE_SCRIM_THRESHOLD = 0.0f;
-  private static final float SHOW_SCRIM_THRESHOLD = 0.1f;
-  private static final float HIDE_ADD_BUTTON_THRESHOLD = 0.3f;
-  private static final float SHOW_ADD_BUTTON_THRESHOLD = 0.5f;
-
   public BottomSheetChromeBehavior(Context context, AttributeSet attrs) {
     super(context, attrs);
   }
@@ -39,17 +31,20 @@ public class BottomSheetChromeBehavior extends BottomSheetDependentBehavior<View
   @Override
   protected void onBottomSheetChanged(
       CoordinatorLayout parent, ViewGroup layout, BottomSheetMetrics metrics) {
-    View mapScrim = parent.findViewById(R.id.map_scrim);
-    View hamburgerButton = parent.findViewById(R.id.hamburger_btn);
-    View bottomSheetScrim = layout.findViewById(R.id.bottom_sheet_bottom_inset_scrim);
-    View addObservationButton = layout.findViewById(R.id.add_observation_btn);
     ViewGroup toolbarWrapper = layout.findViewById(R.id.toolbar_wrapper);
-    metrics.showWithSheet(mapScrim, 0.75f, 1.0f);
-    metrics.showWithSheet(bottomSheetScrim, HIDE_SCRIM_THRESHOLD, SHOW_SCRIM_THRESHOLD);
-    metrics.hideWithSheet(hamburgerButton, HIDE_ADD_BUTTON_THRESHOLD, SHOW_ADD_BUTTON_THRESHOLD);
-    metrics.showWithSheet(
-        addObservationButton, HIDE_ADD_BUTTON_THRESHOLD, SHOW_ADD_BUTTON_THRESHOLD);
-    toolbarWrapper.setTranslationY(
-        scale(metrics.getVisibleRatio(), 0.3f, 0.5f, -toolbarWrapper.getHeight(), 0));
+    View bottomSheetScrim = layout.findViewById(R.id.bottom_sheet_bottom_inset_scrim);
+    View hamburgerButton = parent.findViewById(R.id.hamburger_btn);
+    View mapScrim = parent.findViewById(R.id.map_scrim);
+
+    // Fade in the bottom scrim and "Add Observation" button, with both being fully visible as soon
+    // as the top of the bottom sheet passes the top of the "Add Observation" button.
+    float revealRatio = metrics.getRevealRatio();
+    float hideRatio = 1.0f - revealRatio;
+    layout.setAlpha(revealRatio);
+    mapScrim.setAlpha(metrics.getExpansionRatio());
+    bottomSheetScrim.setAlpha(revealRatio);
+    toolbarWrapper.setAlpha(revealRatio);
+    toolbarWrapper.setTranslationY(-toolbarWrapper.getHeight() * hideRatio);
+    hamburgerButton.setAlpha(hideRatio);
   }
 }
