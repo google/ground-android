@@ -33,6 +33,8 @@ import io.reactivex.Single;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.LinkedList;
+import java.util.Queue;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -47,6 +49,7 @@ public class StorageManager {
   private final RemoteStorageManager remoteStorageManager;
   private final PhotoSyncWorkManager photoSyncWorkManager;
   private final FileUtil fileUtil;
+  private final Queue<String> requestIds = new LinkedList<>();
 
   @Inject
   public StorageManager(
@@ -84,7 +87,12 @@ public class StorageManager {
                   Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
                   intent.setType("image/*");
                   activity.startActivityForResult(intent, PICK_PHOTO_REQUEST_CODE);
+                  requestIds.add(id);
                 }));
+  }
+
+  public boolean isRequestPending(String id) {
+    return !requestIds.isEmpty() && requestIds.peek().equals(id);
   }
 
   /** Observe for the result of request code {@link StorageManager#PICK_PHOTO_REQUEST_CODE}. */
@@ -107,6 +115,7 @@ public class StorageManager {
           if (data == null) {
             return;
           }
+          requestIds.remove();
           em.onNext(data.getData());
         });
   }

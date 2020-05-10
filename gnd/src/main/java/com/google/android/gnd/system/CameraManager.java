@@ -24,6 +24,8 @@ import android.provider.MediaStore;
 import com.google.android.gnd.system.ActivityStreams.ActivityResult;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
+import java.util.LinkedList;
+import java.util.Queue;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -34,6 +36,7 @@ public class CameraManager {
   private static final int CAPTURE_PHOTO_REQUEST_CODE = CameraManager.class.hashCode() & 0xffff;
   private final PermissionsManager permissionsManager;
   private final ActivityStreams activityStreams;
+  private final Queue<String> requestIds = new LinkedList<>();
 
   @Inject
   public CameraManager(PermissionsManager permissionsManager, ActivityStreams activityStreams) {
@@ -60,7 +63,12 @@ public class CameraManager {
                 activity -> {
                   Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                   activity.startActivityForResult(cameraIntent, CAPTURE_PHOTO_REQUEST_CODE);
+                  requestIds.add(id);
                 }));
+  }
+
+  public boolean isRequestPending(String id) {
+    return !requestIds.isEmpty() && requestIds.peek().equals(id);
   }
 
   /** Observe for the result of request code {@link CameraManager#CAPTURE_PHOTO_REQUEST_CODE}. */
@@ -86,6 +94,7 @@ public class CameraManager {
           if (extras == null) {
             return;
           }
+          requestIds.remove();
           em.onNext((Bitmap) extras.get("data"));
         });
   }

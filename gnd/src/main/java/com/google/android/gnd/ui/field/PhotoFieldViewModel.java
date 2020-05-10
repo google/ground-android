@@ -26,6 +26,7 @@ import androidx.lifecycle.LiveDataReactiveStreams;
 import com.google.android.gnd.Config;
 import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.observation.Response;
+import com.google.android.gnd.model.observation.TextResponse;
 import com.google.android.gnd.system.CameraManager;
 import com.google.android.gnd.system.StorageManager;
 import com.google.android.gnd.ui.common.AbstractViewModel;
@@ -65,6 +66,13 @@ public class PhotoFieldViewModel extends AbstractViewModel {
     this.args = args;
 
     currentResponse.ifPresent(response -> setResponse(field, response));
+
+    // also check if request is pending
+    if (cameraManager.isRequestPending(field.getId())) {
+      handlePhotoCaptureResult();
+    } else if (storageManager.isRequestPending(field.getId())) {
+      handlePhotoPickerResult();
+    }
   }
 
   private Single<Uri> getDownloadUrl(String path) {
@@ -88,27 +96,27 @@ public class PhotoFieldViewModel extends AbstractViewModel {
   }
 
   public void showPhotoSelector() {
-    disposeOnClear(
-        storageManager
-            .launchPhotoPicker(field.getId())
-            .andThen(handlePhotoPickerResult())
-            .subscribe());
+    disposeOnClear(storageManager.launchPhotoPicker(field.getId()).subscribe());
   }
 
-  private Completable handlePhotoPickerResult() {
-    return storageManager.photoPickerResult().flatMapCompletable(this::saveBitmapAndUpdateResponse);
+  private void handlePhotoPickerResult() {
+    disposeOnClear(
+        storageManager
+            .photoPickerResult()
+            .flatMapCompletable(this::saveBitmapAndUpdateResponse)
+            .subscribe());
   }
 
   public void showPhotoCapture() {
-    disposeOnClear(
-        cameraManager
-            .launchPhotoCapture(field.getId())
-            .andThen(handlePhotoCaptureResult())
-            .subscribe());
+    disposeOnClear(cameraManager.launchPhotoCapture(field.getId()).subscribe());
   }
 
-  private Completable handlePhotoCaptureResult() {
-    return cameraManager.capturePhotoResult().flatMapCompletable(this::saveBitmapAndUpdateResponse);
+  private void handlePhotoCaptureResult() {
+    disposeOnClear(
+        cameraManager
+            .capturePhotoResult()
+            .flatMapCompletable(this::saveBitmapAndUpdateResponse)
+            .subscribe());
   }
 
   private Completable saveBitmapAndUpdateResponse(Bitmap bitmap) throws IOException {
@@ -116,6 +124,7 @@ public class PhotoFieldViewModel extends AbstractViewModel {
     String destinationPath =
         getRemoteDestinationPath(
             args.getProjectId(), args.getFormId(), args.getFeatureId(), localFileName);
+    setResponse(field, TextResponse.fromString(destinationPath).get());
     return storageManager.savePhoto(bitmap, localFileName, destinationPath);
   }
 }
