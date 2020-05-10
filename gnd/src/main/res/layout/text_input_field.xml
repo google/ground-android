@@ -22,11 +22,8 @@
 
   <data>
     <variable
-      name="field"
-      type="com.google.android.gnd.model.form.Field" />
-    <variable
-      name="viewModel"
-      type="com.google.android.gnd.ui.field.FieldViewModel" />
+      name="fieldView"
+      type="com.google.android.gnd.ui.field.FieldView" />
   </data>
 
   <LinearLayout
@@ -45,17 +42,15 @@
       style="@style/EditObservation.Field.Text"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:hint="@{field.label}">
+      android:hint="@{fieldView.field.label}">
 
       <com.google.android.material.textfield.TextInputEditText
         android:id="@+id/text_input_edit_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:maxLines="1"
-        android:text="@{viewModel.responses[field.id]}"
-        app:errorText="@{viewModel.validationErrors[field.id]}"
-        app:onFocusChange="@{(v, hasFocus) -> viewModel.onFocusChange(field, hasFocus)}"
-        app:onTextChanged="@{s -> viewModel.onTextChanged(field, (String) s)}"
+        android:text="@={fieldView.model.response}"
+        app:error="@{fieldView.model.error}"
         tools:text="Text value" />
 
     </com.google.android.material.textfield.TextInputLayout>

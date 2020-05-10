@@ -17,6 +17,7 @@
 package com.google.android.gnd.ui.editobservation;
 
 import android.app.AlertDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -34,6 +35,8 @@ import com.google.android.gnd.model.form.Element.Type;
 import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.model.observation.Response;
+import com.google.android.gnd.model.observation.ResponseMap;
+import com.google.android.gnd.system.ActivityStreams;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.BackPressListener;
 import com.google.android.gnd.ui.common.EphemeralPopups;
@@ -41,7 +44,6 @@ import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.TwoLineToolbar;
 import com.google.android.gnd.ui.field.FieldFactory;
 import com.google.android.gnd.ui.field.FieldView;
-import com.google.android.gnd.ui.field.FieldViewModel;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -54,6 +56,7 @@ import timber.log.Timber;
 public class EditObservationFragment extends AbstractFragment implements BackPressListener {
 
   @Inject Navigator navigator;
+  @Inject ActivityStreams activityStreams;
 
   @BindView(R.id.edit_observation_toolbar)
   TwoLineToolbar toolbar;
@@ -62,16 +65,16 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
   LinearLayout formLayout;
 
   private EditObservationViewModel viewModel;
-  private FieldViewModel fieldViewModel;
   private FieldFactory fieldFactory;
   private List<FieldView> fieldViews = new ArrayList<>();
+  private EditObservationFragmentArgs args;
 
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+    args = EditObservationFragmentArgs.fromBundle(getArguments());
     viewModel = getViewModel(EditObservationViewModel.class);
-    fieldViewModel = getViewModel(FieldViewModel.class);
-    fieldFactory = new FieldFactory(this, viewModelFactory);
+    fieldFactory = new FieldFactory(this, viewModelFactory, args);
   }
 
   @Override
@@ -98,9 +101,12 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
         .observe(getViewLifecycleOwner(), e -> e.ifUnhandled(this::handleSaveResult));
 
     // Initialize view model.
-    EditObservationFragmentArgs args = EditObservationFragmentArgs.fromBundle(getArguments());
     viewModel.initialize(args);
-    fieldViewModel.initialize(args.getProjectId(), args.getFormId(), args.getFeatureId());
+  }
+
+  @Override
+  public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+    super.onActivityResult(requestCode, resultCode, data);
   }
 
   private Map<Field, Optional<Response>> getResponses() {
@@ -138,24 +144,31 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
     formLayout.removeAllViews();
     fieldViews.clear();
 
+    ResponseMap initialResponses = viewModel.getResponses();
+
     for (Element element : form.getElements()) {
       if (element.getType() == Type.FIELD && element.getField() != null) {
-        FieldView fieldView = fieldFactory.createFieldView(element.getField());
+        Field field = element.getField();
+        Optional<Response> response = initialResponses.getResponse(field.getId());
+        FieldView fieldView = fieldFactory.createFieldView(field, response);
         fieldViews.add(fieldView);
         formLayout.addView(fieldView);
       } else {
         Timber.e("%s elements not yet supported", element.getType());
       }
     }
-
-    fieldViewModel.loadSavedResponses(form, viewModel.getOriginalResponses());
   }
 
   @Override
   public void onPause() {
+    ResponseMap.Builder builder = ResponseMap.builder();
     for (FieldView fieldView : fieldViews) {
       fieldView.onPause();
+      fieldView
+          .getResponse()
+          .ifPresent(response -> builder.putResponse(fieldView.getField().getId(), response));
     }
+    viewModel.setLastSavedResponses(builder.build());
     super.onPause();
   }
 

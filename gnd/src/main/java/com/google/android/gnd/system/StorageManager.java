@@ -35,7 +35,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import timber.log.Timber;
 
 /** Manages permissions needed for accessing storage and related flows to/from Activity. */
 @Singleton
@@ -69,15 +68,15 @@ public class StorageManager {
    * Requests for selecting a photo from the storage, if necessary permissions are granted.
    * Otherwise, requests for the permissions and then sends out the request.
    */
-  public Completable launchPhotoPicker() {
+  public Completable launchPhotoPicker(String id) {
     return permissionsManager
         .obtainPermission(permission.READ_EXTERNAL_STORAGE)
-        .andThen(sendPhotoPickerIntent());
+        .andThen(sendPhotoPickerIntent(id));
   }
 
   // TODO: Move UI-specific code to UI layer (Fragment or any related helper)
   /** Enqueue an intent for selecting a photo from the storage. */
-  private Completable sendPhotoPickerIntent() {
+  private Completable sendPhotoPickerIntent(String id) {
     return Completable.fromAction(
         () ->
             activityStreams.withActivity(
@@ -85,7 +84,6 @@ public class StorageManager {
                   Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
                   intent.setType("image/*");
                   activity.startActivityForResult(intent, PICK_PHOTO_REQUEST_CODE);
-                  Timber.d("file picker intent sent");
                 }));
   }
 

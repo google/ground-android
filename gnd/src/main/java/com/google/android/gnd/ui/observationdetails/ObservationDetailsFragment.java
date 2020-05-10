@@ -148,7 +148,7 @@ public class ObservationDetailsFragment extends AbstractFragment {
     PhotoFieldViewModel photoFieldViewModel = viewModelFactory.create(PhotoFieldViewModel.class);
     photoFieldBinding.setLifecycleOwner(this);
     photoFieldBinding.setViewModel(photoFieldViewModel);
-    photoFieldViewModel.updateField(response, field);
+    photoFieldViewModel.setResponse(field, response);
     container.addView(photoFieldBinding.getRoot());
   }
 

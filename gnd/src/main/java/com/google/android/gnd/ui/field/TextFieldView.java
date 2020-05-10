@@ -18,13 +18,20 @@ package com.google.android.gnd.ui.field;
 
 import com.google.android.gnd.databinding.TextInputFieldBinding;
 import com.google.android.gnd.model.form.Field;
+import com.google.android.gnd.model.observation.Response;
+import com.google.android.gnd.model.observation.TextResponse;
 import com.google.android.gnd.ui.common.AbstractFragment;
-import com.google.android.gnd.ui.common.ViewModelFactory;
+import com.google.android.gnd.ui.editobservation.EditObservationFragmentArgs;
+import java8.util.Optional;
 
 public class TextFieldView extends FieldView {
 
-  public TextFieldView(ViewModelFactory viewModelFactory, AbstractFragment fragment, Field field) {
-    super(viewModelFactory, fragment, field);
+  public TextFieldView(
+      AbstractFragment fragment,
+      Field field,
+      Optional<Response> response,
+      EditObservationFragmentArgs args) {
+    super(fragment, field, response, args);
   }
 
   @Override
@@ -32,9 +39,13 @@ public class TextFieldView extends FieldView {
     if (isEditMode()) {
       TextInputFieldBinding binding =
           TextInputFieldBinding.inflate(getLayoutInflater(), this, true);
-      binding.setViewModel(getViewModel());
-      binding.setField(field);
+      binding.setFieldView(this);
       binding.setLifecycleOwner(getLifecycleOwner());
     }
+  }
+
+  @Override
+  public Optional<Response> getResponse() {
+    return TextResponse.fromString(getModel().getResponse());
   }
 }

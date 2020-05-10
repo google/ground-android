@@ -19,40 +19,55 @@ package com.google.android.gnd.ui.field;
 import android.view.LayoutInflater;
 import android.widget.FrameLayout;
 import androidx.lifecycle.LifecycleOwner;
-import androidx.lifecycle.ViewModel;
 import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.observation.Response;
 import com.google.android.gnd.ui.common.AbstractFragment;
-import com.google.android.gnd.ui.common.ViewModelFactory;
+import com.google.android.gnd.ui.editobservation.EditObservationFragmentArgs;
 import com.google.android.gnd.ui.util.ViewUtil;
 import java8.util.Optional;
 
 public abstract class FieldView extends FrameLayout {
 
   protected final Field field;
-  private final ViewModelFactory viewModelFactory;
   private final AbstractFragment fragment;
+  private final EditObservationFragmentArgs args;
   private final boolean editMode;
-  private final FieldViewModel viewModel;
+  private final FieldModel model;
+  protected Optional<Response> currentResponse;
 
-  public FieldView(ViewModelFactory viewModelFactory, AbstractFragment fragment, Field field) {
-    this(viewModelFactory, fragment, field, true);
+  public FieldView(
+      AbstractFragment fragment,
+      Field field,
+      Optional<Response> response,
+      EditObservationFragmentArgs args) {
+    this(fragment, field, response, args, true);
   }
 
   public FieldView(
-      ViewModelFactory viewModelFactory, AbstractFragment fragment, Field field, boolean editMode) {
+      AbstractFragment fragment,
+      Field field,
+      Optional<Response> response,
+      EditObservationFragmentArgs args,
+      boolean editMode) {
     super(fragment.getContext());
-    this.viewModelFactory = viewModelFactory;
     this.field = field;
     this.fragment = fragment;
+    this.args = args;
     this.editMode = editMode;
-    this.viewModel = viewModelFactory.get(fragment, FieldViewModel.class);
+
+    model = new FieldModel(field, getContext().getResources());
+    setResponse(response);
+
     ViewUtil.assignGeneratedId(this);
     onCreateView();
   }
 
-  public FieldViewModel getViewModel() {
-    return viewModel;
+  public EditObservationFragmentArgs getArgs() {
+    return args;
+  }
+
+  public FieldModel getModel() {
+    return model;
   }
 
   public boolean isEditMode() {
@@ -67,22 +82,17 @@ public abstract class FieldView extends FrameLayout {
     return fragment.getViewLifecycleOwner();
   }
 
-  protected <T extends ViewModel> T getViewModel(Class<T> modelClass) {
-    return viewModelFactory.get(fragment, modelClass);
-  }
-
-  protected <T extends ViewModel> T createViewModel(Class<T> modelClass) {
-    return viewModelFactory.create(modelClass);
-  }
-
   /** Initialize layout. */
   public abstract void onCreateView();
 
   /** Free system resources (if needed). */
   public void onPause() {}
 
-  public Optional<Response> getResponse() {
-    return getViewModel().getResponse(field.getId());
+  public abstract Optional<Response> getResponse();
+
+  public void setResponse(Optional<Response> response) {
+    currentResponse = response;
+    response.ifPresent(r -> model.setResponse(r.getDetailsText(field)));
   }
 
   public Field getField() {

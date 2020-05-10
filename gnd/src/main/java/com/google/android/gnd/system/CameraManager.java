@@ -21,7 +21,6 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.util.Log;
 import com.google.android.gnd.system.ActivityStreams.ActivityResult;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
@@ -31,8 +30,6 @@ import javax.inject.Singleton;
 /** Manages permissions needed for using camera and related flows to/from Activity. */
 @Singleton
 public class CameraManager {
-
-  public static final String TAG = CameraManager.class.getName();
 
   private static final int CAPTURE_PHOTO_REQUEST_CODE = CameraManager.class.hashCode() & 0xffff;
   private final PermissionsManager permissionsManager;
@@ -48,22 +45,21 @@ public class CameraManager {
    * Requests for capturing a photo from camera, if necessary permissions are granted. Otherwise,
    * requests for the permissions and then sends out the request.
    */
-  public Completable launchPhotoCapture() {
+  public Completable launchPhotoCapture(String id) {
     return permissionsManager
         .obtainPermission(permission.WRITE_EXTERNAL_STORAGE)
         .andThen(permissionsManager.obtainPermission(permission.CAMERA))
-        .andThen(sendCapturePhotoIntent());
+        .andThen(sendCapturePhotoIntent(id));
   }
 
   /** Enqueue an intent for capturing a photo from camera. */
-  private Completable sendCapturePhotoIntent() {
+  private Completable sendCapturePhotoIntent(String id) {
     return Completable.fromAction(
         () ->
             activityStreams.withActivity(
                 activity -> {
                   Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                   activity.startActivityForResult(cameraIntent, CAPTURE_PHOTO_REQUEST_CODE);
-                  Log.d(TAG, "capture photo intent sent");
                 }));
   }
 

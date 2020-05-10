@@ -20,11 +20,8 @@
 
   <data>
     <variable
-      name="field"
-      type="com.google.android.gnd.model.form.Field" />
-    <variable
       name="viewModel"
-      type="com.google.android.gnd.ui.field.FieldViewModel" />
+      type="com.google.android.gnd.ui.field.PhotoFieldViewModel" />
   </data>
 
   <LinearLayout
@@ -37,13 +34,13 @@
       style="@style/AddPhotoActionItem"
       android:drawableStart="@drawable/ic_photo_camera"
       android:drawableLeft="@drawable/ic_photo_camera"
-      android:onClick="@{(view) -> viewModel.showPhotoCapture(field.id)}"
+      android:onClick="@{(view) -> viewModel.showPhotoCapture()}"
       android:text="@string/action_camera" />
     <TextView
       style="@style/AddPhotoActionItem"
       android:drawableStart="@drawable/ic_sd_storage"
       android:drawableLeft="@drawable/ic_sd_storage"
-      android:onClick="@{(view) -> viewModel.showPhotoSelector(field.id)}"
+      android:onClick="@{(view) -> viewModel.showPhotoSelector()}"
       android:text="@string/action_storage" />
   </LinearLayout>
 

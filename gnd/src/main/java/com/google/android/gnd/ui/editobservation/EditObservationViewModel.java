@@ -35,7 +35,7 @@ import com.google.android.gnd.repository.ObservationRepository;
 import com.google.android.gnd.rx.Event;
 import com.google.android.gnd.system.AuthenticationManager;
 import com.google.android.gnd.ui.common.AbstractViewModel;
-import com.google.android.gnd.ui.common.SharedViewModel;
+import com.google.android.gnd.ui.common.Validator;
 import com.google.common.collect.ImmutableList;
 import io.reactivex.Single;
 import io.reactivex.processors.BehaviorProcessor;
@@ -48,7 +48,6 @@ import javax.inject.Inject;
 import timber.log.Timber;
 
 // TODO: Save draft to local db on each change.
-@SharedViewModel
 public class EditObservationViewModel extends AbstractViewModel {
 
   // TODO: Move out of id and into fragment args.
@@ -99,6 +98,8 @@ public class EditObservationViewModel extends AbstractViewModel {
 
   /** True if the observation is being added, false if editing an existing one. */
   private boolean isNew;
+
+  private ResponseMap lastSavedResponses;
 
   @Inject
   EditObservationViewModel(
@@ -202,7 +203,7 @@ public class EditObservationViewModel extends AbstractViewModel {
 
     // check for invalid responses
     for (Field field : fieldResponseMap.keySet()) {
-      if (!isValid(field, fieldResponseMap.get(field))) {
+      if (!Validator.isValid(field, fieldResponseMap.get(field))) {
         return Single.just(Event.create(SaveResult.HAS_VALIDATION_ERRORS));
       }
     }
@@ -253,16 +254,16 @@ public class EditObservationViewModel extends AbstractViewModel {
     return deltas.build();
   }
 
-  /** If field is required then response shouldn't be empty. */
-  private boolean isValid(Field field, Optional<Response> response) {
-    if (!field.isRequired()) {
-      return true;
-    }
-    return response != null && !response.get().isEmpty();
-  }
-
   boolean hasUnsavedChanges(Map<Field, Optional<Response>> fieldResponseMap) {
     return !getResponseDeltas(fieldResponseMap).isEmpty();
+  }
+
+  public ResponseMap getResponses() {
+    return lastSavedResponses != null ? lastSavedResponses : getOriginalResponses();
+  }
+
+  public void setLastSavedResponses(ResponseMap lastSavedResponses) {
+    this.lastSavedResponses = lastSavedResponses;
   }
 
   /** Possible outcomes of user clicking "Save". */

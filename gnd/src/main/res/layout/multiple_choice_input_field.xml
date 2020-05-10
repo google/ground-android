@@ -21,12 +21,6 @@
   xmlns:tools="http://schemas.android.com/tools">
   <data>
     <variable
-      name="field"
-      type="com.google.android.gnd.model.form.Field" />
-    <variable
-      name="viewModel"
-      type="com.google.android.gnd.ui.field.FieldViewModel" />
-    <variable
       name="fieldView"
       type="com.google.android.gnd.ui.field.MultipleChoiceFieldView" />
   </data>
@@ -47,7 +41,7 @@
       style="@style/EditObservation.Field.Text"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:hint="@{field.label}">
+      android:hint="@{fieldView.field.label}">
 
       <!--
         Using deprecated editable="false" as a hack to reuse TextInputEditText styles for multi-
@@ -60,9 +54,9 @@
         android:editable="false"
         android:focusable="true"
         android:focusableInTouchMode="true"
-        android:text="@{viewModel.responses[field.id]}"
+        android:text="@{fieldView.model.response}"
         android:textColor="@color/field_value"
-        app:errorText="@{viewModel.validationErrors[field.id]}"
+        app:error="@{fieldView.model.error}"
         tools:text="One, two, three, four, five" />
 
     </com.google.android.material.textfield.TextInputLayout>

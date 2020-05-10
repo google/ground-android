@@ -22,7 +22,7 @@ import com.google.android.gnd.databinding.MultipleChoiceInputFieldBinding;
 import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.observation.Response;
 import com.google.android.gnd.ui.common.AbstractFragment;
-import com.google.android.gnd.ui.common.ViewModelFactory;
+import com.google.android.gnd.ui.editobservation.EditObservationFragmentArgs;
 import java8.util.Optional;
 import java8.util.function.Consumer;
 
@@ -31,8 +31,11 @@ public class MultipleChoiceFieldView extends FieldView {
   private AlertDialog dialog;
 
   public MultipleChoiceFieldView(
-      ViewModelFactory viewModelFactory, AbstractFragment fragment, Field field) {
-    super(viewModelFactory, fragment, field);
+      AbstractFragment fragment,
+      Field field,
+      Optional<Response> response,
+      EditObservationFragmentArgs args) {
+    super(fragment, field, response, args);
   }
 
   @Override
@@ -41,14 +44,12 @@ public class MultipleChoiceFieldView extends FieldView {
       MultipleChoiceInputFieldBinding binding =
           MultipleChoiceInputFieldBinding.inflate(getLayoutInflater(), this, true);
       binding.setFieldView(this);
-      binding.setViewModel(getViewModel());
       binding.setLifecycleOwner(getLifecycleOwner());
-      binding.setField(field);
     }
   }
 
   public void onShowDialog() {
-    dialog = getDialog(response -> getViewModel().onResponseChanged(field, response));
+    dialog = getDialog(this::setResponse);
     if (dialog != null) {
       dialog.show();
     }
@@ -56,7 +57,6 @@ public class MultipleChoiceFieldView extends FieldView {
 
   @Nullable
   private AlertDialog getDialog(Consumer<Optional<Response>> consumer) {
-    Optional<Response> currentResponse = getViewModel().getResponse(field.getId());
     switch (field.getMultipleChoice().getCardinality()) {
       case SELECT_ONE:
         return new SingleSelectDialogFactory(getContext()).create(field, currentResponse, consumer);
@@ -74,5 +74,10 @@ public class MultipleChoiceFieldView extends FieldView {
       dialog.dismiss();
     }
     super.onPause();
+  }
+
+  @Override
+  public Optional<Response> getResponse() {
+    return currentResponse != null ? currentResponse : Optional.empty();
   }
 }

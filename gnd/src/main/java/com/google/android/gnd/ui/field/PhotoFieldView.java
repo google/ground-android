@@ -16,20 +16,35 @@
 
 package com.google.android.gnd.ui.field;
 
+import android.net.Uri;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.google.android.gnd.databinding.AddPhotoBottomSheetDialogBinding;
 import com.google.android.gnd.databinding.PhotoInputFieldBinding;
 import com.google.android.gnd.model.form.Field;
+import com.google.android.gnd.model.observation.Response;
+import com.google.android.gnd.model.observation.TextResponse;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.ViewModelFactory;
+import com.google.android.gnd.ui.editobservation.EditObservationFragmentArgs;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
+import java8.util.Optional;
 
 public class PhotoFieldView extends FieldView {
 
+  @NonNull private PhotoFieldViewModel photoFieldViewModel;
   @Nullable private BottomSheetDialog bottomSheetDialog;
 
-  public PhotoFieldView(ViewModelFactory viewModelFactory, AbstractFragment fragment, Field field) {
-    super(viewModelFactory, fragment, field);
+  public PhotoFieldView(
+      ViewModelFactory viewModelFactory,
+      AbstractFragment fragment,
+      Field field,
+      Optional<Response> response,
+      EditObservationFragmentArgs args) {
+    super(fragment, field, response, args);
+
+    photoFieldViewModel = viewModelFactory.create(PhotoFieldViewModel.class);
+    photoFieldViewModel.init(field, getArgs(), response);
   }
 
   @Override
@@ -39,9 +54,6 @@ public class PhotoFieldView extends FieldView {
           PhotoInputFieldBinding.inflate(getLayoutInflater(), this, true);
       binding.setFieldView(this);
       binding.setLifecycleOwner(getLifecycleOwner());
-
-      PhotoFieldViewModel photoFieldViewModel = createViewModel(PhotoFieldViewModel.class);
-      photoFieldViewModel.init(field, getViewModel().getResponses());
       binding.setViewModel(photoFieldViewModel);
     }
   }
@@ -49,8 +61,7 @@ public class PhotoFieldView extends FieldView {
   public void onShowDialog() {
     AddPhotoBottomSheetDialogBinding binding =
         AddPhotoBottomSheetDialogBinding.inflate(getLayoutInflater());
-    binding.setViewModel(getViewModel());
-    binding.setField(field);
+    binding.setViewModel(photoFieldViewModel);
 
     if (bottomSheetDialog == null) {
       bottomSheetDialog = new BottomSheetDialog(getContext());
@@ -69,5 +80,11 @@ public class PhotoFieldView extends FieldView {
     }
 
     super.onPause();
+  }
+
+  @Override
+  public Optional<Response> getResponse() {
+    Uri uri = photoFieldViewModel.getUri().getValue();
+    return uri != null ? TextResponse.fromString(uri.toString()) : Optional.empty();
   }
 }
