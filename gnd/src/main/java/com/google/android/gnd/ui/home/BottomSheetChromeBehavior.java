@@ -16,7 +16,7 @@
 
 package com.google.android.gnd.ui.home;
 
-import static com.google.android.gnd.ui.home.OnBottomSheetSlideBehavior.SheetSlideMetrics.scale;
+import static com.google.android.gnd.ui.home.HomeScreenMetrics.scale;
 
 import android.content.Context;
 import android.util.AttributeSet;
@@ -38,24 +38,18 @@ public class BottomSheetChromeBehavior extends OnBottomSheetSlideBehavior<ViewGr
 
   @Override
   protected void onSheetScrolled(
-      CoordinatorLayout parent, ViewGroup layout, SheetSlideMetrics metrics) {
+      CoordinatorLayout parent, ViewGroup layout, HomeScreenMetrics metrics) {
     View mapScrim = parent.findViewById(R.id.map_scrim);
     View hamburgerButton = parent.findViewById(R.id.hamburger_btn);
     View bottomSheetScrim = layout.findViewById(R.id.bottom_sheet_bottom_inset_scrim);
     View addObservationButton = layout.findViewById(R.id.add_observation_btn);
     ViewGroup toolbarWrapper = layout.findViewById(R.id.toolbar_wrapper);
-    ViewGroup toolbarTitles = toolbarWrapper.findViewById(R.id.toolbar_titles_layout);
     metrics.showWithSheet(mapScrim, 0.75f, 1.0f);
     metrics.showWithSheet(bottomSheetScrim, HIDE_SCRIM_THRESHOLD, SHOW_SCRIM_THRESHOLD);
     metrics.hideWithSheet(hamburgerButton, HIDE_ADD_BUTTON_THRESHOLD, SHOW_ADD_BUTTON_THRESHOLD);
     metrics.showWithSheet(
         addObservationButton, HIDE_ADD_BUTTON_THRESHOLD, SHOW_ADD_BUTTON_THRESHOLD);
-    toolbarWrapper.setBackgroundColor(layout.getResources().getColor(R.color.colorPrimary));
     toolbarWrapper.setTranslationY(
         scale(metrics.getVisibleRatio(), 0.3f, 0.5f, -toolbarWrapper.getHeight(), 0));
-    metrics.showWithSheet(toolbarWrapper.getBackground(), 0.9f, 1);
-    // Fade in toolbar text labels with sheet expansion.
-    float alpha = scale(metrics.getTop(), 0, toolbarWrapper.getHeight(), 1f, 0f);
-    toolbarTitles.setAlpha(alpha);
   }
 }

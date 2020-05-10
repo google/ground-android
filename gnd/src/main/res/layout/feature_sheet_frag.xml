@@ -38,13 +38,12 @@
       android:layout_width="match_parent"
       android:layout_height="match_parent"
       android:layout_marginTop="@dimen/feature_sheet_margin_top"
-      android:layout_gravity="top"
-      android:background="@color/colorBackground"/>
+      android:layout_gravity="top" />
 
     <LinearLayout
         android:id="@+id/feature_sheet_card_contents"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_gravity="top"
         android:orientation="vertical">
 
@@ -56,7 +55,7 @@
         android:id="@+id/observation_list_frag"
         android:name="com.google.android.gnd.ui.home.featuresheet.ObservationListFragment"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="match_parent" />
 
     </LinearLayout>
 

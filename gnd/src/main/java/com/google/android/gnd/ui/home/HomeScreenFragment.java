@@ -34,7 +34,6 @@ import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.view.GravityCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -101,7 +100,7 @@ public class HomeScreenFragment extends AbstractFragment
   @BindView(R.id.bottom_sheet_header)
   ViewGroup bottomSheetHeader;
 
-  @BindView(R.id.bottom_sheet_scroll_view)
+  @BindView(R.id.feature_sheet_layout)
   View bottomSheetScrollView;
 
   @BindView(R.id.bottom_sheet_bottom_inset_scrim)
@@ -176,22 +175,6 @@ public class HomeScreenFragment extends AbstractFragment
     }
   }
 
-  /**
-   * Set the height of the bottom sheet so it completely fills the screen when expanded.
-   */
-  private void setBottomSheetHeight() {
-    CoordinatorLayout.LayoutParams params =
-        (CoordinatorLayout.LayoutParams) bottomSheetScrollView.getLayoutParams();
-
-    int screenHeight = getScreenHeight(getActivity());
-    int statusBarHeight = statusBarScrim.getHeight();
-    int toolbarHeight = toolbar.getHeight();
-    int headerHeight = bottomSheetHeader.getHeight();
-
-    params.height = headerHeight + (screenHeight - (toolbarHeight + statusBarHeight));
-    bottomSheetScrollView.setLayoutParams(params);
-  }
-
   /** Fetches offline saved projects and adds them to navigation drawer. */
   private void updateNavDrawer() {
     projectSelectorViewModel
@@ -245,10 +228,9 @@ public class HomeScreenFragment extends AbstractFragment
 
     // When the bottom sheet is expanded, the bottom edge of the header needs to be aligned with
     // the bottom edge of the toolbar (the header slides up under it).
-    bottomSheetBehavior.setExpandedOffset(
-        toolbarWrapper.getHeight() - bottomSheetHeader.getHeight());
+    int featureSheetMarginTop = (int) getResources().getDimension(R.dimen.feature_sheet_margin_top);
+    bottomSheetBehavior.setExpandedOffset(toolbarWrapper.getHeight() - featureSheetMarginTop);
 
-    setBottomSheetHeight();
     getView().getViewTreeObserver().removeOnGlobalLayoutListener(this);
   }
 
