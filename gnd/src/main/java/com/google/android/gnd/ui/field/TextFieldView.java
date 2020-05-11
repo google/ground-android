@@ -39,7 +39,7 @@ public class TextFieldView extends FieldView {
     if (isEditMode()) {
       TextInputFieldBinding binding =
           TextInputFieldBinding.inflate(getLayoutInflater(), this, true);
-      binding.setFieldView(this);
+      //      binding.setFieldView(this);
       binding.setLifecycleOwner(getLifecycleOwner());
     }
   }
