@@ -68,6 +68,10 @@ public class AbstractFieldViewModel extends AbstractViewModel {
     this.response.onNext(response);
   }
 
+  LiveData<Optional<Response>> responseUpdates() {
+    return LiveDataReactiveStreams.fromPublisher(response);
+  }
+
   public LiveData<String> getError() {
     return error;
   }

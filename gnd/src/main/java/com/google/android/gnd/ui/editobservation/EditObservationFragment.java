@@ -124,7 +124,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
       switch (element.getType()) {
         case FIELD:
           Field field = element.getField();
-          AbstractFieldViewModel fieldViewModel = factory.create(field.getType(), formLayout);
+          final AbstractFieldViewModel fieldViewModel = factory.create(field.getType(), formLayout);
           fieldViewModel.setField(field);
           fieldViewModel.setResponse(viewModel.getResponse(field.getId()));
 
@@ -145,6 +145,13 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
                             viewModel.getResponse().getValue(),
                             viewModel::setResponse));
           }
+
+          fieldViewModel
+              .responseUpdates()
+              .observe(
+                  this,
+                  responseOptional ->
+                      viewModel.onResponseChanged(fieldViewModel.getField(), responseOptional));
 
           fieldViewModels.add(fieldViewModel);
           break;
