@@ -34,7 +34,7 @@ public class AbstractFieldViewModel extends AbstractViewModel {
   private Field field;
   private Optional<Response> response;
 
-  public AbstractFieldViewModel(GndApplication application) {
+  AbstractFieldViewModel(GndApplication application) {
     resources = application.getResources();
   }
 

@@ -18,8 +18,6 @@ package com.google.android.gnd.ui.editobservation;
 
 import android.net.Uri;
 import android.view.View;
-import androidx.databinding.ObservableMap;
-import androidx.databinding.ObservableMap.OnMapChangedCallback;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
 import com.google.android.gnd.GndApplication;
@@ -63,27 +61,6 @@ public class PhotoFieldViewModel extends AbstractFieldViewModel {
 
   public LiveData<Integer> getVisibility() {
     return visibility;
-  }
-
-  void init(Field field, ObservableMap<String, Response> responses) {
-    if (field.getType() != Type.PHOTO) {
-      Timber.e("Not a photo type field: %s", field.getType());
-      return;
-    }
-
-    // Load last saved value
-    updateField(responses.get(field.getId()), field);
-
-    // Observe response updates
-    responses.addOnMapChangedCallback(
-        new OnMapChangedCallback<ObservableMap<String, Response>, String, Response>() {
-          @Override
-          public void onMapChanged(ObservableMap<String, Response> sender, String key) {
-            if (key != null && key.equals(field.getId())) {
-              updateField(sender.get(key), field);
-            }
-          }
-        });
   }
 
   @Override
