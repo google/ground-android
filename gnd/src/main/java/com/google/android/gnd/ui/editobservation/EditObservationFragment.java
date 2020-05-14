@@ -24,7 +24,6 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.databinding.ViewDataBinding;
 import butterknife.BindView;
 import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.R;
@@ -51,7 +50,7 @@ import timber.log.Timber;
 @ActivityScoped
 public class EditObservationFragment extends AbstractFragment implements BackPressListener {
 
-  private final List<ViewDataBinding> viewDataBindingList = new ArrayList<>();
+  private final List<AbstractFieldViewModel> fieldViewModels = new ArrayList<>();
 
   @Inject Navigator navigator;
 
@@ -61,13 +60,13 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
   @BindView(R.id.edit_observation_layout)
   LinearLayout formLayout;
 
+  private FieldViewBindingFactory factory;
   private EditObservationViewModel viewModel;
   private SingleSelectDialogFactory singleSelectDialogFactory;
   private MultiSelectDialogFactory multiSelectDialogFactory;
 
   @Nullable private EditObservationBottomSheetBinding addPhotoBottomSheetBinding;
   @Nullable private BottomSheetDialog bottomSheetDialog;
-  @NonNull private FieldViewBindingFactory factory;
 
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -126,8 +125,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
     for (Element element : form.getElements()) {
       switch (element.getType()) {
         case FIELD:
-          ViewDataBinding viewDataBinding = factory.create(element.getField(), formLayout);
-          viewDataBindingList.add(viewDataBinding);
+          fieldViewModels.add(factory.create(element.getField(), formLayout));
           break;
         default:
           Timber.d("%s elements not yet supported", element.getType());

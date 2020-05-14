@@ -29,6 +29,9 @@
     <variable
       name="viewModel"
       type="com.google.android.gnd.ui.editobservation.EditObservationViewModel" />
+    <variable
+      name="fieldViewModel"
+      type="com.google.android.gnd.ui.editobservation.MultipleChoiceFieldViewModel" />
   </data>
 
   <com.google.android.gnd.ui.editobservation.MultipleChoiceFieldLayout
