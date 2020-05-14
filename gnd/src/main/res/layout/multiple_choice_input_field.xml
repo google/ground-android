@@ -21,29 +21,20 @@
   xmlns:tools="http://schemas.android.com/tools">
   <data>
     <variable
-      name="fragment"
-      type="com.google.android.gnd.ui.editobservation.EditObservationFragment" />
-    <variable
-      name="field"
-      type="com.google.android.gnd.model.form.Field" />
-    <variable
-      name="viewModel"
-      type="com.google.android.gnd.ui.editobservation.EditObservationViewModel" />
-    <variable
       name="fieldViewModel"
       type="com.google.android.gnd.ui.editobservation.MultipleChoiceFieldViewModel" />
   </data>
 
   <com.google.android.gnd.ui.editobservation.MultipleChoiceFieldLayout
     style="@style/FieldView"
-    app:onShowDialog="@{() -> fragment.onShowDialog(field)}">
+    app:onShowDialog="@{() -> fieldViewModel.onShowDialog()}">
 
     <com.google.android.material.textfield.TextInputLayout
       android:id="@+id/multiple_choice_input_layout"
       style="@style/EditObservation.Field.Text"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:hint="@{field.label}">
+      android:hint="@{fieldViewModel.field.label}">
 
       <!--
         Using deprecated editable="false" as a hack to reuse TextInputEditText styles for multi-
@@ -56,9 +47,9 @@
         android:editable="false"
         android:focusable="true"
         android:focusableInTouchMode="true"
-        android:text="@{viewModel.responses[field.id]}"
+        android:text="@{fieldViewModel.responseValue}"
         android:textColor="@color/field_value"
-        app:errorText="@{viewModel.validationErrors[field.id]}"
+        app:error="@{fieldViewModel.error}"
         tools:text="One, two, three, four, five" />
 
     </com.google.android.material.textfield.TextInputLayout>

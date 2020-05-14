@@ -25,4 +25,8 @@ public class MultipleChoiceFieldViewModel extends AbstractFieldViewModel {
   MultipleChoiceFieldViewModel(GndApplication application) {
     super(application);
   }
+
+  public void onShowDialog() {
+    // todo
+  }
 }

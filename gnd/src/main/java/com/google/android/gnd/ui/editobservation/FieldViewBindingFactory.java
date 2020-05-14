@@ -54,7 +54,7 @@ public final class FieldViewBindingFactory {
       case TEXT:
         return createTextFieldBinding(formLayout);
       case MULTIPLE_CHOICE:
-        return createMultipleChoiceFieldBinding(field, formLayout);
+        return createMultipleChoiceFieldBinding(formLayout);
       case PHOTO:
         return createPhotoFieldBinding(field, formLayout);
       default:
@@ -76,14 +76,10 @@ public final class FieldViewBindingFactory {
     return binding.getViewModel();
   }
 
-  private AbstractFieldViewModel createMultipleChoiceFieldBinding(
-      Field field, LinearLayout formLayout) {
+  private AbstractFieldViewModel createMultipleChoiceFieldBinding(LinearLayout formLayout) {
     MultipleChoiceInputFieldBinding binding =
         MultipleChoiceInputFieldBinding.inflate(getLayoutInflater(), formLayout, true);
-    binding.setFragment(fragment);
-    binding.setViewModel(viewModel);
     binding.setLifecycleOwner(fragment);
-    binding.setField(field);
     binding.setFieldViewModel(viewModelFactory.create(MultipleChoiceFieldViewModel.class));
     assignGeneratedId(binding.getRoot());
     return binding.getFieldViewModel();
