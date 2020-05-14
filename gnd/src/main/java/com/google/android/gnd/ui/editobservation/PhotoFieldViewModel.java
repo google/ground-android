@@ -22,6 +22,7 @@ import androidx.databinding.ObservableMap;
 import androidx.databinding.ObservableMap.OnMapChangedCallback;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
+import com.google.android.gnd.GndApplication;
 import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.form.Field.Type;
 import com.google.android.gnd.model.observation.Response;
@@ -40,7 +41,8 @@ public class PhotoFieldViewModel extends AbstractFieldViewModel {
   private final LiveData<Integer> visibility;
 
   @Inject
-  PhotoFieldViewModel(StorageManager storageManager) {
+  PhotoFieldViewModel(StorageManager storageManager, GndApplication application) {
+    super(application);
     this.storageManager = storageManager;
     this.visibility =
         LiveDataReactiveStreams.fromPublisher(

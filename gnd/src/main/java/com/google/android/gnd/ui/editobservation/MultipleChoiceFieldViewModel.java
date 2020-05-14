@@ -16,10 +16,13 @@
 
 package com.google.android.gnd.ui.editobservation;
 
+import com.google.android.gnd.GndApplication;
 import javax.inject.Inject;
 
 public class MultipleChoiceFieldViewModel extends AbstractFieldViewModel {
 
   @Inject
-  MultipleChoiceFieldViewModel() {}
+  MultipleChoiceFieldViewModel(GndApplication application) {
+    super(application);
+  }
 }
