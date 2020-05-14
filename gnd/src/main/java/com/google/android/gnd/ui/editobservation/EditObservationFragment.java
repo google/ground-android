@@ -120,28 +120,19 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
       switch (element.getType()) {
         case FIELD:
           Field field = element.getField();
+          Optional<Response> response = viewModel.getResponse(field.getId());
           final AbstractFieldViewModel fieldViewModel = factory.create(field.getType(), formLayout);
           fieldViewModel.setField(field);
-          fieldViewModel.setResponse(viewModel.getResponse(field.getId()));
+          fieldViewModel.setResponse(response);
 
+          // UI interactions
           if (fieldViewModel instanceof PhotoFieldViewModel) {
-            ((PhotoFieldViewModel) fieldViewModel)
-                .getShowDialogClicks()
-                .observe(this, this::onShowPhotoSelectorDialog);
+            observeSelectPhotoClicks((PhotoFieldViewModel) fieldViewModel);
           } else if (fieldViewModel instanceof MultipleChoiceFieldViewModel) {
-            final MultipleChoiceFieldViewModel viewModel =
-                (MultipleChoiceFieldViewModel) fieldViewModel;
-            viewModel
-                .getShowDialogClicks()
-                .observe(
-                    this,
-                    __ ->
-                        onShowDialog(
-                            viewModel.getField(),
-                            viewModel.getResponse().getValue(),
-                            viewModel::setResponse));
+            observeMultipleChoiceClicks(((MultipleChoiceFieldViewModel) fieldViewModel));
           }
 
+          // New response
           fieldViewModel
               .responseUpdates()
               .observe(
@@ -153,6 +144,18 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
           throw new IllegalArgumentException(element.getType() + " elements not yet supported");
       }
     }
+  }
+
+  private void observeMultipleChoiceClicks(MultipleChoiceFieldViewModel viewModel) {
+    viewModel
+        .getShowDialogClicks()
+        .observe(
+            this,
+            __ ->
+                onShowDialog(
+                    viewModel.getField(),
+                    viewModel.getResponse().getValue(),
+                    viewModel::setResponse));
   }
 
   private void onShowDialog(
@@ -169,6 +172,12 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
         Timber.e("Unknown cardinality: %s", cardinality);
         break;
     }
+  }
+
+  private void observeSelectPhotoClicks(PhotoFieldViewModel viewModel) {
+    viewModel
+        .getShowDialogClicks()
+        .observe(this, __ -> onShowPhotoSelectorDialog(viewModel.getField()));
   }
 
   private void onShowPhotoSelectorDialog(Field field) {
