@@ -41,8 +41,6 @@ import com.google.android.gnd.ui.common.EphemeralPopups;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.TwoLineToolbar;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
-import java.util.ArrayList;
-import java.util.List;
 import java8.util.Optional;
 import java8.util.function.Consumer;
 import javax.inject.Inject;
@@ -50,8 +48,6 @@ import timber.log.Timber;
 
 @ActivityScoped
 public class EditObservationFragment extends AbstractFragment implements BackPressListener {
-
-  private final List<AbstractFieldViewModel> fieldViewModels = new ArrayList<>();
 
   @Inject Navigator navigator;
 
@@ -152,12 +148,9 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
                   this,
                   responseOptional ->
                       viewModel.onResponseChanged(fieldViewModel.getField(), responseOptional));
-
-          fieldViewModels.add(fieldViewModel);
           break;
         default:
-          Timber.d("%s elements not yet supported", element.getType());
-          break;
+          throw new IllegalArgumentException(element.getType() + " elements not yet supported");
       }
     }
   }
