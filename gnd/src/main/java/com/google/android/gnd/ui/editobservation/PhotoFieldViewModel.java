@@ -68,7 +68,7 @@ public class PhotoFieldViewModel extends AbstractFieldViewModel {
   @Override
   public void setResponse(Optional<Response> response) {
     super.setResponse(response);
-    updateField(response.get(), getField());
+    updateField(response.isPresent() ? response.get() : null, getField());
   }
 
   public void updateField(Response response, Field field) {
