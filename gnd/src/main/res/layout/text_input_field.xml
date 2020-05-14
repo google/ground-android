@@ -42,7 +42,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:maxLines="1"
-        android:text="@{viewModel.responseValue}"
+        android:text="@{viewModel.responseText}"
         app:error="@{viewModel.error}"
         app:onFocusChange="@{(v, hasFocus) -> viewModel.refreshError()}"
         app:onTextChanged="@{s -> viewModel.updateResponse((String)s)}"

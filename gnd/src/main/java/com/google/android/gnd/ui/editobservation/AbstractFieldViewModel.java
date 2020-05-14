@@ -18,25 +18,34 @@ package com.google.android.gnd.ui.editobservation;
 
 import android.content.res.Resources;
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.LiveDataReactiveStreams;
 import androidx.lifecycle.MutableLiveData;
 import com.google.android.gnd.GndApplication;
 import com.google.android.gnd.R;
 import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.observation.Response;
 import com.google.android.gnd.ui.common.AbstractViewModel;
+import io.reactivex.Single;
+import io.reactivex.processors.BehaviorProcessor;
 import java8.util.Optional;
 
 public class AbstractFieldViewModel extends AbstractViewModel {
 
   private final Resources resources;
   private final MutableLiveData<String> error = new MutableLiveData<>();
-  private final MutableLiveData<String> responseValue = new MutableLiveData<>();
+  private final LiveData<String> responseText;
+  private final BehaviorProcessor<Optional<Response>> response = BehaviorProcessor.create();
 
   private Field field;
-  private Optional<Response> response;
 
   AbstractFieldViewModel(GndApplication application) {
     resources = application.getResources();
+    responseText =
+        LiveDataReactiveStreams.fromPublisher(response.switchMapSingle(this::getDetailsText));
+  }
+
+  private Single<String> getDetailsText(Optional<Response> responseOptional) {
+    return Single.just(responseOptional.map(response -> response.getDetailsText(field)).orElse(""));
   }
 
   public Field getField() {
@@ -47,17 +56,16 @@ public class AbstractFieldViewModel extends AbstractViewModel {
     this.field = field;
   }
 
-  public LiveData<String> getResponseValue() {
-    return responseValue;
+  public LiveData<String> getResponseText() {
+    return responseText;
   }
 
-  public Optional<Response> getResponse() {
+  public BehaviorProcessor<Optional<Response>> getResponse() {
     return response;
   }
 
   public void setResponse(Optional<Response> response) {
-    this.response = response;
-    responseValue.setValue(response.map(r -> r.getDetailsText(field)).orElse(""));
+    this.response.onNext(response);
   }
 
   public LiveData<String> getError() {
@@ -69,7 +77,8 @@ public class AbstractFieldViewModel extends AbstractViewModel {
   }
 
   public void refreshError() {
-    if (field.isRequired() && (response == null || response.isEmpty())) {
+    if (field.isRequired()
+        && (responseText.getValue() == null || responseText.getValue().isEmpty())) {
       error.setValue(resources.getString(R.string.required_field));
     }
   }

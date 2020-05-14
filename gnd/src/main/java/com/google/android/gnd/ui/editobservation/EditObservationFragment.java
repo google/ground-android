@@ -132,9 +132,11 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
                 .getShowDialogClicks()
                 .observe(this, this::onShowPhotoSelectorDialog);
           } else if (fieldViewModel instanceof MultipleChoiceFieldViewModel) {
-            ((MultipleChoiceFieldViewModel) fieldViewModel)
+            final MultipleChoiceFieldViewModel viewModel =
+                (MultipleChoiceFieldViewModel) fieldViewModel;
+            viewModel
                 .getShowDialogClicks()
-                .observe(this, this::onShowDialog);
+                .observe(this, field1 -> onShowDialog(field1, viewModel));
           }
 
           fieldViewModels.add(fieldViewModel);
@@ -146,18 +148,16 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
     }
   }
 
-  private void onShowDialog(Field field) {
+  private void onShowDialog(Field field, MultipleChoiceFieldViewModel fieldViewModel) {
     Cardinality cardinality = field.getMultipleChoice().getCardinality();
     Optional<Response> currentResponse = viewModel.getResponse(field.getId());
     switch (cardinality) {
       case SELECT_MULTIPLE:
-        multiSelectDialogFactory
-            .create(field, currentResponse, r -> viewModel.onResponseChanged(field, r))
-            .show();
+        multiSelectDialogFactory.create(field, currentResponse, fieldViewModel::setResponse).show();
         break;
       case SELECT_ONE:
         singleSelectDialogFactory
-            .create(field, currentResponse, r -> viewModel.onResponseChanged(field, r))
+            .create(field, currentResponse, fieldViewModel::setResponse)
             .show();
         break;
       default:

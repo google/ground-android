@@ -47,7 +47,7 @@
         android:editable="false"
         android:focusable="true"
         android:focusableInTouchMode="true"
-        android:text="@{fieldViewModel.responseValue}"
+        android:text="@{fieldViewModel.responseText}"
         android:textColor="@color/field_value"
         app:error="@{fieldViewModel.error}"
         tools:text="One, two, three, four, five" />
