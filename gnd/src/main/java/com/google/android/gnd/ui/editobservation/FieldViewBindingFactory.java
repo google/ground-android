@@ -17,7 +17,6 @@
 package com.google.android.gnd.ui.editobservation;
 
 import android.view.LayoutInflater;
-import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.databinding.ViewDataBinding;
 import com.google.android.gnd.databinding.MultipleChoiceInputFieldBinding;
@@ -32,17 +31,14 @@ public final class FieldViewBindingFactory {
   @NonNull private final EditObservationFragment fragment;
   @NonNull private final EditObservationViewModel viewModel;
   @NonNull private final ViewModelFactory viewModelFactory;
-  @NonNull private final ViewGroup root;
 
   FieldViewBindingFactory(
       @NonNull EditObservationFragment fragment,
       @NonNull EditObservationViewModel viewModel,
-      @NonNull ViewModelFactory viewModelFactory,
-      @NonNull ViewGroup root) {
+      @NonNull ViewModelFactory viewModelFactory) {
     this.fragment = fragment;
     this.viewModel = viewModel;
     this.viewModelFactory = viewModelFactory;
-    this.root = root;
   }
 
   private LayoutInflater getLayoutInflater() {
