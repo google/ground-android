@@ -22,13 +22,7 @@
 
   <data>
     <variable
-      name="field"
-      type="com.google.android.gnd.model.form.Field" />
-    <variable
       name="viewModel"
-      type="com.google.android.gnd.ui.editobservation.EditObservationViewModel" />
-    <variable
-      name="fieldViewModel"
       type="com.google.android.gnd.ui.editobservation.TextFieldViewModel" />
   </data>
 
@@ -41,17 +35,17 @@
       style="@style/EditObservation.Field.Text"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:hint="@{field.label}">
+      android:hint="@{viewModel.field.label}">
 
       <com.google.android.material.textfield.TextInputEditText
         android:id="@+id/text_input_edit_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:maxLines="1"
-        android:text="@{viewModel.responses[field.id]}"
-        app:errorText="@{viewModel.validationErrors[field.id]}"
-        app:onFocusChange="@{(v, hasFocus) -> viewModel.onFocusChange(field, hasFocus)}"
-        app:onTextChanged="@{s -> viewModel.onTextChanged(field, (String) s)}"
+        android:text="@{viewModel.responseValue}"
+        app:error="@{viewModel.error}"
+        app:onFocusChange="@{(v, hasFocus) -> viewModel.refreshError()}"
+        app:onTextChanged="@{s -> viewModel.updateResponse((String)s)}"
         tools:text="Text value" />
 
     </com.google.android.material.textfield.TextInputLayout>

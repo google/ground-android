@@ -28,7 +28,6 @@ import androidx.databinding.ViewDataBinding;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.MultipleChoiceInputFieldBinding;
-import com.google.android.gnd.databinding.TextInputFieldBinding;
 import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.observation.Response;
 import com.google.android.gnd.ui.editobservation.MultipleChoiceFieldLayout;
@@ -69,8 +68,6 @@ public class BindingAdapters {
   private static Field getField(ViewDataBinding binding) {
     if (binding == null) {
       return null;
-    } else if (binding instanceof TextInputFieldBinding) {
-      return ((TextInputFieldBinding) binding).getField();
     } else if (binding instanceof MultipleChoiceInputFieldBinding) {
       return ((MultipleChoiceInputFieldBinding) binding).getField();
     } else {

@@ -52,7 +52,7 @@ public final class FieldViewBindingFactory {
   public AbstractFieldViewModel create(Field field, LinearLayout formLayout) {
     switch (field.getType()) {
       case TEXT:
-        return createTextFieldBinding(field, formLayout);
+        return createTextFieldBinding(formLayout);
       case MULTIPLE_CHOICE:
         return createMultipleChoiceFieldBinding(field, formLayout);
       case PHOTO:
@@ -89,14 +89,12 @@ public final class FieldViewBindingFactory {
     return binding.getFieldViewModel();
   }
 
-  private AbstractFieldViewModel createTextFieldBinding(Field field, LinearLayout formLayout) {
+  private AbstractFieldViewModel createTextFieldBinding(LinearLayout formLayout) {
     TextInputFieldBinding binding =
         TextInputFieldBinding.inflate(getLayoutInflater(), formLayout, true);
-    binding.setViewModel(viewModel);
     binding.setLifecycleOwner(fragment);
-    binding.setField(field);
-    binding.setFieldViewModel(viewModelFactory.create(TextFieldViewModel.class));
+    binding.setViewModel(viewModelFactory.create(TextFieldViewModel.class));
     assignGeneratedId(binding.getRoot());
-    return binding.getFieldViewModel();
+    return binding.getViewModel();
   }
 }

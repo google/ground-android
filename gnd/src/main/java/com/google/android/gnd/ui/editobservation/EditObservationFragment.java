@@ -125,7 +125,11 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
     for (Element element : form.getElements()) {
       switch (element.getType()) {
         case FIELD:
-          fieldViewModels.add(factory.create(element.getField(), formLayout));
+          Field field = element.getField();
+          AbstractFieldViewModel fieldViewModel = factory.create(field, formLayout);
+          fieldViewModel.setField(field);
+          fieldViewModel.setResponse(viewModel.getResponse(field.getId()));
+          fieldViewModels.add(fieldViewModel);
           break;
         default:
           Timber.d("%s elements not yet supported", element.getType());
