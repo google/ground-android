@@ -20,7 +20,9 @@ import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 import com.google.android.gnd.MainViewModel;
 import com.google.android.gnd.ui.editobservation.EditObservationViewModel;
+import com.google.android.gnd.ui.editobservation.MultipleChoiceFieldViewModel;
 import com.google.android.gnd.ui.editobservation.PhotoFieldViewModel;
+import com.google.android.gnd.ui.editobservation.TextFieldViewModel;
 import com.google.android.gnd.ui.home.HomeScreenViewModel;
 import com.google.android.gnd.ui.home.featuresheet.FeatureSheetViewModel;
 import com.google.android.gnd.ui.home.featuresheet.ObservationListViewModel;
@@ -101,6 +103,16 @@ public abstract class ViewModelModule {
   @IntoMap
   @ViewModelKey(PhotoFieldViewModel.class)
   abstract ViewModel bindPhotoFieldViewModel(PhotoFieldViewModel viewModel);
+
+  @Binds
+  @IntoMap
+  @ViewModelKey(MultipleChoiceFieldViewModel.class)
+  abstract ViewModel bindMultipleChoiceFieldViewModel(MultipleChoiceFieldViewModel viewModel);
+
+  @Binds
+  @IntoMap
+  @ViewModelKey(TextFieldViewModel.class)
+  abstract ViewModel bindTextFieldViewModel(TextFieldViewModel viewModel);
 
   @Binds
   abstract ViewModelProvider.Factory bindViewModelFactory(ViewModelFactory factory);

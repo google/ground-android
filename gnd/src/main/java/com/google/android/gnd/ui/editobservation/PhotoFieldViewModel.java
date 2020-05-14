@@ -26,13 +26,12 @@ import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.form.Field.Type;
 import com.google.android.gnd.model.observation.Response;
 import com.google.android.gnd.system.StorageManager;
-import com.google.android.gnd.ui.common.AbstractViewModel;
 import io.reactivex.Single;
 import io.reactivex.processors.BehaviorProcessor;
 import javax.inject.Inject;
 import timber.log.Timber;
 
-public class PhotoFieldViewModel extends AbstractViewModel {
+public class PhotoFieldViewModel extends AbstractFieldViewModel {
 
   private static final String EMPTY_PATH = "";
   private final StorageManager storageManager;
