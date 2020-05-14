@@ -134,6 +134,10 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
             ((PhotoFieldViewModel) fieldViewModel)
                 .getShowDialogClicks()
                 .observe(this, this::onShowPhotoSelectorDialog);
+          } else if (fieldViewModel instanceof MultipleChoiceFieldViewModel) {
+            ((MultipleChoiceFieldViewModel) fieldViewModel)
+                .getShowDialogClicks()
+                .observe(this, this::onShowDialog);
           }
 
           fieldViewModels.add(fieldViewModel);
@@ -145,7 +149,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
     }
   }
 
-  public void onShowDialog(Field field) {
+  private void onShowDialog(Field field) {
     Cardinality cardinality = field.getMultipleChoice().getCardinality();
     Optional<Response> currentResponse = viewModel.getResponse(field.getId());
     switch (cardinality) {
@@ -165,7 +169,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
     }
   }
 
-  public void onShowPhotoSelectorDialog(Field field) {
+  private void onShowPhotoSelectorDialog(Field field) {
     if (addPhotoBottomSheetBinding == null) {
       addPhotoBottomSheetBinding = EditObservationBottomSheetBinding.inflate(getLayoutInflater());
       addPhotoBottomSheetBinding.setViewModel(viewModel);

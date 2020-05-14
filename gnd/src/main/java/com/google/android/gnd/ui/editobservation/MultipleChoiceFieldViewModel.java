@@ -16,10 +16,15 @@
 
 package com.google.android.gnd.ui.editobservation;
 
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 import com.google.android.gnd.GndApplication;
+import com.google.android.gnd.model.form.Field;
 import javax.inject.Inject;
 
 public class MultipleChoiceFieldViewModel extends AbstractFieldViewModel {
+
+  private final MutableLiveData<Field> showDialogClicks = new MutableLiveData<>();
 
   @Inject
   MultipleChoiceFieldViewModel(GndApplication application) {
@@ -27,6 +32,10 @@ public class MultipleChoiceFieldViewModel extends AbstractFieldViewModel {
   }
 
   public void onShowDialog() {
-    // todo
+    showDialogClicks.setValue(getField());
+  }
+
+  LiveData<Field> getShowDialogClicks() {
+    return showDialogClicks;
   }
 }
