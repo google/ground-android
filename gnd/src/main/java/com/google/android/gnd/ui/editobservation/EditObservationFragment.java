@@ -44,6 +44,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialog;
 import java.util.ArrayList;
 import java.util.List;
 import java8.util.Optional;
+import java8.util.function.Consumer;
 import javax.inject.Inject;
 import timber.log.Timber;
 
@@ -136,7 +137,13 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
                 (MultipleChoiceFieldViewModel) fieldViewModel;
             viewModel
                 .getShowDialogClicks()
-                .observe(this, field1 -> onShowDialog(field1, viewModel));
+                .observe(
+                    this,
+                    __ ->
+                        onShowDialog(
+                            viewModel.getField(),
+                            viewModel.getResponse().getValue(),
+                            viewModel::setResponse));
           }
 
           fieldViewModels.add(fieldViewModel);
@@ -148,17 +155,15 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
     }
   }
 
-  private void onShowDialog(Field field, MultipleChoiceFieldViewModel fieldViewModel) {
+  private void onShowDialog(
+      Field field, Optional<Response> currentResponse, Consumer<Optional<Response>> consumer) {
     Cardinality cardinality = field.getMultipleChoice().getCardinality();
-    Optional<Response> currentResponse = viewModel.getResponse(field.getId());
     switch (cardinality) {
       case SELECT_MULTIPLE:
-        multiSelectDialogFactory.create(field, currentResponse, fieldViewModel::setResponse).show();
+        multiSelectDialogFactory.create(field, currentResponse, consumer).show();
         break;
       case SELECT_ONE:
-        singleSelectDialogFactory
-            .create(field, currentResponse, fieldViewModel::setResponse)
-            .show();
+        singleSelectDialogFactory.create(field, currentResponse, consumer).show();
         break;
       default:
         Timber.e("Unknown cardinality: %s", cardinality);
