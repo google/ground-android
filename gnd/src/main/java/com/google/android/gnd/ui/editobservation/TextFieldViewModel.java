@@ -16,4 +16,10 @@
 
 package com.google.android.gnd.ui.editobservation;
 
-public class TextFieldViewModel extends AbstractFieldViewModel {}
+import javax.inject.Inject;
+
+public class TextFieldViewModel extends AbstractFieldViewModel {
+
+  @Inject
+  TextFieldViewModel() {}
+}

@@ -16,7 +16,10 @@
 
 package com.google.android.gnd.ui.editobservation;
 
+import static com.google.android.gnd.ui.util.ViewUtil.assignGeneratedId;
+
 import android.view.LayoutInflater;
+import android.widget.LinearLayout;
 import androidx.annotation.NonNull;
 import androidx.databinding.ViewDataBinding;
 import com.google.android.gnd.databinding.MultipleChoiceInputFieldBinding;
@@ -45,22 +48,29 @@ public final class FieldViewBindingFactory {
     return fragment.getLayoutInflater();
   }
 
-  public ViewDataBinding create(Field field) {
+  public ViewDataBinding create(Field field, LinearLayout formLayout) {
+    ViewDataBinding viewDataBinding = null;
     switch (field.getType()) {
       case TEXT:
-        return createTextFieldBinding(field);
+        viewDataBinding = createTextFieldBinding(field, formLayout);
+        break;
       case MULTIPLE_CHOICE:
-        return createMultipleChoiceFieldBinding(field);
+        viewDataBinding = createMultipleChoiceFieldBinding(field, formLayout);
+        break;
       case PHOTO:
-        return createPhotoFieldBinding(field);
+        viewDataBinding = createPhotoFieldBinding(field, formLayout);
+        break;
       default:
         throw new IllegalArgumentException("Unsupported field type: " + field.getType());
     }
+
+    assignGeneratedId(viewDataBinding.getRoot());
+    return viewDataBinding;
   }
 
-  private ViewDataBinding createPhotoFieldBinding(Field field) {
+  private ViewDataBinding createPhotoFieldBinding(Field field, LinearLayout formLayout) {
     PhotoInputFieldBinding binding =
-        PhotoInputFieldBinding.inflate(getLayoutInflater(), null, false);
+        PhotoInputFieldBinding.inflate(getLayoutInflater(), formLayout, true);
     binding.setLifecycleOwner(fragment);
     binding.setField(field);
     binding.setFragment(fragment);
@@ -71,9 +81,9 @@ public final class FieldViewBindingFactory {
     return binding;
   }
 
-  private ViewDataBinding createMultipleChoiceFieldBinding(Field field) {
+  private ViewDataBinding createMultipleChoiceFieldBinding(Field field, LinearLayout formLayout) {
     MultipleChoiceInputFieldBinding binding =
-        MultipleChoiceInputFieldBinding.inflate(getLayoutInflater(), null, false);
+        MultipleChoiceInputFieldBinding.inflate(getLayoutInflater(), formLayout, true);
     binding.setFragment(fragment);
     binding.setViewModel(viewModel);
     binding.setLifecycleOwner(fragment);
@@ -81,8 +91,9 @@ public final class FieldViewBindingFactory {
     return binding;
   }
 
-  private ViewDataBinding createTextFieldBinding(Field field) {
-    TextInputFieldBinding binding = TextInputFieldBinding.inflate(getLayoutInflater(), null, false);
+  private ViewDataBinding createTextFieldBinding(Field field, LinearLayout formLayout) {
+    TextInputFieldBinding binding =
+        TextInputFieldBinding.inflate(getLayoutInflater(), formLayout, true);
     binding.setViewModel(viewModel);
     binding.setLifecycleOwner(fragment);
     binding.setField(field);

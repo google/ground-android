@@ -16,8 +16,6 @@
 
 package com.google.android.gnd.ui.editobservation;
 
-import static com.google.android.gnd.ui.util.ViewUtil.assignGeneratedId;
-
 import android.app.AlertDialog;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -128,10 +126,8 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
     for (Element element : form.getElements()) {
       switch (element.getType()) {
         case FIELD:
-          ViewDataBinding viewDataBinding = factory.create(element.getField());
+          ViewDataBinding viewDataBinding = factory.create(element.getField(), formLayout);
           viewDataBindingList.add(viewDataBinding);
-          formLayout.addView(viewDataBinding.getRoot());
-          assignGeneratedId(viewDataBinding.getRoot());
           break;
         default:
           Timber.d("%s elements not yet supported", element.getType());
