@@ -16,6 +16,60 @@
 
 package com.google.android.gnd.ui.editobservation;
 
+import android.content.res.Resources;
+import androidx.lifecycle.MutableLiveData;
+import com.google.android.gnd.GndApplication;
+import com.google.android.gnd.R;
+import com.google.android.gnd.model.form.Field;
+import com.google.android.gnd.model.observation.Response;
 import com.google.android.gnd.ui.common.AbstractViewModel;
+import java8.util.Optional;
 
-public class AbstractFieldViewModel extends AbstractViewModel {}
+public class AbstractFieldViewModel extends AbstractViewModel {
+
+  private final Resources resources;
+  private final MutableLiveData<String> error = new MutableLiveData<>();
+  private final MutableLiveData<String> responseValue = new MutableLiveData<>();
+
+  private Field field;
+  private Optional<Response> response;
+
+  public AbstractFieldViewModel(GndApplication application) {
+    resources = application.getResources();
+  }
+
+  public Field getField() {
+    return field;
+  }
+
+  public void setField(Field field) {
+    this.field = field;
+  }
+
+  public MutableLiveData<String> getResponseValue() {
+    return responseValue;
+  }
+
+  public Optional<Response> getResponse() {
+    return response;
+  }
+
+  public void setResponse(Optional<Response> response) {
+    this.response = response;
+    responseValue.setValue(response.map(r -> r.getDetailsText(field)).orElse(""));
+  }
+
+  public MutableLiveData<String> getError() {
+    return error;
+  }
+
+  public void setError(String error) {
+    this.error.setValue(error);
+  }
+
+  public void refreshError() {
+    if (field.isRequired() && (response == null || response.isEmpty())) {
+      error.setValue(resources.getString(R.string.required_field));
+    }
+  }
+}
