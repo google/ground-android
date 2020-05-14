@@ -65,9 +65,6 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
   private SingleSelectDialogFactory singleSelectDialogFactory;
   private MultiSelectDialogFactory multiSelectDialogFactory;
 
-  @Nullable private EditObservationBottomSheetBinding addPhotoBottomSheetBinding;
-  @Nullable private BottomSheetDialog bottomSheetDialog;
-
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -170,29 +167,15 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
   }
 
   private void onShowPhotoSelectorDialog(Field field) {
-    if (addPhotoBottomSheetBinding == null) {
-      addPhotoBottomSheetBinding = EditObservationBottomSheetBinding.inflate(getLayoutInflater());
-      addPhotoBottomSheetBinding.setViewModel(viewModel);
-    }
+    EditObservationBottomSheetBinding addPhotoBottomSheetBinding =
+        EditObservationBottomSheetBinding.inflate(getLayoutInflater());
+    addPhotoBottomSheetBinding.setViewModel(viewModel);
     addPhotoBottomSheetBinding.setField(field);
 
-    if (bottomSheetDialog == null) {
-      bottomSheetDialog = new BottomSheetDialog(getContext());
-      bottomSheetDialog.setContentView(addPhotoBottomSheetBinding.getRoot());
-    }
-
-    if (!bottomSheetDialog.isShowing()) {
-      bottomSheetDialog.show();
-    }
-  }
-
-  @Override
-  public void onPause() {
-    if (bottomSheetDialog != null && bottomSheetDialog.isShowing()) {
-      bottomSheetDialog.dismiss();
-    }
-
-    super.onPause();
+    BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(getContext());
+    bottomSheetDialog.setContentView(addPhotoBottomSheetBinding.getRoot());
+    bottomSheetDialog.setCancelable(true);
+    bottomSheetDialog.show();
   }
 
   @Override
