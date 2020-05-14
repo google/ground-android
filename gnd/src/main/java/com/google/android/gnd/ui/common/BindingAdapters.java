@@ -21,14 +21,9 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
 import android.widget.ImageView;
-import androidx.annotation.Nullable;
 import androidx.databinding.BindingAdapter;
-import androidx.databinding.DataBindingUtil;
-import androidx.databinding.ViewDataBinding;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gnd.R;
-import com.google.android.gnd.model.form.Field;
-import com.google.android.gnd.model.observation.Response;
 import com.google.android.gnd.ui.editobservation.MultipleChoiceFieldLayout;
 import com.google.android.material.textfield.TextInputEditText;
 import com.squareup.picasso.Picasso;
@@ -39,38 +34,6 @@ import java8.util.function.Consumer;
  * injectable, since binding adapters must be static.
  */
 public class BindingAdapters {
-
-  @BindingAdapter("android:text")
-  public static void bindText(TextInputEditText view, Response response) {
-    ViewDataBinding binding = findBinding(view);
-    Field field = getField(binding);
-    if (field == null) {
-      // Binding update before attached to field.
-      return;
-    }
-    String newText = response == null ? "" : response.getDetailsText(field);
-    if (!view.getText().toString().equals(newText)) {
-      view.setText(newText);
-    }
-  }
-
-  private static ViewDataBinding findBinding(View view) {
-    for (View v = view; v.getParent() instanceof View; v = (View) v.getParent()) {
-      ViewDataBinding binding = DataBindingUtil.getBinding(v);
-      if (binding != null) {
-        return binding;
-      }
-    }
-    return null;
-  }
-
-  private static Field getField(ViewDataBinding binding) {
-    if (binding == null) {
-      return null;
-    } else {
-      throw new IllegalArgumentException("Unknown binding type: " + binding.getClass());
-    }
-  }
 
   @BindingAdapter("onClick")
   public static void bindGoogleSignOnButtonClick(
@@ -97,17 +60,6 @@ public class BindingAdapters {
             // No-op.
           }
         });
-  }
-
-  @BindingAdapter("errorText")
-  public static void bindError(TextInputEditText view, @Nullable String newErrorText) {
-    if (view.getError() == null) {
-      if (newErrorText != null) {
-        view.setError(newErrorText);
-      }
-    } else if (!view.getError().equals(newErrorText)) {
-      view.setError(newErrorText);
-    }
   }
 
   @BindingAdapter("onFocusChange")
