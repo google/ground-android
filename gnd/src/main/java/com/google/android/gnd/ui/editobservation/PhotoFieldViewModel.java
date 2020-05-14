@@ -29,6 +29,7 @@ import com.google.android.gnd.model.observation.Response;
 import com.google.android.gnd.system.StorageManager;
 import io.reactivex.Single;
 import io.reactivex.processors.BehaviorProcessor;
+import java8.util.Optional;
 import javax.inject.Inject;
 import timber.log.Timber;
 
@@ -85,6 +86,12 @@ public class PhotoFieldViewModel extends AbstractFieldViewModel {
         });
   }
 
+  @Override
+  public void setResponse(Optional<Response> response) {
+    super.setResponse(response);
+    updateField(response.get(), getField());
+  }
+
   public void updateField(Response response, Field field) {
     if (field.getType() != Type.PHOTO) {
       Timber.e("Not a photo type field: %s", field.getType());
@@ -96,5 +103,9 @@ public class PhotoFieldViewModel extends AbstractFieldViewModel {
     } else {
       destinationPath.onNext(response.getDetailsText(field));
     }
+  }
+
+  public void onShowPhotoSelectorDialog() {
+    // todo
   }
 }

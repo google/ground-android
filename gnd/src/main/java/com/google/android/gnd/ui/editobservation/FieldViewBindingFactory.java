@@ -32,15 +32,11 @@ import com.google.android.gnd.ui.common.ViewModelFactory;
 public final class FieldViewBindingFactory {
 
   @NonNull private final EditObservationFragment fragment;
-  @NonNull private final EditObservationViewModel viewModel;
   @NonNull private final ViewModelFactory viewModelFactory;
 
   FieldViewBindingFactory(
-      @NonNull EditObservationFragment fragment,
-      @NonNull EditObservationViewModel viewModel,
-      @NonNull ViewModelFactory viewModelFactory) {
+      @NonNull EditObservationFragment fragment, @NonNull ViewModelFactory viewModelFactory) {
     this.fragment = fragment;
-    this.viewModel = viewModel;
     this.viewModelFactory = viewModelFactory;
   }
 
@@ -56,22 +52,17 @@ public final class FieldViewBindingFactory {
       case MULTIPLE_CHOICE:
         return createMultipleChoiceFieldBinding(formLayout);
       case PHOTO:
-        return createPhotoFieldBinding(field, formLayout);
+        return createPhotoFieldBinding(formLayout);
       default:
         throw new IllegalArgumentException("Unsupported field type: " + field.getType());
     }
   }
 
-  private AbstractFieldViewModel createPhotoFieldBinding(Field field, LinearLayout formLayout) {
+  private AbstractFieldViewModel createPhotoFieldBinding(LinearLayout formLayout) {
     PhotoInputFieldBinding binding =
         PhotoInputFieldBinding.inflate(getLayoutInflater(), formLayout, true);
     binding.setLifecycleOwner(fragment);
-    binding.setField(field);
-    binding.setFragment(fragment);
-
-    PhotoFieldViewModel photoFieldViewModel = viewModelFactory.create(PhotoFieldViewModel.class);
-    photoFieldViewModel.init(field, viewModel.getResponses());
-    binding.setViewModel(photoFieldViewModel);
+    binding.setViewModel(viewModelFactory.create(PhotoFieldViewModel.class));
     assignGeneratedId(binding.getRoot());
     return binding.getViewModel();
   }

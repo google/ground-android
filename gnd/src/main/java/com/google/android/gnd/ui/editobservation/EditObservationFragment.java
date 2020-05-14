@@ -74,7 +74,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
     singleSelectDialogFactory = new SingleSelectDialogFactory(getContext());
     multiSelectDialogFactory = new MultiSelectDialogFactory(getContext());
     viewModel = getViewModel(EditObservationViewModel.class);
-    factory = new FieldViewBindingFactory(this, viewModel, viewModelFactory);
+    factory = new FieldViewBindingFactory(this, viewModelFactory);
   }
 
   @Override
