@@ -16,26 +16,80 @@
 
 package com.google.android.gnd.ui.editobservation;
 
+import android.view.LayoutInflater;
+import android.view.ViewGroup;
+import androidx.annotation.NonNull;
 import androidx.databinding.ViewDataBinding;
+import com.google.android.gnd.databinding.MultipleChoiceInputFieldBinding;
+import com.google.android.gnd.databinding.PhotoInputFieldBinding;
+import com.google.android.gnd.databinding.TextInputFieldBinding;
 import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.ui.common.ViewModelFactory;
 
 /** Generates {@link ViewDataBinding} instance for a given {@link Field}. */
 public final class FieldViewBindingFactory {
 
-  private FieldViewBindingFactory() {}
+  @NonNull private final EditObservationFragment fragment;
+  @NonNull private final EditObservationViewModel viewModel;
+  @NonNull private final ViewModelFactory viewModelFactory;
+  @NonNull private final ViewGroup root;
 
-  public static ViewDataBinding create(Field field, ViewModelFactory viewModelFactory) {
+  FieldViewBindingFactory(
+      @NonNull EditObservationFragment fragment,
+      @NonNull EditObservationViewModel viewModel,
+      @NonNull ViewModelFactory viewModelFactory,
+      @NonNull ViewGroup root) {
+    this.fragment = fragment;
+    this.viewModel = viewModel;
+    this.viewModelFactory = viewModelFactory;
+    this.root = root;
+  }
+
+  private LayoutInflater getLayoutInflater() {
+    return fragment.getLayoutInflater();
+  }
+
+  public ViewDataBinding create(Field field) {
     switch (field.getType()) {
       case TEXT:
-        break;
+        return createTextFieldBinding(field);
       case MULTIPLE_CHOICE:
-        break;
+        return createMultipleChoiceFieldBinding(field);
       case PHOTO:
-        break;
+        return createPhotoFieldBinding(field);
       default:
         throw new IllegalArgumentException("Unsupported field type: " + field.getType());
     }
-    return null;
+  }
+
+  private ViewDataBinding createPhotoFieldBinding(Field field) {
+    PhotoInputFieldBinding binding =
+        PhotoInputFieldBinding.inflate(getLayoutInflater(), null, false);
+    binding.setLifecycleOwner(fragment);
+    binding.setField(field);
+    binding.setFragment(fragment);
+
+    PhotoFieldViewModel photoFieldViewModel = viewModelFactory.create(PhotoFieldViewModel.class);
+    photoFieldViewModel.init(field, viewModel.getResponses());
+    binding.setViewModel(photoFieldViewModel);
+    return binding;
+  }
+
+  private ViewDataBinding createMultipleChoiceFieldBinding(Field field) {
+    MultipleChoiceInputFieldBinding binding =
+        MultipleChoiceInputFieldBinding.inflate(getLayoutInflater(), null, false);
+    binding.setFragment(fragment);
+    binding.setViewModel(viewModel);
+    binding.setLifecycleOwner(fragment);
+    binding.setField(field);
+    return binding;
+  }
+
+  private ViewDataBinding createTextFieldBinding(Field field) {
+    TextInputFieldBinding binding = TextInputFieldBinding.inflate(getLayoutInflater(), null, false);
+    binding.setViewModel(viewModel);
+    binding.setLifecycleOwner(fragment);
+    binding.setField(field);
+    return binding;
   }
 }
