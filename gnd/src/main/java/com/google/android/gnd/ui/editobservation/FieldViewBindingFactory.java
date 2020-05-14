@@ -45,8 +45,8 @@ public final class FieldViewBindingFactory {
   }
 
   /** Returns {@link AbstractFieldViewModel} attached to the generated {@link ViewDataBinding}. */
-  public AbstractFieldViewModel create(Field field, LinearLayout formLayout) {
-    switch (field.getType()) {
+  public AbstractFieldViewModel create(Field.Type fieldType, LinearLayout formLayout) {
+    switch (fieldType) {
       case TEXT:
         return createTextFieldBinding(formLayout);
       case MULTIPLE_CHOICE:
@@ -54,7 +54,7 @@ public final class FieldViewBindingFactory {
       case PHOTO:
         return createPhotoFieldBinding(formLayout);
       default:
-        throw new IllegalArgumentException("Unsupported field type: " + field.getType());
+        throw new IllegalArgumentException("Unsupported field type: " + fieldType);
     }
   }
 

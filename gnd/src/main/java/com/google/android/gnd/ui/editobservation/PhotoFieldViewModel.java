@@ -20,6 +20,7 @@ import android.net.Uri;
 import android.view.View;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
+import androidx.lifecycle.MutableLiveData;
 import com.google.android.gnd.GndApplication;
 import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.form.Field.Type;
@@ -38,6 +39,7 @@ public class PhotoFieldViewModel extends AbstractFieldViewModel {
   private final BehaviorProcessor<String> destinationPath = BehaviorProcessor.create();
   private final LiveData<Uri> uri;
   private final LiveData<Integer> visibility;
+  private final MutableLiveData<Field> showDialogClicks = new MutableLiveData<>();
 
   @Inject
   PhotoFieldViewModel(StorageManager storageManager, GndApplication application) {
@@ -83,6 +85,10 @@ public class PhotoFieldViewModel extends AbstractFieldViewModel {
   }
 
   public void onShowPhotoSelectorDialog() {
-    // todo
+    showDialogClicks.setValue(getField());
+  }
+
+  LiveData<Field> getShowDialogClicks() {
+    return showDialogClicks;
   }
 }

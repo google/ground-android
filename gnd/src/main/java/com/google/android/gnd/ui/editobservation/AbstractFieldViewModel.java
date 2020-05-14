@@ -17,6 +17,7 @@
 package com.google.android.gnd.ui.editobservation;
 
 import android.content.res.Resources;
+import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import com.google.android.gnd.GndApplication;
 import com.google.android.gnd.R;
@@ -46,7 +47,7 @@ public class AbstractFieldViewModel extends AbstractViewModel {
     this.field = field;
   }
 
-  public MutableLiveData<String> getResponseValue() {
+  public LiveData<String> getResponseValue() {
     return responseValue;
   }
 
@@ -59,7 +60,7 @@ public class AbstractFieldViewModel extends AbstractViewModel {
     responseValue.setValue(response.map(r -> r.getDetailsText(field)).orElse(""));
   }
 
-  public MutableLiveData<String> getError() {
+  public LiveData<String> getError() {
     return error;
   }
 

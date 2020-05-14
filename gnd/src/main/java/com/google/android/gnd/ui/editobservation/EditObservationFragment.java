@@ -126,9 +126,16 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
       switch (element.getType()) {
         case FIELD:
           Field field = element.getField();
-          AbstractFieldViewModel fieldViewModel = factory.create(field, formLayout);
+          AbstractFieldViewModel fieldViewModel = factory.create(field.getType(), formLayout);
           fieldViewModel.setField(field);
           fieldViewModel.setResponse(viewModel.getResponse(field.getId()));
+
+          if (fieldViewModel instanceof PhotoFieldViewModel) {
+            ((PhotoFieldViewModel) fieldViewModel)
+                .getShowDialogClicks()
+                .observe(this, this::onShowPhotoSelectorDialog);
+          }
+
           fieldViewModels.add(fieldViewModel);
           break;
         default:
