@@ -30,14 +30,7 @@
   </data>
 
   <LinearLayout
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_marginTop="@dimen/field_vertical_margin"
-    android:layout_marginBottom="@dimen/field_vertical_margin"
-    android:layout_marginStart="@dimen/field_horizontal_margin"
-    android:layout_marginEnd="@dimen/field_horizontal_margin"
-    android:layout_marginLeft="@dimen/field_horizontal_margin"
-    android:layout_marginRight="@dimen/field_horizontal_margin"
+    style="@style/FieldView"
     android:orientation="vertical">
 
     <com.google.android.material.textfield.TextInputLayout
@@ -54,8 +47,8 @@
         android:maxLines="1"
         android:text="@{viewModel.responses[field.id]}"
         app:errorText="@{viewModel.validationErrors[field.id]}"
-        app:onTextChanged="@{s -> viewModel.onTextChanged(field, (String) s)}"
         app:onFocusChange="@{(v, hasFocus) -> viewModel.onFocusChange(field, hasFocus)}"
+        app:onTextChanged="@{s -> viewModel.onTextChanged(field, (String) s)}"
         tools:text="Text value" />
 
     </com.google.android.material.textfield.TextInputLayout>

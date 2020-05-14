@@ -32,14 +32,7 @@
   </data>
 
   <com.google.android.gnd.ui.editobservation.MultipleChoiceFieldLayout
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_marginTop="@dimen/field_vertical_margin"
-    android:layout_marginBottom="@dimen/field_vertical_margin"
-    android:layout_marginStart="@dimen/field_horizontal_margin"
-    android:layout_marginEnd="@dimen/field_horizontal_margin"
-    android:layout_marginLeft="@dimen/field_horizontal_margin"
-    android:layout_marginRight="@dimen/field_horizontal_margin"
+    style="@style/FieldView"
     app:onShowDialog="@{() -> fragment.onShowDialog(field)}">
 
     <com.google.android.material.textfield.TextInputLayout
@@ -71,8 +64,9 @@
       android:id="@+id/multiple_choice_dropdown_btn"
       android:layout_width="32dp"
       android:layout_height="32dp"
+      android:layout_gravity="center_vertical|end"
+      android:layout_marginEnd="4dp"
       android:layout_marginRight="4dp"
-      android:layout_gravity="center_vertical|right"
       android:background="@android:color/transparent"
       android:elevation="0dp"
       android:focusable="false"
