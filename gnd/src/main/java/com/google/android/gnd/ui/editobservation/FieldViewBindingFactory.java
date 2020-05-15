@@ -20,11 +20,12 @@ import static com.google.android.gnd.ui.util.ViewUtil.assignGeneratedId;
 
 import android.view.LayoutInflater;
 import android.widget.LinearLayout;
+import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
+import androidx.databinding.DataBindingUtil;
 import androidx.databinding.ViewDataBinding;
-import com.google.android.gnd.databinding.MultipleChoiceInputFieldBinding;
-import com.google.android.gnd.databinding.PhotoInputFieldBinding;
-import com.google.android.gnd.databinding.TextInputFieldBinding;
+import com.google.android.gnd.BR;
+import com.google.android.gnd.R;
 import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.ui.common.ViewModelFactory;
 
@@ -44,44 +45,31 @@ public final class FieldViewBindingFactory {
     return fragment.getLayoutInflater();
   }
 
+  private <VM extends AbstractFieldViewModel> VM create(
+      Class<VM> modelClass, @LayoutRes int layoutId, LinearLayout formLayout) {
+    VM viewModel = viewModelFactory.create(modelClass);
+
+    ViewDataBinding binding =
+        DataBindingUtil.inflate(getLayoutInflater(), layoutId, formLayout, true);
+    binding.setLifecycleOwner(fragment);
+    binding.setVariable(BR.viewModel, viewModel);
+    assignGeneratedId(binding.getRoot());
+
+    return viewModel;
+  }
+
   /** Returns {@link AbstractFieldViewModel} attached to the generated {@link ViewDataBinding}. */
   public AbstractFieldViewModel create(Field.Type fieldType, LinearLayout formLayout) {
     switch (fieldType) {
       case TEXT:
-        return createTextFieldBinding(formLayout);
+        return create(TextFieldViewModel.class, R.layout.text_input_field, formLayout);
       case MULTIPLE_CHOICE:
-        return createMultipleChoiceFieldBinding(formLayout);
+        return create(
+            MultipleChoiceFieldViewModel.class, R.layout.multiple_choice_input_field, formLayout);
       case PHOTO:
-        return createPhotoFieldBinding(formLayout);
+        return create(PhotoFieldViewModel.class, R.layout.photo_input_field, formLayout);
       default:
         throw new IllegalArgumentException("Unsupported field type: " + fieldType);
     }
-  }
-
-  private AbstractFieldViewModel createPhotoFieldBinding(LinearLayout formLayout) {
-    PhotoInputFieldBinding binding =
-        PhotoInputFieldBinding.inflate(getLayoutInflater(), formLayout, true);
-    binding.setLifecycleOwner(fragment);
-    binding.setViewModel(viewModelFactory.create(PhotoFieldViewModel.class));
-    assignGeneratedId(binding.getRoot());
-    return binding.getViewModel();
-  }
-
-  private AbstractFieldViewModel createMultipleChoiceFieldBinding(LinearLayout formLayout) {
-    MultipleChoiceInputFieldBinding binding =
-        MultipleChoiceInputFieldBinding.inflate(getLayoutInflater(), formLayout, true);
-    binding.setLifecycleOwner(fragment);
-    binding.setFieldViewModel(viewModelFactory.create(MultipleChoiceFieldViewModel.class));
-    assignGeneratedId(binding.getRoot());
-    return binding.getFieldViewModel();
-  }
-
-  private AbstractFieldViewModel createTextFieldBinding(LinearLayout formLayout) {
-    TextInputFieldBinding binding =
-        TextInputFieldBinding.inflate(getLayoutInflater(), formLayout, true);
-    binding.setLifecycleOwner(fragment);
-    binding.setViewModel(viewModelFactory.create(TextFieldViewModel.class));
-    assignGeneratedId(binding.getRoot());
-    return binding.getViewModel();
   }
 }
