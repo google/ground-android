@@ -62,12 +62,6 @@ public class BindingAdapters {
         });
   }
 
-  @BindingAdapter("onFocusChange")
-  public static void setOnFocusChangeListener(
-      View view, final View.OnFocusChangeListener listener) {
-    view.setOnFocusChangeListener(listener);
-  }
-
   @BindingAdapter("onShowDialog")
   public static void setOnShowDialogListener(MultipleChoiceFieldLayout view, Runnable listener) {
     view.setOnShowDialogListener(listener);

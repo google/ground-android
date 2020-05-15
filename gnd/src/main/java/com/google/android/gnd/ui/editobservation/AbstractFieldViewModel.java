@@ -84,8 +84,4 @@ public class AbstractFieldViewModel extends AbstractViewModel {
   public void setResponse(Optional<Response> response) {
     responseSubject.onNext(response);
   }
-
-  public void refreshError() {
-    responseSubject.onNext(getResponse().getValue());
-  }
 }
