@@ -16,15 +16,15 @@
 
 package com.google.android.gnd.ui.editobservation;
 
-import com.google.android.gnd.GndApplication;
 import com.google.android.gnd.model.observation.TextResponse;
+import com.google.android.gnd.ui.common.ResponseValidator;
 import javax.inject.Inject;
 
 public class TextFieldViewModel extends AbstractFieldViewModel {
 
   @Inject
-  TextFieldViewModel(GndApplication application) {
-    super(application);
+  TextFieldViewModel(ResponseValidator validator) {
+    super(validator);
   }
 
   public void updateResponse(String text) {

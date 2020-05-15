@@ -17,8 +17,8 @@
 package com.google.android.gnd.ui.editobservation;
 
 import androidx.lifecycle.MutableLiveData;
-import com.google.android.gnd.GndApplication;
 import com.google.android.gnd.rx.Nil;
+import com.google.android.gnd.ui.common.ResponseValidator;
 import javax.inject.Inject;
 
 public class MultipleChoiceFieldViewModel extends AbstractFieldViewModel {
@@ -26,8 +26,8 @@ public class MultipleChoiceFieldViewModel extends AbstractFieldViewModel {
   private final MutableLiveData<Nil> showDialogClicks = new MutableLiveData<>();
 
   @Inject
-  MultipleChoiceFieldViewModel(GndApplication application) {
-    super(application);
+  MultipleChoiceFieldViewModel(ResponseValidator validator) {
+    super(validator);
   }
 
   public void onShowDialog() {

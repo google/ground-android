@@ -21,11 +21,11 @@ import android.view.View;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
 import androidx.lifecycle.MutableLiveData;
-import com.google.android.gnd.GndApplication;
 import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.form.Field.Type;
 import com.google.android.gnd.model.observation.Response;
 import com.google.android.gnd.system.StorageManager;
+import com.google.android.gnd.ui.common.ResponseValidator;
 import io.reactivex.Single;
 import io.reactivex.processors.BehaviorProcessor;
 import java8.util.Optional;
@@ -42,8 +42,8 @@ public class PhotoFieldViewModel extends AbstractFieldViewModel {
   private final MutableLiveData<Field> showDialogClicks = new MutableLiveData<>();
 
   @Inject
-  PhotoFieldViewModel(StorageManager storageManager, GndApplication application) {
-    super(application);
+  PhotoFieldViewModel(StorageManager storageManager, ResponseValidator validator) {
+    super(validator);
     this.storageManager = storageManager;
     this.visibility =
         LiveDataReactiveStreams.fromPublisher(

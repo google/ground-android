@@ -16,21 +16,20 @@
 
 package com.google.android.gnd.ui.editobservation;
 
-import android.content.res.Resources;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
-import com.google.android.gnd.GndApplication;
-import com.google.android.gnd.R;
 import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.observation.Response;
 import com.google.android.gnd.ui.common.AbstractViewModel;
+import com.google.android.gnd.ui.common.ResponseValidator;
 import io.reactivex.Maybe;
+import io.reactivex.Single;
 import io.reactivex.processors.BehaviorProcessor;
 import java8.util.Optional;
 
 public class AbstractFieldViewModel extends AbstractViewModel {
 
-  private final Resources resources;
+  private final ResponseValidator validator;
   private final LiveData<String> error;;
   private final LiveData<Optional<Response>> response;
   private final LiveData<String> responseText;
@@ -38,12 +37,12 @@ public class AbstractFieldViewModel extends AbstractViewModel {
 
   private Field field;
 
-  AbstractFieldViewModel(GndApplication application) {
-    resources = application.getResources();
+  AbstractFieldViewModel(ResponseValidator validator) {
+    this.validator = validator;
 
     responseText =
         LiveDataReactiveStreams.fromPublisher(
-            responseSubject.distinctUntilChanged().switchMapMaybe(this::getDetailsText));
+            responseSubject.distinctUntilChanged().switchMapSingle(this::getDetailsText));
 
     response = LiveDataReactiveStreams.fromPublisher(responseSubject.distinctUntilChanged());
 
@@ -57,17 +56,13 @@ public class AbstractFieldViewModel extends AbstractViewModel {
     setResponse(response);
   }
 
-  private Maybe<String> getDetailsText(Optional<Response> responseOptional) {
-    return Maybe.just(responseOptional.map(response -> response.getDetailsText(field)).orElse(""));
+  private Single<String> getDetailsText(Optional<Response> responseOptional) {
+    return Single.just(responseOptional.map(response -> response.getDetailsText(field)).orElse(""));
   }
 
   private Maybe<String> getErrorText(Optional<Response> responseOptional) {
-    if (field.isRequired() && (responseOptional == null || responseOptional.isEmpty())) {
-      return Maybe.just(resources.getString(R.string.required_field));
-    } else {
-      // TODO: Validate value of field when non-null.
-      return Maybe.empty();
-    }
+    String error = validator.validate(field, responseOptional);
+    return error != null ? Maybe.just(error) : Maybe.empty();
   }
 
   public Field getField() {
