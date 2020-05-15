@@ -19,29 +19,37 @@ package com.google.android.gnd.ui.editobservation;
 import android.content.res.Resources;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
-import androidx.lifecycle.MutableLiveData;
 import com.google.android.gnd.GndApplication;
 import com.google.android.gnd.R;
 import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.observation.Response;
 import com.google.android.gnd.ui.common.AbstractViewModel;
-import io.reactivex.Single;
+import io.reactivex.Maybe;
 import io.reactivex.processors.BehaviorProcessor;
 import java8.util.Optional;
 
 public class AbstractFieldViewModel extends AbstractViewModel {
 
   private final Resources resources;
-  private final MutableLiveData<String> error = new MutableLiveData<>();
+  private final LiveData<String> error;;
+  private final LiveData<Optional<Response>> response;
   private final LiveData<String> responseText;
-  private final BehaviorProcessor<Optional<Response>> response = BehaviorProcessor.create();
+  private final BehaviorProcessor<Optional<Response>> responseSubject = BehaviorProcessor.create();
 
   private Field field;
 
   AbstractFieldViewModel(GndApplication application) {
     resources = application.getResources();
+
     responseText =
-        LiveDataReactiveStreams.fromPublisher(response.switchMapSingle(this::getDetailsText));
+        LiveDataReactiveStreams.fromPublisher(
+            responseSubject.distinctUntilChanged().switchMapMaybe(this::getDetailsText));
+
+    response = LiveDataReactiveStreams.fromPublisher(responseSubject.distinctUntilChanged());
+
+    error =
+        LiveDataReactiveStreams.fromPublisher(
+            responseSubject.distinctUntilChanged().switchMapMaybe(this::getErrorText));
   }
 
   void init(Field field, Optional<Response> response) {
@@ -49,8 +57,17 @@ public class AbstractFieldViewModel extends AbstractViewModel {
     setResponse(response);
   }
 
-  private Single<String> getDetailsText(Optional<Response> responseOptional) {
-    return Single.just(responseOptional.map(response -> response.getDetailsText(field)).orElse(""));
+  private Maybe<String> getDetailsText(Optional<Response> responseOptional) {
+    return Maybe.just(responseOptional.map(response -> response.getDetailsText(field)).orElse(""));
+  }
+
+  private Maybe<String> getErrorText(Optional<Response> responseOptional) {
+    if (field.isRequired() && (responseOptional == null || responseOptional.isEmpty())) {
+      return Maybe.just(resources.getString(R.string.required_field));
+    } else {
+      // TODO: Validate value of field when non-null.
+      return Maybe.empty();
+    }
   }
 
   public Field getField() {
@@ -61,30 +78,19 @@ public class AbstractFieldViewModel extends AbstractViewModel {
     return responseText;
   }
 
-  public BehaviorProcessor<Optional<Response>> getResponse() {
-    return response;
-  }
-
-  public void setResponse(Optional<Response> response) {
-    this.response.onNext(response);
-  }
-
-  LiveData<Optional<Response>> responseUpdates() {
-    return LiveDataReactiveStreams.fromPublisher(response);
-  }
-
   public LiveData<String> getError() {
     return error;
   }
 
-  public void setError(String error) {
-    this.error.setValue(error);
+  LiveData<Optional<Response>> getResponse() {
+    return response;
+  }
+
+  public void setResponse(Optional<Response> response) {
+    responseSubject.onNext(response);
   }
 
   public void refreshError() {
-    if (field.isRequired()
-        && (responseText.getValue() == null || responseText.getValue().isEmpty())) {
-      error.setValue(resources.getString(R.string.required_field));
-    }
+    responseSubject.onNext(getResponse().getValue());
   }
 }

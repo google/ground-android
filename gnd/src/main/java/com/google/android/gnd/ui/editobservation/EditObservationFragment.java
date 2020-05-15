@@ -160,7 +160,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
 
     // subscribe to response updates
     fieldViewModel
-        .responseUpdates()
+        .getResponse()
         .observe(
             this,
             responseOptional ->
