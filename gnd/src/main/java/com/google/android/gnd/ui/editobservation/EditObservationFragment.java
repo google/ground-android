@@ -16,21 +16,28 @@
 
 package com.google.android.gnd.ui.editobservation;
 
+import static com.google.android.gnd.ui.util.ViewUtil.assignGeneratedId;
+
 import android.app.AlertDialog;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
+import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.databinding.DataBindingUtil;
+import androidx.databinding.ViewDataBinding;
 import butterknife.BindView;
+import com.google.android.gnd.BR;
 import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.EditObservationBottomSheetBinding;
 import com.google.android.gnd.databinding.EditObservationFragBinding;
 import com.google.android.gnd.inject.ActivityScoped;
 import com.google.android.gnd.model.form.Element;
+import com.google.android.gnd.model.form.Element.Type;
 import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.model.form.MultipleChoice.Cardinality;
@@ -57,10 +64,35 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
   @BindView(R.id.edit_observation_layout)
   LinearLayout formLayout;
 
-  private FieldViewBindingFactory factory;
   private EditObservationViewModel viewModel;
   private SingleSelectDialogFactory singleSelectDialogFactory;
   private MultiSelectDialogFactory multiSelectDialogFactory;
+
+  private static Class<? extends AbstractFieldViewModel> getFieldVMClass(Field.Type fieldType) {
+    switch (fieldType) {
+      case TEXT:
+        return TextFieldViewModel.class;
+      case MULTIPLE_CHOICE:
+        return MultipleChoiceFieldViewModel.class;
+      case PHOTO:
+        return PhotoFieldViewModel.class;
+      default:
+        throw new IllegalArgumentException("Unsupported field type: " + fieldType);
+    }
+  }
+
+  private static @LayoutRes int getFieldLayoutId(Field.Type fieldType) {
+    switch (fieldType) {
+      case TEXT:
+        return R.layout.text_input_field;
+      case MULTIPLE_CHOICE:
+        return R.layout.multiple_choice_input_field;
+      case PHOTO:
+        return R.layout.photo_input_field;
+      default:
+        throw new IllegalArgumentException("Unsupported field type: " + fieldType);
+    }
+  }
 
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -68,7 +100,6 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
     singleSelectDialogFactory = new SingleSelectDialogFactory(getContext());
     multiSelectDialogFactory = new MultiSelectDialogFactory(getContext());
     viewModel = getViewModel(EditObservationViewModel.class);
-    factory = new FieldViewBindingFactory(this, viewModelFactory);
   }
 
   @Override
@@ -114,34 +145,46 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
     }
   }
 
+  private <VM extends AbstractFieldViewModel> VM addFieldViewModel(Field field) {
+    VM fieldViewModel = (VM) viewModelFactory.create(getFieldVMClass(field.getType()));
+
+    // load field and current response
+    fieldViewModel.init(field, viewModel.getResponse(field.getId()));
+
+    // handle UI interactions
+    if (fieldViewModel instanceof PhotoFieldViewModel) {
+      observeSelectPhotoClicks((PhotoFieldViewModel) fieldViewModel);
+    } else if (fieldViewModel instanceof MultipleChoiceFieldViewModel) {
+      observeMultipleChoiceClicks((MultipleChoiceFieldViewModel) fieldViewModel);
+    }
+
+    // subscribe to response updates
+    fieldViewModel
+        .responseUpdates()
+        .observe(
+            this,
+            responseOptional ->
+                viewModel.onResponseChanged(fieldViewModel.getField(), responseOptional));
+
+    return fieldViewModel;
+  }
+
+  private void addFieldView(Field field) {
+    ViewDataBinding binding =
+        DataBindingUtil.inflate(
+            getLayoutInflater(), getFieldLayoutId(field.getType()), formLayout, true);
+    binding.setLifecycleOwner(this);
+    binding.setVariable(BR.viewModel, addFieldViewModel(field));
+    assignGeneratedId(binding.getRoot());
+  }
+
   private void rebuildForm(Form form) {
     formLayout.removeAllViews();
     for (Element element : form.getElements()) {
-      switch (element.getType()) {
-        case FIELD:
-          Field field = element.getField();
-          Optional<Response> response = viewModel.getResponse(field.getId());
-          final AbstractFieldViewModel fieldViewModel = factory.create(field.getType(), formLayout);
-          fieldViewModel.setField(field);
-          fieldViewModel.setResponse(response);
-
-          // UI interactions
-          if (fieldViewModel instanceof PhotoFieldViewModel) {
-            observeSelectPhotoClicks((PhotoFieldViewModel) fieldViewModel);
-          } else if (fieldViewModel instanceof MultipleChoiceFieldViewModel) {
-            observeMultipleChoiceClicks((MultipleChoiceFieldViewModel) fieldViewModel);
-          }
-
-          // New response
-          fieldViewModel
-              .responseUpdates()
-              .observe(
-                  this,
-                  responseOptional ->
-                      viewModel.onResponseChanged(fieldViewModel.getField(), responseOptional));
-          break;
-        default:
-          throw new IllegalArgumentException(element.getType() + " elements not yet supported");
+      if (element.getType() == Type.FIELD) {
+        addFieldView(element.getField());
+      } else {
+        throw new IllegalArgumentException(element.getType() + " elements not yet supported");
       }
     }
   }

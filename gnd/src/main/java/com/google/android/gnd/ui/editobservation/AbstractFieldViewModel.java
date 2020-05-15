@@ -44,16 +44,17 @@ public class AbstractFieldViewModel extends AbstractViewModel {
         LiveDataReactiveStreams.fromPublisher(response.switchMapSingle(this::getDetailsText));
   }
 
+  void init(Field field, Optional<Response> response) {
+    this.field = field;
+    setResponse(response);
+  }
+
   private Single<String> getDetailsText(Optional<Response> responseOptional) {
     return Single.just(responseOptional.map(response -> response.getDetailsText(field)).orElse(""));
   }
 
   public Field getField() {
     return field;
-  }
-
-  public void setField(Field field) {
-    this.field = field;
   }
 
   public LiveData<String> getResponseText() {
