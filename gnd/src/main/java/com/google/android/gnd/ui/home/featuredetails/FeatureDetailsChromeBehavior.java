@@ -25,6 +25,10 @@ import com.google.android.gnd.R;
 import com.google.android.gnd.ui.home.BottomSheetDependentBehavior;
 import com.google.android.gnd.ui.home.BottomSheetMetrics;
 
+/**
+ * Defines behavior of the feature details UI elements (bottom sheet and chrome) when the bottom
+ * sheet is scrolled, collapsed, or expanded.
+ */
 public class FeatureDetailsChromeBehavior extends BottomSheetDependentBehavior<ViewGroup> {
   public FeatureDetailsChromeBehavior(Context context, AttributeSet attrs) {
     super(context, attrs);
