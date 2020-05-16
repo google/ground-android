@@ -47,6 +47,7 @@ import com.google.android.gnd.system.AuthenticationManager;
 import com.google.android.gnd.system.CameraManager;
 import com.google.android.gnd.system.StorageManager;
 import com.google.android.gnd.ui.common.AbstractViewModel;
+import com.google.android.gnd.ui.common.ResponseValidator;
 import com.google.common.collect.ImmutableList;
 import io.reactivex.Completable;
 import io.reactivex.Single;
@@ -72,6 +73,7 @@ public class EditObservationViewModel extends AbstractViewModel {
   private final Resources resources;
   private final StorageManager storageManager;
   private final CameraManager cameraManager;
+  private final ResponseValidator validator;
 
   // Input events.
 
@@ -111,22 +113,12 @@ public class EditObservationViewModel extends AbstractViewModel {
   private final LiveData<Event<SaveResult>> saveResults;
 
   private EditObservationFragmentArgs args;
-
-  /** Possible outcomes of user clicking "Save". */
-  enum SaveResult {
-    HAS_VALIDATION_ERRORS,
-    NO_CHANGES_TO_SAVE,
-    SAVED
-  }
-
-  // Internal state.
-
   /** Observation state loaded when view is initialized. */
   @Nullable private Observation originalObservation;
 
+  // Internal state.
   /** True if the observation is being added, false if editing an existing one. */
   private boolean isNew;
-
   /** True if the photo field has been updated. */
   private boolean isPhotoFieldUpdated;
 
@@ -136,14 +128,20 @@ public class EditObservationViewModel extends AbstractViewModel {
       ObservationRepository observationRepository,
       AuthenticationManager authenticationManager,
       StorageManager storageManager,
-      CameraManager cameraManager) {
+      CameraManager cameraManager,
+      ResponseValidator validator) {
     this.resources = application.getResources();
     this.observationRepository = observationRepository;
     this.authManager = authenticationManager;
     this.storageManager = storageManager;
     this.cameraManager = cameraManager;
+    this.validator = validator;
     this.form = fromPublisher(viewArgs.switchMapSingle(this::onInitialize));
     this.saveResults = fromPublisher(saveClicks.switchMapSingle(__ -> onSave()));
+  }
+
+  private static boolean isAddObservationRequest(EditObservationFragmentArgs args) {
+    return args.getObservationId().equals(ADD_OBSERVATION_ID_PLACEHOLDER);
   }
 
   public LiveData<Form> getForm() {
@@ -166,20 +164,16 @@ public class EditObservationViewModel extends AbstractViewModel {
     return toolbarTitle;
   }
 
-  public LiveData<Event<SaveResult>> getSaveResults() {
+  LiveData<Event<SaveResult>> getSaveResults() {
     return saveResults;
   }
 
-  public void initialize(EditObservationFragmentArgs args) {
+  void initialize(EditObservationFragmentArgs args) {
     this.args = args;
     viewArgs.onNext(args);
   }
 
-  public ObservableMap<String, Response> getResponses() {
-    return responses;
-  }
-
-  public Optional<Response> getResponse(String fieldId) {
+  Optional<Response> getResponse(String fieldId) {
     return Optional.ofNullable(responses.get(fieldId));
   }
 
@@ -187,23 +181,17 @@ public class EditObservationViewModel extends AbstractViewModel {
     return validationErrors;
   }
 
-  public void onTextChanged(Field field, String text) {
+  private void onTextChanged(Field field, String text) {
     Timber.v("onTextChanged: %s", field.getId());
 
     onResponseChanged(field, TextResponse.fromString(text));
   }
 
-  public void onResponseChanged(Field field, Optional<Response> newResponse) {
+  void onResponseChanged(Field field, Optional<Response> newResponse) {
     Timber.v("onResponseChanged: %s = '%s'", field.getId(), Response.toString(newResponse));
     newResponse.ifPresentOrElse(
         r -> responses.put(field.getId(), r), () -> responses.remove(field.getId()));
     updateError(field, newResponse);
-  }
-
-  public void onFocusChange(Field field, boolean hasFocus) {
-    if (!hasFocus) {
-      updateError(field);
-    }
   }
 
   public void showPhotoSelector(String fieldId) {
@@ -291,10 +279,6 @@ public class EditObservationViewModel extends AbstractViewModel {
     }
     saveButtonVisibility.postValue(View.VISIBLE);
     loadingSpinnerVisibility.postValue(View.GONE);
-  }
-
-  private static boolean isAddObservationRequest(EditObservationFragmentArgs args) {
-    return args.getObservationId().equals(ADD_OBSERVATION_ID_PLACEHOLDER);
   }
 
   private Single<Observation> createObservation(EditObservationFragmentArgs args) {
@@ -404,21 +388,26 @@ public class EditObservationViewModel extends AbstractViewModel {
   }
 
   private void updateError(Field field, Optional<Response> response) {
-    String key = field.getId();
-    if (field.isRequired() && !response.filter(r -> !r.isEmpty()).isPresent()) {
-      Timber.d("Missing: %s", key);
-      validationErrors.put(field.getId(), resources.getString(R.string.required_field));
+    String error = validator.validate(field, response);
+    if (error != null && !error.isEmpty()) {
+      validationErrors.put(field.getId(), error);
     } else {
-      Timber.d("Valid: %s", key);
       validationErrors.remove(field.getId());
     }
   }
 
-  public boolean hasUnsavedChanges() {
+  boolean hasUnsavedChanges() {
     return !getResponseDeltas().isEmpty();
   }
 
   private boolean hasValidationErrors() {
     return !validationErrors.isEmpty();
+  }
+
+  /** Possible outcomes of user clicking "Save". */
+  enum SaveResult {
+    HAS_VALIDATION_ERRORS,
+    NO_CHANGES_TO_SAVE,
+    SAVED
   }
 }
