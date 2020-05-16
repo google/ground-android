@@ -382,10 +382,10 @@ public class EditObservationViewModel extends AbstractViewModel {
 
   private void updateError(Field field, Optional<Response> response) {
     String error = validator.validate(field, response);
-    if (error != null && !error.isEmpty()) {
-      validationErrors.put(field.getId(), error);
-    } else {
+    if (error == null || error.isEmpty()) {
       validationErrors.remove(field.getId());
+    } else {
+      validationErrors.put(field.getId(), error);
     }
   }
 
