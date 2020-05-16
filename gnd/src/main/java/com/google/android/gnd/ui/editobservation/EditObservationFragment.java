@@ -70,7 +70,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
   private SingleSelectDialogFactory singleSelectDialogFactory;
   private MultiSelectDialogFactory multiSelectDialogFactory;
 
-  private static Class<? extends AbstractFieldViewModel> getFieldVMClass(Field.Type fieldType) {
+  private static Class<? extends AbstractFieldViewModel> getViewModelClass(Field.Type fieldType) {
     switch (fieldType) {
       case TEXT:
         return TextFieldViewModel.class;
@@ -147,8 +147,8 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
     }
   }
 
-  private <VM extends AbstractFieldViewModel> VM addFieldViewModel(Field field) {
-    VM fieldViewModel = (VM) viewModelFactory.create(getFieldVMClass(field.getType()));
+  private <V extends AbstractFieldViewModel> V addFieldViewModel(Field field) {
+    V fieldViewModel = (V) viewModelFactory.create(getViewModelClass(field.getType()));
 
     // load field and current response
     fieldViewModel.init(field, viewModel.getResponse(field.getId()));
