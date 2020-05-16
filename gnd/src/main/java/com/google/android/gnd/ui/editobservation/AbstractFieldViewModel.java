@@ -18,6 +18,7 @@ package com.google.android.gnd.ui.editobservation;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
+import androidx.lifecycle.MutableLiveData;
 import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.observation.Response;
 import com.google.android.gnd.ui.common.AbstractViewModel;
@@ -30,9 +31,9 @@ import java8.util.Optional;
 public class AbstractFieldViewModel extends AbstractViewModel {
 
   private final ResponseValidator validator;
-  private final LiveData<String> error;;
   private final LiveData<Optional<Response>> response;
   private final LiveData<String> responseText;
+  private final MutableLiveData<String> error = new MutableLiveData<>();
   private final BehaviorProcessor<Optional<Response>> responseSubject = BehaviorProcessor.create();
 
   private Field field;
@@ -46,9 +47,9 @@ public class AbstractFieldViewModel extends AbstractViewModel {
 
     response = LiveDataReactiveStreams.fromPublisher(responseSubject.distinctUntilChanged());
 
-    error =
-        LiveDataReactiveStreams.fromPublisher(
-            responseSubject.distinctUntilChanged().switchMapMaybe(this::getErrorText));
+    //    error =
+    //        LiveDataReactiveStreams.fromPublisher(
+    //            responseSubject.distinctUntilChanged().switchMapMaybe(this::getErrorText));
   }
 
   void init(Field field, Optional<Response> response) {
@@ -75,6 +76,10 @@ public class AbstractFieldViewModel extends AbstractViewModel {
 
   public LiveData<String> getError() {
     return error;
+  }
+
+  public void setError(String value) {
+    error.setValue(value);
   }
 
   LiveData<Optional<Response>> getResponse() {

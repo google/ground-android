@@ -28,6 +28,8 @@ import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.databinding.DataBindingUtil;
+import androidx.databinding.ObservableMap;
+import androidx.databinding.ObservableMap.OnMapChangedCallback;
 import androidx.databinding.ViewDataBinding;
 import butterknife.BindView;
 import com.google.android.gnd.BR;
@@ -165,6 +167,19 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
             this,
             responseOptional ->
                 viewModel.onResponseChanged(fieldViewModel.getField(), responseOptional));
+
+    // update error
+    viewModel
+        .getValidationErrors()
+        .addOnMapChangedCallback(
+            new OnMapChangedCallback<ObservableMap<String, String>, String, String>() {
+              @Override
+              public void onMapChanged(ObservableMap<String, String> sender, String key) {
+                if (key != null && key.equals(fieldViewModel.getField().getId())) {
+                  fieldViewModel.setError(sender.get(key));
+                }
+              }
+            });
 
     return fieldViewModel;
   }
