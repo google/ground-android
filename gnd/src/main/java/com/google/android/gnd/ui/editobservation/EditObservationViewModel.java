@@ -177,14 +177,8 @@ public class EditObservationViewModel extends AbstractViewModel {
     return Optional.ofNullable(responses.get(fieldId));
   }
 
-  public ObservableMap<String, String> getValidationErrors() {
+  ObservableMap<String, String> getValidationErrors() {
     return validationErrors;
-  }
-
-  private void onTextChanged(Field field, String text) {
-    Timber.v("onTextChanged: %s", field.getId());
-
-    onResponseChanged(field, TextResponse.fromString(text));
   }
 
   void onResponseChanged(Field field, Optional<Response> newResponse) {
@@ -194,41 +188,40 @@ public class EditObservationViewModel extends AbstractViewModel {
     updateError(field, newResponse);
   }
 
-  public void showPhotoSelector(String fieldId) {
+  public void showPhotoSelector(Field field) {
     /*
      * Didn't subscribe this with Fragment's lifecycle because we need to retain the disposable
      * after the fragment is destroyed (for activity result)
      */
     // TODO: launch intent through fragment and handle activity result callbacks async
     disposeOnClear(
-        storageManager.launchPhotoPicker().andThen(handlePhotoPickerResult(fieldId)).subscribe());
+        storageManager.launchPhotoPicker().andThen(handlePhotoPickerResult(field)).subscribe());
   }
 
-  private Completable handlePhotoPickerResult(String fieldId) {
+  private Completable handlePhotoPickerResult(Field field) {
     return storageManager
         .photoPickerResult()
-        .flatMapCompletable(bitmap -> saveBitmapAndUpdateResponse(bitmap, fieldId));
+        .flatMapCompletable(bitmap -> saveBitmapAndUpdateResponse(bitmap, field));
   }
 
-  public void showPhotoCapture(String fieldId) {
+  public void showPhotoCapture(Field field) {
     /*
      * Didn't subscribe this with Fragment's lifecycle because we need to retain the disposable
      * after the fragment is destroyed (for activity result)
      */
     // TODO: launch intent through fragment and handle activity result callbacks async
     disposeOnClear(
-        cameraManager.launchPhotoCapture().andThen(handlePhotoCaptureResult(fieldId)).subscribe());
+        cameraManager.launchPhotoCapture().andThen(handlePhotoCaptureResult(field)).subscribe());
   }
 
-  private Completable handlePhotoCaptureResult(String fieldId) {
+  private Completable handlePhotoCaptureResult(Field field) {
     return cameraManager
         .capturePhotoResult()
-        .flatMapCompletable(bitmap -> saveBitmapAndUpdateResponse(bitmap, fieldId));
+        .flatMapCompletable(bitmap -> saveBitmapAndUpdateResponse(bitmap, field));
   }
 
-  private Completable saveBitmapAndUpdateResponse(Bitmap bitmap, String fieldId)
-      throws IOException {
-    String localFileName = fieldId + Config.PHOTO_EXT;
+  private Completable saveBitmapAndUpdateResponse(Bitmap bitmap, Field field) throws IOException {
+    String localFileName = field.getId() + Config.PHOTO_EXT;
     String destinationPath =
         getRemoteDestinationPath(
             args.getProjectId(), args.getFormId(), args.getFeatureId(), localFileName);
@@ -237,7 +230,7 @@ public class EditObservationViewModel extends AbstractViewModel {
     isPhotoFieldUpdated = true;
 
     // update observable response map
-    onTextChanged(form.getValue().getField(fieldId).get(), destinationPath);
+    onResponseChanged(field, TextResponse.fromString(destinationPath));
 
     return storageManager.savePhoto(bitmap, localFileName, destinationPath);
   }
