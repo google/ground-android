@@ -22,15 +22,12 @@ import androidx.lifecycle.MutableLiveData;
 import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.observation.Response;
 import com.google.android.gnd.ui.common.AbstractViewModel;
-import com.google.android.gnd.ui.common.ResponseValidator;
-import io.reactivex.Maybe;
 import io.reactivex.Single;
 import io.reactivex.processors.BehaviorProcessor;
 import java8.util.Optional;
 
 public class AbstractFieldViewModel extends AbstractViewModel {
 
-  private final ResponseValidator validator;
   private final LiveData<Optional<Response>> response;
   private final LiveData<String> responseText;
   private final MutableLiveData<String> error = new MutableLiveData<>();
@@ -38,18 +35,11 @@ public class AbstractFieldViewModel extends AbstractViewModel {
 
   private Field field;
 
-  AbstractFieldViewModel(ResponseValidator validator) {
-    this.validator = validator;
-
+  AbstractFieldViewModel() {
     responseText =
         LiveDataReactiveStreams.fromPublisher(
             responseSubject.distinctUntilChanged().switchMapSingle(this::getDetailsText));
-
     response = LiveDataReactiveStreams.fromPublisher(responseSubject.distinctUntilChanged());
-
-    //    error =
-    //        LiveDataReactiveStreams.fromPublisher(
-    //            responseSubject.distinctUntilChanged().switchMapMaybe(this::getErrorText));
   }
 
   void init(Field field, Optional<Response> response) {
@@ -59,11 +49,6 @@ public class AbstractFieldViewModel extends AbstractViewModel {
 
   private Single<String> getDetailsText(Optional<Response> responseOptional) {
     return Single.just(responseOptional.map(response -> response.getDetailsText(field)).orElse(""));
-  }
-
-  private Maybe<String> getErrorText(Optional<Response> responseOptional) {
-    String error = validator.validate(field, responseOptional);
-    return error != null ? Maybe.just(error) : Maybe.empty();
   }
 
   public Field getField() {
