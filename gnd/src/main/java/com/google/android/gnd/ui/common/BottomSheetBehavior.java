@@ -764,11 +764,11 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
   }
   // END CUSTOM
 
-  private int getExpandedOffset() {
-    // START CUSTOM
+  // START CUSTOM
+  public int getExpandedOffset() {
     return fitToContents ? fitToContentsOffset : expandedOffset;
-    // END CUSTOM
   }
+  // END CUSTOM
 
   void startSettlingAnimation(View child, int state) {
     int top;

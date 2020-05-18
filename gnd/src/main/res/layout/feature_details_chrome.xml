@@ -28,7 +28,7 @@
     android:id="@+id/bottom_sheet_chrome"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    app:layout_behavior="com.google.android.gnd.ui.home.BottomSheetChromeBehavior">
+    app:layout_behavior="com.google.android.gnd.ui.home.featuredetails.FeatureDetailsChromeBehavior">
 
     <FrameLayout
       android:id="@+id/toolbar_wrapper"

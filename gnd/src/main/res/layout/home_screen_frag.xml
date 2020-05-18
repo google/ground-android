@@ -52,17 +52,16 @@
           android:focusable="false" />
 
         <FrameLayout
-          android:id="@+id/feature_sheet_layout"
+          android:id="@+id/bottom_sheet_layout"
           android:layout_width="match_parent"
           android:layout_height="match_parent"
           app:layout_behavior="com.google.android.gnd.ui.common.BottomSheetBehavior">
 
           <fragment
-            android:id="@+id/feature_sheet_fragment"
-            android:name="com.google.android.gnd.ui.home.featuresheet.FeatureSheetFragment"
+            android:name="com.google.android.gnd.ui.home.featuredetails.FeatureDetailsFragment"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            tools:layout="@layout/feature_sheet_frag" />
+            tools:layout="@layout/feature_details_frag" />
 
         </FrameLayout>
 
@@ -70,8 +69,8 @@
         in this case the Add Observation button the shim to obscure
         the transparent bottom inset -->
         <include
-          android:id="@+id/feature_sheet_chrome"
-          layout="@layout/feature_sheet_chrome" />
+          android:id="@+id/feature_details_chrome"
+          layout="@layout/feature_details_chrome" />
 
       </androidx.coordinatorlayout.widget.CoordinatorLayout>
 

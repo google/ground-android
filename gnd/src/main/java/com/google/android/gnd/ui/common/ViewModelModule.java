@@ -24,9 +24,9 @@ import com.google.android.gnd.ui.editobservation.MultipleChoiceFieldViewModel;
 import com.google.android.gnd.ui.editobservation.PhotoFieldViewModel;
 import com.google.android.gnd.ui.editobservation.TextFieldViewModel;
 import com.google.android.gnd.ui.home.HomeScreenViewModel;
-import com.google.android.gnd.ui.home.featuresheet.FeatureSheetViewModel;
-import com.google.android.gnd.ui.home.featuresheet.ObservationListViewModel;
-import com.google.android.gnd.ui.home.featuresheet.ObservationViewModel;
+import com.google.android.gnd.ui.home.featuredetails.FeatureDetailsViewModel;
+import com.google.android.gnd.ui.home.featuredetails.ObservationListViewModel;
+import com.google.android.gnd.ui.home.featuredetails.ObservationViewModel;
 import com.google.android.gnd.ui.home.mapcontainer.MapContainerViewModel;
 import com.google.android.gnd.ui.observationdetails.ObservationDetailsViewModel;
 import com.google.android.gnd.ui.offlinearea.OfflineAreasViewModel;
@@ -71,8 +71,8 @@ public abstract class ViewModelModule {
 
   @Binds
   @IntoMap
-  @ViewModelKey(FeatureSheetViewModel.class)
-  abstract ViewModel bindFeatureSheetViewModel(FeatureSheetViewModel viewModel);
+  @ViewModelKey(FeatureDetailsViewModel.class)
+  abstract ViewModel bindFeatureDetailsViewModel(FeatureDetailsViewModel viewModel);
 
   @Binds
   @IntoMap
