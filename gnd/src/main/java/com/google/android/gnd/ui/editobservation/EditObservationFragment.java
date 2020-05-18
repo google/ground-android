@@ -16,27 +16,25 @@
 
 package com.google.android.gnd.ui.editobservation;
 
-import static com.google.android.gnd.ui.util.ViewUtil.assignGeneratedId;
-
 import android.app.AlertDialog;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
-import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.databinding.DataBindingUtil;
 import androidx.databinding.ObservableMap;
 import androidx.databinding.ObservableMap.OnMapChangedCallback;
 import androidx.databinding.ViewDataBinding;
 import butterknife.BindView;
-import com.google.android.gnd.BR;
 import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.EditObservationBottomSheetBinding;
 import com.google.android.gnd.databinding.EditObservationFragBinding;
+import com.google.android.gnd.databinding.MultipleChoiceInputFieldBinding;
+import com.google.android.gnd.databinding.PhotoInputFieldBinding;
+import com.google.android.gnd.databinding.TextInputFieldBinding;
 import com.google.android.gnd.inject.ActivityScoped;
 import com.google.android.gnd.model.form.Element;
 import com.google.android.gnd.model.form.Element.Type;
@@ -59,6 +57,7 @@ import timber.log.Timber;
 public class EditObservationFragment extends AbstractFragment implements BackPressListener {
 
   @Inject Navigator navigator;
+  @Inject FieldViewFactory fieldViewFactory;
 
   @BindView(R.id.edit_observation_toolbar)
   TwoLineToolbar toolbar;
@@ -70,29 +69,17 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
   private SingleSelectDialogFactory singleSelectDialogFactory;
   private MultiSelectDialogFactory multiSelectDialogFactory;
 
-  private static Class<? extends AbstractFieldViewModel> getViewModelClass(Field.Type fieldType) {
-    switch (fieldType) {
-      case TEXT:
-        return TextFieldViewModel.class;
-      case MULTIPLE_CHOICE:
-        return MultipleChoiceFieldViewModel.class;
-      case PHOTO:
-        return PhotoFieldViewModel.class;
-      default:
-        throw new IllegalArgumentException("Unsupported field type: " + fieldType);
-    }
-  }
-
-  private static @LayoutRes int getFieldLayoutId(Field.Type fieldType) {
-    switch (fieldType) {
-      case TEXT:
-        return R.layout.text_input_field;
-      case MULTIPLE_CHOICE:
-        return R.layout.multiple_choice_input_field;
-      case PHOTO:
-        return R.layout.photo_input_field;
-      default:
-        throw new IllegalArgumentException("Unsupported field type: " + fieldType);
+  private static AbstractFieldViewModel getViewModel(ViewDataBinding binding) {
+    if (binding == null) {
+      return null;
+    } else if (binding instanceof TextInputFieldBinding) {
+      return ((TextInputFieldBinding) binding).getViewModel();
+    } else if (binding instanceof MultipleChoiceInputFieldBinding) {
+      return ((MultipleChoiceInputFieldBinding) binding).getViewModel();
+    } else if (binding instanceof PhotoInputFieldBinding) {
+      return ((PhotoInputFieldBinding) binding).getViewModel();
+    } else {
+      throw new IllegalArgumentException("Unknown binding type: " + binding.getClass());
     }
   }
 
@@ -147,9 +134,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
     }
   }
 
-  private <V extends AbstractFieldViewModel> V addFieldViewModel(Field field) {
-    V fieldViewModel = (V) viewModelFactory.create(getViewModelClass(field.getType()));
-
+  private void addFieldViewModel(Field field, AbstractFieldViewModel fieldViewModel) {
     // load field and current response
     fieldViewModel.init(field, viewModel.getResponse(field.getId()));
 
@@ -180,24 +165,15 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
                 }
               }
             });
-
-    return fieldViewModel;
-  }
-
-  private void addFieldView(Field field) {
-    ViewDataBinding binding =
-        DataBindingUtil.inflate(
-            getLayoutInflater(), getFieldLayoutId(field.getType()), formLayout, true);
-    binding.setLifecycleOwner(this);
-    binding.setVariable(BR.viewModel, addFieldViewModel(field));
-    assignGeneratedId(binding.getRoot());
   }
 
   private void rebuildForm(Form form) {
     formLayout.removeAllViews();
     for (Element element : form.getElements()) {
       if (element.getType() == Type.FIELD) {
-        addFieldView(element.getField());
+        Field field = element.getField();
+        ViewDataBinding binding = fieldViewFactory.addFieldView(field.getType(), formLayout);
+        addFieldViewModel(field, getViewModel(binding));
       } else {
         throw new IllegalArgumentException(element.getType() + " elements not yet supported");
       }
