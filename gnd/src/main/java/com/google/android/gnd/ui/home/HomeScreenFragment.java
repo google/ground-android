@@ -100,8 +100,8 @@ public class HomeScreenFragment extends AbstractFragment
   @BindView(R.id.bottom_sheet_header)
   ViewGroup bottomSheetHeader;
 
-  @BindView(R.id.feature_sheet_layout)
-  View bottomSheetScrollView;
+  @BindView(R.id.bottom_sheet_layout)
+  View bottomSheetLayout;
 
   @BindView(R.id.bottom_sheet_bottom_inset_scrim)
   View bottomSheetBottomInsetScrim;
@@ -129,7 +129,7 @@ public class HomeScreenFragment extends AbstractFragment
     viewModel
         .getShowAddFeatureDialogRequests()
         .observe(this, e -> e.ifUnhandled(this::onShowAddFeatureDialogRequest));
-    viewModel.getFeatureSheetState().observe(this, this::onFeatureSheetStateChange);
+    viewModel.getBottomSheetState().observe(this, this::onBottomSheetStateChange);
     viewModel.getOpenDrawerRequests().observe(this, e -> e.ifUnhandled(this::openDrawer));
 
     showFeatureDialogRequests = PublishSubject.create();
@@ -151,7 +151,7 @@ public class HomeScreenFragment extends AbstractFragment
     projectSelectorDialogFragment = new ProjectSelectorDialogFragment();
 
     HomeScreenFragBinding binding = HomeScreenFragBinding.inflate(inflater, container, false);
-    binding.featureSheetChrome.setViewModel(viewModel);
+    binding.featureDetailsChrome.setViewModel(viewModel);
     binding.setLifecycleOwner(this);
     return binding.getRoot();
   }
@@ -228,14 +228,14 @@ public class HomeScreenFragment extends AbstractFragment
 
     // When the bottom sheet is expanded, the bottom edge of the header needs to be aligned with
     // the bottom edge of the toolbar (the header slides up under it).
-    int featureSheetMarginTop = (int) getResources().getDimension(R.dimen.feature_sheet_margin_top);
-    bottomSheetBehavior.setExpandedOffset(toolbarWrapper.getHeight() - featureSheetMarginTop);
+    int bottomSheetMarginTop = (int) getResources().getDimension(R.dimen.bottom_sheet_margin_top);
+    bottomSheetBehavior.setExpandedOffset(toolbarWrapper.getHeight() - bottomSheetMarginTop);
 
     getView().getViewTreeObserver().removeOnGlobalLayoutListener(this);
   }
 
   private void setUpBottomSheetBehavior() {
-    bottomSheetBehavior = BottomSheetBehavior.from(bottomSheetScrollView);
+    bottomSheetBehavior = BottomSheetBehavior.from(bottomSheetLayout);
     bottomSheetBehavior.setHideable(true);
     bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
     bottomSheetBehavior.setBottomSheetCallback(new BottomSheetCallback());
@@ -374,7 +374,7 @@ public class HomeScreenFragment extends AbstractFragment
     showFeatureDialogRequests.onNext(new Object());
   }
 
-  private void onFeatureSheetStateChange(FeatureSheetState state) {
+  private void onBottomSheetStateChange(BottomSheetState state) {
     switch (state.getVisibility()) {
       case VISIBLE:
         showBottomSheet();

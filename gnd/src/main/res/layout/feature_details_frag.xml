@@ -22,7 +22,7 @@
   <data>
     <variable
       name="viewModel"
-      type="com.google.android.gnd.ui.home.featuresheet.FeatureSheetViewModel" />
+      type="com.google.android.gnd.ui.home.featuredetails.FeatureDetailsViewModel" />
   </data>
 
   <FrameLayout
@@ -37,11 +37,11 @@
     <FrameLayout
       android:layout_width="match_parent"
       android:layout_height="match_parent"
-      android:layout_marginTop="@dimen/feature_sheet_margin_top"
+      android:layout_marginTop="@dimen/bottom_sheet_margin_top"
       android:layout_gravity="top" />
 
     <LinearLayout
-        android:id="@+id/feature_sheet_card_contents"
+        android:id="@+id/feature_details_header_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="top"
@@ -49,11 +49,11 @@
 
       <include
           app:viewModel="@{viewModel}"
-          layout="@layout/feature_sheet_header" />
+          layout="@layout/feature_details_header" />
 
       <fragment
         android:id="@+id/observation_list_frag"
-        android:name="com.google.android.gnd.ui.home.featuresheet.ObservationListFragment"
+        android:name="com.google.android.gnd.ui.home.featuredetails.ObservationListFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 

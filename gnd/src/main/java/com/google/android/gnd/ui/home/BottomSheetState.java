@@ -19,7 +19,7 @@ package com.google.android.gnd.ui.home;
 import androidx.annotation.Nullable;
 import com.google.android.gnd.model.feature.Feature;
 
-public class FeatureSheetState {
+public class BottomSheetState {
 
   public enum Visibility {
     VISIBLE,
@@ -30,21 +30,21 @@ public class FeatureSheetState {
 
   @Nullable private Feature feature;
 
-  private FeatureSheetState(Visibility visibility, Feature feature) {
+  private BottomSheetState(Visibility visibility, Feature feature) {
     this.visibility = visibility;
     this.feature = feature;
   }
 
-  private FeatureSheetState(Visibility visibility) {
+  private BottomSheetState(Visibility visibility) {
     this(visibility, null);
   }
 
-  public static FeatureSheetState visible(Feature feature) {
-    return new FeatureSheetState(Visibility.VISIBLE, feature);
+  public static BottomSheetState visible(Feature feature) {
+    return new BottomSheetState(Visibility.VISIBLE, feature);
   }
 
-  public static FeatureSheetState hidden() {
-    return new FeatureSheetState(Visibility.HIDDEN);
+  public static BottomSheetState hidden() {
+    return new BottomSheetState(Visibility.HIDDEN);
   }
 
   public Feature getFeature() {

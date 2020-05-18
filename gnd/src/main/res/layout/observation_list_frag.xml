@@ -19,7 +19,7 @@
   <data>
     <variable
         name="viewModel"
-        type="com.google.android.gnd.ui.home.featuresheet.ObservationListViewModel"/>
+        type="com.google.android.gnd.ui.home.featuredetails.ObservationListViewModel"/>
   </data>
 
   <FrameLayout

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.ui.home.featuresheet;
+package com.google.android.gnd.ui.home.featuredetails;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -39,7 +39,7 @@ public class ObservationListFragment extends AbstractFragment {
   @Inject Navigator navigator;
   private ObservationListAdapter observationListAdapter;
   private ObservationListViewModel viewModel;
-  private FeatureSheetViewModel featureSheetViewModel;
+  private FeatureDetailsViewModel featureDetailsViewModel;
 
   @BindView(R.id.observation_list_container)
   RecyclerView recyclerView;
@@ -49,7 +49,7 @@ public class ObservationListFragment extends AbstractFragment {
     observationListAdapter = new ObservationListAdapter(viewModelFactory);
     super.onCreate(savedInstanceState);
     viewModel = getViewModel(ObservationListViewModel.class);
-    featureSheetViewModel = getViewModel(FeatureSheetViewModel.class);
+    featureDetailsViewModel = getViewModel(FeatureDetailsViewModel.class);
 
     observationListAdapter.getItemClicks().observe(this, this::onItemClick);
   }
@@ -71,7 +71,7 @@ public class ObservationListFragment extends AbstractFragment {
     super.onViewCreated(view, savedInstanceState);
     recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
     recyclerView.setAdapter(observationListAdapter);
-    featureSheetViewModel
+    featureDetailsViewModel
         .getSelectedFeatureOnceAndStream()
         .observe(getViewLifecycleOwner(), this::onFeatureSelected);
   }

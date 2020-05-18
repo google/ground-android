@@ -22,23 +22,32 @@ import android.view.View;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import com.google.android.gnd.R;
 
-public abstract class OnBottomSheetSlideBehavior<V extends View>
+/**
+ * Base class for layout behaviors defining transitions dependent on bottom sheet changes (e.g.,
+ * scroll, expand, collapse).
+ */
+public abstract class BottomSheetDependentBehavior<V extends View>
     extends CoordinatorLayout.Behavior<V> {
-  public OnBottomSheetSlideBehavior(Context context, AttributeSet attrs) {
+  public BottomSheetDependentBehavior(Context context, AttributeSet attrs) {
     super(context, attrs);
   }
 
-  protected abstract void onSheetScrolled(
-      CoordinatorLayout parent, V child, HomeScreenMetrics metrics);
+  /**
+   * Overridden to define the behavior of layouts in relation to changes in the bottom sheet.
+   * In general, this is called when the bottom sheet state changes (e.g., from hidden to
+   * collapsed), and when the bottom sheet is scrolled up or down.
+   */
+  protected abstract void onBottomSheetChanged(
+      CoordinatorLayout parent, V child, BottomSheetMetrics metrics);
 
   @Override
   public boolean layoutDependsOn(CoordinatorLayout parent, V child, View dependency) {
-    return dependency.getId() == R.id.feature_sheet_layout;
+    return dependency.getId() == R.id.bottom_sheet_layout;
   }
 
   @Override
-  public boolean onDependentViewChanged(CoordinatorLayout parent, V child, View dependency) {
-    onSheetScrolled(parent, child, new HomeScreenMetrics(parent, dependency));
+  public boolean onDependentViewChanged(CoordinatorLayout parent, V child, View bottomSheet) {
+    onBottomSheetChanged(parent, child, new BottomSheetMetrics(parent, bottomSheet));
     return false;
   }
 }
