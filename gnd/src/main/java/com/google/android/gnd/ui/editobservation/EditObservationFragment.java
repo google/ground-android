@@ -135,17 +135,14 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
   }
 
   private void addFieldViewModel(Field field, AbstractFieldViewModel fieldViewModel) {
-    // load field and current response
     fieldViewModel.init(field, viewModel.getResponse(field.getId()));
 
-    // handle UI interactions
     if (fieldViewModel instanceof PhotoFieldViewModel) {
       observeSelectPhotoClicks((PhotoFieldViewModel) fieldViewModel);
     } else if (fieldViewModel instanceof MultipleChoiceFieldViewModel) {
       observeMultipleChoiceClicks((MultipleChoiceFieldViewModel) fieldViewModel);
     }
 
-    // subscribe to response updates
     fieldViewModel
         .getResponse()
         .observe(
@@ -153,7 +150,6 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
             responseOptional ->
                 viewModel.onResponseChanged(fieldViewModel.getField(), responseOptional));
 
-    // update error
     viewModel
         .getValidationErrors()
         .addOnMapChangedCallback(
