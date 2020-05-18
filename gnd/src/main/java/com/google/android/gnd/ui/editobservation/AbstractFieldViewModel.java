@@ -26,11 +26,18 @@ import io.reactivex.Single;
 import io.reactivex.processors.BehaviorProcessor;
 import java8.util.Optional;
 
+/** Defines the state of an inflated {@link Field} and controls its UI. */
 public class AbstractFieldViewModel extends AbstractViewModel {
 
+  /** Current value. */
   private final LiveData<Optional<Response>> response;
+
+  /** Transcoded text to be displayed for the current {@link AbstractFieldViewModel#response}. */
   private final LiveData<String> responseText;
+
+  /** Error message to be displayed for the current {@link AbstractFieldViewModel#response}. */
   private final MutableLiveData<String> error = new MutableLiveData<>();
+
   private final BehaviorProcessor<Optional<Response>> responseSubject = BehaviorProcessor.create();
 
   private Field field;
@@ -42,6 +49,7 @@ public class AbstractFieldViewModel extends AbstractViewModel {
     response = LiveDataReactiveStreams.fromPublisher(responseSubject.distinctUntilChanged());
   }
 
+  // TODO: Add a reference of Field in Response for simplification.
   void init(Field field, Optional<Response> response) {
     this.field = field;
     setResponse(response);
