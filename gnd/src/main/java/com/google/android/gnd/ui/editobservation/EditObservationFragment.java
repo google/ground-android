@@ -24,8 +24,6 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.databinding.ObservableMap;
-import androidx.databinding.ObservableMap.OnMapChangedCallback;
 import androidx.databinding.ViewDataBinding;
 import butterknife.BindView;
 import com.google.android.gnd.MainActivity;
@@ -145,22 +143,9 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
 
     fieldViewModel
         .getResponse()
-        .observe(
-            this,
-            responseOptional ->
-                viewModel.onResponseChanged(fieldViewModel.getField(), responseOptional));
+        .observe(this, response -> viewModel.onResponseChanged(field, response));
 
-    viewModel
-        .getValidationErrors()
-        .addOnMapChangedCallback(
-            new OnMapChangedCallback<ObservableMap<String, String>, String, String>() {
-              @Override
-              public void onMapChanged(ObservableMap<String, String> sender, String key) {
-                if (key != null && key.equals(fieldViewModel.getField().getId())) {
-                  fieldViewModel.setError(sender.get(key));
-                }
-              }
-            });
+    fieldViewModel.getError().observe(this, error -> viewModel.onErrorChanged(field, error));
   }
 
   private void rebuildForm(Form form) {

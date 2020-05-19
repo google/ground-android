@@ -27,6 +27,7 @@ import com.google.android.gnd.R;
 import com.google.android.gnd.ui.editobservation.MultipleChoiceFieldLayout;
 import com.google.android.material.textfield.TextInputEditText;
 import com.squareup.picasso.Picasso;
+import java8.util.Optional;
 import java8.util.function.Consumer;
 
 /**
@@ -60,6 +61,13 @@ public class BindingAdapters {
             // No-op.
           }
         });
+  }
+
+  @BindingAdapter("errorText")
+  public static void bindError(TextInputEditText view, Optional<String> error) {
+    if (error != null) {
+      error.ifPresentOrElse(view::setError, () -> view.setError(null));
+    }
   }
 
   @BindingAdapter("onShowDialog")

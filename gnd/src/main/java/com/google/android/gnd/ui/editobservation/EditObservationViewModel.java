@@ -18,7 +18,6 @@ package com.google.android.gnd.ui.editobservation;
 
 import static androidx.lifecycle.LiveDataReactiveStreams.fromPublisher;
 import static com.google.android.gnd.persistence.remote.firestore.FirestoreStorageManager.getRemoteDestinationPath;
-import static java8.util.stream.StreamSupport.stream;
 
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -47,7 +46,6 @@ import com.google.android.gnd.system.AuthenticationManager;
 import com.google.android.gnd.system.CameraManager;
 import com.google.android.gnd.system.StorageManager;
 import com.google.android.gnd.ui.common.AbstractViewModel;
-import com.google.android.gnd.ui.common.ResponseValidator;
 import com.google.common.collect.ImmutableList;
 import io.reactivex.Completable;
 import io.reactivex.Single;
@@ -73,7 +71,6 @@ public class EditObservationViewModel extends AbstractViewModel {
   private final Resources resources;
   private final StorageManager storageManager;
   private final CameraManager cameraManager;
-  private final ResponseValidator validator;
 
   // Input events.
 
@@ -128,14 +125,12 @@ public class EditObservationViewModel extends AbstractViewModel {
       ObservationRepository observationRepository,
       AuthenticationManager authenticationManager,
       StorageManager storageManager,
-      CameraManager cameraManager,
-      ResponseValidator validator) {
+      CameraManager cameraManager) {
     this.resources = application.getResources();
     this.observationRepository = observationRepository;
     this.authManager = authenticationManager;
     this.storageManager = storageManager;
     this.cameraManager = cameraManager;
-    this.validator = validator;
     this.form = fromPublisher(viewArgs.switchMapSingle(this::onInitialize));
     this.saveResults = fromPublisher(saveClicks.switchMapSingle(__ -> onSave()));
   }
@@ -177,15 +172,14 @@ public class EditObservationViewModel extends AbstractViewModel {
     return Optional.ofNullable(responses.get(fieldId));
   }
 
-  ObservableMap<String, String> getValidationErrors() {
-    return validationErrors;
+  void onErrorChanged(Field field, Optional<String> error) {
+    error.ifPresentOrElse(
+        e -> validationErrors.put(field.getId(), e), () -> validationErrors.remove(field.getId()));
   }
 
   void onResponseChanged(Field field, Optional<Response> newResponse) {
-    Timber.v("onResponseChanged: %s = '%s'", field.getId(), Response.toString(newResponse));
     newResponse.ifPresentOrElse(
         r -> responses.put(field.getId(), r), () -> responses.remove(field.getId()));
-    updateError(field, newResponse);
   }
 
   public void showPhotoSelector(Field field) {
@@ -265,11 +259,6 @@ public class EditObservationViewModel extends AbstractViewModel {
       refreshResponseMap(observation);
     }
 
-    if (isNew) {
-      validationErrors.clear();
-    } else {
-      refreshValidationErrors();
-    }
     saveButtonVisibility.postValue(View.VISIBLE);
     loadingSpinnerVisibility.postValue(View.GONE);
   }
@@ -295,7 +284,7 @@ public class EditObservationViewModel extends AbstractViewModel {
       Timber.e("Save attempted before observation loaded");
       return Single.just(Event.create(SaveResult.NO_CHANGES_TO_SAVE));
     }
-    refreshValidationErrors();
+
     if (hasValidationErrors()) {
       return Single.just(Event.create(SaveResult.HAS_VALIDATION_ERRORS));
     }
@@ -366,26 +355,6 @@ public class EditObservationViewModel extends AbstractViewModel {
     ImmutableList<ResponseDelta> result = deltas.build();
     Timber.v("Deltas: %s", result);
     return result;
-  }
-
-  private void refreshValidationErrors() {
-    validationErrors.clear();
-    stream(originalObservation.getForm().getElements())
-        .filter(e -> e.getType().equals(Type.FIELD))
-        .map(Element::getField)
-        .forEach(this::updateError);
-  }
-
-  private void updateError(Field field) {
-    updateError(field, getResponse(field.getId()));
-  }
-
-  private void updateError(Field field, Optional<Response> response) {
-    validator
-        .validate(field, response)
-        .ifPresentOrElse(
-            error -> validationErrors.put(field.getId(), error),
-            () -> validationErrors.remove(field.getId()));
   }
 
   boolean hasUnsavedChanges() {

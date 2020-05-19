@@ -16,9 +16,11 @@
 
 package com.google.android.gnd.ui.editobservation;
 
+import android.content.res.Resources;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
-import androidx.lifecycle.MutableLiveData;
+import com.google.android.gnd.GndApplication;
+import com.google.android.gnd.R;
 import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.observation.Response;
 import com.google.android.gnd.ui.common.AbstractViewModel;
@@ -36,16 +38,22 @@ public class AbstractFieldViewModel extends AbstractViewModel {
   private final LiveData<String> responseText;
 
   /** Error message to be displayed for the current {@link AbstractFieldViewModel#response}. */
-  private final MutableLiveData<String> error = new MutableLiveData<>();
+  private final LiveData<Optional<String>> error;
 
   private final BehaviorProcessor<Optional<Response>> responseSubject = BehaviorProcessor.create();
+  private final Resources resources;
 
   private Field field;
 
-  AbstractFieldViewModel() {
+  AbstractFieldViewModel(GndApplication application) {
+    resources = application.getResources();
+
     responseText =
         LiveDataReactiveStreams.fromPublisher(
             responseSubject.distinctUntilChanged().switchMapSingle(this::getDetailsText));
+    error =
+        LiveDataReactiveStreams.fromPublisher(
+            responseSubject.distinctUntilChanged().switchMapSingle(this::getErrorText));
     response = LiveDataReactiveStreams.fromPublisher(responseSubject.distinctUntilChanged());
   }
 
@@ -59,6 +67,18 @@ public class AbstractFieldViewModel extends AbstractViewModel {
     return Single.just(responseOptional.map(response -> response.getDetailsText(field)).orElse(""));
   }
 
+  private Single<Optional<String>> getErrorText(Optional<Response> responseOptional) {
+    return Single.just(validate(field, responseOptional));
+  }
+
+  // TODO: Check valid response values
+  private Optional<String> validate(Field field, Optional<Response> response) {
+    if (field.isRequired() && (response == null || response.isEmpty())) {
+      return Optional.of(resources.getString(R.string.required_field));
+    }
+    return Optional.empty();
+  }
+
   public Field getField() {
     return field;
   }
@@ -67,12 +87,8 @@ public class AbstractFieldViewModel extends AbstractViewModel {
     return responseText;
   }
 
-  public LiveData<String> getError() {
+  public LiveData<Optional<String>> getError() {
     return error;
-  }
-
-  public void setError(String value) {
-    error.setValue(value);
   }
 
   LiveData<Optional<Response>> getResponse() {
