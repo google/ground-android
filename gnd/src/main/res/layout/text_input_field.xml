@@ -22,22 +22,12 @@
 
   <data>
     <variable
-      name="field"
-      type="com.google.android.gnd.model.form.Field" />
-    <variable
       name="viewModel"
-      type="com.google.android.gnd.ui.editobservation.EditObservationViewModel" />
+      type="com.google.android.gnd.ui.editobservation.TextFieldViewModel" />
   </data>
 
   <LinearLayout
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_marginTop="@dimen/field_vertical_margin"
-    android:layout_marginBottom="@dimen/field_vertical_margin"
-    android:layout_marginStart="@dimen/field_horizontal_margin"
-    android:layout_marginEnd="@dimen/field_horizontal_margin"
-    android:layout_marginLeft="@dimen/field_horizontal_margin"
-    android:layout_marginRight="@dimen/field_horizontal_margin"
+    style="@style/FieldView"
     android:orientation="vertical">
 
     <com.google.android.material.textfield.TextInputLayout
@@ -45,17 +35,16 @@
       style="@style/EditObservation.Field.Text"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:hint="@{field.label}">
+      android:hint="@{viewModel.field.label}">
 
       <com.google.android.material.textfield.TextInputEditText
         android:id="@+id/text_input_edit_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:maxLines="1"
-        android:text="@{viewModel.responses[field.id]}"
-        app:errorText="@{viewModel.validationErrors[field.id]}"
-        app:onTextChanged="@{s -> viewModel.onTextChanged(field, (String) s)}"
-        app:onFocusChange="@{(v, hasFocus) -> viewModel.onFocusChange(field, hasFocus)}"
+        android:text="@{viewModel.responseText}"
+        app:errorText="@{viewModel.error}"
+        app:onTextChanged="@{s -> viewModel.updateResponse((String)s)}"
         tools:text="Text value" />
 
     </com.google.android.material.textfield.TextInputLayout>

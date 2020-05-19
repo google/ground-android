@@ -16,8 +16,6 @@
 
 package com.google.android.gnd.ui.editobservation;
 
-import static com.google.android.gnd.ui.util.ViewUtil.assignGeneratedId;
-
 import android.app.AlertDialog;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -26,6 +24,7 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.databinding.ViewDataBinding;
 import butterknife.BindView;
 import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.R;
@@ -36,6 +35,7 @@ import com.google.android.gnd.databinding.PhotoInputFieldBinding;
 import com.google.android.gnd.databinding.TextInputFieldBinding;
 import com.google.android.gnd.inject.ActivityScoped;
 import com.google.android.gnd.model.form.Element;
+import com.google.android.gnd.model.form.Element.Type;
 import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.model.form.MultipleChoice.Cardinality;
@@ -47,6 +47,7 @@ import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.TwoLineToolbar;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import java8.util.Optional;
+import java8.util.function.Consumer;
 import javax.inject.Inject;
 import timber.log.Timber;
 
@@ -54,6 +55,7 @@ import timber.log.Timber;
 public class EditObservationFragment extends AbstractFragment implements BackPressListener {
 
   @Inject Navigator navigator;
+  @Inject FieldViewFactory fieldViewFactory;
 
   @BindView(R.id.edit_observation_toolbar)
   TwoLineToolbar toolbar;
@@ -65,8 +67,19 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
   private SingleSelectDialogFactory singleSelectDialogFactory;
   private MultiSelectDialogFactory multiSelectDialogFactory;
 
-  @Nullable private EditObservationBottomSheetBinding addPhotoBottomSheetBinding;
-  @Nullable private BottomSheetDialog bottomSheetDialog;
+  private static AbstractFieldViewModel getViewModel(ViewDataBinding binding) {
+    if (binding == null) {
+      return null;
+    } else if (binding instanceof TextInputFieldBinding) {
+      return ((TextInputFieldBinding) binding).getViewModel();
+    } else if (binding instanceof MultipleChoiceInputFieldBinding) {
+      return ((MultipleChoiceInputFieldBinding) binding).getViewModel();
+    } else if (binding instanceof PhotoInputFieldBinding) {
+      return ((PhotoInputFieldBinding) binding).getViewModel();
+    } else {
+      throw new IllegalArgumentException("Unknown binding type: " + binding.getClass());
+    }
+  }
 
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -119,85 +132,56 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
     }
   }
 
+  private void addFieldViewModel(Field field, AbstractFieldViewModel fieldViewModel) {
+    fieldViewModel.init(field, viewModel.getResponse(field.getId()));
+
+    if (fieldViewModel instanceof PhotoFieldViewModel) {
+      observeSelectPhotoClicks((PhotoFieldViewModel) fieldViewModel);
+    } else if (fieldViewModel instanceof MultipleChoiceFieldViewModel) {
+      observeMultipleChoiceClicks((MultipleChoiceFieldViewModel) fieldViewModel);
+    }
+
+    fieldViewModel
+        .getResponse()
+        .observe(this, response -> viewModel.onResponseChanged(field, response));
+
+    fieldViewModel.getError().observe(this, error -> viewModel.onErrorChanged(field, error));
+  }
+
   private void rebuildForm(Form form) {
     formLayout.removeAllViews();
     for (Element element : form.getElements()) {
-      switch (element.getType()) {
-        case FIELD:
-          addField(element.getField());
-          break;
-        default:
-          Timber.d("%s elements not yet supported", element.getType());
-          break;
+      if (element.getType() == Type.FIELD) {
+        Field field = element.getField();
+        ViewDataBinding binding = fieldViewFactory.addFieldView(field.getType(), formLayout);
+        addFieldViewModel(field, getViewModel(binding));
+      } else {
+        throw new IllegalArgumentException(element.getType() + " elements not yet supported");
       }
     }
   }
 
-  private void addField(Field field) {
-    switch (field.getType()) {
-      case TEXT:
-        addTextField(field);
-        break;
-      case MULTIPLE_CHOICE:
-        addMultipleChoiceField(field);
-        break;
-      case PHOTO:
-        addPhotoField(field);
-        break;
-      default:
-        Timber.w("Unimplemented field type: %s", field.getType());
-        break;
-    }
+  private void observeMultipleChoiceClicks(MultipleChoiceFieldViewModel viewModel) {
+    viewModel
+        .getShowDialogClicks()
+        .observe(
+            this,
+            __ ->
+                onShowDialog(
+                    viewModel.getField(),
+                    viewModel.getResponse().getValue(),
+                    viewModel::setResponse));
   }
 
-  private void addTextField(Field field) {
-    TextInputFieldBinding binding =
-        TextInputFieldBinding.inflate(getLayoutInflater(), formLayout, false);
-    binding.setViewModel(viewModel);
-    binding.setLifecycleOwner(this);
-    binding.setField(field);
-    formLayout.addView(binding.getRoot());
-    assignGeneratedId(binding.getRoot().findViewById(R.id.text_input_edit_text));
-  }
-
-  private void addMultipleChoiceField(Field field) {
-    MultipleChoiceInputFieldBinding binding =
-        MultipleChoiceInputFieldBinding.inflate(getLayoutInflater(), formLayout, false);
-    binding.setFragment(this);
-    binding.setViewModel(viewModel);
-    binding.setLifecycleOwner(this);
-    binding.setField(field);
-    formLayout.addView(binding.getRoot());
-    assignGeneratedId(binding.getRoot().findViewById(R.id.multiple_choice_input_edit_text));
-  }
-
-  private void addPhotoField(Field field) {
-    PhotoInputFieldBinding binding =
-        PhotoInputFieldBinding.inflate(getLayoutInflater(), formLayout, false);
-    binding.setLifecycleOwner(this);
-    binding.setField(field);
-    binding.setFragment(this);
-
-    PhotoFieldViewModel photoFieldViewModel = viewModelFactory.create(PhotoFieldViewModel.class);
-    photoFieldViewModel.init(field, viewModel.getResponses());
-    binding.setViewModel(photoFieldViewModel);
-
-    formLayout.addView(binding.getRoot());
-  }
-
-  public void onShowDialog(Field field) {
+  private void onShowDialog(
+      Field field, Optional<Response> currentResponse, Consumer<Optional<Response>> consumer) {
     Cardinality cardinality = field.getMultipleChoice().getCardinality();
-    Optional<Response> currentResponse = viewModel.getResponse(field.getId());
     switch (cardinality) {
       case SELECT_MULTIPLE:
-        multiSelectDialogFactory
-            .create(field, currentResponse, r -> viewModel.onResponseChanged(field, r))
-            .show();
+        multiSelectDialogFactory.create(field, currentResponse, consumer).show();
         break;
       case SELECT_ONE:
-        singleSelectDialogFactory
-            .create(field, currentResponse, r -> viewModel.onResponseChanged(field, r))
-            .show();
+        singleSelectDialogFactory.create(field, currentResponse, consumer).show();
         break;
       default:
         Timber.e("Unknown cardinality: %s", cardinality);
@@ -205,30 +189,22 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
     }
   }
 
-  public void onShowPhotoSelectorDialog(Field field) {
-    if (addPhotoBottomSheetBinding == null) {
-      addPhotoBottomSheetBinding = EditObservationBottomSheetBinding.inflate(getLayoutInflater());
-      addPhotoBottomSheetBinding.setViewModel(viewModel);
-    }
-    addPhotoBottomSheetBinding.setField(field);
-
-    if (bottomSheetDialog == null) {
-      bottomSheetDialog = new BottomSheetDialog(getContext());
-      bottomSheetDialog.setContentView(addPhotoBottomSheetBinding.getRoot());
-    }
-
-    if (!bottomSheetDialog.isShowing()) {
-      bottomSheetDialog.show();
-    }
+  private void observeSelectPhotoClicks(PhotoFieldViewModel viewModel) {
+    viewModel
+        .getShowDialogClicks()
+        .observe(this, __ -> onShowPhotoSelectorDialog(viewModel.getField()));
   }
 
-  @Override
-  public void onPause() {
-    if (bottomSheetDialog != null && bottomSheetDialog.isShowing()) {
-      bottomSheetDialog.dismiss();
-    }
+  private void onShowPhotoSelectorDialog(Field field) {
+    EditObservationBottomSheetBinding addPhotoBottomSheetBinding =
+        EditObservationBottomSheetBinding.inflate(getLayoutInflater());
+    addPhotoBottomSheetBinding.setViewModel(viewModel);
+    addPhotoBottomSheetBinding.setField(field);
 
-    super.onPause();
+    BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(getContext());
+    bottomSheetDialog.setContentView(addPhotoBottomSheetBinding.getRoot());
+    bottomSheetDialog.setCancelable(true);
+    bottomSheetDialog.show();
   }
 
   @Override

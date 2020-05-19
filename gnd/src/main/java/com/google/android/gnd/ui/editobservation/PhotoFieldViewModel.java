@@ -18,30 +18,32 @@ package com.google.android.gnd.ui.editobservation;
 
 import android.net.Uri;
 import android.view.View;
-import androidx.databinding.ObservableMap;
-import androidx.databinding.ObservableMap.OnMapChangedCallback;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
+import androidx.lifecycle.MutableLiveData;
+import com.google.android.gnd.GndApplication;
 import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.form.Field.Type;
 import com.google.android.gnd.model.observation.Response;
 import com.google.android.gnd.system.StorageManager;
-import com.google.android.gnd.ui.common.AbstractViewModel;
 import io.reactivex.Single;
 import io.reactivex.processors.BehaviorProcessor;
+import java8.util.Optional;
 import javax.inject.Inject;
 import timber.log.Timber;
 
-public class PhotoFieldViewModel extends AbstractViewModel {
+public class PhotoFieldViewModel extends AbstractFieldViewModel {
 
   private static final String EMPTY_PATH = "";
   private final StorageManager storageManager;
   private final BehaviorProcessor<String> destinationPath = BehaviorProcessor.create();
   private final LiveData<Uri> uri;
   private final LiveData<Integer> visibility;
+  private final MutableLiveData<Field> showDialogClicks = new MutableLiveData<>();
 
   @Inject
-  PhotoFieldViewModel(StorageManager storageManager) {
+  PhotoFieldViewModel(StorageManager storageManager, GndApplication application) {
+    super(application);
     this.storageManager = storageManager;
     this.visibility =
         LiveDataReactiveStreams.fromPublisher(
@@ -63,25 +65,10 @@ public class PhotoFieldViewModel extends AbstractViewModel {
     return visibility;
   }
 
-  void init(Field field, ObservableMap<String, Response> responses) {
-    if (field.getType() != Type.PHOTO) {
-      Timber.e("Not a photo type field: %s", field.getType());
-      return;
-    }
-
-    // Load last saved value
-    updateField(responses.get(field.getId()), field);
-
-    // Observe response updates
-    responses.addOnMapChangedCallback(
-        new OnMapChangedCallback<ObservableMap<String, Response>, String, Response>() {
-          @Override
-          public void onMapChanged(ObservableMap<String, Response> sender, String key) {
-            if (key != null && key.equals(field.getId())) {
-              updateField(sender.get(key), field);
-            }
-          }
-        });
+  @Override
+  public void setResponse(Optional<Response> response) {
+    super.setResponse(response);
+    updateField(response.isPresent() ? response.get() : null, getField());
   }
 
   public void updateField(Response response, Field field) {
@@ -95,5 +82,13 @@ public class PhotoFieldViewModel extends AbstractViewModel {
     } else {
       destinationPath.onNext(response.getDetailsText(field));
     }
+  }
+
+  public void onShowPhotoSelectorDialog() {
+    showDialogClicks.setValue(getField());
+  }
+
+  LiveData<Field> getShowDialogClicks() {
+    return showDialogClicks;
   }
 }

@@ -18,7 +18,6 @@ package com.google.android.gnd.ui.editobservation;
 
 import static androidx.lifecycle.LiveDataReactiveStreams.fromPublisher;
 import static com.google.android.gnd.persistence.remote.firestore.FirestoreStorageManager.getRemoteDestinationPath;
-import static java8.util.stream.StreamSupport.stream;
 
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -111,22 +110,12 @@ public class EditObservationViewModel extends AbstractViewModel {
   private final LiveData<Event<SaveResult>> saveResults;
 
   private EditObservationFragmentArgs args;
-
-  /** Possible outcomes of user clicking "Save". */
-  enum SaveResult {
-    HAS_VALIDATION_ERRORS,
-    NO_CHANGES_TO_SAVE,
-    SAVED
-  }
-
-  // Internal state.
-
   /** Observation state loaded when view is initialized. */
   @Nullable private Observation originalObservation;
 
+  // Internal state.
   /** True if the observation is being added, false if editing an existing one. */
   private boolean isNew;
-
   /** True if the photo field has been updated. */
   private boolean isPhotoFieldUpdated;
 
@@ -144,6 +133,10 @@ public class EditObservationViewModel extends AbstractViewModel {
     this.cameraManager = cameraManager;
     this.form = fromPublisher(viewArgs.switchMapSingle(this::onInitialize));
     this.saveResults = fromPublisher(saveClicks.switchMapSingle(__ -> onSave()));
+  }
+
+  private static boolean isAddObservationRequest(EditObservationFragmentArgs args) {
+    return args.getObservationId().equals(ADD_OBSERVATION_ID_PLACEHOLDER);
   }
 
   public LiveData<Form> getForm() {
@@ -166,81 +159,63 @@ public class EditObservationViewModel extends AbstractViewModel {
     return toolbarTitle;
   }
 
-  public LiveData<Event<SaveResult>> getSaveResults() {
+  LiveData<Event<SaveResult>> getSaveResults() {
     return saveResults;
   }
 
-  public void initialize(EditObservationFragmentArgs args) {
+  void initialize(EditObservationFragmentArgs args) {
     this.args = args;
     viewArgs.onNext(args);
   }
 
-  public ObservableMap<String, Response> getResponses() {
-    return responses;
-  }
-
-  public Optional<Response> getResponse(String fieldId) {
+  Optional<Response> getResponse(String fieldId) {
     return Optional.ofNullable(responses.get(fieldId));
   }
 
-  public ObservableMap<String, String> getValidationErrors() {
-    return validationErrors;
+  void onErrorChanged(Field field, Optional<String> error) {
+    error.ifPresentOrElse(
+        e -> validationErrors.put(field.getId(), e), () -> validationErrors.remove(field.getId()));
   }
 
-  public void onTextChanged(Field field, String text) {
-    Timber.v("onTextChanged: %s", field.getId());
-
-    onResponseChanged(field, TextResponse.fromString(text));
-  }
-
-  public void onResponseChanged(Field field, Optional<Response> newResponse) {
-    Timber.v("onResponseChanged: %s = '%s'", field.getId(), Response.toString(newResponse));
+  void onResponseChanged(Field field, Optional<Response> newResponse) {
     newResponse.ifPresentOrElse(
         r -> responses.put(field.getId(), r), () -> responses.remove(field.getId()));
-    updateError(field, newResponse);
   }
 
-  public void onFocusChange(Field field, boolean hasFocus) {
-    if (!hasFocus) {
-      updateError(field);
-    }
-  }
-
-  public void showPhotoSelector(String fieldId) {
+  public void showPhotoSelector(Field field) {
     /*
      * Didn't subscribe this with Fragment's lifecycle because we need to retain the disposable
      * after the fragment is destroyed (for activity result)
      */
     // TODO: launch intent through fragment and handle activity result callbacks async
     disposeOnClear(
-        storageManager.launchPhotoPicker().andThen(handlePhotoPickerResult(fieldId)).subscribe());
+        storageManager.launchPhotoPicker().andThen(handlePhotoPickerResult(field)).subscribe());
   }
 
-  private Completable handlePhotoPickerResult(String fieldId) {
+  private Completable handlePhotoPickerResult(Field field) {
     return storageManager
         .photoPickerResult()
-        .flatMapCompletable(bitmap -> saveBitmapAndUpdateResponse(bitmap, fieldId));
+        .flatMapCompletable(bitmap -> saveBitmapAndUpdateResponse(bitmap, field));
   }
 
-  public void showPhotoCapture(String fieldId) {
+  public void showPhotoCapture(Field field) {
     /*
      * Didn't subscribe this with Fragment's lifecycle because we need to retain the disposable
      * after the fragment is destroyed (for activity result)
      */
     // TODO: launch intent through fragment and handle activity result callbacks async
     disposeOnClear(
-        cameraManager.launchPhotoCapture().andThen(handlePhotoCaptureResult(fieldId)).subscribe());
+        cameraManager.launchPhotoCapture().andThen(handlePhotoCaptureResult(field)).subscribe());
   }
 
-  private Completable handlePhotoCaptureResult(String fieldId) {
+  private Completable handlePhotoCaptureResult(Field field) {
     return cameraManager
         .capturePhotoResult()
-        .flatMapCompletable(bitmap -> saveBitmapAndUpdateResponse(bitmap, fieldId));
+        .flatMapCompletable(bitmap -> saveBitmapAndUpdateResponse(bitmap, field));
   }
 
-  private Completable saveBitmapAndUpdateResponse(Bitmap bitmap, String fieldId)
-      throws IOException {
-    String localFileName = fieldId + Config.PHOTO_EXT;
+  private Completable saveBitmapAndUpdateResponse(Bitmap bitmap, Field field) throws IOException {
+    String localFileName = field.getId() + Config.PHOTO_EXT;
     String destinationPath =
         getRemoteDestinationPath(
             args.getProjectId(), args.getFormId(), args.getFeatureId(), localFileName);
@@ -249,7 +224,7 @@ public class EditObservationViewModel extends AbstractViewModel {
     isPhotoFieldUpdated = true;
 
     // update observable response map
-    onTextChanged(form.getValue().getField(fieldId).get(), destinationPath);
+    onResponseChanged(field, TextResponse.fromString(destinationPath));
 
     return storageManager.savePhoto(bitmap, localFileName, destinationPath);
   }
@@ -284,17 +259,8 @@ public class EditObservationViewModel extends AbstractViewModel {
       refreshResponseMap(observation);
     }
 
-    if (isNew) {
-      validationErrors.clear();
-    } else {
-      refreshValidationErrors();
-    }
     saveButtonVisibility.postValue(View.VISIBLE);
     loadingSpinnerVisibility.postValue(View.GONE);
-  }
-
-  private static boolean isAddObservationRequest(EditObservationFragmentArgs args) {
-    return args.getObservationId().equals(ADD_OBSERVATION_ID_PLACEHOLDER);
   }
 
   private Single<Observation> createObservation(EditObservationFragmentArgs args) {
@@ -318,7 +284,7 @@ public class EditObservationViewModel extends AbstractViewModel {
       Timber.e("Save attempted before observation loaded");
       return Single.just(Event.create(SaveResult.NO_CHANGES_TO_SAVE));
     }
-    refreshValidationErrors();
+
     if (hasValidationErrors()) {
       return Single.just(Event.create(SaveResult.HAS_VALIDATION_ERRORS));
     }
@@ -391,34 +357,18 @@ public class EditObservationViewModel extends AbstractViewModel {
     return result;
   }
 
-  private void refreshValidationErrors() {
-    validationErrors.clear();
-    stream(originalObservation.getForm().getElements())
-        .filter(e -> e.getType().equals(Type.FIELD))
-        .map(Element::getField)
-        .forEach(this::updateError);
-  }
-
-  private void updateError(Field field) {
-    updateError(field, getResponse(field.getId()));
-  }
-
-  private void updateError(Field field, Optional<Response> response) {
-    String key = field.getId();
-    if (field.isRequired() && !response.filter(r -> !r.isEmpty()).isPresent()) {
-      Timber.d("Missing: %s", key);
-      validationErrors.put(field.getId(), resources.getString(R.string.required_field));
-    } else {
-      Timber.d("Valid: %s", key);
-      validationErrors.remove(field.getId());
-    }
-  }
-
-  public boolean hasUnsavedChanges() {
+  boolean hasUnsavedChanges() {
     return !getResponseDeltas().isEmpty();
   }
 
   private boolean hasValidationErrors() {
     return !validationErrors.isEmpty();
+  }
+
+  /** Possible outcomes of user clicking "Save". */
+  enum SaveResult {
+    HAS_VALIDATION_ERRORS,
+    NO_CHANGES_TO_SAVE,
+    SAVED
   }
 }
