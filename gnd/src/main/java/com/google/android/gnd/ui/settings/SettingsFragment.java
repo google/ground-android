@@ -91,6 +91,8 @@ public class SettingsFragment extends PreferenceFragmentCompat
       case Keys.OFFLINE_AREAS:
         Toast.makeText(getContext(), "Not yet implemented", Toast.LENGTH_SHORT).show();
         break;
+      default:
+        break;
     }
     return true;
   }
