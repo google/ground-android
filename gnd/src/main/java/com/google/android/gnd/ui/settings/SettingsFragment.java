@@ -16,13 +16,19 @@
 
 package com.google.android.gnd.ui.settings;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout.LayoutParams;
+import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.preference.Preference;
+import androidx.preference.Preference.OnPreferenceChangeListener;
+import androidx.preference.Preference.OnPreferenceClickListener;
 import androidx.preference.PreferenceFragmentCompat;
 import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.R;
@@ -37,7 +43,8 @@ import com.google.android.gnd.databinding.SettingsFragBinding;
  *
  * <p>TODO: Create dagger module and support injection into this fragment.
  */
-public class SettingsFragment extends PreferenceFragmentCompat {
+public class SettingsFragment extends PreferenceFragmentCompat
+    implements OnPreferenceChangeListener, OnPreferenceClickListener {
 
   @Override
   public View onCreateView(
@@ -66,5 +73,46 @@ public class SettingsFragment extends PreferenceFragmentCompat {
   @Override
   public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
     setPreferencesFromResource(R.xml.preferences, rootKey);
+    for (String key : Keys.ALL_KEYS) {
+      Preference preference = findPreference(key);
+      if (preference == null) {
+        throw new IllegalArgumentException("Key not found in preferences.xml: " + key);
+      }
+
+      preference.setOnPreferenceChangeListener(this);
+      preference.setOnPreferenceClickListener(this);
+    }
+  }
+
+  @Override
+  public boolean onPreferenceChange(Preference preference, Object newValue) {
+    switch (preference.getKey()) {
+      case Keys.UPLOAD_MEDIA:
+      case Keys.OFFLINE_AREAS:
+        Toast.makeText(getContext(), "Not yet implemented", Toast.LENGTH_SHORT).show();
+        break;
+    }
+    return true;
+  }
+
+  @Override
+  public boolean onPreferenceClick(Preference preference) {
+    switch (preference.getKey()) {
+      case Keys.VISIT_WEBSITE:
+        openUrl(preference.getSummary().toString());
+        break;
+      case Keys.FEEDBACK:
+        Toast.makeText(getContext(), "Not yet implemented", Toast.LENGTH_SHORT).show();
+        break;
+      default:
+        return false;
+    }
+    return true;
+  }
+
+  private void openUrl(String url) {
+    Intent intent = new Intent(Intent.ACTION_VIEW);
+    intent.setData(Uri.parse(url));
+    startActivity(intent);
   }
 }

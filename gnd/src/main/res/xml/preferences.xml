@@ -39,7 +39,7 @@
     app:title="Help">
 
     <Preference
-      app:key="website"
+      app:key="visit_website"
       app:summary="@string/ground_website"
       app:title="Visit website" />
 
