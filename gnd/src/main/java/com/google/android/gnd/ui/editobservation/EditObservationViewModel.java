@@ -116,8 +116,6 @@ public class EditObservationViewModel extends AbstractViewModel {
   // Internal state.
   /** True if the observation is being added, false if editing an existing one. */
   private boolean isNew;
-  /** True if the photo field has been updated. */
-  private boolean isPhotoFieldUpdated;
 
   @Inject
   EditObservationViewModel(
@@ -220,9 +218,6 @@ public class EditObservationViewModel extends AbstractViewModel {
         getRemoteDestinationPath(
             args.getProjectId(), args.getFormId(), args.getFeatureId(), localFileName);
 
-    // TODO: Handle response after reloading view-model and remove this field
-    isPhotoFieldUpdated = true;
-
     // update observable response map
     onResponseChanged(field, TextResponse.fromString(destinationPath));
 
@@ -250,15 +245,8 @@ public class EditObservationViewModel extends AbstractViewModel {
 
   private void onObservationLoaded(Observation observation) {
     this.originalObservation = observation;
-
-    // Photo field is updated by launching an external intent. This causes the form to reload.
-    // When that happens, we don't want to lose the unsaved changes.
-    if (isPhotoFieldUpdated) {
-      isPhotoFieldUpdated = false;
-    } else {
-      refreshResponseMap(observation);
-    }
-
+    validationErrors.clear();
+    responses.clear();
     saveButtonVisibility.postValue(View.VISIBLE);
     loadingSpinnerVisibility.postValue(View.GONE);
   }
@@ -318,17 +306,6 @@ public class EditObservationViewModel extends AbstractViewModel {
         .applyAndEnqueue(observationMutation)
         .doOnComplete(() -> savingProgressVisibility.postValue(View.GONE))
         .toSingleDefault(Event.create(SaveResult.SAVED));
-  }
-
-  private void refreshResponseMap(Observation obs) {
-    Timber.v("Rebuilding response map");
-    responses.clear();
-    ResponseMap responses = obs.getResponses();
-    for (String fieldId : responses.fieldIds()) {
-      obs.getForm()
-          .getField(fieldId)
-          .ifPresent(field -> onResponseChanged(field, responses.getResponse(fieldId)));
-    }
   }
 
   private ImmutableList<ResponseDelta> getResponseDeltas() {
