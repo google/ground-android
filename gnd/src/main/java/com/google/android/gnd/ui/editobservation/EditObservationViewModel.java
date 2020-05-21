@@ -38,7 +38,6 @@ import com.google.android.gnd.model.observation.ObservationMutation;
 import com.google.android.gnd.model.observation.Response;
 import com.google.android.gnd.model.observation.ResponseDelta;
 import com.google.android.gnd.model.observation.ResponseMap;
-import com.google.android.gnd.model.observation.TextResponse;
 import com.google.android.gnd.repository.ObservationRepository;
 import com.google.android.gnd.rx.Event;
 import com.google.android.gnd.rx.Nil;
@@ -53,6 +52,8 @@ import io.reactivex.processors.BehaviorProcessor;
 import io.reactivex.processors.PublishProcessor;
 import java.io.IOException;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java8.util.Optional;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
@@ -88,6 +89,9 @@ public class EditObservationViewModel extends AbstractViewModel {
 
   /** Toolbar title, based on whether user is adding new or editing existing observation. */
   private final MutableLiveData<String> toolbarTitle = new MutableLiveData<>();
+
+  /** Captured / selected photo. */
+  private final MutableLiveData<Map<Field, String>> photoUpdated = new MutableLiveData<>();
 
   /** Original form responses, loaded when view is initialized. */
   private final ObservableMap<String, Response> responses = new ObservableArrayMap<>();
@@ -167,7 +171,11 @@ public class EditObservationViewModel extends AbstractViewModel {
   }
 
   Optional<Response> getResponse(String fieldId) {
-    return Optional.ofNullable(responses.get(fieldId));
+    if (responses.isEmpty()) {
+      return originalObservation.getResponses().getResponse(fieldId);
+    } else {
+      return Optional.ofNullable(responses.get(fieldId));
+    }
   }
 
   void onErrorChanged(Field field, Optional<String> error) {
@@ -218,10 +226,15 @@ public class EditObservationViewModel extends AbstractViewModel {
         getRemoteDestinationPath(
             args.getProjectId(), args.getFormId(), args.getFeatureId(), localFileName);
 
-    // update observable response map
-    onResponseChanged(field, TextResponse.fromString(destinationPath));
+    Map<Field, String> map = new HashMap<>();
+    map.put(field, destinationPath);
+    photoUpdated.postValue(map);
 
     return storageManager.savePhoto(bitmap, localFileName, destinationPath);
+  }
+
+  MutableLiveData<Map<Field, String>> getPhotoUpdated() {
+    return photoUpdated;
   }
 
   public void onSaveClick() {
