@@ -155,10 +155,11 @@ options:
     - 'GRADLE_USER_HOME=/workspace/.gradle'
   logging: GCS_ONLY
 
+# TODO: Re-enable saving artifacts when a valid google-services.json is used in GCB
 # Save the APKs
-artifacts:
-  objects:
-    location: 'gs://${_ARTIFACT_BUCKET}/$BRANCH_NAME-$BUILD_ID'
-    paths: ['gnd/build/outputs/apk/*/*.apk']
+#artifacts:
+#  objects:
+#    location: 'gs://${_ARTIFACT_BUCKET}/$BRANCH_NAME-$BUILD_ID'
+#    paths: ['gnd/build/outputs/apk/*/*.apk']
 
 timeout: 1800s
