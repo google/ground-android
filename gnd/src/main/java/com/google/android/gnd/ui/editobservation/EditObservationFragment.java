@@ -139,7 +139,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
 
     if (fieldViewModel instanceof PhotoFieldViewModel) {
       observeSelectPhotoClicks((PhotoFieldViewModel) fieldViewModel);
-      observePhotoAdded(((PhotoFieldViewModel) fieldViewModel));
+      observePhotoAdded((PhotoFieldViewModel) fieldViewModel);
     } else if (fieldViewModel instanceof MultipleChoiceFieldViewModel) {
       observeMultipleChoiceClicks((MultipleChoiceFieldViewModel) fieldViewModel);
     }
