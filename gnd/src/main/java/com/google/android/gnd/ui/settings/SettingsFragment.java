@@ -28,6 +28,15 @@ import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.SettingsFragBinding;
 
+/**
+ * Fragment containing app preferences saved as shared preferences.
+ *
+ * <p>NOTE: It uses {@link PreferenceFragmentCompat} instead of {@link
+ * com.google.android.gnd.ui.common.AbstractFragment}, so dagger can't inject into it like it does
+ * in other fragments.
+ *
+ * <p>TODO: Create dagger module and support injection into this fragment.
+ */
 public class SettingsFragment extends PreferenceFragmentCompat {
 
   @Override
