@@ -39,9 +39,6 @@ import timber.log.Timber;
 // without extending MultiDexApplication.
 public class GndApplication extends DaggerApplication {
 
-  /**
-   * ctor is annotated with @Inject, that's how Dagger knows!
-   */
   @Inject GndWorkerFactory workerFactory;
 
   @Override
