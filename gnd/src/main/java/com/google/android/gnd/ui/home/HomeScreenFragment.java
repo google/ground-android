@@ -437,6 +437,10 @@ public class HomeScreenFragment extends AbstractFragment
           showOfflineAreas();
           closeDrawer();
           break;
+        case R.id.nav_settings:
+          viewModel.showSettings();
+          closeDrawer();
+          break;
         case R.id.nav_sign_out:
           authenticationManager.signOut();
           break;
