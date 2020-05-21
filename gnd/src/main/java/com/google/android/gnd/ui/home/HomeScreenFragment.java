@@ -62,7 +62,6 @@ import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.navigation.NavigationView.OnNavigationItemSelectedListener;
 import io.reactivex.subjects.PublishSubject;
 import java.util.List;
-import java.util.Objects;
 import javax.inject.Inject;
 import timber.log.Timber;
 
@@ -210,7 +209,7 @@ public class HomeScreenFragment extends AbstractFragment
 
   private String getVersionName() {
     try {
-      return Objects.requireNonNull(getContext())
+      return requireContext()
           .getPackageManager()
           .getPackageInfo(getContext().getPackageName(), 0)
           .versionName;
