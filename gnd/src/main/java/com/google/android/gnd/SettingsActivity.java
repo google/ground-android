@@ -16,40 +16,22 @@
 
 package com.google.android.gnd;
 
-import static com.google.android.gnd.util.Debug.logLifecycleEvent;
-
 import android.os.Bundle;
 import androidx.annotation.Nullable;
-import androidx.core.view.ViewCompat;
 import com.google.android.gnd.databinding.SettingsActivityBinding;
-import dagger.android.support.DaggerAppCompatActivity;
 import javax.inject.Singleton;
 
 @Singleton
-public class SettingsActivity extends DaggerAppCompatActivity {
+public class SettingsActivity extends AbstractActivity {
 
   @Override
   protected void onCreate(@Nullable Bundle savedInstanceState) {
-    logLifecycleEvent(this);
     super.onCreate(savedInstanceState);
 
     SettingsActivityBinding binding = SettingsActivityBinding.inflate(getLayoutInflater());
     binding.setLifecycleOwner(this);
     setContentView(binding.getRoot());
 
-    setSupportActionBar(binding.settingsToolbar);
-
-    binding.settingsToolbar.setNavigationOnClickListener(v -> finish());
-
-    getSupportActionBar().setDisplayShowTitleEnabled(true);
-    getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-    getSupportActionBar().setDisplayShowHomeEnabled(true);
-
-    ViewCompat.setOnApplyWindowInsetsListener(
-        getWindow().getDecorView().getRootView(),
-        (v, insets) -> {
-          binding.settingsToolbar.setPadding(0, insets.getSystemWindowInsetTop(), 0, 0);
-          return insets;
-        });
+    setActionBar(binding.settingsToolbar, true);
   }
 }

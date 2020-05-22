@@ -27,12 +27,13 @@ import androidx.core.view.WindowInsetsCompat;
 import com.google.android.gnd.ui.common.TwoLineToolbar;
 import com.google.android.gnd.ui.util.DrawableUtil;
 import dagger.android.support.DaggerAppCompatActivity;
+import javax.annotation.OverridingMethodsMustInvokeSuper;
 
 /** Base activity class containing common helper methods. */
 public abstract class AbstractActivity extends DaggerAppCompatActivity {
 
   private DrawableUtil drawableUtil;
-  private TwoLineToolbar toolbar;
+  @Nullable private TwoLineToolbar toolbar;
 
   @Override
   protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -49,7 +50,12 @@ public abstract class AbstractActivity extends DaggerAppCompatActivity {
     return insetsCompat;
   }
 
-  protected abstract void onWindowInsetChanged(WindowInsetsCompat insetsCompat);
+  @OverridingMethodsMustInvokeSuper
+  protected void onWindowInsetChanged(WindowInsetsCompat insetsCompat) {
+    if (toolbar != null) {
+      toolbar.setPadding(0, insetsCompat.getSystemWindowInsetTop(), 0, 0);
+    }
+  }
 
   @Override
   protected void onStart() {
@@ -106,9 +112,7 @@ public abstract class AbstractActivity extends DaggerAppCompatActivity {
     toolbar.setNavigationOnClickListener(__ -> onToolbarUpClicked());
   }
 
-  protected abstract void onToolbarUpClicked();
-
-  public TwoLineToolbar getToolbar() {
-    return toolbar;
+  protected void onToolbarUpClicked() {
+    finish();
   }
 }
