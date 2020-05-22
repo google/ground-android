@@ -19,20 +19,12 @@ package com.google.android.gnd.ui.settings;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.FrameLayout.LayoutParams;
 import android.widget.Toast;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.preference.Preference;
 import androidx.preference.Preference.OnPreferenceChangeListener;
 import androidx.preference.Preference.OnPreferenceClickListener;
 import androidx.preference.PreferenceFragmentCompat;
-import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.R;
-import com.google.android.gnd.databinding.SettingsFragBinding;
 
 /**
  * Fragment containing app preferences saved as shared preferences.
@@ -45,30 +37,6 @@ import com.google.android.gnd.databinding.SettingsFragBinding;
  */
 public class SettingsFragment extends PreferenceFragmentCompat
     implements OnPreferenceChangeListener, OnPreferenceClickListener {
-
-  @Override
-  public View onCreateView(
-      @NonNull LayoutInflater inflater,
-      @Nullable ViewGroup container,
-      @Nullable Bundle savedInstanceState) {
-    super.onCreateView(inflater, container, savedInstanceState);
-    SettingsFragBinding binding = SettingsFragBinding.inflate(inflater, container, true);
-    binding.setLifecycleOwner(this);
-    ((MainActivity) getActivity()).setActionBar(binding.settingsToolbar, true);
-    return super.onCreateView(inflater, container, savedInstanceState);
-  }
-
-  @Override
-  public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-    super.onViewCreated(view, savedInstanceState);
-
-    // TODO: Set dynamically by calculating the actual height of toolbar
-    int topMargin = 108;
-
-    LayoutParams params = (LayoutParams) getListView().getLayoutParams();
-    params.setMargins(0, topMargin, 0, 0);
-    getListView().setLayoutParams(params);
-  }
 
   @Override
   public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
