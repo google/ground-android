@@ -136,6 +136,6 @@ public class Navigator {
   }
 
   public void showSettings() {
-    navigate(HomeScreenFragmentDirections.actionHomeScreenFragmentToSettingsFragment());
+    navigate(HomeScreenFragmentDirections.actionHomeScreenFragmentToSettingsActivity());
   }
 }

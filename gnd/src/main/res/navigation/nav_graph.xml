@@ -68,8 +68,8 @@
       android:id="@+id/showOfflineAreas"
       app:destination="@id/offline_areas_fragment" />
     <action
-      android:id="@+id/action_home_screen_fragment_to_settings_fragment"
-      app:destination="@id/settings_fragment" />
+      android:id="@+id/action_home_screen_fragment_to_settings_activity"
+      app:destination="@id/settings_activity" />
   </fragment>
 
   <fragment
@@ -148,12 +148,9 @@
       app:popUpTo="@id/navGraph"
       app:popUpToInclusive="true" />
   </fragment>
-  <fragment
-    android:id="@+id/settings_fragment"
-    android:name="com.google.android.gnd.ui.settings.SettingsFragment"
-    android:label="settings_frag">
-    <action
-      android:id="@+id/backToHomeScreen"
-      app:destination="@id/home_screen_fragment" />
-  </fragment>
+  <activity
+    android:id="@+id/settings_activity"
+    android:name="com.google.android.gnd.SettingsActivity"
+    android:label="settings_activity"
+    tools:layout="@layout/settings_activity" />
 </navigation>

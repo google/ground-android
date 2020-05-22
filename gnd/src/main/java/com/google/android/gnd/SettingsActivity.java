@@ -22,7 +22,6 @@ import android.os.Bundle;
 import androidx.annotation.Nullable;
 import androidx.core.view.ViewCompat;
 import com.google.android.gnd.databinding.SettingsActivityBinding;
-import com.google.android.gnd.ui.settings.SettingsFragment;
 import dagger.android.support.DaggerAppCompatActivity;
 import javax.inject.Singleton;
 
@@ -52,10 +51,5 @@ public class SettingsActivity extends DaggerAppCompatActivity {
           binding.settingsToolbar.setPadding(0, insets.getSystemWindowInsetTop(), 0, 0);
           return insets;
         });
-
-    getSupportFragmentManager()
-        .beginTransaction()
-        .replace(R.id.settings_container, new SettingsFragment())
-        .commit();
   }
 }
