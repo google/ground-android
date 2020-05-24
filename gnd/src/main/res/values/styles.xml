@@ -28,11 +28,13 @@
 
   </style>
 
-  <style name="AppTheme.Base" parent="Theme.AppCompat.Light.NoActionBar">
+  <style name="AppTheme.Base" parent="Theme.MaterialComponents.Light.NoActionBar">
+    <!-- See https://material.io/develop/android/theming/color/ for full list. -->
     <item name="colorPrimary">@color/colorPrimary</item>
     <item name="colorAccent">@color/colorAccent</item>
   </style>
 
+  <!-- TODO: Green toolbar is no longer a thing; rename or remove. -->
   <style name="GreenToolbarTheme" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
     <item name="gndToolbarTitleStyle">@style/GreenToolbarTitle</item>
     <item name="gndToolbarSubtitleStyle">@style/GreenToolbarSubtitle</item>
