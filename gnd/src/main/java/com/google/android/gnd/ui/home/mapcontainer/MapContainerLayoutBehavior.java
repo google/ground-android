@@ -38,17 +38,14 @@ public class MapContainerLayoutBehavior extends BottomSheetDependentBehavior<Fra
       return;
     }
     View map = mapContainerLayout.findViewById(R.id.map);
-    View crosshairs = mapContainerLayout.findViewById(R.id.map_crosshairs);
-    View mapButtonLayout = mapContainerLayout.findViewById(R.id.map_btn_layout);
-    if (map == null || crosshairs == null || mapButtonLayout == null) {
+    View mapControls = mapContainerLayout.findViewById(R.id.map_controls);
+    if (map == null || mapControls == null) {
       // View already destroyed.
       return;
     }
     int translationY = -metrics.getExpansionHeight() / 2;
     map.setTranslationY(translationY);
-    crosshairs.setTranslationY(translationY);
     float hideRatio = 1.0f - metrics.getRevealRatio();
-    crosshairs.setAlpha(hideRatio);
-    mapButtonLayout.setAlpha(hideRatio);
+    mapControls.setAlpha(hideRatio);
   }
 }
