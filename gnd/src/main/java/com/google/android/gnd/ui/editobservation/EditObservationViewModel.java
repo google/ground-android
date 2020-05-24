@@ -46,14 +46,13 @@ import com.google.android.gnd.system.CameraManager;
 import com.google.android.gnd.system.StorageManager;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import io.reactivex.Completable;
 import io.reactivex.Single;
 import io.reactivex.processors.BehaviorProcessor;
 import io.reactivex.processors.PublishProcessor;
 import java.io.IOException;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 import java8.util.Optional;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
@@ -91,7 +90,7 @@ public class EditObservationViewModel extends AbstractViewModel {
   private final MutableLiveData<String> toolbarTitle = new MutableLiveData<>();
 
   /** Stream of updates to photo fields. */
-  private final MutableLiveData<Map<Field, String>> photoUpdates = new MutableLiveData<>();
+  private final MutableLiveData<ImmutableMap<Field, String>> photoUpdates = new MutableLiveData<>();
 
   /** Original form responses, loaded when view is initialized. */
   private final ObservableMap<String, Response> responses = new ObservableArrayMap<>();
@@ -226,15 +225,11 @@ public class EditObservationViewModel extends AbstractViewModel {
     String destinationPath =
         getRemoteDestinationPath(
             args.getProjectId(), args.getFormId(), args.getFeatureId(), localFileName);
-
-    Map<Field, String> map = new HashMap<>();
-    map.put(field, destinationPath);
-    photoUpdates.postValue(map);
-
+    photoUpdates.postValue(ImmutableMap.of(field, destinationPath));
     return storageManager.savePhoto(bitmap, localFileName, destinationPath);
   }
 
-  MutableLiveData<Map<Field, String>> getPhotoUpdates() {
+  MutableLiveData<ImmutableMap<Field, String>> getPhotoUpdates() {
     return photoUpdates;
   }
 
