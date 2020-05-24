@@ -23,6 +23,8 @@ import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.ViewGroup.LayoutParams;
+import android.widget.FrameLayout;
 import androidx.annotation.NonNull;
 import androidx.core.view.ViewCompat;
 import androidx.fragment.app.Fragment;
@@ -30,7 +32,7 @@ import androidx.navigation.NavController;
 import androidx.navigation.NavDestination;
 import androidx.navigation.NavDirections;
 import androidx.navigation.fragment.NavHostFragment;
-import butterknife.ButterKnife;
+import com.google.android.gnd.databinding.MainActBinding;
 import com.google.android.gnd.repository.UserRepository;
 import com.google.android.gnd.system.ActivityStreams;
 import com.google.android.gnd.system.AuthenticationManager;
@@ -74,9 +76,9 @@ public class MainActivity extends DaggerAppCompatActivity {
     setTheme(R.style.AppTheme);
     super.onCreate(savedInstanceState);
 
-    setContentView(R.layout.main_act);
+    MainActBinding binding = MainActBinding.inflate(getLayoutInflater());
 
-    ButterKnife.bind(this);
+    setContentView(binding.getRoot());
 
     navHostFragment =
         (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
@@ -84,7 +86,14 @@ public class MainActivity extends DaggerAppCompatActivity {
     viewModel = viewModelFactory.get(this, MainViewModel.class);
 
     ViewCompat.setOnApplyWindowInsetsListener(
-        getWindow().getDecorView().getRootView(), viewModel::onApplyWindowInsets);
+        getWindow().getDecorView().getRootView(),
+        (view, insets) -> {
+          viewModel.onApplyWindowInsets(insets);
+          binding.statusBarScrim.setLayoutParams(
+              new FrameLayout.LayoutParams(
+                  LayoutParams.MATCH_PARENT, insets.getSystemWindowInsetTop()));
+          return insets;
+        });
 
     activityStreams
         .getActivityRequests()

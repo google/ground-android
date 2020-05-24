@@ -19,100 +19,80 @@
   xmlns:app="http://schemas.android.com/apk/res-auto"
   xmlns:tools="http://schemas.android.com/tools">
 
-  <FrameLayout
+  <androidx.drawerlayout.widget.DrawerLayout
+    android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:clickable="true"
+    android:focusableInTouchMode="true">
 
-    <androidx.drawerlayout.widget.DrawerLayout
-      android:id="@+id/drawer_layout"
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+      android:id="@+id/coordinator_layout"
       android:layout_width="match_parent"
-      android:layout_height="match_parent"
-      android:clickable="true"
-      android:focusableInTouchMode="true">
+      android:layout_height="match_parent">
 
-      <androidx.coordinatorlayout.widget.CoordinatorLayout
-        android:id="@+id/coordinator_layout"
+      <FrameLayout
+        android:id="@+id/map_container_fragment"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <FrameLayout
-          android:id="@+id/map_container_fragment"
-          android:layout_width="match_parent"
-          android:layout_height="match_parent"
-          app:layout_behavior="com.google.android.gnd.ui.home.mapcontainer.MapContainerLayoutBehavior" />
-
-        <!-- TODO: Move feature sheet and chrome into separate layout files. -->
-        <FrameLayout
-          android:id="@+id/map_scrim"
-          android:layout_width="match_parent"
-          android:layout_height="match_parent"
-          android:alpha="0"
-          android:background="@color/colorPrimary"
-          android:clickable="false"
-          android:focusable="false" />
-
-        <FrameLayout
-          android:id="@+id/bottom_sheet_layout"
-          android:layout_width="match_parent"
-          android:layout_height="match_parent"
-          app:layout_behavior="com.google.android.gnd.ui.common.BottomSheetBehavior">
-
-          <fragment
-            android:name="com.google.android.gnd.ui.home.featuredetails.FeatureDetailsFragment"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            tools:layout="@layout/feature_details_frag" />
-
-        </FrameLayout>
-
-        <!-- feature_sheet_chrome contains the fixed widgets that don't scroll -
-        in this case the Add Observation button the shim to obscure
-        the transparent bottom inset -->
-        <include
-          android:id="@+id/feature_details_chrome"
-          layout="@layout/feature_details_chrome" />
-
-      </androidx.coordinatorlayout.widget.CoordinatorLayout>
-
-      <!-- Application side drawer -->
-      <com.google.android.material.navigation.NavigationView
-        android:id="@+id/nav_view"
-        android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:layout_gravity="start"
-        app:headerLayout="@layout/nav_drawer_header"
-        app:itemBackground="@android:color/transparent"
-        app:itemIconTint="@color/nav_drawer_item"
-        app:itemTextColor="@color/nav_drawer_item"
-        app:menu="@menu/nav_drawer_menu">
+        app:layout_behavior="com.google.android.gnd.ui.home.mapcontainer.MapContainerLayoutBehavior" />
 
-        <!-- TODO: re-enable visibility -->
-        <TextView
-          android:id="@+id/version_text"
+      <!-- TODO: Move feature sheet and chrome into separate layout files. -->
+      <FrameLayout
+        android:id="@+id/map_scrim"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:alpha="0"
+        android:background="@color/colorPrimary"
+        android:clickable="false"
+        android:focusable="false" />
+
+      <FrameLayout
+        android:id="@+id/bottom_sheet_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="com.google.android.gnd.ui.common.BottomSheetBehavior">
+
+        <fragment
+          android:name="com.google.android.gnd.ui.home.featuredetails.FeatureDetailsFragment"
           android:layout_width="match_parent"
-          android:layout_height="wrap_content"
-          android:layout_gravity="bottom"
-          android:padding="8dp"
-          android:visibility="gone"
-          tools:text="Build number" />
+          android:layout_height="match_parent"
+          tools:layout="@layout/feature_details_frag" />
 
-      </com.google.android.material.navigation.NavigationView>
+      </FrameLayout>
 
-    </androidx.drawerlayout.widget.DrawerLayout>
+      <!-- feature_sheet_chrome contains the fixed widgets that don't scroll -
+      in this case the Add Observation button the shim to obscure
+      the transparent bottom inset -->
+      <include
+        android:id="@+id/feature_details_chrome"
+        layout="@layout/feature_details_chrome" />
 
-    <!--
-      Translucent scrim to make status bar legible when shown overlaid on map or toolbar.
-      Workaround for possible bug in Navigation Architecture Components where translucent system
-      bars get replaced with solid white background in fragment after navigation.
-      TODO: Is this a bug? If so, what's the bug ID? Has it been fixed?
-     -->
-    <FrameLayout
-      android:id="@+id/status_bar_scrim"
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:layout_gravity="top"
-      android:alpha="0.4"
-      android:background="@android:color/black" />
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
-  </FrameLayout>
+    <!-- Application side drawer -->
+    <com.google.android.material.navigation.NavigationView
+      android:id="@+id/nav_view"
+      android:layout_width="wrap_content"
+      android:layout_height="match_parent"
+      android:layout_gravity="start"
+      app:headerLayout="@layout/nav_drawer_header"
+      app:itemBackground="@android:color/transparent"
+      app:itemIconTint="@color/nav_drawer_item"
+      app:itemTextColor="@color/nav_drawer_item"
+      app:menu="@menu/nav_drawer_menu">
+
+      <!-- TODO: re-enable visibility -->
+      <TextView
+        android:id="@+id/version_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:padding="8dp"
+        android:visibility="gone"
+        tools:text="Build number" />
+
+    </com.google.android.material.navigation.NavigationView>
+
+  </androidx.drawerlayout.widget.DrawerLayout>
 </layout>
