@@ -24,19 +24,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
-import butterknife.BindView;
 import butterknife.OnClick;
 import com.google.android.gnd.MainActivity;
-import com.google.android.gnd.MainViewModel;
 import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.OfflineAreaSelectorFragBinding;
 import com.google.android.gnd.ui.common.AbstractFragment;
-import com.google.android.gnd.ui.common.TwoLineToolbar;
 import com.google.android.gnd.ui.map.MapAdapter;
 import com.google.android.gnd.ui.map.MapProvider;
-import com.google.android.material.chip.Chip;
 import io.reactivex.Single;
 import javax.inject.Inject;
 
@@ -46,16 +40,8 @@ public class OfflineAreaSelectorFragment extends AbstractFragment {
 
   @Inject MapProvider mapProvider;
 
-  @BindView(R.id.offline_area_selector_toolbar)
-  TwoLineToolbar toolbar;
-
-  // TODO: Use data binding
-  @BindView(R.id.download_button)
-  Chip downloadButton;
-
   private OfflineAreaSelectorViewModel viewModel;
-  @Nullable
-  private MapAdapter map;
+  @Nullable private MapAdapter map;
 
   public static OfflineAreaSelectorFragment newInstance() {
     return new OfflineAreaSelectorFragment();
@@ -64,9 +50,6 @@ public class OfflineAreaSelectorFragment extends AbstractFragment {
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-
-    getViewModel(MainViewModel.class).getWindowInsets().observe(this, this::onApplyWindowInsets);
-
     viewModel = getViewModel(OfflineAreaSelectorViewModel.class);
     // TODO: use the viewmodel
     Single<MapAdapter> mapAdapter = mapProvider.getMapAdapter();
@@ -75,7 +58,7 @@ public class OfflineAreaSelectorFragment extends AbstractFragment {
 
   @Override
   public View onCreateView(
-      LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+      @NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     super.onCreateView(inflater, container, savedInstanceState);
     OfflineAreaSelectorFragBinding binding =
         OfflineAreaSelectorFragBinding.inflate(inflater, container, false);
@@ -93,12 +76,6 @@ public class OfflineAreaSelectorFragment extends AbstractFragment {
     } else {
       mapProvider.restore(restoreChildFragment(savedInstanceState, MAP_FRAGMENT));
     }
-  }
-
-  private void onApplyWindowInsets(WindowInsetsCompat insets) {
-    toolbar.setPadding(0, insets.getSystemWindowInsetTop(), 0, 0);
-    downloadButton.setTranslationY(-insets.getSystemWindowInsetBottom());
-    ViewCompat.onApplyWindowInsets(mapProvider.getFragment().getView(), insets);
   }
 
   private void onMapReady(MapAdapter map) {
