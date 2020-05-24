@@ -89,6 +89,7 @@
 
     </RelativeLayout>
 
+    <!-- TODO: Center chip horizontally. -->
     <!-- TODO: Move into toolbar, maybe use showAsAction in menu xml w/custom style. -->
     <com.google.android.material.chip.Chip
       android:id="@+id/save_observation_btn"

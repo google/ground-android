@@ -80,6 +80,7 @@
     <dimen name="chip_button_text_size">14sp</dimen>
     <dimen name="chip_toolbar_button_corner_radius">20dp</dimen>
     <dimen name="chip_toolbar_button_padding">10dp</dimen>
+    <dimen name="chip_toolbar_button_min_height">36dp</dimen>
     <dimen name="toolbar_elevation">4dp</dimen>
     <dimen name="feature_details_header_padding_bottom">16dp</dimen>
     <dimen name="observation_list_item_preview_table_right_margin">18dp</dimen>
