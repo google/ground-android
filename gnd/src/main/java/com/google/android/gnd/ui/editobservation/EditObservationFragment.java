@@ -47,7 +47,6 @@ import com.google.android.gnd.ui.common.EphemeralPopups;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.TwoLineToolbar;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
-import java.util.Map.Entry;
 import java8.util.Optional;
 import java8.util.function.Consumer;
 import javax.inject.Inject;
@@ -204,9 +203,9 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
         .observe(
             this,
             map -> {
-              Entry<Field, String> entry = map.entrySet().iterator().next();
-              if (entry.getKey().equals(fieldViewModel.getField())) {
-                fieldViewModel.setResponse(TextResponse.fromString(entry.getValue()));
+              Field field = fieldViewModel.getField();
+              if (map.containsKey(field)) {
+                fieldViewModel.setResponse(TextResponse.fromString(map.get(field)));
               }
             });
   }
