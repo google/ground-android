@@ -134,7 +134,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
   }
 
   private void addFieldViewModel(Field field, AbstractFieldViewModel fieldViewModel) {
-    fieldViewModel.init(field, viewModel.getResponse(field.getId()));
+    fieldViewModel.init(field, viewModel.getSavedOrOriginalResponse(field.getId()));
 
     if (fieldViewModel instanceof PhotoFieldViewModel) {
       observeSelectPhotoClicks((PhotoFieldViewModel) fieldViewModel);

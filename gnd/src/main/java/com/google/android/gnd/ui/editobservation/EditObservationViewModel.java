@@ -170,7 +170,8 @@ public class EditObservationViewModel extends AbstractViewModel {
     viewArgs.onNext(args);
   }
 
-  Optional<Response> getResponse(String fieldId) {
+  /** If present, return saved responses. Otherwise, return original responses. */
+  Optional<Response> getSavedOrOriginalResponse(String fieldId) {
     if (responses.isEmpty()) {
       return originalObservation.getResponses().getResponse(fieldId);
     } else {
@@ -335,7 +336,8 @@ public class EditObservationViewModel extends AbstractViewModel {
       }
       String fieldId = e.getField().getId();
       Optional<Response> originalResponse = originalResponses.getResponse(fieldId);
-      Optional<Response> currentResponse = getResponse(fieldId).filter(r -> !r.isEmpty());
+      Optional<Response> currentResponse =
+          getSavedOrOriginalResponse(fieldId).filter(r -> !r.isEmpty());
       if (currentResponse.equals(originalResponse)) {
         continue;
       }
