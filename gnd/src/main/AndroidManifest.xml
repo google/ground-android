@@ -40,7 +40,7 @@
     android:name=".GndApplication"
     android:roundIcon="@mipmap/ic_launcher_round"
     android:supportsRtl="true"
-    android:theme="@style/AppTheme.Launcher">
+    android:theme="@style/Theme.MaterialComponents.Light">
 
     <!--
          The API key for Google Maps-based APIs defined in gnd/secrets.properties.
