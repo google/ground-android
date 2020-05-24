@@ -60,7 +60,7 @@
       android:onClick="@{() -> viewModel.addObservation()}"
       android:text="@string/add_observation_button_label"
       android:visibility="@{viewModel.addObservationButtonVisibility}"
-      app:chipIcon="@drawable/ic_add_light"
+      app:chipIcon="@drawable/ic_add"
       app:useCompatPadding="true" />
 
     <!-- Prevents feature sheet UI from bleeding through to navigation buttons when expanded. -->

@@ -76,6 +76,7 @@
     <dimen name="observation_summary_text_max_width">128dp</dimen>
     <dimen name="chip_button_padding">14dp</dimen>
     <dimen name="chip_button_corner_radius">24dp</dimen>
+    <dimen name="chip_button_min_height">48dp</dimen>
     <dimen name="chip_button_text_size">14sp</dimen>
     <dimen name="chip_toolbar_button_corner_radius">20dp</dimen>
     <dimen name="chip_toolbar_button_padding">10dp</dimen>

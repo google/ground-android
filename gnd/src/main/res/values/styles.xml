@@ -171,9 +171,9 @@
     <item name="chipCornerRadius">@dimen/chip_button_corner_radius</item>
     <item name="chipStartPadding">@dimen/chip_button_padding</item>
     <item name="chipEndPadding">@dimen/chip_button_padding</item>
-    <item name="android:paddingTop">@dimen/chip_button_padding</item>
-    <item name="android:paddingBottom">@dimen/chip_button_padding</item>
+    <item name="chipMinHeight">@dimen/chip_button_min_height</item>
     <!-- textColor inside textAppearance stopped working in 28.0.0-rc02. -->
+    <item name="chipIconTint">@color/colorBackground</item>
     <item name="android:textColor">@color/colorBackground</item>
     <item name="android:textAppearance">@style/ChipButtonText</item>
   </style>
