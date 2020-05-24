@@ -228,8 +228,8 @@ public class HomeScreenFragment extends AbstractFragment
 
     // When the bottom sheet is expanded, the bottom edge of the header needs to be aligned with
     // the bottom edge of the toolbar (the header slides up under it).
-    int bottomSheetMarginTop = (int) getResources().getDimension(R.dimen.bottom_sheet_margin_top);
-    bottomSheetBehavior.setExpandedOffset(toolbarWrapper.getHeight() - bottomSheetMarginTop);
+    BottomSheetMetrics metrics = new BottomSheetMetrics(bottomSheetLayout);
+    bottomSheetBehavior.setExpandedOffset(metrics.getExpandedOffset());
 
     getView().getViewTreeObserver().removeOnGlobalLayoutListener(this);
   }

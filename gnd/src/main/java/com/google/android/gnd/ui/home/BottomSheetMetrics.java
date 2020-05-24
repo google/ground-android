@@ -28,6 +28,8 @@ public class BottomSheetMetrics {
   private final View addObservationButton;
   private final BottomSheetBehavior<View> bottomSheetBehavior;
   private final View header;
+  private final View toolbarWrapper;
+  private final int marginTop;
 
   BottomSheetMetrics(View bottomSheet) {
     this.parent = (CoordinatorLayout) bottomSheet.getParent();
@@ -35,6 +37,8 @@ public class BottomSheetMetrics {
     this.addObservationButton = parent.findViewById(R.id.add_observation_btn);
     this.bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet);
     this.header = parent.findViewById(R.id.bottom_sheet_header);
+    this.toolbarWrapper = parent.findViewById(R.id.toolbar_wrapper);
+    this.marginTop = (int) parent.getResources().getDimension(R.dimen.bottom_sheet_margin_top);
   }
 
   /** Returns the number of pixels of the bottom sheet visible above the bottom of the screen. */
@@ -72,18 +76,25 @@ public class BottomSheetMetrics {
   }
 
   /**
+   * Calculates the expected height of the bottom sheet when fully expanded, assuming the sheet will
+   * stop expanding just below the top toolbar.
+   */
+  public int getExpandedOffset() {
+    return toolbarWrapper.getHeight() - marginTop;
+  }
+
+  /**
    * Returns bottom sheet slide progress as the linearly interpolated value between 0 (the bottom
    * sheet is scrolled to peek height) and 1 (the bottom sheet is fully expanded).
    */
   public float getExpansionRatio() {
     // Bottom sheet top position relative to its fully expanded state (0=full expanded).
-    float relativeTop = bottomSheet.getTop() - bottomSheetBehavior.getExpandedOffset();
+    float relativeTop = bottomSheet.getTop() - getExpandedOffset();
+
     // The relative top position when the bottom sheet is in "collapsed" position (i.e., open to
     // the bottom sheet peek height).
     float relativePeekTop =
-        parent.getHeight()
-            - bottomSheetBehavior.getPeekHeight()
-            - bottomSheetBehavior.getExpandedOffset();
+        parent.getHeight() - bottomSheetBehavior.getPeekHeight() - getExpandedOffset();
     return Math.max(1.0f - (relativeTop / relativePeekTop), 0f);
   }
 }
