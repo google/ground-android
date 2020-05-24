@@ -32,90 +32,96 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <!-- Feature holder for map implementation -->
+    <FrameLayout
+      android:id="@+id/map"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent" />
 
-    <RelativeLayout
-      android:id="@+id/map_layout"
+    <FrameLayout
       android:layout_width="match_parent"
       android:layout_height="match_parent"
-      android:layout_gravity="center"
-      android:gravity="center"
-      app:layout_behavior="com.google.android.gnd.ui.home.mapcontainer.MapLayoutBehavior">
+      android:fitsSystemWindows="true">
 
-      <!-- Featureholder for map implementation -->
-      <FrameLayout
-        android:id="@+id/map"
+      <RelativeLayout
+        android:id="@+id/map_layout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:gravity="center"
+        app:layout_behavior="com.google.android.gnd.ui.home.mapcontainer.MapLayoutBehavior">
 
-      <!-- TODO: Add highlighted icon overlay when showing feature sheet -->
-      <ImageView
-        android:id="@+id/map_crosshairs"
+        <!-- TODO: Add highlighted icon overlay when showing feature sheet -->
+        <ImageView
+          android:id="@+id/map_crosshairs"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_centerInParent="true"
+          android:adjustViewBounds="false"
+          android:cropToPadding="false"
+          android:src="@drawable/ic_crosshairs" />
+      </RelativeLayout>
+
+      <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/map_btn_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="end">
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+          android:id="@+id/map_type_btn"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:onClick="@{() -> viewModel.onMapTypeButtonClicked()}"
+          android:tint="@color/colorGrey500"
+          app:backgroundTint="@color/colorBackground"
+          app:fabSize="mini"
+          app:layout_constraintEnd_toEndOf="parent"
+          app:layout_constraintTop_toTopOf="parent"
+          app:srcCompat="@drawable/map_layers"
+          app:useCompatPadding="true" />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+          android:id="@+id/location_lock_btn"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:onClick="@{() -> viewModel.onLocationLockClick()}"
+          android:src="@drawable/ic_gps_grey600"
+          app:backgroundTint="@color/colorBackground"
+          app:fabSize="normal"
+          app:layout_constraintBottom_toTopOf="@+id/add_feature_btn"
+          app:layout_constraintEnd_toEndOf="parent"
+          app:layout_constraintStart_toStartOf="parent"
+          app:useCompatPadding="true" />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+          android:id="@+id/add_feature_btn"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:src="@drawable/ic_plus_black_24dp"
+          android:tint="@color/colorBackground"
+          app:backgroundTint="@color/colorGrey500"
+          app:fabSize="normal"
+          app:layout_constraintBottom_toBottomOf="parent"
+          app:layout_constraintEnd_toEndOf="parent"
+          app:layout_constraintStart_toStartOf="parent"
+          app:useCompatPadding="true" />
+      </androidx.constraintlayout.widget.ConstraintLayout>
+
+      <ImageButton
+        android:id="@+id/hamburger_btn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:adjustViewBounds="false"
-        android:cropToPadding="false"
-        android:src="@drawable/ic_crosshairs" />
-    </RelativeLayout>
+        android:layout_gravity="top|start"
+        android:background="?android:attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true"
+        android:onClick="@{() -> homeScreenViewModel.openNavDrawer()}"
+        android:padding="16dp"
+        android:src="@drawable/ic_menu_black_24dp"
+        android:tint="@color/colorBackground" />
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-      android:id="@+id/map_btn_layout"
-      android:layout_width="wrap_content"
-      android:layout_height="match_parent"
-      android:layout_gravity="end">
-
-      <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/map_type_btn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:onClick="@{() -> viewModel.onMapTypeButtonClicked()}"
-        android:tint="@color/colorGrey500"
-        app:backgroundTint="@color/colorBackground"
-        app:fabSize="mini"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/map_layers"
-        app:useCompatPadding="true" />
-
-      <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/location_lock_btn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:onClick="@{() -> viewModel.onLocationLockClick()}"
-        android:src="@drawable/ic_gps_grey600"
-        app:backgroundTint="@color/colorBackground"
-        app:fabSize="normal"
-        app:layout_constraintBottom_toTopOf="@+id/add_feature_btn"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:useCompatPadding="true" />
-
-      <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/add_feature_btn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/ic_plus_black_24dp"
-        android:tint="@color/colorBackground"
-        app:backgroundTint="@color/colorGrey500"
-        app:fabSize="normal"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:useCompatPadding="true" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <ImageButton
-      android:id="@+id/hamburger_btn"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:layout_gravity="top|start"
-      android:background="?android:attr/selectableItemBackground"
-      android:clickable="true"
-      android:focusable="true"
-      android:onClick="@{() -> homeScreenViewModel.openNavDrawer()}"
-      android:padding="16dp"
-      android:src="@drawable/ic_menu_black_24dp"
-      android:tint="@color/colorBackground" />
+    </FrameLayout>
 
   </FrameLayout>
 </layout>
