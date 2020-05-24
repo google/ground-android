@@ -199,7 +199,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
 
   private void observePhotoAdded(PhotoFieldViewModel fieldViewModel) {
     viewModel
-        .getPhotoUpdates()
+        .getPhotoFieldUpdates()
         .observe(
             this,
             map -> {

@@ -229,7 +229,7 @@ public class EditObservationViewModel extends AbstractViewModel {
     return storageManager.savePhoto(bitmap, localFileName, destinationPath);
   }
 
-  MutableLiveData<ImmutableMap<Field, String>> getPhotoUpdates() {
+  MutableLiveData<ImmutableMap<Field, String>> getPhotoFieldUpdates() {
     return photoUpdates;
   }
 
