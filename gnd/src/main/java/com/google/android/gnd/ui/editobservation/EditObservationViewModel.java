@@ -90,8 +90,8 @@ public class EditObservationViewModel extends AbstractViewModel {
   /** Toolbar title, based on whether user is adding new or editing existing observation. */
   private final MutableLiveData<String> toolbarTitle = new MutableLiveData<>();
 
-  /** Captured / selected photo. */
-  private final MutableLiveData<Map<Field, String>> photoUpdated = new MutableLiveData<>();
+  /** Stream of updates to photo fields. */
+  private final MutableLiveData<Map<Field, String>> photoUpdates = new MutableLiveData<>();
 
   /** Original form responses, loaded when view is initialized. */
   private final ObservableMap<String, Response> responses = new ObservableArrayMap<>();
@@ -228,13 +228,13 @@ public class EditObservationViewModel extends AbstractViewModel {
 
     Map<Field, String> map = new HashMap<>();
     map.put(field, destinationPath);
-    photoUpdated.postValue(map);
+    photoUpdates.postValue(map);
 
     return storageManager.savePhoto(bitmap, localFileName, destinationPath);
   }
 
-  MutableLiveData<Map<Field, String>> getPhotoUpdated() {
-    return photoUpdated;
+  MutableLiveData<Map<Field, String>> getPhotoUpdates() {
+    return photoUpdates;
   }
 
   public void onSaveClick() {
