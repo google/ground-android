@@ -60,10 +60,10 @@
       android:contentDescription="@string/offline_area_selector_prompt"
       android:focusable="true"
       android:onClick="@{() -> viewModel.showOfflineAreaSelector()}"
-      android:src="@drawable/ic_add_light"
-      android:tint="@color/colorBackground"
       app:layout_constraintBottom_toBottomOf="parent"
       app:layout_constraintEnd_toEndOf="parent"
+      app:srcCompat="@drawable/ic_add"
+      app:tint="@color/colorBackground"
       app:useCompatPadding="true" />
 
   </androidx.constraintlayout.widget.ConstraintLayout>

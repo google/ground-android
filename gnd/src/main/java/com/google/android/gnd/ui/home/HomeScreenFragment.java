@@ -51,13 +51,13 @@ import com.google.android.gnd.rx.Schedulers;
 import com.google.android.gnd.system.AuthenticationManager;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.BackPressListener;
-import com.google.android.gnd.ui.common.BottomSheetBehavior;
 import com.google.android.gnd.ui.common.EphemeralPopups;
 import com.google.android.gnd.ui.common.ProgressDialogs;
 import com.google.android.gnd.ui.common.TwoLineToolbar;
 import com.google.android.gnd.ui.home.mapcontainer.MapContainerFragment;
 import com.google.android.gnd.ui.projectselector.ProjectSelectorDialogFragment;
 import com.google.android.gnd.ui.projectselector.ProjectSelectorViewModel;
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.navigation.NavigationView.OnNavigationItemSelectedListener;
 import io.reactivex.subjects.PublishSubject;
@@ -225,8 +225,8 @@ public class HomeScreenFragment extends AbstractFragment
 
     // When the bottom sheet is expanded, the bottom edge of the header needs to be aligned with
     // the bottom edge of the toolbar (the header slides up under it).
-    int bottomSheetMarginTop = (int) getResources().getDimension(R.dimen.bottom_sheet_margin_top);
-    bottomSheetBehavior.setExpandedOffset(toolbarWrapper.getHeight() - bottomSheetMarginTop);
+    BottomSheetMetrics metrics = new BottomSheetMetrics(bottomSheetLayout);
+    bottomSheetBehavior.setExpandedOffset(metrics.getExpandedOffset());
 
     getView().getViewTreeObserver().removeOnGlobalLayoutListener(this);
   }
