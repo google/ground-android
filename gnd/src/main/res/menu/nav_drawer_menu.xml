@@ -19,7 +19,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
   <item
     android:id="@+id/nav_join_project"
-    android:icon="@drawable/ic_add_light"
+    android:icon="@drawable/ic_add"
     android:title="@string/join_project" />
   <group
     android:id="@+id/group_projects"

@@ -130,6 +130,9 @@ public class MapContainerFragment extends AbstractFragment {
   @Override
   public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
+
+    disableAddFeatureBtn();
+
     if (savedInstanceState == null) {
       replaceFragment(R.id.map, mapProvider.getFragment());
     } else {
