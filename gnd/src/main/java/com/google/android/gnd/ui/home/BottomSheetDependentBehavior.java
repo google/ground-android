@@ -33,9 +33,9 @@ public abstract class BottomSheetDependentBehavior<V extends View>
   }
 
   /**
-   * Overridden to define the behavior of layouts in relation to changes in the bottom sheet.
-   * In general, this is called when the bottom sheet state changes (e.g., from hidden to
-   * collapsed), and when the bottom sheet is scrolled up or down.
+   * Overridden to define the behavior of layouts in relation to changes in the bottom sheet. In
+   * general, this is called when the bottom sheet state changes (e.g., from hidden to collapsed),
+   * and when the bottom sheet is scrolled up or down.
    */
   protected abstract void onBottomSheetChanged(
       CoordinatorLayout parent, V child, BottomSheetMetrics metrics);
@@ -47,7 +47,7 @@ public abstract class BottomSheetDependentBehavior<V extends View>
 
   @Override
   public boolean onDependentViewChanged(CoordinatorLayout parent, V child, View bottomSheet) {
-    onBottomSheetChanged(parent, child, new BottomSheetMetrics(parent, bottomSheet));
+    onBottomSheetChanged(parent, child, new BottomSheetMetrics(bottomSheet));
     return false;
   }
 }

@@ -66,8 +66,8 @@
         android:clickable="true"
         android:contentDescription="@string/offline_area_selector_prompt"
         android:focusable="true"
-        android:src="@drawable/ic_add_light"
-        android:tint="@color/colorBackground"
+        app:srcCompat="@drawable/ic_add"
+        app:tint="@color/colorBackground"
         app:useCompatPadding="true"
         android:onClick="@{() -> viewModel.showOfflineAreaSelector()}"/>
     </FrameLayout>
