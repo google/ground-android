@@ -161,7 +161,7 @@ public class MapContainerFragment extends AbstractFragment {
     addFeatureBtn.setOnClickListener(
         __ -> homeScreenViewModel.onAddFeatureBtnClick(map.getCameraTarget()));
     enableLocationLockBtn();
-    map.renderTileOverlay();
+    mapContainerViewModel.getMbtiles().observe(this, map::renderTileOverlays);
   }
 
   @Override

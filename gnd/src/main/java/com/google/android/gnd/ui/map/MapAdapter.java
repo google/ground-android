@@ -80,5 +80,5 @@ public interface MapAdapter {
   LatLngBounds getViewport();
 
   /** Renders a tile overlay on the map. */
-  void renderTileOverlay();
+  void renderTileOverlays(ImmutableSet<String> mbtilesFiles);
 }

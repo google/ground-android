@@ -31,7 +31,9 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.TileOverlay;
 import com.google.android.gms.maps.model.TileOverlayOptions;
+import com.google.android.gms.maps.model.TileProvider;
 import com.google.android.gnd.R;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.ui.MarkerIconFactory;
@@ -41,8 +43,10 @@ import com.google.common.collect.ImmutableSet;
 import io.reactivex.Observable;
 import io.reactivex.subjects.BehaviorSubject;
 import io.reactivex.subjects.PublishSubject;
+import java.io.File;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 import javax.annotation.Nullable;
 import timber.log.Timber;
@@ -59,6 +63,7 @@ class GoogleMapsMapAdapter implements MapAdapter {
   private final PublishSubject<MapPin> markerClickSubject = PublishSubject.create();
   private final PublishSubject<Point> dragInteractionSubject = PublishSubject.create();
   private final BehaviorSubject<Point> cameraMoves = BehaviorSubject.create();
+  private List<TileOverlay> tileOverlays;
 
   /**
    * References to Google Maps SDK Markers present on the map. Used to sync and update markers with
@@ -247,10 +252,22 @@ class GoogleMapsMapAdapter implements MapAdapter {
   }
 
   @Override
-  public void renderTileOverlay() {
-    try (MapBoxOfflineTileProvider tileProvider =
-        new MapBoxOfflineTileProvider(context.getFilesDir())) {
-      map.addTileOverlay(new TileOverlayOptions().tileProvider(tileProvider));
-    }
+  public void renderTileOverlays(ImmutableSet<String> mbtilesFiles) {
+    //map.setMapType(GoogleMap.MAP_TYPE_NONE);
+
+    stream(mbtilesFiles)
+        .forEach(
+            path -> {
+              File mbtiles = new File(context.getFilesDir(), path);
+              if (mbtiles.exists()) {
+                Timber.d("mbtiles file: %s", mbtiles);
+                try {
+                  TileProvider tileProvider = new MapBoxOfflineTileProvider(mbtiles);
+                  map.addTileOverlay(new TileOverlayOptions().tileProvider(tileProvider));
+                } catch (Exception e) {
+                  Timber.e(e, "Couldn't initialize tile provider for %s", mbtiles);
+                }
+              }
+            });
   }
 }

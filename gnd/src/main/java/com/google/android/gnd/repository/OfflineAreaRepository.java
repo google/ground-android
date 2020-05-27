@@ -17,6 +17,7 @@
 package com.google.android.gnd.repository;
 
 import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList;
+import static com.google.android.gnd.util.ImmutableSetCollector.toImmutableSet;
 import static java8.util.stream.StreamSupport.stream;
 
 import com.google.android.gms.maps.model.LatLngBounds;
@@ -31,6 +32,7 @@ import com.google.android.gnd.persistence.sync.TileDownloadWorkManager;
 import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator;
 import com.google.android.gnd.ui.util.FileUtil;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import java.io.File;
@@ -98,5 +100,15 @@ public class OfflineAreaRepository {
 
   public Flowable<ImmutableList<OfflineArea>> getOfflineAreasOnceAndStream() {
     return localDataStore.getOfflineAreasOnceAndStream();
+  }
+
+  public Flowable<ImmutableSet<Tile>> getDownloadedTilesOnceAndStream() {
+    return localDataStore
+        .getTilesOnceAndStream()
+        .map(
+            set ->
+                stream(set)
+                    .filter(tile -> tile.getState() == Tile.State.DOWNLOADED)
+                    .collect(toImmutableSet()));
   }
 }

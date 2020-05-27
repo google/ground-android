@@ -23,9 +23,11 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
 import androidx.lifecycle.MutableLiveData;
 import com.google.android.gnd.model.Project;
+import com.google.android.gnd.model.basemap.tile.Tile;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.repository.FeatureRepository;
+import com.google.android.gnd.repository.OfflineAreaRepository;
 import com.google.android.gnd.repository.ProjectRepository;
 import com.google.android.gnd.rx.BooleanOrError;
 import com.google.android.gnd.rx.Event;
@@ -59,12 +61,14 @@ public class MapContainerViewModel extends AbstractViewModel {
   private final Subject<Boolean> locationLockChangeRequests;
   private final Subject<CameraUpdate> cameraUpdateSubject;
   private final MutableLiveData<Event<Nil>> showMapTypeSelectorRequests = new MutableLiveData<>();
+  private final LiveData<ImmutableSet<String>> mbtiles;
 
   @Inject
   MapContainerViewModel(
       ProjectRepository projectRepository,
       FeatureRepository featureRepository,
-      LocationManager locationManager) {
+      LocationManager locationManager,
+      OfflineAreaRepository offlineAreaRepository) {
     this.featureRepository = featureRepository;
     this.locationManager = locationManager;
     this.locationLockChangeRequests = PublishSubject.create();
@@ -90,6 +94,10 @@ public class MapContainerViewModel extends AbstractViewModel {
                 .map(Loadable::value)
                 .switchMap(this::getFeaturesStream)
                 .map(MapContainerViewModel::toMapPins));
+    this.mbtiles = LiveDataReactiveStreams.fromPublisher(
+      offlineAreaRepository.getDownloadedTilesOnceAndStream().map(set -> stream(set).map(Tile::getPath).collect(
+        toImmutableSet()))
+    );
   }
 
   private Flowable<CameraUpdate> createCameraUpdateFlowable(
@@ -156,6 +164,10 @@ public class MapContainerViewModel extends AbstractViewModel {
 
   public LiveData<ImmutableSet<MapPin>> getMapPins() {
     return mapPins;
+  }
+
+  public LiveData<ImmutableSet<String>> getMbtiles() {
+    return mbtiles;
   }
 
   LiveData<CameraUpdate> getCameraUpdateRequests() {
