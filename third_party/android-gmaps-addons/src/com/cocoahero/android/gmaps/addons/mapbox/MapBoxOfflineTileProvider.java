@@ -1,5 +1,8 @@
 package com.cocoahero.android.gmaps.addons.mapbox;
 
+import android.database.sqlite.SQLiteDatabaseCorruptException;
+import android.database.sqlite.SQLiteException;
+import android.util.Log;
 import java.io.Closeable;
 import java.io.File;
 
@@ -153,7 +156,7 @@ public class MapBoxOfflineTileProvider implements TileProvider, Closeable {
             };
 
             Cursor c;
-
+            try {
             c = this.mDatabase.query("metadata", projection, "name = ?", minArgs, null, null, null);
 
             c.moveToFirst();
@@ -169,6 +172,9 @@ public class MapBoxOfflineTileProvider implements TileProvider, Closeable {
                 this.mMaximumZoom = c.getInt(0);
             }
             c.close();
+            } catch (SQLiteDatabaseCorruptException e) {
+              Log.e("MAPBOX: ", "SQLite error: ", e);
+            }
         }
     }
 
@@ -182,6 +188,7 @@ public class MapBoxOfflineTileProvider implements TileProvider, Closeable {
                 "bounds"
             };
 
+            try {
             Cursor c = this.mDatabase.query("metadata", projection, "name = ?", subArgs, null, null, null);
 
             c.moveToFirst();
@@ -199,6 +206,9 @@ public class MapBoxOfflineTileProvider implements TileProvider, Closeable {
                 this.mBounds = new LatLngBounds(sw, ne);
             }
             c.close();
+            } catch (SQLiteDatabaseCorruptException e) {
+              Log.e("MAPBOX: ", "SQLite error: ", e);
+            }
         }
     }
 
