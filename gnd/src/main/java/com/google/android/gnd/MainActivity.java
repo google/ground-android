@@ -20,8 +20,6 @@ import static com.google.android.gnd.rx.RxAutoDispose.autoDisposable;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.ViewGroup.LayoutParams;
-import android.widget.FrameLayout;
 import androidx.annotation.NonNull;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
@@ -90,11 +88,9 @@ public class MainActivity extends AbstractActivity {
   }
 
   @Override
-  protected void onWindowInsetChanged(WindowInsetsCompat insetsCompat) {
-    viewModel.onApplyWindowInsets(insetsCompat);
-    binding.statusBarScrim.setLayoutParams(
-        new FrameLayout.LayoutParams(
-            LayoutParams.MATCH_PARENT, insetsCompat.getSystemWindowInsetTop()));
+  protected void onWindowInsetChanged(WindowInsetsCompat insets) {
+    super.onWindowInsetChanged(insets);
+    viewModel.onApplyWindowInsets(insets);
   }
 
   private void onNavigate(NavDirections navDirections) {

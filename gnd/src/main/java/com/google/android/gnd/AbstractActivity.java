@@ -20,12 +20,16 @@ import static com.google.android.gnd.util.Debug.logLifecycleEvent;
 
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.view.View;
+import android.view.ViewGroup.LayoutParams;
+import android.widget.FrameLayout;
 import androidx.annotation.Nullable;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import com.google.android.gnd.ui.common.TwoLineToolbar;
 import com.google.android.gnd.ui.util.DrawableUtil;
 import dagger.android.support.DaggerAppCompatActivity;
+import javax.annotation.OverridingMethodsMustInvokeSuper;
 
 /** Base activity class containing common helper methods. */
 public abstract class AbstractActivity extends DaggerAppCompatActivity {
@@ -37,17 +41,27 @@ public abstract class AbstractActivity extends DaggerAppCompatActivity {
     logLifecycleEvent(this);
     super.onCreate(savedInstanceState);
     drawableUtil = new DrawableUtil(getResources());
+  }
 
+  @Override
+  public void setContentView(View view) {
+    super.setContentView(view);
     ViewCompat.setOnApplyWindowInsetsListener(
         getWindow().getDecorView().getRootView(),
-        (view, insetsCompat) -> {
-          onWindowInsetChanged(insetsCompat);
-          return insetsCompat;
+        (v, insets) -> {
+          onWindowInsetChanged(insets);
+          return insets;
         });
   }
 
   /** Adjust UI elements with respect to top/bottom insets. */
-  protected void onWindowInsetChanged(WindowInsetsCompat insetsCompat) {}
+  @OverridingMethodsMustInvokeSuper
+  protected void onWindowInsetChanged(WindowInsetsCompat insets) {
+    findViewById(R.id.status_bar_scrim)
+        .setLayoutParams(
+            new FrameLayout.LayoutParams(
+                LayoutParams.MATCH_PARENT, insets.getSystemWindowInsetTop()));
+  }
 
   @Override
   protected void onStart() {

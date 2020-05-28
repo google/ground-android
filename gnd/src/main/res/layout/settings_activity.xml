@@ -19,26 +19,46 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:app="http://schemas.android.com/apk/res-auto">
 
-  <LinearLayout
+  <FrameLayout
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
-    android:orientation="vertical">
+    android:layout_height="match_parent">
 
-    <com.google.android.gnd.ui.common.TwoLineToolbar
-      android:id="@+id/settings_toolbar"
+    <LinearLayout
       android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:elevation="@dimen/toolbar_elevation"
-      android:theme="@style/PrimaryToolbarTheme"
-      app:title="@string/settings"
-      app:titleTextColor="@color/colorBackground" />
+      android:layout_height="match_parent"
+      android:fitsSystemWindows="true"
+      android:orientation="vertical">
 
-    <androidx.fragment.app.FragmentContainerView
-      android:id="@+id/fragment_container"
-      android:name="com.google.android.gnd.ui.settings.SettingsFragment"
+      <com.google.android.gnd.ui.common.TwoLineToolbar
+        android:id="@+id/settings_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:elevation="@dimen/toolbar_elevation"
+        android:theme="@style/PrimaryToolbarTheme"
+        app:title="@string/settings"
+        app:titleTextColor="@color/colorBackground" />
+
+      <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/fragment_container"
+        android:name="com.google.android.gnd.ui.settings.SettingsFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    </LinearLayout>
+
+    <!--
+      Translucent scrim to make status bar legible when shown overlaid on map or toolbar.
+      Workaround for possible bug in Navigation Architecture Components where translucent system
+      bars get replaced with solid white background in fragment after navigation.
+      TODO: Is this a bug? If so, what's the bug ID? Has it been fixed?
+     -->
+
+    <View
+      android:id="@+id/status_bar_scrim"
       android:layout_width="match_parent"
-      android:layout_height="match_parent" />
+      android:layout_height="0dp"
+      android:alpha="0.4"
+      android:background="@android:color/black" />
 
-  </LinearLayout>
+  </FrameLayout>
 </layout>
