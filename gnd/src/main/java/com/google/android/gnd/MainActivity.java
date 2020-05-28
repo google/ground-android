@@ -20,7 +20,6 @@ import static com.google.android.gnd.rx.RxAutoDispose.autoDisposable;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.FrameLayout;
 import androidx.annotation.NonNull;
@@ -58,6 +57,7 @@ public class MainActivity extends AbstractActivity {
   @Inject UserRepository userRepository;
   private NavHostFragment navHostFragment;
   private MainViewModel viewModel;
+  private MainActBinding binding;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -65,7 +65,7 @@ public class MainActivity extends AbstractActivity {
     setTheme(R.style.AppTheme);
     super.onCreate(savedInstanceState);
 
-    MainActBinding binding = MainActBinding.inflate(getLayoutInflater());
+    binding = MainActBinding.inflate(getLayoutInflater());
 
     setContentView(binding.getRoot());
 
@@ -73,16 +73,6 @@ public class MainActivity extends AbstractActivity {
         (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
 
     viewModel = viewModelFactory.get(this, MainViewModel.class);
-
-    ViewCompat.setOnApplyWindowInsetsListener(
-        getWindow().getDecorView().getRootView(),
-        (view, insets) -> {
-          viewModel.onApplyWindowInsets(insets);
-          binding.statusBarScrim.setLayoutParams(
-              new FrameLayout.LayoutParams(
-                  LayoutParams.MATCH_PARENT, insets.getSystemWindowInsetTop()));
-          return insets;
-        });
 
     activityStreams
         .getActivityRequests()
@@ -101,8 +91,10 @@ public class MainActivity extends AbstractActivity {
 
   @Override
   protected void onWindowInsetChanged(WindowInsetsCompat insetsCompat) {
-    super.onWindowInsetChanged(insetsCompat);
     viewModel.onApplyWindowInsets(insetsCompat);
+    binding.statusBarScrim.setLayoutParams(
+        new FrameLayout.LayoutParams(
+            LayoutParams.MATCH_PARENT, insetsCompat.getSystemWindowInsetTop()));
   }
 
   private void onNavigate(NavDirections navDirections) {

@@ -20,20 +20,17 @@ import static com.google.android.gnd.util.Debug.logLifecycleEvent;
 
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.view.View;
 import androidx.annotation.Nullable;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import com.google.android.gnd.ui.common.TwoLineToolbar;
 import com.google.android.gnd.ui.util.DrawableUtil;
 import dagger.android.support.DaggerAppCompatActivity;
-import javax.annotation.OverridingMethodsMustInvokeSuper;
 
 /** Base activity class containing common helper methods. */
 public abstract class AbstractActivity extends DaggerAppCompatActivity {
 
   private DrawableUtil drawableUtil;
-  @Nullable private TwoLineToolbar toolbar;
 
   @Override
   protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -42,20 +39,15 @@ public abstract class AbstractActivity extends DaggerAppCompatActivity {
     drawableUtil = new DrawableUtil(getResources());
 
     ViewCompat.setOnApplyWindowInsetsListener(
-        getWindow().getDecorView().getRootView(), this::onApplyWindowInsets);
+        getWindow().getDecorView().getRootView(),
+        (view, insetsCompat) -> {
+          onWindowInsetChanged(insetsCompat);
+          return insetsCompat;
+        });
   }
 
-  private WindowInsetsCompat onApplyWindowInsets(View view, WindowInsetsCompat insetsCompat) {
-    onWindowInsetChanged(insetsCompat);
-    return insetsCompat;
-  }
-
-  @OverridingMethodsMustInvokeSuper
-  protected void onWindowInsetChanged(WindowInsetsCompat insetsCompat) {
-    if (toolbar != null) {
-      toolbar.setPadding(0, insetsCompat.getSystemWindowInsetTop(), 0, 0);
-    }
-  }
+  /** Adjust UI elements with respect to top/bottom insets. */
+  protected void onWindowInsetChanged(WindowInsetsCompat insetsCompat) {}
 
   @Override
   protected void onStart() {
@@ -97,8 +89,6 @@ public abstract class AbstractActivity extends DaggerAppCompatActivity {
   }
 
   public void setActionBar(TwoLineToolbar toolbar, boolean showTitle) {
-    this.toolbar = toolbar;
-
     setSupportActionBar(toolbar);
 
     // Workaround to get rid of application title from toolbar. Simply setting "" here or in layout

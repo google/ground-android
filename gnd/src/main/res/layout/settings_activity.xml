@@ -22,6 +22,7 @@
   <LinearLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
     android:orientation="vertical">
 
     <com.google.android.gnd.ui.common.TwoLineToolbar
@@ -29,7 +30,6 @@
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:elevation="@dimen/toolbar_elevation"
-      android:paddingTop="@dimen/offline_area_toolbar_padding_top"
       android:theme="@style/PrimaryToolbarTheme"
       app:title="@string/settings"
       app:titleTextColor="@color/colorBackground" />
