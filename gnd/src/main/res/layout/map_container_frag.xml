@@ -17,7 +17,8 @@
   -->
 
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-  xmlns:app="http://schemas.android.com/apk/res-auto">
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  xmlns:tools="http://schemas.android.com/tools">
 
   <data>
     <variable
@@ -32,37 +33,30 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <!-- Placeholder for map implementation -->
+    <FrameLayout
+      android:id="@+id/map"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent" />
 
-    <RelativeLayout
-      android:id="@+id/map_layout"
+    <androidx.constraintlayout.widget.ConstraintLayout
+      android:id="@+id/map_controls"
       android:layout_width="match_parent"
       android:layout_height="match_parent"
-      android:layout_gravity="center"
-      android:gravity="center"
-      app:layout_behavior="com.google.android.gnd.ui.home.mapcontainer.MapLayoutBehavior">
-
-      <!-- Featureholder for map implementation -->
-      <FrameLayout
-        android:id="@+id/map"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+      android:fitsSystemWindows="true"
+      tools:background="@color/colorGrey800">
 
       <!-- TODO: Add highlighted icon overlay when showing feature sheet -->
       <ImageView
         android:id="@+id/map_crosshairs"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
         android:adjustViewBounds="false"
-        android:cropToPadding="false"
-        android:src="@drawable/ic_crosshairs" />
-    </RelativeLayout>
-
-    <androidx.constraintlayout.widget.ConstraintLayout
-      android:id="@+id/map_btn_layout"
-      android:layout_width="wrap_content"
-      android:layout_height="match_parent"
-      android:layout_gravity="end">
+        android:src="@drawable/ic_crosshairs"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
       <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/map_type_btn"
@@ -87,7 +81,6 @@
         app:fabSize="normal"
         app:layout_constraintBottom_toTopOf="@+id/add_feature_btn"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
         app:useCompatPadding="true" />
 
       <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -99,22 +92,23 @@
         app:fabSize="normal"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
         app:useCompatPadding="true" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <ImageButton
-      android:id="@+id/hamburger_btn"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:layout_gravity="top|start"
-      android:background="?android:attr/selectableItemBackground"
-      android:clickable="true"
-      android:focusable="true"
-      android:onClick="@{() -> homeScreenViewModel.openNavDrawer()}"
-      android:padding="16dp"
-      android:src="@drawable/ic_menu_black_24dp"
-      android:tint="@color/colorBackground" />
+      <ImageButton
+        android:id="@+id/hamburger_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="?android:attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true"
+        android:onClick="@{() -> homeScreenViewModel.openNavDrawer()}"
+        android:padding="16dp"
+        android:src="@drawable/ic_menu_black_24dp"
+        android:tint="@color/colorBackground"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
   </FrameLayout>
 </layout>

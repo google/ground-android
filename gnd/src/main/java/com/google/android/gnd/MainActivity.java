@@ -27,7 +27,7 @@ import androidx.navigation.NavController;
 import androidx.navigation.NavDestination;
 import androidx.navigation.NavDirections;
 import androidx.navigation.fragment.NavHostFragment;
-import butterknife.ButterKnife;
+import com.google.android.gnd.databinding.MainActBinding;
 import com.google.android.gnd.repository.UserRepository;
 import com.google.android.gnd.system.ActivityStreams;
 import com.google.android.gnd.system.AuthenticationManager;
@@ -62,9 +62,9 @@ public class MainActivity extends AbstractActivity {
     setTheme(R.style.AppTheme);
     super.onCreate(savedInstanceState);
 
-    setContentView(R.layout.main_act);
+    MainActBinding binding = MainActBinding.inflate(getLayoutInflater());
 
-    ButterKnife.bind(this);
+    setContentView(binding.getRoot());
 
     navHostFragment =
         (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
@@ -87,9 +87,9 @@ public class MainActivity extends AbstractActivity {
   }
 
   @Override
-  protected void onWindowInsetChanged(WindowInsetsCompat insetsCompat) {
-    super.onWindowInsetChanged(insetsCompat);
-    viewModel.onApplyWindowInsets(insetsCompat);
+  protected void onWindowInsetChanged(WindowInsetsCompat insets) {
+    super.onWindowInsetChanged(insets);
+    viewModel.onApplyWindowInsets(insets);
   }
 
   private void onNavigate(NavDirections navDirections) {

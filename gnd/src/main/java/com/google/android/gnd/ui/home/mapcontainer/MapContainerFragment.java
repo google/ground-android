@@ -24,15 +24,11 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 import butterknife.BindView;
-import com.google.android.gnd.MainViewModel;
 import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.MapContainerFragBinding;
 import com.google.android.gnd.model.Project;
@@ -56,21 +52,14 @@ public class MapContainerFragment extends AbstractFragment {
 
   @Inject MapProvider mapProvider;
 
-  @BindView(R.id.hamburger_btn)
-  ImageButton hamburgerBtn;
-
   @BindView(R.id.add_feature_btn)
   FloatingActionButton addFeatureBtn;
 
   @BindView(R.id.location_lock_btn)
   FloatingActionButton locationLockBtn;
 
-  @BindView(R.id.map_btn_layout)
-  ViewGroup mapBtnLayout;
-
   private MapContainerViewModel mapContainerViewModel;
   private HomeScreenViewModel homeScreenViewModel;
-  private MainViewModel mainViewModel;
 
   private void showMapTypeSelectorDialog() {
     new AlertDialog.Builder(getContext())
@@ -92,7 +81,6 @@ public class MapContainerFragment extends AbstractFragment {
     super.onCreate(savedInstanceState);
     mapContainerViewModel = getViewModel(MapContainerViewModel.class);
     homeScreenViewModel = getViewModel(HomeScreenViewModel.class);
-    mainViewModel = getViewModel(MainViewModel.class);
     Single<MapAdapter> mapAdapter = mapProvider.getMapAdapter();
     mapAdapter.as(autoDisposable(this)).subscribe(this::onMapReady);
     mapAdapter
@@ -162,12 +150,6 @@ public class MapContainerFragment extends AbstractFragment {
         __ -> homeScreenViewModel.onAddFeatureBtnClick(map.getCameraTarget()));
     enableLocationLockBtn();
     map.renderTileOverlay();
-  }
-
-  @Override
-  public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-    super.onActivityCreated(savedInstanceState);
-    mainViewModel.getWindowInsets().observe(getViewLifecycleOwner(), this::onApplyWindowInsets);
   }
 
   private void onBottomSheetStateChange(BottomSheetState state, MapAdapter map) {
@@ -243,13 +225,6 @@ public class MapContainerFragment extends AbstractFragment {
     } else {
       map.moveCamera(update.getCenter());
     }
-  }
-
-  private void onApplyWindowInsets(WindowInsetsCompat windowInsets) {
-    ViewCompat.onApplyWindowInsets(mapProvider.getFragment().getView(), windowInsets);
-    hamburgerBtn.setTranslationY(windowInsets.getSystemWindowInsetTop());
-    mapBtnLayout.setPadding(
-        0, windowInsets.getSystemWindowInsetTop(), 0, windowInsets.getSystemWindowInsetBottom());
   }
 
   @Override

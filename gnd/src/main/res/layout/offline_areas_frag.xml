@@ -20,56 +20,51 @@
   xmlns:app="http://schemas.android.com/apk/res-auto">
 
   <data>
-
     <variable
       name="viewModel"
       type="com.google.android.gnd.ui.offlinearea.OfflineAreasViewModel" />
   </data>
 
-  <LinearLayout
+  <androidx.constraintlayout.widget.ConstraintLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:fitsSystemWindows="true">
 
     <com.google.android.gnd.ui.common.TwoLineToolbar
       android:id="@+id/offline_areas_toolbar"
-      android:layout_width="match_parent"
+      android:layout_width="0dp"
       android:layout_height="wrap_content"
       android:elevation="@dimen/toolbar_elevation"
-      android:paddingTop="@dimen/offline_area_toolbar_padding_top"
       android:theme="@style/PrimaryToolbarTheme"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toTopOf="parent"
       app:title="@string/offline_areas"
       app:titleTextColor="@color/colorBackground" />
 
-    <FrameLayout
-      android:layout_width="match_parent"
-      android:layout_height="match_parent"
-      android:layout_gravity="center">
-      <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/offline_areas_list"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_gravity="center" />
+    <androidx.recyclerview.widget.RecyclerView
+      android:id="@+id/offline_areas_list"
+      android:layout_width="0dp"
+      android:layout_height="0dp"
+      app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toBottomOf="@+id/offline_areas_toolbar" />
 
-      <!-- TODO: We shouldn't need the bottom margin setting here. There's likely a better way to
-           constrain the position of this button. If we do wind up needing margins, add them as
-           dimen resources.-->
-      <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/floatingActionButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_marginEnd="8dp"
-        android:layout_marginRight="8dp"
-        android:layout_marginBottom="42dp"
-        android:backgroundTint="@color/colorPrimary"
-        android:clickable="true"
-        android:contentDescription="@string/offline_area_selector_prompt"
-        android:focusable="true"
-        app:srcCompat="@drawable/ic_add"
-        app:tint="@color/colorBackground"
-        app:useCompatPadding="true"
-        android:onClick="@{() -> viewModel.showOfflineAreaSelector()}"/>
-    </FrameLayout>
-  </LinearLayout>
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+      android:id="@+id/floatingActionButton"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:backgroundTint="@color/colorPrimary"
+      android:clickable="true"
+      android:contentDescription="@string/offline_area_selector_prompt"
+      android:focusable="true"
+      android:onClick="@{() -> viewModel.showOfflineAreaSelector()}"
+      app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:srcCompat="@drawable/ic_add"
+      app:tint="@color/colorBackground"
+      app:useCompatPadding="true" />
+
+  </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
