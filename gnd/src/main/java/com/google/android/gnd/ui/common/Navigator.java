@@ -134,4 +134,8 @@ public class Navigator {
   public void showOfflineAreas() {
     navigate(HomeScreenFragmentDirections.showOfflineAreas());
   }
+
+  public void showSettings() {
+    navigate(HomeScreenFragmentDirections.actionHomeScreenFragmentToSettingsActivity());
+  }
 }

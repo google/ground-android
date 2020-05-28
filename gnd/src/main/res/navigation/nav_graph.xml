@@ -67,6 +67,9 @@
     <action
       android:id="@+id/showOfflineAreas"
       app:destination="@id/offline_areas_fragment" />
+    <action
+      android:id="@+id/action_home_screen_fragment_to_settings_activity"
+      app:destination="@id/settings_activity" />
   </fragment>
 
   <fragment
@@ -145,4 +148,9 @@
       app:popUpTo="@id/navGraph"
       app:popUpToInclusive="true" />
   </fragment>
+  <activity
+    android:id="@+id/settings_activity"
+    android:name="com.google.android.gnd.SettingsActivity"
+    android:label="settings_activity"
+    tools:layout="@layout/settings_activity" />
 </navigation>
