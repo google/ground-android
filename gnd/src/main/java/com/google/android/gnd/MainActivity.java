@@ -55,7 +55,6 @@ public class MainActivity extends AbstractActivity {
   @Inject UserRepository userRepository;
   private NavHostFragment navHostFragment;
   private MainViewModel viewModel;
-  private MainActBinding binding;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -63,7 +62,7 @@ public class MainActivity extends AbstractActivity {
     setTheme(R.style.AppTheme);
     super.onCreate(savedInstanceState);
 
-    binding = MainActBinding.inflate(getLayoutInflater());
+    MainActBinding binding = MainActBinding.inflate(getLayoutInflater());
 
     setContentView(binding.getRoot());
 
