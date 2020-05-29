@@ -32,10 +32,10 @@ import com.google.auto.value.AutoValue.CopyAnnotations;
         @ForeignKey(
             entity = FieldEntity.class,
             parentColumns = "id",
-            childColumns = "field_id",
-            onDelete = ForeignKey.CASCADE),
-    indices = {@Index("field_id")},
-    primaryKeys = {"code", "field_id"})
+            childColumns = "field_id", // NOPMD
+          onDelete = ForeignKey.CASCADE),
+    indices = {@Index("field_id")}, // NOPMD
+    primaryKeys = {"code", "field_id"}) // NOPMD
 public abstract class OptionEntity {
 
   @CopyAnnotations
@@ -50,7 +50,7 @@ public abstract class OptionEntity {
 
   @CopyAnnotations
   @NonNull
-  @ColumnInfo(name = "field_id")
+  @ColumnInfo(name = "field_id") // NOPMD
   public abstract String getFieldId();
 
   public static OptionEntity fromOption(String fieldId, Option option) {
