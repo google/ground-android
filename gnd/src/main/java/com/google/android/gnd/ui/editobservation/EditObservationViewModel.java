@@ -165,7 +165,6 @@ public class EditObservationViewModel extends AbstractViewModel {
   }
 
   void initialize(EditObservationFragmentArgs args) {
-    this.args = args;
     viewArgs.onNext(args);
   }
 
@@ -238,26 +237,35 @@ public class EditObservationViewModel extends AbstractViewModel {
   }
 
   private Single<Form> onInitialize(EditObservationFragmentArgs viewArgs) {
-    saveButtonVisibility.setValue(View.GONE);
-    loadingSpinnerVisibility.setValue(View.VISIBLE);
-    isNew = isAddObservationRequest(viewArgs);
     Single<Observation> obs;
-    if (isNew) {
-      toolbarTitle.setValue(resources.getString(R.string.add_observation_toolbar_title));
-      obs = createObservation(viewArgs);
-    } else {
-      toolbarTitle.setValue(resources.getString(R.string.edit_observation));
-      obs = loadObservation(viewArgs);
-    }
-    return obs.doOnSuccess(this::onObservationLoaded).map(Observation::getForm);
-  }
+    isNew = isAddObservationRequest(viewArgs);
 
-  private void onObservationLoaded(Observation observation) {
-    this.originalObservation = observation;
-    validationErrors.clear();
-    responses.clear();
-    saveButtonVisibility.postValue(View.VISIBLE);
-    loadingSpinnerVisibility.postValue(View.GONE);
+    // Local instance of Observation is cleared once the form is saved.
+    // Reuse the same object if the previous form was unsaved.
+    if (originalObservation != null && viewArgs.equals(args)) {
+      obs = Single.just(originalObservation);
+    } else {
+      args = viewArgs;
+      obs = isNew ? createObservation(viewArgs) : loadObservation(viewArgs);
+      reset();
+    }
+
+    toolbarTitle.setValue(
+        resources.getString(
+            isNew ? R.string.add_observation_toolbar_title : R.string.edit_observation));
+
+    return obs.doOnSubscribe(
+            __ -> {
+              saveButtonVisibility.setValue(View.GONE);
+              loadingSpinnerVisibility.setValue(View.VISIBLE);
+            })
+        .doOnSuccess(
+            observation -> {
+              originalObservation = observation;
+              saveButtonVisibility.postValue(View.VISIBLE);
+              loadingSpinnerVisibility.postValue(View.GONE);
+            })
+        .map(Observation::getForm);
   }
 
   private Single<Observation> createObservation(EditObservationFragmentArgs args) {
@@ -298,7 +306,6 @@ public class EditObservationViewModel extends AbstractViewModel {
   }
 
   private Single<Event<SaveResult>> save() {
-    savingProgressVisibility.setValue(View.VISIBLE);
     ObservationMutation observationMutation =
         ObservationMutation.builder()
             .setType(isNew ? ObservationMutation.Type.CREATE : ObservationMutation.Type.UPDATE)
@@ -313,8 +320,19 @@ public class EditObservationViewModel extends AbstractViewModel {
             .build();
     return observationRepository
         .applyAndEnqueue(observationMutation)
-        .doOnComplete(() -> savingProgressVisibility.postValue(View.GONE))
+        .doOnSubscribe(__ -> saveButtonVisibility.postValue(View.VISIBLE))
+        .doOnComplete(
+            () -> {
+              savingProgressVisibility.postValue(View.GONE);
+              reset();
+            })
         .toSingleDefault(Event.create(SaveResult.SAVED));
+  }
+
+  private void reset() {
+    responses.clear();
+    validationErrors.clear();
+    originalObservation = null;
   }
 
   private ImmutableList<ResponseDelta> getResponseDeltas() {
