@@ -238,34 +238,38 @@ public class EditObservationViewModel extends AbstractViewModel {
 
   private Single<Form> onInitialize(EditObservationFragmentArgs viewArgs) {
     Single<Observation> obs;
-    isNew = isAddObservationRequest(viewArgs);
 
     // Local instance of Observation is cleared once the form is saved.
     // Reuse the same object if the previous form was unsaved.
+    // This happens after selecting a photo or resuming app.
     if (originalObservation != null && viewArgs.equals(args)) {
       obs = Single.just(originalObservation);
     } else {
       args = viewArgs;
-      obs = isNew ? createObservation(viewArgs) : loadObservation(viewArgs);
+      isNew = isAddObservationRequest(viewArgs);
+      if (isNew) {
+        obs = createObservation(viewArgs);
+        toolbarTitle.setValue(resources.getString(R.string.add_observation_toolbar_title));
+      } else {
+        obs = loadObservation(viewArgs);
+        toolbarTitle.setValue(resources.getString(R.string.edit_observation));
+      }
       reset();
     }
 
-    toolbarTitle.setValue(
-        resources.getString(
-            isNew ? R.string.add_observation_toolbar_title : R.string.edit_observation));
-
-    return obs.doOnSubscribe(
-            __ -> {
-              saveButtonVisibility.setValue(View.GONE);
-              loadingSpinnerVisibility.setValue(View.VISIBLE);
-            })
+    return obs.doOnSubscribe(__ -> setLoading(true))
         .doOnSuccess(
             observation -> {
+              setLoading(false);
               originalObservation = observation;
-              saveButtonVisibility.postValue(View.VISIBLE);
-              loadingSpinnerVisibility.postValue(View.GONE);
             })
         .map(Observation::getForm);
+  }
+
+  /** Display loading progress bar and hide save button. */
+  private void setLoading(boolean isLoading) {
+    saveButtonVisibility.postValue(isLoading ? View.GONE : View.VISIBLE);
+    loadingSpinnerVisibility.postValue(isLoading ? View.VISIBLE : View.GONE);
   }
 
   private Single<Observation> createObservation(EditObservationFragmentArgs args) {
@@ -320,13 +324,19 @@ public class EditObservationViewModel extends AbstractViewModel {
             .build();
     return observationRepository
         .applyAndEnqueue(observationMutation)
-        .doOnSubscribe(__ -> saveButtonVisibility.postValue(View.VISIBLE))
+        .doOnSubscribe(__ -> setSaving(true))
         .doOnComplete(
             () -> {
-              savingProgressVisibility.postValue(View.GONE);
+              setSaving(false);
               reset();
             })
         .toSingleDefault(Event.create(SaveResult.SAVED));
+  }
+
+  /** Display saving progress bar and hide save button. */
+  private void setSaving(boolean isSaving) {
+    saveButtonVisibility.postValue(isSaving ? View.GONE : View.VISIBLE);
+    savingProgressVisibility.postValue(isSaving ? View.VISIBLE : View.GONE);
   }
 
   private void reset() {
