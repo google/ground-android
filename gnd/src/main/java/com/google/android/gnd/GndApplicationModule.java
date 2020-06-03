@@ -53,6 +53,11 @@ abstract class GndApplicationModule {
   @ContributesAndroidInjector(modules = MainActivityModule.class)
   abstract MainActivity mainActivityInjector();
 
+  /** Causes Dagger Android to generate a sub-component for the SettingsActivity. */
+  @ActivityScoped
+  @ContributesAndroidInjector(modules = SettingsActivityModule.class)
+  abstract SettingsActivity settingsActivityInjector();
+
   /** Provides the Firestore implementation of remote data store. */
   @Binds
   @Singleton

@@ -16,7 +16,6 @@
 
 package com.google.android.gnd;
 
-import android.view.View;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -71,17 +70,16 @@ public class MainViewModel extends AbstractViewModel {
     return windowInsetsLiveData;
   }
 
-  WindowInsetsCompat onApplyWindowInsets(View view, WindowInsetsCompat insets) {
+  void onApplyWindowInsets(WindowInsetsCompat insets) {
     windowInsetsLiveData.setValue(insets);
-    return insets;
   }
 
-  public void onSignedOut(int currentNavDestinationId) {
+  void onSignedOut(int currentNavDestinationId) {
     projectRepository.clearActiveProject();
     navigator.showSignInScreen(currentNavDestinationId);
   }
 
-  public void onSignedIn(int currentNavDestinationId) {
+  void onSignedIn(int currentNavDestinationId) {
     navigator.showHomeScreen(currentNavDestinationId);
   }
 }

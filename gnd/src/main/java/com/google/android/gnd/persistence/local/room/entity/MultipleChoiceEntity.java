@@ -42,15 +42,13 @@ import java.util.List;
     indices = {@Index("field_id")})
 public abstract class MultipleChoiceEntity {
 
-  @PrimaryKey(autoGenerate = true)
-  public int id;
-
   @CopyAnnotations
   @NonNull
   @ColumnInfo(name = "type")
   public abstract MultipleChoiceEntityType getType();
 
   @CopyAnnotations
+  @PrimaryKey
   @NonNull
   @ColumnInfo(name = "field_id")
   public abstract String getFieldId();

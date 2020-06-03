@@ -101,6 +101,7 @@ dependencies {
     implementation project(':android-gmaps-addons')
 
     implementation 'androidx.multidex:multidex:2.0.1'
+    implementation 'androidx.preference:preference:1.1.1'
 
     // Stetho - A debug bridge for Android applications
     // Enables network and database debugging for the app under chrome://inspect in Chrome desktop browser.

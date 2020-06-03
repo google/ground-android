@@ -21,7 +21,6 @@ import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.ForeignKey;
 import androidx.room.Index;
-import androidx.room.PrimaryKey;
 import com.google.android.gnd.model.form.Option;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.AutoValue.CopyAnnotations;
@@ -33,13 +32,11 @@ import com.google.auto.value.AutoValue.CopyAnnotations;
         @ForeignKey(
             entity = FieldEntity.class,
             parentColumns = "id",
-            childColumns = "field_id",
-            onDelete = ForeignKey.CASCADE),
-    indices = {@Index("field_id")})
+            childColumns = "field_id", // NOPMD
+          onDelete = ForeignKey.CASCADE),
+    indices = {@Index("field_id")}, // NOPMD
+    primaryKeys = {"code", "field_id"}) // NOPMD
 public abstract class OptionEntity {
-
-  @PrimaryKey(autoGenerate = true)
-  public int id;
 
   @CopyAnnotations
   @NonNull
@@ -53,7 +50,7 @@ public abstract class OptionEntity {
 
   @CopyAnnotations
   @NonNull
-  @ColumnInfo(name = "field_id")
+  @ColumnInfo(name = "field_id") // NOPMD
   public abstract String getFieldId();
 
   public static OptionEntity fromOption(String fieldId, Option option) {

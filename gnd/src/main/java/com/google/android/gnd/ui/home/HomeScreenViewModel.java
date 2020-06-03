@@ -180,4 +180,8 @@ public class HomeScreenViewModel extends AbstractViewModel {
   public void showOfflineAreas() {
     navigator.showOfflineAreas();
   }
+
+  public void showSettings() {
+    navigator.showSettings();
+  }
 }
