@@ -31,9 +31,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.maps.model.TileOverlay;
 import com.google.android.gms.maps.model.TileOverlayOptions;
-import com.google.android.gms.maps.model.TileProvider;
 import com.google.android.gnd.R;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.ui.MarkerIconFactory;
@@ -46,7 +44,6 @@ import io.reactivex.subjects.PublishSubject;
 import java.io.File;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
 import javax.annotation.Nullable;
 import timber.log.Timber;
@@ -63,7 +60,10 @@ class GoogleMapsMapAdapter implements MapAdapter {
   private final PublishSubject<MapPin> markerClickSubject = PublishSubject.create();
   private final PublishSubject<Point> dragInteractionSubject = PublishSubject.create();
   private final BehaviorSubject<Point> cameraMoves = BehaviorSubject.create();
-  private List<TileOverlay> tileOverlays;
+  // TODO: This is a limitation of the MapBox tile provider we're using;
+  // since one need to call `close` explicitly, we cannot generically expose these as TileProviders;
+  // instead we must retain explicit reference to the concrete type.
+  private final PublishSubject<MapBoxOfflineTileProvider> tileProviders = PublishSubject.create();
 
   /**
    * References to Google Maps SDK Markers present on the map. Used to sync and update markers with
@@ -124,6 +124,11 @@ class GoogleMapsMapAdapter implements MapAdapter {
   @Override
   public Observable<Point> getCameraMoves() {
     return cameraMoves;
+  }
+
+  @Override
+  public Observable<MapBoxOfflineTileProvider> getTileProviders() {
+    return tileProviders;
   }
 
   @Override
@@ -253,8 +258,6 @@ class GoogleMapsMapAdapter implements MapAdapter {
 
   @Override
   public void renderTileOverlays(ImmutableSet<String> mbtilesFiles) {
-    //map.setMapType(GoogleMap.MAP_TYPE_NONE);
-
     stream(mbtilesFiles)
         .forEach(
             path -> {
@@ -262,7 +265,8 @@ class GoogleMapsMapAdapter implements MapAdapter {
               if (mbtiles.exists()) {
                 Timber.d("mbtiles file: %s", mbtiles);
                 try {
-                  TileProvider tileProvider = new MapBoxOfflineTileProvider(mbtiles);
+                  MapBoxOfflineTileProvider tileProvider = new MapBoxOfflineTileProvider(mbtiles);
+                  tileProviders.onNext(tileProvider);
                   map.addTileOverlay(new TileOverlayOptions().tileProvider(tileProvider));
                 } catch (Exception e) {
                   Timber.e(e, "Couldn't initialize tile provider for %s", mbtiles);

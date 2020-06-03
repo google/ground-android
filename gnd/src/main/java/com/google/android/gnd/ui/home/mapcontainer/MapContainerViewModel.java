@@ -22,6 +22,7 @@ import static java8.util.stream.StreamSupport.stream;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
 import androidx.lifecycle.MutableLiveData;
+import com.cocoahero.android.gmaps.addons.mapbox.MapBoxOfflineTileProvider;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.basemap.tile.Tile;
 import com.google.android.gnd.model.feature.Feature;
@@ -42,6 +43,8 @@ import io.reactivex.BackpressureStrategy;
 import io.reactivex.Flowable;
 import io.reactivex.subjects.PublishSubject;
 import io.reactivex.subjects.Subject;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java8.util.Optional;
 import javax.inject.Inject;
@@ -62,6 +65,7 @@ public class MapContainerViewModel extends AbstractViewModel {
   private final Subject<CameraUpdate> cameraUpdateSubject;
   private final MutableLiveData<Event<Nil>> showMapTypeSelectorRequests = new MutableLiveData<>();
   private final LiveData<ImmutableSet<String>> mbtiles;
+  private final List<MapBoxOfflineTileProvider> tileProviders = new ArrayList<>();
 
   @Inject
   MapContainerViewModel(
@@ -94,10 +98,11 @@ public class MapContainerViewModel extends AbstractViewModel {
                 .map(Loadable::value)
                 .switchMap(this::getFeaturesStream)
                 .map(MapContainerViewModel::toMapPins));
-    this.mbtiles = LiveDataReactiveStreams.fromPublisher(
-      offlineAreaRepository.getDownloadedTilesOnceAndStream().map(set -> stream(set).map(Tile::getPath).collect(
-        toImmutableSet()))
-    );
+    this.mbtiles =
+        LiveDataReactiveStreams.fromPublisher(
+            offlineAreaRepository
+                .getDownloadedTilesOnceAndStream()
+                .map(set -> stream(set).map(Tile::getPath).collect(toImmutableSet())));
   }
 
   private Flowable<CameraUpdate> createCameraUpdateFlowable(
@@ -247,5 +252,13 @@ public class MapContainerViewModel extends AbstractViewModel {
         return "Pan";
       }
     }
+  }
+
+  public void onTileProvider(MapBoxOfflineTileProvider tileProvider) {
+    this.tileProviders.add(tileProvider);
+  }
+
+  public void closeProviders() {
+    stream(tileProviders).forEach(MapBoxOfflineTileProvider::close);
   }
 }

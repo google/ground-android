@@ -115,6 +115,11 @@ public class MapContainerFragment extends AbstractFragment {
         .flatMap(MapAdapter::getCameraMoves)
         .as(disposeOnDestroy(this))
         .subscribe(mapContainerViewModel::onCameraMove);
+    mapAdapter
+        .toObservable()
+        .flatMap(MapAdapter::getTileProviders)
+        .as(disposeOnDestroy(this))
+        .subscribe(mapContainerViewModel::onTileProvider);
   }
 
   @Override
@@ -255,5 +260,11 @@ public class MapContainerFragment extends AbstractFragment {
   @Override
   public void onSaveInstanceState(@NonNull Bundle outState) {
     saveChildFragment(outState, mapProvider.getFragment(), MAP_FRAGMENT_KEY);
+  }
+
+  @Override
+  public void onDestroy() {
+    mapContainerViewModel.closeProviders();
+    super.onDestroy();
   }
 }
