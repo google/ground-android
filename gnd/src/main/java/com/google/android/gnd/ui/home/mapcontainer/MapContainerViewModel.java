@@ -22,10 +22,13 @@ import static java8.util.stream.StreamSupport.stream;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
 import androidx.lifecycle.MutableLiveData;
+import com.cocoahero.android.gmaps.addons.mapbox.MapBoxOfflineTileProvider;
 import com.google.android.gnd.model.Project;
+import com.google.android.gnd.model.basemap.tile.Tile;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.repository.FeatureRepository;
+import com.google.android.gnd.repository.OfflineAreaRepository;
 import com.google.android.gnd.repository.ProjectRepository;
 import com.google.android.gnd.rx.BooleanOrError;
 import com.google.android.gnd.rx.Event;
@@ -40,6 +43,8 @@ import io.reactivex.BackpressureStrategy;
 import io.reactivex.Flowable;
 import io.reactivex.subjects.PublishSubject;
 import io.reactivex.subjects.Subject;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java8.util.Optional;
 import javax.inject.Inject;
@@ -59,12 +64,19 @@ public class MapContainerViewModel extends AbstractViewModel {
   private final Subject<Boolean> locationLockChangeRequests;
   private final Subject<CameraUpdate> cameraUpdateSubject;
   private final MutableLiveData<Event<Nil>> showMapTypeSelectorRequests = new MutableLiveData<>();
+  private final LiveData<ImmutableSet<String>> mbtilesFilePaths;
+  // TODO: Create our own wrapper/interface for MbTiles providers
+  // The impl we're using unfortunately requires calling a `close` method explicitly
+  // to clean up provider resources; `close` however, is not defined by the `TileProvider`
+  // interface, preventing us from treating providers generically.
+  private final List<MapBoxOfflineTileProvider> tileProviders = new ArrayList<>();
 
   @Inject
   MapContainerViewModel(
       ProjectRepository projectRepository,
       FeatureRepository featureRepository,
-      LocationManager locationManager) {
+      LocationManager locationManager,
+      OfflineAreaRepository offlineAreaRepository) {
     this.featureRepository = featureRepository;
     this.locationManager = locationManager;
     this.locationLockChangeRequests = PublishSubject.create();
@@ -90,6 +102,11 @@ public class MapContainerViewModel extends AbstractViewModel {
                 .map(Loadable::value)
                 .switchMap(this::getFeaturesStream)
                 .map(MapContainerViewModel::toMapPins));
+    this.mbtilesFilePaths =
+        LiveDataReactiveStreams.fromPublisher(
+            offlineAreaRepository
+                .getDownloadedTilesOnceAndStream()
+                .map(set -> stream(set).map(Tile::getPath).collect(toImmutableSet())));
   }
 
   private Flowable<CameraUpdate> createCameraUpdateFlowable(
@@ -156,6 +173,10 @@ public class MapContainerViewModel extends AbstractViewModel {
 
   public LiveData<ImmutableSet<MapPin>> getMapPins() {
     return mapPins;
+  }
+
+  public LiveData<ImmutableSet<String>> getMbtilesFilePaths() {
+    return mbtilesFilePaths;
   }
 
   LiveData<CameraUpdate> getCameraUpdateRequests() {
@@ -235,5 +256,13 @@ public class MapContainerViewModel extends AbstractViewModel {
         return "Pan";
       }
     }
+  }
+
+  public void queueTileProvider(MapBoxOfflineTileProvider tileProvider) {
+    this.tileProviders.add(tileProvider);
+  }
+
+  public void closeProviders() {
+    stream(tileProviders).forEach(MapBoxOfflineTileProvider::close);
   }
 }

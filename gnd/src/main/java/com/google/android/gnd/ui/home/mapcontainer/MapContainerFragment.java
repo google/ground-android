@@ -103,6 +103,11 @@ public class MapContainerFragment extends AbstractFragment {
         .flatMap(MapAdapter::getCameraMoves)
         .as(disposeOnDestroy(this))
         .subscribe(mapContainerViewModel::onCameraMove);
+    mapAdapter
+        .toObservable()
+        .flatMap(MapAdapter::getTileProviders)
+        .as(disposeOnDestroy(this))
+        .subscribe(mapContainerViewModel::queueTileProvider);
   }
 
   @Override
@@ -149,7 +154,7 @@ public class MapContainerFragment extends AbstractFragment {
     addFeatureBtn.setOnClickListener(
         __ -> homeScreenViewModel.onAddFeatureBtnClick(map.getCameraTarget()));
     enableLocationLockBtn();
-    map.renderTileOverlay();
+    mapContainerViewModel.getMbtilesFilePaths().observe(this, map::addTileOverlays);
   }
 
   private void onBottomSheetStateChange(BottomSheetState state, MapAdapter map) {
@@ -230,5 +235,11 @@ public class MapContainerFragment extends AbstractFragment {
   @Override
   public void onSaveInstanceState(@NonNull Bundle outState) {
     saveChildFragment(outState, mapProvider.getFragment(), MAP_FRAGMENT_KEY);
+  }
+
+  @Override
+  public void onDestroy() {
+    mapContainerViewModel.closeProviders();
+    super.onDestroy();
   }
 }
