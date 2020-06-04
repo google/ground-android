@@ -47,6 +47,8 @@ import com.google.android.gnd.ui.common.EphemeralPopups;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.TwoLineToolbar;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
+import java.util.ArrayList;
+import java.util.List;
 import java8.util.Optional;
 import java8.util.function.Consumer;
 import javax.inject.Inject;
@@ -54,6 +56,8 @@ import timber.log.Timber;
 
 @ActivityScoped
 public class EditObservationFragment extends AbstractFragment implements BackPressListener {
+
+  private final List<AbstractFieldViewModel> fieldViewModels = new ArrayList<>();
 
   @Inject Navigator navigator;
   @Inject FieldViewFactory fieldViewFactory;
@@ -97,6 +101,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
         EditObservationFragBinding.inflate(inflater, container, false);
     binding.setLifecycleOwner(this);
     binding.setViewModel(viewModel);
+    binding.setFragment(this);
     return binding.getRoot();
   }
 
@@ -112,6 +117,25 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
         .observe(getViewLifecycleOwner(), e -> e.ifUnhandled(this::handleSaveResult));
     // Initialize view model.
     viewModel.initialize(EditObservationFragmentArgs.fromBundle(getArguments()));
+  }
+
+  private void fetchResponsesAndErrors() {
+    for (AbstractFieldViewModel fieldViewModel : fieldViewModels) {
+      Field field = fieldViewModel.getField();
+      viewModel.onResponseChanged(field, fieldViewModel.getResponse());
+      viewModel.onErrorChanged(field, fieldViewModel.getError().getValue());
+    }
+  }
+
+  @Override
+  public void onPause() {
+    fetchResponsesAndErrors();
+    super.onPause();
+  }
+
+  public void onSaveClick() {
+    fetchResponsesAndErrors();
+    viewModel.onSaveClick();
   }
 
   private void handleSaveResult(EditObservationViewModel.SaveResult saveResult) {
@@ -133,7 +157,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
     }
   }
 
-  private void addFieldViewModel(Field field, AbstractFieldViewModel fieldViewModel) {
+  private void initFieldViewModel(Field field, AbstractFieldViewModel fieldViewModel) {
     // TODO: Get initial response via parameters.
     fieldViewModel.init(field, viewModel.getSavedOrOriginalResponse(field.getId()));
 
@@ -144,17 +168,17 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
       observeMultipleChoiceClicks((MultipleChoiceFieldViewModel) fieldViewModel);
     }
 
-    fieldViewModel.getResponse().observe(this, r -> viewModel.onResponseChanged(field, r));
-    fieldViewModel.getError().observe(this, e -> viewModel.onErrorChanged(field, e));
+    fieldViewModels.add(fieldViewModel);
   }
 
   private void rebuildForm(Form form) {
     formLayout.removeAllViews();
+    fieldViewModels.clear();
     for (Element element : form.getElements()) {
       if (element.getType() == Type.FIELD) {
         Field field = element.getField();
         ViewDataBinding binding = fieldViewFactory.addFieldView(field.getType(), formLayout);
-        addFieldViewModel(field, getViewModel(binding));
+        initFieldViewModel(field, getViewModel(binding));
       } else {
         throw new IllegalArgumentException(element.getType() + " elements not yet supported");
       }
@@ -168,9 +192,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
             this,
             __ ->
                 onShowDialog(
-                    viewModel.getField(),
-                    viewModel.getResponse().getValue(),
-                    viewModel::setResponse));
+                    viewModel.getField(), viewModel.getResponse(), viewModel::setResponse));
   }
 
   private void onShowDialog(

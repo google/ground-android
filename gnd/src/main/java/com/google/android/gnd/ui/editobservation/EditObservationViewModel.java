@@ -177,9 +177,12 @@ public class EditObservationViewModel extends AbstractViewModel {
     }
   }
 
-  void onErrorChanged(Field field, Optional<String> error) {
-    error.ifPresentOrElse(
-        e -> validationErrors.put(field.getId(), e), () -> validationErrors.remove(field.getId()));
+  void onErrorChanged(Field field, @Nullable Optional<String> error) {
+    if (error != null) {
+      error.ifPresentOrElse(
+          e -> validationErrors.put(field.getId(), e),
+          () -> validationErrors.remove(field.getId()));
+    }
   }
 
   void onResponseChanged(Field field, Optional<Response> newResponse) {

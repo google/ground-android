@@ -31,13 +31,14 @@ import java8.util.Optional;
 /** Defines the state of an inflated {@link Field} and controls its UI. */
 public class AbstractFieldViewModel extends AbstractViewModel {
 
-  /** Current value. */
-  private final LiveData<Optional<Response>> response;
-
-  /** Transcoded text to be displayed for the current {@link AbstractFieldViewModel#response}. */
+  /**
+   * Transcoded text to be displayed for the current {@link AbstractFieldViewModel#responseSubject}.
+   */
   private final LiveData<String> responseText;
 
-  /** Error message to be displayed for the current {@link AbstractFieldViewModel#response}. */
+  /**
+   * Error message to be displayed for the current {@link AbstractFieldViewModel#responseSubject}.
+   */
   private final LiveData<Optional<String>> error;
 
   private final BehaviorProcessor<Optional<Response>> responseSubject = BehaviorProcessor.create();
@@ -54,7 +55,6 @@ public class AbstractFieldViewModel extends AbstractViewModel {
     error =
         LiveDataReactiveStreams.fromPublisher(
             responseSubject.distinctUntilChanged().switchMapSingle(this::getErrorText));
-    response = LiveDataReactiveStreams.fromPublisher(responseSubject.distinctUntilChanged());
   }
 
   // TODO: Add a reference of Field in Response for simplification.
@@ -91,8 +91,8 @@ public class AbstractFieldViewModel extends AbstractViewModel {
     return error;
   }
 
-  LiveData<Optional<Response>> getResponse() {
-    return response;
+  Optional<Response> getResponse() {
+    return responseSubject.getValue();
   }
 
   public void setResponse(Optional<Response> response) {
