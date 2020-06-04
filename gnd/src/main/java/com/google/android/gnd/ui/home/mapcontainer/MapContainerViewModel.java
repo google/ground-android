@@ -64,7 +64,11 @@ public class MapContainerViewModel extends AbstractViewModel {
   private final Subject<Boolean> locationLockChangeRequests;
   private final Subject<CameraUpdate> cameraUpdateSubject;
   private final MutableLiveData<Event<Nil>> showMapTypeSelectorRequests = new MutableLiveData<>();
-  private final LiveData<ImmutableSet<String>> mbtiles;
+  private final LiveData<ImmutableSet<String>> mbtilesFilePaths;
+  // TODO: Create our own wrapper/interface for MbTiles providers
+  // The impl we're using unfortunately requires calling a `close` method explicitly
+  // to clean up provider resources; `close` however, is not defined by the `TileProvider`
+  // interface, preventing us from treating providers generically.
   private final List<MapBoxOfflineTileProvider> tileProviders = new ArrayList<>();
 
   @Inject
@@ -98,7 +102,7 @@ public class MapContainerViewModel extends AbstractViewModel {
                 .map(Loadable::value)
                 .switchMap(this::getFeaturesStream)
                 .map(MapContainerViewModel::toMapPins));
-    this.mbtiles =
+    this.mbtilesFilePaths =
         LiveDataReactiveStreams.fromPublisher(
             offlineAreaRepository
                 .getDownloadedTilesOnceAndStream()
@@ -171,8 +175,8 @@ public class MapContainerViewModel extends AbstractViewModel {
     return mapPins;
   }
 
-  public LiveData<ImmutableSet<String>> getMbtiles() {
-    return mbtiles;
+  public LiveData<ImmutableSet<String>> getMbtilesFilePaths() {
+    return mbtilesFilePaths;
   }
 
   LiveData<CameraUpdate> getCameraUpdateRequests() {
@@ -254,7 +258,7 @@ public class MapContainerViewModel extends AbstractViewModel {
     }
   }
 
-  public void onTileProvider(MapBoxOfflineTileProvider tileProvider) {
+  public void queueTileProvider(MapBoxOfflineTileProvider tileProvider) {
     this.tileProviders.add(tileProvider);
   }
 
