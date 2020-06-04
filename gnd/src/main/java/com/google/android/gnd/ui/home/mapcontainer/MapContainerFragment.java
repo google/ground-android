@@ -154,7 +154,7 @@ public class MapContainerFragment extends AbstractFragment {
     addFeatureBtn.setOnClickListener(
         __ -> homeScreenViewModel.onAddFeatureBtnClick(map.getCameraTarget()));
     enableLocationLockBtn();
-    mapContainerViewModel.getMbtiles().observe(this, map::renderTileOverlays);
+    mapContainerViewModel.getMbtiles().observe(this, map::addTileOverlays);
   }
 
   private void onBottomSheetStateChange(BottomSheetState state, MapAdapter map) {

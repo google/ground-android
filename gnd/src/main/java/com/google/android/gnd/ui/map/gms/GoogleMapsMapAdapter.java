@@ -256,22 +256,25 @@ class GoogleMapsMapAdapter implements MapAdapter {
     return map.getProjection().getVisibleRegion().latLngBounds;
   }
 
+  private void addTileOverlay(String filePath) {
+    File mbtilesFile = new File(context.getFilesDir(), filePath);
+
+    if (!mbtilesFile.exists()) {
+      Timber.i("mbtiles file %s does not exist", mbtilesFile.getAbsolutePath());
+      return;
+    }
+
+    try {
+      MapBoxOfflineTileProvider tileProvider = new MapBoxOfflineTileProvider(mbtilesFile);
+      tileProviders.onNext(tileProvider);
+      map.addTileOverlay(new TileOverlayOptions().tileProvider(tileProvider));
+    } catch (Exception e) {
+      Timber.e(e, "Couldn't initialize tile provider for mbtiles file %s", mbtilesFile);
+    }
+  }
+
   @Override
-  public void renderTileOverlays(ImmutableSet<String> mbtilesFiles) {
-    stream(mbtilesFiles)
-        .forEach(
-            path -> {
-              File mbtiles = new File(context.getFilesDir(), path);
-              if (mbtiles.exists()) {
-                Timber.d("mbtiles file: %s", mbtiles);
-                try {
-                  MapBoxOfflineTileProvider tileProvider = new MapBoxOfflineTileProvider(mbtiles);
-                  tileProviders.onNext(tileProvider);
-                  map.addTileOverlay(new TileOverlayOptions().tileProvider(tileProvider));
-                } catch (Exception e) {
-                  Timber.e(e, "Couldn't initialize tile provider for %s", mbtiles);
-                }
-              }
-            });
+  public void addTileOverlays(ImmutableSet<String> mbtilesFiles) {
+    stream(mbtilesFiles).forEach(this::addTileOverlay);
   }
 }

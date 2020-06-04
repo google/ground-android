@@ -81,7 +81,7 @@ public interface MapAdapter {
   LatLngBounds getViewport();
 
   /** Renders a tile overlay on the map. */
-  void renderTileOverlays(ImmutableSet<String> mbtilesFiles);
+  void addTileOverlays(ImmutableSet<String> mbtilesFiles);
 
   /** Get the stream of TileProviders associated with this map adapter. */
   Observable<MapBoxOfflineTileProvider> getTileProviders();
