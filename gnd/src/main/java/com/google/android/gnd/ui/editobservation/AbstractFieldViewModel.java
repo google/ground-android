@@ -19,6 +19,7 @@ package com.google.android.gnd.ui.editobservation;
 import android.content.res.Resources;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
+import androidx.lifecycle.MutableLiveData;
 import com.google.android.gnd.GndApplication;
 import com.google.android.gnd.R;
 import com.google.android.gnd.model.form.Field;
@@ -38,7 +39,7 @@ public class AbstractFieldViewModel extends AbstractViewModel {
   private final LiveData<String> responseText;
 
   /** Error message to be displayed for the current {@link AbstractFieldViewModel#response}. */
-  private final LiveData<Optional<String>> error;
+  private final MutableLiveData<Optional<String>> error = new MutableLiveData<>();
 
   private final BehaviorProcessor<Optional<Response>> responseSubject = BehaviorProcessor.create();
   private final Resources resources;
@@ -51,9 +52,7 @@ public class AbstractFieldViewModel extends AbstractViewModel {
     responseText =
         LiveDataReactiveStreams.fromPublisher(
             responseSubject.distinctUntilChanged().switchMapSingle(this::getDetailsText));
-    error =
-        LiveDataReactiveStreams.fromPublisher(
-            responseSubject.distinctUntilChanged().switchMapSingle(this::getErrorText));
+
     response = LiveDataReactiveStreams.fromPublisher(responseSubject.distinctUntilChanged());
   }
 
@@ -67,8 +66,11 @@ public class AbstractFieldViewModel extends AbstractViewModel {
     return Single.just(responseOptional.map(response -> response.getDetailsText(field)).orElse(""));
   }
 
-  private Single<Optional<String>> getErrorText(Optional<Response> responseOptional) {
-    return Single.just(validate(field, responseOptional));
+  /** Checks if the current response is valid and updates error value. */
+  public Optional<String> validate() {
+    Optional<String> result = validate(field, responseSubject.getValue());
+    error.postValue(result);
+    return result;
   }
 
   // TODO: Check valid response values
