@@ -83,6 +83,14 @@ public class AbstractFieldViewModel extends AbstractViewModel {
     return field;
   }
 
+  public String fieldLabel() {
+    String label = field.getLabel();
+    if (field.isRequired()) {
+      label += " *";
+    }
+    return label;
+  }
+
   public LiveData<String> getResponseText() {
     return responseText;
   }
