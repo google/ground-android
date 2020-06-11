@@ -79,7 +79,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="20dp"
-        android:text='@{"This area takes up " + viewModel.areaStorageSize + "MB of storage space on your device."}'
+        android:text="@{String.format(@string/offline_area_viewer_storage, viewModel.areaStorageSize)}"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

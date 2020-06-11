@@ -34,7 +34,7 @@ public class OfflineAreaViewerViewModel extends AbstractViewModel {
   private final BehaviorProcessor<OfflineAreaViewerFragmentArgs> argsProcessor;
   private final OfflineAreaRepository offlineAreaRepository;
   private final Context context;
-  public LiveData<Integer> areaStorageSize;
+  public LiveData<Double> areaStorageSize;
   private LiveData<OfflineArea> offlineArea;
 
   @Inject
@@ -55,7 +55,7 @@ public class OfflineAreaViewerViewModel extends AbstractViewModel {
                                 stream(tiles)
                                     .map(this::tileStorageSize)
                                     .reduce((x, y) -> x + y)
-                                    .orElse(0))));
+                                    .orElse(0.0))));
     this.offlineArea =
         LiveDataReactiveStreams.fromPublisher(
             this.argsProcessor.switchMap(
@@ -65,9 +65,9 @@ public class OfflineAreaViewerViewModel extends AbstractViewModel {
                         .toFlowable()));
   }
 
-  private int tileStorageSize(Tile tile) {
+  private double tileStorageSize(Tile tile) {
     File tileFile = new File(context.getFilesDir(), tile.getPath());
-    return (int) tileFile.length() / 1024 * 1024;
+    return (double) tileFile.length() / (1024 * 1024);
   }
 
   public void onRemoveClick() {
