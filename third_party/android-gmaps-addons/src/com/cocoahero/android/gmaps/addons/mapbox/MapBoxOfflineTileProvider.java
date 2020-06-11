@@ -1,5 +1,7 @@
 package com.cocoahero.android.gmaps.addons.mapbox;
 
+import android.database.sqlite.SQLiteDatabaseCorruptException;
+import android.database.sqlite.SQLiteException;
 import android.util.Log;
 import java.io.Closeable;
 import java.io.File;
@@ -14,9 +16,7 @@ import com.google.android.gms.maps.model.TileProvider;
 
 public class MapBoxOfflineTileProvider implements TileProvider, Closeable {
 
-  private final String basepath;
-
-  // ------------------------------------------------------------------------
+    // ------------------------------------------------------------------------
     // Instance Variables
     // ------------------------------------------------------------------------
 
@@ -36,8 +36,11 @@ public class MapBoxOfflineTileProvider implements TileProvider, Closeable {
         this(file.getAbsolutePath());
     }
 
-    public MapBoxOfflineTileProvider(String pathToFiles) {
-        this.basepath = pathToFiles;
+    public MapBoxOfflineTileProvider(String pathToFile) {
+        int flags = SQLiteDatabase.OPEN_READONLY | SQLiteDatabase.NO_LOCALIZED_COLLATORS;
+        this.mDatabase = SQLiteDatabase.openDatabase(pathToFile, null, flags);
+        this.calculateZoomConstraints();
+        this.calculateBounds();
     }
 
     // ------------------------------------------------------------------------
@@ -47,18 +50,6 @@ public class MapBoxOfflineTileProvider implements TileProvider, Closeable {
     @Override
     public Tile getTile(int x, int y, int z) {
         Tile tile = NO_TILE;
-        String pathToFile = this.basepath + "/" + z + "-" + x + "-" + y + ".mbtiles";
-        File file = new File(pathToFile);
-
-        if (!file.exists()) {
-          return tile;
-        }
-
-        int flags = SQLiteDatabase.OPEN_READONLY | SQLiteDatabase.NO_LOCALIZED_COLLATORS;
-        this.mDatabase = SQLiteDatabase.openDatabase(pathToFile, null, flags);
-        this.calculateZoomConstraints();
-        this.calculateBounds();
-
         if (this.isZoomLevelAvailable(z) && this.isDatabaseAvailable()) {
             String[] projection = {
                 "tile_data"
@@ -77,7 +68,6 @@ public class MapBoxOfflineTileProvider implements TileProvider, Closeable {
                 c.close();
             }
         }
-        Log.d("MAPBOX: ", "Rendering tile: " + tile);
         return tile;
     }
 
@@ -166,7 +156,7 @@ public class MapBoxOfflineTileProvider implements TileProvider, Closeable {
             };
 
             Cursor c;
-
+            try {
             c = this.mDatabase.query("metadata", projection, "name = ?", minArgs, null, null, null);
 
             c.moveToFirst();
@@ -182,6 +172,9 @@ public class MapBoxOfflineTileProvider implements TileProvider, Closeable {
                 this.mMaximumZoom = c.getInt(0);
             }
             c.close();
+            } catch (SQLiteDatabaseCorruptException e) {
+              Log.e("MAPBOX: ", "SQLite error: ", e);
+            }
         }
     }
 
@@ -195,6 +188,7 @@ public class MapBoxOfflineTileProvider implements TileProvider, Closeable {
                 "bounds"
             };
 
+            try {
             Cursor c = this.mDatabase.query("metadata", projection, "name = ?", subArgs, null, null, null);
 
             c.moveToFirst();
@@ -212,6 +206,9 @@ public class MapBoxOfflineTileProvider implements TileProvider, Closeable {
                 this.mBounds = new LatLngBounds(sw, ne);
             }
             c.close();
+            } catch (SQLiteDatabaseCorruptException e) {
+              Log.e("MAPBOX: ", "SQLite error: ", e);
+            }
         }
     }
 

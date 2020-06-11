@@ -46,6 +46,10 @@ import com.google.android.gnd.ui.common.EphemeralPopups;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.TwoLineToolbar;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java8.util.Optional;
 import java8.util.function.Consumer;
 import javax.inject.Inject;
@@ -53,6 +57,8 @@ import timber.log.Timber;
 
 @ActivityScoped
 public class EditObservationFragment extends AbstractFragment implements BackPressListener {
+
+  private final List<AbstractFieldViewModel> fieldViewModelList = new ArrayList<>();
 
   @Inject Navigator navigator;
   @Inject FieldViewFactory fieldViewFactory;
@@ -96,6 +102,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
         EditObservationFragBinding.inflate(inflater, container, false);
     binding.setLifecycleOwner(this);
     binding.setViewModel(viewModel);
+    binding.setFragment(this);
     return binding.getRoot();
   }
 
@@ -145,11 +152,26 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
         .getResponse()
         .observe(this, response -> viewModel.onResponseChanged(field, response));
 
-    fieldViewModel.getError().observe(this, error -> viewModel.onErrorChanged(field, error));
+    fieldViewModelList.add(fieldViewModel);
+  }
+
+  public void onSaveClick() {
+    viewModel.onSave(getValidationErrors());
+  }
+
+  private Map<String, String> getValidationErrors() {
+    HashMap<String, String> errors = new HashMap<>();
+    for (AbstractFieldViewModel fieldViewModel : fieldViewModelList) {
+      fieldViewModel
+          .validate()
+          .ifPresent(error -> errors.put(fieldViewModel.getField().getId(), error));
+    }
+    return errors;
   }
 
   private void rebuildForm(Form form) {
     formLayout.removeAllViews();
+    fieldViewModelList.clear();
     for (Element element : form.getElements()) {
       if (element.getType() == Type.FIELD) {
         Field field = element.getField();

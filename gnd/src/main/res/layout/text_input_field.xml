@@ -35,7 +35,7 @@
       style="@style/EditObservation.Field.Text"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:hint="@{viewModel.field.label}">
+      android:hint="@{viewModel.fieldLabel()}">
 
       <com.google.android.material.textfield.TextInputEditText
         android:id="@+id/text_input_edit_text"

@@ -17,6 +17,7 @@
 package com.google.android.gnd.ui.map;
 
 import android.annotation.SuppressLint;
+import com.cocoahero.android.gmaps.addons.mapbox.MapBoxOfflineTileProvider;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gnd.model.feature.Point;
 import com.google.common.collect.ImmutableSet;
@@ -80,5 +81,8 @@ public interface MapAdapter {
   LatLngBounds getViewport();
 
   /** Renders a tile overlay on the map. */
-  void renderTileOverlay();
+  void addTileOverlays(ImmutableSet<String> mbtilesFiles);
+
+  /** Get the stream of TileProviders associated with this map adapter. */
+  Observable<MapBoxOfflineTileProvider> getTileProviders();
 }

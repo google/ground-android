@@ -16,7 +16,7 @@
 
 apply plugin: 'com.android.application'
 apply plugin: 'com.google.firebase.firebase-perf'
-apply plugin: 'io.fabric'
+apply plugin: 'com.google.firebase.crashlytics'
 apply from: '../config/checkstyle/checkstyle.gradle'
 apply from: '../config/lint/lint.gradle'
 apply from: '../config/pmd/pmd.gradle'
@@ -27,7 +27,7 @@ project.ext {
     autoValueVersion = "1.6.3"
     butterKnifeVersion = "10.2.1"
     daggerVersion = "2.27"
-    firebaseCoreVersion = "17.4.1"
+    firebaseCoreVersion = "17.4.3"
     gmsVersion = "17.0.0"
     lifecycleVersion = "2.2.0"
     navigationVersion = "1.0.0"
@@ -136,9 +136,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-perf:19.0.7'
     implementation 'com.github.FrangSierra:RxFirebase:1.5.7'
     implementation 'com.google.firebase:firebase-storage:19.1.1'
-
-    // Crashlytics
-    implementation 'com.crashlytics.sdk.android:crashlytics:2.10.1'
+    implementation 'com.google.firebase:firebase-crashlytics:17.0.1'
 
     // Dagger
     implementation "com.google.dagger:dagger:$project.daggerVersion"

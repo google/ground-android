@@ -41,6 +41,7 @@ import com.google.common.collect.ImmutableSet;
 import io.reactivex.Observable;
 import io.reactivex.subjects.BehaviorSubject;
 import io.reactivex.subjects.PublishSubject;
+import java.io.File;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -59,6 +60,10 @@ class GoogleMapsMapAdapter implements MapAdapter {
   private final PublishSubject<MapPin> markerClickSubject = PublishSubject.create();
   private final PublishSubject<Point> dragInteractionSubject = PublishSubject.create();
   private final BehaviorSubject<Point> cameraMoves = BehaviorSubject.create();
+  // TODO: This is a limitation of the MapBox tile provider we're using;
+  // since one need to call `close` explicitly, we cannot generically expose these as TileProviders;
+  // instead we must retain explicit reference to the concrete type.
+  private final PublishSubject<MapBoxOfflineTileProvider> tileProviders = PublishSubject.create();
 
   /**
    * References to Google Maps SDK Markers present on the map. Used to sync and update markers with
@@ -119,6 +124,11 @@ class GoogleMapsMapAdapter implements MapAdapter {
   @Override
   public Observable<Point> getCameraMoves() {
     return cameraMoves;
+  }
+
+  @Override
+  public Observable<MapBoxOfflineTileProvider> getTileProviders() {
+    return tileProviders;
   }
 
   @Override
@@ -246,11 +256,25 @@ class GoogleMapsMapAdapter implements MapAdapter {
     return map.getProjection().getVisibleRegion().latLngBounds;
   }
 
-  @Override
-  public void renderTileOverlay() {
-    try (MapBoxOfflineTileProvider tileProvider =
-        new MapBoxOfflineTileProvider(context.getFilesDir())) {
-      map.addTileOverlay(new TileOverlayOptions().tileProvider(tileProvider));
+  private void addTileOverlay(String filePath) {
+    File mbtilesFile = new File(context.getFilesDir(), filePath);
+
+    if (!mbtilesFile.exists()) {
+      Timber.i("mbtiles file %s does not exist", mbtilesFile.getAbsolutePath());
+      return;
     }
+
+    try {
+      MapBoxOfflineTileProvider tileProvider = new MapBoxOfflineTileProvider(mbtilesFile);
+      tileProviders.onNext(tileProvider);
+      map.addTileOverlay(new TileOverlayOptions().tileProvider(tileProvider));
+    } catch (Exception e) {
+      Timber.e(e, "Couldn't initialize tile provider for mbtiles file %s", mbtilesFile);
+    }
+  }
+
+  @Override
+  public void addTileOverlays(ImmutableSet<String> mbtilesFiles) {
+    stream(mbtilesFiles).forEach(this::addTileOverlay);
   }
 }

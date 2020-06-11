@@ -25,6 +25,8 @@
       type="com.google.android.gnd.ui.editobservation.PhotoFieldViewModel" />
   </data>
 
+  <!-- add label for the field -->
+
   <LinearLayout
     style="@style/FieldView"
     android:orientation="vertical">
