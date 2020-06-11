@@ -40,6 +40,7 @@ import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.model.form.MultipleChoice.Cardinality;
 import com.google.android.gnd.model.observation.Response;
+import com.google.android.gnd.model.observation.TextResponse;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.BackPressListener;
 import com.google.android.gnd.ui.common.EphemeralPopups;
@@ -140,10 +141,11 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
   }
 
   private void addFieldViewModel(Field field, AbstractFieldViewModel fieldViewModel) {
-    fieldViewModel.init(field, viewModel.getResponse(field.getId()));
+    fieldViewModel.init(field, viewModel.getSavedOrOriginalResponse(field.getId()));
 
     if (fieldViewModel instanceof PhotoFieldViewModel) {
       observeSelectPhotoClicks((PhotoFieldViewModel) fieldViewModel);
+      observePhotoAdded((PhotoFieldViewModel) fieldViewModel);
     } else if (fieldViewModel instanceof MultipleChoiceFieldViewModel) {
       observeMultipleChoiceClicks((MultipleChoiceFieldViewModel) fieldViewModel);
     }
@@ -211,10 +213,23 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
     }
   }
 
-  private void observeSelectPhotoClicks(PhotoFieldViewModel viewModel) {
-    viewModel
+  private void observeSelectPhotoClicks(PhotoFieldViewModel fieldViewModel) {
+    fieldViewModel
         .getShowDialogClicks()
-        .observe(this, __ -> onShowPhotoSelectorDialog(viewModel.getField()));
+        .observe(this, __ -> onShowPhotoSelectorDialog(fieldViewModel.getField()));
+  }
+
+  private void observePhotoAdded(PhotoFieldViewModel fieldViewModel) {
+    viewModel
+        .getPhotoFieldUpdates()
+        .observe(
+            this,
+            map -> {
+              Field field = fieldViewModel.getField();
+              if (map.containsKey(field)) {
+                fieldViewModel.setResponse(TextResponse.fromString(map.get(field)));
+              }
+            });
   }
 
   private void onShowPhotoSelectorDialog(Field field) {
