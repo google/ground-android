@@ -24,10 +24,10 @@ import androidx.multidex.MultiDex;
 import androidx.work.Configuration;
 import androidx.work.WorkManager;
 import com.akaita.java.rxjava2debug.RxJava2Debug;
-import com.crashlytics.android.Crashlytics;
 import com.facebook.stetho.Stetho;
 import com.google.android.gnd.inject.GndWorkerFactory;
 import com.google.android.gnd.rx.RxDebug;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import dagger.android.AndroidInjector;
 import dagger.android.support.DaggerApplication;
 import io.reactivex.plugins.RxJavaPlugins;
@@ -102,10 +102,11 @@ public class GndApplication extends DaggerApplication {
         return;
       }
 
-      Crashlytics.log(priority, tag, message);
+      FirebaseCrashlytics crashlytics = FirebaseCrashlytics.getInstance();
+      crashlytics.log(message);
 
       if (throwable != null && priority == Log.ERROR) {
-        Crashlytics.logException(throwable);
+        crashlytics.recordException(throwable);
       }
     }
   }
