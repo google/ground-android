@@ -53,6 +53,7 @@ import io.reactivex.processors.BehaviorProcessor;
 import io.reactivex.processors.PublishProcessor;
 import java.io.IOException;
 import java.util.Date;
+import java.util.Map;
 import java8.util.Optional;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
@@ -93,7 +94,7 @@ public class EditObservationViewModel extends AbstractViewModel {
   private final ObservableMap<String, Response> responses = new ObservableArrayMap<>();
 
   /** Form validation errors, updated when existing for loaded and when responses change. */
-  private final ObservableMap<String, String> validationErrors = new ObservableArrayMap<>();
+  @Nullable private Map<String, String> validationErrors;
 
   /** Visibility of process widget shown while loading. */
   private final MutableLiveData<Integer> loadingSpinnerVisibility =
@@ -172,11 +173,6 @@ public class EditObservationViewModel extends AbstractViewModel {
     return Optional.ofNullable(responses.get(fieldId));
   }
 
-  void onErrorChanged(Field field, Optional<String> error) {
-    error.ifPresentOrElse(
-        e -> validationErrors.put(field.getId(), e), () -> validationErrors.remove(field.getId()));
-  }
-
   void onResponseChanged(Field field, Optional<Response> newResponse) {
     newResponse.ifPresentOrElse(
         r -> responses.put(field.getId(), r), () -> responses.remove(field.getId()));
@@ -229,7 +225,8 @@ public class EditObservationViewModel extends AbstractViewModel {
     return storageManager.savePhoto(bitmap, localFileName, destinationPath);
   }
 
-  public void onSaveClick() {
+  public void onSave(Map<String, String> validationErrors) {
+    this.validationErrors = validationErrors;
     saveClicks.onNext(Nil.NIL);
   }
 
@@ -362,7 +359,7 @@ public class EditObservationViewModel extends AbstractViewModel {
   }
 
   private boolean hasValidationErrors() {
-    return !validationErrors.isEmpty();
+    return validationErrors != null && !validationErrors.isEmpty();
   }
 
   /** Possible outcomes of user clicking "Save". */

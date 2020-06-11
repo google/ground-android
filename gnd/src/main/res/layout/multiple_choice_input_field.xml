@@ -34,7 +34,7 @@
       style="@style/EditObservation.Field.Text"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:hint="@{viewModel.field.label}">
+      android:hint="@{viewModel.fieldLabel()}">
 
       <!--
         Using deprecated editable="false" as a hack to reuse TextInputEditText styles for multi-
