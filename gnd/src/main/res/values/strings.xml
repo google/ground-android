@@ -151,4 +151,6 @@
   <string name="uploading_data">Uploading data</string>
   <string name="app_running">App is running</string>
   <string name="settings">Settings</string>
+  <string name="offline_area_viewer_title">Offline Area Details</string>
+  <string name="offline_area_viewer_remove_button">Remove</string>
 </resources>

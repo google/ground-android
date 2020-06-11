@@ -17,6 +17,7 @@
 package com.google.android.gnd.repository;
 
 import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList;
+import static com.google.android.gnd.util.ImmutableSetCollector.toImmutableSet;
 import static java8.util.stream.StreamSupport.stream;
 
 import com.google.android.gms.maps.model.LatLngBounds;
@@ -31,8 +32,10 @@ import com.google.android.gnd.persistence.sync.TileDownloadWorkManager;
 import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator;
 import com.google.android.gnd.ui.util.FileUtil;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
+import io.reactivex.Single;
 import java.io.File;
 import java.io.IOException;
 import javax.inject.Inject;
@@ -98,5 +101,36 @@ public class OfflineAreaRepository {
 
   public Flowable<ImmutableList<OfflineArea>> getOfflineAreasOnceAndStream() {
     return localDataStore.getOfflineAreasOnceAndStream();
+  }
+
+  public Single<OfflineArea> getOfflineArea(String offlineAreaId) {
+    return localDataStore.getOfflineAreaById(offlineAreaId);
+  }
+
+  public Flowable<ImmutableSet<Tile>> getIntersectingDownloadedTilesOnceAndStream(
+      OfflineArea offlineArea) {
+    File jsonSource;
+
+    try {
+      jsonSource = fileUtil.getFileFromRawResource(R.raw.gnd_geojson, Config.GEO_JSON);
+    } catch (IOException e) {
+      return Flowable.error(e);
+    }
+
+    ImmutableList<Tile> tiles =
+        geoJsonParser.intersectingTiles(offlineArea.getBounds(), jsonSource);
+
+    return getDownloadedTilesOnceAndStream()
+        .map(ts -> stream(tiles).filter(tiles::contains).collect(toImmutableSet()));
+  }
+
+  public Flowable<ImmutableSet<Tile>> getDownloadedTilesOnceAndStream() {
+    return localDataStore
+        .getTilesOnceAndStream()
+        .map(
+            set ->
+                stream(set)
+                    .filter(tile -> tile.getState() == Tile.State.DOWNLOADED)
+                    .collect(toImmutableSet()));
   }
 }

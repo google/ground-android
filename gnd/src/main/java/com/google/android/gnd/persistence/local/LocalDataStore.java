@@ -147,4 +147,7 @@ public interface LocalDataStore {
 
   /** Returns all queued, failed, and completed offline areas from the local data store. */
   Flowable<ImmutableList<OfflineArea>> getOfflineAreasOnceAndStream();
+
+  /** Returns the offline area with the specified id. */
+  Single<OfflineArea> getOfflineAreaById(String id);
 }
