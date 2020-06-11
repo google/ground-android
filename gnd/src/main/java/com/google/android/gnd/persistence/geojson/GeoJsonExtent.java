@@ -48,10 +48,10 @@ class GeoJsonExtent {
       return ImmutableList.of();
     }
 
-    double south = sw.optDouble(0, 0.0);
-    double west = sw.optDouble(1, 0.0);
-    double north = ne.optDouble(0, 0.0);
-    double east = ne.optDouble(1, 0.0);
+    double south = sw.optDouble(1, 0.0);
+    double west = sw.optDouble(0, 0.0);
+    double north = ne.optDouble(1, 0.0);
+    double east = ne.optDouble(0, 0.0);
 
     return ImmutableList.of(
         new LatLng(south, west),
