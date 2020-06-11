@@ -1,7 +1,7 @@
 package com.google.android.gnd;
 
 import com.google.android.gnd.inject.ActivityScoped;
-import com.google.android.gnd.system.AuthenticationModule;
+import com.google.android.gnd.system.auth.AuthenticationModule;
 import dagger.Module;
 import dagger.android.ContributesAndroidInjector;
 
