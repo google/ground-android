@@ -86,11 +86,11 @@ public class AbstractFieldViewModel extends AbstractViewModel {
   }
 
   public String fieldLabel() {
-    String label = field.getLabel();
+    StringBuilder label = new StringBuilder(field.getLabel());
     if (field.isRequired()) {
-      label += " *";
+      label.append(" *");
     }
-    return label;
+    return label.toString();
   }
 
   public LiveData<String> getResponseText() {

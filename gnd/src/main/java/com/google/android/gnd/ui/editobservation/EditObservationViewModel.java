@@ -94,7 +94,7 @@ public class EditObservationViewModel extends AbstractViewModel {
   private final ObservableMap<String, Response> responses = new ObservableArrayMap<>();
 
   /** Form validation errors, updated when existing for loaded and when responses change. */
-  @Nullable private Map<String, String> validationErrors ;
+  @Nullable private Map<String, String> validationErrors;
 
   /** Visibility of process widget shown while loading. */
   private final MutableLiveData<Integer> loadingSpinnerVisibility =
