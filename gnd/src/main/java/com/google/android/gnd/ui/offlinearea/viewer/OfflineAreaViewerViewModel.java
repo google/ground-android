@@ -18,6 +18,7 @@ package com.google.android.gnd.ui.offlinearea.viewer;
 
 import static java8.util.stream.StreamSupport.stream;
 
+import android.content.Context;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
 import com.google.android.gnd.model.basemap.OfflineArea;
@@ -32,13 +33,15 @@ public class OfflineAreaViewerViewModel extends AbstractViewModel {
 
   private final BehaviorProcessor<OfflineAreaViewerFragmentArgs> argsProcessor;
   private final OfflineAreaRepository offlineAreaRepository;
+  private final Context context;
   public LiveData<Integer> areaStorageSize;
   private LiveData<OfflineArea> offlineArea;
 
   @Inject
-  public OfflineAreaViewerViewModel(OfflineAreaRepository offlineAreaRepository) {
+  public OfflineAreaViewerViewModel(OfflineAreaRepository offlineAreaRepository, Context context) {
     this.argsProcessor = BehaviorProcessor.create();
     this.offlineAreaRepository = offlineAreaRepository;
+    this.context = context;
     this.areaStorageSize =
         LiveDataReactiveStreams.fromPublisher(
             this.argsProcessor.switchMap(
@@ -63,7 +66,7 @@ public class OfflineAreaViewerViewModel extends AbstractViewModel {
   }
 
   private int tileStorageSize(Tile tile) {
-    File tileFile = new File(tile.getPath());
+    File tileFile = new File(context.getFilesDir(), tile.getPath());
     return (int) tileFile.length() / 1024 * 1024;
   }
 
