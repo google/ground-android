@@ -54,7 +54,10 @@ class GeoJsonExtent {
       double lat = point.optDouble(1, 0.0);
       double lng = point.optDouble(0, 0.0);
 
-      coordinates.add(new LatLng(lat, lng));
+      // PMD complains about instantiating objects in loops, but here, we retain a reference to the
+      // object after the loop exits--the PMD recommendation here makes little sense, and is
+      // presumably intended to prevent short-lived allocations.
+      coordinates.add(new LatLng(lat, lng)); // NOPMD
     }
 
     return stream(coordinates).collect(toImmutableList());
