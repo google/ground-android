@@ -16,8 +16,14 @@
 
 package com.google.android.gnd.persistence.geojson;
 
+import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList;
+import static java8.util.stream.StreamSupport.stream;
+
 import com.google.android.gms.maps.model.LatLng;
 import com.google.common.collect.ImmutableList;
+import java.util.ArrayList;
+import java.util.List;
+import java8.util.Optional;
 import javax.annotation.Nullable;
 import org.json.JSONArray;
 
@@ -31,32 +37,26 @@ class GeoJsonExtent {
   }
 
   ImmutableList<LatLng> getVertices() {
-    if (geometry.getVertices().isEmpty()) {
+    Optional<JSONArray> exteriorRing = geometry.getVertices().map(j -> j.optJSONArray(0));
+
+    return ringCoordinatesToLatLngs(exteriorRing.orElse(null));
+  }
+
+  private ImmutableList<LatLng> ringCoordinatesToLatLngs(JSONArray exteriorRing) {
+    if (exteriorRing == null) {
       return ImmutableList.of();
     }
 
-    JSONArray g = geometry.getVertices().map(j -> j.optJSONArray(0)).orElse(null);
+    List<LatLng> coordinates = new ArrayList<>();
 
-    if (g == null) {
-      return ImmutableList.of();
+    for (int i = 0; i < exteriorRing.length(); i++) {
+      JSONArray point = exteriorRing.optJSONArray(i);
+      double lat = point.optDouble(1, 0.0);
+      double lng = point.optDouble(0, 0.0);
+
+      coordinates.add(new LatLng(lat, lng));
     }
 
-    JSONArray sw = g.optJSONArray(0);
-    JSONArray ne = g.optJSONArray(2);
-
-    if (sw == null || ne == null) {
-      return ImmutableList.of();
-    }
-
-    double south = sw.optDouble(1, 0.0);
-    double west = sw.optDouble(0, 0.0);
-    double north = ne.optDouble(1, 0.0);
-    double east = ne.optDouble(0, 0.0);
-
-    return ImmutableList.of(
-        new LatLng(south, west),
-        new LatLng(north, east),
-        new LatLng(south, east),
-        new LatLng(north, west));
+    return stream(coordinates).collect(toImmutableList());
   }
 }
