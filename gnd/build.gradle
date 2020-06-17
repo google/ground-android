@@ -210,8 +210,6 @@ dependencies {
     androidTestImplementation('androidx.test.espresso:espresso-core:3.1.0-alpha4', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
-
-    debugImplementation 'androidx.fragment:fragment-testing:1.2.5'
 }
 
 apply plugin: 'androidx.navigation.safeargs'
