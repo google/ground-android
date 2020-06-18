@@ -45,9 +45,8 @@ public class OfflineAreaViewerFragment extends AbstractFragment {
   private OfflineAreaViewerViewModel viewModel;
   @Nullable private MapAdapter map;
 
-  public static OfflineAreaViewerFragment newInstance() {
-    return new OfflineAreaViewerFragment();
-  }
+  @Inject
+  public OfflineAreaViewerFragment() {}
 
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
