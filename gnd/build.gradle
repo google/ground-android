@@ -20,7 +20,7 @@ apply plugin: 'com.google.firebase.crashlytics'
 apply from: '../config/checkstyle/checkstyle.gradle'
 apply from: '../config/lint/lint.gradle'
 apply from: '../config/pmd/pmd.gradle'
-apply from: '../config/spotbugs/spotbugs.gradle'
+//apply from: '../config/spotbugs/spotbugs.gradle'
 
 project.ext {
     autoDisposeVersion = "1.4.0"
@@ -79,11 +79,9 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
-    dataBinding {
-        enabled = true
-    }
-    viewBinding {
-        enabled = true
+    buildFeatures {
+        dataBinding true
+        viewBinding true
     }
     sourceSets {
         test.manifest.srcFile "src/test/AndroidManifest.xml"

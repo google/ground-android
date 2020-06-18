@@ -26,7 +26,7 @@ buildscript {
     }
     dependencies {
         classpath "android.arch.navigation:navigation-safe-args-gradle-plugin:1.0.0"
-        classpath 'com.android.tools.build:gradle:3.6.3'
+        classpath 'com.android.tools.build:gradle:4.0.0'
         classpath "com.google.gms:google-services:4.3.3"
         classpath "com.pascalwelsch.gitversioner:gitversioner:0.5.0"
 
@@ -43,7 +43,9 @@ buildscript {
 
 plugins {
     id "com.github.ben-manes.versions" version "0.28.0"
-    id 'com.github.spotbugs' version '1.6.4'
+    // Spotbugs has been disabled due to incompatibility with Gradle 6
+    // See history here: https://github.com/google/ground-android/pull/501
+    //id 'com.github.spotbugs' version '4.3.0'
 }
 
 allprojects {
@@ -58,7 +60,7 @@ allprojects {
 }
 
 task checkCode(type: GradleBuild) {
-    tasks = ['checkstyle', 'lintDebug', 'pmd', 'spotbugs', 'dependencyUpdates']
+    tasks = ['checkstyle', 'lintDebug', 'pmd', 'dependencyUpdates']
 }
 
 task clean(type: Delete) {
