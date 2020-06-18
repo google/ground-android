@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.persistence.sync;
 
+import androidx.annotation.NonNull;
 import androidx.work.Constraints;
 import androidx.work.NetworkType;
 import androidx.work.OneTimeWorkRequest;
@@ -45,12 +46,8 @@ public class PhotoSyncWorkManager {
    * network connection is available. The returned {@code Completable} completes immediately as soon
    * as the worker is added to the work queue (not once the sync job completes).
    */
-  public void enqueueSyncWorker(String localFilePath, String remoteDestinationPath) {
-    enqueueSyncWorkerInternal(localFilePath, remoteDestinationPath);
-  }
-
-  private void enqueueSyncWorkerInternal(String localFilePath, String remoteDestinationPath) {
-    OneTimeWorkRequest request = buildWorkerRequest(localFilePath, remoteDestinationPath);
+  public void enqueueSyncWorker(@NonNull String localPath, @NonNull String remotePath) {
+    OneTimeWorkRequest request = buildWorkerRequest(localPath, remotePath);
     getWorkManager().enqueue(request);
   }
 

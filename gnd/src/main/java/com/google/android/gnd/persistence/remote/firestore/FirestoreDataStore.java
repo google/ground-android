@@ -42,9 +42,9 @@ import com.google.firebase.firestore.WriteBatch;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Single;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.List;
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import timber.log.Timber;
@@ -118,6 +118,7 @@ public class FirestoreDataStore implements RemoteDataStore {
       addFeatureMutationToBatch((FeatureMutation) mutation, user, batch);
     } else if (mutation instanceof ObservationMutation) {
       addRecordMutationToBatch((ObservationMutation) mutation, user, batch);
+      uploadMediaMutations(((ObservationMutation) mutation).getResponseDeltas());
     } else {
       throw new DataStoreException("Unsupported mutation " + mutation.getClass());
     }
@@ -139,25 +140,34 @@ public class FirestoreDataStore implements RemoteDataStore {
         .records()
         .record(mutation.getObservationId())
         .addMutationToBatch(mutation, user, batch);
+  }
 
-    // Enqueue photo upload
-    for (ResponseDelta responseDelta : mutation.getResponseDeltas()) {
+  private boolean isPhotoTypeResponse(String response) {
+    // TODO: Add field type in the response deltas as this is fragile.
+    return !response.isEmpty() && response.endsWith(Config.PHOTO_EXT);
+  }
+
+  @Nullable
+  private String getLocalFilePath(String remotePath) {
+    try {
+      return fileUtil.getLocalFileFromDestinationPath(remotePath).getPath();
+    } catch (FileNotFoundException e) {
+      Timber.e("Local file doesn't exist anymore: %s", remotePath);
+      return null;
+    }
+  }
+
+  private void uploadMediaMutations(ImmutableList<ResponseDelta> responseDeltas) {
+    for (ResponseDelta responseDelta : responseDeltas) {
       responseDelta
           .getNewResponse()
-          .filter(response -> !response.isEmpty())
-          .filter(response -> response.toString().endsWith(Config.PHOTO_EXT))
+          .map(Object::toString) // TODO: getter in Response shouldn't require Field object.
+          .filter(this::isPhotoTypeResponse)
           .ifPresent(
-              response -> {
-                try {
-                  File file = fileUtil.getLocalFileFromDestinationPath(response.toString());
-                  if (file.exists()) {
-                    String remotePath = response.toString();
-                    photoSyncWorkManager.enqueueSyncWorker(file.getPath(), remotePath);
-                  } else {
-                    Timber.e("Local file doesn't exist anymore : %s", response.toString());
-                  }
-                } catch (FileNotFoundException e) {
-                  Timber.e(e);
+              remotePath -> {
+                String localFilePath = getLocalFilePath(remotePath);
+                if (localFilePath != null) {
+                  photoSyncWorkManager.enqueueSyncWorker(localFilePath, remotePath);
                 }
               });
     }
