@@ -488,4 +488,13 @@ public class RoomLocalDataStore implements LocalDataStore {
         .map(areas -> stream(areas).map(OfflineAreaEntity::toArea).collect(toImmutableList()))
         .subscribeOn(schedulers.io());
   }
+
+  @Override
+  public Single<OfflineArea> getOfflineAreaById(String id) {
+    return offlineAreaDao
+        .findById(id)
+        .map(OfflineAreaEntity::toArea)
+        .toSingle()
+        .subscribeOn(schedulers.io());
+  }
 }

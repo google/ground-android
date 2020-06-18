@@ -44,6 +44,10 @@ public class OfflineAreasViewModel extends AbstractViewModel {
     navigator.showOfflineAreaSelector();
   }
 
+  public void showOfflineAreaViewer(String offlineAreaId) {
+    navigator.showOfflineAreaViewer(offlineAreaId);
+  }
+
   LiveData<ImmutableList<OfflineArea>> getOfflineAreas() {
     return offlineAreas;
   }
