@@ -38,6 +38,7 @@ import com.google.android.gnd.model.observation.ObservationMutation;
 import com.google.android.gnd.model.observation.Response;
 import com.google.android.gnd.model.observation.ResponseDelta;
 import com.google.android.gnd.model.observation.ResponseMap;
+import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator;
 import com.google.android.gnd.repository.ObservationRepository;
 import com.google.android.gnd.rx.Event;
 import com.google.android.gnd.rx.Nil;
@@ -51,7 +52,6 @@ import io.reactivex.Completable;
 import io.reactivex.Single;
 import io.reactivex.processors.BehaviorProcessor;
 import io.reactivex.processors.PublishProcessor;
-import java.io.IOException;
 import java.util.Date;
 import java.util.Map;
 import java8.util.Optional;
@@ -72,6 +72,7 @@ public class EditObservationViewModel extends AbstractViewModel {
   private final Resources resources;
   private final StorageManager storageManager;
   private final CameraManager cameraManager;
+  private final OfflineUuidGenerator uuidGenerator;
 
   // Input events.
 
@@ -127,12 +128,14 @@ public class EditObservationViewModel extends AbstractViewModel {
       ObservationRepository observationRepository,
       AuthenticationManager authenticationManager,
       StorageManager storageManager,
-      CameraManager cameraManager) {
+      CameraManager cameraManager,
+      OfflineUuidGenerator uuidGenerator) {
     this.resources = application.getResources();
     this.observationRepository = observationRepository;
     this.authManager = authenticationManager;
     this.storageManager = storageManager;
     this.cameraManager = cameraManager;
+    this.uuidGenerator = uuidGenerator;
     this.form = fromPublisher(viewArgs.switchMapSingle(this::onInitialize));
     this.saveResults = fromPublisher(saveClicks.switchMapSingle(__ -> onSave()));
   }
@@ -219,15 +222,15 @@ public class EditObservationViewModel extends AbstractViewModel {
         .flatMapCompletable(bitmap -> saveBitmapAndUpdateResponse(bitmap, field));
   }
 
-  private Completable saveBitmapAndUpdateResponse(Bitmap bitmap, Field field) throws IOException {
-    String localFileName = field.getId() + Config.PHOTO_EXT;
-    String destinationPath =
+  private Completable saveBitmapAndUpdateResponse(Bitmap bitmap, Field field) {
+    String localFileName = uuidGenerator.generateUuid() + Config.PHOTO_EXT;
+    String remoteDestinationPath =
         getRemoteDestinationPath(
             args.getProjectId(), args.getFormId(), args.getFeatureId(), localFileName);
 
-    photoUpdates.postValue(ImmutableMap.of(field, destinationPath));
+    photoUpdates.postValue(ImmutableMap.of(field, remoteDestinationPath));
 
-    return storageManager.savePhoto(bitmap, localFileName, destinationPath);
+    return storageManager.savePhoto(bitmap, localFileName);
   }
 
   LiveData<ImmutableMap<Field, String>> getPhotoFieldUpdates() {
@@ -256,7 +259,6 @@ public class EditObservationViewModel extends AbstractViewModel {
 
   private void onObservationLoaded(Observation observation) {
     this.originalObservation = observation;
-    validationErrors.clear();
     responses.clear();
     saveButtonVisibility.postValue(View.VISIBLE);
     loadingSpinnerVisibility.postValue(View.GONE);
