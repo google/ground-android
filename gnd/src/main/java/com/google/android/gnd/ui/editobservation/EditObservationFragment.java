@@ -25,6 +25,8 @@ import android.widget.LinearLayout;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.databinding.ViewDataBinding;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
 import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.R;
@@ -242,6 +244,26 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
     bottomSheetDialog.setContentView(addPhotoBottomSheetBinding.getRoot());
     bottomSheetDialog.setCancelable(true);
     bottomSheetDialog.show();
+
+    AddPhotoDialogAdapter.ItemClickListener listener =
+        type -> {
+          bottomSheetDialog.dismiss();
+          switch (type) {
+            case AddPhotoDialogAdapter.CAMERA:
+              viewModel.showPhotoCapture(field);
+              break;
+            case AddPhotoDialogAdapter.STORAGE:
+              viewModel.showPhotoSelector(field);
+              break;
+            default:
+              throw new IllegalArgumentException("Unknown type: " + type);
+          }
+        };
+
+    RecyclerView recyclerView = addPhotoBottomSheetBinding.recyclerView;
+    recyclerView.setHasFixedSize(true);
+    recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+    recyclerView.setAdapter(new AddPhotoDialogAdapter(listener));
   }
 
   @Override
