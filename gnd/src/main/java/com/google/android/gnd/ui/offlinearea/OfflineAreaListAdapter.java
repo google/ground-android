@@ -17,27 +17,50 @@
 package com.google.android.gnd.ui.offlinearea;
 
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.gnd.databinding.OfflineAreasListItemBinding;
 import com.google.android.gnd.model.basemap.OfflineArea;
+import com.google.android.gnd.ui.common.Navigator;
 import com.google.common.collect.ImmutableList;
 
 class OfflineAreaListAdapter extends RecyclerView.Adapter<OfflineAreaListAdapter.ViewHolder> {
+
+  private final Navigator navigator;
   private ImmutableList<OfflineArea> offlineAreas;
 
-  public static class ViewHolder extends RecyclerView.ViewHolder {
-    public OfflineAreasListItemBinding binding;
+  public static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-    ViewHolder(OfflineAreasListItemBinding binding) {
+    public OfflineAreasListItemBinding binding;
+    public int position;
+    private ImmutableList<OfflineArea> areas;
+    private final Navigator navigator;
+
+    ViewHolder(
+        OfflineAreasListItemBinding binding,
+        ImmutableList<OfflineArea> areas,
+        Navigator navigator) {
       super(binding.getRoot());
       this.binding = binding;
+      this.areas = areas;
+      this.navigator = navigator;
+      binding.offlineAreaName.setOnClickListener(this);
+    }
+
+    @Override
+    public void onClick(View v) {
+      if (areas.size() > 0) {
+        String id = areas.get(position).getId();
+        navigator.showOfflineAreaViewer(id);
+      }
     }
   }
 
-  OfflineAreaListAdapter() {
+  OfflineAreaListAdapter(Navigator navigator) {
     offlineAreas = ImmutableList.of();
+    this.navigator = navigator;
   }
 
   @NonNull
@@ -48,12 +71,13 @@ class OfflineAreaListAdapter extends RecyclerView.Adapter<OfflineAreaListAdapter
         OfflineAreasListItemBinding.inflate(
             LayoutInflater.from(parent.getContext()), parent, false);
 
-    return new ViewHolder(offlineAreasListItemBinding);
+    return new ViewHolder(offlineAreasListItemBinding, offlineAreas, navigator);
   }
 
   @Override
   public void onBindViewHolder(ViewHolder viewHolder, int position) {
     viewHolder.binding.offlineAreaName.setText(offlineAreas.get(position).getId());
+    viewHolder.position = position;
   }
 
   @Override
