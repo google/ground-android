@@ -25,6 +25,7 @@ import com.google.android.gnd.model.basemap.OfflineArea;
 import com.google.android.gnd.model.basemap.tile.Tile;
 import com.google.android.gnd.repository.OfflineAreaRepository;
 import com.google.android.gnd.ui.common.AbstractViewModel;
+import com.google.common.collect.ImmutableSet;
 import io.reactivex.processors.BehaviorProcessor;
 import java.io.File;
 import javax.inject.Inject;
@@ -50,12 +51,7 @@ public class OfflineAreaViewerViewModel extends AbstractViewModel {
                         .getOfflineArea(args.getOfflineAreaId())
                         .toFlowable()
                         .flatMap(offlineAreaRepository::getIntersectingDownloadedTilesOnceAndStream)
-                        .map(
-                            tiles ->
-                                stream(tiles)
-                                    .map(this::tileStorageSize)
-                                    .reduce((x, y) -> x + y)
-                                    .orElse(0.0))));
+                        .map(this::tilesToTotalStorageSize)));
     this.offlineArea =
         LiveDataReactiveStreams.fromPublisher(
             this.argsProcessor.switchMap(
@@ -63,6 +59,10 @@ public class OfflineAreaViewerViewModel extends AbstractViewModel {
                     this.offlineAreaRepository
                         .getOfflineArea(args.getOfflineAreaId())
                         .toFlowable()));
+  }
+
+  private Double tilesToTotalStorageSize(ImmutableSet<Tile> tiles) {
+    return stream(tiles).map(this::tileStorageSize).reduce((x, y) -> x + y).orElse(0.0);
   }
 
   private double tileStorageSize(Tile tile) {
