@@ -99,7 +99,7 @@
   <fragment
     android:id="@+id/offline_area_viewer_fragment"
     android:name="com.google.android.gnd.ui.offlinearea.viewer.OfflineAreaViewerFragment"
-    android:label="Offline Area Viewer"
+    android:label="@string/offline_area_viewer_navgraph_label"
     tools:layout="@layout/offline_area_viewer_frag">
     <argument
       android:name="offlineAreaId"
