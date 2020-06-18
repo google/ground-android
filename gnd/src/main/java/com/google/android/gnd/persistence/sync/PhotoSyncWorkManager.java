@@ -20,7 +20,6 @@ import androidx.work.Constraints;
 import androidx.work.NetworkType;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkManager;
-import io.reactivex.Completable;
 import javax.inject.Inject;
 import javax.inject.Provider;
 
@@ -46,9 +45,8 @@ public class PhotoSyncWorkManager {
    * network connection is available. The returned {@code Completable} completes immediately as soon
    * as the worker is added to the work queue (not once the sync job completes).
    */
-  public Completable enqueueSyncWorker(String localFilePath, String remoteDestinationPath) {
-    return Completable.fromRunnable(
-        () -> enqueueSyncWorkerInternal(localFilePath, remoteDestinationPath));
+  public void enqueueSyncWorker(String localFilePath, String remoteDestinationPath) {
+    enqueueSyncWorkerInternal(localFilePath, remoteDestinationPath);
   }
 
   private void enqueueSyncWorkerInternal(String localFilePath, String remoteDestinationPath) {

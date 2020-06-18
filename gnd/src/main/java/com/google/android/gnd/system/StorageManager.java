@@ -109,19 +109,13 @@ public class StorageManager {
         });
   }
 
-  /**
-   * Returns the path of the file saved in the sdcard used for uploading to the provided destination
-   * path.
-   */
-  private File getLocalFileFromDestinationPath(String destinationPath)
-      throws FileNotFoundException {
-    String[] splits = destinationPath.split("/");
-    return fileUtil.getFile(splits[splits.length - 1]);
-  }
-
-  private Uri getFileUriFromDestinationPath(String destinationPath) throws FileNotFoundException {
-    File file = getLocalFileFromDestinationPath(destinationPath);
-    return Uri.fromFile(file);
+  private Uri getFileUriFromDestinationPath(String destinationPath) {
+    try {
+      return Uri.fromFile(fileUtil.getLocalFileFromDestinationPath(destinationPath));
+    } catch (FileNotFoundException e) {
+      Timber.e(e);
+      return Uri.EMPTY;
+    }
   }
 
   /**

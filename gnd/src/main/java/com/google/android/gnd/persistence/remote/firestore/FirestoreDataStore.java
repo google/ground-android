@@ -16,8 +16,8 @@
 
 package com.google.android.gnd.persistence.remote.firestore;
 
-import android.util.Log;
 import com.google.android.gms.tasks.Task;
+import com.google.android.gnd.Config;
 import com.google.android.gnd.model.Mutation;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.User;
@@ -25,33 +25,39 @@ import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.FeatureMutation;
 import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.model.observation.ObservationMutation;
+import com.google.android.gnd.model.observation.ResponseDelta;
 import com.google.android.gnd.persistence.remote.DataStoreException;
 import com.google.android.gnd.persistence.remote.NotFoundException;
 import com.google.android.gnd.persistence.remote.RemoteDataEvent;
 import com.google.android.gnd.persistence.remote.RemoteDataStore;
 import com.google.android.gnd.persistence.remote.firestore.schema.GroundFirestore;
+import com.google.android.gnd.persistence.sync.PhotoSyncWorkManager;
 import com.google.android.gnd.rx.RxTask;
 import com.google.android.gnd.rx.Schedulers;
 import com.google.android.gnd.rx.ValueOrError;
+import com.google.android.gnd.ui.util.FileUtil;
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
 import com.google.firebase.firestore.WriteBatch;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Single;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import timber.log.Timber;
 
 @Singleton
 public class FirestoreDataStore implements RemoteDataStore {
-
-  private static final String TAG = FirestoreDataStore.class.getSimpleName();
 
   static final String ID_COLLECTION = "/ids";
 
   @Inject GroundFirestore db;
   @Inject Schedulers schedulers;
+  @Inject PhotoSyncWorkManager photoSyncWorkManager;
+  @Inject FileUtil fileUtil;
 
   @Inject
   FirestoreDataStore() {}
@@ -100,7 +106,7 @@ public class FirestoreDataStore implements RemoteDataStore {
       try {
         addMutationToBatch(mutation, user, batch);
       } catch (DataStoreException e) {
-        Log.w(TAG, "Skipping invalid mutation", e);
+        Timber.e(e, "Skipping invalid mutation");
       }
     }
     return batch.commit();
@@ -133,5 +139,27 @@ public class FirestoreDataStore implements RemoteDataStore {
         .records()
         .record(mutation.getObservationId())
         .addMutationToBatch(mutation, user, batch);
+
+    // Enqueue photo upload
+    for (ResponseDelta responseDelta : mutation.getResponseDeltas()) {
+      responseDelta
+          .getNewResponse()
+          .filter(response -> !response.isEmpty())
+          .filter(response -> response.toString().endsWith(Config.PHOTO_EXT))
+          .ifPresent(
+              response -> {
+                try {
+                  File file = fileUtil.getLocalFileFromDestinationPath(response.toString());
+                  if (file.exists()) {
+                    String remotePath = response.toString();
+                    photoSyncWorkManager.enqueueSyncWorker(file.getPath(), remotePath);
+                  } else {
+                    Timber.e("Local file doesn't exist anymore : %s", response.toString());
+                  }
+                } catch (FileNotFoundException e) {
+                  Timber.e(e);
+                }
+              });
+    }
   }
 }
