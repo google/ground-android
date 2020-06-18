@@ -30,7 +30,7 @@ public class AddPhotoDialogAdapter extends RecyclerView.Adapter<AddPhotoDialogAd
   public static final int CAMERA = 1;
   public static final int STORAGE = 2;
 
-  private static final int[][] ADD_PHOTO_LISt = {
+  private static final int[][] ADD_PHOTO_LIST = {
     {R.string.action_camera, R.drawable.ic_photo_camera, CAMERA},
     {R.string.action_storage, R.drawable.ic_sd_storage, STORAGE}
   };
@@ -51,14 +51,14 @@ public class AddPhotoDialogAdapter extends RecyclerView.Adapter<AddPhotoDialogAd
 
   @Override
   public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-    holder.binding.textView.setText(ADD_PHOTO_LISt[position][0]);
-    holder.binding.imageView.setImageResource(ADD_PHOTO_LISt[position][1]);
-    holder.type = ADD_PHOTO_LISt[position][2];
+    holder.binding.textView.setText(ADD_PHOTO_LIST[position][0]);
+    holder.binding.imageView.setImageResource(ADD_PHOTO_LIST[position][1]);
+    holder.type = ADD_PHOTO_LIST[position][2];
   }
 
   @Override
   public int getItemCount() {
-    return ADD_PHOTO_LISt.length;
+    return ADD_PHOTO_LIST.length;
   }
 
   public interface ItemClickListener {
