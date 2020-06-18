@@ -114,7 +114,6 @@ public class EditObservationViewModel extends AbstractViewModel {
   /** Outcome of user clicking "Save". */
   private final LiveData<Event<SaveResult>> saveResults;
 
-  private EditObservationFragmentArgs args;
   /** Observation state loaded when view is initialized. */
   @Nullable private Observation originalObservation;
 
@@ -169,7 +168,6 @@ public class EditObservationViewModel extends AbstractViewModel {
   }
 
   void initialize(EditObservationFragmentArgs args) {
-    this.args = args;
     viewArgs.onNext(args);
   }
 
@@ -226,7 +224,10 @@ public class EditObservationViewModel extends AbstractViewModel {
     String localFileName = uuidGenerator.generateUuid() + Config.PHOTO_EXT;
     String remoteDestinationPath =
         getRemoteDestinationPath(
-            args.getProjectId(), args.getFormId(), args.getFeatureId(), localFileName);
+            originalObservation.getProject().getId(),
+            originalObservation.getForm().getId(),
+            originalObservation.getFeature().getId(),
+            localFileName);
 
     photoUpdates.postValue(ImmutableMap.of(field, remoteDestinationPath));
 
