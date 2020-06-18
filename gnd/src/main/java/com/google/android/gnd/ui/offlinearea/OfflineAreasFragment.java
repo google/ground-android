@@ -30,6 +30,8 @@ import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.OfflineAreasFragBinding;
 import com.google.android.gnd.inject.ActivityScoped;
 import com.google.android.gnd.ui.common.AbstractFragment;
+import com.google.android.gnd.ui.common.Navigator;
+import javax.inject.Inject;
 
 /**
  * Fragment containing a list of downloaded areas on the device. An area is a set of offline raster
@@ -38,6 +40,7 @@ import com.google.android.gnd.ui.common.AbstractFragment;
  */
 @ActivityScoped
 public class OfflineAreasFragment extends AbstractFragment {
+  @Inject Navigator navigator;
 
   // TODO: Remove. Right now removing this results in runtime crashes. Not precisely sure why.
   // It stems from AbstractFragment and its use of ButterKnife.
@@ -63,7 +66,7 @@ public class OfflineAreasFragment extends AbstractFragment {
 
     ((MainActivity) getActivity()).setActionBar(binding.offlineAreasToolbar, true);
 
-    OfflineAreaListAdapter offlineAreaListAdapter = new OfflineAreaListAdapter();
+    OfflineAreaListAdapter offlineAreaListAdapter = new OfflineAreaListAdapter(navigator);
     RecyclerView recyclerView = binding.offlineAreasList;
     recyclerView.setHasFixedSize(true);
     recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));

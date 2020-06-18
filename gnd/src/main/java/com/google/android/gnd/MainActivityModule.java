@@ -36,6 +36,8 @@ import com.google.android.gnd.ui.offlinearea.OfflineAreasFragment;
 import com.google.android.gnd.ui.offlinearea.OfflineAreasModule;
 import com.google.android.gnd.ui.offlinearea.selector.OfflineAreaSelectorFragment;
 import com.google.android.gnd.ui.offlinearea.selector.OfflineAreaSelectorModule;
+import com.google.android.gnd.ui.offlinearea.viewer.OfflineAreaViewerFragment;
+import com.google.android.gnd.ui.offlinearea.viewer.OfflineAreaViewerModule;
 import com.google.android.gnd.ui.projectselector.ProjectSelectorDialogFragment;
 import com.google.android.gnd.ui.signin.SignInFragment;
 import com.google.android.gnd.ui.signin.SignInModule;
@@ -103,4 +105,8 @@ public abstract class MainActivityModule {
   @FragmentScoped
   @ContributesAndroidInjector(modules = OfflineAreasModule.class)
   abstract OfflineAreasFragment offlineAreasFragmentInjector();
+
+  @FragmentScoped
+  @ContributesAndroidInjector(modules = OfflineAreaViewerModule.class)
+  abstract OfflineAreaViewerFragment offlineAreaViewerFragmentInjector();
 }

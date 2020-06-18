@@ -138,4 +138,8 @@ public class Navigator {
   public void showSettings() {
     navigate(HomeScreenFragmentDirections.actionHomeScreenFragmentToSettingsActivity());
   }
+
+  public void showOfflineAreaViewer(String offlineAreaId) {
+    navigate(OfflineAreasFragmentDirections.viewOfflineArea(offlineAreaId));
+  }
 }
