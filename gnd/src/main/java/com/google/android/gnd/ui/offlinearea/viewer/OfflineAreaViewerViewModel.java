@@ -28,13 +28,14 @@ import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.common.collect.ImmutableSet;
 import io.reactivex.processors.BehaviorProcessor;
 import java.io.File;
+import java.lang.ref.WeakReference;
 import javax.inject.Inject;
 
 public class OfflineAreaViewerViewModel extends AbstractViewModel {
 
   private final BehaviorProcessor<OfflineAreaViewerFragmentArgs> argsProcessor;
   private final OfflineAreaRepository offlineAreaRepository;
-  private final Context context;
+  private final WeakReference<Context> context;
   public LiveData<Double> areaStorageSize;
   private LiveData<OfflineArea> offlineArea;
 
@@ -42,7 +43,7 @@ public class OfflineAreaViewerViewModel extends AbstractViewModel {
   public OfflineAreaViewerViewModel(OfflineAreaRepository offlineAreaRepository, Context context) {
     this.argsProcessor = BehaviorProcessor.create();
     this.offlineAreaRepository = offlineAreaRepository;
-    this.context = context;
+    this.context = new WeakReference<>(context);
     this.areaStorageSize =
         LiveDataReactiveStreams.fromPublisher(
             this.argsProcessor.switchMap(
@@ -66,7 +67,11 @@ public class OfflineAreaViewerViewModel extends AbstractViewModel {
   }
 
   private double tileStorageSize(Tile tile) {
-    File tileFile = new File(context.getFilesDir(), tile.getPath());
+    if (context == null) {
+      return 0.0;
+    }
+
+    File tileFile = new File(context.get().getFilesDir(), tile.getPath());
     return (double) tileFile.length() / (1024 * 1024);
   }
 
