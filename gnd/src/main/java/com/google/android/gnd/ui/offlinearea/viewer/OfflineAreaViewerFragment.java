@@ -36,6 +36,10 @@ import com.google.android.gnd.ui.map.MapProvider;
 import io.reactivex.Single;
 import javax.inject.Inject;
 
+/**
+ * The OfflineAreaViewerFragment provides a UI for managing a single offline area on the user's
+ * device.
+ * */
 public class OfflineAreaViewerFragment extends AbstractFragment {
 
   private static final String MAP_FRAGMENT = MapProvider.class.getName() + "#fragment";
@@ -96,6 +100,9 @@ public class OfflineAreaViewerFragment extends AbstractFragment {
     map.moveCamera(point);
   }
 
+  /**
+   * Removes the area associated with this fragment from the user's device.
+   * */
   @OnClick(R.id.remove_button)
   public void onRemoveClick() {
     if (map == null) {
