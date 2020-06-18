@@ -32,9 +32,9 @@ import java.lang.ref.WeakReference;
 import javax.inject.Inject;
 
 /**
- * View model for the OfflineAreaViewerFragment. Manges offline area deletions and calculates
- * the storage size of an area on the user's device.
- * */
+ * View model for the OfflineAreaViewerFragment. Manges offline area deletions and calculates the
+ * storage size of an area on the user's device.
+ */
 public class OfflineAreaViewerViewModel extends AbstractViewModel {
 
   private final BehaviorProcessor<OfflineAreaViewerFragmentArgs> argsProcessor;
@@ -71,32 +71,29 @@ public class OfflineAreaViewerViewModel extends AbstractViewModel {
   }
 
   private double tileStorageSize(Tile tile) {
-    if (context == null) {
+    Context context1 = context.get();
+    if (context1 == null) {
       return 0.0;
+    } else {
+      File tileFile = new File(context1.getFilesDir(), tile.getPath());
+      return (double) tileFile.length() / (1024 * 1024);
     }
-
-    File tileFile = new File(context.get().getFilesDir(), tile.getPath());
-    return (double) tileFile.length() / (1024 * 1024);
   }
 
   /**
    * Removes the offline area associated with this viewmodel from the device by removing all tile
    * sources that are not included in other areas and removing the area from the db.
-   * */
+   */
   public void onRemoveClick() {
     // TODO: Delete the area.
   }
 
-  /**
-   * Returns the offline area associated with this view model.
-   * */
+  /** Returns the offline area associated with this view model. */
   public LiveData<OfflineArea> getOfflineArea() {
     return offlineArea;
   }
 
-  /**
-   * Gets a single offline area by the id passed to the OfflineAreaViewerFragment's arguments.
-   * */
+  /** Gets a single offline area by the id passed to the OfflineAreaViewerFragment's arguments. */
   public void loadOfflineArea(OfflineAreaViewerFragmentArgs args) {
     this.argsProcessor.onNext(args);
   }
