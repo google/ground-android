@@ -16,6 +16,9 @@
 
 package com.google.android.gnd.ui.editobservation;
 
+import static com.google.android.gnd.ui.editobservation.AddPhotoDialogAdapter.PhotoStorageResource.PHOTO_SOURCE_CAMERA;
+import static com.google.android.gnd.ui.editobservation.AddPhotoDialogAdapter.PhotoStorageResource.PHOTO_SOURCE_STORAGE;
+
 import android.app.AlertDialog;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -249,10 +252,10 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
         type -> {
           bottomSheetDialog.dismiss();
           switch (type) {
-            case AddPhotoDialogAdapter.CAMERA:
+            case PHOTO_SOURCE_CAMERA:
               viewModel.showPhotoCapture(field);
               break;
-            case AddPhotoDialogAdapter.STORAGE:
+            case PHOTO_SOURCE_STORAGE:
               viewModel.showPhotoSelector(field);
               break;
             default:

@@ -20,25 +20,35 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
+import androidx.annotation.StringRes;
 import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.AddPhotoListItemBinding;
+import com.google.common.collect.ImmutableList;
 
 public class AddPhotoDialogAdapter extends RecyclerView.Adapter<AddPhotoDialogAdapter.ViewHolder> {
 
-  public static final int CAMERA = 1;
-  public static final int STORAGE = 2;
-
-  private static final int[][] ADD_PHOTO_LIST = {
-    {R.string.action_camera, R.drawable.ic_photo_camera, CAMERA},
-    {R.string.action_storage, R.drawable.ic_sd_storage, STORAGE}
-  };
+  private static final ImmutableList<PhotoStorageResource> PHOTO_STORAGE_RESOURCES =
+      ImmutableList.of(
+          new PhotoStorageResource(
+              R.string.action_camera,
+              R.drawable.ic_photo_camera,
+              PhotoStorageResource.PHOTO_SOURCE_CAMERA),
+          new PhotoStorageResource(
+              R.string.action_storage,
+              R.drawable.ic_sd_storage,
+              PhotoStorageResource.PHOTO_SOURCE_STORAGE));
 
   private ItemClickListener listener;
 
   public AddPhotoDialogAdapter(ItemClickListener listener) {
     this.listener = listener;
+  }
+
+  public static ImmutableList<PhotoStorageResource> getPhotoStorageResources() {
+    return PHOTO_STORAGE_RESOURCES;
   }
 
   @NonNull
@@ -51,14 +61,15 @@ public class AddPhotoDialogAdapter extends RecyclerView.Adapter<AddPhotoDialogAd
 
   @Override
   public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-    holder.binding.textView.setText(ADD_PHOTO_LIST[position][0]);
-    holder.binding.imageView.setImageResource(ADD_PHOTO_LIST[position][1]);
-    holder.type = ADD_PHOTO_LIST[position][2];
+    PhotoStorageResource storageResource = getPhotoStorageResources().get(position);
+    holder.binding.textView.setText(storageResource.getTitleResId());
+    holder.binding.imageView.setImageResource(storageResource.getIconResId());
+    holder.type = storageResource.getSourceType();
   }
 
   @Override
   public int getItemCount() {
-    return ADD_PHOTO_LIST.length;
+    return getPhotoStorageResources().size();
   }
 
   public interface ItemClickListener {
@@ -81,6 +92,35 @@ public class AddPhotoDialogAdapter extends RecyclerView.Adapter<AddPhotoDialogAd
     @Override
     public void onClick(View view) {
       listener.onClick(type);
+    }
+  }
+
+  public static class PhotoStorageResource {
+
+    public static final int PHOTO_SOURCE_CAMERA = 1;
+    public static final int PHOTO_SOURCE_STORAGE = 2;
+
+    private final int titleResId;
+    private final int iconResId;
+    private final int sourceType;
+
+    public PhotoStorageResource(
+        @StringRes int titleResId, @DrawableRes int iconResId, int sourceType) {
+      this.titleResId = titleResId;
+      this.iconResId = iconResId;
+      this.sourceType = sourceType;
+    }
+
+    public int getIconResId() {
+      return iconResId;
+    }
+
+    public int getSourceType() {
+      return sourceType;
+    }
+
+    public int getTitleResId() {
+      return titleResId;
     }
   }
 }
