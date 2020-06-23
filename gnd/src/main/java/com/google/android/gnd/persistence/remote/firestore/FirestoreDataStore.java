@@ -16,8 +16,8 @@
 
 package com.google.android.gnd.persistence.remote.firestore;
 
-import android.util.Log;
 import com.google.android.gms.tasks.Task;
+import com.google.android.gnd.Config;
 import com.google.android.gnd.model.Mutation;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.User;
@@ -25,33 +25,39 @@ import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.FeatureMutation;
 import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.model.observation.ObservationMutation;
+import com.google.android.gnd.model.observation.ResponseDelta;
 import com.google.android.gnd.persistence.remote.DataStoreException;
 import com.google.android.gnd.persistence.remote.NotFoundException;
 import com.google.android.gnd.persistence.remote.RemoteDataEvent;
 import com.google.android.gnd.persistence.remote.RemoteDataStore;
 import com.google.android.gnd.persistence.remote.firestore.schema.GroundFirestore;
+import com.google.android.gnd.persistence.sync.PhotoSyncWorkManager;
 import com.google.android.gnd.rx.RxTask;
 import com.google.android.gnd.rx.Schedulers;
 import com.google.android.gnd.rx.ValueOrError;
+import com.google.android.gnd.ui.util.FileUtil;
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
 import com.google.firebase.firestore.WriteBatch;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Single;
+import java.io.FileNotFoundException;
 import java.util.List;
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import timber.log.Timber;
 
 @Singleton
 public class FirestoreDataStore implements RemoteDataStore {
-
-  private static final String TAG = FirestoreDataStore.class.getSimpleName();
 
   static final String ID_COLLECTION = "/ids";
 
   @Inject GroundFirestore db;
   @Inject Schedulers schedulers;
+  @Inject PhotoSyncWorkManager photoSyncWorkManager;
+  @Inject FileUtil fileUtil;
 
   @Inject
   FirestoreDataStore() {}
@@ -100,7 +106,7 @@ public class FirestoreDataStore implements RemoteDataStore {
       try {
         addMutationToBatch(mutation, user, batch);
       } catch (DataStoreException e) {
-        Log.w(TAG, "Skipping invalid mutation", e);
+        Timber.e(e, "Skipping invalid mutation");
       }
     }
     return batch.commit();
@@ -112,6 +118,7 @@ public class FirestoreDataStore implements RemoteDataStore {
       addFeatureMutationToBatch((FeatureMutation) mutation, user, batch);
     } else if (mutation instanceof ObservationMutation) {
       addRecordMutationToBatch((ObservationMutation) mutation, user, batch);
+      uploadMediaMutations(((ObservationMutation) mutation).getResponseDeltas());
     } else {
       throw new DataStoreException("Unsupported mutation " + mutation.getClass());
     }
@@ -133,5 +140,36 @@ public class FirestoreDataStore implements RemoteDataStore {
         .records()
         .record(mutation.getObservationId())
         .addMutationToBatch(mutation, user, batch);
+  }
+
+  private boolean isPhotoTypeResponse(String response) {
+    // TODO: Add field type in the response deltas as this is fragile.
+    return !response.isEmpty() && response.endsWith(Config.PHOTO_EXT);
+  }
+
+  @Nullable
+  private String getLocalFilePath(String remotePath) {
+    try {
+      return fileUtil.getLocalFileFromDestinationPath(remotePath).getPath();
+    } catch (FileNotFoundException e) {
+      Timber.e("Local file doesn't exist anymore: %s", remotePath);
+      return null;
+    }
+  }
+
+  private void uploadMediaMutations(ImmutableList<ResponseDelta> responseDeltas) {
+    for (ResponseDelta responseDelta : responseDeltas) {
+      responseDelta
+          .getNewResponse()
+          .map(Object::toString) // TODO: getter in Response shouldn't require Field object.
+          .filter(this::isPhotoTypeResponse)
+          .ifPresent(
+              remotePath -> {
+                String localFilePath = getLocalFilePath(remotePath);
+                if (localFilePath != null) {
+                  photoSyncWorkManager.enqueueSyncWorker(localFilePath, remotePath);
+                }
+              });
+    }
   }
 }

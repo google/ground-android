@@ -88,10 +88,8 @@
     <dimen name="feature_details_header_height">120dp</dimen>
 
     <!-- Photo bottom dialog -->
-    <dimen name="add_photo_bottom_sheet_margin">16dp</dimen>
-    <dimen name="add_photo_bottom_sheet_drawable_padding">24dp</dimen>
+    <dimen name="add_photo_bottom_sheet_drawable_margin">24dp</dimen>
     <dimen name="add_photo_bottom_sheet_text_size">16sp</dimen>
-    <dimen name="add_photo_bottom_sheet_padding">16dp</dimen>
 
     <!-- Photo CardView -->
     <dimen name="cardview_elevation">4dp</dimen>

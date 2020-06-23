@@ -38,7 +38,7 @@ import com.google.android.gnd.model.observation.ObservationMutation;
 import com.google.android.gnd.model.observation.Response;
 import com.google.android.gnd.model.observation.ResponseDelta;
 import com.google.android.gnd.model.observation.ResponseMap;
-import com.google.android.gnd.model.observation.TextResponse;
+import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator;
 import com.google.android.gnd.repository.ObservationRepository;
 import com.google.android.gnd.rx.Event;
 import com.google.android.gnd.rx.Nil;
@@ -47,11 +47,11 @@ import com.google.android.gnd.system.CameraManager;
 import com.google.android.gnd.system.StorageManager;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import io.reactivex.Completable;
 import io.reactivex.Single;
 import io.reactivex.processors.BehaviorProcessor;
 import io.reactivex.processors.PublishProcessor;
-import java.io.IOException;
 import java.util.Date;
 import java.util.Map;
 import java8.util.Optional;
@@ -72,6 +72,7 @@ public class EditObservationViewModel extends AbstractViewModel {
   private final Resources resources;
   private final StorageManager storageManager;
   private final CameraManager cameraManager;
+  private final OfflineUuidGenerator uuidGenerator;
 
   // Input events.
 
@@ -89,6 +90,9 @@ public class EditObservationViewModel extends AbstractViewModel {
 
   /** Toolbar title, based on whether user is adding new or editing existing observation. */
   private final MutableLiveData<String> toolbarTitle = new MutableLiveData<>();
+
+  /** Stream of updates to photo fields. */
+  private final MutableLiveData<ImmutableMap<Field, String>> photoUpdates = new MutableLiveData<>();
 
   /** Original form responses, loaded when view is initialized. */
   private final ObservableMap<String, Response> responses = new ObservableArrayMap<>();
@@ -110,15 +114,12 @@ public class EditObservationViewModel extends AbstractViewModel {
   /** Outcome of user clicking "Save". */
   private final LiveData<Event<SaveResult>> saveResults;
 
-  private EditObservationFragmentArgs args;
   /** Observation state loaded when view is initialized. */
   @Nullable private Observation originalObservation;
 
   // Internal state.
   /** True if the observation is being added, false if editing an existing one. */
   private boolean isNew;
-  /** True if the photo field has been updated. */
-  private boolean isPhotoFieldUpdated;
 
   @Inject
   EditObservationViewModel(
@@ -126,12 +127,14 @@ public class EditObservationViewModel extends AbstractViewModel {
       ObservationRepository observationRepository,
       AuthenticationManager authenticationManager,
       StorageManager storageManager,
-      CameraManager cameraManager) {
+      CameraManager cameraManager,
+      OfflineUuidGenerator uuidGenerator) {
     this.resources = application.getResources();
     this.observationRepository = observationRepository;
     this.authManager = authenticationManager;
     this.storageManager = storageManager;
     this.cameraManager = cameraManager;
+    this.uuidGenerator = uuidGenerator;
     this.form = fromPublisher(viewArgs.switchMapSingle(this::onInitialize));
     this.saveResults = fromPublisher(saveClicks.switchMapSingle(__ -> onSave()));
   }
@@ -165,8 +168,15 @@ public class EditObservationViewModel extends AbstractViewModel {
   }
 
   void initialize(EditObservationFragmentArgs args) {
-    this.args = args;
     viewArgs.onNext(args);
+  }
+
+  Optional<Response> getSavedOrOriginalResponse(String fieldId) {
+    if (responses.isEmpty()) {
+      return originalObservation.getResponses().getResponse(fieldId);
+    } else {
+      return getResponse(fieldId);
+    }
   }
 
   Optional<Response> getResponse(String fieldId) {
@@ -210,19 +220,22 @@ public class EditObservationViewModel extends AbstractViewModel {
         .flatMapCompletable(bitmap -> saveBitmapAndUpdateResponse(bitmap, field));
   }
 
-  private Completable saveBitmapAndUpdateResponse(Bitmap bitmap, Field field) throws IOException {
-    String localFileName = field.getId() + Config.PHOTO_EXT;
-    String destinationPath =
+  private Completable saveBitmapAndUpdateResponse(Bitmap bitmap, Field field) {
+    String localFileName = uuidGenerator.generateUuid() + Config.PHOTO_EXT;
+    String remoteDestinationPath =
         getRemoteDestinationPath(
-            args.getProjectId(), args.getFormId(), args.getFeatureId(), localFileName);
+            originalObservation.getProject().getId(),
+            originalObservation.getForm().getId(),
+            originalObservation.getFeature().getId(),
+            localFileName);
 
-    // TODO: Handle response after reloading view-model and remove this field
-    isPhotoFieldUpdated = true;
+    photoUpdates.postValue(ImmutableMap.of(field, remoteDestinationPath));
 
-    // update observable response map
-    onResponseChanged(field, TextResponse.fromString(destinationPath));
+    return storageManager.savePhoto(bitmap, localFileName);
+  }
 
-    return storageManager.savePhoto(bitmap, localFileName, destinationPath);
+  LiveData<ImmutableMap<Field, String>> getPhotoFieldUpdates() {
+    return photoUpdates;
   }
 
   public void onSave(Map<String, String> validationErrors) {
@@ -247,15 +260,7 @@ public class EditObservationViewModel extends AbstractViewModel {
 
   private void onObservationLoaded(Observation observation) {
     this.originalObservation = observation;
-
-    // Photo field is updated by launching an external intent. This causes the form to reload.
-    // When that happens, we don't want to lose the unsaved changes.
-    if (isPhotoFieldUpdated) {
-      isPhotoFieldUpdated = false;
-    } else {
-      refreshResponseMap(observation);
-    }
-
+    responses.clear();
     saveButtonVisibility.postValue(View.VISIBLE);
     loadingSpinnerVisibility.postValue(View.GONE);
   }
@@ -315,17 +320,6 @@ public class EditObservationViewModel extends AbstractViewModel {
         .applyAndEnqueue(observationMutation)
         .doOnComplete(() -> savingProgressVisibility.postValue(View.GONE))
         .toSingleDefault(Event.create(SaveResult.SAVED));
-  }
-
-  private void refreshResponseMap(Observation obs) {
-    Timber.v("Rebuilding response map");
-    responses.clear();
-    ResponseMap responses = obs.getResponses();
-    for (String fieldId : responses.fieldIds()) {
-      obs.getForm()
-          .getField(fieldId)
-          .ifPresent(field -> onResponseChanged(field, responses.getResponse(fieldId)));
-    }
   }
 
   private ImmutableList<ResponseDelta> getResponseDeltas() {

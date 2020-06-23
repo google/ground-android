@@ -51,6 +51,15 @@ public class FileUtil {
     return file;
   }
 
+  /**
+   * Returns the path of the file saved in the sdcard used for uploading to the provided destination
+   * path.
+   */
+  public File getLocalFileFromDestinationPath(String destinationPath) throws FileNotFoundException {
+    String[] splits = destinationPath.split("/");
+    return getFile(splits[splits.length - 1]);
+  }
+
   public File getFile(String filename) throws FileNotFoundException {
     File file = new File(context.getFilesDir(), filename);
     if (!file.exists()) {

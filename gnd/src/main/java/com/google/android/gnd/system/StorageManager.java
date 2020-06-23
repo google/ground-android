@@ -23,7 +23,6 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.provider.MediaStore.Images.Media;
 import com.google.android.gnd.persistence.remote.RemoteStorageManager;
-import com.google.android.gnd.persistence.sync.PhotoSyncWorkManager;
 import com.google.android.gnd.rx.RxTask;
 import com.google.android.gnd.system.ActivityStreams.ActivityResult;
 import com.google.android.gnd.ui.util.FileUtil;
@@ -46,7 +45,6 @@ public class StorageManager {
   private final PermissionsManager permissionsManager;
   private final ActivityStreams activityStreams;
   private final RemoteStorageManager remoteStorageManager;
-  private final PhotoSyncWorkManager photoSyncWorkManager;
   private final FileUtil fileUtil;
 
   @Inject
@@ -55,13 +53,11 @@ public class StorageManager {
       PermissionsManager permissionsManager,
       ActivityStreams activityStreams,
       RemoteStorageManager remoteStorageManager,
-      PhotoSyncWorkManager photoSyncWorkManager,
       FileUtil fileUtil) {
     this.context = context;
     this.permissionsManager = permissionsManager;
     this.activityStreams = activityStreams;
     this.remoteStorageManager = remoteStorageManager;
-    this.photoSyncWorkManager = photoSyncWorkManager;
     this.fileUtil = fileUtil;
   }
 
@@ -113,19 +109,13 @@ public class StorageManager {
         });
   }
 
-  /**
-   * Returns the path of the file saved in the sdcard used for uploading to the provided destination
-   * path.
-   */
-  private File getLocalFileFromDestinationPath(String destinationPath)
-      throws FileNotFoundException {
-    String[] splits = destinationPath.split("/");
-    return fileUtil.getFile(splits[splits.length - 1]);
-  }
-
-  private Uri getFileUriFromDestinationPath(String destinationPath) throws FileNotFoundException {
-    File file = getLocalFileFromDestinationPath(destinationPath);
-    return Uri.fromFile(file);
+  private Uri getFileUriFromDestinationPath(String destinationPath) {
+    try {
+      return Uri.fromFile(fileUtil.getLocalFileFromDestinationPath(destinationPath));
+    } catch (FileNotFoundException e) {
+      Timber.e(e);
+      return Uri.EMPTY;
+    }
   }
 
   /**
@@ -139,12 +129,14 @@ public class StorageManager {
         .onErrorReturn(throwable -> getFileUriFromDestinationPath(destinationPath));
   }
 
-  /** Save a copy of bitmap locally and enqueue worker for uploading to remote storage. */
-  public Completable savePhoto(Bitmap bitmap, String filename, String remotePath)
-      throws IOException {
-    // Make a local copy of the image
-    File file = fileUtil.saveBitmap(bitmap, filename);
-    // Schedule for remote upload
-    return photoSyncWorkManager.enqueueSyncWorker(file.getPath(), remotePath);
+  /** Save a copy of bitmap locally. */
+  public Completable savePhoto(Bitmap bitmap, String filename) {
+    try {
+      File file = fileUtil.saveBitmap(bitmap, filename);
+      Timber.d("Photo saved %s : %b", filename, file.exists());
+      return Completable.complete();
+    } catch (IOException e) {
+      return Completable.error(e);
+    }
   }
 }

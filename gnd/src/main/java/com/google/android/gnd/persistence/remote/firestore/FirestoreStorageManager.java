@@ -27,6 +27,7 @@ import java.io.File;
 import java8.util.StringJoiner;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import timber.log.Timber;
 
 // TODO: Add column to Observation table for storing uploaded media urls
 // TODO: Synced to remote db as well
@@ -72,7 +73,13 @@ public class FirestoreStorageManager implements RemoteStorageManager {
         emitter ->
             createReference(remoteDestinationPath)
                 .putFile(Uri.fromFile(file))
-                .addOnCompleteListener(uploadTask -> emitter.onComplete())
+                .addOnCompleteListener(
+                    uploadTask -> {
+                      if (file.delete()) {
+                        Timber.d("File deleted: %s", file.getName());
+                      }
+                      emitter.onComplete();
+                    })
                 .addOnPausedListener(taskSnapshot -> emitter.onNext(TransferProgress.paused()))
                 .addOnFailureListener(emitter::onError)
                 .addOnProgressListener(
