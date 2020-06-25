@@ -29,6 +29,7 @@ project.ext {
     daggerVersion = "2.27"
     firebaseCoreVersion = "17.4.3"
     gmsVersion = "17.0.0"
+    hiltJetpackVersion = "1.0.0-alpha01"
     lifecycleVersion = "2.2.0"
     navigationVersion = "1.0.0"
     roomVersion = "2.2.5"
@@ -144,6 +145,15 @@ dependencies {
     annotationProcessor "com.google.dagger:dagger-compiler:$project.daggerVersion"
     testAnnotationProcessor "com.google.dagger:dagger-compiler:$project.daggerVersion"
     androidTestAnnotationProcessor "com.google.dagger:dagger-compiler:$project.daggerVersion"
+
+    // Hilt
+    implementation("com.google.dagger:hilt-android:$project.hiltVersion")
+    implementation("androidx.hilt:hilt-lifecycle-viewmodel:$project.hiltJetpackVersion")
+    androidTestImplementation("com.google.dagger:hilt-android-testing:$project.hiltVersion")
+    annotationProcessor("com.google.dagger:hilt-android-compiler:$project.hiltVersion")
+    annotationProcessor("androidx.hilt:hilt-compiler:$project.hiltJetpackVersion")
+    androidTestAnnotationProcessor("com.google.dagger:hilt-android-compiler:$project.hiltVersion")
+    androidTestAnnotationProcessor("androidx.hilt:hilt-compiler:$project.hiltJetpackVersion")
 
     // ButterKnife
     implementation "com.jakewharton:butterknife:$project.butterKnifeVersion"
