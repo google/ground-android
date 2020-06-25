@@ -43,9 +43,11 @@ import com.google.android.gnd.ui.common.EphemeralPopups;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.TwoLineToolbar;
 import com.google.android.gnd.ui.editobservation.PhotoFieldViewModel;
+import dagger.hilt.android.AndroidEntryPoint;
 import javax.inject.Inject;
 import timber.log.Timber;
 
+@AndroidEntryPoint
 public class ObservationDetailsFragment extends AbstractFragment {
 
   @Inject Navigator navigator;

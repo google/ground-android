@@ -20,6 +20,7 @@ import androidx.fragment.app.Fragment;
 import dagger.Binds;
 import dagger.Module;
 
+/*
 // TODO: Consolidate fragment modules into single module.
 @Module
 public abstract class EditObservationModule {
@@ -27,3 +28,4 @@ public abstract class EditObservationModule {
   @Binds
   abstract Fragment fragment(EditObservationFragment fragment);
 }
+*/

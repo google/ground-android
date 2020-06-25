@@ -20,6 +20,7 @@ package com.google.android.gnd.ui.offlinearea.viewer;
 import androidx.fragment.app.Fragment;
 import dagger.Binds;
 import dagger.Module;
+/*
 
 @Module
 public abstract class OfflineAreaViewerModule {
@@ -27,4 +28,5 @@ public abstract class OfflineAreaViewerModule {
   @Binds
   abstract Fragment fragment(OfflineAreaViewerFragment fragment);
 }
+*/
 

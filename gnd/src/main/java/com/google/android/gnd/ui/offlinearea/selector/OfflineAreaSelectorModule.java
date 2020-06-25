@@ -21,9 +21,11 @@ import com.google.android.gnd.ui.offlinearea.OfflineAreasFragment;
 import dagger.Binds;
 import dagger.Module;
 
+/*
 @Module
 public abstract class OfflineAreaSelectorModule {
 
   @Binds
   abstract Fragment fragment(OfflineAreasFragment fragment);
 }
+*/

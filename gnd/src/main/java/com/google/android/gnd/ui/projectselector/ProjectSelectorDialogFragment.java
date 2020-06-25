@@ -36,9 +36,11 @@ import com.google.android.gnd.model.Project;
 import com.google.android.gnd.rx.Loadable;
 import com.google.android.gnd.ui.common.AbstractDialogFragment;
 import com.google.android.gnd.ui.common.EphemeralPopups;
+import dagger.hilt.android.AndroidEntryPoint;
 import java.util.List;
 
 /** User interface implementation of project selector dialog. */
+@AndroidEntryPoint
 public class ProjectSelectorDialogFragment extends AbstractDialogFragment {
 
   private static final String TAG = ProjectSelectorDialogFragment.class.getSimpleName();

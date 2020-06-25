@@ -21,9 +21,11 @@ import androidx.fragment.app.Fragment;
 import dagger.Binds;
 import dagger.Module;
 
+/*
 @Module
 public abstract class OfflineAreasModule {
 
   @Binds
   abstract Fragment fragment(OfflineAreasFragment fragment);
 }
+*/

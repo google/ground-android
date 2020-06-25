@@ -20,9 +20,11 @@ import androidx.fragment.app.Fragment;
 import dagger.Binds;
 import dagger.Module;
 
+/*
 @Module
 public abstract class HomeScreenModule {
 
   @Binds
   abstract Fragment fragment(HomeScreenFragment fragment);
 }
+*/

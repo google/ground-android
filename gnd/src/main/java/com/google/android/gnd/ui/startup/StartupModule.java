@@ -20,9 +20,13 @@ import androidx.fragment.app.Fragment;
 import dagger.Binds;
 import dagger.Module;
 
+/*
+Not needed, comes for free with Hilt in the FragmentComponent
+
 @Module
 public abstract class StartupModule {
 
   @Binds
   abstract Fragment fragment(StartupFragment fragment);
 }
+*/

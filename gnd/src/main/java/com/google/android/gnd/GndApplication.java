@@ -16,6 +16,7 @@
 
 package com.google.android.gnd;
 
+import android.app.Application;
 import android.content.Context;
 import android.os.StrictMode;
 import android.util.Log;
@@ -43,17 +44,7 @@ import timber.log.Timber;
 // should then extend DaggerApplication instead. If MultiDex is still needed, we can install it
 // without extending MultiDexApplication.
 @HiltAndroidApp
-public class GndApplication extends DaggerApplication {
-
-  @EntryPoint
-  @InstallIn(ApplicationComponent.class)
-  interface ApplicationInjector extends AndroidInjector<GndApplication> {
-  }
-
-  @Override
-  public AndroidInjector<GndApplication> applicationInjector() {
-    return EntryPoints.get(this, ApplicationInjector.class);
-  }
+public class GndApplication extends Application {
 
   @Inject GndWorkerFactory workerFactory;
 

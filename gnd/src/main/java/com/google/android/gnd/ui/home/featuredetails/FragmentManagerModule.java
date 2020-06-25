@@ -20,17 +20,22 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import dagger.Module;
 import dagger.Provides;
+import dagger.hilt.InstallIn;
+import dagger.hilt.android.components.FragmentComponent;
 
+@InstallIn(FragmentComponent.class)
 @Module
-public class FeatureDetailsModule {
+public class FragmentManagerModule {
 
+/*
   @Provides
   public Fragment fragment(FeatureDetailsFragment fragment) {
     return fragment;
   }
+*/
 
   @Provides
-  public FragmentManager fragmentManager(FeatureDetailsFragment fragment) {
+  public FragmentManager fragmentManager(Fragment fragment) {
     return fragment.getChildFragmentManager();
   }
 }
