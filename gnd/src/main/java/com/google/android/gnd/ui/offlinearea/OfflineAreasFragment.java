@@ -28,7 +28,6 @@ import butterknife.BindView;
 import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.OfflineAreasFragBinding;
-import com.google.android.gnd.inject.ActivityScoped;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.Navigator;
 import javax.inject.Inject;
@@ -38,7 +37,6 @@ import javax.inject.Inject;
  * tiles. Users can manage their areas within this fragment. They can delete areas they no longer
  * need or access the UI used to select and download a new area to the device.
  */
-@ActivityScoped
 public class OfflineAreasFragment extends AbstractFragment {
   @Inject Navigator navigator;
 

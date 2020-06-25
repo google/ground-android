@@ -17,16 +17,12 @@
 package com.google.android.gnd.ui.startup;
 
 import androidx.fragment.app.Fragment;
-import com.google.android.gnd.inject.FragmentScoped;
 import dagger.Binds;
 import dagger.Module;
-import dagger.hilt.InstallIn;
-import dagger.hilt.android.components.FragmentComponent;
 
 @Module
 public abstract class StartupModule {
 
   @Binds
-  @FragmentScoped
   abstract Fragment fragment(StartupFragment fragment);
 }

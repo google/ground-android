@@ -32,7 +32,6 @@ import androidx.appcompat.app.AlertDialog;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import com.google.android.gnd.R;
-import com.google.android.gnd.inject.ActivityScoped;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.rx.Loadable;
 import com.google.android.gnd.ui.common.AbstractDialogFragment;
@@ -40,7 +39,6 @@ import com.google.android.gnd.ui.common.EphemeralPopups;
 import java.util.List;
 
 /** User interface implementation of project selector dialog. */
-@ActivityScoped
 public class ProjectSelectorDialogFragment extends AbstractDialogFragment {
 
   private static final String TAG = ProjectSelectorDialogFragment.class.getSimpleName();

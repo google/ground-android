@@ -22,7 +22,6 @@ import android.content.SharedPreferences;
 import androidx.room.Room;
 import androidx.work.WorkManager;
 import com.google.android.gms.common.GoogleApiAvailability;
-import com.google.android.gnd.inject.ActivityScoped;
 import com.google.android.gnd.persistence.local.room.LocalDatabase;
 import com.google.android.gnd.persistence.remote.RemoteDataStore;
 import com.google.android.gnd.persistence.remote.RemoteStorageManager;
@@ -40,7 +39,6 @@ import com.google.firebase.storage.StorageReference;
 import dagger.Binds;
 import dagger.Module;
 import dagger.Provides;
-import dagger.android.ContributesAndroidInjector;
 import dagger.android.support.AndroidSupportInjectionModule;
 import dagger.hilt.InstallIn;
 import dagger.hilt.android.components.ApplicationComponent;
@@ -53,15 +51,15 @@ abstract class GndApplicationModule {
   private static final String SHARED_PREFERENCES_NAME = "shared_prefs";
 
   /** Causes Dagger Android to generate a sub-component for the MainActivity. */
-  @ActivityScoped
+  /*@ActivityScoped
   @ContributesAndroidInjector(modules = MainActivityModule.class)
   abstract MainActivity mainActivityInjector();
-
+*/
   /** Causes Dagger Android to generate a sub-component for the SettingsActivity. */
-  @ActivityScoped
+  /*@ActivityScoped
   @ContributesAndroidInjector(modules = SettingsActivityModule.class)
   abstract SettingsActivity settingsActivityInjector();
-
+*/
   /** Provides the Firestore implementation of remote data store. */
   @Binds
   @Singleton

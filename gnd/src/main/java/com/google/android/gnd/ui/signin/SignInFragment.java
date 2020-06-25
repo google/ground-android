@@ -22,12 +22,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import androidx.annotation.Nullable;
 import com.google.android.gnd.databinding.SignInFragBinding;
-import com.google.android.gnd.inject.ActivityScoped;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.BackPressListener;
 
 // TODO: Remove scoping since Fragments are no longer injected.
-@ActivityScoped
 public class SignInFragment extends AbstractFragment implements BackPressListener {
   private SignInViewModel viewModel;
 

@@ -25,7 +25,6 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.FragmentManager;
 import com.google.android.gnd.R;
-import com.google.android.gnd.inject.ActivityScoped;
 import com.google.android.gnd.model.AuditInfo;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.feature.Feature;
@@ -42,7 +41,6 @@ import io.reactivex.subjects.MaybeSubject;
 import java8.util.Optional;
 import javax.inject.Inject;
 
-@ActivityScoped
 public class AddFeatureDialogFragment extends AbstractDialogFragment {
   private static final String TAG = AddFeatureDialogFragment.class.getSimpleName();
   private final OfflineUuidGenerator uuidGenerator;

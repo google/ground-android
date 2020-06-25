@@ -18,7 +18,6 @@ package com.google.android.gnd.ui.common;
 
 import androidx.navigation.NavDirections;
 import com.google.android.gnd.R;
-import com.google.android.gnd.inject.ActivityScoped;
 import com.google.android.gnd.ui.editobservation.EditObservationFragment;
 import com.google.android.gnd.ui.home.HomeScreenFragmentDirections;
 import com.google.android.gnd.ui.observationdetails.ObservationDetailsFragment;
@@ -37,7 +36,6 @@ import javax.inject.Inject;
  * com.google.android.gnd.MainActivity}, which is expected to pass it to the current {@link
  * androidx.navigation.NavController}.
  */
-@ActivityScoped
 public class Navigator {
   private final Subject<NavDirections> navigateRequests;
   private final Subject<Object> navigateUpRequests;

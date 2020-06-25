@@ -18,23 +18,18 @@ package com.google.android.gnd.ui.home.featuredetails;
 
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
-import com.google.android.gnd.inject.FragmentScoped;
 import dagger.Module;
 import dagger.Provides;
-import dagger.hilt.InstallIn;
-import dagger.hilt.android.components.FragmentComponent;
 
 @Module
 public class FeatureDetailsModule {
 
   @Provides
-  @FragmentScoped
   public Fragment fragment(FeatureDetailsFragment fragment) {
     return fragment;
   }
 
   @Provides
-  @FragmentScoped
   public FragmentManager fragmentManager(FeatureDetailsFragment fragment) {
     return fragment.getChildFragmentManager();
   }

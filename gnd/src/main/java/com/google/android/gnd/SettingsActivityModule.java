@@ -16,20 +16,20 @@
 
 package com.google.android.gnd;
 
-import androidx.appcompat.app.AppCompatActivity;
-import com.google.android.gnd.inject.ActivityScoped;
-import dagger.Binds;
-import dagger.Module;
+/** Provides dependencies to {@link SettingsActivity} and fragments. *//*
 
-/** Provides dependencies to {@link SettingsActivity} and fragments. */
+@InstallIn(ActivityComponent.class)
 @Module
 public abstract class SettingsActivityModule {
 
-  /**
+  */
+/**
    * This provides the activity required to inject the fragment manager into {@link
    * SettingsActivity}.
-   */
+   *//*
+
   @Binds
   @ActivityScoped
   abstract AppCompatActivity appCompatActivity(SettingsActivity settingsActivity);
 }
+*/

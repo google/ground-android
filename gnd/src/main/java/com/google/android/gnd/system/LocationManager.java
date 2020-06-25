@@ -23,7 +23,6 @@ import android.app.Application;
 import android.location.Location;
 import android.util.Log;
 import com.google.android.gms.location.LocationRequest;
-import com.google.android.gnd.inject.ActivityScoped;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.rx.BooleanOrError;
 import com.google.android.gnd.system.rx.RxFusedLocationProviderClient;
@@ -36,7 +35,6 @@ import io.reactivex.subjects.BehaviorSubject;
 import io.reactivex.subjects.Subject;
 import javax.inject.Inject;
 
-@ActivityScoped
 public class LocationManager {
   private static final String TAG = LocationManager.class.getSimpleName();
   private static final long UPDATE_INTERVAL = 1000 /* 1 sec */;

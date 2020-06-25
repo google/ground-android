@@ -16,10 +16,6 @@
 
 package com.google.android.gnd;
 
-import androidx.appcompat.app.AppCompatActivity;
-
-import com.google.android.gnd.inject.ActivityScoped;
-import com.google.android.gnd.inject.FragmentScoped;
 import com.google.android.gnd.ui.editobservation.EditObservationFragment;
 import com.google.android.gnd.ui.editobservation.EditObservationModule;
 import com.google.android.gnd.ui.home.AddFeatureDialogFragment;
@@ -44,7 +40,6 @@ import com.google.android.gnd.ui.signin.SignInModule;
 import com.google.android.gnd.ui.startup.StartupFragment;
 import com.google.android.gnd.ui.startup.StartupModule;
 
-import dagger.Binds;
 import dagger.Module;
 import dagger.android.ContributesAndroidInjector;
 import dagger.hilt.InstallIn;
@@ -57,59 +52,48 @@ public abstract class MainActivityModule {
   /**
    * This provides the activity required to inject the fragment manager into {@link MainActivity}.
    */
+/*
   @Binds
   @ActivityScoped
   abstract AppCompatActivity appCompatActivity(MainActivity mainActivity);
+*/
 
-  @FragmentScoped
   @ContributesAndroidInjector(modules = StartupModule.class)
   abstract StartupFragment startupFragmentInjector();
 
-  @FragmentScoped
   @ContributesAndroidInjector(modules = SignInModule.class)
   abstract SignInFragment signInFragmentInjector();
 
-  @FragmentScoped
   @ContributesAndroidInjector(modules = HomeScreenModule.class)
   abstract HomeScreenFragment homeScreenFragmentInjector();
 
-  @FragmentScoped
   @ContributesAndroidInjector(modules = HomeScreenModule.class)
   abstract ProjectSelectorDialogFragment projectSelectorDialogFragment();
 
-  @FragmentScoped
   @ContributesAndroidInjector(modules = MapContainerModule.class)
   abstract MapContainerFragment mapContainerFragmentInjector();
 
-  @FragmentScoped
   @ContributesAndroidInjector(modules = MapContainerModule.class)
   abstract AddFeatureDialogFragment addFeatureDialogFragmentInjector();
 
-  @FragmentScoped
   @ContributesAndroidInjector(modules = FeatureDetailsModule.class)
   abstract FeatureDetailsFragment featureDetailsFragmentInjector();
 
-  @FragmentScoped
   @ContributesAndroidInjector(modules = FeatureDetailsModule.class)
   abstract ObservationListFragment observationListFragmentInjector();
 
-  @FragmentScoped
   @ContributesAndroidInjector(modules = ObservationDetailsModule.class)
   abstract ObservationDetailsFragment observationDetailsFragmentInjector();
 
-  @FragmentScoped
   @ContributesAndroidInjector(modules = EditObservationModule.class)
   abstract EditObservationFragment editObservationFragmentInjector();
 
-  @FragmentScoped
   @ContributesAndroidInjector(modules = OfflineAreaSelectorModule.class)
   abstract OfflineAreaSelectorFragment offlineAreaSelectorFragmentInjector();
 
-  @FragmentScoped
   @ContributesAndroidInjector(modules = OfflineAreasModule.class)
   abstract OfflineAreasFragment offlineAreasFragmentInjector();
 
-  @FragmentScoped
   @ContributesAndroidInjector(modules = OfflineAreaViewerModule.class)
   abstract OfflineAreaViewerFragment offlineAreaViewerFragmentInjector();
 }
