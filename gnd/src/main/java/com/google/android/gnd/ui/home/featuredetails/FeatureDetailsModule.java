@@ -21,6 +21,8 @@ import androidx.fragment.app.FragmentManager;
 import com.google.android.gnd.inject.FragmentScoped;
 import dagger.Module;
 import dagger.Provides;
+import dagger.hilt.InstallIn;
+import dagger.hilt.android.components.FragmentComponent;
 
 @Module
 public class FeatureDetailsModule {

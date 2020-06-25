@@ -30,6 +30,11 @@ import com.google.android.gnd.rx.RxDebug;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import dagger.android.AndroidInjector;
 import dagger.android.support.DaggerApplication;
+import dagger.hilt.EntryPoint;
+import dagger.hilt.EntryPoints;
+import dagger.hilt.InstallIn;
+import dagger.hilt.android.HiltAndroidApp;
+import dagger.hilt.android.components.ApplicationComponent;
 import io.reactivex.plugins.RxJavaPlugins;
 import javax.inject.Inject;
 import timber.log.Timber;
@@ -37,7 +42,18 @@ import timber.log.Timber;
 // TODO: When implementing background data sync service, we'll need to inject a Service here; we
 // should then extend DaggerApplication instead. If MultiDex is still needed, we can install it
 // without extending MultiDexApplication.
+@HiltAndroidApp
 public class GndApplication extends DaggerApplication {
+
+  @EntryPoint
+  @InstallIn(ApplicationComponent.class)
+  interface ApplicationInjector extends AndroidInjector<GndApplication> {
+  }
+
+  @Override
+  public AndroidInjector<GndApplication> applicationInjector() {
+    return EntryPoints.get(this, ApplicationInjector.class);
+  }
 
   @Inject GndWorkerFactory workerFactory;
 
@@ -81,11 +97,11 @@ public class GndApplication extends DaggerApplication {
     }
   }
 
-  @Override
+  /*@Override
   protected AndroidInjector<? extends DaggerApplication> applicationInjector() {
     // Root of dependency injection.
     return DaggerGndApplicationComponent.factory().create(this);
-  }
+  }*/
 
   private void setStrictMode() {
     StrictMode.setThreadPolicy(

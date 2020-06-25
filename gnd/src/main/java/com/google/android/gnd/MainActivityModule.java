@@ -47,8 +47,11 @@ import com.google.android.gnd.ui.startup.StartupModule;
 import dagger.Binds;
 import dagger.Module;
 import dagger.android.ContributesAndroidInjector;
+import dagger.hilt.InstallIn;
+import dagger.hilt.android.components.ActivityComponent;
 
 /** Provides dependencies to {@link MainActivity} and fragments. */
+@InstallIn(ActivityComponent.class)
 @Module
 public abstract class MainActivityModule {
   /**
@@ -71,12 +74,12 @@ public abstract class MainActivityModule {
   abstract HomeScreenFragment homeScreenFragmentInjector();
 
   @FragmentScoped
-  @ContributesAndroidInjector(modules = MapContainerModule.class)
-  abstract MapContainerFragment mapContainerFragmentInjector();
-
-  @FragmentScoped
   @ContributesAndroidInjector(modules = HomeScreenModule.class)
   abstract ProjectSelectorDialogFragment projectSelectorDialogFragment();
+
+  @FragmentScoped
+  @ContributesAndroidInjector(modules = MapContainerModule.class)
+  abstract MapContainerFragment mapContainerFragmentInjector();
 
   @FragmentScoped
   @ContributesAndroidInjector(modules = MapContainerModule.class)

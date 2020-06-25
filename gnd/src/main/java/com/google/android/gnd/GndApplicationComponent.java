@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+/*
 package com.google.android.gnd;
 
 import com.google.android.gnd.persistence.local.LocalDataStoreModule;
@@ -30,3 +31,4 @@ interface GndApplicationComponent extends AndroidInjector<GndApplication> {
   @Component.Factory
   interface Factory extends AndroidInjector.Factory<GndApplication> {}
 }
+*/

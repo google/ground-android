@@ -15,6 +15,7 @@
  */
 
 apply plugin: 'com.android.application'
+apply plugin: 'dagger.hilt.android.plugin'
 apply plugin: 'com.google.firebase.firebase-perf'
 apply plugin: 'com.google.firebase.crashlytics'
 apply from: '../config/checkstyle/checkstyle.gradle'
@@ -60,6 +61,14 @@ android {
         multiDexEnabled true
         // For rendering vector map markers.
         vectorDrawables.useSupportLibrary = true
+
+        // To disable checking for the InstallIn annotation in some modules,
+        // you need to enable the compiler option in your build.gradle file like this:
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments["dagger.hilt.disableModulesHaveInstallInCheck"] = "true"
+            }
+        }
     }
     buildTypes {
         release {

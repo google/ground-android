@@ -19,6 +19,7 @@ package com.google.android.gnd.ui.editobservation;
 import static androidx.lifecycle.LiveDataReactiveStreams.fromPublisher;
 import static com.google.android.gnd.persistence.remote.firestore.FirestoreStorageManager.getRemoteDestinationPath;
 
+import android.app.Application;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.view.View;
@@ -123,7 +124,7 @@ public class EditObservationViewModel extends AbstractViewModel {
 
   @Inject
   EditObservationViewModel(
-      GndApplication application,
+      Application application,
       ObservationRepository observationRepository,
       AuthenticationManager authenticationManager,
       StorageManager storageManager,

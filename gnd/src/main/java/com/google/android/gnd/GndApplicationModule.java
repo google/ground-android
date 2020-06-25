@@ -42,8 +42,12 @@ import dagger.Module;
 import dagger.Provides;
 import dagger.android.ContributesAndroidInjector;
 import dagger.android.support.AndroidSupportInjectionModule;
+import dagger.hilt.InstallIn;
+import dagger.hilt.android.components.ApplicationComponent;
+import dagger.hilt.android.qualifiers.ApplicationContext;
 import javax.inject.Singleton;
 
+@InstallIn(ApplicationComponent.class)
 @Module(includes = {AndroidSupportInjectionModule.class, ViewModelModule.class})
 abstract class GndApplicationModule {
   private static final String SHARED_PREFERENCES_NAME = "shared_prefs";
@@ -72,12 +76,15 @@ abstract class GndApplicationModule {
   @Singleton
   abstract OfflineUuidGenerator offlineUuidGenerator(FirestoreUuidGenerator uuidGenerator);
 
+/*
+// We don't need these because Hilt ApplicationComponent provides them.
   @Binds
   @Singleton
   abstract Application application(GndApplication app);
 
   @Binds
   abstract Context context(GndApplication application);
+*/
 
   @Provides
   @Singleton
@@ -93,7 +100,7 @@ abstract class GndApplicationModule {
 
   @Provides
   @Singleton
-  static SharedPreferences sharedPreferences(GndApplication application) {
+  static SharedPreferences sharedPreferences(Application application) {
     return application
         .getApplicationContext()
         .getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
@@ -129,7 +136,7 @@ abstract class GndApplicationModule {
 
   @Provides
   @Singleton
-  static LocalDatabase localDatabase(Context context) {
+  static LocalDatabase localDatabase(@ApplicationContext Context context) {
     return Room.databaseBuilder(context, LocalDatabase.class, Config.DB_NAME)
       // TODO(#128): Disable before official release.
       .fallbackToDestructiveMigration()

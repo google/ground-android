@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.ui.editobservation;
 
+import android.app.Application;
 import android.net.Uri;
 import android.view.View;
 import androidx.lifecycle.LiveData;
@@ -42,7 +43,7 @@ public class PhotoFieldViewModel extends AbstractFieldViewModel {
   private final MutableLiveData<Field> showDialogClicks = new MutableLiveData<>();
 
   @Inject
-  PhotoFieldViewModel(StorageManager storageManager, GndApplication application) {
+  PhotoFieldViewModel(StorageManager storageManager, Application application) {
     super(application);
     this.storageManager = storageManager;
     this.visibility =
