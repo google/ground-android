@@ -29,13 +29,7 @@ import com.facebook.stetho.Stetho;
 import com.google.android.gnd.inject.GndWorkerFactory;
 import com.google.android.gnd.rx.RxDebug;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
-import dagger.android.AndroidInjector;
-import dagger.android.support.DaggerApplication;
-import dagger.hilt.EntryPoint;
-import dagger.hilt.EntryPoints;
-import dagger.hilt.InstallIn;
 import dagger.hilt.android.HiltAndroidApp;
-import dagger.hilt.android.components.ApplicationComponent;
 import io.reactivex.plugins.RxJavaPlugins;
 import javax.inject.Inject;
 import timber.log.Timber;
@@ -87,12 +81,6 @@ public class GndApplication extends Application {
       Timber.plant(new CrashReportingTree());
     }
   }
-
-  /*@Override
-  protected AndroidInjector<? extends DaggerApplication> applicationInjector() {
-    // Root of dependency injection.
-    return DaggerGndApplicationComponent.factory().create(this);
-  }*/
 
   private void setStrictMode() {
     StrictMode.setThreadPolicy(

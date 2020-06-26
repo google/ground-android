@@ -138,15 +138,6 @@ dependencies {
     implementation 'com.google.firebase:firebase-storage:19.1.1'
     implementation 'com.google.firebase:firebase-crashlytics:17.0.1'
 
-    // Dagger
-    implementation "com.google.dagger:dagger:$project.daggerVersion"
-    implementation "com.google.dagger:dagger-android:$project.daggerVersion"
-    implementation "com.google.dagger:dagger-android-support:$project.daggerVersion"
-    annotationProcessor "com.google.dagger:dagger-android-processor:$project.daggerVersion"
-    annotationProcessor "com.google.dagger:dagger-compiler:$project.daggerVersion"
-    testAnnotationProcessor "com.google.dagger:dagger-compiler:$project.daggerVersion"
-    androidTestAnnotationProcessor "com.google.dagger:dagger-compiler:$project.daggerVersion"
-
     // Hilt
     implementation("com.google.dagger:hilt-android:$project.hiltVersion")
     implementation("androidx.hilt:hilt-lifecycle-viewmodel:$project.hiltJetpackVersion")

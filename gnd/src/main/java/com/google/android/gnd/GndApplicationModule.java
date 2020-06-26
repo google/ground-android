@@ -39,27 +39,16 @@ import com.google.firebase.storage.StorageReference;
 import dagger.Binds;
 import dagger.Module;
 import dagger.Provides;
-import dagger.android.support.AndroidSupportInjectionModule;
 import dagger.hilt.InstallIn;
 import dagger.hilt.android.components.ApplicationComponent;
 import dagger.hilt.android.qualifiers.ApplicationContext;
 import javax.inject.Singleton;
 
 @InstallIn(ApplicationComponent.class)
-@Module(includes = {AndroidSupportInjectionModule.class, ViewModelModule.class})
+@Module(includes = {ViewModelModule.class})
 abstract class GndApplicationModule {
   private static final String SHARED_PREFERENCES_NAME = "shared_prefs";
 
-  /** Causes Dagger Android to generate a sub-component for the MainActivity. */
-  /*@ActivityScoped
-  @ContributesAndroidInjector(modules = MainActivityModule.class)
-  abstract MainActivity mainActivityInjector();
-*/
-  /** Causes Dagger Android to generate a sub-component for the SettingsActivity. */
-  /*@ActivityScoped
-  @ContributesAndroidInjector(modules = SettingsActivityModule.class)
-  abstract SettingsActivity settingsActivityInjector();
-*/
   /** Provides the Firestore implementation of remote data store. */
   @Binds
   @Singleton
@@ -73,16 +62,6 @@ abstract class GndApplicationModule {
   @Binds
   @Singleton
   abstract OfflineUuidGenerator offlineUuidGenerator(FirestoreUuidGenerator uuidGenerator);
-
-/*
-// We don't need these because Hilt ApplicationComponent provides them.
-  @Binds
-  @Singleton
-  abstract Application application(GndApplication app);
-
-  @Binds
-  abstract Context context(GndApplication application);
-*/
 
   @Provides
   @Singleton
