@@ -21,26 +21,26 @@ import android.content.Context;
 import android.os.StrictMode;
 import android.util.Log;
 import androidx.annotation.NonNull;
+import androidx.hilt.work.HiltWorkerFactory;
 import androidx.multidex.MultiDex;
 import androidx.work.Configuration;
-import androidx.work.WorkManager;
 import com.akaita.java.rxjava2debug.RxJava2Debug;
 import com.facebook.stetho.Stetho;
-import com.google.android.gnd.inject.GndWorkerFactory;
 import com.google.android.gnd.rx.RxDebug;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import dagger.hilt.android.HiltAndroidApp;
 import io.reactivex.plugins.RxJavaPlugins;
 import javax.inject.Inject;
+import org.jetbrains.annotations.NotNull;
 import timber.log.Timber;
 
 // TODO: When implementing background data sync service, we'll need to inject a Service here; we
 // should then extend DaggerApplication instead. If MultiDex is still needed, we can install it
 // without extending MultiDexApplication.
 @HiltAndroidApp
-public class GndApplication extends Application {
+public class GndApplication extends Application implements Configuration.Provider {
 
-  @Inject GndWorkerFactory workerFactory;
+  @Inject HiltWorkerFactory workerFactory;
 
   @Override
   protected void attachBaseContext(Context base) {
@@ -70,16 +70,17 @@ public class GndApplication extends Application {
     // Prevent RxJava from force-quitting on unhandled errors.
     RxJavaPlugins.setErrorHandler(RxDebug::logEnhancedStackTrace);
 
-    // Set custom worker factory that allow Workers to use Dagger injection.
-    // TODO(github.com/google/dagger/issues/1183): Remove once Workers support injection.
-    WorkManager.initialize(
-        this, new Configuration.Builder().setWorkerFactory(workerFactory).build());
-
     if (BuildConfig.DEBUG) {
       Timber.plant(new Timber.DebugTree());
     } else {
       Timber.plant(new CrashReportingTree());
     }
+  }
+
+  @Override
+  @NotNull
+  public Configuration getWorkManagerConfiguration() {
+    return new Configuration.Builder().setWorkerFactory(workerFactory).build();
   }
 
   private void setStrictMode() {

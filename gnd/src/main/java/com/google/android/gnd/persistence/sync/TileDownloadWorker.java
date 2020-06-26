@@ -18,6 +18,8 @@ package com.google.android.gnd.persistence.sync;
 
 import android.content.Context;
 import androidx.annotation.NonNull;
+import androidx.hilt.Assisted;
+import androidx.hilt.work.WorkerInject;
 import androidx.work.Data;
 import androidx.work.WorkerParameters;
 import com.google.android.gnd.R;
@@ -50,9 +52,10 @@ public class TileDownloadWorker extends BaseWorker {
   private final Context context;
   private final LocalDataStore localDataStore;
 
+  @WorkerInject
   public TileDownloadWorker(
-      @NonNull Context context,
-      @NonNull WorkerParameters params,
+      @Assisted @NonNull Context context,
+      @Assisted @NonNull WorkerParameters params,
       LocalDataStore localDataStore,
       NotificationManager notificationManager) {
     super(context, params, notificationManager, TileDownloadWorker.class.hashCode());
