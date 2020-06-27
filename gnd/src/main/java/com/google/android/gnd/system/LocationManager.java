@@ -27,6 +27,7 @@ import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.rx.BooleanOrError;
 import com.google.android.gnd.system.rx.RxFusedLocationProviderClient;
 import com.google.android.gnd.system.rx.RxLocationCallback;
+import dagger.hilt.android.scopes.ActivityScoped;
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
@@ -35,6 +36,7 @@ import io.reactivex.subjects.BehaviorSubject;
 import io.reactivex.subjects.Subject;
 import javax.inject.Inject;
 
+@ActivityScoped
 public class LocationManager {
   private static final String TAG = LocationManager.class.getSimpleName();
   private static final long UPDATE_INTERVAL = 1000 /* 1 sec */;

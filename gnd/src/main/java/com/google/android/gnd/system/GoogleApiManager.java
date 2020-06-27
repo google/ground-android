@@ -22,9 +22,11 @@ import android.app.Application;
 import android.content.Context;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
+import dagger.hilt.android.scopes.ActivityScoped;
 import io.reactivex.Completable;
 import javax.inject.Inject;
 
+@ActivityScoped
 public class GoogleApiManager {
   private static final int INSTALL_API_REQUEST_CODE =
       GoogleApiAvailability.class.hashCode() & 0xffff;
