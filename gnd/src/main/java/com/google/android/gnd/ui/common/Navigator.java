@@ -25,6 +25,7 @@ import com.google.android.gnd.ui.observationdetails.ObservationDetailsFragmentDi
 import com.google.android.gnd.ui.offlinearea.OfflineAreasFragmentDirections;
 import com.google.android.gnd.ui.signin.SignInFragmentDirections;
 import com.google.android.gnd.ui.startup.StartupFragmentDirections;
+import dagger.hilt.android.scopes.ActivityScoped;
 import io.reactivex.Observable;
 import io.reactivex.subjects.PublishSubject;
 import io.reactivex.subjects.Subject;
@@ -36,6 +37,7 @@ import javax.inject.Inject;
  * com.google.android.gnd.MainActivity}, which is expected to pass it to the current {@link
  * androidx.navigation.NavController}.
  */
+@ActivityScoped
 public class Navigator {
   private final Subject<NavDirections> navigateRequests;
   private final Subject<Object> navigateUpRequests;
