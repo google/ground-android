@@ -27,13 +27,6 @@ import dagger.hilt.android.components.FragmentComponent;
 @Module
 public class FragmentManagerModule {
 
-/*
-  @Provides
-  public Fragment fragment(FeatureDetailsFragment fragment) {
-    return fragment;
-  }
-*/
-
   @Provides
   public FragmentManager fragmentManager(Fragment fragment) {
     return fragment.getChildFragmentManager();
