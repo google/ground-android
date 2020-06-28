@@ -46,7 +46,8 @@ public class OfflineAreaViewerViewModel extends AbstractViewModel {
   private LiveData<OfflineArea> offlineArea;
 
   @Inject
-  public OfflineAreaViewerViewModel(OfflineAreaRepository offlineAreaRepository, @ApplicationContext Context context) {
+  public OfflineAreaViewerViewModel(
+      OfflineAreaRepository offlineAreaRepository, @ApplicationContext Context context) {
     this.argsProcessor = BehaviorProcessor.create();
     this.offlineAreaRepository = offlineAreaRepository;
     this.context = new WeakReference<>(context);
