@@ -47,9 +47,10 @@ public class TileDownloadWorkManager extends BaseWorkManager {
         ? NetworkType.UNMETERED
         : NetworkType.CONNECTED;
   }
+
   /**
    * Enqueues a worker that downloads files when a network connection is available, returning a
-   * completeable upon enqueueing.
+   * completable upon enqueueing.
    */
   public Completable enqueueTileDownloadWorker() {
     return Completable.fromRunnable(this::enqueueTileDownloadWorkerInternal);
