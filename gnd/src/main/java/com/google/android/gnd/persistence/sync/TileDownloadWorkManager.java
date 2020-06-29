@@ -16,26 +16,37 @@
 
 package com.google.android.gnd.persistence.sync;
 
-import androidx.work.Constraints;
 import androidx.work.NetworkType;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkManager;
+import com.google.android.gnd.persistence.local.LocalValueStore;
 import io.reactivex.Completable;
 import javax.inject.Inject;
 import javax.inject.Provider;
 
 /** Enqueues file download work to be done in the background. */
-public class TileDownloadWorkManager {
-  private static final Constraints CONSTRAINTS =
-      new Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build();
+public class TileDownloadWorkManager extends BaseWorkManager {
 
-  private final Provider<WorkManager> workManagerProvider;
+  private final LocalValueStore localValueStore;
 
   @Inject
-  public TileDownloadWorkManager(Provider<WorkManager> workManagerProvider) {
-    this.workManagerProvider = workManagerProvider;
+  public TileDownloadWorkManager(
+      Provider<WorkManager> workManagerProvider, LocalValueStore localValueStore) {
+    super(workManagerProvider);
+    this.localValueStore = localValueStore;
   }
 
+  @Override
+  Class<TileDownloadWorker> getWorkerClass() {
+    return TileDownloadWorker.class;
+  }
+
+  @Override
+  protected NetworkType preferredNetworkType() {
+    return localValueStore.shouldDownloadOfflineAreasOverWifiOnly()
+        ? NetworkType.UNMETERED
+        : NetworkType.CONNECTED;
+  }
   /**
    * Enqueues a worker that downloads files when a network connection is available, returning a
    * completeable upon enqueueing.
@@ -45,18 +56,7 @@ public class TileDownloadWorkManager {
   }
 
   private void enqueueTileDownloadWorkerInternal() {
-    OneTimeWorkRequest request = buildWorkerRequest();
-
+    OneTimeWorkRequest request = buildWorkerRequest(null);
     getWorkManager().enqueue(request);
-  }
-
-  private WorkManager getWorkManager() {
-    return workManagerProvider.get().getInstance();
-  }
-
-  private OneTimeWorkRequest buildWorkerRequest() {
-    return new OneTimeWorkRequest.Builder(TileDownloadWorker.class)
-        .setConstraints(CONSTRAINTS)
-        .build();
   }
 }

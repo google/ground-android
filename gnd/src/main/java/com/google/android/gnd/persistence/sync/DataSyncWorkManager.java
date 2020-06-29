@@ -16,32 +16,23 @@
 
 package com.google.android.gnd.persistence.sync;
 
-import androidx.work.BackoffPolicy;
-import androidx.work.Constraints;
 import androidx.work.ExistingWorkPolicy;
-import androidx.work.NetworkType;
-import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkManager;
-import androidx.work.WorkRequest;
 import io.reactivex.Completable;
-import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
 import javax.inject.Provider;
 
 /** Enqueues data sync work to be done in the background. */
-public class DataSyncWorkManager {
-  /** Number of milliseconds to wait before retrying failed sync tasks. */
-  private static final long SYNC_BACKOFF_MILLIS = WorkRequest.MIN_BACKOFF_MILLIS;
-
-  /**
-   * WorkManager is injected via {@code Provider} rather than directly to ensure the {@code
-   * Application} has a change to initialize it before {@code WorkManager.getInstance()} is called.
-   */
-  private final Provider<WorkManager> workManagerProvider;
+public class DataSyncWorkManager extends BaseWorkManager {
 
   @Inject
   public DataSyncWorkManager(Provider<WorkManager> workManagerProvider) {
-    this.workManagerProvider = workManagerProvider;
+    super(workManagerProvider);
+  }
+
+  @Override
+  Class<LocalMutationSyncWorker> getWorkerClass() {
+    return LocalMutationSyncWorker.class;
   }
 
   /**
@@ -62,23 +53,6 @@ public class DataSyncWorkManager {
         .enqueueUniqueWork(
             LocalMutationSyncWorker.class.getName(),
             ExistingWorkPolicy.APPEND,
-            buildWorkerRequest(featureId));
-  }
-
-  private WorkManager getWorkManager() {
-    return workManagerProvider.get().getInstance();
-  }
-
-  private Constraints getWorkerConstraints() {
-    // TODO: Make required NetworkType configurable.
-    return new Constraints.Builder().setRequiredNetworkType(NetworkType.NOT_ROAMING).build();
-  }
-
-  private OneTimeWorkRequest buildWorkerRequest(String featureId) {
-    return new OneTimeWorkRequest.Builder(LocalMutationSyncWorker.class)
-        .setConstraints(getWorkerConstraints())
-        .setBackoffCriteria(BackoffPolicy.LINEAR, SYNC_BACKOFF_MILLIS, TimeUnit.MILLISECONDS)
-        .setInputData(LocalMutationSyncWorker.createInputData(featureId))
-        .build();
+            buildWorkerRequest(LocalMutationSyncWorker.createInputData(featureId)));
   }
 }
