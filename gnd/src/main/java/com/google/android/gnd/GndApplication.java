@@ -24,6 +24,7 @@ import androidx.annotation.NonNull;
 import androidx.hilt.work.HiltWorkerFactory;
 import androidx.multidex.MultiDex;
 import androidx.work.Configuration;
+import androidx.work.WorkManager;
 import com.akaita.java.rxjava2debug.RxJava2Debug;
 import com.facebook.stetho.Stetho;
 import com.google.android.gnd.rx.RxDebug;
@@ -74,6 +75,8 @@ public class GndApplication extends Application implements Configuration.Provide
     } else {
       Timber.plant(new CrashReportingTree());
     }
+
+    WorkManager.initialize(getApplicationContext(), getWorkManagerConfiguration());
   }
 
   @Override
