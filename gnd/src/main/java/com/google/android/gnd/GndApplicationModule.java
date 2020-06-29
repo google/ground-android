@@ -19,18 +19,14 @@ package com.google.android.gnd;
 import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
-import androidx.room.Room;
 import androidx.work.WorkManager;
 import com.google.android.gms.common.GoogleApiAvailability;
-import com.google.android.gnd.persistence.local.room.LocalDatabase;
 import com.google.android.gnd.persistence.remote.RemoteDataStore;
 import com.google.android.gnd.persistence.remote.RemoteStorageManager;
 import com.google.android.gnd.persistence.remote.firestore.FirestoreDataStore;
 import com.google.android.gnd.persistence.remote.firestore.FirestoreStorageManager;
 import com.google.android.gnd.persistence.remote.firestore.FirestoreUuidGenerator;
 import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator;
-import com.google.android.gnd.rx.RxSchedulers;
-import com.google.android.gnd.rx.Schedulers;
 import com.google.android.gnd.ui.common.ViewModelModule;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreSettings;
@@ -41,7 +37,6 @@ import dagger.Module;
 import dagger.Provides;
 import dagger.hilt.InstallIn;
 import dagger.hilt.android.components.ApplicationComponent;
-import dagger.hilt.android.qualifiers.ApplicationContext;
 import javax.inject.Singleton;
 
 @InstallIn(ApplicationComponent.class)
@@ -53,10 +48,6 @@ abstract class GndApplicationModule {
   @Binds
   @Singleton
   abstract RemoteDataStore remoteDataStore(FirestoreDataStore ds);
-
-  @Binds
-  @Singleton
-  abstract Schedulers schedulers(RxSchedulers rxSchedulers);
 
   /** Provides the Firestore implementation of offline unique id generation. */
   @Binds
@@ -109,14 +100,5 @@ abstract class GndApplicationModule {
   @Singleton
   static StorageReference firebaseStorageReference() {
     return FirebaseStorage.getInstance().getReference();
-  }
-
-  @Provides
-  @Singleton
-  static LocalDatabase localDatabase(@ApplicationContext Context context) {
-    return Room.databaseBuilder(context, LocalDatabase.class, Config.DB_NAME)
-      // TODO(#128): Disable before official release.
-      .fallbackToDestructiveMigration()
-      .build();
   }
 }

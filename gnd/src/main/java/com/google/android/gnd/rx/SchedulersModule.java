@@ -14,12 +14,19 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd;
+package com.google.android.gnd.rx;
 
-import android.app.Application;
+import dagger.Binds;
+import dagger.Module;
+import dagger.hilt.InstallIn;
+import dagger.hilt.android.components.ApplicationComponent;
+import javax.inject.Singleton;
 
-/**
- * We don't want to initialize the GndApplicationComponent for Robolectric tests. Instead, tests
- * might want to use their own modules with testing-purpose or mocked dependencies.
- */
-public class TestApplication extends Application {}
+@InstallIn(ApplicationComponent.class)
+@Module
+public abstract class SchedulersModule {
+
+  @Binds
+  @Singleton
+  abstract Schedulers schedulers(RxSchedulers rxSchedulers);
+}

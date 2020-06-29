@@ -22,8 +22,6 @@ import static org.hamcrest.Matchers.samePropertyValuesAs;
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
-import com.google.android.gnd.TestApplication;
-import com.google.android.gnd.inject.DaggerTestComponent;
 import com.google.android.gnd.model.Mutation;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.User;
@@ -47,8 +45,13 @@ import com.google.android.gnd.model.observation.ObservationMutation;
 import com.google.android.gnd.model.observation.ResponseDelta;
 import com.google.android.gnd.model.observation.ResponseMap;
 import com.google.android.gnd.model.observation.TextResponse;
+import com.google.android.gnd.rx.SchedulersModule;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import dagger.hilt.android.testing.HiltAndroidRule;
+import dagger.hilt.android.testing.HiltAndroidTest;
+import dagger.hilt.android.testing.HiltTestApplication;
+import dagger.hilt.android.testing.UninstallModules;
 import io.reactivex.subscribers.TestSubscriber;
 import java.util.AbstractCollection;
 import java.util.Date;
@@ -62,9 +65,14 @@ import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
+
+@HiltAndroidTest
+@UninstallModules({SchedulersModule.class,LocalDatabaseModule.class})
+@Config(application = HiltTestApplication.class)
 @RunWith(RobolectricTestRunner.class)
-@Config(application = TestApplication.class)
 public class LocalDataStoreTest {
+
+  @Rule public HiltAndroidRule hiltRule = new HiltAndroidRule(this);
 
   private static final User TEST_USER =
       User.builder().setId("user id").setEmail("user@gmail.com").setDisplayName("user 1").build();
@@ -201,7 +209,7 @@ public class LocalDataStoreTest {
 
   @Before
   public void setUp() {
-    DaggerTestComponent.create().inject(this);
+    hiltRule.inject();
   }
 
   @Test

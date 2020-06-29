@@ -14,16 +14,20 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.inject;
+package com.google.android.gnd;
 
-import com.google.android.gnd.persistence.local.LocalDataStoreModule;
-import com.google.android.gnd.persistence.local.LocalDataStoreTest;
-import dagger.Component;
+import com.google.android.gnd.TestScheduler;
+import com.google.android.gnd.rx.Schedulers;
+import dagger.Binds;
+import dagger.Module;
+import dagger.hilt.InstallIn;
+import dagger.hilt.android.components.ApplicationComponent;
 import javax.inject.Singleton;
 
-@Singleton
-@Component(modules = {TestApplicationModule.class, LocalDataStoreModule.class})
-public interface TestComponent {
-
-  void inject(LocalDataStoreTest localDataStoreTest);
+@InstallIn(ApplicationComponent.class)
+@Module
+abstract class TestSchedulersModule {
+  @Binds
+  @Singleton
+  abstract Schedulers schedulers(TestScheduler testScheduler);
 }
