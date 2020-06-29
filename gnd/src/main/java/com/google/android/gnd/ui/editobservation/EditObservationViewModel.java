@@ -28,7 +28,6 @@ import androidx.databinding.ObservableMap;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import com.google.android.gnd.Config;
-import com.google.android.gnd.GndApplication;
 import com.google.android.gnd.R;
 import com.google.android.gnd.model.form.Element;
 import com.google.android.gnd.model.form.Element.Type;

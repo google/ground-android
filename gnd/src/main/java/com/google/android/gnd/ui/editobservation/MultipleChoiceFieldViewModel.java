@@ -18,7 +18,6 @@ package com.google.android.gnd.ui.editobservation;
 
 import android.app.Application;
 import androidx.lifecycle.MutableLiveData;
-import com.google.android.gnd.GndApplication;
 import com.google.android.gnd.rx.Nil;
 import javax.inject.Inject;
 

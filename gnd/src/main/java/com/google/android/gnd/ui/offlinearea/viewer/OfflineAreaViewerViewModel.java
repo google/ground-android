@@ -26,7 +26,6 @@ import com.google.android.gnd.model.basemap.tile.Tile;
 import com.google.android.gnd.repository.OfflineAreaRepository;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.common.collect.ImmutableSet;
-import dagger.hilt.android.qualifiers.ActivityContext;
 import dagger.hilt.android.qualifiers.ApplicationContext;
 import io.reactivex.processors.BehaviorProcessor;
 import java.io.File;

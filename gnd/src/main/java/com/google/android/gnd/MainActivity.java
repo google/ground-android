@@ -39,7 +39,6 @@ import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.ViewModelFactory;
 import dagger.hilt.android.AndroidEntryPoint;
 import javax.inject.Inject;
-import javax.inject.Singleton;
 import timber.log.Timber;
 
 /**

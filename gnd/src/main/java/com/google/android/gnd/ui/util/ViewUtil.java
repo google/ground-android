@@ -34,7 +34,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import com.google.android.gnd.system.DeviceCapabilities;
-import dagger.hilt.android.qualifiers.ApplicationContext;
 import java8.util.stream.IntStreams;
 import java8.util.stream.Stream;
 

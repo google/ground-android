@@ -50,6 +50,7 @@ public class GndApplication extends Application implements Configuration.Provide
 
   @Override
   public void onCreate() {
+    super.onCreate();
     if (BuildConfig.DEBUG) {
       Timber.d("DEBUG build config active; enabling debug tooling");
 
@@ -61,8 +62,6 @@ public class GndApplication extends Application implements Configuration.Provide
       // Log failures when trying to do work in the UI thread.
       setStrictMode();
     }
-
-    super.onCreate();
 
     // Enable RxJava assembly stack collection for more useful stack traces.
     RxJava2Debug.enableRxJava2AssemblyTracking(new String[] {getClass().getPackage().getName()});

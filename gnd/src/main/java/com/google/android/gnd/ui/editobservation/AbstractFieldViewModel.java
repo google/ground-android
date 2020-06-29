@@ -21,7 +21,6 @@ import android.content.res.Resources;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
 import androidx.lifecycle.MutableLiveData;
-import com.google.android.gnd.GndApplication;
 import com.google.android.gnd.R;
 import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.observation.Response;

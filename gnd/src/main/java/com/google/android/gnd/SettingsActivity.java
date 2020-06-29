@@ -20,7 +20,7 @@ import android.os.Bundle;
 import androidx.annotation.Nullable;
 import com.google.android.gnd.databinding.SettingsActivityBinding;
 import dagger.hilt.android.AndroidEntryPoint;
-import javax.inject.Singleton;
+
 
 @AndroidEntryPoint
 public class SettingsActivity extends AbstractActivity {
