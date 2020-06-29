@@ -68,7 +68,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
     switch (preference.getKey()) {
       case Keys.UPLOAD_MEDIA:
       case Keys.OFFLINE_AREAS:
-        Toast.makeText(getContext(), "Not yet implemented", Toast.LENGTH_SHORT).show();
+        // do nothing.
         break;
       default:
         break;
