@@ -35,9 +35,6 @@ import javax.inject.Inject;
 import org.jetbrains.annotations.NotNull;
 import timber.log.Timber;
 
-// TODO: When implementing background data sync service, we'll need to inject a Service here; we
-// should then extend DaggerApplication instead. If MultiDex is still needed, we can install it
-// without extending MultiDexApplication.
 @HiltAndroidApp
 public class GndApplication extends Application implements Configuration.Provider {
 
