@@ -149,6 +149,9 @@ dependencies {
     annotationProcessor "androidx.hilt:hilt-compiler:$project.hiltJetpackVersion"
     androidTestAnnotationProcessor "com.google.dagger:hilt-android-compiler:$project.hiltVersion"
     androidTestAnnotationProcessor "androidx.hilt:hilt-compiler:$project.hiltJetpackVersion"
+    testImplementation "com.google.dagger:hilt-android-testing:$project.hiltVersion"
+    testAnnotationProcessor "com.google.dagger:hilt-android-compiler:$project.hiltVersion"
+
 
     // ButterKnife
     implementation "com.jakewharton:butterknife:$project.butterKnifeVersion"
@@ -211,8 +214,6 @@ dependencies {
     testImplementation 'androidx.test:core:1.2.0'
     testImplementation 'org.robolectric:robolectric:4.3.1'
     testImplementation 'android.arch.core:core-testing:1.1.1'
-    testImplementation 'com.google.dagger:hilt-android-testing:2.28-alpha'
-    testAnnotationProcessor 'com.google.dagger:hilt-android-compiler:2.28-alpha'
 
     androidTestImplementation('androidx.test.espresso:espresso-core:3.1.0-alpha4', {
         exclude group: 'com.android.support', module: 'support-annotations'
