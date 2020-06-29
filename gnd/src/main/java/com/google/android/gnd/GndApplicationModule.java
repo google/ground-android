@@ -45,8 +45,7 @@ import dagger.android.support.AndroidSupportInjectionModule;
 import javax.inject.Singleton;
 
 @Module(includes = {AndroidSupportInjectionModule.class, ViewModelModule.class})
-abstract class GndApplicationModule {
-  private static final String SHARED_PREFERENCES_NAME = "shared_prefs";
+public abstract class GndApplicationModule {
 
   /** Causes Dagger Android to generate a sub-component for the MainActivity. */
   @ActivityScoped
@@ -96,7 +95,7 @@ abstract class GndApplicationModule {
   static SharedPreferences sharedPreferences(GndApplication application) {
     return application
         .getApplicationContext()
-        .getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
+        .getSharedPreferences(Config.SHARED_PREFS_NAME, Config.SHARED_PREFS_MODE);
   }
 
   @Provides

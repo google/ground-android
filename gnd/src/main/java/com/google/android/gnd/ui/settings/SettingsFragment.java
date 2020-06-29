@@ -20,10 +20,13 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.widget.Toast;
+import androidx.annotation.Nullable;
 import androidx.preference.Preference;
 import androidx.preference.Preference.OnPreferenceChangeListener;
 import androidx.preference.Preference.OnPreferenceClickListener;
 import androidx.preference.PreferenceFragmentCompat;
+import androidx.preference.PreferenceManager;
+import com.google.android.gnd.Config;
 import com.google.android.gnd.R;
 
 /**
@@ -37,6 +40,14 @@ import com.google.android.gnd.R;
  */
 public class SettingsFragment extends PreferenceFragmentCompat
     implements OnPreferenceChangeListener, OnPreferenceClickListener {
+
+  @Override
+  public void onCreate(@Nullable Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    PreferenceManager preferenceManager = getPreferenceManager();
+    preferenceManager.setSharedPreferencesName(Config.SHARED_PREFS_NAME);
+    preferenceManager.setSharedPreferencesMode(Config.SHARED_PREFS_MODE);
+  }
 
   @Override
   public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
