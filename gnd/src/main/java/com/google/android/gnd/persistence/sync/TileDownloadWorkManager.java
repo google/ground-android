@@ -43,7 +43,7 @@ public class TileDownloadWorkManager extends BaseWorkManager {
 
   @Override
   protected NetworkType preferredNetworkType() {
-    return localValueStore.shouldDownloadOfflineAreasOverWifiOnly()
+    return localValueStore.shouldDownloadOfflineAreasOverUnmeteredConnectionOnly()
         ? NetworkType.UNMETERED
         : NetworkType.CONNECTED;
   }

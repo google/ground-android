@@ -55,11 +55,11 @@ public class LocalValueStore {
     preferences.edit().remove(ACTIVE_PROJECT_ID_KEY).apply();
   }
 
-  public boolean shouldUploadMediaOverWifiOnly() {
+  public boolean shouldUploadMediaOverUnmeteredConnectionOnly() {
     return preferences.getBoolean(Keys.UPLOAD_MEDIA, false);
   }
 
-  public boolean shouldDownloadOfflineAreasOverWifiOnly() {
+  public boolean shouldDownloadOfflineAreasOverUnmeteredConnectionOnly() {
     return preferences.getBoolean(Keys.OFFLINE_AREAS, false);
   }
 }

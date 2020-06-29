@@ -44,7 +44,7 @@ public class PhotoSyncWorkManager extends BaseWorkManager {
 
   @Override
   protected NetworkType preferredNetworkType() {
-    return localValueStore.shouldUploadMediaOverWifiOnly()
+    return localValueStore.shouldUploadMediaOverUnmeteredConnectionOnly()
         ? NetworkType.UNMETERED
         : NetworkType.CONNECTED;
   }
