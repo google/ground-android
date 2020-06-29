@@ -69,7 +69,12 @@
     <uses-library
       android:name="org.apache.http.legacy"
       android:required="false" />
-    
+
+    <!-- Remove the default WorkManager initializer since we are providing our own -->
+    <provider
+      android:name="androidx.work.impl.WorkManagerInitializer"
+      android:authorities="${applicationId}.workmanager-init"
+      tools:node="remove" />
   </application>
 
 </manifest>
