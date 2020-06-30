@@ -85,10 +85,14 @@ public class HomeScreenViewModel extends AbstractViewModel {
                         .toSingleDefault(newFeature)
                         .doOnError(this::onAddFeatureError)
                         .onErrorResumeNext(Single.never())) // Prevent from breaking upstream.
-            .filter(feature -> feature.getLayer().getForm().isPresent())
-            .doOnNext(this::addNewObservation)
             .observeOn(schedulers.ui())
-            .subscribe());
+            .subscribe(this::onAddFeature));
+  }
+
+  private void onAddFeature(Feature feature) {
+    if (feature.getLayer().getForm().isPresent()) {
+      addNewObservation(feature);
+    }
   }
 
   private void addNewObservation(Feature feature) {
