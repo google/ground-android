@@ -31,10 +31,10 @@ import javax.inject.Provider;
 /**
  * Base class for creating a work manager for scheduling background tasks.
  *
- * <p>By default, the only constraint is availability of any type of internet connection as it is
- * assumed that all background tasks need at-least some sort of connectivity.
+ * <p>By default, the only constraint is availability of any type of internet connection, as it is
+ * assumed that all background tasks need at least some sort of connectivity.
  *
- * <p>In case of when the required criteria is not met, the next attempt uses EXPONENTIAL backoff
+ * <p>In case the required criteria are not met, the next attempt uses EXPONENTIAL backoff
  * policy with a backoff delay of 10 seconds.
  */
 public abstract class BaseWorkManager {
