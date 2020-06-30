@@ -17,7 +17,6 @@
 package com.google.android.gnd;
 
 import androidx.appcompat.app.AppCompatActivity;
-
 import com.google.android.gnd.inject.ActivityScoped;
 import com.google.android.gnd.inject.FragmentScoped;
 import com.google.android.gnd.ui.editobservation.EditObservationFragment;
@@ -43,7 +42,6 @@ import com.google.android.gnd.ui.signin.SignInFragment;
 import com.google.android.gnd.ui.signin.SignInModule;
 import com.google.android.gnd.ui.startup.StartupFragment;
 import com.google.android.gnd.ui.startup.StartupModule;
-
 import dagger.Binds;
 import dagger.Module;
 import dagger.android.ContributesAndroidInjector;

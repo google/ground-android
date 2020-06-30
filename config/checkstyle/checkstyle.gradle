@@ -42,5 +42,6 @@ tasks.register("checkstyle", Checkstyle) {
     include '**/*.java'
     include '**/*.xml'
     exclude '**/gen/**'
+    exclude '**/LocalDatabase.java'
     classpath = files()
 }

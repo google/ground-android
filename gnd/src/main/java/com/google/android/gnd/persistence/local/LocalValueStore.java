@@ -46,17 +46,11 @@ public class LocalValueStore {
 
   /** Set the id of the last project successfully activated by the user. */
   public void setLastActiveProjectId(@NonNull String id) {
-    preferences
-      .edit()
-      .putString(ACTIVE_PROJECT_ID_KEY, id)
-      .apply();
+    preferences.edit().putString(ACTIVE_PROJECT_ID_KEY, id).apply();
   }
 
   /** Removes the last active project id in the local value store. */
   public void clearLastActiveProjectId() {
-    preferences
-      .edit()
-      .remove(ACTIVE_PROJECT_ID_KEY)
-      .apply();
+    preferences.edit().remove(ACTIVE_PROJECT_ID_KEY).apply();
   }
 }
