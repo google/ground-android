@@ -28,10 +28,22 @@ import androidx.work.WorkRequest;
 import java.util.concurrent.TimeUnit;
 import javax.inject.Provider;
 
+/**
+ * Base class for creating a work manager for scheduling background tasks.
+ *
+ * <p>By default, the only constraint is availability of any type of internet connection as it is
+ * assumed that all background tasks need at-least some sort of connectivity.
+ *
+ * <p>In case of when the required criteria is not met, the next attempt uses EXPONENTIAL backoff
+ * policy with a backoff delay of 10 seconds.
+ */
 public abstract class BaseWorkManager {
 
+  /** Backoff time should increase exponentially. */
+  private static final BackoffPolicy BACKOFF_POLICY = BackoffPolicy.EXPONENTIAL;
+
   /** Number of milliseconds to wait before retrying failed sync tasks. */
-  private static final long SYNC_BACKOFF_MILLIS = WorkRequest.MIN_BACKOFF_MILLIS;
+  private static final long BACKOFF_DELAY_MILLIS = WorkRequest.MIN_BACKOFF_MILLIS;
 
   /** Any working network connection is required for this work. */
   private static final NetworkType DEFAULT_NETWORK_TYPE = NetworkType.CONNECTED;
@@ -68,7 +80,7 @@ public abstract class BaseWorkManager {
     Builder builder =
         new Builder(getWorkerClass())
             .setConstraints(getWorkerConstraints())
-            .setBackoffCriteria(BackoffPolicy.LINEAR, SYNC_BACKOFF_MILLIS, TimeUnit.MILLISECONDS);
+            .setBackoffCriteria(BACKOFF_POLICY, BACKOFF_DELAY_MILLIS, TimeUnit.MILLISECONDS);
 
     if (inputData != null) {
       builder.setInputData(inputData);
