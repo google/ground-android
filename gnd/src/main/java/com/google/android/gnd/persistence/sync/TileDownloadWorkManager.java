@@ -17,7 +17,6 @@
 package com.google.android.gnd.persistence.sync;
 
 import androidx.work.NetworkType;
-import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkManager;
 import com.google.android.gnd.persistence.local.LocalValueStore;
 import io.reactivex.Completable;
@@ -57,7 +56,6 @@ public class TileDownloadWorkManager extends BaseWorkManager {
   }
 
   private void enqueueTileDownloadWorkerInternal() {
-    OneTimeWorkRequest request = buildWorkerRequest(null);
-    getWorkManager().enqueue(request);
+    getWorkManager().enqueue(buildWorkerRequest());
   }
 }

@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.persistence.sync;
 
+import androidx.work.Data;
 import androidx.work.ExistingWorkPolicy;
 import androidx.work.WorkManager;
 import io.reactivex.Completable;
@@ -49,10 +50,11 @@ public class DataSyncWorkManager extends BaseWorkManager {
     // featureId, we instead queue a new worker on each new mutation. This simplifies the worker
     // implementation and avoids race conditions in the rare event the worker finishes just when new
     // mutations are added to the db.
+    Data inputData = LocalMutationSyncWorker.createInputData(featureId);
     getWorkManager()
         .enqueueUniqueWork(
             LocalMutationSyncWorker.class.getName(),
             ExistingWorkPolicy.APPEND,
-            buildWorkerRequest(LocalMutationSyncWorker.createInputData(featureId)));
+            buildWorkerRequest(inputData));
   }
 }

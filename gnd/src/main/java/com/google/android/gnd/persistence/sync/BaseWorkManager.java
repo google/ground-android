@@ -62,6 +62,7 @@ public abstract class BaseWorkManager {
     return workManagerProvider.get().getInstance();
   }
 
+  /** A set of constraints that must be satisfied in order to start the scheduled job. */
   protected Constraints getWorkerConstraints() {
     return new Constraints.Builder().setRequiredNetworkType(preferredNetworkType()).build();
   }
@@ -74,8 +75,18 @@ public abstract class BaseWorkManager {
     return DEFAULT_NETWORK_TYPE;
   }
 
+  /** A class extending {@link BaseWorker} which gets scheduled for a request. */
   abstract Class<? extends BaseWorker> getWorkerClass();
 
+  /** Create a work request for non-repeating work with default constraints and backoff-criteria. */
+  protected OneTimeWorkRequest buildWorkerRequest() {
+    return buildWorkerRequest(null);
+  }
+
+  /**
+   * Create a work request for non-repeating work along with input data that would be passed along
+   * to the worker class.
+   */
   protected OneTimeWorkRequest buildWorkerRequest(@Nullable Data inputData) {
     Builder builder =
         new Builder(getWorkerClass())
