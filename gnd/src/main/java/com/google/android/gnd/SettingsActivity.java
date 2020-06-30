@@ -19,9 +19,10 @@ package com.google.android.gnd;
 import android.os.Bundle;
 import androidx.annotation.Nullable;
 import com.google.android.gnd.databinding.SettingsActivityBinding;
-import javax.inject.Singleton;
+import dagger.hilt.android.AndroidEntryPoint;
 
-@Singleton
+
+@AndroidEntryPoint
 public class SettingsActivity extends AbstractActivity {
 
   @Override

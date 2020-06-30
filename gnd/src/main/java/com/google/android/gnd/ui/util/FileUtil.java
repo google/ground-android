@@ -18,6 +18,7 @@ package com.google.android.gnd.ui.util;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import dagger.hilt.android.qualifiers.ApplicationContext;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -31,7 +32,7 @@ public class FileUtil {
   private final Context context;
 
   @Inject
-  public FileUtil(Context context) {
+  public FileUtil(@ApplicationContext Context context) {
     this.context = context;
   }
 

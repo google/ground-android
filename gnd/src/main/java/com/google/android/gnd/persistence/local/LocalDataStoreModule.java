@@ -34,8 +34,11 @@ import com.google.android.gnd.persistence.local.room.dao.UserDao;
 import dagger.Binds;
 import dagger.Module;
 import dagger.Provides;
+import dagger.hilt.InstallIn;
+import dagger.hilt.android.components.ApplicationComponent;
 import javax.inject.Singleton;
 
+@InstallIn(ApplicationComponent.class)
 @Module
 public abstract class LocalDataStoreModule {
 

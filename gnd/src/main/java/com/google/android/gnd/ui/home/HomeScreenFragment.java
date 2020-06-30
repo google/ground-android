@@ -45,7 +45,6 @@ import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.MainViewModel;
 import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.HomeScreenFragBinding;
-import com.google.android.gnd.inject.ActivityScoped;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.rx.Loadable;
@@ -62,6 +61,7 @@ import com.google.android.gnd.ui.projectselector.ProjectSelectorViewModel;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.navigation.NavigationView.OnNavigationItemSelectedListener;
+import dagger.hilt.android.AndroidEntryPoint;
 import io.reactivex.subjects.PublishSubject;
 import java.util.List;
 import javax.inject.Inject;
@@ -72,7 +72,7 @@ import timber.log.Timber;
  * This is the default view in the application, and gets swapped out for other fragments (e.g., view
  * observation and edit observation) at runtime.
  */
-@ActivityScoped
+@AndroidEntryPoint
 public class HomeScreenFragment extends AbstractFragment
     implements BackPressListener, OnNavigationItemSelectedListener, OnGlobalLayoutListener {
   // TODO: It's not obvious which feature are in HomeScreen vs MapContainer; make this more

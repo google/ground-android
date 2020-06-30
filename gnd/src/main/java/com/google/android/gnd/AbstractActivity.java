@@ -24,15 +24,15 @@ import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.FrameLayout;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import com.google.android.gnd.ui.common.TwoLineToolbar;
 import com.google.android.gnd.ui.util.DrawableUtil;
-import dagger.android.support.DaggerAppCompatActivity;
 import javax.annotation.OverridingMethodsMustInvokeSuper;
 
 /** Base activity class containing common helper methods. */
-public abstract class AbstractActivity extends DaggerAppCompatActivity {
+public abstract class AbstractActivity extends AppCompatActivity {
 
   private DrawableUtil drawableUtil;
 

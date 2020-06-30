@@ -26,6 +26,7 @@ import com.google.android.gnd.persistence.remote.RemoteStorageManager;
 import com.google.android.gnd.rx.RxTask;
 import com.google.android.gnd.system.ActivityStreams.ActivityResult;
 import com.google.android.gnd.ui.util.FileUtil;
+import dagger.hilt.android.qualifiers.ApplicationContext;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.Single;
@@ -49,7 +50,7 @@ public class StorageManager {
 
   @Inject
   public StorageManager(
-      Context context,
+      @ApplicationContext Context context,
       PermissionsManager permissionsManager,
       ActivityStreams activityStreams,
       RemoteStorageManager remoteStorageManager,

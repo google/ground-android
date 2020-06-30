@@ -37,14 +37,14 @@ import com.google.android.gnd.ui.common.BackPressListener;
 import com.google.android.gnd.ui.common.EphemeralPopups;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.ViewModelFactory;
+import dagger.hilt.android.AndroidEntryPoint;
 import javax.inject.Inject;
-import javax.inject.Singleton;
 import timber.log.Timber;
 
 /**
  * The app's main activity. The app consists of multiples Fragments that live under this activity.
  */
-@Singleton
+@AndroidEntryPoint
 public class MainActivity extends AbstractActivity {
 
   @Inject ActivityStreams activityStreams;

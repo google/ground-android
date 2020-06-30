@@ -14,22 +14,19 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd;
+package com.google.android.gnd.rx;
 
-import androidx.appcompat.app.AppCompatActivity;
-import com.google.android.gnd.inject.ActivityScoped;
 import dagger.Binds;
 import dagger.Module;
+import dagger.hilt.InstallIn;
+import dagger.hilt.android.components.ApplicationComponent;
+import javax.inject.Singleton;
 
-/** Provides dependencies to {@link SettingsActivity} and fragments. */
+@InstallIn(ApplicationComponent.class)
 @Module
-public abstract class SettingsActivityModule {
+public abstract class SchedulersModule {
 
-  /**
-   * This provides the activity required to inject the fragment manager into {@link
-   * SettingsActivity}.
-   */
   @Binds
-  @ActivityScoped
-  abstract AppCompatActivity appCompatActivity(SettingsActivity settingsActivity);
+  @Singleton
+  abstract Schedulers schedulers(RxSchedulers rxSchedulers);
 }

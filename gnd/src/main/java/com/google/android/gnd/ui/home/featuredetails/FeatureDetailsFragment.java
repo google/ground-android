@@ -30,9 +30,11 @@ import com.google.android.gnd.databinding.FeatureDetailsFragBinding;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.home.BottomSheetState;
 import com.google.android.gnd.ui.home.HomeScreenViewModel;
+import dagger.hilt.android.AndroidEntryPoint;
 import javax.inject.Inject;
 
 /** Fragment containing the contents of the bottom sheet shown when a feature is selected. */
+@AndroidEntryPoint
 public class FeatureDetailsFragment extends AbstractFragment {
 
   @BindView(R.id.observation_list_container)
