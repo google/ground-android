@@ -19,6 +19,7 @@ package com.google.android.gnd.ui.editobservation;
 import static androidx.lifecycle.LiveDataReactiveStreams.fromPublisher;
 import static com.google.android.gnd.persistence.remote.firestore.FirestoreStorageManager.getRemoteDestinationPath;
 
+import android.app.Application;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.view.View;
@@ -27,7 +28,6 @@ import androidx.databinding.ObservableMap;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import com.google.android.gnd.Config;
-import com.google.android.gnd.GndApplication;
 import com.google.android.gnd.R;
 import com.google.android.gnd.model.form.Element;
 import com.google.android.gnd.model.form.Element.Type;
@@ -123,7 +123,7 @@ public class EditObservationViewModel extends AbstractViewModel {
 
   @Inject
   EditObservationViewModel(
-      GndApplication application,
+      Application application,
       ObservationRepository observationRepository,
       AuthenticationManager authenticationManager,
       StorageManager storageManager,

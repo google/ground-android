@@ -36,8 +36,11 @@ import com.google.android.gnd.ui.projectselector.ProjectSelectorViewModel;
 import com.google.android.gnd.ui.signin.SignInViewModel;
 import dagger.Binds;
 import dagger.Module;
+import dagger.hilt.InstallIn;
+import dagger.hilt.android.components.ApplicationComponent;
 import dagger.multibindings.IntoMap;
 
+@InstallIn(ApplicationComponent.class)
 @Module
 public abstract class ViewModelModule {
   @Binds

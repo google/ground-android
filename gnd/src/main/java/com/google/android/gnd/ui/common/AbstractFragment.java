@@ -31,10 +31,9 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModel;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
-import dagger.android.support.DaggerFragment;
 import javax.inject.Inject;
 
-public abstract class AbstractFragment extends DaggerFragment {
+public abstract class AbstractFragment extends Fragment {
   /**
    * Keeps track of fields bound to views so that they can be set to null when the view is
    * destroyed, freeing up memory.

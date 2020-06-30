@@ -14,22 +14,21 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.inject;
+package com.google.android.gnd.persistence.local;
 
 import android.content.Context;
 import androidx.room.Room;
 import androidx.test.core.app.ApplicationProvider;
-import com.google.android.gnd.TestScheduler;
 import com.google.android.gnd.persistence.local.room.LocalDatabase;
-import com.google.android.gnd.rx.Schedulers;
-import dagger.Binds;
 import dagger.Module;
 import dagger.Provides;
+import dagger.hilt.InstallIn;
+import dagger.hilt.android.components.ApplicationComponent;
 import javax.inject.Singleton;
 
+@InstallIn(ApplicationComponent.class)
 @Module
-abstract class TestApplicationModule {
-
+abstract class TestLocalDatabaseModule {
   @Provides
   static Context contextProvider() {
     return ApplicationProvider.getApplicationContext();
@@ -39,11 +38,7 @@ abstract class TestApplicationModule {
   @Singleton
   static LocalDatabase localDatabaseProvider(Context context) {
     return Room.inMemoryDatabaseBuilder(context, LocalDatabase.class)
-        .allowMainThreadQueries()
-        .build();
+      .allowMainThreadQueries()
+      .build();
   }
-
-  @Binds
-  @Singleton
-  abstract Schedulers schedulers(TestScheduler testScheduler);
 }

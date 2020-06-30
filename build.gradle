@@ -17,6 +17,9 @@
 // Top-level build file. Configuration specified here is inherited by all sub-projects/modules.
 
 buildscript {
+    ext {
+        hiltVersion = "2.28-alpha"
+    }
     repositories {
         google()
         jcenter()
@@ -26,6 +29,7 @@ buildscript {
     }
     dependencies {
         classpath "android.arch.navigation:navigation-safe-args-gradle-plugin:1.0.0"
+        classpath "com.google.dagger:hilt-android-gradle-plugin:$hiltVersion"
         classpath 'com.android.tools.build:gradle:4.0.0'
         classpath "com.google.gms:google-services:4.3.3"
         classpath "com.pascalwelsch.gitversioner:gitversioner:0.5.0"
