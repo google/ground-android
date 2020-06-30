@@ -29,6 +29,8 @@ import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.OfflineAreaSelectorFragBinding;
 import com.google.android.gnd.ui.common.AbstractFragment;
+import com.google.android.gnd.ui.common.EphemeralPopups;
+import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.map.MapAdapter;
 import com.google.android.gnd.ui.map.MapProvider;
 import dagger.hilt.android.AndroidEntryPoint;
@@ -39,6 +41,8 @@ import javax.inject.Inject;
 public class OfflineAreaSelectorFragment extends AbstractFragment {
 
   private static final String MAP_FRAGMENT = MapProvider.class.getName() + "#fragment";
+
+  @Inject Navigator navigator;
 
   @Inject MapProvider mapProvider;
 
@@ -90,6 +94,8 @@ public class OfflineAreaSelectorFragment extends AbstractFragment {
       return;
     }
 
+    EphemeralPopups.showSuccess(getContext(), R.string.offline_area_download_started);
     viewModel.onDownloadClick(map.getViewport());
+    navigator.navigateUp();
   }
 }
