@@ -24,6 +24,7 @@ import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gnd.rx.RxTask;
+import dagger.hilt.android.qualifiers.ApplicationContext;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
 import javax.inject.Inject;
@@ -36,7 +37,7 @@ public class RxFusedLocationProviderClient {
   private final FusedLocationProviderClient fusedLocationProviderClient;
 
   @Inject
-  public RxFusedLocationProviderClient(Context context) {
+  public RxFusedLocationProviderClient(@ApplicationContext Context context) {
     this.fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(context);
   }
 

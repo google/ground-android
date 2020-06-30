@@ -18,6 +18,7 @@ package com.google.android.gnd.ui.util;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import dagger.hilt.android.qualifiers.ApplicationContext;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -31,7 +32,7 @@ public class FileUtil {
   private final Context context;
 
   @Inject
-  public FileUtil(Context context) {
+  public FileUtil(@ApplicationContext Context context) {
     this.context = context;
   }
 
@@ -49,6 +50,15 @@ public class FileUtil {
 
     Timber.d("Photo saved : %s", file.getPath());
     return file;
+  }
+
+  /**
+   * Returns the path of the file saved in the sdcard used for uploading to the provided destination
+   * path.
+   */
+  public File getLocalFileFromDestinationPath(String destinationPath) throws FileNotFoundException {
+    String[] splits = destinationPath.split("/");
+    return getFile(splits[splits.length - 1]);
   }
 
   public File getFile(String filename) throws FileNotFoundException {

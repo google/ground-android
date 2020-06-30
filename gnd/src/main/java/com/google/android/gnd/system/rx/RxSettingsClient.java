@@ -22,6 +22,7 @@ import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.LocationSettingsResponse;
 import com.google.android.gms.location.SettingsClient;
 import com.google.android.gnd.rx.RxTask;
+import dagger.hilt.android.qualifiers.ApplicationContext;
 import io.reactivex.Single;
 import javax.inject.Inject;
 
@@ -31,7 +32,7 @@ public class RxSettingsClient {
   private final SettingsClient settingsClient;
 
   @Inject
-  public RxSettingsClient(Context context) {
+  public RxSettingsClient(@ApplicationContext Context context) {
     this.settingsClient = LocationServices.getSettingsClient(context);
   }
 

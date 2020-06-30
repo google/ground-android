@@ -31,12 +31,16 @@ import com.google.android.gnd.ui.home.mapcontainer.MapContainerViewModel;
 import com.google.android.gnd.ui.observationdetails.ObservationDetailsViewModel;
 import com.google.android.gnd.ui.offlinearea.OfflineAreasViewModel;
 import com.google.android.gnd.ui.offlinearea.selector.OfflineAreaSelectorViewModel;
+import com.google.android.gnd.ui.offlinearea.viewer.OfflineAreaViewerViewModel;
 import com.google.android.gnd.ui.projectselector.ProjectSelectorViewModel;
 import com.google.android.gnd.ui.signin.SignInViewModel;
 import dagger.Binds;
 import dagger.Module;
+import dagger.hilt.InstallIn;
+import dagger.hilt.android.components.ApplicationComponent;
 import dagger.multibindings.IntoMap;
 
+@InstallIn(ApplicationComponent.class)
 @Module
 public abstract class ViewModelModule {
   @Binds
@@ -53,6 +57,11 @@ public abstract class ViewModelModule {
   @IntoMap
   @ViewModelKey(OfflineAreasViewModel.class)
   abstract ViewModel bindOfflineAreasViewModel(OfflineAreasViewModel viewModel);
+
+  @Binds
+  @IntoMap
+  @ViewModelKey(OfflineAreaViewerViewModel.class)
+  abstract ViewModel bindOfflineAreaViewerViewModel(OfflineAreaViewerViewModel viewModel);
 
   @Binds
   @IntoMap

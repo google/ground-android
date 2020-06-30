@@ -16,6 +16,9 @@
 
 package com.google.android.gnd.ui.editobservation;
 
+import static com.google.android.gnd.ui.editobservation.AddPhotoDialogAdapter.PhotoStorageResource.PHOTO_SOURCE_CAMERA;
+import static com.google.android.gnd.ui.editobservation.AddPhotoDialogAdapter.PhotoStorageResource.PHOTO_SOURCE_STORAGE;
+
 import android.app.AlertDialog;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -25,6 +28,8 @@ import android.widget.LinearLayout;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.databinding.ViewDataBinding;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
 import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.R;
@@ -33,19 +38,20 @@ import com.google.android.gnd.databinding.EditObservationFragBinding;
 import com.google.android.gnd.databinding.MultipleChoiceInputFieldBinding;
 import com.google.android.gnd.databinding.PhotoInputFieldBinding;
 import com.google.android.gnd.databinding.TextInputFieldBinding;
-import com.google.android.gnd.inject.ActivityScoped;
 import com.google.android.gnd.model.form.Element;
 import com.google.android.gnd.model.form.Element.Type;
 import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.model.form.MultipleChoice.Cardinality;
 import com.google.android.gnd.model.observation.Response;
+import com.google.android.gnd.model.observation.TextResponse;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.BackPressListener;
 import com.google.android.gnd.ui.common.EphemeralPopups;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.TwoLineToolbar;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
+import dagger.hilt.android.AndroidEntryPoint;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -55,7 +61,7 @@ import java8.util.function.Consumer;
 import javax.inject.Inject;
 import timber.log.Timber;
 
-@ActivityScoped
+@AndroidEntryPoint
 public class EditObservationFragment extends AbstractFragment implements BackPressListener {
 
   private final List<AbstractFieldViewModel> fieldViewModelList = new ArrayList<>();
@@ -140,10 +146,11 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
   }
 
   private void addFieldViewModel(Field field, AbstractFieldViewModel fieldViewModel) {
-    fieldViewModel.init(field, viewModel.getResponse(field.getId()));
+    fieldViewModel.init(field, viewModel.getSavedOrOriginalResponse(field.getId()));
 
     if (fieldViewModel instanceof PhotoFieldViewModel) {
       observeSelectPhotoClicks((PhotoFieldViewModel) fieldViewModel);
+      observePhotoAdded((PhotoFieldViewModel) fieldViewModel);
     } else if (fieldViewModel instanceof MultipleChoiceFieldViewModel) {
       observeMultipleChoiceClicks((MultipleChoiceFieldViewModel) fieldViewModel);
     }
@@ -211,10 +218,23 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
     }
   }
 
-  private void observeSelectPhotoClicks(PhotoFieldViewModel viewModel) {
-    viewModel
+  private void observeSelectPhotoClicks(PhotoFieldViewModel fieldViewModel) {
+    fieldViewModel
         .getShowDialogClicks()
-        .observe(this, __ -> onShowPhotoSelectorDialog(viewModel.getField()));
+        .observe(this, __ -> onShowPhotoSelectorDialog(fieldViewModel.getField()));
+  }
+
+  private void observePhotoAdded(PhotoFieldViewModel fieldViewModel) {
+    viewModel
+        .getPhotoFieldUpdates()
+        .observe(
+            this,
+            map -> {
+              Field field = fieldViewModel.getField();
+              if (map.containsKey(field)) {
+                fieldViewModel.setResponse(TextResponse.fromString(map.get(field)));
+              }
+            });
   }
 
   private void onShowPhotoSelectorDialog(Field field) {
@@ -227,6 +247,26 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
     bottomSheetDialog.setContentView(addPhotoBottomSheetBinding.getRoot());
     bottomSheetDialog.setCancelable(true);
     bottomSheetDialog.show();
+
+    AddPhotoDialogAdapter.ItemClickListener listener =
+        type -> {
+          bottomSheetDialog.dismiss();
+          switch (type) {
+            case PHOTO_SOURCE_CAMERA:
+              viewModel.showPhotoCapture(field);
+              break;
+            case PHOTO_SOURCE_STORAGE:
+              viewModel.showPhotoSelector(field);
+              break;
+            default:
+              throw new IllegalArgumentException("Unknown type: " + type);
+          }
+        };
+
+    RecyclerView recyclerView = addPhotoBottomSheetBinding.recyclerView;
+    recyclerView.setHasFixedSize(true);
+    recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+    recyclerView.setAdapter(new AddPhotoDialogAdapter(listener));
   }
 
   @Override

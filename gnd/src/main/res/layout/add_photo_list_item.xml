@@ -16,28 +16,26 @@
   ~ limitations under the License.
   -->
 
-<layout xmlns:android="http://schemas.android.com/apk/res/android">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:tools="http://schemas.android.com/tools"
+  android:layout_width="match_parent"
+  android:layout_height="wrap_content"
+  android:background="?android:attr/selectableItemBackground"
+  android:gravity="center"
+  android:orientation="horizontal">
 
-  <data>
-    <variable
-      name="field"
-      type="com.google.android.gnd.model.form.Field" />
-    <variable
-      name="viewModel"
-      type="com.google.android.gnd.ui.editobservation.EditObservationViewModel" />
-  </data>
+  <ImageView
+    android:id="@+id/imageView"
+    android:layout_width="32dp"
+    android:layout_height="32dp"
+    android:layout_margin="@dimen/add_photo_bottom_sheet_drawable_margin"
+    tools:src="@drawable/ic_photo_camera" />
 
-  <LinearLayout
+  <TextView
+    android:id="@+id/textView"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:paddingTop="8dp"
-    android:paddingBottom="8dp">
+    android:textSize="@dimen/add_photo_bottom_sheet_text_size"
+    tools:text="@string/action_camera" />
 
-    <androidx.recyclerview.widget.RecyclerView
-      android:id="@+id/recycler_view"
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content" />
-  </LinearLayout>
-
-</layout>
+</LinearLayout>

@@ -2,7 +2,6 @@ apply plugin: 'com.android.library'
 
 android {
     compileSdkVersion 28
-    buildToolsVersion "28.0.3"
 
     defaultConfig {
         minSdkVersion 15
@@ -18,6 +17,6 @@ android {
 }
 
 dependencies {
-  implementation "com.google.android.gms:play-services-base:17.2.1"
+  implementation "com.google.android.gms:play-services-base:17.3.0"
   implementation "com.google.android.gms:play-services-maps:17.0.0"
 }

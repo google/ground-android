@@ -42,11 +42,13 @@ import com.google.android.gnd.ui.home.HomeScreenViewModel;
 import com.google.android.gnd.ui.map.MapAdapter;
 import com.google.android.gnd.ui.map.MapProvider;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import dagger.hilt.android.AndroidEntryPoint;
 import io.reactivex.Single;
 import javax.inject.Inject;
 import timber.log.Timber;
 
 /** Main app view, displaying the map and related controls (center cross-hairs, add button, etc). */
+@AndroidEntryPoint
 public class MapContainerFragment extends AbstractFragment {
   private static final String MAP_FRAGMENT_KEY = MapProvider.class.getName() + "#fragment";
 
