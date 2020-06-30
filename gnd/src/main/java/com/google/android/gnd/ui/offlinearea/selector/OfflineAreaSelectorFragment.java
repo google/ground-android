@@ -33,6 +33,7 @@ import com.google.android.gnd.ui.common.EphemeralPopups;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.map.MapAdapter;
 import com.google.android.gnd.ui.map.MapProvider;
+import com.google.android.gnd.ui.offlinearea.selector.OfflineAreaSelectorViewModel.DownloadTrigger;
 import dagger.hilt.android.AndroidEntryPoint;
 import io.reactivex.Single;
 import javax.inject.Inject;
@@ -60,6 +61,18 @@ public class OfflineAreaSelectorFragment extends AbstractFragment {
     // TODO: use the viewmodel
     Single<MapAdapter> mapAdapter = mapProvider.getMapAdapter();
     mapAdapter.as(autoDisposable(this)).subscribe(this::onMapReady);
+    viewModel.getDownloadTriggers().observe(this, this::onDownloadTrigger);
+  }
+
+  private void onDownloadTrigger(DownloadTrigger downloadTrigger) {
+    switch (downloadTrigger) {
+      case Failure:
+        EphemeralPopups.showError(getContext(), R.string.offline_area_download_failed);
+        navigator.navigateUp();
+      case Started:
+        EphemeralPopups.showSuccess(getContext(), R.string.offline_area_download_started);
+        navigator.navigateUp();
+    }
   }
 
   @Override
@@ -94,8 +107,6 @@ public class OfflineAreaSelectorFragment extends AbstractFragment {
       return;
     }
 
-    EphemeralPopups.showSuccess(getContext(), R.string.offline_area_download_started);
     viewModel.onDownloadClick(map.getViewport());
-    navigator.navigateUp();
   }
 }

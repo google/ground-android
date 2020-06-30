@@ -16,27 +16,51 @@
 
 package com.google.android.gnd.ui.offlinearea.selector;
 
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.LiveDataReactiveStreams;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gnd.repository.OfflineAreaRepository;
 import com.google.android.gnd.ui.common.AbstractViewModel;
+import io.reactivex.BackpressureStrategy;
+import io.reactivex.subjects.PublishSubject;
 import javax.inject.Inject;
 import timber.log.Timber;
 
 public class OfflineAreaSelectorViewModel extends AbstractViewModel {
 
+  private final LiveData<DownloadTrigger> downloads;
+
+  public LiveData<DownloadTrigger> getDownloadTriggers() {
+    return this.downloads;
+  }
+
+  enum DownloadTrigger {
+    Started,
+    Failure
+  }
+
   private final OfflineAreaRepository offlineAreaRepository;
+  private final PublishSubject<DownloadTrigger> downloadsPublishSubject = PublishSubject.create();
 
   @Inject
   OfflineAreaSelectorViewModel(OfflineAreaRepository offlineAreaRepository) {
     this.offlineAreaRepository = offlineAreaRepository;
+    this.downloads =
+        LiveDataReactiveStreams.fromPublisher(
+            downloadsPublishSubject.toFlowable(BackpressureStrategy.LATEST));
   }
 
   // TODO: Use an abstraction over LatLngBounds
   public void onDownloadClick(LatLngBounds viewport) {
     Timber.d("viewport:%s", viewport);
-    offlineAreaRepository.addAreaAndEnqueue(viewport)
-      .doOnError(err -> Timber.e("Failed to add area and queue downloads: %s", err.getMessage()))
-      .onErrorComplete()
-      .blockingAwait();
+    offlineAreaRepository
+        .addAreaAndEnqueue(viewport)
+        .doOnError(
+            err -> {
+              Timber.e("Failed to add area and queue downloads: %s", err.getMessage());
+              downloadsPublishSubject.onNext(DownloadTrigger.Failure);
+            })
+        .doOnComplete(() -> downloadsPublishSubject.onNext(DownloadTrigger.Started))
+        .blockingAwait();
   }
 }

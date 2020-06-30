@@ -156,4 +156,5 @@
   <string name="offline_area_viewer_remove_button">Remove</string>
   <string name="offline_area_viewer_storage">This area takes up %.1f MB of storage space on your device.</string>
   <string name="offline_area_download_started">Download started.</string>
+  <string name="offline_area_download_failed">Couldn\'t download area.</string>
 </resources>
