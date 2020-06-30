@@ -87,7 +87,14 @@ public class HomeScreenViewModel extends AbstractViewModel {
                         .doOnError(this::onAddFeatureError)
                         .onErrorResumeNext(Single.never())) // Prevent from breaking upstream.
             .observeOn(schedulers.ui())
-            .subscribe(this::showBottomSheet));
+            .subscribe(this::addNewObservation));
+  }
+
+  private void addNewObservation(Feature feature) {
+    String projectId = feature.getProject().getId();
+    String featureId = feature.getId();
+    String formId = feature.getLayer().getForm().get().getId();
+    navigator.addObservation(projectId, featureId, formId);
   }
 
   public boolean shouldShowProjectSelectorOnStart() {
