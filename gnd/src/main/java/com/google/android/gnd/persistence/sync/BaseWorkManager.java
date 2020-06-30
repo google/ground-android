@@ -34,13 +34,17 @@ import javax.inject.Provider;
  * <p>By default, the only constraint is availability of any type of internet connection, as it is
  * assumed that all background tasks need at least some sort of connectivity.
  *
- * <p>In case the required criteria are not met, the next attempt uses EXPONENTIAL backoff
- * policy with a backoff delay of 10 seconds.
+ * <p>In case the required criteria are not met, the next attempt uses LINEAR backoff policy with a
+ * backoff delay of 10 seconds.
  */
 public abstract class BaseWorkManager {
 
-  /** Backoff time should increase exponentially. */
-  private static final BackoffPolicy BACKOFF_POLICY = BackoffPolicy.EXPONENTIAL;
+  /** Backoff time should increase linearly.
+   *
+   * TODO: Check if it is possible to wake the worker as soon as the connection becomes available.
+   *  If yes, then switch to EXPONENTIAL backoff policy.
+   */
+  private static final BackoffPolicy BACKOFF_POLICY = BackoffPolicy.LINEAR;
 
   /** Number of milliseconds to wait before retrying failed sync tasks. */
   private static final long BACKOFF_DELAY_MILLIS = WorkRequest.MIN_BACKOFF_MILLIS;
