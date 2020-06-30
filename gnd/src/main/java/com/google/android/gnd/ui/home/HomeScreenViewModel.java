@@ -16,7 +16,6 @@
 
 package com.google.android.gnd.ui.home;
 
-import android.util.Log;
 import android.view.View;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
@@ -40,11 +39,11 @@ import io.reactivex.Single;
 import io.reactivex.subjects.PublishSubject;
 import java8.util.Optional;
 import javax.inject.Inject;
+import timber.log.Timber;
 
 @SharedViewModel
 public class HomeScreenViewModel extends AbstractViewModel {
 
-  private static final String TAG = HomeScreenViewModel.class.getSimpleName();
   private final ProjectRepository projectRepository;
   private final Navigator navigator;
   /** The state and value of the currently active project (loading, loaded, etc.). */
@@ -107,7 +106,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
 
   private void onAddFeatureError(Throwable throwable) {
     // TODO: Show an error message to the user.
-    Log.e(TAG, "Couldn't add feature.", throwable);
+    Timber.e(throwable, "Couldn't add feature.");
   }
 
   public LiveData<Action> getOpenDrawerRequests() {
@@ -157,23 +156,23 @@ public class HomeScreenViewModel extends AbstractViewModel {
   public void addObservation() {
     BottomSheetState state = bottomSheetState.getValue();
     if (state == null) {
-      Log.e(TAG, "Missing bottomSheetState");
+      Timber.e("Missing bottomSheetState");
       return;
     }
     Feature feature = state.getFeature();
     if (feature == null) {
-      Log.e(TAG, "Missing feature");
+      Timber.e("Missing feature");
       return;
     }
     Optional<Form> form = feature.getLayer().getForm();
     if (form.isEmpty()) {
       // .TODO: Hide Add Observation button if no forms defined.
-      Log.e(TAG, "No forms in layer");
+      Timber.e("No forms in layer");
       return;
     }
     Project project = feature.getProject();
     if (project == null) {
-      Log.e(TAG, "Missing project");
+      Timber.e("Missing project");
       return;
     }
     navigator.addObservation(project.getId(), feature.getId(), form.get().getId());
