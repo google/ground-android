@@ -35,8 +35,8 @@ public class OfflineAreaSelectorViewModel extends AbstractViewModel {
     FAILURE
   }
 
-  private final LiveData<Event<DownloadMessage>> messages;
   private final FlowableProcessor<LatLngBounds> downloadClicks = PublishProcessor.create();
+  private final LiveData<Event<DownloadMessage>> messages;
 
   @Inject
   OfflineAreaSelectorViewModel(OfflineAreaRepository offlineAreaRepository, Schedulers schedulers) {
