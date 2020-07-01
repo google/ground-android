@@ -21,8 +21,10 @@ import androidx.lifecycle.LiveDataReactiveStreams;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gnd.repository.OfflineAreaRepository;
 import com.google.android.gnd.rx.Event;
+import com.google.android.gnd.rx.Schedulers;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import io.reactivex.BackpressureStrategy;
+import io.reactivex.Observable;
 import io.reactivex.subjects.PublishSubject;
 import javax.inject.Inject;
 import timber.log.Timber;
@@ -40,12 +42,28 @@ public class OfflineAreaSelectorViewModel extends AbstractViewModel {
     FAILURE
   }
 
-  private final OfflineAreaRepository offlineAreaRepository;
   private final PublishSubject<DownloadEvent> downloadsPublishSubject = PublishSubject.create();
+  private final PublishSubject<LatLngBounds> downloadClickSubject = PublishSubject.create();
 
   @Inject
-  OfflineAreaSelectorViewModel(OfflineAreaRepository offlineAreaRepository) {
-    this.offlineAreaRepository = offlineAreaRepository;
+  OfflineAreaSelectorViewModel(OfflineAreaRepository offlineAreaRepository, Schedulers schedulers) {
+
+    disposeOnClear(
+        downloadClickSubject
+            .flatMap(
+                // We need to handle this in the inner lambda instead of using a combinator such as
+                // flatMapCompletable because the PublishSubject will never actually complete.
+                // andThen enables us to fill the resulting stream w/ items to propagate completion.
+                viewport ->
+                    offlineAreaRepository
+                        .addAreaAndEnqueue(viewport)
+                        .andThen(Observable.just(new Object())))
+            .observeOn(schedulers.ui())
+            .doOnError(e -> Timber.e("Failed to add area and queue downloads: %s", e.getMessage()))
+            .subscribe(
+                __ -> downloadsPublishSubject.onNext(DownloadEvent.STARTED),
+                __ -> downloadsPublishSubject.onNext(DownloadEvent.FAILURE)));
+
     this.downloadEvents =
         LiveDataReactiveStreams.fromPublisher(
             downloadsPublishSubject.toFlowable(BackpressureStrategy.LATEST).map(Event::create));
@@ -54,14 +72,6 @@ public class OfflineAreaSelectorViewModel extends AbstractViewModel {
   // TODO: Use an abstraction over LatLngBounds
   public void onDownloadClick(LatLngBounds viewport) {
     Timber.d("viewport:%s", viewport);
-    offlineAreaRepository
-        .addAreaAndEnqueue(viewport)
-        .doOnError(
-            err -> {
-              Timber.e("Failed to add area and queue downloads: %s", err.getMessage());
-              downloadsPublishSubject.onNext(DownloadEvent.FAILURE);
-            })
-        .doOnComplete(() -> downloadsPublishSubject.onNext(DownloadEvent.STARTED))
-        .blockingAwait();
+    downloadClickSubject.onNext(viewport);
   }
 }
