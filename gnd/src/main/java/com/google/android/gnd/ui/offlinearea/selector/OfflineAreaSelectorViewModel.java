@@ -35,8 +35,8 @@ public class OfflineAreaSelectorViewModel extends AbstractViewModel {
   }
 
   enum DownloadTrigger {
-    Started,
-    Failure
+    STARTED,
+    FAILURE
   }
 
   private final OfflineAreaRepository offlineAreaRepository;
@@ -58,9 +58,9 @@ public class OfflineAreaSelectorViewModel extends AbstractViewModel {
         .doOnError(
             err -> {
               Timber.e("Failed to add area and queue downloads: %s", err.getMessage());
-              downloadsPublishSubject.onNext(DownloadTrigger.Failure);
+              downloadsPublishSubject.onNext(DownloadTrigger.FAILURE);
             })
-        .doOnComplete(() -> downloadsPublishSubject.onNext(DownloadTrigger.Started))
+        .doOnComplete(() -> downloadsPublishSubject.onNext(DownloadTrigger.STARTED))
         .blockingAwait();
   }
 }
