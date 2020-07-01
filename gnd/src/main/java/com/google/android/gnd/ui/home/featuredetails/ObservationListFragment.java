@@ -67,9 +67,9 @@ public class ObservationListFragment extends AbstractFragment {
   @Override
   public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
-    RecyclerView recyclerView = binding.observationListContainer;
-    recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-    recyclerView.setAdapter(observationListAdapter);
+    RecyclerView observationList = binding.observationListContainer;
+    observationList.setLayoutManager(new LinearLayoutManager(getContext()));
+    observationList.setAdapter(observationListAdapter);
     featureDetailsViewModel
         .getSelectedFeatureOnceAndStream()
         .observe(getViewLifecycleOwner(), this::onFeatureSelected);
