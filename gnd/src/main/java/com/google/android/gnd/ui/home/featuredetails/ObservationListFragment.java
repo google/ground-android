@@ -24,8 +24,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import butterknife.BindView;
-import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.ObservationListFragBinding;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.observation.Observation;
@@ -39,12 +37,11 @@ import javax.inject.Inject;
 public class ObservationListFragment extends AbstractFragment {
 
   @Inject Navigator navigator;
+
   private ObservationListAdapter observationListAdapter;
   private ObservationListViewModel viewModel;
   private FeatureDetailsViewModel featureDetailsViewModel;
-
-  @BindView(R.id.observation_list_container)
-  RecyclerView recyclerView;
+  private ObservationListFragBinding binding;
 
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -59,10 +56,9 @@ public class ObservationListFragment extends AbstractFragment {
   @Nullable
   @Override
   public View onCreateView(
-      LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
+      @NonNull LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
     super.onCreateView(inflater, container, savedInstanceState);
-    ObservationListFragBinding binding =
-        ObservationListFragBinding.inflate(inflater, container, false);
+    binding = ObservationListFragBinding.inflate(inflater, container, false);
     binding.setViewModel(viewModel);
     binding.setLifecycleOwner(this);
     return binding.getRoot();
@@ -71,6 +67,7 @@ public class ObservationListFragment extends AbstractFragment {
   @Override
   public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
+    RecyclerView recyclerView = binding.observationListContainer;
     recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
     recyclerView.setAdapter(observationListAdapter);
     featureDetailsViewModel
