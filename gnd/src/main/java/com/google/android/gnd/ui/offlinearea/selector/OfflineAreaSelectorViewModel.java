@@ -20,6 +20,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gnd.repository.OfflineAreaRepository;
+import com.google.android.gnd.rx.Event;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.subjects.PublishSubject;
@@ -28,26 +29,26 @@ import timber.log.Timber;
 
 public class OfflineAreaSelectorViewModel extends AbstractViewModel {
 
-  private final LiveData<DownloadTrigger> downloads;
+  private final LiveData<Event<DownloadEvent>> downloadEvents;
 
-  public LiveData<DownloadTrigger> getDownloadTriggers() {
-    return this.downloads;
+  public LiveData<Event<DownloadEvent>> getDownloadEvents() {
+    return this.downloadEvents;
   }
 
-  enum DownloadTrigger {
+  enum DownloadEvent {
     STARTED,
     FAILURE
   }
 
   private final OfflineAreaRepository offlineAreaRepository;
-  private final PublishSubject<DownloadTrigger> downloadsPublishSubject = PublishSubject.create();
+  private final PublishSubject<DownloadEvent> downloadsPublishSubject = PublishSubject.create();
 
   @Inject
   OfflineAreaSelectorViewModel(OfflineAreaRepository offlineAreaRepository) {
     this.offlineAreaRepository = offlineAreaRepository;
-    this.downloads =
+    this.downloadEvents =
         LiveDataReactiveStreams.fromPublisher(
-            downloadsPublishSubject.toFlowable(BackpressureStrategy.LATEST));
+            downloadsPublishSubject.toFlowable(BackpressureStrategy.LATEST).map(Event::create));
   }
 
   // TODO: Use an abstraction over LatLngBounds
@@ -58,9 +59,9 @@ public class OfflineAreaSelectorViewModel extends AbstractViewModel {
         .doOnError(
             err -> {
               Timber.e("Failed to add area and queue downloads: %s", err.getMessage());
-              downloadsPublishSubject.onNext(DownloadTrigger.FAILURE);
+              downloadsPublishSubject.onNext(DownloadEvent.FAILURE);
             })
-        .doOnComplete(() -> downloadsPublishSubject.onNext(DownloadTrigger.STARTED))
+        .doOnComplete(() -> downloadsPublishSubject.onNext(DownloadEvent.STARTED))
         .blockingAwait();
   }
 }
