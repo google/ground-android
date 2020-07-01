@@ -1,20 +1,14 @@
-Instructions:
+<!-- NOTE: The comments can be left as is as they don't end up in the final preview. -->
 
-1. Set the PR description to a short title of the form "Fixed/Added/Refactored...".
-2. Add a reference to a related issue (Closes #number, Fixes #number). If one does not already exist,
-   [create one](../../issues/new/choose). Be sure to add steps to verify bug/feature.
-3. Add high-level summary of the changes proposed in the pull request. Prefix items with `- [x]` to add a checkbox.
-4. Paste a screenshot or GIF (optional) illustrating the proposed change.
-5. If known, @mentions the person or team responsible for reviewing proposed changes.
-6. Delete these instructions and the example below.
+<!-- Add one or more issues below if already present. Otherwise, create one. -->
+Fixes #
 
-Example:
+<!-- PR description. -->
 
-Title: "Sort observation list by date"
-- [x] Refactor ObservationViewModel allow modification of sort order.
-- [x] Sort results when returned from ObservationRepository.
-[Screenshot](image.gif)
+<!-- Checklist or simple bullet list of things done in the PR. -->
 
-Fixes #000.
+<!-- Add steps to verify bug/feature. --> 
+
+<!-- Attach a screenshot or GIF (optional) to illustrate the proposed change. -->
 
 @... PTAL?
