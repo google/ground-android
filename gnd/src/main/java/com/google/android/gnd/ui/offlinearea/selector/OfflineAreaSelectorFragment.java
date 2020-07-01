@@ -61,11 +61,11 @@ public class OfflineAreaSelectorFragment extends AbstractFragment {
     // TODO: use the viewmodel
     Single<MapAdapter> mapAdapter = mapProvider.getMapAdapter();
     mapAdapter.as(autoDisposable(this)).subscribe(this::onMapReady);
-    viewModel.getDownloadMessages().observe(this, e -> e.ifUnhandled(this::onDownloadEvent));
+    viewModel.getDownloadMessages().observe(this, e -> e.ifUnhandled(this::onDownloadMessage));
   }
 
-  private void onDownloadEvent(DownloadMessage downloadEvent) {
-    switch (downloadEvent) {
+  private void onDownloadMessage(DownloadMessage message) {
+    switch (message) {
       case FAILURE:
         EphemeralPopups.showError(getContext(), R.string.offline_area_download_failed);
         navigator.navigateUp();
