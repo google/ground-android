@@ -29,8 +29,10 @@ import com.google.android.gnd.system.AuthenticationManager;
 import com.google.android.gnd.system.GoogleApiManager;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.EphemeralPopups;
+import dagger.hilt.android.AndroidEntryPoint;
 import javax.inject.Inject;
 
+@AndroidEntryPoint
 public class StartupFragment extends AbstractFragment {
   private static final String TAG = StartupFragment.class.getSimpleName();
 

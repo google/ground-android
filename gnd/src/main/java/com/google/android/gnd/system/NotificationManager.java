@@ -26,6 +26,7 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationCompat.Builder;
 import com.google.android.gnd.R;
 import com.google.android.gnd.persistence.remote.TransferProgress.UploadState;
+import dagger.hilt.android.qualifiers.ApplicationContext;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import timber.log.Timber;
@@ -38,7 +39,7 @@ public class NotificationManager {
   private final Context context;
 
   @Inject
-  NotificationManager(Context context) {
+  NotificationManager(@ApplicationContext Context context) {
     this.context = context;
     if (VERSION.SDK_INT >= VERSION_CODES.O) {
       createNotificationChannels(context);

@@ -32,7 +32,6 @@ import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.ObservationDetailsFieldBinding;
 import com.google.android.gnd.databinding.ObservationDetailsFragBinding;
 import com.google.android.gnd.databinding.PhotoFieldBinding;
-import com.google.android.gnd.inject.ActivityScoped;
 import com.google.android.gnd.model.form.Element;
 import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.form.Field.Type;
@@ -44,10 +43,11 @@ import com.google.android.gnd.ui.common.EphemeralPopups;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.TwoLineToolbar;
 import com.google.android.gnd.ui.editobservation.PhotoFieldViewModel;
+import dagger.hilt.android.AndroidEntryPoint;
 import javax.inject.Inject;
 import timber.log.Timber;
 
-@ActivityScoped
+@AndroidEntryPoint
 public class ObservationDetailsFragment extends AbstractFragment {
 
   @Inject Navigator navigator;

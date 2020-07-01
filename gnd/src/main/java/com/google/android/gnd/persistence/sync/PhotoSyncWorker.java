@@ -18,6 +18,8 @@ package com.google.android.gnd.persistence.sync;
 
 import android.content.Context;
 import androidx.annotation.NonNull;
+import androidx.hilt.Assisted;
+import androidx.hilt.work.WorkerInject;
 import androidx.work.Data;
 import androidx.work.WorkerParameters;
 import com.google.android.gnd.R;
@@ -40,9 +42,10 @@ public class PhotoSyncWorker extends BaseWorker {
   private final String localSourcePath;
   private final String remoteDestinationPath;
 
+  @WorkerInject
   public PhotoSyncWorker(
-      @NonNull Context context,
-      @NonNull WorkerParameters workerParams,
+      @Assisted @NonNull Context context,
+      @Assisted @NonNull WorkerParameters workerParams,
       RemoteStorageManager remoteStorageManager,
       NotificationManager notificationManager) {
     super(context, workerParams, notificationManager, PhotoSyncWorker.class.hashCode());

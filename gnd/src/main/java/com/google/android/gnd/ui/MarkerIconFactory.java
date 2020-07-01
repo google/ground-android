@@ -25,6 +25,7 @@ import androidx.appcompat.content.res.AppCompatResources;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gnd.R;
+import dagger.hilt.android.qualifiers.ApplicationContext;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -33,7 +34,7 @@ public class MarkerIconFactory {
   private final Context context;
 
   @Inject
-  public MarkerIconFactory(Context context) {
+  public MarkerIconFactory(@ApplicationContext Context context) {
     this.context = context;
   }
 

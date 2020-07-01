@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google LLC
+ * Copyright 2020 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,20 +14,29 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.ui.map;
+package com.google.android.gnd.persistence.local;
 
-import com.google.android.gnd.ui.MarkerIconFactory;
-import com.google.android.gnd.ui.map.gms.GoogleMapsMapProvider;
+import android.content.Context;
+import androidx.room.Room;
+import com.google.android.gnd.Config;
+import com.google.android.gnd.persistence.local.room.LocalDatabase;
 import dagger.Module;
 import dagger.Provides;
 import dagger.hilt.InstallIn;
 import dagger.hilt.android.components.ApplicationComponent;
+import dagger.hilt.android.qualifiers.ApplicationContext;
+import javax.inject.Singleton;
 
 @InstallIn(ApplicationComponent.class)
 @Module
-public class MapProviderModule {
+public abstract class LocalDatabaseModule {
+
   @Provides
-  static MapProvider googleMapsProvider(MarkerIconFactory markerIconFactory) {
-    return new GoogleMapsMapProvider(markerIconFactory);
+  @Singleton
+  static LocalDatabase localDatabase(@ApplicationContext Context context) {
+    return Room.databaseBuilder(context, LocalDatabase.class, Config.DB_NAME)
+      // TODO(#128): Disable before official release.
+      .fallbackToDestructiveMigration()
+      .build();
   }
 }
