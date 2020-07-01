@@ -16,6 +16,8 @@
 
 package com.google.android.gnd.ui.home;
 
+import static android.content.res.Configuration.ORIENTATION_LANDSCAPE;
+import static android.content.res.Configuration.ORIENTATION_PORTRAIT;
 import static com.google.android.gnd.rx.RxAutoDispose.autoDisposable;
 import static com.google.android.gnd.ui.util.ViewUtil.getScreenHeight;
 import static com.google.android.gnd.ui.util.ViewUtil.getScreenWidth;
@@ -165,10 +167,11 @@ public class HomeScreenFragment extends AbstractFragment
     if (savedInstanceState == null) {
       mapContainerFragment = new MapContainerFragment();
       replaceFragment(R.id.map_container_fragment, mapContainerFragment);
-      setUpBottomSheetBehavior();
     } else {
       mapContainerFragment = restoreChildFragment(savedInstanceState, MapContainerFragment.class);
     }
+
+    setUpBottomSheetBehavior();
   }
 
   /** Fetches offline saved projects and adds them to navigation drawer. */
@@ -314,7 +317,12 @@ public class HomeScreenFragment extends AbstractFragment
         getScreenHeight(getActivity())
             + insets.getSystemWindowInsetTop()
             + insets.getSystemWindowInsetBottom();
-    double mapHeight = width / COLLAPSED_MAP_ASPECT_RATIO;
+    double mapHeight = 0;
+    if (getResources().getConfiguration().orientation == ORIENTATION_PORTRAIT) {
+      mapHeight = width / COLLAPSED_MAP_ASPECT_RATIO;
+    } else if (getResources().getConfiguration().orientation == ORIENTATION_LANDSCAPE) {
+      mapHeight = height / COLLAPSED_MAP_ASPECT_RATIO;
+    }
     double peekHeight = height - mapHeight;
     bottomSheetBehavior.setPeekHeight((int) peekHeight);
   }
