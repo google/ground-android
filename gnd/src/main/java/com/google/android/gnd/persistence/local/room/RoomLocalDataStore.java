@@ -47,6 +47,7 @@ import com.google.android.gnd.persistence.local.room.dao.MultipleChoiceDao;
 import com.google.android.gnd.persistence.local.room.dao.ObservationDao;
 import com.google.android.gnd.persistence.local.room.dao.ObservationMutationDao;
 import com.google.android.gnd.persistence.local.room.dao.OfflineAreaDao;
+import com.google.android.gnd.persistence.local.room.dao.OfflineBaseMapSourceDao;
 import com.google.android.gnd.persistence.local.room.dao.OptionDao;
 import com.google.android.gnd.persistence.local.room.dao.ProjectDao;
 import com.google.android.gnd.persistence.local.room.dao.TileDao;
@@ -61,6 +62,7 @@ import com.google.android.gnd.persistence.local.room.entity.MultipleChoiceEntity
 import com.google.android.gnd.persistence.local.room.entity.ObservationEntity;
 import com.google.android.gnd.persistence.local.room.entity.ObservationMutationEntity;
 import com.google.android.gnd.persistence.local.room.entity.OfflineAreaEntity;
+import com.google.android.gnd.persistence.local.room.entity.OfflineBaseMapSourceEntity;
 import com.google.android.gnd.persistence.local.room.entity.OptionEntity;
 import com.google.android.gnd.persistence.local.room.entity.ProjectEntity;
 import com.google.android.gnd.persistence.local.room.entity.TileEntity;
@@ -104,6 +106,7 @@ public class RoomLocalDataStore implements LocalDataStore {
   @Inject TileDao tileDao;
   @Inject UserDao userDao;
   @Inject OfflineAreaDao offlineAreaDao;
+  @Inject OfflineBaseMapSourceDao offlineBaseMapSourceDao;
   @Inject Schedulers schedulers;
 
   @Inject
@@ -171,11 +174,22 @@ public class RoomLocalDataStore implements LocalDataStore {
         .flatMapCompletable(layer -> insertOrUpdateLayer(projectId, layer));
   }
 
+  private Completable insertOfflineBaseMapSources(Project project) {
+    return Observable.fromIterable(project.getOfflineBaseMapSources())
+        .flatMapCompletable(
+            source ->
+                offlineBaseMapSourceDao.insert(
+                    OfflineBaseMapSourceEntity.fromModel(project.getId(), source)));
+  }
+
+  @Transaction
   @Override
   public Completable insertOrUpdateProject(Project project) {
     return projectDao
         .insertOrUpdate(ProjectEntity.fromProject(project))
         .andThen(insertOrUpdateLayers(project.getId(), project.getLayers()))
+        .andThen(offlineBaseMapSourceDao.deleteByProjectId(project.getId()))
+        .andThen(insertOfflineBaseMapSources(project))
         .subscribeOn(schedulers.io());
   }
 
