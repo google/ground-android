@@ -67,7 +67,7 @@ import org.robolectric.annotation.Config;
 
 
 @HiltAndroidTest
-@UninstallModules({SchedulersModule.class,LocalDatabaseModule.class})
+@UninstallModules({SchedulersModule.class, LocalDatabaseModule.class})
 @Config(application = HiltTestApplication.class)
 @RunWith(RobolectricTestRunner.class)
 public class LocalDataStoreTest {
