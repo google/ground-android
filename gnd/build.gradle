@@ -25,7 +25,7 @@ apply from: '../config/pmd/pmd.gradle'
 
 project.ext {
     autoDisposeVersion = "1.4.0"
-    autoValueVersion = "1.7.3"
+    autoValueVersion = "1.6.3"
     butterKnifeVersion = "10.2.1"
     firebaseCoreVersion = "17.4.3"
     gmsVersion = "17.0.0"
