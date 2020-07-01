@@ -33,6 +33,7 @@ import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.map.MapAdapter;
 import com.google.android.gnd.ui.map.MapProvider;
+import dagger.hilt.android.AndroidEntryPoint;
 import io.reactivex.Single;
 import javax.inject.Inject;
 
@@ -40,6 +41,7 @@ import javax.inject.Inject;
  * The OfflineAreaViewerFragment provides a UI for managing a single offline area on the user's
  * device.
  * */
+@AndroidEntryPoint
 public class OfflineAreaViewerFragment extends AbstractFragment {
 
   private static final String MAP_FRAGMENT = MapProvider.class.getName() + "#fragment";

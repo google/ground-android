@@ -16,6 +16,8 @@
 
 package com.google.android.gnd.ui.home;
 
+import static android.content.res.Configuration.ORIENTATION_LANDSCAPE;
+import static android.content.res.Configuration.ORIENTATION_PORTRAIT;
 import static com.google.android.gnd.rx.RxAutoDispose.autoDisposable;
 import static com.google.android.gnd.ui.util.ViewUtil.getScreenHeight;
 import static com.google.android.gnd.ui.util.ViewUtil.getScreenWidth;
@@ -43,7 +45,6 @@ import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.MainViewModel;
 import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.HomeScreenFragBinding;
-import com.google.android.gnd.inject.ActivityScoped;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.rx.Loadable;
@@ -60,6 +61,7 @@ import com.google.android.gnd.ui.projectselector.ProjectSelectorViewModel;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.navigation.NavigationView.OnNavigationItemSelectedListener;
+import dagger.hilt.android.AndroidEntryPoint;
 import io.reactivex.subjects.PublishSubject;
 import java.util.List;
 import javax.inject.Inject;
@@ -70,7 +72,7 @@ import timber.log.Timber;
  * This is the default view in the application, and gets swapped out for other fragments (e.g., view
  * observation and edit observation) at runtime.
  */
-@ActivityScoped
+@AndroidEntryPoint
 public class HomeScreenFragment extends AbstractFragment
     implements BackPressListener, OnNavigationItemSelectedListener, OnGlobalLayoutListener {
   // TODO: It's not obvious which feature are in HomeScreen vs MapContainer; make this more
@@ -165,10 +167,11 @@ public class HomeScreenFragment extends AbstractFragment
     if (savedInstanceState == null) {
       mapContainerFragment = new MapContainerFragment();
       replaceFragment(R.id.map_container_fragment, mapContainerFragment);
-      setUpBottomSheetBehavior();
     } else {
       mapContainerFragment = restoreChildFragment(savedInstanceState, MapContainerFragment.class);
     }
+
+    setUpBottomSheetBehavior();
   }
 
   /** Fetches offline saved projects and adds them to navigation drawer. */
@@ -314,7 +317,12 @@ public class HomeScreenFragment extends AbstractFragment
         getScreenHeight(getActivity())
             + insets.getSystemWindowInsetTop()
             + insets.getSystemWindowInsetBottom();
-    double mapHeight = width / COLLAPSED_MAP_ASPECT_RATIO;
+    double mapHeight = 0;
+    if (getResources().getConfiguration().orientation == ORIENTATION_PORTRAIT) {
+      mapHeight = width / COLLAPSED_MAP_ASPECT_RATIO;
+    } else if (getResources().getConfiguration().orientation == ORIENTATION_LANDSCAPE) {
+      mapHeight = height / COLLAPSED_MAP_ASPECT_RATIO;
+    }
     double peekHeight = height - mapHeight;
     bottomSheetBehavior.setPeekHeight((int) peekHeight);
   }

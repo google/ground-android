@@ -14,17 +14,21 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.ui.home.mapcontainer;
+package com.google.android.gnd.ui.home.featuredetails;
 
 import androidx.fragment.app.Fragment;
-import com.google.android.gnd.inject.FragmentScoped;
-import dagger.Binds;
+import androidx.fragment.app.FragmentManager;
 import dagger.Module;
+import dagger.Provides;
+import dagger.hilt.InstallIn;
+import dagger.hilt.android.components.FragmentComponent;
 
+@InstallIn(FragmentComponent.class)
 @Module
-public abstract class MapContainerModule {
+public class FragmentManagerModule {
 
-  @Binds
-  @FragmentScoped
-  abstract Fragment fragment(MapContainerFragment fragment);
+  @Provides
+  public FragmentManager fragmentManager(Fragment fragment) {
+    return fragment.getChildFragmentManager();
+  }
 }

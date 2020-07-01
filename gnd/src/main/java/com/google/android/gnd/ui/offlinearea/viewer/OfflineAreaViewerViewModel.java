@@ -26,6 +26,7 @@ import com.google.android.gnd.model.basemap.tile.Tile;
 import com.google.android.gnd.repository.OfflineAreaRepository;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.common.collect.ImmutableSet;
+import dagger.hilt.android.qualifiers.ApplicationContext;
 import io.reactivex.processors.BehaviorProcessor;
 import java.io.File;
 import java.lang.ref.WeakReference;
@@ -44,7 +45,8 @@ public class OfflineAreaViewerViewModel extends AbstractViewModel {
   private LiveData<OfflineArea> offlineArea;
 
   @Inject
-  public OfflineAreaViewerViewModel(OfflineAreaRepository offlineAreaRepository, Context context) {
+  public OfflineAreaViewerViewModel(
+      OfflineAreaRepository offlineAreaRepository, @ApplicationContext Context context) {
     this.argsProcessor = BehaviorProcessor.create();
     this.offlineAreaRepository = offlineAreaRepository;
     this.context = new WeakReference<>(context);

@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google LLC
+ * Copyright 2020 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,17 +14,20 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.ui.startup;
+package com.google.android.gnd;
 
-import androidx.fragment.app.Fragment;
-import com.google.android.gnd.inject.FragmentScoped;
+import com.google.android.gnd.TestScheduler;
+import com.google.android.gnd.rx.Schedulers;
 import dagger.Binds;
 import dagger.Module;
+import dagger.hilt.InstallIn;
+import dagger.hilt.android.components.ApplicationComponent;
+import javax.inject.Singleton;
 
+@InstallIn(ApplicationComponent.class)
 @Module
-public abstract class StartupModule {
-
+abstract class TestSchedulersModule {
   @Binds
-  @FragmentScoped
-  abstract Fragment fragment(StartupFragment fragment);
+  @Singleton
+  abstract Schedulers schedulers(TestScheduler testScheduler);
 }

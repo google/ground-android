@@ -31,9 +31,11 @@ import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.Navigator;
+import dagger.hilt.android.AndroidEntryPoint;
 import java8.util.Optional;
 import javax.inject.Inject;
 
+@AndroidEntryPoint
 public class ObservationListFragment extends AbstractFragment {
 
   @Inject Navigator navigator;

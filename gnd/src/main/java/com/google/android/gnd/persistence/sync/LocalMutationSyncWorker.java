@@ -21,6 +21,8 @@ import static java8.util.stream.StreamSupport.stream;
 
 import android.content.Context;
 import androidx.annotation.NonNull;
+import androidx.hilt.Assisted;
+import androidx.hilt.work.WorkerInject;
 import androidx.work.Data;
 import androidx.work.WorkerParameters;
 import com.google.android.gnd.R;
@@ -50,9 +52,10 @@ public class LocalMutationSyncWorker extends BaseWorker {
   private final RemoteDataStore remoteDataStore;
   private final String featureId;
 
+  @WorkerInject
   public LocalMutationSyncWorker(
-      @NonNull Context context,
-      @NonNull WorkerParameters params,
+      @Assisted @NonNull Context context,
+      @Assisted @NonNull WorkerParameters params,
       LocalDataStore localDataStore,
       RemoteDataStore remoteDataStore,
       NotificationManager notificationManager) {

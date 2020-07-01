@@ -15,6 +15,7 @@
  */
 
 apply plugin: 'com.android.application'
+apply plugin: 'dagger.hilt.android.plugin'
 apply plugin: 'com.google.firebase.firebase-perf'
 apply plugin: 'com.google.firebase.crashlytics'
 apply from: '../config/checkstyle/checkstyle.gradle'
@@ -26,9 +27,9 @@ project.ext {
     autoDisposeVersion = "1.4.0"
     autoValueVersion = "1.6.3"
     butterKnifeVersion = "10.2.1"
-    daggerVersion = "2.27"
     firebaseCoreVersion = "17.4.3"
     gmsVersion = "17.0.0"
+    hiltJetpackVersion = "1.0.0-alpha01"
     lifecycleVersion = "2.2.0"
     navigationVersion = "1.0.0"
     roomVersion = "2.2.5"
@@ -91,6 +92,9 @@ android {
             includeAndroidResources = true
         }
     }
+    hilt {
+        enableTransformForLocalTests = true
+    }
 }
 
 
@@ -136,14 +140,18 @@ dependencies {
     implementation 'com.google.firebase:firebase-storage:19.1.1'
     implementation 'com.google.firebase:firebase-crashlytics:17.0.1'
 
-    // Dagger
-    implementation "com.google.dagger:dagger:$project.daggerVersion"
-    implementation "com.google.dagger:dagger-android:$project.daggerVersion"
-    implementation "com.google.dagger:dagger-android-support:$project.daggerVersion"
-    annotationProcessor "com.google.dagger:dagger-android-processor:$project.daggerVersion"
-    annotationProcessor "com.google.dagger:dagger-compiler:$project.daggerVersion"
-    testAnnotationProcessor "com.google.dagger:dagger-compiler:$project.daggerVersion"
-    androidTestAnnotationProcessor "com.google.dagger:dagger-compiler:$project.daggerVersion"
+    // Hilt
+    implementation "com.google.dagger:hilt-android:$project.hiltVersion"
+    implementation "androidx.hilt:hilt-lifecycle-viewmodel:$project.hiltJetpackVersion"
+    implementation "androidx.hilt:hilt-work:$project.hiltJetpackVersion"
+    androidTestImplementation "com.google.dagger:hilt-android-testing:$project.hiltVersion"
+    annotationProcessor "com.google.dagger:hilt-android-compiler:$project.hiltVersion"
+    annotationProcessor "androidx.hilt:hilt-compiler:$project.hiltJetpackVersion"
+    androidTestAnnotationProcessor "com.google.dagger:hilt-android-compiler:$project.hiltVersion"
+    androidTestAnnotationProcessor "androidx.hilt:hilt-compiler:$project.hiltJetpackVersion"
+    testImplementation "com.google.dagger:hilt-android-testing:$project.hiltVersion"
+    testAnnotationProcessor "com.google.dagger:hilt-android-compiler:$project.hiltVersion"
+
 
     // ButterKnife
     implementation "com.jakewharton:butterknife:$project.butterKnifeVersion"
