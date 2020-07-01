@@ -80,27 +80,6 @@ public class HomeScreenFragment extends AbstractFragment
   @Inject AuthenticationManager authenticationManager;
   @Inject Schedulers schedulers;
 
-  //  @BindView(R.id.toolbar_wrapper)
-  //  ViewGroup toolbarWrapper;
-  //
-  //  @BindView(R.id.toolbar)
-  //  TwoLineToolbar toolbar;
-  //
-  //  @BindView(R.id.drawer_layout)
-  //  DrawerLayout drawerLayout;
-  //
-  //  @BindView(R.id.nav_view)
-  //  NavigationView navView;
-  //
-  //  @BindView(R.id.bottom_sheet_header)
-  //  ViewGroup bottomSheetHeader;
-  //
-  //  @BindView(R.id.bottom_sheet_layout)
-  //  View bottomSheetLayout;
-  //
-  //  @BindView(R.id.bottom_sheet_bottom_inset_scrim)
-  //  View bottomSheetBottomInsetScrim;
-
   private ProgressDialog progressDialog;
   private HomeScreenViewModel viewModel;
   private MapContainerFragment mapContainerFragment;
