@@ -77,9 +77,23 @@ gitVersioner {
     baseBranch "master"
 }
 
+def isNonStable = { String version ->
+    def stableKeyword = ['RELEASE', 'FINAL', 'GA'].any { it -> version.toUpperCase().contains(it) }
+    def regex = /^[0-9,.v-]+(-r)?$/
+    return !stableKeyword && !(version ==~ regex)
+}
+
+// https://github.com/ben-manes/gradle-versions-plugin
 // To check which dependencies are out of date:
 // ./gradlew dependencyUpdates
 tasks.dependencyUpdates {
+
+    // Disallow release candidates as upgradable versions from stable versions
+    rejectVersionIf {
+        isNonStable(it.candidate.version) && !isNonStable(it.currentVersion)
+    }
+
+    checkForGradleUpdate = true
     checkConstraints = true
     gradleReleaseChannel = "current"
     outputFormatter = "json,plain"
