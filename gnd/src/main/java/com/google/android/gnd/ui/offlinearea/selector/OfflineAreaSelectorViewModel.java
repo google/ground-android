@@ -23,6 +23,7 @@ import com.google.android.gnd.repository.OfflineAreaRepository;
 import com.google.android.gnd.rx.Event;
 import com.google.android.gnd.rx.Schedulers;
 import com.google.android.gnd.ui.common.AbstractViewModel;
+import io.reactivex.processors.FlowableProcessor;
 import io.reactivex.processors.PublishProcessor;
 import javax.inject.Inject;
 import timber.log.Timber;
@@ -35,7 +36,7 @@ public class OfflineAreaSelectorViewModel extends AbstractViewModel {
   }
 
   private final LiveData<Event<DownloadMessage>> messages;
-  private final PublishProcessor<LatLngBounds> downloadClicks = PublishProcessor.create();
+  private final FlowableProcessor<LatLngBounds> downloadClicks = PublishProcessor.create();
 
   @Inject
   OfflineAreaSelectorViewModel(OfflineAreaRepository offlineAreaRepository, Schedulers schedulers) {
