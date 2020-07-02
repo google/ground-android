@@ -17,7 +17,6 @@
 package com.google.android.gnd;
 
 import android.app.Application;
-import android.content.Context;
 import android.content.SharedPreferences;
 import androidx.work.WorkManager;
 import com.google.android.gms.common.GoogleApiAvailability;
@@ -42,17 +41,6 @@ import javax.inject.Singleton;
 @InstallIn(ApplicationComponent.class)
 @Module(includes = {ViewModelModule.class})
 abstract class GndApplicationModule {
-  private static final String SHARED_PREFERENCES_NAME = "shared_prefs";
-
-  /** Provides the Firestore implementation of remote data store. */
-  @Binds
-  @Singleton
-  abstract RemoteDataStore remoteDataStore(FirestoreDataStore ds);
-
-  /** Provides the Firestore implementation of offline unique id generation. */
-  @Binds
-  @Singleton
-  abstract OfflineUuidGenerator offlineUuidGenerator(FirestoreUuidGenerator uuidGenerator);
 
   @Provides
   @Singleton
@@ -71,7 +59,7 @@ abstract class GndApplicationModule {
   static SharedPreferences sharedPreferences(Application application) {
     return application
         .getApplicationContext()
-        .getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
+        .getSharedPreferences(Config.SHARED_PREFS_NAME, Config.SHARED_PREFS_MODE);
   }
 
   @Provides
@@ -90,15 +78,25 @@ abstract class GndApplicationModule {
     return firestore;
   }
 
-  /** Provides the Firestore implementation of remote storage manager. */
-  @Binds
-  @Singleton
-  abstract RemoteStorageManager remoteStorageManager(FirestoreStorageManager fsm);
-
   /** Returns a reference to the default Storage bucket. */
   @Provides
   @Singleton
   static StorageReference firebaseStorageReference() {
     return FirebaseStorage.getInstance().getReference();
   }
+
+  /** Provides the Firestore implementation of remote data store. */
+  @Binds
+  @Singleton
+  abstract RemoteDataStore remoteDataStore(FirestoreDataStore ds);
+
+  /** Provides the Firestore implementation of offline unique id generation. */
+  @Binds
+  @Singleton
+  abstract OfflineUuidGenerator offlineUuidGenerator(FirestoreUuidGenerator uuidGenerator);
+
+  /** Provides the Firestore implementation of remote storage manager. */
+  @Binds
+  @Singleton
+  abstract RemoteStorageManager remoteStorageManager(FirestoreStorageManager fsm);
 }

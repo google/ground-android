@@ -18,6 +18,7 @@ package com.google.android.gnd.persistence.local;
 
 import android.content.SharedPreferences;
 import androidx.annotation.NonNull;
+import com.google.android.gnd.ui.settings.Keys;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -52,5 +53,13 @@ public class LocalValueStore {
   /** Removes the last active project id in the local value store. */
   public void clearLastActiveProjectId() {
     preferences.edit().remove(ACTIVE_PROJECT_ID_KEY).apply();
+  }
+
+  public boolean shouldUploadMediaOverUnmeteredConnectionOnly() {
+    return preferences.getBoolean(Keys.UPLOAD_MEDIA, false);
+  }
+
+  public boolean shouldDownloadOfflineAreasOverUnmeteredConnectionOnly() {
+    return preferences.getBoolean(Keys.OFFLINE_AREAS, false);
   }
 }
