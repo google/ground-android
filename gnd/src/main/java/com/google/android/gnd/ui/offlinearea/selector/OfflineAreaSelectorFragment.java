@@ -33,7 +33,7 @@ import com.google.android.gnd.ui.common.EphemeralPopups;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.map.MapAdapter;
 import com.google.android.gnd.ui.map.MapProvider;
-import com.google.android.gnd.ui.offlinearea.selector.OfflineAreaSelectorViewModel.DownloadEvent;
+import com.google.android.gnd.ui.offlinearea.selector.OfflineAreaSelectorViewModel.DownloadMessage;
 import dagger.hilt.android.AndroidEntryPoint;
 import io.reactivex.Single;
 import javax.inject.Inject;
@@ -61,17 +61,11 @@ public class OfflineAreaSelectorFragment extends AbstractFragment {
     // TODO: use the viewmodel
     Single<MapAdapter> mapAdapter = mapProvider.getMapAdapter();
     mapAdapter.as(autoDisposable(this)).subscribe(this::onMapReady);
-    viewModel
-        .getDownloadEvents()
-        .observe(
-            this,
-            e -> {
-              e.ifUnhandled(this::onDownloadEvent);
-            });
+    viewModel.getDownloadMessages().observe(this, e -> e.ifUnhandled(this::onDownloadMessage));
   }
 
-  private void onDownloadEvent(DownloadEvent downloadEvent) {
-    switch (downloadEvent) {
+  private void onDownloadMessage(DownloadMessage message) {
+    switch (message) {
       case FAILURE:
         EphemeralPopups.showError(getContext(), R.string.offline_area_download_failed);
         navigator.navigateUp();
