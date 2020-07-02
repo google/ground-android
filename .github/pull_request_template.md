@@ -5,10 +5,15 @@ Fixes #
 
 <!-- PR description. -->
 
-<!-- Checklist or simple bullet list of things done in the PR. -->
+<!-- Checklist or simple bullet list of things done in the PR. If the PR is WIP, then leave the corresponding task unchecked.
 
-<!-- Add steps to verify bug/feature. --> 
+Example:
+- [x] Refactor ObservationViewModel allow modification of sort order.
+- [x] Sort results when returned from ObservationRepository.
+-->
 
-<!-- Attach a screenshot or GIF (optional) to illustrate the proposed change. -->
+<!-- Add steps to verify bug/feature. -->
+
+<!-- Attach or paste in a screenshot or GIF (optional) to illustrate the proposed change. -->
 
 @... PTAL?
