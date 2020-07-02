@@ -29,16 +29,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModel;
-import butterknife.ButterKnife;
-import butterknife.Unbinder;
 import javax.inject.Inject;
 
 public abstract class AbstractFragment extends Fragment {
-  /**
-   * Keeps track of fields bound to views so that they can be set to null when the view is
-   * destroyed, freeing up memory.
-   */
-  private Unbinder unbinder;
 
   @Inject protected ViewModelFactory viewModelFactory;
 
@@ -78,7 +71,6 @@ public abstract class AbstractFragment extends Fragment {
   public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
     logLifecycleEvent(this);
     super.onViewCreated(view, savedInstanceState);
-    unbinder = ButterKnife.bind(this, view);
   }
 
   @Override
@@ -121,9 +113,6 @@ public abstract class AbstractFragment extends Fragment {
   @Override
   public void onDestroyView() {
     logLifecycleEvent(this);
-    if (unbinder != null) {
-      unbinder.unbind();
-    }
     super.onDestroyView();
   }
 
