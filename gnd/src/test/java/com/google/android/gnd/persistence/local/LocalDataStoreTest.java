@@ -24,6 +24,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gnd.model.Mutation;
 import com.google.android.gnd.model.Project;
+import com.google.android.gnd.model.Project.Builder;
 import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.basemap.OfflineArea;
 import com.google.android.gnd.model.basemap.tile.Tile;
@@ -67,7 +68,7 @@ import org.robolectric.annotation.Config;
 
 
 @HiltAndroidTest
-@UninstallModules({SchedulersModule.class,LocalDatabaseModule.class})
+@UninstallModules({SchedulersModule.class, LocalDatabaseModule.class})
 @Config(application = HiltTestApplication.class)
 @RunWith(RobolectricTestRunner.class)
 public class LocalDataStoreTest {
@@ -229,6 +230,39 @@ public class LocalDataStoreTest {
     localDataStore.insertOrUpdateProject(TEST_PROJECT).blockingAwait();
     localDataStore.deleteProject(TEST_PROJECT).test().assertComplete();
     localDataStore.getProjects().test().assertValue(AbstractCollection::isEmpty);
+  }
+
+  @Test
+  public void testRemovedLayerFromProject() {
+    Layer layer1 =
+        Layer.newBuilder()
+            .setId("layer 1")
+            .setDefaultStyle(Style.builder().setColor("000").build())
+            .build();
+    Layer layer2 =
+        Layer.newBuilder()
+            .setId("layer 2")
+            .setDefaultStyle(Style.builder().setColor("000").build())
+            .build();
+
+    Builder project =
+        Project.newBuilder()
+            .setId("foo id")
+            .setTitle("foo project")
+            .putLayer(layer1.getId(), layer1);
+    localDataStore.insertOrUpdateProject(project.build()).blockingAwait();
+
+    project =
+        Project.newBuilder()
+            .setId("foo id")
+            .setTitle("foo project")
+            .putLayer(layer2.getId(), layer2);
+    localDataStore.insertOrUpdateProject(project.build()).blockingAwait();
+
+    localDataStore
+        .getProjectById("foo id")
+        .test()
+        .assertValue(result -> result.getLayers().equals(ImmutableList.of(layer2)));
   }
 
   @Test
