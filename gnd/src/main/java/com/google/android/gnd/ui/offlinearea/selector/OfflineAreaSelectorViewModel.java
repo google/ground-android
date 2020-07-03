@@ -34,9 +34,10 @@ public class OfflineAreaSelectorViewModel extends AbstractViewModel {
   // TODO: Use an abstraction over LatLngBounds
   public void onDownloadClick(LatLngBounds viewport) {
     Timber.d("viewport:%s", viewport);
-    offlineAreaRepository.addAreaAndEnqueue(viewport)
-      .doOnError(err -> Timber.e("Failed to add area and queue downloads: %s", err.getMessage()))
-      .onErrorComplete()
-      .blockingAwait();
+    offlineAreaRepository
+        .addAreaAndEnqueue(viewport)
+        .doOnError(err -> Timber.e("Failed to add area and queue downloads: %s", err.getMessage()))
+        .onErrorComplete()
+        .blockingAwait();
   }
 }

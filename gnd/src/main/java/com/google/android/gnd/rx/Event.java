@@ -33,22 +33,13 @@ public class Event<T> extends Action {
     this.data = data;
   }
 
-  /**
-   * Invokes the provided consumer if the value has not yet been handled.
-   *
-   * @param consumer
-   */
-  public synchronized void ifUnhandled(Consumer<T> consumer) {
-    ifUnhandled(() -> consumer.accept(data));
-  }
-
-  /**
-   * Returns a new event with the specified event data.
-   *
-   * @param data
-   * @param <T>
-   */
+  /** Returns a new event with the specified event data. */
   public static <T> Event<T> create(T data) {
     return new Event<>(data);
+  }
+
+  /** Invokes the provided consumer if the value has not yet been handled. */
+  public synchronized void ifUnhandled(Consumer<T> consumer) {
+    ifUnhandled(() -> consumer.accept(data));
   }
 }

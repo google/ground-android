@@ -28,19 +28,15 @@ public class Action {
     this.handled = false;
   }
 
-  /**
-   * Invokes the provided handler if the value has not yet been handled.
-   *
-   * @param handler
-   */
+  public static Action create() {
+    return new Action();
+  }
+
+  /** Invokes the provided handler if the value has not yet been handled. */
   public synchronized void ifUnhandled(Runnable handler) {
     if (!handled) {
       this.handled = true;
       handler.run();
     }
-  }
-
-  public static Action create() {
-    return new Action();
   }
 }
