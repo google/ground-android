@@ -18,39 +18,28 @@ package com.google.android.gnd.ui.common;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.TextView;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import com.google.android.gnd.R;
+import com.google.android.gnd.databinding.TwoLineToolbarBinding;
 
-// TODO: Improve logic for toolbar heading and possibly extra line below.
 public class TwoLineToolbar extends Toolbar {
 
-  @BindView(R.id.toolbar_title_text)
-  TextView titleText;
-
-  @BindView(R.id.toolbar_subtitle_text)
-  TextView subtitleText;
+  private final TwoLineToolbarBinding binding;
 
   public TwoLineToolbar(Context context, @Nullable AttributeSet attrs) {
     super(context, attrs);
-    inflate(getContext(), R.layout.two_line_toolbar, this);
-    ButterKnife.bind(this);
+    binding = TwoLineToolbarBinding.inflate(LayoutInflater.from(getContext()), this, true);
   }
 
   public void setTitle(@Nullable String title) {
-    titleText.setText(title);
+    binding.toolbarTitleText.setText(title);
   }
 
   public void setSubtitle(@Nullable String subtitle) {
-    subtitleText.setText(subtitle);
-    if (subtitle == null || subtitle.isEmpty()) {
-      subtitleText.setVisibility(View.GONE);
-    } else {
-      subtitleText.setVisibility(View.VISIBLE);
-    }
+    binding.toolbarSubtitleText.setText(subtitle);
+    binding.toolbarSubtitleText.setVisibility(
+        subtitle == null || subtitle.isEmpty() ? View.GONE : View.VISIBLE);
   }
 }

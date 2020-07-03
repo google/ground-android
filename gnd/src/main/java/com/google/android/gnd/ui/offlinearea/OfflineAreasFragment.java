@@ -24,9 +24,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import butterknife.BindView;
 import com.google.android.gnd.MainActivity;
-import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.OfflineAreasFragBinding;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.Navigator;
@@ -41,11 +39,6 @@ import javax.inject.Inject;
 @AndroidEntryPoint
 public class OfflineAreasFragment extends AbstractFragment {
   @Inject Navigator navigator;
-
-  // TODO: Remove. Right now removing this results in runtime crashes. Not precisely sure why.
-  // It stems from AbstractFragment and its use of ButterKnife.
-  @BindView(R.id.offline_areas_list)
-  RecyclerView areaList;
 
   private OfflineAreasViewModel viewModel;
 

@@ -24,7 +24,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import butterknife.OnClick;
 import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.OfflineAreaViewerFragBinding;
@@ -40,7 +39,7 @@ import javax.inject.Inject;
 /**
  * The OfflineAreaViewerFragment provides a UI for managing a single offline area on the user's
  * device.
- * */
+ */
 @AndroidEntryPoint
 public class OfflineAreaViewerFragment extends AbstractFragment {
 
@@ -73,6 +72,7 @@ public class OfflineAreaViewerFragment extends AbstractFragment {
         OfflineAreaViewerFragBinding.inflate(inflater, container, false);
     binding.setViewModel(viewModel);
     binding.setLifecycleOwner(this);
+    binding.removeButton.setOnClickListener(__ -> onRemoveClick());
     ((MainActivity) getActivity()).setActionBar(binding.offlineAreaViewerToolbar, true);
     return binding.getRoot();
   }
@@ -102,10 +102,7 @@ public class OfflineAreaViewerFragment extends AbstractFragment {
     map.moveCamera(point);
   }
 
-  /**
-   * Removes the area associated with this fragment from the user's device.
-   * */
-  @OnClick(R.id.remove_button)
+  /** Removes the area associated with this fragment from the user's device. */
   public void onRemoveClick() {
     if (map == null) {
       return;

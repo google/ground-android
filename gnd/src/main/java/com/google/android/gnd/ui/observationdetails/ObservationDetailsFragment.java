@@ -23,10 +23,8 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import butterknife.BindView;
 import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.ObservationDetailsFieldBinding;
@@ -41,7 +39,6 @@ import com.google.android.gnd.rx.Loadable;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.EphemeralPopups;
 import com.google.android.gnd.ui.common.Navigator;
-import com.google.android.gnd.ui.common.TwoLineToolbar;
 import com.google.android.gnd.ui.editobservation.PhotoFieldViewModel;
 import dagger.hilt.android.AndroidEntryPoint;
 import javax.inject.Inject;
@@ -52,13 +49,8 @@ public class ObservationDetailsFragment extends AbstractFragment {
 
   @Inject Navigator navigator;
 
-  @BindView(R.id.observation_details_toolbar)
-  TwoLineToolbar toolbar;
-
-  @BindView(R.id.observation_details_layout)
-  LinearLayout observationDetailsLayout;
-
   private ObservationDetailsViewModel viewModel;
+  private ObservationDetailsFragBinding binding;
 
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -73,8 +65,7 @@ public class ObservationDetailsFragment extends AbstractFragment {
   public View onCreateView(
       @NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     super.onCreateView(inflater, container, savedInstanceState);
-    ObservationDetailsFragBinding binding =
-        ObservationDetailsFragBinding.inflate(inflater, container, false);
+    binding = ObservationDetailsFragBinding.inflate(inflater, container, false);
     binding.setViewModel(viewModel);
     binding.setLifecycleOwner(this);
     return binding.getRoot();
@@ -83,7 +74,7 @@ public class ObservationDetailsFragment extends AbstractFragment {
   @Override
   public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
-    ((MainActivity) getActivity()).setActionBar(toolbar, false);
+    ((MainActivity) getActivity()).setActionBar(binding.observationDetailsToolbar, false);
   }
 
   @Override
@@ -115,7 +106,7 @@ public class ObservationDetailsFragment extends AbstractFragment {
   }
 
   private void showObservation(Observation observation) {
-    observationDetailsLayout.removeAllViews();
+    binding.observationDetailsLayout.removeAllViews();
     for (Element element : observation.getForm().getElements()) {
       if (element.getType() == Element.Type.FIELD) {
         addField(element.getField(), observation);
@@ -124,11 +115,11 @@ public class ObservationDetailsFragment extends AbstractFragment {
   }
 
   private void addField(Field field, Observation observation) {
-    ObservationDetailsFieldBinding binding =
+    ObservationDetailsFieldBinding fieldBinding =
         ObservationDetailsFieldBinding.inflate(getLayoutInflater());
-    binding.setField(field);
-    binding.setLifecycleOwner(this);
-    observationDetailsLayout.addView(binding.getRoot());
+    fieldBinding.setField(field);
+    fieldBinding.setLifecycleOwner(this);
+    binding.observationDetailsLayout.addView(fieldBinding.getRoot());
 
     observation
         .getResponses()
@@ -136,9 +127,9 @@ public class ObservationDetailsFragment extends AbstractFragment {
         .ifPresent(
             response -> {
               if (field.getType() == Type.PHOTO) {
-                addPhotoField((ViewGroup) binding.getRoot(), field, response);
+                addPhotoField((ViewGroup) fieldBinding.getRoot(), field, response);
               } else {
-                binding.fieldValue.setText(response.getDetailsText(field));
+                fieldBinding.fieldValue.setText(response.getDetailsText(field));
               }
             });
   }

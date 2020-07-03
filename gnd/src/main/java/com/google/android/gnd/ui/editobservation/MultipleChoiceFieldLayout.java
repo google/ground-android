@@ -18,21 +18,13 @@ package com.google.android.gnd.ui.editobservation;
 
 import android.content.Context;
 import android.util.AttributeSet;
-import android.view.View;
 import android.widget.FrameLayout;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
-import butterknife.OnFocusChange;
 import com.google.android.gnd.R;
 import com.google.android.material.textfield.TextInputEditText;
 
 public class MultipleChoiceFieldLayout extends FrameLayout {
-
-  @BindView(R.id.multiple_choice_input_edit_text)
-  TextInputEditText editText;
 
   private Runnable showDialogListener;
 
@@ -40,29 +32,31 @@ public class MultipleChoiceFieldLayout extends FrameLayout {
     super(context, attrs);
   }
 
-  @Override
-  protected void onFinishInflate() {
-    super.onFinishInflate();
-    ButterKnife.bind(this);
-  }
-
   public void setOnShowDialogListener(Runnable showDialogListener) {
     this.showDialogListener = showDialogListener;
   }
 
-  @OnFocusChange(R.id.multiple_choice_input_edit_text)
-  void onFocusChange(View target, boolean hasFocus) {
-    if (hasFocus) {
-      showDialogListener.run();
-    }
-  }
+  @Override
+  protected void onFinishInflate() {
+    super.onFinishInflate();
 
-  @OnClick(R.id.multiple_choice_tap_target)
-  void onClick() {
-    if (editText.isFocused()) {
-      showDialogListener.run();
-    } else {
-      editText.requestFocus();
-    }
+    TextInputEditText editText = findViewById(R.id.multiple_choice_input_edit_text);
+
+    editText.setOnFocusChangeListener(
+        (v, hasFocus) -> {
+          if (hasFocus) {
+            showDialogListener.run();
+          }
+        });
+
+    findViewById(R.id.multiple_choice_tap_target)
+        .setOnClickListener(
+            v -> {
+              if (editText.isFocused()) {
+                showDialogListener.run();
+              } else {
+                editText.requestFocus();
+              }
+            });
   }
 }
