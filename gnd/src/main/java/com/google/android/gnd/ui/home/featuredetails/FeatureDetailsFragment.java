@@ -23,7 +23,6 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.view.WindowInsetsCompat;
-import butterknife.BindView;
 import com.google.android.gnd.MainViewModel;
 import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.FeatureDetailsFragBinding;
@@ -37,12 +36,10 @@ import javax.inject.Inject;
 @AndroidEntryPoint
 public class FeatureDetailsFragment extends AbstractFragment {
 
-  @BindView(R.id.observation_list_container)
-  View observationListContainer;
-
   private FeatureDetailsViewModel viewModel;
   private HomeScreenViewModel homeScreenViewModel;
   private MainViewModel mainViewModel;
+  private FeatureDetailsFragBinding binding;
 
   @Inject
   public FeatureDetailsFragment() {}
@@ -58,8 +55,7 @@ public class FeatureDetailsFragment extends AbstractFragment {
   @Override
   public View onCreateView(
       @NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-    FeatureDetailsFragBinding binding =
-        FeatureDetailsFragBinding.inflate(inflater, container, false);
+    binding = FeatureDetailsFragBinding.inflate(inflater, container, false);
     binding.setViewModel(viewModel);
     binding.setLifecycleOwner(this);
     return binding.getRoot();
@@ -89,6 +85,9 @@ public class FeatureDetailsFragment extends AbstractFragment {
   }
 
   private void onApplyWindowInsets(WindowInsetsCompat insets) {
-    observationListContainer.setPadding(0, 0, 0, insets.getSystemWindowInsetBottom());
+    binding
+        .getRoot()
+        .findViewById(R.id.observation_list_container)
+        .setPadding(0, 0, 0, insets.getSystemWindowInsetBottom());
   }
 }

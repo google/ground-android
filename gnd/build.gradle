@@ -26,7 +26,6 @@ apply from: '../config/pmd/pmd.gradle'
 project.ext {
     autoDisposeVersion = "1.4.0"
     autoValueVersion = "1.6.3"
-    butterKnifeVersion = "10.2.1"
     firebaseCoreVersion = "17.4.3"
     gmsVersion = "17.0.0"
     hiltJetpackVersion = "1.0.0-alpha01"
@@ -152,10 +151,6 @@ dependencies {
     testImplementation "com.google.dagger:hilt-android-testing:$project.hiltVersion"
     testAnnotationProcessor "com.google.dagger:hilt-android-compiler:$project.hiltVersion"
 
-
-    // ButterKnife
-    implementation "com.jakewharton:butterknife:$project.butterKnifeVersion"
-    annotationProcessor "com.jakewharton:butterknife-compiler:$project.butterKnifeVersion"
 
     // ReactiveX
     implementation 'io.reactivex.rxjava2:rxjava:2.2.19'
