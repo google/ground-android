@@ -30,7 +30,6 @@ import androidx.annotation.Nullable;
 import androidx.databinding.ViewDataBinding;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import butterknife.BindView;
 import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.EditObservationBottomSheetBinding;
@@ -69,15 +68,10 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
   @Inject Navigator navigator;
   @Inject FieldViewFactory fieldViewFactory;
 
-  @BindView(R.id.edit_observation_toolbar)
-  TwoLineToolbar toolbar;
-
-  @BindView(R.id.edit_observation_layout)
-  LinearLayout formLayout;
-
   private EditObservationViewModel viewModel;
   private SingleSelectDialogFactory singleSelectDialogFactory;
   private MultiSelectDialogFactory multiSelectDialogFactory;
+  private EditObservationFragBinding binding;
 
   private static AbstractFieldViewModel getViewModel(ViewDataBinding binding) {
     if (binding == null) {
@@ -104,8 +98,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
   @Override
   public View onCreateView(
       @NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-    EditObservationFragBinding binding =
-        EditObservationFragBinding.inflate(inflater, container, false);
+    binding = EditObservationFragBinding.inflate(inflater, container, false);
     binding.setLifecycleOwner(this);
     binding.setViewModel(viewModel);
     binding.setFragment(this);
@@ -115,6 +108,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
   @Override
   public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
+    TwoLineToolbar toolbar = binding.editObservationToolbar;
     ((MainActivity) getActivity()).setActionBar(toolbar, R.drawable.ic_close_black_24dp);
     toolbar.setNavigationOnClickListener(__ -> onCloseButtonClick());
     // Observe state changes.
@@ -177,6 +171,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
   }
 
   private void rebuildForm(Form form) {
+    LinearLayout formLayout = binding.editObservationLayout;
     formLayout.removeAllViews();
     fieldViewModelList.clear();
     for (Element element : form.getElements()) {
