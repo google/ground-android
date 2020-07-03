@@ -82,7 +82,6 @@ import com.google.android.gnd.persistence.local.room.models.TileEntityState;
     },
     version = Config.DB_VERSION,
     exportSchema = false)
-// CHECKSTYLE:OFF
 @TypeConverters({
   ElementEntityType.class,
   FieldEntityType.class,
@@ -95,7 +94,6 @@ import com.google.android.gnd.persistence.local.room.models.TileEntityState;
   StyleTypeConverter.class,
   TileEntityState.class
 })
-// CHECKSTYLE:ON
 public abstract class LocalDatabase extends RoomDatabase {
 
   public abstract FeatureDao featureDao();
