@@ -25,6 +25,7 @@ import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.FeatureMutation;
 import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.model.observation.ObservationMutation;
+import com.google.android.gnd.persistence.local.room.LocalDataStoreException;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import io.reactivex.Completable;
@@ -79,6 +80,12 @@ public interface LocalDataStore {
    * mutation to the local queue for remote sync.
    */
   Completable applyAndEnqueue(ObservationMutation mutation);
+
+  /** Applies the specified {@link ObservationMutation} to the local data store.. */
+  Completable apply(ObservationMutation mutation) throws LocalDataStoreException;
+
+  /** Appends the specified {@link ObservationMutation} to the local queue for remote sync. */
+  Completable enqueue(ObservationMutation mutation);
 
   /**
    * Returns a long-lived stream that emits the full set of features for a project on subscribe, and
