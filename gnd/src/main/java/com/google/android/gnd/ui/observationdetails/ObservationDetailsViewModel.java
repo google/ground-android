@@ -24,19 +24,22 @@ import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.repository.ObservationRepository;
 import com.google.android.gnd.rx.Loadable;
 import com.google.android.gnd.ui.common.AbstractViewModel;
+import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.processors.BehaviorProcessor;
 import javax.inject.Inject;
 
 public class ObservationDetailsViewModel extends AbstractViewModel {
 
-  private final BehaviorProcessor<ObservationDetailsFragmentArgs> argsProcessor;
   public final LiveData<Loadable<Observation>> observations;
   public final LiveData<Integer> progressBarVisibility;
   public final LiveData<Feature> feature;
+  private final ObservationRepository observationRepository;
+  private final BehaviorProcessor<ObservationDetailsFragmentArgs> argsProcessor;
 
   @Inject
   ObservationDetailsViewModel(ObservationRepository observationRepository) {
+    this.observationRepository = observationRepository;
     this.argsProcessor = BehaviorProcessor.create();
 
     Flowable<Loadable<Observation>> observationStream =
@@ -60,15 +63,22 @@ public class ObservationDetailsViewModel extends AbstractViewModel {
             observationStream.map(ObservationDetailsViewModel::getFeature));
   }
 
-  public void loadObservationDetails(ObservationDetailsFragmentArgs args) {
-    this.argsProcessor.onNext(args);
-  }
-
   private static Integer getProgressBarVisibility(Loadable<Observation> observation) {
     return observation.value().isPresent() ? View.VISIBLE : View.GONE;
   }
 
   private static Feature getFeature(Loadable<Observation> observation) {
     return observation.value().map(Observation::getFeature).get();
+  }
+
+  public void loadObservationDetails(ObservationDetailsFragmentArgs args) {
+    this.argsProcessor.onNext(args);
+  }
+
+  public Completable deleteCurrentObservation(
+      String projectId, String featureId, String observationId) {
+    return observationRepository
+        .getObservation(projectId, featureId, observationId)
+        .flatMapCompletable(observationRepository::deleteObservation);
   }
 }
