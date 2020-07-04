@@ -17,6 +17,7 @@
 package com.google.android.gnd.repository;
 
 import com.google.android.gnd.model.AuditInfo;
+import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.model.observation.ObservationMutation;
@@ -35,6 +36,7 @@ import io.reactivex.Single;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
+import timber.log.Timber;
 import timber.log.Timber;
 
 /**
@@ -104,7 +106,7 @@ public class ObservationRepository {
   private Completable mergeRemoteObservations(
       ImmutableList<ValueOrError<Observation>> observations) {
     return Observable.fromIterable(observations)
-        .doOnNext(voe -> voe.error().ifPresent(err -> Timber.w(err, "Skipping bad observation")))
+        .doOnNext(voe -> voe.error().ifPresent(t -> Timber.e(t, "Skipping bad observation")))
         .compose(ValueOrError::ignoreErrors)
         .flatMapCompletable(localDataStore::mergeObservation);
   }
@@ -141,6 +143,37 @@ public class ObservationRepository {
                     .setCreated(auditInfo)
                     .setLastModified(auditInfo)
                     .build());
+  }
+
+  public Completable deleteObservation(Observation originalObservation) {
+    ObservationMutation observationMutation =
+        ObservationMutation.builder()
+            .setType(Type.DELETE)
+            .setProjectId(originalObservation.getProject().getId())
+            .setFeatureId(originalObservation.getFeature().getId())
+            .setLayerId(originalObservation.getFeature().getLayer().getId())
+            .setObservationId(originalObservation.getId())
+            .setFormId(originalObservation.getForm().getId())
+            .setResponseDeltas(ImmutableList.of())
+            .setClientTimestamp(new Date())
+            .setUserId(authManager.getCurrentUser().getId())
+            .build();
+
+    /*
+     * When deleting observation, we can't apply the changes first to the local database. This would
+     * fail a foreign key constraint in the ObservationMutationEntity as the observation_id is a
+     * foreign key of the observation table.
+     *
+     * So, first we enqueue the mutation and remove the remote entry. After that, update the local
+     * entry.
+     */
+    return enqueue(observationMutation);
+  }
+
+  public Completable enqueue(ObservationMutation mutation) {
+    return localDataStore
+        .enqueue(mutation)
+        .andThen(dataSyncWorkManager.enqueueSyncWorker(mutation.getFeatureId()));
   }
 
   public Completable addObservationMutation(
