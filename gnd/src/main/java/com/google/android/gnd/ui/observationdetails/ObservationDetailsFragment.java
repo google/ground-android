@@ -161,13 +161,8 @@ public class ObservationDetailsFragment extends AbstractFragment {
       case R.id.delete_observation_menu_item:
         viewModel
             .deleteCurrentObservation(projectId, featureId, observationId)
-            .doOnError(Timber::e)
             .as(autoDisposable(this))
-            .subscribe(
-                () -> {
-                  Timber.d("Deleted successfully");
-                  navigator.navigateUp();
-                });
+            .subscribe(() -> navigator.navigateUp());
         return true;
       default:
         return false;
