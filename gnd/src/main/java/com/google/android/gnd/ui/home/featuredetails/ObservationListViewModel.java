@@ -16,7 +16,6 @@
 
 package com.google.android.gnd.ui.home.featuredetails;
 
-import android.util.Log;
 import android.view.View;
 import androidx.databinding.ObservableInt;
 import androidx.lifecycle.LiveData;
@@ -32,15 +31,14 @@ import io.reactivex.Single;
 import io.reactivex.processors.PublishProcessor;
 import java8.util.Optional;
 import javax.inject.Inject;
+import timber.log.Timber;
 
 public class ObservationListViewModel extends AbstractViewModel {
 
-  private static final String TAG = ObservationListViewModel.class.getSimpleName();
+  public final ObservableInt loadingSpinnerVisibility = new ObservableInt();
   private final ObservationRepository observationRepository;
   private PublishProcessor<ObservationListRequest> observationListRequests;
   private LiveData<ImmutableList<Observation>> observationList;
-
-  public final ObservableInt loadingSpinnerVisibility = new ObservableInt();
 
   @Inject
   public ObservationListViewModel(ObservationRepository observationRepository) {
@@ -77,7 +75,7 @@ public class ObservationListViewModel extends AbstractViewModel {
 
   private Single<ImmutableList<Observation>> onGetObservationsError(Throwable t) {
     // TODO: Show an appropriate error message to the user.
-    Log.d(TAG, "Failed to fetch observation list.", t);
+    Timber.e(t, "Failed to fetch observation list.");
     return Single.just(ImmutableList.of());
   }
 
@@ -85,7 +83,7 @@ public class ObservationListViewModel extends AbstractViewModel {
     observationListRequests.onNext(new ObservationListRequest(project, featureId, formId));
   }
 
-  class ObservationListRequest {
+  static class ObservationListRequest {
     final Project project;
     final String featureId;
     final Optional<String> formId;
