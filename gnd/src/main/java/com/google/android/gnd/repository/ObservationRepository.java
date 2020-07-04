@@ -16,8 +16,8 @@
 
 package com.google.android.gnd.repository;
 
-import android.util.Log;
 import com.google.android.gnd.model.AuditInfo;
+import com.google.android.gnd.model.Mutation.Type;
 import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.observation.Observation;
@@ -28,13 +28,16 @@ import com.google.android.gnd.persistence.remote.RemoteDataStore;
 import com.google.android.gnd.persistence.sync.DataSyncWorkManager;
 import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator;
 import com.google.android.gnd.rx.ValueOrError;
+import com.google.android.gnd.system.AuthenticationManager;
 import com.google.common.collect.ImmutableList;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.Single;
+import java.util.Date;
 import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import timber.log.Timber;
 
 /**
  * Coordinates persistence and retrieval of {@link Observation} instances from remote, local, and in
@@ -43,13 +46,14 @@ import javax.inject.Singleton;
  */
 @Singleton
 public class ObservationRepository {
-  private static final String TAG = ObservationRepository.class.getSimpleName();
+
   private static final long LOAD_REMOTE_OBSERVATIONS_TIMEOUT_SECS = 5;
 
   private final LocalDataStore localDataStore;
   private final RemoteDataStore remoteDataStore;
   private final FeatureRepository featureRepository;
   private final DataSyncWorkManager dataSyncWorkManager;
+  private final AuthenticationManager authManager;
   private final OfflineUuidGenerator uuidGenerator;
 
   @Inject
@@ -58,12 +62,14 @@ public class ObservationRepository {
       RemoteDataStore remoteDataStore,
       FeatureRepository featureRepository,
       DataSyncWorkManager dataSyncWorkManager,
+      AuthenticationManager authManager,
       OfflineUuidGenerator uuidGenerator) {
 
     this.localDataStore = localDataStore;
     this.remoteDataStore = remoteDataStore;
     this.featureRepository = featureRepository;
     this.dataSyncWorkManager = dataSyncWorkManager;
+    this.authManager = authManager;
     this.uuidGenerator = uuidGenerator;
   }
 
@@ -92,7 +98,7 @@ public class ObservationRepository {
         remoteDataStore
             .loadObservations(feature)
             .timeout(LOAD_REMOTE_OBSERVATIONS_TIMEOUT_SECS, TimeUnit.SECONDS)
-            .doOnError(t -> Log.d(TAG, "Observation sync timed out"))
+            .doOnError(t -> Timber.d("Observation sync timed out"))
             .flatMapCompletable(this::mergeRemoteObservations)
             .onErrorComplete();
     return remoteSync.andThen(localDataStore.getObservations(feature, formId));
@@ -101,7 +107,7 @@ public class ObservationRepository {
   private Completable mergeRemoteObservations(
       ImmutableList<ValueOrError<Observation>> observations) {
     return Observable.fromIterable(observations)
-        .doOnNext(voe -> voe.error().ifPresent(err -> Log.w(TAG, "Skipping bad observation", err)))
+        .doOnNext(voe -> voe.error().ifPresent(t -> Timber.e(t, "Skipping bad observation")))
         .compose(ValueOrError::ignoreErrors)
         .flatMapCompletable(localDataStore::mergeObservation);
   }
@@ -139,6 +145,37 @@ public class ObservationRepository {
                     .setCreated(auditInfo)
                     .setLastModified(auditInfo)
                     .build());
+  }
+
+  public Completable deleteObservation(Observation originalObservation) {
+    ObservationMutation observationMutation =
+        ObservationMutation.builder()
+            .setType(Type.DELETE)
+            .setProjectId(originalObservation.getProject().getId())
+            .setFeatureId(originalObservation.getFeature().getId())
+            .setLayerId(originalObservation.getFeature().getLayer().getId())
+            .setObservationId(originalObservation.getId())
+            .setFormId(originalObservation.getForm().getId())
+            .setResponseDeltas(ImmutableList.of())
+            .setClientTimestamp(new Date())
+            .setUserId(authManager.getCurrentUser().getId())
+            .build();
+
+    /*
+     * When deleting observation, we can't apply the changes first to the local database. This would
+     * fail a foreign key constraint in the ObservationMutationEntity as the observation_id is a
+     * foreign key of the observation table.
+     *
+     * So, first we enqueue the mutation and remove the remote entry. After that, update the local
+     * entry.
+     */
+    return enqueue(observationMutation);
+  }
+
+  public Completable enqueue(ObservationMutation mutation) {
+    return localDataStore
+        .enqueue(mutation)
+        .andThen(dataSyncWorkManager.enqueueSyncWorker(mutation.getFeatureId()));
   }
 
   public Completable applyAndEnqueue(ObservationMutation mutation) {
