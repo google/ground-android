@@ -411,13 +411,8 @@ public class RoomLocalDataStore implements LocalDataStore {
     }
   }
 
-  /**
-   * Applies mutation to observation in database or creates a new one.
-   *
-   * @return A Completable that emits an error if mutation type is "UPDATE" but entity does not
-   *     exist, or if type is "CREATE" and entity already exists.
-   */
-  private Completable apply(ObservationMutation mutation) throws LocalDataStoreException {
+  /** Applies mutation to observation in database or creates a new one. */
+  public Completable apply(ObservationMutation mutation) throws LocalDataStoreException {
     switch (mutation.getType()) {
       case CREATE:
         return getUser(mutation.getUserId())
@@ -425,6 +420,9 @@ public class RoomLocalDataStore implements LocalDataStore {
       case UPDATE:
         return getUser(mutation.getUserId())
             .flatMapCompletable(user -> updateObservation(mutation, user));
+      case DELETE:
+        return getUser(mutation.getUserId())
+            .flatMapCompletable(user -> deleteObservation(mutation));
       default:
         throw LocalDataStoreException.unknownMutationType(mutation.getType());
     }
@@ -449,7 +447,16 @@ public class RoomLocalDataStore implements LocalDataStore {
         .subscribeOn(schedulers.io());
   }
 
-  private Completable enqueue(ObservationMutation mutation) {
+  private Completable deleteObservation(ObservationMutation mutation) {
+    return observationDao
+        .findById(mutation.getObservationId())
+        .doOnSubscribe(__ -> Timber.d("Deleting local observation : %s", mutation))
+        .toSingle()
+        .flatMapCompletable(entity -> observationDao.delete(entity))
+        .subscribeOn(schedulers.io());
+  }
+
+  public Completable enqueue(ObservationMutation mutation) {
     return observationMutationDao
         .insert(ObservationMutationEntity.fromMutation(mutation))
         .doOnSubscribe(__ -> Timber.v("Enqueuing mutation: %s", mutation))
