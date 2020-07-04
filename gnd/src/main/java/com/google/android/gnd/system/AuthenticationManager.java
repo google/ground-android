@@ -37,15 +37,15 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
-import dagger.hilt.android.scopes.ActivityScoped;
 import io.reactivex.Observable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.subjects.BehaviorSubject;
 import io.reactivex.subjects.Subject;
 import java8.util.Optional;
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
-@ActivityScoped
+@Singleton
 public class AuthenticationManager {
   private static final String TAG = AuthenticationManager.class.getSimpleName();
   private static final int SIGN_IN_REQUEST_CODE = AuthenticationManager.class.hashCode() & 0xffff;
