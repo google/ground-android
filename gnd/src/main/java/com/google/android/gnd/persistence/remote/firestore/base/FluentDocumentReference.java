@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.persistence.remote.firestore.base;
 
+import androidx.annotation.NonNull;
 import com.google.common.collect.ImmutableMap;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.SetOptions;
@@ -36,10 +37,15 @@ public class FluentDocumentReference {
     batch.set(reference, values, SetOptions.merge());
   }
 
+  protected void delete() {
+    reference.delete();
+  }
+
   protected DocumentReference reference() {
     return reference;
   }
 
+  @NonNull
   @Override
   public String toString() {
     return reference.getPath();
