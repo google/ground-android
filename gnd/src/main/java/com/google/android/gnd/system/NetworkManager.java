@@ -19,6 +19,7 @@ package com.google.android.gnd.system;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import androidx.annotation.RequiresPermission;
 import com.google.android.gnd.GndApplication;
 import com.google.android.gnd.rx.RxCompletable;
 import io.reactivex.Completable;
@@ -37,6 +38,7 @@ public class NetworkManager {
   }
 
   /** Returns true iff the device has internet connectivity, false otherwise. */
+  @RequiresPermission("android.permission.ACCESS_NETWORK_STATE")
   private static boolean isNetworkAvailable(Context context) {
     ConnectivityManager cm =
         (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);

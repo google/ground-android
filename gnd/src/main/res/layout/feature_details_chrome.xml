@@ -19,6 +19,7 @@
   xmlns:app="http://schemas.android.com/apk/res-auto">
 
   <data>
+    <import type="android.view.View" />
     <variable
       name="viewModel"
       type="com.google.android.gnd.ui.home.HomeScreenViewModel" />
@@ -59,7 +60,7 @@
       android:elevation="6dp"
       android:onClick="@{() -> viewModel.addObservation()}"
       android:text="@string/add_observation_button_label"
-      android:visibility="@{viewModel.addObservationButtonVisibility}"
+      android:visibility="@{viewModel.isObservationButtonVisible ? View.VISIBLE : View.GONE}"
       app:chipIcon="@drawable/ic_add"
       app:useCompatPadding="true" />
 

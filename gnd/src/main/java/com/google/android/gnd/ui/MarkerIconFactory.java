@@ -21,6 +21,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+import androidx.annotation.ColorInt;
 import androidx.appcompat.content.res.AppCompatResources;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -38,7 +39,7 @@ public class MarkerIconFactory {
     this.context = context;
   }
 
-  public BitmapDescriptor getMarkerIcon(int color) {
+  public BitmapDescriptor getMarkerIcon(@ColorInt int color) {
     Drawable outline = AppCompatResources.getDrawable(context, R.drawable.ic_marker_outline);
     Drawable fill = AppCompatResources.getDrawable(context, R.drawable.ic_marker_fill);
     Drawable overlay = AppCompatResources.getDrawable(context, R.drawable.ic_marker_overlay);

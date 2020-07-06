@@ -22,7 +22,6 @@ import static com.google.android.gnd.persistence.remote.firestore.FirestoreStora
 import android.app.Application;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
-import android.view.View;
 import androidx.databinding.ObservableArrayMap;
 import androidx.databinding.ObservableMap;
 import androidx.lifecycle.LiveData;
@@ -96,16 +95,11 @@ public class EditObservationViewModel extends AbstractViewModel {
   /** Form validation errors, updated when existing for loaded and when responses change. */
   @Nullable private Map<String, String> validationErrors;
 
-  /** Visibility of process widget shown while loading. */
-  private final MutableLiveData<Integer> loadingSpinnerVisibility =
-      new MutableLiveData<>(View.GONE);
+  /** True if observation is currently being loaded, otherwise false. */
+  public final MutableLiveData<Boolean> isLoading = new MutableLiveData<>(false);
 
-  /** Visibility of "Save" button hidden while loading. */
-  private final MutableLiveData<Integer> saveButtonVisibility = new MutableLiveData<>(View.GONE);
-
-  /** Visibility of saving progress dialog, show saving. */
-  private final MutableLiveData<Integer> savingProgressVisibility =
-      new MutableLiveData<>(View.GONE);
+  /** True if observation is currently being saved, otherwise false. */
+  public final MutableLiveData<Boolean> isSaving = new MutableLiveData<>(false);
 
   /** Outcome of user clicking "Save". */
   private final LiveData<Event<SaveResult>> saveResults;
@@ -139,18 +133,6 @@ public class EditObservationViewModel extends AbstractViewModel {
 
   public LiveData<Form> getForm() {
     return form;
-  }
-
-  public LiveData<Integer> getLoadingSpinnerVisibility() {
-    return loadingSpinnerVisibility;
-  }
-
-  public LiveData<Integer> getSaveButtonVisibility() {
-    return saveButtonVisibility;
-  }
-
-  public LiveData<Integer> getSavingProgressVisibility() {
-    return savingProgressVisibility;
   }
 
   public LiveData<String> getToolbarTitle() {
@@ -238,8 +220,7 @@ public class EditObservationViewModel extends AbstractViewModel {
   }
 
   private Single<Form> onInitialize(EditObservationFragmentArgs viewArgs) {
-    saveButtonVisibility.setValue(View.GONE);
-    loadingSpinnerVisibility.setValue(View.VISIBLE);
+    isLoading.setValue(true);
     isNew = isAddObservationRequest(viewArgs);
     Single<Observation> obs;
     if (isNew) {
@@ -255,8 +236,7 @@ public class EditObservationViewModel extends AbstractViewModel {
   private void onObservationLoaded(Observation observation) {
     this.originalObservation = observation;
     responses.clear();
-    saveButtonVisibility.postValue(View.VISIBLE);
-    loadingSpinnerVisibility.postValue(View.GONE);
+    isLoading.postValue(false);
   }
 
   private Single<Observation> createObservation(EditObservationFragmentArgs args) {
@@ -299,8 +279,8 @@ public class EditObservationViewModel extends AbstractViewModel {
 
     return observationRepository
         .addObservationMutation(originalObservation, getResponseDeltas(), isNew)
-        .doOnSubscribe(disposable -> savingProgressVisibility.setValue(View.VISIBLE))
-        .doOnComplete(() -> savingProgressVisibility.postValue(View.GONE))
+        .doOnSubscribe(disposable -> isSaving.setValue(true))
+        .doOnComplete(() -> isSaving.postValue(false))
         .toSingleDefault(Event.create(SaveResult.SAVED));
   }
 
