@@ -35,7 +35,6 @@ import io.reactivex.Single;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
-import javax.inject.Singleton;
 import timber.log.Timber;
 
 /**
@@ -43,7 +42,6 @@ import timber.log.Timber;
  * memory data stores. For more details on this pattern and overall architecture, see
  * https://developer.android.com/jetpack/docs/guide.
  */
-@Singleton
 public class ObservationRepository {
 
   private static final long LOAD_REMOTE_OBSERVATIONS_TIMEOUT_SECS = 5;
