@@ -18,6 +18,7 @@ package com.google.android.gnd.ui.common;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import androidx.annotation.StringRes;
 
 // TODO: Replace with custom View; ProgressDialog was deprecated in API 26.
 // https://developer.android.com/reference/android/app/ProgressDialog
@@ -25,7 +26,7 @@ public abstract class ProgressDialogs {
   /** Do not instantiate. */
   private ProgressDialogs() {}
 
-  public static ProgressDialog modalSpinner(Context context, int messageId) {
+  public static ProgressDialog modalSpinner(Context context, @StringRes int messageId) {
     ProgressDialog dialog = new ProgressDialog(context);
     dialog.setMessage(context.getResources().getString(messageId));
     dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);

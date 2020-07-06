@@ -19,6 +19,8 @@ package com.google.android.gnd.ui.util;
 import android.content.res.Resources;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+import androidx.annotation.ColorRes;
+import androidx.annotation.DrawableRes;
 
 public class DrawableUtil {
   private final Resources resources;
@@ -28,7 +30,7 @@ public class DrawableUtil {
     this.resources = resources;
   }
 
-  public Drawable getDrawable(int drawableId, int colorId) {
+  public Drawable getDrawable(@DrawableRes int drawableId, @ColorRes int colorId) {
     Drawable drawable = resources.getDrawable(drawableId);
     int color = resources.getColor(colorId);
     drawable.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
