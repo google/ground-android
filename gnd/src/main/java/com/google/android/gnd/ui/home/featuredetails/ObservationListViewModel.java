@@ -16,8 +16,7 @@
 
 package com.google.android.gnd.ui.home.featuredetails;
 
-import android.view.View;
-import androidx.databinding.ObservableInt;
+import androidx.databinding.ObservableBoolean;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
 import com.google.android.gnd.model.Project;
@@ -35,7 +34,7 @@ import timber.log.Timber;
 
 public class ObservationListViewModel extends AbstractViewModel {
 
-  public final ObservableInt loadingSpinnerVisibility = new ObservableInt();
+  public final ObservableBoolean isLoading = new ObservableBoolean(false);
   private final ObservationRepository observationRepository;
   private PublishProcessor<ObservationListRequest> observationListRequests;
   private LiveData<ImmutableList<Observation>> observationList;
@@ -47,9 +46,9 @@ public class ObservationListViewModel extends AbstractViewModel {
     observationList =
         LiveDataReactiveStreams.fromPublisher(
             observationListRequests
-                .doOnNext(__ -> loadingSpinnerVisibility.set(View.VISIBLE))
+                .doOnNext(__ -> isLoading.set(true))
                 .switchMapSingle(this::getObservations)
-                .doOnNext(__ -> loadingSpinnerVisibility.set(View.GONE)));
+                .doOnNext(__ -> isLoading.set(false)));
   }
 
   public LiveData<ImmutableList<Observation>> getObservations() {
