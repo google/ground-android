@@ -23,6 +23,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.FrameLayout;
+import androidx.annotation.DrawableRes;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.ViewCompat;
@@ -93,7 +94,7 @@ public abstract class AbstractActivity extends AppCompatActivity {
     super.onDestroy();
   }
 
-  public void setActionBar(TwoLineToolbar toolbar, int upIconId) {
+  public void setActionBar(TwoLineToolbar toolbar, @DrawableRes int upIconId) {
     setActionBar(toolbar, false);
     // We override the color here programmatically since calling setHomeAsUpIndicator uses the color
     // of the set icon, not the applied theme. This allows us to change the primary color

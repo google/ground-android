@@ -22,6 +22,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
+import androidx.annotation.StyleRes;
 import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.ObservationListItemBinding;
@@ -79,7 +80,7 @@ class ObservationListItemViewHolder extends RecyclerView.ViewHolder {
   }
 
   @NonNull
-  private TextView newFieldTextView(String text, int textAppearance) {
+  private TextView newFieldTextView(String text, @StyleRes int textAppearance) {
     Context context = binding.getRoot().getContext();
     Resources resources = context.getResources();
     TextView v = new TextView(context);

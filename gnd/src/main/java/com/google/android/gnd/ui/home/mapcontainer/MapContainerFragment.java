@@ -27,6 +27,7 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.StringRes;
 import androidx.appcompat.app.AlertDialog;
 import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.MapContainerFragBinding;
@@ -213,7 +214,7 @@ public class MapContainerFragment extends AbstractFragment {
     }
   }
 
-  private void showUserActionFailureMessage(int resId) {
+  private void showUserActionFailureMessage(@StringRes int resId) {
     Toast.makeText(getContext(), resId, Toast.LENGTH_LONG).show();
   }
 
