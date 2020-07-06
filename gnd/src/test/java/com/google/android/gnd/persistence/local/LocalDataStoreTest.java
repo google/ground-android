@@ -45,6 +45,7 @@ import com.google.android.gnd.model.observation.ObservationMutation;
 import com.google.android.gnd.model.observation.ResponseDelta;
 import com.google.android.gnd.model.observation.ResponseMap;
 import com.google.android.gnd.model.observation.TextResponse;
+import com.google.android.gnd.persistence.local.room.LocalDataStoreException;
 import com.google.android.gnd.rx.SchedulersModule;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -64,7 +65,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
-
 
 @HiltAndroidTest
 @UninstallModules({SchedulersModule.class, LocalDatabaseModule.class})
@@ -402,6 +402,24 @@ public class LocalDataStoreTest {
             .get(0)
             .getResponses();
     assertThat("foo value").isEqualTo(responses.getResponse("foo field").get().toString());
+  }
+
+  @Test
+  public void testDeleteObservation() throws LocalDataStoreException {
+    // Add test observation
+    localDataStore.insertOrUpdateUser(TEST_USER).blockingAwait();
+    localDataStore.insertOrUpdateProject(TEST_PROJECT).blockingAwait();
+    localDataStore.applyAndEnqueue(TEST_FEATURE_MUTATION).blockingAwait();
+    localDataStore.applyAndEnqueue(TEST_OBSERVATION_MUTATION).blockingAwait();
+
+    // Create test mutation and apply which is called after successful remote sync
+    localDataStore
+        .apply(TEST_OBSERVATION_MUTATION.toBuilder().setType(Mutation.Type.DELETE).build())
+        .blockingAwait();
+
+    // Verify that the observation doesn't exist
+    Feature feature = localDataStore.getFeature(TEST_PROJECT, "feature id").blockingGet();
+    localDataStore.getObservation(feature, "observation id").test().assertNoValues();
   }
 
   @Test
