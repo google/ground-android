@@ -169,12 +169,6 @@ public class ObservationRepository {
     return enqueue(observationMutation);
   }
 
-  public Completable enqueue(ObservationMutation mutation) {
-    return localDataStore
-        .enqueue(mutation)
-        .andThen(dataSyncWorkManager.enqueueSyncWorker(mutation.getFeatureId()));
-  }
-
   public Completable addObservationMutation(
       Observation observation, ImmutableList<ResponseDelta> responseDeltas, boolean isNew) {
     ObservationMutation observationMutation =
@@ -190,6 +184,12 @@ public class ObservationRepository {
             .setUserId(authManager.getCurrentUser().getId())
             .build();
     return applyAndEnqueue(observationMutation);
+  }
+
+  private Completable enqueue(ObservationMutation mutation) {
+    return localDataStore
+        .enqueue(mutation)
+        .andThen(dataSyncWorkManager.enqueueSyncWorker(mutation.getFeatureId()));
   }
 
   private Completable applyAndEnqueue(ObservationMutation mutation) {
