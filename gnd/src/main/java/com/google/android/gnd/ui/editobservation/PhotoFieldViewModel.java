@@ -38,16 +38,16 @@ public class PhotoFieldViewModel extends AbstractFieldViewModel {
   private final StorageManager storageManager;
   private final BehaviorProcessor<String> destinationPath = BehaviorProcessor.create();
   private final LiveData<Uri> uri;
-  private final LiveData<Integer> visibility;
+  public final LiveData<Boolean> isVisible;
   private final MutableLiveData<Field> showDialogClicks = new MutableLiveData<>();
 
   @Inject
   PhotoFieldViewModel(StorageManager storageManager, Application application) {
     super(application);
     this.storageManager = storageManager;
-    this.visibility =
+    this.isVisible =
         LiveDataReactiveStreams.fromPublisher(
-            destinationPath.map(path -> path.isEmpty() ? View.GONE : View.VISIBLE));
+            destinationPath.map(path -> !path.isEmpty()));
     this.uri =
         LiveDataReactiveStreams.fromPublisher(
             destinationPath.switchMapSingle(this::getDownloadUrl));
@@ -59,10 +59,6 @@ public class PhotoFieldViewModel extends AbstractFieldViewModel {
 
   public LiveData<Uri> getUri() {
     return uri;
-  }
-
-  public LiveData<Integer> getVisibility() {
-    return visibility;
   }
 
   @Override

@@ -16,7 +16,7 @@
 
 package com.google.android.gnd.ui.observationdetails;
 
-import android.view.View;
+
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
 import com.google.android.gnd.model.feature.Feature;
@@ -32,7 +32,7 @@ public class ObservationDetailsViewModel extends AbstractViewModel {
 
   private final BehaviorProcessor<ObservationDetailsFragmentArgs> argsProcessor;
   public final LiveData<Loadable<Observation>> observations;
-  public final LiveData<Integer> progressBarVisibility;
+  public final LiveData<Boolean> isProgressBarVisible;
   public final LiveData<Feature> feature;
 
   @Inject
@@ -51,7 +51,7 @@ public class ObservationDetailsViewModel extends AbstractViewModel {
     // TODO: Refactor to expose the fetched observation directly.
     this.observations = LiveDataReactiveStreams.fromPublisher(observationStream);
 
-    this.progressBarVisibility =
+    this.isProgressBarVisible =
         LiveDataReactiveStreams.fromPublisher(
             observationStream.map(ObservationDetailsViewModel::getProgressBarVisibility));
 
@@ -64,8 +64,8 @@ public class ObservationDetailsViewModel extends AbstractViewModel {
     this.argsProcessor.onNext(args);
   }
 
-  private static Integer getProgressBarVisibility(Loadable<Observation> observation) {
-    return observation.value().isPresent() ? View.VISIBLE : View.GONE;
+  private static Boolean getProgressBarVisibility(Loadable<Observation> observation) {
+    return observation.value().isPresent();
   }
 
   private static Feature getFeature(Loadable<Observation> observation) {
