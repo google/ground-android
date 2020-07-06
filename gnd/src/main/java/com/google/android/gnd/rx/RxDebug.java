@@ -98,10 +98,12 @@ public abstract class RxDebug {
       Log.v(tag, RX_TRACE_PREFIX + " " + streamName + " " + action);
     }
 
+    @SuppressWarnings("PMD.UnusedFormalParameter")
     private void onSubscribe(Disposable disposable) {
       trace(tag, streamName, "subscribe");
     }
 
+    @SuppressWarnings("PMD.UnusedFormalParameter")
     private void onSubscribe(Subscription subscription) {
       trace(tag, streamName, "subscribe");
     }
