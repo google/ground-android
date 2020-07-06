@@ -144,15 +144,15 @@ public class ObservationRepository {
                     .build());
   }
 
-  public Completable deleteObservation(Observation originalObservation) {
+  public Completable deleteObservation(Observation observation) {
     ObservationMutation observationMutation =
         ObservationMutation.builder()
             .setType(Type.DELETE)
-            .setProjectId(originalObservation.getProject().getId())
-            .setFeatureId(originalObservation.getFeature().getId())
-            .setLayerId(originalObservation.getFeature().getLayer().getId())
-            .setObservationId(originalObservation.getId())
-            .setFormId(originalObservation.getForm().getId())
+            .setProjectId(observation.getProject().getId())
+            .setFeatureId(observation.getFeature().getId())
+            .setLayerId(observation.getFeature().getLayer().getId())
+            .setObservationId(observation.getId())
+            .setFormId(observation.getForm().getId())
             .setResponseDeltas(ImmutableList.of())
             .setClientTimestamp(new Date())
             .setUserId(authManager.getCurrentUser().getId())
