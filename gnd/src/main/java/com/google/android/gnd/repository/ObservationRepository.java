@@ -37,7 +37,6 @@ import java.util.Date;
 import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
 import timber.log.Timber;
-import timber.log.Timber;
 
 /**
  * Coordinates persistence and retrieval of {@link Observation} instances from remote, local, and in
