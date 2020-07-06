@@ -16,7 +16,6 @@
 
 package com.google.android.gnd.repository;
 
-import android.util.Log;
 import com.google.android.gnd.model.AuditInfo;
 import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.feature.Feature;
@@ -35,6 +34,7 @@ import io.reactivex.Single;
 import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import timber.log.Timber;
 
 /**
  * Coordinates persistence and retrieval of {@link Observation} instances from remote, local, and in
@@ -43,7 +43,7 @@ import javax.inject.Singleton;
  */
 @Singleton
 public class ObservationRepository {
-  private static final String TAG = ObservationRepository.class.getSimpleName();
+
   private static final long LOAD_REMOTE_OBSERVATIONS_TIMEOUT_SECS = 5;
 
   private final LocalDataStore localDataStore;
@@ -92,7 +92,7 @@ public class ObservationRepository {
         remoteDataStore
             .loadObservations(feature)
             .timeout(LOAD_REMOTE_OBSERVATIONS_TIMEOUT_SECS, TimeUnit.SECONDS)
-            .doOnError(t -> Log.d(TAG, "Observation sync timed out"))
+            .doOnError(t -> Timber.e(t, "Observation sync timed out"))
             .flatMapCompletable(this::mergeRemoteObservations)
             .onErrorComplete();
     return remoteSync.andThen(localDataStore.getObservations(feature, formId));
@@ -101,7 +101,7 @@ public class ObservationRepository {
   private Completable mergeRemoteObservations(
       ImmutableList<ValueOrError<Observation>> observations) {
     return Observable.fromIterable(observations)
-        .doOnNext(voe -> voe.error().ifPresent(err -> Log.w(TAG, "Skipping bad observation", err)))
+        .doOnNext(voe -> voe.error().ifPresent(err -> Timber.w(err, "Skipping bad observation")))
         .compose(ValueOrError::ignoreErrors)
         .flatMapCompletable(localDataStore::mergeObservation);
   }
