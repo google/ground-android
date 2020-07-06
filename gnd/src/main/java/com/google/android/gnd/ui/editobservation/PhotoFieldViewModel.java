@@ -18,7 +18,6 @@ package com.google.android.gnd.ui.editobservation;
 
 import android.app.Application;
 import android.net.Uri;
-import android.view.View;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
 import androidx.lifecycle.MutableLiveData;

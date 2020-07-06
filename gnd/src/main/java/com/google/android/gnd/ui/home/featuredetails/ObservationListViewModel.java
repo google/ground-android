@@ -34,7 +34,6 @@ import timber.log.Timber;
 
 public class ObservationListViewModel extends AbstractViewModel {
 
-  private static final String TAG = ObservationListViewModel.class.getSimpleName();
   public final ObservableBoolean isLoading = new ObservableBoolean(false);
   private final ObservationRepository observationRepository;
   private PublishProcessor<ObservationListRequest> observationListRequests;
