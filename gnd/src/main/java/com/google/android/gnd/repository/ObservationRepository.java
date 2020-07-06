@@ -17,20 +17,22 @@
 package com.google.android.gnd.repository;
 
 import com.google.android.gnd.model.AuditInfo;
-import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.model.observation.ObservationMutation;
+import com.google.android.gnd.model.observation.ResponseDelta;
 import com.google.android.gnd.persistence.local.LocalDataStore;
 import com.google.android.gnd.persistence.remote.NotFoundException;
 import com.google.android.gnd.persistence.remote.RemoteDataStore;
 import com.google.android.gnd.persistence.sync.DataSyncWorkManager;
 import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator;
 import com.google.android.gnd.rx.ValueOrError;
+import com.google.android.gnd.system.AuthenticationManager;
 import com.google.common.collect.ImmutableList;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.Single;
+import java.util.Date;
 import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -51,6 +53,7 @@ public class ObservationRepository {
   private final FeatureRepository featureRepository;
   private final DataSyncWorkManager dataSyncWorkManager;
   private final OfflineUuidGenerator uuidGenerator;
+  private final AuthenticationManager authManager;
 
   @Inject
   public ObservationRepository(
@@ -58,13 +61,15 @@ public class ObservationRepository {
       RemoteDataStore remoteDataStore,
       FeatureRepository featureRepository,
       DataSyncWorkManager dataSyncWorkManager,
-      OfflineUuidGenerator uuidGenerator) {
+      OfflineUuidGenerator uuidGenerator,
+      AuthenticationManager authManager) {
 
     this.localDataStore = localDataStore;
     this.remoteDataStore = remoteDataStore;
     this.featureRepository = featureRepository;
     this.dataSyncWorkManager = dataSyncWorkManager;
     this.uuidGenerator = uuidGenerator;
+    this.authManager = authManager;
   }
 
   /**
@@ -121,11 +126,10 @@ public class ObservationRepository {
                         Single.error(() -> new NotFoundException("Observation " + observationId))));
   }
 
-  public Single<Observation> createObservation(
-      String projectId, String featureId, String formId, User user) {
+  public Single<Observation> createObservation(String projectId, String featureId, String formId) {
     // TODO: Handle invalid formId.
     // TODO(#127): Decouple feature from observation so that we don't need to fetch feature here.
-    AuditInfo auditInfo = AuditInfo.now(user);
+    AuditInfo auditInfo = AuditInfo.now(authManager.getCurrentUser());
     return featureRepository
         .getFeature(projectId, featureId)
         .switchIfEmpty(Single.error(() -> new NotFoundException("Feature " + featureId)))
@@ -141,7 +145,24 @@ public class ObservationRepository {
                     .build());
   }
 
-  public Completable applyAndEnqueue(ObservationMutation mutation) {
+  public Completable addObservationMutation(
+      Observation observation, ImmutableList<ResponseDelta> responseDeltas, boolean isNew) {
+    ObservationMutation observationMutation =
+        ObservationMutation.builder()
+            .setType(isNew ? ObservationMutation.Type.CREATE : ObservationMutation.Type.UPDATE)
+            .setProjectId(observation.getProject().getId())
+            .setFeatureId(observation.getFeature().getId())
+            .setLayerId(observation.getFeature().getLayer().getId())
+            .setObservationId(observation.getId())
+            .setFormId(observation.getForm().getId())
+            .setResponseDeltas(responseDeltas)
+            .setClientTimestamp(new Date())
+            .setUserId(authManager.getCurrentUser().getId())
+            .build();
+    return applyAndEnqueue(observationMutation);
+  }
+
+  private Completable applyAndEnqueue(ObservationMutation mutation) {
     return localDataStore
         .applyAndEnqueue(mutation)
         .andThen(dataSyncWorkManager.enqueueSyncWorker(mutation.getFeatureId()));
