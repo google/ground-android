@@ -45,7 +45,6 @@ import com.google.android.gnd.MainViewModel;
 import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.HomeScreenFragBinding;
 import com.google.android.gnd.model.Project;
-import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.rx.Loadable;
 import com.google.android.gnd.rx.Schedulers;
 import com.google.android.gnd.system.AuthenticationManager;
@@ -345,7 +344,7 @@ public class HomeScreenFragment extends AbstractFragment
     return -1;
   }
 
-  private void onShowAddFeatureDialogRequest(Point location) {
+  private void onShowAddFeatureDialogRequest() {
     if (!Loadable.getValue(viewModel.getActiveProject()).isPresent()) {
       Timber.e("Attempting to add feature while no project loaded");
       return;
