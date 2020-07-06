@@ -16,7 +16,6 @@
 
 package com.google.android.gnd.ui.home;
 
-import android.view.View;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
 import androidx.lifecycle.MutableLiveData;
@@ -57,8 +56,8 @@ public class HomeScreenViewModel extends AbstractViewModel {
   // TODO: Move into FeatureDetailsViewModel.
   private final MutableLiveData<Action> openDrawerRequests;
   private final MutableLiveData<BottomSheetState> bottomSheetState;
-  private final MutableLiveData<Integer> addObservationButtonVisibility =
-      new MutableLiveData<>(View.GONE);
+  public final MutableLiveData<Boolean> isObservationButtonVisible =
+      new MutableLiveData<>(false);
 
   @Inject
   HomeScreenViewModel(
@@ -106,10 +105,6 @@ public class HomeScreenViewModel extends AbstractViewModel {
     return projectRepository.getLastActiveProjectId().isEmpty();
   }
 
-  public MutableLiveData<Integer> getAddObservationButtonVisibility() {
-    return addObservationButtonVisibility;
-  }
-
   private void onAddFeatureError(Throwable throwable) {
     // TODO: Show an error message to the user.
     Timber.e(throwable, "Couldn't add feature.");
@@ -141,7 +136,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
   }
 
   private void showBottomSheet(Feature feature) {
-    addObservationButtonVisibility.setValue(View.VISIBLE);
+    isObservationButtonVisible.setValue(true);
     bottomSheetState.setValue(BottomSheetState.visible(feature));
   }
 
@@ -156,7 +151,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
 
   public void onBottomSheetHidden() {
     bottomSheetState.setValue(BottomSheetState.hidden());
-    addObservationButtonVisibility.setValue(View.GONE);
+    isObservationButtonVisible.setValue(false);
   }
 
   public void addObservation() {

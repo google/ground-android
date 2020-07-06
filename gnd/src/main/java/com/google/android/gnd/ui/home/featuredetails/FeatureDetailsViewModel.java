@@ -16,9 +16,8 @@
 
 package com.google.android.gnd.ui.home.featuredetails;
 
-import android.view.View;
+import androidx.databinding.ObservableBoolean;
 import androidx.databinding.ObservableField;
-import androidx.databinding.ObservableInt;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
 import androidx.lifecycle.ViewModel;
@@ -34,7 +33,7 @@ public class FeatureDetailsViewModel extends ViewModel {
 
   public final ObservableField<String> featureTitle;
   public final ObservableField<String> featureSubtitle;
-  public final ObservableInt featureSubtitleVisibility;
+  public final ObservableBoolean isFeatureSubtitleVisible = new ObservableBoolean(false);
 
   private final BehaviorProcessor<Optional<Feature>> selectedFeature;
 
@@ -42,7 +41,6 @@ public class FeatureDetailsViewModel extends ViewModel {
   public FeatureDetailsViewModel() {
     featureTitle = new ObservableField<>();
     featureSubtitle = new ObservableField<>();
-    featureSubtitleVisibility = new ObservableInt();
     selectedFeature = BehaviorProcessor.createDefault(Optional.empty());
   }
 
@@ -62,8 +60,7 @@ public class FeatureDetailsViewModel extends ViewModel {
 
     featureTitle.set(state.getFeature().getTitle());
     featureSubtitle.set(state.getFeature().getSubtitle());
-    featureSubtitleVisibility.set(
-        state.getFeature().getSubtitle().isEmpty() ? View.GONE : View.VISIBLE);
+    isFeatureSubtitleVisible.set(!state.getFeature().getSubtitle().isEmpty());
 
     selectedFeature.onNext(Optional.of(state.getFeature()));
   }
