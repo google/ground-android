@@ -22,7 +22,6 @@ import android.app.Dialog;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -63,7 +62,7 @@ public class ProjectSelectorDialogFragment extends AbstractDialogFragment {
         new ArrayAdapter(getContext(), R.layout.project_selector_list_item, R.id.project_name);
     binding.listView.setAdapter(listAdapter);
     viewModel.getProjectSummaries().observe(this, this::updateProjectList);
-    binding.listView.setOnItemClickListener(this::onItemSelected);
+    binding.listView.setOnItemClickListener((parent, view, index, id) -> onItemSelected(index));
     dialog.setView(binding.getRoot());
     dialog.setCancelable(false);
     return dialog.create();
@@ -100,8 +99,8 @@ public class ProjectSelectorDialogFragment extends AbstractDialogFragment {
     binding.listView.setVisibility(View.VISIBLE);
   }
 
-  private void onItemSelected(AdapterView<?> parent, View view, int idx, long id) {
+  private void onItemSelected(int index) {
     dismiss();
-    viewModel.activateProject(idx);
+    viewModel.activateProject(index);
   }
 }
