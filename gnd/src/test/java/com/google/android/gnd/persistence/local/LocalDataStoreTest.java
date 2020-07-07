@@ -24,7 +24,6 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gnd.model.Mutation;
 import com.google.android.gnd.model.Project;
-import com.google.android.gnd.model.Project.Builder;
 import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.basemap.OfflineArea;
 import com.google.android.gnd.model.basemap.tile.Tile;
@@ -65,7 +64,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
-
 
 @HiltAndroidTest
 @UninstallModules({SchedulersModule.class, LocalDatabaseModule.class})
@@ -245,19 +243,19 @@ public class LocalDataStoreTest {
             .setDefaultStyle(Style.builder().setColor("000").build())
             .build();
 
-    Builder project =
+    Project project =
         Project.newBuilder()
             .setId("foo id")
             .setTitle("foo project")
-            .putLayer(layer1.getId(), layer1);
-    localDataStore.insertOrUpdateProject(project.build()).blockingAwait();
+            .putLayer(layer1.getId(), layer1).build();
+    localDataStore.insertOrUpdateProject(project).blockingAwait();
 
     project =
         Project.newBuilder()
             .setId("foo id")
             .setTitle("foo project")
-            .putLayer(layer2.getId(), layer2);
-    localDataStore.insertOrUpdateProject(project.build()).blockingAwait();
+            .putLayer(layer2.getId(), layer2).build();
+    localDataStore.insertOrUpdateProject(project).blockingAwait();
 
     localDataStore
         .getProjectById("foo id")
