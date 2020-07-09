@@ -17,7 +17,7 @@
 package com.google.android.gnd.repository;
 
 import com.google.android.gnd.model.AuditInfo;
-import com.google.android.gnd.model.User;
+import com.google.android.gnd.model.Mutation.Type;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.model.observation.ObservationMutation;
@@ -157,16 +157,7 @@ public class ObservationRepository {
             .setClientTimestamp(new Date())
             .setUserId(authManager.getCurrentUser().getId())
             .build();
-
-    /*
-     * When deleting observation, we can't apply the changes first to the local database. This would
-     * fail a foreign key constraint in the ObservationMutationEntity as the observation_id is a
-     * foreign key of the observation table.
-     *
-     * So, first we enqueue the mutation and remove the remote entry. After that, update the local
-     * entry.
-     */
-    return enqueue(observationMutation);
+    return applyAndEnqueue(observationMutation);
   }
 
   public Completable addObservationMutation(
@@ -184,12 +175,6 @@ public class ObservationRepository {
             .setUserId(authManager.getCurrentUser().getId())
             .build();
     return applyAndEnqueue(observationMutation);
-  }
-
-  private Completable enqueue(ObservationMutation mutation) {
-    return localDataStore
-        .enqueue(mutation)
-        .andThen(dataSyncWorkManager.enqueueSyncWorker(mutation.getFeatureId()));
   }
 
   private Completable applyAndEnqueue(ObservationMutation mutation) {

@@ -87,13 +87,19 @@ public interface LocalDataStore {
   /** Appends the specified {@link ObservationMutation} to the local queue for remote sync. */
   Completable enqueue(ObservationMutation mutation);
 
+  /** Deletes local observation entry. */
+  Completable deleteObservation(ObservationMutation mutation);
+
   /**
    * Returns a long-lived stream that emits the full set of features for a project on subscribe, and
    * continues to return the full set each time a feature is added/changed/removed.
    */
   Flowable<ImmutableSet<Feature>> getFeaturesOnceAndStream(Project project);
 
-  /** Returns the full list of observations for the specified feature and form. */
+  /**
+   * Returns the list of observations which are not marked for deletion for the specified feature
+   * and form.
+   */
   Single<ImmutableList<Observation>> getObservations(Feature feature, String formId);
 
   /** Returns the feature with the specified UUID from the local data store, if found. */

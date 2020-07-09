@@ -65,6 +65,7 @@ import com.google.android.gnd.persistence.local.room.entity.OptionEntity;
 import com.google.android.gnd.persistence.local.room.entity.ProjectEntity;
 import com.google.android.gnd.persistence.local.room.entity.TileEntity;
 import com.google.android.gnd.persistence.local.room.entity.UserEntity;
+import com.google.android.gnd.persistence.local.room.models.EntityState;
 import com.google.android.gnd.persistence.local.room.models.TileEntityState;
 import com.google.android.gnd.persistence.local.room.models.UserDetails;
 import com.google.android.gnd.rx.Schedulers;
@@ -260,6 +261,8 @@ public class RoomLocalDataStore implements LocalDataStore {
         .map(
             list ->
                 stream(list)
+                    .filter(
+                        observationEntity -> observationEntity.getState() != EntityState.DELETED)
                     .map(obs -> ObservationEntity.toObservation(feature, obs))
                     .collect(toImmutableList()))
         .subscribeOn(schedulers.io());
@@ -422,7 +425,7 @@ public class RoomLocalDataStore implements LocalDataStore {
             .flatMapCompletable(user -> updateObservation(mutation, user));
       case DELETE:
         return getUser(mutation.getUserId())
-            .flatMapCompletable(user -> deleteObservation(mutation));
+            .flatMapCompletable(user -> markObservationDeleted(mutation));
       default:
         throw LocalDataStoreException.unknownMutationType(mutation.getType());
     }
@@ -447,7 +450,23 @@ public class RoomLocalDataStore implements LocalDataStore {
         .subscribeOn(schedulers.io());
   }
 
-  private Completable deleteObservation(ObservationMutation mutation) {
+  /**
+   * Updates the state of the entity as DELETED to prevent showing it up in the UI. Once the
+   * database gets synced, the entry is deleted locally as well. Otherwise, revert it back.
+   */
+  private Completable markObservationDeleted(ObservationMutation mutation) {
+    return observationDao
+        .findById(mutation.getObservationId())
+        .doOnSubscribe(__ -> Timber.d("Marking observation as deleted : %s", mutation))
+        .toSingle()
+        .map(entity -> entity.toBuilder().setState(EntityState.DELETED).build())
+        .flatMap(entity -> observationDao.update(entity))
+        .ignoreElement()
+        .subscribeOn(schedulers.io());
+  }
+
+  @Override
+  public Completable deleteObservation(ObservationMutation mutation) {
     return observationDao
         .findById(mutation.getObservationId())
         .doOnSubscribe(__ -> Timber.d("Deleting local observation : %s", mutation))

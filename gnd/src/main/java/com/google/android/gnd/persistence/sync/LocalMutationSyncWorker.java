@@ -122,7 +122,7 @@ public class LocalMutationSyncWorker extends BaseWorker {
         .filter(mutation -> mutation instanceof ObservationMutation)
         .map(mutation -> (ObservationMutation) mutation)
         .filter(mutation -> mutation.getType() == Type.DELETE)
-        .flatMapCompletable(localDataStore::apply);
+        .flatMapCompletable(localDataStore::deleteObservation);
   }
 
   private Map<String, ImmutableList<Mutation>> groupByUserId(
