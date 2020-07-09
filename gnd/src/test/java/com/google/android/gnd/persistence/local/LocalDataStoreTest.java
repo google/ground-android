@@ -412,9 +412,10 @@ public class LocalDataStoreTest {
     localDataStore.applyAndEnqueue(TEST_FEATURE_MUTATION).blockingAwait();
     localDataStore.applyAndEnqueue(TEST_OBSERVATION_MUTATION).blockingAwait();
 
-    // Create test mutation and apply which is called after successful remote sync
+    // Create test mutation and attempt delete which is called after successful remote sync
     localDataStore
-        .apply(TEST_OBSERVATION_MUTATION.toBuilder().setType(Mutation.Type.DELETE).build())
+        .deleteObservation(
+            TEST_OBSERVATION_MUTATION.toBuilder().setType(Mutation.Type.DELETE).build())
         .blockingAwait();
 
     // Verify that the observation doesn't exist
