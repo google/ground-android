@@ -431,8 +431,8 @@ public class LocalDataStoreTest {
     Feature feature = localDataStore.getFeature(TEST_PROJECT, "feature id").blockingGet();
     localDataStore.getObservations(feature, "form id").test().assertValue(ImmutableList.of());
 
-    // After successful remote sync, apply is called again by LocalMutationSyncWorker.
-    localDataStore.apply(mutation).blockingAwait();
+    // After successful remote sync, delete observation is called by LocalMutationSyncWorker.
+    localDataStore.deleteObservation("observation id").blockingAwait();
 
     // Verify that the observation doesn't exist anymore
     localDataStore.getObservation(feature, "observation id").test().assertNoValues();

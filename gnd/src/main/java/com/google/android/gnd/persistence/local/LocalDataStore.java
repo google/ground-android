@@ -134,6 +134,9 @@ public interface LocalDataStore {
    */
   Completable mergeObservation(Observation observation);
 
+  /** Deletes observation from local database. */
+  Completable deleteObservation(String observationId);
+
   /**
    * Attempts to update a tile in the local data store. If the tile doesn't exist, inserts the tile
    * into the local data store.

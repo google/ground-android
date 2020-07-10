@@ -429,23 +429,7 @@ public class RoomLocalDataStore implements LocalDataStore {
       case DELETE:
         return observationDao
             .findById(mutation.getObservationId())
-            .flatMapCompletable(
-                entity -> {
-                  // Mark the ObservationEntity as DELETED if the current state is DEFAULT.
-                  // Otherwise, delete the observation entity from local db.
-                  //
-                  // TODO: If the remote sync fails, reset the state to DEFAULT.
-                  //
-                  // Note: Observations marked as DELETED are not shown in UI.
-                  //       See {@link ObservationDao}
-                  if (entity.getState() == EntityState.DEFAULT) {
-                    return markObservationDeleted(entity, mutation);
-                  } else if (entity.getState() == EntityState.DELETED) {
-                    return deleteObservation(entity, mutation);
-                  } else {
-                    throw new IllegalStateException("Unknown state");
-                  }
-                });
+            .flatMapCompletable(entity -> markObservationDeleted(entity, mutation));
       default:
         throw LocalDataStoreException.unknownMutationType(mutation.getType());
     }
@@ -480,10 +464,12 @@ public class RoomLocalDataStore implements LocalDataStore {
         .subscribeOn(schedulers.io());
   }
 
-  private Completable deleteObservation(
-      ObservationEntity observationEntity, ObservationMutation mutation) {
-    return Single.just(observationEntity)
-        .doOnSubscribe(__ -> Timber.d("Deleting local observation : %s", mutation))
+  @Override
+  public Completable deleteObservation(String observationId) {
+    return observationDao
+        .findById(observationId)
+        .toSingle()
+        .doOnSubscribe(__ -> Timber.d("Deleting local observation : %s", observationId))
         .flatMapCompletable(entity -> observationDao.delete(entity))
         .subscribeOn(schedulers.io());
   }
