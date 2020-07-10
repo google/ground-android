@@ -84,12 +84,6 @@ public interface LocalDataStore {
   /** Applies the specified {@link ObservationMutation} to the local data store.. */
   Completable apply(ObservationMutation mutation) throws LocalDataStoreException;
 
-  /** Appends the specified {@link ObservationMutation} to the local queue for remote sync. */
-  Completable enqueue(ObservationMutation mutation);
-
-  /** Deletes local observation entry. */
-  Completable deleteObservation(ObservationMutation mutation);
-
   /**
    * Returns a long-lived stream that emits the full set of features for a project on subscribe, and
    * continues to return the full set each time a feature is added/changed/removed.

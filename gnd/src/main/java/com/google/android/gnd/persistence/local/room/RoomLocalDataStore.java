@@ -424,8 +424,22 @@ public class RoomLocalDataStore implements LocalDataStore {
         return getUser(mutation.getUserId())
             .flatMapCompletable(user -> updateObservation(mutation, user));
       case DELETE:
-        return getUser(mutation.getUserId())
-            .flatMapCompletable(user -> markObservationDeleted(mutation));
+        return observationDao
+            .findById(mutation.getObservationId())
+            .flatMapCompletable(
+                entity -> {
+                  // If the entity state is DEFAULT, then just mark the entity as DELETED.
+                  // This prevents loss of data in case of remote sync failure. (TODO)
+                  // If the entity state is DELETED, then it means the remote sync was successful.
+                  // So delete the observation from local db.
+                  if (entity.getState() == EntityState.DEFAULT) {
+                    return markObservationDeleted(mutation);
+                  } else if (entity.getState() == EntityState.DELETED) {
+                    return deleteObservation(mutation);
+                  } else {
+                    throw new IllegalStateException("Unknown state");
+                  }
+                });
       default:
         throw LocalDataStoreException.unknownMutationType(mutation.getType());
     }
@@ -465,8 +479,7 @@ public class RoomLocalDataStore implements LocalDataStore {
         .subscribeOn(schedulers.io());
   }
 
-  @Override
-  public Completable deleteObservation(ObservationMutation mutation) {
+  private Completable deleteObservation(ObservationMutation mutation) {
     return observationDao
         .findById(mutation.getObservationId())
         .doOnSubscribe(__ -> Timber.d("Deleting local observation : %s", mutation))
@@ -475,7 +488,7 @@ public class RoomLocalDataStore implements LocalDataStore {
         .subscribeOn(schedulers.io());
   }
 
-  public Completable enqueue(ObservationMutation mutation) {
+  private Completable enqueue(ObservationMutation mutation) {
     return observationMutationDao
         .insert(ObservationMutationEntity.fromMutation(mutation))
         .doOnSubscribe(__ -> Timber.v("Enqueuing mutation: %s", mutation))

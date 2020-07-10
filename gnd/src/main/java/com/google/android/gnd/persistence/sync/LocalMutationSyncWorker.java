@@ -119,10 +119,10 @@ public class LocalMutationSyncWorker extends BaseWorker {
   private Completable removeLocalObservationsIfMutationTypeIsDelete(
       ImmutableList<Mutation> mutations) {
     return Observable.fromIterable(mutations)
+        .filter(mutation -> mutation.getType() == Type.DELETE)
         .filter(mutation -> mutation instanceof ObservationMutation)
         .map(mutation -> (ObservationMutation) mutation)
-        .filter(mutation -> mutation.getType() == Type.DELETE)
-        .flatMapCompletable(localDataStore::deleteObservation);
+        .flatMapCompletable(localDataStore::apply);
   }
 
   private Map<String, ImmutableList<Mutation>> groupByUserId(
