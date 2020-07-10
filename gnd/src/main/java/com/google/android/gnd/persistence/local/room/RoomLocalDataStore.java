@@ -412,7 +412,12 @@ public class RoomLocalDataStore implements LocalDataStore {
     }
   }
 
-  /** Applies mutation to observation in database or creates a new one. */
+  /**
+   * Applies mutation to observation in database or creates a new one.
+   *
+   * @return A Completable that emits an error if mutation type is "UPDATE" but entity does not *
+   *     exist, or if type is "CREATE" and entity already exists.
+   */
   public Completable apply(ObservationMutation mutation) throws LocalDataStoreException {
     switch (mutation.getType()) {
       case CREATE:
@@ -426,10 +431,13 @@ public class RoomLocalDataStore implements LocalDataStore {
             .findById(mutation.getObservationId())
             .flatMapCompletable(
                 entity -> {
-                  // If the entity state is DEFAULT, then just mark the entity as DELETED.
-                  // This prevents loss of data in case of remote sync failure. (TODO)
-                  // If the entity state is DELETED, then it means the remote sync was successful.
-                  // So delete the observation from local db.
+                  // Mark the ObservationEntity as DELETED if the current state is DEFAULT.
+                  // Otherwise, delete the observation entity from local db.
+                  //
+                  // TODO: If the remote sync fails, reset the state to DEFAULT.
+                  //
+                  // Note: Observations marked as DELETED are not shown in UI.
+                  //       See {@link ObservationDao}
                   if (entity.getState() == EntityState.DEFAULT) {
                     return markObservationDeleted(mutation);
                   } else if (entity.getState() == EntityState.DELETED) {
@@ -462,10 +470,6 @@ public class RoomLocalDataStore implements LocalDataStore {
         .subscribeOn(schedulers.io());
   }
 
-  /**
-   * Updates the state of the entity as DELETED to prevent showing it up in the UI. Once the
-   * database gets synced, the entry is deleted locally as well. Otherwise, revert it back.
-   */
   private Completable markObservationDeleted(ObservationMutation mutation) {
     return observationDao
         .findById(mutation.getObservationId())
