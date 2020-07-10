@@ -413,16 +413,15 @@ public class LocalDataStoreTest {
     localDataStore.applyAndEnqueue(TEST_OBSERVATION_MUTATION).blockingAwait();
 
     ObservationMutation mutation =
-        TEST_OBSERVATION_MUTATION.toBuilder().setType(Mutation.Type.DELETE).build();
+        TEST_OBSERVATION_MUTATION.toBuilder().setId(null).setType(Mutation.Type.DELETE).build();
 
-    // Calling applyAndEnqueue marks the local observation as deleted. After successful remote sync,
-    // apply is called again by LocalMutationSyncWorker to finally delete the entries.
-    localDataStore
-        .applyAndEnqueue(mutation)
-        .andThen(localDataStore.apply(mutation))
-        .blockingAwait();
+    // Calling applyAndEnqueue marks the local observation as deleted.
+    localDataStore.applyAndEnqueue(mutation).blockingAwait();
 
-    // Verify that the observation doesn't exist
+    // After successful remote sync, apply is called again by LocalMutationSyncWorker.
+    localDataStore.apply(mutation).blockingAwait();
+
+    // Verify that the observation doesn't exist anymore
     Feature feature = localDataStore.getFeature(TEST_PROJECT, "feature id").blockingGet();
     localDataStore.getObservation(feature, "observation id").test().assertNoValues();
   }

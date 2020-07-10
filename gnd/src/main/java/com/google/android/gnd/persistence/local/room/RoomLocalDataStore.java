@@ -439,9 +439,9 @@ public class RoomLocalDataStore implements LocalDataStore {
                   // Note: Observations marked as DELETED are not shown in UI.
                   //       See {@link ObservationDao}
                   if (entity.getState() == EntityState.DEFAULT) {
-                    return markObservationDeleted(mutation);
+                    return markObservationDeleted(entity, mutation);
                   } else if (entity.getState() == EntityState.DELETED) {
-                    return deleteObservation(mutation);
+                    return deleteObservation(entity, mutation);
                   } else {
                     throw new IllegalStateException("Unknown state");
                   }
@@ -470,22 +470,20 @@ public class RoomLocalDataStore implements LocalDataStore {
         .subscribeOn(schedulers.io());
   }
 
-  private Completable markObservationDeleted(ObservationMutation mutation) {
-    return observationDao
-        .findById(mutation.getObservationId())
+  private Completable markObservationDeleted(
+      ObservationEntity observationEntity, ObservationMutation mutation) {
+    return Single.just(observationEntity)
         .doOnSubscribe(__ -> Timber.d("Marking observation as deleted : %s", mutation))
-        .toSingle()
         .map(entity -> entity.toBuilder().setState(EntityState.DELETED).build())
         .flatMap(entity -> observationDao.update(entity))
         .ignoreElement()
         .subscribeOn(schedulers.io());
   }
 
-  private Completable deleteObservation(ObservationMutation mutation) {
-    return observationDao
-        .findById(mutation.getObservationId())
+  private Completable deleteObservation(
+      ObservationEntity observationEntity, ObservationMutation mutation) {
+    return Single.just(observationEntity)
         .doOnSubscribe(__ -> Timber.d("Deleting local observation : %s", mutation))
-        .toSingle()
         .flatMapCompletable(entity -> observationDao.delete(entity))
         .subscribeOn(schedulers.io());
   }
