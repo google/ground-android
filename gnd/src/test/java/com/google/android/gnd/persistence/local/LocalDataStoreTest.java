@@ -423,9 +423,9 @@ public class LocalDataStoreTest {
 
     // Verify that local entity exists and it's state is updated.
     observationDao
-      .findById("observation id")
-      .test()
-      .assertValue(observationEntity -> observationEntity.getState() == EntityState.DELETED);
+        .findById("observation id")
+        .test()
+        .assertValue(observationEntity -> observationEntity.getState() == EntityState.DELETED);
 
     // Verify that the local observation doesn't end up in getObservations().
     Feature feature = localDataStore.getFeature(TEST_PROJECT, "feature id").blockingGet();
