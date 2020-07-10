@@ -261,8 +261,6 @@ public class RoomLocalDataStore implements LocalDataStore {
         .map(
             list ->
                 stream(list)
-                    .filter(
-                        observationEntity -> observationEntity.getState() != EntityState.DELETED)
                     .map(obs -> ObservationEntity.toObservation(feature, obs))
                     .collect(toImmutableList()))
         .subscribeOn(schedulers.io());
