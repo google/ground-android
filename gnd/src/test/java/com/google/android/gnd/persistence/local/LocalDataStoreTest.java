@@ -46,6 +46,8 @@ import com.google.android.gnd.model.observation.ResponseDelta;
 import com.google.android.gnd.model.observation.ResponseMap;
 import com.google.android.gnd.model.observation.TextResponse;
 import com.google.android.gnd.persistence.local.room.LocalDataStoreException;
+import com.google.android.gnd.persistence.local.room.dao.ObservationDao;
+import com.google.android.gnd.persistence.local.room.models.EntityState;
 import com.google.android.gnd.rx.SchedulersModule;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -181,6 +183,7 @@ public class LocalDataStoreTest {
   @Rule public InstantTaskExecutorRule instantTaskExecutorRule = new InstantTaskExecutorRule();
 
   @Inject LocalDataStore localDataStore;
+  @Inject ObservationDao observationDao;
 
   private static FeatureMutation createTestFeatureMutation(Point point) {
     return FeatureMutation.builder()
@@ -418,11 +421,20 @@ public class LocalDataStoreTest {
     // Calling applyAndEnqueue marks the local observation as deleted.
     localDataStore.applyAndEnqueue(mutation).blockingAwait();
 
+    // Verify that local entity exists and it's state is updated.
+    observationDao
+      .findById("observation id")
+      .test()
+      .assertValue(observationEntity -> observationEntity.getState() == EntityState.DELETED);
+
+    // Verify that the local observation doesn't end up in getObservations().
+    Feature feature = localDataStore.getFeature(TEST_PROJECT, "feature id").blockingGet();
+    localDataStore.getObservations(feature, "form id").test().assertValue(ImmutableList.of());
+
     // After successful remote sync, apply is called again by LocalMutationSyncWorker.
     localDataStore.apply(mutation).blockingAwait();
 
     // Verify that the observation doesn't exist anymore
-    Feature feature = localDataStore.getFeature(TEST_PROJECT, "feature id").blockingGet();
     localDataStore.getObservation(feature, "observation id").test().assertNoValues();
   }
 
