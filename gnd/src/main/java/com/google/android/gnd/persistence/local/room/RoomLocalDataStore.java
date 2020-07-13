@@ -65,6 +65,7 @@ import com.google.android.gnd.persistence.local.room.entity.OptionEntity;
 import com.google.android.gnd.persistence.local.room.entity.ProjectEntity;
 import com.google.android.gnd.persistence.local.room.entity.TileEntity;
 import com.google.android.gnd.persistence.local.room.entity.UserEntity;
+import com.google.android.gnd.persistence.local.room.models.EntityState;
 import com.google.android.gnd.persistence.local.room.models.TileEntityState;
 import com.google.android.gnd.persistence.local.room.models.UserDetails;
 import com.google.android.gnd.rx.Schedulers;
@@ -415,10 +416,10 @@ public class RoomLocalDataStore implements LocalDataStore {
   /**
    * Applies mutation to observation in database or creates a new one.
    *
-   * @return A Completable that emits an error if mutation type is "UPDATE" but entity does not
+   * @return A Completable that emits an error if mutation type is "UPDATE" but entity does not *
    *     exist, or if type is "CREATE" and entity already exists.
    */
-  private Completable apply(ObservationMutation mutation) throws LocalDataStoreException {
+  public Completable apply(ObservationMutation mutation) throws LocalDataStoreException {
     switch (mutation.getType()) {
       case CREATE:
         return getUser(mutation.getUserId())
@@ -426,6 +427,10 @@ public class RoomLocalDataStore implements LocalDataStore {
       case UPDATE:
         return getUser(mutation.getUserId())
             .flatMapCompletable(user -> updateObservation(mutation, user));
+      case DELETE:
+        return observationDao
+            .findById(mutation.getObservationId())
+            .flatMapCompletable(entity -> markObservationDeleted(entity, mutation));
       default:
         throw LocalDataStoreException.unknownMutationType(mutation.getType());
     }
@@ -447,6 +452,26 @@ public class RoomLocalDataStore implements LocalDataStore {
         .toSingle()
         .map(obs -> applyMutations(obs, ImmutableList.of(mutationEntity), user))
         .flatMapCompletable(obs -> observationDao.insertOrUpdate(obs).subscribeOn(schedulers.io()))
+        .subscribeOn(schedulers.io());
+  }
+
+  private Completable markObservationDeleted(
+      ObservationEntity observationEntity, ObservationMutation mutation) {
+    return Single.just(observationEntity)
+        .doOnSubscribe(__ -> Timber.d("Marking observation as deleted : %s", mutation))
+        .map(entity -> entity.toBuilder().setState(EntityState.DELETED).build())
+        .flatMap(entity -> observationDao.update(entity))
+        .ignoreElement()
+        .subscribeOn(schedulers.io());
+  }
+
+  @Override
+  public Completable deleteObservation(String observationId) {
+    return observationDao
+        .findById(observationId)
+        .toSingle()
+        .doOnSubscribe(__ -> Timber.d("Deleting local observation : %s", observationId))
+        .flatMapCompletable(entity -> observationDao.delete(entity))
         .subscribeOn(schedulers.io());
   }
 

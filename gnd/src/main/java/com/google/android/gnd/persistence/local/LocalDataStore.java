@@ -25,6 +25,7 @@ import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.FeatureMutation;
 import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.model.observation.ObservationMutation;
+import com.google.android.gnd.persistence.local.room.LocalDataStoreException;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import io.reactivex.Completable;
@@ -80,13 +81,19 @@ public interface LocalDataStore {
    */
   Completable applyAndEnqueue(ObservationMutation mutation);
 
+  /** Applies the specified {@link ObservationMutation} to the local data store.. */
+  Completable apply(ObservationMutation mutation) throws LocalDataStoreException;
+
   /**
    * Returns a long-lived stream that emits the full set of features for a project on subscribe, and
    * continues to return the full set each time a feature is added/changed/removed.
    */
   Flowable<ImmutableSet<Feature>> getFeaturesOnceAndStream(Project project);
 
-  /** Returns the full list of observations for the specified feature and form. */
+  /**
+   * Returns the list of observations which are not marked for deletion for the specified feature
+   * and form.
+   */
   Single<ImmutableList<Observation>> getObservations(Feature feature, String formId);
 
   /** Returns the feature with the specified UUID from the local data store, if found. */
@@ -126,6 +133,9 @@ public interface LocalDataStore {
    * the merged instance.
    */
   Completable mergeObservation(Observation observation);
+
+  /** Deletes observation from local database. */
+  Completable deleteObservation(String observationId);
 
   /**
    * Attempts to update a tile in the local data store. If the tile doesn't exist, inserts the tile

@@ -22,7 +22,7 @@ import com.google.android.gnd.model.Mutation;
  * Checked exception used internally to ensure we catch and properly handle errors in the Room local
  * db implementation.
  */
-class LocalDataStoreException extends Exception {
+public class LocalDataStoreException extends Exception {
 
   private LocalDataStoreException(String message) {
     super(message);
