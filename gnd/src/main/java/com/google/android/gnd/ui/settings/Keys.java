@@ -17,7 +17,7 @@
 package com.google.android.gnd.ui.settings;
 
 /** These keys should match 1:1 in res/xml/preferences.xml. */
-final class Keys {
+public final class Keys {
 
   // General
   public static final String UPLOAD_MEDIA = "upload_media";

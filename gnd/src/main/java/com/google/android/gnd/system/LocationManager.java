@@ -19,7 +19,6 @@ package com.google.android.gnd.system;
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 
 import android.annotation.SuppressLint;
-import android.app.Application;
 import android.location.Location;
 import android.util.Log;
 import com.google.android.gms.location.LocationRequest;
@@ -55,7 +54,6 @@ public class LocationManager {
 
   @Inject
   public LocationManager(
-      Application app,
       PermissionsManager permissionsManager,
       SettingsManager settingsManager,
       RxFusedLocationProviderClient locationClient) {

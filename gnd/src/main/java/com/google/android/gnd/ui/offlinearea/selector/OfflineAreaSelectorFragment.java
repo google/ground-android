@@ -24,7 +24,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import butterknife.OnClick;
 import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.OfflineAreaSelectorFragBinding;
@@ -66,6 +65,7 @@ public class OfflineAreaSelectorFragment extends AbstractFragment {
         OfflineAreaSelectorFragBinding.inflate(inflater, container, false);
     binding.setViewModel(viewModel);
     binding.setLifecycleOwner(this);
+    binding.downloadButton.setOnClickListener(__ -> onDownloadClick());
     ((MainActivity) getActivity()).setActionBar(binding.offlineAreaSelectorToolbar, true);
     return binding.getRoot();
   }
@@ -84,7 +84,6 @@ public class OfflineAreaSelectorFragment extends AbstractFragment {
     this.map = map;
   }
 
-  @OnClick(R.id.download_button)
   public void onDownloadClick() {
     if (map == null) {
       return;

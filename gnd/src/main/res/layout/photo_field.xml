@@ -19,6 +19,7 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:app="http://schemas.android.com/apk/res-auto">
   <data>
+    <import type="android.view.View" />
     <variable
       name="viewModel"
       type="com.google.android.gnd.ui.editobservation.PhotoFieldViewModel" />
@@ -28,7 +29,7 @@
     android:id="@+id/material_card"
     android:layout_width="match_parent"
     android:layout_height="200dp"
-    android:visibility="@{viewModel.visibility}"
+    android:visibility="@{viewModel.isVisible ? View.VISIBLE : View.GONE }"
     app:cardElevation="@dimen/cardview_elevation">
     <ImageView
       android:id="@+id/image_thumbnail_preview"

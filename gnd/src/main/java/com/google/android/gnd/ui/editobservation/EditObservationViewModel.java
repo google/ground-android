@@ -22,7 +22,6 @@ import static com.google.android.gnd.persistence.remote.firestore.FirestoreStora
 import android.app.Application;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
-import android.view.View;
 import androidx.databinding.ObservableArrayMap;
 import androidx.databinding.ObservableMap;
 import androidx.lifecycle.LiveData;
@@ -34,7 +33,6 @@ import com.google.android.gnd.model.form.Element.Type;
 import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.model.observation.Observation;
-import com.google.android.gnd.model.observation.ObservationMutation;
 import com.google.android.gnd.model.observation.Response;
 import com.google.android.gnd.model.observation.ResponseDelta;
 import com.google.android.gnd.model.observation.ResponseMap;
@@ -42,7 +40,6 @@ import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator;
 import com.google.android.gnd.repository.ObservationRepository;
 import com.google.android.gnd.rx.Event;
 import com.google.android.gnd.rx.Nil;
-import com.google.android.gnd.system.AuthenticationManager;
 import com.google.android.gnd.system.CameraManager;
 import com.google.android.gnd.system.StorageManager;
 import com.google.android.gnd.ui.common.AbstractViewModel;
@@ -52,7 +49,6 @@ import io.reactivex.Completable;
 import io.reactivex.Single;
 import io.reactivex.processors.BehaviorProcessor;
 import io.reactivex.processors.PublishProcessor;
-import java.util.Date;
 import java.util.Map;
 import java8.util.Optional;
 import javax.annotation.Nullable;
@@ -68,7 +64,6 @@ public class EditObservationViewModel extends AbstractViewModel {
   // Injected inputs.
 
   private final ObservationRepository observationRepository;
-  private final AuthenticationManager authManager;
   private final Resources resources;
   private final StorageManager storageManager;
   private final CameraManager cameraManager;
@@ -100,16 +95,11 @@ public class EditObservationViewModel extends AbstractViewModel {
   /** Form validation errors, updated when existing for loaded and when responses change. */
   @Nullable private Map<String, String> validationErrors;
 
-  /** Visibility of process widget shown while loading. */
-  private final MutableLiveData<Integer> loadingSpinnerVisibility =
-      new MutableLiveData<>(View.GONE);
+  /** True if observation is currently being loaded, otherwise false. */
+  public final MutableLiveData<Boolean> isLoading = new MutableLiveData<>(false);
 
-  /** Visibility of "Save" button hidden while loading. */
-  private final MutableLiveData<Integer> saveButtonVisibility = new MutableLiveData<>(View.GONE);
-
-  /** Visibility of saving progress dialog, show saving. */
-  private final MutableLiveData<Integer> savingProgressVisibility =
-      new MutableLiveData<>(View.GONE);
+  /** True if observation is currently being saved, otherwise false. */
+  public final MutableLiveData<Boolean> isSaving = new MutableLiveData<>(false);
 
   /** Outcome of user clicking "Save". */
   private final LiveData<Event<SaveResult>> saveResults;
@@ -125,13 +115,11 @@ public class EditObservationViewModel extends AbstractViewModel {
   EditObservationViewModel(
       Application application,
       ObservationRepository observationRepository,
-      AuthenticationManager authenticationManager,
       StorageManager storageManager,
       CameraManager cameraManager,
       OfflineUuidGenerator uuidGenerator) {
     this.resources = application.getResources();
     this.observationRepository = observationRepository;
-    this.authManager = authenticationManager;
     this.storageManager = storageManager;
     this.cameraManager = cameraManager;
     this.uuidGenerator = uuidGenerator;
@@ -145,18 +133,6 @@ public class EditObservationViewModel extends AbstractViewModel {
 
   public LiveData<Form> getForm() {
     return form;
-  }
-
-  public LiveData<Integer> getLoadingSpinnerVisibility() {
-    return loadingSpinnerVisibility;
-  }
-
-  public LiveData<Integer> getSaveButtonVisibility() {
-    return saveButtonVisibility;
-  }
-
-  public LiveData<Integer> getSavingProgressVisibility() {
-    return savingProgressVisibility;
   }
 
   public LiveData<String> getToolbarTitle() {
@@ -244,8 +220,7 @@ public class EditObservationViewModel extends AbstractViewModel {
   }
 
   private Single<Form> onInitialize(EditObservationFragmentArgs viewArgs) {
-    saveButtonVisibility.setValue(View.GONE);
-    loadingSpinnerVisibility.setValue(View.VISIBLE);
+    isLoading.setValue(true);
     isNew = isAddObservationRequest(viewArgs);
     Single<Observation> obs;
     if (isNew) {
@@ -261,17 +236,12 @@ public class EditObservationViewModel extends AbstractViewModel {
   private void onObservationLoaded(Observation observation) {
     this.originalObservation = observation;
     responses.clear();
-    saveButtonVisibility.postValue(View.VISIBLE);
-    loadingSpinnerVisibility.postValue(View.GONE);
+    isLoading.postValue(false);
   }
 
   private Single<Observation> createObservation(EditObservationFragmentArgs args) {
     return observationRepository
-        .createObservation(
-            args.getProjectId(),
-            args.getFeatureId(),
-            args.getFormId(),
-            authManager.getCurrentUser())
+        .createObservation(args.getProjectId(), args.getFeatureId(), args.getFormId())
         .onErrorResumeNext(this::onError);
   }
 
@@ -303,22 +273,14 @@ public class EditObservationViewModel extends AbstractViewModel {
   }
 
   private Single<Event<SaveResult>> save() {
-    savingProgressVisibility.setValue(View.VISIBLE);
-    ObservationMutation observationMutation =
-        ObservationMutation.builder()
-            .setType(isNew ? ObservationMutation.Type.CREATE : ObservationMutation.Type.UPDATE)
-            .setProjectId(originalObservation.getProject().getId())
-            .setFeatureId(originalObservation.getFeature().getId())
-            .setLayerId(originalObservation.getFeature().getLayer().getId())
-            .setObservationId(originalObservation.getId())
-            .setFormId(originalObservation.getForm().getId())
-            .setResponseDeltas(getResponseDeltas())
-            .setClientTimestamp(new Date())
-            .setUserId(authManager.getCurrentUser().getId())
-            .build();
+    if (originalObservation == null) {
+      return Single.error(new IllegalStateException("Observation is null"));
+    }
+
     return observationRepository
-        .applyAndEnqueue(observationMutation)
-        .doOnComplete(() -> savingProgressVisibility.postValue(View.GONE))
+        .addObservationMutation(originalObservation, getResponseDeltas(), isNew)
+        .doOnSubscribe(__ -> isSaving.postValue(true))
+        .doOnComplete(() -> isSaving.postValue(false))
         .toSingleDefault(Event.create(SaveResult.SAVED));
   }
 

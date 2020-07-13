@@ -18,6 +18,7 @@ package com.google.android.gnd.ui.util;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import androidx.annotation.RawRes;
 import dagger.hilt.android.qualifiers.ApplicationContext;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -69,7 +70,7 @@ public class FileUtil {
     return file;
   }
 
-  public File getFileFromRawResource(int resourceId, String filename) throws IOException {
+  public File getFileFromRawResource(@RawRes int resourceId, String filename) throws IOException {
     File file = new File(context.getFilesDir() + "/" + filename);
 
     if (!file.exists()) {

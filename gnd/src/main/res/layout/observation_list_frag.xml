@@ -17,6 +17,7 @@
   -->
 <layout xmlns:android="http://schemas.android.com/apk/res/android">
   <data>
+    <import type="android.view.View" />
     <variable
         name="viewModel"
         type="com.google.android.gnd.ui.home.featuredetails.ObservationListViewModel"/>
@@ -34,7 +35,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center|top"
         android:paddingTop="32dp"
-        android:visibility="@{viewModel.loadingSpinnerVisibility}"/>
+        android:visibility="@{viewModel.isLoading ? View.VISIBLE : View.GONE}"/>
 
     <androidx.recyclerview.widget.RecyclerView
       android:id="@+id/observation_list_container"

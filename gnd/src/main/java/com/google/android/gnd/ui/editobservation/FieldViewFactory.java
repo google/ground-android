@@ -51,7 +51,8 @@ public class FieldViewFactory {
     }
   }
 
-  private static @LayoutRes int getLayoutId(Field.Type fieldType) {
+  @LayoutRes
+  private static int getLayoutId(Field.Type fieldType) {
     switch (fieldType) {
       case TEXT:
         return R.layout.text_input_field;

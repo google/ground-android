@@ -16,8 +16,14 @@
 
 package com.google.android.gnd;
 
+import android.content.Context;
+
 /** Application configuration. */
 public final class Config {
+
+  // Shared preferences.
+  public static final String SHARED_PREFS_NAME = "shared_prefs";
+  public static final int SHARED_PREFS_MODE = Context.MODE_PRIVATE;
 
   // Local db settings.
   // TODO(#128): Reset version to 1 before releasing.
