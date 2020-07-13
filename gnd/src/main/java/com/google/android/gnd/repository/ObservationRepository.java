@@ -17,6 +17,7 @@
 package com.google.android.gnd.repository;
 
 import com.google.android.gnd.model.AuditInfo;
+import com.google.android.gnd.model.Mutation.Type;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.model.observation.ObservationMutation;
@@ -104,7 +105,7 @@ public class ObservationRepository {
   private Completable mergeRemoteObservations(
       ImmutableList<ValueOrError<Observation>> observations) {
     return Observable.fromIterable(observations)
-        .doOnNext(voe -> voe.error().ifPresent(err -> Timber.w(err, "Skipping bad observation")))
+        .doOnNext(voe -> voe.error().ifPresent(t -> Timber.e(t, "Skipping bad observation")))
         .compose(ValueOrError::ignoreErrors)
         .flatMapCompletable(localDataStore::mergeObservation);
   }
@@ -141,6 +142,22 @@ public class ObservationRepository {
                     .setCreated(auditInfo)
                     .setLastModified(auditInfo)
                     .build());
+  }
+
+  public Completable deleteObservation(Observation observation) {
+    ObservationMutation observationMutation =
+        ObservationMutation.builder()
+            .setType(Type.DELETE)
+            .setProjectId(observation.getProject().getId())
+            .setFeatureId(observation.getFeature().getId())
+            .setLayerId(observation.getFeature().getLayer().getId())
+            .setObservationId(observation.getId())
+            .setFormId(observation.getForm().getId())
+            .setResponseDeltas(ImmutableList.of())
+            .setClientTimestamp(new Date())
+            .setUserId(authManager.getCurrentUser().getId())
+            .build();
+    return applyAndEnqueue(observationMutation);
   }
 
   public Completable addObservationMutation(

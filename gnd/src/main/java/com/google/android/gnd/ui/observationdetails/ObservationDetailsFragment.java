@@ -16,6 +16,8 @@
 
 package com.google.android.gnd.ui.observationdetails;
 
+import static com.google.android.gnd.rx.RxAutoDispose.autoDisposable;
+
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -145,16 +147,22 @@ public class ObservationDetailsFragment extends AbstractFragment {
 
   @Override
   public boolean onOptionsItemSelected(MenuItem item) {
+    ObservationDetailsFragmentArgs args = getObservationDetailFragmentArgs();
+    String projectId = args.getProjectId();
+    String featureId = args.getFeatureId();
+    String observationId = args.getObservationId();
+
     switch (item.getItemId()) {
       case R.id.edit_observation_menu_item:
         // This is required to prevent menu from reappearing on back.
         getActivity().closeOptionsMenu();
-        ObservationDetailsFragmentArgs args = getObservationDetailFragmentArgs();
-        navigator.editObservation(
-            args.getProjectId(), args.getFeatureId(), args.getObservationId());
+        navigator.editObservation(projectId, featureId, observationId);
         return true;
       case R.id.delete_observation_menu_item:
-        // TODO: Implement delete observation.
+        viewModel
+            .deleteCurrentObservation(projectId, featureId, observationId)
+            .as(autoDisposable(this))
+            .subscribe(() -> navigator.navigateUp());
         return true;
       default:
         return false;
