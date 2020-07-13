@@ -235,6 +235,39 @@ public class LocalDataStoreTest {
   }
 
   @Test
+  public void testRemovedLayerFromProject() {
+    Layer layer1 =
+        Layer.newBuilder()
+            .setId("layer 1")
+            .setDefaultStyle(Style.builder().setColor("000").build())
+            .build();
+    Layer layer2 =
+        Layer.newBuilder()
+            .setId("layer 2")
+            .setDefaultStyle(Style.builder().setColor("000").build())
+            .build();
+
+    Project project =
+        Project.newBuilder()
+            .setId("foo id")
+            .setTitle("foo project")
+            .putLayer(layer1.getId(), layer1).build();
+    localDataStore.insertOrUpdateProject(project).blockingAwait();
+
+    project =
+        Project.newBuilder()
+            .setId("foo id")
+            .setTitle("foo project")
+            .putLayer(layer2.getId(), layer2).build();
+    localDataStore.insertOrUpdateProject(project).blockingAwait();
+
+    localDataStore
+        .getProjectById("foo id")
+        .test()
+        .assertValue(result -> result.getLayers().equals(ImmutableList.of(layer2)));
+  }
+
+  @Test
   public void testInsertAndGetUser() {
     localDataStore.insertOrUpdateUser(TEST_USER).test().assertComplete();
     localDataStore.getUser("user id").test().assertValue(TEST_USER);

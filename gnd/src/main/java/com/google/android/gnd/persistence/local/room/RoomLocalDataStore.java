@@ -176,6 +176,7 @@ public class RoomLocalDataStore implements LocalDataStore {
   public Completable insertOrUpdateProject(Project project) {
     return projectDao
         .insertOrUpdate(ProjectEntity.fromProject(project))
+        .andThen(layerDao.deleteByProjectId(project.getId()))
         .andThen(insertOrUpdateLayers(project.getId(), project.getLayers()))
         .subscribeOn(schedulers.io());
   }
