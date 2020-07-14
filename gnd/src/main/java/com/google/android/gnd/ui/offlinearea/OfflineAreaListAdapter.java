@@ -35,6 +35,12 @@ import timber.log.Timber;
 
 class OfflineAreaListAdapter extends RecyclerView.Adapter<OfflineAreaListAdapter.ViewHolder> {
 
+  static class AddressNotFoundException extends Exception {
+    public AddressNotFoundException(String message) {
+      super(message);
+    }
+  }
+
   private final Navigator navigator;
   private ImmutableList<OfflineArea> offlineAreas;
 
@@ -97,7 +103,7 @@ class OfflineAreaListAdapter extends RecyclerView.Adapter<OfflineAreaListAdapter
           viewHolder.geocoder.getFromLocation(center.latitude, center.longitude, 1);
 
       if (addresses.isEmpty()) {
-        throw new Exception("No address found for area.");
+        throw new AddressNotFoundException("No address found for area.");
       }
 
       Address address = addresses.get(0);
