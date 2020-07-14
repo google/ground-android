@@ -16,28 +16,52 @@
 
 package com.google.android.gnd.ui.offlinearea.selector;
 
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.LiveDataReactiveStreams;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gnd.repository.OfflineAreaRepository;
+import com.google.android.gnd.rx.Event;
 import com.google.android.gnd.ui.common.AbstractViewModel;
+import io.reactivex.processors.FlowableProcessor;
+import io.reactivex.processors.PublishProcessor;
 import javax.inject.Inject;
 import timber.log.Timber;
 
 public class OfflineAreaSelectorViewModel extends AbstractViewModel {
 
-  private final OfflineAreaRepository offlineAreaRepository;
+  enum DownloadMessage {
+    STARTED,
+    FAILURE
+  }
+
+  private final FlowableProcessor<LatLngBounds> downloadClicks = PublishProcessor.create();
+  private final LiveData<Event<DownloadMessage>> messages;
 
   @Inject
   OfflineAreaSelectorViewModel(OfflineAreaRepository offlineAreaRepository) {
-    this.offlineAreaRepository = offlineAreaRepository;
+    this.messages =
+        LiveDataReactiveStreams.fromPublisher(
+            downloadClicks.switchMapSingle(
+                viewport ->
+                    offlineAreaRepository
+                        .addAreaAndEnqueue(viewport)
+                        .toSingleDefault(DownloadMessage.STARTED)
+                        .onErrorReturn(this::onEnqueueError)
+                        .map(Event::create)));
+  }
+
+  private DownloadMessage onEnqueueError(Throwable e) {
+    Timber.e("Failed to add area and queue downloads: %s", e.getMessage());
+    return DownloadMessage.FAILURE;
+  }
+
+  public LiveData<Event<DownloadMessage>> getDownloadMessages() {
+    return this.messages;
   }
 
   // TODO: Use an abstraction over LatLngBounds
   public void onDownloadClick(LatLngBounds viewport) {
     Timber.d("viewport:%s", viewport);
-    offlineAreaRepository
-        .addAreaAndEnqueue(viewport)
-        .doOnError(err -> Timber.e("Failed to add area and queue downloads: %s", err.getMessage()))
-        .onErrorComplete()
-        .blockingAwait();
+    downloadClicks.onNext(viewport);
   }
 }
