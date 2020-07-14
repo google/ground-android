@@ -66,12 +66,15 @@ public class OfflineAreaSelectorFragment extends AbstractFragment {
 
   private void onDownloadMessage(DownloadMessage message) {
     switch (message) {
-      case FAILURE:
-        EphemeralPopups.showError(getContext(), R.string.offline_area_download_failed);
-        navigator.navigateUp();
       case STARTED:
         EphemeralPopups.showSuccess(getContext(), R.string.offline_area_download_started);
         navigator.navigateUp();
+        break;
+      case FAILURE:
+      default:
+        EphemeralPopups.showError(getContext(), R.string.offline_area_download_failed);
+        navigator.navigateUp();
+        break;
     }
   }
 
