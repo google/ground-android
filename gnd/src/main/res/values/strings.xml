@@ -155,4 +155,5 @@
   <string name="offline_area_viewer_title">Offline Area Details</string>
   <string name="offline_area_viewer_remove_button">Remove</string>
   <string name="offline_area_viewer_storage">This area takes up %.1f MB of storage space on your device.</string>
+  <string name="offline_areas_unknown_area">Unknown Area</string>
 </resources>

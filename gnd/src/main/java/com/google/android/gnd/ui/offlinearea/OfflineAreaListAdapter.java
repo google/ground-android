@@ -16,15 +16,22 @@
 
 package com.google.android.gnd.ui.offlinearea;
 
+import android.location.Address;
+import android.location.Geocoder;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.OfflineAreasListItemBinding;
 import com.google.android.gnd.model.basemap.OfflineArea;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.common.collect.ImmutableList;
+import java.util.List;
+import java8.util.Optional;
+import timber.log.Timber;
 
 class OfflineAreaListAdapter extends RecyclerView.Adapter<OfflineAreaListAdapter.ViewHolder> {
 
@@ -37,6 +44,7 @@ class OfflineAreaListAdapter extends RecyclerView.Adapter<OfflineAreaListAdapter
     public int position;
     private ImmutableList<OfflineArea> areas;
     private final Navigator navigator;
+    private final Geocoder geocoder;
 
     ViewHolder(
         OfflineAreasListItemBinding binding,
@@ -46,6 +54,7 @@ class OfflineAreaListAdapter extends RecyclerView.Adapter<OfflineAreaListAdapter
       this.binding = binding;
       this.areas = areas;
       this.navigator = navigator;
+      this.geocoder = new Geocoder(binding.getRoot().getContext());
       binding.offlineAreaName.setOnClickListener(this);
     }
 
@@ -75,9 +84,42 @@ class OfflineAreaListAdapter extends RecyclerView.Adapter<OfflineAreaListAdapter
   }
 
   @Override
-  public void onBindViewHolder(ViewHolder viewHolder, int position) {
-    viewHolder.binding.offlineAreaName.setText(offlineAreas.get(position).getId());
-    viewHolder.position = position;
+  public void onBindViewHolder(@NonNull ViewHolder viewHolder, int position) {
+    String areaName =
+        viewHolder.binding.getRoot().getContext().getString(R.string.offline_areas_unknown_area);
+
+    OfflineArea area = offlineAreas.get(position);
+    String id = area.getId();
+    LatLng center = area.getBounds().getCenter();
+
+    try {
+      List<Address> addresses =
+          viewHolder.geocoder.getFromLocation(center.latitude, center.longitude, 1);
+
+      if (addresses.isEmpty()) {
+        throw new Exception("No address found for area.");
+      }
+
+      Address address = addresses.get(0);
+
+      areaName =
+          Optional.ofNullable(address.getFeatureName())
+              .or(() -> Optional.ofNullable(address.getLocality()))
+              .or(() -> Optional.ofNullable(address.getSubAdminArea()))
+              .or(() -> Optional.ofNullable(address.getAdminArea()))
+              .or(() -> Optional.ofNullable(address.getCountryName()))
+              .orElse(areaName);
+    } catch (Exception e) {
+      Timber.e(
+          e,
+          "Couldn't get address for area: %s, lat: %f, lng: %f",
+          id,
+          center.latitude,
+          center.longitude);
+    } finally {
+      viewHolder.binding.offlineAreaName.setText(areaName);
+      viewHolder.position = position;
+    }
   }
 
   @Override
