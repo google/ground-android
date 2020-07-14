@@ -27,8 +27,8 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.StringRes;
 import androidx.appcompat.app.AlertDialog;
-import butterknife.BindView;
 import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.MapContainerFragBinding;
 import com.google.android.gnd.model.Project;
@@ -41,7 +41,6 @@ import com.google.android.gnd.ui.home.BottomSheetState;
 import com.google.android.gnd.ui.home.HomeScreenViewModel;
 import com.google.android.gnd.ui.map.MapAdapter;
 import com.google.android.gnd.ui.map.MapProvider;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import dagger.hilt.android.AndroidEntryPoint;
 import io.reactivex.Single;
 import javax.inject.Inject;
@@ -54,14 +53,9 @@ public class MapContainerFragment extends AbstractFragment {
 
   @Inject MapProvider mapProvider;
 
-  @BindView(R.id.add_feature_btn)
-  FloatingActionButton addFeatureBtn;
-
-  @BindView(R.id.location_lock_btn)
-  FloatingActionButton locationLockBtn;
-
   private MapContainerViewModel mapContainerViewModel;
   private HomeScreenViewModel homeScreenViewModel;
+  private MapContainerFragBinding binding;
 
   private void showMapTypeSelectorDialog() {
     new AlertDialog.Builder(getContext())
@@ -115,7 +109,7 @@ public class MapContainerFragment extends AbstractFragment {
   @Override
   public View onCreateView(
       @NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-    MapContainerFragBinding binding = MapContainerFragBinding.inflate(inflater, container, false);
+    binding = MapContainerFragBinding.inflate(inflater, container, false);
     binding.setViewModel(mapContainerViewModel);
     binding.setHomeScreenViewModel(homeScreenViewModel);
     binding.setLifecycleOwner(this);
@@ -153,7 +147,7 @@ public class MapContainerFragment extends AbstractFragment {
     homeScreenViewModel
         .getBottomSheetState()
         .observe(this, state -> onBottomSheetStateChange(state, map));
-    addFeatureBtn.setOnClickListener(
+    binding.addFeatureBtn.setOnClickListener(
         __ -> homeScreenViewModel.onAddFeatureBtnClick(map.getCameraTarget()));
     enableLocationLockBtn();
     mapContainerViewModel.getMbtilesFilePaths().observe(this, map::addTileOverlays);
@@ -183,18 +177,18 @@ public class MapContainerFragment extends AbstractFragment {
   }
 
   private void enableLocationLockBtn() {
-    locationLockBtn.setEnabled(true);
+    binding.locationLockBtn.setEnabled(true);
   }
 
   private void enableAddFeatureBtn() {
-    addFeatureBtn.setBackgroundTintList(
+    binding.addFeatureBtn.setBackgroundTintList(
         ColorStateList.valueOf(getResources().getColor(R.color.colorMapAccent)));
   }
 
   private void disableAddFeatureBtn() {
     // NOTE: We don't call addFeatureBtn.setEnabled(false) here since calling it before the fab is
     // shown corrupts its padding when used with useCompatPadding="true".
-    addFeatureBtn.setBackgroundTintList(
+    binding.addFeatureBtn.setBackgroundTintList(
         ColorStateList.valueOf(getResources().getColor(R.color.colorGrey500)));
   }
 
@@ -203,10 +197,10 @@ public class MapContainerFragment extends AbstractFragment {
     if (result.isTrue()) {
       Timber.d("Location lock enabled");
       map.enableCurrentLocationIndicator();
-      locationLockBtn.setImageResource(R.drawable.ic_gps_blue);
+      binding.locationLockBtn.setImageResource(R.drawable.ic_gps_blue);
     } else {
       Timber.d("Location lock disabled");
-      locationLockBtn.setImageResource(R.drawable.ic_gps_grey600);
+      binding.locationLockBtn.setImageResource(R.drawable.ic_gps_grey600);
     }
   }
 
@@ -220,7 +214,7 @@ public class MapContainerFragment extends AbstractFragment {
     }
   }
 
-  private void showUserActionFailureMessage(int resId) {
+  private void showUserActionFailureMessage(@StringRes int resId) {
     Toast.makeText(getContext(), resId, Toast.LENGTH_LONG).show();
   }
 

@@ -17,28 +17,36 @@
 package com.google.android.gnd.persistence.sync;
 
 import androidx.annotation.NonNull;
-import androidx.work.Constraints;
+import androidx.work.Data;
 import androidx.work.NetworkType;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkManager;
+import com.google.android.gnd.persistence.local.LocalValueStore;
 import javax.inject.Inject;
 import javax.inject.Provider;
 
 /** Enqueues photo upload work to be done in the background. */
-public class PhotoSyncWorkManager {
+public class PhotoSyncWorkManager extends BaseWorkManager {
 
-  private static final Constraints CONSTRAINTS =
-      new Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build();
-
-  /**
-   * WorkManager is injected via {@code Provider} rather than directly to ensure the {@code
-   * Application} has a chance to initialize it before {@code WorkManager.getInstance()} is called.
-   */
-  private final Provider<WorkManager> workManagerProvider;
+  private final LocalValueStore localValueStore;
 
   @Inject
-  public PhotoSyncWorkManager(Provider<WorkManager> workManagerProvider) {
-    this.workManagerProvider = workManagerProvider;
+  public PhotoSyncWorkManager(
+      Provider<WorkManager> workManagerProvider, LocalValueStore localValueStore) {
+    super(workManagerProvider);
+    this.localValueStore = localValueStore;
+  }
+
+  @Override
+  Class<PhotoSyncWorker> getWorkerClass() {
+    return PhotoSyncWorker.class;
+  }
+
+  @Override
+  protected NetworkType preferredNetworkType() {
+    return localValueStore.shouldUploadMediaOverUnmeteredConnectionOnly()
+        ? NetworkType.UNMETERED
+        : NetworkType.CONNECTED;
   }
 
   /**
@@ -47,18 +55,8 @@ public class PhotoSyncWorkManager {
    * as the worker is added to the work queue (not once the sync job completes).
    */
   public void enqueueSyncWorker(@NonNull String localPath, @NonNull String remotePath) {
-    OneTimeWorkRequest request = buildWorkerRequest(localPath, remotePath);
+    Data inputData = PhotoSyncWorker.createInputData(localPath, remotePath);
+    OneTimeWorkRequest request = buildWorkerRequest(inputData);
     getWorkManager().enqueue(request);
-  }
-
-  private WorkManager getWorkManager() {
-    return workManagerProvider.get().getInstance();
-  }
-
-  private OneTimeWorkRequest buildWorkerRequest(String localPath, String remotePath) {
-    return new OneTimeWorkRequest.Builder(PhotoSyncWorker.class)
-        .setConstraints(CONSTRAINTS)
-        .setInputData(PhotoSyncWorker.createInputData(localPath, remotePath))
-        .build();
   }
 }

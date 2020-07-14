@@ -30,6 +30,7 @@ import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -76,7 +77,7 @@ public class ViewUtil {
     return textView.getTextColors().getColorForState(stateSet, 0);
   }
 
-  public static Bitmap tintBitmap(Bitmap bitmap, int color) {
+  public static Bitmap tintBitmap(Bitmap bitmap, @ColorInt int color) {
     Bitmap tintedBitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true);
     Paint paint = new Paint();
     ColorFilter filter = new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_ATOP);

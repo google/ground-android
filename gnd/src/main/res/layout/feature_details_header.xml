@@ -21,6 +21,7 @@
   xmlns:tools="http://schemas.android.com/tools">
 
   <data>
+    <import type="android.view.View" />
     <variable
       name="viewModel"
       type="com.google.android.gnd.ui.home.featuredetails.FeatureDetailsViewModel" />
@@ -63,7 +64,7 @@
           android:textAlignment="center"
           android:textColor="@color/colorGrey600"
           android:textSize="12sp"
-          android:visibility="@{viewModel.featureSubtitleVisibility}"
+          android:visibility="@{viewModel.isFeatureSubtitleVisible ? View.VISIBLE : View.GONE}"
           tools:text="Feature Subtitle"
           android:gravity="center_horizontal" />
       </LinearLayout>

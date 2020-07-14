@@ -55,7 +55,7 @@ class SingleSelectDialogFactory {
     dialogBuilder.setTitle(field.getLabel());
     dialogBuilder.setPositiveButton(
         R.string.apply_multiple_choice_changes,
-        (dialog, which) -> valueChangeCallback.accept(state.getSelectedValue(field, options)));
+        (dialog, which) -> valueChangeCallback.accept(state.getSelectedValue(options)));
     dialogBuilder.setNegativeButton(R.string.cancel, (dialog, which) -> {});
     return dialogBuilder.create();
   }
@@ -88,7 +88,7 @@ class SingleSelectDialogFactory {
       }
     }
 
-    private Optional<Response> getSelectedValue(Field field, List<Option> options) {
+    private Optional<Response> getSelectedValue(List<Option> options) {
       if (checkedItem >= 0) {
         return Optional.of(
             new MultipleChoiceResponse(ImmutableList.of(options.get(checkedItem).getCode())));

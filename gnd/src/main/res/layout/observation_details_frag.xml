@@ -18,6 +18,7 @@
 
 <layout>
   <data>
+    <import type="android.view.View" />
     <variable
       name="viewModel"
       type="com.google.android.gnd.ui.observationdetails.ObservationDetailsViewModel" />
@@ -43,7 +44,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:padding="48dp"
-        android:visibility="@{safeUnbox(viewModel.progressBarVisibility)}" />
+        android:visibility="@{safeUnbox(viewModel.isProgressBarVisible) ? View.VISIBLE : View.GONE }" />
 
       <!-- CardView is used to create the drop shadow effect -->
       <androidx.cardview.widget.CardView
