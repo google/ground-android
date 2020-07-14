@@ -54,7 +54,7 @@ public abstract class FluentFirestore {
         .toSingle(Collections.emptyList());
   }
 
-  // TOOD: Wrap in fluent version of WriteBatch.
+  // TODO: Wrap in fluent version of WriteBatch.
   public WriteBatch batch() {
     return db.batch();
   }

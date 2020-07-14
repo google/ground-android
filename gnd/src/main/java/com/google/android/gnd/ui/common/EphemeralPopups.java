@@ -18,21 +18,22 @@ package com.google.android.gnd.ui.common;
 
 import android.content.Context;
 import android.widget.Toast;
+import androidx.annotation.StringRes;
 import com.google.android.gnd.R;
 
 public class EphemeralPopups {
   /** Do not instantiate. */
   private EphemeralPopups() {}
 
-  public static void showSuccess(Context context, int messageId) {
+  public static void showSuccess(Context context, @StringRes int messageId) {
     showLong(context, messageId);
   }
 
-  public static void showError(Context context, int messageId) {
+  public static void showError(Context context, @StringRes int messageId) {
     showLong(context, messageId);
   }
 
-  public static void showFyi(Context context, int messageId) {
+  public static void showFyi(Context context, @StringRes int messageId) {
     showLong(context, messageId);
   }
 
@@ -45,7 +46,7 @@ public class EphemeralPopups {
     showLong(context, R.string.unexpected_error);
   }
 
-  private static void showLong(Context context, int messageId) {
+  private static void showLong(Context context, @StringRes int messageId) {
     Toast.makeText(context, messageId, Toast.LENGTH_LONG).show();
   }
 }

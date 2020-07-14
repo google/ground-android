@@ -16,6 +16,8 @@
 
 package com.google.android.gnd.ui.home;
 
+import static android.content.res.Configuration.ORIENTATION_LANDSCAPE;
+import static android.content.res.Configuration.ORIENTATION_PORTRAIT;
 import static com.google.android.gnd.rx.RxAutoDispose.autoDisposable;
 import static com.google.android.gnd.ui.util.ViewUtil.getScreenHeight;
 import static com.google.android.gnd.ui.util.ViewUtil.getScreenWidth;
@@ -31,20 +33,18 @@ import android.view.SubMenu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
-import android.widget.TextView;
+import android.widget.FrameLayout;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.view.GravityCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
-import butterknife.BindView;
 import com.akaita.java.rxjava2debug.RxJava2Debug;
 import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.MainViewModel;
 import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.HomeScreenFragBinding;
 import com.google.android.gnd.model.Project;
-import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.rx.Loadable;
 import com.google.android.gnd.rx.Schedulers;
 import com.google.android.gnd.system.AuthenticationManager;
@@ -52,12 +52,10 @@ import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.BackPressListener;
 import com.google.android.gnd.ui.common.EphemeralPopups;
 import com.google.android.gnd.ui.common.ProgressDialogs;
-import com.google.android.gnd.ui.common.TwoLineToolbar;
 import com.google.android.gnd.ui.home.mapcontainer.MapContainerFragment;
 import com.google.android.gnd.ui.projectselector.ProjectSelectorDialogFragment;
 import com.google.android.gnd.ui.projectselector.ProjectSelectorViewModel;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
-import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.navigation.NavigationView.OnNavigationItemSelectedListener;
 import dagger.hilt.android.AndroidEntryPoint;
 import io.reactivex.subjects.PublishSubject;
@@ -81,30 +79,6 @@ public class HomeScreenFragment extends AbstractFragment
   @Inject AuthenticationManager authenticationManager;
   @Inject Schedulers schedulers;
 
-  @BindView(R.id.toolbar_wrapper)
-  ViewGroup toolbarWrapper;
-
-  @BindView(R.id.toolbar)
-  TwoLineToolbar toolbar;
-
-  @BindView(R.id.drawer_layout)
-  DrawerLayout drawerLayout;
-
-  @BindView(R.id.nav_view)
-  NavigationView navView;
-
-  @BindView(R.id.bottom_sheet_header)
-  ViewGroup bottomSheetHeader;
-
-  @BindView(R.id.bottom_sheet_layout)
-  View bottomSheetLayout;
-
-  @BindView(R.id.bottom_sheet_bottom_inset_scrim)
-  View bottomSheetBottomInsetScrim;
-
-  @BindView(R.id.version_text)
-  TextView versionTextView;
-
   private ProgressDialog progressDialog;
   private HomeScreenViewModel viewModel;
   private MapContainerFragment mapContainerFragment;
@@ -113,6 +87,7 @@ public class HomeScreenFragment extends AbstractFragment
   private ProjectSelectorDialogFragment projectSelectorDialogFragment;
   private ProjectSelectorViewModel projectSelectorViewModel;
   private List<Project> projects;
+  private HomeScreenFragBinding binding;
 
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -146,7 +121,7 @@ public class HomeScreenFragment extends AbstractFragment
 
     projectSelectorDialogFragment = new ProjectSelectorDialogFragment();
 
-    HomeScreenFragBinding binding = HomeScreenFragBinding.inflate(inflater, container, false);
+    binding = HomeScreenFragBinding.inflate(inflater, container, false);
     binding.featureDetailsChrome.setViewModel(viewModel);
     binding.setLifecycleOwner(this);
     return binding.getRoot();
@@ -155,20 +130,21 @@ public class HomeScreenFragment extends AbstractFragment
   @Override
   public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
-    versionTextView.setText("Build " + getVersionName());
+    binding.versionText.setText("Build " + getVersionName());
     // Ensure nav drawer cannot be swiped out, which would conflict with map pan gestures.
-    drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+    binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
 
-    navView.setNavigationItemSelectedListener(this);
+    binding.navView.setNavigationItemSelectedListener(this);
     getView().getViewTreeObserver().addOnGlobalLayoutListener(this);
 
     if (savedInstanceState == null) {
       mapContainerFragment = new MapContainerFragment();
       replaceFragment(R.id.map_container_fragment, mapContainerFragment);
-      setUpBottomSheetBehavior();
     } else {
       mapContainerFragment = restoreChildFragment(savedInstanceState, MapContainerFragment.class);
     }
+
+    setUpBottomSheetBehavior();
   }
 
   /** Fetches offline saved projects and adds them to navigation drawer. */
@@ -183,7 +159,7 @@ public class HomeScreenFragment extends AbstractFragment
 
   private MenuItem getProjectsNavItem() {
     // Below index is the order of the projects item in nav_drawer_menu.xml
-    return navView.getMenu().getItem(1);
+    return binding.navView.getMenu().getItem(1);
   }
 
   private void addProjectToNavDrawer(List<Project> projects) {
@@ -217,6 +193,8 @@ public class HomeScreenFragment extends AbstractFragment
 
   @Override
   public void onGlobalLayout() {
+    FrameLayout toolbarWrapper = binding.featureDetailsChrome.toolbarWrapper;
+    FrameLayout bottomSheetHeader = binding.getRoot().findViewById(R.id.bottom_sheet_header);
     if (toolbarWrapper == null || bottomSheetBehavior == null || bottomSheetHeader == null) {
       return;
     }
@@ -224,14 +202,14 @@ public class HomeScreenFragment extends AbstractFragment
 
     // When the bottom sheet is expanded, the bottom edge of the header needs to be aligned with
     // the bottom edge of the toolbar (the header slides up under it).
-    BottomSheetMetrics metrics = new BottomSheetMetrics(bottomSheetLayout);
+    BottomSheetMetrics metrics = new BottomSheetMetrics(binding.bottomSheetLayout);
     bottomSheetBehavior.setExpandedOffset(metrics.getExpandedOffset());
 
     getView().getViewTreeObserver().removeOnGlobalLayoutListener(this);
   }
 
   private void setUpBottomSheetBehavior() {
-    bottomSheetBehavior = BottomSheetBehavior.from(bottomSheetLayout);
+    bottomSheetBehavior = BottomSheetBehavior.from(binding.bottomSheetLayout);
     bottomSheetBehavior.setHideable(true);
     bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
     bottomSheetBehavior.setBottomSheetCallback(new BottomSheetCallback());
@@ -242,15 +220,15 @@ public class HomeScreenFragment extends AbstractFragment
     super.onActivityCreated(savedInstanceState);
     setHasOptionsMenu(true);
 
-    ((MainActivity) getActivity()).setActionBar(toolbar, false);
+    ((MainActivity) getActivity()).setActionBar(binding.featureDetailsChrome.toolbar, false);
   }
 
   private void openDrawer() {
-    drawerLayout.openDrawer(GravityCompat.START);
+    binding.drawerLayout.openDrawer(GravityCompat.START);
   }
 
   private void closeDrawer() {
-    drawerLayout.closeDrawer(GravityCompat.START);
+    binding.drawerLayout.closeDrawer(GravityCompat.START);
   }
 
   @Override
@@ -294,14 +272,16 @@ public class HomeScreenFragment extends AbstractFragment
   }
 
   private void onApplyWindowInsets(WindowInsetsCompat insets) {
-    toolbarWrapper.setPadding(0, insets.getSystemWindowInsetTop(), 0, 0);
-    bottomSheetBottomInsetScrim.setMinimumHeight(insets.getSystemWindowInsetBottom());
+    binding.featureDetailsChrome.toolbarWrapper.setPadding(
+        0, insets.getSystemWindowInsetTop(), 0, 0);
+    binding.featureDetailsChrome.bottomSheetBottomInsetScrim.setMinimumHeight(
+        insets.getSystemWindowInsetBottom());
     updateNavViewInsets(insets);
     updateBottomSheetPeekHeight(insets);
   }
 
   private void updateNavViewInsets(WindowInsetsCompat insets) {
-    View headerView = navView.getHeaderView(0);
+    View headerView = binding.navView.getHeaderView(0);
     headerView.setPadding(0, insets.getSystemWindowInsetTop(), 0, 0);
   }
 
@@ -314,7 +294,12 @@ public class HomeScreenFragment extends AbstractFragment
         getScreenHeight(getActivity())
             + insets.getSystemWindowInsetTop()
             + insets.getSystemWindowInsetBottom();
-    double mapHeight = width / COLLAPSED_MAP_ASPECT_RATIO;
+    double mapHeight = 0;
+    if (getResources().getConfiguration().orientation == ORIENTATION_PORTRAIT) {
+      mapHeight = width / COLLAPSED_MAP_ASPECT_RATIO;
+    } else if (getResources().getConfiguration().orientation == ORIENTATION_LANDSCAPE) {
+      mapHeight = height / COLLAPSED_MAP_ASPECT_RATIO;
+    }
     double peekHeight = height - mapHeight;
     bottomSheetBehavior.setPeekHeight((int) peekHeight);
   }
@@ -359,7 +344,7 @@ public class HomeScreenFragment extends AbstractFragment
     return -1;
   }
 
-  private void onShowAddFeatureDialogRequest(Point location) {
+  private void onShowAddFeatureDialogRequest() {
     if (!Loadable.getValue(viewModel.getActiveProject()).isPresent()) {
       Timber.e("Attempting to add feature while no project loaded");
       return;
