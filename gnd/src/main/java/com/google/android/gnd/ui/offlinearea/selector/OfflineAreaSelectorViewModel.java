@@ -21,7 +21,6 @@ import androidx.lifecycle.LiveDataReactiveStreams;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gnd.repository.OfflineAreaRepository;
 import com.google.android.gnd.rx.Event;
-import com.google.android.gnd.rx.Schedulers;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import io.reactivex.processors.FlowableProcessor;
 import io.reactivex.processors.PublishProcessor;
@@ -39,7 +38,7 @@ public class OfflineAreaSelectorViewModel extends AbstractViewModel {
   private final LiveData<Event<DownloadMessage>> messages;
 
   @Inject
-  OfflineAreaSelectorViewModel(OfflineAreaRepository offlineAreaRepository, Schedulers schedulers) {
+  OfflineAreaSelectorViewModel(OfflineAreaRepository offlineAreaRepository) {
     this.messages =
         LiveDataReactiveStreams.fromPublisher(
             downloadClicks.switchMapSingle(
