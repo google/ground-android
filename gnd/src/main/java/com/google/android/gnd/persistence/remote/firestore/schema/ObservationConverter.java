@@ -52,7 +52,7 @@ class ObservationConverter {
     }
     Form form = checkNotEmpty(feature.getLayer().getForm(formId), "form");
     AuditInfoNestedObject created = checkNotNull(doc.getCreated(), "created");
-    AuditInfoNestedObject modified = Optional.ofNullable(doc.getModified()).orElse(created);
+    AuditInfoNestedObject lastModified = Optional.ofNullable(doc.getLastModified()).orElse(created);
     return Observation.newBuilder()
         .setId(snapshot.getId())
         .setProject(feature.getProject())
@@ -60,7 +60,7 @@ class ObservationConverter {
         .setForm(form)
         .setResponses(toResponseMap(doc.getResponses()))
         .setCreated(AuditInfoConverter.toAuditInfo(created))
-        .setLastModified(AuditInfoConverter.toAuditInfo(modified))
+        .setLastModified(AuditInfoConverter.toAuditInfo(lastModified))
         .build();
   }
 

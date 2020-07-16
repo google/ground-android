@@ -27,7 +27,7 @@ class ObservationDocument {
   @Nullable private String layerId;
   @Nullable private String formId;
   @Nullable private AuditInfoNestedObject created;
-  @Nullable private AuditInfoNestedObject modified;
+  @Nullable private AuditInfoNestedObject lastModified;
   @Nullable private Map<String, Object> responses;
 
   @SuppressWarnings("unused")
@@ -39,13 +39,13 @@ class ObservationDocument {
       @Nullable String layerId,
       @Nullable String formId,
       @Nullable AuditInfoNestedObject created,
-      @Nullable AuditInfoNestedObject modified,
+      @Nullable AuditInfoNestedObject lastModified,
       @Nullable Map<String, Object> responses) {
     this.featureId = featureId;
     this.layerId = layerId;
     this.formId = formId;
     this.created = created;
-    this.modified = modified;
+    this.lastModified = lastModified;
     this.responses = responses;
   }
 
@@ -70,8 +70,8 @@ class ObservationDocument {
   }
 
   @Nullable
-  public AuditInfoNestedObject getModified() {
-    return modified;
+  public AuditInfoNestedObject getLastModified() {
+    return lastModified;
   }
 
   @Nullable
