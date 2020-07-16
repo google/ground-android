@@ -23,6 +23,7 @@ import com.google.android.gnd.model.form.Element;
 import com.google.android.gnd.model.form.Form;
 import com.google.common.collect.ImmutableList;
 import java.util.Map;
+import java8.util.Comparators;
 
 /** Converts between Firestore nested objects and {@link Form} instances. */
 class FormConverter {
@@ -33,6 +34,7 @@ class FormConverter {
 
   private static ImmutableList<Element> toSortedList(Map<String, ElementNestedObject> elements) {
     return stream(elements.entrySet())
+        .sorted(Comparators.comparing(e -> e.getValue().getIndex()))
         .map(e -> ElementConverter.toElement(e.getKey(), e.getValue()))
         .collect(toImmutableList());
   }
