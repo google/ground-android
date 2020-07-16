@@ -374,7 +374,7 @@ public class RoomLocalDataStore implements LocalDataStore {
     AuditInfoEntity lastModified =
         AuditInfoEntity.builder()
             .setUser(UserDetails.fromUser(user))
-            .setClientTimeMillis(clientTimestamp)
+            .setClientTimestamp(clientTimestamp)
             .build();
     builder.setLastModified(lastModified);
     Timber.v("Merged observation %s", builder.build());
