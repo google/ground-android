@@ -45,7 +45,7 @@ class FeatureConverter {
             .setLongitude(geoPoint.getLongitude())
             .build();
     AuditInfoNestedObject created = checkNotNull(f.getCreated(), "created");
-    AuditInfoNestedObject modified = Optional.ofNullable(f.getModified()).orElse(created);
+    AuditInfoNestedObject lastModified = Optional.ofNullable(f.getLastModified()).orElse(created);
     return Feature.newBuilder()
         .setId(doc.getId())
         .setProject(project)
@@ -54,7 +54,7 @@ class FeatureConverter {
         .setLayer(layer)
         .setPoint(location)
         .setCreated(AuditInfoConverter.toAuditInfo(created))
-        .setLastModified(AuditInfoConverter.toAuditInfo(modified))
+        .setLastModified(AuditInfoConverter.toAuditInfo(lastModified))
         .build();
   }
 }
