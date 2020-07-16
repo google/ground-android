@@ -28,7 +28,7 @@ import java.util.List;
 public class ProjectsCollectionReference extends FluentCollectionReference {
   private static final String ACL_FIELD = "acl";
   private static final String OWNER_ROLE = "owner";
-  private static final String MANAGER_ROLE = "manage";
+  private static final String MANAGER_ROLE = "manager";
   private static final String CONTRIBUTOR_ROLE = "contributor";
   private static final String VIEWER_ROLE = "viewer";
   private static final List<String> VALID_ROLES =
