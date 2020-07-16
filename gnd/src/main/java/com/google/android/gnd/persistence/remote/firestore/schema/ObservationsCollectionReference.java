@@ -33,17 +33,17 @@ import io.reactivex.Single;
 import org.jetbrains.annotations.NotNull;
 
 // TODO: Rename to ObservationsCollectionReference once database is migrated.
-public class RecordsCollectionReference extends FluentCollectionReference {
+public class ObservationsCollectionReference extends FluentCollectionReference {
 
-  RecordsCollectionReference(CollectionReference ref) {
+  ObservationsCollectionReference(CollectionReference ref) {
     super(ref);
   }
 
-  public RecordDocumentReference record(String id) {
-    return new RecordDocumentReference(reference().document(id));
+  public ObservationDocumentReference observation(String id) {
+    return new ObservationDocumentReference(reference().document(id));
   }
 
-  public Single<ImmutableList<ValueOrError<Observation>>> recordsByFeatureId(Feature feature) {
+  public Single<ImmutableList<ValueOrError<Observation>>> observationsByFeatureId(Feature feature) {
     return RxFirestore.getCollection(byFeatureId(feature.getId()))
         .map(querySnapshot -> convert(querySnapshot, feature))
         .toSingle(ImmutableList.of());
