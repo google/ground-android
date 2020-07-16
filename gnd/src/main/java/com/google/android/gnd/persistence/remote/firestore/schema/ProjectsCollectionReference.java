@@ -22,11 +22,17 @@ import com.google.android.gnd.persistence.remote.firestore.base.FluentCollection
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FieldPath;
 import io.reactivex.Single;
+import java.util.Arrays;
 import java.util.List;
 
 public class ProjectsCollectionReference extends FluentCollectionReference {
   private static final String ACL_FIELD = "acl";
-  private static final String READ_ACCESS = "r";
+  private static final String OWNER_ROLE = "owner";
+  private static final String MANAGER_ROLE = "manage";
+  private static final String CONTRIBUTOR_ROLE = "contributor";
+  private static final String VIEWER_ROLE = "viewer";
+  private static final List<String> VALID_ROLES =
+      Arrays.asList(OWNER_ROLE, MANAGER_ROLE, CONTRIBUTOR_ROLE, VIEWER_ROLE);
 
   ProjectsCollectionReference(CollectionReference ref) {
     super(ref);
@@ -38,7 +44,7 @@ public class ProjectsCollectionReference extends FluentCollectionReference {
 
   public Single<List<Project>> getReadable(User user) {
     return runQuery(
-        reference().whereArrayContains(FieldPath.of(ACL_FIELD, user.getEmail()), READ_ACCESS),
+        reference().whereIn(FieldPath.of(ACL_FIELD, user.getEmail()), VALID_ROLES),
         ProjectConverter::toProject);
   }
 }
