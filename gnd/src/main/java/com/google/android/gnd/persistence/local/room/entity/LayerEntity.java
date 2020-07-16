@@ -50,8 +50,8 @@ public abstract class LayerEntity {
 
   @CopyAnnotations
   @Nullable
-  @ColumnInfo(name = "list_heading")
-  public abstract String getListHeading();
+  @ColumnInfo(name = "name")
+  public abstract String getName();
 
   @CopyAnnotations
   @Nullable
@@ -72,7 +72,7 @@ public abstract class LayerEntity {
         .setId(layer.getId())
         .setProjectId(projectId)
         .setItemLabel(layer.getItemLabel())
-        .setListHeading(layer.getListHeading())
+        .setName(layer.getName())
         .setDefaultStyle(layer.getDefaultStyle())
         .build();
   }
@@ -84,7 +84,7 @@ public abstract class LayerEntity {
             .setId(layerEntity.getId())
             .setDefaultStyle(layerEntity.getDefaultStyle())
             .setItemLabel(layerEntity.getItemLabel())
-            .setListHeading(layerEntity.getListHeading());
+            .setName(layerEntity.getName());
 
     for (FormEntityAndRelations formEntityAndRelations :
         layerEntityAndRelations.formEntityAndRelations) {
@@ -95,10 +95,10 @@ public abstract class LayerEntity {
   }
 
   public static LayerEntity create(
-      String id, String listHeading, String itemLabel, Style defaultStyle, String projectId) {
+      String id, String name, String itemLabel, Style defaultStyle, String projectId) {
     return builder()
         .setId(id)
-        .setListHeading(listHeading)
+        .setName(name)
         .setItemLabel(itemLabel)
         .setDefaultStyle(defaultStyle)
         .setProjectId(projectId)
@@ -114,7 +114,7 @@ public abstract class LayerEntity {
 
     public abstract Builder setId(String id);
 
-    public abstract Builder setListHeading(String listHeading);
+    public abstract Builder setName(String name);
 
     public abstract Builder setItemLabel(String itemLabel);
 

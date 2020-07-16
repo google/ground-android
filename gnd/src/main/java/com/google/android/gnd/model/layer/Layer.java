@@ -27,7 +27,7 @@ public abstract class Layer {
   public abstract String getId();
 
   @Nullable
-  public abstract String getListHeading();
+  public abstract String getName();
 
   @Nullable
   public abstract String getItemLabel();
@@ -48,7 +48,7 @@ public abstract class Layer {
   public abstract static class Builder {
     public abstract Builder setId(@Nullable String newId);
 
-    public abstract Builder setListHeading(@Nullable String newListHeading);
+    public abstract Builder setName(@Nullable String newName);
 
     public abstract Builder setItemLabel(@Nullable String newItemLabel);
 

@@ -107,7 +107,7 @@ public class LocalDataStoreTest {
       Layer.newBuilder()
           .setId("layer id")
           .setItemLabel("item label")
-          .setListHeading("heading title")
+          .setName("heading title")
           .setDefaultStyle(Style.builder().setColor("000").build())
           .setForm(TEST_FORM)
           .build();
@@ -251,14 +251,16 @@ public class LocalDataStoreTest {
         Project.newBuilder()
             .setId("foo id")
             .setTitle("foo project")
-            .putLayer(layer1.getId(), layer1).build();
+            .putLayer(layer1.getId(), layer1)
+            .build();
     localDataStore.insertOrUpdateProject(project).blockingAwait();
 
     project =
         Project.newBuilder()
             .setId("foo id")
             .setTitle("foo project")
-            .putLayer(layer2.getId(), layer2).build();
+            .putLayer(layer2.getId(), layer2)
+            .build();
     localDataStore.insertOrUpdateProject(project).blockingAwait();
 
     localDataStore

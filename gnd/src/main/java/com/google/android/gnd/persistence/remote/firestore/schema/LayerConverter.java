@@ -33,7 +33,7 @@ class LayerConverter {
     Layer.Builder layer = Layer.newBuilder();
     layer
         .setId(id)
-        .setListHeading(getLocalizedMessage(obj.getListHeading()))
+        .setName(getLocalizedMessage(obj.getName()))
         .setItemLabel(getLocalizedMessage(obj.getItemLabel()))
         .setDefaultStyle(
             obj.getDefaultStyle() == null

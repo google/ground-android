@@ -23,7 +23,7 @@ import java.util.Map;
 /** Firestore representation of map layers. */
 @IgnoreExtraProperties
 class LayerNestedObject {
-  @Nullable private Map<String, String> listHeading;
+  @Nullable private Map<String, String> name;
   @Nullable private Map<String, String> itemLabel;
   @Nullable private StyleNestedObject defaultStyle;
   @Nullable private Map<String, FormNestedObject> forms;
@@ -33,19 +33,19 @@ class LayerNestedObject {
 
   @SuppressWarnings("unused")
   LayerNestedObject(
-      @Nullable Map<String, String> listHeading,
+      @Nullable Map<String, String> name,
       @Nullable Map<String, String> itemLabel,
       @Nullable StyleNestedObject defaultStyle,
       @Nullable Map<String, FormNestedObject> forms) {
-    this.listHeading = listHeading;
+    this.name = name;
     this.itemLabel = itemLabel;
     this.defaultStyle = defaultStyle;
     this.forms = forms;
   }
 
   @Nullable
-  public Map<String, String> getListHeading() {
-    return listHeading;
+  public Map<String, String> getName() {
+    return name;
   }
 
   @Nullable
