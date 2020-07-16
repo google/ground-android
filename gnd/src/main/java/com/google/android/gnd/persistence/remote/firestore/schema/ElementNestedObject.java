@@ -24,7 +24,6 @@ import java.util.Map;
 /** Firestore representation of form element definitions. */
 @IgnoreExtraProperties
 class ElementNestedObject {
-  @Nullable private String id;
   @Nullable private String type;
   @Nullable private String cardinality;
   // TODO: labels or label?
@@ -37,23 +36,16 @@ class ElementNestedObject {
 
   @SuppressWarnings("unused")
   ElementNestedObject(
-      @Nullable String id,
       @Nullable String type,
       @Nullable String cardinality,
       @Nullable Map<String, String> labels,
       @Nullable List<OptionNestedObject> options,
       @Nullable Boolean required) {
-    this.id = id;
     this.type = type;
     this.cardinality = cardinality;
     this.labels = labels;
     this.options = options;
     this.required = required;
-  }
-
-  @Nullable
-  public String getId() {
-    return id;
   }
 
   @Nullable
