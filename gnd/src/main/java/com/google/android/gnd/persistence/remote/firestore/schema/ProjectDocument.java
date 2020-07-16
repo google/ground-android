@@ -57,7 +57,7 @@ class ProjectDocument {
   }
 
   @Nullable
-  public Map<String, LayerNestedObject> getlayers() {
+  public Map<String, LayerNestedObject> getLayers() {
     return layers;
   }
 }
