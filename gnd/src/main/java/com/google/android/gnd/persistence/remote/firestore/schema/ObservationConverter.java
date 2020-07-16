@@ -51,7 +51,9 @@ class ObservationConverter {
       Log.w(TAG, "Observation layerId doesn't match specified feature's layerId");
     }
     Form form = checkNotEmpty(feature.getLayer().getForm(formId), "form");
-    AuditInfoNestedObject created = checkNotNull(doc.getCreated(), "created");
+    // Degrade gracefully when audit info missing in remote db.
+    AuditInfoNestedObject created =
+        Optional.ofNullable(doc.getCreated()).orElse(AuditInfoNestedObject.FALLBACK_VALUE);
     AuditInfoNestedObject lastModified = Optional.ofNullable(doc.getLastModified()).orElse(created);
     return Observation.newBuilder()
         .setId(snapshot.getId())

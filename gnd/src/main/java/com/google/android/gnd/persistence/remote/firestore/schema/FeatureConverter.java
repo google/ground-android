@@ -44,7 +44,9 @@ class FeatureConverter {
             .setLatitude(geoPoint.getLatitude())
             .setLongitude(geoPoint.getLongitude())
             .build();
-    AuditInfoNestedObject created = checkNotNull(f.getCreated(), "created");
+    // Degrade gracefully when audit info missing in remote db.
+    AuditInfoNestedObject created =
+        Optional.ofNullable(f.getCreated()).orElse(AuditInfoNestedObject.FALLBACK_VALUE);
     AuditInfoNestedObject lastModified = Optional.ofNullable(f.getLastModified()).orElse(created);
     return Feature.newBuilder()
         .setId(doc.getId())

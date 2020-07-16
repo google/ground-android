@@ -22,6 +22,13 @@ import com.google.firebase.firestore.ServerTimestamp;
 
 /** User details and timestamp for creation or modification of a model object. */
 class AuditInfoNestedObject {
+
+  private static final Timestamp EPOCH = new Timestamp(0, 0);
+
+  /** Value used to degrade gracefully when missing in remote db. */
+  public static final AuditInfoNestedObject FALLBACK_VALUE =
+      new AuditInfoNestedObject(UserNestedObject.UNKNOWN_USER, EPOCH, EPOCH);
+
   @Nullable private UserNestedObject user;
   @Nullable private Timestamp clientTimestamp;
   @Nullable @ServerTimestamp private Timestamp serverTimestamp;

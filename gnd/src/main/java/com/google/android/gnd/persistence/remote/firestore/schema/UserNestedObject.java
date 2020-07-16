@@ -17,13 +17,11 @@
 package com.google.android.gnd.persistence.remote.firestore.schema;
 
 import androidx.annotation.Nullable;
-import com.google.android.gnd.model.User;
 
 /** User details nested for nesting inside entities for audit purposes. */
 class UserNestedObject {
   /** Fallback value when reading invalid or legacy schemas. */
-  static final User UNKNOWN_USER =
-      User.builder().setId("").setEmail("").setDisplayName("Unknown user").build();
+  static final UserNestedObject UNKNOWN_USER = new UserNestedObject("", "", "Unknown user");
 
   @Nullable private String id;
   @Nullable private String email;
