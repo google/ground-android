@@ -84,8 +84,8 @@ public class LocalDataStoreTest {
           .setCardinality(Cardinality.SELECT_ONE)
           .setOptions(
               ImmutableList.of(
-                  Option.newBuilder().setCode("a").setLabel("Name").build(),
-                  Option.newBuilder().setCode("b").setLabel("Age").build()))
+                  Option.newBuilder().setId("1").setCode("a").setLabel("Name").build(),
+                  Option.newBuilder().setId("2").setCode("b").setLabel("Age").build()))
           .build();
 
   private static final Field TEST_FIELD =

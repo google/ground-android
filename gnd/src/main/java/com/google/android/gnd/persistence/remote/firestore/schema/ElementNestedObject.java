@@ -19,7 +19,6 @@ package com.google.android.gnd.persistence.remote.firestore.schema;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.google.firebase.firestore.IgnoreExtraProperties;
-import java.util.List;
 import java.util.Map;
 
 /** Firestore representation of form element definitions. */
@@ -30,7 +29,7 @@ class ElementNestedObject {
   @Nullable private String type;
   @Nullable private String cardinality;
   @Nullable private Map<String, String> label;
-  @Nullable private List<OptionNestedObject> options;
+  @Nullable private Map<String, OptionNestedObject> options;
   @Nullable private Boolean required;
 
   @SuppressWarnings("unused")
@@ -42,7 +41,7 @@ class ElementNestedObject {
       @Nullable String type,
       @Nullable String cardinality,
       @Nullable Map<String, String> label,
-      @Nullable List<OptionNestedObject> options,
+      @Nullable Map<String, OptionNestedObject> options,
       @Nullable Boolean required) {
     this.index = index;
     this.type = type;
@@ -74,7 +73,7 @@ class ElementNestedObject {
   }
 
   @Nullable
-  public List<OptionNestedObject> getOptions() {
+  public Map<String, OptionNestedObject> getOptions() {
     return options;
   }
 

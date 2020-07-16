@@ -33,10 +33,14 @@ import com.google.auto.value.AutoValue.CopyAnnotations;
             entity = FieldEntity.class,
             parentColumns = "id",
             childColumns = "field_id", // NOPMD
-          onDelete = ForeignKey.CASCADE),
+            onDelete = ForeignKey.CASCADE),
     indices = {@Index("field_id")}, // NOPMD
     primaryKeys = {"code", "field_id"}) // NOPMD
 public abstract class OptionEntity {
+  @CopyAnnotations
+  @NonNull
+  @ColumnInfo(name = "id")
+  public abstract String getId();
 
   @CopyAnnotations
   @NonNull
@@ -55,6 +59,7 @@ public abstract class OptionEntity {
 
   public static OptionEntity fromOption(String fieldId, Option option) {
     return OptionEntity.builder()
+        .setId(option.getId())
         .setFieldId(fieldId)
         .setCode(option.getCode())
         .setLabel(option.getLabel())
@@ -63,13 +68,14 @@ public abstract class OptionEntity {
 
   public static Option toOption(OptionEntity optionEntity) {
     return Option.newBuilder()
+        .setId(optionEntity.getId())
         .setCode(optionEntity.getCode())
         .setLabel(optionEntity.getLabel())
         .build();
   }
 
-  public static OptionEntity create(String code, String label, String fieldId) {
-    return builder().setCode(code).setLabel(label).setFieldId(fieldId).build();
+  public static OptionEntity create(String id, String code, String label, String fieldId) {
+    return builder().setId(id).setCode(code).setLabel(label).setFieldId(fieldId).build();
   }
 
   public static Builder builder() {
@@ -78,6 +84,7 @@ public abstract class OptionEntity {
 
   @AutoValue.Builder
   public abstract static class Builder {
+    public abstract Builder setId(@NonNull String id);
 
     public abstract Builder setCode(String code);
 

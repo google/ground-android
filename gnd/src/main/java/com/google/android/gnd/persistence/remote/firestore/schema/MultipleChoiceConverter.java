@@ -29,7 +29,9 @@ class MultipleChoiceConverter {
     mc.setCardinality(toEnum(MultipleChoice.Cardinality.class, em.getCardinality()));
     if (em.getOptions() != null) {
       mc.setOptions(
-          stream(em.getOptions()).map(OptionConverter::toOption).collect(toImmutableList()));
+          stream(em.getOptions().entrySet())
+              .map(e -> OptionConverter.toOption(e.getKey(), e.getValue()))
+              .collect(toImmutableList()));
     }
     return mc.build();
   }

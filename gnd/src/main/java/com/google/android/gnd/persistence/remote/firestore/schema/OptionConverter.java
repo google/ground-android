@@ -23,8 +23,9 @@ import com.google.android.gnd.model.form.Option;
 /** Converts between Firestore nested objects and {@link Option} instances. */
 class OptionConverter {
 
-  static Option toOption(OptionNestedObject option) {
+  static Option toOption(String id, OptionNestedObject option) {
     Option.Builder builder = Option.newBuilder();
+    builder.setId(id);
     if (option.getCode() != null) {
       builder.setCode(option.getCode());
     }
