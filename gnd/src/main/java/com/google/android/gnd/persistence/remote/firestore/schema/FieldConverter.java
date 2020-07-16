@@ -44,7 +44,7 @@ class FieldConverter {
     }
     field.setRequired(em.getRequired() != null && em.getRequired());
     field.setId(id);
-    field.setLabel(getLocalizedMessage(em.getLabels()));
+    field.setLabel(getLocalizedMessage(em.getLabel()));
     return Optional.of(field.build());
   }
 }

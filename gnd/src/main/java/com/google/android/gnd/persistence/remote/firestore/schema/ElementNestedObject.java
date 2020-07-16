@@ -29,8 +29,7 @@ class ElementNestedObject {
   @Nullable private Integer index;
   @Nullable private String type;
   @Nullable private String cardinality;
-  // TODO: labels or label?
-  @Nullable private Map<String, String> labels;
+  @Nullable private Map<String, String> label;
   @Nullable private List<OptionNestedObject> options;
   @Nullable private Boolean required;
 
@@ -42,13 +41,13 @@ class ElementNestedObject {
       @Nullable Integer index,
       @Nullable String type,
       @Nullable String cardinality,
-      @Nullable Map<String, String> labels,
+      @Nullable Map<String, String> label,
       @Nullable List<OptionNestedObject> options,
       @Nullable Boolean required) {
     this.index = index;
     this.type = type;
     this.cardinality = cardinality;
-    this.labels = labels;
+    this.label = label;
     this.options = options;
     this.required = required;
   }
@@ -70,8 +69,8 @@ class ElementNestedObject {
   }
 
   @Nullable
-  public Map<String, String> getLabels() {
-    return labels;
+  public Map<String, String> getLabel() {
+    return label;
   }
 
   @Nullable
