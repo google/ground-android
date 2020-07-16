@@ -19,11 +19,14 @@ package com.google.android.gnd.persistence.remote.firestore.schema;
 import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList;
 import static java8.util.stream.StreamSupport.stream;
 
+import androidx.annotation.Nullable;
 import com.google.android.gnd.model.form.Element;
 import com.google.android.gnd.model.form.Form;
 import com.google.common.collect.ImmutableList;
+import java.util.Collections;
 import java.util.Map;
 import java8.util.Comparators;
+import java8.util.Optional;
 
 /** Converts between Firestore nested objects and {@link Form} instances. */
 class FormConverter {
@@ -32,8 +35,9 @@ class FormConverter {
     return Form.newBuilder().setId(formId).setElements(toSortedList(obj.getElements())).build();
   }
 
-  private static ImmutableList<Element> toSortedList(Map<String, ElementNestedObject> elements) {
-    return stream(elements.entrySet())
+  private static ImmutableList<Element> toSortedList(
+      @Nullable Map<String, ElementNestedObject> elements) {
+    return stream(Optional.ofNullable(elements).map(Map::entrySet).orElse(Collections.emptySet()))
         .sorted(Comparators.comparing(e -> e.getValue().getIndex()))
         .map(e -> ElementConverter.toElement(e.getKey(), e.getValue()))
         .collect(toImmutableList());
