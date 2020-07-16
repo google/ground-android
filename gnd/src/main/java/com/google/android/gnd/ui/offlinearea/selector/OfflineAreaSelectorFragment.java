@@ -24,34 +24,30 @@ import android.view.View;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
-import butterknife.BindView;
 import com.google.android.gnd.MainActivity;
-import com.google.android.gnd.MainViewModel;
 import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.OfflineAreaSelectorFragBinding;
 import com.google.android.gnd.ui.common.AbstractFragment;
-import com.google.android.gnd.ui.common.TwoLineToolbar;
+import com.google.android.gnd.ui.common.EphemeralPopups;
+import com.google.android.gnd.ui.common.Navigator;
+import com.google.android.gnd.ui.map.MapAdapter;
 import com.google.android.gnd.ui.map.MapProvider;
-import com.google.android.gnd.ui.map.MapProvider.MapAdapter;
-import com.google.android.material.chip.Chip;
+import com.google.android.gnd.ui.offlinearea.selector.OfflineAreaSelectorViewModel.DownloadMessage;
+import dagger.hilt.android.AndroidEntryPoint;
 import io.reactivex.Single;
 import javax.inject.Inject;
 
+@AndroidEntryPoint
 public class OfflineAreaSelectorFragment extends AbstractFragment {
 
   private static final String MAP_FRAGMENT = MapProvider.class.getName() + "#fragment";
 
+  @Inject Navigator navigator;
+
   @Inject MapProvider mapProvider;
 
-  @BindView(R.id.offline_area_selector_toolbar)
-  TwoLineToolbar toolbar;
-
-  @BindView(R.id.download_button)
-  Chip downloadButton;
-
   private OfflineAreaSelectorViewModel viewModel;
+  @Nullable private MapAdapter map;
 
   public static OfflineAreaSelectorFragment newInstance() {
     return new OfflineAreaSelectorFragment();
@@ -60,23 +56,36 @@ public class OfflineAreaSelectorFragment extends AbstractFragment {
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-
-    getViewModel(MainViewModel.class).getWindowInsets().observe(this, this::onApplyWindowInsets);
-
     viewModel = getViewModel(OfflineAreaSelectorViewModel.class);
     // TODO: use the viewmodel
     Single<MapAdapter> mapAdapter = mapProvider.getMapAdapter();
     mapAdapter.as(autoDisposable(this)).subscribe(this::onMapReady);
+    viewModel.getDownloadMessages().observe(this, e -> e.ifUnhandled(this::onDownloadMessage));
+  }
+
+  private void onDownloadMessage(DownloadMessage message) {
+    switch (message) {
+      case STARTED:
+        EphemeralPopups.showSuccess(getContext(), R.string.offline_area_download_started);
+        navigator.navigateUp();
+        break;
+      case FAILURE:
+      default:
+        EphemeralPopups.showError(getContext(), R.string.offline_area_download_failed);
+        navigator.navigateUp();
+        break;
+    }
   }
 
   @Override
   public View onCreateView(
-      LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+      @NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     super.onCreateView(inflater, container, savedInstanceState);
     OfflineAreaSelectorFragBinding binding =
         OfflineAreaSelectorFragBinding.inflate(inflater, container, false);
     binding.setViewModel(viewModel);
     binding.setLifecycleOwner(this);
+    binding.downloadButton.setOnClickListener(__ -> onDownloadClick());
     ((MainActivity) getActivity()).setActionBar(binding.offlineAreaSelectorToolbar, true);
     return binding.getRoot();
   }
@@ -91,13 +100,15 @@ public class OfflineAreaSelectorFragment extends AbstractFragment {
     }
   }
 
-  private void onApplyWindowInsets(WindowInsetsCompat insets) {
-    toolbar.setPadding(0, insets.getSystemWindowInsetTop(), 0, 0);
-    downloadButton.setTranslationY(-insets.getSystemWindowInsetBottom());
-    ViewCompat.onApplyWindowInsets(mapProvider.getFragment().getView(), insets);
+  private void onMapReady(MapAdapter map) {
+    this.map = map;
   }
 
-  private void onMapReady(MapAdapter map) {
-    // TODO: Use the map.
+  public void onDownloadClick() {
+    if (map == null) {
+      return;
+    }
+
+    viewModel.onDownloadClick(map.getViewport());
   }
 }

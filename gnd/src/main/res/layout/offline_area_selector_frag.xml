@@ -17,46 +17,58 @@
   -->
 
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+  xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <data>
-        <variable
-            name="viewModel"
-            type="com.google.android.gnd.ui.offlinearea.selector.OfflineAreaSelectorViewModel" />
-    </data>
+  <data>
+    <variable
+      name="viewModel"
+      type="com.google.android.gnd.ui.offlinearea.selector.OfflineAreaSelectorViewModel" />
+  </data>
 
-    <FrameLayout
+  <FrameLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <androidx.fragment.app.FragmentContainerView
+      android:id="@+id/map"
       android:layout_width="match_parent"
       android:layout_height="match_parent"
-      android:id="@+id/offline_area_selector_layout"
+      android:layout_gravity="center"
+      app:layout_behavior="com.google.android.gnd.ui.home.mapcontainer.MapLayoutBehavior" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
       android:fitsSystemWindows="true">
+
       <com.google.android.gnd.ui.common.TwoLineToolbar
         android:id="@+id/offline_area_selector_toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:elevation="@dimen/toolbar_elevation"
         android:theme="@style/PrimaryToolbarTheme"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
         app:title="@string/offline_area_selector"
         app:titleTextColor="@color/colorBackground" />
-      <FrameLayout
-        android:id="@+id/map"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_behavior="com.google.android.gnd.ui.home.mapcontainer.MapLayoutBehavior"
-        android:layout_gravity="center">
-      </FrameLayout>
-        <com.google.android.material.chip.Chip
-          android:id="@+id/download_button"
-          style="@style/ChipButton"
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:layout_marginBottom="@dimen/map_btn_margin_bottom"
-          android:layout_marginRight="@dimen/chip_button_margin_right"
-          android:layout_marginEnd="@dimen/chip_button_margin_right"
-          android:elevation="6dp"
-          android:text="@string/offline_area_selector_download"
-          app:chipIcon="@drawable/ic_area_download"
-          app:useCompatPadding="true"
-          android:layout_gravity="bottom|end" />
-    </FrameLayout>
+
+      <com.google.android.material.chip.Chip
+        android:id="@+id/download_button"
+        style="@style/ChipButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_marginEnd="@dimen/chip_button_margin_right"
+        android:layout_marginRight="@dimen/chip_button_margin_right"
+        android:layout_marginBottom="@dimen/map_btn_margin_bottom"
+        android:elevation="6dp"
+        android:text="@string/offline_area_selector_download"
+        app:chipIcon="@drawable/ic_area_download"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:useCompatPadding="true" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+  </FrameLayout>
 </layout>

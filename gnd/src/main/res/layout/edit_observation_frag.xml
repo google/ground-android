@@ -19,9 +19,13 @@
   xmlns:app="http://schemas.android.com/apk/res-auto">
 
   <data>
+    <import type="android.view.View" />
     <variable
       name="viewModel"
       type="com.google.android.gnd.ui.editobservation.EditObservationViewModel"/>
+    <variable
+      name="fragment"
+      type="com.google.android.gnd.ui.editobservation.EditObservationFragment"/>
   </data>
 
   <!-- Use CoordinatorLayout to avoid rendering over top system bar. -->
@@ -55,7 +59,8 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:layout_gravity="top"
-            android:theme="@style/WhiteToolbarTheme"/>
+            android:theme="@style/WhiteToolbarTheme"
+            app:title="@{viewModel.toolbarTitle}" />
 
         </LinearLayout>
 
@@ -84,10 +89,11 @@
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
         android:padding="48dp"
-        android:visibility="@{viewModel.loadingSpinnerVisibility}"/>
+        android:visibility="@{viewModel.isLoading ? View.VISIBLE : View.GONE }"/>
 
     </RelativeLayout>
 
+    <!-- TODO: Center chip horizontally. -->
     <!-- TODO: Move into toolbar, maybe use showAsAction in menu xml w/custom style. -->
     <com.google.android.material.chip.Chip
       android:id="@+id/save_observation_btn"
@@ -99,8 +105,8 @@
       android:layout_gravity="top|end"
       android:elevation="2dp"
       android:text="@string/save_observation_button_label"
-      android:visibility="@{viewModel.saveButtonVisibility}"
-      android:onClick="@{() -> viewModel.onSaveClick()}"
+      android:visibility="@{viewModel.isSaving ? View.GONE : View.VISIBLE }"
+      android:onClick="@{() -> fragment.onSaveClick()}"
       app:useCompatPadding="true"/>
 
     <!-- TODO: Refactor and use in place of deprecated ProgressDialog. -->
@@ -108,7 +114,7 @@
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:layout_gravity="center"
-      android:visibility="@{viewModel.savingProgressVisibility}">
+      android:visibility="@{viewModel.isSaving ? View.VISIBLE : View.GONE }">
       <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

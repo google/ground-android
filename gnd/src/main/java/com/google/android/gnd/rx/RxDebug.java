@@ -24,6 +24,8 @@ import io.reactivex.Flowable;
 import io.reactivex.FlowableConverter;
 import io.reactivex.Maybe;
 import io.reactivex.MaybeConverter;
+import io.reactivex.Single;
+import io.reactivex.SingleConverter;
 import io.reactivex.disposables.Disposable;
 import org.reactivestreams.Subscription;
 
@@ -49,6 +51,15 @@ public abstract class RxDebug {
             .doOnSuccess(t::onSuccess)
             .doOnComplete(t::onComplete)
             .doOnError(t::onError);
+  }
+
+  /**
+   * Returns a converter for use with {@link Single#as} that logs all events that occur on the
+   * source stream.
+   */
+  public static <T> SingleConverter<T, Single<T>> tracedSingle(String tag, String streamName) {
+    Tracer t = new Tracer(tag, streamName);
+    return m -> m.doOnSubscribe(t::onSubscribe).doOnSuccess(t::onSuccess).doOnError(t::onError);
   }
 
   /**
@@ -87,10 +98,12 @@ public abstract class RxDebug {
       Log.v(tag, RX_TRACE_PREFIX + " " + streamName + " " + action);
     }
 
+    @SuppressWarnings("PMD.UnusedFormalParameter")
     private void onSubscribe(Disposable disposable) {
       trace(tag, streamName, "subscribe");
     }
 
+    @SuppressWarnings("PMD.UnusedFormalParameter")
     private void onSubscribe(Subscription subscription) {
       trace(tag, streamName, "subscribe");
     }

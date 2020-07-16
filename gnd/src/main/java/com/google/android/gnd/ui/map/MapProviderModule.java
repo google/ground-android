@@ -20,7 +20,10 @@ import com.google.android.gnd.ui.MarkerIconFactory;
 import com.google.android.gnd.ui.map.gms.GoogleMapsMapProvider;
 import dagger.Module;
 import dagger.Provides;
+import dagger.hilt.InstallIn;
+import dagger.hilt.android.components.ApplicationComponent;
 
+@InstallIn(ApplicationComponent.class)
 @Module
 public class MapProviderModule {
   @Provides

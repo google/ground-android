@@ -16,8 +16,6 @@
 
 package com.google.android.gnd.ui.home;
 
-import android.util.Log;
-import android.view.View;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
 import androidx.lifecycle.MutableLiveData;
@@ -35,16 +33,16 @@ import com.google.android.gnd.system.AuthenticationManager;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.SharedViewModel;
-import com.google.android.gnd.ui.map.MapMarker;
+import com.google.android.gnd.ui.map.MapPin;
 import io.reactivex.Single;
 import io.reactivex.subjects.PublishSubject;
 import java8.util.Optional;
 import javax.inject.Inject;
+import timber.log.Timber;
 
 @SharedViewModel
 public class HomeScreenViewModel extends AbstractViewModel {
 
-  private static final String TAG = HomeScreenViewModel.class.getSimpleName();
   private final ProjectRepository projectRepository;
   private final Navigator navigator;
   /** The state and value of the currently active project (loading, loaded, etc.). */
@@ -55,11 +53,11 @@ public class HomeScreenViewModel extends AbstractViewModel {
   // TODO: Move into MapContainersViewModel
   private final MutableLiveData<Event<Point>> addFeatureDialogRequests;
 
-  // TODO: Move into FeatureSheetViewModel.
+  // TODO: Move into FeatureDetailsViewModel.
   private final MutableLiveData<Action> openDrawerRequests;
-  private final MutableLiveData<FeatureSheetState> featureSheetState;
-  private final MutableLiveData<Integer> addObservationButtonVisibility =
-      new MutableLiveData<>(View.GONE);
+  private final MutableLiveData<BottomSheetState> bottomSheetState;
+  public final MutableLiveData<Boolean> isObservationButtonVisible =
+      new MutableLiveData<>(false);
 
   @Inject
   HomeScreenViewModel(
@@ -71,7 +69,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
     this.projectRepository = projectRepository;
     this.addFeatureDialogRequests = new MutableLiveData<>();
     this.openDrawerRequests = new MutableLiveData<>();
-    this.featureSheetState = new MutableLiveData<>();
+    this.bottomSheetState = new MutableLiveData<>();
     this.activeProject =
         LiveDataReactiveStreams.fromPublisher(projectRepository.getActiveProjectOnceAndStream());
     this.navigator = navigator;
@@ -87,20 +85,29 @@ public class HomeScreenViewModel extends AbstractViewModel {
                         .doOnError(this::onAddFeatureError)
                         .onErrorResumeNext(Single.never())) // Prevent from breaking upstream.
             .observeOn(schedulers.ui())
-            .subscribe(this::showFeatureSheet));
+            .subscribe(this::onAddFeature));
+  }
+
+  private void onAddFeature(Feature feature) {
+    if (feature.getLayer().getForm().isPresent()) {
+      addNewObservation(feature);
+    }
+  }
+
+  private void addNewObservation(Feature feature) {
+    String projectId = feature.getProject().getId();
+    String featureId = feature.getId();
+    String formId = feature.getLayer().getForm().get().getId();
+    navigator.addObservation(projectId, featureId, formId);
   }
 
   public boolean shouldShowProjectSelectorOnStart() {
     return projectRepository.getLastActiveProjectId().isEmpty();
   }
 
-  public MutableLiveData<Integer> getAddObservationButtonVisibility() {
-    return addObservationButtonVisibility;
-  }
-
   private void onAddFeatureError(Throwable throwable) {
     // TODO: Show an error message to the user.
-    Log.e(TAG, "Couldn't add feature.", throwable);
+    Timber.e(throwable, "Couldn't add feature.");
   }
 
   public LiveData<Action> getOpenDrawerRequests() {
@@ -119,18 +126,18 @@ public class HomeScreenViewModel extends AbstractViewModel {
     return addFeatureDialogRequests;
   }
 
-  public LiveData<FeatureSheetState> getFeatureSheetState() {
-    return featureSheetState;
+  public LiveData<BottomSheetState> getBottomSheetState() {
+    return bottomSheetState;
   }
 
   // TODO: Remove extra indirection here?
-  public void onMarkerClick(MapMarker marker) {
-    marker.getFeature().ifPresent(this::showFeatureSheet);
+  public void onMarkerClick(MapPin marker) {
+    showBottomSheet(marker.getFeature());
   }
 
-  private void showFeatureSheet(Feature feature) {
-    addObservationButtonVisibility.setValue(View.VISIBLE);
-    featureSheetState.setValue(FeatureSheetState.visible(feature));
+  private void showBottomSheet(Feature feature) {
+    isObservationButtonVisible.setValue(true);
+    bottomSheetState.setValue(BottomSheetState.visible(feature));
   }
 
   public void onAddFeatureBtnClick(Point location) {
@@ -143,30 +150,30 @@ public class HomeScreenViewModel extends AbstractViewModel {
   }
 
   public void onBottomSheetHidden() {
-    featureSheetState.setValue(FeatureSheetState.hidden());
-    addObservationButtonVisibility.setValue(View.GONE);
+    bottomSheetState.setValue(BottomSheetState.hidden());
+    isObservationButtonVisible.setValue(false);
   }
 
   public void addObservation() {
-    FeatureSheetState state = featureSheetState.getValue();
+    BottomSheetState state = bottomSheetState.getValue();
     if (state == null) {
-      Log.e(TAG, "Missing featureSheetState");
+      Timber.e("Missing bottomSheetState");
       return;
     }
     Feature feature = state.getFeature();
     if (feature == null) {
-      Log.e(TAG, "Missing feature");
+      Timber.e("Missing feature");
       return;
     }
     Optional<Form> form = feature.getLayer().getForm();
     if (form.isEmpty()) {
       // .TODO: Hide Add Observation button if no forms defined.
-      Log.e(TAG, "No forms in layer");
+      Timber.e("No forms in layer");
       return;
     }
     Project project = feature.getProject();
     if (project == null) {
-      Log.e(TAG, "Missing project");
+      Timber.e("Missing project");
       return;
     }
     navigator.addObservation(project.getId(), feature.getId(), form.get().getId());
@@ -179,5 +186,9 @@ public class HomeScreenViewModel extends AbstractViewModel {
 
   public void showOfflineAreas() {
     navigator.showOfflineAreas();
+  }
+
+  public void showSettings() {
+    navigator.showSettings();
   }
 }

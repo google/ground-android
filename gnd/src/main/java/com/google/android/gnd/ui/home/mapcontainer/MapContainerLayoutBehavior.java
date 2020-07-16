@@ -22,38 +22,30 @@ import android.view.View;
 import android.widget.FrameLayout;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import com.google.android.gnd.R;
-import com.google.android.gnd.ui.home.OnBottomSheetSlideBehavior;
+import com.google.android.gnd.ui.home.BottomSheetDependentBehavior;
+import com.google.android.gnd.ui.home.BottomSheetMetrics;
 
-public class MapContainerLayoutBehavior extends OnBottomSheetSlideBehavior<FrameLayout> {
-  private static final float SHOW_CROSSHAIRS_THRESHOLD = 0.5f;
-  private static final float HIDE_CROSSHAIRS_THRESHOLD = 0.1f;
-  private static final float SHOW_BUTTONS_THRESHOLD = 0.1f;
-  private static final float HIDE_BUTTONS_THRESOLD = 0.3f;
+public class MapContainerLayoutBehavior extends BottomSheetDependentBehavior<FrameLayout> {
 
   public MapContainerLayoutBehavior(Context context, AttributeSet attrs) {
     super(context, attrs);
   }
 
   @Override
-  protected void onSheetScrolled(
-      CoordinatorLayout parent, FrameLayout mapContainerLayout, SheetSlideMetrics metrics) {
+  protected void onBottomSheetChanged(
+      CoordinatorLayout parent, FrameLayout mapContainerLayout, BottomSheetMetrics metrics) {
     if (metrics.getPeekHeight() <= 0) {
       return;
     }
     View map = mapContainerLayout.findViewById(R.id.map);
-    View crosshairs = mapContainerLayout.findViewById(R.id.map_crosshairs);
-    View mapButtonLayout = mapContainerLayout.findViewById(R.id.map_btn_layout);
-    if (map == null || crosshairs == null || mapButtonLayout == null) {
+    View mapControls = mapContainerLayout.findViewById(R.id.map_controls);
+    if (map == null || mapControls == null) {
       // View already destroyed.
       return;
     }
-    float visibleToolbarHeight = 0;
-    float bottomOffset = Math.min(metrics.getPeekHeight(), metrics.getVisibleHeight());
-    float offset = Math.max(bottomOffset - visibleToolbarHeight, 0f);
-    float translationY = -offset / 2.0f;
+    int translationY = -metrics.getExpansionHeight() / 2;
     map.setTranslationY(translationY);
-    crosshairs.setTranslationY(translationY);
-    metrics.hideWithSheet(crosshairs, SHOW_CROSSHAIRS_THRESHOLD, HIDE_CROSSHAIRS_THRESHOLD);
-    metrics.hideWithSheet(mapButtonLayout, SHOW_BUTTONS_THRESHOLD, HIDE_BUTTONS_THRESOLD);
+    float hideRatio = 1.0f - metrics.getRevealRatio();
+    mapControls.setAlpha(hideRatio);
   }
 }

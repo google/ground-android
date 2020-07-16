@@ -20,20 +20,27 @@ import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 import com.google.android.gnd.MainViewModel;
 import com.google.android.gnd.ui.editobservation.EditObservationViewModel;
+import com.google.android.gnd.ui.editobservation.MultipleChoiceFieldViewModel;
+import com.google.android.gnd.ui.editobservation.PhotoFieldViewModel;
+import com.google.android.gnd.ui.editobservation.TextFieldViewModel;
 import com.google.android.gnd.ui.home.HomeScreenViewModel;
-import com.google.android.gnd.ui.home.featuresheet.FeatureSheetViewModel;
-import com.google.android.gnd.ui.home.featuresheet.ObservationListViewModel;
-import com.google.android.gnd.ui.home.featuresheet.ObservationViewModel;
+import com.google.android.gnd.ui.home.featuredetails.FeatureDetailsViewModel;
+import com.google.android.gnd.ui.home.featuredetails.ObservationListViewModel;
+import com.google.android.gnd.ui.home.featuredetails.ObservationViewModel;
 import com.google.android.gnd.ui.home.mapcontainer.MapContainerViewModel;
 import com.google.android.gnd.ui.observationdetails.ObservationDetailsViewModel;
 import com.google.android.gnd.ui.offlinearea.OfflineAreasViewModel;
 import com.google.android.gnd.ui.offlinearea.selector.OfflineAreaSelectorViewModel;
+import com.google.android.gnd.ui.offlinearea.viewer.OfflineAreaViewerViewModel;
 import com.google.android.gnd.ui.projectselector.ProjectSelectorViewModel;
 import com.google.android.gnd.ui.signin.SignInViewModel;
 import dagger.Binds;
 import dagger.Module;
+import dagger.hilt.InstallIn;
+import dagger.hilt.android.components.ApplicationComponent;
 import dagger.multibindings.IntoMap;
 
+@InstallIn(ApplicationComponent.class)
 @Module
 public abstract class ViewModelModule {
   @Binds
@@ -53,6 +60,11 @@ public abstract class ViewModelModule {
 
   @Binds
   @IntoMap
+  @ViewModelKey(OfflineAreaViewerViewModel.class)
+  abstract ViewModel bindOfflineAreaViewerViewModel(OfflineAreaViewerViewModel viewModel);
+
+  @Binds
+  @IntoMap
   @ViewModelKey(MainViewModel.class)
   abstract ViewModel bindMainViewModel(MainViewModel viewModel);
 
@@ -68,8 +80,8 @@ public abstract class ViewModelModule {
 
   @Binds
   @IntoMap
-  @ViewModelKey(FeatureSheetViewModel.class)
-  abstract ViewModel bindFeatureSheetViewModel(FeatureSheetViewModel viewModel);
+  @ViewModelKey(FeatureDetailsViewModel.class)
+  abstract ViewModel bindFeatureDetailsViewModel(FeatureDetailsViewModel viewModel);
 
   @Binds
   @IntoMap
@@ -95,6 +107,21 @@ public abstract class ViewModelModule {
   @IntoMap
   @ViewModelKey(EditObservationViewModel.class)
   abstract ViewModel bindEditObservationViewModel(EditObservationViewModel viewModel);
+
+  @Binds
+  @IntoMap
+  @ViewModelKey(PhotoFieldViewModel.class)
+  abstract ViewModel bindPhotoFieldViewModel(PhotoFieldViewModel viewModel);
+
+  @Binds
+  @IntoMap
+  @ViewModelKey(MultipleChoiceFieldViewModel.class)
+  abstract ViewModel bindMultipleChoiceFieldViewModel(MultipleChoiceFieldViewModel viewModel);
+
+  @Binds
+  @IntoMap
+  @ViewModelKey(TextFieldViewModel.class)
+  abstract ViewModel bindTextFieldViewModel(TextFieldViewModel viewModel);
 
   @Binds
   abstract ViewModelProvider.Factory bindViewModelFactory(ViewModelFactory factory);

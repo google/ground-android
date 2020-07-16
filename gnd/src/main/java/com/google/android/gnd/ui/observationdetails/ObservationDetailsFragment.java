@@ -16,69 +16,58 @@
 
 package com.google.android.gnd.ui.observationdetails;
 
+import static com.google.android.gnd.rx.RxAutoDispose.autoDisposable;
+
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import butterknife.BindView;
 import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.ObservationDetailsFieldBinding;
 import com.google.android.gnd.databinding.ObservationDetailsFragBinding;
-import com.google.android.gnd.inject.ActivityScoped;
+import com.google.android.gnd.databinding.PhotoFieldBinding;
 import com.google.android.gnd.model.form.Element;
 import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.form.Field.Type;
 import com.google.android.gnd.model.observation.Observation;
+import com.google.android.gnd.model.observation.Response;
 import com.google.android.gnd.rx.Loadable;
-import com.google.android.gnd.system.StorageManager;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.EphemeralPopups;
 import com.google.android.gnd.ui.common.Navigator;
-import com.google.android.gnd.ui.common.TwoLineToolbar;
+import com.google.android.gnd.ui.editobservation.PhotoFieldViewModel;
+import dagger.hilt.android.AndroidEntryPoint;
 import javax.inject.Inject;
+import timber.log.Timber;
 
-@ActivityScoped
+@AndroidEntryPoint
 public class ObservationDetailsFragment extends AbstractFragment {
-  private static final String TAG = ObservationDetailsFragment.class.getSimpleName();
 
   @Inject Navigator navigator;
-  @Inject StorageManager storageManager;
-
-  @BindView(R.id.observation_details_toolbar)
-  TwoLineToolbar toolbar;
-
-  @BindView(R.id.observation_details_layout)
-  LinearLayout observationDetailsLayout;
 
   private ObservationDetailsViewModel viewModel;
+  private ObservationDetailsFragBinding binding;
 
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     ObservationDetailsFragmentArgs args = getObservationDetailFragmentArgs();
     viewModel = getViewModel(ObservationDetailsViewModel.class);
-    // TODO: Move toolbar setting logic into the ViewModel once we have
-    // determined the fate of the toolbar.
-    viewModel.toolbarTitle.observe(this, this::setToolbarTitle);
-    viewModel.toolbarSubtitle.observe(this, this::setToolbarSubtitle);
     viewModel.observations.observe(this, this::onUpdate);
     viewModel.loadObservationDetails(args);
   }
 
   @Override
   public View onCreateView(
-      LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+      @NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     super.onCreateView(inflater, container, savedInstanceState);
-    ObservationDetailsFragBinding binding =
-        ObservationDetailsFragBinding.inflate(inflater, container, false);
+    binding = ObservationDetailsFragBinding.inflate(inflater, container, false);
     binding.setViewModel(viewModel);
     binding.setLifecycleOwner(this);
     return binding.getRoot();
@@ -87,11 +76,11 @@ public class ObservationDetailsFragment extends AbstractFragment {
   @Override
   public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
-    ((MainActivity) getActivity()).setActionBar(toolbar, false);
+    ((MainActivity) getActivity()).setActionBar(binding.observationDetailsToolbar, false);
   }
 
   @Override
-  public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+  public void onCreateOptionsMenu(@NonNull Menu menu, MenuInflater inflater) {
     inflater.inflate(R.menu.observation_details_menu, menu);
   }
 
@@ -99,18 +88,6 @@ public class ObservationDetailsFragment extends AbstractFragment {
   public void onActivityCreated(@Nullable Bundle savedInstanceState) {
     super.onActivityCreated(savedInstanceState);
     setHasOptionsMenu(true);
-  }
-
-  private void setToolbarTitle(String title) {
-    if (toolbar != null) {
-      toolbar.setTitle(title);
-    }
-  }
-
-  private void setToolbarSubtitle(String subtitle) {
-    if (toolbar != null) {
-      toolbar.setSubtitle(subtitle);
-    }
   }
 
   private void onUpdate(Loadable<Observation> observation) {
@@ -121,63 +98,71 @@ public class ObservationDetailsFragment extends AbstractFragment {
       case NOT_FOUND:
       case ERROR:
         // TODO: Replace w/error view?
-        Log.e(TAG, "Failed to load observation");
+        Timber.e("Failed to load observation");
         EphemeralPopups.showError(getContext());
         break;
       default:
-        Log.e(TAG, "Unhandled state: " + observation.getState());
+        Timber.e("Unhandled state: %s", observation.getState());
         break;
     }
   }
 
   private void showObservation(Observation observation) {
-    observationDetailsLayout.removeAllViews();
+    binding.observationDetailsLayout.removeAllViews();
     for (Element element : observation.getForm().getElements()) {
-      switch (element.getType()) {
-        case FIELD:
-          addField(element.getField(), observation);
-          break;
-        default:
+      if (element.getType() == Element.Type.FIELD) {
+        addField(element.getField(), observation);
       }
     }
   }
 
   private void addField(Field field, Observation observation) {
-    ObservationDetailsFieldBinding binding =
+    ObservationDetailsFieldBinding fieldBinding =
         ObservationDetailsFieldBinding.inflate(getLayoutInflater());
-    binding.setField(field);
-    binding.setLifecycleOwner(this);
-    observationDetailsLayout.addView(binding.getRoot());
+    fieldBinding.setField(field);
+    fieldBinding.setLifecycleOwner(this);
+    binding.observationDetailsLayout.addView(fieldBinding.getRoot());
 
     observation
         .getResponses()
         .getResponse(field.getId())
-        .map(r -> r.getDetailsText(field))
         .ifPresent(
-            value -> {
-              if (field.getType().equals(Type.PHOTO)) {
-                binding.fieldValue.setVisibility(View.GONE);
-                binding.imagePreview.setVisibility(View.VISIBLE);
-
-                storageManager.loadPhotoFromDestinationPath(binding.imagePreview, value);
+            response -> {
+              if (field.getType() == Type.PHOTO) {
+                addPhotoField((ViewGroup) fieldBinding.getRoot(), field, response);
               } else {
-                binding.fieldValue.setText(value);
+                fieldBinding.fieldValue.setText(response.getDetailsText(field));
               }
             });
   }
 
+  private void addPhotoField(ViewGroup container, Field field, Response response) {
+    PhotoFieldBinding photoFieldBinding = PhotoFieldBinding.inflate(getLayoutInflater());
+    PhotoFieldViewModel photoFieldViewModel = viewModelFactory.create(PhotoFieldViewModel.class);
+    photoFieldBinding.setLifecycleOwner(this);
+    photoFieldBinding.setViewModel(photoFieldViewModel);
+    photoFieldViewModel.updateField(response, field);
+    container.addView(photoFieldBinding.getRoot());
+  }
+
   @Override
   public boolean onOptionsItemSelected(MenuItem item) {
+    ObservationDetailsFragmentArgs args = getObservationDetailFragmentArgs();
+    String projectId = args.getProjectId();
+    String featureId = args.getFeatureId();
+    String observationId = args.getObservationId();
+
     switch (item.getItemId()) {
       case R.id.edit_observation_menu_item:
         // This is required to prevent menu from reappearing on back.
         getActivity().closeOptionsMenu();
-        ObservationDetailsFragmentArgs args = getObservationDetailFragmentArgs();
-        navigator.editObservation(
-            args.getProjectId(), args.getFeatureId(), args.getObservationId());
+        navigator.editObservation(projectId, featureId, observationId);
         return true;
       case R.id.delete_observation_menu_item:
-        // TODO: Implement delete observation.
+        viewModel
+            .deleteCurrentObservation(projectId, featureId, observationId)
+            .as(autoDisposable(this))
+            .subscribe(() -> navigator.navigateUp());
         return true;
       default:
         return false;

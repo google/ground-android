@@ -17,65 +17,57 @@
 package com.google.android.gnd.ui.editobservation;
 
 import static androidx.lifecycle.LiveDataReactiveStreams.fromPublisher;
-import static java8.util.stream.StreamSupport.stream;
+import static com.google.android.gnd.persistence.remote.firestore.FirestoreStorageManager.getRemoteDestinationPath;
 
+import android.app.Application;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
-import android.util.Log;
-import android.view.View;
 import androidx.databinding.ObservableArrayMap;
 import androidx.databinding.ObservableMap;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-import com.google.android.gnd.GndApplication;
+import com.google.android.gnd.Config;
 import com.google.android.gnd.R;
 import com.google.android.gnd.model.form.Element;
 import com.google.android.gnd.model.form.Element.Type;
 import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.model.observation.Observation;
-import com.google.android.gnd.model.observation.ObservationMutation;
 import com.google.android.gnd.model.observation.Response;
 import com.google.android.gnd.model.observation.ResponseDelta;
 import com.google.android.gnd.model.observation.ResponseMap;
-import com.google.android.gnd.model.observation.TextResponse;
-import com.google.android.gnd.persistence.remote.FirestoreStorageManager;
+import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator;
 import com.google.android.gnd.repository.ObservationRepository;
 import com.google.android.gnd.rx.Event;
 import com.google.android.gnd.rx.Nil;
-import com.google.android.gnd.system.AuthenticationManager;
 import com.google.android.gnd.system.CameraManager;
 import com.google.android.gnd.system.StorageManager;
 import com.google.android.gnd.ui.common.AbstractViewModel;
-import com.google.android.gnd.ui.util.FileUtil;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import io.reactivex.Completable;
 import io.reactivex.Single;
 import io.reactivex.processors.BehaviorProcessor;
 import io.reactivex.processors.PublishProcessor;
-import java.io.File;
-import java.io.IOException;
-import java.util.Date;
+import java.util.Map;
 import java8.util.Optional;
-import java8.util.StringJoiner;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
+import timber.log.Timber;
 
 // TODO: Save draft to local db on each change.
 public class EditObservationViewModel extends AbstractViewModel {
-  private static final String TAG = EditObservationViewModel.class.getSimpleName();
+
   // TODO: Move out of id and into fragment args.
   private static final String ADD_OBSERVATION_ID_PLACEHOLDER = "NEW";
 
   // Injected inputs.
 
   private final ObservationRepository observationRepository;
-  private final AuthenticationManager authManager;
   private final Resources resources;
   private final StorageManager storageManager;
   private final CameraManager cameraManager;
-  private final FirestoreStorageManager firestoreStorageManager;
-  private final FileUtil fileUtil;
+  private final OfflineUuidGenerator uuidGenerator;
 
   // Input events.
 
@@ -94,198 +86,141 @@ public class EditObservationViewModel extends AbstractViewModel {
   /** Toolbar title, based on whether user is adding new or editing existing observation. */
   private final MutableLiveData<String> toolbarTitle = new MutableLiveData<>();
 
+  /** Stream of updates to photo fields. */
+  private final MutableLiveData<ImmutableMap<Field, String>> photoUpdates = new MutableLiveData<>();
+
   /** Original form responses, loaded when view is initialized. */
   private final ObservableMap<String, Response> responses = new ObservableArrayMap<>();
 
   /** Form validation errors, updated when existing for loaded and when responses change. */
-  private final ObservableMap<String, String> validationErrors = new ObservableArrayMap<>();
+  @Nullable private Map<String, String> validationErrors;
 
-  /** Visibility of process widget shown while loading. */
-  private final MutableLiveData<Integer> loadingSpinnerVisibility =
-      new MutableLiveData<>(View.GONE);
+  /** True if observation is currently being loaded, otherwise false. */
+  public final MutableLiveData<Boolean> isLoading = new MutableLiveData<>(false);
 
-  /** Visibility of "Save" button hidden while loading. */
-  private final MutableLiveData<Integer> saveButtonVisibility = new MutableLiveData<>(View.GONE);
-
-  /** Visibility of saving progress dialog, show saving. */
-  private final MutableLiveData<Integer> savingProgressVisibility =
-      new MutableLiveData<>(View.GONE);
+  /** True if observation is currently being saved, otherwise false. */
+  public final MutableLiveData<Boolean> isSaving = new MutableLiveData<>(false);
 
   /** Outcome of user clicking "Save". */
   private final LiveData<Event<SaveResult>> saveResults;
 
-  private EditObservationFragmentArgs args;
-
-  /** Possible outcomes of user clicking "Save". */
-  enum SaveResult {
-    HAS_VALIDATION_ERRORS,
-    NO_CHANGES_TO_SAVE,
-    SAVED
-  }
-
-  // Internal state.
-
   /** Observation state loaded when view is initialized. */
   @Nullable private Observation originalObservation;
 
+  // Internal state.
   /** True if the observation is being added, false if editing an existing one. */
   private boolean isNew;
 
-  /** True if the photo field has been updated. */
-  private boolean isPhotoFieldUpdated;
-
   @Inject
   EditObservationViewModel(
-      GndApplication application,
+      Application application,
       ObservationRepository observationRepository,
-      AuthenticationManager authenticationManager,
       StorageManager storageManager,
       CameraManager cameraManager,
-      FirestoreStorageManager firestoreStorageManager,
-      FileUtil fileUtil) {
+      OfflineUuidGenerator uuidGenerator) {
     this.resources = application.getResources();
     this.observationRepository = observationRepository;
-    this.authManager = authenticationManager;
     this.storageManager = storageManager;
     this.cameraManager = cameraManager;
-    this.firestoreStorageManager = firestoreStorageManager;
-    this.fileUtil = fileUtil;
+    this.uuidGenerator = uuidGenerator;
     this.form = fromPublisher(viewArgs.switchMapSingle(this::onInitialize));
     this.saveResults = fromPublisher(saveClicks.switchMapSingle(__ -> onSave()));
+  }
+
+  private static boolean isAddObservationRequest(EditObservationFragmentArgs args) {
+    return args.getObservationId().equals(ADD_OBSERVATION_ID_PLACEHOLDER);
   }
 
   public LiveData<Form> getForm() {
     return form;
   }
 
-  public LiveData<Integer> getLoadingSpinnerVisibility() {
-    return loadingSpinnerVisibility;
-  }
-
-  public LiveData<Integer> getSaveButtonVisibility() {
-    return saveButtonVisibility;
-  }
-
-  public LiveData<Integer> getSavingProgressVisibility() {
-    return savingProgressVisibility;
-  }
-
   public LiveData<String> getToolbarTitle() {
     return toolbarTitle;
   }
 
-  public LiveData<Event<SaveResult>> getSaveResults() {
+  LiveData<Event<SaveResult>> getSaveResults() {
     return saveResults;
   }
 
-  public void initialize(EditObservationFragmentArgs args) {
-    this.args = args;
+  void initialize(EditObservationFragmentArgs args) {
     viewArgs.onNext(args);
   }
 
-  public ObservableMap<String, Response> getResponses() {
-    return responses;
-  }
-
-  public Optional<Response> getResponse(String fieldId) {
-    return Optional.ofNullable(responses.get(fieldId));
-  }
-
-  public ObservableMap<String, String> getValidationErrors() {
-    return validationErrors;
-  }
-
-  public void onTextChanged(Field field, String text) {
-    Log.v(TAG, "onTextChanged: " + field.getId());
-
-    onResponseChanged(field, TextResponse.fromString(text));
-  }
-
-  public void onResponseChanged(Field field, Optional<Response> newResponse) {
-    Log.v(
-        TAG, "onResponseChanged: " + field.getId() + " = '" + Response.toString(newResponse) + "'");
-    newResponse.ifPresentOrElse(
-        r -> responses.put(field.getId(), r), () -> responses.remove(field.getId()));
-    updateError(field, newResponse);
-  }
-
-  public void onFocusChange(Field field, boolean hasFocus) {
-    if (!hasFocus) {
-      updateError(field);
+  Optional<Response> getSavedOrOriginalResponse(String fieldId) {
+    if (responses.isEmpty()) {
+      return originalObservation.getResponses().getResponse(fieldId);
+    } else {
+      return getResponse(fieldId);
     }
   }
 
-  void showPhotoSelector(String fieldId) {
+  Optional<Response> getResponse(String fieldId) {
+    return Optional.ofNullable(responses.get(fieldId));
+  }
+
+  void onResponseChanged(Field field, Optional<Response> newResponse) {
+    newResponse.ifPresentOrElse(
+        r -> responses.put(field.getId(), r), () -> responses.remove(field.getId()));
+  }
+
+  public void showPhotoSelector(Field field) {
     /*
      * Didn't subscribe this with Fragment's lifecycle because we need to retain the disposable
      * after the fragment is destroyed (for activity result)
      */
     // TODO: launch intent through fragment and handle activity result callbacks async
     disposeOnClear(
-        storageManager.launchPhotoPicker().andThen(handlePhotoPickerResult(fieldId)).subscribe());
+        storageManager.launchPhotoPicker().andThen(handlePhotoPickerResult(field)).subscribe());
   }
 
-  private Completable handlePhotoPickerResult(String fieldId) {
+  private Completable handlePhotoPickerResult(Field field) {
     return storageManager
         .photoPickerResult()
-        .flatMapCompletable(bitmap -> saveBitmapAndUpdateResponse(bitmap, fieldId));
+        .flatMapCompletable(bitmap -> saveBitmapAndUpdateResponse(bitmap, field));
   }
 
-  void showPhotoCapture(String fieldId) {
+  public void showPhotoCapture(Field field) {
     /*
      * Didn't subscribe this with Fragment's lifecycle because we need to retain the disposable
      * after the fragment is destroyed (for activity result)
      */
     // TODO: launch intent through fragment and handle activity result callbacks async
     disposeOnClear(
-        cameraManager.launchPhotoCapture().andThen(handlePhotoCaptureResult(fieldId)).subscribe());
+        cameraManager.launchPhotoCapture().andThen(handlePhotoCaptureResult(field)).subscribe());
   }
 
-  private Completable handlePhotoCaptureResult(String fieldId) {
+  private Completable handlePhotoCaptureResult(Field field) {
     return cameraManager
         .capturePhotoResult()
-        .flatMapCompletable(bitmap -> saveBitmapAndUpdateResponse(bitmap, fieldId));
+        .flatMapCompletable(bitmap -> saveBitmapAndUpdateResponse(bitmap, field));
   }
 
-  private Completable saveBitmapAndUpdateResponse(Bitmap bitmap, String fieldId)
-      throws IOException {
-    File file = fileUtil.saveBitmap(bitmap, fieldId + ".jpg");
-    String destinationPath = getRemoteImagePath(file.getName());
+  private Completable saveBitmapAndUpdateResponse(Bitmap bitmap, Field field) {
+    String localFileName = uuidGenerator.generateUuid() + Config.PHOTO_EXT;
+    String remoteDestinationPath =
+        getRemoteDestinationPath(
+            originalObservation.getProject().getId(),
+            originalObservation.getForm().getId(),
+            originalObservation.getFeature().getId(),
+            localFileName);
 
-    // If offline, Firebase will automatically upload the image when the network
-    // connectivity is  re-established.
-    // TODO: Implement offline photo sync using Android Workers and local db
-    String url = firestoreStorageManager.uploadMediaFromFile(file, destinationPath);
+    photoUpdates.postValue(ImmutableMap.of(field, remoteDestinationPath));
 
-    // TODO: Handle response after reloading view-model and remove this field
-    isPhotoFieldUpdated = true;
-
-    // update observable response map
-    onTextChanged(form.getValue().getField(fieldId).get(), url);
-    return Completable.complete();
+    return storageManager.savePhoto(bitmap, localFileName);
   }
 
-  /**
-   * Generates destination path for saving the image to Firestore Storage.
-   *
-   * <p>/uploaded_media/{project_id}/{form_id}/{feature_id}/{filename.jpg}
-   */
-  private String getRemoteImagePath(String filename) {
-    return new StringJoiner(File.separator)
-        .add(args.getProjectId())
-        .add(args.getFormId())
-        .add(args.getFeatureId())
-        .add(filename)
-        .toString();
+  LiveData<ImmutableMap<Field, String>> getPhotoFieldUpdates() {
+    return photoUpdates;
   }
 
-  public void onSaveClick() {
+  public void onSave(Map<String, String> validationErrors) {
+    this.validationErrors = validationErrors;
     saveClicks.onNext(Nil.NIL);
   }
 
   private Single<Form> onInitialize(EditObservationFragmentArgs viewArgs) {
-    saveButtonVisibility.setValue(View.GONE);
-    loadingSpinnerVisibility.setValue(View.VISIBLE);
+    isLoading.setValue(true);
     isNew = isAddObservationRequest(viewArgs);
     Single<Observation> obs;
     if (isNew) {
@@ -300,35 +235,13 @@ public class EditObservationViewModel extends AbstractViewModel {
 
   private void onObservationLoaded(Observation observation) {
     this.originalObservation = observation;
-
-    // Photo field is updated by launching an external intent. This causes the form to reload.
-    // When that happens, we don't want to lose the unsaved changes.
-    if (isPhotoFieldUpdated) {
-      isPhotoFieldUpdated = false;
-    } else {
-      refreshResponseMap(observation);
-    }
-
-    if (isNew) {
-      validationErrors.clear();
-    } else {
-      refreshValidationErrors();
-    }
-    saveButtonVisibility.postValue(View.VISIBLE);
-    loadingSpinnerVisibility.postValue(View.GONE);
-  }
-
-  private static boolean isAddObservationRequest(EditObservationFragmentArgs args) {
-    return args.getObservationId().equals(ADD_OBSERVATION_ID_PLACEHOLDER);
+    responses.clear();
+    isLoading.postValue(false);
   }
 
   private Single<Observation> createObservation(EditObservationFragmentArgs args) {
     return observationRepository
-        .createObservation(
-            args.getProjectId(),
-            args.getFeatureId(),
-            args.getFormId(),
-            authManager.getCurrentUser())
+        .createObservation(args.getProjectId(), args.getFeatureId(), args.getFormId())
         .onErrorResumeNext(this::onError);
   }
 
@@ -340,10 +253,10 @@ public class EditObservationViewModel extends AbstractViewModel {
 
   private Single<Event<SaveResult>> onSave() {
     if (originalObservation == null) {
-      Log.e(TAG, "Save attempted before observation loaded");
+      Timber.e("Save attempted before observation loaded");
       return Single.just(Event.create(SaveResult.NO_CHANGES_TO_SAVE));
     }
-    refreshValidationErrors();
+
     if (hasValidationErrors()) {
       return Single.just(Event.create(SaveResult.HAS_VALIDATION_ERRORS));
     }
@@ -355,49 +268,30 @@ public class EditObservationViewModel extends AbstractViewModel {
 
   private <T> Single<T> onError(Throwable throwable) {
     // TODO: Refactor and stream to UI.
-    Log.e(TAG, "Error", throwable);
+    Timber.e(throwable, "Error");
     return Single.never();
   }
 
   private Single<Event<SaveResult>> save() {
-    savingProgressVisibility.setValue(View.VISIBLE);
-    ObservationMutation observationMutation =
-        ObservationMutation.builder()
-            .setType(isNew ? ObservationMutation.Type.CREATE : ObservationMutation.Type.UPDATE)
-            .setProjectId(originalObservation.getProject().getId())
-            .setFeatureId(originalObservation.getFeature().getId())
-            .setLayerId(originalObservation.getFeature().getLayer().getId())
-            .setObservationId(originalObservation.getId())
-            .setFormId(originalObservation.getForm().getId())
-            .setResponseDeltas(getResponseDeltas())
-            .setClientTimestamp(new Date())
-            .setUserId(authManager.getCurrentUser().getId())
-            .build();
-    return observationRepository
-        .applyAndEnqueue(observationMutation)
-        .doOnComplete(() -> savingProgressVisibility.postValue(View.GONE))
-        .toSingleDefault(Event.create(SaveResult.SAVED));
-  }
-
-  private void refreshResponseMap(Observation obs) {
-    Log.v(TAG, "Rebuilding response map");
-    responses.clear();
-    ResponseMap responses = obs.getResponses();
-    for (String fieldId : responses.fieldIds()) {
-      obs.getForm()
-          .getField(fieldId)
-          .ifPresent(field -> onResponseChanged(field, responses.getResponse(fieldId)));
+    if (originalObservation == null) {
+      return Single.error(new IllegalStateException("Observation is null"));
     }
+
+    return observationRepository
+        .addObservationMutation(originalObservation, getResponseDeltas(), isNew)
+        .doOnSubscribe(__ -> isSaving.postValue(true))
+        .doOnComplete(() -> isSaving.postValue(false))
+        .toSingleDefault(Event.create(SaveResult.SAVED));
   }
 
   private ImmutableList<ResponseDelta> getResponseDeltas() {
     if (originalObservation == null) {
-      Log.e(TAG, "Response diff attempted before observation loaded");
+      Timber.e("Response diff attempted before observation loaded");
       return ImmutableList.of();
     }
     ImmutableList.Builder<ResponseDelta> deltas = ImmutableList.builder();
     ResponseMap originalResponses = originalObservation.getResponses();
-    Log.v(TAG, "Responses:\n Before: " + originalResponses + " \nAfter:  " + responses);
+    Timber.v("Responses:\n Before: %s \nAfter:  %s", originalResponses, responses);
     for (Element e : originalObservation.getForm().getElements()) {
       if (e.getType() != Type.FIELD) {
         continue;
@@ -412,38 +306,22 @@ public class EditObservationViewModel extends AbstractViewModel {
           ResponseDelta.builder().setFieldId(fieldId).setNewResponse(currentResponse).build());
     }
     ImmutableList<ResponseDelta> result = deltas.build();
-    Log.v(TAG, "Deltas: " + result);
+    Timber.v("Deltas: %s", result);
     return result;
   }
 
-  private void refreshValidationErrors() {
-    validationErrors.clear();
-    stream(originalObservation.getForm().getElements())
-        .filter(e -> e.getType().equals(Type.FIELD))
-        .map(Element::getField)
-        .forEach(this::updateError);
-  }
-
-  private void updateError(Field field) {
-    updateError(field, getResponse(field.getId()));
-  }
-
-  private void updateError(Field field, Optional<Response> response) {
-    String key = field.getId();
-    if (field.isRequired() && !response.filter(r -> !r.isEmpty()).isPresent()) {
-      Log.d(TAG, "Missing: " + key);
-      validationErrors.put(field.getId(), resources.getString(R.string.required_field));
-    } else {
-      Log.d(TAG, "Valid: " + key);
-      validationErrors.remove(field.getId());
-    }
-  }
-
-  public boolean hasUnsavedChanges() {
+  boolean hasUnsavedChanges() {
     return !getResponseDeltas().isEmpty();
   }
 
   private boolean hasValidationErrors() {
-    return !validationErrors.isEmpty();
+    return validationErrors != null && !validationErrors.isEmpty();
+  }
+
+  /** Possible outcomes of user clicking "Save". */
+  enum SaveResult {
+    HAS_VALIDATION_ERRORS,
+    NO_CHANGES_TO_SAVE,
+    SAVED
   }
 }

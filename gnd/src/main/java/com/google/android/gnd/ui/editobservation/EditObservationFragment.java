@@ -16,61 +16,79 @@
 
 package com.google.android.gnd.ui.editobservation;
 
-import static com.google.android.gnd.ui.util.ViewUtil.assignGeneratedId;
+import static com.google.android.gnd.ui.editobservation.AddPhotoDialogAdapter.PhotoStorageResource.PHOTO_SOURCE_CAMERA;
+import static com.google.android.gnd.ui.editobservation.AddPhotoDialogAdapter.PhotoStorageResource.PHOTO_SOURCE_STORAGE;
 
 import android.app.AlertDialog;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import androidx.annotation.NonNull;
-import androidx.databinding.ObservableMap;
-import androidx.databinding.ObservableMap.OnMapChangedCallback;
-import butterknife.BindView;
+import androidx.annotation.Nullable;
+import androidx.databinding.ViewDataBinding;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.R;
+import com.google.android.gnd.databinding.EditObservationBottomSheetBinding;
 import com.google.android.gnd.databinding.EditObservationFragBinding;
 import com.google.android.gnd.databinding.MultipleChoiceInputFieldBinding;
 import com.google.android.gnd.databinding.PhotoInputFieldBinding;
 import com.google.android.gnd.databinding.TextInputFieldBinding;
-import com.google.android.gnd.inject.ActivityScoped;
 import com.google.android.gnd.model.form.Element;
+import com.google.android.gnd.model.form.Element.Type;
 import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.model.form.MultipleChoice.Cardinality;
 import com.google.android.gnd.model.observation.Response;
-import com.google.android.gnd.system.StorageManager;
+import com.google.android.gnd.model.observation.TextResponse;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.BackPressListener;
 import com.google.android.gnd.ui.common.EphemeralPopups;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.TwoLineToolbar;
-import com.google.android.gnd.ui.editobservation.PhotoDialogFragment.AddPhotoListener;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
+import dagger.hilt.android.AndroidEntryPoint;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java8.util.Optional;
+import java8.util.function.Consumer;
 import javax.inject.Inject;
+import timber.log.Timber;
 
-@ActivityScoped
-public class EditObservationFragment extends AbstractFragment
-    implements BackPressListener, AddPhotoListener {
-  private static final String TAG = EditObservationFragment.class.getSimpleName();
+@AndroidEntryPoint
+public class EditObservationFragment extends AbstractFragment implements BackPressListener {
+
+  private final List<AbstractFieldViewModel> fieldViewModelList = new ArrayList<>();
+
+  @Inject Navigator navigator;
+  @Inject FieldViewFactory fieldViewFactory;
 
   private EditObservationViewModel viewModel;
   private SingleSelectDialogFactory singleSelectDialogFactory;
   private MultiSelectDialogFactory multiSelectDialogFactory;
+  private EditObservationFragBinding binding;
 
-  @Inject Navigator navigator;
-  @Inject StorageManager storageManager;
-
-  @BindView(R.id.edit_observation_toolbar)
-  TwoLineToolbar toolbar;
-
-  @BindView(R.id.edit_observation_layout)
-  LinearLayout formLayout;
+  private static AbstractFieldViewModel getViewModel(ViewDataBinding binding) {
+    if (binding == null) {
+      return null;
+    } else if (binding instanceof TextInputFieldBinding) {
+      return ((TextInputFieldBinding) binding).getViewModel();
+    } else if (binding instanceof MultipleChoiceInputFieldBinding) {
+      return ((MultipleChoiceInputFieldBinding) binding).getViewModel();
+    } else if (binding instanceof PhotoInputFieldBinding) {
+      return ((PhotoInputFieldBinding) binding).getViewModel();
+    } else {
+      throw new IllegalArgumentException("Unknown binding type: " + binding.getClass());
+    }
+  }
 
   @Override
-  public void onCreate(@androidx.annotation.Nullable Bundle savedInstanceState) {
+  public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     singleSelectDialogFactory = new SingleSelectDialogFactory(getContext());
     multiSelectDialogFactory = new MultiSelectDialogFactory(getContext());
@@ -80,23 +98,24 @@ public class EditObservationFragment extends AbstractFragment
   @Override
   public View onCreateView(
       @NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-    EditObservationFragBinding binding =
-        EditObservationFragBinding.inflate(inflater, container, false);
+    binding = EditObservationFragBinding.inflate(inflater, container, false);
     binding.setLifecycleOwner(this);
     binding.setViewModel(viewModel);
+    binding.setFragment(this);
     return binding.getRoot();
   }
 
   @Override
-  public void onViewCreated(
-      @NonNull View view, @androidx.annotation.Nullable Bundle savedInstanceState) {
+  public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
+    TwoLineToolbar toolbar = binding.editObservationToolbar;
     ((MainActivity) getActivity()).setActionBar(toolbar, R.drawable.ic_close_black_24dp);
     toolbar.setNavigationOnClickListener(__ -> onCloseButtonClick());
     // Observe state changes.
-    viewModel.getForm().observe(this, this::rebuildForm);
-    viewModel.getToolbarTitle().observe(this, toolbar::setTitle);
-    viewModel.getSaveResults().observe(this, e -> e.ifUnhandled(this::handleSaveResult));
+    viewModel.getForm().observe(getViewLifecycleOwner(), this::rebuildForm);
+    viewModel
+        .getSaveResults()
+        .observe(getViewLifecycleOwner(), e -> e.ifUnhandled(this::handleSaveResult));
     // Initialize view model.
     viewModel.initialize(EditObservationFragmentArgs.fromBundle(getArguments()));
   }
@@ -115,113 +134,134 @@ public class EditObservationFragment extends AbstractFragment
         navigator.navigateUp();
         break;
       default:
-        Log.e(TAG, "Unknown save result type: " + saveResult);
+        Timber.e("Unknown save result type: %s", saveResult);
         break;
     }
   }
 
+  private void addFieldViewModel(Field field, AbstractFieldViewModel fieldViewModel) {
+    fieldViewModel.init(field, viewModel.getSavedOrOriginalResponse(field.getId()));
+
+    if (fieldViewModel instanceof PhotoFieldViewModel) {
+      observeSelectPhotoClicks((PhotoFieldViewModel) fieldViewModel);
+      observePhotoAdded((PhotoFieldViewModel) fieldViewModel);
+    } else if (fieldViewModel instanceof MultipleChoiceFieldViewModel) {
+      observeMultipleChoiceClicks((MultipleChoiceFieldViewModel) fieldViewModel);
+    }
+
+    fieldViewModel
+        .getResponse()
+        .observe(this, response -> viewModel.onResponseChanged(field, response));
+
+    fieldViewModelList.add(fieldViewModel);
+  }
+
+  public void onSaveClick() {
+    viewModel.onSave(getValidationErrors());
+  }
+
+  private Map<String, String> getValidationErrors() {
+    HashMap<String, String> errors = new HashMap<>();
+    for (AbstractFieldViewModel fieldViewModel : fieldViewModelList) {
+      fieldViewModel
+          .validate()
+          .ifPresent(error -> errors.put(fieldViewModel.getField().getId(), error));
+    }
+    return errors;
+  }
+
   private void rebuildForm(Form form) {
+    LinearLayout formLayout = binding.editObservationLayout;
     formLayout.removeAllViews();
+    fieldViewModelList.clear();
     for (Element element : form.getElements()) {
-      switch (element.getType()) {
-        case FIELD:
-          addField(element.getField());
-          break;
-        default:
-          Log.d(TAG, element.getType() + " elements not yet supported");
-          break;
+      if (element.getType() == Type.FIELD) {
+        Field field = element.getField();
+        ViewDataBinding binding = fieldViewFactory.addFieldView(field.getType(), formLayout);
+        addFieldViewModel(field, getViewModel(binding));
+      } else {
+        throw new IllegalArgumentException(element.getType() + " elements not yet supported");
       }
     }
   }
 
-  private void addField(Field field) {
-    switch (field.getType()) {
-      case TEXT:
-        addTextField(field);
+  private void observeMultipleChoiceClicks(MultipleChoiceFieldViewModel viewModel) {
+    viewModel
+        .getShowDialogClicks()
+        .observe(
+            this,
+            __ ->
+                onShowDialog(
+                    viewModel.getField(),
+                    viewModel.getResponse().getValue(),
+                    viewModel::setResponse));
+  }
+
+  private void onShowDialog(
+      Field field, Optional<Response> currentResponse, Consumer<Optional<Response>> consumer) {
+    Cardinality cardinality = field.getMultipleChoice().getCardinality();
+    switch (cardinality) {
+      case SELECT_MULTIPLE:
+        multiSelectDialogFactory.create(field, currentResponse, consumer).show();
         break;
-      case MULTIPLE_CHOICE:
-        addMultipleChoiceField(field);
-        break;
-      case PHOTO:
-        addPhotoField(field);
+      case SELECT_ONE:
+        singleSelectDialogFactory.create(field, currentResponse, consumer).show();
         break;
       default:
-        Log.w(TAG, "Unimplemented field type: " + field.getType());
+        Timber.e("Unknown cardinality: %s", cardinality);
         break;
     }
   }
 
-  private void addTextField(Field field) {
-    TextInputFieldBinding binding =
-        TextInputFieldBinding.inflate(getLayoutInflater(), formLayout, false);
-    binding.setViewModel(viewModel);
-    binding.setLifecycleOwner(this);
-    binding.setField(field);
-    formLayout.addView(binding.getRoot());
-    assignGeneratedId(binding.getRoot().findViewById(R.id.text_input_edit_text));
+  private void observeSelectPhotoClicks(PhotoFieldViewModel fieldViewModel) {
+    fieldViewModel
+        .getShowDialogClicks()
+        .observe(this, __ -> onShowPhotoSelectorDialog(fieldViewModel.getField()));
   }
 
-  public void addMultipleChoiceField(Field field) {
-    MultipleChoiceInputFieldBinding binding =
-        MultipleChoiceInputFieldBinding.inflate(getLayoutInflater(), formLayout, false);
-    binding.setFragment(this);
-    binding.setViewModel(viewModel);
-    binding.setLifecycleOwner(this);
-    binding.setField(field);
-    formLayout.addView(binding.getRoot());
-    assignGeneratedId(binding.getRoot().findViewById(R.id.multiple_choice_input_edit_text));
-  }
-
-  public void addPhotoField(Field field) {
-    PhotoInputFieldBinding binding =
-        PhotoInputFieldBinding.inflate(getLayoutInflater(), formLayout, false);
-    binding.setLifecycleOwner(this);
-    binding.setField(field);
-    binding.setFragment(this);
-    formLayout.addView(binding.getRoot());
-    assignGeneratedId(binding.getRoot().findViewById(R.id.image_thumbnail_preview));
-    assignGeneratedId(binding.getRoot().findViewById(R.id.btn_select_photo));
-
+  private void observePhotoAdded(PhotoFieldViewModel fieldViewModel) {
     viewModel
-        .getResponses()
-        .addOnMapChangedCallback(
-            new OnMapChangedCallback<ObservableMap<String, Response>, String, Response>() {
-              @Override
-              public void onMapChanged(ObservableMap<String, Response> sender, String key) {
-                if (key == null || !key.equals(field.getId())) {
-                  return;
-                }
-                String path = sender.get(key).getDetailsText(field);
-                // TODO: (BUG) Image doesn't load into the imageview
-                storageManager.loadPhotoFromDestinationPath(binding.imageThumbnailPreview, path);
+        .getPhotoFieldUpdates()
+        .observe(
+            this,
+            map -> {
+              Field field = fieldViewModel.getField();
+              if (map.containsKey(field)) {
+                fieldViewModel.setResponse(TextResponse.fromString(map.get(field)));
               }
             });
   }
 
-  public void onShowDialog(Field field) {
-    Cardinality cardinality = field.getMultipleChoice().getCardinality();
-    Optional<Response> currentResponse = viewModel.getResponse(field.getId());
-    switch (cardinality) {
-      case SELECT_MULTIPLE:
-        multiSelectDialogFactory
-            .create(field, currentResponse, r -> viewModel.onResponseChanged(field, r))
-            .show();
-        break;
-      case SELECT_ONE:
-        singleSelectDialogFactory
-            .create(field, currentResponse, r -> viewModel.onResponseChanged(field, r))
-            .show();
-        break;
-      default:
-        Log.e(TAG, "Unknown cardinality: " + cardinality);
-        break;
-    }
-  }
+  private void onShowPhotoSelectorDialog(Field field) {
+    EditObservationBottomSheetBinding addPhotoBottomSheetBinding =
+        EditObservationBottomSheetBinding.inflate(getLayoutInflater());
+    addPhotoBottomSheetBinding.setViewModel(viewModel);
+    addPhotoBottomSheetBinding.setField(field);
 
-  public void onShowPhotoSelectorDialog(Field field) {
-    PhotoDialogFragment bottomDialogFragment = PhotoDialogFragment.newInstance(field.getId());
-    bottomDialogFragment.setTargetFragment(this, 0);
-    bottomDialogFragment.show(getFragmentManager(), PhotoDialogFragment.TAG);
+    BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(getContext());
+    bottomSheetDialog.setContentView(addPhotoBottomSheetBinding.getRoot());
+    bottomSheetDialog.setCancelable(true);
+    bottomSheetDialog.show();
+
+    AddPhotoDialogAdapter.ItemClickListener listener =
+        type -> {
+          bottomSheetDialog.dismiss();
+          switch (type) {
+            case PHOTO_SOURCE_CAMERA:
+              viewModel.showPhotoCapture(field);
+              break;
+            case PHOTO_SOURCE_STORAGE:
+              viewModel.showPhotoSelector(field);
+              break;
+            default:
+              throw new IllegalArgumentException("Unknown type: " + type);
+          }
+        };
+
+    RecyclerView recyclerView = addPhotoBottomSheetBinding.recyclerView;
+    recyclerView.setHasFixedSize(true);
+    recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+    recyclerView.setAdapter(new AddPhotoDialogAdapter(listener));
   }
 
   @Override
@@ -256,15 +296,5 @@ public class EditObservationFragment extends AbstractFragment
         .setPositiveButton(R.string.invalid_data_confirm, (a, b) -> {})
         .create()
         .show();
-  }
-
-  @Override
-  public void onSelectPhoto(String fieldId) {
-    viewModel.showPhotoSelector(fieldId);
-  }
-
-  @Override
-  public void onCapturePhoto(String fieldId) {
-    viewModel.showPhotoCapture(fieldId);
   }
 }

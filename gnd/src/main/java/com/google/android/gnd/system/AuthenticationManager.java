@@ -28,7 +28,6 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gnd.R;
-import com.google.android.gnd.inject.ActivityScoped;
 import com.google.android.gnd.model.User;
 import com.google.android.gnd.rx.ValueOrError;
 import com.google.android.gnd.system.ActivityStreams.ActivityResult;
@@ -44,8 +43,9 @@ import io.reactivex.subjects.BehaviorSubject;
 import io.reactivex.subjects.Subject;
 import java8.util.Optional;
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
-@ActivityScoped
+@Singleton
 public class AuthenticationManager {
   private static final String TAG = AuthenticationManager.class.getSimpleName();
   private static final int SIGN_IN_REQUEST_CODE = AuthenticationManager.class.hashCode() & 0xffff;

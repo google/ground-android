@@ -24,6 +24,7 @@ import com.google.android.gnd.persistence.local.LocalDataStore;
 import com.google.android.gnd.persistence.local.LocalValueStore;
 import com.google.android.gnd.persistence.remote.RemoteDataStore;
 import com.google.android.gnd.rx.Loadable;
+import com.google.common.collect.ImmutableList;
 import io.reactivex.Flowable;
 import io.reactivex.Single;
 import io.reactivex.processors.BehaviorProcessor;
@@ -66,17 +67,25 @@ public class ProjectRepository {
     // BehaviorProcessor re-emits last requested project id to late subscribers.
     this.activateProjectRequests = BehaviorProcessor.create();
 
-    // Load project when requested id changes, caching the last loaded project.
-    this.activeProjectStream =
+    // Stream that emits a value whenever the user changes projects.
+    Flowable<Optional<String>> distinctActivateProjectRequests =
         activateProjectRequests
             .distinctUntilChanged()
-            .doOnNext(id -> Log.v(TAG, "Requested project id changed: " + id))
-            .switchMap(this::onActivateProjectRequest)
-            .replay(1)
-            .refCount();
+            .doOnNext(id -> Log.v(TAG, "Requested project id changed: " + id));
+
+    // Stream that emits project loading state when requested id changes. Late subscribers receive
+    // the last project or loading state.
+    Flowable<Loadable<Project>> activeProject =
+        distinctActivateProjectRequests.switchMap(this::loadProject).onBackpressureLatest();
+
+    // Convert project loading state stream to Connectable to prevent loadProject() from being
+    // called once for each subscription. Instead, it will be called once on each project change,
+    // with each subscriber receiving a cached copy of the result. This is required in addition
+    // to onBackpressureLatest() above.
+    this.activeProjectStream = activeProject.replay(1).refCount();
   }
 
-  private Flowable<Loadable<Project>> onActivateProjectRequest(Optional<String> projectId) {
+  private Flowable<Loadable<Project>> loadProject(Optional<String> projectId) {
     // Empty id indicates intent to deactivate the current project. Used on sign out.
     if (projectId.isEmpty()) {
       return Flowable.just(Loadable.notLoaded());
@@ -129,6 +138,10 @@ public class ProjectRepository {
         .onErrorResumeNext(__ -> localDataStore.getProjects())
         .toFlowable()
         .compose(Loadable::loadingOnceAndWrap);
+  }
+
+  public Single<ImmutableList<Project>> getOfflineProjects() {
+    return localDataStore.getProjects();
   }
 
   private Single<List<Project>> loadProjectSummariesFromRemote(User user) {

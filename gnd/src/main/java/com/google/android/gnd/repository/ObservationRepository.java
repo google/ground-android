@@ -16,34 +16,35 @@
 
 package com.google.android.gnd.repository;
 
-import android.util.Log;
 import com.google.android.gnd.model.AuditInfo;
-import com.google.android.gnd.model.User;
+import com.google.android.gnd.model.Mutation.Type;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.model.observation.ObservationMutation;
+import com.google.android.gnd.model.observation.ResponseDelta;
 import com.google.android.gnd.persistence.local.LocalDataStore;
 import com.google.android.gnd.persistence.remote.NotFoundException;
 import com.google.android.gnd.persistence.remote.RemoteDataStore;
 import com.google.android.gnd.persistence.sync.DataSyncWorkManager;
 import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator;
 import com.google.android.gnd.rx.ValueOrError;
+import com.google.android.gnd.system.AuthenticationManager;
 import com.google.common.collect.ImmutableList;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.Single;
+import java.util.Date;
 import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
-import javax.inject.Singleton;
+import timber.log.Timber;
 
 /**
  * Coordinates persistence and retrieval of {@link Observation} instances from remote, local, and in
  * memory data stores. For more details on this pattern and overall architecture, see
  * https://developer.android.com/jetpack/docs/guide.
  */
-@Singleton
 public class ObservationRepository {
-  private static final String TAG = ObservationRepository.class.getSimpleName();
+
   private static final long LOAD_REMOTE_OBSERVATIONS_TIMEOUT_SECS = 5;
 
   private final LocalDataStore localDataStore;
@@ -51,6 +52,7 @@ public class ObservationRepository {
   private final FeatureRepository featureRepository;
   private final DataSyncWorkManager dataSyncWorkManager;
   private final OfflineUuidGenerator uuidGenerator;
+  private final AuthenticationManager authManager;
 
   @Inject
   public ObservationRepository(
@@ -58,13 +60,15 @@ public class ObservationRepository {
       RemoteDataStore remoteDataStore,
       FeatureRepository featureRepository,
       DataSyncWorkManager dataSyncWorkManager,
-      OfflineUuidGenerator uuidGenerator) {
+      OfflineUuidGenerator uuidGenerator,
+      AuthenticationManager authManager) {
 
     this.localDataStore = localDataStore;
     this.remoteDataStore = remoteDataStore;
     this.featureRepository = featureRepository;
     this.dataSyncWorkManager = dataSyncWorkManager;
     this.uuidGenerator = uuidGenerator;
+    this.authManager = authManager;
   }
 
   /**
@@ -92,7 +96,7 @@ public class ObservationRepository {
         remoteDataStore
             .loadObservations(feature)
             .timeout(LOAD_REMOTE_OBSERVATIONS_TIMEOUT_SECS, TimeUnit.SECONDS)
-            .doOnError(t -> Log.d(TAG, "Observation sync timed out"))
+            .doOnError(t -> Timber.e(t, "Observation sync timed out"))
             .flatMapCompletable(this::mergeRemoteObservations)
             .onErrorComplete();
     return remoteSync.andThen(localDataStore.getObservations(feature, formId));
@@ -101,7 +105,7 @@ public class ObservationRepository {
   private Completable mergeRemoteObservations(
       ImmutableList<ValueOrError<Observation>> observations) {
     return Observable.fromIterable(observations)
-        .doOnNext(voe -> voe.error().ifPresent(err -> Log.w(TAG, "Skipping bad observation", err)))
+        .doOnNext(voe -> voe.error().ifPresent(t -> Timber.e(t, "Skipping bad observation")))
         .compose(ValueOrError::ignoreErrors)
         .flatMapCompletable(localDataStore::mergeObservation);
   }
@@ -121,11 +125,10 @@ public class ObservationRepository {
                         Single.error(() -> new NotFoundException("Observation " + observationId))));
   }
 
-  public Single<Observation> createObservation(
-      String projectId, String featureId, String formId, User user) {
+  public Single<Observation> createObservation(String projectId, String featureId, String formId) {
     // TODO: Handle invalid formId.
     // TODO(#127): Decouple feature from observation so that we don't need to fetch feature here.
-    AuditInfo auditInfo = AuditInfo.now(user);
+    AuditInfo auditInfo = AuditInfo.now(authManager.getCurrentUser());
     return featureRepository
         .getFeature(projectId, featureId)
         .switchIfEmpty(Single.error(() -> new NotFoundException("Feature " + featureId)))
@@ -141,7 +144,40 @@ public class ObservationRepository {
                     .build());
   }
 
-  public Completable applyAndEnqueue(ObservationMutation mutation) {
+  public Completable deleteObservation(Observation observation) {
+    ObservationMutation observationMutation =
+        ObservationMutation.builder()
+            .setType(Type.DELETE)
+            .setProjectId(observation.getProject().getId())
+            .setFeatureId(observation.getFeature().getId())
+            .setLayerId(observation.getFeature().getLayer().getId())
+            .setObservationId(observation.getId())
+            .setFormId(observation.getForm().getId())
+            .setResponseDeltas(ImmutableList.of())
+            .setClientTimestamp(new Date())
+            .setUserId(authManager.getCurrentUser().getId())
+            .build();
+    return applyAndEnqueue(observationMutation);
+  }
+
+  public Completable addObservationMutation(
+      Observation observation, ImmutableList<ResponseDelta> responseDeltas, boolean isNew) {
+    ObservationMutation observationMutation =
+        ObservationMutation.builder()
+            .setType(isNew ? ObservationMutation.Type.CREATE : ObservationMutation.Type.UPDATE)
+            .setProjectId(observation.getProject().getId())
+            .setFeatureId(observation.getFeature().getId())
+            .setLayerId(observation.getFeature().getLayer().getId())
+            .setObservationId(observation.getId())
+            .setFormId(observation.getForm().getId())
+            .setResponseDeltas(responseDeltas)
+            .setClientTimestamp(new Date())
+            .setUserId(authManager.getCurrentUser().getId())
+            .build();
+    return applyAndEnqueue(observationMutation);
+  }
+
+  private Completable applyAndEnqueue(ObservationMutation mutation) {
     return localDataStore
         .applyAndEnqueue(mutation)
         .andThen(dataSyncWorkManager.enqueueSyncWorker(mutation.getFeatureId()));

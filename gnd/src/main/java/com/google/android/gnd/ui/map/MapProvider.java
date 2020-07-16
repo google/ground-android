@@ -16,15 +16,16 @@
 
 package com.google.android.gnd.ui.map;
 
-import android.annotation.SuppressLint;
 import androidx.fragment.app.Fragment;
-import com.google.android.gnd.model.feature.Feature;
-import com.google.android.gnd.model.feature.Point;
-import com.google.common.collect.ImmutableSet;
-import io.reactivex.Observable;
+import com.google.common.collect.ImmutableMap;
 import io.reactivex.Single;
 
-/** Common interface for various map provider libraries. */
+/**
+ * Common interface for various map provider libraries.
+ *
+ * <p>Map Type refers to the basemap shown below map features and offline satellite imagery. It's
+ * called "map styles" in Mapbox and "basemaps" in Leaflet.
+ */
 public interface MapProvider {
   void restore(Fragment fragment);
 
@@ -32,33 +33,11 @@ public interface MapProvider {
 
   Single<MapAdapter> getMapAdapter();
 
-  /**
-   * Interface defining map interactions and events. This a separate class from {@link MapProvider}
-   * so that it can be returned asynchronously by {@link MapProvider#getMapAdapter()} if necessary.
-   */
-  interface MapAdapter {
+  int getMapType();
 
-    Observable<MapMarker> getMarkerClicks();
+  // TODO: Use ENUM instead of int with a superset of basemap types.
+  //  https://github.com/google/ground-android/pull/406#discussion_r398726351
+  void setMapType(int mapType);
 
-    Observable<Point> getDragInteractions();
-
-    Observable<Point> getCameraPosition();
-
-    void enable();
-
-    void disable();
-
-    void moveCamera(Point point);
-
-    void moveCamera(Point point, float zoomLevel);
-
-    Point getCenter();
-
-    float getCurrentZoomLevel();
-
-    @SuppressLint("MissingPermission")
-    void enableCurrentLocationIndicator();
-
-    void updateMarkers(ImmutableSet<Feature> features);
-  }
+  ImmutableMap<Integer, String> getMapTypes();
 }

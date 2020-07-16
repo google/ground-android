@@ -21,10 +21,12 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+import androidx.annotation.ColorInt;
 import androidx.appcompat.content.res.AppCompatResources;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gnd.R;
+import dagger.hilt.android.qualifiers.ApplicationContext;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -33,11 +35,11 @@ public class MarkerIconFactory {
   private final Context context;
 
   @Inject
-  public MarkerIconFactory(Context context) {
+  public MarkerIconFactory(@ApplicationContext Context context) {
     this.context = context;
   }
 
-  public BitmapDescriptor getMarkerIcon(int color) {
+  public BitmapDescriptor getMarkerIcon(@ColorInt int color) {
     Drawable outline = AppCompatResources.getDrawable(context, R.drawable.ic_marker_outline);
     Drawable fill = AppCompatResources.getDrawable(context, R.drawable.ic_marker_fill);
     Drawable overlay = AppCompatResources.getDrawable(context, R.drawable.ic_marker_overlay);

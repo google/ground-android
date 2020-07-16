@@ -44,7 +44,7 @@ public class RecordDocumentReference extends FluentDocumentReference {
         merge(ObservationMutationConverter.toMap(mutation, user), batch);
         break;
       case DELETE:
-        // TODO: Implement me!
+        delete(batch);
         break;
       default:
         throw new IllegalArgumentException("Unknown mutation type " + mutation.getType());

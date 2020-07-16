@@ -20,8 +20,11 @@
 
   <data>
     <variable
-      name="fragment"
-      type="com.google.android.gnd.ui.editobservation.PhotoDialogFragment" />
+      name="field"
+      type="com.google.android.gnd.model.form.Field" />
+    <variable
+      name="viewModel"
+      type="com.google.android.gnd.ui.editobservation.EditObservationViewModel" />
   </data>
 
   <LinearLayout
@@ -30,18 +33,11 @@
     android:orientation="vertical"
     android:paddingTop="8dp"
     android:paddingBottom="8dp">
-    <TextView
-      style="@style/AddPhotoActionItem"
-      android:drawableStart="@drawable/ic_photo_camera"
-      android:drawableLeft="@drawable/ic_photo_camera"
-      android:onClick="@{(view) -> fragment.onCapturePhoto()}"
-      android:text="@string/action_camera" />
-    <TextView
-      style="@style/AddPhotoActionItem"
-      android:drawableStart="@drawable/ic_sd_storage"
-      android:drawableLeft="@drawable/ic_sd_storage"
-      android:onClick="@{(view) -> fragment.onSelectPhoto()}"
-      android:text="@string/action_storage" />
+
+    <androidx.recyclerview.widget.RecyclerView
+      android:id="@+id/recycler_view"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content" />
   </LinearLayout>
 
 </layout>

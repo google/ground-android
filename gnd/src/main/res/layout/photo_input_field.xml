@@ -21,40 +21,29 @@
 
   <data>
     <variable
-      name="field"
-      type="com.google.android.gnd.model.form.Field" />
-    <variable
-      name="fragment"
-      type="com.google.android.gnd.ui.editobservation.EditObservationFragment" />
+      name="viewModel"
+      type="com.google.android.gnd.ui.editobservation.PhotoFieldViewModel" />
   </data>
 
-  <LinearLayout
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_marginStart="@dimen/field_horizontal_margin"
-    android:layout_marginLeft="@dimen/field_horizontal_margin"
-    android:layout_marginTop="@dimen/field_vertical_margin"
-    android:layout_marginEnd="@dimen/field_horizontal_margin"
-    android:layout_marginRight="@dimen/field_horizontal_margin"
-    android:layout_marginBottom="@dimen/field_vertical_margin"
-    android:orientation="horizontal">
+  <!-- add label for the field -->
 
-    <ImageView
-      android:id="@+id/image_thumbnail_preview"
-      android:layout_width="48dp"
-      android:layout_height="48dp"
-      android:padding="4dp"
-      app:srcCompat="@drawable/ic_add_a_photo" />
+  <LinearLayout
+    style="@style/FieldView"
+    android:orientation="vertical">
+
+    <include
+      layout="@layout/photo_field"
+      app:viewModel="@{viewModel}" />
 
     <Button
       android:id="@+id/btn_select_photo"
-      android:layout_width="match_parent"
-      android:layout_height="match_parent"
-      android:layout_marginLeft="8dp"
-      android:layout_marginRight="8dp"
-      android:onClick="@{()-> fragment.onShowPhotoSelectorDialog(field)}"
-      android:text="@string/add_photo" />
-
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="@dimen/field_vertical_margin"
+      android:background="@android:color/transparent"
+      android:onClick="@{()-> viewModel.onShowPhotoSelectorDialog()}"
+      android:text="@string/add_photo"
+      android:textColor="@color/colorAccent" />
   </LinearLayout>
 
 </layout>

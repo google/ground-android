@@ -19,18 +19,19 @@ package com.google.android.gnd.persistence.local;
 import com.google.android.gnd.model.Mutation;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.User;
+import com.google.android.gnd.model.basemap.OfflineArea;
 import com.google.android.gnd.model.basemap.tile.Tile;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.FeatureMutation;
 import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.model.observation.ObservationMutation;
+import com.google.android.gnd.persistence.local.room.LocalDataStoreException;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
-import java.util.List;
 
 /**
  * Provides access to local persistent data store, the canonical store for latest state and
@@ -48,13 +49,13 @@ import java.util.List;
 public interface LocalDataStore {
 
   /** Load projects stored in local database. */
-  Single<List<Project>> getProjects();
+  Single<ImmutableList<Project>> getProjects();
 
   /** Load last active project, if any. */
   Maybe<Project> getProjectById(String id);
 
   /** Delete stored project from database. */
-  Completable removeProject(Project project);
+  Completable deleteProject(Project project);
 
   /** Add project to the database. */
   Completable insertOrUpdateProject(Project project);
@@ -63,16 +64,16 @@ public interface LocalDataStore {
   Completable insertOrUpdateUser(User user);
 
   /**
+   * Loads the user with the specified id from the local data store. The returned Single fails with
+   * {@link java.util.NoSuchElementException} if not found.
+   */
+  Single<User> getUser(String id);
+
+  /**
    * Applies the specified {@link FeatureMutation} to the local data store, appending the mutation
    * to the local queue for remote sync.
    */
   Completable applyAndEnqueue(FeatureMutation mutation);
-
-  /**
-   * Loads the user with the specified id from the local data store. The returned Single fails with
-   * {@link java.util.NoSuchElementException} if not found.
-   */
-  Single<User> loadUser(String id);
 
   /**
    * Applies the specified {@link ObservationMutation} to the local data store, appending the
@@ -80,13 +81,19 @@ public interface LocalDataStore {
    */
   Completable applyAndEnqueue(ObservationMutation mutation);
 
+  /** Applies the specified {@link ObservationMutation} to the local data store.. */
+  Completable apply(ObservationMutation mutation) throws LocalDataStoreException;
+
   /**
    * Returns a long-lived stream that emits the full set of features for a project on subscribe, and
    * continues to return the full set each time a feature is added/changed/removed.
    */
   Flowable<ImmutableSet<Feature>> getFeaturesOnceAndStream(Project project);
 
-  /** Returns the full list of observations for the specified feature and form. */
+  /**
+   * Returns the list of observations which are not marked for deletion for the specified feature
+   * and form.
+   */
   Single<ImmutableList<Observation>> getObservations(Feature feature, String formId);
 
   /** Returns the feature with the specified UUID from the local data store, if found. */
@@ -127,6 +134,9 @@ public interface LocalDataStore {
    */
   Completable mergeObservation(Observation observation);
 
+  /** Deletes observation from local database. */
+  Completable deleteObservation(String observationId);
+
   /**
    * Attempts to update a tile in the local data store. If the tile doesn't exist, inserts the tile
    * into the local data store.
@@ -135,4 +145,19 @@ public interface LocalDataStore {
 
   /** Returns the tile with the specified id from the local data store, if found. */
   Maybe<Tile> getTile(String tileId);
+
+  /** Returns all pending tiles from the local data store. */
+  Single<ImmutableList<Tile>> getPendingTiles();
+
+  /**
+   * Attempts to update an offline area in the local data store. If the area doesn't exist, inserts
+   * the area into the local data store.
+   */
+  Completable insertOrUpdateOfflineArea(OfflineArea area);
+
+  /** Returns all queued, failed, and completed offline areas from the local data store. */
+  Flowable<ImmutableList<OfflineArea>> getOfflineAreasOnceAndStream();
+
+  /** Returns the offline area with the specified id. */
+  Single<OfflineArea> getOfflineAreaById(String id);
 }

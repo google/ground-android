@@ -16,15 +16,29 @@
 
 package com.google.android.gnd;
 
+import android.content.Context;
+
 /** Application configuration. */
 public final class Config {
 
+  // Shared preferences.
+  public static final String SHARED_PREFS_NAME = "shared_prefs";
+  public static final int SHARED_PREFS_MODE = Context.MODE_PRIVATE;
+
   // Local db settings.
   // TODO(#128): Reset version to 1 before releasing.
-  public static final int DB_VERSION = 42;
+  public static final int DB_VERSION = 48;
   public static final String DB_NAME = "gnd.db";
 
   // Firebase Cloud Firestore settings.
   public static final boolean FIRESTORE_PERSISTENCE_ENABLED = false;
   public static final boolean FIRESTORE_LOGGING_ENABLED = true;
+
+  // Photos
+  public static final String PHOTO_EXT = ".jpg";
+
+  // Designates the location of a geo json file that specifies downloadable tiles for offline
+  // viewing. May point to a file on the device or a valid URL.
+  // TODO: Fetch from cloud storage
+  public static final String GEO_JSON = "gnd_geojson.json";
 }

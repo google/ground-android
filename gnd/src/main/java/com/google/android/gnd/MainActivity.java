@@ -17,20 +17,17 @@
 package com.google.android.gnd;
 
 import static com.google.android.gnd.rx.RxAutoDispose.autoDisposable;
-import static com.google.android.gnd.util.Debug.logLifecycleEvent;
 
 import android.content.Intent;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.util.Log;
 import androidx.annotation.NonNull;
-import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.NavDestination;
 import androidx.navigation.NavDirections;
 import androidx.navigation.fragment.NavHostFragment;
-import butterknife.ButterKnife;
+import com.google.android.gnd.databinding.MainActBinding;
 import com.google.android.gnd.repository.UserRepository;
 import com.google.android.gnd.system.ActivityStreams;
 import com.google.android.gnd.system.AuthenticationManager;
@@ -39,21 +36,16 @@ import com.google.android.gnd.system.SettingsManager;
 import com.google.android.gnd.ui.common.BackPressListener;
 import com.google.android.gnd.ui.common.EphemeralPopups;
 import com.google.android.gnd.ui.common.Navigator;
-import com.google.android.gnd.ui.common.TwoLineToolbar;
 import com.google.android.gnd.ui.common.ViewModelFactory;
-import com.google.android.gnd.ui.util.DrawableUtil;
-import dagger.android.support.DaggerAppCompatActivity;
+import dagger.hilt.android.AndroidEntryPoint;
 import javax.inject.Inject;
-import javax.inject.Singleton;
+import timber.log.Timber;
 
 /**
- * The app's main and only activity. The app consists of multiples Fragments that live under this
- * activity.
+ * The app's main activity. The app consists of multiples Fragments that live under this activity.
  */
-@Singleton
-public class MainActivity extends DaggerAppCompatActivity {
-
-  private static final String TAG = MainActivity.class.getSimpleName();
+@AndroidEntryPoint
+public class MainActivity extends AbstractActivity {
 
   @Inject ActivityStreams activityStreams;
   @Inject ViewModelFactory viewModelFactory;
@@ -63,28 +55,21 @@ public class MainActivity extends DaggerAppCompatActivity {
   @Inject UserRepository userRepository;
   private NavHostFragment navHostFragment;
   private MainViewModel viewModel;
-  private DrawableUtil drawableUtil;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
-    logLifecycleEvent(this);
-    drawableUtil = new DrawableUtil(getResources());
-
     // Make sure this is before calling super.onCreate()
     setTheme(R.style.AppTheme);
     super.onCreate(savedInstanceState);
 
-    setContentView(R.layout.main_act);
+    MainActBinding binding = MainActBinding.inflate(getLayoutInflater());
 
-    ButterKnife.bind(this);
+    setContentView(binding.getRoot());
 
     navHostFragment =
         (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
 
     viewModel = viewModelFactory.get(this, MainViewModel.class);
-
-    ViewCompat.setOnApplyWindowInsetsListener(
-        getWindow().getDecorView().getRootView(), viewModel::onApplyWindowInsets);
 
     activityStreams
         .getActivityRequests()
@@ -101,12 +86,18 @@ public class MainActivity extends DaggerAppCompatActivity {
     navigator.getNavigateUpRequests().as(autoDisposable(this)).subscribe(__ -> navigateUp());
   }
 
+  @Override
+  protected void onWindowInsetChanged(WindowInsetsCompat insets) {
+    super.onWindowInsetChanged(insets);
+    viewModel.onApplyWindowInsets(insets);
+  }
+
   private void onNavigate(NavDirections navDirections) {
     getNavController().navigate(navDirections);
   }
 
   private void onSignInStateChange(SignInState signInState) {
-    Log.d(TAG, "Auth status change: " + signInState.state());
+    Timber.d("Auth status change: %s", signInState.state());
     switch (signInState.state()) {
       case SIGNED_OUT:
         // TODO: Check auth status whenever fragments resumes.
@@ -125,45 +116,15 @@ public class MainActivity extends DaggerAppCompatActivity {
         onSignInError(signInState);
         break;
       default:
-        Log.e(TAG, "Unhandled state: " + signInState.state());
+        Timber.e("Unhandled state: %s", signInState.state());
         break;
     }
   }
 
   private void onSignInError(SignInState signInState) {
-    Log.d(TAG, "Authentication error", signInState.error().orElse(null));
+    Timber.d("Authentication error : %s", signInState.error());
     EphemeralPopups.showError(this, R.string.sign_in_unsuccessful);
     viewModel.onSignedOut(getCurrentNavDestinationId());
-  }
-
-  @Override
-  protected void onStart() {
-    logLifecycleEvent(this);
-    super.onStart();
-  }
-
-  @Override
-  protected void onResume() {
-    logLifecycleEvent(this);
-    super.onResume();
-  }
-
-  @Override
-  protected void onPause() {
-    logLifecycleEvent(this);
-    super.onPause();
-  }
-
-  @Override
-  protected void onStop() {
-    logLifecycleEvent(this);
-    super.onStop();
-  }
-
-  @Override
-  protected void onDestroy() {
-    logLifecycleEvent(this);
-    super.onDestroy();
   }
 
   /**
@@ -173,7 +134,7 @@ public class MainActivity extends DaggerAppCompatActivity {
   @Override
   public void onRequestPermissionsResult(
       int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-    Log.d(TAG, "Permission result received");
+    Timber.d("Permission result received");
     super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     activityStreams.onRequestPermissionsResult(requestCode, permissions, grantResults);
   }
@@ -184,32 +145,9 @@ public class MainActivity extends DaggerAppCompatActivity {
    */
   @Override
   protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
-    Log.d(TAG, "Activity result received");
+    Timber.d("Activity result received");
     super.onActivityResult(requestCode, resultCode, intent);
     activityStreams.onActivityResult(requestCode, resultCode, intent);
-  }
-
-  public void setActionBar(TwoLineToolbar toolbar, int upIconId) {
-    setActionBar(toolbar, false);
-    // We override the color here programmatically since calling setHomeAsUpIndicator uses the color
-    // of the set icon, not the applied theme. This allows us to change the primary color
-    // programmatically without needing to remember to update the icon.
-    Drawable icon = drawableUtil.getDrawable(upIconId, R.color.colorAccent);
-    getSupportActionBar().setHomeAsUpIndicator(icon);
-  }
-
-  public void setActionBar(TwoLineToolbar toolbar, boolean showTitle) {
-    setSupportActionBar(toolbar);
-
-    // Workaround to get rid of application title from toolbar. Simply setting "" here or in layout
-    // XML doesn't work.
-    getSupportActionBar().setDisplayShowTitleEnabled(showTitle);
-    getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-    getSupportActionBar().setDisplayShowHomeEnabled(true);
-
-    // TODO: Remove this workaround once setupActionBarWithNavController() works with custom
-    // Toolbars (https://issuetracker.google.com/issues/109868820).
-    toolbar.setNavigationOnClickListener(__ -> onToolbarUpClicked());
   }
 
   /** Override up button behavior to use Navigation Components back stack. */
@@ -234,7 +172,8 @@ public class MainActivity extends DaggerAppCompatActivity {
     return destination.getId();
   }
 
-  private void onToolbarUpClicked() {
+  @Override
+  protected void onToolbarUpClicked() {
     if (!dispatchBackPressed()) {
       navigateUp();
     }

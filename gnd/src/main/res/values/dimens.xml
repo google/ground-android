@@ -63,15 +63,11 @@
     <dimen name="data_sheet_header_height">70dp</dimen>
     <dimen name="field_error_padding_bottom">6dp</dimen>
     <!-- TODO: Make dimensions relative using Android data binding. -->
-    <dimen name="feature_sheet_margin_top">16dp</dimen>
-    <dimen name="feature_header_icon_width">42dp</dimen>
-    <dimen name="feature_header_icon_height">42dp</dimen>
-    <dimen name="feature_header_icon_background_diameter">58dp</dimen>
-    <!-- (feature_header_icon_background_diameter - feature_header_icon_height) / 2 - feature_sheet_margin_top -->
-    <dimen name="feature_header_icon_top_padding">8dp</dimen>
-    <!-- feature_header_icon_background_diameter - feature_sheet_margin_top - overlap -->
-    <dimen name="feature_sheet_padding_top">42dp</dimen>
-    <dimen name="feature_sheet_corner_radius">6dp</dimen>
+    <dimen name="bottom_sheet_margin_top">16dp</dimen>
+    <dimen name="feature_details_icon_bg_diameter">58dp</dimen>
+    <dimen name="feature_details_icon_elevation">5dp</dimen>
+    <dimen name="feature_details_header_padding_top">42dp</dimen>
+    <dimen name="feature_details_header_corner_radius">6dp</dimen>
     <dimen name="observation_list_item_horizontal_margin">14dp</dimen>
     <dimen name="observation_list_item_horizontal_vertical">10dp</dimen>
     <dimen name="observation_list_field_label_size">12sp</dimen>
@@ -80,18 +76,23 @@
     <dimen name="observation_summary_text_max_width">128dp</dimen>
     <dimen name="chip_button_padding">14dp</dimen>
     <dimen name="chip_button_corner_radius">24dp</dimen>
+    <dimen name="chip_button_min_height">48dp</dimen>
     <dimen name="chip_button_text_size">14sp</dimen>
     <dimen name="chip_toolbar_button_corner_radius">20dp</dimen>
     <dimen name="chip_toolbar_button_padding">10dp</dimen>
+    <dimen name="chip_toolbar_button_min_height">36dp</dimen>
     <dimen name="toolbar_elevation">4dp</dimen>
-    <dimen name="feature_sheet_header_padding_bottom">16dp</dimen>
+    <dimen name="feature_details_header_padding_bottom">16dp</dimen>
     <dimen name="observation_list_item_preview_table_right_margin">18dp</dimen>
     <dimen name="offline_area_toolbar_padding_top">16dp</dimen>
-    <dimen name="feature_sheet_header_height">120dp</dimen>
+    <dimen name="feature_details_header_height">120dp</dimen>
 
     <!-- Photo bottom dialog -->
-    <dimen name="add_photo_bottom_sheet_margin">16dp</dimen>
-    <dimen name="add_photo_bottom_sheet_drawable_padding">24dp</dimen>
+    <dimen name="add_photo_bottom_sheet_drawable_margin">24dp</dimen>
     <dimen name="add_photo_bottom_sheet_text_size">16sp</dimen>
-    <dimen name="add_photo_bottom_sheet_padding">16dp</dimen>
+
+    <!-- Photo CardView -->
+    <dimen name="cardview_elevation">4dp</dimen>
+  <dimen name="offline_area_viewer_map_container_width">20dp</dimen>
+  <dimen name="offline_area_viewer_map_container_height">20dp</dimen>
 </resources>

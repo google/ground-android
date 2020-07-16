@@ -18,7 +18,6 @@ package com.google.android.gnd.ui.common;
 
 import androidx.navigation.NavDirections;
 import com.google.android.gnd.R;
-import com.google.android.gnd.inject.ActivityScoped;
 import com.google.android.gnd.ui.editobservation.EditObservationFragment;
 import com.google.android.gnd.ui.home.HomeScreenFragmentDirections;
 import com.google.android.gnd.ui.observationdetails.ObservationDetailsFragment;
@@ -26,6 +25,7 @@ import com.google.android.gnd.ui.observationdetails.ObservationDetailsFragmentDi
 import com.google.android.gnd.ui.offlinearea.OfflineAreasFragmentDirections;
 import com.google.android.gnd.ui.signin.SignInFragmentDirections;
 import com.google.android.gnd.ui.startup.StartupFragmentDirections;
+import dagger.hilt.android.scopes.ActivityScoped;
 import io.reactivex.Observable;
 import io.reactivex.subjects.PublishSubject;
 import io.reactivex.subjects.Subject;
@@ -133,5 +133,13 @@ public class Navigator {
 
   public void showOfflineAreas() {
     navigate(HomeScreenFragmentDirections.showOfflineAreas());
+  }
+
+  public void showSettings() {
+    navigate(HomeScreenFragmentDirections.actionHomeScreenFragmentToSettingsActivity());
+  }
+
+  public void showOfflineAreaViewer(String offlineAreaId) {
+    navigate(OfflineAreasFragmentDirections.viewOfflineArea(offlineAreaId));
   }
 }

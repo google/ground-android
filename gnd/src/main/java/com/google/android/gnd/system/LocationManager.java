@@ -19,15 +19,14 @@ package com.google.android.gnd.system;
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 
 import android.annotation.SuppressLint;
-import android.app.Application;
 import android.location.Location;
 import android.util.Log;
 import com.google.android.gms.location.LocationRequest;
-import com.google.android.gnd.inject.ActivityScoped;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.rx.BooleanOrError;
 import com.google.android.gnd.system.rx.RxFusedLocationProviderClient;
 import com.google.android.gnd.system.rx.RxLocationCallback;
+import dagger.hilt.android.scopes.ActivityScoped;
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
@@ -55,7 +54,6 @@ public class LocationManager {
 
   @Inject
   public LocationManager(
-      Application app,
       PermissionsManager permissionsManager,
       SettingsManager settingsManager,
       RxFusedLocationProviderClient locationClient) {
