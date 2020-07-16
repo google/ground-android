@@ -20,25 +20,29 @@ import static com.google.android.gnd.util.Localization.getLocalizedMessage;
 
 import android.util.Log;
 import com.google.android.gnd.model.layer.Layer;
-import com.google.android.gnd.model.layer.Style;
+import java8.util.Optional;
 
 /** Converts between Firestore documents and {@link Layer} instances. */
 class LayerConverter {
   private static final String TAG = LayerConverter.class.getSimpleName();
 
   /** Black marker used when default remote data is corrupt or missing. */
-  private static final Style DEFAULT_DEFAULT_STYLE = Style.builder().setColor("#000000").build();
+  private static final String FALLBACK_COLOR = "#000000";
 
   static Layer toLayer(String id, LayerNestedObject obj) {
     Layer.Builder layer = Layer.newBuilder();
+    // Use "color" field until web UI is updated:
+    // TODO(https://github.com/google/ground-platform/issues/402): Remove fallback once updated in
+    // web client.
+    StyleNestedObject style =
+        Optional.ofNullable(obj.getDefaultStyle())
+            .orElse(
+                new StyleNestedObject(Optional.ofNullable(obj.getColor()).orElse(FALLBACK_COLOR)));
     layer
         .setId(id)
         .setName(getLocalizedMessage(obj.getName()))
         .setItemLabel(getLocalizedMessage(obj.getItemLabel()))
-        .setDefaultStyle(
-            obj.getDefaultStyle() == null
-                ? DEFAULT_DEFAULT_STYLE
-                : StyleConverter.toStyle(obj.getDefaultStyle()));
+        .setDefaultStyle(StyleConverter.toStyle(style));
     if (obj.getForms() != null && !obj.getForms().isEmpty()) {
       if (obj.getForms().size() > 1) {
         Log.w(TAG, "Multiple forms not supported");
