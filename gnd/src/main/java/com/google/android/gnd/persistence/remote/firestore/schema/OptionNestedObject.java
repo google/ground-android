@@ -22,15 +22,15 @@ import java.util.Map;
 /** Firestore representation of multiple choice question options. */
 class OptionNestedObject {
   @Nullable private String code;
-  @Nullable private Map<String, String> labels;
+  @Nullable private Map<String, String> label;
 
   @SuppressWarnings("unused")
   public OptionNestedObject() {}
 
   @SuppressWarnings("unused")
-  OptionNestedObject(@Nullable String code, @Nullable Map<String, String> labels) {
+  OptionNestedObject(@Nullable String code, @Nullable Map<String, String> label) {
     this.code = code;
-    this.labels = labels;
+    this.label = label;
   }
 
   @Nullable
@@ -39,7 +39,7 @@ class OptionNestedObject {
   }
 
   @Nullable
-  public Map<String, String> getLabels() {
-    return labels;
+  public Map<String, String> getLabel() {
+    return label;
   }
 }

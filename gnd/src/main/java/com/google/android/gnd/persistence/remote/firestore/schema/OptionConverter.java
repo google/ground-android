@@ -28,8 +28,8 @@ class OptionConverter {
     if (option.getCode() != null) {
       builder.setCode(option.getCode());
     }
-    if (option.getLabels() != null) {
-      builder.setLabel(getLocalizedMessage(option.getLabels()));
+    if (option.getLabel() != null) {
+      builder.setLabel(getLocalizedMessage(option.getLabel()));
     }
     return builder.build();
   }
