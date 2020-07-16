@@ -38,7 +38,7 @@ class FeatureConverter {
     String layerId = checkNotNull(f.getlayerId(), "layerId");
     Layer layer = checkNotEmpty(project.getLayer(layerId), "layer " + f.getlayerId());
     // TODO: Rename "point" and "center" to "location" throughout for clarity.
-    GeoPoint geoPoint = checkNotNull(f.getCenter(), "center");
+    GeoPoint geoPoint = checkNotNull(f.getLocation(), "location");
     Point location =
         Point.newBuilder()
             .setLatitude(geoPoint.getLatitude())
