@@ -23,7 +23,7 @@ import com.google.firebase.firestore.IgnoreExtraProperties;
 /** Feature entity stored in Firestore. */
 @IgnoreExtraProperties
 class FeatureDocument {
-  @Nullable private String featureTypeId;
+  @Nullable private String layerId;
   @Nullable private String customId;
   @Nullable private String caption;
   // TODO: Replace with consistent name throughout.
@@ -36,13 +36,13 @@ class FeatureDocument {
 
   @SuppressWarnings("unused")
   FeatureDocument(
-      @Nullable String featureTypeId,
+      @Nullable String layerId,
       @Nullable String customId,
       @Nullable String caption,
       @Nullable GeoPoint center,
       @Nullable AuditInfoNestedObject created,
       @Nullable AuditInfoNestedObject modified) {
-    this.featureTypeId = featureTypeId;
+    this.layerId = layerId;
     this.customId = customId;
     this.caption = caption;
     this.center = center;
@@ -51,8 +51,8 @@ class FeatureDocument {
   }
 
   @Nullable
-  public String getFeatureTypeId() {
-    return featureTypeId;
+  public String getlayerId() {
+    return layerId;
   }
 
   @Nullable

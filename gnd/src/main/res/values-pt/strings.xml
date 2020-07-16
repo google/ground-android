@@ -25,7 +25,7 @@
     ADD/EDIT FEATURE DATA
   -->
 
-  <!-- Title shown above list of feature types when (+) is clicked on map. -->
+  <!-- Title shown above list of layers when (+) is clicked on map. -->
   <string name="add_feature_select_type_dialog_title">O que adicionar?</string>
 
   <!-- Shown in toolbar when adding a new feature and form instance. -->

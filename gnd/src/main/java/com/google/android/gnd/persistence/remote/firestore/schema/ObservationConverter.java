@@ -42,12 +42,12 @@ class ObservationConverter {
       throws DataStoreException {
     ObservationDocument doc = snapshot.toObject(ObservationDocument.class);
     String featureId = checkNotNull(doc.getFeatureId(), "featureId");
-    String featureTypeId = checkNotNull(doc.getFeatureTypeId(), "featureTypeId");
+    String layerId = checkNotNull(doc.getlayerId(), "layerId");
     String formId = checkNotNull(doc.getFormId(), "formId");
     if (!feature.getId().equals(featureId)) {
       Log.w(TAG, "Observation featureId doesn't match specified feature id");
     }
-    if (!feature.getLayer().getId().equals(featureTypeId)) {
+    if (!feature.getLayer().getId().equals(layerId)) {
       Log.w(TAG, "Observation layerId doesn't match specified feature's layerId");
     }
     Form form = checkNotEmpty(feature.getLayer().getForm(formId), "form");

@@ -35,8 +35,8 @@ class FeatureConverter {
   static Feature toFeature(@NonNull Project project, @NonNull DocumentSnapshot doc)
       throws DataStoreException {
     FeatureDocument f = checkNotNull(doc.toObject(FeatureDocument.class), "feature data");
-    String featureTypeId = checkNotNull(f.getFeatureTypeId(), "featureTypeId");
-    Layer layer = checkNotEmpty(project.getLayer(featureTypeId), "layer " + f.getFeatureTypeId());
+    String layerId = checkNotNull(f.getlayerId(), "layerId");
+    Layer layer = checkNotEmpty(project.getLayer(layerId), "layer " + f.getlayerId());
     // TODO: Rename "point" and "center" to "location" throughout for clarity.
     GeoPoint geoPoint = checkNotNull(f.getCenter(), "center");
     Point location =
