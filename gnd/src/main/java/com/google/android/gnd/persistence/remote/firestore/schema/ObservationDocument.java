@@ -24,7 +24,6 @@ import java.util.Map;
 @IgnoreExtraProperties
 class ObservationDocument {
   @Nullable private String featureId;
-  @Nullable private String layerId;
   @Nullable private String formId;
   @Nullable private AuditInfoNestedObject created;
   @Nullable private AuditInfoNestedObject lastModified;
@@ -36,13 +35,11 @@ class ObservationDocument {
   @SuppressWarnings("unused")
   ObservationDocument(
       @Nullable String featureId,
-      @Nullable String layerId,
       @Nullable String formId,
       @Nullable AuditInfoNestedObject created,
       @Nullable AuditInfoNestedObject lastModified,
       @Nullable Map<String, Object> responses) {
     this.featureId = featureId;
-    this.layerId = layerId;
     this.formId = formId;
     this.created = created;
     this.lastModified = lastModified;
@@ -52,11 +49,6 @@ class ObservationDocument {
   @Nullable
   public String getFeatureId() {
     return featureId;
-  }
-
-  @Nullable
-  public String getlayerId() {
-    return layerId;
   }
 
   @Nullable
