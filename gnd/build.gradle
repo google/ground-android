@@ -83,6 +83,9 @@ android {
         dataBinding true
         viewBinding true
     }
+    dexOptions {
+        javaMaxHeapSize "4g"
+    }
     sourceSets {
         test.manifest.srcFile "src/test/AndroidManifest.xml"
     }
