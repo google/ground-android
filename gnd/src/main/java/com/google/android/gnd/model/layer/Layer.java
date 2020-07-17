@@ -29,9 +29,6 @@ public abstract class Layer {
   @Nullable
   public abstract String getName();
 
-  @Nullable
-  public abstract String getItemLabel();
-
   public abstract Style getDefaultStyle();
 
   public abstract Optional<Form> getForm();
@@ -49,8 +46,6 @@ public abstract class Layer {
     public abstract Builder setId(@Nullable String newId);
 
     public abstract Builder setName(@Nullable String newName);
-
-    public abstract Builder setItemLabel(@Nullable String newItemLabel);
 
     public abstract Builder setDefaultStyle(Style newDefaultStyle);
 

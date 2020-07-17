@@ -98,9 +98,9 @@ public class AddFeatureDialogFragment extends AbstractDialogFragment {
     // TODO: Add icons.
     ImmutableList<Layer> layers =
         stream(project.getLayers())
-            .sorted((pt1, pt2) -> pt1.getItemLabel().compareTo(pt2.getItemLabel()))
+            .sorted((pt1, pt2) -> pt1.getName().compareTo(pt2.getName()))
             .collect(toImmutableList());
-    String[] items = stream(layers).map(t -> t.getItemLabel()).toArray(String[]::new);
+    String[] items = stream(layers).map(t -> t.getName()).toArray(String[]::new);
     builder.setItems(
         items, (dialog, idx) -> onSelectLayer(project, layers.get(idx), cameraPosition));
     return builder.create();

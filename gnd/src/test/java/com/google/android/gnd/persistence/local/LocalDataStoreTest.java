@@ -106,7 +106,6 @@ public class LocalDataStoreTest {
   private static final Layer TEST_LAYER =
       Layer.newBuilder()
           .setId("layer id")
-          .setItemLabel("item label")
           .setName("heading title")
           .setDefaultStyle(Style.builder().setColor("000").build())
           .setForm(TEST_FORM)

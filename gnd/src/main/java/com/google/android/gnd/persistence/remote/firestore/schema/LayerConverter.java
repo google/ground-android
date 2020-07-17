@@ -41,7 +41,6 @@ class LayerConverter {
     layer
         .setId(id)
         .setName(getLocalizedMessage(obj.getName()))
-        .setItemLabel(getLocalizedMessage(obj.getItemLabel()))
         .setDefaultStyle(StyleConverter.toStyle(style));
     if (obj.getForms() != null && !obj.getForms().isEmpty()) {
       if (obj.getForms().size() > 1) {

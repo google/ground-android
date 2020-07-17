@@ -24,7 +24,6 @@ import java.util.Map;
 @IgnoreExtraProperties
 class LayerNestedObject {
   @Nullable private Map<String, String> name;
-  @Nullable private Map<String, String> itemLabel;
   // TODO(https://github.com/google/ground-platform/issues/402): Delete this field once updated in
   // web client.
   @Deprecated @Nullable private String color;
@@ -37,12 +36,10 @@ class LayerNestedObject {
   @SuppressWarnings("unused")
   LayerNestedObject(
       @Nullable Map<String, String> name,
-      @Nullable Map<String, String> itemLabel,
       @Nullable String color,
       @Nullable StyleNestedObject defaultStyle,
       @Nullable Map<String, FormNestedObject> forms) {
     this.name = name;
-    this.itemLabel = itemLabel;
     this.color = color;
     this.defaultStyle = defaultStyle;
     this.forms = forms;
@@ -51,11 +48,6 @@ class LayerNestedObject {
   @Nullable
   public Map<String, String> getName() {
     return name;
-  }
-
-  @Nullable
-  public Map<String, String> getItemLabel() {
-    return itemLabel;
   }
 
   @Nullable
