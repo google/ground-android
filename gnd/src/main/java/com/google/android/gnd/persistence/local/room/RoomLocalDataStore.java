@@ -20,6 +20,7 @@ import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList
 import static com.google.android.gnd.util.ImmutableSetCollector.toImmutableSet;
 import static java8.util.stream.StreamSupport.stream;
 
+import android.annotation.SuppressLint;
 import androidx.room.Transaction;
 import com.google.android.gnd.model.AuditInfo;
 import com.google.android.gnd.model.Mutation;
@@ -340,24 +341,26 @@ public class RoomLocalDataStore implements LocalDataStore {
         .subscribeOn(schedulers.io());
   }
 
+  @SuppressLint("TimberArgCount")
   @Transaction
   @Override
   public Completable mergeObservation(Observation observation) {
     ObservationEntity observationEntity = ObservationEntity.fromObservation(observation);
     return observationMutationDao
         .findByObservationId(observation.getId())
-        .flatMapCompletable(mutations -> mergeObservation(observationEntity, mutations));
+        .flatMapCompletable(mutations -> mergeObservation(observationEntity, mutations))
+        .subscribeOn(schedulers.io());
   }
 
   private Completable mergeObservation(
       ObservationEntity observation, List<ObservationMutationEntity> mutations) {
     if (mutations.isEmpty()) {
-      return Completable.complete();
+      return observationDao.insertOrUpdate(observation);
     }
     ObservationMutationEntity lastMutation = mutations.get(mutations.size() - 1);
     return getUser(lastMutation.getUserId())
         .map(user -> applyMutations(observation, mutations, user))
-        .flatMapCompletable(obs -> observationDao.insertOrUpdate(obs).subscribeOn(schedulers.io()));
+        .flatMapCompletable(obs -> observationDao.insertOrUpdate(obs));
   }
 
   private ObservationEntity applyMutations(
