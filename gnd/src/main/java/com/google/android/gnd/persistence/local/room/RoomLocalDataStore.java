@@ -341,7 +341,6 @@ public class RoomLocalDataStore implements LocalDataStore {
         .subscribeOn(schedulers.io());
   }
 
-  @SuppressLint("TimberArgCount")
   @Transaction
   @Override
   public Completable mergeObservation(Observation observation) {
