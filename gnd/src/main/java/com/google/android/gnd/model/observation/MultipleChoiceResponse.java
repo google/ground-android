@@ -46,7 +46,7 @@ public class MultipleChoiceResponse implements Response {
   }
 
   public String getSummaryText(Field field) {
-    return toString();
+    return getDetailsText(field);
   }
 
   // TODO: Make these inner classes non-static and access Form directly.
