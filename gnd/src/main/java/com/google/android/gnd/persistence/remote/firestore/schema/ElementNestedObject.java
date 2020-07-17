@@ -53,7 +53,7 @@ class ElementNestedObject {
 
   @NonNull
   public Integer getIndex() {
-    // Degrade gracefully if no index set in remove.
+    // Degrade gracefully if no index set in remote.
     return index == null ? 0 : index;
   }
 
