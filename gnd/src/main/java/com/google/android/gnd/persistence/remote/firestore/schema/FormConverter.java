@@ -38,7 +38,8 @@ class FormConverter {
   private static ImmutableList<Element> toSortedList(
       @Nullable Map<String, ElementNestedObject> elements) {
     return stream(Optional.ofNullable(elements).map(Map::entrySet).orElse(Collections.emptySet()))
-        .sorted(Comparators.comparing(e -> e.getValue().getIndex()))
+        // Degrade gracefully if no index set in remote.
+        .sorted(Comparators.comparing(e -> Optional.ofNullable(e.getValue().getIndex()).orElse(-1)))
         .map(e -> ElementConverter.toElement(e.getKey(), e.getValue()))
         .collect(toImmutableList());
   }

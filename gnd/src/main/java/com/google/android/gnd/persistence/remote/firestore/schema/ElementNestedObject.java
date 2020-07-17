@@ -16,7 +16,6 @@
 
 package com.google.android.gnd.persistence.remote.firestore.schema;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.google.firebase.firestore.IgnoreExtraProperties;
 import java.util.Map;
@@ -51,10 +50,9 @@ class ElementNestedObject {
     this.required = required;
   }
 
-  @NonNull
+  @Nullable
   public Integer getIndex() {
-    // Degrade gracefully if no index set in remote.
-    return index == null ? 0 : index;
+    return index;
   }
 
   @Nullable
