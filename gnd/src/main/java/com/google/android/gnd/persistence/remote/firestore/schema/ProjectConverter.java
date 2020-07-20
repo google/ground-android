@@ -33,9 +33,9 @@ class ProjectConverter {
         .setId(doc.getId())
         .setTitle(getLocalizedMessage(pd.getTitle()))
         .setDescription(getLocalizedMessage(pd.getDescription()));
-    if (pd.getFeatureTypes() != null) {
+    if (pd.getLayers() != null) {
       Maps.forEach(
-          pd.getFeatureTypes(), (id, obj) -> project.putLayer(id, LayerConverter.toLayer(id, obj)));
+          pd.getLayers(), (id, obj) -> project.putLayer(id, LayerConverter.toLayer(id, obj)));
     }
     return project.build();
   }

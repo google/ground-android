@@ -26,7 +26,7 @@ import java8.util.Optional;
 /** Converts between Firestore nested objects and {@link Field} instances. */
 class FieldConverter {
 
-  static Optional<Field> toField(ElementNestedObject em) {
+  static Optional<Field> toField(String id, ElementNestedObject em) {
     Field.Builder field = Field.newBuilder();
     switch (toEnum(Field.Type.class, em.getType())) {
       case TEXT:
@@ -43,8 +43,8 @@ class FieldConverter {
         return Optional.empty();
     }
     field.setRequired(em.getRequired() != null && em.getRequired());
-    field.setId(em.getId());
-    field.setLabel(getLocalizedMessage(em.getLabels()));
+    field.setId(id);
+    field.setLabel(getLocalizedMessage(em.getLabel()));
     return Optional.of(field.build());
   }
 }

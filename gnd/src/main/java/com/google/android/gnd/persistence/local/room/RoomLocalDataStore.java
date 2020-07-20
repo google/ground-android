@@ -346,18 +346,19 @@ public class RoomLocalDataStore implements LocalDataStore {
     ObservationEntity observationEntity = ObservationEntity.fromObservation(observation);
     return observationMutationDao
         .findByObservationId(observation.getId())
-        .flatMapCompletable(mutations -> mergeObservation(observationEntity, mutations));
+        .flatMapCompletable(mutations -> mergeObservation(observationEntity, mutations))
+        .subscribeOn(schedulers.io());
   }
 
   private Completable mergeObservation(
       ObservationEntity observation, List<ObservationMutationEntity> mutations) {
     if (mutations.isEmpty()) {
-      return Completable.complete();
+      return observationDao.insertOrUpdate(observation);
     }
     ObservationMutationEntity lastMutation = mutations.get(mutations.size() - 1);
     return getUser(lastMutation.getUserId())
         .map(user -> applyMutations(observation, mutations, user))
-        .flatMapCompletable(obs -> observationDao.insertOrUpdate(obs).subscribeOn(schedulers.io()));
+        .flatMapCompletable(obs -> observationDao.insertOrUpdate(obs));
   }
 
   private ObservationEntity applyMutations(
@@ -374,7 +375,7 @@ public class RoomLocalDataStore implements LocalDataStore {
     AuditInfoEntity lastModified =
         AuditInfoEntity.builder()
             .setUser(UserDetails.fromUser(user))
-            .setClientTimeMillis(clientTimestamp)
+            .setClientTimestamp(clientTimestamp)
             .build();
     builder.setLastModified(lastModified);
     Timber.v("Merged observation %s", builder.build());

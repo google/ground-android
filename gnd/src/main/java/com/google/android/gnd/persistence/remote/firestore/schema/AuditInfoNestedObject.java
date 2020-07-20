@@ -22,20 +22,27 @@ import com.google.firebase.firestore.ServerTimestamp;
 
 /** User details and timestamp for creation or modification of a model object. */
 class AuditInfoNestedObject {
+
+  private static final Timestamp EPOCH = new Timestamp(0, 0);
+
+  /** Value used to degrade gracefully when missing in remote db. */
+  public static final AuditInfoNestedObject FALLBACK_VALUE =
+      new AuditInfoNestedObject(UserNestedObject.UNKNOWN_USER, EPOCH, EPOCH);
+
   @Nullable private UserNestedObject user;
-  @Nullable private Timestamp clientTimeMillis;
-  @Nullable @ServerTimestamp private Timestamp serverTimeMillis;
+  @Nullable private Timestamp clientTimestamp;
+  @Nullable @ServerTimestamp private Timestamp serverTimestamp;
 
   @SuppressWarnings("unused")
   public AuditInfoNestedObject() {}
 
   AuditInfoNestedObject(
       @Nullable UserNestedObject user,
-      @Nullable Timestamp clientTimeMillis,
-      @Nullable Timestamp serverTimeMillis) {
+      @Nullable Timestamp clientTimestamp,
+      @Nullable Timestamp serverTimestamp) {
     this.user = user;
-    this.clientTimeMillis = clientTimeMillis;
-    this.serverTimeMillis = serverTimeMillis;
+    this.clientTimestamp = clientTimestamp;
+    this.serverTimestamp = serverTimestamp;
   }
 
   /**
@@ -49,22 +56,22 @@ class AuditInfoNestedObject {
 
   /**
    * The time at which the user action was initiated, according to the user's device. See {@link
-   * System#currentTimeMillis} for details. This should never be missing, but we handle null values
+   * System#currentTimestamp} for details. This should never be missing, but we handle null values
    * anyway since the Firestore is schema-less.
    */
   @Nullable
-  public Timestamp getClientTimeMillis() {
-    return clientTimeMillis;
+  public Timestamp getClientTimestamp() {
+    return clientTimestamp;
   }
 
   /**
    * The time at which the server received the requested change according to the server's internal
-   * clock, or the updated server time was not yet received. See {@link System#currentTimeMillis}
-   * for details. This will be null until the server updates the write time and syncs it back to the
+   * clock, or the updated server time was not yet received. See {@link System#currentTimestamp} for
+   * details. This will be null until the server updates the write time and syncs it back to the
    * client.
    */
   @Nullable
-  public Timestamp getServerTimeMillis() {
-    return serverTimeMillis;
+  public Timestamp getServerTimestamp() {
+    return serverTimestamp;
   }
 }
