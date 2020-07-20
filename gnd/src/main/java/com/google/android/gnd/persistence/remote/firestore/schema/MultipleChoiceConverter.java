@@ -21,6 +21,7 @@ import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList
 import static java8.util.stream.StreamSupport.stream;
 
 import com.google.android.gnd.model.form.MultipleChoice;
+import java8.util.Comparators;
 
 class MultipleChoiceConverter {
 
@@ -29,7 +30,10 @@ class MultipleChoiceConverter {
     mc.setCardinality(toEnum(MultipleChoice.Cardinality.class, em.getCardinality()));
     if (em.getOptions() != null) {
       mc.setOptions(
-          stream(em.getOptions()).map(OptionConverter::toOption).collect(toImmutableList()));
+          stream(em.getOptions().entrySet())
+              .sorted(Comparators.comparing(e -> e.getValue().getIndex()))
+              .map(e -> OptionConverter.toOption(e.getKey(), e.getValue()))
+              .collect(toImmutableList()));
     }
     return mc.build();
   }

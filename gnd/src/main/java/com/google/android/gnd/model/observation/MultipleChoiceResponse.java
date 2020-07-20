@@ -37,22 +37,22 @@ public class MultipleChoiceResponse implements Response {
     return choices;
   }
 
-  public Optional<String> getFirstCode() {
+  public Optional<String> getFirstId() {
     return stream(choices).findFirst();
   }
 
   public boolean isSelected(Option option) {
-    return choices.contains(option.getCode());
+    return choices.contains(option.getId());
   }
 
   public String getSummaryText(Field field) {
-    return toString();
+    return getDetailsText(field);
   }
 
   // TODO: Make these inner classes non-static and access Form directly.
   public String getDetailsText(Field field) {
     return stream(choices)
-        .map(code -> field.getMultipleChoice().getOption(code))
+        .map(field.getMultipleChoice()::getOptionById)
         .filter(Optional::isPresent)
         .map(Optional::get)
         .map(Option::getLabel)

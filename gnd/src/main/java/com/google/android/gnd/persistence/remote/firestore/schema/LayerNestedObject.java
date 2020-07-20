@@ -23,8 +23,10 @@ import java.util.Map;
 /** Firestore representation of map layers. */
 @IgnoreExtraProperties
 class LayerNestedObject {
-  @Nullable private Map<String, String> listHeading;
-  @Nullable private Map<String, String> itemLabel;
+  @Nullable private Map<String, String> name;
+  // TODO(https://github.com/google/ground-platform/issues/402): Delete this field once updated in
+  // web client.
+  @Deprecated @Nullable private String color;
   @Nullable private StyleNestedObject defaultStyle;
   @Nullable private Map<String, FormNestedObject> forms;
 
@@ -33,24 +35,25 @@ class LayerNestedObject {
 
   @SuppressWarnings("unused")
   LayerNestedObject(
-      @Nullable Map<String, String> listHeading,
-      @Nullable Map<String, String> itemLabel,
+      @Nullable Map<String, String> name,
+      @Nullable String color,
       @Nullable StyleNestedObject defaultStyle,
       @Nullable Map<String, FormNestedObject> forms) {
-    this.listHeading = listHeading;
-    this.itemLabel = itemLabel;
+    this.name = name;
+    this.color = color;
     this.defaultStyle = defaultStyle;
     this.forms = forms;
   }
 
   @Nullable
-  public Map<String, String> getListHeading() {
-    return listHeading;
+  public Map<String, String> getName() {
+    return name;
   }
 
   @Nullable
-  public Map<String, String> getItemLabel() {
-    return itemLabel;
+  @Deprecated
+  public String getColor() {
+    return color;
   }
 
   @Nullable

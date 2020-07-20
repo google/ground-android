@@ -18,23 +18,23 @@ package com.google.android.gnd.persistence.remote.firestore.schema;
 
 import androidx.annotation.Nullable;
 import com.google.firebase.firestore.IgnoreExtraProperties;
-import java.util.List;
+import java.util.Map;
 
 /** Firestore representation of form definitions. */
 @IgnoreExtraProperties
 class FormNestedObject {
-  @Nullable private List<ElementNestedObject> elements;
+  @Nullable private Map<String, ElementNestedObject> elements;
 
   @SuppressWarnings("unused")
   public FormNestedObject() {}
 
   @SuppressWarnings("unused")
-  FormNestedObject(@Nullable List<ElementNestedObject> elements) {
+  FormNestedObject(@Nullable Map<String, ElementNestedObject> elements) {
     this.elements = elements;
   }
 
   @Nullable
-  public List<ElementNestedObject> getElements() {
+  public Map<String, ElementNestedObject> getElements() {
     return elements;
   }
 }

@@ -32,7 +32,7 @@ class ProjectDocument {
 
   // TODO: Rename to "layers" once db is migrated.
 
-  @Nullable private Map<String, LayerNestedObject> featureTypes;
+  @Nullable private Map<String, LayerNestedObject> layers;
 
   @Nullable private List<OfflineBaseMapSourceNestedObject> offlineBaseMapSources;
 
@@ -43,11 +43,11 @@ class ProjectDocument {
   ProjectDocument(
       @Nullable Map<String, String> title,
       @Nullable Map<String, String> description,
-      @Nullable Map<String, LayerNestedObject> featureTypes,
+      @Nullable Map<String, LayerNestedObject> layers,
       @Nullable List<OfflineBaseMapSourceNestedObject> offlineBaseMapSources) {
     this.title = title;
     this.description = description;
-    this.featureTypes = featureTypes;
+    this.layers = layers;
     this.offlineBaseMapSources = offlineBaseMapSources;
   }
 
@@ -62,8 +62,8 @@ class ProjectDocument {
   }
 
   @Nullable
-  public Map<String, LayerNestedObject> getFeatureTypes() {
-    return featureTypes;
+  public Map<String, LayerNestedObject> getLayers() {
+    return layers;
   }
 
   @Nullable

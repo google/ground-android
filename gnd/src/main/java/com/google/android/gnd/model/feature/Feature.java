@@ -48,9 +48,7 @@ public abstract class Feature {
   public abstract AuditInfo getLastModified();
 
   public String getTitle() {
-    return getCaption() == null || getCaption().isEmpty()
-        ? getLayer().getItemLabel()
-        : getCaption();
+    return getCaption() == null || getCaption().isEmpty() ? getLayer().getName() : getCaption();
   }
 
   public String getSubtitle() {

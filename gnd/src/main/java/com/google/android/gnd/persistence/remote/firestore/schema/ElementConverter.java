@@ -20,7 +20,7 @@ import com.google.android.gnd.model.form.Element;
 
 /** Converts between Firestore nested objects and {@link Element} instances. */
 class ElementConverter {
-  static Element toElement(ElementNestedObject em) {
-    return FieldConverter.toField(em).map(Element::ofField).orElse(Element.ofUnknown());
+  static Element toElement(String id, ElementNestedObject em) {
+    return FieldConverter.toField(id, em).map(Element::ofField).orElse(Element.ofUnknown());
   }
 }

@@ -56,7 +56,7 @@ public abstract class Mutation<B extends Mutation.Builder> {
   /** Returns the UUID of the feature to which the mutated entity belongs. */
   public abstract String getFeatureId();
 
-  /** Returns the UUID of the feature type being modified. */
+  /** Returns the UUID of the layer being modified. */
   public abstract String getLayerId();
 
   /** Returns the id of the user requesting the change. */

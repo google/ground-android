@@ -50,13 +50,8 @@ public abstract class LayerEntity {
 
   @CopyAnnotations
   @Nullable
-  @ColumnInfo(name = "list_heading")
-  public abstract String getListHeading();
-
-  @CopyAnnotations
-  @Nullable
-  @ColumnInfo(name = "item_label")
-  public abstract String getItemLabel();
+  @ColumnInfo(name = "name")
+  public abstract String getName();
 
   @CopyAnnotations
   @ColumnInfo(name = "default_style")
@@ -71,8 +66,7 @@ public abstract class LayerEntity {
     return LayerEntity.builder()
         .setId(layer.getId())
         .setProjectId(projectId)
-        .setItemLabel(layer.getItemLabel())
-        .setListHeading(layer.getListHeading())
+        .setName(layer.getName())
         .setDefaultStyle(layer.getDefaultStyle())
         .build();
   }
@@ -83,8 +77,7 @@ public abstract class LayerEntity {
         Layer.newBuilder()
             .setId(layerEntity.getId())
             .setDefaultStyle(layerEntity.getDefaultStyle())
-            .setItemLabel(layerEntity.getItemLabel())
-            .setListHeading(layerEntity.getListHeading());
+            .setName(layerEntity.getName());
 
     for (FormEntityAndRelations formEntityAndRelations :
         layerEntityAndRelations.formEntityAndRelations) {
@@ -94,12 +87,10 @@ public abstract class LayerEntity {
     return layerBuilder.build();
   }
 
-  public static LayerEntity create(
-      String id, String listHeading, String itemLabel, Style defaultStyle, String projectId) {
+  public static LayerEntity create(String id, String name, Style defaultStyle, String projectId) {
     return builder()
         .setId(id)
-        .setListHeading(listHeading)
-        .setItemLabel(itemLabel)
+        .setName(name)
         .setDefaultStyle(defaultStyle)
         .setProjectId(projectId)
         .build();
@@ -114,9 +105,7 @@ public abstract class LayerEntity {
 
     public abstract Builder setId(String id);
 
-    public abstract Builder setListHeading(String listHeading);
-
-    public abstract Builder setItemLabel(String itemLabel);
+    public abstract Builder setName(String name);
 
     public abstract Builder setDefaultStyle(Style defaultStyle);
 

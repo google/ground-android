@@ -35,17 +35,19 @@ class FeatureConverter {
   static Feature toFeature(@NonNull Project project, @NonNull DocumentSnapshot doc)
       throws DataStoreException {
     FeatureDocument f = checkNotNull(doc.toObject(FeatureDocument.class), "feature data");
-    String featureTypeId = checkNotNull(f.getFeatureTypeId(), "featureTypeId");
-    Layer layer = checkNotEmpty(project.getLayer(featureTypeId), "layer " + f.getFeatureTypeId());
+    String layerId = checkNotNull(f.getlayerId(), "layerId");
+    Layer layer = checkNotEmpty(project.getLayer(layerId), "layer " + f.getlayerId());
     // TODO: Rename "point" and "center" to "location" throughout for clarity.
-    GeoPoint geoPoint = checkNotNull(f.getCenter(), "center");
+    GeoPoint geoPoint = checkNotNull(f.getLocation(), "location");
     Point location =
         Point.newBuilder()
             .setLatitude(geoPoint.getLatitude())
             .setLongitude(geoPoint.getLongitude())
             .build();
-    AuditInfoNestedObject created = checkNotNull(f.getCreated(), "created");
-    AuditInfoNestedObject modified = Optional.ofNullable(f.getModified()).orElse(created);
+    // Degrade gracefully when audit info missing in remote db.
+    AuditInfoNestedObject created =
+        Optional.ofNullable(f.getCreated()).orElse(AuditInfoNestedObject.FALLBACK_VALUE);
+    AuditInfoNestedObject lastModified = Optional.ofNullable(f.getLastModified()).orElse(created);
     return Feature.newBuilder()
         .setId(doc.getId())
         .setProject(project)
@@ -54,7 +56,7 @@ class FeatureConverter {
         .setLayer(layer)
         .setPoint(location)
         .setCreated(AuditInfoConverter.toAuditInfo(created))
-        .setLastModified(AuditInfoConverter.toAuditInfo(modified))
+        .setLastModified(AuditInfoConverter.toAuditInfo(lastModified))
         .build();
   }
 }
