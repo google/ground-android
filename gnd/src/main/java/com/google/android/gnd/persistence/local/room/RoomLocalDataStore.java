@@ -20,7 +20,6 @@ import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList
 import static com.google.android.gnd.util.ImmutableSetCollector.toImmutableSet;
 import static java8.util.stream.StreamSupport.stream;
 
-import android.annotation.SuppressLint;
 import androidx.room.Transaction;
 import com.google.android.gnd.model.AuditInfo;
 import com.google.android.gnd.model.Mutation;
