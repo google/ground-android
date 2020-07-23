@@ -32,7 +32,8 @@ public interface ObservationDao extends BaseDao<ObservationEntity> {
 
   /** Returns the list observations associated with the specified feature, form and state. */
   @Query(
-      "SELECT * FROM observation WHERE feature_id = :featureId AND form_id = :formId AND state = :state")
+      "SELECT * FROM observation "
+          + "WHERE feature_id = :featureId AND form_id = :formId AND state = :state")
   Single<List<ObservationEntity>> findByFeatureId(
       String featureId, String formId, EntityState state);
 }
