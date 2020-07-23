@@ -29,11 +29,11 @@ import com.google.android.gnd.rx.Action;
 import com.google.android.gnd.rx.Event;
 import com.google.android.gnd.rx.Loadable;
 import com.google.android.gnd.rx.Schedulers;
-import com.google.android.gnd.system.AuthenticationManager;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.SharedViewModel;
 import com.google.android.gnd.ui.map.MapPin;
+import io.reactivex.Completable;
 import io.reactivex.Single;
 import io.reactivex.subjects.PublishSubject;
 import java8.util.Optional;
@@ -43,30 +43,28 @@ import timber.log.Timber;
 @SharedViewModel
 public class HomeScreenViewModel extends AbstractViewModel {
 
+  public final MutableLiveData<Boolean> isObservationButtonVisible = new MutableLiveData<>(false);
   private final ProjectRepository projectRepository;
+  private final FeatureRepository featureRepository;
   private final Navigator navigator;
   /** The state and value of the currently active project (loading, loaded, etc.). */
   private final LiveData<Loadable<Project>> activeProject;
 
   private final PublishSubject<Feature> addFeatureClicks;
-
   // TODO: Move into MapContainersViewModel
   private final MutableLiveData<Event<Point>> addFeatureDialogRequests;
-
   // TODO: Move into FeatureDetailsViewModel.
   private final MutableLiveData<Action> openDrawerRequests;
   private final MutableLiveData<BottomSheetState> bottomSheetState;
-  public final MutableLiveData<Boolean> isObservationButtonVisible =
-      new MutableLiveData<>(false);
 
   @Inject
   HomeScreenViewModel(
       ProjectRepository projectRepository,
       FeatureRepository featureRepository,
-      AuthenticationManager authManager,
       Navigator navigator,
       Schedulers schedulers) {
     this.projectRepository = projectRepository;
+    this.featureRepository = featureRepository;
     this.addFeatureDialogRequests = new MutableLiveData<>();
     this.openDrawerRequests = new MutableLiveData<>();
     this.bottomSheetState = new MutableLiveData<>();
@@ -80,7 +78,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
             .switchMapSingle(
                 newFeature ->
                     featureRepository
-                        .saveFeature(newFeature, authManager.getCurrentUser())
+                        .saveFeature(newFeature)
                         .toSingleDefault(newFeature)
                         .doOnError(this::onAddFeatureError)
                         .onErrorResumeNext(Single.never())) // Prevent from breaking upstream.
@@ -147,6 +145,19 @@ public class HomeScreenViewModel extends AbstractViewModel {
 
   public void addFeature(Feature feature) {
     addFeatureClicks.onNext(feature);
+  }
+
+  public Completable deleteActiveFeature() {
+    BottomSheetState state = bottomSheetState.getValue();
+    if (state == null) {
+      return Completable.error(new IllegalStateException("Missing bottomSheetState"));
+    }
+    Feature feature = state.getFeature();
+    if (feature == null) {
+      Timber.e("Missing feature");
+      return Completable.error(new IllegalStateException("Missing feature"));
+    }
+    return featureRepository.deleteFeature(feature);
   }
 
   public void onBottomSheetHidden() {

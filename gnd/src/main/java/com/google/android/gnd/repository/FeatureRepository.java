@@ -16,9 +16,8 @@
 
 package com.google.android.gnd.repository;
 
-import com.google.android.gnd.model.Mutation;
+import com.google.android.gnd.model.Mutation.Type;
 import com.google.android.gnd.model.Project;
-import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.FeatureMutation;
 import com.google.android.gnd.persistence.local.LocalDataStore;
@@ -27,6 +26,7 @@ import com.google.android.gnd.persistence.remote.RemoteDataEvent;
 import com.google.android.gnd.persistence.remote.RemoteDataStore;
 import com.google.android.gnd.persistence.sync.DataSyncWorkManager;
 import com.google.android.gnd.rx.Loadable;
+import com.google.android.gnd.system.AuthenticationManager;
 import com.google.common.collect.ImmutableSet;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
@@ -50,17 +50,20 @@ public class FeatureRepository {
   private final RemoteDataStore remoteDataStore;
   private final ProjectRepository projectRepository;
   private final DataSyncWorkManager dataSyncWorkManager;
+  private final AuthenticationManager authManager;
 
   @Inject
   public FeatureRepository(
       LocalDataStore localDataStore,
       RemoteDataStore remoteDataStore,
       ProjectRepository projectRepository,
-      DataSyncWorkManager dataSyncWorkManager) {
+      DataSyncWorkManager dataSyncWorkManager,
+      AuthenticationManager authManager) {
     this.localDataStore = localDataStore;
     this.remoteDataStore = remoteDataStore;
     this.projectRepository = projectRepository;
     this.dataSyncWorkManager = dataSyncWorkManager;
+    this.authManager = authManager;
   }
 
   /**
@@ -113,19 +116,38 @@ public class FeatureRepository {
         .flatMapMaybe(project -> localDataStore.getFeature(project, featureId));
   }
 
-  public Completable saveFeature(Feature feature, User user) {
+  public Completable saveFeature(Feature feature) {
     // TODO(#80): Update UI to provide FeatureMutations instead of Features here.
+    FeatureMutation mutation =
+        FeatureMutation.builder()
+            .setType(Type.CREATE)
+            .setProjectId(feature.getProject().getId())
+            .setFeatureId(feature.getId())
+            .setLayerId(feature.getLayer().getId())
+            .setNewLocation(Optional.of(feature.getPoint()))
+            .setUserId(authManager.getCurrentUser().getId())
+            .setClientTimestamp(new Date())
+            .build();
+    return applyAndEnqueue(mutation);
+  }
+
+  public Completable deleteFeature(Feature feature) {
+    FeatureMutation featureMutation =
+        FeatureMutation.builder()
+            .setType(Type.DELETE)
+            .setProjectId(feature.getProject().getId())
+            .setFeatureId(feature.getId())
+            .setLayerId(feature.getLayer().getId())
+            .setClientTimestamp(new Date())
+            .setNewLocation(Optional.of(feature.getPoint()))
+            .setUserId(authManager.getCurrentUser().getId())
+            .build();
+    return applyAndEnqueue(featureMutation);
+  }
+
+  private Completable applyAndEnqueue(FeatureMutation mutation) {
     return localDataStore
-        .applyAndEnqueue(
-            FeatureMutation.builder()
-                .setType(Mutation.Type.CREATE)
-                .setProjectId(feature.getProject().getId())
-                .setFeatureId(feature.getId())
-                .setLayerId(feature.getLayer().getId())
-                .setNewLocation(Optional.of(feature.getPoint()))
-                .setUserId(user.getId())
-                .setClientTimestamp(new Date())
-                .build())
-        .andThen(dataSyncWorkManager.enqueueSyncWorker(feature.getId()));
+        .applyAndEnqueue(mutation)
+        .andThen(dataSyncWorkManager.enqueueSyncWorker(mutation.getFeatureId()));
   }
 }
