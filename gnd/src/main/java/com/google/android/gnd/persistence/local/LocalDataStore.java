@@ -127,6 +127,9 @@ public interface LocalDataStore {
    */
   Completable mergeFeature(Feature feature);
 
+  /** Deletes feature from local database. */
+  Completable deleteFeature(String featureId);
+
   /**
    * Merges the provided observation with pending unsynced local mutations, and inserts it into the
    * local data store. If a observation with the same id already exists, it will be overwritten with

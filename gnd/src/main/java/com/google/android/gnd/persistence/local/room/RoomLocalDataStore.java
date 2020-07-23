@@ -74,6 +74,7 @@ import com.google.android.gnd.rx.Schedulers;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import io.reactivex.Completable;
+import io.reactivex.CompletableSource;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Observable;
@@ -401,14 +402,39 @@ public class RoomLocalDataStore implements LocalDataStore {
       case CREATE:
         return getUser(mutation.getUserId())
             .flatMapCompletable(user -> insertOrUpdateFeature(mutation, user));
+      case DELETE:
+        return featureDao
+            .findById(mutation.getFeatureId())
+            .flatMapCompletable(entity -> markFeatureDeleted(entity, mutation))
+            .subscribeOn(schedulers.io());
       default:
         throw LocalDataStoreException.unknownMutationType(mutation.getType());
     }
   }
 
+  private CompletableSource markFeatureDeleted(
+      FeatureEntity featureEntity, FeatureMutation mutation) {
+    return Single.just(featureEntity)
+        .doOnSubscribe(__ -> Timber.d("Marking feature as deleted : %s", mutation))
+        .map(entity -> entity.toBuilder().setState(EntityState.DELETED).build())
+        .flatMap(entity -> featureDao.update(entity))
+        .ignoreElement()
+        .subscribeOn(schedulers.io());
+  }
+
   private Completable insertOrUpdateFeature(FeatureMutation mutation, User user) {
     return featureDao
         .insertOrUpdate(FeatureEntity.fromMutation(mutation, AuditInfo.now(user)))
+        .subscribeOn(schedulers.io());
+  }
+
+  @Override
+  public Completable deleteFeature(String featureId) {
+    return featureDao
+        .findById(featureId)
+        .toSingle()
+        .doOnSubscribe(__ -> Timber.d("Deleting local feature : %s", featureId))
+        .flatMapCompletable(entity -> featureDao.delete(entity))
         .subscribeOn(schedulers.io());
   }
 
