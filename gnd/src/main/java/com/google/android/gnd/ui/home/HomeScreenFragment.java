@@ -51,8 +51,10 @@ import com.google.android.gnd.system.AuthenticationManager;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.BackPressListener;
 import com.google.android.gnd.ui.common.EphemeralPopups;
+import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.ProgressDialogs;
 import com.google.android.gnd.ui.home.mapcontainer.MapContainerFragment;
+import com.google.android.gnd.ui.home.mapcontainer.MapContainerViewModel;
 import com.google.android.gnd.ui.projectselector.ProjectSelectorDialogFragment;
 import com.google.android.gnd.ui.projectselector.ProjectSelectorViewModel;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
@@ -78,6 +80,8 @@ public class HomeScreenFragment extends AbstractFragment
   @Inject AddFeatureDialogFragment addFeatureDialogFragment;
   @Inject AuthenticationManager authenticationManager;
   @Inject Schedulers schedulers;
+  @Inject Navigator navigator;
+  @Inject MapContainerViewModel mapContainerViewModel;
 
   private ProgressDialog progressDialog;
   private HomeScreenViewModel viewModel;
@@ -116,7 +120,7 @@ public class HomeScreenFragment extends AbstractFragment
   @Nullable
   @Override
   public View onCreateView(
-      LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+      @NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     super.onCreateView(inflater, container, savedInstanceState);
 
     projectSelectorDialogFragment = new ProjectSelectorDialogFragment();
@@ -232,8 +236,23 @@ public class HomeScreenFragment extends AbstractFragment
   }
 
   @Override
-  public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+  public void onCreateOptionsMenu(@NonNull Menu menu, MenuInflater inflater) {
     inflater.inflate(R.menu.feature_sheet_menu, menu);
+  }
+
+  @Override
+  public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+    switch (item.getItemId()) {
+      case R.id.move_feature_menu_item:
+        // TODO
+        return false;
+      case R.id.delete_feature_menu_item:
+        // TODO: Re-position map to default location after successful deletion.
+        viewModel.deleteActiveFeature().as(autoDisposable(this)).subscribe(() -> hideBottomSheet());
+        return true;
+      default:
+        return false;
+    }
   }
 
   @Override
