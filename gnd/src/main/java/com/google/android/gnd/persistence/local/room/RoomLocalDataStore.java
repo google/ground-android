@@ -412,12 +412,10 @@ public class RoomLocalDataStore implements LocalDataStore {
     }
   }
 
-  private CompletableSource markFeatureForDeletion(
-      FeatureEntity featureEntity, FeatureMutation mutation) {
-    return Single.just(featureEntity)
+  private CompletableSource markFeatureForDeletion(FeatureEntity entity, FeatureMutation mutation) {
+    return featureDao
+        .update(entity.toBuilder().setState(EntityState.DELETED).build())
         .doOnSubscribe(__ -> Timber.d("Marking feature as deleted : %s", mutation))
-        .map(entity -> entity.toBuilder().setState(EntityState.DELETED).build())
-        .flatMap(entity -> featureDao.update(entity))
         .ignoreElement()
         .subscribeOn(schedulers.io());
   }
@@ -497,11 +495,10 @@ public class RoomLocalDataStore implements LocalDataStore {
   }
 
   private Completable markObservationForDeletion(
-      ObservationEntity observationEntity, ObservationMutation mutation) {
-    return Single.just(observationEntity)
+      ObservationEntity entity, ObservationMutation mutation) {
+    return observationDao
+        .update(entity.toBuilder().setState(EntityState.DELETED).build())
         .doOnSubscribe(__ -> Timber.d("Marking observation as deleted : %s", mutation))
-        .map(entity -> entity.toBuilder().setState(EntityState.DELETED).build())
-        .flatMap(entity -> observationDao.update(entity))
         .ignoreElement()
         .subscribeOn(schedulers.io());
   }
