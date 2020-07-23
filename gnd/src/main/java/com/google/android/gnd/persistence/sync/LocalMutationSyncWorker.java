@@ -29,6 +29,7 @@ import com.google.android.gnd.R;
 import com.google.android.gnd.model.Mutation;
 import com.google.android.gnd.model.Mutation.Type;
 import com.google.android.gnd.model.User;
+import com.google.android.gnd.model.feature.FeatureMutation;
 import com.google.android.gnd.model.observation.ObservationMutation;
 import com.google.android.gnd.persistence.local.LocalDataStore;
 import com.google.android.gnd.persistence.remote.RemoteDataStore;
@@ -120,9 +121,18 @@ public class LocalMutationSyncWorker extends BaseWorker {
   private Completable deleteObservationIfRemovedRemotely(ImmutableList<Mutation> mutations) {
     return Observable.fromIterable(mutations)
         .filter(mutation -> mutation.getType() == Type.DELETE)
-        .filter(mutation -> mutation instanceof ObservationMutation)
-        .map(mutation -> ((ObservationMutation) mutation).getObservationId())
-        .flatMapCompletable(localDataStore::deleteObservation);
+        .flatMapCompletable(
+            mutation -> {
+              if (mutation instanceof ObservationMutation) {
+                return localDataStore.deleteObservation(
+                    ((ObservationMutation) mutation).getObservationId());
+              } else if (mutation instanceof FeatureMutation) {
+                return localDataStore.deleteFeature(mutation.getFeatureId());
+              } else {
+                return Completable.error(
+                    new IllegalArgumentException("Unknown type : " + mutation));
+              }
+            });
   }
 
   private Map<String, ImmutableList<Mutation>> groupByUserId(
