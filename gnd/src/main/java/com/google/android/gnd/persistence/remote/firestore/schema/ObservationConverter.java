@@ -42,17 +42,15 @@ class ObservationConverter {
       throws DataStoreException {
     ObservationDocument doc = snapshot.toObject(ObservationDocument.class);
     String featureId = checkNotNull(doc.getFeatureId(), "featureId");
-    String featureTypeId = checkNotNull(doc.getFeatureTypeId(), "featureTypeId");
     String formId = checkNotNull(doc.getFormId(), "formId");
     if (!feature.getId().equals(featureId)) {
       Log.w(TAG, "Observation featureId doesn't match specified feature id");
     }
-    if (!feature.getLayer().getId().equals(featureTypeId)) {
-      Log.w(TAG, "Observation layerId doesn't match specified feature's layerId");
-    }
     Form form = checkNotEmpty(feature.getLayer().getForm(formId), "form");
-    AuditInfoNestedObject created = checkNotNull(doc.getCreated(), "created");
-    AuditInfoNestedObject modified = Optional.ofNullable(doc.getModified()).orElse(created);
+    // Degrade gracefully when audit info missing in remote db.
+    AuditInfoNestedObject created =
+        Optional.ofNullable(doc.getCreated()).orElse(AuditInfoNestedObject.FALLBACK_VALUE);
+    AuditInfoNestedObject lastModified = Optional.ofNullable(doc.getLastModified()).orElse(created);
     return Observation.newBuilder()
         .setId(snapshot.getId())
         .setProject(feature.getProject())
@@ -60,7 +58,7 @@ class ObservationConverter {
         .setForm(form)
         .setResponses(toResponseMap(doc.getResponses()))
         .setCreated(AuditInfoConverter.toAuditInfo(created))
-        .setLastModified(AuditInfoConverter.toAuditInfo(modified))
+        .setLastModified(AuditInfoConverter.toAuditInfo(lastModified))
         .build();
   }
 

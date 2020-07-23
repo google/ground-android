@@ -42,7 +42,7 @@ public abstract class AuditInfoEntity {
   /** Returns the time at which the user action was initiated, according to the user's device. */
   @CopyAnnotations
   @NonNull
-  public abstract Long getClientTimeMillis();
+  public abstract Long getClientTimestamp();
 
   /**
    * Returns the time at which the server received the requested change according to the server's
@@ -50,22 +50,22 @@ public abstract class AuditInfoEntity {
    */
   @CopyAnnotations
   @Nullable
-  public abstract Long getServerTimeMillis();
+  public abstract Long getServerTimestamp();
 
   /** Converts a model object into a local db entity. */
   static AuditInfoEntity fromObject(AuditInfo o) {
     return AuditInfoEntity.builder()
         .setUser(UserDetails.fromUser(o.getUser()))
-        .setClientTimeMillis(o.getClientTimeMillis().getTime())
-        .setServerTimeMillis(o.getServerTimeMillis().map(Date::getTime).orElse(null))
+        .setClientTimestamp(o.getClientTimestamp().getTime())
+        .setServerTimestamp(o.getServerTimestamp().map(Date::getTime).orElse(null))
         .build();
   }
 
   static AuditInfo toObject(AuditInfoEntity e) {
     return AuditInfo.builder()
         .setUser(UserDetails.toUser(e.getUser()))
-        .setClientTimeMillis(new Date(e.getClientTimeMillis()))
-        .setServerTimeMillis(Optional.ofNullable(e.getServerTimeMillis()).map(Date::new))
+        .setClientTimestamp(new Date(e.getClientTimestamp()))
+        .setServerTimestamp(Optional.ofNullable(e.getServerTimestamp()).map(Date::new))
         .build();
   }
 
@@ -73,11 +73,11 @@ public abstract class AuditInfoEntity {
 
   @NonNull
   public static AuditInfoEntity create(
-      @NonNull UserDetails user, long clientTimeMillis, @Nullable Long serverTimeMillis) {
+      @NonNull UserDetails user, long clientTimestamp, @Nullable Long serverTimestamp) {
     return builder()
         .setUser(user)
-        .setClientTimeMillis(clientTimeMillis)
-        .setServerTimeMillis(serverTimeMillis)
+        .setClientTimestamp(clientTimestamp)
+        .setServerTimestamp(serverTimestamp)
         .build();
   }
 
@@ -90,9 +90,9 @@ public abstract class AuditInfoEntity {
 
     public abstract Builder setUser(UserDetails newUser);
 
-    public abstract Builder setClientTimeMillis(@NonNull Long newClientTimeMillis);
+    public abstract Builder setClientTimestamp(@NonNull Long newClientTimestamp);
 
-    public abstract Builder setServerTimeMillis(@Nullable Long newServerTimeMillis);
+    public abstract Builder setServerTimestamp(@Nullable Long newServerTimestamp);
 
     public abstract AuditInfoEntity build();
   }

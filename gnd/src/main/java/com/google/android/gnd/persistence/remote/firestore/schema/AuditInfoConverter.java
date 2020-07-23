@@ -31,11 +31,11 @@ class AuditInfoConverter {
 
   @NonNull
   static AuditInfo toAuditInfo(@NonNull AuditInfoNestedObject doc) throws DataStoreException {
-    checkNotNull(doc.getClientTimeMillis(), "clientTimeMillis");
+    checkNotNull(doc.getClientTimestamp(), "clientTimestamp");
     return AuditInfo.builder()
         .setUser(UserConverter.toUser(doc.getUser()))
-        .setClientTimeMillis(doc.getClientTimeMillis().toDate())
-        .setServerTimeMillis(Optional.ofNullable(doc.getServerTimeMillis()).map(Timestamp::toDate))
+        .setClientTimestamp(doc.getClientTimestamp().toDate())
+        .setServerTimestamp(Optional.ofNullable(doc.getServerTimestamp()).map(Timestamp::toDate))
         .build();
   }
 

@@ -18,18 +18,17 @@ package com.google.android.gnd.persistence.remote.firestore.schema;
 
 import androidx.annotation.Nullable;
 import com.google.firebase.firestore.IgnoreExtraProperties;
-import java.util.List;
 import java.util.Map;
 
 /** Firestore representation of form element definitions. */
 @IgnoreExtraProperties
 class ElementNestedObject {
-  @Nullable private String id;
+
+  @Nullable private Integer index;
   @Nullable private String type;
   @Nullable private String cardinality;
-  // TODO: labels or label?
-  @Nullable private Map<String, String> labels;
-  @Nullable private List<OptionNestedObject> options;
+  @Nullable private Map<String, String> label;
+  @Nullable private Map<String, OptionNestedObject> options;
   @Nullable private Boolean required;
 
   @SuppressWarnings("unused")
@@ -37,23 +36,23 @@ class ElementNestedObject {
 
   @SuppressWarnings("unused")
   ElementNestedObject(
-      @Nullable String id,
+      @Nullable Integer index,
       @Nullable String type,
       @Nullable String cardinality,
-      @Nullable Map<String, String> labels,
-      @Nullable List<OptionNestedObject> options,
+      @Nullable Map<String, String> label,
+      @Nullable Map<String, OptionNestedObject> options,
       @Nullable Boolean required) {
-    this.id = id;
+    this.index = index;
     this.type = type;
     this.cardinality = cardinality;
-    this.labels = labels;
+    this.label = label;
     this.options = options;
     this.required = required;
   }
 
   @Nullable
-  public String getId() {
-    return id;
+  public Integer getIndex() {
+    return index;
   }
 
   @Nullable
@@ -67,12 +66,12 @@ class ElementNestedObject {
   }
 
   @Nullable
-  public Map<String, String> getLabels() {
-    return labels;
+  public Map<String, String> getLabel() {
+    return label;
   }
 
   @Nullable
-  public List<OptionNestedObject> getOptions() {
+  public Map<String, OptionNestedObject> getOptions() {
     return options;
   }
 

@@ -24,7 +24,7 @@ import io.reactivex.Maybe;
 
 public class ProjectDocumentReference extends FluentDocumentReference {
   private static final String FEATURES = "features";
-  private static final String RECORDS = "records";
+  private static final String OBSERVATIONS = "observations";
 
   ProjectDocumentReference(DocumentReference ref) {
     super(ref);
@@ -34,8 +34,8 @@ public class ProjectDocumentReference extends FluentDocumentReference {
     return new FeaturesCollectionReference(reference().collection(FEATURES));
   }
 
-  public RecordsCollectionReference records() {
-    return new RecordsCollectionReference(reference().collection(RECORDS));
+  public ObservationsCollectionReference observations() {
+    return new ObservationsCollectionReference(reference().collection(OBSERVATIONS));
   }
 
   public Maybe<Project> get() {

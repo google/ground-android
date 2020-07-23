@@ -73,7 +73,7 @@ class SingleSelectDialogFactory {
       checkedItem =
           initialValue
               .map(MultipleChoiceResponse.class::cast)
-              .flatMap(MultipleChoiceResponse::getFirstCode)
+              .flatMap(MultipleChoiceResponse::getFirstId)
               .flatMap(multipleChoice::getIndex)
               .orElse(-1);
     }
@@ -91,7 +91,7 @@ class SingleSelectDialogFactory {
     private Optional<Response> getSelectedValue(List<Option> options) {
       if (checkedItem >= 0) {
         return Optional.of(
-            new MultipleChoiceResponse(ImmutableList.of(options.get(checkedItem).getCode())));
+            new MultipleChoiceResponse(ImmutableList.of(options.get(checkedItem).getId())));
       } else {
         return Optional.empty();
       }

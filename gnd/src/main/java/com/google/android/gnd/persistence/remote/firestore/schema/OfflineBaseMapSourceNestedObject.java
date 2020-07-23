@@ -16,22 +16,21 @@
 
 package com.google.android.gnd.persistence.remote.firestore.schema;
 
-import static com.google.android.gnd.util.Localization.getLocalizedMessage;
+import androidx.annotation.Nullable;
 
-import com.google.android.gnd.model.form.Option;
+class OfflineBaseMapSourceNestedObject {
+  @Nullable private String url;
 
-/** Converts between Firestore nested objects and {@link Option} instances. */
-class OptionConverter {
+  @SuppressWarnings("unused")
+  OfflineBaseMapSourceNestedObject() {}
 
-  static Option toOption(String id, OptionNestedObject option) {
-    Option.Builder builder = Option.newBuilder();
-    builder.setId(id);
-    if (option.getCode() != null) {
-      builder.setCode(option.getCode());
-    }
-    if (option.getLabel() != null) {
-      builder.setLabel(getLocalizedMessage(option.getLabel()));
-    }
-    return builder.build();
+  @SuppressWarnings("unused")
+  OfflineBaseMapSourceNestedObject(@Nullable String url) {
+    this.url = url;
+  }
+
+  @Nullable
+  public String getUrl() {
+    return url;
   }
 }

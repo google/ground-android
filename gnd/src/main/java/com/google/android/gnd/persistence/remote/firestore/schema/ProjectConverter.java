@@ -19,9 +19,13 @@ package com.google.android.gnd.persistence.remote.firestore.schema;
 import static com.google.android.gnd.util.Localization.getLocalizedMessage;
 
 import com.google.android.gnd.model.Project;
+import com.google.android.gnd.model.basemap.OfflineBaseMapSource;
 import com.google.android.gnd.persistence.remote.DataStoreException;
 import com.google.firebase.firestore.DocumentSnapshot;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java8.util.Maps;
+import timber.log.Timber;
 
 /** Converts between Firestore documents and {@link Project} instances. */
 class ProjectConverter {
@@ -33,10 +37,28 @@ class ProjectConverter {
         .setId(doc.getId())
         .setTitle(getLocalizedMessage(pd.getTitle()))
         .setDescription(getLocalizedMessage(pd.getDescription()));
-    if (pd.getFeatureTypes() != null) {
+    if (pd.getLayers() != null) {
       Maps.forEach(
-          pd.getFeatureTypes(), (id, obj) -> project.putLayer(id, LayerConverter.toLayer(id, obj)));
+          pd.getLayers(), (id, obj) -> project.putLayer(id, LayerConverter.toLayer(id, obj)));
+    }
+    if (pd.getOfflineBaseMapSources() != null) {
+      convertOfflineBaseMapSources(pd, project);
     }
     return project.build();
+  }
+
+  private static void convertOfflineBaseMapSources(ProjectDocument pd, Project.Builder project) {
+    for (OfflineBaseMapSourceNestedObject src : pd.getOfflineBaseMapSources()) {
+      if (src.getUrl() == null) {
+        Timber.d("Skipping base map source in project with missing URL");
+        continue;
+      }
+      try {
+        URL url = new URL(src.getUrl());
+        project.addOfflineBaseMapSource(OfflineBaseMapSource.builder().setUrl(url).build());
+      } catch (MalformedURLException e) {
+        Timber.d("Skipping base map source in project with malformed URL");
+      }
+    }
   }
 }

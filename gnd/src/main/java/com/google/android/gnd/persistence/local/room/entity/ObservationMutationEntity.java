@@ -63,8 +63,8 @@ public abstract class ObservationMutationEntity extends MutationEntity {
 
   @CopyAnnotations
   @NonNull
-  @ColumnInfo(name = "feature_type_id")
-  public abstract String getFeatureTypeId();
+  @ColumnInfo(name = "layer_id")
+  public abstract String getLayerId();
 
   @CopyAnnotations
   @NonNull
@@ -87,7 +87,7 @@ public abstract class ObservationMutationEntity extends MutationEntity {
       long id,
       String projectId,
       String featureId,
-      String featureTypeId,
+      String layerId,
       String formId,
       String observationId,
       MutationEntityType type,
@@ -100,7 +100,7 @@ public abstract class ObservationMutationEntity extends MutationEntity {
         .setId(id)
         .setProjectId(projectId)
         .setFeatureId(featureId)
-        .setFeatureTypeId(featureTypeId)
+        .setLayerId(layerId)
         .setFormId(formId)
         .setObservationId(observationId)
         .setType(type)
@@ -117,7 +117,7 @@ public abstract class ObservationMutationEntity extends MutationEntity {
         .setId(m.getId())
         .setProjectId(m.getProjectId())
         .setFeatureId(m.getFeatureId())
-        .setFeatureTypeId(m.getLayerId())
+        .setLayerId(m.getLayerId())
         .setFormId(m.getFormId())
         .setObservationId(m.getObservationId())
         .setType(MutationEntityType.fromMutationType(m.getType()))
@@ -134,7 +134,7 @@ public abstract class ObservationMutationEntity extends MutationEntity {
         .setId(getId())
         .setProjectId(getProjectId())
         .setFeatureId(getFeatureId())
-        .setLayerId(getFeatureTypeId())
+        .setLayerId(getLayerId())
         .setFormId(getFormId())
         .setObservationId(getObservationId())
         .setType(getType().toMutationType())
@@ -157,7 +157,7 @@ public abstract class ObservationMutationEntity extends MutationEntity {
 
     public abstract Builder setFeatureId(@Nullable String newFeatureId);
 
-    public abstract Builder setFeatureTypeId(@Nullable String newFeatureTypeId);
+    public abstract Builder setLayerId(@Nullable String newLayerId);
 
     public abstract Builder setFormId(@Nullable String newFormId);
 
