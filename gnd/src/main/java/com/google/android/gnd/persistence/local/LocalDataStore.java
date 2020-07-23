@@ -117,8 +117,11 @@ public interface LocalDataStore {
   /** Updates the provided list of mutations. */
   Completable updateMutations(ImmutableList<Mutation> mutations);
 
-  /** Removes the provided feature and observation mutations from the local mutation queue. */
-  Completable removePendingMutations(ImmutableList<Mutation> mutations);
+  /**
+   * Removes pending mutations and if the mutation is of type DELETE, then removes the corresponding
+   * observation or feature.
+   */
+  Completable finalizePendingMutations(ImmutableList<Mutation> mutations);
 
   /**
    * Merges the provided feature with pending unsynced local mutations, and inserts it into the

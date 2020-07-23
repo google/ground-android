@@ -23,6 +23,7 @@ import static java8.util.stream.StreamSupport.stream;
 import androidx.room.Transaction;
 import com.google.android.gnd.model.AuditInfo;
 import com.google.android.gnd.model.Mutation;
+import com.google.android.gnd.model.Mutation.Type;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.basemap.OfflineArea;
@@ -334,9 +335,29 @@ public class RoomLocalDataStore implements LocalDataStore {
         .collect(toImmutableList());
   }
 
-  @Transaction
   @Override
-  public Completable removePendingMutations(ImmutableList<Mutation> mutations) {
+  public Completable finalizePendingMutations(ImmutableList<Mutation> mutations) {
+    return finalizeDeletions(mutations).andThen(removePending(mutations));
+  }
+
+  @Transaction
+  private Completable finalizeDeletions(ImmutableList<Mutation> mutations) {
+    return Observable.fromIterable(mutations)
+        .filter(mutation -> mutation.getType() == Type.DELETE)
+        .flatMapCompletable(
+            mutation -> {
+              if (mutation instanceof ObservationMutation) {
+                return deleteObservation(((ObservationMutation) mutation).getObservationId());
+              } else if (mutation instanceof FeatureMutation) {
+                return deleteFeature(mutation.getFeatureId());
+              } else {
+                return Completable.error(new RuntimeException("Unknown type : " + mutation));
+              }
+            });
+  }
+
+  @Transaction
+  private Completable removePending(ImmutableList<Mutation> mutations) {
     return featureMutationDao
         .deleteAll(FeatureMutation.ids(mutations))
         .andThen(

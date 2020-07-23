@@ -327,13 +327,13 @@ public class LocalDataStoreTest {
   }
 
   @Test
-  public void testRemovePendingMutation() {
+  public void testFinalizePendingMutation() {
     localDataStore.insertOrUpdateUser(TEST_USER).blockingAwait();
     localDataStore.insertOrUpdateProject(TEST_PROJECT).blockingAwait();
     localDataStore.applyAndEnqueue(TEST_FEATURE_MUTATION).blockingAwait();
 
     localDataStore
-        .removePendingMutations(ImmutableList.of(TEST_FEATURE_MUTATION))
+        .finalizePendingMutations(ImmutableList.of(TEST_FEATURE_MUTATION))
         .test()
         .assertComplete();
 
