@@ -19,6 +19,7 @@ package com.google.android.gnd.persistence.local.room.dao;
 import androidx.room.Dao;
 import androidx.room.Query;
 import com.google.android.gnd.persistence.local.room.entity.ObservationEntity;
+import com.google.android.gnd.persistence.local.room.models.EntityState;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
 import java.util.List;
@@ -29,11 +30,9 @@ public interface ObservationDao extends BaseDao<ObservationEntity> {
   @Query("SELECT * FROM observation WHERE id = :observationId")
   Maybe<ObservationEntity> findById(String observationId);
 
-  /**
-   * Returns the list observations associated with the specified feature and form, ignoring deleted
-   * observations (i.e., returns only observations with state = State.DEFAULT (1)).
-   */
+  /** Returns the list observations associated with the specified feature, form and state. */
   @Query(
-      "SELECT * FROM observation WHERE feature_id = :featureId AND form_id = :formId AND state = 1")
-  Single<List<ObservationEntity>> findByFeatureId(String featureId, String formId);
+      "SELECT * FROM observation WHERE feature_id = :featureId AND form_id = :formId AND state = :state")
+  Single<List<ObservationEntity>> findByFeatureId(
+      String featureId, String formId, EntityState state);
 }

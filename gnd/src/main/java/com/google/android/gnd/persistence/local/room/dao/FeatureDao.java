@@ -19,6 +19,7 @@ package com.google.android.gnd.persistence.local.room.dao;
 import androidx.room.Dao;
 import androidx.room.Query;
 import com.google.android.gnd.persistence.local.room.entity.FeatureEntity;
+import com.google.android.gnd.persistence.local.room.models.EntityState;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import java.util.List;
@@ -26,8 +27,8 @@ import java.util.List;
 /** Provides low-level read/write operations of {@link FeatureEntity} to/from the local db. */
 @Dao
 public interface FeatureDao extends BaseDao<FeatureEntity> {
-  @Query("SELECT * FROM feature WHERE project_id = :projectId AND state = 1")
-  Flowable<List<FeatureEntity>> findByProjectIdStream(String projectId);
+  @Query("SELECT * FROM feature WHERE project_id = :projectId AND state = :state")
+  Flowable<List<FeatureEntity>> findByProjectIdStream(String projectId, EntityState state);
 
   @Query("SELECT * FROM feature WHERE id = :id")
   Maybe<FeatureEntity> findById(String id);
