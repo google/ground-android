@@ -248,7 +248,7 @@ public class HomeScreenFragment extends AbstractFragment
         return false;
       case R.id.delete_feature_menu_item:
         // TODO: Re-position map to default location after successful deletion.
-        viewModel.deleteActiveFeature().as(autoDisposable(this)).subscribe(() -> hideBottomSheet());
+        viewModel.deleteActiveFeature().as(autoDisposable(this)).subscribe(this::hideBottomSheet);
         return true;
       default:
         return false;

@@ -113,12 +113,12 @@ public class LocalMutationSyncWorker extends BaseWorker {
   private Completable processMutations(ImmutableList<Mutation> mutations, User user) {
     return remoteDataStore
         .applyMutations(mutations, user)
-        .andThen(deleteObservationIfRemovedRemotely(mutations))
+        .andThen(deleteObservationOrFeature(mutations))
         .andThen(localDataStore.removePendingMutations(mutations));
   }
 
   // TODO: If the remote sync fails, reset the state to DEFAULT.
-  private Completable deleteObservationIfRemovedRemotely(ImmutableList<Mutation> mutations) {
+  private Completable deleteObservationOrFeature(ImmutableList<Mutation> mutations) {
     return Observable.fromIterable(mutations)
         .filter(mutation -> mutation.getType() == Type.DELETE)
         .flatMapCompletable(
