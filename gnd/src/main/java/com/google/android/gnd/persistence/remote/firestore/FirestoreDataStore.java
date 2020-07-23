@@ -75,8 +75,8 @@ public class FirestoreDataStore implements RemoteDataStore {
   public Single<ImmutableList<ValueOrError<Observation>>> loadObservations(Feature feature) {
     return db.projects()
         .project(feature.getProject().getId())
-        .records()
-        .recordsByFeatureId(feature)
+        .observations()
+        .observationsByFeatureId(feature)
         .subscribeOn(schedulers.io());
   }
 
@@ -117,7 +117,7 @@ public class FirestoreDataStore implements RemoteDataStore {
     if (mutation instanceof FeatureMutation) {
       addFeatureMutationToBatch((FeatureMutation) mutation, user, batch);
     } else if (mutation instanceof ObservationMutation) {
-      addRecordMutationToBatch((ObservationMutation) mutation, user, batch);
+      addObservationMutationToBatch((ObservationMutation) mutation, user, batch);
       uploadMediaMutations(((ObservationMutation) mutation).getResponseDeltas());
     } else {
       throw new DataStoreException("Unsupported mutation " + mutation.getClass());
@@ -133,12 +133,12 @@ public class FirestoreDataStore implements RemoteDataStore {
         .addMutationToBatch(mutation, user, batch);
   }
 
-  private void addRecordMutationToBatch(ObservationMutation mutation, User user, WriteBatch batch)
-      throws DataStoreException {
+  private void addObservationMutationToBatch(
+      ObservationMutation mutation, User user, WriteBatch batch) throws DataStoreException {
     db.projects()
         .project(mutation.getProjectId())
-        .records()
-        .record(mutation.getObservationId())
+        .observations()
+        .observation(mutation.getObservationId())
         .addMutationToBatch(mutation, user, batch);
   }
 

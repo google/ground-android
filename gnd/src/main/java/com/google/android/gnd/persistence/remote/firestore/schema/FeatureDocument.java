@@ -23,36 +23,36 @@ import com.google.firebase.firestore.IgnoreExtraProperties;
 /** Feature entity stored in Firestore. */
 @IgnoreExtraProperties
 class FeatureDocument {
-  @Nullable private String featureTypeId;
+  @Nullable private String layerId;
   @Nullable private String customId;
   @Nullable private String caption;
   // TODO: Replace with consistent name throughout.
-  @Nullable private GeoPoint center;
+  @Nullable private GeoPoint location;
   @Nullable private AuditInfoNestedObject created;
-  @Nullable private AuditInfoNestedObject modified;
+  @Nullable private AuditInfoNestedObject lastModified;
 
   @SuppressWarnings("unused")
   public FeatureDocument() {}
 
   @SuppressWarnings("unused")
   FeatureDocument(
-      @Nullable String featureTypeId,
+      @Nullable String layerId,
       @Nullable String customId,
       @Nullable String caption,
-      @Nullable GeoPoint center,
+      @Nullable GeoPoint location,
       @Nullable AuditInfoNestedObject created,
-      @Nullable AuditInfoNestedObject modified) {
-    this.featureTypeId = featureTypeId;
+      @Nullable AuditInfoNestedObject lastModified) {
+    this.layerId = layerId;
     this.customId = customId;
     this.caption = caption;
-    this.center = center;
+    this.location = location;
     this.created = created;
-    this.modified = modified;
+    this.lastModified = lastModified;
   }
 
   @Nullable
-  public String getFeatureTypeId() {
-    return featureTypeId;
+  public String getlayerId() {
+    return layerId;
   }
 
   @Nullable
@@ -66,8 +66,8 @@ class FeatureDocument {
   }
 
   @Nullable
-  public GeoPoint getCenter() {
-    return center;
+  public GeoPoint getLocation() {
+    return location;
   }
 
   @Nullable
@@ -76,7 +76,7 @@ class FeatureDocument {
   }
 
   @Nullable
-  public AuditInfoNestedObject getModified() {
-    return modified;
+  public AuditInfoNestedObject getLastModified() {
+    return lastModified;
   }
 }

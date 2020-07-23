@@ -26,6 +26,8 @@ import com.google.android.gnd.persistence.local.room.relations.LayerEntityAndRel
 import com.google.android.gnd.persistence.local.room.relations.ProjectEntityAndRelations;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.AutoValue.CopyAnnotations;
+import java.net.MalformedURLException;
+import timber.log.Timber;
 
 @AutoValue
 @Entity(tableName = "project")
@@ -67,6 +69,14 @@ public abstract class ProjectEntity {
         projectEntityAndRelations.layerEntityAndRelations) {
       LayerEntity layerEntity = layerEntityAndRelations.layerEntity;
       projectBuilder.putLayer(layerEntity.getId(), LayerEntity.toLayer(layerEntityAndRelations));
+    }
+    for (OfflineBaseMapSourceEntity source :
+        projectEntityAndRelations.offlineBaseMapSourceEntityAndRelations) {
+      try {
+        projectBuilder.addOfflineBaseMapSource(OfflineBaseMapSourceEntity.toModel(source));
+      } catch (MalformedURLException e) {
+        Timber.d("Skipping basemap source with malformed URL %s", source.getUrl());
+      }
     }
 
     return projectBuilder.build();

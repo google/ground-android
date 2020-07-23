@@ -31,7 +31,8 @@ class UserConverter {
   @NonNull
   static User toUser(@Nullable UserNestedObject ud) {
     if (ud == null || ud.getId() == null || ud.getEmail() == null || ud.getDisplayName() == null) {
-      return UserNestedObject.UNKNOWN_USER;
+      // Degrade gracefully when user info missing in remote db.
+      ud = UserNestedObject.UNKNOWN_USER;
     }
     return User.builder()
         .setId(ud.getId())

@@ -85,7 +85,7 @@ class MultiSelectDialogFactory {
       ImmutableList.Builder<String> choices = new ImmutableList.Builder<>();
       for (int i = 0; i < options.size(); i++) {
         if (checkedItems[i]) {
-          choices.add(options.get(i).getCode());
+          choices.add(options.get(i).getId());
         }
       }
       return MultipleChoiceResponse.fromList(choices.build());

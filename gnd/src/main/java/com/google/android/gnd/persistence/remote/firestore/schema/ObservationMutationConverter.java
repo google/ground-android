@@ -34,7 +34,7 @@ import java.util.Map;
  */
 class ObservationMutationConverter {
   static final String FEATURE_ID = "featureId";
-  private static final String FEATURE_TYPE_ID = "featureTypeId";
+  private static final String LAYER_ID = "layerId";
   private static final String FORM_ID = "formId";
   private static final String RESPONSES = "responses";
   private static final String CREATED = "created";
@@ -60,7 +60,7 @@ class ObservationMutationConverter {
         throw new DataStoreException("Unsupported mutation type: " + mutation.getType());
     }
     map.put(FEATURE_ID, mutation.getFeatureId())
-        .put(FEATURE_TYPE_ID, mutation.getLayerId())
+        .put(LAYER_ID, mutation.getLayerId())
         .put(FORM_ID, mutation.getFormId())
         .put(RESPONSES, toMap(mutation.getResponseDeltas()));
     return map.build();

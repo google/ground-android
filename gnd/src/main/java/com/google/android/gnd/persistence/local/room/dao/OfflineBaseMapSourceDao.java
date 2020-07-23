@@ -14,13 +14,16 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.persistence.remote.firestore.schema;
+package com.google.android.gnd.persistence.local.room.dao;
 
-import com.google.android.gnd.model.form.Element;
+import androidx.room.Dao;
+import androidx.room.Query;
+import com.google.android.gnd.persistence.local.room.entity.OfflineBaseMapSourceEntity;
+import io.reactivex.Completable;
 
-/** Converts between Firestore nested objects and {@link Element} instances. */
-class ElementConverter {
-  static Element toElement(String id, ElementNestedObject em) {
-    return FieldConverter.toField(id, em).map(Element::ofField).orElse(Element.ofUnknown());
-  }
+@Dao
+public interface OfflineBaseMapSourceDao extends BaseDao<OfflineBaseMapSourceEntity> {
+
+  @Query("DELETE FROM offline_base_map_source WHERE project_id = :projectId")
+  Completable deleteByProjectId(String projectId);
 }

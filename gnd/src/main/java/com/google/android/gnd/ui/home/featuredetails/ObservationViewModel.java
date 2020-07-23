@@ -58,7 +58,7 @@ public class ObservationViewModel extends AbstractViewModel implements OnClickLi
 
     AuditInfo created = observation.getCreated();
     User createdBy = created.getUser();
-    Date creationTime = created.getClientTimeMillis();
+    Date creationTime = created.getClientTimestamp();
     userName.set(createdBy.getDisplayName());
     modifiedDate.set(DateFormat.getMediumDateFormat(application).format(creationTime));
     modifiedTime.set(DateFormat.getTimeFormat(application).format(creationTime));
