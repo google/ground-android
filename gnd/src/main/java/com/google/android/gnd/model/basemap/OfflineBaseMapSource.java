@@ -14,13 +14,28 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.persistence.remote.firestore.schema;
+package com.google.android.gnd.model.basemap;
 
-import com.google.android.gnd.model.form.Element;
+import androidx.annotation.NonNull;
+import com.google.auto.value.AutoValue;
+import java.net.URL;
 
-/** Converts between Firestore nested objects and {@link Element} instances. */
-class ElementConverter {
-  static Element toElement(String id, ElementNestedObject em) {
-    return FieldConverter.toField(id, em).map(Element::ofField).orElse(Element.ofUnknown());
+/** Represents a possible source for offline base map data. */
+@AutoValue
+public abstract class OfflineBaseMapSource {
+
+  @NonNull
+  public abstract URL getUrl();
+
+  public static Builder builder() {
+    return new AutoValue_OfflineBaseMapSource.Builder();
+  }
+
+  @AutoValue.Builder
+  public abstract static class Builder {
+
+    public abstract Builder setUrl(@NonNull URL newUrl);
+
+    public abstract OfflineBaseMapSource build();
   }
 }

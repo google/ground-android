@@ -27,7 +27,7 @@ import com.google.firebase.firestore.GeoPoint;
 class FeatureMutationConverter {
   private static final String TAG = FeatureMutationConverter.class.getSimpleName();
 
-  private static final String FEATURE_TYPE_ID = "featureTypeId";
+  private static final String LAYER_ID = "layerId";
   private static final String CENTER = "center";
   private static final String CREATED = "created";
   private static final String LAST_MODIFIED = "lastModified";
@@ -38,7 +38,7 @@ class FeatureMutationConverter {
    */
   static ImmutableMap<String, Object> toMap(FeatureMutation mutation, User user) {
     ImmutableMap.Builder<String, Object> map = ImmutableMap.builder();
-    map.put(FEATURE_TYPE_ID, mutation.getLayerId());
+    map.put(LAYER_ID, mutation.getLayerId());
     mutation
         .getNewLocation()
         .map(FeatureMutationConverter::toGeoPoint)

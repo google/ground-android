@@ -33,16 +33,16 @@ public abstract class MultipleChoice {
 
   public abstract ImmutableList<Option> getOptions();
 
-  public Optional<Option> getOption(String code) {
-    return stream(getOptions()).filter(o -> o.getCode().equals(code)).findFirst();
+  public Optional<Option> getOptionById(String id) {
+    return stream(getOptions()).filter(o -> o.getId().equals(id)).findFirst();
   }
 
   @Nullable
   public abstract Cardinality getCardinality();
 
-  public Optional<Integer> getIndex(String code) {
+  public Optional<Integer> getIndex(String id) {
     for (int i = 0; i < getOptions().size(); i++) {
-      if (getOptions().get(i).getCode().equals(code)) {
+      if (getOptions().get(i).getId().equals(id)) {
         return Optional.of(i);
       }
     }

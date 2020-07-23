@@ -26,8 +26,8 @@ import com.google.firebase.firestore.WriteBatch;
 import durdinapps.rxfirebase2.RxFirestore;
 import io.reactivex.Maybe;
 
-public class RecordDocumentReference extends FluentDocumentReference {
-  RecordDocumentReference(DocumentReference ref) {
+public class ObservationDocumentReference extends FluentDocumentReference {
+  ObservationDocumentReference(DocumentReference ref) {
     super(ref);
   }
 

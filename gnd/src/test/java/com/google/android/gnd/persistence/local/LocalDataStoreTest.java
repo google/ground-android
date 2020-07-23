@@ -84,8 +84,8 @@ public class LocalDataStoreTest {
           .setCardinality(Cardinality.SELECT_ONE)
           .setOptions(
               ImmutableList.of(
-                  Option.newBuilder().setCode("a").setLabel("Name").build(),
-                  Option.newBuilder().setCode("b").setLabel("Age").build()))
+                  Option.newBuilder().setId("1").setCode("a").setLabel("Name").build(),
+                  Option.newBuilder().setId("2").setCode("b").setLabel("Age").build()))
           .build();
 
   private static final Field TEST_FIELD =
@@ -106,8 +106,7 @@ public class LocalDataStoreTest {
   private static final Layer TEST_LAYER =
       Layer.newBuilder()
           .setId("layer id")
-          .setItemLabel("item label")
-          .setListHeading("heading title")
+          .setName("heading title")
           .setDefaultStyle(Style.builder().setColor("000").build())
           .setForm(TEST_FORM)
           .build();
@@ -251,14 +250,16 @@ public class LocalDataStoreTest {
         Project.newBuilder()
             .setId("foo id")
             .setTitle("foo project")
-            .putLayer(layer1.getId(), layer1).build();
+            .putLayer(layer1.getId(), layer1)
+            .build();
     localDataStore.insertOrUpdateProject(project).blockingAwait();
 
     project =
         Project.newBuilder()
             .setId("foo id")
             .setTitle("foo project")
-            .putLayer(layer2.getId(), layer2).build();
+            .putLayer(layer2.getId(), layer2)
+            .build();
     localDataStore.insertOrUpdateProject(project).blockingAwait();
 
     localDataStore

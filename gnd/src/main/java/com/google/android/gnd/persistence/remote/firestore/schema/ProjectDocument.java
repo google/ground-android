@@ -18,6 +18,7 @@ package com.google.android.gnd.persistence.remote.firestore.schema;
 
 import androidx.annotation.Nullable;
 import com.google.firebase.firestore.IgnoreExtraProperties;
+import java.util.List;
 import java.util.Map;
 
 /** Project entity stored in Firestore. */
@@ -31,7 +32,9 @@ class ProjectDocument {
 
   // TODO: Rename to "layers" once db is migrated.
 
-  @Nullable private Map<String, LayerNestedObject> featureTypes;
+  @Nullable private Map<String, LayerNestedObject> layers;
+
+  @Nullable private List<OfflineBaseMapSourceNestedObject> offlineBaseMapSources;
 
   @SuppressWarnings("unused")
   public ProjectDocument() {}
@@ -40,10 +43,12 @@ class ProjectDocument {
   ProjectDocument(
       @Nullable Map<String, String> title,
       @Nullable Map<String, String> description,
-      @Nullable Map<String, LayerNestedObject> featureTypes) {
+      @Nullable Map<String, LayerNestedObject> layers,
+      @Nullable List<OfflineBaseMapSourceNestedObject> offlineBaseMapSources) {
     this.title = title;
     this.description = description;
-    this.featureTypes = featureTypes;
+    this.layers = layers;
+    this.offlineBaseMapSources = offlineBaseMapSources;
   }
 
   @Nullable
@@ -57,7 +62,12 @@ class ProjectDocument {
   }
 
   @Nullable
-  public Map<String, LayerNestedObject> getFeatureTypes() {
-    return featureTypes;
+  public Map<String, LayerNestedObject> getLayers() {
+    return layers;
+  }
+
+  @Nullable
+  public List<OfflineBaseMapSourceNestedObject> getOfflineBaseMapSources() {
+    return offlineBaseMapSources;
   }
 }
