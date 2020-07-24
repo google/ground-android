@@ -75,7 +75,6 @@ import com.google.android.gnd.rx.Schedulers;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import io.reactivex.Completable;
-import io.reactivex.CompletableSource;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Observable;
@@ -431,7 +430,7 @@ public class RoomLocalDataStore implements LocalDataStore {
     }
   }
 
-  private CompletableSource markFeatureForDeletion(FeatureEntity entity, FeatureMutation mutation) {
+  private Completable markFeatureForDeletion(FeatureEntity entity, FeatureMutation mutation) {
     return featureDao
         .update(entity.toBuilder().setState(EntityState.DELETED).build())
         .doOnSubscribe(__ -> Timber.d("Marking feature as deleted : %s", mutation))
