@@ -340,7 +340,6 @@ public class RoomLocalDataStore implements LocalDataStore {
     return finalizeDeletions(mutations).andThen(removePending(mutations));
   }
 
-  @Transaction
   private Completable finalizeDeletions(ImmutableList<Mutation> mutations) {
     return Observable.fromIterable(mutations)
         .filter(mutation -> mutation.getType() == Type.DELETE)
@@ -356,7 +355,6 @@ public class RoomLocalDataStore implements LocalDataStore {
             });
   }
 
-  @Transaction
   private Completable removePending(ImmutableList<Mutation> mutations) {
     return featureMutationDao
         .deleteAll(FeatureMutation.ids(mutations))
