@@ -244,7 +244,7 @@ public class RoomLocalDataStore implements LocalDataStore {
   @Override
   public Flowable<ImmutableSet<Feature>> getFeaturesOnceAndStream(Project project) {
     return featureDao
-        .findByProjectIdStream(project.getId(), EntityState.DEFAULT)
+        .findOnceAndStream(project.getId(), EntityState.DEFAULT)
         .map(
             list ->
                 stream(list)

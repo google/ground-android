@@ -28,7 +28,7 @@ import java.util.List;
 @Dao
 public interface FeatureDao extends BaseDao<FeatureEntity> {
   @Query("SELECT * FROM feature WHERE project_id = :projectId AND state = :state")
-  Flowable<List<FeatureEntity>> findByProjectIdStream(String projectId, EntityState state);
+  Flowable<List<FeatureEntity>> findOnceAndStream(String projectId, EntityState state);
 
   @Query("SELECT * FROM feature WHERE id = :id")
   Maybe<FeatureEntity> findById(String id);
