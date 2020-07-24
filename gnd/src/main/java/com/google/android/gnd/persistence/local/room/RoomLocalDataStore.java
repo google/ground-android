@@ -434,8 +434,7 @@ public class RoomLocalDataStore implements LocalDataStore {
     return featureDao
         .update(entity.toBuilder().setState(EntityState.DELETED).build())
         .doOnSubscribe(__ -> Timber.d("Marking feature as deleted : %s", mutation))
-        .ignoreElement()
-        .subscribeOn(schedulers.io());
+        .ignoreElement();
   }
 
   private Completable insertOrUpdateFeature(FeatureMutation mutation, User user) {
