@@ -106,6 +106,7 @@ public class HomeScreenFragment extends AbstractFragment
         .observe(this, e -> e.ifUnhandled(this::onShowAddFeatureDialogRequest));
     viewModel.getBottomSheetState().observe(this, this::onBottomSheetStateChange);
     viewModel.getOpenDrawerRequests().observe(this, e -> e.ifUnhandled(this::openDrawer));
+    viewModel.getDeleteFeature().observe(this, this::onFeatureDeleted);
 
     showFeatureDialogRequests = PublishSubject.create();
 
@@ -115,6 +116,13 @@ public class HomeScreenFragment extends AbstractFragment
         .subscribe(viewModel::addFeature);
 
     projectSelectorViewModel = getViewModel(ProjectSelectorViewModel.class);
+  }
+
+  private void onFeatureDeleted(Boolean result) {
+    if (result) {
+      // TODO: Re-position map to default location after successful deletion.
+      hideBottomSheet();
+    }
   }
 
   @Nullable
@@ -247,8 +255,7 @@ public class HomeScreenFragment extends AbstractFragment
         // TODO
         return false;
       case R.id.delete_feature_menu_item:
-        // TODO: Re-position map to default location after successful deletion.
-        viewModel.deleteActiveFeature().as(autoDisposable(this)).subscribe(this::hideBottomSheet);
+        viewModel.deleteFeature();
         return true;
       default:
         return false;

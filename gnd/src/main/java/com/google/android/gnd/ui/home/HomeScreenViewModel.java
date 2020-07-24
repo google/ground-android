@@ -28,6 +28,7 @@ import com.google.android.gnd.repository.ProjectRepository;
 import com.google.android.gnd.rx.Action;
 import com.google.android.gnd.rx.Event;
 import com.google.android.gnd.rx.Loadable;
+import com.google.android.gnd.rx.Nil;
 import com.google.android.gnd.rx.Schedulers;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.common.Navigator;
@@ -35,6 +36,8 @@ import com.google.android.gnd.ui.common.SharedViewModel;
 import com.google.android.gnd.ui.map.MapPin;
 import io.reactivex.Completable;
 import io.reactivex.Single;
+import io.reactivex.processors.FlowableProcessor;
+import io.reactivex.processors.PublishProcessor;
 import io.reactivex.subjects.PublishSubject;
 import java8.util.Optional;
 import javax.inject.Inject;
@@ -56,6 +59,9 @@ public class HomeScreenViewModel extends AbstractViewModel {
   // TODO: Move into FeatureDetailsViewModel.
   private final MutableLiveData<Action> openDrawerRequests;
   private final MutableLiveData<BottomSheetState> bottomSheetState;
+
+  private final FlowableProcessor<Nil> deleteFeatureRequests = PublishProcessor.create();
+  private final LiveData<Boolean> deleteFeature;
 
   @Inject
   HomeScreenViewModel(
@@ -84,6 +90,19 @@ public class HomeScreenViewModel extends AbstractViewModel {
                         .onErrorResumeNext(Single.never())) // Prevent from breaking upstream.
             .observeOn(schedulers.ui())
             .subscribe(this::onAddFeature));
+
+    deleteFeature =
+        LiveDataReactiveStreams.fromPublisher(
+            deleteFeatureRequests.switchMapSingle(
+                __ -> deleteActiveFeature().toSingleDefault(true).onErrorReturnItem(false)));
+  }
+
+  public LiveData<Boolean> getDeleteFeature() {
+    return deleteFeature;
+  }
+
+  public void deleteFeature() {
+    deleteFeatureRequests.onNext(Nil.NIL);
   }
 
   private void onAddFeature(Feature feature) {
