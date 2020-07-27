@@ -23,6 +23,7 @@ import static java8.util.stream.StreamSupport.stream;
 import androidx.room.Transaction;
 import com.google.android.gnd.model.AuditInfo;
 import com.google.android.gnd.model.Mutation;
+import com.google.android.gnd.model.Mutation.Type;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.basemap.OfflineArea;
@@ -243,7 +244,7 @@ public class RoomLocalDataStore implements LocalDataStore {
   @Override
   public Flowable<ImmutableSet<Feature>> getFeaturesOnceAndStream(Project project) {
     return featureDao
-        .findByProjectIdStream(project.getId())
+        .findOnceAndStream(project.getId(), EntityState.DEFAULT)
         .map(
             list ->
                 stream(list)
@@ -272,7 +273,7 @@ public class RoomLocalDataStore implements LocalDataStore {
   @Override
   public Single<ImmutableList<Observation>> getObservations(Feature feature, String formId) {
     return observationDao
-        .findByFeatureId(feature.getId(), formId)
+        .findByFeatureId(feature.getId(), formId, EntityState.DEFAULT)
         .map(
             list ->
                 stream(list)
@@ -333,9 +334,27 @@ public class RoomLocalDataStore implements LocalDataStore {
         .collect(toImmutableList());
   }
 
-  @Transaction
   @Override
-  public Completable removePendingMutations(ImmutableList<Mutation> mutations) {
+  public Completable finalizePendingMutations(ImmutableList<Mutation> mutations) {
+    return finalizeDeletions(mutations).andThen(removePending(mutations));
+  }
+
+  private Completable finalizeDeletions(ImmutableList<Mutation> mutations) {
+    return Observable.fromIterable(mutations)
+        .filter(mutation -> mutation.getType() == Type.DELETE)
+        .flatMapCompletable(
+            mutation -> {
+              if (mutation instanceof ObservationMutation) {
+                return deleteObservation(((ObservationMutation) mutation).getObservationId());
+              } else if (mutation instanceof FeatureMutation) {
+                return deleteFeature(mutation.getFeatureId());
+              } else {
+                return Completable.error(new RuntimeException("Unknown type : " + mutation));
+              }
+            });
+  }
+
+  private Completable removePending(ImmutableList<Mutation> mutations) {
     return featureMutationDao
         .deleteAll(FeatureMutation.ids(mutations))
         .andThen(
@@ -401,14 +420,36 @@ public class RoomLocalDataStore implements LocalDataStore {
       case CREATE:
         return getUser(mutation.getUserId())
             .flatMapCompletable(user -> insertOrUpdateFeature(mutation, user));
+      case DELETE:
+        return featureDao
+            .findById(mutation.getFeatureId())
+            .flatMapCompletable(entity -> markFeatureForDeletion(entity, mutation))
+            .subscribeOn(schedulers.io());
       default:
         throw LocalDataStoreException.unknownMutationType(mutation.getType());
     }
   }
 
+  private Completable markFeatureForDeletion(FeatureEntity entity, FeatureMutation mutation) {
+    return featureDao
+        .update(entity.toBuilder().setState(EntityState.DELETED).build())
+        .doOnSubscribe(__ -> Timber.d("Marking feature as deleted : %s", mutation))
+        .ignoreElement();
+  }
+
   private Completable insertOrUpdateFeature(FeatureMutation mutation, User user) {
     return featureDao
         .insertOrUpdate(FeatureEntity.fromMutation(mutation, AuditInfo.now(user)))
+        .subscribeOn(schedulers.io());
+  }
+
+  @Override
+  public Completable deleteFeature(String featureId) {
+    return featureDao
+        .findById(featureId)
+        .toSingle()
+        .doOnSubscribe(__ -> Timber.d("Deleting local feature : %s", featureId))
+        .flatMapCompletable(entity -> featureDao.delete(entity))
         .subscribeOn(schedulers.io());
   }
 
@@ -445,7 +486,7 @@ public class RoomLocalDataStore implements LocalDataStore {
       case DELETE:
         return observationDao
             .findById(mutation.getObservationId())
-            .flatMapCompletable(entity -> markObservationDeleted(entity, mutation));
+            .flatMapCompletable(entity -> markObservationForDeletion(entity, mutation));
       default:
         throw LocalDataStoreException.unknownMutationType(mutation.getType());
     }
@@ -470,12 +511,11 @@ public class RoomLocalDataStore implements LocalDataStore {
         .subscribeOn(schedulers.io());
   }
 
-  private Completable markObservationDeleted(
-      ObservationEntity observationEntity, ObservationMutation mutation) {
-    return Single.just(observationEntity)
+  private Completable markObservationForDeletion(
+      ObservationEntity entity, ObservationMutation mutation) {
+    return observationDao
+        .update(entity.toBuilder().setState(EntityState.DELETED).build())
         .doOnSubscribe(__ -> Timber.d("Marking observation as deleted : %s", mutation))
-        .map(entity -> entity.toBuilder().setState(EntityState.DELETED).build())
-        .flatMap(entity -> observationDao.update(entity))
         .ignoreElement()
         .subscribeOn(schedulers.io());
   }
