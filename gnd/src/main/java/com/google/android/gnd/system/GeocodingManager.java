@@ -28,7 +28,7 @@ import java8.util.Optional;
 import timber.log.Timber;
 
 /**
- * GeocodingManger abstracts over native geocoding facilities, and provides convenience methods for
+ * GeocodingManger abstracts native geocoding facilities, and provides convenience methods for
  * using geocoding functionality on Ground model objects.
  */
 public class GeocodingManager {
