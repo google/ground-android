@@ -27,9 +27,7 @@ import androidx.work.Data;
 import androidx.work.WorkerParameters;
 import com.google.android.gnd.R;
 import com.google.android.gnd.model.Mutation;
-import com.google.android.gnd.model.Mutation.Type;
 import com.google.android.gnd.model.User;
-import com.google.android.gnd.model.observation.ObservationMutation;
 import com.google.android.gnd.persistence.local.LocalDataStore;
 import com.google.android.gnd.persistence.remote.RemoteDataStore;
 import com.google.android.gnd.system.NotificationManager;
@@ -112,17 +110,8 @@ public class LocalMutationSyncWorker extends BaseWorker {
   private Completable processMutations(ImmutableList<Mutation> mutations, User user) {
     return remoteDataStore
         .applyMutations(mutations, user)
-        .andThen(deleteObservationIfRemovedRemotely(mutations))
-        .andThen(localDataStore.removePendingMutations(mutations));
-  }
-
-  // TODO: If the remote sync fails, reset the state to DEFAULT.
-  private Completable deleteObservationIfRemovedRemotely(ImmutableList<Mutation> mutations) {
-    return Observable.fromIterable(mutations)
-        .filter(mutation -> mutation.getType() == Type.DELETE)
-        .filter(mutation -> mutation instanceof ObservationMutation)
-        .map(mutation -> ((ObservationMutation) mutation).getObservationId())
-        .flatMapCompletable(localDataStore::deleteObservation);
+        // TODO: If the remote sync fails, reset the state to DEFAULT.
+        .andThen(localDataStore.finalizePendingMutations(mutations));
   }
 
   private Map<String, ImmutableList<Mutation>> groupByUserId(

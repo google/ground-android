@@ -117,6 +117,8 @@ public abstract class FeatureEntity {
         .build();
   }
 
+  public abstract FeatureEntity.Builder toBuilder();
+
   // Boilerplate generated using Android Studio AutoValue plugin:
 
   public static FeatureEntity create(
