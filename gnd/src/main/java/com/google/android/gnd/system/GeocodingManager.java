@@ -22,9 +22,11 @@ import android.location.Geocoder;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gnd.R;
 import com.google.android.gnd.model.basemap.OfflineArea;
+import dagger.hilt.android.qualifiers.ApplicationContext;
 import java.io.IOException;
 import java.util.List;
 import java8.util.Optional;
+import javax.inject.Inject;
 import timber.log.Timber;
 
 /**
@@ -41,7 +43,8 @@ public class GeocodingManager {
   private final Geocoder geocoder;
   private final String defaultAreaName;
 
-  public GeocodingManager(Context context) {
+  @Inject
+  public GeocodingManager(@ApplicationContext Context context) {
     this.geocoder = new Geocoder(context);
     this.defaultAreaName = context.getString(R.string.offline_areas_unknown_area);
   }

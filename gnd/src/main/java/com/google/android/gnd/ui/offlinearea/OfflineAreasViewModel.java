@@ -38,15 +38,13 @@ public class OfflineAreasViewModel extends AbstractViewModel {
 
   private LiveData<ImmutableMap<String, OfflineArea>> offlineAreas;
   private final Navigator navigator;
-  private final GeocodingManager geocoder;
 
   @Inject
   OfflineAreasViewModel(
       Navigator navigator,
       OfflineAreaRepository offlineAreaRepository,
-      @ApplicationContext Context context) {
+      GeocodingManager geocoder) {
     this.navigator = navigator;
-    this.geocoder = new GeocodingManager(context);
     this.offlineAreas =
         LiveDataReactiveStreams.fromPublisher(
             offlineAreaRepository
