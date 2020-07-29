@@ -30,8 +30,8 @@ import javax.inject.Inject;
 import timber.log.Timber;
 
 /**
- * GeocodingManger abstracts native geocoding facilities, and provides convenience methods for
- * using geocoding functionality on Ground model objects.
+ * GeocodingManger abstracts native geocoding facilities, and provides convenience methods for using
+ * geocoding functionality on Ground model objects.
  */
 public class GeocodingManager {
   static class AddressNotFoundException extends Exception {

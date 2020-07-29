@@ -18,7 +18,6 @@ package com.google.android.gnd.ui.offlinearea;
 
 import static java8.util.stream.StreamSupport.stream;
 
-import android.content.Context;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
 import com.google.android.gnd.model.basemap.OfflineArea;
@@ -27,7 +26,6 @@ import com.google.android.gnd.system.GeocodingManager;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.common.collect.ImmutableMap;
-import dagger.hilt.android.qualifiers.ApplicationContext;
 import java8.util.stream.Collectors;
 import javax.inject.Inject;
 
@@ -41,9 +39,7 @@ public class OfflineAreasViewModel extends AbstractViewModel {
 
   @Inject
   OfflineAreasViewModel(
-      Navigator navigator,
-      OfflineAreaRepository offlineAreaRepository,
-      GeocodingManager geocoder) {
+      Navigator navigator, OfflineAreaRepository offlineAreaRepository, GeocodingManager geocoder) {
     this.navigator = navigator;
     this.offlineAreas =
         LiveDataReactiveStreams.fromPublisher(
