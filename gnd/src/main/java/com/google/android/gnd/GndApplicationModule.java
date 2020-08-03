@@ -26,6 +26,8 @@ import com.google.android.gnd.persistence.remote.firestore.FirestoreDataStore;
 import com.google.android.gnd.persistence.remote.firestore.FirestoreStorageManager;
 import com.google.android.gnd.persistence.remote.firestore.FirestoreUuidGenerator;
 import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator;
+import com.google.android.gnd.system.AuthenticationManager;
+import com.google.android.gnd.system.GoogleAuthenticationManager;
 import com.google.android.gnd.ui.common.ViewModelModule;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreSettings;
@@ -99,4 +101,9 @@ abstract class GndApplicationModule {
   @Binds
   @Singleton
   abstract RemoteStorageManager remoteStorageManager(FirestoreStorageManager fsm);
+
+  /** Provides the Google implementation of authentication manager. */
+  @Binds
+  @Singleton
+  abstract AuthenticationManager googleAuthenticationManager(GoogleAuthenticationManager gam);
 }

@@ -10,6 +10,7 @@ import androidx.test.core.app.ActivityScenario;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import dagger.hilt.android.testing.HiltAndroidRule;
 import dagger.hilt.android.testing.HiltAndroidTest;
+import dagger.hilt.android.testing.UninstallModules;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -24,6 +25,7 @@ import org.junit.Test;
  * Then:
  *  - the observation marker is displayed on the map screen
  */
+@UninstallModules()
 @HiltAndroidTest
 public class AddFeatureTest {
 
