@@ -22,9 +22,19 @@ import static androidx.test.espresso.matcher.ViewMatchers.withId;
 
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
+import com.google.android.gnd.system.auth.AuthenticationManager;
+import com.google.android.gnd.system.auth.AuthenticationModule;
+import com.google.android.gnd.system.auth.FakeAuthenticationManager;
+import com.google.android.gnd.system.auth.GoogleAuthenticationManager;
+import dagger.Binds;
+import dagger.Module;
+import dagger.hilt.InstallIn;
+import dagger.hilt.android.components.ApplicationComponent;
+import dagger.hilt.android.testing.BindValue;
 import dagger.hilt.android.testing.HiltAndroidRule;
 import dagger.hilt.android.testing.HiltAndroidTest;
 import dagger.hilt.android.testing.UninstallModules;
+import javax.inject.Singleton;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -33,7 +43,7 @@ import org.junit.Test;
  * observation when adding a feature. When: - they tap the "Add feature" FAB - choose a feature type
  * Then: - the observation marker is displayed on the map screen
  */
-@UninstallModules()
+@UninstallModules(AuthenticationModule.class)
 @HiltAndroidTest
 public class AddFeatureTest {
 
@@ -44,6 +54,13 @@ public class AddFeatureTest {
   public @Rule(order = 1)
   ActivityScenarioRule scenarioRule =
     new ActivityScenarioRule(MainActivity.class);
+
+  @Module
+  @InstallIn(ApplicationComponent.class)
+  abstract class AuthenticationModule {
+    @Binds
+    abstract AuthenticationManager bind(FakeAuthenticationManager fam);
+  }
 
   @Test
   public void addFeature() {

@@ -16,17 +16,18 @@
 
 package com.google.android.gnd.system.auth;
 
-import com.google.android.gnd.model.User;
-import io.reactivex.Observable;
+import dagger.Binds;
+import dagger.Module;
+import dagger.hilt.InstallIn;
+import dagger.hilt.android.components.ApplicationComponent;
+import javax.inject.Singleton;
 
-public interface AuthenticationManager {
-  Observable<SignInState> getSignInState();
+@InstallIn(ApplicationComponent.class)
+@Module
+public abstract class AuthenticationModule {
 
-  void signOut();
-
-  User getCurrentUser();
-
-  void signIn();
-
-  void init();
+  /** Provides the Google implementation of authentication manager. */
+  @Binds
+  @Singleton
+  abstract AuthenticationManager googleAuthenticationManager(GoogleAuthenticationManager gam);
 }

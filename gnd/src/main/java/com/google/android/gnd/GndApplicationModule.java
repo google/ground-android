@@ -102,8 +102,5 @@ abstract class GndApplicationModule {
   @Singleton
   abstract RemoteStorageManager remoteStorageManager(FirestoreStorageManager fsm);
 
-  /** Provides the Google implementation of authentication manager. */
-  @Binds
-  @Singleton
-  abstract AuthenticationManager googleAuthenticationManager(GoogleAuthenticationManager gam);
+
 }
