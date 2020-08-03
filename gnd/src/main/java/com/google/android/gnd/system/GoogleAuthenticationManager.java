@@ -29,7 +29,6 @@ import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gnd.R;
 import com.google.android.gnd.model.User;
-import com.google.android.gnd.rx.ValueOrError;
 import com.google.android.gnd.system.ActivityStreams.ActivityResult;
 import com.google.android.gnd.system.SignInState.State;
 import com.google.firebase.auth.AuthCredential;
