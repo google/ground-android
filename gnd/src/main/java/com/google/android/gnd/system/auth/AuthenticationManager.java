@@ -14,13 +14,11 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.system;
+package com.google.android.gnd.system.auth;
 
 import com.google.android.gnd.model.User;
-import dagger.hilt.android.scopes.ActivityScoped;
 import io.reactivex.Observable;
 
-@ActivityScoped
 public interface AuthenticationManager {
   Observable<SignInState> getSignInState();
 

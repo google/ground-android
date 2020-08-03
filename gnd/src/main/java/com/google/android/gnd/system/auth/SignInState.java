@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.system;
+package com.google.android.gnd.system.auth;
 
 import com.google.android.gnd.model.User;
 import com.google.android.gnd.rx.ValueOrError;
