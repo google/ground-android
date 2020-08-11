@@ -37,6 +37,8 @@ import dagger.hilt.android.testing.UninstallModules;
 import javax.inject.Singleton;
 import org.junit.Rule;
 import org.junit.Test;
+import timber.log.Timber;
+import timber.log.Timber.DebugTree;
 
 /**
  * Given: - a logged in user - with an active project which doesn't direct the user to add an
@@ -59,6 +61,7 @@ public class AddFeatureTest {
   @InstallIn(ApplicationComponent.class)
   abstract class AuthenticationModule {
     @Binds
+    @Singleton
     abstract AuthenticationManager bind(FakeAuthenticationManager fam);
   }
 
