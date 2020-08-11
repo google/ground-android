@@ -20,6 +20,8 @@ import android.app.Application;
 import android.content.Context;
 import androidx.test.runner.AndroidJUnitRunner;
 import dagger.hilt.android.testing.HiltTestApplication;
+import timber.log.Timber;
+import timber.log.Timber.DebugTree;
 
 public class CustomTestRunner extends AndroidJUnitRunner {
 
@@ -27,6 +29,8 @@ public class CustomTestRunner extends AndroidJUnitRunner {
   public Application newApplication(ClassLoader cl, String className,
     Context context)
     throws ClassNotFoundException, IllegalAccessException, InstantiationException {
+
+    Timber.plant(new DebugTree());
     return super.newApplication(cl, HiltTestApplication.class.getName(), context);
   }
 }
