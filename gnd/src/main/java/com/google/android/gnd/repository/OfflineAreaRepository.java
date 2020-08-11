@@ -23,13 +23,16 @@ import static java8.util.stream.StreamSupport.stream;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gnd.Config;
 import com.google.android.gnd.R;
+import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.basemap.OfflineArea;
 import com.google.android.gnd.model.basemap.OfflineArea.State;
+import com.google.android.gnd.model.basemap.OfflineBaseMapSource;
 import com.google.android.gnd.model.basemap.tile.Tile;
 import com.google.android.gnd.persistence.geojson.GeoJsonParser;
 import com.google.android.gnd.persistence.local.LocalDataStore;
 import com.google.android.gnd.persistence.sync.TileDownloadWorkManager;
 import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator;
+import com.google.android.gnd.rx.Loadable;
 import com.google.android.gnd.ui.util.FileUtil;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -38,12 +41,15 @@ import io.reactivex.Flowable;
 import io.reactivex.Single;
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import javax.inject.Inject;
+import org.apache.commons.io.FileUtils;
 import timber.log.Timber;
 
 public class OfflineAreaRepository {
   private final TileDownloadWorkManager tileDownloadWorkManager;
   private final LocalDataStore localDataStore;
+  private final ProjectRepository projectRepository;
   private final GeoJsonParser geoJsonParser;
   private final FileUtil fileUtil;
 
@@ -53,6 +59,7 @@ public class OfflineAreaRepository {
   public OfflineAreaRepository(
       TileDownloadWorkManager tileDownloadWorkManager,
       LocalDataStore localDataStore,
+      ProjectRepository projectRepository,
       GeoJsonParser geoJsonParser,
       OfflineUuidGenerator uuidGenerator,
       FileUtil fileUtil) {
@@ -60,20 +67,36 @@ public class OfflineAreaRepository {
     this.localDataStore = localDataStore;
     this.geoJsonParser = geoJsonParser;
     this.uuidGenerator = uuidGenerator;
+    this.projectRepository = projectRepository;
     this.fileUtil = fileUtil;
   }
 
-  private Completable enqueueTileDownloads(OfflineArea area) {
-    File jsonSource;
-
-    try {
-      jsonSource = fileUtil.getFileFromRawResource(R.raw.gnd_geojson, Config.GEO_JSON);
-    } catch (IOException e) {
-      return Completable.error(e);
+  /**
+   * Download the offline basemap source for the active project.
+   *
+   * <p>Only the first basemap source is used. Sources are always re-downloaded and overwritten on
+   * subsequent calls.
+   */
+  private File downloadOfflineBaseMapSource(
+      ImmutableList<OfflineBaseMapSource> offlineBaseMapSources)
+      throws IOException, NoBaseMapSourceException {
+    if (offlineBaseMapSources.isEmpty()) {
+      throw new NoBaseMapSourceException("No basemap sources specified for this project.");
     }
 
-    ImmutableList<Tile> tiles = geoJsonParser.intersectingTiles(area.getBounds(), jsonSource);
+    OfflineBaseMapSource source = offlineBaseMapSources.get(0);
+    URL baseMapUrl = source.getUrl();
+    Timber.d("Basemap url: %s, file: %s", baseMapUrl, baseMapUrl.getFile());
+    File localFile = fileUtil.makeFile(baseMapUrl.getFile());
 
+    FileUtils.copyURLToFile(baseMapUrl, localFile);
+    return localFile;
+  }
+
+  /**
+   * Enqueue a single area and its tiles for download.
+   */
+  private Completable enqueueDownload(OfflineArea area, ImmutableList<Tile> tiles) {
     return localDataStore
         .insertOrUpdateOfflineArea(area.toBuilder().setState(State.IN_PROGRESS).build())
         .andThen(
@@ -85,6 +108,22 @@ public class OfflineAreaRepository {
         .andThen(tileDownloadWorkManager.enqueueTileDownloadWorker());
   }
 
+  /**
+   * Determine the set of tiles that need to be downloaded for a given area, then enqueue tile
+   * downloads.
+   */
+  private Completable enqueueTileDownloads(OfflineArea area) {
+    return projectRepository
+        .getActiveProjectOnceAndStream()
+        .compose(Loadable::values)
+        .map(Project::getOfflineBaseMapSources)
+        .map(this::downloadOfflineBaseMapSource)
+        .map(json -> geoJsonParser.intersectingTiles(area.getBounds(), json))
+        .flatMapCompletable(tiles -> enqueueDownload(area, tiles))
+        .doOnError(throwable -> Timber.e(throwable, "failed to download area"))
+        .onErrorComplete();
+  }
+
   public Completable addAreaAndEnqueue(LatLngBounds bounds) {
     OfflineArea offlineArea =
         OfflineArea.newBuilder()
@@ -93,10 +132,7 @@ public class OfflineAreaRepository {
             .setState(State.PENDING)
             .build();
 
-    return localDataStore
-        .insertOrUpdateOfflineArea(offlineArea)
-        .doOnError(__ -> Timber.e("failed to add/update offline area in the database"))
-        .andThen(enqueueTileDownloads(offlineArea));
+    return enqueueTileDownloads(offlineArea);
   }
 
   public Flowable<ImmutableList<OfflineArea>> getOfflineAreasOnceAndStream() {
@@ -132,5 +168,11 @@ public class OfflineAreaRepository {
                 stream(set)
                     .filter(tile -> tile.getState() == Tile.State.DOWNLOADED)
                     .collect(toImmutableSet()));
+  }
+
+  private class NoBaseMapSourceException extends Exception {
+    NoBaseMapSourceException(String message) {
+      super(message);
+    }
   }
 }

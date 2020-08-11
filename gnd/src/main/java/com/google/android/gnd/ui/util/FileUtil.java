@@ -70,6 +70,13 @@ public class FileUtil {
     return file;
   }
 
+  /**
+   * Creates a new empty file in the app's file directory /data/data/com.google.android.gnd/files
+   */
+  public File makeFile(String filename) {
+    return new File(context.getFilesDir(), filename);
+  }
+
   public File getFileFromRawResource(@RawRes int resourceId, String filename) throws IOException {
     File file = new File(context.getFilesDir() + "/" + filename);
 
