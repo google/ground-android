@@ -21,8 +21,6 @@ import static com.google.android.gnd.util.ImmutableSetCollector.toImmutableSet;
 import static java8.util.stream.StreamSupport.stream;
 
 import com.google.android.gms.maps.model.LatLngBounds;
-import com.google.android.gnd.Config;
-import com.google.android.gnd.R;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.basemap.OfflineArea;
 import com.google.android.gnd.model.basemap.OfflineArea.State;
@@ -93,9 +91,7 @@ public class OfflineAreaRepository {
     return localFile;
   }
 
-  /**
-   * Enqueue a single area and its tiles for download.
-   */
+  /** Enqueue a single area and its tiles for download. */
   private Completable enqueueDownload(OfflineArea area, ImmutableList<Tile> tiles) {
     return localDataStore
         .insertOrUpdateOfflineArea(area.toBuilder().setState(State.IN_PROGRESS).build())
@@ -145,19 +141,17 @@ public class OfflineAreaRepository {
 
   public Flowable<ImmutableSet<Tile>> getIntersectingDownloadedTilesOnceAndStream(
       OfflineArea offlineArea) {
-    File jsonSource;
-
-    try {
-      jsonSource = fileUtil.getFileFromRawResource(R.raw.gnd_geojson, Config.GEO_JSON);
-    } catch (IOException e) {
-      return Flowable.error(e);
-    }
-
-    ImmutableList<Tile> tiles =
-        geoJsonParser.intersectingTiles(offlineArea.getBounds(), jsonSource);
-
-    return getDownloadedTilesOnceAndStream()
-        .map(ts -> stream(tiles).filter(tiles::contains).collect(toImmutableSet()));
+    return projectRepository
+        .getActiveProjectOnceAndStream()
+        .compose(Loadable::values)
+        .map(Project::getOfflineBaseMapSources)
+        .map(this::downloadOfflineBaseMapSource)
+        .map(json -> geoJsonParser.intersectingTiles(offlineArea.getBounds(), json))
+        .flatMap(
+            tiles ->
+                getDownloadedTilesOnceAndStream()
+                    .map(ts -> stream(ts).filter(tiles::contains).collect(toImmutableSet())))
+        .onErrorReturn(throwable -> ImmutableSet.of());
   }
 
   public Flowable<ImmutableSet<Tile>> getDownloadedTilesOnceAndStream() {
