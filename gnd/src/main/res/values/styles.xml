@@ -34,6 +34,11 @@
     <item name="colorAccent">@color/colorAccent</item>
   </style>
 
+  <style name="FeatureDetailsToolbar" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
+    <item name="colorControlNormal">@color/colorBackground</item>
+    <item name="android:textColor">@color/colorForeground</item>
+  </style>
+
   <!-- TODO: Green toolbar is no longer a thing; rename or remove. -->
   <style name="GreenToolbarTheme" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
     <item name="gndToolbarTitleStyle">@style/GreenToolbarTitle</item>

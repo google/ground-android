@@ -46,6 +46,7 @@ import com.google.android.gnd.model.observation.ResponseDelta;
 import com.google.android.gnd.model.observation.ResponseMap;
 import com.google.android.gnd.model.observation.TextResponse;
 import com.google.android.gnd.persistence.local.room.LocalDataStoreException;
+import com.google.android.gnd.persistence.local.room.dao.FeatureDao;
 import com.google.android.gnd.persistence.local.room.dao.ObservationDao;
 import com.google.android.gnd.persistence.local.room.models.EntityState;
 import com.google.android.gnd.rx.SchedulersModule;
@@ -183,6 +184,7 @@ public class LocalDataStoreTest {
 
   @Inject LocalDataStore localDataStore;
   @Inject ObservationDao observationDao;
+  @Inject FeatureDao featureDao;
 
   private static FeatureMutation createTestFeatureMutation(Point point) {
     return FeatureMutation.builder()
@@ -325,13 +327,13 @@ public class LocalDataStoreTest {
   }
 
   @Test
-  public void testRemovePendingMutation() {
+  public void testFinalizePendingMutation() {
     localDataStore.insertOrUpdateUser(TEST_USER).blockingAwait();
     localDataStore.insertOrUpdateProject(TEST_PROJECT).blockingAwait();
     localDataStore.applyAndEnqueue(TEST_FEATURE_MUTATION).blockingAwait();
 
     localDataStore
-        .removePendingMutations(ImmutableList.of(TEST_FEATURE_MUTATION))
+        .finalizePendingMutations(ImmutableList.of(TEST_FEATURE_MUTATION))
         .test()
         .assertComplete();
 
@@ -455,7 +457,7 @@ public class LocalDataStoreTest {
     // Calling applyAndEnqueue marks the local observation as deleted.
     localDataStore.applyAndEnqueue(mutation).blockingAwait();
 
-    // Verify that local entity exists and it's state is updated.
+    // Verify that local entity exists and its state is updated.
     observationDao
         .findById("observation id")
         .test()
@@ -469,6 +471,46 @@ public class LocalDataStoreTest {
     localDataStore.deleteObservation("observation id").blockingAwait();
 
     // Verify that the observation doesn't exist anymore
+    localDataStore.getObservation(feature, "observation id").test().assertNoValues();
+  }
+
+  @Test
+  public void testDeleteFeature() {
+    localDataStore.insertOrUpdateUser(TEST_USER).blockingAwait();
+    localDataStore.insertOrUpdateProject(TEST_PROJECT).blockingAwait();
+
+    localDataStore.applyAndEnqueue(TEST_FEATURE_MUTATION).blockingAwait();
+    localDataStore.applyAndEnqueue(TEST_OBSERVATION_MUTATION).blockingAwait();
+
+    TestSubscriber<ImmutableSet<Feature>> subscriber =
+        localDataStore.getFeaturesOnceAndStream(TEST_PROJECT).test();
+
+    // Assert that one feature is streamed.
+    Feature feature = localDataStore.getFeature(TEST_PROJECT, "feature id").blockingGet();
+    subscriber.assertValueAt(0, ImmutableSet.of(feature));
+
+    FeatureMutation mutation =
+        TEST_FEATURE_MUTATION.toBuilder().setId(null).setType(Mutation.Type.DELETE).build();
+
+    // Calling applyAndEnqueue marks the local feature as deleted.
+    localDataStore.applyAndEnqueue(mutation).blockingAwait();
+
+    // Verify that local entity exists but its state is updated to DELETED.
+    featureDao
+        .findById("feature id")
+        .test()
+        .assertValue(featureEntity -> featureEntity.getState() == EntityState.DELETED);
+
+    // Verify that the local feature is now removed from the latest feature stream.
+    subscriber.assertValueAt(1, ImmutableSet.of());
+
+    // After successful remote sync, delete feature is called by LocalMutationSyncWorker.
+    localDataStore.deleteFeature("feature id").blockingAwait();
+
+    // Verify that the feature doesn't exist anymore
+    localDataStore.getFeature(TEST_PROJECT, "feature id").test().assertNoValues();
+
+    // Verify that the linked observation is also deleted.
     localDataStore.getObservation(feature, "observation id").test().assertNoValues();
   }
 

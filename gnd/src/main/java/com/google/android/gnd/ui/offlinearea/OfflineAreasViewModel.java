@@ -16,13 +16,17 @@
 
 package com.google.android.gnd.ui.offlinearea;
 
+import static java8.util.stream.StreamSupport.stream;
+
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
 import com.google.android.gnd.model.basemap.OfflineArea;
 import com.google.android.gnd.repository.OfflineAreaRepository;
+import com.google.android.gnd.system.GeocodingManager;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.common.Navigator;
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import java8.util.stream.Collectors;
 import javax.inject.Inject;
 
 /**
@@ -30,25 +34,33 @@ import javax.inject.Inject;
  */
 public class OfflineAreasViewModel extends AbstractViewModel {
 
-  private LiveData<ImmutableList<OfflineArea>> offlineAreas;
+  private LiveData<ImmutableMap<String, OfflineArea>> offlineAreas;
   private final Navigator navigator;
 
   @Inject
-  OfflineAreasViewModel(Navigator navigator, OfflineAreaRepository offlineAreaRepository) {
+  OfflineAreasViewModel(
+      Navigator navigator, OfflineAreaRepository offlineAreaRepository, GeocodingManager geocoder) {
     this.navigator = navigator;
     this.offlineAreas =
-        LiveDataReactiveStreams.fromPublisher(offlineAreaRepository.getOfflineAreasOnceAndStream());
+        LiveDataReactiveStreams.fromPublisher(
+            offlineAreaRepository
+                .getOfflineAreasOnceAndStream()
+                .map(
+                    areas ->
+                        stream(areas)
+                            .collect(Collectors.toMap(geocoder::getOfflineAreaName, this::id)))
+                .map(ImmutableMap::copyOf));
   }
 
   public void showOfflineAreaSelector() {
     navigator.showOfflineAreaSelector();
   }
 
-  public void showOfflineAreaViewer(String offlineAreaId) {
-    navigator.showOfflineAreaViewer(offlineAreaId);
+  private OfflineArea id(OfflineArea area) {
+    return area;
   }
 
-  LiveData<ImmutableList<OfflineArea>> getOfflineAreas() {
+  LiveData<ImmutableMap<String, OfflineArea>> getOfflineAreas() {
     return offlineAreas;
   }
 }
