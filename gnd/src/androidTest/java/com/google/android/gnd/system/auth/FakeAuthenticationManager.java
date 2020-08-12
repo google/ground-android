@@ -1,13 +1,11 @@
 package com.google.android.gnd.system.auth;
 
-import android.util.Log;
 import com.google.android.gnd.model.User;
 import com.google.android.gnd.system.auth.SignInState.State;
 import io.reactivex.Observable;
 import io.reactivex.subjects.BehaviorSubject;
 import io.reactivex.subjects.Subject;
 import javax.inject.Inject;
-import timber.log.Timber;
 
 public class FakeAuthenticationManager implements AuthenticationManager {
 
@@ -15,7 +13,7 @@ public class FakeAuthenticationManager implements AuthenticationManager {
 
   public Subject<SignInState> behaviourSubject = BehaviorSubject.create();
 
-  private User user = User.builder()
+  public final static User TEST_USER = User.builder()
     .setDisplayName("Test User")
     .setEmail("test@user.com")
     .setId("TEST_USER_ID")
@@ -32,12 +30,12 @@ public class FakeAuthenticationManager implements AuthenticationManager {
 
   @Override
   public User getCurrentUser() {
-    return user;
+    return TEST_USER;
   }
 
   @Override
   public void init() {
-    behaviourSubject.onNext(new SignInState(State.SIGNED_OUT));
+    behaviourSubject.onNext(new SignInState(TEST_USER));
   }
 
   @Override
@@ -45,7 +43,7 @@ public class FakeAuthenticationManager implements AuthenticationManager {
     // Notifies all listeners that a new item has arrived in the pipe
     // This is like a queue with one item in the buffer, new listeners will get the last item in the pipe
     // this wouldn't work with an observer because it's "cold"
-    behaviourSubject.onNext(new SignInState(user));
+    behaviourSubject.onNext(new SignInState(TEST_USER));
   }
 
   @Override

@@ -49,6 +49,7 @@
         android:paddingBottom="@dimen/feature_details_header_padding_bottom">
 
         <TextView
+          android:id="@+id/feature_title"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
           android:text="@{viewModel.featureTitle}"

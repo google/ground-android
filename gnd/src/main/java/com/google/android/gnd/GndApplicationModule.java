@@ -20,20 +20,7 @@ import android.app.Application;
 import android.content.SharedPreferences;
 import androidx.work.WorkManager;
 import com.google.android.gms.common.GoogleApiAvailability;
-import com.google.android.gnd.persistence.remote.RemoteDataStore;
-import com.google.android.gnd.persistence.remote.RemoteStorageManager;
-import com.google.android.gnd.persistence.remote.firestore.FirestoreDataStore;
-import com.google.android.gnd.persistence.remote.firestore.FirestoreStorageManager;
-import com.google.android.gnd.persistence.remote.firestore.FirestoreUuidGenerator;
-import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator;
-import com.google.android.gnd.system.auth.AuthenticationManager;
-import com.google.android.gnd.system.auth.GoogleAuthenticationManager;
 import com.google.android.gnd.ui.common.ViewModelModule;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreSettings;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
-import dagger.Binds;
 import dagger.Module;
 import dagger.Provides;
 import dagger.hilt.InstallIn;
@@ -58,9 +45,9 @@ abstract class GndApplicationModule {
 
   @Provides
   @Singleton
-  static SharedPreferences sharedPreferences(Application application) {
+  static SharedPreferences provideSharedPreferences(Application application) {
     return application
-        .getApplicationContext()
-        .getSharedPreferences(Config.SHARED_PREFS_NAME, Config.SHARED_PREFS_MODE);
+      .getApplicationContext()
+      .getSharedPreferences(Config.SHARED_PREFS_NAME, Config.SHARED_PREFS_MODE);
   }
 }
