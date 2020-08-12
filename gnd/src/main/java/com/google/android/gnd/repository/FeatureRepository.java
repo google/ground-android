@@ -85,9 +85,7 @@ public class FeatureRepository {
       case ENTITY_MODIFIED:
         return event.value().map(localDataStore::mergeFeature).orElse(Completable.complete());
       case ENTITY_REMOVED:
-        // TODO: Delete features:
-        // localDataStore.removeFeature(event.getEntityId());
-        return Completable.complete();
+        return localDataStore.deleteFeature(event.getEntityId());
       case ERROR:
         event.error().ifPresent(e -> Timber.d(e, "Invalid features in remote db ignored"));
         return Completable.complete();
