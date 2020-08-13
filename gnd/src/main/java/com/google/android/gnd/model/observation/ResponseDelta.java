@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.model.observation;
 
+import com.google.android.gnd.model.form.Field;
 import com.google.auto.value.AutoValue;
 import java8.util.Optional;
 
@@ -24,6 +25,10 @@ import java8.util.Optional;
 public abstract class ResponseDelta {
   /** Returns the id of the form field being updated. */
   public abstract String getFieldId();
+
+  public abstract Field.Type getFieldType();
+
+  public abstract Optional<Response> getOriginalResponse();
 
   /** Returns the new value of the response, or empty if removed. */
   public abstract Optional<Response> getNewResponse();
@@ -38,6 +43,10 @@ public abstract class ResponseDelta {
   public abstract static class Builder {
 
     public abstract Builder setFieldId(String newFieldId);
+
+    public abstract Builder setFieldType(Field.Type newFieldType);
+
+    public abstract Builder setOriginalResponse(Optional<Response> newOriginalResponse);
 
     public abstract Builder setNewResponse(Optional<Response> newNewResponse);
 
