@@ -16,9 +16,12 @@
 
 package com.google.android.gnd.persistence.local.room.converter;
 
+import static com.google.android.gnd.util.Enums.toEnum;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.room.TypeConverter;
+import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.observation.ResponseDelta;
 import com.google.common.collect.ImmutableList;
 import java.util.Iterator;
@@ -32,18 +35,32 @@ import timber.log.Timber;
  */
 public class ResponseDeltasTypeConverter {
 
+  private static final String KEY_FIELD_TYPE = "field type";
+  private static final String KEY_RESPONSE = "original response";
+  private static final String KEY_NEW_RESPONSE = "new response";
+
   @TypeConverter
-  @Nullable
+  @NonNull
   public static String toString(@NonNull ImmutableList<ResponseDelta> responseDeltas) {
     JSONObject json = new JSONObject();
     for (ResponseDelta delta : responseDeltas) {
       try {
-        json.put(
-            delta.getFieldId(),
-            delta
-                .getNewResponse()
-                .map(ResponseJsonConverter::toJsonObject)
-                .orElse(JSONObject.NULL));
+        JSONObject newJson = new JSONObject();
+        newJson
+            .put(KEY_FIELD_TYPE, delta.getFieldType().name())
+            .put(
+                KEY_RESPONSE,
+                delta
+                    .getOriginalResponse()
+                    .map(ResponseJsonConverter::toJsonObject)
+                    .orElse(JSONObject.NULL))
+            .put(
+                KEY_NEW_RESPONSE,
+                delta
+                    .getNewResponse()
+                    .map(ResponseJsonConverter::toJsonObject)
+                    .orElse(JSONObject.NULL));
+        json.put(delta.getFieldId(), newJson);
       } catch (JSONException e) {
         Timber.e(e, "Error building JSON");
       }
@@ -63,10 +80,13 @@ public class ResponseDeltasTypeConverter {
       Iterator<String> keys = jsonObject.keys();
       while (keys.hasNext()) {
         String fieldId = keys.next();
+        JSONObject jsonDelta = jsonObject.getJSONObject(fieldId);
         deltas.add(
             ResponseDelta.builder()
                 .setFieldId(fieldId)
-                .setNewResponse(ResponseJsonConverter.toResponse(jsonObject.get(fieldId)))
+                .setFieldType(toEnum(Field.Type.class, jsonDelta.getString(KEY_FIELD_TYPE)))
+                .setOriginalResponse(ResponseJsonConverter.toResponse(jsonDelta.get(KEY_RESPONSE)))
+                .setNewResponse(ResponseJsonConverter.toResponse(jsonDelta.get(KEY_NEW_RESPONSE)))
                 .build());
       }
     } catch (JSONException e) {
