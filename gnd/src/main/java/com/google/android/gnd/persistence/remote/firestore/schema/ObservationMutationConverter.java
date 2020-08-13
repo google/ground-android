@@ -16,7 +16,6 @@
 
 package com.google.android.gnd.persistence.remote.firestore.schema;
 
-import android.util.Log;
 import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.observation.MultipleChoiceResponse;
 import com.google.android.gnd.model.observation.ObservationMutation;
@@ -28,6 +27,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.firebase.firestore.FieldValue;
 import java.util.Map;
+import timber.log.Timber;
 
 /**
  * Converts between Firestore maps used to merge updates and {@link ObservationMutation} instances.
@@ -39,7 +39,6 @@ class ObservationMutationConverter {
   private static final String RESPONSES = "responses";
   private static final String CREATED = "created";
   private static final String LAST_MODIFIED = "lastModified";
-  private static final String TAG = ObservationMutationConverter.class.getSimpleName();
 
   static ImmutableMap<String, Object> toMap(ObservationMutation mutation, User user)
       throws DataStoreException {
@@ -85,7 +84,7 @@ class ObservationMutationConverter {
     } else if (response instanceof MultipleChoiceResponse) {
       return ((MultipleChoiceResponse) response).getChoices();
     } else {
-      Log.w(TAG, "Unknown response type: " + response.getClass().getName());
+      Timber.e("Unknown response type: %s", response.getClass().getName());
       return null;
     }
   }
