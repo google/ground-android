@@ -384,6 +384,8 @@ public class LocalDataStoreTest {
         ImmutableList.of(
             ResponseDelta.builder()
                 .setFieldId("really new field")
+                .setFieldType(Type.TEXT)
+                .setOriginalResponse(Optional.empty())
                 .setNewResponse(TextResponse.fromString("value for the really new field"))
                 .build());
 
