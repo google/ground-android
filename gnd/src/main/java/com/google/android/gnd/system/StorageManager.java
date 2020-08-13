@@ -130,6 +130,15 @@ public class StorageManager {
         .onErrorReturn(throwable -> getFileUriFromDestinationPath(destinationPath));
   }
 
+  /**
+   * Deletes the specified remote file.
+   *
+   * @param destinationPath Path of the uploaded file relative to Firestore
+   */
+  public Completable deleteRemotePhoto(String destinationPath) {
+    return RxTask.toCompletable(() -> remoteStorageManager.deleteFile(destinationPath));
+  }
+
   /** Save a copy of bitmap locally. */
   public Completable savePhoto(Bitmap bitmap, String filename) {
     try {
