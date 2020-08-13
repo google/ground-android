@@ -32,4 +32,7 @@ public interface RemoteStorageManager {
 
   /** Uploads file to a remote path. */
   Flowable<TransferProgress> uploadMediaFromFile(File file, String remoteDestinationPath);
+
+  /** Deletes the specified remote file. */
+  Task<Void> deleteFile(String remoteDestinationPath);
 }
