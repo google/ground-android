@@ -44,6 +44,7 @@ class FieldConverter {
     }
     field.setRequired(em.getRequired() != null && em.getRequired());
     field.setId(id);
+    field.setIndex(em.getIndex());
     field.setLabel(getLocalizedMessage(em.getLabel()));
     return Optional.of(field.build());
   }
