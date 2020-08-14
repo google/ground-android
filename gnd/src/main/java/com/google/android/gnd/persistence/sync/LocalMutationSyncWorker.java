@@ -30,7 +30,6 @@ import com.google.android.gnd.model.Mutation;
 import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.form.Field.Type;
 import com.google.android.gnd.model.observation.ObservationMutation;
-import com.google.android.gnd.model.observation.ResponseDelta;
 import com.google.android.gnd.persistence.local.LocalDataStore;
 import com.google.android.gnd.persistence.remote.RemoteDataStore;
 import com.google.android.gnd.system.NotificationManager;
@@ -39,7 +38,6 @@ import io.reactivex.Completable;
 import io.reactivex.Observable;
 import java.util.Map;
 import java.util.Set;
-import java8.util.Optional;
 import java8.util.stream.Collectors;
 import timber.log.Timber;
 
@@ -123,24 +121,18 @@ public class LocalMutationSyncWorker extends BaseWorker {
   }
 
   /**
-   * Filter all mutations containing observation mutations with changes to photo fields and uploads
+   * Filters all mutations containing observation mutations with changes to photo fields and uploads
    * to remote storage.
    */
   private Completable processPhotoFieldMutations(ImmutableList<Mutation> mutations) {
     return Observable.fromIterable(mutations)
         .filter(mutation -> mutation instanceof ObservationMutation)
-        .cast(ObservationMutation.class)
+        .flatMapIterable(mutation -> ((ObservationMutation) mutation).getResponseDeltas())
+        .filter(delta -> delta.getFieldType() == Type.PHOTO && delta.getNewResponse().isPresent())
+        .map(delta -> delta.getNewResponse().get().toString())
         .flatMapCompletable(
-            mutation ->
-                Observable.fromIterable(mutation.getResponseDeltas())
-                    .filter(delta -> delta.getFieldType() == Type.PHOTO)
-                    .map(ResponseDelta::getNewResponse)
-                    .map(Optional::isPresent)
-                    .map(Object::toString)
-                    .flatMapCompletable(
-                        remotePath ->
-                            Completable.fromRunnable(
-                                () -> photoSyncWorkManager.enqueueSyncWorker(remotePath))));
+            remotePath ->
+                Completable.fromRunnable(() -> photoSyncWorkManager.enqueueSyncWorker(remotePath)));
   }
 
   private Map<String, ImmutableList<Mutation>> groupByUserId(
