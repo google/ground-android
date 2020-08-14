@@ -31,6 +31,8 @@ import com.google.android.gnd.persistence.local.LocalDataStore;
 import com.google.android.gnd.persistence.sync.TileDownloadWorkManager;
 import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator;
 import com.google.android.gnd.rx.Loadable;
+import com.google.android.gnd.rx.RxDebug;
+import com.google.android.gnd.rx.Schedulers;
 import com.google.android.gnd.ui.util.FileUtil;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -50,6 +52,7 @@ public class OfflineAreaRepository {
   private final ProjectRepository projectRepository;
   private final GeoJsonParser geoJsonParser;
   private final FileUtil fileUtil;
+  private final Schedulers schedulers;
 
   private final OfflineUuidGenerator uuidGenerator;
 
@@ -60,13 +63,15 @@ public class OfflineAreaRepository {
       ProjectRepository projectRepository,
       GeoJsonParser geoJsonParser,
       OfflineUuidGenerator uuidGenerator,
-      FileUtil fileUtil) {
+      FileUtil fileUtil,
+      Schedulers schedulers) {
     this.tileDownloadWorkManager = tileDownloadWorkManager;
     this.localDataStore = localDataStore;
     this.geoJsonParser = geoJsonParser;
     this.uuidGenerator = uuidGenerator;
     this.projectRepository = projectRepository;
     this.fileUtil = fileUtil;
+    this.schedulers = schedulers;
   }
 
   /**
@@ -117,11 +122,13 @@ public class OfflineAreaRepository {
         .map(json -> geoJsonParser.intersectingTiles(area.getBounds(), json))
         .flatMapCompletable(tiles -> enqueueDownload(area, tiles))
         .doOnError(throwable -> Timber.e(throwable, "failed to download area"))
-        .onErrorComplete();
+        .subscribeOn(schedulers.io())
+        .doOnComplete(() -> Timber.d("completed tile stream"));
   }
 
   public Completable addAreaAndEnqueue(LatLngBounds bounds) {
     OfflineArea offlineArea =
+        // TODO: Geocode
         OfflineArea.newBuilder()
             .setBounds(bounds)
             .setId(uuidGenerator.generateUuid())
