@@ -30,17 +30,13 @@ import com.google.android.gnd.model.Mutation;
 import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.form.Field.Type;
 import com.google.android.gnd.model.observation.ObservationMutation;
-import com.google.android.gnd.model.observation.Response;
+import com.google.android.gnd.model.observation.ResponseDelta;
 import com.google.android.gnd.persistence.local.LocalDataStore;
 import com.google.android.gnd.persistence.remote.RemoteDataStore;
 import com.google.android.gnd.system.NotificationManager;
-import com.google.android.gnd.system.StorageManager;
-import com.google.android.gnd.ui.util.FileUtil;
 import com.google.common.collect.ImmutableList;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.util.Map;
 import java.util.Set;
 import java8.util.Optional;
@@ -59,9 +55,7 @@ public class LocalMutationSyncWorker extends BaseWorker {
   private final LocalDataStore localDataStore;
   private final RemoteDataStore remoteDataStore;
   private final String featureId;
-  private final StorageManager storageManager;
   private final PhotoSyncWorkManager photoSyncWorkManager;
-  private final FileUtil fileUtil;
 
   @WorkerInject
   public LocalMutationSyncWorker(
@@ -70,16 +64,12 @@ public class LocalMutationSyncWorker extends BaseWorker {
       LocalDataStore localDataStore,
       RemoteDataStore remoteDataStore,
       NotificationManager notificationManager,
-      StorageManager storageManager,
-      PhotoSyncWorkManager photoSyncWorkManager,
-      FileUtil fileUtil) {
+      PhotoSyncWorkManager photoSyncWorkManager) {
     super(context, params, notificationManager, LocalMutationSyncWorker.class.hashCode());
     this.localDataStore = localDataStore;
     this.remoteDataStore = remoteDataStore;
     this.featureId = params.getInputData().getString(FEATURE_ID_PARAM_KEY);
-    this.storageManager = storageManager;
     this.photoSyncWorkManager = photoSyncWorkManager;
-    this.fileUtil = fileUtil;
   }
 
   /** Returns a new work {@link Data} object containing the specified feature id. */
@@ -133,8 +123,8 @@ public class LocalMutationSyncWorker extends BaseWorker {
   }
 
   /**
-   * Filter all mutations containing observation mutations with changes to photo fields. Delete old
-   * photo from remote storage and enqueue new photo for upload.
+   * Filter all mutations containing observation mutations with changes to photo fields and uploads
+   * to remote storage.
    */
   private Completable processPhotoFieldMutations(ImmutableList<Mutation> mutations) {
     return Observable.fromIterable(mutations)
@@ -144,23 +134,13 @@ public class LocalMutationSyncWorker extends BaseWorker {
             mutation ->
                 Observable.fromIterable(mutation.getResponseDeltas())
                     .filter(delta -> delta.getFieldType() == Type.PHOTO)
-                    .flatMapCompletable(delta -> enqueuePhotoUpload(delta.getNewResponse())));
-  }
-
-  /** Enqueue photo for uploading to remote storage. */
-  private Completable enqueuePhotoUpload(Optional<Response> response) {
-    return Completable.fromRunnable(
-        () ->
-            response.ifPresent(
-                r -> {
-                  try {
-                    String remotePath = response.get().toString();
-                    File localFile = fileUtil.getLocalFileFromDestinationPath(remotePath);
-                    photoSyncWorkManager.enqueueSyncWorker(localFile.getPath(), remotePath);
-                  } catch (FileNotFoundException e) {
-                    throw new RuntimeException(e);
-                  }
-                }));
+                    .map(ResponseDelta::getNewResponse)
+                    .map(Optional::isPresent)
+                    .map(Object::toString)
+                    .flatMapCompletable(
+                        remotePath ->
+                            Completable.fromRunnable(
+                                () -> photoSyncWorkManager.enqueueSyncWorker(remotePath))));
   }
 
   private Map<String, ImmutableList<Mutation>> groupByUserId(
