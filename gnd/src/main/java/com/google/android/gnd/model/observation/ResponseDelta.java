@@ -28,8 +28,6 @@ public abstract class ResponseDelta {
 
   public abstract Field.Type getFieldType();
 
-  public abstract Optional<Response> getOriginalResponse();
-
   /** Returns the new value of the response, or empty if removed. */
   public abstract Optional<Response> getNewResponse();
 
@@ -45,8 +43,6 @@ public abstract class ResponseDelta {
     public abstract Builder setFieldId(String newFieldId);
 
     public abstract Builder setFieldType(Field.Type newFieldType);
-
-    public abstract Builder setOriginalResponse(Optional<Response> newOriginalResponse);
 
     public abstract Builder setNewResponse(Optional<Response> newNewResponse);
 

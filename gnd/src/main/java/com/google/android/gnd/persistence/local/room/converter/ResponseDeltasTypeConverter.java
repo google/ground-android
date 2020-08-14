@@ -36,7 +36,6 @@ import timber.log.Timber;
 public class ResponseDeltasTypeConverter {
 
   private static final String KEY_FIELD_TYPE = "field type";
-  private static final String KEY_RESPONSE = "original response";
   private static final String KEY_NEW_RESPONSE = "new response";
 
   @TypeConverter
@@ -48,12 +47,6 @@ public class ResponseDeltasTypeConverter {
         JSONObject newJson = new JSONObject();
         newJson
             .put(KEY_FIELD_TYPE, delta.getFieldType().name())
-            .put(
-                KEY_RESPONSE,
-                delta
-                    .getOriginalResponse()
-                    .map(ResponseJsonConverter::toJsonObject)
-                    .orElse(JSONObject.NULL))
             .put(
                 KEY_NEW_RESPONSE,
                 delta
@@ -85,7 +78,6 @@ public class ResponseDeltasTypeConverter {
             ResponseDelta.builder()
                 .setFieldId(fieldId)
                 .setFieldType(toEnum(Field.Type.class, jsonDelta.getString(KEY_FIELD_TYPE)))
-                .setOriginalResponse(ResponseJsonConverter.toResponse(jsonDelta.get(KEY_RESPONSE)))
                 .setNewResponse(ResponseJsonConverter.toResponse(jsonDelta.get(KEY_NEW_RESPONSE)))
                 .build());
       }
