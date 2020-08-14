@@ -35,7 +35,7 @@ import com.google.auto.value.AutoValue.CopyAnnotations;
             childColumns = "field_id", // NOPMD
             onDelete = ForeignKey.CASCADE),
     indices = {@Index("field_id")}, // NOPMD
-    primaryKeys = {"code", "field_id"}) // NOPMD
+    primaryKeys = {"id"}) // NOPMD
 public abstract class OptionEntity {
   @CopyAnnotations
   @NonNull
