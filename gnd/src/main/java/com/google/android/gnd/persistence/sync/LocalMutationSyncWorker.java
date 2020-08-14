@@ -28,6 +28,8 @@ import androidx.work.WorkerParameters;
 import com.google.android.gnd.R;
 import com.google.android.gnd.model.Mutation;
 import com.google.android.gnd.model.User;
+import com.google.android.gnd.model.form.Field.Type;
+import com.google.android.gnd.model.observation.ObservationMutation;
 import com.google.android.gnd.persistence.local.LocalDataStore;
 import com.google.android.gnd.persistence.remote.RemoteDataStore;
 import com.google.android.gnd.system.NotificationManager;
@@ -51,6 +53,7 @@ public class LocalMutationSyncWorker extends BaseWorker {
   private final LocalDataStore localDataStore;
   private final RemoteDataStore remoteDataStore;
   private final String featureId;
+  private final PhotoSyncWorkManager photoSyncWorkManager;
 
   @WorkerInject
   public LocalMutationSyncWorker(
@@ -58,11 +61,13 @@ public class LocalMutationSyncWorker extends BaseWorker {
       @Assisted @NonNull WorkerParameters params,
       LocalDataStore localDataStore,
       RemoteDataStore remoteDataStore,
-      NotificationManager notificationManager) {
+      NotificationManager notificationManager,
+      PhotoSyncWorkManager photoSyncWorkManager) {
     super(context, params, notificationManager, LocalMutationSyncWorker.class.hashCode());
     this.localDataStore = localDataStore;
     this.remoteDataStore = remoteDataStore;
     this.featureId = params.getInputData().getString(FEATURE_ID_PARAM_KEY);
+    this.photoSyncWorkManager = photoSyncWorkManager;
   }
 
   /** Returns a new work {@link Data} object containing the specified feature id. */
@@ -110,8 +115,24 @@ public class LocalMutationSyncWorker extends BaseWorker {
   private Completable processMutations(ImmutableList<Mutation> mutations, User user) {
     return remoteDataStore
         .applyMutations(mutations, user)
+        .andThen(processPhotoFieldMutations(mutations))
         // TODO: If the remote sync fails, reset the state to DEFAULT.
         .andThen(localDataStore.finalizePendingMutations(mutations));
+  }
+
+  /**
+   * Filters all mutations containing observation mutations with changes to photo fields and uploads
+   * to remote storage.
+   */
+  private Completable processPhotoFieldMutations(ImmutableList<Mutation> mutations) {
+    return Observable.fromIterable(mutations)
+        .filter(mutation -> mutation instanceof ObservationMutation)
+        .flatMapIterable(mutation -> ((ObservationMutation) mutation).getResponseDeltas())
+        .filter(delta -> delta.getFieldType() == Type.PHOTO && delta.getNewResponse().isPresent())
+        .map(delta -> delta.getNewResponse().get().toString())
+        .flatMapCompletable(
+            remotePath ->
+                Completable.fromRunnable(() -> photoSyncWorkManager.enqueueSyncWorker(remotePath)));
   }
 
   private Map<String, ImmutableList<Mutation>> groupByUserId(

@@ -22,19 +22,26 @@ import androidx.work.NetworkType;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkManager;
 import com.google.android.gnd.persistence.local.LocalValueStore;
+import com.google.android.gnd.ui.util.FileUtil;
+import java.io.File;
 import javax.inject.Inject;
 import javax.inject.Provider;
+import timber.log.Timber;
 
 /** Enqueues photo upload work to be done in the background. */
 public class PhotoSyncWorkManager extends BaseWorkManager {
 
   private final LocalValueStore localValueStore;
+  private final FileUtil fileUtil;
 
   @Inject
   public PhotoSyncWorkManager(
-      Provider<WorkManager> workManagerProvider, LocalValueStore localValueStore) {
+      Provider<WorkManager> workManagerProvider,
+      LocalValueStore localValueStore,
+      FileUtil fileUtil) {
     super(workManagerProvider);
     this.localValueStore = localValueStore;
+    this.fileUtil = fileUtil;
   }
 
   @Override
@@ -54,8 +61,15 @@ public class PhotoSyncWorkManager extends BaseWorkManager {
    * network connection is available. The returned {@code Completable} completes immediately as soon
    * as the worker is added to the work queue (not once the sync job completes).
    */
-  public void enqueueSyncWorker(@NonNull String localPath, @NonNull String remotePath) {
-    Data inputData = PhotoSyncWorker.createInputData(localPath, remotePath);
+  public void enqueueSyncWorker(@NonNull String remotePath) {
+    File localFile = fileUtil.getLocalFileFromRemotePath(remotePath);
+
+    if (!localFile.exists()) {
+      Timber.e("Local file not found: %s", localFile.getPath());
+      return;
+    }
+
+    Data inputData = PhotoSyncWorker.createInputData(localFile.getPath(), remotePath);
     OneTimeWorkRequest request = buildWorkerRequest(inputData);
     getWorkManager().enqueue(request);
   }
