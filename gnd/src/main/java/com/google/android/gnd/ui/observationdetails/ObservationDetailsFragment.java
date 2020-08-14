@@ -109,7 +109,7 @@ public class ObservationDetailsFragment extends AbstractFragment {
 
   private void showObservation(Observation observation) {
     binding.observationDetailsLayout.removeAllViews();
-    for (Element element : observation.getForm().getElements()) {
+    for (Element element : observation.getForm().getElementsSorted()) {
       if (element.getType() == Element.Type.FIELD) {
         addField(element.getField(), observation);
       }

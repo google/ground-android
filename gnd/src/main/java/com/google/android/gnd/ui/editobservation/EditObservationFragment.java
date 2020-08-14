@@ -174,7 +174,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
     LinearLayout formLayout = binding.editObservationLayout;
     formLayout.removeAllViews();
     fieldViewModelList.clear();
-    for (Element element : form.getElements()) {
+    for (Element element : form.getElementsSorted()) {
       if (element.getType() == Type.FIELD) {
         Field field = element.getField();
         ViewDataBinding binding = fieldViewFactory.addFieldView(field.getType(), formLayout);
