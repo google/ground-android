@@ -306,7 +306,6 @@ public class EditObservationViewModel extends AbstractViewModel {
           ResponseDelta.builder()
               .setFieldId(fieldId)
               .setFieldType(e.getField().getType())
-              .setOriginalResponse(originalResponse)
               .setNewResponse(currentResponse)
               .build());
     }
