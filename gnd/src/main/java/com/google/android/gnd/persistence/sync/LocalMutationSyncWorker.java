@@ -149,20 +149,18 @@ public class LocalMutationSyncWorker extends BaseWorker {
 
   /** Enqueue photo for uploading to remote storage. */
   private Completable enqueuePhotoUpload(Optional<Response> response) {
-    return Completable.create(
-        emitter -> {
-          response.ifPresent(
-              r -> {
-                String remotePath = response.get().toString();
-                try {
-                  File localFile = fileUtil.getLocalFileFromDestinationPath(remotePath);
-                  photoSyncWorkManager.enqueueSyncWorker(localFile.getPath(), remotePath);
-                } catch (FileNotFoundException e) {
-                  emitter.onError(e);
-                }
-              });
-          emitter.onComplete();
-        });
+    return Completable.fromRunnable(
+        () ->
+            response.ifPresent(
+                r -> {
+                  try {
+                    String remotePath = response.get().toString();
+                    File localFile = fileUtil.getLocalFileFromDestinationPath(remotePath);
+                    photoSyncWorkManager.enqueueSyncWorker(localFile.getPath(), remotePath);
+                  } catch (FileNotFoundException e) {
+                    throw new RuntimeException(e);
+                  }
+                }));
   }
 
   private Map<String, ImmutableList<Mutation>> groupByUserId(
