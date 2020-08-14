@@ -64,7 +64,7 @@ public class RemoteDataEvent<T> extends ValueOrError<T> {
   }
 
   public static <T> RemoteDataEvent<T> removed(String entityId) {
-    return new RemoteDataEvent<>(entityId, EventType.ENTITY_MODIFIED, null, null);
+    return new RemoteDataEvent<>(entityId, EventType.ENTITY_REMOVED, null, null);
   }
 
   public static <T> RemoteDataEvent<T> error(Throwable error) {
