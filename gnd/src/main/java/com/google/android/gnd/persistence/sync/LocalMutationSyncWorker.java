@@ -144,10 +144,7 @@ public class LocalMutationSyncWorker extends BaseWorker {
             mutation ->
                 Observable.fromIterable(mutation.getResponseDeltas())
                     .filter(delta -> delta.getFieldType() == Type.PHOTO)
-                    .flatMapCompletable(
-                        delta ->
-                            enqueuePhotoUpload(delta.getNewResponse())
-                                .andThen(deleteRemotePhoto(delta.getOriginalResponse()))));
+                    .flatMapCompletable(delta -> enqueuePhotoUpload(delta.getNewResponse())));
   }
 
   /** Enqueue photo for uploading to remote storage. */
@@ -166,13 +163,6 @@ public class LocalMutationSyncWorker extends BaseWorker {
               });
           emitter.onComplete();
         });
-  }
-
-  /** Removes remote file. */
-  private Completable deleteRemotePhoto(Optional<Response> response) {
-    return response
-        .map(r -> storageManager.deleteRemotePhoto(r.toString()))
-        .orElse(Completable.complete());
   }
 
   private Map<String, ImmutableList<Mutation>> groupByUserId(

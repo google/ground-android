@@ -90,9 +90,4 @@ public class FirestoreStorageManager implements RemoteStorageManager {
                                 (int) taskSnapshot.getBytesTransferred()))),
         BackpressureStrategy.LATEST);
   }
-
-  @Override
-  public Task<Void> deleteFile(String remoteDestinationPath) {
-    return createReference(remoteDestinationPath).delete();
-  }
 }
