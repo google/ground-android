@@ -35,8 +35,8 @@ import timber.log.Timber;
  */
 public class ResponseDeltasTypeConverter {
 
-  private static final String KEY_FIELD_TYPE = "field type";
-  private static final String KEY_NEW_RESPONSE = "new response";
+  private static final String KEY_FIELD_TYPE = "fieldType";
+  private static final String KEY_NEW_RESPONSE = "newResponse";
 
   @TypeConverter
   @NonNull
