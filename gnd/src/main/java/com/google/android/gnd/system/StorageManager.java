@@ -31,7 +31,6 @@ import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -111,10 +110,10 @@ public class StorageManager {
   }
 
   private Uri getFileUriFromDestinationPath(String destinationPath) {
-    try {
-      return Uri.fromFile(fileUtil.getLocalFileFromDestinationPath(destinationPath));
-    } catch (FileNotFoundException e) {
-      Timber.e(e);
+    File file = fileUtil.getLocalFileFromRemotePath(destinationPath);
+    if (file.exists()) {
+      return Uri.fromFile(file);
+    } else {
       return Uri.EMPTY;
     }
   }
