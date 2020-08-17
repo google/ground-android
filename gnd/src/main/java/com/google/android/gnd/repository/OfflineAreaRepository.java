@@ -31,7 +31,6 @@ import com.google.android.gnd.persistence.local.LocalDataStore;
 import com.google.android.gnd.persistence.sync.TileDownloadWorkManager;
 import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator;
 import com.google.android.gnd.rx.Loadable;
-import com.google.android.gnd.rx.RxDebug;
 import com.google.android.gnd.rx.Schedulers;
 import com.google.android.gnd.ui.util.FileUtil;
 import com.google.common.collect.ImmutableList;
@@ -80,17 +79,12 @@ public class OfflineAreaRepository {
    * <p>Only the first basemap source is used. Sources are always re-downloaded and overwritten on
    * subsequent calls.
    */
-  private File downloadOfflineBaseMapSource(
-      ImmutableList<OfflineBaseMapSource> offlineBaseMapSources)
-      throws IOException, NoBaseMapSourceException {
-    if (offlineBaseMapSources.isEmpty()) {
-      throw new NoBaseMapSourceException("No basemap sources specified for this project.");
-    }
+  private File downloadOfflineBaseMapSource(OfflineBaseMapSource offlineBaseMapSource)
+      throws IOException {
 
-    OfflineBaseMapSource source = offlineBaseMapSources.get(0);
-    URL baseMapUrl = source.getUrl();
+    URL baseMapUrl = offlineBaseMapSource.getUrl();
     Timber.d("Basemap url: %s, file: %s", baseMapUrl, baseMapUrl.getFile());
-    File localFile = fileUtil.makeFile(baseMapUrl.getFile());
+    File localFile = fileUtil.getOrCreateFile(baseMapUrl.getFile());
 
     FileUtils.copyURLToFile(baseMapUrl, localFile);
     return localFile;
@@ -114,16 +108,34 @@ public class OfflineAreaRepository {
    * downloads.
    */
   private Completable enqueueTileDownloads(OfflineArea area) {
+    return getBaseMapTiles(area)
+        .flatMapCompletable(tiles -> enqueueDownload(area, tiles))
+        .doOnComplete(() -> Timber.d("tile completed"))
+        .doOnError(throwable -> Timber.e(throwable, "failed to download area"))
+        .subscribeOn(schedulers.io());
+  }
+
+  /**
+   * Get a list of tiles specified in the first basemap source of the active project that intersect
+   * a given area.
+   */
+  private Single<ImmutableList<Tile>> getBaseMapTiles(OfflineArea offlineArea) {
+    LatLngBounds bounds = offlineArea.getBounds();
+
     return projectRepository
         .getActiveProjectOnceAndStream()
         .compose(Loadable::values)
         .map(Project::getOfflineBaseMapSources)
+        .doOnError(
+            throwable -> Timber.e(throwable, "no basemap sources specified for the active project"))
+        .map(ImmutableList::asList)
+        .flatMap(Flowable::fromIterable)
+        .firstOrError()
         .map(this::downloadOfflineBaseMapSource)
-        .map(json -> geoJsonParser.intersectingTiles(area.getBounds(), json))
-        .flatMapCompletable(tiles -> enqueueDownload(area, tiles))
-        .doOnError(throwable -> Timber.e(throwable, "failed to download area"))
-        .subscribeOn(schedulers.io())
-        .doOnComplete(() -> Timber.d("completed tile stream"));
+        .map(json -> geoJsonParser.intersectingTiles(bounds, json))
+        .doOnError(
+            throwable ->
+                Timber.e(throwable, "couldn't retrieve basemap sources for the active project"));
   }
 
   public Completable addAreaAndEnqueue(LatLngBounds bounds) {
@@ -148,17 +160,14 @@ public class OfflineAreaRepository {
 
   public Flowable<ImmutableSet<Tile>> getIntersectingDownloadedTilesOnceAndStream(
       OfflineArea offlineArea) {
-    return projectRepository
-        .getActiveProjectOnceAndStream()
-        .compose(Loadable::values)
-        .map(Project::getOfflineBaseMapSources)
-        .map(this::downloadOfflineBaseMapSource)
-        .map(json -> geoJsonParser.intersectingTiles(offlineArea.getBounds(), json))
-        .flatMap(
+    return getBaseMapTiles(offlineArea)
+        .flatMapPublisher(
             tiles ->
                 getDownloadedTilesOnceAndStream()
                     .map(ts -> stream(ts).filter(tiles::contains).collect(toImmutableSet())))
-        .onErrorReturn(throwable -> ImmutableSet.of());
+        // If no tiles are found, we report the area takes up 0.0mb on the device.
+        .doOnError(throwable -> Timber.d(throwable, "no tiles found for area %s", offlineArea))
+        .onErrorReturn(__ -> ImmutableSet.of());
   }
 
   public Flowable<ImmutableSet<Tile>> getDownloadedTilesOnceAndStream() {
@@ -169,11 +178,5 @@ public class OfflineAreaRepository {
                 stream(set)
                     .filter(tile -> tile.getState() == Tile.State.DOWNLOADED)
                     .collect(toImmutableSet()));
-  }
-
-  private class NoBaseMapSourceException extends Exception {
-    NoBaseMapSourceException(String message) {
-      super(message);
-    }
   }
 }
