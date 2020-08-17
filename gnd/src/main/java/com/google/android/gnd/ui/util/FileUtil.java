@@ -71,9 +71,13 @@ public class FileUtil {
   }
 
   /**
-   * Creates a new empty file in the app's file directory /data/data/com.google.android.gnd/files
+   * Get a file by name relative to the app's file directory
+   * /data/data/com.google.android.gnd/files.
+   *
+   * <p>If the file doesn't exist, creates a new empty file named {@param filename} in the app's
+   * file directory.
    */
-  public File makeFile(String filename) {
+  public File getOrCreateFile(String filename) {
     return new File(context.getFilesDir(), filename);
   }
 
