@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.model.form;
 
+import androidx.annotation.NonNull;
 import com.google.auto.value.AutoValue;
 import javax.annotation.Nullable;
 
@@ -31,8 +32,7 @@ public abstract class Field {
   @Nullable
   public abstract String getId();
 
-  @Nullable
-  public abstract Integer getIndex();
+  public abstract int getIndex();
 
   @Nullable
   public abstract Type getType();
@@ -53,7 +53,7 @@ public abstract class Field {
   public abstract static class Builder {
     public abstract Builder setId(@Nullable String newId);
 
-    public abstract Builder setIndex(@Nullable Integer newIndex);
+    public abstract Builder setIndex(int newIndex);
 
     public abstract Builder setType(@Nullable Type newType);
 

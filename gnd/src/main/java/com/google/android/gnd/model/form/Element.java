@@ -17,7 +17,6 @@
 package com.google.android.gnd.model.form;
 
 import com.google.auto.value.AutoOneOf;
-import java8.util.Optional;
 import javax.annotation.Nullable;
 
 /**
@@ -34,10 +33,7 @@ public abstract class Element {
   public int getIndex() {
     switch (getType()) {
       case FIELD:
-        // Fall back to hash code id on missing index; the order won't necessarily be correct
-        // but at least it will be stable.
-        return Optional.ofNullable(getField().getIndex())
-            .orElseGet(() -> getField().getId().hashCode());
+        return getField().getIndex();
       case UNKNOWN:
         // Intentional fall-through.
       default:
