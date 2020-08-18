@@ -67,11 +67,14 @@ public class GeocodingManager {
 
       Address address = addresses.get(0);
 
-      return Optional.ofNullable(address.getFeatureName())
-          .or(() -> Optional.ofNullable(address.getLocality()))
-          .or(() -> Optional.ofNullable(address.getSubAdminArea()))
-          .or(() -> Optional.ofNullable(address.getAdminArea()))
-          .or(() -> Optional.ofNullable(address.getCountryName()))
+      // TODO: Decide exactly what set of address parts we want to show the user.
+      Optional<String> country = Optional.ofNullable(address.getCountryName());
+      Optional<String> locality = Optional.ofNullable(address.getLocality());
+
+      return country
+          .map(
+              countryName ->
+                  locality.isPresent() ? countryName + ", " + locality.get() : countryName)
           .orElse(defaultAreaName);
 
     } catch (AddressNotFoundException | IOException e) {
