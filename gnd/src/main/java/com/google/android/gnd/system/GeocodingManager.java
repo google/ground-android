@@ -20,8 +20,8 @@ import android.content.Context;
 import android.location.Address;
 import android.location.Geocoder;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gnd.R;
-import com.google.android.gnd.model.basemap.OfflineArea;
 import dagger.hilt.android.qualifiers.ApplicationContext;
 import java.io.IOException;
 import java.util.List;
@@ -50,13 +50,13 @@ public class GeocodingManager {
   }
 
   /**
-   * Performs reverse geocoding on an {@link OfflineArea} to retrieve a human readable name for the
-   * region captured in the area's bounds.
+   * Performs reverse geocoding on {@param bounds} to retrieve a human readable name for the region
+   * captured in the bounds.
    *
    * <p>If no address is found for the given area, returns a default value.
    */
-  public String getOfflineAreaName(OfflineArea area) {
-    LatLng center = area.getBounds().getCenter();
+  public String getOfflineAreaName(LatLngBounds bounds) {
+    LatLng center = bounds.getCenter();
 
     try {
       List<Address> addresses = geocoder.getFromLocation(center.latitude, center.longitude, 1);
@@ -75,12 +75,7 @@ public class GeocodingManager {
           .orElse(defaultAreaName);
 
     } catch (AddressNotFoundException | IOException e) {
-      Timber.e(
-          e,
-          "Couldn't get address for area: %s, lat: %f, lng: %f",
-          area.getId(),
-          center.latitude,
-          center.longitude);
+      Timber.e(e, "Couldn't get address for lat: %f, lng: %f", center.latitude, center.longitude);
     }
 
     return defaultAreaName;

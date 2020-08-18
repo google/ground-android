@@ -16,17 +16,13 @@
 
 package com.google.android.gnd.ui.offlinearea;
 
-import static java8.util.stream.StreamSupport.stream;
-
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
 import com.google.android.gnd.model.basemap.OfflineArea;
 import com.google.android.gnd.repository.OfflineAreaRepository;
-import com.google.android.gnd.system.GeocodingManager;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.common.Navigator;
-import com.google.common.collect.ImmutableMap;
-import java8.util.stream.Collectors;
+import com.google.common.collect.ImmutableList;
 import javax.inject.Inject;
 
 /**
@@ -34,33 +30,21 @@ import javax.inject.Inject;
  */
 public class OfflineAreasViewModel extends AbstractViewModel {
 
-  private LiveData<ImmutableMap<String, OfflineArea>> offlineAreas;
+  private LiveData<ImmutableList<OfflineArea>> offlineAreas;
   private final Navigator navigator;
 
   @Inject
-  OfflineAreasViewModel(
-      Navigator navigator, OfflineAreaRepository offlineAreaRepository, GeocodingManager geocoder) {
+  OfflineAreasViewModel(Navigator navigator, OfflineAreaRepository offlineAreaRepository) {
     this.navigator = navigator;
     this.offlineAreas =
-        LiveDataReactiveStreams.fromPublisher(
-            offlineAreaRepository
-                .getOfflineAreasOnceAndStream()
-                .map(
-                    areas ->
-                        stream(areas)
-                            .collect(Collectors.toMap(geocoder::getOfflineAreaName, this::id)))
-                .map(ImmutableMap::copyOf));
+        LiveDataReactiveStreams.fromPublisher(offlineAreaRepository.getOfflineAreasOnceAndStream());
   }
 
   public void showOfflineAreaSelector() {
     navigator.showOfflineAreaSelector();
   }
 
-  private OfflineArea id(OfflineArea area) {
-    return area;
-  }
-
-  LiveData<ImmutableMap<String, OfflineArea>> getOfflineAreas() {
+  LiveData<ImmutableList<OfflineArea>> getOfflineAreas() {
     return offlineAreas;
   }
 }
