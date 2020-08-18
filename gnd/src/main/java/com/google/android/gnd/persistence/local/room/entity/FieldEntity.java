@@ -53,9 +53,8 @@ public abstract class FieldEntity {
   public abstract String getId();
 
   @CopyAnnotations
-  @Nullable
   @ColumnInfo(name = "index")
-  public abstract Integer getIndex();
+  public abstract int getIndex();
 
   @CopyAnnotations
   @NonNull
@@ -153,7 +152,7 @@ public abstract class FieldEntity {
 
     public abstract Builder setId(String id);
 
-    public abstract Builder setIndex(@Nullable Integer id);
+    public abstract Builder setIndex(int id);
 
     public abstract Builder setElementType(ElementEntityType elementType);
 
