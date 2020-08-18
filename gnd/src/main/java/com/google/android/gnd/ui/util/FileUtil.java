@@ -21,7 +21,6 @@ import android.graphics.Bitmap;
 import androidx.annotation.RawRes;
 import dagger.hilt.android.qualifiers.ApplicationContext;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import javax.inject.Inject;
@@ -57,15 +56,12 @@ public class FileUtil {
    * Returns the path of the file saved in the sdcard used for uploading to the provided destination
    * path.
    */
-  public File getLocalFileFromDestinationPath(String destinationPath) throws FileNotFoundException {
+  public File getLocalFileFromRemotePath(String destinationPath) {
     String[] splits = destinationPath.split("/");
-    return getFile(splits[splits.length - 1]);
-  }
-
-  public File getFile(String filename) throws FileNotFoundException {
+    String filename = splits[splits.length - 1];
     File file = new File(context.getFilesDir(), filename);
     if (!file.exists()) {
-      throw new FileNotFoundException("File not found: " + filename);
+      Timber.e("File not found: %s", file.getPath());
     }
     return file;
   }
@@ -82,12 +78,10 @@ public class FileUtil {
   }
 
   public File getFileFromRawResource(@RawRes int resourceId, String filename) throws IOException {
-    File file = new File(context.getFilesDir() + "/" + filename);
-
+    File file = new File(context.getFilesDir(), filename);
     if (!file.exists()) {
       FileUtils.copyInputStreamToFile(context.getResources().openRawResource(resourceId), file);
     }
-
     return file;
   }
 }

@@ -303,7 +303,11 @@ public class EditObservationViewModel extends AbstractViewModel {
         continue;
       }
       deltas.add(
-          ResponseDelta.builder().setFieldId(fieldId).setNewResponse(currentResponse).build());
+          ResponseDelta.builder()
+              .setFieldId(fieldId)
+              .setFieldType(e.getField().getType())
+              .setNewResponse(currentResponse)
+              .build());
     }
     ImmutableList<ResponseDelta> result = deltas.build();
     Timber.v("Deltas: %s", result);
