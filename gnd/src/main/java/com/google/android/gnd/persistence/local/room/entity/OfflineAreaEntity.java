@@ -38,6 +38,11 @@ public abstract class OfflineAreaEntity {
 
   @AutoValue.CopyAnnotations
   @NonNull
+  @ColumnInfo(name = "name")
+  public abstract String getName();
+
+  @AutoValue.CopyAnnotations
+  @NonNull
   @ColumnInfo(name = "state")
   public abstract OfflineAreaEntityState getState();
 
@@ -66,6 +71,7 @@ public abstract class OfflineAreaEntity {
         .setId(offlineAreaEntity.getId())
         .setBounds(bounds)
         .setState(toAreaState(offlineAreaEntity.getState()))
+        .setName(offlineAreaEntity.getName())
         .build();
   }
 
@@ -89,6 +95,7 @@ public abstract class OfflineAreaEntity {
         OfflineAreaEntity.builder()
             .setId(offlineArea.getId())
             .setState(toEntityState(offlineArea.getState()))
+            .setName(offlineArea.getName())
             .setNorth(offlineArea.getBounds().northeast.latitude)
             .setEast(offlineArea.getBounds().northeast.longitude)
             .setSouth(offlineArea.getBounds().southwest.latitude)
@@ -113,6 +120,7 @@ public abstract class OfflineAreaEntity {
 
   public static OfflineAreaEntity create(
       String id,
+      String name,
       OfflineAreaEntityState state,
       double north,
       double east,
@@ -120,6 +128,7 @@ public abstract class OfflineAreaEntity {
       double west) {
     return builder()
         .setId(id)
+        .setName(name)
         .setState(state)
         .setNorth(north)
         .setEast(east)
@@ -136,6 +145,8 @@ public abstract class OfflineAreaEntity {
   public abstract static class Builder {
 
     public abstract Builder setId(String newId);
+
+    public abstract Builder setName(String newName);
 
     public abstract Builder setState(OfflineAreaEntityState newState);
 
