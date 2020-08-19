@@ -66,6 +66,17 @@ public class FileUtil {
     return file;
   }
 
+  /**
+   * Get a file by name relative to the app's file directory
+   * /data/data/com.google.android.gnd/files.
+   *
+   * <p>If the file doesn't exist, creates a new empty file named {@param filename} in the app's
+   * file directory.
+   */
+  public File getOrCreateFile(String filename) {
+    return new File(context.getFilesDir(), filename);
+  }
+
   public File getFileFromRawResource(@RawRes int resourceId, String filename) throws IOException {
     File file = new File(context.getFilesDir(), filename);
     if (!file.exists()) {
