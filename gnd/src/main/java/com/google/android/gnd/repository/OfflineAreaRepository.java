@@ -143,15 +143,17 @@ public class OfflineAreaRepository {
   }
 
   public Completable addAreaAndEnqueue(LatLngBounds bounds) {
-    OfflineArea offlineArea =
-        OfflineArea.newBuilder()
-            .setBounds(bounds)
-            .setId(uuidGenerator.generateUuid())
-            .setState(State.PENDING)
-            .setName(geocodingManager.getOfflineAreaName(bounds))
-            .build();
-
-    return enqueueTileDownloads(offlineArea);
+    return geocodingManager
+        .getOfflineAreaName(bounds)
+        .map(
+            name ->
+                OfflineArea.newBuilder()
+                    .setBounds(bounds)
+                    .setId(uuidGenerator.generateUuid())
+                    .setState(State.PENDING)
+                    .setName(name)
+                    .build())
+        .flatMapCompletable(this::enqueueTileDownloads);
   }
 
   public Flowable<ImmutableList<OfflineArea>> getOfflineAreasOnceAndStream() {
