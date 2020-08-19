@@ -32,6 +32,7 @@ import com.google.android.gnd.persistence.sync.TileDownloadWorkManager;
 import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator;
 import com.google.android.gnd.rx.Loadable;
 import com.google.android.gnd.rx.Schedulers;
+import com.google.android.gnd.system.GeocodingManager;
 import com.google.android.gnd.ui.util.FileUtil;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -52,6 +53,7 @@ public class OfflineAreaRepository {
   private final GeoJsonParser geoJsonParser;
   private final FileUtil fileUtil;
   private final Schedulers schedulers;
+  private final GeocodingManager geocodingManager;
 
   private final OfflineUuidGenerator uuidGenerator;
 
@@ -63,7 +65,8 @@ public class OfflineAreaRepository {
       GeoJsonParser geoJsonParser,
       OfflineUuidGenerator uuidGenerator,
       FileUtil fileUtil,
-      Schedulers schedulers) {
+      Schedulers schedulers,
+      GeocodingManager geocodingManager) {
     this.tileDownloadWorkManager = tileDownloadWorkManager;
     this.localDataStore = localDataStore;
     this.geoJsonParser = geoJsonParser;
@@ -71,6 +74,7 @@ public class OfflineAreaRepository {
     this.projectRepository = projectRepository;
     this.fileUtil = fileUtil;
     this.schedulers = schedulers;
+    this.geocodingManager = geocodingManager;
   }
 
   /**
@@ -139,15 +143,17 @@ public class OfflineAreaRepository {
   }
 
   public Completable addAreaAndEnqueue(LatLngBounds bounds) {
-    OfflineArea offlineArea =
-        // TODO: Geocode
-        OfflineArea.newBuilder()
-            .setBounds(bounds)
-            .setId(uuidGenerator.generateUuid())
-            .setState(State.PENDING)
-            .build();
-
-    return enqueueTileDownloads(offlineArea);
+    return geocodingManager
+        .getOfflineAreaName(bounds)
+        .map(
+            name ->
+                OfflineArea.newBuilder()
+                    .setBounds(bounds)
+                    .setId(uuidGenerator.generateUuid())
+                    .setState(State.PENDING)
+                    .setName(name)
+                    .build())
+        .flatMapCompletable(this::enqueueTileDownloads);
   }
 
   public Flowable<ImmutableList<OfflineArea>> getOfflineAreasOnceAndStream() {

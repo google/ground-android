@@ -29,6 +29,8 @@ public abstract class OfflineArea {
 
   public abstract LatLngBounds getBounds();
 
+  public abstract String getName();
+
   public abstract Builder toBuilder();
 
   public enum State {
@@ -50,6 +52,8 @@ public abstract class OfflineArea {
     public abstract Builder setState(State state);
 
     public abstract Builder setId(String id);
+
+    public abstract Builder setName(String name);
 
     public abstract OfflineArea build();
   }

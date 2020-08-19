@@ -25,29 +25,25 @@ import com.google.android.gnd.databinding.OfflineAreasListItemBinding;
 import com.google.android.gnd.model.basemap.OfflineArea;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 
 class OfflineAreaListAdapter extends RecyclerView.Adapter<OfflineAreaListAdapter.ViewHolder> {
   private final Navigator navigator;
-  private ImmutableMap<String, OfflineArea> offlineAreas;
-  private ImmutableList<String> keys;
+  private ImmutableList<OfflineArea> offlineAreas;
 
   public static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
     public OfflineAreasListItemBinding binding;
     public int position;
-    private ImmutableMap<String, OfflineArea> areas;
-    private ImmutableList<String> keys;
+    private ImmutableList<OfflineArea> areas;
     private final Navigator navigator;
 
     ViewHolder(
         OfflineAreasListItemBinding binding,
-        ImmutableMap<String, OfflineArea> areas,
+        ImmutableList<OfflineArea> areas,
         Navigator navigator) {
       super(binding.getRoot());
       this.binding = binding;
       this.areas = areas;
-      this.keys = areas.keySet().asList();
       this.navigator = navigator;
       binding.offlineAreaName.setOnClickListener(this);
     }
@@ -55,14 +51,14 @@ class OfflineAreaListAdapter extends RecyclerView.Adapter<OfflineAreaListAdapter
     @Override
     public void onClick(View v) {
       if (areas.size() > 0) {
-        String id = areas.get(keys.get(position)).getId();
+        String id = areas.get(position).getId();
         navigator.showOfflineAreaViewer(id);
       }
     }
   }
 
   OfflineAreaListAdapter(Navigator navigator) {
-    offlineAreas = ImmutableMap.of();
+    offlineAreas = ImmutableList.of();
     this.navigator = navigator;
   }
 
@@ -79,7 +75,7 @@ class OfflineAreaListAdapter extends RecyclerView.Adapter<OfflineAreaListAdapter
 
   @Override
   public void onBindViewHolder(@NonNull ViewHolder viewHolder, int position) {
-    viewHolder.binding.offlineAreaName.setText(keys.get(position));
+    viewHolder.binding.offlineAreaName.setText(offlineAreas.get(position).getName());
     viewHolder.position = position;
   }
 
@@ -88,9 +84,8 @@ class OfflineAreaListAdapter extends RecyclerView.Adapter<OfflineAreaListAdapter
     return offlineAreas.size();
   }
 
-  void update(ImmutableMap<String, OfflineArea> offlineAreas) {
+  void update(ImmutableList<OfflineArea> offlineAreas) {
     this.offlineAreas = offlineAreas;
-    this.keys = offlineAreas.keySet().asList();
     notifyDataSetChanged();
   }
 }

@@ -20,9 +20,11 @@ import android.content.Context;
 import android.location.Address;
 import android.location.Geocoder;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gnd.R;
-import com.google.android.gnd.model.basemap.OfflineArea;
+import com.google.android.gnd.rx.Schedulers;
 import dagger.hilt.android.qualifiers.ApplicationContext;
+import io.reactivex.Single;
 import java.io.IOException;
 import java.util.List;
 import java8.util.Optional;
@@ -41,48 +43,47 @@ public class GeocodingManager {
   }
 
   private final Geocoder geocoder;
+  private final Schedulers schedulers;
   private final String defaultAreaName;
 
   @Inject
-  public GeocodingManager(@ApplicationContext Context context) {
+  public GeocodingManager(@ApplicationContext Context context, Schedulers schedulers) {
     this.geocoder = new Geocoder(context);
+    this.schedulers = schedulers;
     this.defaultAreaName = context.getString(R.string.offline_areas_unknown_area);
   }
 
+  private String getOfflineAreaNameInternal(LatLngBounds bounds)
+      throws AddressNotFoundException, IOException {
+    LatLng center = bounds.getCenter();
+
+    List<Address> addresses = geocoder.getFromLocation(center.latitude, center.longitude, 1);
+
+    if (addresses.isEmpty()) {
+      throw new AddressNotFoundException("No address found for area.");
+    }
+
+    Address address = addresses.get(0);
+
+    // TODO: Decide exactly what set of address parts we want to show the user.
+    Optional<String> country = Optional.ofNullable(address.getCountryName());
+    Optional<String> locality = Optional.ofNullable(address.getLocality());
+
+    return country
+        .map(
+            countryName -> locality.isPresent() ? countryName + ", " + locality.get() : countryName)
+        .orElse(defaultAreaName);
+  }
+
   /**
-   * Performs reverse geocoding on an {@link OfflineArea} to retrieve a human readable name for the
-   * region captured in the area's bounds.
+   * Performs reverse geocoding on {@param bounds} to retrieve a human readable name for the region
+   * captured in the bounds.
    *
    * <p>If no address is found for the given area, returns a default value.
    */
-  public String getOfflineAreaName(OfflineArea area) {
-    LatLng center = area.getBounds().getCenter();
-
-    try {
-      List<Address> addresses = geocoder.getFromLocation(center.latitude, center.longitude, 1);
-
-      if (addresses.isEmpty()) {
-        throw new AddressNotFoundException("No address found for area.");
-      }
-
-      Address address = addresses.get(0);
-
-      return Optional.ofNullable(address.getFeatureName())
-          .or(() -> Optional.ofNullable(address.getLocality()))
-          .or(() -> Optional.ofNullable(address.getSubAdminArea()))
-          .or(() -> Optional.ofNullable(address.getAdminArea()))
-          .or(() -> Optional.ofNullable(address.getCountryName()))
-          .orElse(defaultAreaName);
-
-    } catch (AddressNotFoundException | IOException e) {
-      Timber.e(
-          e,
-          "Couldn't get address for area: %s, lat: %f, lng: %f",
-          area.getId(),
-          center.latitude,
-          center.longitude);
-    }
-
-    return defaultAreaName;
+  public Single<String> getOfflineAreaName(LatLngBounds bounds) {
+    return Single.fromCallable(() -> getOfflineAreaNameInternal(bounds))
+        .doOnError(throwable -> Timber.e(throwable, "Couldn't get address for bounds: %s", bounds))
+        .subscribeOn(schedulers.io());
   }
 }
