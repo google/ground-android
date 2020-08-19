@@ -31,6 +31,9 @@ public abstract class Field {
   @Nullable
   public abstract String getId();
 
+  /**
+   * Returns the sequential index of the field, used by UIs to sort input fields and response data.
+   */
   public abstract int getIndex();
 
   @Nullable
