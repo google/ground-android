@@ -178,6 +178,7 @@ public class LocalDataStoreTest {
           .setId("id_1")
           .setBounds(LatLngBounds.builder().include(new LatLng(0.0, 0.0)).build())
           .setState(OfflineArea.State.PENDING)
+          .setName("Test Area")
           .build();
 
   // This rule makes sure that Room executes all the database operations instantly.
