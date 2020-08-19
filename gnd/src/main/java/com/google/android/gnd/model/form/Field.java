@@ -16,7 +16,6 @@
 
 package com.google.android.gnd.model.form;
 
-import androidx.annotation.NonNull;
 import com.google.auto.value.AutoValue;
 import javax.annotation.Nullable;
 
