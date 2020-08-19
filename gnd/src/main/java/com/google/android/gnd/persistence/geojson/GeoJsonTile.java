@@ -33,7 +33,7 @@ public class GeoJsonTile {
 
   private static final String ID_KEY = "id";
   private static final String PROPERTIES_KEY = "properties";
-  private static final String URL_KEY = "title";
+  private static final String URL_KEY = "url";
 
   private final JSONObject json;
 
