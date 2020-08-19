@@ -30,6 +30,18 @@ public abstract class Element {
     FIELD
   }
 
+  public int getIndex() {
+    switch (getType()) {
+      case FIELD:
+        return getField().getIndex();
+      case UNKNOWN:
+        // Intentional fall-through.
+      default:
+        // Fall back for unknown / bad index.
+        return hashCode();
+    }
+  }
+
   public abstract Type getType();
 
   @Nullable

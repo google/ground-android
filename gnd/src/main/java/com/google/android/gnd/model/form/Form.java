@@ -16,11 +16,13 @@
 
 package com.google.android.gnd.model.form;
 
+import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList;
 import static java8.util.stream.StreamSupport.stream;
 
 import com.google.android.gnd.model.observation.Response;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
+import java8.util.Comparators;
 import java8.util.Optional;
 import javax.annotation.Nullable;
 
@@ -34,6 +36,12 @@ public abstract class Form {
   public abstract String getId();
 
   public abstract ImmutableList<Element> getElements();
+
+  public ImmutableList<Element> getElementsSorted() {
+    return stream(getElements())
+        .sorted(Comparators.comparing(e -> e.getIndex()))
+        .collect(toImmutableList());
+  }
 
   public Optional<Field> getField(String id) {
     return stream(getElements())
