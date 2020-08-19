@@ -31,6 +31,11 @@ public abstract class Field {
   @Nullable
   public abstract String getId();
 
+  /**
+   * Returns the sequential index of the field, used by UIs to sort input fields and response data.
+   */
+  public abstract int getIndex();
+
   @Nullable
   public abstract Type getType();
 
@@ -49,6 +54,8 @@ public abstract class Field {
   @AutoValue.Builder
   public abstract static class Builder {
     public abstract Builder setId(@Nullable String newId);
+
+    public abstract Builder setIndex(int newIndex);
 
     public abstract Builder setType(@Nullable Type newType);
 

@@ -31,6 +31,7 @@ import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.model.observation.Response;
+import com.google.common.collect.ImmutableList;
 import java8.util.Optional;
 
 class ObservationListItemViewHolder extends RecyclerView.ViewHolder {
@@ -59,8 +60,9 @@ class ObservationListItemViewHolder extends RecyclerView.ViewHolder {
 
     Form form = observation.getForm();
     // TODO: Clean this up.
-    for (int i = 0; i < MAX_COLUMNS && i < form.getElements().size(); i++) {
-      Element elem = form.getElements().get(i);
+    ImmutableList<Element> elements = form.getElementsSorted();
+    for (int i = 0; i < MAX_COLUMNS && i < elements.size(); i++) {
+      Element elem = elements.get(i);
       switch (elem.getType()) {
         case FIELD:
           Field field = elem.getField();

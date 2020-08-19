@@ -53,6 +53,10 @@ public abstract class FieldEntity {
   public abstract String getId();
 
   @CopyAnnotations
+  @ColumnInfo(name = "index")
+  public abstract int getIndex();
+
+  @CopyAnnotations
   @NonNull
   @ColumnInfo(name = "element_type")
   public abstract ElementEntityType getElementType();
@@ -79,6 +83,7 @@ public abstract class FieldEntity {
   public static FieldEntity fromField(String formId, Type elementType, Field field) {
     return FieldEntity.builder()
         .setId(field.getId())
+        .setIndex(field.getIndex())
         .setLabel(field.getLabel())
         .setRequired(field.isRequired())
         .setElementType(ElementEntityType.fromElementType(elementType))
@@ -98,6 +103,7 @@ public abstract class FieldEntity {
     Field.Builder fieldBuilder =
         Field.newBuilder()
             .setId(fieldEntity.getId())
+            .setIndex(fieldEntity.getIndex())
             .setLabel(fieldEntity.getLabel())
             .setRequired(fieldEntity.isRequired())
             .setType(fieldEntity.getFieldType().toFieldType());
@@ -120,6 +126,7 @@ public abstract class FieldEntity {
 
   public static FieldEntity create(
       String id,
+      Integer index,
       ElementEntityType elementType,
       FieldEntityType fieldType,
       String label,
@@ -127,6 +134,7 @@ public abstract class FieldEntity {
       String formId) {
     return builder()
         .setId(id)
+        .setIndex(index)
         .setElementType(elementType)
         .setFieldType(fieldType)
         .setLabel(label)
@@ -143,6 +151,8 @@ public abstract class FieldEntity {
   public abstract static class Builder {
 
     public abstract Builder setId(String id);
+
+    public abstract Builder setIndex(int id);
 
     public abstract Builder setElementType(ElementEntityType elementType);
 

@@ -92,6 +92,7 @@ public class LocalDataStoreTest {
   private static final Field TEST_FIELD =
       Field.newBuilder()
           .setId("field id")
+          .setIndex(1)
           .setLabel("field label")
           .setRequired(false)
           .setType(Type.MULTIPLE_CHOICE)
