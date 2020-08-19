@@ -25,7 +25,6 @@ import com.google.android.gnd.databinding.OfflineAreasListItemBinding;
 import com.google.android.gnd.model.basemap.OfflineArea;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 
 class OfflineAreaListAdapter extends RecyclerView.Adapter<OfflineAreaListAdapter.ViewHolder> {
   private final Navigator navigator;
