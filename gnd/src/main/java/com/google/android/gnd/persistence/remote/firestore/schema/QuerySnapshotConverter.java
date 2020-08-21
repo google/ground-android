@@ -16,16 +16,16 @@
 
 package com.google.android.gnd.persistence.remote.firestore.schema;
 
-import static java8.util.stream.Collectors.toList;
+import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList;
 import static java8.util.stream.StreamSupport.stream;
 
-import android.util.Log;
 import com.google.android.gnd.persistence.remote.DataStoreException;
 import com.google.android.gnd.persistence.remote.RemoteDataEvent;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import java8.util.function.Function;
+import timber.log.Timber;
 
 /**
  * Converts Firestore {@link com.google.firebase.firestore.QuerySnapshot} to application-specific
@@ -33,20 +33,18 @@ import java8.util.function.Function;
  */
 class QuerySnapshotConverter {
 
-  private static final String TAG = QuerySnapshotConverter.class.getSimpleName();
-
   /** Applies a converter function to document change events in the specified query snapshot. */
   static <T> Iterable<RemoteDataEvent<T>> toEvents(
       QuerySnapshot snapshot, Function<DocumentSnapshot, T> converter) {
     return stream(snapshot.getDocumentChanges())
         .map(dc -> toEvent(dc, converter))
-        .collect(toList());
+        .collect(toImmutableList());
   }
 
   private static <T> RemoteDataEvent<T> toEvent(
       DocumentChange dc, Function<DocumentSnapshot, T> converter) {
     try {
-      Log.v(TAG, dc.getDocument().getReference().getPath() + " " + dc.getType());
+      Timber.v(dc.getDocument().getReference().getPath() + " " + dc.getType());
       String id = dc.getDocument().getId();
       switch (dc.getType()) {
         case ADDED:
