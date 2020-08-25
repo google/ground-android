@@ -30,7 +30,7 @@ import javax.inject.Singleton;
  */
 @Singleton
 public class LocalValueStore {
-  private static final String ACTIVE_PROJECT_ID_KEY = "activeProjectId";
+  public static final String ACTIVE_PROJECT_ID_KEY = "activeProjectId";
 
   private final SharedPreferences preferences;
 

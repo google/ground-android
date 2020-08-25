@@ -14,29 +14,14 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.persistence.remote;
+package com.google.android.gnd;
 
-import android.net.Uri;
-import com.google.android.gms.tasks.Task;
-import io.reactivex.Flowable;
-import java.io.File;
-import javax.inject.Inject;
+public class FakeData {
 
-public class FakeRemoteStorageManager implements RemoteStorageManager {
-
-  @Inject
-  FakeRemoteStorageManager() {
-  }
-
-  @Override
-  public Task<Uri> getDownloadUrl(
-    String remoteDestinationPath) {
-    return null;
-  }
-
-  @Override
-  public Flowable<TransferProgress> uploadMediaFromFile(File file,
-    String remoteDestinationPath) {
-    return null;
-  }
+  public static final String PROJECT_ID = "FAKE_PROJECT_ID";
+  public static final String PROJECT_TITLE = "Fake project title";
+  public static final String PROJECT_DESCRIPTION = "Fake project description";
+  public static final String LAYER_NO_FIELDS_ID = "LAYER_NO_FIELDS_ID";
+  public static final String LAYER_NO_FIELDS_NAME = "Fake name for layer with no fields";
+  public static final String LAYER_NO_FIELDS_COLOR = "#00ff00";
 }

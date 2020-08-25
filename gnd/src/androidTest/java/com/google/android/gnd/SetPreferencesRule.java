@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google LLC
+ * Copyright 2020 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,8 @@
 
 package com.google.android.gnd;
 
+import static com.google.android.gnd.persistence.local.LocalValueStore.ACTIVE_PROJECT_ID_KEY;
+
 import android.content.SharedPreferences;
 import androidx.test.core.app.ApplicationProvider;
 import dagger.hilt.EntryPoint;
@@ -26,7 +28,8 @@ import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 
 /**
- * Rule to be used in tests that sets the SharedPreferences needed to avoid login and project selection.
+ * Rule to be used in tests that sets the SharedPreferences needed to avoid login and project
+ * selection.
  */
 class SetPreferencesRule extends TestWatcher {
 
@@ -46,6 +49,6 @@ class SetPreferencesRule extends TestWatcher {
         ).preferenceStorage();
 
         prefs.edit().clear();
-        prefs.edit().putString("activeProjectId", "TEST_ID").apply();
+        prefs.edit().putString(ACTIVE_PROJECT_ID_KEY, FakeData.PROJECT_ID).apply();
     }
 }

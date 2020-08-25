@@ -20,11 +20,13 @@ import static androidx.test.espresso.Espresso.onData;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
+import static androidx.test.espresso.matcher.ViewMatchers.isCompletelyDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.not;
 
 import android.content.Context;
 import androidx.room.Room;
@@ -106,40 +108,45 @@ public class AddFeatureTest {
     }
   }
 
-  // Given: a logged in user - with an active project with no map markers
-  // When: they tap on the centre of the map
-  // Then: nothing happens (the feature fragment is not displayed)
+  // Given: a logged in user - with an active project with no map markers.
+  // When: they tap on the centre of the map.
+  // Then: nothing happens - the feature fragment is not displayed.
   @Test
   public void tappingCrosshairOnEmptyMapDoesNothing() throws InterruptedException {
     ActivityScenario<MainActivity> scenario = scenarioRule.getScenario();
+
+    // Tap on the crosshair at the centre of the map.
     onView(withId(R.id.map_crosshairs)).perform(click());
-    //Thread.sleep(2000);
-    onView(withId(R.id.feature_title)).check(matches(withText("")));
+
+    // Verify that the title is not displayed.
+    onView(withId(R.id.feature_title)).check(matches(not(isCompletelyDisplayed())));
   }
 
   // Given: a logged in user - with an active project which doesn't direct the user to add an
   // observation when adding a feature.
-  // When: they tap the "Add feature" FAB - choose a feature type
-  // Then: the observation marker is displayed on the map screen
+  // When: they tap the "Add feature" FAB and choose a feature type.
+  // Then: the observation marker is displayed on the map screen.
   @Test
   public void addFeatureWithNoFields() throws InterruptedException {
-
     ActivityScenario<MainActivity> scenario = scenarioRule.getScenario();
+
+    // Tap on the "Add feature" button.
     onView(withId(R.id.add_feature_btn)).perform(click());
 
-    // With the feature type list click on the first one
-    onData(allOf(is(instanceOf(String.class)), is("Layer no fields"))).perform(click());
+    // Tap on the layer type.
+    onData(allOf(is(instanceOf(String.class)), is(FakeData.LAYER_NO_FIELDS_NAME))).perform(click());
 
-    //Thread.sleep(2000);
-
+    // Tap on the crosshair at the centre of the map.
     onView(withId(R.id.map_crosshairs)).perform(click());
 
     // TODO: figure out how to remove this
-    //  it's probably because the feature fragment animation does not block the test and the
+    //  It's probably because the feature fragment animation does not block the test and the
     //  feature title isn't updated until the animation has completed (and it isn't disabled by the
     //  normal `transition_animation_scale 0` etc commands).
     Thread.sleep(100);
 
-    onView(withId(R.id.feature_title)).check(matches(withText("Layer no fields")));
+    // Verify that the feature title matches the layer title and that it is displayed.
+    onView(withId(R.id.feature_title)).check(matches(withText(FakeData.LAYER_NO_FIELDS_NAME)));
+    onView(withId(R.id.feature_title)).check(matches(isCompletelyDisplayed()));
   }
 }
