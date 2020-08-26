@@ -28,32 +28,14 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.not;
 
-import android.content.Context;
-import androidx.room.Room;
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import com.google.android.gnd.persistence.local.LocalDatabaseModule;
-import com.google.android.gnd.persistence.local.room.LocalDatabase;
-import com.google.android.gnd.persistence.remote.FakeRemoteDataStore;
-import com.google.android.gnd.persistence.remote.FakeRemoteStorageManager;
-import com.google.android.gnd.persistence.remote.RemoteDataStore;
-import com.google.android.gnd.persistence.remote.RemoteStorageManager;
 import com.google.android.gnd.persistence.remote.RemoteStorageModule;
-import com.google.android.gnd.persistence.uuid.FakeUuidGenerator;
-import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator;
-import com.google.android.gnd.system.auth.AuthenticationManager;
 import com.google.android.gnd.system.auth.AuthenticationModule;
-import com.google.android.gnd.system.auth.FakeAuthenticationManager;
-import dagger.Binds;
-import dagger.Module;
-import dagger.Provides;
-import dagger.hilt.InstallIn;
-import dagger.hilt.android.components.ApplicationComponent;
-import dagger.hilt.android.qualifiers.ApplicationContext;
 import dagger.hilt.android.testing.HiltAndroidRule;
 import dagger.hilt.android.testing.HiltAndroidTest;
 import dagger.hilt.android.testing.UninstallModules;
-import javax.inject.Singleton;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -72,41 +54,6 @@ public class AddFeatureTest {
 
   @Rule(order = 2)
   public ActivityScenarioRule scenarioRule = new ActivityScenarioRule(MainActivity.class);
-
-  @Module
-  @InstallIn(ApplicationComponent.class)
-  abstract class TestDependenciesModule {
-
-    @Binds
-    @Singleton
-    abstract AuthenticationManager bindAuthenticationManager(
-        FakeAuthenticationManager authenticationManager);
-
-    @Binds
-    @Singleton
-    abstract RemoteDataStore bindRemoteDataStore(FakeRemoteDataStore remoteDataStore);
-
-    @Binds
-    @Singleton
-    abstract RemoteStorageManager bindRemoteStorageManager(
-        FakeRemoteStorageManager remoteStorageManager
-    );
-
-    @Binds
-    @Singleton
-    abstract OfflineUuidGenerator offlineUuidGenerator(FakeUuidGenerator uuidGenerator);
-  }
-
-  @InstallIn(ApplicationComponent.class)
-  @Module
-  public class LocalDatabaseModule {
-
-    @Provides
-    @Singleton
-    LocalDatabase localDatabase(@ApplicationContext Context context) {
-      return Room.inMemoryDatabaseBuilder(context, LocalDatabase.class).build();
-    }
-  }
 
   // Given: a logged in user - with an active project with no map markers.
   // When: they tap on the centre of the map.
