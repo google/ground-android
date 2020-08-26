@@ -25,8 +25,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import com.google.android.gnd.R;
-import com.google.android.gnd.system.auth.AuthenticationManager;
 import com.google.android.gnd.system.GoogleApiManager;
+import com.google.android.gnd.system.auth.AuthenticationManager;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.EphemeralPopups;
 import dagger.hilt.android.AndroidEntryPoint;
@@ -34,10 +34,13 @@ import javax.inject.Inject;
 
 @AndroidEntryPoint
 public class StartupFragment extends AbstractFragment {
+
   private static final String TAG = StartupFragment.class.getSimpleName();
 
-  @Inject GoogleApiManager googleApiManager;
-  @Inject AuthenticationManager authenticationManager;
+  @Inject
+  GoogleApiManager googleApiManager;
+  @Inject
+  AuthenticationManager authenticationManager;
 
   @Override
   public View onCreateView(

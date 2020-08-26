@@ -29,14 +29,12 @@ public class FakeRemoteStorageManager implements RemoteStorageManager {
   }
 
   @Override
-  public Task<Uri> getDownloadUrl(
-    String remoteDestinationPath) {
+  public Task<Uri> getDownloadUrl(String remoteDestinationPath) {
     return null;
   }
 
   @Override
-  public Flowable<TransferProgress> uploadMediaFromFile(File file,
-    String remoteDestinationPath) {
+  public Flowable<TransferProgress> uploadMediaFromFile(File file, String remoteDestinationPath) {
     return null;
   }
 }

@@ -37,19 +37,19 @@ import javax.inject.Inject;
 public class FakeRemoteDataStore implements RemoteDataStore {
 
   private final Layer layerWithNoFields = Layer.newBuilder()
-    .setId(FakeData.LAYER_NO_FIELDS_ID)
-    .setName(FakeData.LAYER_NO_FIELDS_NAME)
-    .setDefaultStyle(Style.builder()
-      .setColor(FakeData.LAYER_NO_FIELDS_COLOR)
-      .build())
-    .build();
+      .setId(FakeData.LAYER_NO_FIELDS_ID)
+      .setName(FakeData.LAYER_NO_FIELDS_NAME)
+      .setDefaultStyle(Style.builder()
+          .setColor(FakeData.LAYER_NO_FIELDS_COLOR)
+          .build())
+      .build();
 
   private final Project testProject = Project.newBuilder()
-    .setId(FakeData.PROJECT_ID)
-    .setTitle(FakeData.PROJECT_TITLE)
-    .setDescription(FakeData.PROJECT_DESCRIPTION)
-    .putLayer(FakeData.LAYER_NO_FIELDS_ID, layerWithNoFields)
-    .build();
+      .setId(FakeData.PROJECT_ID)
+      .setTitle(FakeData.PROJECT_TITLE)
+      .setDescription(FakeData.PROJECT_DESCRIPTION)
+      .putLayer(FakeData.LAYER_NO_FIELDS_ID, layerWithNoFields)
+      .build();
 
   @Inject
   FakeRemoteDataStore() {
@@ -57,7 +57,7 @@ public class FakeRemoteDataStore implements RemoteDataStore {
 
   @Override
   public Single<List<Project>> loadProjectSummaries(
-    User user) {
+      User user) {
     return Single.just(Collections.singletonList(testProject));
   }
 
@@ -68,20 +68,20 @@ public class FakeRemoteDataStore implements RemoteDataStore {
 
   @Override
   public Flowable<RemoteDataEvent<Feature>> loadFeaturesOnceAndStreamChanges(
-    Project project) {
+      Project project) {
     return Flowable.empty();
   }
 
   @Override
   public Single<ImmutableList<ValueOrError<Observation>>> loadObservations(
-    Feature feature) {
+      Feature feature) {
     return null;
   }
 
   @Override
   public Completable applyMutations(
-    ImmutableCollection<Mutation> mutations,
-    User user) {
+      ImmutableCollection<Mutation> mutations,
+      User user) {
     return null;
   }
 }

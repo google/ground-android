@@ -33,22 +33,23 @@ import org.junit.runner.Description;
  */
 class SetPreferencesRule extends TestWatcher {
 
-    @InstallIn(ApplicationComponent.class)
-    @EntryPoint
-    interface SetPreferencesRuleEntryPoint {
-        SharedPreferences preferenceStorage();
-    }
+  @InstallIn(ApplicationComponent.class)
+  @EntryPoint
+  interface SetPreferencesRuleEntryPoint {
 
-    @Override
-    public void starting(Description description) {
-        super.starting(description);
+    SharedPreferences preferenceStorage();
+  }
 
-        SharedPreferences prefs = EntryPointAccessors.fromApplication(
-            ApplicationProvider.getApplicationContext(),
-            SetPreferencesRuleEntryPoint.class
-        ).preferenceStorage();
+  @Override
+  public void starting(Description description) {
+    super.starting(description);
 
-        prefs.edit().clear();
-        prefs.edit().putString(ACTIVE_PROJECT_ID_KEY, FakeData.PROJECT_ID).apply();
-    }
+    SharedPreferences prefs = EntryPointAccessors.fromApplication(
+        ApplicationProvider.getApplicationContext(),
+        SetPreferencesRuleEntryPoint.class
+    ).preferenceStorage();
+
+    prefs.edit().clear();
+    prefs.edit().putString(ACTIVE_PROJECT_ID_KEY, FakeData.PROJECT_ID).apply();
+  }
 }

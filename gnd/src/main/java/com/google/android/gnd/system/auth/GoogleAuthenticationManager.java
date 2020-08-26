@@ -60,14 +60,14 @@ public class GoogleAuthenticationManager implements AuthenticationManager {
     this.signInState = BehaviorSubject.create();
     this.firebaseAuth = FirebaseAuth.getInstance();
     this.googleSignInOptions =
-      new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-        .requestIdToken(application.getResources().getString(R.string.default_web_client_id))
-        .requestEmail()
-        .requestProfile()
-        .build();
+        new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestIdToken(application.getResources().getString(R.string.default_web_client_id))
+            .requestEmail()
+            .requestProfile()
+            .build();
     this.activityStreams = activityStreams;
     this.activityResultsSubscription =
-      activityStreams.getActivityResults(SIGN_IN_REQUEST_CODE).subscribe(this::onActivityResult);
+        activityStreams.getActivityResults(SIGN_IN_REQUEST_CODE).subscribe(this::onActivityResult);
   }
 
   public Observable<SignInState> getSignInState() {
@@ -94,10 +94,10 @@ public class GoogleAuthenticationManager implements AuthenticationManager {
   public void signIn() {
     signInState.onNext(new SignInState(State.SIGNING_IN));
     activityStreams.withActivity(
-      activity -> {
-        Intent signInIntent = getGoogleSignInClient(activity).getSignInIntent();
-        activity.startActivityForResult(signInIntent, SIGN_IN_REQUEST_CODE);
-      });
+        activity -> {
+          Intent signInIntent = getGoogleSignInClient(activity).getSignInIntent();
+          activity.startActivityForResult(signInIntent, SIGN_IN_REQUEST_CODE);
+        });
   }
 
   public void signOut() {
@@ -117,7 +117,7 @@ public class GoogleAuthenticationManager implements AuthenticationManager {
     // attach a listener.
     try {
       Task<GoogleSignInAccount> googleSignInTask =
-        GoogleSignIn.getSignedInAccountFromIntent(activityResult.getData());
+          GoogleSignIn.getSignedInAccountFromIntent(activityResult.getData());
       onGoogleSignIn(googleSignInTask.getResult(ApiException.class));
     } catch (ApiException e) {
       Log.w(TAG, "Sign in failed: " + e);
@@ -127,9 +127,9 @@ public class GoogleAuthenticationManager implements AuthenticationManager {
 
   private void onGoogleSignIn(GoogleSignInAccount googleAccount) {
     firebaseAuth
-      .signInWithCredential(getFirebaseAuthCredential(googleAccount))
-      .addOnSuccessListener(this::onFirebaseAuthSuccess)
-      .addOnFailureListener(t -> signInState.onNext(new SignInState(t)));
+        .signInWithCredential(getFirebaseAuthCredential(googleAccount))
+        .addOnSuccessListener(this::onFirebaseAuthSuccess)
+        .addOnFailureListener(t -> signInState.onNext(new SignInState(t)));
   }
 
   private void onFirebaseAuthSuccess(AuthResult authResult) {
@@ -151,10 +151,10 @@ public class GoogleAuthenticationManager implements AuthenticationManager {
 
   private static User toUser(FirebaseUser firebaseUser) {
     return User.builder()
-      .setId(firebaseUser.getUid())
-      .setEmail(firebaseUser.getEmail())
-      .setDisplayName(firebaseUser.getDisplayName())
-      .build();
+        .setId(firebaseUser.getUid())
+        .setEmail(firebaseUser.getEmail())
+        .setDisplayName(firebaseUser.getDisplayName())
+        .build();
   }
 
   /**

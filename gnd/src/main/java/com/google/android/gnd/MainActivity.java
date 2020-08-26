@@ -30,8 +30,8 @@ import androidx.navigation.fragment.NavHostFragment;
 import com.google.android.gnd.databinding.MainActBinding;
 import com.google.android.gnd.repository.UserRepository;
 import com.google.android.gnd.system.ActivityStreams;
-import com.google.android.gnd.system.auth.AuthenticationManager;
 import com.google.android.gnd.system.SettingsManager;
+import com.google.android.gnd.system.auth.AuthenticationManager;
 import com.google.android.gnd.system.auth.SignInState;
 import com.google.android.gnd.ui.common.BackPressListener;
 import com.google.android.gnd.ui.common.EphemeralPopups;
@@ -47,12 +47,18 @@ import timber.log.Timber;
 @AndroidEntryPoint
 public class MainActivity extends AbstractActivity {
 
-  @Inject ActivityStreams activityStreams;
-  @Inject ViewModelFactory viewModelFactory;
-  @Inject SettingsManager settingsManager;
-  @Inject AuthenticationManager authenticationManager;
-  @Inject Navigator navigator;
-  @Inject UserRepository userRepository;
+  @Inject
+  ActivityStreams activityStreams;
+  @Inject
+  ViewModelFactory viewModelFactory;
+  @Inject
+  SettingsManager settingsManager;
+  @Inject
+  AuthenticationManager authenticationManager;
+  @Inject
+  Navigator navigator;
+  @Inject
+  UserRepository userRepository;
   private NavHostFragment navHostFragment;
   private MainViewModel viewModel;
 
@@ -150,7 +156,9 @@ public class MainActivity extends AbstractActivity {
     activityStreams.onActivityResult(requestCode, resultCode, intent);
   }
 
-  /** Override up button behavior to use Navigation Components back stack. */
+  /**
+   * Override up button behavior to use Navigation Components back stack.
+   */
   @Override
   public boolean onSupportNavigateUp() {
     return navigateUp();

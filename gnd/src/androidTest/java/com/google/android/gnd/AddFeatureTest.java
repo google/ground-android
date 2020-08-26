@@ -58,21 +58,20 @@ import org.junit.Rule;
 import org.junit.Test;
 
 @UninstallModules({AuthenticationModule.class, RemoteStorageModule.class,
-  LocalDatabaseModule.class})
+    LocalDatabaseModule.class})
 @HiltAndroidTest
 public class AddFeatureTest {
 
   // Ensures that the Hilt component is initialized before running the ActivityScenarioRule.
-  public @Rule(order = 0)
-  HiltAndroidRule hiltRule = new HiltAndroidRule(this);
+  @Rule(order = 0)
+  public HiltAndroidRule hiltRule = new HiltAndroidRule(this);
 
   // Sets the preferences so no login is required and an active project is selected.
-  public @Rule(order = 1)
-  SetPreferencesRule preferencesRule = new SetPreferencesRule();
+  @Rule(order = 1)
+  public SetPreferencesRule preferencesRule = new SetPreferencesRule();
 
-  public @Rule(order = 2)
-  ActivityScenarioRule scenarioRule =
-    new ActivityScenarioRule(MainActivity.class);
+  @Rule(order = 2)
+  public ActivityScenarioRule scenarioRule = new ActivityScenarioRule(MainActivity.class);
 
   @Module
   @InstallIn(ApplicationComponent.class)
@@ -81,7 +80,7 @@ public class AddFeatureTest {
     @Binds
     @Singleton
     abstract AuthenticationManager bindAuthenticationManager(
-      FakeAuthenticationManager authenticationManager);
+        FakeAuthenticationManager authenticationManager);
 
     @Binds
     @Singleton
@@ -90,7 +89,8 @@ public class AddFeatureTest {
     @Binds
     @Singleton
     abstract RemoteStorageManager bindRemoteStorageManager(
-      FakeRemoteStorageManager remoteStorageManager);
+        FakeRemoteStorageManager remoteStorageManager
+    );
 
     @Binds
     @Singleton
