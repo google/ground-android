@@ -59,7 +59,7 @@ public class AddFeatureTest {
   // When: they tap on the centre of the map.
   // Then: nothing happens - the feature fragment is not displayed.
   @Test
-  public void tappingCrosshairOnEmptyMapDoesNothing() throws InterruptedException {
+  public void tappingCrosshairOnEmptyMapDoesNothing() {
     ActivityScenario<MainActivity> scenario = scenarioRule.getScenario();
 
     // Tap on the crosshair at the centre of the map.
