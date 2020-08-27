@@ -33,6 +33,8 @@ public class TestLocalDatabaseModule {
   @Provides
   @Singleton
   LocalDatabase localDatabase(@ApplicationContext Context context) {
-    return Room.inMemoryDatabaseBuilder(context, LocalDatabase.class).build();
+    return Room.inMemoryDatabaseBuilder(context, LocalDatabase.class)
+        .allowMainThreadQueries()
+        .build();
   }
 }

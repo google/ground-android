@@ -32,6 +32,7 @@ import androidx.test.core.app.ActivityScenario;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import com.google.android.gnd.persistence.local.LocalDatabaseModule;
 import com.google.android.gnd.persistence.remote.RemoteStorageModule;
+import com.google.android.gnd.rx.SchedulersModule;
 import com.google.android.gnd.system.auth.AuthenticationModule;
 import dagger.hilt.android.testing.HiltAndroidRule;
 import dagger.hilt.android.testing.HiltAndroidTest;
@@ -40,7 +41,7 @@ import org.junit.Rule;
 import org.junit.Test;
 
 @UninstallModules({AuthenticationModule.class, RemoteStorageModule.class,
-    LocalDatabaseModule.class})
+    LocalDatabaseModule.class, SchedulersModule.class})
 @HiltAndroidTest
 public class AddFeatureTest {
 
