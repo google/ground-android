@@ -20,14 +20,14 @@ import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
-import com.google.android.gnd.model.basemap.tile.Tile;
+import com.google.android.gnd.model.basemap.tile.TileSource;
 import com.google.android.gnd.persistence.local.room.models.TileEntityState;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.AutoValue.CopyAnnotations;
 
 @AutoValue
-@Entity(tableName = "tile")
-public abstract class TileEntity {
+@Entity(tableName = "tile_sources")
+public abstract class TileSourceEntity {
   @CopyAnnotations
   @NonNull
   @PrimaryKey
@@ -49,42 +49,42 @@ public abstract class TileEntity {
   @ColumnInfo(name = "state")
   public abstract TileEntityState getState();
 
-  public static Tile toTile(TileEntity tileEntity) {
-    Tile.Builder tile =
-        Tile.newBuilder()
-            .setId(tileEntity.getId())
-            .setPath(tileEntity.getPath())
-            .setState(toTileState(tileEntity.getState()))
-            .setUrl(tileEntity.getUrl());
+  public static TileSource toTileSource(TileSourceEntity tileSourceEntity) {
+    TileSource.Builder tile =
+        TileSource.newBuilder()
+            .setId(tileSourceEntity.getId())
+            .setPath(tileSourceEntity.getPath())
+            .setState(toTileState(tileSourceEntity.getState()))
+            .setUrl(tileSourceEntity.getUrl());
     return tile.build();
   }
 
-  private static Tile.State toTileState(TileEntityState state) {
+  private static TileSource.State toTileState(TileEntityState state) {
     switch (state) {
       case PENDING:
-        return Tile.State.PENDING;
+        return TileSource.State.PENDING;
       case IN_PROGRESS:
-        return Tile.State.IN_PROGRESS;
+        return TileSource.State.IN_PROGRESS;
       case DOWNLOADED:
-        return Tile.State.DOWNLOADED;
+        return TileSource.State.DOWNLOADED;
       case FAILED:
-        return Tile.State.FAILED;
+        return TileSource.State.FAILED;
       default:
-        throw new IllegalArgumentException("Unknown tile state: " + state);
+        throw new IllegalArgumentException("Unknown tile source state: " + state);
     }
   }
 
-  public static TileEntity fromTile(Tile tile) {
-    TileEntity.Builder entity =
-        TileEntity.builder()
-            .setId(tile.getId())
-            .setPath(tile.getPath())
-            .setState(toEntityState(tile.getState()))
-            .setUrl(tile.getUrl());
+  public static TileSourceEntity fromTile(TileSource tileSource) {
+    TileSourceEntity.Builder entity =
+        TileSourceEntity.builder()
+            .setId(tileSource.getId())
+            .setPath(tileSource.getPath())
+            .setState(toEntityState(tileSource.getState()))
+            .setUrl(tileSource.getUrl());
     return entity.build();
   }
 
-  private static TileEntityState toEntityState(Tile.State state) {
+  private static TileEntityState toEntityState(TileSource.State state) {
     switch (state) {
       case PENDING:
         return TileEntityState.PENDING;
@@ -99,12 +99,12 @@ public abstract class TileEntity {
     }
   }
 
-  public static TileEntity create(String id, String path, TileEntityState state, String url) {
+  public static TileSourceEntity create(String id, String path, TileEntityState state, String url) {
     return builder().setId(id).setState(state).setPath(path).setUrl(url).build();
   }
 
   public static Builder builder() {
-    return new AutoValue_TileEntity.Builder();
+    return new AutoValue_TileSourceEntity.Builder();
   }
 
   @AutoValue.Builder
@@ -117,6 +117,6 @@ public abstract class TileEntity {
 
     public abstract Builder setState(TileEntityState newState);
 
-    public abstract TileEntity build();
+    public abstract TileSourceEntity build();
   }
 }

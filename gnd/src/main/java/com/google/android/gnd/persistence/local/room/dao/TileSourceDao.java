@@ -18,24 +18,24 @@ package com.google.android.gnd.persistence.local.room.dao;
 
 import androidx.room.Dao;
 import androidx.room.Query;
-import com.google.android.gnd.persistence.local.room.entity.TileEntity;
+import com.google.android.gnd.persistence.local.room.entity.TileSourceEntity;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
 import java.util.List;
 
 @Dao
-public interface TileDao extends BaseDao<TileEntity> {
+public interface TileSourceDao extends BaseDao<TileSourceEntity> {
 
-  @Query("SELECT * FROM tile")
-  Flowable<List<TileEntity>> findAllOnceAndStream();
+  @Query("SELECT * FROM tile_sources")
+  Flowable<List<TileSourceEntity>> findAllOnceAndStream();
 
-  @Query("SELECT * FROM tile WHERE state = :state")
-  Single<List<TileEntity>> findByState(int state);
+  @Query("SELECT * FROM tile_sources WHERE state = :state")
+  Single<List<TileSourceEntity>> findByState(int state);
 
-  @Query("SELECT * FROM tile WHERE id = :id")
-  Maybe<TileEntity> findById(String id);
+  @Query("SELECT * FROM tile_sources WHERE id = :id")
+  Maybe<TileSourceEntity> findById(String id);
 
-  @Query("SELECT * FROM tile WHERE path = :path")
-  Maybe<TileEntity> findByPath(String path);
+  @Query("SELECT * FROM tile_sources WHERE path = :path")
+  Maybe<TileSourceEntity> findByPath(String path);
 }

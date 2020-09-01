@@ -23,8 +23,8 @@ import androidx.hilt.work.WorkerInject;
 import androidx.work.Data;
 import androidx.work.WorkerParameters;
 import com.google.android.gnd.R;
-import com.google.android.gnd.model.basemap.tile.Tile;
-import com.google.android.gnd.model.basemap.tile.Tile.State;
+import com.google.android.gnd.model.basemap.tile.TileSource;
+import com.google.android.gnd.model.basemap.tile.TileSource.State;
 import com.google.android.gnd.persistence.local.LocalDataStore;
 import com.google.android.gnd.persistence.remote.TransferProgress;
 import com.google.android.gnd.system.NotificationManager;
@@ -46,19 +46,19 @@ import timber.log.Timber;
  * provided in a {@link Data} object. This worker should only run when the device has a network
  * connection.
  */
-public class TileDownloadWorker extends BaseWorker {
+public class TileSourceDownloadWorker extends BaseWorker {
   private static final int BUFFER_SIZE = 4096;
 
   private final Context context;
   private final LocalDataStore localDataStore;
 
   @WorkerInject
-  public TileDownloadWorker(
+  public TileSourceDownloadWorker(
       @Assisted @NonNull Context context,
       @Assisted @NonNull WorkerParameters params,
       LocalDataStore localDataStore,
       NotificationManager notificationManager) {
-    super(context, params, notificationManager, TileDownloadWorker.class.hashCode());
+    super(context, params, notificationManager, TileSourceDownloadWorker.class.hashCode());
     this.context = context;
     this.localDataStore = localDataStore;
   }
@@ -67,13 +67,13 @@ public class TileDownloadWorker extends BaseWorker {
    * Given a tile, downloads the given {@param tile}'s source file and saves it to the device's app
    * storage. Optional HTTP request header {@param requestProperties} may be provided.
    */
-  private void downloadTileFile(Tile tile, Map<String, String> requestProperties)
-      throws TileDownloadException {
+  private void downloadTileFile(TileSource tileSource, Map<String, String> requestProperties)
+      throws TileSourceDownloadException {
 
     int mode = Context.MODE_PRIVATE;
 
     try {
-      URL url = new URL(tile.getUrl());
+      URL url = new URL(tileSource.getUrl());
       HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 
       if (!requestProperties.isEmpty()) {
@@ -86,7 +86,7 @@ public class TileDownloadWorker extends BaseWorker {
       connection.connect();
 
       try (InputStream is = connection.getInputStream();
-          FileOutputStream fos = context.openFileOutput(tile.getPath(), mode)) {
+          FileOutputStream fos = context.openFileOutput(tileSource.getPath(), mode)) {
 
         byte[] byteChunk = new byte[BUFFER_SIZE];
         int n;
@@ -96,12 +96,12 @@ public class TileDownloadWorker extends BaseWorker {
         }
       }
     } catch (IOException e) {
-      throw new TileDownloadException("Failed to download tile", e);
+      throw new TileSourceDownloadException("Failed to download tile", e);
     }
   }
 
   /** Update a tile's state in the database and initiate a download of the tile source file. */
-  private Completable downloadTile(Tile tile) {
+  private Completable downloadTileSource(TileSource tileSource) {
     Map<String, String> requestProperties = new HashMap<>();
 
     // To resume a download for an in progress tile, we use the HTTP Range request property.
@@ -117,26 +117,28 @@ public class TileDownloadWorker extends BaseWorker {
     // downloaded yet (since then we'll fetch the range '0-', the entire file).
     //
     // For more info see: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Range
-    if (tile.getState() == State.IN_PROGRESS) {
-      File existingTileFile = new File(context.getFilesDir(), tile.getPath());
+    if (tileSource.getState() == State.IN_PROGRESS) {
+      File existingTileFile = new File(context.getFilesDir(), tileSource.getPath());
       requestProperties.put("Range", "bytes=" + existingTileFile.length() + "-");
     }
 
     return localDataStore
-        .insertOrUpdateTile(tile.toBuilder().setState(Tile.State.IN_PROGRESS).build())
+        .insertOrUpdateTileSource(
+            tileSource.toBuilder().setState(TileSource.State.IN_PROGRESS).build())
         .andThen(
             Completable.fromRunnable(
                 () -> {
-                  downloadTileFile(tile, requestProperties);
+                  downloadTileFile(tileSource, requestProperties);
                 }))
         .onErrorResumeNext(
             e -> {
-              Timber.d(e, "Failed to download tile: %s", tile);
-              return localDataStore.insertOrUpdateTile(
-                  tile.toBuilder().setState(State.FAILED).build());
+              Timber.d(e, "Failed to download tile: %s", tileSource);
+              return localDataStore.insertOrUpdateTileSource(
+                  tileSource.toBuilder().setState(State.FAILED).build());
             })
         .andThen(
-            localDataStore.insertOrUpdateTile(tile.toBuilder().setState(State.DOWNLOADED).build()));
+            localDataStore.insertOrUpdateTileSource(
+                tileSource.toBuilder().setState(State.DOWNLOADED).build()));
   }
 
   /**
@@ -144,23 +146,23 @@ public class TileDownloadWorker extends BaseWorker {
    * exists in the app's storage. If the tile's source file isn't present, initiates a download of
    * source file.
    */
-  private Completable downloadIfNotFound(Tile tile) {
-    File file = new File(context.getFilesDir(), tile.getPath());
+  private Completable downloadIfNotFound(TileSource tileSource) {
+    File file = new File(context.getFilesDir(), tileSource.getPath());
 
     if (file.exists()) {
       return Completable.complete();
     }
 
-    return downloadTile(tile);
+    return downloadTileSource(tileSource);
   }
 
-  private Completable processTiles(ImmutableList<Tile> pendingTiles) {
-    return Observable.fromIterable(pendingTiles)
+  private Completable processTileSources(ImmutableList<TileSource> pendingTileSources) {
+    return Observable.fromIterable(pendingTileSources)
         .doOnNext(
             tile ->
                 sendNotification(
                     TransferProgress.inProgress(
-                        pendingTiles.size(), pendingTiles.indexOf(tile) + 1)))
+                        pendingTileSources.size(), pendingTileSources.indexOf(tile) + 1)))
         .flatMapCompletable(
             t -> {
               switch (t.getState()) {
@@ -170,7 +172,7 @@ public class TileDownloadWorker extends BaseWorker {
                 case IN_PROGRESS:
                 case FAILED:
                 default:
-                  return downloadTile(t);
+                  return downloadTileSource(t);
               }
             })
         .compose(this::notifyTransferState);
@@ -184,22 +186,23 @@ public class TileDownloadWorker extends BaseWorker {
   @NonNull
   @Override
   public Result doWork() {
-    ImmutableList<Tile> pendingTiles = localDataStore.getPendingTiles().blockingGet();
+    ImmutableList<TileSource> pendingTileSources =
+        localDataStore.getPendingTileSources().blockingGet();
 
     // When there are no tiles in the db, the blockingGet returns null.
     // If that isn't the case, another worker may have already taken care of the work.
     // In this case, we return a result immediately to stop the worker.
-    if (pendingTiles == null) {
+    if (pendingTileSources == null) {
       return Result.success();
     }
 
-    Timber.d("Downloading tiles: %s", pendingTiles);
+    Timber.d("Downloading tiles: %s", pendingTileSources);
 
     try {
-      processTiles(pendingTiles).blockingAwait();
+      processTileSources(pendingTileSources).blockingAwait();
       return Result.success();
     } catch (Throwable t) {
-      Timber.d(t, "Downloads for tiles failed: %s", pendingTiles);
+      Timber.d(t, "Downloads for tiles failed: %s", pendingTileSources);
       return Result.failure();
     }
   }
@@ -209,8 +212,8 @@ public class TileDownloadWorker extends BaseWorker {
     return getApplicationContext().getString(R.string.downloading_tiles);
   }
 
-  static class TileDownloadException extends RuntimeException {
-    TileDownloadException(String msg, Throwable e) {
+  static class TileSourceDownloadException extends RuntimeException {
+    TileSourceDownloadException(String msg, Throwable e) {
       super(msg, e);
     }
   }

@@ -22,7 +22,7 @@ import android.content.Context;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
 import com.google.android.gnd.model.basemap.OfflineArea;
-import com.google.android.gnd.model.basemap.tile.Tile;
+import com.google.android.gnd.model.basemap.tile.TileSource;
 import com.google.android.gnd.repository.OfflineAreaRepository;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.common.collect.ImmutableSet;
@@ -57,8 +57,10 @@ public class OfflineAreaViewerViewModel extends AbstractViewModel {
                     this.offlineAreaRepository
                         .getOfflineArea(args.getOfflineAreaId())
                         .toFlowable()
-                        .flatMap(offlineAreaRepository::getIntersectingDownloadedTilesOnceAndStream)
-                        .map(this::tilesToTotalStorageSize)));
+                        .flatMap(
+                            offlineAreaRepository
+                                ::getIntersectingDownloadedTileSourcesOnceAndStream)
+                        .map(this::tileSourcesToTotalStorageSize)));
     this.offlineArea =
         LiveDataReactiveStreams.fromPublisher(
             this.argsProcessor.switchMap(
@@ -68,16 +70,16 @@ public class OfflineAreaViewerViewModel extends AbstractViewModel {
                         .toFlowable()));
   }
 
-  private Double tilesToTotalStorageSize(ImmutableSet<Tile> tiles) {
-    return stream(tiles).map(this::tileStorageSize).reduce((x, y) -> x + y).orElse(0.0);
+  private Double tileSourcesToTotalStorageSize(ImmutableSet<TileSource> tileSources) {
+    return stream(tileSources).map(this::tileSourceStorageSize).reduce((x, y) -> x + y).orElse(0.0);
   }
 
-  private double tileStorageSize(Tile tile) {
+  private double tileSourceStorageSize(TileSource tileSource) {
     Context context1 = context.get();
     if (context1 == null) {
       return 0.0;
     } else {
-      File tileFile = new File(context1.getFilesDir(), tile.getPath());
+      File tileFile = new File(context1.getFilesDir(), tileSource.getPath());
       return (double) tileFile.length() / (1024 * 1024);
     }
   }

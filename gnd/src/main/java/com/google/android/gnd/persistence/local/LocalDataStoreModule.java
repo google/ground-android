@@ -30,7 +30,7 @@ import com.google.android.gnd.persistence.local.room.dao.OfflineAreaDao;
 import com.google.android.gnd.persistence.local.room.dao.OfflineBaseMapSourceDao;
 import com.google.android.gnd.persistence.local.room.dao.OptionDao;
 import com.google.android.gnd.persistence.local.room.dao.ProjectDao;
-import com.google.android.gnd.persistence.local.room.dao.TileDao;
+import com.google.android.gnd.persistence.local.room.dao.TileSourceDao;
 import com.google.android.gnd.persistence.local.room.dao.UserDao;
 import dagger.Binds;
 import dagger.Module;
@@ -94,8 +94,8 @@ public abstract class LocalDataStoreModule {
   }
 
   @Provides
-  static TileDao tileDao(LocalDatabase localDatabase) {
-    return localDatabase.tileDao();
+  static TileSourceDao tileSourceDao(LocalDatabase localDatabase) {
+    return localDatabase.tileSourceDao();
   }
 
   @Provides
