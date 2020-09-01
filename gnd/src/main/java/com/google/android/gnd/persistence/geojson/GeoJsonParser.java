@@ -21,8 +21,8 @@ import static java8.util.stream.StreamSupport.stream;
 
 import android.util.Log;
 import com.google.android.gms.maps.model.LatLngBounds;
-import com.google.android.gnd.model.basemap.tile.Tile;
-import com.google.android.gnd.model.basemap.tile.Tile.State;
+import com.google.android.gnd.model.basemap.tile.TileSource;
+import com.google.android.gnd.model.basemap.tile.TileSource.State;
 import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator;
 import com.google.common.collect.ImmutableList;
 import java.io.File;
@@ -52,7 +52,7 @@ public class GeoJsonParser {
    * Returns the immutable list of tiles specified in {@param geojson} that intersect {@param
    * bounds}.
    */
-  public ImmutableList<Tile> intersectingTiles(LatLngBounds bounds, File file) {
+  public ImmutableList<TileSource> intersectingTiles(LatLngBounds bounds, File file) {
     try {
       String fileContents = FileUtils.readFileToString(file, Charset.forName(JSON_SOURCE_CHARSET));
       // TODO: Separate parsing and intersection checks, make asyc (single, completable).
@@ -63,7 +63,7 @@ public class GeoJsonParser {
       return stream(toArrayList(features))
           .map(GeoJsonTile::new)
           .filter(tile -> tile.boundsIntersect(bounds))
-          .map(this::jsonToTile)
+          .map(this::jsonToTileSource)
           .collect(toImmutableList());
 
     } catch (JSONException | IOException e) {
@@ -91,15 +91,15 @@ public class GeoJsonParser {
     return result;
   }
 
-  /** Returns the {@link Tile} specified by {@param json}. */
-  private Tile jsonToTile(GeoJsonTile json) {
+  /** Returns the {@link TileSource} specified by {@param json}. */
+  private TileSource jsonToTileSource(GeoJsonTile json) {
     // TODO: Instead of returning tiles with invalid state (empty URL/ID values)
     // Throw an exception here and handle it downstream.
-    return Tile.newBuilder()
+    return TileSource.newBuilder()
         .setId(uuidGenerator.generateUuid())
         .setUrl(json.getUrl().orElse(""))
         .setState(State.PENDING)
-        .setPath(Tile.pathFromId(json.getId().orElse("")))
+        .setPath(TileSource.pathFromId(json.getId().orElse("")))
         .build();
   }
 }

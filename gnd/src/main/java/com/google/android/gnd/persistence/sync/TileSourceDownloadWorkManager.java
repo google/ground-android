@@ -24,20 +24,20 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 
 /** Enqueues file download work to be done in the background. */
-public class TileDownloadWorkManager extends BaseWorkManager {
+public class TileSourceDownloadWorkManager extends BaseWorkManager {
 
   private final LocalValueStore localValueStore;
 
   @Inject
-  public TileDownloadWorkManager(
+  public TileSourceDownloadWorkManager(
       Provider<WorkManager> workManagerProvider, LocalValueStore localValueStore) {
     super(workManagerProvider);
     this.localValueStore = localValueStore;
   }
 
   @Override
-  Class<TileDownloadWorker> getWorkerClass() {
-    return TileDownloadWorker.class;
+  Class<TileSourceDownloadWorker> getWorkerClass() {
+    return TileSourceDownloadWorker.class;
   }
 
   @Override
@@ -51,11 +51,11 @@ public class TileDownloadWorkManager extends BaseWorkManager {
    * Enqueues a worker that downloads files when a network connection is available, returning a
    * completable upon enqueueing.
    */
-  public Completable enqueueTileDownloadWorker() {
-    return Completable.fromRunnable(this::enqueueTileDownloadWorkerInternal);
+  public Completable enqueueTileSourceDownloadWorker() {
+    return Completable.fromRunnable(this::enqueueTileSourceDownloadWorkerInternal);
   }
 
-  private void enqueueTileDownloadWorkerInternal() {
+  private void enqueueTileSourceDownloadWorkerInternal() {
     getWorkManager().enqueue(buildWorkerRequest());
   }
 }

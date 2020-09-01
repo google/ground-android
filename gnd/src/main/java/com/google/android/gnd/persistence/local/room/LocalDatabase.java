@@ -35,7 +35,7 @@ import com.google.android.gnd.persistence.local.room.dao.OfflineAreaDao;
 import com.google.android.gnd.persistence.local.room.dao.OfflineBaseMapSourceDao;
 import com.google.android.gnd.persistence.local.room.dao.OptionDao;
 import com.google.android.gnd.persistence.local.room.dao.ProjectDao;
-import com.google.android.gnd.persistence.local.room.dao.TileDao;
+import com.google.android.gnd.persistence.local.room.dao.TileSourceDao;
 import com.google.android.gnd.persistence.local.room.dao.UserDao;
 import com.google.android.gnd.persistence.local.room.entity.FeatureEntity;
 import com.google.android.gnd.persistence.local.room.entity.FeatureMutationEntity;
@@ -49,7 +49,7 @@ import com.google.android.gnd.persistence.local.room.entity.OfflineAreaEntity;
 import com.google.android.gnd.persistence.local.room.entity.OfflineBaseMapSourceEntity;
 import com.google.android.gnd.persistence.local.room.entity.OptionEntity;
 import com.google.android.gnd.persistence.local.room.entity.ProjectEntity;
-import com.google.android.gnd.persistence.local.room.entity.TileEntity;
+import com.google.android.gnd.persistence.local.room.entity.TileSourceEntity;
 import com.google.android.gnd.persistence.local.room.entity.UserEntity;
 import com.google.android.gnd.persistence.local.room.models.ElementEntityType;
 import com.google.android.gnd.persistence.local.room.models.EntityState;
@@ -79,7 +79,7 @@ import com.google.android.gnd.persistence.local.room.models.TileEntityState;
       OfflineBaseMapSourceEntity.class,
       ObservationEntity.class,
       ObservationMutationEntity.class,
-      TileEntity.class,
+      TileSourceEntity.class,
       OfflineAreaEntity.class,
       UserEntity.class
     },
@@ -121,7 +121,7 @@ public abstract class LocalDatabase extends RoomDatabase {
 
   public abstract ObservationMutationDao observationMutationDao();
 
-  public abstract TileDao tileDao();
+  public abstract TileSourceDao tileSourceDao();
 
   public abstract OfflineAreaDao offlineAreaDao();
 

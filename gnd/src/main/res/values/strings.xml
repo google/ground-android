@@ -147,7 +147,7 @@
   <string name="in_progress">In progress</string>
   <string name="uploading_photos">Uploading photos</string>
   <string name="starting">Starting</string>
-  <string name="downloading_tiles">Downloading tiles</string>
+  <string name="downloading_tiles">Downloading tile sources</string>
   <string name="uploading_data">Uploading data</string>
   <string name="app_running">App is running</string>
   <string name="settings">Settings</string>
