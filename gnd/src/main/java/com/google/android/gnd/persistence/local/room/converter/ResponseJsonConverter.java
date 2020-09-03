@@ -67,6 +67,6 @@ class ResponseJsonConverter {
         Timber.e("Error parsing JSONArray in db: %s", jsonArray);
       }
     }
-    return ImmutableList.copyOf(list);
+    return ImmutableList.<String>builder().addAll(list).build();
   }
 }
