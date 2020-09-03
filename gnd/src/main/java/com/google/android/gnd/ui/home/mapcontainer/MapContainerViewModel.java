@@ -24,7 +24,7 @@ import androidx.lifecycle.LiveDataReactiveStreams;
 import androidx.lifecycle.MutableLiveData;
 import com.cocoahero.android.gmaps.addons.mapbox.MapBoxOfflineTileProvider;
 import com.google.android.gnd.model.Project;
-import com.google.android.gnd.model.basemap.tile.Tile;
+import com.google.android.gnd.model.basemap.tile.TileSource;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.repository.FeatureRepository;
@@ -105,8 +105,8 @@ public class MapContainerViewModel extends AbstractViewModel {
     this.mbtilesFilePaths =
         LiveDataReactiveStreams.fromPublisher(
             offlineAreaRepository
-                .getDownloadedTilesOnceAndStream()
-                .map(set -> stream(set).map(Tile::getPath).collect(toImmutableSet())));
+                .getDownloadedTileSourcesOnceAndStream()
+                .map(set -> stream(set).map(TileSource::getPath).collect(toImmutableSet())));
   }
 
   private Flowable<CameraUpdate> createCameraUpdateFlowable(

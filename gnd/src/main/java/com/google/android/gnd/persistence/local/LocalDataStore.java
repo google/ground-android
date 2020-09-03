@@ -20,7 +20,7 @@ import com.google.android.gnd.model.Mutation;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.basemap.OfflineArea;
-import com.google.android.gnd.model.basemap.tile.Tile;
+import com.google.android.gnd.model.basemap.tile.TileSource;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.FeatureMutation;
 import com.google.android.gnd.model.observation.Observation;
@@ -106,7 +106,7 @@ public interface LocalDataStore {
    * Returns a long-lived stream that emits the full set of tiles on subscribe and continues to
    * return the full set each time a tile is added/changed/removed.
    */
-  Flowable<ImmutableSet<Tile>> getTilesOnceAndStream();
+  Flowable<ImmutableSet<TileSource>> getTileSourcesOnceAndStream();
 
   /**
    * Returns all feature and observation mutations in the local mutation queue relating to feature
@@ -147,13 +147,13 @@ public interface LocalDataStore {
    * Attempts to update a tile in the local data store. If the tile doesn't exist, inserts the tile
    * into the local data store.
    */
-  Completable insertOrUpdateTile(Tile tile);
+  Completable insertOrUpdateTileSource(TileSource tileSource);
 
   /** Returns the tile with the specified id from the local data store, if found. */
-  Maybe<Tile> getTile(String tileId);
+  Maybe<TileSource> getTileSource(String tileId);
 
   /** Returns all pending tiles from the local data store. */
-  Single<ImmutableList<Tile>> getPendingTiles();
+  Single<ImmutableList<TileSource>> getPendingTileSources();
 
   /**
    * Attempts to update an offline area in the local data store. If the area doesn't exist, inserts

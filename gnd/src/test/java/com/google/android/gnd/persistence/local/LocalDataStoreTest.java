@@ -26,8 +26,8 @@ import com.google.android.gnd.model.Mutation;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.basemap.OfflineArea;
-import com.google.android.gnd.model.basemap.tile.Tile;
-import com.google.android.gnd.model.basemap.tile.Tile.State;
+import com.google.android.gnd.model.basemap.tile.TileSource;
+import com.google.android.gnd.model.basemap.tile.TileSource.State;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.FeatureMutation;
 import com.google.android.gnd.model.feature.Point;
@@ -150,24 +150,24 @@ public class LocalDataStoreTest {
           .setClientTimestamp(new Date())
           .build();
 
-  private static final Tile TEST_PENDING_TILE =
-      Tile.newBuilder()
+  private static final TileSource TEST_PENDING_TILE_SOURCE =
+      TileSource.newBuilder()
           .setId("id_1")
           .setState(State.PENDING)
           .setPath("some_path 1")
           .setUrl("some_url 1")
           .build();
 
-  private static final Tile TEST_DOWNLOADED_TILE =
-      Tile.newBuilder()
+  private static final TileSource TEST_DOWNLOADED_TILE_SOURCE =
+      TileSource.newBuilder()
           .setId("id_2")
           .setState(State.DOWNLOADED)
           .setPath("some_path 2")
           .setUrl("some_url 2")
           .build();
 
-  private static final Tile TEST_FAILED_TILE =
-      Tile.newBuilder()
+  private static final TileSource TEST_FAILED_TILE_SOURCE =
+      TileSource.newBuilder()
           .setId("id_3")
           .setState(State.FAILED)
           .setPath("some_path 3")
@@ -520,37 +520,45 @@ public class LocalDataStoreTest {
 
   @Test
   public void testInsertTile() {
-    localDataStore.insertOrUpdateTile(TEST_PENDING_TILE).test().assertComplete();
+    localDataStore.insertOrUpdateTileSource(TEST_PENDING_TILE_SOURCE).test().assertComplete();
   }
 
   @Test
   public void testGetTile() {
-    localDataStore.insertOrUpdateTile(TEST_PENDING_TILE).blockingAwait();
-    localDataStore.getTile("id_1").test().assertValueCount(1).assertValue(TEST_PENDING_TILE);
+    localDataStore.insertOrUpdateTileSource(TEST_PENDING_TILE_SOURCE).blockingAwait();
+    localDataStore
+        .getTileSource("id_1")
+        .test()
+        .assertValueCount(1)
+        .assertValue(TEST_PENDING_TILE_SOURCE);
   }
 
   @Test
   public void testGetTilesOnceAndStream() {
-    TestSubscriber<ImmutableSet<Tile>> subscriber = localDataStore.getTilesOnceAndStream().test();
+    TestSubscriber<ImmutableSet<TileSource>> subscriber =
+        localDataStore.getTileSourcesOnceAndStream().test();
 
     subscriber.assertValue(ImmutableSet.of());
 
-    localDataStore.insertOrUpdateTile(TEST_DOWNLOADED_TILE).blockingAwait();
-    localDataStore.insertOrUpdateTile(TEST_PENDING_TILE).blockingAwait();
+    localDataStore.insertOrUpdateTileSource(TEST_DOWNLOADED_TILE_SOURCE).blockingAwait();
+    localDataStore.insertOrUpdateTileSource(TEST_PENDING_TILE_SOURCE).blockingAwait();
 
     subscriber.assertValueSet(
         ImmutableSet.of(
             ImmutableSet.of(),
-            ImmutableSet.of(TEST_DOWNLOADED_TILE),
-            ImmutableSet.of(TEST_DOWNLOADED_TILE, TEST_PENDING_TILE)));
+            ImmutableSet.of(TEST_DOWNLOADED_TILE_SOURCE),
+            ImmutableSet.of(TEST_DOWNLOADED_TILE_SOURCE, TEST_PENDING_TILE_SOURCE)));
   }
 
   @Test
   public void testGetPendingTile() {
-    localDataStore.insertOrUpdateTile(TEST_DOWNLOADED_TILE).blockingAwait();
-    localDataStore.insertOrUpdateTile(TEST_FAILED_TILE).blockingAwait();
-    localDataStore.insertOrUpdateTile(TEST_PENDING_TILE).blockingAwait();
-    localDataStore.getPendingTiles().test().assertValue(ImmutableList.of(TEST_PENDING_TILE));
+    localDataStore.insertOrUpdateTileSource(TEST_DOWNLOADED_TILE_SOURCE).blockingAwait();
+    localDataStore.insertOrUpdateTileSource(TEST_FAILED_TILE_SOURCE).blockingAwait();
+    localDataStore.insertOrUpdateTileSource(TEST_PENDING_TILE_SOURCE).blockingAwait();
+    localDataStore
+        .getPendingTileSources()
+        .test()
+        .assertValue(ImmutableList.of(TEST_PENDING_TILE_SOURCE));
   }
 
   @Test

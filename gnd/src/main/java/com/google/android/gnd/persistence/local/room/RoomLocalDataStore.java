@@ -27,7 +27,7 @@ import com.google.android.gnd.model.Mutation.Type;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.basemap.OfflineArea;
-import com.google.android.gnd.model.basemap.tile.Tile;
+import com.google.android.gnd.model.basemap.tile.TileSource;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.FeatureMutation;
 import com.google.android.gnd.model.form.Element;
@@ -51,7 +51,7 @@ import com.google.android.gnd.persistence.local.room.dao.OfflineAreaDao;
 import com.google.android.gnd.persistence.local.room.dao.OfflineBaseMapSourceDao;
 import com.google.android.gnd.persistence.local.room.dao.OptionDao;
 import com.google.android.gnd.persistence.local.room.dao.ProjectDao;
-import com.google.android.gnd.persistence.local.room.dao.TileDao;
+import com.google.android.gnd.persistence.local.room.dao.TileSourceDao;
 import com.google.android.gnd.persistence.local.room.dao.UserDao;
 import com.google.android.gnd.persistence.local.room.entity.AuditInfoEntity;
 import com.google.android.gnd.persistence.local.room.entity.FeatureEntity;
@@ -66,7 +66,7 @@ import com.google.android.gnd.persistence.local.room.entity.OfflineAreaEntity;
 import com.google.android.gnd.persistence.local.room.entity.OfflineBaseMapSourceEntity;
 import com.google.android.gnd.persistence.local.room.entity.OptionEntity;
 import com.google.android.gnd.persistence.local.room.entity.ProjectEntity;
-import com.google.android.gnd.persistence.local.room.entity.TileEntity;
+import com.google.android.gnd.persistence.local.room.entity.TileSourceEntity;
 import com.google.android.gnd.persistence.local.room.entity.UserEntity;
 import com.google.android.gnd.persistence.local.room.models.EntityState;
 import com.google.android.gnd.persistence.local.room.models.TileEntityState;
@@ -105,7 +105,7 @@ public class RoomLocalDataStore implements LocalDataStore {
   @Inject FeatureMutationDao featureMutationDao;
   @Inject ObservationDao observationDao;
   @Inject ObservationMutationDao observationMutationDao;
-  @Inject TileDao tileDao;
+  @Inject TileSourceDao tileSourceDao;
   @Inject UserDao userDao;
   @Inject OfflineAreaDao offlineAreaDao;
   @Inject OfflineBaseMapSourceDao offlineBaseMapSourceDao;
@@ -283,10 +283,10 @@ public class RoomLocalDataStore implements LocalDataStore {
   }
 
   @Override
-  public Flowable<ImmutableSet<Tile>> getTilesOnceAndStream() {
-    return tileDao
+  public Flowable<ImmutableSet<TileSource>> getTileSourcesOnceAndStream() {
+    return tileSourceDao
         .findAllOnceAndStream()
-        .map(list -> stream(list).map(TileEntity::toTile).collect(toImmutableSet()))
+        .map(list -> stream(list).map(TileSourceEntity::toTileSource).collect(toImmutableSet()))
         .subscribeOn(schedulers.io());
   }
 
@@ -538,20 +538,25 @@ public class RoomLocalDataStore implements LocalDataStore {
   }
 
   @Override
-  public Completable insertOrUpdateTile(Tile tile) {
-    return tileDao.insertOrUpdate(TileEntity.fromTile(tile)).subscribeOn(schedulers.io());
+  public Completable insertOrUpdateTileSource(TileSource tileSource) {
+    return tileSourceDao
+        .insertOrUpdate(TileSourceEntity.fromTile(tileSource))
+        .subscribeOn(schedulers.io());
   }
 
   @Override
-  public Maybe<Tile> getTile(String tileId) {
-    return tileDao.findById(tileId).map(TileEntity::toTile).subscribeOn(schedulers.io());
+  public Maybe<TileSource> getTileSource(String tileId) {
+    return tileSourceDao
+        .findById(tileId)
+        .map(TileSourceEntity::toTileSource)
+        .subscribeOn(schedulers.io());
   }
 
   @Override
-  public Single<ImmutableList<Tile>> getPendingTiles() {
-    return tileDao
+  public Single<ImmutableList<TileSource>> getPendingTileSources() {
+    return tileSourceDao
         .findByState(TileEntityState.PENDING.intValue())
-        .map(ts -> stream(ts).map(TileEntity::toTile).collect(toImmutableList()))
+        .map(ts -> stream(ts).map(TileSourceEntity::toTileSource).collect(toImmutableList()))
         .subscribeOn(schedulers.io());
   }
 
