@@ -42,7 +42,7 @@ public class BottomSheetMetrics {
   }
 
   /** Returns the number of pixels of the bottom sheet visible above the bottom of the screen. */
-  private int getVisibleHeight() {
+  public int getVisibleHeight() {
     return Math.max(parent.getHeight() - bottomSheet.getTop(), 0);
   }
 
