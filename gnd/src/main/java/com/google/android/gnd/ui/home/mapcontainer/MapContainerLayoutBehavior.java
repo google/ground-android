@@ -43,8 +43,13 @@ public class MapContainerLayoutBehavior extends BottomSheetDependentBehavior<Fra
       // View already destroyed.
       return;
     }
-    int translationY = -metrics.getExpansionHeight() / 2;
-    map.setTranslationY(translationY);
+
+    // always keep the map centered based on the visible portion of map (excluding status bar)
+    if (metrics.getVisibleHeight() >= metrics.getExpandedOffset()) {
+      int translationY = -(metrics.getVisibleHeight() - metrics.getExpandedOffset()) / 2;
+      map.setTranslationY(translationY);
+    }
+
     float hideRatio = 1.0f - metrics.getRevealRatio();
     mapControls.setAlpha(hideRatio);
   }
