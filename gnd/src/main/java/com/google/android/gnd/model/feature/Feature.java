@@ -52,8 +52,7 @@ public abstract class Feature {
   }
 
   public String getSubtitle() {
-    // TODO: Implement subtitle logic.
-    return "";
+    return String.format("Added by %s", getCreated().getUser().getDisplayName());
   }
 
   public abstract Builder toBuilder();
