@@ -50,6 +50,7 @@ import com.google.android.gnd.rx.Schedulers;
 import com.google.android.gnd.system.auth.AuthenticationManager;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.BackPressListener;
+import com.google.android.gnd.ui.common.BottomSheetBehavior;
 import com.google.android.gnd.ui.common.EphemeralPopups;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.ProgressDialogs;
@@ -57,7 +58,6 @@ import com.google.android.gnd.ui.home.mapcontainer.MapContainerFragment;
 import com.google.android.gnd.ui.home.mapcontainer.MapContainerViewModel;
 import com.google.android.gnd.ui.projectselector.ProjectSelectorDialogFragment;
 import com.google.android.gnd.ui.projectselector.ProjectSelectorViewModel;
-import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.navigation.NavigationView.OnNavigationItemSelectedListener;
 import dagger.hilt.android.AndroidEntryPoint;
 import io.reactivex.subjects.PublishSubject;
@@ -225,6 +225,7 @@ public class HomeScreenFragment extends AbstractFragment
     bottomSheetBehavior.setHideable(true);
     bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
     bottomSheetBehavior.setBottomSheetCallback(new BottomSheetCallback());
+    bottomSheetBehavior.disableShapeAnimations();
   }
 
   @Override

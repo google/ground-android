@@ -16,7 +16,10 @@
 
 package com.google.android.gnd;
 
+import androidx.test.espresso.IdlingRegistry;
 import com.google.android.gnd.rx.Schedulers;
+import com.squareup.rx2.idler.IdlingResourceScheduler;
+import com.squareup.rx2.idler.Rx2Idler;
 import io.reactivex.Scheduler;
 import javax.inject.Inject;
 
@@ -31,11 +34,17 @@ public class TestScheduler implements Schedulers {
 
   @Override
   public Scheduler io() {
-    return io.reactivex.schedulers.Schedulers.trampoline();
+    Scheduler scheduler = io.reactivex.schedulers.Schedulers.trampoline();
+    IdlingResourceScheduler wrapped = Rx2Idler.wrap(scheduler, "Test I/O Scheduler");
+    IdlingRegistry.getInstance().register(wrapped);
+    return wrapped;
   }
 
   @Override
   public Scheduler ui() {
-    return io.reactivex.schedulers.Schedulers.trampoline();
+    Scheduler scheduler = io.reactivex.schedulers.Schedulers.trampoline();
+    IdlingResourceScheduler wrapped = Rx2Idler.wrap(scheduler, "Test UI Scheduler");
+    IdlingRegistry.getInstance().register(wrapped);
+    return wrapped;
   }
 }

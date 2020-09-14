@@ -90,4 +90,10 @@ public class FeatureDetailsFragment extends AbstractFragment {
         .findViewById(R.id.observation_list_container)
         .setPadding(0, 0, 0, insets.getSystemWindowInsetBottom());
   }
+
+  @Nullable
+  @Override
+  public View getView() {
+    return super.getView();
+  }
 }

@@ -19,7 +19,8 @@ package com.google.android.gnd.ui.home;
 import android.view.View;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import com.google.android.gnd.R;
-import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import com.google.android.gnd.ui.common.BottomSheetBehavior;
+
 
 /** Abstracts access to dimensions and positions of elements relative to the bottom sheet UI. */
 public class BottomSheetMetrics {

@@ -24,6 +24,7 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import com.google.android.gnd.R;
 import com.google.android.gnd.ui.home.BottomSheetDependentBehavior;
 import com.google.android.gnd.ui.home.BottomSheetMetrics;
+import timber.log.Timber;
 
 /**
  * Defines behavior of the feature details UI elements (bottom sheet and chrome) when the bottom
@@ -37,6 +38,7 @@ public class FeatureDetailsChromeBehavior extends BottomSheetDependentBehavior<V
   @Override
   protected void onBottomSheetChanged(
       CoordinatorLayout parent, ViewGroup layout, BottomSheetMetrics metrics) {
+    Timber.d("onBottomSheetChanged");
     ViewGroup toolbarWrapper = layout.findViewById(R.id.toolbar_wrapper);
     View bottomSheetScrim = layout.findViewById(R.id.bottom_sheet_bottom_inset_scrim);
     View hamburgerButton = parent.findViewById(R.id.hamburger_btn);

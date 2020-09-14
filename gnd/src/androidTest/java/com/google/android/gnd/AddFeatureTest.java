@@ -21,6 +21,7 @@ import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isCompletelyDisplayed;
+import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.CoreMatchers.allOf;
@@ -28,7 +29,9 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.not;
 
+import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
 import androidx.test.core.app.ActivityScenario;
+import androidx.test.espresso.IdlingRegistry;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import com.google.android.gnd.persistence.local.LocalDatabaseModule;
 import com.google.android.gnd.persistence.remote.RemoteStorageModule;
@@ -37,8 +40,11 @@ import com.google.android.gnd.system.auth.AuthenticationModule;
 import dagger.hilt.android.testing.HiltAndroidRule;
 import dagger.hilt.android.testing.HiltAndroidTest;
 import dagger.hilt.android.testing.UninstallModules;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import timber.log.Timber;
 
 @UninstallModules({AuthenticationModule.class, RemoteStorageModule.class,
     LocalDatabaseModule.class, SchedulersModule.class})
@@ -49,19 +55,41 @@ public class AddFeatureTest {
   @Rule(order = 0)
   public HiltAndroidRule hiltRule = new HiltAndroidRule(this);
 
-  // Sets the preferences so no login is required and an active project is selected.
+  // Swaps the background executor in Architecture Components with one which executes synchronously.
   @Rule(order = 1)
+  public InstantTaskExecutorRule instantTaskExecutorRule = new InstantTaskExecutorRule();
+
+  // Sets the preferences so no login is required and an active project is selected.
+  @Rule(order = 2)
   public SetPreferencesRule preferencesRule = new SetPreferencesRule();
 
-  @Rule(order = 2)
+  @Rule(order = 3)
   public ActivityScenarioRule scenarioRule = new ActivityScenarioRule(MainActivity.class);
+
+  private DataBindingIdlingResource idlingResource = new DataBindingIdlingResource();
+
+   /**
+   * Idling resources tell Espresso that the app is idle or busy. This is needed when operations
+   * are not scheduled in the main Looper (for example when executed on a different thread).
+   */
+  @Before
+  public void registerIdlingResource() {
+    IdlingRegistry.getInstance().register(idlingResource);
+  }
+
+  /**
+   * Unregister your Idling Resource so it can be garbage collected and does not leak any memory.
+   */
+  @After
+  public void unregisterIdlingResource() {
+    IdlingRegistry.getInstance().unregister(idlingResource);
+  }
 
   // Given: a logged in user - with an active project with no map markers.
   // When: they tap on the centre of the map.
   // Then: nothing happens - the feature fragment is not displayed.
   @Test
   public void tappingCrosshairOnEmptyMapDoesNothing() {
-    ActivityScenario<MainActivity> scenario = scenarioRule.getScenario();
 
     // Tap on the crosshair at the centre of the map.
     onView(withId(R.id.map_crosshairs)).perform(click());
@@ -76,7 +104,8 @@ public class AddFeatureTest {
   // Then: the observation marker is displayed on the map screen.
   @Test
   public void addFeatureWithNoFields() throws InterruptedException {
-    ActivityScenario<MainActivity> scenario = scenarioRule.getScenario();
+
+    idlingResource.monitorActivity(scenarioRule.getScenario());
 
     // Tap on the "Add feature" button.
     onView(withId(R.id.add_feature_btn)).perform(click());
@@ -91,10 +120,10 @@ public class AddFeatureTest {
     //  It's probably because the feature fragment animation does not block the test and the
     //  feature title isn't updated until the animation has completed (and it isn't disabled by the
     //  normal `transition_animation_scale 0` etc commands).
-    Thread.sleep(100);
+    //Thread.sleep(100);
 
     // Verify that the feature title matches the layer title and that it is displayed.
+    //onView(withId(R.id.feature_title)).check(matches(isCompletelyDisplayed()));
     onView(withId(R.id.feature_title)).check(matches(withText(FakeData.LAYER_NO_FIELDS_NAME)));
-    onView(withId(R.id.feature_title)).check(matches(isCompletelyDisplayed()));
   }
 }
