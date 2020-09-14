@@ -155,7 +155,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
   private void showBottomSheet(Feature feature) {
     Timber.d("showing bottom sheet");
     isObservationButtonVisible.setValue(true);
-    bottomSheetState.postValue(BottomSheetState.visible(feature));
+    bottomSheetState.setValue(BottomSheetState.visible(feature));
   }
 
   public void onAddFeatureBtnClick(Point location) {
@@ -181,7 +181,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
   }
 
   public void onBottomSheetHidden() {
-    bottomSheetState.postValue(BottomSheetState.hidden());
+    bottomSheetState.setValue(BottomSheetState.hidden());
     isObservationButtonVisible.setValue(false);
   }
 

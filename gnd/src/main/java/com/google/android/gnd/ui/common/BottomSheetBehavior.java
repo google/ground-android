@@ -1180,8 +1180,9 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
     // Prevent animations
     ViewCompat.offsetTopAndBottom(child, top - child.getTop());
     //}
+    setStateInternal(state);
 
-    boolean startedSettling =
+    /*boolean startedSettling =
         settleFromViewDragHelper
             ? viewDragHelper.settleCapturedViewAt(child.getLeft(), top)
             : viewDragHelper.smoothSlideViewTo(child, child.getLeft(), top);
@@ -1208,7 +1209,7 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
       }
     } else {
       setStateInternal(state);
-    }
+    }*/
   }
 
   private final ViewDragHelper.Callback dragCallback =

@@ -29,6 +29,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.not;
 
+import android.os.Looper;
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.espresso.IdlingRegistry;
@@ -115,6 +116,9 @@ public class AddFeatureTest {
 
     // Tap on the crosshair at the centre of the map.
     onView(withId(R.id.map_crosshairs)).perform(click());
+
+    boolean onMain = Looper.myLooper() == Looper.getMainLooper();
+    Timber.d("Running test on main thread? " + onMain);
 
     // TODO: figure out how to remove this
     //  It's probably because the feature fragment animation does not block the test and the
