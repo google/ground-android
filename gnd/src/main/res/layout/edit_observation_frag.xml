@@ -106,7 +106,6 @@
       android:elevation="2dp"
       android:text="@string/save_observation_button_label"
       android:visibility="@{viewModel.isSaving ? View.GONE : View.VISIBLE }"
-      android:onClick="@{() -> fragment.onSaveClick()}"
       app:useCompatPadding="true"/>
 
     <!-- TODO: Refactor and use in place of deprecated ProgressDialog. -->

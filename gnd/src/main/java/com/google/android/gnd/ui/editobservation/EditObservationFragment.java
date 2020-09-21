@@ -20,10 +20,12 @@ import static com.google.android.gnd.ui.editobservation.AddPhotoDialogAdapter.Ph
 import static com.google.android.gnd.ui.editobservation.AddPhotoDialogAdapter.PhotoStorageResource.PHOTO_SOURCE_STORAGE;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.LinearLayout;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -102,6 +104,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
     binding.setLifecycleOwner(this);
     binding.setViewModel(viewModel);
     binding.setFragment(this);
+    binding.saveObservationBtn.setOnClickListener(this::onSaveClick);
     return binding.getRoot();
   }
 
@@ -156,8 +159,17 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
     fieldViewModelList.add(fieldViewModel);
   }
 
-  public void onSaveClick() {
+  public void onSaveClick(View view) {
+    hideKeyboard(view);
     viewModel.onSave(getValidationErrors());
+  }
+
+  private void hideKeyboard(View view) {
+    if (getActivity() != null) {
+      InputMethodManager inputMethodManager =
+          (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+      inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
+    }
   }
 
   private Map<String, String> getValidationErrors() {
