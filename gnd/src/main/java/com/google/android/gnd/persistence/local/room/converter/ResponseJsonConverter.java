@@ -21,6 +21,7 @@ import static java8.lang.Iterables.forEach;
 import com.google.android.gnd.model.observation.MultipleChoiceResponse;
 import com.google.android.gnd.model.observation.Response;
 import com.google.android.gnd.model.observation.TextResponse;
+import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.List;
 import java8.util.Optional;
@@ -57,7 +58,7 @@ class ResponseJsonConverter {
     }
   }
 
-  private static List<String> toList(JSONArray jsonArray) {
+  private static ImmutableList<String> toList(JSONArray jsonArray) {
     List<String> list = new ArrayList<>(jsonArray.length());
     for (int i = 0; i < jsonArray.length(); i++) {
       try {
@@ -66,6 +67,6 @@ class ResponseJsonConverter {
         Timber.e("Error parsing JSONArray in db: %s", jsonArray);
       }
     }
-    return list;
+    return ImmutableList.<String>builder().addAll(list).build();
   }
 }
