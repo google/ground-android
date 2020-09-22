@@ -44,10 +44,10 @@ import org.junit.Rule;
 import org.junit.Test;
 
 @UninstallModules({
-  AuthenticationModule.class,
-  RemoteStorageModule.class,
-  LocalDatabaseModule.class,
-  SchedulersModule.class
+    AuthenticationModule.class,
+    RemoteStorageModule.class,
+    LocalDatabaseModule.class,
+    SchedulersModule.class
 })
 @HiltAndroidTest
 public class AddFeatureTest {
