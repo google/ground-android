@@ -48,6 +48,7 @@ import com.google.android.gnd.persistence.local.room.dao.MultipleChoiceDao;
 import com.google.android.gnd.persistence.local.room.dao.ObservationDao;
 import com.google.android.gnd.persistence.local.room.dao.ObservationMutationDao;
 import com.google.android.gnd.persistence.local.room.dao.OfflineAreaDao;
+import com.google.android.gnd.persistence.local.room.dao.OfflineAreaTileSourceCrossRefDao;
 import com.google.android.gnd.persistence.local.room.dao.OfflineBaseMapSourceDao;
 import com.google.android.gnd.persistence.local.room.dao.OptionDao;
 import com.google.android.gnd.persistence.local.room.dao.ProjectDao;
@@ -63,6 +64,7 @@ import com.google.android.gnd.persistence.local.room.entity.MultipleChoiceEntity
 import com.google.android.gnd.persistence.local.room.entity.ObservationEntity;
 import com.google.android.gnd.persistence.local.room.entity.ObservationMutationEntity;
 import com.google.android.gnd.persistence.local.room.entity.OfflineAreaEntity;
+import com.google.android.gnd.persistence.local.room.entity.OfflineAreaTileSourceCrossRef;
 import com.google.android.gnd.persistence.local.room.entity.OfflineBaseMapSourceEntity;
 import com.google.android.gnd.persistence.local.room.entity.OptionEntity;
 import com.google.android.gnd.persistence.local.room.entity.ProjectEntity;
@@ -72,6 +74,7 @@ import com.google.android.gnd.persistence.local.room.models.EntityState;
 import com.google.android.gnd.persistence.local.room.models.TileEntityState;
 import com.google.android.gnd.persistence.local.room.models.UserDetails;
 import com.google.android.gnd.rx.Schedulers;
+import com.google.android.gnd.ui.util.FileUtil;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import io.reactivex.Completable;
@@ -108,8 +111,10 @@ public class RoomLocalDataStore implements LocalDataStore {
   @Inject TileSourceDao tileSourceDao;
   @Inject UserDao userDao;
   @Inject OfflineAreaDao offlineAreaDao;
+  @Inject OfflineAreaTileSourceCrossRefDao offlineAreaTileSourceCrossRefDao;
   @Inject OfflineBaseMapSourceDao offlineBaseMapSourceDao;
   @Inject Schedulers schedulers;
+  @Inject FileUtil fileUtil;
 
   @Inject
   RoomLocalDataStore() {}
@@ -545,6 +550,22 @@ public class RoomLocalDataStore implements LocalDataStore {
   }
 
   @Override
+  public Completable insertOrUpdateTileSourceAndAreaReference(
+      TileSource tileSource, OfflineArea offlineArea) {
+    OfflineAreaTileSourceCrossRef crossRef =
+        OfflineAreaTileSourceCrossRef.builder()
+            .setOfflineAreaId(offlineArea.getId())
+            .setTileSourcePath(tileSource.getPath())
+            .build();
+
+    return tileSourceDao
+        .insertOrUpdate(TileSourceEntity.fromTile(tileSource))
+        .andThen(offlineAreaTileSourceCrossRefDao.insertOrUpdate(crossRef))
+        .doOnComplete(() -> Timber.d("Added cross ref: %s", crossRef))
+        .subscribeOn(schedulers.io());
+  }
+
+  @Override
   public Maybe<TileSource> getTileSource(String tileId) {
     return tileSourceDao
         .findById(tileId)
@@ -581,6 +602,52 @@ public class RoomLocalDataStore implements LocalDataStore {
         .findById(id)
         .map(OfflineAreaEntity::toArea)
         .toSingle()
+        .subscribeOn(schedulers.io());
+  }
+
+  private Completable deleteTiles(OfflineAreaEntity offlineAreaEntity) {
+    return tileSourceDao
+        .getTileSourcesWithOfflineAreas()
+        .toSingle()
+        .map(
+            sources ->
+                stream(sources)
+                    .filter(
+                        source ->
+                            // We only remove tiles when the given area is the only one that depends
+                            // on them.
+                            source.offlineAreaEntities.contains(offlineAreaEntity)
+                                && source.offlineAreaEntities.size() == 1)
+                    .map(source -> source.tileSourceEntity)
+                    .collect(toImmutableList()))
+        .flatMapObservable(Observable::fromIterable)
+        .flatMapCompletable(
+            tile ->
+                // TODO: Ideally, we'll want to decouple the file deletion from the local data store
+                Completable.fromAction(() -> fileUtil.deleteFile(tile.getPath()))
+                    .andThen(
+                        tileSourceDao
+                            .delete(tile)
+                            .andThen(
+                                offlineAreaTileSourceCrossRefDao.delete(
+                                    OfflineAreaTileSourceCrossRef.builder()
+                                        .setOfflineAreaId(offlineAreaEntity.getId())
+                                        .setTileSourcePath(tile.getPath())
+                                        .build()))))
+        .doOnComplete(() -> Timber.d("Removed tiles"))
+        .doOnError(throwable -> Timber.e(throwable, "Failed to delete tiles"));
+  }
+
+  @Override
+  public Completable deleteOfflineArea(String id) {
+    return offlineAreaDao
+        .findById(id)
+        .toSingle()
+        .doOnSubscribe(__ -> Timber.d("Deleting offline area: %s", id))
+        // Order matters! Deleting the area *before* the relevant tiles breaks the cross-reference
+        // we rely on to delete relevant tiles.
+        // Ensure we always delete tiles *first*.
+        .flatMapCompletable(area -> deleteTiles(area).andThen(offlineAreaDao.delete(area)))
         .subscribeOn(schedulers.io());
   }
 }

@@ -101,7 +101,7 @@ public class OfflineAreaRepository {
         .andThen(
             Completable.merge(
                 stream(tileSources.asList())
-                    .map(localDataStore::insertOrUpdateTileSource)
+                    .map(tile -> localDataStore.insertOrUpdateTileSourceAndAreaReference(tile, area))
                     .collect(toImmutableList())))
         .doOnError(__ -> Timber.e("failed to add/update a tile in the database"))
         .andThen(tileSourceDownloadWorkManager.enqueueTileSourceDownloadWorker());
@@ -185,5 +185,10 @@ public class OfflineAreaRepository {
                 stream(set)
                     .filter(tileSource -> tileSource.getState() == TileSource.State.DOWNLOADED)
                     .collect(toImmutableSet()));
+  }
+
+  //** Delete an offline area and the unique tile sources associated with it. */
+  public Completable deleteArea(String offlineAreaId) {
+    return localDataStore.deleteOfflineArea(offlineAreaId);
   }
 }

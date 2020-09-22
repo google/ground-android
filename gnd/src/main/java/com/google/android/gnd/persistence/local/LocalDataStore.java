@@ -149,6 +149,13 @@ public interface LocalDataStore {
    */
   Completable insertOrUpdateTileSource(TileSource tileSource);
 
+  /**
+   * Attempts to update a cross-reference between an offline area and a tile source. If it the
+   * cross-reference doesn't exist, inserts the cross-reference into the local data store
+   */
+  Completable insertOrUpdateTileSourceAndAreaReference(
+      TileSource tileSource, OfflineArea offlineArea);
+
   /** Returns the tile with the specified id from the local data store, if found. */
   Maybe<TileSource> getTileSource(String tileId);
 
@@ -166,4 +173,7 @@ public interface LocalDataStore {
 
   /** Returns the offline area with the specified id. */
   Single<OfflineArea> getOfflineAreaById(String id);
+
+  /** Delete an offline area and its *unique* tiles */
+  Completable deleteOfflineArea(String offlineAreaId);
 }

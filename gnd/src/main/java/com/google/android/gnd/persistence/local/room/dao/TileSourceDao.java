@@ -18,7 +18,9 @@ package com.google.android.gnd.persistence.local.room.dao;
 
 import androidx.room.Dao;
 import androidx.room.Query;
+import androidx.room.Transaction;
 import com.google.android.gnd.persistence.local.room.entity.TileSourceEntity;
+import com.google.android.gnd.persistence.local.room.relations.TileSourceWithOfflineAreas;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
@@ -38,4 +40,8 @@ public interface TileSourceDao extends BaseDao<TileSourceEntity> {
 
   @Query("SELECT * FROM tile_sources WHERE path = :path")
   Maybe<TileSourceEntity> findByPath(String path);
+
+  @Transaction
+  @Query("SELECT * FROM tile_sources")
+  Maybe<List<TileSourceWithOfflineAreas>> getTileSourcesWithOfflineAreas();
 }
