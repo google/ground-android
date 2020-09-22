@@ -21,7 +21,6 @@ import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isCompletelyDisplayed;
-import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.CoreMatchers.allOf;
@@ -29,9 +28,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.not;
 
-import android.os.Looper;
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
-import androidx.test.core.app.ActivityScenario;
 import androidx.test.espresso.IdlingRegistry;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import com.google.android.gnd.persistence.local.LocalDatabaseModule;
@@ -45,10 +42,13 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import timber.log.Timber;
 
-@UninstallModules({AuthenticationModule.class, RemoteStorageModule.class,
-    LocalDatabaseModule.class, SchedulersModule.class})
+@UninstallModules({
+  AuthenticationModule.class,
+  RemoteStorageModule.class,
+  LocalDatabaseModule.class,
+  SchedulersModule.class
+})
 @HiltAndroidTest
 public class AddFeatureTest {
 
@@ -64,18 +64,25 @@ public class AddFeatureTest {
   @Rule(order = 2)
   public SetPreferencesRule preferencesRule = new SetPreferencesRule();
 
+  // Load the MainActivity for each test.
   @Rule(order = 3)
-  public ActivityScenarioRule scenarioRule = new ActivityScenarioRule(MainActivity.class);
+  public ActivityScenarioRule<MainActivity> scenarioRule =
+      new ActivityScenarioRule<>(MainActivity.class);
 
-  private DataBindingIdlingResource idlingResource = new DataBindingIdlingResource();
+  // Create an idling resource which can be used to wait for databindings to complete.
+  private final DataBindingIdlingResource dataBindingIdlingResource =
+      new DataBindingIdlingResource();
 
-   /**
-   * Idling resources tell Espresso that the app is idle or busy. This is needed when operations
-   * are not scheduled in the main Looper (for example when executed on a different thread).
+  /**
+   * Idling resources tell Espresso that the app is idle or busy. This is needed when operations are
+   * not scheduled in the main Looper (for example when executed on a different thread).
    */
   @Before
   public void registerIdlingResource() {
-    IdlingRegistry.getInstance().register(idlingResource);
+    // Register the databinding idling resource. If a test is dependent on a databinding then it
+    // MUST monitor the activity, otherwise it will timeout waiting for the databinding to
+    // complete. See tests below for examples.
+    IdlingRegistry.getInstance().register(dataBindingIdlingResource);
   }
 
   /**
@@ -83,7 +90,7 @@ public class AddFeatureTest {
    */
   @After
   public void unregisterIdlingResource() {
-    IdlingRegistry.getInstance().unregister(idlingResource);
+    IdlingRegistry.getInstance().unregister(dataBindingIdlingResource);
   }
 
   // Given: a logged in user - with an active project with no map markers.
@@ -91,6 +98,8 @@ public class AddFeatureTest {
   // Then: nothing happens - the feature fragment is not displayed.
   @Test
   public void tappingCrosshairOnEmptyMapDoesNothing() {
+
+    dataBindingIdlingResource.monitorActivity(scenarioRule.getScenario());
 
     // Tap on the crosshair at the centre of the map.
     onView(withId(R.id.map_crosshairs)).perform(click());
@@ -106,7 +115,7 @@ public class AddFeatureTest {
   @Test
   public void addFeatureWithNoFields() throws InterruptedException {
 
-    idlingResource.monitorActivity(scenarioRule.getScenario());
+    dataBindingIdlingResource.monitorActivity(scenarioRule.getScenario());
 
     // Tap on the "Add feature" button.
     onView(withId(R.id.add_feature_btn)).perform(click());
@@ -117,17 +126,12 @@ public class AddFeatureTest {
     // Tap on the crosshair at the centre of the map.
     onView(withId(R.id.map_crosshairs)).perform(click());
 
-    boolean onMain = Looper.myLooper() == Looper.getMainLooper();
-    Timber.d("Running test on main thread? " + onMain);
-
-    // TODO: figure out how to remove this
-    //  It's probably because the feature fragment animation does not block the test and the
-    //  feature title isn't updated until the animation has completed (and it isn't disabled by the
-    //  normal `transition_animation_scale 0` etc commands).
-    //Thread.sleep(100);
+    // TODO: figure out how to remove this.
+    //  See here for more: https://github.com/dturner/ground-android/pull/1
+    Thread.sleep(10);
 
     // Verify that the feature title matches the layer title and that it is displayed.
-    //onView(withId(R.id.feature_title)).check(matches(isCompletelyDisplayed()));
+    onView(withId(R.id.feature_title)).check(matches(isCompletelyDisplayed()));
     onView(withId(R.id.feature_title)).check(matches(withText(FakeData.LAYER_NO_FIELDS_NAME)));
   }
 }
