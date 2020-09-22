@@ -17,11 +17,10 @@
 package com.google.android.gnd;
 
 public class FakeData {
-
   public static final String PROJECT_ID = "FAKE_PROJECT_ID";
   public static final String PROJECT_TITLE = "Fake project title";
   public static final String PROJECT_DESCRIPTION = "Fake project description";
-  public static final String LAYER_NO_FIELDS_ID = "LAYER_NO_FIELDS_ID";
-  public static final String LAYER_NO_FIELDS_NAME = "Fake name for layer with no fields";
-  public static final String LAYER_NO_FIELDS_COLOR = "#00ff00";
+  public static final String LAYER_NO_FORM_ID = "LAYER_NO_FORM_ID";
+  public static final String LAYER_NO_FORM_NAME = "Fake name for layer with no form";
+  public static final String LAYER_NO_FORM_COLOR = "#00ff00";
 }

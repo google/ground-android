@@ -36,28 +36,26 @@ import javax.inject.Inject;
 
 public class FakeRemoteDataStore implements RemoteDataStore {
 
-  private final Layer layerWithNoFields = Layer.newBuilder()
-      .setId(FakeData.LAYER_NO_FIELDS_ID)
-      .setName(FakeData.LAYER_NO_FIELDS_NAME)
-      .setDefaultStyle(Style.builder()
-          .setColor(FakeData.LAYER_NO_FIELDS_COLOR)
-          .build())
-      .build();
+  private final Layer layerWithNoForm =
+      Layer.newBuilder()
+          .setId(FakeData.LAYER_NO_FORM_ID)
+          .setName(FakeData.LAYER_NO_FORM_NAME)
+          .setDefaultStyle(Style.builder().setColor(FakeData.LAYER_NO_FORM_COLOR).build())
+          .build();
 
-  private final Project testProject = Project.newBuilder()
-      .setId(FakeData.PROJECT_ID)
-      .setTitle(FakeData.PROJECT_TITLE)
-      .setDescription(FakeData.PROJECT_DESCRIPTION)
-      .putLayer(FakeData.LAYER_NO_FIELDS_ID, layerWithNoFields)
-      .build();
+  private final Project testProject =
+      Project.newBuilder()
+          .setId(FakeData.PROJECT_ID)
+          .setTitle(FakeData.PROJECT_TITLE)
+          .setDescription(FakeData.PROJECT_DESCRIPTION)
+          .putLayer(FakeData.LAYER_NO_FORM_ID, layerWithNoForm)
+          .build();
 
   @Inject
-  FakeRemoteDataStore() {
-  }
+  FakeRemoteDataStore() {}
 
   @Override
-  public Single<List<Project>> loadProjectSummaries(
-      User user) {
+  public Single<List<Project>> loadProjectSummaries(User user) {
     return Single.just(Collections.singletonList(testProject));
   }
 
@@ -67,21 +65,17 @@ public class FakeRemoteDataStore implements RemoteDataStore {
   }
 
   @Override
-  public Flowable<RemoteDataEvent<Feature>> loadFeaturesOnceAndStreamChanges(
-      Project project) {
+  public Flowable<RemoteDataEvent<Feature>> loadFeaturesOnceAndStreamChanges(Project project) {
     return Flowable.empty();
   }
 
   @Override
-  public Single<ImmutableList<ValueOrError<Observation>>> loadObservations(
-      Feature feature) {
+  public Single<ImmutableList<ValueOrError<Observation>>> loadObservations(Feature feature) {
     return null;
   }
 
   @Override
-  public Completable applyMutations(
-      ImmutableCollection<Mutation> mutations,
-      User user) {
+  public Completable applyMutations(ImmutableCollection<Mutation> mutations, User user) {
     return null;
   }
 }

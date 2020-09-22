@@ -108,12 +108,12 @@ public class AddFeatureTest {
     onView(withId(R.id.feature_title)).check(matches(not(isCompletelyDisplayed())));
   }
 
-  // Given: a logged in user - with an active project which doesn't direct the user to add an
-  // observation when adding a feature.
-  // When: they tap the "Add feature" FAB and choose a feature type.
-  // Then: the observation marker is displayed on the map screen.
+  // Given: A logged in user with an active project
+  // When: They tap the "Add feature" FAB and choose a layer which does not contain a form.
+  // Then: The feature map pin is displayed on the map screen. Tapping on the map pin displays the
+  // feature details.
   @Test
-  public void addFeatureWithNoFields() throws InterruptedException {
+  public void addFeatureWithNoForm() throws InterruptedException {
 
     dataBindingIdlingResource.monitorActivity(scenarioRule.getScenario());
 
@@ -121,7 +121,7 @@ public class AddFeatureTest {
     onView(withId(R.id.add_feature_btn)).perform(click());
 
     // Tap on the layer type.
-    onData(allOf(is(instanceOf(String.class)), is(FakeData.LAYER_NO_FIELDS_NAME))).perform(click());
+    onData(allOf(is(instanceOf(String.class)), is(FakeData.LAYER_NO_FORM_NAME))).perform(click());
 
     // Tap on the crosshair at the centre of the map.
     onView(withId(R.id.map_crosshairs)).perform(click());
@@ -132,6 +132,6 @@ public class AddFeatureTest {
 
     // Verify that the feature title matches the layer title and that it is displayed.
     onView(withId(R.id.feature_title)).check(matches(isCompletelyDisplayed()));
-    onView(withId(R.id.feature_title)).check(matches(withText(FakeData.LAYER_NO_FIELDS_NAME)));
+    onView(withId(R.id.feature_title)).check(matches(withText(FakeData.LAYER_NO_FORM_NAME)));
   }
 }
