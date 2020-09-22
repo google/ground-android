@@ -20,6 +20,9 @@
   <data>
     <import type="android.view.View" />
     <variable
+      name="fragment"
+      type="com.google.android.gnd.ui.observationdetails.ObservationDetailsFragment" />
+    <variable
       name="viewModel"
       type="com.google.android.gnd.ui.observationdetails.ObservationDetailsViewModel" />
   </data>
@@ -60,8 +63,8 @@
           android:layout_height="?attr/actionBarSize"
           android:layout_gravity="top"
           android:theme="@style/WhiteToolbarTheme"
-          app:subtitle="@{viewModel.feature.subtitle}"
-          app:title="@{viewModel.feature.title}" />
+          app:subtitle="@{fragment.getFeatureSubtitle(viewModel.feature)}"
+          app:title="@{fragment.getFeatureTitle(viewModel.feature)}" />
 
       </androidx.cardview.widget.CardView>
 

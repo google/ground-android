@@ -47,14 +47,6 @@ public abstract class Feature {
   /** Returns the user and time audit info pertaining to the last modification of this feature. */
   public abstract AuditInfo getLastModified();
 
-  public String getTitle() {
-    return getCaption() == null || getCaption().isEmpty() ? getLayer().getName() : getCaption();
-  }
-
-  public String getSubtitle() {
-    return String.format("Added by %s", getCreated().getUser().getDisplayName());
-  }
-
   public abstract Builder toBuilder();
 
   @Memoized

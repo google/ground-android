@@ -26,10 +26,13 @@ import androidx.core.view.WindowInsetsCompat;
 import com.google.android.gnd.MainViewModel;
 import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.FeatureDetailsFragBinding;
+import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.ui.common.AbstractFragment;
+import com.google.android.gnd.ui.common.FeatureHelper;
 import com.google.android.gnd.ui.home.BottomSheetState;
 import com.google.android.gnd.ui.home.HomeScreenViewModel;
 import dagger.hilt.android.AndroidEntryPoint;
+import java8.util.Optional;
 import javax.inject.Inject;
 
 /** Fragment containing the contents of the bottom sheet shown when a feature is selected. */
@@ -56,6 +59,7 @@ public class FeatureDetailsFragment extends AbstractFragment {
   public View onCreateView(
       @NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     binding = FeatureDetailsFragBinding.inflate(inflater, container, false);
+    binding.setFragment(this);
     binding.setViewModel(viewModel);
     binding.setLifecycleOwner(this);
     return binding.getRoot();
@@ -68,6 +72,14 @@ public class FeatureDetailsFragment extends AbstractFragment {
     homeScreenViewModel
         .getBottomSheetState()
         .observe(getViewLifecycleOwner(), this::onBottomSheetStateChange);
+  }
+
+  public String getFeatureTitle(Optional<Feature> featureOptional) {
+    return FeatureHelper.getTitle(featureOptional);
+  }
+
+  public String getFeatureSubtitle(Optional<Feature> featureOptional) {
+    return FeatureHelper.getCreatedBy(getContext(), featureOptional);
   }
 
   private void onBottomSheetStateChange(BottomSheetState state) {

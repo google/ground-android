@@ -21,14 +21,17 @@
 
   <data>
     <variable
+      name="fragment"
+      type="com.google.android.gnd.ui.home.featuredetails.FeatureDetailsFragment" />
+    <variable
       name="viewModel"
       type="com.google.android.gnd.ui.home.featuredetails.FeatureDetailsViewModel" />
   </data>
 
   <FrameLayout
-      android:layout_width="match_parent"
-      android:layout_height="match_parent"
-      android:clickable="true">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:clickable="true">
 
     <!--
       Observation list background scrim. Used to fill space behind list
@@ -37,19 +40,20 @@
     <FrameLayout
       android:layout_width="match_parent"
       android:layout_height="match_parent"
-      android:layout_marginTop="@dimen/bottom_sheet_margin_top"
-      android:layout_gravity="top" />
+      android:layout_gravity="top"
+      android:layout_marginTop="@dimen/bottom_sheet_margin_top" />
 
     <LinearLayout
-        android:id="@+id/feature_details_header_layout"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_gravity="top"
-        android:orientation="vertical">
+      android:id="@+id/feature_details_header_layout"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      android:layout_gravity="top"
+      android:orientation="vertical">
 
       <include
-          app:viewModel="@{viewModel}"
-          layout="@layout/feature_details_header" />
+        layout="@layout/feature_details_header"
+        app:fragment="@{fragment}"
+        app:viewModel="@{viewModel}" />
 
       <fragment
         android:id="@+id/observation_list_frag"
