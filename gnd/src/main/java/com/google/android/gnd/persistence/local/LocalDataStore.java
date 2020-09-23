@@ -174,6 +174,6 @@ public interface LocalDataStore {
   /** Returns the offline area with the specified id. */
   Single<OfflineArea> getOfflineAreaById(String id);
 
-  /** Delete an offline area and its *unique* tiles */
+  /** Delete an offline area and its *unique* tiles. */
   Completable deleteOfflineArea(String offlineAreaId);
 }

@@ -86,7 +86,7 @@ public class FileUtil {
   }
 
   /** Attempts to delete a file relative to the app's file directory when it exists. */
-  public void deleteFile(String filename) throws SecurityException {
+  public void deleteFile(String filename) {
     File file = new File(context.getFilesDir(), filename);
     if (!file.exists()) {
       return;
