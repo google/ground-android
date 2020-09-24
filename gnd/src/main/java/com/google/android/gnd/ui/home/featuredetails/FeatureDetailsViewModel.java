@@ -39,7 +39,7 @@ public class FeatureDetailsViewModel extends ViewModel {
 
   @Inject
   public FeatureDetailsViewModel() {
-    featureTitle = new ObservableField<>();
+    featureTitle = new ObservableField<>("My Title");
     featureSubtitle = new ObservableField<>();
     selectedFeature = BehaviorProcessor.createDefault(Optional.empty());
   }
