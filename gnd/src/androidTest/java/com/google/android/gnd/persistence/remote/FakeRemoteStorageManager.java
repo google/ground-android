@@ -14,20 +14,27 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd;
+package com.google.android.gnd.persistence.remote;
 
-import com.google.android.gnd.TestScheduler;
-import com.google.android.gnd.rx.Schedulers;
-import dagger.Binds;
-import dagger.Module;
-import dagger.hilt.InstallIn;
-import dagger.hilt.android.components.ApplicationComponent;
-import javax.inject.Singleton;
+import android.net.Uri;
+import com.google.android.gms.tasks.Task;
+import io.reactivex.Flowable;
+import java.io.File;
+import javax.inject.Inject;
 
-@InstallIn(ApplicationComponent.class)
-@Module
-abstract class TestSchedulersModule {
-  @Binds
-  @Singleton
-  abstract Schedulers schedulers(TestScheduler testScheduler);
+public class FakeRemoteStorageManager implements RemoteStorageManager {
+
+  @Inject
+  FakeRemoteStorageManager() {
+  }
+
+  @Override
+  public Task<Uri> getDownloadUrl(String remoteDestinationPath) {
+    return null;
+  }
+
+  @Override
+  public Flowable<TransferProgress> uploadMediaFromFile(File file, String remoteDestinationPath) {
+    return null;
+  }
 }

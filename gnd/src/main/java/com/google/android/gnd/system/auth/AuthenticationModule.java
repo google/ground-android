@@ -14,28 +14,20 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd;
+package com.google.android.gnd.system.auth;
 
-import com.google.android.gnd.rx.Schedulers;
-import io.reactivex.Scheduler;
-import javax.inject.Inject;
+import dagger.Binds;
+import dagger.Module;
+import dagger.hilt.InstallIn;
+import dagger.hilt.android.components.ApplicationComponent;
+import javax.inject.Singleton;
 
-/**
- * Runs all tasks synchronously by executing the tasks on the current thread without any queueing
- * and blocking the call until finished.
- */
-public class TestScheduler implements Schedulers {
+@InstallIn(ApplicationComponent.class)
+@Module
+public abstract class AuthenticationModule {
 
-  @Inject
-  TestScheduler() {}
-
-  @Override
-  public Scheduler io() {
-    return io.reactivex.schedulers.Schedulers.trampoline();
-  }
-
-  @Override
-  public Scheduler ui() {
-    return io.reactivex.schedulers.Schedulers.trampoline();
-  }
+  /** Provides the Google implementation of authentication manager. */
+  @Binds
+  @Singleton
+  abstract AuthenticationManager googleAuthenticationManager(GoogleAuthenticationManager gam);
 }

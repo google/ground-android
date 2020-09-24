@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google LLC
+ * Copyright 2020 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,21 +14,13 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.ui.signin;
+package com.google.android.gnd;
 
-import com.google.android.gnd.system.auth.AuthenticationManager;
-import com.google.android.gnd.ui.common.AbstractViewModel;
-import javax.inject.Inject;
-
-public class SignInViewModel extends AbstractViewModel {
-  private final AuthenticationManager authenticationManager;
-
-  @Inject
-  SignInViewModel(AuthenticationManager authenticationManager) {
-    this.authenticationManager = authenticationManager;
-  }
-
-  public void onSignInButtonClick() {
-    authenticationManager.signIn();
-  }
+public class FakeData {
+  public static final String PROJECT_ID = "FAKE_PROJECT_ID";
+  public static final String PROJECT_TITLE = "Fake project title";
+  public static final String PROJECT_DESCRIPTION = "Fake project description";
+  public static final String LAYER_NO_FORM_ID = "LAYER_NO_FORM_ID";
+  public static final String LAYER_NO_FORM_NAME = "Fake name for layer with no form";
+  public static final String LAYER_NO_FORM_COLOR = "#00ff00";
 }
