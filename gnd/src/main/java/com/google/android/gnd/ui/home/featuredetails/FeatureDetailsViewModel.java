@@ -30,12 +30,12 @@ import javax.inject.Inject;
 @SharedViewModel
 public class FeatureDetailsViewModel extends ViewModel {
 
-  public final ObservableField<Optional<Feature>> observableFeature;
+  public final ObservableField<Optional<Feature>> feature;
   private final BehaviorProcessor<Optional<Feature>> selectedFeature;
 
   @Inject
   public FeatureDetailsViewModel() {
-    observableFeature = new ObservableField<>();
+    feature = new ObservableField<>();
     selectedFeature = BehaviorProcessor.createDefault(Optional.empty());
   }
 
@@ -54,7 +54,7 @@ public class FeatureDetailsViewModel extends ViewModel {
     }
 
     Optional<Feature> featureOptional = Optional.ofNullable(state.getFeature());
-    observableFeature.set(featureOptional);
+    feature.set(featureOptional);
     selectedFeature.onNext(featureOptional);
   }
 }
