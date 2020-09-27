@@ -17,27 +17,34 @@
 package com.google.android.gnd.ui.common;
 
 import android.content.Context;
-import androidx.annotation.Nullable;
+import androidx.annotation.NonNull;
 import com.google.android.gnd.R;
+import com.google.android.gnd.model.AuditInfo;
+import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.feature.Feature;
+import com.google.android.gnd.model.layer.Layer;
 import java8.util.Optional;
 
+/** Helper class for converting {@link Feature} to string for UI components. */
 public class FeatureHelper {
 
-  public static String getTitle(@Nullable Optional<Feature> feature) {
-    if (feature == null || !feature.isPresent()) {
-      return "";
-    }
-    String caption = feature.get().getCaption();
-    String layerName = feature.get().getLayer().getName();
-    return caption == null || caption.isEmpty() ? layerName : caption;
+  public static String getCreatedBy(Context context, @NonNull Optional<Feature> feature) {
+    return getUserName(feature).map(name -> context.getString(R.string.added_by, name)).orElse("");
   }
 
-  public static String getCreatedBy(Context context, @Nullable Optional<Feature> feature) {
-    if (feature == null || !feature.isPresent()) {
-      return "";
-    }
-    String username = feature.get().getCreated().getUser().getDisplayName();
-    return String.format(context.getResources().getString(R.string.added_by), username);
+  public static String getTitle(@NonNull Optional<Feature> feature) {
+    return getCaption(feature).orElseGet(() -> getLayerName(feature).orElse(""));
+  }
+
+  private static Optional<String> getUserName(@NonNull Optional<Feature> feature) {
+    return feature.map(Feature::getCreated).map(AuditInfo::getUser).map(User::getDisplayName);
+  }
+
+  private static Optional<String> getCaption(@NonNull Optional<Feature> feature) {
+    return feature.map(Feature::getCaption).map(String::trim).filter(caption -> !caption.isEmpty());
+  }
+
+  private static Optional<String> getLayerName(@NonNull Optional<Feature> feature) {
+    return feature.map(Feature::getLayer).map(Layer::getName);
   }
 }
