@@ -23,6 +23,7 @@ import com.google.android.gnd.model.AuditInfo;
 import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.layer.Layer;
+import dagger.hilt.android.qualifiers.ApplicationContext;
 import dagger.hilt.android.scopes.ActivityScoped;
 import java8.util.Optional;
 import javax.inject.Inject;
@@ -31,10 +32,12 @@ import javax.inject.Inject;
 @ActivityScoped
 public class FeatureHelper {
 
-  @Inject Context context;
+  private final Context context;
 
   @Inject
-  FeatureHelper() {}
+  FeatureHelper(@ApplicationContext Context context) {
+    this.context = context;
+  }
 
   public String getCreatedBy(@NonNull Optional<Feature> feature) {
     return getUserName(feature).map(name -> context.getString(R.string.added_by, name)).orElse("");

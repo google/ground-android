@@ -17,7 +17,6 @@
 package com.google.android.gnd;
 
 import android.app.Application;
-import android.content.Context;
 import android.content.SharedPreferences;
 import androidx.work.WorkManager;
 import com.google.android.gms.common.GoogleApiAvailability;
@@ -42,11 +41,6 @@ abstract class GndApplicationModule {
   @Singleton
   static WorkManager workManager() {
     return WorkManager.getInstance();
-  }
-
-  @Provides
-  static Context getApplicationContext(Application application) {
-    return application.getApplicationContext();
   }
 
   @Provides
