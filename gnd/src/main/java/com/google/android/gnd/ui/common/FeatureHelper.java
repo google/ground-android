@@ -28,7 +28,7 @@ import dagger.hilt.android.scopes.ActivityScoped;
 import java8.util.Optional;
 import javax.inject.Inject;
 
-/** Helper class for converting {@link Feature} to string for UI components. */
+/** Common logic for formatting attributes of {@link Feature} for display to the user. */
 @ActivityScoped
 public class FeatureHelper {
 
