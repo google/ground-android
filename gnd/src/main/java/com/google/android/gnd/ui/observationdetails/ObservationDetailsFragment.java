@@ -173,12 +173,12 @@ public class ObservationDetailsFragment extends AbstractFragment {
     }
   }
 
-  public String getFeatureTitle(Optional<Feature> featureOptional) {
-    return FeatureHelper.getTitle(featureOptional);
+  public String getFeatureTitle(Optional<Feature> feature) {
+    return FeatureHelper.getTitle(feature);
   }
 
-  public String getFeatureSubtitle(Optional<Feature> featureOptional) {
-    return FeatureHelper.getCreatedBy(getContext(), featureOptional);
+  public String getFeatureSubtitle(Optional<Feature> feature) {
+    return FeatureHelper.getCreatedBy(getContext(), feature);
   }
 
   private ObservationDetailsFragmentArgs getObservationDetailFragmentArgs() {

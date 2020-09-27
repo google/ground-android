@@ -24,20 +24,20 @@ import java8.util.Optional;
 
 public class FeatureHelper {
 
-  public static String getTitle(@Nullable Optional<Feature> featureOptional) {
-    if (featureOptional == null || !featureOptional.isPresent()) {
+  public static String getTitle(@Nullable Optional<Feature> feature) {
+    if (feature == null || !feature.isPresent()) {
       return "";
     }
-    String caption = featureOptional.get().getCaption();
-    String layerName = featureOptional.get().getLayer().getName();
+    String caption = feature.get().getCaption();
+    String layerName = feature.get().getLayer().getName();
     return caption == null || caption.isEmpty() ? layerName : caption;
   }
 
-  public static String getCreatedBy(Context context, @Nullable Optional<Feature> featureOptional) {
-    if (featureOptional == null || !featureOptional.isPresent()) {
+  public static String getCreatedBy(Context context, @Nullable Optional<Feature> feature) {
+    if (feature == null || !feature.isPresent()) {
       return "";
     }
-    String username = featureOptional.get().getCreated().getUser().getDisplayName();
+    String username = feature.get().getCreated().getUser().getDisplayName();
     return String.format(context.getResources().getString(R.string.added_by), username);
   }
 }
