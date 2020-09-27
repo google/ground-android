@@ -77,11 +77,11 @@ public class FeatureDetailsFragment extends AbstractFragment {
   }
 
   public String getFeatureTitle(@Nullable Optional<Feature> feature) {
-    return feature != null ? featureHelper.getTitle(feature) : "";
+    return feature == null ? "" : featureHelper.getTitle(feature);
   }
 
   public String getFeatureSubtitle(@Nullable Optional<Feature> feature) {
-    return feature != null ? featureHelper.getCreatedBy(feature) : "";
+    return feature == null ? "" : featureHelper.getCreatedBy(feature);
   }
 
   private void onBottomSheetStateChange(BottomSheetState state) {
