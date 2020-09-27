@@ -17,6 +17,7 @@
 package com.google.android.gnd;
 
 import android.app.Application;
+import android.content.Context;
 import android.content.SharedPreferences;
 import androidx.work.WorkManager;
 import com.google.android.gms.common.GoogleApiAvailability;
@@ -44,10 +45,15 @@ abstract class GndApplicationModule {
   }
 
   @Provides
+  static Context getApplicationContext(Application application) {
+    return application.getApplicationContext();
+  }
+
+  @Provides
   @Singleton
   static SharedPreferences provideSharedPreferences(Application application) {
     return application
-      .getApplicationContext()
-      .getSharedPreferences(Config.SHARED_PREFS_NAME, Config.SHARED_PREFS_MODE);
+        .getApplicationContext()
+        .getSharedPreferences(Config.SHARED_PREFS_NAME, Config.SHARED_PREFS_MODE);
   }
 }
