@@ -23,28 +23,36 @@ import com.google.android.gnd.model.AuditInfo;
 import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.layer.Layer;
+import dagger.hilt.android.scopes.ActivityScoped;
 import java8.util.Optional;
+import javax.inject.Inject;
 
 /** Helper class for converting {@link Feature} to string for UI components. */
+@ActivityScoped
 public class FeatureHelper {
 
-  public static String getCreatedBy(Context context, @NonNull Optional<Feature> feature) {
+  @Inject Context context;
+
+  @Inject
+  FeatureHelper() {}
+
+  public String getCreatedBy(@NonNull Optional<Feature> feature) {
     return getUserName(feature).map(name -> context.getString(R.string.added_by, name)).orElse("");
   }
 
-  public static String getTitle(@NonNull Optional<Feature> feature) {
+  public String getTitle(@NonNull Optional<Feature> feature) {
     return getCaption(feature).orElseGet(() -> getLayerName(feature).orElse(""));
   }
 
-  private static Optional<String> getUserName(@NonNull Optional<Feature> feature) {
+  private Optional<String> getUserName(@NonNull Optional<Feature> feature) {
     return feature.map(Feature::getCreated).map(AuditInfo::getUser).map(User::getDisplayName);
   }
 
-  private static Optional<String> getCaption(@NonNull Optional<Feature> feature) {
+  private Optional<String> getCaption(@NonNull Optional<Feature> feature) {
     return feature.map(Feature::getCaption).map(String::trim).filter(caption -> !caption.isEmpty());
   }
 
-  private static Optional<String> getLayerName(@NonNull Optional<Feature> feature) {
+  private Optional<String> getLayerName(@NonNull Optional<Feature> feature) {
     return feature.map(Feature::getLayer).map(Layer::getName);
   }
 }

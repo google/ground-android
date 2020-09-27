@@ -52,6 +52,7 @@ import timber.log.Timber;
 @AndroidEntryPoint
 public class ObservationDetailsFragment extends AbstractFragment {
 
+  @Inject FeatureHelper featureHelper;
   @Inject Navigator navigator;
 
   private ObservationDetailsViewModel viewModel;
@@ -173,12 +174,12 @@ public class ObservationDetailsFragment extends AbstractFragment {
     }
   }
 
-  public String getFeatureTitle(Optional<Feature> feature) {
-    return FeatureHelper.getTitle(feature);
+  public String getFeatureTitle(@Nullable Optional<Feature> feature) {
+    return feature != null ? featureHelper.getTitle(feature) : "";
   }
 
-  public String getFeatureSubtitle(Optional<Feature> feature) {
-    return FeatureHelper.getCreatedBy(getContext(), feature);
+  public String getFeatureSubtitle(@Nullable Optional<Feature> feature) {
+    return feature != null ? featureHelper.getCreatedBy(feature) : "";
   }
 
   private ObservationDetailsFragmentArgs getObservationDetailFragmentArgs() {

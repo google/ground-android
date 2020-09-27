@@ -39,6 +39,8 @@ import javax.inject.Inject;
 @AndroidEntryPoint
 public class FeatureDetailsFragment extends AbstractFragment {
 
+  @Inject FeatureHelper featureHelper;
+
   private FeatureDetailsViewModel viewModel;
   private HomeScreenViewModel homeScreenViewModel;
   private MainViewModel mainViewModel;
@@ -74,12 +76,12 @@ public class FeatureDetailsFragment extends AbstractFragment {
         .observe(getViewLifecycleOwner(), this::onBottomSheetStateChange);
   }
 
-  public String getFeatureTitle(Optional<Feature> feature) {
-    return FeatureHelper.getTitle(feature);
+  public String getFeatureTitle(@Nullable Optional<Feature> feature) {
+    return feature != null ? featureHelper.getTitle(feature) : "";
   }
 
-  public String getFeatureSubtitle(Optional<Feature> feature) {
-    return FeatureHelper.getCreatedBy(getContext(), feature);
+  public String getFeatureSubtitle(@Nullable Optional<Feature> feature) {
+    return feature != null ? featureHelper.getCreatedBy(feature) : "";
   }
 
   private void onBottomSheetStateChange(BottomSheetState state) {
