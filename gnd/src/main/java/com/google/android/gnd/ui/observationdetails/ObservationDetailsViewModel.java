@@ -16,7 +16,6 @@
 
 package com.google.android.gnd.ui.observationdetails;
 
-
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
 import com.google.android.gnd.model.feature.Feature;
@@ -27,13 +26,14 @@ import com.google.android.gnd.ui.common.AbstractViewModel;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.processors.BehaviorProcessor;
+import java8.util.Optional;
 import javax.inject.Inject;
 
 public class ObservationDetailsViewModel extends AbstractViewModel {
 
   public final LiveData<Loadable<Observation>> observations;
   public final LiveData<Boolean> isProgressBarVisible;
-  public final LiveData<Feature> feature;
+  public final LiveData<Optional<Feature>> feature;
   private final ObservationRepository observationRepository;
   private final BehaviorProcessor<ObservationDetailsFragmentArgs> argsProcessor;
 
@@ -67,8 +67,8 @@ public class ObservationDetailsViewModel extends AbstractViewModel {
     return observation.value().isPresent();
   }
 
-  private static Feature getFeature(Loadable<Observation> observation) {
-    return observation.value().map(Observation::getFeature).get();
+  private static Optional<Feature> getFeature(Loadable<Observation> observation) {
+    return observation.value().map(Observation::getFeature);
   }
 
   public void loadObservationDetails(ObservationDetailsFragmentArgs args) {

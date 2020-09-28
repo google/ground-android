@@ -47,7 +47,7 @@ abstract class GndApplicationModule {
   @Singleton
   static SharedPreferences provideSharedPreferences(Application application) {
     return application
-      .getApplicationContext()
-      .getSharedPreferences(Config.SHARED_PREFS_NAME, Config.SHARED_PREFS_MODE);
+        .getApplicationContext()
+        .getSharedPreferences(Config.SHARED_PREFS_NAME, Config.SHARED_PREFS_MODE);
   }
 }

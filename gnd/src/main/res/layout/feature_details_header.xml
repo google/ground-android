@@ -23,6 +23,9 @@
   <data>
     <import type="android.view.View" />
     <variable
+      name="fragment"
+      type="com.google.android.gnd.ui.home.featuredetails.FeatureDetailsFragment" />
+    <variable
       name="viewModel"
       type="com.google.android.gnd.ui.home.featuredetails.FeatureDetailsViewModel" />
   </data>
@@ -52,22 +55,21 @@
           android:id="@+id/feature_title"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
-          android:text="@{viewModel.featureTitle}"
+          android:gravity="center_horizontal"
+          android:text="@{fragment.getFeatureTitle(viewModel.feature)}"
           android:textAlignment="center"
           android:textAppearance="@style/TextAppearance.AppCompat.Title"
-          tools:text="Feature Sheet Title"
-          android:gravity="center_horizontal" />
+          tools:text="Feature Sheet Title" />
 
         <TextView
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
-          android:text="@{viewModel.featureSubtitle}"
+          android:gravity="center_horizontal"
+          android:text="@{fragment.getFeatureSubtitle(viewModel.feature)}"
           android:textAlignment="center"
           android:textColor="@color/colorGrey600"
           android:textSize="12sp"
-          android:visibility="@{viewModel.isFeatureSubtitleVisible ? View.VISIBLE : View.GONE}"
-          tools:text="Feature Subtitle"
-          android:gravity="center_horizontal" />
+          tools:text="Feature Subtitle" />
       </LinearLayout>
     </androidx.cardview.widget.CardView>
 
