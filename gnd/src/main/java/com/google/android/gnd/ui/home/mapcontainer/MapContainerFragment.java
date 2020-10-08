@@ -39,6 +39,7 @@ import com.google.android.gnd.system.SettingsManager.SettingsChangeRequestCancel
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.home.BottomSheetState;
 import com.google.android.gnd.ui.home.HomeScreenViewModel;
+import com.google.android.gnd.ui.home.mapcontainer.MapContainerViewModel.Mode;
 import com.google.android.gnd.ui.map.MapAdapter;
 import com.google.android.gnd.ui.map.MapProvider;
 import dagger.hilt.android.AndroidEntryPoint;
@@ -131,6 +132,32 @@ public class MapContainerFragment extends AbstractFragment {
     mapContainerViewModel
         .getShowMapTypeSelectorRequests()
         .observe(getViewLifecycleOwner(), __ -> showMapTypeSelectorDialog());
+    mapContainerViewModel.getViewMode().observe(getViewLifecycleOwner(), this::updateUI);
+  }
+
+  private void updateUI(Mode mode) {
+    switch (mode) {
+      case DEFAULT:
+        binding.mapTypeBtn.setVisibility(View.VISIBLE);
+        binding.locationLockBtn.setVisibility(View.VISIBLE);
+        binding.addFeatureBtn.setVisibility(View.VISIBLE);
+        binding.hamburgerBtn.setVisibility(View.VISIBLE);
+
+        binding.cancelButton.setVisibility(View.GONE);
+        binding.confirmButton.setVisibility(View.GONE);
+        break;
+      case REPOSITION:
+        binding.mapTypeBtn.setVisibility(View.GONE);
+        binding.locationLockBtn.setVisibility(View.GONE);
+        binding.addFeatureBtn.setVisibility(View.GONE);
+        binding.hamburgerBtn.setVisibility(View.GONE);
+
+        binding.cancelButton.setVisibility(View.VISIBLE);
+        binding.confirmButton.setVisibility(View.VISIBLE);
+        break;
+      default:
+        throw new IllegalArgumentException("Unknown mode: " + mode);
+    }
   }
 
   private void onMapReady(MapAdapter map) {
@@ -237,5 +264,9 @@ public class MapContainerFragment extends AbstractFragment {
   public void onDestroy() {
     mapContainerViewModel.closeProviders();
     super.onDestroy();
+  }
+
+  public void repositionFeature() {
+    mapContainerViewModel.setViewMode(Mode.REPOSITION);
   }
 }
