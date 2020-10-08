@@ -34,6 +34,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.widget.FrameLayout;
+import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.view.GravityCompat;
@@ -252,7 +253,9 @@ public class HomeScreenFragment extends AbstractFragment
   public boolean onOptionsItemSelected(@NonNull MenuItem item) {
     switch (item.getItemId()) {
       case R.id.move_feature_menu_item:
-        // TODO
+        Toast.makeText(getContext(), "Move feature", Toast.LENGTH_SHORT).show();
+        hideBottomSheet();
+        mapContainerFragment.repositionFeature();
         return false;
       case R.id.delete_feature_menu_item:
         viewModel.deleteFeature();
