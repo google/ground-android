@@ -19,6 +19,7 @@ package com.google.android.gnd.ui.home.mapcontainer;
 import static com.google.android.gnd.util.ImmutableSetCollector.toImmutableSet;
 import static java8.util.stream.StreamSupport.stream;
 
+import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
 import androidx.lifecycle.MutableLiveData;
@@ -63,8 +64,10 @@ public class MapContainerViewModel extends AbstractViewModel {
   private final FeatureRepository featureRepository;
   private final Subject<Boolean> locationLockChangeRequests;
   private final Subject<CameraUpdate> cameraUpdateSubject;
+  private final MutableLiveData<Mode> viewMode = new MutableLiveData<>(Mode.DEFAULT);
   private final MutableLiveData<Event<Nil>> showMapTypeSelectorRequests = new MutableLiveData<>();
   private final LiveData<ImmutableSet<String>> mbtilesFilePaths;
+
   // TODO: Create our own wrapper/interface for MbTiles providers
   // The impl we're using unfortunately requires calling a `close` method explicitly
   // to clean up provider resources; `close` however, is not defined by the `TileProvider`
@@ -109,13 +112,25 @@ public class MapContainerViewModel extends AbstractViewModel {
                 .map(set -> stream(set).map(TileSource::getPath).collect(toImmutableSet())));
   }
 
+  private static ImmutableSet<MapPin> toMapPins(ImmutableSet<Feature> features) {
+    return stream(features).map(MapContainerViewModel::toMapPin).collect(toImmutableSet());
+  }
+
+  private static MapPin toMapPin(Feature feature) {
+    return MapPin.newBuilder()
+        .setId(feature.getId())
+        .setPosition(feature.getPoint())
+        .setStyle(feature.getLayer().getDefaultStyle())
+        .setFeature(feature)
+        .build();
+  }
+
   private Flowable<CameraUpdate> createCameraUpdateFlowable(
       Flowable<BooleanOrError> locationLockStateFlowable) {
     return cameraUpdateSubject
         .toFlowable(BackpressureStrategy.LATEST)
         .mergeWith(
-            locationLockStateFlowable.switchMap(
-                state -> createLocationLockCameraUpdateFlowable(state)));
+            locationLockStateFlowable.switchMap(this::createLocationLockCameraUpdateFlowable));
   }
 
   private Flowable<CameraUpdate> createLocationLockCameraUpdateFlowable(BooleanOrError lockState) {
@@ -152,19 +167,6 @@ public class MapContainerViewModel extends AbstractViewModel {
 
   public void onMapTypeButtonClicked() {
     showMapTypeSelectorRequests.setValue(Event.create(Nil.NIL));
-  }
-
-  private static ImmutableSet<MapPin> toMapPins(ImmutableSet<Feature> features) {
-    return stream(features).map(MapContainerViewModel::toMapPin).collect(toImmutableSet());
-  }
-
-  private static MapPin toMapPin(Feature feature) {
-    return MapPin.newBuilder()
-        .setId(feature.getId())
-        .setPosition(feature.getPoint())
-        .setStyle(feature.getLayer().getDefaultStyle())
-        .setFeature(feature)
-        .build();
   }
 
   public LiveData<Loadable<Project>> getActiveProject() {
@@ -218,8 +220,33 @@ public class MapContainerViewModel extends AbstractViewModel {
     locationLockChangeRequests.onNext(!isLocationLockEnabled());
   }
 
+  public void onCancel() {}
+
+  public void onConfirm() {}
+
   LiveData<Event<Nil>> getShowMapTypeSelectorRequests() {
     return showMapTypeSelectorRequests;
+  }
+
+  public void queueTileProvider(MapBoxOfflineTileProvider tileProvider) {
+    this.tileProviders.add(tileProvider);
+  }
+
+  public void closeProviders() {
+    stream(tileProviders).forEach(MapBoxOfflineTileProvider::close);
+  }
+
+  public LiveData<Mode> getViewMode() {
+    return viewMode;
+  }
+
+  public void setViewMode(Mode mode) {
+    viewMode.setValue(mode);
+  }
+
+  public enum Mode {
+    DEFAULT,
+    REPOSITION
   }
 
   static class CameraUpdate {
@@ -232,14 +259,6 @@ public class MapContainerViewModel extends AbstractViewModel {
       this.minZoomLevel = minZoomLevel;
     }
 
-    public Point getCenter() {
-      return center;
-    }
-
-    public Optional<Float> getMinZoomLevel() {
-      return minZoomLevel;
-    }
-
     private static CameraUpdate pan(Point center) {
       return new CameraUpdate(center, Optional.empty());
     }
@@ -248,6 +267,15 @@ public class MapContainerViewModel extends AbstractViewModel {
       return new CameraUpdate(center, Optional.of(DEFAULT_ZOOM_LEVEL));
     }
 
+    public Point getCenter() {
+      return center;
+    }
+
+    public Optional<Float> getMinZoomLevel() {
+      return minZoomLevel;
+    }
+
+    @NonNull
     @Override
     public String toString() {
       if (minZoomLevel.isPresent()) {
@@ -256,13 +284,5 @@ public class MapContainerViewModel extends AbstractViewModel {
         return "Pan";
       }
     }
-  }
-
-  public void queueTileProvider(MapBoxOfflineTileProvider tileProvider) {
-    this.tileProviders.add(tileProvider);
-  }
-
-  public void closeProviders() {
-    stream(tileProviders).forEach(MapBoxOfflineTileProvider::close);
   }
 }
