@@ -255,7 +255,7 @@ public class HomeScreenFragment extends AbstractFragment
       case R.id.move_feature_menu_item:
         Toast.makeText(getContext(), "Move feature", Toast.LENGTH_SHORT).show();
         hideBottomSheet();
-        mapContainerFragment.repositionFeature();
+        mapContainerFragment.setRepositionMode();
         return false;
       case R.id.delete_feature_menu_item:
         viewModel.deleteFeature();

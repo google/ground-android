@@ -159,4 +159,5 @@
   <string name="offline_area_download_started">Download started.</string>
   <string name="offline_area_download_failed">Couldn\'t download area.</string>
   <string name="added_by">Added by %s</string>
+  <string name="reposition_location">Do you want to reposition to this location?</string>
 </resources>

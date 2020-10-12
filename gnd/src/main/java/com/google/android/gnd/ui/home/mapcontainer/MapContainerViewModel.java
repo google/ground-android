@@ -220,10 +220,6 @@ public class MapContainerViewModel extends AbstractViewModel {
     locationLockChangeRequests.onNext(!isLocationLockEnabled());
   }
 
-  public void onCancel() {}
-
-  public void onConfirm() {}
-
   LiveData<Event<Nil>> getShowMapTypeSelectorRequests() {
     return showMapTypeSelectorRequests;
   }

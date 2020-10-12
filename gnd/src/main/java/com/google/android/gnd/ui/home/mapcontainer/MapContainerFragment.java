@@ -29,6 +29,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AlertDialog.Builder;
 import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.MapContainerFragBinding;
 import com.google.android.gnd.model.Project;
@@ -176,8 +177,37 @@ public class MapContainerFragment extends AbstractFragment {
         .observe(this, state -> onBottomSheetStateChange(state, map));
     binding.addFeatureBtn.setOnClickListener(
         __ -> homeScreenViewModel.onAddFeatureBtnClick(map.getCameraTarget()));
+    binding.confirmButton.setOnClickListener(__ -> showConfirmationDialog(map));
+    binding.cancelButton.setOnClickListener(__ -> cancelRepositionMode());
     enableLocationLockBtn();
     mapContainerViewModel.getMbtilesFilePaths().observe(this, map::addTileOverlays);
+  }
+
+  private void cancelRepositionMode() {
+    Toast.makeText(getContext(), "Cancel the action", Toast.LENGTH_SHORT).show();
+    setDefaultMode();
+  }
+
+  private void showConfirmationDialog(MapAdapter map) {
+    new Builder(getContext())
+        .setTitle(R.string.reposition_location)
+        .setPositiveButton(
+            android.R.string.ok,
+            (dialog, which) -> {
+              String location =
+                  map.getCameraTarget().getLatitude() + "," + map.getCameraTarget().getLongitude();
+              Toast.makeText(getContext(), "Saving now...\n" + location, Toast.LENGTH_SHORT).show();
+              setDefaultMode();
+            })
+        .setNegativeButton(
+            android.R.string.cancel,
+            (dialog, which) -> {
+              Toast.makeText(getContext(), "Cancel the action", Toast.LENGTH_SHORT).show();
+              setDefaultMode();
+            })
+        .setCancelable(true)
+        .create()
+        .show();
   }
 
   private void onBottomSheetStateChange(BottomSheetState state, MapAdapter map) {
@@ -266,7 +296,11 @@ public class MapContainerFragment extends AbstractFragment {
     super.onDestroy();
   }
 
-  public void repositionFeature() {
+  public void setDefaultMode() {
+    mapContainerViewModel.setViewMode(Mode.DEFAULT);
+  }
+
+  public void setRepositionMode() {
     mapContainerViewModel.setViewMode(Mode.REPOSITION);
   }
 }
