@@ -22,6 +22,11 @@ import com.google.auto.value.AutoValue;
 @AutoValue
 public abstract class TileSource {
 
+  //** Increment the area reference count of a tile source by one. */
+  public static TileSource incAreaCount(TileSource tileSource) {
+    return tileSource.toBuilder().setAreaCount(tileSource.getAreaCount() + 1).build();
+  }
+
   public enum State {
     PENDING,
     IN_PROGRESS,
@@ -36,6 +41,8 @@ public abstract class TileSource {
   public abstract String getPath();
 
   public abstract State getState();
+
+  public abstract int getAreaCount();
 
   public static Builder newBuilder() {
     return new AutoValue_TileSource.Builder();
@@ -64,6 +71,8 @@ public abstract class TileSource {
     public abstract Builder setPath(String path);
 
     public abstract Builder setState(State state);
+
+    public abstract Builder setAreaCount(int areaCount);
 
     public abstract TileSource build();
   }

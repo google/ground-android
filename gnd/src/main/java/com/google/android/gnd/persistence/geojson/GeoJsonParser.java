@@ -64,6 +64,7 @@ public class GeoJsonParser {
           .map(GeoJsonTile::new)
           .filter(tile -> tile.boundsIntersect(bounds))
           .map(this::jsonToTileSource)
+          .map(tileSource -> tileSource.toBuilder().setAreaCount(1).build())
           .collect(toImmutableList());
 
     } catch (JSONException | IOException e) {
@@ -100,6 +101,7 @@ public class GeoJsonParser {
         .setUrl(json.getUrl().orElse(""))
         .setState(State.PENDING)
         .setPath(TileSource.pathFromId(json.getId().orElse("")))
+        .setAreaCount(0)
         .build();
   }
 }

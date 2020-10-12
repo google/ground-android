@@ -38,6 +38,9 @@ public interface TileSourceDao extends BaseDao<TileSourceEntity> {
   @Query("SELECT * FROM tile_sources WHERE id = :id")
   Maybe<TileSourceEntity> findById(String id);
 
+  @Query("SELECT * FROM tile_sources WHERE url = :url")
+  Maybe<TileSourceEntity> findByUrl(String url);
+
   @Query("SELECT * FROM tile_sources WHERE path = :path")
   Maybe<TileSourceEntity> findByPath(String path);
 

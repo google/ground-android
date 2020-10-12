@@ -38,6 +38,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
+import io.reactivex.Maybe;
 import io.reactivex.Single;
 import java.io.File;
 import java.io.IOException;
@@ -96,13 +97,21 @@ public class OfflineAreaRepository {
 
   /** Enqueue a single area and its tile sources for download. */
   private Completable enqueueDownload(OfflineArea area, ImmutableList<TileSource> tileSources) {
+
     return localDataStore
         .insertOrUpdateOfflineArea(area.toBuilder().setState(State.IN_PROGRESS).build())
         .andThen(
             Completable.merge(
                 stream(tileSources.asList())
                     .map(
-                        tile -> localDataStore.insertOrUpdateTileSourceAndAreaReference(tile, area))
+                        tileSource ->
+                            localDataStore
+                                .getTileSource(tileSource.getUrl())
+                                .map(TileSource::incAreaCount)
+                                .toSingle(tileSource))
+                    .map(
+                        single ->
+                            single.flatMapCompletable(localDataStore::insertOrUpdateTileSource))
                     .collect(toImmutableList())))
         .doOnError(__ -> Timber.e("failed to add/update a tile in the database"))
         .andThen(tileSourceDownloadWorkManager.enqueueTileSourceDownloadWorker());
@@ -171,11 +180,26 @@ public class OfflineAreaRepository {
         .flatMapPublisher(
             tiles ->
                 getDownloadedTileSourcesOnceAndStream()
-                    .map(ts -> stream(ts).filter(tiles::contains).collect(toImmutableSet())))
+                    .map(
+                        ts ->
+                            stream(ts)
+                                .filter(
+                                    tile ->
+                                        stream(tiles)
+                                            .map(TileSource::getUrl)
+                                            .collect(toImmutableList())
+                                            .contains(tile.getUrl()))
+                                .filter(tile -> tile.getState() == TileSource.State.DOWNLOADED)
+                                .collect(toImmutableSet())))
         // If no tile sources are found, we report the area takes up 0.0mb on the device.
         .doOnError(
             throwable -> Timber.d(throwable, "no tile sources found for area %s", offlineArea))
         .onErrorReturn(__ -> ImmutableSet.of());
+  }
+
+  public Maybe<ImmutableSet<TileSource>> getIntersectingDownloadedTileSourcesOnce(
+      OfflineArea offlineArea) {
+    return getIntersectingDownloadedTileSourcesOnceAndStream(offlineArea).firstElement();
   }
 
   public Flowable<ImmutableSet<TileSource>> getDownloadedTileSourcesOnceAndStream() {
@@ -188,8 +212,26 @@ public class OfflineAreaRepository {
                     .collect(toImmutableSet()));
   }
 
-  // ** Delete an offline area and the unique tile sources associated with it. */
+  /** Delete an offline area and the unique tile sources associated with it. */
   public Completable deleteArea(String offlineAreaId) {
-    return localDataStore.deleteOfflineArea(offlineAreaId);
+    return localDataStore
+        .getOfflineAreaById(offlineAreaId)
+        .flatMapMaybe(this::getIntersectingDownloadedTileSourcesOnce)
+        .flatMapCompletable(
+            tiles -> {
+              ImmutableSet<TileSource> decremented =
+                  stream(tiles)
+                      .map(
+                          tileSource ->
+                              tileSource
+                                  .toBuilder()
+                                  .setAreaCount(tileSource.getAreaCount() - 1)
+                                  .build())
+                      .collect(toImmutableSet());
+              return Flowable.fromIterable(decremented)
+                  .flatMapCompletable(localDataStore::insertOrUpdateTileSource)
+                  .andThen(localDataStore.deleteTiles(decremented));
+            })
+        .andThen(localDataStore.deleteOfflineArea(offlineAreaId));
   }
 }

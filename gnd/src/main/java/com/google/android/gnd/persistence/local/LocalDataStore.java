@@ -156,8 +156,8 @@ public interface LocalDataStore {
   Completable insertOrUpdateTileSourceAndAreaReference(
       TileSource tileSource, OfflineArea offlineArea);
 
-  /** Returns the tile with the specified id from the local data store, if found. */
-  Maybe<TileSource> getTileSource(String tileId);
+  /** Returns the tile with the specified URL from the local data store, if found. */
+  Maybe<TileSource> getTileSource(String tileUrl);
 
   /** Returns all pending tiles from the local data store. */
   Single<ImmutableList<TileSource>> getPendingTileSources();
@@ -176,4 +176,6 @@ public interface LocalDataStore {
 
   /** Delete an offline area and its *unique* tiles. */
   Completable deleteOfflineArea(String offlineAreaId);
+
+  Completable deleteTiles(ImmutableSet<TileSource> tileSources);
 }

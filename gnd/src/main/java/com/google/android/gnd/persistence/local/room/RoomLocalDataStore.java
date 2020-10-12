@@ -566,9 +566,9 @@ public class RoomLocalDataStore implements LocalDataStore {
   }
 
   @Override
-  public Maybe<TileSource> getTileSource(String tileId) {
+  public Maybe<TileSource> getTileSource(String tileUrl) {
     return tileSourceDao
-        .findById(tileId)
+        .findByUrl(tileUrl)
         .map(TileSourceEntity::toTileSource)
         .subscribeOn(schedulers.io());
   }
@@ -605,49 +605,28 @@ public class RoomLocalDataStore implements LocalDataStore {
         .subscribeOn(schedulers.io());
   }
 
-  private Completable deleteTiles(OfflineAreaEntity offlineAreaEntity) {
-    return tileSourceDao
-        .getTileSourcesWithOfflineAreas()
-        .toSingle()
-        .map(
-            sources ->
-                stream(sources)
-                    .filter(
-                        source ->
-                            // We only remove tiles when the given area is the only one that depends
-                            // on them.
-                            source.offlineAreaEntities.contains(offlineAreaEntity)
-                                && source.offlineAreaEntities.size() == 1)
-                    .map(source -> source.tileSourceEntity)
-                    .collect(toImmutableList()))
-        .flatMapObservable(Observable::fromIterable)
-        .flatMapCompletable(
-            tile ->
-                // TODO: Ideally, we'll want to decouple the file deletion from the local data store
-                Completable.fromAction(() -> fileUtil.deleteFile(tile.getPath()))
-                    .andThen(
-                        tileSourceDao
-                            .delete(tile)
-                            .andThen(
-                                offlineAreaTileSourceCrossRefDao.delete(
-                                    OfflineAreaTileSourceCrossRef.builder()
-                                        .setOfflineAreaId(offlineAreaEntity.getId())
-                                        .setTileSourcePath(tile.getPath())
-                                        .build()))))
-        .doOnComplete(() -> Timber.d("Removed tiles"))
-        .doOnError(throwable -> Timber.e(throwable, "Failed to delete tiles"));
-  }
-
   @Override
   public Completable deleteOfflineArea(String id) {
     return offlineAreaDao
         .findById(id)
         .toSingle()
         .doOnSubscribe(__ -> Timber.d("Deleting offline area: %s", id))
-        // Order matters! Deleting the area *before* the relevant tiles breaks the cross-reference
-        // we rely on to delete relevant tiles.
-        // Ensure we always delete tiles *first*.
-        .flatMapCompletable(area -> deleteTiles(area).andThen(offlineAreaDao.delete(area)))
+        .flatMapCompletable(offlineAreaDao::delete)
+        .subscribeOn(schedulers.io());
+  }
+
+  @Override
+  public Completable deleteTiles(ImmutableSet<TileSource> tiles) {
+    return Flowable.fromIterable(
+            stream(tiles)
+                .filter(tileSource -> tileSource.getAreaCount() < 1)
+                .collect(toImmutableList()))
+        .map(TileSourceEntity::fromTile)
+        .flatMapCompletable(
+            tile ->
+                Completable.fromAction(() -> fileUtil.deleteFile(tile.getPath()))
+                    .andThen(tileSourceDao.delete(tile)))
+        .doOnSubscribe(__ -> Timber.d("Deleting tiles: %s", tiles))
         .subscribeOn(schedulers.io());
   }
 }
