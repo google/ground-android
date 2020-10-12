@@ -16,16 +16,15 @@
 
 package com.google.android.gnd.persistence.remote.firestore.schema;
 
-import android.util.Log;
 import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.feature.FeatureMutation;
 import com.google.android.gnd.model.feature.Point;
 import com.google.common.collect.ImmutableMap;
 import com.google.firebase.firestore.GeoPoint;
+import timber.log.Timber;
 
 /** Converts between Firestore maps used to merge updates and {@link FeatureMutation} instances. */
 class FeatureMutationConverter {
-  private static final String TAG = FeatureMutationConverter.class.getSimpleName();
 
   private static final String LAYER_ID = "layerId";
   private static final String CENTER = "center";
@@ -50,12 +49,14 @@ class FeatureMutationConverter {
         map.put(LAST_MODIFIED, auditInfo);
         break;
       case UPDATE:
+        map.put(LAST_MODIFIED, auditInfo);
+        break;
       case DELETE:
       case UNKNOWN:
         // TODO.
         throw new UnsupportedOperationException();
       default:
-        Log.e(TAG, "Unhandled state: " + mutation.getType());
+        Timber.e("Unhandled state: %s", mutation.getType());
         break;
     }
     return map.build();

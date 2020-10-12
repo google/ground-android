@@ -155,7 +155,7 @@ public class FeatureRepository {
             .setNewLocation(Optional.of(point))
             .setUserId(authManager.getCurrentUser().getId())
             .build();
-    return localDataStore.applyAndEnqueue(mutation);
+    return applyAndEnqueue(mutation);
   }
 
   private Completable applyAndEnqueue(FeatureMutation mutation) {
