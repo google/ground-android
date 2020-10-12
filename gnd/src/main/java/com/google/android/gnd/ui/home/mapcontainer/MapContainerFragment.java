@@ -34,6 +34,7 @@ import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.MapContainerFragBinding;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.feature.Feature;
+import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.rx.BooleanOrError;
 import com.google.android.gnd.rx.Loadable;
 import com.google.android.gnd.system.PermissionsManager.PermissionDeniedException;
@@ -178,34 +179,34 @@ public class MapContainerFragment extends AbstractFragment {
         .observe(this, state -> onBottomSheetStateChange(state, map));
     binding.addFeatureBtn.setOnClickListener(
         __ -> homeScreenViewModel.onAddFeatureBtnClick(map.getCameraTarget()));
-    binding.confirmButton.setOnClickListener(__ -> showConfirmationDialog(map));
+    binding.confirmButton.setOnClickListener(__ -> showConfirmationDialog(map.getCameraTarget()));
     binding.cancelButton.setOnClickListener(__ -> cancelRepositionMode());
     enableLocationLockBtn();
     mapContainerViewModel.getMbtilesFilePaths().observe(this, map::addTileOverlays);
   }
 
+  /** Reset to default mode */
   private void cancelRepositionMode() {
-    Toast.makeText(getContext(), "Cancel the action", Toast.LENGTH_SHORT).show();
     setDefaultMode();
   }
 
-  private void showConfirmationDialog(MapAdapter map) {
+  /**
+   * Display confirmation dialog for updating selected feature's location.
+   *
+   * @param point: new position
+   */
+  private void showConfirmationDialog(Point point) {
     new Builder(getContext())
         .setTitle(R.string.reposition_location)
         .setPositiveButton(
             android.R.string.ok,
             (dialog, which) -> {
-              String location =
-                  map.getCameraTarget().getLatitude() + "," + map.getCameraTarget().getLongitude();
-              Toast.makeText(getContext(), "Saving now...\n" + location, Toast.LENGTH_SHORT).show();
-              homeScreenViewModel.updateFeature(
-                  mapContainerViewModel.getFeature(), map.getCameraTarget());
+              homeScreenViewModel.updateFeature(mapContainerViewModel.getFeature(), point);
               setDefaultMode();
             })
         .setNegativeButton(
             android.R.string.cancel,
             (dialog, which) -> {
-              Toast.makeText(getContext(), "Cancel the action", Toast.LENGTH_SHORT).show();
               setDefaultMode();
             })
         .setCancelable(true)
@@ -307,5 +308,7 @@ public class MapContainerFragment extends AbstractFragment {
   public void setRepositionMode(@NonNull Feature feature) {
     mapContainerViewModel.setViewMode(Mode.REPOSITION);
     mapContainerViewModel.setFeature(feature);
+
+    Toast.makeText(getContext(), R.string.reposition_point_feature, Toast.LENGTH_SHORT).show();
   }
 }

@@ -121,7 +121,11 @@ public class HomeScreenFragment extends AbstractFragment
   }
 
   private void onFeatureUpdated(Boolean result) {
-    Toast.makeText(getContext(), "Feature updated: " + result, Toast.LENGTH_SHORT).show();
+    if (result) {
+      Toast.makeText(getContext(), "Feature updated successfully", Toast.LENGTH_SHORT).show();
+    } else {
+      Timber.e("Failed to update feature");
+    }
   }
 
   private void onFeatureDeleted(Boolean result) {
@@ -262,7 +266,6 @@ public class HomeScreenFragment extends AbstractFragment
         if (state == null) {
           return false;
         }
-        Toast.makeText(getContext(), "Move feature", Toast.LENGTH_SHORT).show();
         hideBottomSheet();
         mapContainerFragment.setRepositionMode(state.getFeature());
         return false;
