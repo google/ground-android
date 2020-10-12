@@ -158,4 +158,5 @@
   <string name="offline_areas_unknown_area">Unknown Area</string>
   <string name="offline_area_download_started">Download started.</string>
   <string name="offline_area_download_failed">Couldn\'t download area.</string>
+  <string name="added_by">Added by %s</string>
 </resources>

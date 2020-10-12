@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google LLC
+ * Copyright 2020 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.system;
+package com.google.android.gnd.system.auth;
 
 import android.app.Activity;
 import android.app.Application;
@@ -29,9 +29,9 @@ import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gnd.R;
 import com.google.android.gnd.model.User;
-import com.google.android.gnd.rx.ValueOrError;
+import com.google.android.gnd.system.ActivityStreams;
 import com.google.android.gnd.system.ActivityStreams.ActivityResult;
-import com.google.android.gnd.system.AuthenticationManager.SignInState.State;
+import com.google.android.gnd.system.auth.SignInState.State;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
@@ -43,10 +43,9 @@ import io.reactivex.subjects.BehaviorSubject;
 import io.reactivex.subjects.Subject;
 import java8.util.Optional;
 import javax.inject.Inject;
-import javax.inject.Singleton;
 
-@Singleton
-public class AuthenticationManager {
+public class GoogleAuthenticationManager implements AuthenticationManager {
+
   private static final String TAG = AuthenticationManager.class.getSimpleName();
   private static final int SIGN_IN_REQUEST_CODE = AuthenticationManager.class.hashCode() & 0xffff;
   private final GoogleSignInOptions googleSignInOptions;
@@ -57,7 +56,7 @@ public class AuthenticationManager {
 
   // TODO: Update Fragments to access via ProjectRepository rather than directly.
   @Inject
-  public AuthenticationManager(Application application, ActivityStreams activityStreams) {
+  public GoogleAuthenticationManager(Application application, ActivityStreams activityStreams) {
     this.signInState = BehaviorSubject.create();
     this.firebaseAuth = FirebaseAuth.getInstance();
     this.googleSignInOptions =
@@ -164,40 +163,5 @@ public class AuthenticationManager {
    */
   public User getCurrentUser() {
     return getUser().filter(Optional::isPresent).map(Optional::get).blockingFirst();
-  }
-
-  public static class SignInState extends ValueOrError<User> {
-
-    private final State state;
-
-    public enum State {
-      SIGNED_OUT,
-      SIGNING_IN,
-      SIGNED_IN,
-      ERROR
-    }
-
-    private SignInState(State state) {
-      super(null, null);
-      this.state = state;
-    }
-
-    private SignInState(User user) {
-      super(user, null);
-      this.state = State.SIGNED_IN;
-    }
-
-    private SignInState(Throwable error) {
-      super(null, error);
-      this.state = State.ERROR;
-    }
-
-    public State state() {
-      return state;
-    }
-
-    public Optional<User> getUser() {
-      return value();
-    }
   }
 }

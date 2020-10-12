@@ -14,25 +14,20 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.inject;
+package com.google.android.gnd;
 
-import android.content.Context;
-import androidx.room.Room;
-import androidx.test.InstrumentationRegistry;
-import com.google.android.gnd.persistence.local.room.LocalDatabase;
+import com.google.android.gnd.rx.Schedulers;
+import dagger.Binds;
 import dagger.Module;
-import dagger.Provides;
+import dagger.hilt.InstallIn;
+import dagger.hilt.android.components.ApplicationComponent;
+import javax.inject.Singleton;
 
+@InstallIn(ApplicationComponent.class)
 @Module
-abstract class AndroidTestApplicationModule {
+abstract class TestSchedulersModule {
 
-  @Provides
-  static Context contextProvider() {
-    return InstrumentationRegistry.getContext();
-  }
-
-  @Provides
-  static LocalDatabase localDatabaseProvider(Context context) {
-    return Room.inMemoryDatabaseBuilder(context, LocalDatabase.class).build();
-  }
+  @Binds
+  @Singleton
+  abstract Schedulers schedulers(TestScheduler testScheduler);
 }

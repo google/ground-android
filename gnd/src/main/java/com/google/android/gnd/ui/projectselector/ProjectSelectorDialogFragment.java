@@ -36,7 +36,9 @@ import dagger.hilt.android.AndroidEntryPoint;
 import java.util.List;
 import timber.log.Timber;
 
-/** User interface implementation of project selector dialog. */
+/**
+ * User interface implementation of project selector dialog.
+ */
 @AndroidEntryPoint
 public class ProjectSelectorDialogFragment extends AbstractDialogFragment {
 
@@ -60,9 +62,10 @@ public class ProjectSelectorDialogFragment extends AbstractDialogFragment {
     binding = ProjectSelectorDialogBinding.inflate(inflater);
     listAdapter =
         new ArrayAdapter(getContext(), R.layout.project_selector_list_item, R.id.project_name);
-    binding.listView.setAdapter(listAdapter);
+    binding.projectSelectorListView.setAdapter(listAdapter);
     viewModel.getProjectSummaries().observe(this, this::updateProjectList);
-    binding.listView.setOnItemClickListener((parent, view, index, id) -> onItemSelected(index));
+    binding.projectSelectorListView
+        .setOnItemClickListener((parent, view, index, id) -> onItemSelected(index));
     dialog.setView(binding.getRoot());
     dialog.setCancelable(false);
     return dialog.create();
@@ -96,7 +99,7 @@ public class ProjectSelectorDialogFragment extends AbstractDialogFragment {
     binding.listLoadingProgressBar.setVisibility(View.GONE);
     listAdapter.clear();
     stream(list).map(Project::getTitle).forEach(listAdapter::add);
-    binding.listView.setVisibility(View.VISIBLE);
+    binding.projectSelectorListView.setVisibility(View.VISIBLE);
   }
 
   private void onItemSelected(int index) {

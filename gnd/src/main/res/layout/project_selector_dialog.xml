@@ -30,7 +30,7 @@
     android:padding="48dp"/>
 
   <ListView
-    android:id="@+id/list_view"
+    android:id="@+id/project_selector_list_view"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:visibility="gone"/>

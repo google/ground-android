@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google LLC
+ * Copyright 2020 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,21 +14,18 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.ui.signin;
+package com.google.android.gnd.persistence.uuid;
 
-import com.google.android.gnd.system.auth.AuthenticationManager;
-import com.google.android.gnd.ui.common.AbstractViewModel;
 import javax.inject.Inject;
 
-public class SignInViewModel extends AbstractViewModel {
-  private final AuthenticationManager authenticationManager;
+public class FakeUuidGenerator implements OfflineUuidGenerator {
 
   @Inject
-  SignInViewModel(AuthenticationManager authenticationManager) {
-    this.authenticationManager = authenticationManager;
+  FakeUuidGenerator() {
   }
 
-  public void onSignInButtonClick() {
-    authenticationManager.signIn();
+  @Override
+  public String generateUuid() {
+    return "TEST UUID";
   }
 }

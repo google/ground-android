@@ -14,12 +14,19 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.inject;
+package com.google.android.gnd.system.auth;
 
-import com.google.android.gnd.persistence.local.LocalDataStoreModule;
-import dagger.Component;
-import javax.inject.Singleton;
+import com.google.android.gnd.model.User;
+import io.reactivex.Observable;
 
-@Singleton
-@Component(modules = {AndroidTestApplicationModule.class, LocalDataStoreModule.class})
-public interface AndroidTestComponent {}
+public interface AuthenticationManager {
+  Observable<SignInState> getSignInState();
+
+  void signOut();
+
+  User getCurrentUser();
+
+  void signIn();
+
+  void init();
+}
