@@ -20,6 +20,7 @@ import com.google.android.gnd.model.Mutation.Type;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.FeatureMutation;
+import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.persistence.local.LocalDataStore;
 import com.google.android.gnd.persistence.remote.NotFoundException;
 import com.google.android.gnd.persistence.remote.RemoteDataEvent;
@@ -130,7 +131,7 @@ public class FeatureRepository {
   }
 
   public Completable deleteFeature(Feature feature) {
-    FeatureMutation featureMutation =
+    FeatureMutation mutation =
         FeatureMutation.builder()
             .setType(Type.DELETE)
             .setProjectId(feature.getProject().getId())
@@ -140,7 +141,21 @@ public class FeatureRepository {
             .setNewLocation(Optional.of(feature.getPoint()))
             .setUserId(authManager.getCurrentUser().getId())
             .build();
-    return applyAndEnqueue(featureMutation);
+    return applyAndEnqueue(mutation);
+  }
+
+  public Completable updatePosition(Feature feature, Point point) {
+    FeatureMutation mutation =
+        FeatureMutation.builder()
+            .setType(Type.UPDATE)
+            .setProjectId(feature.getProject().getId())
+            .setFeatureId(feature.getId())
+            .setLayerId(feature.getLayer().getId())
+            .setClientTimestamp(new Date())
+            .setNewLocation(Optional.of(point))
+            .setUserId(authManager.getCurrentUser().getId())
+            .build();
+    return localDataStore.applyAndEnqueue(mutation);
   }
 
   private Completable applyAndEnqueue(FeatureMutation mutation) {
