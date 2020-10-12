@@ -185,16 +185,10 @@ public class MapContainerFragment extends AbstractFragment {
     mapContainerViewModel.getMbtilesFilePaths().observe(this, map::addTileOverlays);
   }
 
-  /** Reset to default mode */
   private void cancelRepositionMode() {
     setDefaultMode();
   }
 
-  /**
-   * Display confirmation dialog for updating selected feature's location.
-   *
-   * @param point: new position
-   */
   private void showConfirmationDialog(Point point) {
     new Builder(getContext())
         .setTitle(R.string.reposition_location)
