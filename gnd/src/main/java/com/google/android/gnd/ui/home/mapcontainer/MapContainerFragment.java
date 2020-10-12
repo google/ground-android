@@ -33,6 +33,7 @@ import androidx.appcompat.app.AlertDialog.Builder;
 import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.MapContainerFragBinding;
 import com.google.android.gnd.model.Project;
+import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.rx.BooleanOrError;
 import com.google.android.gnd.rx.Loadable;
 import com.google.android.gnd.system.PermissionsManager.PermissionDeniedException;
@@ -197,6 +198,8 @@ public class MapContainerFragment extends AbstractFragment {
               String location =
                   map.getCameraTarget().getLatitude() + "," + map.getCameraTarget().getLongitude();
               Toast.makeText(getContext(), "Saving now...\n" + location, Toast.LENGTH_SHORT).show();
+              homeScreenViewModel.updateFeature(
+                  mapContainerViewModel.getFeature(), map.getCameraTarget());
               setDefaultMode();
             })
         .setNegativeButton(
@@ -298,9 +301,11 @@ public class MapContainerFragment extends AbstractFragment {
 
   public void setDefaultMode() {
     mapContainerViewModel.setViewMode(Mode.DEFAULT);
+    mapContainerViewModel.setFeature(null);
   }
 
-  public void setRepositionMode() {
+  public void setRepositionMode(@NonNull Feature feature) {
     mapContainerViewModel.setViewMode(Mode.REPOSITION);
+    mapContainerViewModel.setFeature(feature);
   }
 }

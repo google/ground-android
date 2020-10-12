@@ -108,6 +108,7 @@ public class HomeScreenFragment extends AbstractFragment
     viewModel.getBottomSheetState().observe(this, this::onBottomSheetStateChange);
     viewModel.getOpenDrawerRequests().observe(this, e -> e.ifUnhandled(this::openDrawer));
     viewModel.getDeleteFeature().observe(this, this::onFeatureDeleted);
+    viewModel.getUpdateFeature().observe(this, this::onFeatureUpdated);
 
     showFeatureDialogRequests = PublishSubject.create();
 
@@ -117,6 +118,10 @@ public class HomeScreenFragment extends AbstractFragment
         .subscribe(viewModel::addFeature);
 
     projectSelectorViewModel = getViewModel(ProjectSelectorViewModel.class);
+  }
+
+  private void onFeatureUpdated(Boolean result) {
+    Toast.makeText(getContext(), "Feature updated: " + result, Toast.LENGTH_SHORT).show();
   }
 
   private void onFeatureDeleted(Boolean result) {
@@ -253,9 +258,13 @@ public class HomeScreenFragment extends AbstractFragment
   public boolean onOptionsItemSelected(@NonNull MenuItem item) {
     switch (item.getItemId()) {
       case R.id.move_feature_menu_item:
+        BottomSheetState state = viewModel.getBottomSheetState().getValue();
+        if (state == null) {
+          return false;
+        }
         Toast.makeText(getContext(), "Move feature", Toast.LENGTH_SHORT).show();
         hideBottomSheet();
-        mapContainerFragment.setRepositionMode();
+        mapContainerFragment.setRepositionMode(state.getFeature());
         return false;
       case R.id.delete_feature_menu_item:
         viewModel.deleteFeature();

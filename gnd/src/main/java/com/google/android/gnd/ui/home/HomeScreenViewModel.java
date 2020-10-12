@@ -39,6 +39,8 @@ import io.reactivex.Single;
 import io.reactivex.processors.FlowableProcessor;
 import io.reactivex.processors.PublishProcessor;
 import io.reactivex.subjects.PublishSubject;
+import java.util.HashMap;
+import java.util.Map;
 import java8.util.Optional;
 import javax.inject.Inject;
 import timber.log.Timber;
@@ -62,6 +64,10 @@ public class HomeScreenViewModel extends AbstractViewModel {
 
   private final FlowableProcessor<Nil> deleteFeatureRequests = PublishProcessor.create();
   private final LiveData<Boolean> deleteFeature;
+
+  private final FlowableProcessor<Map<Feature, Point>> updateFeatureRequests =
+      PublishProcessor.create();
+  private final LiveData<Boolean> updateFeature;
 
   @Inject
   HomeScreenViewModel(
@@ -95,6 +101,27 @@ public class HomeScreenViewModel extends AbstractViewModel {
         LiveDataReactiveStreams.fromPublisher(
             deleteFeatureRequests.switchMapSingle(
                 __ -> deleteActiveFeature().toSingleDefault(true).onErrorReturnItem(false)));
+
+    updateFeature =
+        LiveDataReactiveStreams.fromPublisher(
+            updateFeatureRequests.switchMapSingle(
+                map -> updateFeaturePosition(map).toSingleDefault(true).onErrorReturnItem(false)));
+  }
+
+  public void updateFeature(Feature feature, Point point) {
+    HashMap<Feature, Point> map = new HashMap<>();
+    map.put(feature, point);
+    updateFeatureRequests.onNext(map);
+  }
+
+  public LiveData<Boolean> getUpdateFeature() {
+    return updateFeature;
+  }
+
+  private Completable updateFeaturePosition(Map<Feature, Point> map) {
+    Feature feature = map.keySet().iterator().next();
+    Point point = map.get(feature);
+    return featureRepository.updatePosition(feature, point);
   }
 
   public LiveData<Boolean> getDeleteFeature() {
