@@ -48,7 +48,6 @@ import com.google.android.gnd.persistence.local.room.dao.MultipleChoiceDao;
 import com.google.android.gnd.persistence.local.room.dao.ObservationDao;
 import com.google.android.gnd.persistence.local.room.dao.ObservationMutationDao;
 import com.google.android.gnd.persistence.local.room.dao.OfflineAreaDao;
-import com.google.android.gnd.persistence.local.room.dao.OfflineAreaTileSourceCrossRefDao;
 import com.google.android.gnd.persistence.local.room.dao.OfflineBaseMapSourceDao;
 import com.google.android.gnd.persistence.local.room.dao.OptionDao;
 import com.google.android.gnd.persistence.local.room.dao.ProjectDao;
@@ -64,7 +63,6 @@ import com.google.android.gnd.persistence.local.room.entity.MultipleChoiceEntity
 import com.google.android.gnd.persistence.local.room.entity.ObservationEntity;
 import com.google.android.gnd.persistence.local.room.entity.ObservationMutationEntity;
 import com.google.android.gnd.persistence.local.room.entity.OfflineAreaEntity;
-import com.google.android.gnd.persistence.local.room.entity.OfflineAreaTileSourceCrossRef;
 import com.google.android.gnd.persistence.local.room.entity.OfflineBaseMapSourceEntity;
 import com.google.android.gnd.persistence.local.room.entity.OptionEntity;
 import com.google.android.gnd.persistence.local.room.entity.ProjectEntity;
@@ -111,7 +109,6 @@ public class RoomLocalDataStore implements LocalDataStore {
   @Inject TileSourceDao tileSourceDao;
   @Inject UserDao userDao;
   @Inject OfflineAreaDao offlineAreaDao;
-  @Inject OfflineAreaTileSourceCrossRefDao offlineAreaTileSourceCrossRefDao;
   @Inject OfflineBaseMapSourceDao offlineBaseMapSourceDao;
   @Inject Schedulers schedulers;
   @Inject FileUtil fileUtil;
@@ -546,22 +543,6 @@ public class RoomLocalDataStore implements LocalDataStore {
   public Completable insertOrUpdateTileSource(TileSource tileSource) {
     return tileSourceDao
         .insertOrUpdate(TileSourceEntity.fromTile(tileSource))
-        .subscribeOn(schedulers.io());
-  }
-
-  @Override
-  public Completable insertOrUpdateTileSourceAndAreaReference(
-      TileSource tileSource, OfflineArea offlineArea) {
-    OfflineAreaTileSourceCrossRef crossRef =
-        OfflineAreaTileSourceCrossRef.builder()
-            .setOfflineAreaId(offlineArea.getId())
-            .setTileSourcePath(tileSource.getPath())
-            .build();
-
-    return tileSourceDao
-        .insertOrUpdate(TileSourceEntity.fromTile(tileSource))
-        .andThen(offlineAreaTileSourceCrossRefDao.insertOrUpdate(crossRef))
-        .doOnComplete(() -> Timber.d("Added cross ref: %s", crossRef))
         .subscribeOn(schedulers.io());
   }
 
