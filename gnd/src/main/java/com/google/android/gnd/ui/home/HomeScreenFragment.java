@@ -123,7 +123,7 @@ public class HomeScreenFragment extends AbstractFragment
 
   private void onFeatureUpdated(Boolean result) {
     if (result) {
-      Toast.makeText(getContext(), "Feature updated successfully", Toast.LENGTH_SHORT).show();
+      Toast.makeText(getContext(), "Done", Toast.LENGTH_SHORT).show();
     } else {
       Timber.e("Failed to update feature");
     }
