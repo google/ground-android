@@ -191,7 +191,7 @@ public class MapContainerFragment extends AbstractFragment {
 
   private void showConfirmationDialog(Point point) {
     new Builder(getContext())
-        .setTitle(R.string.reposition_location)
+        .setTitle(R.string.move_point_confirmation)
         .setPositiveButton(
             android.R.string.ok,
             (dialog, which) -> {
@@ -303,6 +303,6 @@ public class MapContainerFragment extends AbstractFragment {
     mapContainerViewModel.setViewMode(Mode.REPOSITION);
     mapContainerViewModel.setFeature(feature);
 
-    Toast.makeText(getContext(), R.string.reposition_point_feature, Toast.LENGTH_SHORT).show();
+    Toast.makeText(getContext(), R.string.move_point_hint, Toast.LENGTH_SHORT).show();
   }
 }
