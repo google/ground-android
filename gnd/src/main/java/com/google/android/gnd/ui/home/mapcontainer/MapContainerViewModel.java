@@ -16,6 +16,8 @@
 
 package com.google.android.gnd.ui.home.mapcontainer;
 
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
 import static com.google.android.gnd.util.ImmutableSetCollector.toImmutableSet;
 import static java8.util.stream.StreamSupport.stream;
 
@@ -64,7 +66,8 @@ public class MapContainerViewModel extends AbstractViewModel {
   private final FeatureRepository featureRepository;
   private final Subject<Boolean> locationLockChangeRequests;
   private final Subject<CameraUpdate> cameraUpdateSubject;
-  private final MutableLiveData<Mode> viewMode = new MutableLiveData<>(Mode.DEFAULT);
+  private final MutableLiveData<Integer> mapControlsVisibility = new MutableLiveData<>(VISIBLE);
+  private final MutableLiveData<Integer> moveFeaturesVisibility = new MutableLiveData<>(GONE);
   private final MutableLiveData<Event<Nil>> showMapTypeSelectorRequests = new MutableLiveData<>();
   private final LiveData<ImmutableSet<String>> mbtilesFilePaths;
 
@@ -235,12 +238,17 @@ public class MapContainerViewModel extends AbstractViewModel {
     stream(tileProviders).forEach(MapBoxOfflineTileProvider::close);
   }
 
-  public LiveData<Mode> getViewMode() {
-    return viewMode;
+  public void setViewMode(Mode viewMode) {
+    mapControlsVisibility.setValue(viewMode == Mode.DEFAULT ? VISIBLE : GONE);
+    moveFeaturesVisibility.setValue(viewMode == Mode.REPOSITION ? VISIBLE : GONE);
   }
 
-  public void setViewMode(Mode mode) {
-    viewMode.setValue(mode);
+  public LiveData<Integer> getMapControlsVisibility() {
+    return mapControlsVisibility;
+  }
+
+  public LiveData<Integer> getMoveFeatureVisibility() {
+    return moveFeaturesVisibility;
   }
 
   public Optional<Feature> getSelectedFeature() {

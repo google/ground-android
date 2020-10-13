@@ -136,32 +136,6 @@ public class MapContainerFragment extends AbstractFragment {
     mapContainerViewModel
         .getShowMapTypeSelectorRequests()
         .observe(getViewLifecycleOwner(), __ -> showMapTypeSelectorDialog());
-    mapContainerViewModel.getViewMode().observe(getViewLifecycleOwner(), this::updateUI);
-  }
-
-  private void updateUI(Mode mode) {
-    switch (mode) {
-      case DEFAULT:
-        binding.mapTypeBtn.setVisibility(View.VISIBLE);
-        binding.locationLockBtn.setVisibility(View.VISIBLE);
-        binding.addFeatureBtn.setVisibility(View.VISIBLE);
-        binding.hamburgerBtn.setVisibility(View.VISIBLE);
-
-        binding.cancelButton.setVisibility(View.GONE);
-        binding.confirmButton.setVisibility(View.GONE);
-        break;
-      case REPOSITION:
-        binding.mapTypeBtn.setVisibility(View.GONE);
-        binding.locationLockBtn.setVisibility(View.GONE);
-        binding.addFeatureBtn.setVisibility(View.GONE);
-        binding.hamburgerBtn.setVisibility(View.GONE);
-
-        binding.cancelButton.setVisibility(View.VISIBLE);
-        binding.confirmButton.setVisibility(View.VISIBLE);
-        break;
-      default:
-        throw new IllegalArgumentException("Unknown mode: " + mode);
-    }
   }
 
   private void onMapReady(MapAdapter map) {
@@ -178,10 +152,11 @@ public class MapContainerFragment extends AbstractFragment {
     homeScreenViewModel
         .getBottomSheetState()
         .observe(this, state -> onBottomSheetStateChange(state, map));
-    binding.addFeatureBtn.setOnClickListener(
+    binding.mapControls.addFeatureBtn.setOnClickListener(
         __ -> homeScreenViewModel.onAddFeatureBtnClick(map.getCameraTarget()));
-    binding.confirmButton.setOnClickListener(__ -> showConfirmationDialog(map.getCameraTarget()));
-    binding.cancelButton.setOnClickListener(__ -> cancelRepositionMode());
+    binding.moveFeature.confirmButton.setOnClickListener(
+        __ -> showConfirmationDialog(map.getCameraTarget()));
+    binding.moveFeature.cancelButton.setOnClickListener(__ -> cancelRepositionMode());
     enableLocationLockBtn();
     mapContainerViewModel.getMbtilesFilePaths().observe(this, map::addTileOverlays);
   }
@@ -235,18 +210,18 @@ public class MapContainerFragment extends AbstractFragment {
   }
 
   private void enableLocationLockBtn() {
-    binding.locationLockBtn.setEnabled(true);
+    binding.mapControls.locationLockBtn.setEnabled(true);
   }
 
   private void enableAddFeatureBtn() {
-    binding.addFeatureBtn.setBackgroundTintList(
+    binding.mapControls.addFeatureBtn.setBackgroundTintList(
         ColorStateList.valueOf(getResources().getColor(R.color.colorMapAccent)));
   }
 
   private void disableAddFeatureBtn() {
     // NOTE: We don't call addFeatureBtn.setEnabled(false) here since calling it before the fab is
     // shown corrupts its padding when used with useCompatPadding="true".
-    binding.addFeatureBtn.setBackgroundTintList(
+    binding.mapControls.addFeatureBtn.setBackgroundTintList(
         ColorStateList.valueOf(getResources().getColor(R.color.colorGrey500)));
   }
 
@@ -255,10 +230,10 @@ public class MapContainerFragment extends AbstractFragment {
     if (result.isTrue()) {
       Timber.d("Location lock enabled");
       map.enableCurrentLocationIndicator();
-      binding.locationLockBtn.setImageResource(R.drawable.ic_gps_blue);
+      binding.mapControls.locationLockBtn.setImageResource(R.drawable.ic_gps_blue);
     } else {
       Timber.d("Location lock disabled");
-      binding.locationLockBtn.setImageResource(R.drawable.ic_gps_grey600);
+      binding.mapControls.locationLockBtn.setImageResource(R.drawable.ic_gps_grey600);
     }
   }
 
