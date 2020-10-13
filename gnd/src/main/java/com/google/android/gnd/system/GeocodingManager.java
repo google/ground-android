@@ -50,7 +50,7 @@ public class GeocodingManager {
   public GeocodingManager(@ApplicationContext Context context, Schedulers schedulers) {
     this.geocoder = new Geocoder(context);
     this.schedulers = schedulers;
-    this.defaultAreaName = context.getString(R.string.offline_areas_unknown_area);
+    this.defaultAreaName = context.getString(R.string.offline_base_map_unknown_base_map);
   }
 
   private String getOfflineAreaNameInternal(LatLngBounds bounds)

@@ -22,7 +22,7 @@
   <data>
     <variable
       name="viewModel"
-      type="com.google.android.gnd.ui.offlinearea.OfflineAreasViewModel" />
+      type="com.google.android.gnd.ui.offlinebasemap.OfflineBaseMapsViewModel" />
   </data>
 
   <androidx.constraintlayout.widget.ConstraintLayout
@@ -39,7 +39,7 @@
       app:layout_constraintEnd_toEndOf="parent"
       app:layout_constraintStart_toStartOf="parent"
       app:layout_constraintTop_toTopOf="parent"
-      app:title="@string/offline_areas"
+      app:title="@string/offline_base_maps"
       app:titleTextColor="@color/colorBackground" />
 
     <androidx.recyclerview.widget.RecyclerView
@@ -57,7 +57,7 @@
       android:layout_height="wrap_content"
       android:backgroundTint="@color/colorPrimary"
       android:clickable="true"
-      android:contentDescription="@string/offline_area_selector_prompt"
+      android:contentDescription="@string/offline_base_map_selector_prompt"
       android:focusable="true"
       android:onClick="@{() -> viewModel.showOfflineAreaSelector()}"
       app:layout_constraintBottom_toBottomOf="parent"

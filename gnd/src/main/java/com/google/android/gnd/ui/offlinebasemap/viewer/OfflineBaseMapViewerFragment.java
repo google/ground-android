@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.ui.offlinearea.viewer;
+package com.google.android.gnd.ui.offlinebasemap.viewer;
 
 import static com.google.android.gnd.rx.RxAutoDispose.autoDisposable;
 
@@ -26,8 +26,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.R;
-import com.google.android.gnd.databinding.OfflineAreaViewerFragBinding;
-import com.google.android.gnd.model.basemap.OfflineArea;
+import com.google.android.gnd.databinding.OfflineBaseMapViewerFragBinding;
+import com.google.android.gnd.model.basemap.OfflineBaseMap;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.map.MapAdapter;
@@ -41,23 +41,23 @@ import javax.inject.Inject;
  * device.
  */
 @AndroidEntryPoint
-public class OfflineAreaViewerFragment extends AbstractFragment {
+public class OfflineBaseMapViewerFragment extends AbstractFragment {
 
   private static final String MAP_FRAGMENT = MapProvider.class.getName() + "#fragment";
 
   @Inject MapProvider mapProvider;
 
-  private OfflineAreaViewerViewModel viewModel;
+  private OfflineBaseMapViewerViewModel viewModel;
   @Nullable private MapAdapter map;
 
   @Inject
-  public OfflineAreaViewerFragment() {}
+  public OfflineBaseMapViewerFragment() {}
 
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    OfflineAreaViewerFragmentArgs args = OfflineAreaViewerFragmentArgs.fromBundle(getArguments());
-    viewModel = getViewModel(OfflineAreaViewerViewModel.class);
+    OfflineBaseMapViewerFragmentArgs args = OfflineBaseMapViewerFragmentArgs.fromBundle(getArguments());
+    viewModel = getViewModel(OfflineBaseMapViewerViewModel.class);
     viewModel.loadOfflineArea(args);
     Single<MapAdapter> mapAdapter = mapProvider.getMapAdapter();
     mapAdapter.as(autoDisposable(this)).subscribe(this::onMapReady);
@@ -68,8 +68,8 @@ public class OfflineAreaViewerFragment extends AbstractFragment {
   public View onCreateView(
       @NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     super.onCreateView(inflater, container, savedInstanceState);
-    OfflineAreaViewerFragBinding binding =
-        OfflineAreaViewerFragBinding.inflate(inflater, container, false);
+    OfflineBaseMapViewerFragBinding binding =
+        OfflineBaseMapViewerFragBinding.inflate(inflater, container, false);
     binding.setViewModel(viewModel);
     binding.setLifecycleOwner(this);
     binding.removeButton.setOnClickListener(__ -> onRemoveClick());
@@ -91,13 +91,13 @@ public class OfflineAreaViewerFragment extends AbstractFragment {
     this.map = map;
   }
 
-  private void panMap(OfflineArea offlineArea) {
+  private void panMap(OfflineBaseMap offlineBaseMap) {
     if (map == null) {
       return;
     }
 
-    double lat = offlineArea.getBounds().northeast.latitude;
-    double lon = offlineArea.getBounds().southwest.longitude;
+    double lat = offlineBaseMap.getBounds().northeast.latitude;
+    double lon = offlineBaseMap.getBounds().southwest.longitude;
     Point point = Point.newBuilder().setLatitude(lat).setLongitude(lon).build();
     map.moveCamera(point);
   }

@@ -22,14 +22,14 @@ import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
-import com.google.android.gnd.model.basemap.OfflineArea;
-import com.google.android.gnd.persistence.local.room.models.OfflineAreaEntityState;
+import com.google.android.gnd.model.basemap.OfflineBaseMap;
+import com.google.android.gnd.persistence.local.room.models.OfflineBaseMapEntityState;
 import com.google.auto.value.AutoValue;
 
-/** Represents a {@link OfflineArea} in the local data store. */
+/** Represents a {@link OfflineBaseMap} in the local data store. */
 @AutoValue
-@Entity(tableName = "offline_area")
-public abstract class OfflineAreaEntity {
+@Entity(tableName = "offline_base_map")
+public abstract class OfflineBaseMapEntity {
   @AutoValue.CopyAnnotations
   @NonNull
   @PrimaryKey
@@ -44,7 +44,7 @@ public abstract class OfflineAreaEntity {
   @AutoValue.CopyAnnotations
   @NonNull
   @ColumnInfo(name = "state")
-  public abstract OfflineAreaEntityState getState();
+  public abstract OfflineBaseMapEntityState getState();
 
   @AutoValue.CopyAnnotations
   @ColumnInfo(name = "north")
@@ -62,66 +62,66 @@ public abstract class OfflineAreaEntity {
   @ColumnInfo(name = "west")
   public abstract double getWest();
 
-  public static OfflineArea toArea(OfflineAreaEntity offlineAreaEntity) {
-    LatLng northEast = new LatLng(offlineAreaEntity.getNorth(), offlineAreaEntity.getEast());
-    LatLng southWest = new LatLng(offlineAreaEntity.getSouth(), offlineAreaEntity.getWest());
+  public static OfflineBaseMap toArea(OfflineBaseMapEntity offlineBaseMapEntity) {
+    LatLng northEast = new LatLng(offlineBaseMapEntity.getNorth(), offlineBaseMapEntity.getEast());
+    LatLng southWest = new LatLng(offlineBaseMapEntity.getSouth(), offlineBaseMapEntity.getWest());
     LatLngBounds bounds = new LatLngBounds(southWest, northEast);
 
-    return OfflineArea.newBuilder()
-        .setId(offlineAreaEntity.getId())
+    return OfflineBaseMap.newBuilder()
+        .setId(offlineBaseMapEntity.getId())
         .setBounds(bounds)
-        .setState(toAreaState(offlineAreaEntity.getState()))
-        .setName(offlineAreaEntity.getName())
+        .setState(toAreaState(offlineBaseMapEntity.getState()))
+        .setName(offlineBaseMapEntity.getName())
         .build();
   }
 
-  private static OfflineArea.State toAreaState(OfflineAreaEntityState state) {
+  private static OfflineBaseMap.State toAreaState(OfflineBaseMapEntityState state) {
     switch (state) {
       case PENDING:
-        return OfflineArea.State.PENDING;
+        return OfflineBaseMap.State.PENDING;
       case IN_PROGRESS:
-        return OfflineArea.State.IN_PROGRESS;
+        return OfflineBaseMap.State.IN_PROGRESS;
       case DOWNLOADED:
-        return OfflineArea.State.DOWNLOADED;
+        return OfflineBaseMap.State.DOWNLOADED;
       case FAILED:
-        return OfflineArea.State.FAILED;
+        return OfflineBaseMap.State.FAILED;
       default:
         throw new IllegalArgumentException("Unknown area state: " + state);
     }
   }
 
-  public static OfflineAreaEntity fromArea(OfflineArea offlineArea) {
-    OfflineAreaEntity.Builder entity =
-        OfflineAreaEntity.builder()
-            .setId(offlineArea.getId())
-            .setState(toEntityState(offlineArea.getState()))
-            .setName(offlineArea.getName())
-            .setNorth(offlineArea.getBounds().northeast.latitude)
-            .setEast(offlineArea.getBounds().northeast.longitude)
-            .setSouth(offlineArea.getBounds().southwest.latitude)
-            .setWest(offlineArea.getBounds().southwest.longitude);
+  public static OfflineBaseMapEntity fromArea(OfflineBaseMap offlineBaseMap) {
+    OfflineBaseMapEntity.Builder entity =
+        OfflineBaseMapEntity.builder()
+            .setId(offlineBaseMap.getId())
+            .setState(toEntityState(offlineBaseMap.getState()))
+            .setName(offlineBaseMap.getName())
+            .setNorth(offlineBaseMap.getBounds().northeast.latitude)
+            .setEast(offlineBaseMap.getBounds().northeast.longitude)
+            .setSouth(offlineBaseMap.getBounds().southwest.latitude)
+            .setWest(offlineBaseMap.getBounds().southwest.longitude);
     return entity.build();
   }
 
-  private static OfflineAreaEntityState toEntityState(OfflineArea.State state) {
+  private static OfflineBaseMapEntityState toEntityState(OfflineBaseMap.State state) {
     switch (state) {
       case PENDING:
-        return OfflineAreaEntityState.PENDING;
+        return OfflineBaseMapEntityState.PENDING;
       case IN_PROGRESS:
-        return OfflineAreaEntityState.IN_PROGRESS;
+        return OfflineBaseMapEntityState.IN_PROGRESS;
       case FAILED:
-        return OfflineAreaEntityState.FAILED;
+        return OfflineBaseMapEntityState.FAILED;
       case DOWNLOADED:
-        return OfflineAreaEntityState.DOWNLOADED;
+        return OfflineBaseMapEntityState.DOWNLOADED;
       default:
-        return OfflineAreaEntityState.UNKNOWN;
+        return OfflineBaseMapEntityState.UNKNOWN;
     }
   }
 
-  public static OfflineAreaEntity create(
+  public static OfflineBaseMapEntity create(
       String id,
       String name,
-      OfflineAreaEntityState state,
+      OfflineBaseMapEntityState state,
       double north,
       double east,
       double south,
@@ -138,7 +138,7 @@ public abstract class OfflineAreaEntity {
   }
 
   public static Builder builder() {
-    return new AutoValue_OfflineAreaEntity.Builder();
+    return new AutoValue_OfflineBaseMapEntity.Builder();
   }
 
   @AutoValue.Builder
@@ -148,7 +148,7 @@ public abstract class OfflineAreaEntity {
 
     public abstract Builder setName(String newName);
 
-    public abstract Builder setState(OfflineAreaEntityState newState);
+    public abstract Builder setState(OfflineBaseMapEntityState newState);
 
     public abstract Builder setNorth(double coordinate);
 
@@ -158,6 +158,6 @@ public abstract class OfflineAreaEntity {
 
     public abstract Builder setWest(double coordinate);
 
-    public abstract OfflineAreaEntity build();
+    public abstract OfflineBaseMapEntity build();
   }
 }

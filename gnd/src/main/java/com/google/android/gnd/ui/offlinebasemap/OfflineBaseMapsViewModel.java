@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.ui.offlinearea;
+package com.google.android.gnd.ui.offlinebasemap;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
-import com.google.android.gnd.model.basemap.OfflineArea;
-import com.google.android.gnd.repository.OfflineAreaRepository;
+import com.google.android.gnd.model.basemap.OfflineBaseMap;
+import com.google.android.gnd.repository.OfflineBaseMapRepository;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.common.collect.ImmutableList;
@@ -28,23 +28,23 @@ import javax.inject.Inject;
 /**
  * View model for the offline area manager fragment. Handles the current list of downloaded areas.
  */
-public class OfflineAreasViewModel extends AbstractViewModel {
+public class OfflineBaseMapsViewModel extends AbstractViewModel {
 
-  private LiveData<ImmutableList<OfflineArea>> offlineAreas;
+  private LiveData<ImmutableList<OfflineBaseMap>> offlineAreas;
   private final Navigator navigator;
 
   @Inject
-  OfflineAreasViewModel(Navigator navigator, OfflineAreaRepository offlineAreaRepository) {
+  OfflineBaseMapsViewModel(Navigator navigator, OfflineBaseMapRepository offlineBaseMapRepository) {
     this.navigator = navigator;
     this.offlineAreas =
-        LiveDataReactiveStreams.fromPublisher(offlineAreaRepository.getOfflineAreasOnceAndStream());
+        LiveDataReactiveStreams.fromPublisher(offlineBaseMapRepository.getOfflineAreasOnceAndStream());
   }
 
   public void showOfflineAreaSelector() {
     navigator.showOfflineAreaSelector();
   }
 
-  LiveData<ImmutableList<OfflineArea>> getOfflineAreas() {
+  LiveData<ImmutableList<OfflineBaseMap>> getOfflineAreas() {
     return offlineAreas;
   }
 }
