@@ -47,6 +47,7 @@ import com.google.android.gnd.ui.map.MapAdapter;
 import com.google.android.gnd.ui.map.MapProvider;
 import dagger.hilt.android.AndroidEntryPoint;
 import io.reactivex.Single;
+import java8.util.Optional;
 import javax.inject.Inject;
 import timber.log.Timber;
 
@@ -185,27 +186,29 @@ public class MapContainerFragment extends AbstractFragment {
     mapContainerViewModel.getMbtilesFilePaths().observe(this, map::addTileOverlays);
   }
 
-  private void cancelRepositionMode() {
-    setDefaultMode();
-  }
-
   private void showConfirmationDialog(Point point) {
     new Builder(getContext())
         .setTitle(R.string.move_point_confirmation)
-        .setPositiveButton(
-            android.R.string.ok,
-            (dialog, which) -> {
-              homeScreenViewModel.updateFeature(mapContainerViewModel.getFeature(), point);
-              setDefaultMode();
-            })
-        .setNegativeButton(
-            android.R.string.cancel,
-            (dialog, which) -> {
-              setDefaultMode();
-            })
+        .setPositiveButton(android.R.string.ok, (dialog, which) -> moveToNewPosition(point))
+        .setNegativeButton(android.R.string.cancel, (dialog, which) -> cancelRepositionMode())
         .setCancelable(true)
         .create()
         .show();
+  }
+
+  private void moveToNewPosition(Point point) {
+    mapContainerViewModel
+        .getSelectedFeature()
+        .ifPresentOrElse(
+            feature -> {
+              homeScreenViewModel.updateFeature(feature, point);
+              setDefaultMode();
+            },
+            () -> Timber.e("Feature is null, can't move to new position"));
+  }
+
+  private void cancelRepositionMode() {
+    setDefaultMode();
   }
 
   private void onBottomSheetStateChange(BottomSheetState state, MapAdapter map) {
@@ -296,12 +299,12 @@ public class MapContainerFragment extends AbstractFragment {
 
   public void setDefaultMode() {
     mapContainerViewModel.setViewMode(Mode.DEFAULT);
-    mapContainerViewModel.setFeature(null);
+    mapContainerViewModel.setSelectedFeature(Optional.empty());
   }
 
-  public void setRepositionMode(@NonNull Feature feature) {
+  public void setRepositionMode(Optional<Feature> feature) {
     mapContainerViewModel.setViewMode(Mode.REPOSITION);
-    mapContainerViewModel.setFeature(feature);
+    mapContainerViewModel.setSelectedFeature(feature);
 
     Toast.makeText(getContext(), R.string.move_point_hint, Toast.LENGTH_SHORT).show();
   }

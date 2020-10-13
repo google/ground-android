@@ -20,7 +20,6 @@ import static com.google.android.gnd.util.ImmutableSetCollector.toImmutableSet;
 import static java8.util.stream.StreamSupport.stream;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
 import androidx.lifecycle.MutableLiveData;
@@ -75,7 +74,8 @@ public class MapContainerViewModel extends AbstractViewModel {
   // interface, preventing us from treating providers generically.
   private final List<MapBoxOfflineTileProvider> tileProviders = new ArrayList<>();
 
-  @Nullable private Feature feature;
+  // Feature currently selected for repositioning
+  private Optional<Feature> selectedFeature;
 
   @Inject
   MapContainerViewModel(
@@ -243,13 +243,12 @@ public class MapContainerViewModel extends AbstractViewModel {
     viewMode.setValue(mode);
   }
 
-  @Nullable
-  public Feature getFeature() {
-    return feature;
+  public Optional<Feature> getSelectedFeature() {
+    return selectedFeature;
   }
 
-  public void setFeature(@Nullable Feature feature) {
-    this.feature = feature;
+  public void setSelectedFeature(Optional<Feature> selectedFeature) {
+    this.selectedFeature = selectedFeature;
   }
 
   public enum Mode {

@@ -63,6 +63,7 @@ import com.google.android.material.navigation.NavigationView.OnNavigationItemSel
 import dagger.hilt.android.AndroidEntryPoint;
 import io.reactivex.subjects.PublishSubject;
 import java.util.List;
+import java8.util.Optional;
 import javax.inject.Inject;
 import timber.log.Timber;
 
@@ -263,11 +264,10 @@ public class HomeScreenFragment extends AbstractFragment
     switch (item.getItemId()) {
       case R.id.move_feature_menu_item:
         BottomSheetState state = viewModel.getBottomSheetState().getValue();
-        if (state == null) {
-          return false;
+        if (state != null) {
+          hideBottomSheet();
+          mapContainerFragment.setRepositionMode(Optional.ofNullable(state.getFeature()));
         }
-        hideBottomSheet();
-        mapContainerFragment.setRepositionMode(state.getFeature());
         return false;
       case R.id.delete_feature_menu_item:
         viewModel.deleteFeature();
