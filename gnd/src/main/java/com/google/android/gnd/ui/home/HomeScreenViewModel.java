@@ -35,6 +35,7 @@ import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.SharedViewModel;
 import com.google.android.gnd.ui.map.MapPin;
 import io.reactivex.Completable;
+import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.processors.FlowableProcessor;
 import io.reactivex.processors.PublishProcessor;
@@ -119,9 +120,9 @@ public class HomeScreenViewModel extends AbstractViewModel {
   }
 
   private Completable updateFeaturePosition(Map<Feature, Point> map) {
-    Feature feature = map.keySet().iterator().next();
-    Point point = map.get(feature);
-    return featureRepository.updatePosition(feature, point);
+    return Observable.fromIterable(map.entrySet())
+        .flatMapCompletable(
+            entrySet -> featureRepository.updatePosition(entrySet.getKey(), entrySet.getValue()));
   }
 
   public LiveData<Boolean> getDeleteFeature() {
