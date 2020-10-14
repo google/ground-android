@@ -46,6 +46,7 @@ abstract class GndApplicationModule {
   @Provides
   @Singleton
   static SharedPreferences provideSharedPreferences(Application application) {
+    System.out.println("Arbitrary change to test CI");
     return application
         .getApplicationContext()
         .getSharedPreferences(Config.SHARED_PREFS_NAME, Config.SHARED_PREFS_MODE);
