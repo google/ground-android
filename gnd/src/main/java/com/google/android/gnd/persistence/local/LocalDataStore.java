@@ -167,8 +167,8 @@ public interface LocalDataStore {
   /** Delete an offline area and its *unique* tiles. */
   Completable deleteOfflineArea(String offlineAreaId);
 
-  Completable deleteTiles(ImmutableSet<TileSource> tileSources);
-
   /** Returns the offline area with the specified id. */
   Single<OfflineBaseMap> getOfflineAreaById(String id);
+
+  Completable deleteTile(TileSource tile);
 }

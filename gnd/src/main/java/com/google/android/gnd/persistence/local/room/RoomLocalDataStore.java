@@ -108,8 +108,7 @@ public class RoomLocalDataStore implements LocalDataStore {
   @Inject ObservationMutationDao observationMutationDao;
   @Inject TileSourceDao tileSourceDao;
   @Inject UserDao userDao;
-  @Inject
-  OfflineBaseMapDao offlineBaseMapDao;
+  @Inject OfflineBaseMapDao offlineBaseMapDao;
   @Inject OfflineBaseMapSourceDao offlineBaseMapSourceDao;
   @Inject Schedulers schedulers;
   @Inject FileUtil fileUtil;
@@ -598,17 +597,13 @@ public class RoomLocalDataStore implements LocalDataStore {
   }
 
   @Override
-  public Completable deleteTiles(ImmutableSet<TileSource> tiles) {
-    return Flowable.fromIterable(
-            stream(tiles)
-                .filter(tileSource -> tileSource.getAreaCount() < 1)
-                .collect(toImmutableList()))
-        .map(TileSourceEntity::fromTile)
-        .flatMapCompletable(
-            tile ->
-                Completable.fromAction(() -> fileUtil.deleteFile(tile.getPath()))
-                    .andThen(tileSourceDao.delete(tile)))
-        .doOnSubscribe(__ -> Timber.d("Deleting tiles: %s", tiles))
-        .subscribeOn(schedulers.io());
+  public Completable deleteTile(TileSource tileSource) {
+    if (tileSource.getAreaCount() < 1) {
+      return Completable.fromAction(() -> fileUtil.deleteFile(tileSource.getPath()))
+          .andThen(tileSourceDao.delete(TileSourceEntity.fromTile(tileSource)))
+          .subscribeOn(schedulers.io());
+    } else {
+      return Completable.complete().subscribeOn(schedulers.io());
+    }
   }
 }
