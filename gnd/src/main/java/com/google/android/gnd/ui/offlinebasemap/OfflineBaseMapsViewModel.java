@@ -37,7 +37,8 @@ public class OfflineBaseMapsViewModel extends AbstractViewModel {
   OfflineBaseMapsViewModel(Navigator navigator, OfflineBaseMapRepository offlineBaseMapRepository) {
     this.navigator = navigator;
     this.offlineAreas =
-        LiveDataReactiveStreams.fromPublisher(offlineBaseMapRepository.getOfflineAreasOnceAndStream());
+        LiveDataReactiveStreams.fromPublisher(
+            offlineBaseMapRepository.getOfflineAreasOnceAndStream());
   }
 
   public void showOfflineAreaSelector() {

@@ -52,7 +52,8 @@ public class OfflineBaseMapsFragment extends AbstractFragment {
   public View onCreateView(
       @NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     super.onCreateView(inflater, container, savedInstanceState);
-    OfflineBaseMapsFragBinding binding = OfflineBaseMapsFragBinding.inflate(inflater, container, false);
+    OfflineBaseMapsFragBinding binding =
+        OfflineBaseMapsFragBinding.inflate(inflater, container, false);
 
     binding.setViewModel(viewModel);
     binding.setLifecycleOwner(this);

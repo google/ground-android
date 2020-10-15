@@ -56,7 +56,8 @@ public class OfflineBaseMapViewerFragment extends AbstractFragment {
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    OfflineBaseMapViewerFragmentArgs args = OfflineBaseMapViewerFragmentArgs.fromBundle(getArguments());
+    OfflineBaseMapViewerFragmentArgs args =
+        OfflineBaseMapViewerFragmentArgs.fromBundle(getArguments());
     viewModel = getViewModel(OfflineBaseMapViewerViewModel.class);
     viewModel.loadOfflineArea(args);
     Single<MapAdapter> mapAdapter = mapProvider.getMapAdapter();

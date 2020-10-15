@@ -23,7 +23,6 @@ import com.google.android.gnd.ui.home.HomeScreenFragmentDirections;
 import com.google.android.gnd.ui.observationdetails.ObservationDetailsFragment;
 import com.google.android.gnd.ui.observationdetails.ObservationDetailsFragmentDirections;
 import com.google.android.gnd.ui.offlinebasemap.OfflineBaseMapsFragmentDirections;
-import com.google.android.gnd.ui.offlinebasemap.selector.OfflineBaseMapSelectorFragment;
 import com.google.android.gnd.ui.signin.SignInFragmentDirections;
 import com.google.android.gnd.ui.startup.StartupFragmentDirections;
 import dagger.hilt.android.scopes.ActivityScoped;
@@ -78,7 +77,7 @@ public class Navigator {
 
   /**
    * Navigates from a {@link com.google.android.gnd.ui.home.HomeScreenFragment} to a {@link
-   * OfflineBaseMapSelectorFragment}.
+   * com.google.android.gnd.ui.offlinebasemap.selector.OfflineBaseMapSelectorFragment}.
    */
   public void showOfflineAreaSelector() {
     navigate(OfflineBaseMapsFragmentDirections.showOfflineAreaSelector());
