@@ -22,8 +22,8 @@ import static java8.util.stream.StreamSupport.stream;
 
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gnd.model.Project;
-import com.google.android.gnd.model.basemap.OfflineArea;
-import com.google.android.gnd.model.basemap.OfflineArea.State;
+import com.google.android.gnd.model.basemap.OfflineBaseMap;
+import com.google.android.gnd.model.basemap.OfflineBaseMap.State;
 import com.google.android.gnd.model.basemap.OfflineBaseMapSource;
 import com.google.android.gnd.model.basemap.tile.TileSource;
 import com.google.android.gnd.persistence.geojson.GeoJsonParser;
@@ -46,7 +46,7 @@ import javax.inject.Inject;
 import org.apache.commons.io.FileUtils;
 import timber.log.Timber;
 
-public class OfflineAreaRepository {
+public class OfflineBaseMapRepository {
   private final TileSourceDownloadWorkManager tileSourceDownloadWorkManager;
   private final LocalDataStore localDataStore;
   private final ProjectRepository projectRepository;
@@ -58,7 +58,7 @@ public class OfflineAreaRepository {
   private final OfflineUuidGenerator uuidGenerator;
 
   @Inject
-  public OfflineAreaRepository(
+  public OfflineBaseMapRepository(
       TileSourceDownloadWorkManager tileSourceDownloadWorkManager,
       LocalDataStore localDataStore,
       ProjectRepository projectRepository,
@@ -95,7 +95,7 @@ public class OfflineAreaRepository {
   }
 
   /** Enqueue a single area and its tile sources for download. */
-  private Completable enqueueDownload(OfflineArea area, ImmutableList<TileSource> tileSources) {
+  private Completable enqueueDownload(OfflineBaseMap area, ImmutableList<TileSource> tileSources) {
     return localDataStore
         .insertOrUpdateOfflineArea(area.toBuilder().setState(State.IN_PROGRESS).build())
         .andThen(
@@ -111,7 +111,7 @@ public class OfflineAreaRepository {
    * Determine the tile sources that need to be downloaded for a given area, then enqueue tile
    * source downloads.
    */
-  private Completable enqueueTileSourceDownloads(OfflineArea area) {
+  private Completable enqueueTileSourceDownloads(OfflineBaseMap area) {
     return getBaseMapTileSources(area)
         .flatMapCompletable(tileSources -> enqueueDownload(area, tileSources))
         .doOnComplete(() -> Timber.d("area download completed"))
@@ -123,8 +123,8 @@ public class OfflineAreaRepository {
    * Get a list of tile sources specified in the first basemap source of the active project that
    * intersect a given area.
    */
-  private Single<ImmutableList<TileSource>> getBaseMapTileSources(OfflineArea offlineArea) {
-    LatLngBounds bounds = offlineArea.getBounds();
+  private Single<ImmutableList<TileSource>> getBaseMapTileSources(OfflineBaseMap offlineBaseMap) {
+    LatLngBounds bounds = offlineBaseMap.getBounds();
 
     return projectRepository
         .getActiveProjectOnceAndStream()
@@ -147,7 +147,7 @@ public class OfflineAreaRepository {
         .getOfflineAreaName(bounds)
         .map(
             name ->
-                OfflineArea.newBuilder()
+                OfflineBaseMap.newBuilder()
                     .setBounds(bounds)
                     .setId(uuidGenerator.generateUuid())
                     .setState(State.PENDING)
@@ -156,24 +156,24 @@ public class OfflineAreaRepository {
         .flatMapCompletable(this::enqueueTileSourceDownloads);
   }
 
-  public Flowable<ImmutableList<OfflineArea>> getOfflineAreasOnceAndStream() {
+  public Flowable<ImmutableList<OfflineBaseMap>> getOfflineAreasOnceAndStream() {
     return localDataStore.getOfflineAreasOnceAndStream();
   }
 
-  public Single<OfflineArea> getOfflineArea(String offlineAreaId) {
+  public Single<OfflineBaseMap> getOfflineArea(String offlineAreaId) {
     return localDataStore.getOfflineAreaById(offlineAreaId);
   }
 
   public Flowable<ImmutableSet<TileSource>> getIntersectingDownloadedTileSourcesOnceAndStream(
-      OfflineArea offlineArea) {
-    return getBaseMapTileSources(offlineArea)
+      OfflineBaseMap offlineBaseMap) {
+    return getBaseMapTileSources(offlineBaseMap)
         .flatMapPublisher(
             tiles ->
                 getDownloadedTileSourcesOnceAndStream()
                     .map(ts -> stream(ts).filter(tiles::contains).collect(toImmutableSet())))
         // If no tile sources are found, we report the area takes up 0.0mb on the device.
         .doOnError(
-            throwable -> Timber.d(throwable, "no tile sources found for area %s", offlineArea))
+            throwable -> Timber.d(throwable, "no tile sources found for area %s", offlineBaseMap))
         .onErrorReturn(__ -> ImmutableSet.of());
   }
 

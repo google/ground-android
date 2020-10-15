@@ -22,7 +22,7 @@ import com.google.android.gnd.ui.editobservation.EditObservationFragment;
 import com.google.android.gnd.ui.home.HomeScreenFragmentDirections;
 import com.google.android.gnd.ui.observationdetails.ObservationDetailsFragment;
 import com.google.android.gnd.ui.observationdetails.ObservationDetailsFragmentDirections;
-import com.google.android.gnd.ui.offlinearea.OfflineAreasFragmentDirections;
+import com.google.android.gnd.ui.offlinebasemap.OfflineBaseMapsFragmentDirections;
 import com.google.android.gnd.ui.signin.SignInFragmentDirections;
 import com.google.android.gnd.ui.startup.StartupFragmentDirections;
 import dagger.hilt.android.scopes.ActivityScoped;
@@ -77,10 +77,10 @@ public class Navigator {
 
   /**
    * Navigates from a {@link com.google.android.gnd.ui.home.HomeScreenFragment} to a {@link
-   * com.google.android.gnd.ui.offlinearea.selector.OfflineAreaSelectorFragment}.
+   * com.google.android.gnd.ui.offlinebasemap.selector.OfflineBaseMapSelectorFragment}.
    */
   public void showOfflineAreaSelector() {
-    navigate(OfflineAreasFragmentDirections.showOfflineAreaSelector());
+    navigate(OfflineBaseMapsFragmentDirections.showOfflineAreaSelector());
   }
 
   /**
@@ -140,6 +140,6 @@ public class Navigator {
   }
 
   public void showOfflineAreaViewer(String offlineAreaId) {
-    navigate(OfflineAreasFragmentDirections.viewOfflineArea(offlineAreaId));
+    navigate(OfflineBaseMapsFragmentDirections.viewOfflineArea(offlineAreaId));
   }
 }

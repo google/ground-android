@@ -22,7 +22,7 @@
   <data>
     <variable
       name="viewModel"
-      type="com.google.android.gnd.ui.offlinearea.viewer.OfflineAreaViewerViewModel" />
+      type="com.google.android.gnd.ui.offlinebasemap.viewer.OfflineBaseMapViewerViewModel" />
   </data>
 
   <androidx.constraintlayout.widget.ConstraintLayout
@@ -39,7 +39,7 @@
       app:layout_constraintEnd_toEndOf="parent"
       app:layout_constraintStart_toStartOf="parent"
       app:layout_constraintTop_toTopOf="parent"
-      app:title="@string/offline_area_viewer_title"
+      app:title="@string/offline_base_map_viewer_title"
       app:titleTextColor="@color/colorBackground" />
 
     <FrameLayout
@@ -79,7 +79,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="20dp"
-        android:text="@{String.format(@string/offline_area_viewer_storage, viewModel.areaStorageSize)}"
+        android:text="@{String.format(@string/offline_base_map_viewer_storage, viewModel.areaStorageSize)}"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -89,7 +89,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="15dp"
         android:background="@color/colorAlert"
-        android:text="@string/offline_area_viewer_remove_button"
+        android:text="@string/offline_base_map_viewer_remove_button"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView" />

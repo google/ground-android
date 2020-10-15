@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.ui.offlinearea;
+package com.google.android.gnd.ui.offlinebasemap;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -25,7 +25,7 @@ import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.gnd.MainActivity;
-import com.google.android.gnd.databinding.OfflineAreasFragBinding;
+import com.google.android.gnd.databinding.OfflineBaseMapsFragBinding;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.Navigator;
 import dagger.hilt.android.AndroidEntryPoint;
@@ -37,35 +37,36 @@ import javax.inject.Inject;
  * need or access the UI used to select and download a new area to the device.
  */
 @AndroidEntryPoint
-public class OfflineAreasFragment extends AbstractFragment {
+public class OfflineBaseMapsFragment extends AbstractFragment {
   @Inject Navigator navigator;
 
-  private OfflineAreasViewModel viewModel;
+  private OfflineBaseMapsViewModel viewModel;
 
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    viewModel = getViewModel(OfflineAreasViewModel.class);
+    viewModel = getViewModel(OfflineBaseMapsViewModel.class);
   }
 
   @Override
   public View onCreateView(
       @NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     super.onCreateView(inflater, container, savedInstanceState);
-    OfflineAreasFragBinding binding = OfflineAreasFragBinding.inflate(inflater, container, false);
+    OfflineBaseMapsFragBinding binding =
+        OfflineBaseMapsFragBinding.inflate(inflater, container, false);
 
     binding.setViewModel(viewModel);
     binding.setLifecycleOwner(this);
 
     ((MainActivity) getActivity()).setActionBar(binding.offlineAreasToolbar, true);
 
-    OfflineAreaListAdapter offlineAreaListAdapter = new OfflineAreaListAdapter(navigator);
+    OfflineBaseMapListAdapter offlineBaseMapListAdapter = new OfflineBaseMapListAdapter(navigator);
     RecyclerView recyclerView = binding.offlineAreasList;
     recyclerView.setHasFixedSize(true);
     recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-    recyclerView.setAdapter(offlineAreaListAdapter);
+    recyclerView.setAdapter(offlineBaseMapListAdapter);
 
-    viewModel.getOfflineAreas().observe(getViewLifecycleOwner(), offlineAreaListAdapter::update);
+    viewModel.getOfflineAreas().observe(getViewLifecycleOwner(), offlineBaseMapListAdapter::update);
 
     return binding.getRoot();
   }
