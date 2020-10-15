@@ -156,7 +156,7 @@ public class MapContainerFragment extends AbstractFragment {
         __ -> homeScreenViewModel.onAddFeatureBtnClick(map.getCameraTarget()));
     binding.moveFeature.confirmButton.setOnClickListener(
         __ -> showConfirmationDialog(map.getCameraTarget()));
-    binding.moveFeature.cancelButton.setOnClickListener(__ -> cancelRepositionMode());
+    binding.moveFeature.cancelButton.setOnClickListener(__ -> setDefaultMode());
     enableLocationLockBtn();
     mapContainerViewModel.getMbtilesFilePaths().observe(this, map::addTileOverlays);
   }
@@ -165,7 +165,7 @@ public class MapContainerFragment extends AbstractFragment {
     new Builder(getContext())
         .setTitle(R.string.move_point_confirmation)
         .setPositiveButton(android.R.string.ok, (dialog, which) -> moveToNewPosition(point))
-        .setNegativeButton(android.R.string.cancel, (dialog, which) -> cancelRepositionMode())
+        .setNegativeButton(android.R.string.cancel, (dialog, which) -> setDefaultMode())
         .setCancelable(true)
         .create()
         .show();
@@ -178,10 +178,6 @@ public class MapContainerFragment extends AbstractFragment {
         .ifPresentOrElse(
             feature -> homeScreenViewModel.updateFeature(feature),
             () -> Timber.e("No feature selected"));
-  }
-
-  private void cancelRepositionMode() {
-    setDefaultMode();
   }
 
   private void onBottomSheetStateChange(BottomSheetState state, MapAdapter map) {
