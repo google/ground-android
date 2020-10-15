@@ -61,6 +61,7 @@ steps:
       - '-c'
       - |
         git clone --branch master $_HEAD_REPO_URL tmp \
+        && rm -rf .git \
         && mv tmp/.git . \
         && rm -rf tmp
 
