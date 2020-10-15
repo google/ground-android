@@ -34,6 +34,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.widget.FrameLayout;
+import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.view.GravityCompat;
@@ -62,6 +63,7 @@ import com.google.android.material.navigation.NavigationView.OnNavigationItemSel
 import dagger.hilt.android.AndroidEntryPoint;
 import io.reactivex.subjects.PublishSubject;
 import java.util.List;
+import java8.util.Optional;
 import javax.inject.Inject;
 import timber.log.Timber;
 
@@ -107,6 +109,7 @@ public class HomeScreenFragment extends AbstractFragment
     viewModel.getBottomSheetState().observe(this, this::onBottomSheetStateChange);
     viewModel.getOpenDrawerRequests().observe(this, e -> e.ifUnhandled(this::openDrawer));
     viewModel.getDeleteFeature().observe(this, this::onFeatureDeleted);
+    viewModel.getUpdateFeature().observe(this, this::onFeatureUpdated);
 
     showFeatureDialogRequests = PublishSubject.create();
 
@@ -116,6 +119,15 @@ public class HomeScreenFragment extends AbstractFragment
         .subscribe(viewModel::addFeature);
 
     projectSelectorViewModel = getViewModel(ProjectSelectorViewModel.class);
+  }
+
+  private void onFeatureUpdated(Boolean result) {
+    if (result) {
+      Toast.makeText(getContext(), "Done", Toast.LENGTH_SHORT).show();
+      mapContainerFragment.setDefaultMode();
+    } else {
+      Timber.e("Failed to update feature");
+    }
   }
 
   private void onFeatureDeleted(Boolean result) {
@@ -250,12 +262,20 @@ public class HomeScreenFragment extends AbstractFragment
 
   @Override
   public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+    BottomSheetState state = viewModel.getBottomSheetState().getValue();
+    if (state == null) {
+      Timber.e("BottomSheetState is null");
+      return false;
+    }
+
     switch (item.getItemId()) {
       case R.id.move_feature_menu_item:
-        // TODO
+        hideBottomSheet();
+        mapContainerFragment.setRepositionMode(Optional.ofNullable(state.getFeature()));
         return false;
       case R.id.delete_feature_menu_item:
-        viewModel.deleteFeature();
+        hideBottomSheet();
+        viewModel.deleteFeature(state.getFeature());
         return true;
       default:
         return false;
