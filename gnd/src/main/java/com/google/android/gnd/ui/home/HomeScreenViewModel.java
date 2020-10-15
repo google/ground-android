@@ -46,7 +46,6 @@ public class HomeScreenViewModel extends AbstractViewModel {
 
   public final MutableLiveData<Boolean> isObservationButtonVisible = new MutableLiveData<>(false);
   private final ProjectRepository projectRepository;
-  private final FeatureRepository featureRepository;
   private final Navigator navigator;
   /** The state and value of the currently active project (loading, loaded, etc.). */
   private final LiveData<Loadable<Project>> activeProject;
@@ -71,7 +70,6 @@ public class HomeScreenViewModel extends AbstractViewModel {
       Navigator navigator,
       Schedulers schedulers) {
     this.projectRepository = projectRepository;
-    this.featureRepository = featureRepository;
     this.addFeatureDialogRequests = new MutableLiveData<>();
     this.openDrawerRequests = new MutableLiveData<>();
     this.bottomSheetState = new MutableLiveData<>();
