@@ -14,32 +14,32 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.ui.offlinearea;
+package com.google.android.gnd.ui.offlinebasemap;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-import com.google.android.gnd.databinding.OfflineAreasListItemBinding;
-import com.google.android.gnd.model.basemap.OfflineArea;
+import com.google.android.gnd.databinding.OfflineBaseMapListItemBinding;
+import com.google.android.gnd.model.basemap.OfflineBaseMap;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.common.collect.ImmutableList;
 
-class OfflineAreaListAdapter extends RecyclerView.Adapter<OfflineAreaListAdapter.ViewHolder> {
+class OfflineBaseMapListAdapter extends RecyclerView.Adapter<OfflineBaseMapListAdapter.ViewHolder> {
   private final Navigator navigator;
-  private ImmutableList<OfflineArea> offlineAreas;
+  private ImmutableList<OfflineBaseMap> offlineBaseMaps;
 
   public static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-    public OfflineAreasListItemBinding binding;
+    public OfflineBaseMapListItemBinding binding;
     public int position;
-    private ImmutableList<OfflineArea> areas;
+    private ImmutableList<OfflineBaseMap> areas;
     private final Navigator navigator;
 
     ViewHolder(
-        OfflineAreasListItemBinding binding,
-        ImmutableList<OfflineArea> areas,
+        OfflineBaseMapListItemBinding binding,
+        ImmutableList<OfflineBaseMap> areas,
         Navigator navigator) {
       super(binding.getRoot());
       this.binding = binding;
@@ -57,35 +57,35 @@ class OfflineAreaListAdapter extends RecyclerView.Adapter<OfflineAreaListAdapter
     }
   }
 
-  OfflineAreaListAdapter(Navigator navigator) {
-    offlineAreas = ImmutableList.of();
+  OfflineBaseMapListAdapter(Navigator navigator) {
+    offlineBaseMaps = ImmutableList.of();
     this.navigator = navigator;
   }
 
   @NonNull
   @Override
-  public OfflineAreaListAdapter.ViewHolder onCreateViewHolder(
+  public OfflineBaseMapListAdapter.ViewHolder onCreateViewHolder(
       @NonNull ViewGroup parent, int viewType) {
-    OfflineAreasListItemBinding offlineAreasListItemBinding =
-        OfflineAreasListItemBinding.inflate(
+    OfflineBaseMapListItemBinding offlineAreasListItemBinding =
+        OfflineBaseMapListItemBinding.inflate(
             LayoutInflater.from(parent.getContext()), parent, false);
 
-    return new ViewHolder(offlineAreasListItemBinding, offlineAreas, navigator);
+    return new ViewHolder(offlineAreasListItemBinding, offlineBaseMaps, navigator);
   }
 
   @Override
   public void onBindViewHolder(@NonNull ViewHolder viewHolder, int position) {
-    viewHolder.binding.offlineAreaName.setText(offlineAreas.get(position).getName());
+    viewHolder.binding.offlineAreaName.setText(offlineBaseMaps.get(position).getName());
     viewHolder.position = position;
   }
 
   @Override
   public int getItemCount() {
-    return offlineAreas.size();
+    return offlineBaseMaps.size();
   }
 
-  void update(ImmutableList<OfflineArea> offlineAreas) {
-    this.offlineAreas = offlineAreas;
+  void update(ImmutableList<OfflineBaseMap> offlineBaseMaps) {
+    this.offlineBaseMaps = offlineBaseMaps;
     notifyDataSetChanged();
   }
 }

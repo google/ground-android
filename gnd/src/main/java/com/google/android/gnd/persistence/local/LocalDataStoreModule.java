@@ -26,7 +26,7 @@ import com.google.android.gnd.persistence.local.room.dao.LayerDao;
 import com.google.android.gnd.persistence.local.room.dao.MultipleChoiceDao;
 import com.google.android.gnd.persistence.local.room.dao.ObservationDao;
 import com.google.android.gnd.persistence.local.room.dao.ObservationMutationDao;
-import com.google.android.gnd.persistence.local.room.dao.OfflineAreaDao;
+import com.google.android.gnd.persistence.local.room.dao.OfflineBaseMapDao;
 import com.google.android.gnd.persistence.local.room.dao.OfflineBaseMapSourceDao;
 import com.google.android.gnd.persistence.local.room.dao.OptionDao;
 import com.google.android.gnd.persistence.local.room.dao.ProjectDao;
@@ -99,7 +99,7 @@ public abstract class LocalDataStoreModule {
   }
 
   @Provides
-  static OfflineAreaDao offlineAreaDao(LocalDatabase localDatabase) {
+  static OfflineBaseMapDao offlineAreaDao(LocalDatabase localDatabase) {
     return localDatabase.offlineAreaDao();
   }
 

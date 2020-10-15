@@ -19,7 +19,7 @@ package com.google.android.gnd.persistence.local;
 import com.google.android.gnd.model.Mutation;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.User;
-import com.google.android.gnd.model.basemap.OfflineArea;
+import com.google.android.gnd.model.basemap.OfflineBaseMap;
 import com.google.android.gnd.model.basemap.tile.TileSource;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.FeatureMutation;
@@ -159,16 +159,16 @@ public interface LocalDataStore {
    * Attempts to update an offline area in the local data store. If the area doesn't exist, inserts
    * the area into the local data store.
    */
-  Completable insertOrUpdateOfflineArea(OfflineArea area);
+  Completable insertOrUpdateOfflineArea(OfflineBaseMap area);
 
   /** Returns all queued, failed, and completed offline areas from the local data store. */
-  Flowable<ImmutableList<OfflineArea>> getOfflineAreasOnceAndStream();
-
-  /** Returns the offline area with the specified id. */
-  Single<OfflineArea> getOfflineAreaById(String id);
+  Flowable<ImmutableList<OfflineBaseMap>> getOfflineAreasOnceAndStream();
 
   /** Delete an offline area and its *unique* tiles. */
   Completable deleteOfflineArea(String offlineAreaId);
 
   Completable deleteTiles(ImmutableSet<TileSource> tileSources);
+
+  /** Returns the offline area with the specified id. */
+  Single<OfflineBaseMap> getOfflineAreaById(String id);
 }

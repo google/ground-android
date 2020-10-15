@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.ui.offlinearea.selector;
+package com.google.android.gnd.ui.offlinebasemap.selector;
 
 import static com.google.android.gnd.rx.RxAutoDispose.autoDisposable;
 
@@ -26,19 +26,19 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.R;
-import com.google.android.gnd.databinding.OfflineAreaSelectorFragBinding;
+import com.google.android.gnd.databinding.OfflineBaseMapSelectorFragBinding;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.EphemeralPopups;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.map.MapAdapter;
 import com.google.android.gnd.ui.map.MapProvider;
-import com.google.android.gnd.ui.offlinearea.selector.OfflineAreaSelectorViewModel.DownloadMessage;
+import com.google.android.gnd.ui.offlinebasemap.selector.OfflineBaseMapSelectorViewModel.DownloadMessage;
 import dagger.hilt.android.AndroidEntryPoint;
 import io.reactivex.Single;
 import javax.inject.Inject;
 
 @AndroidEntryPoint
-public class OfflineAreaSelectorFragment extends AbstractFragment {
+public class OfflineBaseMapSelectorFragment extends AbstractFragment {
 
   private static final String MAP_FRAGMENT = MapProvider.class.getName() + "#fragment";
 
@@ -46,17 +46,17 @@ public class OfflineAreaSelectorFragment extends AbstractFragment {
 
   @Inject MapProvider mapProvider;
 
-  private OfflineAreaSelectorViewModel viewModel;
+  private OfflineBaseMapSelectorViewModel viewModel;
   @Nullable private MapAdapter map;
 
-  public static OfflineAreaSelectorFragment newInstance() {
-    return new OfflineAreaSelectorFragment();
+  public static OfflineBaseMapSelectorFragment newInstance() {
+    return new OfflineBaseMapSelectorFragment();
   }
 
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    viewModel = getViewModel(OfflineAreaSelectorViewModel.class);
+    viewModel = getViewModel(OfflineBaseMapSelectorViewModel.class);
     // TODO: use the viewmodel
     Single<MapAdapter> mapAdapter = mapProvider.getMapAdapter();
     mapAdapter.as(autoDisposable(this)).subscribe(this::onMapReady);
@@ -66,12 +66,12 @@ public class OfflineAreaSelectorFragment extends AbstractFragment {
   private void onDownloadMessage(DownloadMessage message) {
     switch (message) {
       case STARTED:
-        EphemeralPopups.showSuccess(getContext(), R.string.offline_area_download_started);
+        EphemeralPopups.showSuccess(getContext(), R.string.offline_base_map_download_started);
         navigator.navigateUp();
         break;
       case FAILURE:
       default:
-        EphemeralPopups.showError(getContext(), R.string.offline_area_download_failed);
+        EphemeralPopups.showError(getContext(), R.string.offline_base_map_download_failed);
         navigator.navigateUp();
         break;
     }
@@ -81,8 +81,8 @@ public class OfflineAreaSelectorFragment extends AbstractFragment {
   public View onCreateView(
       @NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     super.onCreateView(inflater, container, savedInstanceState);
-    OfflineAreaSelectorFragBinding binding =
-        OfflineAreaSelectorFragBinding.inflate(inflater, container, false);
+    OfflineBaseMapSelectorFragBinding binding =
+        OfflineBaseMapSelectorFragBinding.inflate(inflater, container, false);
     binding.setViewModel(viewModel);
     binding.setLifecycleOwner(this);
     binding.downloadButton.setOnClickListener(__ -> onDownloadClick());
