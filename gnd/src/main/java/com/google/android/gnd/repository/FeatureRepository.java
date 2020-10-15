@@ -20,7 +20,6 @@ import com.google.android.gnd.model.Mutation.Type;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.FeatureMutation;
-import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.persistence.local.LocalDataStore;
 import com.google.android.gnd.persistence.remote.NotFoundException;
 import com.google.android.gnd.persistence.remote.RemoteDataEvent;
@@ -115,47 +114,29 @@ public class FeatureRepository {
         .flatMapMaybe(project -> localDataStore.getFeature(project, featureId));
   }
 
-  public Completable saveFeature(Feature feature) {
-    // TODO(#80): Update UI to provide FeatureMutations instead of Features here.
-    FeatureMutation mutation =
-        FeatureMutation.builder()
-            .setType(Type.CREATE)
-            .setProjectId(feature.getProject().getId())
-            .setFeatureId(feature.getId())
-            .setLayerId(feature.getLayer().getId())
-            .setNewLocation(Optional.of(feature.getPoint()))
-            .setUserId(authManager.getCurrentUser().getId())
-            .setClientTimestamp(new Date())
-            .build();
-    return applyAndEnqueue(mutation);
+  private FeatureMutation fromFeature(Feature feature, Type type) {
+    return FeatureMutation.builder()
+        .setType(type)
+        .setProjectId(feature.getProject().getId())
+        .setFeatureId(feature.getId())
+        .setLayerId(feature.getLayer().getId())
+        .setNewLocation(Optional.of(feature.getPoint()))
+        .setUserId(authManager.getCurrentUser().getId())
+        .setClientTimestamp(new Date())
+        .build();
+  }
+
+  // TODO(#80): Update UI to provide FeatureMutations instead of Features here.
+  public Completable createFeature(Feature feature) {
+    return applyAndEnqueue(fromFeature(feature, Type.CREATE));
+  }
+
+  public Completable updateFeature(Feature feature) {
+    return applyAndEnqueue(fromFeature(feature, Type.UPDATE));
   }
 
   public Completable deleteFeature(Feature feature) {
-    FeatureMutation mutation =
-        FeatureMutation.builder()
-            .setType(Type.DELETE)
-            .setProjectId(feature.getProject().getId())
-            .setFeatureId(feature.getId())
-            .setLayerId(feature.getLayer().getId())
-            .setClientTimestamp(new Date())
-            .setNewLocation(Optional.of(feature.getPoint()))
-            .setUserId(authManager.getCurrentUser().getId())
-            .build();
-    return applyAndEnqueue(mutation);
-  }
-
-  public Completable updatePosition(Feature feature, Point point) {
-    FeatureMutation mutation =
-        FeatureMutation.builder()
-            .setType(Type.UPDATE)
-            .setProjectId(feature.getProject().getId())
-            .setFeatureId(feature.getId())
-            .setLayerId(feature.getLayer().getId())
-            .setClientTimestamp(new Date())
-            .setNewLocation(Optional.of(point))
-            .setUserId(authManager.getCurrentUser().getId())
-            .build();
-    return applyAndEnqueue(mutation);
+    return applyAndEnqueue(fromFeature(feature, Type.DELETE));
   }
 
   private Completable applyAndEnqueue(FeatureMutation mutation) {

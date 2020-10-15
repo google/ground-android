@@ -28,20 +28,15 @@ import com.google.android.gnd.repository.ProjectRepository;
 import com.google.android.gnd.rx.Action;
 import com.google.android.gnd.rx.Event;
 import com.google.android.gnd.rx.Loadable;
-import com.google.android.gnd.rx.Nil;
 import com.google.android.gnd.rx.Schedulers;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.SharedViewModel;
 import com.google.android.gnd.ui.map.MapPin;
-import io.reactivex.Completable;
-import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.processors.FlowableProcessor;
 import io.reactivex.processors.PublishProcessor;
 import io.reactivex.subjects.PublishSubject;
-import java.util.HashMap;
-import java.util.Map;
 import java8.util.Optional;
 import javax.inject.Inject;
 import timber.log.Timber;
@@ -63,11 +58,10 @@ public class HomeScreenViewModel extends AbstractViewModel {
   private final MutableLiveData<Action> openDrawerRequests;
   private final MutableLiveData<BottomSheetState> bottomSheetState;
 
-  private final FlowableProcessor<Nil> deleteFeatureRequests = PublishProcessor.create();
+  private final FlowableProcessor<Feature> deleteFeatureRequests = PublishProcessor.create();
   private final LiveData<Boolean> deleteFeature;
 
-  private final FlowableProcessor<Map<Feature, Point>> updateFeatureRequests =
-      PublishProcessor.create();
+  private final FlowableProcessor<Feature> updateFeatureRequests = PublishProcessor.create();
   private final LiveData<Boolean> updateFeature;
 
   @Inject
@@ -86,12 +80,13 @@ public class HomeScreenViewModel extends AbstractViewModel {
     this.navigator = navigator;
     this.addFeatureClicks = PublishSubject.create();
 
+    // TODO: Replace disposeOnClear with Processor
     disposeOnClear(
         addFeatureClicks
             .switchMapSingle(
                 newFeature ->
                     featureRepository
-                        .saveFeature(newFeature)
+                        .createFeature(newFeature)
                         .toSingleDefault(newFeature)
                         .doOnError(this::onAddFeatureError)
                         .onErrorResumeNext(Single.never())) // Prevent from breaking upstream.
@@ -101,36 +96,40 @@ public class HomeScreenViewModel extends AbstractViewModel {
     deleteFeature =
         LiveDataReactiveStreams.fromPublisher(
             deleteFeatureRequests.switchMapSingle(
-                __ -> deleteActiveFeature().toSingleDefault(true).onErrorReturnItem(false)));
+                feature ->
+                    featureRepository
+                        .deleteFeature(feature)
+                        .toSingleDefault(true)
+                        .onErrorReturnItem(false)));
 
     updateFeature =
         LiveDataReactiveStreams.fromPublisher(
             updateFeatureRequests.switchMapSingle(
-                map -> updateFeaturePosition(map).toSingleDefault(true).onErrorReturnItem(false)));
-  }
-
-  public void updateFeature(Feature feature, Point point) {
-    HashMap<Feature, Point> map = new HashMap<>();
-    map.put(feature, point);
-    updateFeatureRequests.onNext(map);
+                updatedFeature ->
+                    featureRepository
+                        .updateFeature(updatedFeature)
+                        .toSingleDefault(true)
+                        .onErrorReturnItem(false)));
   }
 
   public LiveData<Boolean> getUpdateFeature() {
     return updateFeature;
   }
 
-  private Completable updateFeaturePosition(Map<Feature, Point> map) {
-    return Observable.fromIterable(map.entrySet())
-        .flatMapCompletable(
-            entrySet -> featureRepository.updatePosition(entrySet.getKey(), entrySet.getValue()));
-  }
-
   public LiveData<Boolean> getDeleteFeature() {
     return deleteFeature;
   }
 
-  public void deleteFeature() {
-    deleteFeatureRequests.onNext(Nil.NIL);
+  public void addFeature(Feature feature) {
+    addFeatureClicks.onNext(feature);
+  }
+
+  public void updateFeature(Feature feature) {
+    updateFeatureRequests.onNext(feature);
+  }
+
+  public void deleteFeature(Feature feature) {
+    deleteFeatureRequests.onNext(feature);
   }
 
   private void onAddFeature(Feature feature) {
@@ -189,23 +188,6 @@ public class HomeScreenViewModel extends AbstractViewModel {
   public void onAddFeatureBtnClick(Point location) {
     // TODO: Pause location updates while dialog is open.
     addFeatureDialogRequests.setValue(Event.create(location));
-  }
-
-  public void addFeature(Feature feature) {
-    addFeatureClicks.onNext(feature);
-  }
-
-  public Completable deleteActiveFeature() {
-    BottomSheetState state = bottomSheetState.getValue();
-    if (state == null) {
-      return Completable.error(new IllegalStateException("Missing bottomSheetState"));
-    }
-    Feature feature = state.getFeature();
-    if (feature == null) {
-      Timber.e("Missing feature");
-      return Completable.error(new IllegalStateException("Missing feature"));
-    }
-    return featureRepository.deleteFeature(feature);
   }
 
   public void onBottomSheetHidden() {

@@ -174,12 +174,10 @@ public class MapContainerFragment extends AbstractFragment {
   private void moveToNewPosition(Point point) {
     mapContainerViewModel
         .getSelectedFeature()
+        .map(feature -> feature.toBuilder().setPoint(point).build())
         .ifPresentOrElse(
-            feature -> {
-              homeScreenViewModel.updateFeature(feature, point);
-              setDefaultMode();
-            },
-            () -> Timber.e("Feature is null, can't move to new position"));
+            feature -> homeScreenViewModel.updateFeature(feature),
+            () -> Timber.e("No feature selected"));
   }
 
   private void cancelRepositionMode() {

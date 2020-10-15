@@ -124,6 +124,7 @@ public class HomeScreenFragment extends AbstractFragment
   private void onFeatureUpdated(Boolean result) {
     if (result) {
       Toast.makeText(getContext(), "Done", Toast.LENGTH_SHORT).show();
+      mapContainerFragment.setDefaultMode();
     } else {
       Timber.e("Failed to update feature");
     }
@@ -261,16 +262,20 @@ public class HomeScreenFragment extends AbstractFragment
 
   @Override
   public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+    BottomSheetState state = viewModel.getBottomSheetState().getValue();
+    if (state == null) {
+      Timber.e("BottomSheetState is null");
+      return false;
+    }
+
     switch (item.getItemId()) {
       case R.id.move_feature_menu_item:
-        BottomSheetState state = viewModel.getBottomSheetState().getValue();
-        if (state != null) {
-          hideBottomSheet();
-          mapContainerFragment.setRepositionMode(Optional.ofNullable(state.getFeature()));
-        }
+        hideBottomSheet();
+        mapContainerFragment.setRepositionMode(Optional.ofNullable(state.getFeature()));
         return false;
       case R.id.delete_feature_menu_item:
-        viewModel.deleteFeature();
+        hideBottomSheet();
+        viewModel.deleteFeature(state.getFeature());
         return true;
       default:
         return false;
