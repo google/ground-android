@@ -22,8 +22,8 @@ import com.google.auto.value.AutoValue;
 @AutoValue
 public abstract class TileSource {
 
-  //** Increment the area reference count of a tile source by one. */
-  public static TileSource incAreaCount(TileSource tileSource) {
+  /** Increment the area reference count of a tile source by one. */
+  public static TileSource incrementAreaCount(TileSource tileSource) {
     return tileSource.toBuilder().setAreaCount(tileSource.getAreaCount() + 1).build();
   }
 

@@ -106,7 +106,7 @@ public class OfflineBaseMapRepository {
                         tileSource ->
                             localDataStore
                                 .getTileSource(tileSource.getUrl())
-                                .map(TileSource::incAreaCount)
+                                .map(TileSource::incrementAreaCount)
                                 .toSingle(tileSource))
                     .map(
                         single ->
