@@ -26,30 +26,25 @@ import timber.log.Timber;
 /** Converts between Firestore maps used to merge updates and {@link FeatureMutation} instances. */
 class FeatureMutationConverter {
 
-  private static final String LAYER_ID = "layerId";
-  private static final String CENTER = "center";
-  private static final String CREATED = "created";
-  private static final String LAST_MODIFIED = "lastModified";
-
   /**
    * Returns a map containing key-value pairs usable by Firestore constructed from the provided
    * mutation.
    */
   static ImmutableMap<String, Object> toMap(FeatureMutation mutation, User user) {
     ImmutableMap.Builder<String, Object> map = ImmutableMap.builder();
-    map.put(LAYER_ID, mutation.getLayerId());
+    map.put(FeatureConverter.LAYER_ID, mutation.getLayerId());
     mutation
         .getNewLocation()
         .map(FeatureMutationConverter::toGeoPoint)
-        .ifPresent(p -> map.put(CENTER, p));
+        .ifPresent(point -> map.put(FeatureConverter.LOCATION, point));
     AuditInfoNestedObject auditInfo = AuditInfoConverter.fromMutationAndUser(mutation, user);
     switch (mutation.getType()) {
       case CREATE:
-        map.put(CREATED, auditInfo);
-        map.put(LAST_MODIFIED, auditInfo);
+        map.put(FeatureConverter.CREATED, auditInfo);
+        map.put(FeatureConverter.LAST_MODIFIED, auditInfo);
         break;
       case UPDATE:
-        map.put(LAST_MODIFIED, auditInfo);
+        map.put(FeatureConverter.LAST_MODIFIED, auditInfo);
         break;
       case DELETE:
       case UNKNOWN:
