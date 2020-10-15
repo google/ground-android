@@ -18,13 +18,14 @@
 #
 #  1. Copy Gradle cache
 #  2. Extract tarball
-#  3. Build debug APK
-#  4. Run code quality checks (suppress failure if check fails)
-#  5. Run unit tests (suppress failure if tests fail)
-#  6. Save reports to GCS
-#  7. Update badge status and fail the build if any failures were suppressed in previous steps
-#  8. Compress Gradle files
-#  9. Save tarball
+#  3. Copy .git dir
+#  4. Build debug APK
+#  5. Run code quality checks (suppress failure if check fails)
+#  6. Run unit tests (suppress failure if tests fail)
+#  7. Save reports to GCS
+#  8. Update badge status and fail the build if any failures were suppressed in previous steps
+#  9. Compress Gradle files
+#  10. Save tarball
 #
 #  NOTE: APKs are saved to GCS only if the build passes
 #
@@ -46,6 +47,22 @@ steps:
       - '-c'
       - |
         tar zxf cache.tgz || echo "No cache found"
+
+  # Copy .git directory to workspace.
+  # This is needed by gitVersioner plugin for auto-generating version code and version name.
+  #
+  # TODO: Remove this step when .git can be explicitly included in the tarball using .gcloudignore
+  # https://github.com/GoogleCloudPlatform/cloud-builders/issues/401
+  - name: 'gcr.io/cloud-builders/git'
+    id: 'Copy .git directory for versioning'
+    waitFor: ['-']
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        git clone --branch master $_HEAD_REPO_URL tmp \
+        && mv tmp/.git . \
+        && rm -rf tmp
 
   # Build debug APK
   - name: 'gcr.io/$PROJECT_ID/android:28'
