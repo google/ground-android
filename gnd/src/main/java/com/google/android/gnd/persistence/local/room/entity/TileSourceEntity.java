@@ -52,7 +52,7 @@ public abstract class TileSourceEntity {
   @CopyAnnotations
   @NonNull
   @ColumnInfo(name = "area_count")
-  public abstract Integer getAreaCount();
+  public abstract int getAreaCount();
 
   public static TileSource toTileSource(TileSourceEntity tileSourceEntity) {
     TileSource.Builder tile =
@@ -107,7 +107,7 @@ public abstract class TileSourceEntity {
   }
 
   public static TileSourceEntity create(
-      String id, String path, TileEntityState state, String url, Integer areaCount) {
+      String id, String path, TileEntityState state, String url, int areaCount) {
     return builder()
         .setId(id)
         .setState(state)
@@ -131,7 +131,7 @@ public abstract class TileSourceEntity {
 
     public abstract Builder setState(TileEntityState newState);
 
-    public abstract Builder setAreaCount(Integer areaCount);
+    public abstract Builder setAreaCount(int areaCount);
 
     public abstract TileSourceEntity build();
   }
