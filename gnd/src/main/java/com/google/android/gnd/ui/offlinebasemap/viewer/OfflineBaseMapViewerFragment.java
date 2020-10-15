@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.ui.offlinearea.selector;
+package com.google.android.gnd.ui.offlinebasemap.viewer;
 
 import static com.google.android.gnd.rx.RxAutoDispose.autoDisposable;
 
@@ -26,67 +26,55 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.R;
-import com.google.android.gnd.databinding.OfflineAreaSelectorFragBinding;
+import com.google.android.gnd.databinding.OfflineBaseMapViewerFragBinding;
+import com.google.android.gnd.model.basemap.OfflineBaseMap;
+import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.ui.common.AbstractFragment;
-import com.google.android.gnd.ui.common.EphemeralPopups;
-import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.map.MapAdapter;
 import com.google.android.gnd.ui.map.MapProvider;
-import com.google.android.gnd.ui.offlinearea.selector.OfflineAreaSelectorViewModel.DownloadMessage;
 import dagger.hilt.android.AndroidEntryPoint;
 import io.reactivex.Single;
 import javax.inject.Inject;
 
+/**
+ * The OfflineAreaViewerFragment provides a UI for managing a single offline area on the user's
+ * device.
+ */
 @AndroidEntryPoint
-public class OfflineAreaSelectorFragment extends AbstractFragment {
+public class OfflineBaseMapViewerFragment extends AbstractFragment {
 
   private static final String MAP_FRAGMENT = MapProvider.class.getName() + "#fragment";
 
-  @Inject Navigator navigator;
-
   @Inject MapProvider mapProvider;
 
-  private OfflineAreaSelectorViewModel viewModel;
+  private OfflineBaseMapViewerViewModel viewModel;
   @Nullable private MapAdapter map;
 
-  public static OfflineAreaSelectorFragment newInstance() {
-    return new OfflineAreaSelectorFragment();
-  }
+  @Inject
+  public OfflineBaseMapViewerFragment() {}
 
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    viewModel = getViewModel(OfflineAreaSelectorViewModel.class);
-    // TODO: use the viewmodel
+    OfflineBaseMapViewerFragmentArgs args =
+        OfflineBaseMapViewerFragmentArgs.fromBundle(getArguments());
+    viewModel = getViewModel(OfflineBaseMapViewerViewModel.class);
+    viewModel.loadOfflineArea(args);
     Single<MapAdapter> mapAdapter = mapProvider.getMapAdapter();
     mapAdapter.as(autoDisposable(this)).subscribe(this::onMapReady);
-    viewModel.getDownloadMessages().observe(this, e -> e.ifUnhandled(this::onDownloadMessage));
-  }
-
-  private void onDownloadMessage(DownloadMessage message) {
-    switch (message) {
-      case STARTED:
-        EphemeralPopups.showSuccess(getContext(), R.string.offline_area_download_started);
-        navigator.navigateUp();
-        break;
-      case FAILURE:
-      default:
-        EphemeralPopups.showError(getContext(), R.string.offline_area_download_failed);
-        navigator.navigateUp();
-        break;
-    }
+    viewModel.getOfflineArea().observe(this, this::panMap);
   }
 
   @Override
   public View onCreateView(
       @NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     super.onCreateView(inflater, container, savedInstanceState);
-    OfflineAreaSelectorFragBinding binding =
-        OfflineAreaSelectorFragBinding.inflate(inflater, container, false);
+    OfflineBaseMapViewerFragBinding binding =
+        OfflineBaseMapViewerFragBinding.inflate(inflater, container, false);
     binding.setViewModel(viewModel);
     binding.setLifecycleOwner(this);
-    binding.downloadButton.setOnClickListener(__ -> onDownloadClick());
-    ((MainActivity) getActivity()).setActionBar(binding.offlineAreaSelectorToolbar, true);
+    binding.removeButton.setOnClickListener(__ -> onRemoveClick());
+    ((MainActivity) getActivity()).setActionBar(binding.offlineAreaViewerToolbar, true);
     return binding.getRoot();
   }
 
@@ -104,11 +92,23 @@ public class OfflineAreaSelectorFragment extends AbstractFragment {
     this.map = map;
   }
 
-  public void onDownloadClick() {
+  private void panMap(OfflineBaseMap offlineBaseMap) {
     if (map == null) {
       return;
     }
 
-    viewModel.onDownloadClick(map.getViewport());
+    double lat = offlineBaseMap.getBounds().northeast.latitude;
+    double lon = offlineBaseMap.getBounds().southwest.longitude;
+    Point point = Point.newBuilder().setLatitude(lat).setLongitude(lon).build();
+    map.moveCamera(point);
+  }
+
+  /** Removes the area associated with this fragment from the user's device. */
+  public void onRemoveClick() {
+    if (map == null) {
+      return;
+    }
+
+    viewModel.onRemoveClick();
   }
 }

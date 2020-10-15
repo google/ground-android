@@ -21,7 +21,7 @@ import com.google.auto.value.AutoValue;
 
 /** An area is a contiguous set of tiles that form a geodesic rectangle. */
 @AutoValue
-public abstract class OfflineArea {
+public abstract class OfflineBaseMap {
 
   public abstract String getId();
 
@@ -41,7 +41,7 @@ public abstract class OfflineArea {
   }
 
   public static Builder newBuilder() {
-    return new AutoValue_OfflineArea.Builder();
+    return new AutoValue_OfflineBaseMap.Builder();
   }
 
   @AutoValue.Builder
@@ -55,6 +55,6 @@ public abstract class OfflineArea {
 
     public abstract Builder setName(String name);
 
-    public abstract OfflineArea build();
+    public abstract OfflineBaseMap build();
   }
 }

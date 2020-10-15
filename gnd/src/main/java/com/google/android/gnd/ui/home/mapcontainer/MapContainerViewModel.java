@@ -31,7 +31,7 @@ import com.google.android.gnd.model.basemap.tile.TileSource;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.repository.FeatureRepository;
-import com.google.android.gnd.repository.OfflineAreaRepository;
+import com.google.android.gnd.repository.OfflineBaseMapRepository;
 import com.google.android.gnd.repository.ProjectRepository;
 import com.google.android.gnd.rx.BooleanOrError;
 import com.google.android.gnd.rx.Event;
@@ -85,7 +85,7 @@ public class MapContainerViewModel extends AbstractViewModel {
       ProjectRepository projectRepository,
       FeatureRepository featureRepository,
       LocationManager locationManager,
-      OfflineAreaRepository offlineAreaRepository) {
+      OfflineBaseMapRepository offlineBaseMapRepository) {
     this.featureRepository = featureRepository;
     this.locationManager = locationManager;
     this.locationLockChangeRequests = PublishSubject.create();
@@ -113,7 +113,7 @@ public class MapContainerViewModel extends AbstractViewModel {
                 .map(MapContainerViewModel::toMapPins));
     this.mbtilesFilePaths =
         LiveDataReactiveStreams.fromPublisher(
-            offlineAreaRepository
+            offlineBaseMapRepository
                 .getDownloadedTileSourcesOnceAndStream()
                 .map(set -> stream(set).map(TileSource::getPath).collect(toImmutableSet())));
   }
