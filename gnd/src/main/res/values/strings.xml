@@ -159,4 +159,6 @@
   <string name="offline_base_map_download_started">Download started.</string>
   <string name="offline_base_map_download_failed">Couldn\'t download base map.</string>
   <string name="added_by">Added by %s</string>
+  <string name="move_point_confirmation">Do you want to move to this point?</string>
+  <string name="move_point_hint">Drag to the new location</string>
 </resources>

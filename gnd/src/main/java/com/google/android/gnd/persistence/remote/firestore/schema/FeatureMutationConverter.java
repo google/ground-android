@@ -16,21 +16,15 @@
 
 package com.google.android.gnd.persistence.remote.firestore.schema;
 
-import android.util.Log;
 import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.feature.FeatureMutation;
 import com.google.android.gnd.model.feature.Point;
 import com.google.common.collect.ImmutableMap;
 import com.google.firebase.firestore.GeoPoint;
+import timber.log.Timber;
 
 /** Converts between Firestore maps used to merge updates and {@link FeatureMutation} instances. */
 class FeatureMutationConverter {
-  private static final String TAG = FeatureMutationConverter.class.getSimpleName();
-
-  private static final String LAYER_ID = "layerId";
-  private static final String CENTER = "center";
-  private static final String CREATED = "created";
-  private static final String LAST_MODIFIED = "lastModified";
 
   /**
    * Returns a map containing key-value pairs usable by Firestore constructed from the provided
@@ -38,24 +32,26 @@ class FeatureMutationConverter {
    */
   static ImmutableMap<String, Object> toMap(FeatureMutation mutation, User user) {
     ImmutableMap.Builder<String, Object> map = ImmutableMap.builder();
-    map.put(LAYER_ID, mutation.getLayerId());
+    map.put(FeatureConverter.LAYER_ID, mutation.getLayerId());
     mutation
         .getNewLocation()
         .map(FeatureMutationConverter::toGeoPoint)
-        .ifPresent(p -> map.put(CENTER, p));
+        .ifPresent(point -> map.put(FeatureConverter.LOCATION, point));
     AuditInfoNestedObject auditInfo = AuditInfoConverter.fromMutationAndUser(mutation, user);
     switch (mutation.getType()) {
       case CREATE:
-        map.put(CREATED, auditInfo);
-        map.put(LAST_MODIFIED, auditInfo);
+        map.put(FeatureConverter.CREATED, auditInfo);
+        map.put(FeatureConverter.LAST_MODIFIED, auditInfo);
         break;
       case UPDATE:
+        map.put(FeatureConverter.LAST_MODIFIED, auditInfo);
+        break;
       case DELETE:
       case UNKNOWN:
         // TODO.
         throw new UnsupportedOperationException();
       default:
-        Log.e(TAG, "Unhandled state: " + mutation.getType());
+        Timber.e("Unhandled state: %s", mutation.getType());
         break;
     }
     return map.build();
