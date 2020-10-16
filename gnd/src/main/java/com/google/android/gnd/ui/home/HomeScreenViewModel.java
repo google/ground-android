@@ -74,7 +74,6 @@ public class HomeScreenViewModel extends AbstractViewModel {
         LiveDataReactiveStreams.fromPublisher(projectRepository.getActiveProjectOnceAndStream());
     this.navigator = navigator;
 
-    // TODO: Replace disposeOnClear with Processor
     addFeature =
         LiveDataReactiveStreams.fromPublisher(
             addFeatureClicks.switchMapSingle(
