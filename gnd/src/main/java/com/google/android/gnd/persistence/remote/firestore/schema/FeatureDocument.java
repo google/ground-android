@@ -51,7 +51,7 @@ class FeatureDocument {
   }
 
   @Nullable
-  public String getlayerId() {
+  public String getLayerId() {
     return layerId;
   }
 
