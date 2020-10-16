@@ -46,6 +46,7 @@ import com.google.android.gnd.MainViewModel;
 import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.HomeScreenFragBinding;
 import com.google.android.gnd.model.Project;
+import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.rx.Loadable;
 import com.google.android.gnd.rx.Schedulers;
 import com.google.android.gnd.system.auth.AuthenticationManager;
@@ -108,8 +109,9 @@ public class HomeScreenFragment extends AbstractFragment
         .observe(this, e -> e.ifUnhandled(this::onShowAddFeatureDialogRequest));
     viewModel.getBottomSheetState().observe(this, this::onBottomSheetStateChange);
     viewModel.getOpenDrawerRequests().observe(this, e -> e.ifUnhandled(this::openDrawer));
-    viewModel.getDeleteFeature().observe(this, this::onFeatureDeleted);
+    viewModel.getAddFeature().observe(this, this::onFeatureAdded);
     viewModel.getUpdateFeature().observe(this, this::onFeatureUpdated);
+    viewModel.getDeleteFeature().observe(this, this::onFeatureDeleted);
 
     showFeatureDialogRequests = PublishSubject.create();
 
@@ -119,6 +121,15 @@ public class HomeScreenFragment extends AbstractFragment
         .subscribe(viewModel::addFeature);
 
     projectSelectorViewModel = getViewModel(ProjectSelectorViewModel.class);
+  }
+
+  private void onFeatureAdded(Optional<Feature> feature) {
+    feature.ifPresentOrElse(
+        viewModel::onAddFeature,
+        () -> {
+          // TODO: Show an error message to the user.
+          Timber.e("Couldn't add feature.");
+        });
   }
 
   private void onFeatureUpdated(Boolean result) {

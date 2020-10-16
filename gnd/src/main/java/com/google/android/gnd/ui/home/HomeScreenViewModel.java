@@ -33,10 +33,8 @@ import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.SharedViewModel;
 import com.google.android.gnd.ui.map.MapPin;
-import io.reactivex.Single;
 import io.reactivex.processors.FlowableProcessor;
 import io.reactivex.processors.PublishProcessor;
-import io.reactivex.subjects.PublishSubject;
 import java8.util.Optional;
 import javax.inject.Inject;
 import timber.log.Timber;
@@ -50,18 +48,19 @@ public class HomeScreenViewModel extends AbstractViewModel {
   /** The state and value of the currently active project (loading, loaded, etc.). */
   private final LiveData<Loadable<Project>> activeProject;
 
-  private final PublishSubject<Feature> addFeatureClicks;
   // TODO: Move into MapContainersViewModel
   private final MutableLiveData<Event<Point>> addFeatureDialogRequests;
   // TODO: Move into FeatureDetailsViewModel.
   private final MutableLiveData<Action> openDrawerRequests;
   private final MutableLiveData<BottomSheetState> bottomSheetState;
 
-  private final FlowableProcessor<Feature> deleteFeatureRequests = PublishProcessor.create();
-  private final LiveData<Boolean> deleteFeature;
-
+  private final FlowableProcessor<Feature> addFeatureClicks = PublishProcessor.create();
   private final FlowableProcessor<Feature> updateFeatureRequests = PublishProcessor.create();
+  private final FlowableProcessor<Feature> deleteFeatureRequests = PublishProcessor.create();
+
+  private final LiveData<Optional<Feature>> addFeature;
   private final LiveData<Boolean> updateFeature;
+  private final LiveData<Boolean> deleteFeature;
 
   @Inject
   HomeScreenViewModel(
@@ -76,20 +75,16 @@ public class HomeScreenViewModel extends AbstractViewModel {
     this.activeProject =
         LiveDataReactiveStreams.fromPublisher(projectRepository.getActiveProjectOnceAndStream());
     this.navigator = navigator;
-    this.addFeatureClicks = PublishSubject.create();
 
     // TODO: Replace disposeOnClear with Processor
-    disposeOnClear(
-        addFeatureClicks
-            .switchMapSingle(
-                newFeature ->
+    addFeature =
+        LiveDataReactiveStreams.fromPublisher(
+            addFeatureClicks.switchMapSingle(
+                feature ->
                     featureRepository
-                        .createFeature(newFeature)
-                        .toSingleDefault(newFeature)
-                        .doOnError(this::onAddFeatureError)
-                        .onErrorResumeNext(Single.never())) // Prevent from breaking upstream.
-            .observeOn(schedulers.ui())
-            .subscribe(this::onAddFeature));
+                        .createFeature(feature)
+                        .toSingleDefault(Optional.of(feature))
+                        .onErrorReturnItem(Optional.empty())));
 
     deleteFeature =
         LiveDataReactiveStreams.fromPublisher(
@@ -108,6 +103,10 @@ public class HomeScreenViewModel extends AbstractViewModel {
                         .updateFeature(updatedFeature)
                         .toSingleDefault(true)
                         .onErrorReturnItem(false)));
+  }
+
+  public LiveData<Optional<Feature>> getAddFeature() {
+    return addFeature;
   }
 
   public LiveData<Boolean> getUpdateFeature() {
@@ -130,7 +129,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
     deleteFeatureRequests.onNext(feature);
   }
 
-  private void onAddFeature(Feature feature) {
+  public void onAddFeature(Feature feature) {
     if (feature.getLayer().getForm().isPresent()) {
       addNewObservation(feature);
     }
@@ -145,11 +144,6 @@ public class HomeScreenViewModel extends AbstractViewModel {
 
   public boolean shouldShowProjectSelectorOnStart() {
     return projectRepository.getLastActiveProjectId().isEmpty();
-  }
-
-  private void onAddFeatureError(Throwable throwable) {
-    // TODO: Show an error message to the user.
-    Timber.e(throwable, "Couldn't add feature.");
   }
 
   public LiveData<Action> getOpenDrawerRequests() {
