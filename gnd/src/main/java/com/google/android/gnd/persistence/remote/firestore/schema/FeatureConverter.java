@@ -37,7 +37,6 @@ class FeatureConverter {
     FeatureDocument f = checkNotNull(doc.toObject(FeatureDocument.class), "feature data");
     String layerId = checkNotNull(f.getLayerId(), "layerId");
     Layer layer = checkNotEmpty(project.getLayer(layerId), "layer " + f.getLayerId());
-    // TODO: Rename "point" and "center" to "location" throughout for clarity.
     GeoPoint geoPoint = checkNotNull(f.getLocation(), "location");
     Point location =
         Point.newBuilder()

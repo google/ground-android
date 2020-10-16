@@ -28,7 +28,7 @@ class FeatureMutationConverter {
   private static final String TAG = FeatureMutationConverter.class.getSimpleName();
 
   private static final String LAYER_ID = "layerId";
-  private static final String CENTER = "center";
+  private static final String LOCATION = "location";
   private static final String CREATED = "created";
   private static final String LAST_MODIFIED = "lastModified";
 
@@ -42,7 +42,7 @@ class FeatureMutationConverter {
     mutation
         .getNewLocation()
         .map(FeatureMutationConverter::toGeoPoint)
-        .ifPresent(p -> map.put(CENTER, p));
+        .ifPresent(p -> map.put(LOCATION, p));
     AuditInfoNestedObject auditInfo = AuditInfoConverter.fromMutationAndUser(mutation, user);
     switch (mutation.getType()) {
       case CREATE:

@@ -55,9 +55,9 @@ public class GeocodingManager {
 
   private String getOfflineAreaNameInternal(LatLngBounds bounds)
       throws AddressNotFoundException, IOException {
-    LatLng center = bounds.getCenter();
+    LatLng location = bounds.getCenter();
 
-    List<Address> addresses = geocoder.getFromLocation(center.latitude, center.longitude, 1);
+    List<Address> addresses = geocoder.getFromLocation(location.latitude, location.longitude, 1);
 
     if (addresses.isEmpty()) {
       throw new AddressNotFoundException("No address found for area.");
