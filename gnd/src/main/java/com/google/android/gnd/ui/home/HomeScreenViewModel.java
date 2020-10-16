@@ -28,7 +28,6 @@ import com.google.android.gnd.repository.ProjectRepository;
 import com.google.android.gnd.rx.Action;
 import com.google.android.gnd.rx.Event;
 import com.google.android.gnd.rx.Loadable;
-import com.google.android.gnd.rx.Schedulers;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.SharedViewModel;
@@ -66,8 +65,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
   HomeScreenViewModel(
       ProjectRepository projectRepository,
       FeatureRepository featureRepository,
-      Navigator navigator,
-      Schedulers schedulers) {
+      Navigator navigator) {
     this.projectRepository = projectRepository;
     this.addFeatureDialogRequests = new MutableLiveData<>();
     this.openDrawerRequests = new MutableLiveData<>();
