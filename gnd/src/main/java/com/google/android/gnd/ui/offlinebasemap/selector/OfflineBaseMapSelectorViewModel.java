@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.ui.offlinearea.selector;
+package com.google.android.gnd.ui.offlinebasemap.selector;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
 import com.google.android.gms.maps.model.LatLngBounds;
-import com.google.android.gnd.repository.OfflineAreaRepository;
+import com.google.android.gnd.repository.OfflineBaseMapRepository;
 import com.google.android.gnd.rx.Event;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import io.reactivex.processors.FlowableProcessor;
@@ -27,7 +27,7 @@ import io.reactivex.processors.PublishProcessor;
 import javax.inject.Inject;
 import timber.log.Timber;
 
-public class OfflineAreaSelectorViewModel extends AbstractViewModel {
+public class OfflineBaseMapSelectorViewModel extends AbstractViewModel {
 
   enum DownloadMessage {
     STARTED,
@@ -38,12 +38,12 @@ public class OfflineAreaSelectorViewModel extends AbstractViewModel {
   private final LiveData<Event<DownloadMessage>> messages;
 
   @Inject
-  OfflineAreaSelectorViewModel(OfflineAreaRepository offlineAreaRepository) {
+  OfflineBaseMapSelectorViewModel(OfflineBaseMapRepository offlineBaseMapRepository) {
     this.messages =
         LiveDataReactiveStreams.fromPublisher(
             downloadClicks.switchMapSingle(
                 viewport ->
-                    offlineAreaRepository
+                    offlineBaseMapRepository
                         .addAreaAndEnqueue(viewport)
                         .toSingleDefault(DownloadMessage.STARTED)
                         .onErrorReturn(this::onEnqueueError)

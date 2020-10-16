@@ -31,13 +31,20 @@ import java8.util.Optional;
 
 /** Converts between Firestore documents and {@link Feature} instances. */
 class FeatureConverter {
+
+  protected static final String LAYER_ID = "layerId";
+  protected static final String LOCATION = "location";
+  protected static final String CREATED = "created";
+  protected static final String LAST_MODIFIED = "lastModified";
+
   // TODO: Make @NonNull the default and add build-time nullness checking.
   static Feature toFeature(@NonNull Project project, @NonNull DocumentSnapshot doc)
       throws DataStoreException {
     FeatureDocument f = checkNotNull(doc.toObject(FeatureDocument.class), "feature data");
-    String layerId = checkNotNull(f.getLayerId(), "layerId");
+    String layerId = checkNotNull(f.getLayerId(), LAYER_ID);
     Layer layer = checkNotEmpty(project.getLayer(layerId), "layer " + f.getLayerId());
-    GeoPoint geoPoint = checkNotNull(f.getLocation(), "location");
+    // TODO: Rename "point" and "center" to "location" throughout for clarity.
+    GeoPoint geoPoint = checkNotNull(f.getLocation(), LOCATION);
     Point location =
         Point.newBuilder()
             .setLatitude(geoPoint.getLatitude())

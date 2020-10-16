@@ -29,9 +29,9 @@ import com.google.android.gnd.ui.home.featuredetails.ObservationListViewModel;
 import com.google.android.gnd.ui.home.featuredetails.ObservationViewModel;
 import com.google.android.gnd.ui.home.mapcontainer.MapContainerViewModel;
 import com.google.android.gnd.ui.observationdetails.ObservationDetailsViewModel;
-import com.google.android.gnd.ui.offlinearea.OfflineAreasViewModel;
-import com.google.android.gnd.ui.offlinearea.selector.OfflineAreaSelectorViewModel;
-import com.google.android.gnd.ui.offlinearea.viewer.OfflineAreaViewerViewModel;
+import com.google.android.gnd.ui.offlinebasemap.OfflineBaseMapsViewModel;
+import com.google.android.gnd.ui.offlinebasemap.selector.OfflineBaseMapSelectorViewModel;
+import com.google.android.gnd.ui.offlinebasemap.viewer.OfflineBaseMapViewerViewModel;
 import com.google.android.gnd.ui.projectselector.ProjectSelectorViewModel;
 import com.google.android.gnd.ui.signin.SignInViewModel;
 import dagger.Binds;
@@ -50,18 +50,18 @@ public abstract class ViewModelModule {
 
   @Binds
   @IntoMap
-  @ViewModelKey(OfflineAreaSelectorViewModel.class)
-  abstract ViewModel bindOfflineAreaSelectorViewModel(OfflineAreaSelectorViewModel viewModel);
+  @ViewModelKey(OfflineBaseMapSelectorViewModel.class)
+  abstract ViewModel bindOfflineAreaSelectorViewModel(OfflineBaseMapSelectorViewModel viewModel);
 
   @Binds
   @IntoMap
-  @ViewModelKey(OfflineAreasViewModel.class)
-  abstract ViewModel bindOfflineAreasViewModel(OfflineAreasViewModel viewModel);
+  @ViewModelKey(OfflineBaseMapsViewModel.class)
+  abstract ViewModel bindOfflineAreasViewModel(OfflineBaseMapsViewModel viewModel);
 
   @Binds
   @IntoMap
-  @ViewModelKey(OfflineAreaViewerViewModel.class)
-  abstract ViewModel bindOfflineAreaViewerViewModel(OfflineAreaViewerViewModel viewModel);
+  @ViewModelKey(OfflineBaseMapViewerViewModel.class)
+  abstract ViewModel bindOfflineAreaViewerViewModel(OfflineBaseMapViewerViewModel viewModel);
 
   @Binds
   @IntoMap
