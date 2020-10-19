@@ -124,32 +124,42 @@ public class HomeScreenFragment extends AbstractFragment
   }
 
   private void onFeatureAdded(Loadable<Feature> loadable) {
-    Timber.d("Adding feature: %s", loadable.getState());
     switch (loadable.getState()) {
+      case LOADING:
+        Timber.d("Adding feature");
+        break;
       case LOADED:
         loadable.value().ifPresent(viewModel::onAddFeature);
         break;
       case ERROR:
         Toast.makeText(getContext(), "Error while adding feature", Toast.LENGTH_SHORT).show();
         break;
+      default:
+        throw new IllegalArgumentException("Unhandled state: " + loadable.getState());
     }
   }
 
   private void onFeatureUpdated(Loadable<Feature> loadable) {
-    Timber.d("Updating feature: %s", loadable.getState());
     switch (loadable.getState()) {
+      case LOADING:
+        Timber.d("Updating feature");
+        break;
       case LOADED:
         mapContainerFragment.setDefaultMode();
         break;
       case ERROR:
         Toast.makeText(getContext(), "Error while updating feature", Toast.LENGTH_SHORT).show();
         break;
+      default:
+        throw new IllegalArgumentException("Unhandled state: " + loadable.getState());
     }
   }
 
   private void onFeatureDeleted(Loadable<Feature> loadable) {
-    Timber.d("Deleting feature: %s", loadable.getState());
     switch (loadable.getState()) {
+      case LOADING:
+        Timber.d("Deleting feature");
+        break;
       case LOADED:
         // TODO: Re-position map to default location after successful deletion.
         hideBottomSheet();
@@ -157,6 +167,8 @@ public class HomeScreenFragment extends AbstractFragment
       case ERROR:
         Toast.makeText(getContext(), "Error while deleting feature", Toast.LENGTH_SHORT).show();
         break;
+      default:
+        throw new IllegalArgumentException("Unhandled state: " + loadable.getState());
     }
   }
 
