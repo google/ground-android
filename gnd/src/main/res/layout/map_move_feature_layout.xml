@@ -36,7 +36,7 @@
 
     <!-- TODO: Add highlighted icon overlay when showing feature sheet -->
     <ImageView
-      android:id="@+id/map_crosshairs"
+      android:id="@+id/map_crosshairs_img"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:adjustViewBounds="false"
