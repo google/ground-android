@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.rx;
 
+import androidx.annotation.NonNull;
 import io.reactivex.Observable;
 import java8.util.Optional;
 import java8.util.function.Supplier;
@@ -35,22 +36,6 @@ public class ValueOrError<T> {
   protected ValueOrError(@Nullable T value, @Nullable Throwable error) {
     this.value = value;
     this.error = error;
-  }
-
-  public Optional<T> value() {
-    return Optional.ofNullable(value);
-  }
-
-  public Optional<Throwable> error() {
-    if (error != null) {
-      Timber.e(error);
-    }
-    return Optional.ofNullable(error);
-  }
-
-  @Override
-  public String toString() {
-    return error().map(t -> "Error: " + t).orElse("Value: " + value);
   }
 
   /** Returns the value returned by the specified supplier, or an error if the supplier fails. */
@@ -75,5 +60,22 @@ public class ValueOrError<T> {
   /** Modifies the specified stream to ignore errors, returning wrapped values. */
   public static <T> Observable<T> ignoreErrors(Observable<ValueOrError<T>> observable) {
     return observable.filter(voe -> voe.value().isPresent()).map(voe -> voe.value().get());
+  }
+
+  public Optional<T> value() {
+    return Optional.ofNullable(value);
+  }
+
+  public Optional<Throwable> error() {
+    if (error != null) {
+      Timber.e(error);
+    }
+    return Optional.ofNullable(error);
+  }
+
+  @NonNull
+  @Override
+  public String toString() {
+    return error().map(t -> "Error: " + t).orElse("Value: " + value);
   }
 }

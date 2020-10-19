@@ -33,14 +33,6 @@ import timber.log.Timber;
 public class Loadable<T> extends ValueOrError<T> {
   private final LoadState state;
 
-  public enum LoadState {
-    NOT_LOADED,
-    LOADING,
-    LOADED,
-    NOT_FOUND,
-    ERROR
-  }
-
   private Loadable(LoadState state, @Nullable T data, Throwable error) {
     super(data, error);
     this.state = state;
@@ -61,14 +53,6 @@ public class Loadable<T> extends ValueOrError<T> {
   public static <T> Loadable<T> error(Throwable t) {
     Timber.e(t);
     return new Loadable<>(LoadState.ERROR, null, t);
-  }
-
-  public LoadState getState() {
-    return state;
-  }
-
-  public boolean isLoaded() {
-    return state == LoadState.LOADED;
   }
 
   @NonNull
@@ -100,6 +84,15 @@ public class Loadable<T> extends ValueOrError<T> {
         .startWith(Loadable.loading());
   }
 
+  public LoadState getState() {
+    return state;
+  }
+
+  public boolean isLoaded() {
+    return state == LoadState.LOADED;
+  }
+
+  @NonNull
   @Override
   public String toString() {
     if (state == LoadState.LOADED || state == LoadState.ERROR) {
@@ -107,5 +100,13 @@ public class Loadable<T> extends ValueOrError<T> {
     } else {
       return state.toString();
     }
+  }
+
+  public enum LoadState {
+    NOT_LOADED,
+    LOADING,
+    LOADED,
+    NOT_FOUND,
+    ERROR
   }
 }
