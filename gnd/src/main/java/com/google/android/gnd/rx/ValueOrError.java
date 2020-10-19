@@ -20,6 +20,7 @@ import io.reactivex.Observable;
 import java8.util.Optional;
 import java8.util.function.Supplier;
 import javax.annotation.Nullable;
+import timber.log.Timber;
 
 /**
  * Represents the outcome of an operation that either succeeds with a value, or fails with an
@@ -41,6 +42,9 @@ public class ValueOrError<T> {
   }
 
   public Optional<Throwable> error() {
+    if (error != null) {
+      Timber.e(error);
+    }
     return Optional.ofNullable(error);
   }
 
