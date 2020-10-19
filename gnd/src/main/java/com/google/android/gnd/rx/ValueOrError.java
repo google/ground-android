@@ -18,6 +18,7 @@ package com.google.android.gnd.rx;
 
 import androidx.annotation.NonNull;
 import io.reactivex.Observable;
+import java8.util.Objects;
 import java8.util.Optional;
 import java8.util.function.Supplier;
 import javax.annotation.Nullable;
@@ -77,5 +78,22 @@ public class ValueOrError<T> {
   @Override
   public String toString() {
     return error().map(t -> "Error: " + t).orElse("Value: " + value);
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof ValueOrError)) {
+      return false;
+    }
+    ValueOrError<?> that = (ValueOrError<?>) o;
+    return Objects.equals(value, that.value) && Objects.equals(error, that.error);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(value, error);
   }
 }

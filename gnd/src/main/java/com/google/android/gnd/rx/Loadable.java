@@ -19,6 +19,7 @@ package com.google.android.gnd.rx;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import io.reactivex.Flowable;
+import java8.util.Objects;
 import java8.util.Optional;
 import javax.annotation.Nullable;
 import org.reactivestreams.Publisher;
@@ -100,6 +101,23 @@ public class Loadable<T> extends ValueOrError<T> {
     } else {
       return state.toString();
     }
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof Loadable)) {
+      return false;
+    }
+    Loadable<?> loadable = (Loadable<?>) o;
+    return getState() == loadable.getState();
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(getState());
   }
 
   public enum LoadState {
