@@ -123,28 +123,40 @@ public class HomeScreenFragment extends AbstractFragment
     projectSelectorViewModel = getViewModel(ProjectSelectorViewModel.class);
   }
 
-  private void onFeatureAdded(Optional<Feature> feature) {
-    feature.ifPresentOrElse(
-        viewModel::onAddFeature,
-        () -> {
-          // TODO: Show an error message to the user.
-          Timber.e("Couldn't add feature.");
-        });
-  }
-
-  private void onFeatureUpdated(Boolean result) {
-    if (result) {
-      Toast.makeText(getContext(), "Done", Toast.LENGTH_SHORT).show();
-      mapContainerFragment.setDefaultMode();
-    } else {
-      Timber.e("Failed to update feature");
+  private void onFeatureAdded(Loadable<Feature> loadable) {
+    Timber.d("Adding feature: %s", loadable.getState());
+    switch (loadable.getState()) {
+      case LOADED:
+        loadable.value().ifPresent(viewModel::onAddFeature);
+        break;
+      case ERROR:
+        Toast.makeText(getContext(), "Error while adding feature", Toast.LENGTH_SHORT).show();
+        break;
     }
   }
 
-  private void onFeatureDeleted(Boolean result) {
-    if (result) {
-      // TODO: Re-position map to default location after successful deletion.
-      hideBottomSheet();
+  private void onFeatureUpdated(Loadable<Feature> loadable) {
+    Timber.d("Updating feature: %s", loadable.getState());
+    switch (loadable.getState()) {
+      case LOADED:
+        mapContainerFragment.setDefaultMode();
+        break;
+      case ERROR:
+        Toast.makeText(getContext(), "Error while updating feature", Toast.LENGTH_SHORT).show();
+        break;
+    }
+  }
+
+  private void onFeatureDeleted(Loadable<Feature> loadable) {
+    Timber.d("Deleting feature: %s", loadable.getState());
+    switch (loadable.getState()) {
+      case LOADED:
+        // TODO: Re-position map to default location after successful deletion.
+        hideBottomSheet();
+        break;
+      case ERROR:
+        Toast.makeText(getContext(), "Error while deleting feature", Toast.LENGTH_SHORT).show();
+        break;
     }
   }
 
