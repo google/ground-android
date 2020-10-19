@@ -23,7 +23,6 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
 import com.google.android.gnd.model.AuditInfo;
 import com.google.android.gnd.model.Mutation;
 import com.google.android.gnd.model.Project;
@@ -121,9 +120,6 @@ public class FeatureRepositoryTest {
   @Rule public MockitoRule rule = MockitoJUnit.rule();
 
   @Rule public HiltAndroidRule hiltRule = new HiltAndroidRule(this);
-
-  // This rule makes sure that Room executes all the database operations instantly.
-  @Rule public InstantTaskExecutorRule instantTaskExecutorRule = new InstantTaskExecutorRule();
 
   @Mock LocalDataStore mockLocalDataStore;
   @Mock RemoteDataStore mockRemoteDataStore;
