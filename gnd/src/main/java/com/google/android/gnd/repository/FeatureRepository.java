@@ -139,10 +139,19 @@ public class FeatureRepository {
     return applyAndEnqueue(feature, Type.DELETE);
   }
 
+  /**
+   * Creates a mutation entry for the given parameters, applies it to the local db and schedules a
+   * task for remote sync if the local transaction is successful.
+   *
+   * @param feature Input {@link Feature}
+   * @param type Determines the {@link Type} of operation to be performed in the databases.
+   * @return If successful, returns the provided feature wrapped as {@link Loadable}
+   */
   private Flowable<Loadable<Feature>> applyAndEnqueue(Feature feature, Type type) {
-    return localDataStore
-        .applyAndEnqueue(fromFeature(feature, type))
-        .andThen(dataSyncWorkManager.enqueueSyncWorker(feature.getId()))
+    Completable localTransaction = localDataStore.applyAndEnqueue(fromFeature(feature, type));
+    Completable remoteSync = dataSyncWorkManager.enqueueSyncWorker(feature.getId());
+    return localTransaction
+        .andThen(remoteSync)
         .toSingleDefault(feature)
         .toFlowable()
         .compose(Loadable::loadingOnceAndWrap);
