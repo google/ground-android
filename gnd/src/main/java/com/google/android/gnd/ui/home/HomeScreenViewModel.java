@@ -57,9 +57,9 @@ public class HomeScreenViewModel extends AbstractViewModel {
   private final FlowableProcessor<Feature> updateFeatureRequests = PublishProcessor.create();
   private final FlowableProcessor<Feature> deleteFeatureRequests = PublishProcessor.create();
 
-  private final LiveData<Optional<Feature>> addFeature;
-  private final LiveData<Boolean> updateFeature;
-  private final LiveData<Boolean> deleteFeature;
+  private final LiveData<Loadable<Feature>> addFeature;
+  private final LiveData<Loadable<Feature>> updateFeature;
+  private final LiveData<Loadable<Feature>> deleteFeature;
 
   @Inject
   HomeScreenViewModel(
@@ -70,47 +70,30 @@ public class HomeScreenViewModel extends AbstractViewModel {
     this.addFeatureDialogRequests = new MutableLiveData<>();
     this.openDrawerRequests = new MutableLiveData<>();
     this.bottomSheetState = new MutableLiveData<>();
-    this.activeProject =
-        LiveDataReactiveStreams.fromPublisher(projectRepository.getActiveProjectOnceAndStream());
     this.navigator = navigator;
 
+    activeProject =
+        LiveDataReactiveStreams.fromPublisher(projectRepository.getActiveProjectOnceAndStream());
     addFeature =
         LiveDataReactiveStreams.fromPublisher(
-            addFeatureClicks.switchMapSingle(
-                feature ->
-                    featureRepository
-                        .createFeature(feature)
-                        .toSingleDefault(Optional.of(feature))
-                        .onErrorReturnItem(Optional.empty())));
-
+            addFeatureClicks.switchMap(featureRepository::createFeature));
     deleteFeature =
         LiveDataReactiveStreams.fromPublisher(
-            deleteFeatureRequests.switchMapSingle(
-                feature ->
-                    featureRepository
-                        .deleteFeature(feature)
-                        .toSingleDefault(true)
-                        .onErrorReturnItem(false)));
-
+            deleteFeatureRequests.switchMap(featureRepository::deleteFeature));
     updateFeature =
         LiveDataReactiveStreams.fromPublisher(
-            updateFeatureRequests.switchMapSingle(
-                updatedFeature ->
-                    featureRepository
-                        .updateFeature(updatedFeature)
-                        .toSingleDefault(true)
-                        .onErrorReturnItem(false)));
+            updateFeatureRequests.switchMap(featureRepository::updateFeature));
   }
 
-  public LiveData<Optional<Feature>> getAddFeature() {
+  public LiveData<Loadable<Feature>> getAddFeature() {
     return addFeature;
   }
 
-  public LiveData<Boolean> getUpdateFeature() {
+  public LiveData<Loadable<Feature>> getUpdateFeature() {
     return updateFeature;
   }
 
-  public LiveData<Boolean> getDeleteFeature() {
+  public LiveData<Loadable<Feature>> getDeleteFeature() {
     return deleteFeature;
   }
 
