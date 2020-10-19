@@ -127,21 +127,24 @@ public class FeatureRepository {
   }
 
   // TODO(#80): Update UI to provide FeatureMutations instead of Features here.
-  public Completable createFeature(Feature feature) {
-    return applyAndEnqueue(fromFeature(feature, Type.CREATE));
+  public Flowable<Loadable<Feature>> createFeature(Feature feature) {
+    return applyAndEnqueue(feature, Type.CREATE);
   }
 
-  public Completable updateFeature(Feature feature) {
-    return applyAndEnqueue(fromFeature(feature, Type.UPDATE));
+  public Flowable<Loadable<Feature>> updateFeature(Feature feature) {
+    return applyAndEnqueue(feature, Type.UPDATE);
   }
 
-  public Completable deleteFeature(Feature feature) {
-    return applyAndEnqueue(fromFeature(feature, Type.DELETE));
+  public Flowable<Loadable<Feature>> deleteFeature(Feature feature) {
+    return applyAndEnqueue(feature, Type.DELETE);
   }
 
-  private Completable applyAndEnqueue(FeatureMutation mutation) {
+  private Flowable<Loadable<Feature>> applyAndEnqueue(Feature feature, Type type) {
     return localDataStore
-        .applyAndEnqueue(mutation)
-        .andThen(dataSyncWorkManager.enqueueSyncWorker(mutation.getFeatureId()));
+        .applyAndEnqueue(fromFeature(feature, type))
+        .andThen(dataSyncWorkManager.enqueueSyncWorker(feature.getId()))
+        .toSingleDefault(feature)
+        .toFlowable()
+        .compose(Loadable::loadingOnceAndWrap);
   }
 }
