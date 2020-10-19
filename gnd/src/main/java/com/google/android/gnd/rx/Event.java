@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.rx;
 
+import androidx.annotation.NonNull;
 import java8.util.function.Consumer;
 
 /**
@@ -34,12 +35,13 @@ public class Event<T> extends Action {
   }
 
   /** Returns a new event with the specified event data. */
+  @NonNull
   public static <T> Event<T> create(T data) {
     return new Event<>(data);
   }
 
   /** Invokes the provided consumer if the value has not yet been handled. */
-  public synchronized void ifUnhandled(Consumer<T> consumer) {
+  public synchronized void ifUnhandled(@NonNull Consumer<T> consumer) {
     ifUnhandled(() -> consumer.accept(data));
   }
 }

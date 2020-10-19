@@ -22,6 +22,7 @@ import static java8.util.stream.StreamSupport.stream;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Color;
+import androidx.annotation.NonNull;
 import com.cocoahero.android.gmaps.addons.mapbox.MapBoxOfflineTileProvider;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -54,6 +55,7 @@ import timber.log.Timber;
  */
 class GoogleMapsMapAdapter implements MapAdapter {
 
+  @NonNull
   private final GoogleMap map;
   private final Context context;
   private final MarkerIconFactory markerIconFactory;
@@ -69,11 +71,12 @@ class GoogleMapsMapAdapter implements MapAdapter {
    * References to Google Maps SDK Markers present on the map. Used to sync and update markers with
    * current view and data state.
    */
+  @NonNull
   private Set<Marker> markers = new HashSet<>();
 
   @Nullable private LatLng cameraTargetBeforeDrag;
 
-  public GoogleMapsMapAdapter(GoogleMap map, Context context, MarkerIconFactory markerIconFactory) {
+  public GoogleMapsMapAdapter(@NonNull GoogleMap map, Context context, MarkerIconFactory markerIconFactory) {
     this.map = map;
     this.context = context;
     this.markerIconFactory = markerIconFactory;
@@ -92,15 +95,16 @@ class GoogleMapsMapAdapter implements MapAdapter {
     onCameraMove();
   }
 
-  private static Point fromLatLng(LatLng latLng) {
+  private static Point fromLatLng(@NonNull LatLng latLng) {
     return Point.newBuilder().setLatitude(latLng.latitude).setLongitude(latLng.longitude).build();
   }
 
-  private static LatLng toLatLng(Point point) {
+  @NonNull
+  private static LatLng toLatLng(@NonNull Point point) {
     return new LatLng(point.getLatitude(), point.getLongitude());
   }
 
-  private boolean onMarkerClick(Marker marker) {
+  private boolean onMarkerClick(@NonNull Marker marker) {
     if (map.getUiSettings().isZoomGesturesEnabled()) {
       markerClickSubject.onNext((MapPin) marker.getTag());
       // Allow map to pan to marker.
@@ -111,21 +115,25 @@ class GoogleMapsMapAdapter implements MapAdapter {
     }
   }
 
+  @NonNull
   @Override
   public Observable<MapPin> getMapPinClicks() {
     return markerClickSubject;
   }
 
+  @NonNull
   @Override
   public Observable<Point> getDragInteractions() {
     return dragInteractionSubject;
   }
 
+  @NonNull
   @Override
   public Observable<Point> getCameraMoves() {
     return cameraMoves;
   }
 
+  @NonNull
   @Override
   public Observable<MapBoxOfflineTileProvider> getTileProviders() {
     return tileProviders;
@@ -142,16 +150,16 @@ class GoogleMapsMapAdapter implements MapAdapter {
   }
 
   @Override
-  public void moveCamera(Point point) {
+  public void moveCamera(@NonNull Point point) {
     map.moveCamera(CameraUpdateFactory.newLatLng(toLatLng(point)));
   }
 
   @Override
-  public void moveCamera(Point point, float zoomLevel) {
+  public void moveCamera(@NonNull Point point, float zoomLevel) {
     map.moveCamera(CameraUpdateFactory.newLatLngZoom(toLatLng(point), zoomLevel));
   }
 
-  private void addMapPin(MapPin mapPin) {
+  private void addMapPin(@NonNull MapPin mapPin) {
     LatLng position = toLatLng(mapPin.getPosition());
     String color = mapPin.getStyle().getColor();
     BitmapDescriptor icon = markerIconFactory.getMarkerIcon(parseColor(color));
@@ -184,7 +192,7 @@ class GoogleMapsMapAdapter implements MapAdapter {
   }
 
   @Override
-  public void setMapPins(ImmutableSet<MapPin> updatedPins) {
+  public void setMapPins(@NonNull ImmutableSet<MapPin> updatedPins) {
     if (updatedPins.isEmpty()) {
       removeAllMarkers();
       return;
@@ -216,7 +224,7 @@ class GoogleMapsMapAdapter implements MapAdapter {
     map.setMapType(mapType);
   }
 
-  private void removeMarker(Marker marker) {
+  private void removeMarker(@NonNull Marker marker) {
     Timber.v("Removing marker %s", marker.getId());
     marker.remove();
   }
@@ -274,7 +282,7 @@ class GoogleMapsMapAdapter implements MapAdapter {
   }
 
   @Override
-  public void addTileOverlays(ImmutableSet<String> mbtilesFiles) {
+  public void addTileOverlays(@NonNull ImmutableSet<String> mbtilesFiles) {
     stream(mbtilesFiles).forEach(this::addTileOverlay);
   }
 }

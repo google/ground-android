@@ -28,6 +28,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.not;
 
+import androidx.annotation.NonNull;
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
 import androidx.test.espresso.IdlingRegistry;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
@@ -53,18 +54,22 @@ import org.junit.Test;
 public class AddFeatureTest {
 
   // Ensures that the Hilt component is initialized before running the ActivityScenarioRule.
+  @NonNull
   @Rule(order = 0)
   public HiltAndroidRule hiltRule = new HiltAndroidRule(this);
 
   // Swaps the background executor in Architecture Components with one which executes synchronously.
+  @NonNull
   @Rule(order = 1)
   public InstantTaskExecutorRule instantTaskExecutorRule = new InstantTaskExecutorRule();
 
   // Sets the preferences so no login is required and an active project is selected.
+  @NonNull
   @Rule(order = 2)
   public SetPreferencesRule preferencesRule = new SetPreferencesRule();
 
   // Load the MainActivity for each test.
+  @NonNull
   @Rule(order = 3)
   public ActivityScenarioRule<MainActivity> scenarioRule =
       new ActivityScenarioRule<>(MainActivity.class);

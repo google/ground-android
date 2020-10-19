@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.ui.home.featuredetails;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import dagger.Module;
@@ -27,8 +28,9 @@ import dagger.hilt.android.components.FragmentComponent;
 @Module
 public class FragmentManagerModule {
 
+  @NonNull
   @Provides
-  public FragmentManager fragmentManager(Fragment fragment) {
+  public FragmentManager fragmentManager(@NonNull Fragment fragment) {
     return fragment.getChildFragmentManager();
   }
 }

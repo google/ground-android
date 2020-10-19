@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.model.basemap;
 
+import androidx.annotation.NonNull;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.auto.value.AutoValue;
 
@@ -23,14 +24,19 @@ import com.google.auto.value.AutoValue;
 @AutoValue
 public abstract class OfflineBaseMap {
 
+  @NonNull
   public abstract String getId();
 
+  @NonNull
   public abstract State getState();
 
+  @NonNull
   public abstract LatLngBounds getBounds();
 
+  @NonNull
   public abstract String getName();
 
+  @NonNull
   public abstract Builder toBuilder();
 
   public enum State {
@@ -40,6 +46,7 @@ public abstract class OfflineBaseMap {
     FAILED
   }
 
+  @NonNull
   public static Builder newBuilder() {
     return new AutoValue_OfflineBaseMap.Builder();
   }
@@ -47,14 +54,19 @@ public abstract class OfflineBaseMap {
   @AutoValue.Builder
   public abstract static class Builder {
 
+    @NonNull
     public abstract Builder setBounds(LatLngBounds bounds);
 
+    @NonNull
     public abstract Builder setState(State state);
 
+    @NonNull
     public abstract Builder setId(String id);
 
+    @NonNull
     public abstract Builder setName(String name);
 
+    @NonNull
     public abstract OfflineBaseMap build();
   }
 }

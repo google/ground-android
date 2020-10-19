@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.ui.common;
 
+import androidx.annotation.NonNull;
 import androidx.lifecycle.ViewModel;
 import dagger.MapKey;
 import java.lang.annotation.Retention;
@@ -24,5 +25,5 @@ import java.lang.annotation.RetentionPolicy;
 @MapKey
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ViewModelKey {
-  Class<? extends ViewModel> value();
+  @NonNull Class<? extends ViewModel> value();
 }

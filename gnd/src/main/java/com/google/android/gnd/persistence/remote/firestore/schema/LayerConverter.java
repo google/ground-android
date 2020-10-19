@@ -19,6 +19,7 @@ package com.google.android.gnd.persistence.remote.firestore.schema;
 import static com.google.android.gnd.util.Localization.getLocalizedMessage;
 
 import android.util.Log;
+import androidx.annotation.NonNull;
 import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.model.layer.Style;
 import java8.util.Optional;
@@ -30,7 +31,8 @@ class LayerConverter {
   /** Black marker used when default remote data is corrupt or missing. */
   private static final String FALLBACK_COLOR = "#000000";
 
-  static Layer toLayer(String id, LayerNestedObject obj) {
+  @NonNull
+  static Layer toLayer(String id, @NonNull LayerNestedObject obj) {
     Layer.Builder layer = Layer.newBuilder();
     layer.setId(id).setName(getLocalizedMessage(obj.getName())).setDefaultStyle(toStyle(obj));
     if (obj.getForms() != null && !obj.getForms().isEmpty()) {
@@ -43,13 +45,14 @@ class LayerConverter {
     return layer.build();
   }
 
-  private static Style toStyle(LayerNestedObject obj) {
+  private static Style toStyle(@NonNull LayerNestedObject obj) {
     return Optional.ofNullable(obj.getDefaultStyle())
         .map(StyleConverter::toStyle)
         .orElseGet(() -> LayerConverter.toStyleFromLegacyColorField(obj));
   }
 
-  private static Style toStyleFromLegacyColorField(LayerNestedObject obj) {
+  @NonNull
+  private static Style toStyleFromLegacyColorField(@NonNull LayerNestedObject obj) {
     // Use "color" field until web UI is updated:
     // TODO(https://github.com/google/ground-platform/issues/402): Remove fallback once updated in
     // web client.

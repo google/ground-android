@@ -18,6 +18,7 @@ package com.google.android.gnd.model.form;
 
 import static java8.util.stream.StreamSupport.stream;
 
+import androidx.annotation.NonNull;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import java8.util.Optional;
@@ -61,6 +62,7 @@ public abstract class MultipleChoice {
 
     public abstract Builder setCardinality(@Nullable Cardinality newCardinality);
 
+    @NonNull
     public abstract MultipleChoice build();
   }
 }

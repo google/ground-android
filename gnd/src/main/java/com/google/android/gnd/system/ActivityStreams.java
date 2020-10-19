@@ -34,8 +34,11 @@ import javax.inject.Singleton;
 
 @Singleton
 public class ActivityStreams {
+  @NonNull
   private final Subject<Consumer<Activity>> activityRequests;
+  @NonNull
   private final Subject<ActivityResult> activityResults;
+  @NonNull
   private final Subject<RequestPermissionsResult> requestPermissionsResults;
 
   @Inject
@@ -45,7 +48,7 @@ public class ActivityStreams {
     requestPermissionsResults = PublishSubject.create();
   }
 
-  public void withActivity(Consumer<Activity> callback) {
+  public void withActivity(@NonNull Consumer<Activity> callback) {
     activityRequests.onNext(callback);
   }
 
@@ -59,6 +62,7 @@ public class ActivityStreams {
         new RequestPermissionsResult(requestCode, permissions, grantResults));
   }
 
+  @NonNull
   public Observable<Consumer<Activity>> getActivityRequests() {
     return activityRequests;
   }

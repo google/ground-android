@@ -18,6 +18,7 @@ package com.google.android.gnd.ui.util;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import androidx.annotation.NonNull;
 import androidx.annotation.RawRes;
 import dagger.hilt.android.qualifiers.ApplicationContext;
 import java.io.File;
@@ -42,7 +43,8 @@ public class FileUtil {
    *
    * @throws IOException If path is not accessible or error occurs while saving file
    */
-  public File saveBitmap(Bitmap bitmap, String filename) throws IOException {
+  @NonNull
+  public File saveBitmap(@NonNull Bitmap bitmap, String filename) throws IOException {
     File file = new File(context.getFilesDir(), filename);
     try (FileOutputStream fos = context.openFileOutput(filename, Context.MODE_PRIVATE)) {
       bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
@@ -56,7 +58,8 @@ public class FileUtil {
    * Returns the path of the file saved in the sdcard used for uploading to the provided destination
    * path.
    */
-  public File getLocalFileFromRemotePath(String destinationPath) {
+  @NonNull
+  public File getLocalFileFromRemotePath(@NonNull String destinationPath) {
     String[] splits = destinationPath.split("/");
     String filename = splits[splits.length - 1];
     File file = new File(context.getFilesDir(), filename);
@@ -73,10 +76,12 @@ public class FileUtil {
    * <p>If the file doesn't exist, creates a new empty file named {@param filename} in the app's
    * file directory.
    */
+  @NonNull
   public File getOrCreateFile(String filename) {
     return new File(context.getFilesDir(), filename);
   }
 
+  @NonNull
   public File getFileFromRawResource(@RawRes int resourceId, String filename) throws IOException {
     File file = new File(context.getFilesDir(), filename);
     if (!file.exists()) {

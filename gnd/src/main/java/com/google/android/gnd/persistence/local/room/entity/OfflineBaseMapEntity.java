@@ -62,7 +62,8 @@ public abstract class OfflineBaseMapEntity {
   @ColumnInfo(name = "west")
   public abstract double getWest();
 
-  public static OfflineBaseMap toArea(OfflineBaseMapEntity offlineBaseMapEntity) {
+  @NonNull
+  public static OfflineBaseMap toArea(@NonNull OfflineBaseMapEntity offlineBaseMapEntity) {
     LatLng northEast = new LatLng(offlineBaseMapEntity.getNorth(), offlineBaseMapEntity.getEast());
     LatLng southWest = new LatLng(offlineBaseMapEntity.getSouth(), offlineBaseMapEntity.getWest());
     LatLngBounds bounds = new LatLngBounds(southWest, northEast);
@@ -75,7 +76,8 @@ public abstract class OfflineBaseMapEntity {
         .build();
   }
 
-  private static OfflineBaseMap.State toAreaState(OfflineBaseMapEntityState state) {
+  @NonNull
+  private static OfflineBaseMap.State toAreaState(@NonNull OfflineBaseMapEntityState state) {
     switch (state) {
       case PENDING:
         return OfflineBaseMap.State.PENDING;
@@ -90,7 +92,8 @@ public abstract class OfflineBaseMapEntity {
     }
   }
 
-  public static OfflineBaseMapEntity fromArea(OfflineBaseMap offlineBaseMap) {
+  @NonNull
+  public static OfflineBaseMapEntity fromArea(@NonNull OfflineBaseMap offlineBaseMap) {
     OfflineBaseMapEntity.Builder entity =
         OfflineBaseMapEntity.builder()
             .setId(offlineBaseMap.getId())
@@ -103,7 +106,8 @@ public abstract class OfflineBaseMapEntity {
     return entity.build();
   }
 
-  private static OfflineBaseMapEntityState toEntityState(OfflineBaseMap.State state) {
+  @NonNull
+  private static OfflineBaseMapEntityState toEntityState(@NonNull OfflineBaseMap.State state) {
     switch (state) {
       case PENDING:
         return OfflineBaseMapEntityState.PENDING;
@@ -118,6 +122,7 @@ public abstract class OfflineBaseMapEntity {
     }
   }
 
+  @NonNull
   public static OfflineBaseMapEntity create(
       String id,
       String name,
@@ -137,6 +142,7 @@ public abstract class OfflineBaseMapEntity {
         .build();
   }
 
+  @NonNull
   public static Builder builder() {
     return new AutoValue_OfflineBaseMapEntity.Builder();
   }
@@ -144,20 +150,28 @@ public abstract class OfflineBaseMapEntity {
   @AutoValue.Builder
   public abstract static class Builder {
 
+    @NonNull
     public abstract Builder setId(String newId);
 
+    @NonNull
     public abstract Builder setName(String newName);
 
+    @NonNull
     public abstract Builder setState(OfflineBaseMapEntityState newState);
 
+    @NonNull
     public abstract Builder setNorth(double coordinate);
 
+    @NonNull
     public abstract Builder setSouth(double coordinate);
 
+    @NonNull
     public abstract Builder setEast(double coordinate);
 
+    @NonNull
     public abstract Builder setWest(double coordinate);
 
+    @NonNull
     public abstract OfflineBaseMapEntity build();
   }
 }

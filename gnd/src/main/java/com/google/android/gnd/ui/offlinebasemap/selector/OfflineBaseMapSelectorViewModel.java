@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.ui.offlinebasemap.selector;
 
+import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
 import com.google.android.gms.maps.model.LatLngBounds;
@@ -35,10 +36,11 @@ public class OfflineBaseMapSelectorViewModel extends AbstractViewModel {
   }
 
   private final FlowableProcessor<LatLngBounds> downloadClicks = PublishProcessor.create();
+  @NonNull
   private final LiveData<Event<DownloadMessage>> messages;
 
   @Inject
-  OfflineBaseMapSelectorViewModel(OfflineBaseMapRepository offlineBaseMapRepository) {
+  OfflineBaseMapSelectorViewModel(@NonNull OfflineBaseMapRepository offlineBaseMapRepository) {
     this.messages =
         LiveDataReactiveStreams.fromPublisher(
             downloadClicks.switchMapSingle(
@@ -50,11 +52,13 @@ public class OfflineBaseMapSelectorViewModel extends AbstractViewModel {
                         .map(Event::create)));
   }
 
-  private DownloadMessage onEnqueueError(Throwable e) {
+  @NonNull
+  private DownloadMessage onEnqueueError(@NonNull Throwable e) {
     Timber.e("Failed to add area and queue downloads: %s", e.getMessage());
     return DownloadMessage.FAILURE;
   }
 
+  @NonNull
   public LiveData<Event<DownloadMessage>> getDownloadMessages() {
     return this.messages;
   }

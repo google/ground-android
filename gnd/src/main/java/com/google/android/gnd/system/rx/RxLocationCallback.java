@@ -17,6 +17,7 @@
 package com.google.android.gnd.system.rx;
 
 import android.location.Location;
+import androidx.annotation.NonNull;
 import com.google.android.gms.location.LocationAvailability;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationResult;
@@ -30,12 +31,13 @@ public class RxLocationCallback extends LocationCallback {
     this.locationObserver = locationObserver;
   }
 
+  @NonNull
   public static RxLocationCallback create(Observer<Location> locationObserver) {
     return new RxLocationCallback(locationObserver);
   }
 
   @Override
-  public void onLocationResult(LocationResult locationResult) {
+  public void onLocationResult(@NonNull LocationResult locationResult) {
     locationObserver.onNext(locationResult.getLastLocation());
   }
 

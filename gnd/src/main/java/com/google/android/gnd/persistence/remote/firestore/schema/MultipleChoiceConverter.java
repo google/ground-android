@@ -20,12 +20,14 @@ import static com.google.android.gnd.util.Enums.toEnum;
 import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList;
 import static java8.util.stream.StreamSupport.stream;
 
+import androidx.annotation.NonNull;
 import com.google.android.gnd.model.form.MultipleChoice;
 import java8.util.Comparators;
 
 class MultipleChoiceConverter {
 
-  static MultipleChoice toMultipleChoice(ElementNestedObject em) {
+  @NonNull
+  static MultipleChoice toMultipleChoice(@NonNull ElementNestedObject em) {
     MultipleChoice.Builder mc = MultipleChoice.newBuilder();
     mc.setCardinality(toEnum(MultipleChoice.Cardinality.class, em.getCardinality()));
     if (em.getOptions() != null) {

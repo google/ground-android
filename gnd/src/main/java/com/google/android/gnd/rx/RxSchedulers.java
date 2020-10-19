@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.rx;
 
+import androidx.annotation.NonNull;
 import io.reactivex.Scheduler;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import javax.inject.Inject;
@@ -25,6 +26,7 @@ public class RxSchedulers implements Schedulers {
   @Inject
   RxSchedulers() {}
 
+  @NonNull
   @Override
   public Scheduler io() {
     return io.reactivex.schedulers.Schedulers.io();

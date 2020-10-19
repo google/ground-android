@@ -18,6 +18,7 @@ package com.google.android.gnd;
 
 import android.app.Application;
 import android.content.SharedPreferences;
+import androidx.annotation.NonNull;
 import androidx.work.WorkManager;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gnd.ui.common.ViewModelModule;
@@ -31,12 +32,14 @@ import javax.inject.Singleton;
 @Module(includes = {ViewModelModule.class})
 abstract class GndApplicationModule {
 
+  @NonNull
   @Provides
   @Singleton
   static GoogleApiAvailability googleApiAvailability() {
     return GoogleApiAvailability.getInstance();
   }
 
+  @NonNull
   @Provides
   @Singleton
   static WorkManager workManager() {
@@ -45,7 +48,7 @@ abstract class GndApplicationModule {
 
   @Provides
   @Singleton
-  static SharedPreferences provideSharedPreferences(Application application) {
+  static SharedPreferences provideSharedPreferences(@NonNull Application application) {
     return application
         .getApplicationContext()
         .getSharedPreferences(Config.SHARED_PREFS_NAME, Config.SHARED_PREFS_MODE);

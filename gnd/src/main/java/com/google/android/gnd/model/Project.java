@@ -51,6 +51,7 @@ public abstract class Project {
     return Optional.ofNullable(getLayerMap().get(layerId));
   }
 
+  @NonNull
   public static Builder newBuilder() {
     return new AutoValue_Project.Builder();
   }
@@ -65,18 +66,21 @@ public abstract class Project {
 
     public abstract ImmutableMap.Builder<String, Layer> layerMapBuilder();
 
-    public Builder putLayer(String id, Layer layer) {
+    @NonNull
+    public Builder putLayer(@NonNull String id, @NonNull Layer layer) {
       layerMapBuilder().put(id, layer);
       return this;
     }
 
     public abstract ImmutableList.Builder<OfflineBaseMapSource> offlineBaseMapSourcesBuilder();
 
-    public Builder addOfflineBaseMapSource(OfflineBaseMapSource source) {
+    @NonNull
+    public Builder addOfflineBaseMapSource(@NonNull OfflineBaseMapSource source) {
       offlineBaseMapSourcesBuilder().add(source);
       return this;
     }
 
+    @NonNull
     public abstract Project build();
   }
 }

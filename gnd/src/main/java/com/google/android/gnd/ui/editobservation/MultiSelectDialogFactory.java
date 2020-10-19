@@ -19,6 +19,7 @@ package com.google.android.gnd.ui.editobservation;
 import static java8.util.stream.StreamSupport.stream;
 
 import android.content.Context;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import com.google.android.gnd.R;
 import com.google.android.gnd.model.form.Field;
@@ -41,10 +42,11 @@ class MultiSelectDialogFactory {
     this.context = context;
   }
 
+  @NonNull
   AlertDialog create(
-      Field field,
-      Optional<Response> initialResponse,
-      Consumer<Optional<Response>> responseChangeCallback) {
+      @NonNull Field field,
+      @NonNull Optional<Response> initialResponse,
+      @NonNull Consumer<Optional<Response>> responseChangeCallback) {
     MultipleChoice multipleChoice = field.getMultipleChoice();
     AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(context);
     List<Option> options = multipleChoice.getOptions();
@@ -60,7 +62,7 @@ class MultiSelectDialogFactory {
     return dialogBuilder.create();
   }
 
-  private String[] getLabels(MultipleChoice multipleChoice) {
+  private String[] getLabels(@NonNull MultipleChoice multipleChoice) {
     return stream(multipleChoice.getOptions()).map(Option::getLabel).toArray(String[]::new);
   }
 
@@ -68,7 +70,7 @@ class MultiSelectDialogFactory {
 
     private boolean[] checkedItems;
 
-    public DialogState(MultipleChoice multipleChoice, Optional<Response> initialResponse) {
+    public DialogState(@NonNull MultipleChoice multipleChoice, @NonNull Optional<Response> initialResponse) {
       ImmutableList<Option> options = multipleChoice.getOptions();
       checkedItems = new boolean[options.size()];
       // TODO: Check cast.
@@ -81,7 +83,7 @@ class MultiSelectDialogFactory {
                               ((MultipleChoiceResponse) r).isSelected(options.get(i))));
     }
 
-    private Optional<Response> getSelectedValues(List<Option> options) {
+    private Optional<Response> getSelectedValues(@NonNull List<Option> options) {
       ImmutableList.Builder<String> choices = new ImmutableList.Builder<>();
       for (int i = 0; i < options.size(); i++) {
         if (checkedItems[i]) {

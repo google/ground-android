@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.persistence.sync;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.work.BackoffPolicy;
 import androidx.work.Constraints;
@@ -60,11 +61,13 @@ public abstract class BaseWorkManager {
     this.workManagerProvider = workManagerProvider;
   }
 
+  @NonNull
   protected WorkManager getWorkManager() {
     return workManagerProvider.get().getInstance();
   }
 
   /** A set of constraints that must be satisfied in order to start the scheduled job. */
+  @NonNull
   protected Constraints getWorkerConstraints() {
     return new Constraints.Builder().setRequiredNetworkType(preferredNetworkType()).build();
   }
@@ -81,6 +84,7 @@ public abstract class BaseWorkManager {
   abstract Class<? extends BaseWorker> getWorkerClass();
 
   /** Create a work request for non-repeating work with default constraints and backoff-criteria. */
+  @NonNull
   protected OneTimeWorkRequest buildWorkerRequest() {
     return buildWorkerRequest(null);
   }
@@ -89,6 +93,7 @@ public abstract class BaseWorkManager {
    * Create a work request for non-repeating work along with input data that would be passed along
    * to the worker class.
    */
+  @NonNull
   protected OneTimeWorkRequest buildWorkerRequest(@Nullable Data inputData) {
     Builder builder =
         new Builder(getWorkerClass())

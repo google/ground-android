@@ -40,7 +40,7 @@ class AuditInfoConverter {
   }
 
   @NonNull
-  static AuditInfoNestedObject fromMutationAndUser(Mutation mutation, User user) {
+  static AuditInfoNestedObject fromMutationAndUser(@NonNull Mutation mutation, @NonNull User user) {
     return new AuditInfoNestedObject(
         UserConverter.toNestedObject(user), new Timestamp(mutation.getClientTimestamp()), null);
   }

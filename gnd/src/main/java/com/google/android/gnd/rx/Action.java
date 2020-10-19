@@ -16,6 +16,8 @@
 
 package com.google.android.gnd.rx;
 
+import androidx.annotation.NonNull;
+
 /**
  * Wrapper for actions passed through streams that should be handled at most once. This is used to
  * prevent actions that trigger dialogs or other notifications from retriggering when views are
@@ -28,12 +30,13 @@ public class Action {
     this.handled = false;
   }
 
+  @NonNull
   public static Action create() {
     return new Action();
   }
 
   /** Invokes the provided handler if the value has not yet been handled. */
-  public synchronized void ifUnhandled(Runnable handler) {
+  public synchronized void ifUnhandled(@NonNull Runnable handler) {
     if (!handled) {
       this.handled = true;
       handler.run();

@@ -18,6 +18,7 @@ package com.google.android.gnd.persistence.sync;
 
 import android.content.Context;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.hilt.Assisted;
 import androidx.hilt.work.WorkerInject;
 import androidx.work.Data;
@@ -39,7 +40,9 @@ public class PhotoSyncWorker extends BaseWorker {
   private static final String DESTINATION_PATH_PARAM_KEY = "destinationPath";
 
   private final RemoteStorageManager remoteStorageManager;
+  @Nullable
   private final String localSourcePath;
+  @Nullable
   private final String remoteDestinationPath;
 
   @WorkerInject
@@ -54,6 +57,7 @@ public class PhotoSyncWorker extends BaseWorker {
     this.remoteDestinationPath = workerParams.getInputData().getString(DESTINATION_PATH_PARAM_KEY);
   }
 
+  @NonNull
   static Data createInputData(String sourceFilePath, String destinationPath) {
     return new Data.Builder()
         .putString(SOURCE_FILE_PATH_PARAM_KEY, sourceFilePath)
@@ -84,6 +88,7 @@ public class PhotoSyncWorker extends BaseWorker {
     }
   }
 
+  @NonNull
   @Override
   public String getNotificationTitle() {
     return getApplicationContext().getString(R.string.uploading_photos);

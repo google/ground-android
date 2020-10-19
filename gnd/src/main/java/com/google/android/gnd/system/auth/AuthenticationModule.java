@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.system.auth;
 
+import androidx.annotation.NonNull;
 import dagger.Binds;
 import dagger.Module;
 import dagger.hilt.InstallIn;
@@ -27,6 +28,7 @@ import javax.inject.Singleton;
 public abstract class AuthenticationModule {
 
   /** Provides the Google implementation of authentication manager. */
+  @NonNull
   @Binds
   @Singleton
   abstract AuthenticationManager googleAuthenticationManager(GoogleAuthenticationManager gam);

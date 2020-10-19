@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.persistence.sync;
 
+import androidx.annotation.NonNull;
 import androidx.work.Data;
 import androidx.work.ExistingWorkPolicy;
 import androidx.work.WorkManager;
@@ -31,6 +32,7 @@ public class DataSyncWorkManager extends BaseWorkManager {
     super(workManagerProvider);
   }
 
+  @NonNull
   @Override
   Class<LocalMutationSyncWorker> getWorkerClass() {
     return LocalMutationSyncWorker.class;
@@ -41,6 +43,7 @@ public class DataSyncWorkManager extends BaseWorkManager {
    * connection is available. The returned {@code Completable} completes immediately as soon as the
    * worker is added to the work queue (not once the sync job completes).
    */
+  @NonNull
   public Completable enqueueSyncWorker(String featureId) {
     return Completable.fromRunnable(() -> enqueueSyncWorkerInternal(featureId));
   }

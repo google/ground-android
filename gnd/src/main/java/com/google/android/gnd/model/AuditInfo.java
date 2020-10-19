@@ -44,6 +44,7 @@ public abstract class AuditInfo {
   public abstract Optional<Date> getServerTimestamp();
 
   /** Returns a new instance initialized with the current client time and the specified user. */
+  @NonNull
   public static AuditInfo now(User user) {
     return AuditInfo.builder().setUser(user).setClientTimestamp(new Date()).build();
   }
@@ -63,6 +64,7 @@ public abstract class AuditInfo {
 
     public abstract Builder setServerTimestamp(@NonNull Optional<Date> newServerTimestamp);
 
+    @NonNull
     public abstract AuditInfo build();
   }
 }

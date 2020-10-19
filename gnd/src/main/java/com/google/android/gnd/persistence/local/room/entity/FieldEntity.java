@@ -80,7 +80,8 @@ public abstract class FieldEntity {
   @ColumnInfo(name = "form_id")
   public abstract String getFormId();
 
-  public static FieldEntity fromField(String formId, Type elementType, Field field) {
+  @NonNull
+  public static FieldEntity fromField(String formId, Type elementType, @NonNull Field field) {
     return FieldEntity.builder()
         .setId(field.getId())
         .setIndex(field.getIndex())
@@ -92,13 +93,15 @@ public abstract class FieldEntity {
         .build();
   }
 
-  static Element toElement(FieldEntityAndRelations fieldEntityAndRelations) {
+  @NonNull
+  static Element toElement(@NonNull FieldEntityAndRelations fieldEntityAndRelations) {
     return fieldEntityAndRelations.fieldEntity.getElementType().toElementType() == Type.FIELD
         ? Element.ofField(FieldEntity.toField(fieldEntityAndRelations))
         : Element.ofUnknown();
   }
 
-  private static Field toField(FieldEntityAndRelations fieldEntityAndRelations) {
+  @NonNull
+  private static Field toField(@NonNull FieldEntityAndRelations fieldEntityAndRelations) {
     FieldEntity fieldEntity = fieldEntityAndRelations.fieldEntity;
     Field.Builder fieldBuilder =
         Field.newBuilder()
@@ -124,6 +127,7 @@ public abstract class FieldEntity {
     return fieldBuilder.build();
   }
 
+  @NonNull
   public static FieldEntity create(
       String id,
       Integer index,
@@ -143,6 +147,7 @@ public abstract class FieldEntity {
         .build();
   }
 
+  @NonNull
   public static Builder builder() {
     return new AutoValue_FieldEntity.Builder();
   }
@@ -164,6 +169,7 @@ public abstract class FieldEntity {
 
     public abstract Builder setFormId(String formId);
 
+    @NonNull
     public abstract FieldEntity build();
   }
 }

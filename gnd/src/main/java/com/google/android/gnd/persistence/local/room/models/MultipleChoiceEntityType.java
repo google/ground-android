@@ -40,7 +40,8 @@ public enum MultipleChoiceEntityType implements IntEnum {
     return intValue;
   }
 
-  public static MultipleChoiceEntityType fromCardinality(MultipleChoice.Cardinality type) {
+  @NonNull
+  public static MultipleChoiceEntityType fromCardinality(@NonNull MultipleChoice.Cardinality type) {
     switch (type) {
       case SELECT_ONE:
         return SELECT_ONE;
@@ -51,6 +52,7 @@ public enum MultipleChoiceEntityType implements IntEnum {
     }
   }
 
+  @NonNull
   public MultipleChoice.Cardinality toCardinality() {
     switch (this) {
       case SELECT_ONE:

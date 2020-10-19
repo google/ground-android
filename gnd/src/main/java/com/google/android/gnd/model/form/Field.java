@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.model.form;
 
+import androidx.annotation.NonNull;
 import com.google.auto.value.AutoValue;
 import javax.annotation.Nullable;
 
@@ -47,6 +48,7 @@ public abstract class Field {
   @Nullable
   public abstract MultipleChoice getMultipleChoice();
 
+  @NonNull
   public static Builder newBuilder() {
     return new AutoValue_Field.Builder();
   }
@@ -65,6 +67,7 @@ public abstract class Field {
 
     public abstract Builder setMultipleChoice(@Nullable MultipleChoice multipleChoice);
 
+    @NonNull
     public abstract Field build();
   }
 }

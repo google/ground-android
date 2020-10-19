@@ -20,6 +20,7 @@ import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList
 import static java8.util.stream.StreamSupport.stream;
 
 import android.util.Log;
+import androidx.annotation.NonNull;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gnd.model.basemap.tile.TileSource;
 import com.google.android.gnd.model.basemap.tile.TileSource.State;
@@ -52,7 +53,7 @@ public class GeoJsonParser {
    * Returns the immutable list of tiles specified in {@param geojson} that intersect {@param
    * bounds}.
    */
-  public ImmutableList<TileSource> intersectingTiles(LatLngBounds bounds, File file) {
+  public ImmutableList<TileSource> intersectingTiles(@NonNull LatLngBounds bounds, @NonNull File file) {
     try {
       String fileContents = FileUtils.readFileToString(file, Charset.forName(JSON_SOURCE_CHARSET));
       // TODO: Separate parsing and intersection checks, make asyc (single, completable).
@@ -66,7 +67,7 @@ public class GeoJsonParser {
           .map(this::jsonToTileSource)
           .collect(toImmutableList());
 
-    } catch (JSONException | IOException e) {
+    } catch (@NonNull JSONException | IOException e) {
       Log.e(TAG, "Unable to parse JSON", e);
     }
 
@@ -77,7 +78,8 @@ public class GeoJsonParser {
    * Converts a JSONArray to an array of JSONObjects. Provided for compatibility with java8 streams.
    * JSONArray itself only inherits from Object, and is not convertible to a stream.
    */
-  private static List<JSONObject> toArrayList(JSONArray arr) {
+  @NonNull
+  private static List<JSONObject> toArrayList(@NonNull JSONArray arr) {
     List<JSONObject> result = new ArrayList<>();
 
     for (int i = 0; i < arr.length(); i++) {
@@ -92,7 +94,8 @@ public class GeoJsonParser {
   }
 
   /** Returns the {@link TileSource} specified by {@param json}. */
-  private TileSource jsonToTileSource(GeoJsonTile json) {
+  @NonNull
+  private TileSource jsonToTileSource(@NonNull GeoJsonTile json) {
     // TODO: Instead of returning tiles with invalid state (empty URL/ID values)
     // Throw an exception here and handle it downstream.
     return TileSource.newBuilder()

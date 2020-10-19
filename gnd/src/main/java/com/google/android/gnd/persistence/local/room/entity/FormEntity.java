@@ -59,11 +59,13 @@ public abstract class FormEntity {
   @ColumnInfo(name = "layer_id")
   public abstract String getLayerId();
 
-  public static FormEntity fromForm(String layerId, Form form) {
+  @NonNull
+  public static FormEntity fromForm(String layerId, @NonNull Form form) {
     return FormEntity.builder().setId(form.getId()).setLayerId(layerId).build();
   }
 
-  static Form toForm(FormEntityAndRelations formEntityAndRelations) {
+  @NonNull
+  static Form toForm(@NonNull FormEntityAndRelations formEntityAndRelations) {
     FormEntity formEntity = formEntityAndRelations.formEntity;
     Form.Builder formBuilder = Form.newBuilder().setId(formEntity.getId());
 
@@ -76,10 +78,12 @@ public abstract class FormEntity {
     return formBuilder.setElements(listBuilder.build()).build();
   }
 
+  @NonNull
   public static FormEntity create(String id, String title, String layerId) {
     return builder().setId(id).setTitle(title).setLayerId(layerId).build();
   }
 
+  @NonNull
   public static Builder builder() {
     return new AutoValue_FormEntity.Builder();
   }
@@ -93,6 +97,7 @@ public abstract class FormEntity {
 
     public abstract Builder setLayerId(String layerId);
 
+    @NonNull
     public abstract FormEntity build();
   }
 }

@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.persistence.remote.firestore.schema;
 
+import androidx.annotation.NonNull;
 import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.observation.Observation;
@@ -31,13 +32,15 @@ public class ObservationDocumentReference extends FluentDocumentReference {
     super(ref);
   }
 
-  public Maybe<Observation> get(Feature feature) {
+  @NonNull
+  public Maybe<Observation> get(@NonNull Feature feature) {
     return RxFirestore.getDocument(reference())
         .map(doc -> ObservationConverter.toObservation(feature, doc));
   }
 
   /** Appends the operation described by the specified mutation to the provided write batch. */
-  public void addMutationToBatch(ObservationMutation mutation, User user, WriteBatch batch) {
+  public void addMutationToBatch(
+      @NonNull ObservationMutation mutation, User user, @NonNull WriteBatch batch) {
     switch (mutation.getType()) {
       case CREATE:
       case UPDATE:

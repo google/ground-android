@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.model.observation;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.google.android.gnd.model.AuditInfo;
 import com.google.android.gnd.model.Project;
@@ -52,6 +53,7 @@ public abstract class Observation {
     return new AutoValue_Observation.Builder().setResponses(ResponseMap.builder().build());
   }
 
+  @NonNull
   public abstract Observation.Builder toBuilder();
 
   @AutoValue.Builder
@@ -70,6 +72,7 @@ public abstract class Observation {
 
     public abstract Builder setResponses(ResponseMap responses);
 
+    @NonNull
     public abstract Observation build();
   }
 }

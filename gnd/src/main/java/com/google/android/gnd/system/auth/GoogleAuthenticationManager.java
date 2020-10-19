@@ -48,15 +48,20 @@ public class GoogleAuthenticationManager implements AuthenticationManager {
 
   private static final String TAG = AuthenticationManager.class.getSimpleName();
   private static final int SIGN_IN_REQUEST_CODE = AuthenticationManager.class.hashCode() & 0xffff;
+  @NonNull
   private final GoogleSignInOptions googleSignInOptions;
+  @NonNull
   private final Subject<SignInState> signInState;
+  @NonNull
   private final FirebaseAuth firebaseAuth;
+  @NonNull
   private final ActivityStreams activityStreams;
+  @NonNull
   private final Disposable activityResultsSubscription;
 
   // TODO: Update Fragments to access via ProjectRepository rather than directly.
   @Inject
-  public GoogleAuthenticationManager(Application application, ActivityStreams activityStreams) {
+  public GoogleAuthenticationManager(@NonNull Application application, @NonNull ActivityStreams activityStreams) {
     this.signInState = BehaviorSubject.create();
     this.firebaseAuth = FirebaseAuth.getInstance();
     this.googleSignInOptions =
@@ -70,6 +75,7 @@ public class GoogleAuthenticationManager implements AuthenticationManager {
         activityStreams.getActivityResults(SIGN_IN_REQUEST_CODE).subscribe(this::onActivityResult);
   }
 
+  @NonNull
   public Observable<SignInState> getSignInState() {
     return signInState;
   }
@@ -82,6 +88,7 @@ public class GoogleAuthenticationManager implements AuthenticationManager {
     signInState.onNext(getStatus());
   }
 
+  @NonNull
   private SignInState getStatus() {
     FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
     if (firebaseUser == null) {
@@ -107,12 +114,12 @@ public class GoogleAuthenticationManager implements AuthenticationManager {
   }
 
   @NonNull
-  private GoogleSignInClient getGoogleSignInClient(Activity activity) {
+  private GoogleSignInClient getGoogleSignInClient(@NonNull Activity activity) {
     // TODO: Use app context instead of activity?
     return GoogleSignIn.getClient(activity, googleSignInOptions);
   }
 
-  private void onActivityResult(ActivityResult activityResult) {
+  private void onActivityResult(@NonNull ActivityResult activityResult) {
     // The Task returned from getSignedInAccountFromIntent is always completed, so no need to
     // attach a listener.
     try {
@@ -125,21 +132,21 @@ public class GoogleAuthenticationManager implements AuthenticationManager {
     }
   }
 
-  private void onGoogleSignIn(GoogleSignInAccount googleAccount) {
+  private void onGoogleSignIn(@NonNull GoogleSignInAccount googleAccount) {
     firebaseAuth
         .signInWithCredential(getFirebaseAuthCredential(googleAccount))
         .addOnSuccessListener(this::onFirebaseAuthSuccess)
         .addOnFailureListener(t -> signInState.onNext(new SignInState(t)));
   }
 
-  private void onFirebaseAuthSuccess(AuthResult authResult) {
+  private void onFirebaseAuthSuccess(@NonNull AuthResult authResult) {
     // TODO: Store/update user profile in Firestore.
     // TODO: Store/update user profile and image locally.
     signInState.onNext(new SignInState(toUser(authResult.getUser())));
   }
 
   @NonNull
-  private static AuthCredential getFirebaseAuthCredential(GoogleSignInAccount googleAccount) {
+  private static AuthCredential getFirebaseAuthCredential(@NonNull GoogleSignInAccount googleAccount) {
     return GoogleAuthProvider.getCredential(googleAccount.getIdToken(), null);
   }
 
@@ -149,7 +156,8 @@ public class GoogleAuthenticationManager implements AuthenticationManager {
     super.finalize();
   }
 
-  private static User toUser(FirebaseUser firebaseUser) {
+  @NonNull
+  private static User toUser(@NonNull FirebaseUser firebaseUser) {
     return User.builder()
         .setId(firebaseUser.getUid())
         .setEmail(firebaseUser.getEmail())

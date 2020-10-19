@@ -39,6 +39,7 @@ public enum ElementEntityType implements IntEnum {
     return intValue;
   }
 
+  @NonNull
   public static ElementEntityType fromElementType(Element.Type type) {
     if (type == Type.FIELD) {
       return FIELD;
@@ -46,6 +47,7 @@ public enum ElementEntityType implements IntEnum {
     return UNKNOWN;
   }
 
+  @NonNull
   public Element.Type toElementType() {
     if (this == ElementEntityType.FIELD) {
       return Type.FIELD;

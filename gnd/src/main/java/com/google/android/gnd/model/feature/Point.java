@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.model.feature;
 
+import androidx.annotation.NonNull;
 import com.google.auto.value.AutoValue;
 
 /** The location of a single point on the map. */
@@ -25,6 +26,7 @@ public abstract class Point {
 
   public abstract double getLongitude();
 
+  @NonNull
   public static Builder newBuilder() {
     return new AutoValue_Point.Builder();
   }
@@ -35,6 +37,7 @@ public abstract class Point {
 
     public abstract Builder setLongitude(double newLongitude);
 
+    @NonNull
     public abstract Point build();
   }
 }

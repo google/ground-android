@@ -22,6 +22,7 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
+import androidx.annotation.NonNull;
 import com.google.android.gnd.system.ActivityStreams.ActivityResult;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
@@ -56,6 +57,7 @@ public class CameraManager {
   }
 
   /** Enqueue an intent for capturing a photo from camera. */
+  @NonNull
   private Completable sendCapturePhotoIntent() {
     return Completable.fromAction(
         () ->
@@ -76,7 +78,8 @@ public class CameraManager {
 
   /** Fetch bitmap from the result, if present. */
   // TODO: Investigate if returning a Maybe is better or not?
-  private Observable<Bitmap> onCapturePhotoResult(ActivityResult result) {
+  @NonNull
+  private Observable<Bitmap> onCapturePhotoResult(@NonNull ActivityResult result) {
     return Observable.create(
         em -> {
           if (!result.isOk()) {

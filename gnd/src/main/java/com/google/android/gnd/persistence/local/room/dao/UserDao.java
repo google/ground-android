@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.persistence.local.room.dao;
 
+import androidx.annotation.NonNull;
 import androidx.room.Dao;
 import androidx.room.Query;
 import androidx.room.Transaction;
@@ -24,6 +25,7 @@ import io.reactivex.Maybe;
 
 @Dao
 public interface UserDao extends BaseDao<UserEntity> {
+  @NonNull
   @Transaction
   @Query("SELECT * FROM user WHERE id = :id")
   Maybe<UserEntity> findById(String id);

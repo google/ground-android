@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.persistence.remote.firestore.schema;
 
+import androidx.annotation.NonNull;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.persistence.remote.RemoteDataEvent;
@@ -30,18 +31,19 @@ public class FeaturesCollectionReference extends FluentCollectionReference {
     super(ref);
   }
 
-  public FeatureDocumentReference feature(String id) {
+  @NonNull
+  public FeatureDocumentReference feature(@NonNull String id) {
     return new FeatureDocumentReference(reference().document(id));
   }
 
   /** Retrieves all features in the project, then streams changes to the remote db incrementally. */
-  public Flowable<RemoteDataEvent<Feature>> loadOnceAndStreamChanges(Project project) {
+  public Flowable<RemoteDataEvent<Feature>> loadOnceAndStreamChanges(@NonNull Project project) {
     return RxFirestore.observeQueryRef(reference())
         .flatMapIterable(snapshot -> toRemoteDataEvents(project, snapshot));
   }
 
   private static Iterable<RemoteDataEvent<Feature>> toRemoteDataEvents(
-      Project project, QuerySnapshot snapshot) {
+      @NonNull Project project, @NonNull QuerySnapshot snapshot) {
     return QuerySnapshotConverter.toEvents(
         snapshot, doc -> FeatureConverter.toFeature(project, doc));
   }

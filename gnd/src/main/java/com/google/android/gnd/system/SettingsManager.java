@@ -20,6 +20,7 @@ import static com.google.android.gnd.rx.RxCompletable.completeOrError;
 
 import android.content.IntentSender.SendIntentException;
 import android.util.Log;
+import androidx.annotation.NonNull;
 import com.google.android.gms.common.api.ResolvableApiException;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationSettingsRequest;
@@ -53,7 +54,8 @@ public class SettingsManager {
    * Try to enable location settings. If location settings are already enabled, this will complete
    * immediately on subscribe.
    */
-  public Completable enableLocationSettings(LocationRequest locationRequest) {
+  @NonNull
+  public Completable enableLocationSettings(@NonNull LocationRequest locationRequest) {
     Log.d(TAG, "Checking location settings");
     LocationSettingsRequest settingsRequest =
         new LocationSettingsRequest.Builder().addLocationRequest(locationRequest).build();
@@ -71,7 +73,8 @@ public class SettingsManager {
         .andThen(getNextResult(requestCode));
   }
 
-  private Completable startResolution(int requestCode, ResolvableApiException resolvableException) {
+  @NonNull
+  private Completable startResolution(int requestCode, @NonNull ResolvableApiException resolvableException) {
     return Completable.create(
         em -> {
           Log.d(TAG, "Prompting user to enable settings");

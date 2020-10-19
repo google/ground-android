@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.ui.offlinebasemap;
 
+import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
 import com.google.android.gnd.model.basemap.OfflineBaseMap;
@@ -34,7 +35,7 @@ public class OfflineBaseMapsViewModel extends AbstractViewModel {
   private final Navigator navigator;
 
   @Inject
-  OfflineBaseMapsViewModel(Navigator navigator, OfflineBaseMapRepository offlineBaseMapRepository) {
+  OfflineBaseMapsViewModel(Navigator navigator, @NonNull OfflineBaseMapRepository offlineBaseMapRepository) {
     this.navigator = navigator;
     this.offlineAreas =
         LiveDataReactiveStreams.fromPublisher(

@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.persistence.remote.firestore.schema;
 
+import androidx.annotation.NonNull;
 import com.google.android.gnd.persistence.remote.firestore.base.FluentFirestore;
 import com.google.firebase.firestore.FirebaseFirestore;
 import javax.inject.Inject;
@@ -31,6 +32,7 @@ public class GroundFirestore extends FluentFirestore {
     super(db);
   }
 
+  @NonNull
   public ProjectsCollectionReference projects() {
     return new ProjectsCollectionReference(db().collection(PROJECTS));
   }

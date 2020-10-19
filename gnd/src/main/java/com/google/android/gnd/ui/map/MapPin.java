@@ -36,6 +36,7 @@ public abstract class MapPin {
   @NonNull
   public abstract Feature getFeature();
 
+  @NonNull
   public static Builder newBuilder() {
     return new AutoValue_MapPin.Builder();
   }
@@ -50,6 +51,7 @@ public abstract class MapPin {
 
     public abstract Builder setFeature(Feature newFeature);
 
+    @NonNull
     public abstract MapPin build();
   }
 }

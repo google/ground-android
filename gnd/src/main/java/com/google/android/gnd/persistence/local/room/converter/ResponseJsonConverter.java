@@ -18,6 +18,7 @@ package com.google.android.gnd.persistence.local.room.converter;
 
 import static java8.lang.Iterables.forEach;
 
+import androidx.annotation.NonNull;
 import com.google.android.gnd.model.observation.MultipleChoiceResponse;
 import com.google.android.gnd.model.observation.Response;
 import com.google.android.gnd.model.observation.TextResponse;
@@ -41,7 +42,8 @@ class ResponseJsonConverter {
     }
   }
 
-  private static Object toJsonArray(MultipleChoiceResponse response) {
+  @NonNull
+  private static Object toJsonArray(@NonNull MultipleChoiceResponse response) {
     JSONArray array = new JSONArray();
     forEach(response.getChoices(), array::put);
     return array;
@@ -58,7 +60,7 @@ class ResponseJsonConverter {
     }
   }
 
-  private static ImmutableList<String> toList(JSONArray jsonArray) {
+  private static ImmutableList<String> toList(@NonNull JSONArray jsonArray) {
     List<String> list = new ArrayList<>(jsonArray.length());
     for (int i = 0; i < jsonArray.length(); i++) {
       try {

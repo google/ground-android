@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.persistence.local;
 
+import androidx.annotation.NonNull;
 import com.google.android.gnd.persistence.local.room.LocalDatabase;
 import com.google.android.gnd.persistence.local.room.RoomLocalDataStore;
 import com.google.android.gnd.persistence.local.room.dao.FeatureDao;
@@ -44,76 +45,77 @@ import javax.inject.Singleton;
 public abstract class LocalDataStoreModule {
 
   @Provides
-  static FeatureDao featureDao(LocalDatabase localDatabase) {
+  static FeatureDao featureDao(@NonNull LocalDatabase localDatabase) {
     return localDatabase.featureDao();
   }
 
   @Provides
-  static FeatureMutationDao featureMutationDao(LocalDatabase localDatabase) {
+  static FeatureMutationDao featureMutationDao(@NonNull LocalDatabase localDatabase) {
     return localDatabase.featureMutationDao();
   }
 
   @Provides
-  static FieldDao fieldDao(LocalDatabase localDatabase) {
+  static FieldDao fieldDao(@NonNull LocalDatabase localDatabase) {
     return localDatabase.fieldDao();
   }
 
   @Provides
-  static FormDao formDao(LocalDatabase localDatabase) {
+  static FormDao formDao(@NonNull LocalDatabase localDatabase) {
     return localDatabase.formDao();
   }
 
   @Provides
-  static LayerDao layerDao(LocalDatabase localDatabase) {
+  static LayerDao layerDao(@NonNull LocalDatabase localDatabase) {
     return localDatabase.layerDao();
   }
 
   @Provides
-  static MultipleChoiceDao multipleChoiceDao(LocalDatabase localDatabase) {
+  static MultipleChoiceDao multipleChoiceDao(@NonNull LocalDatabase localDatabase) {
     return localDatabase.multipleChoiceDao();
   }
 
   @Provides
-  static OptionDao optionDao(LocalDatabase localDatabase) {
+  static OptionDao optionDao(@NonNull LocalDatabase localDatabase) {
     return localDatabase.optionDao();
   }
 
   @Provides
-  static ProjectDao projectDao(LocalDatabase localDatabase) {
+  static ProjectDao projectDao(@NonNull LocalDatabase localDatabase) {
     return localDatabase.projectDao();
   }
 
   @Provides
-  static ObservationDao observationDao(LocalDatabase localDatabase) {
+  static ObservationDao observationDao(@NonNull LocalDatabase localDatabase) {
     return localDatabase.observationDao();
   }
 
   @Provides
-  static ObservationMutationDao observationMutationDao(LocalDatabase localDatabase) {
+  static ObservationMutationDao observationMutationDao(@NonNull LocalDatabase localDatabase) {
     return localDatabase.observationMutationDao();
   }
 
   @Provides
-  static TileSourceDao tileSourceDao(LocalDatabase localDatabase) {
+  static TileSourceDao tileSourceDao(@NonNull LocalDatabase localDatabase) {
     return localDatabase.tileSourceDao();
   }
 
   @Provides
-  static OfflineBaseMapDao offlineAreaDao(LocalDatabase localDatabase) {
+  static OfflineBaseMapDao offlineAreaDao(@NonNull LocalDatabase localDatabase) {
     return localDatabase.offlineAreaDao();
   }
 
   @Provides
-  static OfflineBaseMapSourceDao offlineBaseMapSourceDao(LocalDatabase localDatabase) {
+  static OfflineBaseMapSourceDao offlineBaseMapSourceDao(@NonNull LocalDatabase localDatabase) {
     return localDatabase.offlineBaseMapSourceDao();
   }
 
   @Provides
-  static UserDao userDao(LocalDatabase localDatabase) {
+  static UserDao userDao(@NonNull LocalDatabase localDatabase) {
     return localDatabase.userDao();
   }
 
   /** Provides the Room implementation of local data store. */
+  @NonNull
   @Binds
   @Singleton
   abstract LocalDataStore localDataStore(RoomLocalDataStore ds);

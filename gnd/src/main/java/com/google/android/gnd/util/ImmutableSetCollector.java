@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.util;
 
+import androidx.annotation.NonNull;
 import com.google.common.collect.ImmutableSet;
 import java8.util.stream.Collector;
 import java8.util.stream.Collectors;
@@ -38,6 +39,7 @@ public abstract class ImmutableSetCollector {
           ImmutableSet.Builder::build);
 
   /** Returns a {@link Collector} that accumulates the input elements into a new ImmutableSet. */
+  @NonNull
   public static <E> Collector<E, ?, ImmutableSet<E>> toImmutableSet() {
     return (Collector) TO_IMMUTABLE_SET;
   }

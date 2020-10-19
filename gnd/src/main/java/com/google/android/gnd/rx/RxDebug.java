@@ -17,6 +17,7 @@
 package com.google.android.gnd.rx;
 
 import android.util.Log;
+import androidx.annotation.NonNull;
 import com.akaita.java.rxjava2debug.RxJava2Debug;
 import io.reactivex.Completable;
 import io.reactivex.CompletableConverter;
@@ -36,7 +37,7 @@ public abstract class RxDebug {
   /** Container for static helper methods. Do not instantiate. */
   private RxDebug() {}
 
-  public static void logEnhancedStackTrace(Throwable t) {
+  public static void logEnhancedStackTrace(@NonNull Throwable t) {
     Log.e(TAG, "Unhandled Rx error", RxJava2Debug.getEnhancedStackTrace(t));
   }
 
@@ -44,6 +45,7 @@ public abstract class RxDebug {
    * Returns a converter for use with {@link Maybe#as} that logs all events that occur on the source
    * stream.
    */
+  @NonNull
   public static <T> MaybeConverter<T, Maybe<T>> tracedMaybe(String tag, String streamName) {
     Tracer t = new Tracer(tag, streamName);
     return m ->
@@ -57,6 +59,7 @@ public abstract class RxDebug {
    * Returns a converter for use with {@link Single#as} that logs all events that occur on the
    * source stream.
    */
+  @NonNull
   public static <T> SingleConverter<T, Single<T>> tracedSingle(String tag, String streamName) {
     Tracer t = new Tracer(tag, streamName);
     return m -> m.doOnSubscribe(t::onSubscribe).doOnSuccess(t::onSuccess).doOnError(t::onError);
@@ -66,6 +69,7 @@ public abstract class RxDebug {
    * Returns a converter for use with {@link Flowable#as} that logs all events that occur on the
    * source stream.
    */
+  @NonNull
   public static <T> FlowableConverter<T, Flowable<T>> tracedFlowable(
       String tag, String streamName) {
     Tracer t = new Tracer(tag, streamName);
@@ -80,6 +84,7 @@ public abstract class RxDebug {
    * Returns a converter for use with {@link Completable#as} that logs all events that occur on the
    * source stream.
    */
+  @NonNull
   public static CompletableConverter<Completable> tracedCompletable(String tag, String streamName) {
     Tracer t = new Tracer(tag, streamName);
     return c -> c.doOnSubscribe(t::onSubscribe).doOnComplete(t::onComplete).doOnError(t::onError);

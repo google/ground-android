@@ -21,6 +21,7 @@ import android.content.Context;
 import android.os.StrictMode;
 import android.util.Log;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.hilt.work.HiltWorkerFactory;
 import androidx.multidex.MultiDex;
 import androidx.work.Configuration;
@@ -92,7 +93,7 @@ public class GndApplication extends Application implements Configuration.Provide
 
   private static class CrashReportingTree extends Timber.Tree {
     @Override
-    protected void log(int priority, String tag, @NonNull String message, Throwable throwable) {
+    protected void log(int priority, String tag, @NonNull String message, @Nullable Throwable throwable) {
       if (priority == Log.VERBOSE || priority == Log.DEBUG || priority == Log.INFO) {
         return;
       }

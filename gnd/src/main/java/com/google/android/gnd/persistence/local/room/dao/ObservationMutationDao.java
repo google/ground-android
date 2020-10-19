@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.persistence.local.room.dao;
 
+import androidx.annotation.NonNull;
 import androidx.room.Dao;
 import androidx.room.Query;
 import com.google.android.gnd.persistence.local.room.entity.ObservationMutationEntity;
@@ -27,6 +28,7 @@ import java.util.List;
 @Dao
 public interface ObservationMutationDao extends BaseDao<ObservationMutationEntity> {
 
+  @NonNull
   @Query("DELETE FROM observation_mutation WHERE id IN (:ids)")
   Completable deleteAll(List<Long> ids);
 

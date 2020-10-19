@@ -19,6 +19,7 @@ package com.google.android.gnd.ui.home;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.View;
+import androidx.annotation.NonNull;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import com.google.android.gnd.R;
 
@@ -41,12 +42,12 @@ public abstract class BottomSheetDependentBehavior<V extends View>
       CoordinatorLayout parent, V child, BottomSheetMetrics metrics);
 
   @Override
-  public boolean layoutDependsOn(CoordinatorLayout parent, V child, View dependency) {
+  public boolean layoutDependsOn(@NonNull CoordinatorLayout parent, @NonNull V child, @NonNull View dependency) {
     return dependency.getId() == R.id.bottom_sheet_layout;
   }
 
   @Override
-  public boolean onDependentViewChanged(CoordinatorLayout parent, V child, View bottomSheet) {
+  public boolean onDependentViewChanged(@NonNull CoordinatorLayout parent, @NonNull V child, @NonNull View bottomSheet) {
     onBottomSheetChanged(parent, child, new BottomSheetMetrics(bottomSheet));
     return false;
   }

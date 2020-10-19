@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.persistence.uuid;
 
+import androidx.annotation.NonNull;
 import javax.inject.Inject;
 
 public class FakeUuidGenerator implements OfflineUuidGenerator {
@@ -24,6 +25,7 @@ public class FakeUuidGenerator implements OfflineUuidGenerator {
   FakeUuidGenerator() {
   }
 
+  @NonNull
   @Override
   public String generateUuid() {
     return "TEST UUID";

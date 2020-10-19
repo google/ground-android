@@ -49,6 +49,7 @@ public class OfflineBaseMapSelectorFragment extends AbstractFragment {
   private OfflineBaseMapSelectorViewModel viewModel;
   @Nullable private MapAdapter map;
 
+  @NonNull
   public static OfflineBaseMapSelectorFragment newInstance() {
     return new OfflineBaseMapSelectorFragment();
   }
@@ -63,7 +64,7 @@ public class OfflineBaseMapSelectorFragment extends AbstractFragment {
     viewModel.getDownloadMessages().observe(this, e -> e.ifUnhandled(this::onDownloadMessage));
   }
 
-  private void onDownloadMessage(DownloadMessage message) {
+  private void onDownloadMessage(@NonNull DownloadMessage message) {
     switch (message) {
       case STARTED:
         EphemeralPopups.showSuccess(getContext(), R.string.offline_base_map_download_started);

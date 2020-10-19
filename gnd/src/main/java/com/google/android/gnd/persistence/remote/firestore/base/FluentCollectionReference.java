@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.persistence.remote.firestore.base;
 
+import androidx.annotation.NonNull;
 import com.google.android.gnd.system.NetworkManager;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -37,6 +38,7 @@ public abstract class FluentCollectionReference {
    * Returns a Completable that completes immediately on subscribe if network is available, or fails
    * in error if not.
    */
+  @NonNull
   private Completable requireActiveNetwork() {
     return NetworkManager.requireActiveNetwork(
         reference.getFirestore().getApp().getApplicationContext());
@@ -47,8 +49,9 @@ public abstract class FluentCollectionReference {
    * the mappingFunction to all results. Fails immediately with an error if an active network is not
    * available.
    */
+  @NonNull
   protected <T> Single<List<T>> runQuery(
-      Query query, Function<DocumentSnapshot, T> mappingFunction) {
+      @NonNull Query query, Function<DocumentSnapshot, T> mappingFunction) {
     return requireActiveNetwork()
         .andThen(FluentFirestore.toSingleList(RxFirestore.getCollection(query), mappingFunction));
   }
@@ -57,6 +60,7 @@ public abstract class FluentCollectionReference {
     return reference;
   }
 
+  @NonNull
   @Override
   public String toString() {
     return reference.getPath();

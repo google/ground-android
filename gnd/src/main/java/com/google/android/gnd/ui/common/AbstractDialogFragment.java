@@ -39,12 +39,13 @@ public abstract class AbstractDialogFragment extends AppCompatDialogFragment {
   /**
    * Uses {@link ViewModelFactory} to obtain an instance of the view model of the specified class.
    */
-  protected <T extends ViewModel> T getViewModel(Class<T> modelClass) {
+  @NonNull
+  protected <T extends ViewModel> T getViewModel(@NonNull Class<T> modelClass) {
     return viewModelFactory.get(this, modelClass);
   }
 
   @Override
-  public void onAttach(Context context) {
+  public void onAttach(@NonNull Context context) {
     logLifecycleEvent(this);
     super.onAttach(context);
   }
@@ -65,6 +66,7 @@ public abstract class AbstractDialogFragment extends AppCompatDialogFragment {
     return super.onCreateView(inflater, container, savedInstanceState);
   }
 
+  @NonNull
   @Override
   public Dialog onCreateDialog(Bundle savedInstanceState) {
     logLifecycleEvent(this);
@@ -78,7 +80,7 @@ public abstract class AbstractDialogFragment extends AppCompatDialogFragment {
   }
 
   @Override
-  public void onAttachFragment(Fragment childFragment) {
+  public void onAttachFragment(@NonNull Fragment childFragment) {
     logLifecycleEvent(this);
     super.onAttachFragment(childFragment);
   }
@@ -114,7 +116,7 @@ public abstract class AbstractDialogFragment extends AppCompatDialogFragment {
   }
 
   @Override
-  public void onSaveInstanceState(Bundle outState) {
+  public void onSaveInstanceState(@NonNull Bundle outState) {
     logLifecycleEvent(this);
     super.onSaveInstanceState(outState);
   }
@@ -143,6 +145,7 @@ public abstract class AbstractDialogFragment extends AppCompatDialogFragment {
     super.onDetach();
   }
 
+  @NonNull
   protected Dialog fail(String message) {
     EphemeralPopups.showError(getContext(), message);
     return new AlertDialog.Builder(getContext()).create();

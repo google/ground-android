@@ -53,16 +53,18 @@ public abstract class MultipleChoiceEntity {
   @ColumnInfo(name = "field_id")
   public abstract String getFieldId();
 
+  @NonNull
   public static MultipleChoiceEntity fromMultipleChoice(
-      String fieldId, MultipleChoice multipleChoice) {
+      String fieldId, @NonNull MultipleChoice multipleChoice) {
     return MultipleChoiceEntity.builder()
         .setFieldId(fieldId)
         .setType(MultipleChoiceEntityType.fromCardinality(multipleChoice.getCardinality()))
         .build();
   }
 
+  @NonNull
   static MultipleChoice toMultipleChoice(
-      MultipleChoiceEntity multipleChoiceEntity, List<OptionEntity> optionEntities) {
+      @NonNull MultipleChoiceEntity multipleChoiceEntity, @NonNull List<OptionEntity> optionEntities) {
     MultipleChoice.Builder multipleChoiceBuilder =
         MultipleChoice.newBuilder().setCardinality(multipleChoiceEntity.getType().toCardinality());
 
@@ -74,10 +76,12 @@ public abstract class MultipleChoiceEntity {
     return multipleChoiceBuilder.setOptions(listBuilder.build()).build();
   }
 
+  @NonNull
   public static MultipleChoiceEntity create(MultipleChoiceEntityType type, String fieldId) {
     return builder().setType(type).setFieldId(fieldId).build();
   }
 
+  @NonNull
   public static Builder builder() {
     return new AutoValue_MultipleChoiceEntity.Builder();
   }
@@ -89,6 +93,7 @@ public abstract class MultipleChoiceEntity {
 
     public abstract Builder setFieldId(String fieldId);
 
+    @NonNull
     public abstract MultipleChoiceEntity build();
   }
 }

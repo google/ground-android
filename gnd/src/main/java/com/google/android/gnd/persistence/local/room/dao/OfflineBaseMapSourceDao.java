@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.persistence.local.room.dao;
 
+import androidx.annotation.NonNull;
 import androidx.room.Dao;
 import androidx.room.Query;
 import com.google.android.gnd.persistence.local.room.entity.OfflineBaseMapSourceEntity;
@@ -24,6 +25,7 @@ import io.reactivex.Completable;
 @Dao
 public interface OfflineBaseMapSourceDao extends BaseDao<OfflineBaseMapSourceEntity> {
 
+  @NonNull
   @Query("DELETE FROM offline_base_map_source WHERE project_id = :projectId")
   Completable deleteByProjectId(String projectId);
 }

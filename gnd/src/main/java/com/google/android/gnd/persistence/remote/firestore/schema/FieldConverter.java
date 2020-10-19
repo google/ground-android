@@ -19,6 +19,7 @@ package com.google.android.gnd.persistence.remote.firestore.schema;
 import static com.google.android.gnd.util.Enums.toEnum;
 import static com.google.android.gnd.util.Localization.getLocalizedMessage;
 
+import androidx.annotation.NonNull;
 import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.form.Field.Type;
 import java8.util.Optional;
@@ -26,7 +27,7 @@ import java8.util.Optional;
 /** Converts between Firestore nested objects and {@link Field} instances. */
 class FieldConverter {
 
-  static Optional<Field> toField(String id, ElementNestedObject em) {
+  static Optional<Field> toField(String id, @NonNull ElementNestedObject em) {
     Field.Builder field = Field.newBuilder();
     switch (toEnum(Field.Type.class, em.getType())) {
       case TEXT:

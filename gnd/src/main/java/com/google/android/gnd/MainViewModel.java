@@ -16,6 +16,7 @@
 
 package com.google.android.gnd;
 
+import androidx.annotation.NonNull;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -33,6 +34,7 @@ import javax.inject.Inject;
 @SharedViewModel
 public class MainViewModel extends AbstractViewModel {
 
+  @NonNull
   private final ProjectRepository projectRepository;
   private final FeatureRepository featureRepository;
   private final Navigator navigator;
@@ -40,7 +42,7 @@ public class MainViewModel extends AbstractViewModel {
 
   @Inject
   public MainViewModel(
-      ProjectRepository projectRepository,
+      @NonNull ProjectRepository projectRepository,
       FeatureRepository featureRepository,
       Navigator navigator) {
     windowInsetsLiveData = new MutableLiveData<>();
@@ -62,7 +64,7 @@ public class MainViewModel extends AbstractViewModel {
    *
    * @param projectLoadable the load state of the currently active project.
    */
-  private Completable syncFeatures(Loadable<Project> projectLoadable) {
+  private Completable syncFeatures(@NonNull Loadable<Project> projectLoadable) {
     return projectLoadable.value().map(featureRepository::syncFeatures).orElse(Completable.never());
   }
 

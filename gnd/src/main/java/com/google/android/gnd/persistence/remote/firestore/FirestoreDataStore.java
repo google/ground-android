@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.persistence.remote.firestore;
 
+import androidx.annotation.NonNull;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gnd.model.Mutation;
 import com.google.android.gnd.model.Project;
@@ -54,8 +55,9 @@ public class FirestoreDataStore implements RemoteDataStore {
   @Inject
   FirestoreDataStore() {}
 
+  @NonNull
   @Override
-  public Single<Project> loadProject(String projectId) {
+  public Single<Project> loadProject(@NonNull String projectId) {
     return db.projects()
         .project(projectId)
         .get()
@@ -63,8 +65,9 @@ public class FirestoreDataStore implements RemoteDataStore {
         .subscribeOn(schedulers.io());
   }
 
+  @NonNull
   @Override
-  public Single<ImmutableList<ValueOrError<Observation>>> loadObservations(Feature feature) {
+  public Single<ImmutableList<ValueOrError<Observation>>> loadObservations(@NonNull Feature feature) {
     return db.projects()
         .project(feature.getProject().getId())
         .observations()
@@ -72,13 +75,15 @@ public class FirestoreDataStore implements RemoteDataStore {
         .subscribeOn(schedulers.io());
   }
 
+  @NonNull
   @Override
-  public Single<List<Project>> loadProjectSummaries(User user) {
+  public Single<List<Project>> loadProjectSummaries(@NonNull User user) {
     return db.projects().getReadable(user).subscribeOn(schedulers.io());
   }
 
+  @NonNull
   @Override
-  public Flowable<RemoteDataEvent<Feature>> loadFeaturesOnceAndStreamChanges(Project project) {
+  public Flowable<RemoteDataEvent<Feature>> loadFeaturesOnceAndStreamChanges(@NonNull Project project) {
     return db.projects()
         .project(project.getId())
         .features()
@@ -86,13 +91,15 @@ public class FirestoreDataStore implements RemoteDataStore {
         .subscribeOn(schedulers.io());
   }
 
+  @NonNull
   @Override
-  public Completable applyMutations(ImmutableCollection<Mutation> mutations, User user) {
+  public Completable applyMutations(@NonNull ImmutableCollection<Mutation> mutations, User user) {
     return RxTask.toCompletable(() -> applyMutationsInternal(mutations, user))
         .subscribeOn(schedulers.io());
   }
 
-  private Task<?> applyMutationsInternal(ImmutableCollection<Mutation> mutations, User user) {
+  @NonNull
+  private Task<?> applyMutationsInternal(@NonNull ImmutableCollection<Mutation> mutations, User user) {
     WriteBatch batch = db.batch();
     for (Mutation mutation : mutations) {
       try {
@@ -104,7 +111,7 @@ public class FirestoreDataStore implements RemoteDataStore {
     return batch.commit();
   }
 
-  private void addMutationToBatch(Mutation mutation, User user, WriteBatch batch)
+  private void addMutationToBatch(Mutation mutation, User user, @NonNull WriteBatch batch)
       throws DataStoreException {
     if (mutation instanceof FeatureMutation) {
       addFeatureMutationToBatch((FeatureMutation) mutation, user, batch);
@@ -115,7 +122,8 @@ public class FirestoreDataStore implements RemoteDataStore {
     }
   }
 
-  private void addFeatureMutationToBatch(FeatureMutation mutation, User user, WriteBatch batch)
+  private void addFeatureMutationToBatch(
+      @NonNull FeatureMutation mutation, User user, @NonNull WriteBatch batch)
       throws DataStoreException {
     db.projects()
         .project(mutation.getProjectId())
@@ -125,7 +133,7 @@ public class FirestoreDataStore implements RemoteDataStore {
   }
 
   private void addObservationMutationToBatch(
-      ObservationMutation mutation, User user, WriteBatch batch) throws DataStoreException {
+      @NonNull ObservationMutation mutation, User user, @NonNull WriteBatch batch) throws DataStoreException {
     db.projects()
         .project(mutation.getProjectId())
         .observations()

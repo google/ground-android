@@ -16,6 +16,7 @@
 
 package com.google.android.gnd;
 
+import androidx.annotation.NonNull;
 import com.google.android.gnd.rx.Schedulers;
 import dagger.Binds;
 import dagger.Module;
@@ -27,6 +28,7 @@ import javax.inject.Singleton;
 @Module
 abstract class TestSchedulersModule {
 
+  @NonNull
   @Binds
   @Singleton
   abstract Schedulers schedulers(TestScheduler testScheduler);

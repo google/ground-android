@@ -16,6 +16,8 @@
 
 package com.google.android.gnd.persistence.remote;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import com.google.android.gnd.FakeData;
 import com.google.android.gnd.model.Mutation;
 import com.google.android.gnd.model.Project;
@@ -54,11 +56,13 @@ public class FakeRemoteDataStore implements RemoteDataStore {
   @Inject
   FakeRemoteDataStore() {}
 
+  @NonNull
   @Override
   public Single<List<Project>> loadProjectSummaries(User user) {
     return Single.just(Collections.singletonList(testProject));
   }
 
+  @NonNull
   @Override
   public Single<Project> loadProject(String projectId) {
     return Single.just(testProject);
@@ -69,11 +73,13 @@ public class FakeRemoteDataStore implements RemoteDataStore {
     return Flowable.empty();
   }
 
+  @Nullable
   @Override
   public Single<ImmutableList<ValueOrError<Observation>>> loadObservations(Feature feature) {
     return null;
   }
 
+  @Nullable
   @Override
   public Completable applyMutations(ImmutableCollection<Mutation> mutations, User user) {
     return null;

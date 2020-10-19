@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.ui.home.featuredetails;
 
+import androidx.annotation.NonNull;
 import androidx.databinding.ObservableField;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
@@ -30,7 +31,9 @@ import javax.inject.Inject;
 @SharedViewModel
 public class FeatureDetailsViewModel extends ViewModel {
 
+  @NonNull
   public final ObservableField<Optional<Feature>> feature;
+  @NonNull
   private final BehaviorProcessor<Optional<Feature>> selectedFeature;
 
   @Inject
@@ -43,11 +46,12 @@ public class FeatureDetailsViewModel extends ViewModel {
    * Returns a LiveData that immediately emits the selected feature (or empty) on if none selected
    * to each new observer.
    */
+  @NonNull
   public LiveData<Optional<Feature>> getSelectedFeatureOnceAndStream() {
     return LiveDataReactiveStreams.fromPublisher(selectedFeature);
   }
 
-  public void onBottomSheetStateChange(BottomSheetState state) {
+  public void onBottomSheetStateChange(@NonNull BottomSheetState state) {
     if (!state.isVisible()) {
       selectedFeature.onNext(Optional.empty());
       return;

@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.ui.map;
 
+import androidx.annotation.NonNull;
 import com.google.android.gnd.ui.MarkerIconFactory;
 import com.google.android.gnd.ui.map.gms.GoogleMapsMapProvider;
 import dagger.Module;
@@ -26,6 +27,7 @@ import dagger.hilt.android.components.ApplicationComponent;
 @InstallIn(ApplicationComponent.class)
 @Module
 public class MapProviderModule {
+  @NonNull
   @Provides
   static MapProvider googleMapsProvider(MarkerIconFactory markerIconFactory) {
     return new GoogleMapsMapProvider(markerIconFactory);

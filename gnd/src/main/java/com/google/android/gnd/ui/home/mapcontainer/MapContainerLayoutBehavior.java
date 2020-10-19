@@ -20,6 +20,7 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.FrameLayout;
+import androidx.annotation.NonNull;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import com.google.android.gnd.R;
 import com.google.android.gnd.ui.home.BottomSheetDependentBehavior;
@@ -33,7 +34,7 @@ public class MapContainerLayoutBehavior extends BottomSheetDependentBehavior<Fra
 
   @Override
   protected void onBottomSheetChanged(
-      CoordinatorLayout parent, FrameLayout mapContainerLayout, BottomSheetMetrics metrics) {
+      CoordinatorLayout parent, @NonNull FrameLayout mapContainerLayout, @NonNull BottomSheetMetrics metrics) {
     if (metrics.getPeekHeight() <= 0) {
       return;
     }

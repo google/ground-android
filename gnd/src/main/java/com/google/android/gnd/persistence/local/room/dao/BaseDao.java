@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.persistence.local.room.dao;
 
+import androidx.annotation.NonNull;
 import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.Update;
@@ -30,19 +31,24 @@ import java.util.List;
  */
 public interface BaseDao<E> {
 
+  @NonNull
   @Insert
   Completable insert(E entity);
 
+  @NonNull
   @Update
   Single<Integer> update(E entity);
 
+  @NonNull
   @Update
   Completable updateAll(List<E> entities);
 
+  @NonNull
   @Delete
   Completable delete(E entity);
 
   /** Try to update the specified entity, and if it doesn't yet exist, create it. */
+  @NonNull
   default Completable insertOrUpdate(E entity) {
     return update(entity).filter(n -> n == 0).flatMapCompletable(__ -> insert(entity));
   }

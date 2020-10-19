@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.persistence.local.room.dao;
 
+import androidx.annotation.NonNull;
 import androidx.room.Dao;
 import androidx.room.Query;
 import com.google.android.gnd.persistence.local.room.entity.FeatureMutationEntity;
@@ -29,6 +30,7 @@ import java.util.List;
 @Dao
 public interface FeatureMutationDao extends BaseDao<FeatureMutationEntity> {
 
+  @NonNull
   @Query("DELETE FROM feature_mutation WHERE id IN (:ids)")
   Completable deleteAll(List<Long> ids);
 

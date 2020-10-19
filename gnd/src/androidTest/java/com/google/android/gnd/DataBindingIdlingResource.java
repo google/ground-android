@@ -17,6 +17,7 @@
 package com.google.android.gnd;
 
 import android.view.View;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.databinding.DataBindingUtil;
 import androidx.databinding.ViewDataBinding;
@@ -45,6 +46,7 @@ public class DataBindingIdlingResource implements IdlingResource {
   private boolean wasNotIdle = false;
   private FragmentActivity activity;
 
+  @NonNull
   @Override
   public String getName() {
     return String.format("DataBinding %s", id);
@@ -86,7 +88,7 @@ public class DataBindingIdlingResource implements IdlingResource {
   }
 
   /** Sets the activity from an [ActivityScenario] to be used from [DataBindingIdlingResource]. */
-  public <T extends FragmentActivity> void monitorActivity(ActivityScenario<T> activityScenario) {
+  public <T extends FragmentActivity> void monitorActivity(@NonNull ActivityScenario<T> activityScenario) {
     activityScenario.onActivity(this::monitorActivity);
   }
 
@@ -94,15 +96,16 @@ public class DataBindingIdlingResource implements IdlingResource {
     this.activity = activity;
   }
 
-  public <T extends Fragment> void monitorFragment(T fragment) {
+  public <T extends Fragment> void monitorFragment(@NonNull T fragment) {
     activity = fragment.requireActivity();
   }
 
   @Nullable
-  private ViewDataBinding getBinding(View view) {
+  private ViewDataBinding getBinding(@NonNull View view) {
     return DataBindingUtil.getBinding(view);
   }
 
+  @NonNull
   private List<ViewDataBinding> getBindings() {
     List<Fragment> fragments =
         activity == null

@@ -67,7 +67,8 @@ public class TextResponse implements Response {
     return text;
   }
 
-  public static Optional<Response> fromString(String text) {
+  @NonNull
+  public static Optional<Response> fromString(@NonNull String text) {
     return text.isEmpty() ? Optional.empty() : Optional.of(new TextResponse(text));
   }
 }

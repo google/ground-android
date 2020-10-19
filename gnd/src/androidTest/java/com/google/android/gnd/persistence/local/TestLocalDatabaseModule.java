@@ -17,6 +17,7 @@
 package com.google.android.gnd.persistence.local;
 
 import android.content.Context;
+import androidx.annotation.NonNull;
 import androidx.room.Room;
 import com.google.android.gnd.persistence.local.room.LocalDatabase;
 import dagger.Module;
@@ -30,9 +31,10 @@ import javax.inject.Singleton;
 @Module
 public class TestLocalDatabaseModule {
 
+  @NonNull
   @Provides
   @Singleton
-  LocalDatabase localDatabase(@ApplicationContext Context context) {
+  LocalDatabase localDatabase(@NonNull @ApplicationContext Context context) {
     return Room.inMemoryDatabaseBuilder(context, LocalDatabase.class)
         .allowMainThreadQueries()
         .build();

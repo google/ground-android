@@ -21,6 +21,7 @@ import static java8.util.stream.StreamSupport.stream;
 
 import android.app.Dialog;
 import android.os.Bundle;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.FragmentManager;
@@ -67,12 +68,13 @@ public class AddFeatureDialogFragment extends AbstractDialogFragment {
     this.mapContainerViewModel = getViewModel(MapContainerViewModel.class);
   }
 
-  public Maybe<Feature> show(FragmentManager fragmentManager) {
+  public Maybe<Feature> show(@NonNull FragmentManager fragmentManager) {
     addFeatureRequestSubject = MaybeSubject.create();
     show(fragmentManager, TAG);
     return addFeatureRequestSubject;
   }
 
+  @NonNull
   @Override
   public Dialog onCreateDialog(Bundle savedInstanceState) {
     super.onCreateDialog(savedInstanceState);
@@ -91,7 +93,8 @@ public class AddFeatureDialogFragment extends AbstractDialogFragment {
     return createDialog(activeProject.get(), cameraPosition.get());
   }
 
-  private Dialog createDialog(Project project, Point cameraPosition) {
+  @NonNull
+  private Dialog createDialog(@NonNull Project project, @NonNull Point cameraPosition) {
     AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
     builder.setTitle(R.string.add_feature_select_type_dialog_title);
     builder.setNegativeButton(R.string.cancel, (dialog, id) -> onCancel());
@@ -106,7 +109,7 @@ public class AddFeatureDialogFragment extends AbstractDialogFragment {
     return builder.create();
   }
 
-  private void onSelectLayer(Project project, Layer layer, Point cameraPosition) {
+  private void onSelectLayer(@NonNull Project project, @NonNull Layer layer, @NonNull Point cameraPosition) {
     AuditInfo auditInfo = AuditInfo.now(authManager.getCurrentUser());
     // TODO(#9): Move creating a new Feature into the ViewModel or ProjectRepository. Doing it here
     // for now to avoid conflicting with soon-to-be-merged commits for Issue #24.

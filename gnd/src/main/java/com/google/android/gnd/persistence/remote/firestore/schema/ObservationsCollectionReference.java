@@ -19,6 +19,7 @@ package com.google.android.gnd.persistence.remote.firestore.schema;
 import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList;
 import static java8.util.stream.StreamSupport.stream;
 
+import androidx.annotation.NonNull;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.persistence.remote.firestore.base.FluentCollectionReference;
@@ -39,11 +40,13 @@ public class ObservationsCollectionReference extends FluentCollectionReference {
     super(ref);
   }
 
-  public ObservationDocumentReference observation(String id) {
+  @NonNull
+  public ObservationDocumentReference observation(@NonNull String id) {
     return new ObservationDocumentReference(reference().document(id));
   }
 
-  public Single<ImmutableList<ValueOrError<Observation>>> observationsByFeatureId(Feature feature) {
+  @NonNull
+  public Single<ImmutableList<ValueOrError<Observation>>> observationsByFeatureId(@NonNull Feature feature) {
     return RxFirestore.getCollection(byFeatureId(feature.getId()))
         .map(querySnapshot -> convert(querySnapshot, feature))
         .toSingle(ImmutableList.of());
@@ -51,12 +54,13 @@ public class ObservationsCollectionReference extends FluentCollectionReference {
 
   @NotNull
   private ImmutableList<ValueOrError<Observation>> convert(
-      QuerySnapshot querySnapshot, Feature feature) {
+      @NonNull QuerySnapshot querySnapshot, @NonNull Feature feature) {
     return stream(querySnapshot.getDocuments())
         .map(doc -> ValueOrError.create(() -> ObservationConverter.toObservation(feature, doc)))
         .collect(toImmutableList());
   }
 
+  @NonNull
   private Query byFeatureId(String featureId) {
     return reference()
         .whereEqualTo(FieldPath.of(ObservationMutationConverter.FEATURE_ID), featureId);

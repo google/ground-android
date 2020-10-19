@@ -19,6 +19,7 @@ package com.google.android.gnd.model.feature;
 import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList;
 import static java8.util.stream.StreamSupport.stream;
 
+import androidx.annotation.NonNull;
 import com.google.android.gnd.model.Mutation;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
@@ -37,11 +38,12 @@ public abstract class FeatureMutation extends Mutation<FeatureMutation.Builder> 
    */
   public abstract Optional<Point> getNewLocation();
 
+  @NonNull
   @Override
   public abstract Builder toBuilder();
 
   /** Returns the mutations of type {@link FeatureMutation} contained in the specified list. */
-  public static ImmutableList<FeatureMutation> filter(ImmutableList<Mutation> mutations) {
+  public static ImmutableList<FeatureMutation> filter(@NonNull ImmutableList<Mutation> mutations) {
     return stream(mutations)
         .filter(FeatureMutation.class::isInstance)
         .map(FeatureMutation.class::cast)
@@ -51,7 +53,7 @@ public abstract class FeatureMutation extends Mutation<FeatureMutation.Builder> 
   /**
    * Returns the ids of mutations of type {@link FeatureMutation} contained in the specified list.
    */
-  public static ImmutableList<Long> ids(ImmutableList<? extends Mutation> mutations) {
+  public static ImmutableList<Long> ids(@NonNull ImmutableList<? extends Mutation> mutations) {
     return stream(mutations)
         .filter(FeatureMutation.class::isInstance)
         .map(Mutation::getId)
@@ -69,6 +71,7 @@ public abstract class FeatureMutation extends Mutation<FeatureMutation.Builder> 
 
     public abstract Builder setNewLocation(Optional<Point> newNewLocation);
 
+    @NonNull
     @Override
     public abstract FeatureMutation build();
   }

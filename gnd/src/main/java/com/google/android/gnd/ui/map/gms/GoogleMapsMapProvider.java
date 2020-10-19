@@ -60,6 +60,7 @@ public class GoogleMapsMapProvider implements MapProvider {
                     new GoogleMapsMapAdapter(googleMap, fragment.getContext(), markerIconFactory)));
   }
 
+  @Nullable
   @Override
   public Fragment getFragment() {
     if (fragment == null) {
@@ -68,6 +69,7 @@ public class GoogleMapsMapProvider implements MapProvider {
     return fragment;
   }
 
+  @Nullable
   @Override
   public Single<MapAdapter> getMapAdapter() {
     return map;

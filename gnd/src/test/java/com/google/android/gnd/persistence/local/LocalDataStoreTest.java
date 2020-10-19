@@ -19,6 +19,7 @@ package com.google.android.gnd.persistence.local;
 import static com.google.common.truth.Truth.assertThat;
 import static org.hamcrest.Matchers.samePropertyValuesAs;
 
+import androidx.annotation.NonNull;
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
@@ -75,6 +76,7 @@ import org.robolectric.annotation.Config;
 @RunWith(RobolectricTestRunner.class)
 public class LocalDataStoreTest {
 
+  @NonNull
   @Rule public HiltAndroidRule hiltRule = new HiltAndroidRule(this);
 
   private static final User TEST_USER =
@@ -183,12 +185,14 @@ public class LocalDataStoreTest {
           .build();
 
   // This rule makes sure that Room executes all the database operations instantly.
+  @NonNull
   @Rule public InstantTaskExecutorRule instantTaskExecutorRule = new InstantTaskExecutorRule();
 
   @Inject LocalDataStore localDataStore;
   @Inject ObservationDao observationDao;
   @Inject FeatureDao featureDao;
 
+  @NonNull
   private static FeatureMutation createTestFeatureMutation(Point point) {
     return FeatureMutation.builder()
         .setId(1L)
@@ -202,7 +206,7 @@ public class LocalDataStoreTest {
         .build();
   }
 
-  private static void assertEquivalent(ObservationMutation mutation, Observation observation) {
+  private static void assertEquivalent(@NonNull ObservationMutation mutation, @NonNull Observation observation) {
     assertThat(mutation.getObservationId()).isEqualTo(observation.getId());
     assertThat(mutation.getFeatureId()).isEqualTo(observation.getFeature().getId());
     assertThat(mutation.getFormId()).isEqualTo(observation.getForm().getId());

@@ -20,6 +20,7 @@ import static com.google.android.gnd.persistence.remote.DataStoreException.check
 import static com.google.android.gnd.persistence.remote.DataStoreException.checkNotNull;
 
 import android.util.Log;
+import androidx.annotation.NonNull;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.model.observation.MultipleChoiceResponse;
@@ -38,7 +39,8 @@ class ObservationConverter {
 
   private static final String TAG = ObservationConverter.class.getSimpleName();
 
-  static Observation toObservation(Feature feature, DocumentSnapshot snapshot)
+  @NonNull
+  static Observation toObservation(@NonNull Feature feature, @NonNull DocumentSnapshot snapshot)
       throws DataStoreException {
     ObservationDocument doc = snapshot.toObject(ObservationDocument.class);
     String featureId = checkNotNull(doc.getFeatureId(), "featureId");
@@ -62,6 +64,7 @@ class ObservationConverter {
         .build();
   }
 
+  @NonNull
   private static ResponseMap toResponseMap(@Nullable Map<String, Object> docResponses) {
     ResponseMap.Builder responses = ResponseMap.builder();
     if (docResponses == null) {

@@ -17,6 +17,7 @@
 package com.google.android.gnd.persistence.local;
 
 import android.content.Context;
+import androidx.annotation.NonNull;
 import androidx.room.Room;
 import com.google.android.gnd.Config;
 import com.google.android.gnd.persistence.local.room.LocalDatabase;
@@ -31,9 +32,10 @@ import javax.inject.Singleton;
 @Module
 public abstract class LocalDatabaseModule {
 
+  @NonNull
   @Provides
   @Singleton
-  static LocalDatabase localDatabase(@ApplicationContext Context context) {
+  static LocalDatabase localDatabase(@NonNull @ApplicationContext Context context) {
     return Room.databaseBuilder(context, LocalDatabase.class, Config.DB_NAME)
       // TODO(#128): Disable before official release.
       .fallbackToDestructiveMigration()

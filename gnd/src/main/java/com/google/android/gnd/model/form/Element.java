@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.model.form;
 
+import androidx.annotation.NonNull;
 import com.google.auto.value.AutoOneOf;
 import javax.annotation.Nullable;
 
@@ -50,10 +51,12 @@ public abstract class Element {
   @Nullable
   public abstract Object getUnknown();
 
+  @NonNull
   public static Element ofField(Field field) {
     return AutoOneOf_Element.field(field);
   }
 
+  @NonNull
   public static Element ofUnknown() {
     return AutoOneOf_Element.unknown(new Object());
   }

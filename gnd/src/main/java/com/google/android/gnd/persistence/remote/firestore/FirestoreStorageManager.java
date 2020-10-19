@@ -17,6 +17,7 @@
 package com.google.android.gnd.persistence.remote.firestore;
 
 import android.net.Uri;
+import androidx.annotation.NonNull;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gnd.persistence.remote.RemoteStorageManager;
 import com.google.android.gnd.persistence.remote.TransferProgress;
@@ -47,6 +48,7 @@ public class FirestoreStorageManager implements RemoteStorageManager {
    *
    * <p>/uploaded_media/{project_id}/{form_id}/{feature_id}/{filename.jpg}
    */
+  @NonNull
   public static String getRemoteDestinationPath(
       String projectId, String formId, String featureId, String filename) {
     return new StringJoiner(File.separator)
@@ -58,17 +60,20 @@ public class FirestoreStorageManager implements RemoteStorageManager {
         .toString();
   }
 
-  private StorageReference createReference(String path) {
+  @NonNull
+  private StorageReference createReference(@NonNull String path) {
     return storageReference.child(path);
   }
 
+  @NonNull
   @Override
-  public Task<Uri> getDownloadUrl(String remoteDestinationPath) {
+  public Task<Uri> getDownloadUrl(@NonNull String remoteDestinationPath) {
     return createReference(remoteDestinationPath).getDownloadUrl();
   }
 
+  @NonNull
   @Override
-  public Flowable<TransferProgress> uploadMediaFromFile(File file, String remoteDestinationPath) {
+  public Flowable<TransferProgress> uploadMediaFromFile(@NonNull File file, @NonNull String remoteDestinationPath) {
     return Flowable.create(
         emitter ->
             createReference(remoteDestinationPath)

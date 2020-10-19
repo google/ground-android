@@ -43,6 +43,7 @@ import timber.log.Timber;
 public class ProjectSelectorDialogFragment extends AbstractDialogFragment {
 
   private ProjectSelectorViewModel viewModel;
+  @Nullable
   private ArrayAdapter listAdapter;
   private ProjectSelectorDialogBinding binding;
 
@@ -71,7 +72,7 @@ public class ProjectSelectorDialogFragment extends AbstractDialogFragment {
     return dialog.create();
   }
 
-  private void updateProjectList(Loadable<List<Project>> projectSummaries) {
+  private void updateProjectList(@NonNull Loadable<List<Project>> projectSummaries) {
     switch (projectSummaries.getState()) {
       case LOADING:
         Timber.i("Loading projects");
@@ -95,7 +96,7 @@ public class ProjectSelectorDialogFragment extends AbstractDialogFragment {
     dismiss();
   }
 
-  private void showProjectList(List<Project> list) {
+  private void showProjectList(@NonNull List<Project> list) {
     binding.listLoadingProgressBar.setVisibility(View.GONE);
     listAdapter.clear();
     stream(list).map(Project::getTitle).forEach(listAdapter::add);

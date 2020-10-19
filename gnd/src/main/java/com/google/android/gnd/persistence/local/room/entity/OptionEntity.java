@@ -57,7 +57,8 @@ public abstract class OptionEntity {
   @ColumnInfo(name = "field_id")
   public abstract String getFieldId();
 
-  public static OptionEntity fromOption(String fieldId, Option option) {
+  @NonNull
+  public static OptionEntity fromOption(String fieldId, @NonNull Option option) {
     return OptionEntity.builder()
         .setId(option.getId())
         .setFieldId(fieldId)
@@ -66,7 +67,8 @@ public abstract class OptionEntity {
         .build();
   }
 
-  public static Option toOption(OptionEntity optionEntity) {
+  @NonNull
+  public static Option toOption(@NonNull OptionEntity optionEntity) {
     return Option.newBuilder()
         .setId(optionEntity.getId())
         .setCode(optionEntity.getCode())
@@ -74,10 +76,12 @@ public abstract class OptionEntity {
         .build();
   }
 
-  public static OptionEntity create(String id, String code, String label, String fieldId) {
+  @NonNull
+  public static OptionEntity create(@NonNull String id, String code, String label, String fieldId) {
     return builder().setId(id).setCode(code).setLabel(label).setFieldId(fieldId).build();
   }
 
+  @NonNull
   public static Builder builder() {
     return new AutoValue_OptionEntity.Builder();
   }
@@ -92,6 +96,7 @@ public abstract class OptionEntity {
 
     public abstract Builder setFieldId(String fieldId);
 
+    @NonNull
     public abstract OptionEntity build();
   }
 }

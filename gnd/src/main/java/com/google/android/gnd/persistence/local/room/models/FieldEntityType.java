@@ -40,7 +40,8 @@ public enum FieldEntityType implements IntEnum {
     return intValue;
   }
 
-  public static FieldEntityType fromFieldType(Field.Type type) {
+  @NonNull
+  public static FieldEntityType fromFieldType(@NonNull Field.Type type) {
     switch (type) {
       case TEXT:
         return TEXT;
@@ -53,6 +54,7 @@ public enum FieldEntityType implements IntEnum {
     }
   }
 
+  @NonNull
   public Field.Type toFieldType() {
     switch (this) {
       case TEXT:

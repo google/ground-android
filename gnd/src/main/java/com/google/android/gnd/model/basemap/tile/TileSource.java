@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.model.basemap.tile;
 
+import androidx.annotation.NonNull;
 import com.google.auto.value.AutoValue;
 
 /** Represents a source of offline imagery tileset data. */
@@ -37,11 +38,13 @@ public abstract class TileSource {
 
   public abstract State getState();
 
+  @NonNull
   public static Builder newBuilder() {
     return new AutoValue_TileSource.Builder();
   }
 
-  public static String pathFromId(String tileSourceId) {
+  @NonNull
+  public static String pathFromId(@NonNull String tileSourceId) {
     // Tile ids are stored as x-y-z. Paths must be z-x-y.mbtiles.
     // TODO: Convert tile ids to paths in a less restrictive and less hacky manner.
     // TODO: Move this method to a more appropriate home? We need to perform (and possibly will no
@@ -53,6 +56,7 @@ public abstract class TileSource {
     return filename + ".mbtiles";
   }
 
+  @NonNull
   public abstract Builder toBuilder();
 
   @AutoValue.Builder
@@ -65,6 +69,7 @@ public abstract class TileSource {
 
     public abstract Builder setState(State state);
 
+    @NonNull
     public abstract TileSource build();
   }
 }

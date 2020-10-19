@@ -22,6 +22,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.provider.MediaStore.Images.Media;
+import androidx.annotation.NonNull;
 import com.google.android.gnd.persistence.remote.RemoteStorageManager;
 import com.google.android.gnd.rx.RxTask;
 import com.google.android.gnd.system.ActivityStreams.ActivityResult;
@@ -73,6 +74,7 @@ public class StorageManager {
 
   // TODO: Move UI-specific code to UI layer (Fragment or any related helper)
   /** Enqueue an intent for selecting a photo from the storage. */
+  @NonNull
   private Completable sendPhotoPickerIntent() {
     return Completable.fromAction(
         () ->
@@ -95,7 +97,8 @@ public class StorageManager {
 
   /** Fetch Uri from the result, if present. */
   // TODO: Investigate if returning a Maybe is better or not?
-  private Observable<Uri> onPickPhotoResult(ActivityResult result) {
+  @NonNull
+  private Observable<Uri> onPickPhotoResult(@NonNull ActivityResult result) {
     return Observable.create(
         em -> {
           if (!result.isOk()) {
@@ -109,7 +112,7 @@ public class StorageManager {
         });
   }
 
-  private Uri getFileUriFromDestinationPath(String destinationPath) {
+  private Uri getFileUriFromDestinationPath(@NonNull String destinationPath) {
     File file = fileUtil.getLocalFileFromRemotePath(destinationPath);
     if (file.exists()) {
       return Uri.fromFile(file);
@@ -124,13 +127,15 @@ public class StorageManager {
    *
    * @param destinationPath Final destination path of the uploaded photo relative to Firestore
    */
-  public Single<Uri> getDownloadUrl(String destinationPath) {
+  @NonNull
+  public Single<Uri> getDownloadUrl(@NonNull String destinationPath) {
     return RxTask.toSingle(() -> remoteStorageManager.getDownloadUrl(destinationPath))
         .onErrorReturn(throwable -> getFileUriFromDestinationPath(destinationPath));
   }
 
   /** Save a copy of bitmap locally. */
-  public Completable savePhoto(Bitmap bitmap, String filename) {
+  @NonNull
+  public Completable savePhoto(@NonNull Bitmap bitmap, String filename) {
     try {
       File file = fileUtil.saveBitmap(bitmap, filename);
       Timber.d("Photo saved %s : %b", filename, file.exists());

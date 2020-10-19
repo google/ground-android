@@ -49,6 +49,7 @@ import timber.log.Timber;
 public class TileSourceDownloadWorker extends BaseWorker {
   private static final int BUFFER_SIZE = 4096;
 
+  @NonNull
   private final Context context;
   private final LocalDataStore localDataStore;
 
@@ -67,7 +68,7 @@ public class TileSourceDownloadWorker extends BaseWorker {
    * Given a tile, downloads the given {@param tile}'s source file and saves it to the device's app
    * storage. Optional HTTP request header {@param requestProperties} may be provided.
    */
-  private void downloadTileFile(TileSource tileSource, Map<String, String> requestProperties)
+  private void downloadTileFile(@NonNull TileSource tileSource, @NonNull Map<String, String> requestProperties)
       throws TileSourceDownloadException {
 
     int mode = Context.MODE_PRIVATE;
@@ -101,7 +102,7 @@ public class TileSourceDownloadWorker extends BaseWorker {
   }
 
   /** Update a tile's state in the database and initiate a download of the tile source file. */
-  private Completable downloadTileSource(TileSource tileSource) {
+  private Completable downloadTileSource(@NonNull TileSource tileSource) {
     Map<String, String> requestProperties = new HashMap<>();
 
     // To resume a download for an in progress tile, we use the HTTP Range request property.
@@ -146,7 +147,7 @@ public class TileSourceDownloadWorker extends BaseWorker {
    * exists in the app's storage. If the tile's source file isn't present, initiates a download of
    * source file.
    */
-  private Completable downloadIfNotFound(TileSource tileSource) {
+  private Completable downloadIfNotFound(@NonNull TileSource tileSource) {
     File file = new File(context.getFilesDir(), tileSource.getPath());
 
     if (file.exists()) {
@@ -156,7 +157,7 @@ public class TileSourceDownloadWorker extends BaseWorker {
     return downloadTileSource(tileSource);
   }
 
-  private Completable processTileSources(ImmutableList<TileSource> pendingTileSources) {
+  private Completable processTileSources(@NonNull ImmutableList<TileSource> pendingTileSources) {
     return Observable.fromIterable(pendingTileSources)
         .doOnNext(
             tile ->
@@ -207,6 +208,7 @@ public class TileSourceDownloadWorker extends BaseWorker {
     }
   }
 
+  @NonNull
   @Override
   public String getNotificationTitle() {
     return getApplicationContext().getString(R.string.downloading_tiles);

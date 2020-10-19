@@ -21,6 +21,7 @@ import static com.google.android.gnd.rx.RxAutoDispose.autoDisposable;
 import android.content.Intent;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
@@ -59,6 +60,7 @@ public class MainActivity extends AbstractActivity {
   Navigator navigator;
   @Inject
   UserRepository userRepository;
+  @Nullable
   private NavHostFragment navHostFragment;
   private MainViewModel viewModel;
 
@@ -93,16 +95,16 @@ public class MainActivity extends AbstractActivity {
   }
 
   @Override
-  protected void onWindowInsetChanged(WindowInsetsCompat insets) {
+  protected void onWindowInsetChanged(@NonNull WindowInsetsCompat insets) {
     super.onWindowInsetChanged(insets);
     viewModel.onApplyWindowInsets(insets);
   }
 
-  private void onNavigate(NavDirections navDirections) {
+  private void onNavigate(@NonNull NavDirections navDirections) {
     getNavController().navigate(navDirections);
   }
 
-  private void onSignInStateChange(SignInState signInState) {
+  private void onSignInStateChange(@NonNull SignInState signInState) {
     Timber.d("Auth status change: %s", signInState.state());
     switch (signInState.state()) {
       case SIGNED_OUT:
@@ -127,7 +129,7 @@ public class MainActivity extends AbstractActivity {
     }
   }
 
-  private void onSignInError(SignInState signInState) {
+  private void onSignInError(@NonNull SignInState signInState) {
     Timber.d("Authentication error : %s", signInState.error());
     EphemeralPopups.showError(this, R.string.sign_in_unsuccessful);
     viewModel.onSignedOut(getCurrentNavDestinationId());
@@ -168,6 +170,7 @@ public class MainActivity extends AbstractActivity {
     return getNavController().navigateUp();
   }
 
+  @NonNull
   private NavController getNavController() {
     return navHostFragment.getNavController();
   }
@@ -200,6 +203,7 @@ public class MainActivity extends AbstractActivity {
         && ((BackPressListener) currentFragment).onBack();
   }
 
+  @Nullable
   private Fragment getCurrentFragment() {
     return navHostFragment.getChildFragmentManager().findFragmentById(R.id.nav_host_fragment);
   }

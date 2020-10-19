@@ -16,14 +16,16 @@
 
 package com.google.android.gnd.ui.common;
 
+import androidx.annotation.NonNull;
 import androidx.lifecycle.ViewModel;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 
 public abstract class AbstractViewModel extends ViewModel {
+  @NonNull
   private CompositeDisposable disposables = new CompositeDisposable();
 
-  protected void disposeOnClear(Disposable subscription) {
+  protected void disposeOnClear(@NonNull Disposable subscription) {
     disposables.add(subscription);
   }
 

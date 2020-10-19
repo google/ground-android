@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.persistence.remote.firestore.schema;
 
+import androidx.annotation.NonNull;
 import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.feature.FeatureMutation;
 import com.google.android.gnd.model.feature.Point;
@@ -30,7 +31,7 @@ class FeatureMutationConverter {
    * Returns a map containing key-value pairs usable by Firestore constructed from the provided
    * mutation.
    */
-  static ImmutableMap<String, Object> toMap(FeatureMutation mutation, User user) {
+  static ImmutableMap<String, Object> toMap(@NonNull FeatureMutation mutation, @NonNull User user) {
     ImmutableMap.Builder<String, Object> map = ImmutableMap.builder();
     map.put(FeatureConverter.LAYER_ID, mutation.getLayerId());
     mutation
@@ -57,7 +58,8 @@ class FeatureMutationConverter {
     return map.build();
   }
 
-  private static GeoPoint toGeoPoint(Point point) {
+  @NonNull
+  private static GeoPoint toGeoPoint(@NonNull Point point) {
     return new GeoPoint(point.getLatitude(), point.getLongitude());
   }
 }

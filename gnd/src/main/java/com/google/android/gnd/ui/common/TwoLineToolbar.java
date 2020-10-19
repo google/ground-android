@@ -20,12 +20,14 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
 import com.google.android.gnd.databinding.TwoLineToolbarBinding;
 
 public class TwoLineToolbar extends Toolbar {
 
+  @NonNull
   private final TwoLineToolbarBinding binding;
 
   public TwoLineToolbar(Context context, @Nullable AttributeSet attrs) {

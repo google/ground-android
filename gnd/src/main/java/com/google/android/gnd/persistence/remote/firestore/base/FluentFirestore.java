@@ -19,6 +19,7 @@ package com.google.android.gnd.persistence.remote.firestore.base;
 import static java8.util.stream.Collectors.toList;
 import static java8.util.stream.StreamSupport.stream;
 
+import androidx.annotation.NonNull;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -45,8 +46,9 @@ public abstract class FluentFirestore {
    * Applies the provided mapping function to each document in the specified query snapshot, if
    * present. If no results are present, completes with an empty list.
    */
+  @NonNull
   static <T> Single<List<T>> toSingleList(
-      Maybe<QuerySnapshot> result, Function<DocumentSnapshot, T> mappingFunction) {
+      @NonNull Maybe<QuerySnapshot> result, Function<DocumentSnapshot, T> mappingFunction) {
     return result
         .map(
             querySnapshot ->
@@ -55,6 +57,7 @@ public abstract class FluentFirestore {
   }
 
   // TODO: Wrap in fluent version of WriteBatch.
+  @NonNull
   public WriteBatch batch() {
     return db.batch();
   }

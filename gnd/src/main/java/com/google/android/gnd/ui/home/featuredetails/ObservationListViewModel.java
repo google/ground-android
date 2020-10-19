@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.ui.home.featuredetails;
 
+import androidx.annotation.NonNull;
 import androidx.databinding.ObservableBoolean;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
@@ -56,12 +57,13 @@ public class ObservationListViewModel extends AbstractViewModel {
   }
 
   /** Loads a list of observations associated with a given feature. */
-  public void loadObservationList(Feature feature) {
+  public void loadObservationList(@NonNull Feature feature) {
     Optional<Form> form = feature.getLayer().getForm();
     loadObservations(feature.getProject(), feature.getId(), form.map(Form::getId));
   }
 
-  private Single<ImmutableList<Observation>> getObservations(ObservationListRequest req) {
+  @NonNull
+  private Single<ImmutableList<Observation>> getObservations(@NonNull ObservationListRequest req) {
     if (req.formId.isEmpty()) {
       // Do nothing. No form defined for this layer.
       // TODO: Show text or icon indicating no layers defined.
@@ -72,6 +74,7 @@ public class ObservationListViewModel extends AbstractViewModel {
         .onErrorResumeNext(this::onGetObservationsError);
   }
 
+  @NonNull
   private Single<ImmutableList<Observation>> onGetObservationsError(Throwable t) {
     // TODO: Show an appropriate error message to the user.
     Timber.e(t, "Failed to fetch observation list.");

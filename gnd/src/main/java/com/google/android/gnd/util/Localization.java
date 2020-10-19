@@ -23,7 +23,8 @@ public abstract class Localization {
   /** Do not instantiate. */
   private Localization() {}
 
-  public static String getLocalizedMessage(Map<String, String> messages) {
+  @Nullable
+  public static String getLocalizedMessage(@Nullable Map<String, String> messages) {
     if (messages == null) {
       return "<Untitled>";
     }

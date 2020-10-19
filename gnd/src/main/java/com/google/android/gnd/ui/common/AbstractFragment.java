@@ -35,12 +35,12 @@ public abstract class AbstractFragment extends Fragment {
 
   @Inject protected ViewModelFactory viewModelFactory;
 
-  protected <T extends ViewModel> T getViewModel(Class<T> modelClass) {
+  protected <T extends ViewModel> T getViewModel(@NonNull Class<T> modelClass) {
     return viewModelFactory.get(this, modelClass);
   }
 
   @Override
-  public void onAttach(Context context) {
+  public void onAttach(@NonNull Context context) {
     logLifecycleEvent(this);
     super.onAttach(context);
   }
@@ -128,19 +128,22 @@ public abstract class AbstractFragment extends Fragment {
     super.onDetach();
   }
 
-  protected final void replaceFragment(@IdRes int containerViewId, Fragment fragment) {
+  protected final void replaceFragment(@IdRes int containerViewId, @NonNull Fragment fragment) {
     getChildFragmentManager().beginTransaction().replace(containerViewId, fragment).commit();
   }
 
-  protected void saveChildFragment(Bundle outState, Fragment fragment, String key) {
+  protected void saveChildFragment(
+      @NonNull Bundle outState, @NonNull Fragment fragment, @NonNull String key) {
     getChildFragmentManager().putFragment(outState, key, fragment);
   }
 
-  protected <T> T restoreChildFragment(Bundle savedInstanceState, String key) {
+  @Nullable
+  protected <T> T restoreChildFragment(@NonNull Bundle savedInstanceState, @NonNull String key) {
     return (T) getChildFragmentManager().getFragment(savedInstanceState, key);
   }
 
-  protected <T> T restoreChildFragment(Bundle savedInstanceState, Class<T> fragmentClass) {
+  @Nullable
+  protected <T> T restoreChildFragment(@NonNull Bundle savedInstanceState, @NonNull Class<T> fragmentClass) {
     return (T) restoreChildFragment(savedInstanceState, fragmentClass.getName());
   }
 }

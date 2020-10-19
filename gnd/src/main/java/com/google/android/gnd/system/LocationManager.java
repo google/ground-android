@@ -21,6 +21,7 @@ import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 import android.annotation.SuppressLint;
 import android.location.Location;
 import android.util.Log;
+import androidx.annotation.NonNull;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.rx.BooleanOrError;
@@ -49,7 +50,9 @@ public class LocationManager {
   private final PermissionsManager permissionsManager;
   private final SettingsManager settingsManager;
   private final RxFusedLocationProviderClient locationClient;
+  @NonNull
   private final Subject<Location> locationUpdates;
+  @NonNull
   private final RxLocationCallback locationUpdateCallback;
 
   @Inject
@@ -64,7 +67,8 @@ public class LocationManager {
     this.locationUpdateCallback = RxLocationCallback.create(locationUpdates);
   }
 
-  private static Point toPoint(Location location) {
+  @NonNull
+  private static Point toPoint(@NonNull Location location) {
     return Point.newBuilder()
         .setLatitude(location.getLatitude())
         .setLongitude(location.getLongitude())
@@ -89,6 +93,7 @@ public class LocationManager {
    * Asynchronously try to enable location permissions and settings, and if successful, turns on
    * location updates exposed by {@link #getLocationUpdates()}.
    */
+  @NonNull
   public synchronized Single<BooleanOrError> enableLocationUpdates() {
     Log.d(TAG, "Attempting to enable location updates");
     return permissionsManager
@@ -102,6 +107,7 @@ public class LocationManager {
   }
 
   // TODO: Request/remove updates on resume/pause.
+  @NonNull
   public synchronized Single<BooleanOrError> disableLocationUpdates() {
     // Ignore errors when removing location updates, usually caused by disabling the same callback
     // multiple times.
@@ -112,6 +118,7 @@ public class LocationManager {
         .onErrorReturn(__ -> BooleanOrError.falseValue());
   }
 
+  @NonNull
   @SuppressLint("MissingPermission")
   private Maybe<Point> getLastLocation() {
     return locationClient.getLastLocation().map(LocationManager::toPoint);

@@ -18,6 +18,7 @@ package com.google.android.gnd.model.observation;
 
 import static java8.util.stream.StreamSupport.stream;
 
+import androidx.annotation.NonNull;
 import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.form.Option;
 import java.util.List;
@@ -41,16 +42,16 @@ public class MultipleChoiceResponse implements Response {
     return stream(choices).findFirst();
   }
 
-  public boolean isSelected(Option option) {
+  public boolean isSelected(@NonNull Option option) {
     return choices.contains(option.getId());
   }
 
-  public String getSummaryText(Field field) {
+  public String getSummaryText(@NonNull Field field) {
     return getDetailsText(field);
   }
 
   // TODO: Make these inner classes non-static and access Form directly.
-  public String getDetailsText(Field field) {
+  public String getDetailsText(@NonNull Field field) {
     return stream(choices)
         .map(field.getMultipleChoice()::getOptionById)
         .filter(Optional::isPresent)
@@ -78,12 +79,13 @@ public class MultipleChoiceResponse implements Response {
     return choices.hashCode();
   }
 
+  @NonNull
   @Override
   public String toString() {
     return stream(choices).sorted().collect(Collectors.joining(","));
   }
 
-  public static Optional<Response> fromList(List<String> codes) {
+  public static Optional<Response> fromList(@NonNull List<String> codes) {
     if (codes.isEmpty()) {
       return Optional.empty();
     } else {

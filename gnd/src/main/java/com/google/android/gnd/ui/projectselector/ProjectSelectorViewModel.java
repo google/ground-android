@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.ui.projectselector;
 
+import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
 import com.google.android.gnd.model.Project;
@@ -31,11 +32,14 @@ import javax.inject.Inject;
 
 /** Represents view state and behaviors of the project selector dialog. */
 public class ProjectSelectorViewModel extends AbstractViewModel {
+  @NonNull
   private final ProjectRepository projectRepository;
+  @NonNull
   private final LiveData<Loadable<List<Project>>> projectSummaries;
 
   @Inject
-  ProjectSelectorViewModel(ProjectRepository projectRepository, AuthenticationManager authManager) {
+  ProjectSelectorViewModel(
+      @NonNull ProjectRepository projectRepository, @NonNull AuthenticationManager authManager) {
     this.projectRepository = projectRepository;
 
     this.projectSummaries =
@@ -43,6 +47,7 @@ public class ProjectSelectorViewModel extends AbstractViewModel {
             projectRepository.getProjectSummaries(authManager.getCurrentUser()));
   }
 
+  @NonNull
   public LiveData<Loadable<List<Project>>> getProjectSummaries() {
     return projectSummaries;
   }

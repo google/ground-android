@@ -91,7 +91,8 @@ public abstract class ObservationEntity {
   @Embedded(prefix = "modified_")
   public abstract AuditInfoEntity getLastModified();
 
-  public static ObservationEntity fromObservation(Observation observation) {
+  @NonNull
+  public static ObservationEntity fromObservation(@NonNull Observation observation) {
     return ObservationEntity.builder()
         .setId(observation.getId())
         .setFormId(observation.getForm().getId())
@@ -103,7 +104,9 @@ public abstract class ObservationEntity {
         .build();
   }
 
-  public static ObservationEntity fromMutation(ObservationMutation mutation, AuditInfo created) {
+  @NonNull
+  public static ObservationEntity fromMutation(
+      @NonNull ObservationMutation mutation, @NonNull AuditInfo created) {
     AuditInfoEntity authInfo = AuditInfoEntity.fromObject(created);
     return ObservationEntity.builder()
         .setId(mutation.getObservationId())
@@ -117,7 +120,8 @@ public abstract class ObservationEntity {
   }
 
   // TODO(#127): Replace reference to Feature in Observation with featureId and remove feature arg.
-  public static Observation toObservation(Feature feature, ObservationEntity observation) {
+  @NonNull
+  public static Observation toObservation(@NonNull Feature feature, @NonNull ObservationEntity observation) {
     // TODO(#127): Replace reference to Form in Observation with formId and remove here.
     // TODO(#127): Replace reference to Project in Observation with projectId and remove here.
     return Observation.newBuilder()
@@ -131,10 +135,12 @@ public abstract class ObservationEntity {
         .build();
   }
 
+  @NonNull
   public abstract ObservationEntity.Builder toBuilder();
 
   // Boilerplate generated using Android Studio AutoValue plugin:
 
+  @NonNull
   public static ObservationEntity create(
       String id,
       String featureId,
@@ -154,6 +160,7 @@ public abstract class ObservationEntity {
         .build();
   }
 
+  @NonNull
   public static Builder builder() {
     return new AutoValue_ObservationEntity.Builder();
   }
@@ -178,11 +185,13 @@ public abstract class ObservationEntity {
     public abstract Builder setLastModified(AuditInfoEntity newLastModified);
 
     /** Applies the specified mutation to this builder. */
-    public Builder applyMutation(ObservationMutationEntity mutation) {
+    @NonNull
+    public Builder applyMutation(@NonNull ObservationMutationEntity mutation) {
       responsesBuilder().applyDeltas(mutation.getResponseDeltas());
       return this;
     }
 
+    @NonNull
     public abstract ObservationEntity build();
   }
 }

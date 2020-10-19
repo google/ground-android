@@ -32,6 +32,7 @@ public abstract class Option {
   @Nullable
   public abstract String getLabel();
 
+  @NonNull
   public static Builder newBuilder() {
     return new AutoValue_Option.Builder();
   }
@@ -44,6 +45,7 @@ public abstract class Option {
 
     public abstract Builder setLabel(@Nullable String newLabel);
 
+    @NonNull
     public abstract Option build();
   }
 }

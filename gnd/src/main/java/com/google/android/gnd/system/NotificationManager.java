@@ -21,6 +21,7 @@ import android.app.NotificationChannel;
 import android.content.Context;
 import android.os.Build.VERSION;
 import android.os.Build.VERSION_CODES;
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationCompat.Builder;
@@ -36,10 +37,11 @@ public class NotificationManager {
 
   private static final String CHANNEL_ID = "channel_id";
   private static final String CHANNEL_NAME = "sync channel";
+  @NonNull
   private final Context context;
 
   @Inject
-  NotificationManager(@ApplicationContext Context context) {
+  NotificationManager(@NonNull @ApplicationContext Context context) {
     this.context = context;
     if (VERSION.SDK_INT >= VERSION_CODES.O) {
       createNotificationChannels(context);
@@ -47,7 +49,7 @@ public class NotificationManager {
   }
 
   @RequiresApi(api = VERSION_CODES.O)
-  private void createNotificationChannels(Context context) {
+  private void createNotificationChannels(@NonNull Context context) {
     NotificationChannel channel =
         new NotificationChannel(
             CHANNEL_ID, CHANNEL_NAME, android.app.NotificationManager.IMPORTANCE_LOW);
@@ -57,7 +59,7 @@ public class NotificationManager {
   }
 
   public Notification createSyncNotification(
-      UploadState state, String title, int total, int progress) {
+      @NonNull UploadState state, String title, int total, int progress) {
     NotificationCompat.Builder notification =
         new Builder(context, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_sync)

@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.persistence.sync;
 
+import androidx.annotation.NonNull;
 import androidx.work.NetworkType;
 import androidx.work.WorkManager;
 import com.google.android.gnd.persistence.local.LocalValueStore;
@@ -35,11 +36,13 @@ public class TileSourceDownloadWorkManager extends BaseWorkManager {
     this.localValueStore = localValueStore;
   }
 
+  @NonNull
   @Override
   Class<TileSourceDownloadWorker> getWorkerClass() {
     return TileSourceDownloadWorker.class;
   }
 
+  @NonNull
   @Override
   protected NetworkType preferredNetworkType() {
     return localValueStore.shouldDownloadOfflineAreasOverUnmeteredConnectionOnly()
@@ -51,6 +54,7 @@ public class TileSourceDownloadWorkManager extends BaseWorkManager {
    * Enqueues a worker that downloads files when a network connection is available, returning a
    * completable upon enqueueing.
    */
+  @NonNull
   public Completable enqueueTileSourceDownloadWorker() {
     return Completable.fromRunnable(this::enqueueTileSourceDownloadWorkerInternal);
   }

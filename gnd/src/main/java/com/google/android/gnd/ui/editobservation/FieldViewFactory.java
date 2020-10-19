@@ -20,6 +20,7 @@ import static com.google.android.gnd.ui.util.ViewUtil.assignGeneratedId;
 
 import android.widget.LinearLayout;
 import androidx.annotation.LayoutRes;
+import androidx.annotation.NonNull;
 import androidx.databinding.DataBindingUtil;
 import androidx.databinding.ViewDataBinding;
 import androidx.fragment.app.Fragment;
@@ -38,7 +39,8 @@ public class FieldViewFactory {
   @Inject
   FieldViewFactory() {}
 
-  private static Class<? extends AbstractFieldViewModel> getViewModelClass(Field.Type fieldType) {
+  @NonNull
+  private static Class<? extends AbstractFieldViewModel> getViewModelClass(@NonNull Field.Type fieldType) {
     switch (fieldType) {
       case TEXT:
         return TextFieldViewModel.class;
@@ -52,7 +54,7 @@ public class FieldViewFactory {
   }
 
   @LayoutRes
-  private static int getLayoutId(Field.Type fieldType) {
+  private static int getLayoutId(@NonNull Field.Type fieldType) {
     switch (fieldType) {
       case TEXT:
         return R.layout.text_input_field;
@@ -72,7 +74,7 @@ public class FieldViewFactory {
    * @param root Parent layout
    * @return {@link ViewDataBinding}
    */
-  ViewDataBinding addFieldView(Field.Type fieldType, LinearLayout root) {
+  ViewDataBinding addFieldView(@NonNull Field.Type fieldType, LinearLayout root) {
     ViewDataBinding binding =
         DataBindingUtil.inflate(fragment.getLayoutInflater(), getLayoutId(fieldType), root, true);
     binding.setLifecycleOwner(fragment);

@@ -72,11 +72,13 @@ public abstract class Mutation<B extends Mutation.Builder> {
   @Nullable
   public abstract String getLastError();
 
+  @NonNull
   @Override
   public String toString() {
     return getClass().getSimpleName() + " type=" + getType() + " id=" + getId();
   }
 
+  @NonNull
   public abstract B toBuilder();
 
   public abstract static class Builder<T extends Builder> {
@@ -99,6 +101,7 @@ public abstract class Mutation<B extends Mutation.Builder> {
 
     public abstract T setLastError(String lastError);
 
+    @NonNull
     public abstract Mutation build();
   }
 }

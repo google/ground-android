@@ -19,6 +19,7 @@ package com.google.android.gnd.model.observation;
 import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList;
 import static java8.util.stream.StreamSupport.stream;
 
+import androidx.annotation.NonNull;
 import com.google.android.gnd.model.Mutation;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
@@ -40,16 +41,18 @@ public abstract class ObservationMutation extends Mutation<ObservationMutation.B
   /** Returns list of changes to responses included in this observation mutation. */
   public abstract ImmutableList<ResponseDelta> getResponseDeltas();
 
+  @NonNull
   @Override
   public abstract Builder toBuilder();
 
+  @NonNull
   @Override
   public String toString() {
     return super.toString() + " deltas=" + getResponseDeltas();
   }
 
   /** Returns the mutations of type {@link ObservationMutation} contained in the specified list. */
-  public static ImmutableList<ObservationMutation> filter(ImmutableList<Mutation> mutations) {
+  public static ImmutableList<ObservationMutation> filter(@NonNull ImmutableList<Mutation> mutations) {
     return stream(mutations)
         .filter(ObservationMutation.class::isInstance)
         .map(ObservationMutation.class::cast)
@@ -60,7 +63,7 @@ public abstract class ObservationMutation extends Mutation<ObservationMutation.B
    * Returns the ids of mutations of type {@link ObservationMutation} contained in the specified
    * list.
    */
-  public static ImmutableList<Long> ids(ImmutableList<? extends Mutation> mutations) {
+  public static ImmutableList<Long> ids(@NonNull ImmutableList<? extends Mutation> mutations) {
     return stream(mutations)
         .filter(ObservationMutation.class::isInstance)
         .map(Mutation::getId)
@@ -82,6 +85,7 @@ public abstract class ObservationMutation extends Mutation<ObservationMutation.B
 
     public abstract Builder setResponseDeltas(ImmutableList<ResponseDelta> newResponseDeltas);
 
+    @NonNull
     @Override
     public abstract ObservationMutation build();
   }

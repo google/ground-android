@@ -38,7 +38,7 @@ class OfflineBaseMapListAdapter extends RecyclerView.Adapter<OfflineBaseMapListA
     private final Navigator navigator;
 
     ViewHolder(
-        OfflineBaseMapListItemBinding binding,
+        @NonNull OfflineBaseMapListItemBinding binding,
         ImmutableList<OfflineBaseMap> areas,
         Navigator navigator) {
       super(binding.getRoot());

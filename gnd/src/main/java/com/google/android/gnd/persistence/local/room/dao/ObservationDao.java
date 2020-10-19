@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.persistence.local.room.dao;
 
+import androidx.annotation.NonNull;
 import androidx.room.Dao;
 import androidx.room.Query;
 import com.google.android.gnd.persistence.local.room.entity.ObservationEntity;
@@ -27,6 +28,7 @@ import java.util.List;
 @Dao
 public interface ObservationDao extends BaseDao<ObservationEntity> {
   /** Returns the observation with the specified UUID, if found. */
+  @NonNull
   @Query("SELECT * FROM observation WHERE id = :observationId")
   Maybe<ObservationEntity> findById(String observationId);
 

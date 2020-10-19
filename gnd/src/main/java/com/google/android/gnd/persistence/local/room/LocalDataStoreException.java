@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.persistence.local.room;
 
+import androidx.annotation.NonNull;
 import com.google.android.gnd.model.Mutation;
 
 /**
@@ -32,6 +33,7 @@ public class LocalDataStoreException extends Exception {
    * Returns a new {@code LocalDataStoreException} whose message indicates the mutation type is
    * unknown.
    */
+  @NonNull
   static LocalDataStoreException unknownMutationType(Mutation.Type type) {
     return new LocalDataStoreException("Unknown Mutation.Type." + type);
   }
@@ -40,6 +42,7 @@ public class LocalDataStoreException extends Exception {
    * Returns a new {@code LocalDataStoreException} whose message indicates the mutation type is
    * unknown.
    */
+  @NonNull
   static LocalDataStoreException unknownMutationClass(Class clz) {
     return new LocalDataStoreException("Unknown mutation " + clz);
   }

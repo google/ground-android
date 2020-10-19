@@ -19,6 +19,7 @@ package com.google.android.gnd.persistence.local.room;
 import static java8.util.J8Arrays.stream;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 /**
  * Common interface for Java enums with explicitly defined int representations. This is used instead
@@ -28,7 +29,7 @@ import androidx.annotation.NonNull;
 public interface IntEnum {
   int intValue();
 
-  static <E extends IntEnum> int toInt(E enumValue, @NonNull E defaultValue) {
+  static <E extends IntEnum> int toInt(@Nullable E enumValue, @NonNull E defaultValue) {
     return enumValue == null ? defaultValue.intValue() : enumValue.intValue();
   }
 

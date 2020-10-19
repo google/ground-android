@@ -16,6 +16,7 @@
 
 package com.google.android.gnd;
 
+import androidx.annotation.NonNull;
 import androidx.test.espresso.IdlingRegistry;
 import com.google.android.gnd.rx.Schedulers;
 import com.squareup.rx2.idler.IdlingResourceScheduler;
@@ -32,6 +33,7 @@ public class TestScheduler implements Schedulers {
   @Inject
   TestScheduler() {}
 
+  @NonNull
   @Override
   public Scheduler io() {
     Scheduler scheduler = io.reactivex.schedulers.Schedulers.trampoline();
@@ -40,6 +42,7 @@ public class TestScheduler implements Schedulers {
     return wrapped;
   }
 
+  @NonNull
   @Override
   public Scheduler ui() {
     Scheduler scheduler = io.reactivex.schedulers.Schedulers.trampoline();

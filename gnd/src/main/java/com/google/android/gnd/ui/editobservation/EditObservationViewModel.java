@@ -22,6 +22,7 @@ import static com.google.android.gnd.persistence.remote.firestore.FirestoreStora
 import android.app.Application;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import androidx.annotation.NonNull;
 import androidx.databinding.ObservableArrayMap;
 import androidx.databinding.ObservableMap;
 import androidx.lifecycle.LiveData;
@@ -81,6 +82,7 @@ public class EditObservationViewModel extends AbstractViewModel {
   // View state streams.
 
   /** Form definition, loaded when view is initialized. */
+  @NonNull
   private final LiveData<Form> form;
 
   /** Toolbar title, based on whether user is adding new or editing existing observation. */
@@ -102,6 +104,7 @@ public class EditObservationViewModel extends AbstractViewModel {
   public final MutableLiveData<Boolean> isSaving = new MutableLiveData<>(false);
 
   /** Outcome of user clicking "Save". */
+  @NonNull
   private final LiveData<Event<SaveResult>> saveResults;
 
   /** Observation state loaded when view is initialized. */
@@ -113,7 +116,7 @@ public class EditObservationViewModel extends AbstractViewModel {
 
   @Inject
   EditObservationViewModel(
-      Application application,
+      @NonNull Application application,
       ObservationRepository observationRepository,
       StorageManager storageManager,
       CameraManager cameraManager,
@@ -127,23 +130,26 @@ public class EditObservationViewModel extends AbstractViewModel {
     this.saveResults = fromPublisher(saveClicks.switchMapSingle(__ -> onSave()));
   }
 
-  private static boolean isAddObservationRequest(EditObservationFragmentArgs args) {
+  private static boolean isAddObservationRequest(@NonNull EditObservationFragmentArgs args) {
     return args.getObservationId().equals(ADD_OBSERVATION_ID_PLACEHOLDER);
   }
 
+  @NonNull
   public LiveData<Form> getForm() {
     return form;
   }
 
+  @NonNull
   public LiveData<String> getToolbarTitle() {
     return toolbarTitle;
   }
 
+  @NonNull
   LiveData<Event<SaveResult>> getSaveResults() {
     return saveResults;
   }
 
-  void initialize(EditObservationFragmentArgs args) {
+  void initialize(@NonNull EditObservationFragmentArgs args) {
     viewArgs.onNext(args);
   }
 
@@ -159,12 +165,12 @@ public class EditObservationViewModel extends AbstractViewModel {
     return Optional.ofNullable(responses.get(fieldId));
   }
 
-  void onResponseChanged(Field field, Optional<Response> newResponse) {
+  void onResponseChanged(@NonNull Field field, @NonNull Optional<Response> newResponse) {
     newResponse.ifPresentOrElse(
         r -> responses.put(field.getId(), r), () -> responses.remove(field.getId()));
   }
 
-  public void showPhotoSelector(Field field) {
+  public void showPhotoSelector(@NonNull Field field) {
     /*
      * Didn't subscribe this with Fragment's lifecycle because we need to retain the disposable
      * after the fragment is destroyed (for activity result)
@@ -174,13 +180,13 @@ public class EditObservationViewModel extends AbstractViewModel {
         storageManager.launchPhotoPicker().andThen(handlePhotoPickerResult(field)).subscribe());
   }
 
-  private Completable handlePhotoPickerResult(Field field) {
+  private Completable handlePhotoPickerResult(@NonNull Field field) {
     return storageManager
         .photoPickerResult()
         .flatMapCompletable(bitmap -> saveBitmapAndUpdateResponse(bitmap, field));
   }
 
-  public void showPhotoCapture(Field field) {
+  public void showPhotoCapture(@NonNull Field field) {
     /*
      * Didn't subscribe this with Fragment's lifecycle because we need to retain the disposable
      * after the fragment is destroyed (for activity result)
@@ -190,13 +196,13 @@ public class EditObservationViewModel extends AbstractViewModel {
         cameraManager.launchPhotoCapture().andThen(handlePhotoCaptureResult(field)).subscribe());
   }
 
-  private Completable handlePhotoCaptureResult(Field field) {
+  private Completable handlePhotoCaptureResult(@NonNull Field field) {
     return cameraManager
         .capturePhotoResult()
         .flatMapCompletable(bitmap -> saveBitmapAndUpdateResponse(bitmap, field));
   }
 
-  private Completable saveBitmapAndUpdateResponse(Bitmap bitmap, Field field) {
+  private Completable saveBitmapAndUpdateResponse(Bitmap bitmap, @NonNull Field field) {
     String localFileName = uuidGenerator.generateUuid() + Config.PHOTO_EXT;
     String remoteDestinationPath =
         getRemoteDestinationPath(
@@ -210,6 +216,7 @@ public class EditObservationViewModel extends AbstractViewModel {
     return storageManager.savePhoto(bitmap, localFileName);
   }
 
+  @NonNull
   LiveData<ImmutableMap<Field, String>> getPhotoFieldUpdates() {
     return photoUpdates;
   }
@@ -219,7 +226,8 @@ public class EditObservationViewModel extends AbstractViewModel {
     saveClicks.onNext(Nil.NIL);
   }
 
-  private Single<Form> onInitialize(EditObservationFragmentArgs viewArgs) {
+  @NonNull
+  private Single<Form> onInitialize(@NonNull EditObservationFragmentArgs viewArgs) {
     isLoading.setValue(true);
     isNew = isAddObservationRequest(viewArgs);
     Single<Observation> obs;
@@ -239,18 +247,21 @@ public class EditObservationViewModel extends AbstractViewModel {
     isLoading.postValue(false);
   }
 
-  private Single<Observation> createObservation(EditObservationFragmentArgs args) {
+  @NonNull
+  private Single<Observation> createObservation(@NonNull EditObservationFragmentArgs args) {
     return observationRepository
         .createObservation(args.getProjectId(), args.getFeatureId(), args.getFormId())
         .onErrorResumeNext(this::onError);
   }
 
-  private Single<Observation> loadObservation(EditObservationFragmentArgs args) {
+  @NonNull
+  private Single<Observation> loadObservation(@NonNull EditObservationFragmentArgs args) {
     return observationRepository
         .getObservation(args.getProjectId(), args.getFeatureId(), args.getObservationId())
         .onErrorResumeNext(this::onError);
   }
 
+  @NonNull
   private Single<Event<SaveResult>> onSave() {
     if (originalObservation == null) {
       Timber.e("Save attempted before observation loaded");
@@ -272,6 +283,7 @@ public class EditObservationViewModel extends AbstractViewModel {
     return Single.never();
   }
 
+  @NonNull
   private Single<Event<SaveResult>> save() {
     if (originalObservation == null) {
       return Single.error(new IllegalStateException("Observation is null"));

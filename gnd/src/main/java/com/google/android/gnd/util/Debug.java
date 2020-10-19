@@ -17,12 +17,13 @@
 package com.google.android.gnd.util;
 
 import android.util.Log;
+import androidx.annotation.NonNull;
 
 public abstract class Debug {
   /** Do not instantiate. */
   private Debug() {}
 
-  public static void logLifecycleEvent(Object instance) {
+  public static void logLifecycleEvent(@NonNull Object instance) {
     StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
     String callingMethod = stackTrace[3].getMethodName() + "()";
     Log.v(instance.getClass().getSimpleName(), "Lifecycle event: " + callingMethod);

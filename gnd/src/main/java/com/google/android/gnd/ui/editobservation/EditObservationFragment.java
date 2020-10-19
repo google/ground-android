@@ -71,11 +71,14 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
   @Inject FieldViewFactory fieldViewFactory;
 
   private EditObservationViewModel viewModel;
+  @Nullable
   private SingleSelectDialogFactory singleSelectDialogFactory;
+  @Nullable
   private MultiSelectDialogFactory multiSelectDialogFactory;
   private EditObservationFragBinding binding;
 
-  private static AbstractFieldViewModel getViewModel(ViewDataBinding binding) {
+  @Nullable
+  private static AbstractFieldViewModel getViewModel(@Nullable ViewDataBinding binding) {
     if (binding == null) {
       return null;
     } else if (binding instanceof TextInputFieldBinding) {
@@ -123,7 +126,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
     viewModel.initialize(EditObservationFragmentArgs.fromBundle(getArguments()));
   }
 
-  private void handleSaveResult(EditObservationViewModel.SaveResult saveResult) {
+  private void handleSaveResult(@NonNull EditObservationViewModel.SaveResult saveResult) {
     switch (saveResult) {
       case HAS_VALIDATION_ERRORS:
         showValidationErrorsAlert();
@@ -142,7 +145,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
     }
   }
 
-  private void addFieldViewModel(Field field, AbstractFieldViewModel fieldViewModel) {
+  private void addFieldViewModel(@NonNull Field field, @NonNull AbstractFieldViewModel fieldViewModel) {
     fieldViewModel.init(field, viewModel.getSavedOrOriginalResponse(field.getId()));
 
     if (fieldViewModel instanceof PhotoFieldViewModel) {
@@ -159,12 +162,12 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
     fieldViewModelList.add(fieldViewModel);
   }
 
-  public void onSaveClick(View view) {
+  public void onSaveClick(@NonNull View view) {
     hideKeyboard(view);
     viewModel.onSave(getValidationErrors());
   }
 
-  private void hideKeyboard(View view) {
+  private void hideKeyboard(@NonNull View view) {
     if (getActivity() != null) {
       InputMethodManager inputMethodManager =
           (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -172,6 +175,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
     }
   }
 
+  @NonNull
   private Map<String, String> getValidationErrors() {
     HashMap<String, String> errors = new HashMap<>();
     for (AbstractFieldViewModel fieldViewModel : fieldViewModelList) {
@@ -182,7 +186,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
     return errors;
   }
 
-  private void rebuildForm(Form form) {
+  private void rebuildForm(@NonNull Form form) {
     LinearLayout formLayout = binding.editObservationLayout;
     formLayout.removeAllViews();
     fieldViewModelList.clear();
@@ -197,7 +201,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
     }
   }
 
-  private void observeMultipleChoiceClicks(MultipleChoiceFieldViewModel viewModel) {
+  private void observeMultipleChoiceClicks(@NonNull MultipleChoiceFieldViewModel viewModel) {
     viewModel
         .getShowDialogClicks()
         .observe(
@@ -210,7 +214,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
   }
 
   private void onShowDialog(
-      Field field, Optional<Response> currentResponse, Consumer<Optional<Response>> consumer) {
+      @NonNull Field field, Optional<Response> currentResponse, Consumer<Optional<Response>> consumer) {
     Cardinality cardinality = field.getMultipleChoice().getCardinality();
     switch (cardinality) {
       case SELECT_MULTIPLE:
@@ -225,13 +229,13 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
     }
   }
 
-  private void observeSelectPhotoClicks(PhotoFieldViewModel fieldViewModel) {
+  private void observeSelectPhotoClicks(@NonNull PhotoFieldViewModel fieldViewModel) {
     fieldViewModel
         .getShowDialogClicks()
         .observe(this, __ -> onShowPhotoSelectorDialog(fieldViewModel.getField()));
   }
 
-  private void observePhotoAdded(PhotoFieldViewModel fieldViewModel) {
+  private void observePhotoAdded(@NonNull PhotoFieldViewModel fieldViewModel) {
     viewModel
         .getPhotoFieldUpdates()
         .observe(

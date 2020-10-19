@@ -19,6 +19,7 @@ package com.google.android.gnd.persistence.remote.firestore.schema;
 import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList;
 import static java8.util.stream.StreamSupport.stream;
 
+import androidx.annotation.NonNull;
 import com.google.android.gnd.persistence.remote.DataStoreException;
 import com.google.android.gnd.persistence.remote.RemoteDataEvent;
 import com.google.firebase.firestore.DocumentChange;
@@ -35,14 +36,15 @@ class QuerySnapshotConverter {
 
   /** Applies a converter function to document change events in the specified query snapshot. */
   static <T> Iterable<RemoteDataEvent<T>> toEvents(
-      QuerySnapshot snapshot, Function<DocumentSnapshot, T> converter) {
+      @NonNull QuerySnapshot snapshot, @NonNull Function<DocumentSnapshot, T> converter) {
     return stream(snapshot.getDocumentChanges())
         .map(dc -> toEvent(dc, converter))
         .collect(toImmutableList());
   }
 
+  @NonNull
   private static <T> RemoteDataEvent<T> toEvent(
-      DocumentChange dc, Function<DocumentSnapshot, T> converter) {
+      @NonNull DocumentChange dc, @NonNull Function<DocumentSnapshot, T> converter) {
     try {
       Timber.v(dc.getDocument().getReference().getPath() + " " + dc.getType());
       String id = dc.getDocument().getId();

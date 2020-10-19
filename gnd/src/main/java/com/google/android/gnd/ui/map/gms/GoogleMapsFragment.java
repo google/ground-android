@@ -22,6 +22,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
+import androidx.annotation.NonNull;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import com.google.android.gms.maps.SupportMapFragment;
@@ -38,7 +39,8 @@ public class GoogleMapsFragment extends SupportMapFragment {
     return view;
   }
 
-  private WindowInsetsCompat onApplyWindowInsets(View view, WindowInsetsCompat insets) {
+  @NonNull
+  private WindowInsetsCompat onApplyWindowInsets(@NonNull View view, @NonNull WindowInsetsCompat insets) {
     int insetBottom = insets.getSystemWindowInsetBottom();
     // TODO: Move extra padding to dimens.xml.
     // HACK: Fix padding when keyboard is shown; we limit the padding here to prevent the
@@ -48,7 +50,7 @@ public class GoogleMapsFragment extends SupportMapFragment {
     return insets;
   }
 
-  private void setWatermarkPadding(View view, int left, int top, int right, int bottom) {
+  private void setWatermarkPadding(@NonNull View view, int left, int top, int right, int bottom) {
     ImageView watermark = view.findViewWithTag("GoogleWatermark");
     // Watermark may be null if Maps failed to load.
     if (watermark == null) {

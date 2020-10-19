@@ -44,7 +44,8 @@ public abstract class UserEntity {
   @ColumnInfo(name = "display_name")
   public abstract String getDisplayName();
 
-  public static UserEntity fromUser(User user) {
+  @NonNull
+  public static UserEntity fromUser(@NonNull User user) {
     return UserEntity.builder()
         .setId(user.getId())
         .setEmail(user.getEmail())
@@ -52,7 +53,8 @@ public abstract class UserEntity {
         .build();
   }
 
-  public static User toUser(UserEntity u) {
+  @NonNull
+  public static User toUser(@NonNull UserEntity u) {
     return User.builder()
         .setId(u.getId())
         .setEmail(u.getEmail())
@@ -60,10 +62,12 @@ public abstract class UserEntity {
         .build();
   }
 
+  @NonNull
   public static UserEntity create(String id, String email, String displayName) {
     return builder().setId(id).setEmail(email).setDisplayName(displayName).build();
   }
 
+  @NonNull
   public static Builder builder() {
     return new AutoValue_UserEntity.Builder();
   }
@@ -77,6 +81,7 @@ public abstract class UserEntity {
 
     public abstract Builder setDisplayName(String displayName);
 
+    @NonNull
     public abstract UserEntity build();
   }
 }

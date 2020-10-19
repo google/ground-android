@@ -53,7 +53,8 @@ public abstract class AuditInfoEntity {
   public abstract Long getServerTimestamp();
 
   /** Converts a model object into a local db entity. */
-  static AuditInfoEntity fromObject(AuditInfo o) {
+  @NonNull
+  static AuditInfoEntity fromObject(@NonNull AuditInfo o) {
     return AuditInfoEntity.builder()
         .setUser(UserDetails.fromUser(o.getUser()))
         .setClientTimestamp(o.getClientTimestamp().getTime())
@@ -61,7 +62,8 @@ public abstract class AuditInfoEntity {
         .build();
   }
 
-  static AuditInfo toObject(AuditInfoEntity e) {
+  @NonNull
+  static AuditInfo toObject(@NonNull AuditInfoEntity e) {
     return AuditInfo.builder()
         .setUser(UserDetails.toUser(e.getUser()))
         .setClientTimestamp(new Date(e.getClientTimestamp()))
@@ -81,6 +83,7 @@ public abstract class AuditInfoEntity {
         .build();
   }
 
+  @NonNull
   public static Builder builder() {
     return new AutoValue_AuditInfoEntity.Builder();
   }
@@ -94,6 +97,7 @@ public abstract class AuditInfoEntity {
 
     public abstract Builder setServerTimestamp(@Nullable Long newServerTimestamp);
 
+    @NonNull
     public abstract AuditInfoEntity build();
   }
 }

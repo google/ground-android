@@ -18,12 +18,14 @@ package com.google.android.gnd.persistence.remote.firestore.schema;
 
 import static com.google.android.gnd.util.Localization.getLocalizedMessage;
 
+import androidx.annotation.NonNull;
 import com.google.android.gnd.model.form.Option;
 
 /** Converts between Firestore nested objects and {@link Option} instances. */
 class OptionConverter {
 
-  static Option toOption(String id, OptionNestedObject option) {
+  @NonNull
+  static Option toOption(@NonNull String id, @NonNull OptionNestedObject option) {
     Option.Builder builder = Option.newBuilder();
     builder.setId(id);
     if (option.getCode() != null) {

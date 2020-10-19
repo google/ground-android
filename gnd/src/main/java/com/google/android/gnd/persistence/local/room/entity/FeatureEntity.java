@@ -78,7 +78,7 @@ public abstract class FeatureEntity {
   public abstract AuditInfoEntity getLastModified();
 
   @NonNull
-  public static FeatureEntity fromMutation(FeatureMutation mutation, AuditInfo created) {
+  public static FeatureEntity fromMutation(@NonNull FeatureMutation mutation, @NonNull AuditInfo created) {
     AuditInfoEntity authInfo = AuditInfoEntity.fromObject(created);
     FeatureEntity.Builder entity =
         FeatureEntity.builder()
@@ -92,7 +92,8 @@ public abstract class FeatureEntity {
     return entity.build();
   }
 
-  public static FeatureEntity fromFeature(Feature feature) {
+  @NonNull
+  public static FeatureEntity fromFeature(@NonNull Feature feature) {
     FeatureEntity.Builder entity =
         FeatureEntity.builder()
             .setId(feature.getId())
@@ -106,7 +107,8 @@ public abstract class FeatureEntity {
   }
 
   // TODO(#127): Decouple from Project and remove 2nd argument.
-  public static Feature toFeature(FeatureEntity featureEntity, Project project) {
+  @NonNull
+  public static Feature toFeature(@NonNull FeatureEntity featureEntity, @NonNull Project project) {
     return Feature.newBuilder()
         .setId(featureEntity.getId())
         .setProject(project)
@@ -117,10 +119,12 @@ public abstract class FeatureEntity {
         .build();
   }
 
+  @NonNull
   public abstract FeatureEntity.Builder toBuilder();
 
   // Boilerplate generated using Android Studio AutoValue plugin:
 
+  @NonNull
   public static FeatureEntity create(
       String id,
       String projectId,
@@ -140,6 +144,7 @@ public abstract class FeatureEntity {
         .build();
   }
 
+  @NonNull
   public static Builder builder() {
     return new AutoValue_FeatureEntity.Builder();
   }
@@ -161,6 +166,7 @@ public abstract class FeatureEntity {
 
     public abstract Builder setLastModified(AuditInfoEntity newLastModified);
 
+    @NonNull
     public abstract FeatureEntity build();
   }
 }

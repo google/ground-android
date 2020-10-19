@@ -21,6 +21,8 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
 import android.widget.ImageView;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.databinding.BindingAdapter;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gnd.R;
@@ -38,12 +40,12 @@ public class BindingAdapters {
 
   @BindingAdapter("onClick")
   public static void bindGoogleSignOnButtonClick(
-      SignInButton button, View.OnClickListener onClickCallback) {
+      @NonNull SignInButton button, View.OnClickListener onClickCallback) {
     button.setOnClickListener(onClickCallback);
   }
 
   @BindingAdapter("onTextChanged")
-  public static void bindTextWatcher(TextInputEditText editText, Consumer onTextChanged) {
+  public static void bindTextWatcher(@NonNull TextInputEditText editText, @NonNull Consumer onTextChanged) {
     editText.addTextChangedListener(
         new TextWatcher() {
           @Override
@@ -52,7 +54,7 @@ public class BindingAdapters {
           }
 
           @Override
-          public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+          public void onTextChanged(@NonNull CharSequence charSequence, int i, int i1, int i2) {
             onTextChanged.accept(charSequence.toString());
           }
 
@@ -64,14 +66,14 @@ public class BindingAdapters {
   }
 
   @BindingAdapter("errorText")
-  public static void bindError(TextInputEditText view, Optional<String> error) {
+  public static void bindError(@NonNull TextInputEditText view, @Nullable Optional<String> error) {
     if (error != null) {
       error.ifPresentOrElse(view::setError, () -> view.setError(null));
     }
   }
 
   @BindingAdapter("onShowDialog")
-  public static void setOnShowDialogListener(MultipleChoiceFieldLayout view, Runnable listener) {
+  public static void setOnShowDialogListener(@NonNull MultipleChoiceFieldLayout view, Runnable listener) {
     view.setOnShowDialogListener(listener);
   }
 

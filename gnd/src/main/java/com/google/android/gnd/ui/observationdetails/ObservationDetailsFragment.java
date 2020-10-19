@@ -85,7 +85,7 @@ public class ObservationDetailsFragment extends AbstractFragment {
   }
 
   @Override
-  public void onCreateOptionsMenu(@NonNull Menu menu, MenuInflater inflater) {
+  public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
     inflater.inflate(R.menu.observation_details_menu, menu);
   }
 
@@ -95,7 +95,7 @@ public class ObservationDetailsFragment extends AbstractFragment {
     setHasOptionsMenu(true);
   }
 
-  private void onUpdate(Loadable<Observation> observation) {
+  private void onUpdate(@NonNull Loadable<Observation> observation) {
     switch (observation.getState()) {
       case LOADED:
         observation.value().ifPresent(this::showObservation);
@@ -112,7 +112,7 @@ public class ObservationDetailsFragment extends AbstractFragment {
     }
   }
 
-  private void showObservation(Observation observation) {
+  private void showObservation(@NonNull Observation observation) {
     binding.observationDetailsLayout.removeAllViews();
     for (Element element : observation.getForm().getElementsSorted()) {
       if (element.getType() == Element.Type.FIELD) {
@@ -121,7 +121,7 @@ public class ObservationDetailsFragment extends AbstractFragment {
     }
   }
 
-  private void addField(Field field, Observation observation) {
+  private void addField(@NonNull Field field, @NonNull Observation observation) {
     ObservationDetailsFieldBinding fieldBinding =
         ObservationDetailsFieldBinding.inflate(getLayoutInflater());
     fieldBinding.setField(field);
@@ -141,7 +141,7 @@ public class ObservationDetailsFragment extends AbstractFragment {
             });
   }
 
-  private void addPhotoField(ViewGroup container, Field field, Response response) {
+  private void addPhotoField(@NonNull ViewGroup container, @NonNull Field field, Response response) {
     PhotoFieldBinding photoFieldBinding = PhotoFieldBinding.inflate(getLayoutInflater());
     PhotoFieldViewModel photoFieldViewModel = viewModelFactory.create(PhotoFieldViewModel.class);
     photoFieldBinding.setLifecycleOwner(this);
@@ -151,7 +151,7 @@ public class ObservationDetailsFragment extends AbstractFragment {
   }
 
   @Override
-  public boolean onOptionsItemSelected(MenuItem item) {
+  public boolean onOptionsItemSelected(@NonNull MenuItem item) {
     ObservationDetailsFragmentArgs args = getObservationDetailFragmentArgs();
     String projectId = args.getProjectId();
     String featureId = args.getFeatureId();
@@ -174,14 +174,17 @@ public class ObservationDetailsFragment extends AbstractFragment {
     }
   }
 
+  @NonNull
   public String getFeatureTitle(@Nullable Optional<Feature> feature) {
     return feature == null ? "" : featureHelper.getTitle(feature);
   }
 
+  @NonNull
   public String getFeatureSubtitle(@Nullable Optional<Feature> feature) {
     return feature == null ? "" : featureHelper.getCreatedBy(feature);
   }
 
+  @NonNull
   private ObservationDetailsFragmentArgs getObservationDetailFragmentArgs() {
     return ObservationDetailsFragmentArgs.fromBundle(getArguments());
   }

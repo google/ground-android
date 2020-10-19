@@ -41,7 +41,8 @@ import java.net.URL;
     indices = {@Index("project_id")}) // NOPMD
 public abstract class OfflineBaseMapSourceEntity {
 
-  public static OfflineBaseMapSource toModel(OfflineBaseMapSourceEntity source)
+  @NonNull
+  public static OfflineBaseMapSource toModel(@NonNull OfflineBaseMapSourceEntity source)
       throws MalformedURLException {
     return OfflineBaseMapSource.builder().setUrl(new URL(source.getUrl())).build();
   }
@@ -62,19 +63,22 @@ public abstract class OfflineBaseMapSourceEntity {
   @ColumnInfo(name = "url")
   public abstract String getUrl();
 
+  @NonNull
   public static OfflineBaseMapSourceEntity fromModel(
-      String projectId, OfflineBaseMapSource source) {
+      @NonNull String projectId, @NonNull OfflineBaseMapSource source) {
     return OfflineBaseMapSourceEntity.builder()
         .setProjectId(projectId)
         .setUrl(source.getUrl().toString())
         .build();
   }
 
+  @NonNull
   public static OfflineBaseMapSourceEntity create(
-      @Nullable Integer id, String projectId, String url) {
+      @Nullable Integer id, @NonNull String projectId, @NonNull String url) {
     return builder().setId(id).setProjectId(projectId).setUrl(url).build();
   }
 
+  @NonNull
   public static Builder builder() {
     return new AutoValue_OfflineBaseMapSourceEntity.Builder();
   }
@@ -88,6 +92,7 @@ public abstract class OfflineBaseMapSourceEntity {
 
     public abstract Builder setUrl(@NonNull String newUrl);
 
+    @NonNull
     public abstract OfflineBaseMapSourceEntity build();
   }
 }

@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.repository;
 
+import androidx.annotation.NonNull;
 import com.google.android.gnd.model.AuditInfo;
 import com.google.android.gnd.model.Mutation.Type;
 import com.google.android.gnd.model.feature.Feature;
@@ -80,6 +81,7 @@ public class ObservationRepository {
    *   <li>Relevant observations are returned directly from the local data store.
    * </ol>
    */
+  @NonNull
   public Single<ImmutableList<Observation>> getObservations(
       String projectId, String featureId, String formId) {
     // TODO: Only fetch first n fields.
@@ -91,6 +93,7 @@ public class ObservationRepository {
         .flatMap(feature -> getObservations(feature, formId));
   }
 
+  @NonNull
   private Single<ImmutableList<Observation>> getObservations(Feature feature, String formId) {
     Completable remoteSync =
         remoteDataStore
@@ -103,13 +106,14 @@ public class ObservationRepository {
   }
 
   private Completable mergeRemoteObservations(
-      ImmutableList<ValueOrError<Observation>> observations) {
+      @NonNull ImmutableList<ValueOrError<Observation>> observations) {
     return Observable.fromIterable(observations)
         .doOnNext(voe -> voe.error().ifPresent(t -> Timber.e(t, "Skipping bad observation")))
         .compose(ValueOrError::ignoreErrors)
         .flatMapCompletable(localDataStore::mergeObservation);
   }
 
+  @NonNull
   public Single<Observation> getObservation(
       String projectId, String featureId, String observationId) {
     // TODO: Store and retrieve latest edits from cache and/or db.
@@ -125,6 +129,7 @@ public class ObservationRepository {
                         Single.error(() -> new NotFoundException("Observation " + observationId))));
   }
 
+  @NonNull
   public Single<Observation> createObservation(String projectId, String featureId, String formId) {
     // TODO: Handle invalid formId.
     // TODO(#127): Decouple feature from observation so that we don't need to fetch feature here.
@@ -144,7 +149,7 @@ public class ObservationRepository {
                     .build());
   }
 
-  public Completable deleteObservation(Observation observation) {
+  public Completable deleteObservation(@NonNull Observation observation) {
     ObservationMutation observationMutation =
         ObservationMutation.builder()
             .setType(Type.DELETE)
@@ -161,7 +166,7 @@ public class ObservationRepository {
   }
 
   public Completable addObservationMutation(
-      Observation observation, ImmutableList<ResponseDelta> responseDeltas, boolean isNew) {
+      @NonNull Observation observation, ImmutableList<ResponseDelta> responseDeltas, boolean isNew) {
     ObservationMutation observationMutation =
         ObservationMutation.builder()
             .setType(isNew ? ObservationMutation.Type.CREATE : ObservationMutation.Type.UPDATE)
@@ -177,7 +182,7 @@ public class ObservationRepository {
     return applyAndEnqueue(observationMutation);
   }
 
-  private Completable applyAndEnqueue(ObservationMutation mutation) {
+  private Completable applyAndEnqueue(@NonNull ObservationMutation mutation) {
     return localDataStore
         .applyAndEnqueue(mutation)
         .andThen(dataSyncWorkManager.enqueueSyncWorker(mutation.getFeatureId()));

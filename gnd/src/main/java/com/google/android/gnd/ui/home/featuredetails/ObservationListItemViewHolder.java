@@ -39,6 +39,7 @@ class ObservationListItemViewHolder extends RecyclerView.ViewHolder {
   private static final int MAX_COLUMNS = 4;
   private static final String TAG = ObservationListItemViewHolder.class.getName();
 
+  @NonNull
   private final ObservationListItemBinding binding;
 
   ObservationListItemViewHolder(@NonNull ObservationListItemBinding binding) {
@@ -46,7 +47,7 @@ class ObservationListItemViewHolder extends RecyclerView.ViewHolder {
     this.binding = binding;
   }
 
-  public void bind(ObservationViewModel viewModel, Observation observation) {
+  public void bind(ObservationViewModel viewModel, @NonNull Observation observation) {
     binding.setViewModel(viewModel);
     binding.executePendingBindings();
 
@@ -54,7 +55,7 @@ class ObservationListItemViewHolder extends RecyclerView.ViewHolder {
     addFieldsFromObservation(observation);
   }
 
-  private void addFieldsFromObservation(Observation observation) {
+  private void addFieldsFromObservation(@NonNull Observation observation) {
     binding.fieldLabelRow.removeAllViews();
     binding.fieldValueRow.removeAllViews();
 

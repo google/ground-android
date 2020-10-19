@@ -138,7 +138,7 @@ public class MapContainerFragment extends AbstractFragment {
         .observe(getViewLifecycleOwner(), __ -> showMapTypeSelectorDialog());
   }
 
-  private void onMapReady(MapAdapter map) {
+  private void onMapReady(@NonNull MapAdapter map) {
     Timber.d("MapAdapter ready. Updating subscriptions");
     // Observe events emitted by the ViewModel.
     mapContainerViewModel.getMapPins().observe(this, map::setMapPins);
@@ -161,7 +161,7 @@ public class MapContainerFragment extends AbstractFragment {
     mapContainerViewModel.getMbtilesFilePaths().observe(this, map::addTileOverlays);
   }
 
-  private void showConfirmationDialog(Point point) {
+  private void showConfirmationDialog(@NonNull Point point) {
     new Builder(getContext())
         .setTitle(R.string.move_point_confirmation)
         .setPositiveButton(android.R.string.ok, (dialog, which) -> moveToNewPosition(point))
@@ -171,7 +171,7 @@ public class MapContainerFragment extends AbstractFragment {
         .show();
   }
 
-  private void moveToNewPosition(Point point) {
+  private void moveToNewPosition(@NonNull Point point) {
     mapContainerViewModel
         .getSelectedFeature()
         .map(feature -> feature.toBuilder().setPoint(point).build())
@@ -180,7 +180,7 @@ public class MapContainerFragment extends AbstractFragment {
             () -> Timber.e("No feature selected"));
   }
 
-  private void onBottomSheetStateChange(BottomSheetState state, MapAdapter map) {
+  private void onBottomSheetStateChange(@NonNull BottomSheetState state, @NonNull MapAdapter map) {
     switch (state.getVisibility()) {
       case VISIBLE:
         map.disable();
@@ -195,7 +195,7 @@ public class MapContainerFragment extends AbstractFragment {
     }
   }
 
-  private void onProjectChange(Loadable<Project> project) {
+  private void onProjectChange(@NonNull Loadable<Project> project) {
     if (project.isLoaded()) {
       enableAddFeatureBtn();
     } else {
@@ -219,7 +219,7 @@ public class MapContainerFragment extends AbstractFragment {
         ColorStateList.valueOf(getResources().getColor(R.color.colorGrey500)));
   }
 
-  private void onLocationLockStateChange(BooleanOrError result, MapAdapter map) {
+  private void onLocationLockStateChange(@NonNull BooleanOrError result, @NonNull MapAdapter map) {
     result.error().ifPresent(this::onLocationLockError);
     if (result.isTrue()) {
       Timber.d("Location lock enabled");
@@ -245,7 +245,8 @@ public class MapContainerFragment extends AbstractFragment {
     Toast.makeText(getContext(), resId, Toast.LENGTH_LONG).show();
   }
 
-  private void onCameraUpdate(MapContainerViewModel.CameraUpdate update, MapAdapter map) {
+  private void onCameraUpdate(
+      @NonNull MapContainerViewModel.CameraUpdate update, @NonNull MapAdapter map) {
     Timber.v("Update camera: %s", update);
     if (update.getMinZoomLevel().isPresent()) {
       map.moveCamera(

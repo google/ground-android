@@ -76,15 +76,17 @@ public class FeatureDetailsFragment extends AbstractFragment {
         .observe(getViewLifecycleOwner(), this::onBottomSheetStateChange);
   }
 
+  @NonNull
   public String getFeatureTitle(@Nullable Optional<Feature> feature) {
     return feature == null ? "" : featureHelper.getTitle(feature);
   }
 
+  @NonNull
   public String getFeatureSubtitle(@Nullable Optional<Feature> feature) {
     return feature == null ? "" : featureHelper.getCreatedBy(feature);
   }
 
-  private void onBottomSheetStateChange(BottomSheetState state) {
+  private void onBottomSheetStateChange(@NonNull BottomSheetState state) {
     if (state.isVisible()) {
       // TODO(#373): Update icon based on layer default style.
       // TODO: Auto add observation if there's only one form.
@@ -98,7 +100,7 @@ public class FeatureDetailsFragment extends AbstractFragment {
     viewModel.onBottomSheetStateChange(state);
   }
 
-  private void onApplyWindowInsets(WindowInsetsCompat insets) {
+  private void onApplyWindowInsets(@NonNull WindowInsetsCompat insets) {
     binding
         .getRoot()
         .findViewById(R.id.observation_list_container)

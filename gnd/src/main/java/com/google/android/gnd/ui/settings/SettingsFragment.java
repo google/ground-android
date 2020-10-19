@@ -20,6 +20,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.widget.Toast;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.preference.Preference;
 import androidx.preference.Preference.OnPreferenceChangeListener;
@@ -64,7 +65,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
   }
 
   @Override
-  public boolean onPreferenceChange(Preference preference, Object newValue) {
+  public boolean onPreferenceChange(@NonNull Preference preference, Object newValue) {
     switch (preference.getKey()) {
       case Keys.UPLOAD_MEDIA:
       case Keys.OFFLINE_AREAS:
@@ -77,7 +78,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
   }
 
   @Override
-  public boolean onPreferenceClick(Preference preference) {
+  public boolean onPreferenceClick(@NonNull Preference preference) {
     switch (preference.getKey()) {
       case Keys.VISIT_WEBSITE:
         openUrl(preference.getSummary().toString());

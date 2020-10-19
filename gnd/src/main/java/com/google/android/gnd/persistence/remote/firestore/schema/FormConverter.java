@@ -19,6 +19,7 @@ package com.google.android.gnd.persistence.remote.firestore.schema;
 import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList;
 import static java8.util.stream.StreamSupport.stream;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.google.android.gnd.model.form.Element;
 import com.google.android.gnd.model.form.Form;
@@ -30,7 +31,8 @@ import java8.util.Optional;
 /** Converts between Firestore nested objects and {@link Form} instances. */
 class FormConverter {
 
-  static Form toForm(String formId, FormNestedObject obj) {
+  @NonNull
+  static Form toForm(String formId, @NonNull FormNestedObject obj) {
     return Form.newBuilder().setId(formId).setElements(toList(obj.getElements())).build();
   }
 

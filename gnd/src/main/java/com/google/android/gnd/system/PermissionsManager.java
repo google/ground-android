@@ -20,6 +20,7 @@ import android.app.Application;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.util.Log;
+import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import com.google.android.gnd.rx.RxCompletable;
@@ -36,17 +37,18 @@ public class PermissionsManager {
   private final ActivityStreams activityStreams;
 
   @Inject
-  public PermissionsManager(Application app, ActivityStreams activityStreams) {
+  public PermissionsManager(@NonNull Application app, ActivityStreams activityStreams) {
     context = app.getApplicationContext();
     this.activityStreams = activityStreams;
   }
 
-  public Completable obtainPermission(String permission) {
+  @NonNull
+  public Completable obtainPermission(@NonNull String permission) {
     return RxCompletable.completeIf(() -> requestPermission(permission))
         .ambWith(getPermissionsResult(permission));
   }
 
-  private boolean requestPermission(String permission) {
+  private boolean requestPermission(@NonNull String permission) {
     if (isGranted(permission)) {
       Log.d(TAG, permission + " already granted");
       return true;
@@ -60,7 +62,7 @@ public class PermissionsManager {
     }
   }
 
-  private boolean isGranted(String permission) {
+  private boolean isGranted(@NonNull String permission) {
     return ContextCompat.checkSelfPermission(context, permission)
         == PackageManager.PERMISSION_GRANTED;
   }

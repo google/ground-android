@@ -16,6 +16,7 @@
 
 package com.google.android.gnd;
 
+import androidx.annotation.NonNull;
 import com.google.android.gnd.persistence.remote.FakeRemoteDataStore;
 import com.google.android.gnd.persistence.remote.FakeRemoteStorageManager;
 import com.google.android.gnd.persistence.remote.RemoteDataStore;
@@ -34,22 +35,26 @@ import javax.inject.Singleton;
 @InstallIn(ApplicationComponent.class)
 abstract class TestDependenciesModule {
 
+  @NonNull
   @Binds
   @Singleton
   abstract AuthenticationManager bindAuthenticationManager(
       FakeAuthenticationManager authenticationManager
   );
 
+  @NonNull
   @Binds
   @Singleton
   abstract RemoteDataStore bindRemoteDataStore(FakeRemoteDataStore remoteDataStore);
 
+  @NonNull
   @Binds
   @Singleton
   abstract RemoteStorageManager bindRemoteStorageManager(
       FakeRemoteStorageManager remoteStorageManager
   );
 
+  @NonNull
   @Binds
   @Singleton
   abstract OfflineUuidGenerator offlineUuidGenerator(FakeUuidGenerator uuidGenerator);

@@ -24,6 +24,7 @@ import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.FrameLayout;
 import androidx.annotation.DrawableRes;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.ViewCompat;
@@ -57,7 +58,7 @@ public abstract class AbstractActivity extends AppCompatActivity {
 
   /** Adjust UI elements with respect to top/bottom insets. */
   @OverridingMethodsMustInvokeSuper
-  protected void onWindowInsetChanged(WindowInsetsCompat insets) {
+  protected void onWindowInsetChanged(@NonNull WindowInsetsCompat insets) {
     findViewById(R.id.status_bar_scrim)
         .setLayoutParams(
             new FrameLayout.LayoutParams(
@@ -94,7 +95,7 @@ public abstract class AbstractActivity extends AppCompatActivity {
     super.onDestroy();
   }
 
-  public void setActionBar(TwoLineToolbar toolbar, @DrawableRes int upIconId) {
+  public void setActionBar(@NonNull TwoLineToolbar toolbar, @DrawableRes int upIconId) {
     setActionBar(toolbar, false);
     // We override the color here programmatically since calling setHomeAsUpIndicator uses the color
     // of the set icon, not the applied theme. This allows us to change the primary color
@@ -103,7 +104,7 @@ public abstract class AbstractActivity extends AppCompatActivity {
     getSupportActionBar().setHomeAsUpIndicator(icon);
   }
 
-  public void setActionBar(TwoLineToolbar toolbar, boolean showTitle) {
+  public void setActionBar(@NonNull TwoLineToolbar toolbar, boolean showTitle) {
     setSupportActionBar(toolbar);
 
     // Workaround to get rid of application title from toolbar. Simply setting "" here or in layout

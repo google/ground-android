@@ -43,10 +43,12 @@ public abstract class Coordinates {
 
   // Boilerplate generated using Android Studio AutoValue plugin:
 
+  @NonNull
   public static Coordinates create(double latitude, double longitude) {
     return builder().setLatitude(latitude).setLongitude(longitude).build();
   }
 
+  @NonNull
   public static Builder builder() {
     return new AutoValue_Coordinates.Builder();
   }
@@ -58,12 +60,13 @@ public abstract class Coordinates {
 
     public abstract Builder setLongitude(double newLongitude);
 
+    @NonNull
     public abstract Coordinates build();
   }
 
   /** Returns a new instance equivalent to the provided {@link Point}. */
   @NonNull
-  public static Coordinates fromPoint(Point point) {
+  public static Coordinates fromPoint(@NonNull Point point) {
     return Coordinates.builder()
         .setLatitude(point.getLatitude())
         .setLongitude(point.getLongitude())

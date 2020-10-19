@@ -18,6 +18,7 @@ package com.google.android.gnd.model.observation;
 
 import static java8.lang.Iterables.forEach;
 
+import androidx.annotation.NonNull;
 import com.google.common.collect.ImmutableList;
 import java.util.HashMap;
 import java.util.Map;
@@ -46,15 +47,18 @@ public class ResponseMap {
   }
 
   /** Returns an Iterable over the field ids in this map. */
+  @NonNull
   public Iterable<String> fieldIds() {
     return responses.keySet();
   }
 
+  @NonNull
   public ResponseMap.Builder toBuilder() {
     return builder().putAllResponses(responses);
   }
 
   /** Returns a builder for constructing and populating new {@link ResponseMap} instances. */
+  @NonNull
   public static Builder builder() {
     return new Builder();
   }
@@ -63,30 +67,35 @@ public class ResponseMap {
     private final Map<String, Response> map = new HashMap<>();
 
     /** Sets or overwrites the response with the specified field id. */
-    public Builder putResponse(String fieldId, Response response) {
+    @NonNull
+    public Builder putResponse(@NonNull String fieldId, @NonNull Response response) {
       map.put(fieldId, response);
       return this;
     }
 
-    public Builder putAllResponses(Map<String, Response> responses) {
+    @NonNull
+    public Builder putAllResponses(@NonNull Map<String, Response> responses) {
       map.putAll(responses);
       return this;
     }
 
     /** Removes the response with the specified field id. */
+    @NonNull
     public Builder removeResponse(String fieldId) {
       map.remove(fieldId);
       return this;
     }
 
     /** Adds, replaces, and/or removes responses based on the provided list of deltas. */
-    public Builder applyDeltas(ImmutableList<ResponseDelta> responseDeltas) {
+    @NonNull
+    public Builder applyDeltas(@NonNull ImmutableList<ResponseDelta> responseDeltas) {
       forEach(responseDeltas, this::applyDelta);
       return this;
     }
 
     /** Adds, replaces, or removes a responses based on the provided delta. */
-    public Builder applyDelta(ResponseDelta responseDelta) {
+    @NonNull
+    public Builder applyDelta(@NonNull ResponseDelta responseDelta) {
       if (responseDelta.getNewResponse().isPresent()) {
         putResponse(responseDelta.getFieldId(), responseDelta.getNewResponse().get());
       } else {
@@ -96,11 +105,13 @@ public class ResponseMap {
     }
 
     /** Returns a new immutable instance of {@link ResponseMap}. */
+    @NonNull
     public ResponseMap build() {
       return new ResponseMap(map);
     }
   }
 
+  @NonNull
   @Override
   public String toString() {
     return responses.toString();

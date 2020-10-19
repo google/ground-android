@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.persistence.local.room.dao;
 
+import androidx.annotation.NonNull;
 import androidx.room.Dao;
 import androidx.room.Query;
 import com.google.android.gnd.persistence.local.room.entity.TileSourceEntity;
@@ -33,9 +34,11 @@ public interface TileSourceDao extends BaseDao<TileSourceEntity> {
   @Query("SELECT * FROM tile_sources WHERE state = :state")
   Single<List<TileSourceEntity>> findByState(int state);
 
+  @NonNull
   @Query("SELECT * FROM tile_sources WHERE id = :id")
   Maybe<TileSourceEntity> findById(String id);
 
+  @NonNull
   @Query("SELECT * FROM tile_sources WHERE path = :path")
   Maybe<TileSourceEntity> findByPath(String path);
 }

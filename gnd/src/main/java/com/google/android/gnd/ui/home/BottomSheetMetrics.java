@@ -17,21 +17,25 @@
 package com.google.android.gnd.ui.home;
 
 import android.view.View;
+import androidx.annotation.NonNull;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import com.google.android.gnd.R;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 
 /** Abstracts access to dimensions and positions of elements relative to the bottom sheet UI. */
 public class BottomSheetMetrics {
+  @NonNull
   private final CoordinatorLayout parent;
+  @NonNull
   private final View bottomSheet;
   private final View addObservationButton;
+  @NonNull
   private final BottomSheetBehavior<View> bottomSheetBehavior;
   private final View header;
   private final View toolbarWrapper;
   private final int marginTop;
 
-  BottomSheetMetrics(View bottomSheet) {
+  BottomSheetMetrics(@NonNull View bottomSheet) {
     this.parent = (CoordinatorLayout) bottomSheet.getParent();
     this.bottomSheet = bottomSheet;
     this.addObservationButton = parent.findViewById(R.id.add_observation_btn);

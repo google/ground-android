@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.ui.common;
 
+import androidx.annotation.NonNull;
 import androidx.navigation.NavDirections;
 import com.google.android.gnd.R;
 import com.google.android.gnd.ui.editobservation.EditObservationFragment;
@@ -39,7 +40,9 @@ import javax.inject.Inject;
  */
 @ActivityScoped
 public class Navigator {
+  @NonNull
   private final Subject<NavDirections> navigateRequests;
+  @NonNull
   private final Subject<Object> navigateUpRequests;
 
   @Inject
@@ -49,10 +52,12 @@ public class Navigator {
   }
 
   /** Stream of navigation requests for fulfillment by the view layer. */
+  @NonNull
   public Observable<NavDirections> getNavigateRequests() {
     return navigateRequests;
   }
 
+  @NonNull
   public Observable<Object> getNavigateUpRequests() {
     return navigateUpRequests;
   }
@@ -62,7 +67,7 @@ public class Navigator {
     navigateUpRequests.onNext(new Object());
   }
 
-  private void navigate(NavDirections n) {
+  private void navigate(@NonNull NavDirections n) {
     navigateRequests.onNext(n);
   }
 

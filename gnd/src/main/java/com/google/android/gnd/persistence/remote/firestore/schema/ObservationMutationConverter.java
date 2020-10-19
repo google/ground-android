@@ -16,6 +16,8 @@
 
 package com.google.android.gnd.persistence.remote.firestore.schema;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.observation.MultipleChoiceResponse;
 import com.google.android.gnd.model.observation.ObservationMutation;
@@ -40,7 +42,7 @@ class ObservationMutationConverter {
   private static final String CREATED = "created";
   private static final String LAST_MODIFIED = "lastModified";
 
-  static ImmutableMap<String, Object> toMap(ObservationMutation mutation, User user)
+  static ImmutableMap<String, Object> toMap(@NonNull ObservationMutation mutation, @NonNull User user)
       throws DataStoreException {
     ImmutableMap.Builder<String, Object> map = ImmutableMap.builder();
     AuditInfoNestedObject auditInfo = AuditInfoConverter.fromMutationAndUser(mutation, user);
@@ -65,7 +67,7 @@ class ObservationMutationConverter {
     return map.build();
   }
 
-  private static Map<String, Object> toMap(ImmutableList<ResponseDelta> responseDeltas) {
+  private static Map<String, Object> toMap(@NonNull ImmutableList<ResponseDelta> responseDeltas) {
     ImmutableMap.Builder<String, Object> map = ImmutableMap.builder();
     for (ResponseDelta delta : responseDeltas) {
       map.put(
@@ -78,6 +80,7 @@ class ObservationMutationConverter {
     return map.build();
   }
 
+  @Nullable
   private static Object toObject(Response response) {
     if (response instanceof TextResponse) {
       return ((TextResponse) response).getText();

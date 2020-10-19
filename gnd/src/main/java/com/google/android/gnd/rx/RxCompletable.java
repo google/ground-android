@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.rx;
 
+import androidx.annotation.NonNull;
 import io.reactivex.Completable;
 import java.util.concurrent.Callable;
 import java8.util.function.Supplier;
@@ -25,7 +26,8 @@ public abstract class RxCompletable {
   /** Do not instantiate. */
   private RxCompletable() {}
 
-  public static Completable completeIf(Callable<Boolean> conditionFunction) {
+  @NonNull
+  public static Completable completeIf(@NonNull Callable<Boolean> conditionFunction) {
     return Completable.create(
         em -> {
           if (conditionFunction.call()) {
@@ -34,8 +36,9 @@ public abstract class RxCompletable {
         });
   }
 
+  @NonNull
   public static Completable completeOrError(
-      Supplier<Boolean> supplier, Class<? extends Throwable> errorClass) {
+      @NonNull Supplier<Boolean> supplier, @NonNull Class<? extends Throwable> errorClass) {
     return Completable.create(
         em -> {
           if (supplier.get()) {

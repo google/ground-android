@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.ui.map;
 
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import com.google.common.collect.ImmutableMap;
 import io.reactivex.Single;
@@ -29,8 +30,10 @@ import io.reactivex.Single;
 public interface MapProvider {
   void restore(Fragment fragment);
 
+  @Nullable
   Fragment getFragment();
 
+  @Nullable
   Single<MapAdapter> getMapAdapter();
 
   int getMapType();

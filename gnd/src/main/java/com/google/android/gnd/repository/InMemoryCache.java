@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.repository;
 
+import androidx.annotation.NonNull;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.common.collect.ImmutableSet;
 import java.util.LinkedHashMap;
@@ -26,6 +27,7 @@ import javax.inject.Inject;
 /** Ephemeral storage of application state. This can be destroyed without notice. */
 public class InMemoryCache {
   // TODO: Store map vector objects here instead of Feature objects.
+  @NonNull
   private final Map<String, Feature> features;
 
   @Inject
@@ -33,7 +35,7 @@ public class InMemoryCache {
     this.features = new LinkedHashMap<>();
   }
 
-  public synchronized void putFeature(Feature feature) {
+  public synchronized void putFeature(@NonNull Feature feature) {
     features.put(feature.getId(), feature);
   }
 

@@ -16,6 +16,8 @@
 
 package com.google.android.gnd.persistence.remote;
 
+import androidx.annotation.NonNull;
+
 public class TransferProgress {
 
   private static final TransferProgress STARTING = new TransferProgress(UploadState.STARTING);
@@ -37,22 +39,27 @@ public class TransferProgress {
     this.bytesTransferred = bytesTransferred;
   }
 
+  @NonNull
   public static TransferProgress starting() {
     return STARTING;
   }
 
+  @NonNull
   public static TransferProgress inProgress(int byteCount, int bytesTransferred) {
     return new TransferProgress(UploadState.IN_PROGRESS, byteCount, bytesTransferred);
   }
 
+  @NonNull
   public static TransferProgress paused() {
     return PAUSED;
   }
 
+  @NonNull
   public static TransferProgress failed() {
     return FAILED;
   }
 
+  @NonNull
   public static TransferProgress completed() {
     return COMPLETED;
   }

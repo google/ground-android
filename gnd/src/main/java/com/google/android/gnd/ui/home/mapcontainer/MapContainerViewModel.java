@@ -57,18 +57,26 @@ import timber.log.Timber;
 public class MapContainerViewModel extends AbstractViewModel {
 
   private static final float DEFAULT_ZOOM_LEVEL = 20.0f;
+  @NonNull
   private final LiveData<Loadable<Project>> activeProject;
+  @NonNull
   private final LiveData<ImmutableSet<MapPin>> mapPins;
+  @NonNull
   private final LiveData<BooleanOrError> locationLockState;
+  @NonNull
   private final LiveData<CameraUpdate> cameraUpdateRequests;
+  @NonNull
   private final MutableLiveData<Point> cameraPosition;
   private final LocationManager locationManager;
   private final FeatureRepository featureRepository;
+  @NonNull
   private final Subject<Boolean> locationLockChangeRequests;
+  @NonNull
   private final Subject<CameraUpdate> cameraUpdateSubject;
   private final MutableLiveData<Integer> mapControlsVisibility = new MutableLiveData<>(VISIBLE);
   private final MutableLiveData<Integer> moveFeaturesVisibility = new MutableLiveData<>(GONE);
   private final MutableLiveData<Event<Nil>> showMapTypeSelectorRequests = new MutableLiveData<>();
+  @NonNull
   private final LiveData<ImmutableSet<String>> mbtilesFilePaths;
 
   // TODO: Create our own wrapper/interface for MbTiles providers
@@ -82,10 +90,10 @@ public class MapContainerViewModel extends AbstractViewModel {
 
   @Inject
   MapContainerViewModel(
-      ProjectRepository projectRepository,
+      @NonNull ProjectRepository projectRepository,
       FeatureRepository featureRepository,
       LocationManager locationManager,
-      OfflineBaseMapRepository offlineBaseMapRepository) {
+      @NonNull OfflineBaseMapRepository offlineBaseMapRepository) {
     this.featureRepository = featureRepository;
     this.locationManager = locationManager;
     this.locationLockChangeRequests = PublishSubject.create();
@@ -118,11 +126,12 @@ public class MapContainerViewModel extends AbstractViewModel {
                 .map(set -> stream(set).map(TileSource::getPath).collect(toImmutableSet())));
   }
 
-  private static ImmutableSet<MapPin> toMapPins(ImmutableSet<Feature> features) {
+  private static ImmutableSet<MapPin> toMapPins(@NonNull ImmutableSet<Feature> features) {
     return stream(features).map(MapContainerViewModel::toMapPin).collect(toImmutableSet());
   }
 
-  private static MapPin toMapPin(Feature feature) {
+  @NonNull
+  private static MapPin toMapPin(@NonNull Feature feature) {
     return MapPin.newBuilder()
         .setId(feature.getId())
         .setPosition(feature.getPoint())
@@ -131,15 +140,16 @@ public class MapContainerViewModel extends AbstractViewModel {
         .build();
   }
 
+  @NonNull
   private Flowable<CameraUpdate> createCameraUpdateFlowable(
-      Flowable<BooleanOrError> locationLockStateFlowable) {
+      @NonNull Flowable<BooleanOrError> locationLockStateFlowable) {
     return cameraUpdateSubject
         .toFlowable(BackpressureStrategy.LATEST)
         .mergeWith(
             locationLockStateFlowable.switchMap(this::createLocationLockCameraUpdateFlowable));
   }
 
-  private Flowable<CameraUpdate> createLocationLockCameraUpdateFlowable(BooleanOrError lockState) {
+  private Flowable<CameraUpdate> createLocationLockCameraUpdateFlowable(@NonNull BooleanOrError lockState) {
     if (!lockState.isTrue()) {
       return Flowable.empty();
     }
@@ -163,7 +173,7 @@ public class MapContainerViewModel extends AbstractViewModel {
         .toFlowable(BackpressureStrategy.LATEST);
   }
 
-  private Flowable<ImmutableSet<Feature>> getFeaturesStream(Optional<Project> activeProject) {
+  private Flowable<ImmutableSet<Feature>> getFeaturesStream(@NonNull Optional<Project> activeProject) {
     // Emit empty set in separate stream to force unsubscribe from Feature updates and update
     // subscribers.
     return activeProject
@@ -175,26 +185,32 @@ public class MapContainerViewModel extends AbstractViewModel {
     showMapTypeSelectorRequests.setValue(Event.create(Nil.NIL));
   }
 
+  @NonNull
   public LiveData<Loadable<Project>> getActiveProject() {
     return activeProject;
   }
 
+  @NonNull
   public LiveData<ImmutableSet<MapPin>> getMapPins() {
     return mapPins;
   }
 
+  @NonNull
   public LiveData<ImmutableSet<String>> getMbtilesFilePaths() {
     return mbtilesFilePaths;
   }
 
+  @NonNull
   LiveData<CameraUpdate> getCameraUpdateRequests() {
     return cameraUpdateRequests;
   }
 
+  @NonNull
   public LiveData<Point> getCameraPosition() {
     return cameraPosition;
   }
 
+  @NonNull
   public LiveData<BooleanOrError> getLocationLockState() {
     return locationLockState;
   }
@@ -214,7 +230,7 @@ public class MapContainerViewModel extends AbstractViewModel {
     }
   }
 
-  public void onMarkerClick(MapPin pin) {
+  public void onMarkerClick(@NonNull MapPin pin) {
     panAndZoomCamera(pin.getPosition());
   }
 
@@ -226,6 +242,7 @@ public class MapContainerViewModel extends AbstractViewModel {
     locationLockChangeRequests.onNext(!isLocationLockEnabled());
   }
 
+  @NonNull
   LiveData<Event<Nil>> getShowMapTypeSelectorRequests() {
     return showMapTypeSelectorRequests;
   }
@@ -243,10 +260,12 @@ public class MapContainerViewModel extends AbstractViewModel {
     moveFeaturesVisibility.setValue(viewMode == Mode.REPOSITION ? VISIBLE : GONE);
   }
 
+  @NonNull
   public LiveData<Integer> getMapControlsVisibility() {
     return mapControlsVisibility;
   }
 
+  @NonNull
   public LiveData<Integer> getMoveFeatureVisibility() {
     return moveFeaturesVisibility;
   }
@@ -274,10 +293,12 @@ public class MapContainerViewModel extends AbstractViewModel {
       this.minZoomLevel = minZoomLevel;
     }
 
+    @NonNull
     private static CameraUpdate pan(Point center) {
       return new CameraUpdate(center, Optional.empty());
     }
 
+    @NonNull
     private static CameraUpdate panAndZoom(Point center) {
       return new CameraUpdate(center, Optional.of(DEFAULT_ZOOM_LEVEL));
     }

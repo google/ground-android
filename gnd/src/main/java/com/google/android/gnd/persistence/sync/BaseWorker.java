@@ -45,21 +45,23 @@ public abstract class BaseWorker extends Worker {
   /** Content text displayed in the notification. */
   public abstract String getNotificationTitle();
 
-  <T> Flowable<T> notifyTransferState(Flowable<T> upstream) {
+  @NonNull
+  <T> Flowable<T> notifyTransferState(@NonNull Flowable<T> upstream) {
     return upstream
         .doOnSubscribe(__ -> sendNotification(TransferProgress.starting()))
         .doOnError(__ -> sendNotification(TransferProgress.failed()))
         .doOnComplete(() -> sendNotification(TransferProgress.completed()));
   }
 
-  Completable notifyTransferState(Completable completable) {
+  @NonNull
+  Completable notifyTransferState(@NonNull Completable completable) {
     return completable
         .doOnSubscribe(__ -> sendNotification(TransferProgress.starting()))
         .doOnError(__ -> sendNotification(TransferProgress.failed()))
         .doOnComplete(() -> sendNotification(TransferProgress.completed()));
   }
 
-  private Notification createNotification(TransferProgress transferProgress) {
+  private Notification createNotification(@NonNull TransferProgress transferProgress) {
     return notificationManager.createSyncNotification(
         transferProgress.getState(),
         getNotificationTitle(),
@@ -71,7 +73,7 @@ public abstract class BaseWorker extends Worker {
    * Specifies that this is a long-running request and should be kept alive by the OS. Also, runs a
    * foreground service under the hood to execute the request showing a notification.
    */
-  void sendNotification(TransferProgress progress) {
+  void sendNotification(@NonNull TransferProgress progress) {
     setForegroundAsync(new ForegroundInfo(notificationId, createNotification(progress)));
   }
 }

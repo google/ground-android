@@ -20,6 +20,7 @@ import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList
 import static com.google.android.gnd.util.ImmutableSetCollector.toImmutableSet;
 import static java8.util.stream.StreamSupport.stream;
 
+import androidx.annotation.NonNull;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.basemap.OfflineBaseMap;
@@ -83,7 +84,8 @@ public class OfflineBaseMapRepository {
    * <p>Only the first basemap source is used. Sources are always re-downloaded and overwritten on
    * subsequent calls.
    */
-  private File downloadOfflineBaseMapSource(OfflineBaseMapSource offlineBaseMapSource)
+  @NonNull
+  private File downloadOfflineBaseMapSource(@NonNull OfflineBaseMapSource offlineBaseMapSource)
       throws IOException {
 
     URL baseMapUrl = offlineBaseMapSource.getUrl();
@@ -95,7 +97,7 @@ public class OfflineBaseMapRepository {
   }
 
   /** Enqueue a single area and its tile sources for download. */
-  private Completable enqueueDownload(OfflineBaseMap area, ImmutableList<TileSource> tileSources) {
+  private Completable enqueueDownload(@NonNull OfflineBaseMap area, @NonNull ImmutableList<TileSource> tileSources) {
     return localDataStore
         .insertOrUpdateOfflineArea(area.toBuilder().setState(State.IN_PROGRESS).build())
         .andThen(
@@ -111,7 +113,8 @@ public class OfflineBaseMapRepository {
    * Determine the tile sources that need to be downloaded for a given area, then enqueue tile
    * source downloads.
    */
-  private Completable enqueueTileSourceDownloads(OfflineBaseMap area) {
+  @NonNull
+  private Completable enqueueTileSourceDownloads(@NonNull OfflineBaseMap area) {
     return getBaseMapTileSources(area)
         .flatMapCompletable(tileSources -> enqueueDownload(area, tileSources))
         .doOnComplete(() -> Timber.d("area download completed"))
@@ -123,7 +126,8 @@ public class OfflineBaseMapRepository {
    * Get a list of tile sources specified in the first basemap source of the active project that
    * intersect a given area.
    */
-  private Single<ImmutableList<TileSource>> getBaseMapTileSources(OfflineBaseMap offlineBaseMap) {
+  @NonNull
+  private Single<ImmutableList<TileSource>> getBaseMapTileSources(@NonNull OfflineBaseMap offlineBaseMap) {
     LatLngBounds bounds = offlineBaseMap.getBounds();
 
     return projectRepository
@@ -142,7 +146,8 @@ public class OfflineBaseMapRepository {
                 Timber.e(throwable, "couldn't retrieve basemap sources for the active project"));
   }
 
-  public Completable addAreaAndEnqueue(LatLngBounds bounds) {
+  @NonNull
+  public Completable addAreaAndEnqueue(@NonNull LatLngBounds bounds) {
     return geocodingManager
         .getOfflineAreaName(bounds)
         .map(
@@ -164,8 +169,9 @@ public class OfflineBaseMapRepository {
     return localDataStore.getOfflineAreaById(offlineAreaId);
   }
 
+  @NonNull
   public Flowable<ImmutableSet<TileSource>> getIntersectingDownloadedTileSourcesOnceAndStream(
-      OfflineBaseMap offlineBaseMap) {
+      @NonNull OfflineBaseMap offlineBaseMap) {
     return getBaseMapTileSources(offlineBaseMap)
         .flatMapPublisher(
             tiles ->
@@ -177,6 +183,7 @@ public class OfflineBaseMapRepository {
         .onErrorReturn(__ -> ImmutableSet.of());
   }
 
+  @NonNull
   public Flowable<ImmutableSet<TileSource>> getDownloadedTileSourcesOnceAndStream() {
     return localDataStore
         .getTileSourcesOnceAndStream()

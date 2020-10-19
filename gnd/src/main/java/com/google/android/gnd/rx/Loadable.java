@@ -70,7 +70,7 @@ public class Loadable<T> extends ValueOrError<T> {
   }
 
   @NonNull
-  public static <T> Optional<T> getValue(LiveData<Loadable<T>> liveData) {
+  public static <T> Optional<T> getValue(@NonNull LiveData<Loadable<T>> liveData) {
     return liveData.getValue() == null ? Optional.empty() : liveData.getValue().value();
   }
 
@@ -78,7 +78,8 @@ public class Loadable<T> extends ValueOrError<T> {
    * Modifies the provided stream to emit values instead of {@link Loadable} only when a value is
    * loaded (i.e., omitting intermediate loading and error states).
    */
-  public static <V> Publisher<V> values(Flowable<Loadable<V>> stream) {
+  @NonNull
+  public static <V> Publisher<V> values(@NonNull Flowable<Loadable<V>> stream) {
     return stream.map(Loadable::value).filter(Optional::isPresent).map(Optional::get);
   }
 
@@ -91,13 +92,15 @@ public class Loadable<T> extends ValueOrError<T> {
    * @param source the stream responsible for loading values.
    * @param <T> the type of entity being loaded
    */
-  public static <T> Flowable<Loadable<T>> loadingOnceAndWrap(Flowable<T> source) {
+  @NonNull
+  public static <T> Flowable<Loadable<T>> loadingOnceAndWrap(@NonNull Flowable<T> source) {
     return source
         .map(Loadable::loaded)
         .onErrorReturn(Loadable::error)
         .startWith(Loadable.loading());
   }
 
+  @NonNull
   @Override
   public String toString() {
     if (state == LoadState.LOADED || state == LoadState.ERROR) {

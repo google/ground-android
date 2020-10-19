@@ -49,7 +49,9 @@ public class ProjectRepository {
   private final InMemoryCache cache;
   private final LocalDataStore localDataStore;
   private final RemoteDataStore remoteDataStore;
+  @NonNull
   private final Flowable<Loadable<Project>> activeProjectStream;
+  @NonNull
   private final FlowableProcessor<Optional<String>> activateProjectRequests;
   private final LocalValueStore localValueStore;
 
@@ -85,7 +87,7 @@ public class ProjectRepository {
     this.activeProjectStream = activeProject.replay(1).refCount();
   }
 
-  private Flowable<Loadable<Project>> loadProject(Optional<String> projectId) {
+  private Flowable<Loadable<Project>> loadProject(@NonNull Optional<String> projectId) {
     // Empty id indicates intent to deactivate the current project. Used on sign out.
     if (projectId.isEmpty()) {
       return Flowable.just(Loadable.notLoaded());
@@ -106,6 +108,7 @@ public class ProjectRepository {
         .compose(Loadable::loadingOnceAndWrap);
   }
 
+  @NonNull
   private Single<Project> syncProjectWithRemote(String id) {
     return remoteDataStore
         .loadProject(id)
@@ -122,11 +125,12 @@ public class ProjectRepository {
    * Returns a stream that emits the latest project activation state, and continues to emits changes
    * to that state until all subscriptions are disposed.
    */
+  @NonNull
   public Flowable<Loadable<Project>> getActiveProjectOnceAndStream() {
     return activeProjectStream;
   }
 
-  public void activateProject(String projectId) {
+  public void activateProject(@NonNull String projectId) {
     Log.v(TAG, "activateProject() called with " + projectId);
     activateProjectRequests.onNext(Optional.of(projectId));
   }

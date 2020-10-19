@@ -18,6 +18,7 @@ package com.google.android.gnd.persistence.remote.firestore;
 
 import static com.google.android.gnd.persistence.remote.firestore.FirestoreDataStore.ID_COLLECTION;
 
+import androidx.annotation.NonNull;
 import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator;
 import com.google.firebase.firestore.FirebaseFirestore;
 import javax.inject.Inject;
@@ -27,6 +28,7 @@ public class FirestoreUuidGenerator implements OfflineUuidGenerator {
   @Inject
   FirestoreUuidGenerator() {}
 
+  @NonNull
   @Override
   public String generateUuid() {
     return FirebaseFirestore.getInstance().collection(ID_COLLECTION).document().getId();

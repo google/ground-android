@@ -85,6 +85,7 @@ public class HomeScreenFragment extends AbstractFragment
   @Inject Navigator navigator;
   @Inject MapContainerViewModel mapContainerViewModel;
 
+  @Nullable
   private ProgressDialog progressDialog;
   private HomeScreenViewModel viewModel;
   private MapContainerFragment mapContainerFragment;
@@ -186,7 +187,7 @@ public class HomeScreenFragment extends AbstractFragment
     return binding.navView.getMenu().getItem(1);
   }
 
-  private void addProjectToNavDrawer(List<Project> projects) {
+  private void addProjectToNavDrawer(@NonNull List<Project> projects) {
     this.projects = projects;
 
     // clear last saved projects list
@@ -256,7 +257,7 @@ public class HomeScreenFragment extends AbstractFragment
   }
 
   @Override
-  public void onCreateOptionsMenu(@NonNull Menu menu, MenuInflater inflater) {
+  public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
     inflater.inflate(R.menu.feature_sheet_menu, menu);
   }
 
@@ -317,7 +318,7 @@ public class HomeScreenFragment extends AbstractFragment
     viewModel.showOfflineAreas();
   }
 
-  private void onApplyWindowInsets(WindowInsetsCompat insets) {
+  private void onApplyWindowInsets(@NonNull WindowInsetsCompat insets) {
     binding.featureDetailsChrome.toolbarWrapper.setPadding(
         0, insets.getSystemWindowInsetTop(), 0, 0);
     binding.featureDetailsChrome.bottomSheetBottomInsetScrim.setMinimumHeight(
@@ -326,12 +327,12 @@ public class HomeScreenFragment extends AbstractFragment
     updateBottomSheetPeekHeight(insets);
   }
 
-  private void updateNavViewInsets(WindowInsetsCompat insets) {
+  private void updateNavViewInsets(@NonNull WindowInsetsCompat insets) {
     View headerView = binding.navView.getHeaderView(0);
     headerView.setPadding(0, insets.getSystemWindowInsetTop(), 0, 0);
   }
 
-  private void updateBottomSheetPeekHeight(WindowInsetsCompat insets) {
+  private void updateBottomSheetPeekHeight(@NonNull WindowInsetsCompat insets) {
     double width =
         getScreenWidth(getActivity())
             + insets.getSystemWindowInsetLeft()
@@ -350,7 +351,7 @@ public class HomeScreenFragment extends AbstractFragment
     bottomSheetBehavior.setPeekHeight((int) peekHeight);
   }
 
-  private void onActiveProjectChange(Loadable<Project> project) {
+  private void onActiveProjectChange(@NonNull Loadable<Project> project) {
     switch (project.getState()) {
       case NOT_LOADED:
         dismissLoadingDialog();
@@ -380,7 +381,7 @@ public class HomeScreenFragment extends AbstractFragment
     }
   }
 
-  private int getSelectedProjectIndex(Project activeProject) {
+  private int getSelectedProjectIndex(@NonNull Project activeProject) {
     for (Project project : projects) {
       if (project.getId().equals(activeProject.getId())) {
         return projects.indexOf(project);
@@ -400,7 +401,7 @@ public class HomeScreenFragment extends AbstractFragment
     showFeatureDialogRequests.onNext(new Object());
   }
 
-  private void onBottomSheetStateChange(BottomSheetState state) {
+  private void onBottomSheetStateChange(@NonNull BottomSheetState state) {
     switch (state.getVisibility()) {
       case VISIBLE:
         showBottomSheet();
@@ -478,7 +479,7 @@ public class HomeScreenFragment extends AbstractFragment
     return false;
   }
 
-  private void onActivateProjectFailure(Throwable throwable) {
+  private void onActivateProjectFailure(@NonNull Throwable throwable) {
     Timber.e(RxJava2Debug.getEnhancedStackTrace(throwable), "Error activating project");
     dismissLoadingDialog();
     EphemeralPopups.showError(getContext(), R.string.project_load_error);

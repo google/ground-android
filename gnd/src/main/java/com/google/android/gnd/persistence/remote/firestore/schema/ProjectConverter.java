@@ -18,6 +18,7 @@ package com.google.android.gnd.persistence.remote.firestore.schema;
 
 import static com.google.android.gnd.util.Localization.getLocalizedMessage;
 
+import androidx.annotation.NonNull;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.basemap.OfflineBaseMapSource;
 import com.google.android.gnd.persistence.remote.DataStoreException;
@@ -30,7 +31,8 @@ import timber.log.Timber;
 /** Converts between Firestore documents and {@link Project} instances. */
 class ProjectConverter {
 
-  static Project toProject(DocumentSnapshot doc) throws DataStoreException {
+  @NonNull
+  static Project toProject(@NonNull DocumentSnapshot doc) throws DataStoreException {
     ProjectDocument pd = doc.toObject(ProjectDocument.class);
     Project.Builder project = Project.newBuilder();
     project
@@ -47,7 +49,7 @@ class ProjectConverter {
     return project.build();
   }
 
-  private static void convertOfflineBaseMapSources(ProjectDocument pd, Project.Builder project) {
+  private static void convertOfflineBaseMapSources(@NonNull ProjectDocument pd, @NonNull Project.Builder project) {
     for (OfflineBaseMapSourceNestedObject src : pd.getOfflineBaseMapSources()) {
       if (src.getUrl() == null) {
         Timber.d("Skipping base map source in project with missing URL");

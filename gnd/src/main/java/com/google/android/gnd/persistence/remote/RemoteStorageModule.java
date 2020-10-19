@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.persistence.remote;
 
+import androidx.annotation.NonNull;
 import com.google.android.gnd.Config;
 import com.google.android.gnd.persistence.remote.firestore.FirestoreDataStore;
 import com.google.android.gnd.persistence.remote.firestore.FirestoreStorageManager;
@@ -36,6 +37,7 @@ import javax.inject.Singleton;
 @Module
 public abstract class RemoteStorageModule {
 
+  @NonNull
   @Provides
   static FirebaseFirestoreSettings firebaseFirestoreSettings() {
     return new FirebaseFirestoreSettings.Builder()
@@ -43,9 +45,10 @@ public abstract class RemoteStorageModule {
         .build();
   }
 
+  @NonNull
   @Provides
   @Singleton
-  static FirebaseFirestore firebaseFirestore(FirebaseFirestoreSettings settings) {
+  static FirebaseFirestore firebaseFirestore(@NonNull FirebaseFirestoreSettings settings) {
     FirebaseFirestore firestore = FirebaseFirestore.getInstance();
     firestore.setFirestoreSettings(settings);
     FirebaseFirestore.setLoggingEnabled(Config.FIRESTORE_LOGGING_ENABLED);
@@ -55,6 +58,7 @@ public abstract class RemoteStorageModule {
   /**
    * Returns a reference to the default Storage bucket.
    */
+  @NonNull
   @Provides
   @Singleton
   static StorageReference firebaseStorageReference() {
@@ -64,6 +68,7 @@ public abstract class RemoteStorageModule {
   /**
    * Provides the Firestore implementation of remote data store.
    */
+  @NonNull
   @Binds
   @Singleton
   abstract RemoteDataStore remoteDataStore(FirestoreDataStore ds);
@@ -71,6 +76,7 @@ public abstract class RemoteStorageModule {
   /**
    * Provides the Firestore implementation of offline unique id generation.
    */
+  @NonNull
   @Binds
   @Singleton
   abstract OfflineUuidGenerator offlineUuidGenerator(FirestoreUuidGenerator uuidGenerator);
@@ -78,6 +84,7 @@ public abstract class RemoteStorageModule {
   /**
    * Provides the Firestore implementation of remote storage manager.
    */
+  @NonNull
   @Binds
   @Singleton
   abstract RemoteStorageManager remoteStorageManager(FirestoreStorageManager fsm);

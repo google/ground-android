@@ -18,6 +18,8 @@ package com.google.android.gnd.ui.editobservation;
 
 import android.app.Application;
 import android.content.res.Resources;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
 import androidx.lifecycle.MutableLiveData;
@@ -33,9 +35,11 @@ import java8.util.Optional;
 public class AbstractFieldViewModel extends AbstractViewModel {
 
   /** Current value. */
+  @NonNull
   private final LiveData<Optional<Response>> response;
 
   /** Transcoded text to be displayed for the current {@link AbstractFieldViewModel#response}. */
+  @NonNull
   private final LiveData<String> responseText;
 
   /** Error message to be displayed for the current {@link AbstractFieldViewModel#response}. */
@@ -46,7 +50,7 @@ public class AbstractFieldViewModel extends AbstractViewModel {
 
   private Field field;
 
-  AbstractFieldViewModel(Application application) {
+  AbstractFieldViewModel(@NonNull Application application) {
     resources = application.getResources();
 
     responseText =
@@ -57,12 +61,13 @@ public class AbstractFieldViewModel extends AbstractViewModel {
   }
 
   // TODO: Add a reference of Field in Response for simplification.
-  void init(Field field, Optional<Response> response) {
+  void init(Field field, @NonNull Optional<Response> response) {
     this.field = field;
     setResponse(response);
   }
 
-  private Single<String> getDetailsText(Optional<Response> responseOptional) {
+  @NonNull
+  private Single<String> getDetailsText(@NonNull Optional<Response> responseOptional) {
     return Single.just(responseOptional.map(response -> response.getDetailsText(field)).orElse(""));
   }
 
@@ -74,7 +79,7 @@ public class AbstractFieldViewModel extends AbstractViewModel {
   }
 
   // TODO: Check valid response values
-  private Optional<String> validate(Field field, Optional<Response> response) {
+  private Optional<String> validate(@NonNull Field field, @Nullable Optional<Response> response) {
     if (field.isRequired() && (response == null || response.isEmpty())) {
       return Optional.of(resources.getString(R.string.required_field));
     }
@@ -85,6 +90,7 @@ public class AbstractFieldViewModel extends AbstractViewModel {
     return field;
   }
 
+  @NonNull
   public String fieldLabel() {
     StringBuilder label = new StringBuilder(field.getLabel());
     if (field.isRequired()) {
@@ -93,19 +99,22 @@ public class AbstractFieldViewModel extends AbstractViewModel {
     return label.toString();
   }
 
+  @NonNull
   public LiveData<String> getResponseText() {
     return responseText;
   }
 
+  @NonNull
   public LiveData<Optional<String>> getError() {
     return error;
   }
 
+  @NonNull
   LiveData<Optional<Response>> getResponse() {
     return response;
   }
 
-  public void setResponse(Optional<Response> response) {
+  public void setResponse(@NonNull Optional<Response> response) {
     responseSubject.onNext(response);
   }
 }

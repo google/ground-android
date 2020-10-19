@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.ui.observationdetails;
 
+import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
 import com.google.android.gnd.model.feature.Feature;
@@ -31,14 +32,19 @@ import javax.inject.Inject;
 
 public class ObservationDetailsViewModel extends AbstractViewModel {
 
+  @NonNull
   public final LiveData<Loadable<Observation>> observations;
+  @NonNull
   public final LiveData<Boolean> isProgressBarVisible;
+  @NonNull
   public final LiveData<Optional<Feature>> feature;
+  @NonNull
   private final ObservationRepository observationRepository;
+  @NonNull
   private final BehaviorProcessor<ObservationDetailsFragmentArgs> argsProcessor;
 
   @Inject
-  ObservationDetailsViewModel(ObservationRepository observationRepository) {
+  ObservationDetailsViewModel(@NonNull ObservationRepository observationRepository) {
     this.observationRepository = observationRepository;
     this.argsProcessor = BehaviorProcessor.create();
 
@@ -63,18 +69,19 @@ public class ObservationDetailsViewModel extends AbstractViewModel {
             observationStream.map(ObservationDetailsViewModel::getFeature));
   }
 
-  private static Boolean getProgressBarVisibility(Loadable<Observation> observation) {
+  private static Boolean getProgressBarVisibility(@NonNull Loadable<Observation> observation) {
     return observation.value().isPresent();
   }
 
-  private static Optional<Feature> getFeature(Loadable<Observation> observation) {
+  private static Optional<Feature> getFeature(@NonNull Loadable<Observation> observation) {
     return observation.value().map(Observation::getFeature);
   }
 
-  public void loadObservationDetails(ObservationDetailsFragmentArgs args) {
+  public void loadObservationDetails(@NonNull ObservationDetailsFragmentArgs args) {
     this.argsProcessor.onNext(args);
   }
 
+  @NonNull
   public Completable deleteCurrentObservation(
       String projectId, String featureId, String observationId) {
     return observationRepository

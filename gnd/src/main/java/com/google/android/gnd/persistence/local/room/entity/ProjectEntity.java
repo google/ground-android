@@ -49,7 +49,8 @@ public abstract class ProjectEntity {
   @ColumnInfo(name = "description")
   public abstract String getDescription();
 
-  public static ProjectEntity fromProject(Project project) {
+  @NonNull
+  public static ProjectEntity fromProject(@NonNull Project project) {
     return ProjectEntity.builder()
         .setId(project.getId())
         .setTitle(project.getTitle())
@@ -57,7 +58,8 @@ public abstract class ProjectEntity {
         .build();
   }
 
-  public static Project toProject(ProjectEntityAndRelations projectEntityAndRelations) {
+  @NonNull
+  public static Project toProject(@NonNull ProjectEntityAndRelations projectEntityAndRelations) {
     ProjectEntity projectEntity = projectEntityAndRelations.projectEntity;
     Project.Builder projectBuilder =
         Project.newBuilder()
@@ -82,10 +84,12 @@ public abstract class ProjectEntity {
     return projectBuilder.build();
   }
 
+  @NonNull
   public static ProjectEntity create(String id, String title, String description) {
     return builder().setId(id).setTitle(title).setDescription(description).build();
   }
 
+  @NonNull
   public static Builder builder() {
     return new AutoValue_ProjectEntity.Builder();
   }
@@ -99,6 +103,7 @@ public abstract class ProjectEntity {
 
     public abstract Builder setDescription(String description);
 
+    @NonNull
     public abstract ProjectEntity build();
   }
 }

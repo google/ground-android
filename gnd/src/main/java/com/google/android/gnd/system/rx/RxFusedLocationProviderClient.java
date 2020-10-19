@@ -20,6 +20,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.location.Location;
 import android.os.Looper;
+import androidx.annotation.NonNull;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
@@ -34,18 +35,21 @@ import javax.inject.Inject;
  * streams.
  */
 public class RxFusedLocationProviderClient {
+  @NonNull
   private final FusedLocationProviderClient fusedLocationProviderClient;
 
   @Inject
-  public RxFusedLocationProviderClient(@ApplicationContext Context context) {
+  public RxFusedLocationProviderClient(@NonNull @ApplicationContext Context context) {
     this.fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(context);
   }
 
+  @NonNull
   @SuppressLint("MissingPermission")
   public Maybe<Location> getLastLocation() {
     return RxTask.toMaybe(() -> fusedLocationProviderClient.getLastLocation());
   }
 
+  @NonNull
   @SuppressLint("MissingPermission")
   public Completable requestLocationUpdates(
       LocationRequest locationRequest, RxLocationCallback locationCallback) {
@@ -55,6 +59,7 @@ public class RxFusedLocationProviderClient {
                 locationRequest, locationCallback, Looper.myLooper()));
   }
 
+  @NonNull
   public Completable removeLocationUpdates(RxLocationCallback locationCallback) {
     return RxTask.toCompletable(
         () -> fusedLocationProviderClient.removeLocationUpdates(locationCallback));

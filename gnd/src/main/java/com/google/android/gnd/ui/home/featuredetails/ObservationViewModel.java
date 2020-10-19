@@ -20,6 +20,7 @@ import android.app.Application;
 import android.text.format.DateFormat;
 import android.view.View;
 import android.view.View.OnClickListener;
+import androidx.annotation.NonNull;
 import androidx.databinding.ObservableField;
 import androidx.lifecycle.MutableLiveData;
 import com.google.android.gnd.model.AuditInfo;
@@ -32,8 +33,11 @@ import javax.inject.Inject;
 
 public class ObservationViewModel extends AbstractViewModel implements OnClickListener {
 
+  @NonNull
   public final ObservableField<String> userName;
+  @NonNull
   public final ObservableField<String> modifiedDate;
+  @NonNull
   public final ObservableField<String> modifiedTime;
   private final Application application;
   private Consumer<Observation> observationCallback;
@@ -53,7 +57,7 @@ public class ObservationViewModel extends AbstractViewModel implements OnClickLi
     observationCallback.accept(selectedObservation.getValue());
   }
 
-  public void setObservation(Observation observation) {
+  public void setObservation(@NonNull Observation observation) {
     selectedObservation.postValue(observation);
 
     AuditInfo created = observation.getCreated();

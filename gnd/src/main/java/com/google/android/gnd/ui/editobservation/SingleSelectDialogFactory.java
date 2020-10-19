@@ -20,6 +20,7 @@ import static java8.util.stream.StreamSupport.stream;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import com.google.android.gnd.R;
 import com.google.android.gnd.model.form.Field;
@@ -41,10 +42,11 @@ class SingleSelectDialogFactory {
     this.context = context;
   }
 
+  @NonNull
   AlertDialog create(
-      Field field,
-      Optional<Response> initialValue,
-      Consumer<Optional<Response>> valueChangeCallback) {
+      @NonNull Field field,
+      @NonNull Optional<Response> initialValue,
+      @NonNull Consumer<Optional<Response>> valueChangeCallback) {
     MultipleChoice multipleChoice = field.getMultipleChoice();
     AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(context);
     List<Option> options = multipleChoice.getOptions();
@@ -60,7 +62,7 @@ class SingleSelectDialogFactory {
     return dialogBuilder.create();
   }
 
-  private String[] getLabels(MultipleChoice multipleChoice) {
+  private String[] getLabels(@NonNull MultipleChoice multipleChoice) {
     return stream(multipleChoice.getOptions()).map(Option::getLabel).toArray(String[]::new);
   }
 
@@ -68,7 +70,7 @@ class SingleSelectDialogFactory {
 
     private int checkedItem;
 
-    public DialogState(MultipleChoice multipleChoice, Optional<Response> initialValue) {
+    public DialogState(@NonNull MultipleChoice multipleChoice, @NonNull Optional<Response> initialValue) {
       // TODO: Check type.
       checkedItem =
           initialValue
@@ -78,7 +80,7 @@ class SingleSelectDialogFactory {
               .orElse(-1);
     }
 
-    private void onSelect(DialogInterface dialog, int which) {
+    private void onSelect(@NonNull DialogInterface dialog, int which) {
       if (checkedItem == which) {
         // Allow user to toggle values off by tapping selected item.
         checkedItem = -1;
@@ -88,7 +90,7 @@ class SingleSelectDialogFactory {
       }
     }
 
-    private Optional<Response> getSelectedValue(List<Option> options) {
+    private Optional<Response> getSelectedValue(@NonNull List<Option> options) {
       if (checkedItem >= 0) {
         return Optional.of(
             new MultipleChoiceResponse(ImmutableList.of(options.get(checkedItem).getId())));

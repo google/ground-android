@@ -66,7 +66,8 @@ public abstract class FeatureMutationEntity extends MutationEntity {
   @Embedded
   public abstract Coordinates getNewLocation();
 
-  public static FeatureMutationEntity fromMutation(FeatureMutation m) {
+  @NonNull
+  public static FeatureMutationEntity fromMutation(@NonNull FeatureMutation m) {
     return FeatureMutationEntity.builder()
         .setId(m.getId())
         .setProjectId(m.getProjectId())
@@ -81,6 +82,7 @@ public abstract class FeatureMutationEntity extends MutationEntity {
         .build();
   }
 
+  @NonNull
   public FeatureMutation toMutation() {
     return FeatureMutation.builder()
         .setId(getId())
@@ -98,6 +100,7 @@ public abstract class FeatureMutationEntity extends MutationEntity {
 
   // Boilerplate generated using Android Studio AutoValue plugin:
 
+  @NonNull
   public static FeatureMutationEntity create(
       @Nullable Long id,
       String projectId,
@@ -123,6 +126,7 @@ public abstract class FeatureMutationEntity extends MutationEntity {
         .build();
   }
 
+  @NonNull
   public static Builder builder() {
     return new AutoValue_FeatureMutationEntity.Builder();
   }
@@ -136,6 +140,7 @@ public abstract class FeatureMutationEntity extends MutationEntity {
 
     public abstract Builder setNewLocation(Coordinates newNewLocation);
 
+    @NonNull
     public abstract FeatureMutationEntity build();
   }
 }

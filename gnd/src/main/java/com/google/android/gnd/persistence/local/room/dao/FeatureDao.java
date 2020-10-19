@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.persistence.local.room.dao;
 
+import androidx.annotation.NonNull;
 import androidx.room.Dao;
 import androidx.room.Query;
 import com.google.android.gnd.persistence.local.room.entity.FeatureEntity;
@@ -30,6 +31,7 @@ public interface FeatureDao extends BaseDao<FeatureEntity> {
   @Query("SELECT * FROM feature WHERE project_id = :projectId AND state = :state")
   Flowable<List<FeatureEntity>> findOnceAndStream(String projectId, EntityState state);
 
+  @NonNull
   @Query("SELECT * FROM feature WHERE id = :id")
   Maybe<FeatureEntity> findById(String id);
 }

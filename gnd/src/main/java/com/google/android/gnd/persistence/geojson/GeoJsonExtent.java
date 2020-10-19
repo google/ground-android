@@ -42,7 +42,7 @@ class GeoJsonExtent {
     return ringCoordinatesToLatLngs(exteriorRing.orElse(null));
   }
 
-  private ImmutableList<LatLng> ringCoordinatesToLatLngs(JSONArray exteriorRing) {
+  private ImmutableList<LatLng> ringCoordinatesToLatLngs(@Nullable JSONArray exteriorRing) {
     if (exteriorRing == null) {
       return ImmutableList.of();
     }

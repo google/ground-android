@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.repository;
 
+import androidx.annotation.NonNull;
 import com.google.android.gnd.model.User;
 import com.google.android.gnd.persistence.local.LocalDataStore;
 import com.google.android.gnd.rx.Schedulers;
@@ -37,6 +38,7 @@ public class UserRepository {
     this.schedulers = schedulers;
   }
 
+  @NonNull
   public Completable saveUser(User user) {
     return localDataStore.insertOrUpdateUser(user).observeOn(schedulers.io());
   }

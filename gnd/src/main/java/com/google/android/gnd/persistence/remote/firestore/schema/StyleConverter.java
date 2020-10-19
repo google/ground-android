@@ -16,12 +16,14 @@
 
 package com.google.android.gnd.persistence.remote.firestore.schema;
 
+import androidx.annotation.NonNull;
 import com.google.android.gnd.model.layer.Style;
 
 /** Converts between Firestore documents and {@link Style} instances. */
 class StyleConverter {
 
-  static Style toStyle(StyleNestedObject style) {
+  @NonNull
+  static Style toStyle(@NonNull StyleNestedObject style) {
     return Style.builder().setColor(style.getColor()).build();
   }
 }

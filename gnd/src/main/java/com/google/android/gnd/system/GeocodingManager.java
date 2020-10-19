@@ -19,6 +19,7 @@ package com.google.android.gnd.system;
 import android.content.Context;
 import android.location.Address;
 import android.location.Geocoder;
+import androidx.annotation.NonNull;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gnd.R;
@@ -42,18 +43,20 @@ public class GeocodingManager {
     }
   }
 
+  @NonNull
   private final Geocoder geocoder;
   private final Schedulers schedulers;
+  @NonNull
   private final String defaultAreaName;
 
   @Inject
-  public GeocodingManager(@ApplicationContext Context context, Schedulers schedulers) {
+  public GeocodingManager(@NonNull @ApplicationContext Context context, Schedulers schedulers) {
     this.geocoder = new Geocoder(context);
     this.schedulers = schedulers;
     this.defaultAreaName = context.getString(R.string.offline_base_map_unknown_base_map);
   }
 
-  private String getOfflineAreaNameInternal(LatLngBounds bounds)
+  private String getOfflineAreaNameInternal(@NonNull LatLngBounds bounds)
       throws AddressNotFoundException, IOException {
     LatLng center = bounds.getCenter();
 
@@ -81,7 +84,8 @@ public class GeocodingManager {
    *
    * <p>If no address is found for the given area, returns a default value.
    */
-  public Single<String> getOfflineAreaName(LatLngBounds bounds) {
+  @NonNull
+  public Single<String> getOfflineAreaName(@NonNull LatLngBounds bounds) {
     return Single.fromCallable(() -> getOfflineAreaNameInternal(bounds))
         .doOnError(throwable -> Timber.e(throwable, "Couldn't get address for bounds: %s", bounds))
         .subscribeOn(schedulers.io());

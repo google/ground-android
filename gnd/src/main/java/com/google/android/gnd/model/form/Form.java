@@ -19,6 +19,7 @@ package com.google.android.gnd.model.form;
 import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList;
 import static java8.util.stream.StreamSupport.stream;
 
+import androidx.annotation.NonNull;
 import com.google.android.gnd.model.observation.Response;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
@@ -60,6 +61,7 @@ public abstract class Form {
 
     public abstract Builder setElements(ImmutableList<Element> newElementsList);
 
+    @NonNull
     public abstract Form build();
   }
 }

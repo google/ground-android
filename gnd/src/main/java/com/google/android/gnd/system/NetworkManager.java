@@ -19,6 +19,7 @@ package com.google.android.gnd.system;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresPermission;
 import com.google.android.gnd.GndApplication;
 import com.google.android.gnd.rx.RxCompletable;
@@ -39,7 +40,7 @@ public class NetworkManager {
 
   /** Returns true iff the device has internet connectivity, false otherwise. */
   @RequiresPermission("android.permission.ACCESS_NETWORK_STATE")
-  private static boolean isNetworkAvailable(Context context) {
+  private static boolean isNetworkAvailable(@NonNull Context context) {
     ConnectivityManager cm =
         (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
     NetworkInfo networkInfo = cm.getActiveNetworkInfo();
@@ -50,7 +51,8 @@ public class NetworkManager {
    * Returns a Completable that completes immediately on subscribe if network is available, or fails
    * in error if not.
    */
-  public static Completable requireActiveNetwork(Context context) {
+  @NonNull
+  public static Completable requireActiveNetwork(@NonNull Context context) {
     return RxCompletable.completeOrError(() -> isNetworkAvailable(context), ConnectException.class);
   }
 

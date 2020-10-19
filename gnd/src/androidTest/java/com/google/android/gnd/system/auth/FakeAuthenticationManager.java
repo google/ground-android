@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.system.auth;
 
+import androidx.annotation.NonNull;
 import com.google.android.gnd.model.User;
 import com.google.android.gnd.system.auth.SignInState.State;
 import io.reactivex.Observable;
@@ -27,6 +28,7 @@ public class FakeAuthenticationManager implements AuthenticationManager {
 
   private static final String TAG = FakeAuthenticationManager.class.toString();
 
+  @NonNull
   public Subject<SignInState> behaviourSubject = BehaviorSubject.create();
 
   public static final User TEST_USER = User.builder()
@@ -39,11 +41,13 @@ public class FakeAuthenticationManager implements AuthenticationManager {
   public FakeAuthenticationManager() {
   }
 
+  @NonNull
   @Override
   public Observable<SignInState> getSignInState() {
     return behaviourSubject;
   }
 
+  @NonNull
   @Override
   public User getCurrentUser() {
     return TEST_USER;

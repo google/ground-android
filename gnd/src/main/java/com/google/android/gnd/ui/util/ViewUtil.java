@@ -47,37 +47,37 @@ public class ViewUtil {
     return params;
   }
 
-  public static int getScreenWidth(Activity activity) {
+  public static int getScreenWidth(@NonNull Activity activity) {
     DisplayMetrics displayMetrics = new DisplayMetrics();
     activity.getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
     return displayMetrics.widthPixels;
   }
 
-  public static int getScreenHeight(Activity activity) {
+  public static int getScreenHeight(@NonNull Activity activity) {
     DisplayMetrics displayMetrics = new DisplayMetrics();
     activity.getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
     return displayMetrics.heightPixels;
   }
 
-  public static void hideSoftInputFrom(Fragment fragment) {
+  public static void hideSoftInputFrom(@NonNull Fragment fragment) {
     hideSoftInputFrom(fragment.getContext(), fragment.getView().getRootView());
   }
 
-  private static void hideSoftInputFrom(Context context, View view) {
+  private static void hideSoftInputFrom(@NonNull Context context, @NonNull View view) {
     InputMethodManager imm =
         (InputMethodManager) context.getSystemService(Activity.INPUT_METHOD_SERVICE);
     imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
   }
 
-  public static Stream<View> children(ViewGroup view) {
+  public static Stream<View> children(@NonNull ViewGroup view) {
     return IntStreams.range(0, view.getChildCount()).mapToObj(view::getChildAt);
   }
 
-  public static int getColorForStates(TextView textView, int[] stateSet) {
+  public static int getColorForStates(@NonNull TextView textView, int[] stateSet) {
     return textView.getTextColors().getColorForState(stateSet, 0);
   }
 
-  public static Bitmap tintBitmap(Bitmap bitmap, @ColorInt int color) {
+  public static Bitmap tintBitmap(@NonNull Bitmap bitmap, @ColorInt int color) {
     Bitmap tintedBitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true);
     Paint paint = new Paint();
     ColorFilter filter = new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_ATOP);

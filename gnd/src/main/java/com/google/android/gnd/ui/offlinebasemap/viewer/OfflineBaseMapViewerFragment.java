@@ -92,7 +92,7 @@ public class OfflineBaseMapViewerFragment extends AbstractFragment {
     this.map = map;
   }
 
-  private void panMap(OfflineBaseMap offlineBaseMap) {
+  private void panMap(@NonNull OfflineBaseMap offlineBaseMap) {
     if (map == null) {
       return;
     }

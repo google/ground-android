@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.rx;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.google.android.gms.tasks.Task;
 import io.reactivex.Completable;
@@ -34,7 +35,8 @@ public abstract class RxTask {
    * Turns a non-void {@link Task} into an Rx {@link Single}. Null values are reported as an error
    * result of {@link NullPointerException}. The provided supplier will be invoked only onSubscribe.
    */
-  public static <T> Maybe<T> toMaybe(Supplier<Task<T>> task) {
+  @NonNull
+  public static <T> Maybe<T> toMaybe(@NonNull Supplier<Task<T>> task) {
     return Maybe.create(
         emitter ->
             task.get()
@@ -42,7 +44,7 @@ public abstract class RxTask {
                 .addOnFailureListener(emitter::onError));
   }
 
-  private static <T> void onSuccess(@Nullable T v, MaybeEmitter<T> emitter) {
+  private static <T> void onSuccess(@Nullable T v, @NonNull MaybeEmitter<T> emitter) {
     if (v == null) {
       emitter.onComplete();
     } else {
@@ -54,7 +56,8 @@ public abstract class RxTask {
    * Turns a non-void {@link Task} into an Rx {@link Single}. Null values are reported as an error
    * result of {@link NullPointerException}. The provided supplier will be invoked only onSubscribe.
    */
-  public static <T> Single<T> toSingle(Supplier<Task<T>> task) {
+  @NonNull
+  public static <T> Single<T> toSingle(@NonNull Supplier<Task<T>> task) {
     return Single.create(
         emitter ->
             task.get()
@@ -67,7 +70,8 @@ public abstract class RxTask {
    * can also be used to convert <code>Task&lt;Void&gt;</code>. The provided supplier will be
    * invoked only onSubscribe.
    */
-  public static Completable toCompletable(Supplier<Task<?>> task) {
+  @NonNull
+  public static Completable toCompletable(@NonNull Supplier<Task<?>> task) {
     return Completable.create(
         emitter ->
             task.get()
@@ -75,7 +79,7 @@ public abstract class RxTask {
                 .addOnFailureListener(emitter::onError));
   }
 
-  private static <T> void onNullableSuccess(@Nullable T v, SingleEmitter<T> emitter) {
+  private static <T> void onNullableSuccess(@Nullable T v, @NonNull SingleEmitter<T> emitter) {
     if (v == null) {
       emitter.onError(new NullPointerException());
     } else {

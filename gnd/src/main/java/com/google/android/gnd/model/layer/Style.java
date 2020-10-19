@@ -16,12 +16,14 @@
 
 package com.google.android.gnd.model.layer;
 
+import androidx.annotation.NonNull;
 import com.google.auto.value.AutoValue;
 
 @AutoValue
 public abstract class Style {
   public abstract String getColor();
 
+  @NonNull
   public static Builder builder() {
     return new AutoValue_Style.Builder();
   }
@@ -30,6 +32,7 @@ public abstract class Style {
   public abstract static class Builder {
     public abstract Builder setColor(String newColor);
 
+    @NonNull
     public abstract Style build();
   }
 }

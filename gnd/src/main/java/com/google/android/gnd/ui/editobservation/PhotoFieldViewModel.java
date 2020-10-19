@@ -18,6 +18,8 @@ package com.google.android.gnd.ui.editobservation;
 
 import android.app.Application;
 import android.net.Uri;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
 import androidx.lifecycle.MutableLiveData;
@@ -36,12 +38,14 @@ public class PhotoFieldViewModel extends AbstractFieldViewModel {
   private static final String EMPTY_PATH = "";
   private final StorageManager storageManager;
   private final BehaviorProcessor<String> destinationPath = BehaviorProcessor.create();
+  @NonNull
   private final LiveData<Uri> uri;
+  @NonNull
   public final LiveData<Boolean> isVisible;
   private final MutableLiveData<Field> showDialogClicks = new MutableLiveData<>();
 
   @Inject
-  PhotoFieldViewModel(StorageManager storageManager, Application application) {
+  PhotoFieldViewModel(StorageManager storageManager, @NonNull Application application) {
     super(application);
     this.storageManager = storageManager;
     this.isVisible =
@@ -52,21 +56,23 @@ public class PhotoFieldViewModel extends AbstractFieldViewModel {
             destinationPath.switchMapSingle(this::getDownloadUrl));
   }
 
-  private Single<Uri> getDownloadUrl(String path) {
+  @NonNull
+  private Single<Uri> getDownloadUrl(@NonNull String path) {
     return path.isEmpty() ? Single.just(Uri.EMPTY) : storageManager.getDownloadUrl(path);
   }
 
+  @NonNull
   public LiveData<Uri> getUri() {
     return uri;
   }
 
   @Override
-  public void setResponse(Optional<Response> response) {
+  public void setResponse(@NonNull Optional<Response> response) {
     super.setResponse(response);
     updateField(response.isPresent() ? response.get() : null, getField());
   }
 
-  public void updateField(Response response, Field field) {
+  public void updateField(@Nullable Response response, @NonNull Field field) {
     if (field.getType() != Type.PHOTO) {
       Timber.e("Not a photo type field: %s", field.getType());
       return;
@@ -83,6 +89,7 @@ public class PhotoFieldViewModel extends AbstractFieldViewModel {
     showDialogClicks.setValue(getField());
   }
 
+  @NonNull
   LiveData<Field> getShowDialogClicks() {
     return showDialogClicks;
   }

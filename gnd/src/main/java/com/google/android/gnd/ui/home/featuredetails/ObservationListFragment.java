@@ -75,7 +75,7 @@ public class ObservationListFragment extends AbstractFragment {
         .observe(getViewLifecycleOwner(), this::onFeatureSelected);
   }
 
-  private void onFeatureSelected(Optional<Feature> feature) {
+  private void onFeatureSelected(@NonNull Optional<Feature> feature) {
     observationListAdapter.clear();
     feature.ifPresent(viewModel::loadObservationList);
   }
@@ -86,7 +86,7 @@ public class ObservationListFragment extends AbstractFragment {
     viewModel.getObservations().observe(getViewLifecycleOwner(), observationListAdapter::update);
   }
 
-  private void onItemClick(Observation observation) {
+  private void onItemClick(@NonNull Observation observation) {
     navigator.showObservationDetails(
         observation.getProject().getId(), observation.getFeature().getId(), observation.getId());
   }

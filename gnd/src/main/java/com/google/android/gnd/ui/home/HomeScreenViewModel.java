@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.ui.home;
 
+import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
 import androidx.lifecycle.MutableLiveData;
@@ -45,30 +46,38 @@ import timber.log.Timber;
 public class HomeScreenViewModel extends AbstractViewModel {
 
   public final MutableLiveData<Boolean> isObservationButtonVisible = new MutableLiveData<>(false);
+  @NonNull
   private final ProjectRepository projectRepository;
   private final Navigator navigator;
   /** The state and value of the currently active project (loading, loaded, etc.). */
+  @NonNull
   private final LiveData<Loadable<Project>> activeProject;
 
+  @NonNull
   private final PublishSubject<Feature> addFeatureClicks;
   // TODO: Move into MapContainersViewModel
+  @NonNull
   private final MutableLiveData<Event<Point>> addFeatureDialogRequests;
   // TODO: Move into FeatureDetailsViewModel.
+  @NonNull
   private final MutableLiveData<Action> openDrawerRequests;
+  @NonNull
   private final MutableLiveData<BottomSheetState> bottomSheetState;
 
   private final FlowableProcessor<Feature> deleteFeatureRequests = PublishProcessor.create();
+  @NonNull
   private final LiveData<Boolean> deleteFeature;
 
   private final FlowableProcessor<Feature> updateFeatureRequests = PublishProcessor.create();
+  @NonNull
   private final LiveData<Boolean> updateFeature;
 
   @Inject
   HomeScreenViewModel(
-      ProjectRepository projectRepository,
-      FeatureRepository featureRepository,
+      @NonNull ProjectRepository projectRepository,
+      @NonNull FeatureRepository featureRepository,
       Navigator navigator,
-      Schedulers schedulers) {
+      @NonNull Schedulers schedulers) {
     this.projectRepository = projectRepository;
     this.addFeatureDialogRequests = new MutableLiveData<>();
     this.openDrawerRequests = new MutableLiveData<>();
@@ -110,15 +119,17 @@ public class HomeScreenViewModel extends AbstractViewModel {
                         .onErrorReturnItem(false)));
   }
 
+  @NonNull
   public LiveData<Boolean> getUpdateFeature() {
     return updateFeature;
   }
 
+  @NonNull
   public LiveData<Boolean> getDeleteFeature() {
     return deleteFeature;
   }
 
-  public void addFeature(Feature feature) {
+  public void addFeature(@NonNull Feature feature) {
     addFeatureClicks.onNext(feature);
   }
 
@@ -130,13 +141,13 @@ public class HomeScreenViewModel extends AbstractViewModel {
     deleteFeatureRequests.onNext(feature);
   }
 
-  private void onAddFeature(Feature feature) {
+  private void onAddFeature(@NonNull Feature feature) {
     if (feature.getLayer().getForm().isPresent()) {
       addNewObservation(feature);
     }
   }
 
-  private void addNewObservation(Feature feature) {
+  private void addNewObservation(@NonNull Feature feature) {
     String projectId = feature.getProject().getId();
     String featureId = feature.getId();
     String formId = feature.getLayer().getForm().get().getId();
@@ -152,6 +163,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
     Timber.e(throwable, "Couldn't add feature.");
   }
 
+  @NonNull
   public LiveData<Action> getOpenDrawerRequests() {
     return openDrawerRequests;
   }
@@ -160,20 +172,23 @@ public class HomeScreenViewModel extends AbstractViewModel {
     openDrawerRequests.setValue(Action.create());
   }
 
+  @NonNull
   public LiveData<Loadable<Project>> getActiveProject() {
     return activeProject;
   }
 
+  @NonNull
   public LiveData<Event<Point>> getShowAddFeatureDialogRequests() {
     return addFeatureDialogRequests;
   }
 
+  @NonNull
   public LiveData<BottomSheetState> getBottomSheetState() {
     return bottomSheetState;
   }
 
   // TODO: Remove extra indirection here?
-  public void onMarkerClick(MapPin marker) {
+  public void onMarkerClick(@NonNull MapPin marker) {
     showBottomSheet(marker.getFeature());
   }
 

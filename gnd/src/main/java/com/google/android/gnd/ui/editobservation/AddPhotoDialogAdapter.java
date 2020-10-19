@@ -78,6 +78,7 @@ public class AddPhotoDialogAdapter extends RecyclerView.Adapter<AddPhotoDialogAd
 
   public static class ViewHolder extends RecyclerView.ViewHolder implements OnClickListener {
 
+    @NonNull
     private final AddPhotoListItemBinding binding;
     private final ItemClickListener listener;
     private int type;

@@ -33,12 +33,12 @@ public class FluentDocumentReference {
    * Adds a request to the specified batch to merge the provided key-value pairs into the remote
    * database. If the document does not yet exist, one is created on commit.
    */
-  protected void merge(ImmutableMap<String, Object> values, WriteBatch batch) {
+  protected void merge(@NonNull ImmutableMap<String, Object> values, @NonNull WriteBatch batch) {
     batch.set(reference, values, SetOptions.merge());
   }
 
   /** Adds a request to the specified batch to delete the current DocumentReference. */
-  protected void delete(WriteBatch batch) {
+  protected void delete(@NonNull WriteBatch batch) {
     batch.delete(reference);
   }
 

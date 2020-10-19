@@ -42,7 +42,8 @@ public enum MutationEntityType implements IntEnum {
     this.intValue = intValue;
   }
 
-  public static MutationEntityType fromMutationType(Mutation.Type type) {
+  @NonNull
+  public static MutationEntityType fromMutationType(@NonNull Mutation.Type type) {
     switch (type) {
       case CREATE:
         return CREATE;
@@ -55,6 +56,7 @@ public enum MutationEntityType implements IntEnum {
     }
   }
 
+  @NonNull
   public Mutation.Type toMutationType() {
     switch (this) {
       case CREATE:

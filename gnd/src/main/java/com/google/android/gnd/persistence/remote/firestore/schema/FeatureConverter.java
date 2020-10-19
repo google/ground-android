@@ -38,6 +38,7 @@ class FeatureConverter {
   protected static final String LAST_MODIFIED = "lastModified";
 
   // TODO: Make @NonNull the default and add build-time nullness checking.
+  @NonNull
   static Feature toFeature(@NonNull Project project, @NonNull DocumentSnapshot doc)
       throws DataStoreException {
     FeatureDocument f = checkNotNull(doc.toObject(FeatureDocument.class), "feature data");

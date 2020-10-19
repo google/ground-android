@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.persistence.local.room.dao;
 
+import androidx.annotation.NonNull;
 import androidx.room.Dao;
 import androidx.room.Query;
 import androidx.room.Transaction;
@@ -32,6 +33,7 @@ public interface ProjectDao extends BaseDao<ProjectEntity> {
   @Query("SELECT * FROM project")
   Single<List<ProjectEntityAndRelations>> getAllProjects();
 
+  @NonNull
   @Transaction
   @Query("SELECT * FROM project WHERE id = :id")
   Maybe<ProjectEntityAndRelations> getProjectById(String id);

@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.persistence.remote.firestore.schema;
 
+import androidx.annotation.NonNull;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.User;
 import com.google.android.gnd.persistence.remote.firestore.base.FluentCollectionReference;
@@ -38,11 +39,13 @@ public class ProjectsCollectionReference extends FluentCollectionReference {
     super(ref);
   }
 
-  public ProjectDocumentReference project(String id) {
+  @NonNull
+  public ProjectDocumentReference project(@NonNull String id) {
     return new ProjectDocumentReference(reference().document(id));
   }
 
-  public Single<List<Project>> getReadable(User user) {
+  @NonNull
+  public Single<List<Project>> getReadable(@NonNull User user) {
     return runQuery(
         reference().whereIn(FieldPath.of(ACL_FIELD, user.getEmail()), VALID_ROLES),
         ProjectConverter::toProject);

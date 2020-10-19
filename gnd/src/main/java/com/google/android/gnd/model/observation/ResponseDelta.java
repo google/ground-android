@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.model.observation;
 
+import androidx.annotation.NonNull;
 import com.google.android.gnd.model.form.Field;
 import com.google.auto.value.AutoValue;
 import java8.util.Optional;
@@ -33,6 +34,7 @@ public abstract class ResponseDelta {
 
   // Boilerplate generated using Android Studio AutoValue plugin:
 
+  @NonNull
   public static Builder builder() {
     return new AutoValue_ResponseDelta.Builder();
   }
@@ -46,6 +48,7 @@ public abstract class ResponseDelta {
 
     public abstract Builder setNewResponse(Optional<Response> newNewResponse);
 
+    @NonNull
     public abstract ResponseDelta build();
   }
 }

@@ -18,6 +18,7 @@ package com.google.android.gnd.persistence.geojson;
 
 import static java8.util.stream.StreamSupport.stream;
 
+import androidx.annotation.NonNull;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.common.collect.ImmutableList;
@@ -59,6 +60,7 @@ public class GeoJsonTile {
     return new GeoJsonExtent(new GeoJsonGeometry(json)).getVertices();
   }
 
+  @NonNull
   public Optional<String> getId() {
     String s = json.optString(ID_KEY);
     return s.isEmpty() ? Optional.empty() : Optional.of(s);
@@ -68,7 +70,7 @@ public class GeoJsonTile {
     return Optional.ofNullable(json.optJSONObject(PROPERTIES_KEY)).map(j -> j.optString(URL_KEY));
   }
 
-  boolean boundsIntersect(LatLngBounds bounds) {
+  boolean boundsIntersect(@NonNull LatLngBounds bounds) {
     return stream(this.getVertices()).anyMatch(bounds::contains);
   }
 }

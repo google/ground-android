@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.model.layer;
 
+import androidx.annotation.NonNull;
 import com.google.android.gnd.model.form.Form;
 import com.google.auto.value.AutoValue;
 import java8.util.Optional;
@@ -51,10 +52,11 @@ public abstract class Layer {
 
     public abstract Builder setForm(Optional<Form> form);
 
-    public Builder setForm(Form form) {
+    public Builder setForm(@NonNull Form form) {
       return setForm(Optional.of(form));
     }
 
+    @NonNull
     public abstract Layer build();
   }
 }

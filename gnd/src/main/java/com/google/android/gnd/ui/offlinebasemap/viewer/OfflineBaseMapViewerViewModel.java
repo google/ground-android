@@ -19,6 +19,7 @@ package com.google.android.gnd.ui.offlinebasemap.viewer;
 import static java8.util.stream.StreamSupport.stream;
 
 import android.content.Context;
+import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
 import com.google.android.gnd.model.basemap.OfflineBaseMap;
@@ -38,15 +39,18 @@ import javax.inject.Inject;
  */
 public class OfflineBaseMapViewerViewModel extends AbstractViewModel {
 
+  @NonNull
   private final BehaviorProcessor<OfflineBaseMapViewerFragmentArgs> argsProcessor;
+  @NonNull
   private final OfflineBaseMapRepository offlineBaseMapRepository;
+  @NonNull
   private final WeakReference<Context> context;
   public LiveData<Double> areaStorageSize;
   private LiveData<OfflineBaseMap> offlineArea;
 
   @Inject
   public OfflineBaseMapViewerViewModel(
-      OfflineBaseMapRepository offlineBaseMapRepository, @ApplicationContext Context context) {
+      @NonNull OfflineBaseMapRepository offlineBaseMapRepository, @ApplicationContext Context context) {
     this.argsProcessor = BehaviorProcessor.create();
     this.offlineBaseMapRepository = offlineBaseMapRepository;
     this.context = new WeakReference<>(context);
@@ -70,11 +74,11 @@ public class OfflineBaseMapViewerViewModel extends AbstractViewModel {
                         .toFlowable()));
   }
 
-  private Double tileSourcesToTotalStorageSize(ImmutableSet<TileSource> tileSources) {
+  private Double tileSourcesToTotalStorageSize(@NonNull ImmutableSet<TileSource> tileSources) {
     return stream(tileSources).map(this::tileSourceStorageSize).reduce((x, y) -> x + y).orElse(0.0);
   }
 
-  private double tileSourceStorageSize(TileSource tileSource) {
+  private double tileSourceStorageSize(@NonNull TileSource tileSource) {
     Context context1 = context.get();
     if (context1 == null) {
       return 0.0;
@@ -98,7 +102,7 @@ public class OfflineBaseMapViewerViewModel extends AbstractViewModel {
   }
 
   /** Gets a single offline area by the id passed to the OfflineAreaViewerFragment's arguments. */
-  public void loadOfflineArea(OfflineBaseMapViewerFragmentArgs args) {
+  public void loadOfflineArea(@NonNull OfflineBaseMapViewerFragmentArgs args) {
     this.argsProcessor.onNext(args);
   }
 }

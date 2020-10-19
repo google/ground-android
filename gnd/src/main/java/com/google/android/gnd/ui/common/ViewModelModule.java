@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.ui.common;
 
+import androidx.annotation.NonNull;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 import com.google.android.gnd.MainViewModel;
@@ -43,86 +44,103 @@ import dagger.multibindings.IntoMap;
 @InstallIn(ApplicationComponent.class)
 @Module
 public abstract class ViewModelModule {
+  @NonNull
   @Binds
   @IntoMap
   @ViewModelKey(MapContainerViewModel.class)
   abstract ViewModel bindMapContainerViewModel(MapContainerViewModel viewModel);
 
+  @NonNull
   @Binds
   @IntoMap
   @ViewModelKey(OfflineBaseMapSelectorViewModel.class)
   abstract ViewModel bindOfflineAreaSelectorViewModel(OfflineBaseMapSelectorViewModel viewModel);
 
+  @NonNull
   @Binds
   @IntoMap
   @ViewModelKey(OfflineBaseMapsViewModel.class)
   abstract ViewModel bindOfflineAreasViewModel(OfflineBaseMapsViewModel viewModel);
 
+  @NonNull
   @Binds
   @IntoMap
   @ViewModelKey(OfflineBaseMapViewerViewModel.class)
   abstract ViewModel bindOfflineAreaViewerViewModel(OfflineBaseMapViewerViewModel viewModel);
 
+  @NonNull
   @Binds
   @IntoMap
   @ViewModelKey(MainViewModel.class)
   abstract ViewModel bindMainViewModel(MainViewModel viewModel);
 
+  @NonNull
   @Binds
   @IntoMap
   @ViewModelKey(SignInViewModel.class)
   abstract ViewModel bindSignInVideModel(SignInViewModel viewModel);
 
+  @NonNull
   @Binds
   @IntoMap
   @ViewModelKey(HomeScreenViewModel.class)
   abstract ViewModel bindHomeScreenViewModel(HomeScreenViewModel viewModel);
 
+  @NonNull
   @Binds
   @IntoMap
   @ViewModelKey(FeatureDetailsViewModel.class)
   abstract ViewModel bindFeatureDetailsViewModel(FeatureDetailsViewModel viewModel);
 
+  @NonNull
   @Binds
   @IntoMap
   @ViewModelKey(ProjectSelectorViewModel.class)
   abstract ViewModel bindProjectSelectorViewModel(ProjectSelectorViewModel viewModel);
 
+  @NonNull
   @Binds
   @IntoMap
   @ViewModelKey(ObservationViewModel.class)
   abstract ViewModel bindObservationViewModel(ObservationViewModel viewModel);
 
+  @NonNull
   @Binds
   @IntoMap
   @ViewModelKey(ObservationListViewModel.class)
   abstract ViewModel bindObservationListViewModel(ObservationListViewModel viewModel);
 
+  @NonNull
   @Binds
   @IntoMap
   @ViewModelKey(ObservationDetailsViewModel.class)
   abstract ViewModel bindObservationDetailsViewModel(ObservationDetailsViewModel viewModel);
 
+  @NonNull
   @Binds
   @IntoMap
   @ViewModelKey(EditObservationViewModel.class)
   abstract ViewModel bindEditObservationViewModel(EditObservationViewModel viewModel);
 
+  @NonNull
   @Binds
   @IntoMap
   @ViewModelKey(PhotoFieldViewModel.class)
   abstract ViewModel bindPhotoFieldViewModel(PhotoFieldViewModel viewModel);
 
+  @NonNull
   @Binds
   @IntoMap
   @ViewModelKey(MultipleChoiceFieldViewModel.class)
   abstract ViewModel bindMultipleChoiceFieldViewModel(MultipleChoiceFieldViewModel viewModel);
 
+  @NonNull
   @Binds
   @IntoMap
   @ViewModelKey(TextFieldViewModel.class)
   abstract ViewModel bindTextFieldViewModel(TextFieldViewModel viewModel);
 
+  @NonNull
   @Binds
   abstract ViewModelProvider.Factory bindViewModelFactory(ViewModelFactory factory);
 }

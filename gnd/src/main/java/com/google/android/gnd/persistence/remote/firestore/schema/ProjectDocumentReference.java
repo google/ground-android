@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.persistence.remote.firestore.schema;
 
+import androidx.annotation.NonNull;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.persistence.remote.firestore.base.FluentDocumentReference;
 import com.google.firebase.firestore.DocumentReference;
@@ -30,14 +31,17 @@ public class ProjectDocumentReference extends FluentDocumentReference {
     super(ref);
   }
 
+  @NonNull
   public FeaturesCollectionReference features() {
     return new FeaturesCollectionReference(reference().collection(FEATURES));
   }
 
+  @NonNull
   public ObservationsCollectionReference observations() {
     return new ObservationsCollectionReference(reference().collection(OBSERVATIONS));
   }
 
+  @NonNull
   public Maybe<Project> get() {
     return RxFirestore.getDocument(reference()).map(ProjectConverter::toProject);
   }

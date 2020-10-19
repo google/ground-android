@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.repository;
 
+import androidx.annotation.NonNull;
 import com.google.android.gnd.model.Mutation.Type;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.feature.Feature;
@@ -79,7 +80,7 @@ public class FeatureRepository {
   }
 
   // TODO: Remove "feature" qualifier from this and other repository method names.
-  private Completable updateLocalFeature(RemoteDataEvent<Feature> event) {
+  private Completable updateLocalFeature(@NonNull RemoteDataEvent<Feature> event) {
     switch (event.getEventType()) {
       case ENTITY_LOADED:
       case ENTITY_MODIFIED:
@@ -104,6 +105,7 @@ public class FeatureRepository {
   // TODO(#127): Decouple Project from Feature and remove projectId.
   // TODO: Replace with Single and treat missing feature as error.
   // TODO: Don't require projectId to be the active project.
+  @NonNull
   public Maybe<Feature> getFeature(String projectId, String featureId) {
     return projectRepository
         .getActiveProjectOnceAndStream()
@@ -114,7 +116,8 @@ public class FeatureRepository {
         .flatMapMaybe(project -> localDataStore.getFeature(project, featureId));
   }
 
-  private FeatureMutation fromFeature(Feature feature, Type type) {
+  @NonNull
+  private FeatureMutation fromFeature(@NonNull Feature feature, Type type) {
     return FeatureMutation.builder()
         .setType(type)
         .setProjectId(feature.getProject().getId())
@@ -127,19 +130,19 @@ public class FeatureRepository {
   }
 
   // TODO(#80): Update UI to provide FeatureMutations instead of Features here.
-  public Completable createFeature(Feature feature) {
+  public Completable createFeature(@NonNull Feature feature) {
     return applyAndEnqueue(fromFeature(feature, Type.CREATE));
   }
 
-  public Completable updateFeature(Feature feature) {
+  public Completable updateFeature(@NonNull Feature feature) {
     return applyAndEnqueue(fromFeature(feature, Type.UPDATE));
   }
 
-  public Completable deleteFeature(Feature feature) {
+  public Completable deleteFeature(@NonNull Feature feature) {
     return applyAndEnqueue(fromFeature(feature, Type.DELETE));
   }
 
-  private Completable applyAndEnqueue(FeatureMutation mutation) {
+  private Completable applyAndEnqueue(@NonNull FeatureMutation mutation) {
     return localDataStore
         .applyAndEnqueue(mutation)
         .andThen(dataSyncWorkManager.enqueueSyncWorker(mutation.getFeatureId()));

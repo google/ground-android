@@ -20,6 +20,7 @@ import static com.google.android.gnd.rx.RxCompletable.completeOrError;
 
 import android.app.Application;
 import android.content.Context;
+import androidx.annotation.NonNull;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import dagger.hilt.android.scopes.ActivityScoped;
@@ -36,7 +37,7 @@ public class GoogleApiManager {
 
   @Inject
   public GoogleApiManager(
-      Application app,
+      @NonNull Application app,
       GoogleApiAvailability googleApiAvailability,
       ActivityStreams activityStreams) {
     this.context = app.getApplicationContext();
@@ -49,10 +50,12 @@ public class GoogleApiManager {
    * installed, otherwise shows install dialog. Terminates with error if install not possible or
    * cancelled.
    */
+  @NonNull
   public Completable installGooglePlayServices() {
     return requestInstallOrComplete().ambWith(getNextInstallApiResult());
   }
 
+  @NonNull
   private Completable requestInstallOrComplete() {
     return Completable.create(
         em -> {

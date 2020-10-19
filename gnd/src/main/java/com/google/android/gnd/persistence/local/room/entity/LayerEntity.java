@@ -62,7 +62,8 @@ public abstract class LayerEntity {
   @ColumnInfo(name = "project_id")
   public abstract String getProjectId();
 
-  public static LayerEntity fromLayer(String projectId, Layer layer) {
+  @NonNull
+  public static LayerEntity fromLayer(String projectId, @NonNull Layer layer) {
     return LayerEntity.builder()
         .setId(layer.getId())
         .setProjectId(projectId)
@@ -71,7 +72,8 @@ public abstract class LayerEntity {
         .build();
   }
 
-  static Layer toLayer(LayerEntityAndRelations layerEntityAndRelations) {
+  @NonNull
+  static Layer toLayer(@NonNull LayerEntityAndRelations layerEntityAndRelations) {
     LayerEntity layerEntity = layerEntityAndRelations.layerEntity;
     Layer.Builder layerBuilder =
         Layer.newBuilder()
@@ -87,6 +89,7 @@ public abstract class LayerEntity {
     return layerBuilder.build();
   }
 
+  @NonNull
   public static LayerEntity create(String id, String name, Style defaultStyle, String projectId) {
     return builder()
         .setId(id)
@@ -96,6 +99,7 @@ public abstract class LayerEntity {
         .build();
   }
 
+  @NonNull
   public static Builder builder() {
     return new AutoValue_LayerEntity.Builder();
   }
@@ -111,6 +115,7 @@ public abstract class LayerEntity {
 
     public abstract Builder setProjectId(String projectId);
 
+    @NonNull
     public abstract LayerEntity build();
   }
 }

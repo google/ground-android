@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.persistence.local;
 
+import androidx.annotation.NonNull;
 import com.google.android.gnd.model.Mutation;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.User;
@@ -49,24 +50,30 @@ import io.reactivex.Single;
 public interface LocalDataStore {
 
   /** Load projects stored in local database. */
+  @NonNull
   Single<ImmutableList<Project>> getProjects();
 
   /** Load last active project, if any. */
+  @NonNull
   Maybe<Project> getProjectById(String id);
 
   /** Delete stored project from database. */
+  @NonNull
   Completable deleteProject(Project project);
 
   /** Add project to the database. */
+  @NonNull
   Completable insertOrUpdateProject(Project project);
 
   /** Add user to the database. */
+  @NonNull
   Completable insertOrUpdateUser(User user);
 
   /**
    * Loads the user with the specified id from the local data store. The returned Single fails with
    * {@link java.util.NoSuchElementException} if not found.
    */
+  @NonNull
   Single<User> getUser(String id);
 
   /**
@@ -82,39 +89,47 @@ public interface LocalDataStore {
   Completable applyAndEnqueue(ObservationMutation mutation);
 
   /** Applies the specified {@link ObservationMutation} to the local data store.. */
+  @NonNull
   Completable apply(ObservationMutation mutation) throws LocalDataStoreException;
 
   /**
    * Returns a long-lived stream that emits the full set of features for a project on subscribe, and
    * continues to return the full set each time a feature is added/changed/removed.
    */
+  @NonNull
   Flowable<ImmutableSet<Feature>> getFeaturesOnceAndStream(Project project);
 
   /**
    * Returns the list of observations which are not marked for deletion for the specified feature
    * and form.
    */
+  @NonNull
   Single<ImmutableList<Observation>> getObservations(Feature feature, String formId);
 
   /** Returns the feature with the specified UUID from the local data store, if found. */
+  @NonNull
   Maybe<Feature> getFeature(Project project, String featureId);
 
   /** Returns the observation with the specified UUID from the local data store, if found. */
+  @NonNull
   Maybe<Observation> getObservation(Feature feature, String observationId);
 
   /**
    * Returns a long-lived stream that emits the full set of tiles on subscribe and continues to
    * return the full set each time a tile is added/changed/removed.
    */
+  @NonNull
   Flowable<ImmutableSet<TileSource>> getTileSourcesOnceAndStream();
 
   /**
    * Returns all feature and observation mutations in the local mutation queue relating to feature
    * with the specified id.
    */
+  @NonNull
   Single<ImmutableList<Mutation>> getPendingMutations(String featureId);
 
   /** Updates the provided list of mutations. */
+  @NonNull
   Completable updateMutations(ImmutableList<Mutation> mutations);
 
   /**
@@ -128,9 +143,11 @@ public interface LocalDataStore {
    * local data store. If a feature with the same id already exists, it will be overwritten with the
    * merged instance.
    */
+  @NonNull
   Completable mergeFeature(Feature feature);
 
   /** Deletes feature from local database. */
+  @NonNull
   Completable deleteFeature(String featureId);
 
   /**
@@ -138,32 +155,40 @@ public interface LocalDataStore {
    * local data store. If a observation with the same id already exists, it will be overwritten with
    * the merged instance.
    */
+  @NonNull
   Completable mergeObservation(Observation observation);
 
   /** Deletes observation from local database. */
+  @NonNull
   Completable deleteObservation(String observationId);
 
   /**
    * Attempts to update a tile in the local data store. If the tile doesn't exist, inserts the tile
    * into the local data store.
    */
+  @NonNull
   Completable insertOrUpdateTileSource(TileSource tileSource);
 
   /** Returns the tile with the specified id from the local data store, if found. */
+  @NonNull
   Maybe<TileSource> getTileSource(String tileId);
 
   /** Returns all pending tiles from the local data store. */
+  @NonNull
   Single<ImmutableList<TileSource>> getPendingTileSources();
 
   /**
    * Attempts to update an offline area in the local data store. If the area doesn't exist, inserts
    * the area into the local data store.
    */
+  @NonNull
   Completable insertOrUpdateOfflineArea(OfflineBaseMap area);
 
   /** Returns all queued, failed, and completed offline areas from the local data store. */
+  @NonNull
   Flowable<ImmutableList<OfflineBaseMap>> getOfflineAreasOnceAndStream();
 
   /** Returns the offline area with the specified id. */
+  @NonNull
   Single<OfflineBaseMap> getOfflineAreaById(String id);
 }

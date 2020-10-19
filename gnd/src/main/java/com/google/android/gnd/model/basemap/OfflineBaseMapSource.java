@@ -27,6 +27,7 @@ public abstract class OfflineBaseMapSource {
   @NonNull
   public abstract URL getUrl();
 
+  @NonNull
   public static Builder builder() {
     return new AutoValue_OfflineBaseMapSource.Builder();
   }
@@ -36,6 +37,7 @@ public abstract class OfflineBaseMapSource {
 
     public abstract Builder setUrl(@NonNull URL newUrl);
 
+    @NonNull
     public abstract OfflineBaseMapSource build();
   }
 }

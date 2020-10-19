@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.persistence.local.room.dao;
 
+import androidx.annotation.NonNull;
 import androidx.room.Dao;
 import androidx.room.Query;
 import com.google.android.gnd.persistence.local.room.entity.LayerEntity;
@@ -24,6 +25,7 @@ import io.reactivex.Completable;
 @Dao
 public interface LayerDao extends BaseDao<LayerEntity> {
 
+  @NonNull
   @Query("DELETE FROM layer WHERE project_id = :projectId")
   Completable deleteByProjectId(String projectId);
 }

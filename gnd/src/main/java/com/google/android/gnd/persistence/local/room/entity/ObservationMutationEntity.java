@@ -83,6 +83,7 @@ public abstract class ObservationMutationEntity extends MutationEntity {
   @ColumnInfo(name = "response_deltas")
   public abstract ImmutableList<ResponseDelta> getResponseDeltas();
 
+  @NonNull
   public static ObservationMutationEntity create(
       long id,
       String projectId,
@@ -112,7 +113,8 @@ public abstract class ObservationMutationEntity extends MutationEntity {
         .build();
   }
 
-  public static ObservationMutationEntity fromMutation(ObservationMutation m) {
+  @NonNull
+  public static ObservationMutationEntity fromMutation(@NonNull ObservationMutation m) {
     return ObservationMutationEntity.builder()
         .setId(m.getId())
         .setProjectId(m.getProjectId())
@@ -129,6 +131,7 @@ public abstract class ObservationMutationEntity extends MutationEntity {
         .build();
   }
 
+  @NonNull
   public ObservationMutation toMutation() {
     return ObservationMutation.builder()
         .setId(getId())
@@ -148,6 +151,7 @@ public abstract class ObservationMutationEntity extends MutationEntity {
 
   // Boilerplate generated using Android Studio AutoValue plugin:
 
+  @NonNull
   public static Builder builder() {
     return new AutoValue_ObservationMutationEntity.Builder();
   }
@@ -165,6 +169,7 @@ public abstract class ObservationMutationEntity extends MutationEntity {
 
     public abstract Builder setResponseDeltas(ImmutableList<ResponseDelta> newResponseDeltas);
 
+    @NonNull
     public abstract ObservationMutationEntity build();
   }
 }

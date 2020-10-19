@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.persistence.local.room.dao;
 
+import androidx.annotation.NonNull;
 import androidx.room.Dao;
 import androidx.room.Query;
 import com.google.android.gnd.persistence.local.room.entity.OfflineBaseMapEntity;
@@ -26,9 +27,11 @@ import java.util.List;
 /** Provides read/write operations for writing {@link OfflineBaseMapEntity} to the local db. */
 @Dao
 public interface OfflineBaseMapDao extends BaseDao<OfflineBaseMapEntity> {
+  @NonNull
   @Query("SELECT * FROM offline_base_map")
   Flowable<List<OfflineBaseMapEntity>> findAllOnceAndStream();
 
+  @NonNull
   @Query("SELECT * FROM offline_base_map WHERE id = :id")
   Maybe<OfflineBaseMapEntity> findById(String id);
 }

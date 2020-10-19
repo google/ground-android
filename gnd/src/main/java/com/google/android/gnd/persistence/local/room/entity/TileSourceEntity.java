@@ -49,7 +49,8 @@ public abstract class TileSourceEntity {
   @ColumnInfo(name = "state")
   public abstract TileEntityState getState();
 
-  public static TileSource toTileSource(TileSourceEntity tileSourceEntity) {
+  @NonNull
+  public static TileSource toTileSource(@NonNull TileSourceEntity tileSourceEntity) {
     TileSource.Builder tile =
         TileSource.newBuilder()
             .setId(tileSourceEntity.getId())
@@ -59,7 +60,8 @@ public abstract class TileSourceEntity {
     return tile.build();
   }
 
-  private static TileSource.State toTileState(TileEntityState state) {
+  @NonNull
+  private static TileSource.State toTileState(@NonNull TileEntityState state) {
     switch (state) {
       case PENDING:
         return TileSource.State.PENDING;
@@ -74,7 +76,8 @@ public abstract class TileSourceEntity {
     }
   }
 
-  public static TileSourceEntity fromTile(TileSource tileSource) {
+  @NonNull
+  public static TileSourceEntity fromTile(@NonNull TileSource tileSource) {
     TileSourceEntity.Builder entity =
         TileSourceEntity.builder()
             .setId(tileSource.getId())
@@ -84,7 +87,8 @@ public abstract class TileSourceEntity {
     return entity.build();
   }
 
-  private static TileEntityState toEntityState(TileSource.State state) {
+  @NonNull
+  private static TileEntityState toEntityState(@NonNull TileSource.State state) {
     switch (state) {
       case PENDING:
         return TileEntityState.PENDING;
@@ -99,10 +103,12 @@ public abstract class TileSourceEntity {
     }
   }
 
+  @NonNull
   public static TileSourceEntity create(String id, String path, TileEntityState state, String url) {
     return builder().setId(id).setState(state).setPath(path).setUrl(url).build();
   }
 
+  @NonNull
   public static Builder builder() {
     return new AutoValue_TileSourceEntity.Builder();
   }
@@ -117,6 +123,7 @@ public abstract class TileSourceEntity {
 
     public abstract Builder setState(TileEntityState newState);
 
+    @NonNull
     public abstract TileSourceEntity build();
   }
 }

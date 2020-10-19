@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.model.observation;
 
+import androidx.annotation.NonNull;
 import com.google.android.gnd.model.form.Field;
 import java8.util.Optional;
 
@@ -26,7 +27,7 @@ public interface Response {
 
   String getDetailsText(Field field);
 
-  static String toString(Optional<Response> response) {
+  static String toString(@NonNull Optional<Response> response) {
     return response.map(Response::toString).orElse("");
   }
 

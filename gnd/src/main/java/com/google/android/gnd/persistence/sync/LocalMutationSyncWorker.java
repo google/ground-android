@@ -21,6 +21,7 @@ import static java8.util.stream.StreamSupport.stream;
 
 import android.content.Context;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.hilt.Assisted;
 import androidx.hilt.work.WorkerInject;
 import androidx.work.Data;
@@ -52,6 +53,7 @@ public class LocalMutationSyncWorker extends BaseWorker {
 
   private final LocalDataStore localDataStore;
   private final RemoteDataStore remoteDataStore;
+  @Nullable
   private final String featureId;
   private final PhotoSyncWorkManager photoSyncWorkManager;
 
@@ -71,6 +73,7 @@ public class LocalMutationSyncWorker extends BaseWorker {
   }
 
   /** Returns a new work {@link Data} object containing the specified feature id. */
+  @NonNull
   public static Data createInputData(String featureId) {
     return new Data.Builder().putString(FEATURE_ID_PARAM_KEY, featureId).build();
   }
@@ -95,7 +98,7 @@ public class LocalMutationSyncWorker extends BaseWorker {
    * Groups mutations by user id, loads each user, applies mutations, and removes processed
    * mutations.
    */
-  private Completable processMutations(ImmutableList<Mutation> pendingMutations) {
+  private Completable processMutations(@NonNull ImmutableList<Mutation> pendingMutations) {
     Map<String, ImmutableList<Mutation>> mutationsByUserId = groupByUserId(pendingMutations);
     Set<String> userIds = mutationsByUserId.keySet();
     return Observable.fromIterable(userIds)
@@ -103,7 +106,7 @@ public class LocalMutationSyncWorker extends BaseWorker {
   }
 
   /** Loads each user with specified id, applies mutations, and removes processed mutations. */
-  private Completable processMutations(ImmutableList<Mutation> mutations, String userId) {
+  private Completable processMutations(@NonNull ImmutableList<Mutation> mutations, String userId) {
     return localDataStore
         .getUser(userId)
         .flatMapCompletable(user -> processMutations(mutations, user))
@@ -112,7 +115,7 @@ public class LocalMutationSyncWorker extends BaseWorker {
   }
 
   /** Applies mutations to remote data store. Once successful, removes them from the local db. */
-  private Completable processMutations(ImmutableList<Mutation> mutations, User user) {
+  private Completable processMutations(@NonNull ImmutableList<Mutation> mutations, User user) {
     return remoteDataStore
         .applyMutations(mutations, user)
         .andThen(processPhotoFieldMutations(mutations))
@@ -124,7 +127,7 @@ public class LocalMutationSyncWorker extends BaseWorker {
    * Filters all mutations containing observation mutations with changes to photo fields and uploads
    * to remote storage.
    */
-  private Completable processPhotoFieldMutations(ImmutableList<Mutation> mutations) {
+  private Completable processPhotoFieldMutations(@NonNull ImmutableList<Mutation> mutations) {
     return Observable.fromIterable(mutations)
         .filter(mutation -> mutation instanceof ObservationMutation)
         .flatMapIterable(mutation -> ((ObservationMutation) mutation).getResponseDeltas())
@@ -136,17 +139,18 @@ public class LocalMutationSyncWorker extends BaseWorker {
   }
 
   private Map<String, ImmutableList<Mutation>> groupByUserId(
-      ImmutableList<Mutation> pendingMutations) {
+      @NonNull ImmutableList<Mutation> pendingMutations) {
     return stream(pendingMutations)
         .collect(Collectors.groupingBy(Mutation::getUserId, toImmutableList()));
   }
 
   private ImmutableList<Mutation> incrementRetryCounts(
-      ImmutableList<Mutation> mutations, Throwable error) {
+      @NonNull ImmutableList<Mutation> mutations, @NonNull Throwable error) {
     return stream(mutations).map(m -> incrementRetryCount(m, error)).collect(toImmutableList());
   }
 
-  private Mutation incrementRetryCount(Mutation mutation, Throwable error) {
+  @NonNull
+  private Mutation incrementRetryCount(@NonNull Mutation mutation, @NonNull Throwable error) {
     return mutation
         .toBuilder()
         .setRetryCount(mutation.getRetryCount() + 1)
@@ -154,6 +158,7 @@ public class LocalMutationSyncWorker extends BaseWorker {
         .build();
   }
 
+  @NonNull
   @Override
   public String getNotificationTitle() {
     return getApplicationContext().getString(R.string.uploading_data);

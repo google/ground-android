@@ -17,6 +17,7 @@
 package com.google.android.gnd.system.rx;
 
 import android.content.Context;
+import androidx.annotation.NonNull;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.LocationSettingsResponse;
@@ -29,13 +30,15 @@ import javax.inject.Inject;
 /** Thin wrapper around {@link SettingsClient} exposing key features as reactive streams. */
 public class RxSettingsClient {
 
+  @NonNull
   private final SettingsClient settingsClient;
 
   @Inject
-  public RxSettingsClient(@ApplicationContext Context context) {
+  public RxSettingsClient(@NonNull @ApplicationContext Context context) {
     this.settingsClient = LocationServices.getSettingsClient(context);
   }
 
+  @NonNull
   public Single<LocationSettingsResponse> checkLocationSettings(
       LocationSettingsRequest settingsRequest) {
     return RxTask.toSingle(() -> settingsClient.checkLocationSettings(settingsRequest));

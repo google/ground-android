@@ -54,6 +54,7 @@ public abstract class Feature {
   public abstract int hashCode();
 
   // TODO: Use builder() or newBuilder() consistently.
+  @NonNull
   public static Builder newBuilder() {
     return new AutoValue_Feature.Builder();
   }
@@ -77,6 +78,7 @@ public abstract class Feature {
 
     public abstract Builder setLastModified(@NonNull AuditInfo newLastModified);
 
+    @NonNull
     public abstract Feature build();
   }
 }

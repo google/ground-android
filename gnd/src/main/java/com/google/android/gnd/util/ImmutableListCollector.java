@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.util;
 
+import androidx.annotation.NonNull;
 import com.google.common.collect.ImmutableList;
 import java8.util.stream.Collector;
 import java8.util.stream.Collectors;
@@ -41,6 +42,7 @@ public abstract class ImmutableListCollector {
    * Returns a {@link Collector} that accumulates the input elements into a new ImmutableList, in
    * encounter order.
    */
+  @NonNull
   public static <E> Collector<E, ?, ImmutableList<E>> toImmutableList() {
     return (Collector) TO_IMMUTABLE_LIST;
   }

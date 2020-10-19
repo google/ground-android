@@ -44,11 +44,13 @@ public class PhotoSyncWorkManager extends BaseWorkManager {
     this.fileUtil = fileUtil;
   }
 
+  @NonNull
   @Override
   Class<PhotoSyncWorker> getWorkerClass() {
     return PhotoSyncWorker.class;
   }
 
+  @NonNull
   @Override
   protected NetworkType preferredNetworkType() {
     return localValueStore.shouldUploadMediaOverUnmeteredConnectionOnly()

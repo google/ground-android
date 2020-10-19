@@ -17,6 +17,7 @@
 package com.google.android.gnd.ui.map;
 
 import android.annotation.SuppressLint;
+import androidx.annotation.NonNull;
 import com.cocoahero.android.gmaps.addons.mapbox.MapBoxOfflineTileProvider;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gnd.model.feature.Point;
@@ -30,14 +31,17 @@ import io.reactivex.Observable;
 public interface MapAdapter {
 
   /** Returns a stream that emits map pins clicked by the user. */
+  @NonNull
   Observable<MapPin> getMapPinClicks();
 
   /**
    * Returns a stream that emits the new viewport center each time the map is dragged by the user.
    */
+  @NonNull
   Observable<Point> getDragInteractions();
 
   /** Returns a stream that emits the viewport center on each camera movement. */
+  @NonNull
   Observable<Point> getCameraMoves();
 
   /** Enables map gestures like pan and zoom. */
@@ -84,5 +88,6 @@ public interface MapAdapter {
   void addTileOverlays(ImmutableSet<String> mbtilesFiles);
 
   /** Get the stream of TileProviders associated with this map adapter. */
+  @NonNull
   Observable<MapBoxOfflineTileProvider> getTileProviders();
 }
