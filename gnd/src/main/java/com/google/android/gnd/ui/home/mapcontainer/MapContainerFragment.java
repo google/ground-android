@@ -175,6 +175,7 @@ public class MapContainerFragment extends AbstractFragment {
     enableLocationLockBtn();
     mapContainerViewModel.getMbtilesFilePaths().observe(this, map::addTileOverlays);
 
+    // TODO: Remove after experimentation and uncomment above liveData handler.
     loadPolygons(map);
   }
 
