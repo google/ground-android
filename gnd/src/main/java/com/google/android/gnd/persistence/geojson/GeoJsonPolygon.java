@@ -27,13 +27,28 @@ import java8.util.Optional;
 import javax.annotation.Nullable;
 import org.json.JSONArray;
 
-class GeoJsonExtent {
+class GeoJsonPolygon {
 
   private final GeoJsonGeometry geometry;
 
   @Nullable
-  GeoJsonExtent(GeoJsonGeometry geometry) {
+  GeoJsonPolygon(GeoJsonGeometry geometry) {
     this.geometry = geometry;
+  }
+
+  ImmutableList<ImmutableList<LatLng>> getAllVertices() {
+    return geometry
+        .getVertices()
+        .map(
+            jsonArray -> {
+              List<ImmutableList<LatLng>> listVertices = new ArrayList<>();
+              for (int i = 0; i < jsonArray.length(); i++) {
+                JSONArray vertices = jsonArray.optJSONArray(i);
+                listVertices.add(ringCoordinatesToLatLngs(vertices));
+              }
+              return ImmutableList.copyOf(listVertices);
+            })
+        .orElse(ImmutableList.of());
   }
 
   ImmutableList<LatLng> getVertices() {
