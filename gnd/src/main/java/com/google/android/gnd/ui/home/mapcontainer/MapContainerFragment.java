@@ -18,6 +18,9 @@ package com.google.android.gnd.ui.home.mapcontainer;
 
 import static com.google.android.gnd.rx.RxAutoDispose.autoDisposable;
 import static com.google.android.gnd.rx.RxAutoDispose.disposeOnDestroy;
+import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList;
+import static com.google.android.gnd.util.ImmutableSetCollector.toImmutableSet;
+import static java8.util.stream.StreamSupport.stream;
 
 import android.content.res.ColorStateList;
 import android.os.Bundle;
@@ -35,6 +38,9 @@ import com.google.android.gnd.databinding.MapContainerFragBinding;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.Point;
+import com.google.android.gnd.model.layer.Style;
+import com.google.android.gnd.persistence.geojson.GeoJsonFeature;
+import com.google.android.gnd.persistence.geojson.GeoJsonParser;
 import com.google.android.gnd.rx.BooleanOrError;
 import com.google.android.gnd.rx.Loadable;
 import com.google.android.gnd.system.PermissionsManager.PermissionDeniedException;
@@ -44,9 +50,16 @@ import com.google.android.gnd.ui.home.BottomSheetState;
 import com.google.android.gnd.ui.home.HomeScreenViewModel;
 import com.google.android.gnd.ui.home.mapcontainer.MapContainerViewModel.Mode;
 import com.google.android.gnd.ui.map.MapAdapter;
+import com.google.android.gnd.ui.map.MapFeature;
+import com.google.android.gnd.ui.map.MapPolygon;
 import com.google.android.gnd.ui.map.MapProvider;
+import com.google.android.gnd.ui.util.FileUtil;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import dagger.hilt.android.AndroidEntryPoint;
 import io.reactivex.Single;
+import java.io.File;
+import java.io.IOException;
 import java8.util.Optional;
 import javax.inject.Inject;
 import timber.log.Timber;
@@ -56,6 +69,8 @@ import timber.log.Timber;
 public class MapContainerFragment extends AbstractFragment {
   private static final String MAP_FRAGMENT_KEY = MapProvider.class.getName() + "#fragment";
 
+  @Inject FileUtil fileUtil;
+  @Inject GeoJsonParser geoJsonParser;
   @Inject MapProvider mapProvider;
 
   private MapContainerViewModel mapContainerViewModel;
@@ -141,7 +156,7 @@ public class MapContainerFragment extends AbstractFragment {
   private void onMapReady(MapAdapter map) {
     Timber.d("MapAdapter ready. Updating subscriptions");
     // Observe events emitted by the ViewModel.
-    mapContainerViewModel.getMapPins().observe(this, map::setMapPins);
+    //    mapContainerViewModel.getMapFeatures().observe(this, map::setMapFeatures);
     mapContainerViewModel
         .getLocationLockState()
         .observe(this, state -> onLocationLockStateChange(state, map));
@@ -159,6 +174,48 @@ public class MapContainerFragment extends AbstractFragment {
     binding.moveFeature.cancelButton.setOnClickListener(__ -> setDefaultMode());
     enableLocationLockBtn();
     mapContainerViewModel.getMbtilesFilePaths().observe(this, map::addTileOverlays);
+
+    loadPolygons(map);
+  }
+
+  private void loadPolygons(MapAdapter map) {
+    Timber.d("hello");
+    try {
+      File file = fileUtil.getFileFromRawResource(R.raw.sample_geojson, "sample.json");
+      ImmutableSet<MapFeature> mapFeatures =
+          stream(geoJsonParser.getGeoJsonFeatures(file))
+              .filter(GeoJsonFeature::isPolygon)
+              .map(
+                  geoJsonFeature ->
+                      MapPolygon.newBuilder()
+                          .setId("foo")
+                          .setVertices(getVertices(geoJsonFeature))
+                          .setStyle(Style.builder().setColor(geoJsonFeature.getColor()).build())
+                          .build())
+              .collect(toImmutableSet());
+
+      Timber.d("Setting pins: %d", mapFeatures.size());
+
+      map.setMapFeatures(mapFeatures);
+
+    } catch (IOException e) {
+      Timber.e(e);
+    }
+  }
+
+  private ImmutableList<ImmutableSet<Point>> getVertices(GeoJsonFeature geoJsonFeature) {
+    return stream(geoJsonFeature.getVertices())
+        .map(
+            latLngs ->
+                stream(latLngs)
+                    .map(
+                        latLng ->
+                            Point.newBuilder()
+                                .setLatitude(latLng.latitude)
+                                .setLongitude(latLng.longitude)
+                                .build())
+                    .collect(toImmutableSet()))
+        .collect(toImmutableList());
   }
 
   private void showConfirmationDialog(Point point) {

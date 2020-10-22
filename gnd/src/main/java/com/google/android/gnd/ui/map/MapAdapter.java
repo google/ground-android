@@ -68,8 +68,8 @@ public interface MapAdapter {
   @SuppressLint("MissingPermission")
   void enableCurrentLocationIndicator();
 
-  /** Update map pins shown on map. */
-  void setMapPins(ImmutableSet<MapPin> pins);
+  /** Update map pins/polygons shown on map. */
+  void setMapFeatures(ImmutableSet<MapFeature> mapFeatures);
 
   /** Get current map type. */
   int getMapType();
