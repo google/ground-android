@@ -66,21 +66,28 @@ public class GeoJsonParser {
     return result;
   }
 
-  private List<JSONObject> getFeaturesJSONArray(File file) {
+  private static List<JSONObject> getFeaturesJSONArray(String jsonString) {
     try {
-      String fileContents = FileUtils.readFileToString(file, Charset.forName(JSON_SOURCE_CHARSET));
       // TODO: Separate parsing and intersection checks, make asyc (single, completable).
-      JSONObject geoJson = new JSONObject(fileContents);
+      JSONObject geoJson = new JSONObject(jsonString);
       // TODO: Make features constant.
       return toArrayList(geoJson.getJSONArray(FEATURES_KEY));
-    } catch (JSONException | IOException e) {
+    } catch (JSONException e) {
       Timber.e(e, "Unable to parse JSON");
     }
     return ImmutableList.of();
   }
 
-  public ImmutableList<GeoJsonTile> getGeoJsonTiles(File file) {
-    return stream(getFeaturesJSONArray(file)).map(GeoJsonTile::new).collect(toImmutableList());
+  public static ImmutableList<GeoJsonFeature> getGeoJsonFeatures(String jsonString) {
+    return stream(getFeaturesJSONArray(jsonString))
+        .map(GeoJsonFeature::new)
+        .collect(toImmutableList());
+  }
+
+  public ImmutableList<GeoJsonTile> getGeoJsonTiles(String jsonString) {
+    return stream(getFeaturesJSONArray(jsonString))
+        .map(GeoJsonTile::new)
+        .collect(toImmutableList());
   }
 
   /**
@@ -88,14 +95,18 @@ public class GeoJsonParser {
    * bounds}.
    */
   public ImmutableList<TileSource> intersectingTiles(LatLngBounds bounds, File file) {
-    return stream(getGeoJsonTiles(file))
+    String fileContents;
+    try {
+      fileContents = FileUtils.readFileToString(file, Charset.forName(JSON_SOURCE_CHARSET));
+    } catch (IOException e) {
+      Timber.e(e);
+      return ImmutableList.of();
+    }
+
+    return stream(getGeoJsonTiles(fileContents))
         .filter(tile -> tile.boundsIntersect(bounds))
         .map(this::jsonToTileSource)
         .collect(toImmutableList());
-  }
-
-  public ImmutableList<GeoJsonFeature> getGeoJsonFeatures(File file) {
-    return stream(getFeaturesJSONArray(file)).map(GeoJsonFeature::new).collect(toImmutableList());
   }
 
   /** Returns the {@link TileSource} specified by {@param json}. */
