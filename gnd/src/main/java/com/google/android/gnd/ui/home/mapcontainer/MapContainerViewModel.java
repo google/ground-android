@@ -52,6 +52,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java8.util.Optional;
+import java8.util.stream.Stream;
 import javax.inject.Inject;
 import timber.log.Timber;
 
@@ -121,20 +122,22 @@ public class MapContainerViewModel extends AbstractViewModel {
   }
 
   private static ImmutableSet<MapFeature> toMapFeatures(ImmutableSet<Feature> features) {
-    return stream(features).map(MapContainerViewModel::toMapFeature).collect(toImmutableSet());
+    ImmutableSet<MapFeature> mapPins =
+        stream(features)
+            .filter(Feature::isPoint)
+            .map(MapContainerViewModel::toMapPin)
+            .collect(toImmutableSet());
+
+    ImmutableSet<MapFeature> mapPolygons =
+        stream(features)
+            .filter(Feature::isGeoJson)
+            .flatMap(MapContainerViewModel::toMapPolygons)
+            .collect(toImmutableSet());
+
+    return ImmutableSet.<MapFeature>builder().addAll(mapPins).addAll(mapPolygons).build();
   }
 
-  private static MapFeature toMapFeature(Feature feature) {
-    if (feature.isPoint()) {
-      return toMapPin(feature);
-    } else if (feature.isPolygon()) {
-      return toMapPolygon(feature);
-    } else {
-      throw new IllegalArgumentException("Unsupported feature type");
-    }
-  }
-
-  private static MapPin toMapPin(Feature feature) {
+  private static MapFeature toMapPin(Feature feature) {
     return MapPin.newBuilder()
         .setId(feature.getId())
         .setPosition(feature.getPoint())
@@ -143,13 +146,16 @@ public class MapContainerViewModel extends AbstractViewModel {
         .build();
   }
 
-  private static MapPolygon toMapPolygon(Feature feature) {
-    return MapPolygon.newBuilder()
-        .setId(feature.getId())
-        .setVertices(feature.getPolygon().getVertices())
-        .setStyle(feature.getLayer().getDefaultStyle())
-        .setFeature(feature)
-        .build();
+  private static Stream<MapPolygon> toMapPolygons(Feature feature) {
+    return stream(feature.getGeoJson().getPolygons())
+        .map(
+            polygon ->
+                MapPolygon.newBuilder()
+                    .setId(feature.getId())
+                    .setVertices(polygon.getVertices())
+                    .setStyle(feature.getLayer().getDefaultStyle())
+                    .setFeature(feature)
+                    .build());
   }
 
   private Flowable<CameraUpdate> createCameraUpdateFlowable(
