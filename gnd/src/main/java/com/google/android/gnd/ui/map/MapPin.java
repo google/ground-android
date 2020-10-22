@@ -23,7 +23,11 @@ import com.google.android.gnd.model.layer.Style;
 import com.google.auto.value.AutoValue;
 
 @AutoValue
-public abstract class MapPin {
+public abstract class MapPin extends MapFeature {
+
+  public static Builder newBuilder() {
+    return new AutoValue_MapPin.Builder();
+  }
 
   public abstract String getId();
 
@@ -35,10 +39,6 @@ public abstract class MapPin {
   // relevant to rendering pins and uuid to reference the related Feature.
   @NonNull
   public abstract Feature getFeature();
-
-  public static Builder newBuilder() {
-    return new AutoValue_MapPin.Builder();
-  }
 
   @AutoValue.Builder
   public abstract static class Builder {
