@@ -35,8 +35,8 @@ public abstract class Feature {
     return getPoint() != null;
   }
 
-  public boolean isPolygon() {
-    return getPolygon() != null;
+  public boolean isGeoJson() {
+    return getGeoJson() != null;
   }
 
   @NonNull
@@ -56,7 +56,7 @@ public abstract class Feature {
   public abstract Point getPoint();
 
   @Nullable
-  public abstract Polygon getPolygon();
+  public abstract GeoJson getGeoJson();
 
   /** Returns the user and time audit info pertaining to the creation of this feature. */
   public abstract AuditInfo getCreated();
@@ -85,7 +85,7 @@ public abstract class Feature {
 
     public abstract Builder setPoint(@Nullable Point newPoint);
 
-    public abstract Builder setPolygon(@Nullable Polygon newPolygon);
+    public abstract Builder setGeoJson(@Nullable GeoJson newGeoJson);
 
     public abstract Builder setCreated(@NonNull AuditInfo newCreated);
 
