@@ -66,7 +66,7 @@ public class GeoJsonParser {
     return result;
   }
 
-  public List<JSONObject> getFeatures(File file) {
+  private List<JSONObject> getFeaturesJSONArray(File file) {
     try {
       String fileContents = FileUtils.readFileToString(file, Charset.forName(JSON_SOURCE_CHARSET));
       // TODO: Separate parsing and intersection checks, make asyc (single, completable).
@@ -79,16 +79,23 @@ public class GeoJsonParser {
     return ImmutableList.of();
   }
 
+  public ImmutableList<GeoJsonTile> getGeoJsonTiles(File file) {
+    return stream(getFeaturesJSONArray(file)).map(GeoJsonTile::new).collect(toImmutableList());
+  }
+
   /**
    * Returns the immutable list of tiles specified in {@param geojson} that intersect {@param
    * bounds}.
    */
   public ImmutableList<TileSource> intersectingTiles(LatLngBounds bounds, File file) {
-    return stream(getFeatures(file))
-        .map(GeoJsonTile::new)
+    return stream(getGeoJsonTiles(file))
         .filter(tile -> tile.boundsIntersect(bounds))
         .map(this::jsonToTileSource)
         .collect(toImmutableList());
+  }
+
+  public ImmutableList<GeoJsonFeature> getGeoJsonFeatures(File file) {
+    return stream(getFeaturesJSONArray(file)).map(GeoJsonFeature::new).collect(toImmutableList());
   }
 
   /** Returns the {@link TileSource} specified by {@param json}. */
