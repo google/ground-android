@@ -66,7 +66,7 @@ public class GeoJsonParser {
     return result;
   }
 
-  private static List<JSONObject> getFeaturesJSONArray(String jsonString) {
+  private static List<JSONObject> getFeaturesArray(String jsonString) {
     try {
       // TODO: Separate parsing and intersection checks, make asyc (single, completable).
       JSONObject geoJson = new JSONObject(jsonString);
@@ -79,15 +79,11 @@ public class GeoJsonParser {
   }
 
   public static ImmutableList<GeoJsonFeature> getGeoJsonFeatures(String jsonString) {
-    return stream(getFeaturesJSONArray(jsonString))
-        .map(GeoJsonFeature::new)
-        .collect(toImmutableList());
+    return stream(getFeaturesArray(jsonString)).map(GeoJsonFeature::new).collect(toImmutableList());
   }
 
   public ImmutableList<GeoJsonTile> getGeoJsonTiles(String jsonString) {
-    return stream(getFeaturesJSONArray(jsonString))
-        .map(GeoJsonTile::new)
-        .collect(toImmutableList());
+    return stream(getFeaturesArray(jsonString)).map(GeoJsonTile::new).collect(toImmutableList());
   }
 
   /**

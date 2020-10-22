@@ -269,9 +269,9 @@ class GoogleMapsMapAdapter implements MapAdapter {
         .forEach(
             mapPin -> {
               if (mapPin instanceof MapPin) {
-                addMapPin(((MapPin) mapPin));
+                addMapPin((MapPin) mapPin);
               } else if (mapPin instanceof MapPolygon) {
-                addMapPolyline(((MapPolygon) mapPin));
+                addMapPolyline((MapPolygon) mapPin);
               }
             });
   }
