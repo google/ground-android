@@ -29,7 +29,9 @@ import com.cocoahero.android.gmaps.addons.mapbox.MapBoxOfflineTileProvider;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.basemap.tile.TileSource;
 import com.google.android.gnd.model.feature.Feature;
+import com.google.android.gnd.model.feature.GeoJson;
 import com.google.android.gnd.model.feature.Point;
+import com.google.android.gnd.persistence.remote.firestore.schema.FeatureConverter;
 import com.google.android.gnd.repository.FeatureRepository;
 import com.google.android.gnd.repository.OfflineBaseMapRepository;
 import com.google.android.gnd.repository.ProjectRepository;
@@ -147,7 +149,8 @@ public class MapContainerViewModel extends AbstractViewModel {
   }
 
   private static Stream<MapPolygon> toMapPolygons(Feature feature) {
-    return stream(feature.getGeoJson().getPolygons())
+    GeoJson geoJson = FeatureConverter.toGeoJson(feature.getGeoJsonString());
+    return stream(geoJson.getPolygons())
         .map(
             polygon ->
                 MapPolygon.newBuilder()

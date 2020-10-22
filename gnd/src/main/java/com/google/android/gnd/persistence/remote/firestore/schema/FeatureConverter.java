@@ -41,7 +41,7 @@ import com.google.firebase.firestore.GeoPoint;
 import java8.util.Optional;
 
 /** Converts between Firestore documents and {@link Feature} instances. */
-class FeatureConverter {
+public class FeatureConverter {
 
   protected static final String LAYER_ID = "layerId";
   protected static final String LOCATION = "location";
@@ -54,8 +54,8 @@ class FeatureConverter {
     FeatureDocument f = checkNotNull(doc.toObject(FeatureDocument.class), "feature data");
     String layerId = checkNotNull(f.getLayerId(), LAYER_ID);
     Layer layer = checkNotEmpty(project.getLayer(layerId), "layer " + f.getLayerId());
-    Point location = toPoint(f.getLocation());
-    GeoJson geoJson = toGeoJson(f.getGeoJson());
+    Point location = checkNotNull(toPoint(f.getLocation()), LOCATION);
+    String geoJsonString = Strings.isNullOrEmpty(f.getGeoJson()) ? null : f.getGeoJson();
     // Degrade gracefully when audit info missing in remote db.
     AuditInfoNestedObject created =
         Optional.ofNullable(f.getCreated()).orElse(AuditInfoNestedObject.FALLBACK_VALUE);
@@ -67,7 +67,7 @@ class FeatureConverter {
         .setCaption(f.getCaption())
         .setLayer(layer)
         .setPoint(location)
-        .setGeoJson(geoJson)
+        .setGeoJsonString(geoJsonString)
         .setCreated(AuditInfoConverter.toAuditInfo(created))
         .setLastModified(AuditInfoConverter.toAuditInfo(lastModified))
         .build();
@@ -85,7 +85,7 @@ class FeatureConverter {
   }
 
   @Nullable
-  private static GeoJson toGeoJson(@Nullable String jsonString) {
+  public static GeoJson toGeoJson(@Nullable String jsonString) {
     if (Strings.isNullOrEmpty(jsonString)) {
       return null;
     }
