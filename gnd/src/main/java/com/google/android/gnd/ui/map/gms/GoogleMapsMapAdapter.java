@@ -27,16 +27,22 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.JointType;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.android.gms.maps.model.RoundCap;
 import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.android.gnd.R;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.ui.MarkerIconFactory;
 import com.google.android.gnd.ui.map.MapAdapter;
+import com.google.android.gnd.ui.map.MapFeature;
 import com.google.android.gnd.ui.map.MapPin;
+import com.google.android.gnd.ui.map.MapPolygon;
 import com.google.common.collect.ImmutableSet;
 import io.reactivex.Observable;
 import io.reactivex.subjects.BehaviorSubject;
@@ -54,6 +60,9 @@ import timber.log.Timber;
  */
 class GoogleMapsMapAdapter implements MapAdapter {
 
+  // TODO: Make it configurable
+  private static final int POLYLINE_STROKE_WIDTH_PX = 12;
+
   private final GoogleMap map;
   private final Context context;
   private final MarkerIconFactory markerIconFactory;
@@ -70,6 +79,12 @@ class GoogleMapsMapAdapter implements MapAdapter {
    * current view and data state.
    */
   private Set<Marker> markers = new HashSet<>();
+
+  /**
+   * References to Google Maps SDK Markers present on the map. Used to sync and update polylines
+   * with current view and data state.
+   */
+  private Set<Polyline> polylines = new HashSet<>();
 
   @Nullable private LatLng cameraTargetBeforeDrag;
 
@@ -160,9 +175,39 @@ class GoogleMapsMapAdapter implements MapAdapter {
     markers.add(marker);
   }
 
+  private void addMapPolyline(MapPolygon mapPolygon) {
+    for (ImmutableSet<Point> vertices : mapPolygon.getVertices()) {
+      PolylineOptions options = new PolylineOptions();
+
+      // Read-only
+      options.clickable(false);
+
+      // Add vertices to PolylineOptions
+      stream(vertices).map(GoogleMapsMapAdapter::toLatLng).forEach(options::add);
+
+      // Add to map
+      Polyline polyline = map.addPolyline(options);
+      polyline.setTag(mapPolygon);
+
+      // Style polyline
+      polyline.setStartCap(new RoundCap());
+      polyline.setEndCap(new RoundCap());
+      polyline.setWidth(POLYLINE_STROKE_WIDTH_PX);
+      polyline.setColor(parseColor(mapPolygon.getStyle().getColor()));
+      polyline.setJointType(JointType.ROUND);
+
+      polylines.add(polyline);
+    }
+  }
+
   private void removeAllMarkers() {
     stream(markers).forEach(Marker::remove);
     markers.clear();
+  }
+
+  private void removeAllPolylines() {
+    stream(polylines).forEach(Polyline::remove);
+    polylines.clear();
   }
 
   @Override
@@ -184,26 +229,51 @@ class GoogleMapsMapAdapter implements MapAdapter {
   }
 
   @Override
-  public void setMapPins(ImmutableSet<MapPin> updatedPins) {
-    if (updatedPins.isEmpty()) {
+  public void setMapFeatures(ImmutableSet<MapFeature> updatedFeatures) {
+    if (updatedFeatures.isEmpty()) {
       removeAllMarkers();
+      removeAllPolylines();
       return;
     }
-    Set<MapPin> pinsToAdd = new HashSet<>(updatedPins);
-    Iterator<Marker> it = markers.iterator();
-    while (it.hasNext()) {
-      Marker marker = it.next();
+    Set<MapFeature> featuresToAdd = new HashSet<>(updatedFeatures);
+
+    Iterator<Marker> markerIterator = markers.iterator();
+    while (markerIterator.hasNext()) {
+      Marker marker = markerIterator.next();
       MapPin pin = (MapPin) marker.getTag();
-      if (updatedPins.contains(pin)) {
+      if (updatedFeatures.contains(pin)) {
         // If pin already exists on map, don't add it.
-        pinsToAdd.remove(pin);
+        featuresToAdd.remove(pin);
       } else {
-        // Remove existing pins not in list of updatedPins.
+        // Remove existing pins not in list of updatedFeatures.
         removeMarker(marker);
-        it.remove();
+        markerIterator.remove();
       }
     }
-    stream(pinsToAdd).forEach(this::addMapPin);
+
+    Iterator<Polyline> polylineIterator = polylines.iterator();
+    while (polylineIterator.hasNext()) {
+      Polyline polyline = polylineIterator.next();
+      MapPolygon polygon = (MapPolygon) polyline.getTag();
+      if (updatedFeatures.contains(polygon)) {
+        // If polygon already exists on map, don't add it.
+        featuresToAdd.remove(polygon);
+      } else {
+        // Remove existing polyline not in list of updatedFeatures.
+        removePolygon(polyline);
+        polylineIterator.remove();
+      }
+    }
+
+    stream(featuresToAdd)
+        .forEach(
+            mapPin -> {
+              if (mapPin instanceof MapPin) {
+                addMapPin(((MapPin) mapPin));
+              } else if (mapPin instanceof MapPolygon) {
+                addMapPolyline(((MapPolygon) mapPin));
+              }
+            });
   }
 
   @Override
@@ -219,6 +289,11 @@ class GoogleMapsMapAdapter implements MapAdapter {
   private void removeMarker(Marker marker) {
     Timber.v("Removing marker %s", marker.getId());
     marker.remove();
+  }
+
+  private void removePolygon(Polyline polyline) {
+    Timber.v("Removing polyline %s", polyline.getId());
+    polyline.remove();
   }
 
   private int parseColor(@Nullable String colorHexCode) {
