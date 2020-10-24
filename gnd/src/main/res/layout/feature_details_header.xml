@@ -96,8 +96,8 @@
       android:elevation="@dimen/feature_details_icon_elevation"
       android:outlineProvider="none"
       android:scaleType="center"
-      android:tint="@color/colorForeground"
-      app:srcCompat="@drawable/ic_default_map_marker" />
+      app:srcCompat="@drawable/ic_default_map_marker"
+      app:tint="@color/colorForeground" />
 
   </FrameLayout>
 </layout>
