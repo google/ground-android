@@ -27,7 +27,7 @@ project.ext {
     autoDisposeVersion = "1.4.0"
     autoValueVersion = "1.6.3"
     firebaseCoreVersion = "17.4.3"
-    hiltJetpackVersion = "1.0.0-alpha01"
+    hiltJetpackVersion = "1.0.0-alpha02"
     lifecycleVersion = "2.2.0"
     navigationVersion = "1.0.0"
     roomVersion = "2.2.5"
@@ -160,7 +160,6 @@ dependencies {
     androidTestAnnotationProcessor "androidx.hilt:hilt-compiler:$project.hiltJetpackVersion"
     testImplementation "com.google.dagger:hilt-android-testing:$project.hiltVersion"
     testAnnotationProcessor "com.google.dagger:hilt-android-compiler:$project.hiltVersion"
-
 
     // ReactiveX
     implementation 'io.reactivex.rxjava2:rxjava:2.2.20'

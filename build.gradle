@@ -18,7 +18,7 @@
 
 buildscript {
     ext {
-        hiltVersion = "2.28-alpha"
+        hiltVersion = "2.29.1-alpha"
     }
     repositories {
         google()
