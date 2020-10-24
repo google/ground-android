@@ -137,7 +137,7 @@ dependencies {
     implementation 'com.google.android.gms:play-services-location:17.1.0'
 
     // GeoJSON support
-    implementation "com.google.maps.android:android-maps-utils:2.0.0"
+    implementation "com.google.maps.android:android-maps-utils:2.0.3"
 
     // Firebase and related libraries.
     implementation "com.google.firebase:firebase-analytics:$project.firebaseCoreVersion"
