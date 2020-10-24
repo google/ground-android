@@ -27,7 +27,6 @@ project.ext {
     autoDisposeVersion = "1.4.0"
     autoValueVersion = "1.6.3"
     firebaseCoreVersion = "17.4.3"
-    gmsVersion = "17.0.0"
     hiltJetpackVersion = "1.0.0-alpha01"
     lifecycleVersion = "2.2.0"
     navigationVersion = "1.0.0"
@@ -133,9 +132,9 @@ dependencies {
     implementation 'net.sourceforge.streamsupport:streamsupport-cfuture:1.7.2'
 
     // Google Play Services.
-    implementation 'com.google.android.gms:play-services-auth:18.0.0'
-    implementation "com.google.android.gms:play-services-maps:$project.gmsVersion"
-    implementation "com.google.android.gms:play-services-location:$project.gmsVersion"
+    implementation 'com.google.android.gms:play-services-auth:18.1.0'
+    implementation 'com.google.android.gms:play-services-maps:17.0.0'
+    implementation 'com.google.android.gms:play-services-location:17.1.0'
 
     // GeoJSON support
     implementation "com.google.maps.android:android-maps-utils:2.0.0"
