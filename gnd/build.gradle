@@ -26,7 +26,6 @@ apply from: '../config/pmd/pmd.gradle'
 project.ext {
     autoDisposeVersion = "1.4.0"
     autoValueVersion = "1.6.3"
-    firebaseCoreVersion = "17.4.3"
     hiltJetpackVersion = "1.0.0-alpha02"
     lifecycleVersion = "2.2.0"
     navigationVersion = "1.0.0"
@@ -140,14 +139,14 @@ dependencies {
     implementation "com.google.maps.android:android-maps-utils:2.0.3"
 
     // Firebase and related libraries.
-    implementation "com.google.firebase:firebase-analytics:$project.firebaseCoreVersion"
-    implementation "com.google.firebase:firebase-core:$project.firebaseCoreVersion"
-    implementation 'com.google.firebase:firebase-firestore:21.4.3'
-    implementation 'com.google.firebase:firebase-auth:19.3.1'
-    implementation 'com.google.firebase:firebase-perf:19.0.7'
+    implementation 'com.google.firebase:firebase-analytics:17.6.0'
+    implementation 'com.google.firebase:firebase-core:17.5.1'
+    implementation 'com.google.firebase:firebase-firestore:21.7.1'
+    implementation 'com.google.firebase:firebase-auth:19.4.0'
+    implementation 'com.google.firebase:firebase-perf:19.0.9'
+    implementation 'com.google.firebase:firebase-storage:19.2.0'
+    implementation 'com.google.firebase:firebase-crashlytics:17.2.2'
     implementation 'com.github.FrangSierra:RxFirebase:1.5.7'
-    implementation 'com.google.firebase:firebase-storage:19.1.1'
-    implementation 'com.google.firebase:firebase-crashlytics:17.1.0'
 
     // Hilt
     implementation "com.google.dagger:hilt-android:$project.hiltVersion"
