@@ -211,8 +211,7 @@ dependencies {
     implementation "com.uber.autodispose:autodispose-android-archcomponents:$project.autoDisposeVersion"
 
     // Apache Commons IO
-    // https://mvnrepository.com/artifact/commons-io/commons-io
-    implementation 'commons-io:commons-io:2.7'
+    implementation 'commons-io:commons-io:2.8.0'
 
     // Testing
     testImplementation 'junit:junit:4.13.1'
