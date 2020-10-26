@@ -76,10 +76,12 @@ public class HomeScreenViewModel extends AbstractViewModel {
     this.addFeatureDialogRequests = new MutableLiveData<>();
     this.openDrawerRequests = new MutableLiveData<>();
     this.bottomSheetState = new MutableLiveData<>();
-    this.activeProject =
-        LiveDataReactiveStreams.fromPublisher(projectRepository.getActiveProjectOnceAndStream());
     this.navigator = navigator;
     this.addFeatureClicks = PublishSubject.create();
+
+    this.activeProject =
+        LiveDataReactiveStreams.fromPublisher(
+            projectRepository.getActiveProjectOnceAndStream().doAfterNext(this::onActivateProject));
 
     // TODO: Replace disposeOnClear with Processor
     disposeOnClear(
@@ -111,6 +113,21 @@ public class HomeScreenViewModel extends AbstractViewModel {
                         .updateFeature(updatedFeature)
                         .toSingleDefault(true)
                         .onErrorReturnItem(false)));
+  }
+
+  /** Handle state of the UI elements depending upon the active project. */
+  private void onActivateProject(Loadable<Project> project) {
+    Boolean addBtnVisibility =
+        Optional.of(project)
+            .filter(Loadable::isLoaded)
+            .map(p -> containsLayers(p.value()))
+            .orElse(false);
+    addFeatureBtnVisibility.postValue(addBtnVisibility ? View.VISIBLE : View.GONE);
+  }
+
+  /** Returns true if the given project contains layers, otherwise false. */
+  private boolean containsLayers(Optional<Project> project) {
+    return project.map(p -> !p.getLayers().isEmpty()).orElse(false);
   }
 
   public LiveData<Integer> getAddFeatureBtnVisibility() {
