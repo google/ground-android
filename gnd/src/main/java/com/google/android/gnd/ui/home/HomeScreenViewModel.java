@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.ui.home;
 
+import android.view.View;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
 import androidx.lifecycle.MutableLiveData;
@@ -63,6 +64,8 @@ public class HomeScreenViewModel extends AbstractViewModel {
   private final FlowableProcessor<Feature> updateFeatureRequests = PublishProcessor.create();
   private final LiveData<Boolean> updateFeature;
 
+  private final MutableLiveData<Integer> addFeatureBtnVisibility = new MutableLiveData<>(View.GONE);
+
   @Inject
   HomeScreenViewModel(
       ProjectRepository projectRepository,
@@ -108,6 +111,10 @@ public class HomeScreenViewModel extends AbstractViewModel {
                         .updateFeature(updatedFeature)
                         .toSingleDefault(true)
                         .onErrorReturnItem(false)));
+  }
+
+  public LiveData<Integer> getAddFeatureBtnVisibility() {
+    return addFeatureBtnVisibility;
   }
 
   public LiveData<Boolean> getUpdateFeature() {
