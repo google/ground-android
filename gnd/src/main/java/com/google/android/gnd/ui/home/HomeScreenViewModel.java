@@ -30,7 +30,6 @@ import com.google.android.gnd.rx.Action;
 import com.google.android.gnd.rx.Event;
 import com.google.android.gnd.rx.Loadable;
 import com.google.android.gnd.rx.Schedulers;
-import com.google.android.gnd.rx.ValueOrError;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.SharedViewModel;
@@ -118,18 +117,20 @@ public class HomeScreenViewModel extends AbstractViewModel {
 
   /** Handle state of the UI elements depending upon the active project. */
   private void onActivateProject(Loadable<Project> project) {
-    Boolean addBtnVisibility =
-        Optional.of(project)
-            .filter(Loadable::isLoaded)
-            .map(ValueOrError::value)
-            .flatMap(this::containsLayers)
-            .orElse(false);
-    addFeatureBtnVisibility.postValue(addBtnVisibility ? View.VISIBLE : View.GONE);
+    addFeatureBtnVisibility.postValue(
+        shouldShowAddFeatureButton(project) ? View.VISIBLE : View.GONE);
   }
 
-  /** Returns true if the given project contains layers, otherwise false. */
-  private Optional<Boolean> containsLayers(Optional<Project> project) {
-    return project.map(p -> !p.getLayers().isEmpty());
+  private boolean shouldShowAddFeatureButton(Loadable<Project> project) {
+    if (!project.isLoaded()) {
+      return false;
+    }
+
+    // TODO: Also check if the project has user-editable layers.
+    //  Pending feature, https://github.com/google/ground-platform/issues/228
+
+    // Project must contain at least 1 layer.
+    return project.value().map(p -> !p.getLayers().isEmpty()).orElse(false);
   }
 
   public LiveData<Integer> getAddFeatureBtnVisibility() {
