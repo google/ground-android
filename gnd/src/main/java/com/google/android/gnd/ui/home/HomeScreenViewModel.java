@@ -16,7 +16,9 @@
 
 package com.google.android.gnd.ui.home;
 
-import android.view.View;
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
+
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
 import androidx.lifecycle.MutableLiveData;
@@ -64,7 +66,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
   private final FlowableProcessor<Feature> updateFeatureRequests = PublishProcessor.create();
   private final LiveData<Boolean> updateFeature;
 
-  private final MutableLiveData<Integer> addFeatureBtnVisibility = new MutableLiveData<>(View.GONE);
+  private final MutableLiveData<Integer> addFeatureButtonVisibility = new MutableLiveData<>(GONE);
 
   @Inject
   HomeScreenViewModel(
@@ -117,8 +119,8 @@ public class HomeScreenViewModel extends AbstractViewModel {
 
   /** Handle state of the UI elements depending upon the active project. */
   private void onActivateProject(Loadable<Project> project) {
-    addFeatureBtnVisibility.postValue(
-        shouldShowAddFeatureButton(project) ? View.VISIBLE : View.GONE);
+    addFeatureButtonVisibility.postValue(
+        shouldShowAddFeatureButton(project) ? VISIBLE : GONE);
   }
 
   private boolean shouldShowAddFeatureButton(Loadable<Project> project) {
@@ -133,8 +135,8 @@ public class HomeScreenViewModel extends AbstractViewModel {
     return project.value().map(p -> !p.getLayers().isEmpty()).orElse(false);
   }
 
-  public LiveData<Integer> getAddFeatureBtnVisibility() {
-    return addFeatureBtnVisibility;
+  public LiveData<Integer> getAddFeatureButtonVisibility() {
+    return addFeatureButtonVisibility;
   }
 
   public LiveData<Boolean> getUpdateFeature() {
