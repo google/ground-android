@@ -29,9 +29,7 @@ import com.cocoahero.android.gmaps.addons.mapbox.MapBoxOfflineTileProvider;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.basemap.tile.TileSource;
 import com.google.android.gnd.model.feature.Feature;
-import com.google.android.gnd.model.feature.GeoJson;
 import com.google.android.gnd.model.feature.Point;
-import com.google.android.gnd.persistence.remote.firestore.schema.FeatureConverter;
 import com.google.android.gnd.repository.FeatureRepository;
 import com.google.android.gnd.repository.OfflineBaseMapRepository;
 import com.google.android.gnd.repository.ProjectRepository;
@@ -43,8 +41,8 @@ import com.google.android.gnd.system.LocationManager;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.common.SharedViewModel;
 import com.google.android.gnd.ui.map.MapFeature;
+import com.google.android.gnd.ui.map.MapGeoJSON;
 import com.google.android.gnd.ui.map.MapPin;
-import com.google.android.gnd.ui.map.MapPolygon;
 import com.google.common.collect.ImmutableSet;
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Flowable;
@@ -54,8 +52,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java8.util.Optional;
-import java8.util.stream.Stream;
 import javax.inject.Inject;
+import org.json.JSONException;
+import org.json.JSONObject;
 import timber.log.Timber;
 
 @SharedViewModel
@@ -130,10 +129,12 @@ public class MapContainerViewModel extends AbstractViewModel {
             .map(MapContainerViewModel::toMapPin)
             .collect(toImmutableSet());
 
+    // TODO: Add support for polylines and polygons similar to mapPins
+
     ImmutableSet<MapFeature> mapPolygons =
         stream(features)
             .filter(Feature::isGeoJson)
-            .flatMap(MapContainerViewModel::toMapPolygons)
+            .map(MapContainerViewModel::toMapGeoJSON)
             .collect(toImmutableSet());
 
     return ImmutableSet.<MapFeature>builder().addAll(mapPins).addAll(mapPolygons).build();
@@ -148,17 +149,20 @@ public class MapContainerViewModel extends AbstractViewModel {
         .build();
   }
 
-  private static Stream<MapPolygon> toMapPolygons(Feature feature) {
-    GeoJson geoJson = FeatureConverter.toGeoJson(feature.getGeoJsonString());
-    return stream(geoJson.getPolygons())
-        .map(
-            polygon ->
-                MapPolygon.newBuilder()
-                    .setId(feature.getId())
-                    .setVertices(polygon.getVertices())
-                    .setStyle(feature.getLayer().getDefaultStyle())
-                    .setFeature(feature)
-                    .build());
+  private static MapGeoJSON toMapGeoJSON(Feature feature) {
+    JSONObject jsonObject;
+    try {
+      jsonObject = new JSONObject(feature.getGeoJsonString());
+    } catch (JSONException e) {
+      Timber.e(e);
+      jsonObject = new JSONObject();
+    }
+
+    return MapGeoJSON.newBuilder()
+        .setId(feature.getId())
+        .setGeoJSON(jsonObject)
+        .setStyle(feature.getLayer().getDefaultStyle())
+        .build();
   }
 
   private Flowable<CameraUpdate> createCameraUpdateFlowable(
