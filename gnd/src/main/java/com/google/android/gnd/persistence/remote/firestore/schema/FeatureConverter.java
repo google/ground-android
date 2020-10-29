@@ -18,24 +18,15 @@ package com.google.android.gnd.persistence.remote.firestore.schema;
 
 import static com.google.android.gnd.persistence.remote.DataStoreException.checkNotEmpty;
 import static com.google.android.gnd.persistence.remote.DataStoreException.checkNotNull;
-import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList;
-import static com.google.android.gnd.util.ImmutableSetCollector.toImmutableSet;
-import static java8.util.stream.StreamSupport.stream;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.feature.Feature;
-import com.google.android.gnd.model.feature.GeoJson;
 import com.google.android.gnd.model.feature.Point;
-import com.google.android.gnd.model.feature.Polygon;
 import com.google.android.gnd.model.layer.Layer;
-import com.google.android.gnd.persistence.geojson.GeoJsonFeature;
-import com.google.android.gnd.persistence.geojson.GeoJsonParser;
 import com.google.android.gnd.persistence.remote.DataStoreException;
 import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.GeoPoint;
 import java8.util.Optional;
@@ -82,38 +73,5 @@ public class FeatureConverter {
         .setLatitude(geoPoint.getLatitude())
         .setLongitude(geoPoint.getLongitude())
         .build();
-  }
-
-  @Nullable
-  public static GeoJson toGeoJson(@Nullable String jsonString) {
-    if (Strings.isNullOrEmpty(jsonString)) {
-      return null;
-    }
-
-    ImmutableList<GeoJsonFeature> geoJsonFeatures = GeoJsonParser.getGeoJsonFeatures(jsonString);
-    return GeoJson.newBuilder().setPolygons(toPolygons(geoJsonFeatures)).build();
-  }
-
-  private static ImmutableList<Polygon> toPolygons(ImmutableList<GeoJsonFeature> geoJsonFeatures) {
-    return stream(geoJsonFeatures)
-        .filter(GeoJsonFeature::isPolygon)
-        .map(
-            geoJsonFeature -> Polygon.newBuilder().setVertices(getVertices(geoJsonFeature)).build())
-        .collect(toImmutableList());
-  }
-
-  private static ImmutableList<ImmutableSet<Point>> getVertices(GeoJsonFeature geoJsonFeature) {
-    return stream(geoJsonFeature.getVertices())
-        .map(
-            latLngs ->
-                stream(latLngs)
-                    .map(
-                        latLng ->
-                            Point.newBuilder()
-                                .setLatitude(latLng.latitude)
-                                .setLongitude(latLng.longitude)
-                                .build())
-                    .collect(toImmutableSet()))
-        .collect(toImmutableList());
   }
 }

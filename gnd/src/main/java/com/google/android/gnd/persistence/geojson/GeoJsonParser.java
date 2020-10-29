@@ -78,10 +78,6 @@ public class GeoJsonParser {
     return ImmutableList.of();
   }
 
-  public static ImmutableList<GeoJsonFeature> getGeoJsonFeatures(String jsonString) {
-    return stream(getFeaturesArray(jsonString)).map(GeoJsonFeature::new).collect(toImmutableList());
-  }
-
   public ImmutableList<GeoJsonTile> getGeoJsonTiles(String jsonString) {
     return stream(getFeaturesArray(jsonString)).map(GeoJsonTile::new).collect(toImmutableList());
   }
