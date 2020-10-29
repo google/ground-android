@@ -29,7 +29,7 @@ apply plugin: 'pmd'
 
 pmd {
     // Check latest version from here: https://pmd.github.io/
-    toolVersion = '6.25.0'
+    toolVersion = '6.28.0'
 }
 
 def configDir = "${project.rootDir}/config/pmd"
