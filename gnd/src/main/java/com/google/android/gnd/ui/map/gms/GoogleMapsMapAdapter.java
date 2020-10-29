@@ -41,7 +41,7 @@ import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.ui.MarkerIconFactory;
 import com.google.android.gnd.ui.map.MapAdapter;
 import com.google.android.gnd.ui.map.MapFeature;
-import com.google.android.gnd.ui.map.MapGeoJSON;
+import com.google.android.gnd.ui.map.MapGeoJson;
 import com.google.android.gnd.ui.map.MapPin;
 import com.google.android.gnd.ui.map.MapPolygon;
 import com.google.common.collect.ImmutableSet;
@@ -213,8 +213,8 @@ class GoogleMapsMapAdapter implements MapAdapter {
     }
   }
 
-  private void addMapGeoJSON(MapGeoJSON mapFeature) {
-    GeoJsonLayer layer = new GeoJsonLayer(map, mapFeature.getGeoJSON());
+  private void addMapGeoJson(MapGeoJson mapFeature) {
+    GeoJsonLayer layer = new GeoJsonLayer(map, mapFeature.getGeoJson());
 
     int width = POLYLINE_STROKE_WIDTH_PX;
     int color = parseColor(mapFeature.getStyle().getColor());
@@ -245,7 +245,7 @@ class GoogleMapsMapAdapter implements MapAdapter {
     polylines.clear();
   }
 
-  private void removeAllGeoJSONLayers() {
+  private void removeAllGeoJsonLayers() {
     stream(geoJsonLayers).forEach(Layer::removeLayerFromMap);
     geoJsonLayers.clear();
   }
@@ -273,7 +273,7 @@ class GoogleMapsMapAdapter implements MapAdapter {
     if (updatedFeatures.isEmpty()) {
       removeAllMarkers();
       removeAllPolylines();
-      removeAllGeoJSONLayers();
+      removeAllGeoJsonLayers();
       return;
     }
     Set<MapFeature> featuresToAdd = new HashSet<>(updatedFeatures);
@@ -313,8 +313,8 @@ class GoogleMapsMapAdapter implements MapAdapter {
                 addMapPin((MapPin) mapFeature);
               } else if (mapFeature instanceof MapPolygon) {
                 addMapPolyline((MapPolygon) mapFeature);
-              } else if (mapFeature instanceof MapGeoJSON) {
-                addMapGeoJSON(((MapGeoJSON) mapFeature));
+              } else if (mapFeature instanceof MapGeoJson) {
+                addMapGeoJson((MapGeoJson) mapFeature);
               }
             });
   }

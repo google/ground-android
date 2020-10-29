@@ -21,15 +21,15 @@ import com.google.auto.value.AutoValue;
 import org.json.JSONObject;
 
 @AutoValue
-public abstract class MapGeoJSON extends MapFeature {
+public abstract class MapGeoJson extends MapFeature {
 
   public static Builder newBuilder() {
-    return new AutoValue_MapGeoJSON.Builder();
+    return new AutoValue_MapGeoJson.Builder();
   }
 
   public abstract String getId();
 
-  public abstract JSONObject getGeoJSON();
+  public abstract JSONObject getGeoJson();
 
   public abstract Style getStyle();
 
@@ -37,10 +37,10 @@ public abstract class MapGeoJSON extends MapFeature {
   public abstract static class Builder {
     public abstract Builder setId(String newId);
 
-    public abstract Builder setGeoJSON(JSONObject newGeoJSON);
+    public abstract Builder setGeoJson(JSONObject newGeoJson);
 
     public abstract Builder setStyle(Style style);
 
-    public abstract MapGeoJSON build();
+    public abstract MapGeoJson build();
   }
 }

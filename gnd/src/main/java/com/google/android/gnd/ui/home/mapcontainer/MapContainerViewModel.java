@@ -41,7 +41,7 @@ import com.google.android.gnd.system.LocationManager;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.common.SharedViewModel;
 import com.google.android.gnd.ui.map.MapFeature;
-import com.google.android.gnd.ui.map.MapGeoJSON;
+import com.google.android.gnd.ui.map.MapGeoJson;
 import com.google.android.gnd.ui.map.MapPin;
 import com.google.common.collect.ImmutableSet;
 import io.reactivex.BackpressureStrategy;
@@ -134,7 +134,7 @@ public class MapContainerViewModel extends AbstractViewModel {
     ImmutableSet<MapFeature> mapPolygons =
         stream(features)
             .filter(Feature::isGeoJson)
-            .map(MapContainerViewModel::toMapGeoJSON)
+            .map(MapContainerViewModel::toMapGeoJson)
             .collect(toImmutableSet());
 
     return ImmutableSet.<MapFeature>builder().addAll(mapPins).addAll(mapPolygons).build();
@@ -149,7 +149,7 @@ public class MapContainerViewModel extends AbstractViewModel {
         .build();
   }
 
-  private static MapGeoJSON toMapGeoJSON(Feature feature) {
+  private static MapGeoJson toMapGeoJson(Feature feature) {
     JSONObject jsonObject;
     try {
       jsonObject = new JSONObject(feature.getGeoJsonString());
@@ -158,9 +158,9 @@ public class MapContainerViewModel extends AbstractViewModel {
       jsonObject = new JSONObject();
     }
 
-    return MapGeoJSON.newBuilder()
+    return MapGeoJson.newBuilder()
         .setId(feature.getId())
-        .setGeoJSON(jsonObject)
+        .setGeoJson(jsonObject)
         .setStyle(feature.getLayer().getDefaultStyle())
         .build();
   }
