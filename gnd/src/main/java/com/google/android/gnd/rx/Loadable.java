@@ -23,7 +23,6 @@ import java8.util.Objects;
 import java8.util.Optional;
 import javax.annotation.Nullable;
 import org.reactivestreams.Publisher;
-import timber.log.Timber;
 
 /**
  * Wraps the state of an entity that can be loaded asynchronously. Based on {@code Resource} in
@@ -52,7 +51,6 @@ public class Loadable<T> extends ValueOrError<T> {
   }
 
   public static <T> Loadable<T> error(Throwable t) {
-    Timber.e(t);
     return new Loadable<>(LoadState.ERROR, null, t);
   }
 
