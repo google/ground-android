@@ -49,7 +49,10 @@ class SetPreferencesRule extends TestWatcher {
         SetPreferencesRuleEntryPoint.class
     ).preferenceStorage();
 
-    prefs.edit().clear();
-    prefs.edit().putString(ACTIVE_PROJECT_ID_KEY, FakeData.PROJECT_ID).apply();
+    prefs
+        .edit()
+        .clear()
+        .putString(ACTIVE_PROJECT_ID_KEY, FakeData.PROJECT_ID_WITH_LAYER_AND_NO_FORM)
+        .apply();
   }
 }

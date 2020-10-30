@@ -43,25 +43,55 @@ public class FakeRemoteDataStore implements RemoteDataStore {
           .setDefaultStyle(Style.builder().setColor(FakeData.LAYER_NO_FORM_COLOR).build())
           .build();
 
-  private final Project testProject =
+  private final Project testProjectWithLayerAndNoForm =
       Project.newBuilder()
-          .setId(FakeData.PROJECT_ID)
+          .setId(FakeData.PROJECT_ID_WITH_LAYER_AND_NO_FORM)
           .setTitle(FakeData.PROJECT_TITLE)
           .setDescription(FakeData.PROJECT_DESCRIPTION)
           .putLayer(FakeData.LAYER_NO_FORM_ID, layerWithNoForm)
           .build();
 
+  private final Project testProjectWithNoLayers =
+      Project.newBuilder()
+          .setId(FakeData.PROJECT_ID_WITH_NO_LAYERS)
+          .setTitle(FakeData.PROJECT_TITLE)
+          .setDescription(FakeData.PROJECT_DESCRIPTION)
+          .build();
+
+  private String activeProjectId = FakeData.PROJECT_ID_WITH_LAYER_AND_NO_FORM;
+
   @Inject
   FakeRemoteDataStore() {}
 
+  /**
+   * Set this before the test scenario is loaded.
+   *
+   * <p>In that case, launch scenario manually using ActivityScenario.launch instead of using
+   * ActivityScenarioRule.
+   */
+  public void setActiveProjectId(String projectId) {
+    activeProjectId = projectId;
+  }
+
+  private Project getTestProject() {
+    switch (activeProjectId) {
+      case FakeData.PROJECT_ID_WITH_LAYER_AND_NO_FORM:
+        return testProjectWithLayerAndNoForm;
+      case FakeData.PROJECT_ID_WITH_NO_LAYERS:
+        return testProjectWithNoLayers;
+      default:
+        return null;
+    }
+  }
+
   @Override
   public Single<List<Project>> loadProjectSummaries(User user) {
-    return Single.just(Collections.singletonList(testProject));
+    return Single.just(Collections.singletonList(getTestProject()));
   }
 
   @Override
   public Single<Project> loadProject(String projectId) {
-    return Single.just(testProject);
+    return Single.just(getTestProject());
   }
 
   @Override

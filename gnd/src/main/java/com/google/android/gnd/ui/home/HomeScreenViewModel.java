@@ -16,6 +16,9 @@
 
 package com.google.android.gnd.ui.home;
 
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
+
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
 import androidx.lifecycle.MutableLiveData;
@@ -63,6 +66,8 @@ public class HomeScreenViewModel extends AbstractViewModel {
   private final FlowableProcessor<Feature> updateFeatureRequests = PublishProcessor.create();
   private final LiveData<Boolean> updateFeature;
 
+  private final MutableLiveData<Integer> addFeatureButtonVisibility = new MutableLiveData<>(GONE);
+
   @Inject
   HomeScreenViewModel(
       ProjectRepository projectRepository,
@@ -73,10 +78,12 @@ public class HomeScreenViewModel extends AbstractViewModel {
     this.addFeatureDialogRequests = new MutableLiveData<>();
     this.openDrawerRequests = new MutableLiveData<>();
     this.bottomSheetState = new MutableLiveData<>();
-    this.activeProject =
-        LiveDataReactiveStreams.fromPublisher(projectRepository.getActiveProjectOnceAndStream());
     this.navigator = navigator;
     this.addFeatureClicks = PublishSubject.create();
+
+    this.activeProject =
+        LiveDataReactiveStreams.fromPublisher(
+            projectRepository.getActiveProjectOnceAndStream().doAfterNext(this::onActivateProject));
 
     // TODO: Replace disposeOnClear with Processor
     disposeOnClear(
@@ -108,6 +115,28 @@ public class HomeScreenViewModel extends AbstractViewModel {
                         .updateFeature(updatedFeature)
                         .toSingleDefault(true)
                         .onErrorReturnItem(false)));
+  }
+
+  /** Handle state of the UI elements depending upon the active project. */
+  private void onActivateProject(Loadable<Project> project) {
+    addFeatureButtonVisibility.postValue(
+        shouldShowAddFeatureButton(project) ? VISIBLE : GONE);
+  }
+
+  private boolean shouldShowAddFeatureButton(Loadable<Project> project) {
+    if (!project.isLoaded()) {
+      return false;
+    }
+
+    // TODO: Also check if the project has user-editable layers.
+    //  Pending feature, https://github.com/google/ground-platform/issues/228
+
+    // Project must contain at least 1 layer.
+    return project.value().map(p -> !p.getLayers().isEmpty()).orElse(false);
+  }
+
+  public LiveData<Integer> getAddFeatureButtonVisibility() {
+    return addFeatureButtonVisibility;
   }
 
   public LiveData<Boolean> getUpdateFeature() {
