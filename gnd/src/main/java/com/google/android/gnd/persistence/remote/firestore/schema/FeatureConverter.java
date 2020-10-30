@@ -20,17 +20,19 @@ import static com.google.android.gnd.persistence.remote.DataStoreException.check
 import static com.google.android.gnd.persistence.remote.DataStoreException.checkNotNull;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.persistence.remote.DataStoreException;
+import com.google.common.base.Strings;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.GeoPoint;
 import java8.util.Optional;
 
 /** Converts between Firestore documents and {@link Feature} instances. */
-class FeatureConverter {
+public class FeatureConverter {
 
   protected static final String LAYER_ID = "layerId";
   protected static final String LOCATION = "location";
@@ -43,13 +45,8 @@ class FeatureConverter {
     FeatureDocument f = checkNotNull(doc.toObject(FeatureDocument.class), "feature data");
     String layerId = checkNotNull(f.getLayerId(), LAYER_ID);
     Layer layer = checkNotEmpty(project.getLayer(layerId), "layer " + f.getLayerId());
-    // TODO: Rename "point" and "center" to "location" throughout for clarity.
-    GeoPoint geoPoint = checkNotNull(f.getLocation(), LOCATION);
-    Point location =
-        Point.newBuilder()
-            .setLatitude(geoPoint.getLatitude())
-            .setLongitude(geoPoint.getLongitude())
-            .build();
+    Point location = checkNotNull(toPoint(f.getLocation()), LOCATION);
+    String geoJsonString = Strings.isNullOrEmpty(f.getGeoJson()) ? null : f.getGeoJson();
     // Degrade gracefully when audit info missing in remote db.
     AuditInfoNestedObject created =
         Optional.ofNullable(f.getCreated()).orElse(AuditInfoNestedObject.FALLBACK_VALUE);
@@ -61,8 +58,20 @@ class FeatureConverter {
         .setCaption(f.getCaption())
         .setLayer(layer)
         .setPoint(location)
+        .setGeoJsonString(geoJsonString)
         .setCreated(AuditInfoConverter.toAuditInfo(created))
         .setLastModified(AuditInfoConverter.toAuditInfo(lastModified))
+        .build();
+  }
+
+  @Nullable
+  private static Point toPoint(@Nullable GeoPoint geoPoint) {
+    if (geoPoint == null) {
+      return null;
+    }
+    return Point.newBuilder()
+        .setLatitude(geoPoint.getLatitude())
+        .setLongitude(geoPoint.getLongitude())
         .build();
   }
 }

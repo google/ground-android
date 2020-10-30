@@ -26,6 +26,19 @@ import javax.annotation.Nullable;
 
 @AutoValue
 public abstract class Feature {
+  // TODO: Use builder() or newBuilder() consistently.
+  public static Builder newBuilder() {
+    return new AutoValue_Feature.Builder();
+  }
+
+  public boolean isPoint() {
+    return getPoint() != null;
+  }
+
+  public boolean isGeoJson() {
+    return getGeoJsonString() != null;
+  }
+
   @NonNull
   public abstract String getId();
 
@@ -41,6 +54,9 @@ public abstract class Feature {
 
   public abstract Point getPoint();
 
+  @Nullable
+  public abstract String getGeoJsonString();
+
   /** Returns the user and time audit info pertaining to the creation of this feature. */
   public abstract AuditInfo getCreated();
 
@@ -52,11 +68,6 @@ public abstract class Feature {
   @Memoized
   @Override
   public abstract int hashCode();
-
-  // TODO: Use builder() or newBuilder() consistently.
-  public static Builder newBuilder() {
-    return new AutoValue_Feature.Builder();
-  }
 
   @AutoValue.Builder
   public abstract static class Builder {
@@ -71,7 +82,9 @@ public abstract class Feature {
 
     public abstract Builder setCaption(@Nullable String newCaption);
 
-    public abstract Builder setPoint(@NonNull Point newPoint);
+    public abstract Builder setPoint(Point newPoint);
+
+    public abstract Builder setGeoJsonString(@Nullable String newGeoJsonString);
 
     public abstract Builder setCreated(@NonNull AuditInfo newCreated);
 
