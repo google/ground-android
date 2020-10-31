@@ -45,6 +45,8 @@ import com.google.android.gnd.ui.map.MapGeoJson;
 import com.google.android.gnd.ui.map.MapPin;
 import com.google.android.gnd.ui.map.MapPolygon;
 import com.google.common.collect.ImmutableSet;
+import com.google.maps.android.collections.MarkerManager;
+import com.google.maps.android.collections.MarkerManager.Collection;
 import com.google.maps.android.data.Layer;
 import com.google.maps.android.data.geojson.GeoJsonLayer;
 import com.google.maps.android.data.geojson.GeoJsonLineStringStyle;
@@ -81,10 +83,19 @@ class GoogleMapsMapAdapter implements MapAdapter {
   private final PublishSubject<MapBoxOfflineTileProvider> tileProviders = PublishSubject.create();
 
   /**
+   * Manager for handling click events for markers.
+   *
+   * <p>This isn't needed if the map only has a single layer. But in our case, multiple GeoJSON
+   * layers might be added and we wish to have independent clickable features for each layer.
+   */
+  private final MarkerManager markerManager;
+  // TODO: Add managers for polyline and polygon layers
+
+  /**
    * References to Google Maps SDK Markers present on the map. Used to sync and update markers with
    * current view and data state.
    */
-  private Set<Marker> markers = new HashSet<>();
+  private final Collection markers;
 
   /**
    * References to Google Maps SDK Markers present on the map. Used to sync and update polylines
@@ -98,13 +109,18 @@ class GoogleMapsMapAdapter implements MapAdapter {
    */
   private Set<GeoJsonLayer> geoJsonLayers = new HashSet<>();
 
-  @Nullable
-  private LatLng cameraTargetBeforeDrag;
+  @Nullable private LatLng cameraTargetBeforeDrag;
 
   public GoogleMapsMapAdapter(GoogleMap map, Context context, MarkerIconFactory markerIconFactory) {
     this.map = map;
     this.context = context;
     this.markerIconFactory = markerIconFactory;
+
+    // init markers
+    markerManager = new MarkerManager(map);
+    markers = markerManager.newCollection();
+    markers.setOnMarkerClickListener(this::onMarkerClick);
+
     map.setMapType(GoogleMap.MAP_TYPE_HYBRID);
     UiSettings uiSettings = map.getUiSettings();
     uiSettings.setRotateGesturesEnabled(false);
@@ -113,7 +129,6 @@ class GoogleMapsMapAdapter implements MapAdapter {
     uiSettings.setMapToolbarEnabled(false);
     uiSettings.setCompassEnabled(false);
     uiSettings.setIndoorLevelPickerEnabled(false);
-    map.setOnMarkerClickListener(this::onMarkerClick);
     map.setOnCameraIdleListener(this::onCameraIdle);
     map.setOnCameraMoveStartedListener(this::onCameraMoveStarted);
     map.setOnCameraMoveListener(this::onCameraMove);
@@ -183,9 +198,11 @@ class GoogleMapsMapAdapter implements MapAdapter {
     LatLng position = toLatLng(mapPin.getPosition());
     String color = mapPin.getStyle().getColor();
     BitmapDescriptor icon = markerIconFactory.getMarkerIcon(parseColor(color));
-    Marker marker = map.addMarker(new MarkerOptions().position(position).icon(icon).alpha(1.0f));
+    Marker marker = markers.addMarker(new MarkerOptions());
     marker.setTag(mapPin);
-    markers.add(marker);
+    marker.setIcon(icon);
+    marker.setAlpha(1.0f);
+    marker.setPosition(position);
   }
 
   private void addMapPolyline(MapPolygon mapPolygon) {
@@ -214,7 +231,9 @@ class GoogleMapsMapAdapter implements MapAdapter {
   }
 
   private void addMapGeoJson(MapGeoJson mapFeature) {
-    GeoJsonLayer layer = new GeoJsonLayer(map, mapFeature.getGeoJson());
+    // Pass markerManager here otherwise markers in the previous layers won't be clickable.
+    GeoJsonLayer layer =
+        new GeoJsonLayer(map, mapFeature.getGeoJson(), markerManager, null, null, null);
 
     int width = POLYLINE_STROKE_WIDTH_PX;
     int color = parseColor(mapFeature.getStyle().getColor());
@@ -236,7 +255,6 @@ class GoogleMapsMapAdapter implements MapAdapter {
   }
 
   private void removeAllMarkers() {
-    stream(markers).forEach(Marker::remove);
     markers.clear();
   }
 
@@ -278,7 +296,7 @@ class GoogleMapsMapAdapter implements MapAdapter {
     }
     Set<MapFeature> featuresToAdd = new HashSet<>(updatedFeatures);
 
-    Iterator<Marker> markerIterator = markers.iterator();
+    Iterator<Marker> markerIterator = markers.getMarkers().iterator();
     while (markerIterator.hasNext()) {
       Marker marker = markerIterator.next();
       MapPin pin = (MapPin) marker.getTag();
