@@ -75,6 +75,7 @@
       android:id="@+id/add_feature_btn"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
+      android:visibility="@{homeScreenViewModel.getAddFeatureButtonVisibility()}"
       app:fabSize="normal"
       app:layout_constraintBottom_toBottomOf="parent"
       app:layout_constraintEnd_toEndOf="parent"

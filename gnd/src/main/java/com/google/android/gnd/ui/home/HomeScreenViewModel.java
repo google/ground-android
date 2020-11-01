@@ -16,6 +16,9 @@
 
 package com.google.android.gnd.ui.home;
 
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
+
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
 import androidx.lifecycle.MutableLiveData;
@@ -61,6 +64,8 @@ public class HomeScreenViewModel extends AbstractViewModel {
   private final LiveData<Loadable<Feature>> updateFeature;
   private final LiveData<Loadable<Feature>> deleteFeature;
 
+  private final MutableLiveData<Integer> addFeatureButtonVisibility = new MutableLiveData<>(GONE);
+
   @Inject
   HomeScreenViewModel(
       ProjectRepository projectRepository,
@@ -73,7 +78,8 @@ public class HomeScreenViewModel extends AbstractViewModel {
     this.navigator = navigator;
 
     activeProject =
-        LiveDataReactiveStreams.fromPublisher(projectRepository.getActiveProjectOnceAndStream());
+        LiveDataReactiveStreams.fromPublisher(
+            projectRepository.getActiveProjectOnceAndStream().doAfterNext(this::onActivateProject));
     addFeature =
         LiveDataReactiveStreams.fromPublisher(
             addFeatureClicks.switchMap(featureRepository::createFeature));
@@ -87,6 +93,28 @@ public class HomeScreenViewModel extends AbstractViewModel {
 
   public LiveData<Loadable<Feature>> getAddFeature() {
     return addFeature;
+  }
+
+  /** Handle state of the UI elements depending upon the active project. */
+  private void onActivateProject(Loadable<Project> project) {
+    addFeatureButtonVisibility.postValue(
+        shouldShowAddFeatureButton(project) ? VISIBLE : GONE);
+  }
+
+  private boolean shouldShowAddFeatureButton(Loadable<Project> project) {
+    if (!project.isLoaded()) {
+      return false;
+    }
+
+    // TODO: Also check if the project has user-editable layers.
+    //  Pending feature, https://github.com/google/ground-platform/issues/228
+
+    // Project must contain at least 1 layer.
+    return project.value().map(p -> !p.getLayers().isEmpty()).orElse(false);
+  }
+
+  public LiveData<Integer> getAddFeatureButtonVisibility() {
+    return addFeatureButtonVisibility;
   }
 
   public LiveData<Loadable<Feature>> getUpdateFeature() {

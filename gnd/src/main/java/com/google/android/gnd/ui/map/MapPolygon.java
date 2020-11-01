@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google LLC
+ * Copyright 2020 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,40 +16,42 @@
 
 package com.google.android.gnd.ui.map;
 
-import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.model.layer.Style;
 import com.google.auto.value.AutoValue;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 
 @AutoValue
-public abstract class MapPin extends MapFeature {
+public abstract class MapPolygon extends MapFeature {
 
   public static Builder newBuilder() {
-    return new AutoValue_MapPin.Builder();
+    return new AutoValue_MapPolygon.Builder();
   }
 
   public abstract String getId();
 
-  public abstract Point getPosition();
+  public abstract ImmutableList<ImmutableSet<Point>> getVertices();
 
   public abstract Style getStyle();
 
   // TODO: Stop embedding entire Feature in pins to free up memory. Instead, copy only details
   // relevant to rendering pins and uuid to reference the related Feature.
-  @NonNull
+  @Nullable
   public abstract Feature getFeature();
 
   @AutoValue.Builder
   public abstract static class Builder {
     public abstract Builder setId(String newId);
 
-    public abstract Builder setPosition(Point newPosition);
+    public abstract Builder setVertices(ImmutableList<ImmutableSet<Point>> vertices);
 
     public abstract Builder setStyle(Style style);
 
-    public abstract Builder setFeature(Feature newFeature);
+    public abstract Builder setFeature(@Nullable Feature newFeature);
 
-    public abstract MapPin build();
+    public abstract MapPolygon build();
   }
 }
