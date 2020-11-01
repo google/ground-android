@@ -18,6 +18,7 @@ package com.google.android.gnd.ui.home;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
+import static com.google.android.gnd.rx.RxCompletable.toSingle;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
@@ -35,6 +36,7 @@ import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.SharedViewModel;
 import com.google.android.gnd.ui.map.MapPin;
+import io.reactivex.Single;
 import io.reactivex.processors.FlowableProcessor;
 import io.reactivex.processors.PublishProcessor;
 import java8.util.Optional;
@@ -60,10 +62,11 @@ public class HomeScreenViewModel extends AbstractViewModel {
   private final FlowableProcessor<Feature> updateFeatureRequests = PublishProcessor.create();
   private final FlowableProcessor<Feature> deleteFeatureRequests = PublishProcessor.create();
 
-  private final LiveData<Loadable<Feature>> addFeature;
-  private final LiveData<Loadable<Feature>> updateFeature;
-  private final LiveData<Loadable<Feature>> deleteFeature;
+  private final LiveData<Feature> addFeature;
+  private final LiveData<Boolean> updateFeature;
+  private final LiveData<Boolean> deleteFeature;
 
+  private final MutableLiveData<String> error = new MutableLiveData<>();
   private final MutableLiveData<Integer> addFeatureButtonVisibility = new MutableLiveData<>(GONE);
 
   @Inject
@@ -82,23 +85,30 @@ public class HomeScreenViewModel extends AbstractViewModel {
             projectRepository.getActiveProjectOnceAndStream().doAfterNext(this::onActivateProject));
     addFeature =
         LiveDataReactiveStreams.fromPublisher(
-            addFeatureClicks.switchMap(featureRepository::createFeature));
+            addFeatureClicks.switchMapSingle(
+                feature ->
+                    featureRepository
+                        .createFeature(feature)
+                        .toSingleDefault(feature)
+                        .doOnError(this::handleError)
+                        .onErrorResumeNext(Single.never()))); // Prevent from breaking upstream.
     deleteFeature =
         LiveDataReactiveStreams.fromPublisher(
-            deleteFeatureRequests.switchMap(featureRepository::deleteFeature));
+            deleteFeatureRequests.switchMapSingle(
+                feature -> toSingle(featureRepository.deleteFeature(feature), this::handleError)));
     updateFeature =
         LiveDataReactiveStreams.fromPublisher(
-            updateFeatureRequests.switchMap(featureRepository::updateFeature));
+            updateFeatureRequests.switchMapSingle(
+                feature -> toSingle(featureRepository.updateFeature(feature), this::handleError)));
   }
 
-  public LiveData<Loadable<Feature>> getAddFeature() {
-    return addFeature;
+  private void handleError(Throwable throwable) {
+    error.postValue(throwable.getMessage());
   }
 
   /** Handle state of the UI elements depending upon the active project. */
   private void onActivateProject(Loadable<Project> project) {
-    addFeatureButtonVisibility.postValue(
-        shouldShowAddFeatureButton(project) ? VISIBLE : GONE);
+    addFeatureButtonVisibility.postValue(shouldShowAddFeatureButton(project) ? VISIBLE : GONE);
   }
 
   private boolean shouldShowAddFeatureButton(Loadable<Project> project) {
@@ -117,12 +127,20 @@ public class HomeScreenViewModel extends AbstractViewModel {
     return addFeatureButtonVisibility;
   }
 
-  public LiveData<Loadable<Feature>> getUpdateFeature() {
+  public LiveData<Feature> getAddFeature() {
+    return addFeature;
+  }
+
+  public LiveData<Boolean> getUpdateFeature() {
     return updateFeature;
   }
 
-  public LiveData<Loadable<Feature>> getDeleteFeature() {
+  public LiveData<Boolean> getDeleteFeature() {
     return deleteFeature;
+  }
+
+  public LiveData<String> getError() {
+    return error;
   }
 
   public void addFeature(Feature feature) {
@@ -135,19 +153,6 @@ public class HomeScreenViewModel extends AbstractViewModel {
 
   public void deleteFeature(Feature feature) {
     deleteFeatureRequests.onNext(feature);
-  }
-
-  public void onAddFeature(Feature feature) {
-    if (feature.getLayer().getForm().isPresent()) {
-      addNewObservation(feature);
-    }
-  }
-
-  private void addNewObservation(Feature feature) {
-    String projectId = feature.getProject().getId();
-    String featureId = feature.getId();
-    String formId = feature.getLayer().getForm().get().getId();
-    navigator.addObservation(projectId, featureId, formId);
   }
 
   public boolean shouldShowProjectSelectorOnStart() {

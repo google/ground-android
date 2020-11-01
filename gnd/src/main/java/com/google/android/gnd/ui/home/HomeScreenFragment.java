@@ -112,6 +112,7 @@ public class HomeScreenFragment extends AbstractFragment
     viewModel.getAddFeature().observe(this, this::onFeatureAdded);
     viewModel.getUpdateFeature().observe(this, this::onFeatureUpdated);
     viewModel.getDeleteFeature().observe(this, this::onFeatureDeleted);
+    viewModel.getError().observe(this, this::onError);
 
     showFeatureDialogRequests = PublishSubject.create();
 
@@ -123,53 +124,35 @@ public class HomeScreenFragment extends AbstractFragment
     projectSelectorViewModel = getViewModel(ProjectSelectorViewModel.class);
   }
 
-  private void onFeatureAdded(Loadable<Feature> loadable) {
-    switch (loadable.getState()) {
-      case LOADING:
-        Timber.d("Adding feature");
-        break;
-      case LOADED:
-        loadable.value().ifPresent(viewModel::onAddFeature);
-        break;
-      case ERROR:
-        Toast.makeText(getContext(), "Error while adding feature", Toast.LENGTH_SHORT).show();
-        break;
-      default:
-        throw new IllegalArgumentException("Unhandled state: " + loadable.getState());
+  private void onFeatureAdded(Feature feature) {
+    feature.getLayer().getForm().ifPresent(formId -> addNewObservation(feature));
+  }
+
+  private void addNewObservation(Feature feature) {
+    String projectId = feature.getProject().getId();
+    String featureId = feature.getId();
+    String formId = feature.getLayer().getForm().get().getId();
+    navigator.addObservation(projectId, featureId, formId);
+  }
+
+  /** This is only possible after updating the location of the feature. So, reset the UI. */
+  private void onFeatureUpdated(Boolean result) {
+    if (result) {
+      mapContainerFragment.setDefaultMode();
     }
   }
 
-  private void onFeatureUpdated(Loadable<Feature> loadable) {
-    switch (loadable.getState()) {
-      case LOADING:
-        Timber.d("Updating feature");
-        break;
-      case LOADED:
-        mapContainerFragment.setDefaultMode();
-        break;
-      case ERROR:
-        Toast.makeText(getContext(), "Error while updating feature", Toast.LENGTH_SHORT).show();
-        break;
-      default:
-        throw new IllegalArgumentException("Unhandled state: " + loadable.getState());
+  /** Hide the bottom sheet as deleting a feature also removes child observations. */
+  private void onFeatureDeleted(Boolean result) {
+    if (result) {
+      // TODO: Re-position map to default location after successful deletion.
+      hideBottomSheet();
     }
   }
 
-  private void onFeatureDeleted(Loadable<Feature> loadable) {
-    switch (loadable.getState()) {
-      case LOADING:
-        Timber.d("Deleting feature");
-        break;
-      case LOADED:
-        // TODO: Re-position map to default location after successful deletion.
-        hideBottomSheet();
-        break;
-      case ERROR:
-        Toast.makeText(getContext(), "Error while deleting feature", Toast.LENGTH_SHORT).show();
-        break;
-      default:
-        throw new IllegalArgumentException("Unhandled state: " + loadable.getState());
-    }
+  /** Generic handler to display error messages to the user. */
+  private void onError(String errorMessage) {
+    Toast.makeText(getContext(), "Error: " + errorMessage, Toast.LENGTH_SHORT).show();
   }
 
   @Nullable
