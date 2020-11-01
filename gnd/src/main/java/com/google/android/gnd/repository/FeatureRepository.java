@@ -127,15 +127,15 @@ public class FeatureRepository {
   }
 
   // TODO(#80): Update UI to provide FeatureMutations instead of Features here.
-  public Flowable<Loadable<Feature>> createFeature(Feature feature) {
+  public Completable createFeature(Feature feature) {
     return applyAndEnqueue(feature, Type.CREATE);
   }
 
-  public Flowable<Loadable<Feature>> updateFeature(Feature feature) {
+  public Completable updateFeature(Feature feature) {
     return applyAndEnqueue(feature, Type.UPDATE);
   }
 
-  public Flowable<Loadable<Feature>> deleteFeature(Feature feature) {
+  public Completable deleteFeature(Feature feature) {
     return applyAndEnqueue(feature, Type.DELETE);
   }
 
@@ -147,13 +147,9 @@ public class FeatureRepository {
    * @param type Determines the {@link Type} of operation to be performed in the databases.
    * @return If successful, returns the provided feature wrapped as {@link Loadable}
    */
-  private Flowable<Loadable<Feature>> applyAndEnqueue(Feature feature, Type type) {
+  private Completable applyAndEnqueue(Feature feature, Type type) {
     Completable localTransaction = localDataStore.applyAndEnqueue(fromFeature(feature, type));
     Completable remoteSync = dataSyncWorkManager.enqueueSyncWorker(feature.getId());
-    return localTransaction
-        .andThen(remoteSync)
-        .toSingleDefault(feature)
-        .toFlowable()
-        .compose(Loadable::loadingOnceAndWrap);
+    return localTransaction.andThen(remoteSync);
   }
 }
