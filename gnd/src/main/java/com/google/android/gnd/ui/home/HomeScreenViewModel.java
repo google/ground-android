@@ -66,7 +66,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
   private final LiveData<Boolean> updateFeature;
   private final LiveData<Boolean> deleteFeature;
 
-  private final MutableLiveData<String> error = new MutableLiveData<>();
+  private final MutableLiveData<Throwable> error = new MutableLiveData<>();
   private final MutableLiveData<Integer> addFeatureButtonVisibility = new MutableLiveData<>(GONE);
 
   @Inject
@@ -103,7 +103,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
   }
 
   private void handleError(Throwable throwable) {
-    error.postValue(throwable.getMessage());
+    error.postValue(throwable);
   }
 
   /** Handle state of the UI elements depending upon the active project. */
@@ -139,7 +139,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
     return deleteFeature;
   }
 
-  public LiveData<String> getError() {
+  public LiveData<Throwable> getError() {
     return error;
   }
 

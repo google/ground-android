@@ -151,8 +151,8 @@ public class HomeScreenFragment extends AbstractFragment
   }
 
   /** Generic handler to display error messages to the user. */
-  private void onError(String errorMessage) {
-    Toast.makeText(getContext(), "Error: " + errorMessage, Toast.LENGTH_SHORT).show();
+  private void onError(Throwable throwable) {
+    Toast.makeText(getContext(), "Error: " + throwable.getMessage(), Toast.LENGTH_SHORT).show();
   }
 
   @Nullable
