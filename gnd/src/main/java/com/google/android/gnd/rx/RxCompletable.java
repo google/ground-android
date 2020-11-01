@@ -50,17 +50,6 @@ public abstract class RxCompletable {
         });
   }
 
-  /**
-   * Receives a {@link Completable} and returns a {@link Single <Boolean>} that emits <code>true
-   * </code> if the <code>Completable</code> completes successful, <code>false</code> otherwise. An
-   * action to be performed in case or error can also be passed through the argument <code>
-   * exceptionConsumer</code>.
-   *
-   * @param completable The input {@link Completable}
-   * @param exceptionConsumer A consumer to process the exception (eg log it) in case the {@link
-   *     Completable} terminates with an error.
-   * @return The {@link Single<Boolean>}, as described above.
-   */
   public static Single<Boolean> toSingle(
       @NonNull Completable completable, @Nullable Consumer<? super Throwable> exceptionConsumer) {
     return completable
