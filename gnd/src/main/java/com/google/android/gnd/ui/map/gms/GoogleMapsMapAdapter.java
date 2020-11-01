@@ -46,7 +46,6 @@ import com.google.android.gnd.ui.map.MapPin;
 import com.google.android.gnd.ui.map.MapPolygon;
 import com.google.common.collect.ImmutableSet;
 import com.google.maps.android.collections.MarkerManager;
-import com.google.maps.android.collections.MarkerManager.Collection;
 import com.google.maps.android.data.Layer;
 import com.google.maps.android.data.geojson.GeoJsonLayer;
 import com.google.maps.android.data.geojson.GeoJsonLineStringStyle;
@@ -95,7 +94,7 @@ class GoogleMapsMapAdapter implements MapAdapter {
    * References to Google Maps SDK Markers present on the map. Used to sync and update markers with
    * current view and data state.
    */
-  private final Collection markers;
+  private final MarkerManager.Collection markers;
 
   /**
    * References to Google Maps SDK Markers present on the map. Used to sync and update polylines
