@@ -40,7 +40,6 @@ import com.google.android.gnd.persistence.local.LocalDataStore;
 import com.google.android.gnd.persistence.local.LocalDatabaseModule;
 import com.google.android.gnd.persistence.remote.RemoteDataStore;
 import com.google.android.gnd.persistence.sync.DataSyncWorkManager;
-import com.google.android.gnd.rx.Loadable;
 import com.google.android.gnd.rx.SchedulersModule;
 import com.google.android.gnd.system.auth.AuthenticationManager;
 import com.google.common.collect.ImmutableList;
@@ -164,10 +163,7 @@ public class FeatureRepositoryTest {
     mockApplyAndEnqueue();
     mockEnqueueSyncWorker();
 
-    featureRepository
-        .createFeature(TEST_FEATURE)
-        .test()
-        .assertResult(Loadable.loading(), Loadable.loaded(TEST_FEATURE));
+    featureRepository.createFeature(TEST_FEATURE).test().assertNoErrors().assertComplete();
 
     FeatureMutation actual = captorFeatureMutation.getValue();
     assertThat(actual.getType()).isEqualTo(Mutation.Type.CREATE);
@@ -182,10 +178,7 @@ public class FeatureRepositoryTest {
     mockApplyAndEnqueue();
     mockEnqueueSyncWorker();
 
-    featureRepository
-        .updateFeature(TEST_FEATURE)
-        .test()
-        .assertResult(Loadable.loading(), Loadable.loaded(TEST_FEATURE));
+    featureRepository.updateFeature(TEST_FEATURE).test().assertNoErrors().assertComplete();
 
     FeatureMutation actual = captorFeatureMutation.getValue();
     assertThat(actual.getType()).isEqualTo(Mutation.Type.UPDATE);
@@ -200,10 +193,7 @@ public class FeatureRepositoryTest {
     mockApplyAndEnqueue();
     mockEnqueueSyncWorker();
 
-    featureRepository
-        .deleteFeature(TEST_FEATURE)
-        .test()
-        .assertResult(Loadable.loading(), Loadable.loaded(TEST_FEATURE));
+    featureRepository.deleteFeature(TEST_FEATURE).test().assertNoErrors().assertComplete();
 
     FeatureMutation actual = captorFeatureMutation.getValue();
     assertThat(actual.getType()).isEqualTo(Mutation.Type.DELETE);
@@ -224,7 +214,8 @@ public class FeatureRepositoryTest {
     featureRepository
         .createFeature(TEST_FEATURE)
         .test()
-        .assertResult(Loadable.loading(), Loadable.error(new NullPointerException()));
+        .assertError(NullPointerException.class)
+        .assertNotComplete();
 
     verify(mockLocalDataStore, times(1)).applyAndEnqueue(any(FeatureMutation.class));
     verify(mockWorkManager, times(1)).enqueueSyncWorker(TEST_FEATURE.getId());
@@ -241,7 +232,8 @@ public class FeatureRepositoryTest {
     featureRepository
         .createFeature(TEST_FEATURE)
         .test()
-        .assertResult(Loadable.loading(), Loadable.error(new NullPointerException()));
+        .assertError(NullPointerException.class)
+        .assertNotComplete();
 
     verify(mockLocalDataStore, times(1)).applyAndEnqueue(any(FeatureMutation.class));
     verify(mockWorkManager, times(1)).enqueueSyncWorker(TEST_FEATURE.getId());
