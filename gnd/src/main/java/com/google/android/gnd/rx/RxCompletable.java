@@ -16,8 +16,12 @@
 
 package com.google.android.gnd.rx;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import io.reactivex.Completable;
+import io.reactivex.Single;
 import java.util.concurrent.Callable;
+import java8.util.function.Consumer;
 import java8.util.function.Supplier;
 
 /** Helpers for working with RxJava Completable classes. */
@@ -44,5 +48,29 @@ public abstract class RxCompletable {
             em.onError(errorClass.newInstance());
           }
         });
+  }
+
+  /**
+   * Receives a {@link Completable} and returns a {@link Single <Boolean>} that emits <code>true
+   * </code> if the <code>Completable</code> completes successful, <code>false</code> otherwise. An
+   * action to be performed in case or error can also be passed through the argument <code>
+   * exceptionConsumer</code>.
+   *
+   * @param completable The input {@link Completable}
+   * @param exceptionConsumer A consumer to process the exception (eg log it) in case the {@link
+   *     Completable} terminates with an error.
+   * @return The {@link Single<Boolean>}, as described above.
+   */
+  public static Single<Boolean> toSingle(
+      @NonNull Completable completable, @Nullable Consumer<? super Throwable> exceptionConsumer) {
+    return completable
+        .doOnError(
+            throwable -> {
+              if (exceptionConsumer != null) {
+                exceptionConsumer.accept(throwable);
+              }
+            })
+        .toSingleDefault(true)
+        .onErrorReturnItem(false);
   }
 }
