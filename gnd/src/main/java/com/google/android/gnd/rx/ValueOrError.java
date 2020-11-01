@@ -16,13 +16,10 @@
 
 package com.google.android.gnd.rx;
 
-import androidx.annotation.NonNull;
 import io.reactivex.Observable;
-import java8.util.Objects;
 import java8.util.Optional;
 import java8.util.function.Supplier;
 import javax.annotation.Nullable;
-import timber.log.Timber;
 
 /**
  * Represents the outcome of an operation that either succeeds with a value, or fails with an
@@ -37,6 +34,19 @@ public class ValueOrError<T> {
   protected ValueOrError(@Nullable T value, @Nullable Throwable error) {
     this.value = value;
     this.error = error;
+  }
+
+  public Optional<T> value() {
+    return Optional.ofNullable(value);
+  }
+
+  public Optional<Throwable> error() {
+    return Optional.ofNullable(error);
+  }
+
+  @Override
+  public String toString() {
+    return error().map(t -> "Error: " + t).orElse("Value: " + value);
   }
 
   /** Returns the value returned by the specified supplier, or an error if the supplier fails. */
@@ -61,39 +71,5 @@ public class ValueOrError<T> {
   /** Modifies the specified stream to ignore errors, returning wrapped values. */
   public static <T> Observable<T> ignoreErrors(Observable<ValueOrError<T>> observable) {
     return observable.filter(voe -> voe.value().isPresent()).map(voe -> voe.value().get());
-  }
-
-  public Optional<T> value() {
-    return Optional.ofNullable(value);
-  }
-
-  public Optional<Throwable> error() {
-    if (error != null) {
-      Timber.e(error);
-    }
-    return Optional.ofNullable(error);
-  }
-
-  @NonNull
-  @Override
-  public String toString() {
-    return error().map(t -> "Error: " + t).orElse("Value: " + value);
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (!(o instanceof ValueOrError)) {
-      return false;
-    }
-    ValueOrError<?> that = (ValueOrError<?>) o;
-    return Objects.equals(value, that.value) && Objects.equals(error, that.error);
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(value, error);
   }
 }

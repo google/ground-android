@@ -19,7 +19,6 @@ package com.google.android.gnd.rx;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import io.reactivex.Flowable;
-import java8.util.Objects;
 import java8.util.Optional;
 import javax.annotation.Nullable;
 import org.reactivestreams.Publisher;
@@ -32,6 +31,14 @@ import org.reactivestreams.Publisher;
  */
 public class Loadable<T> extends ValueOrError<T> {
   private final LoadState state;
+
+  public enum LoadState {
+    NOT_LOADED,
+    LOADING,
+    LOADED,
+    NOT_FOUND,
+    ERROR
+  }
 
   private Loadable(LoadState state, @Nullable T data, Throwable error) {
     super(data, error);
@@ -52,6 +59,14 @@ public class Loadable<T> extends ValueOrError<T> {
 
   public static <T> Loadable<T> error(Throwable t) {
     return new Loadable<>(LoadState.ERROR, null, t);
+  }
+
+  public LoadState getState() {
+    return state;
+  }
+
+  public boolean isLoaded() {
+    return state == LoadState.LOADED;
   }
 
   @NonNull
@@ -83,15 +98,6 @@ public class Loadable<T> extends ValueOrError<T> {
         .startWith(Loadable.loading());
   }
 
-  public LoadState getState() {
-    return state;
-  }
-
-  public boolean isLoaded() {
-    return state == LoadState.LOADED;
-  }
-
-  @NonNull
   @Override
   public String toString() {
     if (state == LoadState.LOADED || state == LoadState.ERROR) {
@@ -99,30 +105,5 @@ public class Loadable<T> extends ValueOrError<T> {
     } else {
       return state.toString();
     }
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (!(o instanceof Loadable)) {
-      return false;
-    }
-    Loadable<?> loadable = (Loadable<?>) o;
-    return getState() == loadable.getState();
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(getState());
-  }
-
-  public enum LoadState {
-    NOT_LOADED,
-    LOADING,
-    LOADED,
-    NOT_FOUND,
-    ERROR
   }
 }
