@@ -35,6 +35,7 @@ import com.google.android.gnd.databinding.MapContainerFragBinding;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.Point;
+import com.google.android.gnd.persistence.geojson.GeoJsonParser;
 import com.google.android.gnd.rx.BooleanOrError;
 import com.google.android.gnd.rx.Loadable;
 import com.google.android.gnd.system.PermissionsManager.PermissionDeniedException;
@@ -45,6 +46,7 @@ import com.google.android.gnd.ui.home.HomeScreenViewModel;
 import com.google.android.gnd.ui.home.mapcontainer.MapContainerViewModel.Mode;
 import com.google.android.gnd.ui.map.MapAdapter;
 import com.google.android.gnd.ui.map.MapProvider;
+import com.google.android.gnd.ui.util.FileUtil;
 import dagger.hilt.android.AndroidEntryPoint;
 import io.reactivex.Single;
 import java8.util.Optional;
@@ -56,6 +58,8 @@ import timber.log.Timber;
 public class MapContainerFragment extends AbstractFragment {
   private static final String MAP_FRAGMENT_KEY = MapProvider.class.getName() + "#fragment";
 
+  @Inject FileUtil fileUtil;
+  @Inject GeoJsonParser geoJsonParser;
   @Inject MapProvider mapProvider;
 
   private MapContainerViewModel mapContainerViewModel;
@@ -141,7 +145,7 @@ public class MapContainerFragment extends AbstractFragment {
   private void onMapReady(MapAdapter map) {
     Timber.d("MapAdapter ready. Updating subscriptions");
     // Observe events emitted by the ViewModel.
-    mapContainerViewModel.getMapPins().observe(this, map::setMapPins);
+    mapContainerViewModel.getMapFeatures().observe(this, map::setMapFeatures);
     mapContainerViewModel
         .getLocationLockState()
         .observe(this, state -> onLocationLockStateChange(state, map));

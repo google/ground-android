@@ -16,6 +16,7 @@
 
 /**
  * Checkstyle plugin configuration for code styling checks.
+ * https://checkstyle.sourceforge.io
  *
  * Runs automatically with every build on Google Cloud Build.
  *
@@ -29,8 +30,7 @@
 
 apply plugin: 'checkstyle'
 
-// For latest version, check: https://checkstyle.sourceforge.io/releasenotes.html
-checkstyle.toolVersion = '8.34'
+checkstyle.toolVersion = '8.36.2'
 
 tasks.register("checkstyle", Checkstyle) {
     configFile file("../third_party/checkstyle/google_checks.xml")

@@ -56,7 +56,7 @@ public class GeoJsonTile {
   }
 
   private ImmutableList<LatLng> getVertices() {
-    return new GeoJsonExtent(new GeoJsonGeometry(json)).getVertices();
+    return new GeoJsonPolygon(new GeoJsonGeometry(json)).getVertices();
   }
 
   public Optional<String> getId() {

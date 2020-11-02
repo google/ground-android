@@ -19,7 +19,6 @@ package com.google.android.gnd.persistence.geojson;
 import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList;
 import static java8.util.stream.StreamSupport.stream;
 
-import android.util.Log;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gnd.model.basemap.tile.TileSource;
 import com.google.android.gnd.model.basemap.tile.TileSource.State;
@@ -35,13 +34,14 @@ import org.apache.commons.io.FileUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import timber.log.Timber;
 
 public class GeoJsonParser {
 
-  private static final String TAG = GeoJsonParser.class.getSimpleName();
-  private final OfflineUuidGenerator uuidGenerator;
   private static final String FEATURES_KEY = "features";
   private static final String JSON_SOURCE_CHARSET = "UTF-8";
+
+  private final OfflineUuidGenerator uuidGenerator;
 
   @Inject
   GeoJsonParser(OfflineUuidGenerator uuidGenerator) {
@@ -85,11 +85,46 @@ public class GeoJsonParser {
       try {
         result.add(arr.getJSONObject(i));
       } catch (JSONException e) {
-        Log.e(TAG, "Ignoring error in JSON array", e);
+        Timber.e(e, "Ignoring error in JSON array");
       }
     }
 
     return result;
+  }
+
+  private static List<JSONObject> getFeaturesArray(String jsonString) {
+    try {
+      // TODO: Separate parsing and intersection checks, make asyc (single, completable).
+      JSONObject geoJson = new JSONObject(jsonString);
+      // TODO: Make features constant.
+      return toArrayList(geoJson.getJSONArray(FEATURES_KEY));
+    } catch (JSONException e) {
+      Timber.e(e, "Unable to parse JSON");
+    }
+    return ImmutableList.of();
+  }
+
+  public ImmutableList<GeoJsonTile> getGeoJsonTiles(String jsonString) {
+    return stream(getFeaturesArray(jsonString)).map(GeoJsonTile::new).collect(toImmutableList());
+  }
+
+  /**
+   * Returns the immutable list of tiles specified in {@param geojson} that intersect {@param
+   * bounds}.
+   */
+  public ImmutableList<TileSource> intersectingTiles(LatLngBounds bounds, File file) {
+    String fileContents;
+    try {
+      fileContents = FileUtils.readFileToString(file, Charset.forName(JSON_SOURCE_CHARSET));
+    } catch (IOException e) {
+      Timber.e(e);
+      return ImmutableList.of();
+    }
+
+    return stream(getGeoJsonTiles(fileContents))
+        .filter(tile -> tile.boundsIntersect(bounds))
+        .map(this::jsonToTileSource)
+        .collect(toImmutableList());
   }
 
   /** Returns the {@link TileSource} specified by {@param json}. */

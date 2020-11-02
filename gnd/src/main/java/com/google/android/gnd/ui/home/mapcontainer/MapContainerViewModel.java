@@ -40,6 +40,8 @@ import com.google.android.gnd.rx.Nil;
 import com.google.android.gnd.system.LocationManager;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.common.SharedViewModel;
+import com.google.android.gnd.ui.map.MapFeature;
+import com.google.android.gnd.ui.map.MapGeoJson;
 import com.google.android.gnd.ui.map.MapPin;
 import com.google.common.collect.ImmutableSet;
 import io.reactivex.BackpressureStrategy;
@@ -51,6 +53,8 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java8.util.Optional;
 import javax.inject.Inject;
+import org.json.JSONException;
+import org.json.JSONObject;
 import timber.log.Timber;
 
 @SharedViewModel
@@ -58,7 +62,7 @@ public class MapContainerViewModel extends AbstractViewModel {
 
   private static final float DEFAULT_ZOOM_LEVEL = 20.0f;
   private final LiveData<Loadable<Project>> activeProject;
-  private final LiveData<ImmutableSet<MapPin>> mapPins;
+  private final LiveData<ImmutableSet<MapFeature>> mapFeatures;
   private final LiveData<BooleanOrError> locationLockState;
   private final LiveData<CameraUpdate> cameraUpdateRequests;
   private final MutableLiveData<Point> cameraPosition;
@@ -104,13 +108,13 @@ public class MapContainerViewModel extends AbstractViewModel {
     // TODO: Clear feature markers when project is deactivated.
     // TODO: Since we depend on project stream from repo anyway, this transformation can be moved
     // into the repo?
-    this.mapPins =
+    this.mapFeatures =
         LiveDataReactiveStreams.fromPublisher(
             projectRepository
                 .getActiveProjectOnceAndStream()
                 .map(Loadable::value)
                 .switchMap(this::getFeaturesStream)
-                .map(MapContainerViewModel::toMapPins));
+                .map(MapContainerViewModel::toMapFeatures));
     this.mbtilesFilePaths =
         LiveDataReactiveStreams.fromPublisher(
             offlineBaseMapRepository
@@ -118,16 +122,46 @@ public class MapContainerViewModel extends AbstractViewModel {
                 .map(set -> stream(set).map(TileSource::getPath).collect(toImmutableSet())));
   }
 
-  private static ImmutableSet<MapPin> toMapPins(ImmutableSet<Feature> features) {
-    return stream(features).map(MapContainerViewModel::toMapPin).collect(toImmutableSet());
+  private static ImmutableSet<MapFeature> toMapFeatures(ImmutableSet<Feature> features) {
+    ImmutableSet<MapFeature> mapPins =
+        stream(features)
+            .filter(Feature::isPoint)
+            .map(MapContainerViewModel::toMapPin)
+            .collect(toImmutableSet());
+
+    // TODO: Add support for polylines and polygons similar to mapPins
+
+    ImmutableSet<MapFeature> mapPolygons =
+        stream(features)
+            .filter(Feature::isGeoJson)
+            .map(MapContainerViewModel::toMapGeoJson)
+            .collect(toImmutableSet());
+
+    return ImmutableSet.<MapFeature>builder().addAll(mapPins).addAll(mapPolygons).build();
   }
 
-  private static MapPin toMapPin(Feature feature) {
+  private static MapFeature toMapPin(Feature feature) {
     return MapPin.newBuilder()
         .setId(feature.getId())
         .setPosition(feature.getPoint())
         .setStyle(feature.getLayer().getDefaultStyle())
         .setFeature(feature)
+        .build();
+  }
+
+  private static MapGeoJson toMapGeoJson(Feature feature) {
+    JSONObject jsonObject;
+    try {
+      jsonObject = new JSONObject(feature.getGeoJsonString());
+    } catch (JSONException e) {
+      Timber.e(e);
+      jsonObject = new JSONObject();
+    }
+
+    return MapGeoJson.newBuilder()
+        .setId(feature.getId())
+        .setGeoJson(jsonObject)
+        .setStyle(feature.getLayer().getDefaultStyle())
         .build();
   }
 
@@ -179,8 +213,8 @@ public class MapContainerViewModel extends AbstractViewModel {
     return activeProject;
   }
 
-  public LiveData<ImmutableSet<MapPin>> getMapPins() {
-    return mapPins;
+  public LiveData<ImmutableSet<MapFeature>> getMapFeatures() {
+    return mapFeatures;
   }
 
   public LiveData<ImmutableSet<String>> getMbtilesFilePaths() {

@@ -26,8 +26,8 @@ class FeatureDocument {
   @Nullable private String layerId;
   @Nullable private String customId;
   @Nullable private String caption;
-  // TODO: Replace with consistent name throughout.
   @Nullable private GeoPoint location;
+  @Nullable private String geoJson;
   @Nullable private AuditInfoNestedObject created;
   @Nullable private AuditInfoNestedObject lastModified;
 
@@ -40,12 +40,14 @@ class FeatureDocument {
       @Nullable String customId,
       @Nullable String caption,
       @Nullable GeoPoint location,
+      @Nullable String geoJson,
       @Nullable AuditInfoNestedObject created,
       @Nullable AuditInfoNestedObject lastModified) {
     this.layerId = layerId;
     this.customId = customId;
     this.caption = caption;
     this.location = location;
+    this.geoJson = geoJson;
     this.created = created;
     this.lastModified = lastModified;
   }
@@ -68,6 +70,11 @@ class FeatureDocument {
   @Nullable
   public GeoPoint getLocation() {
     return location;
+  }
+
+  @Nullable
+  public String getGeoJson() {
+    return geoJson;
   }
 
   @Nullable
