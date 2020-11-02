@@ -29,9 +29,12 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AlertDialog.Builder;
 import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.MapContainerFragBinding;
 import com.google.android.gnd.model.Project;
+import com.google.android.gnd.model.feature.Feature;
+import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.rx.BooleanOrError;
 import com.google.android.gnd.rx.Loadable;
 import com.google.android.gnd.system.PermissionsManager.PermissionDeniedException;
@@ -39,10 +42,12 @@ import com.google.android.gnd.system.SettingsManager.SettingsChangeRequestCancel
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.home.BottomSheetState;
 import com.google.android.gnd.ui.home.HomeScreenViewModel;
+import com.google.android.gnd.ui.home.mapcontainer.MapContainerViewModel.Mode;
 import com.google.android.gnd.ui.map.MapAdapter;
 import com.google.android.gnd.ui.map.MapProvider;
 import dagger.hilt.android.AndroidEntryPoint;
 import io.reactivex.Single;
+import java8.util.Optional;
 import javax.inject.Inject;
 import timber.log.Timber;
 
@@ -147,10 +152,32 @@ public class MapContainerFragment extends AbstractFragment {
     homeScreenViewModel
         .getBottomSheetState()
         .observe(this, state -> onBottomSheetStateChange(state, map));
-    binding.addFeatureBtn.setOnClickListener(
+    binding.mapControls.addFeatureBtn.setOnClickListener(
         __ -> homeScreenViewModel.onAddFeatureBtnClick(map.getCameraTarget()));
+    binding.moveFeature.confirmButton.setOnClickListener(
+        __ -> showConfirmationDialog(map.getCameraTarget()));
+    binding.moveFeature.cancelButton.setOnClickListener(__ -> setDefaultMode());
     enableLocationLockBtn();
     mapContainerViewModel.getMbtilesFilePaths().observe(this, map::addTileOverlays);
+  }
+
+  private void showConfirmationDialog(Point point) {
+    new Builder(getContext())
+        .setTitle(R.string.move_point_confirmation)
+        .setPositiveButton(android.R.string.ok, (dialog, which) -> moveToNewPosition(point))
+        .setNegativeButton(android.R.string.cancel, (dialog, which) -> setDefaultMode())
+        .setCancelable(true)
+        .create()
+        .show();
+  }
+
+  private void moveToNewPosition(Point point) {
+    mapContainerViewModel
+        .getSelectedFeature()
+        .map(feature -> feature.toBuilder().setPoint(point).build())
+        .ifPresentOrElse(
+            feature -> homeScreenViewModel.updateFeature(feature),
+            () -> Timber.e("No feature selected"));
   }
 
   private void onBottomSheetStateChange(BottomSheetState state, MapAdapter map) {
@@ -177,18 +204,18 @@ public class MapContainerFragment extends AbstractFragment {
   }
 
   private void enableLocationLockBtn() {
-    binding.locationLockBtn.setEnabled(true);
+    binding.mapControls.locationLockBtn.setEnabled(true);
   }
 
   private void enableAddFeatureBtn() {
-    binding.addFeatureBtn.setBackgroundTintList(
+    binding.mapControls.addFeatureBtn.setBackgroundTintList(
         ColorStateList.valueOf(getResources().getColor(R.color.colorMapAccent)));
   }
 
   private void disableAddFeatureBtn() {
     // NOTE: We don't call addFeatureBtn.setEnabled(false) here since calling it before the fab is
     // shown corrupts its padding when used with useCompatPadding="true".
-    binding.addFeatureBtn.setBackgroundTintList(
+    binding.mapControls.addFeatureBtn.setBackgroundTintList(
         ColorStateList.valueOf(getResources().getColor(R.color.colorGrey500)));
   }
 
@@ -197,10 +224,10 @@ public class MapContainerFragment extends AbstractFragment {
     if (result.isTrue()) {
       Timber.d("Location lock enabled");
       map.enableCurrentLocationIndicator();
-      binding.locationLockBtn.setImageResource(R.drawable.ic_gps_blue);
+      binding.mapControls.locationLockBtn.setImageResource(R.drawable.ic_gps_blue);
     } else {
       Timber.d("Location lock disabled");
-      binding.locationLockBtn.setImageResource(R.drawable.ic_gps_grey600);
+      binding.mapControls.locationLockBtn.setImageResource(R.drawable.ic_gps_grey600);
     }
   }
 
@@ -237,5 +264,17 @@ public class MapContainerFragment extends AbstractFragment {
   public void onDestroy() {
     mapContainerViewModel.closeProviders();
     super.onDestroy();
+  }
+
+  public void setDefaultMode() {
+    mapContainerViewModel.setViewMode(Mode.DEFAULT);
+    mapContainerViewModel.setSelectedFeature(Optional.empty());
+  }
+
+  public void setRepositionMode(Optional<Feature> feature) {
+    mapContainerViewModel.setViewMode(Mode.REPOSITION);
+    mapContainerViewModel.setSelectedFeature(feature);
+
+    Toast.makeText(getContext(), R.string.move_point_hint, Toast.LENGTH_SHORT).show();
   }
 }

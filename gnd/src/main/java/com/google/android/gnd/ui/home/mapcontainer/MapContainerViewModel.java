@@ -16,9 +16,12 @@
 
 package com.google.android.gnd.ui.home.mapcontainer;
 
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
 import static com.google.android.gnd.util.ImmutableSetCollector.toImmutableSet;
 import static java8.util.stream.StreamSupport.stream;
 
+import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
 import androidx.lifecycle.MutableLiveData;
@@ -63,13 +66,19 @@ public class MapContainerViewModel extends AbstractViewModel {
   private final FeatureRepository featureRepository;
   private final Subject<Boolean> locationLockChangeRequests;
   private final Subject<CameraUpdate> cameraUpdateSubject;
+  private final MutableLiveData<Integer> mapControlsVisibility = new MutableLiveData<>(VISIBLE);
+  private final MutableLiveData<Integer> moveFeaturesVisibility = new MutableLiveData<>(GONE);
   private final MutableLiveData<Event<Nil>> showMapTypeSelectorRequests = new MutableLiveData<>();
   private final LiveData<ImmutableSet<String>> mbtilesFilePaths;
+
   // TODO: Create our own wrapper/interface for MbTiles providers
   // The impl we're using unfortunately requires calling a `close` method explicitly
   // to clean up provider resources; `close` however, is not defined by the `TileProvider`
   // interface, preventing us from treating providers generically.
   private final List<MapBoxOfflineTileProvider> tileProviders = new ArrayList<>();
+
+  // Feature currently selected for repositioning
+  private Optional<Feature> selectedFeature;
 
   @Inject
   MapContainerViewModel(
@@ -109,13 +118,25 @@ public class MapContainerViewModel extends AbstractViewModel {
                 .map(set -> stream(set).map(TileSource::getPath).collect(toImmutableSet())));
   }
 
+  private static ImmutableSet<MapPin> toMapPins(ImmutableSet<Feature> features) {
+    return stream(features).map(MapContainerViewModel::toMapPin).collect(toImmutableSet());
+  }
+
+  private static MapPin toMapPin(Feature feature) {
+    return MapPin.newBuilder()
+        .setId(feature.getId())
+        .setPosition(feature.getPoint())
+        .setStyle(feature.getLayer().getDefaultStyle())
+        .setFeature(feature)
+        .build();
+  }
+
   private Flowable<CameraUpdate> createCameraUpdateFlowable(
       Flowable<BooleanOrError> locationLockStateFlowable) {
     return cameraUpdateSubject
         .toFlowable(BackpressureStrategy.LATEST)
         .mergeWith(
-            locationLockStateFlowable.switchMap(
-                state -> createLocationLockCameraUpdateFlowable(state)));
+            locationLockStateFlowable.switchMap(this::createLocationLockCameraUpdateFlowable));
   }
 
   private Flowable<CameraUpdate> createLocationLockCameraUpdateFlowable(BooleanOrError lockState) {
@@ -152,19 +173,6 @@ public class MapContainerViewModel extends AbstractViewModel {
 
   public void onMapTypeButtonClicked() {
     showMapTypeSelectorRequests.setValue(Event.create(Nil.NIL));
-  }
-
-  private static ImmutableSet<MapPin> toMapPins(ImmutableSet<Feature> features) {
-    return stream(features).map(MapContainerViewModel::toMapPin).collect(toImmutableSet());
-  }
-
-  private static MapPin toMapPin(Feature feature) {
-    return MapPin.newBuilder()
-        .setId(feature.getId())
-        .setPosition(feature.getPoint())
-        .setStyle(feature.getLayer().getDefaultStyle())
-        .setFeature(feature)
-        .build();
   }
 
   public LiveData<Loadable<Project>> getActiveProject() {
@@ -222,6 +230,40 @@ public class MapContainerViewModel extends AbstractViewModel {
     return showMapTypeSelectorRequests;
   }
 
+  public void queueTileProvider(MapBoxOfflineTileProvider tileProvider) {
+    this.tileProviders.add(tileProvider);
+  }
+
+  public void closeProviders() {
+    stream(tileProviders).forEach(MapBoxOfflineTileProvider::close);
+  }
+
+  public void setViewMode(Mode viewMode) {
+    mapControlsVisibility.setValue(viewMode == Mode.DEFAULT ? VISIBLE : GONE);
+    moveFeaturesVisibility.setValue(viewMode == Mode.REPOSITION ? VISIBLE : GONE);
+  }
+
+  public LiveData<Integer> getMapControlsVisibility() {
+    return mapControlsVisibility;
+  }
+
+  public LiveData<Integer> getMoveFeatureVisibility() {
+    return moveFeaturesVisibility;
+  }
+
+  public Optional<Feature> getSelectedFeature() {
+    return selectedFeature;
+  }
+
+  public void setSelectedFeature(Optional<Feature> selectedFeature) {
+    this.selectedFeature = selectedFeature;
+  }
+
+  public enum Mode {
+    DEFAULT,
+    REPOSITION
+  }
+
   static class CameraUpdate {
 
     private Point center;
@@ -232,14 +274,6 @@ public class MapContainerViewModel extends AbstractViewModel {
       this.minZoomLevel = minZoomLevel;
     }
 
-    public Point getCenter() {
-      return center;
-    }
-
-    public Optional<Float> getMinZoomLevel() {
-      return minZoomLevel;
-    }
-
     private static CameraUpdate pan(Point center) {
       return new CameraUpdate(center, Optional.empty());
     }
@@ -248,6 +282,15 @@ public class MapContainerViewModel extends AbstractViewModel {
       return new CameraUpdate(center, Optional.of(DEFAULT_ZOOM_LEVEL));
     }
 
+    public Point getCenter() {
+      return center;
+    }
+
+    public Optional<Float> getMinZoomLevel() {
+      return minZoomLevel;
+    }
+
+    @NonNull
     @Override
     public String toString() {
       if (minZoomLevel.isPresent()) {
@@ -256,13 +299,5 @@ public class MapContainerViewModel extends AbstractViewModel {
         return "Pan";
       }
     }
-  }
-
-  public void queueTileProvider(MapBoxOfflineTileProvider tileProvider) {
-    this.tileProviders.add(tileProvider);
-  }
-
-  public void closeProviders() {
-    stream(tileProviders).forEach(MapBoxOfflineTileProvider::close);
   }
 }

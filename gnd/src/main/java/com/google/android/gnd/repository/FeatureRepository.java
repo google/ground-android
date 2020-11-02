@@ -114,33 +114,29 @@ public class FeatureRepository {
         .flatMapMaybe(project -> localDataStore.getFeature(project, featureId));
   }
 
-  public Completable saveFeature(Feature feature) {
-    // TODO(#80): Update UI to provide FeatureMutations instead of Features here.
-    FeatureMutation mutation =
-        FeatureMutation.builder()
-            .setType(Type.CREATE)
-            .setProjectId(feature.getProject().getId())
-            .setFeatureId(feature.getId())
-            .setLayerId(feature.getLayer().getId())
-            .setNewLocation(Optional.of(feature.getPoint()))
-            .setUserId(authManager.getCurrentUser().getId())
-            .setClientTimestamp(new Date())
-            .build();
-    return applyAndEnqueue(mutation);
+  private FeatureMutation fromFeature(Feature feature, Type type) {
+    return FeatureMutation.builder()
+        .setType(type)
+        .setProjectId(feature.getProject().getId())
+        .setFeatureId(feature.getId())
+        .setLayerId(feature.getLayer().getId())
+        .setNewLocation(Optional.of(feature.getPoint()))
+        .setUserId(authManager.getCurrentUser().getId())
+        .setClientTimestamp(new Date())
+        .build();
+  }
+
+  // TODO(#80): Update UI to provide FeatureMutations instead of Features here.
+  public Completable createFeature(Feature feature) {
+    return applyAndEnqueue(fromFeature(feature, Type.CREATE));
+  }
+
+  public Completable updateFeature(Feature feature) {
+    return applyAndEnqueue(fromFeature(feature, Type.UPDATE));
   }
 
   public Completable deleteFeature(Feature feature) {
-    FeatureMutation featureMutation =
-        FeatureMutation.builder()
-            .setType(Type.DELETE)
-            .setProjectId(feature.getProject().getId())
-            .setFeatureId(feature.getId())
-            .setLayerId(feature.getLayer().getId())
-            .setClientTimestamp(new Date())
-            .setNewLocation(Optional.of(feature.getPoint()))
-            .setUserId(authManager.getCurrentUser().getId())
-            .build();
-    return applyAndEnqueue(featureMutation);
+    return applyAndEnqueue(fromFeature(feature, Type.DELETE));
   }
 
   private Completable applyAndEnqueue(FeatureMutation mutation) {
