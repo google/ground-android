@@ -597,10 +597,17 @@ public class RoomLocalDataStore implements LocalDataStore {
   }
 
   @Override
-  public Completable deleteTile(TileSource tileSource) {
+  public Single<TileSource> updateTileSourceAreaCountByUrl(TileSource tileSource) {
+    return tileSourceDao
+        .updateAreaCount(tileSource.getAreaCount(), tileSource.getUrl())
+        .map(__ -> tileSource);
+  }
+
+  @Override
+  public Completable deleteTileByUrl(TileSource tileSource) {
     if (tileSource.getAreaCount() < 1) {
       return Completable.fromAction(() -> fileUtil.deleteFile(tileSource.getPath()))
-          .andThen(tileSourceDao.delete(TileSourceEntity.fromTile(tileSource)))
+          .andThen(Completable.fromMaybe(tileSourceDao.deleteByUrl(tileSource.getUrl())))
           .subscribeOn(schedulers.io());
     } else {
       return Completable.complete().subscribeOn(schedulers.io());

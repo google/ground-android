@@ -30,6 +30,7 @@ import com.google.auto.value.AutoValue.CopyAnnotations;
 public abstract class TileSourceEntity {
   @CopyAnnotations
   @NonNull
+  @PrimaryKey
   @ColumnInfo(name = "id")
   public abstract String getId();
 
@@ -40,7 +41,6 @@ public abstract class TileSourceEntity {
 
   @CopyAnnotations
   @NonNull
-  @PrimaryKey
   @ColumnInfo(name = "url")
   public abstract String getUrl();
 

@@ -226,10 +226,9 @@ public class OfflineBaseMapRepository {
             tileSource ->
                 tileSource.toBuilder().setAreaCount(tileSource.getAreaCount() - 1).build())
         .flatMapCompletable(
-            tileSource ->
-                localDataStore
-                    .insertOrUpdateTileSource(tileSource)
-                    .andThen(localDataStore.deleteTile(tileSource)))
+            tile ->
+                Completable.fromSingle(localDataStore.updateTileSourceAreaCountByUrl(tile))
+                    .andThen(localDataStore.deleteTileByUrl(tile)))
         .andThen(localDataStore.deleteOfflineArea(offlineAreaId));
   }
 }

@@ -170,5 +170,12 @@ public interface LocalDataStore {
   /** Returns the offline area with the specified id. */
   Single<OfflineBaseMap> getOfflineAreaById(String id);
 
-  Completable deleteTile(TileSource tile);
+  /**
+   * Update the area count of an existing tile source in the local data store with the area count of
+   * {@param tilesource}.
+   */
+  Single<TileSource> updateTileSourceAreaCountByUrl(TileSource tilesource);
+
+  /** Delete a tile source associated with a given URL from the local data store. */
+  Completable deleteTileByUrl(TileSource tile);
 }
