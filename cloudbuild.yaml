@@ -102,7 +102,7 @@ steps:
   - name: 'gcr.io/cloud-builders/gcloud-slim'
     id: 'Run instrumented tests'
     args: [
-      'beta', 'firebase', 'test', 'android', 'run',
+      '--quiet', 'beta', 'firebase', 'test', 'android', 'run',
       '--type', 'instrumentation',
       '--num-uniform-shards=2',
       '--app', 'gnd/build/outputs/apk/debug/*.apk',
