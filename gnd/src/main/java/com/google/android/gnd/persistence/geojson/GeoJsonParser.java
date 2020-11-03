@@ -68,7 +68,7 @@ public class GeoJsonParser {
           .collect(toImmutableList());
 
     } catch (JSONException | IOException e) {
-      Log.e(TAG, "Unable to parse JSON", e);
+      Timber.e(e, "Unable to parse JSON");
     }
 
     return ImmutableList.of();
@@ -106,25 +106,6 @@ public class GeoJsonParser {
 
   public ImmutableList<GeoJsonTile> getGeoJsonTiles(String jsonString) {
     return stream(getFeaturesArray(jsonString)).map(GeoJsonTile::new).collect(toImmutableList());
-  }
-
-  /**
-   * Returns the immutable list of tiles specified in {@param geojson} that intersect {@param
-   * bounds}.
-   */
-  public ImmutableList<TileSource> intersectingTiles(LatLngBounds bounds, File file) {
-    String fileContents;
-    try {
-      fileContents = FileUtils.readFileToString(file, Charset.forName(JSON_SOURCE_CHARSET));
-    } catch (IOException e) {
-      Timber.e(e);
-      return ImmutableList.of();
-    }
-
-    return stream(getGeoJsonTiles(fileContents))
-        .filter(tile -> tile.boundsIntersect(bounds))
-        .map(this::jsonToTileSource)
-        .collect(toImmutableList());
   }
 
   /** Returns the {@link TileSource} specified by {@param json}. */
