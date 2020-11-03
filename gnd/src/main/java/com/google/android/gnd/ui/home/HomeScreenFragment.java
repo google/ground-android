@@ -109,10 +109,10 @@ public class HomeScreenFragment extends AbstractFragment
         .observe(this, e -> e.ifUnhandled(this::onShowAddFeatureDialogRequest));
     viewModel.getBottomSheetState().observe(this, this::onBottomSheetStateChange);
     viewModel.getOpenDrawerRequests().observe(this, e -> e.ifUnhandled(this::openDrawer));
-    viewModel.getAddFeature().observe(this, this::onFeatureAdded);
-    viewModel.getUpdateFeature().observe(this, this::onFeatureUpdated);
-    viewModel.getDeleteFeature().observe(this, this::onFeatureDeleted);
-    viewModel.getError().observe(this, this::onError);
+    viewModel.getAddFeatureResults().observe(this, this::onFeatureAdded);
+    viewModel.getUpdateFeatureResults().observe(this, this::onFeatureUpdated);
+    viewModel.getDeleteFeatureResults().observe(this, this::onFeatureDeleted);
+    viewModel.getErrors().observe(this, this::onError);
 
     showFeatureDialogRequests = PublishSubject.create();
 

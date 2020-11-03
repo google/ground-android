@@ -62,11 +62,10 @@ public class HomeScreenViewModel extends AbstractViewModel {
   private final FlowableProcessor<Feature> updateFeatureRequests = PublishProcessor.create();
   private final FlowableProcessor<Feature> deleteFeatureRequests = PublishProcessor.create();
 
-  private final LiveData<Feature> addFeature;
-  private final LiveData<Boolean> updateFeature;
-  private final LiveData<Boolean> deleteFeature;
-
-  private final MutableLiveData<Throwable> error = new MutableLiveData<>();
+  private final LiveData<Feature> addFeatureResults;
+  private final LiveData<Boolean> updateFeatureResults;
+  private final LiveData<Boolean> deleteFeatureResults;
+  private final MutableLiveData<Throwable> errors = new MutableLiveData<>();
   private final MutableLiveData<Integer> addFeatureButtonVisibility = new MutableLiveData<>(GONE);
 
   @Inject
@@ -83,7 +82,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
     activeProject =
         LiveDataReactiveStreams.fromPublisher(
             projectRepository.getActiveProjectOnceAndStream().doAfterNext(this::onActivateProject));
-    addFeature =
+    addFeatureResults =
         LiveDataReactiveStreams.fromPublisher(
             addFeatureClicks.switchMapSingle(
                 feature ->
@@ -92,18 +91,18 @@ public class HomeScreenViewModel extends AbstractViewModel {
                         .toSingleDefault(feature)
                         .doOnError(this::handleError)
                         .onErrorResumeNext(Single.never()))); // Prevent from breaking upstream.
-    deleteFeature =
+    deleteFeatureResults =
         LiveDataReactiveStreams.fromPublisher(
             deleteFeatureRequests.switchMapSingle(
                 feature -> toSingle(featureRepository.deleteFeature(feature), this::handleError)));
-    updateFeature =
+    updateFeatureResults =
         LiveDataReactiveStreams.fromPublisher(
             updateFeatureRequests.switchMapSingle(
                 feature -> toSingle(featureRepository.updateFeature(feature), this::handleError)));
   }
 
   private void handleError(Throwable throwable) {
-    error.postValue(throwable);
+    errors.postValue(throwable);
   }
 
   /** Handle state of the UI elements depending upon the active project. */
@@ -127,20 +126,20 @@ public class HomeScreenViewModel extends AbstractViewModel {
     return addFeatureButtonVisibility;
   }
 
-  public LiveData<Feature> getAddFeature() {
-    return addFeature;
+  public LiveData<Feature> getAddFeatureResults() {
+    return addFeatureResults;
   }
 
-  public LiveData<Boolean> getUpdateFeature() {
-    return updateFeature;
+  public LiveData<Boolean> getUpdateFeatureResults() {
+    return updateFeatureResults;
   }
 
-  public LiveData<Boolean> getDeleteFeature() {
-    return deleteFeature;
+  public LiveData<Boolean> getDeleteFeatureResults() {
+    return deleteFeatureResults;
   }
 
-  public LiveData<Throwable> getError() {
-    return error;
+  public LiveData<Throwable> getErrors() {
+    return errors;
   }
 
   public void addFeature(Feature feature) {
