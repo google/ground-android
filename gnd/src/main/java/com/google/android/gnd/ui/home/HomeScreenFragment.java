@@ -142,7 +142,6 @@ public class HomeScreenFragment extends AbstractFragment
     }
   }
 
-  /** Hide the bottom sheet as deleting a feature also removes child observations. */
   private void onFeatureDeleted(Boolean result) {
     if (result) {
       // TODO: Re-position map to default location after successful deletion.

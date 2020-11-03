@@ -18,7 +18,7 @@ package com.google.android.gnd.ui.home;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
-import static com.google.android.gnd.rx.RxCompletable.toSingle;
+import static com.google.android.gnd.rx.RxCompletable.toBooleanSingle;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
@@ -94,11 +94,13 @@ public class HomeScreenViewModel extends AbstractViewModel {
     deleteFeatureResults =
         LiveDataReactiveStreams.fromPublisher(
             deleteFeatureRequests.switchMapSingle(
-                feature -> toSingle(featureRepository.deleteFeature(feature), this::handleError)));
+                feature ->
+                    toBooleanSingle(featureRepository.deleteFeature(feature), this::handleError)));
     updateFeatureResults =
         LiveDataReactiveStreams.fromPublisher(
             updateFeatureRequests.switchMapSingle(
-                feature -> toSingle(featureRepository.updateFeature(feature), this::handleError)));
+                feature ->
+                    toBooleanSingle(featureRepository.updateFeature(feature), this::handleError)));
   }
 
   private void handleError(Throwable throwable) {
