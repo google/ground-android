@@ -107,7 +107,8 @@ steps:
       '--app', 'gnd/build/outputs/apk/debug/*.apk',
       '--test', 'gnd/build/outputs/apk/androidTest/debug/*.apk',
       '--device', 'model=Pixel2,version=28,locale=en,orientation=portrait',
-      '--results-bucket', 'artifact_bucket',
+      '--results-bucket', '${_ARTIFACT_BUCKET}',
+      '--results-dir', '$BRANCH_NAME-$BUILD_ID/reports',
       '--directories-to-pull', '/sdcard',
       '--timeout', '20m'
     ]
