@@ -98,7 +98,7 @@ steps:
         ./gradlew -PdisablePreDex --no-daemon --max-workers=2 assembleDebug assembleDebugAndroidTest
 
   # Run instrumented tests
-  - name: 'gcr.io/$PROJECT_ID/android:28'
+  - name: 'gcr.io/cloud-builders/gcloud'
     id: 'Run instrumented tests'
     args:
       - '-c'
