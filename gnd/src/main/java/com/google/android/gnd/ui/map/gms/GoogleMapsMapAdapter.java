@@ -197,11 +197,9 @@ class GoogleMapsMapAdapter implements MapAdapter {
     LatLng position = toLatLng(mapPin.getPosition());
     String color = mapPin.getStyle().getColor();
     BitmapDescriptor icon = markerIconFactory.getMarkerIcon(parseColor(color));
-    Marker marker = markers.addMarker(new MarkerOptions());
+    Marker marker =
+        markers.addMarker(new MarkerOptions().position(position).icon(icon).alpha(1.0f));
     marker.setTag(mapPin);
-    marker.setIcon(icon);
-    marker.setAlpha(1.0f);
-    marker.setPosition(position);
   }
 
   private void addMapPolyline(MapPolygon mapPolygon) {
@@ -295,9 +293,7 @@ class GoogleMapsMapAdapter implements MapAdapter {
     }
     Set<MapFeature> featuresToAdd = new HashSet<>(updatedFeatures);
 
-    Iterator<Marker> markerIterator = markers.getMarkers().iterator();
-    while (markerIterator.hasNext()) {
-      Marker marker = markerIterator.next();
+    for (Marker marker : markers.getMarkers()) {
       MapPin pin = (MapPin) marker.getTag();
       if (updatedFeatures.contains(pin)) {
         // If pin already exists on map, don't add it.
@@ -305,7 +301,6 @@ class GoogleMapsMapAdapter implements MapAdapter {
       } else {
         // Remove existing pins not in list of updatedFeatures.
         removeMarker(marker);
-        markerIterator.remove();
       }
     }
 
