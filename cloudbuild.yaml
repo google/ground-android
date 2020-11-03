@@ -98,6 +98,7 @@ steps:
         ./gradlew -PdisablePreDex --no-daemon --max-workers=2 assembleDebug assembleDebugAndroidTest
 
   # Run instrumented tests
+  # https://cloud.google.com/sdk/gcloud/reference/alpha/firebase/test/android/run
   - name: 'gcr.io/cloud-builders/gcloud-slim'
     id: 'Run instrumented tests'
     args: [
