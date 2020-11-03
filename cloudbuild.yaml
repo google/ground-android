@@ -98,19 +98,19 @@ steps:
         ./gradlew -PdisablePreDex --no-daemon --max-workers=2 assembleDebug assembleDebugAndroidTest
 
   # Run instrumented tests
-  - name: 'gcr.io/cloud-builders/gcloud'
+  - name: 'gcr.io/cloud-builders/gcloud-slim'
     id: 'Run instrumented tests'
-    args:
-      - '-c'
-      - |
-        echo "y" | gcloud beta firebase test android run \
-        --type instrumentation \
-        --num-uniform-shards=2 \
-        --app gnd/build/outputs/apk/debug/*.apk \
-        --test gnd/build/outputs/apk/androidTest/debug/*.apk \
-        --device model=Pixel2,version=28,locale=en,orientation=portrait \
-        --results-bucket artifact_bucket \
-        --directories-to-pull /sdcard --timeout 20m
+    args: [
+      'gcloud', 'beta', 'firebase', 'test', 'android', 'run',
+      '--type', 'instrumentation',
+      '--num-uniform-shards=2',
+      '--app', 'gnd/build/outputs/apk/debug/*.apk'
+      '--test', 'gnd/build/outputs/apk/androidTest/debug/*.apk',
+      '--device', 'model=Pixel2,version=28,locale=en,orientation=portrait',
+      '--results-bucket', 'artifact_bucket',
+      '--directories-to-pull', '/sdcard',
+      '--timeout', '20m'
+    ]
 
   # Save all reports to GCS
   - name: 'gcr.io/cloud-builders/gsutil'
