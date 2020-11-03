@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.persistence.local;
 
+import androidx.annotation.Nullable;
 import com.google.android.gnd.model.Mutation;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.User;
@@ -121,7 +122,7 @@ public interface LocalDataStore {
    * Removes pending mutations and if the mutation is of type DELETE, then removes the corresponding
    * observation or feature.
    */
-  Completable finalizePendingMutations(ImmutableList<Mutation> mutations);
+  Completable finalizePendingMutations(@Nullable ImmutableList<Mutation> mutations);
 
   /**
    * Merges the provided feature with pending unsynced local mutations, and inserts it into the

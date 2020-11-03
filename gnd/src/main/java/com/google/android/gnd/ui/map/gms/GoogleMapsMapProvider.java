@@ -16,7 +16,6 @@
 
 package com.google.android.gnd.ui.map.gms;
 
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gnd.persistence.local.LocalValueStore;
@@ -36,9 +35,9 @@ public class GoogleMapsMapProvider implements MapProvider {
   private final LocalValueStore localValueStore;
   private final SingleSubject<MapAdapter> map = SingleSubject.create();
 
-  @Nullable
+  @SuppressWarnings("NullAway.Init")
   private GoogleMapsFragment fragment;
-
+  
   public GoogleMapsMapProvider(MarkerIconFactory markerIconFactory,
       LocalValueStore localValueStore) {
     this.markerIconFactory = markerIconFactory;

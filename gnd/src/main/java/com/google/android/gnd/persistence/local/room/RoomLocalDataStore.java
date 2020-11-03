@@ -20,6 +20,7 @@ import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList
 import static com.google.android.gnd.util.ImmutableSetCollector.toImmutableSet;
 import static java8.util.stream.StreamSupport.stream;
 
+import androidx.annotation.Nullable;
 import androidx.room.Transaction;
 import com.google.android.gnd.model.AuditInfo;
 import com.google.android.gnd.model.Mutation;
@@ -135,6 +136,7 @@ public class RoomLocalDataStore implements LocalDataStore {
         .subscribeOn(schedulers.io());
   }
 
+  @SuppressWarnings("NullAway")
   private Completable insertOrUpdateField(String formId, Element.Type elementType, Field field) {
     return fieldDao
         .insertOrUpdate(FieldEntity.fromField(formId, elementType, field))
@@ -337,11 +339,12 @@ public class RoomLocalDataStore implements LocalDataStore {
   }
 
   @Override
-  public Completable finalizePendingMutations(ImmutableList<Mutation> mutations) {
+  public Completable finalizePendingMutations(@Nullable ImmutableList<Mutation> mutations) {
+    if (mutations == null) throw new NullPointerException("List of mutations can not be null");
     return finalizeDeletions(mutations).andThen(removePending(mutations));
   }
 
-  private Completable finalizeDeletions(ImmutableList<Mutation> mutations) {
+  private Completable finalizeDeletions(@Nullable ImmutableList<Mutation> mutations) {
     return Observable.fromIterable(mutations)
         .filter(mutation -> mutation.getType() == Type.DELETE)
         .flatMapCompletable(
@@ -391,6 +394,7 @@ public class RoomLocalDataStore implements LocalDataStore {
       return observationDao.insertOrUpdate(observation);
     }
     ObservationMutationEntity lastMutation = mutations.get(mutations.size() - 1);
+    if (lastMutation == null) throw new NullPointerException("Could not get last mutation");
     return getUser(lastMutation.getUserId())
         .map(user -> applyMutations(observation, mutations, user))
         .flatMapCompletable(obs -> observationDao.insertOrUpdate(obs));

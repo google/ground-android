@@ -24,6 +24,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import androidx.annotation.Nullable;
 import com.google.android.gnd.R;
 import com.google.android.gnd.system.GoogleApiManager;
 import com.google.android.gnd.system.auth.AuthenticationManager;
@@ -44,7 +45,7 @@ public class StartupFragment extends AbstractFragment {
 
   @Override
   public View onCreateView(
-      LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+      LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
     return inflater.inflate(R.layout.startup_frag, container, false);
   }
 

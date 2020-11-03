@@ -46,6 +46,10 @@ class SingleSelectDialogFactory {
       Optional<Response> initialValue,
       Consumer<Optional<Response>> valueChangeCallback) {
     MultipleChoice multipleChoice = field.getMultipleChoice();
+    if (multipleChoice == null){
+      throw new NullPointerException(
+          "When creating a SingleSelectDialogFactory the field must have a non-null MultipleChoice");
+    }
     AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(context);
     List<Option> options = multipleChoice.getOptions();
     DialogState state = new DialogState(multipleChoice, initialValue);

@@ -26,6 +26,7 @@ import com.google.android.material.textfield.TextInputEditText;
 
 public class MultipleChoiceFieldLayout extends FrameLayout {
 
+  @Nullable
   private Runnable showDialogListener;
 
   public MultipleChoiceFieldLayout(@NonNull Context context, @Nullable AttributeSet attrs) {
@@ -40,11 +41,15 @@ public class MultipleChoiceFieldLayout extends FrameLayout {
   protected void onFinishInflate() {
     super.onFinishInflate();
 
+
     TextInputEditText editText = findViewById(R.id.multiple_choice_input_edit_text);
 
     editText.setOnFocusChangeListener(
         (v, hasFocus) -> {
           if (hasFocus) {
+            if (showDialogListener == null){
+              throw new NullPointerException("showDialogListener must be not be null");
+            }
             showDialogListener.run();
           }
         });
@@ -53,6 +58,9 @@ public class MultipleChoiceFieldLayout extends FrameLayout {
         .setOnClickListener(
             v -> {
               if (editText.isFocused()) {
+                if (showDialogListener == null){
+                  throw new NullPointerException("showDialogListener must be not be null");
+                }
                 showDialogListener.run();
               } else {
                 editText.requestFocus();

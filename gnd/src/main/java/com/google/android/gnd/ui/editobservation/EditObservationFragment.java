@@ -27,7 +27,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.LinearLayout;
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.databinding.ViewDataBinding;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -43,6 +42,7 @@ import com.google.android.gnd.model.form.Element;
 import com.google.android.gnd.model.form.Element.Type;
 import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.form.Form;
+import com.google.android.gnd.model.form.MultipleChoice;
 import com.google.android.gnd.model.form.MultipleChoice.Cardinality;
 import com.google.android.gnd.model.observation.Response;
 import com.google.android.gnd.model.observation.TextResponse;
@@ -76,9 +76,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
   private EditObservationFragBinding binding;
 
   private static AbstractFieldViewModel getViewModel(ViewDataBinding binding) {
-    if (binding == null) {
-      return null;
-    } else if (binding instanceof TextInputFieldBinding) {
+    if (binding instanceof TextInputFieldBinding) {
       return ((TextInputFieldBinding) binding).getViewModel();
     } else if (binding instanceof MultipleChoiceInputFieldBinding) {
       return ((MultipleChoiceInputFieldBinding) binding).getViewModel();
@@ -99,7 +97,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
 
   @Override
   public View onCreateView(
-      @NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+      LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
     binding = EditObservationFragBinding.inflate(inflater, container, false);
     binding.setLifecycleOwner(this);
     binding.setViewModel(viewModel);
@@ -109,7 +107,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
   }
 
   @Override
-  public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+  public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
     TwoLineToolbar toolbar = binding.editObservationToolbar;
     ((MainActivity) getActivity()).setActionBar(toolbar, R.drawable.ic_close_black_24dp);
@@ -211,7 +209,13 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
 
   private void onShowDialog(
       Field field, Optional<Response> currentResponse, Consumer<Optional<Response>> consumer) {
-    Cardinality cardinality = field.getMultipleChoice().getCardinality();
+
+    MultipleChoice multipleChoice = field.getMultipleChoice();
+    if (multipleChoice == null){
+      throw new NullPointerException(
+          "Field must have a non-null MultipleChoice");
+    }
+    Cardinality cardinality = multipleChoice.getCardinality();
     switch (cardinality) {
       case SELECT_MULTIPLE:
         multiSelectDialogFactory.create(field, currentResponse, consumer).show();

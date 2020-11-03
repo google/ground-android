@@ -105,7 +105,8 @@ public class EditObservationViewModel extends AbstractViewModel {
   private final LiveData<Event<SaveResult>> saveResults;
 
   /** Observation state loaded when view is initialized. */
-  @Nullable private Observation originalObservation;
+  @Nullable
+  private Observation originalObservation;
 
   // Internal state.
   /** True if the observation is being added, false if editing an existing one. */
@@ -149,7 +150,11 @@ public class EditObservationViewModel extends AbstractViewModel {
 
   Optional<Response> getSavedOrOriginalResponse(String fieldId) {
     if (responses.isEmpty()) {
-      return originalObservation.getResponses().getResponse(fieldId);
+      if (originalObservation == null){
+        return Optional.empty();
+      } else {
+        return originalObservation.getResponses().getResponse(fieldId);
+      }
     } else {
       return getResponse(fieldId);
     }
@@ -198,6 +203,13 @@ public class EditObservationViewModel extends AbstractViewModel {
 
   private Completable saveBitmapAndUpdateResponse(Bitmap bitmap, Field field) {
     String localFileName = uuidGenerator.generateUuid() + Config.PHOTO_EXT;
+
+    if (originalObservation == null){
+      throw new NullPointerException(
+          "originalObservation was empty when attempting to save bitmap"
+      );
+    }
+
     String remoteDestinationPath =
         getRemoteDestinationPath(
             originalObservation.getProject().getId(),

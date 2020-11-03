@@ -106,7 +106,7 @@ public class MapContainerFragment extends AbstractFragment {
 
   @Override
   public View onCreateView(
-      @NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+      LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
     binding = MapContainerFragBinding.inflate(inflater, container, false);
     binding.setViewModel(mapContainerViewModel);
     binding.setHomeScreenViewModel(homeScreenViewModel);
@@ -115,7 +115,7 @@ public class MapContainerFragment extends AbstractFragment {
   }
 
   @Override
-  public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+  public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
 
     disableAddFeatureBtn();
@@ -193,7 +193,9 @@ public class MapContainerFragment extends AbstractFragment {
     switch (state.getVisibility()) {
       case VISIBLE:
         map.disable();
-        mapContainerViewModel.panAndZoomCamera(state.getFeature().getPoint());
+        state.getFeature().ifPresent(feature -> {
+          mapContainerViewModel.panAndZoomCamera(feature.getPoint());
+        });
         break;
       case HIDDEN:
         map.enable();

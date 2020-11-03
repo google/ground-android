@@ -43,8 +43,12 @@ import timber.log.Timber;
 public class ProjectSelectorDialogFragment extends AbstractDialogFragment {
 
   private ProjectSelectorViewModel viewModel;
-  private ArrayAdapter listAdapter;
+
+  @SuppressWarnings("NullAway")
   private ProjectSelectorDialogBinding binding;
+
+  @Nullable
+  private ArrayAdapter listAdapter;
 
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -97,6 +101,10 @@ public class ProjectSelectorDialogFragment extends AbstractDialogFragment {
 
   private void showProjectList(List<Project> list) {
     binding.listLoadingProgressBar.setVisibility(View.GONE);
+
+    if (listAdapter == null){
+      throw new NullPointerException("listAdapter was null when attempting to show project list");
+    }
     listAdapter.clear();
     stream(list).map(Project::getTitle).forEach(listAdapter::add);
     binding.projectSelectorListView.setVisibility(View.VISIBLE);
