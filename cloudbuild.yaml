@@ -86,8 +86,31 @@ steps:
     args:
       - '-c'
       - |
-        ./gradlew testDebugUnitTest 2> unit-test-logs.txt || echo "fail" > build-status.txt
+        ./gradlew testDebug 2> unit-test-logs.txt || echo "fail" > build-status.txt
         cat unit-test-logs.txt
+
+  # Build apk for instrumented testing
+  - name: 'gcr.io/$PROJECT_ID/android:28'
+    id: 'Assemble test build'
+    args:
+      - '-c'
+      - |
+        ./gradlew -PdisablePreDex --no-daemon --max-workers=2 assembleDebug assembleDebugAndroidTest
+
+  # Run instrumented tests
+  - name: 'gcr.io/$PROJECT_ID/android:28'
+    id: 'Run instrumented tests'
+    args:
+      - '-c'
+      - |
+        echo "y" | gcloud beta firebase test android run \
+        --type instrumentation \
+        --num-uniform-shards=2 \
+        --app gnd/build/outputs/apk/debug/*.apk \
+        --test gnd/build/outputs/apk/androidTest/debug/*.apk \
+        --device model=Pixel2,version=28,locale=en,orientation=portrait \
+        --results-bucket artifact_bucket \
+        --directories-to-pull /sdcard --timeout 20m
 
   # Save all reports to GCS
   - name: 'gcr.io/cloud-builders/gsutil'
