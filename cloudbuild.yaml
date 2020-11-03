@@ -104,7 +104,7 @@ steps:
       'gcloud', 'beta', 'firebase', 'test', 'android', 'run',
       '--type', 'instrumentation',
       '--num-uniform-shards=2',
-      '--app', 'gnd/build/outputs/apk/debug/*.apk'
+      '--app', 'gnd/build/outputs/apk/debug/*.apk',
       '--test', 'gnd/build/outputs/apk/androidTest/debug/*.apk',
       '--device', 'model=Pixel2,version=28,locale=en,orientation=portrait',
       '--results-bucket', 'artifact_bucket',
