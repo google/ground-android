@@ -65,11 +65,12 @@ steps:
         && mv tmp/.git . \
         && rm -rf tmp
 
-  # Build debug APK
   - name: 'gcr.io/$PROJECT_ID/android:28'
-    id: 'Build debug apk'
-    # Explicitly excluding checkCode since it gets auto-triggered
-    args: ['./gradlew', 'assembleDebug', '-PdisablePreDex']
+    id: 'Assemble debug apk'
+    args:
+      - '-c'
+      - |
+        ./gradlew assembleDebug -PdisablePreDex
 
   # Run code quality checks
   - name: 'gcr.io/$PROJECT_ID/android:28'
@@ -80,7 +81,6 @@ steps:
         ./gradlew checkCode 2> check-logs.txt || echo "fail" > build-status.txt
         cat check-logs.txt
 
-  # Run unit tests
   - name: 'gcr.io/$PROJECT_ID/android:28'
     id: 'Run unit tests'
     args:
@@ -99,13 +99,13 @@ steps:
         gcloud secrets versions access latest --secret=$_SECRET_NAME --format='get(payload.data)' | tr '_-' '/+' | base64 -d > client-secret.json
         gcloud auth activate-service-account --key-file client-secret.json
 
-  # Build apk for instrumented testing
   - name: 'gcr.io/$PROJECT_ID/android:28'
-    id: 'Assemble test build'
+    id: 'Assemble instrumented test build'
+    entrypoint: 'bash'
     args:
       - '-c'
       - |
-        ./gradlew assembleDebug assembleDebugAndroidTest
+        ./gradlew assembleDebugAndroidTest -PdisablePreDex
 
   # Run instrumented tests
   # https://cloud.google.com/sdk/gcloud/reference/alpha/firebase/test/android/run
@@ -116,18 +116,22 @@ steps:
       - '-c'
       - |
         gcloud --quiet beta firebase test android run \
-        --type instrumentation --num-uniform-shards=2 \
+        --type instrumentation --num-uniform-shards=1 \
         --app gnd/build/outputs/apk/debug/*.apk \
         --test gnd/build/outputs/apk/androidTest/debug/*.apk \
         --device model=Pixel2,version=28,locale=en,orientation=portrait \
         --results-bucket ${_ARTIFACT_BUCKET} \
         --results-dir $BRANCH_NAME-$BUILD_ID/reports \
-        --directories-to-pull /sdcard --timeout 20m
+        --timeout 20m
 
   # Save all reports to GCS
   - name: 'gcr.io/cloud-builders/gsutil'
     id: 'Save reports to GCS'
-    args: ['cp', '-r', 'gnd/build/reports', 'gs://${_ARTIFACT_BUCKET}/$BRANCH_NAME-$BUILD_ID/reports']
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        gsutil cp -r gnd/build/reports gs://${_ARTIFACT_BUCKET}/$BRANCH_NAME-$BUILD_ID/reports
 
   # Update status badge and fail build if errors were found in "build" step
   - name: 'gcr.io/cloud-builders/gsutil'
