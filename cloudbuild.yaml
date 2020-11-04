@@ -65,6 +65,14 @@ steps:
         && mv tmp/.git . \
         && rm -rf tmp
 
+  - name: 'gcr.io/cloud-builders/gcloud-slim'
+    id: 'Load google services config'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        gcloud secrets versions access latest --secret=$_GOOGLE_SERVICES_JSON --format='get(payload.data)' | tr '_-' '/+' | base64 -d > gnd/google-services.json
+
   - name: 'gcr.io/$PROJECT_ID/android:28'
     id: 'Assemble debug apk'
     args:
