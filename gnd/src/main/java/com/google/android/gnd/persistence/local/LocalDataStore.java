@@ -164,7 +164,7 @@ public interface LocalDataStore {
   /** Returns all queued, failed, and completed offline areas from the local data store. */
   Flowable<ImmutableList<OfflineBaseMap>> getOfflineAreasOnceAndStream();
 
-  /** Delete an offline area and its *unique* tiles. */
+  /** Delete an offline area and any associated tiles that are no longer needed. */
   Completable deleteOfflineArea(String offlineAreaId);
 
   /** Returns the offline area with the specified id. */
@@ -174,7 +174,7 @@ public interface LocalDataStore {
    * Update the area count of an existing tile source in the local data store with the area count of
    * {@param tilesource}.
    */
-  Single<TileSource> updateTileSourceAreaCountByUrl(TileSource tilesource);
+  Completable updateTileSourceBasemapReferenceCountByUrl(int newCount, String url);
 
   /** Delete a tile source associated with a given URL from the local data store. */
   Completable deleteTileByUrl(TileSource tile);

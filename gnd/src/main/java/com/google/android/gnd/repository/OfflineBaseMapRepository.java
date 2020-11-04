@@ -222,12 +222,12 @@ public class OfflineBaseMapRepository {
         .getOfflineAreaById(offlineAreaId)
         .flatMapMaybe(this::getIntersectingDownloadedTileSourcesOnce)
         .flatMapPublisher(Flowable::fromIterable)
-        .map(
-            tileSource ->
-                tileSource.toBuilder().setAreaCount(tileSource.getAreaCount() - 1).build())
+        .map(TileSource::decrementAreaCount)
         .flatMapCompletable(
             tile ->
-                Completable.fromSingle(localDataStore.updateTileSourceAreaCountByUrl(tile))
+                localDataStore
+                    .updateTileSourceBasemapReferenceCountByUrl(
+                        tile.getBasemapReferenceCount(), tile.getUrl())
                     .andThen(localDataStore.deleteTileByUrl(tile)))
         .andThen(localDataStore.deleteOfflineArea(offlineAreaId));
   }

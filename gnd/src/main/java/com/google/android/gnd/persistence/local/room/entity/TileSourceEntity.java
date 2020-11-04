@@ -51,8 +51,8 @@ public abstract class TileSourceEntity {
 
   @CopyAnnotations
   @NonNull
-  @ColumnInfo(name = "area_count")
-  public abstract int getAreaCount();
+  @ColumnInfo(name = "basemap_count")
+  public abstract int getBasemapReferenceCount();
 
   public static TileSource toTileSource(TileSourceEntity tileSourceEntity) {
     TileSource.Builder tile =
@@ -61,7 +61,7 @@ public abstract class TileSourceEntity {
             .setPath(tileSourceEntity.getPath())
             .setState(toTileState(tileSourceEntity.getState()))
             .setUrl(tileSourceEntity.getUrl())
-            .setAreaCount(tileSourceEntity.getAreaCount());
+            .setBasemapReferenceCount(tileSourceEntity.getBasemapReferenceCount());
     return tile.build();
   }
 
@@ -87,7 +87,7 @@ public abstract class TileSourceEntity {
             .setPath(tileSource.getPath())
             .setState(toEntityState(tileSource.getState()))
             .setUrl(tileSource.getUrl())
-            .setAreaCount(tileSource.getAreaCount());
+            .setBasemapReferenceCount(tileSource.getBasemapReferenceCount());
     return entity.build();
   }
 
@@ -107,13 +107,13 @@ public abstract class TileSourceEntity {
   }
 
   public static TileSourceEntity create(
-      String id, String path, TileEntityState state, String url, int areaCount) {
+      String id, String path, TileEntityState state, String url, int basemapReferenceCount) {
     return builder()
         .setId(id)
         .setState(state)
         .setPath(path)
         .setUrl(url)
-        .setAreaCount(areaCount)
+        .setBasemapReferenceCount(basemapReferenceCount)
         .build();
   }
 
@@ -131,7 +131,7 @@ public abstract class TileSourceEntity {
 
     public abstract Builder setState(TileEntityState newState);
 
-    public abstract Builder setAreaCount(int areaCount);
+    public abstract Builder setBasemapReferenceCount(int basemapReferenceCount);
 
     public abstract TileSourceEntity build();
   }

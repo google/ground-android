@@ -23,8 +23,13 @@ import com.google.auto.value.AutoValue;
 public abstract class TileSource {
 
   /** Increment the area reference count of a tile source by one. */
-  public static TileSource incrementAreaCount(TileSource tileSource) {
-    return tileSource.toBuilder().setAreaCount(tileSource.getAreaCount() + 1).build();
+  public TileSource incrementAreaCount() {
+    return this.toBuilder().setBasemapReferenceCount(this.getBasemapReferenceCount() + 1).build();
+  }
+
+  /** Decrement the area reference count of a tile source by one. */
+  public TileSource decrementAreaCount() {
+    return this.toBuilder().setBasemapReferenceCount(this.getBasemapReferenceCount() - 1).build();
   }
 
   public enum State {
@@ -42,7 +47,7 @@ public abstract class TileSource {
 
   public abstract State getState();
 
-  public abstract int getAreaCount();
+  public abstract int getBasemapReferenceCount();
 
   public static Builder newBuilder() {
     return new AutoValue_TileSource.Builder();
@@ -72,7 +77,7 @@ public abstract class TileSource {
 
     public abstract Builder setState(State state);
 
-    public abstract Builder setAreaCount(int areaCount);
+    public abstract Builder setBasemapReferenceCount(int areaCount);
 
     public abstract TileSource build();
   }

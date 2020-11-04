@@ -598,15 +598,13 @@ public class RoomLocalDataStore implements LocalDataStore {
   }
 
   @Override
-  public Single<TileSource> updateTileSourceAreaCountByUrl(TileSource tileSource) {
-    return tileSourceDao
-        .updateAreaCount(tileSource.getAreaCount(), tileSource.getUrl())
-        .map(__ -> tileSource);
+  public Completable updateTileSourceBasemapReferenceCountByUrl(int newCount, String url) {
+    return Completable.fromSingle(tileSourceDao.updateBasemapReferenceCount(newCount, url));
   }
 
   @Override
   public Completable deleteTileByUrl(TileSource tileSource) {
-    if (tileSource.getAreaCount() < 1) {
+    if (tileSource.getBasemapReferenceCount() < 1) {
       return Completable.fromAction(() -> fileUtil.deleteFile(tileSource.getPath()))
           .andThen(Completable.fromMaybe(tileSourceDao.deleteByUrl(tileSource.getUrl())))
           .subscribeOn(schedulers.io());
