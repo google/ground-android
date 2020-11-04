@@ -89,6 +89,16 @@ steps:
         ./gradlew testDebug 2> unit-test-logs.txt || echo "fail" > build-status.txt
         cat unit-test-logs.txt
 
+
+  - name: 'gcr.io/cloud-builders/gcloud-slim'
+    id: 'Authorize gcloud'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        gcloud secrets versions access latest --secret=$_SECRET_NAME --format='get(payload.data)' | tr '_-' '/+' | base64 -d > client-secret.json
+        gcloud auth activate-service-account --key-file client-secret.json
+
   # Build apk for instrumented testing
   - name: 'gcr.io/$PROJECT_ID/android:28'
     id: 'Assemble test build'
@@ -101,18 +111,18 @@ steps:
   # https://cloud.google.com/sdk/gcloud/reference/alpha/firebase/test/android/run
   - name: 'gcr.io/cloud-builders/gcloud-slim'
     id: 'Run instrumented tests'
-    args: [
-      '--quiet', 'beta', 'firebase', 'test', 'android', 'run',
-      '--type', 'instrumentation',
-      '--num-uniform-shards=2',
-      '--app', 'gnd/build/outputs/apk/debug/*.apk',
-      '--test', 'gnd/build/outputs/apk/androidTest/debug/*.apk',
-      '--device', 'model=Pixel2,version=28,locale=en,orientation=portrait',
-      '--results-bucket', '${_ARTIFACT_BUCKET}',
-      '--results-dir', '$BRANCH_NAME-$BUILD_ID/reports',
-      '--directories-to-pull', '/sdcard',
-      '--timeout', '20m'
-    ]
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        gcloud --quiet beta firebase test android run \
+        --type instrumentation --num-uniform-shards=2 \
+        --app gnd/build/outputs/apk/debug/*.apk \
+        --test gnd/build/outputs/apk/androidTest/debug/*.apk \
+        --device model=Pixel2,version=28,locale=en,orientation=portrait \
+        --results-bucket ${_ARTIFACT_BUCKET} \
+        --results-dir $BRANCH_NAME-$BUILD_ID/reports \
+        --directories-to-pull /sdcard --timeout 20m'
 
   # Save all reports to GCS
   - name: 'gcr.io/cloud-builders/gsutil'
