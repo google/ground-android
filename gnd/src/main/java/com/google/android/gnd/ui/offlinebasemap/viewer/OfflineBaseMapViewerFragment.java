@@ -115,8 +115,7 @@ public class OfflineBaseMapViewerFragment extends AbstractFragment {
     Timber.d("Removing offline area %s", viewModel.getOfflineArea());
     viewModel
         .onRemoveClick()
-        .doOnComplete(() -> navigator.navigateUp())
         .as(autoDisposable(this))
-        .subscribe();
+        .subscribe(() -> navigator.navigateUp());
   }
 }
