@@ -46,6 +46,7 @@ import com.google.android.gnd.MainViewModel;
 import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.HomeScreenFragBinding;
 import com.google.android.gnd.model.Project;
+import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.rx.Loadable;
 import com.google.android.gnd.rx.Schedulers;
 import com.google.android.gnd.system.auth.AuthenticationManager;
@@ -108,8 +109,10 @@ public class HomeScreenFragment extends AbstractFragment
         .observe(this, e -> e.ifUnhandled(this::onShowAddFeatureDialogRequest));
     viewModel.getBottomSheetState().observe(this, this::onBottomSheetStateChange);
     viewModel.getOpenDrawerRequests().observe(this, e -> e.ifUnhandled(this::openDrawer));
-    viewModel.getDeleteFeature().observe(this, this::onFeatureDeleted);
-    viewModel.getUpdateFeature().observe(this, this::onFeatureUpdated);
+    viewModel.getAddFeatureResults().observe(this, this::onFeatureAdded);
+    viewModel.getUpdateFeatureResults().observe(this, this::onFeatureUpdated);
+    viewModel.getDeleteFeatureResults().observe(this, this::onFeatureDeleted);
+    viewModel.getErrors().observe(this, this::onError);
 
     showFeatureDialogRequests = PublishSubject.create();
 
@@ -121,12 +124,21 @@ public class HomeScreenFragment extends AbstractFragment
     projectSelectorViewModel = getViewModel(ProjectSelectorViewModel.class);
   }
 
+  private void onFeatureAdded(Feature feature) {
+    feature.getLayer().getForm().ifPresent(formId -> addNewObservation(feature));
+  }
+
+  private void addNewObservation(Feature feature) {
+    String projectId = feature.getProject().getId();
+    String featureId = feature.getId();
+    String formId = feature.getLayer().getForm().get().getId();
+    navigator.addObservation(projectId, featureId, formId);
+  }
+
+  /** This is only possible after updating the location of the feature. So, reset the UI. */
   private void onFeatureUpdated(Boolean result) {
     if (result) {
-      Toast.makeText(getContext(), "Done", Toast.LENGTH_SHORT).show();
       mapContainerFragment.setDefaultMode();
-    } else {
-      Timber.e("Failed to update feature");
     }
   }
 
@@ -135,6 +147,13 @@ public class HomeScreenFragment extends AbstractFragment
       // TODO: Re-position map to default location after successful deletion.
       hideBottomSheet();
     }
+  }
+
+  /** Generic handler to display error messages to the user. */
+  private void onError(Throwable throwable) {
+    Timber.e(throwable);
+    // Don't display the exact error message as it might not be user-readable.
+    Toast.makeText(getContext(), R.string.error_occurred, Toast.LENGTH_SHORT).show();
   }
 
   @Nullable
