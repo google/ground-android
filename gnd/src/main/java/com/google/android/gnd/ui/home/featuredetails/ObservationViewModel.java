@@ -16,6 +16,8 @@
 
 package com.google.android.gnd.ui.home.featuredetails;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import android.app.Application;
 import android.text.format.DateFormat;
 import android.view.View;
@@ -54,7 +56,7 @@ public class ObservationViewModel extends AbstractViewModel implements OnClickLi
 
   @Override
   public void onClick(View view) {
-    Preconditions.checkNotNull(observationCallback, "observationCallback is null");
+    checkNotNull(observationCallback, "observationCallback is null");
     observationCallback.accept(selectedObservation.getValue());
   }
 

@@ -18,6 +18,7 @@ package com.google.android.gnd.persistence.local.room;
 
 import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList;
 import static com.google.android.gnd.util.ImmutableSetCollector.toImmutableSet;
+import static com.google.common.base.Preconditions.checkNotNull;
 import static java8.util.stream.StreamSupport.stream;
 
 import androidx.annotation.Nullable;
@@ -73,7 +74,6 @@ import com.google.android.gnd.persistence.local.room.models.EntityState;
 import com.google.android.gnd.persistence.local.room.models.TileEntityState;
 import com.google.android.gnd.persistence.local.room.models.UserDetails;
 import com.google.android.gnd.rx.Schedulers;
-import com.google.common.base.Preconditions;
 import com.google.android.gnd.ui.util.FileUtil;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -145,7 +145,7 @@ public class RoomLocalDataStore implements LocalDataStore {
                 .filter(__ -> field.getMultipleChoice() != null)
                 .flatMapCompletable(
                     __ -> insertOrUpdateMultipleChoice(field.getId(),
-                        Preconditions.checkNotNull(field.getMultipleChoice()))))
+                        checkNotNull(field.getMultipleChoice()))))
         .subscribeOn(schedulers.io());
   }
 
@@ -341,7 +341,7 @@ public class RoomLocalDataStore implements LocalDataStore {
 
   @Override
   public Completable finalizePendingMutations(@Nullable ImmutableList<Mutation> mutations) {
-    Preconditions.checkNotNull(mutations, "List of mutations can not be null");
+    checkNotNull(mutations, "List of mutations can not be null");
     return finalizeDeletions(mutations).andThen(removePending(mutations));
   }
 
@@ -395,7 +395,7 @@ public class RoomLocalDataStore implements LocalDataStore {
       return observationDao.insertOrUpdate(observation);
     }
     ObservationMutationEntity lastMutation = mutations.get(mutations.size() - 1);
-    Preconditions.checkNotNull(lastMutation, "Could not get last mutation");
+    checkNotNull(lastMutation, "Could not get last mutation");
     return getUser(lastMutation.getUserId())
         .map(user -> applyMutations(observation, mutations, user))
         .flatMapCompletable(obs -> observationDao.insertOrUpdate(obs));

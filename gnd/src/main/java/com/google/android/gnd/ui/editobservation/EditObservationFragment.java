@@ -18,6 +18,7 @@ package com.google.android.gnd.ui.editobservation;
 
 import static com.google.android.gnd.ui.editobservation.AddPhotoDialogAdapter.PhotoStorageResource.PHOTO_SOURCE_CAMERA;
 import static com.google.android.gnd.ui.editobservation.AddPhotoDialogAdapter.PhotoStorageResource.PHOTO_SOURCE_STORAGE;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 import android.app.AlertDialog;
 import android.content.Context;
@@ -212,8 +213,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
       Field field, Optional<Response> currentResponse, Consumer<Optional<Response>> consumer) {
 
     MultipleChoice multipleChoice = field.getMultipleChoice();
-    Preconditions.checkNotNull(multipleChoice,
-        "Field must have a non-null MultipleChoice");
+    checkNotNull(multipleChoice, "Field must have a non-null MultipleChoice");
     Cardinality cardinality = multipleChoice.getCardinality();
     switch (cardinality) {
       case SELECT_MULTIPLE:

@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.ui.editobservation;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static java8.util.stream.StreamSupport.stream;
 
 import android.content.Context;
@@ -47,7 +48,7 @@ class SingleSelectDialogFactory {
       Optional<Response> initialValue,
       Consumer<Optional<Response>> valueChangeCallback) {
     MultipleChoice multipleChoice = field.getMultipleChoice();
-    Preconditions.checkNotNull(
+    checkNotNull(
         multipleChoice,
         "When creating a SingleSelectDialogFactory the field must have a non-null MultipleChoice"
     );

@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.ui.projectselector;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static java8.util.stream.StreamSupport.stream;
 
 import android.app.Dialog;
@@ -103,7 +104,7 @@ public class ProjectSelectorDialogFragment extends AbstractDialogFragment {
   private void showProjectList(List<Project> list) {
     binding.listLoadingProgressBar.setVisibility(View.GONE);
 
-    Preconditions.checkNotNull(listAdapter,
+    checkNotNull(listAdapter,
       "listAdapter was null when attempting to show project list");
 
     listAdapter.clear();

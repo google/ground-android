@@ -23,7 +23,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.google.android.gnd.R;
 import com.google.android.material.textfield.TextInputEditText;
-import com.google.common.base.Preconditions;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 public class MultipleChoiceFieldLayout extends FrameLayout {
 
@@ -46,7 +46,7 @@ public class MultipleChoiceFieldLayout extends FrameLayout {
     editText.setOnFocusChangeListener(
         (v, hasFocus) -> {
           if (hasFocus) {
-            Preconditions.checkNotNull(showDialogListener,
+            checkNotNull(showDialogListener,
                 "showDialogListener must be not be null");
             showDialogListener.run();
           }
@@ -56,7 +56,7 @@ public class MultipleChoiceFieldLayout extends FrameLayout {
         .setOnClickListener(
             v -> {
               if (editText.isFocused()) {
-                Preconditions.checkNotNull(showDialogListener,
+                checkNotNull(showDialogListener,
                     "showDialogListener must be not be null");
                 showDialogListener.run();
               } else {
