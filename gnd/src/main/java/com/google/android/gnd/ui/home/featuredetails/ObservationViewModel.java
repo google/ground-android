@@ -27,6 +27,7 @@ import com.google.android.gnd.model.AuditInfo;
 import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.ui.common.AbstractViewModel;
+import com.google.common.base.Preconditions;
 import java.util.Date;
 import java8.util.function.Consumer;
 import javax.inject.Inject;
@@ -53,7 +54,7 @@ public class ObservationViewModel extends AbstractViewModel implements OnClickLi
 
   @Override
   public void onClick(View view) {
-    if (observationCallback == null) throw new NullPointerException("observationCallback is null");
+    Preconditions.checkNotNull(observationCallback, "observationCallback is null");
     observationCallback.accept(selectedObservation.getValue());
   }
 

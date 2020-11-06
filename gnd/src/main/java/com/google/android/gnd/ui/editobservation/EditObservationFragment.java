@@ -52,6 +52,7 @@ import com.google.android.gnd.ui.common.EphemeralPopups;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.TwoLineToolbar;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.google.common.base.Preconditions;
 import dagger.hilt.android.AndroidEntryPoint;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -211,10 +212,8 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
       Field field, Optional<Response> currentResponse, Consumer<Optional<Response>> consumer) {
 
     MultipleChoice multipleChoice = field.getMultipleChoice();
-    if (multipleChoice == null){
-      throw new NullPointerException(
-          "Field must have a non-null MultipleChoice");
-    }
+    Preconditions.checkNotNull(multipleChoice,
+        "Field must have a non-null MultipleChoice");
     Cardinality cardinality = multipleChoice.getCardinality();
     switch (cardinality) {
       case SELECT_MULTIPLE:

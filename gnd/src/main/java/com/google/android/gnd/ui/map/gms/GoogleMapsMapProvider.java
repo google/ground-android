@@ -37,7 +37,7 @@ public class GoogleMapsMapProvider implements MapProvider {
 
   @SuppressWarnings("NullAway.Init")
   private GoogleMapsFragment fragment;
-  
+
   public GoogleMapsMapProvider(MarkerIconFactory markerIconFactory,
       LocalValueStore localValueStore) {
     this.markerIconFactory = markerIconFactory;

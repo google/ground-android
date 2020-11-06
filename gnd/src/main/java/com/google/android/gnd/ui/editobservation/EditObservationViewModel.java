@@ -43,6 +43,7 @@ import com.google.android.gnd.rx.Nil;
 import com.google.android.gnd.system.CameraManager;
 import com.google.android.gnd.system.StorageManager;
 import com.google.android.gnd.ui.common.AbstractViewModel;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import io.reactivex.Completable;
@@ -204,11 +205,8 @@ public class EditObservationViewModel extends AbstractViewModel {
   private Completable saveBitmapAndUpdateResponse(Bitmap bitmap, Field field) {
     String localFileName = uuidGenerator.generateUuid() + Config.PHOTO_EXT;
 
-    if (originalObservation == null){
-      throw new NullPointerException(
-          "originalObservation was empty when attempting to save bitmap"
-      );
-    }
+    Preconditions.checkNotNull(originalObservation,
+        "originalObservation was empty when attempting to save bitmap");
 
     String remoteDestinationPath =
         getRemoteDestinationPath(

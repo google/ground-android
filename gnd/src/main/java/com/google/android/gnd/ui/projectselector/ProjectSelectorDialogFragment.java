@@ -32,6 +32,7 @@ import com.google.android.gnd.model.Project;
 import com.google.android.gnd.rx.Loadable;
 import com.google.android.gnd.ui.common.AbstractDialogFragment;
 import com.google.android.gnd.ui.common.EphemeralPopups;
+import com.google.common.base.Preconditions;
 import dagger.hilt.android.AndroidEntryPoint;
 import java.util.List;
 import timber.log.Timber;
@@ -102,9 +103,9 @@ public class ProjectSelectorDialogFragment extends AbstractDialogFragment {
   private void showProjectList(List<Project> list) {
     binding.listLoadingProgressBar.setVisibility(View.GONE);
 
-    if (listAdapter == null){
-      throw new NullPointerException("listAdapter was null when attempting to show project list");
-    }
+    Preconditions.checkNotNull(listAdapter,
+      "listAdapter was null when attempting to show project list");
+
     listAdapter.clear();
     stream(list).map(Project::getTitle).forEach(listAdapter::add);
     binding.projectSelectorListView.setVisibility(View.VISIBLE);

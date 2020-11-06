@@ -27,6 +27,7 @@ import com.google.android.gnd.model.form.MultipleChoice;
 import com.google.android.gnd.model.form.Option;
 import com.google.android.gnd.model.observation.MultipleChoiceResponse;
 import com.google.android.gnd.model.observation.Response;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
 import java8.util.Optional;
@@ -46,10 +47,11 @@ class SingleSelectDialogFactory {
       Optional<Response> initialValue,
       Consumer<Optional<Response>> valueChangeCallback) {
     MultipleChoice multipleChoice = field.getMultipleChoice();
-    if (multipleChoice == null){
-      throw new NullPointerException(
-          "When creating a SingleSelectDialogFactory the field must have a non-null MultipleChoice");
-    }
+    Preconditions.checkNotNull(
+        multipleChoice,
+        "When creating a SingleSelectDialogFactory the field must have a non-null MultipleChoice"
+    );
+
     AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(context);
     List<Option> options = multipleChoice.getOptions();
     DialogState state = new DialogState(multipleChoice, initialValue);
