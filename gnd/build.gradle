@@ -107,13 +107,20 @@ android {
     hilt {
         enableTransformForLocalTests = true
     }
+
+    // ErrorProne and NullAway configuration.
     DomainObjectSet<BaseVariant> variants = getApplicationVariants()
     variants.addAll(getTestVariants())
     variants.addAll(getUnitTestVariants())
     variants.configureEach { variant ->
         variant.getJavaCompileProvider().configure {
             options.errorprone {
-                check("NullAway", CheckSeverity.ERROR)
+
+                // Disable all checks except NullAway.
+                disableAllChecks = true
+                error("NullAway")
+
+                // Specify the packages which NullAway should analyze.
                 option("NullAway:AnnotatedPackages", "com.google.android.gnd")
 
                 // Treat generated classes from Hilt and SafeArgs as unannotated.
