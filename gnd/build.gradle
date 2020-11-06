@@ -47,7 +47,7 @@ if (secretsFile.exists()) {
 def googleMapsApiKey = secrets.getProperty('GOOGLE_MAPS_API_KEY', '')
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion 30
     defaultConfig {
         // https://developer.android.com/about/dashboards/index.html for reference.
         applicationId "com.google.android.gnd"
