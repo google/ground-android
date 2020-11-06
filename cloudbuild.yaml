@@ -33,6 +33,13 @@
 
 steps:
 
+  - name: 'gcr.io/$PROJECT_ID/android:28'
+      id: 'Check javac version'
+      args:
+        - '-c'
+        - |
+          javac -version
+
   # Copy the cache from last build
   - name: 'gcr.io/cloud-builders/gsutil'
     id: 'Copying gradle build cache tar from GCS'
