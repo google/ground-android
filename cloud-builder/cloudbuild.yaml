@@ -21,7 +21,12 @@
 # Based on https://github.com/GoogleCloudPlatform/cloud-builders-community
 
 steps:
-
+  - name: 'gcr.io/$PROJECT_ID/android:28'
+      id: 'Check javac version'
+      args:
+        - '-c'
+        - |
+          javac -version
   # Debian Docker image with commonly used and Android specific dependencies.
   - name: 'gcr.io/cloud-builders/docker'
     args:
