@@ -33,16 +33,12 @@
 
 steps:
 
-  # Copy the cache from last build
   - name: 'gcr.io/cloud-builders/gsutil'
-    id: 'Copying gradle build cache tar from GCS'
+    id: &copy_gradle_cache 'Copying gradle build cache tar from GCS'
     # we use rsync and not cp so that this step doesn't fail the first time it's run
     args: ['rsync', 'gs://${_CACHE_BUCKET}/', './']
-
-  # Extract the copied tar file
   - name: 'gcr.io/$PROJECT_ID/android:base'
-    id: 'Extracting tar'
-    # This might fail the first time, but that's okay
+    id: &restore_gradle_cache 'Extracting tar'
     args:
       - '-c'
       - |
@@ -54,19 +50,20 @@ steps:
   # TODO: Remove this step when .git can be explicitly included in the tarball using .gcloudignore
   # https://github.com/GoogleCloudPlatform/cloud-builders/issues/401
   - name: 'gcr.io/cloud-builders/git'
-    id: 'Copy .git directory for versioning'
+    id: &create_git_dir 'Copy .git directory for versioning'
     waitFor: ['-']
     entrypoint: 'bash'
     args:
       - '-c'
       - |
-        git clone --branch master $_HEAD_REPO_URL tmp \
-        && rm -rf .git \
-        && mv tmp/.git . \
-        && rm -rf tmp
+        git clone --branch master $_HEAD_REPO_URL tmp
+        rm -rf .git
+        mv tmp/.git .
+        rm -rf tmp
 
   - name: 'gcr.io/cloud-builders/gcloud-slim'
-    id: 'Load google services config'
+    id: &config_google_services 'Load google services config'
+    waitFor: ['-']
     entrypoint: 'bash'
     args:
       - '-c'
@@ -74,7 +71,7 @@ steps:
         gcloud secrets versions access latest --secret=$_GOOGLE_SERVICES_JSON --format='get(payload.data)' | tr '_-' '/+' | base64 -d > gnd/google-services.json
 
   - name: 'gcr.io/$PROJECT_ID/android:28'
-    id: 'Assemble debug apk'
+    id: &assemble_debug 'Assemble debug apk'
     args:
       - '-c'
       - |
@@ -97,13 +94,14 @@ steps:
         ./gradlew testDebug 2> unit-test-logs.txt || echo "fail" > build-status.txt
         cat unit-test-logs.txt
 
-
+  # TODO: Stop using ground-android-gcb project for running CI builds
   - name: 'gcr.io/cloud-builders/gcloud-slim'
     id: 'Authorize gcloud'
     entrypoint: 'bash'
     args:
       - '-c'
       - |
+        gcloud config set project ground-dev
         gcloud secrets versions access latest --secret=$_SECRET_NAME --format='get(payload.data)' | tr '_-' '/+' | base64 -d > client-secret.json
         gcloud auth activate-service-account --key-file client-secret.json
 
@@ -115,8 +113,7 @@ steps:
       - |
         ./gradlew assembleDebugAndroidTest -PdisablePreDex
 
-  # Run instrumented tests
-  # https://cloud.google.com/sdk/gcloud/reference/alpha/firebase/test/android/run
+  # For more details: https://cloud.google.com/sdk/gcloud/reference/alpha/firebase/test/android/run
   - name: 'gcr.io/cloud-builders/gcloud-slim'
     id: 'Run instrumented tests'
     entrypoint: 'bash'
@@ -132,14 +129,11 @@ steps:
         --results-dir $BRANCH_NAME-$BUILD_ID/reports \
         --timeout 20m
 
-  # Save all reports to GCS
   - name: 'gcr.io/cloud-builders/gsutil'
     id: 'Save reports to GCS'
-    entrypoint: 'bash'
-    args:
-      - '-c'
-      - |
-        gsutil cp -r gnd/build/reports gs://${_ARTIFACT_BUCKET}/$BRANCH_NAME-$BUILD_ID/reports
+    args: ['cp', '-r',
+           'gnd/build/reports',
+           'gs://${_ARTIFACT_BUCKET}/$BRANCH_NAME-$BUILD_ID/reports']
 
   # Update status badge and fail build if errors were found in "build" step
   - name: 'gcr.io/cloud-builders/gsutil'
@@ -185,7 +179,6 @@ steps:
           exit 1
         fi
 
-  # Compress the gradle build cache
   - name: 'gcr.io/$PROJECT_ID/android:base'
     id: 'Compress gradle build cache'
     args:
@@ -193,8 +186,7 @@ steps:
       - |
         tar zcf cache.tgz .gradle
 
-  # Store the build cache
-  - name: gcr.io/cloud-builders/gsutil
+  - name: 'gcr.io/cloud-builders/gsutil'
     id: 'Save gradle cache to GCS'
     args: ['cp', 'cache.tgz', 'gs://${_CACHE_BUCKET}/cache.tgz']
 
