@@ -156,6 +156,7 @@ public class LocalDataStoreTest {
           .setState(State.PENDING)
           .setPath("some_path 1")
           .setUrl("some_url 1")
+          .setBasemapReferenceCount(1)
           .build();
 
   private static final TileSource TEST_DOWNLOADED_TILE_SOURCE =
@@ -164,6 +165,7 @@ public class LocalDataStoreTest {
           .setState(State.DOWNLOADED)
           .setPath("some_path 2")
           .setUrl("some_url 2")
+          .setBasemapReferenceCount(1)
           .build();
 
   private static final TileSource TEST_FAILED_TILE_SOURCE =
@@ -172,6 +174,7 @@ public class LocalDataStoreTest {
           .setState(State.FAILED)
           .setPath("some_path 3")
           .setUrl("some_url 3")
+          .setBasemapReferenceCount(1)
           .build();
 
   private static final OfflineBaseMap TEST_OFFLINE_AREA =
@@ -527,7 +530,7 @@ public class LocalDataStoreTest {
   public void testGetTile() {
     localDataStore.insertOrUpdateTileSource(TEST_PENDING_TILE_SOURCE).blockingAwait();
     localDataStore
-        .getTileSource("id_1")
+        .getTileSource("some_url 1")
         .test()
         .assertValueCount(1)
         .assertValue(TEST_PENDING_TILE_SOURCE);

@@ -27,6 +27,7 @@ import com.google.android.gnd.repository.OfflineBaseMapRepository;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.common.collect.ImmutableSet;
 import dagger.hilt.android.qualifiers.ApplicationContext;
+import io.reactivex.Completable;
 import io.reactivex.processors.BehaviorProcessor;
 import java.io.File;
 import java.lang.ref.WeakReference;
@@ -88,8 +89,8 @@ public class OfflineBaseMapViewerViewModel extends AbstractViewModel {
    * Removes the offline area associated with this viewmodel from the device by removing all tile
    * sources that are not included in other areas and removing the area from the db.
    */
-  public void onRemoveClick() {
-    // TODO: Delete the area.
+  public Completable onRemoveClick() {
+    return offlineBaseMapRepository.deleteArea(this.offlineArea.getValue().getId());
   }
 
   /** Returns the offline area associated with this view model. */
