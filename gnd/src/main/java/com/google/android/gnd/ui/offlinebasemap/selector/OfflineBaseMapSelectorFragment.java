@@ -109,6 +109,9 @@ public class OfflineBaseMapSelectorFragment extends AbstractFragment {
       return;
     }
 
-    viewModel.onDownloadClick(map.getViewport());
+    viewModel.onDownloadClick(
+        map.getViewport(),
+        map.getCurrentZoomLevel(),
+        getContext().getString(R.string.offline_base_map_unknown_base_map));
   }
 }

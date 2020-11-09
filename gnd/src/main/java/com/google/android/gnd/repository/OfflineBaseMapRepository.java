@@ -142,17 +142,10 @@ public class OfflineBaseMapRepository {
                 Timber.e(throwable, "couldn't retrieve basemap sources for the active project"));
   }
 
-  public Completable addAreaAndEnqueue(LatLngBounds bounds) {
+  public Completable addAreaAndEnqueue(OfflineBaseMap baseMap) {
     return geocodingManager
-        .getOfflineAreaName(bounds)
-        .map(
-            name ->
-                OfflineBaseMap.newBuilder()
-                    .setBounds(bounds)
-                    .setId(uuidGenerator.generateUuid())
-                    .setState(State.PENDING)
-                    .setName(name)
-                    .build())
+        .getOfflineAreaName(baseMap.getBounds())
+        .map(name -> baseMap.toBuilder().setName(name).build())
         .flatMapCompletable(this::enqueueTileSourceDownloads);
   }
 

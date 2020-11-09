@@ -16,12 +16,17 @@
 
 package com.google.android.gnd.ui.offlinebasemap.selector;
 
+import android.content.Context;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gnd.model.basemap.OfflineBaseMap;
+import com.google.android.gnd.model.basemap.OfflineBaseMap.State;
+import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator;
 import com.google.android.gnd.repository.OfflineBaseMapRepository;
 import com.google.android.gnd.rx.Event;
 import com.google.android.gnd.ui.common.AbstractViewModel;
+import dagger.hilt.android.qualifiers.ApplicationContext;
 import io.reactivex.processors.FlowableProcessor;
 import io.reactivex.processors.PublishProcessor;
 import javax.inject.Inject;
@@ -34,20 +39,25 @@ public class OfflineBaseMapSelectorViewModel extends AbstractViewModel {
     FAILURE
   }
 
-  private final FlowableProcessor<LatLngBounds> downloadClicks = PublishProcessor.create();
+  private final FlowableProcessor<OfflineBaseMap> downloadClicks = PublishProcessor.create();
   private final LiveData<Event<DownloadMessage>> messages;
+  private final OfflineUuidGenerator offlineUuidGenerator;
 
   @Inject
-  OfflineBaseMapSelectorViewModel(OfflineBaseMapRepository offlineBaseMapRepository) {
+  OfflineBaseMapSelectorViewModel(
+      @ApplicationContext Context contxet,
+      OfflineBaseMapRepository offlineBaseMapRepository,
+      OfflineUuidGenerator offlineUuidGenerator) {
     this.messages =
         LiveDataReactiveStreams.fromPublisher(
             downloadClicks.switchMapSingle(
-                viewport ->
+                baseMap ->
                     offlineBaseMapRepository
-                        .addAreaAndEnqueue(viewport)
+                        .addAreaAndEnqueue(baseMap)
                         .toSingleDefault(DownloadMessage.STARTED)
                         .onErrorReturn(this::onEnqueueError)
                         .map(Event::create)));
+    this.offlineUuidGenerator = offlineUuidGenerator;
   }
 
   private DownloadMessage onEnqueueError(Throwable e) {
@@ -60,8 +70,18 @@ public class OfflineBaseMapSelectorViewModel extends AbstractViewModel {
   }
 
   // TODO: Use an abstraction over LatLngBounds
-  public void onDownloadClick(LatLngBounds viewport) {
+  public void onDownloadClick(LatLngBounds viewport, float zoomLevel, String defaultName) {
     Timber.d("viewport:%s", viewport);
-    downloadClicks.onNext(viewport);
+
+    OfflineBaseMap offlineBaseMap =
+        OfflineBaseMap.newBuilder()
+            .setBounds(viewport)
+            .setId(offlineUuidGenerator.generateUuid())
+            .setState(State.PENDING)
+            .setZoomLevel(zoomLevel)
+            .setName(defaultName)
+            .build();
+
+    downloadClicks.onNext(offlineBaseMap);
   }
 }
