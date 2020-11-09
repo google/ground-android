@@ -90,6 +90,7 @@ public class OfflineBaseMapViewerFragment extends AbstractFragment {
 
   private void onMapReady(MapAdapter map) {
     this.map = map;
+    map.disable();
   }
 
   private void panMap(OfflineBaseMap offlineBaseMap) {
