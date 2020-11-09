@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Google LLC
+ * Copyright 2020 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,13 +49,19 @@ public abstract class TileSourceEntity {
   @ColumnInfo(name = "state")
   public abstract TileEntityState getState();
 
+  @CopyAnnotations
+  @NonNull
+  @ColumnInfo(name = "basemap_count")
+  public abstract int getBasemapReferenceCount();
+
   public static TileSource toTileSource(TileSourceEntity tileSourceEntity) {
     TileSource.Builder tile =
         TileSource.newBuilder()
             .setId(tileSourceEntity.getId())
             .setPath(tileSourceEntity.getPath())
             .setState(toTileState(tileSourceEntity.getState()))
-            .setUrl(tileSourceEntity.getUrl());
+            .setUrl(tileSourceEntity.getUrl())
+            .setBasemapReferenceCount(tileSourceEntity.getBasemapReferenceCount());
     return tile.build();
   }
 
@@ -80,7 +86,8 @@ public abstract class TileSourceEntity {
             .setId(tileSource.getId())
             .setPath(tileSource.getPath())
             .setState(toEntityState(tileSource.getState()))
-            .setUrl(tileSource.getUrl());
+            .setUrl(tileSource.getUrl())
+            .setBasemapReferenceCount(tileSource.getBasemapReferenceCount());
     return entity.build();
   }
 
@@ -99,8 +106,15 @@ public abstract class TileSourceEntity {
     }
   }
 
-  public static TileSourceEntity create(String id, String path, TileEntityState state, String url) {
-    return builder().setId(id).setState(state).setPath(path).setUrl(url).build();
+  public static TileSourceEntity create(
+      String id, String path, TileEntityState state, String url, int basemapReferenceCount) {
+    return builder()
+        .setId(id)
+        .setState(state)
+        .setPath(path)
+        .setUrl(url)
+        .setBasemapReferenceCount(basemapReferenceCount)
+        .build();
   }
 
   public static Builder builder() {
@@ -116,6 +130,8 @@ public abstract class TileSourceEntity {
     public abstract Builder setPath(String newPath);
 
     public abstract Builder setState(TileEntityState newState);
+
+    public abstract Builder setBasemapReferenceCount(int basemapReferenceCount);
 
     public abstract TileSourceEntity build();
   }

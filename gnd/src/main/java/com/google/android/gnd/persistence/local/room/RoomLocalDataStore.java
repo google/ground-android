@@ -72,6 +72,7 @@ import com.google.android.gnd.persistence.local.room.models.EntityState;
 import com.google.android.gnd.persistence.local.room.models.TileEntityState;
 import com.google.android.gnd.persistence.local.room.models.UserDetails;
 import com.google.android.gnd.rx.Schedulers;
+import com.google.android.gnd.ui.util.FileUtil;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import io.reactivex.Completable;
@@ -107,10 +108,10 @@ public class RoomLocalDataStore implements LocalDataStore {
   @Inject ObservationMutationDao observationMutationDao;
   @Inject TileSourceDao tileSourceDao;
   @Inject UserDao userDao;
-  @Inject
-  OfflineBaseMapDao offlineBaseMapDao;
+  @Inject OfflineBaseMapDao offlineBaseMapDao;
   @Inject OfflineBaseMapSourceDao offlineBaseMapSourceDao;
   @Inject Schedulers schedulers;
+  @Inject FileUtil fileUtil;
 
   @Inject
   RoomLocalDataStore() {}
@@ -547,9 +548,9 @@ public class RoomLocalDataStore implements LocalDataStore {
   }
 
   @Override
-  public Maybe<TileSource> getTileSource(String tileId) {
+  public Maybe<TileSource> getTileSource(String tileUrl) {
     return tileSourceDao
-        .findById(tileId)
+        .findByUrl(tileUrl)
         .map(TileSourceEntity::toTileSource)
         .subscribeOn(schedulers.io());
   }
@@ -584,5 +585,31 @@ public class RoomLocalDataStore implements LocalDataStore {
         .map(OfflineBaseMapEntity::toArea)
         .toSingle()
         .subscribeOn(schedulers.io());
+  }
+
+  @Override
+  public Completable deleteOfflineArea(String id) {
+    return offlineBaseMapDao
+        .findById(id)
+        .toSingle()
+        .doOnSubscribe(__ -> Timber.d("Deleting offline area: %s", id))
+        .flatMapCompletable(offlineBaseMapDao::delete)
+        .subscribeOn(schedulers.io());
+  }
+
+  @Override
+  public Completable updateTileSourceBasemapReferenceCountByUrl(int newCount, String url) {
+    return Completable.fromSingle(tileSourceDao.updateBasemapReferenceCount(newCount, url));
+  }
+
+  @Override
+  public Completable deleteTileByUrl(TileSource tileSource) {
+    if (tileSource.getBasemapReferenceCount() < 1) {
+      return Completable.fromAction(() -> fileUtil.deleteFile(tileSource.getPath()))
+          .andThen(Completable.fromMaybe(tileSourceDao.deleteByUrl(tileSource.getUrl())))
+          .subscribeOn(schedulers.io());
+    } else {
+      return Completable.complete().subscribeOn(schedulers.io());
+    }
   }
 }

@@ -30,11 +30,13 @@ import com.google.android.gnd.databinding.OfflineBaseMapViewerFragBinding;
 import com.google.android.gnd.model.basemap.OfflineBaseMap;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.ui.common.AbstractFragment;
+import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.map.MapAdapter;
 import com.google.android.gnd.ui.map.MapProvider;
 import dagger.hilt.android.AndroidEntryPoint;
 import io.reactivex.Single;
 import javax.inject.Inject;
+import timber.log.Timber;
 
 /**
  * The OfflineAreaViewerFragment provides a UI for managing a single offline area on the user's
@@ -45,6 +47,7 @@ public class OfflineBaseMapViewerFragment extends AbstractFragment {
 
   private static final String MAP_FRAGMENT = MapProvider.class.getName() + "#fragment";
 
+  @Inject Navigator navigator;
   @Inject MapProvider mapProvider;
 
   private OfflineBaseMapViewerViewModel viewModel;
@@ -110,6 +113,10 @@ public class OfflineBaseMapViewerFragment extends AbstractFragment {
       return;
     }
 
-    viewModel.onRemoveClick();
+    Timber.d("Removing offline area %s", viewModel.getOfflineArea());
+    viewModel
+        .onRemoveClick()
+        .as(autoDisposable(this))
+        .subscribe(() -> navigator.navigateUp());
   }
 }
