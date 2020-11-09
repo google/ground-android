@@ -39,6 +39,7 @@ import com.google.common.collect.ImmutableSet;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
+import io.reactivex.Observable;
 import io.reactivex.Single;
 import java.io.File;
 import java.io.IOException;
@@ -221,7 +222,7 @@ public class OfflineBaseMapRepository {
     return localDataStore
         .getOfflineAreaById(offlineAreaId)
         .flatMapMaybe(this::getIntersectingDownloadedTileSourcesOnce)
-        .flatMapPublisher(Flowable::fromIterable)
+        .flatMapObservable(Observable::fromIterable)
         .map(TileSource::decrementAreaCount)
         .flatMapCompletable(
             tile ->
