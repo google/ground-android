@@ -16,9 +16,13 @@
 
 package com.google.android.gnd.rx;
 
+import androidx.annotation.NonNull;
 import io.reactivex.Completable;
+import io.reactivex.Single;
 import java.util.concurrent.Callable;
+import java8.util.function.Consumer;
 import java8.util.function.Supplier;
+import timber.log.Timber;
 
 /** Helpers for working with RxJava Completable classes. */
 public abstract class RxCompletable {
@@ -44,5 +48,27 @@ public abstract class RxCompletable {
             em.onError(errorClass.newInstance());
           }
         });
+  }
+
+  /**
+   * Receives a {@link Completable} and returns a {@link Single} that emits <code>true</code> if the
+   * <code>Completable</code> completes successfully, <code>false</code> otherwise. In case any
+   * error occurs, the exception is logged to {@link Timber}.
+   */
+  public static Single<Boolean> toBooleanSingle(@NonNull Completable completable) {
+    return toBooleanSingle(completable, null);
+  }
+
+  /**
+   * Receives a {@link Completable} and returns a {@link Single} that emits <code>true</code> if the
+   * <code>Completable</code> completes successfully, <code>false</code> otherwise. In case any
+   * error occurs, the exception is consumed by the argument {@param exceptionConsumer}.
+   */
+  public static Single<Boolean> toBooleanSingle(
+      @NonNull Completable completable, Consumer<? super Throwable> exceptionConsumer) {
+    return completable
+        .doOnError(exceptionConsumer::accept)
+        .toSingleDefault(true)
+        .onErrorReturnItem(false);
   }
 }
