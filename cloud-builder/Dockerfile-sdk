@@ -19,7 +19,7 @@
 # base Docker image.
 
 ARG project_id
-FROM gcr.io/$project_id/android:base
+FROM gcr.io/$project_id/android:newjavac_base
 
 ARG android_version
 
