@@ -30,7 +30,9 @@ import javax.inject.Singleton;
  */
 @Singleton
 public class LocalValueStore {
+
   public static final String ACTIVE_PROJECT_ID_KEY = "activeProjectId";
+  public static final String MAP_TYPE = "map_type";
 
   private final SharedPreferences preferences;
 
@@ -61,5 +63,13 @@ public class LocalValueStore {
 
   public boolean shouldDownloadOfflineAreasOverUnmeteredConnectionOnly() {
     return preferences.getBoolean(Keys.OFFLINE_AREAS, false);
+  }
+
+  public void saveMapType(int type) {
+    preferences.edit().putInt(MAP_TYPE, type).apply();
+  }
+
+  public int getSavedMapType(int defaultType) {
+    return preferences.getInt(MAP_TYPE, defaultType);
   }
 }
