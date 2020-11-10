@@ -35,9 +35,8 @@ import com.google.android.gnd.repository.FeatureRepository;
 import com.google.android.gnd.repository.OfflineBaseMapRepository;
 import com.google.android.gnd.repository.ProjectRepository;
 import com.google.android.gnd.rx.BooleanOrError;
-import com.google.android.gnd.rx.Event;
 import com.google.android.gnd.rx.Loadable;
-import com.google.android.gnd.rx.Nil;
+import com.google.android.gnd.rx.Schedulers;
 import com.google.android.gnd.system.LocationManager;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.common.SharedViewModel;
@@ -45,8 +44,10 @@ import com.google.android.gnd.ui.map.MapFeature;
 import com.google.android.gnd.ui.map.MapGeoJson;
 import com.google.android.gnd.ui.map.MapPin;
 import com.google.common.collect.ImmutableSet;
+import com.google.protobuf.Empty;
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Flowable;
+import io.reactivex.Observable;
 import io.reactivex.subjects.PublishSubject;
 import io.reactivex.subjects.Subject;
 import java.util.ArrayList;
@@ -67,14 +68,16 @@ public class MapContainerViewModel extends AbstractViewModel {
   private final LiveData<CameraUpdate> cameraUpdateRequests;
   private final MutableLiveData<Point> cameraPosition;
   private final LocationManager locationManager;
+  private final Schedulers schedulers;
   private final FeatureRepository featureRepository;
   private final Subject<Boolean> locationLockChangeRequests;
   private final Subject<CameraUpdate> cameraUpdateSubject;
   private final MutableLiveData<Integer> mapControlsVisibility = new MutableLiveData<>(VISIBLE);
   private final MutableLiveData<Integer> moveFeaturesVisibility = new MutableLiveData<>(GONE);
-  private final MutableLiveData<Event<Nil>> showMapTypeSelectorRequests = new MutableLiveData<>();
   private final LiveData<ImmutableSet<String>> mbtilesFilePaths;
   private final LiveData<Integer> iconTint;
+
+  private final PublishSubject<Empty> selectMapTypeClicks = PublishSubject.create();
 
   // TODO: Create our own wrapper/interface for MbTiles providers
   // The impl we're using unfortunately requires calling a `close` method explicitly
@@ -90,9 +93,11 @@ public class MapContainerViewModel extends AbstractViewModel {
       ProjectRepository projectRepository,
       FeatureRepository featureRepository,
       LocationManager locationManager,
-      OfflineBaseMapRepository offlineBaseMapRepository) {
+      OfflineBaseMapRepository offlineBaseMapRepository,
+      Schedulers schedulers) {
     this.featureRepository = featureRepository;
     this.locationManager = locationManager;
+    this.schedulers = schedulers;
     this.locationLockChangeRequests = PublishSubject.create();
     this.cameraUpdateSubject = PublishSubject.create();
 
@@ -171,6 +176,10 @@ public class MapContainerViewModel extends AbstractViewModel {
         .build();
   }
 
+  public Observable<Empty> getSelectMapTypeClicks() {
+    return selectMapTypeClicks.debounce(250, TimeUnit.MILLISECONDS).observeOn(schedulers.ui());
+  }
+
   private Flowable<CameraUpdate> createCameraUpdateFlowable(
       Flowable<BooleanOrError> locationLockStateFlowable) {
     return cameraUpdateSubject
@@ -211,7 +220,7 @@ public class MapContainerViewModel extends AbstractViewModel {
   }
 
   public void onMapTypeButtonClicked() {
-    showMapTypeSelectorRequests.setValue(Event.create(Nil.NIL));
+    selectMapTypeClicks.onNext(Empty.newBuilder().build());
   }
 
   public LiveData<Loadable<Project>> getActiveProject() {
@@ -269,10 +278,6 @@ public class MapContainerViewModel extends AbstractViewModel {
     locationLockChangeRequests.onNext(!isLocationLockEnabled());
   }
 
-  LiveData<Event<Nil>> getShowMapTypeSelectorRequests() {
-    return showMapTypeSelectorRequests;
-  }
-
   public void queueTileProvider(MapBoxOfflineTileProvider tileProvider) {
     this.tileProviders.add(tileProvider);
   }
@@ -309,8 +314,8 @@ public class MapContainerViewModel extends AbstractViewModel {
 
   static class CameraUpdate {
 
-    private Point center;
-    private Optional<Float> minZoomLevel;
+    private final Point center;
+    private final Optional<Float> minZoomLevel;
 
     public CameraUpdate(Point center, Optional<Float> minZoomLevel) {
       this.center = center;
