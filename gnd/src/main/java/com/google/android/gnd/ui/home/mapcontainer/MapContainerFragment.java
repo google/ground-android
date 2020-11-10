@@ -228,10 +228,8 @@ public class MapContainerFragment extends AbstractFragment {
     if (result.isTrue()) {
       Timber.d("Location lock enabled");
       map.enableCurrentLocationIndicator();
-      binding.mapControls.locationLockBtn.setImageResource(R.drawable.ic_gps_blue);
     } else {
       Timber.d("Location lock disabled");
-      binding.mapControls.locationLockBtn.setImageResource(R.drawable.ic_gps_grey600);
     }
   }
 
