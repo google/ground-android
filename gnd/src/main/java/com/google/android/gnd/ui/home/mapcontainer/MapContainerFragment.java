@@ -36,6 +36,7 @@ import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.persistence.geojson.GeoJsonParser;
+import com.google.android.gnd.persistence.local.LocalValueStore;
 import com.google.android.gnd.rx.BooleanOrError;
 import com.google.android.gnd.rx.Loadable;
 import com.google.android.gnd.system.PermissionsManager.PermissionDeniedException;
@@ -61,6 +62,7 @@ public class MapContainerFragment extends AbstractFragment {
   @Inject FileUtil fileUtil;
   @Inject GeoJsonParser geoJsonParser;
   @Inject MapProvider mapProvider;
+  @Inject LocalValueStore localValueStore;
 
   private MapContainerViewModel mapContainerViewModel;
   private HomeScreenViewModel homeScreenViewModel;
@@ -74,6 +76,7 @@ public class MapContainerFragment extends AbstractFragment {
             mapProvider.getMapType(),
             (dialog, which) -> {
               mapProvider.setMapType(which);
+              localValueStore.saveMapType(which);
               dialog.dismiss();
             })
         .setCancelable(true)

@@ -38,6 +38,7 @@ import com.google.android.gms.maps.model.RoundCap;
 import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.android.gnd.R;
 import com.google.android.gnd.model.feature.Point;
+import com.google.android.gnd.persistence.local.LocalValueStore;
 import com.google.android.gnd.ui.MarkerIconFactory;
 import com.google.android.gnd.ui.map.MapAdapter;
 import com.google.android.gnd.ui.map.MapFeature;
@@ -110,7 +111,9 @@ class GoogleMapsMapAdapter implements MapAdapter {
 
   @Nullable private LatLng cameraTargetBeforeDrag;
 
-  public GoogleMapsMapAdapter(GoogleMap map, Context context, MarkerIconFactory markerIconFactory) {
+  public GoogleMapsMapAdapter(
+      GoogleMap map, Context context, MarkerIconFactory markerIconFactory,
+      LocalValueStore localValueStore) {
     this.map = map;
     this.context = context;
     this.markerIconFactory = markerIconFactory;
@@ -120,7 +123,7 @@ class GoogleMapsMapAdapter implements MapAdapter {
     markers = markerManager.newCollection();
     markers.setOnMarkerClickListener(this::onMarkerClick);
 
-    map.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+    map.setMapType(localValueStore.getSavedMapType(GoogleMap.MAP_TYPE_HYBRID));
     UiSettings uiSettings = map.getUiSettings();
     uiSettings.setRotateGesturesEnabled(false);
     uiSettings.setTiltGesturesEnabled(false);
