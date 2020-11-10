@@ -102,8 +102,9 @@ public class MapContainerViewModel extends AbstractViewModel {
             locationLockStateFlowable.startWith(BooleanOrError.falseValue()));
     this.iconTint =
         LiveDataReactiveStreams.fromPublisher(
-            locationLockStateFlowable.map(
-                locked -> locked.isTrue() ? R.color.colorMapBlue : R.color.colorGrey800));
+            locationLockStateFlowable
+                .map(locked -> locked.isTrue() ? R.color.colorMapBlue : R.color.colorGrey800)
+                .startWith(R.color.colorGrey800));
     this.cameraUpdateRequests =
         LiveDataReactiveStreams.fromPublisher(
             createCameraUpdateFlowable(locationLockStateFlowable));
@@ -198,8 +199,7 @@ public class MapContainerViewModel extends AbstractViewModel {
                 enabled
                     ? this.locationManager.enableLocationUpdates()
                     : this.locationManager.disableLocationUpdates())
-        .toFlowable(BackpressureStrategy.LATEST)
-        .startWith(BooleanOrError.falseValue());
+        .toFlowable(BackpressureStrategy.LATEST);
   }
 
   private Flowable<ImmutableSet<Feature>> getFeaturesStream(Optional<Project> activeProject) {
