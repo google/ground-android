@@ -44,7 +44,7 @@ import timber.log.Timber;
 public class ProjectRepository {
 
   private static final long LOAD_REMOTE_PROJECT_TIMEOUT_SECS = 5;
-  private static final long LOAD_REMOTE_PROJECT_SUMMARIES_TIMEOUT_SECS = 10;
+  private static final long LOAD_REMOTE_PROJECT_SUMMARIES_TIMEOUT_SECS = 30;
 
   private final InMemoryCache cache;
   private final LocalDataStore localDataStore;
