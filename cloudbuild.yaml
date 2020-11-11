@@ -33,7 +33,7 @@
 
 steps:
 
-  - name: 'gcr.io/$PROJECT_ID/android:newjavac_28'
+  - name: 'gcr.io/$PROJECT_ID/android:jdk_13_28'
     id: 'Check javac version'
     args:
       - '-c'
@@ -47,7 +47,7 @@ steps:
     args: ['rsync', 'gs://${_CACHE_BUCKET}/', './']
 
   # Extract the copied tar file
-  - name: 'gcr.io/$PROJECT_ID/android:newjavac_base'
+  - name: 'gcr.io/$PROJECT_ID/android:jdk_13_28'
     id: 'Extracting tar'
     # This might fail the first time, but that's okay
     args:
@@ -73,13 +73,13 @@ steps:
         && rm -rf tmp
 
   # Build debug APK
-  - name: 'gcr.io/$PROJECT_ID/android:newjavac_28'
+  - name: 'gcr.io/$PROJECT_ID/android:jdk_13_28'
     id: 'Build debug apk'
     # Explicitly excluding checkCode since it gets auto-triggered
     args: ['./gradlew', 'assembleDebug', '-PdisablePreDex']
 
   # Run code quality checks
-  - name: 'gcr.io/$PROJECT_ID/android:newjavac_28'
+  - name: 'gcr.io/$PROJECT_ID/android:jdk_13_28'
     id: 'Run code checks'
     args:
       - '-c'
@@ -88,7 +88,7 @@ steps:
         cat check-logs.txt
 
   # Run unit tests
-  - name: 'gcr.io/$PROJECT_ID/android:newjavac_28'
+  - name: 'gcr.io/$PROJECT_ID/android:jdk_13_28'
     id: 'Run unit tests'
     args:
       - '-c'
@@ -146,7 +146,7 @@ steps:
         fi
 
   # Compress the gradle build cache
-  - name: 'gcr.io/$PROJECT_ID/android:newjavac_base'
+  - name: 'gcr.io/$PROJECT_ID/android:jdk_13_28'
     id: 'Compress gradle build cache'
     args:
       - '-c'
