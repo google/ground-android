@@ -16,6 +16,8 @@
 
 package com.google.android.gnd.ui.editobservation;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import android.content.Context;
 import android.util.AttributeSet;
 import android.widget.FrameLayout;
@@ -23,7 +25,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.google.android.gnd.R;
 import com.google.android.material.textfield.TextInputEditText;
-import static com.google.common.base.Preconditions.checkNotNull;
 
 public class MultipleChoiceFieldLayout extends FrameLayout {
 
@@ -46,8 +47,7 @@ public class MultipleChoiceFieldLayout extends FrameLayout {
     editText.setOnFocusChangeListener(
         (v, hasFocus) -> {
           if (hasFocus) {
-            checkNotNull(showDialogListener,
-                "showDialogListener must be not be null");
+            checkNotNull(showDialogListener, "showDialogListener must be not be null");
             showDialogListener.run();
           }
         });
@@ -56,8 +56,7 @@ public class MultipleChoiceFieldLayout extends FrameLayout {
         .setOnClickListener(
             v -> {
               if (editText.isFocused()) {
-                checkNotNull(showDialogListener,
-                    "showDialogListener must be not be null");
+                checkNotNull(showDialogListener, "showDialogListener must be not be null");
                 showDialogListener.run();
               } else {
                 editText.requestFocus();

@@ -87,8 +87,7 @@ public class HomeScreenFragment extends AbstractFragment
   @Inject Navigator navigator;
   @Inject MapContainerViewModel mapContainerViewModel;
 
-  @Nullable
-  private ProgressDialog progressDialog;
+  @Nullable private ProgressDialog progressDialog;
   private HomeScreenViewModel viewModel;
   private MapContainerFragment mapContainerFragment;
   private BottomSheetBehavior<View> bottomSheetBehavior;
@@ -297,7 +296,7 @@ public class HomeScreenFragment extends AbstractFragment
       case R.id.delete_feature_menu_item:
         hideBottomSheet();
         Optional<Feature> featureToDelete = state.getFeature();
-        if (featureToDelete.isPresent()){
+        if (featureToDelete.isPresent()) {
           viewModel.deleteFeature(featureToDelete.get());
         } else {
           Timber.e("Attempted to delete non-existent feature");

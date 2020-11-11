@@ -47,8 +47,9 @@ class MultiSelectDialogFactory {
       Optional<Response> initialResponse,
       Consumer<Optional<Response>> responseChangeCallback) {
     MultipleChoice multipleChoice = field.getMultipleChoice();
-    checkNotNull(multipleChoice,
-      "When creating a MultiSelectDialogFactory the field must have a non-null MultipleChoice");
+    checkNotNull(
+        multipleChoice,
+        "When creating a MultiSelectDialogFactory the field must have a non-null MultipleChoice");
 
     AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(context);
     List<Option> options = multipleChoice.getOptions();
