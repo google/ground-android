@@ -26,7 +26,8 @@ steps:
   - name: 'gcr.io/cloud-builders/docker'
     args:
       - 'build'
-      - '--tag=gcr.io/$PROJECT_ID/android:base'
+      - '--no-cache'
+      - '--tag=gcr.io/$PROJECT_ID/android:base_jdk_13'
       - '--file=Dockerfile-base'
       - '.'
 
@@ -35,18 +36,17 @@ steps:
   - name: 'gcr.io/cloud-builders/docker'
     args:
       - 'build'
-      - '--tag=gcr.io/$PROJECT_ID/android:${_ANDROID_VERSION}'
-      - '--build-arg'
-      - 'android_version=${_ANDROID_VERSION}'
-      - '--build-arg'
-      - 'project_id=$PROJECT_ID'
+      - '--no-cache'
+      - '--tag=gcr.io/$PROJECT_ID/android:jdk_13_${_ANDROID_VERSION}'
+      - '--build-arg=android_version=${_ANDROID_VERSION}'
+      - '--build-arg=project_id=$PROJECT_ID'
       - '--file=Dockerfile-sdk'
       - '.'
       - '--cache-from'
-      - 'gcr.io/$PROJECT_ID/android:base'
+      - 'gcr.io/$PROJECT_ID/android:base_jdk_13'
 
 images:
-  - 'gcr.io/$PROJECT_ID/android:base'
-  - 'gcr.io/$PROJECT_ID/android:${_ANDROID_VERSION}'
+  - 'gcr.io/$PROJECT_ID/android:base_jdk_13'
+  - 'gcr.io/$PROJECT_ID/android:jdk_13_${_ANDROID_VERSION}'
 
 timeout: 2000s

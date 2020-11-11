@@ -19,9 +19,9 @@
 # base Docker image.
 
 ARG project_id
-FROM gcr.io/$project_id/android:base
+FROM gcr.io/$project_id/android:base_jdk_13
 
 ARG android_version
 
 # Update SDK.
-RUN sdkmanager "platforms;android-${android_version}"
+RUN sdkmanager --sdk_root=${ANDROID_HOME} "platforms;android-${android_version}"

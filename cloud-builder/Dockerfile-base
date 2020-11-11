@@ -21,7 +21,7 @@
 # Based on https://github.com/GoogleCloudPlatform/cloud-builders-community
 
 # We use a gcr.io image and not openjdk:8-jdk-slim because it loads faster in the Google Google Cloud Build environment.
-FROM gcr.io/cloud-builders/javac
+FROM adoptopenjdk/openjdk13
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -42,7 +42,7 @@ RUN ln -sf /usr/share/zoneinfo/Etc/UTC /etc/localtime
 RUN locale-gen C.UTF-8 || true
 ENV LANG=C.UTF-8
 
-ARG sdk_version=sdk-tools-linux-4333796.zip
+ARG sdk_version=commandlinetools-linux-6858069_latest.zip
 ARG android_home=/opt/android/sdk
 
 # Install Android SDK.
@@ -54,14 +54,15 @@ RUN sudo mkdir -p ${android_home} && \
 # Set environment variables.
 ENV ANDROID_HOME ${android_home}
 ENV ADB_INSTALL_TIMEOUT 120
-ENV PATH=${ANDROID_HOME}/emulator:${ANDROID_HOME}/tools:${ANDROID_HOME}/tools/bin:${ANDROID_HOME}/platform-tools:${PATH}
+ENV PATH=${ANDROID_HOME}/emulator:${ANDROID_HOME}/cmdline-tools:${ANDROID_HOME}/cmdline-tools/bin:${ANDROID_HOME}/platform-tools:${PATH}
 
 RUN mkdir ~/.android && echo '### User Sources for Android SDK Manager' > ~/.android/repositories.cfg
 
-RUN yes | sdkmanager --licenses && sdkmanager --update
+RUN yes | sdkmanager --licenses --sdk_root=${ANDROID_HOME} && sdkmanager --update --sdk_root=${ANDROID_HOME}
 
 # Update SDK manager and install system image, platform and build tools.
 RUN yes | sdkmanager \
+    --sdk_root=${ANDROID_HOME} \
     "tools" \
     "platform-tools" \
     "extras;android;m2repository" \
