@@ -148,9 +148,10 @@ public class MapContainerFragment extends AbstractFragment {
     binding.moveFeature.cancelButton.setOnClickListener(__ -> setDefaultMode());
     enableLocationLockBtn();
     mapContainerViewModel.getMbtilesFilePaths().observe(this, map::addTileOverlays);
-    mapContainerViewModel.getSelectMapTypeClicks()
-        .as(autoDisposable(getViewLifecycleOwner()))
-        .subscribe(empty -> showMapTypeSelectorDialog());
+    mapContainerViewModel
+        .getSelectMapTypeClicks()
+        .observe(getViewLifecycleOwner(),
+            action -> action.ifUnhandled(this::showMapTypeSelectorDialog));
   }
 
   private void showMapTypeSelectorDialog() {

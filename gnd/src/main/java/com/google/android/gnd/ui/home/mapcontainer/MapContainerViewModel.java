@@ -34,9 +34,9 @@ import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.repository.FeatureRepository;
 import com.google.android.gnd.repository.OfflineBaseMapRepository;
 import com.google.android.gnd.repository.ProjectRepository;
+import com.google.android.gnd.rx.Action;
 import com.google.android.gnd.rx.BooleanOrError;
 import com.google.android.gnd.rx.Loadable;
-import com.google.android.gnd.rx.Schedulers;
 import com.google.android.gnd.system.LocationManager;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.common.SharedViewModel;
@@ -44,10 +44,8 @@ import com.google.android.gnd.ui.map.MapFeature;
 import com.google.android.gnd.ui.map.MapGeoJson;
 import com.google.android.gnd.ui.map.MapPin;
 import com.google.common.collect.ImmutableSet;
-import com.google.protobuf.Empty;
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Flowable;
-import io.reactivex.Observable;
 import io.reactivex.subjects.PublishSubject;
 import io.reactivex.subjects.Subject;
 import java.util.ArrayList;
@@ -68,16 +66,14 @@ public class MapContainerViewModel extends AbstractViewModel {
   private final LiveData<CameraUpdate> cameraUpdateRequests;
   private final MutableLiveData<Point> cameraPosition;
   private final LocationManager locationManager;
-  private final Schedulers schedulers;
   private final FeatureRepository featureRepository;
   private final Subject<Boolean> locationLockChangeRequests;
   private final Subject<CameraUpdate> cameraUpdateSubject;
   private final MutableLiveData<Integer> mapControlsVisibility = new MutableLiveData<>(VISIBLE);
   private final MutableLiveData<Integer> moveFeaturesVisibility = new MutableLiveData<>(GONE);
+  private final MutableLiveData<Action> selectMapTypeClicks = new MutableLiveData<>();
   private final LiveData<ImmutableSet<String>> mbtilesFilePaths;
   private final LiveData<Integer> iconTint;
-
-  private final PublishSubject<Empty> selectMapTypeClicks = PublishSubject.create();
 
   // TODO: Create our own wrapper/interface for MbTiles providers
   // The impl we're using unfortunately requires calling a `close` method explicitly
@@ -93,11 +89,9 @@ public class MapContainerViewModel extends AbstractViewModel {
       ProjectRepository projectRepository,
       FeatureRepository featureRepository,
       LocationManager locationManager,
-      OfflineBaseMapRepository offlineBaseMapRepository,
-      Schedulers schedulers) {
+      OfflineBaseMapRepository offlineBaseMapRepository) {
     this.featureRepository = featureRepository;
     this.locationManager = locationManager;
-    this.schedulers = schedulers;
     this.locationLockChangeRequests = PublishSubject.create();
     this.cameraUpdateSubject = PublishSubject.create();
 
@@ -176,8 +170,8 @@ public class MapContainerViewModel extends AbstractViewModel {
         .build();
   }
 
-  public Observable<Empty> getSelectMapTypeClicks() {
-    return selectMapTypeClicks.debounce(250, TimeUnit.MILLISECONDS).observeOn(schedulers.ui());
+  public LiveData<Action> getSelectMapTypeClicks() {
+    return selectMapTypeClicks;
   }
 
   private Flowable<CameraUpdate> createCameraUpdateFlowable(
@@ -220,7 +214,7 @@ public class MapContainerViewModel extends AbstractViewModel {
   }
 
   public void onMapTypeButtonClicked() {
-    selectMapTypeClicks.onNext(Empty.newBuilder().build());
+    selectMapTypeClicks.postValue(Action.create());
   }
 
   public LiveData<Loadable<Project>> getActiveProject() {
