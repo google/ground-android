@@ -28,7 +28,6 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AlertDialog.Builder;
 import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.MapContainerFragBinding;
@@ -54,9 +53,12 @@ import java8.util.Optional;
 import javax.inject.Inject;
 import timber.log.Timber;
 
-/** Main app view, displaying the map and related controls (center cross-hairs, add button, etc). */
+/**
+ * Main app view, displaying the map and related controls (center cross-hairs, add button, etc).
+ */
 @AndroidEntryPoint
 public class MapContainerFragment extends AbstractFragment {
+
   private static final String MAP_FRAGMENT_KEY = MapProvider.class.getName() + "#fragment";
 
   @Inject FileUtil fileUtil;
@@ -67,22 +69,6 @@ public class MapContainerFragment extends AbstractFragment {
   private MapContainerViewModel mapContainerViewModel;
   private HomeScreenViewModel homeScreenViewModel;
   private MapContainerFragBinding binding;
-
-  private void showMapTypeSelectorDialog() {
-    new AlertDialog.Builder(getContext())
-        .setTitle(R.string.select_map_type)
-        .setSingleChoiceItems(
-            mapProvider.getMapTypes().values().toArray(new String[0]),
-            mapProvider.getMapType(),
-            (dialog, which) -> {
-              mapProvider.setMapType(which);
-              localValueStore.saveMapType(which);
-              dialog.dismiss();
-            })
-        .setCancelable(true)
-        .create()
-        .show();
-  }
 
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -139,10 +125,6 @@ public class MapContainerFragment extends AbstractFragment {
     } else {
       mapProvider.restore(restoreChildFragment(savedInstanceState, MAP_FRAGMENT_KEY));
     }
-
-    mapContainerViewModel
-        .getShowMapTypeSelectorRequests()
-        .observe(getViewLifecycleOwner(), __ -> showMapTypeSelectorDialog());
   }
 
   private void onMapReady(MapAdapter map) {
@@ -166,6 +148,26 @@ public class MapContainerFragment extends AbstractFragment {
     binding.moveFeature.cancelButton.setOnClickListener(__ -> setDefaultMode());
     enableLocationLockBtn();
     mapContainerViewModel.getMbtilesFilePaths().observe(this, map::addTileOverlays);
+    mapContainerViewModel
+        .getSelectMapTypeClicks()
+        .observe(getViewLifecycleOwner(),
+            action -> action.ifUnhandled(this::showMapTypeSelectorDialog));
+  }
+
+  private void showMapTypeSelectorDialog() {
+    new Builder(getContext())
+        .setTitle(R.string.select_map_type)
+        .setSingleChoiceItems(
+            mapProvider.getMapTypes().values().toArray(new String[0]),
+            mapProvider.getMapType(),
+            (dialog, which) -> {
+              mapProvider.setMapType(which);
+              localValueStore.saveMapType(which);
+              dialog.dismiss();
+            })
+        .setCancelable(true)
+        .create()
+        .show();
   }
 
   private void showConfirmationDialog(Point point) {
