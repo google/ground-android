@@ -26,6 +26,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
 import androidx.lifecycle.MutableLiveData;
 import com.cocoahero.android.gmaps.addons.mapbox.MapBoxOfflineTileProvider;
+import com.google.android.gnd.R;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.basemap.tile.TileSource;
 import com.google.android.gnd.model.feature.Feature;
@@ -50,7 +51,6 @@ import io.reactivex.subjects.PublishSubject;
 import io.reactivex.subjects.Subject;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 import java8.util.Optional;
 import javax.inject.Inject;
 import org.json.JSONException;
@@ -74,6 +74,7 @@ public class MapContainerViewModel extends AbstractViewModel {
   private final MutableLiveData<Integer> moveFeaturesVisibility = new MutableLiveData<>(GONE);
   private final MutableLiveData<Event<Nil>> showMapTypeSelectorRequests = new MutableLiveData<>();
   private final LiveData<ImmutableSet<String>> mbtilesFilePaths;
+  private final LiveData<Integer> iconTint;
 
   // TODO: Create our own wrapper/interface for MbTiles providers
   // The impl we're using unfortunately requires calling a `close` method explicitly
@@ -99,6 +100,11 @@ public class MapContainerViewModel extends AbstractViewModel {
     this.locationLockState =
         LiveDataReactiveStreams.fromPublisher(
             locationLockStateFlowable.startWith(BooleanOrError.falseValue()));
+    this.iconTint =
+        LiveDataReactiveStreams.fromPublisher(
+            locationLockStateFlowable
+                .map(locked -> locked.isTrue() ? R.color.colorMapBlue : R.color.colorGrey800)
+                .startWith(R.color.colorGrey800));
     this.cameraUpdateRequests =
         LiveDataReactiveStreams.fromPublisher(
             createCameraUpdateFlowable(locationLockStateFlowable));
@@ -188,7 +194,6 @@ public class MapContainerViewModel extends AbstractViewModel {
 
   private Flowable<BooleanOrError> createLocationLockStateFlowable() {
     return locationLockChangeRequests
-        .throttleFirst(200, TimeUnit.MILLISECONDS)
         .switchMapSingle(
             enabled ->
                 enabled
@@ -231,6 +236,10 @@ public class MapContainerViewModel extends AbstractViewModel {
 
   public LiveData<BooleanOrError> getLocationLockState() {
     return locationLockState;
+  }
+
+  public LiveData<Integer> getIconTint() {
+    return iconTint;
   }
 
   private boolean isLocationLockEnabled() {
