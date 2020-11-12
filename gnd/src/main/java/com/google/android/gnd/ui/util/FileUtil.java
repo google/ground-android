@@ -84,4 +84,14 @@ public class FileUtil {
     }
     return file;
   }
+
+  /** Attempts to delete a file relative to the app's file directory when it exists. */
+  public void deleteFile(String filename) {
+    File file = new File(context.getFilesDir(), filename);
+    if (!file.exists()) {
+      return;
+    }
+
+    file.delete();
+  }
 }

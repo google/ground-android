@@ -26,6 +26,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
 import androidx.lifecycle.MutableLiveData;
 import com.cocoahero.android.gmaps.addons.mapbox.MapBoxOfflineTileProvider;
+import com.google.android.gnd.R;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.basemap.tile.TileSource;
 import com.google.android.gnd.model.feature.Feature;
@@ -33,10 +34,9 @@ import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.repository.FeatureRepository;
 import com.google.android.gnd.repository.OfflineBaseMapRepository;
 import com.google.android.gnd.repository.ProjectRepository;
+import com.google.android.gnd.rx.Action;
 import com.google.android.gnd.rx.BooleanOrError;
-import com.google.android.gnd.rx.Event;
 import com.google.android.gnd.rx.Loadable;
-import com.google.android.gnd.rx.Nil;
 import com.google.android.gnd.system.LocationManager;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.common.SharedViewModel;
@@ -50,7 +50,6 @@ import io.reactivex.subjects.PublishSubject;
 import io.reactivex.subjects.Subject;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 import java8.util.Optional;
 import javax.inject.Inject;
 import org.json.JSONException;
@@ -72,8 +71,9 @@ public class MapContainerViewModel extends AbstractViewModel {
   private final Subject<CameraUpdate> cameraUpdateSubject;
   private final MutableLiveData<Integer> mapControlsVisibility = new MutableLiveData<>(VISIBLE);
   private final MutableLiveData<Integer> moveFeaturesVisibility = new MutableLiveData<>(GONE);
-  private final MutableLiveData<Event<Nil>> showMapTypeSelectorRequests = new MutableLiveData<>();
+  private final MutableLiveData<Action> selectMapTypeClicks = new MutableLiveData<>();
   private final LiveData<ImmutableSet<String>> mbtilesFilePaths;
+  private final LiveData<Integer> iconTint;
 
   // TODO: Create our own wrapper/interface for MbTiles providers
   // The impl we're using unfortunately requires calling a `close` method explicitly
@@ -99,6 +99,11 @@ public class MapContainerViewModel extends AbstractViewModel {
     this.locationLockState =
         LiveDataReactiveStreams.fromPublisher(
             locationLockStateFlowable.startWith(BooleanOrError.falseValue()));
+    this.iconTint =
+        LiveDataReactiveStreams.fromPublisher(
+            locationLockStateFlowable
+                .map(locked -> locked.isTrue() ? R.color.colorMapBlue : R.color.colorGrey800)
+                .startWith(R.color.colorGrey800));
     this.cameraUpdateRequests =
         LiveDataReactiveStreams.fromPublisher(
             createCameraUpdateFlowable(locationLockStateFlowable));
@@ -165,6 +170,10 @@ public class MapContainerViewModel extends AbstractViewModel {
         .build();
   }
 
+  public LiveData<Action> getSelectMapTypeClicks() {
+    return selectMapTypeClicks;
+  }
+
   private Flowable<CameraUpdate> createCameraUpdateFlowable(
       Flowable<BooleanOrError> locationLockStateFlowable) {
     return cameraUpdateSubject
@@ -188,7 +197,6 @@ public class MapContainerViewModel extends AbstractViewModel {
 
   private Flowable<BooleanOrError> createLocationLockStateFlowable() {
     return locationLockChangeRequests
-        .throttleFirst(200, TimeUnit.MILLISECONDS)
         .switchMapSingle(
             enabled ->
                 enabled
@@ -206,7 +214,7 @@ public class MapContainerViewModel extends AbstractViewModel {
   }
 
   public void onMapTypeButtonClicked() {
-    showMapTypeSelectorRequests.setValue(Event.create(Nil.NIL));
+    selectMapTypeClicks.postValue(Action.create());
   }
 
   public LiveData<Loadable<Project>> getActiveProject() {
@@ -231,6 +239,10 @@ public class MapContainerViewModel extends AbstractViewModel {
 
   public LiveData<BooleanOrError> getLocationLockState() {
     return locationLockState;
+  }
+
+  public LiveData<Integer> getIconTint() {
+    return iconTint;
   }
 
   private boolean isLocationLockEnabled() {
@@ -258,10 +270,6 @@ public class MapContainerViewModel extends AbstractViewModel {
 
   public void onLocationLockClick() {
     locationLockChangeRequests.onNext(!isLocationLockEnabled());
-  }
-
-  LiveData<Event<Nil>> getShowMapTypeSelectorRequests() {
-    return showMapTypeSelectorRequests;
   }
 
   public void queueTileProvider(MapBoxOfflineTileProvider tileProvider) {
@@ -300,8 +308,8 @@ public class MapContainerViewModel extends AbstractViewModel {
 
   static class CameraUpdate {
 
-    private Point center;
-    private Optional<Float> minZoomLevel;
+    private final Point center;
+    private final Optional<Float> minZoomLevel;
 
     public CameraUpdate(Point center, Optional<Float> minZoomLevel) {
       this.center = center;

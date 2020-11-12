@@ -128,20 +128,28 @@ public class FeatureRepository {
 
   // TODO(#80): Update UI to provide FeatureMutations instead of Features here.
   public Completable createFeature(Feature feature) {
-    return applyAndEnqueue(fromFeature(feature, Type.CREATE));
+    return applyAndEnqueue(feature, Type.CREATE);
   }
 
   public Completable updateFeature(Feature feature) {
-    return applyAndEnqueue(fromFeature(feature, Type.UPDATE));
+    return applyAndEnqueue(feature, Type.UPDATE);
   }
 
   public Completable deleteFeature(Feature feature) {
-    return applyAndEnqueue(fromFeature(feature, Type.DELETE));
+    return applyAndEnqueue(feature, Type.DELETE);
   }
 
-  private Completable applyAndEnqueue(FeatureMutation mutation) {
-    return localDataStore
-        .applyAndEnqueue(mutation)
-        .andThen(dataSyncWorkManager.enqueueSyncWorker(mutation.getFeatureId()));
+  /**
+   * Creates a mutation entry for the given parameters, applies it to the local db and schedules a
+   * task for remote sync if the local transaction is successful.
+   *
+   * @param feature Input {@link Feature}
+   * @param type Determines the {@link Type} of operation to be performed in the databases.
+   * @return If successful, returns the provided feature wrapped as {@link Loadable}
+   */
+  private Completable applyAndEnqueue(Feature feature, Type type) {
+    Completable localTransaction = localDataStore.applyAndEnqueue(fromFeature(feature, type));
+    Completable remoteSync = dataSyncWorkManager.enqueueSyncWorker(feature.getId());
+    return localTransaction.andThen(remoteSync);
   }
 }
