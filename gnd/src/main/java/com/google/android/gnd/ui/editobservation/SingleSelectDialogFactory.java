@@ -28,7 +28,6 @@ import com.google.android.gnd.model.form.MultipleChoice;
 import com.google.android.gnd.model.form.Option;
 import com.google.android.gnd.model.observation.MultipleChoiceResponse;
 import com.google.android.gnd.model.observation.Response;
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
 import java8.util.Optional;

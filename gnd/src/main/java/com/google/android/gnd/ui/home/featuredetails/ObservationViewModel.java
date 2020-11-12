@@ -29,7 +29,6 @@ import com.google.android.gnd.model.AuditInfo;
 import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.ui.common.AbstractViewModel;
-import com.google.common.base.Preconditions;
 import java.util.Date;
 import java8.util.function.Consumer;
 import javax.inject.Inject;
