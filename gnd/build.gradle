@@ -47,7 +47,7 @@ if (secretsFile.exists()) {
 def googleMapsApiKey = secrets.getProperty('GOOGLE_MAPS_API_KEY', '')
 
 android {
-    compileSdkVersion 30
+    compileSdkVersion 28
     defaultConfig {
         // https://developer.android.com/about/dashboards/index.html for reference.
         applicationId "com.google.android.gnd"
@@ -109,6 +109,9 @@ android {
     }
 
     // ErrorProne and NullAway configuration.
+    // ErrorProne: https://github.com/google/error-prone.
+    // ErrorProne Gradle plugin: https://github.com/tbroyer/gradle-errorprone-plugin
+    // NullAway: https://github.com/uber/NullAway
     DomainObjectSet<BaseVariant> variants = getApplicationVariants()
     variants.addAll(getTestVariants())
     variants.addAll(getUnitTestVariants())

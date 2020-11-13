@@ -100,11 +100,15 @@ public class LocalMutationSyncWorker extends BaseWorker {
     Map<String, ImmutableList<Mutation>> mutationsByUserId = groupByUserId(pendingMutations);
     Set<String> userIds = mutationsByUserId.keySet();
     return Observable.fromIterable(userIds)
-        .flatMapCompletable(userId -> processMutations(mutationsByUserId.get(userId), userId));
+        .flatMapCompletable(userId -> {
+          ImmutableList<Mutation> mutations = mutationsByUserId.get(userId);
+          if (mutations == null) mutations = ImmutableList.of();
+          return processMutations(mutations, userId);
+        });
   }
 
   /** Loads each user with specified id, applies mutations, and removes processed mutations. */
-  private Completable processMutations(@Nullable ImmutableList<Mutation> mutations, String userId) {
+  private Completable processMutations(ImmutableList<Mutation> mutations, String userId) {
     return localDataStore
         .getUser(userId)
         .flatMapCompletable(user -> processMutations(mutations, user))
@@ -113,7 +117,7 @@ public class LocalMutationSyncWorker extends BaseWorker {
   }
 
   /** Applies mutations to remote data store. Once successful, removes them from the local db. */
-  private Completable processMutations(@Nullable ImmutableList<Mutation> mutations, User user) {
+  private Completable processMutations(ImmutableList<Mutation> mutations, User user) {
     return remoteDataStore
         .applyMutations(mutations, user)
         .andThen(processPhotoFieldMutations(mutations))
