@@ -102,7 +102,9 @@ public class LocalMutationSyncWorker extends BaseWorker {
     return Observable.fromIterable(userIds)
         .flatMapCompletable(userId -> {
           ImmutableList<Mutation> mutations = mutationsByUserId.get(userId);
-          if (mutations == null) mutations = ImmutableList.of();
+          if (mutations == null) {
+            mutations = ImmutableList.of();
+          }
           return processMutations(mutations, userId);
         });
   }
