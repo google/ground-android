@@ -16,7 +16,6 @@
 
 package com.google.android.gnd.persistence.local;
 
-import androidx.annotation.Nullable;
 import com.google.android.gnd.model.Mutation;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.User;
