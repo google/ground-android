@@ -23,10 +23,8 @@ import javax.annotation.Nullable;
 
 @AutoValue
 public abstract class Layer {
-  @Nullable
   public abstract String getId();
 
-  @Nullable
   public abstract String getName();
 
   public abstract Style getDefaultStyle();

@@ -20,7 +20,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -56,7 +55,7 @@ public class ObservationListFragment extends AbstractFragment {
   @Nullable
   @Override
   public View onCreateView(
-      @NonNull LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
+      LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
     super.onCreateView(inflater, container, savedInstanceState);
     binding = ObservationListFragBinding.inflate(inflater, container, false);
     binding.setViewModel(viewModel);
@@ -65,7 +64,7 @@ public class ObservationListFragment extends AbstractFragment {
   }
 
   @Override
-  public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+  public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
     RecyclerView observationList = binding.observationListContainer;
     observationList.setLayoutManager(new LinearLayoutManager(getContext()));

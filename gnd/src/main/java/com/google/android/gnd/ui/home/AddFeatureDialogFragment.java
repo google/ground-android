@@ -48,7 +48,7 @@ public class AddFeatureDialogFragment extends AbstractDialogFragment {
   private final OfflineUuidGenerator uuidGenerator;
   private final AuthenticationManager authManager;
 
-  private MaybeSubject<Feature> addFeatureRequestSubject;
+  private final MaybeSubject<Feature> addFeatureRequestSubject = MaybeSubject.create();
   private HomeScreenViewModel homeScreenViewModel;
   private MapContainerViewModel mapContainerViewModel;
 
@@ -68,7 +68,6 @@ public class AddFeatureDialogFragment extends AbstractDialogFragment {
   }
 
   public Maybe<Feature> show(FragmentManager fragmentManager) {
-    addFeatureRequestSubject = MaybeSubject.create();
     show(fragmentManager, TAG);
     return addFeatureRequestSubject;
   }

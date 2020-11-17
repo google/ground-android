@@ -28,13 +28,11 @@ import javax.annotation.Nullable;
 /** Configuration, schema, and ACLs for a single project. */
 @AutoValue
 public abstract class Project {
-  @Nullable
+
   public abstract String getId();
 
-  @Nullable
   public abstract String getTitle();
 
-  @Nullable
   public abstract String getDescription();
 
   @NonNull

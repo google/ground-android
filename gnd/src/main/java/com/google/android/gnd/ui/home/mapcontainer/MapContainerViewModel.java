@@ -82,7 +82,7 @@ public class MapContainerViewModel extends AbstractViewModel {
   private final List<MapBoxOfflineTileProvider> tileProviders = new ArrayList<>();
 
   // Feature currently selected for repositioning
-  private Optional<Feature> selectedFeature;
+  private Optional<Feature> selectedFeature = Optional.empty();
 
   @Inject
   MapContainerViewModel(

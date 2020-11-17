@@ -44,6 +44,7 @@ public class AbstractFieldViewModel extends AbstractViewModel {
   private final BehaviorProcessor<Optional<Response>> responseSubject = BehaviorProcessor.create();
   private final Resources resources;
 
+  @SuppressWarnings("NullAway.Init")
   private Field field;
 
   AbstractFieldViewModel(Application application) {

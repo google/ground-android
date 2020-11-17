@@ -207,11 +207,13 @@ public class HomeScreenViewModel extends AbstractViewModel {
       Timber.e("Missing bottomSheetState");
       return;
     }
-    Feature feature = state.getFeature();
-    if (feature == null) {
+
+    Optional<Feature> optionalFeature = state.getFeature();
+    if (optionalFeature.isEmpty()) {
       Timber.e("Missing feature");
       return;
     }
+    Feature feature = optionalFeature.get();
     Optional<Form> form = feature.getLayer().getForm();
     if (form.isEmpty()) {
       // .TODO: Hide Add Observation button if no forms defined.
