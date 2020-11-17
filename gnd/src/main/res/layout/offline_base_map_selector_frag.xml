@@ -51,24 +51,25 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:title="@string/offline_base_map_selector"
-        app:titleTextColor="@color/colorBackground" />
-
-      <com.google.android.material.chip.Chip
-        android:id="@+id/download_button"
-        style="@style/ChipButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_marginEnd="@dimen/chip_button_margin_right"
-        android:layout_marginRight="@dimen/chip_button_margin_right"
-        android:layout_marginBottom="@dimen/map_btn_margin_bottom"
-        android:elevation="6dp"
-        android:text="@string/offline_base_map_selector_download"
-        app:chipIcon="@drawable/ic_area_download"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:useCompatPadding="true" />
-
+        app:titleTextColor="@color/colorBackground">
+        <com.google.android.material.button.MaterialButton
+          android:id="@+id/download_button"
+          style="@style/ChipButton"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_gravity="bottom|end"
+          android:layout_marginEnd="@dimen/chip_button_margin_right"
+          android:layout_marginRight="@dimen/chip_button_margin_right"
+          android:layout_marginBottom="@dimen/map_btn_margin_bottom"
+          android:elevation="6dp"
+          android:text="@string/offline_base_map_selector_download"
+          app:backgroundTint="@color/colorMapAccent"
+          app:chipIcon="@drawable/ic_area_download"
+          app:icon="@drawable/ic_area_download"
+          app:layout_constraintBottom_toBottomOf="parent"
+          app:layout_constraintEnd_toEndOf="parent"
+          app:useCompatPadding="true" />
+      </com.google.android.gnd.ui.common.TwoLineToolbar>
     </androidx.constraintlayout.widget.ConstraintLayout>
   </FrameLayout>
 </layout>
