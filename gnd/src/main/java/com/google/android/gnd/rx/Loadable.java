@@ -40,7 +40,7 @@ public class Loadable<T> extends ValueOrError<T> {
     ERROR
   }
 
-  private Loadable(LoadState state, @Nullable T data, Throwable error) {
+  private Loadable(LoadState state, @Nullable T data, @Nullable Throwable error) {
     super(data, error);
     this.state = state;
   }

@@ -18,6 +18,7 @@ package com.google.android.gnd.ui.editobservation;
 
 import android.app.Application;
 import android.net.Uri;
+import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
 import androidx.lifecycle.MutableLiveData;
@@ -66,7 +67,7 @@ public class PhotoFieldViewModel extends AbstractFieldViewModel {
     updateField(response.isPresent() ? response.get() : null, getField());
   }
 
-  public void updateField(Response response, Field field) {
+  public void updateField(@Nullable Response response, Field field) {
     if (field.getType() != Type.PHOTO) {
       Timber.e("Not a photo type field: %s", field.getType());
       return;

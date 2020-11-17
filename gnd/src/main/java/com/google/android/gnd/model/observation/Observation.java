@@ -26,16 +26,13 @@ import com.google.auto.value.AutoValue;
 /** Represents a single instance of data collected about a specific {@link Feature}. */
 @AutoValue
 public abstract class Observation {
-  @Nullable
+
   public abstract String getId();
 
-  @Nullable
   public abstract Project getProject();
 
-  @Nullable
   public abstract Feature getFeature();
 
-  @Nullable
   public abstract Form getForm();
 
   /** Returns the user and time audit info pertaining to the creation of this observation. */

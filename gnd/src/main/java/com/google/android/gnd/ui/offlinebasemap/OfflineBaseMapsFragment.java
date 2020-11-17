@@ -20,7 +20,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -50,7 +49,7 @@ public class OfflineBaseMapsFragment extends AbstractFragment {
 
   @Override
   public View onCreateView(
-      @NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+      LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
     super.onCreateView(inflater, container, savedInstanceState);
     OfflineBaseMapsFragBinding binding =
         OfflineBaseMapsFragBinding.inflate(inflater, container, false);

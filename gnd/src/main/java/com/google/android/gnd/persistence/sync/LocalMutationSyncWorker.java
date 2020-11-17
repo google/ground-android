@@ -21,6 +21,7 @@ import static java8.util.stream.StreamSupport.stream;
 
 import android.content.Context;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.hilt.Assisted;
 import androidx.hilt.work.WorkerInject;
 import androidx.work.Data;
@@ -99,7 +100,13 @@ public class LocalMutationSyncWorker extends BaseWorker {
     Map<String, ImmutableList<Mutation>> mutationsByUserId = groupByUserId(pendingMutations);
     Set<String> userIds = mutationsByUserId.keySet();
     return Observable.fromIterable(userIds)
-        .flatMapCompletable(userId -> processMutations(mutationsByUserId.get(userId), userId));
+        .flatMapCompletable(userId -> {
+          ImmutableList<Mutation> mutations = mutationsByUserId.get(userId);
+          if (mutations == null) {
+            mutations = ImmutableList.of();
+          }
+          return processMutations(mutations, userId);
+        });
   }
 
   /** Loads each user with specified id, applies mutations, and removes processed mutations. */
@@ -124,7 +131,7 @@ public class LocalMutationSyncWorker extends BaseWorker {
    * Filters all mutations containing observation mutations with changes to photo fields and uploads
    * to remote storage.
    */
-  private Completable processPhotoFieldMutations(ImmutableList<Mutation> mutations) {
+  private Completable processPhotoFieldMutations(@Nullable ImmutableList<Mutation> mutations) {
     return Observable.fromIterable(mutations)
         .filter(mutation -> mutation instanceof ObservationMutation)
         .flatMapIterable(mutation -> ((ObservationMutation) mutation).getResponseDeltas())

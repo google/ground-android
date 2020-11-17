@@ -39,7 +39,7 @@ public class SignInFragment extends AbstractFragment implements BackPressListene
 
   @Override
   public View onCreateView(
-      LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+      LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
     SignInFragBinding binding = SignInFragBinding.inflate(inflater, container, false);
     binding.setViewModel(viewModel);
     binding.setLifecycleOwner(this);

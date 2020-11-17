@@ -37,12 +37,19 @@ public class InMemoryCacheTest {
 
   private static final Style FAKE_STYLE = Style.builder().setColor("#000000").build();
 
-  private static final Layer FAKE_LAYER = Layer.newBuilder().setDefaultStyle(FAKE_STYLE).build();
+  private static final Layer FAKE_LAYER = Layer.newBuilder()
+      .setId("id")
+      .setName("name")
+      .setDefaultStyle(FAKE_STYLE).build();
 
   private static final Feature FAKE_FEATURE =
       Feature.newBuilder()
           .setId("foo feature id")
-          .setProject(Project.newBuilder().build())
+          .setProject(Project.newBuilder()
+              .setId("project id")
+              .setTitle("project title")
+              .setDescription("project description")
+              .build())
           .setLayer(FAKE_LAYER)
           .setPoint(Point.newBuilder().setLatitude(0.0).setLongitude(0.0).build())
           .setCreated(AuditInfo.now(FAKE_USER))

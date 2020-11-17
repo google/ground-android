@@ -18,6 +18,7 @@ package com.google.android.gnd.ui.home;
 
 import androidx.annotation.Nullable;
 import com.google.android.gnd.model.feature.Feature;
+import java8.util.Optional;
 
 public class BottomSheetState {
 
@@ -27,12 +28,11 @@ public class BottomSheetState {
   }
 
   private final Visibility visibility;
+  private final Optional<Feature> feature;
 
-  @Nullable private Feature feature;
-
-  private BottomSheetState(Visibility visibility, Feature feature) {
+  private BottomSheetState(Visibility visibility, @Nullable Feature feature) {
     this.visibility = visibility;
-    this.feature = feature;
+    this.feature = Optional.ofNullable(feature);
   }
 
   private BottomSheetState(Visibility visibility) {
@@ -47,7 +47,7 @@ public class BottomSheetState {
     return new BottomSheetState(Visibility.HIDDEN);
   }
 
-  public Feature getFeature() {
+  public Optional<Feature> getFeature() {
     return feature;
   }
 

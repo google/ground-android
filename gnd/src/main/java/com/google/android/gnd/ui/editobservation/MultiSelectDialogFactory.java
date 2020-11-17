@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.ui.editobservation;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static java8.util.stream.StreamSupport.stream;
 
 import android.content.Context;
@@ -46,6 +47,10 @@ class MultiSelectDialogFactory {
       Optional<Response> initialResponse,
       Consumer<Optional<Response>> responseChangeCallback) {
     MultipleChoice multipleChoice = field.getMultipleChoice();
+    checkNotNull(
+        multipleChoice,
+        "When creating a MultiSelectDialogFactory the field must have a non-null MultipleChoice");
+
     AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(context);
     List<Option> options = multipleChoice.getOptions();
     final DialogState state = new DialogState(multipleChoice, initialResponse);

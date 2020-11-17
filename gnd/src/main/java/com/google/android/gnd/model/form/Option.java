@@ -16,20 +16,15 @@
 
 package com.google.android.gnd.model.form;
 
-import androidx.annotation.NonNull;
 import com.google.auto.value.AutoValue;
-import javax.annotation.Nullable;
 
 /** Describes a single valid option to a multiple choice question. */
 @AutoValue
 public abstract class Option {
-  @NonNull
   public abstract String getId();
 
-  @Nullable
   public abstract String getCode();
 
-  @Nullable
   public abstract String getLabel();
 
   public static Builder newBuilder() {
@@ -38,11 +33,11 @@ public abstract class Option {
 
   @AutoValue.Builder
   public abstract static class Builder {
-    public abstract Builder setId(@NonNull String newId);
+    public abstract Builder setId(String newId);
 
-    public abstract Builder setCode(@Nullable String newCode);
+    public abstract Builder setCode(String newCode);
 
-    public abstract Builder setLabel(@Nullable String newLabel);
+    public abstract Builder setLabel(String newLabel);
 
     public abstract Option build();
   }
