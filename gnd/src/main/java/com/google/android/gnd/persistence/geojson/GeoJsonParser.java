@@ -49,6 +49,32 @@ public class GeoJsonParser {
   }
 
   /**
+   * Returns the immutable list of tiles specified in {@param geojson} that intersect {@param
+   * bounds}.
+   */
+  public ImmutableList<TileSource> intersectingTiles(LatLngBounds bounds, File file) {
+    try {
+      String fileContents = FileUtils.readFileToString(file, Charset.forName(JSON_SOURCE_CHARSET));
+      // TODO: Separate parsing and intersection checks, make asyc (single, completable).
+      JSONObject geoJson = new JSONObject(fileContents);
+      // TODO: Make features constant.
+      JSONArray features = geoJson.getJSONArray(FEATURES_KEY);
+
+      return stream(toArrayList(features))
+          .map(GeoJsonTile::new)
+          .filter(tile -> tile.boundsIntersect(bounds))
+          .map(this::jsonToTileSource)
+          .map(TileSource::incrementAreaCount)
+          .collect(toImmutableList());
+
+    } catch (JSONException | IOException e) {
+      Timber.e(e, "Unable to parse JSON");
+    }
+
+    return ImmutableList.of();
+  }
+
+  /**
    * Converts a JSONArray to an array of JSONObjects. Provided for compatibility with java8 streams.
    * JSONArray itself only inherits from Object, and is not convertible to a stream.
    */
@@ -82,25 +108,6 @@ public class GeoJsonParser {
     return stream(getFeaturesArray(jsonString)).map(GeoJsonTile::new).collect(toImmutableList());
   }
 
-  /**
-   * Returns the immutable list of tiles specified in {@param geojson} that intersect {@param
-   * bounds}.
-   */
-  public ImmutableList<TileSource> intersectingTiles(LatLngBounds bounds, File file) {
-    String fileContents;
-    try {
-      fileContents = FileUtils.readFileToString(file, Charset.forName(JSON_SOURCE_CHARSET));
-    } catch (IOException e) {
-      Timber.e(e);
-      return ImmutableList.of();
-    }
-
-    return stream(getGeoJsonTiles(fileContents))
-        .filter(tile -> tile.boundsIntersect(bounds))
-        .map(this::jsonToTileSource)
-        .collect(toImmutableList());
-  }
-
   /** Returns the {@link TileSource} specified by {@param json}. */
   private TileSource jsonToTileSource(GeoJsonTile json) {
     // TODO: Instead of returning tiles with invalid state (empty URL/ID values)
@@ -110,6 +117,7 @@ public class GeoJsonParser {
         .setUrl(json.getUrl().orElse(""))
         .setState(State.PENDING)
         .setPath(TileSource.pathFromId(json.getId().orElse("")))
+        .setBasemapReferenceCount(0)
         .build();
   }
 }

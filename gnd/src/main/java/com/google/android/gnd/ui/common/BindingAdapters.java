@@ -16,11 +16,14 @@
 
 package com.google.android.gnd.ui.common;
 
+import android.content.res.ColorStateList;
 import android.net.Uri;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
 import android.widget.ImageView;
+import androidx.core.content.ContextCompat;
+import androidx.core.widget.ImageViewCompat;
 import androidx.databinding.BindingAdapter;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gnd.R;
@@ -78,5 +81,15 @@ public class BindingAdapters {
   @BindingAdapter("imageUri")
   public static void bindUri(ImageView view, Uri uri) {
     Picasso.get().load(uri).placeholder(R.drawable.ic_photo_grey_600_24dp).into(view);
+  }
+
+  @BindingAdapter("tint")
+  public static void bindImageTint(ImageView imageView, int colorId) {
+    if (colorId == 0) {
+      // Workaround for default value from uninitialized LiveData.
+      return;
+    }
+    int tint = ContextCompat.getColor(imageView.getContext(), colorId);
+    ImageViewCompat.setImageTintList(imageView, ColorStateList.valueOf(tint));
   }
 }

@@ -21,6 +21,7 @@
   <color name="colorPrimaryDark">#3B4563</color>
   <color name="colorAccent">#009113</color>
   <color name="colorMapAccent">#ff9131</color>
+  <color name="colorMapBlue">#4F87ED</color>
   <color name="colorBackground">#FAFAFA</color>
   <color name="colorGrey300">#E0E0E0</color>
   <color name="colorGrey500">#9E9E9E</color>
