@@ -51,20 +51,21 @@
       app:layout_constraintStart_toStartOf="parent"
       app:layout_constraintTop_toBottomOf="@+id/offline_areas_toolbar" />
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
+    <com.google.android.material.chip.Chip
       android:id="@+id/floatingActionButton"
+      style="@style/ChipButton"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:backgroundTint="@color/colorPrimary"
       android:clickable="true"
       android:contentDescription="@string/offline_base_map_selector_prompt"
       android:focusable="true"
       android:onClick="@{() -> viewModel.showOfflineAreaSelector()}"
+      android:text="@string/offline_base_map_selector_select"
+      android:layout_marginEnd="@dimen/chip_button_margin_right"
+      android:layout_marginRight="@dimen/chip_button_margin_right"
+      android:layout_marginBottom="@dimen/map_btn_margin_bottom"
       app:layout_constraintBottom_toBottomOf="parent"
-      app:layout_constraintEnd_toEndOf="parent"
-      app:srcCompat="@drawable/ic_add"
-      app:tint="@color/colorBackground"
-      app:useCompatPadding="true" />
+      app:layout_constraintEnd_toEndOf="parent" />
 
   </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

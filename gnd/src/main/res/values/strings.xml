@@ -162,4 +162,5 @@
   <string name="move_point_confirmation">Do you want to move to this point?</string>
   <string name="move_point_hint">Drag to the new location</string>
   <string name="error_occurred">An error occurred</string>
+  <string name="offline_base_map_selector_select">select</string>
 </resources>
