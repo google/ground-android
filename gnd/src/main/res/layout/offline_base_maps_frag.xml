@@ -16,7 +16,8 @@
   ~ limitations under the License.
   -->
 
-<layout xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:tools="http://schemas.android.com/tools"
+  xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:app="http://schemas.android.com/apk/res-auto">
 
   <data>
@@ -56,16 +57,36 @@
       style="@style/ChipButton"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
+      android:layout_marginEnd="@dimen/chip_button_margin_right"
+      android:layout_marginRight="@dimen/chip_button_margin_right"
+      android:layout_marginBottom="@dimen/map_btn_margin_bottom"
       android:clickable="true"
       android:contentDescription="@string/offline_base_map_selector_prompt"
       android:focusable="true"
       android:onClick="@{() -> viewModel.showOfflineAreaSelector()}"
       android:text="@string/offline_base_map_selector_select"
+      app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintEnd_toEndOf="parent" />
+    <com.google.android.material.chip.Chip
+      android:id="@+id/no_areas_downloaded_message"
+      style="@style/ChipButton"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
       android:layout_marginEnd="@dimen/chip_button_margin_right"
       android:layout_marginRight="@dimen/chip_button_margin_right"
       android:layout_marginBottom="@dimen/map_btn_margin_bottom"
+      android:clickable="false"
+      android:contentDescription="@string/offline_base_map_selector_prompt"
+      android:focusable="true"
+      android:onClick="@{() -> viewModel.showOfflineAreaSelector()}"
+      android:text="@string/no_basemaps_downloaded"
+      app:chipBackgroundColor="@color/colorGrey500"
       app:layout_constraintBottom_toBottomOf="parent"
-      app:layout_constraintEnd_toEndOf="parent" />
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintHorizontal_bias="0.5"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toTopOf="parent"
+      android:visibility="gone"/>
 
   </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

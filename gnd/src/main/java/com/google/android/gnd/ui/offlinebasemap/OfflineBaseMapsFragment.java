@@ -67,6 +67,17 @@ public class OfflineBaseMapsFragment extends AbstractFragment {
     recyclerView.setAdapter(offlineBaseMapListAdapter);
 
     viewModel.getOfflineAreas().observe(getViewLifecycleOwner(), offlineBaseMapListAdapter::update);
+    viewModel
+        .getOfflineAreas()
+        .observe(
+            getViewLifecycleOwner(),
+            offlineBaseMaps -> {
+              if (offlineBaseMaps.isEmpty()) {
+                binding.noAreasDownloadedMessage.setVisibility(View.VISIBLE);
+              } else {
+                binding.noAreasDownloadedMessage.setVisibility(View.GONE);
+              }
+            });
 
     return binding.getRoot();
   }
