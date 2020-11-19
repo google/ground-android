@@ -62,6 +62,9 @@ android {
         // For rendering vector map markers.
         vectorDrawables.useSupportLibrary = true
     }
+
+    // gradle doesn't sign debug test apk (needed for running instrumentation tests on firebase)
+    // https://stackoverflow.com/questions/3082780/java-lang-securityexception-permission-denial/38202106
     signingConfigs {
         debug {
             keyPassword 'ground'
