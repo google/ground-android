@@ -62,6 +62,14 @@ android {
         // For rendering vector map markers.
         vectorDrawables.useSupportLibrary = true
     }
+    signingConfigs {
+        debug {
+            keyPassword 'ground'
+            storeFile file('../cloud-builder/sign/keystore')
+            storePassword 'ground'
+            keyAlias 'ground'
+        }
+    }
     buildTypes {
         release {
             minifyEnabled false
@@ -69,6 +77,7 @@ android {
             resValue("string", "GOOGLE_MAPS_API_KEY", googleMapsApiKey)
         }
         debug {
+            signingConfig signingConfigs.debug
             resValue("string", "GOOGLE_MAPS_API_KEY", googleMapsApiKey)
             FirebasePerformance {
                 instrumentationEnabled false

@@ -111,6 +111,16 @@ steps:
       - |
         ./gradlew assembleDebugAndroidTest -PdisablePreDex
 
+#  - name: 'gcr.io/$PROJECT_ID/android:28'
+#    id: 'Sign apks'
+#    entrypoint: 'bash'
+#    args:
+#      - '-c'
+#      - |
+#        jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore gnd/cloud-builder/sign/keystore android-release-unsigned.apk alias -storepass ground
+#        path-to-android-sdk/build-tools/version/zipalign -v 4 android-release-unsigned.apk android-prod-released-signed.apk
+#        path-to-android-sdk/build-tools/version/apksigner verify android-prod-released-signed.apk
+
   # For more details: https://cloud.google.com/sdk/gcloud/reference/alpha/firebase/test/android/run
   - name: 'gcr.io/cloud-builders/gcloud-slim'
     id: 'Run instrumented tests'
