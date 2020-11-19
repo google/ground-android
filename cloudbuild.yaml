@@ -94,16 +94,14 @@ steps:
         ./gradlew testDebug 2> unit-test-logs.txt || echo "fail" > build-status.txt
         cat unit-test-logs.txt
 
-  # TODO: Stop using ground-android-gcb project for running CI builds
-#  - name: 'gcr.io/cloud-builders/gcloud-slim'
-#    id: 'Authorize gcloud'
-#    entrypoint: 'bash'
-#    args:
-#      - '-c'
-#      - |
-#        gcloud config set project ground-dev
-#        gcloud secrets versions access latest --secret=$_SECRET_NAME --format='get(payload.data)' | tr '_-' '/+' | base64 -d > client-secret.json
-#        gcloud auth activate-service-account --key-file client-secret.json
+  - name: 'gcr.io/cloud-builders/gcloud-slim'
+    id: 'Authorize gcloud'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        gcloud secrets versions access latest --secret=$_SECRET_NAME --format='get(payload.data)' | tr '_-' '/+' | base64 -d > client-secret.json
+        gcloud auth activate-service-account --key-file client-secret.json
 
   - name: 'gcr.io/$PROJECT_ID/android:28'
     id: 'Assemble instrumented test build'
@@ -120,9 +118,6 @@ steps:
     args:
       - '-c'
       - |
-        gcloud config set project ground-dev
-        gcloud secrets versions access latest --secret=$_SECRET_NAME --format='get(payload.data)' | tr '_-' '/+' | base64 -d > client-secret.json
-        gcloud auth activate-service-account --key-file client-secret.json
         gcloud --quiet beta firebase test android run \
         --type instrumentation --num-uniform-shards=1 \
         --app gnd/build/outputs/apk/debug/*.apk \
