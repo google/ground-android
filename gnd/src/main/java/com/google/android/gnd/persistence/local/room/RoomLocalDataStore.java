@@ -85,6 +85,7 @@ import io.reactivex.Single;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java8.util.Optional;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import timber.log.Timber;
@@ -250,12 +251,16 @@ public class RoomLocalDataStore implements LocalDataStore {
   public Flowable<ImmutableSet<Feature>> getFeaturesOnceAndStream(Project project) {
     return featureDao
         .findOnceAndStream(project.getId(), EntityState.DEFAULT)
-        .map(
-            list ->
-                stream(list)
-                    .map(f -> FeatureEntity.toFeature(f, project))
-                    .collect(toImmutableSet()))
+        .map(featureEntities -> toFeatures(project, featureEntities))
         .subscribeOn(schedulers.io());
+  }
+
+  private ImmutableSet<Feature> toFeatures(Project project, List<FeatureEntity> featureEntities) {
+    return stream(featureEntities)
+        .map(f -> FeatureEntity.toFeature(f, project))
+        .filter(f -> f.isPresent())
+        .map(Optional::get)
+        .collect(toImmutableSet());
   }
 
   @Override
@@ -263,6 +268,8 @@ public class RoomLocalDataStore implements LocalDataStore {
     return featureDao
         .findById(featureId)
         .map(f -> FeatureEntity.toFeature(f, project))
+        .filter(Optional::isPresent)
+        .map(Optional::get)
         .subscribeOn(schedulers.io());
   }
 
