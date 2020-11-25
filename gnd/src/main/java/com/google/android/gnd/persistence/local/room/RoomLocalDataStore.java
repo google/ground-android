@@ -18,6 +18,7 @@ package com.google.android.gnd.persistence.local.room;
 
 import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList;
 import static com.google.android.gnd.util.ImmutableSetCollector.toImmutableSet;
+import static com.google.android.gnd.util.StreamUtil.logErrorsAndSkip;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java8.util.stream.StreamSupport.stream;
 
@@ -280,6 +281,8 @@ public class RoomLocalDataStore implements LocalDataStore {
     return observationDao
         .findById(observationId)
         .map(obs -> ObservationEntity.toObservation(feature, obs))
+        .doOnError(e -> Timber.d(e))
+        .onErrorComplete()
         .subscribeOn(schedulers.io());
   }
 
@@ -287,12 +290,15 @@ public class RoomLocalDataStore implements LocalDataStore {
   public Single<ImmutableList<Observation>> getObservations(Feature feature, String formId) {
     return observationDao
         .findByFeatureId(feature.getId(), formId, EntityState.DEFAULT)
-        .map(
-            list ->
-                stream(list)
-                    .map(obs -> ObservationEntity.toObservation(feature, obs))
-                    .collect(toImmutableList()))
+        .map(observationEntities -> toObservations(feature, observationEntities))
         .subscribeOn(schedulers.io());
+  }
+
+  private ImmutableList<Observation> toObservations(
+      Feature feature, List<ObservationEntity> observationEntities) {
+    return stream(observationEntities)
+        .flatMap(obs -> logErrorsAndSkip(() -> ObservationEntity.toObservation(feature, obs)))
+        .collect(toImmutableList());
   }
 
   @Override
