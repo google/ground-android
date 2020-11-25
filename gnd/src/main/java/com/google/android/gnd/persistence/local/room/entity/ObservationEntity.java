@@ -27,9 +27,11 @@ import androidx.room.Index;
 import androidx.room.PrimaryKey;
 import com.google.android.gnd.model.AuditInfo;
 import com.google.android.gnd.model.feature.Feature;
+import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.model.observation.ObservationMutation;
 import com.google.android.gnd.model.observation.ResponseMap;
+import com.google.android.gnd.persistence.local.LocalDataConsistencyError;
 import com.google.android.gnd.persistence.local.room.models.EntityState;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.AutoValue.CopyAnnotations;
@@ -120,9 +122,19 @@ public abstract class ObservationEntity {
   public static Observation toObservation(Feature feature, ObservationEntity observation) {
     // TODO(#127): Replace reference to Form in Observation with formId and remove here.
     // TODO(#127): Replace reference to Project in Observation with projectId and remove here.
+    String id = observation.getId();
+    String formId = observation.getFormId();
+    Form form =
+        feature
+            .getLayer()
+            .getForm(formId)
+            .orElseThrow(
+                () ->
+                    new LocalDataConsistencyError(
+                        "Unknown formId " + formId + " in observation " + id));
     return Observation.newBuilder()
-        .setId(observation.getId())
-        .setForm(feature.getLayer().getForm(observation.getFormId()).get())
+        .setId(id)
+        .setForm(form)
         .setProject(feature.getProject())
         .setFeature(feature)
         .setResponses(observation.getResponses())
