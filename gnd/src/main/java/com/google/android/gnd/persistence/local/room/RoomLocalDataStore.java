@@ -144,8 +144,9 @@ public class RoomLocalDataStore implements LocalDataStore {
             Observable.just(field)
                 .filter(__ -> field.getMultipleChoice() != null)
                 .flatMapCompletable(
-                    __ -> insertOrUpdateMultipleChoice(field.getId(),
-                        checkNotNull(field.getMultipleChoice()))))
+                    __ ->
+                        insertOrUpdateMultipleChoice(
+                            field.getId(), checkNotNull(field.getMultipleChoice()))))
         .subscribeOn(schedulers.io());
   }
 
@@ -245,7 +246,6 @@ public class RoomLocalDataStore implements LocalDataStore {
     }
   }
 
-  // TODO(#127): Decouple from Project and pass in project id instead.
   @Override
   public Flowable<ImmutableSet<Feature>> getFeaturesOnceAndStream(Project project) {
     return featureDao
@@ -258,7 +258,6 @@ public class RoomLocalDataStore implements LocalDataStore {
         .subscribeOn(schedulers.io());
   }
 
-  // TODO(#127): Decouple from Project and remove project from args.
   @Override
   public Maybe<Feature> getFeature(Project project, String featureId) {
     return featureDao

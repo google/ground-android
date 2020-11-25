@@ -112,7 +112,6 @@ public abstract class FeatureEntity {
     return entity.build();
   }
 
-  // TODO(#127): Decouple from Project and remove 2nd argument.
   public static Feature toFeature(FeatureEntity featureEntity, Project project) {
     return Feature.newBuilder()
         .setId(featureEntity.getId())
