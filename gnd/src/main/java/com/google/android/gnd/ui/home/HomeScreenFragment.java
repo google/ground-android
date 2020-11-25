@@ -65,7 +65,6 @@ import dagger.hilt.android.AndroidEntryPoint;
 import io.reactivex.subjects.PublishSubject;
 import java.util.Collections;
 import java.util.List;
-import java8.util.Optional;
 import javax.inject.Inject;
 import timber.log.Timber;
 
@@ -295,12 +294,11 @@ public class HomeScreenFragment extends AbstractFragment
         return false;
       case R.id.delete_feature_menu_item:
         hideBottomSheet();
-        Optional<Feature> featureToDelete = state.getFeature();
-        if (featureToDelete.isPresent()) {
-          viewModel.deleteFeature(featureToDelete.get());
-        } else {
-          Timber.e("Attempted to delete non-existent feature");
-        }
+        state
+            .getFeature()
+            .ifPresentOrElse(
+                feature -> viewModel.deleteFeature(feature),
+                () -> Timber.e("Attempted to delete non-existent feature"));
         return true;
       default:
         return false;
@@ -416,7 +414,7 @@ public class HomeScreenFragment extends AbstractFragment
   }
 
   private void onShowAddFeatureDialogRequest() {
-    if (!Loadable.getValue(viewModel.getActiveProject()).isPresent()) {
+    if (Loadable.getValue(viewModel.getActiveProject()).isEmpty()) {
       Timber.e("Attempting to add feature while no project loaded");
       return;
     }

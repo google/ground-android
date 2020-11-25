@@ -70,8 +70,7 @@ public class GeocodingManager {
     Optional<String> locality = Optional.ofNullable(address.getLocality());
 
     return country
-        .map(
-            countryName -> locality.isPresent() ? countryName + ", " + locality.get() : countryName)
+        .map(countryName -> locality.map(l -> countryName + ", " + l).orElse(countryName))
         .orElse(defaultAreaName);
   }
 

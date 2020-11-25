@@ -259,7 +259,7 @@ public class RoomLocalDataStore implements LocalDataStore {
   private ImmutableSet<Feature> toFeatures(Project project, List<FeatureEntity> featureEntities) {
     return stream(featureEntities)
         .map(f -> FeatureEntity.toFeature(f, project))
-        .filter(f -> f.isPresent())
+        .filter(Optional::isPresent)
         .map(Optional::get)
         .collect(toImmutableSet());
   }

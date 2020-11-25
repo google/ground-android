@@ -46,8 +46,7 @@ public class PhotoFieldViewModel extends AbstractFieldViewModel {
     super(application);
     this.storageManager = storageManager;
     this.isVisible =
-        LiveDataReactiveStreams.fromPublisher(
-            destinationPath.map(path -> !path.isEmpty()));
+        LiveDataReactiveStreams.fromPublisher(destinationPath.map(path -> !path.isEmpty()));
     this.uri =
         LiveDataReactiveStreams.fromPublisher(
             destinationPath.switchMapSingle(this::getDownloadUrl));
@@ -64,7 +63,7 @@ public class PhotoFieldViewModel extends AbstractFieldViewModel {
   @Override
   public void setResponse(Optional<Response> response) {
     super.setResponse(response);
-    updateField(response.isPresent() ? response.get() : null, getField());
+    updateField(response.orElse(null), getField());
   }
 
   public void updateField(@Nullable Response response, Field field) {

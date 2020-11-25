@@ -21,7 +21,6 @@ import static android.view.View.VISIBLE;
 import static com.google.android.gnd.util.ImmutableSetCollector.toImmutableSet;
 import static java8.util.stream.StreamSupport.stream;
 
-import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
 import androidx.lifecycle.MutableLiveData;
@@ -332,14 +331,9 @@ public class MapContainerViewModel extends AbstractViewModel {
       return minZoomLevel;
     }
 
-    @NonNull
     @Override
     public String toString() {
-      if (minZoomLevel.isPresent()) {
-        return "Pan + zoom";
-      } else {
-        return "Pan";
-      }
+     return minZoomLevel.map(__ -> "Pan + zoom").orElse("Pan");
     }
   }
 }

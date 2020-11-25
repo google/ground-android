@@ -53,9 +53,7 @@ import java8.util.Optional;
 import javax.inject.Inject;
 import timber.log.Timber;
 
-/**
- * Main app view, displaying the map and related controls (center cross-hairs, add button, etc).
- */
+/** Main app view, displaying the map and related controls (center cross-hairs, add button, etc). */
 @AndroidEntryPoint
 public class MapContainerFragment extends AbstractFragment {
 
@@ -150,8 +148,8 @@ public class MapContainerFragment extends AbstractFragment {
     mapContainerViewModel.getMbtilesFilePaths().observe(this, map::addTileOverlays);
     mapContainerViewModel
         .getSelectMapTypeClicks()
-        .observe(getViewLifecycleOwner(),
-            action -> action.ifUnhandled(this::showMapTypeSelectorDialog));
+        .observe(
+            getViewLifecycleOwner(), action -> action.ifUnhandled(this::showMapTypeSelectorDialog));
   }
 
   private void showMapTypeSelectorDialog() {
@@ -193,9 +191,12 @@ public class MapContainerFragment extends AbstractFragment {
     switch (state.getVisibility()) {
       case VISIBLE:
         map.disable();
-        state.getFeature().ifPresent(feature -> {
-          mapContainerViewModel.panAndZoomCamera(feature.getPoint());
-        });
+        state
+            .getFeature()
+            .ifPresent(
+                feature -> {
+                  mapContainerViewModel.panAndZoomCamera(feature.getPoint());
+                });
         break;
       case HIDDEN:
         map.enable();
@@ -256,12 +257,13 @@ public class MapContainerFragment extends AbstractFragment {
 
   private void onCameraUpdate(MapContainerViewModel.CameraUpdate update, MapAdapter map) {
     Timber.v("Update camera: %s", update);
-    if (update.getMinZoomLevel().isPresent()) {
-      map.moveCamera(
-          update.getCenter(), Math.max(update.getMinZoomLevel().get(), map.getCurrentZoomLevel()));
-    } else {
-      map.moveCamera(update.getCenter());
-    }
+    update
+        .getMinZoomLevel()
+        .ifPresentOrElse(
+            minZoomLevel ->
+                map.moveCamera(
+                    update.getCenter(), Math.max(minZoomLevel, map.getCurrentZoomLevel())),
+            () -> map.moveCamera(update.getCenter()));
   }
 
   @Override

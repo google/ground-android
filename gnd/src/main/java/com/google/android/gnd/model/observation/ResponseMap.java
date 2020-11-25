@@ -87,11 +87,11 @@ public class ResponseMap {
 
     /** Adds, replaces, or removes a responses based on the provided delta. */
     public Builder applyDelta(ResponseDelta responseDelta) {
-      if (responseDelta.getNewResponse().isPresent()) {
-        putResponse(responseDelta.getFieldId(), responseDelta.getNewResponse().get());
-      } else {
-        removeResponse(responseDelta.getFieldId());
-      }
+      responseDelta
+          .getNewResponse()
+          .ifPresentOrElse(
+              newResponse -> responseDelta.getFieldId(),
+              () -> removeResponse(responseDelta.getFieldId()));
       return this;
     }
 
