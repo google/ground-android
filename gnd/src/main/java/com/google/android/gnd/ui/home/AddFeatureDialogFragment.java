@@ -84,7 +84,7 @@ public class AddFeatureDialogFragment extends AbstractDialogFragment {
           Objects.requireNonNull(
               mapContainerViewModel.getCameraPosition().getValue(), "No camera position");
       return createDialog(activeProject, cameraPosition);
-    } catch (NullPointerException e) {
+    } catch (RuntimeException e) {
       addFeatureRequestSubject.onError(e);
       return fail(Objects.requireNonNullElse(e.getMessage(), "Unknown error"));
     }
