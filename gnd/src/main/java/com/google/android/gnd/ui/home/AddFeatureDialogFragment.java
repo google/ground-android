@@ -40,7 +40,6 @@ import dagger.hilt.android.AndroidEntryPoint;
 import io.reactivex.Maybe;
 import io.reactivex.subjects.MaybeSubject;
 import java8.util.Objects;
-import java8.util.Optional;
 import javax.inject.Inject;
 
 @AndroidEntryPoint
@@ -80,12 +79,12 @@ public class AddFeatureDialogFragment extends AbstractDialogFragment {
       // TODO: Inject and use custom factory.
       Project activeProject =
           Loadable.getValue(homeScreenViewModel.getActiveProject())
-              .orElseThrow(() -> new IllegalStateException("No active project"));
+              .orElseThrow(() -> new NullPointerException("No active project"));
       Point cameraPosition =
-          Optional.ofNullable(mapContainerViewModel.getCameraPosition().getValue())
-              .orElseThrow(() -> new IllegalStateException("No camera position"));
+          Objects.requireNonNull(
+              mapContainerViewModel.getCameraPosition().getValue(), "No camera position");
       return createDialog(activeProject, cameraPosition);
-    } catch (IllegalStateException e) {
+    } catch (NullPointerException e) {
       addFeatureRequestSubject.onError(e);
       return fail(Objects.requireNonNullElse(e.getMessage(), "Unknown error"));
     }
