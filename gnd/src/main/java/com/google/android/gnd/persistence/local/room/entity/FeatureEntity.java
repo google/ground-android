@@ -28,7 +28,7 @@ import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.FeatureMutation;
 import com.google.android.gnd.model.layer.Layer;
-import com.google.android.gnd.persistence.local.LocalDataConsistencyError;
+import com.google.android.gnd.persistence.local.LocalDataConsistencyException;
 import com.google.android.gnd.persistence.local.room.models.Coordinates;
 import com.google.android.gnd.persistence.local.room.models.EntityState;
 import com.google.auto.value.AutoValue;
@@ -123,7 +123,7 @@ public abstract class FeatureEntity {
             .getLayer(layerId)
             .orElseThrow(
                 () ->
-                    new LocalDataConsistencyError(
+                    new LocalDataConsistencyException(
                         "Unknown layerId " + layerId + " in feature " + id));
     return Feature.newBuilder()
         .setId(id)

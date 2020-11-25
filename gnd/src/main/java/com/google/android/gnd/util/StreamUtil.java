@@ -34,7 +34,7 @@ public class StreamUtil {
   public static <R> Stream<R> logErrorsAndSkip(Supplier<R> supplier) {
     try {
       return stream(Collections.singleton(supplier.get()));
-    } catch (Error e) {
+    } catch (RuntimeException e) {
       Timber.d(e);
       return stream(Collections.emptySet());
     }

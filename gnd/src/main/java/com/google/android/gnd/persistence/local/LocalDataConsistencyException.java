@@ -20,9 +20,9 @@ package com.google.android.gnd.persistence.local;
  * General purpose unchecked exception thrown when local database is in an inconsistent or invalid
  * state.
  */
-public class LocalDataConsistencyError extends Error {
+public class LocalDataConsistencyException extends RuntimeException {
 
-  public LocalDataConsistencyError(String message) {
+  public LocalDataConsistencyException(String message) {
     super(message);
   }
 }
