@@ -96,7 +96,7 @@ steps:
   - name: 'gcr.io/$PROJECT_ID/android:28'
     id: &unit_tests 'Run unit tests'
     waitFor:
-      - *assemble_debug
+      - *code_quality
     args:
       - '-c'
       - |
@@ -135,7 +135,6 @@ steps:
   - name: 'gcr.io/cloud-builders/gsutil'
     id: &save_reports 'Save reports to GCS'
     waitFor:
-      - *code_quality
       - *unit_tests
       - *instrumented_tests
     args: [ 'cp', '-r',
