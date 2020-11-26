@@ -190,7 +190,7 @@ steps:
   - name: 'gcr.io/$PROJECT_ID/android:base'
     id: &build_cache 'Compress gradle build cache'
     waitFor:
-      - *assemble_debug
+      - *code_quality
     args:
       - '-c'
       - |
