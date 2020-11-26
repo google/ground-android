@@ -80,7 +80,7 @@ steps:
     args:
       - '-c'
       - |
-        ./gradlew -PdisablePreDex --no-daemon --max-workers=4 assembleDebug -PdisablePreDex
+        ./gradlew -PdisablePreDex --no-daemon assembleDebug -PdisablePreDex
 
   # Run code quality checks
   - name: 'gcr.io/$PROJECT_ID/android:28'
@@ -90,7 +90,7 @@ steps:
     args:
       - '-c'
       - |
-        ./gradlew -PdisablePreDex --no-daemon --max-workers=4 checkCode 2> check-logs.txt || echo "fail" > build-status.txt
+        ./gradlew -PdisablePreDex --no-daemon checkCode 2> check-logs.txt || echo "fail" > build-status.txt
         cat check-logs.txt
 
   - name: 'gcr.io/$PROJECT_ID/android:28'
@@ -100,7 +100,7 @@ steps:
     args:
       - '-c'
       - |
-        ./gradlew -PdisablePreDex --no-daemon --max-workers=4 testDebug 2> unit-test-logs.txt || echo "fail" > build-status.txt
+        ./gradlew -PdisablePreDex --no-daemon testDebug 2> unit-test-logs.txt || echo "fail" > build-status.txt
         cat unit-test-logs.txt
 
   - name: 'gcr.io/cloud-builders/gcloud-slim'
@@ -122,7 +122,7 @@ steps:
     args:
       - '-c'
       - |
-        ./gradlew -PdisablePreDex --no-daemon --max-workers=4 assembleDebugAndroidTest
+        ./gradlew -PdisablePreDex --no-daemon assembleDebugAndroidTest
 
   # For more details: https://cloud.google.com/sdk/gcloud/reference/alpha/firebase/test/android/run
   - name: 'gcr.io/cloud-builders/gcloud-slim'
