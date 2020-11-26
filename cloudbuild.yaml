@@ -20,13 +20,13 @@
 # Workflow:
 # --------
 #
-#  Copy cache --> Extract tar -->                      --> Code quality ------------------------------------------------>
-#                                \                   /                                                                    \
-#  Copy .git dir ------------------> Build debug apk ----> Unit tests ------------------------------------------------------> Save reports to GCS --> Update CI status
-#                                /                   \                                                                    /
+#  Copy cache --> Extract tar -->                      -------> Code quality -------> Unit tests ------------------------>
+#                                \                   /                                                                     \
+#  Copy .git dir ------------------> Build debug apks                                                                       Save reports to GCS --> Update CI status
+#                                /                   \                                                                     /
 #  Fetch google-services.json -->                      --> Authorize Gcloud --> Build test apks --> Instrumented tests -->
-#                                                                                               \
-#                                                                                                --> Compress gradle cache --> Save gradle cache to GCS
+#                                                      \
+#                                                        --> Compress gradle cache --> Save gradle cache to GCS
 
 steps:
 
