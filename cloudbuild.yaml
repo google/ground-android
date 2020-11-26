@@ -80,7 +80,7 @@ steps:
     args:
       - '-c'
       - |
-        ./gradlew -PdisablePreDex --no-daemon assembleDebug -PdisablePreDex
+        ./gradlew -PdisablePreDex --no-daemon assembleDebug androidDependencies
 
   # Run code quality checks
   - name: 'gcr.io/$PROJECT_ID/android:28'
