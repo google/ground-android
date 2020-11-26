@@ -72,7 +72,7 @@ steps:
         gcloud secrets versions access latest --secret=$_GOOGLE_SERVICES_JSON --format='get(payload.data)' | tr '_-' '/+' | base64 -d > gnd/google-services.json
 
   - name: 'gcr.io/$PROJECT_ID/android:28'
-    id: &assemble_debug 'Assemble debug apk'
+    id: &assemble_debug 'Assemble debug apks'
     waitFor:
       - *restore_gradle_cache
       - *create_git_dir
@@ -80,7 +80,7 @@ steps:
     args:
       - '-c'
       - |
-        ./gradlew -PdisablePreDex --no-daemon assembleDebug androidDependencies
+        ./gradlew -PdisablePreDex --no-daemon androidDependencies assembleDebug assembleDebugAndroidTest
 
   # Run code quality checks
   - name: 'gcr.io/$PROJECT_ID/android:28'
@@ -114,21 +114,11 @@ steps:
         gcloud secrets versions access latest --secret=$_SECRET_NAME --format='get(payload.data)' | tr '_-' '/+' | base64 -d > client-secret.json
         gcloud auth activate-service-account --key-file client-secret.json
 
-  - name: 'gcr.io/$PROJECT_ID/android:28'
-    id: &build_test_apks 'Assemble instrumented test build'
-    waitFor:
-      - *authenticate_gcloud
-    entrypoint: 'bash'
-    args:
-      - '-c'
-      - |
-        ./gradlew -PdisablePreDex --no-daemon assembleDebugAndroidTest
-
   # For more details: https://cloud.google.com/sdk/gcloud/reference/alpha/firebase/test/android/run
   - name: 'gcr.io/cloud-builders/gcloud-slim'
     id: &instrumented_tests 'Run instrumented tests'
     waitFor:
-      - *build_test_apks
+      - *authenticate_gcloud
     entrypoint: 'bash'
     args:
       - '-c'
@@ -201,7 +191,7 @@ steps:
   - name: 'gcr.io/$PROJECT_ID/android:base'
     id: &build_cache 'Compress gradle build cache'
     waitFor:
-      - *build_test_apks
+      - *assemble_debug
     args:
       - '-c'
       - |
