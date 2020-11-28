@@ -30,7 +30,7 @@ import com.google.android.gnd.persistence.remote.DataStoreException;
 import com.google.firebase.firestore.DocumentSnapshot;
 import java.util.List;
 import java.util.Map;
-import java8.util.Optional;
+import java8.util.Objects;
 import javax.annotation.Nullable;
 
 /** Converts between Firestore documents and {@link Observation} instances. */
@@ -49,8 +49,8 @@ class ObservationConverter {
     Form form = checkNotEmpty(feature.getLayer().getForm(formId), "form");
     // Degrade gracefully when audit info missing in remote db.
     AuditInfoNestedObject created =
-        Optional.ofNullable(doc.getCreated()).orElse(AuditInfoNestedObject.FALLBACK_VALUE);
-    AuditInfoNestedObject lastModified = Optional.ofNullable(doc.getLastModified()).orElse(created);
+        Objects.requireNonNullElse(doc.getCreated(), AuditInfoNestedObject.FALLBACK_VALUE);
+    AuditInfoNestedObject lastModified = Objects.requireNonNullElse(doc.getLastModified(), created);
     return Observation.newBuilder()
         .setId(snapshot.getId())
         .setProject(feature.getProject())
