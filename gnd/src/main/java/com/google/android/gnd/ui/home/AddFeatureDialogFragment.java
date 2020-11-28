@@ -39,7 +39,7 @@ import com.google.common.collect.ImmutableList;
 import dagger.hilt.android.AndroidEntryPoint;
 import io.reactivex.Maybe;
 import io.reactivex.subjects.MaybeSubject;
-import java8.util.Optional;
+import java8.util.Objects;
 import javax.inject.Inject;
 
 @AndroidEntryPoint
@@ -48,7 +48,7 @@ public class AddFeatureDialogFragment extends AbstractDialogFragment {
   private final OfflineUuidGenerator uuidGenerator;
   private final AuthenticationManager authManager;
 
-  private MaybeSubject<Feature> addFeatureRequestSubject;
+  private final MaybeSubject<Feature> addFeatureRequestSubject = MaybeSubject.create();
   private HomeScreenViewModel homeScreenViewModel;
   private MapContainerViewModel mapContainerViewModel;
 
@@ -68,27 +68,26 @@ public class AddFeatureDialogFragment extends AbstractDialogFragment {
   }
 
   public Maybe<Feature> show(FragmentManager fragmentManager) {
-    addFeatureRequestSubject = MaybeSubject.create();
     show(fragmentManager, TAG);
     return addFeatureRequestSubject;
   }
 
   @Override
   public Dialog onCreateDialog(Bundle savedInstanceState) {
-    super.onCreateDialog(savedInstanceState);
-    // TODO: Inject and use custom factory.
-    Optional<Project> activeProject = Loadable.getValue(homeScreenViewModel.getActiveProject());
-    if (!activeProject.isPresent()) {
-      addFeatureRequestSubject.onError(new IllegalStateException("No active project"));
-      return fail("Could not get active project");
+    try {
+      super.onCreateDialog(savedInstanceState);
+      // TODO: Inject and use custom factory.
+      Project activeProject =
+          Loadable.getValue(homeScreenViewModel.getActiveProject())
+              .orElseThrow(() -> new NullPointerException("No active project"));
+      Point cameraPosition =
+          Objects.requireNonNull(
+              mapContainerViewModel.getCameraPosition().getValue(), "No camera position");
+      return createDialog(activeProject, cameraPosition);
+    } catch (RuntimeException e) {
+      addFeatureRequestSubject.onError(e);
+      return fail(Objects.requireNonNullElse(e.getMessage(), "Unknown error"));
     }
-    Optional<Point> cameraPosition =
-        Optional.ofNullable(mapContainerViewModel.getCameraPosition().getValue());
-    if (!cameraPosition.isPresent()) {
-      addFeatureRequestSubject.onError(new IllegalStateException("No camera position"));
-      return fail("Could not get camera position");
-    }
-    return createDialog(activeProject.get(), cameraPosition.get());
   }
 
   private Dialog createDialog(Project project, Point cameraPosition) {

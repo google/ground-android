@@ -18,8 +18,10 @@ package com.google.android.gnd.persistence.local.room;
 
 import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList;
 import static com.google.android.gnd.util.ImmutableSetCollector.toImmutableSet;
+import static com.google.common.base.Preconditions.checkNotNull;
 import static java8.util.stream.StreamSupport.stream;
 
+import androidx.annotation.Nullable;
 import androidx.room.Transaction;
 import com.google.android.gnd.model.AuditInfo;
 import com.google.android.gnd.model.Mutation;
@@ -83,6 +85,7 @@ import io.reactivex.Single;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java8.util.Optional;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import timber.log.Timber;
@@ -142,7 +145,9 @@ public class RoomLocalDataStore implements LocalDataStore {
             Observable.just(field)
                 .filter(__ -> field.getMultipleChoice() != null)
                 .flatMapCompletable(
-                    __ -> insertOrUpdateMultipleChoice(field.getId(), field.getMultipleChoice())))
+                    __ ->
+                        insertOrUpdateMultipleChoice(
+                            field.getId(), checkNotNull(field.getMultipleChoice()))))
         .subscribeOn(schedulers.io());
   }
 
@@ -247,12 +252,16 @@ public class RoomLocalDataStore implements LocalDataStore {
   public Flowable<ImmutableSet<Feature>> getFeaturesOnceAndStream(Project project) {
     return featureDao
         .findOnceAndStream(project.getId(), EntityState.DEFAULT)
-        .map(
-            list ->
-                stream(list)
-                    .map(f -> FeatureEntity.toFeature(f, project))
-                    .collect(toImmutableSet()))
+        .map(featureEntities -> toFeatures(project, featureEntities))
         .subscribeOn(schedulers.io());
+  }
+
+  private ImmutableSet<Feature> toFeatures(Project project, List<FeatureEntity> featureEntities) {
+    return stream(featureEntities)
+        .map(f -> FeatureEntity.toFeature(f, project))
+        .filter(f -> f.isPresent())
+        .map(Optional::get)
+        .collect(toImmutableSet());
   }
 
   // TODO(#127): Decouple from Project and remove project from args.
@@ -261,6 +270,8 @@ public class RoomLocalDataStore implements LocalDataStore {
     return featureDao
         .findById(featureId)
         .map(f -> FeatureEntity.toFeature(f, project))
+        .filter(Optional::isPresent)
+        .map(Optional::get)
         .subscribeOn(schedulers.io());
   }
 
@@ -337,11 +348,12 @@ public class RoomLocalDataStore implements LocalDataStore {
   }
 
   @Override
-  public Completable finalizePendingMutations(ImmutableList<Mutation> mutations) {
+  public Completable finalizePendingMutations(@Nullable ImmutableList<Mutation> mutations) {
+    checkNotNull(mutations, "List of mutations can not be null");
     return finalizeDeletions(mutations).andThen(removePending(mutations));
   }
 
-  private Completable finalizeDeletions(ImmutableList<Mutation> mutations) {
+  private Completable finalizeDeletions(@Nullable ImmutableList<Mutation> mutations) {
     return Observable.fromIterable(mutations)
         .filter(mutation -> mutation.getType() == Type.DELETE)
         .flatMapCompletable(
@@ -391,6 +403,7 @@ public class RoomLocalDataStore implements LocalDataStore {
       return observationDao.insertOrUpdate(observation);
     }
     ObservationMutationEntity lastMutation = mutations.get(mutations.size() - 1);
+    checkNotNull(lastMutation, "Could not get last mutation");
     return getUser(lastMutation.getUserId())
         .map(user -> applyMutations(observation, mutations, user))
         .flatMapCompletable(obs -> observationDao.insertOrUpdate(obs));

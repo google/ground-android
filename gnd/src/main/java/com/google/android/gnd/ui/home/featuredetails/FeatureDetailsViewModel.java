@@ -53,7 +53,7 @@ public class FeatureDetailsViewModel extends ViewModel {
       return;
     }
 
-    Optional<Feature> featureOptional = Optional.ofNullable(state.getFeature());
+    Optional<Feature> featureOptional = state.getFeature();
     feature.set(featureOptional);
     selectedFeature.onNext(featureOptional);
   }

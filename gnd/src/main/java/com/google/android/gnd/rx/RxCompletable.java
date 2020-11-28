@@ -17,6 +17,7 @@
 package com.google.android.gnd.rx;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import io.reactivex.Completable;
 import io.reactivex.Single;
 import java.util.concurrent.Callable;
@@ -65,7 +66,7 @@ public abstract class RxCompletable {
    * error occurs, the exception is consumed by the argument {@param exceptionConsumer}.
    */
   public static Single<Boolean> toBooleanSingle(
-      @NonNull Completable completable, Consumer<? super Throwable> exceptionConsumer) {
+      @NonNull Completable completable, @Nullable Consumer<? super Throwable> exceptionConsumer) {
     return completable
         .doOnError(exceptionConsumer::accept)
         .toSingleDefault(true)

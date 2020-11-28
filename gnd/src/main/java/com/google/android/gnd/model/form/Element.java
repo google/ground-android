@@ -44,7 +44,6 @@ public abstract class Element {
 
   public abstract Type getType();
 
-  @Nullable
   public abstract Field getField();
 
   @Nullable

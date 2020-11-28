@@ -26,6 +26,7 @@ steps:
   - name: 'gcr.io/cloud-builders/docker'
     args:
       - 'build'
+      - '--no-cache'
       - '--tag=gcr.io/$PROJECT_ID/android:base'
       - '--file=Dockerfile-base'
       - '.'
@@ -35,6 +36,7 @@ steps:
   - name: 'gcr.io/cloud-builders/docker'
     args:
       - 'build'
+      - '--no-cache'
       - '--tag=gcr.io/$PROJECT_ID/android:${_ANDROID_VERSION}'
       - '--build-arg'
       - 'android_version=${_ANDROID_VERSION}'
