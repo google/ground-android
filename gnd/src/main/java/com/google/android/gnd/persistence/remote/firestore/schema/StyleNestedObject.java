@@ -16,21 +16,18 @@
 
 package com.google.android.gnd.persistence.remote.firestore.schema;
 
-import androidx.annotation.Nullable;
-
 /** Firestore representation of map feature styles. */
 class StyleNestedObject {
-  @Nullable private String color;
+  private String color;
 
   @SuppressWarnings("unused")
   public StyleNestedObject() {}
 
   @SuppressWarnings("unused")
-  StyleNestedObject(@Nullable String color) {
+  StyleNestedObject(String color) {
     this.color = color;
   }
 
-  @Nullable
   public String getColor() {
     return color;
   }

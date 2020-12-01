@@ -246,11 +246,13 @@ public class LocalDataStoreTest {
     Layer layer1 =
         Layer.newBuilder()
             .setId("layer 1")
+            .setName("layer 1 name")
             .setDefaultStyle(Style.builder().setColor("000").build())
             .build();
     Layer layer2 =
         Layer.newBuilder()
             .setId("layer 2")
+            .setName("layer 2 name")
             .setDefaultStyle(Style.builder().setColor("000").build())
             .build();
 
@@ -258,6 +260,7 @@ public class LocalDataStoreTest {
         Project.newBuilder()
             .setId("foo id")
             .setTitle("foo project")
+            .setDescription("foo project description")
             .putLayer(layer1.getId(), layer1)
             .build();
     localDataStore.insertOrUpdateProject(project).blockingAwait();
@@ -266,6 +269,7 @@ public class LocalDataStoreTest {
         Project.newBuilder()
             .setId("foo id")
             .setTitle("foo project")
+            .setDescription("foo project description")
             .putLayer(layer2.getId(), layer2)
             .build();
     localDataStore.insertOrUpdateProject(project).blockingAwait();

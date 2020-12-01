@@ -67,7 +67,10 @@ public class RemoteDataEvent<T> extends ValueOrError<T> {
     return new RemoteDataEvent<>(entityId, EventType.ENTITY_REMOVED, null, null);
   }
 
+  // TODO (donturner): Consider moving errors into a RemoteDataException class.
+  //  This avoids the need to supply an entityId. It is currently set to "ERROR" as a temporary
+  //  measure.
   public static <T> RemoteDataEvent<T> error(Throwable error) {
-    return new RemoteDataEvent<>(null, EventType.ERROR, null, error);
+    return new RemoteDataEvent<>("ERROR", EventType.ERROR, null, error);
   }
 }

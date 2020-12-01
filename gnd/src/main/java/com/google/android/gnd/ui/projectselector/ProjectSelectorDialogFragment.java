@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.ui.projectselector;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static java8.util.stream.StreamSupport.stream;
 
 import android.app.Dialog;
@@ -36,15 +37,16 @@ import dagger.hilt.android.AndroidEntryPoint;
 import java.util.List;
 import timber.log.Timber;
 
-/**
- * User interface implementation of project selector dialog.
- */
+/** User interface implementation of project selector dialog. */
 @AndroidEntryPoint
 public class ProjectSelectorDialogFragment extends AbstractDialogFragment {
 
   private ProjectSelectorViewModel viewModel;
-  private ArrayAdapter listAdapter;
+
+  @SuppressWarnings("NullAway")
   private ProjectSelectorDialogBinding binding;
+
+  @Nullable private ArrayAdapter listAdapter;
 
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -64,8 +66,8 @@ public class ProjectSelectorDialogFragment extends AbstractDialogFragment {
         new ArrayAdapter(getContext(), R.layout.project_selector_list_item, R.id.project_name);
     binding.projectSelectorListView.setAdapter(listAdapter);
     viewModel.getProjectSummaries().observe(this, this::updateProjectList);
-    binding.projectSelectorListView
-        .setOnItemClickListener((parent, view, index, id) -> onItemSelected(index));
+    binding.projectSelectorListView.setOnItemClickListener(
+        (parent, view, index, id) -> onItemSelected(index));
     dialog.setView(binding.getRoot());
     dialog.setCancelable(false);
     return dialog.create();
@@ -97,6 +99,9 @@ public class ProjectSelectorDialogFragment extends AbstractDialogFragment {
 
   private void showProjectList(List<Project> list) {
     binding.listLoadingProgressBar.setVisibility(View.GONE);
+
+    checkNotNull(listAdapter, "listAdapter was null when attempting to show project list");
+
     listAdapter.clear();
     stream(list).map(Project::getTitle).forEach(listAdapter::add);
     binding.projectSelectorListView.setVisibility(View.VISIBLE);
