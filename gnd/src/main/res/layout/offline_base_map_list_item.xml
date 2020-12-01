@@ -26,11 +26,12 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_margin="@dimen/fab_margin"
-    android:drawableStart="@drawable/ic_edit_black"
+    android:drawableStart="@android:drawable/ic_menu_mapmode"
     android:drawableLeft="@drawable/ic_edit_black"
     android:drawablePadding="16dp"
     android:textColor="@color/colorForeground"
-    android:textSize="16sp" />
+    android:textSize="16sp"
+    app:drawableTint="@color/colorGrey800" />
   <View
     android:id="@+id/divider"
     android:layout_width="match_parent"
