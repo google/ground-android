@@ -21,6 +21,7 @@ import static com.google.android.gnd.util.Localization.getLocalizedMessage;
 import android.util.Log;
 import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.model.layer.Style;
+import java8.util.Objects;
 import java8.util.Optional;
 
 /** Converts between Firestore documents and {@link Layer} instances. */
@@ -54,7 +55,7 @@ class LayerConverter {
     // TODO(https://github.com/google/ground-platform/issues/402): Remove fallback once updated in
     // web client.
     return Style.builder()
-        .setColor(Optional.ofNullable(obj.getColor()).orElse(FALLBACK_COLOR))
+        .setColor(Objects.requireNonNullElse(obj.getColor(), FALLBACK_COLOR))
         .build();
   }
 }
