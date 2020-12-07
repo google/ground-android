@@ -36,6 +36,15 @@ public interface TileSourceDao extends BaseDao<TileSourceEntity> {
   @Query("SELECT * FROM tile_sources WHERE id = :id")
   Maybe<TileSourceEntity> findById(String id);
 
+  @Query("SELECT * FROM tile_sources WHERE url = :url")
+  Maybe<TileSourceEntity> findByUrl(String url);
+
   @Query("SELECT * FROM tile_sources WHERE path = :path")
   Maybe<TileSourceEntity> findByPath(String path);
+
+  @Query("UPDATE tile_sources SET basemap_count=:newCount WHERE url = :url")
+  Single<Integer> updateBasemapReferenceCount(int newCount, String url);
+
+  @Query("DELETE FROM tile_sources WHERE url = :url")
+  Maybe<Integer> deleteByUrl(String url);
 }

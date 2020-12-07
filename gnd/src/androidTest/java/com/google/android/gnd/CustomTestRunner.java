@@ -17,7 +17,10 @@
 package com.google.android.gnd;
 
 import android.app.Application;
+import android.app.UiAutomation;
 import android.content.Context;
+import android.os.Bundle;
+import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.runner.AndroidJUnitRunner;
 import com.squareup.rx2.idler.Rx2Idler;
 import dagger.hilt.android.testing.HiltTestApplication;
@@ -39,5 +42,25 @@ public class CustomTestRunner extends AndroidJUnitRunner {
         Rx2Idler.create("RxJava 2.x IO Scheduler"));
 
     return super.newApplication(cl, HiltTestApplication.class.getName(), context);
+  }
+
+  @Override
+  public void onCreate(Bundle arguments) {
+    super.onCreate(arguments);
+    setAnimations(false);
+  }
+
+  @Override
+  public void finish(int resultCode, Bundle results) {
+    setAnimations(true);
+    super.finish(resultCode, results);
+  }
+
+  private void setAnimations(boolean enabled) {
+    String value = enabled ? "1.0" : "0.0";
+    UiAutomation run = InstrumentationRegistry.getInstrumentation().getUiAutomation();
+    run.executeShellCommand("settings put global $WINDOW_ANIMATION_SCALE " + value);
+    run.executeShellCommand("settings put global $TRANSITION_ANIMATION_SCALE " + value);
+    run.executeShellCommand("settings put global $ANIMATOR_DURATION_SCALE " + value);
   }
 }

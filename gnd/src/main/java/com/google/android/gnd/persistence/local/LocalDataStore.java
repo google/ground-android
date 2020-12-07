@@ -149,8 +149,8 @@ public interface LocalDataStore {
    */
   Completable insertOrUpdateTileSource(TileSource tileSource);
 
-  /** Returns the tile with the specified id from the local data store, if found. */
-  Maybe<TileSource> getTileSource(String tileId);
+  /** Returns the tile with the specified URL from the local data store, if found. */
+  Maybe<TileSource> getTileSource(String tileUrl);
 
   /** Returns all pending tiles from the local data store. */
   Single<ImmutableList<TileSource>> getPendingTileSources();
@@ -164,6 +164,18 @@ public interface LocalDataStore {
   /** Returns all queued, failed, and completed offline areas from the local data store. */
   Flowable<ImmutableList<OfflineBaseMap>> getOfflineAreasOnceAndStream();
 
+  /** Delete an offline area and any associated tiles that are no longer needed. */
+  Completable deleteOfflineArea(String offlineAreaId);
+
   /** Returns the offline area with the specified id. */
   Single<OfflineBaseMap> getOfflineAreaById(String id);
+
+  /**
+   * Update the area count of an existing tile source in the local data store with the area count of
+   * {@param tilesource}.
+   */
+  Completable updateTileSourceBasemapReferenceCountByUrl(int newCount, String url);
+
+  /** Delete a tile source associated with a given URL from the local data store. */
+  Completable deleteTileByUrl(TileSource tile);
 }

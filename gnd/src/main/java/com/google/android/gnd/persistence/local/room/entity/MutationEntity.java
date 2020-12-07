@@ -52,7 +52,6 @@ public abstract class MutationEntity {
 
   @CopyAnnotations
   @ColumnInfo(name = "user_id")
-  @Nullable
   public abstract String getUserId();
 
   @CopyAnnotations

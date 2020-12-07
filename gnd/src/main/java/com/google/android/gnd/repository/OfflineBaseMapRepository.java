@@ -38,10 +38,13 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
+import io.reactivex.Maybe;
+import io.reactivex.Observable;
 import io.reactivex.Single;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.Collection;
 import javax.inject.Inject;
 import org.apache.commons.io.FileUtils;
 import timber.log.Timber;
@@ -96,14 +99,18 @@ public class OfflineBaseMapRepository {
 
   /** Enqueue a single area and its tile sources for download. */
   private Completable enqueueDownload(OfflineBaseMap area, ImmutableList<TileSource> tileSources) {
-    return localDataStore
-        .insertOrUpdateOfflineArea(area.toBuilder().setState(State.IN_PROGRESS).build())
-        .andThen(
-            Completable.merge(
-                stream(tileSources.asList())
-                    .map(localDataStore::insertOrUpdateTileSource)
-                    .collect(toImmutableList())))
+    return Flowable.fromIterable(tileSources)
+        .flatMapCompletable(
+            tileSource ->
+                localDataStore
+                    .getTileSource(tileSource.getUrl())
+                    .map(TileSource::incrementAreaCount)
+                    .toSingle(tileSource)
+                    .flatMapCompletable(localDataStore::insertOrUpdateTileSource))
         .doOnError(__ -> Timber.e("failed to add/update a tile in the database"))
+        .andThen(
+            localDataStore.insertOrUpdateOfflineArea(
+                area.toBuilder().setState(State.IN_PROGRESS).build()))
         .andThen(tileSourceDownloadWorkManager.enqueueTileSourceDownloadWorker());
   }
 
@@ -157,17 +164,37 @@ public class OfflineBaseMapRepository {
     return localDataStore.getOfflineAreaById(offlineAreaId);
   }
 
+  /**
+   * Returns the intersection of downloaded tiles in two collections of tiles. Tiles are considered
+   * equal if their URLs are equal.
+   */
+  private ImmutableSet<TileSource> downloadedTileSourcesIntersection(
+      Collection<TileSource> tileSources, Collection<TileSource> other) {
+    ImmutableList<String> otherUrls =
+        stream(other).map(TileSource::getUrl).collect(toImmutableList());
+
+    return stream(tileSources)
+        .filter(tile -> otherUrls.contains(tile.getUrl()))
+        .filter(tile -> tile.getState() == TileSource.State.DOWNLOADED)
+        .collect(toImmutableSet());
+  }
+
   public Flowable<ImmutableSet<TileSource>> getIntersectingDownloadedTileSourcesOnceAndStream(
       OfflineBaseMap offlineBaseMap) {
     return getBaseMapTileSources(offlineBaseMap)
         .flatMapPublisher(
             tiles ->
                 getDownloadedTileSourcesOnceAndStream()
-                    .map(ts -> stream(ts).filter(tiles::contains).collect(toImmutableSet())))
+                    .map(ts -> downloadedTileSourcesIntersection(ts, tiles)))
         // If no tile sources are found, we report the area takes up 0.0mb on the device.
         .doOnError(
             throwable -> Timber.d(throwable, "no tile sources found for area %s", offlineBaseMap))
         .onErrorReturn(__ -> ImmutableSet.of());
+  }
+
+  public Maybe<ImmutableSet<TileSource>> getIntersectingDownloadedTileSourcesOnce(
+      OfflineBaseMap offlineBaseMap) {
+    return getIntersectingDownloadedTileSourcesOnceAndStream(offlineBaseMap).firstElement();
   }
 
   public Flowable<ImmutableSet<TileSource>> getDownloadedTileSourcesOnceAndStream() {
@@ -178,5 +205,24 @@ public class OfflineBaseMapRepository {
                 stream(set)
                     .filter(tileSource -> tileSource.getState() == TileSource.State.DOWNLOADED)
                     .collect(toImmutableSet()));
+  }
+
+  /**
+   * Delete an offline base map and any tile sources associated with it that do not overlap with
+   * other offline base maps .
+   */
+  public Completable deleteArea(String offlineAreaId) {
+    return localDataStore
+        .getOfflineAreaById(offlineAreaId)
+        .flatMapMaybe(this::getIntersectingDownloadedTileSourcesOnce)
+        .flatMapObservable(Observable::fromIterable)
+        .map(TileSource::decrementAreaCount)
+        .flatMapCompletable(
+            tile ->
+                localDataStore
+                    .updateTileSourceBasemapReferenceCountByUrl(
+                        tile.getBasemapReferenceCount(), tile.getUrl())
+                    .andThen(localDataStore.deleteTileByUrl(tile)))
+        .andThen(localDataStore.deleteOfflineArea(offlineAreaId));
   }
 }

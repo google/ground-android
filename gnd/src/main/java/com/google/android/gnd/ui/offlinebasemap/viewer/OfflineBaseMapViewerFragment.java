@@ -22,7 +22,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.R;
@@ -30,11 +29,13 @@ import com.google.android.gnd.databinding.OfflineBaseMapViewerFragBinding;
 import com.google.android.gnd.model.basemap.OfflineBaseMap;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.ui.common.AbstractFragment;
+import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.map.MapAdapter;
 import com.google.android.gnd.ui.map.MapProvider;
 import dagger.hilt.android.AndroidEntryPoint;
 import io.reactivex.Single;
 import javax.inject.Inject;
+import timber.log.Timber;
 
 /**
  * The OfflineAreaViewerFragment provides a UI for managing a single offline area on the user's
@@ -45,6 +46,7 @@ public class OfflineBaseMapViewerFragment extends AbstractFragment {
 
   private static final String MAP_FRAGMENT = MapProvider.class.getName() + "#fragment";
 
+  @Inject Navigator navigator;
   @Inject MapProvider mapProvider;
 
   private OfflineBaseMapViewerViewModel viewModel;
@@ -67,7 +69,7 @@ public class OfflineBaseMapViewerFragment extends AbstractFragment {
 
   @Override
   public View onCreateView(
-      @NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+      LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
     super.onCreateView(inflater, container, savedInstanceState);
     OfflineBaseMapViewerFragBinding binding =
         OfflineBaseMapViewerFragBinding.inflate(inflater, container, false);
@@ -79,7 +81,7 @@ public class OfflineBaseMapViewerFragment extends AbstractFragment {
   }
 
   @Override
-  public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+  public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
     if (savedInstanceState == null) {
       replaceFragment(R.id.map, mapProvider.getFragment());
@@ -110,6 +112,10 @@ public class OfflineBaseMapViewerFragment extends AbstractFragment {
       return;
     }
 
-    viewModel.onRemoveClick();
+    Timber.d("Removing offline area %s", viewModel.getOfflineArea());
+    viewModel
+        .onRemoveClick()
+        .as(autoDisposable(this))
+        .subscribe(() -> navigator.navigateUp());
   }
 }

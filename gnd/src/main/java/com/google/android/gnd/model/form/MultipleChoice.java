@@ -37,7 +37,6 @@ public abstract class MultipleChoice {
     return stream(getOptions()).filter(o -> o.getId().equals(id)).findFirst();
   }
 
-  @Nullable
   public abstract Cardinality getCardinality();
 
   public Optional<Integer> getIndex(String id) {
