@@ -19,7 +19,6 @@ package com.google.android.gnd.repository;
 import com.google.android.gnd.model.AuditInfo;
 import com.google.android.gnd.model.Mutation.Type;
 import com.google.android.gnd.model.feature.Feature;
-import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.model.observation.ObservationMutation;
 import com.google.android.gnd.model.observation.ResponseDelta;
@@ -84,8 +83,6 @@ public class ObservationRepository {
   public Single<ImmutableList<Observation>> getObservations(
       String projectId, String featureId, String formId) {
     // TODO: Only fetch first n fields.
-    // TODO(#127): Decouple feature from observation so that we don't need to fetch observation
-    // here.
     return featureRepository
         .getFeature(projectId, featureId)
         .switchIfEmpty(Single.error(() -> new NotFoundException("Feature " + featureId)))
@@ -114,7 +111,6 @@ public class ObservationRepository {
   public Single<Observation> getObservation(
       String projectId, String featureId, String observationId) {
     // TODO: Store and retrieve latest edits from cache and/or db.
-    // TODO(#127): Decouple feature from observation so that we don't need to fetch feature here.
     return featureRepository
         .getFeature(projectId, featureId)
         .switchIfEmpty(Single.error(() -> new NotFoundException("Feature " + featureId)))
@@ -127,28 +123,21 @@ public class ObservationRepository {
   }
 
   public Single<Observation> createObservation(String projectId, String featureId, String formId) {
-    // TODO(#127): Decouple feature from observation so that we don't need to fetch feature here.
+    // TODO: Handle invalid formId.
     AuditInfo auditInfo = AuditInfo.now(authManager.getCurrentUser());
     return featureRepository
         .getFeature(projectId, featureId)
         .switchIfEmpty(Single.error(() -> new NotFoundException("Feature " + featureId)))
-        .map(feature -> createObservation(formId, auditInfo, feature));
-  }
-
-  private Observation createObservation(String formId, AuditInfo auditInfo, Feature feature) {
-    Form form =
-        feature
-            .getLayer()
-            .getForm(formId)
-            .orElseThrow(() -> new NotFoundException("Unknown form " + formId));
-    return Observation.newBuilder()
-        .setId(uuidGenerator.generateUuid())
-        .setProject(feature.getProject())
-        .setFeature(feature)
-        .setForm(form)
-        .setCreated(auditInfo)
-        .setLastModified(auditInfo)
-        .build();
+        .map(
+            feature ->
+                Observation.newBuilder()
+                    .setId(uuidGenerator.generateUuid())
+                    .setProject(feature.getProject())
+                    .setFeature(feature)
+                    .setForm(feature.getLayer().getForm(formId).get())
+                    .setCreated(auditInfo)
+                    .setLastModified(auditInfo)
+                    .build());
   }
 
   public Completable deleteObservation(Observation observation) {

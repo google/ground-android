@@ -96,12 +96,10 @@ public class FeatureRepository {
   }
 
   // TODO: Only return feature fields needed to render features on map.
-  // TODO(#127): Decouple from Project and accept id instead.
   public Flowable<ImmutableSet<Feature>> getFeaturesOnceAndStream(Project project) {
     return localDataStore.getFeaturesOnceAndStream(project);
   }
 
-  // TODO(#127): Decouple Project from Feature and remove projectId.
   // TODO: Replace with Single and treat missing feature as error.
   // TODO: Don't require projectId to be the active project.
   public Maybe<Feature> getFeature(String projectId, String featureId) {

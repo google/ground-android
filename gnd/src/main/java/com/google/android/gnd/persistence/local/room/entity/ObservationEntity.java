@@ -118,10 +118,7 @@ public abstract class ObservationEntity {
         .build();
   }
 
-  // TODO(#127): Replace reference to Feature in Observation with featureId and remove feature arg.
   public static Observation toObservation(Feature feature, ObservationEntity observation) {
-    // TODO(#127): Replace reference to Form in Observation with formId and remove here.
-    // TODO(#127): Replace reference to Project in Observation with projectId and remove here.
     String id = observation.getId();
     String formId = observation.getFormId();
     Form form =
