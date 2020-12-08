@@ -43,6 +43,7 @@ public class OfflineBaseMapViewerViewModel extends AbstractViewModel {
   private final OfflineBaseMapRepository offlineBaseMapRepository;
   private final WeakReference<Context> context;
   public LiveData<Double> areaStorageSize;
+  public LiveData<String> areaName;
   private LiveData<OfflineBaseMap> offlineArea;
 
   @Inject
@@ -51,6 +52,14 @@ public class OfflineBaseMapViewerViewModel extends AbstractViewModel {
     this.argsProcessor = BehaviorProcessor.create();
     this.offlineBaseMapRepository = offlineBaseMapRepository;
     this.context = new WeakReference<>(context);
+    this.areaName =
+        LiveDataReactiveStreams.fromPublisher(
+            this.argsProcessor.switchMap(
+                args ->
+                    this.offlineBaseMapRepository
+                        .getOfflineArea(args.getOfflineAreaId())
+                        .toFlowable()
+                        .map(OfflineBaseMap::getName)));
     this.areaStorageSize =
         LiveDataReactiveStreams.fromPublisher(
             this.argsProcessor.switchMap(
