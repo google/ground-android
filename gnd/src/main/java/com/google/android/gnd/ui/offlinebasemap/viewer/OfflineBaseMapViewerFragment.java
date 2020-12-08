@@ -27,7 +27,6 @@ import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.OfflineBaseMapViewerFragBinding;
 import com.google.android.gnd.model.basemap.OfflineBaseMap;
-import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.map.MapAdapter;
@@ -92,6 +91,7 @@ public class OfflineBaseMapViewerFragment extends AbstractFragment {
 
   private void onMapReady(MapAdapter map) {
     this.map = map;
+    map.disable();
   }
 
   private void panMap(OfflineBaseMap offlineBaseMap) {
@@ -99,10 +99,7 @@ public class OfflineBaseMapViewerFragment extends AbstractFragment {
       return;
     }
 
-    double lat = offlineBaseMap.getBounds().northeast.latitude;
-    double lon = offlineBaseMap.getBounds().southwest.longitude;
-    Point point = Point.newBuilder().setLatitude(lat).setLongitude(lon).build();
-    map.moveCamera(point);
+    map.setBounds(offlineBaseMap.getBounds());
   }
 
   /** Removes the area associated with this fragment from the user's device. */
