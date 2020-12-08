@@ -16,6 +16,8 @@
 
 package com.google.android.gnd.system;
 
+import static java8.util.stream.StreamSupport.stream;
+
 import android.content.Context;
 import android.location.Address;
 import android.location.Geocoder;
@@ -26,8 +28,12 @@ import com.google.android.gnd.rx.Schedulers;
 import dagger.hilt.android.qualifiers.ApplicationContext;
 import io.reactivex.Single;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java8.util.Optional;
+import java8.util.stream.Collectors;
 import javax.inject.Inject;
 import timber.log.Timber;
 
@@ -58,7 +64,6 @@ public class GeocodingManager {
     LatLng center = bounds.getCenter();
 
     List<Address> addresses = geocoder.getFromLocation(center.latitude, center.longitude, 1);
-
     if (addresses.isEmpty()) {
       throw new AddressNotFoundException("No address found for area.");
     }
@@ -66,13 +71,17 @@ public class GeocodingManager {
     Address address = addresses.get(0);
 
     // TODO: Decide exactly what set of address parts we want to show the user.
-    Optional<String> country = Optional.ofNullable(address.getCountryName());
-    Optional<String> locality = Optional.ofNullable(address.getLocality());
+    String country = Optional.ofNullable(address.getCountryName()).orElse("");
+    String locality = Optional.ofNullable(address.getLocality()).orElse("");
+    String admin = Optional.ofNullable(address.getAdminArea()).orElse("");
+    String subadmin = Optional.ofNullable(address.getSubAdminArea()).orElse("");
+    Collection<String> components =
+        new ArrayList<>(Arrays.asList(country, locality, admin, subadmin));
 
-    return country
-        .map(
-            countryName -> locality.isPresent() ? countryName + ", " + locality.get() : countryName)
-        .orElse(defaultAreaName);
+    String fullLocationName =
+        stream(components).filter(x -> !"".equals(x)).collect(Collectors.joining(", "));
+
+    return "".equals(fullLocationName) ? defaultAreaName : fullLocationName;
   }
 
   /**
