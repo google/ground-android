@@ -35,7 +35,7 @@ public class StreamUtil {
     try {
       return stream(Collections.singleton(supplier.get()));
     } catch (RuntimeException e) {
-      Timber.d(e);
+      Timber.e(e);
       return stream(Collections.emptySet());
     }
   }
