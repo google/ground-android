@@ -16,7 +16,6 @@
 
 package com.google.android.gnd.ui.offlinebasemap.selector;
 
-import android.content.Context;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
 import com.google.android.gms.maps.model.LatLngBounds;
@@ -26,7 +25,6 @@ import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator;
 import com.google.android.gnd.repository.OfflineBaseMapRepository;
 import com.google.android.gnd.rx.Event;
 import com.google.android.gnd.ui.common.AbstractViewModel;
-import dagger.hilt.android.qualifiers.ApplicationContext;
 import io.reactivex.processors.FlowableProcessor;
 import io.reactivex.processors.PublishProcessor;
 import javax.inject.Inject;
@@ -45,7 +43,6 @@ public class OfflineBaseMapSelectorViewModel extends AbstractViewModel {
 
   @Inject
   OfflineBaseMapSelectorViewModel(
-      @ApplicationContext Context contxet,
       OfflineBaseMapRepository offlineBaseMapRepository,
       OfflineUuidGenerator offlineUuidGenerator) {
     this.messages =

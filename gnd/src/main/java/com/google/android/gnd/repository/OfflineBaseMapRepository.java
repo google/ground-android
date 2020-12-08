@@ -29,7 +29,6 @@ import com.google.android.gnd.model.basemap.tile.TileSource;
 import com.google.android.gnd.persistence.geojson.GeoJsonParser;
 import com.google.android.gnd.persistence.local.LocalDataStore;
 import com.google.android.gnd.persistence.sync.TileSourceDownloadWorkManager;
-import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator;
 import com.google.android.gnd.rx.Loadable;
 import com.google.android.gnd.rx.Schedulers;
 import com.google.android.gnd.system.GeocodingManager;
@@ -58,22 +57,18 @@ public class OfflineBaseMapRepository {
   private final Schedulers schedulers;
   private final GeocodingManager geocodingManager;
 
-  private final OfflineUuidGenerator uuidGenerator;
-
   @Inject
   public OfflineBaseMapRepository(
       TileSourceDownloadWorkManager tileSourceDownloadWorkManager,
       LocalDataStore localDataStore,
       ProjectRepository projectRepository,
       GeoJsonParser geoJsonParser,
-      OfflineUuidGenerator uuidGenerator,
       FileUtil fileUtil,
       Schedulers schedulers,
       GeocodingManager geocodingManager) {
     this.tileSourceDownloadWorkManager = tileSourceDownloadWorkManager;
     this.localDataStore = localDataStore;
     this.geoJsonParser = geoJsonParser;
-    this.uuidGenerator = uuidGenerator;
     this.projectRepository = projectRepository;
     this.fileUtil = fileUtil;
     this.schedulers = schedulers;
