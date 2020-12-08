@@ -247,7 +247,6 @@ public class RoomLocalDataStore implements LocalDataStore {
     }
   }
 
-  // TODO(#127): Decouple from Project and pass in project id instead.
   @Override
   public Flowable<ImmutableSet<Feature>> getFeaturesOnceAndStream(Project project) {
     return featureDao
@@ -264,7 +263,6 @@ public class RoomLocalDataStore implements LocalDataStore {
         .collect(toImmutableSet());
   }
 
-  // TODO(#127): Decouple from Project and remove project from args.
   @Override
   public Maybe<Feature> getFeature(Project project, String featureId) {
     return featureDao

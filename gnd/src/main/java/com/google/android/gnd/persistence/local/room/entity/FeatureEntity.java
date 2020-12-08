@@ -115,7 +115,6 @@ public abstract class FeatureEntity {
     return entity.build();
   }
 
-  // TODO(#127): Decouple from Project and remove 2nd argument.
   public static Optional<Feature> toFeature(FeatureEntity featureEntity, Project project) {
     Optional<Layer> layer = project.getLayer(featureEntity.getLayerId());
     if (layer.isEmpty()) {
