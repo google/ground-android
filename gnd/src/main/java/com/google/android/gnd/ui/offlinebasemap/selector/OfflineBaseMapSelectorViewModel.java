@@ -75,7 +75,6 @@ public class OfflineBaseMapSelectorViewModel extends AbstractViewModel {
             .setBounds(viewport)
             .setId(offlineUuidGenerator.generateUuid())
             .setState(State.PENDING)
-            .setZoomLevel(zoomLevel)
             .setName(defaultName)
             .build();
 

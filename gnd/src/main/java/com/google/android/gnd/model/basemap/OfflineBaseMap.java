@@ -31,8 +31,6 @@ public abstract class OfflineBaseMap {
 
   public abstract String getName();
 
-  public abstract float getZoomLevel();
-
   public abstract Builder toBuilder();
 
   public enum State {
@@ -56,8 +54,6 @@ public abstract class OfflineBaseMap {
     public abstract Builder setId(String id);
 
     public abstract Builder setName(String name);
-
-    public abstract Builder setZoomLevel(float zoomLevel);
 
     public abstract OfflineBaseMap build();
   }

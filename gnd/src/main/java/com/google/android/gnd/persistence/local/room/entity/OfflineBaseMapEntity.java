@@ -62,10 +62,6 @@ public abstract class OfflineBaseMapEntity {
   @ColumnInfo(name = "west")
   public abstract double getWest();
 
-  @AutoValue.CopyAnnotations
-  @ColumnInfo(name = "zoom")
-  public abstract float getZoom();
-
   public static OfflineBaseMap toArea(OfflineBaseMapEntity offlineBaseMapEntity) {
     LatLng northEast = new LatLng(offlineBaseMapEntity.getNorth(), offlineBaseMapEntity.getEast());
     LatLng southWest = new LatLng(offlineBaseMapEntity.getSouth(), offlineBaseMapEntity.getWest());
@@ -76,7 +72,6 @@ public abstract class OfflineBaseMapEntity {
         .setBounds(bounds)
         .setState(toAreaState(offlineBaseMapEntity.getState()))
         .setName(offlineBaseMapEntity.getName())
-        .setZoomLevel(offlineBaseMapEntity.getZoom())
         .build();
   }
 
@@ -104,8 +99,7 @@ public abstract class OfflineBaseMapEntity {
             .setNorth(offlineBaseMap.getBounds().northeast.latitude)
             .setEast(offlineBaseMap.getBounds().northeast.longitude)
             .setSouth(offlineBaseMap.getBounds().southwest.latitude)
-            .setWest(offlineBaseMap.getBounds().southwest.longitude)
-            .setZoom(offlineBaseMap.getZoomLevel());
+            .setWest(offlineBaseMap.getBounds().southwest.longitude);
     return entity.build();
   }
 
@@ -131,8 +125,7 @@ public abstract class OfflineBaseMapEntity {
       double north,
       double east,
       double south,
-      double west,
-      float zoom) {
+      double west) {
     return builder()
         .setId(id)
         .setName(name)
@@ -141,7 +134,6 @@ public abstract class OfflineBaseMapEntity {
         .setEast(east)
         .setSouth(south)
         .setWest(west)
-        .setZoom(zoom)
         .build();
   }
 
@@ -165,8 +157,6 @@ public abstract class OfflineBaseMapEntity {
     public abstract Builder setEast(double coordinate);
 
     public abstract Builder setWest(double coordinate);
-
-    public abstract Builder setZoom(float zoom);
 
     public abstract OfflineBaseMapEntity build();
   }
