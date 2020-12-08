@@ -389,6 +389,11 @@ class GoogleMapsMapAdapter implements MapAdapter {
     return map.getProjection().getVisibleRegion().latLngBounds;
   }
 
+  @Override
+  public void setBounds(LatLngBounds bounds) {
+    map.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, 0));
+  }
+
   private void addTileOverlay(String filePath) {
     File mbtilesFile = new File(context.getFilesDir(), filePath);
 

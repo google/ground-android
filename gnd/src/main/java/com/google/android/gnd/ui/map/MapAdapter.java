@@ -80,6 +80,9 @@ public interface MapAdapter {
   /** Returns the bounds of the currently visibly viewport. */
   LatLngBounds getViewport();
 
+  /** Set the map viewport to the given bounds. */
+  void setBounds(LatLngBounds bounds);
+
   /** Renders a tile overlay on the map. */
   void addTileOverlays(ImmutableSet<String> mbtilesFiles);
 
