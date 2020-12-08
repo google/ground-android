@@ -28,12 +28,11 @@ import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.FeatureMutation;
 import com.google.android.gnd.model.layer.Layer;
+import com.google.android.gnd.persistence.local.LocalDataConsistencyException;
 import com.google.android.gnd.persistence.local.room.models.Coordinates;
 import com.google.android.gnd.persistence.local.room.models.EntityState;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.AutoValue.CopyAnnotations;
-import java8.util.Optional;
-import timber.log.Timber;
 
 /**
  * Defines how Room persists features in the local db. By default, Room uses the name of object
@@ -115,22 +114,25 @@ public abstract class FeatureEntity {
     return entity.build();
   }
 
-  public static Optional<Feature> toFeature(FeatureEntity featureEntity, Project project) {
-    Optional<Layer> layer = project.getLayer(featureEntity.getLayerId());
-    if (layer.isEmpty()) {
-      Timber.d("Skipping feature " + featureEntity.getId() + " with unknown layerId");
-      return Optional.empty();
-    }
-    return Optional.of(
-        Feature.newBuilder()
-            .setId(featureEntity.getId())
-            .setProject(project)
-            .setLayer(layer.get())
-            .setPoint(featureEntity.getLocation().toPoint())
-            .setGeoJsonString(featureEntity.getGeoJson())
-            .setCreated(AuditInfoEntity.toObject(featureEntity.getCreated()))
-            .setLastModified(AuditInfoEntity.toObject(featureEntity.getLastModified()))
-            .build());
+  public static Feature toFeature(FeatureEntity featureEntity, Project project) {
+    String id = featureEntity.getId();
+    String layerId = featureEntity.getLayerId();
+    Layer layer =
+        project
+            .getLayer(layerId)
+            .orElseThrow(
+                () ->
+                    new LocalDataConsistencyException(
+                        "Unknown layerId " + layerId + " in feature " + id));
+    return Feature.newBuilder()
+        .setId(id)
+        .setProject(project)
+        .setLayer(layer)
+        .setPoint(featureEntity.getLocation().toPoint())
+        .setGeoJsonString(featureEntity.getGeoJson())
+        .setCreated(AuditInfoEntity.toObject(featureEntity.getCreated()))
+        .setLastModified(AuditInfoEntity.toObject(featureEntity.getLastModified()))
+        .build();
   }
 
   public abstract FeatureEntity.Builder toBuilder();
