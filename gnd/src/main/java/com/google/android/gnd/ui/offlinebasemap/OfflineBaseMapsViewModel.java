@@ -55,6 +55,7 @@ public class OfflineBaseMapsViewModel extends AbstractViewModel {
   LiveData<ImmutableList<OfflineBaseMap>> getOfflineAreas() {
     return offlineAreas;
   }
+
   LiveData<Integer> getNoAreasMessageVisibility() {
     return noAreasMessageVisibility;
   }
