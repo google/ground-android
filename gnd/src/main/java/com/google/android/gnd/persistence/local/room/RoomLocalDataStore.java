@@ -266,7 +266,7 @@ public class RoomLocalDataStore implements LocalDataStore {
     return featureDao
         .findById(featureId)
         .map(f -> FeatureEntity.toFeature(f, project))
-        .doOnError(e -> Timber.d(e))
+        .doOnError(e -> Timber.e(e))
         .onErrorComplete()
         .subscribeOn(schedulers.io());
   }
