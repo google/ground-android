@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.ui.offlinebasemap;
 
+import android.view.View;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
 import com.google.android.gnd.model.basemap.OfflineBaseMap;
@@ -31,6 +32,7 @@ import javax.inject.Inject;
 public class OfflineBaseMapsViewModel extends AbstractViewModel {
 
   private LiveData<ImmutableList<OfflineBaseMap>> offlineAreas;
+  private LiveData<Integer> noAreasMessageVisibility;
   private final Navigator navigator;
 
   @Inject
@@ -39,6 +41,11 @@ public class OfflineBaseMapsViewModel extends AbstractViewModel {
     this.offlineAreas =
         LiveDataReactiveStreams.fromPublisher(
             offlineBaseMapRepository.getOfflineAreasOnceAndStream());
+    this.noAreasMessageVisibility =
+        LiveDataReactiveStreams.fromPublisher(
+            offlineBaseMapRepository.getOfflineAreasOnceAndStream()
+            .map(baseMaps -> baseMaps.isEmpty() ? View.VISIBLE : View.GONE)
+        );
   }
 
   public void showOfflineAreaSelector() {
@@ -47,5 +54,8 @@ public class OfflineBaseMapsViewModel extends AbstractViewModel {
 
   LiveData<ImmutableList<OfflineBaseMap>> getOfflineAreas() {
     return offlineAreas;
+  }
+  LiveData<Integer> getNoAreasMessageVisibility() {
+    return noAreasMessageVisibility;
   }
 }

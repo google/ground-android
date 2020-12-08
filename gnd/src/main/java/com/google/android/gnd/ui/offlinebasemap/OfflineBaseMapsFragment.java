@@ -67,16 +67,8 @@ public class OfflineBaseMapsFragment extends AbstractFragment {
 
     viewModel.getOfflineAreas().observe(getViewLifecycleOwner(), offlineBaseMapListAdapter::update);
     viewModel
-        .getOfflineAreas()
-        .observe(
-            getViewLifecycleOwner(),
-            offlineBaseMaps -> {
-              if (offlineBaseMaps.isEmpty()) {
-                binding.noAreasDownloadedMessage.setVisibility(View.VISIBLE);
-              } else {
-                binding.noAreasDownloadedMessage.setVisibility(View.GONE);
-              }
-            });
+        .getNoAreasMessageVisibility()
+        .observe(getViewLifecycleOwner(), binding.noAreasDownloadedMessage::setVisibility);
 
     return binding.getRoot();
   }
