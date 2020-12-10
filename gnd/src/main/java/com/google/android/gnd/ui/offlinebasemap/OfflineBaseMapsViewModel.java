@@ -43,9 +43,9 @@ public class OfflineBaseMapsViewModel extends AbstractViewModel {
             offlineBaseMapRepository.getOfflineAreasOnceAndStream());
     this.noAreasMessageVisibility =
         LiveDataReactiveStreams.fromPublisher(
-            offlineBaseMapRepository.getOfflineAreasOnceAndStream()
-            .map(baseMaps -> baseMaps.isEmpty() ? View.VISIBLE : View.GONE)
-        );
+            offlineBaseMapRepository
+                .getOfflineAreasOnceAndStream()
+                .map(baseMaps -> baseMaps.isEmpty() ? View.VISIBLE : View.GONE));
   }
 
   public void showOfflineAreaSelector() {
@@ -56,7 +56,7 @@ public class OfflineBaseMapsViewModel extends AbstractViewModel {
     return offlineAreas;
   }
 
-  LiveData<Integer> getNoAreasMessageVisibility() {
+  public LiveData<Integer> getNoAreasMessageVisibility() {
     return noAreasMessageVisibility;
   }
 }

@@ -79,7 +79,7 @@
       android:focusable="true"
       android:onClick="@{() -> viewModel.showOfflineAreaSelector()}"
       android:text="@string/no_basemaps_downloaded"
-      android:visibility="gone"
+      android:visibility="@{viewModel.noAreasMessageVisibility}"
       app:layout_constraintBottom_toBottomOf="parent"
       app:layout_constraintEnd_toEndOf="parent"
       app:layout_constraintHorizontal_bias="0.5"
