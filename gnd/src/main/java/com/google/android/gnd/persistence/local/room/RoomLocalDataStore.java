@@ -18,6 +18,7 @@ package com.google.android.gnd.persistence.local.room;
 
 import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList;
 import static com.google.android.gnd.util.ImmutableSetCollector.toImmutableSet;
+import static com.google.android.gnd.util.StreamUtil.logErrorsAndSkip;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java8.util.stream.StreamSupport.stream;
 
@@ -85,7 +86,6 @@ import io.reactivex.Single;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java8.util.Optional;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import timber.log.Timber;
@@ -247,7 +247,6 @@ public class RoomLocalDataStore implements LocalDataStore {
     }
   }
 
-  // TODO(#127): Decouple from Project and pass in project id instead.
   @Override
   public Flowable<ImmutableSet<Feature>> getFeaturesOnceAndStream(Project project) {
     return featureDao
@@ -258,20 +257,17 @@ public class RoomLocalDataStore implements LocalDataStore {
 
   private ImmutableSet<Feature> toFeatures(Project project, List<FeatureEntity> featureEntities) {
     return stream(featureEntities)
-        .map(f -> FeatureEntity.toFeature(f, project))
-        .filter(f -> f.isPresent())
-        .map(Optional::get)
+        .flatMap(f -> logErrorsAndSkip(() -> FeatureEntity.toFeature(f, project)))
         .collect(toImmutableSet());
   }
 
-  // TODO(#127): Decouple from Project and remove project from args.
   @Override
   public Maybe<Feature> getFeature(Project project, String featureId) {
     return featureDao
         .findById(featureId)
         .map(f -> FeatureEntity.toFeature(f, project))
-        .filter(Optional::isPresent)
-        .map(Optional::get)
+        .doOnError(e -> Timber.e(e))
+        .onErrorComplete()
         .subscribeOn(schedulers.io());
   }
 
@@ -280,6 +276,8 @@ public class RoomLocalDataStore implements LocalDataStore {
     return observationDao
         .findById(observationId)
         .map(obs -> ObservationEntity.toObservation(feature, obs))
+        .doOnError(e -> Timber.d(e))
+        .onErrorComplete()
         .subscribeOn(schedulers.io());
   }
 
@@ -287,12 +285,15 @@ public class RoomLocalDataStore implements LocalDataStore {
   public Single<ImmutableList<Observation>> getObservations(Feature feature, String formId) {
     return observationDao
         .findByFeatureId(feature.getId(), formId, EntityState.DEFAULT)
-        .map(
-            list ->
-                stream(list)
-                    .map(obs -> ObservationEntity.toObservation(feature, obs))
-                    .collect(toImmutableList()))
+        .map(observationEntities -> toObservations(feature, observationEntities))
         .subscribeOn(schedulers.io());
+  }
+
+  private ImmutableList<Observation> toObservations(
+      Feature feature, List<ObservationEntity> observationEntities) {
+    return stream(observationEntities)
+        .flatMap(obs -> logErrorsAndSkip(() -> ObservationEntity.toObservation(feature, obs)))
+        .collect(toImmutableList());
   }
 
   @Override

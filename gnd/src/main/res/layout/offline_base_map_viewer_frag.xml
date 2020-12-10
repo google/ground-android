@@ -45,16 +45,15 @@
     <FrameLayout
       android:id="@+id/offline_area_viewer_map_frame"
       android:layout_width="match_parent"
-      android:layout_height="200dp"
+      android:layout_height="240dp"
       android:background="@color/colorGrey300"
       app:layout_constraintEnd_toEndOf="parent"
       app:layout_constraintHorizontal_bias="0.333"
       app:layout_constraintStart_toStartOf="parent"
-      app:layout_constraintTop_toBottomOf="@+id/offline_area_viewer_toolbar"
-      app:layout_constraintVertical_bias="0.533">
+      app:layout_constraintTop_toBottomOf="@+id/offline_area_viewer_toolbar">
       <androidx.fragment.app.FragmentContainerView
         android:id="@+id/map"
-        android:layout_width="140dp"
+        android:layout_width="220dp"
         android:layout_height="match_parent"
         android:layout_gravity="center"
         app:layout_behavior="com.google.android.gnd.ui.home.mapcontainer.MapLayoutBehavior"
@@ -66,7 +65,7 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
       android:layout_width="match_parent"
-      android:layout_height="476dp"
+      android:layout_height="0dp"
       android:background="@color/colorBackground"
       app:layout_constraintBottom_toBottomOf="parent"
       app:layout_constraintEnd_toEndOf="parent"
@@ -75,21 +74,38 @@
       app:layout_constraintTop_toBottomOf="@+id/offline_area_viewer_map_frame"
       app:layout_constraintVertical_bias="0.533">
       <TextView
+        android:id="@+id/base_map_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="20dp"
+        android:paddingStart="40dp"
+        android:paddingEnd="40dp"
+        android:text="@{String.format(@string/offline_base_map_name, viewModel.areaName)}"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+      <TextView
         android:id="@+id/textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="20dp"
+        android:paddingStart="40dp"
+        android:paddingEnd="40dp"
         android:text="@{String.format(@string/offline_base_map_viewer_storage, viewModel.areaStorageSize)}"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-      <Button
+        app:layout_constraintTop_toBottomOf="@id/base_map_name" />
+      <com.google.android.material.chip.Chip
         android:id="@+id/remove_button"
+        style="@style/ChipButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="15dp"
         android:background="@color/colorAlert"
         android:text="@string/offline_base_map_viewer_remove_button"
+        app:chipBackgroundColor="@color/colorAlert"
+        app:chipIcon="@android:drawable/ic_menu_delete"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView" />
