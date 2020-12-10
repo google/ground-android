@@ -131,7 +131,7 @@
   <string name="offline_base_maps">Offline base maps</string>
   <string name="unknown_user">Unknown user</string>
   <string name="add_observation_toolbar_title">Add observation</string>
-  <string name="offline_base_map_selector">Select a base map</string>
+  <string name="offline_base_map_selector">Select area to download</string>
   <string name="offline_base_map_selector_prompt">Select a base map for offline use</string>
   <string name="offline_base_map_selector_download">Download</string>
   <string name="add_photo">Add photo</string>
@@ -163,4 +163,6 @@
   <string name="move_point_confirmation">Do you want to move to this point?</string>
   <string name="move_point_hint">Drag to the new location</string>
   <string name="error_occurred">An error occurred</string>
+  <string name="offline_base_map_selector_select">Select and download</string>
+  <string name="no_basemaps_downloaded">No base maps downloaded.</string>
 </resources>
