@@ -79,7 +79,7 @@ steps:
     args:
       - '-c'
       - |
-        ./gradlew -PdisablePreDex --no-daemon androidDependencies assembleDebug assembleDebugAndroidTest
+        ./gradlew -PdisablePreDex --no-daemon androidDependencies assembleStaging assembleStagingUnitTest assembleStagingAndroidTest
 
   # Run code quality checks
   - name: 'gcr.io/$PROJECT_ID/android:28'
@@ -99,7 +99,7 @@ steps:
     args:
       - '-c'
       - |
-        ./gradlew -PdisablePreDex --no-daemon testDebug 2> unit-test-logs.txt || echo "fail" > build-status.txt
+        ./gradlew -PdisablePreDex --no-daemon testStagingUnitTest 2> unit-test-logs.txt || echo "fail" > build-status.txt
         cat unit-test-logs.txt
 
   - name: 'gcr.io/cloud-builders/gcloud-slim'
@@ -124,8 +124,8 @@ steps:
       - |
         gcloud --quiet beta firebase test android run \
         --type instrumentation --num-uniform-shards=1 \
-        --app gnd/build/outputs/apk/debug/*.apk \
-        --test gnd/build/outputs/apk/androidTest/debug/*.apk \
+        --app gnd/build/outputs/apk/staging/*.apk \
+        --test gnd/build/outputs/apk/androidTest/staging/*.apk \
         --device model=Pixel2,version=28,locale=en,orientation=portrait \
         --results-bucket ${_ARTIFACT_BUCKET} \
         --results-dir $BRANCH_NAME-$BUILD_ID/reports \
