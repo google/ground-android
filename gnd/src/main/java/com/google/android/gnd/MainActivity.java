@@ -48,18 +48,12 @@ import timber.log.Timber;
 @AndroidEntryPoint
 public class MainActivity extends AbstractActivity {
 
-  @Inject
-  ActivityStreams activityStreams;
-  @Inject
-  ViewModelFactory viewModelFactory;
-  @Inject
-  SettingsManager settingsManager;
-  @Inject
-  AuthenticationManager authenticationManager;
-  @Inject
-  Navigator navigator;
-  @Inject
-  UserRepository userRepository;
+  @Inject ActivityStreams activityStreams;
+  @Inject ViewModelFactory viewModelFactory;
+  @Inject SettingsManager settingsManager;
+  @Inject AuthenticationManager authenticationManager;
+  @Inject Navigator navigator;
+  @Inject UserRepository userRepository;
   private NavHostFragment navHostFragment;
   private MainViewModel viewModel;
 
@@ -114,10 +108,15 @@ public class MainActivity extends AbstractActivity {
         // TODO: Show/hide spinner.
         break;
       case SIGNED_IN:
-        userRepository
-            .saveUser(signInState.getUser().get())
-            .as(autoDisposable(this))
-            .subscribe(() -> viewModel.onSignedIn(getCurrentNavDestinationId()));
+        signInState
+            .getUser()
+            .ifPresentOrElse(
+                user ->
+                    userRepository
+                        .saveUser(user)
+                        .as(autoDisposable(this))
+                        .subscribe(() -> viewModel.onSignedIn(getCurrentNavDestinationId())),
+                () -> Timber.e("User signed in but missing"));
         break;
       case ERROR:
         onSignInError(signInState);
@@ -157,9 +156,7 @@ public class MainActivity extends AbstractActivity {
     activityStreams.onActivityResult(requestCode, resultCode, intent);
   }
 
-  /**
-   * Override up button behavior to use Navigation Components back stack.
-   */
+  /** Override up button behavior to use Navigation Components back stack. */
   @Override
   public boolean onSupportNavigateUp() {
     return navigateUp();
