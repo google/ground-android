@@ -110,7 +110,9 @@ public class Navigator {
         navigate(SignInFragmentDirections.proceedToHomeScreen());
         break;
       default:
-        throw new IllegalArgumentException(currentNavDestinationId + " id not found");
+        // Do nothing, probably a config change
+        // TODO: Figure out a better way rather that crashing the application
+        break;
     }
   }
 
@@ -127,7 +129,9 @@ public class Navigator {
         // Sign in screen already active.
         break;
       default:
-        throw new IllegalArgumentException(currentNavDestinationId + " id not found");
+        // Do nothing, probably a config change
+        // TODO: Figure out a better way rather that crashing the application
+        break;
     }
   }
 
