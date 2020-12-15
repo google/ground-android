@@ -192,6 +192,12 @@ public class HomeScreenFragment extends AbstractFragment
     setUpBottomSheetBehavior();
   }
 
+  @Override
+  public void onSaveInstanceState(Bundle outState) {
+    super.onSaveInstanceState(outState);
+    saveChildFragment(outState, mapContainerFragment, MapContainerFragment.class.getName());
+  }
+
   /** Fetches offline saved projects and adds them to navigation drawer. */
   private void updateNavDrawer() {
     projectSelectorViewModel
