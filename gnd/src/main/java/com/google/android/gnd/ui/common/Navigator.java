@@ -30,6 +30,7 @@ import io.reactivex.Observable;
 import io.reactivex.subjects.PublishSubject;
 import io.reactivex.subjects.Subject;
 import javax.inject.Inject;
+import timber.log.Timber;
 
 /**
  * Responsible for abstracting navigation from fragment to fragment. Exposes various actions to
@@ -110,7 +111,10 @@ public class Navigator {
         navigate(SignInFragmentDirections.proceedToHomeScreen());
         break;
       default:
-        throw new IllegalArgumentException(currentNavDestinationId + " id not found");
+        // Do nothing, probably a config change
+        // TODO: Figure out a better way rather that crashing the application
+        Timber.e("Unknown destination id: %s", currentNavDestinationId);
+        break;
     }
   }
 
@@ -127,7 +131,10 @@ public class Navigator {
         // Sign in screen already active.
         break;
       default:
-        throw new IllegalArgumentException(currentNavDestinationId + " id not found");
+        // Do nothing, probably a config change
+        // TODO: Figure out a better way rather that crashing the application
+        Timber.e("Unknown destination id: %s", currentNavDestinationId);
+        break;
     }
   }
 
