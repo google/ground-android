@@ -36,6 +36,7 @@ import com.google.android.gnd.repository.OfflineBaseMapRepository;
 import com.google.android.gnd.repository.ProjectRepository;
 import com.google.android.gnd.rx.Action;
 import com.google.android.gnd.rx.BooleanOrError;
+import com.google.android.gnd.rx.Event;
 import com.google.android.gnd.rx.Loadable;
 import com.google.android.gnd.system.LocationManager;
 import com.google.android.gnd.ui.common.AbstractViewModel;
@@ -63,7 +64,7 @@ public class MapContainerViewModel extends AbstractViewModel {
   private final LiveData<Loadable<Project>> activeProject;
   private final LiveData<ImmutableSet<MapFeature>> mapFeatures;
   private final LiveData<BooleanOrError> locationLockState;
-  private final LiveData<CameraUpdate> cameraUpdateRequests;
+  private final LiveData<Event<CameraUpdate>> cameraUpdateRequests;
   private final MutableLiveData<Point> cameraPosition;
   private final LocationManager locationManager;
   private final FeatureRepository featureRepository;
@@ -90,6 +91,7 @@ public class MapContainerViewModel extends AbstractViewModel {
       FeatureRepository featureRepository,
       LocationManager locationManager,
       OfflineBaseMapRepository offlineBaseMapRepository) {
+    // THIS SHOULD NOT BE CALLED ON CONFIG CHANGE
     this.featureRepository = featureRepository;
     this.locationManager = locationManager;
     this.locationLockChangeRequests = PublishSubject.create();
@@ -174,12 +176,13 @@ public class MapContainerViewModel extends AbstractViewModel {
     return selectMapTypeClicks;
   }
 
-  private Flowable<CameraUpdate> createCameraUpdateFlowable(
+  private Flowable<Event<CameraUpdate>> createCameraUpdateFlowable(
       Flowable<BooleanOrError> locationLockStateFlowable) {
     return cameraUpdateSubject
         .toFlowable(BackpressureStrategy.LATEST)
         .mergeWith(
-            locationLockStateFlowable.switchMap(this::createLocationLockCameraUpdateFlowable));
+            locationLockStateFlowable.switchMap(this::createLocationLockCameraUpdateFlowable))
+        .map(Event::create);
   }
 
   private Flowable<CameraUpdate> createLocationLockCameraUpdateFlowable(BooleanOrError lockState) {
@@ -229,7 +232,7 @@ public class MapContainerViewModel extends AbstractViewModel {
     return mbtilesFilePaths;
   }
 
-  LiveData<CameraUpdate> getCameraUpdateRequests() {
+  LiveData<Event<CameraUpdate>> getCameraUpdateRequests() {
     return cameraUpdateRequests;
   }
 
