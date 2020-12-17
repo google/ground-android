@@ -150,7 +150,9 @@ public class MapContainerFragment extends AbstractFragment {
         .getSelectMapTypeClicks()
         .observe(
             getViewLifecycleOwner(), action -> action.ifUnhandled(this::showMapTypeSelectorDialog));
-    mapContainerViewModel.getCameraPosition().observe(this, map::moveCamera);
+
+    // TODO: Do this the RxJava way
+    map.moveCamera(mapContainerViewModel.getCameraPosition().getValue());
   }
 
   private void showMapTypeSelectorDialog() {

@@ -35,6 +35,7 @@ import com.google.android.gnd.rx.Loadable;
 import com.google.android.gnd.system.auth.AuthenticationManager;
 import com.google.android.gnd.ui.common.AbstractDialogFragment;
 import com.google.android.gnd.ui.home.mapcontainer.MapContainerViewModel;
+import com.google.android.gnd.ui.map.GroundCameraPosition;
 import com.google.common.collect.ImmutableList;
 import dagger.hilt.android.AndroidEntryPoint;
 import io.reactivex.Maybe;
@@ -80,10 +81,10 @@ public class AddFeatureDialogFragment extends AbstractDialogFragment {
       Project activeProject =
           Loadable.getValue(homeScreenViewModel.getActiveProject())
               .orElseThrow(() -> new NullPointerException("No active project"));
-      Point cameraPosition =
+      GroundCameraPosition cameraPosition =
           Objects.requireNonNull(
               mapContainerViewModel.getCameraPosition().getValue(), "No camera position");
-      return createDialog(activeProject, cameraPosition);
+      return createDialog(activeProject, cameraPosition.getTarget());
     } catch (RuntimeException e) {
       addFeatureRequestSubject.onError(e);
       return fail(Objects.requireNonNullElse(e.getMessage(), "Unknown error"));
