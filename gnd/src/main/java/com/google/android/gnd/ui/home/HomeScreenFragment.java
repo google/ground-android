@@ -86,8 +86,8 @@ public class HomeScreenFragment extends AbstractFragment
   @Inject AuthenticationManager authenticationManager;
   @Inject Schedulers schedulers;
   @Inject Navigator navigator;
-  @Inject MapContainerViewModel mapContainerViewModel;
   @Inject EphemeralPopups popups;
+  MapContainerViewModel mapContainerViewModel;
 
   @Nullable private ProgressDialog progressDialog;
   private HomeScreenViewModel viewModel;
@@ -104,6 +104,8 @@ public class HomeScreenFragment extends AbstractFragment
     super.onCreate(savedInstanceState);
 
     getViewModel(MainViewModel.class).getWindowInsets().observe(this, this::onApplyWindowInsets);
+
+    mapContainerViewModel = getViewModel(MapContainerViewModel.class);
 
     viewModel = getViewModel(HomeScreenViewModel.class);
     viewModel.getActiveProject().observe(this, this::onActiveProjectChange);
