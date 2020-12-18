@@ -16,18 +16,27 @@
 
 package com.google.android.gnd;
 
+import android.app.Application;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import com.google.android.gnd.model.Project;
+import com.google.android.gnd.model.User;
 import com.google.android.gnd.repository.FeatureRepository;
 import com.google.android.gnd.repository.ProjectRepository;
+import com.google.android.gnd.repository.UserRepository;
 import com.google.android.gnd.rx.Loadable;
+import com.google.android.gnd.system.auth.AuthenticationManager;
+import com.google.android.gnd.system.auth.SignInState;
 import com.google.android.gnd.ui.common.AbstractViewModel;
+import com.google.android.gnd.ui.common.EphemeralPopups;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.SharedViewModel;
+import com.google.android.gnd.ui.home.HomeScreenFragmentDirections;
+import com.google.android.gnd.ui.signin.SignInFragmentDirections;
 import io.reactivex.Completable;
 import javax.inject.Inject;
+import timber.log.Timber;
 
 /** Top-level view model representing state of the {@link MainActivity} shared by all fragments. */
 @SharedViewModel
@@ -35,24 +44,38 @@ public class MainViewModel extends AbstractViewModel {
 
   private final ProjectRepository projectRepository;
   private final FeatureRepository featureRepository;
+  private final UserRepository userRepository;
   private final Navigator navigator;
+  private final Application context;
   private MutableLiveData<WindowInsetsCompat> windowInsetsLiveData;
 
   @Inject
   public MainViewModel(
+      AuthenticationManager authenticationManager,
       ProjectRepository projectRepository,
       FeatureRepository featureRepository,
-      Navigator navigator) {
-    windowInsetsLiveData = new MutableLiveData<>();
+      UserRepository userRepository,
+      Navigator navigator,
+      Application context) {
     this.projectRepository = projectRepository;
     this.featureRepository = featureRepository;
+    this.userRepository = userRepository;
     this.navigator = navigator;
+    this.context = context;
+    windowInsetsLiveData = new MutableLiveData<>();
 
     // TODO: Move to background service.
     disposeOnClear(
         projectRepository
             .getActiveProjectOnceAndStream()
             .switchMapCompletable(this::syncFeatures)
+            .subscribe());
+
+    // TODO: Remove once we switch to persisted auth tokens / multiple offline users.
+    disposeOnClear(
+        authenticationManager
+            .getSignInState()
+            .switchMapCompletable(this::onSignInStateChange)
             .subscribe());
   }
 
@@ -74,12 +97,45 @@ public class MainViewModel extends AbstractViewModel {
     windowInsetsLiveData.setValue(insets);
   }
 
-  void onSignedOut(int currentNavDestinationId) {
-    projectRepository.clearActiveProject();
-    navigator.showSignInScreen(currentNavDestinationId);
+  private Completable onSignInStateChange(SignInState signInState) {
+    Timber.d("Auth status change: %s", signInState.state());
+    switch (signInState.state()) {
+      case SIGNING_IN:
+        // No-op: Sign in modal shown.
+        break;
+      case SIGNED_IN:
+        return onSignedIn(signInState.getUser().get());
+      case SIGNED_OUT:
+        onSignedOut();
+        break;
+      case ERROR:
+        // TODO: Multiple representations of the same state (e.g., ERROR + error()) lead to more
+        // boilerplate needed to prevent runtime errors. We should simplify this.
+        onAuthenticationError(signInState.error().orElseGet(IllegalStateException::new));
+        break;
+      default:
+        onAuthenticationError(
+            new UnsupportedOperationException("Unknown sign in state: " + signInState.state()));
+    }
+    return Completable.complete();
   }
 
-  void onSignedIn(int currentNavDestinationId) {
-    navigator.showHomeScreen(currentNavDestinationId);
+  private Completable onSignedIn(User user) {
+    return userRepository
+        .saveUser(user)
+        .andThen(
+            Completable.fromRunnable(
+                () -> navigator.navigate(HomeScreenFragmentDirections.showHomeScreen())));
+  }
+
+  private void onSignedOut() {
+    projectRepository.clearActiveProject();
+    navigator.navigate(SignInFragmentDirections.showSignInScreen());
+  }
+
+  private void onAuthenticationError(Throwable err) {
+    Timber.d(err, "Authentication error");
+    EphemeralPopups.showError(context, R.string.sign_in_unsuccessful);
+    onSignedOut();
   }
 }

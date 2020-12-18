@@ -17,20 +17,16 @@
 package com.google.android.gnd.ui.common;
 
 import androidx.navigation.NavDirections;
-import com.google.android.gnd.R;
 import com.google.android.gnd.ui.editobservation.EditObservationFragment;
 import com.google.android.gnd.ui.home.HomeScreenFragmentDirections;
 import com.google.android.gnd.ui.observationdetails.ObservationDetailsFragment;
 import com.google.android.gnd.ui.observationdetails.ObservationDetailsFragmentDirections;
 import com.google.android.gnd.ui.offlinebasemap.OfflineBaseMapsFragmentDirections;
-import com.google.android.gnd.ui.signin.SignInFragmentDirections;
-import com.google.android.gnd.ui.startup.StartupFragmentDirections;
 import dagger.hilt.android.scopes.ActivityScoped;
 import io.reactivex.Observable;
 import io.reactivex.subjects.PublishSubject;
 import io.reactivex.subjects.Subject;
 import javax.inject.Inject;
-import timber.log.Timber;
 
 /**
  * Responsible for abstracting navigation from fragment to fragment. Exposes various actions to
@@ -63,7 +59,7 @@ public class Navigator {
     navigateUpRequests.onNext(new Object());
   }
 
-  private void navigate(NavDirections n) {
+  public void navigate(NavDirections n) {
     navigateRequests.onNext(n);
   }
 
@@ -99,43 +95,6 @@ public class Navigator {
   public void editObservation(String projectId, String featureId, String observationId) {
     navigate(
         ObservationDetailsFragmentDirections.editObservation(projectId, featureId, observationId));
-  }
-
-  /** Navigates to the home screen. */
-  public void showHomeScreen(int currentNavDestinationId) {
-    switch (currentNavDestinationId) {
-      case R.id.startup_fragment:
-        navigate(StartupFragmentDirections.proceedDirectlyToHomeScreen());
-        break;
-      case R.id.sign_in_fragment:
-        navigate(SignInFragmentDirections.proceedToHomeScreen());
-        break;
-      default:
-        // Do nothing, probably a config change
-        // TODO: Figure out a better way rather that crashing the application
-        Timber.e("Unknown destination id: %s", currentNavDestinationId);
-        break;
-    }
-  }
-
-  /** Navigates to the sign in screen. */
-  public void showSignInScreen(int currentNavDestinationId) {
-    switch (currentNavDestinationId) {
-      case R.id.startup_fragment:
-        navigate(StartupFragmentDirections.proceedToSignInScreen());
-        break;
-      case R.id.home_screen_fragment:
-        navigate(HomeScreenFragmentDirections.fromHomeScreenToSignInScreen());
-        break;
-      case R.id.sign_in_fragment:
-        // Sign in screen already active.
-        break;
-      default:
-        // Do nothing, probably a config change
-        // TODO: Figure out a better way rather that crashing the application
-        Timber.e("Unknown destination id: %s", currentNavDestinationId);
-        break;
-    }
   }
 
   public void showOfflineAreas() {

@@ -32,7 +32,7 @@ project.ext {
     autoValueVersion = "1.6.3"
     hiltJetpackVersion = "1.0.0-alpha02"
     lifecycleVersion = "2.2.0"
-    navigationVersion = "1.0.0"
+    navigationVersion = "2.3.2"
     roomVersion = "2.2.5"
     rxBindingVersion = "2.2.0"
     workVersion = "2.4.0"
@@ -247,8 +247,8 @@ dependencies {
     annotationProcessor "androidx.lifecycle:lifecycle-compiler:$project.lifecycleVersion"
 
     // Android Navigation
-    implementation "android.arch.navigation:navigation-fragment:$project.navigationVersion"
-    implementation "android.arch.navigation:navigation-ui:$project.navigationVersion"
+    implementation "androidx.navigation:navigation-fragment:$project.navigationVersion"
+    implementation "androidx.navigation:navigation-ui:$project.navigationVersion"
 
     // Auto-value
     compileOnly "com.google.auto.value:auto-value-annotations:$project.autoValueVersion"

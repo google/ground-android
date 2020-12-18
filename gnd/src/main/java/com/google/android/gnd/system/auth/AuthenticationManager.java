@@ -20,6 +20,11 @@ import com.google.android.gnd.model.User;
 import io.reactivex.Observable;
 
 public interface AuthenticationManager {
+
+  /**
+   * Returns changes to the user's authentication state. Implementations must ensure the stream
+   * never finishes in error.
+   */
   Observable<SignInState> getSignInState();
 
   void signOut();

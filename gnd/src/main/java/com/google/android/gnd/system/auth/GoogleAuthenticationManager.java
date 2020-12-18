@@ -21,6 +21,7 @@ import android.app.Application;
 import android.content.Intent;
 import android.util.Log;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -40,7 +41,9 @@ import com.google.firebase.auth.GoogleAuthProvider;
 import io.reactivex.Observable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.subjects.BehaviorSubject;
+import io.reactivex.subjects.PublishSubject;
 import io.reactivex.subjects.Subject;
+import java8.util.Objects;
 import java8.util.Optional;
 import javax.inject.Inject;
 
@@ -53,6 +56,8 @@ public class GoogleAuthenticationManager implements AuthenticationManager {
   private final FirebaseAuth firebaseAuth;
   private final ActivityStreams activityStreams;
   private final Disposable activityResultsSubscription;
+  @Nullable
+  private User user;
 
   // TODO: Update Fragments to access via ProjectRepository rather than directly.
   @Inject
@@ -70,16 +75,20 @@ public class GoogleAuthenticationManager implements AuthenticationManager {
         activityStreams.getActivityResults(SIGN_IN_REQUEST_CODE).subscribe(this::onActivityResult);
   }
 
+  /**
+   * Returns a stream which emits the latest sign-in state on subscribe, streaming subsequent
+   * state changes.
+   */
   public Observable<SignInState> getSignInState() {
     return signInState;
   }
 
-  public Observable<Optional<User>> getUser() {
-    return getSignInState().map(SignInState::getUser);
+  public Optional<User> getUser() {
+    return Optional.ofNullable(user);
   }
 
   public void init() {
-    signInState.onNext(getStatus());
+    updateSignInState(getStatus());
   }
 
   private SignInState getStatus() {
@@ -92,7 +101,7 @@ public class GoogleAuthenticationManager implements AuthenticationManager {
   }
 
   public void signIn() {
-    signInState.onNext(new SignInState(State.SIGNING_IN));
+    updateSignInState(new SignInState(State.SIGNING_IN));
     activityStreams.withActivity(
         activity -> {
           Intent signInIntent = getGoogleSignInClient(activity).getSignInIntent();
@@ -102,7 +111,7 @@ public class GoogleAuthenticationManager implements AuthenticationManager {
 
   public void signOut() {
     firebaseAuth.signOut();
-    signInState.onNext(new SignInState(State.SIGNED_OUT));
+    updateSignInState(new SignInState(State.SIGNED_OUT));
     activityStreams.withActivity(activity -> getGoogleSignInClient(activity).signOut());
   }
 
@@ -121,7 +130,7 @@ public class GoogleAuthenticationManager implements AuthenticationManager {
       onGoogleSignIn(googleSignInTask.getResult(ApiException.class));
     } catch (ApiException e) {
       Log.w(TAG, "Sign in failed: " + e);
-      signInState.onNext(new SignInState(e));
+      updateSignInState(new SignInState(e));
     }
   }
 
@@ -129,13 +138,18 @@ public class GoogleAuthenticationManager implements AuthenticationManager {
     firebaseAuth
         .signInWithCredential(getFirebaseAuthCredential(googleAccount))
         .addOnSuccessListener(this::onFirebaseAuthSuccess)
-        .addOnFailureListener(t -> signInState.onNext(new SignInState(t)));
+        .addOnFailureListener(t -> updateSignInState(new SignInState(t)));
+  }
+
+  private void updateSignInState(SignInState newState) {
+    signInState.onNext(newState);
+    user = newState.getUser().orElse(null);
   }
 
   private void onFirebaseAuthSuccess(AuthResult authResult) {
     // TODO: Store/update user profile in Firestore.
     // TODO: Store/update user profile and image locally.
-    signInState.onNext(new SignInState(toUser(authResult.getUser())));
+    updateSignInState(new SignInState(toUser(authResult.getUser())));
   }
 
   @NonNull
@@ -157,11 +171,8 @@ public class GoogleAuthenticationManager implements AuthenticationManager {
         .build();
   }
 
-  /**
-   * Returns the current user, blocking until a user logs in. Only call from code where user is
-   * guaranteed to be authenticated.
-   */
+  /** Returns the current user, throwing an NullPointerException if not logged in. */
   public User getCurrentUser() {
-    return getUser().filter(Optional::isPresent).map(Optional::get).blockingFirst();
+    return Objects.requireNonNull(user, "Expected authenticated user");
   }
 }

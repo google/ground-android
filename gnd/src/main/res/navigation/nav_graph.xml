@@ -85,7 +85,7 @@
       app:destination="@id/home_screen_fragment" />
     <action
       android:id="@+id/viewOfflineArea"
-      app:destination="@+id/offline_area_viewer_fragment"/>
+      app:destination="@+id/offline_area_viewer_fragment" />
   </fragment>
   <fragment
     android:id="@+id/offline_area_selector_fragment"
@@ -103,7 +103,7 @@
     tools:layout="@layout/offline_base_map_viewer_frag">
     <argument
       android:name="offlineAreaId"
-      app:argType="string"/>
+      app:argType="string" />
   </fragment>
   <fragment
     android:id="@+id/observation_details_fragment"
@@ -165,4 +165,11 @@
     android:name="com.google.android.gnd.SettingsActivity"
     android:label="settings_activity"
     tools:layout="@layout/settings_activity" />
+  <action
+    android:id="@+id/showHomeScreen"
+    app:destination="@id/home_screen_fragment"
+    app:popUpTo="@id/navGraph" />
+  <action
+    android:id="@+id/showSignInScreen"
+    app:destination="@id/sign_in_fragment" />
 </navigation>
