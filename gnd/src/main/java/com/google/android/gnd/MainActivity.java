@@ -25,7 +25,6 @@ import androidx.annotation.Nullable;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
-import androidx.navigation.NavDestination;
 import androidx.navigation.NavDirections;
 import androidx.navigation.fragment.NavHostFragment;
 import com.google.android.gnd.databinding.MainActBinding;
@@ -102,7 +101,7 @@ public class MainActivity extends AbstractActivity {
     switch (signInState.state()) {
       case SIGNED_OUT:
         // TODO: Check auth status whenever fragments resumes.
-        viewModel.onSignedOut(getCurrentNavDestinationId());
+        viewModel.onSignedOut();
         break;
       case SIGNING_IN:
         // TODO: Show/hide spinner.
@@ -115,7 +114,7 @@ public class MainActivity extends AbstractActivity {
                     userRepository
                         .saveUser(user)
                         .as(autoDisposable(this))
-                        .subscribe(() -> viewModel.onSignedIn(getCurrentNavDestinationId())),
+                        .subscribe(() -> viewModel.onSignedIn()),
                 () -> Timber.e("User signed in but missing"));
         break;
       case ERROR:
@@ -130,7 +129,7 @@ public class MainActivity extends AbstractActivity {
   private void onSignInError(SignInState signInState) {
     Timber.d("Authentication error : %s", signInState.error());
     EphemeralPopups.showError(this, R.string.sign_in_unsuccessful);
-    viewModel.onSignedOut(getCurrentNavDestinationId());
+    viewModel.onSignedOut();
   }
 
   /**
@@ -168,14 +167,6 @@ public class MainActivity extends AbstractActivity {
 
   private NavController getNavController() {
     return navHostFragment.getNavController();
-  }
-
-  private int getCurrentNavDestinationId() {
-    NavDestination destination = getNavController().getCurrentDestination();
-    if (destination == null) {
-      return -1;
-    }
-    return destination.getId();
   }
 
   @Override

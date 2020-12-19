@@ -74,12 +74,12 @@ public class MainViewModel extends AbstractViewModel {
     windowInsetsLiveData.setValue(insets);
   }
 
-  void onSignedOut(int currentNavDestinationId) {
+  void onSignedOut() {
     projectRepository.clearActiveProject();
-    navigator.showSignInScreen(currentNavDestinationId);
+    navigator.showSignInScreen();
   }
 
-  void onSignedIn(int currentNavDestinationId) {
-    navigator.showHomeScreen(currentNavDestinationId);
+  void onSignedIn() {
+    navigator.showHomeScreen();
   }
 }
