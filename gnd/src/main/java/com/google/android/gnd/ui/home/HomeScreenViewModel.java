@@ -225,7 +225,9 @@ public class HomeScreenViewModel extends AbstractViewModel {
       Timber.e("Missing project");
       return;
     }
-    navigator.addObservation(project.getId(), feature.getId(), form.get().getId());
+    navigator.navigate(
+        HomeScreenFragmentDirections.addObservation(
+            project.getId(), feature.getId(), form.get().getId()));
   }
 
   public void init() {
@@ -234,10 +236,10 @@ public class HomeScreenViewModel extends AbstractViewModel {
   }
 
   public void showOfflineAreas() {
-    navigator.showOfflineAreas();
+    navigator.navigate(HomeScreenFragmentDirections.showOfflineAreas());
   }
 
   public void showSettings() {
-    navigator.showSettings();
+    navigator.navigate(HomeScreenFragmentDirections.actionHomeScreenFragmentToSettingsActivity());
   }
 }

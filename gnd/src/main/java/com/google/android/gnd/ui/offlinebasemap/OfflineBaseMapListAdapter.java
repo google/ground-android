@@ -52,7 +52,7 @@ class OfflineBaseMapListAdapter extends RecyclerView.Adapter<OfflineBaseMapListA
     public void onClick(View v) {
       if (areas.size() > 0) {
         String id = areas.get(position).getId();
-        navigator.showOfflineAreaViewer(id);
+        navigator.navigate(OfflineBaseMapsFragmentDirections.viewOfflineArea(id));
       }
     }
   }

@@ -26,6 +26,8 @@ import com.google.android.gnd.rx.Loadable;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.SharedViewModel;
+import com.google.android.gnd.ui.home.HomeScreenFragmentDirections;
+import com.google.android.gnd.ui.signin.SignInFragmentDirections;
 import io.reactivex.Completable;
 import javax.inject.Inject;
 
@@ -76,10 +78,10 @@ public class MainViewModel extends AbstractViewModel {
 
   void onSignedOut() {
     projectRepository.clearActiveProject();
-    navigator.showSignInScreen();
+    navigator.navigate(SignInFragmentDirections.showSignInScreen());
   }
 
   void onSignedIn() {
-    navigator.showHomeScreen();
+    navigator.navigate(HomeScreenFragmentDirections.showHomeScreen());
   }
 }

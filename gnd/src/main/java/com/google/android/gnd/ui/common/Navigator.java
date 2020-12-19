@@ -17,12 +17,6 @@
 package com.google.android.gnd.ui.common;
 
 import androidx.navigation.NavDirections;
-import com.google.android.gnd.ui.editobservation.EditObservationFragment;
-import com.google.android.gnd.ui.home.HomeScreenFragmentDirections;
-import com.google.android.gnd.ui.observationdetails.ObservationDetailsFragment;
-import com.google.android.gnd.ui.observationdetails.ObservationDetailsFragmentDirections;
-import com.google.android.gnd.ui.offlinebasemap.OfflineBaseMapsFragmentDirections;
-import com.google.android.gnd.ui.signin.SignInFragmentDirections;
 import dagger.hilt.android.scopes.ActivityScoped;
 import io.reactivex.Observable;
 import io.reactivex.subjects.PublishSubject;
@@ -60,63 +54,7 @@ public class Navigator {
     navigateUpRequests.onNext(new Object());
   }
 
-  private void navigate(NavDirections n) {
-    navigateRequests.onNext(n);
-  }
-
-  /**
-   * Navigates from a {@link com.google.android.gnd.ui.home.HomeScreenFragment} to a {@link
-   * ObservationDetailsFragment} populated with the specified observation.
-   */
-  public void showObservationDetails(String projectId, String featureId, String observationId) {
-    navigate(
-        HomeScreenFragmentDirections.showObservationDetails(projectId, featureId, observationId));
-  }
-
-  /**
-   * Navigates from a {@link com.google.android.gnd.ui.home.HomeScreenFragment} to a {@link
-   * com.google.android.gnd.ui.offlinebasemap.selector.OfflineBaseMapSelectorFragment}.
-   */
-  public void showOfflineAreaSelector() {
-    navigate(OfflineBaseMapsFragmentDirections.showOfflineAreaSelector());
-  }
-
-  /**
-   * Navigates from the {@link com.google.android.gnd.ui.home.HomeScreenFragment} to a {@link
-   * EditObservationFragment} initialized with a new empty observation using the specified form.
-   */
-  public void addObservation(String projectId, String featureId, String formId) {
-    navigate(HomeScreenFragmentDirections.addObservation(projectId, featureId, formId));
-  }
-
-  /**
-   * Navigates from the {@link ObservationDetailsFragment} to a {@link EditObservationFragment}
-   * populated with the specified observation.
-   */
-  public void editObservation(String projectId, String featureId, String observationId) {
-    navigate(
-        ObservationDetailsFragmentDirections.editObservation(projectId, featureId, observationId));
-  }
-
-  /** Navigates to the home screen. */
-  public void showHomeScreen() {
-    navigate(HomeScreenFragmentDirections.showHomeScreen());
-  }
-
-  /** Navigates to the sign in screen. */
-  public void showSignInScreen() {
-    navigate(SignInFragmentDirections.showSignInScreen());
-  }
-
-  public void showOfflineAreas() {
-    navigate(HomeScreenFragmentDirections.showOfflineAreas());
-  }
-
-  public void showSettings() {
-    navigate(HomeScreenFragmentDirections.actionHomeScreenFragmentToSettingsActivity());
-  }
-
-  public void showOfflineAreaViewer(String offlineAreaId) {
-    navigate(OfflineBaseMapsFragmentDirections.viewOfflineArea(offlineAreaId));
+  public void navigate(NavDirections directions) {
+    navigateRequests.onNext(directions);
   }
 }

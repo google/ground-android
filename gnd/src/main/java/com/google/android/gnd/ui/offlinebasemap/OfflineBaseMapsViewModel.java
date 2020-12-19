@@ -49,7 +49,7 @@ public class OfflineBaseMapsViewModel extends AbstractViewModel {
   }
 
   public void showOfflineAreaSelector() {
-    navigator.showOfflineAreaSelector();
+    navigator.navigate(OfflineBaseMapsFragmentDirections.showOfflineAreaSelector());
   }
 
   LiveData<ImmutableList<OfflineBaseMap>> getOfflineAreas() {
