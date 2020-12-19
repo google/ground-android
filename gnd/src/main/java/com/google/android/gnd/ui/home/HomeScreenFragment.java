@@ -135,7 +135,7 @@ public class HomeScreenFragment extends AbstractFragment
     String projectId = feature.getProject().getId();
     String featureId = feature.getId();
     String formId = form.getId();
-    navigator.addObservation(projectId, featureId, formId);
+    navigator.navigate(HomeScreenFragmentDirections.addObservation(projectId, featureId, formId));
   }
 
   /** This is only possible after updating the location of the feature. So, reset the UI. */

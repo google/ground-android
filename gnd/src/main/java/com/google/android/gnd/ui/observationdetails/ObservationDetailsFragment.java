@@ -162,7 +162,9 @@ public class ObservationDetailsFragment extends AbstractFragment {
       case R.id.edit_observation_menu_item:
         // This is required to prevent menu from reappearing on back.
         getActivity().closeOptionsMenu();
-        navigator.editObservation(projectId, featureId, observationId);
+        navigator.navigate(
+            ObservationDetailsFragmentDirections.editObservation(
+                projectId, featureId, observationId));
         return true;
       case R.id.delete_observation_menu_item:
         viewModel
