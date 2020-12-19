@@ -19,15 +19,18 @@
 <PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
 
   <PreferenceCategory
+    app:iconSpaceReserved="false"
     app:key="general_category"
     app:title="General">
 
     <SwitchPreferenceCompat
+      app:iconSpaceReserved="false"
       app:key="upload_media"
       app:summary="Over Wi-Fi only"
       app:title="Upload media" />
 
     <SwitchPreferenceCompat
+      app:iconSpaceReserved="false"
       app:key="offline_areas"
       app:summary="Over Wi-Fi only"
       app:title="Offline areas download" />
@@ -35,15 +38,18 @@
   </PreferenceCategory>
 
   <PreferenceCategory
+    app:iconSpaceReserved="false"
     app:key="help_category"
     app:title="Help">
 
     <Preference
+      app:iconSpaceReserved="false"
       app:key="visit_website"
       app:summary="@string/ground_website"
       app:title="Visit website" />
 
     <Preference
+      app:iconSpaceReserved="false"
       app:key="feedback"
       app:summary="Report technical issues or suggest new features"
       app:title="Send feedback" />
