@@ -62,6 +62,14 @@ public class MainActivity extends AbstractActivity {
     setTheme(R.style.AppTheme);
     super.onCreate(savedInstanceState);
 
+    // Set up event streams first. Navigator must be listening when auth is first initialized.
+    activityStreams
+        .getActivityRequests()
+        .as(autoDisposable(this))
+        .subscribe(callback -> callback.accept(this));
+    navigator.getNavigateRequests().as(autoDisposable(this)).subscribe(this::onNavigate);
+    navigator.getNavigateUpRequests().as(autoDisposable(this)).subscribe(__ -> navigateUp());
+
     MainActBinding binding = MainActBinding.inflate(getLayoutInflater());
 
     setContentView(binding.getRoot());
@@ -71,19 +79,10 @@ public class MainActivity extends AbstractActivity {
 
     viewModel = viewModelFactory.get(this, MainViewModel.class);
 
-    activityStreams
-        .getActivityRequests()
-        .as(autoDisposable(this))
-        .subscribe(callback -> callback.accept(this));
-
-    // TODO: Remove once we switch to persisted auth tokens / multiple offline users.
     authenticationManager
         .getSignInState()
         .as(autoDisposable(this))
         .subscribe(this::onSignInStateChange);
-
-    navigator.getNavigateRequests().as(autoDisposable(this)).subscribe(this::onNavigate);
-    navigator.getNavigateUpRequests().as(autoDisposable(this)).subscribe(__ -> navigateUp());
   }
 
   @Override
