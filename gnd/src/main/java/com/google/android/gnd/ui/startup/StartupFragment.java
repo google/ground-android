@@ -38,10 +38,9 @@ public class StartupFragment extends AbstractFragment {
 
   private static final String TAG = StartupFragment.class.getSimpleName();
 
-  @Inject
-  GoogleApiManager googleApiManager;
-  @Inject
-  AuthenticationManager authenticationManager;
+  @Inject GoogleApiManager googleApiManager;
+  @Inject AuthenticationManager authenticationManager;
+  @Inject EphemeralPopups popups;
 
   @Override
   public View onCreateView(
@@ -66,7 +65,7 @@ public class StartupFragment extends AbstractFragment {
   private void onGooglePlayServicesFailed(Throwable t) {
     Log.e(TAG, "Google Play Services install failed", t);
 
-    EphemeralPopups.showError(getActivity(), R.string.google_api_install_failed);
+    popups.showError(R.string.google_api_install_failed);
 
     getActivity().finish();
   }

@@ -16,37 +16,46 @@
 
 package com.google.android.gnd.ui.common;
 
-import android.content.Context;
+import android.app.Application;
 import android.widget.Toast;
 import androidx.annotation.StringRes;
 import com.google.android.gnd.R;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 
+/** Displays short-lived messages such as toasts that are shown over other UI elements. */
+@Singleton
 public class EphemeralPopups {
-  /** Do not instantiate. */
-  private EphemeralPopups() {}
 
-  public static void showSuccess(Context context, @StringRes int messageId) {
-    showLong(context, messageId);
+  private final Application context;
+
+  @Inject
+  public EphemeralPopups(Application context) {
+    this.context = context;
   }
 
-  public static void showError(Context context, @StringRes int messageId) {
-    showLong(context, messageId);
+  public void showSuccess(@StringRes int messageId) {
+    showLong(messageId);
   }
 
-  public static void showFyi(Context context, @StringRes int messageId) {
-    showLong(context, messageId);
+  public void showError(@StringRes int messageId) {
+    showLong(messageId);
   }
 
-  public static void showError(Context context, String message) {
+  public void showFyi(@StringRes int messageId) {
+    showLong(messageId);
+  }
+
+  public void showError(String message) {
     Toast.makeText(context, message, Toast.LENGTH_LONG).show();
   }
 
   // TODO: Rename to unknownError?
-  public static void showError(Context context) {
-    showLong(context, R.string.unexpected_error);
+  public void showError() {
+    showLong(R.string.unexpected_error);
   }
 
-  private static void showLong(Context context, @StringRes int messageId) {
+  private void showLong(@StringRes int messageId) {
     Toast.makeText(context, messageId, Toast.LENGTH_LONG).show();
   }
 }

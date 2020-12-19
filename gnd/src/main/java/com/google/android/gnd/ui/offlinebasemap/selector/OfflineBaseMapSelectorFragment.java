@@ -42,8 +42,8 @@ public class OfflineBaseMapSelectorFragment extends AbstractFragment {
   private static final String MAP_FRAGMENT = MapProvider.class.getName() + "#fragment";
 
   @Inject Navigator navigator;
-
   @Inject MapProvider mapProvider;
+  @Inject EphemeralPopups popups;
 
   private OfflineBaseMapSelectorViewModel viewModel;
   @Nullable private MapAdapter map;
@@ -65,12 +65,12 @@ public class OfflineBaseMapSelectorFragment extends AbstractFragment {
   private void onDownloadMessage(DownloadMessage message) {
     switch (message) {
       case STARTED:
-        EphemeralPopups.showSuccess(getContext(), R.string.offline_base_map_download_started);
+        popups.showSuccess(R.string.offline_base_map_download_started);
         navigator.navigateUp();
         break;
       case FAILURE:
       default:
-        EphemeralPopups.showError(getContext(), R.string.offline_base_map_download_failed);
+        popups.showError(R.string.offline_base_map_download_failed);
         navigator.navigateUp();
         break;
     }
