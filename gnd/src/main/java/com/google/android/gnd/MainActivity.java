@@ -54,6 +54,8 @@ public class MainActivity extends AbstractActivity {
   @Inject AuthenticationManager authenticationManager;
   @Inject Navigator navigator;
   @Inject UserRepository userRepository;
+  @Inject EphemeralPopups popups;
+
   private NavHostFragment navHostFragment;
   private MainViewModel viewModel;
 
@@ -129,7 +131,7 @@ public class MainActivity extends AbstractActivity {
 
   private void onSignInError(SignInState signInState) {
     Timber.d("Authentication error : %s", signInState.error());
-    EphemeralPopups.showError(this, R.string.sign_in_unsuccessful);
+    popups.showError(R.string.sign_in_unsuccessful);
     viewModel.onSignedOut(getCurrentNavDestinationId());
   }
 

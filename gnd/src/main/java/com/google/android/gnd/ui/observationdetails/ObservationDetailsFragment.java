@@ -54,6 +54,7 @@ public class ObservationDetailsFragment extends AbstractFragment {
 
   @Inject FeatureHelper featureHelper;
   @Inject Navigator navigator;
+  @Inject EphemeralPopups popups;
 
   private ObservationDetailsViewModel viewModel;
   private ObservationDetailsFragBinding binding;
@@ -104,7 +105,7 @@ public class ObservationDetailsFragment extends AbstractFragment {
       case ERROR:
         // TODO: Replace w/error view?
         Timber.e("Failed to load observation");
-        EphemeralPopups.showError(getContext());
+        popups.showError();
         break;
       default:
         Timber.e("Unhandled state: %s", observation.getState());

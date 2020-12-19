@@ -87,6 +87,7 @@ public class HomeScreenFragment extends AbstractFragment
   @Inject Schedulers schedulers;
   @Inject Navigator navigator;
   @Inject MapContainerViewModel mapContainerViewModel;
+  @Inject EphemeralPopups popups;
 
   @Nullable private ProgressDialog progressDialog;
   private HomeScreenViewModel viewModel;
@@ -513,7 +514,7 @@ public class HomeScreenFragment extends AbstractFragment
   private void onActivateProjectFailure(Throwable throwable) {
     Timber.e(RxJava2Debug.getEnhancedStackTrace(throwable), "Error activating project");
     dismissLoadingDialog();
-    EphemeralPopups.showError(getContext(), R.string.project_load_error);
+    popups.showError(R.string.project_load_error);
     showProjectSelector();
   }
 

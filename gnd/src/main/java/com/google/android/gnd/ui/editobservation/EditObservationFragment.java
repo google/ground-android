@@ -70,6 +70,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
 
   @Inject Navigator navigator;
   @Inject FieldViewFactory fieldViewFactory;
+  @Inject EphemeralPopups popups;
 
   private EditObservationViewModel viewModel;
   private SingleSelectDialogFactory singleSelectDialogFactory;
@@ -128,11 +129,11 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
         showValidationErrorsAlert();
         break;
       case NO_CHANGES_TO_SAVE:
-        EphemeralPopups.showFyi(getContext(), R.string.no_changes_to_save);
+        popups.showFyi(R.string.no_changes_to_save);
         navigator.navigateUp();
         break;
       case SAVED:
-        EphemeralPopups.showSuccess(getContext(), R.string.saved);
+        popups.showSuccess(R.string.saved);
         navigator.navigateUp();
         break;
       default:
