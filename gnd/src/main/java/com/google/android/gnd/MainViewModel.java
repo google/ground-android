@@ -20,6 +20,7 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import com.google.android.gnd.model.Project;
+import com.google.android.gnd.model.User;
 import com.google.android.gnd.repository.FeatureRepository;
 import com.google.android.gnd.repository.ProjectRepository;
 import com.google.android.gnd.repository.UserRepository;
@@ -70,7 +71,11 @@ public class MainViewModel extends AbstractViewModel {
             .switchMapCompletable(this::syncFeatures)
             .subscribe());
 
-    disposeOnClear(authenticationManager.getSignInState().subscribe(this::onSignInStateChange));
+    disposeOnClear(
+        authenticationManager
+            .getSignInState()
+            .switchMapCompletable(this::onSignInStateChange)
+            .subscribe());
   }
 
   /**
@@ -91,7 +96,7 @@ public class MainViewModel extends AbstractViewModel {
     windowInsetsLiveData.setValue(insets);
   }
 
-  private void onSignInStateChange(SignInState signInState) {
+  private Completable onSignInStateChange(SignInState signInState) {
     Timber.d("Auth status change: %s", signInState.state());
     switch (signInState.state()) {
       case SIGNED_OUT:
@@ -102,12 +107,8 @@ public class MainViewModel extends AbstractViewModel {
         // TODO: Show/hide spinner.
         break;
       case SIGNED_IN:
-        signInState
-            .getUser()
-            .ifPresentOrElse(
-                user -> userRepository.saveUser(user).subscribe(() -> onSignedIn()),
-                () -> Timber.e("User signed in but missing"));
-        break;
+        User user = signInState.getUser().orElseThrow(IllegalStateException::new);
+        return userRepository.saveUser(user).doOnComplete(this::onSignedIn);
       case ERROR:
         onSignInError(signInState);
         break;
@@ -115,6 +116,7 @@ public class MainViewModel extends AbstractViewModel {
         Timber.e("Unhandled state: %s", signInState.state());
         break;
     }
+    return Completable.complete();
   }
 
   private void onSignInError(SignInState signInState) {
