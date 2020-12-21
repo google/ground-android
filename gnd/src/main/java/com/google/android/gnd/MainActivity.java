@@ -31,10 +31,7 @@ import com.google.android.gnd.databinding.MainActBinding;
 import com.google.android.gnd.repository.UserRepository;
 import com.google.android.gnd.system.ActivityStreams;
 import com.google.android.gnd.system.SettingsManager;
-import com.google.android.gnd.system.auth.AuthenticationManager;
-import com.google.android.gnd.system.auth.SignInState;
 import com.google.android.gnd.ui.common.BackPressListener;
-import com.google.android.gnd.ui.common.EphemeralPopups;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.ViewModelFactory;
 import dagger.hilt.android.AndroidEntryPoint;
@@ -50,10 +47,8 @@ public class MainActivity extends AbstractActivity {
   @Inject ActivityStreams activityStreams;
   @Inject ViewModelFactory viewModelFactory;
   @Inject SettingsManager settingsManager;
-  @Inject AuthenticationManager authenticationManager;
   @Inject Navigator navigator;
   @Inject UserRepository userRepository;
-  @Inject EphemeralPopups popups;
 
   private NavHostFragment navHostFragment;
   private MainViewModel viewModel;
@@ -80,11 +75,6 @@ public class MainActivity extends AbstractActivity {
         (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
 
     viewModel = viewModelFactory.get(this, MainViewModel.class);
-
-    authenticationManager
-        .getSignInState()
-        .as(autoDisposable(this))
-        .subscribe(this::onSignInStateChange);
   }
 
   @Override
@@ -95,42 +85,6 @@ public class MainActivity extends AbstractActivity {
 
   private void onNavigate(NavDirections navDirections) {
     getNavController().navigate(navDirections);
-  }
-
-  private void onSignInStateChange(SignInState signInState) {
-    Timber.d("Auth status change: %s", signInState.state());
-    switch (signInState.state()) {
-      case SIGNED_OUT:
-        // TODO: Check auth status whenever fragments resumes.
-        viewModel.onSignedOut();
-        break;
-      case SIGNING_IN:
-        // TODO: Show/hide spinner.
-        break;
-      case SIGNED_IN:
-        signInState
-            .getUser()
-            .ifPresentOrElse(
-                user ->
-                    userRepository
-                        .saveUser(user)
-                        .as(autoDisposable(this))
-                        .subscribe(() -> viewModel.onSignedIn()),
-                () -> Timber.e("User signed in but missing"));
-        break;
-      case ERROR:
-        onSignInError(signInState);
-        break;
-      default:
-        Timber.e("Unhandled state: %s", signInState.state());
-        break;
-    }
-  }
-
-  private void onSignInError(SignInState signInState) {
-    Timber.d("Authentication error : %s", signInState.error());
-    popups.showError(R.string.sign_in_unsuccessful);
-    viewModel.onSignedOut();
   }
 
   /**
