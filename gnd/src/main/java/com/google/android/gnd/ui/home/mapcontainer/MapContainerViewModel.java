@@ -36,10 +36,12 @@ import com.google.android.gnd.repository.OfflineBaseMapRepository;
 import com.google.android.gnd.repository.ProjectRepository;
 import com.google.android.gnd.rx.Action;
 import com.google.android.gnd.rx.BooleanOrError;
+import com.google.android.gnd.rx.Event;
 import com.google.android.gnd.rx.Loadable;
 import com.google.android.gnd.system.LocationManager;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.common.SharedViewModel;
+import com.google.android.gnd.ui.map.CameraPosition;
 import com.google.android.gnd.ui.map.MapFeature;
 import com.google.android.gnd.ui.map.MapGeoJson;
 import com.google.android.gnd.ui.map.MapPin;
@@ -59,12 +61,17 @@ import timber.log.Timber;
 @SharedViewModel
 public class MapContainerViewModel extends AbstractViewModel {
 
-  private static final float DEFAULT_ZOOM_LEVEL = 20.0f;
+  // A note on Zoom levels: The higher the number the more zoomed in the map will be.
+  // 0.0f is fully zoomed out.
+  private static final float DEFAULT_FEATURE_ZOOM_LEVEL = 20.0f;
+  private static final float DEFAULT_MAP_ZOOM_LEVEL = 0.0f;
+  private static final Point DEFAULT_MAP_POINT =
+      Point.newBuilder().setLatitude(0.0).setLongitude(0.0).build();
   private final LiveData<Loadable<Project>> activeProject;
   private final LiveData<ImmutableSet<MapFeature>> mapFeatures;
   private final LiveData<BooleanOrError> locationLockState;
-  private final LiveData<CameraUpdate> cameraUpdateRequests;
-  private final MutableLiveData<Point> cameraPosition;
+  private final LiveData<Event<CameraUpdate>> cameraUpdateRequests;
+  private final MutableLiveData<CameraPosition> cameraPosition;
   private final LocationManager locationManager;
   private final FeatureRepository featureRepository;
   private final Subject<Boolean> locationLockChangeRequests;
@@ -90,6 +97,7 @@ public class MapContainerViewModel extends AbstractViewModel {
       FeatureRepository featureRepository,
       LocationManager locationManager,
       OfflineBaseMapRepository offlineBaseMapRepository) {
+    // THIS SHOULD NOT BE CALLED ON CONFIG CHANGE
     this.featureRepository = featureRepository;
     this.locationManager = locationManager;
     this.locationLockChangeRequests = PublishSubject.create();
@@ -107,7 +115,8 @@ public class MapContainerViewModel extends AbstractViewModel {
     this.cameraUpdateRequests =
         LiveDataReactiveStreams.fromPublisher(
             createCameraUpdateFlowable(locationLockStateFlowable));
-    this.cameraPosition = new MutableLiveData<>();
+    this.cameraPosition =
+        new MutableLiveData<>(new CameraPosition(DEFAULT_MAP_POINT, DEFAULT_MAP_ZOOM_LEVEL));
     this.activeProject =
         LiveDataReactiveStreams.fromPublisher(projectRepository.getActiveProjectOnceAndStream());
     // TODO: Clear feature markers when project is deactivated.
@@ -174,12 +183,13 @@ public class MapContainerViewModel extends AbstractViewModel {
     return selectMapTypeClicks;
   }
 
-  private Flowable<CameraUpdate> createCameraUpdateFlowable(
+  private Flowable<Event<CameraUpdate>> createCameraUpdateFlowable(
       Flowable<BooleanOrError> locationLockStateFlowable) {
     return cameraUpdateSubject
         .toFlowable(BackpressureStrategy.LATEST)
         .mergeWith(
-            locationLockStateFlowable.switchMap(this::createLocationLockCameraUpdateFlowable));
+            locationLockStateFlowable.switchMap(this::createLocationLockCameraUpdateFlowable))
+        .map(Event::create);
   }
 
   private Flowable<CameraUpdate> createLocationLockCameraUpdateFlowable(BooleanOrError lockState) {
@@ -229,11 +239,12 @@ public class MapContainerViewModel extends AbstractViewModel {
     return mbtilesFilePaths;
   }
 
-  LiveData<CameraUpdate> getCameraUpdateRequests() {
+  LiveData<Event<CameraUpdate>> getCameraUpdateRequests() {
     return cameraUpdateRequests;
   }
 
-  public LiveData<Point> getCameraPosition() {
+  public LiveData<CameraPosition> getCameraPosition() {
+    Timber.d("Current position is %s", cameraPosition.getValue().toString());
     return cameraPosition;
   }
 
@@ -249,7 +260,8 @@ public class MapContainerViewModel extends AbstractViewModel {
     return locationLockState.getValue().isTrue();
   }
 
-  public void onCameraMove(Point newCameraPosition) {
+  public void onCameraMove(CameraPosition newCameraPosition) {
+    Timber.d("Setting position to %s", newCameraPosition.toString());
     this.cameraPosition.setValue(newCameraPosition);
   }
 
@@ -321,7 +333,7 @@ public class MapContainerViewModel extends AbstractViewModel {
     }
 
     private static CameraUpdate panAndZoom(Point center) {
-      return new CameraUpdate(center, Optional.of(DEFAULT_ZOOM_LEVEL));
+      return new CameraUpdate(center, Optional.of(DEFAULT_FEATURE_ZOOM_LEVEL));
     }
 
     public Point getCenter() {
