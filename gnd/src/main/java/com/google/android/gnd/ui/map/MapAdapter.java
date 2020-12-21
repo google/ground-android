@@ -37,8 +37,8 @@ public interface MapAdapter {
    */
   Observable<Point> getDragInteractions();
 
-  /** Returns a stream that emits the viewport camera position on each camera movement. */
-  Observable<GroundCameraPosition> getCameraMoves();
+  /** Returns a stream that emits the camera position on each camera movement. */
+  Observable<CameraPosition> getCameraMoves();
 
   /** Enables map gestures like pan and zoom. */
   void enable();
@@ -47,10 +47,10 @@ public interface MapAdapter {
   void disable();
 
   /**
-   * Repositions the viewport camera position.
-   * @param position
+   * Repositions the camera.
+   * @param position the new position
    */
-  void moveCamera(GroundCameraPosition position);
+  void moveCamera(CameraPosition position);
 
   /**
    * Repositions the viewport centered around the specified point without changing the current zoom

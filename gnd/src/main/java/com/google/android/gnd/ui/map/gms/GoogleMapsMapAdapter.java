@@ -27,7 +27,6 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.BitmapDescriptor;
-import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.JointType;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
@@ -41,7 +40,7 @@ import com.google.android.gnd.R;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.persistence.local.LocalValueStore;
 import com.google.android.gnd.ui.MarkerIconFactory;
-import com.google.android.gnd.ui.map.GroundCameraPosition;
+import com.google.android.gnd.ui.map.CameraPosition;
 import com.google.android.gnd.ui.map.MapAdapter;
 import com.google.android.gnd.ui.map.MapFeature;
 import com.google.android.gnd.ui.map.MapGeoJson;
@@ -78,7 +77,7 @@ class GoogleMapsMapAdapter implements MapAdapter {
   private final MarkerIconFactory markerIconFactory;
   private final PublishSubject<MapPin> markerClickSubject = PublishSubject.create();
   private final PublishSubject<Point> dragInteractionSubject = PublishSubject.create();
-  private final BehaviorSubject<GroundCameraPosition> cameraMoves = BehaviorSubject.create();
+  private final BehaviorSubject<CameraPosition> cameraMoves = BehaviorSubject.create();
   // TODO: This is a limitation of the MapBox tile provider we're using;
   // since one need to call `close` explicitly, we cannot generically expose these as TileProviders;
   // instead we must retain explicit reference to the concrete type.
@@ -171,7 +170,7 @@ class GoogleMapsMapAdapter implements MapAdapter {
   }
 
   @Override
-  public Observable<GroundCameraPosition> getCameraMoves() {
+  public Observable<CameraPosition> getCameraMoves() {
     return cameraMoves;
   }
 
@@ -191,7 +190,7 @@ class GoogleMapsMapAdapter implements MapAdapter {
   }
 
   @Override
-  public void moveCamera(GroundCameraPosition position) {
+  public void moveCamera(CameraPosition position) {
     map.moveCamera(
         CameraUpdateFactory.newLatLngZoom(toLatLng(position.getTarget()), position.getZoomLevel()));
   }
@@ -386,11 +385,12 @@ class GoogleMapsMapAdapter implements MapAdapter {
   }
 
   private void onCameraMove() {
-    CameraPosition cameraPosition = map.getCameraPosition();
-    Point target = fromLatLng(cameraPosition.target);
-    GroundCameraPosition position = new GroundCameraPosition(target, cameraPosition.zoom);
+    com.google.android.gms.maps.model.CameraPosition gmsCameraPosition = map.getCameraPosition();
+    Point target = fromLatLng(gmsCameraPosition.target);
+    CameraPosition position = new CameraPosition(target, gmsCameraPosition.zoom);
     cameraMoves.onNext(position);
-    if (cameraTargetBeforeDrag != null && !cameraPosition.target.equals(cameraTargetBeforeDrag)) {
+    if (cameraTargetBeforeDrag != null
+        && !gmsCameraPosition.target.equals(cameraTargetBeforeDrag)) {
       dragInteractionSubject.onNext(target);
     }
   }

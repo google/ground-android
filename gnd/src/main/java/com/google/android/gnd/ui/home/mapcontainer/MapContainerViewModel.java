@@ -41,7 +41,7 @@ import com.google.android.gnd.rx.Loadable;
 import com.google.android.gnd.system.LocationManager;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.common.SharedViewModel;
-import com.google.android.gnd.ui.map.GroundCameraPosition;
+import com.google.android.gnd.ui.map.CameraPosition;
 import com.google.android.gnd.ui.map.MapFeature;
 import com.google.android.gnd.ui.map.MapGeoJson;
 import com.google.android.gnd.ui.map.MapPin;
@@ -65,12 +65,13 @@ public class MapContainerViewModel extends AbstractViewModel {
   // 0.0f is fully zoomed out.
   private static final float DEFAULT_FEATURE_ZOOM_LEVEL = 20.0f;
   private static final float DEFAULT_MAP_ZOOM_LEVEL = 0.0f;
-  private static final Point DEFAULT_MAP_POINT = Point.newBuilder().setLatitude(0.0).setLongitude(0.0).build();
+  private static final Point DEFAULT_MAP_POINT =
+      Point.newBuilder().setLatitude(0.0).setLongitude(0.0).build();
   private final LiveData<Loadable<Project>> activeProject;
   private final LiveData<ImmutableSet<MapFeature>> mapFeatures;
   private final LiveData<BooleanOrError> locationLockState;
   private final LiveData<Event<CameraUpdate>> cameraUpdateRequests;
-  private final MutableLiveData<GroundCameraPosition> cameraPosition;
+  private final MutableLiveData<CameraPosition> cameraPosition;
   private final LocationManager locationManager;
   private final FeatureRepository featureRepository;
   private final Subject<Boolean> locationLockChangeRequests;
@@ -114,8 +115,8 @@ public class MapContainerViewModel extends AbstractViewModel {
     this.cameraUpdateRequests =
         LiveDataReactiveStreams.fromPublisher(
             createCameraUpdateFlowable(locationLockStateFlowable));
-    this.cameraPosition = new MutableLiveData<>(
-        new GroundCameraPosition(DEFAULT_MAP_POINT, DEFAULT_MAP_ZOOM_LEVEL));
+    this.cameraPosition =
+        new MutableLiveData<>(new CameraPosition(DEFAULT_MAP_POINT, DEFAULT_MAP_ZOOM_LEVEL));
     this.activeProject =
         LiveDataReactiveStreams.fromPublisher(projectRepository.getActiveProjectOnceAndStream());
     // TODO: Clear feature markers when project is deactivated.
@@ -242,7 +243,7 @@ public class MapContainerViewModel extends AbstractViewModel {
     return cameraUpdateRequests;
   }
 
-  public LiveData<GroundCameraPosition> getCameraPosition() {
+  public LiveData<CameraPosition> getCameraPosition() {
     Timber.d("Current position is %s", cameraPosition.getValue().toString());
     return cameraPosition;
   }
@@ -259,7 +260,7 @@ public class MapContainerViewModel extends AbstractViewModel {
     return locationLockState.getValue().isTrue();
   }
 
-  public void onCameraMove(GroundCameraPosition newCameraPosition) {
+  public void onCameraMove(CameraPosition newCameraPosition) {
     Timber.d("Setting position to %s", newCameraPosition.toString());
     this.cameraPosition.setValue(newCameraPosition);
   }
