@@ -17,11 +17,11 @@
 package com.google.android.gnd.ui.common;
 
 import androidx.navigation.NavDirections;
-import dagger.hilt.android.scopes.ActivityScoped;
 import io.reactivex.Observable;
 import io.reactivex.subjects.PublishSubject;
 import io.reactivex.subjects.Subject;
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
 /**
  * Responsible for abstracting navigation from fragment to fragment. Exposes various actions to
@@ -29,7 +29,7 @@ import javax.inject.Inject;
  * com.google.android.gnd.MainActivity}, which is expected to pass it to the current {@link
  * androidx.navigation.NavController}.
  */
-@ActivityScoped
+@Singleton
 public class Navigator {
   private final Subject<NavDirections> navigateRequests;
   private final Subject<Object> navigateUpRequests;
