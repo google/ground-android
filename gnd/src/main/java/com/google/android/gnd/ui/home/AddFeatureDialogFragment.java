@@ -21,7 +21,6 @@ import static java8.util.stream.StreamSupport.stream;
 
 import android.app.Dialog;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.FragmentManager;
@@ -47,15 +46,12 @@ public class AddFeatureDialogFragment extends AbstractDialogFragment {
   public AddFeatureDialogFragment() {}
 
   public void show(
-      @NonNull Project project,
-      @NonNull FragmentManager fragmentManager,
-      @NonNull LayerSelectedListener listener) {
+      Project project, FragmentManager fragmentManager, LayerSelectedListener listener) {
     this.project = project;
     this.listener = listener;
     show(fragmentManager, TAG);
   }
 
-  @NonNull
   @Override
   public Dialog onCreateDialog(Bundle savedInstanceState) {
     super.onCreateDialog(savedInstanceState);
