@@ -23,6 +23,7 @@ import android.app.Dialog;
 import android.os.Bundle;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.util.Consumer;
 import androidx.fragment.app.FragmentManager;
 import com.google.android.gnd.R;
 import com.google.android.gnd.model.Project;
@@ -40,15 +41,15 @@ public class AddFeatureDialogFragment extends AbstractDialogFragment {
   private static final String TAG = AddFeatureDialogFragment.class.getSimpleName();
 
   @Nullable private Project project;
-  @Nullable private LayerSelectedListener listener;
+  @Nullable private Consumer<Layer> layerConsumer;
 
   @Inject
   public AddFeatureDialogFragment() {}
 
   public void show(
-      Project project, FragmentManager fragmentManager, LayerSelectedListener listener) {
+      Project project, FragmentManager fragmentManager, Consumer<Layer> layerConsumer) {
     this.project = project;
-    this.listener = listener;
+    this.layerConsumer = layerConsumer;
     show(fragmentManager, TAG);
   }
 
@@ -56,14 +57,14 @@ public class AddFeatureDialogFragment extends AbstractDialogFragment {
   public Dialog onCreateDialog(Bundle savedInstanceState) {
     super.onCreateDialog(savedInstanceState);
     try {
-      return createDialog(Objects.requireNonNull(project));
+      return createDialog(project, layerConsumer);
     } catch (RuntimeException e) {
       Timber.e(e);
       return fail(Objects.requireNonNullElse(e.getMessage(), "Unknown error"));
     }
   }
 
-  private Dialog createDialog(Project project) {
+  private Dialog createDialog(Project project, Consumer<Layer> layerConsumer) {
     ImmutableList<Layer> layers =
         stream(project.getLayers())
             .sorted((pt1, pt2) -> pt1.getName().compareTo(pt2.getName()))
@@ -74,17 +75,14 @@ public class AddFeatureDialogFragment extends AbstractDialogFragment {
     return new AlertDialog.Builder(requireContext())
         .setTitle(R.string.add_feature_select_type_dialog_title)
         .setNegativeButton(R.string.cancel, (dialog, id) -> dismiss())
-        .setItems(items, (dialog, idx) -> onSelectLayer(layers.get(idx)))
+        .setItems(items, (dialog, index) -> layerConsumer.accept(layers.get(index)))
         .create();
   }
 
-  private void onSelectLayer(Layer layer) {
-    if (listener != null) {
-      listener.onSelected(layer);
-    }
-  }
-
-  public interface LayerSelectedListener {
-    void onSelected(Layer layer);
+  @Override
+  public void onDestroyView() {
+    super.onDestroyView();
+    project = null;
+    layerConsumer = null;
   }
 }
