@@ -17,16 +17,17 @@
 package com.google.android.gnd.ui.home;
 
 import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList;
+import static java.util.Objects.requireNonNull;
 import static java8.util.stream.StreamSupport.stream;
 
 import android.app.Dialog;
 import android.os.Bundle;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.util.Consumer;
 import androidx.fragment.app.FragmentManager;
 import com.google.android.gnd.R;
-import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.ui.common.AbstractDialogFragment;
 import com.google.common.collect.ImmutableList;
@@ -40,49 +41,56 @@ public class AddFeatureDialogFragment extends AbstractDialogFragment {
 
   private static final String TAG = AddFeatureDialogFragment.class.getSimpleName();
 
-  @Nullable private Project project;
   @Nullable private Consumer<Layer> layerConsumer;
+  @Nullable private ImmutableList<Layer> layers;
 
   @Inject
   public AddFeatureDialogFragment() {}
 
   public void show(
-      Project project, FragmentManager fragmentManager, Consumer<Layer> layerConsumer) {
-    this.project = project;
+      ImmutableList<Layer> layers, FragmentManager fragmentManager, Consumer<Layer> layerConsumer) {
+    this.layers = layers;
     this.layerConsumer = layerConsumer;
     show(fragmentManager, TAG);
   }
 
+  @NonNull
   @Override
   public Dialog onCreateDialog(Bundle savedInstanceState) {
     super.onCreateDialog(savedInstanceState);
     try {
-      return createDialog(project, layerConsumer);
+      requireNonNull(layers);
+      requireNonNull(layerConsumer);
+      return createDialog(sortByName(layers), layerConsumer);
     } catch (RuntimeException e) {
       Timber.e(e);
       return fail(Objects.requireNonNullElse(e.getMessage(), "Unknown error"));
     }
   }
 
-  private Dialog createDialog(Project project, Consumer<Layer> layerConsumer) {
-    ImmutableList<Layer> layers =
-        stream(project.getLayers())
-            .sorted((pt1, pt2) -> pt1.getName().compareTo(pt2.getName()))
-            .collect(toImmutableList());
-    String[] items = stream(layers).map(Layer::getName).toArray(String[]::new);
+  private ImmutableList<Layer> sortByName(ImmutableList<Layer> layers) {
+    return stream(layers)
+        .sorted((l1, l2) -> l1.getName().compareTo(l2.getName()))
+        .collect(toImmutableList());
+  }
 
+  private String[] getLayerNames(ImmutableList<Layer> layers) {
+    return stream(layers).map(Layer::getName).toArray(String[]::new);
+  }
+
+  private Dialog createDialog(ImmutableList<Layer> layers, Consumer<Layer> layerConsumer) {
     // TODO: Add icons.
     return new AlertDialog.Builder(requireContext())
         .setTitle(R.string.add_feature_select_type_dialog_title)
         .setNegativeButton(R.string.cancel, (dialog, id) -> dismiss())
-        .setItems(items, (dialog, index) -> layerConsumer.accept(layers.get(index)))
+        .setItems(getLayerNames(layers), (dialog, index) -> layerConsumer.accept(layers.get(index)))
         .create();
   }
 
   @Override
   public void onDestroyView() {
     super.onDestroyView();
-    project = null;
+    layers = null;
     layerConsumer = null;
   }
 }

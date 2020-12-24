@@ -423,7 +423,7 @@ public class HomeScreenFragment extends AbstractFragment
               // TODO: Pause location updates while dialog is open.
               // TODO: Show spinner?
               addFeatureDialogFragment.show(
-                  project,
+                  project.getLayers(),
                   getChildFragmentManager(),
                   (layer) -> viewModel.addFeature(project, layer, point));
             },
