@@ -41,13 +41,13 @@ import timber.log.Timber;
 @SharedViewModel
 public class MainViewModel extends AbstractViewModel {
 
+  private final MutableLiveData<WindowInsetsCompat> windowInsetsLiveData = new MutableLiveData<>();
+
   private final ProjectRepository projectRepository;
   private final FeatureRepository featureRepository;
   private final UserRepository userRepository;
   private final Navigator navigator;
-  private EphemeralPopups popups;
-
-  private MutableLiveData<WindowInsetsCompat> windowInsetsLiveData;
+  private final EphemeralPopups popups;
 
   @Inject
   public MainViewModel(
@@ -57,7 +57,6 @@ public class MainViewModel extends AbstractViewModel {
       Navigator navigator,
       AuthenticationManager authenticationManager,
       EphemeralPopups popups) {
-    windowInsetsLiveData = new MutableLiveData<>();
     this.projectRepository = projectRepository;
     this.featureRepository = featureRepository;
     this.userRepository = userRepository;
