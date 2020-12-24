@@ -23,19 +23,16 @@ import static com.google.android.gnd.rx.RxCompletable.toBooleanSingle;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
 import androidx.lifecycle.MutableLiveData;
-import com.google.android.gnd.model.AuditInfo;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.model.layer.Layer;
-import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator;
 import com.google.android.gnd.repository.FeatureRepository;
 import com.google.android.gnd.repository.ProjectRepository;
 import com.google.android.gnd.rx.Action;
 import com.google.android.gnd.rx.Event;
 import com.google.android.gnd.rx.Loadable;
-import com.google.android.gnd.system.auth.AuthenticationManager;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.SharedViewModel;
@@ -53,8 +50,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
   public final MutableLiveData<Boolean> isObservationButtonVisible = new MutableLiveData<>(false);
   private final ProjectRepository projectRepository;
   private final Navigator navigator;
-  private final OfflineUuidGenerator uuidGenerator;
-  private final AuthenticationManager authManager;
+  private final FeatureRepository featureRepository;
 
   /** The state and value of the currently active project (loading, loaded, etc.). */
   private final LiveData<Loadable<Project>> activeProject;
@@ -79,12 +75,9 @@ public class HomeScreenViewModel extends AbstractViewModel {
   HomeScreenViewModel(
       ProjectRepository projectRepository,
       FeatureRepository featureRepository,
-      Navigator navigator,
-      OfflineUuidGenerator uuidGenerator,
-      AuthenticationManager authManager) {
+      Navigator navigator) {
     this.projectRepository = projectRepository;
-    this.uuidGenerator = uuidGenerator;
-    this.authManager = authManager;
+    this.featureRepository = featureRepository;
     this.addFeatureDialogRequests = new MutableLiveData<>();
     this.openDrawerRequests = new MutableLiveData<>();
     this.bottomSheetState = new MutableLiveData<>();
@@ -155,22 +148,8 @@ public class HomeScreenViewModel extends AbstractViewModel {
     return errors;
   }
 
-  public void addFeature(Feature feature) {
-    addFeatureClicks.onNext(feature);
-  }
-
   public void addFeature(Project project, Layer layer, Point point) {
-    AuditInfo auditInfo = AuditInfo.now(authManager.getCurrentUser());
-    Feature feature =
-        Feature.newBuilder()
-            .setId(uuidGenerator.generateUuid())
-            .setProject(project)
-            .setLayer(layer)
-            .setPoint(point)
-            .setCreated(auditInfo)
-            .setLastModified(auditInfo)
-            .build();
-    addFeatureClicks.onNext(feature);
+    addFeatureClicks.onNext(featureRepository.newFeature(project, layer, point));
   }
 
   public void updateFeature(Feature feature) {
