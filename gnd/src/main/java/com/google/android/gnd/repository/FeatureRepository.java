@@ -16,15 +16,19 @@
 
 package com.google.android.gnd.repository;
 
+import com.google.android.gnd.model.AuditInfo;
 import com.google.android.gnd.model.Mutation.Type;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.FeatureMutation;
+import com.google.android.gnd.model.feature.Point;
+import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.persistence.local.LocalDataStore;
 import com.google.android.gnd.persistence.remote.NotFoundException;
 import com.google.android.gnd.persistence.remote.RemoteDataEvent;
 import com.google.android.gnd.persistence.remote.RemoteDataStore;
 import com.google.android.gnd.persistence.sync.DataSyncWorkManager;
+import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator;
 import com.google.android.gnd.rx.Loadable;
 import com.google.android.gnd.system.auth.AuthenticationManager;
 import com.google.common.collect.ImmutableSet;
@@ -51,6 +55,7 @@ public class FeatureRepository {
   private final ProjectRepository projectRepository;
   private final DataSyncWorkManager dataSyncWorkManager;
   private final AuthenticationManager authManager;
+  private final OfflineUuidGenerator uuidGenerator;
 
   @Inject
   public FeatureRepository(
@@ -58,12 +63,14 @@ public class FeatureRepository {
       RemoteDataStore remoteDataStore,
       ProjectRepository projectRepository,
       DataSyncWorkManager dataSyncWorkManager,
-      AuthenticationManager authManager) {
+      AuthenticationManager authManager,
+      OfflineUuidGenerator uuidGenerator) {
     this.localDataStore = localDataStore;
     this.remoteDataStore = remoteDataStore;
     this.projectRepository = projectRepository;
     this.dataSyncWorkManager = dataSyncWorkManager;
     this.authManager = authManager;
+    this.uuidGenerator = uuidGenerator;
   }
 
   /**
@@ -121,6 +128,18 @@ public class FeatureRepository {
         .setNewLocation(Optional.of(feature.getPoint()))
         .setUserId(authManager.getCurrentUser().getId())
         .setClientTimestamp(new Date())
+        .build();
+  }
+
+  public Feature newFeature(Project project, Layer layer, Point point) {
+    AuditInfo auditInfo = AuditInfo.now(authManager.getCurrentUser());
+    return Feature.newBuilder()
+        .setId(uuidGenerator.generateUuid())
+        .setProject(project)
+        .setLayer(layer)
+        .setPoint(point)
+        .setCreated(auditInfo)
+        .setLastModified(auditInfo)
         .build();
   }
 
