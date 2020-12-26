@@ -47,6 +47,7 @@ import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.HomeScreenFragBinding;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.feature.Feature;
+import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.rx.Loadable;
 import com.google.android.gnd.rx.Schedulers;
@@ -63,7 +64,6 @@ import com.google.android.gnd.ui.projectselector.ProjectSelectorViewModel;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.navigation.NavigationView.OnNavigationItemSelectedListener;
 import dagger.hilt.android.AndroidEntryPoint;
-import io.reactivex.subjects.PublishSubject;
 import java.util.Collections;
 import java.util.List;
 import java8.util.Optional;
@@ -93,7 +93,6 @@ public class HomeScreenFragment extends AbstractFragment
   private HomeScreenViewModel viewModel;
   private MapContainerFragment mapContainerFragment;
   private BottomSheetBehavior<View> bottomSheetBehavior;
-  private PublishSubject<Object> showFeatureDialogRequests;
   private ProjectSelectorDialogFragment projectSelectorDialogFragment;
   private ProjectSelectorViewModel projectSelectorViewModel;
   private List<Project> projects = Collections.emptyList();
@@ -106,6 +105,7 @@ public class HomeScreenFragment extends AbstractFragment
     getViewModel(MainViewModel.class).getWindowInsets().observe(this, this::onApplyWindowInsets);
 
     mapContainerViewModel = getViewModel(MapContainerViewModel.class);
+    projectSelectorViewModel = getViewModel(ProjectSelectorViewModel.class);
 
     viewModel = getViewModel(HomeScreenViewModel.class);
     viewModel.getActiveProject().observe(this, this::onActiveProjectChange);
@@ -118,15 +118,6 @@ public class HomeScreenFragment extends AbstractFragment
     viewModel.getUpdateFeatureResults().observe(this, this::onFeatureUpdated);
     viewModel.getDeleteFeatureResults().observe(this, this::onFeatureDeleted);
     viewModel.getErrors().observe(this, this::onError);
-
-    showFeatureDialogRequests = PublishSubject.create();
-
-    showFeatureDialogRequests
-        .switchMapMaybe(__ -> addFeatureDialogFragment.show(getChildFragmentManager()))
-        .as(autoDisposable(this))
-        .subscribe(viewModel::addFeature);
-
-    projectSelectorViewModel = getViewModel(ProjectSelectorViewModel.class);
   }
 
   private void onFeatureAdded(Feature feature) {
@@ -414,14 +405,18 @@ public class HomeScreenFragment extends AbstractFragment
     return -1;
   }
 
-  private void onShowAddFeatureDialogRequest() {
-    if (!Loadable.getValue(viewModel.getActiveProject()).isPresent()) {
-      Timber.e("Attempting to add feature while no project loaded");
-      return;
-    }
-    // TODO: Pause location updates while dialog is open.
-    // TODO: Show spinner?
-    showFeatureDialogRequests.onNext(new Object());
+  private void onShowAddFeatureDialogRequest(Point point) {
+    Loadable.getValue(viewModel.getActiveProject())
+        .ifPresentOrElse(
+            project -> {
+              // TODO: Pause location updates while dialog is open.
+              // TODO: Show spinner?
+              addFeatureDialogFragment.show(
+                  project.getLayers(),
+                  getChildFragmentManager(),
+                  (layer) -> viewModel.addFeature(project, layer, point));
+            },
+            () -> Timber.e("Attempting to add feature while no project loaded"));
   }
 
   private void onBottomSheetStateChange(BottomSheetState state) {

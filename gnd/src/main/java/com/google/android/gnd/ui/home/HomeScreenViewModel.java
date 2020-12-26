@@ -27,6 +27,7 @@ import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.model.form.Form;
+import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.repository.FeatureRepository;
 import com.google.android.gnd.repository.ProjectRepository;
 import com.google.android.gnd.rx.Action;
@@ -49,6 +50,8 @@ public class HomeScreenViewModel extends AbstractViewModel {
   public final MutableLiveData<Boolean> isObservationButtonVisible = new MutableLiveData<>(false);
   private final ProjectRepository projectRepository;
   private final Navigator navigator;
+  private final FeatureRepository featureRepository;
+
   /** The state and value of the currently active project (loading, loaded, etc.). */
   private final LiveData<Loadable<Project>> activeProject;
 
@@ -74,6 +77,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
       FeatureRepository featureRepository,
       Navigator navigator) {
     this.projectRepository = projectRepository;
+    this.featureRepository = featureRepository;
     this.addFeatureDialogRequests = new MutableLiveData<>();
     this.openDrawerRequests = new MutableLiveData<>();
     this.bottomSheetState = new MutableLiveData<>();
@@ -144,8 +148,8 @@ public class HomeScreenViewModel extends AbstractViewModel {
     return errors;
   }
 
-  public void addFeature(Feature feature) {
-    addFeatureClicks.onNext(feature);
+  public void addFeature(Project project, Layer layer, Point point) {
+    addFeatureClicks.onNext(featureRepository.newFeature(project, layer, point));
   }
 
   public void updateFeature(Feature feature) {
