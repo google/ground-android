@@ -41,13 +41,14 @@ import timber.log.Timber;
 @SharedViewModel
 public class MainViewModel extends AbstractViewModel {
 
+  private final MutableLiveData<WindowInsetsCompat> windowInsetsLiveData = new MutableLiveData<>();
+  private final MutableLiveData<Boolean> signInProgressDialogVisibility = new MutableLiveData<>();
+
   private final ProjectRepository projectRepository;
   private final FeatureRepository featureRepository;
   private final UserRepository userRepository;
   private final Navigator navigator;
-  private EphemeralPopups popups;
-
-  private MutableLiveData<WindowInsetsCompat> windowInsetsLiveData;
+  private final EphemeralPopups popups;
 
   @Inject
   public MainViewModel(
@@ -57,7 +58,6 @@ public class MainViewModel extends AbstractViewModel {
       Navigator navigator,
       AuthenticationManager authenticationManager,
       EphemeralPopups popups) {
-    windowInsetsLiveData = new MutableLiveData<>();
     this.projectRepository = projectRepository;
     this.featureRepository = featureRepository;
     this.userRepository = userRepository;
@@ -104,7 +104,7 @@ public class MainViewModel extends AbstractViewModel {
         onSignedOut();
         break;
       case SIGNING_IN:
-        // TODO: Show/hide spinner.
+        showProgressDialog();
         break;
       case SIGNED_IN:
         User user = signInState.getUser().orElseThrow(IllegalStateException::new);
@@ -119,6 +119,14 @@ public class MainViewModel extends AbstractViewModel {
     return Completable.complete();
   }
 
+  private void showProgressDialog() {
+    signInProgressDialogVisibility.postValue(true);
+  }
+
+  private void hideProgressDialog() {
+    signInProgressDialogVisibility.postValue(false);
+  }
+
   private void onSignInError(SignInState signInState) {
     Timber.d("Authentication error : %s", signInState.error());
     popups.showError(R.string.sign_in_unsuccessful);
@@ -126,11 +134,17 @@ public class MainViewModel extends AbstractViewModel {
   }
 
   void onSignedOut() {
+    hideProgressDialog();
     projectRepository.clearActiveProject();
     navigator.navigate(SignInFragmentDirections.showSignInScreen());
   }
 
   void onSignedIn() {
+    hideProgressDialog();
     navigator.navigate(HomeScreenFragmentDirections.showHomeScreen());
+  }
+
+  public LiveData<Boolean> getSignInProgressDialogVisibility() {
+    return signInProgressDialogVisibility;
   }
 }

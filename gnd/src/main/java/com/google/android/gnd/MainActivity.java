@@ -18,6 +18,7 @@ package com.google.android.gnd;
 
 import static com.google.android.gnd.rx.RxAutoDispose.autoDisposable;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
@@ -33,6 +34,7 @@ import com.google.android.gnd.system.ActivityStreams;
 import com.google.android.gnd.system.SettingsManager;
 import com.google.android.gnd.ui.common.BackPressListener;
 import com.google.android.gnd.ui.common.Navigator;
+import com.google.android.gnd.ui.common.ProgressDialogs;
 import com.google.android.gnd.ui.common.ViewModelFactory;
 import dagger.hilt.android.AndroidEntryPoint;
 import javax.inject.Inject;
@@ -52,6 +54,8 @@ public class MainActivity extends AbstractActivity {
 
   private NavHostFragment navHostFragment;
   private MainViewModel viewModel;
+
+  @Nullable private ProgressDialog signInProgressDialog;
 
   @Override
   protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -75,6 +79,7 @@ public class MainActivity extends AbstractActivity {
         (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
 
     viewModel = viewModelFactory.get(this, MainViewModel.class);
+    viewModel.getSignInProgressDialogVisibility().observe(this, this::onSignInProgress);
   }
 
   @Override
@@ -146,5 +151,27 @@ public class MainActivity extends AbstractActivity {
 
   private Fragment getCurrentFragment() {
     return navHostFragment.getChildFragmentManager().findFragmentById(R.id.nav_host_fragment);
+  }
+
+  private void onSignInProgress(boolean visible) {
+    if (visible) {
+      showSignInDialog();
+    } else {
+      dismissSignInDialog();
+    }
+  }
+
+  private void showSignInDialog() {
+    if (signInProgressDialog == null) {
+      signInProgressDialog = ProgressDialogs.modalSpinner(this, R.string.please_wait_logging_in);
+    }
+    signInProgressDialog.show();
+  }
+
+  public void dismissSignInDialog() {
+    if (signInProgressDialog != null) {
+      signInProgressDialog.dismiss();
+      signInProgressDialog = null;
+    }
   }
 }
