@@ -23,7 +23,6 @@ import static com.google.android.gnd.ui.util.ViewUtil.getScreenHeight;
 import static com.google.android.gnd.ui.util.ViewUtil.getScreenWidth;
 
 import android.app.ProgressDialog;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -41,6 +40,7 @@ import androidx.core.view.GravityCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import com.akaita.java.rxjava2debug.RxJava2Debug;
+import com.google.android.gnd.BuildConfig;
 import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.MainViewModel;
 import com.google.android.gnd.R;
@@ -169,7 +169,7 @@ public class HomeScreenFragment extends AbstractFragment
   @Override
   public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
-    binding.versionText.setText("Build " + getVersionName());
+    binding.versionText.setText("Build " + BuildConfig.VERSION_NAME);
     // Ensure nav drawer cannot be swiped out, which would conflict with map pan gestures.
     binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
 
@@ -223,17 +223,6 @@ public class HomeScreenFragment extends AbstractFragment
     // Highlight active project
     Loadable.getValue(viewModel.getActiveProject())
         .ifPresent(project -> updateSelectedProjectUI(getSelectedProjectIndex(project)));
-  }
-
-  private String getVersionName() {
-    try {
-      return requireContext()
-          .getPackageManager()
-          .getPackageInfo(getContext().getPackageName(), 0)
-          .versionName;
-    } catch (PackageManager.NameNotFoundException e) {
-      return "?";
-    }
   }
 
   @Override
