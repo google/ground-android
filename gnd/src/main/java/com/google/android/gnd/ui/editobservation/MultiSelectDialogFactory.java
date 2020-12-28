@@ -75,10 +75,10 @@ abstract class MultiSelectDialogFactory extends SelectDialogFactory {
   @Override
   public void initSelectedState() {
     checkedItems = new boolean[size()];
-    getCurrentValue().ifPresent(this::getCurrentSelectedItems);
+    getCurrentValue().ifPresent(this::updateCurrentSelectedItems);
   }
 
-  private void getCurrentSelectedItems(MultipleChoiceResponse response) {
+  private void updateCurrentSelectedItems(MultipleChoiceResponse response) {
     IntStreams.range(0, size())
         .forEach(i -> requireNonNull(checkedItems)[i] = response.isSelected(getOption(i)));
   }
