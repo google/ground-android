@@ -16,19 +16,70 @@
 
 package com.google.android.gnd.ui.editobservation;
 
+import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList;
+import static java8.util.stream.StreamSupport.stream;
+
 import android.content.Context;
+import androidx.appcompat.app.AlertDialog;
+import com.google.android.gnd.R;
 import com.google.android.gnd.model.form.MultipleChoice;
+import com.google.android.gnd.model.form.Option;
+import com.google.android.gnd.model.observation.MultipleChoiceResponse;
 import com.google.android.gnd.model.observation.Response;
-import com.google.auto.value.AutoValue;
+import com.google.common.collect.ImmutableList;
 import java8.util.Optional;
 import java8.util.function.Consumer;
 
-@AutoValue
 public abstract class SelectDialogFactory {
 
-  public static Builder builder() {
-    return new AutoValue_SelectDialogFactory.Builder();
+  protected ImmutableList<Option> getOptions() {
+    return getMultipleChoice().getOptions();
   }
+
+  protected Option getOption(int index) {
+    return getOptions().get(index);
+  }
+
+  protected int size() {
+    return getOptions().size();
+  }
+
+  protected String[] getLabels() {
+    return stream(getMultipleChoice().getOptions()).map(Option::getLabel).toArray(String[]::new);
+  }
+
+  /** Returns the selected item(s) as a {@link Response}. */
+  protected Optional<Response> onCreateResponse() {
+    return MultipleChoiceResponse.fromList(
+        stream(getSelectedOptions()).map(Option::getId).collect(toImmutableList()));
+  }
+
+  // TODO: Replace with modal bottom sheet.
+  protected AlertDialog.Builder createDialogBuilder() {
+    return new AlertDialog.Builder(getContext())
+        .setCancelable(false)
+        .setTitle(getTitle())
+        .setPositiveButton(
+            R.string.apply_multiple_choice_changes,
+            (dialog, which) -> getValueConsumer().accept(onCreateResponse()))
+        .setNegativeButton(R.string.cancel, (dialog, which) -> {});
+  }
+
+  private AlertDialog createDialog() {
+    initSelectedState();
+    return createDialogBuilder().create();
+  }
+
+  /** Creates and displays the dialog. */
+  protected void show() {
+    createDialog().show();
+  }
+
+  /** Initialize current state. */
+  protected abstract void initSelectedState();
+
+  /** List of selected options. */
+  protected abstract ImmutableList<Option> getSelectedOptions();
 
   public abstract Context getContext();
 
@@ -36,23 +87,20 @@ public abstract class SelectDialogFactory {
 
   public abstract MultipleChoice getMultipleChoice();
 
-  public abstract Optional<Response> getCurrentValue();
+  public abstract Optional<MultipleChoiceResponse> getCurrentValue();
 
   public abstract Consumer<Optional<Response>> getValueConsumer();
 
-  @AutoValue.Builder
-  public abstract static class Builder {
+  public abstract static class Builder<B> {
 
-    public abstract Builder setContext(Context context);
+    public abstract B setContext(Context context);
 
-    public abstract Builder setTitle(String title);
+    public abstract B setTitle(String title);
 
-    public abstract Builder setMultipleChoice(MultipleChoice multipleChoice);
+    public abstract B setMultipleChoice(MultipleChoice multipleChoice);
 
-    public abstract Builder setCurrentValue(Optional<Response> response);
+    public abstract B setCurrentValue(Optional<MultipleChoiceResponse> response);
 
-    public abstract Builder setValueConsumer(Consumer<Optional<Response>> consumer);
-
-    public abstract SelectDialogFactory build();
+    public abstract B setValueConsumer(Consumer<Optional<Response>> consumer);
   }
 }
