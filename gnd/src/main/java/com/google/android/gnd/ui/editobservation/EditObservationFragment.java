@@ -18,7 +18,7 @@ package com.google.android.gnd.ui.editobservation;
 
 import static com.google.android.gnd.ui.editobservation.AddPhotoDialogAdapter.PhotoStorageResource.PHOTO_SOURCE_CAMERA;
 import static com.google.android.gnd.ui.editobservation.AddPhotoDialogAdapter.PhotoStorageResource.PHOTO_SOURCE_STORAGE;
-import static com.google.common.base.Preconditions.checkNotNull;
+import static java.util.Objects.requireNonNull;
 
 import android.app.AlertDialog;
 import android.content.Context;
@@ -44,7 +44,7 @@ import com.google.android.gnd.model.form.Element.Type;
 import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.model.form.MultipleChoice;
-import com.google.android.gnd.model.form.MultipleChoice.Cardinality;
+import com.google.android.gnd.model.observation.MultipleChoiceResponse;
 import com.google.android.gnd.model.observation.Response;
 import com.google.android.gnd.model.observation.TextResponse;
 import com.google.android.gnd.ui.common.AbstractFragment;
@@ -73,8 +73,6 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
   @Inject EphemeralPopups popups;
 
   private EditObservationViewModel viewModel;
-  private SingleSelectDialogFactory singleSelectDialogFactory;
-  private MultiSelectDialogFactory multiSelectDialogFactory;
   private EditObservationFragBinding binding;
 
   private static AbstractFieldViewModel getViewModel(ViewDataBinding binding) {
@@ -92,8 +90,6 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    singleSelectDialogFactory = new SingleSelectDialogFactory(getContext());
-    multiSelectDialogFactory = new MultiSelectDialogFactory(getContext());
     viewModel = getViewModel(EditObservationViewModel.class);
   }
 
@@ -149,7 +145,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
       observeSelectPhotoClicks((PhotoFieldViewModel) fieldViewModel);
       observePhotoAdded((PhotoFieldViewModel) fieldViewModel);
     } else if (fieldViewModel instanceof MultipleChoiceFieldViewModel) {
-      observeMultipleChoiceClicks((MultipleChoiceFieldViewModel) fieldViewModel);
+      observeSelectChoiceClicks((MultipleChoiceFieldViewModel) fieldViewModel);
     }
 
     fieldViewModel
@@ -197,33 +193,32 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
     }
   }
 
-  private void observeMultipleChoiceClicks(MultipleChoiceFieldViewModel viewModel) {
+  private void observeSelectChoiceClicks(MultipleChoiceFieldViewModel viewModel) {
     viewModel
         .getShowDialogClicks()
         .observe(
             this,
             __ ->
-                onShowDialog(
-                    viewModel.getField(),
-                    viewModel.getResponse().getValue(),
-                    viewModel::setResponse));
+                onShowSelectDialog(
+                    viewModel.getField(), viewModel.getCurrentResponse(), viewModel::setResponse));
   }
 
-  private void onShowDialog(
-      Field field, Optional<Response> currentResponse, Consumer<Optional<Response>> consumer) {
-
-    MultipleChoice multipleChoice = field.getMultipleChoice();
-    checkNotNull(multipleChoice, "Field must have a non-null MultipleChoice");
-    Cardinality cardinality = multipleChoice.getCardinality();
-    switch (cardinality) {
+  private void onShowSelectDialog(
+      Field field,
+      Optional<MultipleChoiceResponse> currentResponse,
+      Consumer<Optional<Response>> responseConsumer) {
+    MultipleChoice multipleChoice = requireNonNull(field.getMultipleChoice());
+    switch (multipleChoice.getCardinality()) {
       case SELECT_MULTIPLE:
-        multiSelectDialogFactory.create(field, currentResponse, consumer).show();
+        MultiSelectDialogFactory.showSelectDialog(
+            requireContext(), field.getLabel(), multipleChoice, currentResponse, responseConsumer);
         break;
       case SELECT_ONE:
-        singleSelectDialogFactory.create(field, currentResponse, consumer).show();
+        SingleSelectDialogFactory.showSelectDialog(
+            requireContext(), field.getLabel(), multipleChoice, currentResponse, responseConsumer);
         break;
       default:
-        Timber.e("Unknown cardinality: %s", cardinality);
+        Timber.e("Unknown cardinality: %s", multipleChoice.getCardinality());
         break;
     }
   }
