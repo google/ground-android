@@ -33,7 +33,7 @@ project.ext {
     hiltJetpackVersion = "1.0.0-alpha02"
     lifecycleVersion = "2.2.0"
     navigationVersion = "2.3.2"
-    roomVersion = "2.2.5"
+    roomVersion = "2.2.6"
     rxBindingVersion = "2.2.0"
     workVersion = "2.4.0"
 }
@@ -196,27 +196,27 @@ dependencies {
     // UI widgets.
     implementation 'androidx.cardview:cardview:1.0.0'
     implementation 'com.google.android.material:material:1.2.1'
-    implementation 'androidx.constraintlayout:constraintlayout:2.0.2'
+    implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
 
     // Support for Java streams.
     implementation 'net.sourceforge.streamsupport:streamsupport-cfuture:1.7.2'
 
     // Google Play Services.
-    implementation 'com.google.android.gms:play-services-auth:18.1.0'
+    implementation 'com.google.android.gms:play-services-auth:19.0.0'
     implementation 'com.google.android.gms:play-services-maps:17.0.0'
     implementation 'com.google.android.gms:play-services-location:17.1.0'
 
     // GeoJSON support
-    implementation "com.google.maps.android:android-maps-utils:2.0.3"
+    implementation "com.google.maps.android:android-maps-utils:2.2.0"
 
     // Firebase and related libraries.
-    implementation 'com.google.firebase:firebase-analytics:17.6.0'
-    implementation 'com.google.firebase:firebase-core:17.5.1'
-    implementation 'com.google.firebase:firebase-firestore:21.7.1'
-    implementation 'com.google.firebase:firebase-auth:19.4.0'
-    implementation 'com.google.firebase:firebase-perf:19.0.9'
-    implementation 'com.google.firebase:firebase-storage:19.2.0'
-    implementation 'com.google.firebase:firebase-crashlytics:17.2.2'
+    implementation 'com.google.firebase:firebase-analytics:18.0.0'
+    implementation 'com.google.firebase:firebase-core:18.0.0'
+    implementation 'com.google.firebase:firebase-firestore:22.0.1'
+    implementation 'com.google.firebase:firebase-auth:20.0.1'
+    implementation 'com.google.firebase:firebase-perf:19.0.11'
+    implementation 'com.google.firebase:firebase-storage:19.2.1'
+    implementation 'com.google.firebase:firebase-crashlytics:17.3.0'
     implementation 'com.github.FrangSierra:RxFirebase:1.5.7'
 
     // Hilt
@@ -255,7 +255,7 @@ dependencies {
     annotationProcessor "com.google.auto.value:auto-value:$project.autoValueVersion"
 
     // Guava
-    implementation 'com.google.guava:guava:27.0.1-android'
+    implementation 'com.google.guava:guava:30.1-jre'
 
     // Picasso: Image downloading and caching library
     implementation 'com.squareup.picasso:picasso:2.71828'
@@ -287,7 +287,7 @@ dependencies {
     testImplementation 'androidx.test:core:1.3.0'
     testImplementation 'org.robolectric:robolectric:4.4'
     testImplementation 'android.arch.core:core-testing:1.1.1'
-    testImplementation 'org.mockito:mockito-core:2.19.0'
+    testImplementation 'org.mockito:mockito-core:3.6.28'
 
     androidTestImplementation('androidx.test.espresso:espresso-core:3.3.0', {
         exclude group: 'com.android.support', module: 'support-annotations'
