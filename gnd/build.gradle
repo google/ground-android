@@ -29,7 +29,7 @@ apply from: '../config/pmd/pmd.gradle'
 
 project.ext {
     autoDisposeVersion = "1.4.0"
-    autoValueVersion = "1.6.3"
+    autoValueVersion = "1.7.4"
     hiltJetpackVersion = "1.0.0-alpha02"
     lifecycleVersion = "2.2.0"
     navigationVersion = "2.3.2"
