@@ -18,7 +18,6 @@
 
 <lint>
   <!-- Severity: Warning -->
-  <issue id="InvalidPackage" severity="warning" />
   <issue id="MissingTranslation" severity="warning" />
 
   <!-- Severity: Error -->
@@ -31,6 +30,7 @@
   <issue id="FragmentTagUsage" severity="error" />
   <issue id="HardcodedText" severity="error" />
   <issue id="IconXmlAndPng" severity="error" />
+  <issue id="InvalidPackage" severity="error" />
   <issue id="LogNotTimber" severity="error" />
   <issue id="RtlHardcoded" severity="error" />
   <issue id="PxUsage" severity="error" />
