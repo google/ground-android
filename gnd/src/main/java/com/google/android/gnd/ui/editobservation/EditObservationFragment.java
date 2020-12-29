@@ -18,9 +18,8 @@ package com.google.android.gnd.ui.editobservation;
 
 import static com.google.android.gnd.ui.editobservation.AddPhotoDialogAdapter.PhotoStorageResource.PHOTO_SOURCE_CAMERA;
 import static com.google.android.gnd.ui.editobservation.AddPhotoDialogAdapter.PhotoStorageResource.PHOTO_SOURCE_STORAGE;
-import static com.google.common.base.Preconditions.checkNotNull;
+import static java.util.Objects.requireNonNull;
 
-import android.app.AlertDialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -29,6 +28,7 @@ import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.LinearLayout;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.databinding.ViewDataBinding;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -44,7 +44,7 @@ import com.google.android.gnd.model.form.Element.Type;
 import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.model.form.MultipleChoice;
-import com.google.android.gnd.model.form.MultipleChoice.Cardinality;
+import com.google.android.gnd.model.observation.MultipleChoiceResponse;
 import com.google.android.gnd.model.observation.Response;
 import com.google.android.gnd.model.observation.TextResponse;
 import com.google.android.gnd.ui.common.AbstractFragment;
@@ -73,8 +73,6 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
   @Inject EphemeralPopups popups;
 
   private EditObservationViewModel viewModel;
-  private SingleSelectDialogFactory singleSelectDialogFactory;
-  private MultiSelectDialogFactory multiSelectDialogFactory;
   private EditObservationFragBinding binding;
 
   private static AbstractFieldViewModel getViewModel(ViewDataBinding binding) {
@@ -92,8 +90,6 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    singleSelectDialogFactory = new SingleSelectDialogFactory(getContext());
-    multiSelectDialogFactory = new MultiSelectDialogFactory(getContext());
     viewModel = getViewModel(EditObservationViewModel.class);
   }
 
@@ -149,7 +145,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
       observeSelectPhotoClicks((PhotoFieldViewModel) fieldViewModel);
       observePhotoAdded((PhotoFieldViewModel) fieldViewModel);
     } else if (fieldViewModel instanceof MultipleChoiceFieldViewModel) {
-      observeMultipleChoiceClicks((MultipleChoiceFieldViewModel) fieldViewModel);
+      observeSelectChoiceClicks((MultipleChoiceFieldViewModel) fieldViewModel);
     }
 
     fieldViewModel
@@ -197,34 +193,46 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
     }
   }
 
-  private void observeMultipleChoiceClicks(MultipleChoiceFieldViewModel viewModel) {
+  private void observeSelectChoiceClicks(MultipleChoiceFieldViewModel viewModel) {
     viewModel
         .getShowDialogClicks()
         .observe(
             this,
             __ ->
-                onShowDialog(
-                    viewModel.getField(),
-                    viewModel.getResponse().getValue(),
-                    viewModel::setResponse));
+                createDialog(
+                        viewModel.getField(),
+                        viewModel.getCurrentResponse(),
+                        viewModel::setResponse)
+                    .show());
   }
 
-  private void onShowDialog(
-      Field field, Optional<Response> currentResponse, Consumer<Optional<Response>> consumer) {
-
-    MultipleChoice multipleChoice = field.getMultipleChoice();
-    checkNotNull(multipleChoice, "Field must have a non-null MultipleChoice");
-    Cardinality cardinality = multipleChoice.getCardinality();
-    switch (cardinality) {
+  private AlertDialog createDialog(
+      Field field,
+      Optional<MultipleChoiceResponse> response,
+      Consumer<Optional<Response>> consumer) {
+    MultipleChoice multipleChoice = requireNonNull(field.getMultipleChoice());
+    switch (multipleChoice.getCardinality()) {
       case SELECT_MULTIPLE:
-        multiSelectDialogFactory.create(field, currentResponse, consumer).show();
-        break;
+        return MultiSelectDialogFactory.builder()
+            .setContext(requireContext())
+            .setTitle(field.getLabel())
+            .setMultipleChoice(multipleChoice)
+            .setCurrentValue(response)
+            .setValueConsumer(consumer)
+            .build()
+            .createDialog();
       case SELECT_ONE:
-        singleSelectDialogFactory.create(field, currentResponse, consumer).show();
-        break;
+        return SingleSelectDialogFactory.builder()
+            .setContext(requireContext())
+            .setTitle(field.getLabel())
+            .setMultipleChoice(multipleChoice)
+            .setCurrentValue(response)
+            .setValueConsumer(consumer)
+            .build()
+            .createDialog();
       default:
-        Timber.e("Unknown cardinality: %s", cardinality);
-        break;
+        throw new IllegalArgumentException(
+            "Unknown cardinality: " + multipleChoice.getCardinality());
     }
   }
 
