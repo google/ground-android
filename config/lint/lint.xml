@@ -23,6 +23,9 @@
 
   <!-- Severity: Error -->
   <issue id="ApplySharedPref" severity="error" />
+  <issue id="Deprecated" severity="error">
+    <ignore path="res/layout/multiple_choice_input_field.xml" />
+  </issue>
   <issue id="DuplicateIds" severity="error" />
   <issue id="DuplicateStrings" severity="error" />
   <issue id="FragmentTagUsage" severity="error" />
@@ -34,6 +37,9 @@
   <issue id="SetTextI18n" severity="error" />
   <issue id="SpUsage" severity="error" />
   <issue id="TypographyEllipsis" severity="error" />
+  <issue id="UselessLeaf" severity="error">
+    <ignore path="res/layout/feature_details_frag.xml" />
+  </issue>
   <issue id="UselessParent" severity="error" />
   <issue id="UseCompatLoadingForDrawables" severity="error" />
   <issue id="UseCompatTextViewDrawableXml" severity="error" />
