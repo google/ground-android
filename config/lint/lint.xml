@@ -34,6 +34,7 @@
   <issue id="LogNotTimber" severity="error" />
   <issue id="RtlHardcoded" severity="error" />
   <issue id="PxUsage" severity="error" />
+  <issue id="Registered" severity="error" />
   <issue id="SetTextI18n" severity="error" />
   <issue id="SpUsage" severity="error" />
   <issue id="TypographyEllipsis" severity="error" />
