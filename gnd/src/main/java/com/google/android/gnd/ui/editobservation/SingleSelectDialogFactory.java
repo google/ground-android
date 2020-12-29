@@ -16,91 +16,58 @@
 
 package com.google.android.gnd.ui.editobservation;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-import static java8.util.stream.StreamSupport.stream;
-
-import android.content.Context;
 import android.content.DialogInterface;
 import androidx.appcompat.app.AlertDialog;
-import com.google.android.gnd.R;
-import com.google.android.gnd.model.form.Field;
-import com.google.android.gnd.model.form.MultipleChoice;
 import com.google.android.gnd.model.form.Option;
 import com.google.android.gnd.model.observation.MultipleChoiceResponse;
-import com.google.android.gnd.model.observation.Response;
+import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
-import java.util.List;
-import java8.util.Optional;
-import java8.util.function.Consumer;
 
-// TODO: Replace with modal bottom sheet.
-class SingleSelectDialogFactory {
+@AutoValue
+abstract class SingleSelectDialogFactory extends SelectDialogFactory {
 
-  private Context context;
+  private int checkedItem = -1;
 
-  SingleSelectDialogFactory(Context context) {
-    this.context = context;
+  public static Builder builder() {
+    return new AutoValue_SingleSelectDialogFactory.Builder();
   }
 
-  AlertDialog create(
-      Field field,
-      Optional<Response> initialValue,
-      Consumer<Optional<Response>> valueChangeCallback) {
-    MultipleChoice multipleChoice = field.getMultipleChoice();
-    checkNotNull(
-        multipleChoice,
-        "When creating a SingleSelectDialogFactory the field must have a non-null MultipleChoice"
-    );
-
-    AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(context);
-    List<Option> options = multipleChoice.getOptions();
-    DialogState state = new DialogState(multipleChoice, initialValue);
-    dialogBuilder.setSingleChoiceItems(
-        getLabels(multipleChoice), state.checkedItem, state::onSelect);
-    dialogBuilder.setCancelable(false);
-    dialogBuilder.setTitle(field.getLabel());
-    dialogBuilder.setPositiveButton(
-        R.string.apply_multiple_choice_changes,
-        (dialog, which) -> valueChangeCallback.accept(state.getSelectedValue(options)));
-    dialogBuilder.setNegativeButton(R.string.cancel, (dialog, which) -> {});
-    return dialogBuilder.create();
+  @Override
+  protected ImmutableList<Option> getSelectedOptions() {
+    if (checkedItem >= 0) {
+      return ImmutableList.of(getOption(checkedItem));
+    } else {
+      return ImmutableList.of();
+    }
   }
 
-  private String[] getLabels(MultipleChoice multipleChoice) {
-    return stream(multipleChoice.getOptions()).map(Option::getLabel).toArray(String[]::new);
+  @Override
+  protected AlertDialog.Builder createDialogBuilder() {
+    return super.createDialogBuilder()
+        .setSingleChoiceItems(getLabels(), checkedItem, this::onSelect);
   }
 
-  private static class DialogState {
+  @Override
+  protected void initSelectedState() {
+    checkedItem =
+        getCurrentValue()
+            .flatMap(MultipleChoiceResponse::getFirstId)
+            .flatMap(getMultipleChoice()::getIndex)
+            .orElse(-1);
+  }
 
-    private int checkedItem;
-
-    public DialogState(MultipleChoice multipleChoice, Optional<Response> initialValue) {
-      // TODO: Check type.
-      checkedItem =
-          initialValue
-              .map(MultipleChoiceResponse.class::cast)
-              .flatMap(MultipleChoiceResponse::getFirstId)
-              .flatMap(multipleChoice::getIndex)
-              .orElse(-1);
+  private void onSelect(DialogInterface dialog, int which) {
+    if (checkedItem == which) {
+      // Allow user to toggle values off by tapping selected item.
+      checkedItem = -1;
+      ((AlertDialog) dialog).getListView().setItemChecked(which, false);
+    } else {
+      checkedItem = which;
     }
+  }
 
-    private void onSelect(DialogInterface dialog, int which) {
-      if (checkedItem == which) {
-        // Allow user to toggle values off by tapping selected item.
-        checkedItem = -1;
-        ((AlertDialog) dialog).getListView().setItemChecked(which, false);
-      } else {
-        checkedItem = which;
-      }
-    }
-
-    private Optional<Response> getSelectedValue(List<Option> options) {
-      if (checkedItem >= 0) {
-        return Optional.of(
-            new MultipleChoiceResponse(ImmutableList.of(options.get(checkedItem).getId())));
-      } else {
-        return Optional.empty();
-      }
-    }
+  @AutoValue.Builder
+  public abstract static class Builder extends SelectDialogFactory.Builder<Builder> {
+    public abstract SingleSelectDialogFactory build();
   }
 }
