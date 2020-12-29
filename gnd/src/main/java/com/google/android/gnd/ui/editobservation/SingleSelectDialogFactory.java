@@ -31,7 +31,7 @@ import java8.util.function.Consumer;
 @AutoValue
 abstract class SingleSelectDialogFactory extends SelectDialogFactory {
 
-  private int checkedItem;
+  private int checkedItem = -1;
 
   private static Builder builder() {
     return new AutoValue_SingleSelectDialogFactory.Builder();
