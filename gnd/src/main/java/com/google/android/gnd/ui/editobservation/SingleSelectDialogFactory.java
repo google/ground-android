@@ -16,41 +16,20 @@
 
 package com.google.android.gnd.ui.editobservation;
 
-import android.content.Context;
 import android.content.DialogInterface;
 import androidx.appcompat.app.AlertDialog;
-import com.google.android.gnd.model.form.MultipleChoice;
 import com.google.android.gnd.model.form.Option;
 import com.google.android.gnd.model.observation.MultipleChoiceResponse;
-import com.google.android.gnd.model.observation.Response;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
-import java8.util.Optional;
-import java8.util.function.Consumer;
 
 @AutoValue
 abstract class SingleSelectDialogFactory extends SelectDialogFactory {
 
   private int checkedItem = -1;
 
-  private static Builder builder() {
+  public static Builder builder() {
     return new AutoValue_SingleSelectDialogFactory.Builder();
-  }
-
-  public static void showSelectDialog(
-      Context context,
-      String title,
-      MultipleChoice multipleChoice,
-      Optional<MultipleChoiceResponse> response,
-      Consumer<Optional<Response>> consumer) {
-    builder()
-        .setContext(context)
-        .setTitle(title)
-        .setMultipleChoice(multipleChoice)
-        .setCurrentValue(response)
-        .setValueConsumer(consumer)
-        .build()
-        .show();
   }
 
   @Override

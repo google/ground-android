@@ -20,7 +20,6 @@ import static com.google.android.gnd.ui.editobservation.AddPhotoDialogAdapter.Ph
 import static com.google.android.gnd.ui.editobservation.AddPhotoDialogAdapter.PhotoStorageResource.PHOTO_SOURCE_STORAGE;
 import static java.util.Objects.requireNonNull;
 
-import android.app.AlertDialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -29,6 +28,7 @@ import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.LinearLayout;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.databinding.ViewDataBinding;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -199,27 +199,40 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
         .observe(
             this,
             __ ->
-                onShowSelectDialog(
-                    viewModel.getField(), viewModel.getCurrentResponse(), viewModel::setResponse));
+                createDialog(
+                        viewModel.getField(),
+                        viewModel.getCurrentResponse(),
+                        viewModel::setResponse)
+                    .show());
   }
 
-  private void onShowSelectDialog(
+  private AlertDialog createDialog(
       Field field,
-      Optional<MultipleChoiceResponse> currentResponse,
-      Consumer<Optional<Response>> responseConsumer) {
+      Optional<MultipleChoiceResponse> response,
+      Consumer<Optional<Response>> consumer) {
     MultipleChoice multipleChoice = requireNonNull(field.getMultipleChoice());
     switch (multipleChoice.getCardinality()) {
       case SELECT_MULTIPLE:
-        MultiSelectDialogFactory.showSelectDialog(
-            requireContext(), field.getLabel(), multipleChoice, currentResponse, responseConsumer);
-        break;
+        return MultiSelectDialogFactory.builder()
+            .setContext(requireContext())
+            .setTitle(field.getLabel())
+            .setMultipleChoice(multipleChoice)
+            .setCurrentValue(response)
+            .setValueConsumer(consumer)
+            .build()
+            .createDialog();
       case SELECT_ONE:
-        SingleSelectDialogFactory.showSelectDialog(
-            requireContext(), field.getLabel(), multipleChoice, currentResponse, responseConsumer);
-        break;
+        return SingleSelectDialogFactory.builder()
+            .setContext(requireContext())
+            .setTitle(field.getLabel())
+            .setMultipleChoice(multipleChoice)
+            .setCurrentValue(response)
+            .setValueConsumer(consumer)
+            .build()
+            .createDialog();
       default:
-        Timber.e("Unknown cardinality: %s", multipleChoice.getCardinality());
-        break;
+        throw new IllegalArgumentException(
+            "Unknown cardinality: " + multipleChoice.getCardinality());
     }
   }
 

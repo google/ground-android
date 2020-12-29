@@ -65,7 +65,7 @@ public abstract class SelectDialogFactory {
         .setNegativeButton(R.string.cancel, (dialog, which) -> {});
   }
 
-  private AlertDialog createDialog() {
+  public AlertDialog createDialog() {
     initSelectedState();
     return createDialogBuilder().create();
   }
