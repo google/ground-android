@@ -166,4 +166,5 @@
   <string name="offline_base_map_selector_select">Select and download</string>
   <string name="no_basemaps_downloaded">No base maps downloaded.</string>
   <string name="please_wait_logging_in">Logging in…</string>
+  <string name="build">Build %s</string>
 </resources>
