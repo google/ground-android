@@ -16,24 +16,42 @@
 
 package com.google.android.gnd.ui.util;
 
+import android.app.Application;
+import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+import androidx.annotation.ColorInt;
 import androidx.annotation.ColorRes;
 import androidx.annotation.DrawableRes;
+import androidx.core.content.res.ResourcesCompat;
+import javax.inject.Inject;
 
 public class DrawableUtil {
-  private final Resources resources;
 
-  // TODO: Inject.
-  public DrawableUtil(Resources resources) {
-    this.resources = resources;
+  private final Context context;
+
+  @Inject
+  public DrawableUtil(Application context) {
+    this.context = context;
+  }
+
+  private Resources getResources() {
+    return context.getResources();
+  }
+
+  @ColorInt
+  public int getColor(@ColorRes int colorId) {
+    return getResources().getColor(colorId);
+  }
+
+  public Drawable getDrawable(@DrawableRes int drawableId) {
+    return ResourcesCompat.getDrawable(getResources(), drawableId, null);
   }
 
   public Drawable getDrawable(@DrawableRes int drawableId, @ColorRes int colorId) {
-    Drawable drawable = resources.getDrawable(drawableId);
-    int color = resources.getColor(colorId);
-    drawable.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
+    Drawable drawable = getDrawable(drawableId);
+    drawable.setColorFilter(getColor(colorId), PorterDuff.Mode.SRC_ATOP);
     return drawable;
   }
 }
