@@ -38,10 +38,13 @@
   <issue id="SetTextI18n" severity="error" />
   <issue id="SpUsage" severity="error" />
   <issue id="TypographyEllipsis" severity="error" />
+  <issue id="TypographyQuotes" severity="error" />
   <issue id="UselessLeaf" severity="error">
     <ignore path="res/layout/feature_details_frag.xml" />
   </issue>
   <issue id="UselessParent" severity="error" />
   <issue id="UseCompatLoadingForDrawables" severity="error" />
   <issue id="UseCompatTextViewDrawableXml" severity="error" />
+  <issue id="ValidActionsXml" severity="error" />
+  <issue id="WrongThreadInterprocedural" severity="error" />
 </lint>
