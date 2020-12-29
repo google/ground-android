@@ -55,7 +55,7 @@
         app:fragment="@{fragment}"
         app:viewModel="@{viewModel}" />
 
-      <fragment
+      <androidx.fragment.app.FragmentContainerView
         android:id="@+id/observation_list_frag"
         android:name="com.google.android.gnd.ui.home.featuredetails.ObservationListFragment"
         android:layout_width="match_parent"
