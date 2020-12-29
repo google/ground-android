@@ -36,8 +36,6 @@ import timber.log.Timber;
 @AndroidEntryPoint
 public class StartupFragment extends AbstractFragment {
 
-  private static final String TAG = StartupFragment.class.getSimpleName();
-
   @Inject GoogleApiManager googleApiManager;
   @Inject AuthenticationManager authenticationManager;
   @Inject EphemeralPopups popups;
