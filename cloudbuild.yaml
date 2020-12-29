@@ -33,7 +33,7 @@ steps:
     id: &copy_gradle_cache 'Copying gradle cache'
     waitFor: [ '-' ]
     # we use rsync and not cp so that this step doesn't fail the first time it's run
-    args: [ 'rsync', 'gs://${_CACHE_BUCKET}/', './' ]
+    args: [ 'rsync', '-r', 'gs://${_CACHE_BUCKET}/', './' ]
 
   #  - name: 'gcr.io/$PROJECT_ID/android:base'
   #    id: &restore_gradle_cache 'Extracting tar'
@@ -205,7 +205,7 @@ steps:
     id: 'Save gradle cache to GCS'
     waitFor:
       - *update_status
-    args: [ 'rsync', '.gradle/', 'gs://${_CACHE_BUCKET}/.gradle/' ]
+    args: [ 'rsync', '-r', '.gradle/', 'gs://${_CACHE_BUCKET}/.gradle/' ]
 
 options:
   env:
