@@ -20,7 +20,6 @@ import static com.google.android.gnd.rx.RxAutoDispose.autoDisposable;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,6 +31,7 @@ import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.EphemeralPopups;
 import dagger.hilt.android.AndroidEntryPoint;
 import javax.inject.Inject;
+import timber.log.Timber;
 
 @AndroidEntryPoint
 public class StartupFragment extends AbstractFragment {
@@ -63,10 +63,8 @@ public class StartupFragment extends AbstractFragment {
   }
 
   private void onGooglePlayServicesFailed(Throwable t) {
-    Log.e(TAG, "Google Play Services install failed", t);
-
+    Timber.e(t, "Google Play Services install failed");
     popups.showError(R.string.google_api_install_failed);
-
     getActivity().finish();
   }
 }

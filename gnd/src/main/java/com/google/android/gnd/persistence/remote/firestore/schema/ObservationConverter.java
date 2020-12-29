@@ -19,7 +19,6 @@ package com.google.android.gnd.persistence.remote.firestore.schema;
 import static com.google.android.gnd.persistence.remote.DataStoreException.checkNotEmpty;
 import static com.google.android.gnd.persistence.remote.DataStoreException.checkNotNull;
 
-import android.util.Log;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.model.observation.MultipleChoiceResponse;
@@ -32,11 +31,10 @@ import java.util.List;
 import java.util.Map;
 import java8.util.Objects;
 import javax.annotation.Nullable;
+import timber.log.Timber;
 
 /** Converts between Firestore documents and {@link Observation} instances. */
 class ObservationConverter {
-
-  private static final String TAG = ObservationConverter.class.getSimpleName();
 
   static Observation toObservation(Feature feature, DocumentSnapshot snapshot)
       throws DataStoreException {
@@ -44,7 +42,7 @@ class ObservationConverter {
     String featureId = checkNotNull(doc.getFeatureId(), "featureId");
     String formId = checkNotNull(doc.getFormId(), "formId");
     if (!feature.getId().equals(featureId)) {
-      Log.w(TAG, "Observation featureId doesn't match specified feature id");
+      Timber.e("Observation featureId doesn't match specified feature id");
     }
     Form form = checkNotEmpty(feature.getLayer().getForm(formId), "form");
     // Degrade gracefully when audit info missing in remote db.
@@ -79,7 +77,7 @@ class ObservationConverter {
         MultipleChoiceResponse.fromList((List<String>) obj)
             .ifPresent(r -> responses.putResponse(fieldId, r));
       } else {
-        Log.d(TAG, "Unsupported obj in db: " + obj.getClass().getName());
+        Timber.e("Unsupported obj in db: %s", obj.getClass().getName());
       }
     }
     return responses.build();

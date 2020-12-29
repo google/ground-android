@@ -19,7 +19,6 @@ package com.google.android.gnd.system;
 import static com.google.android.gnd.rx.RxCompletable.completeOrError;
 
 import android.content.IntentSender.SendIntentException;
-import android.util.Log;
 import com.google.android.gms.common.api.ResolvableApiException;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationSettingsRequest;
@@ -27,6 +26,7 @@ import com.google.android.gnd.system.rx.RxSettingsClient;
 import io.reactivex.Completable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import timber.log.Timber;
 
 /**
  * Manages enabling of settings and related flows to/from the Activity.
@@ -36,7 +36,6 @@ import javax.inject.Singleton;
  */
 @Singleton
 public class SettingsManager {
-  private static final String TAG = SettingsManager.class.getSimpleName();
   private static final int LOCATION_SETTINGS_REQUEST_CODE =
       SettingsManager.class.hashCode() & 0xffff;
 
@@ -54,7 +53,7 @@ public class SettingsManager {
    * immediately on subscribe.
    */
   public Completable enableLocationSettings(LocationRequest locationRequest) {
-    Log.d(TAG, "Checking location settings");
+    Timber.d("Checking location settings");
     LocationSettingsRequest settingsRequest =
         new LocationSettingsRequest.Builder().addLocationRequest(locationRequest).build();
     return settingsClient
@@ -73,15 +72,15 @@ public class SettingsManager {
 
   private Completable startResolution(int requestCode, ResolvableApiException resolvableException) {
     return Completable.create(
-        em -> {
-          Log.d(TAG, "Prompting user to enable settings");
+        emitter -> {
+          Timber.d("Prompting user to enable settings");
           activityStreams.withActivity(
               act -> {
                 try {
                   resolvableException.startResolutionForResult(act, requestCode);
-                  em.onComplete();
+                  emitter.onComplete();
                 } catch (SendIntentException e) {
-                  em.onError(e);
+                  emitter.onError(e);
                 }
               });
         });
@@ -91,8 +90,8 @@ public class SettingsManager {
     return activityStreams
         .getNextActivityResult(requestCode)
         .flatMapCompletable(r -> completeOrError(r::isOk, SettingsChangeRequestCanceled.class))
-        .doOnComplete(() -> Log.d(TAG, "Settings change request successful"))
-        .doOnError(t -> Log.d(TAG, "Settings change request failed", t));
+        .doOnComplete(() -> Timber.d("Settings change request successful"))
+        .doOnError(t -> Timber.e(t, "Settings change request failed"));
   }
 
   public static class SettingsChangeRequestCanceled extends Exception {}

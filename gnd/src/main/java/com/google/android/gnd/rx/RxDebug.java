@@ -16,7 +16,6 @@
 
 package com.google.android.gnd.rx;
 
-import android.util.Log;
 import com.akaita.java.rxjava2debug.RxJava2Debug;
 import io.reactivex.Completable;
 import io.reactivex.CompletableConverter;
@@ -28,16 +27,16 @@ import io.reactivex.Single;
 import io.reactivex.SingleConverter;
 import io.reactivex.disposables.Disposable;
 import org.reactivestreams.Subscription;
+import timber.log.Timber;
 
 public abstract class RxDebug {
-  private static final String TAG = RxDebug.class.getSimpleName();
   private static final String RX_TRACE_PREFIX = "[RxDebug]";
 
   /** Container for static helper methods. Do not instantiate. */
   private RxDebug() {}
 
   public static void logEnhancedStackTrace(Throwable t) {
-    Log.e(TAG, "Unhandled Rx error", RxJava2Debug.getEnhancedStackTrace(t));
+    Timber.e(RxJava2Debug.getEnhancedStackTrace(t), "Unhandled Rx error");
   }
 
   /**
@@ -95,7 +94,7 @@ public abstract class RxDebug {
     }
 
     private static void trace(String tag, String streamName, String action) {
-      Log.v(tag, RX_TRACE_PREFIX + " " + streamName + " " + action);
+      Timber.tag(tag).v(RX_TRACE_PREFIX + " " + streamName + " " + action);
     }
 
     @SuppressWarnings("PMD.UnusedFormalParameter")
