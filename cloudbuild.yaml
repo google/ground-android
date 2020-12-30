@@ -20,11 +20,11 @@
 # Workflow:
 # --------
 #
-#  Copy cache --> Extract tar -->                      -------> Code quality -------> Unit tests ------------------------>
-#                                \                   /                                                                     \
-#  Copy .git dir ------------------> Build debug apks                                                                       Save reports to GCS --> Update CI status --> Compress gradle cache --> Save gradle cache to GCS
-#                                /                   \                                                                     /
-#  Fetch google-services.json -->                      --> Authorize Gcloud --> Build test apks --> Instrumented tests -->
+#  Copy cache --> Extract tar -->                    -------> Code quality -------> Unit tests ------------------------>
+#                                \                 /                                                                     \
+#                                 Build debug apks                                                                        Save reports to GCS --> Update CI status --> Compress gradle cache --> Save gradle cache to GCS
+#                                /                 \                                                                     /
+#  Fetch google-services.json -->                    --> Authorize Gcloud --> Build test apks --> Instrumented tests -->
 #
 
 steps:
@@ -44,23 +44,6 @@ steps:
       - |
         tar zxf cache.tgz || echo "No cache found"
 
-  # Copy .git directory to workspace.
-  # This is needed by gitVersioner plugin for auto-generating version code and version name.
-  #
-  # TODO: Remove this step when .git can be explicitly included in the tarball using .gcloudignore
-  # https://github.com/GoogleCloudPlatform/cloud-builders/issues/401
-  - name: 'gcr.io/cloud-builders/git'
-    id: &create_git_dir 'Copy .git dir'
-    waitFor: [ '-' ]
-    entrypoint: 'bash'
-    args:
-      - '-c'
-      - |
-        git clone --branch master $_HEAD_REPO_URL tmp
-        rm -rf .git
-        mv tmp/.git .
-        rm -rf tmp
-
   - name: 'gcr.io/$PROJECT_ID/android:28'
     id: &config_google_services 'Load debug google-services.json'
     waitFor: [ '-' ]
@@ -74,7 +57,6 @@ steps:
     id: &assemble_debug 'Assemble debug apks'
     waitFor:
       - *restore_gradle_cache
-      - *create_git_dir
       - *config_google_services
     args:
       - '-c'
