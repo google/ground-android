@@ -35,7 +35,8 @@ steps:
     # we use rsync and not cp so that this step doesn't fail the first time it's run
     args: [ 'rsync', 'gs://${_CACHE_BUCKET}/', './' ]
 
-  - name: 'gcr.io/$PROJECT_ID/android:base'
+  # Built using: https://github.com/GoogleCloudPlatform/cloud-builders-community/tar
+  - name: 'gcr.io/$PROJECT_ID/tar'
     id: &restore_gradle_cache 'Extracting tar'
     waitFor:
       - *copy_gradle_cache
@@ -168,14 +169,11 @@ steps:
           exit 1
         fi
 
-  - name: 'gcr.io/$PROJECT_ID/android:base'
+  - name: 'gcr.io/$PROJECT_ID/tar'
     id: &build_cache 'Compress gradle build cache'
     waitFor:
       - *update_status
-    args:
-      - '-c'
-      - |
-        tar zcf cache.tgz .gradle
+    args: [ 'cpzf', 'cache.tgz', '.gradle' ]
 
   - name: 'gcr.io/cloud-builders/gsutil'
     id: &save_cache 'Save gradle cache to GCS'
