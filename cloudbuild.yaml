@@ -169,6 +169,7 @@ steps:
           exit 1
         fi
 
+  # TODO: Save cache only when the dependencies have updated.
   - name: 'gcr.io/$PROJECT_ID/tar'
     id: &build_cache 'Compress gradle build cache'
     waitFor:
