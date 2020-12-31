@@ -266,7 +266,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
     bottomSheetDialog.setCancelable(true);
     bottomSheetDialog.show();
 
-    AddPhotoDialogAdapter.ItemClickListener listener =
+    Consumer<Integer> consumer =
         type -> {
           bottomSheetDialog.dismiss();
           switch (type) {
@@ -284,7 +284,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
     RecyclerView recyclerView = addPhotoBottomSheetBinding.recyclerView;
     recyclerView.setHasFixedSize(true);
     recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-    recyclerView.setAdapter(new AddPhotoDialogAdapter(listener));
+    recyclerView.setAdapter(new AddPhotoDialogAdapter(consumer));
   }
 
   @Override
