@@ -253,6 +253,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
         .observe(
             this,
             map -> {
+              // TODO: Do not set response if already handled.
               Field field = fieldViewModel.getField();
               if (map.containsKey(field)) {
                 fieldViewModel.setResponse(TextResponse.fromString(map.get(field)));
