@@ -142,8 +142,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
     fieldViewModel.init(field, viewModel.getSavedOrOriginalResponse(field.getId()));
 
     if (fieldViewModel instanceof PhotoFieldViewModel) {
-      observeSelectPhotoClicks((PhotoFieldViewModel) fieldViewModel);
-      observePhotoAdded((PhotoFieldViewModel) fieldViewModel);
+      initPhotoField((PhotoFieldViewModel) fieldViewModel);
     } else if (fieldViewModel instanceof MultipleChoiceFieldViewModel) {
       observeSelectChoiceClicks((MultipleChoiceFieldViewModel) fieldViewModel);
     }
@@ -234,6 +233,12 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
         throw new IllegalArgumentException(
             "Unknown cardinality: " + multipleChoice.getCardinality());
     }
+  }
+
+  private void initPhotoField(PhotoFieldViewModel photoFieldViewModel) {
+    photoFieldViewModel.setEditable(true);
+    observeSelectPhotoClicks(photoFieldViewModel);
+    observePhotoAdded(photoFieldViewModel);
   }
 
   private void observeSelectPhotoClicks(PhotoFieldViewModel fieldViewModel) {
