@@ -109,4 +109,8 @@ public class AbstractFieldViewModel extends AbstractViewModel {
   public void setResponse(Optional<Response> response) {
     responseSubject.onNext(response);
   }
+
+  public void clearResponse() {
+    setResponse(Optional.empty());
+  }
 }

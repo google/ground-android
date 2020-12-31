@@ -83,10 +83,6 @@ public class PhotoFieldViewModel extends AbstractFieldViewModel {
     }
   }
 
-  public void clearResponse() {
-    setResponse(Optional.empty());
-  }
-
   public void onShowPhotoSelectorDialog() {
     showDialogClicks.setValue(getField());
   }
