@@ -35,6 +35,9 @@ import timber.log.Timber;
 public class PhotoFieldViewModel extends AbstractFieldViewModel {
 
   private static final String EMPTY_PATH = "";
+
+  public final MutableLiveData<Boolean> isEditable = new MutableLiveData<>(false);
+
   private final StorageManager storageManager;
   private final BehaviorProcessor<String> destinationPath = BehaviorProcessor.create();
   private final LiveData<Uri> uri;
@@ -86,5 +89,9 @@ public class PhotoFieldViewModel extends AbstractFieldViewModel {
 
   LiveData<Field> getShowDialogClicks() {
     return showDialogClicks;
+  }
+
+  public void setEditable(boolean editable) {
+    isEditable.postValue(editable);
   }
 }
