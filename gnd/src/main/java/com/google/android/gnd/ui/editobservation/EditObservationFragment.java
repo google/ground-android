@@ -261,7 +261,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
     addPhotoBottomSheetBinding.setViewModel(viewModel);
     addPhotoBottomSheetBinding.setField(field);
 
-    BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(getContext());
+    BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(requireContext());
     bottomSheetDialog.setContentView(addPhotoBottomSheetBinding.getRoot());
     bottomSheetDialog.setCancelable(true);
     bottomSheetDialog.show();
@@ -305,7 +305,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
   }
 
   private void showUnsavedChangesDialog() {
-    new AlertDialog.Builder(getContext())
+    new AlertDialog.Builder(requireContext())
         .setMessage(R.string.unsaved_changes)
         .setPositiveButton(R.string.close_without_saving, (d, i) -> navigator.navigateUp())
         .setNegativeButton(R.string.continue_editing, (d, i) -> {})
@@ -314,7 +314,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
   }
 
   private void showValidationErrorsAlert() {
-    new AlertDialog.Builder(getContext())
+    new AlertDialog.Builder(requireContext())
         .setMessage(R.string.invalid_data_warning)
         .setPositiveButton(R.string.invalid_data_confirm, (a, b) -> {})
         .create()
