@@ -19,7 +19,6 @@ package com.google.android.gnd.ui.home.featuredetails;
 import android.content.Context;
 import android.content.res.Resources;
 import android.text.TextUtils;
-import android.util.Log;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.StyleRes;
@@ -27,17 +26,18 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.ObservationListItemBinding;
 import com.google.android.gnd.model.form.Element;
+import com.google.android.gnd.model.form.Element.Type;
 import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.model.observation.Response;
 import com.google.common.collect.ImmutableList;
 import java8.util.Optional;
+import timber.log.Timber;
 
 class ObservationListItemViewHolder extends RecyclerView.ViewHolder {
 
   private static final int MAX_COLUMNS = 4;
-  private static final String TAG = ObservationListItemViewHolder.class.getName();
 
   private final ObservationListItemBinding binding;
 
@@ -63,20 +63,17 @@ class ObservationListItemViewHolder extends RecyclerView.ViewHolder {
     ImmutableList<Element> elements = form.getElementsSorted();
     for (int i = 0; i < MAX_COLUMNS && i < elements.size(); i++) {
       Element elem = elements.get(i);
-      switch (elem.getType()) {
-        case FIELD:
-          Field field = elem.getField();
-          Optional<Response> response = observation.getResponses().getResponse(field.getId());
-          binding.fieldLabelRow.addView(
-              newFieldTextView(field.getLabel(), R.style.ObservationListText_FieldLabel));
-          binding.fieldValueRow.addView(
-              newFieldTextView(
-                  response.map(r -> r.getSummaryText(field)).orElse(""),
-                  R.style.ObservationListText_Field));
-          break;
-        default:
-          Log.e(TAG, "Unhandled element type: " + elem.getType());
-          break;
+      if (elem.getType() == Type.FIELD) {
+        Field field = elem.getField();
+        Optional<Response> response = observation.getResponses().getResponse(field.getId());
+        binding.fieldLabelRow.addView(
+            newFieldTextView(field.getLabel(), R.style.ObservationListText_FieldLabel));
+        binding.fieldValueRow.addView(
+            newFieldTextView(
+                response.map(r -> r.getSummaryText(field)).orElse(""),
+                R.style.ObservationListText_Field));
+      } else {
+        Timber.e("Unhandled element type: %s", elem.getType());
       }
     }
   }

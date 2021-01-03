@@ -169,7 +169,7 @@ public class HomeScreenFragment extends AbstractFragment
   @Override
   public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
-    binding.versionText.setText("Build " + BuildConfig.VERSION_NAME);
+    binding.versionText.setText(String.format(getString(R.string.build), BuildConfig.VERSION_NAME));
     // Ensure nav drawer cannot be swiped out, which would conflict with map pan gestures.
     binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
 

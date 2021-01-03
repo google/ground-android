@@ -18,16 +18,14 @@ package com.google.android.gnd.persistence.remote.firestore.schema;
 
 import static com.google.android.gnd.util.Localization.getLocalizedMessage;
 
-import android.util.Log;
 import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.model.layer.Style;
 import java8.util.Objects;
 import java8.util.Optional;
+import timber.log.Timber;
 
 /** Converts between Firestore documents and {@link Layer} instances. */
 class LayerConverter {
-  private static final String TAG = LayerConverter.class.getSimpleName();
-
   /** Black marker used when default remote data is corrupt or missing. */
   private static final String FALLBACK_COLOR = "#000000";
 
@@ -36,7 +34,7 @@ class LayerConverter {
     layer.setId(id).setName(getLocalizedMessage(obj.getName())).setDefaultStyle(toStyle(obj));
     if (obj.getForms() != null && !obj.getForms().isEmpty()) {
       if (obj.getForms().size() > 1) {
-        Log.w(TAG, "Multiple forms not supported");
+        Timber.e("Multiple forms not supported");
       }
       String formId = obj.getForms().keySet().iterator().next();
       layer.setForm(FormConverter.toForm(formId, obj.getForms().get(formId)));
