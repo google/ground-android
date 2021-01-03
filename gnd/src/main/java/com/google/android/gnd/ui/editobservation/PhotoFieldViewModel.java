@@ -18,6 +18,7 @@ package com.google.android.gnd.ui.editobservation;
 
 import android.app.Application;
 import android.net.Uri;
+import android.view.View;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
@@ -36,13 +37,12 @@ public class PhotoFieldViewModel extends AbstractFieldViewModel {
 
   private static final String EMPTY_PATH = "";
 
-  public final MutableLiveData<Boolean> isEditable = new MutableLiveData<>(false);
-
   private final StorageManager storageManager;
   private final BehaviorProcessor<String> destinationPath = BehaviorProcessor.create();
   private final LiveData<Uri> uri;
   public final LiveData<Boolean> isVisible;
   private final MutableLiveData<Field> showDialogClicks = new MutableLiveData<>();
+  private final MutableLiveData<Integer> clearButtonVisibility = new MutableLiveData<>(View.GONE);
 
   @Inject
   PhotoFieldViewModel(StorageManager storageManager, Application application) {
@@ -91,7 +91,11 @@ public class PhotoFieldViewModel extends AbstractFieldViewModel {
     return showDialogClicks;
   }
 
-  public void setEditable(boolean editable) {
-    isEditable.postValue(editable);
+  public void setResponseCancelable(boolean enabled) {
+    clearButtonVisibility.postValue(enabled ? View.VISIBLE : View.GONE);
+  }
+
+  public LiveData<Integer> getClearButtonVisibility() {
+    return clearButtonVisibility;
   }
 }
