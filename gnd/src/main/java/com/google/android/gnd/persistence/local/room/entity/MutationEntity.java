@@ -16,7 +16,6 @@
 
 package com.google.android.gnd.persistence.local.room.entity;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.room.ColumnInfo;
 import androidx.room.PrimaryKey;
@@ -32,12 +31,10 @@ public abstract class MutationEntity {
   public abstract Long getId();
 
   @CopyAnnotations
-  @NonNull
   @ColumnInfo(name = "project_id")
   public abstract String getProjectId();
 
   @CopyAnnotations
-  @NonNull
   @ColumnInfo(name = "type")
   public abstract MutationEntityType getType();
 
@@ -62,7 +59,7 @@ public abstract class MutationEntity {
 
     public abstract T setId(@Nullable Long newId);
 
-    public abstract T setProjectId(@Nullable String newProjectId);
+    public abstract T setProjectId(String newProjectId);
 
     public abstract T setType(MutationEntityType newType);
 
@@ -70,7 +67,7 @@ public abstract class MutationEntity {
 
     public abstract T setLastError(@Nullable String newLastError);
 
-    public abstract T setUserId(@Nullable String newUserId);
+    public abstract T setUserId(String newUserId);
 
     public abstract T setClientTimestamp(long newClientTimestamp);
   }

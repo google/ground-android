@@ -19,17 +19,16 @@ package com.google.android.gnd.system;
 import android.app.Application;
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.util.Log;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import com.google.android.gnd.rx.RxCompletable;
 import io.reactivex.Completable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import timber.log.Timber;
 
 @Singleton
 public class PermissionsManager {
-  private static final String TAG = PermissionsManager.class.getSimpleName();
   private static final int PERMISSIONS_REQUEST_CODE = PermissionsManager.class.hashCode() & 0xffff;
 
   private final Context context;
@@ -48,14 +47,14 @@ public class PermissionsManager {
 
   private boolean requestPermission(String permission) {
     if (isGranted(permission)) {
-      Log.d(TAG, permission + " already granted");
+      Timber.d("%s already granted", permission);
       return true;
     } else {
-      Log.d(TAG, "Requesting " + permission);
+      Timber.d("Requesting %s", permission);
       activityStreams.withActivity(
           activity ->
               ActivityCompat.requestPermissions(
-                  activity, new String[] {permission}, PERMISSIONS_REQUEST_CODE));
+                  activity, new String[]{permission}, PERMISSIONS_REQUEST_CODE));
       return false;
     }
   }

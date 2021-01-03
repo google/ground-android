@@ -53,7 +53,8 @@
         android:layout_height="match_parent"
         app:layout_behavior="@string/bottom_sheet_behavior">
 
-        <fragment
+        <androidx.fragment.app.FragmentContainerView
+          android:id="@+id/feature_details_frag"
           android:name="com.google.android.gnd.ui.home.featuredetails.FeatureDetailsFragment"
           android:layout_width="match_parent"
           android:layout_height="match_parent"

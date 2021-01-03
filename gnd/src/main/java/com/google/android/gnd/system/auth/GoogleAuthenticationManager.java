@@ -19,7 +19,6 @@ package com.google.android.gnd.system.auth;
 import android.app.Activity;
 import android.app.Application;
 import android.content.Intent;
-import android.util.Log;
 import androidx.annotation.NonNull;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -43,10 +42,10 @@ import io.reactivex.subjects.BehaviorSubject;
 import io.reactivex.subjects.Subject;
 import java8.util.Optional;
 import javax.inject.Inject;
+import timber.log.Timber;
 
 public class GoogleAuthenticationManager implements AuthenticationManager {
 
-  private static final String TAG = AuthenticationManager.class.getSimpleName();
   private static final int SIGN_IN_REQUEST_CODE = AuthenticationManager.class.hashCode() & 0xffff;
   private final GoogleSignInOptions googleSignInOptions;
   private final Subject<SignInState> signInState;
@@ -120,7 +119,7 @@ public class GoogleAuthenticationManager implements AuthenticationManager {
           GoogleSignIn.getSignedInAccountFromIntent(activityResult.getData());
       onGoogleSignIn(googleSignInTask.getResult(ApiException.class));
     } catch (ApiException e) {
-      Log.w(TAG, "Sign in failed: " + e);
+      Timber.e(e, "Sign in failed");
       signInState.onNext(new SignInState(e));
     }
   }

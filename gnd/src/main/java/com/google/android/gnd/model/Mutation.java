@@ -90,7 +90,7 @@ public abstract class Mutation<B extends Mutation.Builder> {
 
     public abstract T setProjectId(String newProjectId);
 
-    public abstract T setUserId(@Nullable String newUserId);
+    public abstract T setUserId(String newUserId);
 
     public abstract T setClientTimestamp(@NonNull Date newClientTimestamp);
 

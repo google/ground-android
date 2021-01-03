@@ -16,7 +16,6 @@
 
 package com.google.android.gnd.model.observation;
 
-import androidx.annotation.Nullable;
 import com.google.android.gnd.model.AuditInfo;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.feature.Feature;
@@ -53,13 +52,13 @@ public abstract class Observation {
 
   @AutoValue.Builder
   public abstract static class Builder {
-    public abstract Builder setId(@Nullable String newId);
+    public abstract Builder setId(String newId);
 
-    public abstract Builder setProject(@Nullable Project project);
+    public abstract Builder setProject(Project project);
 
-    public abstract Builder setFeature(@Nullable Feature feature);
+    public abstract Builder setFeature(Feature feature);
 
-    public abstract Builder setForm(@Nullable Form form);
+    public abstract Builder setForm(Form form);
 
     public abstract Builder setCreated(AuditInfo newCreated);
 

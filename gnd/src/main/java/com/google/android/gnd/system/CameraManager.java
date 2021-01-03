@@ -21,18 +21,16 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.util.Log;
 import com.google.android.gnd.system.ActivityStreams.ActivityResult;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import timber.log.Timber;
 
 /** Manages permissions needed for using camera and related flows to/from Activity. */
 @Singleton
 public class CameraManager {
-
-  public static final String TAG = CameraManager.class.getName();
 
   private static final int CAPTURE_PHOTO_REQUEST_CODE = CameraManager.class.hashCode() & 0xffff;
   private final PermissionsManager permissionsManager;
@@ -63,7 +61,7 @@ public class CameraManager {
                 activity -> {
                   Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                   activity.startActivityForResult(cameraIntent, CAPTURE_PHOTO_REQUEST_CODE);
-                  Log.d(TAG, "capture photo intent sent");
+                  Timber.d("capture photo intent sent");
                 }));
   }
 
