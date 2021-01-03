@@ -17,7 +17,6 @@
 package com.google.android.gnd.model.form;
 
 import com.google.auto.value.AutoOneOf;
-import javax.annotation.Nullable;
 
 /**
  * Represents an element on a form. The only valid type of form element is currently {@code FIELD};
@@ -46,7 +45,6 @@ public abstract class Element {
 
   public abstract Field getField();
 
-  @Nullable
   public abstract Object getUnknown();
 
   public static Element ofField(Field field) {

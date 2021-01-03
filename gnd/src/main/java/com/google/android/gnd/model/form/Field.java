@@ -50,13 +50,13 @@ public abstract class Field {
 
   @AutoValue.Builder
   public abstract static class Builder {
-    public abstract Builder setId(@Nullable String newId);
+    public abstract Builder setId(String newId);
 
     public abstract Builder setIndex(int newIndex);
 
-    public abstract Builder setType(@Nullable Type newType);
+    public abstract Builder setType(Type newType);
 
-    public abstract Builder setLabel(@Nullable String newLabel);
+    public abstract Builder setLabel(String newLabel);
 
     public abstract Builder setRequired(boolean newRequired);
 
