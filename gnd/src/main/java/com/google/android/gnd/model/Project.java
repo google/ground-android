@@ -23,7 +23,6 @@ import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java8.util.Optional;
-import javax.annotation.Nullable;
 
 /** Configuration, schema, and ACLs for a single project. */
 @AutoValue
@@ -55,11 +54,11 @@ public abstract class Project {
 
   @AutoValue.Builder
   public abstract static class Builder {
-    public abstract Builder setId(@Nullable String newId);
+    public abstract Builder setId(String newId);
 
-    public abstract Builder setTitle(@Nullable String newTitle);
+    public abstract Builder setTitle(String newTitle);
 
-    public abstract Builder setDescription(@Nullable String newDescription);
+    public abstract Builder setDescription(String newDescription);
 
     public abstract ImmutableMap.Builder<String, Layer> layerMapBuilder();
 

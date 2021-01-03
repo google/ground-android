@@ -24,7 +24,6 @@ import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import java8.util.Comparators;
 import java8.util.Optional;
-import javax.annotation.Nullable;
 
 /**
  * Describes the layout, field types, and validation rules of a user-defined form. Does not contain
@@ -56,7 +55,7 @@ public abstract class Form {
 
   @AutoValue.Builder
   public abstract static class Builder {
-    public abstract Builder setId(@Nullable String newId);
+    public abstract Builder setId(String newId);
 
     public abstract Builder setElements(ImmutableList<Element> newElementsList);
 
