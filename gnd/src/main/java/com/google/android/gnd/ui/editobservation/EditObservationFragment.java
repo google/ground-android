@@ -272,25 +272,28 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
     bottomSheetDialog.setCancelable(true);
     bottomSheetDialog.show();
 
-    Consumer<Integer> consumer =
-        type -> {
-          bottomSheetDialog.dismiss();
-          switch (type) {
-            case PHOTO_SOURCE_CAMERA:
-              viewModel.showPhotoCapture(field);
-              break;
-            case PHOTO_SOURCE_STORAGE:
-              viewModel.showPhotoSelector(field);
-              break;
-            default:
-              throw new IllegalArgumentException("Unknown type: " + type);
-          }
-        };
-
     RecyclerView recyclerView = addPhotoBottomSheetBinding.recyclerView;
     recyclerView.setHasFixedSize(true);
     recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-    recyclerView.setAdapter(new AddPhotoDialogAdapter(consumer));
+    recyclerView.setAdapter(
+        new AddPhotoDialogAdapter(
+            type -> {
+              bottomSheetDialog.dismiss();
+              onSelectPhotoClick(type, field);
+            }));
+  }
+
+  private void onSelectPhotoClick(int type, Field field) {
+    switch (type) {
+      case PHOTO_SOURCE_CAMERA:
+        viewModel.showPhotoCapture(field);
+        break;
+      case PHOTO_SOURCE_STORAGE:
+        viewModel.showPhotoSelector(field);
+        break;
+      default:
+        throw new IllegalArgumentException("Unknown type: " + type);
+    }
   }
 
   @Override

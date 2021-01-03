@@ -40,10 +40,10 @@ public class AddPhotoDialogAdapter extends RecyclerView.Adapter<AddPhotoDialogAd
               R.drawable.ic_sd_storage,
               PhotoStorageResource.PHOTO_SOURCE_STORAGE));
 
-  private final Consumer<Integer> selectPhotoStorageConsumer;
+  private final Consumer<Integer> onSelectPhotoStorageClick;
 
-  public AddPhotoDialogAdapter(Consumer<Integer> selectPhotoStorageConsumer) {
-    this.selectPhotoStorageConsumer = selectPhotoStorageConsumer;
+  public AddPhotoDialogAdapter(Consumer<Integer> onSelectPhotoStorageClick) {
+    this.onSelectPhotoStorageClick = onSelectPhotoStorageClick;
   }
 
   public static ImmutableList<PhotoStorageResource> getPhotoStorageResources() {
@@ -55,7 +55,7 @@ public class AddPhotoDialogAdapter extends RecyclerView.Adapter<AddPhotoDialogAd
   public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
     LayoutInflater inflater = LayoutInflater.from(parent.getContext());
     AddPhotoListItemBinding binding = AddPhotoListItemBinding.inflate(inflater, parent, false);
-    return new ViewHolder(binding, selectPhotoStorageConsumer);
+    return new ViewHolder(binding, onSelectPhotoStorageClick);
   }
 
   @Override
