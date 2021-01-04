@@ -236,7 +236,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
   }
 
   private void initPhotoField(PhotoFieldViewModel photoFieldViewModel) {
-    photoFieldViewModel.setResponseCancelable(true);
+    photoFieldViewModel.setClearButtonVisible(true);
     observeSelectPhotoClicks(photoFieldViewModel);
     observePhotoAdded(photoFieldViewModel);
   }

@@ -91,7 +91,7 @@ public class PhotoFieldViewModel extends AbstractFieldViewModel {
     return showDialogClicks;
   }
 
-  public void setResponseCancelable(boolean enabled) {
+  public void setClearButtonVisible(boolean enabled) {
     clearButtonVisibility.postValue(enabled ? View.VISIBLE : View.GONE);
   }
 
