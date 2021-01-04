@@ -135,7 +135,7 @@ public class MapContainerFragment extends AbstractFragment {
     mapContainerViewModel
         .getCameraUpdateRequests()
         .observe(this, update -> update.ifUnhandled(data -> onCameraUpdate(data, map)));
-    mapContainerViewModel.getActiveProject().observe(this, this::onProjectChange);
+    mapContainerViewModel.getProjectLoadingState().observe(this, this::onProjectChange);
     homeScreenViewModel
         .getBottomSheetState()
         .observe(this, state -> onBottomSheetStateChange(state, map));

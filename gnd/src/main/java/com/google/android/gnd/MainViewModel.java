@@ -24,7 +24,6 @@ import com.google.android.gnd.model.User;
 import com.google.android.gnd.repository.FeatureRepository;
 import com.google.android.gnd.repository.ProjectRepository;
 import com.google.android.gnd.repository.UserRepository;
-import com.google.android.gnd.rx.Loadable;
 import com.google.android.gnd.system.auth.AuthenticationManager;
 import com.google.android.gnd.system.auth.SignInState;
 import com.google.android.gnd.ui.common.AbstractViewModel;
@@ -34,6 +33,7 @@ import com.google.android.gnd.ui.common.SharedViewModel;
 import com.google.android.gnd.ui.home.HomeScreenFragmentDirections;
 import com.google.android.gnd.ui.signin.SignInFragmentDirections;
 import io.reactivex.Completable;
+import java8.util.Optional;
 import javax.inject.Inject;
 import timber.log.Timber;
 
@@ -66,10 +66,7 @@ public class MainViewModel extends AbstractViewModel {
 
     // TODO: Move to background service.
     disposeOnClear(
-        projectRepository
-            .getActiveProjectOnceAndStream()
-            .switchMapCompletable(this::syncFeatures)
-            .subscribe());
+        projectRepository.getActiveProject().switchMapCompletable(this::syncFeatures).subscribe());
 
     disposeOnClear(
         authenticationManager
@@ -82,10 +79,10 @@ public class MainViewModel extends AbstractViewModel {
    * Keeps local features in sync with remote when a project is active, does nothing when no project
    * is active. The stream never completes; syncing stops when subscriptions are disposed of.
    *
-   * @param projectLoadable the load state of the currently active project.
+   * @param project the currently active project.
    */
-  private Completable syncFeatures(Loadable<Project> projectLoadable) {
-    return projectLoadable.value().map(featureRepository::syncFeatures).orElse(Completable.never());
+  private Completable syncFeatures(Optional<Project> project) {
+    return project.map(featureRepository::syncFeatures).orElse(Completable.never());
   }
 
   public LiveData<WindowInsetsCompat> getWindowInsets() {

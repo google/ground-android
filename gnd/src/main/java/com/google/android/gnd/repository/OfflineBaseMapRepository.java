@@ -128,8 +128,9 @@ public class OfflineBaseMapRepository {
   private Single<ImmutableList<TileSource>> getBaseMapTileSources(OfflineBaseMap offlineBaseMap) {
     LatLngBounds bounds = offlineBaseMap.getBounds();
 
+    // TODO: Simplify this stream.
     return projectRepository
-        .getActiveProjectOnceAndStream()
+        .getProjectLoadingState()
         .compose(Loadable::values)
         .map(Project::getOfflineBaseMapSources)
         .doOnError(
