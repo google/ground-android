@@ -46,7 +46,7 @@
       android:onClick="@{() -> viewModel.clearResponse()}"
       android:visibility="@{viewModel.getClearButtonVisibility()}"
       app:backgroundTint="@android:color/transparent"
-      app:srcCompat="@drawable/ic_baseline_cancel_24"
+      app:srcCompat="@drawable/ic_baseline_delete_24"
       app:tint="@color/colorGrey300" />
   </com.google.android.material.card.MaterialCardView>
 </layout>
