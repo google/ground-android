@@ -17,8 +17,6 @@
 package com.google.android.gnd.ui.editobservation;
 
 import android.view.LayoutInflater;
-import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
@@ -27,6 +25,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.AddPhotoListItemBinding;
 import com.google.common.collect.ImmutableList;
+import java8.util.function.Consumer;
 
 public class AddPhotoDialogAdapter extends RecyclerView.Adapter<AddPhotoDialogAdapter.ViewHolder> {
 
@@ -41,10 +40,10 @@ public class AddPhotoDialogAdapter extends RecyclerView.Adapter<AddPhotoDialogAd
               R.drawable.ic_sd_storage,
               PhotoStorageResource.PHOTO_SOURCE_STORAGE));
 
-  private ItemClickListener listener;
+  private final Consumer<Integer> onSelectPhotoStorageClick;
 
-  public AddPhotoDialogAdapter(ItemClickListener listener) {
-    this.listener = listener;
+  public AddPhotoDialogAdapter(Consumer<Integer> onSelectPhotoStorageClick) {
+    this.onSelectPhotoStorageClick = onSelectPhotoStorageClick;
   }
 
   public static ImmutableList<PhotoStorageResource> getPhotoStorageResources() {
@@ -54,9 +53,9 @@ public class AddPhotoDialogAdapter extends RecyclerView.Adapter<AddPhotoDialogAd
   @NonNull
   @Override
   public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-    AddPhotoListItemBinding binding =
-        AddPhotoListItemBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false);
-    return new ViewHolder(binding, listener);
+    LayoutInflater inflater = LayoutInflater.from(parent.getContext());
+    AddPhotoListItemBinding binding = AddPhotoListItemBinding.inflate(inflater, parent, false);
+    return new ViewHolder(binding, onSelectPhotoStorageClick);
   }
 
   @Override
@@ -72,26 +71,15 @@ public class AddPhotoDialogAdapter extends RecyclerView.Adapter<AddPhotoDialogAd
     return getPhotoStorageResources().size();
   }
 
-  public interface ItemClickListener {
-    void onClick(int type);
-  }
-
-  public static class ViewHolder extends RecyclerView.ViewHolder implements OnClickListener {
+  public static class ViewHolder extends RecyclerView.ViewHolder {
 
     private final AddPhotoListItemBinding binding;
-    private final ItemClickListener listener;
     private int type;
 
-    public ViewHolder(@NonNull AddPhotoListItemBinding binding, ItemClickListener listener) {
+    public ViewHolder(@NonNull AddPhotoListItemBinding binding, Consumer<Integer> consumer) {
       super(binding.getRoot());
       this.binding = binding;
-      this.listener = listener;
-      itemView.setOnClickListener(this);
-    }
-
-    @Override
-    public void onClick(View view) {
-      listener.onClick(type);
+      this.itemView.setOnClickListener(__ -> consumer.accept(type));
     }
   }
 

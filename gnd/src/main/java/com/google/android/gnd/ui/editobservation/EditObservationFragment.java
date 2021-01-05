@@ -142,8 +142,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
     fieldViewModel.init(field, viewModel.getSavedOrOriginalResponse(field.getId()));
 
     if (fieldViewModel instanceof PhotoFieldViewModel) {
-      observeSelectPhotoClicks((PhotoFieldViewModel) fieldViewModel);
-      observePhotoAdded((PhotoFieldViewModel) fieldViewModel);
+      initPhotoField((PhotoFieldViewModel) fieldViewModel);
     } else if (fieldViewModel instanceof MultipleChoiceFieldViewModel) {
       observeSelectChoiceClicks((MultipleChoiceFieldViewModel) fieldViewModel);
     }
@@ -236,6 +235,12 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
     }
   }
 
+  private void initPhotoField(PhotoFieldViewModel photoFieldViewModel) {
+    photoFieldViewModel.setClearButtonVisible(true);
+    observeSelectPhotoClicks(photoFieldViewModel);
+    observePhotoAdded(photoFieldViewModel);
+  }
+
   private void observeSelectPhotoClicks(PhotoFieldViewModel fieldViewModel) {
     fieldViewModel
         .getShowDialogClicks()
@@ -248,6 +253,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
         .observe(
             this,
             map -> {
+              // TODO: Do not set response if already handled.
               Field field = fieldViewModel.getField();
               if (map.containsKey(field)) {
                 fieldViewModel.setResponse(TextResponse.fromString(map.get(field)));
@@ -261,30 +267,33 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
     addPhotoBottomSheetBinding.setViewModel(viewModel);
     addPhotoBottomSheetBinding.setField(field);
 
-    BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(getContext());
+    BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(requireContext());
     bottomSheetDialog.setContentView(addPhotoBottomSheetBinding.getRoot());
     bottomSheetDialog.setCancelable(true);
     bottomSheetDialog.show();
 
-    AddPhotoDialogAdapter.ItemClickListener listener =
-        type -> {
-          bottomSheetDialog.dismiss();
-          switch (type) {
-            case PHOTO_SOURCE_CAMERA:
-              viewModel.showPhotoCapture(field);
-              break;
-            case PHOTO_SOURCE_STORAGE:
-              viewModel.showPhotoSelector(field);
-              break;
-            default:
-              throw new IllegalArgumentException("Unknown type: " + type);
-          }
-        };
-
     RecyclerView recyclerView = addPhotoBottomSheetBinding.recyclerView;
     recyclerView.setHasFixedSize(true);
     recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-    recyclerView.setAdapter(new AddPhotoDialogAdapter(listener));
+    recyclerView.setAdapter(
+        new AddPhotoDialogAdapter(
+            type -> {
+              bottomSheetDialog.dismiss();
+              onSelectPhotoClick(type, field);
+            }));
+  }
+
+  private void onSelectPhotoClick(int type, Field field) {
+    switch (type) {
+      case PHOTO_SOURCE_CAMERA:
+        viewModel.showPhotoCapture(field);
+        break;
+      case PHOTO_SOURCE_STORAGE:
+        viewModel.showPhotoSelector(field);
+        break;
+      default:
+        throw new IllegalArgumentException("Unknown type: " + type);
+    }
   }
 
   @Override
@@ -305,7 +314,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
   }
 
   private void showUnsavedChangesDialog() {
-    new AlertDialog.Builder(getContext())
+    new AlertDialog.Builder(requireContext())
         .setMessage(R.string.unsaved_changes)
         .setPositiveButton(R.string.close_without_saving, (d, i) -> navigator.navigateUp())
         .setNegativeButton(R.string.continue_editing, (d, i) -> {})
@@ -314,7 +323,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
   }
 
   private void showValidationErrorsAlert() {
-    new AlertDialog.Builder(getContext())
+    new AlertDialog.Builder(requireContext())
         .setMessage(R.string.invalid_data_warning)
         .setPositiveButton(R.string.invalid_data_confirm, (a, b) -> {})
         .create()
