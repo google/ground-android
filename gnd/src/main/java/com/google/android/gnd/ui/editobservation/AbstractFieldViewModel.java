@@ -39,7 +39,7 @@ public class AbstractFieldViewModel extends AbstractViewModel {
   private final LiveData<String> responseText;
 
   /** Error message to be displayed for the current {@link AbstractFieldViewModel#response}. */
-  private final MutableLiveData<Optional<String>> error = new MutableLiveData<>();
+  private final MutableLiveData<String> error = new MutableLiveData<>();
 
   private final BehaviorProcessor<Optional<Response>> responseSubject = BehaviorProcessor.create();
   private final Resources resources;
@@ -70,7 +70,7 @@ public class AbstractFieldViewModel extends AbstractViewModel {
   /** Checks if the current response is valid and updates error value. */
   public Optional<String> validate() {
     Optional<String> result = validate(field, responseSubject.getValue());
-    error.postValue(result);
+    error.postValue(result.orElse(null));
     return result;
   }
 
@@ -98,7 +98,7 @@ public class AbstractFieldViewModel extends AbstractViewModel {
     return responseText;
   }
 
-  public LiveData<Optional<String>> getError() {
+  public LiveData<String> getError() {
     return error;
   }
 
