@@ -23,8 +23,8 @@ import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.rx.ValueOrError;
+import com.google.android.gnd.rx.annotations.Deltas;
 import com.google.android.gnd.rx.annotations.LazyOperation;
-import com.google.android.gnd.rx.annotations.StatefulDelta;
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
 import io.reactivex.Completable;
@@ -51,7 +51,7 @@ public interface RemoteDataStore {
    * Returns all features in the specified project, then continues to emit any remote updates to the
    * set of features in the project until all subscribers have been disposed.
    */
-  @StatefulDelta
+  @Deltas
   Flowable<RemoteDataEvent<Feature>> loadFeaturesOnceAndStreamChanges(Project project);
 
   /**

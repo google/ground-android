@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Google LLC
+ * Copyright 2020 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +16,18 @@
 
 package com.google.android.gnd.rx.annotations;
 
-/**
- * Denotes an observable that emits deltas between the application's presumed internal snapshot of a
- * set of entities and the entities' actual state. On subscription, Observers first receive the
- * initial state of entities, followed by events indicating changes to that base state. Such
- * observables are typically used to represent the output of "load once and stream changes"
- * operations.
- */
-@Cold
+import static java.lang.annotation.ElementType.ANNOTATION_TYPE;
+import static java.lang.annotation.ElementType.FIELD;
+import static java.lang.annotation.ElementType.LOCAL_VARIABLE;
+import static java.lang.annotation.ElementType.METHOD;
+import static java.lang.annotation.ElementType.PARAMETER;
+
+import java.lang.annotation.Documented;
+import java.lang.annotation.Target;
+
+/** Denotes an observable that emits events. */
+@Documented
+@Hot
 @Infinite
-public @interface StatefulDelta {}
+@Target(value = {ANNOTATION_TYPE, FIELD, LOCAL_VARIABLE, METHOD, PARAMETER})
+public @interface Events {}

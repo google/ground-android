@@ -31,7 +31,7 @@ import com.google.android.gnd.persistence.sync.DataSyncWorkManager;
 import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator;
 import com.google.android.gnd.rx.Loadable;
 import com.google.android.gnd.rx.annotations.LazyOperation;
-import com.google.android.gnd.rx.annotations.ReactiveSnapshot;
+import com.google.android.gnd.rx.annotations.Snapshots;
 import com.google.android.gnd.system.auth.AuthenticationManager;
 import com.google.common.collect.ImmutableSet;
 import io.reactivex.Completable;
@@ -107,7 +107,7 @@ public class FeatureRepository {
   }
 
   // TODO: Only return feature fields needed to render features on map.
-  @ReactiveSnapshot
+  @Snapshots
   public Flowable<ImmutableSet<Feature>> getFeaturesOnceAndStream(Project project) {
     return localDataStore.getFeaturesOnceAndStream(project);
   }

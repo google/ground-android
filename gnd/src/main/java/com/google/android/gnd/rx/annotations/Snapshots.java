@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2021 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,15 +26,16 @@ import java.lang.annotation.Documented;
 import java.lang.annotation.Target;
 
 /**
- * Denotes an observable that emits the latest state of an entity. The observer emits the latest
- * state on subscribe, then continues emitting the latest state each time it changes.
+ * Denotes an observer that emits snapshots of a persistent entity. The observer fetches the latest
+ * state on subscribe, and continues emitting a snapshot of the entity each time it is updated at
+ * its source.
  *
  * <p>Operations on items emitted by this observable should be idempotent; the same item being
  * emitted multiple times should have the same result. Observers shouldn't depend on values being
  * emitted in any particular order.
  */
 @Documented
-@Hot
+@Cold
 @Infinite
 @Target(value = {ANNOTATION_TYPE, FIELD, LOCAL_VARIABLE, METHOD, PARAMETER})
-public @interface ReactiveState {}
+public @interface Snapshots {}
