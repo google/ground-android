@@ -43,7 +43,7 @@
         android:layout_height="wrap_content"
         android:maxLines="1"
         android:text="@{viewModel.responseText}"
-        app:errorText="@{viewModel.error}"
+        app:error="@{viewModel.error}"
         app:onTextChanged="@{s -> viewModel.updateResponse((String)s)}"
         tools:text="Text value" />
 

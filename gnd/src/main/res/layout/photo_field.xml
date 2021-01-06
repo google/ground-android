@@ -39,5 +39,14 @@
       android:contentDescription="@string/photo_preview"
       android:scaleType="fitCenter"
       app:imageUri="@{viewModel.uri}" />
+    <ImageButton
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_gravity="top|end"
+      android:onClick="@{() -> viewModel.clearResponse()}"
+      android:visibility="@{viewModel.getClearButtonVisibility()}"
+      app:backgroundTint="@android:color/transparent"
+      app:srcCompat="@drawable/ic_baseline_delete_24"
+      app:tint="@color/colorGrey300" />
   </com.google.android.material.card.MaterialCardView>
 </layout>

@@ -128,7 +128,7 @@ steps:
         --test gnd/build/outputs/apk/androidTest/staging/*.apk \
         --device model=Pixel2,version=28,locale=en,orientation=portrait \
         --results-bucket ${_ARTIFACT_BUCKET} \
-        --results-dir $BRANCH_NAME-$BUILD_ID/reports \
+        --results-dir "$BRANCH_NAME-$BUILD_ID/reports" \
         --timeout 20m
 
   - name: 'gcr.io/cloud-builders/gsutil'
