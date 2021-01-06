@@ -16,11 +16,7 @@
 
 package com.google.android.gnd.rx.annotations;
 
-import static java.lang.annotation.ElementType.ANNOTATION_TYPE;
-import static java.lang.annotation.ElementType.FIELD;
-import static java.lang.annotation.ElementType.LOCAL_VARIABLE;
-import static java.lang.annotation.ElementType.METHOD;
-import static java.lang.annotation.ElementType.PARAMETER;
+import static java.lang.annotation.ElementType.TYPE_USE;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.Target;
@@ -37,5 +33,5 @@ import java.lang.annotation.Target;
 @Documented
 @Cold
 @Infinite
-@Target(value = {ANNOTATION_TYPE, FIELD, LOCAL_VARIABLE, METHOD, PARAMETER})
+@Target(value = {TYPE_USE})
 public @interface Snapshots {}

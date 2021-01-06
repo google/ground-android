@@ -16,6 +16,10 @@
 
 package com.google.android.gnd.rx.annotations;
 
+import static java.lang.annotation.ElementType.TYPE_USE;
+
+import java.lang.annotation.Target;
+
 /**
  * Denotes an observable that emits deltas between the application's presumed internal snapshot of a
  * set of entities and the entities' actual state. On subscription, Observers first receive the
@@ -25,4 +29,5 @@ package com.google.android.gnd.rx.annotations;
  */
 @Cold
 @Infinite
+@Target(value = {TYPE_USE})
 public @interface Deltas {}
