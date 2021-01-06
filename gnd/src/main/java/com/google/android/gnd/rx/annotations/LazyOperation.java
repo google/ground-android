@@ -25,7 +25,10 @@ import static java.lang.annotation.ElementType.PARAMETER;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Target;
 
-/** Denotes an observable that emits the result(s) of an operation triggered on subscription. */
+/**
+ * Denotes an observable that represents an operation that gets invoked each time the observable is
+ * subscribed to.
+ */
 @Documented
 @Cold
 @Finite
