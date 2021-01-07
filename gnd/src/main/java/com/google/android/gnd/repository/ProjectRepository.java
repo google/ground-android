@@ -23,9 +23,9 @@ import com.google.android.gnd.persistence.local.LocalDataStore;
 import com.google.android.gnd.persistence.local.LocalValueStore;
 import com.google.android.gnd.persistence.remote.RemoteDataStore;
 import com.google.android.gnd.rx.Loadable;
+import com.google.android.gnd.rx.annotations.Events;
 import com.google.android.gnd.rx.annotations.LazyOperation;
-import com.google.android.gnd.rx.annotations.ReactiveEvent;
-import com.google.android.gnd.rx.annotations.ReactiveState;
+import com.google.android.gnd.rx.annotations.States;
 import com.google.common.collect.ImmutableList;
 import io.reactivex.Flowable;
 import io.reactivex.Single;
@@ -56,11 +56,11 @@ public class ProjectRepository {
   private final LocalValueStore localValueStore;
 
   /** Emits a project id on {@see #activateProject} and empty on {@see #clearActiveProject}. */
-  @ReactiveEvent
+  @Events
   private final FlowableProcessor<Optional<String>> selectProjectEvent = PublishProcessor.create();
 
   /** Emits the loading state of the current project on subscribe and on change. */
-  @ReactiveState
+  @States
   private final FlowableProcessor<Loadable<Project>> projectLoadingState =
       BehaviorProcessor.create();
 
@@ -124,12 +124,12 @@ public class ProjectRepository {
    * Returns an observable that emits the latest project activation state, and continues to emits
    * changes to that state until all subscriptions are disposed.
    */
-  @ReactiveState
+  @States
   public Flowable<Loadable<Project>> getProjectLoadingState() {
     return projectLoadingState;
   }
 
-  @ReactiveState
+  @States
   public Flowable<Optional<Project>> getActiveProject() {
     return projectLoadingState.map(Loadable::value);
   }
