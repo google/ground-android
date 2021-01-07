@@ -24,7 +24,7 @@ import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.rx.ValueOrError;
 import com.google.android.gnd.rx.annotations.Deltas;
-import com.google.android.gnd.rx.annotations.LazyOperation;
+import com.google.android.gnd.rx.annotations.Results;
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
 import io.reactivex.Completable;
@@ -37,14 +37,14 @@ import java.util.List;
  * subscriptions are run in a background thread (i.e., not the Android main thread).
  */
 public interface RemoteDataStore {
-  @LazyOperation
+  @Results
   Single<List<Project>> loadProjectSummaries(User user);
 
   /**
    * Loads the project with the specified id from the remote data store. The return Single fails
    * with if the project is not found, or if the remote data store is not available.
    */
-  @LazyOperation
+  @Results
   Single<Project> loadProject(String projectId);
 
   /**
@@ -58,13 +58,13 @@ public interface RemoteDataStore {
    * Returns a list of all observations associated with the specified feature, or an empty list if
    * none are found.
    */
-  @LazyOperation
+  @Results
   Single<ImmutableList<ValueOrError<Observation>>> loadObservations(Feature feature);
 
   /**
    * Applies the provided mutations to the remote data store in a single batched transaction. If one
    * update fails, none of the mutations will be applied.
    */
-  @LazyOperation
+  @Results
   Completable applyMutations(@Nullable ImmutableCollection<Mutation> mutations, User user);
 }

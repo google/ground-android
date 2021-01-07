@@ -22,8 +22,8 @@ import java.lang.annotation.Documented;
 import java.lang.annotation.Target;
 
 /**
- * Denotes an observable that represents an operation that gets invoked each time the observable is
- * subscribed to.
+ * Denotes an observable that represents the result(s) of an operation that gets invoked each time
+ * the observable is subscribed to.
  *
  * <p>Recommended base types:
  *
@@ -38,4 +38,4 @@ import java.lang.annotation.Target;
 @Cold
 @Finite
 @Target({TYPE_USE})
-public @interface LazyOperation {}
+public @interface Results {}
