@@ -33,5 +33,5 @@ import java.lang.annotation.Target;
 @Documented
 @Cold
 @Infinite
-@Target(value = {TYPE_USE})
+@Target({TYPE_USE})
 public @interface Snapshots {}

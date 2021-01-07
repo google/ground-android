@@ -47,5 +47,5 @@ import java.lang.annotation.Target;
  * Design</a> for more definitions.
  */
 @Documented
-@Target(value = {ANNOTATION_TYPE, TYPE_USE})
+@Target({ANNOTATION_TYPE, TYPE_USE})
 public @interface Cold {}

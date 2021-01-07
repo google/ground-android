@@ -27,5 +27,5 @@ import java.lang.annotation.Target;
  * but not always occurs before observers unsubscribe.
  */
 @Documented
-@Target(value = {ANNOTATION_TYPE, TYPE_USE})
+@Target({ANNOTATION_TYPE, TYPE_USE})
 public @interface Finite {}

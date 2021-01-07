@@ -27,5 +27,5 @@ import java.lang.annotation.Target;
  * observer until that observer disposes of its subscription.
  */
 @Documented
-@Target(value = {ANNOTATION_TYPE, TYPE_USE})
+@Target({ANNOTATION_TYPE, TYPE_USE})
 public @interface Infinite {}

@@ -29,5 +29,5 @@ import java.lang.annotation.Target;
  */
 @Cold
 @Infinite
-@Target(value = {TYPE_USE})
+@Target({TYPE_USE})
 public @interface Deltas {}

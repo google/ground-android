@@ -28,5 +28,5 @@ import java.lang.annotation.Target;
 @Documented
 @Cold
 @Finite
-@Target(value = {TYPE_USE})
+@Target({TYPE_USE})
 public @interface LazyOperation {}

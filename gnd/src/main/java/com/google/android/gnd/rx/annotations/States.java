@@ -32,5 +32,5 @@ import java.lang.annotation.Target;
 @Documented
 @Hot
 @Infinite
-@Target(value = {TYPE_USE})
+@Target({TYPE_USE})
 public @interface States {}
