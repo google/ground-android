@@ -24,6 +24,17 @@ import java.lang.annotation.Target;
 /**
  * Denotes an observable that represents an operation that gets invoked each time the observable is
  * subscribed to.
+ *
+ * <p>Recommended base types:
+ *
+ * <ul>
+ *   <li>{@link io.reactivex.Completable}
+ *   <li>{@link io.reactivex.Observable}
+ *   <li>{@link io.reactivex.Maybe}
+ *   <li>{@link io.reactivex.Single}
+ * </ul>
+ *
+ * <
  */
 @Documented
 @Cold

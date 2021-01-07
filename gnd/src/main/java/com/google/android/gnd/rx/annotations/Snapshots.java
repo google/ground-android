@@ -29,6 +29,12 @@ import java.lang.annotation.Target;
  * <p>Operations on items emitted by this observable should be idempotent; the same item being
  * emitted multiple times should have the same result. Observers shouldn't depend on values being
  * emitted in any particular order.
+ *
+ * <p>Recommended base type:
+ *
+ * <ul>
+ *   <li>{@link io.reactivex.Flowable} with {@link io.reactivex.BackpressureStrategy#LATEST}
+ * </ul>
  */
 @Documented
 @Cold

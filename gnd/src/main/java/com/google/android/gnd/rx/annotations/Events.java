@@ -21,7 +21,15 @@ import static java.lang.annotation.ElementType.TYPE_USE;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Target;
 
-/** Denotes an observable that emits events. */
+/**
+ * Denotes an observable that emits events.
+ *
+ * <p>Recommended base types:
+ *
+ * <ul>
+ *   <li>{@link io.reactivex.Observable}
+ * </ul>
+ */
 @Documented
 @Hot
 @Infinite

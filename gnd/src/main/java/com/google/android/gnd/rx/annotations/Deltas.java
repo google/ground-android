@@ -22,11 +22,17 @@ import java.lang.annotation.Target;
 
 /**
  * Denotes an observable that emits deltas between the application's presumed internal snapshot of a
- * set of entities and the entities' actual state. On subscription, Observers first receive the
+ * set of entities and the entities' actual state. On subscription, observers first receive the
  * initial state of entities, followed by events indicating changes to that base state. Such
  * observables are typically used to represent the output of "load once and stream changes"
  * operations.
- */
+ *
+ * <p>Recommended base types:
+ *
+ * <ul>
+ *   <li>{@link io.reactivex.Observable}
+ * </ul>
+ * */
 @Cold
 @Infinite
 @Target({TYPE_USE})
