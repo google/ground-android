@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Google LLC
+ * Copyright 2020 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,16 +16,22 @@
 
 package com.google.android.gnd.rx.annotations;
 
-import static java.lang.annotation.ElementType.ANNOTATION_TYPE;
 import static java.lang.annotation.ElementType.TYPE_USE;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.Target;
 
 /**
- * Denotes an observable that never terminates. Items may continue to be received be any given
- * observer until that observer disposes of its subscription.
+ * Denotes an observable that emits events.
+ *
+ * <p>Recommended base types:
+ *
+ * <ul>
+ *   <li>{@link io.reactivex.Observable}
+ * </ul>
  */
 @Documented
-@Target({ANNOTATION_TYPE, TYPE_USE})
-public @interface Infinite {}
+@Hot
+@Infinite
+@Target({TYPE_USE})
+public @interface Events {}

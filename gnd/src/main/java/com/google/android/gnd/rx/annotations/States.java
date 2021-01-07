@@ -16,18 +16,28 @@
 
 package com.google.android.gnd.rx.annotations;
 
-import static java.lang.annotation.ElementType.ANNOTATION_TYPE;
-import static java.lang.annotation.ElementType.FIELD;
-import static java.lang.annotation.ElementType.LOCAL_VARIABLE;
-import static java.lang.annotation.ElementType.METHOD;
-import static java.lang.annotation.ElementType.PARAMETER;
+import static java.lang.annotation.ElementType.TYPE_USE;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.Target;
 
-/** Denotes an observable that emits events. */
+/**
+ * Denotes an observable that emits the latest state of an entity. The observer emits the latest
+ * state on subscribe, then continues emitting the latest state each time it changes.
+ *
+ * <p>Operations on items emitted by this observable should be idempotent; the same item being
+ * emitted multiple times should have the same result. Observers shouldn't depend on values being
+ * emitted in any particular order.
+ *
+ * <p>Recommended base types:
+ *
+ * <ul>
+ *   <li>{@link io.reactivex.Flowable} with {@link io.reactivex.BackpressureStrategy#LATEST}
+ *   <li>{@link androidx.lifecycle.LiveData} (for view state only)
+ * </ul>
+ */
 @Documented
 @Hot
 @Infinite
-@Target(value = {ANNOTATION_TYPE, FIELD, LOCAL_VARIABLE, METHOD, PARAMETER})
-public @interface ReactiveEvent {}
+@Target({TYPE_USE})
+public @interface States {}

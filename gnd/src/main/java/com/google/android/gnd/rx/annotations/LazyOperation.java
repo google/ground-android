@@ -16,18 +16,28 @@
 
 package com.google.android.gnd.rx.annotations;
 
-import static java.lang.annotation.ElementType.ANNOTATION_TYPE;
-import static java.lang.annotation.ElementType.FIELD;
-import static java.lang.annotation.ElementType.LOCAL_VARIABLE;
-import static java.lang.annotation.ElementType.METHOD;
-import static java.lang.annotation.ElementType.PARAMETER;
+import static java.lang.annotation.ElementType.TYPE_USE;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.Target;
 
-/** Denotes an observable that emits the result(s) of an operation triggered on subscription. */
+/**
+ * Denotes an observable that represents an operation that gets invoked each time the observable is
+ * subscribed to.
+ *
+ * <p>Recommended base types:
+ *
+ * <ul>
+ *   <li>{@link io.reactivex.Completable}
+ *   <li>{@link io.reactivex.Observable}
+ *   <li>{@link io.reactivex.Maybe}
+ *   <li>{@link io.reactivex.Single}
+ * </ul>
+ *
+ * <
+ */
 @Documented
 @Cold
 @Finite
-@Target(value = {ANNOTATION_TYPE, FIELD, LOCAL_VARIABLE, METHOD, PARAMETER})
+@Target({TYPE_USE})
 public @interface LazyOperation {}
