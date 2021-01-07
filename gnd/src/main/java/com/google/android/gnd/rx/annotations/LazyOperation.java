@@ -33,8 +33,6 @@ import java.lang.annotation.Target;
  *   <li>{@link io.reactivex.Maybe}
  *   <li>{@link io.reactivex.Single}
  * </ul>
- *
- * <
  */
 @Documented
 @Cold
