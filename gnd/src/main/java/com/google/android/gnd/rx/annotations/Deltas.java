@@ -18,6 +18,7 @@ package com.google.android.gnd.rx.annotations;
 
 import static java.lang.annotation.ElementType.TYPE_USE;
 
+import java.lang.annotation.Documented;
 import java.lang.annotation.Target;
 
 /**
@@ -32,7 +33,8 @@ import java.lang.annotation.Target;
  * <ul>
  *   <li>{@link io.reactivex.Observable}
  * </ul>
- * */
+ */
+@Documented
 @Cold
 @Infinite
 @Target({TYPE_USE})
