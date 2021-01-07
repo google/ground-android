@@ -42,8 +42,7 @@ import timber.log.Timber;
 @SharedViewModel
 public class MainViewModel extends AbstractViewModel {
 
-  @States
-  private final MutableLiveData<WindowInsetsCompat> windowInsetsLiveData = new MutableLiveData<>();
+  @States private final MutableLiveData<WindowInsetsCompat> windowInsets = new MutableLiveData<>();
 
   @States
   private final MutableLiveData<Boolean> signInProgressDialogVisibility = new MutableLiveData<>();
@@ -90,11 +89,11 @@ public class MainViewModel extends AbstractViewModel {
   }
 
   public LiveData<WindowInsetsCompat> getWindowInsets() {
-    return windowInsetsLiveData;
+    return windowInsets;
   }
 
   void onApplyWindowInsets(WindowInsetsCompat insets) {
-    windowInsetsLiveData.setValue(insets);
+    windowInsets.setValue(insets);
   }
 
   private Completable onSignInStateChange(SignInState signInState) {
