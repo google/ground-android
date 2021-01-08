@@ -39,7 +39,7 @@ import java.lang.annotation.Target;
  * <p>Cold RxJava2 observables can be created by passing a producer that generates results to the
  * observable's <code>create()</code> method.
  *
- * <p>See ReactiveX <a href="http://reactivex.io/documentation/observable.html">Observable</</a> and
+ * <p>See ReactiveX <a href="http://reactivex.io/documentation/observable.html">Observable</a> and
  * <a href="https://github.com/ReactiveX/RxJava/blob/2.x/DESIGN.md">RxJava v2 Design</a> for
  * details.
  */

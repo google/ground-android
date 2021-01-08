@@ -45,7 +45,7 @@ import java.lang.annotation.Target;
  * the act of subscribing causes to source stream to start emitting values to an observer which
  * creates new producers.
  *
- * <p>See ReactiveX <a href="http://reactivex.io/documentation/observable.html">Observable</</a> and
+ * <p>See ReactiveX <a href="http://reactivex.io/documentation/observable.html">Observable</a> and
  * <a href="https://github.com/ReactiveX/RxJava/blob/2.x/DESIGN.md">RxJava v2 Design</a> for
  * details.
  */
