@@ -37,16 +37,16 @@ import java.lang.annotation.Target;
  *       an observer subscribing "too late".
  * </ul>
  *
- * <p>See ReactiveX <a href="http://reactivex.io/documentation/observable.html">Observable</a> and
- * <a href="https://github.com/ReactiveX/RxJava/blob/2.x/DESIGN.md">RxJava v2 Design</a> for
- * details.
+ * <p>See <a href="http://reactivex.io/documentation/observable.html">Observable</a> and <a
+ * href="https://github.com/ReactiveX/RxJava/blob/2.x/DESIGN.md">RxJava v2 Design</a> for additional
+ * definitions and background.
  */
 @Documented
 @Target({TYPE_USE})
 public @interface Cold {
   /**
-   * Indicates whether or not the observable is expected to terminate (<code>finite=true</code>), or
-   * whether it is expected to run indefinitely <code>finite=false</code>. Cold observables are
+   * Indicates whether this observable is expected to terminate (<code>finite=true</code>), or
+   * whether it is expected to run indefinitely (<code>finite=false</code>). Cold observables are
    * considered finite by default.
    */
   boolean finite() default true;
