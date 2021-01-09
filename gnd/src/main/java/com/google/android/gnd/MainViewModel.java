@@ -24,6 +24,7 @@ import com.google.android.gnd.model.User;
 import com.google.android.gnd.repository.FeatureRepository;
 import com.google.android.gnd.repository.ProjectRepository;
 import com.google.android.gnd.repository.UserRepository;
+import com.google.android.gnd.rx.annotations.Cold;
 import com.google.android.gnd.system.auth.AuthenticationManager;
 import com.google.android.gnd.system.auth.SignInState;
 import com.google.android.gnd.ui.common.AbstractViewModel;
@@ -81,6 +82,7 @@ public class MainViewModel extends AbstractViewModel {
    *
    * @param project the currently active project.
    */
+  @Cold
   private Completable syncFeatures(Optional<Project> project) {
     return project.map(featureRepository::syncFeatures).orElse(Completable.never());
   }
