@@ -16,16 +16,14 @@
 
 package com.google.android.gnd.repository;
 
-import androidx.annotation.NonNull;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.User;
 import com.google.android.gnd.persistence.local.LocalDataStore;
 import com.google.android.gnd.persistence.local.LocalValueStore;
 import com.google.android.gnd.persistence.remote.RemoteDataStore;
 import com.google.android.gnd.rx.Loadable;
-import com.google.android.gnd.rx.annotations.Events;
-import com.google.android.gnd.rx.annotations.LazyOperation;
-import com.google.android.gnd.rx.annotations.States;
+import com.google.android.gnd.rx.annotations.Cold;
+import com.google.android.gnd.rx.annotations.Hot;
 import com.google.common.collect.ImmutableList;
 import io.reactivex.Flowable;
 import io.reactivex.Single;
@@ -56,11 +54,11 @@ public class ProjectRepository {
   private final LocalValueStore localValueStore;
 
   /** Emits a project id on {@see #activateProject} and empty on {@see #clearActiveProject}. */
-  @Events
+  @Hot
   private final FlowableProcessor<Optional<String>> selectProjectEvent = PublishProcessor.create();
 
-  /** Emits the loading state of the current project on subscribe and on change. */
-  @States
+  /** Emits the latest loading state of the current project on subscribe and on change. */
+  @Hot(memoized = true)
   private final FlowableProcessor<Loadable<Project>> projectLoadingState =
       BehaviorProcessor.create();
 
@@ -83,7 +81,7 @@ public class ProjectRepository {
         .subscribe(projectLoadingState);
   }
 
-  @LazyOperation
+  @Cold
   private Flowable<Loadable<Project>> onSelectProject(Optional<String> projectId) {
     // Empty id indicates intent to deactivate the current project. Used on sign out.
     if (projectId.isEmpty()) {
@@ -96,6 +94,7 @@ public class ProjectRepository {
         .compose(Loadable::loadingOnceAndWrap);
   }
 
+  @Cold
   private Single<Project> getProject(String id) {
     return syncProjectWithRemote(id)
         .doOnSubscribe(__ -> Timber.d("Loading project %s", id))
@@ -108,6 +107,7 @@ public class ProjectRepository {
                     .doOnError(err -> Timber.e(err, "Error loading project from local db")));
   }
 
+  @Cold
   private Single<Project> syncProjectWithRemote(String id) {
     return remoteDataStore
         .loadProject(id)
@@ -115,21 +115,20 @@ public class ProjectRepository {
         .flatMap(p -> localDataStore.insertOrUpdateProject(p).toSingleDefault(p));
   }
 
-  @NonNull
   public Optional<String> getLastActiveProjectId() {
     return Optional.ofNullable(localValueStore.getLastActiveProjectId());
   }
 
   /**
-   * Returns an observable that emits the latest project activation state, and continues to emits
+   * Returns an observable that emits the latest project activation state, and continues to emit
    * changes to that state until all subscriptions are disposed.
    */
-  @States
+  @Hot(memoized = true)
   public Flowable<Loadable<Project>> getProjectLoadingState() {
     return projectLoadingState;
   }
 
-  @States
+  @Hot(memoized = true)
   public Flowable<Optional<Project>> getActiveProject() {
     return projectLoadingState.map(Loadable::value);
   }
@@ -139,6 +138,7 @@ public class ProjectRepository {
     selectProjectEvent.onNext(Optional.of(projectId));
   }
 
+  @Cold
   public Flowable<Loadable<List<Project>>> getProjectSummaries(User user) {
     return loadProjectSummariesFromRemote(user)
         .doOnSubscribe(__ -> Timber.d("Loading project list from remote"))
@@ -148,10 +148,12 @@ public class ProjectRepository {
         .compose(Loadable::loadingOnceAndWrap);
   }
 
+  @Cold
   public Single<ImmutableList<Project>> getOfflineProjects() {
     return localDataStore.getProjects();
   }
 
+  @Cold
   private Single<List<Project>> loadProjectSummariesFromRemote(User user) {
     return remoteDataStore
         .loadProjectSummaries(user)
