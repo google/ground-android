@@ -30,8 +30,7 @@ import com.google.android.gnd.persistence.remote.RemoteDataStore;
 import com.google.android.gnd.persistence.sync.DataSyncWorkManager;
 import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator;
 import com.google.android.gnd.rx.Loadable;
-import com.google.android.gnd.rx.annotations.LazyOperation;
-import com.google.android.gnd.rx.annotations.Snapshots;
+import com.google.android.gnd.rx.annotations.Cold;
 import com.google.android.gnd.system.auth.AuthenticationManager;
 import com.google.common.collect.ImmutableSet;
 import io.reactivex.Completable;
@@ -81,7 +80,7 @@ public class FeatureRepository {
    * subsequently syncing only remote changes. The returned stream never completes, and
    * subscriptions will only terminate on disposal.
    */
-  @LazyOperation
+  @Cold
   public Completable syncFeatures(Project project) {
     return remoteDataStore
         .loadFeaturesOnceAndStreamChanges(project)
@@ -89,7 +88,7 @@ public class FeatureRepository {
   }
 
   // TODO: Remove "feature" qualifier from this and other repository method names.
-  @LazyOperation
+  @Cold
   private Completable updateLocalFeature(RemoteDataEvent<Feature> event) {
     switch (event.getEventType()) {
       case ENTITY_LOADED:
@@ -107,14 +106,14 @@ public class FeatureRepository {
   }
 
   // TODO: Only return feature fields needed to render features on map.
-  @Snapshots
+  @Cold(finite = false)
   public Flowable<ImmutableSet<Feature>> getFeaturesOnceAndStream(Project project) {
     return localDataStore.getFeaturesOnceAndStream(project);
   }
 
   // TODO: Replace with Single and treat missing feature as error.
   // TODO: Don't require projectId to be the active project.
-  @LazyOperation
+  @Cold
   public Maybe<Feature> getFeature(String projectId, String featureId) {
     return projectRepository
         .getProjectLoadingState()
@@ -150,17 +149,17 @@ public class FeatureRepository {
   }
 
   // TODO(#80): Update UI to provide FeatureMutations instead of Features here.
-  @LazyOperation
+  @Cold
   public Completable createFeature(Feature feature) {
     return applyAndEnqueue(feature, Type.CREATE);
   }
 
-  @LazyOperation
+  @Cold
   public Completable updateFeature(Feature feature) {
     return applyAndEnqueue(feature, Type.UPDATE);
   }
 
-  @LazyOperation
+  @Cold
   public Completable deleteFeature(Feature feature) {
     return applyAndEnqueue(feature, Type.DELETE);
   }
@@ -173,7 +172,7 @@ public class FeatureRepository {
    * @param type Determines the {@link Type} of operation to be performed in the databases.
    * @return If successful, returns the provided feature wrapped as {@link Loadable}
    */
-  @LazyOperation
+  @Cold
   private Completable applyAndEnqueue(Feature feature, Type type) {
     Completable localTransaction = localDataStore.applyAndEnqueue(fromFeature(feature, type));
     Completable remoteSync = dataSyncWorkManager.enqueueSyncWorker(feature.getId());
