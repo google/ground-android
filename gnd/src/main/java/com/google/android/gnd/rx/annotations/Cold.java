@@ -60,4 +60,9 @@ public @interface Cold {
    * <code>onNext()</code> handlers.
    */
   boolean stateful() default false;
+
+  /**
+   * Indicates whether this observable records one or more items and replays them on subscription.
+   */
+  boolean memoized() default false;
 }
