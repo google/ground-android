@@ -23,38 +23,32 @@ import java.lang.annotation.Target;
 
 /**
  * Denotes a hot observable. In contrast to {@link Cold} observables, subscribing to a hot
- * observable has no side effects. As such, the producer pushing items to the stream must be created
- * outside the subscription callback. As a result, the following conclusions also hold:
+ * observable has no side effects. As such, the following assumptions hold:
  *
  * <ul>
- *   <li>Hot observables may start emitting items as soon as they're created. Observers only receive
- *       items emitted after subscribing, so items emitted before subscription might be missed.
+ *   <li>The operation producing items in the sequence (the producer) must be created and initiated
+ *       outside the subscription callback.
+ *   <li>Hot observables can start emitting items as soon as they're created. Observers only receive
+ *       items emitted after subscribing, so items emitted before subscription may be missed.
  *   <li>Assuming the producer supports multiple observers, hot observables support
  *       <i>multicasting</i>; they allow the same sequence to be shared with multiple observers.
  * </ul>
  *
- * <p>Note: Observables that replay values to late subscribers are considered hot because
- * subscribing to a these observables does not create a new producer. For example, subscribing to
- * {@link io.reactivex.subjects.ReplaySubject} will not cause upstream producers to be recreated;
- * upstream operations will not be reexecuted. Similarly, {@link
- * io.reactivex.subjects.BehaviorSubject} are not derived from other observables, and their
- * producers are independent of their existence.
+ * <p><b>Note:</b> Observables that memoize and replay values to late subscribers are still
+ * considered hot, since subscribing to such observables does not create a new producer. Subscribing
+ * to {@link io.reactivex.subjects.ReplaySubject}, for example, will replay previously emitted
+ * items, but it will not reexecute the operation that produced them.
  *
- * <p>Some operations on hot observables will result in cold ones. <code>switchMap</code> or <code>
- * flatMap</code> with a cold observable, for example, will result in a new cold observable, since
- * the act of subscribing causes to source stream to start emitting values to an observer which
- * creates new producers.
- *
- * <p>See ReactiveX <a href="http://reactivex.io/documentation/observable.html">Observable</a> and
- * <a href="https://github.com/ReactiveX/RxJava/blob/2.x/DESIGN.md">RxJava v2 Design</a> for
- * details.
+ * <p>See <a href="http://reactivex.io/documentation/observable.html">Observable</a> and <a
+ * href="https://github.com/ReactiveX/RxJava/blob/2.x/DESIGN.md">RxJava v2 Design</a> for additional
+ * definitions and background.
  */
 @Documented
 @Target({TYPE_USE})
 public @interface Hot {
   /**
-   * Indicates whether or not the observable is expected to terminate (<code>finite=true</code>), or
-   * whether is is expected to run indefinitely <code>finite=false</code>. Hot observables are
+   * Indicates whether this observable is expected to terminate (<code>finite=true</code>), or
+   * whether it is expected to run indefinitely (<code>finite=false</code>). Hot observables are
    * considered infinite by default.
    */
   boolean finite() default false;
@@ -66,4 +60,9 @@ public @interface Hot {
    * <code>onNext()</code> handlers.
    */
   boolean stateful() default false;
+
+  /**
+   * Indicates whether this observable records one or more items and replays them on subscription.
+   */
+  boolean memoized() default false;
 }
