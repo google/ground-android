@@ -52,7 +52,9 @@ public @interface Cold {
 
   /**
    * When true, indicates this observable records one or more items and replays them on
-   * subscription.
+   * subscription. This property is orthogonal to temperature ({@link Hot} vs {@link Cold}), since
+   * sequences emitted by an observer are considered the output or result of the observer, not a
+   * side effect.
    */
   boolean replays() default false;
 
