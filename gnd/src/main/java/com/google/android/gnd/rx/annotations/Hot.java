@@ -47,10 +47,16 @@ import java.lang.annotation.Target;
 @Target({TYPE_USE})
 public @interface Hot {
   /**
-   * When true, indicates this observable is finite; it is expected to terminate. When false, the
-   * observable is considered infinite.
+   * When true, indicates this observable may emit an error. When false, error states are handled
+   * upstream, so downstream observers do not need to * do so. When false,
    */
-  boolean terminates() default false;
+  boolean errors() default false;
+
+  /**
+   * When true, indicates this observable records one or more items and replays them on
+   * subscription.
+   */
+  boolean replays() default false;
 
   /**
    * When true, indicates items in this sequence are not independent, so the producer and observer
@@ -60,14 +66,8 @@ public @interface Hot {
   boolean stateful() default false;
 
   /**
-   * When true, indicates this observable records one or more items and replays them on
-   * subscription.
+   * When true, indicates this observable is finite; it is expected to terminate. When false, the
+   * observable is considered infinite.
    */
-  boolean replays() default false;
-
-  /**
-   * When true, indicates this observable may emit an error. When false, error states are handled
-   * upstream, so downstream observers do not need to * do so. When false,
-   */
-  boolean errors() default false;
+  boolean terminates() default true;
 }
