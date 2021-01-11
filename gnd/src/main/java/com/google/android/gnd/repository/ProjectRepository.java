@@ -58,7 +58,7 @@ public class ProjectRepository {
   private final FlowableProcessor<Optional<String>> selectProjectEvent = PublishProcessor.create();
 
   /** Emits the latest loading state of the current project on subscribe and on change. */
-  @Hot(memoized = true)
+  @Hot(replays = true)
   private final FlowableProcessor<Loadable<Project>> projectLoadingState =
       BehaviorProcessor.create();
 
@@ -123,12 +123,12 @@ public class ProjectRepository {
    * Returns an observable that emits the latest project activation state, and continues to emit
    * changes to that state until all subscriptions are disposed.
    */
-  @Hot(memoized = true)
+  @Hot(replays = true)
   public Flowable<Loadable<Project>> getProjectLoadingState() {
     return projectLoadingState;
   }
 
-  @Hot(memoized = true)
+  @Hot(replays = true)
   public Flowable<Optional<Project>> getActiveProject() {
     return projectLoadingState.map(Loadable::value);
   }
