@@ -50,7 +50,7 @@ public interface RemoteDataStore {
    * Returns all features in the specified project, then continues to emit any remote updates to the
    * set of features in the project until all subscribers have been disposed.
    */
-  @Cold(finite = false, stateful = true)
+  @Cold(stateful = true, terminates = false)
   Flowable<RemoteDataEvent<Feature>> loadFeaturesOnceAndStreamChanges(Project project);
 
   /**

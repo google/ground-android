@@ -22,7 +22,7 @@ import java.lang.annotation.Documented;
 import java.lang.annotation.Target;
 
 /**
- * Denotes a cold observable. Unlike {@link Hot} observables, cold observables have side effects
+ * Denotes a cold observable. Unlike {@link Hot} observables, cold observables may have side effects
  * when subscribed to. This interpretation has several consequences:
  *
  * <ul>
@@ -45,22 +45,27 @@ import java.lang.annotation.Target;
 @Target({TYPE_USE})
 public @interface Cold {
   /**
-   * Indicates whether this observable is expected to terminate (<code>finite=true</code>), or
-   * whether it is expected to run indefinitely (<code>finite=false</code>). Cold observables are
-   * considered finite by default.
+   * When true, indicates this observable may emit an error. When false, error states are handled
+   * upstream, so downstream observers do not need to * do so. When false,
    */
-  boolean finite() default true;
+  boolean errors() default false;
 
   /**
-   * Indicates whether the whole sequence must be received for its output to be useful (stateful),
-   * or whether values are independent (stateless). Stateful observables require the producer and
-   * observer to maintain state, while stateless observables allow observers to use idempotent
-   * <code>onNext()</code> handlers.
+   * When true, indicates this observable records one or more items and replays them on
+   * subscription.
+   */
+  boolean replays() default false;
+
+  /**
+   * When true, indicates items in this sequence are not independent, so the producer and observer
+   * must maintain state between emissions. When false, the observable is stateless, allowing
+   * idempotent observers to be applied.
    */
   boolean stateful() default false;
 
   /**
-   * Indicates whether this observable records one or more items and replays them on subscription.
+   * When true, indicates this observable is finite; it is expected to terminate. When false, the
+   * observable is considered infinite.
    */
-  boolean memoized() default false;
+  boolean terminates() default true;
 }

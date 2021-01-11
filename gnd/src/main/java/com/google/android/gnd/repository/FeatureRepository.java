@@ -106,7 +106,7 @@ public class FeatureRepository {
   }
 
   // TODO: Only return feature fields needed to render features on map.
-  @Cold(finite = false)
+  @Cold(terminates = false)
   public Flowable<ImmutableSet<Feature>> getFeaturesOnceAndStream(Project project) {
     return localDataStore.getFeaturesOnceAndStream(project);
   }
