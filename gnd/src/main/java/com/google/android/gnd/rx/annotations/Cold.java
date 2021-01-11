@@ -22,7 +22,7 @@ import java.lang.annotation.Documented;
 import java.lang.annotation.Target;
 
 /**
- * Denotes a cold observable. Unlike {@link Hot} observables, cold observables have side effects
+ * Denotes a cold observable. Unlike {@link Hot} observables, cold observables may have side effects
  * when subscribed to. This interpretation has several consequences:
  *
  * <ul>
