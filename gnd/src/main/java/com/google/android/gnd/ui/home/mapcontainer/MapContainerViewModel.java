@@ -76,11 +76,9 @@ public class MapContainerViewModel extends AbstractViewModel {
   private final LocationManager locationManager;
   private final FeatureRepository featureRepository;
 
-  @Hot(stateful = true)
-  private final Subject<Boolean> locationLockChangeRequests;
+  @Hot private final Subject<Boolean> locationLockChangeRequests;
 
-  @Hot(stateful = true)
-  private final Subject<CameraUpdate> cameraUpdateSubject;
+  @Hot private final Subject<CameraUpdate> cameraUpdateSubject;
 
   private final MutableLiveData<Integer> mapControlsVisibility = new MutableLiveData<>(VISIBLE);
   private final MutableLiveData<Integer> moveFeaturesVisibility = new MutableLiveData<>(GONE);
