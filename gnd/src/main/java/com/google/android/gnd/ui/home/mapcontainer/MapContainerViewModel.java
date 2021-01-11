@@ -38,6 +38,7 @@ import com.google.android.gnd.rx.Action;
 import com.google.android.gnd.rx.BooleanOrError;
 import com.google.android.gnd.rx.Event;
 import com.google.android.gnd.rx.Loadable;
+import com.google.android.gnd.rx.annotations.Hot;
 import com.google.android.gnd.system.LocationManager;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.common.SharedViewModel;
@@ -74,8 +75,11 @@ public class MapContainerViewModel extends AbstractViewModel {
   private final MutableLiveData<CameraPosition> cameraPosition;
   private final LocationManager locationManager;
   private final FeatureRepository featureRepository;
-  private final Subject<Boolean> locationLockChangeRequests;
-  private final Subject<CameraUpdate> cameraUpdateSubject;
+
+  @Hot private final Subject<Boolean> locationLockChangeRequests;
+
+  @Hot private final Subject<CameraUpdate> cameraUpdateSubject;
+
   private final MutableLiveData<Integer> mapControlsVisibility = new MutableLiveData<>(VISIBLE);
   private final MutableLiveData<Integer> moveFeaturesVisibility = new MutableLiveData<>(GONE);
   private final MutableLiveData<Action> selectMapTypeClicks = new MutableLiveData<>();

@@ -23,6 +23,7 @@ import com.google.android.gnd.persistence.local.LocalDataStore;
 import com.google.android.gnd.persistence.local.LocalValueStore;
 import com.google.android.gnd.persistence.remote.RemoteDataStore;
 import com.google.android.gnd.rx.Loadable;
+import com.google.android.gnd.rx.annotations.Cold;
 import com.google.common.collect.ImmutableList;
 import io.reactivex.Flowable;
 import io.reactivex.Single;
@@ -49,7 +50,7 @@ public class ProjectRepository {
   private final InMemoryCache cache;
   private final LocalDataStore localDataStore;
   private final RemoteDataStore remoteDataStore;
-  private final Flowable<Loadable<Project>> activeProjectStream;
+  @Cold private final Flowable<Loadable<Project>> activeProjectStream;
   private final FlowableProcessor<Optional<String>> activateProjectRequests;
   private final LocalValueStore localValueStore;
 
@@ -150,9 +151,7 @@ public class ProjectRepository {
         .timeout(LOAD_REMOTE_PROJECT_SUMMARIES_TIMEOUT_SECS, TimeUnit.SECONDS);
   }
 
-  /**
-   * Clears the currently active project from cache and from local localValueStore.
-   */
+  /** Clears the currently active project from cache and from local localValueStore. */
   public void clearActiveProject() {
     cache.clear();
     localValueStore.clearLastActiveProjectId();
