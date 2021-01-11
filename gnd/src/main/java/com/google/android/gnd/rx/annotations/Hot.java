@@ -70,5 +70,5 @@ public @interface Hot {
    * When true, indicates this observable is finite; it is expected to terminate. When false, the
    * observable is considered infinite.
    */
-  boolean terminates() default true;
+  boolean terminates() default false;
 }
