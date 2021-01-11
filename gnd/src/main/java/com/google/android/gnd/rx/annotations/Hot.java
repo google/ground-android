@@ -34,10 +34,9 @@ import java.lang.annotation.Target;
  *       <i>multicasting</i>; they allow the same sequence to be shared with multiple observers.
  * </ul>
  *
- * <p><b>Note:</b> Observables that memoize and replay values to late subscribers are still
- * considered hot, since subscribing to such observables does not create a new producer. Subscribing
- * to {@link io.reactivex.subjects.ReplaySubject}, for example, will replay previously emitted
- * items, but it will not reexecute the operation that produced them.
+ * <p>Unless otherwise specified, an observable annotated with {@link Hot} may emit {@link
+ * #errors()}, never {@link #replays()} items, is not {@link #stateful()}, and never {@link
+ * #terminates()}.
  *
  * <p>See <a href="http://reactivex.io/documentation/observable.html">Observable</a> and <a
  * href="https://github.com/ReactiveX/RxJava/blob/2.x/DESIGN.md">RxJava v2 Design</a> for additional
@@ -54,7 +53,9 @@ public @interface Hot {
 
   /**
    * When true, indicates this observable records one or more items and replays them on
-   * subscription.
+   * subscription. This property is orthogonal to temperature ({@link Hot} vs {@link Cold}), since
+   * sequences emitted by an observer are considered the output or result of the observer, not a
+   * side effect.
    */
   boolean replays() default false;
 
@@ -69,5 +70,5 @@ public @interface Hot {
    * When true, indicates this observable is finite; it is expected to terminate. When false, the
    * observable is considered infinite.
    */
-  boolean terminates() default true;
+  boolean terminates() default false;
 }

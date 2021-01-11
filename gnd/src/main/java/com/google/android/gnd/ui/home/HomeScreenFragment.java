@@ -108,7 +108,7 @@ public class HomeScreenFragment extends AbstractFragment
     projectSelectorViewModel = getViewModel(ProjectSelectorViewModel.class);
 
     viewModel = getViewModel(HomeScreenViewModel.class);
-    viewModel.getActiveProject().observe(this, this::onActiveProjectChange);
+    viewModel.getProjectLoadingState().observe(this, this::onActiveProjectChange);
     viewModel
         .getShowAddFeatureDialogRequests()
         .observe(this, e -> e.ifUnhandled(this::onShowAddFeatureDialogRequest));
@@ -221,7 +221,7 @@ public class HomeScreenFragment extends AbstractFragment
     }
 
     // Highlight active project
-    Loadable.getValue(viewModel.getActiveProject())
+    Loadable.getValue(viewModel.getProjectLoadingState())
         .ifPresent(project -> updateSelectedProjectUI(getSelectedProjectIndex(project)));
   }
 
@@ -406,7 +406,7 @@ public class HomeScreenFragment extends AbstractFragment
   }
 
   private void onShowAddFeatureDialogRequest(Point point) {
-    Loadable.getValue(viewModel.getActiveProject())
+    Loadable.getValue(viewModel.getProjectLoadingState())
         .ifPresentOrElse(
             project -> {
               // TODO: Pause location updates while dialog is open.

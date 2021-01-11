@@ -53,7 +53,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
   private final FeatureRepository featureRepository;
 
   /** The state and value of the currently active project (loading, loaded, etc.). */
-  private final LiveData<Loadable<Project>> activeProject;
+  private final LiveData<Loadable<Project>> projectLoadingState;
 
   // TODO: Move into MapContainersViewModel
   private final MutableLiveData<Event<Point>> addFeatureDialogRequests;
@@ -83,9 +83,11 @@ public class HomeScreenViewModel extends AbstractViewModel {
     this.bottomSheetState = new MutableLiveData<>();
     this.navigator = navigator;
 
-    activeProject =
+    projectLoadingState =
         LiveDataReactiveStreams.fromPublisher(
-            projectRepository.getActiveProjectOnceAndStream().doAfterNext(this::onActivateProject));
+            projectRepository
+                .getProjectLoadingState()
+                .doAfterNext(this::onProjectLoadingStateChange));
     addFeatureResults =
         LiveDataReactiveStreams.fromPublisher(
             addFeatureClicks.switchMapSingle(
@@ -112,7 +114,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
   }
 
   /** Handle state of the UI elements depending upon the active project. */
-  private void onActivateProject(Loadable<Project> project) {
+  private void onProjectLoadingStateChange(Loadable<Project> project) {
     addFeatureButtonVisibility.postValue(shouldShowAddFeatureButton(project) ? VISIBLE : GONE);
   }
 
@@ -172,8 +174,8 @@ public class HomeScreenViewModel extends AbstractViewModel {
     openDrawerRequests.setValue(Action.create());
   }
 
-  public LiveData<Loadable<Project>> getActiveProject() {
-    return activeProject;
+  public LiveData<Loadable<Project>> getProjectLoadingState() {
+    return projectLoadingState;
   }
 
   public LiveData<Event<Point>> getShowAddFeatureDialogRequests() {
@@ -236,7 +238,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
 
   public void init() {
     // Last active project will be loaded once view subscribes to activeProject.
-    projectRepository.getLastActiveProjectId().ifPresent(projectRepository::activateProject);
+    projectRepository.getLastActiveProjectId().ifPresent(projectRepository::onSelectProject);
   }
 
   public void showOfflineAreas() {

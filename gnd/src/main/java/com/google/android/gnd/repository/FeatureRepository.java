@@ -116,7 +116,7 @@ public class FeatureRepository {
   @Cold
   public Maybe<Feature> getFeature(String projectId, String featureId) {
     return projectRepository
-        .getActiveProjectOnceAndStream()
+        .getProjectLoadingState()
         .compose(Loadable::values)
         .firstElement()
         .filter(project -> project.getId().equals(projectId))
