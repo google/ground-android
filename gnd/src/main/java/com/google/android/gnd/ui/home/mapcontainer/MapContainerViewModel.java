@@ -18,6 +18,8 @@ package com.google.android.gnd.ui.home.mapcontainer;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
+import static com.google.android.gnd.rx.annotations.ObservableProperty.INFINITE;
+import static com.google.android.gnd.rx.annotations.ObservableProperty.STATEFUL;
 import static com.google.android.gnd.util.ImmutableSetCollector.toImmutableSet;
 import static java8.util.stream.StreamSupport.stream;
 
@@ -76,10 +78,10 @@ public class MapContainerViewModel extends AbstractViewModel {
   private final LocationManager locationManager;
   private final FeatureRepository featureRepository;
 
-  @Hot(stateful = true)
+  @Hot({INFINITE, STATEFUL})
   private final Subject<Boolean> locationLockChangeRequests;
 
-  @Hot(stateful = true)
+  @Hot({INFINITE, STATEFUL})
   private final Subject<CameraUpdate> cameraUpdateSubject;
 
   private final MutableLiveData<Integer> mapControlsVisibility = new MutableLiveData<>(VISIBLE);

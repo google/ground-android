@@ -16,6 +16,9 @@
 
 package com.google.android.gnd.persistence.remote;
 
+import static com.google.android.gnd.rx.annotations.ObservableProperty.INFINITE;
+import static com.google.android.gnd.rx.annotations.ObservableProperty.STATEFUL;
+
 import androidx.annotation.Nullable;
 import com.google.android.gnd.model.Mutation;
 import com.google.android.gnd.model.Project;
@@ -50,7 +53,7 @@ public interface RemoteDataStore {
    * Returns all features in the specified project, then continues to emit any remote updates to the
    * set of features in the project until all subscribers have been disposed.
    */
-  @Cold(finite = false, stateful = true)
+  @Cold({STATEFUL, INFINITE})
   Flowable<RemoteDataEvent<Feature>> loadFeaturesOnceAndStreamChanges(Project project);
 
   /**

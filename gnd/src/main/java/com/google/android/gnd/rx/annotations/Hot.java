@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.rx.annotations;
 
+import static com.google.android.gnd.rx.annotations.ObservableProperty.INFINITE;
 import static java.lang.annotation.ElementType.TYPE_USE;
 
 import java.lang.annotation.Documented;
@@ -34,11 +35,6 @@ import java.lang.annotation.Target;
  *       <i>multicasting</i>; they allow the same sequence to be shared with multiple observers.
  * </ul>
  *
- * <p><b>Note:</b> Observables that memoize and replay values to late subscribers are still
- * considered hot, since subscribing to such observables does not create a new producer. Subscribing
- * to {@link io.reactivex.subjects.ReplaySubject}, for example, will replay previously emitted
- * items, but it will not reexecute the operation that produced them.
- *
  * <p>See <a href="http://reactivex.io/documentation/observable.html">Observable</a> and <a
  * href="https://github.com/ReactiveX/RxJava/blob/2.x/DESIGN.md">RxJava v2 Design</a> for additional
  * definitions and background.
@@ -46,23 +42,7 @@ import java.lang.annotation.Target;
 @Documented
 @Target({TYPE_USE})
 public @interface Hot {
-  /**
-   * Indicates whether this observable is expected to terminate (<code>finite=true</code>), or
-   * whether it is expected to run indefinitely (<code>finite=false</code>). Hot observables are
-   * considered infinite by default.
-   */
-  boolean finite() default false;
 
-  /**
-   * Indicates whether the whole sequence must be received for its output to be useful (stateful),
-   * or whether values are independent (stateless). Stateful observables require the producer and
-   * observer to maintain state, while stateless observables allow observers to use idempotent
-   * <code>onNext()</code> handlers.
-   */
-  boolean stateful() default false;
-
-  /**
-   * Indicates whether this observable records one or more items and replays them on subscription.
-   */
-  boolean memoized() default false;
+  /** List of non-default observable behaviors that influence observer behaviors and assumptions. */
+  ObservableProperty[] value() default {INFINITE};
 }

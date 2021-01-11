@@ -16,6 +16,9 @@
 
 package com.google.android.gnd.persistence.remote.firestore;
 
+import static com.google.android.gnd.rx.annotations.ObservableProperty.INFINITE;
+import static com.google.android.gnd.rx.annotations.ObservableProperty.STATEFUL;
+
 import com.google.android.gms.tasks.Task;
 import com.google.android.gnd.model.Mutation;
 import com.google.android.gnd.model.Project;
@@ -32,6 +35,7 @@ import com.google.android.gnd.persistence.remote.firestore.schema.GroundFirestor
 import com.google.android.gnd.rx.RxTask;
 import com.google.android.gnd.rx.Schedulers;
 import com.google.android.gnd.rx.ValueOrError;
+import com.google.android.gnd.rx.annotations.Cold;
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
 import com.google.firebase.firestore.WriteBatch;
@@ -63,6 +67,7 @@ public class FirestoreDataStore implements RemoteDataStore {
         .subscribeOn(schedulers.io());
   }
 
+  @Cold
   @Override
   public Single<ImmutableList<ValueOrError<Observation>>> loadObservations(Feature feature) {
     return db.projects()
@@ -77,6 +82,7 @@ public class FirestoreDataStore implements RemoteDataStore {
     return db.projects().getReadable(user).subscribeOn(schedulers.io());
   }
 
+  @Cold({STATEFUL, INFINITE})
   @Override
   public Flowable<RemoteDataEvent<Feature>> loadFeaturesOnceAndStreamChanges(Project project) {
     return db.projects()

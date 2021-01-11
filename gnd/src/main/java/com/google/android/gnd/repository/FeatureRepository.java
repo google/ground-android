@@ -16,6 +16,8 @@
 
 package com.google.android.gnd.repository;
 
+import static com.google.android.gnd.rx.annotations.ObservableProperty.INFINITE;
+
 import com.google.android.gnd.model.AuditInfo;
 import com.google.android.gnd.model.Mutation.Type;
 import com.google.android.gnd.model.Project;
@@ -106,7 +108,7 @@ public class FeatureRepository {
   }
 
   // TODO: Only return feature fields needed to render features on map.
-  @Cold(finite = false)
+  @Cold({INFINITE})
   public Flowable<ImmutableSet<Feature>> getFeaturesOnceAndStream(Project project) {
     return localDataStore.getFeaturesOnceAndStream(project);
   }

@@ -44,23 +44,9 @@ import java.lang.annotation.Target;
 @Documented
 @Target({TYPE_USE})
 public @interface Cold {
-  /**
-   * Indicates whether this observable is expected to terminate (<code>finite=true</code>), or
-   * whether it is expected to run indefinitely (<code>finite=false</code>). Cold observables are
-   * considered finite by default.
-   */
-  boolean finite() default true;
 
   /**
-   * Indicates whether the whole sequence must be received for its output to be useful (stateful),
-   * or whether values are independent (stateless). Stateful observables require the producer and
-   * observer to maintain state, while stateless observables allow observers to use idempotent
-   * <code>onNext()</code> handlers.
+   * By default, cold observables are considered finite and stateless
    */
-  boolean stateful() default false;
-
-  /**
-   * Indicates whether this observable records one or more items and replays them on subscription.
-   */
-  boolean memoized() default false;
+  ObservableProperty[] value() default {};
 }

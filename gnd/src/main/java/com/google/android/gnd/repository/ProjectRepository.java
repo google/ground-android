@@ -16,6 +16,9 @@
 
 package com.google.android.gnd.repository;
 
+import static com.google.android.gnd.rx.annotations.ObservableProperty.INFINITE;
+import static com.google.android.gnd.rx.annotations.ObservableProperty.REPLAY;
+
 import androidx.annotation.NonNull;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.User;
@@ -50,7 +53,10 @@ public class ProjectRepository {
   private final InMemoryCache cache;
   private final LocalDataStore localDataStore;
   private final RemoteDataStore remoteDataStore;
-  @Cold private final Flowable<Loadable<Project>> activeProjectStream;
+
+  @Cold({INFINITE, REPLAY})
+  private final Flowable<Loadable<Project>> activeProjectStream;
+
   private final FlowableProcessor<Optional<String>> activateProjectRequests;
   private final LocalValueStore localValueStore;
 
