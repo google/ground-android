@@ -37,6 +37,10 @@ import java.lang.annotation.Target;
  *       an observer subscribing "too late".
  * </ul>
  *
+ * <p>Unless otherwise specified, an observable annotated with {@link Cold} may emit {@link
+ * #errors()}, never {@link #replays()} items, is not {@link #stateful()}, and eventually {@link
+ * #terminates()}.
+ *
  * <p>See <a href="http://reactivex.io/documentation/observable.html">Observable</a> and <a
  * href="https://github.com/ReactiveX/RxJava/blob/2.x/DESIGN.md">RxJava v2 Design</a> for additional
  * definitions and background.
