@@ -20,7 +20,9 @@ import android.annotation.SuppressLint;
 import com.cocoahero.android.gmaps.addons.mapbox.MapBoxOfflineTileProvider;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gnd.model.feature.Point;
+import com.google.android.gnd.rx.annotations.Hot;
 import com.google.common.collect.ImmutableSet;
+import io.reactivex.Flowable;
 import io.reactivex.Observable;
 
 /**
@@ -30,15 +32,18 @@ import io.reactivex.Observable;
 public interface MapAdapter {
 
   /** Returns a stream that emits map pins clicked by the user. */
+  @Hot
   Observable<MapPin> getMapPinClicks();
 
   /**
    * Returns a stream that emits the new viewport center each time the map is dragged by the user.
    */
-  Observable<Point> getDragInteractions();
+  @Hot
+  Flowable<Point> getDragInteractions();
 
   /** Returns a stream that emits the camera position on each camera movement. */
-  Observable<CameraPosition> getCameraMoves();
+  @Hot
+  Flowable<CameraPosition> getCameraMoves();
 
   /** Enables map gestures like pan and zoom. */
   void enable();
@@ -48,6 +53,7 @@ public interface MapAdapter {
 
   /**
    * Repositions the camera.
+   *
    * @param position the new position
    */
   void moveCamera(CameraPosition position);
@@ -92,6 +98,8 @@ public interface MapAdapter {
   /** Renders a tile overlay on the map. */
   void addTileOverlays(ImmutableSet<String> mbtilesFiles);
 
+  // TODO(#691): Create interface and impl to encapsulate MapBoxOfflineTileProvider impl.
   /** Get the stream of TileProviders associated with this map adapter. */
+  @Hot
   Observable<MapBoxOfflineTileProvider> getTileProviders();
 }
