@@ -80,13 +80,13 @@ class GoogleMapsMapAdapter implements MapAdapter {
   private final Context context;
   private final MarkerIconFactory markerIconFactory;
 
-  /** Emits marker clicks. */
+  /** Marker click events. */
   @Hot private final Subject<MapPin> markerClicks = PublishSubject.create();
 
-  /** Emits items repeatedly while the map is being dragged. */
+  /** Map drag events. Emits items repeatedly while the map is being dragged. */
   @Hot private final FlowableProcessor<Point> dragInteractions = PublishProcessor.create();
 
-  /** Emits items repeatedly while camera is in motion. */
+  /** Camera move events. Emits items repeatedly while camera is in motion. */
   @Hot private final FlowableProcessor<CameraPosition> cameraMoves = PublishProcessor.create();
 
   // TODO(#693): Simplify impl of tile providers.
@@ -180,13 +180,13 @@ class GoogleMapsMapAdapter implements MapAdapter {
   @Hot
   @Override
   public Flowable<Point> getDragInteractions() {
-    return dragInteractions;
+    return dragInteractions.onBackpressureLatest();
   }
 
   @Hot
   @Override
   public Flowable<CameraPosition> getCameraMoves() {
-    return cameraMoves;
+    return cameraMoves.onBackpressureLatest();
   }
 
   @Hot

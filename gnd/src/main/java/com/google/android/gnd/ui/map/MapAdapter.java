@@ -31,17 +31,23 @@ import io.reactivex.Observable;
  */
 public interface MapAdapter {
 
-  /** Returns a stream that emits map pins clicked by the user. */
+  /** Returns marker click events. */
   @Hot
   Observable<MapPin> getMapPinClicks();
 
   /**
-   * Returns a stream that emits the new viewport center each time the map is dragged by the user.
+   * Returns map drag events. Emits the new viewport center each time the map is dragged by the
+   * user. Subscribers that can't keep up receive the latest event ({@link
+   * Flowable#onBackpressureLatest()}).
    */
   @Hot
   Flowable<Point> getDragInteractions();
 
-  /** Returns a stream that emits the camera position on each camera movement. */
+  /**
+   * Returns camera move events. Emits the new camera position each time the map pans or zooms.
+   * Subscribers that can't keep up receive the latest event ({@link
+   * Flowable#onBackpressureLatest()}).
+   */
   @Hot
   Flowable<CameraPosition> getCameraMoves();
 
@@ -99,7 +105,7 @@ public interface MapAdapter {
   void addTileOverlays(ImmutableSet<String> mbtilesFiles);
 
   // TODO(#691): Create interface and impl to encapsulate MapBoxOfflineTileProvider impl.
-  /** Get the stream of TileProviders associated with this map adapter. */
+  /** Returns TileProviders associated with this map adapter. */
   @Hot
   Observable<MapBoxOfflineTileProvider> getTileProviders();
 }
