@@ -38,6 +38,7 @@ import com.google.android.gnd.rx.Action;
 import com.google.android.gnd.rx.BooleanOrError;
 import com.google.android.gnd.rx.Event;
 import com.google.android.gnd.rx.Loadable;
+import com.google.android.gnd.rx.annotations.Hot;
 import com.google.android.gnd.system.LocationManager;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.common.SharedViewModel;
@@ -67,15 +68,19 @@ public class MapContainerViewModel extends AbstractViewModel {
   private static final float DEFAULT_MAP_ZOOM_LEVEL = 0.0f;
   private static final Point DEFAULT_MAP_POINT =
       Point.newBuilder().setLatitude(0.0).setLongitude(0.0).build();
-  private final LiveData<Loadable<Project>> activeProject;
+
+  private final LiveData<Loadable<Project>> projectLoadingState;
   private final LiveData<ImmutableSet<MapFeature>> mapFeatures;
   private final LiveData<BooleanOrError> locationLockState;
   private final LiveData<Event<CameraUpdate>> cameraUpdateRequests;
   private final MutableLiveData<CameraPosition> cameraPosition;
   private final LocationManager locationManager;
   private final FeatureRepository featureRepository;
-  private final Subject<Boolean> locationLockChangeRequests;
-  private final Subject<CameraUpdate> cameraUpdateSubject;
+
+  @Hot private final Subject<Boolean> locationLockChangeRequests;
+
+  @Hot private final Subject<CameraUpdate> cameraUpdateSubject;
+
   private final MutableLiveData<Integer> mapControlsVisibility = new MutableLiveData<>(VISIBLE);
   private final MutableLiveData<Integer> moveFeaturesVisibility = new MutableLiveData<>(GONE);
   private final MutableLiveData<Action> selectMapTypeClicks = new MutableLiveData<>();
@@ -117,16 +122,15 @@ public class MapContainerViewModel extends AbstractViewModel {
             createCameraUpdateFlowable(locationLockStateFlowable));
     this.cameraPosition =
         new MutableLiveData<>(new CameraPosition(DEFAULT_MAP_POINT, DEFAULT_MAP_ZOOM_LEVEL));
-    this.activeProject =
-        LiveDataReactiveStreams.fromPublisher(projectRepository.getActiveProjectOnceAndStream());
+    this.projectLoadingState =
+        LiveDataReactiveStreams.fromPublisher(projectRepository.getProjectLoadingState());
     // TODO: Clear feature markers when project is deactivated.
     // TODO: Since we depend on project stream from repo anyway, this transformation can be moved
     // into the repo?
     this.mapFeatures =
         LiveDataReactiveStreams.fromPublisher(
             projectRepository
-                .getActiveProjectOnceAndStream()
-                .map(Loadable::value)
+                .getActiveProject()
                 .switchMap(this::getFeaturesStream)
                 .map(MapContainerViewModel::toMapFeatures));
     this.mbtilesFilePaths =
@@ -227,8 +231,8 @@ public class MapContainerViewModel extends AbstractViewModel {
     selectMapTypeClicks.postValue(Action.create());
   }
 
-  public LiveData<Loadable<Project>> getActiveProject() {
-    return activeProject;
+  public LiveData<Loadable<Project>> getProjectLoadingState() {
+    return projectLoadingState;
   }
 
   public LiveData<ImmutableSet<MapFeature>> getMapFeatures() {

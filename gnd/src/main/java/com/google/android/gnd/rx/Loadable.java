@@ -83,7 +83,7 @@ public class Loadable<T> extends ValueOrError<T> {
   }
 
   /**
-   * Returns a {@link Flowable} that first emits the LOADING, then maps values emitted from the
+   * Returns a {@link Flowable} that first emits LOADING, then maps values emitted from the
    * source stream to {@code Loadable}s with a LOADED {@code Loadable}. Errors in the provided
    * stream are handled and wrapped in a {@code Loadable} with state ERROR. The returned stream
    * itself should never fail with an error.
