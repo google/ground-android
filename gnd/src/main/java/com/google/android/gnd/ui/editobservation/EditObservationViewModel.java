@@ -56,7 +56,6 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 import timber.log.Timber;
 
-// TODO: Save draft to local db on each change.
 public class EditObservationViewModel extends AbstractViewModel {
 
   // TODO: Move out of id and into fragment args.
