@@ -23,7 +23,6 @@ import android.text.format.DateFormat;
 import android.view.View;
 import android.view.View.OnClickListener;
 import androidx.annotation.Nullable;
-import androidx.databinding.ObservableField;
 import androidx.lifecycle.MutableLiveData;
 import com.google.android.gnd.model.AuditInfo;
 import com.google.android.gnd.model.User;
@@ -36,9 +35,15 @@ import javax.inject.Inject;
 
 public class ObservationViewModel extends AbstractViewModel implements OnClickListener {
 
-  public final ObservableField<String> userName;
-  public final ObservableField<String> modifiedDate;
-  public final ObservableField<String> modifiedTime;
+  @Hot(replays = true)
+  public final MutableLiveData<String> userName = new MutableLiveData<>();
+
+  @Hot(replays = true)
+  public final MutableLiveData<String> modifiedDate = new MutableLiveData<>();
+
+  @Hot(replays = true)
+  public final MutableLiveData<String> modifiedTime = new MutableLiveData<>();
+
   private final Application application;
 
   @Nullable private Consumer<Observation> observationCallback;
@@ -49,9 +54,6 @@ public class ObservationViewModel extends AbstractViewModel implements OnClickLi
   @Inject
   ObservationViewModel(Application application) {
     this.application = application;
-    userName = new ObservableField<>();
-    modifiedDate = new ObservableField<>();
-    modifiedTime = new ObservableField<>();
   }
 
   @Override
@@ -66,9 +68,9 @@ public class ObservationViewModel extends AbstractViewModel implements OnClickLi
     AuditInfo created = observation.getCreated();
     User createdBy = created.getUser();
     Date creationTime = created.getClientTimestamp();
-    userName.set(createdBy.getDisplayName());
-    modifiedDate.set(DateFormat.getMediumDateFormat(application).format(creationTime));
-    modifiedTime.set(DateFormat.getTimeFormat(application).format(creationTime));
+    userName.setValue(createdBy.getDisplayName());
+    modifiedDate.setValue(DateFormat.getMediumDateFormat(application).format(creationTime));
+    modifiedTime.setValue(DateFormat.getTimeFormat(application).format(creationTime));
   }
 
   void setObservationCallback(Consumer<Observation> observationCallback) {

@@ -16,9 +16,9 @@
 
 package com.google.android.gnd.ui.home.featuredetails;
 
-import androidx.databinding.ObservableField;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
+import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.rx.annotations.Hot;
@@ -31,16 +31,15 @@ import javax.inject.Inject;
 @SharedViewModel
 public class FeatureDetailsViewModel extends ViewModel {
 
-  public final ObservableField<Optional<Feature>> feature;
+  @Hot(replays = true)
+  public final MutableLiveData<Optional<Feature>> feature = new MutableLiveData<>();
 
   @Hot(replays = true)
   private final BehaviorProcessor<Optional<Feature>> selectedFeature =
       BehaviorProcessor.createDefault(Optional.empty());
 
   @Inject
-  public FeatureDetailsViewModel() {
-    feature = new ObservableField<>();
-  }
+  public FeatureDetailsViewModel() {}
 
   /**
    * Returns a LiveData that immediately emits the selected feature (or empty) on if none selected
@@ -57,7 +56,7 @@ public class FeatureDetailsViewModel extends ViewModel {
     }
 
     Optional<Feature> featureOptional = state.getFeature();
-    feature.set(featureOptional);
+    feature.setValue(featureOptional);
     selectedFeature.onNext(featureOptional);
   }
 }

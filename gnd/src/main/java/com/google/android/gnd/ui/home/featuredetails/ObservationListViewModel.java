@@ -16,9 +16,9 @@
 
 package com.google.android.gnd.ui.home.featuredetails;
 
-import androidx.databinding.ObservableBoolean;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
+import androidx.lifecycle.MutableLiveData;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.form.Form;
@@ -36,7 +36,9 @@ import timber.log.Timber;
 
 public class ObservationListViewModel extends AbstractViewModel {
 
-  public final ObservableBoolean isLoading = new ObservableBoolean(false);
+  @Hot(replays = true)
+  public final MutableLiveData<Boolean> isLoading = new MutableLiveData(false);
+
   private final ObservationRepository observationRepository;
 
   @Hot
@@ -51,9 +53,9 @@ public class ObservationListViewModel extends AbstractViewModel {
     observationList =
         LiveDataReactiveStreams.fromPublisher(
             observationListRequests
-                .doOnNext(__ -> isLoading.set(true))
+                .doOnNext(__ -> isLoading.postValue(true))
                 .switchMapSingle(this::getObservations)
-                .doOnNext(__ -> isLoading.set(false)));
+                .doOnNext(__ -> isLoading.postValue(false)));
   }
 
   public LiveData<ImmutableList<Observation>> getObservations() {
