@@ -33,6 +33,7 @@ public interface RemoteStorageManager {
   @Cold
   Single<Uri> getDownloadUrl(String remoteDestinationPath);
 
-  /** Uploads file to a remote path. */
+  /** Uploads file to a remote path, streaming progress in the returned {@link Flowable}. */
+  @Cold
   Flowable<TransferProgress> uploadMediaFromFile(File file, String remoteDestinationPath);
 }
