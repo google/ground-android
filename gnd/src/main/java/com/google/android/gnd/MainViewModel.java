@@ -16,11 +16,12 @@
 
 package com.google.android.gnd;
 
+import static com.google.android.gnd.rx.RxTransformers.switchMapIf;
+
 import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import com.google.android.gnd.model.Project;
-import com.google.android.gnd.model.User;
 import com.google.android.gnd.repository.FeatureRepository;
 import com.google.android.gnd.repository.ProjectRepository;
 import com.google.android.gnd.repository.UserRepository;
@@ -29,6 +30,7 @@ import com.google.android.gnd.rx.annotations.Cold;
 import com.google.android.gnd.rx.annotations.Hot;
 import com.google.android.gnd.system.auth.AuthenticationManager;
 import com.google.android.gnd.system.auth.SignInState;
+import com.google.android.gnd.system.auth.SignInState.State;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.common.EphemeralPopups;
 import com.google.android.gnd.ui.common.Navigator;
@@ -36,7 +38,6 @@ import com.google.android.gnd.ui.common.SharedViewModel;
 import com.google.android.gnd.ui.home.HomeScreenFragmentDirections;
 import com.google.android.gnd.ui.signin.SignInFragmentDirections;
 import io.reactivex.Completable;
-import io.reactivex.Observable;
 import java8.util.Optional;
 import javax.inject.Inject;
 import timber.log.Timber;
@@ -85,7 +86,7 @@ public class MainViewModel extends AbstractViewModel {
     disposeOnClear(
         authenticationManager
             .getSignInState()
-            .switchMap(this::saveUserOnSignIn)
+            .compose(switchMapIf(s -> s.state() == State.SIGNED_IN, this::saveUser))
             .observeOn(schedulers.ui())
             .subscribe(this::onSignInStateChange));
   }
@@ -111,13 +112,8 @@ public class MainViewModel extends AbstractViewModel {
   }
 
   @Cold
-  private Observable<SignInState> saveUserOnSignIn(SignInState signInState) {
-    Optional<User> user = signInState.getUser();
-    if (user.isPresent()) {
-      return userRepository.saveUser(user.get()).andThen(Observable.just(signInState));
-    } else {
-      return Observable.just(signInState);
-    }
+  private Completable saveUser(SignInState signInState) {
+    return userRepository.saveUser(signInState.getUser().get());
   }
 
   private void onSignInStateChange(SignInState signInState) {
