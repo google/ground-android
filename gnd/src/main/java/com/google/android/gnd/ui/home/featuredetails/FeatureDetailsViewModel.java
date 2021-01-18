@@ -21,6 +21,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
 import androidx.lifecycle.ViewModel;
 import com.google.android.gnd.model.feature.Feature;
+import com.google.android.gnd.rx.annotations.Hot;
 import com.google.android.gnd.ui.common.SharedViewModel;
 import com.google.android.gnd.ui.home.BottomSheetState;
 import io.reactivex.processors.BehaviorProcessor;
@@ -31,12 +32,14 @@ import javax.inject.Inject;
 public class FeatureDetailsViewModel extends ViewModel {
 
   public final ObservableField<Optional<Feature>> feature;
-  private final BehaviorProcessor<Optional<Feature>> selectedFeature;
+
+  @Hot(replays = true)
+  private final BehaviorProcessor<Optional<Feature>> selectedFeature =
+      BehaviorProcessor.createDefault(Optional.empty());
 
   @Inject
   public FeatureDetailsViewModel() {
     feature = new ObservableField<>();
-    selectedFeature = BehaviorProcessor.createDefault(Optional.empty());
   }
 
   /**

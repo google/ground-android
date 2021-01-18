@@ -33,6 +33,7 @@ import com.google.android.gnd.repository.ProjectRepository;
 import com.google.android.gnd.rx.Action;
 import com.google.android.gnd.rx.Event;
 import com.google.android.gnd.rx.Loadable;
+import com.google.android.gnd.rx.annotations.Hot;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.SharedViewModel;
@@ -61,9 +62,9 @@ public class HomeScreenViewModel extends AbstractViewModel {
   private final MutableLiveData<Action> openDrawerRequests;
   private final MutableLiveData<BottomSheetState> bottomSheetState;
 
-  private final FlowableProcessor<Feature> addFeatureClicks = PublishProcessor.create();
-  private final FlowableProcessor<Feature> updateFeatureRequests = PublishProcessor.create();
-  private final FlowableProcessor<Feature> deleteFeatureRequests = PublishProcessor.create();
+  @Hot private final FlowableProcessor<Feature> addFeatureClicks = PublishProcessor.create();
+  @Hot private final FlowableProcessor<Feature> updateFeatureRequests = PublishProcessor.create();
+  @Hot private final FlowableProcessor<Feature> deleteFeatureRequests = PublishProcessor.create();
 
   private final LiveData<Feature> addFeatureResults;
   private final LiveData<Boolean> updateFeatureResults;

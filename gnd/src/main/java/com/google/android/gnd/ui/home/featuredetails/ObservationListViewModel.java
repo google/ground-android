@@ -24,9 +24,11 @@ import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.repository.ObservationRepository;
+import com.google.android.gnd.rx.annotations.Hot;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.common.collect.ImmutableList;
 import io.reactivex.Single;
+import io.reactivex.processors.FlowableProcessor;
 import io.reactivex.processors.PublishProcessor;
 import java8.util.Optional;
 import javax.inject.Inject;
@@ -36,13 +38,16 @@ public class ObservationListViewModel extends AbstractViewModel {
 
   public final ObservableBoolean isLoading = new ObservableBoolean(false);
   private final ObservationRepository observationRepository;
-  private PublishProcessor<ObservationListRequest> observationListRequests;
+
+  @Hot
+  private FlowableProcessor<ObservationListRequest> observationListRequests =
+      PublishProcessor.create();
+
   private LiveData<ImmutableList<Observation>> observationList;
 
   @Inject
   public ObservationListViewModel(ObservationRepository observationRepository) {
     this.observationRepository = observationRepository;
-    observationListRequests = PublishProcessor.create();
     observationList =
         LiveDataReactiveStreams.fromPublisher(
             observationListRequests
