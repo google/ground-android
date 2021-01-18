@@ -73,16 +73,26 @@ public class MapContainerViewModel extends AbstractViewModel {
   private final LiveData<ImmutableSet<MapFeature>> mapFeatures;
   private final LiveData<BooleanOrError> locationLockState;
   private final LiveData<Event<CameraUpdate>> cameraUpdateRequests;
-  private final MutableLiveData<CameraPosition> cameraPosition;
+
+  @Hot(replays = true)
+  private final MutableLiveData<CameraPosition> cameraPosition =
+      new MutableLiveData<>(new CameraPosition(DEFAULT_MAP_POINT, DEFAULT_MAP_ZOOM_LEVEL));
+
   private final LocationManager locationManager;
   private final FeatureRepository featureRepository;
 
   @Hot private final Subject<Boolean> locationLockChangeRequests = PublishSubject.create();
   @Hot private final Subject<CameraUpdate> cameraUpdateSubject = PublishSubject.create();
 
+  @Hot(replays = true)
   private final MutableLiveData<Integer> mapControlsVisibility = new MutableLiveData<>(VISIBLE);
+
+  @Hot(replays = true)
   private final MutableLiveData<Integer> moveFeaturesVisibility = new MutableLiveData<>(GONE);
+
+  @Hot(replays = true)
   private final MutableLiveData<Action> selectMapTypeClicks = new MutableLiveData<>();
+
   private final LiveData<ImmutableSet<String>> mbtilesFilePaths;
   private final LiveData<Integer> iconTint;
 
@@ -117,8 +127,6 @@ public class MapContainerViewModel extends AbstractViewModel {
     this.cameraUpdateRequests =
         LiveDataReactiveStreams.fromPublisher(
             createCameraUpdateFlowable(locationLockStateFlowable));
-    this.cameraPosition =
-        new MutableLiveData<>(new CameraPosition(DEFAULT_MAP_POINT, DEFAULT_MAP_ZOOM_LEVEL));
     this.projectLoadingState =
         LiveDataReactiveStreams.fromPublisher(projectRepository.getProjectLoadingState());
     // TODO: Clear feature markers when project is deactivated.

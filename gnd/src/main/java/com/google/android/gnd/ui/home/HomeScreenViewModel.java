@@ -48,7 +48,9 @@ import timber.log.Timber;
 @SharedViewModel
 public class HomeScreenViewModel extends AbstractViewModel {
 
+  @Hot(replays = true)
   public final MutableLiveData<Boolean> isObservationButtonVisible = new MutableLiveData<>(false);
+
   private final ProjectRepository projectRepository;
   private final Navigator navigator;
   private final FeatureRepository featureRepository;
@@ -57,10 +59,14 @@ public class HomeScreenViewModel extends AbstractViewModel {
   private final LiveData<Loadable<Project>> projectLoadingState;
 
   // TODO: Move into MapContainersViewModel
-  private final MutableLiveData<Event<Point>> addFeatureDialogRequests;
+  @Hot(replays = true)
+  private final MutableLiveData<Event<Point>> addFeatureDialogRequests = new MutableLiveData<>();
   // TODO: Move into FeatureDetailsViewModel.
-  private final MutableLiveData<Action> openDrawerRequests;
-  private final MutableLiveData<BottomSheetState> bottomSheetState;
+  @Hot(replays = true)
+  private final MutableLiveData<Action> openDrawerRequests = new MutableLiveData<>();
+
+  @Hot(replays = true)
+  private final MutableLiveData<BottomSheetState> bottomSheetState = new MutableLiveData<>();
 
   @Hot private final FlowableProcessor<Feature> addFeatureClicks = PublishProcessor.create();
   @Hot private final FlowableProcessor<Feature> updateFeatureRequests = PublishProcessor.create();
@@ -69,7 +75,11 @@ public class HomeScreenViewModel extends AbstractViewModel {
   private final LiveData<Feature> addFeatureResults;
   private final LiveData<Boolean> updateFeatureResults;
   private final LiveData<Boolean> deleteFeatureResults;
+
+  @Hot(replays = true)
   private final MutableLiveData<Throwable> errors = new MutableLiveData<>();
+
+  @Hot(replays = true)
   private final MutableLiveData<Integer> addFeatureButtonVisibility = new MutableLiveData<>(GONE);
 
   @Inject
@@ -79,9 +89,6 @@ public class HomeScreenViewModel extends AbstractViewModel {
       Navigator navigator) {
     this.projectRepository = projectRepository;
     this.featureRepository = featureRepository;
-    this.addFeatureDialogRequests = new MutableLiveData<>();
-    this.openDrawerRequests = new MutableLiveData<>();
-    this.bottomSheetState = new MutableLiveData<>();
     this.navigator = navigator;
 
     projectLoadingState =

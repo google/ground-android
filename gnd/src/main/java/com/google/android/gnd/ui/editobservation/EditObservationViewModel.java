@@ -66,8 +66,10 @@ public class EditObservationViewModel extends AbstractViewModel {
 
   // Injected inputs.
   /** True if observation is currently being loaded, otherwise false. */
+  @Hot(replays = true)
   public final MutableLiveData<Boolean> isLoading = new MutableLiveData<>(false);
   /** True if observation is currently being saved, otherwise false. */
+  @Hot(replays = true)
   public final MutableLiveData<Boolean> isSaving = new MutableLiveData<>(false);
 
   private final ObservationRepository observationRepository;
@@ -88,8 +90,10 @@ public class EditObservationViewModel extends AbstractViewModel {
   /** Form definition, loaded when view is initialized. */
   private final LiveData<Form> form;
   /** Toolbar title, based on whether user is adding new or editing existing observation. */
+  @Hot(replays = true)
   private final MutableLiveData<String> toolbarTitle = new MutableLiveData<>();
   /** Stream of updates to photo fields. */
+  @Hot(replays = true)
   private final MutableLiveData<ImmutableMap<Field, String>> photoUpdates = new MutableLiveData<>();
   /** Original form responses, loaded when view is initialized. */
   private final ObservableMap<String, Response> responses = new ObservableArrayMap<>();

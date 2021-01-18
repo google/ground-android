@@ -28,7 +28,6 @@ import com.google.android.gnd.rx.annotations.Hot;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import io.reactivex.Single;
 import io.reactivex.processors.BehaviorProcessor;
-import io.reactivex.processors.FlowableProcessor;
 import java8.util.Optional;
 
 /** Defines the state of an inflated {@link Field} and controls its UI. */
@@ -41,6 +40,7 @@ public class AbstractFieldViewModel extends AbstractViewModel {
   private final LiveData<String> responseText;
 
   /** Error message to be displayed for the current {@link AbstractFieldViewModel#response}. */
+  @Hot(replays = true)
   private final MutableLiveData<String> error = new MutableLiveData<>();
 
   @Hot(replays = true)

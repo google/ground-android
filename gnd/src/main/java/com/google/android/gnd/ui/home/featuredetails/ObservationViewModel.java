@@ -28,6 +28,7 @@ import androidx.lifecycle.MutableLiveData;
 import com.google.android.gnd.model.AuditInfo;
 import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.observation.Observation;
+import com.google.android.gnd.rx.annotations.Hot;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import java.util.Date;
 import java8.util.function.Consumer;
@@ -40,9 +41,10 @@ public class ObservationViewModel extends AbstractViewModel implements OnClickLi
   public final ObservableField<String> modifiedTime;
   private final Application application;
 
-  @Nullable
-  private Consumer<Observation> observationCallback;
-  private MutableLiveData<Observation> selectedObservation;
+  @Nullable private Consumer<Observation> observationCallback;
+
+  @Hot(replays = true)
+  private MutableLiveData<Observation> selectedObservation = new MutableLiveData<>();
 
   @Inject
   ObservationViewModel(Application application) {
@@ -50,7 +52,6 @@ public class ObservationViewModel extends AbstractViewModel implements OnClickLi
     userName = new ObservableField<>();
     modifiedDate = new ObservableField<>();
     modifiedTime = new ObservableField<>();
-    selectedObservation = new MutableLiveData<>();
   }
 
   @Override

@@ -46,7 +46,11 @@ public class PhotoFieldViewModel extends AbstractFieldViewModel {
 
   private final LiveData<Uri> uri;
   public final LiveData<Boolean> isVisible;
+
+  @Hot(replays = true)
   private final MutableLiveData<Field> showDialogClicks = new MutableLiveData<>();
+
+  @Hot(replays = true)
   private final MutableLiveData<Integer> clearButtonVisibility = new MutableLiveData<>(View.GONE);
 
   @Inject

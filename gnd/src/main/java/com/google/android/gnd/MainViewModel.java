@@ -25,6 +25,7 @@ import com.google.android.gnd.repository.FeatureRepository;
 import com.google.android.gnd.repository.ProjectRepository;
 import com.google.android.gnd.repository.UserRepository;
 import com.google.android.gnd.rx.annotations.Cold;
+import com.google.android.gnd.rx.annotations.Hot;
 import com.google.android.gnd.system.auth.AuthenticationManager;
 import com.google.android.gnd.system.auth.SignInState;
 import com.google.android.gnd.ui.common.AbstractViewModel;
@@ -42,7 +43,10 @@ import timber.log.Timber;
 @SharedViewModel
 public class MainViewModel extends AbstractViewModel {
 
+  @Hot(replays = true)
   private final MutableLiveData<WindowInsetsCompat> windowInsets = new MutableLiveData<>();
+
+  @Hot(replays = true)
   private final MutableLiveData<Boolean> signInProgressDialogVisibility = new MutableLiveData<>();
 
   private final ProjectRepository projectRepository;
