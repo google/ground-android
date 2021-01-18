@@ -36,6 +36,7 @@ import com.google.android.gnd.ui.common.SharedViewModel;
 import com.google.android.gnd.ui.home.HomeScreenFragmentDirections;
 import com.google.android.gnd.ui.signin.SignInFragmentDirections;
 import io.reactivex.Completable;
+import io.reactivex.Observable;
 import java8.util.Optional;
 import javax.inject.Inject;
 import timber.log.Timber;
@@ -84,9 +85,9 @@ public class MainViewModel extends AbstractViewModel {
     disposeOnClear(
         authenticationManager
             .getSignInState()
+            .switchMap(this::saveUserOnSignIn)
             .observeOn(schedulers.ui())
-            .switchMapCompletable(this::onSignInStateChange)
-            .subscribe());
+            .subscribe(this::onSignInStateChange));
   }
 
   /**
@@ -110,18 +111,16 @@ public class MainViewModel extends AbstractViewModel {
   }
 
   @Cold
-  private Completable onSignInStateChange(SignInState signInState) {
-    Timber.d("Auth status change: %s", signInState.state());
+  private Observable<SignInState> saveUserOnSignIn(SignInState signInState) {
     Optional<User> user = signInState.getUser();
-
     if (user.isPresent()) {
-      return onSignedIn(user.get());
+      return userRepository.saveUser(user.get()).andThen(Observable.just(signInState));
     } else {
-      return Completable.fromRunnable(() -> onNotSignedIn(signInState));
+      return Observable.just(signInState);
     }
   }
 
-  private void onNotSignedIn(SignInState signInState) {
+  private void onSignInStateChange(SignInState signInState) {
     switch (signInState.state()) {
       case SIGNED_OUT:
         // TODO: Check auth status whenever fragments resumes.
@@ -129,6 +128,9 @@ public class MainViewModel extends AbstractViewModel {
         break;
       case SIGNING_IN:
         showProgressDialog();
+        break;
+      case SIGNED_IN:
+        onSignedIn();
         break;
       case ERROR:
         onSignInError(signInState);
@@ -159,11 +161,9 @@ public class MainViewModel extends AbstractViewModel {
     navigator.navigate(SignInFragmentDirections.showSignInScreen());
   }
 
-  private Completable onSignedIn(User user) {
-    return userRepository
-        .saveUser(user)
-        .doOnComplete(this::hideProgressDialog)
-        .doOnComplete(() -> navigator.navigate(HomeScreenFragmentDirections.showHomeScreen()));
+  private void onSignedIn() {
+    hideProgressDialog();
+    navigator.navigate(HomeScreenFragmentDirections.showHomeScreen());
   }
 
   public LiveData<Boolean> getSignInProgressDialogVisibility() {
