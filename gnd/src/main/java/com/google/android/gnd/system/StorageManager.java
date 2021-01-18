@@ -125,7 +125,7 @@ public class StorageManager {
    * @param destinationPath Final destination path of the uploaded photo relative to Firestore
    */
   public Single<Uri> getDownloadUrl(String destinationPath) {
-    return RxTask.toSingle(() -> remoteStorageManager.getDownloadUrl(destinationPath))
+    return remoteStorageManager.getDownloadUrl(destinationPath)
         .onErrorReturn(throwable -> getFileUriFromDestinationPath(destinationPath));
   }
 
