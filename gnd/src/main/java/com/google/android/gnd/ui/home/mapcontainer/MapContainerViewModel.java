@@ -77,9 +77,8 @@ public class MapContainerViewModel extends AbstractViewModel {
   private final LocationManager locationManager;
   private final FeatureRepository featureRepository;
 
-  @Hot private final Subject<Boolean> locationLockChangeRequests;
-
-  @Hot private final Subject<CameraUpdate> cameraUpdateSubject;
+  @Hot private final Subject<Boolean> locationLockChangeRequests = PublishSubject.create();
+  @Hot private final Subject<CameraUpdate> cameraUpdateSubject = PublishSubject.create();
 
   private final MutableLiveData<Integer> mapControlsVisibility = new MutableLiveData<>(VISIBLE);
   private final MutableLiveData<Integer> moveFeaturesVisibility = new MutableLiveData<>(GONE);
@@ -105,8 +104,6 @@ public class MapContainerViewModel extends AbstractViewModel {
     // THIS SHOULD NOT BE CALLED ON CONFIG CHANGE
     this.featureRepository = featureRepository;
     this.locationManager = locationManager;
-    this.locationLockChangeRequests = PublishSubject.create();
-    this.cameraUpdateSubject = PublishSubject.create();
 
     Flowable<BooleanOrError> locationLockStateFlowable = createLocationLockStateFlowable().share();
     this.locationLockState =

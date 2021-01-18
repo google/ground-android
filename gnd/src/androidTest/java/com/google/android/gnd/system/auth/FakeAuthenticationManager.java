@@ -27,6 +27,7 @@ public class FakeAuthenticationManager implements AuthenticationManager {
 
   private static final String TAG = FakeAuthenticationManager.class.toString();
 
+  @Hot(replays = true)
   public Subject<SignInState> behaviourSubject = BehaviorSubject.create();
 
   public static final User TEST_USER = User.builder()

@@ -28,6 +28,7 @@ import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gnd.R;
 import com.google.android.gnd.model.User;
+import com.google.android.gnd.rx.annotations.Hot;
 import com.google.android.gnd.system.ActivityStreams;
 import com.google.android.gnd.system.ActivityStreams.ActivityResult;
 import com.google.android.gnd.system.auth.SignInState.State;
@@ -48,7 +49,10 @@ public class GoogleAuthenticationManager implements AuthenticationManager {
 
   private static final int SIGN_IN_REQUEST_CODE = AuthenticationManager.class.hashCode() & 0xffff;
   private final GoogleSignInOptions googleSignInOptions;
-  private final Subject<SignInState> signInState;
+
+  @Hot(replays = true)
+  private final Subject<SignInState> signInState = BehaviorSubject.create();
+
   private final FirebaseAuth firebaseAuth;
   private final ActivityStreams activityStreams;
   private final Disposable activityResultsSubscription;
@@ -56,7 +60,6 @@ public class GoogleAuthenticationManager implements AuthenticationManager {
   // TODO: Update Fragments to access via ProjectRepository rather than directly.
   @Inject
   public GoogleAuthenticationManager(Application application, ActivityStreams activityStreams) {
-    this.signInState = BehaviorSubject.create();
     this.firebaseAuth = FirebaseAuth.getInstance();
     this.googleSignInOptions =
         new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
