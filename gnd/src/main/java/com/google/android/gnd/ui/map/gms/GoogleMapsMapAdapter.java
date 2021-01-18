@@ -69,9 +69,6 @@ import timber.log.Timber;
  */
 class GoogleMapsMapAdapter implements MapAdapter {
 
-  // TODO: Make it configurable
-  private static final int POLYLINE_STROKE_WIDTH_PX = 12;
-
   private final GoogleMap map;
   private final Context context;
   private final MarkerIconFactory markerIconFactory;
@@ -231,7 +228,7 @@ class GoogleMapsMapAdapter implements MapAdapter {
       // Style polyline
       polyline.setStartCap(new RoundCap());
       polyline.setEndCap(new RoundCap());
-      polyline.setWidth(POLYLINE_STROKE_WIDTH_PX);
+      polyline.setWidth(getPolylineStrokeWidth());
       polyline.setColor(parseColor(mapPolygon.getStyle().getColor()));
       polyline.setJointType(JointType.ROUND);
 
@@ -239,12 +236,16 @@ class GoogleMapsMapAdapter implements MapAdapter {
     }
   }
 
+  private int getPolylineStrokeWidth() {
+    return (int) context.getResources().getDimension(R.dimen.polyline_stroke_width);
+  }
+
   private void addMapGeoJson(MapGeoJson mapFeature) {
     // Pass markerManager here otherwise markers in the previous layers won't be clickable.
     GeoJsonLayer layer =
         new GeoJsonLayer(map, mapFeature.getGeoJson(), markerManager, null, null, null);
 
-    int width = POLYLINE_STROKE_WIDTH_PX;
+    int width = getPolylineStrokeWidth();
     int color = parseColor(mapFeature.getStyle().getColor());
 
     GeoJsonPointStyle pointStyle = layer.getDefaultPointStyle();
