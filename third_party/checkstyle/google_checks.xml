@@ -50,15 +50,11 @@
 
   <!-- License header -->
   <module name="RegexpHeader">
-    <!--  TODO: Replace URL with local file path. -->
-    <property name="headerFile"
-      value="https://raw.githubusercontent.com/google/ground-android/master/config/checkstyle/java.header" />
+    <property name="headerFile" value="${config_loc}/../../config/checkstyle/java.header" />
     <property name="fileExtensions" value="java" />
   </module>
   <module name="RegexpHeader">
-    <!--  TODO: Replace URL with local file path. -->
-    <property name="headerFile"
-      value="https://raw.githubusercontent.com/google/ground-android/master/config/checkstyle/xml.header" />
+    <property name="headerFile" value="${config_loc}/../../config/checkstyle/xml.header" />
     <property name="fileExtensions" value="xml" />
   </module>
 
