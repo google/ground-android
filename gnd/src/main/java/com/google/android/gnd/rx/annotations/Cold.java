@@ -50,9 +50,9 @@ import java.lang.annotation.Target;
 public @interface Cold {
   /**
    * When true, indicates this observable may emit an error. When false, error states are handled
-   * upstream, so downstream observers do not need to * do so. When false,
+   * upstream, so downstream observers don't not need to.
    */
-  boolean errors() default false;
+  boolean errors() default true;
 
   /**
    * When true, indicates this observable records one or more items and replays them on
