@@ -102,6 +102,8 @@ public class HomeScreenFragment extends AbstractFragment
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
 
+    projectSelectorDialogFragment = new ProjectSelectorDialogFragment();
+
     getViewModel(MainViewModel.class).getWindowInsets().observe(this, this::onApplyWindowInsets);
 
     mapContainerViewModel = getViewModel(MapContainerViewModel.class);
@@ -157,8 +159,6 @@ public class HomeScreenFragment extends AbstractFragment
   public View onCreateView(
       LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
     super.onCreateView(inflater, container, savedInstanceState);
-
-    projectSelectorDialogFragment = new ProjectSelectorDialogFragment();
 
     binding = HomeScreenFragBinding.inflate(inflater, container, false);
     binding.featureDetailsChrome.setViewModel(viewModel);
