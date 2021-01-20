@@ -57,7 +57,7 @@
       app:destination="@id/edit_observation_fragment">
       <argument
         android:name="observationId"
-        android:defaultValue="NEW" />
+        android:defaultValue="" />
     </action>
     <action
       android:id="@+id/fromHomeScreenToSignInScreen"
