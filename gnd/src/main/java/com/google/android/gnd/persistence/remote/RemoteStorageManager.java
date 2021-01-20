@@ -28,7 +28,6 @@ import java.io.File;
  */
 public interface RemoteStorageManager {
 
-  /** Fetches url of a remote file path. */
   /** Returns the URL used to download a file stored at the specified path in remote storage. */
   @Cold
   Single<Uri> getDownloadUrl(String remoteDestinationPath);
