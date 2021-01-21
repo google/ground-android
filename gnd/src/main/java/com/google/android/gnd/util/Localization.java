@@ -27,7 +27,7 @@ public abstract class Localization {
     if (messages == null) {
       return "<Untitled>";
     }
-    // TODO: i18n: Use proper locale.
+    // TODO(#711): Allow user to select project/form language and use here.
     @Nullable String msg = messages.get("_");
     if (msg == null) {
       msg = messages.get("en");

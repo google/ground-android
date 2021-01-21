@@ -88,6 +88,7 @@
       android:background="@color/colorBackground"
       android:elevation="3dp" />
 
+    <!--TODO(#373): Use new marker style. -->
     <ImageView
       android:layout_width="@dimen/feature_details_icon_bg_diameter"
       android:layout_height="@dimen/feature_details_icon_bg_diameter"
