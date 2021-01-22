@@ -37,7 +37,6 @@
         android:layout_height="match_parent"
         app:layout_behavior="com.google.android.gnd.ui.home.mapcontainer.MapContainerLayoutBehavior" />
 
-      <!-- TODO: Move feature sheet and chrome into separate layout files. -->
       <FrameLayout
         android:id="@+id/map_scrim"
         android:layout_width="match_parent"
