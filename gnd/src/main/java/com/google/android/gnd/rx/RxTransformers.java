@@ -20,11 +20,10 @@ import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.ObservableTransformer;
 import io.reactivex.functions.Function;
+import java8.util.Optional;
 import java8.util.function.Predicate;
 
-/**
- * Custom RxJava operators. Apply to stream using the <code>compose()</code> method.
- */
+/** Custom RxJava operators. Apply to stream using the <code>compose()</code> method. */
 public class RxTransformers {
 
   private RxTransformers() {}
@@ -45,5 +44,19 @@ public class RxTransformers {
                 return Observable.just(t);
               }
             });
+  }
+
+  /**
+   * Applies the provided extractor to retrieve an Optional from items emitted in the stream, and
+   * applies the mapper iff the Optional value is present. When the Optional is present, upstream
+   * items are only emitted once the Completable provided by the mapper completes. When the returned
+   * Optional is empty, this operator has no effect and values are emitted immediately.
+   */
+  public static <T, R> ObservableTransformer<T, T> switchMapIfPresent(
+      java8.util.function.Function<T, Optional<R>> optionalExtractor,
+      Function<R, Completable> mapper) {
+    return switchMapIf(
+        t -> optionalExtractor.apply(t).isPresent(),
+        t -> mapper.apply(optionalExtractor.apply(t).get()));
   }
 }

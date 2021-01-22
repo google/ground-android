@@ -16,7 +16,7 @@
 
 package com.google.android.gnd;
 
-import static com.google.android.gnd.rx.RxTransformers.switchMapIf;
+import static com.google.android.gnd.rx.RxTransformers.switchMapIfPresent;
 
 import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.LiveData;
@@ -30,7 +30,6 @@ import com.google.android.gnd.rx.annotations.Cold;
 import com.google.android.gnd.rx.annotations.Hot;
 import com.google.android.gnd.system.auth.AuthenticationManager;
 import com.google.android.gnd.system.auth.SignInState;
-import com.google.android.gnd.system.auth.SignInState.State;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.common.EphemeralPopups;
 import com.google.android.gnd.ui.common.Navigator;
@@ -86,7 +85,7 @@ public class MainViewModel extends AbstractViewModel {
     disposeOnClear(
         authenticationManager
             .getSignInState()
-            .compose(switchMapIf(s -> s.state() == State.SIGNED_IN, this::saveUser))
+            .compose(switchMapIfPresent(SignInState::getUser, userRepository::saveUser))
             .observeOn(schedulers.ui())
             .subscribe(this::onSignInStateChange));
   }
@@ -109,11 +108,6 @@ public class MainViewModel extends AbstractViewModel {
 
   void onApplyWindowInsets(WindowInsetsCompat insets) {
     windowInsets.setValue(insets);
-  }
-
-  @Cold
-  private Completable saveUser(SignInState signInState) {
-    return userRepository.saveUser(signInState.getUser().get());
   }
 
   private void onSignInStateChange(SignInState signInState) {
