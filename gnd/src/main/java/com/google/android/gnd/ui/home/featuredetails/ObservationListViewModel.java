@@ -71,7 +71,7 @@ public class ObservationListViewModel extends AbstractViewModel {
   private Single<ImmutableList<Observation>> getObservations(ObservationListRequest req) {
     if (req.formId.isEmpty()) {
       // Do nothing. No form defined for this layer.
-      // TODO: Show text or icon indicating no layers defined.
+      // TODO(#354): Show message or special treatment for layer with no form.
       return Single.just(ImmutableList.of());
     }
     return observationRepository
