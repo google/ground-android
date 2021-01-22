@@ -70,7 +70,7 @@ class ObservationConverter {
       if (obj instanceof String) {
         TextResponse.fromString(((String) obj).trim())
             .ifPresent(r -> responses.putResponse(fieldId, r));
-        // TODO(#23): Implement number fields, e.g.:
+        // TODO(#23): Add support for number fields:
         // } else if (obj instanceof Float) {
         //   responses.put(key, new NumericResponse((Float) obj));
       } else if (obj instanceof List) {
