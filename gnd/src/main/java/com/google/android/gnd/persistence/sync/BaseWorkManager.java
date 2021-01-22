@@ -40,8 +40,8 @@ import javax.inject.Provider;
 public abstract class BaseWorkManager {
 
   /** Backoff time should increase linearly. */
-  // TODO: Check if it is possible to wake the worker as soon as the connection becomes available.
-  //  If yes, then switch to EXPONENTIAL backoff policy.
+  // TODO(#710): Check if it is possible to wake the worker as soon as the connection becomes
+  //   available, and if so switch to EXPONENTIAL backoff policy.
   private static final BackoffPolicy BACKOFF_POLICY = BackoffPolicy.LINEAR;
 
   /** Number of milliseconds to wait before retrying failed sync tasks. */
