@@ -17,6 +17,7 @@
 package com.google.android.gnd.ui.common;
 
 import android.content.res.ColorStateList;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -37,6 +38,10 @@ import java8.util.function.Consumer;
  * injectable, since binding adapters must be static.
  */
 public class BindingAdapters {
+  @BindingAdapter("src")
+  public static void bindImageBitmap(ImageView imageView, Bitmap bitmap) {
+    imageView.setImageBitmap(bitmap);
+  }
 
   @BindingAdapter("onClick")
   public static void bindGoogleSignOnButtonClick(
