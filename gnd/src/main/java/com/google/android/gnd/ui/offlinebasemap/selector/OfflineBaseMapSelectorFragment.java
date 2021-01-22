@@ -22,7 +22,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.R;
@@ -79,7 +78,7 @@ public class OfflineBaseMapSelectorFragment extends AbstractFragment {
 
   @Override
   public View onCreateView(
-      @NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+      LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
     super.onCreateView(inflater, container, savedInstanceState);
     OfflineBaseMapSelectorFragBinding binding =
         OfflineBaseMapSelectorFragBinding.inflate(inflater, container, false);
@@ -91,7 +90,7 @@ public class OfflineBaseMapSelectorFragment extends AbstractFragment {
   }
 
   @Override
-  public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+  public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
     if (savedInstanceState == null) {
       replaceFragment(R.id.map, mapProvider.getFragment());
@@ -109,6 +108,9 @@ public class OfflineBaseMapSelectorFragment extends AbstractFragment {
       return;
     }
 
-    viewModel.onDownloadClick(map.getViewport());
+    viewModel.onDownloadClick(
+        map.getViewport(),
+        map.getCurrentZoomLevel(),
+        getContext().getString(R.string.offline_base_map_unknown_base_map));
   }
 }

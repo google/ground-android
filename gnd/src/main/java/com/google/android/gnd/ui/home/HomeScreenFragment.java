@@ -47,6 +47,7 @@ import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.HomeScreenFragBinding;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.feature.Feature;
+import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.rx.Loadable;
 import com.google.android.gnd.rx.Schedulers;
 import com.google.android.gnd.system.auth.AuthenticationManager;
@@ -63,6 +64,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.navigation.NavigationView.OnNavigationItemSelectedListener;
 import dagger.hilt.android.AndroidEntryPoint;
 import io.reactivex.subjects.PublishSubject;
+import java.util.Collections;
 import java.util.List;
 import java8.util.Optional;
 import javax.inject.Inject;
@@ -86,14 +88,14 @@ public class HomeScreenFragment extends AbstractFragment
   @Inject Navigator navigator;
   @Inject MapContainerViewModel mapContainerViewModel;
 
-  private ProgressDialog progressDialog;
+  @Nullable private ProgressDialog progressDialog;
   private HomeScreenViewModel viewModel;
   private MapContainerFragment mapContainerFragment;
   private BottomSheetBehavior<View> bottomSheetBehavior;
   private PublishSubject<Object> showFeatureDialogRequests;
   private ProjectSelectorDialogFragment projectSelectorDialogFragment;
   private ProjectSelectorViewModel projectSelectorViewModel;
-  private List<Project> projects;
+  private List<Project> projects = Collections.emptyList();
   private HomeScreenFragBinding binding;
 
   @Override
@@ -125,13 +127,13 @@ public class HomeScreenFragment extends AbstractFragment
   }
 
   private void onFeatureAdded(Feature feature) {
-    feature.getLayer().getForm().ifPresent(formId -> addNewObservation(feature));
+    feature.getLayer().getForm().ifPresent(form -> addNewObservation(feature, form));
   }
 
-  private void addNewObservation(Feature feature) {
+  private void addNewObservation(Feature feature, Form form) {
     String projectId = feature.getProject().getId();
     String featureId = feature.getId();
-    String formId = feature.getLayer().getForm().get().getId();
+    String formId = form.getId();
     navigator.addObservation(projectId, featureId, formId);
   }
 
@@ -159,7 +161,7 @@ public class HomeScreenFragment extends AbstractFragment
   @Nullable
   @Override
   public View onCreateView(
-      @NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+      LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
     super.onCreateView(inflater, container, savedInstanceState);
 
     projectSelectorDialogFragment = new ProjectSelectorDialogFragment();
@@ -290,11 +292,16 @@ public class HomeScreenFragment extends AbstractFragment
     switch (item.getItemId()) {
       case R.id.move_feature_menu_item:
         hideBottomSheet();
-        mapContainerFragment.setRepositionMode(Optional.ofNullable(state.getFeature()));
+        mapContainerFragment.setRepositionMode(state.getFeature());
         return false;
       case R.id.delete_feature_menu_item:
         hideBottomSheet();
-        viewModel.deleteFeature(state.getFeature());
+        Optional<Feature> featureToDelete = state.getFeature();
+        if (featureToDelete.isPresent()) {
+          viewModel.deleteFeature(featureToDelete.get());
+        } else {
+          Timber.e("Attempted to delete non-existent feature");
+        }
         return true;
       default:
         return false;

@@ -7,11 +7,15 @@ android {
         minSdkVersion 15
         targetSdkVersion 28
     }
-    
+
     sourceSets {
         main {
             manifest.srcFile 'AndroidManifest.xml'
             java.srcDirs = ['src']
+        }
+    }
+    buildTypes {
+        staging {
         }
     }
 }

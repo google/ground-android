@@ -28,7 +28,6 @@ public abstract class Field {
     PHOTO
   }
 
-  @Nullable
   public abstract String getId();
 
   /**
@@ -36,10 +35,8 @@ public abstract class Field {
    */
   public abstract int getIndex();
 
-  @Nullable
   public abstract Type getType();
 
-  @Nullable
   public abstract String getLabel();
 
   public abstract boolean isRequired();

@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.persistence.remote;
 
+import androidx.annotation.Nullable;
 import com.google.android.gnd.model.Mutation;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.User;
@@ -58,5 +59,5 @@ public interface RemoteDataStore {
    * Applies the provided mutations to the remote data store in a single batched transaction. If one
    * update fails, none of the mutations will be applied.
    */
-  Completable applyMutations(ImmutableCollection<Mutation> mutations, User user);
+  Completable applyMutations(@Nullable ImmutableCollection<Mutation> mutations, User user);
 }

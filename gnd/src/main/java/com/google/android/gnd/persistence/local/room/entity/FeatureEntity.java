@@ -27,6 +27,8 @@ import com.google.android.gnd.model.AuditInfo;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.FeatureMutation;
+import com.google.android.gnd.model.layer.Layer;
+import com.google.android.gnd.persistence.local.LocalDataConsistencyException;
 import com.google.android.gnd.persistence.local.room.models.Coordinates;
 import com.google.android.gnd.persistence.local.room.models.EntityState;
 import com.google.auto.value.AutoValue;
@@ -112,12 +114,20 @@ public abstract class FeatureEntity {
     return entity.build();
   }
 
-  // TODO(#127): Decouple from Project and remove 2nd argument.
   public static Feature toFeature(FeatureEntity featureEntity, Project project) {
+    String id = featureEntity.getId();
+    String layerId = featureEntity.getLayerId();
+    Layer layer =
+        project
+            .getLayer(layerId)
+            .orElseThrow(
+                () ->
+                    new LocalDataConsistencyException(
+                        "Unknown layerId " + layerId + " in feature " + id));
     return Feature.newBuilder()
-        .setId(featureEntity.getId())
+        .setId(id)
         .setProject(project)
-        .setLayer(project.getLayer(featureEntity.getLayerId()).get())
+        .setLayer(layer)
         .setPoint(featureEntity.getLocation().toPoint())
         .setGeoJsonString(featureEntity.getGeoJson())
         .setCreated(AuditInfoEntity.toObject(featureEntity.getCreated()))

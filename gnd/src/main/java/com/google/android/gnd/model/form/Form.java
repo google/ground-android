@@ -32,7 +32,7 @@ import javax.annotation.Nullable;
  */
 @AutoValue
 public abstract class Form {
-  @Nullable
+
   public abstract String getId();
 
   public abstract ImmutableList<Element> getElements();

@@ -16,10 +16,13 @@
 
 package com.google.android.gnd.ui.home.featuredetails;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import android.app.Application;
 import android.text.format.DateFormat;
 import android.view.View;
 import android.view.View.OnClickListener;
+import androidx.annotation.Nullable;
 import androidx.databinding.ObservableField;
 import androidx.lifecycle.MutableLiveData;
 import com.google.android.gnd.model.AuditInfo;
@@ -36,6 +39,8 @@ public class ObservationViewModel extends AbstractViewModel implements OnClickLi
   public final ObservableField<String> modifiedDate;
   public final ObservableField<String> modifiedTime;
   private final Application application;
+
+  @Nullable
   private Consumer<Observation> observationCallback;
   private MutableLiveData<Observation> selectedObservation;
 
@@ -50,6 +55,7 @@ public class ObservationViewModel extends AbstractViewModel implements OnClickLi
 
   @Override
   public void onClick(View view) {
+    checkNotNull(observationCallback, "observationCallback is null");
     observationCallback.accept(selectedObservation.getValue());
   }
 

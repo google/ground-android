@@ -29,7 +29,7 @@ import com.google.android.gnd.persistence.remote.DataStoreException;
 import com.google.common.base.Strings;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.GeoPoint;
-import java8.util.Optional;
+import java8.util.Objects;
 
 /** Converts between Firestore documents and {@link Feature} instances. */
 public class FeatureConverter {
@@ -49,8 +49,8 @@ public class FeatureConverter {
     String geoJsonString = Strings.isNullOrEmpty(f.getGeoJson()) ? null : f.getGeoJson();
     // Degrade gracefully when audit info missing in remote db.
     AuditInfoNestedObject created =
-        Optional.ofNullable(f.getCreated()).orElse(AuditInfoNestedObject.FALLBACK_VALUE);
-    AuditInfoNestedObject lastModified = Optional.ofNullable(f.getLastModified()).orElse(created);
+        Objects.requireNonNullElse(f.getCreated(), AuditInfoNestedObject.FALLBACK_VALUE);
+    AuditInfoNestedObject lastModified = Objects.requireNonNullElse(f.getLastModified(), created);
     return Feature.newBuilder()
         .setId(doc.getId())
         .setProject(project)

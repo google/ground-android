@@ -83,8 +83,6 @@ public class ObservationRepository {
   public Single<ImmutableList<Observation>> getObservations(
       String projectId, String featureId, String formId) {
     // TODO: Only fetch first n fields.
-    // TODO(#127): Decouple feature from observation so that we don't need to fetch observation
-    // here.
     return featureRepository
         .getFeature(projectId, featureId)
         .switchIfEmpty(Single.error(() -> new NotFoundException("Feature " + featureId)))
@@ -113,7 +111,6 @@ public class ObservationRepository {
   public Single<Observation> getObservation(
       String projectId, String featureId, String observationId) {
     // TODO: Store and retrieve latest edits from cache and/or db.
-    // TODO(#127): Decouple feature from observation so that we don't need to fetch feature here.
     return featureRepository
         .getFeature(projectId, featureId)
         .switchIfEmpty(Single.error(() -> new NotFoundException("Feature " + featureId)))
@@ -127,7 +124,6 @@ public class ObservationRepository {
 
   public Single<Observation> createObservation(String projectId, String featureId, String formId) {
     // TODO: Handle invalid formId.
-    // TODO(#127): Decouple feature from observation so that we don't need to fetch feature here.
     AuditInfo auditInfo = AuditInfo.now(authManager.getCurrentUser());
     return featureRepository
         .getFeature(projectId, featureId)
