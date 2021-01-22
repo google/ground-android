@@ -39,6 +39,7 @@ import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.android.gnd.R;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.persistence.local.LocalValueStore;
+import com.google.android.gnd.rx.annotations.Hot;
 import com.google.android.gnd.ui.MarkerIconFactory;
 import com.google.android.gnd.ui.map.CameraPosition;
 import com.google.android.gnd.ui.map.MapAdapter;
@@ -53,9 +54,12 @@ import com.google.maps.android.data.geojson.GeoJsonLayer;
 import com.google.maps.android.data.geojson.GeoJsonLineStringStyle;
 import com.google.maps.android.data.geojson.GeoJsonPointStyle;
 import com.google.maps.android.data.geojson.GeoJsonPolygonStyle;
+import io.reactivex.Flowable;
 import io.reactivex.Observable;
-import io.reactivex.subjects.BehaviorSubject;
+import io.reactivex.processors.FlowableProcessor;
+import io.reactivex.processors.PublishProcessor;
 import io.reactivex.subjects.PublishSubject;
+import io.reactivex.subjects.Subject;
 import java.io.File;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -75,13 +79,21 @@ class GoogleMapsMapAdapter implements MapAdapter {
   private final GoogleMap map;
   private final Context context;
   private final MarkerIconFactory markerIconFactory;
-  private final PublishSubject<MapPin> markerClickSubject = PublishSubject.create();
-  private final PublishSubject<Point> dragInteractionSubject = PublishSubject.create();
-  private final BehaviorSubject<CameraPosition> cameraMoves = BehaviorSubject.create();
-  // TODO: This is a limitation of the MapBox tile provider we're using;
+
+  /** Marker click events. */
+  @Hot private final Subject<MapPin> markerClicks = PublishSubject.create();
+
+  /** Map drag events. Emits items repeatedly while the map is being dragged. */
+  @Hot private final FlowableProcessor<Point> dragInteractions = PublishProcessor.create();
+
+  /** Camera move events. Emits items repeatedly while camera is in motion. */
+  @Hot private final FlowableProcessor<CameraPosition> cameraMoves = PublishProcessor.create();
+
+  // TODO(#693): Simplify impl of tile providers.
+  // TODO(#691): This is a limitation of the MapBox tile provider we're using;
   // since one need to call `close` explicitly, we cannot generically expose these as TileProviders;
   // instead we must retain explicit reference to the concrete type.
-  private final PublishSubject<MapBoxOfflineTileProvider> tileProviders = PublishSubject.create();
+  @Hot private final Subject<MapBoxOfflineTileProvider> tileProviders = PublishSubject.create();
 
   /**
    * Manager for handling click events for markers.
@@ -150,7 +162,7 @@ class GoogleMapsMapAdapter implements MapAdapter {
 
   private boolean onMarkerClick(Marker marker) {
     if (map.getUiSettings().isZoomGesturesEnabled()) {
-      markerClickSubject.onNext((MapPin) marker.getTag());
+      markerClicks.onNext((MapPin) marker.getTag());
       // Allow map to pan to marker.
       return false;
     } else {
@@ -159,21 +171,25 @@ class GoogleMapsMapAdapter implements MapAdapter {
     }
   }
 
+  @Hot
   @Override
   public Observable<MapPin> getMapPinClicks() {
-    return markerClickSubject;
+    return markerClicks;
   }
 
+  @Hot
   @Override
-  public Observable<Point> getDragInteractions() {
-    return dragInteractionSubject;
+  public Flowable<Point> getDragInteractions() {
+    return dragInteractions.onBackpressureLatest();
   }
 
+  @Hot
   @Override
-  public Observable<CameraPosition> getCameraMoves() {
-    return cameraMoves;
+  public Flowable<CameraPosition> getCameraMoves() {
+    return cameraMoves.onBackpressureLatest();
   }
 
+  @Hot
   @Override
   public Observable<MapBoxOfflineTileProvider> getTileProviders() {
     return tileProviders;
@@ -391,7 +407,7 @@ class GoogleMapsMapAdapter implements MapAdapter {
     cameraMoves.onNext(position);
     if (cameraTargetBeforeDrag != null
         && !gmsCameraPosition.target.equals(cameraTargetBeforeDrag)) {
-      dragInteractionSubject.onNext(target);
+      dragInteractions.onNext(target);
     }
   }
 
