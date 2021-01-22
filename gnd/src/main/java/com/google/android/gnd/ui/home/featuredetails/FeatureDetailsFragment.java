@@ -84,16 +84,6 @@ public class FeatureDetailsFragment extends AbstractFragment {
   }
 
   private void onBottomSheetStateChange(BottomSheetState state) {
-    if (state.isVisible()) {
-      // TODO(#373): Update icon based on layer default style.
-      // TODO: Auto add observation if there's only one form.
-      //      Feature feature = state.getFeature();
-      //      ImmutableList<Form> forms = feature.getLayer().getForms();
-      //      if (state.isNewFeature() && forms.size() == 1) {
-      //        showAddObservation(feature, forms.get(0));
-      //      }
-    }
-
     viewModel.onBottomSheetStateChange(state);
   }
 

@@ -20,8 +20,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import androidx.annotation.StringRes;
 
-// TODO: Replace with custom View; ProgressDialog was deprecated in API 26.
-// https://developer.android.com/reference/android/app/ProgressDialog
+// TODO(#712): Replace with custom View.
 public abstract class ProgressDialogs {
   /** Do not instantiate. */
   private ProgressDialogs() {}
