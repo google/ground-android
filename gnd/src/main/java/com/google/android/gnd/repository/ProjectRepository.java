@@ -76,13 +76,13 @@ public class ProjectRepository {
     // Kicks off the loading process whenever a new project id is selected.
     selectProjectEvent
         .distinctUntilChanged()
-        .switchMap(this::onSelectProject)
+        .switchMap(this::activateProject)
         .onBackpressureLatest()
         .subscribe(projectLoadingState);
   }
 
   @Cold
-  private Flowable<Loadable<Project>> onSelectProject(Optional<String> projectId) {
+  private Flowable<Loadable<Project>> activateProject(Optional<String> projectId) {
     // Empty id indicates intent to deactivate the current project. Used on sign out.
     if (projectId.isEmpty()) {
       return Flowable.just(Loadable.notLoaded());
@@ -133,7 +133,7 @@ public class ProjectRepository {
     return projectLoadingState.map(Loadable::value);
   }
 
-  public void onSelectProject(String projectId) {
+  public void activateProject(String projectId) {
     Timber.v("activateProject() called with %s", projectId);
     selectProjectEvent.onNext(Optional.of(projectId));
   }
