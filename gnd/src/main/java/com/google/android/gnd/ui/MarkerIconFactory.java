@@ -29,7 +29,6 @@ import com.google.android.gnd.R;
 import dagger.hilt.android.qualifiers.ApplicationContext;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.jetbrains.annotations.NotNull;
 
 @Singleton
 public class MarkerIconFactory {
