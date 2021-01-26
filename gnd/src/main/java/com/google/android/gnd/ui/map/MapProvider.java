@@ -35,8 +35,7 @@ public interface MapProvider {
 
   int getMapType();
 
-  // TODO: Use ENUM instead of int with a superset of basemap types.
-  //  https://github.com/google/ground-android/pull/406#discussion_r398726351
+  // TODO(#714): Use enum instead of int to represent basemap types.
   void setMapType(int mapType);
 
   ImmutableMap<Integer, String> getMapTypes();

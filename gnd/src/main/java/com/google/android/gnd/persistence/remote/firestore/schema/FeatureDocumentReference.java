@@ -35,8 +35,8 @@ public class FeatureDocumentReference extends FluentDocumentReference {
         merge(FeatureMutationConverter.toMap(mutation, user), batch);
         break;
       case DELETE:
-        // TODO(#108): Also delete all remote observations linked to this feature.
-        //  This isn't needed for local db as removing feature automatically deletes them.
+        // The server is expected to do a cascading delete of all observations for the deleted
+        // feature.
         delete(batch);
         break;
       default:

@@ -39,22 +39,6 @@
     <item name="android:textColor">@color/colorForeground</item>
   </style>
 
-  <!-- TODO: Green toolbar is no longer a thing; rename or remove. -->
-  <style name="GreenToolbarTheme" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
-    <item name="gndToolbarTitleStyle">@style/GreenToolbarTitle</item>
-    <item name="gndToolbarSubtitleStyle">@style/GreenToolbarSubtitle</item>
-  </style>
-
-  <style name="GreenToolbarTitle" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">
-    <item name="android:textColor">@color/colorBackground</item>
-  </style>
-
-  <style name="GreenToolbarSubtitle" parent="TextAppearance.Widget.AppCompat.Toolbar.Subtitle">
-    <item name="android:textColor">@color/colorGrey300</item>
-    <item name="android:textSize">12sp</item>
-    <item name="colorControlNormal">@color/colorBackground</item>
-  </style>
-
   <style name="WhiteToolbarTheme" parent="ThemeOverlay.AppCompat.ActionBar">
     <item name="android:background">@color/colorBackground</item>
     <item name="gndToolbarTitleStyle">@style/WhiteToolbarTitle</item>
