@@ -246,7 +246,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
 
   public void init() {
     // Last active project will be loaded once view subscribes to activeProject.
-    projectRepository.getLastActiveProjectId().ifPresent(projectRepository::onSelectProject);
+    projectRepository.getLastActiveProjectId().ifPresent(projectRepository::activateProject);
   }
 
   public void showOfflineAreas() {
