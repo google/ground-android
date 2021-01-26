@@ -55,9 +55,9 @@ public class HomeScreenViewModel extends AbstractViewModel {
   /** The state and value of the currently active project (loading, loaded, etc.). */
   private final LiveData<Loadable<Project>> projectLoadingState;
 
-  // TODO: Move into MapContainersViewModel
+  // TODO(#719): Move into MapContainersViewModel
   private final MutableLiveData<Event<Point>> addFeatureDialogRequests;
-  // TODO: Move into FeatureDetailsViewModel.
+  // TODO(#719): Move into FeatureDetailsViewModel.
   private final MutableLiveData<Action> openDrawerRequests;
   private final MutableLiveData<BottomSheetState> bottomSheetState;
 
@@ -238,7 +238,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
 
   public void init() {
     // Last active project will be loaded once view subscribes to activeProject.
-    projectRepository.getLastActiveProjectId().ifPresent(projectRepository::onSelectProject);
+    projectRepository.getLastActiveProjectId().ifPresent(projectRepository::activateProject);
   }
 
   public void showOfflineAreas() {

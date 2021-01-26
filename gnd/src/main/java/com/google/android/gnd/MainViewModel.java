@@ -16,15 +16,18 @@
 
 package com.google.android.gnd;
 
+import static com.google.android.gnd.rx.RxTransformers.switchMapIfPresent;
+
 import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import com.google.android.gnd.model.Project;
-import com.google.android.gnd.model.User;
 import com.google.android.gnd.repository.FeatureRepository;
 import com.google.android.gnd.repository.ProjectRepository;
 import com.google.android.gnd.repository.UserRepository;
+import com.google.android.gnd.rx.Schedulers;
 import com.google.android.gnd.rx.annotations.Cold;
+import com.google.android.gnd.rx.annotations.Hot;
 import com.google.android.gnd.system.auth.AuthenticationManager;
 import com.google.android.gnd.system.auth.SignInState;
 import com.google.android.gnd.ui.common.AbstractViewModel;
@@ -42,12 +45,16 @@ import timber.log.Timber;
 @SharedViewModel
 public class MainViewModel extends AbstractViewModel {
 
+  /** The window insets determined by the activity. */
+  @Hot(replays = true)
   private final MutableLiveData<WindowInsetsCompat> windowInsets = new MutableLiveData<>();
+
+  /** The state of sign in progress dialog visibility. */
+  @Hot(replays = true)
   private final MutableLiveData<Boolean> signInProgressDialogVisibility = new MutableLiveData<>();
 
   private final ProjectRepository projectRepository;
   private final FeatureRepository featureRepository;
-  private final UserRepository userRepository;
   private final Navigator navigator;
   private final EphemeralPopups popups;
 
@@ -58,22 +65,27 @@ public class MainViewModel extends AbstractViewModel {
       UserRepository userRepository,
       Navigator navigator,
       AuthenticationManager authenticationManager,
-      EphemeralPopups popups) {
+      EphemeralPopups popups,
+      Schedulers schedulers) {
     this.projectRepository = projectRepository;
     this.featureRepository = featureRepository;
-    this.userRepository = userRepository;
     this.navigator = navigator;
     this.popups = popups;
 
     // TODO: Move to background service.
     disposeOnClear(
-        projectRepository.getActiveProject().switchMapCompletable(this::syncFeatures).subscribe());
+        projectRepository
+            .getActiveProject()
+            .observeOn(schedulers.io())
+            .switchMapCompletable(this::syncFeatures)
+            .subscribe());
 
     disposeOnClear(
         authenticationManager
             .getSignInState()
-            .switchMapCompletable(this::onSignInStateChange)
-            .subscribe());
+            .compose(switchMapIfPresent(SignInState::getUser, userRepository::saveUser))
+            .observeOn(schedulers.ui())
+            .subscribe(this::onSignInStateChange));
   }
 
   /**
@@ -82,11 +94,12 @@ public class MainViewModel extends AbstractViewModel {
    *
    * @param project the currently active project.
    */
-  @Cold
+  @Cold(terminates = false)
   private Completable syncFeatures(Optional<Project> project) {
     return project.map(featureRepository::syncFeatures).orElse(Completable.never());
   }
 
+  @Hot(replays = true)
   public LiveData<WindowInsetsCompat> getWindowInsets() {
     return windowInsets;
   }
@@ -95,8 +108,7 @@ public class MainViewModel extends AbstractViewModel {
     windowInsets.setValue(insets);
   }
 
-  private Completable onSignInStateChange(SignInState signInState) {
-    Timber.d("Auth status change: %s", signInState.state());
+  private void onSignInStateChange(SignInState signInState) {
     switch (signInState.state()) {
       case SIGNED_OUT:
         // TODO: Check auth status whenever fragments resumes.
@@ -106,8 +118,8 @@ public class MainViewModel extends AbstractViewModel {
         showProgressDialog();
         break;
       case SIGNED_IN:
-        User user = signInState.getUser().orElseThrow(IllegalStateException::new);
-        return userRepository.saveUser(user).doOnComplete(this::onSignedIn);
+        onSignedIn();
+        break;
       case ERROR:
         onSignInError(signInState);
         break;
@@ -115,7 +127,6 @@ public class MainViewModel extends AbstractViewModel {
         Timber.e("Unhandled state: %s", signInState.state());
         break;
     }
-    return Completable.complete();
   }
 
   private void showProgressDialog() {
@@ -138,7 +149,7 @@ public class MainViewModel extends AbstractViewModel {
     navigator.navigate(SignInFragmentDirections.showSignInScreen());
   }
 
-  void onSignedIn() {
+  private void onSignedIn() {
     hideProgressDialog();
     navigator.navigate(HomeScreenFragmentDirections.showHomeScreen());
   }

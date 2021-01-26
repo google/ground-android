@@ -56,17 +56,14 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 import timber.log.Timber;
 
-// TODO: Save draft to local db on each change.
 public class EditObservationViewModel extends AbstractViewModel {
-
-  // TODO: Move out of id and into fragment args.
-  private static final String ADD_OBSERVATION_ID_PLACEHOLDER = "NEW";
 
   // Injected inputs.
   /** True if observation is currently being loaded, otherwise false. */
   public final MutableLiveData<Boolean> isLoading = new MutableLiveData<>(false);
   /** True if observation is currently being saved, otherwise false. */
   public final MutableLiveData<Boolean> isSaving = new MutableLiveData<>(false);
+
   private final ObservationRepository observationRepository;
   private final Resources resources;
   private final StorageManager storageManager;
@@ -117,7 +114,7 @@ public class EditObservationViewModel extends AbstractViewModel {
   }
 
   private static boolean isAddObservationRequest(EditObservationFragmentArgs args) {
-    return args.getObservationId().equals(ADD_OBSERVATION_ID_PLACEHOLDER);
+    return args.getObservationId().isEmpty();
   }
 
   public LiveData<Form> getForm() {

@@ -61,10 +61,10 @@ public class ProjectSelectorViewModel extends AbstractViewModel {
    * @param idx the index in the project summary list.
    */
   public void activateProject(int idx) {
-    projectRepository.onSelectProject(getProjectSummary(idx).getId());
+    projectRepository.activateProject(getProjectSummary(idx).getId());
   }
 
   public void activateOfflineProject(String projectId) {
-    projectRepository.onSelectProject(projectId);
+    projectRepository.activateProject(projectId);
   }
 }
