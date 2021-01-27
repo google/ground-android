@@ -23,7 +23,6 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.provider.MediaStore.Images.Media;
 import com.google.android.gnd.persistence.remote.RemoteStorageManager;
-import com.google.android.gnd.rx.RxTask;
 import com.google.android.gnd.system.ActivityStreams.ActivityResult;
 import com.google.android.gnd.ui.util.FileUtil;
 import dagger.hilt.android.qualifiers.ApplicationContext;
@@ -125,7 +124,8 @@ public class StorageManager {
    * @param destinationPath Final destination path of the uploaded photo relative to Firestore
    */
   public Single<Uri> getDownloadUrl(String destinationPath) {
-    return RxTask.toSingle(() -> remoteStorageManager.getDownloadUrl(destinationPath))
+    return remoteStorageManager
+        .getDownloadUrl(destinationPath)
         .onErrorReturn(throwable -> getFileUriFromDestinationPath(destinationPath));
   }
 
