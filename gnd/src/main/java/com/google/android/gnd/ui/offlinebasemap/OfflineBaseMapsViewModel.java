@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2021 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,41 +21,64 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
 import com.google.android.gnd.model.basemap.OfflineBaseMap;
 import com.google.android.gnd.repository.OfflineBaseMapRepository;
+import com.google.android.gnd.rx.annotations.Cold;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.common.collect.ImmutableList;
+import io.reactivex.Flowable;
 import javax.inject.Inject;
+import timber.log.Timber;
 
 /**
  * View model for the offline area manager fragment. Handles the current list of downloaded areas.
  */
 public class OfflineBaseMapsViewModel extends AbstractViewModel {
 
-  private LiveData<ImmutableList<OfflineBaseMap>> offlineAreas;
-  private LiveData<Integer> noAreasMessageVisibility;
+  @Cold(terminates = false, errors = false)
+  private final LiveData<ImmutableList<OfflineBaseMap>> offlineAreas;
+
+  @Cold(terminates = false, errors = false)
+  private final LiveData<Integer> noAreasMessageVisibility;
+
   private final Navigator navigator;
 
   @Inject
   OfflineBaseMapsViewModel(Navigator navigator, OfflineBaseMapRepository offlineBaseMapRepository) {
     this.navigator = navigator;
-    this.offlineAreas =
-        LiveDataReactiveStreams.fromPublisher(
-            offlineBaseMapRepository.getOfflineAreasOnceAndStream());
+    Flowable<ImmutableList<OfflineBaseMap>> offlineAreas =
+        offlineBaseMapRepository
+            .getOfflineAreasOnceAndStream()
+            .doOnError(
+                throwable ->
+                    Timber.e(
+                        throwable,
+                        "Unexpected error accessing offline basemaps in the local store."))
+            .onErrorReturnItem(ImmutableList.of());
+    this.offlineAreas = LiveDataReactiveStreams.fromPublisher(offlineAreas);
     this.noAreasMessageVisibility =
         LiveDataReactiveStreams.fromPublisher(
-            offlineBaseMapRepository
-                .getOfflineAreasOnceAndStream()
-                .map(baseMaps -> baseMaps.isEmpty() ? View.VISIBLE : View.GONE));
+            offlineAreas.map(baseMaps -> baseMaps.isEmpty() ? View.VISIBLE : View.GONE));
   }
 
+  /** Navigate to the offline area selector UI from the Offline basemaps UI. */
   public void showOfflineAreaSelector() {
     navigator.navigate(OfflineBaseMapsFragmentDirections.showOfflineAreaSelector());
   }
 
+  /**
+   * Returns an infinite stream of downloaded offline basemaps. If an unexpected error accessing the
+   * local store is encountered, emits an empty list downstream, circumventing the error.
+   */
+  @Cold(terminates = false)
   LiveData<ImmutableList<OfflineBaseMap>> getOfflineAreas() {
     return offlineAreas;
   }
 
+  /**
+   * Returns the visibility of a no area message based on the current number of available offline
+   * basemaps.
+   */
+  @Cold(terminates = false)
   public LiveData<Integer> getNoAreasMessageVisibility() {
     return noAreasMessageVisibility;
   }
