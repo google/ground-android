@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2021 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,6 +34,7 @@ import com.google.android.gnd.ui.map.MapProvider;
 import com.google.android.gnd.ui.offlinebasemap.selector.OfflineBaseMapSelectorViewModel.DownloadMessage;
 import dagger.hilt.android.AndroidEntryPoint;
 import io.reactivex.Single;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import javax.inject.Inject;
 
 @AndroidEntryPoint
@@ -56,24 +57,15 @@ public class OfflineBaseMapSelectorFragment extends AbstractFragment {
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     viewModel = getViewModel(OfflineBaseMapSelectorViewModel.class);
-    // TODO: use the viewmodel
     Single<MapAdapter> mapAdapter = mapProvider.getMapAdapter();
     mapAdapter.as(autoDisposable(this)).subscribe(this::onMapReady);
-    viewModel.getDownloadMessages().observe(this, e -> e.ifUnhandled(this::onDownloadMessage));
-  }
-
-  private void onDownloadMessage(DownloadMessage message) {
-    switch (message) {
-      case STARTED:
-        popups.showSuccess(R.string.offline_base_map_download_started);
-        navigator.navigateUp();
-        break;
-      case FAILURE:
-      default:
-        popups.showError(R.string.offline_base_map_download_failed);
-        navigator.navigateUp();
-        break;
-    }
+    viewModel
+        .getDownloadMessages()
+        // Since we pop a toast, we need to observe on the main (UI) thread.
+        // Otherwise this subscription handler will trigger before Looper.prepare() has been called.
+        .observeOn(AndroidSchedulers.mainThread())
+        .as(autoDisposable(this))
+        .subscribe(this::onDownloadMessage);
   }
 
   @Override
@@ -99,18 +91,32 @@ public class OfflineBaseMapSelectorFragment extends AbstractFragment {
     }
   }
 
+  /** Prepare the map once it's ready. */
   private void onMapReady(MapAdapter map) {
     this.map = map;
   }
 
+  /** Handle a download button click and queue a basemap download. */
   public void onDownloadClick() {
     if (map == null) {
       return;
     }
 
-    viewModel.onDownloadClick(
-        map.getViewport(),
-        map.getCurrentZoomLevel(),
-        getContext().getString(R.string.offline_base_map_unknown_base_map));
+    viewModel.downloadBaseMap(
+        map.getViewport(), getContext().getString(R.string.offline_base_map_unknown_base_map));
+  }
+
+  /** Handle the download message response after attempting to download a basemap. */
+  private void onDownloadMessage(DownloadMessage message) {
+    switch (message) {
+      case STARTED:
+        popups.showSuccess(R.string.offline_base_map_download_started);
+        break;
+      case FAILURE:
+      default:
+        popups.showError(R.string.offline_base_map_download_failed);
+        break;
+    }
+    navigator.navigateUp();
   }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2021 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,15 +16,14 @@
 
 package com.google.android.gnd.ui.offlinebasemap.selector;
 
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.LiveDataReactiveStreams;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gnd.model.basemap.OfflineBaseMap;
 import com.google.android.gnd.model.basemap.OfflineBaseMap.State;
 import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator;
 import com.google.android.gnd.repository.OfflineBaseMapRepository;
-import com.google.android.gnd.rx.Event;
+import com.google.android.gnd.rx.annotations.Hot;
 import com.google.android.gnd.ui.common.AbstractViewModel;
+import io.reactivex.Single;
 import io.reactivex.processors.FlowableProcessor;
 import io.reactivex.processors.PublishProcessor;
 import javax.inject.Inject;
@@ -37,39 +36,40 @@ public class OfflineBaseMapSelectorViewModel extends AbstractViewModel {
     FAILURE
   }
 
-  private final FlowableProcessor<OfflineBaseMap> downloadClicks = PublishProcessor.create();
-  private final LiveData<Event<DownloadMessage>> messages;
+  @Hot private final FlowableProcessor<OfflineBaseMap> baseMapDownloads = PublishProcessor.create();
+
+  @Hot(terminates = true, errors = false)
+  private final Single<DownloadMessage> downloadMessage;
+
   private final OfflineUuidGenerator offlineUuidGenerator;
 
   @Inject
   OfflineBaseMapSelectorViewModel(
       OfflineBaseMapRepository offlineBaseMapRepository,
       OfflineUuidGenerator offlineUuidGenerator) {
-    this.messages =
-        LiveDataReactiveStreams.fromPublisher(
-            downloadClicks.switchMapSingle(
-                baseMap ->
-                    offlineBaseMapRepository
-                        .addAreaAndEnqueue(baseMap)
-                        .toSingleDefault(DownloadMessage.STARTED)
-                        .onErrorReturn(this::onEnqueueError)
-                        .map(Event::create)));
+    this.downloadMessage =
+        baseMapDownloads
+            .switchMapCompletable(offlineBaseMapRepository::addAreaAndEnqueue)
+            .toSingleDefault(DownloadMessage.STARTED)
+            .onErrorReturn(this::onEnqueueError);
     this.offlineUuidGenerator = offlineUuidGenerator;
   }
 
+  /** Returns a failure message if the basemap download enqueued by this viewmodel fails. */
   private DownloadMessage onEnqueueError(Throwable e) {
     Timber.e("Failed to add area and queue downloads: %s", e.getMessage());
     return DownloadMessage.FAILURE;
   }
 
-  public LiveData<Event<DownloadMessage>> getDownloadMessages() {
-    return this.messages;
+  /** The result of attempting to download a basemap; completes with the latest value. */
+  @Hot(terminates = true, errors = false)
+  public Single<DownloadMessage> getDownloadMessages() {
+    return this.downloadMessage;
   }
 
   // TODO: Use an abstraction over LatLngBounds
-  public void onDownloadClick(LatLngBounds viewport, float zoomLevel, String defaultName) {
-    Timber.d("viewport:%s", viewport);
-
+  /** Queues a basemap captured in the current map viewport for download. */
+  public void downloadBaseMap(LatLngBounds viewport, String defaultName) {
     OfflineBaseMap offlineBaseMap =
         OfflineBaseMap.newBuilder()
             .setBounds(viewport)
@@ -78,6 +78,7 @@ public class OfflineBaseMapSelectorViewModel extends AbstractViewModel {
             .setName(defaultName)
             .build();
 
-    downloadClicks.onNext(offlineBaseMap);
+    baseMapDownloads.onNext(offlineBaseMap);
+    baseMapDownloads.onComplete();
   }
 }
