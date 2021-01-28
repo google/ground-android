@@ -22,6 +22,7 @@
 
   <data>
     <import type="android.view.View" />
+    <!-- TODO: Refactor and remove reference to Fragment. -->
     <variable
       name="fragment"
       type="com.google.android.gnd.ui.home.featuredetails.FeatureDetailsFragment" />
@@ -97,8 +98,7 @@
       android:elevation="@dimen/feature_details_icon_elevation"
       android:outlineProvider="none"
       android:scaleType="center"
-      app:srcCompat="@drawable/ic_default_map_marker"
-      app:tint="@color/colorForeground" />
+      app:src="@{viewModel.getMarkerBitmap()}" />
 
   </FrameLayout>
 </layout>

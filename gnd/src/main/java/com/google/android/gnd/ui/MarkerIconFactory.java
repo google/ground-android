@@ -39,7 +39,7 @@ public class MarkerIconFactory {
     this.context = context;
   }
 
-  public BitmapDescriptor getMarkerIcon(@ColorInt int color) {
+  public Bitmap getMarkerBitmap(int color) {
     Drawable outline = AppCompatResources.getDrawable(context, R.drawable.ic_marker_outline);
     Drawable fill = AppCompatResources.getDrawable(context, R.drawable.ic_marker_fill);
     Drawable overlay = AppCompatResources.getDrawable(context, R.drawable.ic_marker_overlay);
@@ -57,6 +57,11 @@ public class MarkerIconFactory {
     fill.draw(canvas);
     overlay.setBounds(0, 0, width, height);
     overlay.draw(canvas);
+    return bitmap;
+  }
+
+  public BitmapDescriptor getMarkerIcon(@ColorInt int color) {
+    Bitmap bitmap = getMarkerBitmap(color);
     // TODO: Cache rendered bitmaps.
     return BitmapDescriptorFactory.fromBitmap(bitmap);
   }
