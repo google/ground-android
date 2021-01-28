@@ -92,7 +92,7 @@ public class GoogleMapsMapProvider implements MapProvider {
 
   @Override
   public ImmutableMap<Integer, String> getMapTypes() {
-    // TODO: i18n
+    // TODO(#711): Allow user to select language and use here.
     Map<Integer, String> map = new HashMap<>();
     map.put(GoogleMap.MAP_TYPE_NONE, "None");
     map.put(GoogleMap.MAP_TYPE_NORMAL, "Normal");

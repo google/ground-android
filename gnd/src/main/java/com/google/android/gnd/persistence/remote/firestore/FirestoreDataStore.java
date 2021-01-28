@@ -32,6 +32,7 @@ import com.google.android.gnd.persistence.remote.firestore.schema.GroundFirestor
 import com.google.android.gnd.rx.RxTask;
 import com.google.android.gnd.rx.Schedulers;
 import com.google.android.gnd.rx.ValueOrError;
+import com.google.android.gnd.rx.annotations.Cold;
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
 import com.google.firebase.firestore.WriteBatch;
@@ -54,6 +55,7 @@ public class FirestoreDataStore implements RemoteDataStore {
   @Inject
   FirestoreDataStore() {}
 
+  @Cold
   @Override
   public Single<Project> loadProject(String projectId) {
     return db.projects()
@@ -63,6 +65,7 @@ public class FirestoreDataStore implements RemoteDataStore {
         .subscribeOn(schedulers.io());
   }
 
+  @Cold
   @Override
   public Single<ImmutableList<ValueOrError<Observation>>> loadObservations(Feature feature) {
     return db.projects()
@@ -72,11 +75,13 @@ public class FirestoreDataStore implements RemoteDataStore {
         .subscribeOn(schedulers.io());
   }
 
+  @Cold
   @Override
   public Single<List<Project>> loadProjectSummaries(User user) {
     return db.projects().getReadable(user).subscribeOn(schedulers.io());
   }
 
+  @Cold(stateful = true, terminates = false)
   @Override
   public Flowable<RemoteDataEvent<Feature>> loadFeaturesOnceAndStreamChanges(Project project) {
     return db.projects()
@@ -86,6 +91,7 @@ public class FirestoreDataStore implements RemoteDataStore {
         .subscribeOn(schedulers.io());
   }
 
+  @Cold
   @Override
   public Completable applyMutations(ImmutableCollection<Mutation> mutations, User user) {
     return RxTask.toCompletable(() -> applyMutationsInternal(mutations, user))

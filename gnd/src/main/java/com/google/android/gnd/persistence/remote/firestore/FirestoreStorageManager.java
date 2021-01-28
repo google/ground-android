@@ -17,12 +17,14 @@
 package com.google.android.gnd.persistence.remote.firestore;
 
 import android.net.Uri;
-import com.google.android.gms.tasks.Task;
 import com.google.android.gnd.persistence.remote.RemoteStorageManager;
 import com.google.android.gnd.persistence.remote.TransferProgress;
+import com.google.android.gnd.rx.RxTask;
+import com.google.android.gnd.rx.annotations.Cold;
 import com.google.firebase.storage.StorageReference;
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Flowable;
+import io.reactivex.Single;
 import java.io.File;
 import java8.util.StringJoiner;
 import javax.inject.Inject;
@@ -62,11 +64,13 @@ public class FirestoreStorageManager implements RemoteStorageManager {
     return storageReference.child(path);
   }
 
+  @Cold
   @Override
-  public Task<Uri> getDownloadUrl(String remoteDestinationPath) {
-    return createReference(remoteDestinationPath).getDownloadUrl();
+  public Single<Uri> getDownloadUrl(String remoteDestinationPath) {
+    return RxTask.toSingle(() -> createReference(remoteDestinationPath).getDownloadUrl());
   }
 
+  @Cold
   @Override
   public Flowable<TransferProgress> uploadMediaFromFile(File file, String remoteDestinationPath) {
     return Flowable.create(

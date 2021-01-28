@@ -109,7 +109,7 @@
       android:visibility="@{viewModel.isSaving ? View.GONE : View.VISIBLE }"
       app:useCompatPadding="true" />
 
-    <!-- TODO: Refactor and use in place of deprecated ProgressDialog. -->
+    <!-- TODO(#712): Refactor and use in place of deprecated ProgressDialog. -->
     <androidx.cardview.widget.CardView
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"

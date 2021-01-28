@@ -95,11 +95,6 @@ public class MapContainerViewModel extends AbstractViewModel {
 
   private final LiveData<ImmutableSet<String>> mbtilesFilePaths;
   private final LiveData<Integer> iconTint;
-
-  // TODO: Create our own wrapper/interface for MbTiles providers
-  // The impl we're using unfortunately requires calling a `close` method explicitly
-  // to clean up provider resources; `close` however, is not defined by the `TileProvider`
-  // interface, preventing us from treating providers generically.
   private final List<MapBoxOfflineTileProvider> tileProviders = new ArrayList<>();
 
   // Feature currently selected for repositioning
@@ -293,6 +288,7 @@ public class MapContainerViewModel extends AbstractViewModel {
     locationLockChangeRequests.onNext(!isLocationLockEnabled());
   }
 
+  // TODO(#691): Create our own wrapper/interface for MbTiles providers.
   public void queueTileProvider(MapBoxOfflineTileProvider tileProvider) {
     this.tileProviders.add(tileProvider);
   }
