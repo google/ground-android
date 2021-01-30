@@ -26,9 +26,11 @@ import androidx.lifecycle.MutableLiveData;
 import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.form.Field.Type;
 import com.google.android.gnd.model.observation.Response;
+import com.google.android.gnd.rx.annotations.Hot;
 import com.google.android.gnd.system.StorageManager;
 import io.reactivex.Single;
 import io.reactivex.processors.BehaviorProcessor;
+import io.reactivex.processors.FlowableProcessor;
 import java8.util.Optional;
 import javax.inject.Inject;
 import timber.log.Timber;
@@ -38,10 +40,17 @@ public class PhotoFieldViewModel extends AbstractFieldViewModel {
   private static final String EMPTY_PATH = "";
 
   private final StorageManager storageManager;
-  private final BehaviorProcessor<String> destinationPath = BehaviorProcessor.create();
+
+  @Hot(replays = true)
+  private final FlowableProcessor<String> destinationPath = BehaviorProcessor.create();
+
   private final LiveData<Uri> uri;
   public final LiveData<Boolean> isVisible;
+
+  @Hot(replays = true)
   private final MutableLiveData<Field> showDialogClicks = new MutableLiveData<>();
+
+  @Hot(replays = true)
   private final MutableLiveData<Integer> clearButtonVisibility = new MutableLiveData<>(View.GONE);
 
   @Inject
@@ -49,8 +58,7 @@ public class PhotoFieldViewModel extends AbstractFieldViewModel {
     super(application);
     this.storageManager = storageManager;
     this.isVisible =
-        LiveDataReactiveStreams.fromPublisher(
-            destinationPath.map(path -> !path.isEmpty()));
+        LiveDataReactiveStreams.fromPublisher(destinationPath.map(path -> !path.isEmpty()));
     this.uri =
         LiveDataReactiveStreams.fromPublisher(
             destinationPath.switchMapSingle(this::getDownloadUrl));

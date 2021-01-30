@@ -41,6 +41,7 @@ import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator;
 import com.google.android.gnd.repository.ObservationRepository;
 import com.google.android.gnd.rx.Event;
 import com.google.android.gnd.rx.Nil;
+import com.google.android.gnd.rx.annotations.Hot;
 import com.google.android.gnd.system.CameraManager;
 import com.google.android.gnd.system.StorageManager;
 import com.google.android.gnd.ui.common.AbstractViewModel;
@@ -49,6 +50,7 @@ import com.google.common.collect.ImmutableMap;
 import io.reactivex.Completable;
 import io.reactivex.Single;
 import io.reactivex.processors.BehaviorProcessor;
+import io.reactivex.processors.FlowableProcessor;
 import io.reactivex.processors.PublishProcessor;
 import java.util.Map;
 import java8.util.Optional;
@@ -60,8 +62,10 @@ public class EditObservationViewModel extends AbstractViewModel {
 
   // Injected inputs.
   /** True if observation is currently being loaded, otherwise false. */
+  @Hot(replays = true)
   public final MutableLiveData<Boolean> isLoading = new MutableLiveData<>(false);
   /** True if observation is currently being saved, otherwise false. */
+  @Hot(replays = true)
   public final MutableLiveData<Boolean> isSaving = new MutableLiveData<>(false);
 
   private final ObservationRepository observationRepository;
@@ -74,15 +78,18 @@ public class EditObservationViewModel extends AbstractViewModel {
 
   // View state streams.
   /** Arguments passed in from view on initialize(). */
-  private final BehaviorProcessor<EditObservationFragmentArgs> viewArgs =
+  @Hot(replays = true)
+  private final FlowableProcessor<EditObservationFragmentArgs> viewArgs =
       BehaviorProcessor.create();
   /** "Save" button clicks. */
-  private final PublishProcessor<Nil> saveClicks = PublishProcessor.create();
+  @Hot private final PublishProcessor<Nil> saveClicks = PublishProcessor.create();
   /** Form definition, loaded when view is initialized. */
   private final LiveData<Form> form;
   /** Toolbar title, based on whether user is adding new or editing existing observation. */
+  @Hot(replays = true)
   private final MutableLiveData<String> toolbarTitle = new MutableLiveData<>();
   /** Stream of updates to photo fields. */
+  @Hot(replays = true)
   private final MutableLiveData<ImmutableMap<Field, String>> photoUpdates = new MutableLiveData<>();
   /** Original form responses, loaded when view is initialized. */
   private final ObservableMap<String, Response> responses = new ObservableArrayMap<>();

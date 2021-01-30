@@ -24,6 +24,7 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.gnd.databinding.ObservationListItemBinding;
 import com.google.android.gnd.model.observation.Observation;
+import com.google.android.gnd.rx.annotations.Hot;
 import com.google.android.gnd.ui.common.ViewModelFactory;
 import java.util.Collections;
 import java.util.List;
@@ -33,12 +34,13 @@ class ObservationListAdapter extends RecyclerView.Adapter<ObservationListItemVie
 
   private final ViewModelFactory viewModelFactory;
   private List<Observation> observationList;
-  private MutableLiveData<Observation> itemClicks;
+
+  @Hot(replays = true)
+  private MutableLiveData<Observation> itemClicks = new MutableLiveData<>();
 
   public ObservationListAdapter(ViewModelFactory viewModelFactory) {
     this.viewModelFactory = viewModelFactory;
     observationList = Collections.emptyList();
-    itemClicks = new MutableLiveData<>();
   }
 
   @NonNull

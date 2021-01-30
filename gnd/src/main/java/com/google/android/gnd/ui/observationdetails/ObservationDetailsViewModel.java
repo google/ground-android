@@ -22,10 +22,12 @@ import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.repository.ObservationRepository;
 import com.google.android.gnd.rx.Loadable;
+import com.google.android.gnd.rx.annotations.Hot;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.processors.BehaviorProcessor;
+import io.reactivex.processors.FlowableProcessor;
 import java8.util.Optional;
 import javax.inject.Inject;
 
@@ -35,12 +37,14 @@ public class ObservationDetailsViewModel extends AbstractViewModel {
   public final LiveData<Boolean> isProgressBarVisible;
   public final LiveData<Optional<Feature>> feature;
   private final ObservationRepository observationRepository;
-  private final BehaviorProcessor<ObservationDetailsFragmentArgs> argsProcessor;
+
+  @Hot(replays = true)
+  private final FlowableProcessor<ObservationDetailsFragmentArgs> argsProcessor =
+      BehaviorProcessor.create();
 
   @Inject
   ObservationDetailsViewModel(ObservationRepository observationRepository) {
     this.observationRepository = observationRepository;
-    this.argsProcessor = BehaviorProcessor.create();
 
     Flowable<Loadable<Observation>> observationStream =
         argsProcessor.switchMapSingle(

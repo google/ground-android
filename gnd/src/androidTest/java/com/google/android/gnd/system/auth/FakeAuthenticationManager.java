@@ -17,6 +17,7 @@
 package com.google.android.gnd.system.auth;
 
 import com.google.android.gnd.model.User;
+import com.google.android.gnd.rx.annotations.Hot;
 import com.google.android.gnd.system.auth.SignInState.State;
 import io.reactivex.Observable;
 import io.reactivex.subjects.BehaviorSubject;
@@ -27,6 +28,7 @@ public class FakeAuthenticationManager implements AuthenticationManager {
 
   private static final String TAG = FakeAuthenticationManager.class.toString();
 
+  @Hot(replays = true)
   public Subject<SignInState> behaviourSubject = BehaviorSubject.create();
 
   public static final User TEST_USER = User.builder()
