@@ -18,7 +18,7 @@
 
 <resources>
     <!-- Map -->
-    <dimen name="polyline_stroke_width">12</dimen>
+    <dimen name="polyline_stroke_width">12dp</dimen>
 
     <!-- Forms -->
     <dimen name="field_label_text_size">14sp</dimen>
