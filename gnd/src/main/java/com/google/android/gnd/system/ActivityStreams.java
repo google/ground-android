@@ -33,6 +33,7 @@ import java8.util.stream.IntStreams;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+/** Bridge between the {@link Activity} and various {@code Manager} classes. */
 @Singleton
 public class ActivityStreams {
   @Hot private final Subject<Consumer<Activity>> activityRequests = PublishSubject.create();
@@ -45,37 +46,67 @@ public class ActivityStreams {
   @Inject
   public ActivityStreams() {}
 
+  /**
+   * Queues the specified {@link Consumer} for execution. An instance of the current {@link
+   * Activity} is provided to the {@code Consumer} when called.
+   */
   public void withActivity(Consumer<Activity> callback) {
     activityRequests.onNext(callback);
   }
 
+  /**
+   * Callback used to communicate {@link Activity#onActivityResult(int, int, Intent)} events with
+   * various {@code Manager} classes.
+   */
   public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
     activityResults.onNext(new ActivityResult(requestCode, resultCode, data));
   }
 
+  /**
+   * Callback used to communicate {@link Activity#onRequestPermissionsResult(int, String[], int[])}
+   * events with various {@code Manager} classes.
+   */
   public void onRequestPermissionsResult(
       int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
     requestPermissionsResults.onNext(
         new RequestPermissionsResult(requestCode, permissions, grantResults));
   }
 
+  /** Emits {@link Consumer}s to be executed in the context of the {@link Activity}. */
+  @Hot
   public Observable<Consumer<Activity>> getActivityRequests() {
     return activityRequests;
   }
 
+  /**
+   * Emits calls to {@link Activity#onActivityResult(int, int, Intent)} where {@code requestCode}
+   * matches the specified value.
+   */
+  @Hot
   public Observable<ActivityResult> getActivityResults(int requestCode) {
     return activityResults.filter(r -> r.getRequestCode() == requestCode);
   }
 
-  // TODO: Merge streams instead of taking one.
+  /**
+   * Emits the next call to {@link Activity#onActivityResult(int, int, Intent)} where {@code
+   * requestCode} matches the specified value.
+   */
+  @Hot
   public Observable<ActivityResult> getNextActivityResult(int requestCode) {
+    // TODO(#723): Define and handle timeouts.
     return getActivityResults(requestCode).take(1);
   }
 
+  /**
+   * Emits the next call to {@link Activity#onRequestPermissionsResult(int, String[], int[])} where
+   * {@code requestCode} matches the specified value.
+   */
   public Observable<RequestPermissionsResult> getNextRequestPermissionsResult(int requestCode) {
+    // TODO(#723): Define and handle timeouts.
     return requestPermissionsResults.filter(r -> r.getRequestCode() == requestCode).take(1);
   }
 
+  /** Represents the arguments of an {@link Activity#onActivityResult(int, int, Intent)} event. */
   public static class ActivityResult {
     private final int requestCode;
     private final int resultCode;
@@ -87,20 +118,29 @@ public class ActivityStreams {
       this.data = data;
     }
 
+    /** Returns the activity request code for which this result applies. */
     public int getRequestCode() {
       return requestCode;
     }
 
+    /**
+     * Returns true iff the system provided a result of {@link Activity#RESULT_OK} to the {@code
+     * onActivityResult} callback.
+     */
     public boolean isOk() {
       return resultCode == Activity.RESULT_OK;
     }
 
+    /**
+     * Returns {@link Intent} data provided by the system to the {@code onActivityResult} callback.
+     */
     @Nullable
     public Intent getData() {
       return data;
     }
   }
 
+  /** Represents the arguments of an {@link Activity#onActivityResult(int, int, Intent)} event. */
   public static class RequestPermissionsResult {
     private final int requestCode;
     private final Map<String, Integer> permissionGrantResults;
@@ -114,10 +154,14 @@ public class ActivityStreams {
               .collect(Collectors.toMap(i -> permissions[i], i -> grantResults[i]));
     }
 
+    /** Returns the permissions request code for which this result applies. */
     public int getRequestCode() {
       return requestCode;
     }
 
+    /**
+     * Returns true iff the event indicated the specified permission is granted to the application.
+     */
     public boolean isGranted(String permission) {
       Integer grantResult = permissionGrantResults.get(permission);
       return grantResult != null && grantResult == PERMISSION_GRANTED;
