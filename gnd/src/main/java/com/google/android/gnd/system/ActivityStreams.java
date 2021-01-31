@@ -16,8 +16,6 @@
 
 package com.google.android.gnd.system;
 
-import static android.content.pm.PackageManager.PERMISSION_GRANTED;
-
 import android.app.Activity;
 import android.content.Intent;
 import androidx.annotation.NonNull;
@@ -26,10 +24,7 @@ import com.google.android.gnd.rx.annotations.Hot;
 import io.reactivex.Observable;
 import io.reactivex.subjects.PublishSubject;
 import io.reactivex.subjects.Subject;
-import java.util.Map;
 import java8.util.function.Consumer;
-import java8.util.stream.Collectors;
-import java8.util.stream.IntStreams;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -104,33 +99,5 @@ public class ActivityStreams {
   public Observable<RequestPermissionsResult> getNextRequestPermissionsResult(int requestCode) {
     // TODO(#723): Define and handle timeouts.
     return requestPermissionsResults.filter(r -> r.getRequestCode() == requestCode).take(1);
-  }
-
-  /** Represents the arguments of an {@link Activity#onActivityResult(int, int, Intent)} event. */
-  public static class RequestPermissionsResult {
-    private final int requestCode;
-    private final Map<String, Integer> permissionGrantResults;
-
-    private RequestPermissionsResult(
-        int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-      this.requestCode = requestCode;
-      this.permissionGrantResults =
-          IntStreams.range(0, permissions.length)
-              .boxed()
-              .collect(Collectors.toMap(i -> permissions[i], i -> grantResults[i]));
-    }
-
-    /** Returns the permissions request code for which this result applies. */
-    public int getRequestCode() {
-      return requestCode;
-    }
-
-    /**
-     * Returns true iff the event indicated the specified permission is granted to the application.
-     */
-    public boolean isGranted(String permission) {
-      Integer grantResult = permissionGrantResults.get(permission);
-      return grantResult != null && grantResult == PERMISSION_GRANTED;
-    }
   }
 }
