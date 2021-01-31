@@ -22,6 +22,7 @@ import android.app.Activity;
 import android.content.Intent;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import com.google.android.gnd.rx.annotations.Hot;
 import io.reactivex.Observable;
 import io.reactivex.subjects.PublishSubject;
 import io.reactivex.subjects.Subject;
@@ -34,16 +35,15 @@ import javax.inject.Singleton;
 
 @Singleton
 public class ActivityStreams {
-  private final Subject<Consumer<Activity>> activityRequests;
-  private final Subject<ActivityResult> activityResults;
-  private final Subject<RequestPermissionsResult> requestPermissionsResults;
+  @Hot private final Subject<Consumer<Activity>> activityRequests = PublishSubject.create();
+  @Hot private final Subject<ActivityResult> activityResults = PublishSubject.create();
+
+  @Hot
+  private final Subject<RequestPermissionsResult> requestPermissionsResults =
+      PublishSubject.create();
 
   @Inject
-  public ActivityStreams() {
-    activityRequests = PublishSubject.create();
-    activityResults = PublishSubject.create();
-    requestPermissionsResults = PublishSubject.create();
-  }
+  public ActivityStreams() {}
 
   public void withActivity(Consumer<Activity> callback) {
     activityRequests.onNext(callback);

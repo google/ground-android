@@ -24,6 +24,7 @@ import com.google.android.gnd.model.basemap.OfflineBaseMap.State;
 import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator;
 import com.google.android.gnd.repository.OfflineBaseMapRepository;
 import com.google.android.gnd.rx.Event;
+import com.google.android.gnd.rx.annotations.Hot;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import io.reactivex.processors.FlowableProcessor;
 import io.reactivex.processors.PublishProcessor;
@@ -37,7 +38,7 @@ public class OfflineBaseMapSelectorViewModel extends AbstractViewModel {
     FAILURE
   }
 
-  private final FlowableProcessor<OfflineBaseMap> downloadClicks = PublishProcessor.create();
+  @Hot private final FlowableProcessor<OfflineBaseMap> downloadClicks = PublishProcessor.create();
   private final LiveData<Event<DownloadMessage>> messages;
   private final OfflineUuidGenerator offlineUuidGenerator;
 

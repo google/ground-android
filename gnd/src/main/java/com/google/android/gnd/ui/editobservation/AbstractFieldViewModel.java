@@ -24,6 +24,7 @@ import androidx.lifecycle.MutableLiveData;
 import com.google.android.gnd.R;
 import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.observation.Response;
+import com.google.android.gnd.rx.annotations.Hot;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import io.reactivex.Single;
 import io.reactivex.processors.BehaviorProcessor;
@@ -39,9 +40,12 @@ public class AbstractFieldViewModel extends AbstractViewModel {
   private final LiveData<String> responseText;
 
   /** Error message to be displayed for the current {@link AbstractFieldViewModel#response}. */
+  @Hot(replays = true)
   private final MutableLiveData<String> error = new MutableLiveData<>();
 
+  @Hot(replays = true)
   private final BehaviorProcessor<Optional<Response>> responseSubject = BehaviorProcessor.create();
+
   private final Resources resources;
 
   @SuppressWarnings("NullAway.Init")

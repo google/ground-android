@@ -17,6 +17,10 @@
   -->
 
 <resources>
+    <!-- Map -->
+    <dimen name="polyline_stroke_width">12dp</dimen>
+
+    <!-- Forms -->
     <dimen name="field_label_text_size">14sp</dimen>
     <dimen name="field_value_text_size">18sp</dimen>
     <dimen name="field_horizontal_padding">16dp</dimen>
@@ -93,6 +97,8 @@
 
     <!-- Photo CardView -->
     <dimen name="cardview_elevation">4dp</dimen>
-  <dimen name="offline_area_viewer_map_container_width">20dp</dimen>
-  <dimen name="offline_area_viewer_map_container_height">20dp</dimen>
+
+    <!-- Offline areas UI -->
+    <dimen name="offline_area_viewer_map_container_width">20dp</dimen>
+    <dimen name="offline_area_viewer_map_container_height">20dp</dimen>
 </resources>

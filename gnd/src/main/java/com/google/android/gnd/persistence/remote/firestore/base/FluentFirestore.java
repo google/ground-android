@@ -19,6 +19,7 @@ package com.google.android.gnd.persistence.remote.firestore.base;
 import static java8.util.stream.Collectors.toList;
 import static java8.util.stream.StreamSupport.stream;
 
+import com.google.android.gnd.rx.annotations.Cold;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -45,6 +46,7 @@ public abstract class FluentFirestore {
    * Applies the provided mapping function to each document in the specified query snapshot, if
    * present. If no results are present, completes with an empty list.
    */
+  @Cold
   static <T> Single<List<T>> toSingleList(
       Maybe<QuerySnapshot> result, Function<DocumentSnapshot, T> mappingFunction) {
     return result

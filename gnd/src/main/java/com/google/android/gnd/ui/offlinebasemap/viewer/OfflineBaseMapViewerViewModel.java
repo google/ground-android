@@ -24,11 +24,13 @@ import androidx.lifecycle.LiveDataReactiveStreams;
 import com.google.android.gnd.model.basemap.OfflineBaseMap;
 import com.google.android.gnd.model.basemap.tile.TileSource;
 import com.google.android.gnd.repository.OfflineBaseMapRepository;
+import com.google.android.gnd.rx.annotations.Hot;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.common.collect.ImmutableSet;
 import dagger.hilt.android.qualifiers.ApplicationContext;
 import io.reactivex.Completable;
 import io.reactivex.processors.BehaviorProcessor;
+import io.reactivex.processors.FlowableProcessor;
 import java.io.File;
 import java.lang.ref.WeakReference;
 import javax.inject.Inject;
@@ -39,7 +41,10 @@ import javax.inject.Inject;
  */
 public class OfflineBaseMapViewerViewModel extends AbstractViewModel {
 
-  private final BehaviorProcessor<OfflineBaseMapViewerFragmentArgs> argsProcessor;
+  @Hot(replays = true)
+  private final FlowableProcessor<OfflineBaseMapViewerFragmentArgs> argsProcessor =
+      BehaviorProcessor.create();
+
   private final OfflineBaseMapRepository offlineBaseMapRepository;
   private final WeakReference<Context> context;
   public LiveData<Double> areaStorageSize;
@@ -49,7 +54,6 @@ public class OfflineBaseMapViewerViewModel extends AbstractViewModel {
   @Inject
   public OfflineBaseMapViewerViewModel(
       OfflineBaseMapRepository offlineBaseMapRepository, @ApplicationContext Context context) {
-    this.argsProcessor = BehaviorProcessor.create();
     this.offlineBaseMapRepository = offlineBaseMapRepository;
     this.context = new WeakReference<>(context);
     this.areaName =

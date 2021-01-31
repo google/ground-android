@@ -73,24 +73,28 @@ public class MapContainerViewModel extends AbstractViewModel {
   private final LiveData<ImmutableSet<MapFeature>> mapFeatures;
   private final LiveData<BooleanOrError> locationLockState;
   private final LiveData<Event<CameraUpdate>> cameraUpdateRequests;
-  private final MutableLiveData<CameraPosition> cameraPosition;
+
+  @Hot(replays = true)
+  private final MutableLiveData<CameraPosition> cameraPosition =
+      new MutableLiveData<>(new CameraPosition(DEFAULT_MAP_POINT, DEFAULT_MAP_ZOOM_LEVEL));
+
   private final LocationManager locationManager;
   private final FeatureRepository featureRepository;
 
-  @Hot private final Subject<Boolean> locationLockChangeRequests;
+  @Hot private final Subject<Boolean> locationLockChangeRequests = PublishSubject.create();
+  @Hot private final Subject<CameraUpdate> cameraUpdateSubject = PublishSubject.create();
 
-  @Hot private final Subject<CameraUpdate> cameraUpdateSubject;
-
+  @Hot(replays = true)
   private final MutableLiveData<Integer> mapControlsVisibility = new MutableLiveData<>(VISIBLE);
+
+  @Hot(replays = true)
   private final MutableLiveData<Integer> moveFeaturesVisibility = new MutableLiveData<>(GONE);
+
+  @Hot(replays = true)
   private final MutableLiveData<Action> selectMapTypeClicks = new MutableLiveData<>();
+
   private final LiveData<ImmutableSet<String>> mbtilesFilePaths;
   private final LiveData<Integer> iconTint;
-
-  // TODO: Create our own wrapper/interface for MbTiles providers
-  // The impl we're using unfortunately requires calling a `close` method explicitly
-  // to clean up provider resources; `close` however, is not defined by the `TileProvider`
-  // interface, preventing us from treating providers generically.
   private final List<MapBoxOfflineTileProvider> tileProviders = new ArrayList<>();
 
   // Feature currently selected for repositioning
@@ -105,8 +109,6 @@ public class MapContainerViewModel extends AbstractViewModel {
     // THIS SHOULD NOT BE CALLED ON CONFIG CHANGE
     this.featureRepository = featureRepository;
     this.locationManager = locationManager;
-    this.locationLockChangeRequests = PublishSubject.create();
-    this.cameraUpdateSubject = PublishSubject.create();
 
     Flowable<BooleanOrError> locationLockStateFlowable = createLocationLockStateFlowable().share();
     this.locationLockState =
@@ -120,8 +122,6 @@ public class MapContainerViewModel extends AbstractViewModel {
     this.cameraUpdateRequests =
         LiveDataReactiveStreams.fromPublisher(
             createCameraUpdateFlowable(locationLockStateFlowable));
-    this.cameraPosition =
-        new MutableLiveData<>(new CameraPosition(DEFAULT_MAP_POINT, DEFAULT_MAP_ZOOM_LEVEL));
     this.projectLoadingState =
         LiveDataReactiveStreams.fromPublisher(projectRepository.getProjectLoadingState());
     // TODO: Clear feature markers when project is deactivated.
@@ -288,6 +288,7 @@ public class MapContainerViewModel extends AbstractViewModel {
     locationLockChangeRequests.onNext(!isLocationLockEnabled());
   }
 
+  // TODO(#691): Create our own wrapper/interface for MbTiles providers.
   public void queueTileProvider(MapBoxOfflineTileProvider tileProvider) {
     this.tileProviders.add(tileProvider);
   }

@@ -16,13 +16,18 @@
 
 package com.google.android.gnd.ui.home.featuredetails;
 
-import androidx.databinding.ObservableField;
+import android.graphics.Bitmap;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
+import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
+import com.google.android.gnd.R;
 import com.google.android.gnd.model.feature.Feature;
+import com.google.android.gnd.rx.annotations.Hot;
+import com.google.android.gnd.ui.MarkerIconFactory;
 import com.google.android.gnd.ui.common.SharedViewModel;
 import com.google.android.gnd.ui.home.BottomSheetState;
+import com.google.android.gnd.ui.util.DrawableUtil;
 import io.reactivex.processors.BehaviorProcessor;
 import java8.util.Optional;
 import javax.inject.Inject;
@@ -30,13 +35,19 @@ import javax.inject.Inject;
 @SharedViewModel
 public class FeatureDetailsViewModel extends ViewModel {
 
-  public final ObservableField<Optional<Feature>> feature;
-  private final BehaviorProcessor<Optional<Feature>> selectedFeature;
+  @Hot(replays = true)
+  public final MutableLiveData<Optional<Feature>> feature = new MutableLiveData<>();
+
+  @Hot(replays = true)
+  private final BehaviorProcessor<Optional<Feature>> selectedFeature =
+      BehaviorProcessor.createDefault(Optional.empty());
+
+  private final Bitmap markerBitmap;
 
   @Inject
-  public FeatureDetailsViewModel() {
-    feature = new ObservableField<>();
-    selectedFeature = BehaviorProcessor.createDefault(Optional.empty());
+  public FeatureDetailsViewModel(MarkerIconFactory markerIconFactory, DrawableUtil drawableUtil) {
+    this.markerBitmap =
+        markerIconFactory.getMarkerBitmap(drawableUtil.getColor(R.color.colorGrey600));
   }
 
   /**
@@ -54,7 +65,11 @@ public class FeatureDetailsViewModel extends ViewModel {
     }
 
     Optional<Feature> featureOptional = state.getFeature();
-    feature.set(featureOptional);
+    feature.setValue(featureOptional);
     selectedFeature.onNext(featureOptional);
+  }
+
+  public Bitmap getMarkerBitmap() {
+    return markerBitmap;
   }
 }
