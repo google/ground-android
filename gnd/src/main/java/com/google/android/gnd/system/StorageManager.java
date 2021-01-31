@@ -23,7 +23,6 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.provider.MediaStore.Images.Media;
 import com.google.android.gnd.persistence.remote.RemoteStorageManager;
-import com.google.android.gnd.system.ActivityStreams.ActivityResult;
 import com.google.android.gnd.ui.util.FileUtil;
 import dagger.hilt.android.qualifiers.ApplicationContext;
 import io.reactivex.Completable;

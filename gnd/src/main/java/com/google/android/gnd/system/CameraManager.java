@@ -21,7 +21,6 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import com.google.android.gnd.system.ActivityStreams.ActivityResult;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 import javax.inject.Inject;
