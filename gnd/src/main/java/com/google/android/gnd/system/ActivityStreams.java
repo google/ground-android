@@ -31,9 +31,13 @@ import javax.inject.Singleton;
 /** Bridge between the {@link Activity} and various {@code Manager} classes. */
 @Singleton
 public class ActivityStreams {
+  /** Emits {@link Consumer}s to be executed in the context of the {@link Activity}. */
   @Hot private final Subject<Consumer<Activity>> activityRequests = PublishSubject.create();
+
+  /** Emits {@link Activity#onActivityResult(int, int, Intent)} events. */
   @Hot private final Subject<ActivityResult> activityResults = PublishSubject.create();
 
+  /** Emits {@link Activity#onRequestPermissionsResult(int, String[], int[])} events. */
   @Hot
   private final Subject<RequestPermissionsResult> requestPermissionsResults =
       PublishSubject.create();
@@ -74,7 +78,7 @@ public class ActivityStreams {
   }
 
   /**
-   * Emits calls to {@link Activity#onActivityResult(int, int, Intent)} where {@code requestCode}
+   * Emits {@link Activity#onActivityResult(int, int, Intent)} events where {@code requestCode}
    * matches the specified value.
    */
   @Hot
@@ -83,7 +87,7 @@ public class ActivityStreams {
   }
 
   /**
-   * Emits the next call to {@link Activity#onActivityResult(int, int, Intent)} where {@code
+   * Emits the next {@link Activity#onActivityResult(int, int, Intent)} event where {@code
    * requestCode} matches the specified value.
    */
   @Hot
@@ -93,7 +97,7 @@ public class ActivityStreams {
   }
 
   /**
-   * Emits the next call to {@link Activity#onRequestPermissionsResult(int, String[], int[])} where
+   * Emits the next {@link Activity#onRequestPermissionsResult(int, String[], int[])} event where
    * {@code requestCode} matches the specified value.
    */
   public Observable<RequestPermissionsResult> getNextRequestPermissionsResult(int requestCode) {
