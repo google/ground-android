@@ -18,7 +18,7 @@ package com.google.android.gnd.system;
 
 import static java8.util.stream.StreamSupport.stream;
 
-import android.content.Context;
+import android.content.res.Resources;
 import android.location.Address;
 import android.location.Geocoder;
 import com.google.android.gms.maps.model.LatLng;
@@ -26,7 +26,6 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gnd.R;
 import com.google.android.gnd.rx.Schedulers;
 import com.google.android.gnd.rx.annotations.Cold;
-import dagger.hilt.android.qualifiers.ApplicationContext;
 import io.reactivex.Single;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -36,9 +35,11 @@ import java.util.List;
 import java8.util.Optional;
 import java8.util.stream.Collectors;
 import javax.inject.Inject;
+import javax.inject.Singleton;
 import timber.log.Timber;
 
 /** Abstracts native geocoding facilities. */
+@Singleton
 public class GeocodingManager {
   static class AddressNotFoundException extends Exception {
     public AddressNotFoundException(String message) {
@@ -51,10 +52,10 @@ public class GeocodingManager {
   private final String defaultAreaName;
 
   @Inject
-  public GeocodingManager(@ApplicationContext Context context, Schedulers schedulers) {
-    this.geocoder = new Geocoder(context);
+  public GeocodingManager(Geocoder geocoder, Schedulers schedulers, Resources resources) {
+    this.geocoder = geocoder;
     this.schedulers = schedulers;
-    this.defaultAreaName = context.getString(R.string.unnamed_area);
+    this.defaultAreaName = resources.getString(R.string.unnamed_area);
   }
 
   /**
