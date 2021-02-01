@@ -59,6 +59,18 @@ public class GeocodingManager {
     this.defaultAreaName = context.getString(R.string.offline_base_map_unknown_base_map);
   }
 
+  /**
+   * Performs reverse geocoding on {@param bounds} to retrieve a human readable name for the region
+   * captured in the bounds.
+   *
+   * <p>If no address is found for the given area, returns a default value.
+   */
+  public Single<String> getOfflineAreaName(LatLngBounds bounds) {
+    return Single.fromCallable(() -> getOfflineAreaNameInternal(bounds))
+        .doOnError(throwable -> Timber.e(throwable, "Couldn't get address for bounds: %s", bounds))
+        .subscribeOn(schedulers.io());
+  }
+
   private String getOfflineAreaNameInternal(LatLngBounds bounds)
       throws AddressNotFoundException, IOException {
     LatLng center = bounds.getCenter();
@@ -82,17 +94,5 @@ public class GeocodingManager {
         stream(components).filter(x -> !"".equals(x)).collect(Collectors.joining(", "));
 
     return "".equals(fullLocationName) ? defaultAreaName : fullLocationName;
-  }
-
-  /**
-   * Performs reverse geocoding on {@param bounds} to retrieve a human readable name for the region
-   * captured in the bounds.
-   *
-   * <p>If no address is found for the given area, returns a default value.
-   */
-  public Single<String> getOfflineAreaName(LatLngBounds bounds) {
-    return Single.fromCallable(() -> getOfflineAreaNameInternal(bounds))
-        .doOnError(throwable -> Timber.e(throwable, "Couldn't get address for bounds: %s", bounds))
-        .subscribeOn(schedulers.io());
   }
 }
