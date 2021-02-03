@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google LLC
+ * Copyright 2021 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,7 @@ import com.google.android.gnd.persistence.remote.RemoteDataStore;
 import com.google.android.gnd.persistence.sync.DataSyncWorkManager;
 import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator;
 import com.google.android.gnd.rx.ValueOrError;
+import com.google.android.gnd.rx.annotations.Cold;
 import com.google.android.gnd.system.auth.AuthenticationManager;
 import com.google.common.collect.ImmutableList;
 import io.reactivex.Completable;
@@ -80,6 +81,7 @@ public class ObservationRepository {
    *   <li>Relevant observations are returned directly from the local data store.
    * </ol>
    */
+  @Cold
   public Single<ImmutableList<Observation>> getObservations(
       String projectId, String featureId, String formId) {
     // TODO: Only fetch first n fields.
@@ -89,6 +91,7 @@ public class ObservationRepository {
         .flatMap(feature -> getObservations(feature, formId));
   }
 
+  @Cold
   private Single<ImmutableList<Observation>> getObservations(Feature feature, String formId) {
     Completable remoteSync =
         remoteDataStore
@@ -100,6 +103,7 @@ public class ObservationRepository {
     return remoteSync.andThen(localDataStore.getObservations(feature, formId));
   }
 
+  @Cold
   private Completable mergeRemoteObservations(
       ImmutableList<ValueOrError<Observation>> observations) {
     return Observable.fromIterable(observations)
@@ -108,6 +112,7 @@ public class ObservationRepository {
         .flatMapCompletable(localDataStore::mergeObservation);
   }
 
+  @Cold
   public Single<Observation> getObservation(
       String projectId, String featureId, String observationId) {
     // TODO: Store and retrieve latest edits from cache and/or db.
@@ -122,6 +127,7 @@ public class ObservationRepository {
                         Single.error(() -> new NotFoundException("Observation " + observationId))));
   }
 
+  @Cold
   public Single<Observation> createObservation(String projectId, String featureId, String formId) {
     // TODO: Handle invalid formId.
     AuditInfo auditInfo = AuditInfo.now(authManager.getCurrentUser());
@@ -140,6 +146,7 @@ public class ObservationRepository {
                     .build());
   }
 
+  @Cold
   public Completable deleteObservation(Observation observation) {
     ObservationMutation observationMutation =
         ObservationMutation.builder()
@@ -156,6 +163,7 @@ public class ObservationRepository {
     return applyAndEnqueue(observationMutation);
   }
 
+  @Cold
   public Completable addObservationMutation(
       Observation observation, ImmutableList<ResponseDelta> responseDeltas, boolean isNew) {
     ObservationMutation observationMutation =
@@ -173,6 +181,7 @@ public class ObservationRepository {
     return applyAndEnqueue(observationMutation);
   }
 
+  @Cold
   private Completable applyAndEnqueue(ObservationMutation mutation) {
     return localDataStore
         .applyAndEnqueue(mutation)

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Google LLC
+ * Copyright 2021 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ package com.google.android.gnd.repository;
 import com.google.android.gnd.model.User;
 import com.google.android.gnd.persistence.local.LocalDataStore;
 import com.google.android.gnd.rx.Schedulers;
+import com.google.android.gnd.rx.annotations.Cold;
 import io.reactivex.Completable;
 import javax.inject.Inject;
 
@@ -37,6 +38,7 @@ public class UserRepository {
     this.schedulers = schedulers;
   }
 
+  @Cold
   public Completable saveUser(User user) {
     return localDataStore.insertOrUpdateUser(user).observeOn(schedulers.io());
   }
