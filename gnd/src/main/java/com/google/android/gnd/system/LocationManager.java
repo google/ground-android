@@ -23,6 +23,7 @@ import android.location.Location;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.rx.BooleanOrError;
+import com.google.android.gnd.rx.annotations.Hot;
 import com.google.android.gnd.system.rx.RxFusedLocationProviderClient;
 import com.google.android.gnd.system.rx.RxLocationCallback;
 import dagger.hilt.android.scopes.ActivityScoped;
@@ -48,7 +49,8 @@ public class LocationManager {
   private final PermissionsManager permissionsManager;
   private final SettingsManager settingsManager;
   private final RxFusedLocationProviderClient locationClient;
-  private final Subject<Location> locationUpdates;
+  @Hot(replays = true)
+  private final Subject<Location> locationUpdates = BehaviorSubject.create();
   private final RxLocationCallback locationUpdateCallback;
 
   @Inject
@@ -59,7 +61,6 @@ public class LocationManager {
     this.permissionsManager = permissionsManager;
     this.settingsManager = settingsManager;
     this.locationClient = locationClient;
-    this.locationUpdates = BehaviorSubject.create();
     this.locationUpdateCallback = RxLocationCallback.create(locationUpdates);
   }
 

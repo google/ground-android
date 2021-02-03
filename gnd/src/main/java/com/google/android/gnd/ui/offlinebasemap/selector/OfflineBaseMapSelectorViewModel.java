@@ -40,7 +40,6 @@ public class OfflineBaseMapSelectorViewModel extends AbstractViewModel {
 
   @Hot(terminates = true, errors = false)
   private final Single<DownloadMessage> downloadMessage;
-
   private final OfflineUuidGenerator offlineUuidGenerator;
 
   @Inject

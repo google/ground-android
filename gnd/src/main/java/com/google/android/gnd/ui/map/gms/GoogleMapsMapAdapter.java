@@ -90,7 +90,8 @@ class GoogleMapsMapAdapter implements MapAdapter {
   // TODO(#691): This is a limitation of the MapBox tile provider we're using;
   // since one need to call `close` explicitly, we cannot generically expose these as TileProviders;
   // instead we must retain explicit reference to the concrete type.
-  @Hot private final Subject<MapBoxOfflineTileProvider> tileProviders = PublishSubject.create();
+  @Hot
+  private final PublishSubject<MapBoxOfflineTileProvider> tileProviders = PublishSubject.create();
 
   /**
    * Manager for handling click events for markers.
@@ -177,13 +178,13 @@ class GoogleMapsMapAdapter implements MapAdapter {
   @Hot
   @Override
   public Flowable<Point> getDragInteractions() {
-    return dragInteractions.onBackpressureLatest();
+    return dragInteractions;
   }
 
   @Hot
   @Override
   public Flowable<CameraPosition> getCameraMoves() {
-    return cameraMoves.onBackpressureLatest();
+    return cameraMoves;
   }
 
   @Hot

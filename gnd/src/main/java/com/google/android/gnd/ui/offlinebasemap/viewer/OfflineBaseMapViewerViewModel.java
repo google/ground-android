@@ -44,8 +44,11 @@ import timber.log.Timber;
  */
 public class OfflineBaseMapViewerViewModel extends AbstractViewModel {
 
-  @Hot private final BehaviorProcessor<OfflineBaseMapViewerFragmentArgs> argsProcessor;
+  @Hot(replays = true)
+  private final BehaviorProcessor<OfflineBaseMapViewerFragmentArgs> argsProcessor;
+
   @Hot private final PublishProcessor<Nil> removeClickProcessor;
+
   private final OfflineBaseMapRepository offlineBaseMapRepository;
   private final WeakReference<Context> context;
   public LiveData<Double> areaStorageSize;
@@ -99,7 +102,7 @@ public class OfflineBaseMapViewerViewModel extends AbstractViewModel {
    * Removes the offline area associated with this viewmodel from the device by removing all tile
    * sources that are not included in other areas and removing the area from the db.
    *
-   * Terminates the upstream click processor so that the resulting stream completes.
+   * <p>Terminates the upstream click processor so that the resulting stream completes.
    */
   @Hot(terminates = true)
   public Completable onRemoveArea() {

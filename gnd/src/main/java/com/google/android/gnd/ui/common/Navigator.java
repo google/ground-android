@@ -17,6 +17,7 @@
 package com.google.android.gnd.ui.common;
 
 import androidx.navigation.NavDirections;
+import com.google.android.gnd.rx.annotations.Hot;
 import io.reactivex.Observable;
 import io.reactivex.subjects.PublishSubject;
 import io.reactivex.subjects.Subject;
@@ -31,14 +32,11 @@ import javax.inject.Singleton;
  */
 @Singleton
 public class Navigator {
-  private final Subject<NavDirections> navigateRequests;
-  private final Subject<Object> navigateUpRequests;
+  @Hot private final Subject<NavDirections> navigateRequests = PublishSubject.create();
+  @Hot private final Subject<Object> navigateUpRequests = PublishSubject.create();
 
   @Inject
-  public Navigator() {
-    this.navigateRequests = PublishSubject.create();
-    this.navigateUpRequests = PublishSubject.create();
-  }
+  public Navigator() {}
 
   /** Stream of navigation requests for fulfillment by the view layer. */
   public Observable<NavDirections> getNavigateRequests() {
