@@ -61,9 +61,17 @@ public class OfflineBaseMapViewerFragment extends AbstractFragment {
         OfflineBaseMapViewerFragmentArgs.fromBundle(getArguments());
     viewModel = getViewModel(OfflineBaseMapViewerViewModel.class);
     viewModel.loadOfflineArea(args);
-    Single<MapAdapter> mapAdapter = mapProvider.getMapAdapter();
-    mapAdapter.as(autoDisposable(this)).subscribe(this::onMapReady);
+    mapProvider.getMapAdapter().as(autoDisposable(this)).subscribe(this::onMapReady);
     viewModel.getOfflineArea().observe(this, this::panMap);
+    viewModel
+        .onRemoveArea()
+        .as(autoDisposable(this))
+        .subscribe(() -> navigator.navigateUp(), this::handleRemoveError);
+  }
+
+  private void handleRemoveError(Throwable throwable) {
+    Timber.e(throwable, "Couldn't delete area.");
+    navigator.navigateUp();
   }
 
   @Override
@@ -104,14 +112,6 @@ public class OfflineBaseMapViewerFragment extends AbstractFragment {
 
   /** Removes the area associated with this fragment from the user's device. */
   public void onRemoveClick() {
-    if (map == null) {
-      return;
-    }
-
-    Timber.d("Removing offline area %s", viewModel.getOfflineArea());
-    viewModel
-        .onRemoveClick()
-        .as(autoDisposable(this))
-        .subscribe(() -> navigator.navigateUp());
+    viewModel.removeArea();
   }
 }
