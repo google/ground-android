@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2021 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -75,6 +75,7 @@ class OfflineBaseMapListAdapter extends RecyclerView.Adapter<OfflineBaseMapListA
 
   @Override
   public void onBindViewHolder(@NonNull ViewHolder viewHolder, int position) {
+    viewHolder.areas = offlineBaseMaps;
     viewHolder.binding.offlineAreaName.setText(offlineBaseMaps.get(position).getName());
     viewHolder.position = position;
   }
