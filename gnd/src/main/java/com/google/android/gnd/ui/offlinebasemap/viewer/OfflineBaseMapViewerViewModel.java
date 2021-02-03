@@ -63,7 +63,7 @@ public class OfflineBaseMapViewerViewModel extends AbstractViewModel {
     this.offlineBaseMapRepository = offlineBaseMapRepository;
     this.context = new WeakReference<>(context);
     @Hot
-    Flowable<OfflineBaseMap> _offlineArea =
+    Flowable<OfflineBaseMap> offlineAreaInternal =
         this.argsProcessor.switchMap(
             args ->
                 this.offlineBaseMapRepository
@@ -74,14 +74,14 @@ public class OfflineBaseMapViewerViewModel extends AbstractViewModel {
                             Timber.e(
                                 throwable, "Couldn't render area: %s", args.getOfflineAreaId())));
     this.areaName =
-        LiveDataReactiveStreams.fromPublisher(_offlineArea.map(OfflineBaseMap::getName));
+        LiveDataReactiveStreams.fromPublisher(offlineAreaInternal.map(OfflineBaseMap::getName));
     this.areaStorageSize =
         LiveDataReactiveStreams.fromPublisher(
-            _offlineArea
+            offlineAreaInternal
                 .flatMap(
                     offlineBaseMapRepository::getIntersectingDownloadedTileSourcesOnceAndStream)
                 .map(this::tileSourcesToTotalStorageSize));
-    this.offlineArea = LiveDataReactiveStreams.fromPublisher(_offlineArea);
+    this.offlineArea = LiveDataReactiveStreams.fromPublisher(offlineAreaInternal);
   }
 
   private Double tileSourcesToTotalStorageSize(ImmutableSet<TileSource> tileSources) {
