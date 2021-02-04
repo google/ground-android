@@ -174,6 +174,7 @@ public class EditObservationViewModel extends AbstractViewModel {
   private Completable handlePhotoPickerResult(Field field) {
     return storageManager
         .photoPickerResult()
+        .doOnError(Timber::e) // TODO(#726): Display as a toast
         .flatMapCompletable(bitmap -> saveBitmapAndUpdateResponse(bitmap, field));
   }
 
@@ -190,6 +191,7 @@ public class EditObservationViewModel extends AbstractViewModel {
   private Completable handlePhotoCaptureResult(Field field) {
     return cameraManager
         .capturePhotoResult()
+        .doOnError(Timber::e) // TODO(#726): Display as a toast
         .flatMapCompletable(bitmap -> saveBitmapAndUpdateResponse(bitmap, field));
   }
 
