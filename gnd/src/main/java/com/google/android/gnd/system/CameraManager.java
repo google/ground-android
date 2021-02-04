@@ -19,13 +19,15 @@ package com.google.android.gnd.system;
 import android.Manifest.permission;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.os.Bundle;
 import android.provider.MediaStore;
+import androidx.annotation.Nullable;
 import com.google.android.gnd.rx.annotations.Cold;
 import com.google.android.gnd.rx.annotations.Hot;
 import com.google.android.gnd.system.ActivityStreams.ActivityResult;
 import io.reactivex.Completable;
+import io.reactivex.Maybe;
 import io.reactivex.Observable;
+import java8.util.Optional;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import timber.log.Timber;
@@ -73,30 +75,24 @@ public class CameraManager {
   public Observable<Bitmap> capturePhotoResult() {
     return activityStreams
         .getNextActivityResult(CAPTURE_PHOTO_REQUEST_CODE)
-        .flatMap(this::onCapturePhotoResult);
+        .flatMapMaybe(this::onCapturePhotoResult);
+  }
+
+  private Optional<Bitmap> parseResult(@Nullable Intent intent) {
+    if (intent == null || intent.getExtras() == null) return Optional.empty();
+    return Optional.ofNullable(((Bitmap) intent.getExtras().get("data")));
   }
 
   /** Extracts the bitmap from the result returned by the activity, if present. */
   @Cold
-  private Observable<Bitmap> onCapturePhotoResult(ActivityResult result) {
-    // TODO: Investigate if returning a Maybe is better or not?
-    return Observable.create(
-        em -> {
+  private Maybe<Bitmap> onCapturePhotoResult(ActivityResult result) {
+    return Maybe.create(
+        emitter -> {
           if (!result.isOk()) {
-            // TODO(#726): Call onError()?
-            return;
+            emitter.onComplete();
+          } else {
+            emitter.onSuccess(parseResult(result.getData()).orElseThrow());
           }
-          Intent data = result.getData();
-          if (data == null) {
-            // TODO(#726): Call onError()?
-            return;
-          }
-          Bundle extras = data.getExtras();
-          if (extras == null) {
-            // TODO(#726): Call onError()?
-            return;
-          }
-          em.onNext((Bitmap) extras.get("data"));
         });
   }
 }

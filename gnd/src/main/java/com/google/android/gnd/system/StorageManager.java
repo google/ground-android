@@ -22,15 +22,18 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.provider.MediaStore.Images.Media;
+import androidx.annotation.Nullable;
 import com.google.android.gnd.persistence.remote.RemoteStorageManager;
 import com.google.android.gnd.system.ActivityStreams.ActivityResult;
 import com.google.android.gnd.ui.util.FileUtil;
 import dagger.hilt.android.qualifiers.ApplicationContext;
 import io.reactivex.Completable;
+import io.reactivex.Maybe;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 import java.io.File;
 import java.io.IOException;
+import java8.util.Optional;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import timber.log.Timber;
@@ -88,23 +91,24 @@ public class StorageManager {
   public Observable<Bitmap> photoPickerResult() {
     return activityStreams
         .getNextActivityResult(PICK_PHOTO_REQUEST_CODE)
-        .flatMap(this::onPickPhotoResult)
+        .flatMapMaybe(this::onPickPhotoResult)
         .map(uri -> Media.getBitmap(context.getContentResolver(), uri));
   }
 
+  private Optional<Uri> parseResult(@Nullable Intent intent) {
+    if (intent == null || intent.getData() == null) return Optional.empty();
+    return Optional.ofNullable(intent.getData());
+  }
+
   /** Fetch Uri from the result, if present. */
-  // TODO: Investigate if returning a Maybe is better or not?
-  private Observable<Uri> onPickPhotoResult(ActivityResult result) {
-    return Observable.create(
-        em -> {
+  private Maybe<Uri> onPickPhotoResult(ActivityResult result) {
+    return Maybe.create(
+        emitter -> {
           if (!result.isOk()) {
-            return;
+            emitter.onComplete();
+          } else {
+            emitter.onSuccess(parseResult(result.getData()).orElseThrow());
           }
-          Intent data = result.getData();
-          if (data == null) {
-            return;
-          }
-          em.onNext(data.getData());
         });
   }
 
