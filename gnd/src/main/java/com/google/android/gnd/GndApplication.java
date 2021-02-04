@@ -40,6 +40,15 @@ public class GndApplication extends Application implements Configuration.Provide
 
   @Inject HiltWorkerFactory workerFactory;
 
+  public GndApplication() {
+    super();
+    if (BuildConfig.DEBUG) {
+      Timber.plant(new Timber.DebugTree());
+    } else {
+      Timber.plant(new CrashReportingTree());
+    }
+  }
+
   @Override
   protected void attachBaseContext(Context base) {
     super.attachBaseContext(base);
@@ -66,12 +75,6 @@ public class GndApplication extends Application implements Configuration.Provide
 
     // Prevent RxJava from force-quitting on unhandled errors.
     RxJavaPlugins.setErrorHandler(RxDebug::logEnhancedStackTrace);
-
-    if (BuildConfig.DEBUG) {
-      Timber.plant(new Timber.DebugTree());
-    } else {
-      Timber.plant(new CrashReportingTree());
-    }
 
     WorkManager.initialize(getApplicationContext(), getWorkManagerConfiguration());
   }
