@@ -79,8 +79,10 @@ public class CameraManager {
   }
 
   private Optional<Bitmap> parseResult(@Nullable Intent intent) {
-    if (intent == null || intent.getExtras() == null) return Optional.empty();
-    return Optional.ofNullable(((Bitmap) intent.getExtras().get("data")));
+    if (intent == null || intent.getExtras() == null) {
+      return Optional.empty();
+    }
+    return Optional.ofNullable((Bitmap) intent.getExtras().get("data"));
   }
 
   /** Extracts the bitmap from the result returned by the activity, if present. */
@@ -88,10 +90,10 @@ public class CameraManager {
   private Maybe<Bitmap> onCapturePhotoResult(ActivityResult result) {
     return Maybe.create(
         emitter -> {
-          if (!result.isOk()) {
-            emitter.onComplete();
-          } else {
+          if (result.isOk()) {
             emitter.onSuccess(parseResult(result.getData()).orElseThrow());
+          } else {
+            emitter.onComplete();
           }
         });
   }

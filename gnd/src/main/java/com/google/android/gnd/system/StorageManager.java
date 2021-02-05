@@ -96,7 +96,9 @@ public class StorageManager {
   }
 
   private Optional<Uri> parseResult(@Nullable Intent intent) {
-    if (intent == null || intent.getData() == null) return Optional.empty();
+    if (intent == null || intent.getData() == null) {
+      return Optional.empty();
+    }
     return Optional.ofNullable(intent.getData());
   }
 
@@ -104,10 +106,10 @@ public class StorageManager {
   private Maybe<Uri> onPickPhotoResult(ActivityResult result) {
     return Maybe.create(
         emitter -> {
-          if (!result.isOk()) {
-            emitter.onComplete();
-          } else {
+          if (result.isOk()) {
             emitter.onSuccess(parseResult(result.getData()).orElseThrow());
+          } else {
+            emitter.onComplete();
           }
         });
   }
