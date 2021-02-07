@@ -16,23 +16,29 @@
 
 package com.google.android.gnd.system;
 
+import android.Manifest.permission;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import com.google.android.gnd.persistence.local.LocalDatabaseModule;
 import com.google.android.gnd.rx.SchedulersModule;
+import com.google.android.gnd.system.PermissionsManager.PermissionDeniedException;
 import dagger.hilt.android.testing.HiltAndroidRule;
 import dagger.hilt.android.testing.HiltAndroidTest;
 import dagger.hilt.android.testing.HiltTestApplication;
 import dagger.hilt.android.testing.UninstallModules;
+import io.reactivex.Completable;
 import io.reactivex.observers.TestObserver;
 import java.io.IOException;
 import java.util.NoSuchElementException;
+import java8.util.function.Consumer;
 import javax.inject.Inject;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 import org.robolectric.RobolectricTestRunner;
@@ -51,7 +57,7 @@ public class CameraManagerTest {
 
   @Rule public HiltAndroidRule hiltRule = new HiltAndroidRule(this);
 
-  @Inject PermissionsManager permissionsManager;
+  @Mock PermissionsManager mockPermissionsManager;
   @Inject ActivityStreams activityStreams;
 
   private CameraManager cameraManager;
@@ -59,7 +65,36 @@ public class CameraManagerTest {
   @Before
   public void setUp() {
     hiltRule.inject();
-    cameraManager = new CameraManager(permissionsManager, activityStreams);
+    cameraManager = new CameraManager(mockPermissionsManager, activityStreams);
+  }
+
+  private void mockPermissions(boolean allow) {
+    String[] permissions = {permission.WRITE_EXTERNAL_STORAGE, permission.CAMERA};
+    for (String permission : permissions) {
+      Mockito.when(mockPermissionsManager.obtainPermission(permission))
+          .thenReturn(
+              allow ? Completable.complete() : Completable.error(new PermissionDeniedException()));
+    }
+  }
+
+  @Test
+  public void testLaunchPhotoCapture_whenPermissionGranted() {
+    TestObserver<Consumer<Activity>> requests = activityStreams.getActivityRequests().test();
+
+    mockPermissions(true);
+    cameraManager.launchPhotoCapture().test().assertNoErrors().assertComplete();
+
+    requests.assertValueCount(1);
+  }
+
+  @Test
+  public void testLaunchPhotoCapture_whenPermissionDenied() {
+    TestObserver<Consumer<Activity>> requests = activityStreams.getActivityRequests().test();
+
+    mockPermissions(false);
+    cameraManager.launchPhotoCapture().test().assertFailure(PermissionDeniedException.class);
+
+    requests.assertNoValues();
   }
 
   @Test
