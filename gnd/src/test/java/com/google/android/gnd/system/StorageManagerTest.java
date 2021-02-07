@@ -16,6 +16,9 @@
 
 package com.google.android.gnd.system;
 
+import static org.mockito.ArgumentMatchers.any;
+
+import android.Manifest.permission;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -23,21 +26,23 @@ import android.net.Uri;
 import com.google.android.gnd.persistence.local.LocalDatabaseModule;
 import com.google.android.gnd.persistence.remote.RemoteStorageManager;
 import com.google.android.gnd.rx.SchedulersModule;
+import com.google.android.gnd.system.PermissionsManager.PermissionDeniedException;
 import com.google.android.gnd.ui.util.BitmapUtil;
 import com.google.android.gnd.ui.util.FileUtil;
 import dagger.hilt.android.testing.HiltAndroidRule;
 import dagger.hilt.android.testing.HiltAndroidTest;
 import dagger.hilt.android.testing.HiltTestApplication;
 import dagger.hilt.android.testing.UninstallModules;
+import io.reactivex.Completable;
 import io.reactivex.observers.TestObserver;
 import java.io.IOException;
 import java.util.NoSuchElementException;
+import java8.util.function.Consumer;
 import javax.inject.Inject;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnit;
@@ -58,11 +63,11 @@ public class StorageManagerTest {
 
   @Rule public HiltAndroidRule hiltRule = new HiltAndroidRule(this);
 
-  @Inject PermissionsManager permissionsManager;
   @Inject ActivityStreams activityStreams;
   @Inject FileUtil fileUtil;
 
   @Mock BitmapUtil mockBitmapUtil;
+  @Mock PermissionsManager mockPermissionsManager;
   @Mock RemoteStorageManager mockRemoteStorageManager;
 
   private StorageManager storageManager;
@@ -72,7 +77,7 @@ public class StorageManagerTest {
     hiltRule.inject();
     storageManager =
         new StorageManager(
-            permissionsManager,
+            mockPermissionsManager,
             activityStreams,
             mockRemoteStorageManager,
             fileUtil,
@@ -81,8 +86,34 @@ public class StorageManagerTest {
 
   private Bitmap mockBitmap() throws IOException {
     Bitmap bitmap = Bitmap.createBitmap(10, 10, Bitmap.Config.ALPHA_8);
-    Mockito.when(mockBitmapUtil.fromUri(ArgumentMatchers.any())).thenReturn(bitmap);
+    Mockito.when(mockBitmapUtil.fromUri(any(Uri.class))).thenReturn(bitmap);
     return bitmap;
+  }
+
+  private void mockPermissions(boolean allow) {
+    Mockito.when(mockPermissionsManager.obtainPermission(permission.READ_EXTERNAL_STORAGE))
+        .thenReturn(
+            allow ? Completable.complete() : Completable.error(new PermissionDeniedException()));
+  }
+
+  @Test
+  public void testLaunchPhotoPicker_whenPermissionGranted() {
+    TestObserver<Consumer<Activity>> requests = activityStreams.getActivityRequests().test();
+
+    mockPermissions(true);
+    storageManager.launchPhotoPicker().test().assertNoErrors().assertComplete();
+
+    requests.assertValueCount(1);
+  }
+
+  @Test
+  public void testLaunchPhotoPicker_whenPermissionDenied() {
+    TestObserver<Consumer<Activity>> requests = activityStreams.getActivityRequests().test();
+
+    mockPermissions(false);
+    storageManager.launchPhotoPicker().test().assertFailure(PermissionDeniedException.class);
+
+    requests.assertNoValues();
   }
 
   @Test
