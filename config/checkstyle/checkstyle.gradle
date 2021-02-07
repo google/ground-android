@@ -30,7 +30,7 @@
 
 apply plugin: 'checkstyle'
 
-checkstyle.toolVersion = '8.36.2'
+checkstyle.toolVersion = '8.40'
 
 tasks.register("checkstyle", Checkstyle) {
     configFile file("../third_party/checkstyle/google_checks.xml")
