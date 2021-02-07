@@ -40,15 +40,6 @@
       android:layout_height="match_parent"
       android:orientation="vertical">
 
-      <ProgressBar
-        android:id="@+id/observation_details_progress_bar"
-        style="?android:attr/progressBarStyle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:padding="48dp"
-        android:visibility="@{safeUnbox(viewModel.isProgressBarVisible) ? View.VISIBLE : View.GONE }" />
-
       <!-- CardView is used to create the drop shadow effect -->
       <androidx.cardview.widget.CardView
         android:id="@+id/observation_details_header"
@@ -81,6 +72,15 @@
           android:orientation="vertical" />
 
       </ScrollView>
+
+      <ProgressBar
+        android:id="@+id/observation_details_progress_bar"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:padding="48dp"
+        android:visibility="@{safeUnbox(viewModel.isProgressBarVisible) ? View.VISIBLE : View.GONE }" />
 
     </RelativeLayout>
 
