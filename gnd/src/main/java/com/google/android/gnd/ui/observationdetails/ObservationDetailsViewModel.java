@@ -33,9 +33,15 @@ import javax.inject.Inject;
 
 public class ObservationDetailsViewModel extends AbstractViewModel {
 
+  @Hot(replays = true)
   public final LiveData<Loadable<Observation>> observations;
+
+  @Hot(replays = true)
   public final LiveData<Boolean> isProgressBarVisible;
+
+  @Hot(replays = true)
   public final LiveData<Optional<Feature>> feature;
+
   private final ObservationRepository observationRepository;
 
   @Hot(replays = true)
@@ -79,6 +85,12 @@ public class ObservationDetailsViewModel extends AbstractViewModel {
     this.argsProcessor.onNext(args);
   }
 
+  /**
+   * Creates an {@link com.google.android.gnd.model.observation.ObservationMutation}, marks the
+   * locally stored {@link Observation} as DELETED and enqueues a worker to remove the observation
+   * from remote {@link com.google.android.gnd.persistence.remote.firestore.FirestoreDataStore}.
+   */
+  @Hot
   public Completable deleteCurrentObservation(
       String projectId, String featureId, String observationId) {
     return observationRepository
