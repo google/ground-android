@@ -101,7 +101,7 @@ public class StorageManagerTest {
     TestObserver<Consumer<Activity>> requests = activityStreams.getActivityRequests().test();
 
     mockPermissions(true);
-    storageManager.launchPhotoPicker().test().assertNoErrors().assertComplete();
+    storageManager.launchPhotoPicker().test().assertComplete();
 
     requests.assertValueCount(1);
   }

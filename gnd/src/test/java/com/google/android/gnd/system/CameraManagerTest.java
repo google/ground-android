@@ -82,7 +82,7 @@ public class CameraManagerTest {
     TestObserver<Consumer<Activity>> requests = activityStreams.getActivityRequests().test();
 
     mockPermissions(true);
-    cameraManager.launchPhotoCapture().test().assertNoErrors().assertComplete();
+    cameraManager.launchPhotoCapture().test().assertComplete();
 
     requests.assertValueCount(1);
   }
