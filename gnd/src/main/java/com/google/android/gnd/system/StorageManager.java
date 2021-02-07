@@ -17,16 +17,14 @@
 package com.google.android.gnd.system;
 
 import android.Manifest.permission;
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
-import android.provider.MediaStore.Images.Media;
 import androidx.annotation.Nullable;
 import com.google.android.gnd.persistence.remote.RemoteStorageManager;
 import com.google.android.gnd.system.ActivityStreams.ActivityResult;
+import com.google.android.gnd.ui.util.BitmapUtil;
 import com.google.android.gnd.ui.util.FileUtil;
-import dagger.hilt.android.qualifiers.ApplicationContext;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
 import io.reactivex.Observable;
@@ -42,25 +40,26 @@ import timber.log.Timber;
 @Singleton
 public class StorageManager {
 
-  private static final int PICK_PHOTO_REQUEST_CODE = StorageManager.class.hashCode() & 0xffff;
-  private final Context context;
+  static final int PICK_PHOTO_REQUEST_CODE = StorageManager.class.hashCode() & 0xffff;
+
   private final PermissionsManager permissionsManager;
   private final ActivityStreams activityStreams;
   private final RemoteStorageManager remoteStorageManager;
   private final FileUtil fileUtil;
+  private final BitmapUtil bitmapUtil;
 
   @Inject
   public StorageManager(
-      @ApplicationContext Context context,
       PermissionsManager permissionsManager,
       ActivityStreams activityStreams,
       RemoteStorageManager remoteStorageManager,
-      FileUtil fileUtil) {
-    this.context = context;
+      FileUtil fileUtil,
+      BitmapUtil bitmapUtil) {
     this.permissionsManager = permissionsManager;
     this.activityStreams = activityStreams;
     this.remoteStorageManager = remoteStorageManager;
     this.fileUtil = fileUtil;
+    this.bitmapUtil = bitmapUtil;
   }
 
   /**
@@ -92,7 +91,7 @@ public class StorageManager {
     return activityStreams
         .getNextActivityResult(PICK_PHOTO_REQUEST_CODE)
         .flatMapMaybe(this::onPickPhotoResult)
-        .map(uri -> Media.getBitmap(context.getContentResolver(), uri));
+        .map(bitmapUtil::fromUri);
   }
 
   private Optional<Uri> parseResult(@Nullable Intent intent) {
