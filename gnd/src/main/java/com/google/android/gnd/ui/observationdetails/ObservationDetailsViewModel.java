@@ -25,6 +25,7 @@ import com.google.android.gnd.repository.ObservationRepository;
 import com.google.android.gnd.rx.Loadable;
 import com.google.android.gnd.rx.annotations.Hot;
 import com.google.android.gnd.ui.common.AbstractViewModel;
+import com.google.android.gnd.ui.common.FeatureHelper;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.processors.BehaviorProcessor;
@@ -35,13 +36,16 @@ import javax.inject.Inject;
 public class ObservationDetailsViewModel extends AbstractViewModel {
 
   @Hot(replays = true)
-  public final LiveData<Loadable<Observation>> observations;
+  public final LiveData<Loadable<Observation>> observation;
 
   @Hot(replays = true)
   public final LiveData<Integer> progressBarVisibility;
 
   @Hot(replays = true)
-  public final LiveData<Optional<Feature>> feature;
+  public final LiveData<String> title;
+
+  @Hot(replays = true)
+  public final LiveData<String> subtitle;
 
   private final ObservationRepository observationRepository;
 
@@ -50,7 +54,8 @@ public class ObservationDetailsViewModel extends AbstractViewModel {
       BehaviorProcessor.create();
 
   @Inject
-  ObservationDetailsViewModel(ObservationRepository observationRepository) {
+  ObservationDetailsViewModel(
+      ObservationRepository observationRepository, FeatureHelper featureHelper) {
     this.observationRepository = observationRepository;
 
     Flowable<Loadable<Observation>> observationStream =
@@ -63,15 +68,23 @@ public class ObservationDetailsViewModel extends AbstractViewModel {
                     .onErrorReturn(Loadable::error));
 
     // TODO: Refactor to expose the fetched observation directly.
-    this.observations = LiveDataReactiveStreams.fromPublisher(observationStream);
+    this.observation = LiveDataReactiveStreams.fromPublisher(observationStream);
 
     this.progressBarVisibility =
         LiveDataReactiveStreams.fromPublisher(
             observationStream.map(ObservationDetailsViewModel::getProgressBarVisibility));
 
-    this.feature =
+    this.title =
         LiveDataReactiveStreams.fromPublisher(
-            observationStream.map(ObservationDetailsViewModel::getFeature));
+            observationStream
+                .map(ObservationDetailsViewModel::getFeature)
+                .map(featureHelper::getTitle));
+
+    this.subtitle =
+        LiveDataReactiveStreams.fromPublisher(
+            observationStream
+                .map(ObservationDetailsViewModel::getFeature)
+                .map(featureHelper::getCreatedBy));
   }
 
   private static Integer getProgressBarVisibility(Loadable<Observation> observation) {
