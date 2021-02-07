@@ -37,7 +37,7 @@ import timber.log.Timber;
 public class CameraManager {
 
   /** Used to identify requests coming from this application. */
-  private static final int CAPTURE_PHOTO_REQUEST_CODE = CameraManager.class.hashCode() & 0xffff;
+  static final int CAPTURE_PHOTO_REQUEST_CODE = CameraManager.class.hashCode() & 0xffff;
 
   private final PermissionsManager permissionsManager;
   private final ActivityStreams activityStreams;
