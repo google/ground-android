@@ -134,7 +134,7 @@ public class StorageManager {
    *
    * @param destinationPath Final destination path of the uploaded photo relative to Firestore
    */
-  @Hot
+  @Hot(terminates = true)
   public Single<Uri> getDownloadUrl(String destinationPath) {
     return remoteStorageManager
         .getDownloadUrl(destinationPath)
