@@ -24,6 +24,7 @@ import android.graphics.ColorFilter;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
+import android.os.Build;
 import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,7 +35,6 @@ import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import com.google.android.gnd.system.DeviceCapabilities;
 import java8.util.stream.IntStreams;
 import java8.util.stream.Stream;
 
@@ -88,7 +88,7 @@ public class ViewUtil {
   }
 
   public static void assignGeneratedId(@Nullable View view) {
-    if (DeviceCapabilities.isGenerateViewIdSupported() && view != null) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1 && view != null) {
       view.setId(View.generateViewId());
     }
   }
