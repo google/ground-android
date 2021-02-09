@@ -19,7 +19,6 @@ package com.google.android.gnd.persistence.remote.firestore.schema;
 import static com.google.android.gnd.persistence.remote.DataStoreException.checkNotEmpty;
 import static com.google.android.gnd.persistence.remote.DataStoreException.checkNotNull;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.feature.Feature;
@@ -39,9 +38,7 @@ public class FeatureConverter {
   protected static final String CREATED = "created";
   protected static final String LAST_MODIFIED = "lastModified";
 
-  // TODO: Make @NonNull the default and add build-time nullness checking.
-  static Feature toFeature(@NonNull Project project, @NonNull DocumentSnapshot doc)
-      throws DataStoreException {
+  static Feature toFeature(Project project, DocumentSnapshot doc) throws DataStoreException {
     FeatureDocument f = checkNotNull(doc.toObject(FeatureDocument.class), "feature data");
     String layerId = checkNotNull(f.getLayerId(), LAYER_ID);
     Layer layer = checkNotEmpty(project.getLayer(layerId), "layer " + f.getLayerId());
