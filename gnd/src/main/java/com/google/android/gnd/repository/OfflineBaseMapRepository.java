@@ -152,7 +152,7 @@ public class OfflineBaseMapRepository {
   @Cold
   public Completable addAreaAndEnqueue(OfflineBaseMap baseMap) {
     return geocodingManager
-        .getOfflineAreaName(baseMap.getBounds())
+        .getAreaName(baseMap.getBounds())
         .map(name -> baseMap.toBuilder().setName(name).build())
         .flatMapCompletable(this::enqueueTileSourceDownloads);
   }
