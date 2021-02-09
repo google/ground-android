@@ -32,7 +32,6 @@ import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.ObservationDetailsFieldBinding;
 import com.google.android.gnd.databinding.ObservationDetailsFragBinding;
 import com.google.android.gnd.databinding.PhotoFieldBinding;
-import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.form.Element;
 import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.form.Field.Type;
@@ -41,18 +40,15 @@ import com.google.android.gnd.model.observation.Response;
 import com.google.android.gnd.rx.Loadable;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.EphemeralPopups;
-import com.google.android.gnd.ui.common.FeatureHelper;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.editobservation.PhotoFieldViewModel;
 import dagger.hilt.android.AndroidEntryPoint;
-import java8.util.Optional;
 import javax.inject.Inject;
 import timber.log.Timber;
 
 @AndroidEntryPoint
 public class ObservationDetailsFragment extends AbstractFragment {
 
-  @Inject FeatureHelper featureHelper;
   @Inject Navigator navigator;
   @Inject EphemeralPopups popups;
 
@@ -64,7 +60,7 @@ public class ObservationDetailsFragment extends AbstractFragment {
     super.onCreate(savedInstanceState);
     ObservationDetailsFragmentArgs args = getObservationDetailFragmentArgs();
     viewModel = getViewModel(ObservationDetailsViewModel.class);
-    viewModel.observations.observe(this, this::onUpdate);
+    viewModel.observation.observe(this, this::onUpdate);
     viewModel.loadObservationDetails(args);
   }
 
@@ -73,7 +69,6 @@ public class ObservationDetailsFragment extends AbstractFragment {
       LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
     super.onCreateView(inflater, container, savedInstanceState);
     binding = ObservationDetailsFragBinding.inflate(inflater, container, false);
-    binding.setFragment(this);
     binding.setViewModel(viewModel);
     binding.setLifecycleOwner(this);
     return binding.getRoot();
@@ -175,14 +170,6 @@ public class ObservationDetailsFragment extends AbstractFragment {
       default:
         return false;
     }
-  }
-
-  public String getFeatureTitle(@Nullable Optional<Feature> feature) {
-    return feature == null ? "" : featureHelper.getTitle(feature);
-  }
-
-  public String getFeatureSubtitle(@Nullable Optional<Feature> feature) {
-    return feature == null ? "" : featureHelper.getCreatedBy(feature);
   }
 
   private ObservationDetailsFragmentArgs getObservationDetailFragmentArgs() {
