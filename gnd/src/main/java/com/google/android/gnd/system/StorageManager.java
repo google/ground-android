@@ -22,6 +22,8 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import androidx.annotation.Nullable;
 import com.google.android.gnd.persistence.remote.RemoteStorageManager;
+import com.google.android.gnd.rx.annotations.Cold;
+import com.google.android.gnd.rx.annotations.Hot;
 import com.google.android.gnd.system.ActivityStreams.ActivityResult;
 import com.google.android.gnd.ui.util.BitmapUtil;
 import com.google.android.gnd.ui.util.FileUtil;
@@ -65,6 +67,7 @@ public class StorageManager {
    * Requests for selecting a photo from the storage, if necessary permissions are granted.
    * Otherwise, requests for the permissions and then sends out the request.
    */
+  @Cold
   public Completable launchPhotoPicker() {
     return permissionsManager
         .obtainPermission(permission.READ_EXTERNAL_STORAGE)
@@ -73,6 +76,7 @@ public class StorageManager {
 
   // TODO: Move UI-specific code to UI layer (Fragment or any related helper)
   /** Enqueue an intent for selecting a photo from the storage. */
+  @Cold
   private Completable sendPhotoPickerIntent() {
     return Completable.fromAction(
         () ->
@@ -86,6 +90,7 @@ public class StorageManager {
   }
 
   /** Observe for the result of request code {@link StorageManager#PICK_PHOTO_REQUEST_CODE}. */
+  @Hot(terminates = true)
   public Maybe<Bitmap> photoPickerResult() {
     return activityStreams
         .getNextActivityResult(PICK_PHOTO_REQUEST_CODE)
@@ -102,6 +107,7 @@ public class StorageManager {
   }
 
   /** Fetch Uri from the result, if present. */
+  @Cold
   private Maybe<Uri> onPickPhotoResult(ActivityResult result) {
     return Maybe.create(
         emitter -> {
@@ -128,6 +134,7 @@ public class StorageManager {
    *
    * @param destinationPath Final destination path of the uploaded photo relative to Firestore
    */
+  @Hot
   public Single<Uri> getDownloadUrl(String destinationPath) {
     return remoteStorageManager
         .getDownloadUrl(destinationPath)
@@ -135,6 +142,7 @@ public class StorageManager {
   }
 
   /** Save a copy of bitmap locally. */
+  @Cold
   public Completable savePhoto(Bitmap bitmap, String filename) {
     try {
       File file = fileUtil.saveBitmap(bitmap, filename);

@@ -70,7 +70,7 @@ public class CameraManager {
   }
 
   /** Emits the result of the photo capture request. */
-  @Hot
+  @Hot(terminates = true)
   public Maybe<Bitmap> capturePhotoResult() {
     return activityStreams
         .getNextActivityResult(CAPTURE_PHOTO_REQUEST_CODE)
