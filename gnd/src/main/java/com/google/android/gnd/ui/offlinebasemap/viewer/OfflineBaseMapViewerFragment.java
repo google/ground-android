@@ -32,7 +32,6 @@ import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.map.MapAdapter;
 import com.google.android.gnd.ui.map.MapProvider;
 import dagger.hilt.android.AndroidEntryPoint;
-import io.reactivex.Single;
 import javax.inject.Inject;
 import timber.log.Timber;
 
