@@ -27,7 +27,6 @@ import com.google.android.gnd.ui.util.BitmapUtil;
 import com.google.android.gnd.ui.util.FileUtil;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
-import io.reactivex.Observable;
 import io.reactivex.Single;
 import java.io.File;
 import java.io.IOException;
@@ -87,11 +86,12 @@ public class StorageManager {
   }
 
   /** Observe for the result of request code {@link StorageManager#PICK_PHOTO_REQUEST_CODE}. */
-  public Observable<Bitmap> photoPickerResult() {
+  public Maybe<Bitmap> photoPickerResult() {
     return activityStreams
         .getNextActivityResult(PICK_PHOTO_REQUEST_CODE)
         .flatMapMaybe(this::onPickPhotoResult)
-        .map(bitmapUtil::fromUri);
+        .map(bitmapUtil::fromUri)
+        .singleElement();
   }
 
   private Optional<Uri> parseResult(@Nullable Intent intent) {

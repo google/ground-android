@@ -26,7 +26,6 @@ import com.google.android.gnd.rx.annotations.Hot;
 import com.google.android.gnd.system.ActivityStreams.ActivityResult;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
-import io.reactivex.Observable;
 import java8.util.Optional;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -72,10 +71,11 @@ public class CameraManager {
 
   /** Emits the result of the photo capture request. */
   @Hot
-  public Observable<Bitmap> capturePhotoResult() {
+  public Maybe<Bitmap> capturePhotoResult() {
     return activityStreams
         .getNextActivityResult(CAPTURE_PHOTO_REQUEST_CODE)
-        .flatMapMaybe(this::onCapturePhotoResult);
+        .flatMapMaybe(this::onCapturePhotoResult)
+        .singleElement();
   }
 
   private Optional<Bitmap> parseResult(@Nullable Intent intent) {
