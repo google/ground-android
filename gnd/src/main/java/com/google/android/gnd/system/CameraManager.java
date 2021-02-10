@@ -71,7 +71,8 @@ public class CameraManager {
   }
 
   /** Emits the result of the photo capture request. */
-  @Hot(terminates = true) Maybe<Bitmap> capturePhotoResult() {
+  @Hot(terminates = true)
+  Maybe<Bitmap> capturePhotoResult() {
     return activityStreams
         .getNextActivityResult(CAPTURE_PHOTO_REQUEST_CODE)
         .flatMapMaybe(this::onCapturePhotoResult)

@@ -21,7 +21,6 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import androidx.annotation.Nullable;
-import com.google.android.gnd.persistence.remote.RemoteStorageManager;
 import com.google.android.gnd.rx.annotations.Cold;
 import com.google.android.gnd.rx.annotations.Hot;
 import com.google.android.gnd.system.ActivityStreams.ActivityResult;
@@ -29,7 +28,6 @@ import com.google.android.gnd.ui.util.BitmapUtil;
 import com.google.android.gnd.ui.util.FileUtil;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
-import io.reactivex.Single;
 import java.io.File;
 import java.io.IOException;
 import java8.util.Optional;
@@ -45,7 +43,6 @@ public class StorageManager {
 
   private final PermissionsManager permissionsManager;
   private final ActivityStreams activityStreams;
-  private final RemoteStorageManager remoteStorageManager;
   private final FileUtil fileUtil;
   private final BitmapUtil bitmapUtil;
 
@@ -53,12 +50,10 @@ public class StorageManager {
   public StorageManager(
       PermissionsManager permissionsManager,
       ActivityStreams activityStreams,
-      RemoteStorageManager remoteStorageManager,
       FileUtil fileUtil,
       BitmapUtil bitmapUtil) {
     this.permissionsManager = permissionsManager;
     this.activityStreams = activityStreams;
-    this.remoteStorageManager = remoteStorageManager;
     this.fileUtil = fileUtil;
     this.bitmapUtil = bitmapUtil;
   }
@@ -91,7 +86,8 @@ public class StorageManager {
   }
 
   /** Observe for the result of request code {@link StorageManager#PICK_PHOTO_REQUEST_CODE}. */
-  @Hot(terminates = true) Maybe<Bitmap> photoPickerResult() {
+  @Hot(terminates = true)
+  Maybe<Bitmap> photoPickerResult() {
     return activityStreams
         .getNextActivityResult(PICK_PHOTO_REQUEST_CODE)
         .flatMapMaybe(this::onPickPhotoResult)
@@ -117,28 +113,6 @@ public class StorageManager {
             emitter.onComplete();
           }
         });
-  }
-
-  private Uri getFileUriFromDestinationPath(String destinationPath) {
-    File file = fileUtil.getLocalFileFromRemotePath(destinationPath);
-    if (file.exists()) {
-      return Uri.fromFile(file);
-    } else {
-      return Uri.EMPTY;
-    }
-  }
-
-  /**
-   * Fetch url for the image from Firestore Storage. If the remote image is not available then
-   * search for the file locally and return its uri.
-   *
-   * @param destinationPath Final destination path of the uploaded photo relative to Firestore
-   */
-  @Hot(terminates = true)
-  public Single<Uri> getDownloadUrl(String destinationPath) {
-    return remoteStorageManager
-        .getDownloadUrl(destinationPath)
-        .onErrorReturn(throwable -> getFileUriFromDestinationPath(destinationPath));
   }
 
   /** Save a copy of bitmap locally. */

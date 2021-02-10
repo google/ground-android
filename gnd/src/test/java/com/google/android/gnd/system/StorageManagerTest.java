@@ -79,7 +79,6 @@ public class StorageManagerTest {
         new StorageManager(
             mockPermissionsManager,
             activityStreams,
-            mockRemoteStorageManager,
             fileUtil,
             mockBitmapUtil);
   }
