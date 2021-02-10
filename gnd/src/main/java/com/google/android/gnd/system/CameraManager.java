@@ -48,7 +48,7 @@ public class CameraManager {
   }
 
   /** Launches the system's photo capture flow, first obtaining permissions if necessary. */
-  @Hot(terminates = true)
+  @Cold
   public Maybe<Bitmap> capturePhoto() {
     return permissionsManager
         .obtainPermission(permission.WRITE_EXTERNAL_STORAGE)
