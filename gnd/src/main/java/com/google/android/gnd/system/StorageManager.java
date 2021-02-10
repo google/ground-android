@@ -67,11 +67,12 @@ public class StorageManager {
    * Requests for selecting a photo from the storage, if necessary permissions are granted.
    * Otherwise, requests for the permissions and then sends out the request.
    */
-  @Cold
-  public Completable launchPhotoPicker() {
+  @Hot(terminates = true)
+  public Maybe<Bitmap> selectPhoto() {
     return permissionsManager
         .obtainPermission(permission.READ_EXTERNAL_STORAGE)
-        .andThen(sendPhotoPickerIntent());
+        .andThen(sendPhotoPickerIntent())
+        .andThen(photoPickerResult());
   }
 
   // TODO: Move UI-specific code to UI layer (Fragment or any related helper)
@@ -90,8 +91,7 @@ public class StorageManager {
   }
 
   /** Observe for the result of request code {@link StorageManager#PICK_PHOTO_REQUEST_CODE}. */
-  @Hot(terminates = true)
-  public Maybe<Bitmap> photoPickerResult() {
+  @Hot(terminates = true) Maybe<Bitmap> photoPickerResult() {
     return activityStreams
         .getNextActivityResult(PICK_PHOTO_REQUEST_CODE)
         .flatMapMaybe(this::onPickPhotoResult)

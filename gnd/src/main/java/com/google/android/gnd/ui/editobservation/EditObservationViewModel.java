@@ -168,14 +168,11 @@ public class EditObservationViewModel extends AbstractViewModel {
      */
     // TODO: launch intent through fragment and handle activity result callbacks async
     disposeOnClear(
-        storageManager.launchPhotoPicker().andThen(handlePhotoPickerResult(field)).subscribe());
-  }
-
-  private Completable handlePhotoPickerResult(Field field) {
-    return storageManager
-        .photoPickerResult()
-        .doOnError(Timber::e) // TODO(#726): Display as a toast
-        .flatMapCompletable(bitmap -> saveBitmapAndUpdateResponse(bitmap, field));
+        storageManager
+            .selectPhoto()
+            .doOnError(Timber::e) // TODO(#726): Display as a toast
+            .flatMapCompletable(bitmap -> saveBitmapAndUpdateResponse(bitmap, field))
+            .subscribe());
   }
 
   public void showPhotoCapture(Field field) {
@@ -185,14 +182,11 @@ public class EditObservationViewModel extends AbstractViewModel {
      */
     // TODO: launch intent through fragment and handle activity result callbacks async
     disposeOnClear(
-        cameraManager.launchPhotoCapture().andThen(handlePhotoCaptureResult(field)).subscribe());
-  }
-
-  private Completable handlePhotoCaptureResult(Field field) {
-    return cameraManager
-        .capturePhotoResult()
-        .doOnError(Timber::e) // TODO(#726): Display as a toast
-        .flatMapCompletable(bitmap -> saveBitmapAndUpdateResponse(bitmap, field));
+        cameraManager
+            .capturePhoto()
+            .doOnError(Timber::e) // TODO(#726): Display as a toast
+            .flatMapCompletable(bitmap -> saveBitmapAndUpdateResponse(bitmap, field))
+            .subscribe());
   }
 
   private Completable saveBitmapAndUpdateResponse(Bitmap bitmap, Field field) {

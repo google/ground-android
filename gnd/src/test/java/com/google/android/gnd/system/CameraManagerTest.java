@@ -82,7 +82,7 @@ public class CameraManagerTest {
     TestObserver<Consumer<Activity>> requests = activityStreams.getActivityRequests().test();
 
     mockPermissions(true);
-    cameraManager.launchPhotoCapture().test().assertComplete();
+    cameraManager.capturePhoto().test().assertNoErrors();
 
     requests.assertValueCount(1);
   }
@@ -92,7 +92,7 @@ public class CameraManagerTest {
     TestObserver<Consumer<Activity>> requests = activityStreams.getActivityRequests().test();
 
     mockPermissions(false);
-    cameraManager.launchPhotoCapture().test().assertFailure(PermissionDeniedException.class);
+    cameraManager.capturePhoto().test().assertFailure(PermissionDeniedException.class);
 
     requests.assertNoValues();
   }

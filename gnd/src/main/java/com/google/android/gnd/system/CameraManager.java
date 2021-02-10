@@ -48,12 +48,13 @@ public class CameraManager {
   }
 
   /** Launches the system's photo capture flow, first obtaining permissions if necessary. */
-  @Cold
-  public Completable launchPhotoCapture() {
+  @Hot(terminates = true)
+  public Maybe<Bitmap> capturePhoto() {
     return permissionsManager
         .obtainPermission(permission.WRITE_EXTERNAL_STORAGE)
         .andThen(permissionsManager.obtainPermission(permission.CAMERA))
-        .andThen(sendCapturePhotoIntent());
+        .andThen(sendCapturePhotoIntent())
+        .andThen(capturePhotoResult());
   }
 
   /** Enqueue an intent for capturing a photo. */
@@ -70,8 +71,7 @@ public class CameraManager {
   }
 
   /** Emits the result of the photo capture request. */
-  @Hot(terminates = true)
-  public Maybe<Bitmap> capturePhotoResult() {
+  @Hot(terminates = true) Maybe<Bitmap> capturePhotoResult() {
     return activityStreams
         .getNextActivityResult(CAPTURE_PHOTO_REQUEST_CODE)
         .flatMapMaybe(this::onCapturePhotoResult)

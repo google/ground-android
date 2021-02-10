@@ -101,7 +101,7 @@ public class StorageManagerTest {
     TestObserver<Consumer<Activity>> requests = activityStreams.getActivityRequests().test();
 
     mockPermissions(true);
-    storageManager.launchPhotoPicker().test().assertComplete();
+    storageManager.selectPhoto().test().assertNoErrors();
 
     requests.assertValueCount(1);
   }
@@ -111,7 +111,7 @@ public class StorageManagerTest {
     TestObserver<Consumer<Activity>> requests = activityStreams.getActivityRequests().test();
 
     mockPermissions(false);
-    storageManager.launchPhotoPicker().test().assertFailure(PermissionDeniedException.class);
+    storageManager.selectPhoto().test().assertFailure(PermissionDeniedException.class);
 
     requests.assertNoValues();
   }
