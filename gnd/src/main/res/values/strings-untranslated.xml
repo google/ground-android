@@ -21,5 +21,6 @@
   <string name="app_name" translatable="false">Ground</string>
   <string name="text_separator" translatable="false">·</string>
   <string name="ground_website" translatable="false">https://groundplatform.org/</string>
+  <string name="ground_android_github" translatable="false">https://github.com/google/ground-android/issues/new/choose</string>
 
 </resources>
