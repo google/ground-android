@@ -16,10 +16,11 @@
 
 package com.google.android.gnd.ui.settings;
 
-import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import androidx.annotation.Nullable;
+import androidx.browser.customtabs.CustomTabColorSchemeParams;
+import androidx.browser.customtabs.CustomTabsIntent;
 import androidx.preference.Preference;
 import androidx.preference.Preference.OnPreferenceChangeListener;
 import androidx.preference.Preference.OnPreferenceClickListener;
@@ -91,10 +92,14 @@ public class SettingsFragment extends PreferenceFragmentCompat
   }
 
   private void openUrl(String url) {
-    // TODO: Use chrome custom tabs to prevent switching app
-    //  https://developer.chrome.com/docs/multidevice/android/customtabs/
-    Intent intent = new Intent(Intent.ACTION_VIEW);
-    intent.setData(Uri.parse(url));
-    startActivity(intent);
+    CustomTabColorSchemeParams params =
+        new CustomTabColorSchemeParams.Builder()
+            .setToolbarColor(getResources().getColor(R.color.colorPrimary))
+            .build();
+
+    CustomTabsIntent customTabsIntent =
+        new CustomTabsIntent.Builder().setDefaultColorSchemeParams(params).build();
+
+    customTabsIntent.launchUrl(requireContext(), Uri.parse(url));
   }
 }
