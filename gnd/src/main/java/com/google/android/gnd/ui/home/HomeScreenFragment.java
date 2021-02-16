@@ -48,7 +48,6 @@ import com.google.android.gnd.databinding.HomeScreenFragBinding;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.Point;
-import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.rx.Loadable;
 import com.google.android.gnd.rx.Schedulers;
 import com.google.android.gnd.system.auth.AuthenticationManager;
@@ -123,14 +122,7 @@ public class HomeScreenFragment extends AbstractFragment
   }
 
   private void onFeatureAdded(Feature feature) {
-    feature.getLayer().getForm().ifPresent(form -> addNewObservation(feature, form));
-  }
-
-  private void addNewObservation(Feature feature, Form form) {
-    String projectId = feature.getProject().getId();
-    String featureId = feature.getId();
-    String formId = form.getId();
-    navigator.navigate(HomeScreenFragmentDirections.addObservation(projectId, featureId, formId));
+    viewModel.showBottomSheet(feature);
   }
 
   /** This is only possible after updating the location of the feature. So, reset the UI. */
