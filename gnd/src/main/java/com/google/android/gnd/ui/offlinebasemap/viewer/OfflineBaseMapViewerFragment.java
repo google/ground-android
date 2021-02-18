@@ -62,10 +62,6 @@ public class OfflineBaseMapViewerFragment extends AbstractFragment {
     viewModel.loadOfflineArea(args);
     mapProvider.getMapAdapter().as(autoDisposable(this)).subscribe(this::onMapReady);
     viewModel.getOfflineArea().observe(this, this::panMap);
-    viewModel
-        .onRemoveArea()
-        .as(autoDisposable(this))
-        .subscribe(() -> navigator.navigateUp(), this::handleRemoveError);
   }
 
   private void handleRemoveError(Throwable throwable) {

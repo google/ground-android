@@ -27,12 +27,15 @@ import com.google.android.gnd.repository.OfflineBaseMapRepository;
 import com.google.android.gnd.rx.Nil;
 import com.google.android.gnd.rx.annotations.Hot;
 import com.google.android.gnd.ui.common.AbstractViewModel;
+import com.google.android.gnd.ui.common.Navigator;
 import com.google.common.collect.ImmutableSet;
 import dagger.hilt.android.qualifiers.ApplicationContext;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
+import io.reactivex.Single;
 import io.reactivex.processors.BehaviorProcessor;
 import io.reactivex.processors.PublishProcessor;
+import io.reactivex.subjects.SingleSubject;
 import java.io.File;
 import java.lang.ref.WeakReference;
 import javax.inject.Inject;
@@ -45,43 +48,64 @@ import timber.log.Timber;
 public class OfflineBaseMapViewerViewModel extends AbstractViewModel {
 
   @Hot(replays = true)
-  private final BehaviorProcessor<OfflineBaseMapViewerFragmentArgs> argsProcessor;
+  private final SingleSubject<OfflineBaseMapViewerFragmentArgs> fragmentArgs =
+      SingleSubject.create();
 
-  @Hot private final PublishProcessor<Nil> removeClickProcessor;
+  @Hot private final PublishProcessor<Nil> removeAreaClicks = PublishProcessor.create();
 
   private final OfflineBaseMapRepository offlineBaseMapRepository;
   private final WeakReference<Context> context;
   public LiveData<Double> areaStorageSize;
   public LiveData<String> areaName;
   private final LiveData<OfflineBaseMap> offlineArea;
+  @Inject Navigator navigator;
 
   @Inject
   public OfflineBaseMapViewerViewModel(
-      OfflineBaseMapRepository offlineBaseMapRepository, @ApplicationContext Context context) {
-    this.argsProcessor = BehaviorProcessor.create();
-    this.removeClickProcessor = PublishProcessor.create();
+      OfflineBaseMapRepository offlineBaseMapRepository,
+      @ApplicationContext Context context,
+      Navigator navigator) {
     this.offlineBaseMapRepository = offlineBaseMapRepository;
     this.context = new WeakReference<>(context);
+    this.navigator = navigator;
     @Hot
-    Flowable<OfflineBaseMap> offlineAreaInternal =
-        this.argsProcessor.switchMap(
-            args ->
-                this.offlineBaseMapRepository
-                    .getOfflineArea(args.getOfflineAreaId())
-                    .toFlowable()
-                    .doOnError(
-                        throwable ->
-                            Timber.e(
-                                throwable, "Couldn't render area: %s", args.getOfflineAreaId())));
+    // We only need to convert this single to a flowable in order to use it with LiveData.
+    // It still only contains a single offline area returned by getOfflineArea.
+    Flowable<OfflineBaseMap> offlineAreaItemAsFlowable =
+        this.fragmentArgs
+            .flatMap(
+                args ->
+                    this.offlineBaseMapRepository
+                        .getOfflineArea(args.getOfflineAreaId())
+                        .doOnError(
+                            throwable ->
+                                Timber.e(
+                                    throwable,
+                                    "Couldn't render area: %s",
+                                    args.getOfflineAreaId())))
+            .toFlowable();
     this.areaName =
-        LiveDataReactiveStreams.fromPublisher(offlineAreaInternal.map(OfflineBaseMap::getName));
+        LiveDataReactiveStreams.fromPublisher(
+            offlineAreaItemAsFlowable.map(OfflineBaseMap::getName));
     this.areaStorageSize =
         LiveDataReactiveStreams.fromPublisher(
-            offlineAreaInternal
+            offlineAreaItemAsFlowable
                 .flatMap(
                     offlineBaseMapRepository::getIntersectingDownloadedTileSourcesOnceAndStream)
                 .map(this::tileSourcesToTotalStorageSize));
-    this.offlineArea = LiveDataReactiveStreams.fromPublisher(offlineAreaInternal);
+    this.offlineArea = LiveDataReactiveStreams.fromPublisher(offlineAreaItemAsFlowable);
+    disposeOnClear(
+        removeAreaClicks
+            .first(Nil.NIL)
+            .flatMapCompletable(
+                __ -> {
+                  if (this.offlineArea.getValue() == null) {
+                    return Completable.error(new Throwable("Could not remove nonexistent area."));
+                  }
+
+                  return offlineBaseMapRepository.deleteArea(this.offlineArea.getValue().getId());
+                })
+            .subscribe(navigator::navigateUp));
   }
 
   private Double tileSourcesToTotalStorageSize(ImmutableSet<TileSource> tileSources) {
@@ -98,25 +122,6 @@ public class OfflineBaseMapViewerViewModel extends AbstractViewModel {
     }
   }
 
-  /**
-   * Removes the offline area associated with this viewmodel from the device by removing all tile
-   * sources that are not included in other areas and removing the area from the db.
-   *
-   * <p>Terminates the upstream click processor so that the resulting stream completes.
-   */
-  @Hot(terminates = true)
-  public Completable onRemoveArea() {
-    return this.removeClickProcessor.flatMapCompletable(
-        __ -> {
-          if (this.offlineArea.getValue() == null) {
-            return Completable.error(new Throwable("Could not remove nonexistent area."));
-          }
-
-          this.removeClickProcessor.onComplete();
-          return offlineBaseMapRepository.deleteArea(this.offlineArea.getValue().getId());
-        });
-  }
-
   /** Returns the offline area associated with this view model. */
   public LiveData<OfflineBaseMap> getOfflineArea() {
     return offlineArea;
@@ -124,12 +129,12 @@ public class OfflineBaseMapViewerViewModel extends AbstractViewModel {
 
   /** Gets a single offline area by the id passed to the OfflineAreaViewerFragment's arguments. */
   public void loadOfflineArea(OfflineBaseMapViewerFragmentArgs args) {
-    this.argsProcessor.onNext(args);
+    this.fragmentArgs.onSuccess(args);
   }
 
   /** Deletes the area associated with this viewmodel. */
   public void removeArea() {
     Timber.d("Removing offline area %s", this.offlineArea.getValue());
-    this.removeClickProcessor.onNext(Nil.NIL);
+    this.removeAreaClicks.onNext(Nil.NIL);
   }
 }
