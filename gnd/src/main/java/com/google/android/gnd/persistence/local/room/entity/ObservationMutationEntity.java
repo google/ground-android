@@ -18,7 +18,6 @@ package com.google.android.gnd.persistence.local.room.entity;
 
 import static androidx.room.ForeignKey.CASCADE;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
@@ -52,22 +51,18 @@ import org.json.JSONObject;
     indices = {@Index("feature_id"), @Index("observation_id")})
 public abstract class ObservationMutationEntity extends MutationEntity {
   @CopyAnnotations
-  @NonNull
   @ColumnInfo(name = "form_id")
   public abstract String getFormId();
 
   @CopyAnnotations
-  @NonNull
   @ColumnInfo(name = "feature_id")
   public abstract String getFeatureId();
 
   @CopyAnnotations
-  @NonNull
   @ColumnInfo(name = "layer_id")
   public abstract String getLayerId();
 
   @CopyAnnotations
-  @NonNull
   @ColumnInfo(name = "observation_id")
   public abstract String getObservationId();
 
@@ -155,11 +150,11 @@ public abstract class ObservationMutationEntity extends MutationEntity {
   @AutoValue.Builder
   public abstract static class Builder extends MutationEntity.Builder<Builder> {
 
-    public abstract Builder setFeatureId(@Nullable String newFeatureId);
+    public abstract Builder setFeatureId(String newFeatureId);
 
-    public abstract Builder setLayerId(@Nullable String newLayerId);
+    public abstract Builder setLayerId(String newLayerId);
 
-    public abstract Builder setFormId(@Nullable String newFormId);
+    public abstract Builder setFormId(String newFormId);
 
     public abstract Builder setObservationId(String newObservationId);
 

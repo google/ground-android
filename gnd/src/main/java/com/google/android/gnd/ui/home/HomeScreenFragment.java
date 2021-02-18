@@ -23,7 +23,6 @@ import static com.google.android.gnd.ui.util.ViewUtil.getScreenHeight;
 import static com.google.android.gnd.ui.util.ViewUtil.getScreenWidth;
 
 import android.app.ProgressDialog;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -41,12 +40,14 @@ import androidx.core.view.GravityCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import com.akaita.java.rxjava2debug.RxJava2Debug;
+import com.google.android.gnd.BuildConfig;
 import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.MainViewModel;
 import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.HomeScreenFragBinding;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.feature.Feature;
+import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.rx.Loadable;
 import com.google.android.gnd.rx.Schedulers;
@@ -63,7 +64,6 @@ import com.google.android.gnd.ui.projectselector.ProjectSelectorViewModel;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.navigation.NavigationView.OnNavigationItemSelectedListener;
 import dagger.hilt.android.AndroidEntryPoint;
-import io.reactivex.subjects.PublishSubject;
 import java.util.Collections;
 import java.util.List;
 import java8.util.Optional;
@@ -86,13 +86,13 @@ public class HomeScreenFragment extends AbstractFragment
   @Inject AuthenticationManager authenticationManager;
   @Inject Schedulers schedulers;
   @Inject Navigator navigator;
-  @Inject MapContainerViewModel mapContainerViewModel;
+  @Inject EphemeralPopups popups;
+  MapContainerViewModel mapContainerViewModel;
 
   @Nullable private ProgressDialog progressDialog;
   private HomeScreenViewModel viewModel;
   private MapContainerFragment mapContainerFragment;
   private BottomSheetBehavior<View> bottomSheetBehavior;
-  private PublishSubject<Object> showFeatureDialogRequests;
   private ProjectSelectorDialogFragment projectSelectorDialogFragment;
   private ProjectSelectorViewModel projectSelectorViewModel;
   private List<Project> projects = Collections.emptyList();
@@ -102,10 +102,15 @@ public class HomeScreenFragment extends AbstractFragment
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
 
+    projectSelectorDialogFragment = new ProjectSelectorDialogFragment();
+
     getViewModel(MainViewModel.class).getWindowInsets().observe(this, this::onApplyWindowInsets);
 
+    mapContainerViewModel = getViewModel(MapContainerViewModel.class);
+    projectSelectorViewModel = getViewModel(ProjectSelectorViewModel.class);
+
     viewModel = getViewModel(HomeScreenViewModel.class);
-    viewModel.getActiveProject().observe(this, this::onActiveProjectChange);
+    viewModel.getProjectLoadingState().observe(this, this::onActiveProjectChange);
     viewModel
         .getShowAddFeatureDialogRequests()
         .observe(this, e -> e.ifUnhandled(this::onShowAddFeatureDialogRequest));
@@ -115,15 +120,6 @@ public class HomeScreenFragment extends AbstractFragment
     viewModel.getUpdateFeatureResults().observe(this, this::onFeatureUpdated);
     viewModel.getDeleteFeatureResults().observe(this, this::onFeatureDeleted);
     viewModel.getErrors().observe(this, this::onError);
-
-    showFeatureDialogRequests = PublishSubject.create();
-
-    showFeatureDialogRequests
-        .switchMapMaybe(__ -> addFeatureDialogFragment.show(getChildFragmentManager()))
-        .as(autoDisposable(this))
-        .subscribe(viewModel::addFeature);
-
-    projectSelectorViewModel = getViewModel(ProjectSelectorViewModel.class);
   }
 
   private void onFeatureAdded(Feature feature) {
@@ -134,7 +130,7 @@ public class HomeScreenFragment extends AbstractFragment
     String projectId = feature.getProject().getId();
     String featureId = feature.getId();
     String formId = form.getId();
-    navigator.addObservation(projectId, featureId, formId);
+    navigator.navigate(HomeScreenFragmentDirections.addObservation(projectId, featureId, formId));
   }
 
   /** This is only possible after updating the location of the feature. So, reset the UI. */
@@ -164,8 +160,6 @@ public class HomeScreenFragment extends AbstractFragment
       LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
     super.onCreateView(inflater, container, savedInstanceState);
 
-    projectSelectorDialogFragment = new ProjectSelectorDialogFragment();
-
     binding = HomeScreenFragBinding.inflate(inflater, container, false);
     binding.featureDetailsChrome.setViewModel(viewModel);
     binding.setLifecycleOwner(this);
@@ -175,7 +169,7 @@ public class HomeScreenFragment extends AbstractFragment
   @Override
   public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
-    binding.versionText.setText("Build " + getVersionName());
+    binding.versionText.setText(String.format(getString(R.string.build), BuildConfig.VERSION_NAME));
     // Ensure nav drawer cannot be swiped out, which would conflict with map pan gestures.
     binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
 
@@ -190,6 +184,12 @@ public class HomeScreenFragment extends AbstractFragment
     }
 
     setUpBottomSheetBehavior();
+  }
+
+  @Override
+  public void onSaveInstanceState(Bundle outState) {
+    super.onSaveInstanceState(outState);
+    saveChildFragment(outState, mapContainerFragment, MapContainerFragment.class.getName());
   }
 
   /** Fetches offline saved projects and adds them to navigation drawer. */
@@ -221,19 +221,8 @@ public class HomeScreenFragment extends AbstractFragment
     }
 
     // Highlight active project
-    Loadable.getValue(viewModel.getActiveProject())
+    Loadable.getValue(viewModel.getProjectLoadingState())
         .ifPresent(project -> updateSelectedProjectUI(getSelectedProjectIndex(project)));
-  }
-
-  private String getVersionName() {
-    try {
-      return requireContext()
-          .getPackageManager()
-          .getPackageInfo(getContext().getPackageName(), 0)
-          .versionName;
-    } catch (PackageManager.NameNotFoundException e) {
-      return "?";
-    }
   }
 
   @Override
@@ -416,14 +405,18 @@ public class HomeScreenFragment extends AbstractFragment
     return -1;
   }
 
-  private void onShowAddFeatureDialogRequest() {
-    if (!Loadable.getValue(viewModel.getActiveProject()).isPresent()) {
-      Timber.e("Attempting to add feature while no project loaded");
-      return;
-    }
-    // TODO: Pause location updates while dialog is open.
-    // TODO: Show spinner?
-    showFeatureDialogRequests.onNext(new Object());
+  private void onShowAddFeatureDialogRequest(Point point) {
+    Loadable.getValue(viewModel.getProjectLoadingState())
+        .ifPresentOrElse(
+            project -> {
+              // TODO: Pause location updates while dialog is open.
+              // TODO: Show spinner?
+              addFeatureDialogFragment.show(
+                  project.getLayers(),
+                  getChildFragmentManager(),
+                  (layer) -> viewModel.addFeature(project, layer, point));
+            },
+            () -> Timber.e("Attempting to add feature while no project loaded"));
   }
 
   private void onBottomSheetStateChange(BottomSheetState state) {
@@ -507,7 +500,7 @@ public class HomeScreenFragment extends AbstractFragment
   private void onActivateProjectFailure(Throwable throwable) {
     Timber.e(RxJava2Debug.getEnhancedStackTrace(throwable), "Error activating project");
     dismissLoadingDialog();
-    EphemeralPopups.showError(getContext(), R.string.project_load_error);
+    popups.showError(R.string.project_load_error);
     showProjectSelector();
   }
 

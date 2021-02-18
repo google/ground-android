@@ -18,11 +18,15 @@ package com.google.android.gnd.ui.editobservation;
 
 import android.app.Application;
 import androidx.lifecycle.MutableLiveData;
+import com.google.android.gnd.model.observation.MultipleChoiceResponse;
 import com.google.android.gnd.rx.Nil;
+import com.google.android.gnd.rx.annotations.Hot;
+import java8.util.Optional;
 import javax.inject.Inject;
 
 public class MultipleChoiceFieldViewModel extends AbstractFieldViewModel {
 
+  @Hot(replays = true)
   private final MutableLiveData<Nil> showDialogClicks = new MutableLiveData<>();
 
   @Inject
@@ -36,5 +40,11 @@ public class MultipleChoiceFieldViewModel extends AbstractFieldViewModel {
 
   MutableLiveData<Nil> getShowDialogClicks() {
     return showDialogClicks;
+  }
+
+  Optional<MultipleChoiceResponse> getCurrentResponse() {
+    return getResponse().getValue() == null
+        ? Optional.empty()
+        : getResponse().getValue().map(response -> (MultipleChoiceResponse) response);
   }
 }

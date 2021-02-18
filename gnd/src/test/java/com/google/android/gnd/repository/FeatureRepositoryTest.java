@@ -40,6 +40,7 @@ import com.google.android.gnd.persistence.local.LocalDataStore;
 import com.google.android.gnd.persistence.local.LocalDatabaseModule;
 import com.google.android.gnd.persistence.remote.RemoteDataStore;
 import com.google.android.gnd.persistence.sync.DataSyncWorkManager;
+import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator;
 import com.google.android.gnd.rx.SchedulersModule;
 import com.google.android.gnd.system.auth.AuthenticationManager;
 import com.google.common.collect.ImmutableList;
@@ -125,6 +126,7 @@ public class FeatureRepositoryTest {
   @Mock ProjectRepository mockProjectRepository;
   @Mock DataSyncWorkManager mockWorkManager;
   @Mock AuthenticationManager mockAuthManager;
+  @Mock OfflineUuidGenerator mockUuidGenerator;
 
   @Captor ArgumentCaptor<FeatureMutation> captorFeatureMutation;
 
@@ -153,7 +155,8 @@ public class FeatureRepositoryTest {
             mockRemoteDataStore,
             mockProjectRepository,
             mockWorkManager,
-            mockAuthManager);
+            mockAuthManager,
+            mockUuidGenerator);
 
     mockAuthUser();
   }

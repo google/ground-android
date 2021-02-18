@@ -20,10 +20,10 @@ import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 
 import android.annotation.SuppressLint;
 import android.location.Location;
-import android.util.Log;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.rx.BooleanOrError;
+import com.google.android.gnd.rx.annotations.Hot;
 import com.google.android.gnd.system.rx.RxFusedLocationProviderClient;
 import com.google.android.gnd.system.rx.RxLocationCallback;
 import dagger.hilt.android.scopes.ActivityScoped;
@@ -34,10 +34,10 @@ import io.reactivex.Single;
 import io.reactivex.subjects.BehaviorSubject;
 import io.reactivex.subjects.Subject;
 import javax.inject.Inject;
+import timber.log.Timber;
 
 @ActivityScoped
 public class LocationManager {
-  private static final String TAG = LocationManager.class.getSimpleName();
   private static final long UPDATE_INTERVAL = 1000 /* 1 sec */;
   private static final long FASTEST_INTERVAL = 250; /* 250 ms */
   private static final LocationRequest FINE_LOCATION_UPDATES_REQUEST =
@@ -49,7 +49,8 @@ public class LocationManager {
   private final PermissionsManager permissionsManager;
   private final SettingsManager settingsManager;
   private final RxFusedLocationProviderClient locationClient;
-  private final Subject<Location> locationUpdates;
+  @Hot(replays = true)
+  private final Subject<Location> locationUpdates = BehaviorSubject.create();
   private final RxLocationCallback locationUpdateCallback;
 
   @Inject
@@ -60,7 +61,6 @@ public class LocationManager {
     this.permissionsManager = permissionsManager;
     this.settingsManager = settingsManager;
     this.locationClient = locationClient;
-    this.locationUpdates = BehaviorSubject.create();
     this.locationUpdateCallback = RxLocationCallback.create(locationUpdates);
   }
 
@@ -90,15 +90,15 @@ public class LocationManager {
    * location updates exposed by {@link #getLocationUpdates()}.
    */
   public synchronized Single<BooleanOrError> enableLocationUpdates() {
-    Log.d(TAG, "Attempting to enable location updates");
+    Timber.d("Attempting to enable location updates");
     return permissionsManager
         .obtainPermission(ACCESS_FINE_LOCATION)
         .andThen(settingsManager.enableLocationSettings(FINE_LOCATION_UPDATES_REQUEST))
         .andThen(
             locationClient.requestLocationUpdates(
                 FINE_LOCATION_UPDATES_REQUEST, locationUpdateCallback))
-        .toSingle(() -> BooleanOrError.trueValue())
-        .onErrorReturn(t -> BooleanOrError.error(t));
+        .toSingle(BooleanOrError::trueValue)
+        .onErrorReturn(BooleanOrError::error);
   }
 
   // TODO: Request/remove updates on resume/pause.
@@ -107,8 +107,8 @@ public class LocationManager {
     // multiple times.
     return locationClient
         .removeLocationUpdates(locationUpdateCallback)
-        .toSingle(() -> BooleanOrError.falseValue())
-        .doOnError(t -> Log.v(TAG, "disableLocationUpdates:", t))
+        .toSingle(BooleanOrError::falseValue)
+        .doOnError(t -> Timber.e(t, "disableLocationUpdates"))
         .onErrorReturn(__ -> BooleanOrError.falseValue());
   }
 

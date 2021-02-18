@@ -22,10 +22,10 @@
     <import type="android.view.View" />
     <variable
       name="viewModel"
-      type="com.google.android.gnd.ui.editobservation.EditObservationViewModel"/>
+      type="com.google.android.gnd.ui.editobservation.EditObservationViewModel" />
     <variable
       name="fragment"
-      type="com.google.android.gnd.ui.editobservation.EditObservationFragment"/>
+      type="com.google.android.gnd.ui.editobservation.EditObservationFragment" />
   </data>
 
   <!-- Use CoordinatorLayout to avoid rendering over top system bar. -->
@@ -70,15 +70,15 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@id/edit_observation_header"
-        android:paddingTop="10dp"
-        android:background="@color/colorBackground">
+        android:background="@color/colorBackground"
+        android:paddingTop="10dp">
 
         <LinearLayout
           android:id="@+id/edit_observation_layout"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
           android:focusableInTouchMode="true"
-          android:orientation="vertical"/>
+          android:orientation="vertical" />
 
       </ScrollView>
 
@@ -89,7 +89,7 @@
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
         android:padding="48dp"
-        android:visibility="@{viewModel.isLoading ? View.VISIBLE : View.GONE }"/>
+        android:visibility="@{viewModel.isLoading ? View.VISIBLE : View.GONE }" />
 
     </RelativeLayout>
 
@@ -100,15 +100,16 @@
       style="@style/ChipButton.Toolbar"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:layout_marginTop="@dimen/toolbar_button_margin_top"
-      android:layout_marginRight="@dimen/toolbar_button_margin_right"
       android:layout_gravity="top|end"
+      android:layout_marginTop="@dimen/toolbar_button_margin_top"
+      android:layout_marginEnd="@dimen/toolbar_button_margin_right"
+      android:layout_marginRight="@dimen/toolbar_button_margin_right"
       android:elevation="2dp"
       android:text="@string/save_observation_button_label"
       android:visibility="@{viewModel.isSaving ? View.GONE : View.VISIBLE }"
-      app:useCompatPadding="true"/>
+      app:useCompatPadding="true" />
 
-    <!-- TODO: Refactor and use in place of deprecated ProgressDialog. -->
+    <!-- TODO(#712): Refactor and use in place of deprecated ProgressDialog. -->
     <androidx.cardview.widget.CardView
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
@@ -126,15 +127,16 @@
           style="@style/Widget.AppCompat.ProgressBar"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
+          android:layout_marginEnd="24dp"
           android:layout_marginRight="24dp"
           android:gravity="center_vertical" />
         <TextView
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
-          android:singleLine="true"
           android:gravity="center_vertical"
-          android:textSize="16sp"
-          android:text="@string/saving" />
+          android:singleLine="true"
+          android:text="@string/saving"
+          android:textSize="16sp" />
       </LinearLayout>
     </androidx.cardview.widget.CardView>
   </androidx.coordinatorlayout.widget.CoordinatorLayout>

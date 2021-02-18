@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <!--
   ~ Copyright 2019 Google LLC
   ~
@@ -14,17 +15,40 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
+
 <lint>
   <!-- Severity: Warning -->
-  <issue id="InvalidPackage" severity="warning" />
   <issue id="MissingTranslation" severity="warning" />
 
   <!-- Severity: Error -->
   <issue id="ApplySharedPref" severity="error" />
+  <issue id="Deprecated" severity="error">
+    <ignore path="res/layout/multiple_choice_input_field.xml" />
+  </issue>
   <issue id="DuplicateIds" severity="error" />
   <issue id="DuplicateStrings" severity="error" />
+  <issue id="FragmentTagUsage" severity="error" />
   <issue id="HardcodedText" severity="error" />
+  <issue id="IconXmlAndPng" severity="error" />
+  <issue id="InvalidPackage" severity="error" />
+  <issue id="LogNotTimber" severity="error" />
+  <issue id="RtlHardcoded" severity="error" />
   <issue id="PxUsage" severity="error" />
+  <issue id="Registered" severity="error" />
+  <issue id="SetTextI18n" severity="error" />
   <issue id="SpUsage" severity="error" />
+  <issue id="TypographyEllipsis" severity="error" />
+  <issue id="TypographyQuotes" severity="error" />
+  <issue id="UnusedResources" severity="error">
+    <!-- TODO: Remove the ignore regex -->
+    <ignore regexp="res/.*/.*\.xml" />
+  </issue>
+  <issue id="UselessLeaf" severity="error">
+    <ignore path="res/layout/feature_details_frag.xml" />
+  </issue>
   <issue id="UselessParent" severity="error" />
+  <issue id="UseCompatLoadingForDrawables" severity="error" />
+  <issue id="UseCompatTextViewDrawableXml" severity="error" />
+  <issue id="ValidActionsXml" severity="error" />
+  <issue id="WrongThreadInterprocedural" severity="error" />
 </lint>

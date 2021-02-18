@@ -17,6 +17,7 @@
 package com.google.android.gnd.ui.common;
 
 import android.content.res.ColorStateList;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -30,7 +31,6 @@ import com.google.android.gnd.R;
 import com.google.android.gnd.ui.editobservation.MultipleChoiceFieldLayout;
 import com.google.android.material.textfield.TextInputEditText;
 import com.squareup.picasso.Picasso;
-import java8.util.Optional;
 import java8.util.function.Consumer;
 
 /**
@@ -38,6 +38,10 @@ import java8.util.function.Consumer;
  * injectable, since binding adapters must be static.
  */
 public class BindingAdapters {
+  @BindingAdapter("src")
+  public static void bindImageBitmap(ImageView imageView, Bitmap bitmap) {
+    imageView.setImageBitmap(bitmap);
+  }
 
   @BindingAdapter("onClick")
   public static void bindGoogleSignOnButtonClick(
@@ -64,13 +68,6 @@ public class BindingAdapters {
             // No-op.
           }
         });
-  }
-
-  @BindingAdapter("errorText")
-  public static void bindError(TextInputEditText view, Optional<String> error) {
-    if (error != null) {
-      error.ifPresentOrElse(view::setError, () -> view.setError(null));
-    }
   }
 
   @BindingAdapter("onShowDialog")

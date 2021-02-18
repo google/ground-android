@@ -14,26 +14,29 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.persistence.remote;
+package com.google.android.gnd.ui.map;
 
-import android.net.Uri;
-import io.reactivex.Flowable;
-import io.reactivex.Single;
-import java.io.File;
-import javax.inject.Inject;
+import com.google.android.gnd.model.feature.Point;
 
-public class FakeRemoteStorageManager implements RemoteStorageManager {
+public class CameraPosition {
 
-  @Inject
-  FakeRemoteStorageManager() {}
+  private final Point target;
+  private final Float zoomLevel;
 
-  @Override
-  public Single<Uri> getDownloadUrl(String remoteDestinationPath) {
-    return Single.never();
+  public CameraPosition(Point target, Float zoomLevel) {
+    this.target = target;
+    this.zoomLevel = zoomLevel;
   }
 
-  @Override
-  public Flowable<TransferProgress> uploadMediaFromFile(File file, String remoteDestinationPath) {
-    return Flowable.never();
+  public Point getTarget() {
+    return target;
+  }
+
+  public Float getZoomLevel() {
+    return zoomLevel;
+  }
+
+  public String toString() {
+    return "Position: " + target + " Zoom level: " + zoomLevel;
   }
 }

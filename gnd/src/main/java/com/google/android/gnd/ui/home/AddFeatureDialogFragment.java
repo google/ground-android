@@ -17,110 +17,80 @@
 package com.google.android.gnd.ui.home;
 
 import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList;
+import static java.util.Objects.requireNonNull;
 import static java8.util.stream.StreamSupport.stream;
 
 import android.app.Dialog;
 import android.os.Bundle;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.util.Consumer;
 import androidx.fragment.app.FragmentManager;
 import com.google.android.gnd.R;
-import com.google.android.gnd.model.AuditInfo;
-import com.google.android.gnd.model.Project;
-import com.google.android.gnd.model.feature.Feature;
-import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.model.layer.Layer;
-import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator;
-import com.google.android.gnd.rx.Loadable;
-import com.google.android.gnd.system.auth.AuthenticationManager;
 import com.google.android.gnd.ui.common.AbstractDialogFragment;
-import com.google.android.gnd.ui.home.mapcontainer.MapContainerViewModel;
 import com.google.common.collect.ImmutableList;
 import dagger.hilt.android.AndroidEntryPoint;
-import io.reactivex.Maybe;
-import io.reactivex.subjects.MaybeSubject;
 import java8.util.Objects;
 import javax.inject.Inject;
+import timber.log.Timber;
 
 @AndroidEntryPoint
 public class AddFeatureDialogFragment extends AbstractDialogFragment {
-  private static final String TAG = AddFeatureDialogFragment.class.getSimpleName();
-  private final OfflineUuidGenerator uuidGenerator;
-  private final AuthenticationManager authManager;
 
-  private final MaybeSubject<Feature> addFeatureRequestSubject = MaybeSubject.create();
-  private HomeScreenViewModel homeScreenViewModel;
-  private MapContainerViewModel mapContainerViewModel;
+  private static final String TAG = AddFeatureDialogFragment.class.getSimpleName();
+
+  @Nullable private Consumer<Layer> layerConsumer;
+  @Nullable private ImmutableList<Layer> layers;
 
   @Inject
-  public AddFeatureDialogFragment(
-      OfflineUuidGenerator uuidGenerator, AuthenticationManager authManager) {
-    this.uuidGenerator = uuidGenerator;
-    this.authManager = authManager;
-  }
+  public AddFeatureDialogFragment() {}
 
-  @Override
-  public void onCreate(@Nullable Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
-    // TODO: Move into new AddFeatureDialogViewModel?
-    this.homeScreenViewModel = getViewModel(HomeScreenViewModel.class);
-    this.mapContainerViewModel = getViewModel(MapContainerViewModel.class);
-  }
-
-  public Maybe<Feature> show(FragmentManager fragmentManager) {
+  public void show(
+      ImmutableList<Layer> layers, FragmentManager fragmentManager, Consumer<Layer> layerConsumer) {
+    this.layers = layers;
+    this.layerConsumer = layerConsumer;
     show(fragmentManager, TAG);
-    return addFeatureRequestSubject;
   }
 
+  @NonNull
   @Override
   public Dialog onCreateDialog(Bundle savedInstanceState) {
+    super.onCreateDialog(savedInstanceState);
     try {
-      super.onCreateDialog(savedInstanceState);
-      // TODO: Inject and use custom factory.
-      Project activeProject =
-          Loadable.getValue(homeScreenViewModel.getActiveProject())
-              .orElseThrow(() -> new NullPointerException("No active project"));
-      Point cameraPosition =
-          Objects.requireNonNull(
-              mapContainerViewModel.getCameraPosition().getValue(), "No camera position");
-      return createDialog(activeProject, cameraPosition);
+      requireNonNull(layers);
+      requireNonNull(layerConsumer);
+      return createDialog(sortByName(layers), layerConsumer);
     } catch (RuntimeException e) {
-      addFeatureRequestSubject.onError(e);
+      Timber.e(e);
       return fail(Objects.requireNonNullElse(e.getMessage(), "Unknown error"));
     }
   }
 
-  private Dialog createDialog(Project project, Point cameraPosition) {
-    AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-    builder.setTitle(R.string.add_feature_select_type_dialog_title);
-    builder.setNegativeButton(R.string.cancel, (dialog, id) -> onCancel());
+  private ImmutableList<Layer> sortByName(ImmutableList<Layer> layers) {
+    return stream(layers)
+        .sorted((l1, l2) -> l1.getName().compareTo(l2.getName()))
+        .collect(toImmutableList());
+  }
+
+  private String[] getLayerNames(ImmutableList<Layer> layers) {
+    return stream(layers).map(Layer::getName).toArray(String[]::new);
+  }
+
+  private Dialog createDialog(ImmutableList<Layer> layers, Consumer<Layer> layerConsumer) {
     // TODO: Add icons.
-    ImmutableList<Layer> layers =
-        stream(project.getLayers())
-            .sorted((pt1, pt2) -> pt1.getName().compareTo(pt2.getName()))
-            .collect(toImmutableList());
-    String[] items = stream(layers).map(t -> t.getName()).toArray(String[]::new);
-    builder.setItems(
-        items, (dialog, idx) -> onSelectLayer(project, layers.get(idx), cameraPosition));
-    return builder.create();
+    return new AlertDialog.Builder(requireContext())
+        .setTitle(R.string.add_feature_select_type_dialog_title)
+        .setNegativeButton(R.string.cancel, (dialog, id) -> dismiss())
+        .setItems(getLayerNames(layers), (dialog, index) -> layerConsumer.accept(layers.get(index)))
+        .create();
   }
 
-  private void onSelectLayer(Project project, Layer layer, Point cameraPosition) {
-    AuditInfo auditInfo = AuditInfo.now(authManager.getCurrentUser());
-    // TODO(#9): Move creating a new Feature into the ViewModel or ProjectRepository. Doing it here
-    // for now to avoid conflicting with soon-to-be-merged commits for Issue #24.
-    addFeatureRequestSubject.onSuccess(
-        Feature.newBuilder()
-            .setId(uuidGenerator.generateUuid())
-            .setProject(project)
-            .setLayer(layer)
-            .setPoint(cameraPosition)
-            .setCreated(auditInfo)
-            .setLastModified(auditInfo)
-            .build());
-  }
-
-  private void onCancel() {
-    addFeatureRequestSubject.onComplete();
+  @Override
+  public void onDestroyView() {
+    super.onDestroyView();
+    layers = null;
+    layerConsumer = null;
   }
 }

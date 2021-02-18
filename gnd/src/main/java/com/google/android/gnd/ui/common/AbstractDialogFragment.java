@@ -35,6 +35,7 @@ import javax.inject.Inject;
 public abstract class AbstractDialogFragment extends AppCompatDialogFragment {
 
   @Inject ViewModelFactory viewModelFactory;
+  @Inject EphemeralPopups popups;
 
   /**
    * Uses {@link ViewModelFactory} to obtain an instance of the view model of the specified class.
@@ -144,7 +145,7 @@ public abstract class AbstractDialogFragment extends AppCompatDialogFragment {
   }
 
   protected Dialog fail(String message) {
-    EphemeralPopups.showError(getContext(), message);
+    popups.showError(message);
     return new AlertDialog.Builder(getContext()).create();
   }
 }

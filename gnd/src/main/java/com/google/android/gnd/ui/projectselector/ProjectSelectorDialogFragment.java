@@ -35,11 +35,13 @@ import com.google.android.gnd.ui.common.AbstractDialogFragment;
 import com.google.android.gnd.ui.common.EphemeralPopups;
 import dagger.hilt.android.AndroidEntryPoint;
 import java.util.List;
+import javax.inject.Inject;
 import timber.log.Timber;
 
 /** User interface implementation of project selector dialog. */
 @AndroidEntryPoint
 public class ProjectSelectorDialogFragment extends AbstractDialogFragment {
+  @Inject EphemeralPopups popups;
 
   private ProjectSelectorViewModel viewModel;
 
@@ -93,7 +95,7 @@ public class ProjectSelectorDialogFragment extends AbstractDialogFragment {
 
   private void onProjectListLoadError(Throwable t) {
     Timber.e(t, "Project list not available");
-    EphemeralPopups.showError(getContext(), R.string.project_list_load_error);
+    popups.showError(R.string.project_list_load_error);
     dismiss();
   }
 

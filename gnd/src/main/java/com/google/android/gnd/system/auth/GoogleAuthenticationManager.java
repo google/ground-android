@@ -19,7 +19,6 @@ package com.google.android.gnd.system.auth;
 import android.app.Activity;
 import android.app.Application;
 import android.content.Intent;
-import android.util.Log;
 import androidx.annotation.NonNull;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -29,6 +28,7 @@ import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gnd.R;
 import com.google.android.gnd.model.User;
+import com.google.android.gnd.rx.annotations.Hot;
 import com.google.android.gnd.system.ActivityStreams;
 import com.google.android.gnd.system.ActivityStreams.ActivityResult;
 import com.google.android.gnd.system.auth.SignInState.State;
@@ -43,13 +43,16 @@ import io.reactivex.subjects.BehaviorSubject;
 import io.reactivex.subjects.Subject;
 import java8.util.Optional;
 import javax.inject.Inject;
+import timber.log.Timber;
 
 public class GoogleAuthenticationManager implements AuthenticationManager {
 
-  private static final String TAG = AuthenticationManager.class.getSimpleName();
   private static final int SIGN_IN_REQUEST_CODE = AuthenticationManager.class.hashCode() & 0xffff;
   private final GoogleSignInOptions googleSignInOptions;
-  private final Subject<SignInState> signInState;
+
+  @Hot(replays = true)
+  private final Subject<SignInState> signInState = BehaviorSubject.create();
+
   private final FirebaseAuth firebaseAuth;
   private final ActivityStreams activityStreams;
   private final Disposable activityResultsSubscription;
@@ -57,7 +60,6 @@ public class GoogleAuthenticationManager implements AuthenticationManager {
   // TODO: Update Fragments to access via ProjectRepository rather than directly.
   @Inject
   public GoogleAuthenticationManager(Application application, ActivityStreams activityStreams) {
-    this.signInState = BehaviorSubject.create();
     this.firebaseAuth = FirebaseAuth.getInstance();
     this.googleSignInOptions =
         new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -120,7 +122,7 @@ public class GoogleAuthenticationManager implements AuthenticationManager {
           GoogleSignIn.getSignedInAccountFromIntent(activityResult.getData());
       onGoogleSignIn(googleSignInTask.getResult(ApiException.class));
     } catch (ApiException e) {
-      Log.w(TAG, "Sign in failed: " + e);
+      Timber.e(e, "Sign in failed");
       signInState.onNext(new SignInState(e));
     }
   }

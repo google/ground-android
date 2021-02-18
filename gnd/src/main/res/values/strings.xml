@@ -156,7 +156,7 @@
   <string name="offline_base_map_viewer_remove_button">Remove</string>
   <string name="offline_base_map_viewer_storage">This base map takes up %.1f MB of storage space on your device.</string>
   <string name="offline_base_map_name">%s</string>
-  <string name="offline_base_map_unknown_base_map">Unknown Base Map</string>
+  <string name="unnamed_area">Unnamed area</string>
   <string name="offline_base_map_download_started">Download started.</string>
   <string name="offline_base_map_download_failed">Couldn\'t download base map.</string>
   <string name="added_by">Added by %s</string>
@@ -165,4 +165,6 @@
   <string name="error_occurred">An error occurred</string>
   <string name="offline_base_map_selector_select">Select and download</string>
   <string name="no_basemaps_downloaded">No base maps downloaded.</string>
+  <string name="please_wait_logging_in">Logging in…</string>
+  <string name="build">Build %s</string>
 </resources>

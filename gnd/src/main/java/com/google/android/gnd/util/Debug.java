@@ -16,7 +16,7 @@
 
 package com.google.android.gnd.util;
 
-import android.util.Log;
+import timber.log.Timber;
 
 public abstract class Debug {
   /** Do not instantiate. */
@@ -25,6 +25,6 @@ public abstract class Debug {
   public static void logLifecycleEvent(Object instance) {
     StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
     String callingMethod = stackTrace[3].getMethodName() + "()";
-    Log.v(instance.getClass().getSimpleName(), "Lifecycle event: " + callingMethod);
+    Timber.tag(instance.getClass().getSimpleName()).v("Lifecycle event: %s", callingMethod);
   }
 }

@@ -16,31 +16,47 @@
 
 package com.google.android.gnd.ui.observationdetails;
 
+import android.view.View;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.repository.ObservationRepository;
 import com.google.android.gnd.rx.Loadable;
+import com.google.android.gnd.rx.annotations.Hot;
 import com.google.android.gnd.ui.common.AbstractViewModel;
+import com.google.android.gnd.ui.common.FeatureHelper;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.processors.BehaviorProcessor;
+import io.reactivex.processors.FlowableProcessor;
 import java8.util.Optional;
 import javax.inject.Inject;
 
 public class ObservationDetailsViewModel extends AbstractViewModel {
 
-  public final LiveData<Loadable<Observation>> observations;
-  public final LiveData<Boolean> isProgressBarVisible;
-  public final LiveData<Optional<Feature>> feature;
+  @Hot(replays = true)
+  public final LiveData<Loadable<Observation>> observation;
+
+  @Hot(replays = true)
+  public final LiveData<Integer> progressBarVisibility;
+
+  @Hot(replays = true)
+  public final LiveData<String> title;
+
+  @Hot(replays = true)
+  public final LiveData<String> subtitle;
+
   private final ObservationRepository observationRepository;
-  private final BehaviorProcessor<ObservationDetailsFragmentArgs> argsProcessor;
+
+  @Hot(replays = true)
+  private final FlowableProcessor<ObservationDetailsFragmentArgs> argsProcessor =
+      BehaviorProcessor.create();
 
   @Inject
-  ObservationDetailsViewModel(ObservationRepository observationRepository) {
+  ObservationDetailsViewModel(
+      ObservationRepository observationRepository, FeatureHelper featureHelper) {
     this.observationRepository = observationRepository;
-    this.argsProcessor = BehaviorProcessor.create();
 
     Flowable<Loadable<Observation>> observationStream =
         argsProcessor.switchMapSingle(
@@ -52,19 +68,27 @@ public class ObservationDetailsViewModel extends AbstractViewModel {
                     .onErrorReturn(Loadable::error));
 
     // TODO: Refactor to expose the fetched observation directly.
-    this.observations = LiveDataReactiveStreams.fromPublisher(observationStream);
+    this.observation = LiveDataReactiveStreams.fromPublisher(observationStream);
 
-    this.isProgressBarVisible =
+    this.progressBarVisibility =
         LiveDataReactiveStreams.fromPublisher(
             observationStream.map(ObservationDetailsViewModel::getProgressBarVisibility));
 
-    this.feature =
+    this.title =
         LiveDataReactiveStreams.fromPublisher(
-            observationStream.map(ObservationDetailsViewModel::getFeature));
+            observationStream
+                .map(ObservationDetailsViewModel::getFeature)
+                .map(featureHelper::getTitle));
+
+    this.subtitle =
+        LiveDataReactiveStreams.fromPublisher(
+            observationStream
+                .map(ObservationDetailsViewModel::getFeature)
+                .map(featureHelper::getCreatedBy));
   }
 
-  private static Boolean getProgressBarVisibility(Loadable<Observation> observation) {
-    return observation.value().isPresent();
+  private static Integer getProgressBarVisibility(Loadable<Observation> observation) {
+    return observation.isLoaded() ? View.GONE : View.VISIBLE;
   }
 
   private static Optional<Feature> getFeature(Loadable<Observation> observation) {
@@ -75,6 +99,12 @@ public class ObservationDetailsViewModel extends AbstractViewModel {
     this.argsProcessor.onNext(args);
   }
 
+  /**
+   * Creates an {@link com.google.android.gnd.model.observation.ObservationMutation}, marks the
+   * locally stored {@link Observation} as DELETED and enqueues a worker to remove the observation
+   * from remote {@link com.google.android.gnd.persistence.remote.firestore.FirestoreDataStore}.
+   */
+  @Hot
   public Completable deleteCurrentObservation(
       String projectId, String featureId, String observationId) {
     return observationRepository

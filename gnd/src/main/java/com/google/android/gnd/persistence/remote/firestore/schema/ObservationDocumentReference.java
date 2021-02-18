@@ -21,6 +21,7 @@ import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.model.observation.ObservationMutation;
 import com.google.android.gnd.persistence.remote.firestore.base.FluentDocumentReference;
+import com.google.android.gnd.rx.annotations.Cold;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.WriteBatch;
 import durdinapps.rxfirebase2.RxFirestore;
@@ -31,6 +32,7 @@ public class ObservationDocumentReference extends FluentDocumentReference {
     super(ref);
   }
 
+  @Cold
   public Maybe<Observation> get(Feature feature) {
     return RxFirestore.getDocument(reference())
         .map(doc -> ObservationConverter.toObservation(feature, doc));

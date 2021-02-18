@@ -20,7 +20,9 @@ import android.annotation.SuppressLint;
 import com.cocoahero.android.gmaps.addons.mapbox.MapBoxOfflineTileProvider;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gnd.model.feature.Point;
+import com.google.android.gnd.rx.annotations.Hot;
 import com.google.common.collect.ImmutableSet;
+import io.reactivex.Flowable;
 import io.reactivex.Observable;
 
 /**
@@ -29,22 +31,38 @@ import io.reactivex.Observable;
  */
 public interface MapAdapter {
 
-  /** Returns a stream that emits map pins clicked by the user. */
+  /** Returns marker click events. */
+  @Hot
   Observable<MapPin> getMapPinClicks();
 
   /**
-   * Returns a stream that emits the new viewport center each time the map is dragged by the user.
+   * Returns map drag events. Emits the new viewport center each time the map is dragged by the
+   * user. Subscribers that can't keep up receive the latest event ({@link
+   * Flowable#onBackpressureLatest()}).
    */
-  Observable<Point> getDragInteractions();
+  @Hot
+  Flowable<Point> getDragInteractions();
 
-  /** Returns a stream that emits the viewport center on each camera movement. */
-  Observable<Point> getCameraMoves();
+  /**
+   * Returns camera move events. Emits the new camera position each time the map pans or zooms.
+   * Subscribers that can't keep up receive the latest event ({@link
+   * Flowable#onBackpressureLatest()}).
+   */
+  @Hot
+  Flowable<CameraPosition> getCameraMoves();
 
   /** Enables map gestures like pan and zoom. */
   void enable();
 
   /** Disables all map gestures like pan and zoom. */
   void disable();
+
+  /**
+   * Repositions the camera.
+   *
+   * @param position the new position
+   */
+  void moveCamera(CameraPosition position);
 
   /**
    * Repositions the viewport centered around the specified point without changing the current zoom
@@ -86,6 +104,8 @@ public interface MapAdapter {
   /** Renders a tile overlay on the map. */
   void addTileOverlays(ImmutableSet<String> mbtilesFiles);
 
-  /** Get the stream of TileProviders associated with this map adapter. */
+  // TODO(#691): Create interface and impl to encapsulate MapBoxOfflineTileProvider impl.
+  /** Returns TileProviders associated with this map adapter. */
+  @Hot
   Observable<MapBoxOfflineTileProvider> getTileProviders();
 }

@@ -53,9 +53,7 @@ import java8.util.Optional;
 import javax.inject.Inject;
 import timber.log.Timber;
 
-/**
- * Main app view, displaying the map and related controls (center cross-hairs, add button, etc).
- */
+/** Main app view, displaying the map and related controls (center cross-hairs, add button, etc). */
 @AndroidEntryPoint
 public class MapContainerFragment extends AbstractFragment {
 
@@ -88,13 +86,15 @@ public class MapContainerFragment extends AbstractFragment {
         .as(disposeOnDestroy(this))
         .subscribe(homeScreenViewModel::onMarkerClick);
     mapAdapter
-        .toObservable()
+        .toFlowable()
         .flatMap(MapAdapter::getDragInteractions)
+        .onBackpressureLatest()
         .as(disposeOnDestroy(this))
         .subscribe(mapContainerViewModel::onMapDrag);
     mapAdapter
-        .toObservable()
+        .toFlowable()
         .flatMap(MapAdapter::getCameraMoves)
+        .onBackpressureLatest()
         .as(disposeOnDestroy(this))
         .subscribe(mapContainerViewModel::onCameraMove);
     mapAdapter
@@ -136,8 +136,8 @@ public class MapContainerFragment extends AbstractFragment {
         .observe(this, state -> onLocationLockStateChange(state, map));
     mapContainerViewModel
         .getCameraUpdateRequests()
-        .observe(this, update -> onCameraUpdate(update, map));
-    mapContainerViewModel.getActiveProject().observe(this, this::onProjectChange);
+        .observe(this, update -> update.ifUnhandled(data -> onCameraUpdate(data, map)));
+    mapContainerViewModel.getProjectLoadingState().observe(this, this::onProjectChange);
     homeScreenViewModel
         .getBottomSheetState()
         .observe(this, state -> onBottomSheetStateChange(state, map));
@@ -150,8 +150,11 @@ public class MapContainerFragment extends AbstractFragment {
     mapContainerViewModel.getMbtilesFilePaths().observe(this, map::addTileOverlays);
     mapContainerViewModel
         .getSelectMapTypeClicks()
-        .observe(getViewLifecycleOwner(),
-            action -> action.ifUnhandled(this::showMapTypeSelectorDialog));
+        .observe(
+            getViewLifecycleOwner(), action -> action.ifUnhandled(this::showMapTypeSelectorDialog));
+
+    // TODO: Do this the RxJava way
+    map.moveCamera(mapContainerViewModel.getCameraPosition().getValue());
   }
 
   private void showMapTypeSelectorDialog() {
@@ -193,9 +196,12 @@ public class MapContainerFragment extends AbstractFragment {
     switch (state.getVisibility()) {
       case VISIBLE:
         map.disable();
-        state.getFeature().ifPresent(feature -> {
-          mapContainerViewModel.panAndZoomCamera(feature.getPoint());
-        });
+        state
+            .getFeature()
+            .ifPresent(
+                feature -> {
+                  mapContainerViewModel.panAndZoomCamera(feature.getPoint());
+                });
         break;
       case HIDDEN:
         map.enable();

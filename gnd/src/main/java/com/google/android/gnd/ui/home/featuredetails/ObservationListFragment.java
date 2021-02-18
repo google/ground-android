@@ -28,6 +28,7 @@ import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.Navigator;
+import com.google.android.gnd.ui.home.HomeScreenFragmentDirections;
 import dagger.hilt.android.AndroidEntryPoint;
 import java8.util.Optional;
 import javax.inject.Inject;
@@ -86,7 +87,10 @@ public class ObservationListFragment extends AbstractFragment {
   }
 
   private void onItemClick(Observation observation) {
-    navigator.showObservationDetails(
-        observation.getProject().getId(), observation.getFeature().getId(), observation.getId());
+    navigator.navigate(
+        HomeScreenFragmentDirections.showObservationDetails(
+            observation.getProject().getId(),
+            observation.getFeature().getId(),
+            observation.getId()));
   }
 }

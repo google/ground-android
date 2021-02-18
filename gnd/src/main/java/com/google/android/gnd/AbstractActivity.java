@@ -31,17 +31,20 @@ import androidx.core.view.WindowInsetsCompat;
 import com.google.android.gnd.ui.common.TwoLineToolbar;
 import com.google.android.gnd.ui.util.DrawableUtil;
 import javax.annotation.OverridingMethodsMustInvokeSuper;
+import javax.inject.Inject;
 
-/** Base activity class containing common helper methods. */
+/**
+ * Base activity class containing common helper methods.
+ */
 public abstract class AbstractActivity extends AppCompatActivity {
 
-  private DrawableUtil drawableUtil;
+  @Inject
+  DrawableUtil drawableUtil;
 
   @Override
   protected void onCreate(@Nullable Bundle savedInstanceState) {
     logLifecycleEvent(this);
     super.onCreate(savedInstanceState);
-    drawableUtil = new DrawableUtil(getResources());
   }
 
   @Override

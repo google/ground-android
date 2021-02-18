@@ -16,84 +16,54 @@
 
 package com.google.android.gnd.ui.editobservation;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-import static java8.util.stream.StreamSupport.stream;
+import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList;
+import static java.util.Objects.requireNonNull;
 
-import android.content.Context;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
-import com.google.android.gnd.R;
-import com.google.android.gnd.model.form.Field;
-import com.google.android.gnd.model.form.MultipleChoice;
 import com.google.android.gnd.model.form.Option;
 import com.google.android.gnd.model.observation.MultipleChoiceResponse;
-import com.google.android.gnd.model.observation.Response;
+import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
-import java.util.List;
-import java8.util.Optional;
-import java8.util.function.Consumer;
 import java8.util.stream.IntStreams;
 
-// TODO: Replace with modal bottom sheet.
-class MultiSelectDialogFactory {
+@AutoValue
+abstract class MultiSelectDialogFactory extends SelectDialogFactory {
 
-  private Context context;
+  @Nullable private boolean[] checkedItems;
 
-  MultiSelectDialogFactory(Context context) {
-    this.context = context;
+  public static Builder builder() {
+    return new AutoValue_MultiSelectDialogFactory.Builder();
   }
 
-  AlertDialog create(
-      Field field,
-      Optional<Response> initialResponse,
-      Consumer<Optional<Response>> responseChangeCallback) {
-    MultipleChoice multipleChoice = field.getMultipleChoice();
-    checkNotNull(
-        multipleChoice,
-        "When creating a MultiSelectDialogFactory the field must have a non-null MultipleChoice");
-
-    AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(context);
-    List<Option> options = multipleChoice.getOptions();
-    final DialogState state = new DialogState(multipleChoice, initialResponse);
-    dialogBuilder.setMultiChoiceItems(
-        getLabels(multipleChoice), state.checkedItems, (dialog, which, isChecked) -> {});
-    dialogBuilder.setCancelable(false);
-    dialogBuilder.setTitle(field.getLabel());
-    dialogBuilder.setPositiveButton(
-        R.string.apply_multiple_choice_changes,
-        (dialog, which) -> responseChangeCallback.accept(state.getSelectedValues(options)));
-    dialogBuilder.setNegativeButton(R.string.cancel, (dialog, which) -> {});
-    return dialogBuilder.create();
+  @Override
+  protected ImmutableList<Option> getSelectedOptions() {
+    return IntStreams.range(0, size())
+        .filter(value -> requireNonNull(checkedItems)[value])
+        .boxed()
+        .map(this::getOption)
+        .collect(toImmutableList());
   }
 
-  private String[] getLabels(MultipleChoice multipleChoice) {
-    return stream(multipleChoice.getOptions()).map(Option::getLabel).toArray(String[]::new);
+  @Override
+  protected AlertDialog.Builder createDialogBuilder() {
+    return super.createDialogBuilder()
+        .setMultiChoiceItems(getLabels(), checkedItems, (dialog, which, isChecked) -> {});
   }
 
-  private static class DialogState {
+  @Override
+  public void initSelectedState() {
+    checkedItems = new boolean[size()];
+    getCurrentValue().ifPresent(this::updateCurrentSelectedItems);
+  }
 
-    private boolean[] checkedItems;
+  private void updateCurrentSelectedItems(MultipleChoiceResponse response) {
+    IntStreams.range(0, size())
+        .forEach(i -> requireNonNull(checkedItems)[i] = response.isSelected(getOption(i)));
+  }
 
-    public DialogState(MultipleChoice multipleChoice, Optional<Response> initialResponse) {
-      ImmutableList<Option> options = multipleChoice.getOptions();
-      checkedItems = new boolean[options.size()];
-      // TODO: Check cast.
-      initialResponse.ifPresent(
-          r ->
-              IntStreams.range(0, options.size())
-                  .forEach(
-                      i ->
-                          checkedItems[i] =
-                              ((MultipleChoiceResponse) r).isSelected(options.get(i))));
-    }
-
-    private Optional<Response> getSelectedValues(List<Option> options) {
-      ImmutableList.Builder<String> choices = new ImmutableList.Builder<>();
-      for (int i = 0; i < options.size(); i++) {
-        if (checkedItems[i]) {
-          choices.add(options.get(i).getId());
-        }
-      }
-      return MultipleChoiceResponse.fromList(choices.build());
-    }
+  @AutoValue.Builder
+  public abstract static class Builder extends SelectDialogFactory.Builder<Builder> {
+    public abstract MultiSelectDialogFactory build();
   }
 }

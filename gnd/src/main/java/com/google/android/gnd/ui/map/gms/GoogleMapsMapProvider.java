@@ -19,6 +19,7 @@ package com.google.android.gnd.ui.map.gms;
 import androidx.fragment.app.Fragment;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gnd.persistence.local.LocalValueStore;
+import com.google.android.gnd.rx.annotations.Hot;
 import com.google.android.gnd.ui.MarkerIconFactory;
 import com.google.android.gnd.ui.map.MapAdapter;
 import com.google.android.gnd.ui.map.MapProvider;
@@ -33,13 +34,13 @@ public class GoogleMapsMapProvider implements MapProvider {
 
   private final MarkerIconFactory markerIconFactory;
   private final LocalValueStore localValueStore;
-  private final SingleSubject<MapAdapter> map = SingleSubject.create();
+  @Hot private final SingleSubject<MapAdapter> map = SingleSubject.create();
 
   @SuppressWarnings("NullAway.Init")
   private GoogleMapsFragment fragment;
 
-  public GoogleMapsMapProvider(MarkerIconFactory markerIconFactory,
-      LocalValueStore localValueStore) {
+  public GoogleMapsMapProvider(
+      MarkerIconFactory markerIconFactory, LocalValueStore localValueStore) {
     this.markerIconFactory = markerIconFactory;
     this.localValueStore = localValueStore;
   }
@@ -91,7 +92,7 @@ public class GoogleMapsMapProvider implements MapProvider {
 
   @Override
   public ImmutableMap<Integer, String> getMapTypes() {
-    // TODO: i18n
+    // TODO(#711): Allow user to select language and use here.
     Map<Integer, String> map = new HashMap<>();
     map.put(GoogleMap.MAP_TYPE_NONE, "None");
     map.put(GoogleMap.MAP_TYPE_NORMAL, "Normal");

@@ -27,11 +27,13 @@ import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.model.form.Form;
+import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.repository.FeatureRepository;
 import com.google.android.gnd.repository.ProjectRepository;
 import com.google.android.gnd.rx.Action;
 import com.google.android.gnd.rx.Event;
 import com.google.android.gnd.rx.Loadable;
+import com.google.android.gnd.rx.annotations.Hot;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.SharedViewModel;
@@ -46,26 +48,38 @@ import timber.log.Timber;
 @SharedViewModel
 public class HomeScreenViewModel extends AbstractViewModel {
 
+  @Hot(replays = true)
   public final MutableLiveData<Boolean> isObservationButtonVisible = new MutableLiveData<>(false);
+
   private final ProjectRepository projectRepository;
   private final Navigator navigator;
+  private final FeatureRepository featureRepository;
+
   /** The state and value of the currently active project (loading, loaded, etc.). */
-  private final LiveData<Loadable<Project>> activeProject;
+  private final LiveData<Loadable<Project>> projectLoadingState;
 
-  // TODO: Move into MapContainersViewModel
-  private final MutableLiveData<Event<Point>> addFeatureDialogRequests;
-  // TODO: Move into FeatureDetailsViewModel.
-  private final MutableLiveData<Action> openDrawerRequests;
-  private final MutableLiveData<BottomSheetState> bottomSheetState;
+  // TODO(#719): Move into MapContainersViewModel
+  @Hot(replays = true)
+  private final MutableLiveData<Event<Point>> addFeatureDialogRequests = new MutableLiveData<>();
+  // TODO(#719): Move into FeatureDetailsViewModel.
+  @Hot(replays = true)
+  private final MutableLiveData<Action> openDrawerRequests = new MutableLiveData<>();
 
-  private final FlowableProcessor<Feature> addFeatureClicks = PublishProcessor.create();
-  private final FlowableProcessor<Feature> updateFeatureRequests = PublishProcessor.create();
-  private final FlowableProcessor<Feature> deleteFeatureRequests = PublishProcessor.create();
+  @Hot(replays = true)
+  private final MutableLiveData<BottomSheetState> bottomSheetState = new MutableLiveData<>();
+
+  @Hot private final FlowableProcessor<Feature> addFeatureClicks = PublishProcessor.create();
+  @Hot private final FlowableProcessor<Feature> updateFeatureRequests = PublishProcessor.create();
+  @Hot private final FlowableProcessor<Feature> deleteFeatureRequests = PublishProcessor.create();
 
   private final LiveData<Feature> addFeatureResults;
   private final LiveData<Boolean> updateFeatureResults;
   private final LiveData<Boolean> deleteFeatureResults;
+
+  @Hot(replays = true)
   private final MutableLiveData<Throwable> errors = new MutableLiveData<>();
+
+  @Hot(replays = true)
   private final MutableLiveData<Integer> addFeatureButtonVisibility = new MutableLiveData<>(GONE);
 
   @Inject
@@ -74,14 +88,14 @@ public class HomeScreenViewModel extends AbstractViewModel {
       FeatureRepository featureRepository,
       Navigator navigator) {
     this.projectRepository = projectRepository;
-    this.addFeatureDialogRequests = new MutableLiveData<>();
-    this.openDrawerRequests = new MutableLiveData<>();
-    this.bottomSheetState = new MutableLiveData<>();
+    this.featureRepository = featureRepository;
     this.navigator = navigator;
 
-    activeProject =
+    projectLoadingState =
         LiveDataReactiveStreams.fromPublisher(
-            projectRepository.getActiveProjectOnceAndStream().doAfterNext(this::onActivateProject));
+            projectRepository
+                .getProjectLoadingState()
+                .doAfterNext(this::onProjectLoadingStateChange));
     addFeatureResults =
         LiveDataReactiveStreams.fromPublisher(
             addFeatureClicks.switchMapSingle(
@@ -108,7 +122,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
   }
 
   /** Handle state of the UI elements depending upon the active project. */
-  private void onActivateProject(Loadable<Project> project) {
+  private void onProjectLoadingStateChange(Loadable<Project> project) {
     addFeatureButtonVisibility.postValue(shouldShowAddFeatureButton(project) ? VISIBLE : GONE);
   }
 
@@ -144,8 +158,8 @@ public class HomeScreenViewModel extends AbstractViewModel {
     return errors;
   }
 
-  public void addFeature(Feature feature) {
-    addFeatureClicks.onNext(feature);
+  public void addFeature(Project project, Layer layer, Point point) {
+    addFeatureClicks.onNext(featureRepository.newFeature(project, layer, point));
   }
 
   public void updateFeature(Feature feature) {
@@ -168,8 +182,8 @@ public class HomeScreenViewModel extends AbstractViewModel {
     openDrawerRequests.setValue(Action.create());
   }
 
-  public LiveData<Loadable<Project>> getActiveProject() {
-    return activeProject;
+  public LiveData<Loadable<Project>> getProjectLoadingState() {
+    return projectLoadingState;
   }
 
   public LiveData<Event<Point>> getShowAddFeatureDialogRequests() {
@@ -225,7 +239,9 @@ public class HomeScreenViewModel extends AbstractViewModel {
       Timber.e("Missing project");
       return;
     }
-    navigator.addObservation(project.getId(), feature.getId(), form.get().getId());
+    navigator.navigate(
+        HomeScreenFragmentDirections.addObservation(
+            project.getId(), feature.getId(), form.get().getId()));
   }
 
   public void init() {
@@ -234,10 +250,10 @@ public class HomeScreenViewModel extends AbstractViewModel {
   }
 
   public void showOfflineAreas() {
-    navigator.showOfflineAreas();
+    navigator.navigate(HomeScreenFragmentDirections.showOfflineAreas());
   }
 
   public void showSettings() {
-    navigator.showSettings();
+    navigator.navigate(HomeScreenFragmentDirections.actionHomeScreenFragmentToSettingsActivity());
   }
 }

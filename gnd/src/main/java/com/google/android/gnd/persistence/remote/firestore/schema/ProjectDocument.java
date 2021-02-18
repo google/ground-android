@@ -28,10 +28,6 @@ class ProjectDocument {
 
   @Nullable private Map<String, String> description;
 
-  // TODO: Add AuditInfoDoc for created and lastModified.
-
-  // TODO: Rename to "layers" once db is migrated.
-
   @Nullable private Map<String, LayerNestedObject> layers;
 
   @Nullable private List<OfflineBaseMapSourceNestedObject> offlineBaseMapSources;

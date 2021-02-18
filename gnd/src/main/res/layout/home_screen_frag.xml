@@ -37,7 +37,6 @@
         android:layout_height="match_parent"
         app:layout_behavior="com.google.android.gnd.ui.home.mapcontainer.MapContainerLayoutBehavior" />
 
-      <!-- TODO: Move feature sheet and chrome into separate layout files. -->
       <FrameLayout
         android:id="@+id/map_scrim"
         android:layout_width="match_parent"
@@ -53,7 +52,8 @@
         android:layout_height="match_parent"
         app:layout_behavior="@string/bottom_sheet_behavior">
 
-        <fragment
+        <androidx.fragment.app.FragmentContainerView
+          android:id="@+id/feature_details_frag"
           android:name="com.google.android.gnd.ui.home.featuredetails.FeatureDetailsFragment"
           android:layout_width="match_parent"
           android:layout_height="match_parent"
@@ -82,14 +82,12 @@
       app:itemTextColor="@color/nav_drawer_item"
       app:menu="@menu/nav_drawer_menu">
 
-      <!-- TODO: re-enable visibility -->
       <TextView
         android:id="@+id/version_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
         android:padding="8dp"
-        android:visibility="gone"
         tools:text="Build number" />
 
     </com.google.android.material.navigation.NavigationView>
