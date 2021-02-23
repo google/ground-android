@@ -18,6 +18,7 @@ package com.google.android.gnd.ui.util;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import androidx.annotation.RawRes;
 import dagger.hilt.android.qualifiers.ApplicationContext;
 import java.io.File;
@@ -64,6 +65,15 @@ public class FileUtil {
       Timber.e("File not found: %s", file.getPath());
     }
     return file;
+  }
+
+  public Uri getFileUriFromRemotePath(String destinationPath) {
+    File file = getLocalFileFromRemotePath(destinationPath);
+    if (file.exists()) {
+      return Uri.fromFile(file);
+    } else {
+      return Uri.EMPTY;
+    }
   }
 
   /**

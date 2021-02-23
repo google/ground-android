@@ -26,8 +26,9 @@ import androidx.lifecycle.MutableLiveData;
 import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.form.Field.Type;
 import com.google.android.gnd.model.observation.Response;
+import com.google.android.gnd.persistence.remote.RemoteStorageManager;
 import com.google.android.gnd.rx.annotations.Hot;
-import com.google.android.gnd.system.StorageManager;
+import com.google.android.gnd.ui.util.FileUtil;
 import io.reactivex.Single;
 import io.reactivex.processors.BehaviorProcessor;
 import io.reactivex.processors.FlowableProcessor;
@@ -38,8 +39,8 @@ import timber.log.Timber;
 public class PhotoFieldViewModel extends AbstractFieldViewModel {
 
   private static final String EMPTY_PATH = "";
-
-  private final StorageManager storageManager;
+  private final RemoteStorageManager remoteStorageManager;
+  private final FileUtil fileUtil;
 
   @Hot(replays = true)
   private final FlowableProcessor<String> destinationPath = BehaviorProcessor.create();
@@ -54,9 +55,11 @@ public class PhotoFieldViewModel extends AbstractFieldViewModel {
   private final MutableLiveData<Integer> clearButtonVisibility = new MutableLiveData<>(View.GONE);
 
   @Inject
-  PhotoFieldViewModel(StorageManager storageManager, Application application) {
+  PhotoFieldViewModel(
+      RemoteStorageManager remoteStorageManager, FileUtil fileUtil, Application application) {
     super(application);
-    this.storageManager = storageManager;
+    this.remoteStorageManager = remoteStorageManager;
+    this.fileUtil = fileUtil;
     this.isVisible =
         LiveDataReactiveStreams.fromPublisher(destinationPath.map(path -> !path.isEmpty()));
     this.uri =
@@ -64,8 +67,19 @@ public class PhotoFieldViewModel extends AbstractFieldViewModel {
             destinationPath.switchMapSingle(this::getDownloadUrl));
   }
 
+  /**
+   * Fetch url for the image from Firestore Storage. If the remote image is not available then
+   * search for the file locally and return its uri.
+   *
+   * @param path Final destination path of the uploaded photo relative to Firestore
+   */
+  @Hot(terminates = true)
   private Single<Uri> getDownloadUrl(String path) {
-    return path.isEmpty() ? Single.just(Uri.EMPTY) : storageManager.getDownloadUrl(path);
+    return path.isEmpty()
+        ? Single.just(Uri.EMPTY)
+        : remoteStorageManager
+            .getDownloadUrl(path)
+            .onErrorReturn(throwable -> fileUtil.getFileUriFromRemotePath(path));
   }
 
   public LiveData<Uri> getUri() {
