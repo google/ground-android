@@ -17,7 +17,10 @@
 package com.google.android.gnd;
 
 import android.app.Application;
+import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
+import android.location.Geocoder;
 import androidx.work.WorkManager;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gnd.ui.common.ViewModelModule;
@@ -25,6 +28,7 @@ import dagger.Module;
 import dagger.Provides;
 import dagger.hilt.InstallIn;
 import dagger.hilt.android.components.ApplicationComponent;
+import dagger.hilt.android.qualifiers.ApplicationContext;
 import javax.inject.Singleton;
 
 @InstallIn(ApplicationComponent.class)
@@ -49,5 +53,16 @@ abstract class GndApplicationModule {
     return application
         .getApplicationContext()
         .getSharedPreferences(Config.SHARED_PREFS_NAME, Config.SHARED_PREFS_MODE);
+  }
+
+  @Provides
+  @Singleton
+  static Geocoder provideGeocoder(@ApplicationContext Context context) {
+    return new Geocoder(context);
+  }
+
+  @Provides
+  static Resources provideResources(@ApplicationContext Context context) {
+    return context.getResources();
   }
 }
