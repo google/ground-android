@@ -17,20 +17,20 @@
 package com.google.android.gnd.system;
 
 import android.Manifest.permission;
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
-import android.provider.MediaStore.Images.Media;
-import com.google.android.gnd.persistence.remote.RemoteStorageManager;
+import androidx.annotation.Nullable;
+import com.google.android.gnd.rx.annotations.Cold;
+import com.google.android.gnd.rx.annotations.Hot;
 import com.google.android.gnd.system.ActivityStreams.ActivityResult;
+import com.google.android.gnd.ui.util.BitmapUtil;
 import com.google.android.gnd.ui.util.FileUtil;
-import dagger.hilt.android.qualifiers.ApplicationContext;
 import io.reactivex.Completable;
-import io.reactivex.Observable;
-import io.reactivex.Single;
+import io.reactivex.Maybe;
 import java.io.File;
 import java.io.IOException;
+import java8.util.Optional;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import timber.log.Timber;
@@ -39,39 +39,40 @@ import timber.log.Timber;
 @Singleton
 public class StorageManager {
 
-  private static final int PICK_PHOTO_REQUEST_CODE = StorageManager.class.hashCode() & 0xffff;
-  private final Context context;
+  static final int PICK_PHOTO_REQUEST_CODE = StorageManager.class.hashCode() & 0xffff;
+
   private final PermissionsManager permissionsManager;
   private final ActivityStreams activityStreams;
-  private final RemoteStorageManager remoteStorageManager;
   private final FileUtil fileUtil;
+  private final BitmapUtil bitmapUtil;
 
   @Inject
   public StorageManager(
-      @ApplicationContext Context context,
       PermissionsManager permissionsManager,
       ActivityStreams activityStreams,
-      RemoteStorageManager remoteStorageManager,
-      FileUtil fileUtil) {
-    this.context = context;
+      FileUtil fileUtil,
+      BitmapUtil bitmapUtil) {
     this.permissionsManager = permissionsManager;
     this.activityStreams = activityStreams;
-    this.remoteStorageManager = remoteStorageManager;
     this.fileUtil = fileUtil;
+    this.bitmapUtil = bitmapUtil;
   }
 
   /**
    * Requests for selecting a photo from the storage, if necessary permissions are granted.
    * Otherwise, requests for the permissions and then sends out the request.
    */
-  public Completable launchPhotoPicker() {
+  @Cold
+  public Maybe<Bitmap> selectPhoto() {
     return permissionsManager
         .obtainPermission(permission.READ_EXTERNAL_STORAGE)
-        .andThen(sendPhotoPickerIntent());
+        .andThen(sendPhotoPickerIntent())
+        .andThen(photoPickerResult());
   }
 
   // TODO: Move UI-specific code to UI layer (Fragment or any related helper)
   /** Enqueue an intent for selecting a photo from the storage. */
+  @Cold
   private Completable sendPhotoPickerIntent() {
     return Completable.fromAction(
         () ->
@@ -85,51 +86,37 @@ public class StorageManager {
   }
 
   /** Observe for the result of request code {@link StorageManager#PICK_PHOTO_REQUEST_CODE}. */
-  public Observable<Bitmap> photoPickerResult() {
+  @Hot(terminates = true)
+  Maybe<Bitmap> photoPickerResult() {
     return activityStreams
         .getNextActivityResult(PICK_PHOTO_REQUEST_CODE)
-        .flatMap(this::onPickPhotoResult)
-        .map(uri -> Media.getBitmap(context.getContentResolver(), uri));
+        .flatMapMaybe(this::onPickPhotoResult)
+        .map(bitmapUtil::fromUri)
+        .singleElement();
+  }
+
+  private Optional<Uri> parseResult(@Nullable Intent intent) {
+    if (intent == null || intent.getData() == null) {
+      return Optional.empty();
+    }
+    return Optional.ofNullable(intent.getData());
   }
 
   /** Fetch Uri from the result, if present. */
-  // TODO: Investigate if returning a Maybe is better or not?
-  private Observable<Uri> onPickPhotoResult(ActivityResult result) {
-    return Observable.create(
-        em -> {
-          if (!result.isOk()) {
-            return;
+  @Cold
+  private Maybe<Uri> onPickPhotoResult(ActivityResult result) {
+    return Maybe.create(
+        emitter -> {
+          if (result.isOk()) {
+            emitter.onSuccess(parseResult(result.getData()).orElseThrow());
+          } else {
+            emitter.onComplete();
           }
-          Intent data = result.getData();
-          if (data == null) {
-            return;
-          }
-          em.onNext(data.getData());
         });
   }
 
-  private Uri getFileUriFromDestinationPath(String destinationPath) {
-    File file = fileUtil.getLocalFileFromRemotePath(destinationPath);
-    if (file.exists()) {
-      return Uri.fromFile(file);
-    } else {
-      return Uri.EMPTY;
-    }
-  }
-
-  /**
-   * Fetch url for the image from Firestore Storage. If the remote image is not available then
-   * search for the file locally and return its uri.
-   *
-   * @param destinationPath Final destination path of the uploaded photo relative to Firestore
-   */
-  public Single<Uri> getDownloadUrl(String destinationPath) {
-    return remoteStorageManager
-        .getDownloadUrl(destinationPath)
-        .onErrorReturn(throwable -> getFileUriFromDestinationPath(destinationPath));
-  }
-
   /** Save a copy of bitmap locally. */
+  @Cold
   public Completable savePhoto(Bitmap bitmap, String filename) {
     try {
       File file = fileUtil.saveBitmap(bitmap, filename);
