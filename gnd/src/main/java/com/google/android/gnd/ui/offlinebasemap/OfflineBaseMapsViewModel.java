@@ -34,10 +34,7 @@ import timber.log.Timber;
  */
 public class OfflineBaseMapsViewModel extends AbstractViewModel {
 
-  @Cold(terminates = false, errors = false)
   private final LiveData<ImmutableList<OfflineBaseMap>> offlineAreas;
-
-  @Cold(terminates = false, errors = false)
   private final LiveData<Integer> noAreasMessageVisibility;
 
   private final Navigator navigator;
@@ -60,7 +57,7 @@ public class OfflineBaseMapsViewModel extends AbstractViewModel {
             offlineAreas.map(baseMaps -> baseMaps.isEmpty() ? View.VISIBLE : View.GONE));
   }
 
-  /** Navigate to the offline area selector UI from the Offline basemaps UI. */
+  /** Navigate to the offline area selector UI from the offline basemaps UI. */
   public void showOfflineAreaSelector() {
     navigator.navigate(OfflineBaseMapsFragmentDirections.showOfflineAreaSelector());
   }
