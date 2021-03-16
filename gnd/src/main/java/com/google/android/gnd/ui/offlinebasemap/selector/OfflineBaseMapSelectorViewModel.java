@@ -24,8 +24,7 @@ import com.google.android.gnd.repository.OfflineBaseMapRepository;
 import com.google.android.gnd.rx.annotations.Hot;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import io.reactivex.Single;
-import io.reactivex.processors.FlowableProcessor;
-import io.reactivex.processors.PublishProcessor;
+import io.reactivex.subjects.SingleSubject;
 import javax.inject.Inject;
 import timber.log.Timber;
 
@@ -36,7 +35,7 @@ public class OfflineBaseMapSelectorViewModel extends AbstractViewModel {
     FAILURE
   }
 
-  @Hot private final FlowableProcessor<OfflineBaseMap> baseMapDownloads = PublishProcessor.create();
+  @Hot private final SingleSubject<OfflineBaseMap> baseMapDownloads = SingleSubject.create();
 
   @Hot(terminates = true, errors = false)
   private final Single<DownloadMessage> downloadMessage;
@@ -48,7 +47,7 @@ public class OfflineBaseMapSelectorViewModel extends AbstractViewModel {
       OfflineUuidGenerator offlineUuidGenerator) {
     this.downloadMessage =
         baseMapDownloads
-            .switchMapCompletable(offlineBaseMapRepository::addAreaAndEnqueue)
+            .flatMapCompletable(offlineBaseMapRepository::addAreaAndEnqueue)
             .toSingleDefault(DownloadMessage.STARTED)
             .onErrorReturn(this::onEnqueueError);
     this.offlineUuidGenerator = offlineUuidGenerator;
@@ -77,7 +76,6 @@ public class OfflineBaseMapSelectorViewModel extends AbstractViewModel {
             .setName(defaultName)
             .build();
 
-    baseMapDownloads.onNext(offlineBaseMap);
-    baseMapDownloads.onComplete();
+    baseMapDownloads.onSuccess(offlineBaseMap);
   }
 }
