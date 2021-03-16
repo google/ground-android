@@ -63,19 +63,17 @@ public class OfflineBaseMapsViewModel extends AbstractViewModel {
   }
 
   /**
-   * Returns an infinite stream of downloaded offline basemaps. If an unexpected error accessing the
-   * local store is encountered, emits an empty list downstream, circumventing the error.
+   * Returns the current list of downloaded offline basemaps available for viewing. If an unexpected
+   * error accessing the local store is encountered, emits an empty list, circumventing the error.
    */
-  @Cold(terminates = false)
   LiveData<ImmutableList<OfflineBaseMap>> getOfflineAreas() {
     return offlineAreas;
   }
 
   /**
-   * Returns the visibility of a no area message based on the current number of available offline
+   * Returns the visibility of a "no area" message based on the current number of available offline
    * basemaps.
    */
-  @Cold(terminates = false)
   public LiveData<Integer> getNoAreasMessageVisibility() {
     return noAreasMessageVisibility;
   }
