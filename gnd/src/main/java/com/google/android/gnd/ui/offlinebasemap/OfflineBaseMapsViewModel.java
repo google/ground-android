@@ -21,7 +21,6 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
 import com.google.android.gnd.model.basemap.OfflineBaseMap;
 import com.google.android.gnd.repository.OfflineBaseMapRepository;
-import com.google.android.gnd.rx.annotations.Cold;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.common.collect.ImmutableList;

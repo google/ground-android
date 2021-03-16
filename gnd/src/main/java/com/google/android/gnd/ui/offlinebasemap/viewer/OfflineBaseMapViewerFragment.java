@@ -33,7 +33,6 @@ import com.google.android.gnd.ui.map.MapAdapter;
 import com.google.android.gnd.ui.map.MapProvider;
 import dagger.hilt.android.AndroidEntryPoint;
 import javax.inject.Inject;
-import timber.log.Timber;
 
 /**
  * The OfflineAreaViewerFragment provides a UI for managing a single offline area on the user's
@@ -62,11 +61,6 @@ public class OfflineBaseMapViewerFragment extends AbstractFragment {
     viewModel.loadOfflineArea(args);
     mapProvider.getMapAdapter().as(autoDisposable(this)).subscribe(this::onMapReady);
     viewModel.getOfflineArea().observe(this, this::panMap);
-  }
-
-  private void handleRemoveError(Throwable throwable) {
-    Timber.e(throwable, "Couldn't delete area.");
-    navigator.navigateUp();
   }
 
   @Override
