@@ -16,19 +16,25 @@
 
 package com.google.android.gnd.ui.offlinebasemap.selector;
 
+import android.content.Context;
+import android.content.res.Resources;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gnd.R;
 import com.google.android.gnd.model.basemap.OfflineBaseMap;
 import com.google.android.gnd.model.basemap.OfflineBaseMap.State;
 import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator;
 import com.google.android.gnd.repository.OfflineBaseMapRepository;
 import com.google.android.gnd.rx.annotations.Hot;
 import com.google.android.gnd.ui.common.AbstractViewModel;
+import dagger.hilt.android.qualifiers.ApplicationContext;
 import io.reactivex.Single;
 import io.reactivex.subjects.SingleSubject;
 import javax.inject.Inject;
 import timber.log.Timber;
 
 public class OfflineBaseMapSelectorViewModel extends AbstractViewModel {
+
+  private final Resources resources;
 
   enum DownloadMessage {
     STARTED,
@@ -39,18 +45,21 @@ public class OfflineBaseMapSelectorViewModel extends AbstractViewModel {
 
   @Hot(terminates = true, errors = false)
   private final Single<DownloadMessage> downloadMessage;
+
   private final OfflineUuidGenerator offlineUuidGenerator;
 
   @Inject
   OfflineBaseMapSelectorViewModel(
       OfflineBaseMapRepository offlineBaseMapRepository,
-      OfflineUuidGenerator offlineUuidGenerator) {
+      OfflineUuidGenerator offlineUuidGenerator,
+      @ApplicationContext Context context) {
     this.downloadMessage =
         baseMapDownloads
             .flatMapCompletable(offlineBaseMapRepository::addAreaAndEnqueue)
             .toSingleDefault(DownloadMessage.STARTED)
             .onErrorReturn(this::onEnqueueError);
     this.offlineUuidGenerator = offlineUuidGenerator;
+    this.resources = context.getResources();
   }
 
   /** Returns a failure message if the basemap download enqueued by this viewmodel fails. */
@@ -67,13 +76,13 @@ public class OfflineBaseMapSelectorViewModel extends AbstractViewModel {
 
   // TODO: Use an abstraction over LatLngBounds
   /** Queues a basemap captured in the current map viewport for download. */
-  public void downloadBaseMap(LatLngBounds viewport, String defaultName) {
+  public void downloadBaseMap(LatLngBounds viewport) {
     OfflineBaseMap offlineBaseMap =
         OfflineBaseMap.newBuilder()
             .setBounds(viewport)
             .setId(offlineUuidGenerator.generateUuid())
             .setState(State.PENDING)
-            .setName(defaultName)
+            .setName(resources.getString(R.string.unnamed_area))
             .build();
 
     baseMapDownloads.onSuccess(offlineBaseMap);

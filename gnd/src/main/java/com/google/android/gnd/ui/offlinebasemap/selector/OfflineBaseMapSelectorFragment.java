@@ -102,8 +102,7 @@ public class OfflineBaseMapSelectorFragment extends AbstractFragment {
       return;
     }
 
-    viewModel.downloadBaseMap(
-        map.getViewport(), getContext().getString(R.string.unnamed_area));
+    viewModel.downloadBaseMap(map.getViewport());
   }
 
   /** Handle the download message response after attempting to download a basemap. */
