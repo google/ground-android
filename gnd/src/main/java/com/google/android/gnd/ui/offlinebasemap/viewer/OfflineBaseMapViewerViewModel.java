@@ -30,12 +30,12 @@ import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.common.collect.ImmutableSet;
 import dagger.hilt.android.qualifiers.ApplicationContext;
-import io.reactivex.Completable;
 import io.reactivex.Flowable;
-import io.reactivex.processors.PublishProcessor;
 import io.reactivex.subjects.SingleSubject;
 import java.io.File;
 import java.lang.ref.WeakReference;
+import java.util.Objects;
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 import timber.log.Timber;
 
@@ -49,21 +49,20 @@ public class OfflineBaseMapViewerViewModel extends AbstractViewModel {
   private final SingleSubject<OfflineBaseMapViewerFragmentArgs> fragmentArgs =
       SingleSubject.create();
 
-  @Hot private final PublishProcessor<Nil> removeAreaClicks = PublishProcessor.create();
+  @Hot private final SingleSubject<Nil> removeAreaClicks = SingleSubject.create();
 
-  private final OfflineBaseMapRepository offlineBaseMapRepository;
   private final WeakReference<Context> context;
   public LiveData<Double> areaStorageSize;
   public LiveData<String> areaName;
   private final LiveData<OfflineBaseMap> offlineArea;
   @Inject Navigator navigator;
+  @Nullable private String offlineAreaId;
 
   @Inject
   public OfflineBaseMapViewerViewModel(
       OfflineBaseMapRepository offlineBaseMapRepository,
       @ApplicationContext Context context,
       Navigator navigator) {
-    this.offlineBaseMapRepository = offlineBaseMapRepository;
     this.context = new WeakReference<>(context);
     this.navigator = navigator;
     @Hot
@@ -71,16 +70,9 @@ public class OfflineBaseMapViewerViewModel extends AbstractViewModel {
     // It still only contains a single offline area returned by getOfflineArea.
     Flowable<OfflineBaseMap> offlineAreaItemAsFlowable =
         this.fragmentArgs
-            .flatMap(
-                args ->
-                    this.offlineBaseMapRepository
-                        .getOfflineArea(args.getOfflineAreaId())
-                        .doOnError(
-                            throwable ->
-                                Timber.e(
-                                    throwable,
-                                    "Couldn't render area: %s",
-                                    args.getOfflineAreaId())))
+            .map(OfflineBaseMapViewerFragmentArgs::getOfflineAreaId)
+            .flatMap(offlineBaseMapRepository::getOfflineArea)
+            .doOnError(throwable -> Timber.e(throwable, "Couldn't render area %s", offlineAreaId))
             .toFlowable();
     this.areaName =
         LiveDataReactiveStreams.fromPublisher(
@@ -94,15 +86,9 @@ public class OfflineBaseMapViewerViewModel extends AbstractViewModel {
     this.offlineArea = LiveDataReactiveStreams.fromPublisher(offlineAreaItemAsFlowable);
     disposeOnClear(
         removeAreaClicks
-            .first(Nil.NIL)
-            .flatMapCompletable(
-                __ -> {
-                  if (this.offlineArea.getValue() == null) {
-                    return Completable.error(new Throwable("Could not remove nonexistent area."));
-                  }
-
-                  return offlineBaseMapRepository.deleteArea(this.offlineArea.getValue().getId());
-                })
+            .map(__ -> Objects.requireNonNull(this.offlineArea.getValue()).getId())
+            .flatMapCompletable(offlineBaseMapRepository::deleteArea)
+            .doOnError(throwable -> Timber.e(throwable, "Couldn't remove area: %s", offlineAreaId))
             .subscribe(navigator::navigateUp));
   }
 
@@ -128,11 +114,12 @@ public class OfflineBaseMapViewerViewModel extends AbstractViewModel {
   /** Gets a single offline area by the id passed to the OfflineAreaViewerFragment's arguments. */
   public void loadOfflineArea(OfflineBaseMapViewerFragmentArgs args) {
     this.fragmentArgs.onSuccess(args);
+    this.offlineAreaId = args.getOfflineAreaId();
   }
 
   /** Deletes the area associated with this viewmodel. */
   public void removeArea() {
     Timber.d("Removing offline area %s", this.offlineArea.getValue());
-    this.removeAreaClicks.onNext(Nil.NIL);
+    this.removeAreaClicks.onSuccess(Nil.NIL);
   }
 }
