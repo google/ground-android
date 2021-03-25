@@ -28,6 +28,7 @@ import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gnd.R;
 import com.google.android.gnd.model.User;
+import com.google.android.gnd.persistence.local.LocalValueStore;
 import com.google.android.gnd.rx.annotations.Hot;
 import com.google.android.gnd.system.ActivityStreams;
 import com.google.android.gnd.system.ActivityStreams.ActivityResult;
@@ -52,6 +53,9 @@ public class GoogleAuthenticationManager implements AuthenticationManager {
 
   @Hot(replays = true)
   private final Subject<SignInState> signInState = BehaviorSubject.create();
+
+  @Inject
+  LocalValueStore localValueStore;
 
   private final FirebaseAuth firebaseAuth;
   private final ActivityStreams activityStreams;
@@ -104,6 +108,7 @@ public class GoogleAuthenticationManager implements AuthenticationManager {
 
   public void signOut() {
     firebaseAuth.signOut();
+    localValueStore.clearTermsStatus();
     signInState.onNext(new SignInState(State.SIGNED_OUT));
     activityStreams.withActivity(activity -> getGoogleSignInClient(activity).signOut());
   }

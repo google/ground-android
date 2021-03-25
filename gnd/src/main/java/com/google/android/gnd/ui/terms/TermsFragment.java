@@ -24,7 +24,9 @@ import androidx.annotation.Nullable;
 import com.google.android.gnd.databinding.FragmentTermsBinding;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.BackPressListener;
+import dagger.hilt.android.AndroidEntryPoint;
 
+@AndroidEntryPoint
 public class TermsFragment extends AbstractFragment implements BackPressListener {
 
   private TermsViewModel viewModel;

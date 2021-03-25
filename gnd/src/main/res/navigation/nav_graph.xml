@@ -38,6 +38,11 @@
       app:destination="@id/home_screen_fragment"
       app:popUpTo="@id/navGraph"
       app:popUpToInclusive="true" />
+    <action
+      android:id="@+id/proceedToTermsScreen"
+      app:destination="@id/terms_fragment"
+      app:popUpTo="@id/navGraph"
+      app:popUpToInclusive="true" />
   </fragment>
 
   <fragment
@@ -153,7 +158,13 @@
     android:id="@+id/sign_in_fragment"
     android:name="com.google.android.gnd.ui.signin.SignInFragment"
     android:label="sign_in_frag"
-    tools:layout="@layout/sign_in_frag"></fragment>
+    tools:layout="@layout/sign_in_frag">
+    <action
+      android:id="@+id/proceedToTermsScreen"
+      app:destination="@id/terms_fragment"
+      app:popUpTo="@id/navGraph"
+      app:popUpToInclusive="true" />
+  </fragment>
   <activity
     android:id="@+id/settings_activity"
     android:name="com.google.android.gnd.SettingsActivity"
@@ -167,4 +178,16 @@
     android:id="@+id/showHomeScreen"
     app:destination="@id/home_screen_fragment"
     app:popUpTo="@id/navGraph" />
+
+  <fragment
+    android:id="@+id/terms_fragment"
+    android:name="com.google.android.gnd.ui.terms.TermsFragment"
+    android:label="terms_frag"
+    tools:layout="@layout/fragment_terms">
+    <action
+      android:id="@+id/proceedDirectlyToHomeScreen"
+      app:destination="@id/home_screen_fragment"
+      app:popUpTo="@id/navGraph"
+      app:popUpToInclusive="true" />
+  </fragment>
 </navigation>

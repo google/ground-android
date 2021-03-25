@@ -33,6 +33,7 @@ public class LocalValueStore {
 
   public static final String ACTIVE_PROJECT_ID_KEY = "activeProjectId";
   public static final String MAP_TYPE = "map_type";
+  public static final String TERMS_ACCEPTED = "terms_accepted";
 
   private final SharedPreferences preferences;
 
@@ -71,5 +72,18 @@ public class LocalValueStore {
 
   public int getSavedMapType(int defaultType) {
     return preferences.getInt(MAP_TYPE, defaultType);
+  }
+
+  public void termsAccepted() {
+    preferences.edit().putBoolean(TERMS_ACCEPTED, true).apply();
+  }
+
+  public Boolean isTermsAccepted() {
+    return preferences.getBoolean(TERMS_ACCEPTED, false);
+  }
+
+
+  public void clearTermsStatus() {
+    preferences.edit().putBoolean(TERMS_ACCEPTED, false).apply();
   }
 }

@@ -22,6 +22,7 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import com.google.android.gnd.model.Project;
+import com.google.android.gnd.persistence.local.LocalValueStore;
 import com.google.android.gnd.repository.FeatureRepository;
 import com.google.android.gnd.repository.ProjectRepository;
 import com.google.android.gnd.repository.UserRepository;
@@ -36,6 +37,7 @@ import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.SharedViewModel;
 import com.google.android.gnd.ui.home.HomeScreenFragmentDirections;
 import com.google.android.gnd.ui.signin.SignInFragmentDirections;
+import com.google.android.gnd.ui.startup.StartupFragmentDirections;
 import io.reactivex.Completable;
 import java8.util.Optional;
 import javax.inject.Inject;
@@ -57,6 +59,7 @@ public class MainViewModel extends AbstractViewModel {
   private final FeatureRepository featureRepository;
   private final Navigator navigator;
   private final EphemeralPopups popups;
+  private final LocalValueStore localValueStore;
 
   @Inject
   public MainViewModel(
@@ -66,11 +69,13 @@ public class MainViewModel extends AbstractViewModel {
       Navigator navigator,
       AuthenticationManager authenticationManager,
       EphemeralPopups popups,
-      Schedulers schedulers) {
+      Schedulers schedulers,
+      LocalValueStore localValueStore) {
     this.projectRepository = projectRepository;
     this.featureRepository = featureRepository;
     this.navigator = navigator;
     this.popups = popups;
+    this.localValueStore = localValueStore;
 
     // TODO: Move to background service.
     disposeOnClear(
@@ -151,7 +156,20 @@ public class MainViewModel extends AbstractViewModel {
 
   private void onSignedIn() {
     hideProgressDialog();
-    navigator.navigate(HomeScreenFragmentDirections.showHomeScreen());
+
+    /* Checking whether the user have accepted Terms & Conditions. */
+    if (localValueStore.isTermsAccepted()) {
+      navigator.navigate(HomeScreenFragmentDirections.showHomeScreen());
+    } else {
+
+      /*  Checking here whether the user is coming from SignIn Fragment or StartUp Fragment
+       based on that redirecting user. */
+      if (signInProgressDialogVisibility.getValue() == null) {
+        navigator.navigate(StartupFragmentDirections.proceedToTermsScreen());
+      } else {
+        navigator.navigate(SignInFragmentDirections.proceedToTermsScreen());
+      }
+    }
   }
 
   public LiveData<Boolean> getSignInProgressDialogVisibility() {

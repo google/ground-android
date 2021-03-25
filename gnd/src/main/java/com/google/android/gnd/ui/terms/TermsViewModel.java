@@ -16,8 +16,25 @@
 
 package com.google.android.gnd.ui.terms;
 
+import com.google.android.gnd.persistence.local.LocalValueStore;
 import com.google.android.gnd.ui.common.AbstractViewModel;
+import com.google.android.gnd.ui.common.Navigator;
+import javax.inject.Inject;
 
 public class TermsViewModel extends AbstractViewModel {
+
+  private final Navigator navigator;
+  private final LocalValueStore localValueStore;
+
+  @Inject
+  public TermsViewModel(Navigator navigator, LocalValueStore localValueStore) {
+    this.navigator = navigator;
+    this.localValueStore = localValueStore;
+  }
+
+  public void onTermsAccepted() {
+    localValueStore.termsAccepted();
+    navigator.navigate(TermsFragmentDirections.proceedDirectlyToHomeScreen());
+  }
 
 }

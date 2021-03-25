@@ -26,17 +26,37 @@
   </data>
   <androidx.constraintlayout.widget.ConstraintLayout
     android:layout_width="match_parent"
+    android:fitsSystemWindows="true"
     android:layout_height="match_parent"
     tools:context=".ui.terms.TermsFragment">
 
-    <androidx.appcompat.widget.Toolbar
-      android:id="@+id/toolbar"
-      style="@style/ToolbarTheme"
-      android:layout_width="0dp"
-      android:layout_height="wrap_content"
-      app:layout_constraintEnd_toEndOf="parent"
+    <!-- CardView is used to create the drop shadow effect -->
+    <androidx.cardview.widget.CardView
+      app:layout_constraintTop_toTopOf="parent"
       app:layout_constraintStart_toStartOf="parent"
-      app:layout_constraintTop_toTopOf="parent" />
+      app:layout_constraintEnd_toEndOf="parent"
+      android:id="@+id/terms_header"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      app:cardCornerRadius="0dp"
+      app:cardElevation="@dimen/toolbar_elevation">
+
+      <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <com.google.android.gnd.ui.common.TwoLineToolbar
+          android:id="@+id/terms_toolbar"
+          android:layout_width="match_parent"
+          android:layout_height="?attr/actionBarSize"
+          android:layout_gravity="top"
+          android:theme="@style/WhiteToolbarTheme"
+          app:title="@string/terms_conditions" />
+
+      </LinearLayout>
+
+    </androidx.cardview.widget.CardView>
     <ScrollView
       android:layout_width="0dp"
       android:layout_height="0dp"
@@ -46,7 +66,7 @@
       android:fillViewport="true"
       android:scrollbars="vertical"
       app:layout_constraintStart_toStartOf="parent"
-      app:layout_constraintTop_toBottomOf="@id/toolbar">
+      app:layout_constraintTop_toBottomOf="@id/terms_header">
       <LinearLayout
         android:orientation="vertical"
         android:layout_width="match_parent"
@@ -86,8 +106,7 @@
       app:layout_constraintBottom_toBottomOf="parent"
       app:layout_constraintEnd_toEndOf="parent"
       app:layout_constraintStart_toStartOf="parent"
- />
-
-
+      app:onButtonClick="@{__ -> viewModel.onTermsAccepted()}"
+    />
   </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
