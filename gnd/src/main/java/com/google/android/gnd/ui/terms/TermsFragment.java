@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google LLC
+ * Copyright 2021 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,8 +46,6 @@ public class TermsFragment extends AbstractFragment implements BackPressListener
 
   @Override
   public boolean onBack() {
-    // Workaround to exit on back from sign-in screen since for some reason
-    // popUpTo is not working on signOut action.
     getActivity().finish();
     return false;
   }
