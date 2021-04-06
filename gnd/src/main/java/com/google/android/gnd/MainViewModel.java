@@ -21,6 +21,7 @@ import static com.google.android.gnd.rx.RxTransformers.switchMapIfPresent;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
+import com.google.android.gms.auth.api.Auth;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.persistence.local.LocalValueStore;
 import com.google.android.gnd.repository.FeatureRepository;
@@ -60,6 +61,7 @@ public class MainViewModel extends AbstractViewModel {
   private final Navigator navigator;
   private final EphemeralPopups popups;
   private final LocalValueStore localValueStore;
+  private final AuthenticationManager authenticationManager;
 
   @Inject
   public MainViewModel(
@@ -76,6 +78,7 @@ public class MainViewModel extends AbstractViewModel {
     this.navigator = navigator;
     this.popups = popups;
     this.localValueStore = localValueStore;
+    this.authenticationManager = authenticationManager;
 
     // TODO: Move to background service.
     disposeOnClear(
@@ -157,15 +160,11 @@ public class MainViewModel extends AbstractViewModel {
   private void onSignedIn() {
     hideProgressDialog();
 
-    /* Checking whether the user have accepted Terms & Conditions. */
-    if (localValueStore.isTermsAccepted()) {
+    if (localValueStore.areTermsAccepted()) {
       navigator.navigate(HomeScreenFragmentDirections.showHomeScreen());
     } else {
-
-      /*  Checking here whether the user is coming from SignIn Fragment or StartUp Fragment
-       based on that redirecting user. */
       if (signInProgressDialogVisibility.getValue() == null) {
-        navigator.navigate(StartupFragmentDirections.proceedToTermsScreen());
+            authenticationManager.signOut();
       } else {
         navigator.navigate(SignInFragmentDirections.proceedToTermsScreen());
       }

@@ -22,14 +22,19 @@ import android.view.View;
 import android.view.ViewGroup;
 import androidx.annotation.Nullable;
 import com.google.android.gnd.databinding.FragmentTermsBinding;
+import com.google.android.gnd.model.Terms;
+import com.google.android.gnd.rx.Loadable;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.BackPressListener;
 import dagger.hilt.android.AndroidEntryPoint;
+import timber.log.Timber;
 
 @AndroidEntryPoint
 public class TermsFragment extends AbstractFragment implements BackPressListener {
 
   private TermsViewModel viewModel;
+  @SuppressWarnings("NullAway")
+  private FragmentTermsBinding binding;
 
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -40,10 +45,33 @@ public class TermsFragment extends AbstractFragment implements BackPressListener
   @Override
   public View onCreateView(
       LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-    FragmentTermsBinding binding = FragmentTermsBinding.inflate(inflater, container, false);
+    binding = FragmentTermsBinding.inflate(inflater, container, false);
     binding.setViewModel(viewModel);
     binding.setLifecycleOwner(this);
+    viewModel.getTerms().observe(getViewLifecycleOwner(), this::getProjectTerms);
     return binding.getRoot();
+  }
+
+  private void getProjectTerms(Loadable<Terms> projectTerms) {
+    switch (projectTerms.getState()) {
+      case LOADING:
+        Timber.i("Loading terms");
+        break;
+      case LOADED:
+        binding.termsLoadingProgressBar.setVisibility(View.GONE);
+        binding.termsText.setVisibility(View.VISIBLE);
+        viewModel.setTermsTextView(projectTerms.value().get().getTerms());
+        break;
+      case NOT_FOUND:
+      case ERROR:
+        binding.termsLoadingProgressBar.setVisibility(View.GONE);
+        binding.termsText.setVisibility(View.VISIBLE);
+        viewModel.setTermsTextView("Some issue");
+        break;
+      default:
+        Timber.e("Unhandled state: %s",  projectTerms.getState());
+        break;
+    }
   }
 
   @Override

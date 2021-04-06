@@ -19,6 +19,7 @@ package com.google.android.gnd.persistence.remote;
 import androidx.annotation.Nullable;
 import com.google.android.gnd.model.Mutation;
 import com.google.android.gnd.model.Project;
+import com.google.android.gnd.model.Terms;
 import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.observation.Observation;
@@ -46,6 +47,13 @@ public interface RemoteDataStore {
   @Cold
   Single<Project> loadProject(String projectId);
 
+
+  /**
+   * Loads the project terms from the remote data store. The return Single fails
+   * with if the terms are not found, or if the remote data store is not available.
+   */
+  @Cold
+  Single<Terms> loadTerms();
   /**
    * Returns all features in the specified project, then continues to emit any remote updates to the
    * set of features in the project until all subscribers have been disposed.

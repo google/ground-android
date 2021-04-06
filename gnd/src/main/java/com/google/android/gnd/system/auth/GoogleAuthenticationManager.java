@@ -108,7 +108,7 @@ public class GoogleAuthenticationManager implements AuthenticationManager {
 
   public void signOut() {
     firebaseAuth.signOut();
-    localValueStore.clearTermsStatus();
+    localValueStore.setTermsAccepted(false);
     signInState.onNext(new SignInState(State.SIGNED_OUT));
     activityStreams.withActivity(activity -> getGoogleSignInClient(activity).signOut());
   }

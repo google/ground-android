@@ -60,53 +60,56 @@
     <ScrollView
       android:layout_width="0dp"
       android:layout_height="0dp"
-      app:layout_constraintBottom_toTopOf="@+id/button"
+      app:layout_constraintBottom_toTopOf="@+id/agreeCheckBox"
       app:layout_constraintEnd_toEndOf="parent"
       android:layout_margin="16dp"
       android:fillViewport="true"
       android:scrollbars="vertical"
       app:layout_constraintStart_toStartOf="parent"
       app:layout_constraintTop_toBottomOf="@id/terms_header">
-      <LinearLayout
-        android:orientation="vertical"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
 
-        <ProgressBar
-          android:id="@+id/terms_loading_progress_bar"
-          style="?android:attr/progressBarStyle"
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:visibility="gone"
-          android:layout_gravity="center_horizontal"
-          android:padding="48dp"
-          app:layout_constraintBottom_toBottomOf="parent"
-          app:layout_constraintEnd_toEndOf="parent"
-          app:layout_constraintStart_toStartOf="parent"
-          app:layout_constraintTop_toTopOf="parent" />
         <TextView
           android:id="@+id/termsText"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
           android:layout_margin="8dp"
-          android:text="@string/terms_conditions"
-          android:visibility="visible"
-          app:layout_constraintBottom_toBottomOf="parent"
-          app:layout_constraintEnd_toEndOf="parent"
-          app:layout_constraintStart_toStartOf="parent"
-          app:layout_constraintTop_toTopOf="parent" />
-      </LinearLayout>
+          android:text="@{viewModel.termsText}"
+          android:visibility="invisible" />
     </ScrollView>
-    <Button
-      android:id="@+id/button"
+    <ProgressBar
+      android:id="@+id/terms_loading_progress_bar"
+      style="?android:attr/progressBarStyle"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:layout_marginBottom="32dp"
-      android:text="@string/agree_terms"
+      android:visibility="visible"
+      android:padding="48dp"
       app:layout_constraintBottom_toBottomOf="parent"
       app:layout_constraintEnd_toEndOf="parent"
       app:layout_constraintStart_toStartOf="parent"
-      app:onButtonClick="@{__ -> viewModel.onTermsAccepted()}"
+      app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+      android:id="@+id/agreeButton"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginBottom="32dp"
+      android:text="@string/submit_button"
+      android:enabled="@{viewModel.termsCheckBox}"
+      app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toStartOf="parent"
+      app:onButtonClick="@{__ -> viewModel.onButtonClicked()}"
     />
+
+    <CheckBox
+      app:layout_constraintBottom_toTopOf="@id/agreeButton"
+      android:id="@+id/agreeCheckBox"
+      android:layout_width="0dp"
+      android:layout_margin="16dp"
+      android:checked="@={viewModel.termsCheckBox}"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintEnd_toEndOf="parent"
+      android:layout_height="wrap_content"
+      android:text="@string/agree_checkbox" />
   </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

@@ -16,7 +16,14 @@
 
 package com.google.android.gnd.ui.terms;
 
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.LiveDataReactiveStreams;
+import androidx.lifecycle.MutableLiveData;
+import com.google.android.gnd.model.Terms;
 import com.google.android.gnd.persistence.local.LocalValueStore;
+import com.google.android.gnd.repository.TermsRepository;
+import com.google.android.gnd.rx.Loadable;
+import com.google.android.gnd.rx.annotations.Hot;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.common.Navigator;
 import javax.inject.Inject;
@@ -24,17 +31,35 @@ import javax.inject.Inject;
 public class TermsViewModel extends AbstractViewModel {
 
   private final Navigator navigator;
+
+  @Hot(replays = true)
+  public final MutableLiveData<String> termsText = new MutableLiveData<>();
+
+  @Hot(replays = true)
+  public final MutableLiveData<Boolean> termsCheckBox = new MutableLiveData<>();
   private final LocalValueStore localValueStore;
 
+  private final LiveData<Loadable<Terms>> projectTerms;
+
   @Inject
-  public TermsViewModel(Navigator navigator, LocalValueStore localValueStore) {
+  public TermsViewModel(Navigator navigator, LocalValueStore localValueStore, TermsRepository termsRepository) {
     this.navigator = navigator;
     this.localValueStore = localValueStore;
+    this.projectTerms = LiveDataReactiveStreams.fromPublisher(
+        termsRepository.getProjectTerms());
   }
 
-  public void onTermsAccepted() {
-    localValueStore.termsAccepted();
+  public void onButtonClicked() {
+    localValueStore.setTermsAccepted(true);
     navigator.navigate(TermsFragmentDirections.proceedDirectlyToHomeScreen());
+  }
+
+  public LiveData<Loadable<Terms>> getTerms() {
+    return projectTerms;
+  }
+
+  public void setTermsTextView(String terms) {
+    termsText.setValue(terms);
   }
 
 }
