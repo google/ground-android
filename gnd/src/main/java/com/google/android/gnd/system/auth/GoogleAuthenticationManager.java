@@ -54,9 +54,6 @@ public class GoogleAuthenticationManager implements AuthenticationManager {
   @Hot(replays = true)
   private final Subject<SignInState> signInState = BehaviorSubject.create();
 
-  @Inject
-  LocalValueStore localValueStore;
-
   private final FirebaseAuth firebaseAuth;
   private final ActivityStreams activityStreams;
   private final Disposable activityResultsSubscription;
@@ -108,7 +105,6 @@ public class GoogleAuthenticationManager implements AuthenticationManager {
 
   public void signOut() {
     firebaseAuth.signOut();
-    localValueStore.setTermsAccepted(false);
     signInState.onNext(new SignInState(State.SIGNED_OUT));
     activityStreams.withActivity(activity -> getGoogleSignInClient(activity).signOut());
   }
