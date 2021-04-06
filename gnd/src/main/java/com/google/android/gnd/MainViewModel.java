@@ -37,7 +37,7 @@ import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.SharedViewModel;
 import com.google.android.gnd.ui.home.HomeScreenFragmentDirections;
 import com.google.android.gnd.ui.signin.SignInFragmentDirections;
-import com.google.android.gnd.ui.startup.StartupFragmentDirections;
+import com.google.android.gnd.ui.terms.TermsFragmentDirections;
 import io.reactivex.Completable;
 import java8.util.Optional;
 import javax.inject.Inject;
@@ -156,17 +156,17 @@ public class MainViewModel extends AbstractViewModel {
     navigator.navigate(SignInFragmentDirections.showSignInScreen());
   }
 
+  /**
+   * Called when the user signs in as well as when the previous authentication state is restored
+   * when reopening the app.
+   */
   private void onSignedIn() {
     hideProgressDialog();
 
     if (localValueStore.areTermsAccepted()) {
       navigator.navigate(HomeScreenFragmentDirections.showHomeScreen());
     } else {
-      if (signInProgressDialogVisibility.getValue() == null) {
-          authenticationManager.signOut();
-      } else {
-        navigator.navigate(SignInFragmentDirections.proceedToTermsScreen());
-      }
+      navigator.navigate(TermsFragmentDirections.showTermsScreen());
     }
   }
 

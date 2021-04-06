@@ -159,11 +159,6 @@
     android:name="com.google.android.gnd.ui.signin.SignInFragment"
     android:label="sign_in_frag"
     tools:layout="@layout/sign_in_frag">
-    <action
-      android:id="@+id/proceedToTermsScreen"
-      app:destination="@id/terms_fragment"
-      app:popUpTo="@id/navGraph"
-      app:popUpToInclusive="true" />
   </fragment>
   <activity
     android:id="@+id/settings_activity"
@@ -177,6 +172,10 @@
   <action
     android:id="@+id/showHomeScreen"
     app:destination="@id/home_screen_fragment"
+    app:popUpTo="@id/navGraph" />
+  <action
+    android:id="@+id/showTermsScreen"
+    app:destination="@id/terms_fragment"
     app:popUpTo="@id/navGraph" />
 
   <fragment
