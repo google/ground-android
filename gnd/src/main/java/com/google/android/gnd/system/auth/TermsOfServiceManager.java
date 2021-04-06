@@ -20,8 +20,10 @@ import com.google.android.gnd.persistence.local.LocalValueStore;
 import com.google.android.gnd.system.auth.SignInState.State;
 import io.reactivex.disposables.Disposable;
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
 /** Manages ToS acceptance state. */
+@Singleton
 public class TermsOfServiceManager {
   private final LocalValueStore localValueStore;
   private final Disposable signInStateSubscription;
