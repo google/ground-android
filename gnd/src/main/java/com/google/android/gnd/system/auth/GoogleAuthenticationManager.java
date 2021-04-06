@@ -28,7 +28,6 @@ import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gnd.R;
 import com.google.android.gnd.model.User;
-import com.google.android.gnd.persistence.local.LocalValueStore;
 import com.google.android.gnd.rx.annotations.Hot;
 import com.google.android.gnd.system.ActivityStreams;
 import com.google.android.gnd.system.ActivityStreams.ActivityResult;
