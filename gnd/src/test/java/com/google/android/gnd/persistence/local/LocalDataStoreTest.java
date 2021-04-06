@@ -76,7 +76,6 @@ import org.robolectric.annotation.Config;
 public class LocalDataStoreTest {
 
   @Rule public HiltAndroidRule hiltRule = new HiltAndroidRule(this);
-
   private static final User TEST_USER =
       User.builder().setId("user id").setEmail("user@gmail.com").setDisplayName("user 1").build();
 
@@ -189,6 +188,7 @@ public class LocalDataStoreTest {
   @Rule public InstantTaskExecutorRule instantTaskExecutorRule = new InstantTaskExecutorRule();
 
   @Inject LocalDataStore localDataStore;
+  @Inject LocalValueStore localValueStore;
   @Inject ObservationDao observationDao;
   @Inject FeatureDao featureDao;
 
@@ -581,4 +581,19 @@ public class LocalDataStoreTest {
         .test()
         .assertValue(ImmutableList.of(TEST_OFFLINE_AREA));
   }
+
+
+  @Test
+  public void testTermsAccepted(){
+    localValueStore.setTermsAccepted(true);
+    assertThat(localValueStore.areTermsAccepted()).isTrue();
+  }
+
+  @Test
+  public void testBlankTermsAccepted(){
+    assertThat(localValueStore.areTermsAccepted()).isFalse();
+  }
+
+
+
 }

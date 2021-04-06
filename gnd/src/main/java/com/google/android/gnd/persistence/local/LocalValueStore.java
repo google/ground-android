@@ -74,16 +74,18 @@ public class LocalValueStore {
     return preferences.getInt(MAP_TYPE, defaultType);
   }
 
-  public void termsAccepted() {
-    preferences.edit().putBoolean(TERMS_ACCEPTED, true).apply();
-  }
-
-  public Boolean isTermsAccepted() {
+  /**
+   * This method will return whether the user have accepted the terms or not.
+   * @return true or false depending upon the user.
+   */
+  public boolean areTermsAccepted() {
     return preferences.getBoolean(TERMS_ACCEPTED, false);
   }
 
-
-  public void clearTermsStatus() {
-    preferences.edit().putBoolean(TERMS_ACCEPTED, false).apply();
+  /**
+   * This method will update terms_accepted value.
+   */
+  public void setTermsAccepted(boolean value) {
+    preferences.edit().putBoolean(TERMS_ACCEPTED, value).apply();
   }
 }

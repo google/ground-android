@@ -168,6 +168,7 @@
   <string name="please_wait_logging_in">Logging in…</string>
   <string name="build">Build %s</string>
 
-  <string name="terms_conditions">Terms and Conditions</string>
-  <string name="agree_terms">Agree</string>
+  <string name="terms_conditions">Terms of Service</string>
+  <string name="submit_button">Submit</string>
+  <string name="agree_checkbox">I agree to Terms of Service</string>
 </resources>
