@@ -128,6 +128,9 @@ Tem certeza que deseja apagar o local e todos os dados associados? Isso não pod
   <string name="google_api_install_failed">Google Play Services instalação falhada</string>
   <string name="sign_in_unsuccessful">Entrar sem sucesso</string>
   <string name="sign_out">Sair</string>
+
+  <string name="select_time">Selecione o tempo</string>
+  <string name="select_date">Selecione a data</string>
   <string name="cancel">Cancelar</string>
 
 </resources>

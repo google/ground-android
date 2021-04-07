@@ -25,7 +25,9 @@ public abstract class Field {
   public enum Type {
     TEXT,
     MULTIPLE_CHOICE,
-    PHOTO
+    PHOTO,
+    DATE,
+    TIME
   }
 
   public abstract String getId();

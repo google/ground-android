@@ -20,13 +20,18 @@ import static com.google.android.gnd.ui.editobservation.AddPhotoDialogAdapter.Ph
 import static com.google.android.gnd.ui.editobservation.AddPhotoDialogAdapter.PhotoStorageResource.PHOTO_SOURCE_STORAGE;
 import static java.util.Objects.requireNonNull;
 
+import android.app.DatePickerDialog;
+import android.app.TimePickerDialog;
 import android.content.Context;
 import android.os.Bundle;
+import android.text.format.DateFormat;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.databinding.ViewDataBinding;
@@ -34,11 +39,13 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.R;
+import com.google.android.gnd.databinding.DateInputFieldBinding;
 import com.google.android.gnd.databinding.EditObservationBottomSheetBinding;
 import com.google.android.gnd.databinding.EditObservationFragBinding;
 import com.google.android.gnd.databinding.MultipleChoiceInputFieldBinding;
 import com.google.android.gnd.databinding.PhotoInputFieldBinding;
 import com.google.android.gnd.databinding.TextInputFieldBinding;
+import com.google.android.gnd.databinding.TimeInputFieldBinding;
 import com.google.android.gnd.model.form.Element;
 import com.google.android.gnd.model.form.Element.Type;
 import com.google.android.gnd.model.form.Field;
@@ -55,6 +62,7 @@ import com.google.android.gnd.ui.common.TwoLineToolbar;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import dagger.hilt.android.AndroidEntryPoint;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -68,9 +76,12 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
 
   private final List<AbstractFieldViewModel> fieldViewModelList = new ArrayList<>();
 
-  @Inject Navigator navigator;
-  @Inject FieldViewFactory fieldViewFactory;
-  @Inject EphemeralPopups popups;
+  @Inject
+  Navigator navigator;
+  @Inject
+  FieldViewFactory fieldViewFactory;
+  @Inject
+  EphemeralPopups popups;
 
   private EditObservationViewModel viewModel;
   private EditObservationFragBinding binding;
@@ -82,6 +93,10 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
       return ((MultipleChoiceInputFieldBinding) binding).getViewModel();
     } else if (binding instanceof PhotoInputFieldBinding) {
       return ((PhotoInputFieldBinding) binding).getViewModel();
+    } else if (binding instanceof DateInputFieldBinding) {
+      return ((DateInputFieldBinding) binding).getViewModel();
+    } else if (binding instanceof TimeInputFieldBinding) {
+      return ((TimeInputFieldBinding) binding).getViewModel();
     } else {
       throw new IllegalArgumentException("Unknown binding type: " + binding.getClass());
     }
@@ -140,11 +155,14 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
 
   private void addFieldViewModel(Field field, AbstractFieldViewModel fieldViewModel) {
     fieldViewModel.init(field, viewModel.getSavedOrOriginalResponse(field.getId()));
-
     if (fieldViewModel instanceof PhotoFieldViewModel) {
       initPhotoField((PhotoFieldViewModel) fieldViewModel);
     } else if (fieldViewModel instanceof MultipleChoiceFieldViewModel) {
       observeSelectChoiceClicks((MultipleChoiceFieldViewModel) fieldViewModel);
+    } else if (fieldViewModel instanceof DateFieldViewModel) {
+      observeDateDialogClicks((DateFieldViewModel) fieldViewModel);
+    } else if (fieldViewModel instanceof TimeFieldViewModel) {
+      observeTimeDialogClicks((TimeFieldViewModel) fieldViewModel);
     }
 
     fieldViewModel
@@ -199,10 +217,28 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
             this,
             __ ->
                 createDialog(
-                        viewModel.getField(),
-                        viewModel.getCurrentResponse(),
-                        viewModel::setResponse)
+                    viewModel.getField(),
+                    viewModel.getCurrentResponse(),
+                    viewModel::setResponse)
                     .show());
+  }
+
+  private void observeDateDialogClicks(DateFieldViewModel dateFieldViewModel) {
+    dateFieldViewModel
+        .showDateDialog()
+        .observe(
+            this,
+            __ ->
+                showDateDialog(dateFieldViewModel));
+  }
+
+  private void observeTimeDialogClicks(TimeFieldViewModel timeFieldViewModel) {
+    timeFieldViewModel
+        .showTimeDialog()
+        .observe(
+            this,
+            __ ->
+                showTimeDialog(timeFieldViewModel));
   }
 
   private AlertDialog createDialog(
@@ -317,7 +353,8 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
     new AlertDialog.Builder(requireContext())
         .setMessage(R.string.unsaved_changes)
         .setPositiveButton(R.string.close_without_saving, (d, i) -> navigator.navigateUp())
-        .setNegativeButton(R.string.continue_editing, (d, i) -> {})
+        .setNegativeButton(R.string.continue_editing, (d, i) -> {
+        })
         .create()
         .show();
   }
@@ -325,8 +362,37 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
   private void showValidationErrorsAlert() {
     new AlertDialog.Builder(requireContext())
         .setMessage(R.string.invalid_data_warning)
-        .setPositiveButton(R.string.invalid_data_confirm, (a, b) -> {})
+        .setPositiveButton(R.string.invalid_data_confirm, (a, b) -> {
+        })
         .create()
         .show();
+  }
+
+  private void showDateDialog(DateFieldViewModel field) {
+    Calendar calendar = Calendar.getInstance();
+    int year = calendar.get(Calendar.YEAR);
+    int month = calendar.get(Calendar.MONTH);
+    int day = calendar.get(Calendar.DAY_OF_MONTH);
+    DatePickerDialog datePickerDialog = new DatePickerDialog(requireContext(),
+        (view, year1, month1, dayOfMonth) -> {
+          month1 = month1 + 1;
+          field.updateResponse(
+              "" + (dayOfMonth < 10 ? "0" + dayOfMonth : dayOfMonth) + " - " + (month1 < 10 ? "0"
+                  + month1 : month1) + " - " + year1);
+        }, year, month, day);
+    datePickerDialog.show();
+  }
+
+  private void showTimeDialog(TimeFieldViewModel field) {
+    Calendar c = Calendar.getInstance();
+    int hour = c.get(Calendar.HOUR);
+    int minute = c.get(Calendar.MINUTE);
+    TimePickerDialog timePickerDialog = new TimePickerDialog(requireContext(),
+        (view, hourOfDay, minute1) -> field.updateResponse(
+            "" + (hourOfDay < 10 ? "0" + hourOfDay : hourOfDay) + " : " + (minute1 < 10 ? "0"
+                + minute1 : minute1)), hour,
+        minute, DateFormat
+        .is24HourFormat(requireContext()));
+    timePickerDialog.show();
   }
 }

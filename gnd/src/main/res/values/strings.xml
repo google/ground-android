@@ -135,6 +135,8 @@
   <string name="offline_base_map_selector_prompt">Select a base map for offline use</string>
   <string name="offline_base_map_selector_download">Download</string>
   <string name="add_photo">Add photo</string>
+  <string name="select_time">Select Time</string>
+  <string name="select_date">Select Date</string>
   <string name="action_camera">Camera</string>
   <string name="action_storage">Storage</string>
   <string name="cancel">Cancel</string>

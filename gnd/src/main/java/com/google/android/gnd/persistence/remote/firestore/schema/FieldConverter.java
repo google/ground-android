@@ -40,6 +40,12 @@ class FieldConverter {
       case PHOTO:
         field.setType(Type.PHOTO);
         break;
+      case DATE:
+        field.setType(Type.DATE);
+        break;
+      case TIME:
+        field.setType(Type.TIME);
+        break;
       default:
         return Optional.empty();
     }

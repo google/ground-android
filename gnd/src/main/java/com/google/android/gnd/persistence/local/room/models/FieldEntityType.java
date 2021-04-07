@@ -16,18 +16,22 @@
 
 package com.google.android.gnd.persistence.local.room.models;
 
+import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.room.TypeConverter;
 import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.form.Field.Type;
 import com.google.android.gnd.persistence.local.room.IntEnum;
+import timber.log.Timber;
 
 public enum FieldEntityType implements IntEnum {
   UNKNOWN(0),
   TEXT(1),
   MULTIPLE_CHOICE(2),
-  PHOTO(3);
+  PHOTO(3),
+  DATE(4),
+  TIME(5);
 
   private final int intValue;
 
@@ -48,6 +52,10 @@ public enum FieldEntityType implements IntEnum {
         return MULTIPLE_CHOICE;
       case PHOTO:
         return PHOTO;
+      case DATE:
+        return DATE;
+      case TIME:
+        return TIME;
       default:
         return UNKNOWN;
     }
@@ -61,6 +69,10 @@ public enum FieldEntityType implements IntEnum {
         return Field.Type.MULTIPLE_CHOICE;
       case PHOTO:
         return Type.PHOTO;
+      case DATE:
+        return Type.DATE;
+      case TIME:
+        return Type.TIME;
       default:
         throw new IllegalArgumentException("Unknown field type");
     }
