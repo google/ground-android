@@ -33,10 +33,12 @@ import com.google.android.gnd.rx.Loadable;
 import com.google.android.gnd.rx.annotations.Cold;
 import com.google.android.gnd.system.auth.AuthenticationManager;
 import com.google.common.collect.ImmutableSet;
+import com.google.gson.Gson;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
+import java.util.ArrayList;
 import java.util.Date;
 import java8.util.Optional;
 import javax.inject.Inject;
@@ -146,6 +148,26 @@ public class FeatureRepository {
         .setCreated(auditInfo)
         .setLastModified(auditInfo)
         .build();
+  }
+
+  // ArrayList used just for testing will later on replaced.
+  public Feature newFeaturePolygon(Project project, Layer layer, ArrayList<Point> point) {
+    AuditInfo auditInfo = AuditInfo.now(authManager.getCurrentUser());
+
+    return Feature.newBuilder()
+        .setId(uuidGenerator.generateUuid())
+        .setProject(project)
+        .setLayer(layer)
+        .setPolygonVertices(fromArrayListToString(point))
+        .setCreated(auditInfo)
+        .setLastModified(auditInfo)
+        .build();
+  }
+
+  // ArrayList used just for testing will later on replaced.
+  private String fromArrayListToString(ArrayList<Point> list) {
+    Gson gson = new Gson();
+    return gson.toJson(list);
   }
 
   // TODO(#80): Update UI to provide FeatureMutations instead of Features here.

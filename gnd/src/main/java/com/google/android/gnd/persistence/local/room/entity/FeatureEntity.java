@@ -64,6 +64,12 @@ public abstract class FeatureEntity {
   @ColumnInfo(name = "geo_json")
   public abstract String getGeoJson();
 
+
+  //  @CopyAnnotations
+  //  @Nullable
+  //  @ColumnInfo(name = "polygons")
+  //  public abstract String getMapPolygons();
+
   // TODO: Rename to DeletionState.
   @CopyAnnotations
   @NonNull
@@ -107,6 +113,7 @@ public abstract class FeatureEntity {
             .setProjectId(feature.getProject().getId())
             .setLayerId(feature.getLayer().getId())
             .setGeoJson(feature.getGeoJsonString())
+            //            .setMapPolygons(feature.getPolygonVertices())
             .setLocation(Coordinates.fromPoint(feature.getPoint()))
             .setState(EntityState.DEFAULT)
             .setCreated(AuditInfoEntity.fromObject(feature.getCreated()))
@@ -130,6 +137,7 @@ public abstract class FeatureEntity {
         .setLayer(layer)
         .setPoint(featureEntity.getLocation().toPoint())
         .setGeoJsonString(featureEntity.getGeoJson())
+        //        .setPolygonVertices(featureEntity.getMapPolygons())
         .setCreated(AuditInfoEntity.toObject(featureEntity.getCreated()))
         .setLastModified(AuditInfoEntity.toObject(featureEntity.getLastModified()))
         .build();
@@ -144,6 +152,7 @@ public abstract class FeatureEntity {
       String projectId,
       String layerId,
       String geoJson,
+      //String polyline,
       EntityState state,
       Coordinates location,
       AuditInfoEntity created,
@@ -153,6 +162,7 @@ public abstract class FeatureEntity {
         .setProjectId(projectId)
         .setLayerId(layerId)
         .setGeoJson(geoJson)
+        //  .setMapPolygons(polyline)
         .setState(state)
         .setLocation(location)
         .setCreated(created)
@@ -174,6 +184,8 @@ public abstract class FeatureEntity {
     public abstract Builder setLayerId(String newLayerId);
 
     public abstract Builder setGeoJson(String newGeoJson);
+
+    //    public abstract Builder setMapPolygons(String value);
 
     public abstract Builder setState(EntityState newState);
 

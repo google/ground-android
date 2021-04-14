@@ -59,11 +59,13 @@ import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.ProgressDialogs;
 import com.google.android.gnd.ui.home.mapcontainer.MapContainerFragment;
 import com.google.android.gnd.ui.home.mapcontainer.MapContainerViewModel;
+import com.google.android.gnd.ui.home.mapcontainer.MapContainerViewModel.Mode;
 import com.google.android.gnd.ui.projectselector.ProjectSelectorDialogFragment;
 import com.google.android.gnd.ui.projectselector.ProjectSelectorViewModel;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.navigation.NavigationView.OnNavigationItemSelectedListener;
 import dagger.hilt.android.AndroidEntryPoint;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java8.util.Optional;
@@ -78,18 +80,25 @@ import timber.log.Timber;
 @AndroidEntryPoint
 public class HomeScreenFragment extends AbstractFragment
     implements BackPressListener, OnNavigationItemSelectedListener, OnGlobalLayoutListener {
+
   // TODO: It's not obvious which feature are in HomeScreen vs MapContainer; make this more
   // intuitive.
   private static final float COLLAPSED_MAP_ASPECT_RATIO = 3.0f / 2.0f;
 
-  @Inject AddFeatureDialogFragment addFeatureDialogFragment;
-  @Inject AuthenticationManager authenticationManager;
-  @Inject Schedulers schedulers;
-  @Inject Navigator navigator;
-  @Inject EphemeralPopups popups;
+  @Inject
+  AddFeatureDialogFragment addFeatureDialogFragment;
+  @Inject
+  AuthenticationManager authenticationManager;
+  @Inject
+  Schedulers schedulers;
+  @Inject
+  Navigator navigator;
+  @Inject
+  EphemeralPopups popups;
   MapContainerViewModel mapContainerViewModel;
 
-  @Nullable private ProgressDialog progressDialog;
+  @Nullable
+  private ProgressDialog progressDialog;
   private HomeScreenViewModel viewModel;
   private MapContainerFragment mapContainerFragment;
   private BottomSheetBehavior<View> bottomSheetBehavior;
@@ -97,6 +106,8 @@ public class HomeScreenFragment extends AbstractFragment
   private ProjectSelectorViewModel projectSelectorViewModel;
   private List<Project> projects = Collections.emptyList();
   private HomeScreenFragBinding binding;
+  // Will be removed later have just added for some testing
+  private final ArrayList<Point> polygonPoints = new ArrayList<>();
 
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -119,6 +130,8 @@ public class HomeScreenFragment extends AbstractFragment
     viewModel.getAddFeatureResults().observe(this, this::onFeatureAdded);
     viewModel.getUpdateFeatureResults().observe(this, this::onFeatureUpdated);
     viewModel.getDeleteFeatureResults().observe(this, this::onFeatureDeleted);
+    viewModel.getAddPolygonRequests()
+        .observe(this, e -> e.ifUnhandled(this::onAddPolygon));
     viewModel.getErrors().observe(this, this::onError);
   }
 
@@ -133,7 +146,9 @@ public class HomeScreenFragment extends AbstractFragment
     navigator.navigate(HomeScreenFragmentDirections.addObservation(projectId, featureId, formId));
   }
 
-  /** This is only possible after updating the location of the feature. So, reset the UI. */
+  /**
+   * This is only possible after updating the location of the feature. So, reset the UI.
+   */
   private void onFeatureUpdated(Boolean result) {
     if (result) {
       mapContainerFragment.setDefaultMode();
@@ -147,7 +162,9 @@ public class HomeScreenFragment extends AbstractFragment
     }
   }
 
-  /** Generic handler to display error messages to the user. */
+  /**
+   * Generic handler to display error messages to the user.
+   */
   private void onError(Throwable throwable) {
     Timber.e(throwable);
     // Don't display the exact error message as it might not be user-readable.
@@ -192,7 +209,9 @@ public class HomeScreenFragment extends AbstractFragment
     saveChildFragment(outState, mapContainerFragment, MapContainerFragment.class.getName());
   }
 
-  /** Fetches offline saved projects and adds them to navigation drawer. */
+  /**
+   * Fetches offline saved projects and adds them to navigation drawer.
+   */
   private void updateNavDrawer() {
     projectSelectorViewModel
         .getOfflineProjects()
@@ -339,6 +358,19 @@ public class HomeScreenFragment extends AbstractFragment
         insets.getSystemWindowInsetBottom());
     updateNavViewInsets(insets);
     updateBottomSheetPeekHeight(insets);
+  }
+
+  private void onAddPolygon(Point point) {
+    if (polygonPoints.size() > 3) {
+      if (polygonPoints.contains(point)) {
+        //viewModel.addPolygon(project, layer, polygonPoints);
+        mapContainerViewModel.setViewMode(Mode.DEFAULT);
+      }
+      polygonPoints.add(point);
+    } else {
+      polygonPoints.add(point);
+    }
+
   }
 
   private void updateNavViewInsets(WindowInsetsCompat insets) {
@@ -505,6 +537,7 @@ public class HomeScreenFragment extends AbstractFragment
   }
 
   private class BottomSheetCallback extends BottomSheetBehavior.BottomSheetCallback {
+
     @Override
     public void onStateChanged(@NonNull View bottomSheet, int newState) {
       if (newState == BottomSheetBehavior.STATE_HIDDEN) {

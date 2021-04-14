@@ -46,11 +46,16 @@ import com.google.android.gnd.ui.map.CameraPosition;
 import com.google.android.gnd.ui.map.MapFeature;
 import com.google.android.gnd.ui.map.MapGeoJson;
 import com.google.android.gnd.ui.map.MapPin;
+import com.google.android.gnd.ui.map.MapPolygon;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Flowable;
 import io.reactivex.subjects.PublishSubject;
 import io.reactivex.subjects.Subject;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 import java8.util.Optional;
@@ -89,6 +94,9 @@ public class MapContainerViewModel extends AbstractViewModel {
 
   @Hot(replays = true)
   private final MutableLiveData<Integer> moveFeaturesVisibility = new MutableLiveData<>(GONE);
+
+  @Hot(replays = true)
+  private final MutableLiveData<Integer> addPolygonVisibility = new MutableLiveData<>(GONE);
 
   @Hot(replays = true)
   private final MutableLiveData<Action> selectMapTypeClicks = new MutableLiveData<>();
@@ -149,13 +157,21 @@ public class MapContainerViewModel extends AbstractViewModel {
 
     // TODO: Add support for polylines and polygons similar to mapPins
 
-    ImmutableSet<MapFeature> mapPolygons =
+    ImmutableSet<MapFeature> mapGeoJson =
         stream(features)
             .filter(Feature::isGeoJson)
             .map(MapContainerViewModel::toMapGeoJson)
             .collect(toImmutableSet());
 
-    return ImmutableSet.<MapFeature>builder().addAll(mapPins).addAll(mapPolygons).build();
+
+    ImmutableSet<MapFeature> mapPolygons =
+        stream(features)
+            .filter(Feature::isPolygon)
+            .map(MapContainerViewModel::toMapPolygon)
+            .collect(toImmutableSet());
+
+    return ImmutableSet.<MapFeature>builder().addAll(mapPins)
+        .addAll(mapGeoJson).addAll(mapPolygons).build();
   }
 
   private static MapFeature toMapPin(Feature feature) {
@@ -166,6 +182,20 @@ public class MapContainerViewModel extends AbstractViewModel {
         .setFeature(feature)
         .build();
   }
+
+  private static MapFeature toMapPolygon(Feature feature) {
+    Type listType = new TypeToken<ArrayList<Point>>() {}.getType();
+    ArrayList<Point> points = new Gson().fromJson(feature.getPolygonVertices(), listType);
+    ArrayList<ImmutableSet<Point>> setList  = new ArrayList<>();
+    setList.add(ImmutableSet.copyOf(points));
+    return MapPolygon.newBuilder()
+        .setId(feature.getId())
+        .setVertices(ImmutableList.copyOf(setList))
+        .setStyle(feature.getLayer().getDefaultStyle())
+        .setFeature(feature)
+        .build();
+  }
+
 
   private static MapGeoJson toMapGeoJson(Feature feature) {
     JSONObject jsonObject;
@@ -260,6 +290,10 @@ public class MapContainerViewModel extends AbstractViewModel {
     return iconTint;
   }
 
+  public LiveData<Integer> getAddPolygonVisibility() {
+    return addPolygonVisibility;
+  }
+
   private boolean isLocationLockEnabled() {
     return locationLockState.getValue().isTrue();
   }
@@ -300,6 +334,7 @@ public class MapContainerViewModel extends AbstractViewModel {
   public void setViewMode(Mode viewMode) {
     mapControlsVisibility.setValue(viewMode == Mode.DEFAULT ? VISIBLE : GONE);
     moveFeaturesVisibility.setValue(viewMode == Mode.REPOSITION ? VISIBLE : GONE);
+    addPolygonVisibility.setValue(viewMode == Mode.ADD_POLYGON ? VISIBLE : GONE);
   }
 
   public LiveData<Integer> getMapControlsVisibility() {
@@ -320,7 +355,8 @@ public class MapContainerViewModel extends AbstractViewModel {
 
   public enum Mode {
     DEFAULT,
-    REPOSITION
+    REPOSITION,
+    ADD_POLYGON
   }
 
   static class CameraUpdate {

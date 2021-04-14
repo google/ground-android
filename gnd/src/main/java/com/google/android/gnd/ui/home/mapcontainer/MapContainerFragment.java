@@ -24,6 +24,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -141,10 +142,13 @@ public class MapContainerFragment extends AbstractFragment {
     homeScreenViewModel
         .getBottomSheetState()
         .observe(this, state -> onBottomSheetStateChange(state, map));
+
     binding.mapControls.addFeatureBtn.setOnClickListener(
-        __ -> homeScreenViewModel.onAddFeatureBtnClick(map.getCameraTarget()));
+        __ -> showDataTypeDialog(map));
     binding.moveFeature.confirmButton.setOnClickListener(
         __ -> showConfirmationDialog(map.getCameraTarget()));
+
+    binding.addPolygons.addPolygonButton.setOnClickListener(__ -> addPolygon(map));
     binding.moveFeature.cancelButton.setOnClickListener(__ -> setDefaultMode());
     enableLocationLockBtn();
     mapContainerViewModel.getMbtilesFilePaths().observe(this, map::addTileOverlays);
@@ -171,6 +175,30 @@ public class MapContainerFragment extends AbstractFragment {
         .setCancelable(true)
         .create()
         .show();
+  }
+
+  private void showDataTypeDialog(MapAdapter map) {
+    ArrayAdapter<String> arrayAdapter = new ArrayAdapter(getContext(),
+        R.layout.project_selector_list_item, R.id.project_name);
+    arrayAdapter.add("Point");
+    arrayAdapter.add("Polygon");
+    new Builder(getContext())
+        .setTitle(R.string.select_data_type)
+        .setAdapter(arrayAdapter, (dialog, which) -> {
+          if (which == 0) {
+            dialog.cancel();
+            homeScreenViewModel.onAddFeatureBtnClick(map.getCameraTarget());
+          } else {
+            mapContainerViewModel.setViewMode(Mode.ADD_POLYGON);
+          }
+        })
+        .setCancelable(true)
+        .create()
+        .show();
+  }
+
+  private void addPolygon(MapAdapter map) {
+    homeScreenViewModel.onAddPolygonBtnClick(map.getCameraTarget());
   }
 
   private void showConfirmationDialog(Point point) {

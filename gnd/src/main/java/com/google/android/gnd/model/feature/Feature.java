@@ -39,6 +39,10 @@ public abstract class Feature {
     return getGeoJsonString() != null;
   }
 
+  public boolean isPolygon() {
+    return getPolygonVertices() != null;
+  }
+
   @NonNull
   public abstract String getId();
 
@@ -56,6 +60,9 @@ public abstract class Feature {
 
   @Nullable
   public abstract String getGeoJsonString();
+
+  @Nullable
+  public abstract String getPolygonVertices();
 
   /** Returns the user and time audit info pertaining to the creation of this feature. */
   public abstract AuditInfo getCreated();
@@ -85,6 +92,8 @@ public abstract class Feature {
     public abstract Builder setPoint(Point newPoint);
 
     public abstract Builder setGeoJsonString(@Nullable String newGeoJsonString);
+
+    public abstract Builder setPolygonVertices(@Nullable String value);
 
     public abstract Builder setCreated(@NonNull AuditInfo newCreated);
 

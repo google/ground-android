@@ -41,6 +41,7 @@ import com.google.android.gnd.ui.map.MapPin;
 import io.reactivex.Single;
 import io.reactivex.processors.FlowableProcessor;
 import io.reactivex.processors.PublishProcessor;
+import java.util.ArrayList;
 import java8.util.Optional;
 import javax.inject.Inject;
 import timber.log.Timber;
@@ -61,6 +62,9 @@ public class HomeScreenViewModel extends AbstractViewModel {
   // TODO(#719): Move into MapContainersViewModel
   @Hot(replays = true)
   private final MutableLiveData<Event<Point>> addFeatureDialogRequests = new MutableLiveData<>();
+  @Hot(replays = true)
+  private final MutableLiveData<Event<Point>> addPolygonRequests = new MutableLiveData<>();
+
   // TODO(#719): Move into FeatureDetailsViewModel.
   @Hot(replays = true)
   private final MutableLiveData<Action> openDrawerRequests = new MutableLiveData<>();
@@ -69,6 +73,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
   private final MutableLiveData<BottomSheetState> bottomSheetState = new MutableLiveData<>();
 
   @Hot private final FlowableProcessor<Feature> addFeatureClicks = PublishProcessor.create();
+  @Hot private final FlowableProcessor<Feature> addPolygons = PublishProcessor.create();
   @Hot private final FlowableProcessor<Feature> updateFeatureRequests = PublishProcessor.create();
   @Hot private final FlowableProcessor<Feature> deleteFeatureRequests = PublishProcessor.create();
 
@@ -146,6 +151,10 @@ public class HomeScreenViewModel extends AbstractViewModel {
     return addFeatureResults;
   }
 
+  public LiveData<Event<Point>> getAddPolygonRequests() {
+    return addPolygonRequests;
+  }
+
   public LiveData<Boolean> getUpdateFeatureResults() {
     return updateFeatureResults;
   }
@@ -210,6 +219,11 @@ public class HomeScreenViewModel extends AbstractViewModel {
     addFeatureDialogRequests.setValue(Event.create(location));
   }
 
+  public void onAddPolygonBtnClick(Point location) {
+    // TODO: Pause location updates while dialog is open.
+    addPolygonRequests.setValue(Event.create(location));
+  }
+
   public void onBottomSheetHidden() {
     bottomSheetState.setValue(BottomSheetState.hidden());
     isObservationButtonVisible.setValue(false);
@@ -255,5 +269,10 @@ public class HomeScreenViewModel extends AbstractViewModel {
 
   public void showSettings() {
     navigator.navigate(HomeScreenFragmentDirections.actionHomeScreenFragmentToSettingsActivity());
+  }
+
+  // ArrayList used just for testing will later on replaced.
+  public void addPolygon(Project project, Layer layer, ArrayList<Point> point) {
+    addPolygons.onNext(featureRepository.newFeaturePolygon(project, layer, point));
   }
 }
