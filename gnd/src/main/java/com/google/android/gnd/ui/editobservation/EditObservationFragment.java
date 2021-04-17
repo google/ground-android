@@ -375,22 +375,26 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
     int day = calendar.get(Calendar.DAY_OF_MONTH);
     DatePickerDialog datePickerDialog = new DatePickerDialog(requireContext(),
         (view, year1, month1, dayOfMonth) -> {
-          month1 = month1 + 1;
-          field.updateResponse(
-              "" + (dayOfMonth < 10 ? "0" + dayOfMonth : dayOfMonth) + " - " + (month1 < 10 ? "0"
-                  + month1 : month1) + " - " + year1);
+          Calendar c = Calendar.getInstance();
+          c.set(Calendar.DAY_OF_MONTH,dayOfMonth);
+          c.set(Calendar.MONTH,month1);
+          c.set(Calendar.YEAR,year1);
+          field.updateResponse(c.getTimeInMillis());
         }, year, month, day);
     datePickerDialog.show();
   }
 
   private void showTimeDialog(TimeFieldViewModel field) {
-    Calendar c = Calendar.getInstance();
-    int hour = c.get(Calendar.HOUR);
-    int minute = c.get(Calendar.MINUTE);
+    Calendar calendar = Calendar.getInstance();
+    int hour = calendar.get(Calendar.HOUR);
+    int minute = calendar.get(Calendar.MINUTE);
     TimePickerDialog timePickerDialog = new TimePickerDialog(requireContext(),
-        (view, hourOfDay, minute1) -> field.updateResponse(
-            "" + (hourOfDay < 10 ? "0" + hourOfDay : hourOfDay) + " : " + (minute1 < 10 ? "0"
-                + minute1 : minute1)), hour,
+        (view, hourOfDay, minute1) -> {
+          Calendar c = Calendar.getInstance();
+          c.set(Calendar.HOUR_OF_DAY,hourOfDay);
+          c.set(Calendar.MINUTE,minute1);
+          field.updateResponse(c.getTimeInMillis());
+        }, hour,
         minute, DateFormat
         .is24HourFormat(requireContext()));
     timePickerDialog.show();

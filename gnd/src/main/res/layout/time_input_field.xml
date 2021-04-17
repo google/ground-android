@@ -50,7 +50,6 @@
         android:onClick="@{__ -> viewModel.onShowDialog()}"
         android:text="@{viewModel.responseText}"
         app:error="@{viewModel.error}"
-        app:onTextChanged="@{s -> viewModel.updateResponse((String)s)}"
         tools:text="Time" />
     </com.google.android.material.textfield.TextInputLayout>
     <Button

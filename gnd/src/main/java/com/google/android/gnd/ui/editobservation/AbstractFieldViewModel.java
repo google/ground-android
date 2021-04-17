@@ -23,23 +23,38 @@ import androidx.lifecycle.LiveDataReactiveStreams;
 import androidx.lifecycle.MutableLiveData;
 import com.google.android.gnd.R;
 import com.google.android.gnd.model.form.Field;
+import com.google.android.gnd.model.form.Field.Type;
+import com.google.android.gnd.model.observation.DateResponse;
 import com.google.android.gnd.model.observation.Response;
+import com.google.android.gnd.model.observation.TextResponse;
+import com.google.android.gnd.model.observation.TimeResponse;
 import com.google.android.gnd.rx.annotations.Hot;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import io.reactivex.Single;
 import io.reactivex.processors.BehaviorProcessor;
+import java.util.HashMap;
+import java.util.Map;
 import java8.util.Optional;
+import timber.log.Timber;
 
-/** Defines the state of an inflated {@link Field} and controls its UI. */
+/**
+ * Defines the state of an inflated {@link Field} and controls its UI.
+ */
 public class AbstractFieldViewModel extends AbstractViewModel {
 
-  /** Current value. */
+  /**
+   * Current value.
+   */
   private final LiveData<Optional<Response>> response;
 
-  /** Transcoded text to be displayed for the current {@link AbstractFieldViewModel#response}. */
+  /**
+   * Transcoded text to be displayed for the current {@link AbstractFieldViewModel#response}.
+   */
   private final LiveData<String> responseText;
 
-  /** Error message to be displayed for the current {@link AbstractFieldViewModel#response}. */
+  /**
+   * Error message to be displayed for the current {@link AbstractFieldViewModel#response}.
+   */
   @Hot(replays = true)
   private final MutableLiveData<String> error = new MutableLiveData<>();
 
@@ -67,11 +82,61 @@ public class AbstractFieldViewModel extends AbstractViewModel {
     setResponse(response);
   }
 
+
+  /*
+     As the date and time response was saving as String in local db.
+     So far need to check within TextResponse the field type.
+     If the field type is Date or Time. String get converted to Map.
+     Then Map to DateResponse or TimeResponse based on the Field Type.
+     */
   private Single<String> getDetailsText(Optional<Response> responseOptional) {
-    return Single.just(responseOptional.map(response -> response.getDetailsText(field)).orElse(""));
+
+    return Single.just(responseOptional.map(response -> {
+      if (response instanceof DateResponse) {
+        return response.getDetailsText(field);
+      } else if (response instanceof TimeResponse) {
+        return response.getDetailsText(field);
+      } else if (response instanceof TextResponse) {
+        if (field.getType() == Type.DATE) {
+          if (!response.getDetailsText(field).isEmpty()) {
+            Optional<Response> dateRes = DateResponse
+                .fromMap(stringToMap(response.getDetailsText(field)));
+            return dateRes.map(res -> res.getDetailsText(field)).orElse("");
+          } else {
+            return "";
+          }
+        } else if (field.getType() == Type.TIME) {
+          if (!response.getDetailsText(field).isEmpty()) {
+            Optional<Response> timeRes = TimeResponse
+                .fromMap(stringToMap(response.getDetailsText(field)));
+            return timeRes.map(r -> r.getDetailsText(field)).orElse("");
+          } else {
+            return "";
+          }
+        } else {
+          return response.getDetailsText(field);
+        }
+      } else {
+        return response.getDetailsText(field);
+      }
+    }).orElse(""));
+//    return Single.just(responseOptional.map(response -> response.getDetailsText(field)).orElse(""));
   }
 
-  /** Checks if the current response is valid and updates error value. */
+  /**
+   * @param mapAsString the string format of map.
+   * @return the string is converted to map and returned.
+   */
+  private Map<String, Long> stringToMap(String mapAsString) {
+    mapAsString = mapAsString.substring(1, mapAsString.length() - 1);
+    Map<String, Long> mapRes = new HashMap<>();
+    mapRes.put(mapAsString.split("=")[0], Long.valueOf(mapAsString.split("=")[1]));
+    return mapRes;
+  }
+
+  /**
+   * Checks if the current response is valid and updates error value.
+   */
   public Optional<String> validate() {
     Optional<String> result = validate(field, responseSubject.getValue());
     error.postValue(result.orElse(null));

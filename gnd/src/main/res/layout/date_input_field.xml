@@ -48,7 +48,6 @@
         android:focusable="false"
         android:text="@{viewModel.responseText}"
         app:error="@{viewModel.error}"
-        app:onTextChanged="@{s -> viewModel.updateResponse((String)s)}"
         tools:text="Date" />
 
     </com.google.android.material.textfield.TextInputLayout>

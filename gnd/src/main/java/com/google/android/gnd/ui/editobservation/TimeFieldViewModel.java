@@ -18,9 +18,13 @@ package com.google.android.gnd.ui.editobservation;
 
 import android.app.Application;
 import androidx.lifecycle.MutableLiveData;
+import com.google.android.gnd.model.observation.DateResponse;
 import com.google.android.gnd.model.observation.TextResponse;
+import com.google.android.gnd.model.observation.TimeResponse;
 import com.google.android.gnd.rx.Nil;
 import com.google.android.gnd.rx.annotations.Hot;
+import java.util.HashMap;
+import java.util.Map;
 import javax.inject.Inject;
 import timber.log.Timber;
 
@@ -33,8 +37,10 @@ public class TimeFieldViewModel extends AbstractFieldViewModel {
     super(application);
   }
 
-  public void updateResponse(String text) {
-    setResponse(TextResponse.fromString(text));
+  public void updateResponse(long timeMs) {
+    Map<String,Long> work = new HashMap<String, Long>();
+    work.put("time",timeMs);
+    setResponse(TimeResponse.fromMap(work));
   }
 
   public void onShowDialog() {

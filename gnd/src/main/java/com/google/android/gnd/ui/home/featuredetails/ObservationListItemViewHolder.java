@@ -29,9 +29,13 @@ import com.google.android.gnd.model.form.Element;
 import com.google.android.gnd.model.form.Element.Type;
 import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.form.Form;
+import com.google.android.gnd.model.observation.DateResponse;
 import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.model.observation.Response;
+import com.google.android.gnd.model.observation.TimeResponse;
 import com.google.common.collect.ImmutableList;
+import java.util.HashMap;
+import java.util.Map;
 import java8.util.Optional;
 import timber.log.Timber;
 
@@ -68,14 +72,56 @@ class ObservationListItemViewHolder extends RecyclerView.ViewHolder {
         Optional<Response> response = observation.getResponses().getResponse(field.getId());
         binding.fieldLabelRow.addView(
             newFieldTextView(field.getLabel(), R.style.ObservationListText_FieldLabel));
-        binding.fieldValueRow.addView(
-            newFieldTextView(
-                response.map(r -> r.getSummaryText(field)).orElse(""),
-                R.style.ObservationListText_Field));
+        binding.fieldValueRow.addView(getFieldTextView(field, response));
       } else {
         Timber.e("Unhandled element type: %s", elem.getType());
       }
     }
+  }
+
+  /**
+   * Based on the field type the response is getting generated
+   * which will later on create a new FieldText and return that.
+   */
+  private TextView getFieldTextView(Field field, Optional<Response> res) {
+
+    if (field.getType() == Field.Type.DATE) {
+      String mapAsString = res.map(r -> r.getSummaryText(field)).orElse("");
+      if (mapAsString.isEmpty()) {
+        return newFieldTextView("",
+            R.style.ObservationListText_Field);
+      } else {
+        Optional<Response> resp = DateResponse.fromMap(stringToMap(mapAsString));
+        return newFieldTextView(
+            resp.map(r -> r.getSummaryText(field)).orElse(""),
+            R.style.ObservationListText_Field);
+      }
+    } else if (field.getType() == Field.Type.TIME) {
+      String mapAsString = res.map(r -> r.getSummaryText(field)).orElse("");
+      if (mapAsString.isEmpty()) {
+        return newFieldTextView("",
+            R.style.ObservationListText_Field);
+      } else {
+        Optional<Response> resp = TimeResponse.fromMap(stringToMap(mapAsString));
+        return newFieldTextView(resp.map(r -> r.getSummaryText(field)).orElse(""),
+            R.style.ObservationListText_Field);
+      }
+    }
+    return newFieldTextView(
+        res.map(r -> r.getSummaryText(field)).orElse(""),
+        R.style.ObservationListText_Field);
+
+  }
+
+  /**
+   * @param mapAsString the string format of map.
+   * @return the string is converted to map and returned.
+   */
+  private Map<String, Long> stringToMap(String mapAsString) {
+    mapAsString = mapAsString.substring(1, mapAsString.length() - 1);
+    Map<String, Long> mapRes = new HashMap<>();
+    mapRes.put(mapAsString.split("=")[0], Long.valueOf(mapAsString.split("=")[1]));
+    return mapRes;
   }
 
   @NonNull

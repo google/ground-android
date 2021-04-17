@@ -18,11 +18,14 @@ package com.google.android.gnd.persistence.local.room.converter;
 
 import static java8.lang.Iterables.forEach;
 
+import com.google.android.gnd.model.observation.DateResponse;
 import com.google.android.gnd.model.observation.MultipleChoiceResponse;
 import com.google.android.gnd.model.observation.Response;
 import com.google.android.gnd.model.observation.TextResponse;
+import com.google.android.gnd.model.observation.TimeResponse;
 import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java8.util.Optional;
 import org.json.JSONArray;
@@ -36,6 +39,10 @@ class ResponseJsonConverter {
       return ((TextResponse) response).getText();
     } else if (response instanceof MultipleChoiceResponse) {
       return toJsonArray((MultipleChoiceResponse) response);
+    }else if (response instanceof DateResponse) {
+      return ((DateResponse) response).getDate();
+    }else if (response instanceof TimeResponse) {
+      return ((TimeResponse) response).getTime();
     } else {
       throw new UnsupportedOperationException("Unimplemented Response " + response.getClass());
     }

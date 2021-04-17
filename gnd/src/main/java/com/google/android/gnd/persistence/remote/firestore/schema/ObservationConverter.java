@@ -21,19 +21,24 @@ import static com.google.android.gnd.persistence.remote.DataStoreException.check
 
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.form.Form;
+import com.google.android.gnd.model.observation.DateResponse;
 import com.google.android.gnd.model.observation.MultipleChoiceResponse;
 import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.model.observation.ResponseMap;
 import com.google.android.gnd.model.observation.TextResponse;
+import com.google.android.gnd.model.observation.TimeResponse;
 import com.google.android.gnd.persistence.remote.DataStoreException;
 import com.google.firebase.firestore.DocumentSnapshot;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java8.util.Objects;
 import javax.annotation.Nullable;
 import timber.log.Timber;
 
-/** Converts between Firestore documents and {@link Observation} instances. */
+/**
+ * Converts between Firestore documents and {@link Observation} instances.
+ */
 class ObservationConverter {
 
   static Observation toObservation(Feature feature, DocumentSnapshot snapshot)
@@ -76,6 +81,13 @@ class ObservationConverter {
       } else if (obj instanceof List) {
         MultipleChoiceResponse.fromList((List<String>) obj)
             .ifPresent(r -> responses.putResponse(fieldId, r));
+      } else if (obj instanceof Map) {
+        HashMap<String, Long> map = (HashMap<String, Long>) obj;
+        if (map.containsKey("date")) {
+          DateResponse.fromMap(map).ifPresent(r -> responses.putResponse(fieldId, r));
+        } else {
+          TimeResponse.fromMap(map).ifPresent(r -> responses.putResponse(fieldId, r));
+        }
       } else {
         Timber.e("Unsupported obj in db: %s", obj.getClass().getName());
       }

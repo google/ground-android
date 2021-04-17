@@ -35,22 +35,29 @@ import com.google.android.gnd.databinding.PhotoFieldBinding;
 import com.google.android.gnd.model.form.Element;
 import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.form.Field.Type;
+import com.google.android.gnd.model.observation.DateResponse;
 import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.model.observation.Response;
+import com.google.android.gnd.model.observation.TimeResponse;
 import com.google.android.gnd.rx.Loadable;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.EphemeralPopups;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.editobservation.PhotoFieldViewModel;
 import dagger.hilt.android.AndroidEntryPoint;
+import java.util.HashMap;
+import java.util.Map;
+import java8.util.Optional;
 import javax.inject.Inject;
 import timber.log.Timber;
 
 @AndroidEntryPoint
 public class ObservationDetailsFragment extends AbstractFragment {
 
-  @Inject Navigator navigator;
-  @Inject EphemeralPopups popups;
+  @Inject
+  Navigator navigator;
+  @Inject
+  EphemeralPopups popups;
 
   private ObservationDetailsViewModel viewModel;
   private ObservationDetailsFragBinding binding;
@@ -131,10 +138,41 @@ public class ObservationDetailsFragment extends AbstractFragment {
             response -> {
               if (field.getType() == Type.PHOTO) {
                 addPhotoField((ViewGroup) fieldBinding.getRoot(), field, response);
+              } else if (field.getType() == Type.DATE) {
+                if (!response.getDetailsText(field).isEmpty()) {
+                  Optional<Response> dateResponse = DateResponse
+                      .fromMap(stringToMap(response.getDetailsText(field)));
+                  fieldBinding.fieldValue
+                      .setText(dateResponse.map(r -> r.getDetailsText(field)).orElse(""));
+                } else {
+                  fieldBinding.fieldValue
+                      .setText("");
+                }
+              } else if (field.getType() == Type.TIME) {
+                if (!response.getDetailsText(field).isEmpty()) {
+                  Optional<Response> timeResponse = TimeResponse
+                      .fromMap(stringToMap(response.getDetailsText(field)));
+                  fieldBinding.fieldValue
+                      .setText(timeResponse.map(r -> r.getDetailsText(field)).orElse(""));
+                } else {
+                  fieldBinding.fieldValue
+                      .setText("");
+                }
               } else {
                 fieldBinding.fieldValue.setText(response.getDetailsText(field));
               }
             });
+  }
+
+  /**
+   * @param mapAsString the string format of map.
+   * @return the string is converted to map and returned.
+   */
+  private Map<String, Long> stringToMap(String mapAsString) {
+    mapAsString = mapAsString.substring(1, mapAsString.length() - 1);
+    Map<String, Long> mapRes = new HashMap<>();
+    mapRes.put(mapAsString.split("=")[0], Long.valueOf(mapAsString.split("=")[1]));
+    return mapRes;
   }
 
   private void addPhotoField(ViewGroup container, Field field, Response response) {
