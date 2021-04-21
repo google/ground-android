@@ -70,32 +70,47 @@ class ObservationConverter {
     }
     for (String fieldId : docResponses.keySet()) {
       try {
-        Field field =
-            form.getField(fieldId).orElseThrow(() -> new DataStoreException("Not defined in form"));
         Object obj = docResponses.get(fieldId);
-        switch (field.getType()) {
-          case PHOTO:
-            // Intentional fall-through.
-            // TODO(#755): Handle photo fields as PhotoResponse instead of TextResponse.
-          case TEXT:
-            String value = (String) DataStoreException.checkType(String.class, obj);
-            TextResponse.fromString(value.trim()).ifPresent(r -> responses.putResponse(fieldId, r));
-            break;
-          case MULTIPLE_CHOICE:
-            List values = (List) DataStoreException.checkType(List.class, obj);
-            stream(values).forEach(v -> DataStoreException.checkType(String.class, v));
-            MultipleChoiceResponse.fromList((List<String>) values)
-                .ifPresent(r -> responses.putResponse(fieldId, r));
-            break;
-            // TODO(#23): Add support for number fields.
-            // TODO(#748): Add support for date and time fields.
-          default:
-            throw new DataStoreException("Unknown type " + field.getType());
-        }
+        putResponse(fieldId, form, obj, responses);
       } catch (DataStoreException e) {
         Timber.d("Field " + fieldId + "in remote db in observation " + observationId + ": " + e);
       }
     }
     return responses.build();
+  }
+
+  private static void putResponse(
+      String fieldId, Form form, Object obj, ResponseMap.Builder responses) {
+    Field field =
+        form.getField(fieldId).orElseThrow(() -> new DataStoreException("Not defined in form"));
+    switch (field.getType()) {
+      case PHOTO:
+        // Intentional fall-through.
+        // TODO(#755): Handle photo fields as PhotoResponse instead of TextResponse.
+      case TEXT:
+        putTextResponse(fieldId, obj, responses);
+        break;
+      case MULTIPLE_CHOICE:
+        putMultipleChoiceResponse(fieldId, obj, responses);
+        break;
+        // TODO(#23): Add support for number fields.
+        // TODO(#748): Add support for date and time fields.
+      default:
+        throw new DataStoreException("Unknown type " + field.getType());
+    }
+  }
+
+  private static void putTextResponse(String fieldId, Object obj, ResponseMap.Builder responses) {
+    String value = (String) DataStoreException.checkType(String.class, obj);
+    TextResponse.fromString(value.trim()).ifPresent(r -> responses.putResponse(fieldId, r));
+  }
+
+  @SuppressWarnings({"rawtypes", "unchecked"})
+  private static void putMultipleChoiceResponse(
+      String fieldId, Object obj, ResponseMap.Builder responses) {
+    List values = (List) DataStoreException.checkType(List.class, obj);
+    stream(values).forEach(v -> DataStoreException.checkType(String.class, v));
+    MultipleChoiceResponse.fromList((List<String>) values)
+        .ifPresent(r -> responses.putResponse(fieldId, r));
   }
 }
