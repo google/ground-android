@@ -54,13 +54,13 @@ class ObservationConverter {
         .setProject(feature.getProject())
         .setFeature(feature)
         .setForm(form)
-        .setResponses(toResponseMap(doc.getResponses()))
+        .setResponses(toResponseMap(form, doc.getResponses()))
         .setCreated(AuditInfoConverter.toAuditInfo(created))
         .setLastModified(AuditInfoConverter.toAuditInfo(lastModified))
         .build();
   }
 
-  private static ResponseMap toResponseMap(@Nullable Map<String, Object> docResponses) {
+  private static ResponseMap toResponseMap(Form form, @Nullable Map<String, Object> docResponses) {
     ResponseMap.Builder responses = ResponseMap.builder();
     if (docResponses == null) {
       return responses.build();
