@@ -52,6 +52,7 @@ public abstract class Feature {
   @Nullable
   public abstract String getCaption();
 
+  @Nullable
   public abstract Point getPoint();
 
   @Nullable
@@ -82,7 +83,7 @@ public abstract class Feature {
 
     public abstract Builder setCaption(@Nullable String newCaption);
 
-    public abstract Builder setPoint(Point newPoint);
+    public abstract Builder setPoint(@Nullable Point newPoint);
 
     public abstract Builder setGeoJsonString(@Nullable String newGeoJsonString);
 
