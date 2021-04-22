@@ -59,6 +59,25 @@ public class ResponseMap {
     return new Builder();
   }
 
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+
+    ResponseMap that = (ResponseMap) o;
+
+    return responses != null ? responses.equals(that.responses) : that.responses == null;
+  }
+
+  @Override
+  public int hashCode() {
+    return responses != null ? responses.hashCode() : 0;
+  }
+
   public static class Builder {
     private final Map<String, Response> map = new HashMap<>();
 
