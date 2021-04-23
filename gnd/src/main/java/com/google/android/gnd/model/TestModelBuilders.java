@@ -29,40 +29,40 @@ import java.util.Date;
  * specific values should explicitly set them in relevant test methods or during test setup.
  */
 public class TestModelBuilders {
-  public static Project.Builder newTestProject() {
+  public static Project.Builder newProject() {
     return Project.newBuilder().setId("").setTitle("").setDescription("");
   }
 
-  public static User.Builder newTestUser() {
+  public static User.Builder newUser() {
     return User.builder().setId("").setEmail("").setDisplayName("");
   }
 
-  public static AuditInfo.Builder newTestAuditInfo() {
-    return AuditInfo.builder().setClientTimestamp(new Date(0)).setUser(newTestUser().build());
+  public static AuditInfo.Builder newAuditInfo() {
+    return AuditInfo.builder().setClientTimestamp(new Date(0)).setUser(newUser().build());
   }
 
-  public static Point.Builder newTestPoint() {
+  public static Point.Builder newPoint() {
     return Point.newBuilder().setLatitude(0).setLongitude(0);
   }
 
-  public static Feature.Builder newTestFeature() {
+  public static Feature.Builder newFeature() {
     return Feature.newBuilder()
         .setId("")
-        .setProject(newTestProject().build())
-        .setPoint(newTestPoint().build())
-        .setCreated(newTestAuditInfo().build())
-        .setLastModified(newTestAuditInfo().build());
+        .setProject(newProject().build())
+        .setPoint(newPoint().build())
+        .setCreated(newAuditInfo().build())
+        .setLastModified(newAuditInfo().build());
   }
 
-  public static Layer.Builder newTestLayer() {
-    return Layer.newBuilder().setId("").setName("").setDefaultStyle(newTestStyle().build());
+  public static Layer.Builder newLayer() {
+    return Layer.newBuilder().setId("").setName("").setDefaultStyle(newStyle().build());
   }
 
-  public static Style.Builder newTestStyle() {
+  public static Style.Builder newStyle() {
     return Style.builder().setColor("");
   }
 
-  public static Form.Builder newTestForm() {
+  public static Form.Builder newForm() {
     return Form.newBuilder().setId("");
   }
 }
