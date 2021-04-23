@@ -18,6 +18,8 @@ package com.google.android.gnd.model;
 
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.Point;
+import com.google.android.gnd.model.form.Field;
+import com.google.android.gnd.model.form.Field.Type;
 import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.model.layer.Style;
@@ -64,5 +66,14 @@ public class TestModelBuilders {
 
   public static Form.Builder newForm() {
     return Form.newBuilder().setId("");
+  }
+
+  public static Field.Builder newField() {
+    return Field.newBuilder()
+        .setId("")
+        .setIndex(0)
+        .setType(Type.TEXT)
+        .setLabel("")
+        .setRequired(false);
   }
 }
