@@ -21,6 +21,7 @@ import static java8.lang.Iterables.forEach;
 import com.google.common.collect.ImmutableList;
 import java.util.HashMap;
 import java.util.Map;
+import java8.util.Objects;
 import java8.util.Optional;
 
 /** An immutable map of field ids to related user responses. */
@@ -70,12 +71,12 @@ public class ResponseMap {
 
     ResponseMap that = (ResponseMap) o;
 
-    return responses != null ? responses.equals(that.responses) : that.responses == null;
+    return Objects.equals(responses, that.responses);
   }
 
   @Override
   public int hashCode() {
-    return responses != null ? responses.hashCode() : 0;
+    return responses == null ? 0 : responses.hashCode();
   }
 
   public static class Builder {
