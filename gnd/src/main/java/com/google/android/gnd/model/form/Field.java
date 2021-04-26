@@ -23,6 +23,7 @@ import javax.annotation.Nullable;
 @AutoValue
 public abstract class Field {
   public enum Type {
+    UNKNOWN,
     TEXT,
     MULTIPLE_CHOICE,
     PHOTO
