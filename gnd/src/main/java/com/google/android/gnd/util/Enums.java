@@ -16,13 +16,15 @@
 
 package com.google.android.gnd.util;
 
+import java.util.Locale;
+
 public abstract class Enums {
   /** Do not instantiate. */
   private Enums() {}
 
   public static <T extends Enum<T>> T toEnum(Class<T> enumClass, String value) {
     try {
-      return Enum.valueOf(enumClass, value.toUpperCase());
+      return Enum.valueOf(enumClass, value.toUpperCase(Locale.ENGLISH));
     } catch (IllegalArgumentException e) {
       return enumClass.getEnumConstants()[0];
     }

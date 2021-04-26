@@ -151,7 +151,8 @@ public class ObservationConverterTest {
 
   @Test
   public void testToObservation_mismatchedFeatureId() {
-    setUpTestProject("layer001", "form001", newField().setId("field1").setType(Type.TEXT_FIELD).build());
+    setUpTestProject(
+        "layer001", "form001", newField().setId("field1").setType(Type.TEXT_FIELD).build());
     setUpTestFeature("feature001");
     mockObservationDocumentSnapshot(
         "observation123",
@@ -172,7 +173,8 @@ public class ObservationConverterTest {
 
   @Test
   public void testToObservation_nullResponses() {
-    setUpTestProject("layer001", "form001", newField().setId("field1").setType(Type.TEXT_FIELD).build());
+    setUpTestProject(
+        "layer001", "form001", newField().setId("field1").setType(Type.TEXT_FIELD).build());
     setUpTestFeature("feature001");
     mockObservationDocumentSnapshot(
         "observation123",
@@ -202,7 +204,8 @@ public class ObservationConverterTest {
 
   @Test
   public void testToObservation_emptyTextResponse() {
-    setUpTestProject("layer001", "form001", newField().setId("field1").setType(Type.TEXT_FIELD).build());
+    setUpTestProject(
+        "layer001", "form001", newField().setId("field1").setType(Type.TEXT_FIELD).build());
     setUpTestFeature("feature001");
     mockObservationDocumentSnapshot(
         "observation123",
