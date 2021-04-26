@@ -190,6 +190,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
         case UNKNOWN:
         default:
           Timber.d(element.getType() + " form elements not yet supported");
+          break;
       }
     }
   }
