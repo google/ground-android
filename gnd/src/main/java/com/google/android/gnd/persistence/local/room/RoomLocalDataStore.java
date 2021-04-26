@@ -153,6 +153,7 @@ public class RoomLocalDataStore implements LocalDataStore {
 
   private Completable insertOrUpdateElements(String formId, ImmutableList<Element> elements) {
     return Observable.fromIterable(elements)
+        .filter(element -> element.getType() == Element.Type.FIELD)
         .flatMapCompletable(
             element -> insertOrUpdateField(formId, element.getType(), element.getField()));
   }
