@@ -41,7 +41,9 @@ import com.google.android.gnd.model.form.Option;
 import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.model.observation.ObservationMutation;
+import com.google.android.gnd.model.observation.ResponseMap;
 import com.google.android.gnd.persistence.local.LocalDataStore;
+import com.google.android.gnd.persistence.local.room.converter.ResponseMapConverter;
 import com.google.android.gnd.persistence.local.room.dao.FeatureDao;
 import com.google.android.gnd.persistence.local.room.dao.FeatureMutationDao;
 import com.google.android.gnd.persistence.local.room.dao.FieldDao;
@@ -417,9 +419,11 @@ public class RoomLocalDataStore implements LocalDataStore {
     long clientTimestamp = lastMutation.getClientTimestamp();
     Timber.v("Merging observation " + this + " with mutations " + mutations);
     ObservationEntity.Builder builder = observation.toBuilder();
-    // Merge changes to responses.
+    ResponseMap.Builder responseMap =
+        ResponseMapConverter.fromString(observation.getResponses()).toBuilder();
     for (ObservationMutationEntity mutation : mutations) {
-      builder.applyMutation(mutation);
+      // Merge changes to responses.
+      responseMap.applyDeltas(mutation.getResponseDeltas());
     }
     // Update modified user and time.
     AuditInfoEntity lastModified =

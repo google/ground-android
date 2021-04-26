@@ -21,7 +21,6 @@ import androidx.room.RoomDatabase;
 import androidx.room.TypeConverters;
 import com.google.android.gnd.Config;
 import com.google.android.gnd.persistence.local.room.converter.ResponseDeltasTypeConverter;
-import com.google.android.gnd.persistence.local.room.converter.ResponseMapTypeConverter;
 import com.google.android.gnd.persistence.local.room.converter.StyleTypeConverter;
 import com.google.android.gnd.persistence.local.room.dao.FeatureDao;
 import com.google.android.gnd.persistence.local.room.dao.FeatureMutationDao;
@@ -93,7 +92,6 @@ import com.google.android.gnd.persistence.local.room.models.TileEntityState;
   EntityState.class,
   OfflineBaseMapEntityState.class,
   ResponseDeltasTypeConverter.class,
-  ResponseMapTypeConverter.class,
   StyleTypeConverter.class,
   TileEntityState.class
 })
