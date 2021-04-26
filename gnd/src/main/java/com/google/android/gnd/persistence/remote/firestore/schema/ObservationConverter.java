@@ -87,7 +87,7 @@ class ObservationConverter {
       case PHOTO:
         // Intentional fall-through.
         // TODO(#755): Handle photo fields as PhotoResponse instead of TextResponse.
-      case TEXT:
+      case TEXT_FIELD:
         putTextResponse(fieldId, obj, responses);
         break;
       case MULTIPLE_CHOICE:

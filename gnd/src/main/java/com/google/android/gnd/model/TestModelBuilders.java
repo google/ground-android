@@ -72,7 +72,7 @@ public class TestModelBuilders {
     return Field.newBuilder()
         .setId("")
         .setIndex(0)
-        .setType(Type.TEXT)
+        .setType(Type.TEXT_FIELD)
         .setLabel("")
         .setRequired(false);
   }
