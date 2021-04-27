@@ -18,20 +18,15 @@ package com.google.android.gnd.persistence.local.room.converter;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.room.TypeConverter;
 import com.google.android.gnd.model.observation.ResponseMap;
 import java.util.Iterator;
 import org.json.JSONException;
 import org.json.JSONObject;
 import timber.log.Timber;
 
-/**
- * {@link TypeConverter} for converting between {@link ResponseMap} and JSON strings used to
- * represent them in the local db.
- */
-public class ResponseMapTypeConverter {
+/** Converts between {@link ResponseMap} and JSON strings used to represent them in the local db. */
+public class ResponseMapConverter {
 
-  @TypeConverter
   @Nullable
   public static String toString(@NonNull ResponseMap responseDeltas) {
     JSONObject json = new JSONObject();
@@ -50,7 +45,6 @@ public class ResponseMapTypeConverter {
     return json.toString();
   }
 
-  @TypeConverter
   @NonNull
   public static ResponseMap fromString(@Nullable String jsonString) {
     ResponseMap.Builder map = ResponseMap.builder();

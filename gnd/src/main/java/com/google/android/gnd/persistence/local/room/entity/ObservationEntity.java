@@ -19,6 +19,7 @@ package com.google.android.gnd.persistence.local.room.entity;
 import static androidx.room.ForeignKey.CASCADE;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.room.ColumnInfo;
 import androidx.room.Embedded;
 import androidx.room.Entity;
@@ -32,6 +33,7 @@ import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.model.observation.ObservationMutation;
 import com.google.android.gnd.model.observation.ResponseMap;
 import com.google.android.gnd.persistence.local.LocalDataConsistencyException;
+import com.google.android.gnd.persistence.local.room.converter.ResponseMapConverter;
 import com.google.android.gnd.persistence.local.room.models.EntityState;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.AutoValue.CopyAnnotations;
@@ -76,12 +78,12 @@ public abstract class ObservationEntity {
 
   /**
    * Returns a JSON object containing user responses keyed by their respective elementId in the form
-   * identified by formId. Returns an empty JSON object if no responses have been provided.
+   * identified by formId. Returns null if no responses have been provided.
    */
   @CopyAnnotations
   @ColumnInfo(name = "responses")
-  @NonNull
-  public abstract ResponseMap getResponses();
+  @Nullable
+  public abstract String getResponses();
 
   @CopyAnnotations
   @NonNull
@@ -99,7 +101,7 @@ public abstract class ObservationEntity {
         .setFormId(observation.getForm().getId())
         .setFeatureId(observation.getFeature().getId())
         .setState(EntityState.DEFAULT)
-        .setResponses(observation.getResponses())
+        .setResponses(ResponseMapConverter.toString(observation.getResponses()))
         .setCreated(AuditInfoEntity.fromObject(observation.getCreated()))
         .setLastModified(AuditInfoEntity.fromObject(observation.getLastModified()))
         .build();
@@ -112,7 +114,9 @@ public abstract class ObservationEntity {
         .setFormId(mutation.getFormId())
         .setFeatureId(mutation.getFeatureId())
         .setState(EntityState.DEFAULT)
-        .setResponses(ResponseMap.builder().applyDeltas(mutation.getResponseDeltas()).build())
+        .setResponses(
+            ResponseMapConverter.toString(
+                ResponseMap.builder().applyDeltas(mutation.getResponseDeltas()).build()))
         .setCreated(authInfo)
         .setLastModified(authInfo)
         .build();
@@ -134,7 +138,7 @@ public abstract class ObservationEntity {
         .setForm(form)
         .setProject(feature.getProject())
         .setFeature(feature)
-        .setResponses(observation.getResponses())
+        .setResponses(ResponseMapConverter.fromString(observation.getResponses()))
         .setCreated(AuditInfoEntity.toObject(observation.getCreated()))
         .setLastModified(AuditInfoEntity.toObject(observation.getLastModified()))
         .build();
@@ -149,7 +153,7 @@ public abstract class ObservationEntity {
       String featureId,
       String formId,
       EntityState state,
-      ResponseMap responses,
+      String responses,
       AuditInfoEntity created,
       AuditInfoEntity lastModified) {
     return builder()
@@ -178,19 +182,11 @@ public abstract class ObservationEntity {
 
     public abstract Builder setState(EntityState newState);
 
-    public abstract Builder setResponses(ResponseMap newResponses);
-
-    public abstract ResponseMap.Builder responsesBuilder();
+    public abstract Builder setResponses(@Nullable String newResponses);
 
     public abstract Builder setCreated(AuditInfoEntity newCreated);
 
     public abstract Builder setLastModified(AuditInfoEntity newLastModified);
-
-    /** Applies the specified mutation to this builder. */
-    public Builder applyMutation(ObservationMutationEntity mutation) {
-      responsesBuilder().applyDeltas(mutation.getResponseDeltas());
-      return this;
-    }
 
     public abstract ObservationEntity build();
   }

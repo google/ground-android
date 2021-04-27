@@ -20,7 +20,6 @@ import static com.google.android.gnd.util.Enums.toEnum;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.room.TypeConverter;
 import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.observation.ResponseDelta;
 import com.google.common.collect.ImmutableList;
@@ -30,15 +29,13 @@ import org.json.JSONObject;
 import timber.log.Timber;
 
 /**
- * {@link TypeConverter} for converting between {@link ResponseDelta}s and JSON strings used to
- * represent them in the local db.
+ * Converts between {@link ResponseDelta}s and JSON strings used to represent them in the local db.
  */
-public class ResponseDeltasTypeConverter {
+public class ResponseDeltasConverter {
 
   private static final String KEY_FIELD_TYPE = "fieldType";
   private static final String KEY_NEW_RESPONSE = "newResponse";
 
-  @TypeConverter
   @NonNull
   public static String toString(@NonNull ImmutableList<ResponseDelta> responseDeltas) {
     JSONObject json = new JSONObject();
@@ -61,7 +58,6 @@ public class ResponseDeltasTypeConverter {
     return json.toString();
   }
 
-  @TypeConverter
   @NonNull
   public static ImmutableList<ResponseDelta> fromString(@Nullable String jsonString) {
     ImmutableList.Builder<ResponseDelta> deltas = ImmutableList.builder();
