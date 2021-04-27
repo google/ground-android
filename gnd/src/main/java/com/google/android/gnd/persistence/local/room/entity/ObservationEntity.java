@@ -111,7 +111,7 @@ public abstract class ObservationEntity {
     AuditInfoEntity authInfo = AuditInfoEntity.fromObject(created);
     return ObservationEntity.builder()
         .setId(mutation.getObservationId())
-        .setFormId(mutation.getFormId())
+        .setFormId(mutation.getForm().getId())
         .setFeatureId(mutation.getFeatureId())
         .setState(EntityState.DEFAULT)
         .setResponses(
