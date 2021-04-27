@@ -40,7 +40,7 @@ public class FieldViewFactory {
 
   private static Class<? extends AbstractFieldViewModel> getViewModelClass(Field.Type fieldType) {
     switch (fieldType) {
-      case TEXT:
+      case TEXT_FIELD:
         return TextFieldViewModel.class;
       case MULTIPLE_CHOICE:
         return MultipleChoiceFieldViewModel.class;
@@ -54,7 +54,7 @@ public class FieldViewFactory {
   @LayoutRes
   private static int getLayoutId(Field.Type fieldType) {
     switch (fieldType) {
-      case TEXT:
+      case TEXT_FIELD:
         return R.layout.text_input_field;
       case MULTIPLE_CHOICE:
         return R.layout.multiple_choice_input_field;

@@ -42,7 +42,7 @@ public enum FieldEntityType implements IntEnum {
 
   public static FieldEntityType fromFieldType(Field.Type type) {
     switch (type) {
-      case TEXT:
+      case TEXT_FIELD:
         return TEXT;
       case MULTIPLE_CHOICE:
         return MULTIPLE_CHOICE;
@@ -56,7 +56,7 @@ public enum FieldEntityType implements IntEnum {
   public Field.Type toFieldType() {
     switch (this) {
       case TEXT:
-        return Field.Type.TEXT;
+        return Field.Type.TEXT_FIELD;
       case MULTIPLE_CHOICE:
         return Field.Type.MULTIPLE_CHOICE;
       case PHOTO:

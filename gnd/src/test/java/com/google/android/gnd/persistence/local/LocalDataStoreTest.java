@@ -144,7 +144,7 @@ public class LocalDataStoreTest {
               ImmutableList.of(
                   ResponseDelta.builder()
                       .setFieldId("field id")
-                      .setFieldType(Type.TEXT)
+                      .setFieldType(Type.TEXT_FIELD)
                       .setNewResponse(TextResponse.fromString("response for field id"))
                       .build()))
           .setClientTimestamp(new Date())
@@ -392,7 +392,7 @@ public class LocalDataStoreTest {
         ImmutableList.of(
             ResponseDelta.builder()
                 .setFieldId("really new field")
-                .setFieldType(Type.TEXT)
+                .setFieldType(Type.TEXT_FIELD)
                 .setNewResponse(TextResponse.fromString("value for the really new field"))
                 .build());
 

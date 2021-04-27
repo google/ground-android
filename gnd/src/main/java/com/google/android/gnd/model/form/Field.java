@@ -22,9 +22,11 @@ import javax.annotation.Nullable;
 /** A single field on a form for which the user may provide data. */
 @AutoValue
 public abstract class Field {
+
+  /** Field names as they appear in the remote db, but in uppercase. DO NOT RENAME! */
   public enum Type {
     UNKNOWN,
-    TEXT,
+    TEXT_FIELD,
     MULTIPLE_CHOICE,
     PHOTO
   }

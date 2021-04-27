@@ -40,7 +40,6 @@ import com.google.android.gnd.databinding.MultipleChoiceInputFieldBinding;
 import com.google.android.gnd.databinding.PhotoInputFieldBinding;
 import com.google.android.gnd.databinding.TextInputFieldBinding;
 import com.google.android.gnd.model.form.Element;
-import com.google.android.gnd.model.form.Element.Type;
 import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.model.form.MultipleChoice;
@@ -182,12 +181,16 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
     formLayout.removeAllViews();
     fieldViewModelList.clear();
     for (Element element : form.getElementsSorted()) {
-      if (element.getType() == Type.FIELD) {
-        Field field = element.getField();
-        ViewDataBinding binding = fieldViewFactory.addFieldView(field.getType(), formLayout);
-        addFieldViewModel(field, getViewModel(binding));
-      } else {
-        throw new IllegalArgumentException(element.getType() + " elements not yet supported");
+      switch (element.getType()) {
+        case FIELD:
+          Field field = element.getField();
+          ViewDataBinding binding = fieldViewFactory.addFieldView(field.getType(), formLayout);
+          addFieldViewModel(field, getViewModel(binding));
+          break;
+        case UNKNOWN:
+        default:
+          Timber.d(element.getType() + " form elements not yet supported");
+          break;
       }
     }
   }
