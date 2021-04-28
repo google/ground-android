@@ -18,6 +18,7 @@ package com.google.android.gnd.persistence.local.room.converter;
 
 import static java8.lang.Iterables.forEach;
 
+import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.observation.MultipleChoiceResponse;
 import com.google.android.gnd.model.observation.Response;
 import com.google.android.gnd.model.observation.TextResponse;
@@ -47,7 +48,7 @@ class ResponseJsonConverter {
     return array;
   }
 
-  static Optional<Response> toResponse(Object obj) {
+  static Optional<Response> toResponse(Field field, Object obj) {
     if (obj instanceof String) {
       return TextResponse.fromString((String) obj);
     } else if (obj instanceof JSONArray) {
