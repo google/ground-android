@@ -319,7 +319,14 @@ public class RoomLocalDataStore implements LocalDataStore {
             observationMutationDao
                 .findByFeatureId(featureId)
                 .flattenAsObservable(oms -> oms)
-                .map(ObservationMutationEntity::toMutation)
+                .flatMap(
+                    ome ->
+                        getProjectById(ome.getProjectId())
+                            .toSingle()
+                            .map(project -> ome.toMutation(project))
+                            .toObservable()
+                            .doOnError(e -> Timber.e(e, "Observation mutation skipped"))
+                            .onErrorResumeNext(Observable.empty()))
                 .cast(Mutation.class))
         .toList()
         .map(ImmutableList::copyOf)

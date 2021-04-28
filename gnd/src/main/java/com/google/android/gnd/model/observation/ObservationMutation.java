@@ -20,6 +20,7 @@ import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList
 import static java8.util.stream.StreamSupport.stream;
 
 import com.google.android.gnd.model.Mutation;
+import com.google.android.gnd.model.form.Form;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 
@@ -34,8 +35,8 @@ public abstract class ObservationMutation extends Mutation<ObservationMutation.B
   /** Returns the UUID of the observation being modified. */
   public abstract String getObservationId();
 
-  /** Returns the UUID of the form associated with this observation. */
-  public abstract String getFormId();
+  /** Returns the form associated with this observation. */
+  public abstract Form getForm();
 
   /** Returns list of changes to responses included in this observation mutation. */
   public abstract ImmutableList<ResponseDelta> getResponseDeltas();
@@ -78,7 +79,7 @@ public abstract class ObservationMutation extends Mutation<ObservationMutation.B
 
     public abstract Builder setObservationId(String newObservationId);
 
-    public abstract Builder setFormId(String newFormId);
+    public abstract Builder setForm(Form newForm);
 
     public abstract Builder setResponseDeltas(ImmutableList<ResponseDelta> newResponseDeltas);
 

@@ -138,7 +138,7 @@ public class LocalDataStoreTest {
           .setProjectId("project id")
           .setFeatureId("feature id")
           .setLayerId("layer id")
-          .setFormId("form id")
+          .setForm(TEST_FORM)
           .setUserId("user id")
           .setResponseDeltas(
               ImmutableList.of(
@@ -208,7 +208,7 @@ public class LocalDataStoreTest {
   private static void assertEquivalent(ObservationMutation mutation, Observation observation) {
     assertThat(mutation.getObservationId()).isEqualTo(observation.getId());
     assertThat(mutation.getFeatureId()).isEqualTo(observation.getFeature().getId());
-    assertThat(mutation.getFormId()).isEqualTo(observation.getForm().getId());
+    assertThat(mutation.getForm()).isEqualTo(observation.getForm());
     assertThat(mutation.getProjectId()).isEqualTo(observation.getProject().getId());
     assertThat(mutation.getUserId()).isEqualTo(observation.getLastModified().getUser().getId());
     assertThat(mutation.getUserId()).isEqualTo(observation.getCreated().getUser().getId());
@@ -397,8 +397,7 @@ public class LocalDataStoreTest {
                 .build());
 
     ObservationMutation mutation =
-        TEST_OBSERVATION_MUTATION
-            .toBuilder()
+        TEST_OBSERVATION_MUTATION.toBuilder()
             .setId(2L)
             .setResponseDeltas(deltas)
             .setType(Mutation.Type.UPDATE)
@@ -435,10 +434,7 @@ public class LocalDataStoreTest {
             .build();
 
     Observation observation =
-        localDataStore
-            .getObservation(feature, "observation id")
-            .blockingGet()
-            .toBuilder()
+        localDataStore.getObservation(feature, "observation id").blockingGet().toBuilder()
             .setResponses(responseMap)
             .build();
 
