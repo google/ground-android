@@ -79,15 +79,6 @@ public class LocalDataStoreTest {
   private static final User TEST_USER =
       User.builder().setId("user id").setEmail("user@gmail.com").setDisplayName("user 1").build();
 
-  private static final MultipleChoice TEST_MULTIPLE_CHOICE =
-      MultipleChoice.newBuilder()
-          .setCardinality(Cardinality.SELECT_ONE)
-          .setOptions(
-              ImmutableList.of(
-                  Option.newBuilder().setId("1").setCode("a").setLabel("Name").build(),
-                  Option.newBuilder().setId("2").setCode("b").setLabel("Age").build()))
-          .build();
-
   private static final Field TEST_FIELD =
       Field.newBuilder()
           .setId("field id")
@@ -449,7 +440,7 @@ public class LocalDataStoreTest {
   }
 
   @Test
-  public void testDeleteObservation() throws LocalDataStoreException {
+  public void testDeleteObservation() {
     // Add test observation
     localDataStore.insertOrUpdateUser(TEST_USER).blockingAwait();
     localDataStore.insertOrUpdateProject(TEST_PROJECT).blockingAwait();
