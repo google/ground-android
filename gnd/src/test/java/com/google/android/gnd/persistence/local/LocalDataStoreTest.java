@@ -33,7 +33,6 @@ import com.google.android.gnd.model.feature.FeatureMutation;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.model.form.Element;
 import com.google.android.gnd.model.form.Field;
-import com.google.android.gnd.model.form.Field.Type;
 import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.model.form.MultipleChoice;
 import com.google.android.gnd.model.form.MultipleChoice.Cardinality;
@@ -95,7 +94,7 @@ public class LocalDataStoreTest {
           .setIndex(1)
           .setLabel("field label")
           .setRequired(false)
-          .setType(Type.TEXT_FIELD)
+          .setType(Field.Type.TEXT_FIELD)
           .build();
 
   private static final Form TEST_FORM =
@@ -143,7 +142,7 @@ public class LocalDataStoreTest {
               ImmutableList.of(
                   ResponseDelta.builder()
                       .setFieldId("field id")
-                      .setFieldType(Type.TEXT_FIELD)
+                      .setFieldType(Field.Type.TEXT_FIELD)
                       .setNewResponse(TextResponse.fromString("response for field id"))
                       .build()))
           .setClientTimestamp(new Date())
@@ -391,7 +390,7 @@ public class LocalDataStoreTest {
         ImmutableList.of(
             ResponseDelta.builder()
                 .setFieldId("field id")
-                .setFieldType(Type.TEXT_FIELD)
+                .setFieldType(Field.Type.TEXT_FIELD)
                 .setNewResponse(TextResponse.fromString("value for the really new field"))
                 .build());
 
