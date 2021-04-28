@@ -95,8 +95,7 @@ public class LocalDataStoreTest {
           .setIndex(1)
           .setLabel("field label")
           .setRequired(false)
-          .setType(Type.MULTIPLE_CHOICE)
-          .setMultipleChoice(TEST_MULTIPLE_CHOICE)
+          .setType(Type.TEXT_FIELD)
           .build();
 
   private static final Form TEST_FORM =
@@ -391,7 +390,7 @@ public class LocalDataStoreTest {
     ImmutableList<ResponseDelta> deltas =
         ImmutableList.of(
             ResponseDelta.builder()
-                .setFieldId("really new field")
+                .setFieldId("field id")
                 .setFieldType(Type.TEXT_FIELD)
                 .setNewResponse(TextResponse.fromString("value for the really new field"))
                 .build());
@@ -430,7 +429,7 @@ public class LocalDataStoreTest {
 
     ResponseMap responseMap =
         ResponseMap.builder()
-            .putResponse("foo field", TextResponse.fromString("foo value").get())
+            .putResponse("field id", TextResponse.fromString("foo value").get())
             .build();
 
     Observation observation =
@@ -447,7 +446,7 @@ public class LocalDataStoreTest {
             .values()
             .get(0)
             .getResponses();
-    assertThat("foo value").isEqualTo(responses.getResponse("foo field").get().toString());
+    assertThat("foo value").isEqualTo(responses.getResponse("field id").get().toString());
   }
 
   @Test
