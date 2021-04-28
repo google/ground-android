@@ -22,6 +22,7 @@ import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.observation.MultipleChoiceResponse;
 import com.google.android.gnd.model.observation.Response;
 import com.google.android.gnd.model.observation.TextResponse;
+import com.google.android.gnd.persistence.remote.DataStoreException;
 import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.List;
@@ -49,13 +50,17 @@ class ResponseJsonConverter {
   }
 
   static Optional<Response> toResponse(Field field, Object obj) {
-    if (obj instanceof String) {
-      return TextResponse.fromString((String) obj);
-    } else if (obj instanceof JSONArray) {
-      return MultipleChoiceResponse.fromList(toList((JSONArray) obj));
-    } else {
-      Timber.e("Error parsing JSON in db of " + obj.getClass() + ": " + obj);
-      return Optional.empty();
+    switch (field.getType()) {
+      case TEXT_FIELD:
+      case PHOTO:
+        DataStoreException.checkType(String.class, obj);
+        return TextResponse.fromString((String) obj);
+      case MULTIPLE_CHOICE:
+        DataStoreException.checkType(JSONArray.class, obj);
+        return MultipleChoiceResponse.fromList(toList((JSONArray) obj));
+      case UNKNOWN:
+      default:
+        throw new DataStoreException("Unknown type in field: " + obj.getClass().getName());
     }
   }
 
