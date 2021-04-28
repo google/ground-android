@@ -325,7 +325,7 @@ public class RoomLocalDataStore implements LocalDataStore {
                             .toSingle()
                             .map(project -> ome.toMutation(project))
                             .toObservable()
-                            .doOnError(e -> Timber.d(e, "Observation mutation skipped"))
+                            .doOnError(e -> Timber.e(e, "Observation mutation skipped"))
                             .onErrorResumeNext(Observable.empty()))
                 .cast(Mutation.class))
         .toList()
