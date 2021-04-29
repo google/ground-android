@@ -33,7 +33,6 @@ import com.google.android.gnd.model.feature.FeatureMutation;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.model.form.Element;
 import com.google.android.gnd.model.form.Field;
-import com.google.android.gnd.model.form.Field.Type;
 import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.model.form.MultipleChoice;
 import com.google.android.gnd.model.form.MultipleChoice.Cardinality;
@@ -80,23 +79,13 @@ public class LocalDataStoreTest {
   private static final User TEST_USER =
       User.builder().setId("user id").setEmail("user@gmail.com").setDisplayName("user 1").build();
 
-  private static final MultipleChoice TEST_MULTIPLE_CHOICE =
-      MultipleChoice.newBuilder()
-          .setCardinality(Cardinality.SELECT_ONE)
-          .setOptions(
-              ImmutableList.of(
-                  Option.newBuilder().setId("1").setCode("a").setLabel("Name").build(),
-                  Option.newBuilder().setId("2").setCode("b").setLabel("Age").build()))
-          .build();
-
   private static final Field TEST_FIELD =
       Field.newBuilder()
           .setId("field id")
           .setIndex(1)
           .setLabel("field label")
           .setRequired(false)
-          .setType(Type.MULTIPLE_CHOICE)
-          .setMultipleChoice(TEST_MULTIPLE_CHOICE)
+          .setType(Field.Type.TEXT_FIELD)
           .build();
 
   private static final Form TEST_FORM =
@@ -144,7 +133,7 @@ public class LocalDataStoreTest {
               ImmutableList.of(
                   ResponseDelta.builder()
                       .setFieldId("field id")
-                      .setFieldType(Type.TEXT_FIELD)
+                      .setFieldType(Field.Type.TEXT_FIELD)
                       .setNewResponse(TextResponse.fromString("response for field id"))
                       .build()))
           .setClientTimestamp(new Date())
@@ -391,8 +380,8 @@ public class LocalDataStoreTest {
     ImmutableList<ResponseDelta> deltas =
         ImmutableList.of(
             ResponseDelta.builder()
-                .setFieldId("really new field")
-                .setFieldType(Type.TEXT_FIELD)
+                .setFieldId("field id")
+                .setFieldType(Field.Type.TEXT_FIELD)
                 .setNewResponse(TextResponse.fromString("value for the really new field"))
                 .build());
 
@@ -430,7 +419,7 @@ public class LocalDataStoreTest {
 
     ResponseMap responseMap =
         ResponseMap.builder()
-            .putResponse("foo field", TextResponse.fromString("foo value").get())
+            .putResponse("field id", TextResponse.fromString("foo value").get())
             .build();
 
     Observation observation =
@@ -447,11 +436,11 @@ public class LocalDataStoreTest {
             .values()
             .get(0)
             .getResponses();
-    assertThat("foo value").isEqualTo(responses.getResponse("foo field").get().toString());
+    assertThat("foo value").isEqualTo(responses.getResponse("field id").get().toString());
   }
 
   @Test
-  public void testDeleteObservation() throws LocalDataStoreException {
+  public void testDeleteObservation() {
     // Add test observation
     localDataStore.insertOrUpdateUser(TEST_USER).blockingAwait();
     localDataStore.insertOrUpdateProject(TEST_PROJECT).blockingAwait();

@@ -150,7 +150,7 @@ public abstract class ObservationMutationEntity extends MutationEntity {
         .setForm(form)
         .setObservationId(getObservationId())
         .setType(getType().toMutationType())
-        .setResponseDeltas(ResponseDeltasConverter.fromString(getResponseDeltas()))
+        .setResponseDeltas(ResponseDeltasConverter.fromString(form, getResponseDeltas()))
         .setRetryCount(getRetryCount())
         .setLastError(getLastError())
         .setUserId(getUserId())
