@@ -60,7 +60,7 @@ class ObservationMutationConverter {
     }
     map.put(FEATURE_ID, mutation.getFeatureId())
         .put(LAYER_ID, mutation.getLayerId())
-        .put(FORM_ID, mutation.getFormId())
+        .put(FORM_ID, mutation.getForm().getId())
         .put(RESPONSES, toMap(mutation.getResponseDeltas()));
     return map.build();
   }
