@@ -46,6 +46,10 @@ public class FieldViewFactory {
         return MultipleChoiceFieldViewModel.class;
       case PHOTO:
         return PhotoFieldViewModel.class;
+      case DATE:
+        return DateFieldViewModel.class;
+      case TIME:
+        return TimeFieldViewModel.class;
       default:
         throw new IllegalArgumentException("Unsupported field type: " + fieldType);
     }
@@ -60,6 +64,10 @@ public class FieldViewFactory {
         return R.layout.multiple_choice_input_field;
       case PHOTO:
         return R.layout.photo_input_field;
+      case DATE:
+        return R.layout.date_input_field;
+      case TIME:
+        return R.layout.time_input_field;
       default:
         throw new IllegalArgumentException("Unsupported field type: " + fieldType);
     }
