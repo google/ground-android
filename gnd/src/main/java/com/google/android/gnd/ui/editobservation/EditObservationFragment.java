@@ -34,11 +34,13 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.R;
+import com.google.android.gnd.databinding.DateInputFieldBinding;
 import com.google.android.gnd.databinding.EditObservationBottomSheetBinding;
 import com.google.android.gnd.databinding.EditObservationFragBinding;
 import com.google.android.gnd.databinding.MultipleChoiceInputFieldBinding;
 import com.google.android.gnd.databinding.PhotoInputFieldBinding;
 import com.google.android.gnd.databinding.TextInputFieldBinding;
+import com.google.android.gnd.databinding.TimeInputFieldBinding;
 import com.google.android.gnd.model.form.Element;
 import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.form.Form;
@@ -81,6 +83,10 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
       return ((MultipleChoiceInputFieldBinding) binding).getViewModel();
     } else if (binding instanceof PhotoInputFieldBinding) {
       return ((PhotoInputFieldBinding) binding).getViewModel();
+    } else if (binding instanceof DateInputFieldBinding) {
+      return ((DateInputFieldBinding) binding).getViewModel();
+    } else if (binding instanceof TimeInputFieldBinding) {
+      return ((TimeInputFieldBinding) binding).getViewModel();
     } else {
       throw new IllegalArgumentException("Unknown binding type: " + binding.getClass());
     }
@@ -144,6 +150,10 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
       initPhotoField((PhotoFieldViewModel) fieldViewModel);
     } else if (fieldViewModel instanceof MultipleChoiceFieldViewModel) {
       observeSelectChoiceClicks((MultipleChoiceFieldViewModel) fieldViewModel);
+    } else if (fieldViewModel instanceof DateFieldViewModel) {
+      observeDateDialogClicks((DateFieldViewModel) fieldViewModel);
+    } else if (fieldViewModel instanceof TimeFieldViewModel) {
+      observeTimeDialogClicks((TimeFieldViewModel) fieldViewModel);
     }
 
     fieldViewModel
@@ -193,6 +203,24 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
           break;
       }
     }
+  }
+
+  private void observeDateDialogClicks(DateFieldViewModel dateFieldViewModel) {
+    dateFieldViewModel
+        .showDateDialog()
+        .observe(
+            this,
+            __ ->
+                showDateDialog());
+  }
+
+  private void observeTimeDialogClicks(TimeFieldViewModel timeFieldViewModel) {
+    timeFieldViewModel
+        .showTimeDialog()
+        .observe(
+            this,
+            __ ->
+                showTimeDialog());
   }
 
   private void observeSelectChoiceClicks(MultipleChoiceFieldViewModel viewModel) {
@@ -297,6 +325,14 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
       default:
         throw new IllegalArgumentException("Unknown type: " + type);
     }
+  }
+
+  private void showDateDialog(){
+    //TODO: Implement Date Picker Dialog
+  }
+
+  private void showTimeDialog(){
+    //TODO: Implement Time Picker Dialog
   }
 
   @Override

@@ -17,13 +17,22 @@
 package com.google.android.gnd.ui.editobservation;
 
 import android.app.Application;
+import androidx.lifecycle.MutableLiveData;
+import com.google.android.gnd.rx.Nil;
+import com.google.android.gnd.rx.annotations.Hot;
 import javax.inject.Inject;
 
 public class TimeFieldViewModel extends AbstractFieldViewModel {
+
+  @Hot(replays = true)
+  private final MutableLiveData<Nil> showDialogClicks = new MutableLiveData<>();
 
   @Inject
   TimeFieldViewModel(Application application) {
     super(application);
   }
 
+  MutableLiveData<Nil> showTimeDialog() {
+    return  showDialogClicks;
+  }
 }
