@@ -82,7 +82,7 @@ public class FeatureRepositoryTest {
           .setIndex(1)
           .setLabel("field label")
           .setRequired(false)
-          .setType(Type.TEXT)
+          .setType(Type.TEXT_FIELD)
           .build();
 
   private static final Form TEST_FORM =

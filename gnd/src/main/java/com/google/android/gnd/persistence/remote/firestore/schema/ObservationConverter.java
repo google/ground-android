@@ -18,8 +18,10 @@ package com.google.android.gnd.persistence.remote.firestore.schema;
 
 import static com.google.android.gnd.persistence.remote.DataStoreException.checkNotEmpty;
 import static com.google.android.gnd.persistence.remote.DataStoreException.checkNotNull;
+import static java8.util.stream.StreamSupport.stream;
 
 import com.google.android.gnd.model.feature.Feature;
+import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.model.observation.MultipleChoiceResponse;
 import com.google.android.gnd.model.observation.Observation;
@@ -40,11 +42,11 @@ class ObservationConverter {
       throws DataStoreException {
     ObservationDocument doc = snapshot.toObject(ObservationDocument.class);
     String featureId = checkNotNull(doc.getFeatureId(), "featureId");
-    String formId = checkNotNull(doc.getFormId(), "formId");
     if (!feature.getId().equals(featureId)) {
-      Timber.e("Observation featureId doesn't match specified feature id");
+      throw new DataStoreException("Observation doc featureId doesn't match specified feature id");
     }
-    Form form = checkNotEmpty(feature.getLayer().getForm(formId), "form");
+    String formId = checkNotNull(doc.getFormId(), "formId");
+    Form form = checkNotEmpty(feature.getLayer().getForm(formId), "form " + formId);
     // Degrade gracefully when audit info missing in remote db.
     AuditInfoNestedObject created =
         Objects.requireNonNullElse(doc.getCreated(), AuditInfoNestedObject.FALLBACK_VALUE);
@@ -54,32 +56,61 @@ class ObservationConverter {
         .setProject(feature.getProject())
         .setFeature(feature)
         .setForm(form)
-        .setResponses(toResponseMap(doc.getResponses()))
+        .setResponses(toResponseMap(snapshot.getId(), form, doc.getResponses()))
         .setCreated(AuditInfoConverter.toAuditInfo(created))
         .setLastModified(AuditInfoConverter.toAuditInfo(lastModified))
         .build();
   }
 
-  private static ResponseMap toResponseMap(@Nullable Map<String, Object> docResponses) {
+  private static ResponseMap toResponseMap(
+      String observationId, Form form, @Nullable Map<String, Object> docResponses) {
     ResponseMap.Builder responses = ResponseMap.builder();
     if (docResponses == null) {
       return responses.build();
     }
     for (String fieldId : docResponses.keySet()) {
-      Object obj = docResponses.get(fieldId);
-      if (obj instanceof String) {
-        TextResponse.fromString(((String) obj).trim())
-            .ifPresent(r -> responses.putResponse(fieldId, r));
-        // TODO(#23): Add support for number fields:
-        // } else if (obj instanceof Float) {
-        //   responses.put(key, new NumericResponse((Float) obj));
-      } else if (obj instanceof List) {
-        MultipleChoiceResponse.fromList((List<String>) obj)
-            .ifPresent(r -> responses.putResponse(fieldId, r));
-      } else {
-        Timber.e("Unsupported obj in db: %s", obj.getClass().getName());
+      try {
+        Object obj = docResponses.get(fieldId);
+        putResponse(fieldId, form, obj, responses);
+      } catch (DataStoreException e) {
+        Timber.d("Field " + fieldId + "in remote db in observation " + observationId + ": " + e);
       }
     }
     return responses.build();
+  }
+
+  private static void putResponse(
+      String fieldId, Form form, Object obj, ResponseMap.Builder responses) {
+    Field field =
+        form.getField(fieldId).orElseThrow(() -> new DataStoreException("Not defined in form"));
+    switch (field.getType()) {
+      case PHOTO:
+        // Intentional fall-through.
+        // TODO(#755): Handle photo fields as PhotoResponse instead of TextResponse.
+      case TEXT_FIELD:
+        putTextResponse(fieldId, obj, responses);
+        break;
+      case MULTIPLE_CHOICE:
+        putMultipleChoiceResponse(fieldId, obj, responses);
+        break;
+        // TODO(#23): Add support for number fields.
+        // TODO(#748): Add support for date and time fields.
+      default:
+        throw new DataStoreException("Unknown type " + field.getType());
+    }
+  }
+
+  private static void putTextResponse(String fieldId, Object obj, ResponseMap.Builder responses) {
+    String value = (String) DataStoreException.checkType(String.class, obj);
+    TextResponse.fromString(value.trim()).ifPresent(r -> responses.putResponse(fieldId, r));
+  }
+
+  @SuppressWarnings({"rawtypes", "unchecked"})
+  private static void putMultipleChoiceResponse(
+      String fieldId, Object obj, ResponseMap.Builder responses) {
+    List values = (List) DataStoreException.checkType(List.class, obj);
+    stream(values).forEach(v -> DataStoreException.checkType(String.class, v));
+    MultipleChoiceResponse.fromList((List<String>) values)
+        .ifPresent(r -> responses.putResponse(fieldId, r));
   }
 }

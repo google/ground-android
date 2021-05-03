@@ -18,20 +18,18 @@ package com.google.android.gnd.persistence.local.room.converter;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.room.TypeConverter;
+import com.google.android.gnd.model.form.Field;
+import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.model.observation.ResponseMap;
+import com.google.android.gnd.persistence.local.LocalDataConsistencyException;
 import java.util.Iterator;
 import org.json.JSONException;
 import org.json.JSONObject;
 import timber.log.Timber;
 
-/**
- * {@link TypeConverter} for converting between {@link ResponseMap} and JSON strings used to
- * represent them in the local db.
- */
-public class ResponseMapTypeConverter {
+/** Converts between {@link ResponseMap} and JSON strings used to represent them in the local db. */
+public class ResponseMapConverter {
 
-  @TypeConverter
   @Nullable
   public static String toString(@NonNull ResponseMap responseDeltas) {
     JSONObject json = new JSONObject();
@@ -50,9 +48,8 @@ public class ResponseMapTypeConverter {
     return json.toString();
   }
 
-  @TypeConverter
   @NonNull
-  public static ResponseMap fromString(@Nullable String jsonString) {
+  public static ResponseMap fromString(Form form, @Nullable String jsonString) {
     ResponseMap.Builder map = ResponseMap.builder();
     if (jsonString == null) {
       return map.build();
@@ -61,9 +58,17 @@ public class ResponseMapTypeConverter {
       JSONObject jsonObject = new JSONObject(jsonString);
       Iterator<String> keys = jsonObject.keys();
       while (keys.hasNext()) {
-        String fieldId = keys.next();
-        ResponseJsonConverter.toResponse(jsonObject.get(fieldId))
-            .ifPresent(response -> map.putResponse(fieldId, response));
+        try {
+          String fieldId = keys.next();
+          Field field =
+              form.getField(fieldId)
+                  .orElseThrow(
+                      () -> new LocalDataConsistencyException("Unknown field id " + fieldId));
+          ResponseJsonConverter.toResponse(field, jsonObject.get(fieldId))
+              .ifPresent(response -> map.putResponse(fieldId, response));
+        } catch (LocalDataConsistencyException e) {
+          Timber.d("Bad response in local db: " + e.getMessage());
+        }
       }
     } catch (JSONException e) {
       Timber.e(e, "Error parsing JSON string");

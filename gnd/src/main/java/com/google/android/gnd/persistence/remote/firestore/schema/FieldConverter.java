@@ -23,6 +23,7 @@ import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.form.Field.Type;
 import java8.util.Objects;
 import java8.util.Optional;
+import timber.log.Timber;
 
 /** Converts between Firestore nested objects and {@link Field} instances. */
 class FieldConverter {
@@ -30,8 +31,8 @@ class FieldConverter {
   static Optional<Field> toField(String id, ElementNestedObject em) {
     Field.Builder field = Field.newBuilder();
     switch (toEnum(Field.Type.class, em.getType())) {
-      case TEXT:
-        field.setType(Type.TEXT);
+      case TEXT_FIELD:
+        field.setType(Type.TEXT_FIELD);
         break;
       case MULTIPLE_CHOICE:
         field.setType(Type.MULTIPLE_CHOICE);
@@ -41,6 +42,7 @@ class FieldConverter {
         field.setType(Type.PHOTO);
         break;
       default:
+        Timber.d("Unsupported form element type: " + em.getType());
         return Optional.empty();
     }
     field.setRequired(em.getRequired() != null && em.getRequired());
