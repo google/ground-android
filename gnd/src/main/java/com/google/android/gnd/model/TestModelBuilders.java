@@ -16,8 +16,8 @@
 
 package com.google.android.gnd.model;
 
-import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.Point;
+import com.google.android.gnd.model.feature.PointFeature;
 import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.form.Field.Type;
 import com.google.android.gnd.model.form.Form;
@@ -47,8 +47,8 @@ public class TestModelBuilders {
     return Point.newBuilder().setLatitude(0).setLongitude(0);
   }
 
-  public static Feature.Builder newFeature() {
-    return Feature.newBuilder()
+  public static PointFeature.Builder newPointFeature() {
+    return PointFeature.newBuilder()
         .setId("")
         .setProject(newProject().build())
         .setPoint(newPoint().build())

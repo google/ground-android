@@ -20,23 +20,16 @@ import androidx.annotation.NonNull;
 import com.google.android.gnd.model.AuditInfo;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.layer.Layer;
-import com.google.auto.value.AutoValue;
-import com.google.auto.value.extension.memoized.Memoized;
 import javax.annotation.Nullable;
 
-@AutoValue
-public abstract class Feature {
-  // TODO: Use builder() or newBuilder() consistently.
-  public static Builder newBuilder() {
-    return new AutoValue_Feature.Builder();
-  }
-
+/** Base class for user-defined features shown on map. */
+public abstract class Feature<B extends Feature.Builder> {
   public boolean isPoint() {
-    return getPoint() != null;
+    return this instanceof PointFeature;
   }
 
   public boolean isGeoJson() {
-    return getGeoJsonString() != null;
+    return this instanceof GeoJsonFeature;
   }
 
   @NonNull
@@ -52,44 +45,26 @@ public abstract class Feature {
   @Nullable
   public abstract String getCaption();
 
-  public abstract Point getPoint();
-
-  @Nullable
-  public abstract String getGeoJsonString();
-
   /** Returns the user and time audit info pertaining to the creation of this feature. */
   public abstract AuditInfo getCreated();
 
   /** Returns the user and time audit info pertaining to the last modification of this feature. */
   public abstract AuditInfo getLastModified();
 
-  public abstract Builder toBuilder();
-
-  @Memoized
-  @Override
-  public abstract int hashCode();
-
-  @AutoValue.Builder
-  public abstract static class Builder {
+  public abstract static class Builder<T extends Feature.Builder> {
     // TODO: Use newFoo or foo consistently.
-    public abstract Builder setId(@NonNull String newId);
+    public abstract T setId(@NonNull String newId);
 
-    public abstract Builder setProject(@NonNull Project project);
+    public abstract T setProject(@NonNull Project project);
 
-    public abstract Builder setLayer(@NonNull Layer newLayer);
+    public abstract T setLayer(@NonNull Layer newLayer);
 
-    public abstract Builder setCustomId(@Nullable String newCustomId);
+    public abstract T setCustomId(@Nullable String newCustomId);
 
-    public abstract Builder setCaption(@Nullable String newCaption);
+    public abstract T setCaption(@Nullable String newCaption);
 
-    public abstract Builder setPoint(Point newPoint);
+    public abstract T setCreated(@NonNull AuditInfo newCreated);
 
-    public abstract Builder setGeoJsonString(@Nullable String newGeoJsonString);
-
-    public abstract Builder setCreated(@NonNull AuditInfo newCreated);
-
-    public abstract Builder setLastModified(@NonNull AuditInfo newLastModified);
-
-    public abstract Feature build();
+    public abstract T setLastModified(@NonNull AuditInfo newLastModified);
   }
 }
