@@ -33,6 +33,7 @@ import com.google.android.gnd.model.feature.FeatureMutation;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.model.form.Element;
 import com.google.android.gnd.model.form.Field;
+import com.google.android.gnd.model.form.Field.Type;
 import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.model.form.MultipleChoice;
 import com.google.android.gnd.model.form.MultipleChoice.Cardinality;
@@ -42,11 +43,13 @@ import com.google.android.gnd.model.layer.Style;
 import com.google.android.gnd.model.observation.DateResponse;
 import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.model.observation.ObservationMutation;
+import com.google.android.gnd.model.observation.Response;
 import com.google.android.gnd.model.observation.ResponseDelta;
 import com.google.android.gnd.model.observation.ResponseMap;
 import com.google.android.gnd.model.observation.TextResponse;
 import com.google.android.gnd.model.observation.TimeResponse;
 import com.google.android.gnd.persistence.local.room.LocalDataStoreException;
+import com.google.android.gnd.persistence.local.room.converter.ResponseJsonConverter;
 import com.google.android.gnd.persistence.local.room.dao.FeatureDao;
 import com.google.android.gnd.persistence.local.room.dao.ObservationDao;
 import com.google.android.gnd.persistence.local.room.models.EntityState;
@@ -458,6 +461,16 @@ public class LocalDataStoreTest {
   }
 
   @Test
+  public void testDateMergeObservation() {
+    // TODO : Need to Implement for Date.
+  }
+
+  @Test
+  public void testTimeMergeObservation() {
+    // TODO : Need to Implement for Time.
+  }
+
+  @Test
   public void testDeleteObservation() {
     // Add test observation
     localDataStore.insertOrUpdateUser(TEST_USER).blockingAwait();
@@ -603,5 +616,13 @@ public class LocalDataStoreTest {
     LocalDate ld = LocalDate.parse(dateString, formatter);
     String formattedDate = ld.format(formatter);
     Truth.assertThat(dateString).isEqualTo(formattedDate);
+  }
+
+  @Test
+  public void testIsoFormat() {
+    Date originalDate = new Date(1620118200000L);
+    String dateString = ResponseJsonConverter.convertToIsoFormat(originalDate);
+    Date convertedDate = ResponseJsonConverter.stringToIsoFormat(dateString);
+    Truth.assertThat(originalDate).isEqualTo(convertedDate);
   }
 }

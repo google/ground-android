@@ -26,6 +26,7 @@ import com.google.android.gnd.model.observation.TextResponse;
 import com.google.android.gnd.model.observation.TimeResponse;
 import com.google.android.gnd.persistence.remote.DataStoreException;
 import com.google.common.collect.ImmutableList;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -36,7 +37,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import timber.log.Timber;
 
-class ResponseJsonConverter {
+public class ResponseJsonConverter {
 
   static Object toJsonObject(Response response) {
     if (response instanceof TextResponse) {
@@ -44,17 +45,27 @@ class ResponseJsonConverter {
     } else if (response instanceof MultipleChoiceResponse) {
       return toJsonArray((MultipleChoiceResponse) response);
     } else if (response instanceof DateResponse) {
-      return convertToISOFormat(((DateResponse) response).getDate());
-    }else if (response instanceof TimeResponse) {
-      return convertToISOFormat(((TimeResponse) response).getTime());
+      return convertToIsoFormat(((DateResponse) response).getDate());
+    } else if (response instanceof TimeResponse) {
+      return convertToIsoFormat(((TimeResponse) response).getTime());
     } else {
       throw new UnsupportedOperationException("Unimplemented Response " + response.getClass());
     }
   }
 
-  public static String convertToISOFormat(Date date){
+  public static String convertToIsoFormat(Date date) {
     SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mmZ", Locale.getDefault());
     return format.format(date);
+  }
+
+  public static Date stringToIsoFormat(String dtStart) {
+    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mmZ", Locale.getDefault());
+    try {
+      return format.parse(dtStart);
+    } catch (ParseException e) {
+      Timber.e("Error parsing Date : %s", e.getMessage());
+    }
+    return null;
   }
 
   private static Object toJsonArray(MultipleChoiceResponse response) {
@@ -72,6 +83,12 @@ class ResponseJsonConverter {
       case MULTIPLE_CHOICE:
         DataStoreException.checkType(JSONArray.class, obj);
         return MultipleChoiceResponse.fromList(toList((JSONArray) obj));
+      case DATE:
+        DataStoreException.checkType(String.class, obj);
+        return DateResponse.fromDate(ResponseJsonConverter.stringToIsoFormat((String) obj));
+      case TIME:
+        DataStoreException.checkType(String.class, obj);
+        return TimeResponse.fromDate(ResponseJsonConverter.stringToIsoFormat((String) obj));
       case UNKNOWN:
       default:
         throw new DataStoreException("Unknown type in field: " + obj.getClass().getName());
