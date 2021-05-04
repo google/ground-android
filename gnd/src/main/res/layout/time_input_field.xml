@@ -49,6 +49,7 @@
       android:focusableInTouchMode="false"
       android:focusable="false"
       android:text="@{viewModel.responseText}"
+      android:onClick="@{__ -> viewModel.onShowDialog()}"
       app:error="@{viewModel.error}"
       tools:text="@string/time" />
     </com.google.android.material.textfield.TextInputLayout>

@@ -60,6 +60,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialog;
 import dagger.hilt.android.AndroidEntryPoint;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -215,7 +216,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
         .observe(
             this,
             __ ->
-                showDateDialog());
+                showDateDialog(dateFieldViewModel));
   }
 
   private void observeTimeDialogClicks(TimeFieldViewModel timeFieldViewModel) {
@@ -224,7 +225,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
         .observe(
             this,
             __ ->
-                showTimeDialog());
+                showTimeDialog(timeFieldViewModel));
   }
 
   private void observeSelectChoiceClicks(MultipleChoiceFieldViewModel viewModel) {
@@ -331,25 +332,36 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
     }
   }
 
-  private void showDateDialog() {
+  private void showDateDialog(DateFieldViewModel fieldViewModel) {
     Calendar calendar = Calendar.getInstance();
     int year = calendar.get(Calendar.YEAR);
     int month = calendar.get(Calendar.MONTH);
     int day = calendar.get(Calendar.DAY_OF_MONTH);
     DatePickerDialog datePickerDialog = new DatePickerDialog(requireContext(),
         (view, year1, month1, dayOfMonth) -> {
-          // TODO : Send response to ViewModel.
+          Calendar c = Calendar.getInstance();
+          c.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+          c.set(Calendar.MONTH, month1);
+          c.set(Calendar.YEAR, year1);
+          Date d = new Date();
+          d.setTime(c.getTimeInMillis());
+          fieldViewModel.updateResponse(d);
         }, year, month, day);
     datePickerDialog.show();
   }
 
-  private void showTimeDialog() {
-    Calendar c = Calendar.getInstance();
-    int hour = c.get(Calendar.HOUR);
-    int minute = c.get(Calendar.MINUTE);
+  private void showTimeDialog(TimeFieldViewModel fieldViewModel) {
+    Calendar calendar = Calendar.getInstance();
+    int hour = calendar.get(Calendar.HOUR);
+    int minute = calendar.get(Calendar.MINUTE);
     TimePickerDialog timePickerDialog = new TimePickerDialog(requireContext(),
         (view, hourOfDay, minute1) -> {
-          // TODO : Send response to ViewModel.
+          Calendar c = Calendar.getInstance();
+          c.set(Calendar.HOUR_OF_DAY, hourOfDay);
+          c.set(Calendar.MINUTE, minute);
+          Date d = new Date();
+          d.setTime(c.getTimeInMillis());
+          fieldViewModel.updateResponse(d);
         }, hour, minute, DateFormat
         .is24HourFormat(requireContext()));
     timePickerDialog.show();
