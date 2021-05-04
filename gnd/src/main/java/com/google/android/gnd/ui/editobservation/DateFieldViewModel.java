@@ -32,7 +32,10 @@ public class DateFieldViewModel extends AbstractFieldViewModel {
     super(application);
   }
 
-  MutableLiveData<Nil> showDateDialog() {
+  MutableLiveData<Nil> getDateDialogClicks() {
     return showDialogClicks;
   }
+
+
+
 }

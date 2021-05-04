@@ -49,7 +49,7 @@
         android:focusable="false"
         android:text="@{viewModel.responseText}"
         app:error="@{viewModel.error}"
-        tools:text="Date Time" />
+        tools:text="@string/date" />
 
     </com.google.android.material.textfield.TextInputLayout>
 

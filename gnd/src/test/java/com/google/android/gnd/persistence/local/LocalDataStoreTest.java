@@ -39,11 +39,13 @@ import com.google.android.gnd.model.form.MultipleChoice.Cardinality;
 import com.google.android.gnd.model.form.Option;
 import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.model.layer.Style;
+import com.google.android.gnd.model.observation.DateResponse;
 import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.model.observation.ObservationMutation;
 import com.google.android.gnd.model.observation.ResponseDelta;
 import com.google.android.gnd.model.observation.ResponseMap;
 import com.google.android.gnd.model.observation.TextResponse;
+import com.google.android.gnd.model.observation.TimeResponse;
 import com.google.android.gnd.persistence.local.room.LocalDataStoreException;
 import com.google.android.gnd.persistence.local.room.dao.FeatureDao;
 import com.google.android.gnd.persistence.local.room.dao.ObservationDao;
@@ -51,13 +53,23 @@ import com.google.android.gnd.persistence.local.room.models.EntityState;
 import com.google.android.gnd.rx.SchedulersModule;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.truth.Truth;
 import dagger.hilt.android.testing.HiltAndroidRule;
 import dagger.hilt.android.testing.HiltAndroidTest;
 import dagger.hilt.android.testing.HiltTestApplication;
 import dagger.hilt.android.testing.UninstallModules;
 import io.reactivex.subscribers.TestSubscriber;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.AbstractCollection;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 import java8.util.Optional;
 import javax.inject.Inject;
 import org.hamcrest.MatcherAssert;
@@ -67,6 +79,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
+import timber.log.Timber;
 
 @HiltAndroidTest
 @UninstallModules({SchedulersModule.class, LocalDatabaseModule.class})
@@ -74,7 +87,8 @@ import org.robolectric.annotation.Config;
 @RunWith(RobolectricTestRunner.class)
 public class LocalDataStoreTest {
 
-  @Rule public HiltAndroidRule hiltRule = new HiltAndroidRule(this);
+  @Rule
+  public HiltAndroidRule hiltRule = new HiltAndroidRule(this);
 
   private static final User TEST_USER =
       User.builder().setId("user id").setEmail("user@gmail.com").setDisplayName("user 1").build();
@@ -175,11 +189,15 @@ public class LocalDataStoreTest {
           .build();
 
   // This rule makes sure that Room executes all the database operations instantly.
-  @Rule public InstantTaskExecutorRule instantTaskExecutorRule = new InstantTaskExecutorRule();
+  @Rule
+  public InstantTaskExecutorRule instantTaskExecutorRule = new InstantTaskExecutorRule();
 
-  @Inject LocalDataStore localDataStore;
-  @Inject ObservationDao observationDao;
-  @Inject FeatureDao featureDao;
+  @Inject
+  LocalDataStore localDataStore;
+  @Inject
+  ObservationDao observationDao;
+  @Inject
+  FeatureDao featureDao;
 
   private static FeatureMutation createTestFeatureMutation(Point point) {
     return FeatureMutation.builder()
@@ -565,5 +583,25 @@ public class LocalDataStoreTest {
         .getOfflineAreasOnceAndStream()
         .test()
         .assertValue(ImmutableList.of(TEST_OFFLINE_AREA));
+  }
+
+  @Test
+  public void testTimeFormat() {
+    Date originalDate = new Date();
+    String timeString = TimeResponse.convertToTimeFormat(originalDate);
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm", Locale.getDefault());
+    LocalTime lt = LocalTime.parse(timeString, formatter);
+    String formattedTime = lt.format(formatter);
+    Truth.assertThat(timeString).isEqualTo(formattedTime);
+  }
+
+  @Test
+  public void testDateFormat() {
+    Date originalDate = new Date();
+    String dateString = DateResponse.convertToDateFormat(originalDate);
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.getDefault());
+    LocalDate ld = LocalDate.parse(dateString, formatter);
+    String formattedDate = ld.format(formatter);
+    Truth.assertThat(dateString).isEqualTo(formattedDate);
   }
 }

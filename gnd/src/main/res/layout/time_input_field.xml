@@ -50,7 +50,7 @@
       android:focusable="false"
       android:text="@{viewModel.responseText}"
       app:error="@{viewModel.error}"
-      tools:text="Time" />
+      tools:text="@string/time" />
     </com.google.android.material.textfield.TextInputLayout>
 
 

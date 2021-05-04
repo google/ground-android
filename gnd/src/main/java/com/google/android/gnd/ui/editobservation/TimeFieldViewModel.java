@@ -32,7 +32,8 @@ public class TimeFieldViewModel extends AbstractFieldViewModel {
     super(application);
   }
 
-  MutableLiveData<Nil> showTimeDialog() {
+  MutableLiveData<Nil> getTimeDialogClicks() {
     return  showDialogClicks;
   }
+
 }

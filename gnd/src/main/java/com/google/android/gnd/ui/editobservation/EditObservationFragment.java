@@ -20,8 +20,11 @@ import static com.google.android.gnd.ui.editobservation.AddPhotoDialogAdapter.Ph
 import static com.google.android.gnd.ui.editobservation.AddPhotoDialogAdapter.PhotoStorageResource.PHOTO_SOURCE_STORAGE;
 import static java.util.Objects.requireNonNull;
 
+import android.app.DatePickerDialog;
+import android.app.TimePickerDialog;
 import android.content.Context;
 import android.os.Bundle;
+import android.text.format.DateFormat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -56,6 +59,7 @@ import com.google.android.gnd.ui.common.TwoLineToolbar;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import dagger.hilt.android.AndroidEntryPoint;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -207,7 +211,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
 
   private void observeDateDialogClicks(DateFieldViewModel dateFieldViewModel) {
     dateFieldViewModel
-        .showDateDialog()
+        .getDateDialogClicks()
         .observe(
             this,
             __ ->
@@ -216,7 +220,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
 
   private void observeTimeDialogClicks(TimeFieldViewModel timeFieldViewModel) {
     timeFieldViewModel
-        .showTimeDialog()
+        .getTimeDialogClicks()
         .observe(
             this,
             __ ->
@@ -327,12 +331,28 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
     }
   }
 
-  private void showDateDialog(){
-    //TODO: Implement Date Picker Dialog
+  private void showDateDialog() {
+    Calendar calendar = Calendar.getInstance();
+    int year = calendar.get(Calendar.YEAR);
+    int month = calendar.get(Calendar.MONTH);
+    int day = calendar.get(Calendar.DAY_OF_MONTH);
+    DatePickerDialog datePickerDialog = new DatePickerDialog(requireContext(),
+        (view, year1, month1, dayOfMonth) -> {
+          // TODO : Send response to ViewModel.
+        }, year, month, day);
+    datePickerDialog.show();
   }
 
-  private void showTimeDialog(){
-    //TODO: Implement Time Picker Dialog
+  private void showTimeDialog() {
+    Calendar c = Calendar.getInstance();
+    int hour = c.get(Calendar.HOUR);
+    int minute = c.get(Calendar.MINUTE);
+    TimePickerDialog timePickerDialog = new TimePickerDialog(requireContext(),
+        (view, hourOfDay, minute1) -> {
+          // TODO : Send response to ViewModel.
+        }, hour, minute, DateFormat
+        .is24HourFormat(requireContext()));
+    timePickerDialog.show();
   }
 
   @Override
