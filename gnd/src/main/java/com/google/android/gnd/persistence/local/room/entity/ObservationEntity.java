@@ -111,7 +111,7 @@ public abstract class ObservationEntity {
     AuditInfoEntity authInfo = AuditInfoEntity.fromObject(created);
     return ObservationEntity.builder()
         .setId(mutation.getObservationId())
-        .setFormId(mutation.getFormId())
+        .setFormId(mutation.getForm().getId())
         .setFeatureId(mutation.getFeatureId())
         .setState(EntityState.DEFAULT)
         .setResponses(
@@ -138,7 +138,7 @@ public abstract class ObservationEntity {
         .setForm(form)
         .setProject(feature.getProject())
         .setFeature(feature)
-        .setResponses(ResponseMapConverter.fromString(observation.getResponses()))
+        .setResponses(ResponseMapConverter.fromString(form, observation.getResponses()))
         .setCreated(AuditInfoEntity.toObject(observation.getCreated()))
         .setLastModified(AuditInfoEntity.toObject(observation.getLastModified()))
         .build();
