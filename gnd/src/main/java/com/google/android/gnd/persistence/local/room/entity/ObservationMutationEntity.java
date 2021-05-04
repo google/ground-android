@@ -23,7 +23,11 @@ import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.ForeignKey;
 import androidx.room.Index;
+import com.google.android.gnd.model.Project;
+import com.google.android.gnd.model.form.Form;
+import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.model.observation.ObservationMutation;
+import com.google.android.gnd.persistence.local.LocalDataConsistencyException;
 import com.google.android.gnd.persistence.local.room.converter.ResponseDeltasConverter;
 import com.google.android.gnd.persistence.local.room.models.MutationEntityType;
 import com.google.auto.value.AutoValue;
@@ -112,7 +116,7 @@ public abstract class ObservationMutationEntity extends MutationEntity {
         .setProjectId(m.getProjectId())
         .setFeatureId(m.getFeatureId())
         .setLayerId(m.getLayerId())
-        .setFormId(m.getFormId())
+        .setFormId(m.getForm().getId())
         .setObservationId(m.getObservationId())
         .setType(MutationEntityType.fromMutationType(m.getType()))
         .setResponseDeltas(ResponseDeltasConverter.toString(m.getResponseDeltas()))
@@ -123,16 +127,30 @@ public abstract class ObservationMutationEntity extends MutationEntity {
         .build();
   }
 
-  public ObservationMutation toMutation() {
+  public ObservationMutation toMutation(Project project) throws LocalDataConsistencyException {
+    Layer layer =
+        project
+            .getLayer(getLayerId())
+            .orElseThrow(
+                () ->
+                    new LocalDataConsistencyException(
+                        "Unknown layerId in  in observation mutation " + getId()));
+    Form form =
+        layer
+            .getForm(getFormId())
+            .orElseThrow(
+                () ->
+                    new LocalDataConsistencyException(
+                        "Unknown formId in observation mutation " + getId()));
     return ObservationMutation.builder()
         .setId(getId())
         .setProjectId(getProjectId())
         .setFeatureId(getFeatureId())
         .setLayerId(getLayerId())
-        .setFormId(getFormId())
+        .setForm(form)
         .setObservationId(getObservationId())
         .setType(getType().toMutationType())
-        .setResponseDeltas(ResponseDeltasConverter.fromString(getResponseDeltas()))
+        .setResponseDeltas(ResponseDeltasConverter.fromString(form, getResponseDeltas()))
         .setRetryCount(getRetryCount())
         .setLastError(getLastError())
         .setUserId(getUserId())

@@ -34,7 +34,6 @@ import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.form.Element;
 import com.google.android.gnd.model.form.Field;
-import com.google.android.gnd.model.form.Field.Type;
 import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.model.form.MultipleChoice;
 import com.google.android.gnd.model.form.MultipleChoice.Cardinality;
@@ -95,15 +94,15 @@ public class ObservationConverterTest {
     setUpTestProject(
         "layer001",
         "form001",
-        newField().setId("field1").setType(Type.TEXT_FIELD).build(),
+        newField().setId("field1").setType(Field.Type.TEXT_FIELD).build(),
         newField()
             .setId("field2")
-            .setType(Type.MULTIPLE_CHOICE)
+            .setType(Field.Type.MULTIPLE_CHOICE)
             .setMultipleChoice(
                 MultipleChoice.newBuilder().setCardinality(Cardinality.SELECT_ONE).build())
             .build(),
-        newField().setId("field3").setType(Type.MULTIPLE_CHOICE).build(),
-        newField().setId("field4").setType(Type.PHOTO).build());
+        newField().setId("field3").setType(Field.Type.MULTIPLE_CHOICE).build(),
+        newField().setId("field4").setType(Field.Type.PHOTO).build());
     setUpTestFeature("feature001");
     mockObservationDocumentSnapshot(
         "observation123",
@@ -152,7 +151,7 @@ public class ObservationConverterTest {
   @Test
   public void testToObservation_mismatchedFeatureId() {
     setUpTestProject(
-        "layer001", "form001", newField().setId("field1").setType(Type.TEXT_FIELD).build());
+        "layer001", "form001", newField().setId("field1").setType(Field.Type.TEXT_FIELD).build());
     setUpTestFeature("feature001");
     mockObservationDocumentSnapshot(
         "observation123",
@@ -174,7 +173,7 @@ public class ObservationConverterTest {
   @Test
   public void testToObservation_nullResponses() {
     setUpTestProject(
-        "layer001", "form001", newField().setId("field1").setType(Type.TEXT_FIELD).build());
+        "layer001", "form001", newField().setId("field1").setType(Field.Type.TEXT_FIELD).build());
     setUpTestFeature("feature001");
     mockObservationDocumentSnapshot(
         "observation123",
@@ -205,7 +204,7 @@ public class ObservationConverterTest {
   @Test
   public void testToObservation_emptyTextResponse() {
     setUpTestProject(
-        "layer001", "form001", newField().setId("field1").setType(Type.TEXT_FIELD).build());
+        "layer001", "form001", newField().setId("field1").setType(Field.Type.TEXT_FIELD).build());
     setUpTestFeature("feature001");
     mockObservationDocumentSnapshot(
         "observation123",
@@ -236,7 +235,9 @@ public class ObservationConverterTest {
   @Test
   public void testToObservation_emptyMultipleChoiceResponse() {
     setUpTestProject(
-        "layer001", "form001", newField().setId("field1").setType(Type.MULTIPLE_CHOICE).build());
+        "layer001",
+        "form001",
+        newField().setId("field1").setType(Field.Type.MULTIPLE_CHOICE).build());
     setUpTestFeature("feature001");
     mockObservationDocumentSnapshot(
         "observation123",
@@ -279,8 +280,8 @@ public class ObservationConverterTest {
     setUpTestProject(
         "layer001",
         "form001",
-        newField().setId("field1").setType(Type.UNKNOWN).build(),
-        newField().setId("field2").setType(Type.TEXT_FIELD).build());
+        newField().setId("field1").setType(Field.Type.UNKNOWN).build(),
+        newField().setId("field2").setType(Field.Type.TEXT_FIELD).build());
     setUpTestFeature("feature001");
     mockObservationDocumentSnapshot(
         "observation123",

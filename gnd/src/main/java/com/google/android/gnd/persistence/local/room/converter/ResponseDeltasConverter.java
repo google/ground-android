@@ -21,7 +21,9 @@ import static com.google.android.gnd.util.Enums.toEnum;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.google.android.gnd.model.form.Field;
+import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.model.observation.ResponseDelta;
+import com.google.android.gnd.persistence.local.LocalDataConsistencyException;
 import com.google.common.collect.ImmutableList;
 import java.util.Iterator;
 import org.json.JSONException;
@@ -59,7 +61,7 @@ public class ResponseDeltasConverter {
   }
 
   @NonNull
-  public static ImmutableList<ResponseDelta> fromString(@Nullable String jsonString) {
+  public static ImmutableList<ResponseDelta> fromString(Form form, @Nullable String jsonString) {
     ImmutableList.Builder<ResponseDelta> deltas = ImmutableList.builder();
     if (jsonString == null) {
       return deltas.build();
@@ -68,14 +70,23 @@ public class ResponseDeltasConverter {
       JSONObject jsonObject = new JSONObject(jsonString);
       Iterator<String> keys = jsonObject.keys();
       while (keys.hasNext()) {
-        String fieldId = keys.next();
-        JSONObject jsonDelta = jsonObject.getJSONObject(fieldId);
-        deltas.add(
-            ResponseDelta.builder()
-                .setFieldId(fieldId)
-                .setFieldType(toEnum(Field.Type.class, jsonDelta.getString(KEY_FIELD_TYPE)))
-                .setNewResponse(ResponseJsonConverter.toResponse(jsonDelta.get(KEY_NEW_RESPONSE)))
-                .build());
+        try {
+          String fieldId = keys.next();
+          Field field =
+              form.getField(fieldId)
+                  .orElseThrow(
+                      () -> new LocalDataConsistencyException("Unknown field id " + fieldId));
+          JSONObject jsonDelta = jsonObject.getJSONObject(fieldId);
+          deltas.add(
+              ResponseDelta.builder()
+                  .setFieldId(fieldId)
+                  .setFieldType(toEnum(Field.Type.class, jsonDelta.getString(KEY_FIELD_TYPE)))
+                  .setNewResponse(
+                      ResponseJsonConverter.toResponse(field, jsonDelta.get(KEY_NEW_RESPONSE)))
+                  .build());
+        } catch (LocalDataConsistencyException e) {
+          Timber.d("Bad response in local db: " + e.getMessage());
+        }
       }
     } catch (JSONException e) {
       Timber.e(e, "Error parsing JSON string");
