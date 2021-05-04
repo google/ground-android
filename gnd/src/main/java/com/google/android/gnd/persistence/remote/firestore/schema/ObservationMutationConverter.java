@@ -17,11 +17,13 @@
 package com.google.android.gnd.persistence.remote.firestore.schema;
 
 import com.google.android.gnd.model.User;
+import com.google.android.gnd.model.observation.DateResponse;
 import com.google.android.gnd.model.observation.MultipleChoiceResponse;
 import com.google.android.gnd.model.observation.ObservationMutation;
 import com.google.android.gnd.model.observation.Response;
 import com.google.android.gnd.model.observation.ResponseDelta;
 import com.google.android.gnd.model.observation.TextResponse;
+import com.google.android.gnd.model.observation.TimeResponse;
 import com.google.android.gnd.persistence.remote.DataStoreException;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -83,6 +85,10 @@ class ObservationMutationConverter {
       return ((TextResponse) response).getText();
     } else if (response instanceof MultipleChoiceResponse) {
       return ((MultipleChoiceResponse) response).getChoices();
+    } else if (response instanceof TimeResponse) {
+      return ((TimeResponse) response).getTime();
+    } else if (response instanceof DateResponse) {
+      return ((DateResponse) response).getDate();
     } else {
       Timber.e("Unknown response type: %s", response.getClass().getName());
       return null;
