@@ -31,12 +31,10 @@ import com.google.android.gnd.model.basemap.tile.TileSource.State;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.FeatureMutation;
 import com.google.android.gnd.model.feature.Point;
+import com.google.android.gnd.model.feature.PointFeature;
 import com.google.android.gnd.model.form.Element;
 import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.form.Form;
-import com.google.android.gnd.model.form.MultipleChoice;
-import com.google.android.gnd.model.form.MultipleChoice.Cardinality;
-import com.google.android.gnd.model.form.Option;
 import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.model.layer.Style;
 import com.google.android.gnd.model.observation.Observation;
@@ -44,7 +42,6 @@ import com.google.android.gnd.model.observation.ObservationMutation;
 import com.google.android.gnd.model.observation.ResponseDelta;
 import com.google.android.gnd.model.observation.ResponseMap;
 import com.google.android.gnd.model.observation.TextResponse;
-import com.google.android.gnd.persistence.local.room.LocalDataStoreException;
 import com.google.android.gnd.persistence.local.room.dao.FeatureDao;
 import com.google.android.gnd.persistence.local.room.dao.ObservationDao;
 import com.google.android.gnd.persistence.local.room.models.EntityState;
@@ -291,7 +288,7 @@ public class LocalDataStoreTest {
     localDataStore
         .getFeature(TEST_PROJECT, "feature id")
         .test()
-        .assertValue(feature -> feature.getPoint().equals(TEST_POINT));
+        .assertValue(feature -> ((PointFeature) feature).getPoint().equals(TEST_POINT));
   }
 
   @Test
@@ -306,7 +303,8 @@ public class LocalDataStoreTest {
 
     localDataStore.applyAndEnqueue(TEST_FEATURE_MUTATION).blockingAwait();
 
-    Feature feature = localDataStore.getFeature(TEST_PROJECT, "feature id").blockingGet();
+    PointFeature feature =
+        (PointFeature) localDataStore.getFeature(TEST_PROJECT, "feature id").blockingGet();
 
     subscriber.assertValueSet(ImmutableSet.of(ImmutableSet.of(), ImmutableSet.of(feature)));
   }
@@ -348,14 +346,15 @@ public class LocalDataStoreTest {
     localDataStore.insertOrUpdateProject(TEST_PROJECT).blockingAwait();
     localDataStore.applyAndEnqueue(TEST_FEATURE_MUTATION).blockingAwait();
 
-    Feature feature = localDataStore.getFeature(TEST_PROJECT, "feature id").blockingGet();
+    PointFeature feature =
+        (PointFeature) localDataStore.getFeature(TEST_PROJECT, "feature id").blockingGet();
     feature = feature.toBuilder().setPoint(TEST_POINT_2).build();
     localDataStore.mergeFeature(feature).test().assertComplete();
 
     localDataStore
         .getFeature(TEST_PROJECT, "feature id")
         .test()
-        .assertValue(newFeature -> newFeature.getPoint().equals(TEST_POINT_2));
+        .assertValue(newFeature -> ((PointFeature) newFeature).getPoint().equals(TEST_POINT_2));
   }
 
   @Test
@@ -371,7 +370,8 @@ public class LocalDataStoreTest {
         .test()
         .assertValue(ImmutableList.of(TEST_FEATURE_MUTATION, TEST_OBSERVATION_MUTATION));
 
-    Feature feature = localDataStore.getFeature(TEST_PROJECT, "feature id").blockingGet();
+    PointFeature feature =
+        (PointFeature) localDataStore.getFeature(TEST_PROJECT, "feature id").blockingGet();
     Observation observation =
         localDataStore.getObservation(feature, "observation id").blockingGet();
     assertEquivalent(TEST_OBSERVATION_MUTATION, observation);
@@ -415,7 +415,8 @@ public class LocalDataStoreTest {
     localDataStore.insertOrUpdateProject(TEST_PROJECT).blockingAwait();
     localDataStore.applyAndEnqueue(TEST_FEATURE_MUTATION).blockingAwait();
     localDataStore.applyAndEnqueue(TEST_OBSERVATION_MUTATION).blockingAwait();
-    Feature feature = localDataStore.getFeature(TEST_PROJECT, "feature id").blockingGet();
+    PointFeature feature =
+        (PointFeature) localDataStore.getFeature(TEST_PROJECT, "feature id").blockingGet();
 
     ResponseMap responseMap =
         ResponseMap.builder()
@@ -460,7 +461,8 @@ public class LocalDataStoreTest {
         .assertValue(observationEntity -> observationEntity.getState() == EntityState.DELETED);
 
     // Verify that the local observation doesn't end up in getObservations().
-    Feature feature = localDataStore.getFeature(TEST_PROJECT, "feature id").blockingGet();
+    PointFeature feature =
+        (PointFeature) localDataStore.getFeature(TEST_PROJECT, "feature id").blockingGet();
     localDataStore.getObservations(feature, "form id").test().assertValue(ImmutableList.of());
 
     // After successful remote sync, delete observation is called by LocalMutationSyncWorker.
@@ -482,7 +484,8 @@ public class LocalDataStoreTest {
         localDataStore.getFeaturesOnceAndStream(TEST_PROJECT).test();
 
     // Assert that one feature is streamed.
-    Feature feature = localDataStore.getFeature(TEST_PROJECT, "feature id").blockingGet();
+    PointFeature feature =
+        (PointFeature) localDataStore.getFeature(TEST_PROJECT, "feature id").blockingGet();
     subscriber.assertValueAt(0, ImmutableSet.of(feature));
 
     FeatureMutation mutation =

@@ -22,10 +22,11 @@ import static com.google.android.gnd.persistence.remote.DataStoreException.check
 import androidx.annotation.Nullable;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.feature.Feature;
+import com.google.android.gnd.model.feature.GeoJsonFeature;
 import com.google.android.gnd.model.feature.Point;
+import com.google.android.gnd.model.feature.PointFeature;
 import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.persistence.remote.DataStoreException;
-import com.google.common.base.Strings;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.GeoPoint;
 import java8.util.Objects;
@@ -40,32 +41,41 @@ public class FeatureConverter {
 
   static Feature toFeature(Project project, DocumentSnapshot doc) throws DataStoreException {
     FeatureDocument f = checkNotNull(doc.toObject(FeatureDocument.class), "feature data");
+    if (f.getGeoJson() != null) {
+      GeoJsonFeature.Builder builder = GeoJsonFeature.newBuilder().setGeoJsonString(f.getGeoJson());
+      fillFeature(builder, project, doc.getId(), f);
+      return builder.build();
+    }
+
+    if (f.getLocation() != null) {
+      PointFeature.Builder builder = PointFeature.newBuilder().setPoint(toPoint(f.getLocation()));
+      fillFeature(builder, project, doc.getId(), f);
+      return builder.build();
+    }
+
+    throw new DataStoreException("No geometry in remote feature " + doc.getId());
+  }
+
+  private static void fillFeature(
+      Feature.Builder builder, Project project, String id, FeatureDocument f) {
     String layerId = checkNotNull(f.getLayerId(), LAYER_ID);
     Layer layer = checkNotEmpty(project.getLayer(layerId), "layer " + f.getLayerId());
-    Point location = checkNotNull(toPoint(f.getLocation()), LOCATION);
-    String geoJsonString = Strings.isNullOrEmpty(f.getGeoJson()) ? null : f.getGeoJson();
     // Degrade gracefully when audit info missing in remote db.
     AuditInfoNestedObject created =
         Objects.requireNonNullElse(f.getCreated(), AuditInfoNestedObject.FALLBACK_VALUE);
     AuditInfoNestedObject lastModified = Objects.requireNonNullElse(f.getLastModified(), created);
-    return Feature.newBuilder()
-        .setId(doc.getId())
+    builder
+        .setId(id)
         .setProject(project)
         .setCustomId(f.getCustomId())
         .setCaption(f.getCaption())
         .setLayer(layer)
-        .setPoint(location)
-        .setGeoJsonString(geoJsonString)
         .setCreated(AuditInfoConverter.toAuditInfo(created))
-        .setLastModified(AuditInfoConverter.toAuditInfo(lastModified))
-        .build();
+        .setLastModified(AuditInfoConverter.toAuditInfo(lastModified));
   }
 
   @Nullable
-  private static Point toPoint(@Nullable GeoPoint geoPoint) {
-    if (geoPoint == null) {
-      return null;
-    }
+  private static Point toPoint(GeoPoint geoPoint) {
     return Point.newBuilder()
         .setLatitude(geoPoint.getLatitude())
         .setLongitude(geoPoint.getLongitude())
