@@ -125,15 +125,17 @@ public abstract class FeatureEntity {
           GeoJsonFeature.newBuilder().setGeoJsonString(featureEntity.getGeoJson());
       fillFeature(builder, featureEntity, project);
       return builder.build();
-    } else if (featureEntity.getLocation() != null) {
+    }
+
+    if (featureEntity.getLocation() != null) {
       PointFeature.Builder builder =
           PointFeature.newBuilder().setPoint(featureEntity.getLocation().toPoint());
       fillFeature(builder, featureEntity, project);
       return builder.build();
-    } else {
-      throw new LocalDataConsistencyException(
-          "No geometry data found in feature " + featureEntity.getId());
     }
+
+    throw new LocalDataConsistencyException(
+        "No geometry data found in feature " + featureEntity.getId());
   }
 
   public static void fillFeature(

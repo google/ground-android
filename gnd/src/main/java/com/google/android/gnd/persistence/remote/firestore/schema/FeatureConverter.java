@@ -45,13 +45,15 @@ public class FeatureConverter {
       GeoJsonFeature.Builder builder = GeoJsonFeature.newBuilder().setGeoJsonString(f.getGeoJson());
       fillFeature(builder, project, doc.getId(), f);
       return builder.build();
-    } else if (f.getLocation() != null) {
+    }
+
+    if (f.getLocation() != null) {
       PointFeature.Builder builder = PointFeature.newBuilder().setPoint(toPoint(f.getLocation()));
       fillFeature(builder, project, doc.getId(), f);
       return builder.build();
-    } else {
-      throw new DataStoreException("No geometry in remote feature " + doc.getId());
     }
+
+    throw new DataStoreException("No geometry in remote feature " + doc.getId());
   }
 
   private static void fillFeature(
