@@ -27,12 +27,11 @@ import com.google.android.gnd.model.AuditInfo;
 import com.google.android.gnd.model.Mutation;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.User;
-import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.FeatureMutation;
 import com.google.android.gnd.model.feature.Point;
+import com.google.android.gnd.model.feature.PointFeature;
 import com.google.android.gnd.model.form.Element;
 import com.google.android.gnd.model.form.Field;
-import com.google.android.gnd.model.form.Field.Type;
 import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.model.layer.Style;
@@ -82,7 +81,7 @@ public class FeatureRepositoryTest {
           .setIndex(1)
           .setLabel("field label")
           .setRequired(false)
-          .setType(Type.TEXT_FIELD)
+          .setType(Field.Type.TEXT_FIELD)
           .build();
 
   private static final Form TEST_FORM =
@@ -107,8 +106,8 @@ public class FeatureRepositoryTest {
           .putLayer("layer id", TEST_LAYER)
           .build();
 
-  private static final Feature TEST_FEATURE =
-      Feature.newBuilder()
+  private static final PointFeature TEST_FEATURE =
+      PointFeature.newBuilder()
           .setId("feature id")
           .setProject(TEST_PROJECT)
           .setLayer(TEST_LAYER)

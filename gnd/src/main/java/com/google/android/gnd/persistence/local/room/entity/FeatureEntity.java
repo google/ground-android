@@ -27,6 +27,8 @@ import com.google.android.gnd.model.AuditInfo;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.FeatureMutation;
+import com.google.android.gnd.model.feature.GeoJsonFeature;
+import com.google.android.gnd.model.feature.PointFeature;
 import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.persistence.local.LocalDataConsistencyException;
 import com.google.android.gnd.persistence.local.room.models.Coordinates;
@@ -71,7 +73,7 @@ public abstract class FeatureEntity {
   public abstract EntityState getState();
 
   @CopyAnnotations
-  @NonNull
+  @Nullable
   @Embedded
   public abstract Coordinates getLocation();
 
@@ -106,15 +108,38 @@ public abstract class FeatureEntity {
             .setId(feature.getId())
             .setProjectId(feature.getProject().getId())
             .setLayerId(feature.getLayer().getId())
-            .setGeoJson(feature.getGeoJsonString())
-            .setLocation(Coordinates.fromPoint(feature.getPoint()))
             .setState(EntityState.DEFAULT)
             .setCreated(AuditInfoEntity.fromObject(feature.getCreated()))
             .setLastModified(AuditInfoEntity.fromObject(feature.getLastModified()));
+    if (feature instanceof PointFeature) {
+      entity.setLocation(Coordinates.fromPoint(((PointFeature) feature).getPoint()));
+    } else if (feature instanceof GeoJsonFeature) {
+      entity.setGeoJson(((GeoJsonFeature) feature).getGeoJsonString());
+    }
     return entity.build();
   }
 
   public static Feature toFeature(FeatureEntity featureEntity, Project project) {
+    if (featureEntity.getGeoJson() != null) {
+      GeoJsonFeature.Builder builder =
+          GeoJsonFeature.newBuilder().setGeoJsonString(featureEntity.getGeoJson());
+      fillFeature(builder, featureEntity, project);
+      return builder.build();
+    }
+
+    if (featureEntity.getLocation() != null) {
+      PointFeature.Builder builder =
+          PointFeature.newBuilder().setPoint(featureEntity.getLocation().toPoint());
+      fillFeature(builder, featureEntity, project);
+      return builder.build();
+    }
+
+    throw new LocalDataConsistencyException(
+        "No geometry data found in feature " + featureEntity.getId());
+  }
+
+  public static void fillFeature(
+      Feature.Builder builder, FeatureEntity featureEntity, Project project) {
     String id = featureEntity.getId();
     String layerId = featureEntity.getLayerId();
     Layer layer =
@@ -124,15 +149,12 @@ public abstract class FeatureEntity {
                 () ->
                     new LocalDataConsistencyException(
                         "Unknown layerId " + layerId + " in feature " + id));
-    return Feature.newBuilder()
+    builder
         .setId(id)
         .setProject(project)
         .setLayer(layer)
-        .setPoint(featureEntity.getLocation().toPoint())
-        .setGeoJsonString(featureEntity.getGeoJson())
         .setCreated(AuditInfoEntity.toObject(featureEntity.getCreated()))
-        .setLastModified(AuditInfoEntity.toObject(featureEntity.getLastModified()))
-        .build();
+        .setLastModified(AuditInfoEntity.toObject(featureEntity.getLastModified()));
   }
 
   public abstract FeatureEntity.Builder toBuilder();
@@ -173,11 +195,11 @@ public abstract class FeatureEntity {
 
     public abstract Builder setLayerId(String newLayerId);
 
-    public abstract Builder setGeoJson(String newGeoJson);
+    public abstract Builder setGeoJson(@Nullable String newGeoJson);
 
     public abstract Builder setState(EntityState newState);
 
-    public abstract Builder setLocation(Coordinates newLocation);
+    public abstract Builder setLocation(@Nullable Coordinates newLocation);
 
     public abstract Builder setCreated(AuditInfoEntity newCreated);
 
