@@ -80,7 +80,10 @@ public class FeatureConverter {
     }
     ImmutableList.Builder<Point> vertices = ImmutableList.builder();
     for (Object point : (Object[]) coordinates) {
-      // TODO: Check if GeoPoint and convert to Point.
+      if(point instanceof GeoPoint){
+        vertices.add(Point.newBuilder().setLongitude(((GeoPoint) point).getLongitude()).setLatitude(
+            ((GeoPoint) point).getLatitude()).build());
+      }
     }
     PolygonFeature.Builder builder = PolygonFeature.newBuilder().setVertices(vertices.build());
     fillFeature(builder, project, doc.getId(), f);
