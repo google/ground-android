@@ -33,6 +33,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.GeoPoint;
 import java.util.Map;
 import java8.util.Objects;
+import timber.log.Timber;
 
 /** Converts between Firestore documents and {@link Feature} instances. */
 public class FeatureConverter {
@@ -80,9 +81,11 @@ public class FeatureConverter {
     }
     ImmutableList.Builder<Point> vertices = ImmutableList.builder();
     for (Object point : (Object[]) coordinates) {
-      if(point instanceof GeoPoint){
+      if (point instanceof GeoPoint) {
         vertices.add(Point.newBuilder().setLongitude(((GeoPoint) point).getLongitude()).setLatitude(
             ((GeoPoint) point).getLatitude()).build());
+      } else {
+        Timber.d("Ignoring illegal point type in feature %s", doc.getId());
       }
     }
     PolygonFeature.Builder builder = PolygonFeature.newBuilder().setVertices(vertices.build());
