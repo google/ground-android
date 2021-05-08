@@ -16,6 +16,8 @@
 
 package com.google.android.gnd.persistence.local.room.entity;
 
+import static java8.util.stream.StreamSupport.stream;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.room.ColumnInfo;
@@ -32,6 +34,7 @@ import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.model.feature.PointFeature;
 import com.google.android.gnd.model.feature.PolygonFeature;
 import com.google.android.gnd.model.layer.Layer;
+import com.google.android.gnd.model.observation.ResponseDelta;
 import com.google.android.gnd.persistence.local.LocalDataConsistencyException;
 import com.google.android.gnd.persistence.local.room.models.Coordinates;
 import com.google.android.gnd.persistence.local.room.models.EntityState;
@@ -39,6 +42,7 @@ import com.google.auto.value.AutoValue;
 import com.google.auto.value.AutoValue.CopyAnnotations;
 import com.google.common.collect.ImmutableList;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -160,14 +164,28 @@ public abstract class FeatureEntity {
   }
 
   public static String listToString(ImmutableList<Point> vertices) {
+    ArrayList<ArrayList<Double>> polygonVertices = new ArrayList<>();
+    for (Point pt : vertices) {
+      ArrayList<Double> innerValues = new ArrayList<>();
+      innerValues.add(pt.getLatitude());
+      innerValues.add(pt.getLongitude());
+      polygonVertices.add(innerValues);
+    }
     Gson gson = new Gson();
-    return gson.toJson(vertices);
+    return gson.toJson(polygonVertices);
   }
 
   public static ImmutableList<Point> stringToList(String vertices) {
     Gson gson = new Gson();
-    Type listType = new TypeToken<ImmutableList<Point>>() {}.getType();
-    return gson.fromJson(vertices, listType);
+    ArrayList<Point> polygonVertices = new ArrayList<>();
+    ArrayList<ArrayList<Double>> verticesArray =
+        gson.fromJson(vertices, new TypeToken<ArrayList<ArrayList<Double>>>(){}.getType());
+    for (ArrayList<Double> values :verticesArray) {
+      polygonVertices.add(Point.newBuilder().setLatitude(values.get(0))
+          .setLongitude(values.get(1)).build());
+    }
+    ImmutableList.Builder<Point> polygonPoints = ImmutableList.builder();
+    return polygonPoints.addAll(polygonVertices).build();
   }
 
   public static void fillFeature(

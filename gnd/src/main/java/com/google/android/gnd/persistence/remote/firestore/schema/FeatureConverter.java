@@ -31,6 +31,7 @@ import com.google.android.gnd.persistence.remote.DataStoreException;
 import com.google.common.collect.ImmutableList;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.GeoPoint;
+import java.util.ArrayList;
 import java.util.Map;
 import java8.util.Objects;
 import timber.log.Timber;
@@ -75,18 +76,19 @@ public class FeatureConverter {
       throw new DataStoreException("Unknown geometry type in feature " + doc.getId() + ": " + type);
     }
     Object coordinates = geometry.get(GEOMETRY_COORDINATES);
-    if (coordinates == null || !coordinates.getClass().isArray()) {
+    if (coordinates == null || !(coordinates instanceof ArrayList)) {
       throw new DataStoreException(
           "Invalid coordinates in feature " + doc.getId() + ": " + coordinates);
     }
     ImmutableList.Builder<Point> vertices = ImmutableList.builder();
-    for (Object point : (Object[]) coordinates) {
-      if (point instanceof GeoPoint) {
-        vertices.add(Point.newBuilder().setLongitude(((GeoPoint) point).getLongitude()).setLatitude(
-            ((GeoPoint) point).getLatitude()).build());
-      } else {
+    for (Object point : (ArrayList<?>) coordinates) {
+      if (!(point instanceof GeoPoint)) {
         Timber.d("Ignoring illegal point type in feature %s", doc.getId());
+        continue;
       }
+      vertices.add(Point.newBuilder().setLongitude(((GeoPoint) point).getLongitude()).setLatitude(
+            ((GeoPoint) point).getLatitude()).build());
+
     }
     PolygonFeature.Builder builder = PolygonFeature.newBuilder().setVertices(vertices.build());
     fillFeature(builder, project, doc.getId(), f);
