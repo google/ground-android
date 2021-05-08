@@ -33,7 +33,7 @@ public abstract class MapPolygon extends MapFeature {
 
   public abstract String getId();
 
-  public abstract ImmutableList<ImmutableSet<Point>> getVertices();
+  public abstract ImmutableList<Point> getVertices();
 
   public abstract Style getStyle();
 
@@ -44,7 +44,7 @@ public abstract class MapPolygon extends MapFeature {
   public abstract static class Builder {
     public abstract Builder setId(String newId);
 
-    public abstract Builder setVertices(ImmutableList<ImmutableSet<Point>> vertices);
+    public abstract Builder setVertices(ImmutableList<Point> vertices);
 
     public abstract Builder setStyle(Style style);
 

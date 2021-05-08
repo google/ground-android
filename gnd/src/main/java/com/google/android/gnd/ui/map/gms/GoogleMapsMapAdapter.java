@@ -229,15 +229,14 @@ class GoogleMapsMapAdapter implements MapAdapter {
   }
 
   private void addMapPolyline(MapPolygon mapPolygon) {
-    for (ImmutableSet<Point> vertices : mapPolygon.getVertices()) {
+    for (Point vertices : mapPolygon.getVertices()) {
       PolylineOptions options = new PolylineOptions();
 
       // Read-only
       options.clickable(false);
 
       // Add vertices to PolylineOptions
-      stream(vertices).map(GoogleMapsMapAdapter::toLatLng).forEach(options::add);
-
+      options.add(toLatLng(vertices));
       // Add to map
       Polyline polyline = map.addPolyline(options);
       polyline.setTag(mapPolygon);
