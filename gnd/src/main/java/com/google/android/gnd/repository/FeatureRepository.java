@@ -128,32 +128,20 @@ public class FeatureRepository {
   }
 
   private FeatureMutation fromFeature(Feature feature, Type type) {
-    if (feature instanceof PointFeature) {
-      Optional<Point> newLocation = Optional.of(((PointFeature) feature).getPoint());
-      return FeatureMutation.builder()
+    return FeatureMutation.builder()
           .setType(type)
           .setProjectId(feature.getProject().getId())
           .setFeatureId(feature.getId())
           .setLayerId(feature.getLayer().getId())
-          .setNewLocation(newLocation)
-          .setNewPolygonVertices(null)
+          .setNewLocation(feature
+              instanceof PointFeature ? Optional.of(((PointFeature) feature).getPoint())
+              : Optional.empty())
+          .setNewPolygonVertices(feature
+              instanceof PolygonFeature ? Optional.of(((PolygonFeature) feature).getVertices())
+              : Optional.empty())
           .setUserId(authManager.getCurrentUser().getId())
           .setClientTimestamp(new Date())
           .build();
-    } else {
-      Optional<ImmutableList<Point>> newVertices =
-          Optional.of(((PolygonFeature) feature).getVertices());
-      return FeatureMutation.builder()
-          .setType(type)
-          .setProjectId(feature.getProject().getId())
-          .setFeatureId(feature.getId())
-          .setLayerId(feature.getLayer().getId())
-          .setNewLocation(null)
-          .setNewPolygonVertices(newVertices)
-          .setUserId(authManager.getCurrentUser().getId())
-          .setClientTimestamp(new Date())
-          .build();
-    }
   }
 
   public PointFeature newFeature(Project project, Layer layer, Point point) {

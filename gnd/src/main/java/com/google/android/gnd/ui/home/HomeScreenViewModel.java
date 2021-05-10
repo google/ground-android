@@ -38,6 +38,7 @@ import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.SharedViewModel;
 import com.google.android.gnd.ui.map.MapPin;
+import com.google.common.collect.ImmutableList;
 import io.reactivex.Single;
 import io.reactivex.processors.FlowableProcessor;
 import io.reactivex.processors.PublishProcessor;
@@ -69,10 +70,12 @@ public class HomeScreenViewModel extends AbstractViewModel {
   private final MutableLiveData<BottomSheetState> bottomSheetState = new MutableLiveData<>();
 
   @Hot private final FlowableProcessor<Feature> addFeatureClicks = PublishProcessor.create();
+  @Hot private final FlowableProcessor<Feature> addPolygonFeatureClicks = PublishProcessor.create();
   @Hot private final FlowableProcessor<Feature> updateFeatureRequests = PublishProcessor.create();
   @Hot private final FlowableProcessor<Feature> deleteFeatureRequests = PublishProcessor.create();
 
   private final LiveData<Feature> addFeatureResults;
+  private final LiveData<Feature> addPolygonResults;
   private final LiveData<Boolean> updateFeatureResults;
   private final LiveData<Boolean> deleteFeatureResults;
 
@@ -99,6 +102,15 @@ public class HomeScreenViewModel extends AbstractViewModel {
     addFeatureResults =
         LiveDataReactiveStreams.fromPublisher(
             addFeatureClicks.switchMapSingle(
+                feature ->
+                    featureRepository
+                        .createFeature(feature)
+                        .toSingleDefault(feature)
+                        .doOnError(this::handleError)
+                        .onErrorResumeNext(Single.never()))); // Prevent from breaking upstream.
+    addPolygonResults =
+        LiveDataReactiveStreams.fromPublisher(
+            addPolygonFeatureClicks.switchMapSingle(
                 feature ->
                     featureRepository
                         .createFeature(feature)
@@ -146,6 +158,10 @@ public class HomeScreenViewModel extends AbstractViewModel {
     return addFeatureResults;
   }
 
+  public LiveData<Feature> getAddPolygonResults() {
+    return addPolygonResults;
+  }
+
   public LiveData<Boolean> getUpdateFeatureResults() {
     return updateFeatureResults;
   }
@@ -160,6 +176,10 @@ public class HomeScreenViewModel extends AbstractViewModel {
 
   public void addFeature(Project project, Layer layer, Point point) {
     addFeatureClicks.onNext(featureRepository.newFeature(project, layer, point));
+  }
+
+  public void addPolygonFeature(Project project, Layer layer, ImmutableList<Point> points) {
+    addPolygonFeatureClicks.onNext(featureRepository.newPolygonFeature(project, layer, points));
   }
 
   public void updateFeature(Feature feature) {

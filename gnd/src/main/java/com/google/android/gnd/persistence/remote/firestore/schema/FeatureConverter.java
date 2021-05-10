@@ -32,6 +32,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.GeoPoint;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java8.util.Objects;
 import timber.log.Timber;
@@ -76,12 +77,12 @@ public class FeatureConverter {
       throw new DataStoreException("Unknown geometry type in feature " + doc.getId() + ": " + type);
     }
     Object coordinates = geometry.get(GEOMETRY_COORDINATES);
-    if (coordinates == null || !(coordinates instanceof ArrayList)) {
+    if (coordinates == null || !(coordinates instanceof List)) {
       throw new DataStoreException(
           "Invalid coordinates in feature " + doc.getId() + ": " + coordinates);
     }
     ImmutableList.Builder<Point> vertices = ImmutableList.builder();
-    for (Object point : (ArrayList<?>) coordinates) {
+    for (Object point : (List<?>) coordinates) {
       if (!(point instanceof GeoPoint)) {
         Timber.d("Ignoring illegal point type in feature %s", doc.getId());
         continue;

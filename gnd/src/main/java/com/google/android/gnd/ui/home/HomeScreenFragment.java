@@ -48,6 +48,7 @@ import com.google.android.gnd.databinding.HomeScreenFragBinding;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.Point;
+import com.google.android.gnd.model.feature.PointFeature;
 import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.rx.Loadable;
 import com.google.android.gnd.rx.Schedulers;
@@ -117,13 +118,18 @@ public class HomeScreenFragment extends AbstractFragment
     viewModel.getBottomSheetState().observe(this, this::onBottomSheetStateChange);
     viewModel.getOpenDrawerRequests().observe(this, e -> e.ifUnhandled(this::openDrawer));
     viewModel.getAddFeatureResults().observe(this, this::onFeatureAdded);
+    viewModel.getAddPolygonResults().observe(this, this::onFeatureAdded);
     viewModel.getUpdateFeatureResults().observe(this, this::onFeatureUpdated);
     viewModel.getDeleteFeatureResults().observe(this, this::onFeatureDeleted);
     viewModel.getErrors().observe(this, this::onError);
   }
 
   private void onFeatureAdded(Feature feature) {
-    feature.getLayer().getForm().ifPresent(form -> addNewObservation(feature, form));
+    if (feature instanceof PointFeature) {
+      feature.getLayer().getForm().ifPresent(form -> addNewObservation(feature, form));
+    } else {
+      // TODO : Update the UI with new polygon.
+    }
   }
 
   private void addNewObservation(Feature feature, Form form) {
