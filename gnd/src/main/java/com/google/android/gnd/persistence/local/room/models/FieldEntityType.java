@@ -27,7 +27,8 @@ public enum FieldEntityType implements IntEnum {
   UNKNOWN(0),
   TEXT(1),
   MULTIPLE_CHOICE(2),
-  PHOTO(3);
+  PHOTO(3),
+  NUMBER(4);
 
   private final int intValue;
 
@@ -48,6 +49,8 @@ public enum FieldEntityType implements IntEnum {
         return MULTIPLE_CHOICE;
       case PHOTO:
         return PHOTO;
+      case NUMBER:
+        return NUMBER;
       default:
         return UNKNOWN;
     }
@@ -61,6 +64,8 @@ public enum FieldEntityType implements IntEnum {
         return Field.Type.MULTIPLE_CHOICE;
       case PHOTO:
         return Type.PHOTO;
+      case NUMBER:
+        return Type.NUMBER;
       default:
         throw new IllegalArgumentException("Unknown field type");
     }
