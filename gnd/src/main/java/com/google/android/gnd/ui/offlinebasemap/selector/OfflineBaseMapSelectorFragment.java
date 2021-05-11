@@ -23,9 +23,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import androidx.annotation.Nullable;
+import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.OfflineBaseMapSelectorFragBinding;
+import com.google.android.gnd.persistence.local.LocalValueStore;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.EphemeralPopups;
 import com.google.android.gnd.ui.common.Navigator;
@@ -44,6 +46,7 @@ public class OfflineBaseMapSelectorFragment extends AbstractFragment {
   @Inject Navigator navigator;
   @Inject MapProvider mapProvider;
   @Inject EphemeralPopups popups;
+  @Inject LocalValueStore localValueStore;
 
   private OfflineBaseMapSelectorViewModel viewModel;
   @Nullable private MapAdapter map;
@@ -100,6 +103,13 @@ public class OfflineBaseMapSelectorFragment extends AbstractFragment {
   }
 
   private void onMapReady(MapAdapter map) {
+    int savedMapType = localValueStore.getSavedMapType(GoogleMap.MAP_TYPE_HYBRID);
+
+    if (savedMapType == GoogleMap.MAP_TYPE_SATELLITE) {
+      savedMapType = GoogleMap.MAP_TYPE_HYBRID;
+    }
+
+    map.setMapType(savedMapType);
     this.map = map;
   }
 
