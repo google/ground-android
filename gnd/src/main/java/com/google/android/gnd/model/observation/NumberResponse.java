@@ -20,7 +20,7 @@ import androidx.annotation.NonNull;
 import com.google.android.gnd.model.form.Field;
 import java8.util.Optional;
 
-/** A user provided response to a text {@link Field}. */
+/** A user provided response to a number {@link Field}. */
 public class NumberResponse implements Response {
 
   private Number number;
@@ -29,7 +29,6 @@ public class NumberResponse implements Response {
     this.number = number;
   }
 
-  //TODO: Support other numeric types, such as int.
   public double getValue() {
     return number.doubleValue();
   }

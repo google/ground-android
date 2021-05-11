@@ -28,8 +28,6 @@ public class NumberFieldViewModel extends AbstractFieldViewModel {
   }
 
   public void updateResponse(String number) {
-    // TODO: Support specifying other numeric type restrictions, like INTEGER.
-
     if (number.isEmpty()) {
       setResponse(NumberResponse.fromNumber(Double.NaN));
       return;
