@@ -48,11 +48,14 @@ import com.google.android.gnd.ui.map.CameraPosition;
 import com.google.android.gnd.ui.map.MapFeature;
 import com.google.android.gnd.ui.map.MapGeoJson;
 import com.google.android.gnd.ui.map.MapPin;
+import com.google.android.gnd.ui.map.tileprovider.CloseableTileProvider;
+import com.google.android.gnd.ui.map.tileprovider.LocalTileProvider;
 import com.google.common.collect.ImmutableSet;
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Flowable;
 import io.reactivex.subjects.PublishSubject;
 import io.reactivex.subjects.Subject;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java8.util.Optional;
@@ -97,7 +100,7 @@ public class MapContainerViewModel extends AbstractViewModel {
 
   private final LiveData<ImmutableSet<String>> mbtilesFilePaths;
   private final LiveData<Integer> iconTint;
-  private final List<MapBoxOfflineTileProvider> tileProviders = new ArrayList<>();
+  private final List<LocalTileProvider> tileProviders = new ArrayList<>();
 
   // Feature currently selected for repositioning
   private Optional<Feature> selectedFeature = Optional.empty();
@@ -293,12 +296,18 @@ public class MapContainerViewModel extends AbstractViewModel {
   }
 
   // TODO(#691): Create our own wrapper/interface for MbTiles providers.
-  public void queueTileProvider(MapBoxOfflineTileProvider tileProvider) {
+  public void queueTileProvider(LocalTileProvider tileProvider) {
     this.tileProviders.add(tileProvider);
   }
 
   public void closeProviders() {
-    stream(tileProviders).forEach(MapBoxOfflineTileProvider::close);
+    stream(tileProviders).forEach(provider -> {
+      try {
+        provider.close();
+      } catch (IOException e) {
+        Timber.e(e);
+      }
+    });
   }
 
   public void setViewMode(Mode viewMode) {

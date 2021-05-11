@@ -18,6 +18,7 @@ package com.google.android.gnd.ui.home.mapcontainer;
 
 import static com.google.android.gnd.rx.RxAutoDispose.autoDisposable;
 import static com.google.android.gnd.rx.RxAutoDispose.disposeOnDestroy;
+import static java8.util.stream.StreamSupport.stream;
 
 import android.content.res.ColorStateList;
 import android.os.Bundle;
@@ -47,6 +48,7 @@ import com.google.android.gnd.ui.home.HomeScreenViewModel;
 import com.google.android.gnd.ui.home.mapcontainer.MapContainerViewModel.Mode;
 import com.google.android.gnd.ui.map.MapAdapter;
 import com.google.android.gnd.ui.map.MapProvider;
+import com.google.android.gnd.ui.map.tileprovider.mapbox.LocalMapboxTileProvider;
 import com.google.android.gnd.ui.util.FileUtil;
 import dagger.hilt.android.AndroidEntryPoint;
 import io.reactivex.Single;
@@ -148,7 +150,15 @@ public class MapContainerFragment extends AbstractFragment {
         __ -> showConfirmationDialog(map.getCameraTarget()));
     binding.moveFeature.cancelButton.setOnClickListener(__ -> setDefaultMode());
     enableLocationLockBtn();
-    mapContainerViewModel.getMbtilesFilePaths().observe(this, map::addTileOverlays);
+    mapContainerViewModel
+        .getMbtilesFilePaths()
+        .observe(
+            this,
+            paths ->
+                stream(paths)
+                    .map(fileUtil::getOrCreateFile)
+                    .map(LocalMapboxTileProvider::new)
+                    .forEach(map::addTileOverlay));
     mapContainerViewModel
         .getSelectMapTypeClicks()
         .observe(

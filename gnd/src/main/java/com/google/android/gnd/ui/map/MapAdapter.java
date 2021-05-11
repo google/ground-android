@@ -21,6 +21,8 @@ import com.cocoahero.android.gmaps.addons.mapbox.MapBoxOfflineTileProvider;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.rx.annotations.Hot;
+import com.google.android.gnd.ui.map.tileprovider.CloseableTileProvider;
+import com.google.android.gnd.ui.map.tileprovider.LocalTileProvider;
 import com.google.common.collect.ImmutableSet;
 import io.reactivex.Flowable;
 import io.reactivex.Observable;
@@ -101,11 +103,10 @@ public interface MapAdapter {
   /** Set the map viewport to the given bounds. */
   void setBounds(LatLngBounds bounds);
 
-  /** Renders a tile overlay on the map. */
-  void addTileOverlays(ImmutableSet<String> mbtilesFiles);
-
   // TODO(#691): Create interface and impl to encapsulate MapBoxOfflineTileProvider impl.
   /** Returns TileProviders associated with this map adapter. */
   @Hot
-  Observable<MapBoxOfflineTileProvider> getTileProviders();
+  Observable<LocalTileProvider> getTileProviders();
+
+  void addTileOverlay(LocalTileProvider tileProvider);
 }

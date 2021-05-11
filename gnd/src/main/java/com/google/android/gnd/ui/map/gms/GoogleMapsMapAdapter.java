@@ -22,7 +22,6 @@ import static java8.util.stream.StreamSupport.stream;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Color;
-import com.cocoahero.android.gmaps.addons.mapbox.MapBoxOfflineTileProvider;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.UiSettings;
@@ -47,6 +46,8 @@ import com.google.android.gnd.ui.map.MapFeature;
 import com.google.android.gnd.ui.map.MapGeoJson;
 import com.google.android.gnd.ui.map.MapPin;
 import com.google.android.gnd.ui.map.MapPolygon;
+import com.google.android.gnd.ui.map.tileprovider.LocalTileProvider;
+import com.google.android.gnd.ui.map.tileprovider.RemoteTileProvider;
 import com.google.common.collect.ImmutableSet;
 import com.google.maps.android.collections.MarkerManager;
 import com.google.maps.android.data.Layer;
@@ -60,7 +61,6 @@ import io.reactivex.processors.FlowableProcessor;
 import io.reactivex.processors.PublishProcessor;
 import io.reactivex.subjects.PublishSubject;
 import io.reactivex.subjects.Subject;
-import java.io.File;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -90,8 +90,7 @@ class GoogleMapsMapAdapter implements MapAdapter {
   // TODO(#691): This is a limitation of the MapBox tile provider we're using;
   // since one need to call `close` explicitly, we cannot generically expose these as TileProviders;
   // instead we must retain explicit reference to the concrete type.
-  @Hot
-  private final PublishSubject<MapBoxOfflineTileProvider> tileProviders = PublishSubject.create();
+  @Hot private final PublishSubject<LocalTileProvider> localTileProviders = PublishSubject.create();
 
   /**
    * Manager for handling click events for markers.
@@ -148,6 +147,10 @@ class GoogleMapsMapAdapter implements MapAdapter {
     map.setOnCameraMoveStartedListener(this::onCameraMoveStarted);
     map.setOnCameraMoveListener(this::onCameraMove);
     onCameraMove();
+
+    String url = "";
+    RemoteTileProvider remoteTileProvider = new RemoteTileProvider(url);
+    map.addTileOverlay(new TileOverlayOptions().tileProvider(remoteTileProvider));
   }
 
   private static Point fromLatLng(LatLng latLng) {
@@ -189,8 +192,8 @@ class GoogleMapsMapAdapter implements MapAdapter {
 
   @Hot
   @Override
-  public Observable<MapBoxOfflineTileProvider> getTileProviders() {
-    return tileProviders;
+  public Observable<LocalTileProvider> getTileProviders() {
+    return localTileProviders;
   }
 
   @Override
@@ -423,25 +426,9 @@ class GoogleMapsMapAdapter implements MapAdapter {
     map.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, 0));
   }
 
-  private void addTileOverlay(String filePath) {
-    File mbtilesFile = new File(context.getFilesDir(), filePath);
-
-    if (!mbtilesFile.exists()) {
-      Timber.i("mbtiles file %s does not exist", mbtilesFile.getAbsolutePath());
-      return;
-    }
-
-    try {
-      MapBoxOfflineTileProvider tileProvider = new MapBoxOfflineTileProvider(mbtilesFile);
-      tileProviders.onNext(tileProvider);
-      map.addTileOverlay(new TileOverlayOptions().tileProvider(tileProvider));
-    } catch (Exception e) {
-      Timber.e(e, "Couldn't initialize tile provider for mbtiles file %s", mbtilesFile);
-    }
-  }
-
   @Override
-  public void addTileOverlays(ImmutableSet<String> mbtilesFiles) {
-    stream(mbtilesFiles).forEach(this::addTileOverlay);
+  public void addTileOverlay(LocalTileProvider tileProvider) {
+    localTileProviders.onNext(tileProvider);
+    map.addTileOverlay(new TileOverlayOptions().tileProvider(tileProvider));
   }
 }
