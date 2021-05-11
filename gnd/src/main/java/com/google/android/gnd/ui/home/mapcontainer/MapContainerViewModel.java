@@ -100,6 +100,9 @@ public class MapContainerViewModel extends AbstractViewModel {
   private final MutableLiveData<Integer> polygonDrawingCompleted = new MutableLiveData<>(INVISIBLE);
 
   @Hot(replays = true)
+  private final MutableLiveData<Integer> addPolygonPoints = new MutableLiveData<>(INVISIBLE);
+
+  @Hot(replays = true)
   private final MutableLiveData<Action> selectMapTypeClicks = new MutableLiveData<>();
 
   @Hot(replays = true)
@@ -113,6 +116,8 @@ public class MapContainerViewModel extends AbstractViewModel {
   private Optional<Feature> selectedFeature = Optional.empty();
 
   private Optional<Layer> selectedLayer = Optional.empty();
+
+  private Optional<Project> selectedProject = Optional.empty();
 
   @Inject
   MapContainerViewModel(
@@ -338,6 +343,11 @@ public class MapContainerViewModel extends AbstractViewModel {
     addPolygonVisibility.setValue(viewMode == Mode.ADD_POLYGON ? VISIBLE : GONE);
   }
 
+  public void updatePolygonDrawing(PolygonDrawing polygonDrawing) {
+    addPolygonPoints.setValue(polygonDrawing == PolygonDrawing.DEFAULT ? VISIBLE : GONE);
+    polygonDrawingCompleted.setValue(polygonDrawing == PolygonDrawing.COMPLETED ? VISIBLE : GONE);
+  }
+
   public LiveData<Integer> getMapControlsVisibility() {
     return mapControlsVisibility;
   }
@@ -358,12 +368,20 @@ public class MapContainerViewModel extends AbstractViewModel {
     return selectedFeature;
   }
 
+  public Optional<Project> getSelectedProject() {
+    return selectedProject;
+  }
+
   public void setSelectedFeature(Optional<Feature> selectedFeature) {
     this.selectedFeature = selectedFeature;
   }
 
   public void setSelectedLayer(Layer selectedLayer) {
     this.selectedLayer = Optional.of(selectedLayer);
+  }
+
+  public void setSelectedProject(Project selectedProject) {
+    this.selectedProject = Optional.of(selectedProject);
   }
 
   public enum Mode {

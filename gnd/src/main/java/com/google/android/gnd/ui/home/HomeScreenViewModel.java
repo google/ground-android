@@ -42,6 +42,7 @@ import com.google.common.collect.ImmutableList;
 import io.reactivex.Single;
 import io.reactivex.processors.FlowableProcessor;
 import io.reactivex.processors.PublishProcessor;
+import java.util.List;
 import java8.util.Optional;
 import javax.inject.Inject;
 import timber.log.Timber;
@@ -68,6 +69,9 @@ public class HomeScreenViewModel extends AbstractViewModel {
 
   @Hot(replays = true)
   private final MutableLiveData<BottomSheetState> bottomSheetState = new MutableLiveData<>();
+
+  @Hot(replays = true)
+  private final MutableLiveData<Event<Point>> addPolygonDialogRequests = new MutableLiveData<>();
 
   @Hot private final FlowableProcessor<Feature> addFeatureClicks = PublishProcessor.create();
   @Hot private final FlowableProcessor<Feature> addPolygonFeatureClicks = PublishProcessor.create();
@@ -178,8 +182,17 @@ public class HomeScreenViewModel extends AbstractViewModel {
     addFeatureClicks.onNext(featureRepository.newFeature(project, layer, point));
   }
 
-  public void addPolygonFeature(Project project, Layer layer, ImmutableList<Point> points) {
-    addPolygonFeatureClicks.onNext(featureRepository.newPolygonFeature(project, layer, points));
+  public void addPolygonFeature(Project project, Layer layer, List<Point> points) {
+    addPolygonFeatureClicks.onNext(featureRepository.newPolygonFeature(project, layer,
+        ImmutableList.copyOf(points)));
+  }
+
+  public void onAddPolygonBtnClick(Point location) {
+    addPolygonDialogRequests.setValue(Event.create(location));
+  }
+
+  public LiveData<Event<Point>> getShowAddPolyDialogRequests() {
+    return addPolygonDialogRequests;
   }
 
   public void updateFeature(Feature feature) {

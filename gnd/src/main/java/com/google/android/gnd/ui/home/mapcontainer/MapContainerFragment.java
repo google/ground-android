@@ -143,6 +143,8 @@ public class MapContainerFragment extends AbstractFragment {
     homeScreenViewModel
         .getBottomSheetState()
         .observe(this, state -> onBottomSheetStateChange(state, map));
+    binding.addPolygons.addPolygonButton.setOnClickListener(__ -> addPolygonVertices(map));
+    binding.addPolygons.savePolygonButton.setOnClickListener(__ -> savePolygonVertices());
     binding.mapControls.addFeatureBtn.setOnClickListener(
         __ -> homeScreenViewModel.onAddFeatureBtnClick(map.getCameraTarget()));
     binding.moveFeature.confirmButton.setOnClickListener(
@@ -223,6 +225,14 @@ public class MapContainerFragment extends AbstractFragment {
         Timber.e("Unhandled visibility: %s", state.getVisibility());
         break;
     }
+  }
+
+  private void addPolygonVertices(MapAdapter map) {
+    homeScreenViewModel.onAddPolygonBtnClick(map.getCameraTarget());
+  }
+
+  private void savePolygonVertices(){
+      // TODO : Call method to save the Vertices in local DB.
   }
 
   private void onProjectChange(Loadable<Project> project) {
