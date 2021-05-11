@@ -55,6 +55,13 @@
         android:visibility="@{viewModel.moveFeatureVisibility}"
         app:homeScreenViewModel="@{homeScreenViewModel}"
         app:viewModel="@{viewModel}" />
+
+      <include
+        android:id="@+id/add_polygons"
+        layout="@layout/map_add_polygons"
+        android:visibility="@{viewModel.addPolygonVisibility}"
+        app:homeScreenViewModel="@{homeScreenViewModel}"
+        app:viewModel="@{viewModel}" />
     </FrameLayout>
   </FrameLayout>
 </layout>

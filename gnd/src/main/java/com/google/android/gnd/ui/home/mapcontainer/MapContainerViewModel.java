@@ -17,6 +17,7 @@
 package com.google.android.gnd.ui.home.mapcontainer;
 
 import static android.view.View.GONE;
+import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 import static com.google.android.gnd.util.ImmutableSetCollector.toImmutableSet;
 import static java8.util.stream.StreamSupport.stream;
@@ -34,6 +35,7 @@ import com.google.android.gnd.model.feature.GeoJsonFeature;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.model.feature.PointFeature;
 import com.google.android.gnd.model.feature.PolygonFeature;
+import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.repository.FeatureRepository;
 import com.google.android.gnd.repository.OfflineBaseMapRepository;
 import com.google.android.gnd.repository.ProjectRepository;
@@ -95,7 +97,13 @@ public class MapContainerViewModel extends AbstractViewModel {
   private final MutableLiveData<Integer> moveFeaturesVisibility = new MutableLiveData<>(GONE);
 
   @Hot(replays = true)
+  private final MutableLiveData<Integer> polygonDrawingCompleted = new MutableLiveData<>(INVISIBLE);
+
+  @Hot(replays = true)
   private final MutableLiveData<Action> selectMapTypeClicks = new MutableLiveData<>();
+
+  @Hot(replays = true)
+  private final MutableLiveData<Integer> addPolygonVisibility = new MutableLiveData<>(GONE);
 
   private final LiveData<ImmutableSet<String>> mbtilesFilePaths;
   private final LiveData<Integer> iconTint;
@@ -103,6 +111,8 @@ public class MapContainerViewModel extends AbstractViewModel {
 
   // Feature currently selected for repositioning
   private Optional<Feature> selectedFeature = Optional.empty();
+
+  private Optional<Layer> selectedLayer = Optional.empty();
 
   @Inject
   MapContainerViewModel(
@@ -206,6 +216,10 @@ public class MapContainerViewModel extends AbstractViewModel {
 
   public LiveData<Action> getSelectMapTypeClicks() {
     return selectMapTypeClicks;
+  }
+
+  public Optional<Layer> getSelectedLayer() {
+    return selectedLayer;
   }
 
   private Flowable<Event<CameraUpdate>> createCameraUpdateFlowable(
@@ -321,10 +335,19 @@ public class MapContainerViewModel extends AbstractViewModel {
   public void setViewMode(Mode viewMode) {
     mapControlsVisibility.setValue(viewMode == Mode.DEFAULT ? VISIBLE : GONE);
     moveFeaturesVisibility.setValue(viewMode == Mode.REPOSITION ? VISIBLE : GONE);
+    addPolygonVisibility.setValue(viewMode == Mode.ADD_POLYGON ? VISIBLE : GONE);
   }
 
   public LiveData<Integer> getMapControlsVisibility() {
     return mapControlsVisibility;
+  }
+
+  public LiveData<Integer> getAddPolygonVisibility() {
+    return addPolygonVisibility;
+  }
+
+  public LiveData<Integer> getPolygonDrawingCompletedVisibility() {
+    return polygonDrawingCompleted;
   }
 
   public LiveData<Integer> getMoveFeatureVisibility() {
@@ -339,9 +362,19 @@ public class MapContainerViewModel extends AbstractViewModel {
     this.selectedFeature = selectedFeature;
   }
 
+  public void setSelectedLayer(Layer selectedLayer) {
+    this.selectedLayer = Optional.of(selectedLayer);
+  }
+
   public enum Mode {
     DEFAULT,
-    REPOSITION
+    REPOSITION,
+    ADD_POLYGON
+  }
+
+  public enum PolygonDrawing {
+    DEFAULT,
+    COMPLETED
   }
 
   static class CameraUpdate {

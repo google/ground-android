@@ -35,6 +35,7 @@ import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.model.feature.PointFeature;
+import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.persistence.geojson.GeoJsonParser;
 import com.google.android.gnd.persistence.local.LocalValueStore;
 import com.google.android.gnd.rx.BooleanOrError;
@@ -296,6 +297,10 @@ public class MapContainerFragment extends AbstractFragment {
   public void setDefaultMode() {
     mapContainerViewModel.setViewMode(Mode.DEFAULT);
     mapContainerViewModel.setSelectedFeature(Optional.empty());
+  }
+
+  public void setSelectedLayer(Layer layer) {
+    mapContainerViewModel.setSelectedLayer(layer);
   }
 
   public void setRepositionMode(Optional<Feature> feature) {
