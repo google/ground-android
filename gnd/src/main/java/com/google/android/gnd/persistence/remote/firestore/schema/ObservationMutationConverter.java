@@ -86,8 +86,7 @@ class ObservationMutationConverter {
       return ((MultipleChoiceResponse) response).getChoices();
     } else if (response instanceof NumberResponse) {
       return ((NumberResponse) response).getValue();
-    }
-    else {
+    } else {
       Timber.e("Unknown response type: %s", response.getClass().getName());
       return null;
     }

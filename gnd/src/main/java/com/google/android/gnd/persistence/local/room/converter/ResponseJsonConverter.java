@@ -46,8 +46,7 @@ class ResponseJsonConverter {
         return JSONObject.NULL;
       }
       return value;
-    }
-    else {
+    } else {
       throw new UnsupportedOperationException("Unimplemented Response " + response.getClass());
     }
   }
