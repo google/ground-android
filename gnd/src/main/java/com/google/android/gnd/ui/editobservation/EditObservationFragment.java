@@ -37,6 +37,7 @@ import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.EditObservationBottomSheetBinding;
 import com.google.android.gnd.databinding.EditObservationFragBinding;
 import com.google.android.gnd.databinding.MultipleChoiceInputFieldBinding;
+import com.google.android.gnd.databinding.NumberInputFieldBinding;
 import com.google.android.gnd.databinding.PhotoInputFieldBinding;
 import com.google.android.gnd.databinding.TextInputFieldBinding;
 import com.google.android.gnd.model.form.Element;
@@ -79,6 +80,8 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
       return ((TextInputFieldBinding) binding).getViewModel();
     } else if (binding instanceof MultipleChoiceInputFieldBinding) {
       return ((MultipleChoiceInputFieldBinding) binding).getViewModel();
+    } else if (binding instanceof NumberInputFieldBinding) {
+      return ((NumberInputFieldBinding) binding).getViewModel();
     } else if (binding instanceof PhotoInputFieldBinding) {
       return ((PhotoInputFieldBinding) binding).getViewModel();
     } else {

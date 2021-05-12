@@ -18,6 +18,7 @@ package com.google.android.gnd.persistence.remote.firestore.schema;
 
 import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.observation.MultipleChoiceResponse;
+import com.google.android.gnd.model.observation.NumberResponse;
 import com.google.android.gnd.model.observation.ObservationMutation;
 import com.google.android.gnd.model.observation.Response;
 import com.google.android.gnd.model.observation.ResponseDelta;
@@ -83,6 +84,8 @@ class ObservationMutationConverter {
       return ((TextResponse) response).getText();
     } else if (response instanceof MultipleChoiceResponse) {
       return ((MultipleChoiceResponse) response).getChoices();
+    } else if (response instanceof NumberResponse) {
+      return ((NumberResponse) response).getValue();
     } else {
       Timber.e("Unknown response type: %s", response.getClass().getName());
       return null;

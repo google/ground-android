@@ -41,6 +41,9 @@ class FieldConverter {
       case PHOTO:
         field.setType(Type.PHOTO);
         break;
+      case NUMBER:
+        field.setType(Type.NUMBER);
+        break;
       default:
         Timber.d("Unsupported form element type: " + em.getType());
         return Optional.empty();
