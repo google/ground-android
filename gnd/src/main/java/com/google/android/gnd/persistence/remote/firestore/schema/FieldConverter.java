@@ -20,7 +20,6 @@ import static com.google.android.gnd.util.Enums.toEnum;
 import static com.google.android.gnd.util.Localization.getLocalizedMessage;
 
 import com.google.android.gnd.model.form.Field;
-import com.google.android.gnd.model.form.Field.Type;
 import java8.util.Objects;
 import java8.util.Optional;
 import timber.log.Timber;
@@ -32,17 +31,20 @@ class FieldConverter {
     Field.Builder field = Field.newBuilder();
     switch (toEnum(Field.Type.class, em.getType())) {
       case TEXT_FIELD:
-        field.setType(Type.TEXT_FIELD);
+        field.setType(Field.Type.TEXT_FIELD);
         break;
       case MULTIPLE_CHOICE:
-        field.setType(Type.MULTIPLE_CHOICE);
+        field.setType(Field.Type.MULTIPLE_CHOICE);
         field.setMultipleChoice(MultipleChoiceConverter.toMultipleChoice(em));
         break;
       case PHOTO:
-        field.setType(Type.PHOTO);
+        field.setType(Field.Type.PHOTO);
         break;
       case NUMBER:
-        field.setType(Type.NUMBER);
+        field.setType(Field.Type.NUMBER);
+        break;
+      case LOCATION:
+        field.setType(Field.Type.LOCATION);
         break;
       default:
         Timber.d("Unsupported form element type: " + em.getType());

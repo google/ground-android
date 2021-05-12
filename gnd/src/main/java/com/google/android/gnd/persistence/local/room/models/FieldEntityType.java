@@ -20,7 +20,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.room.TypeConverter;
 import com.google.android.gnd.model.form.Field;
-import com.google.android.gnd.model.form.Field.Type;
 import com.google.android.gnd.persistence.local.room.IntEnum;
 import com.google.common.collect.ImmutableBiMap;
 
@@ -29,16 +28,18 @@ public enum FieldEntityType implements IntEnum {
   TEXT(1),
   MULTIPLE_CHOICE(2),
   PHOTO(3),
-  NUMBER(4);
+  NUMBER(4),
+  LOCATION(5);
 
   private final int intValue;
 
-  private static ImmutableBiMap<FieldEntityType, Type> FIELD_TYPES =
+  private static ImmutableBiMap<FieldEntityType, Field.Type> FIELD_TYPES =
       ImmutableBiMap.of(
           TEXT, Field.Type.TEXT_FIELD,
           MULTIPLE_CHOICE, Field.Type.MULTIPLE_CHOICE,
           PHOTO, Field.Type.PHOTO,
-          NUMBER, Field.Type.NUMBER);
+          NUMBER, Field.Type.NUMBER,
+          LOCATION, Field.Type.LOCATION);
 
   FieldEntityType(int intValue) {
     this.intValue = intValue;

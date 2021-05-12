@@ -64,6 +64,9 @@ public class FieldViewFactory {
         return R.layout.photo_input_field;
       case NUMBER:
         return R.layout.number_input_field;
+      case LOCATION:
+        // TODO: Create view.
+        return R.layout.number_input_field;
       default:
         throw new IllegalArgumentException("Unsupported field type: " + fieldType);
     }
