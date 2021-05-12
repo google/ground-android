@@ -38,4 +38,18 @@ public class DataStoreException extends RuntimeException {
       throws DataStoreException {
     return optional.orElseThrow(() -> new DataStoreException("Missing " + field));
   }
+
+  /**
+   * Checks if the provided object is of the same type as (or a subtype of) the specified type. If
+   * not, a {@code DataStoreException} is thrown with relevant details.
+   */
+  @NonNull
+  public static <T> T checkType(@NonNull Class expectedType, @NonNull T obj)
+      throws DataStoreException {
+    if (!expectedType.isAssignableFrom(obj.getClass())) {
+      throw new DataStoreException(
+          "Expected " + expectedType.getName() + ", got " + obj.getClass().getName());
+    }
+    return obj;
+  }
 }

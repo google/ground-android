@@ -16,8 +16,6 @@
 
 package com.google.android.gnd.system;
 
-import static android.content.pm.PackageManager.PERMISSION_GRANTED;
-
 import android.app.Activity;
 import android.content.Intent;
 import androidx.annotation.NonNull;
@@ -26,18 +24,20 @@ import com.google.android.gnd.rx.annotations.Hot;
 import io.reactivex.Observable;
 import io.reactivex.subjects.PublishSubject;
 import io.reactivex.subjects.Subject;
-import java.util.Map;
 import java8.util.function.Consumer;
-import java8.util.stream.Collectors;
-import java8.util.stream.IntStreams;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+/** Bridge between the {@link Activity} and various {@code Manager} classes. */
 @Singleton
 public class ActivityStreams {
+  /** Emits {@link Consumer}s to be executed in the context of the {@link Activity}. */
   @Hot private final Subject<Consumer<Activity>> activityRequests = PublishSubject.create();
+
+  /** Emits {@link Activity#onActivityResult(int, int, Intent)} events. */
   @Hot private final Subject<ActivityResult> activityResults = PublishSubject.create();
 
+  /** Emits {@link Activity#onRequestPermissionsResult(int, String[], int[])} events. */
   @Hot
   private final Subject<RequestPermissionsResult> requestPermissionsResults =
       PublishSubject.create();
@@ -45,82 +45,63 @@ public class ActivityStreams {
   @Inject
   public ActivityStreams() {}
 
+  /**
+   * Queues the specified {@link Consumer} for execution. An instance of the current {@link
+   * Activity} is provided to the {@code Consumer} when called.
+   */
   public void withActivity(Consumer<Activity> callback) {
     activityRequests.onNext(callback);
   }
 
+  /**
+   * Callback used to communicate {@link Activity#onActivityResult(int, int, Intent)} events with
+   * various {@code Manager} classes.
+   */
   public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
     activityResults.onNext(new ActivityResult(requestCode, resultCode, data));
   }
 
+  /**
+   * Callback used to communicate {@link Activity#onRequestPermissionsResult(int, String[], int[])}
+   * events with various {@code Manager} classes.
+   */
   public void onRequestPermissionsResult(
       int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
     requestPermissionsResults.onNext(
         new RequestPermissionsResult(requestCode, permissions, grantResults));
   }
 
+  /** Emits {@link Consumer}s to be executed in the context of the {@link Activity}. */
+  @Hot
   public Observable<Consumer<Activity>> getActivityRequests() {
     return activityRequests;
   }
 
+  /**
+   * Emits {@link Activity#onActivityResult(int, int, Intent)} events where {@code requestCode}
+   * matches the specified value.
+   */
+  @Hot
   public Observable<ActivityResult> getActivityResults(int requestCode) {
     return activityResults.filter(r -> r.getRequestCode() == requestCode);
   }
 
-  // TODO: Merge streams instead of taking one.
+  /**
+   * Emits the next {@link Activity#onActivityResult(int, int, Intent)} event where {@code
+   * requestCode} matches the specified value.
+   */
+  @Hot
   public Observable<ActivityResult> getNextActivityResult(int requestCode) {
+    // TODO(#723): Define and handle timeouts.
     return getActivityResults(requestCode).take(1);
   }
 
+  /**
+   * Emits the next {@link Activity#onRequestPermissionsResult(int, String[], int[])} event where
+   * {@code requestCode} matches the specified value.
+   */
   public Observable<RequestPermissionsResult> getNextRequestPermissionsResult(int requestCode) {
+    // TODO(#723): Define and handle timeouts.
     return requestPermissionsResults.filter(r -> r.getRequestCode() == requestCode).take(1);
-  }
-
-  public static class ActivityResult {
-    private final int requestCode;
-    private final int resultCode;
-    @Nullable private final Intent data;
-
-    public ActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-      this.requestCode = requestCode;
-      this.resultCode = resultCode;
-      this.data = data;
-    }
-
-    public int getRequestCode() {
-      return requestCode;
-    }
-
-    public boolean isOk() {
-      return resultCode == Activity.RESULT_OK;
-    }
-
-    @Nullable
-    public Intent getData() {
-      return data;
-    }
-  }
-
-  public static class RequestPermissionsResult {
-    private final int requestCode;
-    private final Map<String, Integer> permissionGrantResults;
-
-    private RequestPermissionsResult(
-        int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-      this.requestCode = requestCode;
-      this.permissionGrantResults =
-          IntStreams.range(0, permissions.length)
-              .boxed()
-              .collect(Collectors.toMap(i -> permissions[i], i -> grantResults[i]));
-    }
-
-    public int getRequestCode() {
-      return requestCode;
-    }
-
-    public boolean isGranted(String permission) {
-      Integer grantResult = permissionGrantResults.get(permission);
-      return grantResult != null && grantResult == PERMISSION_GRANTED;
-    }
   }
 }

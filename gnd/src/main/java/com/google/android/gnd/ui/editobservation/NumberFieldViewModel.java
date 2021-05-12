@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google LLC
+ * Copyright 2021 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,19 +14,25 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.util;
+package com.google.android.gnd.ui.editobservation;
 
-import java.util.Locale;
+import android.app.Application;
+import com.google.android.gnd.model.observation.NumberResponse;
+import javax.inject.Inject;
 
-public abstract class Enums {
-  /** Do not instantiate. */
-  private Enums() {}
+public class NumberFieldViewModel extends AbstractFieldViewModel {
 
-  public static <T extends Enum<T>> T toEnum(Class<T> enumClass, String value) {
-    try {
-      return Enum.valueOf(enumClass, value.toUpperCase(Locale.ENGLISH));
-    } catch (IllegalArgumentException e) {
-      return enumClass.getEnumConstants()[0];
+  @Inject
+  NumberFieldViewModel(Application application) {
+    super(application);
+  }
+
+  public void updateResponse(String number) {
+    if (number.isEmpty()) {
+      setResponse(NumberResponse.fromNumber(Double.NaN));
+      return;
     }
+
+    setResponse(NumberResponse.fromNumber(Double.parseDouble(number)));
   }
 }
