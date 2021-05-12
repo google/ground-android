@@ -231,8 +231,8 @@ public class MapContainerFragment extends AbstractFragment {
     homeScreenViewModel.onAddPolygonBtnClick(map.getCameraTarget());
   }
 
-  private void savePolygonVertices(){
-      // TODO : Call method to save the Vertices in local DB.
+  private void savePolygonVertices() {
+    homeScreenViewModel.savePolygon();
   }
 
   private void onProjectChange(Loadable<Project> project) {

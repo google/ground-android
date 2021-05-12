@@ -85,6 +85,7 @@
       android:text="@string/save_polygon"
       android:textColor="@color/colorAccent"
       />
+
     <com.google.android.material.floatingactionbutton.FloatingActionButton
       android:id="@+id/current_location_button"
       android:layout_width="wrap_content"

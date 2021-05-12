@@ -42,6 +42,8 @@ import com.google.common.collect.ImmutableList;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import java.util.ArrayList;
+import java8.util.function.Consumer;
+import java8.util.function.Function;
 
 /**
  * Defines how Room persists features in the local db. By default, Room uses the name of object
@@ -111,6 +113,8 @@ public abstract class FeatureEntity {
             .setCreated(authInfo)
             .setLastModified(authInfo);
     mutation.getNewLocation().map(Coordinates::fromPoint).ifPresent(entity::setLocation);
+    mutation.getNewPolygonVertices().map(FeatureEntity::listToString)
+        .ifPresent(entity::setPolygonVertices);
     return entity.build();
   }
 

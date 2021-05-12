@@ -41,6 +41,8 @@ import androidx.appcompat.app.AlertDialog.Builder;
 import androidx.core.view.GravityCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleOwner;
 import com.akaita.java.rxjava2debug.RxJava2Debug;
 import com.google.android.gnd.BuildConfig;
 import com.google.android.gnd.MainActivity;
@@ -75,6 +77,7 @@ import java.util.Collections;
 import java.util.List;
 import java8.util.Optional;
 import javax.inject.Inject;
+import org.jetbrains.annotations.NotNull;
 import timber.log.Timber;
 
 /**
@@ -135,6 +138,7 @@ public class HomeScreenFragment extends AbstractFragment
         .observe(this, e -> e.ifUnhandled(this::onShowAddPolygonDialogRequest));
     viewModel.getOpenDrawerRequests().observe(this, e -> e.ifUnhandled(this::openDrawer));
     viewModel.getAddFeatureResults().observe(this, this::onFeatureAdded);
+    viewModel.getSavePolygonRequest().observe(this, e -> e.ifUnhandled(this::addPolygonFeature));
     viewModel.getAddPolygonResults().observe(this, this::onFeatureAdded);
     viewModel.getUpdateFeatureResults().observe(this, this::onFeatureUpdated);
     viewModel.getDeleteFeatureResults().observe(this, this::onFeatureDeleted);
@@ -145,7 +149,7 @@ public class HomeScreenFragment extends AbstractFragment
     if (feature instanceof PointFeature) {
       feature.getLayer().getForm().ifPresent(form -> addNewObservation(feature, form));
     } else {
-      // TODO : Update the UI with new polygon.
+      mapContainerViewModel.setViewMode(Mode.DEFAULT);
     }
   }
 
@@ -361,16 +365,18 @@ public class HomeScreenFragment extends AbstractFragment
     viewModel.showOfflineAreas();
   }
 
-
   private void onShowAddPolygonDialogRequest(Point point) {
     polygonPoints.add(point);
     if (polygonPoints.size() > 3) {
       if (polygonPoints.contains(point)) {
         mapContainerViewModel.updatePolygonDrawing(PolygonDrawing.COMPLETED);
-        viewModel.addPolygonFeature(mapContainerViewModel.getSelectedProject().get(),
-            mapContainerViewModel.getSelectedLayer().get(), polygonPoints);
       }
     }
+  }
+
+  private void addPolygonFeature() {
+    viewModel.addPolygonFeature(mapContainerViewModel.getSelectedProject().get(),
+        mapContainerViewModel.getSelectedLayer().get(), polygonPoints);
   }
 
   private void onApplyWindowInsets(WindowInsetsCompat insets) {

@@ -26,10 +26,13 @@ import androidx.room.Entity;
 import androidx.room.ForeignKey;
 import androidx.room.Index;
 import com.google.android.gnd.model.feature.FeatureMutation;
+import com.google.android.gnd.model.feature.Point;
+import com.google.android.gnd.model.form.Option;
 import com.google.android.gnd.persistence.local.room.models.Coordinates;
 import com.google.android.gnd.persistence.local.room.models.MutationEntityType;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.AutoValue.CopyAnnotations;
+import com.google.common.collect.ImmutableList;
 import java.util.Date;
 import java8.util.Optional;
 
@@ -66,6 +69,11 @@ public abstract class FeatureMutationEntity extends MutationEntity {
   @Embedded
   public abstract Coordinates getNewLocation();
 
+  @CopyAnnotations
+  @Nullable
+  @Embedded
+  public abstract ImmutableList<Point> getPolygonVertices();
+
   public static FeatureMutationEntity fromMutation(FeatureMutation m) {
     return FeatureMutationEntity.builder()
         .setId(m.getId())
@@ -73,6 +81,7 @@ public abstract class FeatureMutationEntity extends MutationEntity {
         .setFeatureId(m.getFeatureId())
         .setLayerId(m.getLayerId())
         .setNewLocation(m.getNewLocation().map(Coordinates::fromPoint).orElse(null))
+        .setPolygonVertices(m.getNewPolygonVertices().get())
         .setType(MutationEntityType.fromMutationType(m.getType()))
         .setRetryCount(m.getRetryCount())
         .setLastError(m.getLastError())
@@ -87,8 +96,11 @@ public abstract class FeatureMutationEntity extends MutationEntity {
         .setProjectId(getProjectId())
         .setFeatureId(getFeatureId())
         .setLayerId(getLayerId())
-        .setNewLocation(Optional.ofNullable(getNewLocation().toPoint()))
+        .setNewLocation(getNewLocation() == null ?  Optional.empty()
+            : Optional.of(getNewLocation().toPoint()))
         .setType(getType().toMutationType())
+        .setNewPolygonVertices(getPolygonVertices() == null ?  Optional.empty()
+            : Optional.of(getPolygonVertices()))
         .setRetryCount(getRetryCount())
         .setLastError(getLastError())
         .setUserId(getUserId())
@@ -105,6 +117,7 @@ public abstract class FeatureMutationEntity extends MutationEntity {
       String layerId,
       MutationEntityType type,
       Coordinates newLocation,
+      ImmutableList<Point> polygonVertices,
       long retryCount,
       @Nullable String lastError,
       String userId,
@@ -115,6 +128,7 @@ public abstract class FeatureMutationEntity extends MutationEntity {
         .setFeatureId(featureId)
         .setLayerId(layerId)
         .setType(type)
+        .setPolygonVertices(polygonVertices)
         .setNewLocation(newLocation)
         .setRetryCount(retryCount)
         .setLastError(lastError)
@@ -135,6 +149,8 @@ public abstract class FeatureMutationEntity extends MutationEntity {
     public abstract Builder setLayerId(String newLayerId);
 
     public abstract Builder setNewLocation(Coordinates newNewLocation);
+
+    public abstract Builder setPolygonVertices(ImmutableList<Point> newPolygonVertices);
 
     public abstract FeatureMutationEntity build();
   }

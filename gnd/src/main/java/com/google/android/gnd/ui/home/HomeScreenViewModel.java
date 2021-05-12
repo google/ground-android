@@ -68,6 +68,9 @@ public class HomeScreenViewModel extends AbstractViewModel {
   private final MutableLiveData<Action> openDrawerRequests = new MutableLiveData<>();
 
   @Hot(replays = true)
+  private final MutableLiveData<Action> savePolygonRequest = new MutableLiveData<>();
+
+  @Hot(replays = true)
   private final MutableLiveData<BottomSheetState> bottomSheetState = new MutableLiveData<>();
 
   @Hot(replays = true)
@@ -183,8 +186,8 @@ public class HomeScreenViewModel extends AbstractViewModel {
   }
 
   public void addPolygonFeature(Project project, Layer layer, List<Point> points) {
-    addPolygonFeatureClicks.onNext(featureRepository.newPolygonFeature(project, layer,
-        ImmutableList.copyOf(points)));
+    addPolygonFeatureClicks.onNext(featureRepository
+        .newPolygonFeature(project, layer, ImmutableList.copyOf(points)));
   }
 
   public void onAddPolygonBtnClick(Point location) {
@@ -193,6 +196,10 @@ public class HomeScreenViewModel extends AbstractViewModel {
 
   public LiveData<Event<Point>> getShowAddPolyDialogRequests() {
     return addPolygonDialogRequests;
+  }
+
+  public LiveData<Action> getSavePolygonRequest() {
+    return savePolygonRequest;
   }
 
   public void updateFeature(Feature feature) {
@@ -213,6 +220,10 @@ public class HomeScreenViewModel extends AbstractViewModel {
 
   public void openNavDrawer() {
     openDrawerRequests.setValue(Action.create());
+  }
+
+  public void savePolygon() {
+    savePolygonRequest.setValue(Action.create());
   }
 
   public LiveData<Loadable<Project>> getProjectLoadingState() {
