@@ -44,9 +44,10 @@ public class FeatureConverter {
   protected static final String LOCATION = "location";
   protected static final String CREATED = "created";
   protected static final String LAST_MODIFIED = "lastModified";
-  private static final String GEOMETRY_TYPE = "type";
-  private static final String POLYGON_TYPE = "Polygon";
-  private static final String GEOMETRY_COORDINATES = "coordinates";
+  protected static final String GEOMETRY_TYPE = "type";
+  protected static final String POLYGON_TYPE = "Polygon";
+  protected static final String GEOMETRY_COORDINATES = "coordinates";
+  protected static final String GEOMETRY = "geometry";
 
   static Feature toFeature(Project project, DocumentSnapshot doc) throws DataStoreException {
     FeatureDocument f = checkNotNull(doc.toObject(FeatureDocument.class), "feature data");
