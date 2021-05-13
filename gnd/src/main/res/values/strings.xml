@@ -167,4 +167,11 @@
   <string name="no_basemaps_downloaded">No base maps downloaded.</string>
   <string name="please_wait_logging_in">Logging in…</string>
   <string name="build">Build %s</string>
+
+  <string name="add_point">Add Point</string>
+  <string name="save_polygon">Save Polygon</string>
+  <string name="point">Point</string>
+  <string name="polygon">Polygon</string>
+  <string name="select_data_type">Choose a data type</string>
+
 </resources>

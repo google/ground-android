@@ -25,11 +25,17 @@ import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.GeoJsonFeature;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.model.feature.PointFeature;
+import com.google.android.gnd.model.feature.PolygonFeature;
 import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.persistence.remote.DataStoreException;
+import com.google.common.collect.ImmutableList;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.GeoPoint;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java8.util.Objects;
+import timber.log.Timber;
 
 /** Converts between Firestore documents and {@link Feature} instances. */
 public class FeatureConverter {
@@ -38,9 +44,17 @@ public class FeatureConverter {
   protected static final String LOCATION = "location";
   protected static final String CREATED = "created";
   protected static final String LAST_MODIFIED = "lastModified";
+  protected static final String GEOMETRY_TYPE = "type";
+  protected static final String POLYGON_TYPE = "Polygon";
+  protected static final String GEOMETRY_COORDINATES = "coordinates";
+  protected static final String GEOMETRY = "geometry";
 
   static Feature toFeature(Project project, DocumentSnapshot doc) throws DataStoreException {
     FeatureDocument f = checkNotNull(doc.toObject(FeatureDocument.class), "feature data");
+    if (f.getGeometry() != null) {
+      return toFeatureFromGeometry(project, doc, f);
+    }
+
     if (f.getGeoJson() != null) {
       GeoJsonFeature.Builder builder = GeoJsonFeature.newBuilder().setGeoJsonString(f.getGeoJson());
       fillFeature(builder, project, doc.getId(), f);
@@ -54,6 +68,33 @@ public class FeatureConverter {
     }
 
     throw new DataStoreException("No geometry in remote feature " + doc.getId());
+  }
+
+  private static PolygonFeature toFeatureFromGeometry(
+      Project project, DocumentSnapshot doc, FeatureDocument f) {
+    Map<String, Object> geometry = f.getGeometry();
+    Object type = geometry.get(GEOMETRY_TYPE);
+    if (!POLYGON_TYPE.equals(type)) {
+      throw new DataStoreException("Unknown geometry type in feature " + doc.getId() + ": " + type);
+    }
+    Object coordinates = geometry.get(GEOMETRY_COORDINATES);
+    if (coordinates == null || !(coordinates instanceof List)) {
+      throw new DataStoreException(
+          "Invalid coordinates in feature " + doc.getId() + ": " + coordinates);
+    }
+    ImmutableList.Builder<Point> vertices = ImmutableList.builder();
+    for (Object point : (List<?>) coordinates) {
+      if (!(point instanceof GeoPoint)) {
+        Timber.d("Ignoring illegal point type in feature %s", doc.getId());
+        continue;
+      }
+      vertices.add(Point.newBuilder().setLongitude(((GeoPoint) point).getLongitude()).setLatitude(
+            ((GeoPoint) point).getLatitude()).build());
+
+    }
+    PolygonFeature.Builder builder = PolygonFeature.newBuilder().setVertices(vertices.build());
+    fillFeature(builder, project, doc.getId(), f);
+    return builder.build();
   }
 
   private static void fillFeature(

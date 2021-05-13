@@ -33,14 +33,20 @@ import com.google.android.gnd.repository.ProjectRepository;
 import com.google.android.gnd.rx.Action;
 import com.google.android.gnd.rx.Event;
 import com.google.android.gnd.rx.Loadable;
+import com.google.android.gnd.rx.Nil;
 import com.google.android.gnd.rx.annotations.Hot;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.SharedViewModel;
 import com.google.android.gnd.ui.map.MapPin;
+import com.google.common.collect.ImmutableList;
+import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.processors.FlowableProcessor;
 import io.reactivex.processors.PublishProcessor;
+import io.reactivex.subjects.PublishSubject;
+import io.reactivex.subjects.Subject;
+import java.util.List;
 import java8.util.Optional;
 import javax.inject.Inject;
 import timber.log.Timber;
@@ -65,14 +71,21 @@ public class HomeScreenViewModel extends AbstractViewModel {
   @Hot(replays = true)
   private final MutableLiveData<Action> openDrawerRequests = new MutableLiveData<>();
 
+  private final Subject<Nil> savePolygonRequest = PublishSubject.create();
+
   @Hot(replays = true)
   private final MutableLiveData<BottomSheetState> bottomSheetState = new MutableLiveData<>();
 
+  @Hot(replays = true)
+  private final MutableLiveData<Event<Point>> addPolygonDialogRequests = new MutableLiveData<>();
+
   @Hot private final FlowableProcessor<Feature> addFeatureClicks = PublishProcessor.create();
+  @Hot private final FlowableProcessor<Feature> addPolygonFeatureClicks = PublishProcessor.create();
   @Hot private final FlowableProcessor<Feature> updateFeatureRequests = PublishProcessor.create();
   @Hot private final FlowableProcessor<Feature> deleteFeatureRequests = PublishProcessor.create();
 
   private final LiveData<Feature> addFeatureResults;
+  private final LiveData<Feature> addPolygonResults;
   private final LiveData<Boolean> updateFeatureResults;
   private final LiveData<Boolean> deleteFeatureResults;
 
@@ -99,6 +112,15 @@ public class HomeScreenViewModel extends AbstractViewModel {
     addFeatureResults =
         LiveDataReactiveStreams.fromPublisher(
             addFeatureClicks.switchMapSingle(
+                feature ->
+                    featureRepository
+                        .createFeature(feature)
+                        .toSingleDefault(feature)
+                        .doOnError(this::handleError)
+                        .onErrorResumeNext(Single.never()))); // Prevent from breaking upstream.
+    addPolygonResults =
+        LiveDataReactiveStreams.fromPublisher(
+            addPolygonFeatureClicks.switchMapSingle(
                 feature ->
                     featureRepository
                         .createFeature(feature)
@@ -146,6 +168,10 @@ public class HomeScreenViewModel extends AbstractViewModel {
     return addFeatureResults;
   }
 
+  public LiveData<Feature> getAddPolygonResults() {
+    return addPolygonResults;
+  }
+
   public LiveData<Boolean> getUpdateFeatureResults() {
     return updateFeatureResults;
   }
@@ -160,6 +186,23 @@ public class HomeScreenViewModel extends AbstractViewModel {
 
   public void addFeature(Project project, Layer layer, Point point) {
     addFeatureClicks.onNext(featureRepository.newFeature(project, layer, point));
+  }
+
+  public void addPolygonFeature(Project project, Layer layer, List<Point> points) {
+    addPolygonFeatureClicks.onNext(featureRepository
+        .newPolygonFeature(project, layer, ImmutableList.copyOf(points)));
+  }
+
+  public void onAddPolygonBtnClick(Point location) {
+    addPolygonDialogRequests.setValue(Event.create(location));
+  }
+
+  public LiveData<Event<Point>> getShowAddPolyDialogRequests() {
+    return addPolygonDialogRequests;
+  }
+
+  public Subject<Nil> getSavePolygonRequest() {
+    return savePolygonRequest;
   }
 
   public void updateFeature(Feature feature) {
@@ -180,6 +223,10 @@ public class HomeScreenViewModel extends AbstractViewModel {
 
   public void openNavDrawer() {
     openDrawerRequests.setValue(Action.create());
+  }
+
+  public void savePolygon() {
+    savePolygonRequest.onNext(Nil.NIL);
   }
 
   public LiveData<Loadable<Project>> getProjectLoadingState() {

@@ -35,6 +35,7 @@ import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.model.feature.PointFeature;
+import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.persistence.geojson.GeoJsonParser;
 import com.google.android.gnd.persistence.local.LocalValueStore;
 import com.google.android.gnd.rx.BooleanOrError;
@@ -142,6 +143,8 @@ public class MapContainerFragment extends AbstractFragment {
     homeScreenViewModel
         .getBottomSheetState()
         .observe(this, state -> onBottomSheetStateChange(state, map));
+    binding.addPolygons.addPolygonButton.setOnClickListener(__ -> addPolygonVertices(map));
+    binding.addPolygons.savePolygonButton.setOnClickListener(__ -> savePolygonVertices());
     binding.mapControls.addFeatureBtn.setOnClickListener(
         __ -> homeScreenViewModel.onAddFeatureBtnClick(map.getCameraTarget()));
     binding.moveFeature.confirmButton.setOnClickListener(
@@ -224,6 +227,14 @@ public class MapContainerFragment extends AbstractFragment {
     }
   }
 
+  private void addPolygonVertices(MapAdapter map) {
+    homeScreenViewModel.onAddPolygonBtnClick(map.getCameraTarget());
+  }
+
+  private void savePolygonVertices() {
+    homeScreenViewModel.savePolygon();
+  }
+
   private void onProjectChange(Loadable<Project> project) {
     if (project.isLoaded()) {
       enableAddFeatureBtn();
@@ -296,6 +307,10 @@ public class MapContainerFragment extends AbstractFragment {
   public void setDefaultMode() {
     mapContainerViewModel.setViewMode(Mode.DEFAULT);
     mapContainerViewModel.setSelectedFeature(Optional.empty());
+  }
+
+  public void setSelectedLayer(Layer layer) {
+    mapContainerViewModel.setSelectedLayer(layer);
   }
 
   public void setRepositionMode(Optional<Feature> feature) {
