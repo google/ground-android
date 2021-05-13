@@ -41,8 +41,6 @@ import androidx.appcompat.app.AlertDialog.Builder;
 import androidx.core.view.GravityCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.lifecycle.Lifecycle;
-import androidx.lifecycle.LifecycleOwner;
 import com.akaita.java.rxjava2debug.RxJava2Debug;
 import com.google.android.gnd.BuildConfig;
 import com.google.android.gnd.MainActivity;
@@ -56,7 +54,6 @@ import com.google.android.gnd.model.feature.PointFeature;
 import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.rx.Loadable;
-import com.google.android.gnd.rx.Nil;
 import com.google.android.gnd.rx.Schedulers;
 import com.google.android.gnd.system.auth.AuthenticationManager;
 import com.google.android.gnd.ui.common.AbstractFragment;
@@ -72,15 +69,13 @@ import com.google.android.gnd.ui.projectselector.ProjectSelectorDialogFragment;
 import com.google.android.gnd.ui.projectselector.ProjectSelectorViewModel;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.navigation.NavigationView.OnNavigationItemSelectedListener;
+import com.google.common.collect.ImmutableList;
 import dagger.hilt.android.AndroidEntryPoint;
-import io.reactivex.Scheduler;
-import io.reactivex.functions.Consumer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java8.util.Optional;
 import javax.inject.Inject;
-import org.jetbrains.annotations.NotNull;
 import timber.log.Timber;
 
 /**
@@ -370,12 +365,11 @@ public class HomeScreenFragment extends AbstractFragment
   }
 
   private void onShowAddPolygonDialogRequest(Point point) {
-    polygonPoints.add(point);
-    if (polygonPoints.size() > 3) {
-      if (polygonPoints.contains(point)) {
-        mapContainerViewModel.updatePolygonDrawing(PolygonDrawing.COMPLETED);
-      }
+    if (polygonPoints.contains(point)) {
+      mapContainerViewModel.updatePolygonDrawing(PolygonDrawing.COMPLETED);
     }
+    polygonPoints.add(point);
+    mapContainerViewModel.addDrawnPolygonFeature(ImmutableList.copyOf(polygonPoints));
   }
 
   private void addPolygonFeature() {

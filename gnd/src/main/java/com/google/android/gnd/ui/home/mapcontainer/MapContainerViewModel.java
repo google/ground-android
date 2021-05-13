@@ -52,6 +52,7 @@ import com.google.android.gnd.ui.map.MapFeature;
 import com.google.android.gnd.ui.map.MapGeoJson;
 import com.google.android.gnd.ui.map.MapPin;
 import com.google.android.gnd.ui.map.MapPolygon;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Flowable;
@@ -115,6 +116,8 @@ public class MapContainerViewModel extends AbstractViewModel {
   // Feature currently selected for repositioning
   private Optional<Feature> selectedFeature = Optional.empty();
 
+  private Optional<PolygonFeature> drawnPolygonVertices = Optional.empty();
+
   private Optional<Layer> selectedLayer = Optional.empty();
 
   private Optional<Project> selectedProject = Optional.empty();
@@ -146,6 +149,7 @@ public class MapContainerViewModel extends AbstractViewModel {
     // TODO: Clear feature markers when project is deactivated.
     // TODO: Since we depend on project stream from repo anyway, this transformation can be moved
     // into the repo?
+    // TODO: Need to update the UI as new points for polygon are added.
     this.mapFeatures =
         LiveDataReactiveStreams.fromPublisher(
             projectRepository
@@ -208,6 +212,11 @@ public class MapContainerViewModel extends AbstractViewModel {
         .setGeoJson(jsonObject)
         .setStyle(feature.getLayer().getDefaultStyle())
         .build();
+  }
+
+  public void addDrawnPolygonFeature(ImmutableList<Point> vertices) {
+    drawnPolygonVertices = Optional.of(featureRepository.newPolygonFeature(selectedProject.get(),
+        selectedLayer.get(), vertices));
   }
 
   private static MapFeature toMapPolygon(PolygonFeature feature) {
