@@ -20,6 +20,7 @@ import static java8.lang.Iterables.forEach;
 
 import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.observation.MultipleChoiceResponse;
+import com.google.android.gnd.model.observation.NumberResponse;
 import com.google.android.gnd.model.observation.Response;
 import com.google.android.gnd.model.observation.TextResponse;
 import com.google.android.gnd.persistence.remote.DataStoreException;
@@ -29,6 +30,7 @@ import java.util.List;
 import java8.util.Optional;
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 import timber.log.Timber;
 
 class ResponseJsonConverter {
@@ -38,6 +40,12 @@ class ResponseJsonConverter {
       return ((TextResponse) response).getText();
     } else if (response instanceof MultipleChoiceResponse) {
       return toJsonArray((MultipleChoiceResponse) response);
+    } else if (response instanceof NumberResponse) {
+      double value = ((NumberResponse) response).getValue();
+      if (Double.isNaN(value)) {
+        return JSONObject.NULL;
+      }
+      return value;
     } else {
       throw new UnsupportedOperationException("Unimplemented Response " + response.getClass());
     }
@@ -58,6 +66,12 @@ class ResponseJsonConverter {
       case MULTIPLE_CHOICE:
         DataStoreException.checkType(JSONArray.class, obj);
         return MultipleChoiceResponse.fromList(toList((JSONArray) obj));
+      case NUMBER:
+        if (JSONObject.NULL == obj) {
+          return NumberResponse.fromNumber(Double.NaN);
+        }
+        DataStoreException.checkType(Number.class, obj);
+        return NumberResponse.fromNumber((Number) obj);
       case UNKNOWN:
       default:
         throw new DataStoreException("Unknown type in field: " + obj.getClass().getName());

@@ -46,6 +46,8 @@ public class FieldViewFactory {
         return MultipleChoiceFieldViewModel.class;
       case PHOTO:
         return PhotoFieldViewModel.class;
+      case NUMBER:
+        return NumberFieldViewModel.class;
       default:
         throw new IllegalArgumentException("Unsupported field type: " + fieldType);
     }
@@ -60,6 +62,8 @@ public class FieldViewFactory {
         return R.layout.multiple_choice_input_field;
       case PHOTO:
         return R.layout.photo_input_field;
+      case NUMBER:
+        return R.layout.number_input_field;
       default:
         throw new IllegalArgumentException("Unsupported field type: " + fieldType);
     }
