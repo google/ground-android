@@ -18,6 +18,7 @@ package com.google.android.gnd.rx;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
+import com.google.android.gnd.persistence.remote.NotFoundException;
 import io.reactivex.Flowable;
 import java8.util.Optional;
 import javax.annotation.Nullable;
@@ -58,6 +59,9 @@ public class Loadable<T> extends ValueOrError<T> {
   }
 
   public static <T> Loadable<T> error(Throwable t) {
+    if(t instanceof NotFoundException){
+      return new Loadable<>(LoadState.NOT_FOUND, null, t);
+    }
     return new Loadable<>(LoadState.ERROR, null, t);
   }
 

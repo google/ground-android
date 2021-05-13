@@ -31,7 +31,7 @@ class TermsConverter {
     Terms.Builder terms = Terms.builder();
     terms
         .setId(doc.getId())
-        .setTerms(getLocalizedMessage(pd.getTerms()));
+        .setTerms(pd.getTerms());
     return terms.build();
   }
 

@@ -21,12 +21,15 @@ import static com.google.android.gnd.rx.RxTransformers.switchMapIfPresent;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-import com.google.android.gms.auth.api.Auth;
 import com.google.android.gnd.model.Project;
+import com.google.android.gnd.model.Terms;
 import com.google.android.gnd.persistence.local.LocalValueStore;
 import com.google.android.gnd.repository.FeatureRepository;
 import com.google.android.gnd.repository.ProjectRepository;
+import com.google.android.gnd.repository.TermsRepository;
 import com.google.android.gnd.repository.UserRepository;
+import com.google.android.gnd.rx.Loadable;
+import com.google.android.gnd.rx.Loadable.LoadState;
 import com.google.android.gnd.rx.Schedulers;
 import com.google.android.gnd.rx.annotations.Cold;
 import com.google.android.gnd.rx.annotations.Hot;
@@ -38,7 +41,6 @@ import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.SharedViewModel;
 import com.google.android.gnd.ui.home.HomeScreenFragmentDirections;
 import com.google.android.gnd.ui.signin.SignInFragmentDirections;
-import com.google.android.gnd.ui.startup.StartupFragmentDirections;
 import io.reactivex.Completable;
 import java8.util.Optional;
 import javax.inject.Inject;
@@ -56,17 +58,23 @@ public class MainViewModel extends AbstractViewModel {
   @Hot(replays = true)
   private final MutableLiveData<Boolean> signInProgressDialogVisibility = new MutableLiveData<>();
 
+  @Hot(replays = true)
+  public final MutableLiveData<LoadState> termsState = new MutableLiveData<>();
+
   private final ProjectRepository projectRepository;
   private final FeatureRepository featureRepository;
+  private final TermsRepository termsRepository;
   private final Navigator navigator;
   private final EphemeralPopups popups;
   private final LocalValueStore localValueStore;
   private final AuthenticationManager authenticationManager;
 
+
   @Inject
   public MainViewModel(
       ProjectRepository projectRepository,
       FeatureRepository featureRepository,
+      TermsRepository termsRepository,
       UserRepository userRepository,
       Navigator navigator,
       AuthenticationManager authenticationManager,
@@ -75,6 +83,7 @@ public class MainViewModel extends AbstractViewModel {
       LocalValueStore localValueStore) {
     this.projectRepository = projectRepository;
     this.featureRepository = featureRepository;
+    this.termsRepository = termsRepository;
     this.navigator = navigator;
     this.popups = popups;
     this.localValueStore = localValueStore;
@@ -94,6 +103,8 @@ public class MainViewModel extends AbstractViewModel {
             .compose(switchMapIfPresent(SignInState::getUser, userRepository::saveUser))
             .observeOn(schedulers.ui())
             .subscribe(this::onSignInStateChange));
+
+    disposeOnClear(termsRepository.getProjectTerms().observeOn(schedulers.ui()).subscribe(this::getProjectTerms));
   }
 
   /**
@@ -137,6 +148,10 @@ public class MainViewModel extends AbstractViewModel {
     }
   }
 
+  private void getProjectTerms(Loadable<Terms> projectTerms) {
+      termsState.setValue(projectTerms.getState());
+  }
+
   private void showProgressDialog() {
     signInProgressDialogVisibility.postValue(true);
   }
@@ -159,8 +174,8 @@ public class MainViewModel extends AbstractViewModel {
 
   private void onSignedIn() {
     hideProgressDialog();
-
-    if (localValueStore.areTermsAccepted()) {
+    if (termsState.getValue() == LoadState.NOT_FOUND) {
+      localValueStore.setTermsAccepted(true);
       navigator.navigate(HomeScreenFragmentDirections.showHomeScreen());
     } else {
       if (signInProgressDialogVisibility.getValue() == null) {

@@ -22,17 +22,17 @@ import java.util.Map;
 /** Terms entity stored in Firestore. */
 @IgnoreExtraProperties
 class TermsDocument {
-  private Map<String, String> terms;
+  private String terms;
 
   @SuppressWarnings("unused")
   public TermsDocument() {}
 
   @SuppressWarnings("unused")
-  TermsDocument(Map<String, String> terms) {
+  TermsDocument(String terms) {
     this.terms = terms;
   }
 
-  public Map<String, String> getTerms() {
+  public String getTerms() {
     return terms;
   }
 
