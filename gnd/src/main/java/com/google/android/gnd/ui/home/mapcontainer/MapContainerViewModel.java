@@ -56,6 +56,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Flowable;
+import io.reactivex.processors.PublishProcessor;
 import io.reactivex.subjects.PublishSubject;
 import io.reactivex.subjects.Subject;
 import java.util.ArrayList;
@@ -91,6 +92,11 @@ public class MapContainerViewModel extends AbstractViewModel {
   @Hot private final Subject<Boolean> locationLockChangeRequests = PublishSubject.create();
   @Hot private final Subject<CameraUpdate> cameraUpdateSubject = PublishSubject.create();
 
+  /** Polyline drawn by the user but not yet saved as polygon. */
+  @Hot
+  private final PublishProcessor<ImmutableList<Point>> drawnPolylineVertices =
+      PublishProcessor.create();
+
   @Hot(replays = true)
   private final MutableLiveData<Integer> mapControlsVisibility = new MutableLiveData<>(VISIBLE);
 
@@ -115,8 +121,6 @@ public class MapContainerViewModel extends AbstractViewModel {
 
   // Feature currently selected for repositioning
   private Optional<Feature> selectedFeature = Optional.empty();
-
-  private Optional<PolygonFeature> drawnPolygonVertices = Optional.empty();
 
   private Optional<Layer> selectedLayer = Optional.empty();
 
@@ -150,17 +154,37 @@ public class MapContainerViewModel extends AbstractViewModel {
     // TODO: Since we depend on project stream from repo anyway, this transformation can be moved
     // into the repo?
     // TODO: Need to update the UI as new points for polygon are added.
+    // Features that are persisted to the local and remote dbs.
+    Flowable<ImmutableSet<MapFeature>> persistentFeatures =
+        projectRepository
+            .getActiveProject()
+            .switchMap(this::getFeaturesStream)
+            .map(MapContainerViewModel::toMapFeatures)
+            .startWith(ImmutableSet.<MapFeature>of());
+    // Features not persisted to the db, but rather overlaid on the map due to some user
+    // interaction (i.e., in progress polygon drawing flow).
+    Flowable<ImmutableSet<MapFeature>> transientFeatures =
+        drawnPolylineVertices.map(
+            vertices ->
+                ImmutableSet.of(
+                    toMapPolygon(
+                        featureRepository.newPolygonFeature(
+                            selectedProject.get(), selectedLayer.get(), vertices))));
     this.mapFeatures =
         LiveDataReactiveStreams.fromPublisher(
-            projectRepository
-                .getActiveProject()
-                .switchMap(this::getFeaturesStream)
-                .map(MapContainerViewModel::toMapFeatures));
+            persistentFeatures.withLatestFrom(
+                transientFeatures.startWith(ImmutableSet.<MapFeature>of()),
+                MapContainerViewModel::concatFeatureSets));
     this.mbtilesFilePaths =
         LiveDataReactiveStreams.fromPublisher(
             offlineBaseMapRepository
                 .getDownloadedTileSourcesOnceAndStream()
                 .map(set -> stream(set).map(TileSource::getPath).collect(toImmutableSet())));
+  }
+
+  private static ImmutableSet<MapFeature> concatFeatureSets(
+      ImmutableSet<MapFeature> a, ImmutableSet<MapFeature> b) {
+    return a.<MapFeature>builder().addAll(b).build();
   }
 
   private static ImmutableSet<MapFeature> toMapFeatures(ImmutableSet<Feature> features) {
@@ -185,8 +209,11 @@ public class MapContainerViewModel extends AbstractViewModel {
             .map(MapContainerViewModel::toMapPolygon)
             .collect(toImmutableSet());
 
-    return ImmutableSet.<MapFeature>builder().addAll(mapPins)
-        .addAll(mapGeoJson).addAll(mapPolygons).build();
+    return ImmutableSet.<MapFeature>builder()
+        .addAll(mapPins)
+        .addAll(mapGeoJson)
+        .addAll(mapPolygons)
+        .build();
   }
 
   private static MapFeature toMapPin(PointFeature feature) {
@@ -214,9 +241,8 @@ public class MapContainerViewModel extends AbstractViewModel {
         .build();
   }
 
-  public void addDrawnPolygonFeature(ImmutableList<Point> vertices) {
-    drawnPolygonVertices = Optional.of(featureRepository.newPolygonFeature(selectedProject.get(),
-        selectedLayer.get(), vertices));
+  public void updateDrawnPolygonFeature(ImmutableList<Point> vertices) {
+    drawnPolylineVertices.onNext(vertices);
   }
 
   private static MapFeature toMapPolygon(PolygonFeature feature) {

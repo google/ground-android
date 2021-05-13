@@ -369,7 +369,7 @@ public class HomeScreenFragment extends AbstractFragment
       mapContainerViewModel.updatePolygonDrawing(PolygonDrawing.COMPLETED);
     }
     polygonPoints.add(point);
-    mapContainerViewModel.addDrawnPolygonFeature(ImmutableList.copyOf(polygonPoints));
+    mapContainerViewModel.updateDrawnPolygonFeature(ImmutableList.copyOf(polygonPoints));
   }
 
   private void addPolygonFeature() {
