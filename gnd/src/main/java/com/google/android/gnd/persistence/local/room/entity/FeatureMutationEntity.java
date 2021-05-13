@@ -27,14 +27,17 @@ import androidx.room.ForeignKey;
 import androidx.room.Index;
 import com.google.android.gnd.model.feature.FeatureMutation;
 import com.google.android.gnd.model.feature.Point;
-import com.google.android.gnd.model.form.Option;
 import com.google.android.gnd.persistence.local.room.models.Coordinates;
 import com.google.android.gnd.persistence.local.room.models.MutationEntityType;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.AutoValue.CopyAnnotations;
 import com.google.common.collect.ImmutableList;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import java.util.ArrayList;
 import java.util.Date;
 import java8.util.Optional;
+import timber.log.Timber;
 
 /**
  * Defines how Room persists feature mutations for remote sync in the local db. By default, Room
@@ -71,8 +74,8 @@ public abstract class FeatureMutationEntity extends MutationEntity {
 
   @CopyAnnotations
   @Nullable
-  @Embedded
-  public abstract ImmutableList<Point> getPolygonVertices();
+  @ColumnInfo(name = "polygon_vertices")
+  public abstract String getPolygonVertices();
 
   public static FeatureMutationEntity fromMutation(FeatureMutation m) {
     return FeatureMutationEntity.builder()
@@ -81,7 +84,7 @@ public abstract class FeatureMutationEntity extends MutationEntity {
         .setFeatureId(m.getFeatureId())
         .setLayerId(m.getLayerId())
         .setNewLocation(m.getNewLocation().map(Coordinates::fromPoint).orElse(null))
-        .setPolygonVertices(m.getNewPolygonVertices().get())
+        .setPolygonVertices(listToString(m.getNewPolygonVertices().orElse(null)))
         .setType(MutationEntityType.fromMutationType(m.getType()))
         .setRetryCount(m.getRetryCount())
         .setLastError(m.getLastError())
@@ -90,17 +93,48 @@ public abstract class FeatureMutationEntity extends MutationEntity {
         .build();
   }
 
+  public static String listToString(ImmutableList<Point> vertices) {
+    if (vertices == null) {
+      Timber.d("vertices are null");
+      return null;
+    }
+    ArrayList<ArrayList<Double>> polygonVertices = new ArrayList<>();
+    for (Point pt : vertices) {
+      ArrayList<Double> innerValues = new ArrayList<>();
+      innerValues.add(pt.getLatitude());
+      innerValues.add(pt.getLongitude());
+      polygonVertices.add(innerValues);
+    }
+    Gson gson = new Gson();
+    return gson.toJson(polygonVertices);
+  }
+
+  public static ImmutableList<Point> stringToList(String vertices) {
+    if (vertices == null) {
+      Timber.d("vertices are null");
+      return null;
+    }
+    Gson gson = new Gson();
+    ArrayList<Point> polygonVertices = new ArrayList<>();
+    ArrayList<ArrayList<Double>> verticesArray =
+        gson.fromJson(vertices, new TypeToken<ArrayList<ArrayList<Double>>>(){}.getType());
+    for (ArrayList<Double> values :verticesArray) {
+      polygonVertices.add(Point.newBuilder().setLatitude(values.get(0))
+          .setLongitude(values.get(1)).build());
+    }
+    ImmutableList.Builder<Point> polygonPoints = ImmutableList.builder();
+    return polygonPoints.addAll(polygonVertices).build();
+  }
+
   public FeatureMutation toMutation() {
     return FeatureMutation.builder()
         .setId(getId())
         .setProjectId(getProjectId())
         .setFeatureId(getFeatureId())
         .setLayerId(getLayerId())
-        .setNewLocation(getNewLocation() == null ?  Optional.empty()
-            : Optional.of(getNewLocation().toPoint()))
+        .setNewLocation(Optional.ofNullable(getNewLocation()).map(Coordinates::toPoint))
         .setType(getType().toMutationType())
-        .setNewPolygonVertices(getPolygonVertices() == null ?  Optional.empty()
-            : Optional.of(getPolygonVertices()))
+        .setNewPolygonVertices(Optional.ofNullable(stringToList(getPolygonVertices())))
         .setRetryCount(getRetryCount())
         .setLastError(getLastError())
         .setUserId(getUserId())
@@ -117,7 +151,7 @@ public abstract class FeatureMutationEntity extends MutationEntity {
       String layerId,
       MutationEntityType type,
       Coordinates newLocation,
-      ImmutableList<Point> polygonVertices,
+      String polygonVertices,
       long retryCount,
       @Nullable String lastError,
       String userId,
@@ -148,9 +182,9 @@ public abstract class FeatureMutationEntity extends MutationEntity {
 
     public abstract Builder setLayerId(String newLayerId);
 
-    public abstract Builder setNewLocation(Coordinates newNewLocation);
+    public abstract Builder setNewLocation(@Nullable Coordinates newNewLocation);
 
-    public abstract Builder setPolygonVertices(ImmutableList<Point> newPolygonVertices);
+    public abstract Builder setPolygonVertices(@Nullable String  newPolygonVertices);
 
     public abstract FeatureMutationEntity build();
   }
