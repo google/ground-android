@@ -56,6 +56,7 @@ import com.google.android.gnd.model.feature.PointFeature;
 import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.rx.Loadable;
+import com.google.android.gnd.rx.Nil;
 import com.google.android.gnd.rx.Schedulers;
 import com.google.android.gnd.system.auth.AuthenticationManager;
 import com.google.android.gnd.ui.common.AbstractFragment;
@@ -72,6 +73,8 @@ import com.google.android.gnd.ui.projectselector.ProjectSelectorViewModel;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.navigation.NavigationView.OnNavigationItemSelectedListener;
 import dagger.hilt.android.AndroidEntryPoint;
+import io.reactivex.Scheduler;
+import io.reactivex.functions.Consumer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -138,7 +141,8 @@ public class HomeScreenFragment extends AbstractFragment
         .observe(this, e -> e.ifUnhandled(this::onShowAddPolygonDialogRequest));
     viewModel.getOpenDrawerRequests().observe(this, e -> e.ifUnhandled(this::openDrawer));
     viewModel.getAddFeatureResults().observe(this, this::onFeatureAdded);
-    viewModel.getSavePolygonRequest().observe(this, e -> e.ifUnhandled(this::addPolygonFeature));
+    viewModel.getSavePolygonRequest().as(autoDisposable(this))
+        .subscribe(nil -> addPolygonFeature());
     viewModel.getAddPolygonResults().observe(this, this::onFeatureAdded);
     viewModel.getUpdateFeatureResults().observe(this, this::onFeatureUpdated);
     viewModel.getDeleteFeatureResults().observe(this, this::onFeatureDeleted);
@@ -375,6 +379,11 @@ public class HomeScreenFragment extends AbstractFragment
   }
 
   private void addPolygonFeature() {
+    if (mapContainerViewModel.getSelectedProject().isEmpty()
+        || mapContainerViewModel.getSelectedLayer().isEmpty()) {
+      Timber.d("Selected feature or value is empty");
+      return;
+    }
     viewModel.addPolygonFeature(mapContainerViewModel.getSelectedProject().get(),
         mapContainerViewModel.getSelectedLayer().get(), polygonPoints);
   }
