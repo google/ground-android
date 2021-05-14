@@ -200,7 +200,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
     showBottomSheet(marker.getFeature());
   }
 
-  public void showBottomSheet(Feature feature) {
+  private void showBottomSheet(Feature feature) {
     Timber.d("showing bottom sheet");
     isObservationButtonVisible.setValue(true);
     bottomSheetState.setValue(BottomSheetState.visible(feature));
