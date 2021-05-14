@@ -37,6 +37,7 @@ import com.google.android.gnd.rx.annotations.Hot;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.SharedViewModel;
+import com.google.android.gnd.ui.map.MapGeoJson;
 import com.google.android.gnd.ui.map.MapPin;
 import io.reactivex.Single;
 import io.reactivex.processors.FlowableProcessor;
@@ -199,7 +200,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
     showBottomSheet(marker.getFeature());
   }
 
-  private void showBottomSheet(Feature feature) {
+  public void showBottomSheet(Feature feature) {
     Timber.d("showing bottom sheet");
     isObservationButtonVisible.setValue(true);
     bottomSheetState.setValue(BottomSheetState.visible(feature));
@@ -255,5 +256,9 @@ public class HomeScreenViewModel extends AbstractViewModel {
 
   public void showSettings() {
     navigator.navigate(HomeScreenFragmentDirections.actionHomeScreenFragmentToSettingsActivity());
+  }
+
+  public void onGeoJsonClick(MapGeoJson mapGeoJson) {
+    showBottomSheet(mapGeoJson.getFeature());
   }
 }
