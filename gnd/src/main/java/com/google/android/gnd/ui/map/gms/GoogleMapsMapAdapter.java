@@ -75,6 +75,8 @@ import timber.log.Timber;
  */
 class GoogleMapsMapAdapter implements MapAdapter {
 
+  private static final float GEOJSON_POLYGON_FILL_ALPHA = 0.25f;
+
   private final GoogleMap map;
   private final Context context;
   private final MarkerIconFactory markerIconFactory;
@@ -287,8 +289,7 @@ class GoogleMapsMapAdapter implements MapAdapter {
 
     GeoJsonPolygonStyle polygonStyle = layer.getDefaultPolygonStyle();
     polygonStyle.setLineStringWidth(width);
-    float alpha =  0.25f;
-    int a = (int) (alpha * 0xFF);
+    int a = (int) (GEOJSON_POLYGON_FILL_ALPHA * 0xFF);
     polygonStyle.setPolygonFillColor(ColorUtils.setAlphaComponent(color, a));
     polygonStyle.setStrokeColor(color);
 
