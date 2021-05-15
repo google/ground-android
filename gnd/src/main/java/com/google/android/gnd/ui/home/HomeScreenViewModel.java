@@ -73,6 +73,8 @@ public class HomeScreenViewModel extends AbstractViewModel {
 
   private final Subject<Nil> savePolygonRequest = PublishSubject.create();
 
+  private final Subject<Nil> undoPolygonPoints = PublishSubject.create();
+
   @Hot(replays = true)
   private final MutableLiveData<BottomSheetState> bottomSheetState = new MutableLiveData<>();
 
@@ -205,6 +207,10 @@ public class HomeScreenViewModel extends AbstractViewModel {
     return savePolygonRequest;
   }
 
+  public Subject<Nil> getUndoPolygonPointRequest() {
+    return undoPolygonPoints;
+  }
+
   public void updateFeature(Feature feature) {
     updateFeatureRequests.onNext(feature);
   }
@@ -227,6 +233,10 @@ public class HomeScreenViewModel extends AbstractViewModel {
 
   public void savePolygon() {
     savePolygonRequest.onNext(Nil.NIL);
+  }
+
+  public void undoPoint() {
+    undoPolygonPoints.onNext(Nil.NIL);
   }
 
   public LiveData<Loadable<Project>> getProjectLoadingState() {

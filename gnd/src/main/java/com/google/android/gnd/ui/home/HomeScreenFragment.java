@@ -23,6 +23,7 @@ import static com.google.android.gnd.ui.util.ViewUtil.getScreenHeight;
 import static com.google.android.gnd.ui.util.ViewUtil.getScreenWidth;
 
 import android.app.ProgressDialog;
+import android.location.Location;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -65,6 +66,7 @@ import com.google.android.gnd.ui.home.mapcontainer.MapContainerFragment;
 import com.google.android.gnd.ui.home.mapcontainer.MapContainerViewModel;
 import com.google.android.gnd.ui.home.mapcontainer.MapContainerViewModel.Mode;
 import com.google.android.gnd.ui.home.mapcontainer.MapContainerViewModel.PolygonDrawing;
+import com.google.android.gnd.ui.map.CameraPosition;
 import com.google.android.gnd.ui.projectselector.ProjectSelectorDialogFragment;
 import com.google.android.gnd.ui.projectselector.ProjectSelectorViewModel;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
@@ -139,6 +141,9 @@ public class HomeScreenFragment extends AbstractFragment
     viewModel.getAddFeatureResults().observe(this, this::onFeatureAdded);
     viewModel.getSavePolygonRequest().as(autoDisposable(this))
         .subscribe(nil -> addPolygonFeature());
+    viewModel.getUndoPolygonPointRequest().as(autoDisposable(this))
+        .subscribe(nil -> undoPolygonVertice());
+
     viewModel.getAddPolygonResults().observe(this, this::onFeatureAdded);
     viewModel.getUpdateFeatureResults().observe(this, this::onFeatureUpdated);
     viewModel.getDeleteFeatureResults().observe(this, this::onFeatureDeleted);
@@ -404,6 +409,15 @@ public class HomeScreenFragment extends AbstractFragment
     }
     viewModel.addPolygonFeature(mapContainerViewModel.getSelectedProject().get(),
         mapContainerViewModel.getSelectedLayer().get(), polygonPoints);
+  }
+
+  private void undoPolygonVertice() {
+    if (polygonPoints.size() == 0) {
+      Timber.d("No More Points to remove");
+      return;
+    }
+    polygonPoints.remove(polygonPoints.size() - 1);
+    mapContainerViewModel.updateDrawnPolygonFeature(ImmutableList.copyOf(polygonPoints));
   }
 
   private void onApplyWindowInsets(WindowInsetsCompat insets) {

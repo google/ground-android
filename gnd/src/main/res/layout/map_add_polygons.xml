@@ -93,10 +93,11 @@
       android:layout_margin="16dp"
       app:backgroundTint="@android:color/white"
       app:fabSize="normal"
+      android:onClick="@{() -> viewModel.onLocationLockClick()}"
+      app:srcCompat="@drawable/ic_gps_lock"
+      app:tint="@{viewModel.getIconTint()}"
       app:layout_constraintBottom_toBottomOf="parent"
       app:layout_constraintStart_toEndOf="@+id/add_polygon_button"
-      app:srcCompat="@drawable/ic_gps_lock"
-      app:tint="@android:color/black"
       app:useCompatPadding="true" />
 
   </androidx.constraintlayout.widget.ConstraintLayout>

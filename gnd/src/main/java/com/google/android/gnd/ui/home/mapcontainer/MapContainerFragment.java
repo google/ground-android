@@ -144,6 +144,7 @@ public class MapContainerFragment extends AbstractFragment {
         .getBottomSheetState()
         .observe(this, state -> onBottomSheetStateChange(state, map));
     binding.addPolygons.addPolygonButton.setOnClickListener(__ -> addPolygonVertices(map));
+    binding.addPolygons.undoButton.setOnClickListener(__ -> undoPolygonPoint());
     binding.addPolygons.savePolygonButton.setOnClickListener(__ -> savePolygonVertices());
     binding.mapControls.addFeatureBtn.setOnClickListener(
         __ -> homeScreenViewModel.onAddFeatureBtnClick(map.getCameraTarget()));
@@ -229,6 +230,10 @@ public class MapContainerFragment extends AbstractFragment {
 
   private void addPolygonVertices(MapAdapter map) {
     homeScreenViewModel.onAddPolygonBtnClick(map.getCameraTarget());
+  }
+
+  private void undoPolygonPoint() {
+    homeScreenViewModel.undoPoint();
   }
 
   private void savePolygonVertices() {
