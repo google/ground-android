@@ -134,6 +134,7 @@ public class HomeScreenFragment extends AbstractFragment
     viewModel
         .getShowAddPolyDialogRequests()
         .observe(this, e -> e.ifUnhandled(this::onShowAddPolygonDialogRequest));
+    mapContainerViewModel.getCameraPosition().observe(this, this::checkPointNearVertice);
     viewModel.getOpenDrawerRequests().observe(this, e -> e.ifUnhandled(this::openDrawer));
     viewModel.getAddFeatureResults().observe(this, this::onFeatureAdded);
     viewModel.getSavePolygonRequest().as(autoDisposable(this))
@@ -148,6 +149,7 @@ public class HomeScreenFragment extends AbstractFragment
     if (feature instanceof PointFeature) {
       feature.getLayer().getForm().ifPresent(form -> addNewObservation(feature, form));
     } else {
+      polygonPoints.clear();
       mapContainerViewModel.setViewMode(Mode.DEFAULT);
     }
   }
@@ -370,6 +372,28 @@ public class HomeScreenFragment extends AbstractFragment
     }
     polygonPoints.add(point);
     mapContainerViewModel.updateDrawnPolygonFeature(ImmutableList.copyOf(polygonPoints));
+  }
+
+  private void checkPointNearVertice(CameraPosition point) {
+    if (doesPointNearByVertices(point.getTarget())) {
+      mapContainerViewModel.updatePolygonDrawing(PolygonDrawing.COMPLETED);
+      polygonPoints.add(point.getTarget());
+      mapContainerViewModel.updateDrawnPolygonFeature(ImmutableList.copyOf(polygonPoints));
+    } else {
+      mapContainerViewModel.updatePolygonDrawing(PolygonDrawing.DEFAULT);
+    }
+  }
+
+  private boolean doesPointNearByVertices(Point point) {
+    for (Point po: polygonPoints) {
+      float[] res = new float[1];
+      Location.distanceBetween(po.getLatitude(), po.getLongitude(),
+          point.getLatitude(), point.getLongitude(), res);
+      if (res[0] < 5) {
+        return true;
+      }
+    }
+    return false;
   }
 
   private void addPolygonFeature() {

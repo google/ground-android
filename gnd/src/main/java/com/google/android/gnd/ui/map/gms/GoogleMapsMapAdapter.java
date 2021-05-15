@@ -233,15 +233,19 @@ class GoogleMapsMapAdapter implements MapAdapter {
     PolylineOptions options = new PolylineOptions();
     // Read-only
     options.clickable(false);
-
     // Add vertices to PolylineOptions
     options.addAll(stream(mapPolygon.getVertices().asList())
         .map(GoogleMapsMapAdapter::toLatLng).collect(toImmutableList()));
-    // Add to map
     Polyline polyline = map.addPolyline(options);
     polyline.setTag(mapPolygon);
 
     // Style polyline
+    // TODO : Add tne icons shown in the Mock Up design.
+
+    //    polyline.setStartCap(new CustomCap(BitmapDescriptorFactory
+    //        .fromResource(R.drawable.ic_crosshairs), 40));
+    //    polyline.setEndCap(new CustomCap(BitmapDescriptorFactory
+    //        .fromResource(R.drawable.ic_crosshairs), 40));
     polyline.setStartCap(new RoundCap());
     polyline.setEndCap(new RoundCap());
     polyline.setWidth(getPolylineStrokeWidth());
