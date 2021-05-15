@@ -60,6 +60,7 @@ import io.reactivex.processors.PublishProcessor;
 import io.reactivex.subjects.PublishSubject;
 import io.reactivex.subjects.Subject;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java8.util.Optional;
 import javax.inject.Inject;
@@ -169,12 +170,13 @@ public class MapContainerViewModel extends AbstractViewModel {
                 ImmutableSet.of(
                     toMapPolygon(
                         featureRepository.newPolygonFeature(
-                            selectedProject.get(), selectedLayer.get(), vertices))));
-    this.mapFeatures =
-        LiveDataReactiveStreams.fromPublisher(
-            persistentFeatures.withLatestFrom(
-                transientFeatures.startWith(ImmutableSet.<MapFeature>of()),
-                MapContainerViewModel::concatFeatureSets));
+                            selectedProject.get(), selectedLayer.get(), vertices))))
+            .startWith(ImmutableSet.<MapFeature>of());
+    this.mapFeatures = LiveDataReactiveStreams.fromPublisher(
+        Flowable.combineLatest(Arrays.asList(
+            persistentFeatures.startWith(ImmutableSet.<MapFeature>of()),
+            transientFeatures.startWith(ImmutableSet.<MapFeature>of())),
+            MapContainerViewModel::concatFeatureSets));
     this.mbtilesFilePaths =
         LiveDataReactiveStreams.fromPublisher(
             offlineBaseMapRepository
@@ -183,8 +185,18 @@ public class MapContainerViewModel extends AbstractViewModel {
   }
 
   private static ImmutableSet<MapFeature> concatFeatureSets(
-      ImmutableSet<MapFeature> a, ImmutableSet<MapFeature> b) {
-    return a.<MapFeature>builder().addAll(b).build();
+      Object[] objects) {
+    ImmutableSet<MapFeature> combinedFeatureSet = ImmutableSet.<MapFeature>builder().build();
+    for (Object obj : objects) {
+      if (obj instanceof ImmutableSet) {
+        ImmutableSet<MapFeature> a = (ImmutableSet<MapFeature>) obj;
+        combinedFeatureSet = ImmutableSet.<MapFeature>builder()
+            .addAll(a).addAll(combinedFeatureSet).build();
+      } else {
+        Timber.d("Object is not of ImmutableSet class");
+      }
+    }
+    return combinedFeatureSet;
   }
 
   private static ImmutableSet<MapFeature> toMapFeatures(ImmutableSet<Feature> features) {
