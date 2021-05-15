@@ -28,7 +28,6 @@ public class TermsOfServiceManager {
   private final LocalValueStore localValueStore;
   private final Disposable signInStateSubscription;
 
-  // TODO: Inject into activity.
   @Inject
   public TermsOfServiceManager(
       LocalValueStore localValueStore, AuthenticationManager authenticationManager) {
