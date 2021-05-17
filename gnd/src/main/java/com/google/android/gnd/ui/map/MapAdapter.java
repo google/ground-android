@@ -35,6 +35,10 @@ public interface MapAdapter {
   @Hot
   Observable<MapPin> getMapPinClicks();
 
+  /** Returns polygon click events. */
+  @Hot
+  Observable<MapGeoJson> getMapGeoJsonClicks();
+
   /**
    * Returns map drag events. Emits the new viewport center each time the map is dragged by the
    * user. Subscribers that can't keep up receive the latest event ({@link
