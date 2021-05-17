@@ -41,12 +41,12 @@
         android:id="@+id/number_input_edit_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:inputType="numberDecimal"
         android:maxLines="1"
         android:text="@{viewModel.responseText}"
         app:error="@{viewModel.error}"
         app:onTextChanged="@{s -> viewModel.updateResponse((String)s)}"
-        tools:text="Text value"
-        android:inputType="number"/>
+        tools:text="Text value" />
 
     </com.google.android.material.textfield.TextInputLayout>
 
