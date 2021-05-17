@@ -105,8 +105,9 @@ class ObservationConverter {
   }
 
   private static void putNumberResponse(String fieldId, Object obj, Builder responses) {
-    Number value = (Number) DataStoreException.checkType(Number.class, obj);
-    NumberResponse.fromNumber(value).ifPresent(r -> responses.putResponse(fieldId, r));
+    double value = (Double) DataStoreException.checkType(Double.class, obj);
+    NumberResponse.fromNumber(Double.toString(value))
+        .ifPresent(r -> responses.putResponse(fieldId, r));
   }
 
   private static void putTextResponse(String fieldId, Object obj, ResponseMap.Builder responses) {

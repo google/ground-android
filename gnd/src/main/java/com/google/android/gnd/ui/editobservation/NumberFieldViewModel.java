@@ -28,11 +28,6 @@ public class NumberFieldViewModel extends AbstractFieldViewModel {
   }
 
   public void updateResponse(String number) {
-    if (number.isEmpty()) {
-      setResponse(NumberResponse.fromNumber(Double.NaN));
-      return;
-    }
-
-    setResponse(NumberResponse.fromNumber(Double.parseDouble(number)));
+    setResponse(NumberResponse.fromNumber(number));
   }
 }
