@@ -30,7 +30,9 @@ import com.google.android.gnd.R;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.basemap.tile.TileSource;
 import com.google.android.gnd.model.feature.Feature;
+import com.google.android.gnd.model.feature.GeoJsonFeature;
 import com.google.android.gnd.model.feature.Point;
+import com.google.android.gnd.model.feature.PointFeature;
 import com.google.android.gnd.repository.FeatureRepository;
 import com.google.android.gnd.repository.OfflineBaseMapRepository;
 import com.google.android.gnd.repository.ProjectRepository;
@@ -144,6 +146,7 @@ public class MapContainerViewModel extends AbstractViewModel {
     ImmutableSet<MapFeature> mapPins =
         stream(features)
             .filter(Feature::isPoint)
+            .map(PointFeature.class::cast)
             .map(MapContainerViewModel::toMapPin)
             .collect(toImmutableSet());
 
@@ -152,13 +155,14 @@ public class MapContainerViewModel extends AbstractViewModel {
     ImmutableSet<MapFeature> mapPolygons =
         stream(features)
             .filter(Feature::isGeoJson)
+            .map(GeoJsonFeature.class::cast)
             .map(MapContainerViewModel::toMapGeoJson)
             .collect(toImmutableSet());
 
     return ImmutableSet.<MapFeature>builder().addAll(mapPins).addAll(mapPolygons).build();
   }
 
-  private static MapFeature toMapPin(Feature feature) {
+  private static MapFeature toMapPin(PointFeature feature) {
     return MapPin.newBuilder()
         .setId(feature.getId())
         .setPosition(feature.getPoint())
@@ -167,7 +171,7 @@ public class MapContainerViewModel extends AbstractViewModel {
         .build();
   }
 
-  private static MapGeoJson toMapGeoJson(Feature feature) {
+  private static MapGeoJson toMapGeoJson(GeoJsonFeature feature) {
     JSONObject jsonObject;
     try {
       jsonObject = new JSONObject(feature.getGeoJsonString());
@@ -180,6 +184,7 @@ public class MapContainerViewModel extends AbstractViewModel {
         .setId(feature.getId())
         .setGeoJson(jsonObject)
         .setStyle(feature.getLayer().getDefaultStyle())
+        .setFeature(feature)
         .build();
   }
 
@@ -316,6 +321,10 @@ public class MapContainerViewModel extends AbstractViewModel {
 
   public void setSelectedFeature(Optional<Feature> selectedFeature) {
     this.selectedFeature = selectedFeature;
+  }
+
+  public void onGeoJsonClick(MapGeoJson mapGeoJson) {
+    // TODO: Move the camera and adjust styling appropriately.
   }
 
   public enum Mode {

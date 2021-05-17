@@ -19,13 +19,13 @@ package com.google.android.gnd.system;
 import android.Manifest.permission;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.os.Bundle;
 import android.provider.MediaStore;
+import androidx.annotation.Nullable;
 import com.google.android.gnd.rx.annotations.Cold;
 import com.google.android.gnd.rx.annotations.Hot;
-import com.google.android.gnd.system.ActivityStreams.ActivityResult;
 import io.reactivex.Completable;
-import io.reactivex.Observable;
+import io.reactivex.Maybe;
+import java8.util.Optional;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import timber.log.Timber;
@@ -35,7 +35,7 @@ import timber.log.Timber;
 public class CameraManager {
 
   /** Used to identify requests coming from this application. */
-  private static final int CAPTURE_PHOTO_REQUEST_CODE = CameraManager.class.hashCode() & 0xffff;
+  static final int CAPTURE_PHOTO_REQUEST_CODE = CameraManager.class.hashCode() & 0xffff;
 
   private final PermissionsManager permissionsManager;
   private final ActivityStreams activityStreams;
@@ -48,11 +48,12 @@ public class CameraManager {
 
   /** Launches the system's photo capture flow, first obtaining permissions if necessary. */
   @Cold
-  public Completable launchPhotoCapture() {
+  public Maybe<Bitmap> capturePhoto() {
     return permissionsManager
         .obtainPermission(permission.WRITE_EXTERNAL_STORAGE)
         .andThen(permissionsManager.obtainPermission(permission.CAMERA))
-        .andThen(sendCapturePhotoIntent());
+        .andThen(sendCapturePhotoIntent())
+        .andThen(capturePhotoResult());
   }
 
   /** Enqueue an intent for capturing a photo. */
@@ -69,34 +70,31 @@ public class CameraManager {
   }
 
   /** Emits the result of the photo capture request. */
-  @Hot
-  public Observable<Bitmap> capturePhotoResult() {
+  @Hot(terminates = true)
+  Maybe<Bitmap> capturePhotoResult() {
     return activityStreams
         .getNextActivityResult(CAPTURE_PHOTO_REQUEST_CODE)
-        .flatMap(this::onCapturePhotoResult);
+        .flatMapMaybe(this::onCapturePhotoResult)
+        .singleElement();
+  }
+
+  private Optional<Bitmap> parseResult(@Nullable Intent intent) {
+    if (intent == null || intent.getExtras() == null) {
+      return Optional.empty();
+    }
+    return Optional.ofNullable((Bitmap) intent.getExtras().get("data"));
   }
 
   /** Extracts the bitmap from the result returned by the activity, if present. */
   @Cold
-  private Observable<Bitmap> onCapturePhotoResult(ActivityResult result) {
-    // TODO: Investigate if returning a Maybe is better or not?
-    return Observable.create(
-        em -> {
-          if (!result.isOk()) {
-            // TODO(#726): Call onError()?
-            return;
+  private Maybe<Bitmap> onCapturePhotoResult(ActivityResult result) {
+    return Maybe.create(
+        emitter -> {
+          if (result.isOk()) {
+            emitter.onSuccess(parseResult(result.getData()).orElseThrow());
+          } else {
+            emitter.onComplete();
           }
-          Intent data = result.getData();
-          if (data == null) {
-            // TODO(#726): Call onError()?
-            return;
-          }
-          Bundle extras = data.getExtras();
-          if (extras == null) {
-            // TODO(#726): Call onError()?
-            return;
-          }
-          em.onNext((Bitmap) extras.get("data"));
         });
   }
 }
