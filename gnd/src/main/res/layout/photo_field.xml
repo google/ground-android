@@ -17,7 +17,8 @@
   -->
 
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-  xmlns:app="http://schemas.android.com/apk/res-auto">
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  xmlns:tools="http://schemas.android.com/tools">
   <data>
     <import type="android.view.View" />
     <variable
@@ -25,20 +26,19 @@
       type="com.google.android.gnd.ui.editobservation.PhotoFieldViewModel" />
   </data>
 
-  <com.google.android.material.card.MaterialCardView
-    android:id="@+id/material_card"
+  <FrameLayout
     android:layout_width="match_parent"
     android:layout_height="200dp"
-    android:visibility="@{viewModel.isVisible ? View.VISIBLE : View.GONE }"
-    app:cardElevation="@dimen/cardview_elevation">
+    android:visibility="@{viewModel.isVisible ? View.VISIBLE : View.GONE }">
     <ImageView
       android:id="@+id/image_thumbnail_preview"
       android:layout_width="match_parent"
       android:layout_height="match_parent"
       android:adjustViewBounds="true"
       android:contentDescription="@string/photo_preview"
-      android:scaleType="fitCenter"
-      app:imageUri="@{viewModel.uri}" />
+      android:scaleType="centerCrop"
+      app:imageUri="@{viewModel.uri}"
+      tools:src="@drawable/splash_background" />
     <ImageButton
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
@@ -48,5 +48,5 @@
       app:backgroundTint="@android:color/transparent"
       app:srcCompat="@drawable/ic_baseline_delete_24"
       app:tint="@color/colorGrey300" />
-  </com.google.android.material.card.MaterialCardView>
+  </FrameLayout>
 </layout>

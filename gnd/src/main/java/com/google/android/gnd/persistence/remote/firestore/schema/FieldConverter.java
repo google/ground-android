@@ -20,28 +20,23 @@ import static com.google.android.gnd.util.Enums.toEnum;
 import static com.google.android.gnd.util.Localization.getLocalizedMessage;
 
 import com.google.android.gnd.model.form.Field;
-import com.google.android.gnd.model.form.Field.Type;
 import java8.util.Objects;
 import java8.util.Optional;
+import timber.log.Timber;
 
 /** Converts between Firestore nested objects and {@link Field} instances. */
 class FieldConverter {
 
   static Optional<Field> toField(String id, ElementNestedObject em) {
+    Field.Type type = toEnum(Field.Type.class, em.getType());
+    if (type == Field.Type.UNKNOWN) {
+      Timber.d("Unsupported form element type: " + em.getType());
+      return Optional.empty();
+    }
     Field.Builder field = Field.newBuilder();
-    switch (toEnum(Field.Type.class, em.getType())) {
-      case TEXT:
-        field.setType(Type.TEXT);
-        break;
-      case MULTIPLE_CHOICE:
-        field.setType(Type.MULTIPLE_CHOICE);
-        field.setMultipleChoice(MultipleChoiceConverter.toMultipleChoice(em));
-        break;
-      case PHOTO:
-        field.setType(Type.PHOTO);
-        break;
-      default:
-        return Optional.empty();
+    field.setType(type);
+    if (type == Field.Type.MULTIPLE_CHOICE) {
+      field.setMultipleChoice(MultipleChoiceConverter.toMultipleChoice(em));
     }
     field.setRequired(em.getRequired() != null && em.getRequired());
     field.setId(id);

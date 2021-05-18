@@ -34,6 +34,7 @@ import com.google.android.gnd.databinding.MapContainerFragBinding;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.Point;
+import com.google.android.gnd.model.feature.PointFeature;
 import com.google.android.gnd.persistence.geojson.GeoJsonParser;
 import com.google.android.gnd.persistence.local.LocalValueStore;
 import com.google.android.gnd.rx.BooleanOrError;
@@ -85,6 +86,16 @@ public class MapContainerFragment extends AbstractFragment {
         .flatMap(MapAdapter::getMapPinClicks)
         .as(disposeOnDestroy(this))
         .subscribe(homeScreenViewModel::onMarkerClick);
+    mapAdapter
+        .toObservable()
+        .flatMap(MapAdapter::getMapGeoJsonClicks)
+        .as(disposeOnDestroy(this))
+        .subscribe(mapContainerViewModel::onGeoJsonClick);
+    mapAdapter
+        .toObservable()
+        .flatMap(MapAdapter::getMapGeoJsonClicks)
+        .as(disposeOnDestroy(this))
+        .subscribe(homeScreenViewModel::onGeoJsonClick);
     mapAdapter
         .toFlowable()
         .flatMap(MapAdapter::getDragInteractions)
@@ -184,20 +195,31 @@ public class MapContainerFragment extends AbstractFragment {
   }
 
   private void moveToNewPosition(Point point) {
-    mapContainerViewModel
-        .getSelectedFeature()
-        .map(feature -> feature.toBuilder().setPoint(point).build())
-        .ifPresentOrElse(
-            feature -> homeScreenViewModel.updateFeature(feature),
-            () -> Timber.e("No feature selected"));
+    Optional<Feature> feature = mapContainerViewModel.getSelectedFeature();
+    if (feature.isEmpty()) {
+      Timber.e("Move point failed: No feature selected");
+      return;
+    }
+    if (!(feature.get() instanceof PointFeature)) {
+      Timber.e("Only point features can be moved");
+      return;
+    }
+    PointFeature newFeature = ((PointFeature) feature.get()).toBuilder().setPoint(point).build();
+    homeScreenViewModel.updateFeature(newFeature);
   }
 
   private void onBottomSheetStateChange(BottomSheetState state, MapAdapter map) {
     switch (state.getVisibility()) {
       case VISIBLE:
         map.disable();
+        // TODO(#358): Once polygon drawing is implemented, pan & zoom to polygon when
+        // selected. This will involve calculating centroid and possibly zoom level based on
+        //
+        // // vertices.
         state
             .getFeature()
+            .filter(Feature::isPoint)
+            .map(PointFeature.class::cast)
             .ifPresent(
                 feature -> {
                   mapContainerViewModel.panAndZoomCamera(feature.getPoint());

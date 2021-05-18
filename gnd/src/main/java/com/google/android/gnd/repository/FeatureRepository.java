@@ -22,6 +22,7 @@ import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.FeatureMutation;
 import com.google.android.gnd.model.feature.Point;
+import com.google.android.gnd.model.feature.PointFeature;
 import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.persistence.local.LocalDataStore;
 import com.google.android.gnd.persistence.remote.NotFoundException;
@@ -125,20 +126,24 @@ public class FeatureRepository {
   }
 
   private FeatureMutation fromFeature(Feature feature, Type type) {
+    Optional<Point> newLocation =
+        feature instanceof PointFeature
+            ? Optional.of(((PointFeature) feature).getPoint())
+            : Optional.empty();
     return FeatureMutation.builder()
         .setType(type)
         .setProjectId(feature.getProject().getId())
         .setFeatureId(feature.getId())
         .setLayerId(feature.getLayer().getId())
-        .setNewLocation(Optional.of(feature.getPoint()))
+        .setNewLocation(newLocation)
         .setUserId(authManager.getCurrentUser().getId())
         .setClientTimestamp(new Date())
         .build();
   }
 
-  public Feature newFeature(Project project, Layer layer, Point point) {
+  public PointFeature newFeature(Project project, Layer layer, Point point) {
     AuditInfo auditInfo = AuditInfo.now(authManager.getCurrentUser());
-    return Feature.newBuilder()
+    return PointFeature.newBuilder()
         .setId(uuidGenerator.generateUuid())
         .setProject(project)
         .setLayer(layer)
