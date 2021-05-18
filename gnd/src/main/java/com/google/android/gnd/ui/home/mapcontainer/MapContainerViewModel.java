@@ -160,8 +160,7 @@ public class MapContainerViewModel extends AbstractViewModel {
         projectRepository
             .getActiveProject()
             .switchMap(this::getFeaturesStream)
-            .map(MapContainerViewModel::toMapFeatures)
-            .startWith(ImmutableSet.<MapFeature>of());
+            .map(MapContainerViewModel::toMapFeatures);
     // Features not persisted to the db, but rather overlaid on the map due to some user
     // interaction (i.e., in progress polygon drawing flow).
     Flowable<ImmutableSet<MapFeature>> transientFeatures =
@@ -170,8 +169,7 @@ public class MapContainerViewModel extends AbstractViewModel {
                 ImmutableSet.of(
                     toMapPolygon(
                         featureRepository.newPolygonFeature(
-                            selectedProject.get(), selectedLayer.get(), vertices))))
-            .startWith(ImmutableSet.<MapFeature>of());
+                            selectedProject.get(), selectedLayer.get(), vertices))));
     this.mapFeatures = LiveDataReactiveStreams.fromPublisher(
         Flowable.combineLatest(Arrays.asList(
             persistentFeatures.startWith(ImmutableSet.<MapFeature>of()),

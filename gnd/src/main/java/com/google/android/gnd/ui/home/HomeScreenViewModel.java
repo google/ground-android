@@ -207,7 +207,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
     return savePolygonRequest;
   }
 
-  public Subject<Nil> getUndoPolygonPointRequest() {
+  public Subject<Nil> getRemoveLastVertexRequests() {
     return undoPolygonPoints;
   }
 

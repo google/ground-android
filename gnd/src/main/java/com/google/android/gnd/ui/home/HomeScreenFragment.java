@@ -114,7 +114,7 @@ public class HomeScreenFragment extends AbstractFragment
   private ProjectSelectorViewModel projectSelectorViewModel;
   private List<Project> projects = Collections.emptyList();
   private HomeScreenFragBinding binding;
-  private final ArrayList<Point> polygonPoints = new ArrayList<>();
+  private final ArrayList<Point> vertices = new ArrayList<>();
 
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -136,13 +136,13 @@ public class HomeScreenFragment extends AbstractFragment
     viewModel
         .getShowAddPolyDialogRequests()
         .observe(this, e -> e.ifUnhandled(this::onShowAddPolygonDialogRequest));
-    mapContainerViewModel.getCameraPosition().observe(this, this::checkPointNearVertice);
+    mapContainerViewModel.getCameraPosition().observe(this, this::checkPointNearVertex);
     viewModel.getOpenDrawerRequests().observe(this, e -> e.ifUnhandled(this::openDrawer));
     viewModel.getAddFeatureResults().observe(this, this::onFeatureAdded);
     viewModel.getSavePolygonRequest().as(autoDisposable(this))
         .subscribe(nil -> addPolygonFeature());
-    viewModel.getUndoPolygonPointRequest().as(autoDisposable(this))
-        .subscribe(nil -> undoPolygonVertice());
+    viewModel.getRemoveLastVertexRequests().as(autoDisposable(this))
+        .subscribe(nil -> removeLastVertex());
 
     viewModel.getAddPolygonResults().observe(this, this::onFeatureAdded);
     viewModel.getUpdateFeatureResults().observe(this, this::onFeatureUpdated);
@@ -154,7 +154,7 @@ public class HomeScreenFragment extends AbstractFragment
     if (feature instanceof PointFeature) {
       feature.getLayer().getForm().ifPresent(form -> addNewObservation(feature, form));
     } else {
-      polygonPoints.clear();
+      vertices.clear();
       mapContainerViewModel.setViewMode(Mode.DEFAULT);
     }
   }
@@ -372,29 +372,29 @@ public class HomeScreenFragment extends AbstractFragment
   }
 
   private void onShowAddPolygonDialogRequest(Point point) {
-    if (polygonPoints.contains(point)) {
+    if (vertices.contains(point)) {
       mapContainerViewModel.updatePolygonDrawing(PolygonDrawing.COMPLETED);
     }
-    polygonPoints.add(point);
-    mapContainerViewModel.updateDrawnPolygonFeature(ImmutableList.copyOf(polygonPoints));
+    vertices.add(point);
+    mapContainerViewModel.updateDrawnPolygonFeature(ImmutableList.copyOf(vertices));
   }
 
-  private void checkPointNearVertice(CameraPosition point) {
-    if (doesPointNearByVertices(point.getTarget())) {
+  private void checkPointNearVertex(CameraPosition point) {
+    if (isNearVertex(point.getTarget())) {
       mapContainerViewModel.updatePolygonDrawing(PolygonDrawing.COMPLETED);
-      polygonPoints.add(point.getTarget());
-      mapContainerViewModel.updateDrawnPolygonFeature(ImmutableList.copyOf(polygonPoints));
+      vertices.add(point.getTarget());
+      mapContainerViewModel.updateDrawnPolygonFeature(ImmutableList.copyOf(vertices));
     } else {
       mapContainerViewModel.updatePolygonDrawing(PolygonDrawing.DEFAULT);
     }
   }
 
-  private boolean doesPointNearByVertices(Point point) {
-    for (Point po: polygonPoints) {
-      float[] res = new float[1];
-      Location.distanceBetween(po.getLatitude(), po.getLongitude(),
-          point.getLatitude(), point.getLongitude(), res);
-      if (res[0] < 5) {
+  private boolean isNearVertex(Point point) {
+    for (Point vertex: vertices) {
+      float[] distance = new float[1];
+      Location.distanceBetween(vertex.getLatitude(), vertex.getLongitude(),
+          point.getLatitude(), point.getLongitude(), distance);
+      if (distance[0] < 5) {
         return true;
       }
     }
@@ -408,16 +408,15 @@ public class HomeScreenFragment extends AbstractFragment
       return;
     }
     viewModel.addPolygonFeature(mapContainerViewModel.getSelectedProject().get(),
-        mapContainerViewModel.getSelectedLayer().get(), polygonPoints);
+        mapContainerViewModel.getSelectedLayer().get(), vertices);
   }
 
-  private void undoPolygonVertice() {
-    if (polygonPoints.size() == 0) {
-      Timber.d("No More Points to remove");
+  private void removeLastVertex() {
+    if (vertices.isEmpty()) {
       return;
     }
-    polygonPoints.remove(polygonPoints.size() - 1);
-    mapContainerViewModel.updateDrawnPolygonFeature(ImmutableList.copyOf(polygonPoints));
+    vertices.remove(vertices.size() - 1);
+    mapContainerViewModel.updateDrawnPolygonFeature(ImmutableList.copyOf(vertices));
   }
 
   private void onApplyWindowInsets(WindowInsetsCompat insets) {
