@@ -23,32 +23,29 @@ import java8.util.Optional;
 /** A user provided response to a number {@link Field}. */
 public class NumberResponse implements Response {
 
-  private Number number;
+  private final String number;
 
-  public NumberResponse(Number number) {
+  public NumberResponse(String number) {
     this.number = number;
   }
 
   public double getValue() {
-    return number.doubleValue();
+    return Double.parseDouble(number);
   }
 
   @Override
   public String getSummaryText(Field field) {
-    return number.toString();
+    return number;
   }
 
   @Override
   public String getDetailsText(Field field) {
-    if (Double.isNaN(number.doubleValue())) {
-      return "";
-    }
-    return number.toString();
+    return number;
   }
 
   @Override
   public boolean isEmpty() {
-    return number.toString().isEmpty();
+    return number.isEmpty();
   }
 
   @Override
@@ -67,12 +64,10 @@ public class NumberResponse implements Response {
   @NonNull
   @Override
   public String toString() {
-    return number.toString();
+    return number;
   }
 
-  public static Optional<Response> fromNumber(Number number) {
-    return number.toString().isEmpty()
-        ? Optional.empty()
-        : Optional.of(new NumberResponse(number));
+  public static Optional<Response> fromNumber(String number) {
+    return number.isEmpty() ? Optional.empty() : Optional.of(new NumberResponse(number));
   }
 }
