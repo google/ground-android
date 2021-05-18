@@ -33,7 +33,7 @@ public enum FieldEntityType implements IntEnum {
 
   private final int intValue;
 
-  private static ImmutableBiMap<FieldEntityType, Type> FIELD_TYPES =
+  private static final ImmutableBiMap<FieldEntityType, Type> FIELD_TYPES =
       ImmutableBiMap.of(
           TEXT, Field.Type.TEXT_FIELD,
           MULTIPLE_CHOICE, Field.Type.MULTIPLE_CHOICE,

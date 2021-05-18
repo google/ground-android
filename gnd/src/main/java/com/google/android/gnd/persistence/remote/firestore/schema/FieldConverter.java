@@ -28,12 +28,12 @@ import timber.log.Timber;
 class FieldConverter {
 
   static Optional<Field> toField(String id, ElementNestedObject em) {
-    Field.Builder field = Field.newBuilder();
     Field.Type type = toEnum(Field.Type.class, em.getType());
     if (type == Field.Type.UNKNOWN) {
       Timber.d("Unsupported form element type: " + em.getType());
       return Optional.empty();
     }
+    Field.Builder field = Field.newBuilder();
     field.setType(type);
     if (type == Field.Type.MULTIPLE_CHOICE) {
       field.setMultipleChoice(MultipleChoiceConverter.toMultipleChoice(em));
