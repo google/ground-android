@@ -23,7 +23,6 @@ import android.provider.MediaStore;
 import androidx.annotation.Nullable;
 import com.google.android.gnd.rx.annotations.Cold;
 import com.google.android.gnd.rx.annotations.Hot;
-import com.google.android.gnd.system.ActivityStreams.ActivityResult;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
 import java8.util.Optional;

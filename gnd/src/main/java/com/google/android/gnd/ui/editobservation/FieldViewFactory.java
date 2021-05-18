@@ -40,12 +40,14 @@ public class FieldViewFactory {
 
   private static Class<? extends AbstractFieldViewModel> getViewModelClass(Field.Type fieldType) {
     switch (fieldType) {
-      case TEXT:
+      case TEXT_FIELD:
         return TextFieldViewModel.class;
       case MULTIPLE_CHOICE:
         return MultipleChoiceFieldViewModel.class;
       case PHOTO:
         return PhotoFieldViewModel.class;
+      case NUMBER:
+        return NumberFieldViewModel.class;
       default:
         throw new IllegalArgumentException("Unsupported field type: " + fieldType);
     }
@@ -54,12 +56,14 @@ public class FieldViewFactory {
   @LayoutRes
   private static int getLayoutId(Field.Type fieldType) {
     switch (fieldType) {
-      case TEXT:
+      case TEXT_FIELD:
         return R.layout.text_input_field;
       case MULTIPLE_CHOICE:
         return R.layout.multiple_choice_input_field;
       case PHOTO:
         return R.layout.photo_input_field;
+      case NUMBER:
+        return R.layout.number_input_field;
       default:
         throw new IllegalArgumentException("Unsupported field type: " + fieldType);
     }
