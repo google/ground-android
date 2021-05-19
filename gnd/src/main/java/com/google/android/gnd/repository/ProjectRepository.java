@@ -187,6 +187,6 @@ public class ProjectRepository {
   private boolean canAddFeatures(String role, Layer layer) {
     return OWNER.equals(role)
         || MANAGER.equals(role)
-        || (CONTRIBUTOR.equals(role) && !layer.getContributorsCanAdd().isEmpty());
+        || CONTRIBUTOR.equals(role) && !layer.getContributorsCanAdd().isEmpty();
   }
 }
