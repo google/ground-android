@@ -48,8 +48,10 @@ public abstract class Project {
     return Optional.ofNullable(getLayerMap().get(layerId));
   }
 
+  public abstract ImmutableMap<String, String> getAcl();
+
   public static Builder newBuilder() {
-    return new AutoValue_Project.Builder();
+    return new AutoValue_Project.Builder().setAcl(ImmutableMap.of());
   }
 
   @AutoValue.Builder
@@ -66,6 +68,8 @@ public abstract class Project {
       layerMapBuilder().put(id, layer);
       return this;
     }
+
+    public abstract Builder setAcl(ImmutableMap<String, String> acl);
 
     public abstract ImmutableList.Builder<OfflineBaseMapSource> offlineBaseMapSourcesBuilder();
 
