@@ -22,7 +22,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import timber.log.Timber;
 
-public class JsonTypeConverter {
+public class JsonObjectTypeConverter {
 
   @TypeConverter
   @Nullable
