@@ -88,6 +88,16 @@ public class MapContainerFragment extends AbstractFragment {
         .subscribe(homeScreenViewModel::onMarkerClick);
     mapAdapter
         .toObservable()
+        .flatMap(MapAdapter::getFeatureClicks)
+        .as(disposeOnDestroy(this))
+        .subscribe(mapContainerViewModel::onFeatureClick);
+    mapAdapter
+        .toObservable()
+        .flatMap(MapAdapter::getFeatureClicks)
+        .as(disposeOnDestroy(this))
+        .subscribe(homeScreenViewModel::onFeatureClick);
+    mapAdapter
+        .toObservable()
         .flatMap(MapAdapter::getMapGeoJsonClicks)
         .as(disposeOnDestroy(this))
         .subscribe(mapContainerViewModel::onGeoJsonClick);

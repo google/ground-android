@@ -17,6 +17,7 @@
 package com.google.android.gnd.ui.map.gms;
 
 import static com.google.android.gms.maps.GoogleMap.OnCameraMoveStartedListener.REASON_DEVELOPER_ANIMATION;
+import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList;
 import static java8.util.stream.StreamSupport.stream;
 
 import android.annotation.SuppressLint;
@@ -48,10 +49,15 @@ import com.google.android.gnd.ui.map.MapFeature;
 import com.google.android.gnd.ui.map.MapGeoJson;
 import com.google.android.gnd.ui.map.MapPin;
 import com.google.android.gnd.ui.map.MapPolygon;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.geometry.S2LatLng;
+import com.google.common.geometry.S2Loop;
+import com.google.common.geometry.S2Point;
 import com.google.maps.android.collections.MarkerManager;
 import com.google.maps.android.collections.PolygonManager;
 import com.google.maps.android.data.Layer;
+import com.google.maps.android.data.geojson.GeoJsonFeature;
 import com.google.maps.android.data.geojson.GeoJsonLayer;
 import com.google.maps.android.data.geojson.GeoJsonLineStringStyle;
 import com.google.maps.android.data.geojson.GeoJsonPointStyle;
@@ -63,9 +69,15 @@ import io.reactivex.processors.PublishProcessor;
 import io.reactivex.subjects.PublishSubject;
 import io.reactivex.subjects.Subject;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java8.util.stream.Collectors;
 import javax.annotation.Nullable;
 import timber.log.Timber;
 
@@ -86,6 +98,9 @@ class GoogleMapsMapAdapter implements MapAdapter {
 
   /** GeoJson click events. */
   @Hot private final Subject<MapGeoJson> geoJsonClicks = PublishSubject.create();
+
+  /** Ambiguous click events. */
+  @Hot private final Subject<ImmutableList<MapFeature>> featureClicks = PublishSubject.create();
 
   /** Map drag events. Emits items repeatedly while the map is being dragged. */
   @Hot private final FlowableProcessor<Point> dragInteractions = PublishProcessor.create();
@@ -120,15 +135,18 @@ class GoogleMapsMapAdapter implements MapAdapter {
    * References to Google Maps SDK Markers present on the map. Used to sync and update polylines
    * with current view and data state.
    */
-  private Set<Polyline> polylines = new HashSet<>();
+  private final Set<Polyline> polylines = new HashSet<>();
 
   /**
    * References to Google Maps SDK GeoJSON present on the map. Used to sync and update GeoJSON with
    * current view and data state.
    */
-  private Set<GeoJsonLayer> geoJsonLayers = new HashSet<>();
+  private final Set<GeoJsonLayer> geoJsonLayers = new HashSet<>();
+
+  @Nullable private LatLng lastTapLocation;
 
   @Nullable private LatLng cameraTargetBeforeDrag;
+  private final HashMap<MapFeature, List<S2Loop>> geoJsonPolygonLoops = new HashMap<>();
 
   public GoogleMapsMapAdapter(
       GoogleMap map,
@@ -156,6 +174,7 @@ class GoogleMapsMapAdapter implements MapAdapter {
     map.setOnCameraIdleListener(this::onCameraIdle);
     map.setOnCameraMoveStartedListener(this::onCameraMoveStarted);
     map.setOnCameraMoveListener(this::onCameraMove);
+    map.setOnMapClickListener(latLng -> this.lastTapLocation = latLng);
     onCameraMove();
   }
 
@@ -165,6 +184,40 @@ class GoogleMapsMapAdapter implements MapAdapter {
 
   private static LatLng toLatLng(Point point) {
     return new LatLng(point.getLatitude(), point.getLongitude());
+  }
+
+  // Handle taps on ambiguous features.
+  private void handleAmbiguity(MapGeoJson feature) {
+    List<S2Loop> loops = geoJsonPolygonLoops.get(feature);
+    Collection<MapFeature> candidates = new ArrayList<>();
+
+    candidates.add(feature);
+
+    Timber.i("Handling loops: %s", loops);
+
+    if (loops == null) {
+      featureClicks.onNext(stream(candidates).collect(toImmutableList()));
+      return;
+    }
+
+    for (Marker marker : markers.getMarkers()) {
+      if (stream(loops).anyMatch(loop -> loop.contains(markerToS2Point(marker)))) {
+        candidates.add((MapFeature) marker.getTag());
+      }
+    }
+
+    for (Map.Entry<MapFeature, List<S2Loop>> json : geoJsonPolygonLoops.entrySet()) {
+      if (((MapGeoJson) json.getKey()).getId().equals(feature.getId())) {
+        continue;
+      }
+      for (S2Loop loopA : json.getValue()) {
+        if (stream(loops).anyMatch(loop -> loop.contains(loopA))) {
+          candidates.add(json.getKey());
+        }
+      }
+    }
+
+    featureClicks.onNext(stream(candidates).collect(toImmutableList()));
   }
 
   private boolean onMarkerClick(Marker marker) {
@@ -188,6 +241,11 @@ class GoogleMapsMapAdapter implements MapAdapter {
   @Override
   public Observable<MapGeoJson> getMapGeoJsonClicks() {
     return geoJsonClicks;
+  }
+
+  @Override
+  public @Hot Observable<ImmutableList<MapFeature>> getFeatureClicks() {
+    return featureClicks;
   }
 
   @Hot
@@ -299,13 +357,37 @@ class GoogleMapsMapAdapter implements MapAdapter {
 
     layer.addLayerToMap();
 
+    ArrayList<S2Loop> loops = new ArrayList<>();
+    for (GeoJsonFeature geoJsonFeature : layer.getFeatures()) {
+      if (geoJsonFeature.getGeometry().getGeometryType().equals("Polygon")) {
+        com.google.maps.android.data.geojson.GeoJsonPolygon polygon =
+            ((com.google.maps.android.data.geojson.GeoJsonPolygon) geoJsonFeature.getGeometry());
+
+        List<S2Point> points =
+            stream(polygon.getOuterBoundaryCoordinates())
+                .map(point -> S2LatLng.fromDegrees(point.latitude, point.longitude).toPoint())
+                .collect(Collectors.toList());
+        S2Loop loop = new S2Loop(points);
+        loops.add(loop);
+      }
+    }
+
+    geoJsonPolygonLoops.put(mapFeature, loops);
+
     layer.setOnFeatureClickListener(__ -> onGeoJsonClick(mapFeature));
 
     geoJsonLayers.add(layer);
   }
 
   private void onGeoJsonClick(MapGeoJson mapGeoJson) {
-    geoJsonClicks.onNext(mapGeoJson);
+    handleAmbiguity(mapGeoJson);
+  }
+
+  private S2Point markerToS2Point(Marker marker) {
+    LatLng pos = marker.getPosition();
+    S2LatLng latLng = S2LatLng.fromDegrees(pos.latitude, pos.longitude);
+
+    return latLng.toPoint();
   }
 
   private void removeAllMarkers() {

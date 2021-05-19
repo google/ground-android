@@ -19,6 +19,8 @@ package com.google.android.gnd.ui.home;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static com.google.android.gnd.rx.RxCompletable.toBooleanSingle;
+import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList;
+import static java8.util.stream.StreamSupport.stream;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
@@ -37,11 +39,18 @@ import com.google.android.gnd.rx.annotations.Hot;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.SharedViewModel;
+import com.google.android.gnd.ui.map.MapFeature;
 import com.google.android.gnd.ui.map.MapGeoJson;
 import com.google.android.gnd.ui.map.MapPin;
+import com.google.android.material.appbar.AppBarLayout.Behavior;
+import com.google.common.collect.ImmutableList;
+import io.reactivex.BackpressureStrategy;
+import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.processors.FlowableProcessor;
 import io.reactivex.processors.PublishProcessor;
+import io.reactivex.subjects.BehaviorSubject;
+import io.reactivex.subjects.PublishSubject;
 import java8.util.Optional;
 import javax.inject.Inject;
 import timber.log.Timber;
@@ -69,6 +78,10 @@ public class HomeScreenViewModel extends AbstractViewModel {
   @Hot(replays = true)
   private final MutableLiveData<BottomSheetState> bottomSheetState = new MutableLiveData<>();
 
+  @Hot(replays = true)
+  private final MutableLiveData<FeatureSelectorState> featureSelectorState =
+      new MutableLiveData<>();
+
   @Hot private final FlowableProcessor<Feature> addFeatureClicks = PublishProcessor.create();
   @Hot private final FlowableProcessor<Feature> updateFeatureRequests = PublishProcessor.create();
   @Hot private final FlowableProcessor<Feature> deleteFeatureRequests = PublishProcessor.create();
@@ -82,6 +95,8 @@ public class HomeScreenViewModel extends AbstractViewModel {
 
   @Hot(replays = true)
   private final MutableLiveData<Integer> addFeatureButtonVisibility = new MutableLiveData<>(GONE);
+
+  private final BehaviorSubject<ImmutableList<Feature>> candidateFeatures = BehaviorSubject.create();
 
   @Inject
   HomeScreenViewModel(
@@ -195,9 +210,17 @@ public class HomeScreenViewModel extends AbstractViewModel {
     return bottomSheetState;
   }
 
+  public LiveData<FeatureSelectorState> getFeatureSelectorState() {
+    return featureSelectorState;
+  }
+
   // TODO: Remove extra indirection here?
   public void onMarkerClick(MapPin marker) {
     showBottomSheet(marker.getFeature());
+  }
+
+  public void onFeatureSelection(Feature feature) {
+    showBottomSheet(feature);
   }
 
   private void showBottomSheet(Feature feature) {
@@ -260,5 +283,32 @@ public class HomeScreenViewModel extends AbstractViewModel {
 
   public void onGeoJsonClick(MapGeoJson mapGeoJson) {
     showBottomSheet(mapGeoJson.getFeature());
+  }
+
+  public Observable<ImmutableList<Feature>> getCandidateFeatures() {
+    return candidateFeatures;
+  }
+
+  public void onFeatureClick(ImmutableList<MapFeature> mapFeatures) {
+    showFeatureSelector(mapFeatures);
+  }
+
+  private void showFeatureSelector(ImmutableList<MapFeature> mapFeatures) {
+    ImmutableList<Feature> features =
+        stream(mapFeatures)
+            .map(
+                feature -> {
+                  if (feature instanceof MapPin) {
+                    Feature feat = ((MapPin) feature).getFeature();
+                    return feat;
+                  } else if (feature instanceof MapGeoJson) {
+                    Feature feat = ((MapGeoJson) feature).getFeature();
+                    return feat;
+                  }
+                  return null;
+                })
+            .filter(f -> f != null)
+            .collect(toImmutableList());
+    candidateFeatures.onNext(features);
   }
 }
