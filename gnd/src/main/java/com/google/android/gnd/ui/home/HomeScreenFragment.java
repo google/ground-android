@@ -114,7 +114,7 @@ public class HomeScreenFragment extends AbstractFragment
   private ProjectSelectorViewModel projectSelectorViewModel;
   private List<Project> projects = Collections.emptyList();
   private HomeScreenFragBinding binding;
-  private final ArrayList<Point> vertices = new ArrayList<>();
+  private final List<Point> vertices =Collections.emptyList();
 
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
