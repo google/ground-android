@@ -22,6 +22,7 @@ import androidx.room.TypeConverter;
 import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.form.Field.Type;
 import com.google.android.gnd.persistence.local.room.IntEnum;
+import com.google.common.collect.ImmutableBiMap;
 
 public enum FieldEntityType implements IntEnum {
   UNKNOWN(0),
@@ -31,6 +32,13 @@ public enum FieldEntityType implements IntEnum {
   NUMBER(4);
 
   private final int intValue;
+
+  private static final ImmutableBiMap<FieldEntityType, Type> FIELD_TYPES =
+      ImmutableBiMap.of(
+          TEXT, Field.Type.TEXT_FIELD,
+          MULTIPLE_CHOICE, Field.Type.MULTIPLE_CHOICE,
+          PHOTO, Field.Type.PHOTO,
+          NUMBER, Field.Type.NUMBER);
 
   FieldEntityType(int intValue) {
     this.intValue = intValue;
@@ -42,33 +50,11 @@ public enum FieldEntityType implements IntEnum {
   }
 
   public static FieldEntityType fromFieldType(Field.Type type) {
-    switch (type) {
-      case TEXT_FIELD:
-        return TEXT;
-      case MULTIPLE_CHOICE:
-        return MULTIPLE_CHOICE;
-      case PHOTO:
-        return PHOTO;
-      case NUMBER:
-        return NUMBER;
-      default:
-        return UNKNOWN;
-    }
+    return FIELD_TYPES.inverse().getOrDefault(type, FieldEntityType.UNKNOWN);
   }
 
   public Field.Type toFieldType() {
-    switch (this) {
-      case TEXT:
-        return Field.Type.TEXT_FIELD;
-      case MULTIPLE_CHOICE:
-        return Field.Type.MULTIPLE_CHOICE;
-      case PHOTO:
-        return Type.PHOTO;
-      case NUMBER:
-        return Type.NUMBER;
-      default:
-        throw new IllegalArgumentException("Unknown field type");
-    }
+    return FIELD_TYPES.getOrDefault(this, Field.Type.UNKNOWN);
   }
 
   @TypeConverter
