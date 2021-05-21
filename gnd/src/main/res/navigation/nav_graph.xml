@@ -99,7 +99,7 @@
   <fragment
     android:id="@+id/offline_area_viewer_fragment"
     android:name="com.google.android.gnd.ui.offlinebasemap.viewer.OfflineBaseMapViewerFragment"
-    android:label="@string/offline_base_map_viewer_navgraph_label"
+    android:label="@string/offline_base_map_viewer_title"
     tools:layout="@layout/offline_base_map_viewer_frag">
     <argument
       android:name="offlineAreaId"
