@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.persistence.geojson;
+package com.google.android.gnd.persistence.mbtiles;
 
 import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList;
 import static java8.util.stream.StreamSupport.stream;

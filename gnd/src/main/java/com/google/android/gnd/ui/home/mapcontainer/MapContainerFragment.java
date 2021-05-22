@@ -35,7 +35,7 @@ import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.model.feature.PointFeature;
-import com.google.android.gnd.persistence.geojson.MbtilesFootprintsParser;
+import com.google.android.gnd.persistence.mbtiles.MbtilesFootprintsParser;
 import com.google.android.gnd.persistence.local.LocalValueStore;
 import com.google.android.gnd.rx.BooleanOrError;
 import com.google.android.gnd.rx.Loadable;

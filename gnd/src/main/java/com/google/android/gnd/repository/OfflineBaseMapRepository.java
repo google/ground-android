@@ -26,7 +26,7 @@ import com.google.android.gnd.model.basemap.OfflineBaseMap;
 import com.google.android.gnd.model.basemap.OfflineBaseMap.State;
 import com.google.android.gnd.model.basemap.OfflineBaseMapSource;
 import com.google.android.gnd.model.basemap.tile.TileSource;
-import com.google.android.gnd.persistence.geojson.MbtilesFootprintsParser;
+import com.google.android.gnd.persistence.mbtiles.MbtilesFootprintsParser;
 import com.google.android.gnd.persistence.local.LocalDataStore;
 import com.google.android.gnd.persistence.sync.TileSourceDownloadWorkManager;
 import com.google.android.gnd.rx.Loadable;
