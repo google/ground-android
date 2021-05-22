@@ -31,6 +31,9 @@ import org.json.JSONObject;
 /** Describes a tile set source, including its id, extents, and source URL. */
 class TileSetSource {
 
+  private static final String GEOMETRY_KEY = "geometry";
+  private static final String VERTICES_JSON_KEY = "coordinates";
+
   private static final String ID_KEY = "id";
   private static final String PROPERTIES_KEY = "properties";
   private static final String URL_KEY = "url";
@@ -57,7 +60,9 @@ class TileSetSource {
 
   private ImmutableList<LatLng> getVertices() {
     Optional<JSONArray> exteriorRing =
-        new GeoJsonGeometry(json).getVertices().map(j -> j.optJSONArray(0));
+        Optional.ofNullable(json.optJSONObject(GEOMETRY_KEY))
+            .flatMap(j -> Optional.ofNullable(j.optJSONArray(VERTICES_JSON_KEY)))
+            .map(j -> j.optJSONArray(0));
 
     return ringCoordinatesToLatLngs(exteriorRing.orElse(null));
   }
