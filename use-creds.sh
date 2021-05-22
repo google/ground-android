@@ -33,6 +33,7 @@ cp -i gnd/.${PROJECT}.secrets.properties gnd/secrets.properties
 # Replace debug keystore.
 cp -i ~/.android/.${PROJECT}.debug.keystore ~/.android/debug.keystore
 
-echo "*** Ensure SHA is added to Firebase console and perform a clean build: ***"
+echo "*** Ensure SHA is added to Firebase console and perform a clean build and ***"
+echo "*** to run 'File -> Invalid caches and restart'."
 
 keytool -list -alias androiddebugkey -keystore ~/.android/debug.keystore
