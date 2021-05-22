@@ -26,7 +26,7 @@ import com.google.android.gnd.model.basemap.OfflineBaseMap;
 import com.google.android.gnd.model.basemap.OfflineBaseMap.State;
 import com.google.android.gnd.model.basemap.OfflineBaseMapSource;
 import com.google.android.gnd.model.basemap.tile.TileSource;
-import com.google.android.gnd.persistence.geojson.GeoJsonParser;
+import com.google.android.gnd.persistence.geojson.MbtilesFootprintsParser;
 import com.google.android.gnd.persistence.local.LocalDataStore;
 import com.google.android.gnd.persistence.sync.TileSourceDownloadWorkManager;
 import com.google.android.gnd.rx.Loadable;
@@ -52,7 +52,7 @@ public class OfflineBaseMapRepository {
   private final TileSourceDownloadWorkManager tileSourceDownloadWorkManager;
   private final LocalDataStore localDataStore;
   private final ProjectRepository projectRepository;
-  private final GeoJsonParser geoJsonParser;
+  private final MbtilesFootprintsParser geoJsonParser;
   private final FileUtil fileUtil;
   private final Schedulers schedulers;
   private final GeocodingManager geocodingManager;
@@ -62,7 +62,7 @@ public class OfflineBaseMapRepository {
       TileSourceDownloadWorkManager tileSourceDownloadWorkManager,
       LocalDataStore localDataStore,
       ProjectRepository projectRepository,
-      GeoJsonParser geoJsonParser,
+      MbtilesFootprintsParser geoJsonParser,
       FileUtil fileUtil,
       Schedulers schedulers,
       GeocodingManager geocodingManager) {

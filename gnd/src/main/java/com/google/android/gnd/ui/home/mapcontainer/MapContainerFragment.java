@@ -35,7 +35,7 @@ import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.model.feature.PointFeature;
-import com.google.android.gnd.persistence.geojson.GeoJsonParser;
+import com.google.android.gnd.persistence.geojson.MbtilesFootprintsParser;
 import com.google.android.gnd.persistence.local.LocalValueStore;
 import com.google.android.gnd.rx.BooleanOrError;
 import com.google.android.gnd.rx.Loadable;
@@ -61,7 +61,7 @@ public class MapContainerFragment extends AbstractFragment {
   private static final String MAP_FRAGMENT_KEY = MapProvider.class.getName() + "#fragment";
 
   @Inject FileUtil fileUtil;
-  @Inject GeoJsonParser geoJsonParser;
+  @Inject MbtilesFootprintsParser mbtilesFootprintsParser;
   @Inject MapProvider mapProvider;
   @Inject LocalValueStore localValueStore;
 

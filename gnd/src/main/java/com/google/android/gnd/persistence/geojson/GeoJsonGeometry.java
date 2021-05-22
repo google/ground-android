@@ -32,7 +32,7 @@ class GeoJsonGeometry {
     this.json = jsonObject;
   }
 
-  public Optional<JSONObject> getJson() {
+  private Optional<JSONObject> getJson() {
     return Optional.ofNullable(json.optJSONObject(GEOMETRY_KEY));
   }
 
