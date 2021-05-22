@@ -61,7 +61,7 @@ public class GeoJsonParser {
       JSONArray features = geoJson.getJSONArray(FEATURES_KEY);
 
       return stream(toArrayList(features))
-          .map(GeoJsonTile::new)
+          .map(TileSetSource::new)
           .filter(tile -> tile.boundsIntersect(bounds))
           .map(this::jsonToTileSource)
           .map(TileSource::incrementAreaCount)
@@ -104,12 +104,12 @@ public class GeoJsonParser {
     return ImmutableList.of();
   }
 
-  public ImmutableList<GeoJsonTile> getGeoJsonTiles(String jsonString) {
-    return stream(getFeaturesArray(jsonString)).map(GeoJsonTile::new).collect(toImmutableList());
+  public ImmutableList<TileSetSource> getGeoJsonTiles(String jsonString) {
+    return stream(getFeaturesArray(jsonString)).map(TileSetSource::new).collect(toImmutableList());
   }
 
   /** Returns the {@link TileSource} specified by {@param json}. */
-  private TileSource jsonToTileSource(GeoJsonTile json) {
+  private TileSource jsonToTileSource(TileSetSource json) {
     // TODO: Instead of returning tiles with invalid state (empty URL/ID values)
     // Throw an exception here and handle it downstream.
     return TileSource.newBuilder()
