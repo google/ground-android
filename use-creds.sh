@@ -18,6 +18,8 @@
 #   gnd/.<project-name>.secrets.properties            Maps API key
 #   ~/.android/.<project-name>.debug.keystore             Debug keystore
 
+# Usage:
+#  ./use-creds.sh <project-name>
 PROJECT="$1"
 
 set -e
