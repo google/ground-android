@@ -28,7 +28,7 @@ set -e
 cp -i gnd/src/debug/.${PROJECT}.google-services.json gnd/src/debug/google-services.json
 
 # Maps API key.
-cp -i gnd/.${PROJECT}.secrets.properties gnd/src/secrets.properties
+cp -i gnd/.${PROJECT}.secrets.properties gnd/secrets.properties
 
 # Replace debug keystore.
 cp -i ~/.android/.${PROJECT}.debug.keystore ~/.android/debug.keystore
