@@ -156,7 +156,7 @@ public class ObservationRepository {
     return applyAndEnqueue(observationMutation);
   }
 
-  public Completable addObservationMutation(
+  public Completable createOrUpdateObservation(
       Observation observation, ImmutableList<ResponseDelta> responseDeltas, boolean isNew) {
     ObservationMutation observationMutation =
         ObservationMutation.builder()

@@ -275,7 +275,7 @@ public class EditObservationViewModel extends AbstractViewModel {
     }
 
     return observationRepository
-        .addObservationMutation(originalObservation, getResponseDeltas(), isNew)
+        .createOrUpdateObservation(originalObservation, getResponseDeltas(), isNew)
         .doOnSubscribe(__ -> isSaving.postValue(true))
         .doOnComplete(() -> isSaving.postValue(false))
         .toSingleDefault(Event.create(SaveResult.SAVED));
