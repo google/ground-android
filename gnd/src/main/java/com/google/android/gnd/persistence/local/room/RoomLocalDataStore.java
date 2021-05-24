@@ -438,6 +438,7 @@ public class RoomLocalDataStore implements LocalDataStore {
       responseMap.applyDeltas(
           ResponseDeltasConverter.fromString(form, mutation.getResponseDeltas()));
     }
+    builder.setResponses(ResponseMapConverter.toString(responseMap.build()));
     // Update modified user and time.
     AuditInfoEntity lastModified =
         AuditInfoEntity.builder()
