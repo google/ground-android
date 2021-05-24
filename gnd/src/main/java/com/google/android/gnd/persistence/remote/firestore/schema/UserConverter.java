@@ -30,14 +30,14 @@ class UserConverter {
 
   @NonNull
   static User toUser(@Nullable UserNestedObject ud) {
-    if (ud == null || ud.getId() == null || ud.getEmail() == null || ud.getDisplayName() == null) {
-      // Degrade gracefully when user info missing in remote db.
+    // Degrade gracefully when user missing in remote db.
+    if (ud == null || ud.getId() == null) {
       ud = UserNestedObject.UNKNOWN_USER;
     }
     return User.builder()
         .setId(ud.getId())
-        .setEmail(ud.getEmail())
-        .setDisplayName(ud.getDisplayName())
+        .setEmail(ud.getEmail() == null ? "" : ud.getEmail())
+        .setDisplayName(ud.getDisplayName() == null ? "" : ud.getDisplayName())
         .build();
   }
 }

@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.ui.map;
 
+import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.layer.Style;
 import com.google.auto.value.AutoValue;
 import org.json.JSONObject;
@@ -33,6 +34,9 @@ public abstract class MapGeoJson extends MapFeature {
 
   public abstract Style getStyle();
 
+  // TODO: Just store the ID and pull the feature when needed.
+  public abstract Feature getFeature();
+
   @AutoValue.Builder
   public abstract static class Builder {
     public abstract Builder setId(String newId);
@@ -40,6 +44,8 @@ public abstract class MapGeoJson extends MapFeature {
     public abstract Builder setGeoJson(JSONObject newGeoJson);
 
     public abstract Builder setStyle(Style style);
+
+    public abstract Builder setFeature(Feature feature);
 
     public abstract MapGeoJson build();
   }
