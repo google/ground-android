@@ -86,6 +86,7 @@ import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Observable;
 import io.reactivex.Single;
+import io.reactivex.SingleSource;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -540,11 +541,21 @@ public class RoomLocalDataStore implements LocalDataStore {
     return observationDao
         .findById(mutation.getObservationId())
         .doOnSubscribe(__ -> Timber.v("Applying mutation: %s", mutation))
-        // Emit NoSuchElementException if not found.
-        .toSingle()
+        .switchIfEmpty(fallbackObservation(mutation))
         .map(obs -> applyMutations(mutation.getForm(), obs, ImmutableList.of(mutationEntity), user))
         .flatMapCompletable(obs -> observationDao.insertOrUpdate(obs).subscribeOn(schedulers.io()))
         .subscribeOn(schedulers.io());
+  }
+
+  /**
+   * Returns a source which creates an observation based on the provided mutation. Used in rare
+   * cases when the observation is no longer in the local db, but the user is updating rather than
+   * creating a new observation. In these cases creation metadata is unknown, so empty audit info is
+   * used.
+   */
+  private SingleSource<ObservationEntity> fallbackObservation(ObservationMutation mutation) {
+    return em ->
+        em.onSuccess(ObservationEntity.fromMutation(mutation, AuditInfo.builder().build()));
   }
 
   private Completable markObservationForDeletion(
