@@ -63,7 +63,6 @@ public class HomeScreenViewModel extends AbstractViewModel {
 
   /** The state and value of the currently active project (loading, loaded, etc.). */
   private final LiveData<Loadable<Project>> projectLoadingState;
-
   // TODO(#719): Move into MapContainersViewModel
   @Hot(replays = true)
   private final MutableLiveData<Event<Point>> addFeatureDialogRequests = new MutableLiveData<>();
