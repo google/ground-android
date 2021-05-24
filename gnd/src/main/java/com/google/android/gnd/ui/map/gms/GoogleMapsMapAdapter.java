@@ -286,16 +286,19 @@ class GoogleMapsMapAdapter implements MapAdapter {
     GeoJsonPointStyle pointStyle = layer.getDefaultPointStyle();
     pointStyle.setLineStringWidth(width);
     pointStyle.setPolygonFillColor(color);
+    pointStyle.setZIndex(1);
 
     GeoJsonPolygonStyle polygonStyle = layer.getDefaultPolygonStyle();
     polygonStyle.setLineStringWidth(width);
     int a = (int) (GEOJSON_POLYGON_FILL_ALPHA * 0xFF);
     polygonStyle.setPolygonFillColor(ColorUtils.setAlphaComponent(color, a));
     polygonStyle.setStrokeColor(color);
+    polygonStyle.setZIndex(1);
 
     GeoJsonLineStringStyle lineStringStyle = layer.getDefaultLineStringStyle();
     lineStringStyle.setLineStringWidth(width);
     lineStringStyle.setPolygonFillColor(color);
+    lineStringStyle.setZIndex(1);
 
     layer.addLayerToMap();
 
