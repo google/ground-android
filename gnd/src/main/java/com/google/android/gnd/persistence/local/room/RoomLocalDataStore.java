@@ -42,6 +42,7 @@ import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.model.observation.ObservationMutation;
 import com.google.android.gnd.model.observation.ResponseMap;
+import com.google.android.gnd.model.observation.ResponseMap.Builder;
 import com.google.android.gnd.persistence.local.LocalDataStore;
 import com.google.android.gnd.persistence.local.room.converter.ResponseDeltasConverter;
 import com.google.android.gnd.persistence.local.room.converter.ResponseMapConverter;
@@ -432,14 +433,8 @@ public class RoomLocalDataStore implements LocalDataStore {
     long clientTimestamp = lastMutation.getClientTimestamp();
     Timber.v("Merging observation " + this + " with mutations " + mutations);
     ObservationEntity.Builder builder = observation.toBuilder();
-    ResponseMap.Builder responseMap =
-        ResponseMapConverter.fromString(form, observation.getResponses()).toBuilder();
-    for (ObservationMutationEntity mutation : mutations) {
-      // Merge changes to responses.
-      responseMap.applyDeltas(
-          ResponseDeltasConverter.fromString(form, mutation.getResponseDeltas()));
-    }
-    builder.setResponses(ResponseMapConverter.toString(responseMap.build()));
+    builder.setResponses(
+        ResponseMapConverter.toString(applyMutations(form, observation, mutations)));
     // Update modified user and time.
     AuditInfoEntity lastModified =
         AuditInfoEntity.builder()
@@ -449,6 +444,18 @@ public class RoomLocalDataStore implements LocalDataStore {
     builder.setLastModified(lastModified);
     Timber.v("Merged observation %s", builder.build());
     return builder.build();
+  }
+
+  private ResponseMap applyMutations(
+      Form form, ObservationEntity observation, List<ObservationMutationEntity> mutations) {
+    Builder responseMap =
+        ResponseMapConverter.fromString(form, observation.getResponses()).toBuilder();
+    for (ObservationMutationEntity mutation : mutations) {
+      // Merge changes to responses.
+      responseMap.applyDeltas(
+          ResponseDeltasConverter.fromString(form, mutation.getResponseDeltas()));
+    }
+    return responseMap.build();
   }
 
   private Completable apply(FeatureMutation mutation) throws LocalDataStoreException {
