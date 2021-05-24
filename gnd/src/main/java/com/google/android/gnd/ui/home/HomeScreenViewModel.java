@@ -72,6 +72,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
   @Hot private final FlowableProcessor<Feature> updateFeatureRequests = PublishProcessor.create();
   @Hot private final FlowableProcessor<Feature> deleteFeatureRequests = PublishProcessor.create();
 
+
   private final LiveData<Feature> addFeatureResults;
   private final LiveData<Boolean> updateFeatureResults;
   private final LiveData<Boolean> deleteFeatureResults;
