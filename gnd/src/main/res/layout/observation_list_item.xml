@@ -100,12 +100,14 @@
           android:id="@+id/field_label_row"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
+          android:minWidth="6dp"
           android:paddingTop="4dp" />
 
         <TableRow
           android:id="@+id/field_value_row"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
+          android:minWidth="6dp"
           android:paddingTop="4dp" />
       </TableLayout>
 
