@@ -28,7 +28,7 @@ import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.common.Navigator;
 import javax.inject.Inject;
 
-public class TermsViewModel extends AbstractViewModel {
+public class TermsOfServiceViewModel extends AbstractViewModel {
 
   private final Navigator navigator;
 
@@ -42,7 +42,7 @@ public class TermsViewModel extends AbstractViewModel {
   private final LiveData<Loadable<Terms>> projectTerms;
 
   @Inject
-  public TermsViewModel(Navigator navigator, LocalValueStore localValueStore, TermsRepository termsRepository) {
+  public TermsOfServiceViewModel(Navigator navigator, LocalValueStore localValueStore, TermsRepository termsRepository) {
     this.navigator = navigator;
     this.localValueStore = localValueStore;
     this.projectTerms = LiveDataReactiveStreams.fromPublisher(
@@ -51,7 +51,7 @@ public class TermsViewModel extends AbstractViewModel {
 
   public void onButtonClicked() {
     localValueStore.setTermsAccepted(true);
-    navigator.navigate(TermsFragmentDirections.proceedDirectlyToHomeScreen());
+    navigator.navigate(TermsOfServiceFragmentDirections.proceedDirectlyToHomeScreen());
   }
 
   public LiveData<Loadable<Terms>> getTerms() {

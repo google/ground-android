@@ -21,7 +21,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import androidx.annotation.Nullable;
-import com.google.android.gnd.databinding.FragmentTermsBinding;
+import com.google.android.gnd.databinding.FragmentTermsServiceBinding;
 import com.google.android.gnd.model.Terms;
 import com.google.android.gnd.rx.Loadable;
 import com.google.android.gnd.ui.common.AbstractFragment;
@@ -30,22 +30,22 @@ import dagger.hilt.android.AndroidEntryPoint;
 import timber.log.Timber;
 
 @AndroidEntryPoint
-public class TermsFragment extends AbstractFragment implements BackPressListener {
+public class TermsOfServiceFragment extends AbstractFragment implements BackPressListener {
 
-  private TermsViewModel viewModel;
+  private TermsOfServiceViewModel viewModel;
   @SuppressWarnings("NullAway")
-  private FragmentTermsBinding binding;
+  private FragmentTermsServiceBinding binding;
 
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    this.viewModel = getViewModel(TermsViewModel.class);
+    this.viewModel = getViewModel(TermsOfServiceViewModel.class);
   }
 
   @Override
   public View onCreateView(
       LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-    binding = FragmentTermsBinding.inflate(inflater, container, false);
+    binding = FragmentTermsServiceBinding.inflate(inflater, container, false);
     binding.setViewModel(viewModel);
     binding.setLifecycleOwner(this);
     viewModel.getTerms().observe(getViewLifecycleOwner(), this::getProjectTerms);

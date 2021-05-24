@@ -34,7 +34,7 @@ import com.google.android.gnd.ui.offlinebasemap.selector.OfflineBaseMapSelectorV
 import com.google.android.gnd.ui.offlinebasemap.viewer.OfflineBaseMapViewerViewModel;
 import com.google.android.gnd.ui.projectselector.ProjectSelectorViewModel;
 import com.google.android.gnd.ui.signin.SignInViewModel;
-import com.google.android.gnd.ui.terms.TermsViewModel;
+import com.google.android.gnd.ui.terms.TermsOfServiceViewModel;
 import dagger.Binds;
 import dagger.Module;
 import dagger.hilt.InstallIn;
@@ -77,8 +77,8 @@ public abstract class ViewModelModule {
 
   @Binds
   @IntoMap
-  @ViewModelKey(TermsViewModel.class)
-  abstract ViewModel bindTermsViewModel(TermsViewModel viewModel);
+  @ViewModelKey(TermsOfServiceViewModel.class)
+  abstract ViewModel bindTermsViewModel(TermsOfServiceViewModel viewModel);
 
   @Binds
   @IntoMap
