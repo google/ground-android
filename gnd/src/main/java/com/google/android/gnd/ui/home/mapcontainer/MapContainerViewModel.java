@@ -184,6 +184,7 @@ public class MapContainerViewModel extends AbstractViewModel {
         .setId(feature.getId())
         .setGeoJson(jsonObject)
         .setStyle(feature.getLayer().getDefaultStyle())
+        .setFeature(feature)
         .build();
   }
 
@@ -320,6 +321,10 @@ public class MapContainerViewModel extends AbstractViewModel {
 
   public void setSelectedFeature(Optional<Feature> selectedFeature) {
     this.selectedFeature = selectedFeature;
+  }
+
+  public void onGeoJsonClick(MapGeoJson mapGeoJson) {
+    // TODO: Move the camera and adjust styling appropriately.
   }
 
   public enum Mode {

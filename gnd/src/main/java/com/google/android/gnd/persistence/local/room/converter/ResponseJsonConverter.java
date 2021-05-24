@@ -68,10 +68,10 @@ class ResponseJsonConverter {
         return MultipleChoiceResponse.fromList(toList((JSONArray) obj));
       case NUMBER:
         if (JSONObject.NULL == obj) {
-          return NumberResponse.fromNumber(Double.NaN);
+          return NumberResponse.fromNumber("");
         }
         DataStoreException.checkType(Number.class, obj);
-        return NumberResponse.fromNumber((Number) obj);
+        return NumberResponse.fromNumber(obj.toString());
       case UNKNOWN:
       default:
         throw new DataStoreException("Unknown type in field: " + obj.getClass().getName());
