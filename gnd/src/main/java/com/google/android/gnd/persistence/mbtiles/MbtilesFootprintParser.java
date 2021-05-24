@@ -36,7 +36,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import timber.log.Timber;
 
-public class MbtilesFootprintsParser {
+public class MbtilesFootprintParser {
 
   private static final String FEATURES_KEY = "features";
   private static final String JSON_SOURCE_CHARSET = "UTF-8";
@@ -44,7 +44,7 @@ public class MbtilesFootprintsParser {
   private final OfflineUuidGenerator uuidGenerator;
 
   @Inject
-  MbtilesFootprintsParser(OfflineUuidGenerator uuidGenerator) {
+  MbtilesFootprintParser(OfflineUuidGenerator uuidGenerator) {
     this.uuidGenerator = uuidGenerator;
   }
 
