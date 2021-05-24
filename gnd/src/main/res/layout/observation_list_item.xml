@@ -21,7 +21,7 @@
 
     <variable
       name="viewModel"
-      type="com.google.android.gnd.ui.home.featuredetails.ObservationViewModel" />
+      type="com.google.android.gnd.ui.home.featuredetails.ObservationListItemViewModel" />
   </data>
 
   <FrameLayout xmlns:tools="http://schemas.android.com/tools"
