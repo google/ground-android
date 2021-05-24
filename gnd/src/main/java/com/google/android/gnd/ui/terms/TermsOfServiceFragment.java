@@ -21,24 +21,24 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import androidx.annotation.Nullable;
-import com.google.android.gnd.databinding.FragmentTermsBinding;
+import com.google.android.gnd.databinding.FragmentTermsServiceBinding;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.BackPressListener;
 
-public class TermsFragment extends AbstractFragment implements BackPressListener {
+public class TermsOfServiceFragment extends AbstractFragment implements BackPressListener {
 
-  private TermsViewModel viewModel;
+  private TermsOfServiceViewModel viewModel;
 
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    this.viewModel = getViewModel(TermsViewModel.class);
+    this.viewModel = getViewModel(TermsOfServiceViewModel.class);
   }
 
   @Override
   public View onCreateView(
       LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-    FragmentTermsBinding binding = FragmentTermsBinding.inflate(inflater, container, false);
+    FragmentTermsServiceBinding binding = FragmentTermsServiceBinding.inflate(inflater, container, false);
     binding.setViewModel(viewModel);
     binding.setLifecycleOwner(this);
     return binding.getRoot();

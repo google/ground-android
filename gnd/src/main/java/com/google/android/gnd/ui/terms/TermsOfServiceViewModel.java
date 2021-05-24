@@ -19,6 +19,6 @@ package com.google.android.gnd.ui.terms;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 
 // TODO: Needs to handle view state and behaviors of the Terms Fragment
-public class TermsViewModel extends AbstractViewModel {
+public class TermsOfServiceViewModel extends AbstractViewModel {
 
 }
