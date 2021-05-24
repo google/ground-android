@@ -37,7 +37,7 @@ import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.SharedViewModel;
 import com.google.android.gnd.ui.home.HomeScreenFragmentDirections;
 import com.google.android.gnd.ui.signin.SignInFragmentDirections;
-import com.google.android.gnd.ui.terms.TermsFragmentDirections;
+import com.google.android.gnd.ui.terms.TermsOfServiceFragmentDirections;
 import io.reactivex.Completable;
 import java8.util.Optional;
 import javax.inject.Inject;
@@ -166,7 +166,7 @@ public class MainViewModel extends AbstractViewModel {
     if (localValueStore.areTermsAccepted()) {
       navigator.navigate(HomeScreenFragmentDirections.showHomeScreen());
     } else {
-      navigator.navigate(TermsFragmentDirections.showTermsScreen());
+      navigator.navigate(TermsOfServiceFragmentDirections.showTermsScreen());
     }
   }
 

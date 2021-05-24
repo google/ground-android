@@ -23,7 +23,7 @@ import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.common.Navigator;
 import javax.inject.Inject;
 
-public class TermsViewModel extends AbstractViewModel {
+public class TermsOfServiceViewModel extends AbstractViewModel {
 
   private final Navigator navigator;
   private final LocalValueStore localValueStore;
@@ -32,14 +32,14 @@ public class TermsViewModel extends AbstractViewModel {
   public final MutableLiveData<Boolean> termsCheckBox = new MutableLiveData<>();
 
   @Inject
-  public TermsViewModel(Navigator navigator, LocalValueStore localValueStore) {
+  public TermsOfServiceViewModel(Navigator navigator, LocalValueStore localValueStore) {
     this.navigator = navigator;
     this.localValueStore = localValueStore;
   }
 
   public void onButtonClicked() {
     localValueStore.setTermsAccepted(true);
-    navigator.navigate(TermsFragmentDirections.proceedDirectlyToHomeScreen());
+    navigator.navigate(TermsOfServiceFragmentDirections.proceedDirectlyToHomeScreen());
   }
 
 }

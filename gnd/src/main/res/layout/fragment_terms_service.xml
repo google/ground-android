@@ -22,13 +22,13 @@
   <data>
     <variable
       name="viewModel"
-      type="com.google.android.gnd.ui.terms.TermsViewModel" />
+      type="com.google.android.gnd.ui.terms.TermsOfServiceViewModel" />
   </data>
   <androidx.constraintlayout.widget.ConstraintLayout
     android:layout_width="match_parent"
     android:fitsSystemWindows="true"
     android:layout_height="match_parent"
-    tools:context=".ui.terms.TermsFragment">
+    tools:context=".ui.terms.TermsOfServiceFragment">
 
     <!-- CardView is used to create the drop shadow effect -->
     <androidx.cardview.widget.CardView
