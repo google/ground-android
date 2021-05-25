@@ -153,11 +153,11 @@
   <string name="select_map_type">Select base map</string>
   <string name="uploading_photos">Uploading photos</string>
   <string name="starting">Starting</string>
+  <string name="downloading_tiles">Downloading base map</string>
   <string name="in_progress">In progress</string>
   <string name="paused">Paused</string>
   <string name="completed">Completed</string>
   <string name="failed">Failed</string>
-  <string name="downloading_tiles">Downloading tiles</string>
   <string name="uploading_data">Uploading data</string>
   <string name="settings">Settings</string>
   <string name="offline_base_map_viewer_title">Offline base map area</string>

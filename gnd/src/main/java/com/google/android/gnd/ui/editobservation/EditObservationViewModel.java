@@ -204,7 +204,9 @@ public class EditObservationViewModel extends AbstractViewModel {
 
     photoUpdates.postValue(ImmutableMap.of(field, remoteDestinationPath));
 
-    return storageManager.savePhoto(bitmap, localFileName);
+    return storageManager
+        .savePhoto(bitmap, localFileName)
+        .andThen(cameraManager.addPhotoToGallery(localFileName));
   }
 
   LiveData<ImmutableMap<Field, String>> getPhotoFieldUpdates() {
