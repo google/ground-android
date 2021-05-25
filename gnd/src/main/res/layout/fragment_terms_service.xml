@@ -54,7 +54,7 @@
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
           android:layout_margin="8dp"
-          android:text="@string/terms_conditions"
+          android:text="@string/tos_title"
           android:visibility="visible" />
     </ScrollView>
     <ProgressBar
