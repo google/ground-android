@@ -22,7 +22,6 @@ import static java8.util.stream.StreamSupport.stream;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Color;
-import androidx.core.graphics.ColorUtils;
 import com.cocoahero.android.gmaps.addons.mapbox.MapBoxOfflineTileProvider;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -74,8 +73,6 @@ import timber.log.Timber;
  * MapAdapter}.
  */
 class GoogleMapsMapAdapter implements MapAdapter {
-
-  private static final float GEOJSON_POLYGON_FILL_ALPHA = 0.25f;
 
   private final GoogleMap map;
   private final Context context;
@@ -290,8 +287,6 @@ class GoogleMapsMapAdapter implements MapAdapter {
 
     GeoJsonPolygonStyle polygonStyle = layer.getDefaultPolygonStyle();
     polygonStyle.setLineStringWidth(width);
-    int a = (int) (GEOJSON_POLYGON_FILL_ALPHA * 0xFF);
-    polygonStyle.setPolygonFillColor(ColorUtils.setAlphaComponent(color, a));
     polygonStyle.setStrokeColor(color);
     polygonStyle.setZIndex(1);
 
