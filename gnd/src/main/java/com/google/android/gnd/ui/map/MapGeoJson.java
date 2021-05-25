@@ -40,6 +40,40 @@ public abstract class MapGeoJson extends MapFeature {
   // TODO: Just store the ID and pull the feature when needed.
   public abstract Feature getFeature();
 
+  public abstract Builder toBuilder();
+
+  @Override
+  public boolean equals(Object o) {
+    if (o == this) {
+      return true;
+    }
+    if (o instanceof MapGeoJson) {
+      MapGeoJson that = (MapGeoJson) o;
+      return this.getId().equals(that.getId())
+          && this.getGeoJson().toString().equals(that.getGeoJson().toString())
+          && this.getStyle().equals(that.getStyle())
+          && this.getStrokeWidth() == that.getStrokeWidth()
+          && this.getFeature().equals(that.getFeature());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int h$ = 1;
+    h$ *= 1000003;
+    h$ ^= getId().hashCode();
+    h$ *= 1000003;
+    h$ ^= getGeoJson().toString().hashCode();
+    h$ *= 1000003;
+    h$ ^= getStyle().hashCode();
+    h$ *= 1000003;
+    h$ ^= getStrokeWidth();
+    h$ *= 1000003;
+    h$ ^= getFeature().hashCode();
+    return h$;
+  }
+
   @AutoValue.Builder
   public abstract static class Builder {
     public abstract Builder setId(String newId);
