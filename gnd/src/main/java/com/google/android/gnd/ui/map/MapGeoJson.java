@@ -60,18 +60,18 @@ public abstract class MapGeoJson extends MapFeature {
 
   @Override
   public int hashCode() {
-    int h$ = 1;
-    h$ *= 1000003;
-    h$ ^= getId().hashCode();
-    h$ *= 1000003;
-    h$ ^= getGeoJson().toString().hashCode();
-    h$ *= 1000003;
-    h$ ^= getStyle().hashCode();
-    h$ *= 1000003;
-    h$ ^= getStrokeWidth();
-    h$ *= 1000003;
-    h$ ^= getFeature().hashCode();
-    return h$;
+    int hc = 1;
+    hc *= 1000003;
+    hc ^= getId().hashCode();
+    hc *= 1000003;
+    hc ^= getGeoJson().toString().hashCode();
+    hc *= 1000003;
+    hc ^= getStyle().hashCode();
+    hc *= 1000003;
+    hc ^= getStrokeWidth();
+    hc *= 1000003;
+    hc ^= getFeature().hashCode();
+    return hc;
   }
 
   @AutoValue.Builder
