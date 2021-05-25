@@ -20,6 +20,7 @@ import static com.google.android.gnd.util.Localization.getLocalizedMessage;
 
 import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.model.layer.Style;
+import com.google.common.collect.ImmutableList;
 import java8.util.Objects;
 import java8.util.Optional;
 import timber.log.Timber;
@@ -38,6 +39,7 @@ class LayerConverter {
       }
       String formId = obj.getForms().keySet().iterator().next();
       layer.setForm(FormConverter.toForm(formId, obj.getForms().get(formId)));
+      layer.setContributorsCanAdd(ImmutableList.copyOf(obj.getContributorsCanAdd()));
     }
     return layer.build();
   }
