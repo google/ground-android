@@ -25,6 +25,9 @@ import org.json.JSONObject;
 @AutoValue
 public abstract class MapGeoJson extends MapFeature {
 
+  /** Used to generate hash code for instances of this class. */
+  private static final int HASH_MULTIPLER = 1_000_003;
+
   public static Builder newBuilder() {
     return new AutoValue_MapGeoJson.Builder();
   }
@@ -61,15 +64,15 @@ public abstract class MapGeoJson extends MapFeature {
   @Override
   public int hashCode() {
     int hc = 1;
-    hc *= 1000003;
+    hc *= HASH_MULTIPLER;
     hc ^= getId().hashCode();
-    hc *= 1000003;
+    hc *= HASH_MULTIPLER;
     hc ^= getGeoJson().toString().hashCode();
-    hc *= 1000003;
+    hc *= HASH_MULTIPLER;
     hc ^= getStyle().hashCode();
-    hc *= 1000003;
+    hc *= HASH_MULTIPLER;
     hc ^= getStrokeWidth();
-    hc *= 1000003;
+    hc *= HASH_MULTIPLER;
     hc ^= getFeature().hashCode();
     return hc;
   }

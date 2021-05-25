@@ -165,7 +165,8 @@ public class MapContainerViewModel extends AbstractViewModel {
         if (geoJsonFeatureId.equals(selectedFeatureId)) {
           Timber.v("Restyling selected GeoJSON feature " + selectedFeatureId);
           // TODO: Make width configurable.
-          feature = geoJsonFeature.toBuilder().setStrokeWidth(16).build();
+          updatedFeatures.add(geoJsonFeature.toBuilder().setStrokeWidth(16).build());
+          continue;
         }
       }
       updatedFeatures.add(feature);
