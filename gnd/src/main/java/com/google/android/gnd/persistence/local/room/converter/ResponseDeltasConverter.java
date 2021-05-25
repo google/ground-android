@@ -24,6 +24,7 @@ import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.model.observation.ResponseDelta;
 import com.google.android.gnd.persistence.local.LocalDataConsistencyException;
+import com.google.android.gnd.persistence.remote.DataStoreException;
 import com.google.common.collect.ImmutableList;
 import java.util.Iterator;
 import org.json.JSONException;
@@ -84,7 +85,7 @@ public class ResponseDeltasConverter {
                   .setNewResponse(
                       ResponseJsonConverter.toResponse(field, jsonDelta.get(KEY_NEW_RESPONSE)))
                   .build());
-        } catch (LocalDataConsistencyException e) {
+        } catch (LocalDataConsistencyException | DataStoreException e) {
           Timber.d("Bad response in local db: " + e.getMessage());
         }
       }
