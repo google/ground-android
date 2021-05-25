@@ -16,8 +16,15 @@
 
 package com.google.android.gnd.repository;
 
+import static com.google.android.gnd.model.Project.CONTRIBUTOR;
+import static com.google.android.gnd.model.Project.MANAGER;
+import static com.google.android.gnd.model.Project.OWNER;
+import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList;
+import static java8.util.stream.StreamSupport.stream;
+
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.User;
+import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.persistence.local.LocalDataStore;
 import com.google.android.gnd.persistence.local.LocalValueStore;
 import com.google.android.gnd.persistence.remote.RemoteDataStore;
@@ -165,5 +172,21 @@ public class ProjectRepository {
     cache.clear();
     localValueStore.clearLastActiveProjectId();
     selectProjectEvent.onNext(Optional.empty());
+  }
+
+  public ImmutableList<Layer> getModifiableLayers(Project project, User user) {
+    String role = project.getAcl().get(user.getEmail());
+    if (role == null) {
+      return ImmutableList.of();
+    }
+    return stream(project.getLayers())
+        .filter(layer -> canAddFeatures(role, layer))
+        .collect(toImmutableList());
+  }
+
+  private boolean canAddFeatures(String role, Layer layer) {
+    return OWNER.equals(role)
+        || MANAGER.equals(role)
+        || CONTRIBUTOR.equals(role) && !layer.getContributorsCanAdd().isEmpty();
   }
 }
