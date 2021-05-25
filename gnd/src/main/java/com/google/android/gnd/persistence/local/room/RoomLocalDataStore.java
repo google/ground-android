@@ -42,6 +42,7 @@ import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.model.observation.ObservationMutation;
 import com.google.android.gnd.model.observation.ResponseMap;
+import com.google.android.gnd.model.observation.ResponseMap.Builder;
 import com.google.android.gnd.persistence.local.LocalDataStore;
 import com.google.android.gnd.persistence.local.room.converter.ResponseDeltasConverter;
 import com.google.android.gnd.persistence.local.room.converter.ResponseMapConverter;
@@ -86,6 +87,7 @@ import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Observable;
 import io.reactivex.Single;
+import io.reactivex.SingleSource;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -431,13 +433,8 @@ public class RoomLocalDataStore implements LocalDataStore {
     long clientTimestamp = lastMutation.getClientTimestamp();
     Timber.v("Merging observation " + this + " with mutations " + mutations);
     ObservationEntity.Builder builder = observation.toBuilder();
-    ResponseMap.Builder responseMap =
-        ResponseMapConverter.fromString(form, observation.getResponses()).toBuilder();
-    for (ObservationMutationEntity mutation : mutations) {
-      // Merge changes to responses.
-      responseMap.applyDeltas(
-          ResponseDeltasConverter.fromString(form, mutation.getResponseDeltas()));
-    }
+    builder.setResponses(
+        ResponseMapConverter.toString(applyMutations(form, observation, mutations)));
     // Update modified user and time.
     AuditInfoEntity lastModified =
         AuditInfoEntity.builder()
@@ -447,6 +444,18 @@ public class RoomLocalDataStore implements LocalDataStore {
     builder.setLastModified(lastModified);
     Timber.v("Merged observation %s", builder.build());
     return builder.build();
+  }
+
+  private ResponseMap applyMutations(
+      Form form, ObservationEntity observation, List<ObservationMutationEntity> mutations) {
+    Builder responseMap =
+        ResponseMapConverter.fromString(form, observation.getResponses()).toBuilder();
+    for (ObservationMutationEntity mutation : mutations) {
+      // Merge changes to responses.
+      responseMap.applyDeltas(
+          ResponseDeltasConverter.fromString(form, mutation.getResponseDeltas()));
+    }
+    return responseMap.build();
   }
 
   private Completable apply(FeatureMutation mutation) throws LocalDataStoreException {
@@ -539,11 +548,21 @@ public class RoomLocalDataStore implements LocalDataStore {
     return observationDao
         .findById(mutation.getObservationId())
         .doOnSubscribe(__ -> Timber.v("Applying mutation: %s", mutation))
-        // Emit NoSuchElementException if not found.
-        .toSingle()
+        .switchIfEmpty(fallbackObservation(mutation))
         .map(obs -> applyMutations(mutation.getForm(), obs, ImmutableList.of(mutationEntity), user))
         .flatMapCompletable(obs -> observationDao.insertOrUpdate(obs).subscribeOn(schedulers.io()))
         .subscribeOn(schedulers.io());
+  }
+
+  /**
+   * Returns a source which creates an observation based on the provided mutation. Used in rare
+   * cases when the observation is no longer in the local db, but the user is updating rather than
+   * creating a new observation. In these cases creation metadata is unknown, so empty audit info is
+   * used.
+   */
+  private SingleSource<ObservationEntity> fallbackObservation(ObservationMutation mutation) {
+    return em ->
+        em.onSuccess(ObservationEntity.fromMutation(mutation, AuditInfo.builder().build()));
   }
 
   private Completable markObservationForDeletion(
