@@ -52,8 +52,8 @@ import com.google.android.gnd.ui.map.MapPolygon;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.geometry.S2LatLng;
-import com.google.common.geometry.S2Loop;
 import com.google.common.geometry.S2Point;
+import com.google.maps.android.PolyUtil;
 import com.google.maps.android.collections.MarkerManager;
 import com.google.maps.android.collections.PolygonManager;
 import com.google.maps.android.data.Layer;
@@ -77,7 +77,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java8.util.stream.Collectors;
 import javax.annotation.Nullable;
 import timber.log.Timber;
 
@@ -92,6 +91,7 @@ class GoogleMapsMapAdapter implements MapAdapter {
   private final GoogleMap map;
   private final Context context;
   private final MarkerIconFactory markerIconFactory;
+  private final float markerAmbiguityDistance = 20.0f;
 
   /** Marker click events. */
   @Hot private final Subject<MapPin> markerClicks = PublishSubject.create();
@@ -146,7 +146,9 @@ class GoogleMapsMapAdapter implements MapAdapter {
   @Nullable private LatLng lastTapLocation;
 
   @Nullable private LatLng cameraTargetBeforeDrag;
-  private final HashMap<MapFeature, List<S2Loop>> geoJsonPolygonLoops = new HashMap<>();
+  private final HashMap<MapFeature, List<LatLng>> geoJsonPolygonLoops = new HashMap<>();
+  private final HashMap<MapFeature, ArrayList<ArrayList<LatLng>>> geoJsonPolygonHoles =
+      new HashMap<>();
 
   public GoogleMapsMapAdapter(
       GoogleMap map,
@@ -187,33 +189,33 @@ class GoogleMapsMapAdapter implements MapAdapter {
   }
 
   // Handle taps on ambiguous features.
-  private void handleAmbiguity(MapGeoJson feature) {
-    List<S2Loop> loops = geoJsonPolygonLoops.get(feature);
+  private void handleAmbiguity(LatLng latLng) {
     Collection<MapFeature> candidates = new ArrayList<>();
+    ArrayList<String> processed = new ArrayList<>();
 
-    candidates.add(feature);
-
-    Timber.i("Handling loops: %s", loops);
-
-    if (loops == null) {
-      featureClicks.onNext(stream(candidates).collect(toImmutableList()));
-      return;
-    }
-
-    for (Marker marker : markers.getMarkers()) {
-      if (stream(loops).anyMatch(loop -> loop.contains(markerToS2Point(marker)))) {
-        candidates.add((MapFeature) marker.getTag());
-      }
-    }
-
-    for (Map.Entry<MapFeature, List<S2Loop>> json : geoJsonPolygonLoops.entrySet()) {
-      if (((MapGeoJson) json.getKey()).getId().equals(feature.getId())) {
+    // TODO: Divide the earth into four sectors to avoid iterating through all markers
+    // going clockwise from SW corner, SW followed by NE coords:
+    // (-90,-180)+(0,0); (0,-180)+(90,0); (0,0)+(90,180); (-90,0)+(0,180)
+    for (Map.Entry<MapFeature, ArrayList<ArrayList<LatLng>>> json :
+        geoJsonPolygonHoles.entrySet()) {
+      ArrayList<ArrayList<LatLng>> holes = json.getValue();
+      if (processed.contains(((MapGeoJson) json.getKey()).getId())) {
         continue;
       }
-      for (S2Loop loopA : json.getValue()) {
-        if (stream(loops).anyMatch(loop -> loop.contains(loopA))) {
-          candidates.add(json.getKey());
-        }
+
+      if (stream(holes).anyMatch(hole -> PolyUtil.containsLocation(latLng, hole, false))) {
+        processed.add(((MapGeoJson) json.getKey()).getId());
+      }
+    }
+
+    for (Map.Entry<MapFeature, List<LatLng>> json : geoJsonPolygonLoops.entrySet()) {
+      if (processed.contains(((MapGeoJson) json.getKey()).getId())) {
+        continue;
+      }
+
+      if (PolyUtil.containsLocation(latLng, json.getValue(), false)) {
+        candidates.add(json.getKey());
+        processed.add(((MapGeoJson) json.getKey()).getId());
       }
     }
 
@@ -332,11 +334,8 @@ class GoogleMapsMapAdapter implements MapAdapter {
 
   private void addMapGeoJson(MapGeoJson mapFeature) {
     // Pass markerManager here otherwise markers in the previous layers won't be clickable.
-    // polygonManager also needs to be passed to make the layer's on click method work
-    // I'm not sure why--it must dispatch to the appropriate manager based on the parsed geometry
-    // (e.g. polygons).
     GeoJsonLayer layer =
-        new GeoJsonLayer(map, mapFeature.getGeoJson(), markerManager, polygonManager, null, null);
+        new GeoJsonLayer(map, mapFeature.getGeoJson(), markerManager, null, null, null);
 
     int width = getPolylineStrokeWidth();
     int color = parseColor(mapFeature.getStyle().getColor());
@@ -350,6 +349,7 @@ class GoogleMapsMapAdapter implements MapAdapter {
     int a = (int) (GEOJSON_POLYGON_FILL_ALPHA * 0xFF);
     polygonStyle.setPolygonFillColor(ColorUtils.setAlphaComponent(color, a));
     polygonStyle.setStrokeColor(color);
+    polygonStyle.setClickable(false);
 
     GeoJsonLineStringStyle lineStringStyle = layer.getDefaultLineStringStyle();
     lineStringStyle.setLineStringWidth(width);
@@ -357,30 +357,22 @@ class GoogleMapsMapAdapter implements MapAdapter {
 
     layer.addLayerToMap();
 
-    ArrayList<S2Loop> loops = new ArrayList<>();
     for (GeoJsonFeature geoJsonFeature : layer.getFeatures()) {
       if (geoJsonFeature.getGeometry().getGeometryType().equals("Polygon")) {
         com.google.maps.android.data.geojson.GeoJsonPolygon polygon =
             ((com.google.maps.android.data.geojson.GeoJsonPolygon) geoJsonFeature.getGeometry());
 
-        List<S2Point> points =
-            stream(polygon.getOuterBoundaryCoordinates())
-                .map(point -> S2LatLng.fromDegrees(point.latitude, point.longitude).toPoint())
-                .collect(Collectors.toList());
-        S2Loop loop = new S2Loop(points);
-        loops.add(loop);
+        geoJsonPolygonLoops.put(mapFeature, polygon.getOuterBoundaryCoordinates());
+        geoJsonPolygonHoles.put(mapFeature, polygon.getInnerBoundaryCoordinates());
       }
     }
 
-    geoJsonPolygonLoops.put(mapFeature, loops);
-
-    layer.setOnFeatureClickListener(__ -> onGeoJsonClick(mapFeature));
-
+    map.setOnMapClickListener(this::onMapClick);
     geoJsonLayers.add(layer);
   }
 
-  private void onGeoJsonClick(MapGeoJson mapGeoJson) {
-    handleAmbiguity(mapGeoJson);
+  private void onMapClick(LatLng latLng) {
+    handleAmbiguity(latLng);
   }
 
   private S2Point markerToS2Point(Marker marker) {
