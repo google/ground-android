@@ -34,11 +34,13 @@ import com.google.android.gnd.rx.Action;
 import com.google.android.gnd.rx.Event;
 import com.google.android.gnd.rx.Loadable;
 import com.google.android.gnd.rx.annotations.Hot;
+import com.google.android.gnd.system.auth.AuthenticationManager;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.SharedViewModel;
 import com.google.android.gnd.ui.map.MapGeoJson;
 import com.google.android.gnd.ui.map.MapPin;
+import com.google.common.collect.ImmutableList;
 import io.reactivex.Single;
 import io.reactivex.processors.FlowableProcessor;
 import io.reactivex.processors.PublishProcessor;
@@ -52,6 +54,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
   @Hot(replays = true)
   public final MutableLiveData<Boolean> isObservationButtonVisible = new MutableLiveData<>(false);
 
+  private final AuthenticationManager authenticationManager;
   private final ProjectRepository projectRepository;
   private final Navigator navigator;
   private final FeatureRepository featureRepository;
@@ -85,9 +88,11 @@ public class HomeScreenViewModel extends AbstractViewModel {
 
   @Inject
   HomeScreenViewModel(
+      AuthenticationManager authenticationManager,
       ProjectRepository projectRepository,
       FeatureRepository featureRepository,
       Navigator navigator) {
+    this.authenticationManager = authenticationManager;
     this.projectRepository = projectRepository;
     this.featureRepository = featureRepository;
     this.navigator = navigator;
@@ -159,8 +164,11 @@ public class HomeScreenViewModel extends AbstractViewModel {
     return errors;
   }
 
-  public void addFeature(Project project, Layer layer, Point point) {
-    addFeatureClicks.onNext(featureRepository.newFeature(project, layer, point));
+  public void addFeature(Layer layer, Point point) {
+    getActiveProject()
+        .ifPresent(
+            project ->
+                addFeatureClicks.onNext(featureRepository.newFeature(project, layer, point)));
   }
 
   public void updateFeature(Feature feature) {
@@ -260,5 +268,18 @@ public class HomeScreenViewModel extends AbstractViewModel {
 
   public void onGeoJsonClick(MapGeoJson mapGeoJson) {
     showBottomSheet(mapGeoJson.getFeature());
+  }
+
+  private Optional<Project> getActiveProject() {
+    return Loadable.getValue(getProjectLoadingState());
+  }
+
+  public ImmutableList<Layer> getModifiableLayers() {
+    return getActiveProject()
+        .map(
+            project ->
+                projectRepository.getModifiableLayers(
+                    project, authenticationManager.getCurrentUser()))
+        .orElse(ImmutableList.of());
   }
 }
