@@ -46,7 +46,7 @@ public class PhotoFieldViewModel extends AbstractFieldViewModel {
   private final FlowableProcessor<String> destinationPath = BehaviorProcessor.create();
 
   private final LiveData<Uri> uri;
-  public final LiveData<Boolean> isVisible;
+  public final LiveData<Boolean> photoPresent;
 
   @Hot(replays = true)
   private final MutableLiveData<Field> showDialogClicks = new MutableLiveData<>();
@@ -60,7 +60,7 @@ public class PhotoFieldViewModel extends AbstractFieldViewModel {
     super(application);
     this.remoteStorageManager = remoteStorageManager;
     this.fileUtil = fileUtil;
-    this.isVisible =
+    this.photoPresent =
         LiveDataReactiveStreams.fromPublisher(destinationPath.map(path -> !path.isEmpty()));
     this.uri =
         LiveDataReactiveStreams.fromPublisher(
@@ -115,6 +115,10 @@ public class PhotoFieldViewModel extends AbstractFieldViewModel {
 
   public void setClearButtonVisible(boolean enabled) {
     clearButtonVisibility.postValue(enabled ? View.VISIBLE : View.GONE);
+  }
+
+  public LiveData<Boolean> isPhotoPresent() {
+    return photoPresent;
   }
 
   public LiveData<Integer> getClearButtonVisibility() {
