@@ -66,7 +66,6 @@ import com.google.android.gnd.ui.projectselector.ProjectSelectorViewModel;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.navigation.NavigationView.OnNavigationItemSelectedListener;
 import com.google.common.collect.ImmutableList;
-import dagger.Provides;
 import dagger.hilt.android.AndroidEntryPoint;
 import java.util.Collections;
 import java.util.List;

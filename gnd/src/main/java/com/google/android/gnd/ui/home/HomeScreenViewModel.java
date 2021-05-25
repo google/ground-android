@@ -77,10 +77,6 @@ public class HomeScreenViewModel extends AbstractViewModel {
   @Hot(replays = true)
   private final MutableLiveData<BottomSheetState> bottomSheetState = new MutableLiveData<>();
 
-  @Hot(replays = true)
-  private final MutableLiveData<FeatureSelectorState> featureSelectorState =
-      new MutableLiveData<>();
-
   @Hot private final FlowableProcessor<Feature> addFeatureClicks = PublishProcessor.create();
   @Hot private final FlowableProcessor<Feature> updateFeatureRequests = PublishProcessor.create();
   @Hot private final FlowableProcessor<Feature> deleteFeatureRequests = PublishProcessor.create();
@@ -213,10 +209,6 @@ public class HomeScreenViewModel extends AbstractViewModel {
 
   public LiveData<BottomSheetState> getBottomSheetState() {
     return bottomSheetState;
-  }
-
-  public LiveData<FeatureSelectorState> getFeatureSelectorState() {
-    return featureSelectorState;
   }
 
   // TODO: Remove extra indirection here?

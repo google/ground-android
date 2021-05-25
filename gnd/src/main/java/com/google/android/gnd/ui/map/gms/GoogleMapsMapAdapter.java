@@ -50,15 +50,13 @@ import com.google.android.gnd.ui.map.MapPin;
 import com.google.android.gnd.ui.map.MapPolygon;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.geometry.S2LatLng;
-import com.google.common.geometry.S2Point;
 import com.google.maps.android.PolyUtil;
 import com.google.maps.android.collections.MarkerManager;
-import com.google.maps.android.collections.PolygonManager;
 import com.google.maps.android.data.Layer;
 import com.google.maps.android.data.geojson.GeoJsonFeature;
 import com.google.maps.android.data.geojson.GeoJsonLayer;
 import com.google.maps.android.data.geojson.GeoJsonLineStringStyle;
+import com.google.maps.android.data.geojson.GeoJsonMultiPolygon;
 import com.google.maps.android.data.geojson.GeoJsonPointStyle;
 import com.google.maps.android.data.geojson.GeoJsonPolygon;
 import com.google.maps.android.data.geojson.GeoJsonPolygonStyle;
@@ -89,7 +87,6 @@ class GoogleMapsMapAdapter implements MapAdapter {
   private final GoogleMap map;
   private final Context context;
   private final MarkerIconFactory markerIconFactory;
-  private final float markerAmbiguityDistance = 20.0f;
 
   /** Marker click events. */
   @Hot private final Subject<MapPin> markerClicks = PublishSubject.create();
@@ -121,7 +118,6 @@ class GoogleMapsMapAdapter implements MapAdapter {
    */
   private final MarkerManager markerManager;
   // TODO: Add managers for polyline layers
-  private final PolygonManager polygonManager;
 
   /**
    * References to Google Maps SDK Markers present on the map. Used to sync and update markers with
@@ -141,12 +137,9 @@ class GoogleMapsMapAdapter implements MapAdapter {
    */
   private final Set<GeoJsonLayer> geoJsonLayers = new HashSet<>();
 
-  @Nullable private LatLng lastTapLocation;
-
   @Nullable private LatLng cameraTargetBeforeDrag;
-  private final HashMap<MapFeature, List<LatLng>> geoJsonPolygonLoops = new HashMap<>();
-  private final HashMap<MapFeature, ArrayList<ArrayList<LatLng>>> geoJsonPolygonHoles =
-      new HashMap<>();
+  private final Map<MapFeature, List<LatLng>> geoJsonPolygonLoops = new HashMap<>();
+  private final Map<MapFeature, ArrayList<ArrayList<LatLng>>> geoJsonPolygonHoles = new HashMap<>();
 
   public GoogleMapsMapAdapter(
       GoogleMap map,
@@ -159,7 +152,6 @@ class GoogleMapsMapAdapter implements MapAdapter {
 
     // init markers
     markerManager = new MarkerManager(map);
-    polygonManager = new PolygonManager(map);
     markers = markerManager.newCollection();
     markers.setOnMarkerClickListener(this::onMarkerClick);
 
@@ -174,7 +166,6 @@ class GoogleMapsMapAdapter implements MapAdapter {
     map.setOnCameraIdleListener(this::onCameraIdle);
     map.setOnCameraMoveStartedListener(this::onCameraMoveStarted);
     map.setOnCameraMoveListener(this::onCameraMove);
-    map.setOnMapClickListener(latLng -> this.lastTapLocation = latLng);
     onCameraMove();
   }
 
@@ -357,16 +348,14 @@ class GoogleMapsMapAdapter implements MapAdapter {
     layer.addLayerToMap();
 
     for (GeoJsonFeature geoJsonFeature : layer.getFeatures()) {
-      if (geoJsonFeature.getGeometry().getGeometryType().equals("Polygon")) {
-        com.google.maps.android.data.geojson.GeoJsonPolygon polygon =
-            ((com.google.maps.android.data.geojson.GeoJsonPolygon) geoJsonFeature.getGeometry());
+      if ("Polygon".equals(geoJsonFeature.getGeometry().getGeometryType())) {
+        GeoJsonPolygon polygon = (GeoJsonPolygon) geoJsonFeature.getGeometry();
 
         geoJsonPolygonLoops.put(mapFeature, polygon.getOuterBoundaryCoordinates());
         geoJsonPolygonHoles.put(mapFeature, polygon.getInnerBoundaryCoordinates());
       }
-      if (geoJsonFeature.getGeometry().getGeometryType().equals("MultiPolygon")) {
-        com.google.maps.android.data.geojson.GeoJsonMultiPolygon multi =
-            ((com.google.maps.android.data.geojson.GeoJsonMultiPolygon) geoJsonFeature.getGeometry());
+      if ("MultiPolygon".equals(geoJsonFeature.getGeometry().getGeometryType())) {
+        GeoJsonMultiPolygon multi = (GeoJsonMultiPolygon) geoJsonFeature.getGeometry();
 
         for (GeoJsonPolygon polygon : multi.getPolygons()) {
           geoJsonPolygonLoops.put(mapFeature, polygon.getOuterBoundaryCoordinates());
@@ -381,13 +370,6 @@ class GoogleMapsMapAdapter implements MapAdapter {
 
   private void onMapClick(LatLng latLng) {
     handleAmbiguity(latLng);
-  }
-
-  private S2Point markerToS2Point(Marker marker) {
-    LatLng pos = marker.getPosition();
-    S2LatLng latLng = S2LatLng.fromDegrees(pos.latitude, pos.longitude);
-
-    return latLng.toPoint();
   }
 
   private void removeAllMarkers() {
