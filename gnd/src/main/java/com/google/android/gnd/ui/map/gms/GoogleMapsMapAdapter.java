@@ -51,7 +51,6 @@ import com.google.android.gnd.ui.map.MapPolygon;
 import com.google.common.collect.ImmutableSet;
 import com.google.maps.android.collections.MarkerManager;
 import com.google.maps.android.collections.PolygonManager;
-import com.google.maps.android.data.Layer;
 import com.google.maps.android.data.geojson.GeoJsonLayer;
 import com.google.maps.android.data.geojson.GeoJsonLineStringStyle;
 import com.google.maps.android.data.geojson.GeoJsonPointStyle;
@@ -312,20 +311,6 @@ class GoogleMapsMapAdapter implements MapAdapter {
     geoJsonClicks.onNext(mapGeoJson);
   }
 
-  private void removeAllMarkers() {
-    markers.clear();
-  }
-
-  private void removeAllPolylines() {
-    stream(polylines).forEach(Polyline::remove);
-    polylines.clear();
-  }
-
-  private void removeAllGeoJsonLayers() {
-    stream(geoJsonLayersByFeature.values()).forEach(Layer::removeLayerFromMap);
-    geoJsonLayersByFeature.clear();
-  }
-
   @Override
   public Point getCameraTarget() {
     return fromLatLng(map.getCameraPosition().target);
@@ -346,12 +331,6 @@ class GoogleMapsMapAdapter implements MapAdapter {
 
   @Override
   public void setMapFeatures(ImmutableSet<MapFeature> features) {
-    if (features.isEmpty()) {
-      removeAllMarkers();
-      removeAllPolylines();
-      removeAllGeoJsonLayers();
-      return;
-    }
     Set<MapFeature> featuresToUpdate = new HashSet<>(features);
 
     for (Marker marker : markers.getMarkers()) {
