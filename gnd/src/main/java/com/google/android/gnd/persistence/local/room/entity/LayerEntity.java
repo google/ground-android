@@ -29,6 +29,8 @@ import com.google.android.gnd.persistence.local.room.relations.FormEntityAndRela
 import com.google.android.gnd.persistence.local.room.relations.LayerEntityAndRelations;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.AutoValue.CopyAnnotations;
+import com.google.common.collect.ImmutableList;
+import org.json.JSONArray;
 
 @AutoValue
 @Entity(
@@ -62,12 +64,18 @@ public abstract class LayerEntity {
   @ColumnInfo(name = "project_id")
   public abstract String getProjectId();
 
+  @CopyAnnotations
+  @Nullable
+  @ColumnInfo(name = "contributors_can_add")
+  public abstract JSONArray getContributorsCanAdd();
+
   public static LayerEntity fromLayer(String projectId, Layer layer) {
     return LayerEntity.builder()
         .setId(layer.getId())
         .setProjectId(projectId)
         .setName(layer.getName())
         .setDefaultStyle(layer.getDefaultStyle())
+        .setContributorsCanAdd(new JSONArray(layer.getContributorsCanAdd()))
         .build();
   }
 
@@ -84,15 +92,30 @@ public abstract class LayerEntity {
       layerBuilder.setForm(FormEntity.toForm(formEntityAndRelations));
     }
 
+    layerBuilder.setContributorsCanAdd(toList(layerEntity.getContributorsCanAdd()));
+
     return layerBuilder.build();
   }
 
-  public static LayerEntity create(String id, String name, Style defaultStyle, String projectId) {
+  private static ImmutableList<String> toList(JSONArray jsonArray) {
+    ImmutableList.Builder builder = ImmutableList.builder();
+    for (int i = 0; i < jsonArray.length(); i++) {
+      String value = jsonArray.optString(i, null);
+      if (value != null) {
+        builder.add(value);
+      }
+    }
+    return builder.build();
+  }
+
+  public static LayerEntity create(
+      String id, String name, Style defaultStyle, String projectId, JSONArray contributorsCanAdd) {
     return builder()
         .setId(id)
         .setName(name)
         .setDefaultStyle(defaultStyle)
         .setProjectId(projectId)
+        .setContributorsCanAdd(contributorsCanAdd)
         .build();
   }
 
@@ -110,6 +133,8 @@ public abstract class LayerEntity {
     public abstract Builder setDefaultStyle(Style defaultStyle);
 
     public abstract Builder setProjectId(String projectId);
+
+    public abstract Builder setContributorsCanAdd(JSONArray contributorsCanAdd);
 
     public abstract LayerEntity build();
   }
