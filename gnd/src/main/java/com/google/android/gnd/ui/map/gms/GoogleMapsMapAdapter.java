@@ -60,6 +60,7 @@ import com.google.maps.android.data.geojson.GeoJsonFeature;
 import com.google.maps.android.data.geojson.GeoJsonLayer;
 import com.google.maps.android.data.geojson.GeoJsonLineStringStyle;
 import com.google.maps.android.data.geojson.GeoJsonPointStyle;
+import com.google.maps.android.data.geojson.GeoJsonPolygon;
 import com.google.maps.android.data.geojson.GeoJsonPolygonStyle;
 import io.reactivex.Flowable;
 import io.reactivex.Observable;
@@ -362,6 +363,15 @@ class GoogleMapsMapAdapter implements MapAdapter {
 
         geoJsonPolygonLoops.put(mapFeature, polygon.getOuterBoundaryCoordinates());
         geoJsonPolygonHoles.put(mapFeature, polygon.getInnerBoundaryCoordinates());
+      }
+      if (geoJsonFeature.getGeometry().getGeometryType().equals("MultiPolygon")) {
+        com.google.maps.android.data.geojson.GeoJsonMultiPolygon multi =
+            ((com.google.maps.android.data.geojson.GeoJsonMultiPolygon) geoJsonFeature.getGeometry());
+
+        for (GeoJsonPolygon polygon : multi.getPolygons()) {
+          geoJsonPolygonLoops.put(mapFeature, polygon.getOuterBoundaryCoordinates());
+          geoJsonPolygonHoles.put(mapFeature, polygon.getInnerBoundaryCoordinates());
+        }
       }
     }
 
