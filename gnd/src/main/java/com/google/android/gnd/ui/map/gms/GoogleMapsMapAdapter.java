@@ -283,14 +283,17 @@ class GoogleMapsMapAdapter implements MapAdapter {
     GeoJsonPointStyle pointStyle = layer.getDefaultPointStyle();
     pointStyle.setLineStringWidth(width);
     pointStyle.setPolygonFillColor(color);
+    pointStyle.setZIndex(1);
 
     GeoJsonPolygonStyle polygonStyle = layer.getDefaultPolygonStyle();
     polygonStyle.setLineStringWidth(width);
     polygonStyle.setStrokeColor(color);
+    polygonStyle.setZIndex(1);
 
     GeoJsonLineStringStyle lineStringStyle = layer.getDefaultLineStringStyle();
     lineStringStyle.setLineStringWidth(width);
     lineStringStyle.setPolygonFillColor(color);
+    lineStringStyle.setZIndex(1);
 
     layer.addLayerToMap();
 
