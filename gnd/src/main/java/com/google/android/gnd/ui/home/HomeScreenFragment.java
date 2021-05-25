@@ -437,17 +437,10 @@ public class HomeScreenFragment extends AbstractFragment
   }
 
   private void onShowAddFeatureDialogRequest(Point point) {
-    Loadable.getValue(viewModel.getProjectLoadingState())
-        .ifPresentOrElse(
-            project -> {
-              // TODO: Pause location updates while dialog is open.
-              // TODO: Show spinner?
-              addFeatureDialogFragment.show(
-                  project.getLayers(),
-                  getChildFragmentManager(),
-                  (layer) -> viewModel.addFeature(project, layer, point));
-            },
-            () -> Timber.e("Attempting to add feature while no project loaded"));
+    addFeatureDialogFragment.show(
+        viewModel.getModifiableLayers(),
+        getChildFragmentManager(),
+        layer -> viewModel.addFeature(layer, point));
   }
 
   private void onBottomSheetStateChange(BottomSheetState state) {
