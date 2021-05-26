@@ -52,7 +52,7 @@
           android:layout_height="?attr/actionBarSize"
           android:layout_gravity="top"
           android:theme="@style/WhiteToolbarTheme"
-          app:title="@string/terms_conditions" />
+          app:title="@string/tos_title" />
 
       </LinearLayout>
 
@@ -72,7 +72,7 @@
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
           android:layout_margin="8dp"
-          android:text="@string/terms_conditions"
+          android:text="@string/tos_title"
           android:visibility="visible"
            />
     </ScrollView>
