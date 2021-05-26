@@ -88,14 +88,6 @@ public class FileUtil {
     return new File(context.getFilesDir(), filename);
   }
 
-  public File getFileFromRawResource(@RawRes int resourceId, String filename) throws IOException {
-    File file = new File(context.getFilesDir(), filename);
-    if (!file.exists()) {
-      FileUtils.copyInputStreamToFile(context.getResources().openRawResource(resourceId), file);
-    }
-    return file;
-  }
-
   /** Attempts to delete a file relative to the app's file directory when it exists. */
   public void deleteFile(String filename) {
     File file = new File(context.getFilesDir(), filename);
