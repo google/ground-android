@@ -44,11 +44,11 @@ public class FileUtil {
    * @throws IOException If path is not accessible or error occurs while saving file
    */
   public File saveBitmap(Bitmap bitmap, String filename) throws IOException {
-    File file = new File(context.getFilesDir(), filename);
     try (FileOutputStream fos = context.openFileOutput(filename, Context.MODE_PRIVATE)) {
       bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
     }
 
+    File file = new File(context.getFilesDir(), filename);
     Timber.d("Photo saved : %s", file.getPath());
     return file;
   }
