@@ -1,5 +1,4 @@
-include ':gnd', ':android-gmaps-addons', ':s2-geometry-java'
+include ':gnd', ':android-gmaps-addons'
 
 project(':android-gmaps-addons').projectDir = new File('third_party/android-gmaps-addons')
-project(':s2-geometry-java').projectDir = new File('third_party/s2-geometry-library-java')
 
