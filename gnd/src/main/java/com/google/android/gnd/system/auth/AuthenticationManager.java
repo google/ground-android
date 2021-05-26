@@ -19,6 +19,9 @@ package com.google.android.gnd.system.auth;
 import com.google.android.gnd.model.User;
 import io.reactivex.Observable;
 
+/**
+ * Handles details of sign in / authentication, and sign out.
+ */
 public interface AuthenticationManager {
   Observable<SignInState> getSignInState();
 
