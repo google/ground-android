@@ -46,7 +46,7 @@ class ObservationListItemViewHolder extends RecyclerView.ViewHolder {
     this.binding = binding;
   }
 
-  public void bind(ObservationViewModel viewModel, Observation observation) {
+  public void bind(ObservationListItemViewModel viewModel, Observation observation) {
     binding.setViewModel(viewModel);
     binding.executePendingBindings();
 

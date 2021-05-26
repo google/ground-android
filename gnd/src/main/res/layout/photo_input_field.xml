@@ -17,7 +17,8 @@
   -->
 
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-  xmlns:app="http://schemas.android.com/apk/res-auto">
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  xmlns:tools="http://schemas.android.com/tools">
 
   <data>
     <variable
@@ -25,21 +26,32 @@
       type="com.google.android.gnd.ui.editobservation.PhotoFieldViewModel" />
   </data>
 
-  <!-- add label for the field -->
-
   <LinearLayout
     style="@style/FieldView"
+    android:background="@drawable/field_background"
     android:orientation="vertical">
+
+    <TextView
+      android:id="@+id/field_label"
+      style="@style/EditObservation.Field.Text"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:hint="@{viewModel.fieldLabel()}"
+      android:paddingLeft="@dimen/photo_label_horizontal_padding"
+      android:paddingTop="@dimen/photo_label_vertical_padding"
+      android:paddingRight="@dimen/photo_label_horizontal_padding"
+      android:paddingBottom="@dimen/photo_label_vertical_padding"
+      tools:text="Question label?" />
 
     <include
       layout="@layout/photo_field"
-      app:viewModel="@{viewModel}" />
+      app:viewModel="@{viewModel}"
+      tools:visibility="visible" />
 
     <Button
       android:id="@+id/btn_select_photo"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:layout_marginTop="@dimen/field_vertical_margin"
       android:background="@android:color/transparent"
       android:onClick="@{()-> viewModel.onShowPhotoSelectorDialog()}"
       android:text="@string/add_photo"

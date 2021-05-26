@@ -26,7 +26,10 @@ import com.google.android.gnd.persistence.local.room.relations.LayerEntityAndRel
 import com.google.android.gnd.persistence.local.room.relations.ProjectEntityAndRelations;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.AutoValue.CopyAnnotations;
+import com.google.common.collect.ImmutableMap;
 import java.net.MalformedURLException;
+import java.util.Iterator;
+import org.json.JSONObject;
 import timber.log.Timber;
 
 @AutoValue
@@ -49,11 +52,17 @@ public abstract class ProjectEntity {
   @ColumnInfo(name = "description")
   public abstract String getDescription();
 
+  @CopyAnnotations
+  @Nullable
+  @ColumnInfo(name = "acl")
+  public abstract JSONObject getAcl();
+
   public static ProjectEntity fromProject(Project project) {
     return ProjectEntity.builder()
         .setId(project.getId())
         .setTitle(project.getTitle())
         .setDescription(project.getDescription())
+        .setAcl(new JSONObject(project.getAcl()))
         .build();
   }
 
@@ -63,7 +72,8 @@ public abstract class ProjectEntity {
         Project.newBuilder()
             .setId(projectEntity.getId())
             .setTitle(projectEntity.getTitle())
-            .setDescription(projectEntity.getDescription());
+            .setDescription(projectEntity.getDescription())
+            .setAcl(toStringMap(projectEntity.getAcl()));
 
     for (LayerEntityAndRelations layerEntityAndRelations :
         projectEntityAndRelations.layerEntityAndRelations) {
@@ -82,8 +92,21 @@ public abstract class ProjectEntity {
     return projectBuilder.build();
   }
 
-  public static ProjectEntity create(String id, String title, String description) {
-    return builder().setId(id).setTitle(title).setDescription(description).build();
+  private static ImmutableMap<String, String> toStringMap(JSONObject jsonObject) {
+    ImmutableMap.Builder builder = ImmutableMap.builder();
+    Iterator<String> keys = jsonObject.keys();
+    while (keys.hasNext()) {
+      String key = keys.next();
+      String value = jsonObject.optString(key, null);
+      if (value != null) {
+        builder.put(key, value);
+      }
+    }
+    return builder.build();
+  }
+
+  public static ProjectEntity create(String id, String title, String description, JSONObject acl) {
+    return builder().setId(id).setTitle(title).setDescription(description).setAcl(acl).build();
   }
 
   public static Builder builder() {
@@ -98,6 +121,8 @@ public abstract class ProjectEntity {
     public abstract Builder setTitle(String title);
 
     public abstract Builder setDescription(String description);
+
+    public abstract Builder setAcl(JSONObject acl);
 
     public abstract ProjectEntity build();
   }

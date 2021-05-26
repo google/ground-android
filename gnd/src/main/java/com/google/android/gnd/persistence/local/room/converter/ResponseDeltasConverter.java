@@ -20,9 +20,11 @@ import static com.google.android.gnd.util.Enums.toEnum;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.room.TypeConverter;
 import com.google.android.gnd.model.form.Field;
+import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.model.observation.ResponseDelta;
+import com.google.android.gnd.persistence.local.LocalDataConsistencyException;
+import com.google.android.gnd.persistence.remote.DataStoreException;
 import com.google.common.collect.ImmutableList;
 import java.util.Iterator;
 import org.json.JSONException;
@@ -30,15 +32,13 @@ import org.json.JSONObject;
 import timber.log.Timber;
 
 /**
- * {@link TypeConverter} for converting between {@link ResponseDelta}s and JSON strings used to
- * represent them in the local db.
+ * Converts between {@link ResponseDelta}s and JSON strings used to represent them in the local db.
  */
-public class ResponseDeltasTypeConverter {
+public class ResponseDeltasConverter {
 
   private static final String KEY_FIELD_TYPE = "fieldType";
   private static final String KEY_NEW_RESPONSE = "newResponse";
 
-  @TypeConverter
   @NonNull
   public static String toString(@NonNull ImmutableList<ResponseDelta> responseDeltas) {
     JSONObject json = new JSONObject();
@@ -61,9 +61,8 @@ public class ResponseDeltasTypeConverter {
     return json.toString();
   }
 
-  @TypeConverter
   @NonNull
-  public static ImmutableList<ResponseDelta> fromString(@Nullable String jsonString) {
+  public static ImmutableList<ResponseDelta> fromString(Form form, @Nullable String jsonString) {
     ImmutableList.Builder<ResponseDelta> deltas = ImmutableList.builder();
     if (jsonString == null) {
       return deltas.build();
@@ -72,14 +71,23 @@ public class ResponseDeltasTypeConverter {
       JSONObject jsonObject = new JSONObject(jsonString);
       Iterator<String> keys = jsonObject.keys();
       while (keys.hasNext()) {
-        String fieldId = keys.next();
-        JSONObject jsonDelta = jsonObject.getJSONObject(fieldId);
-        deltas.add(
-            ResponseDelta.builder()
-                .setFieldId(fieldId)
-                .setFieldType(toEnum(Field.Type.class, jsonDelta.getString(KEY_FIELD_TYPE)))
-                .setNewResponse(ResponseJsonConverter.toResponse(jsonDelta.get(KEY_NEW_RESPONSE)))
-                .build());
+        try {
+          String fieldId = keys.next();
+          Field field =
+              form.getField(fieldId)
+                  .orElseThrow(
+                      () -> new LocalDataConsistencyException("Unknown field id " + fieldId));
+          JSONObject jsonDelta = jsonObject.getJSONObject(fieldId);
+          deltas.add(
+              ResponseDelta.builder()
+                  .setFieldId(fieldId)
+                  .setFieldType(toEnum(Field.Type.class, jsonDelta.getString(KEY_FIELD_TYPE)))
+                  .setNewResponse(
+                      ResponseJsonConverter.toResponse(field, jsonDelta.get(KEY_NEW_RESPONSE)))
+                  .build());
+        } catch (LocalDataConsistencyException | DataStoreException e) {
+          Timber.d("Bad response in local db: " + e.getMessage());
+        }
       }
     } catch (JSONException e) {
       Timber.e(e, "Error parsing JSON string");

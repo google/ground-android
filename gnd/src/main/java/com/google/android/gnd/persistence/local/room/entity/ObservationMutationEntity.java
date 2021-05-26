@@ -23,12 +23,15 @@ import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.ForeignKey;
 import androidx.room.Index;
+import com.google.android.gnd.model.Project;
+import com.google.android.gnd.model.form.Form;
+import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.model.observation.ObservationMutation;
-import com.google.android.gnd.model.observation.ResponseDelta;
+import com.google.android.gnd.persistence.local.LocalDataConsistencyException;
+import com.google.android.gnd.persistence.local.room.converter.ResponseDeltasConverter;
 import com.google.android.gnd.persistence.local.room.models.MutationEntityType;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.AutoValue.CopyAnnotations;
-import com.google.common.collect.ImmutableList;
 import java.util.Date;
 import org.json.JSONObject;
 
@@ -76,7 +79,7 @@ public abstract class ObservationMutationEntity extends MutationEntity {
   @CopyAnnotations
   @Nullable
   @ColumnInfo(name = "response_deltas")
-  public abstract ImmutableList<ResponseDelta> getResponseDeltas();
+  public abstract String getResponseDeltas();
 
   public static ObservationMutationEntity create(
       long id,
@@ -86,7 +89,7 @@ public abstract class ObservationMutationEntity extends MutationEntity {
       String formId,
       String observationId,
       MutationEntityType type,
-      ImmutableList<ResponseDelta> responseDeltas,
+      String responseDeltas,
       long retryCount,
       @Nullable String lastError,
       @Nullable String userId,
@@ -113,10 +116,10 @@ public abstract class ObservationMutationEntity extends MutationEntity {
         .setProjectId(m.getProjectId())
         .setFeatureId(m.getFeatureId())
         .setLayerId(m.getLayerId())
-        .setFormId(m.getFormId())
+        .setFormId(m.getForm().getId())
         .setObservationId(m.getObservationId())
         .setType(MutationEntityType.fromMutationType(m.getType()))
-        .setResponseDeltas(m.getResponseDeltas())
+        .setResponseDeltas(ResponseDeltasConverter.toString(m.getResponseDeltas()))
         .setRetryCount(m.getRetryCount())
         .setLastError(m.getLastError())
         .setUserId(m.getUserId())
@@ -124,16 +127,30 @@ public abstract class ObservationMutationEntity extends MutationEntity {
         .build();
   }
 
-  public ObservationMutation toMutation() {
+  public ObservationMutation toMutation(Project project) throws LocalDataConsistencyException {
+    Layer layer =
+        project
+            .getLayer(getLayerId())
+            .orElseThrow(
+                () ->
+                    new LocalDataConsistencyException(
+                        "Unknown layerId in  in observation mutation " + getId()));
+    Form form =
+        layer
+            .getForm(getFormId())
+            .orElseThrow(
+                () ->
+                    new LocalDataConsistencyException(
+                        "Unknown formId in observation mutation " + getId()));
     return ObservationMutation.builder()
         .setId(getId())
         .setProjectId(getProjectId())
         .setFeatureId(getFeatureId())
         .setLayerId(getLayerId())
-        .setFormId(getFormId())
+        .setForm(form)
         .setObservationId(getObservationId())
         .setType(getType().toMutationType())
-        .setResponseDeltas(getResponseDeltas())
+        .setResponseDeltas(ResponseDeltasConverter.fromString(form, getResponseDeltas()))
         .setRetryCount(getRetryCount())
         .setLastError(getLastError())
         .setUserId(getUserId())
@@ -158,7 +175,7 @@ public abstract class ObservationMutationEntity extends MutationEntity {
 
     public abstract Builder setObservationId(String newObservationId);
 
-    public abstract Builder setResponseDeltas(ImmutableList<ResponseDelta> newResponseDeltas);
+    public abstract Builder setResponseDeltas(String newResponseDeltas);
 
     public abstract ObservationMutationEntity build();
   }

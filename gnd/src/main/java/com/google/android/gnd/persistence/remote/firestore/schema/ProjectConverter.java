@@ -21,6 +21,7 @@ import static com.google.android.gnd.util.Localization.getLocalizedMessage;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.basemap.OfflineBaseMapSource;
 import com.google.android.gnd.persistence.remote.DataStoreException;
+import com.google.common.collect.ImmutableMap;
 import com.google.firebase.firestore.DocumentSnapshot;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -41,6 +42,7 @@ class ProjectConverter {
       Maps.forEach(
           pd.getLayers(), (id, obj) -> project.putLayer(id, LayerConverter.toLayer(id, obj)));
     }
+    project.setAcl(ImmutableMap.copyOf(pd.getAcl()));
     if (pd.getOfflineBaseMapSources() != null) {
       convertOfflineBaseMapSources(pd, project);
     }
