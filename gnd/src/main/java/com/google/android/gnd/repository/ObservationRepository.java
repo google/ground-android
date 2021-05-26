@@ -148,7 +148,7 @@ public class ObservationRepository {
             .setFeatureId(observation.getFeature().getId())
             .setLayerId(observation.getFeature().getLayer().getId())
             .setObservationId(observation.getId())
-            .setFormId(observation.getForm().getId())
+            .setForm(observation.getForm())
             .setResponseDeltas(ImmutableList.of())
             .setClientTimestamp(new Date())
             .setUserId(authManager.getCurrentUser().getId())
@@ -156,7 +156,7 @@ public class ObservationRepository {
     return applyAndEnqueue(observationMutation);
   }
 
-  public Completable addObservationMutation(
+  public Completable createOrUpdateObservation(
       Observation observation, ImmutableList<ResponseDelta> responseDeltas, boolean isNew) {
     ObservationMutation observationMutation =
         ObservationMutation.builder()
@@ -165,7 +165,7 @@ public class ObservationRepository {
             .setFeatureId(observation.getFeature().getId())
             .setLayerId(observation.getFeature().getLayer().getId())
             .setObservationId(observation.getId())
-            .setFormId(observation.getForm().getId())
+            .setForm(observation.getForm())
             .setResponseDeltas(responseDeltas)
             .setClientTimestamp(new Date())
             .setUserId(authManager.getCurrentUser().getId())

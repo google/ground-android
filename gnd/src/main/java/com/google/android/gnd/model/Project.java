@@ -28,6 +28,11 @@ import java8.util.Optional;
 @AutoValue
 public abstract class Project {
 
+  // TODO: Convert role strings to enums.
+  public static final String OWNER = "owner";
+  public static final String MANAGER = "manager";
+  public static final String CONTRIBUTOR = "contributor";
+
   public abstract String getId();
 
   public abstract String getTitle();
@@ -48,8 +53,10 @@ public abstract class Project {
     return Optional.ofNullable(getLayerMap().get(layerId));
   }
 
+  public abstract ImmutableMap<String, String> getAcl();
+
   public static Builder newBuilder() {
-    return new AutoValue_Project.Builder();
+    return new AutoValue_Project.Builder().setAcl(ImmutableMap.of());
   }
 
   @AutoValue.Builder
@@ -66,6 +73,8 @@ public abstract class Project {
       layerMapBuilder().put(id, layer);
       return this;
     }
+
+    public abstract Builder setAcl(ImmutableMap<String, String> acl);
 
     public abstract ImmutableList.Builder<OfflineBaseMapSource> offlineBaseMapSourcesBuilder();
 

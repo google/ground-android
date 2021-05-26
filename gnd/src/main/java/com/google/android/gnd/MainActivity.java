@@ -166,7 +166,7 @@ public class MainActivity extends AbstractActivity {
 
   private void showSignInDialog() {
     if (signInProgressDialog == null) {
-      signInProgressDialog = ProgressDialogs.modalSpinner(this, R.string.please_wait_logging_in);
+      signInProgressDialog = ProgressDialogs.modalSpinner(this, R.string.signing_in);
     }
     signInProgressDialog.show();
   }
