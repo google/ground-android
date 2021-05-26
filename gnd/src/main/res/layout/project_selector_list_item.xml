@@ -24,8 +24,8 @@
     android:id="@+id/project_name"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:padding="26dp"
+    android:padding="@dimen/selector_dialog_list_item_padding"
     android:textColor="@color/colorForeground"
-    android:textSize="16sp"/>
+    android:textSize="@dimen/selector_dialog_list_item_text_size" />
 
 </FrameLayout>

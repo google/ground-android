@@ -36,7 +36,6 @@ import com.google.common.collect.ImmutableList;
 import dagger.hilt.android.AndroidEntryPoint;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
-import org.jetbrains.annotations.NotNull;
 
 @AndroidEntryPoint
 public class FeatureSelectorFragment extends AbstractDialogFragment {
@@ -54,7 +53,7 @@ public class FeatureSelectorFragment extends AbstractDialogFragment {
   }
 
   @Override
-  public @NotNull Dialog onCreateDialog(Bundle savedInstanceState) {
+  public Dialog onCreateDialog(Bundle savedInstanceState) {
     super.onCreateDialog(savedInstanceState);
     AlertDialog.Builder dialog = new Builder(getContext());
     dialog.setTitle("Select Feature");

@@ -41,14 +41,14 @@ import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.SharedViewModel;
 import com.google.android.gnd.ui.map.MapFeature;
-import com.google.android.gnd.ui.map.MapGeoJson;
 import com.google.android.gnd.ui.map.MapPin;
 import com.google.common.collect.ImmutableList;
+import io.reactivex.BackpressureStrategy;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.processors.FlowableProcessor;
 import io.reactivex.processors.PublishProcessor;
-import io.reactivex.subjects.BehaviorSubject;
+import io.reactivex.subjects.PublishSubject;
 import java8.util.Optional;
 import javax.inject.Inject;
 import timber.log.Timber;
@@ -91,8 +91,11 @@ public class HomeScreenViewModel extends AbstractViewModel {
   @Hot(replays = true)
   private final MutableLiveData<Integer> addFeatureButtonVisibility = new MutableLiveData<>(GONE);
 
-  private final BehaviorSubject<ImmutableList<Feature>> candidateFeatures =
-      BehaviorSubject.create();
+  @Hot
+  private final PublishSubject<ImmutableList<Feature>> overlappingFeaturesSubject =
+      PublishSubject.create();
+
+  private final LiveData<ImmutableList<Feature>> overlappingFeatures;
 
   @Inject
   HomeScreenViewModel(
@@ -129,6 +132,9 @@ public class HomeScreenViewModel extends AbstractViewModel {
             updateFeatureRequests.switchMapSingle(
                 feature ->
                     toBooleanSingle(featureRepository.updateFeature(feature), this::handleError)));
+    overlappingFeatures =
+        LiveDataReactiveStreams.fromPublisher(
+            overlappingFeaturesSubject.toFlowable(BackpressureStrategy.LATEST));
   }
 
   private void handleError(Throwable throwable) {
@@ -154,6 +160,10 @@ public class HomeScreenViewModel extends AbstractViewModel {
 
   public LiveData<Integer> getAddFeatureButtonVisibility() {
     return addFeatureButtonVisibility;
+  }
+
+  public LiveData<ImmutableList<Feature>> getOverlappingFeatures() {
+    return overlappingFeatures;
   }
 
   public LiveData<Feature> getAddFeatureResults() {
@@ -278,29 +288,17 @@ public class HomeScreenViewModel extends AbstractViewModel {
     navigator.navigate(HomeScreenFragmentDirections.actionHomeScreenFragmentToSettingsActivity());
   }
 
-  public Observable<ImmutableList<Feature>> getOverlappingFeatures() {
-    return candidateFeatures;
+  public Observable<ImmutableList<Feature>> getOverlappingFeaturesOnceAndStream() {
+    return overlappingFeaturesSubject;
   }
 
   public void onFeatureClick(ImmutableList<MapFeature> mapFeatures) {
-    showFeatureSelector(mapFeatures);
-  }
-
-  private void showFeatureSelector(ImmutableList<MapFeature> mapFeatures) {
     ImmutableList<Feature> features =
         stream(mapFeatures)
-            .map(
-                feature -> {
-                  if (feature instanceof MapPin) {
-                    return ((MapPin) feature).getFeature();
-                  } else if (feature instanceof MapGeoJson) {
-                    return ((MapGeoJson) feature).getFeature();
-                  }
-                  return null;
-                })
+            .map(MapFeature::getFeature)
             .filter(f -> f != null)
             .collect(toImmutableList());
-    candidateFeatures.onNext(features);
+    overlappingFeaturesSubject.onNext(features);
   }
 
   private Optional<Project> getActiveProject() {

@@ -335,24 +335,31 @@ class GoogleMapsMapAdapter implements MapAdapter {
     layer.addLayerToMap();
 
     for (GeoJsonFeature geoJsonFeature : layer.getFeatures()) {
-      if ("Polygon".equals(geoJsonFeature.getGeometry().getGeometryType())) {
-        GeoJsonPolygon polygon = (GeoJsonPolygon) geoJsonFeature.getGeometry();
-
-        geoJsonPolygonLoops.put(mapFeature, polygon.getOuterBoundaryCoordinates());
-        geoJsonPolygonHoles.put(mapFeature, polygon.getInnerBoundaryCoordinates());
-      }
-      if ("MultiPolygon".equals(geoJsonFeature.getGeometry().getGeometryType())) {
-        GeoJsonMultiPolygon multi = (GeoJsonMultiPolygon) geoJsonFeature.getGeometry();
-
-        for (GeoJsonPolygon polygon : multi.getPolygons()) {
-          geoJsonPolygonLoops.put(mapFeature, polygon.getOuterBoundaryCoordinates());
-          geoJsonPolygonHoles.put(mapFeature, polygon.getInnerBoundaryCoordinates());
-        }
-      }
+      updateGeoJsonPolygonBoundaries(geoJsonFeature, mapFeature);
     }
 
     map.setOnMapClickListener(this::onMapClick);
     geoJsonLayers.add(layer);
+  }
+
+  /* Adds the inner and outer boundaries (holes and loops) of polygons defined by a GeoJson feature
+  to the adapters lists of known polygon boundaries, associating them with the given MapFeature. */
+  private void updateGeoJsonPolygonBoundaries(
+      GeoJsonFeature geoJsonFeature, MapFeature mapFeature) {
+    if ("Polygon".equals(geoJsonFeature.getGeometry().getGeometryType())) {
+      GeoJsonPolygon polygon = (GeoJsonPolygon) geoJsonFeature.getGeometry();
+
+      geoJsonPolygonLoops.put(mapFeature, polygon.getOuterBoundaryCoordinates());
+      geoJsonPolygonHoles.put(mapFeature, polygon.getInnerBoundaryCoordinates());
+    }
+    if ("MultiPolygon".equals(geoJsonFeature.getGeometry().getGeometryType())) {
+      GeoJsonMultiPolygon multi = (GeoJsonMultiPolygon) geoJsonFeature.getGeometry();
+
+      for (GeoJsonPolygon polygon : multi.getPolygons()) {
+        geoJsonPolygonLoops.put(mapFeature, polygon.getOuterBoundaryCoordinates());
+        geoJsonPolygonHoles.put(mapFeature, polygon.getInnerBoundaryCoordinates());
+      }
+    }
   }
 
   private void onMapClick(LatLng latLng) {

@@ -123,10 +123,7 @@ public class HomeScreenFragment extends AbstractFragment
         .getShowAddFeatureDialogRequests()
         .observe(this, e -> e.ifUnhandled(this::onShowAddFeatureDialogRequest));
     viewModel.getBottomSheetState().observe(this, this::onBottomSheetStateChange);
-    viewModel
-        .getOverlappingFeatures()
-        .as(autoDisposable(this))
-        .subscribe(this::onTapOverlappingFeatures);
+    viewModel.getOverlappingFeatures().observe(this, this::showFeatureSelector);
     viewModel.getOpenDrawerRequests().observe(this, e -> e.ifUnhandled(this::openDrawer));
     viewModel.getAddFeatureResults().observe(this, this::onFeatureAdded);
     viewModel.getUpdateFeatureResults().observe(this, this::onFeatureUpdated);
@@ -136,10 +133,6 @@ public class HomeScreenFragment extends AbstractFragment
         .getFeatureSelections()
         .as(autoDisposable(this))
         .subscribe(this::onFeatureSelection);
-  }
-
-  private void onTapOverlappingFeatures(ImmutableList<Feature> features) {
-    showFeatureSelector(features);
   }
 
   private void onFeatureSelection(Feature feature) {

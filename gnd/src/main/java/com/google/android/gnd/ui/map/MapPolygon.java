@@ -38,6 +38,7 @@ public abstract class MapPolygon extends MapFeature {
   public abstract Style getStyle();
 
   @Nullable
+  @Override
   public abstract Feature getFeature();
 
   @AutoValue.Builder
