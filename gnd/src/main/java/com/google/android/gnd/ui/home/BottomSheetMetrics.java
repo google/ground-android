@@ -24,6 +24,10 @@ import timber.log.Timber;
 
 /** Abstracts access to dimensions and positions of elements relative to the bottom sheet UI. */
 public class BottomSheetMetrics {
+
+  /** Fallback toolbar height - margin top used when toolbar height is uninitialized. */
+  public static final int FALLBACK_EXPANDED_OFFSET = 210 - 168;
+
   private final CoordinatorLayout parent;
   private final View bottomSheet;
   private final View addObservationButton;
@@ -81,11 +85,12 @@ public class BottomSheetMetrics {
    * stop expanding just below the top toolbar.
    */
   public int getExpandedOffset() {
+    // TODO(#828): Remove this workaround once the root cause is identified and fixed.
     if (toolbarWrapper.getHeight() < marginTop) {
       Timber.e(
           "toolbarWrapper height %d < marginTop %d. Falling back to default height",
           toolbarWrapper.getHeight(), marginTop);
-      return 210 - 168;
+      return FALLBACK_EXPANDED_OFFSET;
     }
     return toolbarWrapper.getHeight() - marginTop;
   }
