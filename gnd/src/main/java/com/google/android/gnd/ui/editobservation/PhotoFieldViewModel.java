@@ -28,7 +28,6 @@ import com.google.android.gnd.model.form.Field.Type;
 import com.google.android.gnd.model.observation.Response;
 import com.google.android.gnd.repository.UserMediaRepository;
 import com.google.android.gnd.rx.annotations.Hot;
-import com.google.android.gnd.ui.util.FileUtil;
 import io.reactivex.processors.BehaviorProcessor;
 import io.reactivex.processors.FlowableProcessor;
 import java8.util.Optional;
@@ -38,8 +37,6 @@ import timber.log.Timber;
 public class PhotoFieldViewModel extends AbstractFieldViewModel {
 
   private static final String EMPTY_PATH = "";
-
-  private final UserMediaRepository userMediaRepository;
 
   @Hot(replays = true)
   private final FlowableProcessor<String> destinationPath = BehaviorProcessor.create();
@@ -54,10 +51,8 @@ public class PhotoFieldViewModel extends AbstractFieldViewModel {
   private final MutableLiveData<Integer> clearButtonVisibility = new MutableLiveData<>(View.GONE);
 
   @Inject
-  PhotoFieldViewModel(
-      UserMediaRepository userMediaRepository, FileUtil fileUtil, Application application) {
+  PhotoFieldViewModel(UserMediaRepository userMediaRepository, Application application) {
     super(application);
-    this.userMediaRepository = userMediaRepository;
     this.isVisible =
         LiveDataReactiveStreams.fromPublisher(destinationPath.map(path -> !path.isEmpty()));
     this.uri =
