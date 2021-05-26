@@ -20,6 +20,7 @@ import android.view.View;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import com.google.android.gnd.R;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import timber.log.Timber;
 
 /** Abstracts access to dimensions and positions of elements relative to the bottom sheet UI. */
 public class BottomSheetMetrics {
@@ -80,6 +81,12 @@ public class BottomSheetMetrics {
    * stop expanding just below the top toolbar.
    */
   public int getExpandedOffset() {
+    if (toolbarWrapper.getHeight() < marginTop) {
+      Timber.e(
+          "toolbarWrapper height %d < marginTop %d. Falling back to default height",
+          toolbarWrapper.getHeight(), marginTop);
+      return 210 - 168;
+    }
     return toolbarWrapper.getHeight() - marginTop;
   }
 
