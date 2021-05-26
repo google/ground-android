@@ -18,14 +18,11 @@ package com.google.android.gnd.ui.util;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.net.Uri;
-import androidx.annotation.RawRes;
 import dagger.hilt.android.qualifiers.ApplicationContext;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import javax.inject.Inject;
-import org.apache.commons.io.FileUtils;
 import timber.log.Timber;
 
 public class FileUtil {
@@ -51,30 +48,6 @@ public class FileUtil {
     File file = new File(context.getFilesDir(), filename);
     Timber.d("Photo saved : %s", file.getPath());
     return file;
-  }
-
-  /**
-   * Returns the path of the file saved in the sdcard used for uploading to the provided destination
-   * path.
-   */
-  public File getLocalFileFromRemotePath(String destinationPath) {
-    String[] splits = destinationPath.split("/");
-    String filename = splits[splits.length - 1];
-    File file = new File(context.getFilesDir(), filename);
-    if (!file.exists()) {
-      Timber.e("File not found: %s", file.getPath());
-    }
-    return file;
-  }
-
-  public Uri getFileUriFromRemotePath(String destinationPath) {
-    File file = getLocalFileFromRemotePath(destinationPath);
-    if (file.exists()) {
-      return Uri.fromFile(file);
-    } else {
-      Timber.d("File doesn't exist locally: %s", file.getPath());
-      return Uri.EMPTY;
-    }
   }
 
   /**

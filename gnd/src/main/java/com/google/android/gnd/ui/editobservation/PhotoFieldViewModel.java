@@ -26,10 +26,9 @@ import androidx.lifecycle.MutableLiveData;
 import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.form.Field.Type;
 import com.google.android.gnd.model.observation.Response;
-import com.google.android.gnd.persistence.remote.RemoteStorageManager;
+import com.google.android.gnd.repository.UserMediaRepository;
 import com.google.android.gnd.rx.annotations.Hot;
 import com.google.android.gnd.ui.util.FileUtil;
-import io.reactivex.Single;
 import io.reactivex.processors.BehaviorProcessor;
 import io.reactivex.processors.FlowableProcessor;
 import java8.util.Optional;
@@ -39,8 +38,8 @@ import timber.log.Timber;
 public class PhotoFieldViewModel extends AbstractFieldViewModel {
 
   private static final String EMPTY_PATH = "";
-  private final RemoteStorageManager remoteStorageManager;
-  private final FileUtil fileUtil;
+
+  private final UserMediaRepository userMediaRepository;
 
   @Hot(replays = true)
   private final FlowableProcessor<String> destinationPath = BehaviorProcessor.create();
@@ -56,30 +55,14 @@ public class PhotoFieldViewModel extends AbstractFieldViewModel {
 
   @Inject
   PhotoFieldViewModel(
-      RemoteStorageManager remoteStorageManager, FileUtil fileUtil, Application application) {
+      UserMediaRepository userMediaRepository, FileUtil fileUtil, Application application) {
     super(application);
-    this.remoteStorageManager = remoteStorageManager;
-    this.fileUtil = fileUtil;
+    this.userMediaRepository = userMediaRepository;
     this.isVisible =
         LiveDataReactiveStreams.fromPublisher(destinationPath.map(path -> !path.isEmpty()));
     this.uri =
         LiveDataReactiveStreams.fromPublisher(
-            destinationPath.switchMapSingle(this::getDownloadUrl));
-  }
-
-  /**
-   * Fetch url for the image from Firestore Storage. If the remote image is not available then
-   * search for the file locally and return its uri.
-   *
-   * @param path Final destination path of the uploaded photo relative to Firestore
-   */
-  @Hot(terminates = true)
-  private Single<Uri> getDownloadUrl(String path) {
-    return path.isEmpty()
-        ? Single.just(Uri.EMPTY)
-        : remoteStorageManager
-            .getDownloadUrl(path)
-            .onErrorReturn(__ -> fileUtil.getFileUriFromRemotePath(path));
+            destinationPath.switchMapSingle(userMediaRepository::getDownloadUrl));
   }
 
   public LiveData<Uri> getUri() {
