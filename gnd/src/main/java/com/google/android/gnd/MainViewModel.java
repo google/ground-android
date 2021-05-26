@@ -60,7 +60,6 @@ public class MainViewModel extends AbstractViewModel {
   private final Navigator navigator;
   private final EphemeralPopups popups;
   private final LocalValueStore localValueStore;
-  private final AuthenticationManager authenticationManager;
 
   @Inject
   public MainViewModel(
@@ -77,7 +76,6 @@ public class MainViewModel extends AbstractViewModel {
     this.navigator = navigator;
     this.popups = popups;
     this.localValueStore = localValueStore;
-    this.authenticationManager = authenticationManager;
 
     // TODO: Move to background service.
     disposeOnClear(
