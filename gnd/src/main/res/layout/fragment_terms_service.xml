@@ -52,7 +52,7 @@
           android:layout_height="?attr/actionBarSize"
           android:layout_gravity="top"
           android:theme="@style/WhiteToolbarTheme"
-          app:title="@string/terms_conditions" />
+          app:title="@string/tos_title" />
 
       </LinearLayout>
 

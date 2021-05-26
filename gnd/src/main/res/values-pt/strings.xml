@@ -130,8 +130,8 @@ Tem certeza que deseja apagar o local e todos os dados associados? Isso não pod
   <string name="sign_out">Sair</string>
   <string name="cancel">Cancelar</string>
 
-  <string name="terms_conditions">Termos e Condições</string>
+  <string name="tos_title">Termos e Condições</string>
   <string name="submit_button">Enviar</string>
-  <string name="agree_checkbox">Eu concordo com os Termos de Serviço</string>
+  <string name="agree_checkbox">Eu aceito os Termos de Serviço</string>
 
 </resources>
