@@ -90,9 +90,6 @@ class GoogleMapsMapAdapter implements MapAdapter {
   /** Marker click events. */
   @Hot private final Subject<MapPin> markerClicks = PublishSubject.create();
 
-  /** GeoJson click events. */
-  @Hot private final Subject<MapGeoJson> geoJsonClicks = PublishSubject.create();
-
   /** Ambiguous click events. */
   @Hot private final Subject<ImmutableList<MapFeature>> featureClicks = PublishSubject.create();
 

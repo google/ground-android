@@ -48,7 +48,6 @@ import com.google.android.gnd.ui.map.CameraPosition;
 import com.google.android.gnd.ui.map.MapFeature;
 import com.google.android.gnd.ui.map.MapGeoJson;
 import com.google.android.gnd.ui.map.MapPin;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Flowable;
