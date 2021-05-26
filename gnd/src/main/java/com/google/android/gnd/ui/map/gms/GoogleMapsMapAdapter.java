@@ -17,7 +17,6 @@
 package com.google.android.gnd.ui.map.gms;
 
 import static com.google.android.gms.maps.GoogleMap.OnCameraMoveStartedListener.REASON_DEVELOPER_ANIMATION;
-import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList;
 import static java8.util.stream.StreamSupport.stream;
 
 import android.annotation.SuppressLint;
@@ -49,6 +48,7 @@ import com.google.android.gnd.ui.map.MapGeoJson;
 import com.google.android.gnd.ui.map.MapPin;
 import com.google.android.gnd.ui.map.MapPolygon;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableList.Builder;
 import com.google.common.collect.ImmutableSet;
 import com.google.maps.android.PolyUtil;
 import com.google.maps.android.collections.MarkerManager;
@@ -68,7 +68,6 @@ import io.reactivex.subjects.PublishSubject;
 import io.reactivex.subjects.Subject;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -179,12 +178,9 @@ class GoogleMapsMapAdapter implements MapAdapter {
 
   // Handle taps on ambiguous features.
   private void handleAmbiguity(LatLng latLng) {
-    Collection<MapFeature> candidates = new ArrayList<>();
+    Builder<MapFeature> candidates = ImmutableList.builder();
     ArrayList<String> processed = new ArrayList<>();
 
-    // TODO: Divide the earth into four sectors to avoid iterating through all markers
-    // going clockwise from SW corner, SW followed by NE coords:
-    // (-90,-180)+(0,0); (0,-180)+(90,0); (0,0)+(90,180); (-90,0)+(0,180)
     for (Map.Entry<MapFeature, ArrayList<ArrayList<LatLng>>> json :
         geoJsonPolygonHoles.entrySet()) {
       ArrayList<ArrayList<LatLng>> holes = json.getValue();
@@ -208,7 +204,7 @@ class GoogleMapsMapAdapter implements MapAdapter {
       }
     }
 
-    featureClicks.onNext(stream(candidates).collect(toImmutableList()));
+    featureClicks.onNext(candidates.build());
   }
 
   private boolean onMarkerClick(Marker marker) {
@@ -226,12 +222,6 @@ class GoogleMapsMapAdapter implements MapAdapter {
   @Override
   public Observable<MapPin> getMapPinClicks() {
     return markerClicks;
-  }
-
-  @Hot
-  @Override
-  public Observable<MapGeoJson> getMapGeoJsonClicks() {
-    return geoJsonClicks;
   }
 
   @Override

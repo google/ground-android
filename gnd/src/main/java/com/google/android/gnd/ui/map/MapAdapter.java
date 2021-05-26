@@ -36,10 +36,6 @@ public interface MapAdapter {
   @Hot
   Observable<MapPin> getMapPinClicks();
 
-  /** Returns polygon click events. */
-  @Hot
-  Observable<MapGeoJson> getMapGeoJsonClicks();
-
   @Hot Observable<ImmutableList<MapFeature>> getFeatureClicks();
 
   /**

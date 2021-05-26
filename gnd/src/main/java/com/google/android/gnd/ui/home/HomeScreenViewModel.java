@@ -278,11 +278,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
     navigator.navigate(HomeScreenFragmentDirections.actionHomeScreenFragmentToSettingsActivity());
   }
 
-  public void onGeoJsonClick(MapGeoJson mapGeoJson) {
-    showBottomSheet(mapGeoJson.getFeature());
-  }
-
-  public Observable<ImmutableList<Feature>> getCandidateFeatures() {
+  public Observable<ImmutableList<Feature>> getOverlappingFeatures() {
     return candidateFeatures;
   }
 
@@ -296,11 +292,9 @@ public class HomeScreenViewModel extends AbstractViewModel {
             .map(
                 feature -> {
                   if (feature instanceof MapPin) {
-                    Feature feat = ((MapPin) feature).getFeature();
-                    return feat;
+                    return ((MapPin) feature).getFeature();
                   } else if (feature instanceof MapGeoJson) {
-                    Feature feat = ((MapGeoJson) feature).getFeature();
-                    return feat;
+                    return ((MapGeoJson) feature).getFeature();
                   }
                   return null;
                 })

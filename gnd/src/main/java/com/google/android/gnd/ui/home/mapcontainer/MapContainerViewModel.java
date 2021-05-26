@@ -324,14 +324,6 @@ public class MapContainerViewModel extends AbstractViewModel {
     this.selectedFeature = selectedFeature;
   }
 
-  public void onGeoJsonClick(MapGeoJson mapGeoJson) {
-    // TODO: Move the camera and adjust styling appropriately.
-  }
-
-  public void onFeatureClick(ImmutableList<MapFeature> mapFeatures) {
-    Timber.i("Got ambiguous feature click: %s", mapFeatures.size());
-  }
-
   public enum Mode {
     DEFAULT,
     REPOSITION
