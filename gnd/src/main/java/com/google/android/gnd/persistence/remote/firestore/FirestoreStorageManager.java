@@ -67,7 +67,8 @@ public class FirestoreStorageManager implements RemoteStorageManager {
   @Cold
   @Override
   public Single<Uri> getDownloadUrl(String remoteDestinationPath) {
-    return RxTask.toSingle(() -> createReference(remoteDestinationPath).getDownloadUrl());
+    return RxTask.toSingle(() -> createReference(remoteDestinationPath).getDownloadUrl())
+        .doOnError(e -> Timber.e("StorageException handled and can be ignored"));
   }
 
   @Cold
