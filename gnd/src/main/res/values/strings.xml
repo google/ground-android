@@ -155,7 +155,6 @@
   <string name="offline_base_map_viewer_title">Offline base map area</string>
   <string name="offline_base_map_viewer_remove_button">Remove</string>
   <string name="offline_base_map_viewer_storage">This base map takes up %.1f MB of storage space on your device.</string>
-  <string name="offline_base_map_name">%s</string>
   <string name="unnamed_area">Unnamed area</string>
   <string name="offline_base_map_download_started">Download started.</string>
   <string name="offline_base_map_download_failed">Couldn\'t download base map.</string>
@@ -171,4 +170,7 @@
   <string name="tos_title">Terms Of Service</string>
   <string name="agree_terms">Agree</string>
   <string name="agree_checkbox">I agree to the Terms of Service</string>
+
+  <!-- Other strings (to be organized) -->
+  <string name="offline_base_map_name" translatable="false">%s</string>
 </resources>
