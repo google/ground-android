@@ -79,7 +79,7 @@ public class PhotoFieldViewModel extends AbstractFieldViewModel {
         ? Single.just(Uri.EMPTY)
         : remoteStorageManager
             .getDownloadUrl(path)
-            .onErrorReturn(throwable -> fileUtil.getFileUriFromRemotePath(path));
+            .onErrorReturn(__ -> fileUtil.getFileUriFromRemotePath(path));
   }
 
   public LiveData<Uri> getUri() {
