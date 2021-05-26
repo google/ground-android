@@ -48,6 +48,8 @@ public class MapContainerLayoutBehavior extends BottomSheetDependentBehavior<Fra
     if (metrics.getVisibleHeight() >= metrics.getExpandedOffset()) {
       int translationY = -(metrics.getVisibleHeight() - metrics.getExpandedOffset()) / 2;
       map.setTranslationY(translationY);
+    } else {
+      map.setTranslationY(0);
     }
 
     float hideRatio = 1.0f - metrics.getRevealRatio();
