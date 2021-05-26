@@ -63,7 +63,6 @@ public class MainViewModel extends AbstractViewModel {
 
   private final ProjectRepository projectRepository;
   private final FeatureRepository featureRepository;
-  private final TermsRepository termsRepository;
   private final Navigator navigator;
   private final EphemeralPopups popups;
   private final LocalValueStore localValueStore;
@@ -83,7 +82,6 @@ public class MainViewModel extends AbstractViewModel {
       LocalValueStore localValueStore) {
     this.projectRepository = projectRepository;
     this.featureRepository = featureRepository;
-    this.termsRepository = termsRepository;
     this.navigator = navigator;
     this.popups = popups;
     this.localValueStore = localValueStore;
@@ -104,7 +102,8 @@ public class MainViewModel extends AbstractViewModel {
             .observeOn(schedulers.ui())
             .subscribe(this::onSignInStateChange));
 
-    disposeOnClear(termsRepository.getProjectTerms().observeOn(schedulers.ui()).subscribe(this::getProjectTerms));
+    disposeOnClear(termsRepository.getProjectTerms()
+        .observeOn(schedulers.ui()).subscribe(this::getProjectTerms));
   }
 
   /**
@@ -149,7 +148,7 @@ public class MainViewModel extends AbstractViewModel {
   }
 
   private void getProjectTerms(Loadable<Terms> projectTerms) {
-      termsState.setValue(projectTerms.getState());
+    termsState.setValue(projectTerms.getState());
   }
 
   private void showProgressDialog() {
@@ -179,7 +178,7 @@ public class MainViewModel extends AbstractViewModel {
       navigator.navigate(HomeScreenFragmentDirections.showHomeScreen());
     } else {
       if (signInProgressDialogVisibility.getValue() == null) {
-            authenticationManager.signOut();
+        authenticationManager.signOut();
       } else {
         navigator.navigate(SignInFragmentDirections.proceedToTermsScreen());
       }

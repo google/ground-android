@@ -59,7 +59,7 @@ public class Loadable<T> extends ValueOrError<T> {
   }
 
   public static <T> Loadable<T> error(Throwable t) {
-    if(t instanceof NotFoundException){
+    if (t instanceof NotFoundException) {
       return new Loadable<>(LoadState.NOT_FOUND, null, t);
     }
     return new Loadable<>(LoadState.ERROR, null, t);

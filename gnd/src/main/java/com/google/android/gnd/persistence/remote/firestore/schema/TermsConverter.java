@@ -16,9 +16,6 @@
 
 package com.google.android.gnd.persistence.remote.firestore.schema;
 
-import static com.google.android.gnd.util.Localization.getLocalizedMessage;
-
-import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.Terms;
 import com.google.android.gnd.persistence.remote.DataStoreException;
 import com.google.firebase.firestore.DocumentSnapshot;

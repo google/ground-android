@@ -54,6 +54,7 @@ public interface RemoteDataStore {
    */
   @Cold
   Single<Terms> loadTerms();
+
   /**
    * Returns all features in the specified project, then continues to emit any remote updates to the
    * set of features in the project until all subscribers have been disposed.

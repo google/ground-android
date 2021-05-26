@@ -17,7 +17,6 @@
 package com.google.android.gnd.persistence.remote.firestore.schema;
 
 import com.google.firebase.firestore.IgnoreExtraProperties;
-import java.util.Map;
 
 /** Terms entity stored in Firestore. */
 @IgnoreExtraProperties

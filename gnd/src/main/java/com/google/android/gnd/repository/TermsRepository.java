@@ -17,8 +17,6 @@
 package com.google.android.gnd.repository;
 
 import com.google.android.gnd.model.Terms;
-import com.google.android.gnd.persistence.local.LocalDataStore;
-import com.google.android.gnd.persistence.local.LocalValueStore;
 import com.google.android.gnd.persistence.remote.RemoteDataStore;
 import com.google.android.gnd.rx.Loadable;
 import com.google.android.gnd.rx.annotations.Cold;

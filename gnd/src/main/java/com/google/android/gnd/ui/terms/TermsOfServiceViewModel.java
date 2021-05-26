@@ -42,7 +42,8 @@ public class TermsOfServiceViewModel extends AbstractViewModel {
   private final LiveData<Loadable<Terms>> projectTerms;
 
   @Inject
-  public TermsOfServiceViewModel(Navigator navigator, LocalValueStore localValueStore, TermsRepository termsRepository) {
+  public TermsOfServiceViewModel(Navigator navigator,
+      LocalValueStore localValueStore, TermsRepository termsRepository) {
     this.navigator = navigator;
     this.localValueStore = localValueStore;
     this.projectTerms = LiveDataReactiveStreams.fromPublisher(
