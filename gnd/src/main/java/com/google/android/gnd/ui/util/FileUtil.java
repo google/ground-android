@@ -72,6 +72,7 @@ public class FileUtil {
     if (file.exists()) {
       return Uri.fromFile(file);
     } else {
+      Timber.d("File doesn't exist locally: %s", file.getPath());
       return Uri.EMPTY;
     }
   }
