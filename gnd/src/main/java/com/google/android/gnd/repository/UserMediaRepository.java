@@ -24,12 +24,14 @@ import dagger.hilt.android.qualifiers.ApplicationContext;
 import io.reactivex.Single;
 import java.io.File;
 import javax.inject.Inject;
+import javax.inject.Singleton;
 import timber.log.Timber;
 
 /**
  * Provides access to user-provided media stored locally and remotely. This currently includes only
  * photos.
  */
+@Singleton
 public class UserMediaRepository {
   @Inject RemoteStorageManager remoteStorageManager;
 
