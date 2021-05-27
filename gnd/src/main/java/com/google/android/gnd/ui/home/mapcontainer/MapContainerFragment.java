@@ -294,6 +294,7 @@ public class MapContainerFragment extends AbstractFragment {
 
   @Override
   public void onSaveInstanceState(@NonNull Bundle outState) {
+    super.onSaveInstanceState(outState);
     saveChildFragment(outState, mapProvider.getFragment(), MAP_FRAGMENT_KEY);
   }
 
