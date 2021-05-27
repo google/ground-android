@@ -16,8 +16,6 @@
 
 package com.google.android.gnd.ui.home;
 
-import static android.view.View.GONE;
-import static android.view.View.VISIBLE;
 import static com.google.android.gnd.rx.RxCompletable.toBooleanSingle;
 
 import androidx.lifecycle.LiveData;
@@ -84,7 +82,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
   private final MutableLiveData<Throwable> errors = new MutableLiveData<>();
 
   @Hot(replays = true)
-  private final MutableLiveData<Integer> addFeatureButtonVisibility = new MutableLiveData<>(GONE);
+  private final MutableLiveData<Boolean> addFeatureButtonVisible = new MutableLiveData<>(false);
 
   @Inject
   HomeScreenViewModel(
@@ -129,7 +127,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
 
   /** Handle state of the UI elements depending upon the active project. */
   private void onProjectLoadingStateChange(Loadable<Project> project) {
-    addFeatureButtonVisibility.postValue(shouldShowAddFeatureButton(project) ? VISIBLE : GONE);
+    addFeatureButtonVisible.postValue(shouldShowAddFeatureButton(project));
   }
 
   private boolean shouldShowAddFeatureButton(Loadable<Project> project) {
@@ -144,8 +142,8 @@ public class HomeScreenViewModel extends AbstractViewModel {
     return !getModifiableLayers().isEmpty();
   }
 
-  public LiveData<Integer> getAddFeatureButtonVisibility() {
-    return addFeatureButtonVisibility;
+  public LiveData<Boolean> isAddFeatureButtonVisible() {
+    return addFeatureButtonVisible;
   }
 
   public LiveData<Feature> getAddFeatureResults() {
