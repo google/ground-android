@@ -140,8 +140,8 @@ public class HomeScreenViewModel extends AbstractViewModel {
     // TODO: Also check if the project has user-editable layers.
     //  Pending feature, https://github.com/google/ground-platform/issues/228
 
-    // Project must contain at least 1 layer.
-    return project.value().map(p -> !p.getLayers().isEmpty()).orElse(false);
+    // Project must contain at least one layer that the user can modify.
+    return !getModifiableLayers().isEmpty();
   }
 
   public LiveData<Integer> getAddFeatureButtonVisibility() {
