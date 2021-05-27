@@ -18,7 +18,6 @@ package com.google.android.gnd.ui.editobservation;
 
 import android.app.Application;
 import android.net.Uri;
-import android.view.View;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
@@ -42,18 +41,18 @@ public class PhotoFieldViewModel extends AbstractFieldViewModel {
   private final FlowableProcessor<String> destinationPath = BehaviorProcessor.create();
 
   private final LiveData<Uri> uri;
-  public final LiveData<Boolean> isVisible;
+  public final LiveData<Boolean> photoPresent;
 
   @Hot(replays = true)
   private final MutableLiveData<Field> showDialogClicks = new MutableLiveData<>();
 
   @Hot(replays = true)
-  private final MutableLiveData<Integer> clearButtonVisibility = new MutableLiveData<>(View.GONE);
+  private final MutableLiveData<Boolean> editable = new MutableLiveData<>(false);
 
   @Inject
   PhotoFieldViewModel(UserMediaRepository userMediaRepository, Application application) {
     super(application);
-    this.isVisible =
+    this.photoPresent =
         LiveDataReactiveStreams.fromPublisher(destinationPath.map(path -> !path.isEmpty()));
     this.uri =
         LiveDataReactiveStreams.fromPublisher(
@@ -91,11 +90,15 @@ public class PhotoFieldViewModel extends AbstractFieldViewModel {
     return showDialogClicks;
   }
 
-  public void setClearButtonVisible(boolean enabled) {
-    clearButtonVisibility.postValue(enabled ? View.VISIBLE : View.GONE);
+  public void setEditable(boolean enabled) {
+    editable.postValue(enabled);
   }
 
-  public LiveData<Integer> getClearButtonVisibility() {
-    return clearButtonVisibility;
+  public LiveData<Boolean> isPhotoPresent() {
+    return photoPresent;
+  }
+
+  public LiveData<Boolean> isEditable() {
+    return editable;
   }
 }
