@@ -73,7 +73,10 @@ public class GndApplication extends Application implements Configuration.Provide
     // Enable RxJava assembly stack collection for more useful stack traces.
     RxJava2Debug.enableRxJava2AssemblyTracking(new String[] {getClass().getPackage().getName()});
 
-    // Prevent RxJava from force-quitting on unhandled errors.
+    // Prevent RxJava from force-quitting on unhandled errors. Defining an error handler is
+    // necessary even if all errors are handled to avoid UndeliverableException when errors are
+    // triggered on streams with all subscriptions disposed. Read more:
+    // https://medium.com/@bherbst/the-rxjava2-default-error-handler-e50e0cab6f9f
     RxJavaPlugins.setErrorHandler(RxDebug::logEnhancedStackTrace);
 
     WorkManager.initialize(getApplicationContext(), getWorkManagerConfiguration());
