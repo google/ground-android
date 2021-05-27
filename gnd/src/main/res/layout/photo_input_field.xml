@@ -21,6 +21,7 @@
   xmlns:tools="http://schemas.android.com/tools">
 
   <data>
+    <import type="android.view.View" />
     <variable
       name="viewModel"
       type="com.google.android.gnd.ui.editobservation.PhotoFieldViewModel" />
@@ -48,6 +49,7 @@
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:onClick="@{()-> viewModel.onShowPhotoSelectorDialog()}"
+      android:visibility="@{viewModel.isPhotoPresent() ? View.GONE : View.VISIBLE}"
       android:text="@string/add_photo"
       android:textColor="@color/colorAccent"
       style="?attr/materialButtonOutlinedStyle" />

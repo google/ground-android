@@ -29,7 +29,7 @@
   <FrameLayout
     android:layout_width="match_parent"
     android:layout_height="200dp"
-    android:visibility="@{viewModel.isVisible ? View.VISIBLE : View.GONE }">
+    android:visibility="@{viewModel.isPhotoPresent() ? View.VISIBLE : View.GONE}">
     <ImageView
       android:id="@+id/image_thumbnail_preview"
       android:layout_width="match_parent"
@@ -44,7 +44,7 @@
       android:layout_height="wrap_content"
       android:layout_gravity="top|end"
       android:onClick="@{() -> viewModel.clearResponse()}"
-      android:visibility="@{viewModel.getClearButtonVisibility()}"
+      android:visibility="@{viewModel.isEditable() ? View.VISIBLE : View.GONE}"
       app:backgroundTint="@android:color/transparent"
       app:srcCompat="@drawable/ic_baseline_delete_24"
       app:tint="@color/colorGrey300" />
