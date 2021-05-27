@@ -41,6 +41,7 @@ public class FakeRemoteDataStore implements RemoteDataStore {
           .setId(FakeData.LAYER_NO_FORM_ID)
           .setName(FakeData.LAYER_NO_FORM_NAME)
           .setDefaultStyle(Style.builder().setColor(FakeData.LAYER_NO_FORM_COLOR).build())
+          .setContributorsCanAdd(ImmutableList.of("points"));
           .build();
 
   private final Project testProjectWithLayerAndNoForm =
