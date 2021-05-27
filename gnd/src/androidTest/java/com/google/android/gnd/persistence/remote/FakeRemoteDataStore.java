@@ -16,6 +16,8 @@
 
 package com.google.android.gnd.persistence.remote;
 
+import static com.google.android.gnd.system.auth.FakeAuthenticationManager.TEST_USER;
+
 import com.google.android.gnd.FakeData;
 import com.google.android.gnd.model.Mutation;
 import com.google.android.gnd.model.Project;
@@ -27,6 +29,7 @@ import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.rx.ValueOrError;
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Single;
@@ -50,6 +53,7 @@ public class FakeRemoteDataStore implements RemoteDataStore {
           .setTitle(FakeData.PROJECT_TITLE)
           .setDescription(FakeData.PROJECT_DESCRIPTION)
           .putLayer(FakeData.LAYER_NO_FORM_ID, layerWithNoForm)
+          .setAcl(ImmutableMap.of(TEST_USER.getEmail(), "contributor"))
           .build();
 
   private final Project testProjectWithNoLayers =
@@ -57,6 +61,7 @@ public class FakeRemoteDataStore implements RemoteDataStore {
           .setId(FakeData.PROJECT_ID_WITH_NO_LAYERS)
           .setTitle(FakeData.PROJECT_TITLE)
           .setDescription(FakeData.PROJECT_DESCRIPTION)
+          .setAcl(ImmutableMap.of(TEST_USER.getEmail(), "contributor"))
           .build();
 
   private String activeProjectId = FakeData.PROJECT_ID_WITH_LAYER_AND_NO_FORM;
