@@ -70,6 +70,9 @@ public class FirestoreStorageManager implements RemoteStorageManager {
   @Cold
   @Override
   public Single<Uri> getDownloadUrl(String remoteDestinationPath) {
+    // StorageException's constructor logs errors, so even though we handle the exception,
+    // an ERROR level log line is added which could be misleading to developers. We log an extra
+    // error message here as an extra hint that the log line is probably noise.
     return RxTask.toSingle(() -> createReference(remoteDestinationPath).getDownloadUrl())
         .doOnError(e -> Timber.e("StorageException handled and can be ignored"));
   }
