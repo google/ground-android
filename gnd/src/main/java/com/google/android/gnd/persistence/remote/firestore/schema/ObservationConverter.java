@@ -25,8 +25,10 @@ import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.model.observation.DateResponse;
 import com.google.android.gnd.model.observation.MultipleChoiceResponse;
+import com.google.android.gnd.model.observation.NumberResponse;
 import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.model.observation.ResponseMap;
+import com.google.android.gnd.model.observation.ResponseMap.Builder;
 import com.google.android.gnd.model.observation.TextResponse;
 import com.google.android.gnd.model.observation.TimeResponse;
 import com.google.android.gnd.persistence.remote.DataStoreException;
@@ -103,9 +105,19 @@ class ObservationConverter {
       case TIME:
         putTimeResponse(fieldId, obj, responses);
         break;
+      case NUMBER:
+        putNumberResponse(fieldId, obj, responses);
+        break;
+        // TODO(#748): Add support for date and time fields.
       default:
         throw new DataStoreException("Unknown type " + field.getType());
     }
+  }
+
+  private static void putNumberResponse(String fieldId, Object obj, Builder responses) {
+    double value = (Double) DataStoreException.checkType(Double.class, obj);
+    NumberResponse.fromNumber(Double.toString(value))
+        .ifPresent(r -> responses.putResponse(fieldId, r));
   }
 
   private static void putTextResponse(String fieldId, Object obj, ResponseMap.Builder responses) {

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!--
-  ~ Copyright 2020 Google LLC
+  ~ Copyright 2021 Google LLC
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -23,39 +23,32 @@
   <data>
     <variable
       name="viewModel"
-      type="com.google.android.gnd.ui.editobservation.PhotoFieldViewModel" />
+      type="com.google.android.gnd.ui.editobservation.NumberFieldViewModel" />
   </data>
 
   <LinearLayout
     style="@style/FieldView"
-    android:background="@drawable/field_background"
     android:orientation="vertical">
 
-    <TextView
-      android:id="@+id/field_label"
+    <com.google.android.material.textfield.TextInputLayout
+      android:id="@+id/number_input_layout"
       style="@style/EditObservation.Field.Text"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:hint="@{viewModel.fieldLabel()}"
-      android:paddingLeft="@dimen/photo_label_horizontal_padding"
-      android:paddingTop="@dimen/photo_label_vertical_padding"
-      android:paddingRight="@dimen/photo_label_horizontal_padding"
-      android:paddingBottom="@dimen/photo_label_vertical_padding"
-      tools:text="Question label?" />
+      android:hint="@{viewModel.fieldLabel()}">
 
-    <include
-      layout="@layout/photo_field"
-      app:viewModel="@{viewModel}"
-      tools:visibility="visible" />
+      <com.google.android.material.textfield.TextInputEditText
+        android:id="@+id/number_input_edit_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="numberDecimal"
+        android:maxLines="1"
+        android:text="@{viewModel.responseText}"
+        app:error="@{viewModel.error}"
+        app:onTextChanged="@{s -> viewModel.updateResponse((String)s)}"
+        tools:text="123.45" />
 
-    <Button
-      android:id="@+id/btn_select_photo"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:background="@android:color/transparent"
-      android:onClick="@{()-> viewModel.onShowPhotoSelectorDialog()}"
-      android:text="@string/add_photo"
-      android:textColor="@color/colorAccent" />
+    </com.google.android.material.textfield.TextInputLayout>
+
   </LinearLayout>
-
 </layout>

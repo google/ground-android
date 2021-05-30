@@ -33,7 +33,7 @@ import java.util.Date;
 import java8.util.function.Consumer;
 import javax.inject.Inject;
 
-public class ObservationViewModel extends AbstractViewModel implements OnClickListener {
+public class ObservationListItemViewModel extends AbstractViewModel implements OnClickListener {
 
   @Hot(replays = true)
   public final MutableLiveData<String> userName = new MutableLiveData<>();
@@ -52,7 +52,7 @@ public class ObservationViewModel extends AbstractViewModel implements OnClickLi
   private MutableLiveData<Observation> selectedObservation = new MutableLiveData<>();
 
   @Inject
-  ObservationViewModel(Application application) {
+  ObservationListItemViewModel(Application application) {
     this.application = application;
   }
 

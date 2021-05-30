@@ -21,6 +21,7 @@ import static java8.lang.Iterables.forEach;
 import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.observation.DateResponse;
 import com.google.android.gnd.model.observation.MultipleChoiceResponse;
+import com.google.android.gnd.model.observation.NumberResponse;
 import com.google.android.gnd.model.observation.Response;
 import com.google.android.gnd.model.observation.TextResponse;
 import com.google.android.gnd.model.observation.TimeResponse;
@@ -29,15 +30,16 @@ import com.google.common.collect.ImmutableList;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java8.util.Optional;
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 import timber.log.Timber;
 
-public class ResponseJsonConverter {
+class ResponseJsonConverter {
 
   static Object toJsonObject(Response response) {
     if (response instanceof TextResponse) {
@@ -48,6 +50,12 @@ public class ResponseJsonConverter {
       return convertToIsoFormat(((DateResponse) response).getDate());
     } else if (response instanceof TimeResponse) {
       return convertToIsoFormat(((TimeResponse) response).getTime());
+    } else if (response instanceof NumberResponse) {
+      double value = ((NumberResponse) response).getValue();
+      if (Double.isNaN(value)) {
+        return JSONObject.NULL;
+      }
+      return value;
     } else {
       throw new UnsupportedOperationException("Unimplemented Response " + response.getClass());
     }
@@ -78,9 +86,15 @@ public class ResponseJsonConverter {
     switch (field.getType()) {
       case TEXT_FIELD:
       case PHOTO:
+        if (obj == JSONObject.NULL) {
+          return TextResponse.fromString("");
+        }
         DataStoreException.checkType(String.class, obj);
         return TextResponse.fromString((String) obj);
       case MULTIPLE_CHOICE:
+        if (obj == JSONObject.NULL) {
+          return MultipleChoiceResponse.fromList(Collections.emptyList());
+        }
         DataStoreException.checkType(JSONArray.class, obj);
         return MultipleChoiceResponse.fromList(toList((JSONArray) obj));
       case DATE:

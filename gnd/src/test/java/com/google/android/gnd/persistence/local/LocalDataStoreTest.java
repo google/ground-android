@@ -31,13 +31,11 @@ import com.google.android.gnd.model.basemap.tile.TileSource.State;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.FeatureMutation;
 import com.google.android.gnd.model.feature.Point;
+import com.google.android.gnd.model.feature.PointFeature;
 import com.google.android.gnd.model.form.Element;
 import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.form.Field.Type;
 import com.google.android.gnd.model.form.Form;
-import com.google.android.gnd.model.form.MultipleChoice;
-import com.google.android.gnd.model.form.MultipleChoice.Cardinality;
-import com.google.android.gnd.model.form.Option;
 import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.model.layer.Style;
 import com.google.android.gnd.model.observation.DateResponse;
@@ -90,8 +88,7 @@ import timber.log.Timber;
 @RunWith(RobolectricTestRunner.class)
 public class LocalDataStoreTest {
 
-  @Rule
-  public HiltAndroidRule hiltRule = new HiltAndroidRule(this);
+  @Rule public HiltAndroidRule hiltRule = new HiltAndroidRule(this);
 
   private static final User TEST_USER =
       User.builder().setId("user id").setEmail("user@gmail.com").setDisplayName("user 1").build();
@@ -192,15 +189,11 @@ public class LocalDataStoreTest {
           .build();
 
   // This rule makes sure that Room executes all the database operations instantly.
-  @Rule
-  public InstantTaskExecutorRule instantTaskExecutorRule = new InstantTaskExecutorRule();
+  @Rule public InstantTaskExecutorRule instantTaskExecutorRule = new InstantTaskExecutorRule();
 
-  @Inject
-  LocalDataStore localDataStore;
-  @Inject
-  ObservationDao observationDao;
-  @Inject
-  FeatureDao featureDao;
+  @Inject LocalDataStore localDataStore;
+  @Inject ObservationDao observationDao;
+  @Inject FeatureDao featureDao;
 
   private static FeatureMutation createTestFeatureMutation(Point point) {
     return FeatureMutation.builder()
@@ -458,16 +451,6 @@ public class LocalDataStoreTest {
             .get(0)
             .getResponses();
     assertThat("foo value").isEqualTo(responses.getResponse("field id").get().toString());
-  }
-
-  @Test
-  public void testDateMergeObservation() {
-    // TODO : Need to Implement for Date.
-  }
-
-  @Test
-  public void testTimeMergeObservation() {
-    // TODO : Need to Implement for Time.
   }
 
   @Test

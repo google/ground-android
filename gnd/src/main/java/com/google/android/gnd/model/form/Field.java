@@ -30,7 +30,8 @@ public abstract class Field {
     MULTIPLE_CHOICE,
     PHOTO,
     DATE,
-    TIME
+    TIME,
+    NUMBER
   }
 
   public abstract String getId();

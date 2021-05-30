@@ -69,6 +69,7 @@
           android:layout_marginBottom="@dimen/map_btn_margin_bottom"
           android:elevation="6dp"
           android:text="@string/offline_base_map_selector_download"
+          android:onClick="@{() -> viewModel.onDownloadClick()}"
           app:backgroundTint="@color/colorMapAccent"
           app:chipIcon="@drawable/ic_area_download"
           app:icon="@drawable/ic_area_download"

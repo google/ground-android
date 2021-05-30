@@ -29,27 +29,15 @@ import timber.log.Timber;
 class FieldConverter {
 
   static Optional<Field> toField(String id, ElementNestedObject em) {
+    Field.Type type = toEnum(Field.Type.class, em.getType());
+    if (type == Field.Type.UNKNOWN) {
+      Timber.d("Unsupported form element type: " + em.getType());
+      return Optional.empty();
+    }
     Field.Builder field = Field.newBuilder();
-    switch (toEnum(Field.Type.class, em.getType())) {
-      case TEXT_FIELD:
-        field.setType(Type.TEXT_FIELD);
-        break;
-      case MULTIPLE_CHOICE:
-        field.setType(Type.MULTIPLE_CHOICE);
-        field.setMultipleChoice(MultipleChoiceConverter.toMultipleChoice(em));
-        break;
-      case PHOTO:
-        field.setType(Type.PHOTO);
-        break;
-      case DATE:
-        field.setType(Type.DATE);
-        break;
-      case TIME:
-        field.setType(Type.TIME);
-        break;
-      default:
-        Timber.d("Unsupported form element type: " + em.getType());
-        return Optional.empty();
+    field.setType(type);
+    if (type == Field.Type.MULTIPLE_CHOICE) {
+      field.setMultipleChoice(MultipleChoiceConverter.toMultipleChoice(em));
     }
     field.setRequired(em.getRequired() != null && em.getRequired());
     field.setId(id);
