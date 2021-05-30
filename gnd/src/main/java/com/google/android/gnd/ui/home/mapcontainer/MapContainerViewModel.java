@@ -325,6 +325,10 @@ public class MapContainerViewModel extends AbstractViewModel {
     return mapFeatures;
   }
 
+  public void onGeoJsonClick(MapGeoJson mapGeoJson) {
+    // TODO: Move the camera and adjust styling appropriately.
+  }
+
   public LiveData<ImmutableSet<String>> getMbtilesFilePaths() {
     return mbtilesFilePaths;
   }

@@ -107,7 +107,7 @@ public class HomeScreenFragment extends AbstractFragment
   private ProjectSelectorViewModel projectSelectorViewModel;
   private List<Project> projects = Collections.emptyList();
   private HomeScreenFragBinding binding;
-  private final List<Point> vertices =Collections.emptyList();
+  private final List<Point> vertices = new ArrayList<>();
 
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -147,8 +147,9 @@ public class HomeScreenFragment extends AbstractFragment
     if (feature instanceof PointFeature) {
       feature.getLayer().getForm().ifPresent(form -> addNewObservation(feature, form));
     } else {
-      vertices.clear();
       mapContainerViewModel.setViewMode(Mode.DEFAULT);
+      vertices.clear();
+      feature.getLayer().getForm().ifPresent(form -> addNewObservation(feature, form));
     }
   }
 
@@ -497,10 +498,6 @@ public class HomeScreenFragment extends AbstractFragment
                   (layer) -> showDataTypeDialog(project, layer, point));
             },
             () -> Timber.e("Attempting to add feature while no project loaded"));
-//    addFeatureDialogFragment.show(
-//        viewModel.getModifiableLayers(),
-//        getChildFragmentManager(),
-//        layer -> viewModel.addFeature(layer, point));
   }
 
   private void showDataTypeDialog(Project project, Layer layer, Point point) {

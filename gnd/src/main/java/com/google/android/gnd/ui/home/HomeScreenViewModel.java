@@ -59,6 +59,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
   public final MutableLiveData<Boolean> isObservationButtonVisible = new MutableLiveData<>(false);
 
   private final ProjectRepository projectRepository;
+  private final AuthenticationManager authenticationManager;
   private final Navigator navigator;
   private final FeatureRepository featureRepository;
 
