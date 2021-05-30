@@ -26,6 +26,7 @@ import com.google.android.gnd.model.observation.TextResponse;
 import com.google.android.gnd.persistence.remote.DataStoreException;
 import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java8.util.Optional;
 import org.json.JSONArray;
@@ -61,17 +62,23 @@ class ResponseJsonConverter {
     switch (field.getType()) {
       case TEXT_FIELD:
       case PHOTO:
+        if (obj == JSONObject.NULL) {
+          return TextResponse.fromString("");
+        }
         DataStoreException.checkType(String.class, obj);
         return TextResponse.fromString((String) obj);
       case MULTIPLE_CHOICE:
+        if (obj == JSONObject.NULL) {
+          return MultipleChoiceResponse.fromList(Collections.emptyList());
+        }
         DataStoreException.checkType(JSONArray.class, obj);
         return MultipleChoiceResponse.fromList(toList((JSONArray) obj));
       case NUMBER:
         if (JSONObject.NULL == obj) {
-          return NumberResponse.fromNumber(Double.NaN);
+          return NumberResponse.fromNumber("");
         }
         DataStoreException.checkType(Number.class, obj);
-        return NumberResponse.fromNumber((Number) obj);
+        return NumberResponse.fromNumber(obj.toString());
       case UNKNOWN:
       default:
         throw new DataStoreException("Unknown type in field: " + obj.getClass().getName());

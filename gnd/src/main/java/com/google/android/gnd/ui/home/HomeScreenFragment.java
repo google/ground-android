@@ -88,25 +88,18 @@ import timber.log.Timber;
 @AndroidEntryPoint
 public class HomeScreenFragment extends AbstractFragment
     implements BackPressListener, OnNavigationItemSelectedListener, OnGlobalLayoutListener {
-
   // TODO: It's not obvious which feature are in HomeScreen vs MapContainer; make this more
   // intuitive.
   private static final float COLLAPSED_MAP_ASPECT_RATIO = 3.0f / 2.0f;
 
-  @Inject
-  AddFeatureDialogFragment addFeatureDialogFragment;
-  @Inject
-  AuthenticationManager authenticationManager;
-  @Inject
-  Schedulers schedulers;
-  @Inject
-  Navigator navigator;
-  @Inject
-  EphemeralPopups popups;
+  @Inject AddFeatureDialogFragment addFeatureDialogFragment;
+  @Inject AuthenticationManager authenticationManager;
+  @Inject Schedulers schedulers;
+  @Inject Navigator navigator;
+  @Inject EphemeralPopups popups;
   MapContainerViewModel mapContainerViewModel;
 
-  @Nullable
-  private ProgressDialog progressDialog;
+  @Nullable private ProgressDialog progressDialog;
   private HomeScreenViewModel viewModel;
   private MapContainerFragment mapContainerFragment;
   private BottomSheetBehavior<View> bottomSheetBehavior;
@@ -504,6 +497,10 @@ public class HomeScreenFragment extends AbstractFragment
                   (layer) -> showDataTypeDialog(project, layer, point));
             },
             () -> Timber.e("Attempting to add feature while no project loaded"));
+//    addFeatureDialogFragment.show(
+//        viewModel.getModifiableLayers(),
+//        getChildFragmentManager(),
+//        layer -> viewModel.addFeature(layer, point));
   }
 
   private void showDataTypeDialog(Project project, Layer layer, Point point) {

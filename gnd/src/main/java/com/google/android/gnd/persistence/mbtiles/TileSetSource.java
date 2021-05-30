@@ -14,22 +14,25 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.persistence.geojson;
+package com.google.android.gnd.persistence.mbtiles;
 
+import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList;
 import static java8.util.stream.StreamSupport.stream;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.common.collect.ImmutableList;
+import java.util.ArrayList;
+import java.util.List;
 import java8.util.Optional;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
-/**
- * A GeoJSONTile is any polygon that describes a single exterior ring comprised of four ordered
- * coordinates: South/West, South/East, North/West, North/East, has a cartesian representation, and
- * has an associated URL.
- */
-public class GeoJsonTile {
+/** Describes a tile set source, including its id, extents, and source URL. */
+class TileSetSource {
+
+  private static final String GEOMETRY_KEY = "geometry";
+  private static final String VERTICES_JSON_KEY = "coordinates";
 
   private static final String ID_KEY = "id";
   private static final String PROPERTIES_KEY = "properties";
@@ -38,7 +41,7 @@ public class GeoJsonTile {
   private final JSONObject json;
 
   /**
-   * Constructs a GeoJSONTile based on the contents of {@param jsonObject}.
+   * Constructs a TileSetSource based on the contents of {@param jsonObject}.
    *
    * <p>A valid tile has the following information:
    *
@@ -51,12 +54,17 @@ public class GeoJsonTile {
    *
    * <p>Interior rings, which describe holes in the polygon, are ignored.
    */
-  GeoJsonTile(JSONObject jsonObject) {
+  TileSetSource(JSONObject jsonObject) {
     this.json = jsonObject;
   }
 
   private ImmutableList<LatLng> getVertices() {
-    return new GeoJsonPolygon(new GeoJsonGeometry(json)).getVertices();
+    Optional<JSONArray> exteriorRing =
+        Optional.ofNullable(json.optJSONObject(GEOMETRY_KEY))
+            .flatMap(j -> Optional.ofNullable(j.optJSONArray(VERTICES_JSON_KEY)))
+            .map(j -> j.optJSONArray(0));
+
+    return ringCoordinatesToLatLngs(exteriorRing.orElse(null));
   }
 
   public Optional<String> getId() {
@@ -70,5 +78,26 @@ public class GeoJsonTile {
 
   boolean boundsIntersect(LatLngBounds bounds) {
     return stream(this.getVertices()).anyMatch(bounds::contains);
+  }
+
+  private ImmutableList<LatLng> ringCoordinatesToLatLngs(JSONArray exteriorRing) {
+    if (exteriorRing == null) {
+      return ImmutableList.of();
+    }
+
+    List<LatLng> coordinates = new ArrayList<>();
+
+    for (int i = 0; i < exteriorRing.length(); i++) {
+      JSONArray point = exteriorRing.optJSONArray(i);
+      double lat = point.optDouble(1, 0.0);
+      double lng = point.optDouble(0, 0.0);
+
+      // PMD complains about instantiating objects in loops, but here, we retain a reference to the
+      // object after the loop exits--the PMD recommendation here makes little sense, and is
+      // presumably intended to prevent short-lived allocations.
+      coordinates.add(new LatLng(lat, lng)); // NOPMD
+    }
+
+    return stream(coordinates).collect(toImmutableList());
   }
 }

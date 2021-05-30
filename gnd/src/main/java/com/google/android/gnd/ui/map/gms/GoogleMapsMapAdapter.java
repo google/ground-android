@@ -50,6 +50,7 @@ import com.google.android.gnd.ui.map.MapPin;
 import com.google.android.gnd.ui.map.MapPolygon;
 import com.google.common.collect.ImmutableSet;
 import com.google.maps.android.collections.MarkerManager;
+import com.google.maps.android.collections.PolygonManager;
 import com.google.maps.android.data.Layer;
 import com.google.maps.android.data.geojson.GeoJsonLayer;
 import com.google.maps.android.data.geojson.GeoJsonLineStringStyle;
@@ -81,6 +82,9 @@ class GoogleMapsMapAdapter implements MapAdapter {
   /** Marker click events. */
   @Hot private final Subject<MapPin> markerClicks = PublishSubject.create();
 
+  /** GeoJson click events. */
+  @Hot private final Subject<MapGeoJson> geoJsonClicks = PublishSubject.create();
+
   /** Map drag events. Emits items repeatedly while the map is being dragged. */
   @Hot private final FlowableProcessor<Point> dragInteractions = PublishProcessor.create();
 
@@ -101,7 +105,8 @@ class GoogleMapsMapAdapter implements MapAdapter {
    * layers might be added and we wish to have independent clickable features for each layer.
    */
   private final MarkerManager markerManager;
-  // TODO: Add managers for polyline and polygon layers
+  // TODO: Add managers for polyline layers
+  private final PolygonManager polygonManager;
 
   /**
    * References to Google Maps SDK Markers present on the map. Used to sync and update markers with
@@ -134,6 +139,7 @@ class GoogleMapsMapAdapter implements MapAdapter {
 
     // init markers
     markerManager = new MarkerManager(map);
+    polygonManager = new PolygonManager(map);
     markers = markerManager.newCollection();
     markers.setOnMarkerClickListener(this::onMarkerClick);
 
@@ -174,6 +180,12 @@ class GoogleMapsMapAdapter implements MapAdapter {
   @Override
   public Observable<MapPin> getMapPinClicks() {
     return markerClicks;
+  }
+
+  @Hot
+  @Override
+  public Observable<MapGeoJson> getMapGeoJsonClicks() {
+    return geoJsonClicks;
   }
 
   @Hot
@@ -261,8 +273,11 @@ class GoogleMapsMapAdapter implements MapAdapter {
 
   private void addMapGeoJson(MapGeoJson mapFeature) {
     // Pass markerManager here otherwise markers in the previous layers won't be clickable.
+    // polygonManager also needs to be passed to make the layer's on click method work
+    // I'm not sure why--it must dispatch to the appropriate manager based on the parsed geometry
+    // (e.g. polygons).
     GeoJsonLayer layer =
-        new GeoJsonLayer(map, mapFeature.getGeoJson(), markerManager, null, null, null);
+        new GeoJsonLayer(map, mapFeature.getGeoJson(), markerManager, polygonManager, null, null);
 
     int width = getPolylineStrokeWidth();
     int color = parseColor(mapFeature.getStyle().getColor());
@@ -270,17 +285,27 @@ class GoogleMapsMapAdapter implements MapAdapter {
     GeoJsonPointStyle pointStyle = layer.getDefaultPointStyle();
     pointStyle.setLineStringWidth(width);
     pointStyle.setPolygonFillColor(color);
+    pointStyle.setZIndex(1);
 
     GeoJsonPolygonStyle polygonStyle = layer.getDefaultPolygonStyle();
     polygonStyle.setLineStringWidth(width);
-    polygonStyle.setPolygonFillColor(color);
+    polygonStyle.setStrokeColor(color);
+    polygonStyle.setZIndex(1);
 
     GeoJsonLineStringStyle lineStringStyle = layer.getDefaultLineStringStyle();
     lineStringStyle.setLineStringWidth(width);
     lineStringStyle.setPolygonFillColor(color);
+    lineStringStyle.setZIndex(1);
 
     layer.addLayerToMap();
+
+    layer.setOnFeatureClickListener(__ -> onGeoJsonClick(mapFeature));
+
     geoJsonLayers.add(layer);
+  }
+
+  private void onGeoJsonClick(MapGeoJson mapGeoJson) {
+    geoJsonClicks.onNext(mapGeoJson);
   }
 
   private void removeAllMarkers() {

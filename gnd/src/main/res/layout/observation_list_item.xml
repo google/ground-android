@@ -21,7 +21,7 @@
 
     <variable
       name="viewModel"
-      type="com.google.android.gnd.ui.home.featuredetails.ObservationViewModel" />
+      type="com.google.android.gnd.ui.home.featuredetails.ObservationListItemViewModel" />
   </data>
 
   <FrameLayout xmlns:tools="http://schemas.android.com/tools"
@@ -100,12 +100,14 @@
           android:id="@+id/field_label_row"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
+          android:minWidth="6dp"
           android:paddingTop="4dp" />
 
         <TableRow
           android:id="@+id/field_value_row"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
+          android:minWidth="6dp"
           android:paddingTop="4dp" />
       </TableLayout>
 
