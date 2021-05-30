@@ -31,6 +31,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java8.util.Optional;
@@ -39,7 +40,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import timber.log.Timber;
 
-class ResponseJsonConverter {
+public class ResponseJsonConverter {
 
   static Object toJsonObject(Response response) {
     if (response instanceof TextResponse) {
