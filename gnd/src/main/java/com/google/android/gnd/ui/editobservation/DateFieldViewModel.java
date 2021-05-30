@@ -17,17 +17,18 @@
 package com.google.android.gnd.ui.editobservation;
 
 import android.app.Application;
-import androidx.lifecycle.MutableLiveData;
 import com.google.android.gnd.model.observation.DateResponse;
 import com.google.android.gnd.rx.Nil;
 import com.google.android.gnd.rx.annotations.Hot;
+import io.reactivex.subjects.PublishSubject;
+import io.reactivex.subjects.Subject;
 import java.util.Date;
 import javax.inject.Inject;
 
 public class DateFieldViewModel extends AbstractFieldViewModel {
 
   @Hot(replays = true)
-  private final MutableLiveData<Nil> showDialogClicks = new MutableLiveData<>();
+  private final Subject<Nil> showDialogClicks  = PublishSubject.create();
 
   @Inject
   DateFieldViewModel(Application application) {
@@ -39,10 +40,10 @@ public class DateFieldViewModel extends AbstractFieldViewModel {
   }
 
   public void onShowDialog() {
-    showDialogClicks.setValue(Nil.NIL);
+    showDialogClicks.onNext(Nil.NIL);
   }
 
-  MutableLiveData<Nil> getDateDialogClicks() {
+  Subject<Nil> getDateDialogClicks() {
     return showDialogClicks;
   }
 

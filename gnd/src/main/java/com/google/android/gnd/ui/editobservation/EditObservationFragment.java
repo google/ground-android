@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.ui.editobservation;
 
+import static com.google.android.gnd.rx.RxAutoDispose.autoDisposable;
 import static com.google.android.gnd.ui.editobservation.AddPhotoDialogAdapter.PhotoStorageResource.PHOTO_SOURCE_CAMERA;
 import static com.google.android.gnd.ui.editobservation.AddPhotoDialogAdapter.PhotoStorageResource.PHOTO_SOURCE_STORAGE;
 import static java.util.Objects.requireNonNull;
@@ -213,19 +214,15 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
   private void observeDateDialogClicks(DateFieldViewModel dateFieldViewModel) {
     dateFieldViewModel
         .getDateDialogClicks()
-        .observe(
-            this,
-            __ ->
-                showDateDialog(dateFieldViewModel));
+        .as(autoDisposable(this))
+        .subscribe(nil ->  showDateDialog(dateFieldViewModel));
   }
 
   private void observeTimeDialogClicks(TimeFieldViewModel timeFieldViewModel) {
     timeFieldViewModel
         .getTimeDialogClicks()
-        .observe(
-            this,
-            __ ->
-                showTimeDialog(timeFieldViewModel));
+        .as(autoDisposable(this))
+        .subscribe(nil ->  showTimeDialog(timeFieldViewModel));
   }
 
   private void observeSelectChoiceClicks(MultipleChoiceFieldViewModel viewModel) {
