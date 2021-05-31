@@ -23,6 +23,7 @@
 
   <!-- Forms -->
   <dimen name="field_label_text_size">14sp</dimen>
+  <dimen name="edit_field_label_text_size">18sp</dimen>
   <dimen name="field_value_text_size">18sp</dimen>
   <dimen name="field_horizontal_padding">16dp</dimen>
   <dimen name="field_top_padding">18dp</dimen>

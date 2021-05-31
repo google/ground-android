@@ -39,7 +39,9 @@ class LayerConverter {
       }
       String formId = obj.getForms().keySet().iterator().next();
       layer.setForm(FormConverter.toForm(formId, obj.getForms().get(formId)));
-      layer.setContributorsCanAdd(ImmutableList.copyOf(obj.getContributorsCanAdd()));
+      if (obj.getContributorsCanAdd() != null) {
+        layer.setContributorsCanAdd(ImmutableList.copyOf(obj.getContributorsCanAdd()));
+      }
     }
     return layer.build();
   }
