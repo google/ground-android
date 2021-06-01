@@ -18,14 +18,11 @@ package com.google.android.gnd.ui.util;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.net.Uri;
-import androidx.annotation.RawRes;
 import dagger.hilt.android.qualifiers.ApplicationContext;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import javax.inject.Inject;
-import org.apache.commons.io.FileUtils;
 import timber.log.Timber;
 
 public class FileUtil {
@@ -44,36 +41,13 @@ public class FileUtil {
    * @throws IOException If path is not accessible or error occurs while saving file
    */
   public File saveBitmap(Bitmap bitmap, String filename) throws IOException {
-    File file = new File(context.getFilesDir(), filename);
     try (FileOutputStream fos = context.openFileOutput(filename, Context.MODE_PRIVATE)) {
       bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
     }
 
+    File file = new File(context.getFilesDir(), filename);
     Timber.d("Photo saved : %s", file.getPath());
     return file;
-  }
-
-  /**
-   * Returns the path of the file saved in the sdcard used for uploading to the provided destination
-   * path.
-   */
-  public File getLocalFileFromRemotePath(String destinationPath) {
-    String[] splits = destinationPath.split("/");
-    String filename = splits[splits.length - 1];
-    File file = new File(context.getFilesDir(), filename);
-    if (!file.exists()) {
-      Timber.e("File not found: %s", file.getPath());
-    }
-    return file;
-  }
-
-  public Uri getFileUriFromRemotePath(String destinationPath) {
-    File file = getLocalFileFromRemotePath(destinationPath);
-    if (file.exists()) {
-      return Uri.fromFile(file);
-    } else {
-      return Uri.EMPTY;
-    }
   }
 
   /**
@@ -85,14 +59,6 @@ public class FileUtil {
    */
   public File getOrCreateFile(String filename) {
     return new File(context.getFilesDir(), filename);
-  }
-
-  public File getFileFromRawResource(@RawRes int resourceId, String filename) throws IOException {
-    File file = new File(context.getFilesDir(), filename);
-    if (!file.exists()) {
-      FileUtils.copyInputStreamToFile(context.getResources().openRawResource(resourceId), file);
-    }
-    return file;
   }
 
   /** Attempts to delete a file relative to the app's file directory when it exists. */

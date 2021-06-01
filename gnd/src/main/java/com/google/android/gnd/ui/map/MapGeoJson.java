@@ -35,6 +35,7 @@ public abstract class MapGeoJson extends MapFeature {
   public abstract Style getStyle();
 
   // TODO: Just store the ID and pull the feature when needed.
+  @Override
   public abstract Feature getFeature();
 
   @AutoValue.Builder

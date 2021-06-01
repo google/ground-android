@@ -323,10 +323,6 @@ public class MapContainerViewModel extends AbstractViewModel {
     this.selectedFeature = selectedFeature;
   }
 
-  public void onGeoJsonClick(MapGeoJson mapGeoJson) {
-    // TODO: Move the camera and adjust styling appropriately.
-  }
-
   public enum Mode {
     DEFAULT,
     REPOSITION
