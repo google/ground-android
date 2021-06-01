@@ -105,4 +105,7 @@
   <!-- Offline areas UI -->
   <dimen name="offline_area_viewer_map_container_width">20dp</dimen>
   <dimen name="offline_area_viewer_map_container_height">20dp</dimen>
+  <dimen name="selector_dialog_list_item_padding">26dp</dimen>
+  <dimen name="selector_dialog_list_item_text_size">16sp</dimen>
+  <dimen name="selector_dialog_progress_bar_padding">48dp</dimen>
 </resources>
