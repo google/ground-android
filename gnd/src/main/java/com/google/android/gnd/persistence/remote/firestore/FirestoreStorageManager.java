@@ -17,6 +17,7 @@
 package com.google.android.gnd.persistence.remote.firestore;
 
 import android.net.Uri;
+import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.persistence.remote.RemoteStorageManager;
 import com.google.android.gnd.persistence.remote.TransferProgress;
 import com.google.android.gnd.rx.RxTask;
@@ -36,8 +37,8 @@ import timber.log.Timber;
 @Singleton
 public class FirestoreStorageManager implements RemoteStorageManager {
 
-  // Top-level directory
-  private static final String MEDIA_ROOT_DIR = "uploaded_media";
+  /** Top-level directory in Cloud Storage where user media is stored. */
+  private static final String MEDIA_ROOT_DIR = "user-media";
 
   @Inject StorageReference storageReference;
 
@@ -45,17 +46,19 @@ public class FirestoreStorageManager implements RemoteStorageManager {
   FirestoreStorageManager() {}
 
   /**
-   * Generates destination path for saving the image to Firestore Storage.
+   * Generates destination path in which an observation attachement is to be stored in to Cloud
+   * Storage.
    *
-   * <p>/uploaded_media/{project_id}/{form_id}/{feature_id}/{filename.jpg}
+   * <p>user-media/projects/{project_id}/observations/{observation_id}/{field_id-uuid.jpg}
    */
-  public static String getRemoteDestinationPath(
-      String projectId, String formId, String featureId, String filename) {
+  public static String getRemoteMediaPath(Observation observation, String filename) {
+    // TODO: Refactor this into MediaStorageRepository.
     return new StringJoiner(File.separator)
         .add(MEDIA_ROOT_DIR)
-        .add(projectId)
-        .add(formId)
-        .add(featureId)
+        .add("projects")
+        .add(observation.getProject().getId())
+        .add("observations")
+        .add(observation.getId())
         .add(filename)
         .toString();
   }
@@ -67,7 +70,11 @@ public class FirestoreStorageManager implements RemoteStorageManager {
   @Cold
   @Override
   public Single<Uri> getDownloadUrl(String remoteDestinationPath) {
-    return RxTask.toSingle(() -> createReference(remoteDestinationPath).getDownloadUrl());
+    // StorageException's constructor logs errors, so even though we handle the exception,
+    // an ERROR level log line is added which could be misleading to developers. We log an extra
+    // error message here as an extra hint that the log line is probably noise.
+    return RxTask.toSingle(() -> createReference(remoteDestinationPath).getDownloadUrl())
+        .doOnError(e -> Timber.e("StorageException handled and can be ignored"));
   }
 
   @Cold

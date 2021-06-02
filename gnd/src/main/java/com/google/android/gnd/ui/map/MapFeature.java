@@ -16,7 +16,12 @@
 
 package com.google.android.gnd.ui.map;
 
+import com.google.android.gnd.model.feature.Feature;
+import javax.annotation.Nullable;
+
 /** Abstract class defining objects that need to be rendered on map. */
 public abstract class MapFeature {
   // TODO(#713): Pull common attributes from concrete classes to here.
+  @Nullable
+  public abstract Feature getFeature();
 }

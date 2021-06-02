@@ -29,20 +29,15 @@
 
   <LinearLayout
     style="@style/FieldView"
-    android:background="@drawable/field_background"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
     android:orientation="vertical">
 
     <TextView
-      android:id="@+id/field_label"
-      style="@style/EditObservation.Field.Text"
-      android:layout_width="match_parent"
+      style="@style/EditObservation.Field.Label"
+      android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:hint="@{viewModel.fieldLabel()}"
-      android:paddingLeft="@dimen/photo_label_horizontal_padding"
-      android:paddingTop="@dimen/photo_label_vertical_padding"
-      android:paddingRight="@dimen/photo_label_horizontal_padding"
-      android:paddingBottom="@dimen/photo_label_vertical_padding"
-      tools:text="Question label?" />
+      android:text="@{viewModel.fieldLabel()}" />
 
     <include
       layout="@layout/photo_field"
@@ -53,11 +48,12 @@
       android:id="@+id/btn_select_photo"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:background="@android:color/transparent"
       android:onClick="@{()-> viewModel.onShowPhotoSelectorDialog()}"
       android:visibility="@{viewModel.isPhotoPresent() ? View.GONE : View.VISIBLE}"
       android:text="@string/add_photo"
-      android:textColor="@color/colorAccent" />
+      android:textColor="@color/colorAccent"
+      style="?attr/materialButtonOutlinedStyle" />
+
   </LinearLayout>
 
 </layout>

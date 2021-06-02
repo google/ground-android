@@ -17,7 +17,7 @@
 package com.google.android.gnd.ui.editobservation;
 
 import static androidx.lifecycle.LiveDataReactiveStreams.fromPublisher;
-import static com.google.android.gnd.persistence.remote.firestore.FirestoreStorageManager.getRemoteDestinationPath;
+import static com.google.android.gnd.persistence.remote.firestore.FirestoreStorageManager.getRemoteMediaPath;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import android.app.Application;
@@ -190,19 +190,16 @@ public class EditObservationViewModel extends AbstractViewModel {
   }
 
   private Completable saveBitmapAndUpdateResponse(Bitmap bitmap, Field field) {
-    String localFileName = uuidGenerator.generateUuid() + Config.PHOTO_EXT;
+    // TODO: Refactor filename creation into MediaStorageRepository.
+    String localFileName = field.getId() + "-" + uuidGenerator.generateUuid() + Config.PHOTO_EXT;
 
     checkNotNull(
         originalObservation, "originalObservation was empty when attempting to save bitmap");
 
-    String remoteDestinationPath =
-        getRemoteDestinationPath(
-            originalObservation.getProject().getId(),
-            originalObservation.getForm().getId(),
-            originalObservation.getFeature().getId(),
-            localFileName);
+    String remoteDestinationpath =
+        getRemoteMediaPath(originalObservation,  localFileName);
 
-    photoUpdates.postValue(ImmutableMap.of(field, remoteDestinationPath));
+    photoUpdates.postValue(ImmutableMap.of(field, remoteDestinationpath));
 
     return storageManager
         .savePhoto(bitmap, localFileName)

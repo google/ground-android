@@ -28,14 +28,21 @@
 
   <LinearLayout
     style="@style/FieldView"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
     android:orientation="vertical">
+
+    <TextView
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:text="@{viewModel.fieldLabel()}"
+      style="@style/EditObservation.Field.Label" />
 
     <com.google.android.material.textfield.TextInputLayout
       android:id="@+id/text_input_layout"
       style="@style/EditObservation.Field.Text"
       android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:hint="@{viewModel.fieldLabel()}">
+      android:layout_height="wrap_content">
 
       <com.google.android.material.textfield.TextInputEditText
         android:id="@+id/text_input_edit_text"
