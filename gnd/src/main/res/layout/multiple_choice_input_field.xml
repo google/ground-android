@@ -19,60 +19,72 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:app="http://schemas.android.com/apk/res-auto"
   xmlns:tools="http://schemas.android.com/tools">
+
   <data>
     <variable
       name="viewModel"
       type="com.google.android.gnd.ui.editobservation.MultipleChoiceFieldViewModel" />
   </data>
 
-  <com.google.android.gnd.ui.editobservation.MultipleChoiceFieldLayout
+  <LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
     style="@style/FieldView"
-    app:onShowDialog="@{() -> viewModel.onShowDialog()}">
+    android:orientation="vertical">
 
-    <com.google.android.material.textfield.TextInputLayout
-      android:id="@+id/multiple_choice_input_layout"
-      style="@style/EditObservation.Field.Text"
+    <TextView
+      style="@style/EditObservation.Field.Label"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:text="@{viewModel.fieldLabel()}" />
+
+    <com.google.android.gnd.ui.editobservation.MultipleChoiceFieldLayout
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:hint="@{viewModel.fieldLabel()}">
+      app:onShowDialog="@{() -> viewModel.onShowDialog()}">
 
-      <!--
-        Using deprecated editable="false" as a hack to reuse TextInputEditText styles for multi-
-        select box.
-       -->
-      <com.google.android.material.textfield.TextInputEditText
-        android:id="@+id/multiple_choice_input_edit_text"
+      <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/multiple_choice_input_layout"
+        style="@style/EditObservation.Field.Text"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:editable="false"
-        android:focusable="true"
-        android:focusableInTouchMode="true"
-        android:text="@{viewModel.responseText}"
-        android:textColor="@color/field_value"
-        app:error="@{viewModel.error}"
-        tools:text="One, two, three, four, five" />
+        android:layout_height="wrap_content">
 
-    </com.google.android.material.textfield.TextInputLayout>
+        <!--
+          Using deprecated editable="false" as a hack to reuse TextInputEditText styles for multi-
+          select box.
+         -->
+        <com.google.android.material.textfield.TextInputEditText
+          android:id="@+id/multiple_choice_input_edit_text"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:editable="false"
+          android:focusable="true"
+          android:focusableInTouchMode="true"
+          android:text="@{viewModel.responseText}"
+          android:textColor="@color/field_value"
+          app:error="@{viewModel.error}"
+          tools:text="One, two, three, four, five" />
 
-    <ImageButton
-      android:id="@+id/multiple_choice_dropdown_btn"
-      android:layout_width="32dp"
-      android:layout_height="32dp"
-      android:layout_gravity="center_vertical|end"
-      android:layout_marginEnd="4dp"
-      android:layout_marginRight="4dp"
-      android:background="@android:color/transparent"
-      android:elevation="0dp"
-      android:focusable="false"
-      android:focusableInTouchMode="false"
-      android:src="@drawable/ic_arrow_drop_down" />
+      </com.google.android.material.textfield.TextInputLayout>
 
-    <View
-      android:id="@+id/multiple_choice_tap_target"
-      android:layout_width="match_parent"
-      android:layout_height="match_parent"
-      android:alpha="0"
-      android:clickable="true" />
+      <ImageButton
+        android:id="@+id/multiple_choice_dropdown_btn"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_gravity="center_vertical|end"
+        android:background="@android:color/transparent"
+        android:elevation="0dp"
+        android:focusable="false"
+        android:focusableInTouchMode="false"
+        android:src="@drawable/ic_arrow_drop_down" />
 
-  </com.google.android.gnd.ui.editobservation.MultipleChoiceFieldLayout>
+      <View
+        android:id="@+id/multiple_choice_tap_target"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:alpha="0"
+        android:clickable="true" />
+
+    </com.google.android.gnd.ui.editobservation.MultipleChoiceFieldLayout>
+  </LinearLayout>
 </layout>

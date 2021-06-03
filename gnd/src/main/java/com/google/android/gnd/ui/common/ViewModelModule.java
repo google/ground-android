@@ -28,6 +28,7 @@ import com.google.android.gnd.ui.home.HomeScreenViewModel;
 import com.google.android.gnd.ui.home.featuredetails.FeatureDetailsViewModel;
 import com.google.android.gnd.ui.home.featuredetails.ObservationListItemViewModel;
 import com.google.android.gnd.ui.home.featuredetails.ObservationListViewModel;
+import com.google.android.gnd.ui.home.featureselector.FeatureSelectorViewModel;
 import com.google.android.gnd.ui.home.mapcontainer.MapContainerViewModel;
 import com.google.android.gnd.ui.observationdetails.ObservationDetailsViewModel;
 import com.google.android.gnd.ui.offlinebasemap.OfflineBaseMapsViewModel;
@@ -135,6 +136,11 @@ public abstract class ViewModelModule {
   @IntoMap
   @ViewModelKey(NumberFieldViewModel.class)
   abstract ViewModel bindNumberFieldViewModel(NumberFieldViewModel viewModel);
+
+  @Binds
+  @IntoMap
+  @ViewModelKey(FeatureSelectorViewModel.class)
+  abstract ViewModel bindFeatureSelectorViewModel(FeatureSelectorViewModel viewModel);
 
   @Binds
   abstract ViewModelProvider.Factory bindViewModelFactory(ViewModelFactory factory);

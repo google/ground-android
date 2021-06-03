@@ -26,7 +26,6 @@
   </data>
   <androidx.constraintlayout.widget.ConstraintLayout
     android:layout_width="match_parent"
-    android:fitsSystemWindows="true"
     android:layout_height="match_parent"
     tools:context=".ui.terms.TermsOfServiceFragment">
 
@@ -93,14 +92,12 @@
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:layout_marginBottom="32dp"
-      android:text="@string/submit_button"
-      android:enabled="@{viewModel.termsCheckBox}"
+      android:text="@string/agree_terms"
       app:layout_constraintBottom_toBottomOf="parent"
       app:layout_constraintEnd_toEndOf="parent"
       app:layout_constraintStart_toStartOf="parent"
       app:onButtonClick="@{__ -> viewModel.onButtonClicked()}"
-
-      />
+ />
     <CheckBox
       app:layout_constraintBottom_toTopOf="@id/agreeButton"
       android:id="@+id/agreeCheckBox"

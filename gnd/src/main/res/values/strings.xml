@@ -159,7 +159,9 @@
   <string name="completed">Completed</string>
   <string name="uploading_data">Uploading data</string>
   <string name="failed">Failed</string>
+  <string name="app_running">App is running</string>
   <string name="settings">Settings</string>
+  <string name="offline_base_map_viewer_navgraph_label">Offline Base Map Viewer</string>
   <string name="offline_base_map_viewer_title">Offline base map area</string>
   <string name="offline_base_map_viewer_remove_button">Remove</string>
   <string name="offline_base_map_viewer_storage">This base map takes up %.1f MB of storage space on your device.</string>
@@ -177,10 +179,11 @@
   <!-- Precedes the build number shown in the side menu of debug builds. -->
   <string name="build">Build %s</string>
 
-  <!-- Other strings (to be organized) -->
-  <string name="offline_base_map_name" translatable="false">%s</string>
-
-  <string name="tos_title">Terms of Service</string>
+  <string name="tos_title">Terms Of Service</string>
+  <string name="agree_terms">Agree</string>
   <string name="submit_button">Submit</string>
   <string name="agree_checkbox">I agree to the Terms of Service</string>
+
+  <!-- Other strings (to be organized) -->
+  <string name="offline_base_map_name" translatable="false">%s</string>
 </resources>

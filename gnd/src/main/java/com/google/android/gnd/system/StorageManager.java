@@ -114,7 +114,12 @@ public class StorageManager {
         });
   }
 
-  /** Save a copy of bitmap locally. */
+  /**
+   * Save a copy of bitmap locally.
+   *
+   * @param bitmap The contents of the image to save.
+   * @param filename The filename to use. May not contain path separators.
+   */
   @Cold
   public Completable savePhoto(Bitmap bitmap, String filename) {
     try {
