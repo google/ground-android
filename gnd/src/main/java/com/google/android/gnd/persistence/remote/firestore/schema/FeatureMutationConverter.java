@@ -28,7 +28,6 @@ import com.google.firebase.firestore.GeoPoint;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java8.util.function.Function;
 import timber.log.Timber;
 
 /**

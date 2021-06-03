@@ -31,7 +31,6 @@ import com.google.android.gnd.persistence.remote.DataStoreException;
 import com.google.common.collect.ImmutableList;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.GeoPoint;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java8.util.Objects;
@@ -78,7 +77,7 @@ public class FeatureConverter {
       throw new DataStoreException("Unknown geometry type in feature " + doc.getId() + ": " + type);
     }
     Object coordinates = geometry.get(GEOMETRY_COORDINATES);
-    if (coordinates == null || !(coordinates instanceof List)) {
+    if (!(coordinates instanceof List)) {
       throw new DataStoreException(
           "Invalid coordinates in feature " + doc.getId() + ": " + coordinates);
     }

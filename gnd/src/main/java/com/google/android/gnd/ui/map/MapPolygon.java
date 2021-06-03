@@ -22,7 +22,6 @@ import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.model.layer.Style;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 
 @AutoValue
 public abstract class MapPolygon extends MapFeature {
