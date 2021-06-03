@@ -19,7 +19,7 @@ package com.google.android.gnd.persistence.remote;
 import com.google.android.gnd.FakeData;
 import com.google.android.gnd.model.Mutation;
 import com.google.android.gnd.model.Project;
-import com.google.android.gnd.model.Terms;
+import com.google.android.gnd.model.TermsOfService;
 import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.layer.Layer;
@@ -52,8 +52,8 @@ public class FakeRemoteDataStore implements RemoteDataStore {
           .putLayer(FakeData.LAYER_NO_FORM_ID, layerWithNoForm)
           .build();
 
-  private final Terms testTerms =
-      Terms.builder()
+  private final TermsOfService testTermsOfService =
+      TermsOfService.builder()
             .setId(FakeData.PROJECT_TERMS_ID)
             .setTerms(FakeData.PROJECT_TERMS)
             .build();
@@ -91,8 +91,8 @@ public class FakeRemoteDataStore implements RemoteDataStore {
     }
   }
 
-  private Terms getTestTerms() {
-    return testTerms;
+  private TermsOfService getTestTerms() {
+    return testTermsOfService;
   }
 
   @Override
@@ -107,7 +107,7 @@ public class FakeRemoteDataStore implements RemoteDataStore {
 
 
   @Override
-  public  Single<Terms> loadTerms() {
+  public  Single<TermsOfService> loadTermsOfService() {
     return Single.just(getTestTerms());
   }
 

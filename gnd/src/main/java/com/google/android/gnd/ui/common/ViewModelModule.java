@@ -80,7 +80,7 @@ public abstract class ViewModelModule {
   @Binds
   @IntoMap
   @ViewModelKey(TermsOfServiceViewModel.class)
-  abstract ViewModel bindTermsViewModel(TermsOfServiceViewModel viewModel);
+  abstract ViewModel bindTermsOfServiceViewModel(TermsOfServiceViewModel viewModel);
 
   @Binds
   @IntoMap

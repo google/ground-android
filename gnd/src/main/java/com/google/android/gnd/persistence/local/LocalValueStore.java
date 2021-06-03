@@ -78,7 +78,7 @@ public class LocalValueStore {
    * This method will return whether the user have accepted the terms or not.
    * @return true or false depending upon the user.
    */
-  public Boolean areTermsAccepted() {
+  public boolean areTermsAccepted() {
     return preferences.getBoolean(TERMS_ACCEPTED, false);
   }
 

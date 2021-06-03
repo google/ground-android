@@ -22,7 +22,7 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import com.google.android.gnd.model.Project;
-import com.google.android.gnd.model.Terms;
+import com.google.android.gnd.model.TermsOfService;
 import com.google.android.gnd.persistence.local.LocalValueStore;
 import com.google.android.gnd.repository.FeatureRepository;
 import com.google.android.gnd.repository.ProjectRepository;
@@ -147,7 +147,7 @@ public class MainViewModel extends AbstractViewModel {
     }
   }
 
-  private void getProjectTerms(Loadable<Terms> projectTerms) {
+  private void getProjectTerms(Loadable<TermsOfService> projectTerms) {
     termsState.setValue(projectTerms.getState());
   }
 

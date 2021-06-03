@@ -16,7 +16,7 @@
 
 package com.google.android.gnd.repository;
 
-import com.google.android.gnd.model.Terms;
+import com.google.android.gnd.model.TermsOfService;
 import com.google.android.gnd.persistence.remote.RemoteDataStore;
 import com.google.android.gnd.rx.Loadable;
 import com.google.android.gnd.rx.annotations.Cold;
@@ -28,7 +28,7 @@ import javax.inject.Singleton;
 import timber.log.Timber;
 
 /**
- * Coordinates persistence and retrieval of {@link Terms} instances from remote, local, and in
+ * Coordinates persistence and retrieval of {@link TermsOfService} instances from remote, local, and in
  * memory data stores. For more details on this pattern and overall architecture, see
  * https://developer.android.com/jetpack/docs/guide.
  */
@@ -47,18 +47,18 @@ public class TermsRepository {
   }
 
   @Cold
-  public Flowable<Loadable<Terms>> getProjectTerms() {
+  public Flowable<Loadable<TermsOfService>> getProjectTerms() {
     return loadTermsFromRemote()
         .doOnSubscribe(__ -> Timber.d("Loading terms from remote"))
-        .doOnError(err -> Timber.e(err, "Failed to load terms from remote"))
+        .doOnError(err -> Timber.d( "Failed to load terms from remote"))
         .toFlowable()
         .compose(Loadable::loadingOnceAndWrap);
   }
 
   @Cold
-  private Single<Terms> loadTermsFromRemote() {
+  private Single<TermsOfService> loadTermsFromRemote() {
     return remoteDataStore
-        .loadTerms()
+        .loadTermsOfService()
         .timeout(LOAD_REMOTE_PROJECT_SUMMARIES_TIMEOUT_SECS, TimeUnit.SECONDS);
   }
 }
