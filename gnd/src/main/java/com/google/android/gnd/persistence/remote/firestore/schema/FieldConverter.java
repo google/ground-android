@@ -20,7 +20,6 @@ import static com.google.android.gnd.util.Enums.toEnum;
 import static com.google.android.gnd.util.Localization.getLocalizedMessage;
 
 import com.google.android.gnd.model.form.Field;
-import com.google.android.gnd.model.form.Field.Type;
 import java8.util.Objects;
 import java8.util.Optional;
 import timber.log.Timber;
