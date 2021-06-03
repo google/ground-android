@@ -51,6 +51,12 @@ public class FakeRemoteDataStore implements RemoteDataStore {
           .putLayer(FakeData.LAYER_NO_FORM_ID, layerWithNoForm)
           .build();
 
+  private final Terms testTerms =
+      Terms.newBuilder()
+            .setId(FakeData.PROJECT_TERMS_ID)
+            .setTerms(FakeData.PROJECT_TERMS)
+            .build();
+
   private final Project testProjectWithNoLayers =
       Project.newBuilder()
           .setId(FakeData.PROJECT_ID_WITH_NO_LAYERS)
@@ -84,6 +90,10 @@ public class FakeRemoteDataStore implements RemoteDataStore {
     }
   }
 
+  private Terms getTestTerms() {
+    return testTerms;
+  }
+
   @Override
   public Single<List<Project>> loadProjectSummaries(User user) {
     return Single.just(Collections.singletonList(getTestProject()));
@@ -92,6 +102,12 @@ public class FakeRemoteDataStore implements RemoteDataStore {
   @Override
   public Single<Project> loadProject(String projectId) {
     return Single.just(getTestProject());
+  }
+
+
+  @Override
+  public  Single<Terms> loadTerms() {
+    return Single.just(getTestTerms());
   }
 
   @Override
