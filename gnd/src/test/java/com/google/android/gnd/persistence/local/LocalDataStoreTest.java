@@ -305,7 +305,7 @@ public class LocalDataStoreTest {
     localDataStore
         .getFeature(TEST_PROJECT, "feature id")
         .test()
-        .assertValue(feature -> feature.getPoint().equals(TEST_POINT));
+        .assertValue(feature -> ((PointFeature) feature).getPoint().equals(TEST_POINT));
   }
 
   @Test
@@ -363,13 +363,13 @@ public class LocalDataStoreTest {
     localDataStore.applyAndEnqueue(TEST_FEATURE_MUTATION).blockingAwait();
 
     Feature feature = localDataStore.getFeature(TEST_PROJECT, "feature id").blockingGet();
-    feature = feature.toBuilder().setPoint(TEST_POINT_2).build();
+    feature = ((PointFeature) feature).toBuilder().setPoint(TEST_POINT_2).build();
     localDataStore.mergeFeature(feature).test().assertComplete();
 
     localDataStore
         .getFeature(TEST_PROJECT, "feature id")
         .test()
-        .assertValue(newFeature -> newFeature.getPoint().equals(TEST_POINT_2));
+        .assertValue(newFeature -> ((PointFeature) newFeature).getPoint().equals(TEST_POINT_2));
   }
 
   @Test
