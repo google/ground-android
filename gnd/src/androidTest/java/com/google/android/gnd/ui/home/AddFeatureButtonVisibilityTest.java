@@ -104,13 +104,6 @@ public class AddFeatureButtonVisibilityTest {
     try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class)) {
 
       dataBindingIdlingResource.monitorActivity(scenario);
-
-      // Tap on the checkbox
-      onView(withId(R.id.agreeCheckBox)).perform(click());
-
-      // Tap on Submit on Terms Fragment
-      onView(withId(R.id.agreeButton)).perform(click());
-
       onView(withId(R.id.add_feature_btn)).check(isVisible());
 
       scenario.moveToState(State.DESTROYED);
@@ -123,13 +116,6 @@ public class AddFeatureButtonVisibilityTest {
     try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class)) {
 
       dataBindingIdlingResource.monitorActivity(scenario);
-
-      // Tap on the checkbox
-      onView(withId(R.id.agreeCheckBox)).perform(click());
-
-      // Tap on Submit on Terms Fragment
-      onView(withId(R.id.agreeButton)).perform(click());
-
       onView(withId(R.id.add_feature_btn)).check(isGone());
 
       scenario.moveToState(State.DESTROYED);
