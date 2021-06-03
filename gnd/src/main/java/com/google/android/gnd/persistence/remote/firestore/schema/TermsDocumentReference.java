@@ -16,7 +16,7 @@
 
 package com.google.android.gnd.persistence.remote.firestore.schema;
 
-import com.google.android.gnd.model.Terms;
+import com.google.android.gnd.model.TermsOfService;
 import com.google.android.gnd.persistence.remote.firestore.base.FluentDocumentReference;
 import com.google.firebase.firestore.DocumentReference;
 import durdinapps.rxfirebase2.RxFirestore;
@@ -32,8 +32,7 @@ public class TermsDocumentReference extends FluentDocumentReference {
     return new TermsDocumentReference(reference());
   }
 
-
-  public Maybe<Terms> get() {
+  public Maybe<TermsOfService> get() {
     return RxFirestore.getDocument(reference()).map(TermsConverter::toTerms);
   }
 }

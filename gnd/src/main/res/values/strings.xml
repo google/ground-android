@@ -183,4 +183,5 @@
   <string name="tos_title">Terms of Service</string>
   <string name="submit_button">Submit</string>
   <string name="agree_checkbox">I agree to the Terms of Service</string>
+  <string name="terms_load_error">An error occurred while loading Terms of Service</string>
 </resources>

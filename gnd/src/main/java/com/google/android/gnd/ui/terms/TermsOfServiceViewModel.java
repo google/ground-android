@@ -19,7 +19,7 @@ package com.google.android.gnd.ui.terms;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
 import androidx.lifecycle.MutableLiveData;
-import com.google.android.gnd.model.Terms;
+import com.google.android.gnd.model.TermsOfService;
 import com.google.android.gnd.persistence.local.LocalValueStore;
 import com.google.android.gnd.repository.TermsRepository;
 import com.google.android.gnd.rx.Loadable;
@@ -39,7 +39,7 @@ public class TermsOfServiceViewModel extends AbstractViewModel {
   public final MutableLiveData<Boolean> termsCheckBox = new MutableLiveData<>();
   private final LocalValueStore localValueStore;
 
-  private final LiveData<Loadable<Terms>> projectTerms;
+  private final LiveData<Loadable<TermsOfService>> projectTerms;
 
   @Inject
   public TermsOfServiceViewModel(Navigator navigator,
@@ -55,7 +55,7 @@ public class TermsOfServiceViewModel extends AbstractViewModel {
     navigator.navigate(TermsOfServiceFragmentDirections.proceedDirectlyToHomeScreen());
   }
 
-  public LiveData<Loadable<Terms>> getTerms() {
+  public LiveData<Loadable<TermsOfService>> getTerms() {
     return projectTerms;
   }
 

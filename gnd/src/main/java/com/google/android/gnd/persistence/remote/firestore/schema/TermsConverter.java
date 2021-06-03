@@ -16,16 +16,16 @@
 
 package com.google.android.gnd.persistence.remote.firestore.schema;
 
-import com.google.android.gnd.model.Terms;
+import com.google.android.gnd.model.TermsOfService;
 import com.google.android.gnd.persistence.remote.DataStoreException;
 import com.google.firebase.firestore.DocumentSnapshot;
 
-/** Converts between Firestore documents and {@link Terms} instances. */
+/** Converts between Firestore documents and {@link TermsOfService} instances. */
 class TermsConverter {
 
-  static Terms toTerms(DocumentSnapshot doc) throws DataStoreException {
+  static TermsOfService toTerms(DocumentSnapshot doc) throws DataStoreException {
     TermsDocument pd = doc.toObject(TermsDocument.class);
-    Terms.Builder terms = Terms.builder();
+    TermsOfService.Builder terms = TermsOfService.builder();
     terms
         .setId(doc.getId())
         .setTerms(pd.getTerms());
