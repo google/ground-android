@@ -28,7 +28,10 @@ class FeatureDocument {
   @Nullable private String customId;
   @Nullable private String caption;
   @Nullable private GeoPoint location;
-  /** @deprecated Use geometry instead. */
+  /**
+   * Use geometry instead.
+   *
+   */
   @Deprecated @Nullable private String geoJson;
   @Nullable private Map<String, Object> geometry;
   @Nullable private AuditInfoNestedObject created;
