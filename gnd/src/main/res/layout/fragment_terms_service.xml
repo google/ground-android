@@ -65,6 +65,7 @@
       app:layout_constraintEnd_toEndOf="parent"
       android:layout_margin="16dp"
       android:fillViewport="true"
+      android:fitsSystemWindows="true"
       android:scrollbars="vertical"
       app:layout_constraintStart_toStartOf="parent"
       app:layout_constraintTop_toBottomOf="@id/terms_header">
@@ -74,7 +75,7 @@
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
           android:layout_margin="8dp"
-          android:text="@{viewModel.termsText}"
+          android:text="@{viewModel.termsOfServiceText}"
           android:visibility="visible" />
     </ScrollView>
     <ProgressBar
@@ -97,16 +98,18 @@
       android:layout_height="wrap_content"
       android:layout_marginBottom="32dp"
       android:text="@string/agree_terms"
+      android:enabled="@{viewModel.termsOfServiceCheckBox}"
       app:layout_constraintBottom_toBottomOf="parent"
       app:layout_constraintEnd_toEndOf="parent"
       app:layout_constraintStart_toStartOf="parent"
       app:onButtonClick="@{__ -> viewModel.onButtonClicked()}"
- />
+    />
     <CheckBox
       app:layout_constraintBottom_toTopOf="@id/agreeButton"
       android:id="@+id/agreeCheckBox"
-      android:checked="@={viewModel.termsCheckBox}"
+      android:checked="@={viewModel.termsOfServiceCheckBox}"
       android:layout_width="0dp"
+      android:enabled="@{viewModel.termsOfServiceLoadState}"
       android:layout_margin="16dp"
       app:layout_constraintStart_toStartOf="parent"
       app:layout_constraintEnd_toEndOf="parent"
