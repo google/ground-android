@@ -17,6 +17,7 @@
 package com.google.android.gnd.repository;
 
 import com.google.android.gnd.model.TermsOfService;
+import com.google.android.gnd.persistence.local.LocalValueStore;
 import com.google.android.gnd.persistence.remote.RemoteDataStore;
 import com.google.android.gnd.rx.Loadable;
 import com.google.android.gnd.rx.annotations.Cold;
@@ -31,11 +32,14 @@ public class TermsOfServiceRepository {
   private static final long LOAD_REMOTE_PROJECT_SUMMARIES_TIMEOUT_SECS = 30;
 
   private final RemoteDataStore remoteDataStore;
+  private final LocalValueStore localValueStore;
 
   @Inject
   public TermsOfServiceRepository(
-      RemoteDataStore remoteDataStore) {
+      RemoteDataStore remoteDataStore,
+      LocalValueStore localValueStore) {
     this.remoteDataStore = remoteDataStore;
+    this.localValueStore = localValueStore;
 
   }
 
@@ -53,6 +57,14 @@ public class TermsOfServiceRepository {
     return remoteDataStore
         .loadTermsOfService()
         .timeout(LOAD_REMOTE_PROJECT_SUMMARIES_TIMEOUT_SECS, TimeUnit.SECONDS);
+  }
+
+  public boolean areTermsAccepted() {
+    return localValueStore.areTermsAccepted();
+  }
+
+  public void setTermsAccepted(boolean value) {
+    localValueStore.setTermsAccepted(value);
   }
 
 }

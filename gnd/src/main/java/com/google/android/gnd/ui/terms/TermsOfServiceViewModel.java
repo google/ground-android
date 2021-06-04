@@ -20,7 +20,6 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
 import androidx.lifecycle.MutableLiveData;
 import com.google.android.gnd.model.TermsOfService;
-import com.google.android.gnd.persistence.local.LocalValueStore;
 import com.google.android.gnd.repository.TermsOfServiceRepository;
 import com.google.android.gnd.rx.Loadable;
 import com.google.android.gnd.rx.annotations.Hot;
@@ -33,7 +32,7 @@ public class TermsOfServiceViewModel extends AbstractViewModel {
 
 
   private final Navigator navigator;
-  private final LocalValueStore localValueStore;
+
   @Hot(replays = true)
   public final MutableLiveData<String> termsOfServiceText = new MutableLiveData<>();
 
@@ -43,19 +42,20 @@ public class TermsOfServiceViewModel extends AbstractViewModel {
   @Hot(replays = true)
   public final MutableLiveData<Boolean> termsOfServiceLoadState = new MutableLiveData<>(false);
 
+  private final TermsOfServiceRepository termsOfServiceRepository;
   private final LiveData<Loadable<TermsOfService>> projectTermsOfService;
 
   @Inject
   public TermsOfServiceViewModel(Navigator navigator,
-      LocalValueStore localValueStore, TermsOfServiceRepository termsOfServiceRepository) {
+      TermsOfServiceRepository termsOfServiceRepository) {
     this.navigator = navigator;
-    this.localValueStore = localValueStore;
+    this.termsOfServiceRepository = termsOfServiceRepository;
     this.projectTermsOfService = LiveDataReactiveStreams.fromPublisher(
         termsOfServiceRepository.getProjectTerms());
   }
 
   public void onButtonClicked() {
-    localValueStore.setTermsAccepted(true);
+    termsOfServiceRepository.setTermsAccepted(true);
     navigator.navigate(TermsOfServiceFragmentDirections.proceedDirectlyToHomeScreen());
   }
 
