@@ -17,6 +17,7 @@
 package com.google.android.gnd.ui.map.gms;
 
 import static com.google.android.gms.maps.GoogleMap.OnCameraMoveStartedListener.REASON_DEVELOPER_ANIMATION;
+import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList;
 import static java8.util.stream.StreamSupport.stream;
 
 import android.annotation.SuppressLint;
@@ -280,28 +281,24 @@ class GoogleMapsMapAdapter implements MapAdapter {
   }
 
   private void addMapPolyline(MapPolygon mapPolygon) {
-    for (ImmutableSet<Point> vertices : mapPolygon.getVertices()) {
-      PolylineOptions options = new PolylineOptions();
+    PolylineOptions options = new PolylineOptions();
+    // Read-only
+    options.clickable(true);
+    // Add vertices to PolylineOptions
+    options.addAll(stream(mapPolygon.getVertices().asList())
+        .map(GoogleMapsMapAdapter::toLatLng).collect(toImmutableList()));
+    Polyline polyline = map.addPolyline(options);
+    polyline.setTag(mapPolygon);
+    polyline.setClickable(true);
+    // Style polyline
+    // TODO : Add tne icons shown in the Mock Up design.
+    polyline.setStartCap(new RoundCap());
+    polyline.setEndCap(new RoundCap());
+    polyline.setWidth(getPolylineStrokeWidth());
+    polyline.setColor(parseColor(mapPolygon.getStyle().getColor()));
+    polyline.setJointType(JointType.ROUND);
 
-      // Read-only
-      options.clickable(false);
-
-      // Add vertices to PolylineOptions
-      stream(vertices).map(GoogleMapsMapAdapter::toLatLng).forEach(options::add);
-
-      // Add to map
-      Polyline polyline = map.addPolyline(options);
-      polyline.setTag(mapPolygon);
-
-      // Style polyline
-      polyline.setStartCap(new RoundCap());
-      polyline.setEndCap(new RoundCap());
-      polyline.setWidth(getPolylineStrokeWidth());
-      polyline.setColor(parseColor(mapPolygon.getStyle().getColor()));
-      polyline.setJointType(JointType.ROUND);
-
-      polylines.add(polyline);
-    }
+    polylines.add(polyline);
   }
 
   private int getPolylineStrokeWidth() {

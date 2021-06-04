@@ -23,8 +23,8 @@ import com.google.common.collect.ImmutableList;
 /** User-defined map feature consisting of a polygon. */
 @AutoValue
 public abstract class PolygonFeature extends Feature<PolygonFeature.Builder> {
-  // TODO: Use builder() or newBuilder() consistently.
-  public static Builder newBuilder() {
+
+  public static Builder builder() {
     return new AutoValue_PolygonFeature.Builder();
   }
 

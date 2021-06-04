@@ -161,7 +161,7 @@ public class FeatureRepository {
   public PolygonFeature newPolygonFeature(Project project, Layer layer,
       ImmutableList<Point> point) {
     AuditInfo auditInfo = AuditInfo.now(authManager.getCurrentUser());
-    return PolygonFeature.newBuilder()
+    return PolygonFeature.builder()
         .setId(uuidGenerator.generateUuid())
         .setProject(project)
         .setLayer(layer)

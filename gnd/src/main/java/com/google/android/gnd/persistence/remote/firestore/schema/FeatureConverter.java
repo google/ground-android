@@ -91,7 +91,7 @@ public class FeatureConverter {
           ((GeoPoint) point).getLatitude()).build());
 
     }
-    PolygonFeature.Builder builder = PolygonFeature.newBuilder().setVertices(vertices.build());
+    PolygonFeature.Builder builder = PolygonFeature.builder().setVertices(vertices.build());
     fillFeature(builder, project, doc.getId(), f);
     return builder.build();
   }

@@ -163,7 +163,7 @@ public abstract class FeatureEntity {
 
     if (featureEntity.getPolygonVertices() != null) {
       PolygonFeature.Builder builder =
-          PolygonFeature.newBuilder().setVertices(stringToList(featureEntity.getPolygonVertices()));
+          PolygonFeature.builder().setVertices(stringToList(featureEntity.getPolygonVertices()));
       fillFeature(builder, featureEntity, project);
       return builder.build();
     }
