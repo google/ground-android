@@ -187,6 +187,7 @@ public class LocalDataStoreTest {
         .setProjectId("project id")
         .setLayerId("layer id")
         .setNewLocation(Optional.ofNullable(point))
+        .setNewPolygonVertices(Optional.empty())
         .setClientTimestamp(new Date())
         .build();
   }
