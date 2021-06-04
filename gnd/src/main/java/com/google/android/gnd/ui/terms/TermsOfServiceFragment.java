@@ -50,26 +50,29 @@ public class TermsOfServiceFragment extends AbstractFragment implements BackPres
         .inflate(inflater, container, false);
     binding.setViewModel(viewModel);
     binding.setLifecycleOwner(this);
-    viewModel.getTerms().observe(getViewLifecycleOwner(), this::getProjectTerms);
+    viewModel.getTermsOfService().observe(getViewLifecycleOwner(), this::getProjectTerms);
     return binding.getRoot();
   }
 
   private void getProjectTerms(Loadable<TermsOfService> projectTerms) {
     switch (projectTerms.getState()) {
       case LOADING:
+        viewModel.setTermsOfServiceLoadState(false);
         Timber.i("Loading terms");
         binding.termsLoadingProgressBar.setVisibility(View.VISIBLE);
         break;
       case LOADED:
+        viewModel.setTermsOfServiceLoadState(true);
         binding.termsLoadingProgressBar.setVisibility(View.GONE);
         binding.termsText.setVisibility(View.VISIBLE);
-        viewModel.setTermsTextView(projectTerms.value().get().getTerms());
+        viewModel.setTermsOfServiceTextView(projectTerms.value().get().getTerms());
         break;
       case NOT_FOUND:
       case ERROR:
+        viewModel.setTermsOfServiceLoadState(false);
         binding.termsLoadingProgressBar.setVisibility(View.GONE);
         binding.termsText.setVisibility(View.VISIBLE);
-        viewModel.setTermsTextView(getString(R.string.terms_load_error));
+        viewModel.setTermsOfServiceTextView(getString(R.string.terms_load_error));
         break;
       default:
         Timber.e("Unhandled state: %s",  projectTerms.getState());

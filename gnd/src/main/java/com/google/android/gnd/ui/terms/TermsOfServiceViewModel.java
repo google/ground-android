@@ -35,19 +35,22 @@ public class TermsOfServiceViewModel extends AbstractViewModel {
   private final Navigator navigator;
   private final LocalValueStore localValueStore;
   @Hot(replays = true)
-  public final MutableLiveData<String> termsText = new MutableLiveData<>();
+  public final MutableLiveData<String> termsOfServiceText = new MutableLiveData<>();
 
   @Hot(replays = true)
-  public final MutableLiveData<Boolean> termsCheckBox = new MutableLiveData<>();
+  public final MutableLiveData<Boolean> termsOfServiceCheckBox = new MutableLiveData<>();
 
-  private final LiveData<Loadable<TermsOfService>> projectTerms;
+  @Hot(replays = true)
+  public final MutableLiveData<Boolean> termsOfServiceLoadState = new MutableLiveData<>(false);
+
+  private final LiveData<Loadable<TermsOfService>> projectTermsOfService;
 
   @Inject
   public TermsOfServiceViewModel(Navigator navigator,
       LocalValueStore localValueStore, TermsOfServiceRepository termsOfServiceRepository) {
     this.navigator = navigator;
     this.localValueStore = localValueStore;
-    this.projectTerms = LiveDataReactiveStreams.fromPublisher(
+    this.projectTermsOfService = LiveDataReactiveStreams.fromPublisher(
         termsOfServiceRepository.getProjectTerms());
   }
 
@@ -56,12 +59,16 @@ public class TermsOfServiceViewModel extends AbstractViewModel {
     navigator.navigate(TermsOfServiceFragmentDirections.proceedDirectlyToHomeScreen());
   }
 
-  public LiveData<Loadable<TermsOfService>> getTerms() {
-    return projectTerms;
+  public LiveData<Loadable<TermsOfService>> getTermsOfService() {
+    return projectTermsOfService;
   }
 
-  public void setTermsTextView(String terms) {
-    termsText.setValue(terms);
+  public void setTermsOfServiceTextView(String terms) {
+    termsOfServiceText.setValue(terms);
+  }
+
+  public void setTermsOfServiceLoadState(boolean value) {
+    termsOfServiceLoadState.setValue(value);
   }
 
 }
