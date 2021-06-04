@@ -22,6 +22,7 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import com.google.android.gnd.model.Project;
+import com.google.android.gnd.persistence.local.LocalValueStore;
 import com.google.android.gnd.repository.FeatureRepository;
 import com.google.android.gnd.repository.ProjectRepository;
 import com.google.android.gnd.repository.UserRepository;
@@ -36,6 +37,7 @@ import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.SharedViewModel;
 import com.google.android.gnd.ui.home.HomeScreenFragmentDirections;
 import com.google.android.gnd.ui.signin.SignInFragmentDirections;
+import com.google.android.gnd.ui.terms.TermsOfServiceFragmentDirections;
 import io.reactivex.Completable;
 import java8.util.Optional;
 import javax.inject.Inject;
@@ -57,6 +59,7 @@ public class MainViewModel extends AbstractViewModel {
   private final FeatureRepository featureRepository;
   private final Navigator navigator;
   private final EphemeralPopups popups;
+  private final LocalValueStore localValueStore;
 
   @Inject
   public MainViewModel(
@@ -66,11 +69,12 @@ public class MainViewModel extends AbstractViewModel {
       Navigator navigator,
       AuthenticationManager authenticationManager,
       EphemeralPopups popups,
-      Schedulers schedulers) {
+      Schedulers schedulers, LocalValueStore localValueStore) {
     this.projectRepository = projectRepository;
     this.featureRepository = featureRepository;
     this.navigator = navigator;
     this.popups = popups;
+    this.localValueStore = localValueStore;
 
     // TODO: Move to background service.
     disposeOnClear(
@@ -151,7 +155,11 @@ public class MainViewModel extends AbstractViewModel {
 
   private void onSignedIn() {
     hideProgressDialog();
-    navigator.navigate(HomeScreenFragmentDirections.showHomeScreen());
+    if (localValueStore.areTermsAccepted()) {
+      navigator.navigate(HomeScreenFragmentDirections.showHomeScreen());
+    } else {
+      navigator.navigate(TermsOfServiceFragmentDirections.showTermsScreen());
+    }
   }
 
   public LiveData<Boolean> getSignInProgressDialogVisibility() {

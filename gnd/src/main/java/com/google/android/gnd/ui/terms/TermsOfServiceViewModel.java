@@ -16,9 +16,32 @@
 
 package com.google.android.gnd.ui.terms;
 
+import androidx.lifecycle.MutableLiveData;
+import com.google.android.gnd.persistence.local.LocalValueStore;
+import com.google.android.gnd.rx.annotations.Hot;
 import com.google.android.gnd.ui.common.AbstractViewModel;
+import com.google.android.gnd.ui.common.Navigator;
+import javax.inject.Inject;
 
 // TODO: Needs to handle view state and behaviors of the Terms Fragment
 public class TermsOfServiceViewModel extends AbstractViewModel {
+
+
+  private final Navigator navigator;
+  private final LocalValueStore localValueStore;
+
+  @Hot(replays = true)
+  public final MutableLiveData<Boolean> termsCheckBox = new MutableLiveData<>();
+
+  @Inject
+  public TermsOfServiceViewModel(Navigator navigator, LocalValueStore localValueStore) {
+    this.navigator = navigator;
+    this.localValueStore = localValueStore;
+  }
+
+  public void onButtonClicked() {
+    localValueStore.setTermsAccepted(true);
+    navigator.navigate(TermsOfServiceFragmentDirections.proceedDirectlyToHomeScreen());
+  }
 
 }

@@ -38,6 +38,11 @@
       app:destination="@id/home_screen_fragment"
       app:popUpTo="@id/navGraph"
       app:popUpToInclusive="true" />
+    <action
+      android:id="@+id/proceedToTermsScreen"
+      app:destination="@id/terms_fragment"
+      app:popUpTo="@id/navGraph"
+      app:popUpToInclusive="true" />
   </fragment>
 
   <fragment
@@ -167,4 +172,21 @@
     android:id="@+id/showHomeScreen"
     app:destination="@id/home_screen_fragment"
     app:popUpTo="@id/navGraph" />
+
+  <action
+    android:id="@+id/showTermsScreen"
+    app:destination="@id/terms_fragment"
+    app:popUpTo="@id/navGraph" />
+
+  <fragment
+    android:id="@+id/terms_fragment"
+    android:name="com.google.android.gnd.ui.terms.TermsOfServiceFragment"
+    android:label="terms_frag"
+    tools:layout="@layout/fragment_terms_service">
+    <action
+      android:id="@+id/proceedDirectlyToHomeScreen"
+      app:destination="@id/home_screen_fragment"
+      app:popUpTo="@id/navGraph"
+      app:popUpToInclusive="true" />
+  </fragment>
 </navigation>
