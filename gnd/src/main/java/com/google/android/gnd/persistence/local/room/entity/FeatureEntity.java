@@ -16,6 +16,8 @@
 
 package com.google.android.gnd.persistence.local.room.entity;
 
+import static java8.util.stream.StreamSupport.stream;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.room.ColumnInfo;
@@ -41,6 +43,9 @@ import com.google.common.collect.ImmutableList;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import java.util.ArrayList;
+import java.util.List;
+import java8.util.stream.Collectors;
+import timber.log.Timber;
 
 /**
  * Defines how Room persists features in the local db. By default, Room uses the name of object
@@ -116,15 +121,16 @@ public abstract class FeatureEntity {
   }
 
   public static String listToString(ImmutableList<Point> vertices) {
-    ArrayList<ArrayList<Double>> polygonVertices = new ArrayList<>();
-    for (Point vertex : vertices) {
-      ArrayList<Double> innerValues = new ArrayList<>();
-      innerValues.add(vertex.getLatitude());
-      innerValues.add(vertex.getLongitude());
-      polygonVertices.add(innerValues);
+    if (vertices == null) {
+      Timber.d("vertices are null");
+      return null;
     }
     Gson gson = new Gson();
-    return gson.toJson(polygonVertices);
+    List<List<Double>> verticesArray = stream(vertices)
+        .map(point -> ImmutableList.of(point.getLatitude(),
+            point.getLongitude())).collect(
+            Collectors.toList());
+    return gson.toJson(verticesArray);
   }
 
   public static FeatureEntity fromFeature(Feature feature) {

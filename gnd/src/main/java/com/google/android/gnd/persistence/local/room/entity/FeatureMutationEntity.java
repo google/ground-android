@@ -17,6 +17,7 @@
 package com.google.android.gnd.persistence.local.room.entity;
 
 import static androidx.room.ForeignKey.CASCADE;
+import static java8.util.stream.StreamSupport.stream;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -36,7 +37,9 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java8.util.Optional;
+import java8.util.stream.Collectors;
 import timber.log.Timber;
 
 /**
@@ -98,15 +101,12 @@ public abstract class FeatureMutationEntity extends MutationEntity {
       Timber.d("vertices are null");
       return null;
     }
-    ArrayList<ArrayList<Double>> polygonVertices = new ArrayList<>();
-    for (Point vertex : vertices) {
-      ArrayList<Double> innerValues = new ArrayList<>();
-      innerValues.add(vertex.getLatitude());
-      innerValues.add(vertex.getLongitude());
-      polygonVertices.add(innerValues);
-    }
     Gson gson = new Gson();
-    return gson.toJson(polygonVertices);
+    List<List<Double>> verticesArray = stream(vertices)
+        .map(point -> ImmutableList.of(point.getLatitude(),
+            point.getLongitude())).collect(
+          Collectors.toList());
+    return gson.toJson(verticesArray);
   }
 
   public static ImmutableList<Point> stringToList(String vertices) {
