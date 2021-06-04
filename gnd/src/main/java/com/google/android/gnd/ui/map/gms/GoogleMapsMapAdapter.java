@@ -47,13 +47,18 @@ import com.google.android.gnd.ui.map.MapFeature;
 import com.google.android.gnd.ui.map.MapGeoJson;
 import com.google.android.gnd.ui.map.MapPin;
 import com.google.android.gnd.ui.map.MapPolygon;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableList.Builder;
 import com.google.common.collect.ImmutableSet;
+import com.google.maps.android.PolyUtil;
 import com.google.maps.android.collections.MarkerManager;
-import com.google.maps.android.collections.PolygonManager;
 import com.google.maps.android.data.Layer;
+import com.google.maps.android.data.geojson.GeoJsonFeature;
 import com.google.maps.android.data.geojson.GeoJsonLayer;
 import com.google.maps.android.data.geojson.GeoJsonLineStringStyle;
+import com.google.maps.android.data.geojson.GeoJsonMultiPolygon;
 import com.google.maps.android.data.geojson.GeoJsonPointStyle;
+import com.google.maps.android.data.geojson.GeoJsonPolygon;
 import com.google.maps.android.data.geojson.GeoJsonPolygonStyle;
 import io.reactivex.Flowable;
 import io.reactivex.Observable;
@@ -62,8 +67,12 @@ import io.reactivex.processors.PublishProcessor;
 import io.reactivex.subjects.PublishSubject;
 import io.reactivex.subjects.Subject;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import javax.annotation.Nullable;
 import timber.log.Timber;
@@ -81,8 +90,8 @@ class GoogleMapsMapAdapter implements MapAdapter {
   /** Marker click events. */
   @Hot private final Subject<MapPin> markerClicks = PublishSubject.create();
 
-  /** GeoJson click events. */
-  @Hot private final Subject<MapGeoJson> geoJsonClicks = PublishSubject.create();
+  /** Ambiguous click events. */
+  @Hot private final Subject<ImmutableList<MapFeature>> featureClicks = PublishSubject.create();
 
   /** Map drag events. Emits items repeatedly while the map is being dragged. */
   @Hot private final FlowableProcessor<Point> dragInteractions = PublishProcessor.create();
@@ -105,7 +114,6 @@ class GoogleMapsMapAdapter implements MapAdapter {
    */
   private final MarkerManager markerManager;
   // TODO: Add managers for polyline layers
-  private final PolygonManager polygonManager;
 
   /**
    * References to Google Maps SDK Markers present on the map. Used to sync and update markers with
@@ -117,15 +125,17 @@ class GoogleMapsMapAdapter implements MapAdapter {
    * References to Google Maps SDK Markers present on the map. Used to sync and update polylines
    * with current view and data state.
    */
-  private Set<Polyline> polylines = new HashSet<>();
+  private final Set<Polyline> polylines = new HashSet<>();
 
   /**
    * References to Google Maps SDK GeoJSON present on the map. Used to sync and update GeoJSON with
    * current view and data state.
    */
-  private Set<GeoJsonLayer> geoJsonLayers = new HashSet<>();
+  private final Set<GeoJsonLayer> geoJsonLayers = new HashSet<>();
 
   @Nullable private LatLng cameraTargetBeforeDrag;
+  private final Map<MapFeature, List<LatLng>> geoJsonPolygonLoops = new HashMap<>();
+  private final Map<MapFeature, ArrayList<ArrayList<LatLng>>> geoJsonPolygonHoles = new HashMap<>();
 
   public GoogleMapsMapAdapter(
       GoogleMap map,
@@ -138,7 +148,6 @@ class GoogleMapsMapAdapter implements MapAdapter {
 
     // init markers
     markerManager = new MarkerManager(map);
-    polygonManager = new PolygonManager(map);
     markers = markerManager.newCollection();
     markers.setOnMarkerClickListener(this::onMarkerClick);
 
@@ -164,6 +173,37 @@ class GoogleMapsMapAdapter implements MapAdapter {
     return new LatLng(point.getLatitude(), point.getLongitude());
   }
 
+  // Handle taps on ambiguous features.
+  private void handleAmbiguity(LatLng latLng) {
+    Builder<MapFeature> candidates = ImmutableList.builder();
+    ArrayList<String> processed = new ArrayList<>();
+
+    for (Map.Entry<MapFeature, ArrayList<ArrayList<LatLng>>> json :
+        geoJsonPolygonHoles.entrySet()) {
+      ArrayList<ArrayList<LatLng>> holes = json.getValue();
+      if (processed.contains(((MapGeoJson) json.getKey()).getId())) {
+        continue;
+      }
+
+      if (stream(holes).anyMatch(hole -> PolyUtil.containsLocation(latLng, hole, false))) {
+        processed.add(((MapGeoJson) json.getKey()).getId());
+      }
+    }
+
+    for (Map.Entry<MapFeature, List<LatLng>> json : geoJsonPolygonLoops.entrySet()) {
+      if (processed.contains(((MapGeoJson) json.getKey()).getId())) {
+        continue;
+      }
+
+      if (PolyUtil.containsLocation(latLng, json.getValue(), false)) {
+        candidates.add(json.getKey());
+        processed.add(((MapGeoJson) json.getKey()).getId());
+      }
+    }
+
+    featureClicks.onNext(candidates.build());
+  }
+
   private boolean onMarkerClick(Marker marker) {
     if (map.getUiSettings().isZoomGesturesEnabled()) {
       markerClicks.onNext((MapPin) marker.getTag());
@@ -181,10 +221,9 @@ class GoogleMapsMapAdapter implements MapAdapter {
     return markerClicks;
   }
 
-  @Hot
   @Override
-  public Observable<MapGeoJson> getMapGeoJsonClicks() {
-    return geoJsonClicks;
+  public @Hot Observable<ImmutableList<MapFeature>> getFeatureClicks() {
+    return featureClicks;
   }
 
   @Hot
@@ -271,11 +310,8 @@ class GoogleMapsMapAdapter implements MapAdapter {
 
   private void addMapGeoJson(MapGeoJson mapFeature) {
     // Pass markerManager here otherwise markers in the previous layers won't be clickable.
-    // polygonManager also needs to be passed to make the layer's on click method work
-    // I'm not sure why--it must dispatch to the appropriate manager based on the parsed geometry
-    // (e.g. polygons).
     GeoJsonLayer layer =
-        new GeoJsonLayer(map, mapFeature.getGeoJson(), markerManager, polygonManager, null, null);
+        new GeoJsonLayer(map, mapFeature.getGeoJson(), markerManager, null, null, null);
 
     int width = getPolylineStrokeWidth();
     int color = parseColor(mapFeature.getStyle().getColor());
@@ -288,6 +324,7 @@ class GoogleMapsMapAdapter implements MapAdapter {
     GeoJsonPolygonStyle polygonStyle = layer.getDefaultPolygonStyle();
     polygonStyle.setLineStringWidth(width);
     polygonStyle.setStrokeColor(color);
+    polygonStyle.setClickable(false);
     polygonStyle.setZIndex(1);
 
     GeoJsonLineStringStyle lineStringStyle = layer.getDefaultLineStringStyle();
@@ -297,13 +334,36 @@ class GoogleMapsMapAdapter implements MapAdapter {
 
     layer.addLayerToMap();
 
-    layer.setOnFeatureClickListener(__ -> onGeoJsonClick(mapFeature));
+    for (GeoJsonFeature geoJsonFeature : layer.getFeatures()) {
+      updateGeoJsonPolygonBoundaries(geoJsonFeature, mapFeature);
+    }
 
+    map.setOnMapClickListener(this::onMapClick);
     geoJsonLayers.add(layer);
   }
 
-  private void onGeoJsonClick(MapGeoJson mapGeoJson) {
-    geoJsonClicks.onNext(mapGeoJson);
+  /* Adds the inner and outer boundaries (holes and loops) of polygons defined by a GeoJson feature
+  to the adapters lists of known polygon boundaries, associating them with the given MapFeature. */
+  private void updateGeoJsonPolygonBoundaries(
+      GeoJsonFeature geoJsonFeature, MapFeature mapFeature) {
+    if ("Polygon".equals(geoJsonFeature.getGeometry().getGeometryType())) {
+      GeoJsonPolygon polygon = (GeoJsonPolygon) geoJsonFeature.getGeometry();
+
+      geoJsonPolygonLoops.put(mapFeature, polygon.getOuterBoundaryCoordinates());
+      geoJsonPolygonHoles.put(mapFeature, polygon.getInnerBoundaryCoordinates());
+    }
+    if ("MultiPolygon".equals(geoJsonFeature.getGeometry().getGeometryType())) {
+      GeoJsonMultiPolygon multi = (GeoJsonMultiPolygon) geoJsonFeature.getGeometry();
+
+      for (GeoJsonPolygon polygon : multi.getPolygons()) {
+        geoJsonPolygonLoops.put(mapFeature, polygon.getOuterBoundaryCoordinates());
+        geoJsonPolygonHoles.put(mapFeature, polygon.getInnerBoundaryCoordinates());
+      }
+    }
+  }
+
+  private void onMapClick(LatLng latLng) {
+    handleAmbiguity(latLng);
   }
 
   private void removeAllMarkers() {

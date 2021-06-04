@@ -144,6 +144,12 @@
     <item name="android:textSize">@dimen/field_value_text_size</item>
   </style>
 
+  <style name="EditObservation.Field.Label" parent="AppTheme.Base">
+    <item name="android:textColor">@color/colorForeground</item>
+    <item name="android:textSize">@dimen/edit_field_label_text_size</item>
+    <item name="android:textStyle">bold</item>
+  </style>
+
   <style name="EditObservation.Field.Text" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense">
     <!-- TODO -->
   </style>

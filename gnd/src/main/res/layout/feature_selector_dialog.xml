@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!--
-  ~ Copyright 2018 Google LLC
+  ~ Copyright 2021 Google LLC
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -20,12 +20,18 @@
   android:layout_width="match_parent"
   android:layout_height="match_parent">
 
-  <TextView
-    android:id="@+id/project_name"
+  <ProgressBar
+    android:id="@+id/list_loading_progress_bar"
+    style="?android:attr/progressBarStyle"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:padding="@dimen/selector_dialog_list_item_padding"
-    android:textColor="@color/colorForeground"
-    android:textSize="@dimen/selector_dialog_list_item_text_size" />
+    android:layout_gravity="center"
+    android:padding="@dimen/selector_dialog_progress_bar_padding" />
+
+  <ListView
+    android:id="@+id/feature_selector_list_view"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:visibility="gone" />
 
 </FrameLayout>
