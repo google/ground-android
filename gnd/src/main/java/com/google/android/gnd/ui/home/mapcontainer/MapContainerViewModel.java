@@ -17,6 +17,7 @@
 package com.google.android.gnd.ui.home.mapcontainer;
 
 import static android.view.View.GONE;
+import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 import static com.google.android.gnd.util.ImmutableSetCollector.toImmutableSet;
 import static java8.util.stream.StreamSupport.stream;
@@ -34,6 +35,7 @@ import com.google.android.gnd.model.feature.GeoJsonFeature;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.model.feature.PointFeature;
 import com.google.android.gnd.model.feature.PolygonFeature;
+import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.repository.FeatureRepository;
 import com.google.android.gnd.repository.OfflineBaseMapRepository;
 import com.google.android.gnd.repository.ProjectRepository;
@@ -50,12 +52,15 @@ import com.google.android.gnd.ui.map.MapFeature;
 import com.google.android.gnd.ui.map.MapGeoJson;
 import com.google.android.gnd.ui.map.MapPin;
 import com.google.android.gnd.ui.map.MapPolygon;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Flowable;
+import io.reactivex.processors.PublishProcessor;
 import io.reactivex.subjects.PublishSubject;
 import io.reactivex.subjects.Subject;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java8.util.Optional;
 import javax.inject.Inject;
@@ -88,8 +93,22 @@ public class MapContainerViewModel extends AbstractViewModel {
   @Hot private final Subject<Boolean> locationLockChangeRequests = PublishSubject.create();
   @Hot private final Subject<CameraUpdate> cameraUpdateSubject = PublishSubject.create();
 
+  /** Polyline drawn by the user but not yet saved as polygon. */
+  @Hot
+  private final PublishProcessor<ImmutableList<Point>> drawnPolylineVertices =
+      PublishProcessor.create();
+
   @Hot(replays = true)
   private final MutableLiveData<Integer> mapControlsVisibility = new MutableLiveData<>(VISIBLE);
+
+  @Hot(replays = true)
+  private final MutableLiveData<Integer> polygonDrawingCompleted = new MutableLiveData<>(INVISIBLE);
+
+  @Hot(replays = true)
+  private final MutableLiveData<Integer> addPolygonVisibility = new MutableLiveData<>(GONE);
+
+  @Hot(replays = true)
+  private final MutableLiveData<Integer> addPolygonPoints = new MutableLiveData<>(INVISIBLE);
 
   @Hot(replays = true)
   private final MutableLiveData<Integer> moveFeaturesVisibility = new MutableLiveData<>(GONE);
@@ -103,6 +122,10 @@ public class MapContainerViewModel extends AbstractViewModel {
 
   // Feature currently selected for repositioning
   private Optional<Feature> selectedFeature = Optional.empty();
+
+  private Optional<Layer> selectedLayer = Optional.empty();
+
+  private Optional<Project> selectedProject = Optional.empty();
 
   @Inject
   MapContainerViewModel(
@@ -131,17 +154,44 @@ public class MapContainerViewModel extends AbstractViewModel {
     // TODO: Clear feature markers when project is deactivated.
     // TODO: Since we depend on project stream from repo anyway, this transformation can be moved
     // into the repo?
-    this.mapFeatures =
-        LiveDataReactiveStreams.fromPublisher(
-            projectRepository
-                .getActiveProject()
-                .switchMap(this::getFeaturesStream)
-                .map(MapContainerViewModel::toMapFeatures));
+    // Features that are persisted to the local and remote dbs.
+    Flowable<ImmutableSet<MapFeature>> persistentFeatures =
+        projectRepository
+            .getActiveProject()
+            .switchMap(this::getFeaturesStream)
+            .map(MapContainerViewModel::toMapFeatures);
+    Flowable<ImmutableSet<MapFeature>> transientFeatures =
+        drawnPolylineVertices.map(
+            vertices ->
+                ImmutableSet.of(
+                    toMapPolygon(
+                        featureRepository.newPolygonFeature(
+                            selectedProject.get(), selectedLayer.get(), vertices))));
+    this.mapFeatures = LiveDataReactiveStreams.fromPublisher(
+        Flowable.combineLatest(Arrays.asList(
+            persistentFeatures.startWith(ImmutableSet.<MapFeature>of()),
+            transientFeatures.startWith(ImmutableSet.<MapFeature>of())),
+            MapContainerViewModel::concatFeatureSets));
     this.mbtilesFilePaths =
         LiveDataReactiveStreams.fromPublisher(
             offlineBaseMapRepository
                 .getDownloadedTileSourcesOnceAndStream()
                 .map(set -> stream(set).map(TileSource::getPath).collect(toImmutableSet())));
+  }
+
+  private static ImmutableSet<MapFeature> concatFeatureSets(
+      Object[] objects) {
+    ImmutableSet<MapFeature> combinedFeatureSet = ImmutableSet.<MapFeature>builder().build();
+    for (Object obj : objects) {
+      if (obj instanceof ImmutableSet) {
+        ImmutableSet<MapFeature> a = (ImmutableSet<MapFeature>) obj;
+        combinedFeatureSet = ImmutableSet.<MapFeature>builder()
+            .addAll(a).addAll(combinedFeatureSet).build();
+      } else {
+        Timber.d("Object is not of ImmutableSet class");
+      }
+    }
+    return combinedFeatureSet;
   }
 
   private static ImmutableSet<MapFeature> toMapFeatures(ImmutableSet<Feature> features) {
@@ -253,12 +303,20 @@ public class MapContainerViewModel extends AbstractViewModel {
     selectMapTypeClicks.postValue(Action.create());
   }
 
+  public void updateDrawnPolygonFeature(ImmutableList<Point> vertices) {
+    drawnPolylineVertices.onNext(vertices);
+  }
+
   public LiveData<Loadable<Project>> getProjectLoadingState() {
     return projectLoadingState;
   }
 
   public LiveData<ImmutableSet<MapFeature>> getMapFeatures() {
     return mapFeatures;
+  }
+
+  public Optional<Layer> getSelectedLayer() {
+    return selectedLayer;
   }
 
   public LiveData<ImmutableSet<String>> getMbtilesFilePaths() {
@@ -322,6 +380,20 @@ public class MapContainerViewModel extends AbstractViewModel {
   public void setViewMode(Mode viewMode) {
     mapControlsVisibility.setValue(viewMode == Mode.DEFAULT ? VISIBLE : GONE);
     moveFeaturesVisibility.setValue(viewMode == Mode.REPOSITION ? VISIBLE : GONE);
+    addPolygonVisibility.setValue(viewMode == Mode.ADD_POLYGON ? VISIBLE : GONE);
+  }
+
+  public void updatePolygonDrawing(PolygonDrawing polygonDrawing) {
+    addPolygonPoints.setValue(polygonDrawing == PolygonDrawing.DEFAULT ? VISIBLE : GONE);
+    polygonDrawingCompleted.setValue(polygonDrawing == PolygonDrawing.COMPLETED ? VISIBLE : GONE);
+  }
+
+  public LiveData<Integer> getAddPolygonVisibility() {
+    return addPolygonVisibility;
+  }
+
+  public LiveData<Integer> getPolygonDrawingCompletedVisibility() {
+    return polygonDrawingCompleted;
   }
 
   public LiveData<Integer> getMapControlsVisibility() {
@@ -336,13 +408,31 @@ public class MapContainerViewModel extends AbstractViewModel {
     return selectedFeature;
   }
 
+  public Optional<Project> getSelectedProject() {
+    return selectedProject;
+  }
+
   public void setSelectedFeature(Optional<Feature> selectedFeature) {
     this.selectedFeature = selectedFeature;
   }
 
+  public void setSelectedLayer(Layer selectedLayer) {
+    this.selectedLayer = Optional.of(selectedLayer);
+  }
+
+  public void setSelectedProject(Project selectedProject) {
+    this.selectedProject = Optional.of(selectedProject);
+  }
+
   public enum Mode {
     DEFAULT,
-    REPOSITION
+    REPOSITION,
+    ADD_POLYGON
+  }
+
+  public enum PolygonDrawing {
+    DEFAULT,
+    COMPLETED
   }
 
   static class CameraUpdate {

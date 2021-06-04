@@ -183,6 +183,12 @@
   <string name="agree_terms">Agree</string>
   <string name="agree_checkbox">I agree to the Terms of Service</string>
 
+  <string name="add_point">Add Point</string>
+  <string name="save_polygon">Save Polygon</string>
+  <string name="point">Point</string>
+  <string name="polygon">Polygon</string>
+  <string name="select_data_type">Choose a data type</string>
+
   <!-- Other strings (to be organized) -->
   <string name="offline_base_map_name" translatable="false">%s</string>
 </resources>

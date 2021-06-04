@@ -147,6 +147,9 @@ public class MapContainerFragment extends AbstractFragment {
     homeScreenViewModel
         .getBottomSheetState()
         .observe(this, state -> onBottomSheetStateChange(state, map));
+    binding.addPolygons.addPolygonButton.setOnClickListener(__ -> addPolygonVertices(map));
+    binding.addPolygons.undoButton.setOnClickListener(__ -> undoPolygonPoint());
+    binding.addPolygons.savePolygonButton.setOnClickListener(__ -> savePolygonVertices());
     binding.mapControls.addFeatureBtn.setOnClickListener(
         __ -> homeScreenViewModel.onAddFeatureBtnClick(map.getCameraTarget()));
     binding.moveFeature.confirmButton.setOnClickListener(
@@ -245,6 +248,19 @@ public class MapContainerFragment extends AbstractFragment {
     binding.mapControls.addFeatureBtn.setBackgroundTintList(
         ColorStateList.valueOf(getResources().getColor(R.color.colorMapAccent)));
   }
+
+  private void addPolygonVertices(MapAdapter map) {
+    homeScreenViewModel.onAddPolygonBtnClick(map.getCameraTarget());
+  }
+
+  private void undoPolygonPoint() {
+    homeScreenViewModel.undoPoint();
+  }
+
+  private void savePolygonVertices() {
+    homeScreenViewModel.savePolygon();
+  }
+
 
   private void disableAddFeatureBtn() {
     // NOTE: We don't call addFeatureBtn.setEnabled(false) here since calling it before the fab is

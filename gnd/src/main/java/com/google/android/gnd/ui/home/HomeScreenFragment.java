@@ -23,6 +23,7 @@ import static com.google.android.gnd.ui.util.ViewUtil.getScreenHeight;
 import static com.google.android.gnd.ui.util.ViewUtil.getScreenWidth;
 
 import android.app.ProgressDialog;
+import android.location.Location;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -32,10 +33,12 @@ import android.view.SubMenu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
+import android.widget.ArrayAdapter;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog.Builder;
 import androidx.core.view.GravityCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -48,7 +51,9 @@ import com.google.android.gnd.databinding.HomeScreenFragBinding;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.Point;
+import com.google.android.gnd.model.feature.PointFeature;
 import com.google.android.gnd.model.form.Form;
+import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.rx.Loadable;
 import com.google.android.gnd.rx.Schedulers;
 import com.google.android.gnd.system.auth.AuthenticationManager;
@@ -61,12 +66,16 @@ import com.google.android.gnd.ui.home.featureselector.FeatureSelectorFragment;
 import com.google.android.gnd.ui.home.featureselector.FeatureSelectorViewModel;
 import com.google.android.gnd.ui.home.mapcontainer.MapContainerFragment;
 import com.google.android.gnd.ui.home.mapcontainer.MapContainerViewModel;
+import com.google.android.gnd.ui.home.mapcontainer.MapContainerViewModel.Mode;
+import com.google.android.gnd.ui.home.mapcontainer.MapContainerViewModel.PolygonDrawing;
+import com.google.android.gnd.ui.map.CameraPosition;
 import com.google.android.gnd.ui.projectselector.ProjectSelectorDialogFragment;
 import com.google.android.gnd.ui.projectselector.ProjectSelectorViewModel;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.navigation.NavigationView.OnNavigationItemSelectedListener;
 import com.google.common.collect.ImmutableList;
 import dagger.hilt.android.AndroidEntryPoint;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java8.util.Optional;
@@ -102,6 +111,7 @@ public class HomeScreenFragment extends AbstractFragment
   private List<Project> projects = Collections.emptyList();
   private HomeScreenFragBinding binding;
   private FeatureSelectorFragment featureSelectorDialogFragment;
+  private final List<Point> vertices = new ArrayList<>();
 
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -129,6 +139,17 @@ public class HomeScreenFragment extends AbstractFragment
     viewModel.getUpdateFeatureResults().observe(this, this::onFeatureUpdated);
     viewModel.getDeleteFeatureResults().observe(this, this::onFeatureDeleted);
     viewModel.getErrors().observe(this, this::onError);
+    viewModel
+        .getShowAddPolyDialogRequests()
+        .observe(this, e -> e.ifUnhandled(this::onShowAddPolygonDialogRequest));
+    mapContainerViewModel.getCameraPosition().observe(this, this::checkPointNearVertex);
+    viewModel.getSavePolygonRequest().as(autoDisposable(this))
+        .subscribe(nil -> addPolygonFeature());
+    viewModel.getRemoveLastVertexRequests().as(autoDisposable(this))
+        .subscribe(nil -> removeLastVertex());
+
+    viewModel.getAddPolygonResults().observe(this, this::onFeatureAdded);
+
     featureSelectorViewModel
         .getFeatureSelections()
         .as(autoDisposable(this))
@@ -148,7 +169,13 @@ public class HomeScreenFragment extends AbstractFragment
   }
 
   private void onFeatureAdded(Feature feature) {
-    feature.getLayer().getForm().ifPresent(form -> addNewObservation(feature, form));
+    if (feature instanceof PointFeature) {
+      feature.getLayer().getForm().ifPresent(form -> addNewObservation(feature, form));
+    } else {
+      mapContainerViewModel.setViewMode(Mode.DEFAULT);
+      vertices.clear();
+      feature.getLayer().getForm().ifPresent(form -> addNewObservation(feature, form));
+    }
   }
 
   private void addNewObservation(Feature feature, Form form) {
@@ -357,6 +384,54 @@ public class HomeScreenFragment extends AbstractFragment
     viewModel.showOfflineAreas();
   }
 
+  private void onShowAddPolygonDialogRequest(Point point) {
+    if (vertices.contains(point)) {
+      mapContainerViewModel.updatePolygonDrawing(PolygonDrawing.COMPLETED);
+    }
+    vertices.add(point);
+    mapContainerViewModel.updateDrawnPolygonFeature(ImmutableList.copyOf(vertices));
+  }
+
+  private void checkPointNearVertex(CameraPosition point) {
+    if (isNearVertex(point.getTarget())) {
+      mapContainerViewModel.updatePolygonDrawing(PolygonDrawing.COMPLETED);
+      vertices.add(point.getTarget());
+      mapContainerViewModel.updateDrawnPolygonFeature(ImmutableList.copyOf(vertices));
+    } else {
+      mapContainerViewModel.updatePolygonDrawing(PolygonDrawing.DEFAULT);
+    }
+  }
+
+  private boolean isNearVertex(Point point) {
+    for (Point vertex: vertices) {
+      float[] distance = new float[1];
+      Location.distanceBetween(vertex.getLatitude(), vertex.getLongitude(),
+          point.getLatitude(), point.getLongitude(), distance);
+      if (distance[0] < 5) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private void addPolygonFeature() {
+    if (mapContainerViewModel.getSelectedProject().isEmpty()
+        || mapContainerViewModel.getSelectedLayer().isEmpty()) {
+      Timber.d("Selected feature or value is empty");
+      return;
+    }
+    viewModel.addPolygonFeature(mapContainerViewModel.getSelectedProject().get(),
+        mapContainerViewModel.getSelectedLayer().get(), vertices);
+  }
+
+  private void removeLastVertex() {
+    if (vertices.isEmpty()) {
+      return;
+    }
+    vertices.remove(vertices.size() - 1);
+    mapContainerViewModel.updateDrawnPolygonFeature(ImmutableList.copyOf(vertices));
+  }
+
   private void onApplyWindowInsets(WindowInsetsCompat insets) {
     binding.featureDetailsChrome.toolbarWrapper.setPadding(
         0, insets.getSystemWindowInsetTop(), 0, 0);
@@ -431,10 +506,38 @@ public class HomeScreenFragment extends AbstractFragment
   }
 
   private void onShowAddFeatureDialogRequest(Point point) {
-    addFeatureDialogFragment.show(
-        viewModel.getModifiableLayers(),
-        getChildFragmentManager(),
-        layer -> viewModel.addFeature(layer, point));
+    Loadable.getValue(viewModel.getProjectLoadingState())
+        .ifPresentOrElse(
+            project -> {
+              // TODO: Pause location updates while dialog is open.
+              // TODO: Show spinner?
+              addFeatureDialogFragment.show(
+                  project.getLayers(),
+                  getChildFragmentManager(),
+                  (layer) -> showDataTypeDialog(project, layer, point));
+            },
+            () -> Timber.e("Attempting to add feature while no project loaded"));
+  }
+
+  private void showDataTypeDialog(Project project, Layer layer, Point point) {
+    ArrayAdapter<String> arrayAdapter = new ArrayAdapter(getContext(),
+        R.layout.project_selector_list_item, R.id.project_name);
+    arrayAdapter.add(getString(R.string.point));
+    arrayAdapter.add(getString(R.string.polygon));
+    new Builder(getContext())
+        .setTitle(R.string.select_data_type)
+        .setAdapter(arrayAdapter, (dialog, which) -> {
+          if (which == 0) {
+            viewModel.addFeature(project, layer, point);
+          } else {
+            mapContainerViewModel.setSelectedLayer(layer);
+            mapContainerViewModel.setSelectedProject(project);
+            mapContainerViewModel.setViewMode(Mode.ADD_POLYGON);
+          }
+        })
+        .setCancelable(true)
+        .create()
+        .show();
   }
 
   private void onBottomSheetStateChange(BottomSheetState state) {
