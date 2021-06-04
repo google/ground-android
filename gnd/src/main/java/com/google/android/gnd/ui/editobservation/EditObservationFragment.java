@@ -16,12 +16,16 @@
 
 package com.google.android.gnd.ui.editobservation;
 
+import static com.google.android.gnd.rx.RxAutoDispose.autoDisposable;
 import static com.google.android.gnd.ui.editobservation.AddPhotoDialogAdapter.PhotoStorageResource.PHOTO_SOURCE_CAMERA;
 import static com.google.android.gnd.ui.editobservation.AddPhotoDialogAdapter.PhotoStorageResource.PHOTO_SOURCE_STORAGE;
 import static java.util.Objects.requireNonNull;
 
+import android.app.DatePickerDialog;
+import android.app.TimePickerDialog;
 import android.content.Context;
 import android.os.Bundle;
+import android.text.format.DateFormat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -57,6 +61,8 @@ import com.google.android.gnd.ui.common.TwoLineToolbar;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import dagger.hilt.android.AndroidEntryPoint;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -154,9 +160,9 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
     } else if (fieldViewModel instanceof MultipleChoiceFieldViewModel) {
       observeSelectChoiceClicks((MultipleChoiceFieldViewModel) fieldViewModel);
     } else if (fieldViewModel instanceof DateFieldViewModel) {
-      observeDateDialogClicks();
+      observeDateDialogClicks((DateFieldViewModel) fieldViewModel);
     } else if (fieldViewModel instanceof TimeFieldViewModel) {
-      observeTimeDialogClicks();
+      observeTimeDialogClicks((TimeFieldViewModel) fieldViewModel);
     }
 
     fieldViewModel
@@ -189,12 +195,18 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
     return errors;
   }
 
-  private void observeDateDialogClicks() {
-      // TODO : Implement Date dialog
+  private void observeDateDialogClicks(DateFieldViewModel dateFieldViewModel) {
+    dateFieldViewModel
+        .getDateDialogClicks()
+        .as(autoDisposable(this))
+        .subscribe(nil ->  showDateDialog(dateFieldViewModel));
   }
 
-  private void observeTimeDialogClicks() {
-    // TODO : Implement Time dialog
+  private void observeTimeDialogClicks(TimeFieldViewModel timeFieldViewModel) {
+    timeFieldViewModel
+        .getTimeDialogClicks()
+        .as(autoDisposable(this))
+        .subscribe(nil ->  showTimeDialog(timeFieldViewModel));
   }
 
   private void rebuildForm(Form form) {
@@ -305,6 +317,41 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
               bottomSheetDialog.dismiss();
               onSelectPhotoClick(type, field);
             }));
+  }
+
+  private void showDateDialog(DateFieldViewModel fieldViewModel) {
+    Calendar calendar = Calendar.getInstance();
+    int year = calendar.get(Calendar.YEAR);
+    int month = calendar.get(Calendar.MONTH);
+    int day = calendar.get(Calendar.DAY_OF_MONTH);
+    DatePickerDialog datePickerDialog = new DatePickerDialog(requireContext(),
+        (view, year1, month1, dayOfMonth) -> {
+          Calendar c = Calendar.getInstance();
+          c.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+          c.set(Calendar.MONTH, month1);
+          c.set(Calendar.YEAR, year1);
+          Date d = new Date();
+          d.setTime(c.getTimeInMillis());
+          fieldViewModel.updateResponse(d);
+        }, year, month, day);
+    datePickerDialog.show();
+  }
+
+  private void showTimeDialog(TimeFieldViewModel fieldViewModel) {
+    Calendar calendar = Calendar.getInstance();
+    int hour = calendar.get(Calendar.HOUR);
+    int minute = calendar.get(Calendar.MINUTE);
+    TimePickerDialog timePickerDialog = new TimePickerDialog(requireContext(),
+        (view, hourOfDay, minute1) -> {
+          Calendar c = Calendar.getInstance();
+          c.set(Calendar.HOUR_OF_DAY, hourOfDay);
+          c.set(Calendar.MINUTE, minute);
+          Date d = new Date();
+          d.setTime(c.getTimeInMillis());
+          fieldViewModel.updateResponse(d);
+        }, hour, minute, DateFormat
+        .is24HourFormat(requireContext()));
+    timePickerDialog.show();
   }
 
   private void onSelectPhotoClick(int type, Field field) {
