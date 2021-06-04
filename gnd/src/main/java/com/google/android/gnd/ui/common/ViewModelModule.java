@@ -79,13 +79,13 @@ public abstract class ViewModelModule {
 
   @Binds
   @IntoMap
-  @ViewModelKey(TermsOfServiceViewModel.class)
-  abstract ViewModel bindTermsOfServiceViewModel(TermsOfServiceViewModel viewModel);
+  @ViewModelKey(HomeScreenViewModel.class)
+  abstract ViewModel bindHomeScreenViewModel(HomeScreenViewModel viewModel);
 
   @Binds
   @IntoMap
-  @ViewModelKey(HomeScreenViewModel.class)
-  abstract ViewModel bindHomeScreenViewModel(HomeScreenViewModel viewModel);
+  @ViewModelKey(TermsOfServiceViewModel.class)
+  abstract ViewModel bindTermsOfServiceViewModel(TermsOfServiceViewModel viewModel);
 
   @Binds
   @IntoMap
