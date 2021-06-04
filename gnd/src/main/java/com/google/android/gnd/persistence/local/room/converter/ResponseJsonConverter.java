@@ -19,15 +19,21 @@ package com.google.android.gnd.persistence.local.room.converter;
 import static java8.lang.Iterables.forEach;
 
 import com.google.android.gnd.model.form.Field;
+import com.google.android.gnd.model.observation.DateResponse;
 import com.google.android.gnd.model.observation.MultipleChoiceResponse;
 import com.google.android.gnd.model.observation.NumberResponse;
 import com.google.android.gnd.model.observation.Response;
 import com.google.android.gnd.model.observation.TextResponse;
+import com.google.android.gnd.model.observation.TimeResponse;
 import com.google.android.gnd.persistence.remote.DataStoreException;
 import com.google.common.collect.ImmutableList;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java8.util.Optional;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -47,9 +53,28 @@ class ResponseJsonConverter {
         return JSONObject.NULL;
       }
       return value;
+    } else if (response instanceof DateResponse) {
+      return convertToIsoFormat(((DateResponse) response).getDate());
+    } else if (response instanceof TimeResponse) {
+      return convertToIsoFormat(((TimeResponse) response).getTime());
     } else {
       throw new UnsupportedOperationException("Unimplemented Response " + response.getClass());
     }
+  }
+
+  public static String convertToIsoFormat(Date date) {
+    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mmZ", Locale.getDefault());
+    return format.format(date);
+  }
+
+  public static Date stringToIsoFormat(String dtStart) {
+    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mmZ", Locale.getDefault());
+    try {
+      return format.parse(dtStart);
+    } catch (ParseException e) {
+      Timber.e("Error parsing Date : %s", e.getMessage());
+    }
+    return null;
   }
 
   private static Object toJsonArray(MultipleChoiceResponse response) {
@@ -79,6 +104,12 @@ class ResponseJsonConverter {
         }
         DataStoreException.checkType(Number.class, obj);
         return NumberResponse.fromNumber(obj.toString());
+      case DATE:
+        DataStoreException.checkType(String.class, obj);
+        return DateResponse.fromDate(ResponseJsonConverter.stringToIsoFormat((String) obj));
+      case TIME:
+        DataStoreException.checkType(String.class, obj);
+        return TimeResponse.fromDate(ResponseJsonConverter.stringToIsoFormat((String) obj));
       case UNKNOWN:
       default:
         throw new DataStoreException("Unknown type in field: " + obj.getClass().getName());

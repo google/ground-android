@@ -34,12 +34,14 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.gnd.MainActivity;
 import com.google.android.gnd.R;
+import com.google.android.gnd.databinding.DateInputFieldBinding;
 import com.google.android.gnd.databinding.EditObservationBottomSheetBinding;
 import com.google.android.gnd.databinding.EditObservationFragBinding;
 import com.google.android.gnd.databinding.MultipleChoiceInputFieldBinding;
 import com.google.android.gnd.databinding.NumberInputFieldBinding;
 import com.google.android.gnd.databinding.PhotoInputFieldBinding;
 import com.google.android.gnd.databinding.TextInputFieldBinding;
+import com.google.android.gnd.databinding.TimeInputFieldBinding;
 import com.google.android.gnd.model.form.Element;
 import com.google.android.gnd.model.form.Field;
 import com.google.android.gnd.model.form.Form;
@@ -84,6 +86,10 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
       return ((NumberInputFieldBinding) binding).getViewModel();
     } else if (binding instanceof PhotoInputFieldBinding) {
       return ((PhotoInputFieldBinding) binding).getViewModel();
+    } else if (binding instanceof DateInputFieldBinding) {
+      return ((DateInputFieldBinding) binding).getViewModel();
+    } else if (binding instanceof TimeInputFieldBinding) {
+      return ((TimeInputFieldBinding) binding).getViewModel();
     } else {
       throw new IllegalArgumentException("Unknown binding type: " + binding.getClass());
     }
@@ -147,6 +153,10 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
       initPhotoField((PhotoFieldViewModel) fieldViewModel);
     } else if (fieldViewModel instanceof MultipleChoiceFieldViewModel) {
       observeSelectChoiceClicks((MultipleChoiceFieldViewModel) fieldViewModel);
+    } else if (fieldViewModel instanceof DateFieldViewModel) {
+      observeDateDialogClicks();
+    } else if (fieldViewModel instanceof TimeFieldViewModel) {
+      observeTimeDialogClicks();
     }
 
     fieldViewModel
@@ -177,6 +187,14 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
           .ifPresent(error -> errors.put(fieldViewModel.getField().getId(), error));
     }
     return errors;
+  }
+
+  private void observeDateDialogClicks() {
+      // TODO : Implement Date dialog
+  }
+
+  private void observeTimeDialogClicks() {
+    // TODO : Implement Time dialog
   }
 
   private void rebuildForm(Form form) {

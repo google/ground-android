@@ -182,7 +182,8 @@
   <string name="tos_title">Terms Of Service</string>
   <string name="agree_terms">Agree</string>
   <string name="agree_checkbox">I agree to the Terms of Service</string>
-
+  <string name="date">Date</string>
+  <string name="time">Time</string>
   <!-- Other strings (to be organized) -->
   <string name="offline_base_map_name" translatable="false">%s</string>
 </resources>
