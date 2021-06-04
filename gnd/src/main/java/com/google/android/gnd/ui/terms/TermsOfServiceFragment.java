@@ -21,15 +21,21 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import androidx.annotation.Nullable;
+import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.FragmentTermsServiceBinding;
+import com.google.android.gnd.model.TermsOfService;
+import com.google.android.gnd.rx.Loadable;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.BackPressListener;
 import dagger.hilt.android.AndroidEntryPoint;
+import timber.log.Timber;
 
 @AndroidEntryPoint
 public class TermsOfServiceFragment extends AbstractFragment implements BackPressListener {
 
   private TermsOfServiceViewModel viewModel;
+  @SuppressWarnings("NullAway")
+  private FragmentTermsServiceBinding binding;
 
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -40,11 +46,35 @@ public class TermsOfServiceFragment extends AbstractFragment implements BackPres
   @Override
   public View onCreateView(
       LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-    FragmentTermsServiceBinding binding = FragmentTermsServiceBinding
+    binding = FragmentTermsServiceBinding
         .inflate(inflater, container, false);
     binding.setViewModel(viewModel);
     binding.setLifecycleOwner(this);
+    viewModel.getTerms().observe(getViewLifecycleOwner(), this::getProjectTerms);
     return binding.getRoot();
+  }
+
+  private void getProjectTerms(Loadable<TermsOfService> projectTerms) {
+    switch (projectTerms.getState()) {
+      case LOADING:
+        Timber.i("Loading terms");
+        binding.termsLoadingProgressBar.setVisibility(View.VISIBLE);
+        break;
+      case LOADED:
+        binding.termsLoadingProgressBar.setVisibility(View.GONE);
+        binding.termsText.setVisibility(View.VISIBLE);
+        viewModel.setTermsTextView(projectTerms.value().get().getTerms());
+        break;
+      case NOT_FOUND:
+      case ERROR:
+        binding.termsLoadingProgressBar.setVisibility(View.GONE);
+        binding.termsText.setVisibility(View.VISIBLE);
+        viewModel.setTermsTextView(getString(R.string.terms_load_error));
+        break;
+      default:
+        Timber.e("Unhandled state: %s",  projectTerms.getState());
+        break;
+    }
   }
 
   @Override

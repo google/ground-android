@@ -133,5 +133,6 @@ Tem certeza que deseja apagar o local e todos os dados associados? Isso não pod
   <string name="tos_title">Termos de serviço</string>
   <string name="agree_terms">Concordar</string>
   <string name="agree_checkbox">Eu aceito os Termos de Serviço</string>
+  <string name="terms_load_error">Ocorreu um erro ao carregar os Termos de Serviço</string>
 
 </resources>
