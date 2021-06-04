@@ -68,7 +68,7 @@
       app:tint="@{viewModel.getIconTint()}"
       app:backgroundTint="@color/colorBackground"
       app:fabSize="normal"
-      app:layout_constraintBottom_toTopOf="@+id/add_feature_btn"
+      app:layout_constraintBottom_toTopOf="@id/add_feature_btn"
       app:layout_constraintEnd_toEndOf="parent"
       app:useCompatPadding="true" />
 

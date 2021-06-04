@@ -19,6 +19,7 @@ package com.google.android.gnd.persistence.remote.firestore;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gnd.model.Mutation;
 import com.google.android.gnd.model.Project;
+import com.google.android.gnd.model.TermsOfService;
 import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.FeatureMutation;
@@ -72,6 +73,14 @@ public class FirestoreDataStore implements RemoteDataStore {
         .project(feature.getProject().getId())
         .observations()
         .observationsByFeatureId(feature)
+        .subscribeOn(schedulers.io());
+  }
+
+  @Cold
+  @Override
+  public  Single<TermsOfService> loadTermsOfService() {
+    return db.termsOfService().getTerm().get()
+        .switchIfEmpty(Single.error(() -> new NotFoundException("No Terms of Service Founds")))
         .subscribeOn(schedulers.io());
   }
 

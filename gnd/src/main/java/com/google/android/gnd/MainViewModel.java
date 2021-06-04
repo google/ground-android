@@ -22,10 +22,14 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import com.google.android.gnd.model.Project;
+import com.google.android.gnd.model.TermsOfService;
 import com.google.android.gnd.persistence.local.LocalValueStore;
 import com.google.android.gnd.repository.FeatureRepository;
 import com.google.android.gnd.repository.ProjectRepository;
+import com.google.android.gnd.repository.TermsOfServiceRepository;
 import com.google.android.gnd.repository.UserRepository;
+import com.google.android.gnd.rx.Loadable;
+import com.google.android.gnd.rx.Loadable.LoadState;
 import com.google.android.gnd.rx.Schedulers;
 import com.google.android.gnd.rx.annotations.Cold;
 import com.google.android.gnd.rx.annotations.Hot;
@@ -37,7 +41,6 @@ import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.SharedViewModel;
 import com.google.android.gnd.ui.home.HomeScreenFragmentDirections;
 import com.google.android.gnd.ui.signin.SignInFragmentDirections;
-import com.google.android.gnd.ui.terms.TermsOfServiceFragmentDirections;
 import io.reactivex.Completable;
 import java8.util.Optional;
 import javax.inject.Inject;
@@ -55,18 +58,23 @@ public class MainViewModel extends AbstractViewModel {
   @Hot(replays = true)
   private final MutableLiveData<Boolean> signInProgressDialogVisibility = new MutableLiveData<>();
 
+  @Hot(replays = true)
+  public final MutableLiveData<LoadState> termsState = new MutableLiveData<>();
+
   private final ProjectRepository projectRepository;
   private final FeatureRepository featureRepository;
   private final UserRepository userRepository;
   private final Navigator navigator;
   private final EphemeralPopups popups;
   private final LocalValueStore localValueStore;
+  private final AuthenticationManager authenticationManager;
 
   @Inject
   public MainViewModel(
       ProjectRepository projectRepository,
       FeatureRepository featureRepository,
       UserRepository userRepository,
+      TermsOfServiceRepository termsOfServiceRepository,
       Navigator navigator,
       AuthenticationManager authenticationManager,
       EphemeralPopups popups,
@@ -77,6 +85,7 @@ public class MainViewModel extends AbstractViewModel {
     this.navigator = navigator;
     this.popups = popups;
     this.localValueStore = localValueStore;
+    this.authenticationManager = authenticationManager;
 
     // TODO: Move to background service.
     disposeOnClear(
@@ -92,6 +101,9 @@ public class MainViewModel extends AbstractViewModel {
             .compose(switchMapIfPresent(SignInState::getUser, userRepository::saveUser))
             .observeOn(schedulers.ui())
             .subscribe(this::onSignInStateChange));
+
+    disposeOnClear(termsOfServiceRepository.getProjectTerms()
+        .observeOn(schedulers.ui()).subscribe(this::getProjectTerms));
   }
 
   /**
@@ -112,6 +124,10 @@ public class MainViewModel extends AbstractViewModel {
 
   void onApplyWindowInsets(WindowInsetsCompat insets) {
     windowInsets.setValue(insets);
+  }
+
+  private void getProjectTerms(Loadable<TermsOfService> projectTerms) {
+    termsState.setValue(projectTerms.getState());
   }
 
   private void onSignInStateChange(SignInState signInState) {
@@ -158,10 +174,19 @@ public class MainViewModel extends AbstractViewModel {
 
   private void onSignedIn() {
     hideProgressDialog();
-    if (localValueStore.areTermsAccepted()) {
+    if (termsState.getValue() == LoadState.NOT_FOUND) {
+      localValueStore.setTermsAccepted(true);
       navigator.navigate(HomeScreenFragmentDirections.showHomeScreen());
     } else {
-      navigator.navigate(TermsOfServiceFragmentDirections.showTermsScreen());
+      if (localValueStore.areTermsAccepted()) {
+        navigator.navigate(HomeScreenFragmentDirections.showHomeScreen());
+      } else {
+        if (signInProgressDialogVisibility.getValue() == null) {
+          authenticationManager.signOut();
+        } else {
+          navigator.navigate(SignInFragmentDirections.proceedToTermsScreen());
+        }
+      }
     }
   }
 
