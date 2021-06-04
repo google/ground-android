@@ -30,5 +30,4 @@ public class TermsOfServiceCollectionReference extends FluentCollectionReference
   public TermsOfServiceDocumentReference getTerm() {
     return new TermsOfServiceDocumentReference(reference().document(TOS));
   }
-
 }
