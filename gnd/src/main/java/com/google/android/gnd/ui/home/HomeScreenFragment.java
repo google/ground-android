@@ -23,7 +23,6 @@ import static com.google.android.gnd.ui.util.ViewUtil.getScreenHeight;
 import static com.google.android.gnd.ui.util.ViewUtil.getScreenWidth;
 
 import android.app.ProgressDialog;
-import android.location.Location;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -142,7 +141,8 @@ public class HomeScreenFragment extends AbstractFragment
     viewModel
         .getShowAddPolyDialogRequests()
         .observe(this, e -> e.ifUnhandled(this::onShowAddPolygonDialogRequest));
-    mapContainerViewModel.getCameraPosition().observe(this, this::checkPointNearVertex);
+    mapContainerViewModel.getCameraPosition().observe(this,
+        this::checkPointNearVertex);
     viewModel.getSavePolygonRequest().as(autoDisposable(this))
         .subscribe(nil -> addPolygonFeature());
     viewModel.getRemoveLastVertexRequests().as(autoDisposable(this))
@@ -172,6 +172,7 @@ public class HomeScreenFragment extends AbstractFragment
     if (feature instanceof PointFeature) {
       feature.getLayer().getForm().ifPresent(form -> addNewObservation(feature, form));
     } else {
+      mapContainerViewModel.updatePolygonDrawing(PolygonDrawing.DEFAULT);
       mapContainerViewModel.setViewMode(Mode.DEFAULT);
       vertices.clear();
       feature.getLayer().getForm().ifPresent(form -> addNewObservation(feature, form));
@@ -393,25 +394,18 @@ public class HomeScreenFragment extends AbstractFragment
   }
 
   private void checkPointNearVertex(CameraPosition point) {
-    if (isNearVertex(point.getTarget())) {
+    if (vertices.isEmpty()) {
+      return;
+    }
+    //  Experimentation with isNearVertex() if does not work
+    //  replace vertices.contains(point)
+    if (vertices.contains(point)) {
       mapContainerViewModel.updatePolygonDrawing(PolygonDrawing.COMPLETED);
       vertices.add(point.getTarget());
       mapContainerViewModel.updateDrawnPolygonFeature(ImmutableList.copyOf(vertices));
     } else {
       mapContainerViewModel.updatePolygonDrawing(PolygonDrawing.DEFAULT);
     }
-  }
-
-  private boolean isNearVertex(Point point) {
-    for (Point vertex: vertices) {
-      float[] distance = new float[1];
-      Location.distanceBetween(vertex.getLatitude(), vertex.getLongitude(),
-          point.getLatitude(), point.getLongitude(), distance);
-      if (distance[0] < 5) {
-        return true;
-      }
-    }
-    return false;
   }
 
   private void addPolygonFeature() {
@@ -426,10 +420,12 @@ public class HomeScreenFragment extends AbstractFragment
 
   private void removeLastVertex() {
     if (vertices.isEmpty()) {
+      mapContainerViewModel.setViewMode(Mode.DEFAULT);
       return;
     }
     vertices.remove(vertices.size() - 1);
     mapContainerViewModel.updateDrawnPolygonFeature(ImmutableList.copyOf(vertices));
+    mapContainerViewModel.updatePolygonDrawing(PolygonDrawing.DEFAULT);
   }
 
   private void onApplyWindowInsets(WindowInsetsCompat insets) {
