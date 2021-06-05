@@ -50,4 +50,11 @@ public abstract class BottomSheetDependentBehavior<V extends View>
     onBottomSheetChanged(parent, child, new BottomSheetMetrics(bottomSheet));
     return false;
   }
+
+  @Override
+  public boolean onLayoutChild(CoordinatorLayout parent, V child, int layoutDirection) {
+    View bottomSheet = parent.findViewById(R.id.bottom_sheet_layout);
+    onBottomSheetChanged(parent, child, new BottomSheetMetrics(bottomSheet));
+    return false;
+  }
 }
