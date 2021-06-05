@@ -573,7 +573,6 @@ public class HomeScreenFragment extends AbstractFragment
         .setPositiveButton(R.string.close_feature_properties, (a, b) -> {})
         .create()
         .show();
-    ;
   }
 
   private ImmutableList<String> getFeatureProperties(GeoJsonFeature feature) {
