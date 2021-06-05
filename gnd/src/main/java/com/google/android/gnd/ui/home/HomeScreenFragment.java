@@ -121,10 +121,11 @@ public class HomeScreenFragment extends AbstractFragment
     viewModel.getProjectLoadingState().observe(this, this::onActiveProjectChange);
     viewModel
         .getShowAddFeatureDialogRequests()
-        .observe(this, e -> e.ifUnhandled(this::onShowAddFeatureDialogRequest));
+        .as(autoDisposable(this))
+        .subscribe(this::onShowAddFeatureDialogRequest);
     viewModel.getBottomSheetState().observe(this, this::onBottomSheetStateChange);
     viewModel.getOverlappingFeatures().observe(this, this::showFeatureSelector);
-    viewModel.getOpenDrawerRequests().observe(this, e -> e.ifUnhandled(this::openDrawer));
+    viewModel.getOpenDrawerRequests().as(autoDisposable(this)).subscribe(__ -> openDrawer());
     viewModel.getAddFeatureResults().as(autoDisposable(this)).subscribe(this::onFeatureAdded);
     viewModel.getUpdateFeatureResults().as(autoDisposable(this)).subscribe(this::onFeatureUpdated);
     viewModel.getDeleteFeatureResults().as(autoDisposable(this)).subscribe(this::onFeatureDeleted);

@@ -18,6 +18,7 @@ package com.google.android.gnd.ui.home;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
+import static com.google.android.gnd.rx.Nil.NIL;
 import static com.google.android.gnd.rx.RxCompletable.toBooleanSingle;
 import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList;
 import static java8.util.stream.StreamSupport.stream;
@@ -32,9 +33,8 @@ import com.google.android.gnd.model.form.Form;
 import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.repository.FeatureRepository;
 import com.google.android.gnd.repository.ProjectRepository;
-import com.google.android.gnd.rx.Action;
-import com.google.android.gnd.rx.Event;
 import com.google.android.gnd.rx.Loadable;
+import com.google.android.gnd.rx.Nil;
 import com.google.android.gnd.rx.annotations.Hot;
 import com.google.android.gnd.system.auth.AuthenticationManager;
 import com.google.android.gnd.ui.common.AbstractViewModel;
@@ -69,11 +69,9 @@ public class HomeScreenViewModel extends AbstractViewModel {
   private final LiveData<Loadable<Project>> projectLoadingState;
 
   // TODO(#719): Move into MapContainersViewModel
-  @Hot(replays = true)
-  private final MutableLiveData<Event<Point>> addFeatureDialogRequests = new MutableLiveData<>();
+  @Hot private final FlowableProcessor<Point> addFeatureDialogRequests = PublishProcessor.create();
   // TODO(#719): Move into FeatureDetailsViewModel.
-  @Hot(replays = true)
-  private final MutableLiveData<Action> openDrawerRequests = new MutableLiveData<>();
+  @Hot private final FlowableProcessor<Nil> openDrawerRequests = PublishProcessor.create();
 
   @Hot(replays = true)
   private final MutableLiveData<BottomSheetState> bottomSheetState = new MutableLiveData<>();
@@ -192,19 +190,19 @@ public class HomeScreenViewModel extends AbstractViewModel {
     return projectRepository.getLastActiveProjectId().isEmpty();
   }
 
-  public LiveData<Action> getOpenDrawerRequests() {
+  public Flowable<Nil> getOpenDrawerRequests() {
     return openDrawerRequests;
   }
 
   public void openNavDrawer() {
-    openDrawerRequests.setValue(Action.create());
+    openDrawerRequests.onNext(NIL);
   }
 
   public LiveData<Loadable<Project>> getProjectLoadingState() {
     return projectLoadingState;
   }
 
-  public LiveData<Event<Point>> getShowAddFeatureDialogRequests() {
+  public Flowable<Point> getShowAddFeatureDialogRequests() {
     return addFeatureDialogRequests;
   }
 
@@ -229,7 +227,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
 
   public void onAddFeatureBtnClick(Point location) {
     // TODO: Pause location updates while dialog is open.
-    addFeatureDialogRequests.setValue(Event.create(location));
+    addFeatureDialogRequests.onNext(location);
   }
 
   public void onBottomSheetHidden() {
