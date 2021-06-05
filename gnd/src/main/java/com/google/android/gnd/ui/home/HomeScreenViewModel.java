@@ -82,12 +82,11 @@ public class HomeScreenViewModel extends AbstractViewModel {
   @Hot private final FlowableProcessor<Feature> updateFeatureRequests = PublishProcessor.create();
   @Hot private final FlowableProcessor<Feature> deleteFeatureRequests = PublishProcessor.create();
 
-  private final Flowable<Feature> addFeatureResults;
-  private final LiveData<Boolean> updateFeatureResults;
-  private final LiveData<Boolean> deleteFeatureResults;
+  @Hot private final Flowable<Feature> addFeatureResults;
+  @Hot private final Flowable<Boolean> updateFeatureResults;
+  @Hot private final Flowable<Boolean> deleteFeatureResults;
 
-  @Hot(replays = true)
-  private final MutableLiveData<Throwable> errors = new MutableLiveData<>();
+  @Hot private final FlowableProcessor<Throwable> errors = PublishProcessor.create();
 
   @Hot(replays = true)
   private final MutableLiveData<Integer> addFeatureButtonVisibility = new MutableLiveData<>(GONE);
@@ -120,25 +119,17 @@ public class HomeScreenViewModel extends AbstractViewModel {
                 featureRepository
                     .createFeature(feature)
                     .toSingleDefault(feature)
-                    .doOnError(this::handleError)
+                    .doOnError(errors::onNext)
                     .onErrorResumeNext(Single.never())); // Prevent from breaking upstream.
     deleteFeatureResults =
-        LiveDataReactiveStreams.fromPublisher(
-            deleteFeatureRequests.switchMapSingle(
-                feature ->
-                    toBooleanSingle(featureRepository.deleteFeature(feature), this::handleError)));
+        deleteFeatureRequests.switchMapSingle(
+            feature -> toBooleanSingle(featureRepository.deleteFeature(feature), errors::onNext));
     updateFeatureResults =
-        LiveDataReactiveStreams.fromPublisher(
-            updateFeatureRequests.switchMapSingle(
-                feature ->
-                    toBooleanSingle(featureRepository.updateFeature(feature), this::handleError)));
+        updateFeatureRequests.switchMapSingle(
+            feature -> toBooleanSingle(featureRepository.updateFeature(feature), errors::onNext));
     overlappingFeatures =
         LiveDataReactiveStreams.fromPublisher(
             overlappingFeaturesSubject.toFlowable(BackpressureStrategy.LATEST));
-  }
-
-  private void handleError(Throwable throwable) {
-    errors.postValue(throwable);
   }
 
   /** Handle state of the UI elements depending upon the active project. */
@@ -170,15 +161,15 @@ public class HomeScreenViewModel extends AbstractViewModel {
     return addFeatureResults;
   }
 
-  public LiveData<Boolean> getUpdateFeatureResults() {
+  public Flowable<Boolean> getUpdateFeatureResults() {
     return updateFeatureResults;
   }
 
-  public LiveData<Boolean> getDeleteFeatureResults() {
+  public Flowable<Boolean> getDeleteFeatureResults() {
     return deleteFeatureResults;
   }
 
-  public LiveData<Throwable> getErrors() {
+  public Flowable<Throwable> getErrors() {
     return errors;
   }
 

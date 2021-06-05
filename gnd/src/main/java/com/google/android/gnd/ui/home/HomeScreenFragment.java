@@ -126,9 +126,9 @@ public class HomeScreenFragment extends AbstractFragment
     viewModel.getOverlappingFeatures().observe(this, this::showFeatureSelector);
     viewModel.getOpenDrawerRequests().observe(this, e -> e.ifUnhandled(this::openDrawer));
     viewModel.getAddFeatureResults().as(autoDisposable(this)).subscribe(this::onFeatureAdded);
-    viewModel.getUpdateFeatureResults().observe(this, this::onFeatureUpdated);
-    viewModel.getDeleteFeatureResults().observe(this, this::onFeatureDeleted);
-    viewModel.getErrors().observe(this, this::onError);
+    viewModel.getUpdateFeatureResults().as(autoDisposable(this)).subscribe(this::onFeatureUpdated);
+    viewModel.getDeleteFeatureResults().as(autoDisposable(this)).subscribe(this::onFeatureDeleted);
+    viewModel.getErrors().as(autoDisposable(this)).subscribe(this::onError);
     featureSelectorViewModel
         .getFeatureSelections()
         .as(autoDisposable(this))
