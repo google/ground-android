@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2021 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,14 +14,11 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.ui.map;
+package com.google.android.gnd.ui.terms;
 
-import com.google.android.gnd.model.feature.Feature;
-import javax.annotation.Nullable;
+import com.google.android.gnd.ui.common.AbstractViewModel;
 
-/** Abstract class defining objects that need to be rendered on map. */
-public abstract class MapFeature {
-  // TODO(#713): Pull common attributes from concrete classes to here.
-  @Nullable
-  public abstract Feature getFeature();
+// TODO: Needs to handle view state and behaviors of the Terms Fragment
+public class TermsOfServiceViewModel extends AbstractViewModel {
+
 }

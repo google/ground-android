@@ -38,6 +38,7 @@ public abstract class MapPin extends MapFeature {
   // TODO: Stop embedding entire Feature in pins to free up memory. Instead, copy only details
   // relevant to rendering pins and uuid to reference the related Feature.
   @NonNull
+  @Override
   public abstract Feature getFeature();
 
   @AutoValue.Builder
