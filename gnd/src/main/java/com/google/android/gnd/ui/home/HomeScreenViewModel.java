@@ -44,6 +44,7 @@ import com.google.android.gnd.ui.map.MapFeature;
 import com.google.android.gnd.ui.map.MapPin;
 import com.google.common.collect.ImmutableList;
 import io.reactivex.BackpressureStrategy;
+import io.reactivex.Flowable;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.processors.FlowableProcessor;
@@ -81,7 +82,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
   @Hot private final FlowableProcessor<Feature> updateFeatureRequests = PublishProcessor.create();
   @Hot private final FlowableProcessor<Feature> deleteFeatureRequests = PublishProcessor.create();
 
-  private final LiveData<Feature> addFeatureResults;
+  private final Flowable<Feature> addFeatureResults;
   private final LiveData<Boolean> updateFeatureResults;
   private final LiveData<Boolean> deleteFeatureResults;
 
@@ -114,14 +115,13 @@ public class HomeScreenViewModel extends AbstractViewModel {
                 .getProjectLoadingState()
                 .doAfterNext(this::onProjectLoadingStateChange));
     addFeatureResults =
-        LiveDataReactiveStreams.fromPublisher(
-            addFeatureClicks.switchMapSingle(
-                feature ->
-                    featureRepository
-                        .createFeature(feature)
-                        .toSingleDefault(feature)
-                        .doOnError(this::handleError)
-                        .onErrorResumeNext(Single.never()))); // Prevent from breaking upstream.
+        addFeatureClicks.switchMapSingle(
+            feature ->
+                featureRepository
+                    .createFeature(feature)
+                    .toSingleDefault(feature)
+                    .doOnError(this::handleError)
+                    .onErrorResumeNext(Single.never())); // Prevent from breaking upstream.
     deleteFeatureResults =
         LiveDataReactiveStreams.fromPublisher(
             deleteFeatureRequests.switchMapSingle(
@@ -166,7 +166,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
     return overlappingFeatures;
   }
 
-  public LiveData<Feature> getAddFeatureResults() {
+  public Flowable<Feature> getAddFeatureResults() {
     return addFeatureResults;
   }
 
