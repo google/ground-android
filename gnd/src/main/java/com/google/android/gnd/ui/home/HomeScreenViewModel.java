@@ -306,6 +306,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
   }
 
   public ImmutableList<Layer> getModifiableLayers() {
+    Timber.v("getModifiableLayers for %s", getActiveProject());
     return getActiveProject()
         .map(
             project ->
