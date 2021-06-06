@@ -44,7 +44,15 @@ public class FeatureHelper {
   }
 
   public String getTitle(Optional<Feature> feature) {
-    return getCaption(feature).orElseGet(() -> getLayerName(feature).orElse(""));
+    return getCaption(feature).orElseGet(() -> feature.map(this::getFeatureType).orElse(""));
+  }
+
+  private String getFeatureType(Feature feature) {
+    if (feature.isGeoJson()) {
+      return context.getResources().getString(R.string.polygon);
+    } else {
+      return context.getResources().getString(R.string.point);
+    }
   }
 
   public String getSubtitle(Optional<Feature> feature) {
