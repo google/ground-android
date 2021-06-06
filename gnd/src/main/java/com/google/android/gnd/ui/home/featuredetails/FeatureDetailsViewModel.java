@@ -57,7 +57,7 @@ public class FeatureDetailsViewModel extends ViewModel {
         markerIconFactory.getMarkerBitmap(drawableUtil.getColor(R.color.colorGrey600));
     this.featureHelper = featureHelper;
     this.title =
-        LiveDataReactiveStreams.fromPublisher(selectedFeature.map(featureHelper::getTitle));
+        LiveDataReactiveStreams.fromPublisher(selectedFeature.map(featureHelper::getLabel));
     this.subtitle =
         LiveDataReactiveStreams.fromPublisher(selectedFeature.map(featureHelper::getSubtitle));
   }

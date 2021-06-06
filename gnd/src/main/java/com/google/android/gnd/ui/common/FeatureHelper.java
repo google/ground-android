@@ -43,7 +43,7 @@ public class FeatureHelper {
         .orElse("");
   }
 
-  public String getTitle(Optional<Feature> feature) {
+  public String getLabel(Optional<Feature> feature) {
     return getCaption(feature).orElseGet(() -> feature.map(this::getFeatureType).orElse(""));
   }
 
