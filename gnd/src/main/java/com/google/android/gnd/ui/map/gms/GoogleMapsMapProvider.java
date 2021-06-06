@@ -94,7 +94,6 @@ public class GoogleMapsMapProvider implements MapProvider {
   public ImmutableMap<Integer, String> getMapTypes() {
     // TODO(#711): Allow user to select language and use here.
     Map<Integer, String> map = new HashMap<>();
-    map.put(GoogleMap.MAP_TYPE_NONE, "None");
     map.put(GoogleMap.MAP_TYPE_NORMAL, "Normal");
     map.put(GoogleMap.MAP_TYPE_SATELLITE, "Satellite");
     map.put(GoogleMap.MAP_TYPE_TERRAIN, "Terrain");
