@@ -16,14 +16,12 @@
 
 package com.google.android.gnd.ui.common;
 
-import android.content.Context;
+import android.content.res.Resources;
 import com.google.android.gnd.R;
 import com.google.android.gnd.model.AuditInfo;
 import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.GeoJsonFeature;
-import com.google.android.gnd.model.layer.Layer;
-import dagger.hilt.android.qualifiers.ApplicationContext;
 import dagger.hilt.android.scopes.ActivityScoped;
 import java8.util.Optional;
 import javax.inject.Inject;
@@ -32,15 +30,17 @@ import javax.inject.Inject;
 @ActivityScoped
 public class FeatureHelper {
 
-  private final Context context;
+  private final Resources resources;
 
   @Inject
-  FeatureHelper(@ApplicationContext Context context) {
-    this.context = context;
+  FeatureHelper(Resources resources) {
+    this.resources = resources;
   }
 
   public String getCreatedBy(Optional<Feature> feature) {
-    return getUserName(feature).map(name -> context.getString(R.string.added_by, name)).orElse("");
+    return getUserName(feature)
+        .map(name -> resources.getString(R.string.added_by, name))
+        .orElse("");
   }
 
   public String getTitle(Optional<Feature> feature) {
@@ -49,14 +49,16 @@ public class FeatureHelper {
 
   public String getFeatureType(Feature feature) {
     if (feature.isGeoJson()) {
-      return context.getResources().getString(R.string.polygon);
+      return resources.getString(R.string.polygon);
     } else {
-      return context.getResources().getString(R.string.point);
+      return resources.getString(R.string.point);
     }
   }
 
   public String getSubtitle(Optional<Feature> feature) {
-    return getCreatedBy(feature);
+    return feature
+        .map(f -> resources.getString(R.string.layer_label_format, f.getLayer().getName()))
+        .orElse("");
   }
 
   private Optional<String> getUserName(Optional<Feature> feature) {
@@ -69,9 +71,5 @@ public class FeatureHelper {
         .map(f -> f.isGeoJson() ? ((GeoJsonFeature) f).getCaptionFromProperties() : f.getCaption())
         .map(String::trim)
         .filter(caption -> !caption.isEmpty());
-  }
-
-  private Optional<String> getLayerName(Optional<Feature> feature) {
-    return feature.map(Feature::getLayer).map(Layer::getName);
   }
 }
