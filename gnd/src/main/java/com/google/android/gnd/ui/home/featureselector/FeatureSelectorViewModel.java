@@ -25,6 +25,7 @@ import com.google.common.collect.ImmutableList;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.subjects.PublishSubject;
+import java8.util.Optional;
 import javax.inject.Inject;
 
 public class FeatureSelectorViewModel extends AbstractViewModel {
@@ -60,7 +61,7 @@ public class FeatureSelectorViewModel extends AbstractViewModel {
 
   String getListItemText(Feature feature) {
     // TODO: Add icons and custom view layout for list items.
-    return featureHelper.getFeatureType(feature)
+    return featureHelper.getLabel(Optional.of(feature))
         + "\n"
         + resources.getString(R.string.layer_label_format, feature.getLayer().getName());
   }
