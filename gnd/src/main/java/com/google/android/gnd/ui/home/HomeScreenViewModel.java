@@ -146,6 +146,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
 
   private boolean shouldShowAddFeatureButton(Loadable<Project> project) {
     if (!project.isLoaded()) {
+      Timber.v("Project not loaded; hiding feature button");
       return false;
     }
 
@@ -153,6 +154,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
     //  Pending feature, https://github.com/google/ground-platform/issues/228
 
     // Project must contain at least one layer that the user can modify.
+    Timber.v("Modifiable layers: %s", getModifiableLayers());
     return !getModifiableLayers().isEmpty();
   }
 
