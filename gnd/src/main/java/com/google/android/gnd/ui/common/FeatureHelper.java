@@ -21,6 +21,7 @@ import com.google.android.gnd.R;
 import com.google.android.gnd.model.AuditInfo;
 import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.feature.Feature;
+import com.google.android.gnd.model.feature.GeoJsonFeature;
 import com.google.android.gnd.model.layer.Layer;
 import dagger.hilt.android.qualifiers.ApplicationContext;
 import dagger.hilt.android.scopes.ActivityScoped;
@@ -55,7 +56,11 @@ public class FeatureHelper {
   }
 
   private Optional<String> getCaption(Optional<Feature> feature) {
-    return feature.map(Feature::getCaption).map(String::trim).filter(caption -> !caption.isEmpty());
+    // TODO(#793): Allow user-defined feature names for other feature types.
+    return feature
+        .map(f -> f.isGeoJson() ? ((GeoJsonFeature) f).getCaptionFromProperties() : f.getCaption())
+        .map(String::trim)
+        .filter(caption -> !caption.isEmpty());
   }
 
   private Optional<String> getLayerName(Optional<Feature> feature) {
