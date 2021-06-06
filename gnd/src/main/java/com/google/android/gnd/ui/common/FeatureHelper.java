@@ -25,6 +25,7 @@ import com.google.android.gnd.model.feature.GeoJsonFeature;
 import dagger.hilt.android.scopes.ActivityScoped;
 import java8.util.Optional;
 import javax.inject.Inject;
+import org.jetbrains.annotations.Nullable;
 
 /** Common logic for formatting attributes of {@link Feature} for display to the user. */
 @ActivityScoped
@@ -67,9 +68,21 @@ public class FeatureHelper {
 
   private Optional<String> getCaption(Optional<Feature> feature) {
     // TODO(#793): Allow user-defined feature names for other feature types.
-    return feature
-        .map(f -> f.isGeoJson() ? ((GeoJsonFeature) f).getCaptionFromProperties() : f.getCaption())
-        .map(String::trim)
-        .filter(caption -> !caption.isEmpty());
+    return feature.map(this::getCaption).map(String::trim).filter(caption -> !caption.isEmpty());
+  }
+
+  @Nullable
+  private String getCaption(Feature feature) {
+    if (feature.isGeoJson()) {
+      return getGeoJsonCaption((GeoJsonFeature) feature);
+    }
+    return feature.getCaption();
+  }
+
+  private String getGeoJsonCaption(GeoJsonFeature feature) {
+    String caption = feature.getCaptionFromProperties();
+    return caption.isEmpty()
+        ? getFeatureType(feature) + " " + feature.getIdFromProperties()
+        : caption;
   }
 }

@@ -19,6 +19,7 @@ package com.google.android.gnd.model.feature;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.extension.memoized.Memoized;
 import com.google.common.collect.ImmutableList;
+import java.util.Collection;
 import java.util.Iterator;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -28,7 +29,9 @@ import timber.log.Timber;
 @AutoValue
 public abstract class GeoJsonFeature extends Feature<GeoJsonFeature.Builder> {
   private static final ImmutableList<String> CAPTION_PROPERTIES =
-      ImmutableList.of("caption", "label", "name", "id", "identifier", "id_prod");
+      ImmutableList.of("caption", "label", "name");
+  private static final ImmutableList<String> ID_PROPERTIES =
+      ImmutableList.of("id", "identifier", "id_prod");
   private static final String PROPERTIES_KEY = "properties";
 
   // TODO: Use builder() or newBuilder() consistently.
@@ -49,15 +52,23 @@ public abstract class GeoJsonFeature extends Feature<GeoJsonFeature.Builder> {
   }
 
   public String getCaptionFromProperties() {
+    return findProperty(CAPTION_PROPERTIES);
+  }
+
+  public String getIdFromProperties() {
+    return findProperty(ID_PROPERTIES);
+  }
+
+  public String findProperty(Collection<String> matchKeys) {
     JSONObject properties = getGeoJson().optJSONObject(PROPERTIES_KEY);
     if (properties == null) {
       return "";
     }
-    for (String captionProperty : CAPTION_PROPERTIES) {
+    for (String matchKey : matchKeys) {
       Iterator<String> keyIter = properties.keys();
       while (keyIter.hasNext()) {
         String key = keyIter.next();
-        if (key.toLowerCase().equals(captionProperty)) {
+        if (key.toLowerCase().equals(matchKey)) {
           return String.valueOf(properties.opt(key));
         }
       }
