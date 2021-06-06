@@ -36,17 +36,11 @@ import javax.inject.Inject;
 @SharedViewModel
 public class FeatureDetailsViewModel extends ViewModel {
 
-  //  @Hot(replays = true)
-  //  public final MutableLiveData<Optional<Feature>> feature = new MutableLiveData<>();
-
-  //  @Hot(replays = true)
-
   @Hot
   private final FlowableProcessor<Optional<Feature>> selectedFeature =
       BehaviorProcessor.createDefault(Optional.empty());
 
   private final Bitmap markerBitmap;
-  private final FeatureHelper featureHelper;
   private LiveData<String> title;
   private LiveData<String> subtitle;
 
@@ -55,7 +49,6 @@ public class FeatureDetailsViewModel extends ViewModel {
       MarkerIconFactory markerIconFactory, DrawableUtil drawableUtil, FeatureHelper featureHelper) {
     this.markerBitmap =
         markerIconFactory.getMarkerBitmap(drawableUtil.getColor(R.color.colorGrey600));
-    this.featureHelper = featureHelper;
     this.title =
         LiveDataReactiveStreams.fromPublisher(selectedFeature.map(featureHelper::getLabel));
     this.subtitle =
