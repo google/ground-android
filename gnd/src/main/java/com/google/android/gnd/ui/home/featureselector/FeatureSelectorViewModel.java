@@ -18,6 +18,7 @@ package com.google.android.gnd.ui.home.featureselector;
 
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.ui.common.AbstractViewModel;
+import com.google.android.gnd.ui.common.FeatureHelper;
 import com.google.common.collect.ImmutableList;
 import io.reactivex.Observable;
 import io.reactivex.Single;
@@ -25,13 +26,16 @@ import io.reactivex.subjects.PublishSubject;
 import javax.inject.Inject;
 
 public class FeatureSelectorViewModel extends AbstractViewModel {
+
   private ImmutableList<Feature> features = ImmutableList.<Feature>builder().build();
   private final PublishSubject<Integer> selections = PublishSubject.create();
   private final Observable<Feature> selectedFeatures;
+  private final FeatureHelper featureHelper;
 
   @Inject
-  FeatureSelectorViewModel() {
+  FeatureSelectorViewModel(FeatureHelper featureHelper) {
     this.selectedFeatures = selections.map(i -> this.features.get(i));
+    this.featureHelper = featureHelper;
   }
 
   public void onFeatures(ImmutableList<Feature> features) {
@@ -51,13 +55,7 @@ public class FeatureSelectorViewModel extends AbstractViewModel {
   }
 
   String getListItemText(Feature feature) {
-    String text = "";
-    if (feature.isGeoJson()) {
-      text = "Area\n";
-    } else if (feature.isPoint()) {
-      text = "Point\n";
-    }
-
-    return text + feature.getLayer().getName();
+    // TODO: Add icons and custom view layout for list items.
+    return featureHelper.getFeatureType(feature) + "\n" + feature.getLayer().getName();
   }
 }

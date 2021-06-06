@@ -47,7 +47,7 @@ public class FeatureHelper {
     return getCaption(feature).orElseGet(() -> feature.map(this::getFeatureType).orElse(""));
   }
 
-  private String getFeatureType(Feature feature) {
+  public String getFeatureType(Feature feature) {
     if (feature.isGeoJson()) {
       return context.getResources().getString(R.string.polygon);
     } else {
