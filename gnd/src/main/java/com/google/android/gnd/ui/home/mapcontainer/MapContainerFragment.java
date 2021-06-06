@@ -35,8 +35,8 @@ import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.model.feature.PointFeature;
-import com.google.android.gnd.persistence.geojson.GeoJsonParser;
 import com.google.android.gnd.persistence.local.LocalValueStore;
+import com.google.android.gnd.persistence.mbtiles.MbtilesFootprintParser;
 import com.google.android.gnd.rx.BooleanOrError;
 import com.google.android.gnd.rx.Loadable;
 import com.google.android.gnd.system.PermissionsManager.PermissionDeniedException;
@@ -61,7 +61,7 @@ public class MapContainerFragment extends AbstractFragment {
   private static final String MAP_FRAGMENT_KEY = MapProvider.class.getName() + "#fragment";
 
   @Inject FileUtil fileUtil;
-  @Inject GeoJsonParser geoJsonParser;
+  @Inject MbtilesFootprintParser mbtilesFootprintParser;
   @Inject MapProvider mapProvider;
   @Inject LocalValueStore localValueStore;
 
@@ -88,14 +88,9 @@ public class MapContainerFragment extends AbstractFragment {
         .subscribe(homeScreenViewModel::onMarkerClick);
     mapAdapter
         .toObservable()
-        .flatMap(MapAdapter::getMapGeoJsonClicks)
+        .flatMap(MapAdapter::getFeatureClicks)
         .as(disposeOnDestroy(this))
-        .subscribe(mapContainerViewModel::onGeoJsonClick);
-    mapAdapter
-        .toObservable()
-        .flatMap(MapAdapter::getMapGeoJsonClicks)
-        .as(disposeOnDestroy(this))
-        .subscribe(homeScreenViewModel::onGeoJsonClick);
+        .subscribe(homeScreenViewModel::onFeatureClick);
     mapAdapter
         .toFlowable()
         .flatMap(MapAdapter::getDragInteractions)
@@ -294,6 +289,7 @@ public class MapContainerFragment extends AbstractFragment {
 
   @Override
   public void onSaveInstanceState(@NonNull Bundle outState) {
+    super.onSaveInstanceState(outState);
     saveChildFragment(outState, mapProvider.getFragment(), MAP_FRAGMENT_KEY);
   }
 

@@ -27,6 +27,7 @@ import android.view.ViewGroup;
 import androidx.annotation.IdRes;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModel;
 import javax.inject.Inject;
 
@@ -53,9 +54,7 @@ public abstract class AbstractFragment extends Fragment {
   @Nullable
   @Override
   public View onCreateView(
-      LayoutInflater inflater,
-      @Nullable ViewGroup container,
-      @Nullable Bundle savedInstanceState) {
+      LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
     logLifecycleEvent(this);
     return super.onCreateView(inflater, container, savedInstanceState);
   }
@@ -132,7 +131,10 @@ public abstract class AbstractFragment extends Fragment {
   }
 
   protected void saveChildFragment(Bundle outState, Fragment fragment, String key) {
-    getChildFragmentManager().putFragment(outState, key, fragment);
+    FragmentManager fragmentManager = getChildFragmentManager();
+    if (fragment != null && fragmentManager == fragment.getFragmentManager()) {
+      fragmentManager.putFragment(outState, key, fragment);
+    }
   }
 
   protected <T> T restoreChildFragment(Bundle savedInstanceState, String key) {

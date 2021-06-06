@@ -57,12 +57,15 @@ import com.google.android.gnd.ui.common.BackPressListener;
 import com.google.android.gnd.ui.common.EphemeralPopups;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.ProgressDialogs;
+import com.google.android.gnd.ui.home.featureselector.FeatureSelectorFragment;
+import com.google.android.gnd.ui.home.featureselector.FeatureSelectorViewModel;
 import com.google.android.gnd.ui.home.mapcontainer.MapContainerFragment;
 import com.google.android.gnd.ui.home.mapcontainer.MapContainerViewModel;
 import com.google.android.gnd.ui.projectselector.ProjectSelectorDialogFragment;
 import com.google.android.gnd.ui.projectselector.ProjectSelectorViewModel;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.navigation.NavigationView.OnNavigationItemSelectedListener;
+import com.google.common.collect.ImmutableList;
 import dagger.hilt.android.AndroidEntryPoint;
 import java.util.Collections;
 import java.util.List;
@@ -95,8 +98,10 @@ public class HomeScreenFragment extends AbstractFragment
   private BottomSheetBehavior<View> bottomSheetBehavior;
   private ProjectSelectorDialogFragment projectSelectorDialogFragment;
   private ProjectSelectorViewModel projectSelectorViewModel;
+  private FeatureSelectorViewModel featureSelectorViewModel;
   private List<Project> projects = Collections.emptyList();
   private HomeScreenFragBinding binding;
+  private FeatureSelectorFragment featureSelectorDialogFragment;
 
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -108,6 +113,9 @@ public class HomeScreenFragment extends AbstractFragment
 
     mapContainerViewModel = getViewModel(MapContainerViewModel.class);
     projectSelectorViewModel = getViewModel(ProjectSelectorViewModel.class);
+    featureSelectorViewModel = getViewModel(FeatureSelectorViewModel.class);
+
+    featureSelectorDialogFragment = new FeatureSelectorFragment(featureSelectorViewModel);
 
     viewModel = getViewModel(HomeScreenViewModel.class);
     viewModel.getProjectLoadingState().observe(this, this::onActiveProjectChange);
@@ -115,11 +123,28 @@ public class HomeScreenFragment extends AbstractFragment
         .getShowAddFeatureDialogRequests()
         .observe(this, e -> e.ifUnhandled(this::onShowAddFeatureDialogRequest));
     viewModel.getBottomSheetState().observe(this, this::onBottomSheetStateChange);
+    viewModel.getOverlappingFeatures().observe(this, this::showFeatureSelector);
     viewModel.getOpenDrawerRequests().observe(this, e -> e.ifUnhandled(this::openDrawer));
     viewModel.getAddFeatureResults().observe(this, this::onFeatureAdded);
     viewModel.getUpdateFeatureResults().observe(this, this::onFeatureUpdated);
     viewModel.getDeleteFeatureResults().observe(this, this::onFeatureDeleted);
     viewModel.getErrors().observe(this, this::onError);
+    featureSelectorViewModel
+        .getFeatureSelections()
+        .as(autoDisposable(this))
+        .subscribe(this::onFeatureSelection);
+  }
+
+  private void onFeatureSelection(Feature feature) {
+    viewModel.onFeatureSelection(feature);
+  }
+
+  private void showFeatureSelector(ImmutableList<Feature> features) {
+    if (!featureSelectorDialogFragment.isVisible()) {
+      featureSelectorDialogFragment.show(
+          getFragmentManager(), FeatureSelectorFragment.class.getSimpleName());
+    }
+    featureSelectorViewModel.onFeatures(features);
   }
 
   private void onFeatureAdded(Feature feature) {
@@ -406,17 +431,10 @@ public class HomeScreenFragment extends AbstractFragment
   }
 
   private void onShowAddFeatureDialogRequest(Point point) {
-    Loadable.getValue(viewModel.getProjectLoadingState())
-        .ifPresentOrElse(
-            project -> {
-              // TODO: Pause location updates while dialog is open.
-              // TODO: Show spinner?
-              addFeatureDialogFragment.show(
-                  project.getLayers(),
-                  getChildFragmentManager(),
-                  (layer) -> viewModel.addFeature(project, layer, point));
-            },
-            () -> Timber.e("Attempting to add feature while no project loaded"));
+    addFeatureDialogFragment.show(
+        viewModel.getModifiableLayers(),
+        getChildFragmentManager(),
+        layer -> viewModel.addFeature(layer, point));
   }
 
   private void onBottomSheetStateChange(BottomSheetState state) {

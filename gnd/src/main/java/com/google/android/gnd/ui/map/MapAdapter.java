@@ -21,6 +21,7 @@ import com.cocoahero.android.gmaps.addons.mapbox.MapBoxOfflineTileProvider;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.rx.annotations.Hot;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import io.reactivex.Flowable;
 import io.reactivex.Observable;
@@ -35,9 +36,7 @@ public interface MapAdapter {
   @Hot
   Observable<MapPin> getMapPinClicks();
 
-  /** Returns polygon click events. */
-  @Hot
-  Observable<MapGeoJson> getMapGeoJsonClicks();
+  @Hot Observable<ImmutableList<MapFeature>> getFeatureClicks();
 
   /**
    * Returns map drag events. Emits the new viewport center each time the map is dragged by the

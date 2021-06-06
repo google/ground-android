@@ -17,14 +17,18 @@
 package com.google.android.gnd.system;
 
 import android.Manifest.permission;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.provider.MediaStore;
 import androidx.annotation.Nullable;
 import com.google.android.gnd.rx.annotations.Cold;
 import com.google.android.gnd.rx.annotations.Hot;
+import dagger.hilt.android.qualifiers.ApplicationContext;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
+import java.io.File;
 import java8.util.Optional;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -39,11 +43,16 @@ public class CameraManager {
 
   private final PermissionsManager permissionsManager;
   private final ActivityStreams activityStreams;
+  private final Context context;
 
   @Inject
-  public CameraManager(PermissionsManager permissionsManager, ActivityStreams activityStreams) {
+  public CameraManager(
+      PermissionsManager permissionsManager,
+      ActivityStreams activityStreams,
+      @ApplicationContext Context context) {
     this.permissionsManager = permissionsManager;
     this.activityStreams = activityStreams;
+    this.context = context;
   }
 
   /** Launches the system's photo capture flow, first obtaining permissions if necessary. */
@@ -95,6 +104,16 @@ public class CameraManager {
           } else {
             emitter.onComplete();
           }
+        });
+  }
+
+  public Completable addPhotoToGallery(String photoPath) {
+    return Completable.fromRunnable(
+        () -> {
+          Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+          Uri contentUri = Uri.fromFile(new File(photoPath));
+          mediaScanIntent.setData(contentUri);
+          context.sendBroadcast(mediaScanIntent);
         });
   }
 }

@@ -131,7 +131,7 @@ public class LocalDataStoreTest {
                   ResponseDelta.builder()
                       .setFieldId("field id")
                       .setFieldType(Field.Type.TEXT_FIELD)
-                      .setNewResponse(TextResponse.fromString("response for field id"))
+                      .setNewResponse(TextResponse.fromString("updated response"))
                       .build()))
           .setClientTimestamp(new Date())
           .build();
@@ -437,7 +437,7 @@ public class LocalDataStoreTest {
             .values()
             .get(0)
             .getResponses();
-    assertThat("foo value").isEqualTo(responses.getResponse("field id").get().toString());
+    assertThat("updated response").isEqualTo(responses.getResponse("field id").get().toString());
   }
 
   @Test
