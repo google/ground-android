@@ -49,4 +49,15 @@ public class FeatureSelectorViewModel extends AbstractViewModel {
   public Observable<Feature> getFeatureSelections() {
     return selectedFeatures;
   }
+
+  String getListItemText(Feature feature) {
+    String text = "";
+    if (feature.isGeoJson()) {
+      text = "Area\n";
+    } else if (feature.isPoint()) {
+      text = "Point\n";
+    }
+
+    return text + feature.getLayer().getName();
+  }
 }
