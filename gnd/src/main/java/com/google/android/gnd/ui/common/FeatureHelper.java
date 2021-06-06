@@ -17,7 +17,6 @@
 package com.google.android.gnd.ui.common;
 
 import android.content.Context;
-import androidx.annotation.NonNull;
 import com.google.android.gnd.R;
 import com.google.android.gnd.model.AuditInfo;
 import com.google.android.gnd.model.User;
@@ -39,23 +38,27 @@ public class FeatureHelper {
     this.context = context;
   }
 
-  public String getCreatedBy(@NonNull Optional<Feature> feature) {
+  public String getCreatedBy(Optional<Feature> feature) {
     return getUserName(feature).map(name -> context.getString(R.string.added_by, name)).orElse("");
   }
 
-  public String getTitle(@NonNull Optional<Feature> feature) {
+  public String getTitle(Optional<Feature> feature) {
     return getCaption(feature).orElseGet(() -> getLayerName(feature).orElse(""));
   }
 
-  private Optional<String> getUserName(@NonNull Optional<Feature> feature) {
+  public String getSubtitle(Optional<Feature> feature) {
+    return getCreatedBy(feature);
+  }
+
+  private Optional<String> getUserName(Optional<Feature> feature) {
     return feature.map(Feature::getCreated).map(AuditInfo::getUser).map(User::getDisplayName);
   }
 
-  private Optional<String> getCaption(@NonNull Optional<Feature> feature) {
+  private Optional<String> getCaption(Optional<Feature> feature) {
     return feature.map(Feature::getCaption).map(String::trim).filter(caption -> !caption.isEmpty());
   }
 
-  private Optional<String> getLayerName(@NonNull Optional<Feature> feature) {
+  private Optional<String> getLayerName(Optional<Feature> feature) {
     return feature.map(Feature::getLayer).map(Layer::getName);
   }
 }
