@@ -40,9 +40,7 @@ public abstract class Mutation<B extends Mutation.Builder> {
     UNKNOWN
   }
 
-  /**
-   * Status of mutation being applied to remote data store.
-   */
+  /** Status of mutation being applied to remote data store. */
   public enum SyncStatus {
     /** Invalid or unrecognized state. */
     UNKNOWN,
@@ -92,7 +90,13 @@ public abstract class Mutation<B extends Mutation.Builder> {
 
   @Override
   public String toString() {
-    return getClass().getSimpleName() + " type=" + getType() + " id=" + getId();
+    return getClass().getSimpleName()
+        + " "
+        + getSyncStatus()
+        + " "
+        + getType()
+        + " "
+        + getClientTimestamp();
   }
 
   public abstract B toBuilder();

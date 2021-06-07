@@ -185,4 +185,5 @@
 
   <!-- Other strings (to be organized) -->
   <string name="offline_base_map_name" translatable="false">%s</string>
+  <string name="sync_status">Sync status</string>
 </resources>
