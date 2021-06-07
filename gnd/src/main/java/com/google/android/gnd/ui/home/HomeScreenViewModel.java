@@ -206,12 +206,11 @@ public class HomeScreenViewModel extends AbstractViewModel {
     return bottomSheetState;
   }
 
-  // TODO: Remove extra indirection here?
   public void onMarkerClick(MapPin marker) {
     showBottomSheet(marker.getFeature());
   }
 
-  public void onFeatureSelection(Feature feature) {
+  public void onFeatureSelected(Feature feature) {
     showBottomSheet(feature);
   }
 

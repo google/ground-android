@@ -132,13 +132,9 @@ public class HomeScreenFragment extends AbstractFragment
     viewModel.getDeleteFeatureResults().as(autoDisposable(this)).subscribe(this::onFeatureDeleted);
     viewModel.getErrors().as(autoDisposable(this)).subscribe(this::onError);
     featureSelectorViewModel
-        .getFeatureSelections()
+        .getFeatureClicks()
         .as(autoDisposable(this))
-        .subscribe(this::onFeatureSelection);
-  }
-
-  private void onFeatureSelection(Feature feature) {
-    viewModel.onFeatureSelection(feature);
+        .subscribe(viewModel::onFeatureSelected);
   }
 
   private void showFeatureSelector(ImmutableList<Feature> features) {

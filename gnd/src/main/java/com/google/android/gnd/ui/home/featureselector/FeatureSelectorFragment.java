@@ -16,7 +16,6 @@
 
 package com.google.android.gnd.ui.home.featureselector;
 
-import static com.google.android.gnd.rx.RxAutoDispose.autoDisposable;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java8.util.stream.StreamSupport.stream;
 
@@ -26,6 +25,7 @@ import android.app.Dialog;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.FeatureSelectorDialogBinding;
@@ -52,8 +52,7 @@ public class FeatureSelectorFragment extends AbstractDialogFragment {
   public FeatureSelectorFragment() {}
 
   @Override
-  public void onCreate(
-      @androidx.annotation.Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
+  public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
 
     viewModel = getViewModel(FeatureSelectorViewModel.class);
@@ -72,13 +71,18 @@ public class FeatureSelectorFragment extends AbstractDialogFragment {
     binding.featureSelectorListView.setAdapter(listAdapter);
     binding.featureSelectorListView.setOnItemClickListener(
         (parent, view, index, id) -> onItemSelected(index));
-    viewModel
-        .getFeatures()
-        .as(autoDisposable(getParentFragment()))
-        .subscribe(this::showFeatureList);
     dialog.setView(binding.getRoot());
     dialog.setCancelable(true);
     return dialog.create();
+  }
+
+  @Nullable
+  @Override
+  public View onCreateView(
+      LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    showFeatureList(viewModel.getFeatures());
+
+    return super.onCreateView(inflater, container, savedInstanceState);
   }
 
   private void showFeatureList(ImmutableList<Feature> features) {
@@ -113,6 +117,6 @@ public class FeatureSelectorFragment extends AbstractDialogFragment {
 
   private void onItemSelected(int index) {
     dismiss();
-    viewModel.selectFeature(index);
+    viewModel.onItemClick(index);
   }
 }
