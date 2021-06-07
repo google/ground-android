@@ -143,7 +143,7 @@ public class HomeScreenFragment extends AbstractFragment
       featureSelectorDialogFragment.show(
           getFragmentManager(), FeatureSelectorFragment.class.getSimpleName());
     }
-    featureSelectorViewModel.onFeatures(features);
+    featureSelectorViewModel.setFeatures(features);
   }
 
   private void onFeatureAdded(Feature feature) {

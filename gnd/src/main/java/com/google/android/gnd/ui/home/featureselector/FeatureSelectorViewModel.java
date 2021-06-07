@@ -36,7 +36,7 @@ public class FeatureSelectorViewModel extends AbstractViewModel {
     this.selectedFeatures = selections.map(i -> this.features.get(i));
   }
 
-  public void onFeatures(ImmutableList<Feature> features) {
+  public void setFeatures(ImmutableList<Feature> features) {
     this.features = features;
   }
 
