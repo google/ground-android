@@ -17,6 +17,8 @@
 package com.google.android.gnd.repository;
 
 import com.google.android.gnd.model.AuditInfo;
+import com.google.android.gnd.model.Mutation;
+import com.google.android.gnd.model.Mutation.SyncStatus;
 import com.google.android.gnd.model.Mutation.Type;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.feature.Feature;
@@ -33,6 +35,7 @@ import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator;
 import com.google.android.gnd.rx.Loadable;
 import com.google.android.gnd.rx.annotations.Cold;
 import com.google.android.gnd.system.auth.AuthenticationManager;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
@@ -132,6 +135,7 @@ public class FeatureRepository {
             : Optional.empty();
     return FeatureMutation.builder()
         .setType(type)
+        .setSyncStatus(SyncStatus.PENDING)
         .setProjectId(feature.getProject().getId())
         .setFeatureId(feature.getId())
         .setLayerId(feature.getLayer().getId())
@@ -182,5 +186,9 @@ public class FeatureRepository {
     Completable localTransaction = localDataStore.applyAndEnqueue(fromFeature(feature, type));
     Completable remoteSync = dataSyncWorkManager.enqueueSyncWorker(feature.getId());
     return localTransaction.andThen(remoteSync);
+  }
+
+  public Flowable<ImmutableList<Mutation>> getMutationsOnceAndStream(Project project) {
+    return localDataStore.getMutationsOnceAndStream(project);
   }
 }
