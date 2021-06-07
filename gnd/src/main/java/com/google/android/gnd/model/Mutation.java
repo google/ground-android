@@ -40,6 +40,20 @@ public abstract class Mutation<B extends Mutation.Builder> {
     UNKNOWN
   }
 
+  /** Status of mutation being applied to remote data store. */
+  public enum SyncStatus {
+    /** Invalid or unrecognized state. */
+    UNKNOWN,
+    /** Sync pending. Pending includes failed sync attempts pending retry. */
+    PENDING,
+    /** Sync currently in progress. */
+    IN_PROGRESS,
+    /** Sync complete. */
+    COMPLETED,
+    /** Failed indicates all retries have failed. */
+    FAILED
+  }
+
   /** Returns the locally unique id of this change. */
   @Nullable
   public abstract Long getId();
@@ -49,6 +63,9 @@ public abstract class Mutation<B extends Mutation.Builder> {
    * represents.
    */
   public abstract Type getType();
+
+  /** Returns the sync state (pending, completed, etc). */
+  public abstract SyncStatus getSyncStatus();
 
   /** Returns the unique id of the project in which this feature resides. */
   public abstract String getProjectId();
@@ -73,7 +90,13 @@ public abstract class Mutation<B extends Mutation.Builder> {
 
   @Override
   public String toString() {
-    return getClass().getSimpleName() + " type=" + getType() + " id=" + getId();
+    return getClass().getSimpleName()
+        + " "
+        + getSyncStatus()
+        + " "
+        + getType()
+        + " "
+        + getClientTimestamp();
   }
 
   public abstract B toBuilder();
@@ -87,6 +110,8 @@ public abstract class Mutation<B extends Mutation.Builder> {
     public abstract T setLayerId(String newLayerId);
 
     public abstract T setType(Type newType);
+
+    public abstract T setSyncStatus(SyncStatus newSyncStatus);
 
     public abstract T setProjectId(String newProjectId);
 

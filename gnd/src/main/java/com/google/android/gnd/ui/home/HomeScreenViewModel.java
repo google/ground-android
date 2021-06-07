@@ -302,4 +302,8 @@ public class HomeScreenViewModel extends AbstractViewModel {
                     project, authenticationManager.getCurrentUser()))
         .orElse(ImmutableList.of());
   }
+
+  public void showSyncStatus() {
+    navigator.navigate(HomeScreenFragmentDirections.showSyncStatus());
+  }
 }
