@@ -60,9 +60,9 @@ public class LocalValueStore {
     preferences.edit().putString(ACTIVE_PROJECT_ID_KEY, id).apply();
   }
 
-  /** Removes the last active project id in the local value store. */
-  public void clearLastActiveProjectId() {
-    preferences.edit().remove(ACTIVE_PROJECT_ID_KEY).apply();
+  /** Removes all values stored in the local store. */
+  public void clear() {
+    preferences.edit().clear().apply();
   }
 
   public boolean shouldUploadMediaOverUnmeteredConnectionOnly() {

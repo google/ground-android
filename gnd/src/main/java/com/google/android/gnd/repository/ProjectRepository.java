@@ -171,7 +171,7 @@ public class ProjectRepository {
   /** Clears the currently active project from cache and from local localValueStore. */
   public void clearActiveProject() {
     cache.clear();
-    localValueStore.clearLastActiveProjectId();
+    localValueStore.clear();
     selectProjectEvent.onNext(Optional.empty());
   }
 
