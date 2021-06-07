@@ -282,6 +282,17 @@ public class HomeScreenViewModel extends AbstractViewModel {
             .map(MapFeature::getFeature)
             .filter(f -> f != null)
             .collect(toImmutableList());
+
+    if (features.isEmpty()) {
+      Timber.e("onFeatureClick called with empty or null map features");
+      return;
+    }
+
+    if (features.size() == 1) {
+      onFeatureSelected(features.get(0));
+      return;
+    }
+
     showFeatureSelectorRequests.onNext(features);
   }
 

@@ -92,15 +92,6 @@ public class FeatureSelectorFragment extends AbstractDialogFragment {
     listAdapter.clear();
     stream(features).map(this::setFeatureText).forEach(listAdapter::add);
 
-    if (features.size() == 1) {
-      onItemSelected(0);
-    }
-
-    if (features.isEmpty()) {
-      dismiss();
-      return;
-    }
-
     binding.featureSelectorListView.setVisibility(View.VISIBLE);
   }
 
