@@ -138,11 +138,11 @@ public class HomeScreenFragment extends AbstractFragment
   }
 
   private void showFeatureSelector(ImmutableList<Feature> features) {
+    featureSelectorViewModel.setFeatures(features);
     if (!featureSelectorDialogFragment.isVisible()) {
       featureSelectorDialogFragment.show(
           getFragmentManager(), FeatureSelectorFragment.class.getSimpleName());
     }
-    featureSelectorViewModel.setFeatures(features);
   }
 
   private void onFeatureAdded(Feature feature) {
