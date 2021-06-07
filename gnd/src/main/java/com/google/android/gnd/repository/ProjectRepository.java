@@ -22,6 +22,7 @@ import static com.google.android.gnd.model.Project.OWNER;
 import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList;
 import static java8.util.stream.StreamSupport.stream;
 
+import com.google.android.gnd.model.Mutation;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.User;
 import com.google.android.gnd.model.layer.Layer;
@@ -188,5 +189,9 @@ public class ProjectRepository {
     return OWNER.equals(role)
         || MANAGER.equals(role)
         || CONTRIBUTOR.equals(role) && !layer.getContributorsCanAdd().isEmpty();
+  }
+
+  public Flowable<ImmutableList<Mutation>> getMutationsOnceAndStream(Project project) {
+    return localDataStore.getMutationsOnceAndStream(project);
   }
 }
