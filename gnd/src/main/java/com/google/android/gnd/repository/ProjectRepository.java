@@ -168,10 +168,9 @@ public class ProjectRepository {
         .timeout(LOAD_REMOTE_PROJECT_SUMMARIES_TIMEOUT_SECS, TimeUnit.SECONDS);
   }
 
-  /** Clears the currently active project from cache and from local localValueStore. */
+  /** Clears the currently active project from cache. */
   public void clearActiveProject() {
     cache.clear();
-    localValueStore.clear();
     selectProjectEvent.onNext(Optional.empty());
   }
 
