@@ -26,6 +26,7 @@ import com.google.android.gnd.model.feature.FeatureMutation;
 import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.model.observation.ObservationMutation;
 import com.google.android.gnd.persistence.local.room.LocalDataStoreException;
+import com.google.android.gnd.rx.annotations.Cold;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import io.reactivex.Completable;
@@ -106,7 +107,15 @@ public interface LocalDataStore {
    * Returns a long-lived stream that emits the full set of tiles on subscribe and continues to
    * return the full set each time a tile is added/changed/removed.
    */
+  @Cold(terminates = false)
   Flowable<ImmutableSet<TileSource>> getTileSourcesOnceAndStream();
+
+  /**
+   * Returns a long-lived stream that emits the full list of mutations for specified project on
+   * subscribe and a new list on each subsequent change.
+   */
+  @Cold(terminates = false)
+  Flowable<ImmutableList<Mutation>> getMutationsOnceAndStream(Project project);
 
   /**
    * Returns all feature and observation mutations in the local mutation queue relating to feature
@@ -118,8 +127,8 @@ public interface LocalDataStore {
   Completable updateMutations(ImmutableList<Mutation> mutations);
 
   /**
-   * Removes pending mutations and if the mutation is of type DELETE, then removes the corresponding
-   * observation or feature.
+   * Mark pending mutations as complete. If the mutation is of type DELETE, also removes the
+   * corresponding observation or feature.
    */
   Completable finalizePendingMutations(ImmutableList<Mutation> mutations);
 
