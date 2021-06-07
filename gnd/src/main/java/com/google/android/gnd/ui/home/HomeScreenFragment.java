@@ -90,6 +90,7 @@ public class HomeScreenFragment extends AbstractFragment
   @Inject Schedulers schedulers;
   @Inject Navigator navigator;
   @Inject EphemeralPopups popups;
+  @Inject FeatureSelectorFragment featureSelectorDialogFragment;
   MapContainerViewModel mapContainerViewModel;
 
   @Nullable private ProgressDialog progressDialog;
@@ -101,7 +102,6 @@ public class HomeScreenFragment extends AbstractFragment
   private FeatureSelectorViewModel featureSelectorViewModel;
   private List<Project> projects = Collections.emptyList();
   private HomeScreenFragBinding binding;
-  private FeatureSelectorFragment featureSelectorDialogFragment;
 
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -114,8 +114,6 @@ public class HomeScreenFragment extends AbstractFragment
     mapContainerViewModel = getViewModel(MapContainerViewModel.class);
     projectSelectorViewModel = getViewModel(ProjectSelectorViewModel.class);
     featureSelectorViewModel = getViewModel(FeatureSelectorViewModel.class);
-
-    featureSelectorDialogFragment = new FeatureSelectorFragment(featureSelectorViewModel);
 
     viewModel = getViewModel(HomeScreenViewModel.class);
     viewModel.getProjectLoadingState().observe(this, this::onActiveProjectChange);

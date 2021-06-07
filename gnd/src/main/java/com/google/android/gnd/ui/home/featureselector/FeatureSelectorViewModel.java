@@ -18,12 +18,14 @@ package com.google.android.gnd.ui.home.featureselector;
 
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.ui.common.AbstractViewModel;
+import com.google.android.gnd.ui.common.SharedViewModel;
 import com.google.common.collect.ImmutableList;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.subjects.PublishSubject;
 import javax.inject.Inject;
 
+@SharedViewModel
 public class FeatureSelectorViewModel extends AbstractViewModel {
   private ImmutableList<Feature> features = ImmutableList.<Feature>builder().build();
   private final PublishSubject<Integer> selections = PublishSubject.create();

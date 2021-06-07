@@ -48,13 +48,21 @@ public class FeatureSelectorFragment extends AbstractDialogFragment {
 
   @Nullable private ArrayAdapter listAdapter;
 
-  public FeatureSelectorFragment(FeatureSelectorViewModel featureSelectorViewModel) {
-    this.viewModel = featureSelectorViewModel;
+  @Inject
+  public FeatureSelectorFragment() {}
+
+  @Override
+  public void onCreate(
+      @androidx.annotation.Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+
+    viewModel = getViewModel(FeatureSelectorViewModel.class);
   }
 
   @Override
   public Dialog onCreateDialog(Bundle savedInstanceState) {
     super.onCreateDialog(savedInstanceState);
+
     AlertDialog.Builder dialog = new Builder(getContext());
     dialog.setTitle("Select Feature");
     LayoutInflater inflater = getActivity().getLayoutInflater();
