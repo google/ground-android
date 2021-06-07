@@ -27,6 +27,7 @@ import androidx.room.ForeignKey;
 import androidx.room.Index;
 import com.google.android.gnd.model.feature.FeatureMutation;
 import com.google.android.gnd.persistence.local.room.models.Coordinates;
+import com.google.android.gnd.persistence.local.room.models.MutationEntitySyncStatus;
 import com.google.android.gnd.persistence.local.room.models.MutationEntityType;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.AutoValue.CopyAnnotations;
@@ -74,6 +75,7 @@ public abstract class FeatureMutationEntity extends MutationEntity {
         .setLayerId(m.getLayerId())
         .setNewLocation(m.getNewLocation().map(Coordinates::fromPoint).orElse(null))
         .setType(MutationEntityType.fromMutationType(m.getType()))
+        .setSyncStatus(MutationEntitySyncStatus.fromMutationSyncStatus(m.getSyncStatus()))
         .setRetryCount(m.getRetryCount())
         .setLastError(m.getLastError())
         .setUserId(m.getUserId())
@@ -89,6 +91,7 @@ public abstract class FeatureMutationEntity extends MutationEntity {
         .setLayerId(getLayerId())
         .setNewLocation(Optional.ofNullable(getNewLocation().toPoint()))
         .setType(getType().toMutationType())
+        .setSyncStatus(getSyncStatus().toMutationSyncStatus())
         .setRetryCount(getRetryCount())
         .setLastError(getLastError())
         .setUserId(getUserId())
@@ -104,6 +107,7 @@ public abstract class FeatureMutationEntity extends MutationEntity {
       String featureId,
       String layerId,
       MutationEntityType type,
+      MutationEntitySyncStatus syncStatus,
       Coordinates newLocation,
       long retryCount,
       @Nullable String lastError,
@@ -115,6 +119,7 @@ public abstract class FeatureMutationEntity extends MutationEntity {
         .setFeatureId(featureId)
         .setLayerId(layerId)
         .setType(type)
+        .setSyncStatus(syncStatus)
         .setNewLocation(newLocation)
         .setRetryCount(retryCount)
         .setLastError(lastError)
