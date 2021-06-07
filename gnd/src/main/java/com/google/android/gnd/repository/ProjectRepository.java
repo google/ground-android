@@ -31,6 +31,7 @@ import com.google.android.gnd.persistence.remote.RemoteDataStore;
 import com.google.android.gnd.rx.Loadable;
 import com.google.android.gnd.rx.annotations.Cold;
 import com.google.android.gnd.rx.annotations.Hot;
+import com.google.android.gnd.ui.map.CameraPosition;
 import com.google.common.collect.ImmutableList;
 import io.reactivex.Flowable;
 import io.reactivex.Single;
@@ -188,5 +189,13 @@ public class ProjectRepository {
     return OWNER.equals(role)
         || MANAGER.equals(role)
         || CONTRIBUTOR.equals(role) && !layer.getContributorsCanAdd().isEmpty();
+  }
+
+  public void setCameraPosition(String projectId, CameraPosition cameraPosition) {
+    localValueStore.setLastCameraPosition(projectId, cameraPosition);
+  }
+
+  public Optional<CameraPosition> getLastCameraPosition(String projectId) {
+    return localValueStore.getLastCameraPosition(projectId);
   }
 }
