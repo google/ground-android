@@ -16,19 +16,27 @@
 
 package com.google.android.gnd.ui.syncstatus;
 
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.gnd.databinding.SyncStatusListItemBinding;
 import com.google.android.gnd.model.Mutation;
+import com.google.android.gnd.model.feature.FeatureMutation;
 import com.google.common.collect.ImmutableList;
+import java.text.DateFormat;
 
 class SyncStatusListAdapter extends RecyclerView.Adapter<SyncStatusViewHolder> {
-  private ImmutableList<Mutation> mutations;
 
-  SyncStatusListAdapter() {
-    mutations = ImmutableList.of();
+  private ImmutableList<Mutation> mutations;
+  private final DateFormat dateFormat;
+  private final DateFormat timeFormat;
+
+  SyncStatusListAdapter(Context context) {
+    this.mutations = ImmutableList.of();
+    this.dateFormat = android.text.format.DateFormat.getDateFormat(context);
+    this.timeFormat = android.text.format.DateFormat.getTimeFormat(context);
   }
 
   @NonNull
@@ -41,7 +49,24 @@ class SyncStatusListAdapter extends RecyclerView.Adapter<SyncStatusViewHolder> {
   @Override
   public void onBindViewHolder(SyncStatusViewHolder viewHolder, int position) {
     // TODO: i18n; add user friendly names.
-    viewHolder.binding.syncStatusText.setText(mutations.get(position).toString());
+    // TODO: Use data binding.
+    // TODO(#876): Improve L&F and layout.
+
+    Mutation mutation = mutations.get(position);
+    String text =
+        new StringBuilder()
+            .append(mutation.getType().toString())
+            .append(" ")
+            .append(mutation instanceof FeatureMutation ? "Feature" : "Observation")
+            .append(" ")
+            .append(dateFormat.format(mutation.getClientTimestamp()))
+            .append(" ")
+            .append(timeFormat.format(mutation.getClientTimestamp()))
+            .append("\n")
+            .append("Sync ")
+            .append(mutation.getSyncStatus().toString())
+            .toString();
+    viewHolder.binding.syncStatusText.setText(text);
     viewHolder.position = position;
   }
 

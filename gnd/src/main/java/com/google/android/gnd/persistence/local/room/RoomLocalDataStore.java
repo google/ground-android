@@ -344,10 +344,12 @@ public class RoomLocalDataStore implements LocalDataStore {
   private ImmutableList<Mutation> combineAndSortMutations(
       ImmutableList<FeatureMutation> featureMutations,
       ImmutableList<ObservationMutation> observationMutations) {
-    return ImmutableList.<Mutation>builder()
-        .addAll(featureMutations)
-        .addAll(observationMutations)
-        .build();
+    return ImmutableList.sortedCopyOf(
+        Mutation.byDescendingClientTimestamp(),
+        ImmutableList.<Mutation>builder()
+            .addAll(featureMutations)
+            .addAll(observationMutations)
+            .build());
   }
 
   @Override

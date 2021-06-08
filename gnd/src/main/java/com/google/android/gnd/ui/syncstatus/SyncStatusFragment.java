@@ -54,7 +54,8 @@ public class SyncStatusFragment extends AbstractFragment {
 
     ((MainActivity) getActivity()).setActionBar(binding.syncStatusToolbar, true);
 
-    SyncStatusListAdapter syncStatusListAdapter = new SyncStatusListAdapter();
+    SyncStatusListAdapter syncStatusListAdapter =
+        new SyncStatusListAdapter(getContext().getApplicationContext());
     RecyclerView recyclerView = binding.syncStatusList;
     recyclerView.setHasFixedSize(true);
     recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));

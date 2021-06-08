@@ -31,12 +31,14 @@ public interface ObservationMutationDao extends BaseDao<ObservationMutationEntit
   Flowable<List<ObservationMutationEntity>> loadAllOnceAndStream();
 
   @Query(
-      "SELECT * FROM observation_mutation WHERE feature_id = :featureId AND state IN (:allowedStates)")
+      "SELECT * FROM observation_mutation "
+          + "WHERE feature_id = :featureId AND state IN (:allowedStates)")
   Single<List<ObservationMutationEntity>> findByFeatureId(
       String featureId, MutationEntitySyncStatus... allowedStates);
 
   @Query(
-      "SELECT * FROM observation_mutation WHERE observation_id = :observationId AND state IN (:allowedStates)")
+      "SELECT * FROM observation_mutation "
+          + "WHERE observation_id = :observationId AND state IN (:allowedStates)")
   Single<List<ObservationMutationEntity>> findByObservationId(
       String observationId, MutationEntitySyncStatus... allowedStates);
 }
