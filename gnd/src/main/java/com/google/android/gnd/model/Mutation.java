@@ -18,6 +18,7 @@ package com.google.android.gnd.model;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import java.util.Comparator;
 import java.util.Date;
 
 /**
@@ -100,6 +101,10 @@ public abstract class Mutation<B extends Mutation.Builder> {
   }
 
   public abstract B toBuilder();
+
+  public static Comparator<Mutation> byDescendingClientTimestamp() {
+    return (m1, m2) -> m2.getClientTimestamp().compareTo(m1.getClientTimestamp());
+  }
 
   public abstract static class Builder<T extends Builder> {
 
