@@ -102,7 +102,7 @@
       app:layout_constraintBottom_toBottomOf="parent"
       app:layout_constraintEnd_toEndOf="parent"
       app:layout_constraintStart_toStartOf="parent"
-      app:onButtonClick="@{__ -> viewModel.onButtonClicked()}"
+      android:onClick="@{() -> viewModel.onButtonClicked()}"
     />
     <CheckBox
       app:layout_constraintBottom_toTopOf="@id/agreeButton"

@@ -22,7 +22,6 @@ import android.net.Uri;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageView;
 import androidx.core.content.ContextCompat;
 import androidx.core.widget.ImageViewCompat;
@@ -47,12 +46,6 @@ public class BindingAdapters {
   @BindingAdapter("onClick")
   public static void bindGoogleSignOnButtonClick(
       SignInButton button, View.OnClickListener onClickCallback) {
-    button.setOnClickListener(onClickCallback);
-  }
-
-  @BindingAdapter("onButtonClick")
-  public static void bindButtonClick(
-      Button button, View.OnClickListener onClickCallback) {
     button.setOnClickListener(onClickCallback);
   }
 
