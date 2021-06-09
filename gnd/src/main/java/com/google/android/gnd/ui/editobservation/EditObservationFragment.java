@@ -325,11 +325,11 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
     int month = calendar.get(Calendar.MONTH);
     int day = calendar.get(Calendar.DAY_OF_MONTH);
     DatePickerDialog datePickerDialog = new DatePickerDialog(requireContext(),
-        (view, year1, month1, dayOfMonth) -> {
+        (view, updatedYear, updatedMonth, updatedDayOfMonth) -> {
           Calendar c = Calendar.getInstance();
-          c.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-          c.set(Calendar.MONTH, month1);
-          c.set(Calendar.YEAR, year1);
+          c.set(Calendar.DAY_OF_MONTH, updatedDayOfMonth);
+          c.set(Calendar.MONTH, updatedMonth);
+          c.set(Calendar.YEAR, updatedYear);
           Date d = new Date();
           d.setTime(c.getTimeInMillis());
           fieldViewModel.updateResponse(d);
@@ -342,10 +342,10 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
     int hour = calendar.get(Calendar.HOUR);
     int minute = calendar.get(Calendar.MINUTE);
     TimePickerDialog timePickerDialog = new TimePickerDialog(requireContext(),
-        (view, hourOfDay, minute1) -> {
+        (view, updatedHourOfDay, updateMinute) -> {
           Calendar c = Calendar.getInstance();
-          c.set(Calendar.HOUR_OF_DAY, hourOfDay);
-          c.set(Calendar.MINUTE, minute);
+          c.set(Calendar.HOUR_OF_DAY, updatedHourOfDay);
+          c.set(Calendar.MINUTE, updateMinute);
           Date d = new Date();
           d.setTime(c.getTimeInMillis());
           fieldViewModel.updateResponse(d);
