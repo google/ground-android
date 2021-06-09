@@ -37,7 +37,7 @@ public class TermsOfServiceViewModel extends AbstractViewModel {
   public final MutableLiveData<String> termsOfServiceText = new MutableLiveData<>();
 
   @Hot(replays = true)
-  public final MutableLiveData<Boolean> termsOfServiceCheckBox = new MutableLiveData<>();
+  public final MutableLiveData<Boolean> acceptTermsCheckboxState = new MutableLiveData<>();
 
   @Hot(replays = true)
   public final MutableLiveData<Boolean> termsOfServiceLoadState = new MutableLiveData<>(false);
@@ -56,7 +56,7 @@ public class TermsOfServiceViewModel extends AbstractViewModel {
 
   public void onButtonClicked() {
     termsOfServiceRepository.setTermsAccepted(true);
-    navigator.navigate(TermsOfServiceFragmentDirections.proceedDirectlyToHomeScreen());
+    navigator.navigate(TermsOfServiceFragmentDirections.proceedToHomeScreen());
   }
 
   public LiveData<Loadable<TermsOfService>> getTermsOfService() {

@@ -30,7 +30,7 @@
     android:layout_height="match_parent"
     tools:context=".ui.terms.TermsOfServiceFragment">
 
-    <!-- CardView is used to create the drop shadow effect -->
+    <!-- CardView is used to create the drop shadow effect. -->
     <androidx.cardview.widget.CardView
       app:layout_constraintTop_toTopOf="parent"
       app:layout_constraintStart_toStartOf="parent"
@@ -98,7 +98,7 @@
       android:layout_height="wrap_content"
       android:layout_marginBottom="32dp"
       android:text="@string/agree_terms"
-      android:enabled="@{viewModel.termsOfServiceCheckBox}"
+      android:enabled="@{viewModel.acceptTermsCheckboxState}"
       app:layout_constraintBottom_toBottomOf="parent"
       app:layout_constraintEnd_toEndOf="parent"
       app:layout_constraintStart_toStartOf="parent"
@@ -107,7 +107,7 @@
     <CheckBox
       app:layout_constraintBottom_toTopOf="@id/agreeButton"
       android:id="@+id/agreeCheckBox"
-      android:checked="@={viewModel.termsOfServiceCheckBox}"
+      android:checked="@={viewModel.acceptTermsCheckboxState}"
       android:layout_width="0dp"
       android:enabled="@{viewModel.termsOfServiceLoadState}"
       android:layout_margin="16dp"

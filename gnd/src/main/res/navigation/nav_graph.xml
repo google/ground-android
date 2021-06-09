@@ -34,7 +34,7 @@
       app:popUpTo="@id/navGraph"
       app:popUpToInclusive="true" />
     <action
-      android:id="@+id/proceedDirectlyToHomeScreen"
+      android:id="@+id/proceedToHomeScreen"
       app:destination="@id/home_screen_fragment"
       app:popUpTo="@id/navGraph"
       app:popUpToInclusive="true" />
@@ -180,7 +180,7 @@
     app:popUpTo="@id/navGraph" />
 
   <action
-    android:id="@+id/showTermsScreen"
+    android:id="@+id/showTermsOfService"
     app:destination="@id/terms_fragment"
     app:popUpTo="@id/navGraph" />
 
@@ -190,7 +190,7 @@
     android:label="terms_frag"
     tools:layout="@layout/fragment_terms_service">
     <action
-      android:id="@+id/proceedDirectlyToHomeScreen"
+      android:id="@+id/proceedToHomeScreen"
       app:destination="@id/home_screen_fragment"
       app:popUpTo="@id/navGraph"
       app:popUpToInclusive="true" />
