@@ -195,4 +195,5 @@
       app:popUpTo="@id/navGraph"
       app:popUpToInclusive="true" />
   </fragment>
+
 </navigation>

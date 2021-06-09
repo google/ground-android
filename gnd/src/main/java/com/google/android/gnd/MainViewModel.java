@@ -171,6 +171,7 @@ public class MainViewModel extends AbstractViewModel {
   private void onSignedIn() {
     hideProgressDialog();
     if (termsState.getValue() == LoadState.NOT_FOUND) {
+      // Terms are set to accepted when there no terms found in remote DB.
       termsOfServiceRepository.setTermsAccepted(true);
       navigator.navigate(HomeScreenFragmentDirections.showHomeScreen());
     } else {
