@@ -150,7 +150,7 @@ public class ProjectRepository {
   public Flowable<Loadable<List<Project>>> getProjectSummaries(User user) {
     return loadProjectSummariesFromRemote(user)
         .doOnSubscribe(__ -> Timber.d("Loading project list from remote"))
-        .doOnError(err -> Timber.e(err, "Failed to load project list from remote"))
+        .doOnError(err -> Timber.d(err, "Failed to load project list from remote"))
         .onErrorResumeNext(__ -> localDataStore.getProjects())
         .toFlowable()
         .compose(Loadable::loadingOnceAndWrap);
