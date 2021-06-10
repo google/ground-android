@@ -150,8 +150,7 @@ class GoogleMapsMapAdapter implements MapAdapter {
     markerManager = new MarkerManager(map);
     markers = markerManager.newCollection();
     markers.setOnMarkerClickListener(this::onMarkerClick);
-
-    map.setMapType(localValueStore.getSavedMapType(GoogleMap.MAP_TYPE_HYBRID));
+    map.setMapType(localValueStore.getSavedMapType(GoogleMap.MAP_TYPE_NORMAL));
     UiSettings uiSettings = map.getUiSettings();
     uiSettings.setRotateGesturesEnabled(false);
     uiSettings.setTiltGesturesEnabled(false);
