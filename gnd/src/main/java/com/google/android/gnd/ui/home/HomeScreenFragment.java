@@ -96,6 +96,7 @@ public class HomeScreenFragment extends AbstractFragment
   @Inject Schedulers schedulers;
   @Inject Navigator navigator;
   @Inject EphemeralPopups popups;
+  @Inject FeatureSelectorFragment featureSelectorDialogFragment;
   MapContainerViewModel mapContainerViewModel;
 
   @Nullable private ProgressDialog progressDialog;
@@ -107,7 +108,6 @@ public class HomeScreenFragment extends AbstractFragment
   private FeatureSelectorViewModel featureSelectorViewModel;
   private List<Project> projects = Collections.emptyList();
   private HomeScreenFragBinding binding;
-  private FeatureSelectorFragment featureSelectorDialogFragment;
 
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -121,8 +121,6 @@ public class HomeScreenFragment extends AbstractFragment
     projectSelectorViewModel = getViewModel(ProjectSelectorViewModel.class);
     featureSelectorViewModel = getViewModel(FeatureSelectorViewModel.class);
 
-    featureSelectorDialogFragment = new FeatureSelectorFragment(featureSelectorViewModel);
-
     viewModel = getViewModel(HomeScreenViewModel.class);
     viewModel.getProjectLoadingState().observe(this, this::onActiveProjectChange);
     viewModel
@@ -130,28 +128,27 @@ public class HomeScreenFragment extends AbstractFragment
         .as(autoDisposable(this))
         .subscribe(this::onShowAddFeatureDialogRequest);
     viewModel.getBottomSheetState().observe(this, this::onBottomSheetStateChange);
-    viewModel.getOverlappingFeatures().observe(this, this::showFeatureSelector);
+    viewModel
+        .getShowFeatureSelectorRequests()
+        .as(autoDisposable(this))
+        .subscribe(this::showFeatureSelector);
     viewModel.getOpenDrawerRequests().as(autoDisposable(this)).subscribe(__ -> openDrawer());
     viewModel.getAddFeatureResults().as(autoDisposable(this)).subscribe(this::onFeatureAdded);
     viewModel.getUpdateFeatureResults().as(autoDisposable(this)).subscribe(this::onFeatureUpdated);
     viewModel.getDeleteFeatureResults().as(autoDisposable(this)).subscribe(this::onFeatureDeleted);
     viewModel.getErrors().as(autoDisposable(this)).subscribe(this::onError);
     featureSelectorViewModel
-        .getFeatureSelections()
+        .getFeatureClicks()
         .as(autoDisposable(this))
-        .subscribe(this::onFeatureSelection);
-  }
-
-  private void onFeatureSelection(Feature feature) {
-    viewModel.onFeatureSelection(feature);
+        .subscribe(viewModel::onFeatureSelected);
   }
 
   private void showFeatureSelector(ImmutableList<Feature> features) {
+    featureSelectorViewModel.setFeatures(features);
     if (!featureSelectorDialogFragment.isVisible()) {
       featureSelectorDialogFragment.show(
           getFragmentManager(), FeatureSelectorFragment.class.getSimpleName());
     }
-    featureSelectorViewModel.onFeatures(features);
   }
 
   private void onFeatureAdded(Feature feature) {

@@ -43,13 +43,13 @@ import com.google.android.gnd.ui.common.SharedViewModel;
 import com.google.android.gnd.ui.map.MapFeature;
 import com.google.android.gnd.ui.map.MapPin;
 import com.google.common.collect.ImmutableList;
-import io.reactivex.BackpressureStrategy;
 import io.reactivex.Flowable;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.processors.FlowableProcessor;
 import io.reactivex.processors.PublishProcessor;
 import io.reactivex.subjects.PublishSubject;
+import io.reactivex.subjects.Subject;
 import java8.util.Optional;
 import javax.inject.Inject;
 import timber.log.Timber;
@@ -90,10 +90,8 @@ public class HomeScreenViewModel extends AbstractViewModel {
   private final MutableLiveData<Integer> addFeatureButtonVisibility = new MutableLiveData<>(GONE);
 
   @Hot
-  private final PublishSubject<ImmutableList<Feature>> overlappingFeaturesSubject =
+  private final Subject<ImmutableList<Feature>> showFeatureSelectorRequests =
       PublishSubject.create();
-
-  private final LiveData<ImmutableList<Feature>> overlappingFeatures;
 
   @Inject
   HomeScreenViewModel(
@@ -125,9 +123,6 @@ public class HomeScreenViewModel extends AbstractViewModel {
     updateFeatureResults =
         updateFeatureRequests.switchMapSingle(
             feature -> toBooleanSingle(featureRepository.updateFeature(feature), errors::onNext));
-    overlappingFeatures =
-        LiveDataReactiveStreams.fromPublisher(
-            overlappingFeaturesSubject.toFlowable(BackpressureStrategy.LATEST));
   }
 
   /** Handle state of the UI elements depending upon the active project. */
@@ -151,8 +146,9 @@ public class HomeScreenViewModel extends AbstractViewModel {
     return addFeatureButtonVisibility;
   }
 
-  public LiveData<ImmutableList<Feature>> getOverlappingFeatures() {
-    return overlappingFeatures;
+  @Hot
+  public Observable<ImmutableList<Feature>> getShowFeatureSelectorRequests() {
+    return showFeatureSelectorRequests;
   }
 
   public Flowable<Feature> getAddFeatureResults() {
@@ -210,12 +206,11 @@ public class HomeScreenViewModel extends AbstractViewModel {
     return bottomSheetState;
   }
 
-  // TODO: Remove extra indirection here?
   public void onMarkerClick(MapPin marker) {
     showBottomSheet(marker.getFeature());
   }
 
-  public void onFeatureSelection(Feature feature) {
+  public void onFeatureSelected(Feature feature) {
     showBottomSheet(feature);
   }
 
@@ -278,7 +273,7 @@ public class HomeScreenViewModel extends AbstractViewModel {
   }
 
   public Observable<ImmutableList<Feature>> getOverlappingFeaturesOnceAndStream() {
-    return overlappingFeaturesSubject;
+    return showFeatureSelectorRequests;
   }
 
   public void onFeatureClick(ImmutableList<MapFeature> mapFeatures) {
@@ -287,7 +282,18 @@ public class HomeScreenViewModel extends AbstractViewModel {
             .map(MapFeature::getFeature)
             .filter(f -> f != null)
             .collect(toImmutableList());
-    overlappingFeaturesSubject.onNext(features);
+
+    if (features.isEmpty()) {
+      Timber.e("onFeatureClick called with empty or null map features");
+      return;
+    }
+
+    if (features.size() == 1) {
+      onFeatureSelected(features.get(0));
+      return;
+    }
+
+    showFeatureSelectorRequests.onNext(features);
   }
 
   private Optional<Project> getActiveProject() {
