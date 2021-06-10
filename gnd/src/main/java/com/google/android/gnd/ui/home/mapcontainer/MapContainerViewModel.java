@@ -51,6 +51,7 @@ import com.google.android.gnd.ui.map.MapPin;
 import com.google.common.collect.ImmutableSet;
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Flowable;
+import io.reactivex.processors.BehaviorProcessor;
 import io.reactivex.subjects.PublishSubject;
 import io.reactivex.subjects.Subject;
 import java.util.ArrayList;
@@ -99,8 +100,12 @@ public class MapContainerViewModel extends AbstractViewModel {
   private final LiveData<Integer> iconTint;
   private final List<MapBoxOfflineTileProvider> tileProviders = new ArrayList<>();
 
-  // Feature currently selected for repositioning
-  private Optional<Feature> selectedFeature = Optional.empty();
+  /** Feature selected for repositioning. */
+  private Optional<Feature> reposFeature = Optional.empty();
+
+  /** The currently selected feature on the map. */
+  private BehaviorProcessor<Optional<Feature>> selectedFeature =
+      BehaviorProcessor.createDefault(Optional.empty());
 
   @Inject
   MapContainerViewModel(
@@ -132,10 +137,13 @@ public class MapContainerViewModel extends AbstractViewModel {
     // into the repo?
     this.mapFeatures =
         LiveDataReactiveStreams.fromPublisher(
-            projectRepository
-                .getActiveProject()
-                .switchMap(this::getFeaturesStream)
-                .map(MapContainerViewModel::toMapFeatures));
+            Flowable.combineLatest(
+                projectRepository
+                    .getActiveProject()
+                    .switchMap(this::getFeaturesStream)
+                    .map(MapContainerViewModel::toMapFeatures),
+                selectedFeature,
+                this::updateSelectedFeature));
     this.mbtilesFilePaths =
         LiveDataReactiveStreams.fromPublisher(
             offlineBaseMapRepository
@@ -149,6 +157,30 @@ public class MapContainerViewModel extends AbstractViewModel {
         .map(Project::getId)
         .flatMap(projectRepository::getLastCameraPosition)
         .ifPresent(this::panAndZoomCamera);
+  }
+
+  private ImmutableSet<MapFeature> updateSelectedFeature(
+      ImmutableSet<MapFeature> features, Optional<Feature> selectedFeature) {
+    Timber.v("Updating selected feature style");
+    if (selectedFeature.isEmpty()) {
+      return features;
+    }
+    ImmutableSet.Builder updatedFeatures = ImmutableSet.builder();
+    String selectedFeatureId = selectedFeature.get().getId();
+    for (MapFeature feature : features) {
+      if (feature instanceof MapGeoJson) {
+        MapGeoJson geoJsonFeature = (MapGeoJson) feature;
+        String geoJsonFeatureId = geoJsonFeature.getFeature().getId();
+        if (geoJsonFeatureId.equals(selectedFeatureId)) {
+          Timber.v("Restyling selected GeoJSON feature " + selectedFeatureId);
+          // TODO: Make width configurable.
+          updatedFeatures.add(geoJsonFeature.toBuilder().setStrokeWidth(16).build());
+          continue;
+        }
+      }
+      updatedFeatures.add(feature);
+    }
+    return updatedFeatures.build();
   }
 
   private static ImmutableSet<MapFeature> toMapFeatures(ImmutableSet<Feature> features) {
@@ -193,6 +225,7 @@ public class MapContainerViewModel extends AbstractViewModel {
         .setId(feature.getId())
         .setGeoJson(jsonObject)
         .setStyle(feature.getLayer().getDefaultStyle())
+        .setStrokeWidth(4) // TODO: Make configurable.
         .setFeature(feature)
         .build();
   }
@@ -331,12 +364,17 @@ public class MapContainerViewModel extends AbstractViewModel {
     return moveFeaturesVisibility;
   }
 
-  public Optional<Feature> getSelectedFeature() {
-    return selectedFeature;
+  public Optional<Feature> getReposFeature() {
+    return reposFeature;
   }
 
+  public void setReposFeature(Optional<Feature> reposFeature) {
+    this.reposFeature = reposFeature;
+  }
+
+  /** Called when a feature is (de)selected. */
   public void setSelectedFeature(Optional<Feature> selectedFeature) {
-    this.selectedFeature = selectedFeature;
+    this.selectedFeature.onNext(selectedFeature);
   }
 
   public enum Mode {
