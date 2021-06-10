@@ -50,7 +50,7 @@
 
     <activity
       android:name=".MainActivity"
-      android:screenOrientation="fullUser"
+      android:screenOrientation="portrait"
       android:windowSoftInputMode="stateHidden|adjustResize">
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />
