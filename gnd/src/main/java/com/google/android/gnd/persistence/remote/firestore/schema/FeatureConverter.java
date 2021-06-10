@@ -85,7 +85,7 @@ public class FeatureConverter {
     for (Object point : (List<?>) coordinates) {
       if (!(point instanceof GeoPoint)) {
         Timber.d("Ignoring illegal point type in feature %s", doc.getId());
-        continue;
+        break;
       }
       vertices.add(Point.newBuilder().setLongitude(((GeoPoint) point).getLongitude()).setLatitude(
           ((GeoPoint) point).getLatitude()).build());

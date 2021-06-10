@@ -181,17 +181,8 @@ public class MapContainerViewModel extends AbstractViewModel {
 
   private static ImmutableSet<MapFeature> concatFeatureSets(
       Object[] objects) {
-    ImmutableSet<MapFeature> combinedFeatureSet = ImmutableSet.<MapFeature>builder().build();
-    for (Object obj : objects) {
-      if (obj instanceof ImmutableSet) {
-        ImmutableSet<MapFeature> a = (ImmutableSet<MapFeature>) obj;
-        combinedFeatureSet = ImmutableSet.<MapFeature>builder()
-            .addAll(a).addAll(combinedFeatureSet).build();
-      } else {
-        Timber.d("Object is not of ImmutableSet class");
-      }
-    }
-    return combinedFeatureSet;
+    return stream(Arrays.asList(objects))
+        .flatMap(set -> stream((ImmutableSet<MapFeature>) set)).collect(toImmutableSet());
   }
 
   private static ImmutableSet<MapFeature> toMapFeatures(ImmutableSet<Feature> features) {
