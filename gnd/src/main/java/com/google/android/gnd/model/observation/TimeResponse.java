@@ -23,7 +23,7 @@ import java.util.Date;
 import java.util.Locale;
 import java8.util.Optional;
 
-/** A user provided response to a time {@link Field}. */
+/** A user-provided date-time {@link Field} response. */
 public class TimeResponse implements Response {
 
   private Date epochTime;
