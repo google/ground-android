@@ -62,7 +62,6 @@ import com.google.android.material.bottomsheet.BottomSheetDialog;
 import dagger.hilt.android.AndroidEntryPoint;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -347,10 +346,10 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
     TimePickerDialog timePickerDialog =
         new TimePickerDialog(
             requireContext(),
-            (view, updatedHourOfDay, updateMinute) -> {
+            (view, updatedHourOfDay, updatedMinute) -> {
               Calendar c = Calendar.getInstance();
               c.set(Calendar.HOUR_OF_DAY, updatedHourOfDay);
-              c.set(Calendar.MINUTE, updateMinute);
+              c.set(Calendar.MINUTE, updatedMinute);
               fieldViewModel.updateResponse(c.getTime());
             },
             hour,
