@@ -21,6 +21,7 @@ import com.google.android.gnd.repository.TermsOfServiceRepository;
 import com.google.android.gnd.rx.annotations.Hot;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.common.Navigator;
+import com.google.android.gnd.ui.home.HomeScreenFragmentDirections;
 import javax.inject.Inject;
 
 public class TermsOfServiceViewModel extends AbstractViewModel {
@@ -51,6 +52,6 @@ public class TermsOfServiceViewModel extends AbstractViewModel {
 
   public void onButtonClicked() {
     termsOfServiceRepository.setTermsOfServiceAccepted(true);
-    navigator.navigate(TermsOfServiceFragmentDirections.proceedToHomeScreen());
+    navigator.navigate(HomeScreenFragmentDirections.showHomeScreen());
   }
 }
