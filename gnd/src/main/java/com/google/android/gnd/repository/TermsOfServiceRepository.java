@@ -49,7 +49,8 @@ public class TermsOfServiceRepository {
         .doOnSubscribe(__ -> Timber.d("Loading terms from remote"))
         .doOnError(err -> Timber.d("Failed to load terms from remote"))
         .toFlowable()
-        .compose(Loadable::loadingOnceAndWrap);
+        .compose(Loadable::loadingOnceAndWrap)
+        .defaultIfEmpty(Loadable.notFound());
   }
 
   @Cold

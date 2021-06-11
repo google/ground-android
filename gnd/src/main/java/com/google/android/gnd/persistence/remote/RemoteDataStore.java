@@ -29,6 +29,7 @@ import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
+import io.reactivex.Maybe;
 import io.reactivex.Single;
 import java.util.List;
 
@@ -48,11 +49,11 @@ public interface RemoteDataStore {
   Single<Project> loadProject(String projectId);
 
   /**
-   * Loads the project terms from the remote data store. The return Single fails
-   * with if the terms are not found, or if the remote data store is not available.
+   * Loads the project terms from the remote data store. The returned Maybe is empty if not found,
+   * otherwise it completes with the loaded terms of service.
    */
   @Cold
-  Single<TermsOfService> loadTermsOfService();
+  Maybe<TermsOfService> loadTermsOfService();
 
   /**
    * Returns all features in the specified project, then continues to emit any remote updates to the

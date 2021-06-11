@@ -50,6 +50,10 @@ public class Loadable<T> extends ValueOrError<T> {
     return new Loadable<>(LoadState.NOT_LOADED, null, null);
   }
 
+  public static <T> Loadable<T> notFound() {
+    return new Loadable<>(LoadState.NOT_FOUND, null, null);
+  }
+
   public static <T> Loadable<T> loading() {
     return new Loadable<>(LoadState.LOADING, null, null);
   }
@@ -87,10 +91,10 @@ public class Loadable<T> extends ValueOrError<T> {
   }
 
   /**
-   * Returns a {@link Flowable} that first emits LOADING, then maps values emitted from the
-   * source stream to {@code Loadable}s with a LOADED {@code Loadable}. Errors in the provided
-   * stream are handled and wrapped in a {@code Loadable} with state ERROR. The returned stream
-   * itself should never fail with an error.
+   * Returns a {@link Flowable} that first emits LOADING, then maps values emitted from the source
+   * stream to {@code Loadable}s with a LOADED {@code Loadable}. Errors in the provided stream are
+   * handled and wrapped in a {@code Loadable} with state ERROR. The returned stream itself should
+   * never fail with an error.
    *
    * @param source the stream responsible for loading values.
    * @param <T> the type of entity being loaded
