@@ -199,14 +199,14 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
     dateFieldViewModel
         .getShowDialogClicks()
         .as(autoDisposable(this))
-        .subscribe(nil -> showDateDialog(dateFieldViewModel));
+        .subscribe(__ -> showDateDialog(dateFieldViewModel));
   }
 
   private void observeTimeDialogClicks(TimeFieldViewModel timeFieldViewModel) {
     timeFieldViewModel
         .getShowDialogClicks()
         .as(autoDisposable(this))
-        .subscribe(nil -> showTimeDialog(timeFieldViewModel));
+        .subscribe(__ -> showTimeDialog(timeFieldViewModel));
   }
 
   private void rebuildForm(Form form) {
