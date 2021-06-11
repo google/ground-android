@@ -20,6 +20,7 @@ import android.app.Application;
 import com.google.android.gnd.model.observation.DateResponse;
 import com.google.android.gnd.rx.Nil;
 import com.google.android.gnd.rx.annotations.Hot;
+import io.reactivex.Observable;
 import io.reactivex.subjects.PublishSubject;
 import io.reactivex.subjects.Subject;
 import java.util.Date;
@@ -42,7 +43,7 @@ public class DateFieldViewModel extends AbstractFieldViewModel {
     showDialogClicks.onNext(Nil.NIL);
   }
 
-  Subject<Nil> getDateDialogClicks() {
+  Observable<Nil> getDateDialogClicks() {
     return showDialogClicks;
   }
 }
