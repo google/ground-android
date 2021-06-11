@@ -18,7 +18,7 @@ package com.google.android.gnd.model;
 
 import com.google.auto.value.AutoValue;
 
-/** Represents Project TermsOfService. */
+/** If present in remote db, terms of service must be accepted by user after sign in. */
 @AutoValue
 public abstract class TermsOfService {
 
