@@ -16,9 +16,59 @@
 
 package com.google.android.gnd.ui.terms;
 
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.LiveDataReactiveStreams;
+import androidx.lifecycle.MutableLiveData;
+import com.google.android.gnd.model.TermsOfService;
+import com.google.android.gnd.repository.TermsOfServiceRepository;
+import com.google.android.gnd.rx.Loadable;
+import com.google.android.gnd.rx.annotations.Hot;
 import com.google.android.gnd.ui.common.AbstractViewModel;
+import com.google.android.gnd.ui.common.Navigator;
+import javax.inject.Inject;
 
 // TODO: Needs to handle view state and behaviors of the Terms Fragment
 public class TermsOfServiceViewModel extends AbstractViewModel {
+
+
+  private final Navigator navigator;
+
+  @Hot(replays = true)
+  public final MutableLiveData<String> termsOfServiceText = new MutableLiveData<>();
+
+  @Hot(replays = true)
+  public final MutableLiveData<Boolean> acceptTermsCheckboxState = new MutableLiveData<>();
+
+  @Hot(replays = true)
+  public final MutableLiveData<Boolean> termsOfServiceLoadState = new MutableLiveData<>(false);
+
+  private final TermsOfServiceRepository termsOfServiceRepository;
+  private final LiveData<Loadable<TermsOfService>> projectTermsOfService;
+
+  @Inject
+  public TermsOfServiceViewModel(Navigator navigator,
+      TermsOfServiceRepository termsOfServiceRepository) {
+    this.navigator = navigator;
+    this.termsOfServiceRepository = termsOfServiceRepository;
+    this.projectTermsOfService = LiveDataReactiveStreams.fromPublisher(
+        termsOfServiceRepository.getProjectTerms());
+  }
+
+  public void onButtonClicked() {
+    termsOfServiceRepository.setTermsAccepted(true);
+    navigator.navigate(TermsOfServiceFragmentDirections.proceedToHomeScreen());
+  }
+
+  public LiveData<Loadable<TermsOfService>> getTermsOfService() {
+    return projectTermsOfService;
+  }
+
+  public void setTermsOfServiceTextView(String terms) {
+    termsOfServiceText.setValue(terms);
+  }
+
+  public void setTermsOfServiceLoadState(boolean value) {
+    termsOfServiceLoadState.setValue(value);
+  }
 
 }
