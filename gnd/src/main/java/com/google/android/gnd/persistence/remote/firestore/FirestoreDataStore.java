@@ -39,6 +39,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.firebase.firestore.WriteBatch;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
+import io.reactivex.Maybe;
 import io.reactivex.Single;
 import java.util.List;
 import javax.inject.Inject;
@@ -78,10 +79,8 @@ public class FirestoreDataStore implements RemoteDataStore {
 
   @Cold
   @Override
-  public  Single<TermsOfService> loadTermsOfService() {
-    return db.termsOfService().getTerm().get()
-        .switchIfEmpty(Single.error(() -> new NotFoundException("No Terms of Service Founds")))
-        .subscribeOn(schedulers.io());
+  public Maybe<TermsOfService> loadTermsOfService() {
+    return db.termsOfService().getTerm().get().subscribeOn(schedulers.io());
   }
 
   @Cold

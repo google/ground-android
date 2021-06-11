@@ -20,17 +20,17 @@ import com.google.firebase.firestore.IgnoreExtraProperties;
 
 @IgnoreExtraProperties
 public class TermsofServiceDocument {
-  private String terms;
+  private String text;
 
   @SuppressWarnings("unused")
   public TermsofServiceDocument() {}
 
   @SuppressWarnings("unused")
-  TermsofServiceDocument(String terms) {
-    this.terms = terms;
+  TermsofServiceDocument(String text) {
+    this.text = text;
   }
 
-  public String getTerms() {
-    return terms;
+  public String getText() {
+    return text;
   }
 }

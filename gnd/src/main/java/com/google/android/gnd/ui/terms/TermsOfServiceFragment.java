@@ -65,7 +65,7 @@ public class TermsOfServiceFragment extends AbstractFragment implements BackPres
         viewModel.setTermsOfServiceLoadState(true);
         binding.termsLoadingProgressBar.setVisibility(View.GONE);
         binding.termsText.setVisibility(View.VISIBLE);
-        viewModel.setTermsOfServiceTextView(termsOfService.value().get().getTerms());
+        viewModel.setTermsOfServiceTextView(termsOfService.value().get().getText());
         break;
       case NOT_FOUND:
       case ERROR:
