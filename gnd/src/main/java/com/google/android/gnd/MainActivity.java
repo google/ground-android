@@ -32,7 +32,6 @@ import com.google.android.gnd.databinding.MainActBinding;
 import com.google.android.gnd.repository.UserRepository;
 import com.google.android.gnd.system.ActivityStreams;
 import com.google.android.gnd.system.SettingsManager;
-import com.google.android.gnd.system.auth.TermsOfServiceManager;
 import com.google.android.gnd.ui.common.BackPressListener;
 import com.google.android.gnd.ui.common.Navigator;
 import com.google.android.gnd.ui.common.ProgressDialogs;
@@ -52,8 +51,6 @@ public class MainActivity extends AbstractActivity {
   @Inject SettingsManager settingsManager;
   @Inject Navigator navigator;
   @Inject UserRepository userRepository;
-  @Inject
-  TermsOfServiceManager termsOfServiceManager;
   private NavHostFragment navHostFragment;
   private MainViewModel viewModel;
 
