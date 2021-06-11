@@ -21,14 +21,13 @@ import static com.google.android.gnd.rx.RxTransformers.switchMapIfPresent;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
+import androidx.navigation.NavDirections;
 import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.TermsOfService;
 import com.google.android.gnd.repository.FeatureRepository;
 import com.google.android.gnd.repository.ProjectRepository;
 import com.google.android.gnd.repository.TermsOfServiceRepository;
 import com.google.android.gnd.repository.UserRepository;
-import com.google.android.gnd.rx.Loadable;
-import com.google.android.gnd.rx.Loadable.LoadState;
 import com.google.android.gnd.rx.Schedulers;
 import com.google.android.gnd.rx.annotations.Cold;
 import com.google.android.gnd.rx.annotations.Hot;
@@ -42,6 +41,7 @@ import com.google.android.gnd.ui.common.SharedViewModel;
 import com.google.android.gnd.ui.home.HomeScreenFragmentDirections;
 import com.google.android.gnd.ui.signin.SignInFragmentDirections;
 import io.reactivex.Completable;
+import io.reactivex.Observable;
 import java8.util.Optional;
 import javax.inject.Inject;
 import timber.log.Timber;
@@ -58,15 +58,14 @@ public class MainViewModel extends AbstractViewModel {
   @Hot(replays = true)
   private final MutableLiveData<Boolean> signInProgressDialogVisibility = new MutableLiveData<>();
 
-  @Hot(replays = true)
-  public final MutableLiveData<LoadState> termsState = new MutableLiveData<>();
-
   private final ProjectRepository projectRepository;
   private final FeatureRepository featureRepository;
   private final TermsOfServiceRepository termsOfServiceRepository;
   private final Navigator navigator;
   private final EphemeralPopups popups;
   private final AuthenticationManager authenticationManager;
+
+  public Optional<TermsOfService> termsOfService;
 
   @Inject
   public MainViewModel(
@@ -98,13 +97,8 @@ public class MainViewModel extends AbstractViewModel {
             .getSignInState()
             .compose(switchMapIfPresent(SignInState::getUser, userRepository::saveUser))
             .observeOn(schedulers.ui())
-            .subscribe(this::onSignInStateChange));
-
-    disposeOnClear(
-        termsOfServiceRepository
-            .getTermsOfService()
-            .observeOn(schedulers.ui())
-            .subscribe(this::getTermsOfService));
+            .switchMap(this::onSignInStateChange)
+            .subscribe(navigator::navigate));
   }
 
   /**
@@ -127,11 +121,7 @@ public class MainViewModel extends AbstractViewModel {
     windowInsets.setValue(insets);
   }
 
-  private void getTermsOfService(Loadable<TermsOfService> termsOfService) {
-    termsState.setValue(termsOfService.getState());
-  }
-
-  private void onSignInStateChange(SignInState signInState) {
+  private Observable<NavDirections> onSignInStateChange(SignInState signInState) {
     if (signInState.state() != State.SIGNED_IN) {
       termsOfServiceRepository.setTermsOfServiceAccepted(false);
     }
@@ -145,8 +135,7 @@ public class MainViewModel extends AbstractViewModel {
         showProgressDialog();
         break;
       case SIGNED_IN:
-        onSignedIn();
-        break;
+        return onSignedIn();
       case ERROR:
         onSignInError(signInState);
         break;
@@ -154,6 +143,7 @@ public class MainViewModel extends AbstractViewModel {
         Timber.e("Unhandled state: %s", signInState.state());
         break;
     }
+    return Observable.never();
   }
 
   private void showProgressDialog() {
@@ -176,23 +166,20 @@ public class MainViewModel extends AbstractViewModel {
     navigator.navigate(SignInFragmentDirections.showSignInScreen());
   }
 
-  private void onSignedIn() {
+  private Observable<NavDirections> onSignedIn() {
     hideProgressDialog();
-    if (termsState.getValue() == LoadState.NOT_FOUND) {
-      // Terms are set to accepted when there no terms found in remote DB.
-      termsOfServiceRepository.setTermsOfServiceAccepted(true);
-      navigator.navigate(HomeScreenFragmentDirections.showHomeScreen());
-    } else {
-      if (termsOfServiceRepository.areTermsOfServiceAccepted()) {
-        navigator.navigate(HomeScreenFragmentDirections.showHomeScreen());
-      } else {
-        if (signInProgressDialogVisibility.getValue() == null) {
-          authenticationManager.signOut();
-        } else {
-          navigator.navigate(SignInFragmentDirections.proceedToTermsScreen());
-        }
-      }
-    }
+    return termsOfServiceRepository
+        .getTermsOfService()
+        .isEmpty()
+        .toObservable()
+        .map(
+            tosEmpty -> {
+              if (tosEmpty || termsOfServiceRepository.areTermsOfServiceAccepted()) {
+                return HomeScreenFragmentDirections.showHomeScreen();
+              } else {
+                return SignInFragmentDirections.proceedToTermsScreen();
+              }
+            });
   }
 
   public LiveData<Boolean> getSignInProgressDialogVisibility() {

@@ -26,6 +26,7 @@ import com.google.android.gnd.rx.annotations.Hot;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.common.Navigator;
 import javax.inject.Inject;
+import timber.log.Timber;
 
 // TODO: Needs to handle view state and behaviors of the Terms Fragment
 public class TermsOfServiceViewModel extends AbstractViewModel {
@@ -50,7 +51,14 @@ public class TermsOfServiceViewModel extends AbstractViewModel {
     this.navigator = navigator;
     this.termsOfServiceRepository = termsOfServiceRepository;
     this.termsOfServiceOfService =
-        LiveDataReactiveStreams.fromPublisher(termsOfServiceRepository.getTermsOfService());
+        LiveDataReactiveStreams.fromPublisher(
+            termsOfServiceRepository
+                .getTermsOfService()
+                .doOnSubscribe(__ -> Timber.d("Loading terms of service from remote"))
+                .doOnError(err -> Timber.d("Failed to load terms of service from remote"))
+                .toFlowable()
+                .compose(Loadable::loadingOnceAndWrap)
+                .defaultIfEmpty(Loadable.notFound()));
   }
 
   public void onButtonClicked() {
