@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.ui.terms;
+package com.google.android.gnd.ui.tos;
 
 import androidx.lifecycle.MutableLiveData;
 import com.google.android.gnd.repository.TermsOfServiceRepository;
