@@ -27,8 +27,7 @@ import javax.inject.Inject;
 
 public class DateFieldViewModel extends AbstractFieldViewModel {
 
-  @Hot
-  private final Subject<Nil> showDialogClicks  = PublishSubject.create();
+  @Hot private final Subject<Nil> showDialogClicks = PublishSubject.create();
 
   @Inject
   DateFieldViewModel(Application application) {
@@ -46,5 +45,4 @@ public class DateFieldViewModel extends AbstractFieldViewModel {
   Subject<Nil> getDateDialogClicks() {
     return showDialogClicks;
   }
-
 }

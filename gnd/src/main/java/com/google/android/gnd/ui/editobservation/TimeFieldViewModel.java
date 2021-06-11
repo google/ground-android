@@ -27,8 +27,7 @@ import javax.inject.Inject;
 
 public class TimeFieldViewModel extends AbstractFieldViewModel {
 
-  @Hot
-  private final Subject<Nil> showDialogClicks  = PublishSubject.create();
+  @Hot private final Subject<Nil> showDialogClicks = PublishSubject.create();
 
   @Inject
   TimeFieldViewModel(Application application) {
@@ -46,5 +45,4 @@ public class TimeFieldViewModel extends AbstractFieldViewModel {
   Subject<Nil> getTimeDialogClicks() {
     return showDialogClicks;
   }
-
 }
