@@ -108,7 +108,7 @@ public class AcceptTermsOfServiceTest {
     onView(withId(R.id.agreeButton)).check(matches(isEnabled()));
 
     // Verify that the terms text matched with fake data.
-    onView(withId(R.id.termsText)).check(matches(withText(FakeData.PROJECT_TERMS)));
+    onView(withId(R.id.termsText)).check(matches(withText(FakeData.TERMS_OF_SERVICE)));
 
     // Tap on the button
     onView(withId(R.id.agreeButton)).perform(click());
