@@ -332,9 +332,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
               c.set(Calendar.DAY_OF_MONTH, updatedDayOfMonth);
               c.set(Calendar.MONTH, updatedMonth);
               c.set(Calendar.YEAR, updatedYear);
-              Date d = new Date();
-              d.setTime(c.getTimeInMillis());
-              fieldViewModel.updateResponse(d);
+              fieldViewModel.updateResponse(c.getTime());
             },
             year,
             month,
@@ -353,9 +351,7 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
               Calendar c = Calendar.getInstance();
               c.set(Calendar.HOUR_OF_DAY, updatedHourOfDay);
               c.set(Calendar.MINUTE, updateMinute);
-              Date d = new Date();
-              d.setTime(c.getTimeInMillis());
-              fieldViewModel.updateResponse(d);
+              fieldViewModel.updateResponse(c.getTime());
             },
             hour,
             minute,
