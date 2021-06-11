@@ -99,8 +99,11 @@ public class MainViewModel extends AbstractViewModel {
             .observeOn(schedulers.ui())
             .subscribe(this::onSignInStateChange));
 
-    disposeOnClear(termsOfServiceRepository.getProjectTerms()
-        .observeOn(schedulers.ui()).subscribe(this::getProjectTerms));
+    disposeOnClear(
+        termsOfServiceRepository
+            .getTermsOfService()
+            .observeOn(schedulers.ui())
+            .subscribe(this::getTermsOfService));
   }
 
   /**
@@ -123,8 +126,8 @@ public class MainViewModel extends AbstractViewModel {
     windowInsets.setValue(insets);
   }
 
-  private void getProjectTerms(Loadable<TermsOfService> projectTerms) {
-    termsState.setValue(projectTerms.getState());
+  private void getTermsOfService(Loadable<TermsOfService> termsOfService) {
+    termsState.setValue(termsOfService.getState());
   }
 
   private void onSignInStateChange(SignInState signInState) {
@@ -190,5 +193,4 @@ public class MainViewModel extends AbstractViewModel {
   public LiveData<Boolean> getSignInProgressDialogVisibility() {
     return signInProgressDialogVisibility;
   }
-
 }

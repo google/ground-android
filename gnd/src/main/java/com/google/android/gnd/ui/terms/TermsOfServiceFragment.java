@@ -34,6 +34,7 @@ import timber.log.Timber;
 public class TermsOfServiceFragment extends AbstractFragment implements BackPressListener {
 
   private TermsOfServiceViewModel viewModel;
+
   @SuppressWarnings("NullAway")
   private FragmentTermsServiceBinding binding;
 
@@ -46,16 +47,15 @@ public class TermsOfServiceFragment extends AbstractFragment implements BackPres
   @Override
   public View onCreateView(
       LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-    binding = FragmentTermsServiceBinding
-        .inflate(inflater, container, false);
+    binding = FragmentTermsServiceBinding.inflate(inflater, container, false);
     binding.setViewModel(viewModel);
     binding.setLifecycleOwner(this);
-    viewModel.getTermsOfService().observe(getViewLifecycleOwner(), this::getProjectTerms);
+    viewModel.getTermsOfService().observe(getViewLifecycleOwner(), this::getTermsOfService);
     return binding.getRoot();
   }
 
-  private void getProjectTerms(Loadable<TermsOfService> projectTerms) {
-    switch (projectTerms.getState()) {
+  private void getTermsOfService(Loadable<TermsOfService> termsOfService) {
+    switch (termsOfService.getState()) {
       case LOADING:
         viewModel.setTermsOfServiceLoadState(false);
         Timber.i("Loading terms");
@@ -65,7 +65,7 @@ public class TermsOfServiceFragment extends AbstractFragment implements BackPres
         viewModel.setTermsOfServiceLoadState(true);
         binding.termsLoadingProgressBar.setVisibility(View.GONE);
         binding.termsText.setVisibility(View.VISIBLE);
-        viewModel.setTermsOfServiceTextView(projectTerms.value().get().getTerms());
+        viewModel.setTermsOfServiceTextView(termsOfService.value().get().getTerms());
         break;
       case NOT_FOUND:
       case ERROR:
@@ -75,7 +75,7 @@ public class TermsOfServiceFragment extends AbstractFragment implements BackPres
         viewModel.setTermsOfServiceTextView(getString(R.string.terms_load_error));
         break;
       default:
-        Timber.e("Unhandled state: %s",  projectTerms.getState());
+        Timber.e("Unhandled state: %s", termsOfService.getState());
         break;
     }
   }

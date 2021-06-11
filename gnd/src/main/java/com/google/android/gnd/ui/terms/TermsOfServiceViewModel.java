@@ -30,7 +30,6 @@ import javax.inject.Inject;
 // TODO: Needs to handle view state and behaviors of the Terms Fragment
 public class TermsOfServiceViewModel extends AbstractViewModel {
 
-
   private final Navigator navigator;
 
   @Hot(replays = true)
@@ -43,15 +42,15 @@ public class TermsOfServiceViewModel extends AbstractViewModel {
   public final MutableLiveData<Boolean> termsOfServiceLoadState = new MutableLiveData<>(false);
 
   private final TermsOfServiceRepository termsOfServiceRepository;
-  private final LiveData<Loadable<TermsOfService>> projectTermsOfService;
+  private final LiveData<Loadable<TermsOfService>> termsOfServiceOfService;
 
   @Inject
-  public TermsOfServiceViewModel(Navigator navigator,
-      TermsOfServiceRepository termsOfServiceRepository) {
+  public TermsOfServiceViewModel(
+      Navigator navigator, TermsOfServiceRepository termsOfServiceRepository) {
     this.navigator = navigator;
     this.termsOfServiceRepository = termsOfServiceRepository;
-    this.projectTermsOfService = LiveDataReactiveStreams.fromPublisher(
-        termsOfServiceRepository.getProjectTerms());
+    this.termsOfServiceOfService =
+        LiveDataReactiveStreams.fromPublisher(termsOfServiceRepository.getTermsOfService());
   }
 
   public void onButtonClicked() {
@@ -60,7 +59,7 @@ public class TermsOfServiceViewModel extends AbstractViewModel {
   }
 
   public LiveData<Loadable<TermsOfService>> getTermsOfService() {
-    return projectTermsOfService;
+    return termsOfServiceOfService;
   }
 
   public void setTermsOfServiceTextView(String terms) {
@@ -70,5 +69,4 @@ public class TermsOfServiceViewModel extends AbstractViewModel {
   public void setTermsOfServiceLoadState(boolean value) {
     termsOfServiceLoadState.setValue(value);
   }
-
 }

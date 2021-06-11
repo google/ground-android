@@ -36,15 +36,13 @@ public class TermsOfServiceRepository {
 
   @Inject
   public TermsOfServiceRepository(
-      RemoteDataStore remoteDataStore,
-      LocalValueStore localValueStore) {
+      RemoteDataStore remoteDataStore, LocalValueStore localValueStore) {
     this.remoteDataStore = remoteDataStore;
     this.localValueStore = localValueStore;
-
   }
 
   @Cold
-  public Flowable<Loadable<TermsOfService>> getProjectTerms() {
+  public Flowable<Loadable<TermsOfService>> getTermsOfService() {
     return loadTermsFromRemote()
         .doOnSubscribe(__ -> Timber.d("Loading terms from remote"))
         .doOnError(err -> Timber.d("Failed to load terms from remote"))
@@ -66,5 +64,4 @@ public class TermsOfServiceRepository {
   public void setTermsAccepted(boolean value) {
     localValueStore.setTermsAccepted(value);
   }
-
 }
