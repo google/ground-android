@@ -39,11 +39,11 @@ public class TimeFieldViewModel extends AbstractFieldViewModel {
     setResponse(TimeResponse.fromDate(dateMs));
   }
 
-  public void onShowDialog() {
+  public void onShowDialogClick() {
     showDialogClicks.onNext(Nil.NIL);
   }
 
-  Observable<Nil> getTimeDialogClicks() {
+  Observable<Nil> getShowDialogClicks() {
     return showDialogClicks;
   }
 }

@@ -39,11 +39,11 @@ public class DateFieldViewModel extends AbstractFieldViewModel {
     setResponse(DateResponse.fromDate(dateMs));
   }
 
-  public void onShowDialog() {
+  public void onShowDialogClick() {
     showDialogClicks.onNext(Nil.NIL);
   }
 
-  Observable<Nil> getDateDialogClicks() {
+  Observable<Nil> getShowDialogClicks() {
     return showDialogClicks;
   }
 }

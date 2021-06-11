@@ -38,20 +38,20 @@
       android:layout_height="wrap_content"
       android:hint="@{viewModel.fieldLabel()}">
 
-    <com.google.android.material.textfield.TextInputEditText
-      android:id="@+id/text_input_edit_text"
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:maxLines="1"
-      android:inputType="datetime"
-      android:enabled="true"
-      android:clickable="true"
-      android:focusableInTouchMode="false"
-      android:focusable="false"
-      android:text="@{viewModel.responseText}"
-      android:onClick="@{__ -> viewModel.onShowDialog()}"
-      app:error="@{viewModel.error}"
-      tools:text="@string/time" />
+      <com.google.android.material.textfield.TextInputEditText
+        android:id="@+id/text_input_edit_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:maxLines="1"
+        android:inputType="datetime"
+        android:enabled="true"
+        android:clickable="true"
+        android:focusableInTouchMode="false"
+        android:focusable="false"
+        android:text="@{viewModel.responseText}"
+        android:onClick="@{__ -> viewModel.onShowDialogClick()}"
+        app:error="@{viewModel.error}"
+        tools:text="@string/time" />
     </com.google.android.material.textfield.TextInputLayout>
 
 
