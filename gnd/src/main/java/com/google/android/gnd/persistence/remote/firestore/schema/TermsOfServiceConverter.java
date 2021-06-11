@@ -24,7 +24,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 public class TermsOfServiceConverter {
 
   static TermsOfService toTerms(DocumentSnapshot doc) throws DataStoreException {
-    TermsofServiceDocument pd = doc.toObject(TermsofServiceDocument.class);
+    TermsOfServiceDocument pd = doc.toObject(TermsOfServiceDocument.class);
     TermsOfService.Builder terms = TermsOfService.builder();
     terms.setId(doc.getId()).setText(pd.getText());
     return terms.build();

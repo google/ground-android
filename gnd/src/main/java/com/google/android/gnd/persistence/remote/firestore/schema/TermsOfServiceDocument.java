@@ -19,14 +19,14 @@ package com.google.android.gnd.persistence.remote.firestore.schema;
 import com.google.firebase.firestore.IgnoreExtraProperties;
 
 @IgnoreExtraProperties
-public class TermsofServiceDocument {
+public class TermsOfServiceDocument {
   private String text;
 
   @SuppressWarnings("unused")
-  public TermsofServiceDocument() {}
+  public TermsOfServiceDocument() {}
 
   @SuppressWarnings("unused")
-  TermsofServiceDocument(String text) {
+  TermsOfServiceDocument(String text) {
     this.text = text;
   }
 
