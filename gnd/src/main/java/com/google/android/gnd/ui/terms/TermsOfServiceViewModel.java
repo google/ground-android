@@ -55,7 +55,7 @@ public class TermsOfServiceViewModel extends AbstractViewModel {
             termsOfServiceRepository
                 .getTermsOfService()
                 .doOnSubscribe(__ -> Timber.d("Loading terms of service from remote"))
-                .doOnError(err -> Timber.d("Failed to load terms of service from remote"))
+                .doOnError(err -> Timber.d(err, "Error loading terms of service from remote"))
                 .toFlowable()
                 .compose(Loadable::loadingOnceAndWrap)
                 .defaultIfEmpty(Loadable.notFound()));
