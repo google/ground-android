@@ -34,6 +34,7 @@ import com.google.android.gnd.rx.annotations.Cold;
 import com.google.android.gnd.rx.annotations.Hot;
 import com.google.android.gnd.system.auth.AuthenticationManager;
 import com.google.android.gnd.system.auth.SignInState;
+import com.google.android.gnd.system.auth.SignInState.State;
 import com.google.android.gnd.ui.common.AbstractViewModel;
 import com.google.android.gnd.ui.common.EphemeralPopups;
 import com.google.android.gnd.ui.common.Navigator;
@@ -131,6 +132,10 @@ public class MainViewModel extends AbstractViewModel {
   }
 
   private void onSignInStateChange(SignInState signInState) {
+    if (signInState.state() != State.SIGNED_IN) {
+      termsOfServiceRepository.setTermsAccepted(false);
+    }
+
     switch (signInState.state()) {
       case SIGNED_OUT:
         // TODO: Check auth status whenever fragments resumes.
