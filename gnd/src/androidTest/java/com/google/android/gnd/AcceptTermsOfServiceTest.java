@@ -101,7 +101,7 @@ public class AcceptTermsOfServiceTest {
     // Verify that the agree button is not enabled by default.
     onView(withId(R.id.agreeButton)).check(matches(not(isEnabled())));
 
-    // Tap on the checkbox
+    // Tap on the checkbox.
     onView(withId(R.id.agreeCheckBox)).perform(click());
 
     // Verify that the agree button is enabled when checkbox is checked.
