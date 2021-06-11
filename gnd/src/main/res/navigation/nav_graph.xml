@@ -182,7 +182,7 @@
   <fragment
     android:id="@+id/terms_of_service_fragment"
     android:name="com.google.android.gnd.ui.tos.TermsOfServiceFragment"
-    android:label="terms_frag"
+    android:label="@string/tos_title"
     tools:layout="@layout/fragment_terms_service">
     <argument
       android:name="termsOfServiceText"
