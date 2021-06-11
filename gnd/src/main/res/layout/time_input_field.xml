@@ -30,7 +30,6 @@
     style="@style/FieldView"
     android:orientation="vertical">
 
-
     <com.google.android.material.textfield.TextInputLayout
       android:id="@+id/text_input_layout"
       style="@style/EditObservation.Field.Text"
@@ -42,18 +41,17 @@
         android:id="@+id/text_input_edit_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:maxLines="1"
-        android:inputType="datetime"
-        android:enabled="true"
         android:clickable="true"
-        android:focusableInTouchMode="false"
+        android:enabled="true"
         android:focusable="false"
-        android:text="@{viewModel.responseText}"
+        android:focusableInTouchMode="false"
+        android:inputType="datetime"
+        android:maxLines="1"
         android:onClick="@{__ -> viewModel.onShowDialogClick()}"
+        android:text="@{viewModel.responseText}"
         app:error="@{viewModel.error}"
         tools:text="@string/time" />
     </com.google.android.material.textfield.TextInputLayout>
-
 
   </LinearLayout>
 </layout>
