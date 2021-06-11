@@ -21,17 +21,18 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import androidx.annotation.Nullable;
-import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.FragmentTermsServiceBinding;
-import com.google.android.gnd.model.TermsOfService;
-import com.google.android.gnd.rx.Loadable;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.BackPressListener;
+import com.google.android.gnd.ui.common.EphemeralPopups;
+import com.google.common.base.Strings;
 import dagger.hilt.android.AndroidEntryPoint;
-import timber.log.Timber;
+import javax.inject.Inject;
 
 @AndroidEntryPoint
 public class TermsOfServiceFragment extends AbstractFragment implements BackPressListener {
+
+  @Inject EphemeralPopups popups;
 
   private TermsOfServiceViewModel viewModel;
 
@@ -41,7 +42,11 @@ public class TermsOfServiceFragment extends AbstractFragment implements BackPres
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+    TermsOfServiceFragmentArgs args = TermsOfServiceFragmentArgs.fromBundle(getArguments());
+
     this.viewModel = getViewModel(TermsOfServiceViewModel.class);
+
+    viewModel.setTermsOfServiceText(Strings.nullToEmpty(args.getTermsOfServiceText()));
   }
 
   @Override
@@ -50,34 +55,7 @@ public class TermsOfServiceFragment extends AbstractFragment implements BackPres
     binding = FragmentTermsServiceBinding.inflate(inflater, container, false);
     binding.setViewModel(viewModel);
     binding.setLifecycleOwner(this);
-    viewModel.getTermsOfService().observe(getViewLifecycleOwner(), this::getTermsOfService);
     return binding.getRoot();
-  }
-
-  private void getTermsOfService(Loadable<TermsOfService> termsOfService) {
-    switch (termsOfService.getState()) {
-      case LOADING:
-        viewModel.setTermsOfServiceLoadState(false);
-        Timber.i("Loading terms");
-        binding.termsLoadingProgressBar.setVisibility(View.VISIBLE);
-        break;
-      case LOADED:
-        viewModel.setTermsOfServiceLoadState(true);
-        binding.termsLoadingProgressBar.setVisibility(View.GONE);
-        binding.termsText.setVisibility(View.VISIBLE);
-        viewModel.setTermsOfServiceTextView(termsOfService.value().get().getText());
-        break;
-      case NOT_FOUND:
-      case ERROR:
-        viewModel.setTermsOfServiceLoadState(false);
-        binding.termsLoadingProgressBar.setVisibility(View.GONE);
-        binding.termsText.setVisibility(View.VISIBLE);
-        viewModel.setTermsOfServiceTextView(getString(R.string.terms_load_error));
-        break;
-      default:
-        Timber.e("Unhandled state: %s", termsOfService.getState());
-        break;
-    }
   }
 
   @Override
