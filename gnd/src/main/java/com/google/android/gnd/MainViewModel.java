@@ -133,7 +133,7 @@ public class MainViewModel extends AbstractViewModel {
 
   private void onSignInStateChange(SignInState signInState) {
     if (signInState.state() != State.SIGNED_IN) {
-      termsOfServiceRepository.setTermsAccepted(false);
+      termsOfServiceRepository.setTermsOfServiceAccepted(false);
     }
 
     switch (signInState.state()) {
@@ -180,10 +180,10 @@ public class MainViewModel extends AbstractViewModel {
     hideProgressDialog();
     if (termsState.getValue() == LoadState.NOT_FOUND) {
       // Terms are set to accepted when there no terms found in remote DB.
-      termsOfServiceRepository.setTermsAccepted(true);
+      termsOfServiceRepository.setTermsOfServiceAccepted(true);
       navigator.navigate(HomeScreenFragmentDirections.showHomeScreen());
     } else {
-      if (termsOfServiceRepository.areTermsAccepted()) {
+      if (termsOfServiceRepository.areTermsOfServiceAccepted()) {
         navigator.navigate(HomeScreenFragmentDirections.showHomeScreen());
       } else {
         if (signInProgressDialogVisibility.getValue() == null) {

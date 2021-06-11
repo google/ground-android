@@ -54,7 +54,7 @@ public class TermsOfServiceViewModel extends AbstractViewModel {
   }
 
   public void onButtonClicked() {
-    termsOfServiceRepository.setTermsAccepted(true);
+    termsOfServiceRepository.setTermsOfServiceAccepted(true);
     navigator.navigate(TermsOfServiceFragmentDirections.proceedToHomeScreen());
   }
 
