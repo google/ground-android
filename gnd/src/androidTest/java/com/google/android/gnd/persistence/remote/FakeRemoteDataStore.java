@@ -55,8 +55,8 @@ public class FakeRemoteDataStore implements RemoteDataStore {
 
   private final TermsOfService testTermsOfService =
       TermsOfService.builder()
-          .setId(FakeData.PROJECT_TERMS_ID)
-          .setTerms(FakeData.PROJECT_TERMS)
+          .setId(FakeData.TERMS_OF_SERVICE_ID)
+          .setTerms(FakeData.TERMS_OF_SERVICE)
           .build();
 
   private final Project testProjectWithNoLayers =
