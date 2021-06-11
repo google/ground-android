@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.ui.terms;
+package com.google.android.gnd.ui.tos;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
