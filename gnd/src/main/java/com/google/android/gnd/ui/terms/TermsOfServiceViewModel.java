@@ -43,14 +43,14 @@ public class TermsOfServiceViewModel extends AbstractViewModel {
   public final MutableLiveData<Boolean> termsOfServiceLoadState = new MutableLiveData<>(false);
 
   private final TermsOfServiceRepository termsOfServiceRepository;
-  private final LiveData<Loadable<TermsOfService>> termsOfServiceOfService;
+  private final LiveData<Loadable<TermsOfService>> termsOfService;
 
   @Inject
   public TermsOfServiceViewModel(
       Navigator navigator, TermsOfServiceRepository termsOfServiceRepository) {
     this.navigator = navigator;
     this.termsOfServiceRepository = termsOfServiceRepository;
-    this.termsOfServiceOfService =
+    this.termsOfService =
         LiveDataReactiveStreams.fromPublisher(
             termsOfServiceRepository
                 .getTermsOfService()
@@ -67,7 +67,7 @@ public class TermsOfServiceViewModel extends AbstractViewModel {
   }
 
   public LiveData<Loadable<TermsOfService>> getTermsOfService() {
-    return termsOfServiceOfService;
+    return termsOfService;
   }
 
   public void setTermsOfServiceTextView(String terms) {
