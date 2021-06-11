@@ -38,11 +38,6 @@
       app:destination="@id/home_screen_fragment"
       app:popUpTo="@id/navGraph"
       app:popUpToInclusive="true" />
-    <action
-      android:id="@+id/showTermsOfService"
-      app:destination="@id/terms_of_service_fragment"
-      app:popUpTo="@id/navGraph"
-      app:popUpToInclusive="true" />
   </fragment>
 
   <fragment
@@ -189,11 +184,6 @@
       android:defaultValue=""
       app:nullable="true"
       app:argType="string" />
-    <action
-      android:id="@+id/proceedToHomeScreen"
-      app:destination="@id/home_screen_fragment"
-      app:popUpTo="@id/navGraph"
-      app:popUpToInclusive="true" />
   </fragment>
 
 </navigation>
