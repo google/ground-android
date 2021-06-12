@@ -183,15 +183,15 @@ dependencies {
 
     // Android legacy support Libraries.
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
-    implementation 'androidx.appcompat:appcompat:1.2.0'
+    implementation 'androidx.appcompat:appcompat:1.3.0'
 
     // UI widgets.
     implementation 'androidx.cardview:cardview:1.0.0'
-    implementation 'com.google.android.material:material:1.2.1'
+    implementation 'com.google.android.material:material:1.3.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
 
     // Support for Java streams.
-    implementation 'net.sourceforge.streamsupport:streamsupport-cfuture:1.7.2'
+    implementation 'net.sourceforge.streamsupport:streamsupport-cfuture:1.7.3'
 
     // Google Play Services.
     implementation 'com.google.android.gms:play-services-auth:19.0.0'
