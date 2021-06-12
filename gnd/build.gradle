@@ -33,7 +33,7 @@ project.ext {
     hiltJetpackVersion = "1.0.0-alpha02"
     lifecycleVersion = "2.2.0"
     navigationVersion = "2.3.2"
-    roomVersion = "2.2.6"
+    roomVersion = "2.3.0"
     rxBindingVersion = "2.2.0"
     workVersion = "2.4.0"
 }
