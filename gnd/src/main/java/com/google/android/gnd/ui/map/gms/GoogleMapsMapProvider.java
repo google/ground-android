@@ -19,7 +19,7 @@ package com.google.android.gnd.ui.map.gms;
 import android.content.Context;
 import androidx.fragment.app.Fragment;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gnd.persistence.local.LocalValueStore;
+import com.google.android.gnd.repository.MapsRepository;
 import com.google.android.gnd.rx.annotations.Hot;
 import com.google.android.gnd.ui.MarkerIconFactory;
 import com.google.android.gnd.ui.map.MapAdapter;
@@ -37,7 +37,7 @@ public class GoogleMapsMapProvider implements MapProvider {
 
   private final Context context;
   private final MarkerIconFactory markerIconFactory;
-  private final LocalValueStore localValueStore;
+  private final MapsRepository mapsRepository;
   @Hot private final SingleSubject<MapAdapter> map = SingleSubject.create();
 
   @SuppressWarnings("NullAway.Init")
@@ -47,10 +47,10 @@ public class GoogleMapsMapProvider implements MapProvider {
   public GoogleMapsMapProvider(
       @ApplicationContext Context context,
       MarkerIconFactory markerIconFactory,
-      LocalValueStore localValueStore) {
+      MapsRepository mapsRepository) {
     this.context = context;
     this.markerIconFactory = markerIconFactory;
-    this.localValueStore = localValueStore;
+    this.mapsRepository = mapsRepository;
   }
 
   @Override
@@ -72,7 +72,7 @@ public class GoogleMapsMapProvider implements MapProvider {
             googleMap ->
                 map.onSuccess(
                     new GoogleMapsMapAdapter(
-                        googleMap, context, markerIconFactory, localValueStore)));
+                        googleMap, context, markerIconFactory, mapsRepository)));
   }
 
   @Override
