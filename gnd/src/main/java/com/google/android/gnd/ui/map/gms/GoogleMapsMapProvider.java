@@ -16,6 +16,7 @@
 
 package com.google.android.gnd.ui.map.gms;
 
+import android.content.Context;
 import androidx.fragment.app.Fragment;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gnd.persistence.local.LocalValueStore;
@@ -24,6 +25,7 @@ import com.google.android.gnd.ui.MarkerIconFactory;
 import com.google.android.gnd.ui.map.MapAdapter;
 import com.google.android.gnd.ui.map.MapProvider;
 import com.google.common.collect.ImmutableMap;
+import dagger.hilt.android.qualifiers.ApplicationContext;
 import io.reactivex.Single;
 import io.reactivex.subjects.SingleSubject;
 import java.util.HashMap;
@@ -33,6 +35,7 @@ import javax.inject.Inject;
 /** Ground map adapter implementation for Google Maps API. */
 public class GoogleMapsMapProvider implements MapProvider {
 
+  private final Context context;
   private final MarkerIconFactory markerIconFactory;
   private final LocalValueStore localValueStore;
   @Hot private final SingleSubject<MapAdapter> map = SingleSubject.create();
@@ -42,7 +45,10 @@ public class GoogleMapsMapProvider implements MapProvider {
 
   @Inject
   public GoogleMapsMapProvider(
-      MarkerIconFactory markerIconFactory, LocalValueStore localValueStore) {
+      @ApplicationContext Context context,
+      MarkerIconFactory markerIconFactory,
+      LocalValueStore localValueStore) {
+    this.context = context;
     this.markerIconFactory = markerIconFactory;
     this.localValueStore = localValueStore;
   }
@@ -66,7 +72,7 @@ public class GoogleMapsMapProvider implements MapProvider {
             googleMap ->
                 map.onSuccess(
                     new GoogleMapsMapAdapter(
-                        googleMap, fragment.getContext(), markerIconFactory, localValueStore)));
+                        googleMap, context, markerIconFactory, localValueStore)));
   }
 
   @Override
