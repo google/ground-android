@@ -28,6 +28,7 @@ import io.reactivex.Single;
 import io.reactivex.subjects.SingleSubject;
 import java.util.HashMap;
 import java.util.Map;
+import javax.inject.Inject;
 
 /** Ground map adapter implementation for Google Maps API. */
 public class GoogleMapsMapProvider implements MapProvider {
@@ -39,6 +40,7 @@ public class GoogleMapsMapProvider implements MapProvider {
   @SuppressWarnings("NullAway.Init")
   private GoogleMapsFragment fragment;
 
+  @Inject
   public GoogleMapsMapProvider(
       MarkerIconFactory markerIconFactory, LocalValueStore localValueStore) {
     this.markerIconFactory = markerIconFactory;
