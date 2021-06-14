@@ -38,7 +38,6 @@ import com.google.android.gms.maps.model.RoundCap;
 import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.android.gnd.R;
 import com.google.android.gnd.model.feature.Point;
-import com.google.android.gnd.repository.MapsRepository;
 import com.google.android.gnd.rx.annotations.Hot;
 import com.google.android.gnd.ui.MarkerIconFactory;
 import com.google.android.gnd.ui.map.CameraPosition;
@@ -82,8 +81,6 @@ import timber.log.Timber;
  * MapAdapter}.
  */
 class GoogleMapsMapAdapter implements MapAdapter {
-
-  public static final int DEFAULT_MAP_TYPE = GoogleMap.MAP_TYPE_NORMAL;
 
   private final GoogleMap map;
   private final Context context;
@@ -139,11 +136,7 @@ class GoogleMapsMapAdapter implements MapAdapter {
   private final Map<MapFeature, List<LatLng>> geoJsonPolygonLoops = new HashMap<>();
   private final Map<MapFeature, ArrayList<ArrayList<LatLng>>> geoJsonPolygonHoles = new HashMap<>();
 
-  public GoogleMapsMapAdapter(
-      GoogleMap map,
-      Context context,
-      MarkerIconFactory markerIconFactory,
-      MapsRepository mapsRepository) {
+  public GoogleMapsMapAdapter(GoogleMap map, Context context, MarkerIconFactory markerIconFactory) {
     this.map = map;
     this.context = context;
     this.markerIconFactory = markerIconFactory;
@@ -164,7 +157,6 @@ class GoogleMapsMapAdapter implements MapAdapter {
     map.setOnCameraMoveStartedListener(this::onCameraMoveStarted);
     map.setOnCameraMoveListener(this::onCameraMove);
     onCameraMove();
-    setMapType(mapsRepository.getSavedMapType(DEFAULT_MAP_TYPE));
   }
 
   private static Point fromLatLng(LatLng latLng) {

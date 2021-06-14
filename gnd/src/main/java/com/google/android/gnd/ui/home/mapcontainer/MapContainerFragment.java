@@ -161,6 +161,7 @@ public class MapContainerFragment extends AbstractFragment {
 
     // TODO: Do this the RxJava way
     map.moveCamera(mapContainerViewModel.getCameraPosition().getValue());
+    map.setMapType(mapsRepository.getSavedMapType());
   }
 
   private void showMapTypeSelectorDialog() {

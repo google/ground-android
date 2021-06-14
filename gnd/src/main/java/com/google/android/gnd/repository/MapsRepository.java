@@ -16,12 +16,15 @@
 
 package com.google.android.gnd.repository;
 
+import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gnd.persistence.local.LocalValueStore;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
 @Singleton
 public class MapsRepository {
+
+  private static final int DEFAULT_MAP_TYPE = GoogleMap.MAP_TYPE_NORMAL;
 
   private final LocalValueStore localValueStore;
 
@@ -34,7 +37,7 @@ public class MapsRepository {
     localValueStore.saveMapType(type);
   }
 
-  public int getSavedMapType(int defaultType) {
-    return localValueStore.getSavedMapType(defaultType);
+  public int getSavedMapType() {
+    return localValueStore.getSavedMapType(DEFAULT_MAP_TYPE);
   }
 }

@@ -16,16 +16,13 @@
 
 package com.google.android.gnd.ui.map.gms;
 
-import android.content.Context;
 import androidx.fragment.app.Fragment;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gnd.repository.MapsRepository;
 import com.google.android.gnd.rx.annotations.Hot;
 import com.google.android.gnd.ui.MarkerIconFactory;
 import com.google.android.gnd.ui.map.MapAdapter;
 import com.google.android.gnd.ui.map.MapProvider;
 import com.google.common.collect.ImmutableMap;
-import dagger.hilt.android.qualifiers.ApplicationContext;
 import io.reactivex.Single;
 import io.reactivex.subjects.SingleSubject;
 import java.util.HashMap;
@@ -35,22 +32,15 @@ import javax.inject.Inject;
 /** Ground map adapter implementation for Google Maps API. */
 public class GoogleMapsMapProvider implements MapProvider {
 
-  private final Context context;
   private final MarkerIconFactory markerIconFactory;
-  private final MapsRepository mapsRepository;
   @Hot private final SingleSubject<MapAdapter> map = SingleSubject.create();
 
   @SuppressWarnings("NullAway.Init")
   private GoogleMapsFragment fragment;
 
   @Inject
-  public GoogleMapsMapProvider(
-      @ApplicationContext Context context,
-      MarkerIconFactory markerIconFactory,
-      MapsRepository mapsRepository) {
-    this.context = context;
+  public GoogleMapsMapProvider(MarkerIconFactory markerIconFactory) {
     this.markerIconFactory = markerIconFactory;
-    this.mapsRepository = mapsRepository;
   }
 
   @Override
@@ -71,8 +61,7 @@ public class GoogleMapsMapProvider implements MapProvider {
         .getMapAsync(
             googleMap ->
                 map.onSuccess(
-                    new GoogleMapsMapAdapter(
-                        googleMap, context, markerIconFactory, mapsRepository)));
+                    new GoogleMapsMapAdapter(googleMap, fragment.getContext(), markerIconFactory)));
   }
 
   @Override
