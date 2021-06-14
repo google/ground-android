@@ -576,24 +576,4 @@ public class LocalDataStoreTest {
         .test()
         .assertValue(ImmutableList.of(TEST_OFFLINE_AREA));
   }
-
-  @Test
-  public void testTimeFormat() {
-    Date originalDate = new Date();
-    String timeString = TimeResponse.convertToTimeFormat(originalDate);
-    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm", Locale.getDefault());
-    LocalTime lt = LocalTime.parse(timeString, formatter);
-    String formattedTime = lt.format(formatter);
-    Truth.assertThat(timeString).isEqualTo(formattedTime);
-  }
-
-  @Test
-  public void testDateFormat() {
-    Date originalDate = new Date();
-    String dateString = DateResponse.convertToDateFormat(originalDate);
-    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.getDefault());
-    LocalDate ld = LocalDate.parse(dateString, formatter);
-    String formattedDate = ld.format(formatter);
-    Truth.assertThat(dateString).isEqualTo(formattedDate);
-  }
 }
