@@ -18,9 +18,12 @@ package com.google.android.gnd.ui.home.mapcontainer;
 
 import static com.google.android.gnd.rx.RxAutoDispose.autoDisposable;
 import static com.google.android.gnd.rx.RxAutoDispose.disposeOnDestroy;
+import static com.google.android.gnd.util.ImmutableListCollector.toImmutableList;
+import static java8.util.stream.StreamSupport.stream;
 
 import android.content.res.ColorStateList;
 import android.os.Bundle;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,7 +31,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
-import androidx.appcompat.app.AlertDialog.Builder;
+import androidx.appcompat.app.AlertDialog;
 import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.MapContainerFragBinding;
 import com.google.android.gnd.model.Project;
@@ -48,6 +51,7 @@ import com.google.android.gnd.ui.home.mapcontainer.MapContainerViewModel.Mode;
 import com.google.android.gnd.ui.map.MapAdapter;
 import com.google.android.gnd.ui.map.MapProvider;
 import com.google.android.gnd.ui.util.FileUtil;
+import com.google.common.collect.ImmutableList;
 import dagger.hilt.android.AndroidEntryPoint;
 import io.reactivex.Single;
 import java8.util.Optional;
@@ -165,14 +169,19 @@ public class MapContainerFragment extends AbstractFragment {
   }
 
   private void showMapTypeSelectorDialog() {
-    new Builder(getContext())
+    ImmutableList<Pair<Integer, String>> mapTypes = mapProvider.getMapTypes();
+    ImmutableList<Integer> typeNos = stream(mapTypes).map(p -> p.first).collect(toImmutableList());
+    int selectedIdx = typeNos.indexOf(mapProvider.getMapType());
+    String[] labels = stream(mapTypes).map(p -> p.second).toArray(String[]::new);
+    new AlertDialog.Builder(getContext())
         .setTitle(R.string.select_map_type)
         .setSingleChoiceItems(
-            mapProvider.getMapTypes().values().toArray(new String[0]),
-            mapProvider.getMapType(),
+            labels,
+            selectedIdx,
             (dialog, which) -> {
-              mapProvider.setMapType(which);
-              mapsRepository.saveMapType(which);
+              int mapType = typeNos.get(which);
+              mapProvider.setMapType(mapType);
+              mapsRepository.saveMapType(mapType);
               dialog.dismiss();
             })
         .setCancelable(true)
@@ -181,7 +190,7 @@ public class MapContainerFragment extends AbstractFragment {
   }
 
   private void showConfirmationDialog(Point point) {
-    new Builder(getContext())
+    new AlertDialog.Builder(getContext())
         .setTitle(R.string.move_point_confirmation)
         .setPositiveButton(android.R.string.ok, (dialog, which) -> moveToNewPosition(point))
         .setNegativeButton(android.R.string.cancel, (dialog, which) -> setDefaultMode())
