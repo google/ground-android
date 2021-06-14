@@ -35,8 +35,8 @@ import com.google.android.gnd.model.Project;
 import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.model.feature.PointFeature;
-import com.google.android.gnd.persistence.local.LocalValueStore;
 import com.google.android.gnd.persistence.mbtiles.MbtilesFootprintParser;
+import com.google.android.gnd.repository.MapsRepository;
 import com.google.android.gnd.rx.BooleanOrError;
 import com.google.android.gnd.rx.Loadable;
 import com.google.android.gnd.system.PermissionsManager.PermissionDeniedException;
@@ -63,7 +63,7 @@ public class MapContainerFragment extends AbstractFragment {
   @Inject FileUtil fileUtil;
   @Inject MbtilesFootprintParser mbtilesFootprintParser;
   @Inject MapProvider mapProvider;
-  @Inject LocalValueStore localValueStore;
+  @Inject MapsRepository mapsRepository;
 
   private MapContainerViewModel mapContainerViewModel;
   private HomeScreenViewModel homeScreenViewModel;
@@ -161,6 +161,7 @@ public class MapContainerFragment extends AbstractFragment {
 
     // TODO: Do this the RxJava way
     map.moveCamera(mapContainerViewModel.getCameraPosition().getValue());
+    map.setMapType(mapsRepository.getSavedMapType());
   }
 
   private void showMapTypeSelectorDialog() {
@@ -171,7 +172,7 @@ public class MapContainerFragment extends AbstractFragment {
             mapProvider.getMapType(),
             (dialog, which) -> {
               mapProvider.setMapType(which);
-              localValueStore.saveMapType(which);
+              mapsRepository.saveMapType(which);
               dialog.dismiss();
             })
         .setCancelable(true)

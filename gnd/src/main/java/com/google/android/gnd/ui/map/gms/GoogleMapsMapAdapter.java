@@ -38,7 +38,6 @@ import com.google.android.gms.maps.model.RoundCap;
 import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.android.gnd.R;
 import com.google.android.gnd.model.feature.Point;
-import com.google.android.gnd.persistence.local.LocalValueStore;
 import com.google.android.gnd.rx.annotations.Hot;
 import com.google.android.gnd.ui.MarkerIconFactory;
 import com.google.android.gnd.ui.map.CameraPosition;
@@ -137,11 +136,7 @@ class GoogleMapsMapAdapter implements MapAdapter {
   private final Map<MapFeature, List<LatLng>> geoJsonPolygonLoops = new HashMap<>();
   private final Map<MapFeature, ArrayList<ArrayList<LatLng>>> geoJsonPolygonHoles = new HashMap<>();
 
-  public GoogleMapsMapAdapter(
-      GoogleMap map,
-      Context context,
-      MarkerIconFactory markerIconFactory,
-      LocalValueStore localValueStore) {
+  public GoogleMapsMapAdapter(GoogleMap map, Context context, MarkerIconFactory markerIconFactory) {
     this.map = map;
     this.context = context;
     this.markerIconFactory = markerIconFactory;
@@ -150,7 +145,7 @@ class GoogleMapsMapAdapter implements MapAdapter {
     markerManager = new MarkerManager(map);
     markers = markerManager.newCollection();
     markers.setOnMarkerClickListener(this::onMarkerClick);
-    map.setMapType(localValueStore.getSavedMapType(GoogleMap.MAP_TYPE_NORMAL));
+
     UiSettings uiSettings = map.getUiSettings();
     uiSettings.setRotateGesturesEnabled(false);
     uiSettings.setTiltGesturesEnabled(false);
