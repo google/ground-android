@@ -62,7 +62,6 @@ import com.google.android.material.bottomsheet.BottomSheetDialog;
 import dagger.hilt.android.AndroidEntryPoint;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -197,16 +196,16 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
 
   private void observeDateDialogClicks(DateFieldViewModel dateFieldViewModel) {
     dateFieldViewModel
-        .getDateDialogClicks()
+        .getShowDialogClicks()
         .as(autoDisposable(this))
-        .subscribe(nil ->  showDateDialog(dateFieldViewModel));
+        .subscribe(__ -> showDateDialog(dateFieldViewModel));
   }
 
   private void observeTimeDialogClicks(TimeFieldViewModel timeFieldViewModel) {
     timeFieldViewModel
-        .getTimeDialogClicks()
+        .getShowDialogClicks()
         .as(autoDisposable(this))
-        .subscribe(nil ->  showTimeDialog(timeFieldViewModel));
+        .subscribe(__ -> showTimeDialog(timeFieldViewModel));
   }
 
   private void rebuildForm(Form form) {
@@ -324,16 +323,19 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
     int year = calendar.get(Calendar.YEAR);
     int month = calendar.get(Calendar.MONTH);
     int day = calendar.get(Calendar.DAY_OF_MONTH);
-    DatePickerDialog datePickerDialog = new DatePickerDialog(requireContext(),
-        (view, updatedYear, updatedMonth, updatedDayOfMonth) -> {
-          Calendar c = Calendar.getInstance();
-          c.set(Calendar.DAY_OF_MONTH, updatedDayOfMonth);
-          c.set(Calendar.MONTH, updatedMonth);
-          c.set(Calendar.YEAR, updatedYear);
-          Date d = new Date();
-          d.setTime(c.getTimeInMillis());
-          fieldViewModel.updateResponse(d);
-        }, year, month, day);
+    DatePickerDialog datePickerDialog =
+        new DatePickerDialog(
+            requireContext(),
+            (view, updatedYear, updatedMonth, updatedDayOfMonth) -> {
+              Calendar c = Calendar.getInstance();
+              c.set(Calendar.DAY_OF_MONTH, updatedDayOfMonth);
+              c.set(Calendar.MONTH, updatedMonth);
+              c.set(Calendar.YEAR, updatedYear);
+              fieldViewModel.updateResponse(c.getTime());
+            },
+            year,
+            month,
+            day);
     datePickerDialog.show();
   }
 
@@ -341,16 +343,18 @@ public class EditObservationFragment extends AbstractFragment implements BackPre
     Calendar calendar = Calendar.getInstance();
     int hour = calendar.get(Calendar.HOUR);
     int minute = calendar.get(Calendar.MINUTE);
-    TimePickerDialog timePickerDialog = new TimePickerDialog(requireContext(),
-        (view, updatedHourOfDay, updateMinute) -> {
-          Calendar c = Calendar.getInstance();
-          c.set(Calendar.HOUR_OF_DAY, updatedHourOfDay);
-          c.set(Calendar.MINUTE, updateMinute);
-          Date d = new Date();
-          d.setTime(c.getTimeInMillis());
-          fieldViewModel.updateResponse(d);
-        }, hour, minute, DateFormat
-        .is24HourFormat(requireContext()));
+    TimePickerDialog timePickerDialog =
+        new TimePickerDialog(
+            requireContext(),
+            (view, updatedHourOfDay, updatedMinute) -> {
+              Calendar c = Calendar.getInstance();
+              c.set(Calendar.HOUR_OF_DAY, updatedHourOfDay);
+              c.set(Calendar.MINUTE, updatedMinute);
+              fieldViewModel.updateResponse(c.getTime());
+            },
+            hour,
+            minute,
+            DateFormat.is24HourFormat(requireContext()));
     timePickerDialog.show();
   }
 

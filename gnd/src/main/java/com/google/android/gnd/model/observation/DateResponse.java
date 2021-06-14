@@ -18,14 +18,17 @@ package com.google.android.gnd.model.observation;
 
 import androidx.annotation.NonNull;
 import com.google.android.gnd.model.form.Field;
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 import java8.util.Optional;
 
-/** A user provided response to a date {@link Field}. */
+/** A user-provided date {@link Field} response. */
 public class DateResponse implements Response {
-
+  // TODO(#752): Use device localization preferences.
+  private static final DateFormat DATE_FORMAT =
+      new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
   private Date epochTime;
 
   public DateResponse(Date time) {
@@ -43,12 +46,7 @@ public class DateResponse implements Response {
 
   @Override
   public String getDetailsText(Field field) {
-    return convertToDateFormat(epochTime);
-  }
-
-  public static String convertToDateFormat(Date date) {
-    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-    return format.format(date);
+    return DATE_FORMAT.format(epochTime);
   }
 
   @Override
@@ -74,7 +72,6 @@ public class DateResponse implements Response {
   public String toString() {
     return String.valueOf(epochTime);
   }
-
 
   public static Optional<Response> fromDate(Date date) {
     return date.getTime() == 0L ? Optional.empty() : Optional.of(new DateResponse(date));

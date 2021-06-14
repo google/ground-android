@@ -27,6 +27,7 @@ import com.google.android.gnd.model.observation.TextResponse;
 import com.google.android.gnd.model.observation.TimeResponse;
 import com.google.android.gnd.persistence.remote.DataStoreException;
 import com.google.common.collect.ImmutableList;
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -41,6 +42,8 @@ import org.json.JSONObject;
 import timber.log.Timber;
 
 class ResponseJsonConverter {
+  private static final DateFormat ISO_INSTANT_FORMAT =
+      new SimpleDateFormat("yyyy-MM-dd'T'HH:mmZ", Locale.getDefault());
 
   static Object toJsonObject(Response response) {
     if (response instanceof TextResponse) {
@@ -63,14 +66,12 @@ class ResponseJsonConverter {
   }
 
   public static String convertToIsoFormat(Date date) {
-    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mmZ", Locale.getDefault());
-    return format.format(date);
+    return ISO_INSTANT_FORMAT.format(date);
   }
 
   public static Date stringToIsoFormat(String dtStart) {
-    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mmZ", Locale.getDefault());
     try {
-      return format.parse(dtStart);
+      return ISO_INSTANT_FORMAT.parse(dtStart);
     } catch (ParseException e) {
       Timber.e("Error parsing Date : %s", e.getMessage());
     }
