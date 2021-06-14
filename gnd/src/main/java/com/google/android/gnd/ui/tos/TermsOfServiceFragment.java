@@ -14,70 +14,48 @@
  * limitations under the License.
  */
 
-package com.google.android.gnd.ui.terms;
+package com.google.android.gnd.ui.tos;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import androidx.annotation.Nullable;
-import com.google.android.gnd.R;
 import com.google.android.gnd.databinding.FragmentTermsServiceBinding;
-import com.google.android.gnd.model.TermsOfService;
-import com.google.android.gnd.rx.Loadable;
 import com.google.android.gnd.ui.common.AbstractFragment;
 import com.google.android.gnd.ui.common.BackPressListener;
+import com.google.android.gnd.ui.common.EphemeralPopups;
+import com.google.common.base.Strings;
 import dagger.hilt.android.AndroidEntryPoint;
-import timber.log.Timber;
+import javax.inject.Inject;
 
 @AndroidEntryPoint
 public class TermsOfServiceFragment extends AbstractFragment implements BackPressListener {
 
+  @Inject EphemeralPopups popups;
+
   private TermsOfServiceViewModel viewModel;
+
   @SuppressWarnings("NullAway")
   private FragmentTermsServiceBinding binding;
 
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+    TermsOfServiceFragmentArgs args = TermsOfServiceFragmentArgs.fromBundle(getArguments());
+
     this.viewModel = getViewModel(TermsOfServiceViewModel.class);
+
+    viewModel.setTermsOfServiceText(Strings.nullToEmpty(args.getTermsOfServiceText()));
   }
 
   @Override
   public View onCreateView(
       LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-    binding = FragmentTermsServiceBinding
-        .inflate(inflater, container, false);
+    binding = FragmentTermsServiceBinding.inflate(inflater, container, false);
     binding.setViewModel(viewModel);
     binding.setLifecycleOwner(this);
-    viewModel.getTermsOfService().observe(getViewLifecycleOwner(), this::getProjectTerms);
     return binding.getRoot();
-  }
-
-  private void getProjectTerms(Loadable<TermsOfService> projectTerms) {
-    switch (projectTerms.getState()) {
-      case LOADING:
-        viewModel.setTermsOfServiceLoadState(false);
-        Timber.i("Loading terms");
-        binding.termsLoadingProgressBar.setVisibility(View.VISIBLE);
-        break;
-      case LOADED:
-        viewModel.setTermsOfServiceLoadState(true);
-        binding.termsLoadingProgressBar.setVisibility(View.GONE);
-        binding.termsText.setVisibility(View.VISIBLE);
-        viewModel.setTermsOfServiceTextView(projectTerms.value().get().getTerms());
-        break;
-      case NOT_FOUND:
-      case ERROR:
-        viewModel.setTermsOfServiceLoadState(false);
-        binding.termsLoadingProgressBar.setVisibility(View.GONE);
-        binding.termsText.setVisibility(View.VISIBLE);
-        viewModel.setTermsOfServiceTextView(getString(R.string.terms_load_error));
-        break;
-      default:
-        Timber.e("Unhandled state: %s",  projectTerms.getState());
-        break;
-    }
   }
 
   @Override

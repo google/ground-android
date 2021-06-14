@@ -55,8 +55,8 @@ public class FakeRemoteDataStore implements RemoteDataStore {
 
   private final TermsOfService testTermsOfService =
       TermsOfService.builder()
-          .setId(FakeData.PROJECT_TERMS_ID)
-          .setTerms(FakeData.PROJECT_TERMS)
+          .setId(FakeData.TERMS_OF_SERVICE_ID)
+          .setText(FakeData.TERMS_OF_SERVICE)
           .build();
 
   private final Project testProjectWithNoLayers =
@@ -92,10 +92,6 @@ public class FakeRemoteDataStore implements RemoteDataStore {
     }
   }
 
-  private TermsOfService getTestTerms() {
-    return testTermsOfService;
-  }
-
   @Override
   public Single<List<Project>> loadProjectSummaries(User user) {
     return Single.just(Collections.singletonList(getTestProject()));
@@ -108,7 +104,7 @@ public class FakeRemoteDataStore implements RemoteDataStore {
 
   @Override
   public @Cold Single<TermsOfService> loadTermsOfService() {
-    return Single.just(getTestTerms());
+    return Single.just(testTermsOfService);
   }
 
   @Override

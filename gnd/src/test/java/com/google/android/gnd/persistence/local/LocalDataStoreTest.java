@@ -573,13 +573,12 @@ public class LocalDataStoreTest {
 
   @Test
   public void testTermsAccepted() {
-    localValueStore.setTermsAccepted(true);
-    assertThat(localValueStore.areTermsAccepted()).isTrue();
+    localValueStore.setTermsOfServiceAccepted(true);
+    assertThat(localValueStore.areTermsOfServiceAccepted()).isTrue();
   }
 
   @Test
   public void testBlankTermsAccepted() {
-    assertThat(localValueStore.areTermsAccepted()).isFalse();
+    assertThat(localValueStore.areTermsOfServiceAccepted()).isFalse();
   }
-
 }

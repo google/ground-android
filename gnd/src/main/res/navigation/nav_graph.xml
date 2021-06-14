@@ -38,11 +38,6 @@
       app:destination="@id/home_screen_fragment"
       app:popUpTo="@id/navGraph"
       app:popUpToInclusive="true" />
-    <action
-      android:id="@+id/proceedToTermsScreen"
-      app:destination="@id/terms_fragment"
-      app:popUpTo="@id/navGraph"
-      app:popUpToInclusive="true" />
   </fragment>
 
   <fragment
@@ -160,8 +155,8 @@
     android:label="sign_in_frag"
     tools:layout="@layout/sign_in_frag">
     <action
-      android:id="@+id/proceedToTermsScreen"
-      app:destination="@id/terms_fragment"
+      android:id="@+id/showTermsOfService"
+      app:destination="@id/terms_of_service_fragment"
       app:popUpTo="@id/navGraph"
       app:popUpToInclusive="true" />
   </fragment>
@@ -179,21 +174,16 @@
     app:destination="@id/home_screen_fragment"
     app:popUpTo="@id/navGraph" />
 
-  <action
-    android:id="@+id/showTermsOfService"
-    app:destination="@id/terms_fragment"
-    app:popUpTo="@id/navGraph" />
-
   <fragment
-    android:id="@+id/terms_fragment"
-    android:name="com.google.android.gnd.ui.terms.TermsOfServiceFragment"
-    android:label="terms_frag"
+    android:id="@+id/terms_of_service_fragment"
+    android:name="com.google.android.gnd.ui.tos.TermsOfServiceFragment"
+    android:label="@string/tos_title"
     tools:layout="@layout/fragment_terms_service">
-    <action
-      android:id="@+id/proceedToHomeScreen"
-      app:destination="@id/home_screen_fragment"
-      app:popUpTo="@id/navGraph"
-      app:popUpToInclusive="true" />
+    <argument
+      android:name="termsOfServiceText"
+      android:defaultValue=""
+      app:nullable="true"
+      app:argType="string" />
   </fragment>
 
 </navigation>

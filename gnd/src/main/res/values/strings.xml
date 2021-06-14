@@ -185,4 +185,5 @@
   <string name="terms_load_error">An error occurred while loading Terms of Service</string>
   <!-- Other strings (to be organized) -->
   <string name="offline_base_map_name" translatable="false">%s</string>
+  <string name="config_load_error">Error loading config from remote server</string>
 </resources>

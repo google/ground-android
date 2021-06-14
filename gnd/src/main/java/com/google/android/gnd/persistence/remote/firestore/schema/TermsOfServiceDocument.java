@@ -18,20 +18,19 @@ package com.google.android.gnd.persistence.remote.firestore.schema;
 
 import com.google.firebase.firestore.IgnoreExtraProperties;
 
-/** TermsOfService entity stored in Firestore. */
 @IgnoreExtraProperties
-public class TermsofServiceDocument {
-  private String terms;
+public class TermsOfServiceDocument {
+  private String text;
 
   @SuppressWarnings("unused")
-  public TermsofServiceDocument() {}
+  public TermsOfServiceDocument() {}
 
   @SuppressWarnings("unused")
-  TermsofServiceDocument(String terms) {
-    this.terms = terms;
+  TermsOfServiceDocument(String text) {
+    this.text = text;
   }
 
-  public String getTerms() {
-    return terms;
+  public String getText() {
+    return text;
   }
 }
