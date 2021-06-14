@@ -31,6 +31,7 @@ import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
+import io.reactivex.Maybe;
 import io.reactivex.Single;
 import java.util.Collections;
 import java.util.List;
@@ -103,8 +104,8 @@ public class FakeRemoteDataStore implements RemoteDataStore {
   }
 
   @Override
-  public @Cold Single<TermsOfService> loadTermsOfService() {
-    return Single.just(testTermsOfService);
+  public @Cold Maybe<TermsOfService> loadTermsOfService() {
+    return Maybe.just(testTermsOfService);
   }
 
   @Override
