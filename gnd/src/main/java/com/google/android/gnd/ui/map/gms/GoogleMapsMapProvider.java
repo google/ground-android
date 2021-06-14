@@ -18,7 +18,6 @@ package com.google.android.gnd.ui.map.gms;
 
 import androidx.fragment.app.Fragment;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gnd.persistence.local.LocalValueStore;
 import com.google.android.gnd.rx.annotations.Hot;
 import com.google.android.gnd.ui.MarkerIconFactory;
 import com.google.android.gnd.ui.map.MapAdapter;
@@ -28,21 +27,20 @@ import io.reactivex.Single;
 import io.reactivex.subjects.SingleSubject;
 import java.util.HashMap;
 import java.util.Map;
+import javax.inject.Inject;
 
 /** Ground map adapter implementation for Google Maps API. */
 public class GoogleMapsMapProvider implements MapProvider {
 
   private final MarkerIconFactory markerIconFactory;
-  private final LocalValueStore localValueStore;
   @Hot private final SingleSubject<MapAdapter> map = SingleSubject.create();
 
   @SuppressWarnings("NullAway.Init")
   private GoogleMapsFragment fragment;
 
-  public GoogleMapsMapProvider(
-      MarkerIconFactory markerIconFactory, LocalValueStore localValueStore) {
+  @Inject
+  public GoogleMapsMapProvider(MarkerIconFactory markerIconFactory) {
     this.markerIconFactory = markerIconFactory;
-    this.localValueStore = localValueStore;
   }
 
   @Override
@@ -63,8 +61,7 @@ public class GoogleMapsMapProvider implements MapProvider {
         .getMapAsync(
             googleMap ->
                 map.onSuccess(
-                    new GoogleMapsMapAdapter(
-                        googleMap, fragment.getContext(), markerIconFactory, localValueStore)));
+                    new GoogleMapsMapAdapter(googleMap, fragment.getContext(), markerIconFactory)));
   }
 
   @Override
