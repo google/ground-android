@@ -196,14 +196,11 @@ public class EditObservationViewModel extends AbstractViewModel {
     checkNotNull(
         originalObservation, "originalObservation was empty when attempting to save bitmap");
 
-    String remoteDestinationpath =
-        getRemoteMediaPath(originalObservation,  localFileName);
+    String remoteDestinationpath = getRemoteMediaPath(originalObservation, localFileName);
 
     photoUpdates.postValue(ImmutableMap.of(field, remoteDestinationpath));
 
-    return storageManager
-        .savePhoto(bitmap, localFileName)
-        .andThen(cameraManager.addPhotoToGallery(localFileName));
+    return storageManager.savePhoto(bitmap, localFileName);
   }
 
   LiveData<ImmutableMap<Field, String>> getPhotoFieldUpdates() {
