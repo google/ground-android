@@ -65,7 +65,7 @@ public class CameraManagerTest {
   @Before
   public void setUp() {
     hiltRule.inject();
-    cameraManager = new CameraManager(mockPermissionsManager, activityStreams, null);
+    cameraManager = new CameraManager(mockPermissionsManager, activityStreams);
   }
 
   private void mockPermissions(boolean allow) {
