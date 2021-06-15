@@ -66,12 +66,16 @@ class ResponseJsonConverter {
   }
 
   public static String convertToIsoFormat(Date date) {
-    return ISO_INSTANT_FORMAT.format(date);
+    synchronized (ISO_INSTANT_FORMAT) {
+      return ISO_INSTANT_FORMAT.format(date);
+    }
   }
 
   public static Date stringToIsoFormat(String dtStart) {
     try {
-      return ISO_INSTANT_FORMAT.parse(dtStart);
+      synchronized (ISO_INSTANT_FORMAT) {
+        return ISO_INSTANT_FORMAT.parse(dtStart);
+      }
     } catch (ParseException e) {
       Timber.e("Error parsing Date : %s", e.getMessage());
     }

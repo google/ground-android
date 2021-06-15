@@ -16,9 +16,9 @@
 
 package com.google.android.gnd.persistence.local;
 
+import static com.google.android.gnd.model.observation.DateResponse.DATE_FORMAT;
+import static com.google.android.gnd.model.observation.TimeResponse.TIME_FORMAT;
 
-import com.google.android.gnd.model.observation.DateResponse;
-import com.google.android.gnd.model.observation.TimeResponse;
 import com.google.android.gnd.rx.SchedulersModule;
 import com.google.common.truth.Truth;
 import dagger.hilt.android.testing.HiltAndroidTest;
@@ -43,7 +43,7 @@ public class DateTimeResponseTest {
   @Test
   public void testTimeFormat() {
     Date originalDate = new Date();
-    String timeString = TimeResponse.convertToTimeFormat(originalDate);
+    String timeString = TIME_FORMAT.format(originalDate);
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm", Locale.getDefault());
     LocalTime lt = LocalTime.parse(timeString, formatter);
     String formattedTime = lt.format(formatter);
@@ -53,7 +53,7 @@ public class DateTimeResponseTest {
   @Test
   public void testDateFormat() {
     Date originalDate = new Date();
-    String dateString = DateResponse.convertToDateFormat(originalDate);
+    String dateString = DATE_FORMAT.format(originalDate);
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.getDefault());
     LocalDate ld = LocalDate.parse(dateString, formatter);
     String formattedDate = ld.format(formatter);
