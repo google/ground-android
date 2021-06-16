@@ -297,6 +297,19 @@ public class HomeScreenFragment extends AbstractFragment
   }
 
   @Override
+  public void onPrepareOptionsMenu(@NonNull Menu menu) {
+    BottomSheetState state = viewModel.getBottomSheetState().getValue();
+    if (state == null) {
+      Timber.e("BottomSheetState is null");
+      return;
+    }
+
+    // "Move feature" option should only be enabled for PointFeature.
+    boolean isPointFeature = state.isPointFeature();
+    menu.getItem(0).setVisible(isPointFeature);
+  }
+
+  @Override
   public boolean onOptionsItemSelected(@NonNull MenuItem item) {
     BottomSheetState state = viewModel.getBottomSheetState().getValue();
     if (state == null) {
