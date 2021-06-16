@@ -188,6 +188,8 @@
   <string name="point">Point</string>
   <string name="polygon">Polygon</string>
   <string name="select_data_type">Choose a data type</string>
+  <string name="get_started_dialog">Get Started</string>
+  <string name="polygon_dialog_text">Use the center cursor to add points to your polygon. To finish, return to the original point.</string>
 
   <!-- Other strings (to be organized) -->
   <string name="offline_base_map_name" translatable="false">%s</string>

@@ -33,10 +33,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AlertDialog.Builder;
 import androidx.core.view.GravityCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -89,18 +91,24 @@ import timber.log.Timber;
 @AndroidEntryPoint
 public class HomeScreenFragment extends AbstractFragment
     implements BackPressListener, OnNavigationItemSelectedListener, OnGlobalLayoutListener {
+
   // TODO: It's not obvious which feature are in HomeScreen vs MapContainer; make this more
   // intuitive.
   private static final float COLLAPSED_MAP_ASPECT_RATIO = 3.0f / 2.0f;
-
-  @Inject AddFeatureDialogFragment addFeatureDialogFragment;
-  @Inject AuthenticationManager authenticationManager;
-  @Inject Schedulers schedulers;
-  @Inject Navigator navigator;
-  @Inject EphemeralPopups popups;
+  private final List<Point> vertices = new ArrayList<>();
+  @Inject
+  AddFeatureDialogFragment addFeatureDialogFragment;
+  @Inject
+  AuthenticationManager authenticationManager;
+  @Inject
+  Schedulers schedulers;
+  @Inject
+  Navigator navigator;
+  @Inject
+  EphemeralPopups popups;
   MapContainerViewModel mapContainerViewModel;
-
-  @Nullable private ProgressDialog progressDialog;
+  @Nullable
+  private ProgressDialog progressDialog;
   private HomeScreenViewModel viewModel;
   private MapContainerFragment mapContainerFragment;
   private BottomSheetBehavior<View> bottomSheetBehavior;
@@ -110,7 +118,6 @@ public class HomeScreenFragment extends AbstractFragment
   private List<Project> projects = Collections.emptyList();
   private HomeScreenFragBinding binding;
   private FeatureSelectorFragment featureSelectorDialogFragment;
-  private final List<Point> vertices = new ArrayList<>();
 
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -186,7 +193,9 @@ public class HomeScreenFragment extends AbstractFragment
     navigator.navigate(HomeScreenFragmentDirections.addObservation(projectId, featureId, formId));
   }
 
-  /** This is only possible after updating the location of the feature. So, reset the UI. */
+  /**
+   * This is only possible after updating the location of the feature. So, reset the UI.
+   */
   private void onFeatureUpdated(Boolean result) {
     if (result) {
       mapContainerFragment.setDefaultMode();
@@ -200,7 +209,9 @@ public class HomeScreenFragment extends AbstractFragment
     }
   }
 
-  /** Generic handler to display error messages to the user. */
+  /**
+   * Generic handler to display error messages to the user.
+   */
   private void onError(Throwable throwable) {
     Timber.e(throwable);
     // Don't display the exact error message as it might not be user-readable.
@@ -245,7 +256,9 @@ public class HomeScreenFragment extends AbstractFragment
     saveChildFragment(outState, mapContainerFragment, MapContainerFragment.class.getName());
   }
 
-  /** Fetches offline saved projects and adds them to navigation drawer. */
+  /**
+   * Fetches offline saved projects and adds them to navigation drawer.
+   */
   private void updateNavDrawer() {
     projectSelectorViewModel
         .getOfflineProjects()
@@ -526,14 +539,30 @@ public class HomeScreenFragment extends AbstractFragment
           if (which == 0) {
             viewModel.addFeature(project, layer, point);
           } else {
-            mapContainerViewModel.setSelectedLayer(layer);
-            mapContainerViewModel.setSelectedProject(project);
-            mapContainerViewModel.setViewMode(Mode.ADD_POLYGON);
+            showPolygonInfoDialog(layer, project);
           }
         })
         .setCancelable(true)
         .create()
         .show();
+  }
+
+  private void showPolygonInfoDialog(Layer layer, Project project) {
+    AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity());
+    LayoutInflater inflater = requireActivity().getLayoutInflater();
+    View dialogView = inflater.inflate(R.layout.dialog_polygon, null);
+    builder.setView(dialogView);
+    Button getStartedBtn = (Button) dialogView.findViewById(R.id.get_started_button);
+    Button cancelBtn = (Button) dialogView.findViewById(R.id.cancel_button);
+    AlertDialog alertDialog = builder.create();
+    getStartedBtn.setOnClickListener(v -> {
+      alertDialog.dismiss();
+      mapContainerViewModel.setSelectedLayer(layer);
+      mapContainerViewModel.setSelectedProject(project);
+      mapContainerViewModel.setViewMode(Mode.ADD_POLYGON);
+    });
+    cancelBtn.setOnClickListener(v -> alertDialog.dismiss());
+    alertDialog.show();
   }
 
   private void onBottomSheetStateChange(BottomSheetState state) {
@@ -622,6 +651,7 @@ public class HomeScreenFragment extends AbstractFragment
   }
 
   private class BottomSheetCallback extends BottomSheetBehavior.BottomSheetCallback {
+
     @Override
     public void onStateChanged(@NonNull View bottomSheet, int newState) {
       if (newState == BottomSheetBehavior.STATE_HIDDEN) {
