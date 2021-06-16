@@ -71,7 +71,6 @@ import java.util.Collections;
 import java.util.List;
 import java8.util.Optional;
 import javax.inject.Inject;
-import org.jetbrains.annotations.NotNull;
 import timber.log.Timber;
 
 /**
@@ -298,7 +297,7 @@ public class HomeScreenFragment extends AbstractFragment
   }
 
   @Override
-  public void onPrepareOptionsMenu(@NonNull @NotNull Menu menu) {
+  public void onPrepareOptionsMenu(@NonNull Menu menu) {
     BottomSheetState state = viewModel.getBottomSheetState().getValue();
     if (state == null) {
       Timber.e("BottomSheetState is null");
