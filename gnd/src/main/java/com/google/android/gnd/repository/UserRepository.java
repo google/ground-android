@@ -34,7 +34,8 @@ public class UserRepository {
   private final Schedulers schedulers;
 
   @Inject
-  UserRepository(LocalDataStore localDataStore, LocalValueStore localValueStore, Schedulers schedulers) {
+  UserRepository(
+      LocalDataStore localDataStore, LocalValueStore localValueStore, Schedulers schedulers) {
     this.localDataStore = localDataStore;
     this.localValueStore = localValueStore;
     this.schedulers = schedulers;
