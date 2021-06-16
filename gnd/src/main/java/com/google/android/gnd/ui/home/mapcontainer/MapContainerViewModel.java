@@ -64,9 +64,8 @@ import timber.log.Timber;
 @SharedViewModel
 public class MapContainerViewModel extends AbstractViewModel {
 
-  // A note on Zoom levels: The higher the number the more zoomed in the map will be.
-  // 0.0f is fully zoomed out.
-  private static final float DEFAULT_FEATURE_ZOOM_LEVEL = 20.0f;
+  // Higher zoom levels means the map is more zoomed in. 0.0f is fully zoomed out.
+  private static final float DEFAULT_FEATURE_ZOOM_LEVEL = 18.0f;
   private static final float DEFAULT_MAP_ZOOM_LEVEL = 0.0f;
   private static final Point DEFAULT_MAP_POINT =
       Point.newBuilder().setLatitude(0.0).setLongitude(0.0).build();
