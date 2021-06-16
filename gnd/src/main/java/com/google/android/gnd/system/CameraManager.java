@@ -17,14 +17,20 @@
 package com.google.android.gnd.system;
 
 import android.Manifest.permission;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.provider.MediaStore;
 import androidx.annotation.Nullable;
+import androidx.core.content.FileProvider;
+import com.google.android.gnd.GndApplication;
 import com.google.android.gnd.rx.annotations.Cold;
 import com.google.android.gnd.rx.annotations.Hot;
+import dagger.hilt.android.qualifiers.ApplicationContext;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
+import java.io.File;
 import java8.util.Optional;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -37,35 +43,44 @@ public class CameraManager {
   /** Used to identify requests coming from this application. */
   static final int CAPTURE_PHOTO_REQUEST_CODE = CameraManager.class.hashCode() & 0xffff;
 
+  private final Context context;
   private final PermissionsManager permissionsManager;
   private final ActivityStreams activityStreams;
 
   @Inject
-  public CameraManager(PermissionsManager permissionsManager, ActivityStreams activityStreams) {
+  public CameraManager(
+      @ApplicationContext Context context,
+      PermissionsManager permissionsManager,
+      ActivityStreams activityStreams) {
+    this.context = context;
     this.permissionsManager = permissionsManager;
     this.activityStreams = activityStreams;
   }
 
   /** Launches the system's photo capture flow, first obtaining permissions if necessary. */
   @Cold
-  public Maybe<Bitmap> capturePhoto() {
+  public Maybe<Bitmap> capturePhoto(File destFile) {
     return permissionsManager
         .obtainPermission(permission.WRITE_EXTERNAL_STORAGE)
         .andThen(permissionsManager.obtainPermission(permission.CAMERA))
-        .andThen(sendCapturePhotoIntent())
+        .andThen(sendCapturePhotoIntent(destFile))
         .andThen(capturePhotoResult());
   }
 
   /** Enqueue an intent for capturing a photo. */
   @Cold
-  private Completable sendCapturePhotoIntent() {
+  private Completable sendCapturePhotoIntent(File photoFile) {
     return Completable.fromAction(
         () ->
             activityStreams.withActivity(
                 activity -> {
                   Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                  Uri photoUri =
+                      FileProvider.getUriForFile(
+                          context, GndApplication.class.getPackage().getName(), photoFile);
+                  cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri);
                   activity.startActivityForResult(cameraIntent, CAPTURE_PHOTO_REQUEST_CODE);
-                  Timber.d("capture photo intent sent");
+                  Timber.v("Capture photo intent sent. Image path: %s", photoFile);
                 }));
   }
 
@@ -88,6 +103,7 @@ public class CameraManager {
   /** Extracts the bitmap from the result returned by the activity, if present. */
   @Cold
   private Maybe<Bitmap> onCapturePhotoResult(ActivityResult result) {
+    Timber.v("Photo result returned");
     return Maybe.create(
         emitter -> {
           if (result.isOk()) {

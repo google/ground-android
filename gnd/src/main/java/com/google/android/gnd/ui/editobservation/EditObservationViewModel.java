@@ -23,6 +23,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import android.app.Application;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.os.Environment;
 import androidx.databinding.ObservableArrayMap;
 import androidx.databinding.ObservableMap;
 import androidx.lifecycle.LiveData;
@@ -52,6 +53,7 @@ import io.reactivex.Single;
 import io.reactivex.processors.BehaviorProcessor;
 import io.reactivex.processors.FlowableProcessor;
 import io.reactivex.processors.PublishProcessor;
+import java.io.File;
 import java.util.Map;
 import java8.util.Optional;
 import javax.annotation.Nullable;
@@ -68,6 +70,7 @@ public class EditObservationViewModel extends AbstractViewModel {
   @Hot(replays = true)
   public final MutableLiveData<Boolean> isSaving = new MutableLiveData<>(false);
 
+  private final Application application;
   private final ObservationRepository observationRepository;
   private final Resources resources;
   private final StorageManager storageManager;
@@ -111,6 +114,7 @@ public class EditObservationViewModel extends AbstractViewModel {
       StorageManager storageManager,
       CameraManager cameraManager,
       OfflineUuidGenerator uuidGenerator) {
+    this.application = application;
     this.resources = application.getResources();
     this.observationRepository = observationRepository;
     this.storageManager = storageManager;
@@ -176,6 +180,15 @@ public class EditObservationViewModel extends AbstractViewModel {
   }
 
   public void showPhotoCapture(Field field) {
+    File image =
+        new File(
+            application.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+                + File.pathSeparator
+                + field.getId()
+                + "-"
+                + uuidGenerator.generateUuid()
+                + Config.PHOTO_EXT);
+
     /*
      * Didn't subscribe this with Fragment's lifecycle because we need to retain the disposable
      * after the fragment is destroyed (for activity result)
@@ -183,7 +196,7 @@ public class EditObservationViewModel extends AbstractViewModel {
     // TODO: launch intent through fragment and handle activity result callbacks async
     disposeOnClear(
         cameraManager
-            .capturePhoto()
+            .capturePhoto(image)
             .doOnError(Timber::e) // TODO(#726): Display as a toast
             .flatMapCompletable(bitmap -> saveBitmapAndUpdateResponse(bitmap, field))
             .subscribe());
