@@ -71,6 +71,7 @@ import java.util.Collections;
 import java.util.List;
 import java8.util.Optional;
 import javax.inject.Inject;
+import org.jetbrains.annotations.NotNull;
 import timber.log.Timber;
 
 /**
@@ -294,6 +295,19 @@ public class HomeScreenFragment extends AbstractFragment
   @Override
   public void onCreateOptionsMenu(@NonNull Menu menu, MenuInflater inflater) {
     inflater.inflate(R.menu.feature_sheet_menu, menu);
+  }
+
+  @Override
+  public void onPrepareOptionsMenu(@NonNull @NotNull Menu menu) {
+    BottomSheetState state = viewModel.getBottomSheetState().getValue();
+    if (state == null) {
+      Timber.e("BottomSheetState is null");
+      return;
+    }
+
+    // "Move feature" option should only be enabled for PointFeature.
+    boolean isPointFeature = state.isPointFeature();
+    menu.getItem(0).setVisible(isPointFeature);
   }
 
   @Override
