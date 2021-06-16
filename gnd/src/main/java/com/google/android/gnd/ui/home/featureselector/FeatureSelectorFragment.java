@@ -98,6 +98,8 @@ public class FeatureSelectorFragment extends AbstractDialogFragment {
       text = "Area\n";
     } else if (feature.isPoint()) {
       text = "Point\n";
+    } else if (feature.isPolygon()) {
+      text = "Polygon\n";
     }
 
     return text + feature.getLayer().getName();

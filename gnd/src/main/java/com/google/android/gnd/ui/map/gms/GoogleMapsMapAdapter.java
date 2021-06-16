@@ -152,6 +152,7 @@ class GoogleMapsMapAdapter implements MapAdapter {
   private final Set<GeoJsonLayer> geoJsonLayers = new HashSet<>();
   private final Map<MapFeature, List<LatLng>> geoJsonPolygonLoops = new HashMap<>();
   private final Map<MapFeature, ArrayList<ArrayList<LatLng>>> geoJsonPolygonHoles = new HashMap<>();
+  private final Map<MapFeature, List<LatLng>> polygons = new HashMap<>();
   @Nullable
   private LatLng cameraTargetBeforeDrag;
 
@@ -216,6 +217,17 @@ class GoogleMapsMapAdapter implements MapAdapter {
       if (PolyUtil.containsLocation(latLng, json.getValue(), false)) {
         candidates.add(json.getKey());
         processed.add(((MapGeoJson) json.getKey()).getId());
+      }
+    }
+
+    for (Map.Entry<MapFeature, List<LatLng>> json : polygons.entrySet()) {
+      if (processed.contains(((MapPolygon) json.getKey()).getId())) {
+        continue;
+      }
+
+      if (PolyUtil.containsLocation(latLng, json.getValue(), false)) {
+        candidates.add(json.getKey());
+        processed.add(((MapPolygon) json.getKey()).getId());
       }
     }
 
@@ -302,8 +314,9 @@ class GoogleMapsMapAdapter implements MapAdapter {
     // Read-only
     options.clickable(true);
     // Add vertices to PolylineOptions
-    options.addAll(stream(mapPolygon.getVertices().asList())
-        .map(GoogleMapsMapAdapter::toLatLng).collect(toImmutableList()));
+    List<LatLng> vertices = stream(mapPolygon.getVertices().asList())
+        .map(GoogleMapsMapAdapter::toLatLng).collect(toImmutableList());
+    options.addAll(vertices);
     Polyline polyline = map.addPolyline(options);
     polyline.setTag(mapPolygon);
     polyline.setClickable(true);
@@ -319,6 +332,7 @@ class GoogleMapsMapAdapter implements MapAdapter {
     polyline.setJointType(JointType.ROUND);
 
     polylines.add(polyline);
+    polygons.put(mapPolygon, vertices);
   }
 
   private boolean isPolygonCompleted(List<Point> vertices) {
