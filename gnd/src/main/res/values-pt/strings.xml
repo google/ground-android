@@ -133,6 +133,46 @@ Tem certeza que deseja apagar o local e todos os dados associados? Isso não pod
   <string name="tos_title">Termos de serviço</string>
   <string name="agree_terms">Concordar</string>
   <string name="agree_checkbox">Eu aceito os Termos de Serviço</string>
+
   <string name="date">Data</string>
   <string name="time">Hora</string>
+  <string name="continue_editing">Continuar editando</string>
+  <string name="offline_base_maps">Base de mapas offline</string>
+  <string name="unknown_user"> Usuário desconhecido</string>
+  <string name="add_observation_toolbar_title">Adicionar observação</string>
+  <string name="offline_base_map_selector">Selecionar área de download</string>
+  <string name="offline_base_map_selector_prompt">Selecionar o mapa de base para uso offline</string>
+  <string name="offline_base_map_selector_download">Download</string>
+  <string name="add_photo">Adicionar foto</string>
+  <string name="action_camera">Camera</string>
+  <string name="action_storage">Armazenamento</string>
+  <string name="photo_preview">Prévia</string>
+  <string name="select_map_type">Selecionar o mapa base</string>
+  <string name="uploading_photos">Carregamento de fotos</string>
+  <string name="starting">Inicio</string>
+  <string name="in_progress">Em progresso</string>
+  <string name="paused">Pausado</string>
+  <string name="completed">Concluído</string>
+  <string name="failed">Falha</string>
+  <string name="downloading_tiles">Downloading de Títulos</string>
+  <string name="uploading_data">Carregando dados</string>
+  <string name="settings">Ajustes</string>
+  <string name="offline_base_map_viewer_navgraph_label">Visualizador offline de base de mapas</string>
+  <string name="offline_base_map_viewer_title">Visualizador offline de Títulos de Base de Mapas</string>
+  <string name="offline_base_map_viewer_remove_button">Remover</string>
+  <string name="offline_base_map_viewer_storage">Essa base de mapa ocupará %. Lf MB do espaço no seu dispositivo.</string>
+  <string name="unnamed_area">Area sem nome</string>
+  <string name="offline_base_map_download_started">Download iniciado</string>
+  <string name="offline_base_map_download_failed">Erro no download da Base de  mapas</string>
+  <string name="added_by">Adicionado por %s</string>
+  <string name="move_point_confirmation">Mover para novo local?</string>
+  <string name="move_point_hint">Arraste para deslocar o mapa para o novo local</string>
+  <string name="error_occurred">Erro ocorrido</string>
+  <!-- Label of button used enter the offline area selector. -->
+  <string name="offline_base_map_selector_select">Selecionar e download</string>
+  <string name="no_basemaps_downloaded">Nenhum mapa carregado.</string>
+  <string name="signing_in">Entrar</string>
+  <!-- Precedes the build number shown in the side menu of debug builds. -->
+  <string name="build">Construir %s</string>
+
 </resources>

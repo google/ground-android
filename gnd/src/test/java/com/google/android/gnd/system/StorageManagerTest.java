@@ -77,6 +77,7 @@ public class StorageManagerTest {
     hiltRule.inject();
     storageManager =
         new StorageManager(
+            null,
             mockPermissionsManager,
             activityStreams,
             fileUtil,

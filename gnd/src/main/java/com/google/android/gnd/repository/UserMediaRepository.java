@@ -41,27 +41,23 @@ public class UserMediaRepository {
   public UserMediaRepository() {}
 
   /**
-   * Fetch url for the image from Firestore Storage. If the remote image is not available then
-   * search for the file locally and return its uri.
+   * Attempts to load the file from local cache. Else attempts to fetch it from Firestore Storage.
+   * Returns the uri of the file.
    *
-   * @param path Final destination path of the uploaded photo relative to Firestore
+   * @param path Final destination path of the uploaded file relative to Firestore
    */
   @Cold
   public Single<Uri> getDownloadUrl(String path) {
-    return path.isEmpty()
-        ? Single.just(Uri.EMPTY)
-        : remoteStorageManager
-            .getDownloadUrl(path)
-            .onErrorReturn(__ -> getFileUriFromRemotePath(path));
+    return path.isEmpty() ? Single.just(Uri.EMPTY) : getFileUriFromRemotePath(path);
   }
 
-  private Uri getFileUriFromRemotePath(String destinationPath) {
+  private Single<Uri> getFileUriFromRemotePath(String destinationPath) {
     File file = getLocalFileFromRemotePath(destinationPath);
     if (file.exists()) {
-      return Uri.fromFile(file);
+      return Single.fromCallable(() -> Uri.fromFile(file));
     } else {
       Timber.d("File doesn't exist locally: %s", file.getPath());
-      return Uri.EMPTY;
+      return remoteStorageManager.getDownloadUrl(destinationPath);
     }
   }
 
