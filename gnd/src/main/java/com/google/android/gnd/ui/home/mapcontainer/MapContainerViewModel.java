@@ -377,7 +377,7 @@ public class MapContainerViewModel extends AbstractViewModel {
       return zoomLevel;
     }
 
-    public boolean getAllowZoomOut() {
+    public boolean isAllowZoomOut() {
       return allowZoomOut;
     }
 
