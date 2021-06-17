@@ -75,6 +75,16 @@
       android:name="androidx.work.impl.WorkManagerInitializer"
       android:authorities="${applicationId}.workmanager-init"
       tools:node="remove" />
+    <provider
+      android:name="androidx.core.content.FileProvider"
+      android:authorities="com.google.android.gnd"
+      android:exported="false"
+      android:grantUriPermissions="true">
+      <meta-data
+        android:name="android.support.FILE_PROVIDER_PATHS"
+        android:resource="@xml/file_paths" />
+    </provider>
+
   </application>
 
 </manifest>
