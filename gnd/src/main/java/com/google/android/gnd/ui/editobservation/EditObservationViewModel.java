@@ -183,7 +183,7 @@ public class EditObservationViewModel extends AbstractViewModel {
     File image =
         new File(
             application.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
-                + File.pathSeparator
+                + File.separator
                 + field.getId()
                 + "-"
                 + uuidGenerator.generateUuid()
@@ -198,8 +198,17 @@ public class EditObservationViewModel extends AbstractViewModel {
         cameraManager
             .capturePhoto(image)
             .doOnError(Timber::e) // TODO(#726): Display as a toast
-            .flatMapCompletable(bitmap -> saveBitmapAndUpdateResponse(bitmap, field))
+            .flatMapCompletable(bitmap -> updateResponse(image, field))
             .subscribe());
+  }
+
+  private Completable updateResponse(File photoFile, Field field) {
+    checkNotNull(
+        originalObservation, "originalObservation was empty when attempting to save bitmap");
+    String remoteDestinationPath = getRemoteMediaPath(originalObservation, photoFile.getName());
+    photoUpdates.postValue(ImmutableMap.of(field, remoteDestinationPath));
+    return Completable.fromAction(
+        () -> storageManager.addImageToGallery(photoFile.getAbsolutePath(), photoFile.getName()));
   }
 
   private Completable saveBitmapAndUpdateResponse(Bitmap bitmap, Field field) {

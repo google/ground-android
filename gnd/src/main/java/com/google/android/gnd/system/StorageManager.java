@@ -31,6 +31,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java8.util.Optional;
 import javax.inject.Inject;
@@ -138,7 +139,11 @@ public class StorageManager {
     }
   }
 
-  private void addImageToGallery(Bitmap bitmap, String title) {
+  public void addImageToGallery(String filePath, String title) throws FileNotFoundException {
+    MediaStore.Images.Media.insertImage(context.getContentResolver(), filePath, title, "");
+  }
+
+  public void addImageToGallery(Bitmap bitmap, String title) {
     MediaStore.Images.Media.insertImage(context.getContentResolver(), bitmap, title, "");
   }
 }

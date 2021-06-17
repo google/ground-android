@@ -19,19 +19,17 @@ package com.google.android.gnd.system;
 import android.Manifest.permission;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.provider.MediaStore;
-import androidx.annotation.Nullable;
 import androidx.core.content.FileProvider;
-import com.google.android.gnd.GndApplication;
+import com.google.android.gnd.BuildConfig;
+import com.google.android.gnd.rx.Nil;
 import com.google.android.gnd.rx.annotations.Cold;
 import com.google.android.gnd.rx.annotations.Hot;
 import dagger.hilt.android.qualifiers.ApplicationContext;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
 import java.io.File;
-import java8.util.Optional;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import timber.log.Timber;
@@ -59,7 +57,7 @@ public class CameraManager {
 
   /** Launches the system's photo capture flow, first obtaining permissions if necessary. */
   @Cold
-  public Maybe<Bitmap> capturePhoto(File destFile) {
+  public Maybe<Nil> capturePhoto(File destFile) {
     return permissionsManager
         .obtainPermission(permission.WRITE_EXTERNAL_STORAGE)
         .andThen(permissionsManager.obtainPermission(permission.CAMERA))
@@ -76,8 +74,7 @@ public class CameraManager {
                 activity -> {
                   Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                   Uri photoUri =
-                      FileProvider.getUriForFile(
-                          context, GndApplication.class.getPackage().getName(), photoFile);
+                      FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID, photoFile);
                   cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri);
                   activity.startActivityForResult(cameraIntent, CAPTURE_PHOTO_REQUEST_CODE);
                   Timber.v("Capture photo intent sent. Image path: %s", photoFile);
@@ -86,28 +83,21 @@ public class CameraManager {
 
   /** Emits the result of the photo capture request. */
   @Hot(terminates = true)
-  Maybe<Bitmap> capturePhotoResult() {
+  Maybe<Nil> capturePhotoResult() {
     return activityStreams
         .getNextActivityResult(CAPTURE_PHOTO_REQUEST_CODE)
         .flatMapMaybe(this::onCapturePhotoResult)
         .singleElement();
   }
 
-  private Optional<Bitmap> parseResult(@Nullable Intent intent) {
-    if (intent == null || intent.getExtras() == null) {
-      return Optional.empty();
-    }
-    return Optional.ofNullable((Bitmap) intent.getExtras().get("data"));
-  }
-
-  /** Extracts the bitmap from the result returned by the activity, if present. */
+  /** Returns success if the result is ok. */
   @Cold
-  private Maybe<Bitmap> onCapturePhotoResult(ActivityResult result) {
+  private Maybe<Nil> onCapturePhotoResult(ActivityResult result) {
     Timber.v("Photo result returned");
     return Maybe.create(
         emitter -> {
           if (result.isOk()) {
-            emitter.onSuccess(parseResult(result.getData()).orElseThrow());
+            emitter.onSuccess(Nil.NIL);
           } else {
             emitter.onComplete();
           }

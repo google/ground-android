@@ -18,6 +18,7 @@ package com.google.android.gnd.ui.util;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.os.Environment;
 import dagger.hilt.android.qualifiers.ApplicationContext;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -41,11 +42,10 @@ public class FileUtil {
    * @throws IOException If path is not accessible or error occurs while saving file
    */
   public File saveBitmap(Bitmap bitmap, String filename) throws IOException {
-    try (FileOutputStream fos = context.openFileOutput(filename, Context.MODE_PRIVATE)) {
+    File file = new File(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES), filename);
+    try (FileOutputStream fos = new FileOutputStream(file)) {
       bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
     }
-
-    File file = new File(context.getFilesDir(), filename);
     Timber.d("Photo saved : %s", file.getPath());
     return file;
   }

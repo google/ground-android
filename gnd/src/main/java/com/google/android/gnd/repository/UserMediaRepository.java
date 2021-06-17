@@ -18,6 +18,7 @@ package com.google.android.gnd.repository;
 
 import android.content.Context;
 import android.net.Uri;
+import android.os.Environment;
 import com.google.android.gnd.persistence.remote.RemoteStorageManager;
 import com.google.android.gnd.rx.annotations.Cold;
 import dagger.hilt.android.qualifiers.ApplicationContext;
@@ -68,7 +69,7 @@ public class UserMediaRepository {
   public File getLocalFileFromRemotePath(String destinationPath) {
     String[] splits = destinationPath.split("/");
     String filename = splits[splits.length - 1];
-    File file = new File(context.getFilesDir(), filename);
+    File file = new File(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES), filename);
     if (!file.exists()) {
       Timber.e("File not found: %s", file.getPath());
     }
