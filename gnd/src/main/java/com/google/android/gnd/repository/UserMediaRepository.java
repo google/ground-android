@@ -70,8 +70,7 @@ public class UserMediaRepository {
   }
 
   /**
-   * Creates a new file from bitmap and saves under internal app directory
-   * /data/data/com.google.android.gnd/files.
+   * Creates a new file from bitmap and saves under external app directory.
    *
    * @throws IOException If path is not accessible or error occurs while saving file
    */

@@ -18,9 +18,8 @@ package com.google.android.gnd.system;
 
 import android.Manifest.permission;
 import android.app.Activity;
-import android.content.Intent;
-import android.graphics.Bitmap;
 import com.google.android.gnd.persistence.local.LocalDatabaseModule;
+import com.google.android.gnd.rx.Nil;
 import com.google.android.gnd.rx.SchedulersModule;
 import com.google.android.gnd.system.PermissionsManager.PermissionDeniedException;
 import dagger.hilt.android.testing.HiltAndroidRule;
@@ -29,8 +28,7 @@ import dagger.hilt.android.testing.HiltTestApplication;
 import dagger.hilt.android.testing.UninstallModules;
 import io.reactivex.Completable;
 import io.reactivex.observers.TestObserver;
-import java.io.IOException;
-import java.util.NoSuchElementException;
+import java.io.File;
 import java8.util.function.Consumer;
 import javax.inject.Inject;
 import org.junit.Before;
@@ -61,11 +59,13 @@ public class CameraManagerTest {
   @Inject ActivityStreams activityStreams;
 
   private CameraManager cameraManager;
+  private File testFile;
 
   @Before
   public void setUp() {
     hiltRule.inject();
-    cameraManager = new CameraManager(mockPermissionsManager, activityStreams);
+    cameraManager = new CameraManager(null, mockPermissionsManager, activityStreams);
+    testFile = new File("foo_path");
   }
 
   private void mockPermissions(boolean allow) {
@@ -82,7 +82,7 @@ public class CameraManagerTest {
     TestObserver<Consumer<Activity>> requests = activityStreams.getActivityRequests().test();
 
     mockPermissions(true);
-    cameraManager.capturePhoto().test().assertNoErrors();
+    cameraManager.capturePhoto(testFile).test().assertNoErrors();
 
     requests.assertValueCount(1);
   }
@@ -92,41 +92,15 @@ public class CameraManagerTest {
     TestObserver<Consumer<Activity>> requests = activityStreams.getActivityRequests().test();
 
     mockPermissions(false);
-    cameraManager.capturePhoto().test().assertFailure(PermissionDeniedException.class);
+    cameraManager.capturePhoto(testFile).test().assertFailure(PermissionDeniedException.class);
 
     requests.assertNoValues();
   }
 
   @Test
-  public void testCapturePhotoResult_nullIntent() {
-    TestObserver<Bitmap> subscriber = cameraManager.capturePhotoResult().test();
-    activityStreams.onActivityResult(REQUEST_CODE, Activity.RESULT_OK, null);
-    subscriber.assertFailure(NoSuchElementException.class);
-  }
-
-  @Test
-  public void testCapturePhotoResult_emptyExtras() {
-    TestObserver<Bitmap> subscriber = cameraManager.capturePhotoResult().test();
-    activityStreams.onActivityResult(REQUEST_CODE, Activity.RESULT_OK, new Intent());
-    subscriber.assertFailure(NoSuchElementException.class);
-  }
-
-  @Test
   public void testCapturePhotoResult_requestCancelled() {
-    TestObserver<Bitmap> subscriber = cameraManager.capturePhotoResult().test();
+    TestObserver<Nil> subscriber = cameraManager.capturePhotoResult().test();
     activityStreams.onActivityResult(REQUEST_CODE, Activity.RESULT_CANCELED, null);
     subscriber.assertResult();
-  }
-
-  @Test
-  public void testPhotoPickerResult() throws IOException {
-    Bitmap mockBitmap = Bitmap.createBitmap(100, 100, Bitmap.Config.ALPHA_8);
-
-    TestObserver<Bitmap> subscriber = cameraManager.capturePhotoResult().test();
-
-    activityStreams.onActivityResult(
-        REQUEST_CODE, Activity.RESULT_OK, new Intent().putExtra("data", mockBitmap));
-
-    subscriber.assertResult(mockBitmap);
   }
 }
