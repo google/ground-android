@@ -22,13 +22,10 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import android.app.Application;
 import android.content.res.Resources;
-import android.graphics.Bitmap;
-import android.os.Environment;
 import androidx.databinding.ObservableArrayMap;
 import androidx.databinding.ObservableMap;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-import com.google.android.gnd.Config;
 import com.google.android.gnd.R;
 import com.google.android.gnd.model.form.Element;
 import com.google.android.gnd.model.form.Element.Type;
@@ -38,10 +35,11 @@ import com.google.android.gnd.model.observation.Observation;
 import com.google.android.gnd.model.observation.Response;
 import com.google.android.gnd.model.observation.ResponseDelta;
 import com.google.android.gnd.model.observation.ResponseMap;
-import com.google.android.gnd.persistence.uuid.OfflineUuidGenerator;
 import com.google.android.gnd.repository.ObservationRepository;
+import com.google.android.gnd.repository.UserMediaRepository;
 import com.google.android.gnd.rx.Event;
 import com.google.android.gnd.rx.Nil;
+import com.google.android.gnd.rx.annotations.Cold;
 import com.google.android.gnd.rx.annotations.Hot;
 import com.google.android.gnd.system.CameraManager;
 import com.google.android.gnd.system.StorageManager;
@@ -70,14 +68,13 @@ public class EditObservationViewModel extends AbstractViewModel {
   @Hot(replays = true)
   public final MutableLiveData<Boolean> isSaving = new MutableLiveData<>(false);
 
-  private final Application application;
   private final ObservationRepository observationRepository;
   private final Resources resources;
+  private final UserMediaRepository userMediaRepository;
   private final StorageManager storageManager;
 
   // Input events.
   private final CameraManager cameraManager;
-  private final OfflineUuidGenerator uuidGenerator;
 
   // View state streams.
   /** Arguments passed in from view on initialize(). */
@@ -111,15 +108,14 @@ public class EditObservationViewModel extends AbstractViewModel {
   EditObservationViewModel(
       Application application,
       ObservationRepository observationRepository,
+      UserMediaRepository userMediaRepository,
       StorageManager storageManager,
-      CameraManager cameraManager,
-      OfflineUuidGenerator uuidGenerator) {
-    this.application = application;
+      CameraManager cameraManager) {
     this.resources = application.getResources();
     this.observationRepository = observationRepository;
+    this.userMediaRepository = userMediaRepository;
     this.storageManager = storageManager;
     this.cameraManager = cameraManager;
-    this.uuidGenerator = uuidGenerator;
     this.form = fromPublisher(viewArgs.switchMapSingle(this::onInitialize));
     this.saveResults = fromPublisher(saveClicks.switchMapSingle(__ -> onSave()));
   }
@@ -175,19 +171,13 @@ public class EditObservationViewModel extends AbstractViewModel {
         storageManager
             .selectPhoto()
             .doOnError(Timber::e) // TODO(#726): Display as a toast
-            .flatMapCompletable(bitmap -> saveBitmapAndUpdateResponse(bitmap, field))
+            .map(bitmap -> userMediaRepository.savePhoto(bitmap, field))
+            .flatMapCompletable(file -> onPhotoSaved(field, file))
             .subscribe());
   }
 
   public void showPhotoCapture(Field field) {
-    File image =
-        new File(
-            application.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
-                + File.separator
-                + field.getId()
-                + "-"
-                + uuidGenerator.generateUuid()
-                + Config.PHOTO_EXT);
+    File imageFile = userMediaRepository.createImageFile(field);
 
     /*
      * Didn't subscribe this with Fragment's lifecycle because we need to retain the disposable
@@ -196,33 +186,26 @@ public class EditObservationViewModel extends AbstractViewModel {
     // TODO: launch intent through fragment and handle activity result callbacks async
     disposeOnClear(
         cameraManager
-            .capturePhoto(image)
+            .capturePhoto(imageFile)
             .doOnError(Timber::e) // TODO(#726): Display as a toast
-            .flatMapCompletable(bitmap -> updateResponse(image, field))
+            .flatMapCompletable(__ -> onPhotoSaved(field, imageFile))
             .subscribe());
   }
 
-  private Completable updateResponse(File photoFile, Field field) {
-    checkNotNull(
-        originalObservation, "originalObservation was empty when attempting to save bitmap");
-    String remoteDestinationPath = getRemoteMediaPath(originalObservation, photoFile.getName());
-    photoUpdates.postValue(ImmutableMap.of(field, remoteDestinationPath));
+  @Cold
+  private Completable onPhotoSaved(Field field, File imageFile) {
     return Completable.fromAction(
-        () -> storageManager.addImageToGallery(photoFile.getAbsolutePath(), photoFile.getName()));
-  }
+        () -> {
+          String filename = imageFile.getName();
 
-  private Completable saveBitmapAndUpdateResponse(Bitmap bitmap, Field field) {
-    // TODO: Refactor filename creation into MediaStorageRepository.
-    String localFileName = field.getId() + "-" + uuidGenerator.generateUuid() + Config.PHOTO_EXT;
+          // Add image to gallery
+          userMediaRepository.addImageToGallery(imageFile.getAbsolutePath(), filename);
 
-    checkNotNull(
-        originalObservation, "originalObservation was empty when attempting to save bitmap");
-
-    String remoteDestinationpath = getRemoteMediaPath(originalObservation, localFileName);
-
-    photoUpdates.postValue(ImmutableMap.of(field, remoteDestinationpath));
-
-    return storageManager.savePhoto(bitmap, localFileName);
+          // Update response
+          checkNotNull(originalObservation);
+          String remoteDestinationPath = getRemoteMediaPath(originalObservation, filename);
+          photoUpdates.postValue(ImmutableMap.of(field, remoteDestinationPath));
+        });
   }
 
   LiveData<ImmutableMap<Field, String>> getPhotoFieldUpdates() {
