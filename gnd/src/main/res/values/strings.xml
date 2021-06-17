@@ -184,4 +184,9 @@
 
   <!-- Other strings (to be organized) -->
   <string name="offline_base_map_name" translatable="false">%s</string>
+
+  <!-- Shown in toolbar overflow menu, used to show imported feature properties. -->
+  <string name="feature_properties">Feature properties</string>
+  <!-- Label on button shown to dismiss the feature properties dialog. -->
+  <string name="close_feature_properties">OK</string>
 </resources>
