@@ -17,13 +17,9 @@
 package com.google.android.gnd.ui.util;
 
 import android.content.Context;
-import android.graphics.Bitmap;
 import dagger.hilt.android.qualifiers.ApplicationContext;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import javax.inject.Inject;
-import timber.log.Timber;
 
 public class FileUtil {
 
@@ -32,22 +28,6 @@ public class FileUtil {
   @Inject
   public FileUtil(@ApplicationContext Context context) {
     this.context = context;
-  }
-
-  /**
-   * Creates a new file from bitmap and saves under internal app directory
-   * /data/data/com.google.android.gnd/files.
-   *
-   * @throws IOException If path is not accessible or error occurs while saving file
-   */
-  public File saveBitmap(Bitmap bitmap, String filename) throws IOException {
-    try (FileOutputStream fos = context.openFileOutput(filename, Context.MODE_PRIVATE)) {
-      bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
-    }
-
-    File file = new File(context.getFilesDir(), filename);
-    Timber.d("Photo saved : %s", file.getPath());
-    return file;
   }
 
   /**
