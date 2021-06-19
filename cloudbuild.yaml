@@ -208,4 +208,4 @@ options:
     - 'GRADLE_USER_HOME=/workspace/.gradle'
   logging: GCS_ONLY
 
-timeout: 1800s
+timeout: 3600s
