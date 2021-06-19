@@ -30,19 +30,19 @@
 steps:
 
   - name: 'gcr.io/cloud-builders/gsutil'
-    id: &copy_gradle_cache 'Copying gradle cache'
+    id: &copy_build_cache 'Copying build cache'
     waitFor: [ '-' ]
     # we use rsync and not cp so that this step doesn't fail the first time it's run
     args: [ 'rsync', 'gs://${_CACHE_BUCKET}/', './' ]
 
   - name: 'gcr.io/$PROJECT_ID/android:base'
-    id: &restore_gradle_cache 'Extracting tar'
+    id: &extract_build_cache 'Extracting tar'
     waitFor:
-      - *copy_gradle_cache
+      - *copy_build_cache
     args:
       - '-c'
       - |
-        tar zxf cache.tgz || echo "No cache found"
+        tar zxf cache.tgz || echo "No cache found."
 
   # Copy .git directory to workspace.
   # This is needed by gitVersioner plugin for auto-generating version code and version name.
@@ -73,7 +73,7 @@ steps:
   - name: 'gcr.io/$PROJECT_ID/android:28'
     id: &assemble_debug 'Assemble debug apks'
     waitFor:
-      - *restore_gradle_cache
+      - *extract_build_cache
       - *create_git_dir
       - *config_google_services
     args:
@@ -187,7 +187,7 @@ steps:
         fi
 
   - name: 'gcr.io/$PROJECT_ID/android:base'
-    id: &build_cache 'Compress gradle build cache'
+    id: &compress_cache 'Compress gradle build cache'
     waitFor:
       - *update_status
     args:
@@ -198,7 +198,7 @@ steps:
   - name: 'gcr.io/cloud-builders/gsutil'
     id: &save_cache 'Save gradle cache to GCS'
     waitFor:
-      - *build_cache
+      - *compress_cache
     args: [ 'cp', 'cache.tgz', 'gs://${_CACHE_BUCKET}/cache.tgz' ]
 
 options:
