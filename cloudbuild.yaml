@@ -203,6 +203,8 @@ steps:
 
 options:
   env:
+    - 'TERM=dumb'
+    - 'JAVA_TOOL_OPTIONS="-Xmx3g"'
     - 'GRADLE_USER_HOME=/workspace/.gradle'
   logging: GCS_ONLY
 
