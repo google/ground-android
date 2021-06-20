@@ -286,8 +286,8 @@ public class MapContainerViewModel extends AbstractViewModel {
             project -> projectRepository.setCameraPosition(project.getId(), newCameraPosition));
   }
 
-  public void onMapDrag(Point newCameraPosition) {
-    if (isLocationLockEnabled()) {
+  public void onMapDrag(boolean result) {
+    if (result && isLocationLockEnabled()) {
       Timber.d("User dragged map. Disabling location lock");
       locationLockChangeRequests.onNext(false);
     }

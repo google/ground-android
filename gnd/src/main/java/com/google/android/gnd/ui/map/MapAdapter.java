@@ -36,7 +36,8 @@ public interface MapAdapter {
   @Hot
   Observable<MapPin> getMapPinClicks();
 
-  @Hot Observable<ImmutableList<MapFeature>> getFeatureClicks();
+  @Hot
+  Observable<ImmutableList<MapFeature>> getFeatureClicks();
 
   /**
    * Returns map drag events. Emits the new viewport center each time the map is dragged by the
@@ -44,7 +45,7 @@ public interface MapAdapter {
    * Flowable#onBackpressureLatest()}).
    */
   @Hot
-  Flowable<Point> getDragInteractions();
+  Flowable<Boolean> getDragInteractions();
 
   /**
    * Returns camera move events. Emits the new camera position each time the map pans or zooms.

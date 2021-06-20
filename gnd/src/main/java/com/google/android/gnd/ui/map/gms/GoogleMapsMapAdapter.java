@@ -94,7 +94,7 @@ class GoogleMapsMapAdapter implements MapAdapter {
   @Hot private final Subject<ImmutableList<MapFeature>> featureClicks = PublishSubject.create();
 
   /** Map drag events. Emits items when the map drag has started. */
-  @Hot private final FlowableProcessor<Point> dragInteractions = PublishProcessor.create();
+  @Hot private final FlowableProcessor<Boolean> dragInteractions = PublishProcessor.create();
 
   /** Camera move events. Emits items after the camera has stopped moving. */
   @Hot private final FlowableProcessor<CameraPosition> cameraMoves = PublishProcessor.create();
@@ -222,7 +222,7 @@ class GoogleMapsMapAdapter implements MapAdapter {
 
   @Hot
   @Override
-  public Flowable<Point> getDragInteractions() {
+  public Flowable<Boolean> getDragInteractions() {
     return dragInteractions;
   }
 
@@ -481,7 +481,7 @@ class GoogleMapsMapAdapter implements MapAdapter {
   private void onCameraMoveStarted(int reason) {
     cameraChangeReason = reason;
     if (reason == REASON_GESTURE) {
-      dragInteractions.onNext(fromLatLng(map.getCameraPosition().target));
+      dragInteractions.onNext(true);
     }
   }
 
