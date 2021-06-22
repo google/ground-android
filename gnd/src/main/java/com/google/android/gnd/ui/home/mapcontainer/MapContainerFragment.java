@@ -97,13 +97,13 @@ public class MapContainerFragment extends AbstractFragment {
         .subscribe(homeScreenViewModel::onFeatureClick);
     mapAdapter
         .toFlowable()
-        .flatMap(MapAdapter::getDragInteractions)
+        .flatMap(MapAdapter::getStartDragEvents)
         .onBackpressureLatest()
         .as(disposeOnDestroy(this))
-        .subscribe(mapContainerViewModel::onMapDrag);
+        .subscribe(__ -> mapContainerViewModel.onMapDrag());
     mapAdapter
         .toFlowable()
-        .flatMap(MapAdapter::getCameraMoves)
+        .flatMap(MapAdapter::getCameraMovedEvents)
         .onBackpressureLatest()
         .as(disposeOnDestroy(this))
         .subscribe(mapContainerViewModel::onCameraMove);
@@ -291,7 +291,7 @@ public class MapContainerFragment extends AbstractFragment {
     Timber.v("Update camera: %s", update);
     if (update.getZoomLevel().isPresent()) {
       float zoomLevel = update.getZoomLevel().get();
-      if (!update.getAllowZoomOut()) {
+      if (!update.isAllowZoomOut()) {
         zoomLevel = Math.max(zoomLevel, map.getCurrentZoomLevel());
       }
       map.moveCamera(update.getCenter(), zoomLevel);
