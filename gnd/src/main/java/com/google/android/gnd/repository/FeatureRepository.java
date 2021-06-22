@@ -23,6 +23,7 @@ import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.FeatureMutation;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.model.feature.PointFeature;
+import com.google.android.gnd.model.feature.PolygonFeature;
 import com.google.android.gnd.model.layer.Layer;
 import com.google.android.gnd.persistence.local.LocalDataStore;
 import com.google.android.gnd.persistence.remote.NotFoundException;
@@ -126,16 +127,19 @@ public class FeatureRepository {
   }
 
   private FeatureMutation fromFeature(Feature feature, Type type) {
-    Optional<Point> newLocation =
-        feature instanceof PointFeature
-            ? Optional.of(((PointFeature) feature).getPoint())
-            : Optional.empty();
     return FeatureMutation.builder()
         .setType(type)
         .setProjectId(feature.getProject().getId())
         .setFeatureId(feature.getId())
         .setLayerId(feature.getLayer().getId())
-        .setNewLocation(newLocation)
+        .setNewLocation(feature
+            instanceof PointFeature
+            ? Optional.ofNullable(((PointFeature) feature).getPoint())
+            : Optional.empty())
+        .setNewPolygonVertices(feature
+            instanceof PolygonFeature
+            ? Optional.ofNullable(((PolygonFeature) feature).getVertices())
+            : Optional.empty())
         .setUserId(authManager.getCurrentUser().getId())
         .setClientTimestamp(new Date())
         .build();
