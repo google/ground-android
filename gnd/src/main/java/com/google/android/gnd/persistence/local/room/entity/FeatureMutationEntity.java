@@ -89,7 +89,7 @@ public abstract class FeatureMutationEntity extends MutationEntity {
         .setProjectId(getProjectId())
         .setFeatureId(getFeatureId())
         .setLayerId(getLayerId())
-        .setNewLocation(Optional.ofNullable(getNewLocation().toPoint()))
+        .setNewLocation(Optional.ofNullable(getNewLocation()).map(Coordinates::toPoint))
         .setType(getType().toMutationType())
         .setSyncStatus(getSyncStatus().toMutationSyncStatus())
         .setRetryCount(getRetryCount())
