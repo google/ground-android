@@ -39,6 +39,7 @@ import com.google.android.gms.maps.model.RoundCap;
 import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.android.gnd.R;
 import com.google.android.gnd.model.feature.Point;
+import com.google.android.gnd.rx.Nil;
 import com.google.android.gnd.rx.annotations.Hot;
 import com.google.android.gnd.ui.MarkerIconFactory;
 import com.google.android.gnd.ui.map.CameraPosition;
@@ -94,10 +95,11 @@ class GoogleMapsMapAdapter implements MapAdapter {
   @Hot private final Subject<ImmutableList<MapFeature>> featureClicks = PublishSubject.create();
 
   /** Map drag events. Emits items when the map drag has started. */
-  @Hot private final FlowableProcessor<Boolean> dragInteractions = PublishProcessor.create();
+  @Hot private final FlowableProcessor<Nil> startDragEvents = PublishProcessor.create();
 
   /** Camera move events. Emits items after the camera has stopped moving. */
-  @Hot private final FlowableProcessor<CameraPosition> cameraMoves = PublishProcessor.create();
+  @Hot
+  private final FlowableProcessor<CameraPosition> cameraMovedEvents = PublishProcessor.create();
 
   // TODO(#693): Simplify impl of tile providers.
   // TODO(#691): This is a limitation of the MapBox tile provider we're using;
@@ -222,14 +224,14 @@ class GoogleMapsMapAdapter implements MapAdapter {
 
   @Hot
   @Override
-  public Flowable<Boolean> getDragInteractions() {
-    return dragInteractions;
+  public Flowable<Nil> getStartDragEvents() {
+    return startDragEvents;
   }
 
   @Hot
   @Override
-  public Flowable<CameraPosition> getCameraMoves() {
-    return cameraMoves;
+  public Flowable<CameraPosition> getCameraMovedEvents() {
+    return cameraMovedEvents;
   }
 
   @Hot
@@ -473,7 +475,7 @@ class GoogleMapsMapAdapter implements MapAdapter {
     if (cameraChangeReason == REASON_GESTURE) {
       LatLng target = map.getCameraPosition().target;
       float zoom = map.getCameraPosition().zoom;
-      cameraMoves.onNext(new CameraPosition(fromLatLng(target), zoom));
+      cameraMovedEvents.onNext(new CameraPosition(fromLatLng(target), zoom));
       cameraChangeReason = REASON_DEVELOPER_ANIMATION;
     }
   }
@@ -481,7 +483,7 @@ class GoogleMapsMapAdapter implements MapAdapter {
   private void onCameraMoveStarted(int reason) {
     cameraChangeReason = reason;
     if (reason == REASON_GESTURE) {
-      dragInteractions.onNext(true);
+      startDragEvents.onNext(Nil.NIL);
     }
   }
 
