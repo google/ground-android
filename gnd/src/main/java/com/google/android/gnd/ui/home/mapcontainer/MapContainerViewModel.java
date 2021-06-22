@@ -33,6 +33,7 @@ import com.google.android.gnd.model.feature.Feature;
 import com.google.android.gnd.model.feature.GeoJsonFeature;
 import com.google.android.gnd.model.feature.Point;
 import com.google.android.gnd.model.feature.PointFeature;
+import com.google.android.gnd.model.feature.PolygonFeature;
 import com.google.android.gnd.repository.FeatureRepository;
 import com.google.android.gnd.repository.OfflineBaseMapRepository;
 import com.google.android.gnd.repository.ProjectRepository;
@@ -48,6 +49,7 @@ import com.google.android.gnd.ui.map.CameraPosition;
 import com.google.android.gnd.ui.map.MapFeature;
 import com.google.android.gnd.ui.map.MapGeoJson;
 import com.google.android.gnd.ui.map.MapPin;
+import com.google.android.gnd.ui.map.MapPolygon;
 import com.google.common.collect.ImmutableSet;
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Flowable;
@@ -149,16 +151,25 @@ public class MapContainerViewModel extends AbstractViewModel {
             .map(MapContainerViewModel::toMapPin)
             .collect(toImmutableSet());
 
-    // TODO: Add support for polylines and polygons similar to mapPins
-
     ImmutableSet<MapFeature> mapPolygons =
+        stream(features)
+            .filter(Feature::isPolygon)
+            .map(PolygonFeature.class::cast)
+            .map(MapContainerViewModel::toMapPolygon)
+            .collect(toImmutableSet());
+
+    ImmutableSet<MapFeature> mapGeoJson =
         stream(features)
             .filter(Feature::isGeoJson)
             .map(GeoJsonFeature.class::cast)
             .map(MapContainerViewModel::toMapGeoJson)
             .collect(toImmutableSet());
 
-    return ImmutableSet.<MapFeature>builder().addAll(mapPins).addAll(mapPolygons).build();
+    return ImmutableSet.<MapFeature>builder()
+        .addAll(mapPins)
+        .addAll(mapPolygons)
+        .addAll(mapGeoJson)
+        .build();
   }
 
   private static MapFeature toMapPin(PointFeature feature) {
@@ -182,6 +193,15 @@ public class MapContainerViewModel extends AbstractViewModel {
     return MapGeoJson.newBuilder()
         .setId(feature.getId())
         .setGeoJson(jsonObject)
+        .setStyle(feature.getLayer().getDefaultStyle())
+        .setFeature(feature)
+        .build();
+  }
+
+  private static MapFeature toMapPolygon(PolygonFeature feature) {
+    return MapPolygon.newBuilder()
+        .setId(feature.getId())
+        .setVertices(feature.getVertices())
         .setStyle(feature.getLayer().getDefaultStyle())
         .setFeature(feature)
         .build();
