@@ -352,8 +352,8 @@ public class MapContainerViewModel extends AbstractViewModel {
   }
 
   public void setViewMode(Mode viewMode) {
-    mapControlsVisibility.setValue(viewMode == Mode.DEFAULT ? VISIBLE : GONE);
-    moveFeaturesVisibility.setValue(viewMode == Mode.REPOSITION ? VISIBLE : GONE);
+    mapControlsVisibility.postValue(viewMode == Mode.DEFAULT ? VISIBLE : GONE);
+    moveFeaturesVisibility.postValue(viewMode == Mode.REPOSITION ? VISIBLE : GONE);
   }
 
   public LiveData<Integer> getMapControlsVisibility() {
