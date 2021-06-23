@@ -170,37 +170,6 @@ class GoogleMapsMapAdapter implements MapAdapter {
     return new LatLng(point.getLatitude(), point.getLongitude());
   }
 
-  /** Handle taps on overlapping features. */
-  private void handleAmbiguity(LatLng latLng) {
-    Builder<MapFeature> candidates = ImmutableList.builder();
-    ArrayList<String> processed = new ArrayList<>();
-
-    for (Map.Entry<MapFeature, ArrayList<ArrayList<LatLng>>> json :
-        geoJsonPolygonHoles.entrySet()) {
-      ArrayList<ArrayList<LatLng>> holes = json.getValue();
-      if (processed.contains(((MapGeoJson) json.getKey()).getId())) {
-        continue;
-      }
-
-      if (stream(holes).anyMatch(hole -> PolyUtil.containsLocation(latLng, hole, false))) {
-        processed.add(((MapGeoJson) json.getKey()).getId());
-      }
-    }
-
-    for (Map.Entry<MapFeature, List<LatLng>> json : geoJsonPolygonLoops.entrySet()) {
-      if (processed.contains(((MapGeoJson) json.getKey()).getId())) {
-        continue;
-      }
-
-      if (PolyUtil.containsLocation(latLng, json.getValue(), false)) {
-        candidates.add(json.getKey());
-        processed.add(((MapGeoJson) json.getKey()).getId());
-      }
-    }
-
-    featureClicks.onNext(candidates.build());
-  }
-
   private boolean onMarkerClick(Marker marker) {
     if (map.getUiSettings().isZoomGesturesEnabled()) {
       markerClicks.onNext((MapPin) marker.getTag());
@@ -358,8 +327,37 @@ class GoogleMapsMapAdapter implements MapAdapter {
     }
   }
 
+  /**
+   * Handle taps on the map. Identifies overlapping polygons at the specified location and pushes a
+   * value to featureClicks with all selectable candidates.
+   */
   private void onMapClick(LatLng latLng) {
-    handleAmbiguity(latLng);
+    Builder<MapFeature> candidates = ImmutableList.builder();
+    ArrayList<String> processed = new ArrayList<>();
+
+    for (Entry<MapFeature, ArrayList<ArrayList<LatLng>>> json : geoJsonPolygonHoles.entrySet()) {
+      ArrayList<ArrayList<LatLng>> holes = json.getValue();
+      if (processed.contains(((MapGeoJson) json.getKey()).getId())) {
+        continue;
+      }
+
+      if (stream(holes).anyMatch(hole -> PolyUtil.containsLocation(latLng, hole, false))) {
+        processed.add(((MapGeoJson) json.getKey()).getId());
+      }
+    }
+
+    for (Entry<MapFeature, List<LatLng>> json : geoJsonPolygonLoops.entrySet()) {
+      if (processed.contains(((MapGeoJson) json.getKey()).getId())) {
+        continue;
+      }
+
+      if (PolyUtil.containsLocation(latLng, json.getValue(), false)) {
+        candidates.add(json.getKey());
+        processed.add(((MapGeoJson) json.getKey()).getId());
+      }
+    }
+
+    featureClicks.onNext(candidates.build());
   }
 
   @Override
