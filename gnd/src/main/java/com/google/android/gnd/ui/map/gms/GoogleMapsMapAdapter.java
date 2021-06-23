@@ -170,7 +170,7 @@ class GoogleMapsMapAdapter implements MapAdapter {
     return new LatLng(point.getLatitude(), point.getLongitude());
   }
 
-  // Handle taps on ambiguous features.
+  /** Handle taps on overlapping features. */
   private void handleAmbiguity(LatLng latLng) {
     Builder<MapFeature> candidates = ImmutableList.builder();
     ArrayList<String> processed = new ArrayList<>();
@@ -336,8 +336,10 @@ class GoogleMapsMapAdapter implements MapAdapter {
     geoJsonLayersByFeature.put(mapFeature, layer);
   }
 
-  /* Adds the inner and outer boundaries (holes and loops) of polygons defined by a GeoJson feature
-  to the adapters lists of known polygon boundaries, associating them with the given MapFeature. */
+  /**
+   * Adds the inner and outer boundaries (holes and loops) of polygons defined by a GeoJson feature
+   * to the adapters lists of known polygon boundaries, associating them with the given MapFeature.
+   */
   private void updateGeoJsonPolygonBoundaries(
       GeoJsonFeature geoJsonFeature, MapFeature mapFeature) {
     if ("Polygon".equals(geoJsonFeature.getGeometry().getGeometryType())) {
