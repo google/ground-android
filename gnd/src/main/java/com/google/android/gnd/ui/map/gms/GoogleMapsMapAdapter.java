@@ -159,6 +159,7 @@ class GoogleMapsMapAdapter implements MapAdapter {
     uiSettings.setIndoorLevelPickerEnabled(false);
     map.setOnCameraIdleListener(this::onCameraIdle);
     map.setOnCameraMoveStartedListener(this::onCameraMoveStarted);
+    map.setOnMapClickListener(this::onMapClick);
   }
 
   private static Point fromLatLng(LatLng latLng) {
@@ -332,7 +333,6 @@ class GoogleMapsMapAdapter implements MapAdapter {
       updateGeoJsonPolygonBoundaries(geoJsonFeature, mapFeature);
     }
 
-    map.setOnMapClickListener(this::onMapClick);
     geoJsonLayersByFeature.put(mapFeature, layer);
   }
 
