@@ -420,8 +420,10 @@ class GoogleMapsMapAdapter implements MapAdapter {
       } else {
         // If pin isn't present or up-to-date, remove it so it can be added back later.
         Timber.v("Removing GeoJSON feature %s", geoJsonFeature.getFeature().getId());
-        layer.removeLayerFromMap();
+        geoJsonPolygonHoles.remove(geoJsonFeature);
+        geoJsonPolygonLoops.remove(geoJsonFeature);
         geoJsonIterator.remove();
+        layer.removeLayerFromMap();
       }
     }
 
