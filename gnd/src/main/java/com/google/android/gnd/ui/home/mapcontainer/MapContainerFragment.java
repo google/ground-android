@@ -289,9 +289,12 @@ public class MapContainerFragment extends AbstractFragment {
 
   private void onCameraUpdate(MapContainerViewModel.CameraUpdate update, MapAdapter map) {
     Timber.v("Update camera: %s", update);
-    if (update.getMinZoomLevel().isPresent()) {
-      map.moveCamera(
-          update.getCenter(), Math.max(update.getMinZoomLevel().get(), map.getCurrentZoomLevel()));
+    if (update.getZoomLevel().isPresent()) {
+      float zoomLevel = update.getZoomLevel().get();
+      if (!update.isAllowZoomOut()) {
+        zoomLevel = Math.max(zoomLevel, map.getCurrentZoomLevel());
+      }
+      map.moveCamera(update.getCenter(), zoomLevel);
     } else {
       map.moveCamera(update.getCenter());
     }

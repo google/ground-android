@@ -17,21 +17,15 @@
 package com.google.android.gnd.system;
 
 import android.Manifest.permission;
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
-import android.provider.MediaStore;
 import androidx.annotation.Nullable;
 import com.google.android.gnd.rx.annotations.Cold;
 import com.google.android.gnd.rx.annotations.Hot;
 import com.google.android.gnd.ui.util.BitmapUtil;
-import com.google.android.gnd.ui.util.FileUtil;
-import dagger.hilt.android.qualifiers.ApplicationContext;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
-import java.io.File;
-import java.io.IOException;
 import java8.util.Optional;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -43,23 +37,17 @@ public class StorageManager {
 
   static final int PICK_PHOTO_REQUEST_CODE = StorageManager.class.hashCode() & 0xffff;
 
-  private final Context context;
   private final PermissionsManager permissionsManager;
   private final ActivityStreams activityStreams;
-  private final FileUtil fileUtil;
   private final BitmapUtil bitmapUtil;
 
   @Inject
   public StorageManager(
-      @ApplicationContext Context context,
       PermissionsManager permissionsManager,
       ActivityStreams activityStreams,
-      FileUtil fileUtil,
       BitmapUtil bitmapUtil) {
-    this.context = context;
     this.permissionsManager = permissionsManager;
     this.activityStreams = activityStreams;
-    this.fileUtil = fileUtil;
     this.bitmapUtil = bitmapUtil;
   }
 
@@ -118,27 +106,5 @@ public class StorageManager {
             emitter.onComplete();
           }
         });
-  }
-
-  /**
-   * Save a copy of bitmap locally.
-   *
-   * @param bitmap The contents of the image to save.
-   * @param filename The filename to use. May not contain path separators.
-   */
-  @Cold
-  public Completable savePhoto(Bitmap bitmap, String filename) {
-    try {
-      addImageToGallery(bitmap, filename);
-      File file = fileUtil.saveBitmap(bitmap, filename);
-      Timber.d("Photo saved %s : %b", filename, file.exists());
-      return Completable.complete();
-    } catch (IOException e) {
-      return Completable.error(e);
-    }
-  }
-
-  private void addImageToGallery(Bitmap bitmap, String title) {
-    MediaStore.Images.Media.insertImage(context.getContentResolver(), bitmap, title, "");
   }
 }
