@@ -46,7 +46,6 @@ public class OfflineBaseMapSelectorFragment extends AbstractFragment {
   @Inject EphemeralPopups popups;
 
   private OfflineBaseMapSelectorViewModel viewModel;
-  @Nullable private MapAdapter map;
 
   public static OfflineBaseMapSelectorFragment newInstance() {
     return new OfflineBaseMapSelectorFragment();
@@ -84,7 +83,6 @@ public class OfflineBaseMapSelectorFragment extends AbstractFragment {
         OfflineBaseMapSelectorFragBinding.inflate(inflater, container, false);
     binding.setViewModel(viewModel);
     binding.setLifecycleOwner(this);
-    binding.downloadButton.setOnClickListener(__ -> onDownloadClick());
     ((MainActivity) getActivity()).setActionBar(binding.offlineAreaSelectorToolbar, true);
     return binding.getRoot();
   }
@@ -100,17 +98,10 @@ public class OfflineBaseMapSelectorFragment extends AbstractFragment {
   }
 
   private void onMapReady(MapAdapter map) {
-    this.map = map;
-  }
-
-  public void onDownloadClick() {
-    if (map == null) {
-      return;
-    }
-
-    viewModel.onDownloadClick(
-        map.getViewport(),
-        map.getCurrentZoomLevel(),
-        getContext().getString(R.string.unnamed_area));
+    map.getCameraMoves()
+        .map(__ -> map.getViewport())
+        .startWith(map.getViewport())
+        .as(autoDisposable(this))
+        .subscribe(viewModel::setViewport);
   }
 }

@@ -18,6 +18,7 @@ package com.google.android.gnd.persistence.remote.firestore.schema;
 
 import androidx.annotation.Nullable;
 import com.google.firebase.firestore.IgnoreExtraProperties;
+import java.util.List;
 import java.util.Map;
 
 /** Firestore representation of map layers. */
@@ -29,6 +30,7 @@ class LayerNestedObject {
   @Deprecated @Nullable private String color;
   @Nullable private StyleNestedObject defaultStyle;
   @Nullable private Map<String, FormNestedObject> forms;
+  @Nullable private List<String> contributorsCanAdd;
 
   @SuppressWarnings("unused")
   public LayerNestedObject() {}
@@ -38,11 +40,13 @@ class LayerNestedObject {
       @Nullable Map<String, String> name,
       @Nullable String color,
       @Nullable StyleNestedObject defaultStyle,
-      @Nullable Map<String, FormNestedObject> forms) {
+      @Nullable Map<String, FormNestedObject> forms,
+      @Nullable List<String> contributorsCanAdd) {
     this.name = name;
     this.color = color;
     this.defaultStyle = defaultStyle;
     this.forms = forms;
+    this.contributorsCanAdd = contributorsCanAdd;
   }
 
   @Nullable
@@ -64,5 +68,10 @@ class LayerNestedObject {
   @Nullable
   public Map<String, FormNestedObject> getForms() {
     return forms;
+  }
+
+  @Nullable
+  public List<String> getContributorsCanAdd() {
+    return contributorsCanAdd;
   }
 }
