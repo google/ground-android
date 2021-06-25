@@ -51,40 +51,5 @@
       app:layout_constraintStart_toStartOf="parent"
       app:layout_constraintTop_toBottomOf="@+id/sync_status_toolbar" />
 
-    <!--    <com.google.android.material.chip.Chip-->
-    <!--      android:id="@+id/floatingActionButton"-->
-    <!--      style="@style/ChipButton"-->
-    <!--      android:layout_width="wrap_content"-->
-    <!--      android:layout_height="wrap_content"-->
-    <!--      android:layout_marginEnd="@dimen/chip_button_margin_right"-->
-    <!--      android:layout_marginRight="@dimen/chip_button_margin_right"-->
-    <!--      android:layout_marginBottom="@dimen/map_btn_margin_bottom"-->
-    <!--      android:clickable="true"-->
-    <!--      android:contentDescription="@string/offline_base_map_selector_prompt"-->
-    <!--      android:focusable="true"-->
-    <!--      android:onClick="@{() -> viewModel.showOfflineAreaSelector()}"-->
-    <!--      android:text="@string/offline_base_map_selector_select"-->
-    <!--      app:layout_constraintBottom_toBottomOf="parent"-->
-    <!--      app:layout_constraintEnd_toEndOf="parent" />-->
-
-    <!--    <TextView-->
-    <!--      android:id="@+id/no_areas_downloaded_message"-->
-    <!--      android:layout_width="wrap_content"-->
-    <!--      android:layout_height="wrap_content"-->
-    <!--      android:layout_marginEnd="@dimen/chip_button_margin_right"-->
-    <!--      android:layout_marginRight="@dimen/chip_button_margin_right"-->
-    <!--      android:layout_marginBottom="@dimen/map_btn_margin_bottom"-->
-    <!--      android:clickable="false"-->
-    <!--      android:contentDescription="@string/offline_base_map_selector_prompt"-->
-    <!--      android:focusable="true"-->
-    <!--      android:onClick="@{() -> viewModel.showOfflineAreaSelector()}"-->
-    <!--      android:text="@string/no_basemaps_downloaded"-->
-    <!--      android:visibility="@{viewModel.noAreasMessageVisibility}"-->
-    <!--      app:layout_constraintBottom_toBottomOf="parent"-->
-    <!--      app:layout_constraintEnd_toEndOf="parent"-->
-    <!--      app:layout_constraintHorizontal_bias="0.5"-->
-    <!--      app:layout_constraintStart_toStartOf="parent"-->
-    <!--      app:layout_constraintTop_toTopOf="parent" />-->
-
   </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
