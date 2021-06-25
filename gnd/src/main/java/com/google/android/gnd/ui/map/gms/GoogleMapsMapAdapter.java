@@ -156,6 +156,7 @@ class GoogleMapsMapAdapter implements MapAdapter {
     map.setOnCameraIdleListener(this::onCameraIdle);
     map.setOnCameraMoveStartedListener(this::onCameraMoveStarted);
     map.setOnCameraMoveListener(this::onCameraMove);
+    map.setOnMapClickListener(this::onMapClick);
     onCameraMove();
   }
 
@@ -332,7 +333,6 @@ class GoogleMapsMapAdapter implements MapAdapter {
       updateGeoJsonPolygonBoundaries(geoJsonFeature, mapFeature);
     }
 
-    map.setOnMapClickListener(this::onMapClick);
     geoJsonLayers.add(layer);
   }
 
